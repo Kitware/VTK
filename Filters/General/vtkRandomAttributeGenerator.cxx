@@ -14,27 +14,30 @@
 =========================================================================*/
 #include "vtkRandomAttributeGenerator.h"
 
-#include "vtkDataSet.h"
-#include "vtkPointData.h"
+#include "vtkBitArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
-
-#include "vtkBitArray.h"
-#include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
 #include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkShortArray.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkRandomAttributeGenerator);
 
@@ -62,41 +65,101 @@ vtkRandomAttributeGenerator::vtkRandomAttributeGenerator()
   this->GenerateCellArray = 0;
 
   this->GenerateFieldArray = 0;
+  this->AttributesConstantPerBlock = false;
+}
+
+// ----------------------------------------------------------------------------
+template <class T>
+void GenerateRandomTuple (T *data,
+                          vtkIdType i,
+                          int numComp,
+                          int minComp,
+                          int maxComp,
+                          double min,
+                          double max)
+{
+  for ( int comp=minComp; comp <= maxComp; comp++ )
+    {
+    // Now generate a random component value
+    data[i*numComp + comp] = static_cast<T>(vtkMath::Random(min,max));
+    }
+}
+
+// ----------------------------------------------------------------------------
+void GenerateRandomTupleBit (vtkDataArray* data,
+                             vtkIdType i,
+                             int minComp,
+                             int maxComp)
+{
+  for ( int comp=minComp; comp <= maxComp; comp++ )
+    {
+    // Now generate a random component value
+    data->SetComponent(i,comp,
+                       vtkMath::Random(0.0,1.0)<0.5?0:1);
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+template <class T>
+void CopyTupleFrom0 (T *data,
+                     vtkIdType i,
+                     int numComp,
+                     int minComp,
+                     int maxComp)
+{
+  memcpy(data + i * numComp + minComp, data + minComp,
+         (maxComp - minComp + 1) * sizeof (T));
+}
+// ----------------------------------------------------------------------------
+void CopyTupleFrom0Bit (vtkDataArray* data,
+                        vtkIdType i,
+                        int minComp,
+                        int maxComp)
+{
+  for ( int comp=minComp; comp <= maxComp; comp++ )
+    {
+    data->SetComponent(i, comp, data->GetComponent(0, comp));
+    }
 }
 
 // ----------------------------------------------------------------------------
 // This function template creates random attributes within a given range. It is
 // assumed that the input data array may have a variable number of components.
 template <class T>
-void vtkRandomAttributeGeneratorExecute(vtkRandomAttributeGenerator *self,
-                                        T *data,
-                                        vtkIdType numTuples,
-                                        int numComp,
-                                        int minComp,
-                                        int maxComp,
-                                        double min,
-                                        double max)
+void vtkRandomAttributeGenerator::GenerateRandomTuples(T *data,
+                                                       vtkIdType numTuples,
+                                                       int numComp,
+                                                       int minComp,
+                                                       int maxComp,
+                                                       double min,
+                                                       double max)
 {
+  if (numTuples == 0)
+    return;
   vtkIdType total = numComp * numTuples;
   vtkIdType tenth = total/10 + 1;
-  for ( vtkIdType i=0; i < numTuples; i++ )
+  GenerateRandomTuple(data, 0, numComp, minComp, maxComp, min, max);
+  for ( vtkIdType i=1; i < numTuples; i++ )
     {
-    for ( int comp=minComp; comp <= maxComp; comp++ )
+    // update progess and check for aborts
+    if ( ! (i % tenth) )
       {
-      // update progess and check for aborts
-      if ( ! (i % tenth) )
+      this->UpdateProgress(static_cast<double>(i)/total);
+      if ( this->GetAbortExecute() )
         {
-        self->UpdateProgress(static_cast<double>(i)/total);
-        if ( self->GetAbortExecute() )
-          {
-          break;
-          }
+        break;
         }
-
-      // Now generate a random component value
-      data[i*numComp + comp] = static_cast<T>(vtkMath::Random(min,max));
-      }//for each component
-    }//for each tuple
+      }
+    if (this->AttributesConstantPerBlock)
+      {
+      CopyTupleFrom0 (data, i, numComp, minComp, maxComp);
+      }
+    else
+      {
+      GenerateRandomTuple (data, i, numComp, minComp, maxComp, min, max);
+      }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -119,8 +182,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
       char *data = static_cast<vtkCharArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this,data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_UNSIGNED_CHAR:
@@ -130,8 +193,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfTuples(numTuples);
       unsigned char *data=
         static_cast<vtkUnsignedCharArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_SHORT:
@@ -140,8 +203,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
       short *data = static_cast<vtkShortArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_UNSIGNED_SHORT:
@@ -151,8 +214,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfTuples(numTuples);
       unsigned short *data=
         static_cast<vtkUnsignedShortArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_INT:
@@ -161,8 +224,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
       int *data = static_cast<vtkIntArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_UNSIGNED_INT:
@@ -172,8 +235,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfTuples(numTuples);
       unsigned int *data =
         static_cast<vtkUnsignedIntArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_LONG:
@@ -182,8 +245,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
       long *data = static_cast<vtkLongArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_UNSIGNED_LONG:
@@ -193,8 +256,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfTuples(numTuples);
       unsigned long *data =
         static_cast<vtkUnsignedLongArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_FLOAT:
@@ -203,8 +266,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
       float *data = static_cast<vtkFloatArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_DOUBLE:
@@ -213,8 +276,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
       double *data = static_cast<vtkDoubleArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_ID_TYPE:
@@ -223,8 +286,8 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
       vtkIdType *data = static_cast<vtkIdTypeArray*>(dataArray)->GetPointer(0);
-      vtkRandomAttributeGeneratorExecute(this, data,numTuples,numComp,
-                                         minComp,maxComp,min,max);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
       }
       break;
     case VTK_BIT: //we'll do something special for bit arrays
@@ -234,25 +297,29 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray = vtkBitArray::New();
       dataArray->SetNumberOfComponents(numComp);
       dataArray->SetNumberOfTuples(numTuples);
-      for ( vtkIdType i=0; i < numTuples; i++ )
+      if (numTuples == 0)
+        break;
+      GenerateRandomTupleBit (dataArray, 0, minComp, maxComp);
+      for ( vtkIdType i=1; i < numTuples; i++ )
         {
-        for ( int comp=minComp; comp <= maxComp; comp++ )
+        // update progess and check for aborts
+        if ( ! (i % tenth) )
           {
-          // update progess and check for aborts
-          if ( ! (i % tenth) )
+          this->UpdateProgress(static_cast<double>(i)/total);
+          if ( this->GetAbortExecute() )
             {
-            this->UpdateProgress(static_cast<double>(i)/total);
-            if ( this->GetAbortExecute() )
-              {
-              break;
-              }
+            break;
             }
-
-          // Now generate a random component value
-          dataArray->SetComponent(i,comp,
-                                  vtkMath::Random(0.0,1.0)<0.5?0:1);
-          }//for each component
-        }//for each tuple
+          }
+        if (this->AttributesConstantPerBlock)
+          {
+          CopyTupleFrom0Bit (dataArray, i, minComp, maxComp);
+          }
+        else
+          {
+          GenerateRandomTupleBit (dataArray, i, minComp, maxComp);
+          }
+        }
       }
       break;
 
@@ -265,23 +332,34 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
 
 // ----------------------------------------------------------------------------
 int vtkRandomAttributeGenerator::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkCompositeDataSet *input,
+  vtkCompositeDataSet *output)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  if (input == 0 || output == 0)
+    {
+    return 0;
+    }
+  output->CopyStructure(input);
 
-  // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkSmartPointer<vtkCompositeDataIterator> it;
+  it.TakeReference (input->NewIterator());
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+    {
+    vtkDataSet* inputDS = vtkDataSet::SafeDownCast(it->GetCurrentDataObject());
+    vtkSmartPointer<vtkDataSet> outputDS;
+    outputDS.TakeReference(inputDS->NewInstance ());
+    output->SetDataSet (it, outputDS);
+    RequestData (inputDS, outputDS);
+    }
+  return 1;
+}
 
-  // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
 
+// ----------------------------------------------------------------------------
+int vtkRandomAttributeGenerator::RequestData(
+  vtkDataSet *input,
+  vtkDataSet *output)
+{
   vtkDebugMacro(<< "Producing random attributes");
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
@@ -376,6 +454,14 @@ int vtkRandomAttributeGenerator::RequestData(
     ptScalars->Delete();
     }
 
+
+  if ( numCells < 1 )
+    {
+    vtkDebugMacro(<< "No input!");
+    return 1;
+    }
+
+
   // Now the cell data
   if ( this->GenerateCellScalars)
     {
@@ -467,8 +553,34 @@ int vtkRandomAttributeGenerator::RequestData(
     output->GetFieldData()->AddArray(data);
     data->Delete();
     }
-
   return 1;
+}
+
+// ----------------------------------------------------------------------------
+int vtkRandomAttributeGenerator::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+
+  // get the input and output
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  if (input->IsA ("vtkDataSet"))
+    {
+    return this->RequestData (vtkDataSet::SafeDownCast (input),
+                              vtkDataSet::SafeDownCast (output));
+    }
+  else
+    {
+    return this->RequestData (vtkCompositeDataSet::SafeDownCast (input),
+                              vtkCompositeDataSet::SafeDownCast (output));
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -512,4 +624,12 @@ void vtkRandomAttributeGenerator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Field Array: "
      << (this->GenerateFieldArray ? "On\n" : "Off\n");
+}
+
+int vtkRandomAttributeGenerator::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  return 1;
 }

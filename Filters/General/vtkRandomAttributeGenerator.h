@@ -47,16 +47,19 @@
 #define __vtkRandomAttributeGenerator_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkDataSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkRandomAttributeGenerator : public vtkDataSetAlgorithm
+class vtkDataSet;
+class vtkCompositeDataSet;
+
+class VTKFILTERSGENERAL_EXPORT vtkRandomAttributeGenerator : public vtkPassInputTypeAlgorithm
 {
 public:
   // Description:
   // Create instance with minimum speed 0.0, maximum speed 1.0.
   static vtkRandomAttributeGenerator *New();
 
-  vtkTypeMacro(vtkRandomAttributeGenerator,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkRandomAttributeGenerator,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -90,7 +93,6 @@ public:
   // observed.
   vtkSetMacro(MinimumComponentValue,double);
   vtkGetMacro(MinimumComponentValue,double);
-
   void SetComponentRange (double minimumValue, double maximumValue)
     {
     this->SetMinimumComponentValue (minimumValue);
@@ -205,6 +207,15 @@ public:
   vtkBooleanMacro(GenerateFieldArray,int);
 
   // Description:
+  // Indicate that the generated attributes are
+  // constant within a block. This can be used to highlight
+  // blocks in a composite dataset.
+  vtkSetMacro(AttributesConstantPerBlock,bool);
+  vtkGetMacro(AttributesConstantPerBlock,bool);
+  vtkBooleanMacro(AttributesConstantPerBlock,bool);
+
+
+  // Description:
   // Convenience methods for generating data: all data, all point data, or all cell data.
   // For example, if all data is enabled, then all point, cell and field data is generated.
   // If all point data is enabled, then point scalars, vectors, normals, tensors, tcoords,
@@ -262,7 +273,9 @@ protected:
   vtkRandomAttributeGenerator();
   ~vtkRandomAttributeGenerator() {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   int       DataType;
   int       NumberOfComponents;
@@ -285,10 +298,22 @@ protected:
   int GenerateCellArray;
 
   int GenerateFieldArray;
+  bool AttributesConstantPerBlock;
 
   // Helper functions
   vtkDataArray *GenerateData(int dataType, vtkIdType numTuples, int numComp,
                              int minComp, int maxComp, double min, double max);
+  int RequestData(vtkDataSet *input, vtkDataSet *output);
+  int RequestData(vtkCompositeDataSet *input, vtkCompositeDataSet *output);
+  template <class T>
+    void GenerateRandomTuples(T *data,
+                              vtkIdType numTuples,
+                              int numComp,
+                              int minComp,
+                              int maxComp,
+                              double min,
+                              double max);
+
 
 private:
   vtkRandomAttributeGenerator(const vtkRandomAttributeGenerator&);  // Not implemented.
