@@ -34,7 +34,7 @@
 #include <vtksys/ios/sstream>
 
 // Reference values
-vtkIdType cardSelection[] =
+const vtkIdType cardSelection[] =
 {
   54,
   54,
