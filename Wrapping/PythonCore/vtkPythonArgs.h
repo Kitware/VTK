@@ -98,6 +98,12 @@ public:
   bool NoArgsLeft() { return (this->I >= this->N); }
 
   // Description:
+  // Get the size of an arg, if it is a sequence.
+  // If no size is available, or if the arg is out of range,
+  // then it returns 0 but doesn't set error.
+  int GetArgSize(int i);
+
+  // Description:
   // Get the next argument as a vtkObjectBase derived type.
   // It uses a C-style cast instead of a static_cast, which
   // means that it works on incomplete types, and also means

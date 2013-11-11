@@ -8,6 +8,7 @@ if(VTK_PYTHON_EXE)
     TestMutable
     TestNumpySupport
     TestOperators
+    TestPointers
     TestStrings
     TestSubClass
     TestTerminationCrash
