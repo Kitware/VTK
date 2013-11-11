@@ -2990,14 +2990,14 @@ void vtkXMLWriter::DestroyStringArray(int numStrings, char** strings)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::GetProgressRange(float* range)
+void vtkXMLWriter::GetProgressRange(float range[2])
 {
   range[0] = this->ProgressRange[0];
   range[1] = this->ProgressRange[1];
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::SetProgressRange(const float* range, int curStep, int numSteps)
+void vtkXMLWriter::SetProgressRange(const float range[2], int curStep, int numSteps)
 {
   float stepSize = (range[1] - range[0])/numSteps;
   this->ProgressRange[0] = range[0] + stepSize*curStep;
@@ -3006,7 +3006,7 @@ void vtkXMLWriter::SetProgressRange(const float* range, int curStep, int numStep
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::SetProgressRange(const float* range, int curStep,
+void vtkXMLWriter::SetProgressRange(const float range[2], int curStep,
                                     const float* fractions)
 {
   float width = range[1] - range[0];

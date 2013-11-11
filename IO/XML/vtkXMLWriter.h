@@ -420,9 +420,9 @@ protected:
 
   // The current range over which progress is moving.  This allows for
   // incrementally fine-tuned progress updates.
-  virtual void GetProgressRange(float* range);
-  virtual void SetProgressRange(const float* range, int curStep, int numSteps);
-  virtual void SetProgressRange(const float* range, int curStep, const float* fractions);
+  virtual void GetProgressRange(float range[2]);
+  virtual void SetProgressRange(const float range[2], int curStep, int numSteps);
+  virtual void SetProgressRange(const float range[2], int curStep, const float* fractions);
   virtual void SetProgressPartial(float fraction);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
