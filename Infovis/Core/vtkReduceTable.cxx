@@ -123,17 +123,13 @@ void vtkReduceTable::AccumulateIndexValues(vtkTable *input)
     {
     vtkVariant value = input->GetValue(row, this->IndexColumn);
     this->IndexValues.insert(value);
-
-    vtkIdType newRow =
-      std::distance(this->IndexValues.begin(), this->IndexValues.find(value));
-
-    std::map<vtkIdType, std::vector<vtkIdType> >::iterator itr =
-      this->NewRowToOldRowsMap.find(newRow);
+    std::map<vtkVariant, std::vector<vtkIdType> >::iterator itr =
+      this->NewRowToOldRowsMap.find(value);
     if (itr == this->NewRowToOldRowsMap.end())
       {
       std::vector<vtkIdType> v;
       v.push_back(row);
-      this->NewRowToOldRowsMap[newRow] = v;
+      this->NewRowToOldRowsMap[value] = v;
       }
     else
       {
@@ -183,14 +179,15 @@ void vtkReduceTable::PopulateDataColumn(vtkTable *input, vtkTable *output,
     {
     // look up the cells in the input table that should be represented by
     // this cell in the output table
-    std::vector<vtkIdType> oldRows = this->NewRowToOldRowsMap[row];
+    vtkVariant indexValue = output->GetValue(row, this->IndexColumn);
+    std::vector<vtkIdType> oldRows = this->NewRowToOldRowsMap[indexValue];
 
     // special case: one-to-one mapping between input table and output table
     // (no collapse necessary)
     if (oldRows.size() == 1)
       {
       output->SetValue(row, col,
-        input->GetValue(this->NewRowToOldRowsMap[row].at(0), col));
+        input->GetValue(this->NewRowToOldRowsMap[indexValue].at(0), col));
       continue;
       }
 

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkReduceTable - combine two tables
+// .NAME vtkReduceTable - combine some of the rows of a table
 //
 // .SECTION Description
 // Collapses the rows of the input table so that one particular
@@ -142,7 +142,7 @@ protected:
 
   vtkIdType IndexColumn;
   std::set<vtkVariant> IndexValues;
-  std::map<vtkIdType, std::vector<vtkIdType> > NewRowToOldRowsMap;
+  std::map<vtkVariant, std::vector<vtkIdType> > NewRowToOldRowsMap;
   std::map<vtkIdType, int> ColumnReductionMethods;
 
   int NumericalReductionMethod;

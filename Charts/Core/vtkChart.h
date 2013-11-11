@@ -302,6 +302,11 @@ protected:
                               vtkTransform2D *transform);
 
   // Description:
+  // Calculate the unshifted, and unscaled plot transform for the x and y axis.
+  bool CalculateUnscaledPlotTransform(vtkAxis *x, vtkAxis *y,
+                                      vtkTransform2D *transform);
+
+  // Description:
   // Attach axis range listener so we can forward those events at the chart level
   void AttachAxisRangeListener(vtkAxis*);
 
