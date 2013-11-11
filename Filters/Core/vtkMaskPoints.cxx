@@ -319,6 +319,13 @@ int vtkMaskPoints::RequestData(
   vtkIdType ptId, id = 0;
   vtkPointData *outputPD = output->GetPointData();
   vtkIdType numPts = input->GetNumberOfPoints();
+
+  if(numPts < 1)
+    {
+    vtkErrorMacro(<<"No points to mask");
+    return 1;
+    }
+
   int abort = 0;
 
   // figure out how many sample points per process
@@ -351,6 +358,10 @@ int vtkMaskPoints::RequestData(
     if(inputPointSet)
       {
       newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    else
+      {
+      newPts->SetDataType(VTK_FLOAT);
       }
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
@@ -490,6 +501,10 @@ int vtkMaskPoints::RequestData(
         if(inputPointSet)
           {
           pointCopy->SetDataType(inputPointSet->GetPoints()->GetDataType());
+          }
+        else
+          {
+          pointCopy->SetDataType(VTK_FLOAT);
           }
         }
       else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)

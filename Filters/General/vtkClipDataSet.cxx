@@ -288,6 +288,10 @@ int vtkClipDataSet::RequestData(
       {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
       }
+    else
+      {
+      newPoints->SetDataType(VTK_FLOAT);
+      }
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
     {

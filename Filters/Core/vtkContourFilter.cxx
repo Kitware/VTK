@@ -460,6 +460,10 @@ int vtkContourFilter::RequestData(
         {
         newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
         }
+      else
+        {
+        newPts->SetDataType(VTK_FLOAT);
+        }
       }
     else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
       {

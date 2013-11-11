@@ -472,6 +472,10 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
       {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
       }
+    else
+      {
+      newPoints->SetDataType(VTK_FLOAT);
+      }
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
     {
@@ -717,6 +721,10 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
     if(inputPointSet)
       {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    else
+      {
+      newPoints->SetDataType(VTK_FLOAT);
       }
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
