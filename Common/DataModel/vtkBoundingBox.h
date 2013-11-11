@@ -33,7 +33,7 @@ public:
   // Construct a bounding box with the min point set to
   // VTK_DOUBLE_MAX and the max point set to VTK_DOUBLE_MIN
   vtkBoundingBox();
-  vtkBoundingBox(double bounds[6]);
+  vtkBoundingBox(const double bounds[6]);
   vtkBoundingBox(double xMin, double xMax,
                  double yMin, double yMax,
                  double zMin, double zMax);
@@ -271,7 +271,7 @@ inline vtkBoundingBox::vtkBoundingBox()
   this->Reset();
 }
 
-inline vtkBoundingBox::vtkBoundingBox(double bounds[6])
+inline vtkBoundingBox::vtkBoundingBox(const double bounds[6])
 {
   this->Reset();
   this->SetBounds(bounds);
