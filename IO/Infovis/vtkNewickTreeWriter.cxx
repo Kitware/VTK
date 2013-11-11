@@ -31,8 +31,6 @@ vtkNewickTreeWriter::vtkNewickTreeWriter()
 
   this->EdgeWeightArray = NULL;
   this->NodeNameArray = NULL;
-
-  this->HaveWeights = false;
 }
 
 //----------------------------------------------------------------------------
@@ -113,19 +111,7 @@ void vtkNewickTreeWriter::WriteVertex(ostream *fp, vtkTree* const input,
       if (edge != -1)
         {
         double weight = this->EdgeWeightArray->GetVariantValue(edge).ToDouble();
-
-        // If vtkNewickTreeReader reads a tree with no edge weights, it sets all
-        // the weights in the output vtkTree to 1.0.  The HaveWeights boolean is
-        // used here to output a Newick tree with no weights specified in this
-        // case.
-        if (!this->HaveWeights && weight != 1.0)
-          {
-          this->HaveWeights = true;
-          }
-        if (this->HaveWeights)
-          {
-          *fp << ":" << weight;
-          }
+        *fp << ":" << weight;
         }
       }
     }

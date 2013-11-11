@@ -75,8 +75,6 @@ protected:
   vtkAbstractArray *EdgeWeightArray;
   vtkAbstractArray *NodeNameArray;
 
-  bool HaveWeights;
-
 private:
   vtkNewickTreeWriter(const vtkNewickTreeWriter&);  // Not implemented.
   void operator=(const vtkNewickTreeWriter&);  // Not implemented.

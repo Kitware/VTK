@@ -121,6 +121,14 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
   this->BuildTree(const_cast<char*> (buffer), builder.GetPointer(), weights.GetPointer(),
     names.GetPointer(), -1);
 
+  builder->GetVertexData()->AddArray(names.GetPointer());
+
+  if (!tree.CheckedShallowCopy(builder.GetPointer()))
+    {
+    vtkErrorMacro(<<"Edges do not create a valid tree.");
+    return 1;
+    }
+
   // check if our input file contained edge weight information
   bool haveWeights = false;
   for (vtkIdType i = 0; i < weights->GetNumberOfTuples(); ++i)
@@ -131,20 +139,12 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
       break;
       }
     }
-  // if not, make it so each edge has a weight of 1.0.
   if (!haveWeights)
     {
-    weights->FillComponent(0, 1.0);
-    }
-
-  builder->GetEdgeData()->AddArray(weights.GetPointer());
-  builder->GetVertexData()->AddArray(names.GetPointer());
-
-  if (!tree.CheckedShallowCopy(builder.GetPointer()))
-    {
-    vtkErrorMacro(<<"Edges do not create a valid tree.");
     return 1;
     }
+
+  tree.GetEdgeData()->AddArray(weights.GetPointer());
 
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(tree.GetNumberOfVertices());
