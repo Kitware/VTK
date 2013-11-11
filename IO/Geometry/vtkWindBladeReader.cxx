@@ -1456,7 +1456,7 @@ void vtkWindBladeReader::InitPressureData(int pressure, int prespre,
 
 //----------------------------------------------------------------------------
 void vtkWindBladeReader::SetUpPressureData(float* pressureData, float* prespreData,
-                                           float* tempgData, float* densityData)
+                                           const float* tempgData, const float* densityData)
 {
   // Entire block of data is read so to calculate index into that data we
   // must use the entire Dimension and not the SubDimension
@@ -1497,7 +1497,7 @@ void vtkWindBladeReader::SetUpPressureData(float* pressureData, float* prespreDa
 
 //----------------------------------------------------------------------------
 void vtkWindBladeReader::SetUpVorticityData(float* uData, float* vData,
-                                            float *densityData, float* vortData)
+                                            const float *densityData, float* vortData)
 {
   // Divide U and V components by Density
   for (unsigned int i = 0; i < this->BlockSize; i++)

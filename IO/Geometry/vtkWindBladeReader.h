@@ -218,8 +218,8 @@ protected:
   void InitPressureData(int pressure, int prespre,
                         float *&pressureData, float *&prespreData);
   void SetUpPressureData(float* pressureData, float* prespreData,
-                         float* tempgData, float* densityData);
-  void SetUpVorticityData(float* uData, float* vData, float *densityData,
+                         const float* tempgData, const float* densityData);
+  void SetUpVorticityData(float* uData, float* vData, const float *densityData,
                           float* vortData);
   void InitVariableData(int var, int &numberOfComponents, float *&varData,
                         int &planeSize, int &rowSize);

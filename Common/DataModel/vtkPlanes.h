@@ -79,7 +79,7 @@ public:
   // An alternative method to specify six planes defined by a bounding box.
   // The bounding box is a six-vector defined as (xmin,xmax,ymin,ymax,zmin,zmax).
   // It defines six planes orthogonal to the x-y-z coordinate axes.
-  void SetBounds(double bounds[6]);
+  void SetBounds(const double bounds[6]);
   void SetBounds(double xmin, double xmax, double ymin, double ymax,
                  double zmin, double zmax);
 
