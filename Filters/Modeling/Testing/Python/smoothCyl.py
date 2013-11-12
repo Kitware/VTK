@@ -72,7 +72,7 @@ cylActor.GetProperty().SetColor(GetRGBColor('tomato'))
 # Add the actors to the renderer, set the background and size
 #
 ren1.AddActor(cylActor)
-# ren1 AddActor originalActor
+# ren1.AddActor(originalActor)
 ren1.SetBackground(1, 1, 1)
 
 renWin.SetSize(200, 300)
