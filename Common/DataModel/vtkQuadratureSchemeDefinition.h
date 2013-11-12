@@ -139,7 +139,7 @@ private:
   vtkQuadratureSchemeDefinition(const vtkQuadratureSchemeDefinition &); // Not implemented.
   void operator=(const vtkQuadratureSchemeDefinition &); // Not implemented.
   friend ostream &operator<<(ostream &s, const vtkQuadratureSchemeDefinition &d);
-  friend istream &operator>>(istream &s, const vtkQuadratureSchemeDefinition &d);
+  friend istream &operator>>(istream &s, vtkQuadratureSchemeDefinition &d);
   //
   int CellType;
   int QuadratureKey;

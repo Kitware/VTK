@@ -34,7 +34,7 @@
 #include <vtksys/ios/sstream>
 
 // Reference values
-vtkIdType cardCellDistanceSelection3D[] =
+const vtkIdType cardCellDistanceSelection3D[] =
 {
   125,
   16,

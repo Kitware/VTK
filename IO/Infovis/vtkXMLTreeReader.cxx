@@ -87,7 +87,7 @@ void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->GenerateVertexPedigreeIds ? "on" : "off") << endl;
 }
 
-void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
+static void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
    vtkIdType parent, xmlNode *node, int readCharData, int maskArrays)
 {
   vtkDataSetAttributes *data = tree->GetVertexData();

@@ -54,7 +54,7 @@
 #include <vector>
 
 //---------------------------------------------------------------------------
-char TestCellCentersPointPlacerEventLog[] =
+const char TestCellCentersPointPlacerEventLog[] =
 "# StreamVersion 1\n"
 "EnterEvent 384 226 0 0 0 0 0\n"
 "MouseMoveEvent 384 226 0 0 0 0 0\n"

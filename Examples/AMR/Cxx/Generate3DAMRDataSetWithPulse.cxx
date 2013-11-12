@@ -41,7 +41,7 @@
 #include "vtkAMRBox.h"
 #include "AMRCommon.h"
 
-struct PulseAttributes {
+static struct PulseAttributes {
   double origin[3]; // xyz for the center of the pulse
   double width[3];  // the width of the pulse
   double amplitude; // the amplitude of the pulse

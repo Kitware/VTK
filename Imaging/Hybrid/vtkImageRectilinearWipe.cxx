@@ -94,7 +94,7 @@ void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe *self,
 
 //----------------------------------------------------------------------------
 // This function adjusts the extents of the wipe to the output extents.
-int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
+static int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
 {
   int status = 1;
 

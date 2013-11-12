@@ -37,7 +37,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetEvent.h"
 
-char TestSliderWidget2DEventLog[] =
+const char TestSliderWidget2DEventLog[] =
   "# StreamVersion 1\n"
   "EnterEvent 285 73 0 0 0 0 0\n"
   "MouseMoveEvent 265 83 0 0 0 0 0\n"

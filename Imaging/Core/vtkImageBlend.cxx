@@ -547,8 +547,8 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
 //----------------------------------------------------------------------------
 // This function simply does a copy (for the first input)
 //----------------------------------------------------------------------------
-void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
-                           int *ext)
+static void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
+                                  int *ext)
 {
   int idxY, idxZ, maxY, maxZ;
   vtkIdType inIncX, inIncY, inIncZ;

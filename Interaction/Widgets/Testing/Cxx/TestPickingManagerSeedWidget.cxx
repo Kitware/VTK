@@ -73,7 +73,7 @@
 #include <fstream>
 #include <list>
 
-char eventLogTestPickingManagerSeedWidget[] =
+const char eventLogTestPickingManagerSeedWidget[] =
   "# StreamVersion 1 \n"
   "EnterEvent 570 160 0 0 0 0 0 i\n"
   "MouseMoveEvent 570 160 0 0 0 0 0 i\n"

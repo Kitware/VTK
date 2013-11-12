@@ -34,7 +34,7 @@
 
 #include "vtkTestUtilities.h"
 
-char PointWidgetEventLog[] =
+const char PointWidgetEventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 204 169 0 0 105 1 i\n"
   "KeyReleaseEvent 204 169 0 0 105 1 i\n"

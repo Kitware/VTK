@@ -199,9 +199,9 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriterWriteBinaryDataBlocks(
-    vtkXMLWriter* writer, vtkArrayIteratorTemplate<vtkStdString>* iter,
-    int wordType, size_t outWordSize, size_t numStrings, int)
+static int vtkXMLWriterWriteBinaryDataBlocks(
+           vtkXMLWriter* writer, vtkArrayIteratorTemplate<vtkStdString>* iter,
+           int wordType, size_t outWordSize, size_t numStrings, int)
 {
   vtkXMLWriterHelper::SetProgressPartial(writer, 0);
   vtkStdString::value_type* allocated_buffer = 0;

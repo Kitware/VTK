@@ -1121,7 +1121,7 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
 
 // Those two functions are part of OpenGL2.0 but don't have direct
 // translation in the GL_ARB_shader_objects extension
-GLboolean IsProgramFromARBToPromoted(GLuint program)
+static GLboolean IsProgramFromARBToPromoted(GLuint program)
 {
   GLint param;
   // in this case, vtkgl::GetProgramiv has been initialized with the pointer to
@@ -1131,7 +1131,7 @@ GLboolean IsProgramFromARBToPromoted(GLuint program)
   return param == static_cast<GLint>(vtkgl::PROGRAM_OBJECT_ARB);
 }
 
-GLboolean IsShaderFromARBToPromoted(GLuint shader)
+static GLboolean IsShaderFromARBToPromoted(GLuint shader)
 {
   GLint param;
   // in this case, vtkgl::GetShaderiv has been initialized with the pointer to

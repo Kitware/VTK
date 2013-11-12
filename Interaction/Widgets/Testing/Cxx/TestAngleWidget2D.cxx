@@ -34,7 +34,7 @@
 #include "vtkProperty2D.h"
 #include "vtkTesting.h"
 
-char TestAngleWidget2DEventLog[] =
+const char TestAngleWidget2DEventLog[] =
   "# StreamVersion 1\n"
   "EnterEvent 185 1 0 0 0 0 0\n"
   "MouseMoveEvent 179 19 0 0 0 0 0\n"

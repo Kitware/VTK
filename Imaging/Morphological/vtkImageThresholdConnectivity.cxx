@@ -286,7 +286,7 @@ void vtkImageThresholdConnectivityValues(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageThresholdConnectivityApplyStencil(
+static void vtkImageThresholdConnectivityApplyStencil(
   vtkImageData *maskData, vtkImageStencilData *stencil, int extent[6])
 {
   vtkImageStencilIterator<unsigned char> iter(maskData, stencil, extent);

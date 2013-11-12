@@ -125,7 +125,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
 // the ThreadedExecute method after setting the correct
 // extent for this thread. Its just a pain to calculate
 // the correct extent.
-VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
+static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
 {
   vtkImageThreadStruct *str;
   int ext[6], splitExt[6], total;

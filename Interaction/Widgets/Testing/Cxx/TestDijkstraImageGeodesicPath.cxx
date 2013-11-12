@@ -36,7 +36,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
 
-char TestDijkstraImageGeodesicPathLog[] =
+const char TestDijkstraImageGeodesicPathLog[] =
   "# StreamVersion 1 i\n"
   "RenderEvent 0 0 0 0 0 0 0 i\n"
   "EnterEvent 399 96 0 0 0 0 0 i\n"

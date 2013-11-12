@@ -40,7 +40,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char TestDistanceWidget3DEventLog[] =
+const char TestDistanceWidget3DEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 292 123 0 0 0 0 0\n"

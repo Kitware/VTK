@@ -123,8 +123,8 @@ void vtkTransformToGrid::RequestInformation (
 // Return the maximum absolute displacement of the transform over
 // the entire grid extent -- this is extremely robust and extremely
 // inefficient, it should be possible to do much better than this.
-void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
-                              double &minDisplacement, double &maxDisplacement)
+static void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
+                                     double &minDisplacement, double &maxDisplacement)
 {
   vtkAbstractTransform *transform = self->GetInput();
   transform->Update();

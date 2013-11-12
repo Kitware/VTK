@@ -56,7 +56,7 @@ vtkDirectedAcyclicGraph *vtkDirectedAcyclicGraph::GetData(vtkInformationVector *
 enum { DFS_WHITE, DFS_GRAY, DFS_BLACK };
 
 //----------------------------------------------------------------------------
-bool vtkDirectedAcyclicGraphDFSVisit(
+static bool vtkDirectedAcyclicGraphDFSVisit(
   vtkGraph *g,
   vtkIdType u,
   vtksys_stl::vector<int> color,

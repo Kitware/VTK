@@ -41,7 +41,7 @@
 #include "vtkWidgetEvent.h"
 
 
-char TestSliderWidgetEventLog[] =
+const char TestSliderWidgetEventLog[] =
   "# StreamVersion 1\n"
   "EnterEvent 294 33 0 0 0 0 0\n"
   "MouseMoveEvent 286 41 0 0 0 0 0\n"
