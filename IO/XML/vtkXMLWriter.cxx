@@ -1215,6 +1215,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
         }
       aiter->Delete();
       }
+      break;
     default:
       vtkWarningMacro("Cannot write binary data of type : " << wordType);
       ret = 0;
