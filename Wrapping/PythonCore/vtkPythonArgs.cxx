@@ -576,8 +576,7 @@ bool vtkPythonGetArray(PyObject *o, T *a, int n)
     return vtkPythonSequenceError(o, n, m);
     }
 
-  // NULL is allowed if we're expecting a size of 0.
-  return (n == 0);
+  return true;
 }
 
 //--------------------------------------------------------------------
@@ -1355,4 +1354,20 @@ bool vtkPythonSequenceError(PyObject *o, Py_ssize_t n, Py_ssize_t m)
     }
   PyErr_SetString(PyExc_TypeError, text);
   return false;
+}
+
+//--------------------------------------------------------------------
+// Checking size of array arg.
+int vtkPythonArgs::GetArgSize(int i)
+{
+  int size = 0;
+  if (this->M + i < this->N)
+    {
+    PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
+    if (PySequence_Check(o))
+      {
+      size = static_cast<int>(PySequence_Size(o));
+      }
+    }
+  return size;
 }

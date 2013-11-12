@@ -67,7 +67,9 @@ int vtkWrap_IsCharPointer(ValueInfo *val)
 
 int vtkWrap_IsPODPointer(ValueInfo *val)
 {
-  return (vtkWrap_IsNumeric(val) && vtkWrap_IsPointer(val));
+  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
+  return (t != VTK_PARSE_CHAR && vtkWrap_IsNumeric(val) &&
+          vtkWrap_IsPointer(val));
 }
 
 int vtkWrap_IsVTKObject(ValueInfo *val)
@@ -1022,12 +1024,12 @@ void vtkWrap_DeclareVariableSize(
 
     fprintf(fp, " };\n");
     }
-  else if (val->Count != 0 || val->CountHint)
+  else if (val->Count != 0 || val->CountHint || vtkWrap_IsPODPointer(val))
     {
     fprintf(fp,
             "  %sint %s%s = %d;\n",
-            (val->CountHint ? "" : "const "), name, idx,
-            (val->CountHint ? 0 : val->Count));
+            (val->Count == 0 ? "" : "const "), name, idx,
+            (val->Count == 0 ? 0 : val->Count));
     }
   else if (val->NumberOfDimensions == 1)
     {
