@@ -133,7 +133,7 @@ public:
   // Description:
   // Make the window current. May be overridden in subclasses to do
   // for example a glXMakeCurrent or a wglMakeCurrent.
-  virtual void MakeCurrent() {};
+  virtual void MakeCurrent() {}
 
   // Description:
   // These methods are used by vtkWindowToImageFilter to tell a VTK window

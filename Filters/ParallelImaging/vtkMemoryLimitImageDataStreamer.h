@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkMemoryLimitImageDataStreamer();
-  ~vtkMemoryLimitImageDataStreamer() {};
+  ~vtkMemoryLimitImageDataStreamer() {}
 
   unsigned long  MemoryLimit;
 private:

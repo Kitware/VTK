@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkImageRGBToHSI();
-  ~vtkImageRGBToHSI() {};
+  ~vtkImageRGBToHSI() {}
 
   double Maximum;
 

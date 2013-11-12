@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkSuperquadric();
-  ~vtkSuperquadric() {};
+  ~vtkSuperquadric() {}
 
   int Toroidal;
   double Thickness;

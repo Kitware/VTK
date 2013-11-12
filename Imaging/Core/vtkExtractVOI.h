@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkExtractVOI();
-  ~vtkExtractVOI() {};
+  ~vtkExtractVOI() {}
 
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,

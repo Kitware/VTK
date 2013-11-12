@@ -57,8 +57,8 @@ public:
   //ETX
 
 protected:
-  vtkObjectFactoryCollection() {};
-  ~vtkObjectFactoryCollection() {};
+  vtkObjectFactoryCollection() {}
+  ~vtkObjectFactoryCollection() {}
 
 
 private:

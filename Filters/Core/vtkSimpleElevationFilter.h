@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkSimpleElevationFilter();
-  ~vtkSimpleElevationFilter() {};
+  ~vtkSimpleElevationFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Vector[3];

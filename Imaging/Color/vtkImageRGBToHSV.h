@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkImageRGBToHSV();
-  ~vtkImageRGBToHSV() {};
+  ~vtkImageRGBToHSV() {}
 
   double Maximum;
 

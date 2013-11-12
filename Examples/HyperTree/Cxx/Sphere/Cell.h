@@ -25,7 +25,7 @@ class Cell
       bool isRefined () {return _refined;}
       int getId () {return _id;}
       vtkIdType * getNodeIds();
-      void setNeighbours(int idx1, int idx2, int idy1, int idy2, int idz1, int idz2) {};
+      void setNeighbours(int idx1, int idx2, int idy1, int idy2, int idz1, int idz2) {}
 
       void refine ();
       void refineIfNeeded();

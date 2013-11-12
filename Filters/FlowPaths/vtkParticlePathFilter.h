@@ -32,7 +32,7 @@
 class VTKFILTERSFLOWPATHS_EXPORT ParticlePathFilterInternal
 {
  public:
-  ParticlePathFilterInternal():Filter(NULL){};
+  ParticlePathFilterInternal():Filter(NULL){}
   void Initialize(vtkParticleTracerBase* filter);
   virtual ~ParticlePathFilterInternal(){}
   virtual int OutputParticles(vtkPolyData* poly);

@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkExtractUnstructuredGridPiece();
-  ~vtkExtractUnstructuredGridPiece() {};
+  ~vtkExtractUnstructuredGridPiece() {}
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

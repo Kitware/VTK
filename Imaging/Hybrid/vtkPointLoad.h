@@ -71,14 +71,14 @@ public:
   // Description:
   // Turn on/off computation of effective stress scalar. These methods do
   // nothing. The effective stress is always computed.
-  void SetComputeEffectiveStress(int) {};
+  void SetComputeEffectiveStress(int) {}
   int GetComputeEffectiveStress() {return 1;};
-  void ComputeEffectiveStressOn() {};
-  void ComputeEffectiveStressOff() {};
+  void ComputeEffectiveStressOn() {}
+  void ComputeEffectiveStressOff() {}
 
 protected:
   vtkPointLoad();
-  ~vtkPointLoad() {};
+  ~vtkPointLoad() {}
 
   virtual int RequestInformation (vtkInformation *,
                                    vtkInformationVector **,

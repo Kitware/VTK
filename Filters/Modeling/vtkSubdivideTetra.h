@@ -33,7 +33,7 @@ public:
 
 protected:
   vtkSubdivideTetra();
-  ~vtkSubdivideTetra() {};
+  ~vtkSubdivideTetra() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

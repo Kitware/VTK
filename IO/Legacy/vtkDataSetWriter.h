@@ -37,8 +37,8 @@ public:
   vtkDataSet* GetInput(int port);
 
 protected:
-  vtkDataSetWriter() {};
-  ~vtkDataSetWriter() {};
+  vtkDataSetWriter() {}
+  ~vtkDataSetWriter() {}
 
   void WriteData();
 

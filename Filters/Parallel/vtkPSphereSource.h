@@ -36,8 +36,8 @@ public:
   unsigned long GetEstimatedMemorySize();
 
 protected:
-  vtkPSphereSource() {};
-  ~vtkPSphereSource() {};
+  vtkPSphereSource() {}
+  ~vtkPSphereSource() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:

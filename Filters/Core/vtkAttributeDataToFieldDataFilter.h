@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkAttributeDataToFieldDataFilter();
-  ~vtkAttributeDataToFieldDataFilter() {};
+  ~vtkAttributeDataToFieldDataFilter() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //generate output data
 

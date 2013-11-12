@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkThresholdTextureCoords();
-  ~vtkThresholdTextureCoords() {};
+  ~vtkThresholdTextureCoords() {}
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

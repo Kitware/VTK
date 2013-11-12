@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkShepardMethod();
-  ~vtkShepardMethod() {};
+  ~vtkShepardMethod() {}
 
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,

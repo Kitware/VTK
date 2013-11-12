@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkSurfaceReconstructionFilter();
-  ~vtkSurfaceReconstructionFilter() {};
+  ~vtkSurfaceReconstructionFilter() {}
 
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,

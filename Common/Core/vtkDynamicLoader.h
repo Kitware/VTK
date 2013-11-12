@@ -69,8 +69,8 @@ public:
   static const char* LastError();
 
 protected:
-  vtkDynamicLoader() {};
-  ~vtkDynamicLoader() {};
+  vtkDynamicLoader() {}
+  ~vtkDynamicLoader() {}
 
 private:
   vtkDynamicLoader(const vtkDynamicLoader&);  // Not implemented.

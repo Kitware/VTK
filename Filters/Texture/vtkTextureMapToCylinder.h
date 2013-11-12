@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkTextureMapToCylinder();
-  ~vtkTextureMapToCylinder() {};
+  ~vtkTextureMapToCylinder() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

@@ -62,8 +62,8 @@ public:
   int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); };
 
 protected:
-  vtkImageAppendComponents() {};
-  ~vtkImageAppendComponents() {};
+  vtkImageAppendComponents() {}
+  ~vtkImageAppendComponents() {}
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);

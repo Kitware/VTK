@@ -102,7 +102,7 @@ protected:
   //ETX
 
   vtkSimpleMutexLock   SimpleMutexLock;
-  vtkMutexLock() {};
+  vtkMutexLock() {}
 private:
   vtkMutexLock(const vtkMutexLock&);  // Not implemented.
   void operator=(const vtkMutexLock&);  // Not implemented.

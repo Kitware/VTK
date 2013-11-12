@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkEarthSource();
-  ~vtkEarthSource() {};
+  ~vtkEarthSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

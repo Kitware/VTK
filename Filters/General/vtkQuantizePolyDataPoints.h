@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkQuantizePolyDataPoints();
-  ~vtkQuantizePolyDataPoints() {};
+  ~vtkQuantizePolyDataPoints() {}
 
   double QFactor;
 private:

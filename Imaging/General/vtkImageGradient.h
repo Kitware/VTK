@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkImageGradient();
-  ~vtkImageGradient() {};
+  ~vtkImageGradient() {}
 
   int HandleBoundaries;
   int Dimensionality;

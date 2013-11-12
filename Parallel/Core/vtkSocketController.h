@@ -61,20 +61,20 @@ public:
 
   // Description:
   // Does not apply to sockets. Does nothing.
-  void Finalize() {};
-  void Finalize(int) {};
+  void Finalize() {}
+  void Finalize(int) {}
 
   // Description:
   //  Does not apply to sockets. Does nothing.
-  void SingleMethodExecute() {};
+  void SingleMethodExecute() {}
 
   // Description:
   //  Does not apply to sockets.  Does nothing.
-  void MultipleMethodExecute() {};
+  void MultipleMethodExecute() {}
 
   // Description:
   //  Does not apply to sockets. Does nothing.
-  void CreateOutputWindow() {};
+  void CreateOutputWindow() {}
 
   // Description:
   // Wait for connection on a given port, forwarded

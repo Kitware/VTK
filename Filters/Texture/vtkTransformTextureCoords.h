@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkTransformTextureCoords();
-  ~vtkTransformTextureCoords() {};
+  ~vtkTransformTextureCoords() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

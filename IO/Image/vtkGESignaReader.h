@@ -58,8 +58,8 @@ public:
     }
 
 protected:
-  vtkGESignaReader() {};
-  ~vtkGESignaReader() {};
+  vtkGESignaReader() {}
+  ~vtkGESignaReader() {}
 
   virtual void ExecuteInformation();
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo);

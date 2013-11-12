@@ -54,7 +54,7 @@ public:
 
 protected:
   vtkCompositeDataSetAlgorithm();
-  ~vtkCompositeDataSetAlgorithm() {};
+  ~vtkCompositeDataSetAlgorithm() {}
 
   // Description:
   // This is called by the superclass.

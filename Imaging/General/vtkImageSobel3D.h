@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkImageSobel3D();
-  ~vtkImageSobel3D() {};
+  ~vtkImageSobel3D() {}
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkImageCursor3D();
-  ~vtkImageCursor3D() {};
+  ~vtkImageCursor3D() {}
 
   double CursorPosition[3];
   double CursorValue;

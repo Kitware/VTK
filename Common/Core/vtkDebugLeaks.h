@@ -66,8 +66,8 @@ public:
   //ETX
 
 protected:
-  vtkDebugLeaks(){};
-  virtual ~vtkDebugLeaks(){};
+  vtkDebugLeaks(){}
+  virtual ~vtkDebugLeaks(){}
 
   static int DisplayMessageBox(const char*);
 
@@ -98,7 +98,7 @@ private:
 // state and accessing them may cause undefined behavior.
 class VTKCOMMONCORE_EXPORT vtkDebugLeaksObserver {
 public:
-  virtual ~vtkDebugLeaksObserver() {};
+  virtual ~vtkDebugLeaksObserver() {}
   virtual void ConstructingObject(vtkObjectBase*) = 0;
   virtual void DestructingObject(vtkObjectBase*) = 0;
 };

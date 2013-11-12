@@ -92,7 +92,7 @@ public:
 
 protected:
   vtkImageDifference();
-  ~vtkImageDifference() {};
+  ~vtkImageDifference() {}
 
   double ErrorPerThread[VTK_MAX_THREADS];
   double ThresholdedErrorPerThread[VTK_MAX_THREADS];

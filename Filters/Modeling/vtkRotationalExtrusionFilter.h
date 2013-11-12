@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkRotationalExtrusionFilter();
-  ~vtkRotationalExtrusionFilter() {};
+  ~vtkRotationalExtrusionFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int Resolution;

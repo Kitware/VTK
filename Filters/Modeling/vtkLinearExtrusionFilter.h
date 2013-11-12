@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkLinearExtrusionFilter();
-  ~vtkLinearExtrusionFilter() {};
+  ~vtkLinearExtrusionFilter() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int ExtrusionType;

@@ -189,15 +189,15 @@ public:
 
   // Description:
   // Generic event bindings can be overridden in subclasses
-  virtual void OnMouseMove() {};
-  virtual void OnLeftButtonDown() {};
-  virtual void OnLeftButtonUp() {};
-  virtual void OnMiddleButtonDown() {};
-  virtual void OnMiddleButtonUp() {};
-  virtual void OnRightButtonDown() {};
-  virtual void OnRightButtonUp() {};
-  virtual void OnMouseWheelForward() {};
-  virtual void OnMouseWheelBackward() {};
+  virtual void OnMouseMove() {}
+  virtual void OnLeftButtonDown() {}
+  virtual void OnLeftButtonUp() {}
+  virtual void OnMiddleButtonDown() {}
+  virtual void OnMiddleButtonUp() {}
+  virtual void OnRightButtonDown() {}
+  virtual void OnRightButtonUp() {}
+  virtual void OnMouseWheelForward() {}
+  virtual void OnMouseWheelBackward() {}
 
   // Description:
   // OnChar is triggered when an ASCII key is pressed. Some basic key presses
@@ -207,29 +207,29 @@ public:
   // OnKeyDown is triggered by pressing any key (identical to OnKeyPress()).
   // An empty implementation is provided. The behavior of this function should
   // be specified in the subclass.
-  virtual void OnKeyDown() {};
+  virtual void OnKeyDown() {}
 
   // OnKeyUp is triggered by releaseing any key (identical to OnKeyRelease()).
   // An empty implementation is provided. The behavior of this function should
   // be specified in the subclass.
-  virtual void OnKeyUp() {};
+  virtual void OnKeyUp() {}
 
   // OnKeyPress is triggered by pressing any key (identical to OnKeyDown()).
   // An empty implementation is provided. The behavior of this function should
   // be specified in the subclass.
-  virtual void OnKeyPress() {};
+  virtual void OnKeyPress() {}
 
   // OnKeyRelease is triggered by pressing any key (identical to OnKeyUp()).
   // An empty implementation is provided. The behavior of this function should
   // be specified in the subclass.
-  virtual void OnKeyRelease() {};
+  virtual void OnKeyRelease() {}
 
   // Description:
   // These are more esoteric events, but are useful in some cases.
-  virtual void OnExpose() {};
-  virtual void OnConfigure() {};
-  virtual void OnEnter() {};
-  virtual void OnLeave() {};
+  virtual void OnExpose() {}
+  virtual void OnConfigure() {}
+  virtual void OnEnter() {}
+  virtual void OnLeave() {}
 
   // Description:
   // OnTimer calls Rotate, Rotate etc which should be overridden by
@@ -241,12 +241,12 @@ public:
   // are overridden in subclasses to perform the correct motion. Since
   // they might be called from OnTimer, they do not have mouse coord parameters
   // (use interactor's GetEventPosition and GetLastEventPosition)
-  virtual void Rotate() {};
-  virtual void Spin() {};
-  virtual void Pan() {};
-  virtual void Dolly() {};
-  virtual void Zoom() {};
-  virtual void UniformScale() {};
+  virtual void Rotate() {}
+  virtual void Spin() {}
+  virtual void Pan() {}
+  virtual void Dolly() {}
+  virtual void Zoom() {}
+  virtual void UniformScale() {}
 
   // Description:
   // utility routines used by state changes

@@ -34,8 +34,8 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkPostScriptWriter() {};
-  ~vtkPostScriptWriter() {};
+  vtkPostScriptWriter() {}
+  ~vtkPostScriptWriter() {}
 
   virtual void WriteFile(
     ofstream *file, vtkImageData *data, int extent[6], int wExt[6]);

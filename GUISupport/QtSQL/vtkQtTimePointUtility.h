@@ -40,8 +40,8 @@ public:
   static vtkTypeUInt64 QTimeToTimePoint(QTime time);
 
 protected:
-  vtkQtTimePointUtility() {};
-  ~vtkQtTimePointUtility() {};
+  vtkQtTimePointUtility() {}
+  ~vtkQtTimePointUtility() {}
 
 private:
   vtkQtTimePointUtility(const vtkQtTimePointUtility&);  // Not implemented.

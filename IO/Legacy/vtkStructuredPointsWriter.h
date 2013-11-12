@@ -40,8 +40,8 @@ public:
   vtkImageData* GetInput(int port);
 
 protected:
-  vtkStructuredPointsWriter() {};
-  ~vtkStructuredPointsWriter() {};
+  vtkStructuredPointsWriter() {}
+  ~vtkStructuredPointsWriter() {}
 
   void WriteData();
 

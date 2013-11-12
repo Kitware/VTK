@@ -56,8 +56,8 @@ public:
                   int num, int total);
 
 protected:
-  vtkImageRFFT() {};
-  ~vtkImageRFFT() {};
+  vtkImageRFFT() {}
+  ~vtkImageRFFT() {}
 
   virtual int IterativeRequestInformation(vtkInformation* in,
                                           vtkInformation* out);

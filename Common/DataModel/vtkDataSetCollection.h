@@ -61,8 +61,8 @@ public:
   //ETX
 
 protected:
-  vtkDataSetCollection() {};
-  ~vtkDataSetCollection() {};
+  vtkDataSetCollection() {}
+  ~vtkDataSetCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

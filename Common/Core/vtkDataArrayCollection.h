@@ -57,8 +57,8 @@ public:
   //ETX
 
 protected:
-  vtkDataArrayCollection() {};
-  ~vtkDataArrayCollection() {};
+  vtkDataArrayCollection() {}
+  ~vtkDataArrayCollection() {}
 
 
 private:

@@ -106,7 +106,7 @@ public:
   vtkGetMacro(BackgroundValue, double);
 protected:
   vtkVoxelModeller();
-  ~vtkVoxelModeller() {};
+  ~vtkVoxelModeller() {}
 
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,

@@ -32,7 +32,7 @@ public:
 
 protected:
   vtkImageMagnitude();
-  ~vtkImageMagnitude() {};
+  ~vtkImageMagnitude() {}
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
                                   vtkInformationVector *);

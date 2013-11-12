@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkCylinderSource(int res=6);
-  ~vtkCylinderSource() {};
+  ~vtkCylinderSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Height;

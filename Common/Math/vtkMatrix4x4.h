@@ -183,7 +183,7 @@ public:
 
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
-  ~vtkMatrix4x4() {};
+  ~vtkMatrix4x4() {}
 
   float FloatPoint[4];
   double DoublePoint[4];

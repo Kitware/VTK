@@ -167,7 +167,7 @@ protected:
   virtual void                   GetInterfaceFaceParentsBinary();
   virtual void                   GetNonconformalGridInterfaceFaceInformationAscii();
   virtual void                   GetNonconformalGridInterfaceFaceInformationBinary();
-  virtual void                   GetPartitionInfo() {};
+  virtual void                   GetPartitionInfo() {}
   virtual void                   CleanCells();
   virtual void                   PopulateCellNodes();
   virtual int                    GetCaseBufferInt(int ptr);

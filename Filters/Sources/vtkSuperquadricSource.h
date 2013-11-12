@@ -135,7 +135,7 @@ public:
 
 protected:
   vtkSuperquadricSource(int res=16);
-  ~vtkSuperquadricSource() {};
+  ~vtkSuperquadricSource() {}
 
   int Toroidal;
   int AxisOfSymmetry;

@@ -137,7 +137,7 @@ public:
 
 protected:
   vtkPolyDataNormals();
-  ~vtkPolyDataNormals() {};
+  ~vtkPolyDataNormals() {}
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

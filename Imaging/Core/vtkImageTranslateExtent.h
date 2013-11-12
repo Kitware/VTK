@@ -37,7 +37,7 @@ public:
 
 protected:
   vtkImageTranslateExtent();
-  ~vtkImageTranslateExtent() {};
+  ~vtkImageTranslateExtent() {}
 
   int Translation[3];
 

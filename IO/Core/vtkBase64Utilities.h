@@ -99,8 +99,8 @@ public:
                               unsigned long max_input_length = 0);
 
 protected:
-  vtkBase64Utilities() {};
-  ~vtkBase64Utilities() {};
+  vtkBase64Utilities() {}
+  ~vtkBase64Utilities() {}
 
 private:
   vtkBase64Utilities(const vtkBase64Utilities&);  // Not implemented.

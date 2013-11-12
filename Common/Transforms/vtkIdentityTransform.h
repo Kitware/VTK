@@ -62,7 +62,7 @@ public:
 
   // Invert the transformation.  This doesn't do anything to the
   // identity transformation.
-  void Inverse() {};
+  void Inverse() {}
 
   // Description:
   // This will calculate the transformation without calling Update.

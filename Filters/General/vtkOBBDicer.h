@@ -47,8 +47,8 @@ public:
   static vtkOBBDicer *New();
 
 protected:
-  vtkOBBDicer() {};
-  ~vtkOBBDicer() {};
+  vtkOBBDicer() {}
+  ~vtkOBBDicer() {}
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

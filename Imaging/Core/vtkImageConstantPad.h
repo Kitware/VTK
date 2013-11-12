@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkImageConstantPad();
-  ~vtkImageConstantPad() {};
+  ~vtkImageConstantPad() {}
 
   double Constant;
 

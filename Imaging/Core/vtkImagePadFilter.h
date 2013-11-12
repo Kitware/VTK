@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkImagePadFilter();
-  ~vtkImagePadFilter() {};
+  ~vtkImagePadFilter() {}
 
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;

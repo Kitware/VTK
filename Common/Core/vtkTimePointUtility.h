@@ -149,8 +149,8 @@ public:
     vtkTypeUInt64, int format = ISO8601_DATETIME_MILLIS);
 
 protected:
-  vtkTimePointUtility() {};
-  ~vtkTimePointUtility() {};
+  vtkTimePointUtility() {}
+  ~vtkTimePointUtility() {}
 
 private:
   vtkTimePointUtility(const vtkTimePointUtility&);  // Not implemented.

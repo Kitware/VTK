@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkPassInputTypeAlgorithm();
-  ~vtkPassInputTypeAlgorithm() {};
+  ~vtkPassInputTypeAlgorithm() {}
 
   // Description:
   // This is called within ProcessRequest when a request asks for

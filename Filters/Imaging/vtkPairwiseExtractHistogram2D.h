@@ -134,7 +134,7 @@ public:
 
   // Description:
   // Given a collection of models, calculate aggregate model.  Not used
-  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {};
+  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {}
 
 protected:
   vtkPairwiseExtractHistogram2D();
@@ -160,13 +160,13 @@ protected:
 
   // Description:
   // Execute the calculations required by the Derive option. Not used.
-  virtual void Derive( vtkMultiBlockDataSet* ) {};
+  virtual void Derive( vtkMultiBlockDataSet* ) {}
 
   // Description:
   // Execute the assess option. Not implemented.
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
-                       vtkTable* ) {};
+                       vtkTable* ) {}
 
   // Description:
   // Execute the calculations required by the Test option.
@@ -179,7 +179,7 @@ protected:
   virtual void SelectAssessFunctor( vtkTable* vtkNotUsed(outData),
                                     vtkDataObject* vtkNotUsed(inMeta),
                                     vtkStringArray* vtkNotUsed(rowNames),
-                                    AssessFunctor*& vtkNotUsed(dfunc) ) {};
+                                    AssessFunctor*& vtkNotUsed(dfunc) ) {}
 
   // Description:
   // Generate a new histogram filter

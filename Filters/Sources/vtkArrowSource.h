@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkArrowSource();
-  ~vtkArrowSource() {};
+  ~vtkArrowSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

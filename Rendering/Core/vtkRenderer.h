@@ -248,7 +248,7 @@ public:
 
   // Description:
   // Clear the image to the background color.
-  virtual void Clear() {};
+  virtual void Clear() {}
 
   // Description:
   // Returns the number of visible actors.

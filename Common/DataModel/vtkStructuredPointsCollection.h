@@ -56,8 +56,8 @@ public:
   //ETX
 
 protected:
-  vtkStructuredPointsCollection() {};
-  ~vtkStructuredPointsCollection() {};
+  vtkStructuredPointsCollection() {}
+  ~vtkStructuredPointsCollection() {}
 
 
 

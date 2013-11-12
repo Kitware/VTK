@@ -956,8 +956,8 @@ public:
   static bool IsFinite(double x);
 
 protected:
-  vtkMath() {};
-  ~vtkMath() {};
+  vtkMath() {}
+  ~vtkMath() {}
 
   static vtkMathInternal Internal;
 private:

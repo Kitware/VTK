@@ -41,8 +41,8 @@ public:
   vtkRectilinearGrid* GetInput(int port);
 
 protected:
-  vtkRectilinearGridWriter() {};
-  ~vtkRectilinearGridWriter() {};
+  vtkRectilinearGridWriter() {}
+  ~vtkRectilinearGridWriter() {}
 
   void WriteData();
 

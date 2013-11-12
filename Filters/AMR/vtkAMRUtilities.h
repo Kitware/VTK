@@ -73,8 +73,8 @@ public:
   static void BlankCells(vtkOverlappingAMR* amr,  vtkMultiProcessController *myController);
 
 protected:
-  vtkAMRUtilities() {};
-  ~vtkAMRUtilities() {};
+  vtkAMRUtilities() {}
+  ~vtkAMRUtilities() {}
 
   // Description:
   // Given the real-extent w.r.t. the ghosted grid, this method copies the

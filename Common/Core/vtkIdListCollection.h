@@ -57,8 +57,8 @@ public:
   //ETX
 
 protected:
-  vtkIdListCollection() {};
-  ~vtkIdListCollection() {};
+  vtkIdListCollection() {}
+  ~vtkIdListCollection() {}
 
 
 private:

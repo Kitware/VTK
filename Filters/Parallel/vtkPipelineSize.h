@@ -45,7 +45,7 @@ public:
                                      vtkPolyDataMapper *mapper);
 
 protected:
-  vtkPipelineSize() {};
+  vtkPipelineSize() {}
   void GenericComputeSourcePipelineSize(vtkAlgorithm *src,
                                         int outputPort,
                                         unsigned long size[3]);

@@ -182,8 +182,8 @@ public:
                                    double derivative[3][3]);
 
 protected:
-  vtkLinearTransform() {};
-  ~vtkLinearTransform() {};
+  vtkLinearTransform() {}
+  ~vtkLinearTransform() {}
 private:
   vtkLinearTransform(const vtkLinearTransform&);  // Not implemented.
   void operator=(const vtkLinearTransform&);  // Not implemented.

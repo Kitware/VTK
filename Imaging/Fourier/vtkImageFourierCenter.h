@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkImageFourierCenter();
-  ~vtkImageFourierCenter() {};
+  ~vtkImageFourierCenter() {}
 
   virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);

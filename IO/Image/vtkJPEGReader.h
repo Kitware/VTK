@@ -55,8 +55,8 @@ public:
       return "JPEG";
     }
 protected:
-  vtkJPEGReader() {};
-  ~vtkJPEGReader() {};
+  vtkJPEGReader() {}
+  ~vtkJPEGReader() {}
 
   virtual void ExecuteInformation();
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);

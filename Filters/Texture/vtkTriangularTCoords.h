@@ -40,8 +40,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkTriangularTCoords() {};
-  ~vtkTriangularTCoords() {};
+  vtkTriangularTCoords() {}
+  ~vtkTriangularTCoords() {}
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

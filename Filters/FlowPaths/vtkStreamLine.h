@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkStreamLine();
-  ~vtkStreamLine() {};
+  ~vtkStreamLine() {}
 
   // Convert streamer array into vtkPolyData
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

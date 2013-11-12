@@ -69,8 +69,8 @@ public:
   //ETX
 
 protected:
-  vtkActorCollection() {};
-  ~vtkActorCollection() {};
+  vtkActorCollection() {}
+  ~vtkActorCollection() {}
 
 
 private:

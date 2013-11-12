@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkImageCorrelation();
-  ~vtkImageCorrelation() {};
+  ~vtkImageCorrelation() {}
 
   int Dimensionality;
   virtual int RequestInformation (vtkInformation *,

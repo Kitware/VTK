@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkImageIslandRemoval2D();
-  ~vtkImageIslandRemoval2D() {};
+  ~vtkImageIslandRemoval2D() {}
 
   int AreaThreshold;
   int SquareNeighborhood;

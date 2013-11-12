@@ -68,7 +68,7 @@ public:
   // Description:
   // Perform any processing required (if any) before processing
   // scalars.
-  virtual void Build() {};
+  virtual void Build() {}
 
   // Description:
   // Sets/Gets the range of scalars which will be mapped.

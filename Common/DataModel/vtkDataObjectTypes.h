@@ -56,8 +56,8 @@ public:
   static vtkDataObject* NewDataObject(int typeId);
 
 protected:
-  vtkDataObjectTypes() {};
-  ~vtkDataObjectTypes() {};
+  vtkDataObjectTypes() {}
+  ~vtkDataObjectTypes() {}
 
   // Description:
   // Method used to validate data object types, for testing purposes

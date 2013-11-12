@@ -177,7 +177,7 @@ public:
   // corner).
   virtual void HideCursor() = 0;
   virtual void ShowCursor() = 0;
-  virtual void SetCursorPosition(int , int ) {};
+  virtual void SetCursorPosition(int , int ) {}
 
   // Description:
   // Change the shape of the cursor.
@@ -525,7 +525,7 @@ public:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
   // on the next render.
-  virtual void SetForceMakeCurrent() {};
+  virtual void SetForceMakeCurrent() {}
 
   // Description:
   // Get report of capabilities for the render window

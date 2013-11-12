@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkImageLogarithmicScale();
-  ~vtkImageLogarithmicScale() {};
+  ~vtkImageLogarithmicScale() {}
 
   double Constant;
 

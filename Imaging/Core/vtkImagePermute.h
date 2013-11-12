@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkImagePermute();
-  ~vtkImagePermute() {};
+  ~vtkImagePermute() {}
 
   int FilteredAxes[3];
 

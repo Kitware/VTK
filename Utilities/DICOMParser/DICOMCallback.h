@@ -45,7 +45,7 @@
 class DICOM_EXPORT DICOMCallback
 {
  public:
-  virtual ~DICOMCallback() {};
+  virtual ~DICOMCallback() {}
   virtual void Execute(DICOMParser *parser,
                        doublebyte group,
                        doublebyte element,

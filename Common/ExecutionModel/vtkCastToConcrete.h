@@ -50,8 +50,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkCastToConcrete() {};
-  ~vtkCastToConcrete() {};
+  vtkCastToConcrete() {}
+  ~vtkCastToConcrete() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //insures compatibility; satisfies abstract api in vtkFilter
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

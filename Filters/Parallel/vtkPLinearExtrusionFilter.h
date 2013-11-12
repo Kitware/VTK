@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkPLinearExtrusionFilter();
-  ~vtkPLinearExtrusionFilter() {};
+  ~vtkPLinearExtrusionFilter() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
