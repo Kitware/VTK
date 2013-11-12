@@ -5,7 +5,7 @@
 # include the default FindHDF5.cmake.
 include(${CMAKE_ROOT}/Modules/FindHDF5.cmake)
 
-if(HDF5_FOUND AND HDF5_IS_PARALLEL)
+if(HDF5_FOUND AND (HDF5_IS_PARALLEL OR HDF5_ENABLE_PARALLEL))
   include(vtkMPI)
   if(MPI_C_INCLUDE_PATH)
     list(APPEND HDF5_INCLUDE_DIRS ${MPI_C_INCLUDE_PATH})
