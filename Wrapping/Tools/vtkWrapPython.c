@@ -183,7 +183,7 @@ static char *vtkWrapPython_FormatString(
   FunctionInfo *currentFunction);
 
 /* weed out methods that will never be called */
-static void vtkWrapPython_RemovePreceededMethods(
+static void vtkWrapPython_RemovePrecededMethods(
   FunctionInfo *wrappedFunctions[],
   int numberWrapped, int fnum);
 
@@ -1356,7 +1356,7 @@ static char *vtkWrapPython_ArgCheckString(
  * The type closest to the native Python type wins.
  */
 
-void vtkWrapPython_RemovePreceededMethods(
+void vtkWrapPython_RemovePrecededMethods(
   FunctionInfo *wrappedFunctions[],
   int numberOfWrappedFunctions, int fnum)
 {
@@ -1366,6 +1366,7 @@ void vtkWrapPython_RemovePreceededMethods(
   FunctionInfo *sig2;
   ValueInfo *val1;
   ValueInfo *val2;
+  int dim1, dim2;
   int vote1 = 0;
   int vote2 = 0;
   int occ1, occ2;
@@ -1403,7 +1404,11 @@ void vtkWrapPython_RemovePreceededMethods(
             argmatch = 0;
             val1 = sig1->Parameters[i];
             val2 = sig2->Parameters[i];
-            if (val1->NumberOfDimensions != val2->NumberOfDimensions)
+            dim1 = (val1->NumberOfDimensions > 0 ? val1->NumberOfDimensions :
+                    (vtkWrap_IsPODPointer(val1) || vtkWrap_IsArray(val1)));
+            dim2 = (val2->NumberOfDimensions > 0 ? val2->NumberOfDimensions :
+                    (vtkWrap_IsPODPointer(val2) || vtkWrap_IsArray(val2)));
+            if (dim1 != dim2)
               {
               vote1 = 0;
               vote2 = 0;
@@ -2635,7 +2640,7 @@ static void vtkWrapPython_GenerateMethods(
 
     /* check for type precedence, don't need a "float" method if a
        "double" method exists */
-    vtkWrapPython_RemovePreceededMethods(
+    vtkWrapPython_RemovePrecededMethods(
       wrappedFunctions, numberOfWrappedFunctions, fnum);
 
     /* if theFunc wasn't removed, process all its signatures */
