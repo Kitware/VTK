@@ -1323,7 +1323,8 @@ static char *vtkWrapPython_ArgCheckString(
       currPos += strlen(pythonname);
       }
 
-    else if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg))
+    else if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
+             vtkWrap_IsPODPointer(arg))
       {
       result[currPos++] = ' ';
       result[currPos++] = '*';
