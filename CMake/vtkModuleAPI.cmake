@@ -4,8 +4,9 @@
 # Private helper macros.
 
 macro(_vtk_module_config_recurse ns mod)
-  if(NOT _${ns}_${dep}_USED)
+  if(NOT _${ns}_${mod}_USED)
     set(_${ns}_${mod}_USED 1)
+    list(APPEND _${ns}_USED_MODULES ${mod})
     vtk_module_load("${mod}")
     list(APPEND ${ns}_LIBRARIES ${${mod}_LIBRARIES})
     list(APPEND ${ns}_INCLUDE_DIRS ${${mod}_INCLUDE_DIRS})
@@ -108,9 +109,16 @@ macro(vtk_module_config ns)
   set(${ns}_INCLUDE_DIRS "")
   set(${ns}_LIBRARY_DIRS "")
   set(_${ns}_AUTOINIT "")
+
+  set(_${ns}_USED_MODULES "")
   foreach(mod ${ARGN})
     _vtk_module_config_recurse("${ns}" "${mod}")
   endforeach()
+  foreach(mod ${_${ns}_USED_MODULES})
+    unset(_${ns}_${mod}_USED)
+  endforeach()
+  unset(_${ns}_USED_MODULES)
+
   foreach(v ${ns}_LIBRARIES ${ns}_INCLUDE_DIRS ${ns}_LIBRARY_DIRS
            _${ns}_AUTOINIT)
     if(${v})
