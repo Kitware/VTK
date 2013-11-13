@@ -84,7 +84,7 @@
         /**
          * @member vtkWeb.ViewPortConfig
          * @property {String} renderer
-         * Name of the renderer to be used. Can only be 'image' or 'webgl'.
+         * Name of the renderer to be used. Can only be 'image' 'webgl' or 'vgl'.
          *
          * Default: 'image'
          */
