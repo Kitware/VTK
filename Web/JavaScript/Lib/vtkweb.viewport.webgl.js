@@ -1177,11 +1177,13 @@
 
         function pushCameraState() {
             if(cameraLayerZero != null) {
-                var fp = cameraLayerZero.getFocalPoint(),
-                up = cameraLayerZero.getViewUp(),
-                pos = cameraLayerZero.getPosition();
-            //console.log('Position: ' + vec3.str(pos) + ' FocalPoint: ' + vec3.str(fp) + ' ViewUp: ' + vec3.str(up));
-            //session.call("vtk:updateCamera", Number(options.view), fp, up, pos);
+                var fp_ = cameraLayerZero.getFocalPoint(),
+                up_ = cameraLayerZero.getViewUp(),
+                pos_ = cameraLayerZero.getPosition(),
+                fp = [fp_[0], fp_[1], fp_[2]],
+                up = [up_[0], up_[1], up_[2]],
+                pos = [pos_[0], pos_[1], pos_[2]];
+                session.call("vtk:updateCamera", Number(options.view), fp, up, pos);
             }
         }
 
