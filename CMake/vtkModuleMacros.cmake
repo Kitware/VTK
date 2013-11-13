@@ -12,6 +12,30 @@ if(UNIX AND VTK_BUILD_FORWARDING_EXECUTABLES)
   include(vtkForwardingExecutable)
 endif()
 
+# vtk_module(<name>)
+#
+# Main function for declaring a VTK module, usually in a module.cmake file in
+# the module search path. The module name is the only required argument, all
+# others are optional named arguments that will be outlined below. The following
+# named options take one (or more) arguments, such as the names of dependent
+# modules:
+#  DEPENDS = Modules that will be publicly linked to this module
+#  PRIVATE_DEPENDS = Modules that will be privately linked to this module
+#  COMPILE_DEPENDS = Modules that are needed at compile time by this module
+#  TEST_DEPENDS = Modules that are needed by this modules testing executables
+#  DESCRIPTION = Free text description of the module
+#  TCL_NAME = Alternative name for the TCL wrapping (cannot contain numbers)
+#  IMPLEMENTS = Modules that this module implements, using the auto init feature
+#  GROUPS = Module groups this module should be included in
+#  TEST_LABELS = Add labels to the tests for the module
+#
+# The following options take no arguments:
+#  EXCLUDE_FROM_ALL = Exclude this module from the build all modules flag
+#  EXCLUDE_FROM_WRAPPING = Do not attempt to wrap this module in any language
+#  EXCLUDE_FROM_WRAP_HIERARCHY = Do not attempt to process with wrap hierarchy
+#
+# This macro will ensure the module name is compliant, and set the appropriate
+# module variables as declared in the module.cmake file.
 macro(vtk_module _name)
   vtk_module_check_name(${_name})
   set(vtk-module ${_name})
@@ -93,12 +117,17 @@ macro(vtk_module _name)
   endif()
 endmacro()
 
+# vtk_module_check_name(<name>)
+#
+# Check if the proposed module name is compliant.
 macro(vtk_module_check_name _name)
-  if( NOT "${_name}" MATCHES "^[a-zA-Z][a-zA-Z0-9]*$")
+  if(NOT "${_name}" MATCHES "^[a-zA-Z][a-zA-Z0-9]*$")
     message(FATAL_ERROR "Invalid module name: ${_name}")
   endif()
 endmacro()
 
+# vtk_module_impl()
+#
 # This macro provides module implementation, setting up important variables
 # necessary to build a module. It assumes we are in the directory of the module.
 macro(vtk_module_impl)
@@ -144,7 +173,11 @@ macro(vtk_module_impl)
   endif()
 endmacro()
 
-# Export just the essential data from a module such as name, include directory.
+# vtk_module_export_info()
+#
+# Export just the essential data from a module such as name, include directory,
+# libraries provided by the module, and any custom variables that are part of
+# the module configuration.
 macro(vtk_module_export_info)
   vtk_module_impl()
   # First gather and configure the high level module information.
@@ -207,8 +240,12 @@ macro(vtk_module_export_info)
   endif()
 endmacro()
 
+# vtk_module_export(<sources>)
+#
 # Export data from a module such as name, include directory and header level
-# information useful for wrapping.
+# information useful for wrapping. This calls vtk_module_export_info() and then
+# exports additional information in a supplemental file useful for wrapping
+# generators.
 function(vtk_module_export sources)
   vtk_module_export_info()
   # Now iterate through the headers in the module to get header level information.
@@ -287,6 +324,8 @@ macro(vtk_target_label _target_name)
   set_property(TARGET ${_target_name} PROPERTY LABELS ${_label})
 endmacro()
 
+# vtk_target_name(<name>)
+#
 # This macro does some basic checking for library naming, and also adds a suffix
 # to the output name with the VTK version by default. Setting the variable
 # VTK_CUSTOM_LIBRARY_SUFFIX will override the suffix.
