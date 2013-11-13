@@ -70,11 +70,24 @@
             me.data('file-list', opts.data);
             me.data('session', opts.session);
 
-            // Generate HTML
-            container.render(opts.data, fileBrowserGenerator);
+            if(opts.data === null) {
+                opts.session.call('vtk:listServerDirectory','.').then(function(files) {
+                    opts.data = [ files ];
+                    me.data('file-list', opts.data);
 
-            // Initialize pipelineBrowser (Visibility + listeners)
-            initializeListener(me);
+                    // Generate HTML
+                    container.render(opts.data, fileBrowserGenerator);
+
+                    // Initialize pipelineBrowser (Visibility + listeners)
+                    initializeListener(me);
+                });
+            } else {
+                // Generate HTML
+                container.render(opts.data, fileBrowserGenerator);
+
+                // Initialize pipelineBrowser (Visibility + listeners)
+                initializeListener(me);
+            }
         });
     };
 
@@ -97,33 +110,7 @@
     $.fn.fileBrowser.defaults = {
         template: "#vtk-templates > .vtkweb-widget-filebrowser > div",
         session: null,
-        data: [
-            { 'label': 'Root', 'path': ['Root'], 'files': [
-                {'label': 'can.ex2', 'size': 2345},
-                {'label': 'diskout.ex2', 'size': 23345},
-            ], 'dirs': ['Cosmo', 'Ensight']},
-            { 'label': 'Cosmo',
-              'path': ['Root','Cosmo'],
-              'files': [
-                {'label': 'can.ex2', 'size': 2345},
-                {'label': 'diskout.ex2', 'size': 23345},
-              ],
-              'dirs': ['a','b','c'] },
-            { 'label': 'Ensight',
-              'path': ['Root','Ensight'],
-              'files': [
-                {'label': 'can.case', 'size': 2345},
-                {'label': 'diskout.case', 'size': 23345},
-              ],
-              'dirs': [] },
-            { 'label': 'a',
-               'path': ['Root','Cosmo', 'a'],
-               'files': [
-                {'label': 'x', 'size': 2345},
-                {'label': 'y', 'size': 23345},
-               ],
-               'dirs': []}
-        ]
+        data: null
     };
 
     // =======================================================================
