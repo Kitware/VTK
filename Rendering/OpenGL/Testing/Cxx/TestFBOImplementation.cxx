@@ -1179,28 +1179,6 @@ void QueryTexture3D()
 const int textureSizes[2][2]={{64,32}, // spec says min of max is 64.
                               {63,32}};
 
-const int textureFormat[13]={GL_COLOR_INDEX,
-                             GL_STENCIL_INDEX,
-                             GL_DEPTH_COMPONENT,
-                             GL_RED,
-                             GL_GREEN,
-                             GL_BLUE,
-                             GL_ALPHA,
-                             GL_RGB,
-                             GL_RGBA,
-                             vtkgl::BGR,
-                             vtkgl::BGRA,
-                             GL_LUMINANCE,
-                             GL_LUMINANCE_ALPHA};
-
-const int textureBaseInternalFormats[7]={GL_ALPHA,
-                                         GL_DEPTH_COMPONENT,
-                                         GL_LUMINANCE,
-                                         GL_LUMINANCE_ALPHA,
-                                         GL_INTENSITY,
-                                         GL_RGB,
-                                         GL_RGBA};
-
 const int textureSizedInternalFormats[87]={GL_ALPHA4,
                                            GL_ALPHA8,
                                            GL_ALPHA12,
@@ -1290,62 +1268,6 @@ const int textureSizedInternalFormats[87]={GL_ALPHA4,
                                            vtkgl::RGBA32UI_EXT}; // i=86, c=87
 
 const int NumberOftextureSizedInternalFormats=87;
-
-const int textureFormats[23]={GL_COLOR_INDEX,
-                              GL_STENCIL_INDEX,
-                              GL_DEPTH_COMPONENT,
-                              GL_RED,
-                              GL_GREEN,
-                              GL_BLUE,
-                              GL_ALPHA,
-                              GL_RGB,
-                              GL_RGBA,
-                              vtkgl::BGR,
-                              vtkgl::BGRA,
-                              GL_LUMINANCE,
-                              GL_LUMINANCE_ALPHA,
-                              vtkgl::RED_INTEGER_EXT,
-                              vtkgl::GREEN_INTEGER_EXT,
-                              vtkgl::BLUE_INTEGER_EXT,
-                              vtkgl::ALPHA_INTEGER_EXT,
-                              vtkgl::RGB_INTEGER_EXT,
-                              vtkgl::RGBA_INTEGER_EXT,
-                              vtkgl::BGR_INTEGER_EXT,
-                              vtkgl::BGRA_INTEGER_EXT,
-                              vtkgl::LUMINANCE_INTEGER_EXT,
-                              vtkgl::LUMINANCE_ALPHA_INTEGER_EXT};
-
-#if 0
-const int textureFormat[7]={GL_ALPHA,
-                            GL_DEPTH_COMPONENT,
-                            GL_LUMINANCE,
-                            GL_LUMINANCE_ALPHA,
-                            GL_INTENSITY,
-                            GL_RGB,
-                            GL_RGBA //,
-};
-#endif
-
-const int textureType[]={GL_UNSIGNED_BYTE,
-                         GL_BITMAP,
-                         GL_BYTE,
-                         GL_UNSIGNED_SHORT,
-                         GL_SHORT,
-                         GL_UNSIGNED_INT,
-                         GL_INT,
-                         GL_FLOAT,
-                         vtkgl::UNSIGNED_BYTE_3_3_2,
-                         vtkgl::UNSIGNED_BYTE_2_3_3_REV,
-                         vtkgl::UNSIGNED_SHORT_5_6_5,
-                         vtkgl::UNSIGNED_SHORT_5_6_5_REV,
-                         vtkgl::UNSIGNED_SHORT_4_4_4_4,
-                         vtkgl::UNSIGNED_SHORT_4_4_4_4_REV,
-                         vtkgl::UNSIGNED_SHORT_5_5_5_1,
-                         vtkgl::UNSIGNED_SHORT_1_5_5_5_REV,
-                         vtkgl::UNSIGNED_INT_8_8_8_8,
-                         vtkgl::UNSIGNED_INT_8_8_8_8_REV,
-                         vtkgl::UNSIGNED_INT_10_10_10_2,
-                         vtkgl::UNSIGNED_INT_2_10_10_10_REV};
 
 const GLenum textureTarget[2]={GL_TEXTURE_2D,
                                vtkgl::TEXTURE_RECTANGLE_ARB};

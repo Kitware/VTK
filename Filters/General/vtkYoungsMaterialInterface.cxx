@@ -1924,11 +1924,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return make_double2(v.x*f, v.y*f);
   }
 
-  FUNC_DECL double4 operator *(double4 v, double f)
-  {
-    return make_double4(v.x*f, v.y*f, v.z*f, v.w*f);
-  }
-
 
   FUNC_DECL double3 operator +(double3 a, double3 b)
   {
