@@ -37,14 +37,15 @@
 #include "vtkContextItem.h"
 
 #include "vtkNew.h"               // For vtkNew ivars
+#include "vtkStdString.h"         // For SetGet ivars
 #include "vtkSmartPointer.h"      // For vtkSmartPointer ivars
 #include "vtkVector.h"            // For vtkVector2f ivar
 
 class vtkDoubleArray;
 class vtkGraphLayout;
 class vtkLookupTable;
-class vtkTree;
 class vtkPruneTreeFilter;
+class vtkTree;
 
 class VTKVIEWSINFOVIS_EXPORT vtkDendrogramItem : public vtkContextItem
 {
@@ -174,6 +175,22 @@ public:
   vtkSetMacro(DisplayNumberOfCollapsedLeafNodes, bool);
   vtkGetMacro(DisplayNumberOfCollapsedLeafNodes, bool);
   vtkBooleanMacro(DisplayNumberOfCollapsedLeafNodes, bool);
+
+  // Description:
+  // Get/Set the name of the array that specifies the distance of each vertex
+  // from the root (NOT the vertex's parent).  This array should be a part of
+  // the input tree's VertexData.  By default, this value is "node weight",
+  // which is the name of the array created by vtkNewickTreeReader.
+  vtkGetMacro(DistanceArrayName, vtkStdString);
+  vtkSetMacro(DistanceArrayName, vtkStdString);
+
+  // Description:
+  // Get/Set the name of a vtkStringArray that specifies the names of the
+  // vertices of the input tree.  This array should be a part of the input
+  // tree's VertexData.  By default, this value is "node name", which is the
+  // name of the array created by vtkNewickTreeReader.
+  vtkGetMacro(VertexNameArrayName, vtkStdString);
+  vtkSetMacro(VertexNameArrayName, vtkStdString);
 
   // this struct & class allow us to generate a priority queue of vertices.
   struct WeightedVertex
@@ -329,6 +346,8 @@ private:
   bool ExtendLeafNodes;
   bool DrawLabels;
   bool DisplayNumberOfCollapsedLeafNodes;
+  vtkStdString DistanceArrayName;
+  vtkStdString VertexNameArrayName;
 };
 
 #endif
