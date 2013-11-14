@@ -52,7 +52,7 @@ namespace METAIO_NAMESPACE {
 
 int META_DEBUG = 0;
 
-char MET_SeperatorChar = '=';
+static char MET_SeperatorChar = '=';
 
 MET_FieldRecordType *
 MET_GetFieldRecord(const char * _fieldName,
@@ -985,7 +985,7 @@ bool MET_InitReadField(MET_FieldRecordType * _mf,
 //
 //
 //
-bool MET_SkipToVal(METAIO_STREAM::istream &fp)
+static bool MET_SkipToVal(METAIO_STREAM::istream &fp)
   {
   int c;
   if( fp.eof() )
@@ -1020,7 +1020,7 @@ bool MET_SkipToVal(METAIO_STREAM::istream &fp)
 //
 //
 //
-bool MET_IsComplete(METAIO_STL::vector<MET_FieldRecordType *> * fields)
+static bool MET_IsComplete(METAIO_STL::vector<MET_FieldRecordType *> * fields)
   {
   METAIO_STL::vector<MET_FieldRecordType *>::iterator fieldIter;
   for(fieldIter=fields->begin(); fieldIter!=fields->end(); fieldIter++)
