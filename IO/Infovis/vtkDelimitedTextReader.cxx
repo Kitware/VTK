@@ -36,6 +36,7 @@
 #include "vtkTextCodecFactory.h"
 
 #include <vtksys/ios/sstream>
+#include <vtksys/ios/iostream>
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
@@ -387,6 +388,9 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
+  this->ReadFromInputString = 0;
+  this->InputString = NULL;
+  this->InputStringLength = 0;
   this->MergeConsecutiveDelimiters = false;
   this->PedigreeIdArrayName = NULL;
   this->SetPedigreeIdArrayName("id");
@@ -409,6 +413,7 @@ vtkDelimitedTextReader::~vtkDelimitedTextReader()
   this->SetPedigreeIdArrayName(0);
   this->SetUnicodeCharacterSet(0);
   this->SetFileName(0);
+  this->SetInputString(NULL);
   this->SetFieldDelimiterCharacters(0);
 }
 
@@ -417,6 +422,16 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "ReadFromInputString: "
+     << (this->ReadFromInputString ? "On\n" : "Off\n");
+  if ( this->InputString )
+    {
+    os << indent << "Input String: " << this->InputString << "\n";
+    }
+  else
+    {
+    os << indent << "Input String: (None)\n";
+    }
   os << indent << "UnicodeCharacterSet: "
      << (this->UnicodeCharacterSet ? this->UnicodeCharacterSet : "(none)") << endl;
   os << indent << "MaxRecords: " << this->MaxRecords
@@ -454,6 +469,48 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
     << this->PedigreeIdArrayName << endl;
   os << indent << "OutputPedigreeIds: "
     << (this->OutputPedigreeIds? "true" : "false") << endl;
+}
+
+void vtkDelimitedTextReader::SetInputString(const char *in)
+{
+  int len = 0;
+  if (in != NULL)
+    {
+    len = static_cast<int>(strlen(in));
+    }
+  this->SetInputString(in, len);
+}
+
+void vtkDelimitedTextReader::SetInputString(const char *in, int len)
+{
+  if (this->InputString && in && strncmp(in, this->InputString, len) == 0)
+    {
+    return;
+    }
+
+  if (this->InputString)
+    {
+    delete [] this->InputString;
+    }
+
+  if (in && len>0)
+    {
+    // Add a NULL terminator so that GetInputString
+    // callers (from wrapped languages) get a valid
+    // C string in *ALL* cases...
+    //
+    this->InputString = new char[len+1];
+    memcpy(this->InputString,in,len);
+    this->InputString[len] = 0;
+    this->InputStringLength = len;
+    }
+   else
+    {
+    this->InputString = NULL;
+    this->InputStringLength = 0;
+    }
+
+  this->Modified();
 }
 
 void vtkDelimitedTextReader::SetUnicodeRecordDelimiters(const vtkUnicodeString& delimiters)
@@ -546,26 +603,34 @@ int vtkDelimitedTextReader::RequestData(
       return 1;
       }
 
-    // If the filename hasn't been specified, we're done ...
-    if(!this->FileName)
-      {
-      return 1;
-      }
-
     if (!this->PedigreeIdArrayName)
       throw std::runtime_error("You must specify a pedigree id array name");
 
-    // Get the total size of the input file in bytes
-    ifstream file_stream(this->FileName, ios::binary);
-    if(!file_stream.good())
-      {
-      throw std::runtime_error(
-            "Unable to open input file " + std::string(this->FileName));
-      }
+    istream* input_stream_pt = NULL;
+    ifstream file_stream;
+    std::istringstream string_stream;
 
-    file_stream.seekg(0, ios::end);
-    //const vtkIdType total_bytes = file_stream.tellg();
-    file_stream.seekg(0, ios::beg);
+    if(!this->ReadFromInputString)
+      {
+      // Get the total size of the input file in bytes
+      file_stream.open(this->FileName, ios::binary);
+      if(!file_stream.good())
+        {
+        throw std::runtime_error(
+          "Unable to open input file " + std::string(this->FileName));
+        }
+
+      file_stream.seekg(0, ios::end);
+      //const vtkIdType total_bytes = file_stream.tellg();
+      file_stream.seekg(0, ios::beg);
+
+      input_stream_pt = dynamic_cast<istream*>(&file_stream);
+      }
+    else
+      {
+      string_stream.str(this->InputString);
+      input_stream_pt = dynamic_cast<istream*>(&string_stream);
+      }
 
     vtkStdString character_set;
     vtkTextCodec* transCodec = NULL;
@@ -588,7 +653,7 @@ int vtkDelimitedTextReader::RequestData(
       this->UnicodeStringDelimiters =
         vtkUnicodeString::from_utf8(tstring);
       this->UnicodeOutputArrays = false;
-      transCodec = vtkTextCodecFactory::CodecToHandle(file_stream);
+      transCodec = vtkTextCodecFactory::CodecToHandle(*input_stream_pt);
       }
 
     if (NULL == transCodec)
@@ -612,7 +677,7 @@ int vtkDelimitedTextReader::RequestData(
 
     vtkTextCodec::OutputIterator& outIter = iterator;
 
-    transCodec->ToUnicode(file_stream, outIter);
+    transCodec->ToUnicode(*input_stream_pt, outIter);
     iterator.ReachedEndOfInput();
     transCodec->Delete();
 
