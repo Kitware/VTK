@@ -10,4 +10,5 @@ vtk_module(vtkWebGLExporter
     vtkRenderingCore
   COMPILE_DEPENDS
     vtkUtilitiesEncodeString
+  EXCLUDE_FROM_ALL
 )
