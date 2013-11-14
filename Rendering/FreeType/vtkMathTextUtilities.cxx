@@ -27,6 +27,8 @@
 #include "vtkDebugLeaks.h"
 #endif
 
+#include <algorithm>
+
 //----------------------------------------------------------------------------
 vtkInstantiatorNewMacro(vtkMathTextUtilities)
 

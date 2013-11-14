@@ -47,6 +47,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkContourHelper.h"
 
+#include <algorithm>
 #include <math.h>
 
 vtkStandardNewMacro(vtkCutter);

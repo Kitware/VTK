@@ -15,6 +15,7 @@
 
 #include "vtkContextPolygon.h"
 
+#include <algorithm>
 #include <vector>
 
 #include "vtkTransform2D.h"

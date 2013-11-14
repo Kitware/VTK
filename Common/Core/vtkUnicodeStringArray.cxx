@@ -20,6 +20,7 @@
 #include "vtkUnicodeStringArray.h"
 
 #include <vector>
+#include <algorithm>
 
 class vtkUnicodeStringArray::Implementation
 {
