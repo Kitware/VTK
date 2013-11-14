@@ -133,6 +133,22 @@ public:
   vtkBooleanMacro(CoordinateResults, int);
 
   // Description:
+  // Set whether to output results as point/cell normals. Outputing as
+  // normals is only valid with vector results. Point or cell normals are
+  // selected using AttributeMode.
+  vtkGetMacro(ResultNormals, bool);
+  vtkSetMacro(ResultNormals, bool);
+  vtkBooleanMacro(ResultNormals, bool);
+
+  // Description:
+  // Set whether to output results as point/cell texture coordinates.
+  // Point or cell texture coordinates are selected using AttributeMode.
+  // 2-component texture coordinates cannot be generated at this time.
+  vtkGetMacro(ResultTCoords, bool);
+  vtkSetMacro(ResultTCoords, bool);
+  vtkBooleanMacro(ResultTCoords, bool);
+
+  // Description:
   // Control whether the filter operates on point data or cell data.
   // By default (AttributeModeToDefault), the filter uses point
   // data. Alternatively you can explicitly set the filter to use point data
@@ -224,6 +240,8 @@ protected:
   double  ReplacementValue;
 
   int     CoordinateResults;
+  bool    ResultNormals;
+  bool    ResultTCoords;
   char ** CoordinateScalarVariableNames;
   char ** CoordinateVectorVariableNames;
   int   * SelectedCoordinateScalarComponents;
