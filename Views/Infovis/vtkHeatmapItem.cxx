@@ -36,6 +36,8 @@
 #include "vtkTransform2D.h"
 #include "vtkVariantArray.h"
 
+#include <sstream>
+
 vtkStandardNewMacro(vtkHeatmapItem);
 
 //-----------------------------------------------------------------------------
@@ -440,7 +442,11 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
     currentlyCollapsingRows = false;
 
     // get the name of this row
-    std::string name = rowNames->GetValue(row);
+    std::string name = "";
+    if (rowNames)
+      {
+      name = rowNames->GetValue(row);
+      }
 
     // only draw the cells of this row if it isn't explicitly marked as blank
     if (this->BlankRows.find(name) == this->BlankRows.end())
@@ -569,7 +575,8 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
         break;
       }
 
-    if (this->SceneBottomLeft[0] < labelStartX &&
+    if (name != "" &&
+        this->SceneBottomLeft[0] < labelStartX &&
         this->SceneTopRight[0] > labelStartX   &&
         this->SceneBottomLeft[1] < labelStartY &&
         this->SceneTopRight[1] > labelStartY)
@@ -817,7 +824,17 @@ std::string vtkHeatmapItem::GetTooltipText(float x, float y)
     {
     vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
       this->Table->GetColumn(0));
-    std::string rowName = rowNames->GetValue(row);
+    std::string rowName;
+    if (rowNames)
+      {
+      rowName = rowNames->GetValue(row);
+      }
+    else
+      {
+      std::stringstream ss;
+      ss << row;
+      rowName = ss.str();
+      }
     if (this->BlankRows.find(rowName) != this->BlankRows.end())
       {
       return "";
@@ -913,23 +930,26 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D *painter)
   int orientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
 
+  float bounds[4];
   // find the longest row label
   vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
     this->Table->GetColumn(0));
-  float bounds[4];
-
-  for (vtkIdType row = 0; row != this->Table->GetNumberOfRows(); ++row)
+  if (rowNames)
     {
-    if (this->CollapsedRowsArray &&
-        this->CollapsedRowsArray->GetValue(row) == 1)
+
+    for (vtkIdType row = 0; row != this->Table->GetNumberOfRows(); ++row)
       {
-      continue;
-      }
-    std::string name = rowNames->GetValue(row);
-    painter->ComputeStringBounds(name, bounds);
-    if (bounds[2] > this->RowLabelWidth)
-      {
-      this->RowLabelWidth = bounds[2];
+      if (this->CollapsedRowsArray &&
+          this->CollapsedRowsArray->GetValue(row) == 1)
+        {
+        continue;
+        }
+      std::string name = rowNames->GetValue(row);
+      painter->ComputeStringBounds(name, bounds);
+      if (bounds[2] > this->RowLabelWidth)
+        {
+        this->RowLabelWidth = bounds[2];
+        }
       }
     }
 
