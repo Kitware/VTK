@@ -24,6 +24,69 @@ try:
 except ImportError:
     import _argparse as argparse
 
+
+sample_config_file = """
+Here is a sample of what a configuration file could looks like:
+
+    {
+      ## ===============================
+      ## General launcher configuration
+      ## ===============================
+
+      "configuration": {
+        "host" : "localhost",
+        "port" : 8080,
+        "endpoint": "paraview",                   # SessionManager Endpoint
+        "content": "/.../www",                    # Optional: Directory shared over HTTP
+        "proxy_file" : "/.../proxy-mapping.txt",  # Proxy-Mapping file for Apache
+        "sessionURL" : "ws://${host}:${port}/ws", # ws url used by the client to connect to the started process
+        "timeout" : 5,                            # Wait time in second after process start
+        "log_dir" : "/.../viz-logs",              # Directory for log files
+        "fields" : ["file", "host", "port"]       # List of fields that should be send back to client
+      },
+
+      ## ===============================
+      ## Resources list for applications
+      ## ===============================
+
+      "resources" : [ { "host" : "localhost", "port_range" : [9001, 9003] } ],
+
+      ## ===============================
+      ## Set of properties for cmd line
+      ## ===============================
+
+      "properties" : {
+        "build_dir" : "/.../build",
+        "python_exec" : "/.../build/bin/vtkpython",
+        "WWW" : "/.../build/www",
+        "source_dir": "/.../src"
+      },
+
+      ## ===============================
+      ## Application list with cmd line
+      ## ===============================
+
+      "apps" : {
+        "cone" : {
+          "cmd" : [
+            "${python_exec}", "${build_dir}/Wrapping/Python/vtk/web/vtk_web_cone.py", "--content", "${WWW}", "--port", "$port", "-f", "--authKey", "$secret"
+              ],
+          "ready_line" : "Starting factory"
+        },
+        "test" : {
+          "cmd" : [
+            "${python_exec}", "${build_dir}/PhylogeneticTree/server/vtk_web_phylogenetic_tree.py", "--content", "${WWW}" ],
+          "ready_line" : "Starting factory"
+        },
+        "launcher" : {
+          "cmd" : [
+            "/home/kitware/launcher.sh", "${host}", "${port}", "${node}", "${app}", "${user}", "${password}", "${secret}" ],
+          "ready_line" : "Good to go"
+        }
+      }
+    }
+"""
+
 # =============================================================================
 # Helper module methods
 # =============================================================================
@@ -103,8 +166,11 @@ class SessionManager(object):
             options['id'] = id
             options['host'] = host
             options['port'] = port
+            if not options.has_key('secret'):
+                options['secret'] = generatePassword()
             options['sessionURL'] = replaceVariables(self.config['configuration']['sessionURL'], [options, self.config['properties']])
             options['cmd'] = replaceList(self.config['apps'][options['application']]['cmd'], [options, self.config['properties']])
+
             self.sessions[id] = options
             self.mapping.update(self.sessions)
             return options
@@ -220,7 +286,23 @@ class ProcessManager(object):
         return proc
 
     def stopProcess(self, id):
-        self.processes[id].terminate()
+        proc = self.processes[id]
+        del self.processes[id]
+        try:
+            proc.terminate()
+        except:
+            pass # we tried
+
+    def listEndedProcess(self):
+        session_to_release = []
+        for id in self.processes:
+            if self.processes[id].poll() is not None:
+                session_to_release.append(id)
+        return session_to_release
+
+    def isRunning(self, id):
+        return self.processes[id].poll() is None
+
 
 # ===========================================================================
 # Class to implement requests to POST, GET and DELETE methods
@@ -253,6 +335,12 @@ class LauncherResource(resource.Resource, object):
         if not validateKeySet(payload, ["application"], "Launch request"):
             return json.dumps({"error": "The request is not complete"})
 
+        # Try to free any available resource
+        id_to_free = self.process_manager.listEndedProcess()
+        for id in id_to_free:
+            self.session_manager.deleteSession(id)
+            self.process_manager.stopProcess(id)
+
         # Create new session
         session = self.session_manager.createSession(payload)
 
@@ -275,8 +363,9 @@ class LauncherResource(resource.Resource, object):
 
     def _delayedRender(self, request, session_id=None):
         session = self.session_manager.getSession(session_id)
+        running = self.process_manager.isRunning(session_id)
 
-        if session:
+        if session and running:
             request.write(json.dumps(filterResponse(session, self.field_filter)))
         else:
             request.write(json.dumps({"error":"Session did not properly started"}))
@@ -377,8 +466,6 @@ def startWebServer(options, config):
 # =============================================================================
 
 def parseConfig(options):
-    global is_unix
-
     # Read values from the configuration file
     try:
         config = json.loads(open(options.config[0]).read())
@@ -386,14 +473,17 @@ def parseConfig(options):
         message = "ERROR: Unable to read config file.\n"
         message += str(sys.exc_info()[1]) + "\n" + str(sys.exc_info()[2])
         print message
+        print sample_config_file
         sys.exit(2)
 
     expected_keys = ["configuration", "apps", "properties", "resources"]
     if not validateKeySet(config, expected_keys, "Config file"):
+        print sample_config_file
         sys.exit(2)
 
     expected_keys = ["endpoint", "host", "port", "proxy_file", "sessionURL", "timeout", "log_dir", "fields"]
     if not validateKeySet(config["configuration"], expected_keys, "file.configuration"):
+        print sample_config_file
         sys.exit(2)
 
     if not config["configuration"].has_key("content"):
@@ -408,7 +498,6 @@ def parseConfig(options):
 # =============================================================================
 
 def add_arguments(parser):
-    global is_unix
     parser.add_argument("config", type=str,  nargs=1,
         help="configuration file for the launcher")
     parser.add_argument("-d", "--debug",
