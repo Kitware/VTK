@@ -1607,6 +1607,7 @@ member_declaration:
 template_member_declaration:
     template_head class_definition
   | template_head method_definition
+  | template_head template_member_declaration
 
 friend_declaration:
     FRIEND ignored_class
