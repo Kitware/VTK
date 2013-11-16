@@ -43,6 +43,8 @@
 #ifndef VTK_PARSE_PREPROCESS_H
 #define VTK_PARSE_PREPROCESS_H
 
+#include "vtkParseString.h"
+
 /**
  * The preprocessor int type.  Use the compiler's longest int type.
  */
@@ -51,7 +53,7 @@ typedef __int64 preproc_int_t;
 typedef unsigned __int64 preproc_uint_t;
 #else
 typedef long long preproc_int_t;
-typedef unsigned long long preproc_uint_t;
+typedef int           long preproc_uint_t;
 #endif
 
 /**
@@ -81,6 +83,7 @@ typedef struct _PreprocessInfo
   const char   **IncludeDirectories;
   int            NumberOfIncludeFiles; /* all included files */
   const char   **IncludeFiles;
+  StringCache   *Strings;          /* to aid string allocation */
   int            IsExternal;       /* label all macros as "external" */
   int            ConditionalDepth; /* internal state variable */
   int            ConditionalDone;  /* internal state variable */
@@ -90,7 +93,7 @@ typedef struct _PreprocessInfo
  * Platforms.  Always choose native unless crosscompiling.
  */
 enum _preproc_platform_t {
-  VTK_PARSE_NATIVE = 0,
+  VTK_PARSE_NATIVE = 0
 };
 
 /**

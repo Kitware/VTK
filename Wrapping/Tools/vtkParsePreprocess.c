@@ -54,76 +54,6 @@
 #define HASH_LINE       0x7c9a15adu
 #define HASH_PRAGMA     0x1566a9fdu
 
-/** Various possible char types */
-#define CPRE_ID         0x01  /* A-Z a-z and _ */
-#define CPRE_DIGIT      0x02  /* 0-9 */
-#define CPRE_IDGIT      0x03  /* 0-9 A-Z a-z and _ */
-#define CPRE_HEX        0x04  /* 0-9A-Fa-f */
-#define CPRE_EXP        0x08  /* EPep (exponents for floats) */
-#define CPRE_SIGN       0x10  /* +- (sign for floats) */
-#define CPRE_QUOTE      0x20  /* " and ' */
-#define CPRE_HSPACE     0x40  /* space, tab, carriage return */
-#define CPRE_VSPACE     0x80  /* newline, vertical tab, form feed */
-#define CPRE_WHITE      0xC0  /* all whitespace characters */
-
-/** Whitespace types.
- * WS_NO_EOL treats newline as end-of-line, instead of whitespace.
- * WS_ALL treats newlines as regular whitespace.
- * WS_COMMENT does not treat comments as whitespace, allowing
- * comments blocks to be returned as tokens. */
-typedef enum _preproc_space_t
-{
-  WS_NO_EOL = CPRE_HSPACE, /* skip horizontal whitespace only */
-  WS_ALL    = CPRE_WHITE,  /* skip all whitespace */
-  WS_COMMENT = (CPRE_WHITE | 0x100), /* comments as tokens */
-} preproc_space_t;
-
-/** Preprocessor tokens. */
-typedef enum _preproc_token_t
-{
-  TOK_OTHER = 257,
-  TOK_ID,        /* any id */
-  TOK_CHAR,      /* char literal */
-  TOK_STRING,    /* string literal */
-  TOK_NUMBER,    /* any numeric literal */
-  TOK_COMMENT,   /* C or C++ comment */
-  TOK_DBLHASH,   /* ## */
-  TOK_SCOPE,     /* :: */
-  TOK_INCR,      /* ++ */
-  TOK_DECR,      /* -- */
-  TOK_RSHIFT,    /* >> */
-  TOK_LSHIFT,    /* << */
-  TOK_AND,       /* && */
-  TOK_OR,        /* || */
-  TOK_EQ,        /* == */
-  TOK_NE,        /* != */
-  TOK_GE,        /* >= */
-  TOK_LE,        /* <= */
-  TOK_ADD_EQ,    /* += */
-  TOK_SUB_EQ,    /* -= */
-  TOK_MUL_EQ,    /* *= */
-  TOK_DIV_EQ,    /* /= */
-  TOK_MOD_EQ,    /* %= */
-  TOK_AND_EQ,    /* &= */
-  TOK_OR_EQ,     /* |= */
-  TOK_XOR_EQ,    /* ^= */
-  TOK_ARROW,     /* -> */
-  TOK_DOT_STAR,  /* .* */
-  TOK_ARROW_STAR,/* ->* */
-  TOK_RSHIFT_EQ, /* >>= */
-  TOK_LSHIFT_EQ, /* <<= */
-  TOK_ELLIPSIS,  /* ... */
-} preproc_token_t;
-
-/** A struct for going through the input one token at a time. */
-typedef struct _preproc_tokenizer
-{
-  int tok;
-  unsigned int hash;
-  const char *text;
-  size_t len;
-} preproc_tokenizer;
-
 /** Extend dynamic arrays in a progression of powers of two.
  * Whenever "n" reaches a power of two, then the array size is
  * doubled so that "n" can be safely incremented. */
@@ -165,354 +95,6 @@ static preproc_uint_t string_to_preproc_uint(const char *cp, int base)
 #endif
 }
 
-/** Array for quick lookup of char types */
-static unsigned char preproc_charbits[] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0,
-  CPRE_HSPACE, /* tab */
-  CPRE_VSPACE, CPRE_VSPACE, CPRE_VSPACE, /* newline, vtab, form feed */
-  CPRE_HSPACE, /* carriage return */
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  CPRE_HSPACE, /* ' ' */
-  0, CPRE_QUOTE, 0, 0, 0, 0, CPRE_QUOTE, 0, 0, /* !"#$%&'() */
-  0, CPRE_SIGN, 0, CPRE_SIGN, 0, 0, /* *+,-./ */
-  CPRE_DIGIT|CPRE_HEX, /* 0 */
-  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
-  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
-  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
-  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
-  CPRE_DIGIT|CPRE_HEX, /* 9 */
-  0, 0, 0, 0, 0, 0, 0, /* :;<=>?@ */
-  CPRE_ID|CPRE_HEX, /* A */
-  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* BCD */
-  CPRE_ID|CPRE_HEX|CPRE_EXP, /* E */
-  CPRE_ID|CPRE_HEX, CPRE_ID, CPRE_ID, CPRE_ID, /* FGHI */
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* JKLM */
-  CPRE_ID, CPRE_ID, CPRE_ID|CPRE_EXP, CPRE_ID, /* NOPQ */
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* RSTU */
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* VWXY */
-  CPRE_ID, /* Z */
-  0, 0, 0, 0, /* [\\]^ */
-  CPRE_ID, /* _ */
-  0, /* ` */
-  CPRE_ID|CPRE_HEX, /* a */
-  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* bcd */
-  CPRE_ID|CPRE_HEX|CPRE_EXP, /* e */
-  CPRE_ID|CPRE_HEX, CPRE_ID, CPRE_ID, CPRE_ID, /* fghi */
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* jklm */
-  CPRE_ID, CPRE_ID, CPRE_ID|CPRE_EXP, CPRE_ID, /* nopq */
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* rstu */
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* vwxy */
-  CPRE_ID, /* z */
-  0, 0, 0, 0, /* {|}~ */
-  0, /* '\x7f' */
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-};
-
-/** Macro to get char type */
-#define preproc_chartype(c, bits) \
-  ((preproc_charbits[(unsigned char)(c)] & bits) != 0)
-
-/** Skip over a comment. */
-static void preproc_skip_comment(const char **cpp)
-{
-  const char *cp = *cpp;
-
-  if (cp[0] == '/')
-    {
-    if (cp[1] == '/')
-      {
-      cp += 2;
-      while (*cp != '\n' && *cp != '\0')
-        {
-        if (cp[0] == '\\')
-          {
-          if (cp[1] == '\n') { cp++; }
-          else if (cp[1] == '\r' && cp[2] == '\n') { cp += 2; }
-          }
-        cp++;
-        }
-      }
-    else if (cp[1] == '*')
-      {
-      cp += 2;
-      while (*cp != '\0')
-        {
-        if (cp[0] == '*' && cp[1] == '/') { cp += 2; break; }
-        cp++;
-        }
-      }
-    }
-
-  *cpp = cp;
-}
-
-/** Skip over whitespace, but not newlines unless preceded by backlash. */
-static void preproc_skip_whitespace(
-  const char **cpp, preproc_space_t spacetype)
-{
-  const char *cp = *cpp;
-
-  for (;;)
-    {
-    if (preproc_chartype(*cp, spacetype))
-      {
-      do
-        {
-        cp++;
-        }
-      while (preproc_chartype(*cp, spacetype));
-      }
-    if (cp[0] == '\\')
-      {
-      if (cp[1] == '\n')
-        {
-        cp += 2;
-        }
-      else if (cp[1] == '\r' && cp[2] == '\n')
-        {
-        cp += 3;
-        }
-      else
-        {
-        break;
-        }
-      }
-    else if (cp[0] == '/' && (spacetype & WS_COMMENT) != WS_COMMENT)
-      {
-      if (cp[1] == '/' || cp[1] == '*')
-        {
-        preproc_skip_comment(&cp);
-        }
-      else
-        {
-        break;
-        }
-      }
-    else
-      {
-      break;
-      }
-    }
-
-  *cpp = cp;
-}
-
-/** Skip over string and char literals. */
-static void preproc_skip_quotes(const char **cpp)
-{
-  const char *cp = *cpp;
-  const char qc = *cp;
-
-  if (preproc_chartype(*cp, CPRE_QUOTE))
-    {
-    cp++;
-    while (*cp != qc && *cp != '\n' && *cp != '\0')
-      {
-      if (*cp++ == '\\')
-        {
-        if (cp[0] == '\r' && cp[1] == '\n') { cp += 2; }
-        else if (*cp != '\0') { cp++; }
-        }
-      }
-    }
-  if (*cp == qc)
-    {
-    cp++;
-    }
-
-  *cpp = cp;
-}
-
-/** Skip over a name. */
-static void preproc_skip_name(const char **cpp)
-{
-  const char *cp = *cpp;
-
-  if (preproc_chartype(*cp, CPRE_ID))
-    {
-    do
-      {
-      cp++;
-      }
-    while (preproc_chartype(*cp, CPRE_IDGIT));
-    }
-
-  *cpp = cp;
-}
-
-/** A simple 32-bit hash function based on "djb2". */
-static unsigned int preproc_hash_name(const char **cpp)
-{
-  const char *cp = (*cpp);
-  unsigned int h = 5381;
-
-  if (preproc_chartype(*cp, CPRE_ID))
-    {
-    do { h = (h << 5) + h + (unsigned char)*cp++; }
-    while (preproc_chartype(*cp, CPRE_IDGIT));
-    }
-
-  *cpp = cp;
-  return h;
-}
-
-/** Skip over a number. */
-static void preproc_skip_number(const char **cpp)
-{
-  const char *cp = *cpp;
-
-  if (preproc_chartype(cp[0], CPRE_DIGIT) ||
-      (cp[0] == '.' && preproc_chartype(cp[1], CPRE_DIGIT)))
-    {
-    do
-      {
-      char c = *cp++;
-      if (preproc_chartype(c, CPRE_EXP) &&
-          preproc_chartype(*cp, CPRE_SIGN))
-        {
-        cp++;
-        }
-      }
-    while (preproc_chartype(*cp, CPRE_IDGIT) || *cp == '.');
-    }
-
-  *cpp = cp;
-}
-
-/** Return the next preprocessor token, or '0' if none left. */
-static int preproc_next(preproc_tokenizer *tokens)
-{
-  const char *cp = tokens->text + tokens->len;
-  preproc_skip_whitespace(&cp, WS_NO_EOL);
-
-  if (preproc_chartype(*cp, CPRE_ID))
-    {
-    const char *ep = cp;
-    unsigned int h = preproc_hash_name(&ep);
-    tokens->tok = TOK_ID;
-    tokens->hash = h;
-    tokens->text = cp;
-    tokens->len = ep - cp;
-    }
-  else if (preproc_chartype(*cp, CPRE_QUOTE))
-    {
-    const char *ep = cp;
-    preproc_skip_quotes(&ep);
-    tokens->tok = (*cp == '\"' ? TOK_STRING : TOK_CHAR);
-    tokens->hash = 0;
-    tokens->text = cp;
-    tokens->len = ep - cp;
-    }
-  else if (preproc_chartype(*cp, CPRE_DIGIT) ||
-           (cp[0] == '.' && preproc_chartype(cp[1], CPRE_DIGIT)))
-    {
-    const char *ep = cp;
-    preproc_skip_number(&ep);
-    tokens->tok = TOK_NUMBER;
-    tokens->hash = 0;
-    tokens->text = cp;
-    tokens->len = ep - cp;
-    }
-  else if (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*'))
-    {
-    const char *ep = cp;
-    preproc_skip_comment(&ep);
-    tokens->tok = TOK_COMMENT;
-    tokens->hash = 0;
-    tokens->text = cp;
-    tokens->len = ep - cp;
-    }
-  else
-    {
-    int t = cp[0];
-    size_t l = 1;
-
-    switch (cp[0])
-      {
-      case ':':
-        if (cp[1] == ':') { l = 2; t = TOK_SCOPE; }
-        break;
-      case '.':
-        if (cp[1] == '.' && cp[2] == '.') { l = 3; t = TOK_ELLIPSIS; }
-        else if (cp[1] == '*') { l = 2; t = TOK_DOT_STAR; }
-        break;
-      case '=':
-        if (cp[1] == '=') { l = 2; t = TOK_EQ; }
-        break;
-      case '!':
-        if (cp[1] == '=') { l = 2; t = TOK_NE; }
-        break;
-      case '<':
-        if (cp[1] == '<' && cp[2] == '=') { l = 3; t = TOK_LSHIFT_EQ; }
-        else if (cp[1] == '<') { l = 2; t = TOK_LSHIFT; }
-        else if (cp[1] == '=') { l = 2; t = TOK_LE; }
-        break;
-      case '>':
-        if (cp[1] == '>' && cp[2] == '=') { l = 3; t = TOK_RSHIFT_EQ; }
-        else if (cp[1] == '>') { l = 2; t = TOK_RSHIFT; }
-        else if (cp[1] == '=') { l = 2; t = TOK_GE; }
-        break;
-      case '&':
-        if (cp[1] == '=') { l = 2; t = TOK_AND_EQ; }
-        else if (cp[1] == '&') { l = 2; t = TOK_AND; }
-        break;
-      case '|':
-        if (cp[1] == '=') { l = 2; t = TOK_OR_EQ; }
-        else if (cp[1] == '|') { l = 2; t = TOK_OR; }
-        break;
-      case '^':
-        if (cp[1] == '=') { l = 2; t = TOK_XOR_EQ; }
-        break;
-      case '*':
-        if (cp[1] == '=') { l = 2; t = TOK_MUL_EQ; }
-        break;
-      case '/':
-        if (cp[1] == '=') { l = 2; t = TOK_DIV_EQ; }
-        break;
-      case '%':
-        if (cp[1] == '=') { l = 2; t = TOK_MOD_EQ; }
-        break;
-      case '+':
-        if (cp[1] == '+') { l = 2; t = TOK_INCR; }
-        else if (cp[1] == '=') { l = 2; t = TOK_ADD_EQ; }
-        break;
-      case '-':
-        if (cp[1] == '>' && cp[2] == '*') { l = 3; t = TOK_ARROW_STAR; }
-        else if (cp[1] == '>') { l = 2; t = TOK_ARROW; }
-        else if (cp[1] == '-') { l = 2; t = TOK_DECR; }
-        else if (cp[1] == '=') { l = 2; t = TOK_SUB_EQ; }
-        break;
-      case '#':
-        if (cp[1] == '#') { l = 2; t = TOK_DBLHASH; }
-        break;
-      case '\n':
-      case '\0':
-        { l = 0; t = 0; }
-        break;
-      }
-
-    tokens->tok = t;
-    tokens->hash = 0;
-    tokens->text = cp;
-    tokens->len = l;
-    }
-
-  return tokens->tok;
-}
-
-/** Initialize the tokenizer. */
-static void preproc_init(preproc_tokenizer *tokens, const char *text)
-{
-  tokens->tok = 0;
-  tokens->hash = 0;
-  tokens->text = text;
-  tokens->len = 0;
-  preproc_next(tokens);
-}
-
 /** Tokenize and compare two strings */
 static int preproc_identical(const char *text1, const char *text2)
 {
@@ -524,11 +106,11 @@ static int preproc_identical(const char *text1, const char *text2)
 
     if (text1 && text2)
       {
-      preproc_tokenizer t1;
-      preproc_tokenizer t2;
+      StringTokenizer t1;
+      StringTokenizer t2;
 
-      preproc_init(&t1, text1);
-      preproc_init(&t2, text2);
+      vtkParse_InitTokenizer(&t1, text1, WS_PREPROC);
+      vtkParse_InitTokenizer(&t2, text2, WS_PREPROC);
 
       do
         {
@@ -539,8 +121,8 @@ static int preproc_identical(const char *text1, const char *text2)
           {
           break;
           }
-        preproc_next(&t1);
-        preproc_next(&t2);
+        vtkParse_NextToken(&t1);
+        vtkParse_NextToken(&t2);
         }
       while (t1.tok && t2.tok);
 
@@ -549,18 +131,6 @@ static int preproc_identical(const char *text1, const char *text2)
     }
 
   return result;
-}
-
-/** Duplicate the first n bytes of a string. */
-static const char *preproc_strndup(const char *in, size_t n)
-{
-  char *res = NULL;
-
-  res = (char *)malloc(n+1);
-  strncpy(res, in, n);
-  res[n] = '\0';
-
-  return res;
 }
 
 /** Create a new preprocessor macro. */
@@ -572,28 +142,25 @@ static MacroInfo *preproc_new_macro(
 
   if (name)
     {
-    size_t n;
-    const char *cp = name;
-    preproc_skip_name(&cp);
-    n = cp - name;
-    macro->Name = preproc_strndup(name, n);
+    size_t n = vtkParse_SkipId(name);
+    macro->Name = vtkParse_CacheString(info->Strings, name, n);
     }
 
   if (definition)
     {
     size_t n;
     const char *cp = definition;
-    preproc_tokenizer tokens;
-    preproc_init(&tokens, cp);
+    StringTokenizer tokens;
+    vtkParse_InitTokenizer(&tokens, cp, WS_PREPROC);
 
     do
       {
       cp = tokens.text + tokens.len;
       }
-    while (preproc_next(&tokens));
+    while (vtkParse_NextToken(&tokens));
 
     n = cp - definition;
-    macro->Definition = preproc_strndup(definition, n);
+    macro->Definition = vtkParse_CacheString(info->Strings, definition, n);
     }
 
   macro->IsExternal = info->IsExternal;
@@ -609,7 +176,7 @@ static void preproc_free_macro(MacroInfo *info)
 
 /** Find a preprocessor macro, return 0 if not found. */
 static MacroInfo *preproc_find_macro(
-  PreprocessInfo *info, preproc_tokenizer *token)
+  PreprocessInfo *info, StringTokenizer *token)
 {
   unsigned int m = PREPROC_HASH_TABLE_SIZE - 1;
   unsigned int i = (token->hash & m);
@@ -641,7 +208,7 @@ static MacroInfo *preproc_find_macro(
 /** Return the address of the macro within the hash table.
   * If "insert" is nonzero, add a new location if macro not found. */
 static MacroInfo **preproc_macro_location(
-  PreprocessInfo *info, preproc_tokenizer *token, int insert)
+  PreprocessInfo *info, StringTokenizer *token, int insert)
 {
   MacroInfo ***htable = info->MacroHashTable;
   unsigned int m = PREPROC_HASH_TABLE_SIZE - 1;
@@ -724,7 +291,7 @@ static MacroInfo **preproc_macro_location(
 
 /** Remove a preprocessor macro.  Returns 0 if macro not found. */
 static int preproc_remove_macro(
-  PreprocessInfo *info, preproc_tokenizer *token)
+  PreprocessInfo *info, StringTokenizer *token)
 {
   MacroInfo **hptr;
 
@@ -751,11 +318,11 @@ static int preproc_remove_macro(
 static MacroInfo *preproc_add_macro_definition(
   PreprocessInfo *info, const char *name, const char *definition)
 {
-  preproc_tokenizer token;
+  StringTokenizer token;
   MacroInfo *macro;
   MacroInfo **macro_p;
 
-  preproc_init(&token, name);
+  vtkParse_InitTokenizer(&token, name, WS_PREPROC);
 
   macro = preproc_new_macro(info, name, definition);
   macro_p = preproc_macro_location(info, &token, 1);
@@ -771,7 +338,7 @@ static MacroInfo *preproc_add_macro_definition(
 }
 
 /** Skip over parentheses, return nonzero if not closed. */
-static int preproc_skip_parentheses(preproc_tokenizer *tokens)
+static int preproc_skip_parentheses(StringTokenizer *tokens)
 {
   int depth = 0;
 
@@ -779,7 +346,7 @@ static int preproc_skip_parentheses(preproc_tokenizer *tokens)
     {
     depth = 1;
 
-    while (depth > 0 && preproc_next(tokens))
+    while (depth > 0 && vtkParse_NextToken(tokens))
       {
       if (tokens->tok == '(')
         {
@@ -794,7 +361,7 @@ static int preproc_skip_parentheses(preproc_tokenizer *tokens)
 
   if (tokens->tok == ')')
     {
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     return VTK_PARSE_OK;
     }
 
@@ -839,7 +406,7 @@ static int preproc_evaluate_char(
       else if (*cp == 'x')
         {
         *val = string_to_preproc_int(cp+1, 16);
-        do { cp++; } while (preproc_chartype(*cp, CPRE_HEX));
+        do { cp++; } while (vtkParse_CharType(*cp, CPRE_HEX));
         }
       }
     if (*cp != '\'')
@@ -874,12 +441,12 @@ static int preproc_evaluate_integer(
     base = 16;
     *is_unsigned = 1;
     ep = cp;
-    while (preproc_chartype(*ep, CPRE_HEX))
+    while (vtkParse_CharType(*ep, CPRE_HEX))
       {
       ep++;
       }
     }
-  else if (cp[0] == '0' && preproc_chartype(cp[1], CPRE_DIGIT))
+  else if (cp[0] == '0' && vtkParse_CharType(cp[1], CPRE_DIGIT))
     {
     cp += 1;
     base = 8;
@@ -894,7 +461,7 @@ static int preproc_evaluate_integer(
     {
     base = 10;
     *is_unsigned = 0;
-    while (preproc_chartype(*ep, CPRE_DIGIT))
+    while (vtkParse_CharType(*ep, CPRE_DIGIT))
       {
       ep++;
       }
@@ -927,12 +494,12 @@ static int preproc_evaluate_integer(
 
 /* forward declaration */
 static int preproc_evaluate_expression(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned);
 
 /** Evaluate a single item in an expression. */
 static int preproc_evaluate_single(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   int result = VTK_PARSE_OK;
@@ -944,12 +511,12 @@ static int preproc_evaluate_single(
         strncmp("defined", tokens->text, tokens->len) == 0)
       {
       int paren = 0;
-      preproc_next(tokens);
+      vtkParse_NextToken(tokens);
 
       if (tokens->tok == '(')
         {
         paren = 1;
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         }
       if (tokens->tok != TOK_ID)
         {
@@ -965,7 +532,7 @@ static int preproc_evaluate_single(
       *is_unsigned = 0;
       *val = (preproc_find_macro(info, tokens) != 0);
 
-      preproc_next(tokens);
+      vtkParse_NextToken(tokens);
       if (paren)
         {
         if (tokens->tok != ')')
@@ -975,7 +542,7 @@ static int preproc_evaluate_single(
 #endif
           return VTK_PARSE_SYNTAX_ERROR;
           }
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         }
 
       return result;
@@ -987,7 +554,7 @@ static int preproc_evaluate_single(
       const char *args = NULL;
       const char *expansion = NULL;
       const char *cp;
-      preproc_next(tokens);
+      vtkParse_NextToken(tokens);
       *val = 0;
       *is_unsigned = 0;
 
@@ -1018,7 +585,7 @@ static int preproc_evaluate_single(
         return (args ? VTK_PARSE_MACRO_NUMARGS : VTK_PARSE_SYNTAX_ERROR);
         }
       cp = expansion;
-      preproc_skip_whitespace(&cp, WS_NO_EOL);
+      cp += vtkParse_SkipWhitespace(cp, WS_PREPROC);
       if (*cp != '\0')
         {
         macro->IsExcluded = 1;
@@ -1036,13 +603,13 @@ static int preproc_evaluate_single(
 
   if (tokens->tok == '(')
     {
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     result = preproc_evaluate_expression(info, tokens, val, is_unsigned);
     if ((result & VTK_PARSE_FATAL_ERROR) == 0)
       {
       if (tokens->tok == ')')
         {
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         return result;
         }
 #if PREPROC_DEBUG
@@ -1060,23 +627,23 @@ static int preproc_evaluate_single(
       {
       result = VTK_PARSE_PREPROC_FLOAT;
       }
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     return result;
     }
   else if (tokens->tok == TOK_CHAR)
     {
     result = preproc_evaluate_char(tokens->text, val, is_unsigned);
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     return result;
     }
   else if (tokens->tok == TOK_STRING)
     {
     *val = 0;
     *is_unsigned = 0;
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     while (tokens->tok == TOK_STRING)
       {
-      preproc_next(tokens);
+      vtkParse_NextToken(tokens);
       }
     return VTK_PARSE_PREPROC_STRING;
     }
@@ -1091,7 +658,7 @@ static int preproc_evaluate_single(
 }
 
 static int preproc_evaluate_unary(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   int op = tokens->tok;
@@ -1102,7 +669,7 @@ static int preproc_evaluate_unary(
     return preproc_evaluate_single(info, tokens, val, is_unsigned);
     }
 
-  preproc_next(tokens);
+  vtkParse_NextToken(tokens);
 
   result = preproc_evaluate_unary(info, tokens, val, is_unsigned);
   if ((result & VTK_PARSE_FATAL_ERROR) == 0)
@@ -1117,7 +684,7 @@ static int preproc_evaluate_unary(
 }
 
 static int preproc_evaluate_multiply(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   int op;
@@ -1134,7 +701,7 @@ static int preproc_evaluate_multiply(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_unary(info, tokens, &rval, &rtype);
 
@@ -1215,7 +782,7 @@ static int preproc_evaluate_multiply(
 }
 
 static int preproc_evaluate_add(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   int op;
@@ -1232,7 +799,7 @@ static int preproc_evaluate_add(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_multiply(info, tokens, &rval, &rtype);
 
@@ -1252,7 +819,7 @@ static int preproc_evaluate_add(
 }
 
 static int preproc_evaluate_bitshift(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   int op;
@@ -1270,7 +837,7 @@ static int preproc_evaluate_bitshift(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_add(info, tokens, &rval, &rtype);
 
@@ -1302,7 +869,7 @@ static int preproc_evaluate_bitshift(
 }
 
 static int preproc_evaluate_compare(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   int op;
@@ -1319,7 +886,7 @@ static int preproc_evaluate_compare(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_bitshift(info, tokens, &rval, &rtype);
 
@@ -1370,7 +937,7 @@ static int preproc_evaluate_compare(
 }
 
 static int preproc_evaluate_equal(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   int op;
@@ -1387,7 +954,7 @@ static int preproc_evaluate_equal(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_compare(info, tokens, &rval, &rtype);
 
@@ -1406,7 +973,7 @@ static int preproc_evaluate_equal(
 }
 
 static int preproc_evaluate_and(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   preproc_int_t rval;
@@ -1421,7 +988,7 @@ static int preproc_evaluate_and(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_equal(info, tokens, &rval, &rtype);
 
@@ -1433,7 +1000,7 @@ static int preproc_evaluate_and(
 }
 
 static int preproc_evaluate_xor(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   preproc_int_t rval;
@@ -1448,7 +1015,7 @@ static int preproc_evaluate_xor(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_and(info, tokens, &rval, &rtype);
 
@@ -1460,7 +1027,7 @@ static int preproc_evaluate_xor(
 }
 
 static int preproc_evaluate_or(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   preproc_int_t rval;
@@ -1475,7 +1042,7 @@ static int preproc_evaluate_or(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_xor(info, tokens, &rval, &rtype);
 
@@ -1487,7 +1054,7 @@ static int preproc_evaluate_or(
 }
 
 static int preproc_evaluate_logic_and(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   preproc_int_t rval;
@@ -1502,7 +1069,7 @@ static int preproc_evaluate_logic_and(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     if (*val == 0)
       {
@@ -1523,7 +1090,7 @@ static int preproc_evaluate_logic_and(
           }
         else
           {
-          preproc_next(tokens);
+          vtkParse_NextToken(tokens);
           }
         }
 
@@ -1542,7 +1109,7 @@ static int preproc_evaluate_logic_and(
 }
 
 static int preproc_evaluate_logic_or(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   preproc_int_t rval;
@@ -1557,7 +1124,7 @@ static int preproc_evaluate_logic_or(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     if (*val != 0)
       {
@@ -1578,7 +1145,7 @@ static int preproc_evaluate_logic_or(
           }
         else
           {
-          preproc_next(tokens);
+          vtkParse_NextToken(tokens);
           }
         }
 
@@ -1598,7 +1165,7 @@ static int preproc_evaluate_logic_or(
 
 /** Evaluate an arimetic *expression.  */
 int preproc_evaluate_expression(
-  PreprocessInfo *info, preproc_tokenizer *tokens,
+  PreprocessInfo *info, StringTokenizer *tokens,
   preproc_int_t *val, int *is_unsigned)
 {
   preproc_int_t rval, sval;
@@ -1613,7 +1180,7 @@ int preproc_evaluate_expression(
       return result;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_expression(info, tokens, &rval, &rtype);
     if ((result & VTK_PARSE_FATAL_ERROR) != 0)
@@ -1629,7 +1196,7 @@ int preproc_evaluate_expression(
       return VTK_PARSE_SYNTAX_ERROR;
       }
 
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     result = preproc_evaluate_expression(info, tokens, &sval, &stype);
     if ((result & VTK_PARSE_FATAL_ERROR) != 0)
@@ -1656,7 +1223,7 @@ int preproc_evaluate_expression(
  * Returns VTK_PARSE_OK if the expression is true,
  * or VTK_PARSE_SKIP of the expression is false. */
 int preproc_evaluate_conditional(
-  PreprocessInfo *info, preproc_tokenizer *tokens)
+  PreprocessInfo *info, StringTokenizer *tokens)
 {
   preproc_int_t rval;
   int rtype;
@@ -1685,7 +1252,7 @@ int preproc_evaluate_conditional(
  * the following code block should be skipped.
  */
 static int preproc_evaluate_if(
-  PreprocessInfo *info, preproc_tokenizer *tokens)
+  PreprocessInfo *info, StringTokenizer *tokens)
 {
   MacroInfo *macro;
   int v1, v2;
@@ -1699,13 +1266,13 @@ static int preproc_evaluate_if(
       {
       if (tokens->hash == HASH_IF)
         {
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         result = preproc_evaluate_conditional(info, tokens);
         }
       else
         {
         v1 = (tokens->hash != HASH_IFNDEF);
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         if (tokens->tok != TOK_ID)
           {
 #if PREPROC_DEBUG
@@ -1715,7 +1282,7 @@ static int preproc_evaluate_if(
           }
         macro = preproc_find_macro(info, tokens);
         v2 = (macro && !macro->IsExcluded);
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         result = ( (v1 ^ v2) ? VTK_PARSE_SKIP : VTK_PARSE_OK);
         }
 
@@ -1751,12 +1318,12 @@ static int preproc_evaluate_if(
       {
       if (tokens->hash == HASH_ELIF)
         {
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         result = preproc_evaluate_conditional(info, tokens);
         }
       else
         {
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         }
       if (result != VTK_PARSE_SKIP)
         {
@@ -1769,7 +1336,7 @@ static int preproc_evaluate_if(
     }
   else if (tokens->hash == HASH_ENDIF)
     {
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     if (info->ConditionalDepth > 0)
       {
       /* decrease the skip depth */
@@ -1789,7 +1356,7 @@ static int preproc_evaluate_if(
  * Handle the #define and #undef directives.
  */
 static int preproc_evaluate_define(
-  PreprocessInfo *info, preproc_tokenizer *tokens)
+  PreprocessInfo *info, StringTokenizer *tokens)
 {
   MacroInfo **macro_p;
   MacroInfo *macro;
@@ -1802,7 +1369,7 @@ static int preproc_evaluate_define(
 
   if (tokens->hash == HASH_DEFINE)
     {
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     if (tokens->tok != TOK_ID)
       {
 #if PREPROC_DEBUG
@@ -1814,13 +1381,13 @@ static int preproc_evaluate_define(
     macro_p = preproc_macro_location(info, tokens, 1);
     name = tokens->text;
     namelen = tokens->len;
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     is_function = 0;
     if (name[namelen] == '(')
       {
       is_function = 1;
-      preproc_next(tokens);
+      vtkParse_NextToken(tokens);
       while (tokens->tok != 0 && tokens->tok != ')')
         {
         if (tokens->tok != TOK_ID && tokens->tok != TOK_ELLIPSIS)
@@ -1835,12 +1402,13 @@ static int preproc_evaluate_define(
         /* add to the arg list */
         params = (const char **)preproc_array_check(
           (char **)params, sizeof(char *), n);
-        params[n++] = preproc_strndup(tokens->text, tokens->len);
+        params[n++] = vtkParse_CacheString(
+          info->Strings, tokens->text, tokens->len);
 
-        preproc_next(tokens);
+        vtkParse_NextToken(tokens);
         if (tokens->tok == ',')
           {
-          preproc_next(tokens);
+          vtkParse_NextToken(tokens);
           }
         else if (tokens->tok != ')')
           {
@@ -1851,7 +1419,7 @@ static int preproc_evaluate_define(
           return VTK_PARSE_SYNTAX_ERROR;
           }
         }
-      preproc_next(tokens);
+      vtkParse_NextToken(tokens);
       }
 
     if (tokens->tok)
@@ -1883,7 +1451,7 @@ static int preproc_evaluate_define(
     }
   else if (tokens->hash == HASH_UNDEF)
     {
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
     if (tokens->tok != TOK_ID)
       {
 #if PREPROC_DEBUG
@@ -1904,7 +1472,6 @@ static int preproc_evaluate_define(
 static int preproc_add_include_file(PreprocessInfo *info, const char *name)
 {
   int i, n;
-  char *dp;
 
   n = info->NumberOfIncludeFiles;
   for (i = 0; i < n; i++)
@@ -1915,12 +1482,10 @@ static int preproc_add_include_file(PreprocessInfo *info, const char *name)
       }
     }
 
-  dp = (char *)malloc(strlen(name)+1);
-  strcpy(dp, name);
-
   info->IncludeFiles = (const char **)preproc_array_check(
     (char **)info->IncludeFiles, sizeof(char *), info->NumberOfIncludeFiles);
-  info->IncludeFiles[info->NumberOfIncludeFiles++] = dp;
+  info->IncludeFiles[info->NumberOfIncludeFiles++] =
+    vtkParse_CacheString(info->Strings, name, strlen(name));
 
   return 1;
 }
@@ -1961,7 +1526,7 @@ const char *preproc_find_include_file(
 
   /* check for absolute path of form DRIVE: or /path/to/file */
   j = 0;
-  while (preproc_chartype(filename[j], CPRE_IDGIT)) { j++; }
+  while (vtkParse_CharType(filename[j], CPRE_IDGIT)) { j++; }
 
   if (filename[j] == ':' || filename[0] == '/' || filename[0] == '\\')
     {
@@ -2074,12 +1639,13 @@ const char *preproc_find_include_file(
         }
       else if (stat(output, &fs) == 0)
         {
+        nn = info->NumberOfIncludeFiles;
         info->IncludeFiles = (const char **)preproc_array_check(
-          (char **)info->IncludeFiles, sizeof(char *),
-          info->NumberOfIncludeFiles);
-        info->IncludeFiles[info->NumberOfIncludeFiles++] = output;
-
-        return output;
+          (char **)info->IncludeFiles, sizeof(char *), nn);
+        info->IncludeFiles[info->NumberOfIncludeFiles++] =
+          vtkParse_CacheString(info->Strings, output, strlen(output));
+        free(output);
+        return info->IncludeFiles[nn];
         }
       }
     }
@@ -2309,7 +1875,7 @@ static int preproc_include_file(
       const char *cp = line;
       line[j] = '\0';
       j = 0;
-      preproc_skip_whitespace(&cp, WS_NO_EOL);
+      cp += vtkParse_SkipWhitespace(cp, WS_PREPROC);
       if (*cp == '#')
         {
         vtkParsePreprocess_HandleDirective(info, line);
@@ -2333,14 +1899,14 @@ static int preproc_include_file(
  * only go through the preprocessor.
  */
 static int preproc_evaluate_include(
-  PreprocessInfo *info, preproc_tokenizer *tokens)
+  PreprocessInfo *info, StringTokenizer *tokens)
 {
   const char *cp;
   const char *filename;
 
   if (tokens->hash == HASH_INCLUDE)
     {
-    preproc_next(tokens);
+    vtkParse_NextToken(tokens);
 
     cp = tokens->text;
 
@@ -2364,7 +1930,7 @@ static int preproc_evaluate_include(
     if (*cp == '\"')
       {
       filename = cp + 1;
-      preproc_skip_quotes(&cp);
+      cp += vtkParse_SkipQuotes(cp);
       if (cp <= filename + 1 || *(cp-1) != '\"')
         {
         return VTK_PARSE_SYNTAX_ERROR;
@@ -2397,16 +1963,16 @@ int vtkParsePreprocess_HandleDirective(
   PreprocessInfo *info, const char *directive)
 {
   int result = VTK_PARSE_OK;
-  preproc_tokenizer tokens;
+  StringTokenizer tokens;
 
-  preproc_init(&tokens, directive);
+  vtkParse_InitTokenizer(&tokens, directive, WS_PREPROC);
 
   if (tokens.tok != '#')
     {
     return VTK_PARSE_SYNTAX_ERROR;
     }
 
-  preproc_next(&tokens);
+  vtkParse_NextToken(&tokens);
 
   if (tokens.tok == TOK_ID)
     {
@@ -2424,7 +1990,7 @@ int vtkParsePreprocess_HandleDirective(
          strncmp("endif", tokens.text, tokens.len) == 0))
       {
       result = preproc_evaluate_if(info, &tokens);
-      while (tokens.tok) { preproc_next(&tokens); }
+      while (tokens.tok) { vtkParse_NextToken(&tokens); }
 #if PREPROC_DEBUG
         {
         size_t n = tokens.text - directive;
@@ -2478,8 +2044,8 @@ int vtkParsePreprocess_EvaluateExpression(
   PreprocessInfo *info, const char *text,
   preproc_int_t *val, int *is_unsigned)
 {
-  preproc_tokenizer tokens;
-  preproc_init(&tokens, text);
+  StringTokenizer tokens;
+  vtkParse_InitTokenizer(&tokens, text, WS_PREPROC);
 
   return preproc_evaluate_expression(info, &tokens, val, is_unsigned);
 }
@@ -2582,11 +2148,11 @@ void vtkParsePreprocess_AddStandardMacros(
 int vtkParsePreprocess_AddMacro(
   PreprocessInfo *info, const char *name, const char *definition)
 {
-  preproc_tokenizer token;
+  StringTokenizer token;
   MacroInfo **macro_p;
   MacroInfo *macro;
 
-  preproc_init(&token, name);
+  vtkParse_InitTokenizer(&token, name, WS_PREPROC);
   macro_p = preproc_macro_location(info, &token, 1);
   if (*macro_p)
     {
@@ -2614,10 +2180,10 @@ int vtkParsePreprocess_AddMacro(
 MacroInfo *vtkParsePreprocess_GetMacro(
   PreprocessInfo *info, const char *name)
 {
-  preproc_tokenizer token;
+  StringTokenizer token;
   MacroInfo *macro;
 
-  preproc_init(&token, name);
+  vtkParse_InitTokenizer(&token, name, WS_PREPROC);
   macro = preproc_find_macro(info, &token);
 
   if (macro && !macro->IsExcluded)
@@ -2634,9 +2200,9 @@ MacroInfo *vtkParsePreprocess_GetMacro(
 int vtkParsePreprocess_RemoveMacro(
   PreprocessInfo *info, const char *name)
 {
-  preproc_tokenizer token;
+  StringTokenizer token;
 
-  preproc_init(&token, name);
+  vtkParse_InitTokenizer(&token, name, WS_PREPROC);
 
   if (preproc_remove_macro(info, &token))
     {
@@ -2689,11 +2255,11 @@ const char *vtkParsePreprocess_ExpandMacro(
         {
         if (*cp == '\"' || *cp == '\'')
           {
-          preproc_skip_quotes(&cp);
+          cp += vtkParse_SkipQuotes(cp);
           }
         else if (cp[0] == '/' && (cp[1] == '*' || cp[1] == '/'))
           {
-          preproc_skip_comment(&cp);
+          cp += vtkParse_SkipComment(cp);
           }
         else if (*cp == '(')
           {
@@ -2752,7 +2318,7 @@ const char *vtkParsePreprocess_ExpandMacro(
     if (macro->NumberOfParameters == 0 && n == 1)
       {
       const char *tp = values[0];
-      preproc_skip_whitespace(&tp, WS_NO_EOL);
+      tp += vtkParse_SkipWhitespace(tp, WS_PREPROC);
       if (tp + 1 >= values[1])
         {
         n = 0;
@@ -2784,24 +2350,24 @@ const char *vtkParsePreprocess_ExpandMacro(
     stringify = 0;
     noexpand = 0;
     /* skip all chars that aren't part of a name */
-    while (!preproc_chartype(*cp, CPRE_ID) && *cp != '\0')
+    while (!vtkParse_CharType(*cp, CPRE_ID) && *cp != '\0')
       {
       dp = cp;
-      preproc_skip_whitespace(&cp, WS_NO_EOL);
+      cp += vtkParse_SkipWhitespace(cp, WS_PREPROC);
       if (cp > dp)
         {
         dp = cp;
         }
-      else if (preproc_chartype(*cp, CPRE_QUOTE))
+      else if (vtkParse_CharType(*cp, CPRE_QUOTE))
         {
-        preproc_skip_quotes(&cp);
+        cp += vtkParse_SkipQuotes(cp);
         dp = cp;
         wp = cp;
         noexpand = 0;
         }
-      else if (preproc_chartype(*cp, CPRE_DIGIT))
+      else if (vtkParse_CharType(*cp, CPRE_DIGIT))
         {
-        preproc_skip_number(&cp);
+        cp += vtkParse_SkipNumber(cp);
         dp = cp;
         wp = cp;
         noexpand = 0;
@@ -2812,7 +2378,7 @@ const char *vtkParsePreprocess_ExpandMacro(
         dp = wp;
         cp += 2;
         wp = cp;
-        preproc_skip_whitespace(&cp, WS_NO_EOL);
+        cp += vtkParse_SkipWhitespace(cp, WS_PREPROC);
         break;
         }
       else if (*cp == '#')
@@ -2821,7 +2387,7 @@ const char *vtkParsePreprocess_ExpandMacro(
         dp = cp;
         wp = cp;
         cp++;
-        preproc_skip_whitespace(&cp, WS_NO_EOL);
+        cp += vtkParse_SkipWhitespace(cp, WS_PREPROC);
         break;
         }
       else
@@ -2854,8 +2420,8 @@ const char *vtkParsePreprocess_ExpandMacro(
 
     /* get the name */
     pp = cp;
-    preproc_skip_name(&cp);
-    l = cp - pp;
+    l = vtkParse_SkipId(cp);
+    cp += l;
     if (l > 0)
       {
       for (j = 0; j < n; j++)
@@ -2869,7 +2435,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           pp = values[j];
           /* remove leading whitespace from argument */
           c = *pp;
-          while (preproc_chartype(c, CPRE_WHITE))
+          while (vtkParse_CharType(c, CPRE_WHITE))
             {
             c = *(++pp);
             l--;
@@ -2878,7 +2444,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           if (l > 0)
             {
             c = pp[l - 1];
-            while (preproc_chartype(c, CPRE_WHITE))
+            while (vtkParse_CharType(c, CPRE_WHITE))
               {
               if (--l == 0)
                 {
@@ -2889,7 +2455,7 @@ const char *vtkParsePreprocess_ExpandMacro(
             }
           /* check if followed by "##" */
           wp = cp;
-          preproc_skip_whitespace(&wp, WS_NO_EOL);
+          wp += vtkParse_SkipWhitespace(wp, WS_PREPROC);
           if (wp[0] == '#' && wp[1] == '#')
             {
             noexpand = 1;
@@ -3009,8 +2575,8 @@ const char *vtkParsePreprocess_ProcessString(
   size_t i = 0;
   size_t rs = 128;
   int last_tok = 0;
-  preproc_tokenizer tokens;
-  preproc_init(&tokens, text);
+  StringTokenizer tokens;
+  vtkParse_InitTokenizer(&tokens, text, WS_PREPROC);
 
   rp = stack_rp;
   rp[0] = '\0';
@@ -3074,12 +2640,12 @@ const char *vtkParsePreprocess_ProcessString(
         if (macro->IsFunction)
           {
           /* expand function macros using the arguments */
-          preproc_next(&tokens);
+          vtkParse_NextToken(&tokens);
           if (tokens.tok == '(')
             {
             int depth = 1;
             args = tokens.text;
-            while (depth > 0 && preproc_next(&tokens))
+            while (depth > 0 && vtkParse_NextToken(&tokens))
               {
               if (tokens.tok == '(')
                 {
@@ -3155,7 +2721,7 @@ const char *vtkParsePreprocess_ProcessString(
     last_tok = tokens.tok;
     l = tokens.len;
     cp = tokens.text;
-    if (preproc_next(&tokens) && tokens.text > cp + l)
+    if (vtkParse_NextToken(&tokens) && tokens.text > cp + l)
       {
       rp[i++] = ' ';
       }
@@ -3233,7 +2799,7 @@ void vtkParsePreprocess_IncludeDirectory(
     (char **)info->IncludeDirectories, sizeof(char *),
     info->NumberOfIncludeDirectories);
   info->IncludeDirectories[info->NumberOfIncludeDirectories++] =
-    preproc_strndup(name, strlen(name));
+    vtkParse_CacheString(info->Strings, name, strlen(name));
 }
 
 /**
@@ -3276,17 +2842,6 @@ void vtkParsePreprocess_InitMacro(MacroInfo *macro)
  */
 void vtkParsePreprocess_FreeMacro(MacroInfo *macro)
 {
-  int i, n;
-
-  free((char *)macro->Name);
-  free((char *)macro->Definition);
-  free((char *)macro->Comment);
-
-  n = macro->NumberOfParameters;
-  for (i = 0; i < n; i++)
-    {
-    free((char *)macro->Parameters[i]);
-    }
   free((char **)macro->Parameters);
 
   free(macro);
@@ -3304,13 +2859,16 @@ void vtkParsePreprocess_Init(
   info->IncludeDirectories = NULL;
   info->NumberOfIncludeFiles = 0;
   info->IncludeFiles = NULL;
+  info->Strings = NULL;
   info->IsExternal = 0;
   info->ConditionalDepth = 0;
   info->ConditionalDone = 0;
 
   if (filename)
     {
-    info->FileName = preproc_strndup(filename, strlen(filename));
+    char *cp = (char *)malloc(strlen(filename) + 1);
+    strcpy(cp, filename);
+    info->FileName = cp;
     }
 }
 
@@ -3342,18 +2900,7 @@ void vtkParsePreprocess_Free(PreprocessInfo *info)
     free(info->MacroHashTable);
     }
 
-  n = info->NumberOfIncludeDirectories;
-  for (i = 0; i < n; i++)
-    {
-    free((char *)info->IncludeDirectories[i]);
-    }
   free((char **)info->IncludeDirectories);
-
-  n = info->NumberOfIncludeFiles;
-  for (i = 0; i < n; i++)
-    {
-    free((char *)info->IncludeFiles[i]);
-    }
   free((char **)info->IncludeFiles);
 
   free(info);

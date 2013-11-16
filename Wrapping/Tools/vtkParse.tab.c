@@ -9279,6 +9279,7 @@ FileInfo *vtkParse_ParseFile(
   /* "preprocessor" is a global struct used by the parser */
   preprocessor = (PreprocessInfo *)malloc(sizeof(PreprocessInfo));
   vtkParsePreprocess_Init(preprocessor, filename);
+  preprocessor->Strings = data->Strings;
   vtkParsePreprocess_AddStandardMacros(preprocessor, VTK_PARSE_NATIVE);
 
   /* add include files specified on the command line */
@@ -9573,7 +9574,8 @@ void vtkParse_IncludeDirectory(const char *dirname)
 /** Return the full path to a header file.  */
 const char *vtkParse_FindIncludeFile(const char *filename)
 {
-  static PreprocessInfo info = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  static StringCache cache = {0, 0, 0, 0};
+  static PreprocessInfo info = {0, 0, 0, 0, 0, 0, &cache, 0, 0, 0};
   int val;
   int i;
 
