@@ -16,6 +16,7 @@
 #include "vtkMappedUnstructuredGrid.h"
 
 #include "vtkGenericCell.h"
+#include <algorithm>
 
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>

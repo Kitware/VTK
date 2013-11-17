@@ -38,7 +38,7 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 
 
-char TestSeedWidgetEventLog[] =
+const char TestSeedWidgetEventLog[] =
   "# StreamVersion 1 i\n"
   "CharEvent 185 179 0 0 105 1 i\n"
   "KeyReleaseEvent 185 179 0 0 105 1 i\n"

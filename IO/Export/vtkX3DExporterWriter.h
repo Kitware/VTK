@@ -72,7 +72,7 @@ public:
   // Flush can be called optionally after some operations to
   // flush the buffer to the filestream. A writer not necessarily
   // implements this function
-  virtual void Flush() {};
+  virtual void Flush() {}
 
   // Description:
   // Starts a document and sets all necessary informations,

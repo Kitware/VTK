@@ -44,7 +44,7 @@ public:
   // This method allows the layout strategy to
   // do initialization of data structures
   // or whatever else it might want to do.
-  virtual void Initialize() {};
+  virtual void Initialize() {}
 
   // Description:
   // This is the layout method where the graph that was

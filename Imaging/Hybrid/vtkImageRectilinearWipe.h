@@ -115,7 +115,7 @@ public:
 
 protected:
   vtkImageRectilinearWipe();
-  ~vtkImageRectilinearWipe() {};
+  ~vtkImageRectilinearWipe() {}
 
   virtual void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,

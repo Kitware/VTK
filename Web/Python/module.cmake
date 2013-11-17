@@ -4,4 +4,5 @@ vtk_module(vtkWebPython
   DEPENDS
     AutobahnPython
     vtkPython
-  EXCLUDE_FROM_WRAPPING)
+  EXCLUDE_FROM_WRAPPING
+  EXCLUDE_FROM_ALL)

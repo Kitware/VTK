@@ -31,8 +31,8 @@ public:
   vtkTypeMacro(vtkStructuredGridOutlineFilter,vtkPolyDataAlgorithm);
 
 protected:
-  vtkStructuredGridOutlineFilter() {};
-  ~vtkStructuredGridOutlineFilter() {};
+  vtkStructuredGridOutlineFilter() {}
+  ~vtkStructuredGridOutlineFilter() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);

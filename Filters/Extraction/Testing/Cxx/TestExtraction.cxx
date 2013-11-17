@@ -54,9 +54,9 @@
 #define YCELLS 3
 #define ZCELLS 3
 
-vtkRenderer *renderer = NULL;
-vtkImageData *sampleData = NULL;
-int DrawSampleData = 0;
+static vtkRenderer *renderer = NULL;
+static vtkImageData *sampleData = NULL;
+static int DrawSampleData = 0;
 
 enum {COLORBYCELL, COLORBYPOINT};
 

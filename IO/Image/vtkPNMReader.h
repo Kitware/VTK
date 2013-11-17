@@ -59,8 +59,8 @@ public:
     }
 
 protected:
-  vtkPNMReader() {};
-  ~vtkPNMReader() {};
+  vtkPNMReader() {}
+  ~vtkPNMReader() {}
   void ExecuteInformation();
 private:
   vtkPNMReader(const vtkPNMReader&);  // Not implemented.

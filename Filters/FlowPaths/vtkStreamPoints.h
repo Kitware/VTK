@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkStreamPoints();
-  ~vtkStreamPoints() {};
+  ~vtkStreamPoints() {}
 
   // Convert streamer array into vtkPolyData
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

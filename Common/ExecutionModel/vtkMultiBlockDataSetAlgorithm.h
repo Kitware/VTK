@@ -54,7 +54,7 @@ public:
 
 protected:
   vtkMultiBlockDataSetAlgorithm();
-  ~vtkMultiBlockDataSetAlgorithm() {};
+  ~vtkMultiBlockDataSetAlgorithm() {}
 
   // Description:
   // This is called by the superclass.

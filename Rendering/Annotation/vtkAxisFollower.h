@@ -160,7 +160,7 @@ private:
  void operator =(const vtkAxisFollower&);  // Not implemented.
 
  // hide the two parameter Render() method from the user and the compiler.
- virtual void Render(vtkRenderer *, vtkMapper *) {};
+ virtual void Render(vtkRenderer *, vtkMapper *) {}
 
  //Internal matrices to avoid New/Delete for performance reasons
  vtkMatrix4x4 *InternalMatrix;

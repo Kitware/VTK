@@ -63,8 +63,8 @@ public:
   //ETX
 
 protected:
-  vtkDataObjectCollection() {};
-  ~vtkDataObjectCollection() {};
+  vtkDataObjectCollection() {}
+  ~vtkDataObjectCollection() {}
 
 
 private:

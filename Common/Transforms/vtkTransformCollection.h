@@ -53,8 +53,8 @@ public:
   //ETX
 
 protected:
-  vtkTransformCollection() {};
-  ~vtkTransformCollection() {};
+  vtkTransformCollection() {}
+  ~vtkTransformCollection() {}
 
 
 private:

@@ -78,7 +78,7 @@ typedef struct _vtkSortValues {
 
 extern "C"
 {
-  int vtkCompareBackToFront(const void *val1, const void *val2)
+  static int vtkCompareBackToFront(const void *val1, const void *val2)
   {
     if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
       {
@@ -97,7 +97,7 @@ extern "C"
 
 extern "C"
 {
-  int vtkCompareFrontToBack(const void *val1, const void *val2)
+  static int vtkCompareFrontToBack(const void *val1, const void *val2)
   {
     if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
       {

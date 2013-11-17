@@ -33,7 +33,7 @@ vtkCxxSetObjectMacro( vtkIncrementalOctreeNode, Parent, vtkIncrementalOctreeNode
 // function vtkIncreemntalOctreeNode::InsertPoint(). The caller inserts the
 // point index to the vtkIdList maintained by a leaf node, without inserting
 // the point (coordinate) to vtkPoints at all.
-void _OctreeNodeGetPointId( vtkPoints * vtkNotUsed( points ),
+static void OctreeNodeGetPointId( vtkPoints * vtkNotUsed( points ),
   vtkIdType * vtkNotUsed( pntIdx ), const double * vtkNotUsed( coords ) )
 {
   // the 3D point coordinate is not inserted to vtkPoints at all
@@ -42,16 +42,16 @@ void _OctreeNodeGetPointId( vtkPoints * vtkNotUsed( points ),
 //----------------------------------------------------------------------------
 // Insert a point, with a specified point index, to a vtkPoints object by
 // calling vtkPoints::InsertPoint().
-void _OctreeNodeInsertPoint( vtkPoints * points, vtkIdType * pntIdx,
-                             const double * coords )
+static void OctreeNodeInsertPoint( vtkPoints * points, vtkIdType * pntIdx,
+                                    const double * coords )
 {
   points->InsertPoint( *pntIdx, coords );
 }
 
 //----------------------------------------------------------------------------
 // Insert a point to a vtkPoints by calling vtkPoints::InsertNextPoint().
-void _OctreeNodeInsertNextPoint( vtkPoints * points, vtkIdType * pntIdx,
-                                 const double * coords )
+static void OctreeNodeInsertNextPoint( vtkPoints * points, vtkIdType * pntIdx,
+                                        const double * coords )
 {
   *pntIdx = points->InsertNextPoint( coords );
 }
@@ -63,9 +63,9 @@ typedef void ( * OCTREENODE_INSERTPOINT_FUNCTION )
 
 static OCTREENODE_INSERTPOINT_FUNCTION OCTREENODE_INSERTPOINT[3] =
 {
-  _OctreeNodeGetPointId,
-  _OctreeNodeInsertPoint,
-  _OctreeNodeInsertNextPoint
+  OctreeNodeGetPointId,
+  OctreeNodeInsertPoint,
+  OctreeNodeInsertNextPoint
 };
 
 // ---------------------------------------------------------------------------

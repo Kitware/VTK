@@ -35,7 +35,7 @@
 class vtkCollectionElement //;prevents pick-up by man page generator
 {
  public:
-  vtkCollectionElement():Item(NULL),Next(NULL) {};
+  vtkCollectionElement():Item(NULL),Next(NULL) {}
   vtkObject *Item;
   vtkCollectionElement *Next;
 };

@@ -25,6 +25,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMath.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold
@@ -147,9 +149,13 @@ int vtkThreshold::RequestData(
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
     {
     vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
-    if(inputPointSet)
+    if(inputPointSet && inputPointSet->GetPoints())
       {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    else
+      {
+      newPoints->SetDataType(VTK_FLOAT);
       }
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)

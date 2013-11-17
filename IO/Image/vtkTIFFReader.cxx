@@ -69,9 +69,9 @@ public:
 
 
 extern "C" {
-void vtkTIFFReaderInternalErrorHandler(const char* vtkNotUsed(module),
-                                          const char* vtkNotUsed(fmt),
-                                          va_list vtkNotUsed(ap))
+static void vtkTIFFReaderInternalErrorHandler(const char* vtkNotUsed(module),
+                                              const char* vtkNotUsed(fmt),
+                                              va_list vtkNotUsed(ap))
 {
     // Do nothing
     // Ignore errors

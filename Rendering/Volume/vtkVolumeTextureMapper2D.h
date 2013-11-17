@@ -67,13 +67,13 @@ public:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Render the volume
-  virtual void Render(vtkRenderer *, vtkVolume *) {};
+  virtual void Render(vtkRenderer *, vtkVolume *) {}
 
   virtual void RenderQuads( int vtkNotUsed(count),
                             float *vtkNotUsed(v), float *vtkNotUsed(t),
                             unsigned char *vtkNotUsed(texture),
                             int vtkNotUsed(size)[2],
-                            int vtkNotUsed(reverseFlag)) {};
+                            int vtkNotUsed(reverseFlag)) {}
 
   // Description:
   // Made public only for access from the templated method. Not a vtkGetMacro

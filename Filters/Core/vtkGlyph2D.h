@@ -44,8 +44,8 @@ public:
   static vtkGlyph2D *New();
 
 protected:
-  vtkGlyph2D() {};
-  ~vtkGlyph2D() {};
+  vtkGlyph2D() {}
+  ~vtkGlyph2D() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

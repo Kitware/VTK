@@ -54,8 +54,8 @@ public:
   //ETX
 
 protected:
-  vtkPlaneCollection() {};
-  ~vtkPlaneCollection() {};
+  vtkPlaneCollection() {}
+  ~vtkPlaneCollection() {}
 
 
 private:

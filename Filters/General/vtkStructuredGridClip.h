@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkStructuredGridClip();
-  ~vtkStructuredGridClip() {};
+  ~vtkStructuredGridClip() {}
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;

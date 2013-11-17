@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkImageThreshold();
-  ~vtkImageThreshold() {};
+  ~vtkImageThreshold() {}
 
   double UpperThreshold;
   double LowerThreshold;

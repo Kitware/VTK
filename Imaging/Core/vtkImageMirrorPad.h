@@ -32,8 +32,8 @@ public:
   vtkTypeMacro(vtkImageMirrorPad,vtkImagePadFilter);
 
 protected:
-  vtkImageMirrorPad() {};
-  ~vtkImageMirrorPad() {};
+  vtkImageMirrorPad() {}
+  ~vtkImageMirrorPad() {}
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wExt[6]);
   void ThreadedRequestData (vtkInformation* request,

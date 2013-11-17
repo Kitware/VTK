@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkStructuredPoints();
-  ~vtkStructuredPoints() {};
+  ~vtkStructuredPoints() {}
 private:
   vtkStructuredPoints(const vtkStructuredPoints&);  // Not implemented.
   void operator=(const vtkStructuredPoints&);  // Not implemented.

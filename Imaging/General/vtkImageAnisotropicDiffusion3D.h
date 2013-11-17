@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkImageAnisotropicDiffusion3D();
-  ~vtkImageAnisotropicDiffusion3D() {};
+  ~vtkImageAnisotropicDiffusion3D() {}
 
   int NumberOfIterations;
   double DiffusionThreshold;

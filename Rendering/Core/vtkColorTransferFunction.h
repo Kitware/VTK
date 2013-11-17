@@ -244,7 +244,7 @@ protected:
   // Description:
   // Set the range of scalars being mapped. The set has no functionality
   // in this subclass of vtkScalarsToColors.
-  virtual void SetRange(double, double) {};
+  virtual void SetRange(double, double) {}
   void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
 
   // Internal method to sort the vector and update the

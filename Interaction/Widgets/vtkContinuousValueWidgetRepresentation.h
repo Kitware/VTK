@@ -46,7 +46,7 @@ public:
   // assumes that the parameter bounds[6] specifies the location in display
   // space where the widget should be placed.
   virtual void PlaceWidget(double bounds[6]);
-  virtual void BuildRepresentation() {};
+  virtual void BuildRepresentation() {}
   virtual void StartWidgetInteraction(double eventPos[2]) = 0;
   virtual void WidgetInteraction(double eventPos[2]) = 0;
 //  virtual void Highlight(int);

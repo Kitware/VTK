@@ -45,8 +45,8 @@ public:
   vtkTypeMacro(vtkLinearSubdivisionFilter,vtkInterpolatingSubdivisionFilter);
 
 protected:
-  vtkLinearSubdivisionFilter () {};
-  ~vtkLinearSubdivisionFilter () {};
+  vtkLinearSubdivisionFilter () {}
+  ~vtkLinearSubdivisionFilter () {}
 
   void GenerateSubdivisionPoints (vtkPolyData *inputDS,
                                   vtkIntArray *edgeData,

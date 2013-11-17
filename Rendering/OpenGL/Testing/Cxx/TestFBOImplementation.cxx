@@ -33,11 +33,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkgl.h"
 #include <cassert>
 
-bool ARB_texture_rectangle_supported=false;
-bool depth_texture_supported=false; // OpenGL 1.4 or GL_ARB_depth_texture
-bool srgb_texture_supported=false; // OpenGL 2.1 or GL_EXT_texture_sRGB
-bool float_texture_supported=false; // GL_ARB_texture_float
-bool integer_texture_supported=false; // GL_EXT_texture_integer (GeForce 8)
+static bool ARB_texture_rectangle_supported=false;
+static bool depth_texture_supported=false; // OpenGL 1.4 or GL_ARB_depth_texture
+static bool srgb_texture_supported=false; // OpenGL 2.1 or GL_EXT_texture_sRGB
+static bool float_texture_supported=false; // GL_ARB_texture_float
+static bool integer_texture_supported=false; // GL_EXT_texture_integer (GeForce 8)
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -1176,194 +1176,116 @@ void QueryTexture3D()
 
 }
 
-int textureSizes[2][2]={{64,32}, // spec says min of max is 64.
-                        {63,32}};
+const int textureSizes[2][2]={{64,32}, // spec says min of max is 64.
+                              {63,32}};
 
-int textureFormat[13]={GL_COLOR_INDEX,
-                       GL_STENCIL_INDEX,
-                       GL_DEPTH_COMPONENT,
-                       GL_RED,
-                       GL_GREEN,
-                       GL_BLUE,
-                       GL_ALPHA,
-                       GL_RGB,
-                       GL_RGBA,
-                       vtkgl::BGR,
-                       vtkgl::BGRA,
-                       GL_LUMINANCE,
-                       GL_LUMINANCE_ALPHA};
-
-int textureBaseInternalFormats[7]={GL_ALPHA,
-                                   GL_DEPTH_COMPONENT,
-                                   GL_LUMINANCE,
-                                   GL_LUMINANCE_ALPHA,
-                                   GL_INTENSITY,
-                                   GL_RGB,
-                                   GL_RGBA};
-
-int textureSizedInternalFormats[87]={GL_ALPHA4,
-                                     GL_ALPHA8,
-                                     GL_ALPHA12,
-                                     GL_ALPHA16,
-                                     vtkgl::DEPTH_COMPONENT16, //4
-                                     vtkgl::DEPTH_COMPONENT24, //5
-                                     vtkgl::DEPTH_COMPONENT32, //6
-                                     GL_LUMINANCE4,
-                                     GL_LUMINANCE8,
-                                     GL_LUMINANCE12,
-                                     GL_LUMINANCE16,
-                                     GL_LUMINANCE4_ALPHA4,
-                                     GL_LUMINANCE6_ALPHA2,
-                                     GL_LUMINANCE8_ALPHA8,
-                                     GL_LUMINANCE12_ALPHA4,
-                                     GL_LUMINANCE12_ALPHA12,
-                                     GL_LUMINANCE16_ALPHA16,
-                                     GL_INTENSITY4,
-                                     GL_INTENSITY8,
-                                     GL_INTENSITY12,
-                                     GL_INTENSITY16,
-                                     GL_R3_G3_B2,
-                                     GL_RGB4,
-                                     GL_RGB5,
-                                     GL_RGB8,
-                                     GL_RGB10,
-                                     GL_RGB12,
-                                     GL_RGB16,
-                                     GL_RGBA2,
-                                     GL_RGBA4,
-                                     GL_RGB5_A1,
-                                     GL_RGBA8,
-                                     GL_RGB10_A2,
-                                     GL_RGBA12,
-                                     GL_RGBA16,
-                                     vtkgl::SRGB8, //35
-                                     vtkgl::SRGB8_ALPHA8,
-                                     vtkgl::SLUMINANCE8,
-                                     vtkgl::SLUMINANCE8_ALPHA8, // idx=38,count=39
-                                     vtkgl::RGBA32F_ARB,
-                                     vtkgl::RGB32F_ARB,
-                                     vtkgl::ALPHA32F_ARB,
-                                     vtkgl::INTENSITY32F_ARB,
-                                     vtkgl::LUMINANCE32F_ARB,
-                                     vtkgl::LUMINANCE_ALPHA32F_ARB,
-                                     vtkgl::RGBA16F_ARB,
-                                     vtkgl::RGB16F_ARB,
-                                     vtkgl::ALPHA16F_ARB,
-                                     vtkgl::INTENSITY16F_ARB,
-                                     vtkgl::LUMINANCE16F_ARB,
-                                     vtkgl::LUMINANCE_ALPHA16F_ARB,// i=50,c=51
-                                     vtkgl::ALPHA8I_EXT,
-                                     vtkgl::ALPHA8UI_EXT,
-                                     vtkgl::ALPHA16I_EXT,
-                                     vtkgl::ALPHA16UI_EXT,
-                                     vtkgl::ALPHA32I_EXT,
-                                     vtkgl::ALPHA32UI_EXT,
-                                     vtkgl::LUMINANCE8I_EXT,
-                                     vtkgl::LUMINANCE8UI_EXT,
-                                     vtkgl::LUMINANCE16I_EXT,
-                                     vtkgl::LUMINANCE16UI_EXT,
-                                     vtkgl::LUMINANCE32I_EXT,
-                                     vtkgl::LUMINANCE32UI_EXT,
-                                     vtkgl::LUMINANCE_ALPHA8I_EXT,
-                                     vtkgl::LUMINANCE_ALPHA8UI_EXT,
-                                     vtkgl::LUMINANCE_ALPHA16I_EXT,
-                                     vtkgl::LUMINANCE_ALPHA16UI_EXT,
-                                     vtkgl::LUMINANCE_ALPHA32I_EXT,
-                                     vtkgl::LUMINANCE_ALPHA32UI_EXT,
-                                     vtkgl::INTENSITY8I_EXT,
-                                     vtkgl::INTENSITY8UI_EXT,
-                                     vtkgl::INTENSITY16I_EXT,
-                                     vtkgl::INTENSITY16UI_EXT,
-                                     vtkgl::INTENSITY32I_EXT,
-                                     vtkgl::INTENSITY32UI_EXT,
-                                     vtkgl::RGB8I_EXT,
-                                     vtkgl::RGB8UI_EXT,
-                                     vtkgl::RGB16I_EXT,
-                                     vtkgl::RGB16UI_EXT,
-                                     vtkgl::RGB32I_EXT,
-                                     vtkgl::RGB32UI_EXT,
-                                     vtkgl::RGBA8I_EXT,
-                                     vtkgl::RGBA8UI_EXT,
-                                     vtkgl::RGBA16I_EXT,
-                                     vtkgl::RGBA16UI_EXT,
-                                     vtkgl::RGBA32I_EXT,
-                                     vtkgl::RGBA32UI_EXT}; // i=86, c=87
+const int textureSizedInternalFormats[87]={GL_ALPHA4,
+                                           GL_ALPHA8,
+                                           GL_ALPHA12,
+                                           GL_ALPHA16,
+                                           vtkgl::DEPTH_COMPONENT16, //4
+                                           vtkgl::DEPTH_COMPONENT24, //5
+                                           vtkgl::DEPTH_COMPONENT32, //6
+                                           GL_LUMINANCE4,
+                                           GL_LUMINANCE8,
+                                           GL_LUMINANCE12,
+                                           GL_LUMINANCE16,
+                                           GL_LUMINANCE4_ALPHA4,
+                                           GL_LUMINANCE6_ALPHA2,
+                                           GL_LUMINANCE8_ALPHA8,
+                                           GL_LUMINANCE12_ALPHA4,
+                                           GL_LUMINANCE12_ALPHA12,
+                                           GL_LUMINANCE16_ALPHA16,
+                                           GL_INTENSITY4,
+                                           GL_INTENSITY8,
+                                           GL_INTENSITY12,
+                                           GL_INTENSITY16,
+                                           GL_R3_G3_B2,
+                                           GL_RGB4,
+                                           GL_RGB5,
+                                           GL_RGB8,
+                                           GL_RGB10,
+                                           GL_RGB12,
+                                           GL_RGB16,
+                                           GL_RGBA2,
+                                           GL_RGBA4,
+                                           GL_RGB5_A1,
+                                           GL_RGBA8,
+                                           GL_RGB10_A2,
+                                           GL_RGBA12,
+                                           GL_RGBA16,
+                                           vtkgl::SRGB8, //35
+                                           vtkgl::SRGB8_ALPHA8,
+                                           vtkgl::SLUMINANCE8,
+                                           vtkgl::SLUMINANCE8_ALPHA8, // idx=38,count=39
+                                           vtkgl::RGBA32F_ARB,
+                                           vtkgl::RGB32F_ARB,
+                                           vtkgl::ALPHA32F_ARB,
+                                           vtkgl::INTENSITY32F_ARB,
+                                           vtkgl::LUMINANCE32F_ARB,
+                                           vtkgl::LUMINANCE_ALPHA32F_ARB,
+                                           vtkgl::RGBA16F_ARB,
+                                           vtkgl::RGB16F_ARB,
+                                           vtkgl::ALPHA16F_ARB,
+                                           vtkgl::INTENSITY16F_ARB,
+                                           vtkgl::LUMINANCE16F_ARB,
+                                           vtkgl::LUMINANCE_ALPHA16F_ARB,// i=50,c=51
+                                           vtkgl::ALPHA8I_EXT,
+                                           vtkgl::ALPHA8UI_EXT,
+                                           vtkgl::ALPHA16I_EXT,
+                                           vtkgl::ALPHA16UI_EXT,
+                                           vtkgl::ALPHA32I_EXT,
+                                           vtkgl::ALPHA32UI_EXT,
+                                           vtkgl::LUMINANCE8I_EXT,
+                                           vtkgl::LUMINANCE8UI_EXT,
+                                           vtkgl::LUMINANCE16I_EXT,
+                                           vtkgl::LUMINANCE16UI_EXT,
+                                           vtkgl::LUMINANCE32I_EXT,
+                                           vtkgl::LUMINANCE32UI_EXT,
+                                           vtkgl::LUMINANCE_ALPHA8I_EXT,
+                                           vtkgl::LUMINANCE_ALPHA8UI_EXT,
+                                           vtkgl::LUMINANCE_ALPHA16I_EXT,
+                                           vtkgl::LUMINANCE_ALPHA16UI_EXT,
+                                           vtkgl::LUMINANCE_ALPHA32I_EXT,
+                                           vtkgl::LUMINANCE_ALPHA32UI_EXT,
+                                           vtkgl::INTENSITY8I_EXT,
+                                           vtkgl::INTENSITY8UI_EXT,
+                                           vtkgl::INTENSITY16I_EXT,
+                                           vtkgl::INTENSITY16UI_EXT,
+                                           vtkgl::INTENSITY32I_EXT,
+                                           vtkgl::INTENSITY32UI_EXT,
+                                           vtkgl::RGB8I_EXT,
+                                           vtkgl::RGB8UI_EXT,
+                                           vtkgl::RGB16I_EXT,
+                                           vtkgl::RGB16UI_EXT,
+                                           vtkgl::RGB32I_EXT,
+                                           vtkgl::RGB32UI_EXT,
+                                           vtkgl::RGBA8I_EXT,
+                                           vtkgl::RGBA8UI_EXT,
+                                           vtkgl::RGBA16I_EXT,
+                                           vtkgl::RGBA16UI_EXT,
+                                           vtkgl::RGBA32I_EXT,
+                                           vtkgl::RGBA32UI_EXT}; // i=86, c=87
 
 const int NumberOftextureSizedInternalFormats=87;
 
-int textureFormats[23]={GL_COLOR_INDEX,
-                        GL_STENCIL_INDEX,
-                        GL_DEPTH_COMPONENT,
-                        GL_RED,
-                        GL_GREEN,
-                        GL_BLUE,
-                        GL_ALPHA,
-                        GL_RGB,
-                        GL_RGBA,
-                        vtkgl::BGR,
-                        vtkgl::BGRA,
-                        GL_LUMINANCE,
-                        GL_LUMINANCE_ALPHA,
-                        vtkgl::RED_INTEGER_EXT,
-                        vtkgl::GREEN_INTEGER_EXT,
-                        vtkgl::BLUE_INTEGER_EXT,
-                        vtkgl::ALPHA_INTEGER_EXT,
-                        vtkgl::RGB_INTEGER_EXT,
-                        vtkgl::RGBA_INTEGER_EXT,
-                        vtkgl::BGR_INTEGER_EXT,
-                        vtkgl::BGRA_INTEGER_EXT,
-                        vtkgl::LUMINANCE_INTEGER_EXT,
-                        vtkgl::LUMINANCE_ALPHA_INTEGER_EXT};
+const GLenum textureTarget[2]={GL_TEXTURE_2D,
+                               vtkgl::TEXTURE_RECTANGLE_ARB};
 
-#if 0
-int textureFormat[7]={GL_ALPHA,
-                      GL_DEPTH_COMPONENT,
-                      GL_LUMINANCE,
-                      GL_LUMINANCE_ALPHA,
-                      GL_INTENSITY,
-                      GL_RGB,
-                      GL_RGBA //,
-};
-#endif
+const int textureProxyTarget[2]={GL_PROXY_TEXTURE_2D,
+                                 vtkgl::PROXY_TEXTURE_RECTANGLE_ARB};
 
-int textureType[]={GL_UNSIGNED_BYTE,
-                   GL_BITMAP,
-                   GL_BYTE,
-                   GL_UNSIGNED_SHORT,
-                   GL_SHORT,
-                   GL_UNSIGNED_INT,
-                   GL_INT,
-                   GL_FLOAT,
-                   vtkgl::UNSIGNED_BYTE_3_3_2,
-                   vtkgl::UNSIGNED_BYTE_2_3_3_REV,
-                   vtkgl::UNSIGNED_SHORT_5_6_5,
-                   vtkgl::UNSIGNED_SHORT_5_6_5_REV,
-                   vtkgl::UNSIGNED_SHORT_4_4_4_4,
-                   vtkgl::UNSIGNED_SHORT_4_4_4_4_REV,
-                   vtkgl::UNSIGNED_SHORT_5_5_5_1,
-                   vtkgl::UNSIGNED_SHORT_1_5_5_5_REV,
-                   vtkgl::UNSIGNED_INT_8_8_8_8,
-                   vtkgl::UNSIGNED_INT_8_8_8_8_REV,
-                   vtkgl::UNSIGNED_INT_10_10_10_2,
-                   vtkgl::UNSIGNED_INT_2_10_10_10_REV};
-
-GLenum textureTarget[2]={GL_TEXTURE_2D,
-                         vtkgl::TEXTURE_RECTANGLE_ARB};
-
-int textureProxyTarget[2]={GL_PROXY_TEXTURE_2D,
-                           vtkgl::PROXY_TEXTURE_RECTANGLE_ARB};
-
-int textureMinMag[2]={GL_NEAREST,GL_LINEAR};
+const int textureMinMag[2]={GL_NEAREST,GL_LINEAR};
 
 // OpenGL 1.2: vtkgl::CLAMP_TO_EDGE
 // OpenGL 1.3: vtkgl::CLAMP_TO_BORDER
 // OpenGL 1.4: vtkgl::MIRRORED_REPEAT
 
-int textureWrap[5]={GL_CLAMP,
-                    GL_REPEAT,
-                    vtkgl::CLAMP_TO_EDGE,
-                    vtkgl::CLAMP_TO_BORDER,
-                    vtkgl::MIRRORED_REPEAT};
+const int textureWrap[5]={GL_CLAMP,
+                          GL_REPEAT,
+                          vtkgl::CLAMP_TO_EDGE,
+                          vtkgl::CLAMP_TO_BORDER,
+                          vtkgl::MIRRORED_REPEAT};
 
 // GL_ARB_color_buffer_float
 // GL_ARB_half_float_pixel
@@ -2223,7 +2145,7 @@ void TestVisual(int multiSample,
   renwin->Delete();
 }
 
-int windowSize[2]={512,511};
+const int windowSize[2]={512,511};
 
 int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {

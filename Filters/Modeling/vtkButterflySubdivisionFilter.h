@@ -58,8 +58,8 @@ public:
   vtkTypeMacro(vtkButterflySubdivisionFilter,vtkInterpolatingSubdivisionFilter);
 
 protected:
-  vtkButterflySubdivisionFilter () {};
-  ~vtkButterflySubdivisionFilter () {};
+  vtkButterflySubdivisionFilter () {}
+  ~vtkButterflySubdivisionFilter () {}
 
 private:
   void GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,

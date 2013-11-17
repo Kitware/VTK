@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkImageGaussianSource();
-  ~vtkImageGaussianSource() {};
+  ~vtkImageGaussianSource() {}
 
   double StandardDeviation;
   int WholeExtent[6];

@@ -29,8 +29,8 @@ public:
   vtkTypeMacro(vtkBar,vtkObject);
 
 protected:
-  vtkBar() {};
-  ~vtkBar() {};
+  vtkBar() {}
+  ~vtkBar() {}
 private:
   vtkBar(const vtkBar&);  // Not implemented.
   void operator=(const vtkBar&);  // Not implemented.

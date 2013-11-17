@@ -520,8 +520,8 @@ M_Read(void)
       METAIO_STREAM::cout << "MetaTransform: m_Read: data not read completely"
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << parametersDimension*sizeof(double) << " : actual = " << gc << METAIO_STREAM::endl;
-      return false;
       delete [] _data;
+      return false;
       }
 
     unsigned long k=0;

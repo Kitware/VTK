@@ -40,8 +40,8 @@ public:
   vtkTree* GetInput(int port);
 
 protected:
-  vtkTreeWriter() {};
-  ~vtkTreeWriter() {};
+  vtkTreeWriter() {}
+  ~vtkTreeWriter() {}
 
   void WriteData();
 

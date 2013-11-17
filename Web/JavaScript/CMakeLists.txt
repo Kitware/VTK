@@ -17,6 +17,7 @@ set(lib_js_min_files
   "${lib_source_dir}/vtkweb.connect.js"
   "${lib_source_dir}/vtkweb.viewport.js"
   "${lib_source_dir}/vtkweb.viewport.image.js"
+  "${lib_source_dir}/vtkweb.viewport.vgl.js"
   "${lib_source_dir}/vtkweb.viewport.webgl.js"
   "${lib_source_dir}/vtkweb.simple.js"
   )

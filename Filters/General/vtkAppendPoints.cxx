@@ -138,7 +138,7 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
 
       // Set the desired precision to VTK_DOUBLE if the precision of the
       // points in any of the inputs is VTK_DOUBLE.
-      if(input && input->GetPoints()->GetDataType() == VTK_DOUBLE)
+      if(input && input->GetPoints() && input->GetPoints()->GetDataType() == VTK_DOUBLE)
         {
         pts->SetDataType(VTK_DOUBLE);
         break;

@@ -56,7 +56,7 @@ protected:
   vtkObject *Target;
 
   vtkEventForwarderCommand();
-  ~vtkEventForwarderCommand() {};
+  ~vtkEventForwarderCommand() {}
 };
 
 #endif /* __vtkEventForwarderCommand_h */

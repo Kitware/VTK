@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkImageButterworthLowPass();
-  ~vtkImageButterworthLowPass() {};
+  ~vtkImageButterworthLowPass() {}
 
   int Order;
   double CutOff[3];

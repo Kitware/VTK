@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkImageNormalize();
-  ~vtkImageNormalize() {};
+  ~vtkImageNormalize() {}
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
 

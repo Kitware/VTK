@@ -183,7 +183,7 @@ public:
 
 protected:
   vtkImageMathematics();
-  ~vtkImageMathematics() {};
+  ~vtkImageMathematics() {}
 
   int Operation;
   double ConstantK;

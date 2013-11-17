@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkPieceRequestFilter();
-  ~vtkPieceRequestFilter() {};
+  ~vtkPieceRequestFilter() {}
 
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,

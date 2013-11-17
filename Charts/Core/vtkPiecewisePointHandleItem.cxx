@@ -29,6 +29,8 @@
 #include "vtkTransform2D.h"
 #include "vtkNew.h"
 
+#include <algorithm>
+
 enum enumPointHandleType
   {
   enSharpNess=0,

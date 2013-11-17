@@ -165,12 +165,12 @@ int vtkCleanPolyData::RequestData(
 
   vtkIdType numNewPts;
   vtkIdType numUsedPts=0;
-  vtkPoints *newPts = input->GetPoints()->NewInstance();
+  vtkPoints *newPts = inPts->NewInstance();
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
     {
-    newPts->SetDataType(input->GetPoints()->GetDataType());
+    newPts->SetDataType(inPts->GetDataType());
     }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
     {

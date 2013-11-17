@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkLinkEdgels();
-  ~vtkLinkEdgels() {};
+  ~vtkLinkEdgels() {}
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);

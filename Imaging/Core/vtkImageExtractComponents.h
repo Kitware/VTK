@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkImageExtractComponents();
-  ~vtkImageExtractComponents() {};
+  ~vtkImageExtractComponents() {}
 
   int NumberOfComponents;
   int Components[3];

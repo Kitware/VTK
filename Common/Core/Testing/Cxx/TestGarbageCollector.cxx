@@ -69,7 +69,7 @@ private:
 
 // A callback that reports when it is called.
 static int called = 0;
-void MyDeleteCallback(vtkObject*, unsigned long, void*, void*)
+static void MyDeleteCallback(vtkObject*, unsigned long, void*, void*)
 {
   called = 1;
 }

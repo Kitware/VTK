@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkImageIdealLowPass();
-  ~vtkImageIdealLowPass() {};
+  ~vtkImageIdealLowPass() {}
 
   double CutOff[3];
 

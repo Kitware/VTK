@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkWarpTo();
-  ~vtkWarpTo() {};
+  ~vtkWarpTo() {}
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,

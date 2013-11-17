@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkExtractDataOverTime();
-  ~vtkExtractDataOverTime() {};
+  ~vtkExtractDataOverTime() {}
 
   int RequestInformation( vtkInformation *request,
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);

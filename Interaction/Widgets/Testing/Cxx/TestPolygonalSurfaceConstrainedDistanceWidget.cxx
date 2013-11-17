@@ -55,7 +55,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
-char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
+const char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
   "# StreamVersion 1 i\n"
   "RenderEvent 0 0 0 0 0 0 0 i\n"
   "EnterEvent 293 1 0 0 0 0 0 i\n"

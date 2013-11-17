@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkImageSobel2D();
-  ~vtkImageSobel2D() {};
+  ~vtkImageSobel2D() {}
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

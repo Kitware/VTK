@@ -130,6 +130,10 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(
       {
       newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
       }
+    else
+      {
+      newPts->SetDataType(VTK_FLOAT);
+      }
     }
   else if(precision == vtkAlgorithm::SINGLE_PRECISION)
     {

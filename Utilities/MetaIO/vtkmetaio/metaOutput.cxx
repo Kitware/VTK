@@ -39,7 +39,7 @@ namespace METAIO_NAMESPACE {
 
 
 /** Stolen from kwsys */
-METAIO_STL::string GetCurrentDateTime(const char* format)
+static METAIO_STL::string GetCurrentDateTime(const char* format)
 {
   char buf[1024];
   time_t t;

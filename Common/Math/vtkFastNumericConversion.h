@@ -363,7 +363,7 @@ public:
 protected:
   //BTX
   vtkFastNumericConversion();
-  ~vtkFastNumericConversion() {};
+  ~vtkFastNumericConversion() {}
   void InternalRebuild(void);
 
 private:

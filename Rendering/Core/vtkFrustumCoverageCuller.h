@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkFrustumCoverageCuller();
-  ~vtkFrustumCoverageCuller() {};
+  ~vtkFrustumCoverageCuller() {}
 
   double       MinimumCoverage;
   double       MaximumCoverage;

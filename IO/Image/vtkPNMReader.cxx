@@ -20,7 +20,7 @@
 
 vtkStandardNewMacro(vtkPNMReader);
 
-char vtkPNMReaderGetChar(FILE *fp)
+static char vtkPNMReaderGetChar(FILE *fp)
 {
   char c;
   int result;
@@ -47,7 +47,7 @@ char vtkPNMReaderGetChar(FILE *fp)
   return c;
 }
 
-int vtkPNMReaderGetInt(FILE *fp)
+static int vtkPNMReaderGetInt(FILE *fp)
 {
   char c;
   int result = 0;

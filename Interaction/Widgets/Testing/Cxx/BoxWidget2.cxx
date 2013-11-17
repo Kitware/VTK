@@ -49,7 +49,7 @@ public:
   vtkActor     *Actor;
 };
 
-char BoxWidgetEventLog2[] =
+const char BoxWidgetEventLog2[] =
   "# StreamVersion 1\n"
   "CharEvent 187 242 0 0 105 1 i\n"
   "KeyReleaseEvent 187 242 0 0 105 1 i\n"

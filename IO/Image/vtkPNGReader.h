@@ -54,8 +54,8 @@ public:
     }
 
 protected:
-  vtkPNGReader() {};
-  ~vtkPNGReader() {};
+  vtkPNGReader() {}
+  ~vtkPNGReader() {}
 
   virtual void ExecuteInformation();
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);

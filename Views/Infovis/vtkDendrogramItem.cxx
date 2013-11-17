@@ -71,6 +71,9 @@ vtkDendrogramItem::vtkDendrogramItem() : PositionVector(0, 0)
   this->ExtendLeafNodes = false;
   this->DrawLabels = true;
   this->DisplayNumberOfCollapsedLeafNodes = true;
+
+  this->DistanceArrayName = "node weight";
+  this->VertexNameArrayName = "node name";
 }
 
 //-----------------------------------------------------------------------------
@@ -235,7 +238,13 @@ void vtkDendrogramItem::RebuildBuffers()
   int orientation = this->GetOrientation();
 
   vtkNew<vtkTreeLayoutStrategy> strategy;
-  strategy->SetDistanceArrayName("node weight");
+
+  if (this->PrunedTree->GetVertexData()->GetAbstractArray(
+    this->DistanceArrayName) != NULL)
+    {
+    strategy->SetDistanceArrayName(this->DistanceArrayName);
+    }
+
   strategy->SetLeafSpacing(1.0);
 
   strategy->SetRotation(
@@ -667,7 +676,8 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
 
   // get array of node names from the tree
   vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
-    this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
+    this->LayoutTree->GetVertexData()->GetAbstractArray(
+    this->VertexNameArrayName));
 
   // find our leaf nodes & draw their labels
   for (vtkIdType vertex = 0; vertex < this->LayoutTree->GetNumberOfVertices();
@@ -1101,12 +1111,7 @@ void vtkDendrogramItem::CollapseToNumberOfLeafNodes(unsigned int n)
                       vtkDendrogramItem::CompareWeightedVertices> queue;
   std::vector<vtkIdType> verticesToCollapse;
   vtkDoubleArray *nodeWeights = vtkDoubleArray::SafeDownCast(
-    this->Tree->GetVertexData()->GetAbstractArray("node weight"));
-  if (nodeWeights == NULL)
-    {
-    vtkErrorMacro("No vtkDoubleArray named 'node weight' in tree's VertexData");
-    return;
-    }
+    this->Tree->GetVertexData()->GetAbstractArray(this->DistanceArrayName));
 
   // initially, the priority queue contains the children of the root node.
   vtkIdType root = this->Tree->GetRoot();
@@ -1114,8 +1119,18 @@ void vtkDendrogramItem::CollapseToNumberOfLeafNodes(unsigned int n)
        ++child)
     {
     vtkIdType childVertex = this->Tree->GetChild(root, child);
-    vtkDendrogramItem::WeightedVertex v =
-      {childVertex, nodeWeights->GetValue(childVertex)};
+
+    double weight = 0.0;
+    if (nodeWeights != NULL)
+      {
+      weight = nodeWeights->GetValue(childVertex);
+      }
+    else
+      {
+      weight = static_cast<double>(this->Tree->GetLevel(childVertex));
+      }
+
+    vtkDendrogramItem::WeightedVertex v = {childVertex, weight};
     queue.push(v);
     }
 
@@ -1136,8 +1151,18 @@ void vtkDendrogramItem::CollapseToNumberOfLeafNodes(unsigned int n)
          ++child)
       {
       vtkIdType childVertex = this->Tree->GetChild(v.ID, child);
-      vtkDendrogramItem::WeightedVertex v2 =
-        {childVertex, nodeWeights->GetValue(childVertex)};
+
+      double weight = 0.0;
+      if (nodeWeights != NULL)
+        {
+        weight = nodeWeights->GetValue(childVertex);
+        }
+      else
+        {
+        weight = static_cast<double>(this->Tree->GetLevel(childVertex));
+        }
+
+      vtkDendrogramItem::WeightedVertex v2 = {childVertex, weight};
       queue.push(v2);
       }
     }
@@ -1389,7 +1414,8 @@ void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D *painter)
 
   // get array of node names from the tree
   vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
-    this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
+    this->LayoutTree->GetVertexData()->GetAbstractArray(
+    this->VertexNameArrayName));
 
   float bounds[4];
   for (vtkIdType i = 0; i < vertexNames->GetNumberOfTuples(); ++i)
@@ -1410,7 +1436,8 @@ bool vtkDendrogramItem::GetPositionOfVertex(std::string vertexName,
                                             double position[2])
 {
   vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
-    this->LayoutTree->GetVertexData()->GetAbstractArray("node name"));
+    this->LayoutTree->GetVertexData()->GetAbstractArray(
+    this->VertexNameArrayName));
 
   vtkIdType vertex = vertexNames->LookupValue(vertexName);
   if (vertex == -1)

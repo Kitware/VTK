@@ -39,8 +39,8 @@ public:
   vtkTable* GetInput(int port);
 
 protected:
-  vtkTableWriter() {};
-  ~vtkTableWriter() {};
+  vtkTableWriter() {}
+  ~vtkTableWriter() {}
 
   void WriteData();
 

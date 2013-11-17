@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkPointSource(vtkIdType numPts=10);
-  ~vtkPointSource() {};
+  ~vtkPointSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

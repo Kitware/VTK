@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkThresholdPoints();
-  ~vtkThresholdPoints() {};
+  ~vtkThresholdPoints() {}
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

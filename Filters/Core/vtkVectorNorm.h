@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkVectorNorm();
-  ~vtkVectorNorm() {};
+  ~vtkVectorNorm() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

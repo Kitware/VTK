@@ -126,7 +126,7 @@ public:
   void DeepCopy(vtkCellLinks *src);
 
 protected:
-  vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {}
   ~vtkCellLinks();
 
   // Description:

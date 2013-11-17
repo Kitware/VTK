@@ -52,8 +52,8 @@ public:
   int  GetPrintDPI() {return this->PrintDPI;};
   vtkMFCDocument *GetDocument() {return (vtkMFCDocument *)m_pDocument;};
   virtual vtkWindow *GetVTKWindow() {return NULL;};
-  virtual void SetupMemoryRendering(int x, int y, HDC prn) {};
-  virtual void ResumeScreenRendering() {};
+  virtual void SetupMemoryRendering(int x, int y, HDC prn) {}
+  virtual void ResumeScreenRendering() {}
   virtual unsigned char *GetMemoryData() {return NULL;};
 
 // Overrides

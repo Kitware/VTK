@@ -147,7 +147,7 @@ public:
 
 protected:
   vtkExtractTensorComponents();
-  ~vtkExtractTensorComponents() {};
+  ~vtkExtractTensorComponents() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

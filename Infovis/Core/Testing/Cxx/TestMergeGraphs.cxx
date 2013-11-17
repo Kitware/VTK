@@ -77,35 +77,35 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
   return ok;
 }
 
-std::string vert_data1[][3] = {
+const std::string vert_data1[][3] = {
   { "id", "arr1", "arr2" },
   { "v1", "a"   , "d" },
   { "v2", "b"   , "e" },
   { "v3", "c"   , "f" }
 };
 
-std::string vert_data2[][3] = {
+const std::string vert_data2[][3] = {
   { "id", "arr2", "arr3" },
   { "v2", "g"   , "j" },
   { "v3", "h"   , "k" },
   { "v4", "i"   , "l" }
 };
 
-std::string edge_data1[][4] = {
+const std::string edge_data1[][4] = {
   { "id", "src", "tgt", "extra" },
   { "e1", "v1" , "v2" , "m" },
   { "e2", "v2" , "v3" , "n" },
   { "e3", "v3" , "v1" , "o" }
 };
 
-std::string edge_data2[][3] = {
+const std::string edge_data2[][3] = {
   { "id", "src", "tgt" },
   { "e4", "v2" , "v3" },
   { "e5", "v3" , "v4" },
   { "e6", "v4" , "v2" }
 };
 
-std::string expected_vert_data[][3] = {
+const std::string expected_vert_data[][3] = {
   { "id", "arr1", "arr2" },
   { "v1", "a", "d" },
   { "v2", "b", "e" },
@@ -113,7 +113,7 @@ std::string expected_vert_data[][3] = {
   { "v4", "" , "i" }
 };
 
-std::string expected_edge_data[][4] = {
+const std::string expected_edge_data[][4] = {
   { "id", "src", "tgt", "extra" },
   { "e1", "v1" , "v2" , "m" },
   { "e2", "v2" , "v3" , "n" },

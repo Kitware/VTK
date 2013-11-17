@@ -16,4 +16,5 @@ vtk_module(vtkWebCore
     vtkImagingSources
   TEST_LABELS
     VTKWEB
+  EXCLUDE_FROM_ALL
 )

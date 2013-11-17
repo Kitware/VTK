@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkImageMagnify();
-  ~vtkImageMagnify() {};
+  ~vtkImageMagnify() {}
 
   int MagnificationFactors[3];
   int Interpolate;

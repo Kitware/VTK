@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkImageCheckerboard();
-  ~vtkImageCheckerboard() {};
+  ~vtkImageCheckerboard() {}
 
   virtual void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,

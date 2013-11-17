@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkApproximatingSubdivisionFilter();
-  ~vtkApproximatingSubdivisionFilter() {};
+  ~vtkApproximatingSubdivisionFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS,

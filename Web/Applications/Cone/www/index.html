@@ -15,25 +15,15 @@
 
         <script src="../../lib/core/vtkweb-loader-min.js" load="core-min"></script>
         <script type="text/javascript">
-            var connection = {
-                sessionURL: "ws://" + window.location.host + "/ws",
-                name: "WebCone",
-                description: "Simple VTK Web demo application",
+            var config = {
+                sessionManagerURL: vtkWeb.properties.sessionManagerURL,
                 application: "cone"
             },
-            loading = $(".loading"),
-            viewport = null;
-
-
-            // Connect to remote server
-            vtkWeb.connect(connection, function(serverConnection) {
-                connection = serverConnection;
-
+            stop = vtkWeb.NoOp,
+            start = function(connection) {
                 // Create viewport
-                viewport = vtkWeb.createViewport({session:connection.session});
+                var viewport = vtkWeb.createViewport({session:connection.session});
                 viewport.bind(".viewport-container");
-
-                loading.hide();
 
                 // Handle window resize
                 $(window).resize(function() {
@@ -41,27 +31,17 @@
                         viewport.render();
                     }
                 }).trigger('resize');
-            }, function(code, reason) {
-                loading.hide();
+
+                // Update stop method to use the connection
+                stop = function() {
+                    connection.session.call('vtk:exit');
+                }
+            };
+
+            // Try to launch the Viz process
+            vtkWeb.smartConnect(config, start, function(code,reason){
                 alert(reason);
             });
-
-
-            function updateView() {
-                if(viewport) {
-                    viewport.invalidateScene();
-                }
-            }
-
-            // Method call at exit time
-            function stop() {
-                if(false && connection.session) {
-                    viewport.unbind();
-                    connection.session.call('vtk:exit');
-                    connection.session.close();
-                    connection.session = null;
-                }
-            }
         </script>
     </body>
 </html>

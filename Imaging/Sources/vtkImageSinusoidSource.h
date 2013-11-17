@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkImageSinusoidSource();
-  ~vtkImageSinusoidSource() {};
+  ~vtkImageSinusoidSource() {}
 
   int WholeExtent[6];
   double Direction[3];

@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkGlyphSource2D();
-  ~vtkGlyphSource2D() {};
+  ~vtkGlyphSource2D() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

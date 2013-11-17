@@ -38,7 +38,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTubeFilter.h"
 
-char TestOMWidgetEventLog[] =
+const char TestOMWidgetEventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 215 191 0 0 98 1 b\n"
   "KeyReleaseEvent 215 191 0 0 98 1 b\n"

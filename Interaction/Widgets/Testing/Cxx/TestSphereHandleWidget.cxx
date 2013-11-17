@@ -46,7 +46,7 @@
 #include "vtkDataSetWriter.h"
 #include "vtkMultiThreader.h"
 
-char TestSphereHandleWidgetEventLog[] =
+const char TestSphereHandleWidgetEventLog[] =
 "# StreamVersion 1\n"
 "MouseMoveEvent 181 152 0 0 0 0 0\n"
 "MouseMoveEvent 180 151 0 0 0 0 0\n"

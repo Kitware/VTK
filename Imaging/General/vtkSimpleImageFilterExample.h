@@ -34,8 +34,8 @@ public:
 
 protected:
 
-  vtkSimpleImageFilterExample() {};
-  ~vtkSimpleImageFilterExample() {};
+  vtkSimpleImageFilterExample() {}
+  ~vtkSimpleImageFilterExample() {}
 
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output);
 private:

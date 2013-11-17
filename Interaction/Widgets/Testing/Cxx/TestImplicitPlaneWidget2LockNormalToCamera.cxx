@@ -36,7 +36,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-char eventLog2LockNormalToCamera[] =
+const char eventLog2LockNormalToCamera[] =
   "# StreamVersion 1\n"
   "CharEvent 108 202 0 0 105 1 i\n"
   "KeyReleaseEvent 108 202 0 0 105 1 i\n"

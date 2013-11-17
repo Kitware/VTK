@@ -196,7 +196,7 @@ public:
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *) {};
+  void ReleaseGraphicsResources(vtkWindow *) {}
 
   // Description:
   // Return how much the dataset has to be reduced in each dimension to

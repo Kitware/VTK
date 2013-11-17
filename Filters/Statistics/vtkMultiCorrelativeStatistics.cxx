@@ -43,7 +43,7 @@ void vtkMultiCorrelativeStatistics::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeInvertCholesky( vtksys_stl::vector<double*>& chol, vtksys_stl::vector<double>& inv )
+static void vtkMultiCorrelativeInvertCholesky( vtksys_stl::vector<double*>& chol, vtksys_stl::vector<double>& inv )
 {
   vtkIdType m = static_cast<vtkIdType>( chol.size() );
   inv.resize( m * ( m + 1 ) / 2 );
@@ -72,7 +72,7 @@ void vtkMultiCorrelativeInvertCholesky( vtksys_stl::vector<double*>& chol, vtksy
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeTransposeTriangular( vtksys_stl::vector<double>& a, vtkIdType m )
+static void vtkMultiCorrelativeTransposeTriangular( vtksys_stl::vector<double>& a, vtkIdType m )
 {
   vtksys_stl::vector<double> b( a.begin(), a.end() );
   double* bp = &b[0];
@@ -430,7 +430,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeCholesky( vtksys_stl::vector<double*>& a, vtkIdType m )
+static void vtkMultiCorrelativeCholesky( vtksys_stl::vector<double*>& a, vtkIdType m )
 {
   // First define some macros to make the Cholevsky decomposition algorithm legible:
 #ifdef A

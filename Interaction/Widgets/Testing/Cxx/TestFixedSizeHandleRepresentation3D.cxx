@@ -39,7 +39,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
-char TestFixedSizeHandleRepresentation3DLog[] =
+const char TestFixedSizeHandleRepresentation3DLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 156 11 0 0 0 0 0\n"

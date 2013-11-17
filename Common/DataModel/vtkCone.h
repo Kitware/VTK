@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkCone();
-  ~vtkCone() {};
+  ~vtkCone() {}
 
   double Angle;
 

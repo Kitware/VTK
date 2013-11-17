@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkImageResample();
-  ~vtkImageResample() {};
+  ~vtkImageResample() {}
 
   double MagnificationFactors[3];
   double OutputSpacing[3];

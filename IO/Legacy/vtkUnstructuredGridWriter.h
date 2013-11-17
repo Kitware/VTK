@@ -39,8 +39,8 @@ public:
   vtkUnstructuredGrid* GetInput(int port);
 
 protected:
-  vtkUnstructuredGridWriter() {};
-  ~vtkUnstructuredGridWriter() {};
+  vtkUnstructuredGridWriter() {}
+  ~vtkUnstructuredGridWriter() {}
 
   void WriteData();
 

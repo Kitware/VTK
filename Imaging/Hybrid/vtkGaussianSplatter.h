@@ -188,7 +188,7 @@ public:
 
 protected:
   vtkGaussianSplatter();
-  ~vtkGaussianSplatter() {};
+  ~vtkGaussianSplatter() {}
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
   virtual int RequestInformation (vtkInformation *,

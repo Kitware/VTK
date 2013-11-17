@@ -236,6 +236,7 @@ ostream& vtkIOStreamPrint(ostream& os, vtkIOStreamULL value)
 // vtkIOStream.obj : warning LNK4221: no public symbols found; archive
 // member will be inaccessible
 //
+int vtkIOStreamAvoidLNK4221Warning();
 int vtkIOStreamAvoidLNK4221Warning()
 {
   return 0;

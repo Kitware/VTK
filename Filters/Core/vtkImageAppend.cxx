@@ -264,7 +264,7 @@ int vtkImageAppend::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAppendGetContinuousIncrements
+static void vtkImageAppendGetContinuousIncrements
   (int wExtent[6], int sExtent[6], vtkIdType nComp, bool forCells,
    vtkIdType &incX,
    vtkIdType &incY,

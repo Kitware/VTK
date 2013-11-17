@@ -149,7 +149,7 @@ public:
 
   // Description:
   // Given a collection of models, calculate aggregate model. Not used.
-  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {};
+  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {}
 
 protected:
   vtkExtractHistogram2D();
@@ -176,7 +176,7 @@ protected:
 
   // Description:
   // Execute the calculations required by the Derive option. Not used.
-  virtual void Derive( vtkMultiBlockDataSet* ) {};
+  virtual void Derive( vtkMultiBlockDataSet* ) {}
 
   // Description:
   // Execute the calculations required by the Test option.
@@ -195,7 +195,7 @@ protected:
   virtual void SelectAssessFunctor( vtkTable* vtkNotUsed(outData),
                                     vtkDataObject* vtkNotUsed(inMeta),
                                     vtkStringArray* vtkNotUsed(rowNames),
-                                    AssessFunctor*& vtkNotUsed(dfunc) ) {};
+                                    AssessFunctor*& vtkNotUsed(dfunc) ) {}
 
   virtual int FillOutputPortInformation( int port, vtkInformation* info );
 

@@ -61,14 +61,14 @@ static const char *BufferObjectUsageAsString[9]=
 };
 
 // access modes
-GLenum OpenGLBufferObjectAccess[2]=
+const GLenum OpenGLBufferObjectAccess[2]=
 {
   vtkgl::WRITE_ONLY,
   vtkgl::READ_ONLY
 };
 
 // targets
-GLenum OpenGLBufferObjectTarget[2]=
+const GLenum OpenGLBufferObjectTarget[2]=
 {
   vtkgl::PIXEL_UNPACK_BUFFER_ARB,
   vtkgl::PIXEL_PACK_BUFFER_ARB

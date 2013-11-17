@@ -61,8 +61,8 @@ public:
   virtual void DisplayTag(const char*);
 
 protected:
-  vtkXMLFileOutputWindow() {};
-  virtual ~vtkXMLFileOutputWindow() {};
+  vtkXMLFileOutputWindow() {}
+  virtual ~vtkXMLFileOutputWindow() {}
 
   void Initialize();
   virtual void DisplayXML(const char*, const char*);

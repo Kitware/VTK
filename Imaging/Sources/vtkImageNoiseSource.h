@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkImageNoiseSource();
-  ~vtkImageNoiseSource() {};
+  ~vtkImageNoiseSource() {}
 
   double Minimum;
   double Maximum;

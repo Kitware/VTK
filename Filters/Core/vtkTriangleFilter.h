@@ -51,8 +51,8 @@ public:
   vtkGetMacro(PassLines,int);
 
 protected:
-  vtkTriangleFilter() : PassVerts(1), PassLines(1) {};
-  ~vtkTriangleFilter() {};
+  vtkTriangleFilter() : PassVerts(1), PassLines(1) {}
+  ~vtkTriangleFilter() {}
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

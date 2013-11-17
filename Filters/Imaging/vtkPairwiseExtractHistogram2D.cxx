@@ -40,6 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 //------------------------------------------------------------------------------
+#include <algorithm>
 #include <set>
 #include <vector>
 #include <string>

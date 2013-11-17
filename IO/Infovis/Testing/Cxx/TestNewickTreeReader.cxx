@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestNewickTreeReader.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "vtkNewickTreeReader.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
@@ -19,13 +34,13 @@ int TestNewickTreeReader(int argc, char* argv[])
   vtkTree *tree1 = reader1->GetOutput();
 
 
-  if (tree1->GetNumberOfVertices() != 837)
+  if (tree1->GetNumberOfVertices() != 836)
     {
     cerr << "Wrong number of Vertices: "<< tree1->GetNumberOfVertices() << endl;
     return 1;
     }
 
-  if (tree1->GetNumberOfEdges() != 836)
+  if (tree1->GetNumberOfEdges() != 835)
     {
     cerr << "Wrong number of Edges: "<< tree1->GetNumberOfEdges() << endl;
     return 1;
@@ -43,13 +58,13 @@ int TestNewickTreeReader(int argc, char* argv[])
   reader2->Update();
   vtkTree *tree2 = reader2->GetOutput();
 
-  if (tree2->GetNumberOfVertices() != 11)
+  if (tree2->GetNumberOfVertices() != 10)
     {
     cerr << "Wrong number of Vertices: "<< tree2->GetNumberOfVertices() << endl;
     return 1;
     }
 
-  if (tree2->GetNumberOfEdges() != 10)
+  if (tree2->GetNumberOfEdges() != 9)
     {
     cerr << "Wrong number of Edges: "<< tree2->GetNumberOfEdges() << endl;
     return 1;

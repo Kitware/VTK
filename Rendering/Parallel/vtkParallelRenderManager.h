@@ -455,8 +455,8 @@ protected:
   // bufferred sending of information over.
   virtual void SendWindowInformation() {}
   virtual void ReceiveWindowInformation() {}
-  virtual void SendRendererInformation(vtkRenderer *) {};
-  virtual void ReceiveRendererInformation(vtkRenderer *) {};
+  virtual void SendRendererInformation(vtkRenderer *) {}
+  virtual void ReceiveRendererInformation(vtkRenderer *) {}
 
   // Description:
   // Subclass should override these methods (instead of

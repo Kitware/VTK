@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkFunctionSet();
-  ~vtkFunctionSet() {};
+  ~vtkFunctionSet() {}
 
   int NumFuncs;
   int NumIndepVars;

@@ -34,7 +34,7 @@
 
 #include "vtkTestUtilities.h"
 
-char TPWeventLog[] =
+const char TPWeventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 192 232 0 0 105 1 i\n"
   "KeyReleaseEvent 192 230 0 0 105 1 i\n"

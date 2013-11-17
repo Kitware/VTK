@@ -94,8 +94,8 @@ protected:
                               ofstream *file);
   virtual void WriteFile(ofstream *file, vtkImageData *data,
                          int extent[6], int wExtent[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *, int [6]) {};
-  virtual void WriteFileTrailer(ofstream *, vtkImageData *) {};
+  virtual void WriteFileHeader(ofstream *, vtkImageData *, int [6]) {}
+  virtual void WriteFileTrailer(ofstream *, vtkImageData *) {}
 
   // This is called by the superclass.
   // This is the method you should override.

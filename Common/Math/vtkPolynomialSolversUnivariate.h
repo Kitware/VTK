@@ -262,8 +262,8 @@ public:
   static double GetDivisionTolerance();
 
 protected:
-  vtkPolynomialSolversUnivariate() {};
-  ~vtkPolynomialSolversUnivariate() {};
+  vtkPolynomialSolversUnivariate() {}
+  ~vtkPolynomialSolversUnivariate() {}
 
   static double DivisionTolerance;
 

@@ -109,8 +109,8 @@ public:
   //ETX
 
 protected:
-  vtkImageFourierFilter() {};
-  ~vtkImageFourierFilter() {};
+  vtkImageFourierFilter() {}
+  ~vtkImageFourierFilter() {}
 
   //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out,

@@ -17,6 +17,8 @@
 
 #include "vtkImageData.h"
 
+#include <algorithm>
+
 //-----------------------------------------------------------------------------
 vtkMarkerUtilities::vtkMarkerUtilities()
 {

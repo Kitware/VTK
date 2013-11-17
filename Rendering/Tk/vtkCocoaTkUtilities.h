@@ -48,8 +48,8 @@ public:
   static void* GetDrawableView(Tk_Window_ *window);
 
 protected:
-  vtkCocoaTkUtilities() {};
-  ~vtkCocoaTkUtilities() {};
+  vtkCocoaTkUtilities() {}
+  ~vtkCocoaTkUtilities() {}
 
 private:
   vtkCocoaTkUtilities(const vtkCocoaTkUtilities&);  // Not implemented.

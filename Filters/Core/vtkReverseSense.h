@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkReverseSense();
-  ~vtkReverseSense() {};
+  ~vtkReverseSense() {}
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

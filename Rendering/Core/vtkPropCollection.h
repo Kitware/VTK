@@ -63,8 +63,8 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
   //ETX
 
 protected:
-  vtkPropCollection() {};
-  ~vtkPropCollection() {};
+  vtkPropCollection() {}
+  ~vtkPropCollection() {}
 
 
 private:

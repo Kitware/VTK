@@ -39,8 +39,8 @@ public:
 
 protected:
 
-  vtkPassThroughFilter() {};
-  virtual ~vtkPassThroughFilter() {};
+  vtkPassThroughFilter() {}
+  virtual ~vtkPassThroughFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

@@ -220,7 +220,8 @@ void SetOutputDistance(double distance, OT *outputValue, double capValue, double
 
 // Convert distance as stored in output (could be scaled and/or non-double
 // type) to double distance with correct scaling
-void ConvertToDoubleDistance(double inDistance, double &distance,
+template <class OT>
+void ConvertToDoubleDistance(const OT &inDistance, double &distance,
                              double &distance2, double scaleFactor)
 {
   if (scaleFactor)

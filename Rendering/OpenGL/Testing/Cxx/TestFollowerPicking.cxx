@@ -64,7 +64,7 @@ public:
 };
 
 // -----------------------------------------------------------------------
-char PickFollowerLog[] =
+const char PickFollowerLog[] =
   "# StreamVersion 1\n"
   "RenderEvent 0 0 0 0 0 0 0\n"
   "EnterEvent 285 289 0 0 0 0 0\n"

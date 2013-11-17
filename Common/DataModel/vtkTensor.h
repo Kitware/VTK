@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkTensor();
-  ~vtkTensor() {};
+  ~vtkTensor() {}
 
   double Storage[9];
 private:

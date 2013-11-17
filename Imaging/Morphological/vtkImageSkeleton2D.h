@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkImageSkeleton2D();
-  ~vtkImageSkeleton2D() {};
+  ~vtkImageSkeleton2D() {}
 
   int Prune;
 

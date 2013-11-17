@@ -29,7 +29,7 @@
 
 #include "vtkTestUtilities.h"
 
-char TSBWeventLog[] =
+const char TSBWeventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 153 168 0 0 105 1 i\n"
   "KeyReleaseEvent 153 168 0 0 105 1 i\n"

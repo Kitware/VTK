@@ -527,42 +527,10 @@ void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
                                    actorPos, actorPos2, front, vsize);
 }
 
-void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
-                                char* dataPtr, double shift, double scale,
-                                int *actorPos, int *actorPos2, int front, int *vsize,
-                                int)
-{
-  if(shift == 0.0 && scale == 1.0)
-    {
-    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
-                                   actorPos, actorPos2, front, vsize);
-    }
-  else
-    {
-    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
-                                    actorPos, actorPos2, front, vsize);
-    }
-}
-void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
-                                unsigned char* dataPtr, double shift, double scale,
-                                int *actorPos, int *actorPos2, int front, int *vsize,
-                                int)
-{
-  if(shift == 0.0 && scale == 1.0)
-    {
-    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
-                                   actorPos, actorPos2, front, vsize);
-    }
-  else
-    {
-    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
-                                    actorPos, actorPos2, front, vsize);
-    }
-}
-void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
-                                signed char* dataPtr, double shift, double scale,
-                                int *actorPos, int *actorPos2, int front, int *vsize,
-                                int)
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                       char* dataPtr, double shift, double scale,
+                                       int *actorPos, int *actorPos2, int front, int *vsize,
+                                       int)
 {
   if(shift == 0.0 && scale == 1.0)
     {
@@ -576,19 +544,53 @@ void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
     }
 }
 
-void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
-                                short* dataPtr, double shift, double scale,
-                                int *actorPos, int *actorPos2, int front, int *vsize,
-                                int)
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                       unsigned char* dataPtr, double shift, double scale,
+                                       int *actorPos, int *actorPos2, int front, int *vsize,
+                                       int)
+{
+  if(shift == 0.0 && scale == 1.0)
+    {
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
+                                   actorPos, actorPos2, front, vsize);
+    }
+  else
+    {
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
+                                    actorPos, actorPos2, front, vsize);
+    }
+}
+
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                       signed char* dataPtr, double shift, double scale,
+                                       int *actorPos, int *actorPos2, int front, int *vsize,
+                                       int)
+{
+  if(shift == 0.0 && scale == 1.0)
+    {
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
+                                   actorPos, actorPos2, front, vsize);
+    }
+  else
+    {
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
+                                    actorPos, actorPos2, front, vsize);
+    }
+}
+
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                       short* dataPtr, double shift, double scale,
+                                       int *actorPos, int *actorPos2, int front, int *vsize,
+                                       int)
 {
   vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                   actorPos, actorPos2, front, vsize);
 }
 
-void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
-                                unsigned short* dataPtr, double shift, double scale,
-                                int *actorPos, int *actorPos2, int front, int *vsize,
-                                int)
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                       unsigned short* dataPtr, double shift, double scale,
+                                       int *actorPos, int *actorPos2, int front, int *vsize,
+                                       int)
 {
   vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                   actorPos, actorPos2, front, vsize);

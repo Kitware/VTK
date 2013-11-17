@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkDashedStreamLine();
-  ~vtkDashedStreamLine() {};
+  ~vtkDashedStreamLine() {}
 
   // Convert streamer array into vtkPolyData
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

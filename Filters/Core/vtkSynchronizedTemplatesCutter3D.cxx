@@ -62,7 +62,7 @@ vtkSynchronizedTemplatesCutter3D::~vtkSynchronizedTemplatesCutter3D()
 }
 
 //----------------------------------------------------------------------------
-void vtkSynchronizedTemplatesCutter3DInitializeOutput(
+static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
   int *ext, int precision, vtkImageData *input, vtkPolyData *o)
 {
   vtkPoints *newPts;
@@ -84,6 +84,10 @@ void vtkSynchronizedTemplatesCutter3DInitializeOutput(
     if(inputPointSet)
       {
       newPts->SetDataType(inputPointSet->GetPoints()->GetDataType());
+      }
+    else
+      {
+      newPts->SetDataType(VTK_FLOAT);
       }
     }
   else if(precision == vtkAlgorithm::SINGLE_PRECISION)

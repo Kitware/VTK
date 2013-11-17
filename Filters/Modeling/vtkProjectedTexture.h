@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkProjectedTexture();
-  ~vtkProjectedTexture() {};
+  ~vtkProjectedTexture() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void ComputeNormal();

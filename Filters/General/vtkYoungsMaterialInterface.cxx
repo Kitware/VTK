@@ -1736,24 +1736,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   struct uint4 {unsigned int x,y,z,w; };
   struct uchar4 {unsigned char x,y,z,w; };
   struct uchar3 {unsigned char x,y,z; };
-  FUNC_DECL float2 make_float2(float x,float y)
-  {
-    float2 v = {x,y};
-    return v;
-  }
-  FUNC_DECL float3 make_float3(float x,float y,float z)
-  {
-    float3 v = {x,y,z};
-    return v;
-  }
-  FUNC_DECL float4 make_float4(float x,float y,float z,float w)
-  {
-    float4 v = {x,y,z,w};
-    return v;
-  }
-
-  FUNC_DECL float min(float a, float b){ return (a<b)?a:b; }
-  FUNC_DECL float max(float a, float b){ return (a>b)?a:b; }
 
 #else
 #include <vector_types.h>
@@ -1913,7 +1895,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   struct double4 { double x,y,z,w; };
 
   FUNC_DECL double min(double a, double b){ return (a<b)?a:b; }
-  FUNC_DECL double max(double a, double b){ return (a>b)?a:b; }
 
   FUNC_DECL double2 make_double2(double x,double y)
   {
@@ -1933,38 +1914,14 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return v;
   }
 
-  FUNC_DECL  double3 operator *(double3 a, double3 b)
-  {
-    return make_double3(a.x*b.x, a.y*b.y, a.z*b.z);
-  }
-
   FUNC_DECL double3 operator *(double f, double3 v)
   {
     return make_double3(v.x*f, v.y*f, v.z*f);
   }
 
-  FUNC_DECL double3 operator *(double3 v, double f)
-  {
-    return make_double3(v.x*f, v.y*f, v.z*f);
-  }
-
-  FUNC_DECL double2 operator *(double2 v, double f)
-  {
-    return make_double2(v.x*f, v.y*f);
-  }
-
   FUNC_DECL double2 operator *(double f, double2 v)
   {
     return make_double2(v.x*f, v.y*f);
-  }
-
-  FUNC_DECL double4 operator *(double4 v, double f)
-  {
-    return make_double4(v.x*f, v.y*f, v.z*f, v.w*f);
-  }
-  FUNC_DECL double4 operator *(double f, double4 v)
-  {
-    return make_double4(v.x*f, v.y*f, v.z*f, v.w*f);
   }
 
 
@@ -1991,14 +1948,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   }
 
 
-  FUNC_DECL void operator +=(double4 & b, double4 a)
-  {
-    b.x += a.x;
-    b.y += a.y;
-    b.z += a.z;
-    b.w += a.w;
-  }
-
   FUNC_DECL double3 operator - (double3 a, double3 b)
   {
     return make_double3(a.x-b.x, a.y-b.y, a.z-b.z);
@@ -2007,18 +1956,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL double2 operator - (double2 a, double2 b)
   {
     return make_double2(a.x-b.x, a.y-b.y);
-  }
-
-  FUNC_DECL void operator -= (double3 & b, double3 a)
-  {
-    b.x -= a.x;
-    b.y -= a.y;
-    b.z -= a.z;
-  }
-
-  FUNC_DECL double3 operator / (double3 v, double f)
-  {
-    return make_double3( v.x/f, v.y/f, v.z/f );
   }
 
   FUNC_DECL void operator /=(double2 & b, double f)
@@ -2042,11 +1979,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL double dot(double3 a, double3 b)
   {
     return a.x * b.x + a.y * b.y + a.z * b.z;
-  }
-
-  FUNC_DECL double dot(double4 a, double4 b)
-  {
-    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
   }
 
   FUNC_DECL double3 cross( double3 A, double3 B)
@@ -2314,13 +2246,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     return FABS( dot(A,BC) / REAL_CONST(6.0) );
   }
 
-  FUNC_DECL
-  REAL tetraVolume( const uchar4 tetra, const REAL3* vertices )
-  {
-    return tetraVolume( vertices[tetra.x], vertices[tetra.y], vertices[tetra.z], vertices[tetra.w] );
-  }
-
-
   /*******************************************
    *** Evaluation of a polynomial function ***
    *******************************************/
@@ -2376,14 +2301,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     REAL f = (t1!=t0) ? (t-t0)/(t1-t0) : REAL_CONST(0.0) ;
     return x0 + f * (x1-x0) ;
   }
-
-  FUNC_DECL
-  REAL linearInterp( REAL t0, REAL x0, REAL t1, REAL x1, REAL t )
-  {
-    REAL f = (t1!=t0) ? (t-t0)/(t1-t0) : REAL_CONST(0.0) ;
-    return x0 + f * (x1-x0) ;
-  }
-
 
   /****************************************
    *** Quadratic interpolation function ***
@@ -2504,17 +2421,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
    *** Sorting methods ***
    ***********************/
   FUNC_DECL
-  uint3 sortTriangle( uint3 t , unsigned int* i )
-  {
-#define SWAP(a,b) { unsigned int tmp=a; a=b; b=tmp; }
-    if( i[t.y] < i[t.x] ) SWAP(t.x,t.y);
-    if( i[t.z] < i[t.y] ) SWAP(t.y,t.z);
-    if( i[t.y] < i[t.x] ) SWAP(t.x,t.y);
-#undef SWAP
-    return t;
-  }
-
-  FUNC_DECL
   uchar3 sortTriangle( uchar3 t , unsigned char* i )
   {
 #define SWAP(a,b) { unsigned char tmp=a; a=b; b=tmp; }
@@ -2531,24 +2437,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   /***********************
    *** Sorting methods ***
    ***********************/
-  FUNC_DECL
-  void sortVertices( const int n, const REAL* dist, IntType* indices )
-  {
-    // insertion sort : slow but symmetrical across all instances
-#define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
-    for(int i = 0;i<n;i++)
-      {
-      int imin = i;
-      for(int j=i+1;j<n;j++)
-        {
-        imin = ( dist[indices[j]] < dist[indices[imin]] ) ? j : imin;
-        }
-      SWAP( i, imin );
-      }
-#undef SWAP
-  }
-
-
   FUNC_DECL
   void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntType* indices )
   {

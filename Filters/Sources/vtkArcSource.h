@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkArcSource(int res=1);
-  ~vtkArcSource() {};
+  ~vtkArcSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

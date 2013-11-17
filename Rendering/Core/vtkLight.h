@@ -76,7 +76,7 @@ public:
   // will load its data into the graphics system in response to this method
   // invocation. The actual loading is performed by a vtkLightDevice
   // subclass, which will get created automatically.
-  virtual void Render(vtkRenderer *, int) {};
+  virtual void Render(vtkRenderer *, int) {}
 
   // Description:
   // Set/Get the color of the light. It is possible to set the ambient,

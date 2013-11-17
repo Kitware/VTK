@@ -199,7 +199,7 @@ void vtkPlanes::SetFrustumPlanes(double planes[24])
   normals->Delete();
 }
 
-void vtkPlanes::SetBounds(double bounds[6])
+void vtkPlanes::SetBounds(const double bounds[6])
 {
   int i;
   double n[3], x[3];

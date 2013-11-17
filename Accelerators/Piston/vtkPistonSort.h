@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkPistonSort() {}
-  ~vtkPistonSort() {};
+  ~vtkPistonSort() {}
 
   // Description:
   // Method that does the actual calculation.

@@ -123,7 +123,7 @@ struct vtkTulipReaderToken
   double DoubleValue;
 };
 
-void vtkTulipReaderNextToken(vtksys_ios::istream& in, vtkTulipReaderToken& tok)
+static void vtkTulipReaderNextToken(vtksys_ios::istream& in, vtkTulipReaderToken& tok)
 {
   char ch = in.peek();
   while (!in.eof() && (ch == ';' || isspace(ch)))

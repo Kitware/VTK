@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkTexturedSphereSource(int res=8);
-  ~vtkTexturedSphereSource() {};
+  ~vtkTexturedSphereSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Radius;

@@ -32,7 +32,7 @@ class VTKCOMMONCORE_EXPORT vtkWeakPointerBase
 public:
   // Description:
   // Initialize smart pointer to NULL.
-  vtkWeakPointerBase() : Object(0) {};
+  vtkWeakPointerBase() : Object(0) {}
 
   // Description:
   // Initialize smart pointer to given object.

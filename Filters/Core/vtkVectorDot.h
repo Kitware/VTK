@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkVectorDot();
-  ~vtkVectorDot() {};
+  ~vtkVectorDot() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double ScalarRange[2];

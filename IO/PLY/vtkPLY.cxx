@@ -1034,7 +1034,7 @@ Entry:
   elem    - element for which we want to save away other properties
 ******************************************************************************/
 
-void setup_other_props(PlyFile *, PlyElement *elem)
+static void setup_other_props(PlyFile *, PlyElement *elem)
 {
   int i;
   PlyProperty *prop;

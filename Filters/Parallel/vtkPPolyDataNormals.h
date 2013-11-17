@@ -38,7 +38,7 @@ public:
 
 protected:
   vtkPPolyDataNormals();
-  ~vtkPPolyDataNormals() {};
+  ~vtkPPolyDataNormals() {}
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

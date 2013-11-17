@@ -15,7 +15,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkFieldData.h"
 
-int DumpQualityStats( vtkMeshQuality* iq, const char *arrayname )
+static int DumpQualityStats( vtkMeshQuality* iq, const char *arrayname )
 {
   cout << "  cardinality: "
        << iq->GetOutput()->GetFieldData()->GetArray( arrayname )->GetComponent( 0, 4 )

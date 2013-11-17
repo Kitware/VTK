@@ -68,8 +68,8 @@ public:
   virtual void InterpolateDerivs(double pcoords[3], double *derivs);
 
 protected:
-  vtkEmptyCell() {};
-  ~vtkEmptyCell() {};
+  vtkEmptyCell() {}
+  ~vtkEmptyCell() {}
 
 private:
   vtkEmptyCell(const vtkEmptyCell&);  // Not implemented.

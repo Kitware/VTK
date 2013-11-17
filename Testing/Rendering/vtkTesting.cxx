@@ -51,7 +51,7 @@ using std::string;
 // Find in command tail, failing that find in environment,
 // failing that return a default.
 // Up to caller to delete the string returned.
-string vtkTestingGetArgOrEnvOrDefault(
+static string vtkTestingGetArgOrEnvOrDefault(
           string argName,       // argument idnetifier flag. eg "-D"
           vector<string> &argv, // command tail
           string env,           // environment variable name to find

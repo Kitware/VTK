@@ -50,8 +50,8 @@ public:
   //ETX
 
 protected:
-  vtkImageReader2Collection() {};
-  ~vtkImageReader2Collection() {};
+  vtkImageReader2Collection() {}
+  ~vtkImageReader2Collection() {}
 
 
 private:

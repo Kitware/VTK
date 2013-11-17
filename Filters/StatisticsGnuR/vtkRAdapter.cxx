@@ -485,7 +485,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   // traverse the tree to reorder the leaf vertices according to the
   // phylo tree numbering rule;
   // newNodeId is the checkup table that maps a vertexId(starting from 0)
-  // to it's corresponding R tree point id (staring from 1)
+  // to its corresponding R tree point id (starting from 1)
   vtkIdType leafCount = 0;
   vtkTreeDFSIterator* iter = vtkTreeDFSIterator::New();
   iter->SetTree(tree);
@@ -494,7 +494,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   while (iter->HasNext())
     {// find out all the leaf nodes, and number them sequentially
     vtkIdType vertexId = iter->Next();
-    newNodeId[vertexId] = 0;//initilize
+    newNodeId[vertexId] = 0;//initialize
     if (tree->IsLeaf(vertexId))
       {
       leafCount++;
@@ -505,7 +505,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   // second tree traverse to reorder the node vertices
   int nodeId = leafCount;
   iter->Restart();
-  vtkIdType vertexId = iter->Next();//skip the root (which id is zero)
+  vtkIdType vertexId;
   while (iter->HasNext())
     {
     vertexId = iter->Next();
@@ -516,7 +516,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
       }
     }
 
-  nedge = tree->GetNumberOfEdges() -1;// the first edge 0-1 does not count in R tree
+  nedge = tree->GetNumberOfEdges();
   ntip  = leafCount;
   nnode = nedge - ntip + 1;
 
@@ -534,7 +534,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   // fill in e and e_len
   vtkSmartPointer<vtkEdgeListIterator> edgeIterator = vtkSmartPointer<vtkEdgeListIterator>::New();
   tree->GetEdges(edgeIterator);
-  vtkEdgeType vEdge = edgeIterator->Next();//skip the first empty edge (0,1) with weight 0
+  vtkEdgeType vEdge;
   int i = 0;
   vtkDoubleArray * weights = vtkDoubleArray::SafeDownCast((tree->GetEdgeData())->GetArray("weight"));
   while(edgeIterator->HasNext())
@@ -552,7 +552,6 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   // use GetAbstractArray() instead of GetArray()
   vtkStringArray * labels = vtkStringArray::SafeDownCast((tree->GetVertexData())->GetAbstractArray("node name"));
   iter->Restart();
-  vertexId = iter->Next();//skip the root
   while (iter->HasNext())
     {// find out all the leaf nodes, and number them sequentially
     vertexId = iter->Next();
@@ -759,8 +758,6 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
       vtkErrorMacro(<<"Edges do not create a valid tree.");
       return NULL;
       }
-
-
 
     // Create the "node weight" array for the Vertices, in order to use
     // vtkTreeLayoutStrategy for visualizing the tree using vtkTreeHeatmapItem

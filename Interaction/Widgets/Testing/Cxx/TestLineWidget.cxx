@@ -34,7 +34,7 @@
 
 #include "vtkTestUtilities.h"
 
-char TestLineWidgetEventLog[] =
+const char TestLineWidgetEventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 185 179 0 0 105 1 i\n"
   "KeyReleaseEvent 185 179 0 0 105 1 i\n"
