@@ -189,7 +189,7 @@ typedef signed long long	hssize_t;
 #elif H5_SIZEOF_HADDR_T ==H5_SIZEOF_LONG
 #   define H5_PRINTF_HADDR_FMT  "%lu"
 #elif H5_SIZEOF_HADDR_T ==H5_SIZEOF_LONG_LONG
-#   define H5_PRINTF_HADDR_FMT  "%"H5_PRINTF_LL_WIDTH"u"
+#   define H5_PRINTF_HADDR_FMT  "%" H5_PRINTF_LL_WIDTH "u"
 #else
 #   error "nothing appropriate for H5_PRINTF_HADDR_FMT"
 #endif
