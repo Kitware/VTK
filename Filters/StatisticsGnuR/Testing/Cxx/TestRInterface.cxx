@@ -193,7 +193,7 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // check edge
     vtkDoubleArray* r_edge = vtkDoubleArray::SafeDownCast(rint->AssignRVariableToVTKDataArray("edge"));
-    int EDGE_ARRAY[4][2] = { {4,5},{4,3},{5,1},{5,2}};
+    int EDGE_ARRAY[5][2] = { {4,5},{5,6},{5,3},{6,1},{6,2} };
     for ( int i = 0; i< r_edge->GetNumberOfTuples(); i++)
       {
       double * a = r_edge->GetTuple(i);
@@ -202,7 +202,7 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       }
     //check Nnode
     vtkDoubleArray* r_Nnode= vtkDoubleArray::SafeDownCast(rint->AssignRVariableToVTKDataArray("Nnode"));
-    test_expression(doubleEquals(r_Nnode->GetValue(0),double(2), 0.001));
+    test_expression(doubleEquals(r_Nnode->GetValue(0),double(3), 0.001));
 
     //check tip_label, node.label
     /* TODO: implement R <=> VTKStringArray, so that the following function can be called:
@@ -211,7 +211,7 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     //check edge_length
     vtkDoubleArray* r_edge_length= vtkDoubleArray::SafeDownCast(rint->AssignRVariableToVTKDataArray("edge_length"));
-    double e_weights[4] = {2.0,3.0,1.0,1.0};
+    double e_weights[5] = {1.0,2.0,3.0,1.0,1.0};
     for (int i = 0; i < r_edge_length->GetNumberOfTuples(); i++)
       {
       double * r_weights = r_edge_length->GetTuple(i);
@@ -227,15 +227,14 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
 
     //check edge data
-    double v_weights[5] = {0.0,2.0,3.0,1.0,1.0};
     for (int i = 0; i < vtk_tr->GetNumberOfEdges(); i++)
       {
       vtkDoubleArray * weights = vtkDoubleArray::SafeDownCast(vtk_tr->GetEdgeData()->GetArray("weight"));
-      test_expression(doubleEquals(weights->GetValue(i),double( v_weights[i]), 0.001));
+      test_expression(doubleEquals(weights->GetValue(i),double( e_weights[i]), 0.001));
       }
 
     //check vertex data
-    const char *  t_names[] ={"","a","b","c","",""};
+    const char *  t_names[] ={"a","b","c","","",""};
     for (int i = 0; i < vtk_tr->GetNumberOfVertices(); i++)
       {
       vtkStringArray * names = vtkStringArray::SafeDownCast(vtk_tr->GetVertexData()->GetAbstractArray("node name"));
