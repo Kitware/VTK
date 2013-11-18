@@ -1,25 +1,16 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
-endif()
+project (Widgets)
 
-PROJECT (Widgets)
-
-if(NOT VTK_BINARY_DIR)
-  find_package(VTK COMPONENTS
-    vtkCommonComputationalGeometry
-    vtkCommonCore
-    vtkCommonDataModel
-    vtkFiltersSources
-    vtkInteractionStyle
-    vtkInteractionWidgets
-    vtkRenderingCore
-    vtkRenderingOpenGL
-    vtkRenderingFreeTypeOpenGL
+find_package(VTK COMPONENTS
+  vtkCommonCore
+  vtkFiltersSources
+  vtkInteractionWidgets
+  vtkRenderingOpenGL
+  vtkTestingRendering
 )
-  include(${VTK_USE_FILE})
-endif()
+include(${VTK_USE_FILE})
+
 
 add_executable(Slider MACOSX_BUNDLE Slider.cxx)
 target_link_libraries(Slider ${VTK_LIBRARIES})
