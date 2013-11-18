@@ -131,6 +131,8 @@ def ParseModuleFile(fileName):
     lines = []
     for line in fh:
         line = line.strip()
+        if line.startswith('$'): # Skip CMake variable names
+            continue
         if line.startswith('#'):
             continue
         line = line.split('#')[0].strip() # inline comments
@@ -233,6 +235,7 @@ def main():
     if len(allIncludes) == 0:
         print program + ": " + f + " does not exist"
         exit(1)
+
     # Build a set that contains all modules referenced in command line files
     allModules = set()
     for inc in allIncludes:
@@ -241,7 +244,11 @@ def main():
             if module in pathsToModules:
                 allModules.add(pathsToModules[includesToPaths[inc]])
 
-    # Add OpenGL factory classes if required
+    # Add vtkInteractionStyle if required.
+    if "vtkRenderWindowInteractor.h" in allIncludes:
+        allModules.add("vtkInteractionStyle")
+
+    # Add OpenGL factory classes if required.
     if "vtkRenderingFreeType" in allModules:
         allModules.add("vtkRenderingFreeTypeFontConfig")
         allModules.add("vtkRenderingFreeTypeOpenGL")
