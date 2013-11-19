@@ -111,7 +111,6 @@
       /* This is not ideal, as no explicit iterator has been declared.     \
        * Cast the void pointer and hope for the best! */                   \
       typedef VTK_TT vtkDAValueType;                                       \
-      typedef vtkAbstractArray vtkDAContainerType;                         \
       typedef vtkDAValueType* vtkDAIteratorType;                           \
       vtkDAIteratorType vtkDABegin =                                       \
         static_cast<vtkDAIteratorType>(_aa->GetVoidPointer(0));            \
