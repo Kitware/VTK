@@ -1,25 +1,18 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
-endif()
-
 PROJECT (Modelling)
 
-if(NOT VTK_BINARY_DIR)
-  find_package(VTK COMPONENTS
-    vtkCommonCore
-    vtkCommonDataModel
-    vtkFiltersCore
-    vtkFiltersGeneral
-    vtkIOXML
-    vtkImagingHybrid
-    vtkRenderingCore
-    vtkRenderingOpenGL
-    vtkInteractionStyle
+find_package(VTK COMPONENTS
+  vtkCommonCore
+  vtkCommonDataModel
+  vtkFiltersGeneral
+  vtkIOXML
+  vtkImagingHybrid
+  vtkInteractionStyle
+  vtkRenderingOpenGL
+  vtkTestingRendering
 )
-  include(${VTK_USE_FILE})
-endif()
+include(${VTK_USE_FILE})
 
 add_executable(finance MACOSX_BUNDLE finance.cxx)
 target_link_libraries(finance ${VTK_LIBRARIES})

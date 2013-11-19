@@ -1,20 +1,14 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
-endif()
+project (Step2)
 
-PROJECT (Step2)
-
-IF(NOT VTK_BINARY_DIR)
-  FIND_PACKAGE(VTK COMPONENTS
-    vtkCommonCore
-    vtkFiltersSources
-    vtkRenderingCore
-    vtkRenderingOpenGL
-  )
-  include(${VTK_USE_FILE})
-endif()
+find_package(VTK COMPONENTS
+  vtkCommonCore
+  vtkFiltersSources
+  vtkInteractionStyle
+  vtkRenderingOpenGL
+)
+include(${VTK_USE_FILE})
 
 add_executable(Cone2 MACOSX_BUNDLE Cone2.cxx)
 target_link_libraries(Cone2 ${VTK_LIBRARIES})

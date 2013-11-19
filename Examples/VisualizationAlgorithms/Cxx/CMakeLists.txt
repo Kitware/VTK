@@ -1,24 +1,18 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
-endif()
+project (VisualizationAlgorithms)
 
-PROJECT (VisualizationAlgorithms)
-
-if(NOT VTK_BINARY_DIR)
-  find_package(VTK COMPONENTS
-    vtkCommonCore
-    vtkCommonDataModel
-    vtkFiltersCore
-    vtkFiltersModeling
-    vtkIOXML
-    vtkInteractionStyle
-    vtkRenderingCore
-    vtkRenderingOpenGL
+find_package(VTK COMPONENTS
+  vtkCommonCore
+  vtkCommonDataModel
+  vtkFiltersCore
+  vtkFiltersModeling
+  vtkIOXML
+  vtkInteractionStyle
+  vtkRenderingOpenGL
+  vtkTestingRendering
 )
-  include(${VTK_USE_FILE})
-endif()
+include(${VTK_USE_FILE})
 
 add_executable(TubesWithVaryingRadiusAndColors MACOSX_BUNDLE TubesWithVaryingRadiusAndColors.cxx)
 add_executable(FilledContours MACOSX_BUNDLE FilledContours.cxx)

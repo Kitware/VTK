@@ -1,7 +1,7 @@
-add_subdirectory(ImageViewer)
-add_subdirectory(SimpleView)
 add_subdirectory(Events)
 add_subdirectory(FourPaneViewer)
+add_subdirectory(ImageViewer)
+add_subdirectory(SimpleView)
 
 if(TARGET vtkGUISupportQtOpenGL)
   add_subdirectory(GraphicsView)
