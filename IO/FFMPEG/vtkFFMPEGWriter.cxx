@@ -373,7 +373,7 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
 #endif
 
 #if LIBAVFORMAT_VERSION_MAJOR >= 54
-  AVPacket pkt = { 0 };
+  AVPacket pkt = { };
   int got_frame;
 #endif
 

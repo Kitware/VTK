@@ -269,7 +269,7 @@ bool vtkPythonGetValue(PyObject *o, void *&a)
 {
   // should have an alternate form for non-const "void *" that uses
   // writebuffer instead of readbuffer, but that would break existing code
-  const void *b;
+  const void *b = NULL;
   bool r = vtkPythonGetValue(o, b);
   a = const_cast<void *>(b);
   return r;
