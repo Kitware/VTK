@@ -41,6 +41,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticWedge.h"
+#include "vtkQuadraticPolygon.h"
 #include "vtkQuadraticPyramid.h"
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTetra.h"
@@ -86,6 +87,7 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->QuadraticEdge = NULL;
   this->QuadraticTriangle =NULL;
   this->QuadraticQuad = NULL;
+  this->QuadraticPolygon = NULL;
   this->QuadraticTetra = NULL;
   this->QuadraticHexahedron = NULL;
   this->QuadraticWedge = NULL;
@@ -241,6 +243,10 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   if(this->QuadraticQuad)
     {
     this->QuadraticQuad->Delete();
+    }
+  if(this->QuadraticPolygon)
+    {
+    this->QuadraticPolygon->Delete();
     }
   if(this->QuadraticTetra)
     {
@@ -640,6 +646,14 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
         this->QuadraticQuad = vtkQuadraticQuad::New();
         }
       cell = this->QuadraticQuad;
+      break;
+
+    case VTK_QUADRATIC_POLYGON:
+      if(!this->QuadraticPolygon)
+        {
+        this->QuadraticPolygon = vtkQuadraticPolygon::New();
+        }
+      cell = this->QuadraticPolygon;
       break;
 
     case VTK_QUADRATIC_TETRA:
