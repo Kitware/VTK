@@ -68,7 +68,7 @@ public:
   // Description:
   // Set the text string to be displayed. "\n" is recognized
   // as a carriage return/linefeed (line separator).
-  // The characters must be in the ISO-8859-1 encoding.
+  // The characters must be in the UTF-8 encoding.
   // Convenience method to the underlying mapper
   void SetInput(const char *inputString);
   char *GetInput();
