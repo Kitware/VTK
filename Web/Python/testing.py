@@ -35,9 +35,14 @@ r"""
 import_warning_info = ""
 test_module_comm_queue = None
 
+import vtk
 import server
 
-import os, re, time, datetime, threading, imp, Queue
+# Try standard Python imports
+try :
+    import os, re, time, datetime, threading, imp, inspect, Queue, types, io
+except :
+    import_warning_info += "\nUnable to load at least one basic Python module"
 
 # Image comparison imports
 try:
@@ -50,6 +55,7 @@ except:
 # Browser testing imports
 try :
     import selenium
+    from selenium import webdriver
 except :
     import_warning_info += "\nUnable to load at least one module necessary for browser tests"
 
@@ -58,6 +64,11 @@ try :
     import requests
 except :
     import_warning_info += "\nUnable to load at least one module necessary for HTTP tests"
+
+
+# Define some infrastructure to support different (or no) browsers
+test_module_browsers = ["firefox", "chrome", "internet_explorer", "safari", "nobrowser"]
+TestModuleBrowsers = type("Enum", (), {k: i for i, k in enumerate(test_module_browsers)})
 
 
 # =============================================================================
@@ -113,6 +124,10 @@ def add_arguments(parser) :
 
       --baseline-img-dir => This should be the 'Baseline' directory where the
       baseline images for this test are located.
+
+      --test-use-browser => This should be one of the supported browser types,
+      or else 'nobrowser'.  The choices are 'chrome', 'firefox', 'internet_explorer',
+      'safari', or 'nobrowser'.
     """
 
     parser.add_argument("--run-test-script",
@@ -124,6 +139,11 @@ def add_arguments(parser) :
                         default="",
                         help="The path to the directory containing the web test baseline images",
                         dest="baselineImgDir")
+
+    parser.add_argument("--test-use-browser",
+                        default="nobrowser",
+                        help="One of 'chrome', 'firefox', 'internet_explorer', 'safari', or 'nobrowser'.",
+                        dest="useBrowser")
 
 
 # =============================================================================
@@ -139,7 +159,7 @@ def _start_test_thread() :
     global test_module_comm_queue
     test_module_comm_queue = Queue.Queue()
 
-    t = threading.Thread(target=interact_with_web_visualizer,
+    t = threading.Thread(target=launch_web_test,
                          args = [],
                          kwargs = { 'serverOpts': testModuleOptions,
                                     'commQueue': test_module_comm_queue,
@@ -203,43 +223,187 @@ def concat_paths(*pathElts) :
 
 
 # =============================================================================
-# I took this function out of Roni's vtkwebtest.py python code.  Eventually I
-# believe there will be a lightweight vtk library for doing image comparisons
-# which will be wrapped from python, and then we'll use that.
+# So we can change our time format in a single place, this function is
+# provided.
 # =============================================================================
-def compare_images(file1, file2):
+def get_current_time_string() :
     """
-    Compare two images, pixel by pixel, summing up the differences in every
-    component and every pixel.  Return the magnitude of the difference between
-    the two images.
-
-        file1: A path to the first image file on disk
-        file2: A path to the second image file on disk
+    This function returns the current time as a string, using ISO 8601 format.
     """
 
-    img1 = Image.open(file1)
-    img2 = Image.open(file2)
+    return datetime.datetime.now().isoformat(" ")
 
-    if img1.size[0] != img2.size[0] or img1.size[1] != img2.size[1]:
-        raise ValueError("Images are of different sizes: img1 = (" +
-                         str(img1.size[0]) + " x " + str(img1.size[1]) +
-                         ") , img2 = (" + str(img2.size[0]) + " x " +
-                         str(img2.size[1]) + ")")
 
-    size = img1.size
+# =============================================================================
+# Uses vtkTesting to compare images.  According to comments in the vtkTesting
+# C++ code (and this seems to work), if there are multiple baseline images in
+# the same directory as the baseline_img, and they follow the naming pattern:
+# 'img.png', 'img_1.png', ... , 'img_N.png', then all of these images will be
+# tried for a match.
+# =============================================================================
+def compare_images(test_img, baseline_img):
+    """
+    This function creates a vtkTesting object, and specifies the name of the
+    baseline image file, using a fully qualified path (baseline_img must be
+    fully qualified).  Then it calls the vtkTesting method which compares the
+    image (test_img, specified only with a relative path) against the baseline
+    image as well as any other images in the same directory as the baseline
+    image which follow the naming pattern: 'img.png', 'img_1.png', ... , 'img_N.png'
 
-    img1 = img1.load()
-    img2 = img2.load()
+        test_img: File name of output image to be compared agains baseline.
 
-    indices = itertools.product(range(size[0]), range(size[1]))
-    diff = 0
+        baseline_img: Fully qualified path to first of the baseline images.
+    """
 
-    for i, j in indices:
-        p1 = img1[i, j]
-        p2 = img2[i, j]
-        diff += abs(p1[0] - p2[0]) + abs(p1[1] - p2[1]) + abs(p1[2] - p2[2])
+    # Create a vtkTesting object and specify a baseline image
+    t = vtk.vtkTesting()
+    t.AddArgument("-V")
+    t.AddArgument(baseline_img)
 
-    return diff
+    # Perform the image comparison test and print out the result.
+    return t.RegressionTest(test_img, 0.0)
+
+
+# =============================================================================
+# Provide a wait function
+# =============================================================================
+def wait_with_timeout(delay=None, limit=0, criterion=None):
+    """
+    This function provides the ability to wait for a certain number of seconds,
+    or else to wait for a specific criterion to be met.
+    """
+    for i in itertools.count():
+        if criterion is not None and criterion():
+            return True
+        elif delay * i > limit:
+            return False
+        else:
+            time.sleep(delay)
+
+
+# =============================================================================
+# Define a WebTest class with five stages of testing: initialization, setup,
+# capture, postprocess, and cleanup.
+# =============================================================================
+class WebTest(object) :
+    """
+    This is the base class for all automated web-based tests.  It defines five
+    stages that any test must run through, and allows any or all of these
+    stages to be overridden by subclasses.  This class defines the run_test
+    method to invoke the five stages overridden by subclasses, one at a time:
+    1) initialize, 2) setup, 3) capture, 4) postprocess, and 5) cleanup.
+    """
+    class Abort:
+        pass
+
+    def __init__(self, url=None, testname=None, **kwargs) :
+        self.url = url
+        self.testname = testname
+
+    def run_test(self):
+        try:
+            self.initialize()
+            self.setup()
+            self.capture()
+            self.postprocess()
+        except WebTest.Abort:
+            # Placeholder for future option to return failure result
+            pass
+        except :
+            self.cleanup()
+            raise
+
+        self.cleanup()
+
+    def initialize(self):
+        pass
+
+    def setup(self):
+        pass
+
+    def capture(self):
+        pass
+
+    def postprocess(self):
+        pass
+
+    def cleanup(self):
+        pass
+
+
+# =============================================================================
+# Define a WebTest subclass designed specifically for browser-based tests.
+# =============================================================================
+class BrowserBasedWebTest(WebTest):
+    """
+    This class can be used as a base for any browser-based web tests.  It
+    introduces the notion of a selenium browser and overrides phases (1) and
+    (3), initialization and cleanup, of the test phases introduced in the base
+    class.  Initialization involves selecting the browser type, setting the
+    browser window size, and asking the browser to load the url.  Cleanup
+    involves closing the browser window.
+    """
+    def __init__(self, size=None, browser=None, **kwargs):
+        self.size = size
+        self.browser = browser
+        self.window = None
+
+        WebTest.__init__(self, **kwargs)
+
+    def initialize(self):
+        if self.browser is None or self.browser == TestModuleBrowsers.chrome:
+            self.window = webdriver.Chrome()
+        elif self.browser == TestModuleBrowsers.firefox:
+            self.window = webdriver.Firefox()
+        elif self.browser == TestModuleBrowsers.internet_explorer:
+            self.window = webdriver.Ie()
+        else:
+            raise ValueError("self.browser argument has illegal value %r" % (self.browser))
+
+        if self.size is not None:
+            self.window.set_window_size(self.size[0], self.size[1])
+
+        if self.url is not None:
+            self.window.get(self.url)
+
+    def cleanup(self):
+        self.window.quit()
+
+
+# =============================================================================
+# Extend BrowserBasedWebTest to handle vtk-style image comparison
+# =============================================================================
+class ImageComparatorWebTest(BrowserBasedWebTest):
+    """
+    This class extends browser based web tests to include image comparison.  It
+    overrides the capture phase of testing with some functionality to simply
+    grab a screenshot of the entire browser window.  It overrides the
+    postprocess phase with a call to vtk image comparison functionality.
+    Derived classes can then simply override the setup function with a series
+    of selenium-based browser interactions to create a complete test.  Derived
+    classes may also prefer to override the capture phase to capture only
+    certain portions of the browser window for image comparison.
+    """
+    def __init__(self, filename=None, baseline=None, **kwargs):
+        if filename is None:
+            raise TypeError("missing argument 'filename'")
+        if baseline is None:
+            raise TypeError("missing argument 'baseline'")
+
+        BrowserBasedWebTest.__init__(self, **kwargs)
+        self.filename = filename
+        self.baseline = baseline
+
+    def capture(self):
+        self.window.save_screenshot(self.filename)
+
+    def postprocess(self):
+        result = compare_images(self.filename, self.baseline)
+
+        if result == 1 :
+            test_pass(self.testname)
+        else :
+            test_fail(self.testname)
 
 
 # =============================================================================
@@ -274,6 +438,36 @@ def get_image_data(browser, cssSelector) :
 
 
 # =============================================================================
+# Combines a variation on above function with the write_image_to_disk function.
+# converting jpg to png in the process, if necessary.
+# =============================================================================
+def save_image_data_as_png(browser, cssSelector, imgfilename) :
+    """
+    This function takes a selenium browser instance, a css selector string,
+    and a file name.  It uses the css selector string to finds the target HTML
+    Image element, which should contain a Base64 encoded JPEG image string,
+    it decodes the string to image data, and then saves the data to the file.
+    The image type of the written file is determined from the extension of the
+    provided filename.
+
+        browser: A selenium browser instance as created by webdriver.Chrome(),
+        for example.
+
+        cssSelector: A string containing a CSS selector which will be used to
+        find the HTML image element of interest.
+
+        imgFilename: The filename to which to save the image. The extension is
+        used to determine the type of image which should be saved.
+    """
+    imageElt = browser.find_element_by_css_selector(cssSelector)
+    base64String = imageElt.get_attribute("src")
+    b64RegEx = re.compile(ur'data:image/jpeg;base64,(.+)', re.UNICODE)
+    b64Matcher = b64RegEx.match(base64String)
+    img = Image.open(io.BytesIO(base64.b64decode(b64Matcher.group(1))))
+    img.save(imgfilename)
+
+
+# =============================================================================
 # Given a decoded image and the full path to a file, write the image to the
 # file.
 # =============================================================================
@@ -293,19 +487,59 @@ def write_image_to_disk(imgData, filePath) :
 
 
 # =============================================================================
-# For testing purposes, define a function which can interact with a running
-# paraview or vtk web application service.  This function can do multiple
-# tests with a running server before signalling the server to shut down.
-# In practice, however, we may want to stop and restart the service for each
-# test we do, in order to avoid
+# There could be problems if the script file has more than one class defn which
+# is a subclass of vtk.web.testing.WebTest, so we should write some
+# documentation to help people avoid that.
 # =============================================================================
-def interact_with_web_visualizer(*args, **kwargs) :
+def instantiate_test_subclass(pathToScript, **kwargs) :
     """
-    This function loads a test script as a module (with no package), and then
-    executes the runTest() function which the script must contain.  After the
-    test script finishes, this function will stop the web server if required.
-    This function expects some keyword arguments will be present in order for
-    it to complete it's task:
+    This function takes the fully qualified path to a test file, along with
+    any needed keyword arguments, then dynamically loads the file as a module
+    and finds the test class defined inside of it via inspection.  It then
+    uses the keywork arguments to instantiate the test class and return the
+    instance.
+
+        pathToScript: Fully qualified path to python file containing defined
+        subclass of one of the test base classes.
+        kwargs: Keyword arguments to be passed to the constructor of the
+        testing subclass.
+    """
+
+    # Load the file as a module
+    moduleName = imp.load_source('dynamicTestModule', pathToScript)
+    instance = None
+
+    # Inspect dynamically loaded module members
+    for name, obj in inspect.getmembers(moduleName) :
+        # Looking for classes only
+        if inspect.isclass(obj) :
+            instance = obj.__new__(obj)
+            # And only classes defined in the dynamically loaded module
+            if instance.__module__ == 'dynamicTestModule' :
+                try :
+                    instance.__init__(**kwargs)
+                    break;
+                except Exception as inst:
+                    print 'Caught exception: ' + str(type(inst))
+                    print inst
+                    raise
+
+    return instance
+
+
+# =============================================================================
+# For testing purposes, define a function which can interact with a running
+# paraview or vtk web application service.
+# =============================================================================
+def launch_web_test(*args, **kwargs) :
+    """
+    This function loads a python file as a module (with no package), and then
+    instantiates the class it must contain, and finally executes the run_test()
+    method of the class (which the class may override, but which is defined in
+    both of the testing base classes, WebTest and ImageComparatorBaseClass).
+    After the run_test() method finishes, this function will stop the web
+    server if required.  This function expects some keyword arguments will be
+    present in order for it to complete it's task:
 
         kwargs['serverHandle']: A reference to the vtk.web.server should be
         passed in if this function is to stop the web service after the test
@@ -316,8 +550,8 @@ def interact_with_web_visualizer(*args, **kwargs) :
         in order perform the test.  For example, the port on which the server
         was started will be required in order to connect to the server.
 
-        kwargs['testScript']: The full path to the python script which this
-        function will run.
+        kwargs['testScript']: The full path to the python file containing the
+        testing subclass.
     """
 
     serverHandle = None
@@ -332,26 +566,64 @@ def interact_with_web_visualizer(*args, **kwargs) :
     # the options used to start the server process.
     if 'serverOpts' in kwargs :
         serverOpts = kwargs['serverOpts']
+        # print 'These are the serverOpts we got: '
+        # print serverOpts
 
     # Get the full path to the test script
     if 'testScript' in kwargs :
         testScriptFile = kwargs['testScript']
 
-    # Now load the test script as a module, given the full path
+    testName = 'unknown'
+
+    # Check for a test file (python file)
     if testScriptFile is None :
         print 'No test script file found, no test script will be run.'
-        return
+        test_fail(testName)
 
-    moduleName = imp.load_source('', testScriptFile)
+    # The test name will be generated from the python script name, so
+    # match and capture a bunch of contiguous characters which are
+    # not '.', '\', or '/', followed immediately by the string '.py'.
+    fnamePattern = re.compile('([^\.\/\\\]+)\.py')
+    fmatch = re.search(fnamePattern, testScriptFile)
+    if fmatch :
+        testName = fmatch.group(1)
+    else :
+        print 'Unable to parse testScriptFile (' + str(testScriptfile) + '), no test will be run'
+        test_fail(testName)
 
-    # Now try to run the script's "runTest()" function
-    try :
-        moduleName.runTest(serverOpts)
-    except Exception as inst :
-        print 'Caught an exception while running test script:'
-        print '  ' + str(type(inst))
-        print '  ' + str(inst)
-        test_fail(testScriptFile)
+    # If we successfully got a test name, we are ready to try and run the test
+    if testName != 'unknown' :
+
+        # Output file and baseline file names are generated from the test name
+        imgFileName = testName + '.png'
+        knownGoodFileName = concat_paths(serverOpts.baselineImgDir, imgFileName)
+
+        testBrowser = test_module_browsers.index(serverOpts.useBrowser)
+
+        # Now try to instantiate and run the test
+        try :
+            testInstance = instantiate_test_subclass(testScriptFile,
+                                                     testname=testName,
+                                                     host=serverOpts.host,
+                                                     port=serverOpts.port,
+                                                     browser=testBrowser,
+                                                     filename=imgFileName,
+                                                     baseline=knownGoodFileName)
+
+            # If we were able to instantiate the test, run it, otherwise we
+            # consider it a failure.
+            if testInstance is not None :
+                testInstance.run_test()
+            else :
+                print 'Unable to instantiate test instance, failing test'
+                test_fail(testName)
+                return
+
+        except Exception as inst :
+            print 'Caught an exception while running test script:'
+            print '  ' + str(type(inst))
+            print '  ' + str(inst)
+            test_fail(testName)
 
     # If we were passed a server handle, then use it to stop the service
     if serverHandle is not None :
@@ -359,20 +631,8 @@ def interact_with_web_visualizer(*args, **kwargs) :
 
 
 # =============================================================================
-# So we can change our time format in a single place, this function is
-# provided.
-# =============================================================================
-def get_current_time_string() :
-    """
-    This function returns the current time as a string, using ISO 8601 format.
-    """
-
-    return datetime.datetime.now().isoformat(" ")
-
-
-# =============================================================================
 # To keep the service module clean, we'll process the test results here, given
-# the test result object we generated in "interact_with_veb_visualizer".  It is
+# the test result object we generated in "launch_web_test".  It is
 # passed back to this function after the service has completed.  Failure of
 # of the test is indicated by raising an exception in here.
 # =============================================================================
