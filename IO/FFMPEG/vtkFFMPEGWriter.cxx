@@ -372,12 +372,12 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     }
 #endif
 
-#if LIBAVFORMAT_VERSION_MAJOR >= 54
-  AVPacket pkt = { };
-  int got_frame;
-#endif
-
   //run the encoder
+  AVPacket pkt;
+  av_init_packet(&pkt);
+  pkt.data = NULL;
+  pkt.size = 0;
+
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   int toAdd = avcodec_encode_video(cc,
                                    this->codecBuf,
@@ -385,9 +385,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
                                    this->yuvOutput);
   if (toAdd)
     {
-    AVPacket pkt;
-    av_init_packet(&pkt);
-
     //to do playback at actual recorded rate, this will need more work
     pkt.pts = cc->coded_frame->pts;
     //pkt.dts = ?; not dure what decompression time stamp should be
@@ -414,6 +411,7 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     }
 
 #else
+  int got_frame;
   int ret = avcodec_encode_video2(cc,
                                   &pkt,
                                   this->yuvOutput,
