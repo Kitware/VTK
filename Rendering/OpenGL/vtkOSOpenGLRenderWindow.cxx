@@ -285,6 +285,7 @@ void vtkOSOpenGLRenderWindow::Finalize (void)
 // Change the window to fill the entire screen.
 void vtkOSOpenGLRenderWindow::SetFullScreen(int arg)
 {
+  (void)arg;
   this->Modified();
 }
 
@@ -438,10 +439,12 @@ void vtkOSOpenGLRenderWindow::SetParentInfo(char *info)
 
 void vtkOSOpenGLRenderWindow::SetWindowId(void *arg)
 {
+  (void)arg;
 //   this->SetWindowId((Window)arg);
 }
 void vtkOSOpenGLRenderWindow::SetParentId(void *arg)
 {
+  (void)arg;
 //   this->SetParentId((Window)arg);
 }
 
@@ -501,6 +504,7 @@ void vtkOSOpenGLRenderWindow::SetWindowName(const char * cname)
 
 void vtkOSOpenGLRenderWindow::SetNextWindowId(void *arg)
 {
+  (void)arg;
 //   this->SetNextWindowId((Window)arg);
 }
 
