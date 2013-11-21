@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkOutputWindow.h"
 #include "vtkToolkits.h"
-#if defined( _WIN32 ) && !defined( VTK_USE_X ) && defined( VTK_USE_DISPLAY )
+#if defined( _WIN32 ) && !defined( VTK_USE_X )
 #include "vtkWin32OutputWindow.h"
 #endif
 #include "vtkCommand.h"
@@ -153,7 +153,7 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
       // if the factory failed to create the object,
       // then destroy it now, as vtkDebugLeaks::ConstructClass was called
       // with "vtkOutputWindow", and not the real name of the class
-#if defined( _WIN32 ) && !defined( VTK_USE_X ) && defined( VTK_USE_DISPLAY )
+#if defined( _WIN32 ) && !defined( VTK_USE_X )
 #ifdef VTK_DEBUG_LEAKS
       vtkDebugLeaks::DestructClass("vtkOutputWindow");
 #endif
