@@ -1745,8 +1745,12 @@ enumerator_definition:
  */
 
 nested_variable_initialization:
-    store_type opt_ellipsis nested_name_specifier simple_id '='
-    ignored_expression ';'
+    store_type opt_ellipsis nested_name_specifier simple_id
+    ignored_initializer ';'
+
+ignored_initializer:
+    '=' ignored_expression
+  | ignored_braces
 
 ignored_class:
     class_key attribute_specifier_seq
@@ -2201,6 +2205,8 @@ opt_initializer:
 initializer:
     '=' { postSig("="); clearVarValue(); markSig(); }
     constant_expression { chopSig(); setVarValue(copySig()); }
+  | { clearVarValue(); markSig(); }
+    braces_sig { chopSig(); setVarValue(copySig()); }
 
 /*
  * Variables
