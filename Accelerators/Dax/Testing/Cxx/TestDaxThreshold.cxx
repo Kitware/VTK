@@ -45,7 +45,7 @@ namespace
       }
   }
 
-  int RunVTKPipeline(vtkImageData* grid, int dim, int argc, char* argv[])
+  int RunVTKPipeline(vtkImageData* grid, int argc, char* argv[])
   {
     vtkNew<vtkRenderer> ren;
     vtkNew<vtkRenderWindow> renWin;
@@ -103,5 +103,5 @@ int TestDaxThreshold(int argc, char* argv[])
   grid->SetExtent(0, dim-1,0, dim-1,0, dim-1);
 
   //run the pipeline
-  return RunVTKPipeline(grid.GetPointer(),dim, argc, argv);
+  return RunVTKPipeline(grid.GetPointer(), argc, argv);
 }
