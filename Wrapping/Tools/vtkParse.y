@@ -25,7 +25,7 @@ Run yacc like this:
 Modify vtkParse.tab.c:
   - convert TABs to spaces (eight per tab)
   - remove spaces from ends of lines, s/ *$//g
-
+  - replace all instances of "static inline" with "static".
 */
 
 /*
