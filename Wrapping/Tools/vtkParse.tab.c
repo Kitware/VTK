@@ -5704,7 +5704,7 @@ int yyparse (void);
 
 
 #ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N) ((void) 0)
+# define YYLLOC_DEFAULT(Current, Rhs, N) ((void)Rhs)
 #endif
 
 
