@@ -67,7 +67,7 @@ Run yacc like this:
 Modify vtkParse.tab.c:
   - convert TABs to spaces (eight per tab)
   - remove spaces from ends of lines, s/ *$//g
-
+  - replace all instances of "static inline" with "static".
 */
 
 /*
@@ -6038,7 +6038,7 @@ yyMemoryExhausted (yyGLRStack* yystackp)
 
 #if YYDEBUG || YYERROR_VERBOSE
 /** A printable representation of TOKEN.  */
-static inline const char*
+static const char*
 yytokenName (yySymbol yytoken)
 {
   if (yytoken == YYEMPTY)
@@ -6071,9 +6071,9 @@ yyfillin (yyGLRStackItem *yyvsp, int yylow0, int yylow1)
 /* Do nothing if YYNORMAL or if *YYLOW <= YYLOW1.  Otherwise, fill in
  * YYVSP[YYLOW1 .. *YYLOW-1] as in yyfillin and set *YYLOW = YYLOW1.
  * For convenience, always return YYLOW1.  */
-static inline int yyfill (yyGLRStackItem *, int *, int, yybool)
+static int yyfill (yyGLRStackItem *, int *, int, yybool)
      __attribute__ ((__unused__));
-static inline int
+static int
 yyfill (yyGLRStackItem *yyvsp, int *yylow, int yylow1, yybool yynormal)
 {
   if (!yynormal && yylow1 < *yylow)
@@ -9754,7 +9754,7 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
 }
 
 /** Number of symbols composing the right hand side of rule #RULE.  */
-static inline int
+static int
 yyrhsLength (yyRuleNum yyrule)
 {
   return yyr2[yyrule];
@@ -9795,7 +9795,7 @@ yydestroyGLRState (char const *yymsg, yyGLRState *yys)
 }
 
 /** Left-hand-side symbol for rule #RULE.  */
-static inline yySymbol
+static yySymbol
 yylhsNonterm (yyRuleNum yyrule)
 {
   return yyr1[yyrule];
@@ -9806,14 +9806,14 @@ yylhsNonterm (yyRuleNum yyrule)
 
 /** True iff LR state STATE has only a default reduction (regardless
  *  of token).  */
-static inline yybool
+static yybool
 yyisDefaultedState (yyStateNum yystate)
 {
   return yyis_pact_ninf (yypact[yystate]);
 }
 
 /** The default reduction for STATE, assuming it has one.  */
-static inline yyRuleNum
+static yyRuleNum
 yydefaultAction (yyStateNum yystate)
 {
   return yydefact[yystate];
@@ -9830,7 +9830,7 @@ yydefaultAction (yyStateNum yystate)
  *  Set *CONFLICTS to a pointer into yyconfl to 0-terminated list of
  *  conflicting reductions.
  */
-static inline void
+static void
 yygetLRActions (yyStateNum yystate, int yytoken,
                 int* yyaction, const short int** yyconflicts)
 {
@@ -9852,7 +9852,7 @@ yygetLRActions (yyStateNum yystate, int yytoken,
     }
 }
 
-static inline yyStateNum
+static yyStateNum
 yyLRgotoState (yyStateNum yystate, yySymbol yylhs)
 {
   int yyr;
@@ -9863,13 +9863,13 @@ yyLRgotoState (yyStateNum yystate, yySymbol yylhs)
     return yydefgoto[yylhs - YYNTOKENS];
 }
 
-static inline yybool
+static yybool
 yyisShiftAction (int yyaction)
 {
   return 0 < yyaction;
 }
 
-static inline yybool
+static yybool
 yyisErrorAction (int yyaction)
 {
   return yyaction == 0;
@@ -9881,7 +9881,7 @@ yyisErrorAction (int yyaction)
  * YY_RESERVE_GLRSTACK afterwards to make sure there is sufficient
  * headroom.  */
 
-static inline yyGLRStackItem*
+static yyGLRStackItem*
 yynewGLRStackItem (yyGLRStack* yystackp, yybool yyisState)
 {
   yyGLRStackItem* yynewItem = yystackp->yynextFree;
@@ -10041,7 +10041,7 @@ yyfreeGLRStack (yyGLRStack* yystackp)
 /** Assuming that S is a GLRState somewhere on STACK, update the
  *  splitpoint of STACK, if needed, so that it is at least as deep as
  *  S.  */
-static inline void
+static void
 yyupdateSplit (yyGLRStack* yystackp, yyGLRState* yys)
 {
   if (yystackp->yysplitPoint != NULL && yystackp->yysplitPoint > yys)
@@ -10049,7 +10049,7 @@ yyupdateSplit (yyGLRStack* yystackp, yyGLRState* yys)
 }
 
 /** Invalidate stack #K in STACK.  */
-static inline void
+static void
 yymarkStackDeleted (yyGLRStack* yystackp, size_t yyk)
 {
   if (yystackp->yytops.yystates[yyk] != NULL)
@@ -10071,7 +10071,7 @@ yyundeleteLastStack (yyGLRStack* yystackp)
   yystackp->yylastDeleted = NULL;
 }
 
-static inline void
+static void
 yyremoveDeletes (yyGLRStack* yystackp)
 {
   size_t yyi, yyj;
@@ -10109,7 +10109,7 @@ yyremoveDeletes (yyGLRStack* yystackp)
 
 /** Shift to a new state on stack #K of STACK, corresponding to LR state
  * LRSTATE, at input position POSN, with (resolved) semantic value SVAL.  */
-static inline void
+static void
 yyglrShift (yyGLRStack* yystackp, size_t yyk, yyStateNum yylrState,
             size_t yyposn,
             YYSTYPE* yyvalp, YYLTYPE* yylocp)
@@ -10130,7 +10130,7 @@ yyglrShift (yyGLRStack* yystackp, size_t yyk, yyStateNum yylrState,
 /** Shift stack #K of YYSTACK, to a new state corresponding to LR
  *  state YYLRSTATE, at input position YYPOSN, with the (unresolved)
  *  semantic value of YYRHS under the action for YYRULE.  */
-static inline void
+static void
 yyglrShiftDefer (yyGLRStack* yystackp, size_t yyk, yyStateNum yylrState,
                  size_t yyposn, yyGLRState* rhs, yyRuleNum yyrule)
 {
@@ -10153,7 +10153,7 @@ yyglrShiftDefer (yyGLRStack* yystackp, size_t yyk, yyStateNum yylrState,
  *  have been previously resolved.  Set *VALP to the resulting value,
  *  and *LOCP to the computed location (if any).  Return value is as
  *  for userAction.  */
-static inline YYRESULTTAG
+static YYRESULTTAG
 yydoAction (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
             YYSTYPE* yyvalp, YYLTYPE* yylocp)
 {
@@ -10206,7 +10206,7 @@ do {                                        \
 | Report that the RULE is going to be reduced on stack #K.  |
 `----------------------------------------------------------*/
 
-/*ARGSUSED*/ static inline void
+/*ARGSUSED*/ static void
 yy_reduce_print (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
                  YYSTYPE* yyvalp, YYLTYPE* yylocp)
 {
@@ -10244,7 +10244,7 @@ yy_reduce_print (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
  *  the STACK.  In this case, the (necessarily deferred) semantic value is
  *  added to the options for the existing state's semantic value.
  */
-static inline YYRESULTTAG
+static YYRESULTTAG
 yyglrReduce (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
              yybool yyforceEval)
 {
