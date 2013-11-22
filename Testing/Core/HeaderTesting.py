@@ -187,7 +187,7 @@ class TestVTKFiles:
         pass
 
     def CheckParent(self):
-        classre = "^class\s*(.*_EXPORT|\s*) (vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s*(vtk[^ \n\{]*)"
+        classre = "^class(\s+[^\s]*_EXPORT)?\s+(vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
         cname = ""
         pname = ""
         classlines = []
