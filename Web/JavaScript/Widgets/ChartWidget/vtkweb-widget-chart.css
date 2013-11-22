@@ -3,7 +3,7 @@
 }
 
  .vtk-chart > div  {
-    position: absolute;
+    position: relative;
     width: 100%;
     height: 100%;
 }

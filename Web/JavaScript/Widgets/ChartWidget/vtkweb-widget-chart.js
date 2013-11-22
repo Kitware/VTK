@@ -23,6 +23,12 @@
 
     // =======================================================================
 
+    function toNumber(str) {
+        return Number(str.replace(/^\s+|\s+$/g, ''));
+    }
+
+    // =======================================================================
+
     function extractColumnHeaderMap(headerLine) {
         var header = headerLine.split(','),
         colIdxMap = {};
@@ -44,7 +50,7 @@
         for(var i = 1; i < nbLines; ++i) {
             var values = lines[i].split(',');
             if(values.length === 2) {
-                item = { x: Number(values[0]), y: Number(values[1]) };
+                item = { x: toNumber(values[0]), y: toNumber(values[1]) };
                 data.push(item);
             }
         }
@@ -87,9 +93,9 @@
         for(var i = 1; i < nbLines; ++i) {
             var values = lines[i].split(',');
             if(values.length === nbValuesByLines) {
-                xValue =  Number(values[xIdx]);
+                xValue =  toNumber(values[xIdx]);
                 for(var idx in header) {
-                    var item = { x: xValue, y: Number(values[headerMap[header[idx]]])};
+                    var item = { x: xValue, y: toNumber(values[headerMap[header[idx]]])};
                     if(item.y === NaN) {
                         item.y = null;
                     }
