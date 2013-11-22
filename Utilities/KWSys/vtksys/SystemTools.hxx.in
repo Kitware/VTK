@@ -24,6 +24,8 @@
 
 // Required for va_list
 #include <stdarg.h>
+// Required for FILE*
+#include <stdio.h>
 #if @KWSYS_NAMESPACE@_STL_HAVE_STD && !defined(va_list)
 // Some compilers move va_list into the std namespace and there is no way to
 // tell that this has been done. Playing with things being included before or
@@ -491,6 +493,11 @@ public:
    *               File Manipulation Routines
    *  -----------------------------------------------------------------
    */
+
+  /**
+   * Open a file considering unicode.
+   */
+  static FILE* Fopen(const char* file, const char* mode);
 
   /**
    * Make a new directory if it is not there.  This function
