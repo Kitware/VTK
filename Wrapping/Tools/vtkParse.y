@@ -2107,11 +2107,11 @@ init_declarator_id:
         var->ItemType = VTK_TYPEDEF_INFO;
         if (currentClass)
           {
-          vtkParse_AddVariableToClass(currentClass, var);
+          vtkParse_AddTypedefToClass(currentClass, var);
           }
         else
           {
-          vtkParse_AddVariableToNamespace(currentNamespace, var);
+          vtkParse_AddTypedefToNamespace(currentNamespace, var);
           }
         }
       /* Is this a constant? */
