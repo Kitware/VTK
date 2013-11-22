@@ -54,6 +54,8 @@ static int skip_ahead_until(const char *text);
 static int skip_to_next_directive();
 static int skip_conditional_block();
 
+static const char *raw_string(const char *begin);
+
 static void preprocessor_directive(const char *text, size_t l);
 static void print_preprocessor_error(int result, const char *cp, size_t n);
 static const char *get_macro_arguments();
@@ -72,7 +74,7 @@ static int in_macro();
 
 WS [\t\n\r ]+
 PS [\t\n\r ]*
-ID [a-zA-Z_][0-9a-zA-Z_]*
+ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 %%
 
@@ -118,14 +120,19 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
       preprocessor_directive(yytext, yyleng);
    }
 
-\"([^\"]|\\\")*\"  {
+("u8"|"u"|"U"|"L")?\"([^\"]|\\\")*\"(_{ID})?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(STRING_LITERAL);
     }
 
-\'([^\']|\\\')+\'  {
+[uUL]?\'([^\']|\\\')+\'(_{ID})?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
+    }
+
+("R"|"u8R"|"uR"|"UR"|"LR")?\"[^ ()\t\v\f\n]*"(" {
+      yylval.str = raw_string(yytext);
+      return(STRING_LITERAL);
     }
 
 {ID}"_EXPORT"  /* ignore EXPORT macros */
@@ -140,7 +147,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         cp = args;
         if (*cp == '(') { cp++; }
         while (*cp == ' ' || *cp == '\t') { cp++; }
-        l = vtkidlen(cp);
+        l = vtkParse_SkipId(cp);
         if (l)
           {
           yylval.str = vtkstrndup(cp, l);
@@ -150,6 +157,8 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         free((char *)args);
         }
     }
+
+"auto"          return(AUTO);
 
 "double"        return(DOUBLE);
 "float"         return(FLOAT);
@@ -165,8 +174,24 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "void"          return(VOID);
 "bool"          return(BOOL);
 
-"size_t"        return(SIZE_T);
-"ssize_t"       return(SSIZE_T);
+"char16_t"      return(CHAR16_T);
+"char32_t"      return(CHAR32_T);
+"wchar_t"       return(WCHAR_T);
+
+"std::"?"size_t"/[^a-zA-Z_] {
+      yylval.str = (yytext[3] == ':' ? "std::size_t" : "size_t");
+      return(SIZE_T);
+    }
+
+"std::"?"ssize_t"/[^a-zA-Z_] {
+      yylval.str = (yytext[3] == ':' ? "std::ssize_t" : "ssize_t");
+      return(SSIZE_T);
+    }
+
+"std::"?"nullptr_t"/[^a-zA-Z_] {
+      yylval.str = (yytext[3] == ':' ? "std::nullptr_t" : "nullptr_t");
+      return(NULLPTR_T);
+    }
 
 "Q_OBJECT"      /* ignore the Q_OBJECT macro from Qt */
 "public"{WS}"slots"{PS}/:    return(PUBLIC);
@@ -188,7 +213,9 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "operator"      return(OPERATOR);
 "friend"        return(FRIEND);
 "inline"        return(INLINE);
+"constexpr"     return(CONSTEXPR);
 "static"        return(STATIC);
+"thread_local"  return(THREAD_LOCAL);
 "extern"        return(EXTERN);
 "template"      return(TEMPLATE);
 "typename"      return(TYPENAME);
@@ -199,13 +226,17 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 "delete"        return(DELETE);
 "explicit"      return(EXPLICIT);
 "throw"         return(THROW);
+"try"           return(TRY);
+"catch"         return(CATCH);
+"noexcept"      return(NOEXCEPT);
+"decltype"      return(DECLTYPE);
+"default"       return(DEFAULT);
 
 "static_cast"   return(STATIC_CAST);
 "dynamic_cast"  return(DYNAMIC_CAST);
 "const_cast"    return(CONST_CAST);
 "reinterpret_cast" return(REINTERPRET_CAST);
 
-"auto"          /* irrelevant to wrappers */
 "register"      /* irrelevant to wrappers */
 
 "and"           return(OP_LOGIC_AND);
@@ -329,6 +360,20 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
       return(QT_ID);
     }
 
+"static_assert"  get_macro_arguments(); /* C++11 */
+
+"alignas"  get_macro_arguments(); /* C++11 */
+
+"_Alignas" get_macro_arguments(); /* C11 */
+
+"_Generic" get_macro_arguments(); /* C11 */
+
+"_Thread_local" return(THREAD_LOCAL); /* C11 */
+
+"_Atomic"    /* C11 */
+
+"_Noreturn"  /* C11 */
+
 "__attribute__"  get_macro_arguments(); /* gcc attributes */
 
 "__declspec"  get_macro_arguments(); /* Windows linkage */
@@ -348,6 +393,11 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         yy_switch_to_buffer(yy_scan_bytes(&args[1], l-2));
         }
       free((char *)args);
+    }
+
+"nullptr" {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(NULLPTR);
     }
 
 {ID}  {
@@ -376,6 +426,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
             if (!emacro)
               {
               print_preprocessor_error(VTK_PARSE_MACRO_NUMARGS, NULL, 0);
+              exit(1);
               }
             free((char *)args);
             }
@@ -397,6 +448,7 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
             if (!emacro)
               {
               print_preprocessor_error(r, NULL, 0);
+              exit(1);
               }
             }
           }
@@ -434,32 +486,32 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
         }
     }
 
-[0-9]*"."[0-9]+([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
+[0-9]*"."[0-9]+([eE][+-]?[0-9]+)?{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-[0-9]+"."([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
+[0-9]+"."([eE][+-]?[0-9]+)?{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-[0-9]+[eE][+-]?[0-9]+[a-zA-Z_]*  {
+[0-9]+[eE][+-]?[0-9]+{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-"0"[xX][0-9a-fA-F]+[g-zG-Z_]*      {
+"0"[xX][0-9a-fA-F]+{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(HEX_LITERAL);
     }
 
-"0"[0-9]+[a-zA-Z_]*   {
+"0"[0-9]+{ID}? {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(OCT_LITERAL);
     }
 
-[1-9][0-9]*[a-zA-Z_]* {
+[1-9][0-9]*{ID}? {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(INT_LITERAL);
     }
@@ -473,13 +525,22 @@ ID [a-zA-Z_][0-9a-zA-Z_]*
 [\t ]+            /* whitespace */
 [\n\r\v\f]        /* whitespace */
 
+"["{PS}"["        return(BEGIN_ATTRIB);
+
+"<%"              return('{');
+"%>"              return('}');
+"<:"              return('[');
+":>"              return(']');
+"%:"              return('#');
+
+">"/>             return(OP_RSHIFT_A);
+
 "<<="             return(OP_LSHIFT_EQ);
 ">>="             return(OP_RSHIFT_EQ);
 "<<"              return(OP_LSHIFT);
 ".*"              return(OP_DOT_POINTER);
 "->*"             return(OP_ARROW_POINTER);
 "->"              return(OP_ARROW);
-">>"              return(OP_RSHIFT);
 "++"              return(OP_INCR);
 "--"              return(OP_DECR);
 "+="              return(OP_PLUS_EQ);
@@ -672,14 +733,16 @@ const char *get_macro_arguments()
  */
 int skip_comment()
 {
+   int savelineno = yylineno;
    int c1 = 0, c2 = input();
    for (;;)
      {
-     if (c2 == 0)
+     if (c2 == 0 || c2 == EOF)
        {
+       yylineno = savelineno;
        print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
          "Cannot find end of comment.", 27);
-       return 0;
+       exit(1);
        }
      if (c1 == '*' && c2 == '/') break;
      c1 = c2; c2 = input();
@@ -766,7 +829,7 @@ int skip_to_next_directive()
 
   c = input();
 
-  while (c != 0)
+  while (c != 0 && c != EOF)
     {
     /* whitespace */
     if (c == ' ' || c == '\t')
@@ -803,7 +866,7 @@ int skip_to_next_directive()
           c = input();
           }
         }
-      else if (c != 0)
+      else if (c != 0 && c != EOF)
         {
         c = input();
         }
@@ -850,7 +913,7 @@ int skip_conditional_block()
       {
       c = input();
       }
-    if (c == 0)
+    if (c == 0 || c == EOF)
       {
       return 0;
       }
@@ -858,7 +921,7 @@ int skip_conditional_block()
     /* eat the whole line */
     i = 0;
     linebuf[i++] = '#';
-    while (c != 0 && c != '\n')
+    while (c != 0 && c != EOF && c != '\n')
       {
       if (i >= linemaxlen-5)
         {
@@ -902,7 +965,7 @@ int skip_conditional_block()
 int skip_ahead_multi(const char *strings[])
 {
   char textbuf[SKIP_MATCH_MAXLEN+1];
-  char c = 0;
+  int c = 0;
   size_t i;
 
   for (i = 0; i < (SKIP_MATCH_MAXLEN+1); i++)
@@ -917,7 +980,8 @@ int skip_ahead_multi(const char *strings[])
       textbuf[i] = textbuf[i+1];
       }
 
-    if ((c = (char)input()) == '\0')
+    c = input();
+    if (c == 0 || c == EOF)
       {
       print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR, NULL, 0);
       return 0;
@@ -939,9 +1003,9 @@ int skip_ahead_multi(const char *strings[])
       }
     }
 
-  while (c != '\0' && c != '\n')
+  while (c != 0 && c != EOF && c != '\n')
     {
-    c = (char)input();
+    c = input();
     }
 
   return 1;
@@ -957,6 +1021,123 @@ int skip_ahead_until(const char *text)
   strings[1] = NULL;
 
   return skip_ahead_multi(strings);
+}
+
+/*
+ * Convert a raw string into a non-raw string.
+ */
+const char *raw_string(const char *begin)
+{
+  int savelineno = yylineno;
+  char *textbuf;
+  int c = 0;
+  const char *delim;
+  const char *cp = begin;
+  char *dp;
+  char *result;
+  size_t i, j, n;
+  size_t m = 1024;
+
+  result = (char *)malloc(m);
+  dp = result;
+
+  while (*cp != '\"')
+    {
+    *dp++ = *cp++;
+    }
+  --dp;
+  *dp++ = *cp++;
+
+  delim = cp;
+
+  for (n = 0;; n++)
+    {
+    if (delim[n] == '(') { break; }
+    }
+
+  textbuf = (char *)malloc(n+1);
+
+  for (i = 0; i < n+1; i++)
+    {
+    c = input();
+    textbuf[i] = c;
+    }
+
+  while (c != EOF)
+    {
+    if (textbuf[0] == ')' && (n == 0 || strncmp(&textbuf[1], delim, n) == 0))
+      {
+      break;
+      }
+
+    j = dp - result;
+    if (j > m - 8)
+      {
+      m += 1024;
+      result = (char *)realloc(result, m);
+      dp = result + j;
+      }
+
+    if ((*textbuf >= ' ' && *textbuf <= '~') ||
+        (*textbuf & 0x80) != 0)
+      {
+      *dp++ = *textbuf;
+      }
+    else switch (*textbuf)
+      {
+      case '\a': *dp++ = '\\'; *dp++ = 'a'; break;
+      case '\b': *dp++ = '\\'; *dp++ = 'b'; break;
+      case '\f': *dp++ = '\\'; *dp++ = 'f'; break;
+      case '\n': *dp++ = '\\'; *dp++ = 'n'; break;
+      case '\r': *dp++ = '\\'; *dp++ = 'r'; break;
+      case '\t': *dp++ = '\\'; *dp++ = 't'; break;
+      case '\v': *dp++ = '\\'; *dp++ = 'v'; break;
+      case '\\': *dp++ = '\\'; *dp++ = '\\'; break;
+      case '\'': *dp++ = '\\'; *dp++ = '\''; break;
+      case '\"': *dp++ = '\\'; *dp++ = '\"'; break;
+      default:
+        sprintf(dp, "\\%3.3o", *textbuf);
+        dp += 4;
+        break;
+      }
+
+    for (i = 0; i < n; i++)
+      {
+      textbuf[i] = textbuf[i+1];
+      }
+
+    c = input();
+    textbuf[n] = c;
+    }
+
+  if (c == EOF || '\"' != input())
+    {
+    yylineno = savelineno;
+    print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
+      "Unterminated raw string.", 24);
+    exit(1);
+    }
+
+  *dp++ = '\"';
+
+  c = input();
+  if (c == '_')
+    {
+    do
+      {
+      *dp++ = c;
+      c = input();
+      }
+    while (vtkParse_CharType(c, CPRE_IDGIT));
+    }
+  unput(c);
+
+  *dp = '\0';
+  cp = vtkstrdup(result);
+  free(result);
+  free(textbuf);
+
+  return cp;
 }
 
 /*
@@ -1207,6 +1388,11 @@ void print_parser_error(const char *text, const char *cp, size_t n)
   size_t j = 0;
   const char *fn = "(none)";
 
+  if (CommandName)
+    {
+    fprintf(yyout, "%s: ", CommandName);
+    }
+
   if (data->FileName)
     {
     fn = data->FileName;
@@ -1217,15 +1403,19 @@ void print_parser_error(const char *text, const char *cp, size_t n)
     fprintf(yyout, "%i:\nIn %s:",
             lineno_stack[j], include_stack[j]->FileName);
     }
-  fprintf(yyout, "%i:\n", yylineno);
+  fprintf(yyout, "%i:", yylineno);
 
   if (cp)
     {
-    fprintf(yyout, "%s: %*.*s\n", text, (int)n, (int)n, cp);
+    fprintf(yyout, " %s: %*.*s\n", text, (int)n, (int)n, cp);
     }
   else if (text)
     {
-    fprintf(yyout, "%s.\n", text);
+    fprintf(yyout, " %s.\n", text);
+    }
+  else
+    {
+    fprintf(yyout, "\n");
     }
 }
 
@@ -1286,6 +1476,10 @@ void preprocessor_directive(const char *text, size_t l)
   else if (result != VTK_PARSE_OK)
     {
     print_preprocessor_error(result, text, l);
+    if ((result & VTK_PARSE_FATAL_ERROR) != 0)
+      {
+      exit(1);
+      }
     }
   else if (n == 6 && strncmp(directive, "define", n) == 0 &&
            ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)

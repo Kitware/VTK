@@ -112,6 +112,7 @@ struct _ValueInfo
   TemplateInfo  *Template;   /* template parameters, or NULL */
   int            IsStatic;   /* for class variables only */
   int            IsEnum;     /* for constants only */
+  int            IsPack;     /* for pack expansions */
 };
 
 /**
@@ -138,6 +139,8 @@ struct _FunctionInfo
   int            IsVirtual;   /* methods only */
   int            IsPureVirtual; /* methods only */
   int            IsConst;     /* methods only */
+  int            IsDeleted;   /* methods only */
+  int            IsFinal;     /* methods only */
   int            IsExplicit;  /* constructors only */
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int            NumberOfArguments;   /* legacy */
@@ -153,18 +156,6 @@ struct _FunctionInfo
   int            IsProtected; /* legacy */
 #endif
 };
-
-/**
- * EnumInfo is for enums
- * Constants are at the same level as the Enum, not inside it.
- */
-typedef struct _EnumInfo
-{
-  parse_item_t   ItemType;
-  parse_access_t Access;
-  const char    *Name;
-  const char    *Comment;
-} EnumInfo;
 
 /**
  * UsingInfo is for using directives
@@ -201,7 +192,7 @@ typedef struct _ClassInfo
   int            NumberOfVariables;
   ValueInfo    **Variables;
   int            NumberOfEnums;
-  EnumInfo     **Enums;
+  struct _ClassInfo **Enums;
   int            NumberOfTypedefs;
   ValueInfo    **Typedefs;
   int            NumberOfUsings;
@@ -209,8 +200,16 @@ typedef struct _ClassInfo
   int            NumberOfNamespaces;
   struct _ClassInfo **Namespaces;
   int            IsAbstract;
+  int            IsFinal;
   int            HasDelete;
 } ClassInfo;
+
+/**
+ * EnumInfo is for enums
+ * For scoped enums, the constants are in the enum itself, but for
+ * standard enums, the constants are at the same level as the enum.
+ */
+typedef struct _ClassInfo EnumInfo;
 
 /**
  * Namespace is for namespaces
