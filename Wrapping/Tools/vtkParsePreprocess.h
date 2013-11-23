@@ -53,7 +53,7 @@ typedef __int64 preproc_int_t;
 typedef unsigned __int64 preproc_uint_t;
 #else
 typedef long long preproc_int_t;
-typedef int           long preproc_uint_t;
+typedef unsigned long long preproc_uint_t;
 #endif
 
 /**

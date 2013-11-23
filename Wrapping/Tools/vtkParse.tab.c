@@ -6051,7 +6051,7 @@ yytokenName (yySymbol yytoken)
 /** Fill in YYVSP[YYLOW1 .. YYLOW0-1] from the chain of states starting
  *  at YYVSP[YYLOW0].yystate.yypred.  Leaves YYVSP[YYLOW1].yystate.yypred
  *  containing the pointer to the next state in the chain.  */
-static void yyfillin (yyGLRStackItem *, int, int) __attribute__ ((__unused__));
+static void yyfillin (yyGLRStackItem *, int, int);
 static void
 yyfillin (yyGLRStackItem *yyvsp, int yylow0, int yylow1)
 {
@@ -6071,8 +6071,8 @@ yyfillin (yyGLRStackItem *yyvsp, int yylow0, int yylow1)
 /* Do nothing if YYNORMAL or if *YYLOW <= YYLOW1.  Otherwise, fill in
  * YYVSP[YYLOW1 .. *YYLOW-1] as in yyfillin and set *YYLOW = YYLOW1.
  * For convenience, always return YYLOW1.  */
-static int yyfill (yyGLRStackItem *, int *, int, yybool)
-     __attribute__ ((__unused__));
+static int yyfill (yyGLRStackItem *, int *, int, yybool);
+
 static int
 yyfill (yyGLRStackItem *yyvsp, int *yylow, int yylow1, yybool yynormal)
 {
@@ -6096,7 +6096,7 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
               yyGLRStack* yystackp
               )
 {
-  yybool yynormal __attribute__ ((__unused__)) =
+  yybool yynormal =
     (yystackp->yysplitPoint == NULL);
   int yylow;
 # undef yyerrok
@@ -10253,7 +10253,7 @@ yyglrReduce (yyGLRStack* yystackp, size_t yyk, yyRuleNum yyrule,
   if (yyforceEval || yystackp->yysplitPoint == NULL)
     {
       YYSTYPE yysval;
-      YYLTYPE yyloc;
+      YYLTYPE yyloc = {0};
 
       YY_REDUCE_PRINT ((yystackp, yyk, yyrule, &yysval, &yyloc));
       YYCHK (yydoAction (yystackp, yyk, yyrule, &yysval,
@@ -11037,7 +11037,7 @@ yyrecoverSyntaxError (yyGLRStack* yystackp)
               && yyisShiftAction (yytable[yyj]))
             {
               /* Shift the error token having adjusted its location.  */
-              YYLTYPE yyerrloc;
+              YYLTYPE yyerrloc = {0};
               YY_SYMBOL_PRINT ("Shifting", yystos[yytable[yyj]],
                                &yylval, &yyerrloc);
               yyglrShift (yystackp, 0, yytable[yyj],
