@@ -45,9 +45,9 @@
     var dataIdx = 0,
     palette = new Rickshaw.Color.Palette(),
     dataList = [
-        {url:"single.csv", type: 'csv-xy', options: { color: palette.color(), name: "AAA"}},
+        {url:"single.csv", type: 'csv-xy', options: { color: palette.color(), name: "AAA"}, replace: true },
         {url:"single2.csv", type: 'csv-xy', options: { color: palette.color(), name: "BBB"}},
-        {url:"multi.csv", type: 'csv-x*', options: {x: 'x'}}
+        {url:"multi.csv", type: 'csv-x*', options: {x: 'x'}, replace: true }
     ];
 
     setInterval(function(){
