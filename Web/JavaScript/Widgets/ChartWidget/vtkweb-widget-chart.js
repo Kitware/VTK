@@ -118,12 +118,13 @@
         legendContainer.children("ul").empty();
 
         // Update model
-        legend.lines = [];
-        var series = chart.graph.series.map( function(s) { return s } )
-        series.forEach(function(s) {
-            //console.log(s);
-            legend.addLine(s);
-        });
+        if(legend !== undefined) {
+            legend.lines = [];
+            var series = chart.graph.series.map( function(s) { return s } )
+            series.forEach(function(s) {
+                legend.addLine(s);
+            });
+        }
     }
 
     // =======================================================================
@@ -278,6 +279,7 @@
      * @member jQuery.vtk.ui.Chart
      * @method vtkChartUpdateData
      * @param {Array} series
+     * @param {boolean} replace previous series
      *
      * Usage:
      *      var series: [
@@ -294,13 +296,15 @@
      *
      *      $('.chart-container-div').vtkChartUpdateData(series);
      */
-    $.fn.vtkChartUpdateData = function(series) {
+    $.fn.vtkChartUpdateData = function(series, replace) {
         return this.each(function() {
             var me = $(this),
             data = me.data('chart'),
             dataset = data['configuration']['series'];
-            while(dataset.length > 0) {
-                dataset.pop();
+            if(replace) {
+                while(dataset.length > 0) {
+                    dataset.pop();
+                }
             }
             for(var idx in series) {
                 data.graph.series.push(series[idx]);
@@ -321,9 +325,9 @@
      * @param {Object} options
      *
      * Usage:
-     *      var options_json = { url: "data.json", type: 'json', converter: null };
-     *      var options_csv_1 = { url: "data1.csv", type: 'csv-xy', options: { name: 'Temperature', color: palette.color(), ... } };
-     *      var options_csv_n = { url: "data2.csv", type: 'csv-x*', options: { x: 'time', palette: null } };
+     *      var options_json = { replace: true, url: "data.json", type: 'json', converter: null };
+     *      var options_csv_1 = { replace: true, url: "data1.csv", type: 'csv-xy', options: { name: 'Temperature', color: palette.color(), ... } };
+     *      var options_csv_n = { replace: true, url: "data2.csv", type: 'csv-x*', options: { x: 'time', palette: null } };
      *
      *      $('.chart-container-div').vtkChartFetchData(options_*);
      *
@@ -376,7 +380,7 @@
                 } else if(info.type === 'csv-x*') {
                     multiDataCSVConverter(data, series, options);
                 }
-                me.vtkChartUpdateData(series);
+                me.vtkChartUpdateData(series, info['replace']);
             });
         });
     }
