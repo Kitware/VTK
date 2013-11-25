@@ -68,7 +68,7 @@
     module.extractURLParameters = extractURLParameters;
     module.udpateConnectionFromURL = udpateConnectionFromURL;
     module.properties = {
-        'sessionManagerURL': location.protocol + "//" + location.hostname + ":" + location.port + "/paraview",
+        'sessionManagerURL': location.protocol + "//" + location.hostname + ":" + location.port + "/paraview/",
         'sessionURL': (isSecured() ? "wss" : "ws") + "://" + location.hostname + ":" + location.port + "/ws"
     };
     module.NoOp = function() {};
