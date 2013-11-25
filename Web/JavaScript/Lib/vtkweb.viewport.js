@@ -7,7 +7,7 @@
  *
  * This module registers itself as: 'vtkweb-viewport'
  *
- * @class vtkWeb.viewport
+ * @class vtkWeb.Viewport
  */
 (function (GLOBAL, $) {
 
@@ -49,45 +49,10 @@
 
     module = {},
 
-    /**
-     * @class vtkWeb.ViewPortConfig
-     * Configuration object used to create a viewport.
-     */
     DEFAULT_VIEWPORT_OPTIONS = {
-        /**
-         * @member vtkWeb.ViewPortConfig
-         * @property {vtkWeb.Session} session
-         * Object used to communicate with the remote server.
-         *
-         * Default: null but MUST BE OVERRIDE !!!
-         */
         session: null,
-        /**
-         * @member vtkWeb.ViewPortConfig
-         * @property {Number} view
-         * Specify the GlobalID of the view that we want to render. By default,
-         * set to -1 to use the active view.
-         *
-         * Default: -1
-         */
         view: -1,
-        /**
-         * @member vtkWeb.ViewPortConfig
-         * @property {Boolean} enableInteractions
-         * Enable by default the user intaration but any mouse interaction can
-         * be disable if needed.
-         *
-         * Default: true
-         */
         enableInteractions: true,
-
-        /**
-         * @member vtkWeb.ViewPortConfig
-         * @property {String} renderer
-         * Name of the renderer to be used. Can only be 'image' 'webgl' or 'vgl'.
-         *
-         * Default: 'image'
-         */
         renderer: 'image'
     };
 
@@ -471,11 +436,23 @@
 
     /**
      * Create a new viewport for a vtkWeb View.
-     * The options are defined by {@link vtkWeb.ViewPortConfig}.
+     * The options are explained below.
      *
-     * @member vtkWeb.viewport
-     * @param {vtkWeb.ViewPortConfig} options
+     * @member vtkWeb.Viewport
+     * @param {Object} options
      * Configure the viewport to create the way we want.
+     *
+     *     options = {
+     *        session: sessionObject,     // Object used to communicate with the remote server.
+     *        view: -1,                  // -1 for active view or use the proper viewId
+     *        enableInteractions: true, // True if mouse interaction should be forwarded to the server
+     *        renderer: 'image'        // Type of renderer to be used. Can only be 'image' 'webgl' or 'vgl'.
+     *      // --- image renderer options
+     *        interactiveQuality: 30,   // StillRender quality when interacting
+     *        stillQuality: 100,        // StillRender quality when not interacting
+     *      // --- webgl/vgl renderer options
+     *        keepServerInSynch: false. // Push camera information to server if true
+     *     }
      *
      * @return {vtkWeb.Viewport}
      */

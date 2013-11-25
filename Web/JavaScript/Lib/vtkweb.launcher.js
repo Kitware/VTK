@@ -7,7 +7,7 @@
  *
  * @class vtkWeb.launcher
  *
- * {@img vtkWeb/vtkWeb-multiuser.png alt Focus on the communication between the client and the front-end that manage the vtkWeb processes}
+ * {@img paraview/ParaViewWeb-multiuser.png alt Focus on the communication between the client and the front-end that manage the vtkWeb processes}
  */
 (function (GLOBAL, $) {
 
@@ -25,12 +25,12 @@
     }
 
     /**
-     * @class vtkWeb.ConnectionConfig
+     * @class vtkWeb.Connection
      * This class provides all the informations needed to connect to the session
      * manager web service.
      */
     /**
-     * @member vtkWeb.ConnectionConfig
+     * @member vtkWeb.Connection
      * @property {String} sessionManagerURL
      * The service URL that will respond to the REST request to start or stop
      * a visualization session.
@@ -38,21 +38,21 @@
      * MANDATORY
      */
     /**
-     * @member vtkWeb.ConnectionConfig
+     * @member vtkWeb.Connection
      * @property {String} name
      * The name given for the visualization.
      *
      * RECOMMENDED/OPTIONAL
      */
     /**
-     * @member vtkWeb.ConnectionConfig
+     * @member vtkWeb.Connection
      * @property {String} application
      * The name of the application that should be started on the server side.
      *
      * MANDATORY
      */
     /**
-     * @member vtkWeb.ConnectionConfig
+     * @member vtkWeb.Connection
      * @property {String|Number} __Any_Name__
      * Any property that we want to provide to the session that will be created.
      * Such property is not necessary used by the session manager but will be
@@ -61,7 +61,7 @@
      * OPTIONAL
      */
     /**
-     * @member vtkWeb.ConnectionConfig
+     * @member vtkWeb.Connection
      * @property {String} secret
      * Password that should be used to protect remote session access.
      *
@@ -76,7 +76,7 @@
      * OPTIONAL
      */
     /**
-     * @member vtkWeb.ConnectionConfig
+     * @member vtkWeb.Connection
      * @property {Number} generate-secret
      * Property used to specify where the generation of the secret key should be
      * made.
@@ -93,22 +93,17 @@
     //=========================================================================
 
     /**
-     * @class vtkWeb.Connection
-     * This class provides all the informations needed to connect to a running
-     * visualization session.
-     *
-     * @mixins vtkWeb.ConnectionConfig
-     */
-    /**
      * @member vtkWeb.Connection
      * @property {String} sessionURL
      * The websocket URL that should be used to connect to the running
      * visualization session.
+     * This field is provided within the response.
      */
     /**
      * @member vtkWeb.Connection
      * @property {String} id
      * The session identifier.
+     * This field is provided within the response.
      */
     /**
      * @member vtkWeb.Connection
@@ -117,6 +112,8 @@
      * connection is properly established by calling:
      *
      *     vtkWeb.connect(connection, success, error);
+     *
+     * This field is provided within the response.
      */
     //=========================================================================
 
