@@ -37,9 +37,6 @@
 #  define VTK_MATERIALS_DIRS "@VTK_MATERIALS_DIRS@"
 #endif
 
-/* Should VTK use the display?  */
-#cmakedefine VTK_USE_DISPLAY
-
 /* Options for GPUInfo */
 #cmakedefine VTK_USE_DIRECTX
 #cmakedefine VTK_USE_CORE_GRAPHICS

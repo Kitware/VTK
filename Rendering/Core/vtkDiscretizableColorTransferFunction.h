@@ -211,9 +211,22 @@ protected:
   vtkSmartPointer<vtkPiecewiseFunction> ScalarOpacityFunction;
   unsigned long ScalarOpacityFunctionObserverId;
 
+  void MapDataArrayToOpacity(
+    vtkDataArray *scalars, int component, vtkUnsignedCharArray* colors);
+
 private:
   vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&); // Not implemented.
   void operator=(const vtkDiscretizableColorTransferFunction&); // Not implemented.
+  template<typename T, typename VectorGetter>
+    void MapVectorToOpacity (
+      VectorGetter getter, T* scalars, int component,
+      int numberOfComponents, vtkIdType numberOfTuples, unsigned char* colors);
+  template<template<class> class VectorGetter>
+    void AllTypesMapVectorToOpacity (
+      int scalarType,
+      void* scalarsPtr, int component,
+      int numberOfComponents, vtkIdType numberOfTuples, unsigned char* colors);
+
 
   // Pointer used by GetRGBPoints().
   double* Data;

@@ -103,15 +103,10 @@ vtk_add_test_cxx(
   TestTStripsNormalsColorsTCoords.cxx
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
+  RenderNonFinite.cxx
+  SurfacePlusEdges.cxx
+  TestLabelPlacementMapper.cxx
   )
-
-if(VTK_USE_DISPLAY)
-  vtk_add_test_cxx(
-    RenderNonFinite.cxx
-    SurfacePlusEdges.cxx
-    TestLabelPlacementMapper.cxx
-    )
-endif()
 
 set(VTK_USE_GLSL_SHADERS FALSE)
 if(VTK_USE_GLSL_SHADERS)
