@@ -8,7 +8,7 @@
  *
  * @class vtkWeb.connect
  *
- * {@img vtkWeb/vtkWeb-simple.png
+ * {@img paraview/ParaViewWeb-simple.png
  *  alt Focus on the communication between the client and the vtkWeb process}
  */
 (function (GLOBAL, $) {

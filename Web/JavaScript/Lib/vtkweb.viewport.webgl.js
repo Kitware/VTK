@@ -3,7 +3,7 @@
  *
  * This module extend the vtkWeb viewport to add support for WebGL rendering.
  *
- * @class vtkWeb.viewport.webgl
+ * @class vtkWeb.viewports.webgl
  *
  *     Viewport Factory description:
  *       - Key: webgl
@@ -30,16 +30,6 @@
         "z-index" : "0"
     },
     DEFAULT_OPTIONS = {
-        /**
-         * @member vtkWeb.ViewPortConfig
-         * @property {Boolean} keepServerInSynch
-         * This will force network communication to the server to update the
-         * camera position on the server as well.
-         * This is useful when collaboration is involved and several users
-         * are looking at the same scene.
-         *
-         * Default: false
-         */
         keepServerInSynch: false
     },
     FACTORY_KEY = 'webgl',
