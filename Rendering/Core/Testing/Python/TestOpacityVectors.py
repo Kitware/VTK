@@ -14,8 +14,7 @@ def SphereActor(lut, interpolateBeforeMapping):
 
     bp = vtk.vtkBrownianPoints()
     bp.SetInputConnection(ss.GetOutputPort())
-    # listen to EndEvents
-    bp.AddObserver (4, SetRandomSeed);
+    bp.AddObserver ('EndEvent', SetRandomSeed)
 
     pm = vtk.vtkPolyDataMapper()
     pm.SetInputConnection(bp.GetOutputPort())
