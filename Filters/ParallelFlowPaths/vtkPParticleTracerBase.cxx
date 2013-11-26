@@ -491,7 +491,6 @@ bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
     return false;
     }
   int tmp = retVal;
-  cerr << retVal << " is my retval\n";
   this->Controller->AllReduce(&tmp, &retVal, 1, vtkMPICommunicator::MIN_OP);
 
   return (retVal != 0);
