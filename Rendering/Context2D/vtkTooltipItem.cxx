@@ -22,6 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
 
+#include "vtkNew.h"
 #include "vtkStdString.h"
 #include "vtksys/ios/sstream"
 
@@ -100,6 +101,14 @@ bool vtkTooltipItem::Paint(vtkContext2D *painter)
     return false;
     }
 
+  // save painter settings
+  vtkNew<vtkPen> previousPen;
+  previousPen->DeepCopy(painter->GetPen());
+  vtkNew<vtkBrush> previousBrush;
+  previousBrush->DeepCopy(painter->GetBrush());
+  vtkNew<vtkTextProperty> previousTextProp;
+  previousTextProp->ShallowCopy(painter->GetTextProp());
+
   painter->ApplyPen(this->Pen);
   painter->ApplyBrush(this->Brush);
   painter->ApplyTextProp(this->TextProperties);
@@ -128,6 +137,11 @@ bool vtkTooltipItem::Paint(vtkContext2D *painter)
   // Draw a rectangle as background, and then center our text in there
   painter->DrawRect(bounds[0].GetX(), bounds[0].GetY(), bounds[1].GetX(), bounds[1].GetY());
   painter->DrawString(bounds[0].GetX()+5/scale[0], bounds[0].GetY()+3/scale[1], this->Text);
+
+  // restore painter settings
+  painter->ApplyPen(previousPen.GetPointer());
+  painter->ApplyBrush(previousBrush.GetPointer());
+  painter->ApplyTextProp(previousTextProp.GetPointer());
 
   return true;
 }

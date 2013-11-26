@@ -518,6 +518,8 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
           std::stringstream ss;
           ss << numCollapsedLeafNodes;
 
+          painter->GetTextProp()->SetOrientation(
+            this->GetTextAngleForOrientation(orientation));
           painter->DrawString(triangleLabelX, triangleLabelY, ss.str());
           }
         }
@@ -634,7 +636,6 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
   painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
   painter->GetTextProp()->SetJustificationToLeft();
   painter->GetTextProp()->SetVerticalJustificationToCentered();
-  painter->GetTextProp()->SetOrientation(0);
   painter->GetTextProp()->SetOrientation(
     this->GetTextAngleForOrientation(orientation));
 
