@@ -29,6 +29,7 @@ int TestDelimitedTextReader2(int argc, char *argv[])
   reader->SetHaveHeaders(1);
   reader->SetDetectNumericColumns(1);
   reader->Update();
+  delete[] filename;
 
   vtkTable* table = reader->GetOutput();
   table->Dump();
