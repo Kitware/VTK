@@ -68,6 +68,8 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* );
 
+  virtual vtkOrderStatistics* CreateOrderStatisticsInstance();
+
 private:
   vtkPPCAStatistics(const vtkPPCAStatistics&); // Not implemented.
   void operator=(const vtkPPCAStatistics&); // Not implemented.
