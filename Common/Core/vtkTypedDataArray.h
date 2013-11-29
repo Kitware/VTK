@@ -17,6 +17,13 @@
 // .SECTION Description
 // This templated class decorates vtkDataArray with additional type-specific
 // methods that can be used to interact with the data.
+//
+// .SECTION Caveats
+// This class uses vtkTypeTraits to implement GetDataType(). Since vtkIdType
+// is a typedef for either a 32- or 64-bit integer, subclasses that are designed
+// to hold vtkIdTypes will, by default, return an incorrect value from
+// GetDataType(). To fix this, such subclasses should override GetDataType() to
+// return VTK_ID_TYPE.
 
 #ifndef __vtkTypedDataArray_h
 #define __vtkTypedDataArray_h
