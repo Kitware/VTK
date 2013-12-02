@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkPiecewisePointHandleItem.cxx
   vtkPlot.cxx
   vtkPlot3D.cxx
+  vtkPlotBag.cxx
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
   vtkPlotHistogram2D.cxx
