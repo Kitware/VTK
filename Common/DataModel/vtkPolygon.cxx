@@ -380,7 +380,7 @@ void vtkPolygon::InterpolateFunctions(double x[3], double *weights)
       }
     else
       {
-      weights[i] = 1.0 / (weights[i]*weights[i]);
+      weights[i] = 1.0 / weights[i];
       sum += weights[i];
       }
     }
