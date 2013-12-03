@@ -46,6 +46,7 @@ class vtkQuad;
 class vtkQuadraticEdge;
 class vtkQuadraticHexahedron;
 class vtkQuadraticWedge;
+class vtkQuadraticPolygon;
 class vtkQuadraticPyramid;
 class vtkQuadraticQuad;
 class vtkQuadraticTetra;
@@ -333,6 +334,7 @@ protected:
   vtkQuadraticEdge                  *QuadraticEdge;
   vtkQuadraticTriangle              *QuadraticTriangle;
   vtkQuadraticQuad                  *QuadraticQuad;
+  vtkQuadraticPolygon               *QuadraticPolygon;
   vtkQuadraticTetra                 *QuadraticTetra;
   vtkQuadraticHexahedron            *QuadraticHexahedron;
   vtkQuadraticWedge                 *QuadraticWedge;

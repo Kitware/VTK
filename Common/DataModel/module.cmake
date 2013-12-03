@@ -11,6 +11,7 @@ vtk_module(vtkCommonDataModel
     vtkTestingRendering
     vtkInteractionStyle
     vtkCommonExecutionModel
+    vtkFiltersModeling
     vtkIOGeometry
     vtkIOLegacy
     vtkIOXML

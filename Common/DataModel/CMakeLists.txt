@@ -137,6 +137,7 @@ set(Module_SRCS
   vtkQuadraticHexahedron.cxx
   vtkQuadraticLinearQuad.cxx
   vtkQuadraticLinearWedge.cxx
+  vtkQuadraticPolygon.cxx
   vtkQuadraticPyramid.cxx
   vtkQuadraticQuad.cxx
   vtkQuadraticTetra.cxx
