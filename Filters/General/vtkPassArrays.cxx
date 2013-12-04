@@ -299,6 +299,24 @@ int vtkPassArrays::ProcessRequest(
 }
 
 //----------------------------------------------------------------------------
+int vtkPassArrays::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if (port == 0)
+    {
+    // Skip composite data sets so that executives will treat this as a simple filter
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPistonDataObject");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkPassArrays::RequestDataObject(
   vtkInformation*,
   vtkInformationVector** inputVector ,
