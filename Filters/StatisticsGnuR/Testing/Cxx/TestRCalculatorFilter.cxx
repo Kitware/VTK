@@ -223,7 +223,7 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       }
 
     //check vertex data
-    const char *  t_names[] ={"","a","b","c","",""};
+    const char *  t_names[] ={"a","b","c","","",""};
     for (int i = 0; i < outTree->GetNumberOfVertices(); i++)
       {
       vtkStringArray * names = vtkStringArray::SafeDownCast(outTree->GetVertexData()->GetAbstractArray("node name"));

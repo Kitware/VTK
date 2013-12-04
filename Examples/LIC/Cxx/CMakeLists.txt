@@ -1,19 +1,21 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
-endif()
-
 PROJECT(LIC)
 
 if(NOT VTK_SOURCE_DIR)
-  message(ERROR "Cannot build LIC examples without VTK_SOURCE_DIR")
+  message(ERROR " Cannot build LIC examples without VTK_SOURCE_DIR")
 endif()
 
-if(NOT VTK_BINARY_DIR)
-  find_package(VTK REQUIRED)
-  include(${VTK_USE_FILE})
-endif()
+find_package(VTK COMPONENTS
+  vtkFiltersExtraction
+  vtkFiltersGeometry
+  vtkIOImage
+  vtkInteractionStyle
+  vtkRenderingLIC
+  vtkTestingRendering
+  vtksys
+)
+include(${VTK_USE_FILE})
 
 # these demos are simply repackaged ctests
 # by #include'ing the test implementation

@@ -44,6 +44,12 @@ struct ObjectId
     this->Object = obj;
   }
 
+  ObjectId(const ObjectId& other)
+  {
+    this->GlobalId = other.GlobalId;
+    this->Object = other.Object;
+  }
+
   ObjectId& operator=(const ObjectId &other)
   {
     if (this == &other)

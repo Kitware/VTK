@@ -48,6 +48,7 @@ class vtkTree;
 class vtkTable;
 class vtkCompositeDataSet;
 class vtkArrayData;
+class vtkStringArray;
 
 class VTKFILTERSSTATISTICSGNUR_EXPORT vtkRCalculatorFilter : public vtkDataObjectAlgorithm
 {
@@ -91,11 +92,34 @@ public:
   void GetTable(const char* NameOfRvar);
 
   // Description:
+  // For vtkTable input to the filter. An R list variable is created for each name
+  // in the array provided using the vtkTables from the input to the filter.
+  void PutTables(vtkStringArray* NamesOfRVars);
+
+  // Description:
+  // For vtkTable output of the filter. If more the one name is provided a composite
+  // dataset is created for the output of the filter and a vtkTable is added
+  // for each R list variable in the array provided.
+  void GetTables(vtkStringArray* NamesOfRVars);
+
+  // Description:
   // For vtkTree input to the filter.  An R phylo tree variable is created for the
   // vtkTree input using PutTree().  The output of the filter can be set from
   // a phylo tree variable in R using GetTree()
   void PutTree(const char* NameOfRvar);
   void GetTree(const char* NameOfRvar);
+
+  // Description:
+  // For vtkTree input to the filter.  An R phylo tree variable is created for each
+  // name in the array provided using the vtkTrees from the input to the filter.
+  void PutTrees(vtkStringArray* NamesOfRvars);
+
+  // Description:
+  // For vtkTree output of the filter. If more than one name is provided a composite
+  // dataset is created for the output of the filter and a vtkTree is added for
+  // each R phylo tree variable in the array provided.
+  void GetTrees(vtkStringArray* NamesOfRvars);
+
 
   // Description:
   // Script executed by R.  Can also be set from a file.
@@ -172,13 +196,21 @@ private:
   int ProcessOutputCompositeDataSet(vtkCompositeDataSet * cdsOut);
 
   int ProcessInputTable(vtkTable* tOut);
+  int ProcessInputTable(std::string& name, vtkTable* tIn);
+
+  vtkTable* GetOutputTable(std::string& name);
   int ProcessOutputTable(vtkTable* tOut);
 
   int ProcessInputTree(vtkTree* tIn);
+  int ProcessInputTree(std::string& name, vtkTree* tIn);
+
+  vtkTree* GetOutputTree(std::string& name);
   int ProcessOutputTree(vtkTree* tOut);
 
   int ProcessInputDataObject(vtkDataObject *input);
   int ProcessOutputDataObject(vtkDataObject *input);
+  int HasMultipleGets();
+  int HasMultiplePuts();
 
   vtkRInterface* ri;
   char* Rscript;

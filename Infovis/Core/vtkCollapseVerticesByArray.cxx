@@ -195,8 +195,6 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
                                               vtkEdgeListIteratorRefPtr;
   typedef vtkSmartPointer<vtkVertexListIterator>
                                               vtkVertexListIteratorRefPtr;
-  typedef vtkSmartPointer<vtkStringArray>     vtkStringArrayRefPtr;
-  typedef vtkSmartPointer<vtkDoubleArray>     vtkDoubleArrayRefPtr;
   typedef vtkSmartPointer<vtkIntArray>        vtkIntArrayRefPtr;
   typedef std::pair<vtkVariant, vtkIdType> NameIdPair;
 

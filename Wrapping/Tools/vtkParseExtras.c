@@ -28,88 +28,6 @@
 #include <ctype.h>
 #include <assert.h>
 
-/* skip over an identifier */
-static size_t vtkparse_id_len(const char *text)
-{
-  size_t i = 0;
-  char c = text[0];
-
-  if ((c >= 'a' && c <= 'z') ||
-      (c >= 'A' && c <= 'Z') ||
-       c == '_')
-    {
-    do
-      {
-      c = text[++i];
-      }
-    while ((c >= 'a' && c <= 'z') ||
-           (c >= 'A' && c <= 'Z') ||
-           (c >= '0' && c <= '9') ||
-           c == '_');
-    }
-
-  return i;
-}
-
-/* skip over numbers, int or float, including suffixes */
-static size_t vtkparse_number_len(const char *text)
-{
-  size_t i = 0;
-  char c = text[0];
-
-  if (c == '.')
-    {
-    c = text[1];
-    }
-
-  if (c >= '0' && c <= '9')
-    {
-    do
-      {
-      do
-        {
-        c = text[++i];
-        }
-      while ((c >= '0' && c <= '9') ||
-             (c >= 'a' && c <= 'z') ||
-             (c >= 'A' && c <= 'Z') ||
-             c == '_' || c == '.');
-      }
-    while ((c == '-' || c == '+') &&
-           (text[i-1] == 'e' || text[i-1] == 'E'));
-    }
-
-  return i;
-}
-
-/* skip over string and char literals. */
-static size_t vtkparse_quote_len(const char *text)
-{
-  size_t i = 0;
-  const char qc = text[0];
-  char c = text[0];
-
-  if (c == '\'' || c == '\"')
-    {
-    do
-      {
-      do
-        {
-        c = text[++i];
-        }
-      while (c != qc && c != '\n' && c != '\0');
-      }
-    while (c == qc && text[i-1] == '\\');
-
-    if (c == qc)
-      {
-      ++i;
-      }
-    }
-
-  return i;
-}
-
 /* skip over an expression in brackets */
 static size_t vtkparse_bracket_len(const char *text)
 {
@@ -131,9 +49,9 @@ static size_t vtkparse_bracket_len(const char *text)
     i += j;
     j = 1;
     c = text[i];
-    if (c == '\'' || c == '\"')
+    if (vtkParse_CharType(c, CPRE_QUOTE))
       {
-      j = vtkparse_quote_len(&text[i]);
+      j = vtkParse_SkipQuotes(&text[i]);
       }
     else if (c == bc || c == '(' || c == '[' || c == '{')
       {
@@ -155,7 +73,7 @@ static size_t vtkparse_bracket_len(const char *text)
  * total number of characters in the name */
 size_t vtkParse_IdentifierLength(const char *text)
 {
-  return vtkparse_id_len(text);
+  return vtkParse_SkipId(text);
 }
 
 /* skip over a name that might be templated, return the
@@ -164,7 +82,7 @@ size_t vtkParse_UnscopedNameLength(const char *text)
 {
   size_t i = 0;
 
-  i += vtkparse_id_len(text);
+  i += vtkParse_SkipId(text);
   if (text[i] == '<')
     {
     i += vtkparse_bracket_len(&text[i]);
@@ -225,17 +143,15 @@ static const char *vtkparse_string_replace(
     lastPos = i;
 
     /* skip all chars that aren't part of a name */
-    while ((cp[i] < 'a' || cp[i] > 'z') &&
-           (cp[i] < 'A' || cp[i] > 'Z') &&
-           cp[i] != '_' && cp[i] != '\0')
+    while (!vtkParse_CharType(cp[i], CPRE_ID) && cp[i] != '\0')
       {
-      if (cp[i] == '\'' || cp[i] == '\"')
+      if (vtkParse_CharType(cp[i], CPRE_QUOTE))
         {
-        i += vtkparse_quote_len(&cp[i]);
+        i += vtkParse_SkipQuotes(&cp[i]);
         }
-      else if (cp[i] >= '0' && cp[i] <= '9')
+      else if (vtkParse_CharType(cp[i], CPRE_QUOTE))
         {
-        i += vtkparse_number_len(&cp[i]);
+        i += vtkParse_SkipNumber(&cp[i]);
         }
       else
         {
@@ -245,7 +161,7 @@ static const char *vtkparse_string_replace(
     nameBegin = i;
 
     /* skip all chars that are part of a name */
-    i += vtkparse_id_len(&cp[i]);
+    i += vtkParse_SkipId(&cp[i]);
     nameEnd = i;
 
     /* search through the list of names to replace */
@@ -589,11 +505,10 @@ size_t vtkParse_BasicTypeFromString(
   const char *classname = NULL;
   size_t len = 0;
 
-  while (*cp == ' ' || *cp == '\t') { cp++; }
+  while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
 
-  while ((*cp >= 'a' && *cp <= 'z') ||
-         (*cp >= 'A' && *cp <= 'Z') ||
-         (*cp == '_') || (cp[0] == ':' && cp[1] == ':'))
+  while (vtkParse_CharType(*cp, CPRE_ID) ||
+         (cp[0] == ':' && cp[1] == ':'))
     {
     /* skip all chars that are part of a name */
     n = vtkParse_NameLength(cp);
@@ -792,7 +707,7 @@ size_t vtkParse_BasicTypeFromString(
       }
 
     cp += n;
-    while (*cp == ' ' || *cp == '\t') { cp++; }
+    while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
     }
 
   if ((unsigned_bits & VTK_PARSE_UNSIGNED) != 0)
@@ -862,15 +777,12 @@ size_t vtkParse_ValueInfoFromString(
     {
     cp++;
     pointer_bits = (pointer_bits << 2);
-    while (*cp == ' ' || *cp == '\t') { cp++; }
+    while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
     if (strncmp(cp, "const", 5) == 0 &&
-        (cp[5] < 'a' || cp[5] > 'z') &&
-        (cp[5] < 'A' || cp[5] > 'Z') &&
-        (cp[5] < '0' || cp[5] > '9') &&
-        cp[5] != '_')
+        !vtkParse_CharType(cp[5], CPRE_IDGIT))
       {
       cp += 5;
-      while (*cp == ' ' || *cp == '\t') { cp++; }
+      while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
       pointer_bits = (pointer_bits | VTK_PARSE_CONST_POINTER);
       }
     else
@@ -884,20 +796,18 @@ size_t vtkParse_ValueInfoFromString(
   if (*cp == '&')
     {
     cp++;
-    while (*cp == ' ' || *cp == '\t') { cp++; }
+    while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
     ref_bits = VTK_PARSE_REF;
     }
 
   /* look for the variable name */
-  if ((*cp >= 'a' && *cp <= 'z') ||
-      (*cp >= 'A' && *cp <= 'Z') ||
-      (*cp == '_'))
+  if (vtkParse_CharType(*cp, CPRE_ID))
     {
     /* skip all chars that are part of a name */
-    n = vtkparse_id_len(cp);
+    n = vtkParse_SkipId(cp);
     data->Name = vtkParse_CacheString(cache, cp, n);
     cp += n;
-    while (*cp == ' ' || *cp == '\t') { cp++; }
+    while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
     }
 
   /* look for array brackets */
@@ -913,23 +823,24 @@ size_t vtkParse_ValueInfoFromString(
         cp++;
         n -= 2;
         }
-      while (*cp == ' ' || *cp == '\t') { cp++; n--; }
-      while (n > 0 && (cp[n-1] == ' ' || cp[n-1] == '\t')) { n--; }
+      while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; n--; }
+      while (n > 0 && vtkParse_CharType(cp[n-1], CPRE_HSPACE)) { n--; }
       vtkParse_AddStringToArray(
         &data->Dimensions,
         &data->NumberOfDimensions,
         vtkParse_CacheString(cache, cp, n));
       m = 0;
-      if (*cp >= '0' && *cp <= '9' && vtkparse_number_len(cp) == n)
+      if (vtkParse_CharType(*cp, CPRE_DIGIT) &&
+          vtkParse_SkipNumber(cp) == n)
         {
         m = (int)strtol(cp, NULL, 0);
         }
       count *= m;
 
       cp += n;
-      while (*cp == ' ' || *cp == '\t') { cp++; }
+      while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
       if (*cp == ']') { cp++; }
-      while (*cp == ' ' || *cp == '\t') { cp++; }
+      while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
       }
     }
 
@@ -1237,7 +1148,7 @@ size_t vtkParse_DecomposeTemplatedType(
     /* extract the template arguments */
     for (;;)
       {
-      while (text[i] == ' ' || text[i] == '\t') { i++; }
+      while (vtkParse_CharType(text[i], CPRE_HSPACE)) { i++; }
       j = i;
       while (text[j] != ',' && text[j] != '>' &&
              text[j] != '\n' && text[j] != '\0')
@@ -1247,9 +1158,9 @@ size_t vtkParse_DecomposeTemplatedType(
           {
           j += vtkparse_bracket_len(&text[j]);
           }
-        else if (text[j] == '\'' || text[j] == '\"')
+        else if (vtkParse_CharType(text[j], CPRE_QUOTE))
           {
-          j += vtkparse_quote_len(&text[j]);
+          j += vtkParse_SkipQuotes(&text[j]);
           }
         else
           {
@@ -1258,7 +1169,7 @@ size_t vtkParse_DecomposeTemplatedType(
         }
 
       k = j;
-      while (text[k-1] == ' ' || text[k-1] == '\t') { --k; }
+      while (vtkParse_CharType(text[k-1], CPRE_HSPACE)) { --k; }
 
       new_text = (char *)malloc(k-i + 1);
       strncpy(new_text, &text[i], k-i);

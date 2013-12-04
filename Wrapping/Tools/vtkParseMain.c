@@ -370,6 +370,9 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   int argn;
   char **args;
 
+  /* set the command name for diagnostics */
+  vtkParse_SetCommandName(parse_exename(argv[0]));
+
   /* expand any "@file" args */
   vtkParse_InitStringCache(&strings);
   parse_expand_args(&strings, argc, argv, &argn, &args);
@@ -484,6 +487,9 @@ void vtkParse_MainMulti(int argc, char *argv[])
   int argn;
   char **args;
   StringCache strings;
+
+  /* set the command name for diagnostics */
+  vtkParse_SetCommandName(parse_exename(argv[0]));
 
   /* expand any "@file" args */
   vtkParse_InitStringCache(&strings);

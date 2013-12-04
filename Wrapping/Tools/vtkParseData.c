@@ -124,6 +124,8 @@ void vtkParse_InitFunction(FunctionInfo *func)
   func->IsOperator = 0;
   func->IsVariadic = 0;
   func->IsConst = 0;
+  func->IsDeleted = 0;
+  func->IsFinal = 0;
   func->IsExplicit = 0;
   func->IsLegacy = 0;
 
@@ -194,6 +196,8 @@ void vtkParse_CopyFunction(FunctionInfo *func, const FunctionInfo *orig)
   func->IsOperator = orig->IsOperator;
   func->IsVariadic = orig->IsVariadic;
   func->IsConst = orig->IsConst;
+  func->IsDeleted = orig->IsDeleted;
+  func->IsFinal = orig->IsFinal;
   func->IsExplicit = orig->IsExplicit;
   func->IsLegacy = orig->IsLegacy;
 
@@ -259,6 +263,7 @@ void vtkParse_InitValue(ValueInfo *val)
   val->Template = NULL;
   val->IsStatic = 0;
   val->IsEnum = 0;
+  val->IsPack = 0;
 }
 
 /* Copy a Value struct */
@@ -303,6 +308,7 @@ void vtkParse_CopyValue(ValueInfo *val, const ValueInfo *orig)
 
   val->IsStatic = orig->IsStatic;
   val->IsEnum = orig->IsEnum;
+  val->IsPack = orig->IsPack;
 }
 
 /* Free a Value struct */
@@ -328,19 +334,14 @@ void vtkParse_FreeValue(ValueInfo *value_info)
 /* Initialize an Enum struct */
 void vtkParse_InitEnum(EnumInfo *item)
 {
+  vtkParse_InitClass(item);
   item->ItemType = VTK_ENUM_INFO;
-  item->Access = VTK_ACCESS_PUBLIC;
-  item->Name = NULL;
-  item->Comment = NULL;
 }
 
 /* Copy an Enum struct */
 void vtkParse_CopyEnum(EnumInfo *item, const EnumInfo *orig)
 {
-  item->ItemType = orig->ItemType;
-  item->Access = orig->Access;
-  item->Name = orig->Name;
-  item->Comment = orig->Comment;
+  vtkParse_CopyClass(item, orig);
 }
 
 /* Free an Enum struct */
@@ -406,6 +407,7 @@ void vtkParse_InitClass(ClassInfo *cls)
   cls->NumberOfNamespaces = 0;
   cls->Namespaces = NULL;
   cls->IsAbstract = 0;
+  cls->IsFinal = 0;
   cls->HasDelete = 0;
 }
 
@@ -546,6 +548,7 @@ void vtkParse_CopyClass(ClassInfo *cls, const ClassInfo *orig)
     }
 
   cls->IsAbstract = orig->IsAbstract;
+  cls->IsFinal = orig->IsFinal;
   cls->HasDelete = orig->HasDelete;
 }
 

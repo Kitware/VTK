@@ -706,34 +706,31 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
 
 
     // Create all of the tree vertice (number of edges +1)
-    // number of edges = nedge(in R tree)  + 1 (root edge in VTKTree)
-    int numOfEdges = nedge + 1;
+    // number of edges = nedge(in R tree)
+    int numOfEdges = nedge;
     for(int i = 0; i <= numOfEdges; i++)
       {
       builder->AddVertex();
       }
 
-    builder->AddEdge(0, ntip + 1); //root edge:  0 -- first node
     for(int i = 0; i < nedge; i++)
       {
-      vtkIdType source = edge[i];
-      vtkIdType target = edge[i+nedge];
+      // -1 because R vertices begin with 1, whereas VTK vertices begin with 0.
+      vtkIdType source = edge[i] - 1;
+      vtkIdType target = edge[i+nedge] - 1;
       builder->AddEdge(source, target);
       }
-
 
     // Create the edge weight array
     vtkNew<vtkDoubleArray> weights;
     weights->SetNumberOfComponents(1);
     weights->SetName("weight");
     weights->SetNumberOfValues(numOfEdges);
-    weights->SetValue(0, 0.0);//root edge weight = 0.0
     for (int i = 0; i < nedge; i++)
       {
-      weights->SetValue(i+1, edge_length[i]);
+      weights->SetValue(i, edge_length[i]);
       }
     builder->GetEdgeData()->AddArray(weights.GetPointer());
-
 
     // Create the names array
     // In R tree, the numeric id of the vertice is ordered such that the tips are listed first
@@ -741,15 +738,14 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     vtkNew<vtkStringArray> names;
     names->SetNumberOfComponents(1);
     names->SetName("node name");
-    names->SetNumberOfValues(ntip + nnode + 1);
-    names->SetValue(0,""); //root name
+    names->SetNumberOfValues(ntip + nnode);
     for (int i = 0; i < ntip; i++)
       {
-      names->SetValue(i + 1, tip_label->GetValue(i));
+      names->SetValue(i, tip_label->GetValue(i));
       }
     for (int i = 0; i < nnode; i++)
       {
-        names->SetValue(i + ntip + 1, node_label->GetValue(i));
+      names->SetValue(i + ntip, node_label->GetValue(i));
       }
     builder->GetVertexData()->AddArray(names.GetPointer());
 

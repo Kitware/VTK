@@ -58,10 +58,7 @@ used to generate the file vtkParse.tab.c, which contains the parser.
 a) Convert tabs to 8 spaces, e.g. :%s/\t/        /g
 b) Remove extra whitespace from the ends of lines, e.g. :%s/  *$//
 c) Remove blank lines at the beginning and end of the file
-d) Remove the "goto yyerrlab1;" that appears right before yyerrlab1:
-e) Search for the second "Tokens" listing, i.e. the set of token macro
-   constants that appear after the token enumerated constants.  Remove
-   all of them.
+d) Replace all instances of "static inline" with "static".
 
 When yacc is run, it should not report any shift/reduce or reduce/reduce
 warnings.  If modifications to the rules cause these warnings to occur,

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="../../Ext/rickshaw/rickshaw.min.css" rel="stylesheet" >
+    <link href="vtkweb-widget-chart.css" rel="stylesheet" >
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="../../Ext/d3/d3.v2.js"></script>
+    <script type="text/javascript" src="../../Ext/rickshaw/rickshaw.js"></script>
+    <script type="text/javascript" src="vtkweb-widget-chart.js"></script>
+    <style type="text/css">
+        .vtk-chart .vtk-annotation {
+            bottom: 25px !important;
+        }
+    </style>
+  </head>
+  <body>
+
+    <div id="chart-container" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;"></div>
+
+    <script type="text/javascript">
+    $("#chart-container").vtkChart({
+        'renderer': 'line',
+        'series': [
+            {
+                data: [ { x:0, y:0 }, { x:100, y:10 }, { x:200, y:5 }, { x:300, y:20 }, { x:400, y:25 }, { x:1000, y:-10 } ],
+                color: 'steelblue',
+                name: 'seb'
+            },{
+                data: [ { x:0, y:20 }, { x:100, y:30 }, { x:200, y:25 }, { x:300, y:40 }, { x:400, y:55 }, { x:1000, y:-10 } ],
+                color: 'lightblue',
+                name: 'seb20'
+            }
+        ],
+        'axes': [ "bottom", "left", "top"],
+        'chart-padding': [0, 150, 50, 0],
+        'annotations': [
+            {time:0, message: "Start"},
+            {time:400, message: "Stop"},
+            {time:200, message: "Middle"},
+            {time: 150, message: "Just in between for the fun with lot of text that should not fit."}
+        ]
+    });
+
+    var dataIdx = 0,
+    palette = new Rickshaw.Color.Palette(),
+    dataList = [
+        {url:"single.csv", type: 'csv-xy', options: { color: palette.color(), name: "AAA"}, replace: true },
+        {url:"single2.csv", type: 'csv-xy', options: { color: palette.color(), name: "BBB"}},
+        {url:"multi.csv", type: 'csv-x*', options: {x: 'x'}, replace: true }
+    ];
+
+    setInterval(function(){
+        dataIdx = (dataIdx + 1) % dataList.length;
+        $("#chart-container").vtkChartFetchData(dataList[dataIdx]);
+    }, 2000);
+
+    </script>
+  </body>
+</html>

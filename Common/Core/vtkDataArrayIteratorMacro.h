@@ -79,6 +79,15 @@
 #include "vtkDataArrayTemplate.h" // For all classes referred to in the macro
 #include "vtkSetGet.h" // For vtkTemplateMacro
 
+// Silence 'unused typedef' warnings on newer GCC.
+// use of the typedef in question depends on the macro
+// argument _call and thus should not be removed.
+#if defined(__GNUC__)
+#define _vtkDAIMUnused __attribute__ ((unused))
+#else
+#define _vtkDAIMUnused
+#endif
+
 #define vtkDataArrayIteratorMacro(_array, _call)                           \
   vtkTemplateMacro(                                                        \
     vtkAbstractArray *_aa(_array);                                         \
@@ -111,7 +120,7 @@
       /* This is not ideal, as no explicit iterator has been declared.     \
        * Cast the void pointer and hope for the best! */                   \
       typedef VTK_TT vtkDAValueType;                                       \
-      typedef vtkAbstractArray vtkDAContainerType;                         \
+      typedef vtkAbstractArray vtkDAContainerType _vtkDAIMUnused;          \
       typedef vtkDAValueType* vtkDAIteratorType;                           \
       vtkDAIteratorType vtkDABegin =                                       \
         static_cast<vtkDAIteratorType>(_aa->GetVoidPointer(0));            \
