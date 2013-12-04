@@ -80,6 +80,25 @@ public:
   vtkSetStringMacro(FileName);
 
   // Description:
+  // Specify the InputString for use when reading from a character array.
+  // Optionally include the length for binary strings. Note that a copy
+  // of the string is made and stored. If this causes exceedingly large
+  // memory consumption, consider using InputArray instead.
+  void SetInputString(const char *in);
+  vtkGetStringMacro(InputString);
+  void SetInputString(const char *in, int len);
+  vtkGetMacro(InputStringLength, int);
+  void SetInputString(const vtkStdString& input)
+    { this->SetInputString(input.c_str(), static_cast<int>(input.length())); }
+
+  // Description:
+  // Enable reading from an InputString or InputArray instead of the default,
+  // a file.
+  vtkSetMacro(ReadFromInputString,int);
+  vtkGetMacro(ReadFromInputString,int);
+  vtkBooleanMacro(ReadFromInputString,int);
+
+  // Description:
   // Specifies the character set used in the input file.  Valid character set
   // names will be drawn from the list maintained by the Internet Assigned Name
   // Authority at
@@ -245,6 +264,9 @@ protected:
     vtkInformationVector*);
 
   char* FileName;
+  int ReadFromInputString;
+  char *InputString;
+  int InputStringLength;
   char* UnicodeCharacterSet;
   vtkIdType MaxRecords;
   vtkUnicodeString UnicodeRecordDelimiters;
