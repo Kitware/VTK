@@ -51,7 +51,7 @@ private:
   vtkTreeWriter(const vtkTreeWriter&);  // Not implemented.
   void operator=(const vtkTreeWriter&);  // Not implemented.
 
-  void WriteEdges(ostream& Stream, vtkTree* Tree, vtkIdType Vertex);
+  void WriteEdges(ostream& Stream, vtkTree* Tree);
 };
 
 #endif
