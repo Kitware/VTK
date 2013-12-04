@@ -19,6 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkTemplateAliasMacro.h"
 #include "vtkTuple.h"
 
 #include <vector>
@@ -322,8 +323,8 @@ double vtkDiscretizableColorTransferFunction::GetOpacity(double v)
 }
 
 //-----------------------------------------------------------------------------
-vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataArray *scalars,
-  int colorMode, int component)
+vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
+  vtkDataArray *scalars, int colorMode, int component)
 {
   this->Build();
 
@@ -342,16 +343,99 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataA
      this->EnableOpacityMapping &&
      this->ScalarOpacityFunction.GetPointer())
     {
-    for(vtkIdType i = 0; i < scalars->GetNumberOfTuples(); i++)
-      {
-      double value = scalars->GetTuple1(i);
-      double alpha = this->ScalarOpacityFunction->GetValue(value);
-      colors->SetValue(4*i+3, static_cast<unsigned char>(alpha * 255.0 + 0.5));
-      }
+    MapDataArrayToOpacity(scalars, component, colors);
     }
-
   return colors;
 }
+
+template<typename T>
+struct VectorComponentGetter
+{
+  double Get(
+    T* scalars, int component, int numberOfComponents, vtkIdType tuple)
+  {
+    double value = *(scalars + tuple * numberOfComponents + component);
+    return value;
+  }
+};
+
+template<typename T>
+struct VectorMagnitudeGetter
+{
+  double Get(
+    T* scalars, int component, int numberOfComponents, vtkIdType tuple)
+  {
+    (void)component;
+    double v = 0.0;
+    for (int j = 0; j < numberOfComponents; ++j)
+      {
+      double u = *(scalars + tuple * numberOfComponents + j);
+      v += u * u;
+      }
+    v = sqrt (v);
+    return v;
+  }
+};
+
+template<typename T, typename VectorGetter>
+void vtkDiscretizableColorTransferFunction::MapVectorToOpacity (
+  VectorGetter getter, T* scalars, int component,
+  int numberOfComponents, vtkIdType numberOfTuples, unsigned char* colors)
+{
+  for(vtkIdType i = 0; i < numberOfTuples; i++)
+    {
+    double value = getter.Get (scalars, component, numberOfComponents, i);
+    double alpha = this->ScalarOpacityFunction->GetValue(value);
+    *(colors + i * 4 + 3) = static_cast<unsigned char>(alpha * 255.0 + 0.5);
+    }
+}
+
+template<template<class> class VectorGetter>
+void vtkDiscretizableColorTransferFunction::AllTypesMapVectorToOpacity (
+  int scalarType,
+  void* scalarPtr, int component,
+  int numberOfComponents, vtkIdType numberOfTuples, unsigned char* colorPtr)
+{
+  switch (scalarType)
+    {
+    vtkTemplateAliasMacro(
+      MapVectorToOpacity(
+        VectorGetter<VTK_TT>(),
+        static_cast<VTK_TT*>(scalarPtr), component, numberOfComponents,
+        numberOfTuples, colorPtr));
+    }
+}
+
+void vtkDiscretizableColorTransferFunction::MapDataArrayToOpacity(
+  vtkDataArray *scalars, int component, vtkUnsignedCharArray* colors)
+{
+  int scalarType = scalars->GetDataType ();
+  void* scalarPtr = scalars->GetVoidPointer(0);
+  unsigned char* colorPtr = static_cast<unsigned char*> (
+    colors->GetVoidPointer(0));
+  int numberOfComponents = scalars->GetNumberOfComponents ();
+  vtkIdType numberOfTuples = scalars->GetNumberOfTuples ();
+  if (component >= numberOfComponents)
+    {
+    vtkWarningMacro(
+      << "Clamping component: " << component
+      << " to numberOfComponents - 1: " << (numberOfComponents - 1));
+    component = numberOfComponents - 1;
+    }
+  if (component < 0)
+    {
+    AllTypesMapVectorToOpacity<VectorMagnitudeGetter> (
+      scalarType, scalarPtr,
+      component, numberOfComponents, numberOfTuples, colorPtr);
+    }
+  else
+    {
+    AllTypesMapVectorToOpacity<VectorComponentGetter> (
+      scalarType, scalarPtr,
+      component, numberOfComponents, numberOfTuples, colorPtr);
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 double* vtkDiscretizableColorTransferFunction::GetRGBPoints()

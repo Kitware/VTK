@@ -1,4 +1,4 @@
-if (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+if (VTK_USE_RENDERING)
   if(VTK_USE_TK)
     vtk_add_test_tcl(squadViewer)
   endif()
