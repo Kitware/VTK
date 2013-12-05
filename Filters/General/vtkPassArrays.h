@@ -129,6 +129,11 @@ protected:
   ~vtkPassArrays();
 
   // Description:
+  // Override to limit types of supported input types to non-composite
+  // datasets
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
+  // Description:
   // Creates the same output type as the input type.
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
