@@ -57,6 +57,7 @@ set(Module_SRCS
   vtkTensorGlyph.cxx
   vtkThreshold.cxx
   vtkThresholdPoints.cxx
+  vtkTransposeTable.cxx
   vtkTriangleFilter.cxx
   vtkTubeFilter.cxx
   vtkVectorDot.cxx
