@@ -145,6 +145,16 @@ def add_arguments(parser) :
                         help="One of 'chrome', 'firefox', 'internet_explorer', 'safari', or 'nobrowser'.",
                         dest="useBrowser")
 
+    parser.add_argument("--temporary-directory",
+                        default=".",
+                        help="A temporary directory for storing test images and diffs",
+                        dest="tmpDirectory")
+
+    parser.add_argument("--test-image-file-name",
+                        default="",
+                        help="Name of file in which to store generated test image",
+                        dest="testImgFile")
+
 
 # =============================================================================
 # Initialize the test client
@@ -241,7 +251,7 @@ def get_current_time_string() :
 # 'img.png', 'img_1.png', ... , 'img_N.png', then all of these images will be
 # tried for a match.
 # =============================================================================
-def compare_images(test_img, baseline_img):
+def compare_images(test_img, baseline_img, tmp_dir="."):
     """
     This function creates a vtkTesting object, and specifies the name of the
     baseline image file, using a fully qualified path (baseline_img must be
@@ -253,10 +263,14 @@ def compare_images(test_img, baseline_img):
         test_img: File name of output image to be compared agains baseline.
 
         baseline_img: Fully qualified path to first of the baseline images.
+
+        tmp_dir: Fully qualified path to a temporary directory for storing images.
     """
 
     # Create a vtkTesting object and specify a baseline image
     t = vtk.vtkTesting()
+    t.AddArgument("-T")
+    t.AddArgument(tmp_dir)
     t.AddArgument("-V")
     t.AddArgument(baseline_img)
 
@@ -384,7 +398,7 @@ class ImageComparatorWebTest(BrowserBasedWebTest):
     classes may also prefer to override the capture phase to capture only
     certain portions of the browser window for image comparison.
     """
-    def __init__(self, filename=None, baseline=None, **kwargs):
+    def __init__(self, filename=None, baseline=None, temporaryDir=None, **kwargs):
         if filename is None:
             raise TypeError("missing argument 'filename'")
         if baseline is None:
@@ -393,12 +407,13 @@ class ImageComparatorWebTest(BrowserBasedWebTest):
         BrowserBasedWebTest.__init__(self, **kwargs)
         self.filename = filename
         self.baseline = baseline
+        self.tmpDir = temporaryDir
 
     def capture(self):
         self.window.save_screenshot(self.filename)
 
     def postprocess(self):
-        result = compare_images(self.filename, self.baseline)
+        result = compare_images(self.filename, self.baseline, self.tmpDir)
 
         if result == 1 :
             test_pass(self.testname)
@@ -597,6 +612,8 @@ def launch_web_test(*args, **kwargs) :
         # Output file and baseline file names are generated from the test name
         imgFileName = testName + '.png'
         knownGoodFileName = concat_paths(serverOpts.baselineImgDir, imgFileName)
+        tempDir = serverOpts.tmpDirectory
+        testImgFileName = serverOpts.testImgFile
 
         testBrowser = test_module_browsers.index(serverOpts.useBrowser)
 
@@ -607,8 +624,9 @@ def launch_web_test(*args, **kwargs) :
                                                      host=serverOpts.host,
                                                      port=serverOpts.port,
                                                      browser=testBrowser,
-                                                     filename=imgFileName,
-                                                     baseline=knownGoodFileName)
+                                                     filename=testImgFileName,
+                                                     baseline=knownGoodFileName,
+                                                     temporaryDir=tempDir)
 
             # If we were able to instantiate the test, run it, otherwise we
             # consider it a failure.
