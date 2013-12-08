@@ -52,6 +52,8 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->SelectedCoordinateScalarComponents = NULL;
   this->SelectedCoordinateVectorComponents = NULL;
   this->CoordinateResults = 0;
+  this->ResultNormals = false;
+  this->ResultTCoords = false;
   this->ReplaceInvalidValues = 0;
   this->ReplacementValue = 0.0;
 
@@ -200,6 +202,20 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
   strcpy(this->ResultArrayName, name);
 }
 
+void CopyDataSetOrGraph(vtkDataSet* dsInput, vtkDataSet* dsOutput,
+                        vtkGraph* graphInput, vtkGraph* graphOutput)
+{
+  if (dsInput)
+    {
+    dsOutput->CopyStructure(dsInput);
+    dsOutput->CopyAttributes(dsInput);
+    }
+  else
+    {
+    graphOutput->ShallowCopy(graphInput);
+    }
+}
+
 int vtkArrayCalculator::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -212,9 +228,16 @@ int vtkArrayCalculator::RequestData(
   // get the input and output
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-
-  int resultType = 0; // 0 for scalar, 1 for vector
-  int attributeDataType = 0; // 0 for point data, 1 for cell data
+  enum ResultType
+  {
+    SCALAR_RESULT,
+    VECTOR_RESULT
+  } resultType = SCALAR_RESULT;
+  enum DataType
+  {
+    POINT_DATA,
+    CELL_DATA
+  } attributeDataType = POINT_DATA;
   vtkIdType i;
   int j;
 
@@ -242,14 +265,14 @@ int vtkArrayCalculator::RequestData(
       {
       inFD = dsInput->GetPointData();
       outFD = dsOutput->GetPointData();
-      attributeDataType = 0;
+      attributeDataType = POINT_DATA;
       numTuples = dsInput->GetNumberOfPoints();
       }
     else
       {
       inFD = dsInput->GetCellData();
       outFD = dsOutput->GetCellData();
-      attributeDataType = 1;
+      attributeDataType = CELL_DATA;
       numTuples = dsInput->GetNumberOfCells();
       }
     }
@@ -260,14 +283,14 @@ int vtkArrayCalculator::RequestData(
       {
       inFD = graphInput->GetVertexData();
       outFD = graphOutput->GetVertexData();
-      attributeDataType = 0;
+      attributeDataType = POINT_DATA;
       numTuples = graphInput->GetNumberOfVertices();
       }
     else
       {
       inFD = graphInput->GetEdgeData();
       outFD = graphOutput->GetEdgeData();
-      attributeDataType = 1;
+      attributeDataType = CELL_DATA;
       numTuples = graphInput->GetNumberOfEdges();
       }
     }
@@ -339,8 +362,7 @@ int vtkArrayCalculator::RequestData(
       }
     }
 
-  // we can add points
-  if(attributeDataType == 0)
+  if(attributeDataType == POINT_DATA)
     {
     for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
       {
@@ -381,28 +403,32 @@ int vtkArrayCalculator::RequestData(
 
   if ( !this->Function || strlen(this->Function) == 0)
     {
-    dsOutput->CopyStructure(dsInput);
-    dsOutput->CopyAttributes(dsInput);
+    CopyDataSetOrGraph(dsInput, dsOutput, graphInput, graphOutput);
     return 1;
     }
   else if (this->FunctionParser->IsScalarResult())
     {
-    resultType = 0;
+    resultType = SCALAR_RESULT;
     }
   else if (this->FunctionParser->IsVectorResult())
     {
-    resultType = 1;
+    resultType = VECTOR_RESULT;
     }
   else
     {
-    dsOutput->CopyStructure(dsInput);
-    dsOutput->CopyAttributes(dsInput);
+    CopyDataSetOrGraph(dsInput, dsOutput, graphInput, graphOutput);
     // Error occurred in vtkFunctionParser.
     vtkWarningMacro("An error occurred when parsing the calculator's function.  See previous errors.");
     return 1;
     }
 
-  if(resultType == 1 && CoordinateResults != 0 && (psOutput || graphOutput))
+  if(resultType == SCALAR_RESULT && this->ResultNormals)
+    {
+    vtkWarningMacro("ResultNormals specified but output is scalar");
+    }
+
+  if(resultType == VECTOR_RESULT &&
+     CoordinateResults != 0 && (psOutput || graphOutput))
     {
     resultPoints = vtkPoints::New();
     resultPoints->SetNumberOfPoints(numTuples);
@@ -410,7 +436,7 @@ int vtkArrayCalculator::RequestData(
     }
   else if(CoordinateResults != 0)
     {
-    if(resultType != 1)
+    if(resultType != VECTOR_RESULT)
       {
       vtkErrorMacro("Coordinate output specified, "
                     "but there are no vector results");
@@ -428,7 +454,7 @@ int vtkArrayCalculator::RequestData(
         vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(this->ResultArrayType));
     }
 
-  if (resultType == 0)
+  if (resultType == SCALAR_RESULT)
     {
     resultArray->SetNumberOfComponents(1);
     resultArray->SetNumberOfTuples(numTuples);
@@ -462,7 +488,7 @@ int vtkArrayCalculator::RequestData(
             i, this->SelectedVectorComponents[j][1]),
           currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
       }
-    if(attributeDataType == 0)
+    if(attributeDataType == POINT_DATA)
       {
       double* pt = 0;
       if (dsInput)
@@ -489,7 +515,7 @@ int vtkArrayCalculator::RequestData(
             pt[this->SelectedCoordinateVectorComponents[j][2]]);
         }
       }
-    if (resultType == 0)
+    if (resultType == SCALAR_RESULT)
       {
       scalarResult[0] = this->FunctionParser->GetScalarResult();
       resultArray->SetTuple(i, scalarResult);
@@ -500,15 +526,12 @@ int vtkArrayCalculator::RequestData(
       }
     }
 
+  CopyDataSetOrGraph (dsInput, dsOutput, graphInput, graphOutput);
   if(resultPoints)
     {
     if(psInput)
       {
-      if(attributeDataType == 0)
-        {
-        psOutput->CopyStructure(psInput);
-        }
-      else
+      if(attributeDataType == CELL_DATA)
         {
         vtkPolyData* pd = vtkPolyData::SafeDownCast(psOutput);
         vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(psOutput);
@@ -532,34 +555,48 @@ int vtkArrayCalculator::RequestData(
           }
         }
       psOutput->SetPoints(resultPoints);
-      psOutput->CopyAttributes(dsInput);
-      }
-    else
-      {
-      graphOutput->CopyStructure(graphInput);
-      outFD->PassData(inFD);
       }
     resultPoints->Delete();
     }
-  else
-    {
-    dsOutput->CopyStructure(dsInput);
-    dsOutput->CopyAttributes(dsInput);
 
+  if(this->ResultTCoords || this->ResultNormals || ! this->CoordinateResults)
+    {
     resultArray->SetName(this->ResultArrayName);
     outFD->AddArray(resultArray);
-    if (resultType == 0)
+    if(resultType == SCALAR_RESULT)
       {
-      outFD->SetActiveScalars(this->ResultArrayName);
+      if (this->ResultTCoords)
+        {
+        outFD->SetActiveTCoords(this->ResultArrayName);
+        }
+      else
+        {
+        outFD->SetActiveScalars(this->ResultArrayName);
+        }
       }
     else
       {
-      outFD->SetActiveVectors(this->ResultArrayName);
+      if (this->ResultTCoords || this ->ResultNormals)
+        {
+        if (this->ResultTCoords)
+          {
+          outFD->SetActiveTCoords(this->ResultArrayName);
+          }
+        if (this->ResultNormals)
+          {
+          outFD->SetActiveNormals(this->ResultArrayName);
+          }
+        }
+      else
+        {
+        outFD->SetActiveVectors(this->ResultArrayName);
+        }
       }
-
-    resultArray->Delete();
+    if (! resultPoints)
+      {
+      resultArray->Delete();
+      }
     }
-
   return 1;
 }
 
