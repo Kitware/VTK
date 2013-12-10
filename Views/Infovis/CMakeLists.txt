@@ -19,6 +19,7 @@ SET(Module_SRCS
   vtkRenderedSurfaceRepresentation.cxx
   vtkRenderedTreeAreaRepresentation.cxx
   vtkRenderView.cxx
+  vtkSCurveSpline.cxx
   vtkTanglegramItem.cxx
   vtkTreeAreaView.cxx
   vtkTreeHeatmapItem.cxx

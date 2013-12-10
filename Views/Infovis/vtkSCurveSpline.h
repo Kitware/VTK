@@ -30,10 +30,10 @@
 #ifndef __vtkSCurveSpline_h
 #define __vtkSCurveSpline_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkSpline.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkSCurveSpline : public vtkSpline
+class VTKVIEWSINFOVIS_EXPORT vtkSCurveSpline : public vtkSpline
 {
 public:
   static vtkSCurveSpline *New();
