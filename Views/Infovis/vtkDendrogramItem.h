@@ -41,6 +41,7 @@
 #include "vtkSmartPointer.h"      // For vtkSmartPointer ivars
 #include "vtkVector.h"            // For vtkVector2f ivar
 
+class vtkColorLegend;
 class vtkDoubleArray;
 class vtkGraphLayout;
 class vtkLookupTable;
@@ -315,6 +316,10 @@ protected:
   // Internal function.  Use SetOrientation(int orientation) instead.
   void SetOrientation(vtkTree *tree, int orientation);
 
+  // Setup the position, size, and orientation of this dendrogram's color
+  // legend based on the dendrogram's current orientation.
+  void PositionColorLegend();
+
   vtkSmartPointer<vtkTree> Tree;
   vtkSmartPointer<vtkTree> LayoutTree;
 
@@ -328,6 +333,7 @@ private:
   vtkNew<vtkPruneTreeFilter> PruneFilter;
   vtkNew<vtkLookupTable> TriangleLookupTable;
   vtkNew<vtkLookupTable> TreeLookupTable;
+  vtkNew<vtkColorLegend> ColorLegend;
   vtkDoubleArray* ColorArray;
   double MultiplierX;
   double MultiplierY;
@@ -346,6 +352,7 @@ private:
   bool ExtendLeafNodes;
   bool DrawLabels;
   bool DisplayNumberOfCollapsedLeafNodes;
+  bool LegendPositionSet;
   vtkStdString DistanceArrayName;
   vtkStdString VertexNameArrayName;
 };

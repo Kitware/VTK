@@ -15,6 +15,7 @@
 #include "vtkDendrogramItem.h"
 
 #include "vtkBrush.h"
+#include "vtkColorLegend.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
@@ -48,6 +49,7 @@ vtkDendrogramItem::vtkDendrogramItem() : PositionVector(0, 0)
   this->DendrogramBuildTime = 0;
   this->Interactive = true;
   this->ColorTree = false;
+  this->LegendPositionSet = false;
   this->Tree = vtkSmartPointer<vtkTree>::New();
   this->PrunedTree = vtkSmartPointer<vtkTree>::New();
   this->LayoutTree = vtkSmartPointer<vtkTree>::New();
@@ -74,6 +76,11 @@ vtkDendrogramItem::vtkDendrogramItem() : PositionVector(0, 0)
 
   this->DistanceArrayName = "node weight";
   this->VertexNameArrayName = "node name";
+
+  this->ColorLegend->SetVisible(false);
+  this->ColorLegend->DrawBorderOn();
+  this->ColorLegend->CacheBoundsOff();
+  this->AddItem(this->ColorLegend.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
@@ -183,8 +190,8 @@ bool vtkDendrogramItem::Paint(vtkContext2D *painter)
     }
 
   this->PrepareToPaint(painter);
-
   this->PaintBuffers(painter);
+  this->PaintChildren(painter);
   return true;
 }
 
@@ -259,6 +266,11 @@ void vtkDendrogramItem::RebuildBuffers()
   this->ComputeMultipliers();
   this->ComputeBounds();
 
+  if (this->ColorTree && !this->LegendPositionSet)
+    {
+    this->PositionColorLegend();
+    }
+
   if( this->PrunedTree->GetMTime() > this->MTime)
     {
     this->DendrogramBuildTime = this->PrunedTree->GetMTime();
@@ -281,8 +293,8 @@ void vtkDendrogramItem::ComputeMultipliers()
       {
       vtkIdType target = this->LayoutTree->GetTargetVertex(edge);
       this->LayoutTree->GetPoint(target, targetPoint);
-      double x = abs(targetPoint[0]);
-      double y = abs(targetPoint[1]);
+      double x = fabs(targetPoint[0]);
+      double y = fabs(targetPoint[1]);
       if (x > xMax)
         {
         xMax = x;
@@ -518,6 +530,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
           std::stringstream ss;
           ss << numCollapsedLeafNodes;
 
+          painter->GetTextProp()->SetVerticalJustificationToCentered();
           painter->GetTextProp()->SetOrientation(
             this->GetTextAngleForOrientation(orientation));
           painter->DrawString(triangleLabelX, triangleLabelY, ss.str());
@@ -1207,28 +1220,31 @@ void vtkDendrogramItem::SetColorArray(const char *arrayName)
 
   this->ColorTree = true;
 
-  double minDifference = VTK_DOUBLE_MAX;
-  double maxDifference = VTK_DOUBLE_MIN;
+  double minValue = VTK_DOUBLE_MAX;
+  double maxValue = VTK_DOUBLE_MIN;
 
   for (vtkIdType id = 0; id < this->ColorArray->GetNumberOfTuples(); ++id)
     {
     double d = this->ColorArray->GetValue(id);
-    if (d > maxDifference)
+    if (d > maxValue)
       {
-      maxDifference = d;
+      maxValue = d;
       }
-    if (d < minDifference)
+    if (d < minValue)
       {
-      minDifference = d;
+      minValue = d;
       }
     }
 
-  // special case when there is no difference.  Without this, all the
-  // edges would be drawn in either red or blue.
-  if (minDifference == maxDifference)
+  // special case: when there is no range of values to display, all edges should
+  // be drawn in grey.  Without this, all the edges would be drawn in either red
+  // or blue.
+  if (minValue == maxValue)
     {
     this->TreeLookupTable->SetNumberOfTableValues(1);
-    this->TreeLookupTable->SetTableValue(10, 0.60, 0.60, 0.60);
+    this->TreeLookupTable->SetTableValue(0, 0.60, 0.60, 0.60);
+    // this is done to prevent the legend from being drawn
+    this->LegendPositionSet = true;
     return;
     }
 
@@ -1239,13 +1255,13 @@ void vtkDendrogramItem::SetColorArray(const char *arrayName)
   // 10 shades of blue, and a grey neutral value.
 
   this->TreeLookupTable->SetNumberOfTableValues(21);
-  if (abs(maxDifference) > abs(minDifference))
+  if (fabs(maxValue) > fabs(minValue))
     {
-    this->TreeLookupTable->SetRange(-maxDifference, maxDifference);
+    this->TreeLookupTable->SetRange(-maxValue, maxValue);
     }
   else
     {
-    this->TreeLookupTable->SetRange(minDifference, -minDifference);
+    this->TreeLookupTable->SetRange(minValue, -minValue);
     }
   for (vtkIdType i = 0; i < 10; ++i)
     {
@@ -1258,6 +1274,57 @@ void vtkDendrogramItem::SetColorArray(const char *arrayName)
     this->TreeLookupTable->SetTableValue(i,
       0.85 - inc * (i - 10), 0.85 - inc * (i - 10), 1.0);
     }
+
+  // initialize color legend
+  this->ColorLegend->SetTransferFunction(
+    this->TreeLookupTable.GetPointer());
+  this->ColorLegend->SetTitle(arrayName);
+  this->PositionColorLegend();
+}
+
+//-----------------------------------------------------------------------------
+void vtkDendrogramItem::PositionColorLegend()
+{
+  // bail out early if we don't have meaningful bounds yet.
+  if (this->MinX > this->MaxX || this->MinY > this->MaxY)
+    {
+    return;
+    }
+
+  int orientation = this->GetOrientation();
+  switch(orientation)
+    {
+    case vtkDendrogramItem::DOWN_TO_UP:
+    case vtkDendrogramItem::UP_TO_DOWN:
+      this->ColorLegend->SetHorizontalAlignment(vtkChartLegend::RIGHT);
+      this->ColorLegend->SetVerticalAlignment(vtkChartLegend::CENTER);
+      this->ColorLegend->SetOrientation(vtkColorLegend::VERTICAL);
+      this->ColorLegend->SetPoint(
+        this->MinX - this->LeafSpacing,
+        this->MinY + (this->MaxY - this->MinY) / 2.0);
+      this->ColorLegend->SetTextureSize(
+        this->ColorLegend->GetSymbolWidth(),
+       this->MaxY - this->MinY);
+      break;
+
+    case vtkDendrogramItem::RIGHT_TO_LEFT:
+    case vtkDendrogramItem::LEFT_TO_RIGHT:
+    default:
+      this->ColorLegend->SetHorizontalAlignment(vtkChartLegend::CENTER);
+      this->ColorLegend->SetVerticalAlignment(vtkChartLegend::TOP);
+      this->ColorLegend->SetOrientation(vtkColorLegend::HORIZONTAL);
+      this->ColorLegend->SetPoint(
+        this->MinX + (this->MaxX - this->MinX) / 2.0,
+        this->MinY - this->LeafSpacing);
+      this->ColorLegend->SetTextureSize(
+        this->MaxX - this->MinX,
+        this->ColorLegend->GetSymbolWidth());
+      break;
+    }
+  this->ColorLegend->Update();
+  this->ColorLegend->SetVisible(true);
+  this->Scene->SetDirty(true);
+  this->LegendPositionSet = true;
 }
 
 //-----------------------------------------------------------------------------
