@@ -160,6 +160,7 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
 
   vtkIdType root1 = tree1->GetRoot();
   vtkIdType root2 = tree2->GetRoot();
+  this->VertexMap[root1] = root2;
 
   vtkIdType edgeId1 = -1;
   vtkIdType edgeId2 = -1;
