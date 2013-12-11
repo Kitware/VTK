@@ -19,12 +19,12 @@
 
 uniform sampler2D gx1;
 uniform sampler2D gy1;
-uniform float step; // 1/H
+uniform float stepSize; // 1/H
 
 void main(void)
 {
   vec2 tcoord=gl_TexCoord[0].st;
-  vec2 offset=vec2(0.0,step);
+  vec2 offset=vec2(0.0,stepSize);
 
   // Gx
 

@@ -24,12 +24,12 @@
 #extension GL_ARB_draw_buffers : enable
 
 uniform sampler2D source;
-uniform float step; // 1/W
+uniform float stepSize; // 1/W
 
 void main(void)
 {
   vec2 tcoord=gl_TexCoord[0].st;
-  vec2 offset=vec2(step,0.0);
+  vec2 offset=vec2(stepSize,0.0);
   vec4 t1=texture2D(source,tcoord-offset);
   vec4 t2=texture2D(source,tcoord);
   vec4 t3=texture2D(source,tcoord+offset);
