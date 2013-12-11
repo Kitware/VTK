@@ -612,6 +612,11 @@ int vtkDelimitedTextReader::RequestData(
 
     if(!this->ReadFromInputString)
       {
+      // If the filename hasn't been specified, we're done ...
+      if(!this->FileName)
+        {
+        return 1;
+        }
       // Get the total size of the input file in bytes
       file_stream.open(this->FileName, ios::binary);
       if(!file_stream.good())
