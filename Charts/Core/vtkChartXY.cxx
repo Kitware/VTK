@@ -33,6 +33,7 @@
 #include "vtkVectorOperators.h"
 
 #include "vtkPlotBar.h"
+#include "vtkPlotBag.h"
 #include "vtkPlotStacked.h"
 #include "vtkPlotLine.h"
 #include "vtkPlotPoints.h"
@@ -1046,6 +1047,15 @@ vtkPlot * vtkChartXY::AddPlot(int type)
       plot = stacked;
       break;
       }
+    case BAG:
+      {
+      vtkPlotBag *bag = vtkPlotBag::New();
+      bag->SetParent(this);
+      bag->GetBrush()->SetColor(color.GetData());
+      plot = bag;
+      break;
+      }
+
     default:
       plot = NULL;
     }
