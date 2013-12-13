@@ -179,9 +179,9 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
 
       // Creation of the hdr array.
       vtkNew<vtkDoubleArray> normalizedHDR;
-      std::stringstream ss;
-      ss << "Normalized " << outObservations->GetName();
-      normalizedHDR->SetName(ss.str().c_str());
+      std::stringstream sst;
+      sst << "Normalized " << outObservations->GetName();
+      normalizedHDR->SetName(sst.str().c_str());
       normalizedHDR->SetNumberOfComponents(1);
       vtkIdType nbObservations = outObservations->GetNumberOfTuples();
       normalizedHDR->SetNumberOfTuples(nbObservations);
