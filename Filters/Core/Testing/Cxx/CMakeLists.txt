@@ -25,6 +25,7 @@ vtk_add_test_cxx(
   TestSMPPipelineContour.cxx,NO_VALID
   TestThreshold.cxx,NO_VALID
   TestThresholdPoints.cxx,NO_VALID
+  TestTransposeTable.cxx,NO_VALID
   TestTubeFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests)

@@ -25,6 +25,7 @@ set(Module_SRCS
   vtkPlot3D.cxx
   vtkPlotBag.cxx
   vtkPlotBar.cxx
+  vtkPlotFunctionalBag.cxx
   vtkPlotGrid.cxx
   vtkPlotHistogram2D.cxx
   vtkPlotLine.cxx
