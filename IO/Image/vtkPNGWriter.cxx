@@ -30,7 +30,7 @@ vtkPNGWriter::vtkPNGWriter()
 {
   this->FileLowerLeft = 1;
   this->FileDimensionality = 2;
-  this->CompressionLevel = 0;
+  this->CompressionLevel = 5;
   this->WriteToMemory = 0;
   this->Result = 0;
   this->TempFP = 0;
