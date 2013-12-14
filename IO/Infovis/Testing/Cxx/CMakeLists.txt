@@ -2,6 +2,7 @@ vtk_add_test_cxx(NO_VALID
   TestBiomTableReader.cxx
   TestDIMACSGraphReader.cxx
   TestISIReader.cxx
+  TestFixedWidthTextReader.cxx
   TestNewickTreeReader.cxx
   TestNewickTreeWriter.cxx
   TestMultiNewickTreeReader.cxx
