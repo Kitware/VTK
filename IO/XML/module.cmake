@@ -9,6 +9,7 @@ vtk_module(vtkIOXML
   TEST_DEPENDS
     vtkFiltersAMR
     vtkFiltersCore
+    vtkFiltersHyperTree
     vtkFiltersSources
     vtkImagingSources
     vtkInfovisCore
