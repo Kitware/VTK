@@ -1,6 +1,6 @@
 vtk_add_test_cxx(
   # TestAssignCoordinates.cxx # todo (unsatisfied deps)
-  # TestChacoGraphReader.cxx # todo (unsatisfied deps)
+  TestChacoGraphReader.cxx
   TestCirclePackLayoutStrategy.cxx
   # TestCosmicTreeLayoutStrategy.cxx # todo (unsatisfied deps)
   TestGraphLayoutStrategy.cxx,NO_VALID
