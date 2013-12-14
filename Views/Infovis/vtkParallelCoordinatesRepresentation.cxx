@@ -1227,6 +1227,7 @@ int vtkParallelCoordinatesRepresentation::PlaceCurves(vtkPolyData* polyData,
           this->Maxs[position] + this->MaxOffsets[position],
           points));
       }
+    iter->Delete();
     }
 
   // make a s-curve from (0,0) to (1,1) with the right number of segments.

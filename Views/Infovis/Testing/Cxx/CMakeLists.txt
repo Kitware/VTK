@@ -11,6 +11,7 @@ vtk_add_test_cxx(
   TestIcicleView.cxx
   TestInteractorStyleTreeMapHover.cxx
   TestNetworkViews.cxx
+  TestParallelCoordinatesView.cxx
   TestRenderView.cxx
   TestSpanTreeLayoutStrategy.cxx
   TestTanglegramItem.cxx
