@@ -388,7 +388,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   double *xp1, *xp2, len=0.0;
   if ( this->SizeFontRelativeToAxis )
     {
-    xp1 = this->PositionCoordinate->GetComputedDoubleDisplayValue(viewport);
+    xp1 = this->PositionCoordinate->GetComputedDoubleViewportValue(viewport);
     xp2 = this->Position2Coordinate->GetComputedDoubleViewportValue(viewport);
     len = sqrt((xp2[0]-xp1[0])*(xp2[0]-xp1[0]) + (xp2[1]-xp1[1])*(xp2[1]-xp1[1]));
     }
