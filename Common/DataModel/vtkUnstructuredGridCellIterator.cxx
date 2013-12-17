@@ -22,6 +22,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <assert.h>
+
 vtkStandardNewMacro(vtkUnstructuredGridCellIterator)
 
 //------------------------------------------------------------------------------
@@ -108,10 +110,12 @@ void vtkUnstructuredGridCellIterator::CatchUpSkippedCells()
   switch (this->SkippedCells)
     {
     default:
-      while (this->SkippedCells-- > 1)
+      while (this->SkippedCells > 1)
         {
         this->ConnectivityPtr += *this->ConnectivityPtr + 1;
+        this->SkippedCells--;
         }
+      assert(this->SkippedCells == 1);
       // Fall through to first case
     case 1:
       this->ConnectivityPtr += *this->ConnectivityPtr + 1;
