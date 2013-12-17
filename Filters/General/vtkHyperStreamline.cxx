@@ -371,7 +371,6 @@ int vtkHyperStreamline::RequestData(
   inScalars = pd->GetScalars();
 
   cellTensors = vtkDataArray::CreateDataArray(inTensors->GetDataType());
-  cellScalars = vtkDataArray::CreateDataArray(inScalars->GetDataType());
   int numComp;
   if (inTensors)
     {
@@ -381,6 +380,7 @@ int vtkHyperStreamline::RequestData(
     }
   if (inScalars)
     {
+    cellScalars = vtkDataArray::CreateDataArray(inScalars->GetDataType());
     numComp = inScalars->GetNumberOfComponents();
     cellScalars->SetNumberOfComponents(numComp);
     cellScalars->SetNumberOfTuples(VTK_CELL_SIZE);
@@ -646,7 +646,10 @@ int vtkHyperStreamline::RequestData(
 
   delete [] w;
   cellTensors->Delete();
-  cellScalars->Delete();
+  if (cellScalars)
+    {
+    cellScalars->Delete();
+    }
 
   return retval;
 }
