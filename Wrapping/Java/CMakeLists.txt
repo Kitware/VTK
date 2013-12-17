@@ -278,7 +278,7 @@ foreach(jfile ${VTK_JAVA_DEPENDENCIES})
 endforeach()
 
 if(WIN32)
-  set(SEPARATOR "\;")
+  set(SEPARATOR "\\;")
 else()
   set(SEPARATOR ":")
 endif()
@@ -358,7 +358,7 @@ if(BUILD_TESTING)
       #
       ExternalData_add_test(VTKData
          JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
-         -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+         -classpath "${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java"
          vtk.test.Regression -D ${VTK_TEST_DATA_DIR}
          -V DATA{Baseline/Cone.png,:}
          -T ${VTK_TEST_OUTPUT_DIR}
