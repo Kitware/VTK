@@ -114,18 +114,6 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description:
-  // This method doesn't care about the content type of the selection,
-  // just grabs the value.
-  bool UpdateFastPathIDs(
-    vtkInformationVector** inputV, vtkInformation* outInfo);
-
-  // Description:
-  // This looks at the arrays in the vtkFieldData of input and copies those
-  // whose names are in the form "XXXOverTime" to the output point data.
-  void CopyFastPathDataToOutput(vtkDataSet *input, vtkTable *output);
-
-
   void ExecuteAtTimeStep(vtkInformationVector** inputV,
     vtkInformation* outInfo);
 
@@ -135,9 +123,7 @@ protected:
   int FieldType;
   int ContentType;
 
-  bool WaitingForFastPathData;
   bool IsExecuting;
-  bool UseFastPath;
 
   int ReportStatisticsOnly;
 

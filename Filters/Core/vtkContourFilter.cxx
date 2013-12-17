@@ -94,9 +94,6 @@ vtkContourFilter::vtkContourFilter()
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
-
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 vtkContourFilter::~vtkContourFilter()
@@ -706,97 +703,6 @@ void vtkContourFilter::SetOutputPointsPrecision(int precision)
 int vtkContourFilter::GetOutputPointsPrecision() const
 {
   return this->OutputPointsPrecision;
-}
-
-//----------------------------------------------------------------------------
-int vtkContourFilter::ProcessRequest(vtkInformation* request,
-                                     vtkInformationVector** inputVector,
-                                     vtkInformationVector* outputVector)
-{
-  // generate the data
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT_INFORMATION()))
-    {
-    // compute the priority for this UE
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-    // get the range of the input if available
-    vtkInformation *fInfo = NULL;
-    vtkDataArray *inscalars = this->GetInputArrayToProcess(0, inputVector);
-    if (inscalars)
-      {
-      vtkInformationVector *miv = inInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
-      for (int index = 0; index < miv->GetNumberOfInformationObjects(); index++)
-        {
-        vtkInformation *mInfo = miv->GetInformationObject(index);
-        const char *minfo_arrayname =
-          mInfo->Get(vtkDataObject::FIELD_ARRAY_NAME());
-        if (minfo_arrayname && !strcmp(minfo_arrayname, inscalars->GetName()))
-          {
-          fInfo = mInfo;
-          break;
-          }
-        }
-      }
-    else
-      {
-      fInfo = vtkDataObject::GetActiveFieldInformation
-        (inInfo, vtkDataObject::FIELD_ASSOCIATION_POINTS,
-         vtkDataSetAttributes::SCALARS);
-      }
-
-    if (!fInfo)
-      {
-      return 1;
-      }
-
-    double *range = fInfo->Get(vtkDataObject::PIECE_FIELD_RANGE());
-    int numContours = this->ContourValues->GetNumberOfContours();
-    if (range && numContours)
-      {
-      // compute the priority
-      // get the incoming priority if any
-      double inPriority = 1;
-      if (inInfo->Has(vtkStreamingDemandDrivenPipeline::PRIORITY()))
-        {
-        inPriority = inInfo->Get(vtkStreamingDemandDrivenPipeline::PRIORITY());
-        }
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority);
-      if (!inPriority)
-        {
-        return 1;
-        }
-
-      // do any contours intersect the range?
-      double *values=this->ContourValues->GetValues();
-      int i;
-      for (i=0; i < numContours; i++)
-        {
-        if (values[i] >= range[0] && values[i] <= range[1])
-          {
-          return 1;
-          }
-        }
-
-      double inRes = 1.0;
-      if (inInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION()))
-        {
-        inRes = inInfo->Get
-          (vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION());
-        }
-      if (inRes >= 0.99)
-        {
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::PRIORITY(),0.0);
-        }
-      else
-        {
-        outInfo->Set
-          (vtkStreamingDemandDrivenPipeline::PRIORITY(),inPriority*0.1);
-        }
-      }
-    return 1;
-    }
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 int vtkContourFilter::FillInputPortInformation(int, vtkInformation *info)

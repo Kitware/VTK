@@ -604,11 +604,6 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
     return 1;
     }
 
-  if (this->NeedToExecuteBasedOnFastPathData(outInfo))
-    {
-    return 1;
-    }
-
   if (this->NeedToExecuteBasedOnCompositeIndices(outInfo))
     {
     return 1;

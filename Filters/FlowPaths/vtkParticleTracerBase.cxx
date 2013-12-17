@@ -460,7 +460,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
           inp->ComputeBounds();
           inp->GetBounds(&bbox.b[0]);
           this->CachedBounds[T].push_back(bbox);
-          bool static_dataset = this->StaticMesh || inp->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED());
+          bool static_dataset = this->StaticMesh;
           this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
           this->Interpolator->SetDataSetAtTime(index++, T, this->GetCacheDataTime(T), inp, static_dataset);
@@ -555,10 +555,6 @@ int vtkParticleTracerBase::UpdateDataCache(vtkDataObject *data)
         vtkSmartPointer<vtkDataSet> copy;
         copy.TakeReference(ds->NewInstance());
         copy->ShallowCopy(ds);
-        if (ds->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-          {
-          copy->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
-          }
         this->CachedData[i]->SetBlock(this->CachedData[i]->GetNumberOfBlocks(), copy);
         }
       }

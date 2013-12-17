@@ -57,13 +57,6 @@ vtkInformationKeyMacro(vtkAlgorithm, PORT_REQUIREMENTS_FILLED, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_ARRAYS_TO_PROCESS, InformationVector);
-vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_DATASET, Integer);
-vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_GEOMETRY, Integer);
-vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_BOUNDS, Integer);
-vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_TOPOLOGY, Integer);
-vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_ATTRIBUTES, Integer);
-vtkInformationKeyMacro(vtkAlgorithm, PRESERVES_RANGES, Integer);
-vtkInformationKeyMacro(vtkAlgorithm, MANAGES_METAINFORMATION, Integer);
 
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = 0;
 
@@ -1645,19 +1638,6 @@ void vtkAlgorithm::SetProgressText(const char* ptext)
     this->ProgressText = cp1;
     do { *cp1++ = *cp2++; } while ( --n );
     }
-}
-
-//-------------------------------------------------------------
-double vtkAlgorithm::ComputePriority()
-{
-  vtkStreamingDemandDrivenPipeline *sddp =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast
-      (this->GetExecutive());
-  if (!sddp)
-    {
-    return 1.0;
-    }
-  return sddp->ComputePriority(0);
 }
 
 //-------------------------------------------------------------

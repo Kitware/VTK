@@ -128,10 +128,6 @@ vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
   this->OriginalPointIdsName = NULL;
 
   this->NonlinearSubdivisionLevel = 1;
-
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
-
 }
 
 //----------------------------------------------------------------------------

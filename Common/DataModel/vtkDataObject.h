@@ -301,7 +301,6 @@ public:
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
-  static vtkInformationDoubleKey* DATA_RESOLUTION();
   static vtkInformationDoubleKey* DATA_TIME_STEP();
   static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
@@ -315,13 +314,10 @@ public:
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationDoubleVectorKey* FIELD_RANGE();
-  static vtkInformationDoubleVectorKey* PIECE_FIELD_RANGE();
-  static vtkInformationStringKey* FIELD_ARRAY_NAME();
   static vtkInformationIntegerVectorKey* PIECE_EXTENT();
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationDoubleVectorKey* ORIGIN();
   static vtkInformationDoubleVectorKey* SPACING();
-  static vtkInformationIntegerKey* DATA_GEOMETRY_UNMODIFIED();
   static vtkInformationDoubleVectorKey* BOUNDING_BOX();
 
   // Key used to put SIL information in the output information by readers.

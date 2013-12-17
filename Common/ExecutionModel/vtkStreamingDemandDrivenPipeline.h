@@ -123,9 +123,6 @@ public:
   static int GetUpdateNumberOfPieces(vtkInformation *);
   static int SetUpdateGhostLevel(vtkInformation *, int n);
   static int GetUpdateGhostLevel(vtkInformation *);
-  int SetUpdateResolution(int port, double r);
-  int SetUpdateResolution(vtkInformation *, double r);
-  double GetUpdateResolution(vtkInformation *);
 
   // Description:
   // Get/Set the update extent for output ports that use Temporal Extents
@@ -159,14 +156,6 @@ public:
   double* GetWholeBoundingBox(int port);
 
   // Description:
-  // Set/Get the piece bounding box of an output port data object.
-  // The piece bounding box is meta data for data sets.  It gets
-  // set by the algorithm during the update extent information pass.
-  int SetPieceBoundingBox(int port, double bb[6]);
-  void GetPieceBoundingBox(int port, double bb[6]);
-  double* GetPieceBoundingBox(int port);
-
-  // Description:
   // Key defining a request to propagate the update extent upstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
@@ -175,17 +164,6 @@ public:
   // Description:
   // Key defining a request to make sure the meta information is up to date.
   static vtkInformationRequestKey* REQUEST_TIME_DEPENDENT_INFORMATION();
-
-
-  // Description:
-  // Key defining a request to propagate information about the update
-  // extent downstream.
-  static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT_INFORMATION();
-  static vtkInformationRequestKey* REQUEST_MANAGE_INFORMATION();
-
-  // Description:
-  // Key defining to propagate resolution changes up the pipeline.
-  static vtkInformationRequestKey* REQUEST_RESOLUTION_PROPAGATE();
 
   // Description:
   // Key for an algorithm to store in a request to tell this executive
@@ -203,10 +181,6 @@ public:
   static vtkInformationIntegerKey* UPDATE_PIECE_NUMBER();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
-
-  // Description:
-  // Key to store an update in the AMR level of resolution.
-  static vtkInformationIntegerKey* UPDATE_AMR_LEVEL();
 
   // Description:
   // Key for combining the update extents requested by all consumers,
@@ -239,15 +213,6 @@ public:
   static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
 
   // Description:
-  // Key to store the bounding box of a portion of the data set in
-  // pipeline information.
-  static vtkInformationDoubleVectorKey* PIECE_BOUNDING_BOX();
-
-  // Description:
-  // Key used to reject unimportant pieces in streaming.
-  static vtkInformationDoubleVectorKey* PIECE_NORMAL();
-
-  // Description:
   // Key to specify the request for exact extent in pipeline information.
   static vtkInformationIntegerKey* EXACT_EXTENT();
 
@@ -274,72 +239,12 @@ public:
   static vtkInformationIntegerKey* TIME_DEPENDENT_INFORMATION();
 
   // Description:
-  // Key that specifies from 0.0 to 1.0 the pipeline computed priority
-  // of this update extent. 0.0 means does not contribute and can
-  // be skipped.
-  static vtkInformationDoubleKey* PRIORITY();
-
-  // Description:
-  // Key that specifies how many cells were in the piece at the head of the
-  // pipeline, so that work estimates can be made.
-  static vtkInformationUnsignedLongKey* ORIGINAL_NUMBER_OF_CELLS();
-
-  // Description:
-  // Key that specifies a requested resolution level for this update
-  // extent. 0.0 is very low and 1.0 is full resolution.
-  static vtkInformationDoubleKey* UPDATE_RESOLUTION();
-
-  // Description:
-  // Used internally to validate meta information as it flows through pipeline
-  static vtkInformationIntegerKey* REMOVE_ATTRIBUTE_INFORMATION();
-
-  // Description:
-  // The following keys are meant to be used by an algorithm that
-  // works with temporal data. Rather than re-executing the pipeline
-  // for each timestep, if the reader, as part of its API, contains
-  // a faster way to read temporal data, algorithms may use these
-  // keys to request temporal data from the reader.
-  // See also: vtkExtractArraysOverTime.
-
-  // Key to allow a reader to advertise that it supports a fast-path
-  // for reading data over time.
-  static vtkInformationIntegerKey* FAST_PATH_FOR_TEMPORAL_DATA();
-  // The type of data being requested.
-  // Possible values: POINT, CELL, EDGE, FACE
-  static vtkInformationStringKey* FAST_PATH_OBJECT_TYPE();
-  // Possible values: INDEX, GLOBAL
-  static vtkInformationStringKey* FAST_PATH_ID_TYPE();
-  // The id (either index or global id) being requested
-  static vtkInformationIdTypeKey* FAST_PATH_OBJECT_ID();
-
-
-  // Description:
   // key to record the bounds of a dataset.
   static vtkInformationDoubleVectorKey *BOUNDS();
-
-
-  // Description:
-  // Issues pipeline request to determine and return the priority of the
-  // piece described by the current update extent. The priority is a
-  // number between 0.0 and 1.0 with 0 meaning skippable (REQUEST_DATA
-  // not needed) and 1.0 meaning important.
-  double ComputePriority()
-    {
-      return this->ComputePriority(0);
-    }
-  virtual double ComputePriority(int port);
 
 protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
-
-  // Description:
-  // Called before RequestUpdateExtent() pass on the algorithm. Here we remove
-  // all update-related keys from the input information.
-  // Currently this only removes the fast-path related keys.
-  virtual void ResetUpdateInformation(vtkInformation* request,
-    vtkInformationVector** inInfoVec,
-    vtkInformationVector* outInfoVec);
 
   // Keep track of the update time request corresponding to the
   // previous executing. If the previous update request did not
@@ -350,20 +255,10 @@ protected:
   // We know that it does not have this time step.
   static vtkInformationDoubleKey* PREVIOUS_UPDATE_TIME_STEP();
 
-  // Keep track of the fast path keys corresponding to the
-  // previous executing. If all key values are the same as their
-  // counterparts in the previous request, we do not need to re-execute.
-  static vtkInformationIdTypeKey* PREVIOUS_FAST_PATH_OBJECT_ID();
-  static vtkInformationStringKey* PREVIOUS_FAST_PATH_OBJECT_TYPE();
-  static vtkInformationStringKey* PREVIOUS_FAST_PATH_ID_TYPE();
-
   // Does the time request correspond to what is in the data?
   // Returns 0 if yes, 1 otherwise.
   virtual int NeedToExecuteBasedOnTime(vtkInformation* outInfo,
                                        vtkDataObject* dataObject);
-
-  // If the request contains a fast path key for temporal data, always execute
-  virtual int NeedToExecuteBasedOnFastPathData(vtkInformation* outInfo);
 
   // Setup default information on the output after the algorithm
   // executes information.

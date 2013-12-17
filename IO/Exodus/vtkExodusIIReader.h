@@ -655,31 +655,6 @@ public:
   void SetElementSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(ELEM_SET, name, flag); }
 
-  /**!\brief Fast path
-    *
-    * The following are set using the fast-path keys found in
-    * vtkPExodusIIReader's input information.
-    * Fast-path keys are meant to be used by an filter that
-    * works with temporal data. Rather than re-executing the pipeline
-    * for each timestep, since the exodus reader, as part of its API, contains
-    * a faster way to read temporal data, algorithms may use these
-    * keys to request temporal data.
-    * See also: vtkExtractArraysOverTime.
-    */
-  //@{
-  // Description:
-  // Set the fast-path keys. All three must be set for the fast-path
-  // option to work.
-  // Possible argument values: "POINT","CELL","EDGE","FACE"
-  void SetFastPathObjectType(const char *type);
-  // Description:
-  // Possible argument values: "INDEX","GLOBAL"
-  // "GLOBAL" means the id refers to a global id
-  // "INDEX" means the id refers to an index into the VTK array
-  void SetFastPathIdType(const char *type);
-  void SetFastPathObjectId(vtkIdType id);
-  //@}
-
   // Description:
   // Reset the user-specified parameters and flush internal arrays
   // so that the reader state is just as it was after the reader was
@@ -740,11 +715,6 @@ public:
   // Description:
   // Every time the SIL is updated a this will return a different value.
   vtkGetMacro(SILUpdateStamp, int);
-
-  // Description:
-  // HACK: Used by vtkPExodusIIReader to tell is the reader produced a valid
-  // fast path output.
-  vtkGetMacro(ProducedFastPathOutput, bool);
 
 protected:
   vtkExodusIIReader();
@@ -809,7 +779,6 @@ protected:
   int ExodusModelMetadata;
 
   int SILUpdateStamp;
-  bool ProducedFastPathOutput;
 private:
   vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
   void operator=(const vtkExodusIIReader&); // Not implemented

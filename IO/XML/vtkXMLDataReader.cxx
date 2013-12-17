@@ -150,67 +150,6 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
     }
 }
 
-void vtkXMLDataReader::SetupUpdateExtentInformation(vtkInformation *outInfo)
-{
-  // get the current piece being requested
-  int piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int npieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // Setup the Field Information for PointData.
-  vtkInformationVector *infoVector =
-    outInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
-  if (!this->SetUpdateExtentInfo(this->PointDataElements[piece],
-                                 infoVector, piece, npieces))
-    {
-    return;
-    }
-
-  // now the Cell data
-  infoVector = outInfo->Get(vtkDataObject::CELL_DATA_VECTOR());
-  if (!this->SetUpdateExtentInfo(this->CellDataElements[piece],
-                                 infoVector, piece, npieces))
-    {
-    return;
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
-                                          vtkInformationVector *infoVector,
-                                          int piece, int numPieces)
-{
-  if (!eDSA)
-    {
-    return 1;
-    }
-
-  int i;
-
-  // Cycle through each data array
-  for(i = 0; i < eDSA->GetNumberOfNestedElements(); i++)
-    {
-    vtkXMLDataElement* eNested = eDSA->GetNestedElement(i);
-    vtkInformation *info = infoVector->GetInformationObject(i);
-
-    double range[2];
-    if (eNested->GetScalarAttribute("RangeMin", range[0]) &&
-        eNested->GetScalarAttribute("RangeMax", range[1]))
-      {
-      info->Set(vtkDataObject::FIELD_ARRAY_NAME(),
-                eNested->GetAttribute("Name"));
-      info->Set(vtkDataObject::PIECE_FIELD_RANGE(), range, 2);
-      if (piece == 0 && numPieces == 1)
-        {
-        info->Set(vtkDataObject::FIELD_RANGE(), range, 2);
-        }
-      }
-    }
-
-  return 1;
-}
-
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::CopyOutputInformation(vtkInformation *outInfo,
                                              int port)
