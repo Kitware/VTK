@@ -32,6 +32,10 @@ extern "C" {
 #include <setjmp.h>
 }
 
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
+
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -77,10 +81,10 @@ void vtkJPEGWriter::Write()
     }
 
   // Make sure the file name is allocated
-  this->InternalFileName =
-    new char[(this->FileName ? strlen(this->FileName) : 1) +
-            (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
-            (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
+  size_t InternalFileNameSize = (this->FileName ? strlen(this->FileName) : 1) +
+    (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
+    (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
+  this->InternalFileName = new char[InternalFileNameSize];
 
   // Fill in image information.
   vtkDemandDrivenPipeline::SafeDownCast(this->GetInputExecutive(0, 0))->UpdateInformation();
@@ -117,7 +121,8 @@ void vtkJPEGWriter::Write()
         }
       else
         {
-        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
+        snprintf(this->InternalFileName, InternalFileNameSize,
+          this->FilePattern, this->FileNumber);
         }
       }
     this->GetInputExecutive(0, 0)->Update();
