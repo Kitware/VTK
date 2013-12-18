@@ -206,11 +206,18 @@ int vtkDataSetSurfaceFilter::RequestData(
     case VTK_STRUCTURED_GRID:
       {
       vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(input);
-      int* tmpext = grid->GetExtent();
-      ext[0] = tmpext[0]; ext[1] = tmpext[1];
-      ext[2] = tmpext[2]; ext[3] = tmpext[3];
-      ext[4] = tmpext[4]; ext[5] = tmpext[5];
-      return this->StructuredExecute(grid, output, ext, wholeExt);
+      if (grid->GetCellBlanking())
+        {
+        return this->DataSetExecute(grid, output);
+        }
+      else
+        {
+        int* tmpext = grid->GetExtent();
+        ext[0] = tmpext[0]; ext[1] = tmpext[1];
+        ext[2] = tmpext[2]; ext[3] = tmpext[3];
+        ext[4] = tmpext[4]; ext[5] = tmpext[5];
+        return this->StructuredExecute(grid, output, ext, wholeExt);
+        }
       }
     case VTK_UNIFORM_GRID:
     case VTK_STRUCTURED_POINTS:
@@ -1060,11 +1067,13 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   vtkCellData *cd = input->GetCellData();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-
   if (numCells == 0)
     {
     return 1;
     }
+
+  vtkStructuredGrid *sgridInput = vtkStructuredGrid::SafeDownCast(input);
+  bool mayBlank = sgridInput && sgridInput->GetCellBlanking();
 
   cellIds = vtkIdList::New();
   pts = vtkIdList::New();
@@ -1101,6 +1110,10 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
       }
 
     input->GetCell(cellId,cell);
+    if (mayBlank && !sgridInput->IsCellVisible(cellId))
+      {
+      continue;
+      }
     switch (cell->GetCellDimension())
       {
       // create new points and then cell
@@ -1126,7 +1139,21 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
           {
           face = cell->GetFace(j);
           input->GetCellNeighbors(cellId, face->PointIds, cellIds);
-          if ( cellIds->GetNumberOfIds() <= 0)
+          bool noNeighbors = cellIds->GetNumberOfIds()<=0;
+          if (!noNeighbors && mayBlank)
+            {
+            //faces with only blank neighbors count as external faces
+            noNeighbors = true;
+            for (vtkIdType ci = 0; ci < cellIds->GetNumberOfIds(); ci++)
+              {
+              if (sgridInput->IsCellVisible(cellIds->GetId(ci)))
+                {
+                noNeighbors = false;
+                break;
+                }
+              }
+            }
+          if ( noNeighbors )
             {
             npts = face->GetNumberOfPoints();
             pts->Reset();
