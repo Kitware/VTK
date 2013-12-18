@@ -141,7 +141,7 @@ if(BUILD_SHARED_LIBS)
   # prefix.  The default VTK_INSTALL_QT_DIR will allow the designer plugin
   # path to be set to vtk-install-prefix/plugins to get the plugin.
   if(NOT VTK_INSTALL_QT_DIR)
-    set(VTK_INSTALL_QT_DIR /plugins/designer)
+    set(VTK_INSTALL_QT_DIR plugins/designer)
   endif()
 
   # If no runtime is to be installed then do not install the qt plugin.
@@ -155,7 +155,7 @@ if(BUILD_SHARED_LIBS)
     if(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
     else()
       set(VTK_INSTALL_QT_PLUGIN_DIR
-        "${DOLLAR}{CMAKE_INSTALL_PREFIX}${DOLLAR}{VTK_INSTALL_QT_DIR}"
+        "${DOLLAR}{CMAKE_INSTALL_PREFIX}/${DOLLAR}{VTK_INSTALL_QT_DIR}"
         CACHE STRING "Directory in which the VTK Qt plugin is placed during installation.")
       mark_as_advanced(VTK_INSTALL_QT_PLUGIN_DIR)
     endif()
