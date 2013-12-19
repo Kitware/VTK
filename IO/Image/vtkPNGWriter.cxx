@@ -220,7 +220,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
 
 
   this->TempFP = 0;
-  png_byte **row_pointers;
+  png_byte **row_pointers = 0;
   if (this->WriteToMemory)
     {
     vtkUnsignedCharArray *uc = this->GetResult();
