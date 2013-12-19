@@ -16,6 +16,7 @@ macro(_vtk_module_config_recurse ns mod)
     list(APPEND ${ns}_LIBRARIES ${${mod}_LIBRARIES})
     list(APPEND ${ns}_INCLUDE_DIRS ${${mod}_INCLUDE_DIRS})
     list(APPEND ${ns}_LIBRARY_DIRS ${${mod}_LIBRARY_DIRS})
+    list(APPEND ${ns}_RUNTIME_LIBRARY_DIRS ${${mod}_RUNTIME_LIBRARY_DIRS})
     foreach(iface IN LISTS ${mod}_IMPLEMENTS)
       list(APPEND _${ns}_AUTOINIT_${iface} ${mod})
       list(APPEND _${ns}_AUTOINIT ${iface})
@@ -38,6 +39,7 @@ endmacro()
 #  <module>_LIBRARIES      = Libraries to link
 #  <module>_INCLUDE_DIRS   = Header search path
 #  <module>_LIBRARY_DIRS   = Library search path (for outside dependencies)
+#  <module>_RUNTIME_LIBRARY_DIRS = Runtime linker search path
 macro(vtk_module_load mod)
   if(NOT ${mod}_LOADED)
     include("${VTK_MODULES_DIR}/${mod}.cmake" OPTIONAL RESULT_VARIABLE _found)
@@ -97,6 +99,7 @@ endmacro()
 #  <namespace>_LIBRARIES    = Libraries to link
 #  <namespace>_INCLUDE_DIRS = Header search path
 #  <namespace>_LIBRARY_DIRS = Library search path (for outside dependencies)
+#  <namespace>_RUNTIME_LIBRARY_DIRS = Runtime linker search path
 #
 # Calling this macro also recursively calls vtk_module_load for all modules
 # explicitly named, and their dependencies, making them available in the local
@@ -121,6 +124,7 @@ macro(vtk_module_config ns)
   set(${ns}_LIBRARIES "")
   set(${ns}_INCLUDE_DIRS "")
   set(${ns}_LIBRARY_DIRS "")
+  set(${ns}_RUNTIME_LIBRARY_DIRS "")
   set(_${ns}_AUTOINIT "")
 
   set(_${ns}_USED_MODULES "")
@@ -133,7 +137,7 @@ macro(vtk_module_config ns)
   unset(_${ns}_USED_MODULES)
 
   foreach(v ${ns}_LIBRARIES ${ns}_INCLUDE_DIRS ${ns}_LIBRARY_DIRS
-           _${ns}_AUTOINIT)
+            ${ns}_RUNTIME_LIBRARY_DIRS _${ns}_AUTOINIT)
     if(${v})
       list(REMOVE_DUPLICATES ${v})
     endif()
