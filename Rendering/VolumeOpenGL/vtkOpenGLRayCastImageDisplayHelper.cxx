@@ -206,6 +206,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   glPixelTransferf( GL_BLUE_SCALE,   this->PixelScale );
   glPixelTransferf( GL_ALPHA_SCALE,  this->PixelScale );
 
+  glEnable( GL_BLEND );
+
   if ( this->PreMultipliedColors )
     {
     // Values in the texture map have already been pre-multiplied by alpha
