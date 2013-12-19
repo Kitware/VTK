@@ -209,6 +209,23 @@ int vtkImageImport::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
+int vtkImageImport::ComputePipelineMTime(
+  vtkInformation* request,
+  vtkInformationVector** inInfoVec,
+  vtkInformationVector* outInfoVec,
+  int requestFromOutputPort,
+  unsigned long* mtime )
+{
+  if (this->InvokePipelineModifiedCallbacks())
+    {
+    this->Modified();
+    }
+  // Superclass normally returns our MTime.
+  return Superclass::ComputePipelineMTime(request, inInfoVec, outInfoVec,
+        requestFromOutputPort, mtime);
+}
+
+//----------------------------------------------------------------------------
 int vtkImageImport::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
