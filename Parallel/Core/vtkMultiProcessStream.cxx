@@ -271,19 +271,26 @@ void vtkMultiProcessStream::Pop(double*& array, unsigned int& size)
           this->Internals->Data.front()==vtkInternals::double_value);
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int));
+
+    // Allocate array
+    array = new double[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int));
-  assert( "pre: size > 0" && (size > 0) );
-
-  // Allocate array
-  array = new double[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+            (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop(
@@ -297,18 +304,26 @@ void vtkMultiProcessStream::Pop(float*& array, unsigned int& size)
           this->Internals->Data.front()==vtkInternals::float_value);
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
+
+    // Allocate array
+    array = new float[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
-
-  // Allocate array
-  array = new float[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+                (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop(
@@ -322,18 +337,26 @@ void vtkMultiProcessStream::Pop(int*& array, unsigned int& size)
            this->Internals->Data.front()==vtkInternals::int32_value );
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+       reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
+
+    // Allocate the array
+    array = new int[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
-
-  // Allocate the array
-  array = new int[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+                (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop(
@@ -347,18 +370,26 @@ void vtkMultiProcessStream::Pop(char*& array, unsigned int& size)
           this->Internals->Data.front()==vtkInternals::char_value );
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
+
+    // Allocate the array
+    array = new char[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
-
-  // Allocate the array
-  array = new char[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+                (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop(
@@ -372,18 +403,26 @@ void vtkMultiProcessStream::Pop(unsigned int*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::uint32_value );
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
+
+    // Allocate the array
+    array = new unsigned int[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
-
-  // Allocate the array
-  array = new unsigned int[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+                (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop(
@@ -397,18 +436,26 @@ void vtkMultiProcessStream::Pop(unsigned char*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::uchar_value );
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
+
+    // Allocate the array
+    array = new unsigned char[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
-
-  // Allocate the array
-  array = new unsigned char[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+                (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop( array, size );
@@ -421,18 +468,26 @@ void vtkMultiProcessStream::Pop(vtkTypeInt64*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::int64_value );
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
+
+    // Allocate the array
+    array = new vtkTypeInt64[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
-
-  // Allocate the array
-  array = new vtkTypeInt64[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+                (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop(
@@ -446,18 +501,26 @@ void vtkMultiProcessStream::Pop(vtkTypeUInt64*& array, unsigned int& size )
           this->Internals->Data.front()==vtkInternals::uint64_value );
   this->Internals->Data.pop_front();
 
-  if( array != NULL )
+  if( array == NULL )
     {
-    delete [] array;
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
+
+    // Allocate the array
+    array = new vtkTypeUInt64[ size ];
+    assert( "ERROR: cannot allocate array" && (array != NULL) );
     }
+  else
+    {
+    unsigned int sz;
 
-  // Get the size of the array
-  this->Internals->Pop(
-      reinterpret_cast<unsigned char*>(&size), sizeof(unsigned int) );
-
-  // Allocate the array
-  array = new vtkTypeUInt64[ size ];
-  assert( "ERROR: cannot allocate array" && (array != NULL) );
+    // Get the size of the array
+    this->Internals->Pop(
+        reinterpret_cast<unsigned char*>(&sz), sizeof(unsigned int));
+    assert("ERROR: input array size does not match size of data" &&
+                (sz==size) );
+    }
 
   // Pop the array data
   this->Internals->Pop(

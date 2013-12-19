@@ -78,7 +78,10 @@ public:
 
   // Description:
   // Remove-array-to-stream methods. Removes from the head of the stream.
-  // Note: the user must call delete on the array after processing it.
+  // Note: If the input array is NULL, the array will be allocated internally
+  // and the calling application is responsible for properly de-allocating it.
+  // If the input array is not NULL, it is expected to match the size of the
+  // data internally, and this method would just fill in the data.
   void Pop(double*& array, unsigned int& size);
   void Pop(float*& array, unsigned int& size);
   void Pop(int*& array, unsigned int& size);
@@ -96,6 +99,12 @@ public:
   // Description:
   // Returns the size of the stream.
   int Size();
+
+  // Description:
+  // Returns the size of the raw data returned by GetRawData. This
+  // includes 1 byte to store the endian type.
+  int RawSize()
+    {return(this->Size()+1);};
 
   // Description:
   // Returns true iff the stream is empty.

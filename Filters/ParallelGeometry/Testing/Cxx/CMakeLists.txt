@@ -1,6 +1,13 @@
 include(vtkMPI)
 
 vtk_add_test_mpi(TestPStructuredGridConnectivity.cxx)
+vtk_mpi_link(TestPStructuredGridConnectivity)
+
 vtk_add_test_mpi(TestPStructuredGridGhostDataGenerator.cxx)
 vtk_add_test_mpi(TestPUniformGridGhostDataGenerator.cxx)
-vtk_mpi_link(TestPStructuredGridConnectivity)
+
+vtk_add_test_mpi(TestPUnstructuredGridConnectivity.cxx)
+vtk_mpi_link(TestPUnstructuredGridConnectivity)
+
+vtk_add_test_mpi(TestPUnstructuredGridGhostDataGenerator.cxx)
+vtk_mpi_link(TestPUnstructuredGridGhostDataGenerator)
