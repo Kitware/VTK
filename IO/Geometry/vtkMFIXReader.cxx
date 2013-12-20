@@ -2048,7 +2048,7 @@ void vtkMFIXReader::GetTimeSteps()
         case 7:
           {
           numberOfVariables = this->NMax->GetValue(0);
-          for (int m=0; m<=this->MMAX; ++m)
+          for (int m=1; m<=this->MMAX; ++m)
             {
             numberOfVariables += this->NMax->GetValue(m);
             }
@@ -2243,7 +2243,7 @@ void vtkMFIXReader::GetNumberOfVariablesInSPXFiles()
   int skip = 0;
   for (int j=1; j<this->NumberOfSPXFilesUsed; j++)
     {
-    for(int i=0;i<this->VariableNames->GetMaxId()+1;i++)
+    for(int i=0;i<=this->VariableNames->GetMaxId();i++)
       {
       if ((this->VariableIndexToSPX->GetValue(i) == j)
         && (this->VariableComponents->GetValue(i) == 1))
