@@ -122,8 +122,8 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->ForceReinjectionEveryNSteps = 0;
   this->ReinjectionCounter          = 0;
   this->AllFixedGeometry            = 1;
-  this->StaticMesh                  = 1;
-  this->StaticSeeds                 = 1;
+  this->StaticMesh                  = 0;
+  this->StaticSeeds                 = 0;
   this->ComputeVorticity            = 1;
   this->IgnorePipelineTime          = 1;
   this->ParticleWriter              = NULL;
@@ -391,9 +391,11 @@ int vtkParticleTracerBase::RequestUpdateExtent(
 //---------------------------------------------------------------------------
 int vtkParticleTracerBase::InitializeInterpolator()
 {
-  if (!this->CachedData[0] || !this->CachedData[1]) {
-    return 0;
-  }
+  if (!this->CachedData[0] || !this->CachedData[1])
+    {
+    vtkErrorMacro("Missing data set to process.");
+    return VTK_ERROR;
+    }
   //
   // When Multiblock arrays are processed, some may be empty
   // if the first is empty, we won't find the correct vector name
@@ -416,7 +418,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
     }
   if (!vecname)
     {
-    vtkDebugMacro(<< "Couldn't find vector array " << vecname);
+    vtkErrorMacro(<< "Couldn't find vector array " << vecname);
     return VTK_ERROR;
     }
 
@@ -477,12 +479,14 @@ int vtkParticleTracerBase::InitializeInterpolator()
   }
   if (numValidInputBlocks[0]==0 || numValidInputBlocks[1]==0)
     {
-    vtkDebugMacro("Not enough inputs have been found. Can not execute." << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
+    vtkErrorMacro("Not enough inputs have been found. Can not execute."
+                  << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
     return VTK_ERROR;
     }
-  if (numValidInputBlocks[0] != numValidInputBlocks[1])
+  if (numValidInputBlocks[0] != numValidInputBlocks[1] && this->StaticMesh)
     {
-    vtkDebugMacro("The number of datasets is different between time steps " << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
+    vtkErrorMacro("StaticMesh is set to True but the number of datasets is different between time steps "
+                  << numValidInputBlocks[0] << " " << numValidInputBlocks[1]);
     return VTK_ERROR;
     }
   //
