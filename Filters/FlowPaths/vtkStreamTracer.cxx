@@ -947,25 +947,6 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         break;
         }
 
-      // It is not enough to use the starting point for stagnation calculation
-      // Use delX/stepSize to calculate speed and check if it is below
-      // stagnation threshold
-      double disp[3];
-      for (i=0; i<3; i++)
-        {
-        disp[i] = point2[i] - point1[i];
-        }
-      if ( (stepSize.Interval == 0) ||
-           (vtkMath::Norm(disp) / fabs(stepSize.Interval) <= this->TerminalSpeed) )
-        {
-        retVal = STAGNATION;
-        break;
-        }
-
-      accumTime += stepTaken / speed;
-      // Calculate propagation (using the same units as MaximumPropagation
-      propagation += fabs( stepSize.Interval );
-
       // This is the next starting point
       for(i=0; i<3; i++)
         {
@@ -979,6 +960,20 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         memcpy(lastPoint, point2, 3*sizeof(double));
         break;
         }
+
+      // It is not enough to use the starting point for stagnation calculation
+      // Use average speed to check if it is below stagnation threshold
+      double speed2 = vtkMath::Norm(velocity);
+      if ( (speed+speed2)/2 <= this->TerminalSpeed )
+        {
+        retVal = STAGNATION;
+        break;
+        }
+
+      accumTime += stepTaken / speed;
+      // Calculate propagation (using the same units as MaximumPropagation
+      propagation += fabs( stepSize.Interval );
+
       // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
       input = func->GetLastDataSet();
       inputPD = input->GetPointData();
@@ -994,7 +989,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
       // Calculate cell length and speed to be used in unit conversions
       input->GetCell(func->GetLastCellId(), cell);
       cellLength = sqrt(static_cast<double>(cell->GetLength2()));
-      speed = vtkMath::Norm(velocity);
+      speed = speed2;
       // Interpolate all point attributes on current point
       func->GetLastWeights(weights);
       InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights, this->HasMatchingPointAttributes);
