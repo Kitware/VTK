@@ -52,8 +52,18 @@
 
 static inline int sizeofFastQuad(int numPts)
 {
-  // account for size of ptArray
-  return static_cast<int>(sizeof(vtkFastGeomQuad)+(numPts-4)*sizeof(vtkIdType));
+  const int qsize = sizeof(vtkFastGeomQuad);
+  const int sizeId = sizeof(vtkIdType);
+  // If necessary, we create padding after vtkFastGeomQuad such that
+  // the beginning of ids aligns evenly with sizeof(vtkIdType).
+  if (qsize % sizeId == 0)
+    {
+    return static_cast<int>(qsize+numPts*sizeId);
+    }
+  else
+    {
+    return static_cast<int>((qsize/sizeId+1+numPts)*sizeId);
+    }
 }
 
 class vtkDataSetSurfaceFilter::vtkEdgeInterpolationMap
@@ -2314,6 +2324,19 @@ vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(int numPts)
   vtkFastGeomQuad* q = reinterpret_cast<vtkFastGeomQuad*>
     (this->FastGeomQuadArrays[this->NextArrayIndex] + this->NextQuadIndex);
   q->numPts = numPts;
+
+  const int qsize = sizeof(vtkFastGeomQuad);
+  const int sizeId = sizeof(vtkIdType);
+  // If necessary, we create padding after vtkFastGeomQuad such that
+  // the beginning of ids aligns evenly with sizeof(vtkIdType).
+  if (qsize % sizeId == 0)
+    {
+    q->ptArray = (vtkIdType*)q + qsize/sizeId;
+    }
+  else
+    {
+    q->ptArray = (vtkIdType*)q + qsize/sizeId + 1;
+    }
 
   this->NextQuadIndex += polySize;
 

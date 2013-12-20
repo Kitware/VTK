@@ -40,7 +40,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
   vtkIdType SourceId;
   int numPts;
-  vtkIdType ptArray[4]; // actually a variable length array.  MUST be last
+  vtkIdType* ptArray;
 };
 typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
 //ETX
