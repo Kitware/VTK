@@ -45,7 +45,7 @@ public:
   // The range is 0-9, with 0 meaning no compression
   // corresponding to the largest file size, and 9 meaning
   // best compression, corresponding to the smallest file size.
-  // The default is 0.
+  // The default is 5.
   vtkSetClampMacro(CompressionLevel, int, 0, 9);
   vtkGetMacro(CompressionLevel, int);
 
