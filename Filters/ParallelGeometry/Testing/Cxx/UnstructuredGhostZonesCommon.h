@@ -330,7 +330,6 @@ void GenerateDataSet()
         0, 1, 1,
     };
 
-  vtkIdType cellIdx;
   vtkIdType globalNodeIdx;
   vtkIdType localNodeIdx;
   vtkIdType cell[8];
@@ -346,8 +345,6 @@ void GenerateDataSet()
         I(lijk) = i-IMIN(ext);
         J(lijk) = j-JMIN(ext);
         K(lijk) = k-KMIN(ext);
-
-       cellIdx = vtkStructuredData::ComputePointId(dims,lijk,dataDescription);
 
         for(int node=0; node < 8; ++node)
           {
