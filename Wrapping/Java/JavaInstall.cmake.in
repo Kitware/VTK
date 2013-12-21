@@ -4,10 +4,22 @@ set(NATIVE_NAME "natives-@MAVEN_LOCAL_NATIVE_NAME@")
 message("Package VTK for Java - ${NATIVE_NAME}")
 
 # Create the natives directory
-file (COPY "${CMAKE_INSTALL_PREFIX}/@VTK_INSTALL_LIBRARY_DIR@/"
+
+# Only for windows but no harm to do it always
+file (COPY "${CMAKE_INSTALL_PREFIX}/bin/"
       DESTINATION "${CMAKE_INSTALL_PREFIX}/${NATIVE_NAME}"
       FILES_MATCHING
       PATTERN *.dll
+      PATTERN *.jnilib
+      PATTERN *.cmake
+      PATTERN *.txt
+      PATTERN *.in
+)
+
+# For Apple and Linux
+file (COPY "${CMAKE_INSTALL_PREFIX}/@VTK_INSTALL_LIBRARY_DIR@/"
+      DESTINATION "${CMAKE_INSTALL_PREFIX}/${NATIVE_NAME}"
+      FILES_MATCHING
       PATTERN *.so
       PATTERN *.dylib
       PATTERN *.jnilib
