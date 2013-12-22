@@ -1449,7 +1449,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       }
     }
 
-  else if ( ! strncmp(type, "char", 4) )
+  else if ( ! strcmp(type, "char") || !strcmp(type, "signed_char") )
     {
     array = vtkCharArray::New();
     array->SetNumberOfComponents(numComp);

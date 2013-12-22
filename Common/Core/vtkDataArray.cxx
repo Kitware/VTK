@@ -117,23 +117,26 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
     this->NumberOfComponents = da->NumberOfComponents;
     this->SetNumberOfTuples(numTuples);
 
-    switch (da->GetDataType())
+    if (numTuples > 0)
       {
-      vtkDataArrayIteratorMacro(
-        da, vtkDeepCopySwitchOnOutput(vtkDABegin, vtkDAEnd, this)
-        );
+      switch (da->GetDataType())
+        {
+        vtkDataArrayIteratorMacro(
+          da, vtkDeepCopySwitchOnOutput(vtkDABegin, vtkDAEnd, this)
+          );
 
-      case VTK_BIT:
-        {//bit not supported, using generic double API
-        for (vtkIdType i=0; i < numTuples; i++)
-          {
-          this->SetTuple(i, da->GetTuple(i));
+        case VTK_BIT:
+          {//bit not supported, using generic double API
+          for (vtkIdType i=0; i < numTuples; i++)
+            {
+            this->SetTuple(i, da->GetTuple(i));
+            }
+          break;
           }
-        break;
-        }
 
-      default:
-        vtkErrorMacro("Unsupported data type " << da->GetDataType() << "!");
+        default:
+          vtkErrorMacro("Unsupported data type " << da->GetDataType() << "!");
+        }
       }
 
     this->SetLookupTable(0);

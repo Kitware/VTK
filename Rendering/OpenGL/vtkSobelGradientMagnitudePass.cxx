@@ -301,7 +301,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     var->SetUniformi("source",1,&sourceId);
 
     float fvalue=static_cast<float>(1.0/w);
-    var->SetUniformf("step",1,&fvalue);
+    var->SetUniformf("stepSize",1,&fvalue);
 
     this->Program1->Use();
 
@@ -453,7 +453,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     var->SetUniformi("gy1",1,&id1);
 
     fvalue=static_cast<float>(1.0/h);
-    var->SetUniformf("step",1,&fvalue);
+    var->SetUniformf("stepSize",1,&fvalue);
 
     this->Program2->Use();
 

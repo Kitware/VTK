@@ -11,6 +11,7 @@ set(TestContextUnicode_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
 # add tests that require data
 vtk_add_test_cxx(
   TestAxes.cxx
+  TestBagPlot.cxx
   TestBarGraph.cxx
   TestBarGraphHorizontal.cxx
   TestCategoryLegend.cxx
@@ -25,6 +26,7 @@ vtk_add_test_cxx(
   TestContextUnicode.cxx
   TestControlPointsHandleItem.cxx,-E30
   TestDiagram.cxx
+  TestFunctionalBagPlot.cxx
   TestHistogram2D.cxx
   TestInteractiveChartXYZ.cxx
   TestLegendHiddenPlots.cxx

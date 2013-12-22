@@ -322,7 +322,7 @@ int vtkArrayCalculator::RequestData(
         return 1;
         }
       }
-    else
+    else if(inFD->GetAbstractArray(this->ScalarArrayNames[i]) == NULL) // We ignore string array
       {
       vtkErrorMacro("Invalid array name: " << this->ScalarArrayNames[i]);
       return 1;
@@ -474,9 +474,12 @@ int vtkArrayCalculator::RequestData(
     for (j = 0; j < this->NumberOfScalarArrays; j++)
       {
       currentArray = inFD->GetArray(this->ScalarArrayNames[j]);
-      this->FunctionParser->
-        SetScalarVariableValue(
-          j, currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
+      if(currentArray)
+        {
+        this->FunctionParser->
+          SetScalarVariableValue(
+            j, currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
+        }
       }
     for (j = 0; j < this->NumberOfVectorArrays; j++)
       {

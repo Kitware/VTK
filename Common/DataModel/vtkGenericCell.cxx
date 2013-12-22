@@ -36,6 +36,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticQuad.h"
+#include "vtkQuadraticPolygon.h"
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticWedge.h"
@@ -302,6 +303,9 @@ vtkCell *vtkGenericCell::InstantiateCell(int cellType)
     break;
   case VTK_QUADRATIC_QUAD:
     cell = vtkQuadraticQuad::New();
+    break;
+  case VTK_QUADRATIC_POLYGON:
+    cell = vtkQuadraticPolygon::New();
     break;
   case VTK_QUADRATIC_TETRA:
     cell = vtkQuadraticTetra::New();

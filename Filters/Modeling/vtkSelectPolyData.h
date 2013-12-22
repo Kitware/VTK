@@ -121,6 +121,11 @@ public:
   vtkGetObjectMacro(Loop,vtkPoints);
 
   // Description:
+  // Set/Get the point used in SelectionModeToClosestPointRegion.
+  vtkSetVector3Macro(ClosestPoint,double);
+  vtkGetVector3Macro(ClosestPoint,double);
+
+  // Description:
   // Control how inside/outside of loop is defined.
   vtkSetClampMacro(SelectionMode,int,
              VTK_INSIDE_SMALLEST_REGION,VTK_INSIDE_CLOSEST_POINT_REGION);

@@ -24,6 +24,10 @@
 // NewInstanceInternal such that a non-mapped vtkDataArray is returned by
 // NewInstance(). This prevents the mapped array type from propogating
 // through the pipeline.
+//
+// .SECTION Notes
+// Subclasses that hold vtkIdType elements must also
+// reimplement `int GetDataType()` (see Caveat in vtkTypedDataArray).
 
 #ifndef __vtkMappedDataArray_h
 #define __vtkMappedDataArray_h

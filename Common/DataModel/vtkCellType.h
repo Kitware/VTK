@@ -61,6 +61,7 @@ typedef enum {
   VTK_QUADRATIC_EDGE                   = 21,
   VTK_QUADRATIC_TRIANGLE               = 22,
   VTK_QUADRATIC_QUAD                   = 23,
+  VTK_QUADRATIC_POLYGON                = 36,
   VTK_QUADRATIC_TETRA                  = 24,
   VTK_QUADRATIC_HEXAHEDRON             = 25,
   VTK_QUADRATIC_WEDGE                  = 26,

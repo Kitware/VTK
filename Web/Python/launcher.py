@@ -19,6 +19,8 @@ from twisted.web.resource import Resource
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
 
+from vtk.web import upload
+
 try:
     import argparse
 except ImportError:
@@ -42,8 +44,15 @@ Here is a sample of what a configuration file could looks like:
         "sessionURL" : "ws://${host}:${port}/ws", # ws url used by the client to connect to the started process
         "timeout" : 5,                            # Wait time in second after process start
         "log_dir" : "/.../viz-logs",              # Directory for log files
-        "fields" : ["file", "host", "port"]       # List of fields that should be send back to client
+        "upload_dir" : "/.../data",               # If launcher should act as upload server, where to put files
+        "fields" : ["file", "host", "port", "updir"]       # List of fields that should be send back to client
       },
+
+      ## ===============================
+      ## Useful session vars for client
+      ## ===============================
+
+      "sessionData" : { updir": "/Home" }         # Tells client which path to updateFileBrowser after uploads
 
       ## ===============================
       ## Resources list for applications
@@ -170,6 +179,10 @@ class SessionManager(object):
                 options['secret'] = generatePassword()
             options['sessionURL'] = replaceVariables(self.config['configuration']['sessionURL'], [options, self.config['properties']])
             options['cmd'] = replaceList(self.config['apps'][options['application']]['cmd'], [options, self.config['properties']])
+
+            if self.config.has_key('sessionData') :
+                for key in self.config['sessionData'] :
+                    options[key] = replaceVariables(self.config['sessionData'][key], [options, self.config['properties']])
 
             self.sessions[id] = options
             self.mapping.update(self.sessions)
@@ -457,6 +470,14 @@ def startWebServer(options, config):
 
     # Attach launcher
     web_resource.putChild(endpoint, LauncherResource(options, config))
+
+    # Check if launcher should act as a file upload server as well
+    if config["configuration"].has_key("upload_dir"):
+        from upload import UploadPage
+        updir = replaceVariables(config['configuration']['upload_dir'], [config['properties']])
+        uploadResource = UploadPage(updir)
+        web_resource.putChild("upload", uploadResource)
+
     site = server.Site(web_resource)
     reactor.listenTCP(port, site, interface=host)
     reactor.run()

@@ -136,8 +136,6 @@ void vtkGL2PSContextDevice2D::DrawPolygon(float *points, int n)
     }
 }
 
-
-
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
                                                float outRx, float outRy,
@@ -151,7 +149,7 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
 
   // The path implementation can't handle start/stop angles. Defer to the
   // superclass in this case.
-  if (fabs(startAngle) > 1e-5 || fabs(stopAngle - 360.0) > 1e-5)
+  if (std::fabs(startAngle) > 1e-5f || std::fabs(stopAngle - 360.0f) > 1e-5f)
     {
     this->Superclass::DrawEllipseWedge(x, y, outRx, outRy, inRx, inRy,
                                        startAngle, stopAngle);
@@ -160,11 +158,6 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
   vtkNew<vtkPath> path;
   this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, outRx, outRy, false);
   this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, inRx, inRy, true);
-  this->TransformPath(path.GetPointer());
-
-  double origin[3] = {x, y, 0.f};
-  unsigned char color[4];
-  this->Brush->GetColor(color);
 
   std::stringstream label;
   label << "vtkGL2PSContextDevice2D::DrawEllipseWedge("
@@ -172,8 +165,16 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
         << inRx << ", " << inRy << ", " << startAngle << ", " << stopAngle
         << ") path:";
 
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, color, NULL,
-                              0.0, -1.f, label.str().c_str());
+  unsigned char color[4];
+  this->Brush->GetColor(color);
+
+  double rasterPos[3] = {static_cast<double>(x), static_cast<double>(y), 0.};
+
+  this->TransformPoint(x, y);
+  double windowPos[3] = {static_cast<double>(x), static_cast<double>(y), 0.};
+
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, windowPos, color,
+                              NULL, 0.0, -1.f, label.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -324,12 +325,16 @@ void vtkGL2PSContextDevice2D::DrawCrossMarkers(bool highlight, float *points,
                                                int n, unsigned char *colors,
                                                int nc_comps)
 {
-  float delta = this->GetPen()->GetWidth() * 0.475;
-
   float oldWidth = this->Pen->GetWidth();
   unsigned char oldColor[4];
   this->Pen->GetColor(oldColor);
   int oldLineType = this->Pen->GetLineType();
+
+  float halfWidth = oldWidth * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
 
   if (highlight)
     {
@@ -369,17 +374,17 @@ void vtkGL2PSContextDevice2D::DrawCrossMarkers(bool highlight, float *points,
       }
 
     // The first line of the cross:
-    curLine[0] = point[0] + delta;
-    curLine[1] = point[1] + delta;
-    curLine[2] = point[0] - delta;
-    curLine[3] = point[1] - delta;
+    curLine[0] = point[0] + deltaX;
+    curLine[1] = point[1] + deltaY;
+    curLine[2] = point[0] - deltaX;
+    curLine[3] = point[1] - deltaY;
     this->DrawPoly(curLine, 2);
 
     // And the second:
-    curLine[0] = point[0] + delta;
-    curLine[1] = point[1] - delta;
-    curLine[2] = point[0] - delta;
-    curLine[3] = point[1] + delta;
+    curLine[0] = point[0] + deltaX;
+    curLine[1] = point[1] - deltaY;
+    curLine[2] = point[0] - deltaX;
+    curLine[3] = point[1] + deltaY;
     this->DrawPoly(curLine, 2);
     }
 
@@ -393,12 +398,16 @@ void vtkGL2PSContextDevice2D::DrawPlusMarkers(bool highlight, float *points,
                                               int n, unsigned char *colors,
                                               int nc_comps)
 {
-  float delta = this->GetPen()->GetWidth() * 0.475;
-
   float oldWidth = this->Pen->GetWidth();
   unsigned char oldColor[4];
   this->Pen->GetColor(oldColor);
   int oldLineType = this->Pen->GetLineType();
+
+  float halfWidth = oldWidth * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
 
   if (highlight)
     {
@@ -438,17 +447,17 @@ void vtkGL2PSContextDevice2D::DrawPlusMarkers(bool highlight, float *points,
       }
 
     // The first line of the plus:
-    curLine[0] = point[0] - delta;
+    curLine[0] = point[0] - deltaX;
     curLine[1] = point[1];
-    curLine[2] = point[0] + delta;
+    curLine[2] = point[0] + deltaX;
     curLine[3] = point[1];
     this->DrawPoly(curLine, 2);
 
     // And the second:
     curLine[0] = point[0];
-    curLine[1] = point[1] - delta;
+    curLine[1] = point[1] - deltaY;
     curLine[2] = point[0];
-    curLine[3] = point[1] + delta;
+    curLine[3] = point[1] + deltaY;
     this->DrawPoly(curLine, 2);
     }
 
@@ -463,12 +472,16 @@ void vtkGL2PSContextDevice2D::DrawSquareMarkers(bool /*highlight*/,
                                                 int n, unsigned char *colors,
                                                 int nc_comps)
 {
-  float delta = this->GetPen()->GetWidth() * 0.475;
-
   unsigned char oldColor[4];
   this->Brush->GetColor(oldColor);
 
   this->Brush->SetColor(this->Pen->GetColor());
+
+  float halfWidth = this->GetPen()->GetWidth() * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
 
   float quad[8];
   unsigned char color[4];
@@ -497,12 +510,12 @@ void vtkGL2PSContextDevice2D::DrawSquareMarkers(bool /*highlight*/,
       this->Brush->SetColor(color);
       }
 
-    quad[0] = point[0] - delta;
-    quad[1] = point[1] - delta;
-    quad[2] = point[0] + delta;
+    quad[0] = point[0] - deltaX;
+    quad[1] = point[1] - deltaY;
+    quad[2] = point[0] + deltaX;
     quad[3] = quad[1];
     quad[4] = quad[2];
-    quad[5] = point[1] + delta;
+    quad[5] = point[1] + deltaY;
     quad[6] = quad[0];
     quad[7] = quad[5];
 
@@ -564,12 +577,16 @@ void vtkGL2PSContextDevice2D::DrawDiamondMarkers(bool /*highlight*/,
                                                  int n, unsigned char *colors,
                                                  int nc_comps)
 {
-  float delta = this->GetPen()->GetWidth() * 0.475;
-
   unsigned char oldColor[4];
   this->Brush->GetColor(oldColor);
 
   this->Brush->SetColor(this->Pen->GetColor());
+
+  float halfWidth = this->GetPen()->GetWidth() * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
 
   float quad[8];
   unsigned char color[4];
@@ -598,14 +615,14 @@ void vtkGL2PSContextDevice2D::DrawDiamondMarkers(bool /*highlight*/,
       this->Brush->SetColor(color);
       }
 
-    quad[0] = point[0] - delta;
+    quad[0] = point[0] - deltaX;
     quad[1] = point[1];
     quad[2] = point[0];
-    quad[3] = point[1] - delta;
-    quad[4] = point[0] + delta;
+    quad[3] = point[1] - deltaY;
+    quad[4] = point[0] + deltaX;
     quad[5] = point[1];
     quad[6] = point[0];
-    quad[7] = point[1] + delta;
+    quad[7] = point[1] + deltaY;
 
     this->DrawQuad(quad,4);
     }
@@ -666,7 +683,7 @@ void vtkGL2PSContextDevice2D::AddEllipseToPath(vtkPath *path, float x, float y,
 }
 
 //-----------------------------------------------------------------------------
-void vtkGL2PSContextDevice2D::TransformPath(vtkPath *path)
+void vtkGL2PSContextDevice2D::TransformPath(vtkPath *path) const
 {
   // Transform the path with the modelview matrix:
   float modelview[16];
@@ -684,6 +701,28 @@ void vtkGL2PSContextDevice2D::TransformPath(vtkPath *path)
         + modelview[13];
     points->SetPoint(i, newPoint);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::TransformPoint(float &x, float &y) const
+{
+  float modelview[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+
+  float inX = x;
+  float inY = y;
+  x = modelview[0] * inX + modelview[4] * inY + modelview[12];
+  y = modelview[1] * inX + modelview[5] * inY + modelview[13];
+}
+
+//-----------------------------------------------------------------------------
+void vtkGL2PSContextDevice2D::TransformSize(float &dx, float &dy) const
+{
+  float modelview[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+
+  dx /= modelview[0];
+  dy /= modelview[5];
 }
 
 //-----------------------------------------------------------------------------

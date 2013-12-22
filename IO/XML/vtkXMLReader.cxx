@@ -394,7 +394,7 @@ int vtkXMLReader
     // this->ReadXMLInformation()
     int numTimesteps = this->GetNumberOfTimeSteps();
     this->TimeStepRange[0] = 0;
-    this->TimeStepRange[1] = numTimesteps-1;
+    this->TimeStepRange[1] = (numTimesteps > 0 ? numTimesteps-1 : 0);
     if (numTimesteps != 0)
       {
       double* timeSteps = new double[numTimesteps];

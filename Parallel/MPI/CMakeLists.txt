@@ -7,6 +7,7 @@ include(vtkTestingMacros)
 set(Module_SRCS
   vtkMPICommunicator.cxx
   vtkMPIController.cxx
+  vtkMPIUtilities.cxx
   # vtkMPIEventLog.cxx # Deprecated
   vtkMPI.h
   )
@@ -18,6 +19,7 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkMPI
+  vtkMPIUtilities
   WRAP_EXCLUDE
   )
 

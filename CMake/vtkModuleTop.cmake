@@ -334,6 +334,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtk-forward.c.in
                 CMake/vtkForwardingExecutable.cmake
                 CMake/vtkJavaWrapping.cmake
+                CMake/vtkMakeInstantiator.cmake
                 CMake/vtkModuleAPI.cmake
                 CMake/vtkModuleHeaders.cmake.in
                 CMake/vtkModuleInfo.cmake.in

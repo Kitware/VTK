@@ -96,14 +96,44 @@
         return this.each(function() {
             var me = $(this).empty(),
             data = me.data('file-list'),
+            newData = [],
             container = $('<div/>');
+
             me.append(container);
 
-            // Generate HTML
-            container.render(data, fileBrowserGenerator);
+            // Delete the cached active directory and fetch again
+            if(activeDirectory && me.data('session')){
+                var dirArray = activeDirectory.split("/").splice(1);
+                for(var i in data) {
+                    var item = data[i];
+                    var itemArray = item.path;
+                    if ( !equals(itemArray, dirArray) ) {
+                        newData.push(data[i]);
+                    }
+                }
 
-            // Initialize pipelineBrowser (Visibility + listeners)
-            initializeListener(me, activeDirectory);
+                var requestPath =  activeDirectory.substring(1);
+                if(requestPath.indexOf('/') == -1) {
+                    requestPath = '.';
+                }
+                me.data('session').call('vtk:listServerDirectory', requestPath)
+                    .then(function(newFiles){
+                        newData.push(newFiles);
+                        me.data('file-list', newData);
+                        // Generate HTML
+                        container.render(newData, fileBrowserGenerator);
+
+                        // Initialize pipelineBrowser (Visibility + listeners)
+                        initializeListener(me, activeDirectory);
+                    });
+
+            } else {
+                // Generate HTML
+                container.render(data, fileBrowserGenerator);
+
+                // Initialize pipelineBrowser (Visibility + listeners)
+                initializeListener(me, activeDirectory);
+            }
         });
     };
 
@@ -138,6 +168,22 @@
         //console.log(path);
         var str = pathSeparator + path.join(pathSeparator);
         return str;
+    }
+
+    // =======================================================================
+
+    equals = function(array1, array2) {
+        if (array1.length != array2.length) {
+            return false;
+        }
+
+        for (var i in array1) {
+            if (array1[i] !== array2[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // =======================================================================

@@ -28,17 +28,13 @@
 
 vtkStandardNewMacro(vtkTreeWriter);
 
-void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree, vtkIdType Vertex)
+void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree)
 {
-  if (Vertex != Tree->GetRoot())
+  for (vtkIdType e = 0; e < Tree->GetNumberOfEdges(); ++e)
     {
-    Stream << Vertex << " " << Tree->GetParent(Vertex) << "\n";
-    }
-
-  vtkIdType count = Tree->GetNumberOfChildren(Vertex);
-  for(vtkIdType child = 0; child != count; ++child)
-    {
-    WriteEdges(Stream, Tree, Tree->GetChild(Vertex, child));
+    vtkIdType parent = Tree->GetSourceVertex(e);
+    vtkIdType child = Tree->GetTargetVertex(e);
+    Stream << child << " " << parent << "\n";
     }
 }
 
@@ -85,7 +81,7 @@ void vtkTreeWriter::WriteData()
     {
     const vtkIdType edge_count = input->GetNumberOfEdges();
     *fp << "EDGES " << edge_count << "\n";
-    this->WriteEdges(*fp, input, input->GetRoot());
+    this->WriteEdges(*fp, input);
     }
   if (!error_occurred && !this->WriteEdgeData(fp, input))
     {

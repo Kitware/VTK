@@ -236,7 +236,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     "  }\n"
     "  return $package_res\n"
     "}\n"
-    "if {\"-A\" ni $argv} {\n"
+    "if $tcl_interactive {\n"
     "puts {Enter: \"package require vtk\" to load VTK commands}\n"
     "}\n";
   Tcl_Eval(interp, script);

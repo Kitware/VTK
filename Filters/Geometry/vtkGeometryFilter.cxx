@@ -954,6 +954,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         case VTK_CUBIC_LINE:
         case VTK_QUADRATIC_TRIANGLE:
         case VTK_QUADRATIC_QUAD:
+        case VTK_QUADRATIC_POLYGON:
         case VTK_QUADRATIC_TETRA:
         case VTK_QUADRATIC_HEXAHEDRON:
         case VTK_QUADRATIC_WEDGE:

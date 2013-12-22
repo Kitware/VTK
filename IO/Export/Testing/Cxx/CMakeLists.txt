@@ -11,6 +11,7 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
     TestGL2PSExporterVolumeRaster.cxx,NO_VALID
     TestGL2PSTextActor3D.cxx
     TestGL2PSLabeledDataMapper.cxx
+    TestLinePlotGL2PS.cxx
     TestStackedPlotGL2PS.cxx
   )
 endif()

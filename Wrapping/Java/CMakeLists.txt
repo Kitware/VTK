@@ -7,6 +7,7 @@ include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 option(VTK_JAVA_INSTALL "Use the Java rules to build the native libraries." OFF)
 if(VTK_JAVA_INSTALL)
   set(VTK_CUSTOM_LIBRARY_SUFFIX "" CACHE STRING "" FORCE)
+  mark_as_advanced(VTK_CUSTOM_LIBRARY_SUFFIX)
   if(APPLE)
      set(CMAKE_INSTALL_NAME_DIR @loader_path CACHE STRING "" FORCE)
      mark_as_advanced(CMAKE_INSTALL_NAME_DIR)
@@ -278,7 +279,7 @@ foreach(jfile ${VTK_JAVA_DEPENDENCIES})
 endforeach()
 
 if(WIN32)
-  set(SEPARATOR "\;")
+  set(SEPARATOR "\\;")
 else()
   set(SEPARATOR ":")
 endif()
@@ -358,7 +359,7 @@ if(BUILD_TESTING)
       #
       ExternalData_add_test(VTKData
          JavaRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
-         -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+         -classpath "${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java"
          vtk.test.Regression -D ${VTK_TEST_DATA_DIR}
          -V DATA{Baseline/Cone.png,:}
          -T ${VTK_TEST_OUTPUT_DIR}

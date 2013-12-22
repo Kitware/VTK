@@ -46,6 +46,45 @@ bool FuzzyCompare(A a, A b, A epsilon)
   return fabs(a - b) < epsilon;
 }
 
+// Description:
+// Performs safe division that catches overflow and underflow.
+template<class A>
+A SafeDivision(A a, A b)
+{
+  // Avoid overflow
+  if( (b < static_cast<A>(1)) && (a > b*std::numeric_limits<A>::max()) )
+    {
+    return std::numeric_limits<A>::max();
+    }
+
+  // Avoid underflow
+  if( (a == static_cast<A>(0)) ||
+      ((b > static_cast<A>(1)) && (a < b*std::numeric_limits<A>::min())) )
+    {
+    return static_cast<A>(0);
+    }
+
+  // safe to do the division
+  return( a/b );
+}
+
+// Description:
+// A slightly different fuzzy comparator that checks if two values are
+// "nearly" equal based on Knuth, "The Art of Computer Programming (vol II)"
+template<class A>
+bool NearlyEqual(A a, A b, A tol=std::numeric_limits<A>::epsilon())
+{
+  A absdiff = fabs(a-b);
+  A d1  = vtkMathUtilities::SafeDivision<A>(absdiff,fabs(a));
+  A d2  = vtkMathUtilities::SafeDivision<A>(absdiff,fabs(b));
+
+  if( (d1 <= tol) || (d2 <= tol) )
+    {
+    return true;
+    }
+  return false;
+}
+
 } // End vtkMathUtilities namespace.
 
 #endif // __vtkMathUtilities_h

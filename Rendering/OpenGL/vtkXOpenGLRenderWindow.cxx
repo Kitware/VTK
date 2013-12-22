@@ -319,8 +319,8 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
     if (this->DisplayId == NULL)
       {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
-        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
-      return NULL;
+        << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+      abort();
       }
 
     this->OwnDisplay = 1;
@@ -528,7 +528,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     if (this->DisplayId == NULL)
       {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
-        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
+        << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+      abort();
       }
     this->OwnDisplay = 1;
     }
@@ -833,7 +834,8 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         if (this->DisplayId == NULL)
           {
           vtkErrorMacro(<< "bad X server connection. DISPLAY="
-            << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
+            << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+          abort();
           }
         this->OwnDisplay = 1;
         }
@@ -1462,7 +1464,8 @@ int *vtkXOpenGLRenderWindow::GetScreenSize()
     if (this->DisplayId == NULL)
       {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
-        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
+        << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+      abort();
       }
     else
       {
@@ -1585,7 +1588,8 @@ void vtkXOpenGLRenderWindow::SetWindowInfo(char *info)
     if (this->DisplayId == NULL)
       {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
-        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
+        << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+      abort();
       }
     else
       {
@@ -1619,7 +1623,8 @@ void vtkXOpenGLRenderWindow::SetParentInfo(char *info)
     if (this->DisplayId == NULL)
       {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
-        << vtksys::SystemTools::GetEnv("DISPLAY") << "\n");
+        << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+      abort();
       }
     else
       {

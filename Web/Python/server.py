@@ -25,6 +25,7 @@ from autobahn.wamp import WampServerFactory
 from . import wamp
 
 from . import testing
+from . import upload
 
 # =============================================================================
 # Setup default arguments to be parsed
@@ -62,6 +63,9 @@ def add_arguments(parser):
 
     # Hook to extract any testing arguments we need
     testing.add_arguments(parser)
+
+    # Extract any necessary upload server arguments
+    upload.add_arguments(parser)
 
     return parser
 
@@ -133,6 +137,11 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
 
         root = File(options.content)
         root.putChild("ws", wsResource)
+
+        if options.uploadPath != None :
+            from upload import UploadPage
+            uploadResource = UploadPage(options.uploadPath)
+            root.putChild("upload", uploadResource)
 
         site = Site(root)
 

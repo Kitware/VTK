@@ -1,5 +1,6 @@
 vtk_add_test_cxx(
   TestAMRXMLIO.cxx,NO_VALID
+  TestHyperOctreeIO.cxx
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
   TestXMLUnstructuredGridReader.cxx
   )

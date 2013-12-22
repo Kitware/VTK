@@ -3,6 +3,8 @@ set(Module_SRCS
   vtkPStructuredGridConnectivity.cxx
   vtkPStructuredGridGhostDataGenerator.cxx
   vtkPUniformGridGhostDataGenerator.cxx
+  vtkPUnstructuredGridConnectivity.cxx
+  vtkPUnstructuredGridGhostDataGenerator.cxx
   )
 
 set_source_files_properties(
