@@ -178,6 +178,9 @@ int vtkTransmitStructuredGridPiece::RequestData(
     this->SatelliteExecute(procId, output, outInfo);
     }
 
+  // TODO (berk)
+  // Fix this
+  /*
   int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   if (ghostLevel > 0 && this->CreateGhostCells)
     {
@@ -192,6 +195,7 @@ int vtkTransmitStructuredGridPiece::RequestData(
                                     wholeExt,
                                     et);
     }
+  */
 
   return 1;
 }

@@ -123,8 +123,7 @@ public:
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
   // Description:
-  // Needed by templated functions.
-  int *GetExecuteExtent() {return this->ExecuteExtent;}
+  // Main execution.
   void ThreadedExecute(int *exExt, int threadId, vtkStructuredGrid *input,
                        vtkInformationVector **inVec,
                        vtkInformation *outInfo);
@@ -157,7 +156,6 @@ protected:
   vtkContourValues *ContourValues;
 
   int MinimumPieceSize[3];
-  int ExecuteExtent[6];
   int OutputPointsPrecision;
 
 private:

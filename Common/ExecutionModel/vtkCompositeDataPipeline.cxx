@@ -35,6 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTrivialProducer.h"
 #include "vtkUniformGrid.h"
 
 vtkStandardNewMacro(vtkCompositeDataPipeline);
@@ -373,7 +374,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
 
-    // Store the information (whole_extent and maximum_number_of_pieces)
+    // Store the information (whole_extent)
     // before looping. Otherwise, executeinformation will cause
     // changes (because we pretend that the max. number of pieces is
     // one to process the whole block)
@@ -395,9 +396,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // ExecuteDataStart() should NOT Initialize() the composite output.
     this->InLocalLoop = 0;
     // Restore the extent information and force it to be
-    // copied to the output. Composite sources should set
-    // MAXIMUM_NUMBER_OF_PIECES to -1 anyway (and handle
-    // piece requests properly).
+    // copied to the output.
     this->PopInformation(inInfo);
     r->Set(REQUEST_INFORMATION());
     this->CopyDefaultInformation(r, vtkExecutive::RequestDownstream,
@@ -445,8 +444,7 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
     inInfo->Remove(vtkDataObject::DATA_OBJECT());
     inInfo->Set(vtkDataObject::DATA_OBJECT(), dobj);
 
-    // Process the whole dataset
-    this->CopyFromDataToInformation(dobj, inInfo);
+    vtkTrivialProducer::FillOutputDataInformation(dobj, inInfo);
     }
 
   request->Set(REQUEST_DATA_OBJECT());
@@ -456,13 +454,6 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   request->Remove(REQUEST_DATA_OBJECT());
 
   request->Set(REQUEST_INFORMATION());
-
-  // Berk TODO: Replace with a trivial producer
-  // // Make sure that pipeline informations is in sync with the data
-  // if (dobj)
-  //   {
-  //   dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
-  //   }
 
   this->Superclass::ExecuteInformation(request, inInfoVec, outInfoVec);
   request->Remove(REQUEST_INFORMATION());
@@ -555,24 +546,30 @@ int vtkCompositeDataPipeline::NeedToExecuteData(
                                                inInfoVec,outInfoVec);
     }
 
-  // Does the superclass want to execute?
-  if(this->vtkDemandDrivenPipeline::NeedToExecuteData(
-       outputPort,inInfoVec,outInfoVec))
-    {
-    return 1;
-    }
-
   // We need to check the requested update extent.  Get the output
   // port information and data information.  We do not need to check
   // existence of values because it has already been verified by
   // VerifyOutputInformation.
   vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
   vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  // If the output is not a composite dataset, let the superclass handle
+  // NeedToExecuteData
   if (!vtkCompositeDataSet::SafeDownCast(dataObject))
     {
     return this->Superclass::NeedToExecuteData(outputPort,
                                                inInfoVec,outInfoVec);
     }
+
+  // First do the basic checks.
+  if(this->vtkDemandDrivenPipeline::NeedToExecuteData(
+       outputPort,inInfoVec,outInfoVec))
+    {
+    return 1;
+    }
+
+  // Now handle composite stuff.
+
   vtkInformation* dataInfo = dataObject->GetInformation();
 
   // Check the unstructured extent.  If we do not have the requested
@@ -875,41 +872,10 @@ void vtkCompositeDataPipeline::ResetPipelineInformation(int port,
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataPipeline::CopyFromDataToInformation(
-  vtkDataObject* dobj, vtkInformation* inInfo)
-{
-  if (dobj->IsA("vtkImageData"))
-    {
-    inInfo->Set(
-      WHOLE_EXTENT(), static_cast<vtkImageData*>(dobj)->GetExtent(), 6);
-    }
-  else if (dobj->IsA("vtkStructuredGrid"))
-    {
-    inInfo->Set(
-      WHOLE_EXTENT(), static_cast<vtkStructuredGrid*>(dobj)->GetExtent(), 6);
-    }
-  else if (dobj->IsA("vtkRectilinearGrid"))
-    {
-    inInfo->Set(
-      WHOLE_EXTENT(), static_cast<vtkRectilinearGrid*>(dobj)->GetExtent(), 6);
-    }
-  else if (dobj->IsA("vtkUniformGrid"))
-    {
-    inInfo->Set(
-      WHOLE_EXTENT(), static_cast<vtkUniformGrid*>(dobj)->GetExtent(), 6);
-    }
-  else
-    {
-    inInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkCompositeDataPipeline::PushInformation(vtkInformation* inInfo)
 {
   vtkDebugMacro(<< "PushInformation " << inInfo);
   this->InformationCache->CopyEntry(inInfo, WHOLE_EXTENT());
-  this->InformationCache->CopyEntry(inInfo, MAXIMUM_NUMBER_OF_PIECES());
 }
 
 //----------------------------------------------------------------------------
@@ -917,7 +883,6 @@ void vtkCompositeDataPipeline::PopInformation(vtkInformation* inInfo)
 {
   vtkDebugMacro(<< "PopInformation " << inInfo);
   inInfo->CopyEntry(this->InformationCache, WHOLE_EXTENT());
-  inInfo->CopyEntry(this->InformationCache, MAXIMUM_NUMBER_OF_PIECES());
 }
 
 //----------------------------------------------------------------------------
@@ -1036,8 +1001,6 @@ vtkCompositeDataSet* vtkCompositeDataPipeline::CreateOutputCompositeDataSet(
     // Set the input to be vtkUniformGrid.
     inInfo->Remove(vtkDataObject::DATA_OBJECT());
     inInfo->Set(vtkDataObject::DATA_OBJECT(), tempInput);
-    // Process the whole dataset
-    this->CopyFromDataToInformation(tempInput, inInfo);
     // The request is forwarded upstream through the pipeline.
     request->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
     // Algorithms process this request after it is forwarded.

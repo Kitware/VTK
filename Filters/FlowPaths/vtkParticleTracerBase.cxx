@@ -232,10 +232,9 @@ int vtkParticleTracerBase::ProcessRequest(
 int vtkParticleTracerBase::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   vtkInformation *inInfo  = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
     {
@@ -268,9 +267,6 @@ int vtkParticleTracerBase::RequestInformation(
     vtkErrorMacro(<<"Input information has no TIME_STEPS set");
     return 0;
     }
-
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
   return 1;
 }

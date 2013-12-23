@@ -257,9 +257,11 @@ int vtkSLACParticleReader::RequestInformation(
   timeRange[0] = timeRange[1] = timeValue;
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 
+  /*
   // Report that we support any number of pieces (but we are only really going
   // to load anything for piece 0).
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+  */
 
   return 1;
 }

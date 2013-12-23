@@ -37,13 +37,6 @@ vtkTransmitImageDataPiece::vtkTransmitImageDataPiece()
   this->CreateGhostCells = 1;
   this->SetNumberOfInputPorts(1);
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  if (this->Controller)
-    {
-    if (this->Controller->GetLocalProcessId() != 0)
-      {
-      this->SetNumberOfInputPorts(0);
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -190,6 +183,9 @@ int vtkTransmitImageDataPiece::RequestData(
     this->SatelliteExecute(procId, output, outInfo);
     }
 
+  // TODO (berk)
+  // Fix this
+  /*
   int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   if (ghostLevel > 0 && this->CreateGhostCells)
     {
@@ -204,6 +200,7 @@ int vtkTransmitImageDataPiece::RequestData(
                                     wholeExt,
                                     et);
     }
+  */
 
   return 1;
 }

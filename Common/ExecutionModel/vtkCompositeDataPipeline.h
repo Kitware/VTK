@@ -118,8 +118,6 @@ protected:
                                       vtkInformationVector** inInfoVec,
                                       vtkInformationVector* outInfoVec);
 
-  virtual void CopyFromDataToInformation(
-    vtkDataObject* dobj, vtkInformation* inInfo);
   virtual void PushInformation(vtkInformation*);
   virtual void PopInformation (vtkInformation*);
 

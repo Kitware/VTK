@@ -306,6 +306,23 @@ int vtkExtractGrid::RequestData(
   shift[1] = voi[2] - (shift[1]*rate[1]);
   shift[2] = voi[4] - (shift[2]*rate[2]);
 
+  // Input extent can be a subset of the input extent when there are
+  // multiple pieces. This takes cares of mapping existing input extent
+  // to what the output update extent would be based on it.
+  for (i=0; i<3; i++)
+    {
+    int ext;
+    ext = inExt[2*i] < voi[2*i] ? voi[2*i] : inExt[2*i];
+    uExt[2*i]   = (ext   - shift[i]) / rate[i];
+    ext = inExt[2*i+1] > voi[2*i+1] ? voi[2*i+1] : inExt[2*i+1];
+    uExt[2*i+1] = (ext - shift[i]) / rate[i];
+    // Shrink if beyond existing extents
+    if (uExt[2*i+1] * rate[i] + shift[i] > inExt[2*i+1])
+      {
+      uExt[2*i+1]--;
+      }
+    }
+
   output->SetExtent(uExt);
 
   // If output same as input, just pass data through

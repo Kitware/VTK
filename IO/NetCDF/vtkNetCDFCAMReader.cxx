@@ -246,8 +246,10 @@ int vtkNetCDFCAMReader::RequestInformation(
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
     }
 
+  /*
   outInfo->Set(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+  */
 
   return 1;
 }

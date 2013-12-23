@@ -55,7 +55,6 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void RootExecute(vtkPolyData *input, vtkPolyData *output, vtkInformation *outInfo);
   void SatelliteExecute(int procId, vtkPolyData *output, vtkInformation *outInfo);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int CreateGhostCells;

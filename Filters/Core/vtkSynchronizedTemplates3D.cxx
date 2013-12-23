@@ -43,8 +43,6 @@
 
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
-vtkInformationKeyRestrictedMacro(vtkSynchronizedTemplates3D, EXECUTE_EXTENT, IntegerVector, 6);
-
 //----------------------------------------------------------------------------
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
@@ -699,7 +697,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int* exExt = outInfo->Get(vtkSynchronizedTemplates3D::EXECUTE_EXTENT());
+  int* exExt = data->GetExtent();
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
     vtkDebugMacro(<<"3D structured contours requires 3D data");
@@ -767,99 +765,19 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces, ghostLevels;
-  int *wholeExt;
-  int ext[6];
-
-  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-  wholeExt =
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-
-  if (!wholeExt)
-    {
-    return 1;
-    }
-
-
-  // Get request from output
-  piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevels =
-    outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-
-  // Start with the whole grid.
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
-
-  // get the extent associated with the piece.
-  if (translator == NULL)
-    {
-    // Default behavior
-    if (piece != 0)
-      {
-      ext[0] = ext[2] = ext[4] = 0;
-      ext[1] = ext[3] = ext[5] = -1;
-      }
-    }
-  else
-    {
-    translator->PieceToExtentThreadSafe(piece, numPieces, ghostLevels,
-                                        wholeExt, ext,
-                                        translator->GetSplitMode(),0);
-    }
-
-  // As a side product of this call, ExecuteExtent is set.
-  // This is the region that we are really updating, although
-  // we may require a larger input region in order to generate
-  // it if normals / gradients are being computed
-  outInfo->Set(vtkSynchronizedTemplates3D::EXECUTE_EXTENT(), ext, 6);
-
-  // expand if we need to compute gradients
+  // These require extra ghost levels
   if (this->ComputeGradients || this->ComputeNormals)
     {
-    ext[0] -= 1;
-    if (ext[0] < wholeExt[0])
-      {
-      ext[0] = wholeExt[0];
-      }
-    ext[1] += 1;
-    if (ext[1] > wholeExt[1])
-      {
-      ext[1] = wholeExt[1];
-      }
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-    ext[2] -= 1;
-    if (ext[2] < wholeExt[2])
-      {
-      ext[2] = wholeExt[2];
-      }
-    ext[3] += 1;
-    if (ext[3] > wholeExt[3])
-      {
-      ext[3] = wholeExt[3];
-      }
-
-    ext[4] -= 1;
-    if (ext[4] < wholeExt[4])
-      {
-      ext[4] = wholeExt[4];
-      }
-    ext[5] += 1;
-    if (ext[5] > wholeExt[5])
-      {
-      ext[5] = wholeExt[5];
-      }
+    int ghostLevels;
+    ghostLevels =
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevels + 1);
     }
-
-  // Set the update extent of the input.
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
   return 1;
 }

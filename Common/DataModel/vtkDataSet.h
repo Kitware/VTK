@@ -332,12 +332,9 @@ public:
 
   // Description:
   // Normally called by pipeline executives or algoritgms only. This method
-  // computes the ghost arrays for a given dataset.
-  virtual void GenerateGhostLevelArray(int update_piece,
-                                       int update_num_pieces,
-                                       int update_ghost_level,
-                                       int* whole_extent,
-                                       vtkExtentTranslator* translator);
+  // computes the ghost arrays for a given dataset. The zeroExt argument
+  // specifies the extent of the region which ghost level = 0.
+  virtual void GenerateGhostLevelArray(int zeroExt[6]);
 
   //BTX
   // Description:

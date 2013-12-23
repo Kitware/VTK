@@ -517,12 +517,14 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
     if (strcmp(param, "numberOfPieces") == 0)
       {
       this->SetNumberOfPieces(atoi(val));
+      /*
       if (! this->StructuredFlag)
         {
         info->Set(
           vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
           this->NumberOfPieces);
         }
+      */
       }
 
     // Handle parameter: wholeExtent.
@@ -761,10 +763,12 @@ void vtkPDataSetReader::ReadVTKFileInformation(
     vtkErrorMacro("I can not figure out what type of data set this is: " << str);
     return;
     }
+  /*
   if (this->DataType == VTK_POLY_DATA || this->DataType == VTK_UNSTRUCTURED_GRID)
     {
     info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
     }
+  */
 }
 
 void vtkPDataSetReader::SkipFieldData(ifstream *file)
@@ -920,15 +924,7 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
       return 0;
       }
 
-    // Do not copy the ExtentTranslator (hack)
-    // reader should probably set the extent translator
-    // not paraview.
-    vtkExtentTranslator *tmp =
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(info);
-    tmp->Register(this);
     output->CopyStructure(data);
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(info, tmp);
-    tmp->UnRegister(tmp);
     output->GetFieldData()->PassData(data->GetFieldData());
     output->GetCellData()->PassData(data->GetCellData());
     output->GetPointData()->PassData(data->GetPointData());

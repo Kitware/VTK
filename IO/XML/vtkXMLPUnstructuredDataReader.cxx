@@ -131,17 +131,17 @@ void vtkXMLPUnstructuredDataReader::SetupOutputInformation(vtkInformation *outIn
 
   // Set the maximum number of pieces that can be provided by this
   // reader.
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), this->NumberOfPieces);
+  //outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), this->NumberOfPieces);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
-  vtkInformation *localInfo =
-    this->GetExecutive()->GetOutputInformation( port );
-  outInfo->CopyEntry(localInfo,
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES() );
+  //vtkInformation *localInfo =
+  //this->GetExecutive()->GetOutputInformation( port );
+  //outInfo->CopyEntry(localInfo,
+  //vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES() );
 }
 
 //----------------------------------------------------------------------------

@@ -398,10 +398,13 @@ int vtkProbeFilter::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                6);
+  /*
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                inInfo->Get(
                  vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
+  */
 
+  /*
   // Special case for ParaView.
   if (this->SpatialMatch == 2)
     {
@@ -410,18 +413,20 @@ int vtkProbeFilter::RequestInformation(
       sourceInfo->Get(
         vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
     }
+  */
 
   if (this->SpatialMatch == 1)
     {
-    int m1 =
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
-    int m2 =
-      sourceInfo->Get(
-        vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    /*
+    //int m1 =
+    //inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+    //int m2 =
+    //sourceInfo->Get(
+    //vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
     if (m1 < 0 && m2 < 0)
       {
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-                   -1);
+      //outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+      //-1);
       }
     else
       {
@@ -437,9 +442,10 @@ int vtkProbeFilter::RequestInformation(
         {
         m1 = m2;
         }
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-                   m1);
+      //outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+      //m1);
       }
+    */
     }
 
   // A variation of the bug fix from John Biddiscombe.

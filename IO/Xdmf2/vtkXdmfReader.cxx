@@ -272,7 +272,7 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
   vtkXdmfDomain* domain = this->XdmfDocument->GetActiveDomain();
 
   // * Publish the fact that this reader can satisfy any piece request.
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+  //outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
   this->LastTimeIndex = this->ChooseTimeStep(outInfo);
 

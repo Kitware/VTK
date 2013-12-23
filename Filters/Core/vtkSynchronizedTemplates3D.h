@@ -157,8 +157,6 @@ protected:
 
   int GenerateTriangles;
 
-  static vtkInformationIntegerVectorKey* EXECUTE_EXTENT();
-
 private:
   vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&);  // Not implemented.
   void operator=(const vtkSynchronizedTemplates3D&);  // Not implemented.

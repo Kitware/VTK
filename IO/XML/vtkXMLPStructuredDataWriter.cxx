@@ -15,7 +15,6 @@
 #include "vtkXMLPStructuredDataWriter.h"
 #include "vtkXMLStructuredDataWriter.h"
 #include "vtkExecutive.h"
-#include "vtkExtentTranslator.h"
 #include "vtkErrorCode.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
@@ -50,17 +49,8 @@ void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, vtk
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 {
-  int extent[6];
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-
-  et->SetNumberOfPieces(this->GetNumberOfPieces());
-  et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  et->SetPiece(index);
-  et->SetGhostLevel(0);
-  et->PieceToExtent();
-  et->GetExtent(extent);
+  vtkDataSet* input = this->GetInputAsDataSet();
+  int* extent = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
 
   this->WriteVectorAttribute("Extent", 6, extent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -71,22 +61,27 @@ void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
+vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int vtkNotUsed(index))
 {
-  int extent[6];
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  // int extent[6];
+  // vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  // // TODO (berk)
+  // // Need to fix this
+  // vtkExtentTranslator* et = 0;  vtkExtentTranslator::SafeDownCast(
+  //   inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
 
-  et->SetNumberOfPieces(this->GetNumberOfPieces());
-  et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  et->SetPiece(index);
-  et->SetGhostLevel(0);
-  et->PieceToExtent();
-  et->GetExtent(extent);
+  // et->SetNumberOfPieces(this->GetNumberOfPieces());
+  // et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  // et->SetPiece(index);
+  // et->SetGhostLevel(0);
+  // et->PieceToExtent();
+  // et->GetExtent(extent);
 
+  // TODO (berk)
+  // We need to ask for a piece from the input somehow. Maybe RequestUpdateExtent
+  // is enough but needs to be tested.
   vtkXMLStructuredDataWriter* pWriter = this->CreateStructuredPieceWriter();
-  pWriter->SetWriteExtent(extent);
+  // pWriter->SetWriteExtent(extent);
 
   return pWriter;
 }
@@ -115,8 +110,8 @@ int vtkXMLPStructuredDataWriter::RequestUpdateExtent(
 
   // The code below asks for an extent based on the number of pieces and
   // the first piece. This is mainly for the sake of other filters/writers
-  // that may internally use this reader. Those writers usually delegate
-  // RequestUpdateExtent() to the internal write and expect it to do the
+  // that may internally use this writer. Those writers usually delegate
+  // RequestUpdateExtent() to the internal writer and expect it to do the
   // right thing. Before this change, vtkXMLPStructuredDataWriter did not
   // bother setting the update extent because it is taken care of by the
   // vtkXMLStructuredDataWriter during WritePiece() (see vtkXMLPDataWriter).
@@ -126,18 +121,9 @@ int vtkXMLPStructuredDataWriter::RequestUpdateExtent(
   // the default. This will not effect the behavior when writing multiple
   // pieces because that does its own RequestUpdateExtent with the right
   // piece information.
-  int extent[6];
-  vtkExtentTranslator* et = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
 
-  et->SetNumberOfPieces(this->GetNumberOfPieces());
-  et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  et->SetPiece(this->StartPiece);
-  et->SetGhostLevel(0);
-  et->PieceToExtent();
-  et->GetExtent(extent);
-
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo,
+    this->StartPiece, this->GetNumberOfPieces(), 0);
 
   return 1;
 }

@@ -582,8 +582,10 @@ int vtkTecplotReader::RequestInformation( vtkInformation * request,
     return 0;
     }
 
+  /*
   vtkInformation * info = outputVector->GetInformationObject( 0 );
   info->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
+  */
 
   this->GetDataArraysList();
 

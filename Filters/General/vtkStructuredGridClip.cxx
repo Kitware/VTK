@@ -16,7 +16,6 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
-#include "vtkExtentTranslator.h"
 #include "vtkStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
@@ -205,48 +204,4 @@ int vtkStructuredGridClip::RequestData(vtkInformation *vtkNotUsed(request),
     }
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGridClip::SetOutputWholeExtent(int piece, int numPieces)
-{
-  vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
-  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkExtentTranslator *translator;
-  int ext[6];
-
-  if (input == NULL)
-    {
-    vtkErrorMacro("We must have an input to set the output extent by piece.");
-    return;
-    }
-  if (output == NULL)
-    {
-    vtkErrorMacro("We must have an output to set the output extent by piece.");
-    return;
-    }
-  translator = vtkExtentTranslator::SafeDownCast(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-  if (translator == NULL)
-    {
-    vtkErrorMacro("Output does not have an extent translator.");
-    return;
-    }
-
-  vtkDemandDrivenPipeline* inputExec =
-    vtkDemandDrivenPipeline::SafeDownCast(
-      vtkExecutive::PRODUCER()->GetExecutive(inInfo));
-  inputExec->UpdateInformation();
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
-  translator->SetWholeExtent(ext);
-  translator->SetPiece(piece);
-  translator->SetNumberOfPieces(numPieces);
-  translator->SetGhostLevel(0);
-  translator->PieceToExtent();
-  translator->GetExtent(ext);
-  this->SetOutputWholeExtent(ext);
 }

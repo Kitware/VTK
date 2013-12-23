@@ -93,29 +93,6 @@ int vtkHierarchicalBoxDataSetAlgorithm::ProcessRequest(
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    if(request->Has(vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT()))
-      {
-      int outputPort = request->Get(
-        vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT());
-      vtkInformation* info = outputVector->GetInformationObject(outputPort);
-      if (info)
-        {
-        info->Set(
-          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-        }
-      }
-    else
-      {
-      for (int outIdx=0; outIdx < this->GetNumberOfOutputPorts(); outIdx++)
-        {
-        vtkInformation* info = outputVector->GetInformationObject(outIdx);
-        if (info)
-          {
-          info->Set(
-            vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-          }
-        }
-      }
     return this->RequestInformation(request, inputVector, outputVector);
     }
 

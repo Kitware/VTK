@@ -2367,9 +2367,11 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
   timeRange[1] = p->TimeValues[p->TimeValues.size() - 1];
   outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
 
+  /*
   // Currently, this is a serial reader.
   outInfo->Set(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
+  */
 
   return 1;
 }

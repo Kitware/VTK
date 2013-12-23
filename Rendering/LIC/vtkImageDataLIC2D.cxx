@@ -25,7 +25,6 @@
 #include "vtkInformationVector.h"
 #include "vtkStructuredExtent.h"
 #include "vtkObjectFactory.h"
-#include "vtkImageDataLIC2DExtentTranslator.h"
 #include "vtkLineIntegralConvolution2D.h"
 #include "vtkFrameBufferObject2.h"
 #include "vtkRenderbuffer.h"
@@ -249,24 +248,6 @@ int vtkImageDataLIC2D::RequestInformation(
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
-
-  // Setup ExtentTranslator
-  vtkImageDataLIC2DExtentTranslator* extTranslator =
-    vtkImageDataLIC2DExtentTranslator::SafeDownCast(
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo));
-
-  if (!extTranslator)
-    {
-    extTranslator = vtkImageDataLIC2DExtentTranslator::New();
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, extTranslator);
-    extTranslator->Delete();
-    }
-
-  extTranslator->SetAlgorithm(this);
-  extTranslator->SetInputWholeExtent(wholeExtent);
-  extTranslator->SetInputExtentTranslator(
-    vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR())));
 
   return 1;
 }

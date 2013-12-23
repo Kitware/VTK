@@ -118,6 +118,9 @@ protected:
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);
+
+  int FillOutputPortInformation(int port, vtkInformation* info);
+
 private:
   vtkRTAnalyticSource(const vtkRTAnalyticSource&);  // Not implemented.
   void operator=(const vtkRTAnalyticSource&);  // Not implemented.

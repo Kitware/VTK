@@ -259,20 +259,6 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkSelectionSource::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* outputVector)
-{
-  // We can handle multiple piece request.
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  info->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkSelectionSource::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),

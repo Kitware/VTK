@@ -246,9 +246,6 @@ int vtkTemporalStreamTracer::RequestInformation(
     return 0;
     }
 
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
                &this->OutputTimeValues[0],
                static_cast<int>(this->OutputTimeValues.size()));

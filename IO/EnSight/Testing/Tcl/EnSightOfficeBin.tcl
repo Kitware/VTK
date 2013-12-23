@@ -16,14 +16,6 @@ reader SetDefaultExecutivePrototype cdp
 reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office_bin.case"
 reader Update
 
-# to add coverage for vtkOnePieceExtentTranslator
-vtkOnePieceExtentTranslator translator
-#[reader GetOutput] SetExtentTranslator translator
-set OutInfo [reader GetOutputInformation 0]
-vtkStreamingDemandDrivenPipeline sddp
-sddp SetExtentTranslator $OutInfo translator
-
-
 vtkStructuredGridOutlineFilter outline
 #    outline SetInputConnection [reader GetOutputPort]
 outline SetInputData [[reader GetOutput] GetBlock 0]

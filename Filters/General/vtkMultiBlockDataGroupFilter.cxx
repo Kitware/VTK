@@ -35,27 +35,6 @@ vtkMultiBlockDataGroupFilter::~vtkMultiBlockDataGroupFilter()
 }
 
 //-----------------------------------------------------------------------------
-int vtkMultiBlockDataGroupFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
-  // Setup ExtentTranslator so that all downstream piece requests are
-  // converted to whole extent update requests, as need by the histogram filter.
-  if (strcmp(
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo)
-        ->GetClassName(), "vtkOnePieceExtentTranslator") != 0)
-    {
-    vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, et);
-    et->Delete();
-    }
-  return 1;
-}
-
-//-----------------------------------------------------------------------------
 int vtkMultiBlockDataGroupFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,

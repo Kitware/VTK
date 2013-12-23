@@ -218,6 +218,13 @@ public:
   static vtkInformationIntegerKey* INPUT_PORT();
   static vtkInformationIntegerKey* INPUT_CONNECTION();
 
+  // Description:
+  // This key tells the executive that a particular output port
+  // is capable of producing an arbitrary subextent of the whole
+  // extent. Many image sources and readers fall into this category
+  // but some such as the legacy structured data readers cannot
+  // support this feature.
+  static vtkInformationIntegerKey* CAN_PRODUCE_SUB_EXTENT();
 
   // Description:
   // Set the input data arrays that this algorithm will

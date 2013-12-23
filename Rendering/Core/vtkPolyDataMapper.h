@@ -106,6 +106,12 @@ public:
   // Remove all vertex attributes.
   virtual void RemoveAllVertexAttributeMappings();
 
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
 protected:
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() {}

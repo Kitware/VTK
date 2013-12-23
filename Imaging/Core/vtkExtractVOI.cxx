@@ -255,10 +255,6 @@ int vtkExtractVOI::RequestData(
 
   vtkDebugMacro(<< "Extracting Grid");
 
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt32);
-  uExt[0] = uExt32[0]; uExt[1] = uExt32[1]; uExt[2] = uExt32[2];
-  uExt[3] = uExt32[3]; uExt[4] = uExt32[4]; uExt[5] = uExt32[5];
-
   inExt32 = input->GetExtent();
   inExt[0] = inExt32[0]; inExt[1] = inExt32[1]; inExt[2] = inExt32[2];
   inExt[3] = inExt32[3]; inExt[4] = inExt32[4]; inExt[5] = inExt32[5];
@@ -311,6 +307,26 @@ int vtkExtractVOI::RequestData(
   shift[0] = voi[0] - (shift[0]*rate[0]);
   shift[1] = voi[2] - (shift[1]*rate[1]);
   shift[2] = voi[4] - (shift[2]*rate[2]);
+
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt32);
+  // Input extent can be a subset of the input extent when there are
+  // multiple pieces. This takes cares of mapping existing input extent
+  // to what the output update extent would be based on it.
+  for (i=0; i<3; i++)
+    {
+    int ext;
+    ext = inExt32[2*i] < voi[2*i] ? voi[2*i] : inExt32[2*i];
+    uExt32[2*i]   = (ext   - shift[i]) / rate[i];
+    ext = inExt32[2*i+1] > voi[2*i+1] ? voi[2*i+1] : inExt32[2*i+1];
+    uExt32[2*i+1] = (ext - shift[i]) / rate[i];
+    // Shrink if beyond existing extents
+    if (uExt32[2*i+1] * rate[i] + shift[i] > inExt32[2*i+1])
+      {
+      uExt32[2*i+1]--;
+      }
+    }
+  uExt[0] = uExt32[0]; uExt[1] = uExt32[1]; uExt[2] = uExt32[2];
+  uExt[3] = uExt32[3]; uExt[4] = uExt32[4]; uExt[5] = uExt32[5];
 
   output->SetExtent(uExt32);
 

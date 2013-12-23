@@ -57,7 +57,6 @@ protected:
                    vtkInformation *outInfo);
   void SatelliteExecute(int procId, vtkUnstructuredGrid *output,
                         vtkInformation *outInfo);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int CreateGhostCells;

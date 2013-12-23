@@ -19,13 +19,11 @@
 
 #include "vtkFastSplatter.h"
 
-#include "vtkExtentTranslator.h"
 #include "vtkGraph.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkOnePieceExtentTranslator.h"
 #include "vtkPoints.h"
 #include "vtkPointSet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -164,17 +162,6 @@ int vtkFastSplatter::RequestInformation(
   //                splatInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
   //   }
 
-  // Setup ExtentTranslator so that all downstream piece requests are
-  // converted to whole extent update requests, as need by this filter.
-  if (strcmp(
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo)
-        ->GetClassName(), "vtkOnePieceExtentTranslator") != 0)
-    {
-    vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, et);
-    et->Delete();
-    }
-
   return 1;
 }
 
@@ -215,46 +202,21 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     ghostLevel = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
     }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              numPieces);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+              piece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              ghostLevel);
+
   vtkDataObject* data = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  // If input extent is piece based, just pass the update requests
-  // from the output. Even though the output extent is structured,
-  // piece-based request still gets propagated. This will not work
-  // if there was no piece based request to start with. That is handled
-  // above.
-  if(data->GetExtentType() == VTK_PIECES_EXTENT)
-    {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                numPieces);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                piece);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                ghostLevel);
-    }
-  else if(data->GetExtentType() == VTK_3D_EXTENT)
+  if(data->GetExtentType() == VTK_3D_EXTENT)
     {
     int* inWholeExtent =
       inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-
-    vtkExtentTranslator* translator =
-      vtkExtentTranslator::SafeDownCast(
-        inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-    if(translator)
-      {
-      translator->SetWholeExtent(inWholeExtent);
-      translator->SetPiece(piece);
-      translator->SetNumberOfPieces(numPieces);
-      translator->SetGhostLevel(ghostLevel);
-      translator->PieceToExtent();
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                  translator->GetExtent(),
-                  6);
-      }
-    else
-      {
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                  inWholeExtent,
-                  6);
-      }
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                inWholeExtent,
+                6);
     }
 
 

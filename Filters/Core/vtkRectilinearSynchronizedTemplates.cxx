@@ -56,10 +56,6 @@ vtkRectilinearSynchronizedTemplates::vtkRectilinearSynchronizedTemplates()
   this->ComputeScalars = 1;
   this->GenerateTriangles = 1;
 
-  this->ExecuteExtent[0] = this->ExecuteExtent[1]
-    = this->ExecuteExtent[2] = this->ExecuteExtent[3]
-    = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
-
   this->ArrayComponent = 0;
 
   // by default process active point scalars
@@ -692,14 +688,6 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
 
   vtkDebugMacro(<< "Executing 3D structured contour");
 
-  if ( this->ExecuteExtent[0] >= this->ExecuteExtent[1] ||
-       this->ExecuteExtent[2] >= this->ExecuteExtent[3] ||
-       this->ExecuteExtent[4] >= this->ExecuteExtent[5] )
-    {
-    vtkDebugMacro(<<"3D structured contours requires 3D data");
-    return 1;
-    }
-
   //
   // Check data type and execute appropriate function
   //
@@ -707,6 +695,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
   if (inScalars == NULL)
     {
     vtkErrorMacro("No scalars for contouring.");
+    return 1;
     }
   int numComps = inScalars->GetNumberOfComponents();
 
@@ -717,11 +706,12 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
     return 1;
     }
 
-  ptr = this->GetScalarsForExtent(inScalars, this->ExecuteExtent, data);
+  int* ext = data->GetExtent();
+  ptr = this->GetScalarsForExtent(inScalars, ext, data);
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
-      ContourRectilinearGrid(this, this->ExecuteExtent, data,
+      ContourRectilinearGrid(this, ext, data,
                              output, (VTK_TT *)ptr, inScalars,this->GenerateTriangles!=0));
     }
 
@@ -734,95 +724,19 @@ int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces;
-  int *wholeExt;
-  int ext[6];
-  vtkExtentTranslator *translator;
-
-  translator = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-
-  wholeExt =
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  memcpy(ext, wholeExt, 6*sizeof(int));
-
-  // Get request from output
-  piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // get the extent associated with the piece.
-  if (translator == NULL)
-    {
-    // Default behavior
-    if (piece != 0)
-      {
-      ext[0] = ext[2] = ext[4] = 0;
-      ext[1] = ext[3] = ext[5] = -1;
-      }
-    }
-  else
-    {
-    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext,
-                                        translator->GetSplitMode(),0);
-    }
-
-  // As a side product of this call, ExecuteExtent is set.
-  // This is the region that we are really updating, although
-  // we may require a larger input region in order to generate
-  // it if normals / gradients are being computed
-
-  this->ExecuteExtent[0] = ext[0];
-  this->ExecuteExtent[1] = ext[1];
-  this->ExecuteExtent[2] = ext[2];
-  this->ExecuteExtent[3] = ext[3];
-  this->ExecuteExtent[4] = ext[4];
-  this->ExecuteExtent[5] = ext[5];
-
-  // expand if we need to compute gradients
+  // These require extra ghost levels
   if (this->ComputeGradients || this->ComputeNormals)
     {
-    ext[0] -= 1;
-    if (ext[0] < wholeExt[0])
-      {
-      ext[0] = wholeExt[0];
-      }
-    ext[1] += 1;
-    if (ext[1] > wholeExt[1])
-      {
-      ext[1] = wholeExt[1];
-      }
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-    ext[2] -= 1;
-    if (ext[2] < wholeExt[2])
-      {
-      ext[2] = wholeExt[2];
-      }
-    ext[3] += 1;
-    if (ext[3] > wholeExt[3])
-      {
-      ext[3] = wholeExt[3];
-      }
-
-    ext[4] -= 1;
-    if (ext[4] < wholeExt[4])
-      {
-      ext[4] = wholeExt[4];
-      }
-    ext[5] += 1;
-    if (ext[5] > wholeExt[5])
-      {
-      ext[5] = wholeExt[5];
-      }
+    int ghostLevels;
+    ghostLevels =
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevels + 1);
     }
-
-  // Set the update extent of the input.
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
   return 1;
 }
