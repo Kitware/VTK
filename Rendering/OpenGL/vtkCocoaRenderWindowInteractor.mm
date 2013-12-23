@@ -205,8 +205,9 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 //----------------------------------------------------------------------------
 - (void)start
 {
-  // Retrieve the NSWindow.
+  // Retrieve the NSWindow and the NSView.
   NSWindow *win = nil;
+  NSView *view = nil;
   if (_renWin != NULL)
     {
     win = reinterpret_cast<NSWindow *>(_renWin->GetRootWindow());
@@ -221,6 +222,17 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
                                name:NSWindowWillCloseNotification
                              object:win];
       }
+
+    view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
+
+    if (view != nil)
+      {
+      // Receive notifications of frame rectangle changes.
+      NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+      [nc addObserver:self selector:@selector(viewFrameChanged:)
+                               name:NSViewFrameDidChangeNotification
+                             object:view];
+      }
     }
 
   // Start the NSApplication's run loop
@@ -231,11 +243,19 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 //----------------------------------------------------------------------------
 - (void)stop
 {
-  // Retrieve the NSWindow.
+  // Retrieve the NSWindow and the NSView.
   NSWindow *win = nil;
+  NSView *view = nil;
   if (_renWin != NULL)
     {
     win = reinterpret_cast<NSWindow *>(_renWin->GetRootWindow());
+    view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
+    if (view != nil)
+      {
+      NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+      [nc removeObserver:self name:NSViewFrameDidChangeNotification
+                            object:view];
+      }
     }
 
   // Close the window, removing it from the screen and releasing it
@@ -275,6 +295,40 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
       // The NSWindow is closing, so prevent anyone from accidentally using it
       _renWin->SetRootWindow(NULL);
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+- (void)viewFrameChanged:(NSNotification *)aNotification
+{
+  (void)aNotification;
+
+  // Retrieve the NSView and the Interactor.
+  NSView *view = nil;
+  vtkRenderWindowInteractor *interactor = NULL;
+  if (_renWin != NULL)
+    {
+    view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
+    interactor = _renWin->GetInteractor();
+    }
+
+  if (view == nil || interactor == NULL || !interactor->GetEnabled())
+    {
+    return;
+    }
+
+  // Get the frame size, send ConfigureEvent from the Interactor.
+  NSRect frameRect = [view frame];
+  int width = (int)round(NSWidth(frameRect));
+  int height = (int)round(NSHeight(frameRect));
+
+  int size[2];
+  interactor->GetSize(size);
+
+  if (width != size[0] || height != size[1])
+    {
+    interactor->UpdateSize(width, height);
+    interactor->InvokeEvent(vtkCommand::ConfigureEvent, NULL);
     }
 }
 
