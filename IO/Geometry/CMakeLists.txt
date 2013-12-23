@@ -21,7 +21,6 @@ SET(Module_SRCS
   vtkPDBReader.cxx
   vtkPlot3DMetaReader.cxx
   vtkProStarReader.cxx
-  vtkSESAMEReader.cxx
   vtkSTLReader.cxx
   vtkSTLWriter.cxx
   vtkTecplotReader.cxx
