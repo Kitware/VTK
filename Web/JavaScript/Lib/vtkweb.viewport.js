@@ -80,6 +80,7 @@
                         action: 'up',
                         current_button: current_button
                     }));
+                    renderersContainer.trigger('endInteraction');
                 } else if(event.type === 'mousedown') {
                     current_button = event.which;
 
@@ -92,7 +93,7 @@
                         current_button = 2;
                         event.altKey = false;
                     }
-
+                    renderersContainer.trigger('startInteraction');
                     renderersContainer.trigger($.extend(event, {
                         type: 'mouse',
                         action: 'down',
@@ -636,6 +637,18 @@
                 statisticManager.reset();
                 statContainer.empty();
             }
+            /**
+             * Event triggered before a mouse down.
+             *
+             * @member vtkWeb.Viewport
+             * @event startInteraction
+             */
+            /**
+             * Event triggered after a mouse up.
+             *
+             * @member vtkWeb.Viewport
+             * @event endInteraction
+             */
         };
 
         // Attach config object to renderer parent
