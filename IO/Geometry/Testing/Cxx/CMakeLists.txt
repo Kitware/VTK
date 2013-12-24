@@ -21,11 +21,16 @@ if(VTK_USE_LARGE_DATA AND _known_little_endian)
     "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/,REGEX:.*}"
     "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/field/,REGEX:.*}"
     "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/turbine/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/MFIXReader/,REGEX:.*}"
     )
 
   vtk_add_test_cxx(
     TestWindBladeReader.cxx
     )
+  vtk_add_test_cxx(NO_VALID
+    TestMFIXReader.cxx
+  )
+
 endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests)
