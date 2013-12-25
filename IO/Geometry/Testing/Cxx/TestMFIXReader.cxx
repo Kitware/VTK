@@ -92,12 +92,12 @@ int TestMFIXReader(int argc, char *argv[])
 
   // 2) Disable one array
   std::cout << "----- Disable one array" << std::endl;
-  const char * name = reader->GetCellArrayName(0);
-  reader->SetCellArrayStatus(name, 0);
-  if (reader->GetCellArrayStatus(name) != 0)
+  const char * arrayName = reader->GetCellArrayName(0);
+  reader->SetCellArrayStatus(arrayName, 0);
+  if (reader->GetCellArrayStatus(arrayName) != 0)
     {
     std::cout << "ERROR:  Cell Array: " << "0"
-              << " is named " << name
+              << " is named " << arrayName
               << " and should be disabled"
               << std::endl;
     return EXIT_FAILURE;
@@ -121,12 +121,12 @@ int TestMFIXReader(int argc, char *argv[])
 
   // 4) Enable one array
   std::cout << "----- Enable one array" << std::endl;
-  name = reader->GetCellArrayName(0);
-  reader->SetCellArrayStatus(name, 1);
-  if (reader->GetCellArrayStatus(name) != 1)
+  arrayName = reader->GetCellArrayName(0);
+  reader->SetCellArrayStatus(arrayName, 1);
+  if (reader->GetCellArrayStatus(arrayName) != 1)
     {
     std::cout << "ERROR:  Cell Array: " << "0"
-              << " is named " << name
+              << " is named " << arrayName
               << " and should be disabled"
               << std::endl;
     return EXIT_FAILURE;
