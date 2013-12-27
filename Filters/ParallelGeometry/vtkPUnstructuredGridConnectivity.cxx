@@ -1072,7 +1072,7 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
     // extract the cell ids to send to this remote rank
     vtkIdList* cellIds = vtkIdList::New();
     cellIds->SetNumberOfIds(celllinks->size());
-    for(unsigned int lnk=0; lnk < celllinks->size(); ++lnk)
+    for(lnk=0; lnk < celllinks->size(); ++lnk)
       {
       cellIds->SetId(lnk,(*celllinks)[lnk].SourceIdx);
       } // END for all links
