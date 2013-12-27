@@ -55,7 +55,7 @@ int TestTableSplitColumnComponents(int, char*[])
     {
     vtkGenericWarningMacro(<< "Incorrect column count: "
                            << out->GetNumberOfColumns());
-    return 1;
+    return EXIT_FAILURE;
     }
   vtkIntArray* arrays[4];
   arrays[0] = vtkIntArray::SafeDownCast(out->GetColumn(0));
@@ -65,7 +65,7 @@ int TestTableSplitColumnComponents(int, char*[])
   if (arrays[0] == 0 || arrays[1] == 0 || arrays[2] == 0 || arrays[3] == 0)
     {
     vtkGenericWarningMacro(<< "One of the output arrays was zero - type change?");
-    return 1;
+    return EXIT_FAILURE;
     }
 
   for (int i = 0; i < 5; ++i)
@@ -78,6 +78,43 @@ int TestTableSplitColumnComponents(int, char*[])
       out->Dump();
       return EXIT_FAILURE;
       }
+    }
+
+  // Test naming modes.
+  if (strcmp(arrays[1]->GetName(), "Multi (0)") != 0)
+    {
+    vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
+    }
+
+  split->SetNamingModeToNumberWithUnderscores();
+  split->Update();
+  out = split->GetOutput(0);
+  arrays[1] = vtkIntArray::SafeDownCast(out->GetColumn(1));
+  if (strcmp(arrays[1]->GetName(), "Multi_0") != 0)
+    {
+    vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
+    }
+
+  split->SetNamingModeToNamesWithParens();
+  split->Update();
+  out = split->GetOutput(0);
+  arrays[1] = vtkIntArray::SafeDownCast(out->GetColumn(1));
+  if (strcmp(arrays[1]->GetName(), "Multi (X)") != 0)
+    {
+    vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
+    }
+
+  split->SetNamingModeToNamesWithUnderscores();
+  split->Update();
+  out = split->GetOutput(0);
+  arrays[1] = vtkIntArray::SafeDownCast(out->GetColumn(1));
+  if (strcmp(arrays[1]->GetName(), "Multi_X") != 0)
+    {
+    vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
     }
 
   return EXIT_SUCCESS;
