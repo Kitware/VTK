@@ -27,7 +27,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkIntArray.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkRectilinearGrid.h"
@@ -207,39 +206,11 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     case VTK_TABLE:
     case VTK_TREE:
     case VTK_UNSTRUCTURED_GRID:
-      return this->SendElementalDataObject(data, remoteHandle, tag);
-
-    //for composite types send type, structure, and then iterate
-    //over the internal dataobjects, sending each one (recursively)
     case VTK_MULTIBLOCK_DATA_SET:
-      return this->SendMultiBlockDataSet(
-        vtkMultiBlockDataSet::SafeDownCast(data), remoteHandle, tag);
+    case VTK_UNIFORM_GRID_AMR:
+      return this->SendElementalDataObject(data, remoteHandle, tag);
     }
 }
-
-//----------------------------------------------------------------------------
-int vtkCommunicator::SendMultiBlockDataSet(vtkMultiBlockDataSet* mbds,
-  int remoteHandle, int tag)
-{
-  int returnCode = 1;
-  int numblocks = static_cast<int>(mbds->GetNumberOfBlocks());
-
-  // Tell the receiver the number of blocks to expect.
-  returnCode = this->Send(&numblocks, 1, remoteHandle, tag);
-  for (int cc=0; (cc < numblocks) && returnCode; cc++)
-    {
-    vtkDataObject* block = mbds->GetBlock(cc);
-    int dataType = (block? block->GetDataObjectType() : -1);
-    returnCode = returnCode && this->Send(&dataType, 1, remoteHandle, tag);
-    if (block)
-      {
-      // Now, send the actual block data.
-      returnCode = returnCode && this->Send(block, remoteHandle, tag);
-      }
-    }
-  return returnCode;
-}
-
 
 //----------------------------------------------------------------------------
 int vtkCommunicator::SendElementalDataObject(
@@ -429,39 +400,10 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
     case VTK_TABLE:
     case VTK_TREE:
     case VTK_UNSTRUCTURED_GRID:
-      return this->ReceiveElementalDataObject(data, remoteHandle, tag);
-
-    //for composite types receive type, structure, and then iterate
-    //over the internal dataobjects, receiving each recursively as needed
     case VTK_MULTIBLOCK_DATA_SET:
-      return this->ReceiveMultiBlockDataSet(
-        vtkMultiBlockDataSet::SafeDownCast(data), remoteHandle, tag);
+    case VTK_UNIFORM_GRID_AMR:
+      return this->ReceiveElementalDataObject(data, remoteHandle, tag);
     }
-}
-
-//----------------------------------------------------------------------------
-int vtkCommunicator::ReceiveMultiBlockDataSet(
-  vtkMultiBlockDataSet* mbds, int remoteHandle, int tag)
-{
-  int returnCode = 1;
-
-  int numblocks = 0;
-  returnCode = this->Receive(&numblocks, 1, remoteHandle, tag);
-  mbds->SetNumberOfBlocks(numblocks);
-  for (int cc=0; (cc < numblocks) && returnCode; cc++)
-    {
-    int dataType = 0;
-    returnCode = returnCode && this->Receive(&dataType, 1, remoteHandle, tag);
-    if (dataType != -1) // 0 is a valid data type :).
-      {
-      vtkDataObject* dObj = vtkDataObjectTypes::NewDataObject(dataType);
-      returnCode = returnCode && this->Receive(dObj, remoteHandle, tag);
-      mbds->SetBlock(cc, dObj);
-      dObj->Delete();
-      }
-    }
-
-  return returnCode;
 }
 
 //----------------------------------------------------------------------------
