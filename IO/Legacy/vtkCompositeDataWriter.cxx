@@ -154,7 +154,15 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
   for (unsigned int cc=0; cc < mb->GetNumberOfBlocks(); cc++)
     {
     vtkDataObject* child = mb->GetBlock(cc);
-    *fp << "CHILD " << (child? child->GetDataObjectType() : -1) << "\n";
+    *fp << "CHILD " << (child? child->GetDataObjectType() : -1);
+    // add name if present.
+    if (mb->HasMetaData(cc) &&
+      mb->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+      {
+      *fp << " [" << mb->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME())
+          << "]";
+      }
+    *fp << "\n";
     if (child)
       {
       if (!this->WriteBlock(fp, child))
@@ -176,7 +184,16 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
   for (unsigned int cc=0; cc < mp->GetNumberOfPieces(); cc++)
     {
     vtkDataObject* child = mp->GetPieceAsDataObject(cc);
-    *fp << "CHILD " << (child? child->GetDataObjectType() : -1) << "\n";
+    *fp << "CHILD " << (child? child->GetDataObjectType() : -1);
+    // add name if present.
+    if (mp->HasMetaData(cc) &&
+      mp->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+      {
+      *fp << " [" << mp->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME())
+          << "]";
+      }
+    *fp << "\n";
+
     if (child)
       {
       if (!this->WriteBlock(fp, child))

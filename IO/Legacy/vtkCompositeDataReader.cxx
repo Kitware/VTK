@@ -31,6 +31,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
 
+#include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
 
@@ -279,6 +280,13 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
       }
     // eat up the "\n" and other whitespace at the end of CHILD <type>.
     this->ReadLine(line);
+    // if "line" has text enclosed in [] then that's the composite name.
+    vtksys::RegularExpression regEx("\\s*\\[(.*)\\]");
+    if (regEx.find(line))
+      {
+      std::string name = regEx.match(1);
+      mb->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), name.c_str());
+      }
 
     if (type != -1)
       {
@@ -526,6 +534,13 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiPieceDataSet* mp)
       }
     // eat up the "\n" and other whitespace at the end of CHILD <type>.
     this->ReadLine(line);
+    // if "line" has text enclosed in [] then that's the composite name.
+    vtksys::RegularExpression regEx("\\s*\\[(.*)\\]");
+    if (regEx.find(line))
+      {
+      std::string name = regEx.match(1);
+      mp->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), name.c_str());
+      }
 
     if (type != -1)
       {
