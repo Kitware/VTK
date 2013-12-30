@@ -85,6 +85,12 @@ int vtkPUnstructuredGridGhostDataGenerator::RequestData(
   vtkUnstructuredGrid* grid =
    vtkUnstructuredGrid::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
 
+  if( (grid==NULL) || (grid->GetNumberOfCells()==0) )
+    {
+    // empty input, do nothing
+    return 1;
+    }
+
   // STEP 1: Get output grid
   vtkInformation* output = outputVector->GetInformationObject(0);
   assert("pre: output object is NULL" && (output != NULL) );

@@ -714,7 +714,7 @@ void vtkPUnstructuredGridConnectivity::UpdateGhosts()
   this->CreatePersistentRcvBuffers();
 
   // STEP 3: Allocate MPI request objects for non-blocking point-to-point comm.
-  int numNeis = this->CommLists->NeighboringRanks.size();
+  int numNeis = static_cast<int>(this->CommLists->NeighboringRanks.size());
   vtkMPICommunicator::Request* rqsts;
   rqsts = new vtkMPICommunicator::Request[2*numNeis];
   int rqstIdx = 0;
@@ -783,6 +783,11 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneCells(
       vtkIdType* cellIdx,
       const unsigned int numGhostCells)
 {
+
+#ifdef NDEBUG
+  static_cast<void>(numGhostCells);
+#endif
+
   // Sanity checks
   assert("pre: ghostData should not be NULL!" && (ghostData != NULL) );
   assert("pre: cellIdx should not be NULL!" && (cellIdx != NULL) );
@@ -798,8 +803,11 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneCells(
     vtkDataArray* ghostArray = ghostData->GetArray(arrayIdx);
     assert("pre: array by that name not found on ghosted grid!" &&
             CD->HasArray(ghostArray->GetName()));
+
+#ifndef NDEBUG
     assert("pre: numtuples mismatch!" &&
            (numGhostCells==ghostArray->GetNumberOfTuples()));
+#endif
 
     vtkDataArray* targetArray = CD->GetArray( ghostArray->GetName() );
     assert("pre: numcomponents mismatch between target and ghost array!" &&
@@ -824,6 +832,11 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneNodes(
       vtkIdType* globalIdx,
       const unsigned int numGhostNodes)
 {
+
+#ifdef NDEBUG
+  static_cast<void>(numGhostNodes);
+#endif
+
   // Sanity checks
   assert("pre: ghostData should not be NULL!" && (ghostData != NULL) );
   assert("pre: globalIdx should not be NULL!" && (globalIdx != NULL) );
@@ -841,8 +854,11 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneNodes(
       {
       assert("pre: array by that name not found on ghosted grid!" &&
               PD->HasArray(ghostArray->GetName()));
+
+#ifndef NDEBUG
       assert("pre: numtuples mismatch!" &&
              (numGhostNodes==ghostArray->GetNumberOfTuples()));
+#endif
 
       vtkDataArray* targetArray = PD->GetArray( ghostArray->GetName() );
       assert("pre: numcomponents mismatch between target and ghost array!" &&
@@ -879,7 +895,7 @@ void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
     }
 
   // Allocate MPI request objects for non-blocking point-to-point comm.
-  int numNeis = this->CommLists->NeighboringRanks.size();
+  int numNeis = static_cast<int>(this->CommLists->NeighboringRanks.size());
   vtkMPICommunicator::Request* rqsts;
   rqsts = new vtkMPICommunicator::Request[2*numNeis];
 
@@ -1032,11 +1048,12 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
     std::vector< vtkIdType > globalIdx;
     globalIdx.resize(nodelinks->size());
     vtkIdList* tupleIds = vtkIdList::New();
-    tupleIds->SetNumberOfIds( nodelinks->size());
-    for(unsigned int lnk=0; lnk < nodelinks->size(); ++lnk)
+    tupleIds->SetNumberOfIds( static_cast<vtkIdType>(nodelinks->size()) );
+    unsigned int lnk = 0;
+    for(; lnk < static_cast<unsigned int>(nodelinks->size()); ++lnk)
       {
       globalIdx[lnk] = (*nodelinks)[lnk].GlobalIdx;
-      tupleIds->SetId( lnk, (*nodelinks)[lnk].LocalIdx );
+      tupleIds->SetId(static_cast<vtkIdType>(lnk),(*nodelinks)[lnk].LocalIdx);
       } // END for all links
 
     // serialize the global IDs s.t. the remote rank knows which node to
@@ -1267,6 +1284,9 @@ bool vtkPUnstructuredGridConnectivity::IsCellConnected(
       vtkIdType& adjCell,
       vtkIdList* shared)
 {
+#ifdef NDEBUG
+  static_cast<void>(NumPoints);
+#endif
 
   adjCell = -1;
 
@@ -1286,8 +1306,12 @@ bool vtkPUnstructuredGridConnectivity::IsCellConnected(
      shared->SetNumberOfIds(N);
      for(int i=0; i < N; ++i)
        {
+
+#ifndef NDEBUG
        assert("pre: face node out-of-bounds!" &&
                (nodePtr[i] >= 0) && (nodePtr[i] < NumPoints) );
+#endif
+
        nodes[i] = globalId[ nodePtr[i] ];
        shared->SetId(i,nodes[i]);
        } // END for all face nodes
@@ -1494,7 +1518,8 @@ void vtkPUnstructuredGridConnectivity::BuildGhostedGridAndCommLists()
 
   // STEP 2: Loop through all remote boundary grids, find the cells that
   // are face-adjacent and insert them to the ghosted grid.
-  for(unsigned int i=0; i < this->AuxiliaryData->RmtBGrids.size(); ++i)
+  unsigned int i=0;
+  for(;i<static_cast<unsigned int>(this->AuxiliaryData->RmtBGrids.size()); ++i)
     {
     int rmtRank = this->AuxiliaryData->CandidateRanks[ i ];
     this->ProcessRemoteGrid(
@@ -1505,7 +1530,8 @@ void vtkPUnstructuredGridConnectivity::BuildGhostedGridAndCommLists()
 //------------------------------------------------------------------------------
 void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGridSizes(int size)
 {
-  int numCandidates = this->AuxiliaryData->CandidateRanks.size();
+  int numCandidates =
+      static_cast<int>(this->AuxiliaryData->CandidateRanks.size());
   this->AuxiliaryData->RmtBGridSizes.resize(numCandidates,0);
 
   vtkMPICommunicator::Request* rqsts;
@@ -1551,7 +1577,8 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
   this->ExchangeBoundaryGridSizes(bytestream.RawSize());
 
   // STEP 2: Post receives
-  int numCandidates = this->AuxiliaryData->CandidateRanks.size();
+  int numCandidates =
+      static_cast<int>(this->AuxiliaryData->CandidateRanks.size());
   std::vector< unsigned char* > RawData;
   RawData.resize(numCandidates);
 
@@ -1805,9 +1832,11 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryCell(
       cellType,numCellNodes,&cellConnectivity[0]);
 
   // sanity checks
+#ifndef NDEBUG
   vtkIdType N = nodes->GetNumberOfPoints();
   assert("post: array size mismatch!" && (localIdx->GetNumberOfTuples()==N));
   assert("post: array size mismatch!" && (globalIdx->GetNumberOfTuples()==N));
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -1887,12 +1916,14 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryGrid()
   this->AuxiliaryData->BoundaryGrid->Squeeze();
 
   // sanity checks
+#ifndef NDEBUG
   vtkIdType nc  = this->AuxiliaryData->BoundaryGrid->GetNumberOfCells();
   vtkIdType numPoints = points->GetNumberOfPoints();
   assert("array size mismatch!" && (localidx->GetNumberOfTuples()==numPoints));
   assert("array size mismatch!" && (globalidx->GetNumberOfTuples()==numPoints));
   assert("post: array size mismatch!" &&
          (localCellIdx->GetNumberOfTuples()==nc) );
+#endif
 
   this->AuxiliaryData->BoundaryGrid->SetPoints(points);
   this->AuxiliaryData->BoundaryGrid->GetPointData()->AddArray(localidx);

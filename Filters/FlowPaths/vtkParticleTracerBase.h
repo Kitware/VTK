@@ -170,7 +170,8 @@ public:
   // processor just once before start.
   // If StaticSeeds is set and a moving seed source is specified
   // the motion will be ignored and results will not be as expected.
-  //vtkSetMacro(StaticSeeds,int);
+  // The default is that StaticSeeds is 0.
+  vtkSetMacro(StaticSeeds,int);
   vtkGetMacro(StaticSeeds,int);
 
   // Description:
@@ -180,7 +181,8 @@ public:
   // setting it to true will force all optimizations.
   // Do not Set StaticMesh to true if a dynamic mesh is being used
   // as this will invalidate all results.
-  //vtkSetMacro(StaticMesh,int);
+  // The default is that StaticMesh is 0.
+  vtkSetMacro(StaticMesh,int);
   vtkGetMacro(StaticMesh,int);
 
   // Description:
