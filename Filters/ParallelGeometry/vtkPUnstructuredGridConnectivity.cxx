@@ -658,8 +658,8 @@ void vtkPUnstructuredGridConnectivity::BuildGhostZoneConnectivity()
   if(this->GlobalIDFieldName == NULL)
     {
     // We assume "GlobalID" as the default
-    this->GlobalIDFieldName = new char[8];
-    strcpy(this->GlobalIDFieldName,"GlobalID");
+    this->GlobalIDFieldName = new char[9];
+    strncpy(this->GlobalIDFieldName,"GlobalID", 9);
     }
 
   // STEP 0: Ensure the input grid has GlobalID information
@@ -1058,7 +1058,7 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
 
     // serialize the global IDs s.t. the remote rank knows which node to
     // update once the data is transferred.
-    bytestream.Push(&globalIdx[0],nodelinks->size());
+    bytestream.Push(&globalIdx[0],static_cast<unsigned int>(nodelinks->size()));
 
     // serialize the selected tuples for this remote rank
     vtkFieldDataSerializer::SerializeTuples(tupleIds,PD,bytestream);
