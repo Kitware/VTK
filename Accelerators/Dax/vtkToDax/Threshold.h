@@ -24,8 +24,8 @@
 #include "daxToVtk/CellTypeToType.h"
 #include "daxToVtk/DataSetConverters.h"
 
-#include <dax/cont/Scheduler.h>
-#include <dax/cont/GenerateTopology.h>
+#include <dax/cont/DispatcherGenerateTopology.h>
+#include <dax/cont/DispatcherMapCell.h>
 #include <dax/worklet/Threshold.h>
 
 namespace
@@ -82,23 +82,24 @@ namespace vtkToDax
       int result=1;
       try
         {
-        //we don't want to use the custom container, so specify the default
-        //container for the classification storage.
-        typedef dax::cont::GenerateTopology<
-                          dax::worklet::ThresholdTopology> ScheduleGT;
-        typedef dax::worklet::ThresholdClassify<ValueType> ThresholdClassifyType;
+        typedef dax::worklet::ThresholdCount<ValueType> ThresholdCountType;
 
-        dax::cont::Scheduler<Adapter> scheduler;
+        typedef dax::cont::DispatcherGenerateTopology<
+                  dax::worklet::ThresholdTopology,
+                  dax::cont::ArrayHandle< dax::Id >,
+                  Adapter >                             DispatchGT;
 
-        typedef typename ScheduleGT::ClassifyResultType ClassifyResultType;
-        ClassifyResultType classification;
+        typedef typename DispatchGT::CountHandleType CountHandleType;
 
-        scheduler.Invoke(ThresholdClassifyType(thresholdMin,thresholdMax),
-                 inGrid, thresholdHandle, classification);
+        ThresholdCountType countWorklet(thresholdMin,thresholdMax);
+        dax::cont::DispatcherMapCell<ThresholdCountType,Adapter>
+                                                  dispatchCount( countWorklet );
 
-        ScheduleGT resolveTopology(classification);
-        //remove classification resource from execution for more space
-        scheduler.Invoke(resolveTopology,inGrid,outGeom);
+        CountHandleType count;
+        dispatchCount.Invoke(inGrid, thresholdHandle, count);
+
+        DispatchGT resolveTopology(count);
+        resolveTopology.Invoke(inGrid,outGeom);
         resolveTopology.CompactPointField(thresholdHandle,thresholdResult);
       }
       catch(dax::cont::ErrorControlOutOfMemory error)

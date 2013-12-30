@@ -25,8 +25,8 @@
 #include "daxToVtk/CellTypeToType.h"
 #include "daxToVtk/DataSetConverters.h"
 
-#include <dax/cont/Scheduler.h>
-#include <dax/cont/GenerateInterpolatedCells.h>
+#include <dax/cont/DispatcherGenerateInterpolatedCells.h>
+#include <dax/cont/DispatcherMapCell.h>
 #include <dax/worklet/MarchingCubes.h>
 
 namespace
@@ -76,37 +76,28 @@ namespace vtkToDax
 
       try
         {
-        //we don't want to use the custom container, so specify the default
-        //container for the classification storage.
-        typedef dax::cont::GenerateInterpolatedCells<
-              dax::worklet::MarchingCubesGenerate> GenerateIC;
 
-        // construct the scheduler that will execute all the worklets
-        dax::cont::Scheduler<Adapter> scheduler;
+        typedef dax::cont::DispatcherGenerateInterpolatedCells<
+                  dax::worklet::MarchingCubesGenerate,
+                  dax::cont::ArrayHandle< dax::Id >,
+                  Adapter >                             DispatchIC;
 
-        // construct the two worklets what will be used to do marching cubes
-        dax::worklet::MarchingCubesClassify classifyWorklet(isoValueT);
+        typedef typename DispatchIC::CountHandleType CountHandleType;
+
+        dax::worklet::MarchingCubesCount countWorklet(isoValueT);
+        dax::cont::DispatcherMapCell<
+                            dax::worklet::MarchingCubesCount,
+                            Adapter>       dispatchCount( countWorklet );
+
+        CountHandleType count;
+        dispatchCount.Invoke(inGrid, mcHandle, count);
+
+
         dax::worklet::MarchingCubesGenerate generateWorklet(isoValueT);
+        DispatchIC generateSurface(count, generateWorklet);
+        generateSurface.SetRemoveDuplicatePoints(true);
+        generateSurface.Invoke(inGrid,outGeom,mcHandle);
 
-        // run the first step
-        typedef typename GenerateIC::ClassifyResultType ClassifyResultType;
-        ClassifyResultType classification; // array handle for the
-                                           // first step
-                                           // (classification)
-        scheduler.Invoke(classifyWorklet,
-                         inGrid,
-                         mcHandle,
-                         classification);
-
-        // // construct the topology generation worklet
-        GenerateIC generate(classification,generateWorklet);
-        generate.SetRemoveDuplicatePoints(true);
-
-        // run the second step
-        scheduler.Invoke(generate,
-                         inGrid,
-                         outGeom,
-                         mcHandle);
         }
       catch(dax::cont::ErrorControlOutOfMemory error)
         {
