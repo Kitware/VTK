@@ -357,6 +357,19 @@ bool vtkCachingInterpolatedVelocityField::InterpolatePoint(
   return 1;
 }
 //---------------------------------------------------------------------------
+bool vtkCachingInterpolatedVelocityField::InterpolatePoint(
+  vtkCachingInterpolatedVelocityField* inCIVF, vtkPointData *outPD, vtkIdType outIndex)
+{
+  if (!this->Cache || !this->Cache->DataSet)
+    {
+    return 0;
+    }
+  vtkPointData* inPD = inCIVF->Cache->DataSet->GetPointData();
+  outPD->InterpolatePoint(
+    inPD, outIndex, this->Cache->Cell->PointIds, &this->Weights[0]);
+  return 1;
+}
+//---------------------------------------------------------------------------
 int vtkCachingInterpolatedVelocityField::GetLastWeights(double* w)
 {
   int j, numPts;

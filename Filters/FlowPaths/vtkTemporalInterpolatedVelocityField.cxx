@@ -318,13 +318,14 @@ bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
 bool vtkTemporalInterpolatedVelocityField::InterpolatePoint(
   int T, vtkPointData *outPD1, vtkIdType outIndex)
 {
+  vtkCachingInterpolatedVelocityField* inivf = this->ivf[T];
   // force use of correct weights/etc if static as only T0 are valid
   if (T==1 && this->IsStatic(this->ivf[T]->LastCacheIndex))
     {
     T=0;
     }
   //
-  return this->ivf[T]->InterpolatePoint(outPD1, outIndex);
+  return this->ivf[T]->InterpolatePoint(inivf, outPD1, outIndex);
 }
 //---------------------------------------------------------------------------
 bool vtkTemporalInterpolatedVelocityField::GetVorticityData(
