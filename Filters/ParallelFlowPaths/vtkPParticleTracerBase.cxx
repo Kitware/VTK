@@ -102,7 +102,7 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(ParticleInformation &i
   remoteInfo.PreviousPD->CopyAllocate(this->ProtoPD);
 
   //only copy those that correspond to the original data fields
-  for(int i=0; i <ProtoPD->GetNumberOfArrays(); i++)
+  for(int i=0; i <this->ProtoPD->GetNumberOfArrays(); i++)
     {
     char* arrName = this->ProtoPD->GetArray(i)->GetName();
     vtkDataArray* arrFrom = pd->GetArray(arrName);

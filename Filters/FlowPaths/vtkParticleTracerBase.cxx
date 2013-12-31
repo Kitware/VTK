@@ -467,9 +467,10 @@ int vtkParticleTracerBase::InitializeInterpolator()
           this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
           this->Interpolator->SetDataSetAtTime(index++, T, this->GetCacheDataTime(T), inp, static_dataset);
-          if (!this->DataReferenceT[T]) {
+          if (!this->DataReferenceT[T])
+            {
             this->DataReferenceT[T] = inp;
-          }
+            }
           //
           numValidInputBlocks[T]++;
           }
@@ -641,7 +642,7 @@ void vtkParticleTracerBase::TestParticles(vtkParticleTracerBaseNamespace::Partic
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::AssignSeedsToProcessors( double time,
   vtkDataSet *source, int sourceID, int ptId,
-  ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
+  ParticleVector &localSeedPoints, int &localAssignedCount)
 {
   ParticleVector candidates;
   //
@@ -676,25 +677,24 @@ void vtkParticleTracerBase::AssignSeedsToProcessors( double time,
   //
   // Gather all Seeds to all processors for classification
   //
-  this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
-  int TotalAssigned = LocalAssignedCount; (void)TotalAssigned;
+  this->TestParticles(candidates, localSeedPoints, localAssignedCount);
 
   // Assign unique identifiers taking into account uneven distribution
   // across processes and seeds which were rejected
-  this->AssignUniqueIds(LocalSeedPoints);
+  this->AssignUniqueIds(localSeedPoints);
   //
 
 }
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::AssignUniqueIds(
-  vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints)
+  vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints)
 {
-  vtkIdType ParticleCountOffset = 0;
-  vtkIdType numParticles = LocalSeedPoints.size();
+  vtkIdType particleCountOffset = 0;
+  vtkIdType numParticles = localSeedPoints.size();
   for (vtkIdType i=0; i<numParticles; i++)
     {
-    LocalSeedPoints[i].UniqueParticleId =
-    this->UniqueIdCounter + ParticleCountOffset + i;
+    localSeedPoints[i].UniqueParticleId =
+    this->UniqueIdCounter + particleCountOffset + i;
     }
   this->UniqueIdCounter += numParticles;
 }
@@ -1284,7 +1284,10 @@ bool vtkParticleTracerBase::ComputeDomainExitLocation(
     // We found an intersection on the edge of the cell.
     // Shift it by a small amount to ensure that it crosses over the edge
     // into the adjoining cell.
-    for (int i=0; i<3; i++) intersection[i] = pos[i] + (t+0.01)*(p2[i]-pos[i]);
+    for (int i=0; i<3; i++)
+      {
+      intersection[i] = pos[i] + (t+0.01)*(p2[i]-pos[i]);
+      }
     // intersection stored, compute T for intersection
     intersection[3] = pos[3] + (t+0.01)*(p2[3]-pos[3]);
     return 1;
