@@ -271,8 +271,8 @@ vtkSphereRepresentation rep
 vtkSphereWidget2 sphereWidget
   sphereWidget SetInteractor iren
   sphereWidget SetRepresentation rep
-#  sphereWidget TranslationEnabledOff
-#  sphereWidget ScalingEnabledOff
+  sphereWidget TranslationEnabledOff
+  sphereWidget ScalingEnabledOff
   sphereWidget AddObserver InteractionEvent MoveLight
 
 vtkInteractorEventRecorder recorder
