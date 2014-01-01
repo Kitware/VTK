@@ -67,7 +67,32 @@
     // ----------------------------------------------------------------------
 
     function attachMouseListener(mouseListenerContainer, renderersContainer) {
-        var current_button = null;
+        var current_button = null, area = [0,0,0,0];
+
+        function extractCoordinates(event, start) {
+            var elem_position = $(event.delegateTarget).offset(),
+            height = $(event.delegateTarget).height(),
+            x = (event.pageX - elem_position.left),
+            y = (event.pageY - elem_position.top),
+            offset = start ? 0 : 2;
+            area[0 + offset] = x;
+            area[1 + offset] = height - y;
+
+            if(!start) {
+                // Re-order area
+                var newArea = [
+                    Math.min(area[0], area[2]),
+                    Math.min(area[1], area[3]),
+                    Math.max(area[0], area[2]),
+                    Math.max(area[1], area[3])
+                ];
+                area[0] = newArea[0];
+                area[1] = newArea[1];
+                area[2] = newArea[2];
+                area[3] = newArea[3];
+            }
+
+        }
 
         // Internal method used to pre-process the interaction to standardise it
         // for a vtkWeb usage.
@@ -80,7 +105,11 @@
                         action: 'up',
                         current_button: current_button
                     }));
-                    renderersContainer.trigger('endInteraction');
+                    extractCoordinates(event, false);
+                    renderersContainer.trigger({
+                        type: 'endInteraction',
+                        area: area
+                    });
                 } else if(event.type === 'mousedown') {
                     current_button = event.which;
 
@@ -93,12 +122,14 @@
                         current_button = 2;
                         event.altKey = false;
                     }
+                    extractCoordinates(event, true);
                     renderersContainer.trigger('startInteraction');
                     renderersContainer.trigger($.extend(event, {
                         type: 'mouse',
                         action: 'down',
                         current_button: current_button
                     }));
+
                 } else if(event.type === 'mousemove' && current_button != null) {
                     renderersContainer.trigger($.extend(event, {
                         type: 'mouse',
@@ -648,6 +679,9 @@
              *
              * @member vtkWeb.Viewport
              * @event endInteraction
+             * @param area
+             * Provide the area in pixel between the startInteraction and endInteraction.
+             * This can be used for selection or zoom to box... [minX, minY, maxX, maxY]
              */
         };
 
