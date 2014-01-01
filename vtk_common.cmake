@@ -25,7 +25,7 @@
 # to configure it:
 #
 #   dashboard_model           = Nightly | Experimental | Continuous
-#   dashboard_branch_type     = master (default) | release (== 6.0) | 5.10
+#   dashboard_branch_type     = master (default) | release | 5.10
 #   dashboard_disable_loop    = For continuous dashboards, disable loop.
 #   dashboard_root_name       = Change name of "My Tests" directory
 #   dashboard_source_name     = Name of source directory (VTK)
@@ -46,7 +46,7 @@
 # Applicable when dashboard_branch == master
 #   dashboard_store_name      = Name of ExternalData store (ExternalData)
 #   VTK_USE_LARGE_DATA        = True to enable tests using "large" data
-# Applicable when dashboard_branch == 6.0 | 5.10
+# Applicable when dashboard_branch == 5.10
 #   dashboard_data_name       = Name of data directory (VTKData)
 #   dashboard_large_data_name = Name of data directory (VTKLargeData)
 #   VTK_DATA_ROOT             = Where to put data tree
@@ -120,8 +120,8 @@ if (dashboard_branch_type STREQUAL "master")
     endif()
   endif()
 endif()
-if (dashboard_branch_type STREQUAL "release" OR dashboard_branch_type STREQUAL "6.0")
-  set(branch_needs_data_repo TRUE)
+if (dashboard_branch_type STREQUAL "release")
+  set(branch_needs_data_repo FALSE)
   set (dashboard_branch_type "release")
   if(NOT DEFINED dashboard_git_branch)
     set (dashboard_git_branch "release")
