@@ -116,14 +116,33 @@ namespace
       }
 
     //------------------------------------------------------------------------
-    void WaitForWorkersToEnd()
+    void RequestAndWaitForWorkersToEnd()
       {
+      // Get the done lock so we other threads don't end up testing the Done
+      // flag and quitting before this thread starts to wait for them to quit.
+      this->DoneLock.Lock();
+      this->Done = true;
+
+      // Grab the ThreadDoneLock. so even if any thread ends up check this->Done
+      // as soon as we release the lock, it won't get a chance to terminate.
+      this->ThreadDoneLock.Lock();
+
+      // release the done lock. Let threads test for this->Done flag.
+      this->DoneLock.Unlock();
+
       // Tell all workers that inputs are available, so they will try to check
       // the input as well as the done flag.
       this->InputsAvailable.Broadcast();
-      this->ThreadDoneLock.Lock();
+
+      // Now wait for thread to terminate releasing this->ThreadDoneLock as soon
+      // as we start waiting. Thus, no threads have got a chance to call
+      // EndWorker() till the main thread starts waiting for them.
       this->ThreadDone.Wait(this->ThreadDoneLock);
+
       this->ThreadDoneLock.Unlock();
+
+      // reset Done flag since all threads have died.
+      this->Done = false;
       }
 
     //------------------------------------------------------------------------
@@ -133,14 +152,6 @@ namespace
       bool val  = this->Done;
       this->DoneLock.Unlock();
       return val;
-      }
-
-    //------------------------------------------------------------------------
-    void SetDone(bool val)
-      {
-      this->DoneLock.Lock();
-      this->Done = val;
-      this->DoneLock.Unlock();
       }
     
     //------------------------------------------------------------------------
@@ -355,14 +366,12 @@ public:
 
   void TerminateAllWorkers()
     {
-    this->SharedData.SetDone(true);
-    // now wait for all threads to close.
-    this->SharedData.WaitForWorkersToEnd();
+    // request and wait for all threads to close.
+    this->SharedData.RequestAndWaitForWorkersToEnd();
     }
 
   void SpawnWorkers()
     {
-    this->SharedData.SetDone(false);
     for (int cc=0; cc < MAX_NUMBER_OF_THREADS_IN_POOL; cc++)
       {
       this->Threader->SpawnThread(&Worker, &this->SharedData);
