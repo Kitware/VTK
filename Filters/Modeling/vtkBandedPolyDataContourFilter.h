@@ -107,6 +107,14 @@ public:
   vtkBooleanMacro(GenerateContourEdges,int);
 
   // Description:
+  // Set/Get the clip tolerance. Warning: setting this too large will
+  // certainly cause numerical issues. Change from the default value
+  // of FLT_EPSILON at your own risk. The actual internal clip tolerance
+  // is computed by multiplying ClipTolerance by the scalar range.
+  vtkSetMacro(ClipTolerance,double);
+  vtkGetMacro(ClipTolerance,double);
+
+  // Description:
   // Get the second output which contains the edges dividing the contour
   // bands. This output is empty unless GenerateContourEdges is enabled.
   vtkPolyData *GetContourEdgesOutput();
@@ -140,7 +148,8 @@ protected:
   double *ClipValues;
   int   NumberOfClipValues;
   int ClipIndex[2]; //indices outside of this range (inclusive) are clipped
-  double ClipTolerance; //used to clean up numerical problems
+  double ClipTolerance; //specify numerical accuracy during clipping
+  double InternalClipTolerance; //used to clean up numerical problems
 
   //the second output
   int GenerateContourEdges;
