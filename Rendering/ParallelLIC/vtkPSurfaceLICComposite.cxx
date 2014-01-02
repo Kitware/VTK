@@ -38,6 +38,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <cstddef>
 
 using std::list;
 using std::deque;
@@ -1272,9 +1273,9 @@ int vtkPSurfaceLICComposite::Gather(
   vector<MPI_Request> mpiSendReqs;
   deque<MPI_Datatype> mpiTypes;
   #ifdef PBO_RECV_BUFFERS
-  deque<vtkPixelBufferObject*> recvPBOs(nTransactions, NULL);
+  deque<vtkPixelBufferObject*> recvPBOs(nTransactions, static_cast<vtkPixelBufferObject*>(NULL));
   #else
-  deque<void*> recvBufs(nTransactions, NULL);
+  deque<void*> recvBufs(nTransactions, static_cast<void*>(NULL));
   #endif
   for (int j=0; j<nTransactions; ++j)
     {
