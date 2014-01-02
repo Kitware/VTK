@@ -94,6 +94,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkMolecule",
   "vtkPistonDataObject",
   "vtkPath",
+  "vtkUnstructuredGridBase",
   NULL
 };
 
