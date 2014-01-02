@@ -588,11 +588,12 @@ VTK_AUTOINIT(${vtk-module})
 
   # Generate the export macro header for symbol visibility/Windows DLL declspec
   generate_export_header(${vtk-module} EXPORT_FILE_NAME ${vtk-module}Module.h)
-  if (BUILD_SHARED_LIBS)
+  get_property(_buildtype TARGET ${vtk-module} PROPERTY TYPE)
+  if (NOT "${_buildtype}" STREQUAL STATIC_LIBRARY)
     # export flags are only added when building shared libs, they cause
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
-    # time to do that, we skip visibility flags for static builds.
+    # time to do that, we skip visibility flags for static libraries.
     add_compiler_export_flags(my_abi_flags)
     set_property(TARGET ${vtk-module} APPEND
       PROPERTY COMPILE_FLAGS "${my_abi_flags}")
