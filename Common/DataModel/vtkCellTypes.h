@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Add a cell to the object in the next available slot.
-  int InsertNextCell(unsigned char type, int loc);
+  vtkIdType InsertNextCell(unsigned char type, int loc);
 
   // Description:
   // Specify a group of cell types.
@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Return the location of the cell in the associated vtkCellArray.
-  int GetCellLocation(int cellId) { return this->LocationArray->GetValue(cellId);};
+  vtkIdType GetCellLocation(int cellId) { return this->LocationArray->GetValue(cellId);};
 
   // Description:
   // Delete cell by setting to NULL cell type.
@@ -73,7 +73,7 @@ public:
 
   // Description:
   // Return the number of types in the list.
-  int GetNumberOfTypes() { return (this->MaxId + 1);};
+  vtkIdType GetNumberOfTypes() { return (this->MaxId + 1);};
 
   // Description:
   // Return 1 if type specified is contained in list; 0 otherwise.
@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Add the type specified to the end of the list. Range checking is performed.
-  int InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);};
+  vtkIdType InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);};
 
   // Description:
   // Return the type of cell.
@@ -132,9 +132,10 @@ protected:
 
   vtkUnsignedCharArray *TypeArray; // pointer to types array
   vtkIntArray *LocationArray;   // pointer to array of offsets
-  int Size;            // allocated size of data
-  int MaxId;           // maximum index inserted thus far
-  int Extend;          // grow array by this point
+  vtkIdType Size;            // allocated size of data
+  vtkIdType MaxId;           // maximum index inserted thus far
+  vtkIdType Extend;          // grow array by this point
+
 private:
   vtkCellTypes(const vtkCellTypes&);  // Not implemented.
   void operator=(const vtkCellTypes&);    // Not implemented.

@@ -215,7 +215,7 @@ void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
 
 //----------------------------------------------------------------------------
 // Add a cell to the object in the next available slot.
-int vtkCellTypes::InsertNextCell(unsigned char type, int loc)
+vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, int loc)
 {
   vtkDebugMacro(<<"Insert Next Cell " << type << " location " << loc);
   this->InsertCell (++this->MaxId,type,loc);

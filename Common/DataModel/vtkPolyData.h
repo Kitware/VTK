@@ -199,7 +199,7 @@ public:
   // the PolyData::Allocate() function has been called first or that vertex,
   // line, polygon, and triangle strip arrays have been supplied.
   // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
-  int InsertNextCell(int type, int npts, vtkIdType *pts);
+  vtkIdType InsertNextCell(int type, int npts, vtkIdType *pts);
 
   // Description:
   // Insert a cell of type VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE, VTK_POLY_LINE,
@@ -207,7 +207,7 @@ public:
   // the PolyData::Allocate() function has been called first or that vertex,
   // line, polygon, and triangle strip arrays have been supplied.
   // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
-  int InsertNextCell(int type, vtkIdList *pts);
+  vtkIdType InsertNextCell(int type, vtkIdList *pts);
 
   // Description:
   // Begin inserting data all over again. Memory is not freed but otherwise
@@ -305,14 +305,14 @@ public:
   // links to the cells.  (To use this method, make sure points are available
   // and BuildLinks() has been invoked.) Of the two methods below, one inserts
   // a point coordinate and the other just makes room for cell links.
-  int InsertNextLinkedPoint(int numLinks);
-  int InsertNextLinkedPoint(double x[3], int numLinks);
+  vtkIdType InsertNextLinkedPoint(int numLinks);
+  vtkIdType InsertNextLinkedPoint(double x[3], int numLinks);
 
   // Description:
   // Add a new cell to the cell data structure (after cell pointers have been
   // built). This method adds the cell and then updates the links from the
   // points to the cells. (Memory is allocated as necessary.)
-  int InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
+  vtkIdType InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
 
   // Description:
   // Replace one cell with another in cell structure. This operator updates the
@@ -582,5 +582,3 @@ inline void vtkPolyData::ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId,
 }
 
 #endif
-
-
