@@ -380,7 +380,8 @@ int vtkCutter::RequestData(
     {
     this->RectilinearGridCutter(input, output);
     }
-  else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+  else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID_BASE ||
+           input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");
     this->UnstructuredGridCutter(input, output);

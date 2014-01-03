@@ -1,23 +1,24 @@
 vtk_add_test_cxx(
-  TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   BoxClipPolyData.cxx
   BoxClipTetrahedra.cxx
-  BoxClipTriangulate.cxx,NO_VALID
   BoxClipTriangulateAndInterpolate.cxx
+  BoxClipTriangulate.cxx,NO_VALID
   TestAppendPoints.cxx,NO_VALID
-  TestBooleanOperationPolyDataFilter.cxx
   TestBooleanOperationPolyDataFilter2.cxx
-  TestContourTriangulator.cxx
+  TestBooleanOperationPolyDataFilter.cxx
   TestContourTriangulatorCutter.cxx
+  TestContourTriangulator.cxx
   TestContourTriangulatorMarching.cxx
   TestDeformPointSet.cxx
   TestDensifyPolyData.cxx,-E15
   TestDistancePolyDataFilter.cxx
+  TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   TestImageDataToPointSet.cxx,NO_VALID
-  TestIntersectionPolyDataFilter.cxx
   TestIntersectionPolyDataFilter2.cxx,NO_VALID
+  TestIntersectionPolyDataFilter.cxx
   TestRectilinearGridToPointSet.cxx,NO_VALID
   TestReflectionFilter.cxx,NO_VALID
+  TestTableSplitColumnComponents.cxx,NO_VALID
   TestTransformFilter.cxx,NO_VALID
   TestTransformPolyDataFilter.cxx,NO_VALID
   TestUncertaintyTubeFilter.cxx

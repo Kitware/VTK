@@ -48,6 +48,7 @@ SET(Module_SRCS
   vtkTrivialProducer.cxx
   vtkUndirectedGraphAlgorithm.cxx
   vtkUnstructuredGridAlgorithm.cxx
+  vtkUnstructuredGridBaseAlgorithm.cxx
   vtkProgressObserver.cxx
   vtkSelectionAlgorithm.cxx
   vtkExtentRCBPartitioner.cxx

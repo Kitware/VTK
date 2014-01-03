@@ -588,11 +588,12 @@ VTK_AUTOINIT(${vtk-module})
 
   # Generate the export macro header for symbol visibility/Windows DLL declspec
   generate_export_header(${vtk-module} EXPORT_FILE_NAME ${vtk-module}Module.h)
-  if (BUILD_SHARED_LIBS)
+  get_property(_buildtype TARGET ${vtk-module} PROPERTY TYPE)
+  if (NOT "${_buildtype}" STREQUAL STATIC_LIBRARY)
     # export flags are only added when building shared libs, they cause
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
-    # time to do that, we skip visibility flags for static builds.
+    # time to do that, we skip visibility flags for static libraries.
     add_compiler_export_flags(my_abi_flags)
     set_property(TARGET ${vtk-module} APPEND
       PROPERTY COMPILE_FLAGS "${my_abi_flags}")
@@ -715,6 +716,19 @@ macro(vtk_module_third_party _pkg)
     else()
       set(vtk${_lower}_LIBRARIES "${${_upper}_LIBRARIES}")
     endif()
+
+    #a workaround for bad FindHDF5 behavior in which deb or opt can
+    #end up empty. cmake >= 2.8.12.2 makes this uneccessary
+    string(REGEX MATCH "debug;.*optimized;.*"
+           _remove_deb_opt "${vtk${_lower}_LIBRARIES}")
+    if (_remove_deb_opt)
+      set(_tmp ${vtk${_lower}_LIBRARIES})
+      list(REMOVE_ITEM _tmp "debug")
+      list(REMOVE_ITEM _tmp "optimized")
+      list(REMOVE_DUPLICATES _tmp)
+      set(vtk${_lower}_LIBRARIES ${_tmp})
+    endif()
+
     set(vtk${_lower}_INCLUDE_DIRS "")
   else()
     if(_nolibs)

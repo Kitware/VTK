@@ -845,7 +845,6 @@ protected:
 
   // Internal methods called by Send/Receive(vtkDataObject *... ) above.
   int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);
-  int SendMultiBlockDataSet(vtkMultiBlockDataSet* data, int remoteHandle, int tag);
   int ReceiveDataObject(vtkDataObject* data,
                         int remoteHandle, int tag, int type=-1);
   int ReceiveElementalDataObject(vtkDataObject* data,
