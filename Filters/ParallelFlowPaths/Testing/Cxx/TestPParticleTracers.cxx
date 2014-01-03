@@ -127,7 +127,6 @@ protected:
     this->BoundingBox[5]=1;
   }
 
-
   void GetSpacing(double dx[3])
   {
     for(int i=0; i<3; i++)
@@ -207,11 +206,18 @@ protected:
       {
       int* uExtent = outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-//      cout<<"Extent: "<<uExtent[0]<<" "<<uExtent[1]<<" "<<uExtent[2]<<" "<<uExtent[3]<<" "<<uExtent[4]<<" "<<uExtent[5]<<endl;
       outImage->SetExtent(uExtent);
-      int scalarType = vtkImageData::GetScalarType(outInfo);
-      int numComponents = vtkImageData::GetNumberOfScalarComponents(outInfo);
-      outImage->AllocateScalars(scalarType, numComponents);
+      //vtkGenericWarningMacro("time step in producer is " << timeStep);
+      vtkFloatArray* outArray1 = vtkFloatArray::New();
+      outArray1->SetName("Test");
+      outArray1->SetNumberOfComponents(1);
+      outArray1->SetNumberOfTuples(outImage->GetNumberOfPoints());
+      for(int i=0; i<outImage->GetNumberOfPoints(); i++)
+        {
+        outArray1->SetTuple(i, &timeStep);
+        }
+      outImage->GetPointData()->SetScalars(outArray1);
+      outArray1->Delete();
       }
     else
       {
@@ -228,13 +234,13 @@ protected:
     outImage->GetPointData()->SetActiveVectors("Gradients");
 
     int *extent = outImage->GetExtent();
-//    cout<<"Extent: "<<extent[0]<<" "<<extent[1]<<" "<<extent[2]<<" "<<extent[3]<<" "<<extent[4]<<" "<<extent[5]<<endl;
-
     vtkIdType stepX,stepY,stepZ;
     outImage->GetContinuousIncrements(extent,stepX,stepY,stepZ);
 
     float * outPtr = static_cast<float*> (outImage->GetArrayPointerForExtent(outArray,extent));
-     int gridSize[3] = {Extent[1]-Extent[0],Extent[3]-Extent[2],Extent[5]-Extent[4]};
+    int gridSize[3] = {this->Extent[1]-this->Extent[0],
+                       this->Extent[3]-this->Extent[2],
+                       this->Extent[5]-this->Extent[4]};
 
     double* origin = outImage->GetOrigin();
 
@@ -261,17 +267,6 @@ protected:
         }
       outPtr += stepZ;
      }
-
-    vtkFloatArray* outArray1 = vtkFloatArray::New();
-    outArray1->SetName("Test");
-    outArray1->SetNumberOfComponents(1);
-    outArray1->SetNumberOfTuples(outImage->GetNumberOfPoints());
-    for(int i=0; i<outImage->GetNumberOfPoints(); i++)
-      {
-      outArray1->SetTuple(i, &timeStep);
-      }
-    outImage->GetPointData()->AddArray(outArray1);
-    outArray1->Delete();
 
     return 1;
   }
@@ -389,7 +384,6 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
     }
 
   vtkCellArray* lines = out->GetLines();
-
   if(c->GetLocalProcessId() == 1)
     {
     EXPECT(2, lines->GetNumberOfCells(),"PParticlePath: wrong number of cells.", staticOption);

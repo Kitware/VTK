@@ -108,19 +108,18 @@ public:
   // (necessary for generating proper stream-ribbons using the
   // vtkRibbonFilter.
   vtkGetMacro(ComputeVorticity, bool);
-  void SetComputeVorticity(bool);
+  vtkSetMacro(ComputeVorticity, bool);
 
   // Description
   // Specify the terminal speed value, below which integration is terminated.
   vtkGetMacro(TerminalSpeed, double);
-  void SetTerminalSpeed(double);
+  vtkSetMacro(TerminalSpeed, double);
 
   // Description
   // This can be used to scale the rate with which the streamribbons
   // twist. The default is 1.
-  void SetRotationScale(double);
+  vtkSetMacro(RotationScale, double);
   vtkGetMacro(RotationScale, double);
-
 
   // Description:
   // To get around problems with the Paraview Animation controls
@@ -137,8 +136,8 @@ public:
   // Note that if the particle source is also animated, this flag will be
   // redundant as the particles will be reinjected whenever the source changes
   // anyway
-  void SetForceReinjectionEveryNSteps(int);
   vtkGetMacro(ForceReinjectionEveryNSteps,int);
+  vtkSetMacro(ForceReinjectionEveryNSteps,int);
 
   // Description:
   // Setting TerminationTime to a positive value will cause particles
@@ -159,9 +158,8 @@ public:
   // to terminate when the time is reached. Use a vlue of zero to
   // diable termination. The units of time should be consistent with the
   // primary time variable.
-  void SetStartTime(double t);
+  vtkSetMacro(StartTime, double);
   vtkGetMacro(StartTime,double);
-
 
   // Description:
   // if StaticSeeds is set and the mesh is static,
@@ -294,7 +292,6 @@ public:
   int InitializeInterpolator();
   int UpdateDataCache(vtkDataObject *td);
 
-
   // Description : Test the list of particles to see if they are
   // inside our data. Add good ones to passed list and set count to the
   // number that passed
@@ -313,14 +310,14 @@ public:
   // If either are non static, then this step is skipped.
   virtual void AssignSeedsToProcessors(double time,
     vtkDataSet *source, int sourceID, int ptId,
-    vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints,
-    int &LocalAssignedCount);
+    vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints,
+    int &localAssignedCount);
 
   // Description : once seeds have been assigned to a process, we
   // give each one a uniqu ID. We need to use MPI to find out
   // who is using which numbers.
   virtual void AssignUniqueIds(
-    vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints);
+    vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints);
 
   // Description : copy list of particles from a vector used for testing particles
   // and sending between processors, into a list, which is used as the master
