@@ -36,10 +36,16 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // In the test operation, a Jarque-Bera-Srivastava test of n-d normality is performed.
 //
+// The Robust PCA can be computed by using the median instead of the mean,
+// and the MAD matrix (Median Absolute Deviation) instead of the covariance matrix.
+// This can be done by activating the MedianAbsoluteDeviation boolean (declared in
+// the superclass).
+//
 // .SECTION Thanks
 // Thanks to David Thompson, Philippe Pebay and Jackson Mayo from
 // Sandia National Laboratories for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
+// Updated by Tristan Coulange and Joachim Pouderoux, Kitware SAS 2013
 
 #ifndef __vtkPCAStatistics_h
 #define __vtkPCAStatistics_h

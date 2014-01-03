@@ -21,12 +21,15 @@
 
 #include "vtkPMultiCorrelativeStatistics.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCommunicator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPOrderStatistics.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
@@ -74,7 +77,10 @@ void vtkPMultiCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
+  if ( !this->MedianAbsoluteDeviation )
+    {
+    vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -211,4 +217,10 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   delete [] M_l;
   delete [] M_g;
   delete [] n_g;
+}
+
+// ----------------------------------------------------------------------
+vtkOrderStatistics* vtkPMultiCorrelativeStatistics::CreateOrderStatisticsInstance()
+{
+  return vtkPOrderStatistics::New();
 }
