@@ -401,11 +401,14 @@ private:
   // Hide this because we require a new interpolator type
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
 
-  // Description : When particle leave the domain, they must be collected
-  // and sent to the other processors for possible continuation.
+  // Description:
+  // When particles leave the domain, they must be collected
+  // and sent to the other processes for possible continuation.
   // These routines manage the collection and sending after each main iteration.
-  // RetryWithPush adds a small pusj to aparticle along it's current velocity
-  // vector, this helps get over cracks in dynamic/rotating meshes
+  // RetryWithPush adds a small push to a particle along it's current velocity
+  // vector, this helps get over cracks in dynamic/rotating meshes. This is a
+  // firsr order integration though so it may introduce a bit extra error compared
+  // to the integrator that is used.
   bool RetryWithPush(
     vtkParticleTracerBaseNamespace::ParticleInformation &info, double* point1,double delT, int subSteps);
 
