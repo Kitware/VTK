@@ -1478,12 +1478,11 @@ bool vtkParticleTracerBase::RetryWithPush(
 
   info.CurrentPosition.x[3] += delT;
   info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
-
+  info.age += delT;
 
   if (info.LocationState!=ID_OUTSIDE_ALL)
     {
     // a push helped the particle get back into a dataset,
-    info.age += delT;
     info.ErrorCode = 6;
     return 1;
     }
