@@ -2149,12 +2149,11 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
 void vtkEnSightReader::RemoveLeadingBlanks(char *line)
 {
   int count = 0;
-  int len = static_cast<int>(strlen(line));
   while (line[count] == ' ')
     {
     count++;
     }
-  memcpy(line, line+count, len-count+1);
+  memcpy(line, line+count, strlen(line+count));
 }
 
 //----------------------------------------------------------------------------
