@@ -108,18 +108,18 @@ public:
   // (necessary for generating proper stream-ribbons using the
   // vtkRibbonFilter.
   vtkGetMacro(ComputeVorticity, bool);
-  vtkSetMacro(ComputeVorticity, bool);
+  void SetComputeVorticity(bool);
 
   // Description
   // Specify the terminal speed value, below which integration is terminated.
   vtkGetMacro(TerminalSpeed, double);
-  vtkSetMacro(TerminalSpeed, double);
+  void SetTerminalSpeed(double);
 
   // Description
   // This can be used to scale the rate with which the streamribbons
   // twist. The default is 1.
-  vtkSetMacro(RotationScale, double);
   vtkGetMacro(RotationScale, double);
+  void SetRotationScale(double);
 
   // Description:
   // To get around problems with the Paraview Animation controls
@@ -137,7 +137,7 @@ public:
   // redundant as the particles will be reinjected whenever the source changes
   // anyway
   vtkGetMacro(ForceReinjectionEveryNSteps,int);
-  vtkSetMacro(ForceReinjectionEveryNSteps,int);
+  void SetForceReinjectionEveryNSteps(int);
 
   // Description:
   // Setting TerminationTime to a positive value will cause particles
@@ -158,8 +158,8 @@ public:
   // to terminate when the time is reached. Use a vlue of zero to
   // diable termination. The units of time should be consistent with the
   // primary time variable.
-  vtkSetMacro(StartTime, double);
-  vtkGetMacro(StartTime,double);
+  vtkGetMacro(StartTime, double);
+  void SetStartTime(double t);
 
   // Description:
   // if StaticSeeds is set and the mesh is static,

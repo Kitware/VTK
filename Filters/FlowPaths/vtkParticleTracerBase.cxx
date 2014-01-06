@@ -1,17 +1,17 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkParticleTracerBase.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkParticleTracerBase.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
+  =========================================================================*/
 #include "vtkParticleTracerBase.h"
 
 #include "vtkAbstractParticleWriter.h"
@@ -40,14 +40,14 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 #ifdef WIN32
-  #undef JB_H5PART_PARTICLE_OUTPUT
+#undef JB_H5PART_PARTICLE_OUTPUT
 #else
 //  #define JB_H5PART_PARTICLE_OUTPUT
 #endif
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
 // #include "vtkH5PartWriter.h"
-  #include "vtkXMLParticleWriter.h"
+#include "vtkXMLParticleWriter.h"
 #endif
 
 #include <functional>
@@ -65,7 +65,26 @@ const double vtkParticleTracerBase::Epsilon = 1.0E-12;
 using namespace vtkParticleTracerBaseNamespace;
 
 vtkCxxSetObjectMacro(vtkParticleTracerBase, ParticleWriter, vtkAbstractParticleWriter);
-vtkCxxSetObjectMacro(vtkParticleTracerBase,Integrator,vtkInitialValueProblemSolver); //XXX
+vtkCxxSetObjectMacro(vtkParticleTracerBase,Integrator,vtkInitialValueProblemSolver);
+
+// this SetMacro is different than the regular vtkSetMacro
+// because it resets the cache as well.
+#define ParticleTracerSetMacro(name,type)               \
+  void vtkParticleTracerBase::Set##name (type _arg)     \
+  {                                                     \
+    if (this->name == _arg)                             \
+      {                                                 \
+      return;                                           \
+      }                                                 \
+    this->name = _arg;                                  \
+    this->ResetCache();                                 \
+    this->Modified();                                   \
+  }
+ParticleTracerSetMacro(StartTime, double)
+ParticleTracerSetMacro(ComputeVorticity, bool);
+ParticleTracerSetMacro(RotationScale, double)
+ParticleTracerSetMacro(ForceReinjectionEveryNSteps,int);
+ParticleTracerSetMacro(TerminalSpeed, double);
 
 namespace
 {
@@ -200,7 +219,7 @@ int vtkParticleTracerBase::ProcessRequest(
     }
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-      return this->RequestUpdateExtent(request, inputVector, outputVector);
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
@@ -223,12 +242,12 @@ int vtkParticleTracerBase::RequestInformation(
     unsigned int numberOfInputTimeSteps =
       inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     vtkDebugMacro(<<"vtkParticleTracerBase "
-      "inputVector TIME_STEPS " << numberOfInputTimeSteps);
+                  "inputVector TIME_STEPS " << numberOfInputTimeSteps);
     //
     // Get list of input time step values
     this->InputTimeValues.resize(numberOfInputTimeSteps);
     inInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-      &this->InputTimeValues[0] );
+                 &this->InputTimeValues[0] );
     if (numberOfInputTimeSteps==1 && this->DisableResetCache==0)
       {  //warning would be skipped in coprocessing work flow
       vtkWarningMacro(<<"Not enough input time steps for particle integration");
@@ -243,7 +262,7 @@ int vtkParticleTracerBase::RequestInformation(
       {
       this->SetStartTime(this->InputTimeValues.back());
       }
-  }
+    }
   else
     {
     vtkErrorMacro(<<"Input information has no TIME_STEPS set");
@@ -338,7 +357,7 @@ int vtkParticleTracerBase::RequestUpdateExtent(
         if(pmt>this->ExecuteTime.GetMTime())
           {
           PRINT("Reset cache of because upstream is newer")
-          this->ResetCache();
+            this->ResetCache();
           }
         }
       }
@@ -407,7 +426,8 @@ int vtkParticleTracerBase::InitializeInterpolator()
   int numValidInputBlocks[2] = {0, 0};
   int numTotalInputBlocks[2] = {0, 0};
   this->DataReferenceT[0] = this->DataReferenceT[1] = 0;
-  for (int T=0; T<2; T++) {
+  for (int T=0; T<2; T++)
+    {
     this->CachedBounds[T].clear();
     int index = 0;
     // iterate over all blocks of input and cache the bounds information
@@ -454,7 +474,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
         }
       anotherIterP->GoToNextItem();
       }
-  }
+    }
   if (numValidInputBlocks[0]==0 || numValidInputBlocks[1]==0)
     {
     vtkErrorMacro("Not enough inputs have been found. Can not execute."
@@ -603,7 +623,7 @@ void vtkParticleTracerBase::TestParticles(
     // if outside bounds, reject instantly
     if (this->InsideBounds(pos))
       {
-       // since this is first test, avoid bad cache tests
+      // since this is first test, avoid bad cache tests
       this->Interpolator->ClearCache();
       info.LocationState = this->Interpolator->TestPoint(pos);
       if (info.LocationState==ID_OUTSIDE_ALL /*|| location==ID_OUTSIDE_T0*/)
@@ -655,7 +675,7 @@ void vtkParticleTracerBase::AssignSeedsToProcessors(
     info.speed                = 0.0;
     info.ErrorCode            = 0;
     info.PointId = -1;
-  }
+    }
   //
   // Gather all Seeds to all processors for classification
   //
@@ -677,7 +697,7 @@ void vtkParticleTracerBase::AssignUniqueIds(
   for (vtkIdType i=0; i<numParticles; i++)
     {
     localSeedPoints[i].UniqueParticleId =
-    this->UniqueIdCounter + particleCountOffset + i;
+      this->UniqueIdCounter + particleCountOffset + i;
     }
   this->UniqueIdCounter += numParticles;
 }
@@ -687,10 +707,11 @@ void vtkParticleTracerBase::UpdateParticleList(ParticleVector &candidates)
 {
   int numSeedsNew = static_cast<int>(candidates.size());
   //
-  for (int i=0; i<numSeedsNew; i++) {
+  for (int i=0; i<numSeedsNew; i++)
+    {
     // allocate a new particle on the list and get a reference to it
     this->ParticleHistories.push_back(candidates[i]);
-  }
+    }
   vtkDebugMacro(<< "UpdateParticleList completed with " << this->NumberOfParticles() << " particles");
 }
 
@@ -730,7 +751,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   //set up the output
   vtkPolyData *output = vtkPolyData::New();
-    //
+  //
   // Add the datasets to an interpolator object
   //
   if (this->InitializeInterpolator() != VTK_OK)
@@ -851,7 +872,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       }
     }
   else
-   {
+    {
     ParticleListIterator  it_first = this->ParticleHistories.begin();
     ParticleListIterator  it_last  = this->ParticleHistories.end();
     ParticleListIterator  it_next;
@@ -1645,37 +1666,37 @@ vtkCharArray* vtkParticleTracerBase::GetParticleSourceIds(vtkPointData* pd)
 //---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetInjectedPointIds(vtkPointData* pd)
 {
- return vtkIntArray::SafeDownCast(pd->GetArray("InjectedPointId"));
+  return vtkIntArray::SafeDownCast(pd->GetArray("InjectedPointId"));
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetInjectedStepIds(vtkPointData* pd)
 {
- return vtkIntArray::SafeDownCast(pd->GetArray("InjectionStepId"));
+  return vtkIntArray::SafeDownCast(pd->GetArray("InjectionStepId"));
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetErrorCodeArr(vtkPointData* pd)
 {
- return vtkIntArray::SafeDownCast(pd->GetArray("ErrorCode"));
+  return vtkIntArray::SafeDownCast(pd->GetArray("ErrorCode"));
 }
 
 //---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleVorticity(vtkPointData* pd)
 {
- return vtkFloatArray::SafeDownCast(pd->GetArray("Vorticity"));
+  return vtkFloatArray::SafeDownCast(pd->GetArray("Vorticity"));
 }
 
 //---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleRotation(vtkPointData* pd)
 {
- return vtkFloatArray::SafeDownCast(pd->GetArray("Rotation"));
+  return vtkFloatArray::SafeDownCast(pd->GetArray("Rotation"));
 }
 
 //---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleAngularVel(vtkPointData* pd)
 {
- return vtkFloatArray::SafeDownCast(pd->GetArray("AngularVelocity"));
+  return vtkFloatArray::SafeDownCast(pd->GetArray("AngularVelocity"));
 }
 
 //---------------------------------------------------------------------------
