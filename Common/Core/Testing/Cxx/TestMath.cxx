@@ -159,6 +159,91 @@ int TestMath(int,char *[])
     }
   }
 
+  // Tests for AngleBetweenVectors()
+  {
+  std::cout << "Testing AngleBetweenVectors" << std::endl;
+  std::cout << "  * vector along x-axis, vector along y-axis" << std::endl;
+  double v1[3] = { 2.0, 0.0, 0.0 };
+  double v2[3] = { 0.0, 5.0, 0.0 };
+  double expected = vtkMath::RadiansFromDegrees(90.0);
+  double angle = vtkMath::AngleBetweenVectors(v1, v2);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(2,0,0 , 0,5,0) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+
+  std::cout << "  * 0,0,0 vector, vector along y-axis" << std::endl;
+  v1[0] = 0.0;
+  expected = 0.0;
+  angle = vtkMath::AngleBetweenVectors(v1, v2);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(0,0,0 , 0,5,0) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+
+  std::cout << "  * 0,0,0 vector, 0,0,0 vector" << std::endl;
+  v2[1] = 0.0;
+  angle = vtkMath::AngleBetweenVectors(v1, v2);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(0,0,0 , 0,0,0) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+
+  std::cout << "  * z unit vector, negative z vector" << std::endl;
+  v1[2] = 1.0;
+  v2[2] = -3.0;
+  expected = vtkMath::RadiansFromDegrees(180.0);
+  angle = vtkMath::AngleBetweenVectors(v1, v2);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(z unit , neg z) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+  angle = vtkMath::AngleBetweenVectors(v2, v1);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(neg z , z unit) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+
+  std::cout << "  * z unit vector, 4,4,4" << std::endl;
+  v2[0] = 4.0;
+  v2[1] = 4.0;
+  v2[2] = 4.0;
+  expected = 0.9553166181245093; // vtkMath::RadiansFromDegrees(54.735610317245346);
+  angle = vtkMath::AngleBetweenVectors(v1, v2);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(z unit , 4,4,4) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+
+  std::cout << "  * y unit vector, 4,4,4" << std::endl;
+  v1[0] = 0.0;
+  v1[1] = 1.0;
+  v1[2] = 0.0;
+  angle = vtkMath::AngleBetweenVectors(v1, v2);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(y unit , 4,4,4) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+
+  std::cout << "  * x unit vector, 4,4,4" << std::endl;
+  v1[0] = 1.0;
+  v1[1] = 0.0;
+  v1[2] = 0.0;
+  angle = vtkMath::AngleBetweenVectors(v1, v2);
+  if (!fuzzyCompare1D(angle, expected))
+    {
+    vtkGenericWarningMacro("AngleBetweenVectors(x unit , 4,4,4) = " << expected << "  != " << angle);
+    return EXIT_FAILURE;
+    }
+  }
+
   // Tests for GaussianAmplitude(double,double)
   {
   double gaussianAmplitude = vtkMath::GaussianAmplitude(1.0, 0);

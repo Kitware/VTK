@@ -3004,6 +3004,14 @@ int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta
 
 }
 
+//-----------------------------------------------------------------------------
+double vtkMath::AngleBetweenVectors(const double v1[3], const double v2[3])
+{
+  double cross[3];
+  vtkMath::Cross(v1, v2, cross);
+  return atan2(vtkMath::Norm(cross), vtkMath::Dot(v1, v2));
+}
+
 //----------------------------------------------------------------------------
 double vtkMath::GaussianAmplitude(const double variance, const double distanceFromMean)
 {
