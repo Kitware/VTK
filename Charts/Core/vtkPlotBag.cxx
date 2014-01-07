@@ -127,25 +127,9 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
   // Sort the density array
   std::vector<vtkIdType> ids;
   ids.resize(nbPoints);
-  double sum = 0.0;
   for (vtkIdType i = 0; i < nbPoints; i++)
     {
-    sum += density->GetTuple1(i);
     ids[i] = i;
-    }
-
-  vtkNew<vtkDoubleArray> nDensity;
-  // Normalize the density array if needed
-  if (fabs(sum - 1.0) > 1.0e-12)
-    {
-    sum = 1.0 / sum;
-    nDensity->SetNumberOfComponents(1);
-    nDensity->SetNumberOfTuples(nbPoints);
-    for (vtkIdType i = 0; i < nbPoints; i++)
-      {
-      nDensity->SetTuple1(i, density->GetTuple1(ids[i]) * sum);
-      }
-    density = nDensity.GetPointer();
     }
 
   // Sort array by density
