@@ -28,10 +28,16 @@ if(MATPLOTLIB_FOUND)
     TestIndexedLookupScalarBar.cxx
     TestScalarBarCombinatorics.cxx
     )
+else()
+  # The ctest test driver needs at least one test defined. This small test
+  # makes the driver produce valid C++ code. Some compilers detected an
+  # out of bounds array access.
+  vtk_add_test_cxx(
+    TestsAreDisabled.cxx,NO_VALID
+    )
 endif()
 
 vtk_add_test_cxx(${GL2PSTests})
-
 vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 
 # The GL2PS tests produce postscript output, which cannot be compared using
@@ -40,6 +46,7 @@ vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
 # run the PNGCompare test target to do an image diff on the output against a
 # baseline.
 if(GL2PSTests)
+
   foreach(test ${GL2PSTests} ${MixedTests})
     # Convert ps to png
     get_filename_component(TName ${test} NAME_WE)
