@@ -1,4 +1,5 @@
 vtk_add_test_cxx(
+  TestAssemblyBounds.cxx,NO_VALID
   TestPickingManager.cxx,NO_VALID
   TestSplitViewportStereoHorizontal.cxx
   # otherLookupTable.cxx             # fixme

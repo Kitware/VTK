@@ -374,6 +374,12 @@ double *vtkAssembly::GetBounds()
       double* bounds = prop3D->GetBounds();
       prop3D->PokeMatrix(NULL);
 
+      // Skip any props that have uninitialized bounds
+      if (bounds == NULL || !vtkMath::AreBoundsInitialized(bounds))
+        {
+        continue;
+        }
+
       double bbox[24];
       // fill out vertices of a bounding box
       bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
