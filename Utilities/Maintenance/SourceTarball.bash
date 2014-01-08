@@ -46,8 +46,20 @@ find_data_objects() {
   return_pipe_status
 }
 
+if md5sum_type=$(type -p md5sum); then
+  compute_MD5() {
+    md5sum "$1" | sed 's/ .*//'
+  }
+elif md5_type=$(type -p md5); then
+  compute_MD5() {
+    md5 "$1" | sed 's/.*= //'
+  }
+else
+  die 'Neither "md5sum" nor "md5" tool is available.'
+fi
+
 validate_MD5() {
-  md5sum=$(md5sum "$1" | sed 's/ .*//') &&
+  md5sum=$(compute_MD5 "$1") &&
   if test "$md5sum" != "$2"; then
     die "Object MD5/$2 is corrupt: $1"
   fi
