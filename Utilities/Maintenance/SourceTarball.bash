@@ -35,7 +35,15 @@ return_pipe_status() {
 }
 
 find_data_objects() {
+  # TODO: Somehow mark large data in the tree instead of hard-coding it here.
+  large='Testing/Data/(LSDyna|MFIXReader|NetCDF|SLAC|WindBladeReader)/'
+  if test "$2" = "VTK_USE_LARGE_DATA"; then
+    v=''
+  else
+    v='-v'
+  fi
   git ls-tree --full-tree -r "$1" |
+  egrep $v "$large" |
   egrep '\.(md5)$' |
   while read mode type obj path; do
     case "$path" in
@@ -100,14 +108,21 @@ index_data_objects() {
 }
 
 load_data_objects() {
-  find_data_objects "$1" |
+  find_data_objects "$@" |
   index_data_objects
+  return_pipe_status
+}
+
+load_data_files() {
+  git ls-tree -r "$1" -- '.ExternalData' |
+  git update-index --index-info
   return_pipe_status
 }
 
 git_archive_tgz() {
   out="$2.tar.gz" && tmp="$out.tmp$$" &&
-  git -c core.autocrlf=false archive $verbose --format=tar --prefix=$2/ $1 |
+  if test -n "$3"; then prefix="$3"; else prefix="$2"; fi &&
+  git -c core.autocrlf=false archive $verbose --format=tar --prefix=$prefix/ $1 |
   gzip -9 > "$tmp" &&
   mv "$tmp" "$out" &&
   info "Wrote $out"
@@ -115,7 +130,8 @@ git_archive_tgz() {
 
 git_archive_txz() {
   out="$2.tar.xz" && tmp="$out.tmp$$" &&
-  git -c core.autocrlf=false archive $verbose --format=tar --prefix=$2/ $1 |
+  if test -n "$3"; then prefix="$3"; else prefix="$2"; fi &&
+  git -c core.autocrlf=false archive $verbose --format=tar --prefix=$prefix/ $1 |
   xz -9 > "$tmp" &&
   mv "$tmp" "$out" &&
   info "Wrote $out"
@@ -123,7 +139,8 @@ git_archive_txz() {
 
 git_archive_zip() {
   out="$2.zip" && tmp="$out.tmp$$" &&
-  git -c core.autocrlf=true archive $verbose --format=zip --prefix=$2/ $1 > "$tmp" &&
+  if test -n "$3"; then prefix="$3"; else prefix="$2"; fi &&
+  git -c core.autocrlf=true archive $verbose --format=zip --prefix=$prefix/ $1 > "$tmp" &&
   mv "$tmp" "$out" &&
   info "Wrote $out"
 }
@@ -167,18 +184,40 @@ fi
 
 # Create temporary git index to construct source tree
 export GIT_INDEX_FILE="$(pwd)/tmp-$$-index" &&
-trap "rm -rf '$GIT_INDEX_FILE'" EXIT &&
+trap "rm -f '$GIT_INDEX_FILE'" EXIT &&
 
-info "Loading tree from $commit..." &&
-git read-tree -m -i $commit &&
-
-info "Loading data for $commit..." &&
-load_data_objects $commit &&
-
-info "Generating source archive..." &&
-tree=$(git write-tree) &&
 result=0 &&
+
+info "Loading source tree from $commit..." &&
+rm -f "$GIT_INDEX_FILE" &&
+git read-tree -m -i $commit &&
+git rm -rf -q --cached '.ExternalData' &&
+tree=$(git write-tree) &&
+
+info "Generating source archive(s)..." &&
 for fmt in $formats; do
   git_archive_$fmt $tree "VTK-$version" || result=1
 done &&
+
+info "Loading normal data for $commit..." &&
+rm -f "$GIT_INDEX_FILE" &&
+load_data_objects $commit &&
+load_data_files $commit &&
+tree=$(git write-tree) &&
+
+info "Generating normal data archive(s)..." &&
+for fmt in $formats; do
+  git_archive_$fmt $tree "VTKData-$version" "VTK-$version" || result=1
+done &&
+
+info "Loading large data for $commit..." &&
+rm -f "$GIT_INDEX_FILE" &&
+load_data_objects $commit VTK_USE_LARGE_DATA &&
+tree=$(git write-tree) &&
+
+info "Generating large data archive(s)..." &&
+for fmt in $formats; do
+  git_archive_$fmt $tree "VTKLargeData-$version" "VTK-$version" || result=1
+done &&
+
 exit $result
