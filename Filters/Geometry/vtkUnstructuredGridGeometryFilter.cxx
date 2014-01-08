@@ -993,7 +993,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
          ||(cellType>=VTK_QUADRATIC_EDGE && cellType<=VTK_QUADRATIC_QUAD)
          ||(cellType==VTK_BIQUADRATIC_QUAD)
          ||(cellType==VTK_QUADRATIC_LINEAR_QUAD)
-         ||(cellType==VTK_BIQUADRATIC_TRIANGLE))
+         ||(cellType==VTK_BIQUADRATIC_TRIANGLE)
+         ||(cellType==VTK_CUBIC_LINE)
+        )
         {
         vtkDebugMacro(<<"not 3D cell. type="<<cellType);
         // not 3D: just copy it
@@ -1387,6 +1389,11 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
               ++face;
               }
             break;
+          default:
+            vtkErrorMacro(<< "Cell type "
+                          << vtkCellTypes::GetClassNameFromTypeId(cellType)
+                          << "(" << cellType << ")"
+                          << " is not a 3D cell.")
           }
         }
       } //if cell is visible
