@@ -41,6 +41,9 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
     "${module_srcs};${Kit_JAVA_EXTRA_WRAP_SRCS}")
 
   add_library(${module_name}Java SHARED ${ModuleJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
+  if(MINGW)
+    set_target_properties(${module_name}Java PROPERTIES PREFIX "")
+  endif(MINGW)
   vtk_target_export(${module_name}Java)
   if(CMAKE_HAS_TARGET_INCLUDES)
     set_property(TARGET ${module_name}Java APPEND
