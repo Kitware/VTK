@@ -124,7 +124,7 @@ try:
     ren1.SetBackground(1, 1, 1)
 
     renWin.SetSize(375, 200)
-
+    renWin.SetMultiSamples(0)
     iren.Initialize()
 
     # render the image

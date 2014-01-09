@@ -540,6 +540,7 @@ int TestImplicitPlaneWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   // render the image
   //
+  renWin->SetMultiSamples(0);
   iren->Initialize();
   renWin->Render();
   recorder->Play();

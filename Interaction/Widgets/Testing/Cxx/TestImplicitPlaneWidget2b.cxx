@@ -197,6 +197,7 @@ int TestImplicitPlaneWidget2b( int, char *[] )
 
   // render the image
   //
+  renWin->SetMultiSamples(0);
   iren->Initialize();
   renWin->Render();
   planeWidget->SetEnabled(1);

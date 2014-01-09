@@ -56,6 +56,7 @@ int SurfacePlusEdges(int argc, char *argv[])
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->AddRenderer(renderer);
   renwin->SetSize(250, 250);
+  renwin->SetMultiSamples(0);
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
