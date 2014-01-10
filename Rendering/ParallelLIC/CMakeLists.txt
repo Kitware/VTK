@@ -96,8 +96,7 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
+include(vtkMPI)
+
 vtk_module_library(${vtk-module} ${Module_SRCS})
 vtk_mpi_link(${vtk-module})
-
-include_directories(${OPENGL_INCLUDE_DIR})
-include_directories(${MPI_C_INCLUDE_PATH})
