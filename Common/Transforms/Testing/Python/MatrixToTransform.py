@@ -203,5 +203,6 @@ ren42.SetViewport(0.75,0.0,1.0,0.5)
 ren42.ResetCamera(-0.5,0.5,-0.5,0.5,-1,1)
 ren42.AddActor(a42)
 renWin.AddRenderer(ren42)
+renWin.SetMultiSamples(0)
 renWin.Render()
 # --- end of script --
