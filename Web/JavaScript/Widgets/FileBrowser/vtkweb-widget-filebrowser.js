@@ -69,6 +69,7 @@
             me.append(container);
             me.data('file-list', opts.data);
             me.data('session', opts.session);
+            me.data('cacheFiles', opts.cacheFiles);
 
             if(opts.data === null) {
                 opts.session.call('vtk:listServerDirectory','.').then(function(files) {
@@ -140,7 +141,8 @@
     $.fn.fileBrowser.defaults = {
         template: "#vtk-templates > .vtkweb-widget-filebrowser > div",
         session: null,
-        data: null
+        data: null,
+        cacheFiles: true
     };
 
     // =======================================================================
@@ -206,6 +208,9 @@
                 if(newActive.length === 1) {
                      $('.vtk-directory', container).removeClass('active');
                      newActive.addClass('active');
+                }
+                if (container.data('cacheFiles') === false) {
+                    container.updateFileBrowser(newPath);
                 }
             } else if(type === 'dir') {
                 // Swicth active panel
