@@ -30,3 +30,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkChemistryConfigure.h.in"
 
 set(${vtk-module}_NO_HeaderTest 1) # TODO: Fix headers and enable test.
 vtk_module_library(${vtk-module} ${Module_SRCS})
+
+install(FILES elements.xml COPYING
+  DESTINATION ${VTK_INSTALL_DATA_DIR}/vtkDomainsChemistry)
