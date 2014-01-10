@@ -12,44 +12,23 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkParticleTracerBase.h"
 #include "vtkPParticleTracerBase.h"
 
-#include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataPipeline.h"
+#include "vtkCommunicator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDoubleArray.h"
-#include "vtkExecutive.h"
-#include "vtkGenericCell.h"
-#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkCharArray.h"
-#include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointSet.h"
 #include "vtkPolyData.h"
-#include "vtkPolyLine.h"
-#include "vtkRungeKutta2.h"
-#include "vtkRungeKutta4.h"
-#include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
-#include "vtkTemporalInterpolatedVelocityField.h"
-#include "vtkOutputWindow.h"
-#include "vtkAbstractParticleWriter.h"
-//#include "vtkToolkits.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include <cassert>
-#include "vtkMPIController.h"
-#include "vtkMultiProcessController.h"
 
 #include <algorithm>
 
@@ -59,16 +38,6 @@ vtkPParticleTracerBase::vtkPParticleTracerBase()
 {
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  if(this->Controller)
-    {
-    this->Rank = this->Controller->GetLocalProcessId();
-    this->NumProcs = this->Controller->GetNumberOfProcesses();
-    }
-  else
-    {
-    this->Rank = 1;
-    this->NumProcs = 1;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -78,19 +47,20 @@ vtkPParticleTracerBase::~vtkPParticleTracerBase()
   this->SetParticleWriter(NULL);
 }
 
+//---------------------------------------------------------------------------
 vtkPolyData* vtkPParticleTracerBase::Execute(vtkInformationVector** inputVector)
 {
   vtkDebugMacro(<< "Clear MPI send list ");
   this->MPISendList.clear();
-
   this->Tail.clear();
 
   return vtkParticleTracerBase::Execute(inputVector);
 }
 
-bool vtkPParticleTracerBase::SendParticleToAnotherProcess(ParticleInformation &info,
-                                                          ParticleInformation &previousInfo,
-                                                          vtkPointData* pd)
+//---------------------------------------------------------------------------
+bool vtkPParticleTracerBase::SendParticleToAnotherProcess(
+  ParticleInformation &info, ParticleInformation &previousInfo,
+  vtkPointData* pd)
 {
   assert(info.PointId>=0); //the particle must have already been added;
 
@@ -102,7 +72,7 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(ParticleInformation &i
   remoteInfo.PreviousPD->CopyAllocate(this->ProtoPD);
 
   //only copy those that correspond to the original data fields
-  for(int i=0; i <ProtoPD->GetNumberOfArrays(); i++)
+  for(int i=0; i <this->ProtoPD->GetNumberOfArrays(); i++)
     {
     char* arrName = this->ProtoPD->GetArray(i)->GetName();
     vtkDataArray* arrFrom = pd->GetArray(arrName);
@@ -129,14 +99,14 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(ParticleInformation &i
 }
 
 //---------------------------------------------------------------------------
-void vtkPParticleTracerBase::AssignSeedsToProcessors(double t,
-  vtkDataSet *source, int sourceID, int ptId,
-  ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
+void vtkPParticleTracerBase::AssignSeedsToProcessors(
+  double t, vtkDataSet *source, int sourceID, int ptId,
+  ParticleVector &localSeedPoints, int &localAssignedCount)
 {
   if(!this->Controller)
     {
     return Superclass::AssignSeedsToProcessors(t, source, sourceID, ptId,
-                                               LocalSeedPoints, LocalAssignedCount);
+                                               localSeedPoints, localAssignedCount);
     }
   ParticleVector candidates;
   //
@@ -172,53 +142,47 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(double t,
   //
   // TODO : can we just use the same array here for send and receive
   ParticleVector allCandidates;
-  this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
+  this->TestParticles(candidates, localSeedPoints, localAssignedCount);
   int TotalAssigned = 0;
-  this->Controller->Reduce(&LocalAssignedCount, &TotalAssigned, 1, vtkCommunicator::SUM_OP, 0);
+  this->Controller->Reduce(&localAssignedCount, &TotalAssigned, 1, vtkCommunicator::SUM_OP, 0);
 
   // Assign unique identifiers taking into account uneven distribution
   // across processes and seeds which were rejected
-  this->AssignUniqueIds(LocalSeedPoints);
+  this->AssignUniqueIds(localSeedPoints);
 }
+
 //---------------------------------------------------------------------------
 void vtkPParticleTracerBase::AssignUniqueIds(
-  vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints)
+  vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints)
 {
   if(!this->Controller)
     {
-    return Superclass::AssignUniqueIds(LocalSeedPoints);
+    return Superclass::AssignUniqueIds(localSeedPoints);
     }
 
-  vtkIdType ParticleCountOffset = 0;
-  vtkIdType numParticles = LocalSeedPoints.size();
+  vtkIdType particleCountOffset = 0;
+  vtkIdType numParticles = localSeedPoints.size();
 
-  if (this->NumProcs>1)
+  if (this->Controller->GetNumberOfProcesses()>1)
     {
-    vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
-      this->Controller->GetCommunicator());
-    if (com == 0) {
-      vtkErrorMacro("MPICommunicator needed for this operation.");
-      return;
-    }
     // everyone starts with the master index
-    com->Broadcast(&this->UniqueIdCounter, 1, 0);
-//    vtkErrorMacro("UniqueIdCounter " << this->UniqueIdCounter);
+    this->Controller->Broadcast(&this->UniqueIdCounter, 1, 0);
     // setup arrays used by the AllGather call.
-    std::vector<vtkIdType> recvNumParticles(this->NumProcs, 0);
+    std::vector<vtkIdType> recvNumParticles(this->Controller->GetNumberOfProcesses(), 0);
     // Broadcast and receive count to/from all other processes.
-    com->AllGather(&numParticles, &recvNumParticles[0], 1);
+    this->Controller->AllGather(&numParticles, &recvNumParticles[0], 1);
     // Each process is allocating a certain number.
     // start our indices from sum[0,this->Rank](numparticles)
-    for (int i=0; i<this->Rank; ++i)
+    for (int i=0; i<this->Controller->GetLocalProcessId(); ++i)
       {
-      ParticleCountOffset += recvNumParticles[i];
+      particleCountOffset += recvNumParticles[i];
       }
     for (vtkIdType i=0; i<numParticles; i++)
       {
-      LocalSeedPoints[i].UniqueParticleId =
-        this->UniqueIdCounter + ParticleCountOffset + i;
+      localSeedPoints[i].UniqueParticleId =
+        this->UniqueIdCounter + particleCountOffset + i;
       }
-    for (int i=0; i<this->NumProcs; ++i)
+    for (int i=0; i<this->Controller->GetNumberOfProcesses(); ++i)
       {
       this->UniqueIdCounter += recvNumParticles[i];
       }
@@ -226,29 +190,21 @@ void vtkPParticleTracerBase::AssignUniqueIds(
   else {
     for (vtkIdType i=0; i<numParticles; i++)
       {
-      LocalSeedPoints[i].UniqueParticleId =
-        this->UniqueIdCounter + ParticleCountOffset + i;
+      localSeedPoints[i].UniqueParticleId =
+        this->UniqueIdCounter + particleCountOffset + i;
       }
     this->UniqueIdCounter += numParticles;
   }
 }
 
-
+//---------------------------------------------------------------------------
 void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticles,
-                                                  RemoteParticleVector &rParticles
-                                                  )
+                                                  RemoteParticleVector &rParticles)
 {
-  vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
-  if (com == 0)
-    {
-    return;
-    }
-
   int numParticles = static_cast<int>(sParticles.size());
-  std::vector<int> allNumParticles(this->NumProcs, 0);
+  std::vector<int> allNumParticles(this->Controller->GetNumberOfProcesses(), 0);
   // Broadcast and receive size to/from all other processes.
-  com->AllGather(&numParticles, &allNumParticles[0], 1);
-
+  this->Controller->AllGather(&numParticles, &allNumParticles[0], 1);
 
   // write the message
   const int size1 = sizeof(ParticleInformation);
@@ -280,11 +236,11 @@ void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
       }
     }
 
-  std::vector<vtkIdType> messageLength(this->NumProcs, 0);
-  std::vector<vtkIdType> messageOffset(this->NumProcs, 0);
+  std::vector<vtkIdType> messageLength(this->Controller->GetNumberOfProcesses(), 0);
+  std::vector<vtkIdType> messageOffset(this->Controller->GetNumberOfProcesses(), 0);
   int allMessageSize(0);
   int numAllParticles(0);
-  for (int i=0; i<this->NumProcs; ++i)
+  for (int i=0; i<this->Controller->GetNumberOfProcesses(); ++i)
     {
     numAllParticles+= allNumParticles[i];
     messageLength[i] = allNumParticles[i]*typeSize;
@@ -295,15 +251,12 @@ void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
   //receive the message
 
   std::vector<char> recvMessage(allMessageSize,0);
-  com->AllGatherV(messageSize>0?  &sendMessage[0] : NULL,
-                  allMessageSize>0? &recvMessage[0] : NULL,
-                  messageSize,
-                  &messageLength[0],
-                  &messageOffset[0]);
-
+  this->Controller->AllGatherV(messageSize>0?  &sendMessage[0] : NULL,
+                               allMessageSize>0? &recvMessage[0] : NULL,
+                               messageSize, &messageLength[0],
+                               &messageOffset[0]);
 
   //read the message
-
   rParticles.resize(numAllParticles);
   for(int i=0; i<numAllParticles; i++)
     {
@@ -326,21 +279,20 @@ void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
       }
     }
 
-  assert(this->Rank==this->Rank);
-
-  std::vector<RemoteParticleInfo>::iterator first = rParticles.begin() + messageOffset[this->Rank]/typeSize;
-  std::vector<RemoteParticleInfo>::iterator last =  first + messageLength[this->Rank]/typeSize;
+  std::vector<RemoteParticleInfo>::iterator first =
+    rParticles.begin() + messageOffset[this->Controller->GetLocalProcessId()]/typeSize;
+  std::vector<RemoteParticleInfo>::iterator last =
+    first + messageLength[this->Controller->GetLocalProcessId()]/typeSize;
   rParticles.erase(first, last);
   // // don't want the ones that we sent away
   this->MPISendList.clear();
 }
 
-
-int vtkPParticleTracerBase::RequestUpdateExtent(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector)
+//---------------------------------------------------------------------------
+int vtkPParticleTracerBase::RequestUpdateExtent(
+  vtkInformation* request, vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   if (sourceInfo)
     {
@@ -366,6 +318,7 @@ int vtkPParticleTracerBase::RequestData(
 
   return rvalue;
 }
+
 //---------------------------------------------------------------------------
 void vtkPParticleTracerBase::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -374,7 +327,7 @@ void vtkPParticleTracerBase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-
+//---------------------------------------------------------------------------
 void vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
 {
   if(!this->Controller)
@@ -389,7 +342,7 @@ void vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
 
   // the Particle lists will grow if any are received
   // so we must be very careful with our iterators
-//  this->TransmitReceiveParticles(this->MPISendList, received, true);
+  //  this->TransmitReceiveParticles(this->MPISendList, received, true);
   // classify all the ones we received
   if (received.size()>0)
     {
@@ -420,9 +373,9 @@ void vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
     this->Tail.push_back(info);
     this->ParticleHistories.push_back(info.Current);
     }
-
 }
 
+//---------------------------------------------------------------------------
 bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
 {
   if(this->Controller->GetNumberOfProcesses() == 1)
@@ -491,11 +444,10 @@ bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
     return false;
     }
   int tmp = retVal;
-  this->Controller->AllReduce(&tmp, &retVal, 1, vtkMPICommunicator::MIN_OP);
+  this->Controller->AllReduce(&tmp, &retVal, 1, vtkCommunicator::MIN_OP);
 
   return (retVal != 0);
 }
-
 
 //---------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkPParticleTracerBase, Controller, vtkMultiProcessController);

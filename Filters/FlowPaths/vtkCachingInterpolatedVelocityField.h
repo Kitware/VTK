@@ -145,6 +145,8 @@ protected:
   // vtkTemporalInterpolatedVelocityField
   void FastCompute(IVFDataSetInfo *cache, double f[3]);
   bool InterpolatePoint(vtkPointData *outPD, vtkIdType outIndex);
+  bool InterpolatePoint(vtkCachingInterpolatedVelocityField *inCIVF,
+                        vtkPointData *outPD, vtkIdType outIndex);
   vtkGenericCell *GetLastCell();
 //ETX
 

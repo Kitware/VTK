@@ -12,30 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkPParticleTracer.h"
-#include "vtkPParticlePathFilter.h"
-#include "vtkPStreaklineFilter.h"
-#include "vtkMPIController.h"
-#include "vtkIdList.h"
-#include "vtkPoints.h"
-#include "vtkMath.h"
-#include "vtkNew.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkCellArray.h"
 #include "vtkAlgorithm.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkImageData.h"
+#include "vtkMPIController.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPParticlePathFilter.h"
+#include "vtkPParticleTracer.h"
+#include "vtkPStreaklineFilter.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include <vector>
 
-#define PRINT(x) cout<<"("<<Rank<<")"<<x<<endl;
-
-#define EXPECT(a,msg)\
-  if(!(a)) {                                    \
-  cerr<<"Line "<<__LINE__<<":"<<msg<<endl;\
+#define EXPECT(expected,actual,msg,so)                        \
+  if(!(expected == actual)) {                               \
+  vtkGenericWarningMacro(<<msg<< " Expecting a value of " << expected << \
+                         " but getting a value of " << actual << " for static option of " << so); \
   return EXIT_FAILURE;\
   }
 
@@ -113,21 +112,20 @@ protected:
       this->TimeSteps.push_back(i);
       }
 
-    Extent[0] = 0;
-    Extent[1] = 1;
-    Extent[2] = 0;
-    Extent[3] = 1;
-    Extent[4] = 0;
-    Extent[5] = 1;
+    this->Extent[0] = 0;
+    this->Extent[1] = 1;
+    this->Extent[2] = 0;
+    this->Extent[3] = 1;
+    this->Extent[4] = 0;
+    this->Extent[5] = 1;
 
-    BoundingBox[0]=0;
-    BoundingBox[1]=1;
-    BoundingBox[2]=0;
-    BoundingBox[3]=1;
-    BoundingBox[4]=0;
-    BoundingBox[5]=1;
+    this->BoundingBox[0]=0;
+    this->BoundingBox[1]=1;
+    this->BoundingBox[2]=0;
+    this->BoundingBox[3]=1;
+    this->BoundingBox[4]=0;
+    this->BoundingBox[5]=1;
   }
-
 
   void GetSpacing(double dx[3])
   {
@@ -175,7 +173,7 @@ protected:
                  range,2);
 
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 &TimeSteps[0], static_cast<int>(TimeSteps.size()));
+                 &this->TimeSteps[0], static_cast<int>(this->TimeSteps.size()));
 
 
     outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->Extent,6);
@@ -208,18 +206,25 @@ protected:
       {
       int* uExtent = outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-//      cout<<"Extent: "<<uExtent[0]<<" "<<uExtent[1]<<" "<<uExtent[2]<<" "<<uExtent[3]<<" "<<uExtent[4]<<" "<<uExtent[5]<<endl;
       outImage->SetExtent(uExtent);
-      int scalarType = vtkImageData::GetScalarType(outInfo);
-      int numComponents = vtkImageData::GetNumberOfScalarComponents(outInfo);
-      outImage->AllocateScalars(scalarType, numComponents);
+      //vtkGenericWarningMacro("time step in producer is " << timeStep);
+      vtkFloatArray* outArray1 = vtkFloatArray::New();
+      outArray1->SetName("Test");
+      outArray1->SetNumberOfComponents(1);
+      outArray1->SetNumberOfTuples(outImage->GetNumberOfPoints());
+      for(int i=0; i<outImage->GetNumberOfPoints(); i++)
+        {
+        outArray1->SetTuple(i, &timeStep);
+        }
+      outImage->GetPointData()->SetScalars(outArray1);
+      outArray1->Delete();
       }
     else
       {
       return 0 ;
       }
 
-    vtkDataArray* outArray = vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT));
+    vtkFloatArray* outArray = vtkFloatArray::New();
     outArray->SetName("Gradients");
     outArray->SetNumberOfComponents(3);
     outArray->SetNumberOfTuples(outImage->GetNumberOfPoints());
@@ -229,13 +234,13 @@ protected:
     outImage->GetPointData()->SetActiveVectors("Gradients");
 
     int *extent = outImage->GetExtent();
-//    cout<<"Extent: "<<extent[0]<<" "<<extent[1]<<" "<<extent[2]<<" "<<extent[3]<<" "<<extent[4]<<" "<<extent[5]<<endl;
-
     vtkIdType stepX,stepY,stepZ;
     outImage->GetContinuousIncrements(extent,stepX,stepY,stepZ);
 
     float * outPtr = static_cast<float*> (outImage->GetArrayPointerForExtent(outArray,extent));
-     int gridSize[3] = {Extent[1]-Extent[0],Extent[3]-Extent[2],Extent[5]-Extent[4]};
+    int gridSize[3] = {this->Extent[1]-this->Extent[0],
+                       this->Extent[3]-this->Extent[2],
+                       this->Extent[5]-this->Extent[4]};
 
     double* origin = outImage->GetOrigin();
 
@@ -263,17 +268,6 @@ protected:
       outPtr += stepZ;
      }
 
-    vtkDataArray* outArray1 = vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT));
-    outArray1->SetName("Test");
-    outArray1->SetNumberOfComponents(1);
-    outArray1->SetNumberOfTuples(outImage->GetNumberOfPoints());
-    for(int i=0; i<outImage->GetNumberOfPoints(); i++)
-      {
-      outArray1->SetTuple(i, &timeStep);
-      }
-    outImage->GetPointData()->AddArray(outArray1);
-    outArray1->Delete();
-
     return 1;
   }
 private:
@@ -289,14 +283,8 @@ private:
 
 vtkStandardNewMacro(TestTimeSource);
 
-
-
-int TestPParticleTracer(vtkMPIController* c)
+int TestPParticleTracer(vtkMPIController* c, int staticOption)
 {
-  int NumProcs = c->GetNumberOfProcesses();
-  int Rank = c->GetLocalProcessId();
-
-
   vtkNew<TestTimeSource> imageSource;
   int size(5);
   imageSource->SetExtent(0,size-1,0,1,0,size-1);
@@ -310,6 +298,8 @@ int TestPParticleTracer(vtkMPIController* c)
   ps->SetPoints(points.GetPointer());
 
   vtkNew<vtkPParticleTracer> filter;
+  filter->SetStaticMesh(staticOption);
+  filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0,imageSource->GetOutputPort());
   filter->SetInputData(1,ps.GetPointer());
   filter->SetStartTime(0.0);
@@ -334,8 +324,8 @@ int TestPParticleTracer(vtkMPIController* c)
 
     vtkSmartPointer<vtkPolyDataMapper> traceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     traceMapper->SetInputConnection(filter->GetOutputPort());
-    traceMapper->SetPiece(Rank);
-    traceMapper->SetNumberOfPieces(NumProcs);
+    traceMapper->SetPiece(c->GetLocalProcessId());
+    traceMapper->SetNumberOfPieces(c->GetNumberOfProcesses());
     traceMapper->Update();
 
     vtkPolyData* out = filter->GetOutput();
@@ -344,23 +334,20 @@ int TestPParticleTracer(vtkMPIController* c)
     numTraced+= pts->GetNumberOfPoints();
     }
 
-  if(Rank==0)
+  if(c->GetLocalProcessId()==0)
     {
-    EXPECT(numTraced==5,"wrong number of points traced: "<<numTraced);
+    EXPECT(5, numTraced, "PParticleTracer: wrong number of points.", staticOption);
     }
   else
     {
-    EXPECT(numTraced==6,"wrong number of points traced: "<<numTraced);
+    EXPECT(6, numTraced,"PParticleTracer: wrong number of points.", staticOption);
     }
   return EXIT_SUCCESS;
 }
 
 
-int TestPParticlePathFilter(vtkMPIController* c)
+int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
 {
-  int NumProcs = c->GetNumberOfProcesses();
-  int Rank = c->GetLocalProcessId();
-
   vtkNew<TestTimeSource> imageSource;
   int size(5);
   imageSource->SetExtent(0,size-1,0,1,0,size-1);
@@ -373,7 +360,8 @@ int TestPParticlePathFilter(vtkMPIController* c)
   ps->SetPoints(points.GetPointer());
 
   vtkNew<vtkParticlePathFilter> filter;
-  PRINT(filter->GetClassName());
+  filter->SetStaticMesh(staticOption);
+  filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0,imageSource->GetOutputPort());
   filter->SetInputData(1,ps.GetPointer());
 //  filter->SetForceReinjectionEveryNSteps(1);
@@ -383,8 +371,8 @@ int TestPParticlePathFilter(vtkMPIController* c)
 
   vtkSmartPointer<vtkPolyDataMapper> traceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   traceMapper->SetInputConnection(filter->GetOutputPort());
-  traceMapper->SetPiece(Rank);
-  traceMapper->SetNumberOfPieces(NumProcs);
+  traceMapper->SetPiece(c->GetLocalProcessId());
+  traceMapper->SetNumberOfPieces(c->GetNumberOfProcesses());
   traceMapper->Update();
 
   vtkPolyData* out = filter->GetOutput();
@@ -395,23 +383,20 @@ int TestPParticlePathFilter(vtkMPIController* c)
     assert(pd->GetArray(i)->GetNumberOfTuples()==pts->GetNumberOfPoints());
     }
 
-
-  vtkNew<vtkIdList> polyLine;
   vtkCellArray* lines = out->GetLines();
-
-  if(Rank==1)
+  if(c->GetLocalProcessId() == 1)
     {
-    EXPECT(lines->GetNumberOfCells()==2,lines->GetNumberOfCells());
+    EXPECT(2, lines->GetNumberOfCells(),"PParticlePath: wrong number of cells.", staticOption);
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
     lines->GetNextCell(trace.GetPointer());
     int tail;
     tail = trace->GetId(trace->GetNumberOfIds()-1);
-    EXPECT(pd->GetArray("Test")->GetTuple1(tail)==3, pd->GetArray("Test")->GetTuple1(tail));
+    EXPECT(4, pd->GetArray("Test")->GetTuple1(tail), "PParticlePath: wrong tuple value.", staticOption);
     }
   else
     {
-    EXPECT(lines->GetNumberOfCells()==1, lines->GetNumberOfCells());
+    EXPECT(1, lines->GetNumberOfCells(), "PParticlePath: wrong number of cells.", staticOption);
 
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
@@ -419,20 +404,15 @@ int TestPParticlePathFilter(vtkMPIController* c)
     int head, tail;
     head = trace->GetId(0);
     tail = trace->GetId(trace->GetNumberOfIds()-1);
-    EXPECT(pts->GetPoint(head)[2]>0, pts->GetPoint(head)[1]);
-    EXPECT(pd->GetArray("Test")->GetTuple1(head)==3, pd->GetArray("Test")->GetTuple1(head));
-    EXPECT(pd->GetArray("Test")->GetTuple1(tail)==8, pd->GetArray("Test")->GetTuple1(tail));
+    EXPECT(4, pd->GetArray("Test")->GetTuple1(head), "PParticlePath: head", staticOption);
+    EXPECT(9, pd->GetArray("Test")->GetTuple1(tail), "PParticlePath: tail", staticOption);
     }
 
   return EXIT_SUCCESS;
-
 }
 
-int TestPStreaklineFilter(vtkMPIController* c)
+int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
 {
-  int NumProcs = c->GetNumberOfProcesses();
-  int Rank = c->GetLocalProcessId();
-
   vtkNew<TestTimeSource> imageSource;
   int size(5);
   imageSource->SetExtent(0,size-1,0,1,0,size-1);
@@ -448,6 +428,8 @@ int TestPStreaklineFilter(vtkMPIController* c)
   ps->SetPoints(points.GetPointer());
 
   vtkNew<vtkPStreaklineFilter> filter;
+  filter->SetStaticMesh(staticOption);
+  filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0,imageSource->GetOutputPort());
   filter->SetInputData(1,ps.GetPointer());
 
@@ -456,27 +438,26 @@ int TestPStreaklineFilter(vtkMPIController* c)
 
   vtkSmartPointer<vtkPolyDataMapper> traceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   traceMapper->SetInputConnection(filter->GetOutputPort());
-  traceMapper->SetPiece(Rank);
-  traceMapper->SetNumberOfPieces(NumProcs);
+  traceMapper->SetPiece(c->GetLocalProcessId());
+  traceMapper->SetNumberOfPieces(c->GetNumberOfProcesses());
   traceMapper->Update();
 
   vtkPolyData* out = filter->GetOutput();
-  vtkNew<vtkIdList> polyLine;
   vtkCellArray* lines = out->GetLines();
 
-  if(Rank==0) //all the streaks go to 0 because of implementation
+  if(c->GetLocalProcessId() == 0) //all the streaks go to 0 because of implementation
     {
-    EXPECT(lines->GetNumberOfCells()==2,lines->GetNumberOfCells());
+    EXPECT(2, lines->GetNumberOfCells(),"PStreakline: wrong number of cells.", staticOption);
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
     lines->GetNextCell(trace.GetPointer());
-    EXPECT(trace->GetNumberOfIds()==13,"wrong # of points"<<trace->GetNumberOfIds());
+    EXPECT(13, trace->GetNumberOfIds(),"PStreakline: wrong number of points.", staticOption);
     lines->GetNextCell(trace.GetPointer());
-    EXPECT(trace->GetNumberOfIds()==13,"wrong # of points"<<trace->GetNumberOfIds());
+    EXPECT(13, trace->GetNumberOfIds(),"PStreakline: wrong number of points.", staticOption);
     }
   else
     {
-    EXPECT(out->GetNumberOfPoints()==0,"No other process should have streaks");
+    EXPECT(0, out->GetNumberOfPoints(),"PStreakline: No other process should have streaks.", staticOption);
     }
 
   return EXIT_SUCCESS;
@@ -489,14 +470,18 @@ int main(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(c);
   c->Initialize(&argc,&argv);
 
-  EXPECT(TestPParticleTracer(c)==EXIT_SUCCESS,"TestPParticleTracer Failed");
+  int retVal = 0;
+  retVal += TestPParticleTracer(c, 1);
+  retVal += TestPParticleTracer(c, 0);
   c->Barrier();
 
-  EXPECT(TestPParticlePathFilter(c)==EXIT_SUCCESS,"TestPParticlePathFilter Failed");
+  retVal += TestPParticlePathFilter(c, 1);
+  retVal += TestPParticlePathFilter(c, 0);
   c->Barrier();
 
-  EXPECT(TestPStreaklineFilter(c)==EXIT_SUCCESS,"TestPStreaklineFilter Failed");
-
+  retVal += TestPStreaklineFilter(c, 1);
+  retVal += TestPStreaklineFilter(c, 0);
 
   c->Finalize();
+  return retVal;
 }
