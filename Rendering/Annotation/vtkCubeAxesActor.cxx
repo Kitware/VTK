@@ -21,14 +21,15 @@
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkFollower.h"
+#include "vtkFrustumSource.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlanes.h"
 #include "vtkProp3DAxisFollower.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
-
 
 vtkStandardNewMacro(vtkCubeAxesActor);
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
@@ -61,12 +62,15 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->AxisBaseForZ[0] = this->AxisBaseForZ[1] = this->AxisBaseForZ[2] = 0;
   this->AxisBaseForX[0] = this->AxisBaseForY[1] = this->AxisBaseForZ[2] = 1.0;
 
-  this->RebuildAxes = false;
+  this->RebuildAxes = true;
 
   this->Camera = NULL;
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
   this->GridLineLocation = VTK_GRID_LINES_ALL;
+
+  this->StickyAxes = 0;
+  this->CenterStickyAxes = 1;
 
   // By default enable distance based LOD
   this->EnableDistanceLOD = 1;
@@ -606,6 +610,35 @@ void vtkCubeAxesActor::AdjustAxes(double bounds[6],
   zRange[1] = (this->ZAxisRange[1] == VTK_DOUBLE_MAX ?
                                   bounds[5] : this->ZAxisRange[1]);
 
+  if (this->StickyAxes)
+    {
+    // Change ranges according to transformation from original bounds to
+    // viewport-constrained bounds
+    double originalBounds[6];
+    this->GetBounds(originalBounds);
+    double range[6] = {xRange[0], xRange[1],
+                       yRange[0], yRange[1],
+                       zRange[0], zRange[1]};
+
+    for (int i = 0; i < 3; ++i)
+      {
+      double length   = originalBounds[2*i+1] - originalBounds[2*i+0];
+      double beginPercent = (bounds[2*i+0] - originalBounds[2*i+0]) / length;
+      double endPercent   = (bounds[2*i+1] - originalBounds[2*i+0]) / length;
+      double rangeLength = range[2*i+1] - range[2*i+0];
+      double rangeStart = range[2*i+0];
+      range[2*i+0] = rangeStart + rangeLength * beginPercent;
+      range[2*i+1] = rangeStart + rangeLength * endPercent;
+      }
+
+    xRange[0] = range[0];
+    xRange[1] = range[1];
+    yRange[0] = range[2];
+    yRange[1] = range[3];
+    zRange[0] = range[4];
+    zRange[1] = range[5];
+    }
+
   const double xScale = (xRange[1] - xRange[0])/(bounds[1] - bounds[0]);
   const double yScale = (yRange[1] - yRange[0])/(bounds[3] - bounds[2]);
   const double zScale = (zRange[1] - zRange[0])/(bounds[5] - bounds[4]);
@@ -904,24 +937,26 @@ void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport,
                                        const double bounds[6],
                                        double pts[8][3])
 {
+  // The indices of points in the input bounding box are:
+  //
+  //        2-----3
+  //       /|    /|
+  //      / |   / |
+  // +y  6--0--7--1  z-
+  //     | /   | /
+  //     |/    |/
+  // -y  4-----5  z+
+  //     -x    +x
+
   double x[3];
 
   //loop over verts of bounding box
-  for ( int k = 0; k < 2; ++ k )
+  for (int idx = 0; idx < 8; ++idx)
     {
-    x[2] = bounds[4 + k];
-    for ( int j = 0; j < 2; ++ j )
-      {
-      x[1] = bounds[2 + j];
-      for ( int i = 0; i < 2; ++ i )
-        {
-        int idx = i + 2 * j + 4 * k;
-        x[0] = bounds[i];
-        viewport->SetWorldPoint( x[0], x[1], x[2], 1. );
-        viewport->WorldToDisplay();
-        viewport->GetDisplayPoint( pts[idx] );
-        }
-      }
+    vtkCubeAxesActor::GetBoundsPoint(idx, bounds, x);
+    viewport->SetWorldPoint( x[0], x[1], x[2], 1. );
+    viewport->WorldToDisplay();
+    viewport->GetDisplayPoint( pts[idx] );
     }
 }
 
@@ -1247,26 +1282,21 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
 //  Purpose:
 //    If the range is small, adjust the precision of the values displayed.
 //
-//  Arguments:
-//    bnds    The minimum and maximum values in each coordinate direction
-//            (min_x, max_x, min_y, max_y, min_z, max_z).
+//  Arguments: ranges The minimum and maximum specified values in each
+//    coordinate direction (min_x, max_x, min_y, max_y, min_z,
+//    max_z). NOTE: This may not the bounds of the box in physical space
+//    if the user has specified a custom axis range.
 // ****************************************************************************
-void vtkCubeAxesActor::AdjustRange(const double bnds[6])
+void vtkCubeAxesActor::AdjustRange(const double ranges[6])
 {
   double xrange[2], yrange[2], zrange[2];
 
-  xrange[0] = (this->XAxisRange[0] == VTK_DOUBLE_MAX ?
-                                  bnds[0] : this->XAxisRange[0]);
-  xrange[1] = (this->XAxisRange[1] == VTK_DOUBLE_MAX ?
-                                  bnds[1] : this->XAxisRange[1]);
-  yrange[0] = (this->YAxisRange[0] == VTK_DOUBLE_MAX ?
-                                  bnds[2] : this->YAxisRange[0]);
-  yrange[1] = (this->YAxisRange[1] == VTK_DOUBLE_MAX ?
-                                  bnds[3] : this->YAxisRange[1]);
-  zrange[0] = (this->ZAxisRange[0] == VTK_DOUBLE_MAX ?
-                                  bnds[4] : this->ZAxisRange[0]);
-  zrange[1] = (this->ZAxisRange[1] == VTK_DOUBLE_MAX ?
-                                  bnds[5] : this->ZAxisRange[1]);
+  xrange[0] = ranges[0];
+  xrange[1] = ranges[1];
+  yrange[0] = ranges[2];
+  yrange[1] = ranges[3];
+  zrange[0] = ranges[4];
+  zrange[1] = ranges[5];
 
   if (this->LastXPow != 0)
     {
@@ -1427,7 +1457,7 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
 // *************************************************************************
 void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 {
-  if ((this->GetMTime() < this->BuildTime.GetMTime()))
+  if ((this->GetMTime() < this->BuildTime.GetMTime()) && !this->StickyAxes)
     {
     this->AutoScale(viewport);
     return;
@@ -1452,7 +1482,14 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     }
   else
     {
-    this->GetBounds(bounds);
+    if (this->StickyAxes)
+      {
+      this->GetViewportLimitedBounds(viewport, bounds);
+      }
+    else
+      {
+      this->GetBounds(bounds);
+      }
     }
 
   // Setup the axes for plotting
@@ -1528,14 +1565,17 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 
   double xRange[2], yRange[2], zRange[2];
 
-  // this method sets the Coords, and offsets if necessary.
+  // this method sets the coords, offsets, and ranges if necessary.
   this->AdjustAxes(bounds, xCoords, yCoords, zCoords, xRange, yRange, zRange);
 
   // adjust for sci. notation if necessary
   // May set a flag for each axis specifying that label values should
   // be scaled, may change title of each axis, may change label format.
   this->AdjustValues(xRange, yRange, zRange);
-  this->AdjustRange(bounds);
+  double ranges[6] = {xRange[0], xRange[1],
+                      yRange[0], yRange[1],
+                      zRange[0], zRange[1]};
+  this->AdjustRange(ranges);
 
   // Prepare axes for rendering with user-definable options
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
@@ -1603,9 +1643,9 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     // labels were re-built, need to recompute the scale.
     double center[3];
 
-    center[0] = (this->Bounds[1] - this->Bounds[0]) * 0.5;
-    center[1] = (this->Bounds[3] - this->Bounds[2]) * 0.5;
-    center[2] = (this->Bounds[5] - this->Bounds[4]) * 0.5;
+    center[0] = (bounds[1] - bounds[0]) * 0.5;
+    center[1] = (bounds[3] - bounds[2]) * 0.5;
+    center[2] = (bounds[5] - bounds[4]) * 0.5;
 
     double lenX = this->XAxes[0]->ComputeMaxLabelLength(center);
     double lenY = this->YAxes[0]->ComputeMaxLabelLength(center);
@@ -1615,8 +1655,8 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     double lenTitleZ = this->ZAxes[0]->ComputeTitleLength(center);
     double maxLabelLength = this->MaxOf(lenX, lenY, lenZ, 0.);
     double maxTitleLength = this->MaxOf(lenTitleX, lenTitleY, lenTitleZ, 0.);
-    double bWidth  = this->Bounds[1] - this->Bounds[0];
-    double bHeight = this->Bounds[3] - this->Bounds[2];
+    double bWidth  = bounds[1] - bounds[0];
+    double bHeight = bounds[3] - bounds[2];
 
     double bLength = sqrt(bWidth*bWidth + bHeight*bHeight);
 
@@ -1650,6 +1690,12 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
       this->XAxes[i]->SetTitleScale(this->TitleScale);
       this->YAxes[i]->SetTitleScale(this->TitleScale);
       this->ZAxes[i]->SetTitleScale(this->TitleScale);
+
+      // Need to build the axis again prior to calling AutoScale so
+      // that labels are positioned accordingly.
+      this->XAxes[i]->BuildAxis(viewport, true);
+      this->YAxes[i]->BuildAxis(viewport, true);
+      this->ZAxes[i]->BuildAxis(viewport, true);
       }
     }
 
@@ -2728,6 +2774,247 @@ int vtkCubeAxesActor::RenderGeometry(
         (this->ZAxes[this->RenderAxesZ[i]]->*renderMethod)(viewport);
     }
   return renderedSomething;
+}
+
+// --------------------------------------------------------------------------
+void vtkCubeAxesActor::ComputeStickyAxesBoundingSphere(vtkViewport* viewport,
+                                                       const double originalBounds[6],
+                                                       double sphereCenter[3],
+                                                       double & sphereRadius)
+{
+  double aspect[2];
+  viewport->GetAspect(aspect);
+  vtkPlanes* frustumPlanes = vtkPlanes::New();
+  double frustumPlanesArray[24];
+  this->GetCamera()->GetFrustumPlanes(aspect[0], frustumPlanesArray);
+  frustumPlanes->SetFrustumPlanes(frustumPlanesArray);
+
+  vtkFrustumSource* frustumSource = vtkFrustumSource::New();
+  frustumSource->SetPlanes(frustumPlanes);
+  frustumPlanes->Delete();
+  frustumSource->Update();
+
+  vtkPoints* points = frustumSource->GetOutput()->GetPoints();
+
+  // From http://gamedev.stackexchange.com/questions/60104/largest-sphere-inside-a-frustum
+  // Point indices are set up to match the second figure.
+  double p0[3], p1[3], p2[3], p3[3], p4[3];
+  double q0[3], q1[3], q2[3], q3[3], q4[3];
+  points->GetPoint(0, p1); // left bottom near
+  points->GetPoint(1, p2); // right bottom near
+  points->GetPoint(2, p4); // right top near
+  points->GetPoint(3, p3); // left top near
+
+  points->GetPoint(4, q1); // left bottom far
+  points->GetPoint(5, q2); // right bottom far
+  points->GetPoint(6, q4); // right top far
+  points->GetPoint(7, q3); // left top far
+
+  for (int i = 0; i < 3; ++i)
+    {
+    p0[i] = 0.25*(p1[i] + p2[i] + p3[i] + p4[i]); // near center
+    q0[i] = 0.25*(q1[i] + q2[i] + q3[i] + q4[i]); // far center
+    }
+  frustumSource->Delete();
+
+  double view[3];
+  vtkMath::Subtract(p0, q0, view);
+  double d = vtkMath::Norm(view);
+
+  double v0[3], v1[3];
+  vtkMath::Subtract(p1, q1, v0);
+  vtkMath::Subtract(q2, q1, v1);
+  double l = 0.5*vtkMath::Norm(v1);
+  double alpha = atan(vtkMath::Dot(v0, v1) / (d*vtkMath::Norm(v1)));
+  double halfWidth = l * tan((vtkMath::Pi() - 2.0*alpha) / 4.0);
+
+  vtkMath::Subtract(q3, q1, v1);
+  l = 0.5*vtkMath::Norm(v1);
+  alpha = atan(vtkMath::Dot(v0, v1) / (d*vtkMath::Norm(v1)));
+  double halfHeight = l * tan((vtkMath::Pi() - 2.0*alpha) / 4.0);
+
+  sphereRadius = std::min(halfWidth, halfHeight);
+
+  vtkMath::Normalize(view);
+  sphereCenter[0] = q0[0] + sphereRadius*view[0];
+  sphereCenter[1] = q0[1] + sphereRadius*view[1];
+  sphereCenter[2] = q0[2] + sphereRadius*view[2];
+
+  // Now shift the sphere so that its center is at the same depth as
+  // the original bounding box.
+  double* sidePlane;
+  if (viewport->GetSize()[0] < viewport->GetSize()[1])
+    {
+    sidePlane = frustumPlanesArray + 0; // left side
+    }
+  else
+    {
+    sidePlane = frustumPlanesArray + 8; // bottom side
+    }
+  double f = vtkMath::Dot(q0, sidePlane) + sidePlane[3];
+
+  vtkBoundingBox bb(originalBounds);
+  double bbCenter[3];
+  bb.GetCenter(bbCenter);
+  double* backPlane = frustumPlanesArray + 16;
+  double g = vtkMath::Dot(bbCenter, backPlane) + backPlane[3];
+  double radiusReduction = (g - sphereRadius) * ((f - sphereRadius) / sphereRadius);
+
+  sphereRadius -= radiusReduction;
+
+  vtkMath::Subtract(p0, q0, view);
+  vtkMath::Normalize(view);
+
+  sphereCenter[0] = q0[0] + g*view[0];
+  sphereCenter[1] = q0[1] + g*view[1];
+  sphereCenter[2] = q0[2] + g*view[2];
+
+  if (this->CenterStickyAxes)
+    {
+    // No need to shift the sticky axes bounding box up/down or left/right.
+    return;
+    }
+
+  // Now see whether we can shift the sphere toward the side of the
+  // frustum closest to the new sphere center.
+  double shiftDirection[3];
+  double minusSide[4], plusSide[4];
+  if (viewport->GetSize()[0] < viewport->GetSize()[1])
+    {
+    vtkMath::Subtract(q1, q3, shiftDirection); // up vector
+
+    memcpy(minusSide, frustumPlanesArray+2*4, 4*sizeof(double)); // bottom frustum side
+    memcpy(plusSide,  frustumPlanesArray+3*4, 4*sizeof(double)); // top frustum side
+    }
+  else if (viewport->GetSize()[0] > viewport->GetSize()[1])
+    {
+    vtkMath::Subtract(q1, q2, shiftDirection); // right vector
+
+    memcpy(minusSide, frustumPlanesArray+0*4, 4*sizeof(double)); // left frustum side
+    memcpy(plusSide,  frustumPlanesArray+1*4, 4*sizeof(double)); // right frustum side
+    }
+  else // viewport->GetSize()[0] == viewport->GetSize()[1]
+    {
+    // Nothing to do; sticky bounding sphere is already centered
+    return;
+    }
+
+  // Shift the sphere to the size of the frustum closest to the center
+  // of the original bounding box.
+  vtkMath::Normalize(shiftDirection);
+
+  double v[3], shift[3], newCenter[3];
+  vtkMath::Subtract(bbCenter, sphereCenter, v);
+  vtkMath::ProjectVector(v, shiftDirection, shift);
+  vtkMath::Add(sphereCenter, shift, newCenter);
+
+  // Change the sphere center to this new center. Below, we check if
+  // we have gone too far toward the frustum.
+  memcpy(sphereCenter, newCenter, 3*sizeof(double));
+
+  // Shift plane by the sphere radius in towards the center of the frustum
+  minusSide[3] -= sphereRadius;
+  plusSide[3]  -= sphereRadius;
+
+  // Is the newCenter outside the shifted frustum minus side?
+  if (vtkMath::Dot(minusSide, newCenter) + minusSide[3] < 0.0)
+    {
+    // Intersection with shifted bottom side
+    double t = -(vtkMath::Dot(minusSide, newCenter) + minusSide[3]) /
+      (vtkMath::Dot(minusSide, shiftDirection));
+    sphereCenter[0] = newCenter[0] + t*shiftDirection[0];
+    sphereCenter[1] = newCenter[1] + t*shiftDirection[1];
+    sphereCenter[2] = newCenter[2] + t*shiftDirection[2];
+    }
+
+  // Is the newCenter outside the shifted frustum plus side?
+  if (vtkMath::Dot(plusSide, newCenter) + plusSide[3] < 0.0)
+    {
+    // Intersection with shifted top side
+    double t = -(vtkMath::Dot(plusSide, newCenter) + plusSide[3]) /
+      (vtkMath::Dot(plusSide, shiftDirection));
+    sphereCenter[0] = newCenter[0] + t*shiftDirection[0];
+    sphereCenter[1] = newCenter[1] + t*shiftDirection[1];
+    sphereCenter[2] = newCenter[2] + t*shiftDirection[2];
+    }
+}
+
+// --------------------------------------------------------------------------
+void vtkCubeAxesActor::GetViewportLimitedBounds(vtkViewport* viewport,
+                                                double bounds[6])
+{
+  double originalBounds[6];
+  this->GetBounds(originalBounds);
+  vtkBoundingBox originalBB(originalBounds);
+  double originalCenter[3];
+  originalBB.GetCenter(originalCenter);
+
+  double sphereCenter[3];
+  double sphereRadius;
+  this->ComputeStickyAxesBoundingSphere(viewport, originalBounds,
+                                        sphereCenter, sphereRadius);
+
+  // Now that we have the maximal sphere that will fit in the frustum,
+  // compute a cubic bounding box that fits inside it.
+  vtkBoundingBox sphereBB;
+  double direction[3] = {1, 1, 1};
+  vtkMath::Normalize(direction);
+  double pt1[3] = {sphereCenter[0] + sphereRadius*direction[0],
+                   sphereCenter[1] + sphereRadius*direction[1],
+                   sphereCenter[2] + sphereRadius*direction[2]};
+  sphereBB.AddPoint(pt1);
+
+  // Opposite corner
+  double pt2[3] = {sphereCenter[0] - sphereRadius*direction[0],
+                   sphereCenter[1] - sphereRadius*direction[1],
+                   sphereCenter[2] - sphereRadius*direction[2]};
+  sphereBB.AddPoint(pt2);
+
+  // Now intersect this sphere bounding box with the original bounds
+  // to get the final sticky bounds
+  if (originalBB.IntersectBox(sphereBB) == 1)
+    {
+    originalBB.GetBounds(bounds);
+    }
+  else
+    {
+    bounds[0] = bounds[1] = bounds[2] = bounds[3] = bounds[4] = bounds[5] = 0.0;
+    }
+}
+
+// --------------------------------------------------------------------------
+void vtkCubeAxesActor::GetBoundsPointBits(unsigned int pointIndex,
+                                          unsigned int & xBit,
+                                          unsigned int & yBit,
+                                          unsigned int & zBit)
+{
+  // Coordinate position is encoded in binary:
+  // 1st bit - 0 for minimum x, 1 for maximum x
+  // 2nd bit - 0 for minimum y, 1 for maximum y
+  // 3rd bit - 0 for minimum z, 1 for maximum z
+  unsigned int xMask = 1;
+  unsigned int yMask = 2;
+  unsigned int zMask = 4;
+
+  xBit = (pointIndex & xMask) >> 0;
+  yBit = (pointIndex & yMask) >> 1;
+  zBit = (pointIndex & zMask) >> 2;
+}
+
+// --------------------------------------------------------------------------
+void vtkCubeAxesActor::GetBoundsPoint(unsigned int pointIndex, const double bounds[6],
+                                      double point[3])
+{
+  if (pointIndex > 7)
+    {
+    return;
+    }
+
+  unsigned int xBit, yBit, zBit;
+  vtkCubeAxesActor::GetBoundsPointBits(pointIndex, xBit, yBit, zBit);
+  point[0] = bounds[xBit + 0];
+  point[1] = bounds[yBit + 2];
+  point[2] = bounds[zBit + 4];
 }
 
 // --------------------------------------------------------------------------

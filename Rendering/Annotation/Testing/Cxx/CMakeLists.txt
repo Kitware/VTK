@@ -24,6 +24,8 @@ vtk_add_test_cxx(
   TestCubeAxesInnerGridAll.cxx
   TestCubeAxesInnerGridClosest.cxx
   TestCubeAxesInnerGridFurthest.cxx
+  TestCubeAxesSticky.cxx
+  TestCubeAxesStickyCentered.cxx
   TestXYPlotActor.cxx
   )
 

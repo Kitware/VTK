@@ -452,9 +452,50 @@ public:
   vtkSetMacro(GridLineLocation,int);
   vtkGetMacro(GridLineLocation,int);
 
+  // Description:
+  // Enable/Disable axis stickiness. When on, the axes will be adjusted to always
+  // be visible in the viewport unless the original bounds of the axes are entirely
+  // outside the viewport. Defaults to off.
+  vtkSetMacro(StickyAxes,int);
+  vtkGetMacro(StickyAxes,int);
+  vtkBooleanMacro(StickyAxes,int);
+
+  // Description:
+  // Enable/Disable centering of axes when the Sticky option is
+  // on. If on, the axes bounds will be centered in the
+  // viewport. Otherwise, the axes can move about the longer of the
+  // horizontal or verical directions of the viewport to follow the
+  // data. Defaults to on.
+  vtkSetMacro(CenterStickyAxes,int);
+  vtkGetMacro(CenterStickyAxes,int);
+  vtkBooleanMacro(CenterStickyAxes,int);
+
 protected:
   vtkCubeAxesActor();
   ~vtkCubeAxesActor();
+
+  // Description:
+  // Computes a bounding sphere used to determine the sticky bounding box.
+  // Sphere center and sphere radius are return parameters and can remain uninitialized
+  // prior to calling this method.
+  void ComputeStickyAxesBoundingSphere(vtkViewport* viewport, const double bounds[6],
+                                       double sphereCenter[3], double & sphereRadius);
+
+  // Description:
+  // Get bounds such that the axes are entirely within a viewport
+  void GetViewportLimitedBounds(vtkViewport* viewport, double bounds[6]);
+
+  // Description:
+  // Get the bits for a bounds point. 0 means the lower side for a
+  // coordinate, 1 means the higher side.
+  static void GetBoundsPointBits(unsigned int pointIndex,
+                                 unsigned int & xBit,
+                                 unsigned int & yBit,
+                                 unsigned int & zBit);
+
+  // Description:
+  // Get a point on the bounding box by point index
+  static void GetBoundsPoint(unsigned int pointIndex, const double bounds[6], double point[3]);
 
   int LabelExponent(double min, double max);
 
@@ -496,6 +537,14 @@ protected:
   // VTK_CLOSEST_GRID_LINES  1
   // VTK_FURTHEST_GRID_LINES 2
   int GridLineLocation;
+
+  // Description:
+  // Flag for axes stickiness
+  int StickyAxes;
+
+  // Description:
+  // Flag for centering sticky axes
+  int CenterStickyAxes;
 
   // Description:
   // If enabled the actor will not be visible at a certain distance from the camera.
