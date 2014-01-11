@@ -24,7 +24,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkPParticlePathFilter);
 
-
 vtkPParticlePathFilter::vtkPParticlePathFilter()
 {
   this->It.Initialize(this);
@@ -35,12 +34,10 @@ void vtkPParticlePathFilter::ResetCache()
   this->It.Reset();
 }
 
-
 void vtkPParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
 }
-
 
 int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
 {

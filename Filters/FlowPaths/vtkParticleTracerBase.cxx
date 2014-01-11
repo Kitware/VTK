@@ -1,60 +1,53 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkParticleTracerBase.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkParticleTracerBase.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
+  =========================================================================*/
 #include "vtkParticleTracerBase.h"
 
+#include "vtkAbstractParticleWriter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkGenericCell.h"
-#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkCharArray.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointSet.h"
 #include "vtkPolyData.h"
-#include "vtkPolyLine.h"
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
-#include "vtkOutputWindow.h"
-#include "vtkAbstractParticleWriter.h"
-#include "vtkToolkits.h" // For VTK_USE_MPI
 #include <cassert>
 
 #ifdef WIN32
-  #undef JB_H5PART_PARTICLE_OUTPUT
+#undef JB_H5PART_PARTICLE_OUTPUT
 #else
 //  #define JB_H5PART_PARTICLE_OUTPUT
 #endif
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
 // #include "vtkH5PartWriter.h"
-  #include "vtkXMLParticleWriter.h"
+#include "vtkXMLParticleWriter.h"
 #endif
 
 #include <functional>
@@ -72,19 +65,26 @@ const double vtkParticleTracerBase::Epsilon = 1.0E-12;
 using namespace vtkParticleTracerBaseNamespace;
 
 vtkCxxSetObjectMacro(vtkParticleTracerBase, ParticleWriter, vtkAbstractParticleWriter);
-vtkCxxSetObjectMacro(vtkParticleTracerBase,Integrator,vtkInitialValueProblemSolver); //XXX
+vtkCxxSetObjectMacro(vtkParticleTracerBase,Integrator,vtkInitialValueProblemSolver);
 
-#define ParticleTracerSetMacro(name,type) \
-void vtkParticleTracerBase::Set##name (type _arg) \
-  { \
-  if (this->name == _arg) \
-    {\
-    return; \
-    }\
-  this->name = _arg;  \
-  this->ResetCache(); \
-  this->Modified(); \
+// this SetMacro is different than the regular vtkSetMacro
+// because it resets the cache as well.
+#define ParticleTracerSetMacro(name,type)               \
+  void vtkParticleTracerBase::Set##name (type _arg)     \
+  {                                                     \
+    if (this->name == _arg)                             \
+      {                                                 \
+      return;                                           \
+      }                                                 \
+    this->name = _arg;                                  \
+    this->ResetCache();                                 \
+    this->Modified();                                   \
   }
+ParticleTracerSetMacro(StartTime, double)
+ParticleTracerSetMacro(ComputeVorticity, bool);
+ParticleTracerSetMacro(RotationScale, double)
+ParticleTracerSetMacro(ForceReinjectionEveryNSteps,int);
+ParticleTracerSetMacro(TerminalSpeed, double);
 
 namespace
 {
@@ -111,8 +111,6 @@ namespace
 //---------------------------------------------------------------------------
 vtkParticleTracerBase::vtkParticleTracerBase()
 {
-  this->SetNumberOfInputPorts(2);
-
   // by default process active point vectors
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::VECTORS);
@@ -140,14 +138,9 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->RotationScale    = 1.0;
   this->MaximumError         = 1.0e-6;
   this->TerminalSpeed = vtkParticleTracerBase::Epsilon;
-
-  //
-
   this->IntegrationStep = 0.5;
-// we are not actually using these for now
-  //
+
   this->Interpolator = vtkSmartPointer<vtkTemporalInterpolatedVelocityField>::New();
-  //
   this->SetNumberOfInputPorts(2);
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
@@ -165,27 +158,23 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->SetIntegratorType(RUNGE_KUTTA4);
   this->DisableResetCache = 0;
 }
+
 //---------------------------------------------------------------------------
 vtkParticleTracerBase::~vtkParticleTracerBase()
 {
   this->SetParticleWriter(NULL);
-  if (this->ParticleFileName)
-  {
-    delete []this->ParticleFileName;
-    this->ParticleFileName = NULL;
-  }
+  this->SetParticleFileName(NULL);
 
   this->CachedData[0] = NULL;
-  this->CachedData[1] = NULL;;
+  this->CachedData[1] = NULL;
 
   this->SetIntegrator(0);
   this->SetInterpolatorPrototype(0);
-
 }
+
 //----------------------------------------------------------------------------
 int vtkParticleTracerBase::FillInputPortInformation(
-  int port,
-  vtkInformation* info)
+  int port, vtkInformation* info)
 {
   // port 0 must be a temporal collection of any type
   // the executive should put a temporal collection in when
@@ -202,16 +191,19 @@ int vtkParticleTracerBase::FillInputPortInformation(
     }
   return 1;
 }
+
 //----------------------------------------------------------------------------
 void vtkParticleTracerBase::AddSourceConnection(vtkAlgorithmOutput* input)
 {
   this->AddInputConnection(1, input);
 }
+
 //----------------------------------------------------------------------------
 void vtkParticleTracerBase::RemoveAllSources()
 {
   this->SetInputConnection(1, 0);
 }
+
 //----------------------------------------------------------------------------
 int vtkParticleTracerBase::ProcessRequest(
   vtkInformation* request,
@@ -227,7 +219,7 @@ int vtkParticleTracerBase::ProcessRequest(
     }
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-      return this->RequestUpdateExtent(request, inputVector, outputVector);
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
@@ -235,6 +227,7 @@ int vtkParticleTracerBase::ProcessRequest(
     }
   return 1;
 }
+
 //----------------------------------------------------------------------------
 int vtkParticleTracerBase::RequestInformation(
   vtkInformation *vtkNotUsed(request),
@@ -246,16 +239,17 @@ int vtkParticleTracerBase::RequestInformation(
 
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
     {
-    unsigned int numberOfInputTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    unsigned int numberOfInputTimeSteps =
+      inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     vtkDebugMacro(<<"vtkParticleTracerBase "
-      "inputVector TIME_STEPS " << numberOfInputTimeSteps);
+                  "inputVector TIME_STEPS " << numberOfInputTimeSteps);
     //
     // Get list of input time step values
     this->InputTimeValues.resize(numberOfInputTimeSteps);
     inInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-      &this->InputTimeValues[0] );
-    if (numberOfInputTimeSteps==1 && this->DisableResetCache==0) //warning would be skipped in coprocessing work flow
-      {
+                 &this->InputTimeValues[0] );
+    if (numberOfInputTimeSteps==1 && this->DisableResetCache==0)
+      {  //warning would be skipped in coprocessing work flow
       vtkWarningMacro(<<"Not enough input time steps for particle integration");
       }
 
@@ -268,8 +262,7 @@ int vtkParticleTracerBase::RequestInformation(
       {
       this->SetStartTime(this->InputTimeValues.back());
       }
-
-  }
+    }
   else
     {
     vtkErrorMacro(<<"Input information has no TIME_STEPS set");
@@ -279,20 +272,22 @@ int vtkParticleTracerBase::RequestInformation(
   outInfo->Set(
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
-
-
   return 1;
 }
-//----------------------------------------------------------------------------
-class WithinTolerance: public std::binary_function<double, double, bool>
+namespace
 {
-public:
+//----------------------------------------------------------------------------
+  class WithinTolerance: public std::binary_function<double, double, bool>
+  {
+  public:
     result_type operator()(first_argument_type a, second_argument_type b) const
     {
       bool result = (fabs(a-b)<=(a*1E-6));
       return (result_type)result;
     }
-};
+  };
+}
+
 //----------------------------------------------------------------------------
 int vtkParticleTracerBase::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
@@ -362,7 +357,7 @@ int vtkParticleTracerBase::RequestUpdateExtent(
         if(pmt>this->ExecuteTime.GetMTime())
           {
           PRINT("Reset cache of because upstream is newer")
-          this->ResetCache();
+            this->ResetCache();
           }
         }
       }
@@ -388,6 +383,7 @@ int vtkParticleTracerBase::RequestUpdateExtent(
 
   return 1;
 }
+
 //---------------------------------------------------------------------------
 int vtkParticleTracerBase::InitializeInterpolator()
 {
@@ -430,7 +426,8 @@ int vtkParticleTracerBase::InitializeInterpolator()
   int numValidInputBlocks[2] = {0, 0};
   int numTotalInputBlocks[2] = {0, 0};
   this->DataReferenceT[0] = this->DataReferenceT[1] = 0;
-  for (int T=0; T<2; T++) {
+  for (int T=0; T<2; T++)
+    {
     this->CachedBounds[T].clear();
     int index = 0;
     // iterate over all blocks of input and cache the bounds information
@@ -467,16 +464,17 @@ int vtkParticleTracerBase::InitializeInterpolator()
           this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
           this->Interpolator->SetDataSetAtTime(index++, T, this->GetCacheDataTime(T), inp, static_dataset);
-          if (!this->DataReferenceT[T]) {
+          if (!this->DataReferenceT[T])
+            {
             this->DataReferenceT[T] = inp;
-          }
+            }
           //
           numValidInputBlocks[T]++;
           }
         }
       anotherIterP->GoToNextItem();
       }
-  }
+    }
   if (numValidInputBlocks[0]==0 || numValidInputBlocks[1]==0)
     {
     vtkErrorMacro("Not enough inputs have been found. Can not execute."
@@ -503,6 +501,8 @@ int vtkParticleTracerBase::InitializeInterpolator()
   //
   return VTK_OK;
 }
+
+//---------------------------------------------------------------------------
 int vtkParticleTracerBase::UpdateDataCache(vtkDataObject *data)
 {
   double dataTime = data->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
@@ -578,7 +578,6 @@ int vtkParticleTracerBase::UpdateDataCache(vtkDataObject *data)
   return 1;
 }
 
-
 //---------------------------------------------------------------------------
 bool vtkParticleTracerBase::InsideBounds(double point[])
 {
@@ -595,6 +594,7 @@ bool vtkParticleTracerBase::InsideBounds(double point[])
     }
   return false;
 }
+
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::TestParticles(
   ParticleVector &candidates, ParticleVector &passed, int &count)
@@ -610,7 +610,10 @@ void vtkParticleTracerBase::TestParticles(
     }
 }
 
-void vtkParticleTracerBase::TestParticles(vtkParticleTracerBaseNamespace::ParticleVector &candidates, std::vector<int> &passed)
+//---------------------------------------------------------------------------
+void vtkParticleTracerBase::TestParticles(
+  vtkParticleTracerBaseNamespace::ParticleVector &candidates,
+  std::vector<int> &passed)
 {
   int i = 0;
   for (ParticleIterator it=candidates.begin(); it!=candidates.end(); ++it, ++i)
@@ -620,7 +623,7 @@ void vtkParticleTracerBase::TestParticles(vtkParticleTracerBaseNamespace::Partic
     // if outside bounds, reject instantly
     if (this->InsideBounds(pos))
       {
-       // since this is first test, avoid bad cache tests
+      // since this is first test, avoid bad cache tests
       this->Interpolator->ClearCache();
       info.LocationState = this->Interpolator->TestPoint(pos);
       if (info.LocationState==ID_OUTSIDE_ALL /*|| location==ID_OUTSIDE_T0*/)
@@ -639,9 +642,9 @@ void vtkParticleTracerBase::TestParticles(vtkParticleTracerBaseNamespace::Partic
 }
 
 //---------------------------------------------------------------------------
-void vtkParticleTracerBase::AssignSeedsToProcessors( double time,
-  vtkDataSet *source, int sourceID, int ptId,
-  ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
+void vtkParticleTracerBase::AssignSeedsToProcessors(
+  double time, vtkDataSet *source, int sourceID, int ptId,
+  ParticleVector &localSeedPoints, int &localAssignedCount)
 {
   ParticleVector candidates;
   //
@@ -672,29 +675,29 @@ void vtkParticleTracerBase::AssignSeedsToProcessors( double time,
     info.speed                = 0.0;
     info.ErrorCode            = 0;
     info.PointId = -1;
-  }
+    }
   //
   // Gather all Seeds to all processors for classification
   //
-  this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
-  int TotalAssigned = LocalAssignedCount; (void)TotalAssigned;
+  this->TestParticles(candidates, localSeedPoints, localAssignedCount);
 
   // Assign unique identifiers taking into account uneven distribution
   // across processes and seeds which were rejected
-  this->AssignUniqueIds(LocalSeedPoints);
+  this->AssignUniqueIds(localSeedPoints);
   //
 
 }
+
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::AssignUniqueIds(
-  vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints)
+  vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints)
 {
-  vtkIdType ParticleCountOffset = 0;
-  vtkIdType numParticles = LocalSeedPoints.size();
+  vtkIdType particleCountOffset = 0;
+  vtkIdType numParticles = localSeedPoints.size();
   for (vtkIdType i=0; i<numParticles; i++)
     {
-    LocalSeedPoints[i].UniqueParticleId =
-    this->UniqueIdCounter + ParticleCountOffset + i;
+    localSeedPoints[i].UniqueParticleId =
+      this->UniqueIdCounter + particleCountOffset + i;
     }
   this->UniqueIdCounter += numParticles;
 }
@@ -704,13 +707,15 @@ void vtkParticleTracerBase::UpdateParticleList(ParticleVector &candidates)
 {
   int numSeedsNew = static_cast<int>(candidates.size());
   //
-  for (int i=0; i<numSeedsNew; i++) {
+  for (int i=0; i<numSeedsNew; i++)
+    {
     // allocate a new particle on the list and get a reference to it
     this->ParticleHistories.push_back(candidates[i]);
-  }
+    }
   vtkDebugMacro(<< "UpdateParticleList completed with " << this->NumberOfParticles() << " particles");
 }
 
+//---------------------------------------------------------------------------
 int vtkParticleTracerBase::ProcessInput(vtkInformationVector** inputVector)
 {
   Assert(this->CurrentTimeStep>=StartTimeStep  && this->CurrentTimeStep<=TerminationTimeStep);
@@ -734,7 +739,7 @@ int vtkParticleTracerBase::ProcessInput(vtkInformationVector** inputVector)
   return 1;
 }
 
-
+//---------------------------------------------------------------------------
 vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 {
   Assert(this->CurrentTimeStep>=this->StartTimeStep);
@@ -746,7 +751,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   //set up the output
   vtkPolyData *output = vtkPolyData::New();
-    //
+  //
   // Add the datasets to an interpolator object
   //
   if (this->InitializeInterpolator() != VTK_OK)
@@ -867,7 +872,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       }
     }
   else
-   {
+    {
     ParticleListIterator  it_first = this->ParticleHistories.begin();
     ParticleListIterator  it_last  = this->ParticleHistories.end();
     ParticleListIterator  it_next;
@@ -1001,6 +1006,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   return output;
 }
 
+//---------------------------------------------------------------------------
 int vtkParticleTracerBase::RequestData(
   vtkInformation *request,
   vtkInformationVector **inputVector,
@@ -1076,19 +1082,17 @@ int vtkParticleTracerBase::RequestData(
   PRINT("RD: "<<this->CurrentTimeStep<<" "<<this->StartTimeStep<<" "<<this->TerminationTimeStep);
   return 1;
 }
+
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::IntegrateParticle(
-  ParticleListIterator &it,
-  double currenttime, double targettime,
+  ParticleListIterator &it, double currenttime, double targettime,
   vtkInitialValueProblemSolver* integrator)
 {
-
   double epsilon = (targettime-currenttime)/100.0;
   double velocity[3], point1[4], point2[4] = {0.0, 0.0, 0.0, 0.0};
   double minStep=0, maxStep=0;
   double stepWanted, stepTaken=0.0;
   int substeps = 0;
-
 
   ParticleInformation &info = (*it);
   ParticleInformation previous = (*it);
@@ -1132,7 +1136,6 @@ void vtkParticleTracerBase::IntegrateParticle(
         maxStep = stepWanted;
         }
 
-
       // Calculate the next step using the integrator provided.
       // If the next point is out of bounds, send it to another process
       if (integrator->ComputeNextStep(
@@ -1142,7 +1145,6 @@ void vtkParticleTracerBase::IntegrateParticle(
         {
         // if the particle is sent, remove it from the list
         info.ErrorCode = 1;
-
         if (!this->RetryWithPush(info, point1, delT, substeps))
           {
           if(previous.PointId <0)
@@ -1250,7 +1252,7 @@ void vtkParticleTracerBase::IntegrateParticle(
   Assert (point1[3]>=(this->GetCacheDataTime(0)-eps) && point1[3]<=(this->GetCacheDataTime(1)+eps));
 #endif
 }
-//---------------------------------------------------------------------------
+
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -1267,6 +1269,7 @@ void vtkParticleTracerBase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TerminationTime: " << this->TerminationTime << endl;
   os << indent << "StaticSeeds: " << this->StaticSeeds << endl;
 }
+
 //---------------------------------------------------------------------------
 bool vtkParticleTracerBase::ComputeDomainExitLocation(
   double pos[4], double p2[4], double intersection[4],
@@ -1284,12 +1287,16 @@ bool vtkParticleTracerBase::ComputeDomainExitLocation(
     // We found an intersection on the edge of the cell.
     // Shift it by a small amount to ensure that it crosses over the edge
     // into the adjoining cell.
-    for (int i=0; i<3; i++) intersection[i] = pos[i] + (t+0.01)*(p2[i]-pos[i]);
+    for (int i=0; i<3; i++)
+      {
+      intersection[i] = pos[i] + (t+0.01)*(p2[i]-pos[i]);
+      }
     // intersection stored, compute T for intersection
     intersection[3] = pos[3] + (t+0.01)*(p2[3]-pos[3]);
     return 1;
     }
 }
+
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::SetIntegratorType(int type)
 {
@@ -1316,7 +1323,7 @@ void vtkParticleTracerBase::SetIntegratorType(int type)
     }
 }
 
-
+//---------------------------------------------------------------------------
 int vtkParticleTracerBase::GetIntegratorType()
 {
   if (!this->Integrator)
@@ -1338,7 +1345,10 @@ int vtkParticleTracerBase::GetIntegratorType()
   return UNKNOWN;
 }
 
-void vtkParticleTracerBase::CalculateVorticity( vtkGenericCell* cell, double pcoords[3], vtkDoubleArray* cellVectors, double vorticity[3] )
+//---------------------------------------------------------------------------
+void vtkParticleTracerBase::CalculateVorticity(
+  vtkGenericCell* cell, double pcoords[3],
+  vtkDoubleArray* cellVectors, double vorticity[3] )
 {
   double* cellVel;
   double derivs[9];
@@ -1350,11 +1360,13 @@ void vtkParticleTracerBase::CalculateVorticity( vtkGenericCell* cell, double pco
   vorticity[2] = derivs[3] - derivs[1];
 }
 
+//---------------------------------------------------------------------------
 double vtkParticleTracerBase::GetCacheDataTime(int i)
 {
   return this->CachedData[i]->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 }
 
+//---------------------------------------------------------------------------
 double vtkParticleTracerBase::GetCacheDataTime()
 {
   double currentTime = CachedData[1]? this->GetCacheDataTime(1):
@@ -1363,11 +1375,13 @@ double vtkParticleTracerBase::GetCacheDataTime()
 
 }
 
+//---------------------------------------------------------------------------
 unsigned int vtkParticleTracerBase::NumberOfParticles()
 {
   return static_cast<unsigned int>(this->ParticleHistories.size());
 }
 
+//---------------------------------------------------------------------------
 void vtkParticleTracerBase::ResetCache()
 {
   if(this->DisableResetCache==0)
@@ -1386,6 +1400,7 @@ void vtkParticleTracerBase::ResetCache()
     }
 }
 
+//---------------------------------------------------------------------------
 void vtkParticleTracerBase::SetTerminationTime(double t)
 {
   if(t==this->TerminationTime)
@@ -1408,7 +1423,7 @@ void vtkParticleTracerBase::SetTerminationTime(double t)
   this->TerminationTime = t;
 }
 
-
+//---------------------------------------------------------------------------
 void vtkParticleTracerBase::CreateProtoPD(vtkDataObject* input)
 {
   this->ProtoPD = NULL;
@@ -1435,14 +1450,11 @@ void vtkParticleTracerBase::CreateProtoPD(vtkDataObject* input)
 }
 
 //---------------------------------------------------------------------------
-bool vtkParticleTracerBase::RetryWithPush(ParticleInformation &info,  double* point1,double delT, int substeps)
+bool vtkParticleTracerBase::RetryWithPush(
+  ParticleInformation &info,  double* point1,double delT, int substeps)
 {
   double velocity[3];
   this->Interpolator->ClearCache();
-  if (info.UniqueParticleId==3)
-    {
-    vtkDebugMacro(<< "3 is about to be sent");
-    }
 
   info.LocationState = this->Interpolator->TestPoint(point1);
 
@@ -1487,18 +1499,20 @@ bool vtkParticleTracerBase::RetryWithPush(ParticleInformation &info,  double* po
 
   info.CurrentPosition.x[3] += delT;
   info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
+  info.age += delT;
 
   if (info.LocationState!=ID_OUTSIDE_ALL)
     {
     // a push helped the particle get back into a dataset,
-    info.age += delT;
     info.ErrorCode = 6;
     return 1;
     }
   return 0;
 }
 
-void vtkParticleTracerBase::AddParticle( vtkParticleTracerBaseNamespace::ParticleInformation &info, double* velocity)
+//---------------------------------------------------------------------------
+void vtkParticleTracerBase::AddParticle(
+  vtkParticleTracerBaseNamespace::ParticleInformation &info, double* velocity)
 {
   const double    *coord = info.CurrentPosition.x;
   vtkIdType tempId = this->OutputCoordinates->InsertNextPoint(coord);
@@ -1578,6 +1592,7 @@ void vtkParticleTracerBase::AddParticle( vtkParticleTracerBaseNamespace::Particl
 
 }
 
+//---------------------------------------------------------------------------
 bool vtkParticleTracerBase::IsPointDataValid(vtkDataObject* input)
 {
   if(vtkCompositeDataSet* cdInput = vtkCompositeDataSet::SafeDownCast(input))
@@ -1589,6 +1604,7 @@ bool vtkParticleTracerBase::IsPointDataValid(vtkDataObject* input)
   return true;
 }
 
+//---------------------------------------------------------------------------
 bool vtkParticleTracerBase::IsPointDataValid(vtkCompositeDataSet* input,
                                              std::vector<std::string>& arrayNames)
 {
@@ -1613,6 +1629,7 @@ bool vtkParticleTracerBase::IsPointDataValid(vtkCompositeDataSet* input,
   return true;
 }
 
+//---------------------------------------------------------------------------
 void vtkParticleTracerBase::GetPointDataArrayNames(
   vtkDataSet* input, std::vector<std::string>& names)
 {
@@ -1628,66 +1645,69 @@ void vtkParticleTracerBase::GetPointDataArrayNames(
     }
 }
 
+//---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleAge(vtkPointData* pd)
 {
   return vtkFloatArray::SafeDownCast(pd->GetArray("ParticleAge"));
 }
 
+//---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetParticleIds(vtkPointData* pd)
 {
   return vtkIntArray::SafeDownCast(pd->GetArray("ParticleId"));
 }
 
+//---------------------------------------------------------------------------
 vtkCharArray* vtkParticleTracerBase::GetParticleSourceIds(vtkPointData* pd)
 {
   return vtkCharArray::SafeDownCast(pd->GetArray("ParticleSourceId"));
 }
 
+//---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetInjectedPointIds(vtkPointData* pd)
 {
- return vtkIntArray::SafeDownCast(pd->GetArray("InjectedPointId"));
+  return vtkIntArray::SafeDownCast(pd->GetArray("InjectedPointId"));
 }
 
+//---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetInjectedStepIds(vtkPointData* pd)
 {
- return vtkIntArray::SafeDownCast(pd->GetArray("InjectionStepId"));
+  return vtkIntArray::SafeDownCast(pd->GetArray("InjectionStepId"));
 }
 
+//---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetErrorCodeArr(vtkPointData* pd)
 {
- return vtkIntArray::SafeDownCast(pd->GetArray("ErrorCode"));
+  return vtkIntArray::SafeDownCast(pd->GetArray("ErrorCode"));
 }
 
+//---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleVorticity(vtkPointData* pd)
 {
- return vtkFloatArray::SafeDownCast(pd->GetArray("Vorticity"));
+  return vtkFloatArray::SafeDownCast(pd->GetArray("Vorticity"));
 }
 
+//---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleRotation(vtkPointData* pd)
 {
- return vtkFloatArray::SafeDownCast(pd->GetArray("Rotation"));
+  return vtkFloatArray::SafeDownCast(pd->GetArray("Rotation"));
 }
 
+//---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleAngularVel(vtkPointData* pd)
 {
- return vtkFloatArray::SafeDownCast(pd->GetArray("AngularVelocity"));
+  return vtkFloatArray::SafeDownCast(pd->GetArray("AngularVelocity"));
 }
 
+//---------------------------------------------------------------------------
 void vtkParticleTracerBase::PrintParticleHistories()
 {
   cout<<"Particle id, ages: "<<endl;
-  for(ParticleListIterator itr = this->ParticleHistories.begin();  itr!=this->ParticleHistories.end();itr++)
+  for(ParticleListIterator itr = this->ParticleHistories.begin();
+      itr!=this->ParticleHistories.end();itr++)
     {
     ParticleInformation& info(*itr);
     cout<<info.InjectedPointId<<" "<<info.age<<" "<<endl;
     }
   cout<<endl;
 }
-
-
-
-ParticleTracerSetMacro(StartTime, double)
-ParticleTracerSetMacro(ComputeVorticity, bool);
-ParticleTracerSetMacro(RotationScale, double)
-ParticleTracerSetMacro(ForceReinjectionEveryNSteps,int);
-ParticleTracerSetMacro(TerminalSpeed, double);

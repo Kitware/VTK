@@ -282,7 +282,7 @@ XdmfValuesBinary::Read(XdmfArray *anArray){
     }
     FullFileName << DataSetName << ends;
     char * path = FullFileName.rdbuf()->str();
-    XdmfDebug("Opening Binary Data for Reading : " << FullFileName);
+    XdmfDebug("Opening Binary Data for Reading : " << FullFileName.str());
 
 
     //char * path = new char [ strlen(this->DOM->GetWorkingDirectory())+strlen(DataSetName) + 1 ];
