@@ -36,6 +36,7 @@ ren1 AddActor actor0
 ren1 SetBackground 0 0 0
 
 renWin SetSize 300 300
+renWin SetMultiSamples 0
 iren Initialize
 renWin Render
 

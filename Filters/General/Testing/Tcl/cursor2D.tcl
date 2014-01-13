@@ -68,6 +68,7 @@ ren1 AddActor cursor4Actor
 
 ren1 SetBackground 0 0 0
 renWin SetSize 120 120
+renWin SetMultiSamples 0
 renWin Render
 
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
