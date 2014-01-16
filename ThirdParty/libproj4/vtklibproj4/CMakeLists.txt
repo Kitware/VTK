@@ -19,7 +19,7 @@ if ( PROJ_LIST_EXTERNAL AND BUILD_SHARED_LIBS )
 endif ( PROJ_LIST_EXTERNAL AND BUILD_SHARED_LIBS )
 
 # Make libproj4 thread-safe?
-option( PROJ_USE_PTHREADS "Should libproj4 be built as a thread-friendly library?" OFF )
+option( PROJ_USE_PTHREADS "Should libproj4 be built as a thread-friendly library?" ${VTK_USE_PTHREADS} )
 mark_as_advanced( PROJ_USE_PTHREADS )
 if ( PROJ_USE_PTHREADS )
   if ( NOT VTK_USE_PTHREADS )
