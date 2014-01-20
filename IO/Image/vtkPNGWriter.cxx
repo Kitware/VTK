@@ -220,6 +220,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
 
 
   this->TempFP = 0;
+  png_byte **row_pointers = 0;
   if (this->WriteToMemory)
     {
     vtkUnsignedCharArray *uc = this->GetResult();
@@ -249,6 +250,9 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
       if (setjmp(png_jmpbuf((png_ptr))))
         {
         fclose(this->TempFP);
+        if (row_pointers)
+           delete [] row_pointers;
+        png_destroy_write_struct(&png_ptr, &info_ptr);
         this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
         return;
         }
@@ -293,7 +297,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     png_set_swap(png_ptr);
 #endif
     }
-  png_byte **row_pointers = new png_byte *[height];
+  row_pointers = new png_byte *[height];
   vtkIdType *outInc = data->GetIncrements();
   vtkIdType rowInc = outInc[1]*bit_depth/8;
   for (ui = 0; ui < height; ui++)
