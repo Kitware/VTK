@@ -1379,6 +1379,11 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
   // amount of memory.
   //
   int i, numLabels = labels->GetNumberOfValues();
+  if (numLabels < 0)
+    {
+    vtkErrorMacro(<< "Number of labels " << numLabels << " is invalid");
+    return;
+    }
   if (this->NumberOfLabelsBuilt != numLabels)
     {
     if (this->LabelMappers != NULL)
