@@ -976,11 +976,26 @@ int vtkExtractSelectedIds::ExtractPoints(
     else
       {
       numPts = output->GetNumberOfPoints();
-      vtkUnstructuredGrid* outputUG = vtkUnstructuredGrid::SafeDownCast(output);
-      outputUG->Allocate(numPts);
-      for (i = 0; i < numPts; ++i)
+      if (output->GetDataObjectType() == VTK_POLY_DATA)
         {
-        outputUG->InsertNextCell(VTK_VERTEX, 1, &i);
+        vtkPolyData* outputPD = vtkPolyData::SafeDownCast(output);
+        vtkCellArray *newVerts = vtkCellArray::New();
+        newVerts->Allocate(newVerts->EstimateSize(numPts,1));
+        for (i = 0; i < numPts; ++i)
+          {
+          newVerts->InsertNextCell(1, &i);
+          }
+        outputPD->SetVerts(newVerts);
+        newVerts->Delete();
+        }
+      else
+        {
+        vtkUnstructuredGrid* outputUG = vtkUnstructuredGrid::SafeDownCast(output);
+        outputUG->Allocate(numPts);
+        for (i = 0; i < numPts; ++i)
+          {
+          outputUG->InsertNextCell(VTK_VERTEX, 1, &i);
+          }
         }
       }
       this->UpdateProgress(1.0);
@@ -996,4 +1011,3 @@ void vtkExtractSelectedIds::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
 }
-
