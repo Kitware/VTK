@@ -46,6 +46,8 @@
 #include "vtkCommand.h"
 #include "vtkWindow.h"
 
+#include <float.h> //for FLT_EPSILON
+
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
 //----------------------------------------------------------------------------
@@ -1028,19 +1030,21 @@ void vtkImplicitPlaneRepresentation::SetOrigin(double x, double y, double z)
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the origin of the plane.
+// Set the origin of the plane. Note that the origin is clamped slightly inside
+// the bounding box or the plane tends to disappear as it hits the boundary (and
+// when the plane is parallel to one of the faces of the bounding box).
 void vtkImplicitPlaneRepresentation::SetOrigin(double x[3])
 {
   double *bounds = this->Outline->GetOutput()->GetBounds();
   for (int i=0; i<3; i++)
     {
-    if ( x[i] < bounds[2*i] )
+    if ( x[i] <= bounds[2*i] )
       {
-      x[i] = bounds[2*i];
+      x[i] = bounds[2*i] + FLT_EPSILON;
       }
-    else if ( x[i] > bounds[2*i+1] )
+    else if ( x[i] >= bounds[2*i+1] )
       {
-      x[i] = bounds[2*i+1];
+      x[i] = bounds[2*i+1] - FLT_EPSILON;
       }
     }
   this->Plane->SetOrigin(x);
