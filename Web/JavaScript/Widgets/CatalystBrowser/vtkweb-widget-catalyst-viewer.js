@@ -355,7 +355,9 @@
             // Stop any zoom or pan events
             element.bind('mouseup', function(evt) {
                 if (mouseMode === modeNone) {
-                    externalMouseFunc(false, null);
+                    if (externalMouseFunc !== null) {
+                        externalMouseFunc(false, null);
+                    }
                 } else {
                     mouseMode = modeNone;
                     evt.preventDefault();
