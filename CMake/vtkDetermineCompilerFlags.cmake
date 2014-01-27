@@ -19,10 +19,6 @@ ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
 
 # A GCC compiler.
 IF(CMAKE_COMPILER_IS_GNUCXX)
-  # Quiet warning about strstream deprecation if appropriate.
-  IF(NOT VTK_LEGACY_REMOVE)
-    SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
-  ENDIF(NOT VTK_LEGACY_REMOVE)
   IF(VTK_USE_X)
     unset(WIN32)
   ENDIF(VTK_USE_X)
