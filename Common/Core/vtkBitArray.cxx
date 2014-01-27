@@ -590,7 +590,8 @@ void vtkBitArray::RemoveTuple(vtkIdType id)
 //----------------------------------------------------------------------------
 void vtkBitArray::RemoveFirstTuple()
 {
-  this->RemoveFirstTuple();
+  vtkErrorMacro("Not yet implemented...");
+  this->RemoveTuple(0);
   this->DataChanged();
 }
 
