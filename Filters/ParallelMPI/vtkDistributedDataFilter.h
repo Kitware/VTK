@@ -423,8 +423,10 @@ private:
   // Description:
   // ?
   void ClipCellsToSpatialRegion(vtkUnstructuredGrid *grid);
+#if 0
   void ClipWithVtkClipDataSet(vtkUnstructuredGrid *grid, double *bounds,
            vtkUnstructuredGrid **outside, vtkUnstructuredGrid **inside);
+#endif
 
   void ClipWithBoxClipDataSet(vtkUnstructuredGrid *grid, double *bounds,
            vtkUnstructuredGrid **outside, vtkUnstructuredGrid **inside);

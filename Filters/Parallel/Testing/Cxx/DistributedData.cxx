@@ -32,6 +32,8 @@
 #include "vtkDistributedDataFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkPieceScalars.h"
+#include "vtkPointData.h"
+#include "vtkFloatArray.h"
 #include "vtkMPIController.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -108,6 +110,13 @@ void MyProcess::Execute()
 
     dsr->Update();
 
+    vtkFloatArray* fa = vtkFloatArray::New();
+    fa->SetName("ones");
+    fa->SetNumberOfTuples(ds->GetNumberOfPoints());
+    fa->FillComponent(0, 1);
+    ds->GetPointData()->AddArray(fa);
+    fa->Delete();
+
     delete [] fname;
 
     go = 1;
@@ -146,8 +155,8 @@ void MyProcess::Execute()
   dd->SetInputData(ds);
   dd->SetController(this->Controller);
 
-  dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
   dd->UseMinimalMemoryOff();
+  dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
 
   // COLOR BY PROCESS NUMBER
 
@@ -158,6 +167,7 @@ void MyProcess::Execute()
   // MORE FILTERING - this will request ghost cells
 
   vtkDataSetSurfaceFilter *dss = vtkDataSetSurfaceFilter::New();
+  dss->SetPieceInvariant(1);
   dss->SetInputConnection(ps->GetOutputPort());
 
   // COMPOSITE RENDER
@@ -208,12 +218,26 @@ void MyProcess::Execute()
     camera->ParallelProjectionOn();
     camera->SetParallelScale(16);
 
+    dd->UseMinimalMemoryOn();
+    dd->SetBoundaryModeToAssignToOneRegion();
+
     renWin->Render();
     renWin->Render();
 
-    this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
-                                                10);
+    int ncells = vtkUnstructuredGrid::SafeDownCast(dd->GetOutput())->GetNumberOfCells();
 
+    prm->StopServices();
+
+    dd->UseMinimalMemoryOff();
+    dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+
+    this->ReturnValue =
+      vtkRegressionTester::Test(this->Argc,this->Argv,renWin, 10);
+
+    if (ncells != 152)
+      {
+      this->ReturnValue = vtkTesting::FAILED;
+      }
     for (i=1; i < numProcs; i++)
       {
       this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
@@ -223,11 +247,19 @@ void MyProcess::Execute()
     }
   else
     {
+    dd->UseMinimalMemoryOn();
+    dd->SetBoundaryModeToAssignToOneRegion();
+
+    prm->StartServices();
+
+    dd->UseMinimalMemoryOff();
+    dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+
     prm->StartServices();
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
     }
 
-  if (this->ReturnValue == vtkTesting::PASSED)
+  if (0 && this->ReturnValue == vtkTesting::PASSED)
     {
     // Now try using the memory conserving *Lean methods.  The
     // image produced should be identical
