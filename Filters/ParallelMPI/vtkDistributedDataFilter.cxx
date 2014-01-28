@@ -2841,6 +2841,7 @@ void vtkDistributedDataFilter::AddConstantUnsignedCharCellArray(
   Array->Delete();
 }
 
+#if 0
 //-------------------------------------------------------------------------
 // this is here temporarily, until vtkBoxClipDataSet is fixed to
 // be able to generate the clipped output
@@ -2884,6 +2885,7 @@ void vtkDistributedDataFilter::ClipWithVtkClipDataSet(
 
   clipped->Delete();
 }
+#endif
 
 //-------------------------------------------------------------------------
 // In general, vtkBoxClipDataSet is much faster and makes fewer errors.
