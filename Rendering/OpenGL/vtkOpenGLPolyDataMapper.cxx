@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkOpenGLPolyDataMapper.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
@@ -62,6 +64,9 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->ListId = 0;
   this->TotalCells = 0;
   this->InternalColorTexture = 0;
+
+  VTK_LEGACY_BODY(vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper,
+    "VTK 6.2");
 }
 
 // Destructor (don't call ReleaseGraphicsResources() since it is virtual
@@ -2107,3 +2112,5 @@ void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
+
+#endif // VTK_LEGACY_REMOVE

@@ -23,7 +23,6 @@
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkOpenGLHardwareSupport.h"
 #include "vtkOpenGLLight.h"
-#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLError.h"

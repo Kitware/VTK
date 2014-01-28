@@ -52,7 +52,6 @@ vtk_add_test_cxx(
   TestOffAxisStereo.cxx
   TestOrderedTriangulator.cxx
   TestOpacity.cxx
-  TestOpenGLPolyDataMapper.cxx
   TestOSConeCxx.cxx
   TestPolygonSelection.cxx
   TestPOVExporter.cxx,NO_VALID
