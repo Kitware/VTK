@@ -84,44 +84,6 @@ void vtkExodusModel::SetModelMetadata(vtkModelMetadata *emd)
 }
 
 //---------------------------------------------------------------
-// Initialize this ExodusModel object with the ExodusModel
-// packed into a vtkUnstructuredGrid's field arrays.
-//---------------------------------------------------------------
-
-int vtkExodusModel::HasMetadata(vtkUnstructuredGrid *grid)
-{
-  int hasIt = 0;
-
-  if (grid)
-    {
-    hasIt = vtkModelMetadata::HasMetadata(grid);
-    }
-
-  return hasIt;
-}
-int vtkExodusModel::UnpackExodusModel(vtkUnstructuredGrid *grid, int deleteIt)
-{
-  vtkModelMetadata *mmd = this->GetModelMetadata();
-
-  int fail = mmd->Unpack(grid, deleteIt);
-
-  return fail;
-}
-
-//---------------------------------------------------------------
-// Pack the metadata in this ExodusModel object into the
-// supplied vtkUnstructuredGrid.
-//---------------------------------------------------------------
-
-void vtkExodusModel::PackExodusModel(vtkUnstructuredGrid *grid)
-{
-  vtkModelMetadata *mmd = this->GetModelMetadata();
-
-  mmd->Pack(grid);
-
-  return;
-}
-//---------------------------------------------------------------
 // Set all the global fields of the Exodus Model from an open
 // Exodus file.
 //---------------------------------------------------------------
@@ -1143,39 +1105,7 @@ int vtkExodusModel::SetLocalSideSetInformation(
 
   return 0;
 }
-//-------------------------------------------------
-// Merge an ExodusModel into this one
-//-------------------------------------------------
-int vtkExodusModel::MergeExodusModel(vtkExodusModel *em)
-{
-  vtkModelMetadata *myMmd = this->GetModelMetadata();
 
-  vtkModelMetadata *newmd = em->GetModelMetadata();
-
-  int fail = myMmd->MergeModelMetadata(newmd);
-
-  return (fail != 0);
-}
-vtkExodusModel *vtkExodusModel::ExtractExodusModel(vtkIdTypeArray *globalCellIdList,
-                                                   vtkUnstructuredGrid *grid)
-{
-  vtkExodusModel *em = vtkExodusModel::New();
-
-  vtkModelMetadata *mmd = this->GetModelMetadata()->ExtractModelMetadata(
-    globalCellIdList, grid);
-
-  if (mmd == NULL)
-    {
-    em->Delete();
-    em = NULL;
-    }
-  else
-    {
-    em->SetModelMetadata(mmd);
-    }
-
-  return em;
-}
 //-------------------------------------------------
 // Element variables
 //-------------------------------------------------
