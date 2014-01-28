@@ -33,7 +33,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWarpScalar.h"
 
-int expCos( int argc, char *argv[] )
+int expCos( int , char *[] )
 {
   int i, numPts;
   double x[3];
@@ -67,7 +67,7 @@ int expCos( int argc, char *argv[] )
   // compute Bessel function and derivatives. This portion could be
   // encapsulated into source or filter object.
   //
-  vtkPolyData *input = transF->GetOutput();
+  vtkSmartPointer<vtkPolyData> input = transF->GetOutput();
   numPts = input->GetNumberOfPoints();
 
   vtkSmartPointer<vtkPoints> newPts =
@@ -93,8 +93,6 @@ int expCos( int argc, char *argv[] )
     deriv = -exp(-r) * (cos(10.0*r) + 10.0*sin(10.0*r));
     derivs->SetValue(i,deriv);
     }
-  newPts->Delete(); //reference counting - it's ok
-  derivs->Delete();
 
   // warp plane
   vtkSmartPointer<vtkWarpScalar> warp =
