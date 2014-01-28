@@ -9,7 +9,7 @@ vtk_add_test_cxx(
   ImageResize3D.cxx
   ImageResizeCropping.cxx
   ImageWeightedSum.cxx,NO_VALID
-  ImportExport.cxx,NO_VALID # todo (unsatistfied deps)
+  ImportExport.cxx,NO_VALID
   TestUpdateExtentReset.cxx,NO_VALID
   )
 
