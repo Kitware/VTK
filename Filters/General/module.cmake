@@ -11,5 +11,6 @@ vtk_module(vtkFiltersGeneral
     vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkRenderingAnnotation
+    vtkRenderingLabel
     vtkTestingRendering
   )
