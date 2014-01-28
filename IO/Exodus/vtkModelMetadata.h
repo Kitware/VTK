@@ -555,22 +555,6 @@ public:
     return this->MapToOriginalNodeVariableNames;}
 
   // Description:
-  //   Given the name of an element variable the vtkUnstructuredGrid
-  //   described by this ModelMetadata, and a component number, give
-  //   the name of the scalar array in the original
-  //   file that turned into that component when the file was
-  //   read into VTK.
-  char *FindOriginalElementVariableName(const char *name, int component);
-
-  // Description:
-  //   Given the name of an node variable the vtkUnstructuredGrid
-  //   described by this ModelMetadata, and a component number, give
-  //   the name of the scalar array in the original
-  //   file that turned into that component when the file was
-  //   read into VTK.
-  char *FindOriginalNodeVariableName(const char *name, int component);
-
-  // Description:
   //   In order to write Exodus files from vtkUnstructuredGrid
   //   objects that were read from Exodus files, we need to know
   //   the mapping from variable names in the UGrid to variable
