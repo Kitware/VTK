@@ -85,7 +85,19 @@ int TestMatrix3x3(int,char *[])
   if (!vtkMathUtilities::FuzzyCompare(matrix2->GetElement(0, 0), 0.2) ||
       !vtkMathUtilities::FuzzyCompare(matrix2->GetElement(2, 1), -42.0))
     {
-    vtkGenericWarningMacro("vtkMatrix::Transpose failed.");
+    vtkGenericWarningMacro("vtkMatrix::Invert failed.");
+    return 1;
+    }
+
+  // Multiply a coordinate by this matrix.
+  double inout[3] = {12.3, 45.6, 78.9};
+  matrix2->MultiplyPoint(inout, inout);
+
+  if (!vtkMathUtilities::FuzzyCompare(inout[0], 2.46, 1e-5) ||
+      !vtkMathUtilities::FuzzyCompare(inout[1], 45.6, 1e-5) ||
+      !vtkMathUtilities::FuzzyCompare(inout[2], -1836.3, 1e-5))
+    {
+    vtkGenericWarningMacro("vtkMatrix::MultiplyPoint failed.");
     return 1;
     }
 
@@ -148,6 +160,20 @@ int TestMatrix3x3(int,char *[])
                              << ", "
                              << p1[1] - (p2[1]-6.9));
       return 1;
+      }
+    }
+
+  // Zero out the matrix.
+  matrix->Zero();
+  for (int i = 0; i < 3; i++)
+    {
+    for (int j = 0; j < 3; j++)
+      {
+      if (matrix->GetElement(i, j) != 0.0)
+        {
+        vtkGenericWarningMacro("vtkMatrix::Zero failed.");
+        return 1;
+        }
       }
     }
 
