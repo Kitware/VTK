@@ -95,8 +95,7 @@ vtkWebGLExporter::vtkWebGLExporter()
 }
 
 vtkWebGLExporter::~vtkWebGLExporter()
-  {
-
+{
   while(this->Internal->Objects.size() != 0)
     {
     vtkWebGLObject* obj = this->Internal->Objects.back();
@@ -104,8 +103,11 @@ vtkWebGLExporter::~vtkWebGLExporter()
     this->Internal->Objects.pop_back();
     }
   delete this->Internal;
-  if (this->TriangleFilter) this->TriangleFilter->Delete();
-  }
+  if (this->TriangleFilter)
+    {
+    this->TriangleFilter->Delete();
+    }
+}
 
 void vtkWebGLExporter::SetMaxAllowedSize(int mesh, int lines)
   {
@@ -394,7 +396,7 @@ void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* 
   bool onlyWidget = parseType == VTK_ONLYWIDGET;
   bool cameraOnly = onlyWidget && !this->hasWidget;
 
-  this->SceneId = viewId;
+  this->SceneId = viewId? viewId : "";
   if (cameraOnly)
     {
     this->generateRendererData(renderers, viewId);
@@ -535,7 +537,7 @@ const char* vtkWebGLExporter::GenerateMetadata()
   double max = std::max(this->SceneSize[0], this->SceneSize[1]); max = std::max(max, this->SceneSize[2]);
   std::stringstream ss;
 
-  ss << "{\"id\":" << this->SceneId << ",";
+  ss << "{\"id\":" << this->SceneId.c_str() << ",";
   ss << "\"MaxSize\":" << max << ",";
   ss << "\"Center\":[";
   for (int i=0; i<2; i++) ss << this->CenterOfRotation[i] << ", ";
@@ -622,7 +624,7 @@ void vtkWebGLExporter::PrintSelf(ostream& os, vtkIndent indent)
 
 const char* vtkWebGLExporter::GetId()
 {
-  return this->SceneId;
+  return this->SceneId.c_str();
 }
 
 bool vtkWebGLExporter::hasChanged()
