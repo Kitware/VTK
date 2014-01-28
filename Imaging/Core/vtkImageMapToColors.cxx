@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkImageMapToColors.h"
 
+#include "vtkCharArray.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -34,6 +36,14 @@ vtkImageMapToColors::vtkImageMapToColors()
   this->PassAlphaToOutput = 0;
   this->LookupTable = NULL;
   this->DataWasPassed = 0;
+
+  // Black color
+  this->NaNColor[0] = this->NaNColor[1] = this->NaNColor[2] = this->NaNColor[3] = 0;
+
+  // Make sure the Scalars are used as default ArrayToProcess
+  this->SetInputArrayToProcess(0, 0, 0,
+                               vtkDataObject::POINT,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -162,25 +172,35 @@ int vtkImageMapToColors::RequestInformation (
 
 //----------------------------------------------------------------------------
 // This non-templated function executes the filter for any type of data.
+// All the data to process should be achieved outside this method as
+// we can not always rely on the ActiveScalar information.
 
 static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
                                        vtkImageData *inData,
-                                       void *inPtr,
+                                       vtkDataArray *inArray,
+                                       vtkCharArray *maskArray,
                                        vtkImageData *outData,
-                                       unsigned char *outPtr,
-                                       int outExt[6], int id)
+                                       vtkDataArray *outArray,
+                                       int outExt[6], int id,
+                                       unsigned char* nanColor)
 {
   int idxY, idxZ;
   int extX, extY, extZ;
-  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType inIncX, inIncY, inIncZ, inMaskIncX, inMaskIncY, inMaskIncZ;
   vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int dataType = inData->GetScalarType();
-  int scalarSize = inData->GetScalarSize();
+  int dataType = inArray->GetDataType();
+  int scalarSize = inArray->GetDataTypeSize();
+
+  int coordinate[3] = { outExt[0], outExt[2], outExt[4] };
+  void *inPtr = inData->GetArrayPointer(inArray, coordinate);
+  char *inMask = maskArray ? static_cast<char*>(inData->GetArrayPointer(maskArray, coordinate)) : NULL;
+
   int numberOfComponents,numberOfOutputComponents,outputFormat;
   int rowLength;
   vtkScalarsToColors *lookupTable = self->GetLookupTable();
+  unsigned char *outPtr = static_cast<unsigned char*>(outData->GetArrayPointer(outArray, coordinate));
   unsigned char *outPtr1;
   void *inPtr1;
 
@@ -193,12 +213,17 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
   target++;
 
   // Get increments to march through data
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  inData->GetContinuousIncrements(inArray, outExt, inIncX, inIncY, inIncZ);
+  inMaskIncX = inMaskIncY = inMaskIncZ = 0;
+  if(maskArray)
+    {
+    inData->GetContinuousIncrements(maskArray, outExt, inMaskIncX, inMaskIncY, inMaskIncZ);
+    }
   // because we are using void * and char * we must take care
   // of the scalar size in the increments
   inIncY *= scalarSize;
   inIncZ *= scalarSize;
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  outData->GetContinuousIncrements(outArray, outExt, outIncX, outIncY, outIncZ);
   numberOfComponents = inData->GetNumberOfScalarComponents();
   numberOfOutputComponents = outData->GetNumberOfScalarComponents();
   outputFormat = self->GetOutputFormat();
@@ -223,6 +248,28 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
       lookupTable->MapScalarsThroughTable2(inPtr1,outPtr1,
                                            dataType,extX,numberOfComponents,
                                            outputFormat);
+      // Handle NaN color when mask
+      if(inMask != NULL)
+        {
+        unsigned char *outPtr2 = outPtr1;
+        for(vtkIdType idx = 0; idx < extX; ++idx, outPtr2 += outputFormat)
+          {
+          if(!inMask[idx])
+            {
+            switch(outputFormat)
+              {
+            case 4:
+              outPtr2[3] = nanColor[3];
+            case 3:
+              outPtr2[2] = nanColor[2];
+            case 2:
+              outPtr2[1] = nanColor[1];
+            case 1:
+              outPtr2[0] = nanColor[0];
+              }
+            }
+          }
+        }
       if (self->GetPassAlphaToOutput() &&
           dataType == VTK_UNSIGNED_CHAR && numberOfComponents > 1 &&
           (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
@@ -240,9 +287,15 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
       outPtr1 += outIncY + extX*numberOfOutputComponents;
       inPtr1 = static_cast<void *>(
         static_cast<char *>(inPtr1) + inIncY + rowLength);
+
+      // Just move pointer if not NULL
+      inMask += inMask ? inMaskIncY + extX : 0;
       }
     outPtr1 += outIncZ;
     inPtr1 = static_cast<void *>(static_cast<char *>(inPtr1) + inIncZ);
+
+    // Just move pointer if not NULL
+    inMask += inMask ? inMaskIncZ : 0;
     }
 }
 
@@ -252,18 +305,20 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 
 void vtkImageMapToColors::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
-  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  vtkDataArray* outArray = outData[0]->GetPointData()->GetScalars();
+  vtkCharArray *maskArray = vtkCharArray::SafeDownCast(inData[0][0]->GetPointData()->GetArray("vtkValidPointMask"));
+  vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
 
-  vtkImageMapToColorsExecute(this, inData[0][0], inPtr,
-                             outData[0], static_cast<unsigned char *>(outPtr),
-                             outExt, id);
+  // Working method
+  vtkImageMapToColorsExecute(this, inData[0][0], inArray, maskArray,
+                             outData[0], outArray,
+                             outExt, id, this->NaNColor);
 }
 
 //----------------------------------------------------------------------------
