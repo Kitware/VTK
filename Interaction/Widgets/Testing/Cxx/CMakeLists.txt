@@ -43,8 +43,8 @@ vtk_add_test_cxx(
   TestProgrammaticPlacement.cxx
   TestProp3DButtonRepresentation.cxx,NO_VALID
   TestRectilinearWipeWidget.cxx
-  # TestResliceCursorWidget2.cxx # todo (unsatistfied deps)
-  # TestResliceCursorWidget3.cxx # todo (unsatistfied deps)
+  TestResliceCursorWidget2.cxx
+  TestResliceCursorWidget3.cxx
   TestScalarBarWidget.cxx
   TestSeedWidget.cxx
   TestSeedWidget2.cxx
