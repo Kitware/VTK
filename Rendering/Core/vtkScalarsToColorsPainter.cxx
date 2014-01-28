@@ -714,7 +714,7 @@ template<class T>
 void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
                                             vtkIdType numScalars, int numComps,
                                             int component, double* range,
-                                            double* table_range,
+                                            const double* table_range,
                                             bool use_log_scale)
 {
   double inv_range_width = 1.0 / (range[1]-range[0]);

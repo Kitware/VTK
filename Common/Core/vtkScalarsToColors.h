@@ -17,7 +17,7 @@
 // vtkScalarsToColors is a general purpose superclass for objects that
 // convert scalars to colors. This include vtkLookupTable classes and
 // color transfer functions.  By itself, this class will simply rescale
-// the scalars
+// the scalars.
 //
 // The scalars to color mapping can be augmented with an additional
 // uniform alpha blend. This is used, for example, to blend a vtkActor's
@@ -110,7 +110,7 @@ public:
   // Specify an additional opacity (alpha) value to blend with. Values
   // != 1 modify the resulting color consistent with the requested
   // form of the output. This is typically used by an actor in order to
-  // blend its opacity.
+  // blend its opacity. Value is clamped between 0 and 1.
   virtual void SetAlpha(double alpha);
   vtkGetMacro(Alpha,double);
 
