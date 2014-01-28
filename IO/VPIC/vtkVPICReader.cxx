@@ -93,6 +93,8 @@ vtkVPICReader::vtkVPICReader()
     this->Rank = 0;
     this->TotalRank = 1;
     }
+
+  this->UsedRank = 0;
 }
 
 //----------------------------------------------------------------------------
