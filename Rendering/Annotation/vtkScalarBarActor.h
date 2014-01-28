@@ -473,7 +473,7 @@ protected:
   // Description:
   // Allocate actors for lookup table annotations and position them properly.
   int MapAnnotationLabels(
-    vtkScalarsToColors* lkup, double start, double delta, double* range);
+    vtkScalarsToColors* lkup, double start, double delta, const double* range);
 
   // Description:
   // This method is called by \a ConfigureAnnotationLabels when Orientation is VTK_ORIENT_VERTICAL.
