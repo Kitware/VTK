@@ -20,7 +20,6 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLActor.h"
-#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkXRenderWindowInteractor.h"
 
 #include "vtkOpenGL.h"

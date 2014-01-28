@@ -17,6 +17,7 @@
 // vtkOpenGLPolyDataMapper is a subclass of vtkPolyDataMapper.
 // vtkOpenGLPolyDataMapper is a geometric PolyDataMapper for the OpenGL
 // rendering library.
+// @deprecated Replaced by vtkPainterPolyDataMapper as of VTK 6.2.
 
 #ifndef __vtkOpenGLPolyDataMapper_h
 #define __vtkOpenGLPolyDataMapper_h
@@ -32,7 +33,7 @@ class vtkProperty;
 class vtkRenderWindow;
 class vtkOpenGLRenderer;
 class vtkOpenGLTexture;
-
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
 public:
@@ -108,5 +109,5 @@ private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&);  // Not implemented.
   void operator=(const vtkOpenGLPolyDataMapper&);  // Not implemented.
 };
-
+#endif // VTK_LEGACY_REMOVE
 #endif
