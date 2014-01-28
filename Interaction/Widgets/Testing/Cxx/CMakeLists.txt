@@ -1,8 +1,8 @@
 set(TerrainPolylineEditor_ARGS -ProjectionMode 2 -HeightOffset 100)
 vtk_add_test_cxx(
-  BoxWidget.cxx
   BoxWidget2.cxx
-  # ImagePlaneWidget.cxx # todo (unsatisfied deps)
+  BoxWidget.cxx
+  ImagePlaneWidget.cxx
   TerrainPolylineEditor.cxx
   TestAffineWidget.cxx
   TestAngleWidget2D.cxx
@@ -10,8 +10,8 @@ vtk_add_test_cxx(
   TestBalloonWidget.cxx
   TestBiDimensionalWidget.cxx
   TestBorderWidget.cxx
-  # TestBrokenLineWidget.cxx # todo (unsatisfied deps)
-  # TestButtonWidget.cxx # todo (unsatistfied deps)
+  TestBrokenLineWidget.cxx
+  TestButtonWidget.cxx
   TestCameraWidget.cxx
   TestCellCentersPointPlacer.cxx
   TestCenteredSliderWidget2D.cxx
@@ -19,24 +19,24 @@ vtk_add_test_cxx(
   TestConstrainedHandleWidget.cxx
   TestContourWidget2.cxx
   TestDijkstraImageGeodesicPath.cxx
-  TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
+  TestDistanceWidget.cxx
   TestFixedSizeHandleRepresentation3D.cxx
   TestFocalPlaneContour.cxx
-  TestHandleWidget.cxx
   TestHandleWidget2D.cxx
-  # TestImageActorContourWidget.cxx # todo(unsatistfied deps)
+  TestHandleWidget.cxx
+  TestImageActorContourWidget.cxx
   TestImageCroppingRegionsWidget.cxx
   TestImageTracerWidget.cxx
-  TestImplicitPlaneWidget.cxx
+  TestImplicitPlaneWidget2b.cxx
   TestImplicitPlaneWidget2.cxx
   TestImplicitPlaneWidget2LockNormalToCamera.cxx
-  TestImplicitPlaneWidget2b.cxx
-  TestLogoWidget.cxx
+  TestImplicitPlaneWidget.cxx
   TestLogoWidgetAlphaBlending.cxx
+  TestLogoWidget.cxx
   TestLogoWidgetDepthPeeling.cxx
   TestOrientationMarkerWidget.cxx
-  # TestOrthoPlanes.cxx # todo (unsatistfied deps)
+  TestOrthoPlanes.cxx
   TestParallelopipedWidget.cxx
   TestPickingManagerSeedWidget.cxx
   TestPlaybackWidget.cxx
@@ -47,12 +47,12 @@ vtk_add_test_cxx(
   TestResliceCursorWidget2.cxx
   TestResliceCursorWidget3.cxx
   TestScalarBarWidget.cxx
-  TestSeedWidget.cxx
   TestSeedWidget2.cxx
+  TestSeedWidget.cxx
   TestSeedWidgetNonUniformRepresentations.cxx
-  TestSliderWidget.cxx
   TestSliderWidget2D.cxx
-  # TestSplineWidget.cxx # todo (unsatistfied deps)
+  TestSliderWidget.cxx
+  TestSplineWidget.cxx
   TestTextWidget.cxx
   )
 vtk_add_test_cxx(NO_VALID
@@ -80,14 +80,14 @@ vtk_add_test_cxx(NO_VALID
 # Tests with data
 vtk_add_test_cxx(
   TestDijkstraGraphGeodesicPath.cxx
-  TestLineWidget.cxx
   TestLineWidget2.cxx
+  TestLineWidget.cxx
   TestPlaneWidget.cxx
   TestPointWidget.cxx
-  TestPolyPlane.cxx,NO_VALID
   TestPolygonalHandleRepresentations.cxx
   TestPolygonalRepresentationHandleWidget.cxx
   TestPolygonalSurfaceConstrainedDistanceWidget.cxx
+  TestPolyPlane.cxx,NO_VALID
   TestSphereHandleWidget.cxx
   TestSurfaceConstrainedHandleWidget.cxx
   TestTensorProbeWidget.cxx
