@@ -39,7 +39,10 @@ endmacro()
 
 # -----------------------------------------------------------------------------
 # Usage: vtk_add_test_cxx([name.cxx[,-E<n>][,NO_VALID]]...
-#          [NO_DATA] [NO_VALID] [VALID_ERROR <n>])
+#          [NO_DATA] [NO_VALID])
+# NO_DATA indicates that this test doesn't require any input data file
+# NO_VALID indicates that this test doesn't compare results against baseline images
+# NO_OUTPUT indicates that the test doesn't produce any output files
 function(vtk_add_test_cxx)
   # Parse Command line args
   set(names "")
@@ -142,7 +145,10 @@ endmacro()
 
 # -----------------------------------------------------------------------------
 # Usage: vtk_add_test_python(name [NO_RT] [NO_DATA] [NO_VALID])
-# NO_RT is for tests using vtk.test.testing
+# NO_RT means that your test won't use the image comparison helpers from vtk.test.testing
+# NO_DATA indicates that this test doesn't require any input data file
+# NO_VALID indicates that this test doesn't compare results against baseline images
+# NO_OUTPUT indicates that the test doesn't produce any output files
 function(vtk_add_test_python name)
   if(NOT VTK_PYTHON_EXE)
     message(FATAL_ERROR "VTK_PYTHON_EXE not set")
@@ -199,7 +205,11 @@ function(vtk_add_test_python name)
 endfunction()
 
 # -----------------------------------------------------------------------------
-# Usage: vtk_add_test_tcl(name [NO_DATA] [NO_VALID])
+# Usage: vtk_add_test_tcl(name [NO_DATA] [NO_VALID] [NO_OUTPUT] [NO_RT])
+# NO_RT means that your test won't use the image comparison helpers from rtImageTest.tcl
+# NO_DATA indicates that this test doesn't require any input data file
+# NO_VALID indicates that this test doesn't compare results against baseline images
+# NO_OUTPUT indicates that the test doesn't produce any output files
 function(vtk_add_test_tcl name)
   if(NOT VTK_TCL_EXE)
     message(FATAL_ERROR "VTK_TCL_EXE not set")
