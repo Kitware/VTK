@@ -33,3 +33,9 @@ for cmdlist in command_lists:
 # terminated anyways, so we don't need to handle timeout specially.
 for proc in procs:
     proc.wait()
+
+for proc in procs:
+    if proc.returncode != 0:
+        print "ERROR: A process exited with error. Test will fail."
+        sys.exit(1) # error
+print "All's well!"
