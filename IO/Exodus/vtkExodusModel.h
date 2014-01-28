@@ -130,57 +130,10 @@ public:
         int fid, int timeStep, int newGeometry, int compute_word_size);
 
   // Description:
-  //   Static function that returns 1 if the vtkUnstructuredGrid
-  //   has metadata packed into it's field arrays, 0 otherwise.
-
-  static int HasMetadata(vtkUnstructuredGrid *grid);
-
-  // Description:
   //   Set or get the underlying vtkModelMetadata object.
 
   vtkModelMetadata *GetModelMetadata();
   void SetModelMetadata(vtkModelMetadata *emData);
-
-  // Description:
-  //    One way to initialize an ExodusModel object is to use
-  //    SetGlobalInformation, SetLocalInformation, and the Add/Remove
-  //    Variable calls to initialize it from an open Exodus file.
-  //
-  //    Another way is to initialize it with the ExodusModel which
-  //    has been packed into field arrays of a vtkUnstructuredGrid.
-  //    Set the second argument to 1 if you would like the packed
-  //    field arrays to be deleted after this ExodusModel is
-  //    initialized.
-  //    Returns 1 if there is no ExodusModel object associated with
-  //    the grid, 0 otherwise.
-
-  int UnpackExodusModel(vtkUnstructuredGrid *grid, int deleteIt);
-
-  // Description:
-  //   Merge the supplied vtkExodusModel object into this one.  It is
-  //   assumed the two objects represent portions of the same distributed
-  //   data set.  (So the list of block IDs is the same, and so on.)
-
-  int MergeExodusModel(vtkExodusModel *em);
-
-  // Description:
-  //    Create a new vtkExodusModel object representing a subset of the
-  //    cells of this vtkExodusModel object.  We need a list of the
-  //    global IDs of the cells to be extracted, the grid which
-  //    generated the Exodus Model (so we can find the points associated
-  //    with each cell), and the name of the grid's global cell ID array,
-  //    and the name of the grid's global node ID array.
-
-  vtkExodusModel *ExtractExodusModel(vtkIdTypeArray *globalCellIdList,
-                                     vtkUnstructuredGrid *grid);
-
-  // Description:
-  //    The metadata encapsulated in a vtkExodusModel object can be
-  //    written to field arrays which are then stored in the
-  //    vtkUnstructuredGrid itself.  PackExodusModel creates these
-  //    field arrays and attaches them to the supplied grid.
-
-  void PackExodusModel(vtkUnstructuredGrid *grid);
 
   // Description::
   //    Reset all fields to their initial value.
