@@ -5,7 +5,10 @@ from vtk.test import Testing
 
 args = sys.argv[1:]
 temp_dir = args[args.index("-T") + 1]
-tmp_file = os.path.join(temp_dir, 'wavelet_slice_3.json')
+
+# Always use / to prevent windows/python issue with backslash
+tmp_file = temp_dir + '/wavelet_slice_3.json'
+
 expected_first_values = [75.9335, 102.695, 91.2387, 115.507, 105.995, 125.724, 118.773, 132.24, 128.255, 134.254, 133.446, 131.431, 133.843, 123.998, 129.505]
 
 # Image pipeline
