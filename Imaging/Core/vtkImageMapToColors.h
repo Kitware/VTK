@@ -69,6 +69,12 @@ public:
   // We need to check the modified time of the lookup table too.
   virtual unsigned long GetMTime();
 
+  // Description:
+  // Set/Get Color that should be used in case of UnMatching
+  // data.
+  vtkSetVector4Macro(NaNColor, unsigned char);
+  vtkGetVector4Macro(NaNColor, unsigned char);
+
 protected:
   vtkImageMapToColors();
   ~vtkImageMapToColors();
@@ -92,6 +98,8 @@ protected:
   int PassAlphaToOutput;
 
   int DataWasPassed;
+
+  unsigned char NaNColor[4];
 private:
   vtkImageMapToColors(const vtkImageMapToColors&);  // Not implemented.
   void operator=(const vtkImageMapToColors&);  // Not implemented.
