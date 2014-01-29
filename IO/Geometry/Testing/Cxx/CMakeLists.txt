@@ -17,6 +17,11 @@ ExternalData_Expand_Arguments(VTKData _
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/system/,REGEX:.*}"
   )
 vtk_add_test_cxx(
+  TestDataObjectIO.cxx
+  TestIncrementalOctreePointLocator.cxx
+  UnstructuredGridCellGradients.cxx
+  UnstructuredGridFastGradients.cxx
+  UnstructuredGridGradients.cxx
   TestOpenFOAMReader.cxx
   TestProStarReader.cxx
   TestTecplotReader.cxx
