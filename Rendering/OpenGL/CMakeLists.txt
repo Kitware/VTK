@@ -73,7 +73,6 @@ set(Module_SRCS
   vtkOpenGLLightingPainter.cxx
   vtkOpenGLModelViewProjectionMonitor.cxx
   vtkOpenGLPainterDeviceAdapter.cxx
-  vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
   vtkOpenGLRenderWindow.cxx
@@ -104,6 +103,11 @@ set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLObjectFactory.cxx
   )
+if (NOT VTK_LEGACY_REMOVE)
+  # vtkOpenGLPolyDataMapper is only added if not removing legacy code.
+  list(APPEND Module_SRCS
+    vtkOpenGLPolyDataMapper.cxx)
+endif()
 
 set(${vtk-module}_HDRS
   vtkgluPickMatrix.h
