@@ -35,7 +35,6 @@ int TestNamedComponents(int , char *[])
   vtkIdType numCells = numVerts+numLines+numTriangles+numStrips;
   vtkIdType i;
 
-
   vtkIdTypeArray* pointCoords = vtkIdTypeArray::New();
   const char pcName[] = "point coords";
   pointCoords->SetName(pcName);
@@ -47,7 +46,7 @@ int TestNamedComponents(int , char *[])
 
   vtkPoints* points = vtkPoints::New();
   points->SetNumberOfPoints(numPoints);
-  for(i=0;i<numPoints;i++)
+  for (i = 0; i < numPoints; i++)
     {
     double loc[3] = {static_cast<double>(i), static_cast<double>(i*i), 0.0};
     points->InsertPoint(i, loc);
@@ -60,24 +59,24 @@ int TestNamedComponents(int , char *[])
   pointCoords->Delete();
   points->Delete();
 
-  for(i=0;i<numVerts;i++)
+  for (i = 0; i < numVerts; i++)
     {
     poly->InsertNextCell(VTK_VERTEX, 1, &i);
     }
 
-  for(i=0;i<numLines;i++)
+  for (i = 0; i < numLines; i++)
     {
     vtkIdType pts[2] = {i, i+1};
     poly->InsertNextCell(VTK_LINE, 2, pts);
     }
 
-  for(i=0;i<numTriangles;i++)
+  for (i = 0; i < numTriangles; i++)
     {
     vtkIdType pts[3] = {0, i+1, i+2};
     poly->InsertNextCell(VTK_TRIANGLE, 3, pts);
     }
 
-  for(i=0;i<numStrips;i++)
+  for (i = 0; i < numStrips; i++)
     {
     vtkIdType pts[3] = {0, i+1, i+2};
     poly->InsertNextCell(VTK_TRIANGLE_STRIP, 3, pts);
@@ -89,7 +88,7 @@ int TestNamedComponents(int , char *[])
   cellIndex->SetNumberOfComponents(1);
   cellIndex->SetNumberOfTuples(numCells);
   cellIndex->SetComponentName(0,"index");
-  for(i=0;i<numCells;i++)
+  for (i = 0; i < numCells; i++)
     {
     cellIndex->SetValue(i, i);
     }
@@ -107,7 +106,7 @@ int TestNamedComponents(int , char *[])
   cellPoints->SetComponentName(2,"Y_ID");
   cellPoints->SetComponentName(3,"Z_ID");
 
-  for(i=0;i<numCells;i++)
+  for (i = 0; i < numCells; i++)
     {
     vtkIdType npts, *pts;
     poly->GetCellPoints(i, npts, pts);
@@ -135,7 +134,7 @@ int TestNamedComponents(int , char *[])
 
   vtkSmartPointer<vtkUnstructuredGrid> out = thresh->GetOutput();
 
-  if ( out == NULL )
+  if (out == NULL)
     {
     vtkGenericWarningMacro("threshold failed.");
     return 1;
@@ -146,16 +145,16 @@ int TestNamedComponents(int , char *[])
   cellPoints = vtkIdTypeArray::SafeDownCast(out->GetCellData()->GetArray(cpName));
 
   //confirm component names are intact
-  if ( strcmp(cellIndex->GetComponentName(0),"index") != 0 )
+  if (strcmp(cellIndex->GetComponentName(0),"index") != 0)
     {
     vtkGenericWarningMacro("threshold failed to mantain component name on cell scalars.");
     return 1;
     }
 
-  if ( strcmp(cellPoints->GetComponentName(0),"NumberOfPoints")  != 0 ||
-       strcmp(cellPoints->GetComponentName(1),"X_ID")  != 0 ||
-       strcmp(cellPoints->GetComponentName(2),"Y_ID")  != 0 ||
-       strcmp(cellPoints->GetComponentName(3),"Z_ID")  != 0)
+  if (strcmp(cellPoints->GetComponentName(0),"NumberOfPoints")  != 0 ||
+      strcmp(cellPoints->GetComponentName(1),"X_ID")  != 0 ||
+      strcmp(cellPoints->GetComponentName(2),"Y_ID")  != 0 ||
+      strcmp(cellPoints->GetComponentName(3),"Z_ID")  != 0)
     {
     vtkGenericWarningMacro("threshold failed to mantain component names on point property.");
     return 1;
@@ -172,8 +171,5 @@ int TestNamedComponents(int , char *[])
   calc->SetResultArrayName("Result");
   calc->Update();
 
-
   return rval;
 }
-
-
