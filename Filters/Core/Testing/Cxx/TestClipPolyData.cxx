@@ -73,6 +73,7 @@ int ClipPolyData(int dataType, int outputPointsPrecision)
   InitializePolyData(inputPolyData, dataType);
 
   vtkSmartPointer<vtkPlanes> planes = vtkSmartPointer<vtkPlanes>::New();
+  planes->SetBounds(0.0, 1.0, 0.0, 1.0, 0.0, 1.0);
 
   vtkSmartPointer<vtkClipPolyData> clipPolyData
     = vtkSmartPointer<vtkClipPolyData>::New();
