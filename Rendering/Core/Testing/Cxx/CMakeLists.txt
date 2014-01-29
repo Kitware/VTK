@@ -9,8 +9,8 @@ vtk_add_test_cxx(
   TestMapVectorsAsRGBColors.cxx
   TestMapVectorsToColors.cxx
   TestSplitViewportStereoHorizontal.cxx
-  otherLookupTable.cxx
-  otherLookupTableWithEnabling.cxx
+  otherLookupTable.cxx,NO_VALID
+  otherLookupTableWithEnabling.cxx,NO_VALID
   # TestViewDependentErrorMetric.cxx # Loads of extra deps - move?
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
