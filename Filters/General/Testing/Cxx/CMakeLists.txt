@@ -1,4 +1,12 @@
 vtk_add_test_cxx(
+  ArrayExtractFactoredArray.cxx,NO_VALID
+  ArrayMatricizeArray.cxx,NO_VALID
+  ArrayNormalizeMatrixVectors.cxx,NO_VALID
+  CellTreeLocator.cxx,NO_VALID
+  TestPassArrays.cxx,NO_VALID
+  TestPassThrough.cxx,NO_VALID
+  TestTessellator.cxx,NO_VALID
+  expCos.cxx
   BoxClipPolyData.cxx
   BoxClipTetrahedra.cxx
   BoxClipTriangulateAndInterpolate.cxx

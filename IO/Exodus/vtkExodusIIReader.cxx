@@ -3470,7 +3470,7 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
   os << indent << "ExodusModelMetadata: " << (this->ExodusModelMetadata ? "ON" : "OFF" ) << "\n";
-  os << indent << "PackExodusModelOntoOutput: " << (this->PackExodusModelOntoOutput ? "ON" : "OFF" ) << "\n";
+  // os << indent << "PackExodusModelOntoOutput: " << (this->PackExodusModelOntoOutput ? "ON" : "OFF" ) << "\n";
   os << indent << "ExodusModel: " << this->ExodusModel << "\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
   os << indent << "ProducedFastPathOutput: " << this->ProducedFastPathOutput << "\n";
@@ -5004,7 +5004,7 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
   this->ExodusModelMetadata = 0;
-  this->PackExodusModelOntoOutput = 1;
+  // this->PackExodusModelOntoOutput = 1;
   this->ExodusModel = 0;
   this->DisplayType = 0;
   this->SILUpdateStamp = -1;

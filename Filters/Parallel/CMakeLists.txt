@@ -8,14 +8,11 @@ set(Module_SRCS
   vtkExtractPolyDataPiece.cxx
   vtkExtractUnstructuredGridPiece.cxx
   vtkExtractUserDefinedPiece.cxx
-  vtkPassThroughFilter.cxx
   vtkPCellDataToPointData.cxx
   vtkPExtractArraysOverTime.cxx
-  vtkPieceRequestFilter.cxx
-  vtkPieceScalars.cxx
-  vtkPipelineSize.cxx
   vtkPKdTree.cxx
   vtkPLinearExtrusionFilter.cxx
+  vtkPMaskPoints.cxx
   vtkPOutlineCornerFilter.cxx
   vtkPOutlineFilter.cxx
   vtkPOutlineFilterInternals.cxx
@@ -23,15 +20,19 @@ set(Module_SRCS
   vtkPProbeFilter.cxx
   vtkPProjectSphereFilter.cxx
   vtkPReflectionFilter.cxx
-  vtkProcessIdScalars.cxx
+  vtkPResampleFilter.cxx
   vtkPSphereSource.cxx
+  vtkPYoungsMaterialInterface.cxx
+  vtkPassThroughFilter.cxx
+  vtkPieceRequestFilter.cxx
+  vtkPieceScalars.cxx
+  vtkPipelineSize.cxx
+  vtkProcessIdScalars.cxx
   vtkRectilinearGridOutlineFilter.cxx
   vtkTransmitPolyDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx
   vtkTransmitStructuredGridPiece.cxx
   vtkTransmitUnstructuredGridPiece.cxx
-  vtkPYoungsMaterialInterface.cxx
-  vtkPMaskPoints.cxx
   )
 set_source_files_properties(
   vtkBlockDistribution.h

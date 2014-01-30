@@ -517,7 +517,7 @@ const char *vtkMapper::GetScalarMaterialModeAsString(void)
 template<class T>
 void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
                                             vtkIdType num, int numComps,
-                                            int component, double* range)
+                                            int component, const double* range)
 {
   double tmp, sum;
   double k = 1.0 / (range[1]-range[0]);
@@ -571,7 +571,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
 // this->ColorTexture are set.
 void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
 {
-  double* range = this->LookupTable->GetRange();
+  const double* range = this->LookupTable->GetRange();
   double orig_alpha = this->LookupTable->GetAlpha();
 
   // Get rid of vertex color array.  Only texture or vertex coloring

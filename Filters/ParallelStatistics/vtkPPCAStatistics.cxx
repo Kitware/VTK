@@ -21,17 +21,17 @@
 
 #include "vtkPPCAStatistics.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCommunicator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPOrderStatistics.h"
 #include "vtkTable.h"
 #include "vtkPMultiCorrelativeStatistics.h"
-#include "vtkVariant.h"
-
-#include <map>
 
 vtkStandardNewMacro(vtkPPCAStatistics);
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
@@ -75,7 +75,10 @@ void vtkPPCAStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
+  if ( !this->MedianAbsoluteDeviation )
+    {
+    vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -90,4 +93,10 @@ void vtkPPCAStatistics::Test( vtkTable* inData,
     }
 
   this->Superclass::Test( inData, inMeta, outMeta );
+}
+
+// ----------------------------------------------------------------------
+vtkOrderStatistics* vtkPPCAStatistics::CreateOrderStatisticsInstance()
+{
+  return vtkPOrderStatistics::New();
 }

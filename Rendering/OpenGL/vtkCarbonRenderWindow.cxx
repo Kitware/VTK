@@ -20,7 +20,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
-#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"

@@ -63,6 +63,7 @@ protected:
                       vtkTable* inParameters,
                       vtkMultiBlockDataSet* outMeta );
 
+  virtual vtkOrderStatistics* CreateOrderStatisticsInstance();
 
 private:
   vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&); // Not implemented.

@@ -163,10 +163,10 @@ void vtkScalarsToColors::DeepCopy(vtkScalarsToColors *obj)
 inline void vtkScalarsToColorsComputeShiftScale(
   vtkScalarsToColors *self, double &shift, double &scale)
 {
-  static double minscale = -1e17;
-  static double maxscale = 1e17;
+  static const double minscale = -1e17;
+  static const double maxscale = 1e17;
 
-  double *range = self->GetRange();
+  const double *range = self->GetRange();
   shift = -range[0];
   scale = range[1] - range[0];
   if (scale*scale > 1e-30)
@@ -175,7 +175,7 @@ inline void vtkScalarsToColorsComputeShiftScale(
     }
   else
     {
-    scale = (scale < 0 ? minscale : maxscale);
+    scale = (scale < 0.0 ? minscale : maxscale);
     }
 }
 

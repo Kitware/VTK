@@ -112,7 +112,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
 
   view->ResetCamera();
   view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
-
+  view->GetRenderWindow()->SetMultiSamples(0);
   view->Render();
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

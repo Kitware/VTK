@@ -51,6 +51,9 @@
             var values = lines[i].split(',');
             if(values.length === 2) {
                 item = { x: toNumber(values[0]), y: toNumber(values[1]) };
+                if(isNaN(item.y)) {
+                    item.y = null;
+                }
                 data.push(item);
             }
         }
@@ -96,10 +99,10 @@
                 xValue =  toNumber(values[xIdx]);
                 for(var idx in header) {
                     var item = { x: xValue, y: toNumber(values[headerMap[header[idx]]])};
-                    if(item.y === NaN) {
+                    if(isNaN(item.y)) {
                         item.y = null;
                     }
-                    if(item.x !== NaN) {
+                    if(!isNaN(item.x)) {
                         series[idx].data.push(item);
                     }
                 }

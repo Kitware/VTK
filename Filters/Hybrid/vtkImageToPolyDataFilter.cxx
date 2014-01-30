@@ -459,7 +459,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
 {
   int numPixels, i, j, idx, id;
   vtkUnsignedCharArray *pixels;
-  unsigned char *ptr, *ptr2, *color, *outPixels;
+  unsigned char *ptr, *ptr2, *outPixels;
   unsigned char *inPixels;
 
   // doing a portion of the image
@@ -497,7 +497,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
         idx = i + j*dims[0];
         ptr = inPixels + 3*idx;
         ptr2 = outPixels + 3*id;
-        color = this->GetColor(ptr);
+        const unsigned char *color = this->GetColor(ptr);
         ptr2[0] = color[0];
         ptr2[1] = color[1];
         ptr2[2] = color[2];
@@ -521,7 +521,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
         {
         idx = i + j*dims[0];
         s = inScalars->GetComponent(idx,0);
-        color = this->LookupTable->MapValue(s);
+        const unsigned char *color = this->LookupTable->MapValue(s);
         ptr2 = outPixels + 3*id;
         ptr2[0] = color[0];
         ptr2[1] = color[1];

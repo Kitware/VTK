@@ -399,7 +399,7 @@ void vtkApplyColors::ProcessColorArray(
     {
     // If scaling is on, use data min/max.
     // Otherwise, use the lookup table range.
-    double* rng = lut->GetRange();
+    const double* rng = lut->GetRange();
     double minVal = rng[0];
     double maxVal = rng[1];
     if (scaleToArray)
@@ -430,7 +430,7 @@ void vtkApplyColors::ProcessColorArray(
     for (vtkIdType i = 0; i < colorArr->GetNumberOfTuples(); ++i)
       {
       double val = arr->GetVariantValue(i).ToDouble();
-      unsigned char* mappedColor = lut->MapValue(
+      const unsigned char* mappedColor = lut->MapValue(
         rng[0] + scale*(val - minVal));
       myColor[0] = mappedColor[0];
       myColor[1] = mappedColor[1];

@@ -997,7 +997,7 @@ void vtkScalarBarActor::LayoutTicks()
     }
 
   // find the best size for the ticks
-  double* range = this->LookupTable->GetRange();
+  const double* range = this->LookupTable->GetRange();
   char string[512];
   double val;
   int i;
@@ -1158,7 +1158,7 @@ void vtkScalarBarActor::LayoutAnnotations()
 {
   if (this->DrawAnnotations)
     {
-    double* range = this->LookupTable->GetRange();
+    const double* range = this->LookupTable->GetRange();
 
     this->MapAnnotationLabels(
       this->LookupTable,
@@ -1227,7 +1227,7 @@ void vtkScalarBarActor::ConfigureFrame()
 void vtkScalarBarActor::ConfigureScalarBar()
 {
   vtkScalarsToColors* lut = this->LookupTable;
-  double* range = lut->GetRange();
+  const double* range = lut->GetRange();
   this->P->NumColors = lut->GetIndexedLookup() ?
     lut->GetNumberOfAnnotatedValues() : this->MaximumNumberOfColors;
   this->P->NumSwatches = this->P->NumColors + (this->DrawNanAnnotation ? 1 : 0);
@@ -1675,7 +1675,7 @@ void vtkScalarBarActor::SizeTitle(double* titleSize,
 
 //----------------------------------------------------------------------------
 int vtkScalarBarActor::MapAnnotationLabels(
-  vtkScalarsToColors* lkup, double start, double delta, double* range)
+  vtkScalarsToColors* lkup, double start, double delta, const double* range)
 {
   int numNotes = lkup->GetNumberOfAnnotatedValues();
   bool indexed = lkup->GetIndexedLookup() ? true : false;

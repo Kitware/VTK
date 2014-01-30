@@ -4,9 +4,13 @@
 #include "vtkDataObject.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOrderStatistics.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -29,6 +33,7 @@ vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "d^2" ); // Squared Mahalanobis distance
+  this->MedianAbsoluteDeviation = false;
 }
 
 // ----------------------------------------------------------------------
@@ -387,7 +392,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   //  Row 0: cardinality of sample
   //  Rows 1 to m - 1: means of each variable
   //  Rows m to m + colPairs.size(): variances/covariances for each pair of variables
-  col3->SetNumberOfTuples( 1 + m + colPairs.size() ); 
+  col3->SetNumberOfTuples( 1 + m + colPairs.size() );
   col3->FillComponent( 0, 0. );
 
   // Retrieve pointer to values and skip Cardinality entry
@@ -395,31 +400,81 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   *rv = static_cast<double>( nRow );
   ++ rv;
 
-  // Iterate over rows
-  for ( i = 0; i < nRow; ++ i )
+  if ( this->MedianAbsoluteDeviation )
     {
-    // First fetch column values
-    for ( vtkIdType j = 0; j < m; ++ j )
-      {
-      v[j] = colPtrs[j]->GetTuple(i)[0];
-      }
-    // Update column products. Equation 3.12 from the SAND report.
-    x = rv + m;
-    for ( cpIt = colPairs.begin(); cpIt != colPairs.end(); ++ cpIt, ++ x )
-      {
-      // cpIt->first is a pair of indices into colPtrs used to specify (u,v) or (s,t)
-      // cpIt->first.first is the index of u or s
-      // cpIt->first.second is the index of v or t
-      *x +=
-        ( v[cpIt->first.first] - rv[cpIt->first.first] ) * // \delta_{u,2,1} = s - \mu_{u,1}
-        ( v[cpIt->first.second] - rv[cpIt->first.second] ) * // \delta_{v,2,1} = t - \mu_{v,1}
-        i / ( i + 1. ); // \frac{n_1 n_2}{n_1 + n_2} = \frac{n_1}{n_1 + 1}
-      }
-    // Update running column averages. Equation 1.1 from the SAND report.
+    // Computes the Median
+    vtkNew<vtkTable> medianTable;
+    this->ComputeMedian(inData, medianTable.GetPointer());
+    // Sets the median
     x = rv;
     for ( vtkIdType j = 0; j < m; ++ j, ++ x )
       {
-      *x += ( v[j] - *x ) / ( i + 1 );
+      *x = medianTable->GetValue(1, j+1).ToDouble();
+      }
+
+    // Computes the MAD inData (Median Absolute Deviation)
+    vtkNew<vtkTable> inDataMAD;
+    vtkIdType l = 0;
+    // Iterate over column pairs
+    for ( cpIt = colPairs.begin(); cpIt != colPairs.end(); ++ cpIt, ++ x , ++ l )
+      {
+      vtkIdType j = cpIt->first.first;
+      vtkIdType k = cpIt->first.second;
+
+      vtksys_ios::ostringstream nameStr;
+      nameStr << "Cov{" << j << "," << k << "}";
+      vtkNew<vtkDoubleArray> col;
+      col->SetNumberOfTuples( nRow );
+      col->SetName( nameStr.str().c_str() );
+      inDataMAD->AddColumn( col.GetPointer() );
+      // Iterate over rows
+      for ( i = 0; i < nRow; ++ i )
+        {
+        inDataMAD->SetValue(i, l, abs(
+            ( colPtrs[j]->GetTuple(i)[0] - rv[j] ) *
+            ( colPtrs[k]->GetTuple(i)[0] - rv[k] )
+          ));
+        }
+      }
+    // Computes the MAD matrix
+    vtkNew<vtkTable> MADTable;
+    this->ComputeMedian( inDataMAD.GetPointer(), MADTable.GetPointer() );
+    // Sets the MAD
+    x = rv + m;
+    // Iterate over column pairs
+    for ( l = 0, cpIt = colPairs.begin(); cpIt != colPairs.end(); ++ cpIt, ++ x, ++ l )
+      {
+      *x = MADTable->GetValue(1, l+1).ToDouble();
+      }
+    }
+  else
+    {
+    // Iterate over rows
+    for ( i = 0; i < nRow; ++ i )
+      {
+      // First fetch column values
+      for ( vtkIdType j = 0; j < m; ++ j )
+        {
+        v[j] = colPtrs[j]->GetTuple(i)[0];
+        }
+      // Update column products. Equation 3.12 from the SAND report.
+      x = rv + m;
+      for ( cpIt = colPairs.begin(); cpIt != colPairs.end(); ++ cpIt, ++ x )
+        {
+        // cpIt->first is a pair of indices into colPtrs used to specify (u,v) or (s,t)
+        // cpIt->first.first is the index of u or s
+        // cpIt->first.second is the index of v or t
+        *x +=
+          ( v[cpIt->first.first] - rv[cpIt->first.first] ) * // \delta_{u,2,1} = s - \mu_{u,1}
+          ( v[cpIt->first.second] - rv[cpIt->first.second] ) * // \delta_{v,2,1} = t - \mu_{v,1}
+          i / ( i + 1. ); // \frac{n_1 n_2}{n_1 + n_2} = \frac{n_1}{n_1 + 1}
+        }
+      // Update running column averages. Equation 1.1 from the SAND report.
+      x = rv;
+      for ( vtkIdType j = 0; j < m; ++ j, ++ x )
+        {
+        *x += ( v[j] - *x ) / ( i + 1 );
+        }
       }
     }
 
@@ -517,7 +572,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
 
   // Loop over requests
   double scale = 1. / ( n - 1 ); // n -1 for unbiased variance estimators
-  for ( reqIt = this->Internals->Requests.begin(); 
+  for ( reqIt = this->Internals->Requests.begin();
         reqIt != this->Internals->Requests.end(); ++ reqIt, ++ b )
     {
     vtkStringArray* colNames = vtkStringArray::New();
@@ -571,7 +626,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
     outMeta->SetBlock( b, covariance );
 
     // Clean up
-    covariance->Delete(); 
+    covariance->Delete();
     colNames->Delete();
     colAvgs->Delete();
 
@@ -593,7 +648,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
           }
         }
       else // if ( *arrIt != colAvgs )
-        { 
+        {
         // Column holds averages
         for ( vtkIdType k = 0; k < reqCovSize - 1; ++ k, ++ x )
           {
@@ -699,6 +754,40 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
     delete dfunc;
     delete [] names;
     }
+}
+
+// ----------------------------------------------------------------------
+void vtkMultiCorrelativeStatistics::ComputeMedian(vtkTable* inData, vtkTable* outData)
+{
+  vtkOrderStatistics* orderStats = this->CreateOrderStatisticsInstance();
+  vtkNew<vtkTable> inOrderStats;
+  orderStats->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA,
+    inOrderStats.GetPointer() );
+  for (vtkIdType i = 0; i < inData->GetNumberOfColumns(); ++i )
+    {
+    inOrderStats->AddColumn( inData->GetColumn(i) );
+    orderStats->AddColumn( inData->GetColumn(i)->GetName() );
+    }
+  orderStats->SetNumberOfIntervals(2);
+  orderStats->SetLearnOption(true);
+  orderStats->SetDeriveOption(true);
+  orderStats->SetTestOption(false);
+  orderStats->SetAssessOption(false);
+  orderStats->Update();
+
+  // Get the Median
+  vtkMultiBlockDataSet* outputOrderStats = vtkMultiBlockDataSet::SafeDownCast(
+    orderStats->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outData->ShallowCopy( vtkTable::SafeDownCast(
+    outputOrderStats->GetBlock( outputOrderStats->GetNumberOfBlocks() - 1) ) );
+
+  orderStats->Delete();
+}
+
+// ----------------------------------------------------------------------
+vtkOrderStatistics* vtkMultiCorrelativeStatistics::CreateOrderStatisticsInstance()
+{
+  return vtkOrderStatistics::New();
 }
 
 // ----------------------------------------------------------------------

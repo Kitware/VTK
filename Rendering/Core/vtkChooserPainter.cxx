@@ -249,8 +249,6 @@ void vtkChooserPainter::SelectPainters(vtkRenderer *vtkNotUsed(renderer),
   lineptype = "vtkLinesPainter";
   polyptype = "vtkPolygonsPainter";
   stripptype = "vtkTStripsPainter";
-  // No elaborate selection as yet.
-  // Merely create the pipeline as the vtkOpenGLPolyDataMapper.
 }
 
 //-----------------------------------------------------------------------------

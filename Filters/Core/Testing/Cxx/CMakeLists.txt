@@ -20,6 +20,7 @@ vtk_add_test_cxx(
   TestHedgeHog.cxx,NO_VALID
   TestImplicitPolyDataDistance.cxx,NO_VALID
   TestMaskPoints.cxx,NO_VALID
+  TestNamedComponents.cxx,NO_VALID
   TestPolyDataConnectivityFilter.cxx,NO_VALID
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID

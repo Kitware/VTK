@@ -84,7 +84,7 @@ protected:
   double Background1[3];                     // Background color of the rendering screen (RGB)
   double Background2[3];                     // Scond background color
   double SceneSize[3];                       // Size of the bounding box of the scene
-  const char* SceneId;                       // Id of the parsed scene
+  std::string SceneId;                       // Id of the parsed scene
   float CenterOfRotation[3];                 // Center Of Rotation
   int meshObjMaxSize, lineObjMaxSize;        // Max size of object allowed (faces)
   std::string renderersMetaData;

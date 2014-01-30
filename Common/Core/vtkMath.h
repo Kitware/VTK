@@ -404,6 +404,10 @@ public:
   static double Distance2BetweenPoints(const double x[3], const double y[3]);
 
   // Description:
+  // Compute angle in radians between two vectors.
+  static double AngleBetweenVectors(const double v1[3], const double v2[3]);
+
+  // Description:
   // Compute the amplitude of a Gaussian function with mean=0 and specified variance.
   // That is, 1./(sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
   static double GaussianAmplitude(const double variance, const double distanceFromMean);

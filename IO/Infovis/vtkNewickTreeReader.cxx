@@ -98,8 +98,7 @@ int vtkNewickTreeReader::RequestUpdateExtent(
 int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
 {
   // Read through the input file to count the number of nodes in the tree.
-  // We start at one to account for the root node
-  vtkIdType numNodes = 1;
+  vtkIdType numNodes = 0;
   this->CountNodes(buffer, &numNodes);
 
 

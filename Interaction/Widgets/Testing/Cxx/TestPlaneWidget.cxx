@@ -511,6 +511,7 @@ int TestPlaneWidget( int argc, char *argv[] )
 
   // render the image
   //
+  renWin->SetMultiSamples(0);
   iren->Initialize();
   renWin->Render();
   recorder->Play();

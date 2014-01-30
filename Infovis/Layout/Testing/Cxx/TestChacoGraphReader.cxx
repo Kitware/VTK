@@ -58,6 +58,7 @@ int TestChacoGraphReader(int argc, char* argv[])
   VTK_CREATE(vtkRenderWindow, win);
   win->AddRenderer(ren);
   win->SetInteractor(iren);
+  win->SetMultiSamples(0);
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

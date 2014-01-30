@@ -202,11 +202,351 @@
 
     // ------------------------------------------------------------------------
 
-    function createStaticImageViewer(container) {
+    function createZoomableCanvasObject(container, img, canvas, mouseMode, externalMouseFunc) {
+        // First set up some variables we will need
+        var modeNone = 0,    // neither pan nor zoom, this is rotate mode
+        modePan = 1,         // when dragging, it's a pan
+        modeZoom = 2,        // when dragging, it's a zoom
+
+        vpDim = [0, 0],      // viewport dimensions (canvas dimensions)
+        vpAspect = 1,        // viewport aspect ratio (width/height)
+
+        imgDim = [0, 0],     // image dimensions
+        imgAspect = 1,       // image aspect ratio (width/height)
+
+        srcOrig = [0, 0],    // upper left x,y of source image data
+        srcDim = [0, 0],     // source data dimensions (how much of image to draw in viewport)
+
+        gDim = 0,            // guide dimension, depends on aspect ratios of viewport and image
+
+        zoomLevel = 1.0,     // zoomLevel >= 1.0, where 1.0 is zoomed all the way out
+        dzScale = 0.05,      // scaling factor to control how fast we zoom in and out
+        wheelZoom = 0.5,     // amount to change zoom with each wheel event
+        minZoom = 0.0,       // limit how far we can zoom out
+        maxZoom = 20.0,      // limit how far we can zoom in
+
+        initialCentering = true,
+
+        lastLocation = { 'x': 0, 'y': 0 };   // Last place mouse event happened
+
+        /*
+         * Whenever a new image is loaded, we want to make sure we make a note
+         * of the image dimensions and aspect ratio.  If this is the very first
+         * time, then we want to center the viewport on the image, otherwise,
+         * we will just recalculate everything and redraw.
+         */
+        function imageLoaded() {
+            // Get width, height, and aspect ratio of the image
+            imgDim[0] = img[0].naturalWidth;
+            imgDim[1] = img[0].naturalHeight;
+            imgAspect = imgDim[0] / imgDim[1];
+
+            if (initialCentering === true) {
+                // Initially, we want the fully zoomed out zoom level
+                minZoom = zoomLevel = vpDim[gDim] / imgDim[gDim];
+            }
+
+            recalculateAndRedraw();
+        }
+
+        /*
+         * This function can be used on image load to center the viewport in
+         * the middle of the image.
+         */
+        function centerViewportOnImage() {
+            var center = calculateCenter([0, 0], imgDim);
+            srcOrig[0] = center[0] - (srcDim[0] / 2.0);
+            srcOrig[1] = center[1] - (srcDim[1] / 2.0);
+        }
+
+        /*
+         * Once we know either the source width or the source height, the other
+         * source dimension must be set according to the viewport aspect ratio.
+         * This is because we don't want apparent stretching or shrinking of
+         * the image data in either dimension.  In other words, source aspect
+         * ratio should always equal viewport aspect ratio
+         */
+        function fixSrcDimForAspectRatio() {
+            if (gDim === 0) {  // already know src width, need src height
+                srcDim[1] = srcDim[0] / vpAspect;
+            } else {               // already know src height, need src width
+                srcDim[0] = srcDim[1] * vpAspect;
+            }
+        }
+
+        /*
+         * This function checks that we are never panned outside the image bounds
+         */
+        function fixSrcOrigForImageBounds() {
+            // Check that both x and y origin don't allow for panning outside image
+            for (var i = 0; i < 2; ++i) {
+                if ( (srcOrig[i] + srcDim[i]) > imgDim[i] ) {
+                    srcOrig[i] = imgDim[i] - srcDim[i];
+                } else if ( srcOrig[i] < 0 ) {
+                    srcOrig[i] = 0;
+                }
+            }
+        }
+
+        /*
+         * Given a rectangle, specified with an origin (upper left x and y coords) and
+         * dimension (width and height), calculate the implied center point.
+         */
+        function calculateCenter(orig, dim) {
+            var center = [0, 0];
+            center[0] = orig[0] + (dim[0] / 2.0);
+            center[1] = orig[1] + (dim[1] / 2.0);
+            return center;
+        }
+
+        /*
+         * Adds mouse event handlers so that we can pan and zoom the image
+         */
+        function setupEvents() {
+            var element = canvas;
+
+            // Unbind all events the first time to make sure we start fresh
+            element.unbind();
+
+            // Needed this to override context menu behavior
+            element.bind('contextmenu', function(evt) { return false; });
+
+            // Wheel should zoom across browsers
+            element.bind('DOMMouseScroll mousewheel', function (evt) {
+                var x = (-evt.originalEvent.wheelDeltaY || evt.originalEvent.detail);
+                handleZoom((x > 0 ? wheelZoom : x < 0 ? -wheelZoom : 0));
+                evt.preventDefault();
+            });
+
+            // Zoom and pan events with mouse buttons and drag
+            element.bind('mousedown', function(evt) {
+                var current_button = evt.which;
+
+                // alt+click simulates center button, shift+click simulates right
+                if (evt.altKey) {
+                    current_button = 2;
+                    evt.altKey = false;
+                } else if (evt.shiftKey) {
+                    current_button = 3;
+                    evt.shiftKey = false;
+                }
+
+                lastLocation = getRelativeLocation(canvas, evt);
+
+                if (current_button === 2) {   // middle mouse down = pan
+                    mouseMode = modePan;
+                } else if (current_button === 3) {   // right mouse down = zoom
+                    mouseMode = modeZoom;
+                } else {
+                    if (externalMouseFunc !== null) {
+                        externalMouseFunc(true, lastLocation);
+                    }
+                }
+
+                evt.preventDefault();
+                return false;
+            });
+
+            // Send mouse movement event to the forwarding function
+            element.bind('mousemove', function(e) {
+                mouseInteract(e);
+            });
+
+            // Stop any zoom or pan events
+            element.bind('mouseup', function(evt) {
+                if (mouseMode === modeNone) {
+                    if (externalMouseFunc !== null) {
+                        externalMouseFunc(false, null);
+                    }
+                } else {
+                    mouseMode = modeNone;
+                    evt.preventDefault();
+                }
+                evt.preventDefault();
+            });
+        }
+
+        /*
+         * Forwards mouse movement events to either the pan or zoom functions
+         * depending on the current mouse mode.
+         */
+        function mouseInteract(event) {
+            if (mouseMode === modePan) {
+                var loc = getRelativeLocation(canvas, event);
+                handlePan(loc);
+            } else if (mouseMode === modeZoom) {
+                var loc = getRelativeLocation(canvas, event);
+                var deltaY = loc.y - lastLocation.y;
+                handleZoom(deltaY * dzScale);
+                lastLocation = loc;
+            }
+        }
+
+        /*
+         * Does the actual image panning.  Panning should not mess with the
+         * source width or source height, those are fixed by the current zoom
+         * level.  Panning should only update the source origin (the x and y
+         * coordinates of the upper left corner of the source rectangle).
+         */
+        function handlePan(loc) {
+            // Update the source rectangle origin, but afterwards, check to
+            // make sure we're not trying to look outside the image bounds.
+            srcOrig[0] -= (loc.x - lastLocation.x) / zoomLevel;
+            srcOrig[1] -= (loc.y - lastLocation.y) / zoomLevel;
+            fixSrcOrigForImageBounds();
+
+            // Redraw the image in the canvas
+            redrawImage();
+            lastLocation = loc;
+        }
+
+        /*
+         * Does the actual image zooming.  Zooming first sets what the source width
+         * and height should be based on the zoom level, then adjusts the source
+         * origin to try and maintain the source center point.  However, zooming
+         * must also not try to view outside the image bounds, so the center point
+         * may be changed as a result of this.
+         */
+        function handleZoom(inOutAmount) {
+            zoomLevel += inOutAmount;
+
+            // Disallow zoomLevel outside allowable range
+            if (zoomLevel < minZoom) {
+                zoomLevel = minZoom;
+            } else if (zoomLevel > maxZoom) {
+                zoomLevel = maxZoom;
+            }
+
+            // Figure out where we were centered (in the source rect) before
+            var center = calculateCenter(srcOrig, srcDim);
+
+            // Calculate the new source rectangle width and height
+            srcDim[gDim] = vpDim[gDim] / zoomLevel;
+            fixSrcDimForAspectRatio();
+
+            // Set up source rectangle origin to maintain the previous center, but
+            // afterwards, check the origin to make sure we're not trying to look
+            // outside the image bounds.
+            srcOrig[0] = center[0] - (srcDim[0] / 2.0);
+            srcOrig[1] = center[1] - (srcDim[1] / 2.0);
+            fixSrcOrigForImageBounds();
+
+            // Redraw the image in the canvas
+            redrawImage();
+        }
+
+        /*
+         * Convenience function to draw the image.  As a reminder, we always fill
+         * the entire viewport.  Also, we always use the source origin and source
+         * dimensions that we have calculated and maintain internally.
+         */
+        function redrawImage() {
+            var ctx = canvas[0].getContext("2d");
+            ctx.drawImage(img[0],
+                          srcOrig[0],   // source image upper left x
+                          srcOrig[1],   // source image upper left y
+                          srcDim[0],    // source image width
+                          srcDim[1],    // source image height
+                          0,              // destination canvas upper left x
+                          0,              // destination canvas upper left y
+                          vpDim[0],     // destination canvas width
+                          vpDim[1]);    // destination canvas height
+        }
+
+        /*
+         * Gets the location of the mouse event relative to the canvas itself.
+         */
+        function getRelativeLocation(element, mouseEvent) {
+            var parentOffset = element.offset();
+            var relX = mouseEvent.pageX - parentOffset.left;
+            var relY = mouseEvent.pageY - parentOffset.top;
+            return { 'x': relX, 'y': relY };
+        }
+
+        /*
+         * If the viewport may have changed, reset our internal variables
+         * and make sure the canvas has the same dimensions.
+         */
+        function setViewportDimensions() {
+            // Get width, height, and aspect ratio of the viewport (size of the box)
+            vpDim[0] = container.width();
+            vpDim[1] = container.height();
+            vpAspect = vpDim[0] / vpDim[1];
+
+            // Set the canvas height and width properties appropriately so that
+            // drawing operations are correct.
+            canvas.attr("width", vpDim[0]);
+            canvas.attr("height", vpDim[1]);
+
+            // Choose the so-called "guide dimension"
+            gDim = (vpAspect > imgAspect ? 0 : 1);
+        }
+
+        /*
+         * When the viewport changes in some way, this function will
+         * recalculate aspect ratios and redraw for the current viewport
+         * dimensions.
+         */
+        function recalculateAndRedraw() {
+            // Fix the canvas for the viewport dimensions
+            setViewportDimensions();
+
+            // The min zoom will probably have changed if the viewport has changed
+            minZoom = vpDim[gDim] / imgDim[gDim];
+
+            // Set up initial source rectangle to draw
+            srcDim[gDim] = vpDim[gDim] / zoomLevel;
+            fixSrcDimForAspectRatio();
+            fixSrcOrigForImageBounds();
+
+            if (initialCentering === true) {
+                centerViewportOnImage();
+                initialCentering = false;
+            }
+
+            // Draw the image in the canvas
+            redrawImage();
+        }
+
+        //
+        // Now do some initialization
+        //
+
+        // Set up all the events
+        setupEvents();
+
+        // Kind of looks nicer if we center the viewport on the image to start with
+        initialCentering = true;
+
+        // Fix the canvas for the viewport dimensions
+        setViewportDimensions();
+
+        // Just expose a couple of methods that need to be called from outside
+        return {
+            'recalculateAndRedraw': recalculateAndRedraw,
+            'imageLoaded': imageLoaded
+        };
+    }
+
+    // ------------------------------------------------------------------------
+
+    function createStaticImageViewer(container, func) {
         var imageContainer = $('<img/>', { class: 'image-viewer' }),
+        imageCanvas = $('<canvas/>', { class: 'image-canvas' }),
         currentFileToRender = null;
-        imageContainer.appendTo(container);
+        imageContainer.appendTo(imageCanvas);
+        imageCanvas.appendTo(container);
+
+        // Add zoom manager
+        var manipMgr = createZoomableCanvasObject(container, imageContainer, imageCanvas, 0, func);
+        container.data('zoomManager', manipMgr);
+
+        container.bind('invalidate-size', function() {
+            var mgr = container.data('zoomManager');
+            mgr.recalculateAndRedraw();
+        });
         imageContainer.bind('onload load', function(){
+            manipMgr.imageLoaded();
             container.trigger('image-render');
         });
         container.bind('image-loaded', function(event){
@@ -217,7 +557,7 @@
         container.bind('load-image', function(event){
             currentFileToRender = event.filename;
         });
-        return imageContainer;
+        return imageCanvas;
     }
 
     // ------------------------------------------------------------------------
@@ -229,7 +569,10 @@
         stepPhi    = phiValues[1] - phiValues[0];
         stepTheta  = thetaValues[1] - thetaValues[0];
         currentArgs = container.data('active-args'),
-        imageContainer = createStaticImageViewer(container);
+        imageCanvas = createStaticImageViewer(container, function(drg, strt) {
+            dragging = drg;
+            startPosition = strt;
+        });
 
         function getRelativeLocation(element, mouseEvent) {
             var parentOffset = element.parent().offset();
@@ -238,14 +581,10 @@
             return { 'x': relX, 'y': relY };
         }
 
-        imageContainer.bind('mousedown', function(event){
-            event.preventDefault();
-            dragging = true;
-            startPosition = getRelativeLocation(imageContainer, event);
-        }).bind('mousemove', function(event){
+        imageCanvas.bind('mousemove', function(event){
             event.preventDefault();
             if(dragging) {
-                currentPosition = getRelativeLocation(imageContainer, event);
+                currentPosition = getRelativeLocation(imageCanvas, event);
                 currentPhi = currentArgs.phi;
                 currentTheta = currentArgs.theta;
                 currentPhiIdx = phiValues.indexOf(currentPhi);
@@ -278,13 +617,11 @@
                 }
 
                 if(changeDetected) {
-                    startPosition = getRelativeLocation(imageContainer, event);
+                    startPosition = getRelativeLocation(imageCanvas, event);
                     fireLoadImage(container);
+                    container.trigger('invalidate-viewport');
                 }
             }
-        }).bind('mouseup', function(event){
-            event.preventDefault();
-            dragging = false;
         });
     }
 
@@ -325,7 +662,7 @@
                     if(data.arguments.hasOwnProperty('phi')) {
                         createInteractiveImageViewer(me);
                     } else {
-                        createStaticImageViewer(me);
+                        createStaticImageViewer(me, null);
                     }
 
                     // Load default image

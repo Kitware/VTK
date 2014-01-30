@@ -9,10 +9,13 @@
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
+// Test added for Robust PCA by Tristan Coulange, Kitware SAS 2013
 
 #include "vtkDoubleArray.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkPCAStatistics.h"
+#include "vtkOrderStatistics.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
@@ -27,13 +30,122 @@ bool fuzzyCompare(A a, A b) {
   return fabs(a - b) < .0001;
 }
 
-namespace //anonymous
+int TestPCA(int argc, char* argv[]);
+int TestPCARobust(int argc, char* argv[]);
+int TestPCAPart(int argc, char* argv[], bool RobustPCA);
+int TestPCARobust2();
+int TestEigen();
+
+//=============================================================================
+int TestPCAStatistics(int argc, char* argv[])
 {
-bool TestEigen();
+  int result = EXIT_SUCCESS;
+
+  result |= TestPCA(argc, argv);
+  result |= TestPCARobust(argc, argv);
+  result |= TestPCARobust2();
+  result |= TestEigen();
+
+  if ( result == EXIT_FAILURE )
+    {
+    cout << "FAILURE" << endl;
+    }
+  else
+    {
+    cout << "SUCCESS" << endl;
+    }
+
+  return result;
 }
 
 //=============================================================================
-int TestPCAStatistics( int argc, char* argv[] )
+int TestPCA(int argc, char* argv[])
+{
+  return TestPCAPart(argc, argv, false);
+}
+
+//=============================================================================
+int TestPCARobust(int argc, char* argv[])
+{
+  return TestPCAPart(argc, argv, true);
+}
+
+//=============================================================================
+int TestPCARobust2()
+{
+  const int nVals = 7;
+  double mingledData[] =
+    {
+    0., 1.,
+    1., 1.,
+    2., 1.,
+    3., 1.,
+    4., 1.,
+    5., 1.,
+    10., 10.
+    };
+
+  const char m0Name[] = "M0";
+  vtkNew<vtkDoubleArray> dataset1Arr;
+  dataset1Arr->SetNumberOfComponents( 1 );
+  dataset1Arr->SetName( m0Name );
+
+  const char m1Name[] = "M1";
+  vtkNew<vtkDoubleArray> dataset2Arr;
+  dataset2Arr->SetNumberOfComponents( 1 );
+  dataset2Arr->SetName( m1Name );
+
+  for ( int i = 0; i < nVals; ++ i )
+    {
+    dataset1Arr->InsertNextValue( mingledData[i * 2] );
+    dataset2Arr->InsertNextValue( mingledData[i * 2 + 1] );
+    }
+
+  vtkNew<vtkTable> datasetTable;
+  datasetTable->AddColumn( dataset1Arr.GetPointer() );
+  datasetTable->AddColumn( dataset2Arr.GetPointer() );
+
+  // Set PCA statistics algorithm and its input data port
+  vtkNew<vtkPCAStatistics> pcas;
+
+  // Prepare first test with data
+  pcas->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA,
+    datasetTable.GetPointer() );
+  pcas->MedianAbsoluteDeviationOn();
+
+  // -- Select Column Pairs of Interest ( Learn Mode ) --
+  pcas->SetColumnStatus( m0Name, 1 );
+  pcas->SetColumnStatus( m1Name, 1 );
+
+  // Test all options but Assess
+  pcas->SetLearnOption( true );
+  pcas->SetDeriveOption( true );
+  pcas->SetTestOption( true );
+  pcas->SetAssessOption( true );
+  pcas->Update();
+
+  vtkTable* outputData = pcas->GetOutput();
+
+  double res[] = { -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 7.0,
+                    0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 9.0 };
+
+  for ( vtkIdType j = 0; j < 2; j++ )
+    {
+    for ( vtkIdType i = 0; i < 7; i++ )
+      {
+      if ( outputData->GetValue(i, j+2) !=
+        res[ j * outputData->GetNumberOfRows() + i ] )
+        {
+        return EXIT_FAILURE;
+        }
+      }
+    }
+
+  return EXIT_SUCCESS;
+}
+
+//=============================================================================
+int TestPCAPart(int argc, char* argv[], bool robustPCA)
 {
   char* normScheme = vtkTestUtilities::GetArgOrEnvOrDefault(
     "-normalize-covariance", argc, argv, "VTK_NORMALIZE_COVARIANCE", "None" );
@@ -110,6 +222,7 @@ int TestPCAStatistics( int argc, char* argv[] )
 
   // Set PCA statistics algorithm and its input data port
   vtkPCAStatistics* pcas = vtkPCAStatistics::New();
+  pcas->SetMedianAbsoluteDeviation( robustPCA );
 
   // First verify that absence of input does not cause trouble
   cout << "## Verifying that absence of input does not cause trouble... ";
@@ -243,18 +356,10 @@ int TestPCAStatistics( int argc, char* argv[] )
   pcas->Delete();
   delete [] normScheme;
 
-  if(TestEigen() == EXIT_FAILURE)
-    {
-    return EXIT_FAILURE;
-    }
-
   return testStatus;
 }
 
-
-namespace //anonymous
-{
-bool TestEigen()
+int TestEigen()
 {
   const char m0Name[] = "M0";
   vtkSmartPointer<vtkDoubleArray> dataset1Arr =
@@ -379,4 +484,3 @@ bool TestEigen()
 
   return EXIT_SUCCESS;
 }
-} //end anonymous namespace

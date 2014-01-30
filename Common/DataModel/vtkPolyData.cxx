@@ -431,6 +431,7 @@ void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
                             vtkPointLocator *locator)
 {
@@ -1235,7 +1236,7 @@ void vtkPolyData::Allocate(vtkPolyData *inPolyData, vtkIdType numCells,
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
 // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
-int vtkPolyData::InsertNextCell(int type, int npts, vtkIdType *pts)
+vtkIdType vtkPolyData::InsertNextCell(int type, int npts, vtkIdType *pts)
 {
   int id;
 
@@ -1299,10 +1300,10 @@ int vtkPolyData::InsertNextCell(int type, int npts, vtkIdType *pts)
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
 // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
-int vtkPolyData::InsertNextCell(int type, vtkIdList *pts)
+vtkIdType vtkPolyData::InsertNextCell(int type, vtkIdList *pts)
 {
-  int id;
-  int npts=pts->GetNumberOfIds();
+  vtkIdType id;
+  vtkIdType npts = pts->GetNumberOfIds();
 
   if ( !this->Cells )
     {
@@ -1447,7 +1448,7 @@ void vtkPolyData::ReverseCell(vtkIdType cellId)
 // Add a point to the cell data structure (after cell pointers have been
 // built). This method allocates memory for the links to the cells.  (To
 // use this method, make sure points are available and BuildLinks() has been invoked.)
-int vtkPolyData::InsertNextLinkedPoint(int numLinks)
+vtkIdType vtkPolyData::InsertNextLinkedPoint(int numLinks)
 {
   return this->Links->InsertNextPoint(numLinks);
 }
@@ -1457,7 +1458,7 @@ int vtkPolyData::InsertNextLinkedPoint(int numLinks)
 // built). This method adds the point and then allocates memory for the
 // links to the cells.  (To use this method, make sure points are available
 // and BuildLinks() has been invoked.)
-int vtkPolyData::InsertNextLinkedPoint(double x[3], int numLinks)
+vtkIdType vtkPolyData::InsertNextLinkedPoint(double x[3], int numLinks)
 {
   this->Links->InsertNextPoint(numLinks);
   return this->Points->InsertNextPoint(x);
@@ -1467,9 +1468,9 @@ int vtkPolyData::InsertNextLinkedPoint(double x[3], int numLinks)
 // Add a new cell to the cell data structure (after cell pointers have been
 // built). This method adds the cell and then updates the links from the points
 // to the cells. (Memory is allocated as necessary.)
-int vtkPolyData::InsertNextLinkedCell(int type, int npts, vtkIdType *pts)
+vtkIdType vtkPolyData::InsertNextLinkedCell(int type, int npts, vtkIdType *pts)
 {
-  int i, id;
+  vtkIdType i, id;
 
   id = this->InsertNextCell(type,npts,pts);
 

@@ -2,6 +2,7 @@ vtk_add_test_cxx(
   TestAxisActor3D.cxx
   TestBarChartActor.cxx
   TestCaptionActor2D.cxx
+  TestCornerAnnotation.cxx
   TestCubeAxes2DMode.cxx
   TestCubeAxes3.cxx
   TestCubeAxesWithGridLines.cxx
@@ -24,6 +25,8 @@ vtk_add_test_cxx(
   TestCubeAxesInnerGridAll.cxx
   TestCubeAxesInnerGridClosest.cxx
   TestCubeAxesInnerGridFurthest.cxx
+  TestCubeAxesSticky.cxx
+  TestCubeAxesStickyCentered.cxx
   TestXYPlotActor.cxx
   )
 

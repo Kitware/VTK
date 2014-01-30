@@ -31,6 +31,7 @@
 
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
+//------------------------------------------------------------------------------
 // Construct object.
 vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
 {
@@ -44,14 +45,17 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->GetExecutive()->SetOutputData(1, output2);
   output2->Delete();
   this->ClipTolerance = FLT_EPSILON;
+  this->InternalClipTolerance = FLT_EPSILON;
   this->GenerateContourEdges = 0;
 }
 
+//------------------------------------------------------------------------------
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
 {
   this->ContourValues->Delete();
 }
 
+//------------------------------------------------------------------------------
 int vtkBandedPolyDataContourFilter::ComputeScalarIndex(double val)
 {
 
@@ -66,6 +70,7 @@ int vtkBandedPolyDataContourFilter::ComputeScalarIndex(double val)
 
 }
 
+//------------------------------------------------------------------------------
 int vtkBandedPolyDataContourFilter::IsContourValue(double val)
 {
   int i;
@@ -81,6 +86,7 @@ int vtkBandedPolyDataContourFilter::IsContourValue(double val)
   return 0;
 }
 
+//------------------------------------------------------------------------------
 // Return a flag that indicates that the ordering of vertices along the
 // edge is not from v1->v2, where v1 < v2.
 int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
@@ -142,6 +148,7 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 }
 
 
+//------------------------------------------------------------------------------
 extern "C" {
 static int vtkCompareClipValues(const void *val1, const void *val2)
 {
@@ -160,13 +167,13 @@ static int vtkCompareClipValues(const void *val1, const void *val2)
 }
 }
 
+//------------------------------------------------------------------------------
 inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
                                                       int npts, vtkIdType *pts,
                                                       int cellId, double s,
                                                       vtkFloatArray *newS)
 {
-
-  int idx = this->ComputeScalarIndex(s+this->ClipTolerance);
+  int idx = this->ComputeScalarIndex(s+this->InternalClipTolerance);
 
   if ( !this->Clipping ||
        (idx >= this->ClipIndex[0] && idx < this->ClipIndex[1]) )
@@ -186,6 +193,7 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
 }
 
 
+//------------------------------------------------------------------------------
 // Create filled contours for polydata
 int vtkBandedPolyDataContourFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -242,7 +250,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   inScalars->GetRange(range);
 
   // base clip tolerance on overall input scalar range
-  this->ClipTolerance = FLT_EPSILON*(range[1] - range[0]);
+  this->InternalClipTolerance = this->ClipTolerance*(range[1] - range[0]);
 
   this->ClipValues[0] =
     (range[0]<this->ContourValues->GetValue(0))?
@@ -267,7 +275,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   // on percentage of scalar range...
   for ( i=0; i<(this->NumberOfClipValues-1); i++)
     {
-    if ( (this->ClipValues[i] + this->ClipTolerance) >= this->ClipValues[i+1] )
+    if ( (this->ClipValues[i] + this->InternalClipTolerance) >= this->ClipValues[i+1] )
       {
       for (j=i+1; j<(this->NumberOfClipValues-2); j++)
         {
@@ -776,6 +784,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   return 1;
 }
 
+//------------------------------------------------------------------------------
 vtkPolyData *vtkBandedPolyDataContourFilter::GetContourEdgesOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
@@ -787,6 +796,7 @@ vtkPolyData *vtkBandedPolyDataContourFilter::GetContourEdgesOutput()
     this->GetExecutive()->GetOutputData(1));
 }
 
+//------------------------------------------------------------------------------
 unsigned long int vtkBandedPolyDataContourFilter::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
@@ -798,6 +808,7 @@ unsigned long int vtkBandedPolyDataContourFilter::GetMTime()
   return mTime;
 }
 
+//------------------------------------------------------------------------------
 void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -817,4 +828,6 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "VALUE\n";
     }
+
+  os << indent << "Clip Tolerance: " << this->ClipTolerance << "\n";
 }

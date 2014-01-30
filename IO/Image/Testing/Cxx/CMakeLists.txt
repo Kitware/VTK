@@ -4,6 +4,7 @@ vtk_add_test_cxx(
   )
 set(TestMetaIO_ARGS "DATA{${VTK_TEST_INPUT_DIR}/HeadMRVolume.mhd,HeadMRVolume.raw}")
 vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
+  TestDataObjectIO.cxx
   TestMetaIO.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests)

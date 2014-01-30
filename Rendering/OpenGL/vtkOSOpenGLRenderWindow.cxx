@@ -19,7 +19,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLActor.h"
-#include "vtkOpenGLPolyDataMapper.h"
 #include <GL/gl.h>
 #include "vtkgl.h"
 

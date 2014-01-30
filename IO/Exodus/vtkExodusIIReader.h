@@ -423,18 +423,6 @@ public:
   //   Returns the object which encapsulates the model metadata.
   vtkGetObjectMacro(ExodusModel,vtkExodusModel);
 
-  // Description:
-  //  By default, the ExodusModel metadata (if requested with
-  //  ExodusModelMetadataOn()) is also encoded into field arrays
-  //  and attached to the output unstructured grid.  Set this OFF
-  //  if you don't want this to happen.  (The vtkExodusIIWriter and
-  //  the vtkEnSightWriter can unpack this metadata from the field
-  //  arrays and use it when writing out Exodus or EnSight files.)
-
-  vtkSetMacro(PackExodusModelOntoOutput, int);
-  vtkGetMacro(PackExodusModelOntoOutput, int);
-  vtkBooleanMacro(PackExodusModelOntoOutput, int);
-
   // Descriptions:
   // return boolean indicating whether the type,name is a valid variable
   int IsValidVariable( const char *type, const char *name );
@@ -805,7 +793,7 @@ protected:
   vtkExodusIIReaderPrivate* Metadata;
 
   vtkExodusModel *ExodusModel;
-  int PackExodusModelOntoOutput;
+  // int PackExodusModelOntoOutput;
   int ExodusModelMetadata;
 
   int SILUpdateStamp;

@@ -33,7 +33,6 @@
 #include "vtkPieceScalars.h"
 #include "vtkPKdTree.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkProcess.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkOpenGLRenderer.h"
@@ -51,19 +50,25 @@
 #include "vtkTranslucentPass.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVolumetricPass.h"
+#include "vtkNew.h"
+#include "vtkTesting.h"
 
 #include <vtksys/CommandLineArguments.hxx>
 
-class MyProcess : public vtkProcess
+class MyProcess : public vtkObject
 {
 public:
   static MyProcess *New();
-  vtkTypeMacro(MyProcess, vtkProcess);
+  vtkTypeMacro(MyProcess, vtkObject);
+  vtkSetMacro(ImageReductionFactor, int);
+  // Returns true on success.
+  bool Execute(int argc, char** argv);
+
+  // Get/Set the controller.
+  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   bool IsServer;
-  vtkSetMacro(ImageReductionFactor, int);
-
-  virtual void Execute();
 private:
   // Creates the visualization pipeline and adds it to the renderer.
   void CreatePipeline(vtkRenderer* renderer);
@@ -73,7 +78,9 @@ private:
 
 protected:
   MyProcess();
+  ~MyProcess();
   int ImageReductionFactor;
+  vtkMultiProcessController* Controller;
 };
 
 vtkStandardNewMacro(MyProcess);
@@ -82,11 +89,20 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->ImageReductionFactor = 1;
+  this->Controller = NULL;
+}
+
+//-----------------------------------------------------------------------------
+MyProcess::~MyProcess()
+{
+  this->SetController(NULL);
 }
 
 //-----------------------------------------------------------------------------
 void MyProcess::CreatePipeline(vtkRenderer* renderer)
 {
+  double bounds[] = {-0.5, .5, -0.5, .5, -0.5, 0.5};
+  renderer->ResetCamera(bounds);
   if (!this->IsServer)
     {
     return;
@@ -165,9 +181,13 @@ void MyProcess::SetupRenderPasses(vtkRenderer* renderer)
 }
 
 //-----------------------------------------------------------------------------
-void MyProcess::Execute()
+bool MyProcess::Execute(int argc, char** argv)
 {
   vtkRenderWindow* renWin = vtkRenderWindow::New();
+
+  renWin->SetWindowName(this->IsServer?
+    "Server Window" : "Client Window");
+
   // enable alpha bit-planes.
   renWin->AlphaBitPlanesOn();
 
@@ -176,6 +196,7 @@ void MyProcess::Execute()
 
   // don't waste time swapping buffers unless needed.
   renWin->SwapBuffersOff();
+
 
   vtkRenderer* renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
@@ -196,20 +217,28 @@ void MyProcess::Execute()
   this->CreatePipeline(renderer);
   this->SetupRenderPasses(renderer);
 
+  bool success = true;
   if (!this->IsServer)
     {
+    // CLIENT
     vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
     renWin->SwapBuffersOn();
     renWin->Render();
 
-    iren->Start();
+    // regression test is done on the client since the data is on the server.
+    int result = vtkTesting::Test(argc, argv, renWin, 15);
+    success = (result == vtkTesting::PASSED);
+    if (result == vtkTesting::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
     iren->Delete();
-
     this->Controller->TriggerBreakRMIs();
     }
   else
     {
+    // SERVER
     this->Controller->ProcessRMIs();
     }
 
@@ -217,20 +246,19 @@ void MyProcess::Execute()
   renWin->Delete();
   syncWindows->Delete();
   syncRenderers->Delete();
+  return success;
 }
 
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-  int retVal = 1;
-
   int image_reduction_factor = 1;
   int is_server = 0;
   int port = 11111;
 
   vtksys::CommandLineArguments args;
   args.Initialize(argc, argv);
-  args.StoreUnusedArguments(false);
+  args.StoreUnusedArguments(true);
   args.AddArgument("--image-reduction-factor",
     vtksys::CommandLineArguments::SPACE_ARGUMENT,
     &image_reduction_factor, "Image reduction factor");
@@ -253,8 +281,8 @@ int main(int argc, char **argv)
   contr->Initialize(&argc, &argv);
   if (is_server)
     {
-    cout << "Waiting for client on 11111" << endl;
-    contr->WaitForConnection(11111);
+    cout << "Waiting for client on " << port << endl;
+    contr->WaitForConnection(port);
     }
   else
     {
@@ -268,12 +296,10 @@ int main(int argc, char **argv)
   p->IsServer = is_server != 0;
   p->SetImageReductionFactor(image_reduction_factor);
   p->SetController(contr);
-  p->Execute();
-
-  retVal=p->GetReturnValue();
+  bool success = p->Execute(argc, argv);
   p->Delete();
   contr->Finalize();
   contr = 0;
-  return !retVal;
+  return success? EXIT_SUCCESS :EXIT_FAILURE;
 }
 
