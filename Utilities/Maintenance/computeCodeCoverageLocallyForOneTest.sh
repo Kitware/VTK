@@ -82,7 +82,6 @@ echo -n "Please wait while lcov captures the coverage data..."
 #
 # Some compilers (e.g. clang) place the .gcda files in the wrong directory
 #
-${SCRIPT_DIR}/fixcoverage.py
 cd $destinationdir
 lcov --quiet --directory . --capture --output-file app.info
 echo "Done"
