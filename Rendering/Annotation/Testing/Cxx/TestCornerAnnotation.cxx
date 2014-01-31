@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include <vtkSmartPointer.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkTextProperty.h>
-#include <vtkSphereSource.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkCornerAnnotation.h>
-#include <vtkRegressionTestImage.h>
+#include "vtkSmartPointer.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkTextProperty.h"
+#include "vtkSphereSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+#include "vtkCornerAnnotation.h"
+#include "vtkRegressionTestImage.h"
 
 int TestCornerAnnotation( int argc, char * argv [] )
 {
