@@ -471,23 +471,6 @@ public:
   static void SetDefaultExecutivePrototype(vtkExecutive* proto);
 
   // Description:
-  // Returns the priority of the piece described by the current update
-  // extent. The priority is a number between 0.0 and 1.0 with 0 meaning
-  // skippable (REQUEST_DATA not needed) and 1.0 meaning important.
-  virtual double ComputePriority();
-
-  // Description:
-  // These are flags that can be set that let the pipeline keep accurate
-  // meta-information for ComputePriority.
-  static vtkInformationIntegerKey* PRESERVES_DATASET();
-  static vtkInformationIntegerKey* PRESERVES_GEOMETRY();
-  static vtkInformationIntegerKey* PRESERVES_BOUNDS();
-  static vtkInformationIntegerKey* PRESERVES_TOPOLOGY();
-  static vtkInformationIntegerKey* PRESERVES_ATTRIBUTES();
-  static vtkInformationIntegerKey* PRESERVES_RANGES();
-  static vtkInformationIntegerKey* MANAGES_METAINFORMATION();
-
-  // Description:
   // If the whole output extent is required, this method can be called to set
   // the output update extent to the whole extent. This method assumes that
   // the whole extent is known (that UpdateInformation has been called).

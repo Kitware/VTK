@@ -163,12 +163,6 @@ protected:
   vtkClipDataSet(vtkImplicitFunction *cf=NULL);
   ~vtkClipDataSet();
 
-  // Description:
-  // Overridden to process REQUEST_UPDATE_EXTENT_INFORMATION.
-  virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*);
-
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   vtkImplicitFunction *ClipFunction;

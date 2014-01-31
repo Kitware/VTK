@@ -260,7 +260,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
         if (piece_metadata)
           {
           piece_metadata->Set(
-            vtkStreamingDemandDrivenPipeline::PIECE_BOUNDING_BOX(),
+            vtkDataObject::BOUNDING_BOX(),
             bounding_box, 6);
           }
         }

@@ -135,29 +135,3 @@ int vtkXMLImageDataReader::FillOutputPortInformation(int, vtkInformation* info)
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
-
-//----------------------------------------------------------------------------
-void vtkXMLImageDataReader::SetupUpdateExtentInformation(
-  vtkInformation *outInfo)
-{
-  int pieceNum = outInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  if (pieceNum > -1)
-    {
-    int* pieceExtent = this->PieceExtents + pieceNum*6;
-
-    static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
-    bounds[0] = this->Origin[0]+pieceExtent[0]*this->Spacing[0];
-    bounds[1] = this->Origin[0]+pieceExtent[1]*this->Spacing[0];
-    bounds[2] = this->Origin[1]+pieceExtent[2]*this->Spacing[1];
-    bounds[3] = this->Origin[1]+pieceExtent[3]*this->Spacing[1];
-    bounds[4] = this->Origin[2]+pieceExtent[4]*this->Spacing[2];
-    bounds[5] = this->Origin[2]+pieceExtent[5]*this->Spacing[2];
-
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::PIECE_BOUNDING_BOX(),
-      bounds, 6);
-    }
-
-  this->Superclass::SetupUpdateExtentInformation(outInfo);
-}

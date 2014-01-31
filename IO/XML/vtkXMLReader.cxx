@@ -422,22 +422,6 @@ int vtkXMLReader
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader
-::RequestUpdateExtentInformation
-(vtkInformation *request,
- vtkInformationVector **vtkNotUsed(inputVector),
- vtkInformationVector *outputVector)
-{
-  int outputPort =
-    request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
-  outputPort = outputPort >= 0 ? outputPort : 0;
-  this->SetupUpdateExtentInformation
-    (outputVector->GetInformationObject(outputPort) );
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
                               vtkInformationVector **vtkNotUsed(inputVector),
                               vtkInformationVector *outputVector)
@@ -1267,16 +1251,6 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     int retVal = this->RequestInformation(request, inputVector, outputVector);
-    this->CurrentOutputInformation = 0;
-    return retVal;
-    }
-
-  // return UE info
-  if(request->Has
-     (vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT_INFORMATION()))
-    {
-    int retVal = this->RequestUpdateExtentInformation(request,
-        inputVector, outputVector);
     this->CurrentOutputInformation = 0;
     return retVal;
     }

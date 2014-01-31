@@ -228,10 +228,6 @@ int vtkTemporalInterpolator::RequestData(
     {
     // pass the lowest data
     outData = inData->GetBlock(0);
-    if (outData->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-      {
-      outData->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
-      }
     outInfo->Set(vtkDataObject::DATA_OBJECT(),outData);
     }
   else
@@ -403,11 +399,6 @@ vtkDataObject *vtkTemporalInterpolator
         return NULL;
         }
       }
-    if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()) &&
-        in2->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-      {
-      output->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
-      }
     return output;
     }
   else
@@ -572,11 +563,6 @@ vtkDataSet *vtkTemporalInterpolator
                                  arrays[0]->GetNumberOfTuples());
     output->GetCellData()->AddArray(outarray);
     outarray->Delete();
-    }
-  if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()) &&
-      in2->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-    {
-    output->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
     }
   return output;
 }

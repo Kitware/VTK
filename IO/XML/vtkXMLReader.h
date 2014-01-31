@@ -130,10 +130,6 @@ protected:
   // Setup the output's information.
   virtual void SetupOutputInformation(vtkInformation *vtkNotUsed(outInfo)) {}
 
-  // Setup the output's information for the update extent
-  virtual void SetupUpdateExtentInformation
-  (vtkInformation *vtkNotUsed(outInfo)) {}
-
   // Setup the output's data with allocation.
   virtual void SetupOutputData();
 
@@ -248,11 +244,6 @@ protected:
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
-  virtual int RequestUpdateExtentInformation
-  (vtkInformation *request,
-   vtkInformationVector **inputVector,
-   vtkInformationVector *outputVector);
-
   vtkTimeStamp ReadMTime;
 
   // Whether there was an error reading the XML.
