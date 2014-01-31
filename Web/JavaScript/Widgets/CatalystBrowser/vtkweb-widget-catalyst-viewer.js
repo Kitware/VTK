@@ -1,8 +1,21 @@
 (function ($, GLOBAL) {
-    var SLIDER_TEMPLATE = '<div class="label">LABEL<span class="NAME-value">DEFAULT</span></div><input type="range" min="0" max="SIZE" value="INDEX" name="NAME" data-values="VALUES"/>',
-    SELECT_TEMPLATE = ' <div class="label select">LABEL<select name="NAME">VALUES</select></div>',
+    var SLIDER_TEMPLATE = '<div class="label"><span class="flag vtk-icon-flag"/>LABEL<span class="NAME-value">DEFAULT</span></div><input type="range" min="0" max="SIZE" value="INDEX" name="NAME" data-values="VALUES"/>',
+    SELECT_TEMPLATE = ' <div class="label select"><span class="flag vtk-icon-flag"/>LABEL<select name="NAME">VALUES</select></div>',
     OPTION_TEMPLATE = '<option>VALUE</option>',
-    EXCLUDE_ARGS = { "phi": true, "theta": true };
+    EXCLUDE_ARGS = { "theta": true };
+
+    // ========================================================================
+    // Helper method
+    // ========================================================================
+
+    function getRelativeLocation(element, mouseEvent) {
+        var parentOffset = element.offset(),
+        x = mouseEvent.pageX || mouseEvent.originalEvent.pageX || mouseEvent.originalEvent.mozMovementX,
+        y = mouseEvent.pageY || mouseEvent.originalEvent.pageY || mouseEvent.originalEvent.mozMovementY,
+        relX = x - parentOffset.left,
+        relY = y - parentOffset.top;
+        return [ relX, relY ];
+    }
 
     // ========================================================================
     // Download manager
@@ -101,6 +114,25 @@
     // ========================================================================
 
     function initializeListeners(container) {
+        var play = $('.play', container),
+        stop = $('.stop', container),
+        activeArgName = null,
+        activeValues = [],
+        activeValueIndex = 0,
+        keepAnimation = false;
+
+        function animate() {
+            if(activeArgName !== null) {
+                activeValueIndex++;
+                activeValueIndex = activeValueIndex % activeValues.length;
+                updateActiveArgument(container, activeArgName, activeValues[activeValueIndex]);
+
+                if(keepAnimation) {
+                    setTimeout(animate, 150);
+                }
+            }
+        }
+
         // Attach slider listener
         $('input[type="range"]', container).bind('change keyup mousemove',function(){
             var slider = $(this),
@@ -109,7 +141,7 @@
             idx = slider.val();
 
             updateActiveArgument(container, name, values[idx]);
-        })
+        });
 
         // Attach select listener
         $('select', container).change(function(){
@@ -118,7 +150,53 @@
             value = select.val();
 
             updateActiveArgument(container, name, value);
-        })
+        });
+
+        $('.toggle', container).click(function(){
+            container.toggleClass('small');
+        });
+
+        $('.reset', container).click(function(){
+            container.trigger('invalidate-size');
+        });
+
+        $('.label', container).click(function(){
+            var me = $(this),
+            all = $('.label', container),
+            selectObj = $('select', me.parent()),
+            sliderObj = $('input', me.parent());
+
+            // Handle flag visibility
+            all.removeClass('active');
+            me.addClass('active');
+
+            // Extract active parameter
+            if(selectObj.length) {
+                activeArgName = selectObj.attr('name');
+                activeValueIndex = 0;
+                activeValues = [];
+                $('option', selectObj).each(function(idx, elm) {
+                   activeValues.push($(this).text());
+                });
+            }
+            if(sliderObj.length) {
+                activeArgName = sliderObj.attr('name');
+                activeValueIndex = sliderObj.val();
+                activeValues = sliderObj.attr('data-values').split(':');
+            }
+        });
+
+        play.click(function(){
+            play.hide();
+            stop.show();
+            keepAnimation = true;
+            animate();
+        });
+        stop.click(function(){
+            stop.hide();
+            play.show();
+            keepAnimation = false;
+        });
     }
 
     // ------------------------------------------------------------------------
@@ -165,7 +243,11 @@
     // ------------------------------------------------------------------------
 
     function createControlPanel(container, args) {
-        var htmlBuffer = [];
+        var htmlBuffer = [],
+        controlContainer = $('<div/>', {
+            class: 'control',
+            html: '<div class="header"><span class="vtk-icon-tools toggle"/><span class="vtk-icon-resize-full-2 reset"/><span class="vtk-icon-play play"/><span class="vtk-icon-stop stop"/></div><div class="parameters"></div>'
+        });
 
         // Loop over each option
         for (key in args) {
@@ -189,12 +271,13 @@
             }
         }
 
+
         // Add control panel to UI
         htmlBuffer.sort();
         $('<ul/>', {
-            class: "control",
             html: '<li>' + htmlBuffer.join('</li><li>') + '</li>'
-        }).appendTo(container);
+        }).appendTo($('.parameters', controlContainer));
+        controlContainer.appendTo(container);
 
         // Attache listeners
         initializeListeners(container);
@@ -202,102 +285,27 @@
 
     // ------------------------------------------------------------------------
 
-    function createZoomableCanvasObject(container, img, canvas, mouseMode, externalMouseFunc) {
+    function createZoomableCanvasObject(container, img, canvas, pixelZoomRatio) {
         // First set up some variables we will need
-        var modeNone = 0,    // neither pan nor zoom, this is rotate mode
-        modePan = 1,         // when dragging, it's a pan
-        modeZoom = 2,        // when dragging, it's a zoom
+        var modeRotation = 1,   // when dragging, it's a rotation
+        modePan = 2,            // when dragging, it's a pan
+        modeZoom = 3,           // when dragging, it's a zoom
+        modeNone = 0,           // No mouse move handling
+        mouseMode = modeNone,   // Current mode
 
-        vpDim = [0, 0],      // viewport dimensions (canvas dimensions)
-        vpAspect = 1,        // viewport aspect ratio (width/height)
+        dzScale = 0.005,  // scaling factor to control how fast we zoom in and out
+        wheelZoom = 0.05, // amount to change zoom with each wheel event
 
-        imgDim = [0, 0],     // image dimensions
-        imgAspect = 1,       // image aspect ratio (width/height)
+        drawingCenter = [0,0],  // Drawing parameters
+        zoomLevel = 1.0,        //
 
-        srcOrig = [0, 0],    // upper left x,y of source image data
-        srcDim = [0, 0],     // source data dimensions (how much of image to draw in viewport)
+        maxZoom = pixelZoomRatio, // limit how far we can zoom in
+        minZoom = 1 / maxZoom,    // limit how far we can zoom out
 
-        gDim = 0,            // guide dimension, depends on aspect ratios of viewport and image
+        lastLocation = [0,0],  // Last place mouse event happened
 
-        zoomLevel = 1.0,     // zoomLevel >= 1.0, where 1.0 is zoomed all the way out
-        dzScale = 0.05,      // scaling factor to control how fast we zoom in and out
-        wheelZoom = 0.5,     // amount to change zoom with each wheel event
-        minZoom = 0.0,       // limit how far we can zoom out
-        maxZoom = 20.0,      // limit how far we can zoom in
-
-        initialCentering = true,
-
-        lastLocation = { 'x': 0, 'y': 0 };   // Last place mouse event happened
-
-        /*
-         * Whenever a new image is loaded, we want to make sure we make a note
-         * of the image dimensions and aspect ratio.  If this is the very first
-         * time, then we want to center the viewport on the image, otherwise,
-         * we will just recalculate everything and redraw.
-         */
-        function imageLoaded() {
-            // Get width, height, and aspect ratio of the image
-            imgDim[0] = img[0].naturalWidth;
-            imgDim[1] = img[0].naturalHeight;
-            imgAspect = imgDim[0] / imgDim[1];
-
-            if (initialCentering === true) {
-                // Initially, we want the fully zoomed out zoom level
-                minZoom = zoomLevel = vpDim[gDim] / imgDim[gDim];
-            }
-
-            recalculateAndRedraw();
-        }
-
-        /*
-         * This function can be used on image load to center the viewport in
-         * the middle of the image.
-         */
-        function centerViewportOnImage() {
-            var center = calculateCenter([0, 0], imgDim);
-            srcOrig[0] = center[0] - (srcDim[0] / 2.0);
-            srcOrig[1] = center[1] - (srcDim[1] / 2.0);
-        }
-
-        /*
-         * Once we know either the source width or the source height, the other
-         * source dimension must be set according to the viewport aspect ratio.
-         * This is because we don't want apparent stretching or shrinking of
-         * the image data in either dimension.  In other words, source aspect
-         * ratio should always equal viewport aspect ratio
-         */
-        function fixSrcDimForAspectRatio() {
-            if (gDim === 0) {  // already know src width, need src height
-                srcDim[1] = srcDim[0] / vpAspect;
-            } else {               // already know src height, need src width
-                srcDim[0] = srcDim[1] * vpAspect;
-            }
-        }
-
-        /*
-         * This function checks that we are never panned outside the image bounds
-         */
-        function fixSrcOrigForImageBounds() {
-            // Check that both x and y origin don't allow for panning outside image
-            for (var i = 0; i < 2; ++i) {
-                if ( (srcOrig[i] + srcDim[i]) > imgDim[i] ) {
-                    srcOrig[i] = imgDim[i] - srcDim[i];
-                } else if ( srcOrig[i] < 0 ) {
-                    srcOrig[i] = 0;
-                }
-            }
-        }
-
-        /*
-         * Given a rectangle, specified with an origin (upper left x and y coords) and
-         * dimension (width and height), calculate the implied center point.
-         */
-        function calculateCenter(orig, dim) {
-            var center = [0, 0];
-            center[0] = orig[0] + (dim[0] / 2.0);
-            center[1] = orig[1] + (dim[1] / 2.0);
-            return center;
-        }
+        // Rotation management vars
+        thetaValues, phiValues, stepPhi, stepTheta, currentArgs;
 
         /*
          * Adds mouse event handlers so that we can pan and zoom the image
@@ -305,17 +313,19 @@
         function setupEvents() {
             var element = canvas;
 
-            // Unbind all events the first time to make sure we start fresh
-            element.unbind();
-
             // Needed this to override context menu behavior
-            element.bind('contextmenu', function(evt) { return false; });
+            element.bind('contextmenu', function(evt) { evt.preventDefault(); });
 
             // Wheel should zoom across browsers
             element.bind('DOMMouseScroll mousewheel', function (evt) {
                 var x = (-evt.originalEvent.wheelDeltaY || evt.originalEvent.detail);
+
+                lastLocation = getRelativeLocation(canvas, evt);
                 handleZoom((x > 0 ? wheelZoom : x < 0 ? -wheelZoom : 0));
                 evt.preventDefault();
+
+                // Redraw the image in the canvas
+                redrawImage();
             });
 
             // Zoom and pan events with mouse buttons and drag
@@ -331,53 +341,106 @@
                     evt.shiftKey = false;
                 }
 
-                lastLocation = getRelativeLocation(canvas, evt);
-
-                if (current_button === 2) {   // middle mouse down = pan
-                    mouseMode = modePan;
-                } else if (current_button === 3) {   // right mouse down = zoom
-                    mouseMode = modeZoom;
-                } else {
-                    if (externalMouseFunc !== null) {
-                        externalMouseFunc(true, lastLocation);
-                    }
+                // Detect interaction mode
+                switch(current_button) {
+                    case 2: // middle mouse down = pan
+                        mouseMode = modePan;
+                        break;
+                    case 3: // right mouse down = zoom
+                        mouseMode = modeZoom;
+                        break;
+                    default:
+                        mouseMode = modeRotation;
+                        break;
                 }
 
+                // Store mouse location
+                lastLocation = getRelativeLocation(canvas, evt);
+
                 evt.preventDefault();
-                return false;
             });
 
             // Send mouse movement event to the forwarding function
             element.bind('mousemove', function(e) {
-                mouseInteract(e);
+                if(mouseMode != modeNone) {
+                    var loc = getRelativeLocation(canvas, e);
+
+                    // Can NOT use switch as (modeRotation == modePan) is
+                    // possible when Pan should take over rotation as
+                    // rotation is not possible
+                    if(mouseMode === modePan) {
+                        handlePan(loc);
+                    } else if (mouseMode === modeZoom) {
+                        var deltaY = loc[1] - lastLocation[1];
+                        handleZoom(deltaY * dzScale);
+
+                        // Update mouse location
+                        lastLocation = loc;
+                    } else {
+                       handleRotation(loc);
+                    }
+
+                    // Redraw the image in the canvas
+                    redrawImage();
+                }
             });
 
             // Stop any zoom or pan events
             element.bind('mouseup', function(evt) {
-                if (mouseMode === modeNone) {
-                    if (externalMouseFunc !== null) {
-                        externalMouseFunc(false, null);
-                    }
-                } else {
-                    mouseMode = modeNone;
-                    evt.preventDefault();
-                }
+                mouseMode = modeNone;
                 evt.preventDefault();
             });
+
+            // Update rotation handler if possible
+            modeRotation = container.data('info').arguments.hasOwnProperty('phi') ? modeRotation : modePan;
+            if(modeRotation != modePan) {
+                thetaValues = container.data('info').arguments.theta.values;
+                phiValues   = container.data('info').arguments.phi.values;
+                stepPhi    = phiValues[1] - phiValues[0];
+                stepTheta  = thetaValues[1] - thetaValues[0];
+                currentArgs = container.data('active-args');
+            }
         }
 
         /*
-         * Forwards mouse movement events to either the pan or zoom functions
-         * depending on the current mouse mode.
+         * If the data can rotate
          */
-        function mouseInteract(event) {
-            if (mouseMode === modePan) {
-                var loc = getRelativeLocation(canvas, event);
-                handlePan(loc);
-            } else if (mouseMode === modeZoom) {
-                var loc = getRelativeLocation(canvas, event);
-                var deltaY = loc.y - lastLocation.y;
-                handleZoom(deltaY * dzScale);
+        function handleRotation(loc) {
+            var currentPhi = currentArgs.phi,
+            currentTheta = currentArgs.theta,
+            currentPhiIdx = phiValues.indexOf(currentPhi),
+            currentThetaIdx = thetaValues.indexOf(currentTheta)
+            deltaPhi = (loc[0] - lastLocation[0]),
+            deltaTheta = (loc[1] - lastLocation[1]),
+            changeDetected = false;
+
+            if(Math.abs(deltaPhi) > stepPhi) {
+                changeDetected = true;
+                currentPhiIdx += (deltaPhi > 0) ? 1 : -1;
+                if(currentPhiIdx >= phiValues.length) {
+                    currentPhiIdx -= phiValues.length;
+                } else if(currentPhiIdx < 0) {
+                    currentPhiIdx += phiValues.length;
+                }
+                currentArgs['phi'] = phiValues[currentPhiIdx];
+            }
+
+            if(Math.abs(deltaTheta) > stepTheta) {
+                changeDetected = true;
+                currentThetaIdx += (deltaTheta > 0) ? 1 : -1;
+                if(currentThetaIdx >= thetaValues.length) {
+                    currentThetaIdx -= 1;
+                } else if(currentThetaIdx < 0) {
+                    currentThetaIdx += 1;
+                }
+                currentArgs['theta'] = thetaValues[currentThetaIdx];
+            }
+
+            if(changeDetected) {
+                fireLoadImage(container);
+                container.trigger('invalidate-viewport');
+
+                // Update mouse location
                 lastLocation = loc;
             }
         }
@@ -391,12 +454,10 @@
         function handlePan(loc) {
             // Update the source rectangle origin, but afterwards, check to
             // make sure we're not trying to look outside the image bounds.
-            srcOrig[0] -= (loc.x - lastLocation.x) / zoomLevel;
-            srcOrig[1] -= (loc.y - lastLocation.y) / zoomLevel;
-            fixSrcOrigForImageBounds();
+            drawingCenter[0] += (loc[0] - lastLocation[0]);
+            drawingCenter[1] += (loc[1] - lastLocation[1]);
 
-            // Redraw the image in the canvas
-            redrawImage();
+            // Update mouse location
             lastLocation = loc;
         }
 
@@ -408,31 +469,22 @@
          * may be changed as a result of this.
          */
         function handleZoom(inOutAmount) {
-            zoomLevel += inOutAmount;
+            var beforeZoom = zoomLevel,
+            afterZoom = beforeZoom + inOutAmount;
 
             // Disallow zoomLevel outside allowable range
-            if (zoomLevel < minZoom) {
-                zoomLevel = minZoom;
-            } else if (zoomLevel > maxZoom) {
-                zoomLevel = maxZoom;
+            if (afterZoom < minZoom) {
+                afterZoom = minZoom;
+            } else if (afterZoom > maxZoom) {
+                afterZoom = maxZoom;
             }
 
-            // Figure out where we were centered (in the source rect) before
-            var center = calculateCenter(srcOrig, srcDim);
-
-            // Calculate the new source rectangle width and height
-            srcDim[gDim] = vpDim[gDim] / zoomLevel;
-            fixSrcDimForAspectRatio();
-
-            // Set up source rectangle origin to maintain the previous center, but
-            // afterwards, check the origin to make sure we're not trying to look
-            // outside the image bounds.
-            srcOrig[0] = center[0] - (srcDim[0] / 2.0);
-            srcOrig[1] = center[1] - (srcDim[1] / 2.0);
-            fixSrcOrigForImageBounds();
-
-            // Redraw the image in the canvas
-            redrawImage();
+            if(beforeZoom != afterZoom) {
+                zoomLevel = afterZoom;
+                // FIXME ----------------------------------------------------------------
+                // zoom by keeping location of "lastLocation" in the same screen position
+                // FIXME ----------------------------------------------------------------
+            }
         }
 
         /*
@@ -441,96 +493,75 @@
          * dimensions that we have calculated and maintain internally.
          */
         function redrawImage() {
-            var ctx = canvas[0].getContext("2d");
-            ctx.drawImage(img[0],
-                          srcOrig[0],   // source image upper left x
-                          srcOrig[1],   // source image upper left y
-                          srcDim[0],    // source image width
-                          srcDim[1],    // source image height
-                          0,              // destination canvas upper left x
-                          0,              // destination canvas upper left y
-                          vpDim[0],     // destination canvas width
-                          vpDim[1]);    // destination canvas height
-        }
+            var ctx = canvas[0].getContext("2d"),
+            w = container.width(),
+            h = container.height(),
+            iw = img[0].naturalWidth,
+            ih = img[0].naturalHeight;
 
-        /*
-         * Gets the location of the mouse event relative to the canvas itself.
-         */
-        function getRelativeLocation(element, mouseEvent) {
-            var parentOffset = element.offset();
-            var relX = mouseEvent.pageX - parentOffset.left;
-            var relY = mouseEvent.pageY - parentOffset.top;
-            return { 'x': relX, 'y': relY };
-        }
+            if(iw === 0) {
+                setTimeout(redrawImage, 100);
+            } else {
+                canvas.attr("width", w);
+                canvas.attr("height", h);
+                ctx.clearRect(0, 0, w, h);
 
-        /*
-         * If the viewport may have changed, reset our internal variables
-         * and make sure the canvas has the same dimensions.
-         */
-        function setViewportDimensions() {
-            // Get width, height, and aspect ratio of the viewport (size of the box)
-            vpDim[0] = container.width();
-            vpDim[1] = container.height();
-            vpAspect = vpDim[0] / vpDim[1];
+                var tw = Math.floor(iw*zoomLevel),
+                th = Math.floor(ih*zoomLevel),
+                tx = drawingCenter[0] - (tw/2),
+                ty = drawingCenter[1] - (th/2),
+                dx = (tw > w) ? (tw - w) : (w - tw),
+                dy = (th > h) ? (th - h) : (h - th),
+                centerBounds = [ (w-dx)/2 , (h-dy)/2, (w+dx)/2, (h+dy)/2 ];
 
-            // Set the canvas height and width properties appropriately so that
-            // drawing operations are correct.
-            canvas.attr("width", vpDim[0]);
-            canvas.attr("height", vpDim[1]);
+                if( drawingCenter[0] < centerBounds[0] || drawingCenter[0] > centerBounds[2]
+                    || drawingCenter[1] < centerBounds[1] || drawingCenter[1] > centerBounds[3] ) {
+                    drawingCenter[0] = Math.min( Math.max(drawingCenter[0], centerBounds[0]), centerBounds[2] );
+                    drawingCenter[1] = Math.min( Math.max(drawingCenter[1], centerBounds[1]), centerBounds[3] );
+                    tx = drawingCenter[0] - (tw/2);
+                    ty = drawingCenter[1] - (th/2);
+                }
 
-            // Choose the so-called "guide dimension"
-            gDim = (vpAspect > imgAspect ? 0 : 1);
-        }
-
-        /*
-         * When the viewport changes in some way, this function will
-         * recalculate aspect ratios and redraw for the current viewport
-         * dimensions.
-         */
-        function recalculateAndRedraw() {
-            // Fix the canvas for the viewport dimensions
-            setViewportDimensions();
-
-            // The min zoom will probably have changed if the viewport has changed
-            minZoom = vpDim[gDim] / imgDim[gDim];
-
-            // Set up initial source rectangle to draw
-            srcDim[gDim] = vpDim[gDim] / zoomLevel;
-            fixSrcDimForAspectRatio();
-            fixSrcOrigForImageBounds();
-
-            if (initialCentering === true) {
-                centerViewportOnImage();
-                initialCentering = false;
+                ctx.drawImage(img[0],
+                              0,   0, iw, ih,  // Source image   [Location,Size]
+                              tx, ty, tw, th); // Traget drawing [Location,Size]
             }
-
-            // Draw the image in the canvas
-            redrawImage();
         }
 
-        //
+        /*
+         * Make sure the image will fit inside container as ZoomOut
+         */
+
+        function resetCamera() {
+            var w = container.width(),
+            h = container.height(),
+            iw = img[0].naturalWidth,
+            ih = img[0].naturalHeight;
+
+            if(iw === 0) {
+                setTimeout(resetCamera, 100);
+            } else {
+                zoomLevel = minZoom = Math.min( w / iw, h / ih );
+                drawingCenter[0] = w/2;
+                drawingCenter[1] = h/2;
+                redrawImage();
+            }
+        }
+
         // Now do some initialization
-        //
-
-        // Set up all the events
         setupEvents();
-
-        // Kind of looks nicer if we center the viewport on the image to start with
-        initialCentering = true;
-
-        // Fix the canvas for the viewport dimensions
-        setViewportDimensions();
+        resetCamera();
 
         // Just expose a couple of methods that need to be called from outside
         return {
-            'recalculateAndRedraw': recalculateAndRedraw,
-            'imageLoaded': imageLoaded
+            'resetCamera': resetCamera,
+            'imageLoaded': redrawImage
         };
     }
 
     // ------------------------------------------------------------------------
 
-    function createStaticImageViewer(container, func) {
+    function createImageViewer(container, func) {
         var imageContainer = $('<img/>', { class: 'image-viewer' }),
         imageCanvas = $('<canvas/>', { class: 'image-canvas' }),
         currentFileToRender = null;
@@ -538,12 +569,10 @@
         imageCanvas.appendTo(container);
 
         // Add zoom manager
-        var manipMgr = createZoomableCanvasObject(container, imageContainer, imageCanvas, 0, func);
-        container.data('zoomManager', manipMgr);
+        var manipMgr = createZoomableCanvasObject(container, imageContainer, imageCanvas, 10);
 
         container.bind('invalidate-size', function() {
-            var mgr = container.data('zoomManager');
-            mgr.recalculateAndRedraw();
+            manipMgr.resetCamera();
         });
         imageContainer.bind('onload load', function(){
             manipMgr.imageLoaded();
@@ -557,72 +586,8 @@
         container.bind('load-image', function(event){
             currentFileToRender = event.filename;
         });
+
         return imageCanvas;
-    }
-
-    // ------------------------------------------------------------------------
-
-    function createInteractiveImageViewer(container) {
-        var startPosition, dragging = false,
-        thetaValues = container.data('info').arguments.theta.values,
-        phiValues   = container.data('info').arguments.phi.values,
-        stepPhi    = phiValues[1] - phiValues[0];
-        stepTheta  = thetaValues[1] - thetaValues[0];
-        currentArgs = container.data('active-args'),
-        imageCanvas = createStaticImageViewer(container, function(drg, strt) {
-            dragging = drg;
-            startPosition = strt;
-        });
-
-        function getRelativeLocation(element, mouseEvent) {
-            var parentOffset = element.parent().offset();
-            var relX = mouseEvent.pageX - parentOffset.left;
-            var relY = mouseEvent.pageY - parentOffset.top;
-            return { 'x': relX, 'y': relY };
-        }
-
-        imageCanvas.bind('mousemove', function(event){
-            event.preventDefault();
-            if(dragging) {
-                currentPosition = getRelativeLocation(imageCanvas, event);
-                currentPhi = currentArgs.phi;
-                currentTheta = currentArgs.theta;
-                currentPhiIdx = phiValues.indexOf(currentPhi);
-                currentThetaIdx = thetaValues.indexOf(currentTheta);
-
-                deltaPhi = currentPosition.x - startPosition.x;
-                deltaTheta = currentPosition.y - startPosition.y;
-
-                changeDetected = false;
-                if(Math.abs(deltaPhi) > stepPhi) {
-                    changeDetected = true;
-                    currentPhiIdx += (deltaPhi > 0) ? 1 : -1;
-                    if(currentPhiIdx >= phiValues.length) {
-                        currentPhiIdx -= phiValues.length;
-                    } else if(currentPhiIdx < 0) {
-                        currentPhiIdx += phiValues.length;
-                    }
-                    currentArgs['phi'] = phiValues[currentPhiIdx];
-                }
-
-                if(Math.abs(deltaTheta) > stepTheta) {
-                    changeDetected = true;
-                    currentThetaIdx += (deltaTheta > 0) ? 1 : -1;
-                    if(currentThetaIdx >= thetaValues.length) {
-                        currentThetaIdx -= 1;
-                    } else if(currentThetaIdx < 0) {
-                        currentThetaIdx += 1;
-                    }
-                    currentArgs['theta'] = thetaValues[currentThetaIdx];
-                }
-
-                if(changeDetected) {
-                    startPosition = getRelativeLocation(imageCanvas, event);
-                    fireLoadImage(container);
-                    container.trigger('invalidate-viewport');
-                }
-            }
-        });
     }
 
     // ========================================================================
@@ -639,7 +604,7 @@
 
     $.fn.vtkCatalystViewer = function(dataBasePath, preload) {
         return this.each(function() {
-            var me = $(this).empty().addClass('vtk-catalyst-viewer').unbind();
+            var me = $(this).empty().addClass('vtk-catalyst-viewer small'); //.unbind();
 
             // Get meta-data
             $.ajax({
@@ -659,11 +624,7 @@
                     createControlPanel(me, data.arguments);
 
                     // Create interactive viewer
-                    if(data.arguments.hasOwnProperty('phi')) {
-                        createInteractiveImageViewer(me);
-                    } else {
-                        createStaticImageViewer(me, null);
-                    }
+                    createImageViewer(me);
 
                     // Load default image
                     fireLoadImage(me);
