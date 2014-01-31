@@ -75,6 +75,18 @@
         "rickshaw": [
         "ext/rickshaw/rickshaw.min.css",
         "ext/rickshaw/rickshaw.min.js"
+        ],
+        "widgets": [
+        "ext/pure/pure.min.js",
+        "ext/d3/d3.v2.js",
+        "ext/rickshaw/rickshaw.min.css",
+        "ext/rickshaw/rickshaw.min.js",
+        "ext/fontello/css/animation.css",
+        "ext/fontello/css/fontello.css",
+        "lib/widgets/FileBrowser/vtkweb-widget-filebrowser.tpl",
+        "lib/widgets/TreeWidget/vtkweb-widget-tree.tpl",
+        "lib/widgets/vtkweb-widgets-min.css",
+        "lib/widgets/vtkweb-widgets-min.js"
         ]
 
     },
@@ -184,7 +196,7 @@
     // If no modules have been defined, just pick the default
     // ---------------------------------------------------------------------
     if(modules.length == 0) {
-        modules = [ "all-min" ];
+        modules = [ "core-min" ];
     }
 
     // ---------------------------------------------------------------------
