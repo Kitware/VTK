@@ -192,9 +192,9 @@ function(vtk_add_test_python name)
       set(_V -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/${TName}.png,:}")
       set(_A -A ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py)
     endif()
-    if(NOT no_output)
-      set(_T -T ${VTK_TEST_OUTPUT_DIR})
-    endif()
+  endif()
+  if(NOT no_output)
+    set(_T -T ${VTK_TEST_OUTPUT_DIR})
   endif()
 
   ExternalData_add_test(VTKData
