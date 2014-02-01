@@ -77,6 +77,7 @@ vtk_add_test_python(voxelModel.py)
 vtk_add_test_python(TestBlendStencil.py)
 vtk_add_test_python(TestExtractVOI.py)
 vtk_add_test_python(TestImageWeightedSum.py)
+# vtk_add_test_python(WindowLevelInterface.py) # TCL test not being made as well !!!
 vtk_add_test_python(imageMCAll NO_RT)
 vtk_add_test_python(TestAllBlends NO_RT)
 vtk_add_test_python(TestAllBlendsFloat NO_RT)
