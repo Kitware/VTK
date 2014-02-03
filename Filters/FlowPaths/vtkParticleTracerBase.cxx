@@ -460,7 +460,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
           inp->ComputeBounds();
           inp->GetBounds(&bbox.b[0]);
           this->CachedBounds[T].push_back(bbox);
-          bool static_dataset = this->StaticMesh;
+          bool static_dataset = this->StaticMesh == 0 ? false : true;
           this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
           this->Interpolator->SetDataSetAtTime(index++, T, this->GetCacheDataTime(T), inp, static_dataset);
