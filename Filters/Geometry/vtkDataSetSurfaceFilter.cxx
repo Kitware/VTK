@@ -1079,6 +1079,23 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
     return 1;
     }
 
+  if (this->PassThroughCellIds)
+    {
+    this->OriginalCellIds = vtkIdTypeArray::New();
+    this->OriginalCellIds->SetName(this->GetOriginalCellIdsName());
+    this->OriginalCellIds->SetNumberOfComponents(1);
+    this->OriginalCellIds->Allocate(numCells);
+    outputCD->AddArray(this->OriginalCellIds);
+    }
+  if (this->PassThroughPointIds)
+    {
+    this->OriginalPointIds = vtkIdTypeArray::New();
+    this->OriginalPointIds->SetName(this->GetOriginalPointIdsName());
+    this->OriginalPointIds->SetNumberOfComponents(1);
+    this->OriginalPointIds->Allocate(numPts);
+    outputPD->AddArray(this->OriginalPointIds);
+    }
+
   vtkStructuredGrid *sgridInput = vtkStructuredGrid::SafeDownCast(input);
   bool mayBlank = sgridInput && sgridInput->GetCellBlanking();
 
@@ -1190,6 +1207,16 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   cell->Delete();
   output->SetPoints(newPts);
   newPts->Delete();
+  if (this->OriginalCellIds)
+    {
+    this->OriginalCellIds->Delete();
+    this->OriginalCellIds = NULL;
+    }
+  if (this->OriginalPointIds)
+    {
+    this->OriginalPointIds->Delete();
+    this->OriginalPointIds = NULL;
+    }
 
   //free storage
   output->Squeeze();
