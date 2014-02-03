@@ -6,6 +6,7 @@ vtk_add_test_cxx(NO_VALID
   TestNewickTreeReader.cxx
   TestNewickTreeWriter.cxx
   TestMultiNewickTreeReader.cxx
+  TestPhyloXMLTreeWriter.cxx
   TestRISReader.cxx
   TestTulipReaderProperties.cxx
   TestDelimitedTextReader2.cxx

@@ -300,9 +300,9 @@ protected:
 
   // Utility methods for subclasses.
   vtkDataSet* GetInputAsDataSet();
-  int StartFile();
+  virtual int StartFile();
   virtual void WriteFileAttributes();
-  int EndFile();
+  virtual int EndFile();
   void DeleteAFile();
   void DeleteAFile(const char* name);
 
