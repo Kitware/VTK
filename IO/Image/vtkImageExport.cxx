@@ -362,9 +362,19 @@ int vtkImageExport::PipelineModifiedCallback()
     return 0;
     }
 
-  unsigned long mtime =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      this->GetInputAlgorithm()->GetExecutive())->GetPipelineMTime();
+  unsigned long mtime = 0;
+  if (this->GetInputAlgorithm())
+    {
+    vtkExecutive* e = this->GetInputAlgorithm()->GetExecutive();
+    if (e)
+      {
+      e->ComputePipelineMTime(NULL,
+                             e->GetInputInformation(),
+                             e->GetOutputInformation(),
+                             -1, &mtime);
+      }
+    }
+
   if(mtime > this->LastPipelineMTime)
     {
     this->LastPipelineMTime = mtime;
@@ -390,20 +400,28 @@ int* vtkImageExport::WholeExtentCallback()
 double* vtkImageExport::SpacingCallback()
 {
   static double defaultspacing[6] = {0.0,0.0,0.0};
-  if (!this->GetInput())
+  if (this->GetInputAlgorithm())
+    {
+    return this->GetDataSpacing();
+    }
+  else if (!this->GetInput())
     {
     return defaultspacing;
     }
   else
     {
-  return this->GetInput()->GetSpacing();
+    return this->GetInput()->GetSpacing();
     }
 }
 
 double* vtkImageExport::OriginCallback()
 {
   static double defaultorigin[3] = {0.0,0.0,0.0};
-  if (!this->GetInput())
+  if (this->GetInputAlgorithm())
+    {
+    return this->GetDataOrigin();
+    }
+  else if (!this->GetInput())
     {
     return defaultorigin;
     }
@@ -420,7 +438,17 @@ const char* vtkImageExport::ScalarTypeCallback()
     return "unsigned char";
     }
 
-  switch (this->GetInput()->GetScalarType())
+  int scalarType;
+  if (this->GetInputAlgorithm())
+    {
+    scalarType = this->GetDataScalarType();
+    }
+  else
+    {
+    scalarType = this->GetInput()->GetScalarType();
+    }
+
+  switch (scalarType)
     {
     case VTK_DOUBLE:
       { return "double"; }
@@ -455,6 +483,10 @@ int vtkImageExport::NumberOfComponentsCallback()
     {
     return 1;
     }
+  else if (this->GetInputAlgorithm())
+    {
+    return this->GetDataNumberOfScalarComponents();
+    }
   else
     {
     return this->GetInput()->GetNumberOfScalarComponents();
@@ -482,6 +514,10 @@ void vtkImageExport::UpdateDataCallback()
 int* vtkImageExport::DataExtentCallback()
 {
   static int defaultextent[6] = {0,0,0,0,0,0};
+  if (this->GetInputAlgorithm())
+    {
+    return this->GetDataExtent();
+    }
   if (!this->GetInput())
     {
     return defaultextent;
