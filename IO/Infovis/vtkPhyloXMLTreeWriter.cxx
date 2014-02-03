@@ -137,7 +137,7 @@ void vtkPhyloXMLTreeWriter::ConvertVertexToXML(vtkTree* const input,
       {
       vtkNew<vtkXMLDataElement> nameElement;
       nameElement->SetName("name");
-      nameElement->SetCharacterData(name, name.length());
+      nameElement->SetCharacterData(name, static_cast<int>(name.length()));
       cladeElement->AddNestedElement(nameElement.GetPointer());
       }
     }
@@ -166,7 +166,7 @@ void vtkPhyloXMLTreeWriter::ConvertVertexToXML(vtkTree* const input,
     propertyElement->SetAttribute("datatype", type.c_str());
     propertyElement->SetAttribute("ref", arrName.c_str());
     propertyElement->SetAttribute("applies_to", "clade");
-    propertyElement->SetCharacterData(val, val.length());
+    propertyElement->SetCharacterData(val, static_cast<int>(val.length()));
 
     cladeElement->AddNestedElement(propertyElement.GetPointer());
     }
