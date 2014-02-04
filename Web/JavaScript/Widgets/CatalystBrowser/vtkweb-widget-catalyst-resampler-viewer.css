@@ -1,0 +1,17 @@
+.vtk-catalyst-resample-viewer .toolbar .label {
+    margin-left: 5px;
+    margin-right: 5px;
+    display: inline-block;
+}
+
+.vtk-catalyst-resample-viewer .toolbar input {
+    position: relative;
+    top: 6px;
+    width: 100px;
+}
+.vtk-catalyst-resample-viewer .toolbar select {
+    position: relative;
+    top: -1px;
+    margin-left: 5px;
+    /*width: 100px;*/
+}
