@@ -6,7 +6,7 @@ vtk_add_test_mpi(TransmitImageData.cxx TESTING_DATA)
 vtk_add_test_mpi(TransmitImageDataRenderPass.cxx TESTING_DATA)
 vtk_add_test_mpi(TransmitRectilinearGrid.cxx TESTING_DATA)
 vtk_add_test_mpi(TransmitStructuredGrid.cxx TESTING_DATA)
-vtk_add_test_mpi(ParallelResampling.cxx TESTING_DATA)
+vtk_add_test_mpi(ParallelResampling.cxx)
 
 vtk_mpi_link(TransmitImageData)
 vtk_mpi_link(TransmitImageDataRenderPass)
