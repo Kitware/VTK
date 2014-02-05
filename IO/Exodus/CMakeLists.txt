@@ -7,7 +7,6 @@ set(Module_SRCS
   vtkExodusIIReader.cxx
   vtkExodusIIReaderParser.cxx
   vtkExodusIIReaderVariableCheck.cxx
-  vtkExodusModel.cxx
   vtkExodusIIWriter.cxx
   vtkModelMetadata.cxx
   )

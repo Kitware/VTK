@@ -16,6 +16,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkModelMetaData.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -89,6 +90,8 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
   writer->WriteOutGlobalElementIdArrayOn ();
   writer->WriteAllTimeStepsOn ();
   writer->Update ();
+
+  writer->GetModelMetadata()->PrintLocalInformation();
 
   VTK_CREATE (vtkExodusIIReader, outputReader);
   if (!outputReader->CanReadFile (OutputFile))

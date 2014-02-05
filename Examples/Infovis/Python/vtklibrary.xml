@@ -794,8 +794,6 @@
     </node>
     <node id="vtkExodusIICache">
     </node>
-    <node id="vtkExodusModel">
-    </node>
     <node id="vtkRIBExporter">
     </node>
     <node id="vtkX3DExporter">
