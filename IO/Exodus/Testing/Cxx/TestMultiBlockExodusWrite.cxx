@@ -16,7 +16,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
-#include "vtkModelMetaData.h"
+#include "vtkModelMetadata.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
