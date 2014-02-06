@@ -10,6 +10,7 @@ Usage:
 
 import sys
 import subprocess
+import time
 
 # Extract arguments for each process to execute.
 command_lists = []
@@ -24,9 +25,11 @@ if prev <= len(sys.argv):
 
 procs = []
 for cmdlist in command_lists:
-    print "Executing '", " ".join(cmdlist), "'"
+    print >> sys.stderr, "Executing '", " ".join(cmdlist), "'"
     proc = subprocess.Popen(cmdlist)
     procs.append(proc)
+    # sleep to ensure that the process starts.
+    time.sleep(0.1)
 
 # Now wait for each of the processes to terminate.
 # If ctest times out, it will kill this process and all subprocesses will be
@@ -36,6 +39,6 @@ for proc in procs:
 
 for proc in procs:
     if proc.returncode != 0:
-        print "ERROR: A process exited with error. Test will fail."
+        print >> sys.stderr, "ERROR: A process exited with error. Test will fail."
         sys.exit(1) # error
 print "All's well!"
