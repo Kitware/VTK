@@ -412,6 +412,8 @@ private:
   bool RetryWithPush(
     vtkParticleTracerBaseNamespace::ParticleInformation &info, double* point1,double delT, int subSteps);
 
+  bool SetTerminationTimeNoModify(double t);
+
   //Parameters of tracing
   vtkInitialValueProblemSolver* Integrator;
   double IntegrationStep;
