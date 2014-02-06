@@ -42,7 +42,6 @@ class vtkDataArray;
 class vtkDataSet;
 class vtkExodusIICache;
 class vtkExodusIIReaderPrivate;
-class vtkExodusModel;
 class vtkFloatArray;
 class vtkGraph;
 class vtkIntArray;
@@ -409,20 +408,6 @@ public:
   vtkGetMacro(DisplayType,int);
   virtual void SetDisplayType(int type);
 
-  // Description:
-  //   There is a great deal of model information lost when an Exodus II
-  //   file is read in to a vtkMultiBlockDataSet.  Turn this option ON
-  //   if you want this metadata to be read in to a vtkExodusModel object.
-  //   The default is OFF.
-
-  vtkBooleanMacro(ExodusModelMetadata, int);
-  vtkSetMacro(ExodusModelMetadata, int);
-  vtkGetMacro(ExodusModelMetadata, int);
-
-  // Description:
-  //   Returns the object which encapsulates the model metadata.
-  vtkGetObjectMacro(ExodusModel,vtkExodusModel);
-
   // Descriptions:
   // return boolean indicating whether the type,name is a valid variable
   int IsValidVariable( const char *type, const char *name );
@@ -708,10 +693,6 @@ protected:
   vtkExodusIIReader();
   ~vtkExodusIIReader();
 
-  // Description:
-  // Reset or create an ExodusModel and turn on arrays that must be present for the ExodusIIWriter
-  virtual void NewExodusModel();
-
   // helper for finding IDs
   static int GetIDHelper ( const char *arrayName, vtkDataSet *data, int localID, int searchType );
   static int GetGlobalID( const char *arrayName, vtkDataSet *data, int localID, int searchType );
@@ -737,8 +718,6 @@ protected:
   // Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
   void AdvertiseTimeSteps( vtkInformation* outputInfo );
 
-  virtual void SetExodusModel( vtkExodusModel* em );
-
   int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -761,10 +740,6 @@ protected:
 
   // Metadata containing a description of the currently open file.
   vtkExodusIIReaderPrivate* Metadata;
-
-  vtkExodusModel *ExodusModel;
-  // int PackExodusModelOntoOutput;
-  int ExodusModelMetadata;
 
   int SILUpdateStamp;
 private:

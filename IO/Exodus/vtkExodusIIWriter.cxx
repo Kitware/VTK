@@ -309,12 +309,6 @@ void vtkExodusIIWriter::WriteData ()
       return;
       }
 
-    if (!this->WriteQARecords ())
-      {
-      vtkErrorMacro("vtkExodusIIWriter::WriteData QA records");
-      return;
-      }
-
     if (!this->WriteInformationRecords())
       {
       vtkErrorMacro("vtkExodusIIWriter::WriteData information records");
@@ -1464,33 +1458,6 @@ int vtkExodusIIWriter::WriteInitializationParameters()
   int rc = ex_put_init(this->fid, title, dim, this->NumPoints, this->NumCells,
                        numBlocks, nnsets, nssets);
   return rc >= 0;
-}
-//
-//---------------------------------------------------------
-// Initialization, QA, Title, information records
-//---------------------------------------------------------
-int vtkExodusIIWriter::WriteQARecords()
-{
-  vtkModelMetadata *em = this->GetModelMetadata();
-
-  int nrecs = em->GetNumberOfQARecords();
-
-  if (nrecs > 0)
-    {
-    typedef char *p4[4];
-
-    p4 *qarecs = new p4 [nrecs];
-
-    for (int i=0; i<nrecs; i++)
-      {
-      em->GetQARecord(i, &qarecs[i][0], &qarecs[i][1], &qarecs[i][2], &qarecs[i][3]);
-      }
-    ex_put_qa(this->fid, nrecs, qarecs);
-
-    delete [] qarecs;
-    }
-
-  return 1;
 }
 
 //----------------------------------------------------------------------------

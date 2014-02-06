@@ -23,7 +23,6 @@
 #include "vtkCellType.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExodusModel.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -3369,9 +3368,6 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "DisplayType: " << this->DisplayType << "\n";
   os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
-  os << indent << "ExodusModelMetadata: " << (this->ExodusModelMetadata ? "ON" : "OFF" ) << "\n";
-  // os << indent << "PackExodusModelOntoOutput: " << (this->PackExodusModelOntoOutput ? "ON" : "OFF" ) << "\n";
-  os << indent << "ExodusModel: " << this->ExodusModel << "\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
   if ( this->Metadata )
     {
@@ -4881,7 +4877,6 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
-vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
 
 vtkExodusIIReader::vtkExodusIIReader()
 {
@@ -4893,9 +4888,6 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->TimeStep = 0;
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
-  this->ExodusModelMetadata = 0;
-  // this->PackExodusModelOntoOutput = 1;
-  this->ExodusModel = 0;
   this->DisplayType = 0;
   this->SILUpdateStamp = -1;
 
@@ -4908,7 +4900,7 @@ vtkExodusIIReader::~vtkExodusIIReader()
   this->SetFileName( 0 );
 
   this->SetMetadata( 0 );
-  this->SetExodusModel( 0 );
+  //this->SetExodusModel( 0 );
 }
 
 // Normally, vtkExodusIIReader::PrintSelf would be here.
@@ -5965,22 +5957,6 @@ void vtkExodusIIReader::SetAllArrayStatus( int otyp, int status )
     ;
     break;
     }
-}
-
-void vtkExodusIIReader::NewExodusModel()
-{
-  // These arrays are required by the Exodus II writer:
-  this->GenerateGlobalElementIdArrayOn();
-  this->GenerateGlobalNodeIdArrayOn();
-  this->GenerateObjectIdCellArrayOn();
-
-  if ( this->ExodusModel )
-    {
-    this->ExodusModel->Reset();
-    return;
-    }
-
-  this->ExodusModel = vtkExodusModel::New();
 }
 
 void vtkExodusIIReader::Dump()

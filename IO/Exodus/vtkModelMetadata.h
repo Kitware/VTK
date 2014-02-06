@@ -129,21 +129,6 @@ public:
     return this->NumberOfInformationLines;}
 
   // Description:
-  //   Set the list of QA records.  If there was already a
-  //   a list, it will be replaced with this one.  We use your
-  //   pointer and delete the records when done.
-  void SetQARecords(int numberOfRecords, char *QARecords[][4]);
-
-  // Description:
-  //   Get a pointer to the 4 fields of a QA record
-  void GetQARecord(int which, char **name, char **version,
-                   char **date, char **time) const;
-
-  // Description:
-  //   Get the number of QA records
-  int GetNumberOfQARecords() const {return this->NumberOfQARecords;}
-
-  // Description:
   //    Set the index of the time step represented by the results
   //    data in the file attached to this ModelMetadata object.  Time
   //    step indices start at 0 in this file, they start at 1 in
@@ -262,7 +247,6 @@ public:
   // Description:
   //   Set or get a pointer to a list of the number of nodes in each node set.
   //   We use your pointer, and free the memory when the object is freed.
-  int SetNodeSetSize(int *);
   int *GetNodeSetSize() const {return this->NodeSetSize;}
 
   // Description:
@@ -279,7 +263,6 @@ public:
   //   nodes in the node set.
   //   Length of list is number of node sets.
   //   We use your pointer, and free the memory when the object is freed.
-  int SetNodeSetNumberOfDistributionFactors(int *);
   int *GetNodeSetNumberOfDistributionFactors() const
     {return this->NodeSetNumberOfDistributionFactors;}
 
@@ -555,26 +538,6 @@ public:
     return this->MapToOriginalNodeVariableNames;}
 
   // Description:
-  //   In order to write Exodus files from vtkUnstructuredGrid
-  //   objects that were read from Exodus files, we need to know
-  //   the mapping from variable names in the UGrid to variable
-  //   names in the Exodus file.  (The Exodus reader combines
-  //   scalar variables with similar names into vectors in the
-  //   UGrid.)  When building the UGrid to which this
-  //   ModelMetadata refers, add each element and node variable
-  //   name with this call, including the name of original variable
-  //   that yielded it's first component, and the number of components.
-  //   If a variable is removed from the UGrid, remove it from
-  //   the ModelMetadata.  (If this information is missing or
-  //   incomplete, the ExodusIIWriter can still do something
-  //   sensible in creating names for variables.)
-  int AddUGridElementVariable(char *ugridVarName, char *origName, int numComponents);
-  int RemoveUGridElementVariable(char *ugridVarName);
-
-  int AddUGridNodeVariable(char *ugridVarName, char *origName, int numComponents);
-  int RemoveUGridNodeVariable(char *ugridVarName);
-
-  // Description:
   //   Free selected portions of the metadata when updating values
   //   in the vtkModelMetadata object.  Resetting a particular field,
   //   (i.e. SetNodeSetIds) frees the previous setting, but if you
@@ -601,11 +564,6 @@ public:
   //   Set the object back to it's initial state
   void Reset();
 
-  // Description:
-  //   Block information is stored in arrays.  This method returns
-  //   the array index for a given block ID.
-  int GetBlockLocalIndex(int id);
-
 protected:
   vtkModelMetadata();
   ~vtkModelMetadata();
@@ -617,36 +575,13 @@ private:
   void FreeAllMetadata();
   void FreeAllIvars();
 
-  void FreeQARecords();
-
   int BuildBlockElementIdListIndex();
   int BuildBlockAttributesIndex();
-  int BuildNodeSetNodeIdListIndex();
-  int BuildNodeSetDistributionFactorIndex();
-  int BuildSideSetListIndex();
   int BuildSideSetDistributionFactorIndex();
 
   static char *StrDupWithNew(const char *s);
 
   static int FindNameOnList(char *name, char **list, int listLen);
-
-  int MergeIdLists(int numSubLists,
-    int *id1, int *id1Idx, int id1Len,
-      float *dist1, int *dist1Idx, int dist1Len,
-    int *id2, int *id2Idx, int id2Len,
-      float *dist2, int *dist2Idx, int dist2Len,
-    int **idNew, int **idNewIdx, int *idNewLen,
-      float **distNew, int **distNewIdx, int *distNewLen);
-
-  int AppendFloatLists(int numSubLists,
-    float *id1, int *id1Idx, int id1Len,
-    float *id2, int *id2Idx, int id2Len,
-    float **idNew, int **idNewIdx, int *idNewLen);
-
-  int AppendIntegerLists(int numSubLists,
-    int *id1, int *id1Idx, int id1Len,
-    int *id2, int *id2Idx, int id2Len,
-    int **idNew, int **idNewIdx, int *idNewLen);
 
   void ShowFloats(const char *what, int num, float *f);
   void ShowLines(const char *what, int num, char **l);
@@ -675,11 +610,6 @@ private:
   //        in a file of a partitioned set, or are read in from file)
 
   char *Title;                 // (G)
-
-  int NumberOfQARecords;       // (G)
-//BTX
-  char *(*QARecord)[4];        // NumberOfQARecords * 4 (G)
-//ETX
 
   int NumberOfInformationLines; // (G)
   char **InformationLine;       // (G)

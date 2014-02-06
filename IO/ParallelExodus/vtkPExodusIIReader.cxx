@@ -30,7 +30,6 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkPointData.h"
-#include "vtkExodusModel.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
@@ -303,8 +302,8 @@ int vtkPExodusIIReader::RequestInformation(
         }
       }
 
-    int mmd = this->ExodusModelMetadata;
-    this->ExodusModelMetadata = 0;
+    // int mmd = this->ExodusModelMetadata;
+    // this->ExodusModelMetadata = 0;
     //this->SetExodusModelMetadata( 0 );    // turn off for now // XXX Bad set
 
     /*
@@ -326,7 +325,7 @@ int vtkPExodusIIReader::RequestInformation(
       }
 
     //this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData // XXX Bad set
-    this->ExodusModelMetadata = mmd;
+    // this->ExodusModelMetadata = mmd;
     }
   if ( this->ProcSize > 1 )
     {
@@ -462,10 +461,12 @@ int vtkPExodusIIReader::RequestData(
     vtkSmartPointer<vtkAppendCompositeDataLeaves>::New();
   append->AppendFieldDataOn();
 
+  /*
   if ( this->ExodusModelMetadata )
     {
     this->NewExodusModel();
     }
+  */
 
   if ( ReaderList.size() < numMyFiles )
     {
@@ -602,7 +603,7 @@ int vtkPExodusIIReader::RequestData(
     this->ReaderList[reader_idx]->SetHasModeShapes( this->GetHasModeShapes() );
     this->ReaderList[reader_idx]->SetAnimateModeShapes( this->GetAnimateModeShapes() );
 
-    this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
+    //this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
     // For now, this *must* come last before the UpdateInformation() call because its MTime is compared to the metadata's MTime,
     // which is modified by the calls above.
     this->ReaderList[reader_idx]->SetFileName( this->MultiFileName );

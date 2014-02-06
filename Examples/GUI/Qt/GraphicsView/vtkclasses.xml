@@ -2166,8 +2166,6 @@
       </class>
       <class id="vtkExodusIICache" library="Hybrid">
       </class>
-      <class id="vtkExodusModel" library="Hybrid">
-      </class>
       <class id="vtkBase64Utilities" library="IO">
       </class>
       <class id="vtkDataCompressor" library="IO">

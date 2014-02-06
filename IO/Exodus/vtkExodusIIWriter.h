@@ -314,7 +314,6 @@ protected:
   vtkIdType GetElementLocalId(vtkIdType id);
 
   int WriteInitializationParameters ();
-  int WriteQARecords ();
   int WriteInformationRecords ();
   int WritePoints ();
   int WriteCoordinateNames ();

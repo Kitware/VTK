@@ -28,7 +28,6 @@ int TestExodusSideSets(int argc, char* argv[])
 
   rdr->GenerateGlobalNodeIdArrayOn();
   rdr->GenerateGlobalElementIdArrayOn();
-  rdr->ExodusModelMetadataOn();
   rdr->UpdateInformation();
 
   for(int i=0;i<rdr->GetNumberOfObjects(vtkExodusIIReader::ELEM_BLOCK);i++)
