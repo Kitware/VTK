@@ -997,8 +997,8 @@ vtkStreamingDemandDrivenPipeline
     if (!this->ContinueExecuting)
       {
       this->ContinueExecuting = 1;
+      this->Update(request->Get(FROM_OUTPUT_PORT()));
       }
-    this->Update(request->Get(FROM_OUTPUT_PORT()));
     }
   else
     {
