@@ -32,32 +32,35 @@ writer.Write()
 
 # Try to load JSON file and compare with dumped data
 print "Writing file:", tmp_file
-with open(tmp_file, "r") as json_file:
-    json_obj = json.load(json_file)
-    slice = json_obj['RTData']
-    if json_obj["dimensions"] != dim_ref:
-        print "Dimension ERROR"
+json_file = open(tmp_file, "r")
+json_obj = json.load(json_file)
+json_file.close()
+
+slice = json_obj['RTData']
+if json_obj["dimensions"] != dim_ref:
+    print "Dimension ERROR"
+    sys.exit(1)
+else:
+    print "Dimension OK"
+if json_obj["origin"] != origin_ref:
+    print "Origin ERROR"
+    sys.exit(1)
+else:
+    print "Origin OK"
+if json_obj["spacing"] != spacing_ref:
+    print "Spacing ERROR"
+    sys.exit(1)
+else:
+    print "Spacing OK"
+if len(slice) == 441:
+    print "Slice size OK"
+else:
+    print "Slice size ERROR - Size of ", str(len(slice))
+    sys.exit(1)
+
+for i in range(len(expected_first_values)):
+    if expected_first_values[i] != slice[i]:
         sys.exit(1)
-    else:
-        print "Dimension OK"
-    if json_obj["origin"] != origin_ref:
-        print "Origin ERROR"
-        sys.exit(1)
-    else:
-        print "Origin OK"
-    if json_obj["spacing"] != spacing_ref:
-        print "Spacing ERROR"
-        sys.exit(1)
-    else:
-        print "Spacing OK"
-    if len(slice) == 441:
-        print "Slice size OK"
-    else:
-        print "Slice size ERROR - Size of ", str(len(slice))
-        sys.exit(1)
-    for i in range(len(expected_first_values)):
-        if expected_first_values[i] != slice[i]:
-            sys.exit(1)
 
 print "All good..."
 sys.exit()
