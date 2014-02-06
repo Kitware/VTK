@@ -18,7 +18,7 @@
 //
 //
 // .SECTION See Also
-// vtkStreaklineFilterBase has the details of the algorithms
+// vtkParticleTracerBase has the details of the algorithms
 
 
 #ifndef __vtkStreaklineFilter_h
