@@ -85,6 +85,12 @@ public:
   vtkSetMacro(ResampleFactor, int);
   vtkGetMacro(ResampleFactor, int);
 
+  // Description:
+  // Controls whether input data is cached to avoid updating input
+  // when multiple interpolations are asked between 2 time steps.
+  vtkSetMacro(CacheData, bool);
+  vtkGetMacro(CacheData, bool);
+
 protected:
   vtkTemporalInterpolator();
   ~vtkTemporalInterpolator();

@@ -46,6 +46,8 @@ vtkTemporalInterpolator::vtkTemporalInterpolator()
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 
+  this->CacheData = true;
+  this->NumberOfCacheEntries = 2;
 }
 
 //----------------------------------------------------------------------------
