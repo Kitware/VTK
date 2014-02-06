@@ -26,6 +26,7 @@ vtk_add_test_cxx(
   TestHandleWidget.cxx
   TestHandleWidget2D.cxx
   # TestImageActorContourWidget.cxx # todo(unsatistfied deps)
+  TestImageCroppingRegionsWidget.cxx
   TestImageTracerWidget.cxx
   TestImplicitPlaneWidget.cxx
   TestImplicitPlaneWidget2.cxx
