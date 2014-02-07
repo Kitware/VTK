@@ -181,6 +181,7 @@ vtkXdmfWriter::vtkXdmfWriter()
   this->CurrentTimeIndex = 0;
   this->TopTemporalGrid = NULL;
   this->DomainMemoryHandler = NULL;
+  this->SetNumberOfOutputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -411,33 +412,33 @@ int vtkXdmfWriter::RequestData(
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, XdmfGrid *grid)
 {
   //TODO:
   // respect parallelism
   if (!dobj)
     {
     //cerr << "Null DS, someone else will take care of it" << endl;
-    return;
+    return 0;
     }
   if (!grid)
     {
     cerr << "Something is wrong, grid should have already been created for " << dobj << endl;
-    return;
+    return 0;
     }
 
   vtkCompositeDataSet *cdobj = vtkCompositeDataSet::SafeDownCast(dobj);
   if (cdobj)//!dobj->IsTypeOf("vtkCompositeDataSet")) //TODO: Why doesn't IsTypeOf work?
     {
     this->WriteCompositeDataSet(cdobj, grid);
-    return;
+    return 1;
     }
 
-  this->WriteAtomicDataSet(dobj, grid);
+  return this->WriteAtomicDataSet(dobj, grid);
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *grid)
 {
   //cerr << "internal node " << dobj << " is a " << dobj->GetClassName() << endl;
   if (dobj->IsA("vtkMultiPieceDataSet"))
@@ -471,18 +472,20 @@ void vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *g
     {
     XdmfGrid *childsGrid = new XdmfGrid();
     childsGrid->SetDeleteOnGridDelete(true);
-    grid->Insert(childsGrid);
     vtkDataObject* ds = iter->GetCurrentDataObject();
-    this->WriteDataSet(ds, childsGrid);
+    if (this->WriteDataSet(ds, childsGrid))
+      {
+      grid->Insert(childsGrid);
+      }
     //delete childsGrid; //parent deletes children in Xdmf
     iter->GoToNextItem();
     }
   iter->Delete();
 
-  return;
+  return 1;
 }
 //------------------------------------------------------------------------------
-void vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata)
+int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata)
 {
   //cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
 
@@ -849,10 +852,12 @@ void vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDi
     t->SetTopologyType(XDMF_NOTOPOLOGY);
     cerr << "Unrecognized dataset type" << endl;
   }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticdata)
+int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticdata)
 {
   //Geometry
   XdmfGeometry *geo = grid->GetGeometry();
@@ -879,7 +884,7 @@ void vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticd
       XdmfXmlNode staticGeom = staticnode->DOM->FindElement("Geometry", 0, staticnode->node);
       XdmfConstString text = staticnode->DOM->Serialize(staticGeom->children);
       geo->SetDataXml(text);
-      return;
+      return 1;
     }
   }
 
@@ -933,6 +938,10 @@ void vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticd
     geo->SetGeometryType(XDMF_GEOMETRY_XYZ);
     vtkPointSet *pset = vtkPointSet::SafeDownCast(ds);
     vtkPoints *pts = pset->GetPoints();
+    if (!pts)
+      {
+      return 0;
+      }
     vtkDataArray *da = pts->GetData();
     XdmfArray *xda = geo->GetPoints();
     vtkIdType shape[2];
@@ -946,9 +955,11 @@ void vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticd
     //TODO: Support non-canonical vtkDataSets (via a callout for extensibility)
     cerr << "Unrecognized dataset type" << endl;
   }
+
+  return 1;
 }
 //------------------------------------------------------------------------------
-void vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
 {
   cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
   vtkDataSet *ds = vtkDataSet::SafeDownCast(dobj);
@@ -956,7 +967,7 @@ void vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
     {
     //TODO: Fill in non Vis data types
     cerr << "Can not convert " << dobj->GetClassName() << " to XDMF yet." << endl;
-    return;
+    return 0;
     }
 
   //Attributes
@@ -968,16 +979,21 @@ void vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
   vtkIdType PDims[3];
 
   this->CreateTopology(ds, grid, PDims, CDims, PRank, CRank, NULL);
-  this->CreateGeometry(ds, grid, NULL);
+  if (!this->CreateGeometry(ds, grid, NULL))
+    {
+    return 0;
+    }
 
   FDims[0] = ds->GetFieldData()->GetNumberOfTuples();
   this->WriteArrays(ds->GetFieldData(),grid,XDMF_ATTRIBUTE_CENTER_GRID, FRank, FDims, "Field");
   this->WriteArrays(ds->GetCellData(), grid,XDMF_ATTRIBUTE_CENTER_CELL, CRank, CDims, "Cell");
   this->WriteArrays(ds->GetPointData(),grid,XDMF_ATTRIBUTE_CENTER_NODE, PRank, PDims, "Node");
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkXdmfWriter::WriteArrays(vtkFieldData* fd, XdmfGrid *grid, int association,
+int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, XdmfGrid *grid, int association,
                                  vtkIdType rank, vtkIdType *dims, const char *name)
 {
   if (fd)
@@ -1081,6 +1097,8 @@ void vtkXdmfWriter::WriteArrays(vtkFieldData* fd, XdmfGrid *grid, int associatio
       grid->Insert(attr);
       }
     }
+
+  return 1;
 }
 
 //------------------------------------------------------------------------------
