@@ -82,6 +82,7 @@ int TestTemporalCacheTemporal(int , char *[])
     vtkSmartPointer<vtkTemporalInterpolator>::New();
   //interp->SetInputConnection(fractal->GetOutputPort());
   interp->SetInputConnection(cache->GetOutputPort());
+  interp->SetCacheData(false);
 
   // cache the data coming out of the interpolator
   vtkSmartPointer<vtkTemporalDataSetCache> cache2 =
