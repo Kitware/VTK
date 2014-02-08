@@ -659,7 +659,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       strncmp(line, "g_bar3", 6) == 0)
       {
       vtkDebugMacro("bar3");
-      vtkWarningMacro("Only vertex nodes of this element will be read.");
 
       this->ReadInt(&numElements);
       if (numElements < 0 || numElements*this->SizeOfInt > this->FileSize ||
@@ -675,7 +674,7 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         }
 
       // Skip nodeIdList.
-      this->IFile->seekg(sizeof(int)*2*numElements, ios::cur);
+      this->IFile->seekg(sizeof(int)*3*numElements, ios::cur);
       }
     else if (strncmp(line, "nsided", 6) == 0 ||
       strncmp(line, "g_nsided", 8) == 0)
@@ -717,7 +716,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         strncmp(line, "g_tria6", 7) == 0)
         {
         vtkDebugMacro("tria6");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TRIA6;
         }
       else
@@ -758,7 +756,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         strncmp(line, "g_quad8", 7) == 0)
         {
         vtkDebugMacro("quad8");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::QUAD8;
         }
       else
@@ -837,7 +834,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         strncmp(line, "g_tetra10", 9) == 0)
         {
         vtkDebugMacro("tetra10");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::TETRA10;
         }
       else
@@ -878,7 +874,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         strncmp(line, "g_pyramid13", 11) == 0)
         {
         vtkDebugMacro("pyramid13");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::PYRAMID13;
         }
       else
@@ -919,7 +914,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         strncmp(line, "g_hexa20", 8) == 0)
         {
         vtkDebugMacro("hexa20");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::HEXA20;
         }
       else
@@ -960,7 +954,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
         strncmp(line, "g_penta15", 9) == 0)
         {
         vtkDebugMacro("penta15");
-        vtkWarningMacro("Only vertex nodes of this element will be read.");
         cellType = vtkEnSightReader::PENTA15;
         }
       else
