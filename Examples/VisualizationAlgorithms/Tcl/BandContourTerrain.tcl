@@ -143,3 +143,4 @@ renWin AddObserver AbortCheckEvent {TkCheckAbort}
 renWin Render
 
 wm withdraw .
+iren Start

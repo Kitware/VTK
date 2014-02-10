@@ -208,7 +208,6 @@ vtkAxesActor axes
   marker SetOutlineColor 0.93 0.57 0.13
   marker SetOrientationMarker assembly
   marker SetViewport 0.0 0.0 0.15 0.3
-
 # Add the actors.
 #
   ren1 AddActor outlineActor
@@ -336,9 +335,13 @@ spline SetPlaneSource [ ipw GetPolyDataAlgorithm ]
 spline SetProjectionNormal 3
 spline On
 
-marker SetInteractor $iact
-marker SetEnabled 1
-marker InteractiveOff
+# The marker must be linked to the interactor after the $render_widget is mapped
+
+bind $render_widget <Map> [string map "%IA %iact" {
+  marker SetInteractor $iact
+  marker SetEnabled 1
+  marker InteractiveOff
+}]
 
 # Create an initial interesting view
 #

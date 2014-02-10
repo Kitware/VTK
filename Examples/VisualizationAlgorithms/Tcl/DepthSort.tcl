@@ -93,3 +93,4 @@ renWin Render
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+iren Start

@@ -193,4 +193,4 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 # Interact with data. The Tcl/Tk event loop is started automatically.
 iren Initialize
 wm withdraw .
-
+iren Start

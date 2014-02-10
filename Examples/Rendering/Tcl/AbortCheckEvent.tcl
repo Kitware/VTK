@@ -51,3 +51,4 @@ renWin AddObserver AbortCheckEvent TkCheckAbort
 
 # Prevent the tk window from appearing; start the event loop
 wm withdraw .
+iren Start

@@ -201,3 +201,4 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 # Withdraw the default tk window.
 wm withdraw .
 
+iren Start

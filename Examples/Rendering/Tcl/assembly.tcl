@@ -90,5 +90,5 @@ renWin Render
 
 # Withdraw the default tk window
 wm withdraw .
-
+iren Start
 

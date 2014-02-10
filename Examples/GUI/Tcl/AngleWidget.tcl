@@ -147,6 +147,9 @@ vtkAngleWidget widget
   iren AddObserver UserEvent {wm deiconify .vtkInteract}
   iren Initialize
 
+# prevent the tk window from showing up then start the event loop
+wm withdraw .
+
 # The widget starts out in an undefined state: the first mouse click defines
 # the end of one of the rays, the second mouse click defines the location of
 # the center, and the last mouse click defines the end of the other ray. Once
@@ -154,8 +157,5 @@ vtkAngleWidget widget
 # the center point.  Pressing 'i' will toggle the widget off/on and the
 # widget representation (i.e., point positions) will be preserved.
 #
-  widget On
 
-# prevent the tk window from showing up then start the event loop
-  wm withdraw .
-
+iren Start

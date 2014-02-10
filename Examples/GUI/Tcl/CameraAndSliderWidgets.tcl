@@ -193,3 +193,5 @@ vtkSliderWidget sliderWidget
 proc callback { } {
   cameraRep SetNumberOfFrames [ eval math Round [ sliderRep GetValue ] ]
 }
+
+iren Start

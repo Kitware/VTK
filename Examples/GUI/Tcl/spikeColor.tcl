@@ -81,3 +81,4 @@ proc SetColor {value} {
     renWin Render
 }
 
+iren Start

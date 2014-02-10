@@ -100,5 +100,4 @@ proc ProbeData {} {
     pointWidget GetPolyData point
 }
 
-
-
+iren Start

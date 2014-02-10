@@ -87,3 +87,5 @@ proc SelectPolygons {} {
    boxWidget GetPlanes planes
    selectActor VisibilityOn
 }
+
+iren Start
