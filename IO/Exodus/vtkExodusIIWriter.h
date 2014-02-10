@@ -186,6 +186,7 @@ protected:
   vtkDoubleArray* TimeValues;
   int CurrentTimeIndex;
   int FileTimeOffset;
+  bool TopologyChanged;
 
 //BTX
   vtkDataObject *OriginalInput;
@@ -326,6 +327,10 @@ protected:
   int WriteSideSetInformation ();
   int WriteProperties ();
   int WriteNextTimeStep ();
+  vtkIntArray* GetBlockIdArray (
+    const char* BlockIdArrayName, vtkUnstructuredGrid* input);
+  static bool SameTypeOfCells (vtkIntArray* cellToBlockId,
+                               vtkUnstructuredGrid* input);
 
 //BTX
   double ExtractGlobalData (const char *name, int comp, int ts);
