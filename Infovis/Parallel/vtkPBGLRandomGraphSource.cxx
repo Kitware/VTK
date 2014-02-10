@@ -19,6 +19,8 @@
 -------------------------------------------------------------------------*/
 #include "vtkPBGLRandomGraphSource.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkBlockDistribution.h"
 #include "vtkCellData.h"
 #include "vtkExecutive.h"
@@ -69,6 +71,8 @@ vtkPBGLRandomGraphSource::vtkPBGLRandomGraphSource()
   this->Seed = 1177 + 17 * rank;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+
+  VTK_LEGACY_BODY(vtkPBGLRandomGraphSource::vtkPBGLRandomGraphSource, "VTK 6.2");
 }
 
 // ----------------------------------------------------------------------
@@ -406,4 +410,4 @@ int vtkPBGLRandomGraphSource::RequestDataObject(
   return 1;
 }
 
-
+#endif //VTK_LEGACY_REMOVE

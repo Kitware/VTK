@@ -1,3 +1,4 @@
+if (NOT VTK_LEGACY_REMOVE)
 vtk_module(vtkInfovisParallel
   DEPENDS
     vtkInfovisBoost
@@ -13,3 +14,4 @@ vtk_module(vtkInfovisParallel
     vtkTestingRendering
   EXCLUDE_FROM_ALL
   )
+endif()

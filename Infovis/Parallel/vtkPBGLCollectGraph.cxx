@@ -24,6 +24,8 @@
  */
 #include "vtkPBGLCollectGraph.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkBoostGraphAdapter.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
@@ -71,6 +73,8 @@ vtkPBGLCollectGraph::vtkPBGLCollectGraph()
   this->OriginProcessArrayName = NULL;
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
+
+  VTK_LEGACY_BODY(vtkPBGLCollectGraph::vtkPBGLCollectGraph, "VTK 6.2");
 }
 
 
@@ -637,3 +641,4 @@ void vtkPBGLCollectGraph::CopyStructureOfDataSetAttributes
     }
 }
 
+#endif //VTK_LEGACY_REMOVE

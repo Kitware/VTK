@@ -28,6 +28,8 @@
 // Sanders, is a parallel form of Dijkstra's shortest paths algorithm,
 // based on a multi-level bucket structure that permits edges to be
 // relaxed in parallel.
+//
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
 #ifndef __vtkPBGLShortestPaths_h
 #define __vtkPBGLShortestPaths_h
@@ -40,6 +42,7 @@
 
 class vtkSelection;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLShortestPaths : public vtkGraphAlgorithm
 {
 public:
@@ -191,4 +194,5 @@ private:
   void operator=(const vtkPBGLShortestPaths&);  // Not implemented.
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

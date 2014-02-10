@@ -25,6 +25,7 @@
 // This VTK class uses the Parallel BGL  breadth_first_search
 // generic algorithm to perform a breadth first search from a given
 // a 'source' vertex on the input graph (a distributed vtkGraph).
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 //
 // .SECTION See Also
 // vtkGraph vtkBoostBreadthFirstSearch vtkBoostGraphAdapter
@@ -40,6 +41,7 @@
 
 class vtkSelection;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLBreadthFirstSearch : public vtkGraphAlgorithm
 {
 public:
@@ -143,4 +145,5 @@ private:
   void operator=(const vtkPBGLBreadthFirstSearch&);  // Not implemented.
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

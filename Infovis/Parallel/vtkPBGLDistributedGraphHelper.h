@@ -28,6 +28,7 @@
 // support to build and manipulate distributed graphs. To enable the
 // use of this class, you will need to configure VTK with the
 // VTK_USE_PARALLEL_BGL option.
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 //
 // .SEEALSO
 // vtkGraph vtkDistributedGraphHelper
@@ -46,6 +47,7 @@ namespace boost { namespace graph { namespace distributed {
 } } } /// end namespace boost::graph::distributed
 //ETX
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
 {
  public:
@@ -217,4 +219,5 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
   //ETX
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif // __vtkPBGLDistributedGraphHelper_h

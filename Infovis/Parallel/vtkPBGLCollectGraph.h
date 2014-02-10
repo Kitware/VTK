@@ -36,6 +36,8 @@
 // the graph for further inspection, at which point it might make
 // sense to collect that graph for, e.g., visualization.
 //
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
+//
 // .SECTION See Also
 // vtkGraph
 
@@ -54,6 +56,7 @@
 class vtkSelection;
 class vtkDistributedGraphHelper;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLCollectGraph : public vtkGraphAlgorithm
 {
 public:
@@ -142,4 +145,5 @@ private:
 
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

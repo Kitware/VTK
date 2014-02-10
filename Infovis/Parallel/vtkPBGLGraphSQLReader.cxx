@@ -19,6 +19,8 @@
 
 #include "vtkPBGLGraphSQLReader.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -76,6 +78,8 @@ vtkPBGLGraphSQLReader::vtkPBGLGraphSQLReader()
   this->Database = 0;
   this->DistributionUserData[0] = 0;
   this->DistributionUserData[1] = 0;
+
+  VTK_LEGACY_BODY(vtkPBGLGraphSQLReader::vtkPBGLGraphSQLReader, "VTK 6.2");
 }
 
 
@@ -370,3 +374,5 @@ void vtkPBGLGraphSQLReader::GetRange(int rank, int total,
   offset = size*rank/total;
   limit = size*(rank+1)/total - offset;
 }
+
+#endif //VTK_LEGACY_REMOVE

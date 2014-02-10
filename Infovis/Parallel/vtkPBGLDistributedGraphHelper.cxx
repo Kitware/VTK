@@ -19,6 +19,8 @@
  */
 #include "vtkPBGLDistributedGraphHelper.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include <cassert>
 #include "vtkGraph.h"
 #include "vtkGraphInternals.h"
@@ -249,6 +251,7 @@ vtkPBGLDistributedGraphHelper::vtkPBGLDistributedGraphHelper()
 {
   this->Internals = vtkPBGLDistributedGraphHelperInternals::New();
   this->Internals->Helper = this;
+  VTK_LEGACY_BODY(vtkPBGLDistributedGraphHelper::vtkPBGLDistributedGraphHelper, "VTK 6.2");
 }
 
 //----------------------------------------------------------------------------
@@ -1097,3 +1100,5 @@ process_group(vtkGraph *graph)
 
   return pbglHelper->Internals->process_group.base();
 }
+
+#endif //VTK_LEGACY_REMOVE

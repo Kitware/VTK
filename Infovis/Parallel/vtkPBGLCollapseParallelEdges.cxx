@@ -19,6 +19,8 @@
 
 #include "vtkPBGLCollapseParallelEdges.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkInformation.h"
@@ -43,6 +45,7 @@ vtkStandardNewMacro(vtkPBGLCollapseParallelEdges);
 
 vtkPBGLCollapseParallelEdges::vtkPBGLCollapseParallelEdges()
 {
+VTK_LEGACY_BODY(vtkPBGLCollapseParallelEdges::vtkPBGLCollapseParallelEdges, "VTK 6.2");
 }
 
 vtkPBGLCollapseParallelEdges::~vtkPBGLCollapseParallelEdges()
@@ -192,3 +195,4 @@ int vtkPBGLCollapseParallelEdges::RequestData(
     this, info, input_vec, output_vec);
 }
 
+#endif //VTK_LEGACY_REMOVE

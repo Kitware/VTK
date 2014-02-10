@@ -24,6 +24,8 @@
 // .SECTION Description
 // This VTK class uses the Parallel BGL's implementation of Boman et al's
 // parallel vertex coloring algorithm.
+//
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
 #ifndef __vtkPBGLVertexColoring_h
 #define __vtkPBGLVertexColoring_h
@@ -36,6 +38,7 @@
 
 class vtkSelection;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLVertexColoring : public vtkGraphAlgorithm
 {
 public:
@@ -83,4 +86,5 @@ private:
   void operator=(const vtkPBGLVertexColoring&);  // Not implemented.
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif
