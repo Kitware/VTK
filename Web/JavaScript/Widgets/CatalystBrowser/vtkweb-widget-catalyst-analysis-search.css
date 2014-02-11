@@ -1,0 +1,37 @@
+.vtkweb-catalyst-analysis-search .search-toolbar {
+    position: relative;
+    width: 98%;
+    padding: 10px;
+}
+
+.vtkweb-catalyst-analysis-search .search-toolbar input[type='range'] {
+    float: right;
+}
+
+.vtkweb-catalyst-analysis-search .search-toolbar input[type='text'] {
+    width: 500px;
+    margin: 0 10px 0 10px;
+}
+
+.vtkweb-catalyst-analysis-search .search-toolbar i {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 10px;
+    border: solid 1px black;
+    border-radius: 5px;
+    background: white;
+    padding: 10px;
+    z-index: 10;
+}
+.vtkweb-catalyst-analysis-search .search-toolbar:hover i {
+    display: block;
+}
+
+.vtkweb-catalyst-analysis-search  .query-results {
+    position: relative;
+}
+
+.vtkweb-catalyst-analysis-search  .query-result {
+    margin: 10px;
+}
