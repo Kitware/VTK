@@ -1854,6 +1854,13 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
     cell = 0;
     newCells->InsertNextCell(1,&cell);
     traceOut->SetLines(newCells.GetPointer());
+
+    // Don't forget to add the ReasonForTermination cell array.
+    vtkNew<vtkIntArray> retVals;
+    retVals->SetName("ReasonForTermination");
+    retVals->SetNumberOfTuples(1);
+    retVals->SetValue(0, vtkStreamTracer::OUT_OF_DOMAIN);
+    traceOut->GetCellData()->AddArray(retVals.GetPointer());
     }
 
   Assert(SameShape(traceOut->GetPointData(),this->Utils->GetProto()->GetTail()->GetPointData()),"trace data does not match prototype");
