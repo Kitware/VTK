@@ -61,7 +61,7 @@ echo -n "Please wait while lcov captures the coverage data..."
 lcov --quiet --directory . --capture --output-file app.info
 echo "Done"
 echo -n "Please wait while lcov removes coverage for some files..."
-lcov --quiet --remove app.info '*Instantiator.*' 'vtkType*Array.*'  '*Tcl.cxx' '*TCLInit.cxx' '*Python.cxx' '*Wrapping*' '*Examples*' '*Testing*'  '*Utilities*' '*_s.cxx' '*_vs*.cxx' '*_fs*.cxx' '*GS.cxx' '*VS.cxx' '*FS.cxx' '*FP*.cxx' '*VP*.cxx' 'vtkgl.cxx' '/usr/*' --output-file  app.info2
+lcov --quiet --remove app.info '*ThirdParty*' '*Instantiator.*' 'vtkType*Array.*'  '*Tcl.cxx' '*TCLInit.cxx' '*Python.cxx' '*Wrapping*' '*Examples*' '*Testing*'  '*Utilities*' '*_s.cxx' '*_vs*.cxx' '*_fs*.cxx' '*GS.cxx' '*VS.cxx' '*FS.cxx' '*FP*.cxx' '*VP*.cxx' 'vtkgl.cxx' '/usr/*' --output-file  app.info2
 echo "Done"
 echo -n "Please wait while genhtml generates an HTML view from lcov coverage data files..."
 genhtml --quiet app.info2 >/dev/null 2>&1
