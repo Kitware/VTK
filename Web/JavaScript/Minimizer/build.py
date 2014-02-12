@@ -26,6 +26,7 @@ import os
 from datetime import date
 
 import rjsmin
+import rcssmin
 
 parser = argparse.ArgumentParser(description="Concatenation and minimize Javascript files")
 parser.add_argument('-b', help="Javascript banner")
@@ -38,6 +39,7 @@ args = parser.parse_args()
 
 output = StringIO.StringIO()
 
+isJavaScript = (args.o[-3:] == '.js')
 
 # read in files
 for file in args.i:
@@ -65,7 +67,12 @@ with open(args.m,"w") as fp:
 dir = os.path.dirname(args.o)
 if not os.path.exists(dir):
   os.makedirs(dir);
-with open(args.o,"w") as fp:
-  fp.write(banner)
-  fp.write(rjsmin.jsmin(output.getvalue()))
 
+if isJavaScript:
+  with open(args.o,"w") as fp:
+    fp.write(banner)
+    fp.write(rjsmin.jsmin(output.getvalue()))
+else:
+  with open(args.o,"w") as fp:
+    fp.write(banner)
+    fp.write(rcssmin.cssmin(output.getvalue()))

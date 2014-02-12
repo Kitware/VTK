@@ -1,0 +1,159 @@
+.vtkweb-catalyst-analysis .action {
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.vtkweb-catalyst-analysis .action.active {
+    border-bottom: 1px solid white;
+}
+
+.vtkweb-catalyst-analysis .workbench-toolbar {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background: #777;
+    color: #ffffff;
+    font-size: 100%;
+    font-weight: normal;
+    padding-left: 10px;
+}
+
+.vtkweb-catalyst-analysis ul {
+    list-style: none;
+}
+
+.vtkweb-catalyst-analysis li {
+    display: inline;
+}
+
+.vtkweb-catalyst-analysis ul.left {
+    float: left;
+}
+
+.vtkweb-catalyst-analysis ul.right {
+    float: right;
+    margin-right: 5px;
+}
+
+.vtkweb-catalyst-analysis .content {
+
+}
+
+.vtkweb-catalyst-analysis li {
+    font-weight: bold;
+    margin-right: 5px;
+    left: -5px;
+}
+
+.vtkweb-catalyst-analysis li span {
+    display: inline-block;
+}
+
+.vtkweb-catalyst-analysis li.add-viewer {
+    border-left: solid 2px black;
+    margin-left: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.vtkweb-catalyst-analysis li i {
+    display: none;
+}
+
+.vtkweb-catalyst-analysis li:hover i {
+    display: block;
+    border-radius: 5px;
+    border: solid 1px black;
+    padding: 10px;
+    color: black;
+    left: 5px;
+    right: 5px;
+    position: absolute;
+    top: 40px;
+    background: white;
+    z-index: 10;
+}
+
+.vtkweb-catalyst-analysis table td {
+    padding-bottom: 10px;
+}
+
+.vtkweb-catalyst-analysis .key {
+    font-weight: bold;
+    text-align: right;
+}
+.vtkweb-catalyst-analysis .value {
+    font-weight: normal;
+    padding-left: 15px;
+}
+
+/* -------------------------------------------- */
+/* view content */
+/* -------------------------------------------- */
+
+.vtkweb-catalyst-analysis .view {
+    position: relative;
+    top: 65px;
+}
+
+.vtkweb-catalyst-analysis .view .viewer {
+    position: relative;
+    float: left;
+    border: solid 1px black;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.vtkweb-catalyst-analysis .view .viewer .title-bar {
+    position: relative;
+    width: 100%;
+    background: black;
+    height: 20px;
+    color: white;
+    padding-left: 5px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.vtkweb-catalyst-analysis .view .viewer .title-bar .right {
+    float: right;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+
+.vtkweb-catalyst-analysis .view .viewer .content {
+    position: absolute;
+    top: 20px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+.vtkweb-catalyst-analysis .view.search {
+    display: none;
+}
+
+.vtkweb-catalyst-analysis .view.search {
+    display: none;
+}
+
+.vtkweb-catalyst-analysis .view.search select[name="exploration"] {
+    position: relative;
+    left: 10px;
+    top: 3px;
+}
