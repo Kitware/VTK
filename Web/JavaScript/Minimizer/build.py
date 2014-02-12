@@ -56,17 +56,26 @@ with open(args.b, 'r') as fp:
   banner = template.substitute(vars)
 
 # write output to file
-dir = os.path.dirname(args.m)
-if not os.path.exists(dir):
-  os.makedirs(dir);
+dest_dir = os.path.dirname(args.m)
+if not os.path.exists(dest_dir):
+  try:
+    os.makedirs(dest_dir);
+  except OSError, e:
+    if e.errno != 17:
+      raise
+
 with open(args.m,"w") as fp:
   fp.write(banner)
   fp.write(output.getvalue())
 
 # write minimized output to file
-dir = os.path.dirname(args.o)
-if not os.path.exists(dir):
-  os.makedirs(dir);
+dest_dir = os.path.dirname(args.o)
+if not os.path.exists(dest_dir):
+  try:
+    os.makedirs(dest_dir);
+  except OSError, e:
+    if e.errno != 17:
+      raise
 
 if isJavaScript:
   with open(args.o,"w") as fp:
