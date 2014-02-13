@@ -32,6 +32,9 @@ proc rtOtherTest { fileid } {
   if {$a == "vtkTextRenderer"} {
       continue
   }
+  if {$a == "vtkQtInitialization"} {
+      continue
+  }
   catch {
            $a b
            puts "calling [b GetClassName]::Print"
