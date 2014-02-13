@@ -18,6 +18,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 
@@ -411,4 +412,15 @@ void vtkXMLPUnstructuredDataReader::CopyCellArray(vtkIdType totalNumberOfCells,
     in += length;
     out += length;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPUnstructuredDataReader::RequestInformation(
+   vtkInformation *request,
+   vtkInformationVector **inputVector,
+   vtkInformationVector *outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+  return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }

@@ -20,6 +20,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCommunicator.h"
+#include "vtkMultiProcessController.h"
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter()
@@ -38,6 +40,14 @@ void vtkXMLPStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLPStructuredDataWriter::WriteInternal()
+{
+  int retVal = this->Superclass::WriteInternal();
+  this->Extents.clear();
+  return retVal;
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
 {
   int* wExt = this->GetInputInformation(0, 0)->Get(
@@ -49,41 +59,127 @@ void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, vtk
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
 {
-  vtkDataSet* input = this->GetInputAsDataSet();
-  int* extent = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
-
-  this->WriteVectorAttribute("Extent", 6, extent);
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+  if (this->Extents.find(index) != this->Extents.end())
     {
-    return;
+    this->WriteVectorAttribute("Extent", 6, &this->Extents[index][0]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return;
+      }
     }
   this->Superclass::WritePPieceAttributes(index);
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int vtkNotUsed(index))
+vtkXMLWriter* vtkXMLPStructuredDataWriter::CreatePieceWriter(int index)
 {
-  // int extent[6];
-  // vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  // // TODO (berk)
-  // // Need to fix this
-  // vtkExtentTranslator* et = 0;  vtkExtentTranslator::SafeDownCast(
-  //   inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-
-  // et->SetNumberOfPieces(this->GetNumberOfPieces());
-  // et->SetWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  // et->SetPiece(index);
-  // et->SetGhostLevel(0);
-  // et->PieceToExtent();
-  // et->GetExtent(extent);
-
-  // TODO (berk)
-  // We need to ask for a piece from the input somehow. Maybe RequestUpdateExtent
-  // is enough but needs to be tested.
   vtkXMLStructuredDataWriter* pWriter = this->CreateStructuredPieceWriter();
-  // pWriter->SetWriteExtent(extent);
+  pWriter->SetNumberOfPieces(this->NumberOfPieces);
+  pWriter->SetWritePiece(index);
+  pWriter->SetGhostLevel(this->GhostLevel);
 
   return pWriter;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPStructuredDataWriter::WritePieces()
+{
+  int result = this->Superclass::WritePieces();
+
+  // The code below gathers extens from all processes to write in the
+  // meta-file. Note that the extent of each piece was already stored by
+  // each writer in WritePiece(). This is gathering it all to root node.
+  if (result)
+    {
+    if (this->Controller)
+      {
+      // Even though the logic is pretty straightforward, we need to
+      // do a fair amount of work to use GatherV. Each rank simply
+      // serializes its extents to 7 int blocks - piece number and 6
+      // extent values. Then we gather this all to root.
+      int rank = this->Controller->GetLocalProcessId();
+      int nRanks = this->Controller->GetNumberOfProcesses();
+
+      int nPiecesTotal = 0;
+      vtkIdType nPieces = this->Extents.size();
+
+      vtkIdType* offsets = 0;
+      vtkIdType* nPiecesAll = 0;
+      vtkIdType* recvLengths = 0;
+      if (rank == 0)
+        {
+        nPiecesAll = new vtkIdType[nRanks];
+        recvLengths = new vtkIdType[nRanks];
+        offsets = new vtkIdType[nRanks];
+        }
+      this->Controller->Gather(&nPieces, nPiecesAll, 1, 0);
+      if (rank == 0)
+        {
+        for (int i=0; i<nRanks; i++)
+          {
+          offsets[i] = nPiecesTotal*7;
+          nPiecesTotal += nPiecesAll[i];
+          recvLengths[i] = nPiecesAll[i]*7;
+          }
+        }
+      int* sendBuffer = 0;
+      int sendSize = nPieces*7;
+      if (nPieces > 0)
+        {
+        sendBuffer = new int[sendSize];
+        ExtentsType::iterator iter = this->Extents.begin();
+        for (int count = 0; iter != this->Extents.end(); iter++, count++)
+          {
+          sendBuffer[count*7] = iter->first;
+          memcpy(&sendBuffer[count*7+1], &iter->second[0], 6*sizeof(int));
+          }
+        }
+      int* recvBuffer = 0;
+      if (rank == 0)
+        {
+        recvBuffer = new int[nPiecesTotal*7];
+        }
+      this->Controller->GatherV(sendBuffer, recvBuffer, sendSize,
+        recvLengths, offsets, 0);
+
+      if (rank == 0)
+        {
+        // Add all received values to Extents.
+        // These are later written in WritePPieceAttributes()
+        for (int i=1; i<nRanks; i++)
+          {
+          for (int j=0; j<nPiecesAll[i]; j++)
+            {
+            int* buffer = recvBuffer + offsets[i] + j*7;
+            this->Extents[*buffer] =
+              std::vector<int>(buffer+1, buffer+7);
+            }
+          }
+        }
+
+      delete[] nPiecesAll;
+      delete[] recvBuffer;
+      delete[] offsets;
+      delete[] recvLengths;
+      delete[] sendBuffer;
+      }
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPStructuredDataWriter::WritePiece(int index)
+{
+  int result = this->Superclass::WritePiece(index);
+  if (result)
+    {
+    // Store the extent of this piece in Extents. This is later used
+    // in WritePPieceAttributes to write the summary file.
+    vtkDataSet* input = this->GetInputAsDataSet();
+    int* ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+    this->Extents[index] = std::vector<int>(ext, ext+6);
+    }
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -123,7 +219,7 @@ int vtkXMLPStructuredDataWriter::RequestUpdateExtent(
   // piece information.
 
   vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo,
-    this->StartPiece, this->GetNumberOfPieces(), 0);
+    this->StartPiece, this->GetNumberOfPieces(), this->GhostLevel);
 
   return 1;
 }

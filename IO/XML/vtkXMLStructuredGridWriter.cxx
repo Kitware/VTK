@@ -16,7 +16,6 @@
 
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
-#include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -155,7 +154,7 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
 {
   int extent[6];
-  this->ExtentTranslator->GetExtent(extent);
+  this->GetInputExtent(extent);
   int dims[3] = {extent[1]-extent[0],
                  extent[3]-extent[2],
                  extent[5]-extent[4]};

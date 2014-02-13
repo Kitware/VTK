@@ -20,12 +20,15 @@
 #ifndef __vtkXMLPStructuredDataWriter_h
 #define __vtkXMLPStructuredDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"
+
+#include <map> // for keeping track of extents
+#include <vector> // for keeping track of extents
 
 class vtkXMLStructuredDataWriter;
 
-class VTKIOXML_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
+class VTKIOPARALLELXML_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
@@ -49,9 +52,17 @@ protected:
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector);
 
+  virtual int WriteInternal();
+
+  virtual int WritePieces();
+  virtual int WritePiece(int index);
+
 private:
   vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&);  // Not implemented.
   void operator=(const vtkXMLPStructuredDataWriter&);  // Not implemented.
+
+  typedef std::map<int, std::vector<int> > ExtentsType;
+  ExtentsType Extents;
 };
 
 #endif

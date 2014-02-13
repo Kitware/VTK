@@ -7,6 +7,7 @@ vtk_module(vtkFiltersParallelGeometry
   TEST_DEPENDS
     vtkIOXML
     vtkIOParallel
+    vtkIOParallelXML
     vtkCommonDataModel
     vtkParallelMPI
     vtkTestingCore

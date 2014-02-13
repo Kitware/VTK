@@ -22,12 +22,13 @@
 #ifndef __vtkXMLPDataWriter_h
 #define __vtkXMLPDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
 class vtkCallbackCommand;
+class vtkMultiProcessController;
 
-class VTKIOXML_EXPORT vtkXMLPDataWriter : public vtkXMLWriter
+class VTKIOPARALLELXML_EXPORT vtkXMLPDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLPDataWriter,vtkXMLWriter);
@@ -51,12 +52,20 @@ public:
   vtkGetMacro(GhostLevel, int);
 
   // Description:
-  // Get/Set whether this instance of the writer should write the
-  // summary file that refers to all of the pieces' individual files.
-  // Default is yes only for piece 0 writer.
+  // Get/Set whether the writer should write the summary file that
+  // refers to all of the pieces' individual files.
+  // This is on by default. Note that only the first process writes
+  // the summary file.
   virtual void SetWriteSummaryFile(int flag);
   vtkGetMacro(WriteSummaryFile, int);
   vtkBooleanMacro(WriteSummaryFile, int);
+
+  // Description:
+  // Controller used to communicate data type of blocks.
+  // By default, the global controller is used. If you want another
+  // controller to be used, set it with this.
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 protected:
   vtkXMLPDataWriter();
@@ -74,8 +83,8 @@ protected:
 
   char* CreatePieceFileName(int index, const char* path=0);
   void SplitFileName();
-  int WritePieces();
-  int WritePiece(int index);
+  virtual int WritePieces();
+  virtual int WritePiece(int index);
 
   // Callback registered with the ProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
@@ -88,7 +97,6 @@ protected:
   int NumberOfPieces;
   int GhostLevel;
   int WriteSummaryFile;
-  int WriteSummaryFileInitialized;
 
   char* PathName;
   char* FileNameBase;
@@ -97,6 +105,8 @@ protected:
 
   // The observer to report progress from the internal writer.
   vtkCallbackCommand* ProgressObserver;
+
+  vtkMultiProcessController* Controller;
 
 private:
   vtkXMLPDataWriter(const vtkXMLPDataWriter&);  // Not implemented.
