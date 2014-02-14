@@ -17,6 +17,12 @@
             factory: function(domToFill, path) {
                 domToFill.vtkCatalystResamplerViewer(path);
             }
+        },
+        "composite-image-stack" : {
+            class: "vtk-icon-list-add",
+            factory: function(domToFill, path) {
+                domToFill.vtkCatalystCompositeViewer(path);
+            }
         }
     };
 

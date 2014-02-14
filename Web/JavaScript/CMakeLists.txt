@@ -30,6 +30,7 @@ set(lib_js_min_files
 set(widgets_js_min_files
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-viewer.js"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-resampler-viewer.js"
+  "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-composite.js"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-search.js"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis.js"
   "${widgets_source_dir}/ChartWidget/vtkweb-widget-chart.js"
@@ -39,6 +40,7 @@ set(widgets_js_min_files
 set(widgets_css_min_files
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-viewer.css"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-resampler-viewer.css"
+  "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-composite.css"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-search.css"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis.css"
   "${widgets_source_dir}/ChartWidget/vtkweb-widget-chart.css"
