@@ -6,4 +6,6 @@ vtk_module(vtkIOParallelXML
     vtkParallelCore
   PRIVATE_DEPENDS
     vtksys
+  TEST_DEPENDS
+    vtkParallelMPI
   )

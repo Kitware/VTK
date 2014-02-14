@@ -104,6 +104,7 @@ void MyProcess::Execute()
     sgr->SetFileName(fname);
 
     sg = sgr->GetOutput();
+    sg->Register(0);
 
     sgr->Update();
 
@@ -117,6 +118,10 @@ void MyProcess::Execute()
       go = 0;
       }
     }
+  else
+    {
+    sg = vtkStructuredGrid::New();
+    }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -129,6 +134,7 @@ void MyProcess::Execute()
       {
       sgr->Delete();
       }
+    sg->Delete();
     prm->Delete();
     return;
     }
@@ -136,10 +142,7 @@ void MyProcess::Execute()
   // FILTER WE ARE TRYING TO TEST
   vtkTransmitStructuredGridPiece *pass = vtkTransmitStructuredGridPiece::New();
   pass->SetController(this->Controller);
-  if (me == 0)
-    {
-    pass->SetInputData(sg);
-    }
+  pass->SetInputData(sg);
 
   // FILTERING
   vtkContourFilter *cf = vtkContourFilter::New();
@@ -169,10 +172,6 @@ void MyProcess::Execute()
   prm->SetRenderWindow(renWin);
   prm->SetController(this->Controller);
   prm->InitializeOffScreen();   // Mesa GL only
-  if (me == 0)
-    {
-    prm->ResetAllCameras();
-    }
 
   // We must update the whole pipeline here, otherwise node 0
   // goes into GetActiveCamera which updates the pipeline, putting
@@ -191,6 +190,8 @@ void MyProcess::Execute()
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
+
+    prm->ResetAllCameras();
 
     renWin->Render();
     renWin->Render();
@@ -222,6 +223,7 @@ void MyProcess::Execute()
     {
     sgr->Delete();
     }
+  sg->Delete();
   prm->Delete();
 }
 

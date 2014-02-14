@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTransmitUnstructuredGridPiece.h
+  Module:    vtkTransmitStructuredDataPiece.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -21,19 +21,19 @@
 // the distributed to others using the multiprocess controller.
 
 
-#ifndef __vtkTransmitUnstructuredGridPiece_h
-#define __vtkTransmitUnstructuredGridPiece_h
+#ifndef __vtkTransmitStructuredDataPiece_h
+#define __vtkTransmitStructuredDataPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkTransmitStructuredDataPiece : public vtkDataSetAlgorithm
 {
 public:
-  static vtkTransmitUnstructuredGridPiece *New();
-  vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
+  static vtkTransmitStructuredDataPiece *New();
+  vtkTypeMacro(vtkTransmitStructuredDataPiece, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,22 +49,24 @@ public:
   vtkBooleanMacro(CreateGhostCells, int);
 
 protected:
-  vtkTransmitUnstructuredGridPiece();
-  ~vtkTransmitUnstructuredGridPiece();
+  vtkTransmitStructuredDataPiece();
+  ~vtkTransmitStructuredDataPiece();
 
   // Data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  void RootExecute(vtkUnstructuredGrid *input, vtkUnstructuredGrid *output,
+  void RootExecute(vtkDataSet *input, vtkDataSet *output,
                    vtkInformation *outInfo);
-  void SatelliteExecute(int procId, vtkUnstructuredGrid *output,
+  void SatelliteExecute(int procId, vtkDataSet *output,
                         vtkInformation *outInfo);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int CreateGhostCells;
   vtkMultiProcessController *Controller;
 
 private:
-  vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&); // Not implemented
-  void operator=(const vtkTransmitUnstructuredGridPiece&); // Not implemented
+  vtkTransmitStructuredDataPiece(const vtkTransmitStructuredDataPiece&); // Not implemented
+  void operator=(const vtkTransmitStructuredDataPiece&); // Not implemented
 };
 
 #endif

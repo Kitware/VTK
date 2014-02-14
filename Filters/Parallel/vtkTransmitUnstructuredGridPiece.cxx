@@ -46,48 +46,6 @@ vtkTransmitUnstructuredGridPiece::~vtkTransmitUnstructuredGridPiece()
 }
 
 //----------------------------------------------------------------------------
-int vtkTransmitUnstructuredGridPiece::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
-{
-  // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
-  if (this->Controller == NULL)
-    {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                1);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                0);
-    return 1;
-    }
-
-  if (this->Controller->GetLocalProcessId() == 0)
-    { // Request everything.
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                1);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                0);
-    }
-  else
-    { // Request nothing.
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                0);
-    }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkTransmitUnstructuredGridPiece::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
