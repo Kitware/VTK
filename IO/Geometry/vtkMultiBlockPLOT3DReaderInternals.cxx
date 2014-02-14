@@ -375,7 +375,7 @@ long vtkMultiBlockPLOT3DReaderInternals::CalculateFileSizeForBlock(int precision
 {
   long size = 0;
   // x, y, (z)
-  int npts = 1;
+  long npts = 1;
   for (int i=0; i<ndims; i++)
     {
     npts *= gridDims[i];
