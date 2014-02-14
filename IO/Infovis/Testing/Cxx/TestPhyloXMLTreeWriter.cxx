@@ -49,9 +49,10 @@ int TestPhyloXMLTreeWriter(int argc, char* argv[])
   writer->IgnoreArray("node weight");
   writer->Update();
 
-  // get the full path to the baseline file
-  char* baselineFile = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "../IO/Infovis/Testing/Data/Baseline/TestPhyloXMLTreeWriter.xml");
+  // get the full path to the baseline file.  This is specified as the -V
+  // argument to the test.
+  char* baselineFile = vtkTestUtilities::GetArgOrEnvOrDefault("-V", argc, argv,
+                                                              "", "");
 
   // compare the baseline to the test file & return accordingly.
   int result = EXIT_SUCCESS;
