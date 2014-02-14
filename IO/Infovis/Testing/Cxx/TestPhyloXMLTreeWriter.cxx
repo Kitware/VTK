@@ -13,33 +13,54 @@
 
 =========================================================================*/
 
+#include "vtksys/SystemTools.hxx"
 #include "vtkAbstractArray.h"
 #include "vtkNew.h"
 #include "vtkNewickTreeReader.h"
 #include "vtkPhyloXMLTreeWriter.h"
+#include "vtkTesting.h"
 #include "vtkTestUtilities.h"
 #include "vtkTree.h"
 
 int TestPhyloXMLTreeWriter(int argc, char* argv[])
 {
   // get the full path to the input file
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                       "Data/Infovis/rep_set.tre");
-  cout << "reading from a file: "<< file <<  endl;
+  char* inputFile = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/Infovis/rep_set.tre");
+  cout << "reading from a file: "<< inputFile <<  endl;
 
   // read the input file into a vtkTree
   vtkNew<vtkNewickTreeReader> reader;
-  reader->SetFileName(file);
+  reader->SetFileName(inputFile);
   reader->Update();
   vtkTree *tree = reader->GetOutput();
-  delete[] file;
+  delete[] inputFile;
+
+  // generate the full path to the testing file
+  vtkNew<vtkTesting> testHelper;
+  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  std::string testFile = testHelper->GetTempDirectory();
+  testFile += "/TestPhyloXMLTreeWriter.xml";
 
   // write this vtkTree out to disk in PhyloXML format
   vtkNew<vtkPhyloXMLTreeWriter> writer;
   writer->SetInputData(tree);
-  writer->SetFileName("TestPhyloXMLTreeWriter.xml");
+  writer->SetFileName(testFile.c_str());
   writer->IgnoreArray("node weight");
   writer->Update();
 
-  return EXIT_SUCCESS;
+  // get the full path to the baseline file
+  char* baselineFile = vtkTestUtilities::ExpandDataFileName(argc, argv,
+    "../IO/Infovis/Testing/Data/Baseline/TestPhyloXMLTreeWriter.xml");
+
+  // compare the baseline to the test file & return accordingly.
+  int result = EXIT_SUCCESS;
+  if(vtksys::SystemTools::FilesDiffer(baselineFile, testFile.c_str()))
+    {
+    cout << baselineFile << " and " << testFile << " differ." << endl;
+    result = EXIT_FAILURE;
+    }
+
+  delete [] baselineFile;
+  return result;
 }
