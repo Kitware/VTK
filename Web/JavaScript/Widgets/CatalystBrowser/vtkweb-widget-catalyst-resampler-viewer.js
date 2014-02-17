@@ -1,5 +1,5 @@
 (function ($, GLOBAL) {
-    var CONTENT_TEMPLATE = '<div class="toolbar"><span class="label">Field<select name="field">FIELDS</select></span><span class="label">Probe<select name="probe"><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></span><span class="label">Slice<input type="range" min="0" max="NB_SLICES" value="0" name="slice"/></span><span class="label">Time<input type="range" min="0" max="NB_TIMES" value="0" name="time"/></span></div><div class="image-sample" style="padding: 10px;"><canvas style="border: solid 1px black;"><img/></canvas></div><div class="chart-sample"></div>',
+    var CONTENT_TEMPLATE = '<div class="toolbar"><span class="label">Field<select name="field">FIELDS</select></span><span class="label">Probe<select name="probe"><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select></span> Slice <span class="slice-value txt-feedback">0</span> Time <span class="time-value txt-feedback">0</span></div><div class="control"><div class="header"><span class="vtk-icon-tools toggle"/><span class="vtk-icon-play play"/><span class="vtk-icon-stop stop"/></div><div class="parameters"><div class="label" data-name="slice"><span class="flag vtk-icon-flag"/>Slice<span class="slice-value">0</span></div><input type="range" min="0" max="NB_SLICES" value="0" name="slice"/><div class="label" data-name="time"><span class="flag vtk-icon-flag"/>Time<span class="time-value">0</span></div><input type="range" min="0" max="NB_TIMES" value="0" name="time"/></div></div><div class="image-sample" style="padding: 10px;"><canvas style="border: solid 1px black;"><img/></canvas></div><div class="chart-sample"></div>',
     OPTION_TEMPLATE = '<option>VALUE</option>';
 
     // ========================================================================
@@ -199,10 +199,33 @@
         enableProbing = false,
         startSliding = false,
         sliders = $('input', container),
-        dropDowns = $('select', container);
+        timeSlider = $('input[name="time"]', container),
+        sliceSlider = $('input[name="slice"]', container),
+        timeTxt = $('span.time-value', container),
+        sliceTxt = $('span.slice-value', container),
+        activeSlider = null;
+        dropDowns = $('select', container),
+        currentSlideValue = 0,
+        maxSlideValue = 1,
+        keepAnimation = false,
+        play = $('.play', container),
+        stop = $('.stop', container);
+
+        function animate() {
+            if(activeSlider) {
+                currentSlideValue = (currentSlideValue + 1) % maxSlideValue;
+                activeSlider.val(currentSlideValue);
+                if(keepAnimation) {
+                    setTimeout(animate, 150);
+                }
+                updateAll();
+            }
+        }
 
         // Generic data update
         function updateAll() {
+            timeTxt.html(timeSlider.val());
+            sliceTxt.html(sliceSlider.val());
             update(container);
             paint();
         }
@@ -308,6 +331,38 @@
                 updateAll();
             }
         });
+
+        $('div.label', container).click(function(){
+            var me = $(this),
+            all = $('.label', container);
+
+            activeSlider = $('input[name="' + me.attr('data-name') + '"]', container);
+
+            if(activeSlider) {
+                currentSlideValue = Number(activeSlider.val());
+                maxSlideValue = Number(activeSlider.attr('max'));
+
+                // Handle flag visibility
+                all.removeClass('active');
+                me.addClass('active');
+            }
+        });
+
+        $('.toggle', container).click(function(){
+            container.toggleClass('small');
+        });
+
+        play.click(function(){
+            play.hide();
+            stop.show();
+            keepAnimation = true;
+            animate();
+        });
+        stop.click(function(){
+            stop.hide();
+            play.show();
+            keepAnimation = false;
+        });
     }
 
     // ========================================================================
@@ -324,7 +379,7 @@
 
     $.fn.vtkCatalystResamplerViewer = function(dataBasePath) {
         return this.each(function() {
-            var me = $(this).empty().addClass('vtk-catalyst-resample-viewer').unbind();
+            var me = $(this).empty().addClass('vtk-catalyst-resample-viewer small').unbind();
 
             // Get meta-data
             $.ajax({
