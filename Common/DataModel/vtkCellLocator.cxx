@@ -287,7 +287,7 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
               this->DataSet->GetCell(cId, cell);
               if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId) )
                 {
-                if ( ! this->IsInOctantBounds(x) )
+                if ( ! this->IsInOctantBounds(x, tol) )
                   {
                   this->CellHasBeenVisited[cId] = 0; //mark the cell non-visited
                   }
