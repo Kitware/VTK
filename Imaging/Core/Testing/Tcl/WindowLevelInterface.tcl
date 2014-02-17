@@ -98,4 +98,3 @@ InitializeWindowLevelInterface
 } else {
   viewer Render
 }
-

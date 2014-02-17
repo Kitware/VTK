@@ -195,11 +195,6 @@ public:
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
 
-  // Description:
-  // Overridden to process REQUEST_UPDATE_EXTENT_INFORMATION.
-  virtual int ProcessRequest( vtkInformation *,
-                              vtkInformationVector **,
-                              vtkInformationVector  *);
 protected:
   vtkTableBasedClipDataSet( vtkImplicitFunction * cf = NULL );
   ~vtkTableBasedClipDataSet();

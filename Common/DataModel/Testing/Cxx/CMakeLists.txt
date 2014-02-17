@@ -3,6 +3,7 @@ vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
   TestVector.cxx
   TestVectorOperators.cxx
   TestAMRBox.cxx
+  TestBiQuadraticQuad.cxx
   TestCompositeDataSets.cxx
   TestDataArrayDispatcher.cxx
   TestDataObject.cxx

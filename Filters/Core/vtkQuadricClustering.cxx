@@ -88,9 +88,6 @@ vtkQuadricClustering::vtkQuadricClustering()
 
   this->InCellCount = this->OutCellCount = 0;
   this->CopyCellData = 0;
-
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 //----------------------------------------------------------------------------

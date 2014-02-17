@@ -1,6 +1,5 @@
 vtk_add_test_cxx(NO_DATA NO_VALID
   otherCoordinate.cxx
-  TestPriorityStreaming.cxx
   )
 
 INCLUDE_DIRECTORIES(

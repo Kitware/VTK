@@ -256,11 +256,11 @@ int vtkParticleTracerBase::RequestInformation(
     //clamp the default start time to be within the data time range
     if(this->StartTime < this->InputTimeValues[0])
       {
-      this->SetStartTime(this->InputTimeValues[0]);
+      this->StartTime = this->InputTimeValues[0];
       }
     else if (this->StartTime > this->InputTimeValues.back())
       {
-      this->SetStartTime(this->InputTimeValues.back());
+      this->StartTime = this->InputTimeValues.back();
       }
     }
   else
@@ -323,7 +323,7 @@ int vtkParticleTracerBase::RequestUpdateExtent(
       {
       double terminationTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
       PRINT("Pipeline has set termination time: "<< terminationTime);
-      this->SetTerminationTime(terminationTime);
+      this->SetTerminationTimeNoModify(terminationTime);
       }
 
     if(this->TerminationTime> this->InputTimeValues.back())
@@ -460,7 +460,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
           inp->ComputeBounds();
           inp->GetBounds(&bbox.b[0]);
           this->CachedBounds[T].push_back(bbox);
-          bool static_dataset = this->StaticMesh || inp->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED());
+          bool static_dataset = this->StaticMesh == 0 ? false : true;
           this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
           this->Interpolator->SetDataSetAtTime(index++, T, this->GetCacheDataTime(T), inp, static_dataset);
@@ -555,10 +555,6 @@ int vtkParticleTracerBase::UpdateDataCache(vtkDataObject *data)
         vtkSmartPointer<vtkDataSet> copy;
         copy.TakeReference(ds->NewInstance());
         copy->ShallowCopy(ds);
-        if (ds->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-          {
-          copy->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
-          }
         this->CachedData[i]->SetBlock(this->CachedData[i]->GetNumberOfBlocks(), copy);
         }
       }
@@ -1003,6 +999,8 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   //Check post condition
   // To do:  verify here that the particles in ParticleHistories are consistent with CurrentTime
 
+  // These hold reference to the inputs. Release them.
+  this->DataReferenceT[0] = this->DataReferenceT[1] = 0;
   return output;
 }
 
@@ -1401,11 +1399,11 @@ void vtkParticleTracerBase::ResetCache()
 }
 
 //---------------------------------------------------------------------------
-void vtkParticleTracerBase::SetTerminationTime(double t)
+bool vtkParticleTracerBase::SetTerminationTimeNoModify(double t)
 {
   if(t==this->TerminationTime)
     {
-    return;
+    return false;
     }
 
   if (t < this->TerminationTime)
@@ -1419,8 +1417,18 @@ void vtkParticleTracerBase::SetTerminationTime(double t)
     t = this->StartTime;
     }
 
-  this->Modified();
   this->TerminationTime = t;
+
+  return true;
+}
+
+//---------------------------------------------------------------------------
+void vtkParticleTracerBase::SetTerminationTime(double t)
+{
+  if (this->SetTerminationTimeNoModify(t))
+    {
+    this->Modified();
+    }
 }
 
 //---------------------------------------------------------------------------

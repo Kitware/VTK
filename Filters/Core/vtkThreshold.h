@@ -153,8 +153,6 @@ public:
   void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
 
-  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
 protected:
   vtkThreshold();
   ~vtkThreshold();

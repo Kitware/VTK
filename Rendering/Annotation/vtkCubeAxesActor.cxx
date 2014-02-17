@@ -31,6 +31,8 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkCubeAxesActor);
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
 // *************************************************************************

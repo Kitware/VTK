@@ -115,8 +115,11 @@
                         if (onReady) {
                             onReady(connection);
                         }
+                    }, function(error) {
+                        alert("Authentication error: " + error);
+                        GLOBAL.close();
                     }).otherwise(function(error){
-                        alert("Authentication error");
+                        alert(error);
                         GLOBAL.close();
                     });
                 });

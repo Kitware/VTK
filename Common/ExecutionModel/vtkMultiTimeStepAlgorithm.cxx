@@ -36,8 +36,23 @@ vtkMultiTimeStepAlgorithm::vtkMultiTimeStepAlgorithm()
 {
   this->RequestUpdateIndex=0;
   this->SetNumberOfInputPorts(1);
+  this->CacheData = false;
+  this->NumberOfCacheEntries = 1;
 }
 
+//----------------------------------------------------------------------------
+bool vtkMultiTimeStepAlgorithm::IsInCache(double time, size_t& idx)
+{
+  std::vector<TimeCache>::iterator it = this->Cache.begin();
+  for(idx = 0; it != this->Cache.end(); it++, idx++)
+    {
+    if (time == it->TimeValue)
+      {
+      return true;
+      }
+    }
+  return false;
+}
 
 //----------------------------------------------------------------------------
 int vtkMultiTimeStepAlgorithm::ProcessRequest(
@@ -71,9 +86,29 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
       inInfo->Remove(UPDATE_TIME_STEPS());
       }
 
-    if(this->UpdateTimeSteps.size()>0)
+    size_t nTimeSteps = this->UpdateTimeSteps.size();
+    if(nTimeSteps > 0)
       {
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),this->UpdateTimeSteps[this->RequestUpdateIndex]);
+      bool inCache = true;
+      for (size_t i=0; i<nTimeSteps; i++)
+        {
+        size_t idx;
+        if (!this->IsInCache(this->UpdateTimeSteps[i], idx))
+          {
+          inCache = false;
+          break;
+          }
+        }
+      if (!inCache)
+        {
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+          this->UpdateTimeSteps[this->RequestUpdateIndex]);
+        }
+      else
+        {
+        // Ask for any time step. This should not update unless something else changed.
+        inInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+        }
       }
     return retVal;
     }
@@ -101,11 +136,31 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     inDataCopy.TakeReference(inData->NewInstance());
     inDataCopy->ShallowCopy(inData);
 
-    this->MDataSet->SetBlock( this->RequestUpdateIndex, inDataCopy);
+    size_t idx;
+    if (!this->IsInCache(this->UpdateTimeSteps[this->RequestUpdateIndex], idx))
+      {
+      this->Cache.push_back(
+        TimeCache(this->UpdateTimeSteps[this->RequestUpdateIndex], inDataCopy));
+      }
+
     this->RequestUpdateIndex++;
 
-    if(this->RequestUpdateIndex==static_cast<int>(this->UpdateTimeSteps.size())) // all the time steps are here
+    size_t nTimeSteps = this->UpdateTimeSteps.size();
+    if(this->RequestUpdateIndex==static_cast<int>(nTimeSteps)) // all the time steps are here
       {
+      for (size_t i=0; i<nTimeSteps; i++)
+        {
+        if (this->IsInCache(this->UpdateTimeSteps[i], idx))
+          {
+          this->MDataSet->SetBlock(static_cast<unsigned int>(i), this->Cache[idx].Data.GetPointer());
+          }
+        else
+          {
+          // This should never happen
+          abort();
+          }
+        }
+
       //change the input to the multiblock data and let child class to do the work
       //make sure to set the input back to what it was to not break anything upstream
       inData->Register(this);
@@ -117,6 +172,22 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
       this->UpdateTimeSteps.clear();
       this->RequestUpdateIndex = 0;
       this->MDataSet = NULL;
+      if (!this->CacheData)
+        {
+        // No caching, remove all
+        this->Cache.clear();
+        }
+      else
+        {
+        // Caching, erase ones outside the cache
+        // Note that this is a first in first out implementation
+        size_t cacheSize = this->Cache.size();
+        if (cacheSize > this->NumberOfCacheEntries)
+          {
+          size_t nToErase = cacheSize - this->NumberOfCacheEntries;
+          this->Cache.erase(this->Cache.begin(), this->Cache.begin() + nToErase);
+          }
+        }
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       }
     else
@@ -140,6 +211,8 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
         info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
         }
       }
+    // Upstream changed, clear the cache.
+    this->Cache.clear();
     return this->RequestInformation(request, inputVector, outputVector);
     }
 

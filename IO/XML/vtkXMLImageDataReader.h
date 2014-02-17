@@ -58,7 +58,6 @@ protected:
 
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
-  virtual void SetupUpdateExtentInformation(vtkInformation *outInfo);
 
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
 

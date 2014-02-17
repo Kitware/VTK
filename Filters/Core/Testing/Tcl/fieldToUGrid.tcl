@@ -106,6 +106,7 @@ ren1 ResetCamera
 ren1 ResetCameraClippingRange
 ren1 SetBackground 1 1 1
 renWin SetSize 375 200
+renWin SetMultiSamples 0
 
 iren Initialize
 iren AddObserver UserEvent {wm deiconify .vtkInteract}

@@ -328,10 +328,13 @@ int vtkXMLPDataWriter::WritePiece(int index)
   delete [] fileName;
 
   // Copy the writer settings.
+  pWriter->SetDebug(this->Debug);
   pWriter->SetCompressor(this->Compressor);
   pWriter->SetDataMode(this->DataMode);
   pWriter->SetByteOrder(this->ByteOrder);
   pWriter->SetEncodeAppendedData(this->EncodeAppendedData);
+  pWriter->SetHeaderType(this->HeaderType);
+  pWriter->SetBlockSize(this->BlockSize);
 
   // Write the piece.
   int result = pWriter->Write();

@@ -30,7 +30,6 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkPointData.h"
-#include "vtkExodusModel.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
@@ -303,8 +302,8 @@ int vtkPExodusIIReader::RequestInformation(
         }
       }
 
-    int mmd = this->ExodusModelMetadata;
-    this->ExodusModelMetadata = 0;
+    // int mmd = this->ExodusModelMetadata;
+    // this->ExodusModelMetadata = 0;
     //this->SetExodusModelMetadata( 0 );    // turn off for now // XXX Bad set
 
     /*
@@ -326,7 +325,7 @@ int vtkPExodusIIReader::RequestInformation(
       }
 
     //this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData // XXX Bad set
-    this->ExodusModelMetadata = mmd;
+    // this->ExodusModelMetadata = mmd;
     }
   if ( this->ProcSize > 1 )
     {
@@ -462,10 +461,12 @@ int vtkPExodusIIReader::RequestData(
     vtkSmartPointer<vtkAppendCompositeDataLeaves>::New();
   append->AppendFieldDataOn();
 
+  /*
   if ( this->ExodusModelMetadata )
     {
     this->NewExodusModel();
     }
+  */
 
   if ( ReaderList.size() < numMyFiles )
     {
@@ -514,7 +515,6 @@ int vtkPExodusIIReader::RequestData(
     }
 
   // This constructs the filenames
-  int fast_path_reader_index = -1;
   for ( fileIndex = min, reader_idx=0; fileIndex <= max; ++fileIndex, ++reader_idx )
     {
     int fileId = -1;
@@ -603,7 +603,7 @@ int vtkPExodusIIReader::RequestData(
     this->ReaderList[reader_idx]->SetHasModeShapes( this->GetHasModeShapes() );
     this->ReaderList[reader_idx]->SetAnimateModeShapes( this->GetAnimateModeShapes() );
 
-    this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
+    //this->ReaderList[reader_idx]->SetExodusModelMetadata( this->ExodusModelMetadata );
     // For now, this *must* come last before the UpdateInformation() call because its MTime is compared to the metadata's MTime,
     // which is modified by the calls above.
     this->ReaderList[reader_idx]->SetFileName( this->MultiFileName );
@@ -649,29 +649,6 @@ int vtkPExodusIIReader::RequestData(
         }
       }
 
-    // All keys must be present for the fast-path to work.
-    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() ) &&
-         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() ) &&
-         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() ) )
-      {
-      const char *objectType = outInfo->Get(
-            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() );
-      vtkIdType objectId = outInfo->Get(
-            vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() );
-      const char *idType = outInfo->Get(
-            vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() );
-
-      this->ReaderList[reader_idx]->SetFastPathObjectType( objectType );
-      this->ReaderList[reader_idx]->SetFastPathObjectId( objectId );
-      this->ReaderList[reader_idx]->SetFastPathIdType( idType );
-      }
-    else
-      {
-      this->ReaderList[reader_idx]->SetFastPathObjectType("CELL");
-      this->ReaderList[reader_idx]->SetFastPathObjectId(-1);
-      this->ReaderList[reader_idx]->SetFastPathIdType(0);
-      }
-
     //set this reader to use the full amount of the cache
     this->ReaderList[reader_idx]->SetCacheSize(this->VariableCacheSize);
 
@@ -680,17 +657,6 @@ int vtkPExodusIIReader::RequestData(
 
     //set the reader back to the fractional amount
     this->ReaderList[reader_idx]->SetCacheSize(fractionalCacheSize);
-
-    if (this->ReaderList[reader_idx]->GetProducedFastPathOutput())
-      {
-      //if (fast_path_reader_index != -1)
-      //  {
-      //  Requested fast-path Global ID was provided by two readers. This
-      //  typically happens for points since points are duplicated among
-      //  pieces. Nothing to worry about, just pick one.
-      //  }
-      fast_path_reader_index = reader_idx;
-      }
 
 #if 0
     vtkCompositeDataSet* subgrid = this->ReaderList[reader_idx]->GetOutput();
@@ -741,31 +707,6 @@ int vtkPExodusIIReader::RequestData(
     {
     append->Update();
     output->ShallowCopy( append->GetOutput() );
-    }
-
-  if (fast_path_reader_index != -1 && fast_path_reader_index !=0)
-    {
-    // if fast_path_reader_index==0, then the field data is copied over by
-    // vtkAppendCompositeDataLeaves so only copy the "OverTime" arrays if the
-    // field id > 0 (BUG #9335).
-    vtkFieldData* ofd = output->GetFieldData();
-    vtkFieldData* ifd = this->ReaderList[fast_path_reader_index]->
-      GetOutputDataObject(0)->GetFieldData();
-    // Copy all over-time arrays
-    int numFieldArrays = ifd->GetNumberOfArrays();
-    for (int j=0; j<numFieldArrays; j++)
-      {
-      vtkAbstractArray* inFieldArray = ifd->GetAbstractArray(j);
-      if (inFieldArray && inFieldArray->GetName())
-        {
-        vtkStdString fieldName = inFieldArray->GetName();
-
-        if (fieldName.find("OverTime",0) != vtkStdString::npos)
-          {
-          ofd->AddArray(inFieldArray);
-          }
-        }
-      }
     }
 
   // I've copied append's output to the 'output' so delete append

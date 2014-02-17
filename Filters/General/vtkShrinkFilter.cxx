@@ -30,8 +30,6 @@ vtkStandardNewMacro(vtkShrinkFilter);
 vtkShrinkFilter::vtkShrinkFilter()
 {
   this->ShrinkFactor = 0.5;
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_RANGES(), 1);
-  this->GetInformation()->Set(vtkAlgorithm::PRESERVES_BOUNDS(), 1);
 }
 
 //----------------------------------------------------------------------------

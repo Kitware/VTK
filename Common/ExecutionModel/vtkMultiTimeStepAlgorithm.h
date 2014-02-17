@@ -30,6 +30,7 @@
 #include "vtkSmartPointer.h" //needed for a private variable
 
 #include <vector> //needed for a private variable
+#include <vtkDataObject.h> // needed for the smart pointer
 
 class vtkInformationDoubleVectorKey;
 class vtkMultiBlockDataSet;
@@ -87,6 +88,9 @@ protected:
 
   int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
+  bool CacheData;
+  unsigned int NumberOfCacheEntries;
+
 private:
   vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&);  // Not implemented.
   void operator=(const vtkMultiTimeStepAlgorithm&);  // Not implemented.
@@ -95,6 +99,19 @@ private:
   vtkSmartPointer<vtkMultiBlockDataSet> MDataSet; //stores all the temporal data sets
   int RequestUpdateIndex; //keep track of the time looping index
   std::vector<double> UpdateTimeSteps;  //store the requested time steps
+
+  bool IsInCache(double time, size_t& idx);
+
+  struct TimeCache
+  {
+  TimeCache(double time, vtkDataObject* data) : TimeValue(time), Data(data)
+  {
+  }
+  double TimeValue;
+  vtkSmartPointer<vtkDataObject> Data;
+  };
+
+  std::vector<TimeCache> Cache;
 };
 
 #endif

@@ -1,0 +1,23 @@
+.vtkweb-catalyst-composite {
+    position: relative;
+    border: solid 1px black;
+}
+
+.vtkweb-catalyst-composite .control {
+    z-index: 100;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.vtkweb-catalyst-composite .control span img {
+    position: absolute;
+    bottom: -160px;
+    right: 10px;
+    display: none;
+    border: solid 1px black;
+}
+
+.vtkweb-catalyst-composite .control span:hover img {
+    display: block;
+}

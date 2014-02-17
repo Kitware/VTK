@@ -23,7 +23,6 @@
 #include "vtkCellType.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExodusModel.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -407,13 +406,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
 
   this->Parser = 0;
 
-  this->FastPathObjectType = vtkExodusIIReader::NODAL;
-  this->FastPathIdType = NULL;
-  this->FastPathObjectId = -1;
-
   this->SIL = vtkMutableDirectedGraph::New();
-
-  this->ProducedFastPathOutput = false;
 
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
 }
@@ -425,7 +418,6 @@ vtkExodusIIReaderPrivate::~vtkExodusIIReaderPrivate()
   this->Cache->Delete();
   this->CacheSize = 0;
   this->ClearConnectivityCaches();
-  this->SetFastPathIdType( 0 );
   if(this->Parser)
     {
     this->Parser->Delete();
@@ -1114,99 +1106,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellMaps(
       }
     }
   return 1;
-}
-
-//-----------------------------------------------------------------------------
-int vtkExodusIIReaderPrivate::AssembleArraysOverTime(vtkMultiBlockDataSet* output )
-{
-  if ( this->FastPathObjectId < 0 )
-    {
-    // No downstream filter has requested temporal data from this reader.
-    return 0;
-    }
-
-  std::vector<ArrayInfoType>::iterator ai;
-  vtkFieldData* ofd = output->GetFieldData();
-  vtkIdType internalExodusId = -1;
-  int status = 1;
-  int aidx = 0;
-  int objId = -1;
-
-  // We need to get the internal id used by the exodus file from either the
-  // VTK index, or from the global id
-  if (strcmp( this->FastPathIdType, "GLOBAL" )  == 0)
-    {
-    vtkExodusIICacheKey globalIdMapKey;
-    switch ( this->FastPathObjectType )
-      {
-      case vtkExodusIIReader::NODAL:
-        globalIdMapKey =
-          vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 );
-        break;
-      case vtkExodusIIReader::ELEM_BLOCK:
-        globalIdMapKey =
-          vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
-        break;
-      default:
-        vtkDebugMacro( "Unsupported object type for fast path." );
-        return 0;
-      }
-
-    vtkIdTypeArray* globalIdMap = vtkIdTypeArray::SafeDownCast(
-      this->GetCacheOrRead( globalIdMapKey ) );
-    if (!globalIdMap)
-      {
-      return 0;
-      }
-
-    vtkIdType index = globalIdMap->LookupValue(this->FastPathObjectId);
-    if (index >= 0)
-      {
-      internalExodusId = index + 1;
-      }
-    }
-
-  // This will happen if the data does not reside in this file
-  if (internalExodusId < 0)
-    {
-    //vtkDebugMacro( "Unable to map id to internal exodus id." );
-    return 0;
-    }
-
-  for (ai = this->ArrayInfo[this->FastPathObjectType].begin();
-    ai != this->ArrayInfo[this->FastPathObjectType].end(); ++ai, ++aidx)
-    {
-    if (! ai->Status)
-      {
-      continue; // Skip arrays we don't want.
-      }
-
-    // If this array isn't defined over the block that the element resides in,
-    // skip. Right now this is only done when the fast-path id type is "INDEX".
-    if ( objId >= 0 &&
-         this->FastPathObjectType == vtkExodusIIReader::ELEM_BLOCK &&
-         ! strcmp( this->FastPathIdType, "INDEX" ) )
-      {
-      if ( ! ai->ObjectTruth[objId] )
-        {
-        continue;
-        }
-      }
-
-    vtkExodusIICacheKey temporalDataKey(
-        -1, this->GetTemporalTypeFromObjectType( this->FastPathObjectType ),
-        internalExodusId, aidx );
-    vtkDataArray* temporalData = this->GetCacheOrRead( temporalDataKey );
-    if ( !temporalData )
-      {
-      vtkDebugMacro( "Unable to read array " << ai->Name.c_str() );
-      status = 0;
-      continue;
-      }
-    ofd->AddArray(temporalData);
-    }
-
-  return status;
 }
 
 //-----------------------------------------------------------------------------
@@ -3469,11 +3368,7 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "DisplayType: " << this->DisplayType << "\n";
   os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
-  os << indent << "ExodusModelMetadata: " << (this->ExodusModelMetadata ? "ON" : "OFF" ) << "\n";
-  // os << indent << "PackExodusModelOntoOutput: " << (this->PackExodusModelOntoOutput ? "ON" : "OFF" ) << "\n";
-  os << indent << "ExodusModel: " << this->ExodusModel << "\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
-  os << indent << "ProducedFastPathOutput: " << this->ProducedFastPathOutput << "\n";
   if ( this->Metadata )
     {
     os << indent << "Metadata:\n";
@@ -4296,10 +4191,6 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
       }
     }
 
-  // Pack temporal data onto output field data arrays if fast path.
-  // option is available:
-  this->ProducedFastPathOutput = (this->AssembleArraysOverTime(output) != 0);
-
   this->CloseFile();
 
   return 0;
@@ -4451,7 +4342,6 @@ void vtkExodusIIReaderPrivate::Reset()
   this->Times.clear();
   this->TimeStep = 0;
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
-  this->FastPathObjectId = -1;
 
   // Don't clear file id since it's not part of meta-data that's read from the
   // file, it's set externally (by vtkPExodusIIReader).
@@ -4482,10 +4372,6 @@ void vtkExodusIIReaderPrivate::ResetSettings()
 
   this->InitialArrayInfo.clear();
   this->InitialObjectInfo.clear();
-
-  this->FastPathObjectType = vtkExodusIIReader::NODAL;
-  this->FastPathObjectId = -1;
-  this->SetFastPathIdType( 0 );
 }
 
 void vtkExodusIIReaderPrivate::ResetCache()
@@ -4991,7 +4877,6 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
 
 vtkStandardNewMacro(vtkExodusIIReader);
 vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
-vtkCxxSetObjectMacro(vtkExodusIIReader,ExodusModel,vtkExodusModel);
 
 vtkExodusIIReader::vtkExodusIIReader()
 {
@@ -5003,12 +4888,8 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->TimeStep = 0;
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
-  this->ExodusModelMetadata = 0;
-  // this->PackExodusModelOntoOutput = 1;
-  this->ExodusModel = 0;
   this->DisplayType = 0;
   this->SILUpdateStamp = -1;
-  this->ProducedFastPathOutput = false;
 
   this->SetNumberOfInputPorts( 0 );
 }
@@ -5019,7 +4900,7 @@ vtkExodusIIReader::~vtkExodusIIReader()
   this->SetFileName( 0 );
 
   this->SetMetadata( 0 );
-  this->SetExodusModel( 0 );
+  //this->SetExodusModel( 0 );
 }
 
 // Normally, vtkExodusIIReader::PrintSelf would be here.
@@ -5219,7 +5100,6 @@ int vtkExodusIIReader::RequestData(
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector )
 {
-  this->ProducedFastPathOutput = false;
   if ( ! this->FileName || ! this->Metadata->OpenFile( this->FileName ) )
     {
     vtkErrorMacro( "Unable to open file \"" << (this->FileName ? this->FileName : "(null)") << "\" to read data" );
@@ -5277,47 +5157,8 @@ int vtkExodusIIReader::RequestData(
       }
     }
 
-  // Look for fast-path keys.
-  // All keys must be present for the fast-path to work.
-  bool haveFastPath = false;
-  vtkIdType oldFastPathObjId = -1;
-  ObjectType oldFastPathObjType = ELEM_BLOCK;
-  char* oldFastPathIdType = 0;
-  if (
-    outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() ) &&
-    outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() ) &&
-    outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() ) )
-    {
-    const char *objectType = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() );
-    vtkIdType objectId = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() );
-    const char *idType = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() );
-
-    oldFastPathObjId = this->Metadata->FastPathObjectId;
-    oldFastPathObjType = this->Metadata->FastPathObjectType;
-    oldFastPathIdType = vtksys::SystemTools::DuplicateString( this->Metadata->FastPathIdType );
-
-    this->SetFastPathObjectType( objectType );
-    this->SetFastPathObjectId( objectId );
-    this->SetFastPathIdType( idType );
-    haveFastPath = true;
-    }
-
   //cout << "Requesting step " << this->TimeStep << " for output " << output << "\n";
   this->Metadata->RequestData( this->TimeStep, output );
-  this->ProducedFastPathOutput = this->Metadata->ProducedFastPathOutput;
-
-  // Restore previous fastpath values so we don't respond to old pipeline requests
-  if ( haveFastPath )
-    {
-    this->Metadata->FastPathObjectType = oldFastPathObjType;
-    this->SetFastPathObjectId( oldFastPathObjId );
-    this->SetFastPathIdType( oldFastPathIdType );
-    delete [] oldFastPathIdType;
-    }
-
 
   return 1;
 }
@@ -6118,22 +5959,6 @@ void vtkExodusIIReader::SetAllArrayStatus( int otyp, int status )
     }
 }
 
-void vtkExodusIIReader::NewExodusModel()
-{
-  // These arrays are required by the Exodus II writer:
-  this->GenerateGlobalElementIdArrayOn();
-  this->GenerateGlobalNodeIdArrayOn();
-  this->GenerateObjectIdCellArrayOn();
-
-  if ( this->ExodusModel )
-    {
-    this->ExodusModel->Reset();
-    return;
-    }
-
-  this->ExodusModel = vtkExodusModel::New();
-}
-
 void vtkExodusIIReader::Dump()
 {
   vtkIndent indent;
@@ -6220,45 +6045,6 @@ void vtkExodusIIReader::AdvertiseTimeSteps( vtkInformation* outInfo )
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
     }
-
-  // Advertise to downstream filters that this reader supports a fast-path
-  // for reading data over time.
-  outInfo->Set( vtkStreamingDemandDrivenPipeline::FAST_PATH_FOR_TEMPORAL_DATA(), 1 );
-}
-
-void vtkExodusIIReader::SetFastPathObjectType( const char* type )
-{
-  if ( ! strcmp( type, "POINT" ) )
-    {
-    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::NODAL );
-    }
-  else if ( ! strcmp( type, "CELL" ) )
-    {
-    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::ELEM_BLOCK );
-    }
-  else if ( ! strcmp( type, "FACE" ) )
-    {
-    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::FACE_BLOCK );
-    }
-  else if ( ! strcmp( type, "EDGE" ) )
-    {
-    this->Metadata->SetFastPathObjectType( vtkExodusIIReader::EDGE_BLOCK );
-    }
-
-  this->Modified();
-}
-
-void vtkExodusIIReader::SetFastPathObjectId(vtkIdType id)
-{
-  this->Metadata->SetFastPathObjectId(id);
-  this->Modified();
-}
-
-
-void vtkExodusIIReader::SetFastPathIdType(const char *type)
-{
-  this->Metadata->SetFastPathIdType(type);
-  this->Modified();
 }
 
 void vtkExodusIIReader::Reset()

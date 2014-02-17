@@ -153,12 +153,6 @@ public:
   vtkBooleanMacro(GenerateTriangles,int);
 
   // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*);
-
-  // Description:
   // Set/get the desired precision for the output types. See the documentation
   // for the vtkAlgorithm::Precision enum for an explanation of the available
   // precision settings.
