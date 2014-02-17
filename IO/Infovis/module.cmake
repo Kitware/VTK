@@ -7,6 +7,7 @@ vtk_module(vtkIOInfovis
     vtkCommonMisc
     vtkIOCore
     vtkIOLegacy
+    vtkIOXML
     vtkInfovisCore
   PRIVATE_DEPENDS
     vtklibxml2
