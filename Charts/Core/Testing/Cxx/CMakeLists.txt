@@ -14,6 +14,7 @@ vtk_add_test_cxx(
   TestBagPlot.cxx
   TestBarGraph.cxx
   TestBarGraphHorizontal.cxx
+  TestBoxPlot.cxx
   TestCategoryLegend.cxx
   TestColorTransferFunction.cxx,-E80
   TestChartDouble.cxx

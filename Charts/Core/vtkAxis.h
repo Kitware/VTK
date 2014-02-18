@@ -278,6 +278,11 @@ public:
   vtkGetMacro(TicksVisible, bool);
 
   // Description:
+  // Get/set whether the axis line should be visible.
+  vtkSetMacro(AxisVisible, bool);
+  vtkGetMacro(AxisVisible, bool);
+
+  // Description:
   // Get/set the numerical precision to use, default is 2.
   virtual void SetPrecision(int precision);
   vtkGetMacro(Precision, int);
@@ -506,6 +511,7 @@ protected:
   bool GridVisible;    // Whether the grid for the axis should be drawn
   bool LabelsVisible;  // Should the axis labels be visible
   bool TicksVisible;   // Should the tick marks be visible.
+  bool AxisVisible;    // Should the axis line be visible.
   int Precision;       // Numerical precision to use, defaults to 2.
   int Notation;        // The notation to use (standard, scientific, mixed)
   int Behavior;        // The behaviour of the axis (auto, fixed, custom).
