@@ -53,3 +53,4 @@ iren Initialize
 # Withdraw the default tk window
 wm withdraw .
 
+iren Start

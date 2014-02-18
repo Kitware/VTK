@@ -139,7 +139,6 @@ proc HistogramWidgetBind {widget} {
 # Probe the histogram
 
 proc HistogramWidgetUpdateInteraction {widget} {
-
     set pos [[[[$widget GetImageViewer] GetRenderWindow] GetInteractor] GetEventPosition]
     set x [lindex $pos 0]
     set y [lindex $pos 1]
@@ -155,8 +154,9 @@ proc HistogramWidgetUpdateInteraction {widget} {
 
     # Now get the height of the histogram
 
+    $accumulate Update
     set data [$accumulate GetOutput]
-    $data Update
+    #$data Update
 
     # Make sure value is in extent
 
@@ -165,11 +165,10 @@ proc HistogramWidgetUpdateInteraction {widget} {
         return
     }
     set y [$data GetScalarComponentAsDouble $x 0 0 0]
-
     # Display the value
 
     set mapper [::vtk::get_widget_variable_value $widget text1_mapper]
-    $mapper SetInput [format "\[%.1f, %.1f): %d" $binMin $binMax $y]
+    $mapper SetInput [format "\[%.1f, %.1f): %g" $binMin $binMax $y]
 
     $widget Render
 }

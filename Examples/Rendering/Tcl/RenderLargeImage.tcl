@@ -61,3 +61,4 @@ vtkTIFFWriter writer
   writer SetFileName largeImage.tif
   writer Write
 
+iren Start

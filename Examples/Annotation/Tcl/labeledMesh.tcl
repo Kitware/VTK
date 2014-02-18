@@ -155,3 +155,4 @@ MoveWindow
 # This works because the xmin = ymin = 200, xLength = yLength = 100, and
 # the render window size is 500 x 500.
 PlaceWindow $xmin $ymin
+iren Start

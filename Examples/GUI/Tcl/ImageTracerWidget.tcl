@@ -283,3 +283,5 @@ proc AdjustTracer { } {
 
   itw InitializeHandles points
 }
+
+iren Start

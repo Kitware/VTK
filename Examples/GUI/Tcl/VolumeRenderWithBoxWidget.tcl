@@ -124,3 +124,5 @@ proc ClipVolumeRender {} {
    boxWidget GetPlanes planes
    volumeMapper SetClippingPlanes planes
 }
+
+iren Start

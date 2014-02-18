@@ -136,7 +136,7 @@ renWin Render
 # Hide the default . widget
 #
 wm withdraw .
-
+iren Start
 #
 # You only need this line if you run this script from a Tcl shell
 # (tclsh) instead of a Tk shell (wish)

@@ -106,5 +106,6 @@ iren Initialize
 
 wm withdraw .
 
+iren Start
 
 

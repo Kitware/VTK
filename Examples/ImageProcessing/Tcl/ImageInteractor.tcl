@@ -189,3 +189,4 @@ proc EndZoom {} {
   renWin Render
 }
 
+iren Start

@@ -166,5 +166,5 @@ renWin AddObserver AbortCheckEvent {TkCheckAbort}
 
 # Withdraw the default tk window.
 wm withdraw .
-
+iren Start
 

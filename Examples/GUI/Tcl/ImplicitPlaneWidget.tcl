@@ -83,3 +83,5 @@ proc myCallback {} {
     planeWidget GetPlane plane
     selectActor VisibilityOn
 }
+
+iren Start

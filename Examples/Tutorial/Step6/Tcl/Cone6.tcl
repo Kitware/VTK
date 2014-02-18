@@ -144,3 +144,5 @@ proc TransformActor {} {
    boxWidget GetTransform t
    coneActor SetUserTransform t
 }
+
+iren Start

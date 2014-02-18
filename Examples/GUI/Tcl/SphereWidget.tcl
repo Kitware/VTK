@@ -113,3 +113,4 @@ proc MoveLight {} {
     eval light SetPosition [sphereWidget GetHandlePosition]
 }
 
+iren Start

@@ -57,6 +57,6 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 wm withdraw .
-
+iren Start
 
 

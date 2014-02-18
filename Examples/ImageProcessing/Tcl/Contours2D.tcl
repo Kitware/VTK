@@ -68,7 +68,8 @@ ren1 AddActor outlineActor
 ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
-iren Initialize;
+iren Initialize
+iren Start
 
 # Don't show the root Tk window "."
 wm withdraw .

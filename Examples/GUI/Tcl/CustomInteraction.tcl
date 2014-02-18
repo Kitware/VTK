@@ -233,6 +233,6 @@ proc Surface {} {
 
 iren Initialize
 wm withdraw .
-
+iren Start
 
 

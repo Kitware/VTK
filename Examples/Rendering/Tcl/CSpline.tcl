@@ -123,5 +123,5 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up
 wm withdraw .
-
+iren Start
 

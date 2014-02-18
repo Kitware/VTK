@@ -32,8 +32,8 @@ set tprop [textMapper GetTextProperty]
     $tprop ShadowOn
     $tprop SetColor 0 0 1
 
-# Create a scaled text actor. Set the position of the text.
-vtkScaledTextActor textActor
+# Create a text actor. Set the position of the text.
+vtkActor2D textActor
     textActor SetMapper textMapper
     textActor SetDisplayPosition 90 50
 
@@ -62,3 +62,4 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # Withdraw the tk window
 wm withdraw .
+iren Start
