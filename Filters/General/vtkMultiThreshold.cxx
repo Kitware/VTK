@@ -695,7 +695,7 @@ void vtkMultiThreshold::UpdateDependents(
               }
             }
           }
-        decision = cnt > 1 ? EXCLUDE : INCLUDE;
+        decision = cnt == 1 ? INCLUDE : EXCLUDE;
         }
       break;
     case WOR:
