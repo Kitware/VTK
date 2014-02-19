@@ -82,7 +82,7 @@
 
     function analysisItemToOPTION(basePath, item) {
         return OPTION_ANALYSIS_ITEM_TEMPLATE
-            .replace(/PATH/g, basePath + item.id)
+            .replace(/PATH/g, basePath + '/' + item.id)
             .replace(/TITLE/g, item.title);
     }
 

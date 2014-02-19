@@ -50,6 +50,7 @@
     margin-right: 5px;
     text-align: left;
     font-weight: bold;
+    height: 0.5em;
 }
 
 .vtk-catalyst-pvweb .control .parameters .label .flag {
@@ -60,10 +61,6 @@
 
 .vtk-catalyst-pvweb .control .parameters .label.active .flag {
     visibility: visible;
-}
-
-.vtk-catalyst-pvweb .control .parameters .label.select {
-    margin-bottom: 10px;
 }
 
 .vtk-catalyst-pvweb .control .parameters .label span {

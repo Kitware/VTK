@@ -13,8 +13,8 @@
 }
 
 .vtkweb-catalyst-analysis .workbench-toolbar {
-    position: absolute;
-    top: 30px;
+    position: relative;
+    top: 0px;
     left: 0;
     right: 0;
     padding-top: 5px;
@@ -35,16 +35,22 @@
 }
 
 .vtkweb-catalyst-analysis ul.left {
-    float: left;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 85%;
 }
 
 .vtkweb-catalyst-analysis ul.right {
-    float: right;
-    margin-right: 5px;
+    position: absolute;
+    right: 5px;
+    top: 5px;
 }
 
 .vtkweb-catalyst-analysis .content {
-
+    position: relative;
+    top: 0px;
+    left: 0;
 }
 
 .vtkweb-catalyst-analysis li {
@@ -101,7 +107,7 @@
 
 .vtkweb-catalyst-analysis .view {
     position: relative;
-    top: 65px;
+    top: 5px;
 }
 
 .vtkweb-catalyst-analysis .view .viewer {
