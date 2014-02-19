@@ -295,6 +295,9 @@
                         action_pending = false;
                         render();
                     }
+                }, function(error) {
+                    console.log("Call to vtk:mouseInteraction failed");
+                    console.log(error);
                 });
             }
         }).append(renderer);
