@@ -32,6 +32,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
+#include "vtkNew.h"
 
 vtkStandardNewMacro(vtkPDataSetReader);
 
@@ -889,6 +890,17 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
 }
 
 //----------------------------------------------------------------------------
+int vtkPDataSetReader::RequestInformation(vtkInformation*,
+                                          vtkInformationVector**,
+                                          vtkInformationVector* outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkPDataSetReader::RequestData(vtkInformation* request,
                                    vtkInformationVector** inputVector ,
                                    vtkInformationVector* outputVector)
@@ -1114,7 +1126,19 @@ int vtkPDataSetReader::ImageDataExecute(
   int i, j;
 
   // Allocate the data object.
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, uExt);
+  int wUExt[6];
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, wUExt);
+  vtkNew<vtkExtentTranslator> et;
+  et->SetWholeExtent(wUExt);
+  et->SetPiece(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  et->SetNumberOfPieces(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  int ghostLevels = info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  et->SetGhostLevel(ghostLevels);
+  et->PieceToExtent();
+  et->GetExtent(uExt);
   output->SetExtent(uExt);
   output->AllocateScalars(info);
 
@@ -1179,6 +1203,15 @@ int vtkPDataSetReader::ImageDataExecute(
   delete [] pieceMask;
   reader->Delete();
 
+  if (ghostLevels > 0)
+    {
+    et->SetGhostLevel(0);
+    et->PieceToExtent();
+    int zeroExt[6];
+    et->GetExtent(zeroExt);
+    output->GenerateGhostLevelArray(zeroExt);
+    }
+
   return 1;
 }
 
@@ -1215,7 +1248,19 @@ int vtkPDataSetReader::StructuredGridExecute(
     {
     pieceMask[i] = 0;
     }
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, uExt);
+  int wUExt[6];
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, wUExt);
+  vtkNew<vtkExtentTranslator> et;
+  et->SetWholeExtent(wUExt);
+  et->SetPiece(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  et->SetNumberOfPieces(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  int ghostLevels = info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  et->SetGhostLevel(ghostLevels);
+  et->PieceToExtent();
+  et->GetExtent(uExt);
   this->CoverExtent(uExt, pieceMask);
 
   // Now read the pieces.
@@ -1351,6 +1396,16 @@ int vtkPDataSetReader::StructuredGridExecute(
   delete [] pieceMask;
 
   reader->Delete();
+
+  if (ghostLevels > 0)
+    {
+    et->SetGhostLevel(0);
+    et->PieceToExtent();
+    int zeroExt[6];
+    et->GetExtent(zeroExt);
+    output->GenerateGhostLevelArray(zeroExt);
+    }
+
   return 1;
 }
 
