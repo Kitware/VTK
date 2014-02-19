@@ -1,6 +1,6 @@
 (function ($, GLOBAL) {
-    var SLIDER_TEMPLATE = '<div class="label"><span class="flag vtk-icon-flag"/>LABEL<span class="NAME-value">DEFAULT</span></div><input type="range" min="0" max="SIZE" value="INDEX" name="NAME" data-values="VALUES"/>',
-    SELECT_TEMPLATE = ' <div class="label select"><span class="flag vtk-icon-flag"/>LABEL<select name="NAME">VALUES</select></div>',
+    var SLIDER_TEMPLATE = 'PRIORITY<div class="label"><span class="flag vtk-icon-flag"/>LABEL<span class="NAME-value">DEFAULT</span></div><input type="range" min="0" max="SIZE" value="INDEX" name="NAME" data-values="VALUES"/>',
+    SELECT_TEMPLATE = 'PRIORITY<div class="label select"><span class="flag vtk-icon-flag"/>LABEL<select name="NAME">VALUES</select></div>',
     OPTION_TEMPLATE = '<option SELECTED>VALUE</option>',
     EXCLUDE_ARGS = { "theta": true };
 
@@ -115,23 +115,23 @@
     // ========================================================================
 
     var WidgetFactory = {
-        "range": function(name, label, values, defaultValue) {
-            return templateReplace(SLIDER_TEMPLATE, name, label, values, defaultValue);
+        "range": function(name, label, values, defaultValue, priority) {
+            return templateReplace(SLIDER_TEMPLATE, name, label, values, defaultValue, priority);
         },
-        "list": function(name, label, values, defaultValue) {
+        "list": function(name, label, values, defaultValue, priority) {
             var options = [];
             for(var idx in values) {
                 var selected = (values[idx] === defaultValue) ? 'selected="selected"' : '';
                 options.push(OPTION_TEMPLATE.replace('VALUE', values[idx]).replace('SELECTED', selected));
             }
-            return templateReplace(SELECT_TEMPLATE, name, label, [ options.join('') ], defaultValue);
+            return templateReplace(SELECT_TEMPLATE, name, label, [ options.join('') ], defaultValue, priority);
         }
     };
 
     // ------------------------------------------------------------------------
 
-    function templateReplace( templateString, name, label, values, defaultValue) {
-        return templateString.replace(/NAME/g, name).replace(/LABEL/g, label).replace(/VALUES/g, values.join(':')).replace(/SIZE/g, values.length - 1).replace(/DEFAULT/g, defaultValue).replace(/INDEX/g, values.indexOf(defaultValue));
+    function templateReplace( templateString, name, label, values, defaultValue, priority) {
+        return templateString.replace(/NAME/g, name).replace(/LABEL/g, label).replace(/VALUES/g, values.join(':')).replace(/SIZE/g, values.length - 1).replace(/DEFAULT/g, defaultValue).replace(/INDEX/g, values.indexOf(defaultValue)).replace(/PRIORITY/g, "                          ".substring(0,priority));
     }
 
     // ------------------------------------------------------------------------
@@ -149,6 +149,7 @@
             type = args[key].type,
             label = args[key].label,
             values = args[key].values,
+            priority = args[key].priority,
             defaultValue = args[key]['default'];
 
             // Update default value
@@ -161,7 +162,7 @@
 
             // Build widget if needed
             if(values.length > 1) {
-                 htmlBuffer.push(WidgetFactory[type](name, label, values, defaultValue));
+                 htmlBuffer.push(WidgetFactory[type](name, label, values, defaultValue, priority));
             }
         }
 
