@@ -23,6 +23,12 @@
             factory: function(domToFill, path) {
                 domToFill.vtkCatalystCompositeViewer(path);
             }
+        },
+        "catalyst-pvweb" : {
+            class: "vtk-icon-laptop",
+            factory: function(domToFill, path) {
+                domToFill.vtkCatalystPVWeb(path);
+            }
         }
     };
 
@@ -66,7 +72,7 @@
     function analysisItemToHTML(basePath, item) {
         return TOOLBAR_ANALYSIS_ITEM_TEMPLATE
             .replace(/TYPE/g, item.type)
-            .replace(/PATH/g, basePath + item.id)
+            .replace(/PATH/g, basePath + '/' + item.id)
             .replace(/CLASS/g, VIEWER_FACTORY[item.type].class)
             .replace(/TITLE/g, item.title)
             .replace(/DESCRIPTION/g, item.description);
