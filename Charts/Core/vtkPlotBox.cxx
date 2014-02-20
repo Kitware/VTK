@@ -114,8 +114,6 @@ bool vtkPlotBox::Paint(vtkContext2D *painter)
     return false;
     }
 
-  painter->ApplyPen(this->Pen);
-
   if (this->Storage->size() == 0 || this->Storage->at(0).size() < 5)
     {
     return false;
@@ -156,6 +154,8 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
     return;
     }
 
+  painter->ApplyPen(this->Pen);
+
   vtkNew<vtkBrush> brush;
   brush->SetColor(rgba);
   painter->ApplyBrush(brush.GetPointer());
@@ -185,11 +185,12 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
   // Use a gray pen if the brush is black so the median is always visible
   if (brushColor[0] == 0 && brushColor[1] == 0 && brushColor[2] == 0)
     {
-    whitePen->SetWidth(std::max(1.0, this->Pen->GetWidth() - 1.0));
+    whitePen->SetWidth(this->Pen->GetWidth());
     whitePen->SetColor(128, 128, 128, 128);
     whitePen->SetOpacity(this->Pen->GetOpacity());
     painter->ApplyPen(whitePen.GetPointer());
     }
+
   painter->DrawLine(xneg, q[2], xpos, q[2]);
 }
 
