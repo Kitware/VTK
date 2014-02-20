@@ -386,12 +386,11 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
   int vtkGlyph3DMapper::RequestUpdateExtent(
     vtkInformation *vtkNotUsed(request),
     vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector)
+    vtkInformationVector *)
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if (sourceInfo)
     {

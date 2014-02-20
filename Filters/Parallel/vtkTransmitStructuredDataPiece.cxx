@@ -101,7 +101,6 @@ int vtkTransmitStructuredDataPiece::RequestData(
   procId = this->Controller->GetLocalProcessId();
   if (procId == 0)
     {
-    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     vtkDataSet *input = vtkDataSet::GetData(inputVector[0]);
     this->RootExecute(input, output, outInfo);
     }

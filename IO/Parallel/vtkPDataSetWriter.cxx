@@ -333,7 +333,6 @@ int vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
 int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
                                           char *root, char *str, ostream *fptr)
 {
-  int i;
   int *pi;
   double *pf;
   vtkInformation* inInfo = this->GetInputInformation();
@@ -433,7 +432,7 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
     delete[] sendBuffer;
     }
 
-  for (i = 0; i < this->NumberOfPieces; ++i)
+  for (int i = 0; i < this->NumberOfPieces; ++i)
     {
     pi = &this->Extents[i][0];
     sprintf(str, this->FilePattern, root, i);
