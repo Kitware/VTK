@@ -42,6 +42,7 @@
 #include "vtkExtractSelectedFrustum.h"
 #include "vtkDataSetMapper.h"
 #include "vtkSmartPointer.h"
+#include "vtkProperty.h"
 
 #include "vtkDataSetReader.h"
 
@@ -174,6 +175,8 @@ int TestAreaSelections(int argc, char* argv[])
   MY_CREATE_NEW(vtkActor, act2);
   act2->SetMapper(map2);
   act2->PickableOn(); //lets the HardwareSelector select in it
+  act2->GetProperty()->SetColor(0.2,0.1,0.5);
+  act2->GetProperty()->SetOpacity(0.6);
   renderer->AddActor(act2);
 
   sMap = vtkSmartPointer<vtkDataSetMapper>::New();
