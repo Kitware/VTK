@@ -387,18 +387,22 @@ void vtkPlotBox::SetColumnColor(const vtkStdString& colName, double *rgb)
 //-----------------------------------------------------------------------------
 void vtkPlotBox::CreateDefaultLookupTable()
 {
-  if (this->LookupTable)
+  // There must be an input to create a lookup table
+  if (this->GetInput())
     {
-    this->LookupTable->UnRegister(this);
+    if (this->LookupTable)
+      {
+      this->LookupTable->UnRegister(this);
+      }
+    vtkLookupTable* lut = vtkLookupTable::New();
+    this->LookupTable = lut;
+    // Consistent Register/UnRegisters.
+    this->LookupTable->Register(this);
+    this->LookupTable->Delete();
+    vtkTable *table = this->GetInput();
+    lut->SetNumberOfColors(table->GetNumberOfColumns());
+    this->LookupTable->Build();
     }
-  vtkLookupTable* lut = vtkLookupTable::New();
-  this->LookupTable = lut;
-  // Consistent Register/UnRegisters.
-  this->LookupTable->Register(this);
-  this->LookupTable->Delete();
-  vtkTable *table = this->GetInput();
-  lut->SetNumberOfColors(table->GetNumberOfColumns());
-  this->LookupTable->Build();
 }
 
 //-----------------------------------------------------------------------------
