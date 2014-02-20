@@ -58,7 +58,7 @@ vtkStandardNewMacro(vtkPlotBox)
 vtkPlotBox::vtkPlotBox()
 {
   this->Storage = new vtkPlotBox::Private();
-  this->Pen->SetColor(255, 0, 0, 25);
+  this->Pen->SetColor(0, 0, 0);
   this->BoxWidth = 20.;
   this->LookupTable = 0;
   this->TooltipDefaultLabelFormat = "%y";
@@ -158,11 +158,6 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
 
   vtkNew<vtkBrush> brush;
   brush->SetColor(rgba);
-  vtkNew<vtkPen> blackPen;
-  blackPen->SetWidth(this->Pen->GetWidth());
-  blackPen->SetColor(0, 0, 0, 128);
-  blackPen->SetOpacity(255);
-  painter->ApplyPen(blackPen.GetPointer());
   painter->ApplyBrush(brush.GetPointer());
 
   // Helper variables for x position
