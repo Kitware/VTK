@@ -646,7 +646,7 @@ int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer,
       id->GetOrigin(origin);
       double spacing[3];
       id->GetSpacing(spacing);
-      int readerExt[3];
+      int readerExt[6];
       id->GetExtent(readerExt);
       for (int i=0; i<3; i++)
         {
