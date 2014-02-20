@@ -429,6 +429,10 @@ void vtkPlotBag::SetInputData(vtkTable *table, const vtkStdString &xColumn,
     vtkDataObject::FIELD_ASSOCIATION_ROWS, yColumn.c_str());
   this->Data->SetInputArrayToProcess(2, 0, 0,
     vtkDataObject::FIELD_ASSOCIATION_ROWS, densityColumn.c_str());
+  if (this->AutoLabels)
+    {
+    this->AutoLabels = 0;
+    }
 }
 
 //-----------------------------------------------------------------------------
