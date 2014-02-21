@@ -146,20 +146,20 @@ static void vtkRectilinearSynchronizedTemplatesInitializeOutput(
 //----------------------------------------------------------------------------
 // Calculate the gradient using central difference.
 template <class T>
-void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
+void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *inExt,
                                int xInc, int yInc, int zInc,
                                double *spacing, double n[3])
 {
   double sp, sm;
 
   // x-direction
-  if ( i == wholeExt[0] )
+  if ( i == inExt[0] )
     {
     sp = *(s+xInc);
     sm = *s;
     n[0] = (sp - sm) / spacing[1];
     }
-  else if ( i == wholeExt[1] )
+  else if ( i == inExt[1] )
     {
     sp = *s;
     sm = *(s-xInc);
@@ -173,13 +173,13 @@ void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // y-direction
-  if ( j == wholeExt[2] )
+  if ( j == inExt[2] )
     {
     sp = *(s+yInc);
     sm = *s;
     n[1] = (sp - sm) / spacing[3];
     }
-  else if ( j == wholeExt[3] )
+  else if ( j == inExt[3] )
     {
     sp = *s;
     sm = *(s-yInc);
@@ -193,13 +193,13 @@ void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // z-direction
-  if ( k == wholeExt[4] )
+  if ( k == inExt[4] )
     {
     sp = *(s+zInc);
     sm = *s;
     n[2] = (sp - sm) / spacing[5];
     }
-  else if ( k == wholeExt[5] )
+  else if ( k == inExt[5] )
     {
     sp = *s;
     sm = *(s-zInc);
@@ -219,12 +219,12 @@ if (NeedGradients) \
 { \
   if (!g0) \
     { \
-    self->ComputeSpacing(data, i, j, k, exExt, spacing); \
-    vtkRSTComputePointGradient(i, j, k, s0, exExt, xInc, yInc, zInc, spacing, n0); \
+    self->ComputeSpacing(data, i, j, k, inExt, spacing); \
+    vtkRSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0); \
     g0 = 1; \
     } \
-  self->ComputeSpacing(data, i2, j2, k2, exExt, spacing); \
-  vtkRSTComputePointGradient(i2, j2, k2, s, exExt, xInc, yInc, zInc, spacing, n1); \
+  self->ComputeSpacing(data, i2, j2, k2, inExt, spacing); \
+  vtkRSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
     n[jj] = n0[jj] + t * (n1[jj] - n0[jj]); \
@@ -250,13 +250,12 @@ if (ComputeScalars) \
 // Contouring filter specialized for images
 //
 template <class T>
-void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exExt,
+void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *inExt,
                             vtkRectilinearGrid *data, vtkPolyData *output, T *ptr,
                             vtkDataArray *inScalars, bool outputTriangles)
 {
-  int *inExt = data->GetExtent();
-  int xdim = exExt[1] - exExt[0] + 1;
-  int ydim = exExt[3] - exExt[2] + 1;
+  int xdim = inExt[1] - inExt[0] + 1;
+  int ydim = inExt[3] - inExt[2] + 1;
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
@@ -313,18 +312,18 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkRectilinearSynchronizedTemplatesInitializeOutput(exExt, data, output,
+  vtkRectilinearSynchronizedTemplatesInitializeOutput(inExt, data, output,
                                          newScalars, newNormals, newGradients, inScalars);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
 
   // this is an exploded execute extent.
-  xMin = exExt[0];
-  xMax = exExt[1];
-  yMin = exExt[2];
-  yMax = exExt[3];
-  zMin = exExt[4];
-  zMax = exExt[5];
+  xMin = inExt[0];
+  xMax = inExt[1];
+  yMin = inExt[2];
+  yMax = inExt[3];
+  zMin = inExt[4];
+  zMax = inExt[5];
 
   // increments to move through scalars Compute these ourself because
   // we may be contouring an array other than scalars.

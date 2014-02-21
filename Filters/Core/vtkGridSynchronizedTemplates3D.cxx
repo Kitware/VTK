@@ -363,12 +363,11 @@ if (ComputeScalars) \
 // Contouring filter specialized for structured grids
 template <class T, class PointsType>
 void ContourGrid(vtkGridSynchronizedTemplates3D *self,
-                 int *exExt, T *scalars,
+                 int *inExt, T *scalars,
                  vtkStructuredGrid *input, vtkPolyData *output, PointsType*, vtkDataArray *inScalars, bool outputTriangles)
 {
-  int *inExt = input->GetExtent();
-  int xdim = exExt[1] - exExt[0] + 1;
-  int ydim = exExt[3] - exExt[2] + 1;
+  int xdim = inExt[1] - inExt[0] + 1;
+  int ydim = inExt[3] - inExt[2] + 1;
   double n0[3], n1[3];  // used in gradient macro
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
@@ -427,18 +426,18 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
     newGradients = vtkFloatArray::New();
     }
   vtkGridSynchronizedTemplates3DInitializeOutput(
-              exExt, self->GetOutputPointsPrecision(), input, output,
+              inExt, self->GetOutputPointsPrecision(), input, output,
               newScalars, newNormals, newGradients, inScalars);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
 
   // this is an exploded execute extent.
-  XMin = exExt[0];
-  XMax = exExt[1];
-  YMin = exExt[2];
-  YMax = exExt[3];
-  ZMin = exExt[4];
-  ZMax = exExt[5];
+  XMin = inExt[0];
+  XMax = inExt[1];
+  YMin = inExt[2];
+  YMax = inExt[3];
+  ZMin = inExt[4];
+  ZMax = inExt[5];
   // to skip over an x row of the input.
   incY = inExt[1]-inExt[0]+1;
   // to skip over an xy slice of the input.
@@ -477,7 +476,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 
 
   //fprintf(stderr, "%d: -------- Extent %d, %d, %d, %d, %d, %d\n", threadId,
-  //      exExt[0], exExt[1], exExt[2], exExt[3], exExt[4], exExt[5]);
+  //      inExt[0], inExt[1], inExt[2], inExt[3], inExt[4], inExt[5]);
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
@@ -783,19 +782,19 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 
 template <class T>
 void ContourGrid(vtkGridSynchronizedTemplates3D *self,
-                 int *exExt, T *scalars, vtkStructuredGrid *input,
+                 int *inExt, T *scalars, vtkStructuredGrid *input,
                  vtkPolyData *output, vtkDataArray *inScalars, bool outputTriangles)
 {
   switch(input->GetPoints()->GetData()->GetDataType())
     {
     vtkTemplateMacro(
-      ContourGrid(self, exExt, scalars, input, output,static_cast<VTK_TT *>(0), inScalars, outputTriangles));
+      ContourGrid(self, inExt, scalars, input, output,static_cast<VTK_TT *>(0), inScalars, outputTriangles));
     }
 }
 
 //----------------------------------------------------------------------------
 // Contouring filter specialized for images (or slices from images)
-void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
+void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *inExt, int ,
                                                      vtkStructuredGrid *input,
                                                      vtkInformationVector **inputVector,
                                                      vtkInformation *outInfo)
@@ -822,8 +821,8 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
   //
   // Check dimensionality of data and get appropriate form
   //
-  dataSize = (exExt[1]-exExt[0]+1) * (exExt[3]-exExt[2]+1)
-                * (exExt[5]-exExt[4]+1);
+  dataSize = (inExt[1]-inExt[0]+1) * (inExt[3]-inExt[2]+1)
+                * (inExt[5]-inExt[4]+1);
 
   //
   // Check data type and execute appropriate function
@@ -834,7 +833,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     switch (inScalars->GetDataType())
       {
       vtkTemplateMacro(
-        ContourGrid(this, exExt, static_cast<VTK_TT *>(scalars), input, output, inScalars, this->GenerateTriangles!=0));
+        ContourGrid(this, inExt, static_cast<VTK_TT *>(scalars), input, output, inScalars, this->GenerateTriangles!=0));
       }//switch
     }
   else //multiple components - have to convert
@@ -844,7 +843,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     image->Allocate(dataSize*image->GetNumberOfComponents());
     inScalars->GetTuples(0,dataSize,image);
     double *scalars = image->GetPointer(0);
-    ContourGrid(this, exExt, scalars, input, output, inScalars, this->GenerateTriangles!=0);
+    ContourGrid(this, inExt, scalars, input, output, inScalars, this->GenerateTriangles!=0);
     image->Delete();
     }
 

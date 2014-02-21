@@ -149,20 +149,20 @@ static void vtkSynchronizedTemplates3DInitializeOutput(
 //----------------------------------------------------------------------------
 // Calculate the gradient using central difference.
 template <class T>
-void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
+void vtkSTComputePointGradient(int i, int j, int k, T *s, int *inExt,
                                int xInc, int yInc, int zInc,
                                double *spacing, double n[3])
 {
   double sp, sm;
 
   // x-direction
-  if ( i == wholeExt[0] )
+  if ( i == inExt[0] )
     {
     sp = *(s+xInc);
     sm = *s;
     n[0] = (sp - sm) / spacing[0];
     }
-  else if ( i == wholeExt[1] )
+  else if ( i == inExt[1] )
     {
     sp = *s;
     sm = *(s-xInc);
@@ -176,13 +176,13 @@ void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // y-direction
-  if ( j == wholeExt[2] )
+  if ( j == inExt[2] )
     {
     sp = *(s+yInc);
     sm = *s;
     n[1] = (sp - sm) / spacing[1];
     }
-  else if ( j == wholeExt[3] )
+  else if ( j == inExt[3] )
     {
     sp = *s;
     sm = *(s-yInc);
@@ -196,13 +196,13 @@ void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // z-direction
-  if ( k == wholeExt[4] )
+  if ( k == inExt[4] )
     {
     sp = *(s+zInc);
     sm = *s;
     n[2] = (sp - sm) / spacing[2];
     }
-  else if ( k == wholeExt[5] )
+  else if ( k == inExt[5] )
     {
     sp = *s;
     sm = *(s-zInc);
@@ -222,10 +222,10 @@ if (NeedGradients) \
 { \
   if (!g0) \
     { \
-    vtkSTComputePointGradient(i, j, k, s0, wholeExt, xInc, yInc, zInc, spacing, n0); \
+    vtkSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0); \
     g0 = 1; \
     } \
-  vtkSTComputePointGradient(i2, j2, k2, s, wholeExt, xInc, yInc, zInc, spacing, n1); \
+  vtkSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
     n[jj] = n0[jj] + t * (n1[jj] - n0[jj]); \
@@ -251,14 +251,12 @@ if (ComputeScalars) \
 // Contouring filter specialized for images
 //
 template <class T>
-void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
-                  vtkInformation *inInfo,
+void ContourImage(vtkSynchronizedTemplates3D *self, int* inExt,
                   vtkImageData *data, vtkPolyData *output, T *ptr,
                   vtkDataArray *inScalars, bool outputTriangles)
 {
-  int *inExt = data->GetExtent();
-  int xdim = exExt[1] - exExt[0] + 1;
-  int ydim = exExt[3] - exExt[2] + 1;
+  int xdim = inExt[1] - inExt[0] + 1;
+  int ydim = inExt[3] - inExt[2] + 1;
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
@@ -284,7 +282,6 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int v0, v1, v2, v3;
   vtkIdType ptIds[3];
   double value;
-  int *wholeExt;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
   vtkPointData *inPD = data->GetPointData();
@@ -313,7 +310,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkSynchronizedTemplates3DInitializeOutput(exExt,
+  vtkSynchronizedTemplates3DInitializeOutput(inExt,
                                              data, output,
                                              newScalars, newNormals,
                                              newGradients, inScalars);
@@ -321,20 +318,18 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   newPolys = output->GetPolys();
 
   // this is an exploded execute extent.
-  xMin = exExt[0];
-  xMax = exExt[1];
-  yMin = exExt[2];
-  yMax = exExt[3];
-  zMin = exExt[4];
-  zMax = exExt[5];
+  xMin = inExt[0];
+  xMax = inExt[1];
+  yMin = inExt[2];
+  yMax = inExt[3];
+  zMin = inExt[4];
+  zMax = inExt[5];
 
   // increments to move through scalars. Compute these ourself because
   // we may be contouring an array other than scalars.
   xInc = inScalars->GetNumberOfComponents();
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
-
-  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Kens increments, probably to do with edge array
   zstep = xdim*ydim;
@@ -686,7 +681,6 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 // Contouring filter specialized for images (or slices from images)
 //
 void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
-                                                 vtkInformation *inInfo,
                                                  vtkInformation *outInfo,
                                                  vtkDataArray *inScalars)
 {
@@ -697,8 +691,8 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int* exExt = data->GetExtent();
-  if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
+  int* inExt = data->GetExtent();
+  if ( inExt[0] >= inExt[1] || inExt[2] >= inExt[3] || inExt[4] >= inExt[5] )
     {
     vtkDebugMacro(<<"3D structured contours requires 3D data");
     return;
@@ -721,11 +715,11 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
     return;
     }
 
-  ptr = data->GetArrayPointerForExtent(inScalars, exExt);
+  ptr = data->GetArrayPointerForExtent(inScalars, inExt);
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
-      ContourImage(this, exExt, inInfo, data, output,
+      ContourImage(this, inExt, data, output,
                    (VTK_TT *)ptr, inScalars, this->GenerateTriangles!=0));
     }
 }
@@ -752,7 +746,7 @@ int vtkSynchronizedTemplates3D::RequestData(
   vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
 
   // Just call the threaded execute directly.
-  this->ThreadedExecute(input, inInfo, outInfo, inScalars);
+  this->ThreadedExecute(input, outInfo, inScalars);
 
   output->Squeeze();
 
