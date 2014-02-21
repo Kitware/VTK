@@ -154,7 +154,7 @@
     display: none;
 }
 
-.vtkweb-catalyst-analysis .view.search {
+.vtkweb-catalyst-analysis .view.cost {
     display: none;
 }
 
@@ -162,4 +162,48 @@
     position: relative;
     left: 10px;
     top: 3px;
+}
+
+.vtkweb-catalyst-analysis table.catalyst-bill  {
+    width: 98%;
+    border-collapse:collapse;
+    margin: 20px auto;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill td {
+    vertical-align: middle;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill td.title {
+    text-align: left;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill td.value {
+    width: 150px;
+    text-align: center;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill tr.head {
+    background: #ddd;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill tr.head td {
+    text-align: center;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill tr.head td.empty {
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill tr td {
+    border: solid 1px #ccc;
+    padding: 5px;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill tr.sum {
+    background: #ddd;
+}
+
+.vtkweb-catalyst-analysis .catalyst-bill tr.sum td {
+    text-align: center;
+    font-weight: bold;
 }
