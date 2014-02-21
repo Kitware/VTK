@@ -26,7 +26,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkMath.h"
-
+#include "vtkExecutive.h"
 #include "vtkTestErrorObserver.h"
 
 static void TestPrint();
@@ -208,7 +208,28 @@ int TestFilter(int columns, int rows)
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::NAND, 2, intersection));
   expectedCellCounts.push_back(rows * columns - 1);
 
-  // 9: PointVectors
+  // 9-12: Convenience members
+ intervalSets.push_back(threshold->AddLowpassIntervalSet(
+    1,
+    vtkDataObject::FIELD_ASSOCIATION_CELLS, "Rows", 0, 1 ));
+  expectedCellCounts.push_back(2 * columns);
+
+  intervalSets.push_back(threshold->AddHighpassIntervalSet(
+    rows - 1,
+    vtkDataObject::FIELD_ASSOCIATION_CELLS, "Rows", 0, 1 ));
+  expectedCellCounts.push_back(columns);
+
+  intervalSets.push_back(threshold->AddBandpassIntervalSet(
+    1, 2,
+    vtkDataObject::FIELD_ASSOCIATION_CELLS, "Columns", 0, 1 ));
+  expectedCellCounts.push_back(2 * rows);
+
+  intervalSets.push_back(threshold->AddNotchIntervalSet(
+    1, 1,
+    vtkDataObject::FIELD_ASSOCIATION_CELLS, "Rows", 0, 1 ));
+  expectedCellCounts.push_back((rows - 1) * columns);
+
+  // 13-16: PointVectors
   intervalSets.push_back(threshold->AddIntervalSet(
     1, 10,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
@@ -277,7 +298,7 @@ int TestFilter(int columns, int rows)
 int TestErrorsAndWarnings()
 {
   int status = 0;
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver>  filterObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
   vtkSmartPointer<vtkStructuredGrid> sg =
@@ -288,8 +309,8 @@ int TestErrorsAndWarnings()
   vtkSmartPointer<vtkMultiThreshold> threshold =
     vtkSmartPointer<vtkMultiThreshold>::New();
   threshold->SetInputData(sg);
-  threshold->AddObserver(vtkCommand::ErrorEvent, errorObserver);
-  threshold->AddObserver(vtkCommand::WarningEvent, errorObserver);
+  threshold->AddObserver(vtkCommand::ErrorEvent, filterObserver);
+  threshold->AddObserver(vtkCommand::WarningEvent, filterObserver);
 
   std::vector<int> intervalSets;
   intervalSets.push_back(threshold->AddIntervalSet(
@@ -310,17 +331,17 @@ int TestErrorsAndWarnings()
     0, 2,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, (char *) NULL, 0, 1 ));
-  if (errorObserver->GetWarning())
+  if (filterObserver->GetWarning())
     {
     std::cout << "Caught expected warning: "
-              << errorObserver->GetWarningMessage();
+              << filterObserver->GetWarningMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'You passed a null array name' warning" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
 
   // WARNING: You passed an invalid attribute type (100)
@@ -328,63 +349,63 @@ int TestErrorsAndWarnings()
     0, 2,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, 100, 0, 1 ));
-  if (errorObserver->GetWarning())
+  if (filterObserver->GetWarning())
     {
     std::cout << "Caught expected warning: "
-              << errorObserver->GetWarningMessage();
+              << filterObserver->GetWarningMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'You passed an invalid attribute type (100)' warning" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
   int intersection[2];
   intersection[0] = intervalSets[0];
 
   // ERROR: Operators require at least one operand. You passed 0.
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::AND, 0, intersection));
-  if (errorObserver->GetError())
+  if (filterObserver->GetError())
     {
     std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
+              << filterObserver->GetErrorMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'Operators require at least one operand. You passed 0.' error" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
   // ERROR: Invalid operation (10)
   intervalSets.push_back(threshold->AddBooleanSet(10, 1, intersection));
-  if (errorObserver->GetError())
+  if (filterObserver->GetError())
     {
     std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
+              << filterObserver->GetErrorMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'Invalid operation (10)' error" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
   // ERROR: Input 1 is invalid(100)
   intersection[1] = 100;
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::XOR, 2, intersection));
-  if (errorObserver->GetError())
+  if (filterObserver->GetError())
     {
     std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
+              << filterObserver->GetErrorMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'Input 1 is invalid(100)' error" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
   intersection[1] = intervalSets[1];
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::XOR, 2, intersection));
@@ -404,17 +425,17 @@ int TestErrorsAndWarnings()
     1, 10,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     100, "PointVectors", -2, 1 ));
-  if (errorObserver->GetWarning())
+  if (filterObserver->GetWarning())
     {
     std::cout << "Caught expected warning: "
-              << errorObserver->GetWarningMessage();
+              << filterObserver->GetWarningMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'You passed an invalid atribute type (100)' warning" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
 
   // WARNING: Intervals must be specified with ascending values (xmin
@@ -423,34 +444,36 @@ int TestErrorsAndWarnings()
     11, 10,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "PointVectors", -3, 1 ));
-  if (errorObserver->GetWarning())
+  if (filterObserver->GetWarning())
     {
     std::cout << "Caught expected warning: "
-              << errorObserver->GetWarningMessage();
+              << filterObserver->GetWarningMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'One of the interval endpoints is not a number.' warning" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
+#ifndef _WIN32
   // WARNING: One of the interval endpoints is not a number.
   intervalSets.push_back(threshold->AddIntervalSet(
     vtkMath::Nan(), 10,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "PointVectors", -3, 1 ));
-  if (errorObserver->GetWarning())
+  if (filterObserver->GetWarning())
     {
     std::cout << "Caught expected warning: "
-              << errorObserver->GetWarningMessage();
+              << filterObserver->GetWarningMessage();
     }
   else
     {
-    std::cout << "Failed to catch expected 'Intervals must be specified with ascending values (xmin <= xmax)' warning" << std::endl;
+    std::cout << "Failed to catch expected 'One of the interval endpoints is not a number.' warning" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
+#endif
 
   // WARNING: An open interval with equal endpoints will always be
   // empty. I won't help you waste my time.
@@ -458,46 +481,51 @@ int TestErrorsAndWarnings()
     10, 10,
     vtkMultiThreshold::OPEN, vtkMultiThreshold::OPEN,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "PointVectors", -3, 1 ));
-  if (errorObserver->GetWarning())
+  if (filterObserver->GetWarning())
     {
     std::cout << "Caught expected warning: "
-              << errorObserver->GetWarningMessage();
+              << filterObserver->GetWarningMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'An open interval with equal endpoints will always be...' warning" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
 
   // WARNING: Cannot output 1000 because there is not set with that
   // label
   threshold->OutputSet(1000);
-  if (errorObserver->GetWarning())
+  if (filterObserver->GetWarning())
     {
     std::cout << "Caught expected warning: "
-              << errorObserver->GetWarningMessage();
+              << filterObserver->GetWarningMessage();
     }
   else
     {
     std::cout << "Failed to catch expected 'Cannot output 1000 because there is not set with that label' warning" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
+
+  vtkSmartPointer<vtkTest::ErrorObserver>  executiveObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+
+  threshold->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, executiveObserver);
   threshold->Update();
 
-  if (errorObserver->GetError())
+  if (executiveObserver->GetError())
     {
     std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
+              << executiveObserver->GetErrorMessage();
     }
   else
     {
-    std::cout << "Failed to catch expected 'Intervals must be specified with ascending values (xmin <= xmax)' warning" << std::endl;
+    std::cout << "Failed to catch expected pipeline error" << std::endl;
     ++status;
     }
-  errorObserver->Clear();
+  filterObserver->Clear();
 
   return status;
 }
