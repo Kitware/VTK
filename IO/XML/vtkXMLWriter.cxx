@@ -632,7 +632,7 @@ int vtkXMLWriter::RequestData(vtkInformation* vtkNotUsed( request ),
   this->SetErrorCode(vtkErrorCode::NoError);
 
   // Make sure we have a file to write.
-  if(!this->Stream && !this->FileName)
+  if(!this->Stream && !this->FileName && !this->WriteToOutputString)
     {
     vtkErrorMacro("Writer called with no FileName set.");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);

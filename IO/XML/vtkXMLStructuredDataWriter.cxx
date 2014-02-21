@@ -141,7 +141,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     int result = 1;
     if (this->CurrentPiece == 0 && this->CurrentTimeIndex == 0 )
       {
-      if (!this->OpenFile())
+      if (!this->OpenStream())
         {
         return 0;
         }
@@ -201,7 +201,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
           return 0;
           }
 
-        this->CloseFile();
+        this->CloseStream();
         this->CurrentTimeIndex = 0; // Reset
         }
       }
