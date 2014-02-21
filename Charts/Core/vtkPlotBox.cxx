@@ -130,7 +130,12 @@ bool vtkPlotBox::Paint(vtkContext2D *painter)
     double rgb[4];
     this->LookupTable->GetIndexedColor(index, rgb);
     unsigned char crgba[4] =
-      { rgb[0] * 255., rgb[1] * 255, rgb[2] * 255, 255 };
+      {
+      static_cast<unsigned char>(rgb[0] * 255.),
+      static_cast<unsigned char>(rgb[1] * 255.),
+      static_cast<unsigned char>(rgb[2] * 255.),
+      255
+      };
 
     if (parent->GetSelectedColumn() == i)
       {
