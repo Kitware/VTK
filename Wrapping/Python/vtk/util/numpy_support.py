@@ -140,6 +140,12 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
         vtk_typecode = get_vtk_array_type(z.dtype)
     result_array = create_vtk_array(vtk_typecode)
 
+    # Fixup shape in case its empty or scalar.
+    try:
+        testVar = shape[0]
+    except:
+        shape = (0,)
+
     # Find the shape and set number of components.
     if len(shape) == 1:
         result_array.SetNumberOfComponents(1)

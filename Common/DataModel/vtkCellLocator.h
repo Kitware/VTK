@@ -259,11 +259,11 @@ protected:
 
   void ComputeOctantBounds(int i, int j, int k);
   double OctantBounds[6]; //the bounds of the current octant
-  int IsInOctantBounds(double x[3])
+  int IsInOctantBounds(double x[3], double tol = 0.0)
     {
-    if ( this->OctantBounds[0] <= x[0] && x[0] <= this->OctantBounds[1] &&
-         this->OctantBounds[2] <= x[1] && x[1] <= this->OctantBounds[3] &&
-         this->OctantBounds[4] <= x[2] && x[2] <= this->OctantBounds[5] )
+    if ( this->OctantBounds[0]-tol <= x[0] && x[0] <= this->OctantBounds[1]+tol &&
+         this->OctantBounds[2]-tol <= x[1] && x[1] <= this->OctantBounds[3]+tol &&
+         this->OctantBounds[4]-tol <= x[2] && x[2] <= this->OctantBounds[5]+tol )
       {
       return 1;
       }
