@@ -54,11 +54,31 @@ int TestPhyloXMLTreeWriter(int argc, char* argv[])
   char* baselineFile = vtkTestUtilities::GetArgOrEnvOrDefault("-V", argc, argv,
                                                               "", "");
 
-  // compare the baseline to the test file & return accordingly.
+  // compare the baseline file to the test file
   int result = EXIT_SUCCESS;
   if(vtksys::SystemTools::FilesDiffer(baselineFile, testFile.c_str()))
     {
     cout << baselineFile << " and " << testFile << " differ." << endl;
+    result = EXIT_FAILURE;
+    }
+
+  // also test the "write to string" capabilities of this class
+  std::ifstream inFileStream;
+  inFileStream.open(baselineFile);
+  std::string baselineStr;
+  inFileStream.seekg(0, std::ios::end);
+  baselineStr.reserve(inFileStream.tellg());
+  inFileStream.seekg(0, std::ios::beg);
+  baselineStr.assign((std::istreambuf_iterator<char>(inFileStream)),
+                      std::istreambuf_iterator<char>());
+
+  writer->SetWriteToOutputString(1);
+  writer->Update();
+  std::string testStr = writer->GetOutputString();
+
+  if (baselineStr.compare(testStr) != 0)
+    {
+    cout << "PhyloXML write to string did not yield expected results." << endl;
     result = EXIT_FAILURE;
     }
 
