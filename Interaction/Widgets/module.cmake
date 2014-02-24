@@ -16,9 +16,12 @@ vtk_module(vtkInteractionWidgets
     vtkRenderingVolumeOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkTestingRendering
+    vtkInteractionImage
     vtkInteractionStyle
     vtkFiltersModeling
     vtkFiltersFlowPaths
+    vtkFiltersSelection
+    vtkFiltersProgrammable
     vtkRenderingLOD
     vtkImagingStencil
   )
