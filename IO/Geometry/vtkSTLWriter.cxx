@@ -113,6 +113,14 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
     {
+    if (npts > 3)
+      {
+      fclose(fp);
+      vtkErrorMacro(<<"STL file only supports triangles");
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
+      return;
+      }
+
     pts->GetPoint(indx[0],v1);
     pts->GetPoint(indx[1],v2);
     pts->GetPoint(indx[2],v3);
@@ -217,6 +225,14 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
     {
+    if (npts > 3)
+      {
+      fclose(fp);
+      vtkErrorMacro(<<"STL file only supports triangles");
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
+      return;
+      }
+
     pts->GetPoint(indx[0],v1);
     pts->GetPoint(indx[1],v2);
     pts->GetPoint(indx[2],v3);
