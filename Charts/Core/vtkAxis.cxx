@@ -76,6 +76,7 @@ vtkAxis::vtkAxis()
   this->GridVisible = true;
   this->LabelsVisible = true;
   this->TicksVisible = true;
+  this->AxisVisible = true;
   this->Precision = 2;
   this->Notation = vtkAxis::STANDARD_NOTATION;
   this->Behavior = vtkAxis::AUTO;
@@ -295,8 +296,11 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 
   painter->ApplyPen(this->Pen);
   // Draw this axis
-  painter->DrawLine(this->Point1[0], this->Point1[1],
-                    this->Point2[0], this->Point2[1]);
+  if (this->AxisVisible)
+    {
+    painter->DrawLine(this->Point1[0], this->Point1[1],
+                      this->Point2[0], this->Point2[1]);
+    }
 
   // Draw the axis title if there is one
   if (!this->Title.empty())

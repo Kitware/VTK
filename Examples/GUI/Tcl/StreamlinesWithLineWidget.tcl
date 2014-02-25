@@ -145,3 +145,4 @@ proc GenerateStreamlines2 {} {
     lineWidget2 GetPolyData seeds2
 }
 
+iren Start

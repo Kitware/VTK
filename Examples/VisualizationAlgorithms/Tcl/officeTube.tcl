@@ -307,3 +307,4 @@ iren Initialize
 
 # interact with data
 wm withdraw .
+iren Start

@@ -121,3 +121,5 @@ proc Cut {v} {
     cutMapper Update
     renWin Render
 }
+
+iren Start

@@ -102,3 +102,4 @@ proc annotatePick {} {
 
 # Pick the cell at this location.
 picker Pick 85 126 0 ren1
+iren Start

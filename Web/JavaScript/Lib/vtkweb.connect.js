@@ -131,6 +131,9 @@
             if (onClose) {
                 onClose(code, reason);
             }
+        },{
+            'maxRetries': 0,
+            'retryDelay': 2000
         });
     }
 

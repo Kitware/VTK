@@ -146,7 +146,7 @@ squad SetThetaRoundness 0.7
 squad ToroidalOn
 
 vtkAppendPolyData appendSquads
-    appendSquads AddInput [squad GetOutput]
+    appendSquads AddInputConnection [squad GetOutputPort]
 
 vtkPolyDataMapper mapper
     mapper SetInputConnection [squad GetOutputPort]

@@ -107,3 +107,5 @@ proc WidgetCallback  { } {
   rep GetTransform transform
   imageActor SetUserTransform transform
 }
+
+iren Start

@@ -94,3 +94,4 @@ proc ProbeData {} {
     planeWidget GetPolyData plane
 }
 
+iren Start

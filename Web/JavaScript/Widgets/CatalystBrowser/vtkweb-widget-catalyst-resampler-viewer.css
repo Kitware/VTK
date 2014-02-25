@@ -70,6 +70,7 @@
 
 .vtk-catalyst-resample-viewer .control .parameters li {
     list-style: none;
+    margin: 0;
 }
 
 .vtk-catalyst-resample-viewer .control .parameters .label {
@@ -90,7 +91,6 @@
 }
 
 .vtk-catalyst-resample-viewer .control .parameters .label.select {
-    margin-bottom: 10px;
 }
 
 .vtk-catalyst-resample-viewer .control .parameters .label span {

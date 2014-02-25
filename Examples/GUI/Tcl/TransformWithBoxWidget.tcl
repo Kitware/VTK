@@ -66,3 +66,5 @@ proc TransformActor {} {
    boxWidget GetTransform t
    maceActor SetUserTransform t
 }
+
+iren Start
