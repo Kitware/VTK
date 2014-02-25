@@ -24,6 +24,8 @@
  */
 #include "vtkPBGLShortestPaths.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkConvertSelection.h"
@@ -112,6 +114,8 @@ vtkPBGLShortestPaths::vtkPBGLShortestPaths()
   this->UseUniformEdgeWeights = false;
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
+
+  VTK_LEGACY_BODY(vtkPBGLShortestPaths::vtkPBGLShortestPaths, "VTK 6.2");
 }
 
 vtkPBGLShortestPaths::~vtkPBGLShortestPaths()
@@ -557,3 +561,4 @@ int vtkPBGLShortestPaths::FillOutputPortInformation(
   return 1;
 }
 
+#endif //VTK_LEGACY_REMOVE

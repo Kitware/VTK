@@ -21,6 +21,7 @@
 //
 // .SECTION Description
 // Including this header allows you to use a vtk*Graph in Parallel BGL algorithms.
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
 #ifndef __vtkPBGLGraphAdapter_h
 #define __vtkPBGLGraphAdapter_h

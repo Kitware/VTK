@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 /*-------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -23,6 +24,8 @@
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
 #include "vtkPBGLBreadthFirstSearch.h"
+
+#if !defined(VTK_LEGACY_REMOVE)
 
 #include "vtkBoostGraphAdapter.h"
 #include "vtkCellArray.h"
@@ -142,6 +145,8 @@ vtkPBGLBreadthFirstSearch::vtkPBGLBreadthFirstSearch()
   this->OriginFromSelection = false;
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
+
+  VTK_LEGACY_BODY(vtkPBGLBreadthFirstSearch::vtkPBGLBreadthFirstSearch, "VTK 6.2");
 }
 
 vtkPBGLBreadthFirstSearch::~vtkPBGLBreadthFirstSearch()
@@ -468,3 +473,4 @@ int vtkPBGLBreadthFirstSearch::FillOutputPortInformation(
   return 1;
 }
 
+#endif //VTK_LEGACY_REMOVE

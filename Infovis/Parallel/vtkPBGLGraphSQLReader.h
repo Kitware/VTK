@@ -32,6 +32,8 @@
 //
 // NOTE: This filter currently only produces the pedigree id field in
 // the vertex attributes, and no edge attributes.
+//
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
 #ifndef __vtkPBGLGraphSQLReader_h
 #define __vtkPBGLGraphSQLReader_h
@@ -41,6 +43,7 @@
 
 class vtkSQLDatabase;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLGraphSQLReader : public vtkGraphAlgorithm
 {
 public:
@@ -129,5 +132,6 @@ private:
   void operator=(const vtkPBGLGraphSQLReader&);   // Not implemented
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif
 

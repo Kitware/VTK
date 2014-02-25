@@ -24,6 +24,8 @@
  */
 #include "vtkPBGLMinimumSpanningTree.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkBoostGraphAdapter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -70,6 +72,8 @@ vtkPBGLMinimumSpanningTree::vtkPBGLMinimumSpanningTree()
   this->SetOutputSelectionType("MINIMUM_SPANNING_TREE_EDGES");
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(2);
+
+  VTK_LEGACY_BODY(vtkPBGLMinimumSpanningTree::vtkPBGLMinimumSpanningTree, "VTK 6.2");
 }
 
 vtkPBGLMinimumSpanningTree::~vtkPBGLMinimumSpanningTree()
@@ -269,3 +273,4 @@ int vtkPBGLMinimumSpanningTree::FillOutputPortInformation(
   return 1;
 }
 
+#endif //VTK_LEGACY_REMOVE

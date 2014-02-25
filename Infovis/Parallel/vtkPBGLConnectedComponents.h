@@ -25,6 +25,8 @@
 // .SECTION Description
 // This VTK class uses the Parallel BGL's implementation of connected
 // components and strongly-connectd components.
+//
+// @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
 #ifndef __vtkPBGLConnectedComponents_h
 #define __vtkPBGLConnectedComponents_h
@@ -37,6 +39,7 @@
 
 class vtkSelection;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLConnectedComponents : public vtkGraphAlgorithm
 {
 public:
@@ -72,4 +75,5 @@ private:
   void operator=(const vtkPBGLConnectedComponents&);  // Not implemented.
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

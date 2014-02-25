@@ -19,6 +19,8 @@
 
 #include "vtkPBGLCollapseGraph.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkInformation.h"
@@ -41,6 +43,7 @@ vtkStandardNewMacro(vtkPBGLCollapseGraph);
 
 vtkPBGLCollapseGraph::vtkPBGLCollapseGraph()
 {
+  VTK_LEGACY_BODY(vtkPBGLCollapseGraph::vtkPBGLCollapseGraph, "VTK 6.2");
 }
 
 vtkPBGLCollapseGraph::~vtkPBGLCollapseGraph()
@@ -199,3 +202,4 @@ int vtkPBGLCollapseGraph::RequestData(
     this, input_arr, info, input_vec, output_vec);
 }
 
+#endif //VTK_LEGACY_REMOVE
