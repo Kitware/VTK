@@ -299,7 +299,6 @@ vtkMPASReader::vtkMPASReader()
   vtkDebugMacro(<< "Created vtkMPASReader" << endl);
 }
 
-
 //----------------------------------------------------------------------------
 //  Destroys data stored for variables, points, and cells, but
 //  doesn't destroy the list of variables or toplevel cell/pointVarDataArray.
@@ -510,10 +509,6 @@ int vtkMPASReader::RequestInformation(
       {
       this->CellVarDataArray[i] = NULL;
       }
-
-    // Start with no data loaded into ParaView
-    this->DisableAllPointArrays();
-    this->DisableAllCellArrays();
 
     // Collect temporal information
 
