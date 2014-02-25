@@ -119,7 +119,7 @@
     m_canvas2D = GLOBAL.document.createElement('canvas'),
     m_canvas3D = GLOBAL.document.createElement('canvas'),
     m_ctx2d = m_canvas2D.getContext('2d'),
-    gl = m_canvas3D.getContext("experimental-webgl") || m_canvas3D.getContext("webgl"),
+    gl = m_canvas3D.getContext("webgl") || m_canvas3D.getContext("experimental-webgl"),
     m_rendererAttrs = $(m_divContainer).addClass(FACTORY_KEY).css(RENDERER_CSS).append($(m_canvas2D).css(RENDERER_CSS).css(RENDERER_CSS_2D)).append($(m_canvas3D).css(RENDERER_CSS).css(RENDERER_CSS_3D)),
     m_sceneJSON = null,
     m_objectHandler = create3DObjectHandler(),
@@ -182,9 +182,9 @@
               hasTransparency: sceneObject.transparency,
               layer: sceneObject.layer
             };
-            if (newObject.layer === 0) {
-              m_vglVtkReader.addVtkObjectData(newObject);
-            }
+
+            m_vglVtkReader.addVtkObjectData(newObject);
+
             // Redraw the scene
             drawScene();
           } catch(error) {
@@ -225,14 +225,6 @@
           stat_value: 0
         });
 
-        // Clear 2D overlay canvas
-        m_ctx2d.canvas.width = width;
-        m_ctx2d.canvas.height = height;
-        m_ctx2d.clearRect(0, 0, width, height);
-
-        HTMLCanvasElement.prototype.relMouseCoords =
-          m_viewer.relMouseCoords;
-
         m_container.on('mouse', function(event) {
           if (m_viewer) {
             if (event.action === 'move') {
@@ -247,12 +239,9 @@
           }
         });
 
-        m_interactorStyle = m_viewer.interactorStyle();
-        $(m_interactorStyle).on(vgl.event.leftButtonPressEvent, m_viewer.render);
-        $(m_interactorStyle).on(vgl.event.middleButtonPressEvent, m_viewer.render);
-        $(m_interactorStyle).on(vgl.event.rightButtonPressEvent, m_viewer.render);
-
         m_viewer.render();
+
+        numObjects = m_vglVtkReader.numObjects();
 
         // Update frame rate
         m_container.trigger({
@@ -264,7 +253,7 @@
         m_container.trigger({
           type: 'stats',
           stat_id: 'webgl-nb-objects',
-          stat_value: nbObjects
+          stat_value: numObjects
         });
       } catch(error) {
         console.log(error);
@@ -313,18 +302,17 @@
     m_container.bind('invalidateScene', function() {
       if(m_rendererAttrs.hasClass('active')){
         m_vglVtkReader = vgl.vtkReader();
+        m_vglVtkReader.createNewViewer(m_canvas3D);
         m_canvas3D.width = m_rendererAttrs.width();
         m_canvas3D.height = m_rendererAttrs.height();
+
         fetchScene();
-      }
-      else {
-        originalMouseDown =  document.onmousedown;
-        originalMouseUp = document.onmouseup;
-        originalMouseMove = document.onmousemove;
-        originalContextMenu = document.oncontextmenu;
       }
     }).bind('render', function(){
       if(m_rendererAttrs.hasClass('active')){
+        m_canvas3D.width = m_rendererAttrs.width();
+        m_canvas3D.height = m_rendererAttrs.height();
+        m_viewer = m_vglVtkReader.updateCanvas(m_canvas3D);
         drawScene();
       }
     }).bind('resetViewId', function(e){
