@@ -472,11 +472,9 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *gr
     {
     XdmfGrid *childsGrid = new XdmfGrid();
     childsGrid->SetDeleteOnGridDelete(true);
+    grid->Insert(childsGrid);
     vtkDataObject* ds = iter->GetCurrentDataObject();
-    if (this->WriteDataSet(ds, childsGrid))
-      {
-      grid->Insert(childsGrid);
-      }
+    this->WriteDataSet(ds, childsGrid);
     //delete childsGrid; //parent deletes children in Xdmf
     iter->GoToNextItem();
     }
