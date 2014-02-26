@@ -55,6 +55,7 @@ vtkProbeFilter::vtkProbeFilter()
 
   this->PassCellArrays = 0;
   this->PassPointArrays = 0;
+  this->PassFieldArrays = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -120,6 +121,14 @@ int vtkProbeFilter::RequestData(
 
   this->Probe(input, source, output);
 
+  this->PassAttributeData(input, source, output);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkProbeFilter::PassAttributeData(
+  vtkDataSet* input, vtkDataObject* vtkNotUsed(source), vtkDataSet* output)
+{
   // copy point data arrays
   if (this->PassPointArrays)
     {
@@ -140,7 +149,14 @@ int vtkProbeFilter::RequestData(
       }
     }
 
-  return 1;
+  if (this->PassFieldArrays)
+    {
+    // nothing to do, vtkDemandDrivenPipeline takes care of that.
+    }
+  else
+    {
+    output->GetFieldData()->Initialize();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -554,4 +570,6 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ValidPointMaskArrayName: " << (this->ValidPointMaskArrayName?
     this->ValidPointMaskArrayName : "vtkValidPointMask") << "\n";
   os << indent << "ValidPoints: " << this->ValidPoints << "\n";
+  os << indent << "PassFieldArrays: "
+     << (this->PassFieldArrays? "On" : " Off") << "\n";
 }

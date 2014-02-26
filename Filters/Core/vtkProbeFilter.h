@@ -94,6 +94,14 @@ public:
   vtkSetMacro(PassPointArrays, int);
   vtkGetMacro(PassPointArrays, int);
 
+
+  // Description:
+  // Set whether to pass the field-data arrays from the Input i.e. the input
+  // providing the geometry to the output. On by default.
+  vtkSetMacro(PassFieldArrays, int);
+  vtkBooleanMacro(PassFieldArrays, int);
+  vtkGetMacro(PassFieldArrays, int);
+
 //BTX
 protected:
   vtkProbeFilter();
@@ -101,6 +109,7 @@ protected:
 
   int PassCellArrays;
   int PassPointArrays;
+  int PassFieldArrays;
 
   int SpatialMatch;
 
@@ -110,6 +119,12 @@ protected:
     vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
+
+  // Description:
+  // Call at end of RequestData() to pass attribute data respecting the
+  // PassCellArrays, PassPointArrays, PassFieldArrays flags.
+  void PassAttributeData(
+    vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
 
   // Description:
   // Equivalent to calling InitializeForProbing(); ProbeEmptyPoints().
