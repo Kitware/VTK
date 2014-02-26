@@ -47,11 +47,11 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // This callback is responsible for setting the seed label.
-class vtkSeedCallback2 : public vtkCommand
+class vtkSeedNonUniformRepresentationCallback : public vtkCommand
 {
 public:
-  static vtkSeedCallback2 *New()
-    { return new vtkSeedCallback2; }
+  static vtkSeedNonUniformRepresentationCallback *New()
+    { return new vtkSeedNonUniformRepresentationCallback; }
   virtual void Execute( vtkObject *o, unsigned long event, void* )
     {
     vtkSeedWidget *sw = vtkSeedWidget::SafeDownCast(o);
@@ -61,7 +61,7 @@ public:
       }
     }
 
-  vtkSeedCallback2() : SeedRepresentation(0) {}
+  vtkSeedNonUniformRepresentationCallback() : SeedRepresentation(0) {}
   vtkSeedRepresentation *SeedRepresentation;
 };
 
@@ -78,7 +78,7 @@ int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUs
   VTK_CREATE( vtkSeedWidget, widget );
   VTK_CREATE( vtkSeedRepresentation, seedRep );
   VTK_CREATE( vtkGlyphSource2D, glyphs );
-  VTK_CREATE( vtkSeedCallback2, scbk );
+  VTK_CREATE( vtkSeedNonUniformRepresentationCallback, scbk );
 
   renWin->AddRenderer(ren);
   iren->SetRenderWindow(renWin);
