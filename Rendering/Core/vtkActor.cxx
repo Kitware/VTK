@@ -127,7 +127,6 @@ int vtkActor::GetIsOpaque()
   return is_opaque? 1 : 0;
 }
 
-
 //----------------------------------------------------------------------------
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been
@@ -150,8 +149,10 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
     this->GetProperty();
     }
 
-  // is this actor opaque ?
-  if (this->GetIsOpaque())
+  // is this actor opaque
+  // Do this check only when not in selection mode
+  if (this->GetIsOpaque() ||
+    (ren->GetSelector() && this->Property->GetOpacity() > 0.0))
     {
     this->Property->Render(this, ren);
 
