@@ -458,7 +458,6 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
     for (i=0 ; i<numOutputs; i++)  // for both outputs
       {
-      conn[i]->InitTraversal();
       for (j=0; j < numNew[i]; j++)
         {
         locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
