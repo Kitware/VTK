@@ -46,16 +46,33 @@ void vtkPythonCommand::SetThreadState(PyThreadState *ts)
   this->ThreadState = ts;
 }
 
+namespace
+{
+  PyObject* BuildCallDataArgList(PyObject * caller, const char *eventname, PyObject* callDataAsPyObject)
+  {
+  PyObject *arglist;
+  if (callDataAsPyObject)
+      {
+      arglist = Py_BuildValue((char*)"(NsN)", caller, eventname, callDataAsPyObject);
+      }
+  else
+      {
+      PyErr_Clear();
+      /* we couldn't create a the expected python object, so we pass in None */
+      Py_INCREF(Py_None);
+      arglist = Py_BuildValue((char*)"(NsN)", caller, eventname, Py_None);
+      }
+  return arglist;
+  }
+}
+
 void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
-                               void *CallData)
+                               void *callData)
 {
   if (!this->obj)
     {
     return;
     }
-
-  PyObject *arglist, *result, *obj2;
-  const char *eventname;
 
   // Sometimes it is possible for the command to be invoked after
   // Py_Finalize is called, this will cause nasty errors so we return if
@@ -81,6 +98,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     prevThreadState = PyThreadState_Swap(this->ThreadState);
     }
 
+  PyObject * obj2 = NULL;
   if (ptr && ptr->GetReferenceCount() > 0)
     {
     obj2 = vtkPythonUtil::GetObjectFromPointer(ptr);
@@ -91,74 +109,117 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     obj2 = Py_None;
     }
 
-  eventname = this->GetStringFromEventId(eventtype);
+   const char *eventname = this->GetStringFromEventId(eventtype);
 
-  // extension by Charl P. Botha so that CallData is available from Python:
-  // * CallData used to be ignored completely: this is not entirely desirable,
+  // extension by Charl P. Botha so that callData is available from Python:
+  // * callData used to be ignored completely: this is not entirely desirable,
   //   e.g. with catching ErrorEvent
-  // * I have extended this code so that CallData can be caught whilst not
+  // * I have extended this code so that callData can be caught whilst not
   //   affecting any existing VTK Python code
   // * make sure your observer python function has a CallDataType string
-  //   attribute that describes how CallData should be passed through, e.g.:
+  //   attribute that describes how callData should be passed through, e.g.:
   //   def handler(theObject, eventType, message):
   //      print "Error: %s" % (message)
   //   # we know that ErrorEvent passes a null-terminated string
   //   handler.CallDataType = "string0"
   //   someObject.AddObserver('ErrorEvent', handler)
-  // * At the moment, only string0 is supported as that is what ErrorEvent
-  //   generates.
   //
-  char CallDataTypeLiteral[] = "CallDataType"; // Need char*, not const char*.
-  PyObject *CallDataTypeObj = PyObject_GetAttrString(this->obj,
-                                                     CallDataTypeLiteral);
-  char *CallDataTypeString = NULL;
-  if (CallDataTypeObj)
-    {
-    CallDataTypeString = PyString_AsString(CallDataTypeObj);
-    if (CallDataTypeString)
-        {
-        if (strcmp(CallDataTypeString, "string0") == 0)
-            {
-            // this means the user wants the CallData cast as a string
-            PyObject* CallDataAsString = PyString_FromString((char*)CallData);
-            if (CallDataAsString)
-                {
-                arglist = Py_BuildValue((char*)"(NsN)", obj2, eventname, CallDataAsString);
-                }
-            else
-                {
-                PyErr_Clear();
-                // we couldn't create a string, so we pass in None
-                Py_INCREF(Py_None);
-                arglist = Py_BuildValue((char*)"(NsN)", obj2, eventname, Py_None);
-                }
-            }
-        else
-            {
-            // we don't handle this, so we pass in a None as the third parameter
-            Py_INCREF(Py_None);
-            arglist = Py_BuildValue((char*)"(NsN)", obj2, eventname, Py_None);
-            }
-        }
-    else
-        {
-        // the handler object has a CallDataType attribute, but it's not a
-        // string -- then we do traditional arguments
-        arglist = Py_BuildValue((char*)"(Ns)",obj2,eventname);
-        }
+  // support for additional types has then been added by Jean-Christophe Fillion-Robin
+  //
+  char callDataTypeLiteral[] = "CallDataType"; // Need char*, not const char*.
+  PyObject *callDataTypeObj = PyObject_GetAttrString(this->obj,
+                                                     callDataTypeLiteral);
 
+  PyObject *arglist = NULL;
+  if (callDataTypeObj)
+    {
+    if (PyInt_Check(callDataTypeObj))
+      {
+      long callDataTypeLong = PyInt_AsLong(callDataTypeObj);
+      int invalid = (callDataTypeLong == -1) && PyErr_Occurred();
+      if (!invalid)
+          {
+          if (callDataTypeLong == VTK_STRING)
+            {
+            // this means the user wants the callData cast as a string
+            PyObject* callDataAsString = PyString_FromString(reinterpret_cast<char*>(callData));
+            arglist = BuildCallDataArgList(obj2, eventname, callDataAsString);
+            }
+          else if (callDataTypeLong == VTK_OBJECT)
+            {
+            // this means the user wants the callData cast as a vtkObject
+            PyObject* callDataAsVTKObject = vtkPythonUtil::GetObjectFromPointer(reinterpret_cast<vtkObject*>(callData));
+            arglist = BuildCallDataArgList(obj2, eventname, callDataAsVTKObject);
+            }
+          else if (callDataTypeLong == VTK_INT)
+            {
+            // this means the user wants the callData cast as an int
+            PyObject* callDataAsInt = PyInt_FromLong(*reinterpret_cast<int*>(callData));
+            arglist = BuildCallDataArgList(obj2, eventname, callDataAsInt);
+            }
+          else if (callDataTypeLong == VTK_LONG)
+            {
+            // this means the user wants the callData cast as a long
+            PyObject* callDataAsInt = PyLong_FromLong(*reinterpret_cast<long*>(callData));
+            arglist = BuildCallDataArgList(obj2, eventname, callDataAsInt);
+            }
+          else if (callDataTypeLong == VTK_DOUBLE)
+            {
+            // this means the user wants the callData cast as a double
+            PyObject* callDataAsInt = PyFloat_FromDouble(*reinterpret_cast<double*>(callData));
+            arglist = BuildCallDataArgList(obj2, eventname, callDataAsInt);
+            }
+          else if (callDataTypeLong == VTK_FLOAT)
+            {
+            // this means the user wants the callData cast as a float
+            PyObject* callDataAsInt = PyFloat_FromDouble(*reinterpret_cast<float*>(callData));
+            arglist = BuildCallDataArgList(obj2, eventname, callDataAsInt);
+            }
+          }
+        else
+          {
+          // we don't handle this, so we pass in a None as the third parameter
+          Py_INCREF(Py_None);
+          arglist = Py_BuildValue((char*)"(NsN)", obj2, eventname, Py_None);
+          }
+        }
+    else if (PyString_Check(callDataTypeObj))
+      {
+      char *callDataTypeString = PyString_AsString(callDataTypeObj);
+      if (callDataTypeString)
+        {
+        if (strcmp(callDataTypeString, "string0") == 0)
+          {
+          // this means the user wants the callData cast as a string
+          PyObject* callDataAsString = PyString_FromString(reinterpret_cast<char*>(callData));
+          arglist = BuildCallDataArgList(obj2, eventname, callDataAsString);
+          }
+        }
+      else
+        {
+        // we don't handle this, so we pass in a None as the third parameter
+        Py_INCREF(Py_None);
+        arglist = Py_BuildValue((char*)"(NsN)", obj2, eventname, Py_None);
+        }
+      }
+    else
+      {
+      // the handler object has a CallDataType attribute, but it's neither an
+      // integer or a string -- then we do traditional arguments
+      arglist = Py_BuildValue((char*)"(Ns)", obj2, eventname);
+      }
     // we have to do this
-    Py_DECREF(CallDataTypeObj);
+    Py_DECREF(callDataTypeObj);
     }
   else
     {
     // this means there was no CallDataType attribute, so we do the
     // traditional obj(object, eventname) call
     PyErr_Clear();
-    arglist = Py_BuildValue((char*)"(Ns)",obj2,eventname);
+    arglist = Py_BuildValue((char*)"(Ns)", obj2, eventname);
     }
 
-  result = PyEval_CallObject(this->obj, arglist);
+  PyObject *result = PyEval_CallObject(this->obj, arglist);
   Py_DECREF(arglist);
 
   if (result)

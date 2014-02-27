@@ -3,9 +3,9 @@
 The following vtkCommmand functionality must be tested
 - Event enum constants
 - Event names
-- Adding/removing observers
 
 Created on Mar 22, 2012 by David Gobbi
+Updated on Feb 12, 2014 by Jean-Christophe Fillion-Robin
 """
 
 import sys
@@ -16,12 +16,18 @@ from vtk.test import Testing
 
 class callback:
     def __init__(self):
-        self.caller = None
-        self.event = None
+        self.reset()
 
-    def __call__(self, o, e):
+    def __call__(self, o, e, d = None):
         self.caller = o
         self.event = e
+        self.calldata = d
+
+    def reset(self):
+        self.caller = None
+        self.event = None
+        self.calldata = None
+
 
 class TestCommand(Testing.vtkTest):
     def testEnumConstants(self):
@@ -113,6 +119,71 @@ class TestCommand(Testing.vtkTest):
         self.assertNotEqual(s1.count("vtkObject"),0)
         self.assertEqual(s2.count("vtkObject"),0)
 
+    def testAddRemoveObservers(self):
+        """Test adding and removing observers
+        """
+        cb = callback()
+        cb2 = callback()
+        o = vtk.vtkObject()
+        n = o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb)
+        n2 = o.AddObserver(vtk.vtkCommand.ModifiedEvent, cb2)
+        o.Modified()
+        self.assertEqual(cb.caller, o)
+        self.assertEqual(cb2.caller, o)
+        o.RemoveObserver(n)
+        cb.reset()
+        cb2.reset()
+        o.Modified()
+        self.assertEqual(cb.caller, None)
+        self.assertEqual(cb2.caller, o)
+        o.RemoveObserver(n2)
+        cb.reset()
+        cb2.reset()
+        o.Modified()
+        self.assertEqual(cb.caller, None)
+        self.assertEqual(cb2.caller, None)
+
+    def testUseCallDataType(self):
+        """Test adding an observer associated with a callback expecting a CallData
+        """
+        cb = callback()
+        cb.CallDataType = vtk.VTK_STRING
+        lt = vtk.vtkLookupTable()
+        lt.AddObserver(vtk.vtkCommand.ErrorEvent, cb)
+        lt.SetTableRange(2, 1)
+        self.assertEqual(cb.caller, lt)
+        self.assertEqual(cb.event, "ErrorEvent")
+        self.assertTrue(cb.calldata.startswith("ERROR: In"))
+
+    def testUseCallDataTypeWithDecoratorAsString0(self):
+        """Test adding an observer associated with a callback expecting a CallData.
+        This test ensures backward compatibility checking the CallDataType can
+        be set to the string 'string0'.
+        """
+        self.onErrorCalldata = ''
+
+        @vtk.calldata_type('string0')
+        def onError(caller, event, calldata):
+            self.onErrorCalldata = calldata
+
+        lt = vtk.vtkLookupTable()
+        lt.AddObserver(vtk.vtkCommand.ErrorEvent, onError)
+        lt.SetTableRange(2, 1)
+        self.assertTrue(self.onErrorCalldata.startswith("ERROR: In"))
+
+    def testUseCallDataTypeWithDecorator(self):
+        """Test adding an observer associated with a callback expecting a CallData
+        """
+        self.onErrorCalldata = ''
+
+        @vtk.calldata_type(vtk.VTK_STRING)
+        def onError(caller, event, calldata):
+            self.onErrorCalldata = calldata
+
+        lt = vtk.vtkLookupTable()
+        lt.AddObserver(vtk.vtkCommand.ErrorEvent, onError)
+        lt.SetTableRange(2, 1)
+        self.assertTrue(self.onErrorCalldata.startswith("ERROR: In"))
 
 if __name__ == "__main__":
     Testing.main([(TestCommand, 'test')])
