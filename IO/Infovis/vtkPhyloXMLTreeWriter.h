@@ -74,19 +74,64 @@ protected:
   ~vtkPhyloXMLTreeWriter() {}
 
   virtual int WriteData();
+
   virtual const char* GetDataSetName();
   virtual int StartFile();
   virtual int EndFile();
 
-  vtkInformation* InputInformation;
+  // Description:
+  // Check for an optional, tree-level element and write it out if it is
+  // found.
+  void WriteTreeLevelElement(vtkTree *input,
+                             vtkXMLDataElement *rootElement,
+                             const char *elementName,
+                             const char *attributeName);
 
   // Description:
-  // Write one vertex.  This function calls itself recursively for
-  // any children of the input vertex.
-  void ConvertVertexToXML(vtkTree* const input, vtkIdType vertex,
-                          vtkXMLDataElement *parentElement);
+  // Search for any tree-level properties and write them out if they are found.
+  void WriteTreeLevelProperties(vtkTree *input, vtkXMLDataElement *rootElement);
+
+  // Description:
+  // Convert one vertex to PhyloXML.  This function calls itself recursively
+  // for any children of the input vertex.
+  void WriteCladeElement(vtkTree* const input, vtkIdType vertex,
+                   vtkXMLDataElement *parentElement);
+
+  // Description:
+  // Write the branch length attribute for the specified vertex.
+  void WriteBranchLengthAttribute(vtkTree* const input, vtkIdType vertex,
+                                  vtkXMLDataElement *element);
+
+  // Description:
+  // Write the name element for the specified vertex.
+  void WriteNameElement(vtkTree* const input, vtkIdType vertex,
+                        vtkXMLDataElement *element);
+
+  // Description:
+  // Write the confidence element for the specified vertex.
+  void WriteConfidenceElement(vtkTree* const input, vtkIdType vertex,
+                              vtkXMLDataElement *element);
+
+  // Description:
+  // Write the color element and its subelements (red, green, blue)
+  // for the specified vertex.
+  void WriteColorElement(vtkTree* const input, vtkIdType vertex,
+                         vtkXMLDataElement *element);
+
+  // Description:
+  // Write a property element as a child of the specified vtkXMLDataElement.
+  void WritePropertyElement(vtkAbstractArray *array, vtkIdType vertex,
+                            vtkXMLDataElement *element);
+
+  // Description:
+  // Get the value of the requested attribute from the specified array's
+  // vtkInformation.
+  const char* GetArrayAttribute(vtkAbstractArray *array,
+                                const char *attributeName);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+
+  vtkInformation* InputInformation;
 
   vtkStdString EdgeWeightArrayName;
   vtkStdString NodeNameArrayName;
