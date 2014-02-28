@@ -124,18 +124,18 @@ int vtkSTLReader::RequestData(
       newScalars = vtkFloatArray::New();
       newScalars->Allocate(5000,10000);
       }
-    if ( this->ReadASCIISTL(fp,newPts,newPolys,newScalars) )
+    if ( !this->ReadASCIISTL(fp,newPts,newPolys,newScalars) )
       {
-      return 1;
+      return 0;
       }
     }
   else
     {
     fclose(fp);
     fp = fopen(this->FileName, "rb");
-    if ( this->ReadBinarySTL(fp,newPts,newPolys) )
+    if ( !this->ReadBinarySTL(fp,newPts,newPolys) )
       {
-      return 1;
+      return 0;
       }
     }
 
@@ -237,8 +237,8 @@ int vtkSTLReader::RequestData(
   return 1;
 }
 
-int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
-                                vtkCellArray *newPolys)
+bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
+                                 vtkCellArray *newPolys)
 {
   int i, numTris;
   vtkIdType pts[3];
@@ -257,14 +257,14 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
     vtkErrorMacro ("STLReader error reading file: " << this->FileName
                    << " Premature EOF while reading header.");
     fclose(fp);
-    return 0;
+    return false;
     }
   if (fread (&ulint, 1, 4, fp) != 4)
     {
     vtkErrorMacro ("STLReader error reading file: " << this->FileName
                    << " Premature EOF while reading header.");
     fclose(fp);
-    return 0;
+    return false;
     }
   vtkByteSwap::Swap4LE(&ulint);
 
@@ -296,7 +296,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading extra junk.");
       fclose(fp);
-      return 0;
+      return false;
       }
 
     vtkByteSwap::Swap4LE (facet.n);
@@ -327,11 +327,11 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
       }
     }
 
-  return 0;
+  return true;
 }
 
-int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
-                               vtkCellArray *newPolys, vtkFloatArray *scalars)
+bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
+                                vtkCellArray *newPolys, vtkFloatArray *scalars)
 {
   char line[256];
   float x[3];
@@ -348,7 +348,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
     vtkErrorMacro ("STLReader error reading file: " << this->FileName
                    << " Premature EOF while reading header.");
     fclose(fp);
-    return 0;
+    return false;
     }
 
   done = (fscanf(fp,"%s %*s %f %f %f\n", line, x, x+1, x+2)==EOF);
@@ -371,7 +371,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading header.");
       fclose(fp);
-      return 0;
+      return false;
       }
 
     if (fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2) != 3)
@@ -379,7 +379,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading point.");
       fclose(fp);
-      return 0;
+      return false;
       }
 
     pts[0] = newPts->InsertNextPoint(x);
@@ -388,7 +388,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading point.");
       fclose(fp);
-      return 0;
+      return false;
       }
 
     pts[1] = newPts->InsertNextPoint(x);
@@ -397,7 +397,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading point.");
       fclose(fp);
-      return 0;
+      return false;
       }
 
     pts[2] = newPts->InsertNextPoint(x);
@@ -406,14 +406,14 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading end loop.");
       fclose(fp);
-      return 0;
+      return false;
       }
     if (!fgets (line, 255, fp)) // end facet
       {
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading end facet.");
       fclose(fp);
-      return 0;
+      return false;
       }
 
     newPolys->InsertNextCell(3,pts);
@@ -436,7 +436,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
         vtkErrorMacro ("STLReader error reading file: " << this->FileName
                        << " Premature EOF while reading solid.");
         fclose(fp);
-        return 0;
+        return false;
         }
 
       done = feof(fp);
@@ -452,7 +452,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
             vtkErrorMacro ("STLReader error reading file: " << this->FileName
               << " Premature EOF while reading end solid.");
             fclose(fp);
-            return 0;
+            return false;
             }
           }
         done = feof(fp);
@@ -470,7 +470,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
     }
     }
   //fprintf(stdout, "Maximum ctr val %d\n", ctr);
-  return 0;
+  return true;
 }
 
 int vtkSTLReader::GetSTLFileType(const char *filename)
