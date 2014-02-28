@@ -134,8 +134,12 @@ if(${VTK_DAX_PICKED_CUDA})
 
   vtk_module_library(vtkAcceleratorsDax ${vtk_srcs} ${cuda_compiled_srcs}
                                         ${headers})
-  target_link_libraries(vtkAcceleratorsDax ${CUDA_LIBRARIES})
+  target_link_libraries(vtkAcceleratorsDax LINK_PRIVATE ${CUDA_LIBRARIES})
 
+elseif(${VTK_DAX_PICKED_TBB})
+  vtk_module_library(vtkAcceleratorsDax ${vtk_srcs}
+                                        ${cpu_accelerator_srcs} ${headers})
+  target_link_libraries(vtkAcceleratorsDax LINK_PRIVATE ${TBB_LIBRARIES})
 else()
 
   vtk_module_library(vtkAcceleratorsDax ${vtk_srcs}
