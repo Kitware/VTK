@@ -347,6 +347,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
     {
     vtkErrorMacro ("STLReader error reading file: " << this->FileName
                    << " Premature EOF while reading header.");
+    fclose(fp);
     return 0;
     }
 
@@ -369,6 +370,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       {
       vtkErrorMacro ("STLReader error reading file: " << this->FileName
                      << " Premature EOF while reading header.");
+      fclose(fp);
       return 0;
       }
 
