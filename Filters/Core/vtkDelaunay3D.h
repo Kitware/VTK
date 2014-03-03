@@ -24,6 +24,9 @@
 // output. In other words, non-zero alpha values may result in arbitrary
 // combinations of tetrahedra, triangles, lines, and vertices. (The notion
 // of alpha value is derived from Edelsbrunner's work on "alpha shapes".)
+// Note that a modification to alpha shapes enables output of combinations
+// of tetrahedra, triangles, lines, and/or verts (see the boolean ivars
+// AlphaTets, AlphaTris, AlphaLines, AlphaVerts).
 //
 // The 3D Delaunay triangulation is defined as the triangulation that
 // satisfies the Delaunay criterion for n-dimensional simplexes (in
@@ -107,12 +110,39 @@ public:
   static vtkDelaunay3D *New();
 
   // Description:
-  // Specify alpha (or distance) value to control output of this filter.
-  // For a non-zero alpha value, only edges, faces, or tetra contained
+  // Specify alpha (or distance) value to control output of this filter.  For
+  // a non-zero alpha value, only verts, edges, faces, or tetra contained
   // within the circumsphere (of radius alpha) will be output. Otherwise,
-  // only tetrahedra will be output.
+  // only tetrahedra will be output. Note that the flags AlphaTets, AlphaTris,
+  // AlphaLines, and AlphaVerts control whether these primitives are output
+  // when Alpha is non-zero. (By default all tets, triangles, lines and verts
+  // satisfying the alpha shape criterion are output.)
   vtkSetClampMacro(Alpha,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Alpha,double);
+
+  // Description:
+  // Boolean controls whether tetrahedra are output for non-zero alpha values.
+  vtkSetMacro(AlphaTets,int);
+  vtkGetMacro(AlphaTets,int);
+  vtkBooleanMacro(AlphaTets,int);
+
+  // Description:
+  // Boolean controls whether triangles are output for non-zero alpha values.
+  vtkSetMacro(AlphaTris,int);
+  vtkGetMacro(AlphaTris,int);
+  vtkBooleanMacro(AlphaTris,int);
+
+  // Description:
+  // Boolean controls whether lines are output for non-zero alpha values.
+  vtkSetMacro(AlphaLines,int);
+  vtkGetMacro(AlphaLines,int);
+  vtkBooleanMacro(AlphaLines,int);
+
+  // Description:
+  // Boolean controls whether vertices are output for non-zero alpha values.
+  vtkSetMacro(AlphaVerts,int);
+  vtkGetMacro(AlphaVerts,int);
+  vtkBooleanMacro(AlphaVerts,int);
 
   // Description:
   // Specify a tolerance to control discarding of closely spaced points.
@@ -198,6 +228,10 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Alpha;
+  int AlphaTets;
+  int AlphaTris;
+  int AlphaLines;
+  int AlphaVerts;
   double Tolerance;
   int BoundingTriangulation;
   double Offset;
@@ -236,5 +270,3 @@ private:
 };
 
 #endif
-
-
