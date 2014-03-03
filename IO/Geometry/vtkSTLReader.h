@@ -92,9 +92,9 @@ protected:
   vtkIncrementalPointLocator *Locator;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
-  int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*,
-                   vtkFloatArray* scalars=0);
+  bool ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
+  bool ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*,
+                    vtkFloatArray* scalars=0);
   int GetSTLFileType(const char *filename);
 private:
   vtkSTLReader(const vtkSTLReader&);  // Not implemented.
