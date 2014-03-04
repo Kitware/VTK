@@ -70,7 +70,7 @@ public:
   // Common identifiers include DIVX, XVID, and H264.
   // http://en.wikipedia.org/wiki/FourCC.
   // Default value is:
-  //   - msvc
+  //   - MSVC
   // Other examples include:
   //   - DIB: Full Frames (Uncompressed)
   //   - LAGS: Lagarith Lossless Codec
