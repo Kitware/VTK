@@ -184,14 +184,7 @@ int vtkXMLPStructuredDataReader::RequestInformation(vtkInformation *request,
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector)
 {
-
-  // Tell the output to use the table extent translator to provide the
-  // correct piece breakdown for the file layout.
-  /*
-  outputVector->GetInformationObject(0)->Set(
-      vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR(),
-      this->ExtentTranslator);
-   */
+  outputVector->GetInformationObject(0)->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
 
   return this->Superclass::RequestInformation(
       request, inputVector, outputVector);

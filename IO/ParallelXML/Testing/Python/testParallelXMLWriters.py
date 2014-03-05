@@ -113,6 +113,8 @@ def TestDataType(dataType, reader, writer, ext, numTris):
 
     cf = vtk.vtkContourFilter()
     cf.SetValue(0, 130)
+    cf.SetComputeNormals(0)
+    cf.SetComputeGradients(0)
     cf.SetInputConnection(reader.GetOutputPort())
     cf.UpdateInformation()
     cf.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_NUMBER_OF_PIECES(), nranks)

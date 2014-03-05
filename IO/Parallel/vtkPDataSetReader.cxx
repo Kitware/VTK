@@ -518,14 +518,6 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
     if (strcmp(param, "numberOfPieces") == 0)
       {
       this->SetNumberOfPieces(atoi(val));
-      /*
-      if (! this->StructuredFlag)
-        {
-        info->Set(
-          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-          this->NumberOfPieces);
-        }
-      */
       }
 
     // Handle parameter: wholeExtent.
@@ -764,12 +756,6 @@ void vtkPDataSetReader::ReadVTKFileInformation(
     vtkErrorMacro("I can not figure out what type of data set this is: " << str);
     return;
     }
-  /*
-  if (this->DataType == VTK_POLY_DATA || this->DataType == VTK_UNSTRUCTURED_GRID)
-    {
-    info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
-    }
-  */
 }
 
 void vtkPDataSetReader::SkipFieldData(ifstream *file)
@@ -911,39 +897,42 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
 
   if (this->VTKFileFlag)
     {
-    vtkDataSetReader *reader = vtkDataSetReader::New();
-    reader->ReadAllScalarsOn();
-    reader->ReadAllVectorsOn();
-    reader->ReadAllNormalsOn();
-    reader->ReadAllTensorsOn();
-    reader->ReadAllColorScalarsOn();
-    reader->ReadAllTCoordsOn();
-    reader->ReadAllFieldsOn();
-    reader->SetFileName(this->FileName);
-    reader->Update();
-    vtkDataSet *data = reader->GetOutput();
-
-    if (data == NULL)
+    int updatePiece = vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info);
+    if (updatePiece == 0)
       {
-      vtkErrorMacro("Could not read file: " << this->FileName);
-      return 0;
+      vtkDataSetReader *reader = vtkDataSetReader::New();
+      reader->ReadAllScalarsOn();
+      reader->ReadAllVectorsOn();
+      reader->ReadAllNormalsOn();
+      reader->ReadAllTensorsOn();
+      reader->ReadAllColorScalarsOn();
+      reader->ReadAllTCoordsOn();
+      reader->ReadAllFieldsOn();
+      reader->SetFileName(this->FileName);
+      reader->Update();
+      vtkDataSet *data = reader->GetOutput();
+
+      if (data == NULL)
+        {
+        vtkErrorMacro("Could not read file: " << this->FileName);
+        return 0;
+        }
+
+      if (data->CheckAttributes())
+        {
+        vtkErrorMacro("Attribute Mismatch.");
+        return 0;
+        }
+
+      output->CopyStructure(data);
+      output->GetFieldData()->PassData(data->GetFieldData());
+      output->GetCellData()->PassData(data->GetCellData());
+      output->GetPointData()->PassData(data->GetPointData());
+      this->SetNumberOfPieces(0);
+
+      reader->Delete();
       }
-//    data->Update();
-
-    if (data->CheckAttributes())
-      {
-      vtkErrorMacro("Attribute Mismatch.");
-      return 0;
-      }
-
-    output->CopyStructure(data);
-    output->GetFieldData()->PassData(data->GetFieldData());
-    output->GetCellData()->PassData(data->GetCellData());
-    output->GetPointData()->PassData(data->GetPointData());
-    this->SetNumberOfPieces(0);
-
-    reader->Delete();
-    return 1;
+      return 1;
     }
 
   switch (this->DataType)
