@@ -99,16 +99,6 @@ void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
-
-  double bounds[6];
-  bounds[0] = this->Origin[0] + this->Spacing[0] * this->WholeExtent[0];
-  bounds[1] = this->Origin[0] + this->Spacing[0] * this->WholeExtent[1];
-  bounds[2] = this->Origin[1] + this->Spacing[1] * this->WholeExtent[2];
-  bounds[3] = this->Origin[1] + this->Spacing[1] * this->WholeExtent[3];
-  bounds[4] = this->Origin[2] + this->Spacing[2] * this->WholeExtent[4];
-  bounds[5] = this->Origin[2] + this->Spacing[2] * this->WholeExtent[5];
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-               bounds, 6);
 }
 
 

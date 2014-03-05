@@ -52,7 +52,6 @@ vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_EXTENT,
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, COMBINED_UPDATE_EXTENT, IntegerVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UNRESTRICTED_UPDATE_EXTENT, Integer);
-vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_BOUNDING_BOX, DoubleVector, 6);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_STEPS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_TIME_STEP, Double);
 
@@ -61,7 +60,6 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_RANGE, DoubleVecto
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_DEPENDENT_INFORMATION, Integer);
-vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_LABEL_ANNOTATION, String);
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
@@ -474,7 +472,6 @@ vtkStreamingDemandDrivenPipeline
         for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
           {
           vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
-          outInfo->CopyEntry(inInfo, WHOLE_BOUNDING_BOX());
           outInfo->CopyEntry(inInfo, WHOLE_EXTENT());
           outInfo->CopyEntry(inInfo, TIME_STEPS());
           outInfo->CopyEntry(inInfo, TIME_RANGE());
@@ -1684,49 +1681,4 @@ int vtkStreamingDemandDrivenPipeline::GetRequestExactExtent(int port)
     info->Set(EXACT_EXTENT(), 0);
     }
   return info->Get(EXACT_EXTENT());
-}
-
-//----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::SetWholeBoundingBox(int port,
-                                                          double extent[6])
-{
-  if(!this->OutputPortIndexInRange(port, "set whole bounding box on"))
-    {
-    return 0;
-    }
-  vtkInformation* info = this->GetOutputInformation(port);
-  int modified = 0;
-  double oldBoundingBox[6];
-  this->GetWholeBoundingBox(port, oldBoundingBox);
-  if(oldBoundingBox[0] != extent[0] || oldBoundingBox[1] != extent[1] ||
-     oldBoundingBox[2] != extent[2] || oldBoundingBox[3] != extent[3] ||
-     oldBoundingBox[4] != extent[4] || oldBoundingBox[5] != extent[5])
-    {
-    modified = 1;
-    info->Set(WHOLE_BOUNDING_BOX(), extent, 6);
-    }
-  return modified;
-}
-
-//----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::GetWholeBoundingBox(int port, double extent[6])
-{
-  double *bbox = this->GetWholeBoundingBox(port);
-  memcpy(extent, bbox, 6*sizeof(double));
-}
-
-//----------------------------------------------------------------------------
-double* vtkStreamingDemandDrivenPipeline::GetWholeBoundingBox(int port)
-{
-  static double emptyBoundingBox[6] = {0,-1,0,-1,0,-1};
-  if(!this->OutputPortIndexInRange(port, "get whole bounding box from"))
-    {
-    return emptyBoundingBox;
-    }
-  vtkInformation* info = this->GetOutputInformation(port);
-  if(!info->Has(WHOLE_BOUNDING_BOX()))
-    {
-    info->Set(WHOLE_BOUNDING_BOX(), emptyBoundingBox, 6);
-    }
-  return info->Get(WHOLE_BOUNDING_BOX());
 }

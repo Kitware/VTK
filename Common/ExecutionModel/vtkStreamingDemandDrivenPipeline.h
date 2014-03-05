@@ -127,14 +127,6 @@ public:
   int GetRequestExactExtent(int port);
 
   // Description:
-  // Set/Get the whole bounding box of an output port data object.
-  // The whole whole bounding box is meta data for data sets.  It gets
-  // set by the algorithm during the update information pass.
-  int SetWholeBoundingBox(int port, double bb[6]);
-  void GetWholeBoundingBox(int port, double bb[6]);
-  double* GetWholeBoundingBox(int port);
-
-  // Description:
   // Key defining a request to propagate the update extent upstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
@@ -185,11 +177,6 @@ public:
   static vtkInformationIntegerKey* UNRESTRICTED_UPDATE_EXTENT();
 
   // Description:
-  // Key to store the bounding box of the entire data set in pipeline
-  // information.
-  static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
-
-  // Description:
   // Key to specify the request for exact extent in pipeline information.
   static vtkInformationIntegerKey* EXACT_EXTENT();
 
@@ -200,10 +187,6 @@ public:
   // Description:
   // Key to store available time range for continuous sources.
   static vtkInformationDoubleVectorKey* TIME_RANGE();
-
-  // Description:
-  // Key to store the label that should be used for labelling the time in the UI
-  static vtkInformationStringKey* TIME_LABEL_ANNOTATION();
 
   // Description:
   // Update time steps requested by the pipeline.
