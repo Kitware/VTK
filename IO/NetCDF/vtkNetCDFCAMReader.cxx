@@ -247,7 +247,7 @@ int vtkNetCDFCAMReader::RequestInformation(
     }
 
   outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+    CAN_HANDLE_PIECE_REQUEST(), 1);
 
   return 1;
 }

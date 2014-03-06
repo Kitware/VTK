@@ -420,7 +420,7 @@ int vtkPSLACReader::RequestInformation(vtkInformation *request,
   for (int i = 0; i < vtkPSLACReader::NUM_OUTPUTS; i++)
     {
     vtkInformation *outInfo = outputVector->GetInformationObject(i);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(),
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
                  1);
     }
 

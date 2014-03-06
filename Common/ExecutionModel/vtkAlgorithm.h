@@ -227,6 +227,19 @@ public:
   static vtkInformationIntegerKey* CAN_PRODUCE_SUB_EXTENT();
 
   // Description:
+  // Key that tells the pipeline that a particular algorithm
+  // can or cannot handle piece request. If a filter cannot handle
+  // piece requests and is asked for a piece, the executive will
+  // flag an error. If a structured data source cannot handle piece
+  // requests but can produce sub-extents (CAN_PRODUCE_SUB_EXTENT),
+  // the executive will use an extent translator to split the extent
+  // into pieces. Otherwise, if a source cannot handle piece requests,
+  // the executive will ask for the whole data for piece 0 and not
+  // execute the source for other pieces.
+  static vtkInformationIntegerKey* CAN_HANDLE_PIECE_REQUEST();
+
+
+  // Description:
   // Set the input data arrays that this algorithm will
   // process. Specifically the idx array that this algorithm will process
   // (starting from 0) is the array on port, connection with the specified

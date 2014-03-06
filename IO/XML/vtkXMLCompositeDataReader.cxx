@@ -386,7 +386,7 @@ int vtkXMLCompositeDataReader::RequestInformation(
 
   vtkInformation* info = outputVector->GetInformationObject(0);
    info->Set(
-     vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+     CAN_HANDLE_PIECE_REQUEST(), 1);
 
   return 1;
 }

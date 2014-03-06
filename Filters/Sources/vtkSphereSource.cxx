@@ -327,7 +327,7 @@ int vtkSphereSource::RequestInformation(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   return 1;
 }

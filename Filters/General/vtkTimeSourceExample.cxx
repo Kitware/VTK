@@ -188,7 +188,7 @@ int vtkTimeSourceExample::RequestInformation(
       );
     }
 
-  info->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+  info->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   return 1;
 }

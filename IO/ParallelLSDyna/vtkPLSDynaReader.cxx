@@ -139,7 +139,7 @@ int vtkPLSDynaReader::RequestInformation( vtkInformation* request,
   //be a massive chunk of code
   this->Superclass::RequestInformation(request,iinfo,outputVector);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(),
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
                1);
   return 1;
 }

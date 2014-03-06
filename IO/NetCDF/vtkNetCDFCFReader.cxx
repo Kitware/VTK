@@ -999,7 +999,7 @@ int vtkNetCDFCFReader::RequestInformation(vtkInformation *request,
   if (output->GetExtentType() != VTK_3D_EXTENT)
     {
     outInfo->Set(
-              vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+              CAN_HANDLE_PIECE_REQUEST(), 1);
     }
   else
     {

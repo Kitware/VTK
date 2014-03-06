@@ -491,7 +491,7 @@ int vtkTemporalFractal::ProcessRequest(
     {
     vtkInformation* info = outputVector->GetInformationObject(0);
     info->Set(
-      vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+      CAN_HANDLE_PIECE_REQUEST(), 1);
 
     return this->RequestInformation(request, inputVector, outputVector);
     }

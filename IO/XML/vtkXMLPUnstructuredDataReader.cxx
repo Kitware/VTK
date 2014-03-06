@@ -130,7 +130,7 @@ void vtkXMLPUnstructuredDataReader::SetupOutputInformation(vtkInformation *outIn
 {
   this->Superclass::SetupOutputInformation(outInfo);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 }
 
 //----------------------------------------------------------------------------
@@ -415,6 +415,6 @@ int vtkXMLPUnstructuredDataReader::RequestInformation(
    vtkInformationVector *outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }

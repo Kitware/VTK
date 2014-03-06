@@ -200,7 +200,7 @@ int vtkParticleReader::RequestInformation(
   if (ft == FILE_TYPE_IS_BINARY)
     {
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(),
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
                  1);
     }
 

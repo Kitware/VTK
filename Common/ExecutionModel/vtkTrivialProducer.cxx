@@ -170,8 +170,7 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
     // partitioned data properly. For structured data, this means setting
     // up WHOLE_EXTENT as above. For unstructured data, nothing special is
     // required
-    outputInfo->Set(
-      vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+    outputInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
     }
 
 #if VTK_TRIVIAL_PRODUCER_CHECK_UPDATE_EXTENT

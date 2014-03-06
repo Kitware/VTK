@@ -239,7 +239,7 @@ int vtkPExodusIIReader::RequestInformation(
 {
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   outInfo->Set(
-   vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(), 1);
+   CAN_HANDLE_PIECE_REQUEST(), 1);
 
 #ifdef DBG_PEXOIIRDR
   this->Controller->Barrier();

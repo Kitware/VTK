@@ -204,7 +204,7 @@ int vtkVPICReader::RequestInformation(
     this->YLayout[0] = 0;       this->YLayout[1] = layoutSize[1] - 1;
     this->ZLayout[0] = 0;       this->ZLayout[1] = layoutSize[2] - 1;
 
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(),
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
      1);
 
     // Collect temporal information

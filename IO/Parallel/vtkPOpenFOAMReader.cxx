@@ -284,7 +284,7 @@ int vtkPOpenFOAMReader::RequestInformation(vtkInformation *request,
     }
 
   outputVector->GetInformationObject(0)->Set(
-    vtkStreamingDemandDrivenPipeline::CAN_HANDLE_PIECE_REQUEST(),
+    CAN_HANDLE_PIECE_REQUEST(),
     1);
 
   return 1;

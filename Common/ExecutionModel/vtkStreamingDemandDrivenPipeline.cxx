@@ -47,7 +47,6 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_INITIALIZ
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_PIECE_NUMBER, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_GHOST_LEVELS, Integer);
-vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CAN_HANDLE_PIECE_REQUEST, Integer);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, WHOLE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT, IntegerVector, 6);
 vtkInformationKeyRestrictedMacro(vtkStreamingDemandDrivenPipeline, COMBINED_UPDATE_EXTENT, IntegerVector, 6);
@@ -645,7 +644,7 @@ vtkStreamingDemandDrivenPipeline
   info->Remove(TIME_RANGE());
   info->Remove(UPDATE_TIME_STEP());
   info->Remove(PREVIOUS_UPDATE_TIME_STEP());
-  info->Remove(CAN_HANDLE_PIECE_REQUEST());
+  info->Remove(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST());
   info->Remove(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT());
 }
 
@@ -1145,7 +1144,7 @@ int vtkStreamingDemandDrivenPipeline
       {
       // And cannot handle piece request (i.e. not parallel)
       // and is not a structured source that can produce sub-extents.
-      if (!outInfo->Get(CAN_HANDLE_PIECE_REQUEST()) &&
+      if (!outInfo->Get(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST()) &&
           !outInfo->Get(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT()))
         {
         // Then don't execute it.
