@@ -131,8 +131,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
 
   vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
   bool texSupport
-    = (extensions->ExtensionSupported("GL_ARB_texture_float") != 0)
-    && (extensions->ExtensionSupported("GL_VERSION_1_3") != 0);
+    = (extensions->ExtensionSupported("GL_VERSION_1_3") != 0);
 
   // use render to FBO when it's supported
   this->CanDoFloatingPointFrameBuffer = false;
@@ -140,7 +139,8 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
     {
     this->CanDoFloatingPointFrameBuffer
       = (extensions->ExtensionSupported("GL_ARB_framebuffer_object") != 0)
-      && (extensions->ExtensionSupported("GL_ARB_draw_buffers") != 0);
+      && (extensions->ExtensionSupported("GL_ARB_draw_buffers") != 0)
+      && (extensions->ExtensionSupported("GL_ARB_texture_float") != 0);
     if (!this->CanDoFloatingPointFrameBuffer)
       {
       vtkWarningMacro(
