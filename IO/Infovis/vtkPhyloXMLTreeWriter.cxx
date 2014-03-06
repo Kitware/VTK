@@ -177,7 +177,7 @@ void vtkPhyloXMLTreeWriter::WriteCladeElement(vtkTree* const input,
 
   // write out clade-level elements
   this->WriteBranchLengthAttribute(input, vertex, cladeElement.GetPointer());
-  this->WriteNameElement(input, vertex, cladeElement.GetPointer());
+  this->WriteNameElement(vertex, cladeElement.GetPointer());
   this->WriteConfidenceElement(input, vertex, cladeElement.GetPointer());
   this->WriteColorElement(input, vertex, cladeElement.GetPointer());
 
@@ -240,9 +240,8 @@ void vtkPhyloXMLTreeWriter::WriteBranchLengthAttribute(
 }
 
 //----------------------------------------------------------------------------
-void vtkPhyloXMLTreeWriter::WriteNameElement(vtkTree* const input,
-                                               vtkIdType vertex,
-                                               vtkXMLDataElement *element)
+void vtkPhyloXMLTreeWriter::WriteNameElement(vtkIdType vertex,
+                                             vtkXMLDataElement *element)
 {
   if (!this->NodeNameArray)
     {

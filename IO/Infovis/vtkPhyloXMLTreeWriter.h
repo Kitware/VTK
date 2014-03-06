@@ -104,8 +104,7 @@ protected:
 
   // Description:
   // Write the name element for the specified vertex.
-  void WriteNameElement(vtkTree* const input, vtkIdType vertex,
-                        vtkXMLDataElement *element);
+  void WriteNameElement(vtkIdType vertex, vtkXMLDataElement *element);
 
   // Description:
   // Write the confidence element for the specified vertex.
