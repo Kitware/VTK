@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkInformation.h"

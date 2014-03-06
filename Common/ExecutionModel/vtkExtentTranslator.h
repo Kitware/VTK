@@ -19,17 +19,15 @@
 // extent.  It uses a recursive scheme that splits the largest axis.  A hard
 // coded extent can be used for a starting point.
 
-// .SECTION Caveats
-// This object is still under development.
 
 #ifndef __vtkExtentTranslator_h
 #define __vtkExtentTranslator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
 
-class VTKCOMMONDATAMODEL_EXPORT vtkExtentTranslator : public vtkObject
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentTranslator : public vtkObject
 {
 public:
   static vtkExtentTranslator *New();

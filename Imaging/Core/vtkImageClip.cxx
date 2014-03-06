@@ -16,7 +16,6 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
-#include "vtkExtentTranslator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

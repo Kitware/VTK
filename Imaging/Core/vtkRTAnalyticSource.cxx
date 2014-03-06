@@ -15,7 +15,6 @@
 #include "vtkRTAnalyticSource.h"
 
 #include "vtkDataArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

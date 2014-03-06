@@ -18,7 +18,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkOnePieceExtentTranslator.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

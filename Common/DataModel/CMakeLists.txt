@@ -205,7 +205,6 @@ set(Module_SRCS
   vtkAMRDataInternals.cxx
   vtkUniformGridAMR.cxx
   vtkUniformGridAMRDataIterator.cxx
-  vtkExtentTranslator.cxx # needed by vtkDataSet
   )
 
 set(${vtk-module}_HDRS

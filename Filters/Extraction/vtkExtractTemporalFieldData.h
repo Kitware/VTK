@@ -23,9 +23,6 @@
 // This algorithm does not produce a TIME_STEPS or TIME_RANGE information
 // because it works across time.
 // .Section Caveat
-// vtkExtractTemporalFieldData puts a vtkOnePieceExtentTranslator in the
-// output during RequestInformation(). As a result, the same whole
-// extented is produced independent of the piece request.
 // This algorithm works only with source that produce TIME_STEPS().
 // Continuous time range is not yet supported.
 

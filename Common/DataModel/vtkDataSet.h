@@ -44,7 +44,6 @@ class vtkCell;
 class vtkCellData;
 class vtkCellIterator;
 class vtkCellTypes;
-class vtkExtentTranslator;
 class vtkGenericCell;
 class vtkIdList;
 class vtkPointData;

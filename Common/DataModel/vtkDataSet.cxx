@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCellTypes.h"
 #include "vtkDataSetCellIterator.h"
-#include "vtkExtentTranslator.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"

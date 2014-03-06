@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
