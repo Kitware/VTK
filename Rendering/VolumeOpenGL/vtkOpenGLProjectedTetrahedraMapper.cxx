@@ -97,6 +97,7 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->Internals = new vtkOpenGLProjectedTetrahedraMapper::vtkInternals;
   this->UseFloatingPointFrameBuffer = true;
   this->CanDoFloatingPointFrameBuffer = false;
+  this->HasHardwareSupport = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -177,7 +178,8 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
 
   vtkOpenGLRenderWindow *renwin
     = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
-  if ( !renwin || !this->IsSupported(renwin) )
+  this->HasHardwareSupport = renwin != NULL && this->IsSupported(renwin);
+  if (!this->HasHardwareSupport)
     {
     // this is an error since there's no fallback.
     vtkErrorMacro("The required extensions are not supported.");
@@ -355,6 +357,11 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
   // load required extensions
   this->Initialize(renderer);
+
+  if (!this->HasHardwareSupport)
+    {
+    return;
+    }
 
   vtkUnstructuredGridBase *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();

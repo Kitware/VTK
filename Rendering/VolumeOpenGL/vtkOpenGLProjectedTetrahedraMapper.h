@@ -78,6 +78,7 @@ protected:
   bool CanDoFloatingPointFrameBuffer;
   bool FloatingPointFrameBufferResourcesAllocated;
   bool UseFloatingPointFrameBuffer;
+  bool HasHardwareSupport;
 
   vtkUnsignedCharArray *Colors;
   int UsingCellColors;
