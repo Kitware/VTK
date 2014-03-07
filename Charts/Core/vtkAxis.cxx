@@ -1416,7 +1416,7 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     // An exact number of ticks was requested, use the min/max and exact number.
     min = this->Minimum;
     max = this->Maximum;
-    double range = abs(max - min);
+    double range = fabs(max - min);
     return range / double(this->NumberOfTicks - 1);
     }
   else

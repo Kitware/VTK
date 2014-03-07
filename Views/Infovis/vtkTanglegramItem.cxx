@@ -170,11 +170,11 @@ void vtkTanglegramItem::PositionTree2()
   // values used to calculate the amount of space we should leave between
   // the two trees.
   double averageX =
-    ((abs(this->Tree1Bounds[1] - this->Tree1Bounds[0]) +
-      abs(this->Tree2Bounds[1] - this->Tree2Bounds[0])) / 2.0);
+    ((fabs(this->Tree1Bounds[1] - this->Tree1Bounds[0]) +
+      fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0])) / 2.0);
   double averageY =
-    ((abs(this->Tree1Bounds[3] - this->Tree1Bounds[2]) +
-      abs(this->Tree2Bounds[3] - this->Tree2Bounds[2])) / 2.0);
+    ((fabs(this->Tree1Bounds[3] - this->Tree1Bounds[2]) +
+      fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2])) / 2.0);
 
   // the starting X position for tree #2
   double x, x1, x2;
@@ -190,7 +190,7 @@ void vtkTanglegramItem::PositionTree2()
       x = x1 - x2;
 
       y = this->Tree1Bounds[3] +
-        abs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) +
+        fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) +
         averageY;
       break;
 
@@ -200,14 +200,14 @@ void vtkTanglegramItem::PositionTree2()
       x = x1 - x2;
 
       y = this->Tree1Bounds[2] -
-        abs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) -
+        fabs(this->Tree2Bounds[3] - this->Tree2Bounds[2]) -
         averageY;
       break;
 
     case vtkDendrogramItem::RIGHT_TO_LEFT:
 
       x = this->Tree1Bounds[0] -
-        abs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) -
+        fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) -
         averageX;
 
       y1 = (this->Tree1Bounds[3] + this->Tree1Bounds[2]) / 2.0;
@@ -219,7 +219,7 @@ void vtkTanglegramItem::PositionTree2()
     default:
 
       x = this->Tree1Bounds[1] +
-        abs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) +
+        fabs(this->Tree2Bounds[1] - this->Tree2Bounds[0]) +
         averageX;
 
       y1 = (this->Tree1Bounds[3] + this->Tree1Bounds[2]) / 2.0;
