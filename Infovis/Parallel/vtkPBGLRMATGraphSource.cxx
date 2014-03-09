@@ -24,6 +24,8 @@
  */
 #include "vtkPBGLRMATGraphSource.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkBlockDistribution.h"
 #include "vtkCellData.h"
 #include "vtkExecutive.h"
@@ -72,6 +74,8 @@ vtkPBGLRMATGraphSource::vtkPBGLRMATGraphSource()
   this->Seed = 1177 + 17 * rank;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+
+  VTK_LEGACY_BODY(vtkPBGLRMATGraphSource::vtkPBGLRMATGraphSource, "VTK 6.2");
 }
 
 // ----------------------------------------------------------------------
@@ -370,4 +374,4 @@ int vtkPBGLRMATGraphSource::RequestDataObject(
   return 1;
 }
 
-
+#endif //VTK_LEGACY_REMOVE

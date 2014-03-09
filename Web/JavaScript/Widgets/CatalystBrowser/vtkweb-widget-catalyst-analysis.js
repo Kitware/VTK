@@ -4,7 +4,7 @@
     TOOLBAR_PROJECT_TEMPLATE = '<li class="action"><span class="vtk-icon-info-1" data-path="PATH">TITLE<i><table class="description">TABLE_CONTENT</table></i></span></li>',
     TABLE_LINE_TEMPLATE = '<tr><td class="key">KEY</td><td class="value">VALUE</td></tr>',
     TOOLBAR_LAYOUT = '<ul class="left">LIST</ul>',
-    STATIC_TOOLS = '<ul class="right"><li class="action vtk-icon-th active toggle-view" title="Exploration view" data-view="content"/><li class="action vtk-icon-beaker search toggle-view" data-view="search" title="Search"/><li class="action vtk-icon-magic control"/><li class="action vtk-icon-trash clear-workspace"/></ul>',
+    STATIC_TOOLS = '<ul class="right"><li class="action vtk-icon-th active toggle-view" title="Exploration view" data-view="content"/><li class="action vtk-icon-beaker search toggle-view" data-view="search" title="Search"/><li class="action vtk-icon-dollar toggle-view" data-view="cost" title="Search" /><li class="action vtk-icon-magic control"/><li class="action vtk-icon-trash clear-workspace"/></ul>',
     VIEWER_FACTORY = {
         "catalyst-viewer": {
             class: "vtk-icon-loop-alt",
@@ -31,6 +31,70 @@
             }
         }
     };
+
+    // ========================================================================
+
+    function formula(cost) {
+        var dollarsAmount = 0;
+        if(cost) {
+            if(cost["time"]) {
+                dollarsAmount += 0.001 * cost["time"];
+            }
+            if(cost["space"]) {
+                dollarsAmount += 0.000000002 * cost["space"];
+            }
+            if(cost["images"]) {
+                dollarsAmount += 0.001 * cost["images"];
+            }
+        }
+        return dollarsAmount;
+    }
+
+    // ========================================================================
+
+    function formatTime(t) {
+        var seconds = Number(t),
+        minutes = Math.floor(seconds / 60),
+        hours = Math.floor(minutes / 60),
+        buffer = [];
+
+        seconds %= 60;
+        minutes %= 60;
+
+        if(hours > 0) {
+           buffer.push(hours);
+        }
+        if(minutes > 0 || hours > 0) {
+           buffer.push(("00" + minutes).slice (-2));
+        }
+        if(seconds > 0 || minutes > 0 || hours > 0) {
+            buffer.push(("00" + seconds).slice (-2));
+        }
+
+        return buffer.join(':');
+    }
+
+    // ========================================================================
+
+    function formatSpace(t) {
+        var space = Number(t), unit = [ ' B', ' K', ' M', ' G', ' T'], currentUnit = 0;
+        while(space > 1000) {
+            space /= 1000;
+            currentUnit++;
+        }
+        return space.toFixed(2) + unit[currentUnit];
+    }
+
+    // ========================================================================
+
+    function formatDollars(v) {
+        x = v.toFixed(2).toString();
+        var pattern = /(-?\d+)(\d{3})/;
+        while (pattern.test(x)) {
+            x = x.replace(pattern, "$1,$2");
+        }
+        return x;
+    }
 
     // ========================================================================
     // Helper
@@ -62,9 +126,52 @@
         // Add static tools
         items.push("</ul>");
         items.push(STATIC_TOOLS);
-        items.push("</div><div class='view content'></div><div class='view search'><select name='exploration'>OPTIONS</select><div class='search-results'></div></div>".replace(/OPTIONS/g, optionsList.join('')));
+        items.push("</div><div class='view content'></div>");
+        items.push("<div class='view search'><select name='exploration'>OPTIONS</select><div class='search-results'></div></div>".replace(/OPTIONS/g, optionsList.join('')));
+        items.push(buildBillingPage(info, path, formula));
 
         return items.join('');
+    }
+
+    // ------------------------------------------------------------------------
+
+    function buildBillingPage(info, path, formula) {
+        var content = [ "<table class='catalyst-bill'><tr class='head'></td><td class='empty title'></td><td><span class='vtk-icon-clock'/></td><td><span class='vtk-icon-database'/></td><td><span class='vtk-icon-picture-1'/></td><td><span class='vtk-icon-dollar'/></td></tr>" ],
+        total = { "space": 0, "images": 0, "time": 0 , "dollars": 0},
+        analysisCount = info['analysis'].length;
+
+        // Add each analysis
+        while(analysisCount--) {
+            var item = info['analysis'][analysisCount],
+            cost = item['cost'],
+            dollars = formula(cost);
+
+            total['space'] += cost['space'];
+            total['images'] += cost['images'];
+            total['time'] += cost['time'];
+            total['dollars'] += dollars;
+
+            content.push(buildBillEntry(item, cost, dollars));
+        }
+
+        // Add total
+        content.push("<tr class='sum'><td>Total</td><td>"+ formatTime(total["time"]) +"</td><td>"+ formatSpace(total["space"]) +"</td><td>"+ total["images"] +"</td><td>"+ formatDollars(total["dollars"]) +"</td></tr></table>")
+
+        return "<div class='view cost'>" + content.join('') + "</div>";
+    }
+
+    // ------------------------------------------------------------------------
+
+    function buildBillEntry(item, cost, dollars) {
+        console.log(item);
+        console.log(cost);
+        var classType = VIEWER_FACTORY[item["type"]]["class"],
+        title = item["title"],
+        time = cost["time"],
+        space = cost["space"],
+        images = cost["images"];
+
+        return "<tr><td class='title'><span class='" + classType + "'/>" + title + "</td><td class='time value'>" + formatTime(time) + "</td><td class='space value'>" + formatSpace(space) + "</td><td class='images value'>" + images + "</td><td class='dollars value'>" + formatDollars(dollars) + "</td></tr>";
     }
 
     // ------------------------------------------------------------------------

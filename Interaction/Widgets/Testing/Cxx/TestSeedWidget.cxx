@@ -16,27 +16,25 @@
 // This example tests the vtkSeedWidget
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkSmartPointer.h"
-
-#include "vtkSeedWidget.h"
-#include "vtkSeedRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkAxisActor2D.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkDebugLeaks.h"
+#include "vtkHandleWidget.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkMath.h"
+#include "vtkPointHandleRepresentation2D.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
-#include "vtkCoordinate.h"
-#include "vtkMath.h"
-#include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation2D.h"
-#include "vtkAxisActor2D.h"
-#include "vtkProperty2D.h"
-
-#include "vtkInteractorStyleTrackballCamera.h"
-
+#include "vtkSeedRepresentation.h"
+#include "vtkSeedWidget.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkTesting.h"
 
 const char TestSeedWidgetEventLog[] =
   "# StreamVersion 1 i\n"
@@ -468,7 +466,7 @@ public:
 
 
 // The actual test function
-int TestSeedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestSeedWidget(int argc, char *argv[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -523,24 +521,13 @@ int TestSeedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   renWin->SetSize(300, 300);
   renWin->SetMultiSamples(0);
 
-  // record events
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren);
-  recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestSeedWidgetEventLog);
-
   // render the image
 
   iren->Initialize();
   renWin->Render();
-  recorder->Play();
 
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-  recorder->Off();
-
-  iren->Start();
+  int retVal = vtkTesting::InteractorEventLoop(
+    argc, argv, iren, TestSeedWidgetEventLog );
 
   // test removing seeds
   const int startNumSeeds = rep->GetNumberOfSeeds();
@@ -550,7 +537,6 @@ int TestSeedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     }
 
   const int endNumSeeds = rep->GetNumberOfSeeds();
-  int retVal = EXIT_SUCCESS;
   if (endNumSeeds != 0)
     {
     std::cerr << "After deleting " << startNumSeeds << ", now have "

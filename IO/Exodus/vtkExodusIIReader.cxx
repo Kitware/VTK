@@ -989,12 +989,23 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     elemBlockIdArray->Delete();
     }
 
-  // Add QA record and INFO record metadata from the Exodus II file
+  // Add QA record, title, and INFO record metadata from the Exodus II file
   vtkExodusIICacheKey qakey( -1, vtkExodusIIReader::QA_RECORDS, 0, 0 );
   vtkDataArray* arr = this->GetCacheOrRead( qakey );
   if ( arr )
     {
     ofieldData->AddArray(arr);
+    }
+
+  if ( this->ModelParameters.title )
+    {
+    vtkStringArray* sarr = vtkStringArray::New();
+    sarr->SetName( "Title" );
+    sarr->SetNumberOfComponents( 1 );
+    sarr->SetNumberOfTuples(1);
+    sarr->SetValue(0, this->ModelParameters.title);
+    ofieldData->AddArray(sarr);
+    sarr->Delete();
     }
 
   vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );

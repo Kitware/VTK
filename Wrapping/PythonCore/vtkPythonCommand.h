@@ -30,7 +30,7 @@ public:
 
   void SetObject(PyObject *o);
   void SetThreadState(PyThreadState *ts);
-  void Execute(vtkObject *ptr, unsigned long eventtype, void *CallData);
+  void Execute(vtkObject *ptr, unsigned long eventtype, void *callData);
 
   PyObject *obj;
   PyThreadState *ThreadState;

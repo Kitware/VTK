@@ -157,7 +157,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       float wholeProgressRange[2] = {0,1};
       this->SetProgressRange(wholeProgressRange, 0, 1);
 
-      if (!this->OpenFile())
+      if (!this->OpenStream())
         {
         this->NumberOfPieces = numPieces;
         return 0;
@@ -225,7 +225,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
           return 0;
           }
 
-        this->CloseFile();
+        this->CloseStream();
         this->CurrentTimeIndex = 0; // Reset
         }
       }

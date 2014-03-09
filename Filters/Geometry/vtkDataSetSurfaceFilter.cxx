@@ -2187,25 +2187,27 @@ void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
         {
         // if the first two points match loop through forwards
         // checking all points
-        for (int i = 1; i < numPts; i++)
+        if (tab[1] == quad->ptArray[1])
           {
-          if ( tab[i] != quad->ptArray[i])
+          for (int i = 2; i < numPts; ++i)
             {
-            match = false;
-            break;
+            if ( tab[i] != quad->ptArray[i])
+              {
+              match = false;
+              break;
+              }
             }
           }
-        }
-      else if (tab[numPts-1] == quad->ptArray[0])
-        {
-        // the first two points match with the opposite sense.
-        // loop though comparing the correct sense
-        for (int i = 1; i < numPts; i++)
+        else
           {
-          if ( tab[numPts - i - 1] != quad->ptArray[i])
+          // check if the points go in the opposite direction
+          for (int i = 1; i < numPts; ++i)
             {
-            match = false;
-            break;
+            if ( tab[numPts-i] != quad->ptArray[i])
+              {
+              match = false;
+              break;
+              }
             }
           }
         }

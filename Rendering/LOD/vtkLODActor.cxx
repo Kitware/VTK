@@ -201,7 +201,9 @@ int vtkLODActor::RenderOpaqueGeometry(vtkViewport *vp)
     }
 
   // is this actor opaque ?
-  if (this->GetIsOpaque())
+  // Do this check only when not in selection mode
+  if (this->GetIsOpaque() ||
+    (ren->GetSelector() && this->Property->GetOpacity() > 0.0))
     {
     this->Property->Render(this, ren);
 

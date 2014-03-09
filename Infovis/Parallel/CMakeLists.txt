@@ -1,3 +1,5 @@
+include(vtkMPI)
+
 find_package(Boost 1.40.0 REQUIRED
   COMPONENTS serialization mpi filesystem system graph_parallel)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -18,4 +20,5 @@ set(Module_SRCS
   )
 
 vtk_module_library(vtkInfovisParallel ${Module_SRCS})
-target_link_libraries(vtkInfovisParallel LINK_PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(vtkInfovisParallel LINK_PUBLIC ${Boost_LIBRARIES})
+vtk_mpi_link(vtkInfovisParallel)

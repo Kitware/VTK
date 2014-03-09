@@ -151,11 +151,16 @@ void vtkPhyloXMLTreeWriter::ConvertVertexToXML(vtkTree* const input,
       continue;
       }
 
-    std::string arrName = arr->GetName();
-    if (this->Blacklist->LookupValue(arrName) != -1)
+    if (this->Blacklist->LookupValue(arr->GetName()) != -1)
       {
       continue;
       }
+
+    // PhyloXML references need to contain a colon.  For now, we'll
+    // satisfy that requirement by beginning each reference with
+    // "VTK:".
+    std::string arrName = "VTK:";
+    arrName += arr->GetName();
 
     vtkStdString val = arr->GetVariantValue(vertex).ToString();
     std::string type = "xsd:";

@@ -26,6 +26,8 @@
 
 #include "vtkPBGLConnectedComponents.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -64,6 +66,7 @@ vtkPBGLConnectedComponents::vtkPBGLConnectedComponents()
   this->ComponentArrayName = 0;
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
+  VTK_LEGACY_BODY(vtkPBGLConnectedComponents::vtkPBGLConnectedComponents, "VTK 6.2");
 }
 
 vtkPBGLConnectedComponents::~vtkPBGLConnectedComponents()
@@ -193,3 +196,4 @@ int vtkPBGLConnectedComponents::FillOutputPortInformation(
   return 1;
 }
 
+#endif //VTK_LEGACY_REMOVE

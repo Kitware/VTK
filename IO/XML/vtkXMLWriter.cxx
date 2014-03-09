@@ -44,7 +44,6 @@
 #include "vtkInformationStringKey.h"
 
 #include <vtksys/auto_ptr.hxx>
-#include <vtksys/ios/sstream>
 
 #include <cassert>
 #include <string>
@@ -293,6 +292,7 @@ vtkXMLWriter::vtkXMLWriter()
 {
   this->FileName = 0;
   this->Stream = 0;
+  this->WriteToOutputString = 0;
 
   // Default binary data mode is base-64 encoding.
   this->DataStream = vtkBase64OutputStream::New();
@@ -329,6 +329,7 @@ vtkXMLWriter::vtkXMLWriter()
   this->SetNumberOfInputPorts(1);
 
   this->OutFile = 0;
+  this->OutStringStream = 0;
 
   // Time support
   this->TimeStep = 0; // By default the file does not have timestep
@@ -347,7 +348,16 @@ vtkXMLWriter::~vtkXMLWriter()
   this->SetFileName(0);
   this->DataStream->Delete();
   this->SetCompressor(0);
-  delete this->OutFile;
+  if (this->OutFile)
+    {
+    delete this->OutFile;
+    this->OutFile = 0;
+    }
+  if (this->OutStringStream)
+    {
+    delete this->OutStringStream;
+    this->OutStringStream = 0;
+    }
 
   delete this->FieldDataOM;
   delete[] this->NumberOfTimeValues;
@@ -622,7 +632,7 @@ int vtkXMLWriter::RequestData(vtkInformation* vtkNotUsed( request ),
   this->SetErrorCode(vtkErrorCode::NoError);
 
   // Make sure we have a file to write.
-  if(!this->Stream && !this->FileName)
+  if(!this->Stream && !this->FileName && !this->WriteToOutputString)
     {
     vtkErrorMacro("Writer called with no FileName set.");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
@@ -670,10 +680,10 @@ int vtkXMLWriter::Write()
   return 1;
 }
 
+
 //----------------------------------------------------------------------------
-int vtkXMLWriter::OpenFile()
+int vtkXMLWriter::OpenStream()
 {
-  this->OutFile = 0;
   if(this->Stream)
     {
     // Rewind stream to the beginning.
@@ -681,32 +691,20 @@ int vtkXMLWriter::OpenFile()
     }
   else
     {
-    // Strip trailing whitespace from the filename.
-    int len = static_cast<int>(strlen(this->FileName));
-    for (int i = len-1; i >= 0; i--)
+    if (this->WriteToOutputString)
       {
-      if (isalnum(this->FileName[i]))
+      if (!this->OpenString())
         {
-        break;
+        return 0;
         }
-      this->FileName[i] = 0;
       }
-
-    // Try to open the output file for writing.
-#ifdef _WIN32
-    this->OutFile = new ofstream(this->FileName, ios::out | ios::binary);
-#else
-    this->OutFile = new ofstream(this->FileName, ios::out);
-#endif
-    if(!this->OutFile || !*this->OutFile)
+    else
       {
-      vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
-      this->SetErrorCode(vtkErrorCode::GetLastSystemError());
-      vtkErrorMacro("Error code \""
-                    << vtkErrorCode::GetStringFromErrorCode(this->GetErrorCode()) << "\"");
-      return 0;
+      if (!this->OpenFile())
+        {
+        return 0;
+        }
       }
-    this->Stream = this->OutFile;
     }
 
   // Make sure sufficient precision is used in the ascii
@@ -720,24 +718,103 @@ int vtkXMLWriter::OpenFile()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::CloseFile()
+int vtkXMLWriter::OpenFile()
+{
+  if (this->OutFile)
+    {
+    delete this->OutFile;
+    this->OutFile = 0;
+    }
+
+  // Strip trailing whitespace from the filename.
+  int len = static_cast<int>(strlen(this->FileName));
+  for (int i = len-1; i >= 0; i--)
+    {
+    if (isalnum(this->FileName[i]))
+      {
+      break;
+      }
+    this->FileName[i] = 0;
+    }
+
+  // Try to open the output file for writing.
+#ifdef _WIN32
+  this->OutFile = new ofstream(this->FileName, ios::out | ios::binary);
+#else
+  this->OutFile = new ofstream(this->FileName, ios::out);
+#endif
+  if(!this->OutFile || !*this->OutFile)
+    {
+    vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
+    this->SetErrorCode(vtkErrorCode::GetLastSystemError());
+    vtkErrorMacro("Error code \""
+                  << vtkErrorCode::GetStringFromErrorCode(this->GetErrorCode()) << "\"");
+    return 0;
+    }
+  this->Stream = this->OutFile;
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriter::OpenString()
+{
+  if (this->OutStringStream)
+    {
+    delete this->OutStringStream;
+    this->OutStringStream = 0;
+    }
+
+  this->OutStringStream = new vtksys_ios::ostringstream();
+  this->Stream = this->OutStringStream;
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::CloseStream()
 {
   // Cleanup the output streams.
   this->DataStream->SetStream(0);
 
+  if (this->WriteToOutputString)
+    {
+    this->CloseString();
+    }
+  else
+    {
+    this->CloseFile();
+    }
+
+  this->Stream = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::CloseFile()
+{
   if(this->OutFile)
     {
     // We opened a file.  Close it.
     delete this->OutFile;
     this->OutFile = 0;
-    this->Stream = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::CloseString()
+{
+  if(this->OutStringStream)
+    {
+    this->OutputString = this->OutStringStream->str();
+    delete this->OutStringStream;
+    this->OutStringStream = 0;
     }
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::WriteInternal()
 {
-  if (!this->OpenFile())
+  if (!this->OpenStream())
     {
     return 0;
     }
@@ -750,7 +827,7 @@ int vtkXMLWriter::WriteInternal()
   // if user manipulate execution don't try closing file
   if( this->UserContinueExecuting != 1 )
     {
-    this->CloseFile();
+    this->CloseStream();
     }
 
   return result;

@@ -61,6 +61,9 @@ __vtkTypeNameDict = {VTK_VOID:"void",
 def vtkImageScalarTypeNameMacro(type):
   return __vtkTypeNameDict[type]
 
+# import convenience decorators
+from util.misc import calldata_type
+
 # import the vtkVariant helpers
 from util.vtkVariant import *
 

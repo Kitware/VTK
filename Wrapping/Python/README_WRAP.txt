@@ -245,6 +245,57 @@ using vtk.mutable(), which is in the vtk module:
 0.5
 
 
+Observer, Event and CallData
+----------------------------
+
+* Simple callback
+
+Similarly to what can be done in C++, a python function can be called
+each time a VTK event is invoked on a given object:
+
+>>> def onObjectModified(object, event):
+>>>     print("object: %s - event: %s" % (object.GetClassName(), event))
+>>>
+>>> o = vtkObject()
+>>> o.AddObserver(vtkCommand.ModifiedEvent, onObjectModified)
+1
+>>> o.Modified()
+object: vtkObject - event: ModifiedEvent
+
+
+* Callback with CallData
+
+In case there is a "CallData" value associated with an event, in C++, you
+have to cast it from void* to the expected type using reinterpret_cast.
+For example, see http://www.vtk.org/Wiki/VTK/Examples/Cxx/Interaction/CallData
+
+The equivalent in python is to set a CallDataType attribute on the
+associated python callback. The supported CallDataType are vtk.VTK_STRING,
+vtk.VTK_OBJECT, vtk.VTK_INT, vtk.VTK_LONG, vtk.VTK_DOUBLE, vtk.VTK_FLOAT
+
+For example:
+
+>>> def onError(object, event, calldata):
+>>>     print("object: %s - event: %s - msg: %s" % (object.GetClassName(), event, calldata))
+>>>
+>>> onError.CallDataType = vtk.VTK_INT
+>>>
+>>> lt = vtkLookupTable()
+>>> lt.AddObserver(vtkCommand.ErrorEvent, onError)
+1
+>>> lt.SetTableRange(2,1)
+object: vtkLookupTable - event: ErrorEvent - msg: ERROR: In /home/jchris/Projects/VTK6/Common/Core/vtkLookupTable.cxx, line 122
+vtkLookupTable (0x6b40b30): Bad table range: [2, 1]
+
+
+For convenience, the CallDataType can also be specified where the function is first
+declared with the help of the "calldata_type" decorator:
+
+>>> @calldata_type(vtk.VTK_INT)
+>>> def onError(object, event, calldata):
+>>>     print("object: %s - event: %s - msg: %s" % (object.GetClassName(), event, calldata))
+
+
 Subclassing a VTK class
 -----------------------
 
