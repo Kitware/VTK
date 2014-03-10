@@ -83,14 +83,6 @@ endif()
 # Link against all the kit wrappers.
 list(APPEND VTKPYTHON_LINK_LIBS vtkWrappingPythonCore)
 
-set(vtkpython_pyc_depends
-  vtkCommonPython
-  vtkFilteringPython
-  vtkIOPython
-  vtkGraphicsPython
-  vtkImagingPython
-  )
-
 if(PYTHON_UTIL_LIBRARY)
   list(APPEND VTKPYTHON_LINK_LIBS ${PYTHON_UTIL_LIBRARY})
 endif()
@@ -265,7 +257,7 @@ if(PYTHON_EXECUTABLE)
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/vtk_compile_complete")
   add_dependencies(vtkpython_pyc
     vtkpython
-    ${vtkpython_pyc_depends})
+    )
 
   # If no runtime is to be installed then do not install python modules.
   if(NOT VTK_INSTALL_NO_RUNTIME)
