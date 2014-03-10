@@ -250,12 +250,13 @@ if (ComputeScalars) \
 // Contouring filter specialized for images
 //
 template <class T>
-void ContourImage(vtkSynchronizedTemplates3D *self, int* inExt,
+void ContourImage(vtkSynchronizedTemplates3D *self, int* exExt,
                   vtkImageData *data, vtkPolyData *output, T *ptr,
                   vtkDataArray *inScalars, bool outputTriangles)
 {
-  int xdim = inExt[1] - inExt[0] + 1;
-  int ydim = inExt[3] - inExt[2] + 1;
+  int *inExt = data->GetExtent();
+  int xdim = exExt[1] - exExt[0] + 1;
+  int ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
@@ -309,7 +310,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int* inExt,
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkSynchronizedTemplates3DInitializeOutput(inExt,
+  vtkSynchronizedTemplates3DInitializeOutput(exExt,
                                              data, output,
                                              newScalars, newNormals,
                                              newGradients, inScalars);
@@ -317,12 +318,12 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int* inExt,
   newPolys = output->GetPolys();
 
   // this is an exploded execute extent.
-  xMin = inExt[0];
-  xMax = inExt[1];
-  yMin = inExt[2];
-  yMax = inExt[3];
-  zMin = inExt[4];
-  zMax = inExt[5];
+  xMin = exExt[0];
+  xMax = exExt[1];
+  yMin = exExt[2];
+  yMax = exExt[3];
+  zMin = exExt[4];
+  zMax = exExt[5];
 
   // increments to move through scalars. Compute these ourself because
   // we may be contouring an array other than scalars.
@@ -680,6 +681,7 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 // Contouring filter specialized for images (or slices from images)
 //
 void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
+                                                 vtkInformation* inInfo,
                                                  vtkInformation *outInfo,
                                                  vtkDataArray *inScalars)
 {
@@ -691,7 +693,20 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int* inExt = data->GetExtent();
-  if ( inExt[0] >= inExt[1] || inExt[2] >= inExt[3] || inExt[4] >= inExt[5] )
+  int exExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
+  for (int i=0; i<3; i++)
+    {
+    if (inExt[2*i] > exExt[2*i])
+      {
+      exExt[2*i] = inExt[2*i];
+      }
+    if (inExt[2*i+1] < exExt[2*i+1])
+      {
+      exExt[2*i+1] = inExt[2*i+1];
+      }
+    }
+  if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
     vtkDebugMacro(<<"3D structured contours requires 3D data");
     return;
@@ -714,11 +729,11 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
     return;
     }
 
-  ptr = data->GetArrayPointerForExtent(inScalars, inExt);
+  ptr = data->GetArrayPointerForExtent(inScalars, exExt);
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
-      ContourImage(this, inExt, data, output,
+      ContourImage(this, exExt, data, output,
                    (VTK_TT *)ptr, inScalars, this->GenerateTriangles!=0));
     }
 }
@@ -745,7 +760,7 @@ int vtkSynchronizedTemplates3D::RequestData(
   vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
 
   // Just call the threaded execute directly.
-  this->ThreadedExecute(input, outInfo, inScalars);
+  this->ThreadedExecute(input, inInfo, outInfo, inScalars);
 
   output->Squeeze();
 

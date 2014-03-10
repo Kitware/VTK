@@ -218,11 +218,11 @@ if (NeedGradients) \
 { \
   if (!g0) \
     { \
-    self->ComputeSpacing(data, i, j, k, inExt, spacing); \
+    self->ComputeSpacing(data, i, j, k, exExt, spacing); \
     vtkRSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0); \
     g0 = 1; \
     } \
-  self->ComputeSpacing(data, i2, j2, k2, inExt, spacing); \
+  self->ComputeSpacing(data, i2, j2, k2, exExt, spacing); \
   vtkRSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
@@ -249,12 +249,13 @@ if (ComputeScalars) \
 // Contouring filter specialized for images
 //
 template <class T>
-void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *inExt,
+void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exExt,
                             vtkRectilinearGrid *data, vtkPolyData *output, T *ptr,
                             vtkDataArray *inScalars, bool outputTriangles)
 {
-  int xdim = inExt[1] - inExt[0] + 1;
-  int ydim = inExt[3] - inExt[2] + 1;
+  int *inExt = data->GetExtent();
+  int xdim = exExt[1] - exExt[0] + 1;
+  int ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
@@ -311,18 +312,18 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *inEx
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkRectilinearSynchronizedTemplatesInitializeOutput(inExt, data, output,
+  vtkRectilinearSynchronizedTemplatesInitializeOutput(exExt, data, output,
                                          newScalars, newNormals, newGradients, inScalars);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
 
   // this is an exploded execute extent.
-  xMin = inExt[0];
-  xMax = inExt[1];
-  yMin = inExt[2];
-  yMax = inExt[3];
-  zMin = inExt[4];
-  zMax = inExt[5];
+  xMin = exExt[0];
+  xMax = exExt[1];
+  yMin = exExt[2];
+  yMax = exExt[3];
+  zMin = exExt[4];
+  zMax = exExt[5];
 
   // increments to move through scalars Compute these ourself because
   // we may be contouring an array other than scalars.
@@ -704,12 +705,27 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
     return 1;
     }
 
-  int* ext = data->GetExtent();
-  ptr = this->GetScalarsForExtent(inScalars, ext, data);
+  int* inExt = data->GetExtent();
+  ptr = this->GetScalarsForExtent(inScalars, inExt, data);
+
+  int exExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
+  for (int i=0; i<3; i++)
+    {
+    if (inExt[2*i] > exExt[2*i])
+      {
+      exExt[2*i] = inExt[2*i];
+      }
+    if (inExt[2*i+1] < exExt[2*i+1])
+      {
+      exExt[2*i+1] = inExt[2*i+1];
+      }
+    }
+
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
-      ContourRectilinearGrid(this, ext, data,
+      ContourRectilinearGrid(this, exExt, data,
                              output, (VTK_TT *)ptr, inScalars,this->GenerateTriangles!=0));
     }
 

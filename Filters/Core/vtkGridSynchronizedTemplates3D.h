@@ -124,7 +124,7 @@ public:
 
   // Description:
   // Main execution.
-  void ThreadedExecute(int *exExt, int threadId, vtkStructuredGrid *input,
+  void ThreadedExecute(vtkStructuredGrid *input,
                        vtkInformationVector **inVec,
                        vtkInformation *outInfo);
 

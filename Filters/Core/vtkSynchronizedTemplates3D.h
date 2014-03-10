@@ -125,6 +125,7 @@ public:
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
   void ThreadedExecute(vtkImageData *data,
+                       vtkInformation *inInfo,
                        vtkInformation *outInfo,
                        vtkDataArray *inScalars);
 
