@@ -97,6 +97,7 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->Internals = new vtkOpenGLProjectedTetrahedraMapper::vtkInternals;
   this->UseFloatingPointFrameBuffer = true;
   this->CanDoFloatingPointFrameBuffer = false;
+  this->HasHardwareSupport = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -131,8 +132,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
 
   vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
   bool texSupport
-    = (extensions->ExtensionSupported("GL_ARB_texture_float") != 0)
-    && (extensions->ExtensionSupported("GL_VERSION_1_3") != 0);
+    = (extensions->ExtensionSupported("GL_VERSION_1_3") != 0);
 
   // use render to FBO when it's supported
   this->CanDoFloatingPointFrameBuffer = false;
@@ -140,7 +140,8 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
     {
     this->CanDoFloatingPointFrameBuffer
       = (extensions->ExtensionSupported("GL_ARB_framebuffer_object") != 0)
-      && (extensions->ExtensionSupported("GL_ARB_draw_buffers") != 0);
+      && (extensions->ExtensionSupported("GL_ARB_draw_buffers") != 0)
+      && (extensions->ExtensionSupported("GL_ARB_texture_float") != 0);
     if (!this->CanDoFloatingPointFrameBuffer)
       {
       vtkWarningMacro(
@@ -177,7 +178,8 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
 
   vtkOpenGLRenderWindow *renwin
     = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
-  if ( !renwin || !this->IsSupported(renwin) )
+  this->HasHardwareSupport = renwin != NULL && this->IsSupported(renwin);
+  if (!this->HasHardwareSupport)
     {
     // this is an error since there's no fallback.
     vtkErrorMacro("The required extensions are not supported.");
@@ -355,6 +357,11 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
   // load required extensions
   this->Initialize(renderer);
+
+  if (!this->HasHardwareSupport)
+    {
+    return;
+    }
 
   vtkUnstructuredGridBase *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
