@@ -15,12 +15,13 @@ endif()
 
 project(VTK)
 
-# Objective-C++ compile flags, future CMake versions might make this obsolete
+# Objective-C++ compile flags.
+# CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
+# so we provide this in case the user needs to specify flags specifically
+# for Objective-C++ source files.  For example, to build with garbage
+# collection support, the -fobjc-gc flag would be used.
 IF(APPLE)
-  # Being a library, VTK may be linked in either GC (garbage collected)
-  # processes or non-GC processes.  Default to "GC supported" so that both
-  # GC and MRR (manual reference counting) are supported.
-  SET(VTK_OBJCXX_FLAGS_DEFAULT "-fobjc-gc")
+  SET(VTK_OBJCXX_FLAGS_DEFAULT "")
   SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
 ENDIF(APPLE)
