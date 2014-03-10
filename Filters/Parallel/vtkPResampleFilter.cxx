@@ -24,7 +24,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOnePieceExtentTranslator.h"
 #include "vtkPProbeFilter.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -69,17 +68,6 @@ int vtkPResampleFilter::RequestInformation(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtend, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
-
-  // Setup ExtentTranslator so that all downstream piece requests are
-  // converted to whole extent update requests, as need by this filter.
-  if (strcmp(
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo)
-        ->GetClassName(), "vtkOnePieceExtentTranslator") != 0)
-    {
-    vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, et);
-    et->Delete();
-    }
 
   return 1;
 }
