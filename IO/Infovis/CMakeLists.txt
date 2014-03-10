@@ -9,6 +9,7 @@ set(Module_SRCS
   vtkMultiNewickTreeReader.cxx
   vtkNewickTreeReader.cxx
   vtkNewickTreeWriter.cxx
+  vtkPhyloXMLTreeReader.cxx
   vtkPhyloXMLTreeWriter.cxx
   vtkRISReader.cxx
   vtkTulipReader.cxx

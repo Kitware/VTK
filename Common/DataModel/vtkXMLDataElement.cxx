@@ -349,7 +349,7 @@ const char* vtkXMLDataElement::GetAttributeValue(int idx)
 void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 {
   // anything to do?
-  if (this->CharacterData==NULL)
+  if (this->CharacterData==NULL || strcmp(this->CharacterData, "") == 0)
     {
     return;
     }

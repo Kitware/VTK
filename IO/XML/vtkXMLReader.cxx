@@ -84,6 +84,9 @@ vtkXMLReader::vtkXMLReader()
   this->FileName = 0;
   this->Stream = 0;
   this->FileStream = 0;
+  this->StringStream = 0;
+  this->ReadFromInputString = 0;
+  this->InputString = "";
   this->XMLParser = 0;
   this->FieldDataElement = 0;
   this->PointDataArraySelection = vtkDataArraySelection::New();
@@ -192,6 +195,19 @@ int vtkXMLReader::CanReadFileVersion(int major, int vtkNotUsed(minor))
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLReader::OpenStream()
+{
+  if (this->ReadFromInputString)
+    {
+    return this->OpenVTKString();
+    }
+  else
+    {
+    return this->OpenVTKFile();
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkXMLReader::OpenVTKFile()
 {
   if(this->FileStream)
@@ -245,6 +261,60 @@ int vtkXMLReader::OpenVTKFile()
 }
 
 //----------------------------------------------------------------------------
+int vtkXMLReader::OpenVTKString()
+{
+  if(this->StringStream)
+    {
+    vtkErrorMacro("string already open.");
+    return 1;
+    }
+
+  if(!this->Stream && this->InputString.compare("") == 0)
+    {
+    vtkErrorMacro("Input string not specified");
+    return 0;
+    }
+
+  if(this->Stream)
+    {
+    // Use user-provided stream.
+    return 1;
+    }
+
+  // Open the string stream
+  this->StringStream = new std::istringstream(this->InputString);
+  if(!this->StringStream || !(*this->StringStream))
+    {
+    vtkErrorMacro("Error opening string stream");
+    if(this->StringStream)
+      {
+      delete this->StringStream;
+      this->StringStream = 0;
+      }
+    return 0;
+    }
+
+  // Use the string stream.
+  this->Stream = this->StringStream;
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::CloseStream()
+{
+  if (this->ReadFromInputString)
+    {
+    this->CloseVTKString();
+    }
+  else
+    {
+    this->CloseVTKFile();
+    }
+  this->Stream = 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLReader::CloseVTKFile()
 {
   if(!this->Stream)
@@ -258,7 +328,22 @@ void vtkXMLReader::CloseVTKFile()
     this->FileStream->close();
     delete this->FileStream;
     this->FileStream = 0;
-    this->Stream = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::CloseVTKString()
+{
+  if(!this->Stream)
+    {
+    vtkErrorMacro("String not open.");
+    return;
+    }
+  if(this->Stream == this->StringStream)
+    {
+    // We opened the string.  Close it.
+    delete this->StringStream;
+    this->StringStream = 0;
     }
 }
 
@@ -332,8 +417,8 @@ int vtkXMLReader::ReadXMLInformation()
       }
 
     // Open the input file.  If it fails, the error was already
-    // reported by OpenVTKFile.
-    if(!this->OpenVTKFile())
+    // reported by OpenStream.
+    if(!this->OpenStream())
       {
       return 0;
       }
@@ -366,8 +451,8 @@ int vtkXMLReader::ReadXMLInformation()
       this->ReadError = 1;
       }
 
-    // Close the file to prevent resource leaks.
-    this->CloseVTKFile();
+    // Close the input stream to prevent resource leaks.
+    this->CloseStream();
 
     this->ReadMTime.Modified();
     }
@@ -472,8 +557,8 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
     }
 
   // Re-open the input file.  If it fails, the error was already
-  // reported by OpenVTKFile.
-  if(!this->OpenVTKFile())
+  // reported by OpenStream.
+  if(!this->OpenStream())
     {
     this->SetupEmptyOutput();
     this->CurrentOutput = 0;
@@ -522,8 +607,8 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
   // We have finished reading.
   this->UpdateProgressDiscrete(1);
 
-  // Close the file to prevent resource leaks.
-  this->CloseVTKFile();
+  // Close the input stream to prevent resource leaks.
+  this->CloseStream();
   if( this->TimeSteps )
     {
     // The SetupOutput should not reallocate this should be done only in a TimeStep case
