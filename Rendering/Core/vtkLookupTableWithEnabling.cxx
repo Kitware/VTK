@@ -242,7 +242,6 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
             *output++ = r;
             *output++ = g;
             *output++ = b;
-            cptr+=3;
             }
           else
             {
@@ -329,7 +328,6 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
             *output++ = r;
             *output++ = g;
             *output++ = b;
-            cptr+=3;
             }
           else
             {
@@ -420,7 +418,6 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
             *output++ = r;
             *output++ = g;
             *output++ = b;
-            cptr+=3;
             }
           else
             {
@@ -514,7 +511,6 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
             *output++ = r;
             *output++ = g;
             *output++ = b;
-            cptr+=3;
             }
           else
             {

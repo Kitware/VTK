@@ -338,7 +338,6 @@ vtkCell *vtkPolyData::GetCell(vtkIdType cellId)
         this->EmptyCell = vtkEmptyCell::New();
         }
       cell = this->EmptyCell;
-      numPts = 0;
       return cell;
     }
 

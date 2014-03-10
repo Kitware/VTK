@@ -785,7 +785,7 @@ void vtkKdTree::BuildLocator()
   // volume bounds - push out a little if flat
 
   double setBounds[6], volBounds[6];
-  int first = 1;
+  bool first = true;
 
   vtkCollectionSimpleIterator cookie;
   this->DataSets->InitTraversal(cookie);
@@ -795,7 +795,7 @@ void vtkKdTree::BuildLocator()
     if (first)
       {
       iset->GetBounds(volBounds);
-      first = 0;
+      first = false;
       }
     else
       {
@@ -1315,9 +1315,7 @@ void vtkKdTree::DoMedianFind(vtkKdNode *kd, float *c1, int *ids,
 
   int npoints = kd->GetNumberOfPoints();
 
-  int dims[3];
-
-  dims[0] = dim1; dims[1] = dim2; dims[2] = dim3;
+  int dims[3] = {dim1, dim2, dim3};
 
   for (dim = 0; dim < 3; dim++)
     {

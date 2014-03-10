@@ -374,7 +374,6 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
     value = values[vidx];
     inPtrZ = ptr;
     s2 = inPtrZ;
-    v2 = (*s2 < value ? 0 : 1);
 
     //==================================================================
     for (k = zMin; k <= zMax; k++)

@@ -18,6 +18,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
+#include <cassert>
 #include <stdlib.h>
 #include <math.h>
 
@@ -53,6 +54,7 @@ void vtkCollection::DeleteElement(vtkCollectionElement *e)
 void vtkCollection::
 RemoveElement(vtkCollectionElement *elem, vtkCollectionElement *prev)
 {
+  assert(elem);
   if (prev)
     {
     prev->Next = elem->Next;

@@ -118,11 +118,12 @@ vtkTree *vtkTree::GetData(vtkInformationVector *v, int i)
 //----------------------------------------------------------------------------
 bool vtkTree::IsStructureValid(vtkGraph *g)
 {
-  if (vtkTree::SafeDownCast(g))
+  vtkTree *tree = vtkTree::SafeDownCast(g);
+  if (tree)
     {
     // Since a tree has the additional root propery, we need
     // to set that here.
-    this->Root = (vtkTree::SafeDownCast(g))->Root;
+    this->Root = tree->Root;
     return true;
     }
 

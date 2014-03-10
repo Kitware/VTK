@@ -140,6 +140,7 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
   if (!column)
     {
     vtkErrorMacro("Column name cannot be null");
+    return;
     }
 
   vtkStdString domainStr = "";

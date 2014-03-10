@@ -140,7 +140,6 @@ int vtkTensorGlyph::RequestData(
   double v0[3], v1[3], v2[3];
   double xv[3], yv[3], zv[3];
   double maxScale;
-  vtkPointData *pd, *outPD;
 
   numDirs = (this->ThreeGlyphs?3:1)*(this->Symmetric+1);
 
@@ -150,8 +149,7 @@ int vtkTensorGlyph::RequestData(
 
   vtkDebugMacro(<<"Generating tensor glyphs");
 
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
+  vtkPointData *outPD = output->GetPointData();
   inTensors = this->GetInputArrayToProcess(0, inputVector);
   inScalars = this->GetInputArrayToProcess(1, inputVector);
   numPts = input->GetNumberOfPoints();
@@ -207,7 +205,7 @@ int vtkTensorGlyph::RequestData(
     }
 
   // only copy scalar data through
-  pd = this->GetSource()->GetPointData();
+  vtkPointData *pd = this->GetSource()->GetPointData();
   // generate scalars if eigenvalues are chosen or if scalars exist.
   if (this->ColorGlyphs &&
       ((this->ColorMode == COLOR_BY_EIGENVALUES) ||

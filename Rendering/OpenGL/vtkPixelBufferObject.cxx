@@ -234,15 +234,20 @@ void vtkPixelBufferObject::Bind(BufferType type)
 
   this->CreateBuffer();
 
-  GLenum target = static_cast<GLenum>(this->BufferTarget);
+  GLenum target;
   switch (type)
     {
     case vtkPixelBufferObject::PACKED_BUFFER:
-      target =  vtkgl::PIXEL_PACK_BUFFER_ARB;
+      target = vtkgl::PIXEL_PACK_BUFFER_ARB;
       break;
 
     case vtkPixelBufferObject::UNPACKED_BUFFER:
       target = vtkgl::PIXEL_UNPACK_BUFFER_ARB;
+      break;
+
+    default:
+      vtkErrorMacro("Impossible BufferType.");
+      target = static_cast<GLenum>(this->BufferTarget);
       break;
     }
 

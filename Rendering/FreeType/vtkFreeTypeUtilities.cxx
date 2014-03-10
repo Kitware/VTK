@@ -891,7 +891,6 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
   int x = 0, y = 0;
 
   char *currentLine = new char[strlen(str)];
-  char *itr = currentLine;
   int totalWidth = 0;
   int totalHeight = 0;
   float notUsed;
@@ -916,7 +915,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     adjustedX = x - originalX;
     adjustedY = y - originalY;
     }
-  itr = currentLine;
+  char *itr = currentLine;
   // Render char by char
   for (; *str; ++str)
     {

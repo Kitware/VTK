@@ -69,7 +69,6 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType numInputPts = input->GetNumberOfPoints();
 
   // Prepare output
-  int abort;
   double x0[3], x1[3];
   vtkIdType i, *pts, npts;
   vtkPoints *newPts = input->GetPoints()->NewInstance();
@@ -81,7 +80,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
     newPts->DeepCopy(input->GetPoints());
     }
   this->UpdateProgress (0.1);
-  abort = this->GetAbortExecute();
+  int abort = this->GetAbortExecute();
 
   // Now the edge points
   vtkCellArray *inPolys = input->GetPolys();

@@ -200,33 +200,33 @@ int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
     return 0;
     }
 
-  int i, intersects;
+  bool intersects;
   double pMin[3], pMax[3];
-  for (i = 0; i < 3; i++)
+  for (unsigned i = 0; i < 3; i++)
     {
-    intersects = 0;
+    intersects = false;
     if ((bbox.MinPnt[i] >= this->MinPnt[i]) &&
         (bbox.MinPnt[i] <= this->MaxPnt[i]))
       {
-      intersects = 1;
+      intersects = true;
       pMin[i] = bbox.MinPnt[i];
       }
     else if ((this->MinPnt[i] >= bbox.MinPnt[i]) &&
              (this->MinPnt[i] <= bbox.MaxPnt[i]))
       {
-      intersects = 1;
+      intersects = true;
       pMin[i] = this->MinPnt[i];
       }
     if ((bbox.MaxPnt[i] >= this->MinPnt[i]) &&
         (bbox.MaxPnt[i] <= this->MaxPnt[i]))
       {
-      intersects = 1;
+      intersects = true;
       pMax[i] = bbox.MaxPnt[i];
       }
     else if ((this->MaxPnt[i] >= bbox.MinPnt[i]) &&
              (this->MaxPnt[i] <= bbox.MaxPnt[i]))
       {
-      intersects = 1;
+      intersects = true;
       pMax[i] = this->MaxPnt[i];
       }
     if (!intersects)
@@ -236,7 +236,7 @@ int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
     }
 
   // OK they did intersect - set the box to be the result
-  for (i = 0; i < 3; i++)
+  for (unsigned i = 0; i < 3; i++)
     {
     this->MinPnt[i] = pMin[i];
     this->MaxPnt[i] = pMax[i];

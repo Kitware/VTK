@@ -421,7 +421,12 @@ int TestEigen()
     vtkSmartPointer<vtkDoubleArray>::New();
   pcaStatistics->GetEigenvalues(eigenvalues);
   double eigenvaluesGroundTruth[3] = {.5, .166667, 0};
-  for(vtkIdType i = 0; i < eigenvalues->GetNumberOfTuples(); i++)
+  vtkIdType eigenvaluesCount = eigenvalues->GetNumberOfTuples();
+  if (eigenvaluesCount > 3)
+    {
+    return EXIT_FAILURE;
+    }
+  for(vtkIdType i = 0; i < eigenvaluesCount; i++)
     {
     std::cout << "Eigenvalue " << i << " = " << eigenvalues->GetValue(i) << std::endl;
     if(!fuzzyCompare(eigenvalues->GetValue(i), eigenvaluesGroundTruth[i]))

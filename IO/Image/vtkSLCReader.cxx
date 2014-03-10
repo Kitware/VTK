@@ -442,10 +442,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
 
       case 1:
 
-        if( scan_ptr )
-          {
-          delete [] scan_ptr;
-          }
+        delete [] scan_ptr;
 
         if (fscanf( fp, "%d X", &compressed_size ) != 1)
           {
@@ -475,10 +472,14 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
       default:
         vtkErrorMacro(<< "Unknown SLC compression type: " <<
           data_compression );
+        return;
         break;
       }
     void* outputSlice = output->GetScalarPointer(0, 0, z_counter);
-    memcpy(outputSlice, scan_ptr, plane_size);
+    if (outputSlice && scan_ptr)
+      {
+      memcpy(outputSlice, scan_ptr, plane_size);
+      }
     }
 
   delete [] scan_ptr;

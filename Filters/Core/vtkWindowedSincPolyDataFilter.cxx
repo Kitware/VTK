@@ -88,7 +88,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   double x1[3], x2[3], x3[3], l1[3], l2[3];
   double CosFeatureAngle; //Cosine of angle between adjacent polys
   double CosEdgeAngle; // Cosine of angle between adjacent edges
-  int iterationNumber, abortExecute;
+  int iterationNumber;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh = NULL, *Mesh;
   vtkPoints *inPts;
@@ -628,8 +628,8 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     }//for all points
 
   // for the rest of the iterations
-  for ( iterationNumber=2, abortExecute=0;
-        iterationNumber <= this->NumberOfIterations && !abortExecute;
+  for ( iterationNumber=2;
+        iterationNumber <= this->NumberOfIterations;
         iterationNumber++ )
     {
     if ( iterationNumber && !(iterationNumber % 5) )
@@ -637,7 +637,6 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
       if (this->GetAbortExecute())
         {
-        abortExecute = 1;
         break;
         }
       }
