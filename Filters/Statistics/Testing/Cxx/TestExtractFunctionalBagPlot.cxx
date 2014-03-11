@@ -25,6 +25,30 @@
 #include <sstream>
 
 //----------------------------------------------------------------------------
+const double densities[] = {
+  0.00013383,
+  0.000611902,
+  0.00238409,
+  0.00791545,
+  0.0223945,
+  0.053991,
+  0.110921,
+  0.194186,
+  0.289692,
+  0.36827,
+  0.398942,
+  0.36827,
+  0.289692,
+  0.194186,
+  0.110921,
+  0.053991,
+  0.0223945,
+  0.00791545,
+  0.00238409,
+  0.000611902
+};
+
+//----------------------------------------------------------------------------
 int TestExtractFunctionalBagPlot(int , char * [])
 {
   // Create a table with some points in it...
@@ -67,9 +91,10 @@ int TestExtractFunctionalBagPlot(int , char * [])
   varName->SetNumberOfValues(numCols);
   for (int j = 0; j < numCols; j++)
     {
-    double x = j * 8. / static_cast<double>(numCols) - 4.;
-    double y = (1. / sqrt(vtkMath::Pi() * 2.)) * exp(-(x*x) / 2.);
-    density->SetValue(j, y);
+    //double x = j * 8. / static_cast<double>(numCols) - 4.;
+    //double d = (1. / sqrt(vtkMath::Pi() * 2.)) * exp(-(x*x) / 2.);
+    double d = densities[j];
+    density->SetValue(j, d);
 
     varName->SetValue(j, table->GetColumn(j)->GetName());
     }
