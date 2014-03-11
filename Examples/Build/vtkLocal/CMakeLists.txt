@@ -1,5 +1,5 @@
+cmake_minimum_required(VERSION 2.8.8)
 project(vtkLocalExample)
-cmake_minimum_required(VERSION 2.8)
 
 # Find and load VTK settings.
 if(NOT VTK_BINARY_DIR)

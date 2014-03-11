@@ -3,8 +3,8 @@
 #--  All rights reserved.
 #--  BSD License: http://www.opensource.org/licenses/bsd-license.html
 #--////////////////////////////////////////////////////////////////////////////
-project(SimpleCocoaVTK)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.5 FATAL_ERROR)
+project(SimpleCocoaVTK)
 
 if(NOT VTK_BINARY_DIR)
   find_package(VTK)
