@@ -1,4 +1,6 @@
 vtk_module(vtkAcceleratorsDax
+  IMPLEMENTS
+    vtkFiltersCore
   DEPENDS
     vtkCommonCore
     vtkCommonDataModel
