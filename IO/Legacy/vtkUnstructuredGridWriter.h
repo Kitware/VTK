@@ -44,6 +44,9 @@ protected:
 
   void WriteData();
 
+  int WriteCellsAndFaces(ostream *fp, vtkUnstructuredGrid *grid,
+                         const char *label);
+
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
