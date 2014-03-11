@@ -2,9 +2,14 @@
 # project outside the main VTK build tree as if they were an application.
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-if(POLICY CMP0022)
-  cmake_policy(SET CMP0022 NEW)
-endif()
+foreach(p
+    CMP0020 # CMake 2.8.11
+    CMP0022 # CMake 2.8.12
+    )
+  if(POLICY ${p})
+    cmake_policy(SET ${p} NEW)
+  endif()
+endforeach()
 
 project(VTKTestExternal)
 if(VTK_SOURCE_DIR OR VTK_BINARY_DIR)
