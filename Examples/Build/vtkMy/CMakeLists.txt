@@ -1,4 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
+if(POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW) # CMake 3.0
+endif()
 
 #
 # Set the project name.
