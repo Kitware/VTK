@@ -45,6 +45,7 @@ set(Module_SRCS
   vtkEdgeTable.cxx
   vtkEmptyCell.cxx
   vtkExplicitCell.cxx
+  vtkExtractStructuredGridHelper.cxx
   vtkFieldData.cxx
   vtkGenericAdaptorCell.cxx
   vtkGenericAttributeCollection.cxx

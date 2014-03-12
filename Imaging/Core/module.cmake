@@ -2,10 +2,11 @@ vtk_module(vtkImagingCore
   GROUPS
     StandAlone
   DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMath
     vtkCommonSystem
     vtkCommonTransforms
-    vtkCommonMath
-    vtkCommonExecutionModel
   TEST_DEPENDS
     vtkIOLegacy
     vtkFiltersModeling
