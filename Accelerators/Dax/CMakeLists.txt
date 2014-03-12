@@ -13,7 +13,6 @@
 ##  the U.S. Government retains certain rights in this software.
 ##
 ##=============================================================================
-cmake_minimum_required(VERSION 2.8)
 
 #ensure we link against our dependencies
 include(module.cmake)

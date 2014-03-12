@@ -1,17 +1,15 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
-if(POLICY CMP0022)
-  cmake_policy(SET CMP0022 NEW)
-endif()
-
-# Eliminate a warning when building in Windows that relates
-# to static linking of Qt executables to qtmain.lib.
-# This policy was introduced in CMake version 2.8.11.
-# CMake version 2.8.11.2 warns when the policy is not set
-# and uses OLD behavior.
-if(POLICY CMP0020)
-  cmake_policy(SET CMP0020 NEW)
-endif()
+foreach(p
+    CMP0020 # CMake 2.8.11
+    CMP0022 # CMake 2.8.12
+    CMP0025 # CMake 3.0
+    CMP0042 # CMake 3.0
+    )
+  if(POLICY ${p})
+    cmake_policy(SET ${p} NEW)
+  endif()
+endforeach()
 
 project(VTK)
 
