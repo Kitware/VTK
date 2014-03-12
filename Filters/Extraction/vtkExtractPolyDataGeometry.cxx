@@ -28,6 +28,7 @@ vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
                      ImplicitFunction,vtkImplicitFunction);
 
+//----------------------------------------------------------------------------
 // Construct object with ExtractInside turned on.
 vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction *f)
 {
@@ -39,13 +40,16 @@ vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction *f)
 
   this->ExtractInside = 1;
   this->ExtractBoundaryCells = 0;
+  this->PassPoints = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkExtractPolyDataGeometry::~vtkExtractPolyDataGeometry()
 {
   this->SetImplicitFunction(NULL);
 }
 
+//----------------------------------------------------------------------------
 // Overload standard modified time function. If implicit function is modified,
 // then this object is modified as well.
 unsigned long vtkExtractPolyDataGeometry::GetMTime()
@@ -62,6 +66,7 @@ unsigned long vtkExtractPolyDataGeometry::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 int vtkExtractPolyDataGeometry::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -82,10 +87,11 @@ int vtkExtractPolyDataGeometry::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *inPts=input->GetPoints();
-  vtkIdType numPts, i, cellId = 0, newId;
+  vtkIdType numPts, i, cellId = 0, newId, ptId, *pointMap=NULL;
   float multiplier;
   vtkCellArray *inVerts=NULL, *inLines=NULL, *inPolys=NULL, *inStrips=NULL;
   vtkCellArray *newVerts=NULL, *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
+  vtkPoints *newPts=NULL;
 
   vtkDebugMacro(<< "Extracting poly data geometry");
 
@@ -111,14 +117,35 @@ int vtkExtractPolyDataGeometry::RequestData(
   vtkFloatArray *newScalars = vtkFloatArray::New();
   newScalars->SetNumberOfValues(numPts);
 
-  for (int ptId=0; ptId < numPts; ptId++ )
+  for (ptId=0; ptId < numPts; ptId++ )
     {
     newScalars->SetValue(ptId, this->ImplicitFunction->
                          FunctionValue(inPts->GetPoint(ptId))*multiplier);
     }
 
-  output->SetPoints(inPts);
-  outputPD->PassData(pd);
+  // Do different things with the points depending on user directive
+  if ( this->PassPoints )
+    {
+    output->SetPoints(inPts);
+    outputPD->PassData(pd);
+    }
+  else
+    {
+    newPts = vtkPoints::New();
+    newPts->Allocate(numPts/4,numPts);
+    pointMap = new vtkIdType[numPts]; // maps old point ids into new
+    for (ptId=0; ptId < numPts; ptId++)
+      {
+      if ( newScalars->GetValue(ptId) <= 0.0 )
+        {
+        newId = this->InsertPointInMap(ptId, inPts, newPts, pointMap);
+        }
+      else
+        {
+        pointMap[ptId] = -1;
+        }
+      }
+    }
   outputCD->CopyAllocate(cd);
 
   // Now loop over all cells to see whether they are inside the implicit
@@ -168,7 +195,26 @@ int vtkExtractPolyDataGeometry::RequestData(
         }
       if ( (numIn == npts) || (this->ExtractBoundaryCells && numIn > 0) )
         {
-        newId = newVerts->InsertNextCell(npts,pts);
+        if ( this->PassPoints )
+          {
+          newId = newVerts->InsertNextCell(npts,pts);
+          }
+        else
+          {
+          newId = newVerts->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            if ( pointMap[pts[i]] < 0 )
+              {
+              ptId = this->InsertPointInMap(pts[i], inPts, newPts, pointMap);
+              }
+            else
+              {
+              ptId = pointMap[pts[i]];
+              }
+            newVerts->InsertCellPoint(ptId);
+            }
+          }
         outputCD->CopyData(cd, cellId, newId);
         }
       cellId++;
@@ -190,7 +236,26 @@ int vtkExtractPolyDataGeometry::RequestData(
         }
       if ( (numIn == npts) || (this->ExtractBoundaryCells && numIn > 0) )
         {
-        newId = newLines->InsertNextCell(npts,pts);
+        if ( this->PassPoints )
+          {
+          newId = newLines->InsertNextCell(npts,pts);
+          }
+        else
+          {
+          newId = newLines->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            if ( pointMap[pts[i]] < 0 )
+              {
+              ptId = this->InsertPointInMap(pts[i], inPts, newPts, pointMap);
+              }
+            else
+              {
+              ptId = pointMap[pts[i]];
+              }
+            newLines->InsertCellPoint(ptId);
+            }
+          }
         outputCD->CopyData(cd, cellId, newId);
         }
       cellId++;
@@ -212,7 +277,26 @@ int vtkExtractPolyDataGeometry::RequestData(
         }
       if ( (numIn == npts) || (this->ExtractBoundaryCells && numIn > 0) )
         {
-        newId = newPolys->InsertNextCell(npts,pts);
+        if ( this->PassPoints )
+          {
+          newId = newPolys->InsertNextCell(npts,pts);
+          }
+        else
+          {
+          newId = newPolys->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            if ( pointMap[pts[i]] < 0 )
+              {
+              ptId = this->InsertPointInMap(pts[i], inPts, newPts, pointMap);
+              }
+            else
+              {
+              ptId = pointMap[pts[i]];
+              }
+            newPolys->InsertCellPoint(ptId);
+            }
+          }
         outputCD->CopyData(cd, cellId, newId);
         }
       cellId++;
@@ -234,7 +318,26 @@ int vtkExtractPolyDataGeometry::RequestData(
         }
       if ( (numIn == npts) || (this->ExtractBoundaryCells && numIn > 0) )
         {
-        newId = newStrips->InsertNextCell(npts,pts);
+        if ( this->PassPoints )
+          {
+          newId = newStrips->InsertNextCell(npts,pts);
+          }
+        else
+          {
+          newId = newStrips->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            if ( pointMap[pts[i]] < 0 )
+              {
+              ptId = this->InsertPointInMap(pts[i], inPts, newPts, pointMap);
+              }
+            else
+              {
+              ptId = pointMap[pts[i]];
+              }
+            newStrips->InsertCellPoint(ptId);
+            }
+          }
         outputCD->CopyData(cd, cellId, newId);
         }
       cellId++;
@@ -245,6 +348,20 @@ int vtkExtractPolyDataGeometry::RequestData(
   // Update ourselves and release memory
   //
   newScalars->Delete();
+  if ( ! this->PassPoints )
+    {
+    output->SetPoints(newPts);
+    newPts->Delete();
+    outputPD->CopyAllocate(pd);
+    for (i=0; i < numPts; i++)
+      {
+      if ( pointMap[i] >= 0 )
+        {
+        outputPD->CopyData(pd,i,pointMap[i]);
+        }
+      }
+    delete [] pointMap;
+    }
 
   if ( newVerts )
     {
@@ -270,6 +387,7 @@ int vtkExtractPolyDataGeometry::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -287,4 +405,6 @@ void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ExtractInside ? "On\n" : "Off\n");
   os << indent << "Extract Boundary Cells: "
      << (this->ExtractBoundaryCells ? "On\n" : "Off\n");
+  os << indent << "Pass Points: "
+     << (this->PassPoints ? "On\n" : "Off\n");
 }

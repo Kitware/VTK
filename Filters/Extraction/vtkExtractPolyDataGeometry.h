@@ -26,6 +26,11 @@
 // region.) An option exists to extract cells that are neither inside nor
 // outside (i.e., boundary).
 //
+// Note that this filter also has the option to directly pass all points or cull
+// the points that do not satisfy the implicit function test. Passing all points
+// is a tad faster, but then points remain that do not pass the test and may mess
+// up subsequent glyphing operations and so on. By default points are culled.
+//
 // A more general version of this filter is available for arbitrary
 // vtkDataSet input (see vtkExtractGeometry).
 
@@ -74,6 +79,13 @@ public:
   vtkGetMacro(ExtractBoundaryCells,int);
   vtkBooleanMacro(ExtractBoundaryCells,int);
 
+  // Description:
+  // Boolean controls whether points are culled or simply passed through
+  // to the output.
+  vtkSetMacro(PassPoints,int);
+  vtkGetMacro(PassPoints,int);
+  vtkBooleanMacro(PassPoints,int);
+
 protected:
   vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
   ~vtkExtractPolyDataGeometry();
@@ -84,9 +96,25 @@ protected:
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;
   int ExtractBoundaryCells;
+  int PassPoints;
+
+  vtkIdType InsertPointInMap(vtkIdType i, vtkPoints *inPts, vtkPoints *newPts, vtkIdType *pointMap);
+
 private:
   vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&);  // Not implemented.
   void operator=(const vtkExtractPolyDataGeometry&);  // Not implemented.
 };
+
+// Description:
+// When not passing points, have to use a point map to keep track of things.
+inline vtkIdType vtkExtractPolyDataGeometry::InsertPointInMap(vtkIdType i, vtkPoints *inPts,
+                                                              vtkPoints *newPts, vtkIdType *pointMap)
+{
+  double x[3];
+  inPts->GetPoint(i, x);
+  pointMap[i] = newPts->InsertNextPoint(x);
+  return pointMap[i];
+}
+
 
 #endif
