@@ -24,7 +24,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
-#include <string>
+#include <string> // for std::string
 
 class vtkAbstractArray;
 class vtkCallbackCommand;
