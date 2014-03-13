@@ -1,7 +1,7 @@
 (function ($, GLOBAL) {
     var SELECT_OPTION = '<option value="VALUE">NAME</option>',
     TEMPLATE_CANVAS = '<canvas class="front-renderer"></canvas><canvas class="single-size-back-buffer bg"></canvas><canvas class="back-buffer bg"></canvas>',
-    TEMPLATE_CONTENT = '<div class="header"><span class="vtk-icon-tools toggle"></span><span class="vtk-icon-resize-full-2 reset"></span><span class="vtk-icon-play play"></span><span class="vtk-icon-stop stop"></span></div><div class="parameters"><div class="layer-selector"></div><div class="pipeline"><ul>PIPELINE</ul></div><div class="background">Background<div class="right-control"><ul><li class="color" data-color="#cccccc" style="background: #cccccc"></li><li class="color" data-color="#000000" style="background: #000000"></li><li class="color" data-color="#ffffff" style="background: #ffffff"></li></ul></div></div><div class="fields"><ul><li class="time loop toggle-active"><span class="vtk-icon-clock-1 action title">Time</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="phi loop toggle-active"><span class="vtk-icon-resize-horizontal-1 action title">Phi</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="theta toggle-active"><span class="vtk-icon-resize-vertical-1 action title">Theta</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li></ul></div></div>',
+    TEMPLATE_CONTENT = '<div class="header"><span class="vtk-icon-tools toggle"></span><span class="vtk-icon-resize-full-2 reset"></span><span class="vtk-icon-play play"></span><span class="vtk-icon-stop stop"></span></div><div class="parameters"><div class="layer-selector"></div><div class="pipeline-container"><div class="pipeline"><ul>PIPELINE</ul></div><div class="background">Background<div class="right-control"><ul><li class="color" data-color="#cccccc" style="background: #cccccc"></li><li class="color" data-color="#000000" style="background: #000000"></li><li class="color" data-color="#ffffff" style="background: #ffffff"></li></ul></div></div><div class="fields"><ul><li class="time loop toggle-active"><span class="vtk-icon-clock-1 action title">Time</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="phi loop toggle-active"><span class="vtk-icon-resize-horizontal-1 action title">Phi</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="theta toggle-active"><span class="vtk-icon-resize-vertical-1 action title">Theta</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li></ul></div></div></div>',
     PIPELINE_ENTRY = '<li class="show enabled" data-id="ID"><span class="FRONT_ICON action"></span><span class="label">LABEL</span>CONTROL</li>',
     DIRECTORY_CONTROL = '<span class="vtk-icon-plus-circled right-control action select-layer"></span><ul>CHILDREN</ul>',
     TEMPLATE_SELECTOR = '<div class="head"><span class="title">TITLE</span><span class="vtk-icon-ok action right-control validate-layer"></span></div><ul>LIST</ul>',
@@ -686,8 +686,7 @@
 
         $('.select-layer', container).click(function(){
             var me = $(this),
-            pipelineContainer = $('.pipeline', container),
-            fieldContainer = $('.fields', container),
+            pipelineContainer = $('.pipeline-container', container),
             layerSelector = $('.layer-selector', container),
             title = me.parent().children('span.label:eq(0)').html(),
             buffer = [];
@@ -702,7 +701,6 @@
             // add listeners
             $('.validate-layer', layerSelector).click(function(){
                 pipelineContainer.show();
-                fieldContainer.show();
                 layerSelector.hide();
 
                 updatePipeline();
@@ -720,7 +718,6 @@
                 }
             });
 
-            fieldContainer.hide();
             pipelineContainer.hide();
             layerSelector.show();
         });
