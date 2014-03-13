@@ -62,6 +62,7 @@ public:
   vtkNew<vtkTransform2D> Transform;
   vtkNew<vtkAxis> YAxis;
   vtkNew<vtkPlotGrid> Grid;
+  float SelectedColumnDelta;
 };
 
 //-----------------------------------------------------------------------------
@@ -157,8 +158,9 @@ bool vtkChartBox::Paint(vtkContext2D *painter)
     return false;
     }
 
+  //this->UpdateGeometry(painter);
   this->Update();
-  this->UpdateGeometry();
+  this->UpdateGeometry(painter);
 
   // Handle selections
   vtkIdTypeArray *idArray = 0;
@@ -247,6 +249,21 @@ void vtkChartBox::SetColumnVisibility(const vtkStdString& name,
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartBox::SetColumnVisibility(vtkIdType column, bool visible)
+{
+  vtkPlot *plot = this->GetPlot(0);
+  if (!plot || !plot->GetInput())
+    {
+    return;
+    }
+  vtkTable *table = plot->GetInput();
+  if (table)
+    {
+    this->SetColumnVisibility(table->GetColumnName(column), visible);
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkChartBox::SetColumnVisibilityAll(bool visible)
 {
   // We always need to clear the current visible columns.
@@ -254,7 +271,12 @@ void vtkChartBox::SetColumnVisibilityAll(bool visible)
   this->SelectedColumn = -1;
   if (visible)
     {
-    vtkTable *table = this->GetPlot(0)->GetInput();
+    vtkPlot *plot = this->GetPlot(0);
+    if (!plot || !plot->GetInput())
+      {
+      return;
+      }
+    vtkTable *table = plot->GetInput();
     for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
       {
       this->SetColumnVisibility(table->GetColumnName(i), visible);
@@ -276,9 +298,41 @@ bool vtkChartBox::GetColumnVisibility(const vtkStdString& name)
 }
 
 //-----------------------------------------------------------------------------
+bool vtkChartBox::GetColumnVisibility(vtkIdType column)
+{
+  vtkPlot *plot = this->GetPlot(0);
+  if (!plot || !plot->GetInput())
+    {
+    return false;
+    }
+  vtkTable *table = plot->GetInput();
+  return this->GetColumnVisibility(table->GetColumnName(column));
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkChartBox::GetNumberOfVisibleColumns()
 {
   return this->VisibleColumns->GetNumberOfTuples();
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartBox::GetColumnId(const vtkStdString& name)
+{
+  vtkPlot *plot = this->GetPlot(0);
+  if (!plot || !plot->GetInput())
+    {
+    return -1;
+    }
+  vtkTable *table = plot->GetInput();
+  vtkIdType nbColumn = table->GetNumberOfColumns();
+  for (vtkIdType i = 0; i < nbColumn; i++)
+    {
+    if (!strcmp(table->GetColumnName(i), name.c_str()))
+      {
+      return i;
+      }
+    }
+  return -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -292,6 +346,7 @@ void vtkChartBox::SetPlot(vtkPlotBox *plot)
 {
   this->Storage->Plot = plot;
   this->Storage->Plot->SetParent(this);
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -314,7 +369,7 @@ float vtkChartBox::GetXPosition(int index)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartBox::UpdateGeometry()
+void vtkChartBox::UpdateGeometry(vtkContext2D* painter)
 {
   vtkVector2i geometry(this->GetScene()->GetViewWidth(),
                        this->GetScene()->GetViewHeight());
@@ -322,32 +377,42 @@ void vtkChartBox::UpdateGeometry()
   if (geometry.GetX() != this->Geometry[0] ||
     geometry.GetY() != this->Geometry[1] || !this->GeometryValid)
     {
-    // Take up the entire window right now, this could be made configurable
-    this->SetGeometry(geometry.GetData());
-    this->SetBorders(40, 30, 0, 20);
-
-    // Iterate through the axes and set them up to span the chart area.
-    int xStep = (this->Point2[0] - this->Point1[0]) /
-                (static_cast<int>(this->Storage->XPosition.size()));
-    int x = this->Point1[0] + (xStep / 2);
-
-    for (size_t i = 0; i < this->Storage->XPosition.size(); ++i)
-      {
-      this->Storage->XPosition[i] = x;
-
-      x += xStep;
-      }
-
     vtkAxis* axis = this->Storage->YAxis.GetPointer();
-    axis->SetPoint1(40, this->Point1[1]);
-    axis->SetPoint2(40, this->Point2[1]);
+
+    axis->SetPoint1(0, this->Point1[1]);
+    axis->SetPoint2(0, this->Point2[1]);
     if (axis->GetBehavior() == 0)
       {
       axis->AutoScale();
       }
     axis->Update();
 
+    int leftBorder = 0;
+    if (axis->GetVisible())
+      {
+      vtkRectf bounds = axis->GetBoundingRect(painter);
+      leftBorder = int(bounds.GetWidth());;
+      }
+    axis->SetPoint1(leftBorder, this->Point1[1]);
+    axis->SetPoint2(leftBorder, this->Point2[1]);
+
+    // Take up the entire window right now, this could be made configurable
+    this->SetGeometry(geometry.GetData());
+    this->SetBorders(leftBorder, 30, 0, 20);
+
+    int nbPlots = static_cast<int>(this->Storage->XPosition.size());
+    // Iterate through the axes and set them up to span the chart area.
+    int xStep = (this->Point2[0] - this->Point1[0]) / nbPlots;
+    int x = this->Point1[0] + (xStep / 2);
+
+    for (int i = 0; i < nbPlots; ++i)
+      {
+      this->Storage->XPosition[i] = x;
+
+      x += xStep;
+      }
     this->GeometryValid = true;
+
     // Cause the plot transform to be recalculated if necessary
     this->CalculatePlotTransform();
 
@@ -400,11 +465,9 @@ bool vtkChartBox::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       this->Tooltip->SetVisible(false);
       }
 
-    // Move the axis in x
-    float deltaX = mouse.GetScenePos().GetX() - mouse.GetLastScenePos().GetX();
-
-    this->Storage->XPosition[this->SelectedColumn] += deltaX;
-    float selX = this->Storage->XPosition[this->SelectedColumn];
+    // Move the plot in x
+    float posX = mouse.GetScenePos().GetX() + this->SelectedColumnDelta;
+    this->Storage->XPosition[this->SelectedColumn] = posX;
 
     int nbCols = static_cast<int>(this->Storage->XPosition.size());
     int left = this->SelectedColumn - 1;
@@ -412,17 +475,18 @@ bool vtkChartBox::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
     float width = this->Storage->Plot->GetBoxWidth() * 0.5f;
 
-    if (left >= 0 && (selX - width) < this->Storage->XPosition[left])
+    if (left >= 0 && (posX - width) < this->Storage->XPosition[left])
       {
       this->SwapAxes(this->SelectedColumn, this->SelectedColumn - 1);
       this->SelectedColumn--;
       }
-    else if (right < nbCols && (selX + width) > this->Storage->XPosition[right])
+    else if (right < nbCols && (posX + width) > this->Storage->XPosition[right])
       {
       this->SwapAxes(this->SelectedColumn, this->SelectedColumn + 1);
       this->SelectedColumn++;
       }
     this->Scene->SetDirty(true);
+    this->Storage->XPosition[this->SelectedColumn] = posX;
     }
 
   if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
@@ -442,7 +506,7 @@ bool vtkChartBox::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   if (mouse.GetButton() == this->Actions.Pan())
     {
-    // Select an axis if we are within range
+    // Select a plot if we are within range
     if (mouse.GetScenePos()[1] > this->Point1[1] &&
         mouse.GetScenePos()[1] < this->Point2[1])
       {
@@ -455,6 +519,8 @@ bool vtkChartBox::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
             selX + width > mouse.GetScenePos()[0])
           {
           this->SelectedColumn = static_cast<int>(i);
+          this->SelectedColumnDelta =
+            this->GetXPosition(this->SelectedColumn) - mouse.GetScenePos().GetX();
           this->Scene->SetDirty(true);
           return true;
           }
@@ -497,7 +563,6 @@ bool vtkChartBox::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
   else if (mouse.GetButton() == this->Actions.Pan())
     {
     this->GeometryValid = false;
-    this->UpdateGeometry();
     this->SelectedColumn = -1;
     return true;
     }
@@ -638,22 +703,16 @@ void vtkChartBox::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkChartBox::SwapAxes(int a1, int a2)
 {
-  // only neighboring axes
-  if (abs(a1-a2) != 1)
-    {
-    return;
-    }
-
-  float xTmp = this->Storage->XPosition[a1];
-  this->Storage->XPosition[a1] = this->Storage->XPosition[a2];
-  this->Storage->XPosition[a2] = xTmp;
-
   vtkStdString colTmp = this->VisibleColumns->GetValue(a1);
   this->VisibleColumns->SetValue(a1, this->VisibleColumns->GetValue(a2));
   this->VisibleColumns->SetValue(a2, colTmp);
 
-  this->GeometryValid = false;
-  this->UpdateGeometry();
+  int xStep = (this->Point2[0] - this->Point1[0]) /
+                (static_cast<int>(this->Storage->XPosition.size()));
+  int xPos = (this->Point1[0] + (xStep / 2)) + xStep * a1;
+  this->Storage->XPosition[a1] = xPos;
+
+  this->GeometryValid = true;
 
   this->Storage->Plot->Update();
 }
