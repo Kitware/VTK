@@ -5,6 +5,7 @@ set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
 set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
 
 vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
+  UnitTestMath.cxx
   TestArrayAPI.cxx
   TestArrayAPIConvenience.cxx
   TestArrayAPIDense.cxx

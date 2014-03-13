@@ -187,30 +187,10 @@ double vtkMath::Gaussian( double mean, double std )
 //
 vtkTypeInt64 vtkMath::Binomial( int m, int n )
 {
-  if ( m < n )
-    {
-    return -1;
-    }
-  else if ( m == n )
-    {
-    return 1;
-    }
-
-  int n1 = n;
-  int n2 = m - n;
-  if ( n2 > n1 )
-    {
-    n1 = n2;
-    n2 = n;
-    }
   vtkTypeInt64 r = 1;
-  while ( m > n1 )
+  for (int i = 1; i <= n; ++i)
     {
-    r *= m--;
-    }
-  while ( n2 > 1 )
-    {
-    r /= n2--;
+    r *= static_cast<double>(m - i + 1) / i;
     }
   return r;
 }
@@ -246,28 +226,21 @@ int* vtkMath::BeginCombination( int m, int n )
 //
 int vtkMath::NextCombination( int m, int n, int* r )
 {
-  int a = n - 1;
-  if ( r[a] == m - 1 ) {
-    int i = 1;
-    while ( (a >= 0) && (r[a] == m - i) )
+  int status = 0;
+  for (int i = n - 1; i >= 0; --i)
+    {
+    if (r[i] < m - n + i)
       {
-      --a;
-      ++i;
+      int j = r[i] + 1;
+      while (i < n)
+        {
+        r[i++] = j++;
+        }
+      status = 1;
+      break;
       }
-    if ( a < 0 )
-      {
-      // we're done
-      return 1;
-      }
-    r[a]++;
-    for ( i=a+1; i<=n-1; ++i )
-      {
-      r[i] = r[i-1] + 1;
-      }
-  } else {
-    r[a]++;
-  }
-  return 0;
+    }
+  return status;
 }
 
 //----------------------------------------------------------------------------
@@ -1046,6 +1019,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
     if (allHomogeneous && yOrder == 1)
       {
       vtkGenericWarningMacro("Detected homogeneous system (Y=0), calling SolveHomogeneousLeastSquares()");
+      delete [] homogenFlags;
       return vtkMath::SolveHomogeneousLeastSquares(numberOfSamples, xt, xOrder, mt);
       }
 
@@ -1139,6 +1113,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
   // next get the inverse of XXt
   if (!(vtkMath::InvertMatrix(XXt, XXtI, xOrder)))
     {
+    delete [] homogenFlags;
     return 0;
     }
 
@@ -1611,7 +1586,7 @@ void vtkMath::Multiply3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::MultiplyMatrix(const double **A, const double **B,
+void vtkMath::MultiplyMatrix(double **A, double **B,
                              unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C)
