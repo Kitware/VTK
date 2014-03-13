@@ -22,7 +22,6 @@
 #define __vtkXMLReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
-#include <sstream>          // For istringstream ivar.
 #include "vtkAlgorithm.h"
 
 class vtkAbstractArray;
