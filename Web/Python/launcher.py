@@ -382,6 +382,7 @@ class LauncherResource(resource.Resource, object):
 
         # Make sure the request has all the expected keys
         if not validateKeySet(payload, ["application"], "Launch request"):
+            request.setResponseCode(http.BAD_REQUEST)
             return json.dumps({"error": "The request is not complete"})
 
         # Try to free any available resource
@@ -395,6 +396,7 @@ class LauncherResource(resource.Resource, object):
 
         # No resource available
         if not session:
+            request.setResponseCode(http.SERVICE_UNAVAILABLE)
             return json.dumps({"error": "All the resources are currently taken"})
 
         # Start process
@@ -484,6 +486,7 @@ class LauncherResource(resource.Resource, object):
         if not id:
            message = "id not provided in GET request"
            logging.error(message)
+           request.setResponseCode(http.BAD_REQUEST)
            return json.dumps({"error":message})
 
         logging.info("GET request received for id: %s" % id)
@@ -492,6 +495,7 @@ class LauncherResource(resource.Resource, object):
         if not session:
            message = "No session with id: %s" % id
            logging.error(message)
+           request.setResponseCode(http.NOT_FOUND)
            return json.dumps({"error":message})
 
         # Return session meta-data
@@ -508,6 +512,7 @@ class LauncherResource(resource.Resource, object):
         if not id:
            message = "id not provided in DELETE request"
            logging.error(message)
+           request.setResponseCode(http.BAD_REQUEST)
            return json.dumps({"error":message})
 
         logging.info("DELETE request received for id: %s" % id)
@@ -516,6 +521,7 @@ class LauncherResource(resource.Resource, object):
         if not session:
            message = "No session with id: %s" % id
            logging.error(message)
+           request.setResponseCode(http.NOT_FOUND)
            return json.dumps({"error":message})
 
         # Remove session
