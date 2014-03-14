@@ -1,57 +1,61 @@
-vtk_add_test_python(CellDataToPointData.py)
-vtk_add_test_python(Delaunay2D.py)
-vtk_add_test_python(Delaunay2DAlpha.py)
-vtk_add_test_python(Delaunay2DTransform.py)
-vtk_add_test_python(Delaunay3D.py)
-vtk_add_test_python(Delaunay3DAlphaTest.py)
-vtk_add_test_python(QuadricDecimation.py)
-vtk_add_test_python(StreamPolyData.py)
-vtk_add_test_python(TestGridSynchronizedTemplates3D.py)
-vtk_add_test_python(TestMarchingSquares.py)
-vtk_add_test_python(TestRectilinearSynchronizedTemplates.py)
-vtk_add_test_python(TestSynchronizedTemplates2D.py)
-vtk_add_test_python(TestSynchronizedTemplates3D.py)
-vtk_add_test_python(TestContourGrid.py NO_VALID)
-vtk_add_test_python(TestTensorGlyph.py NO_RT)
-vtk_add_test_python(TestTextureGlyph.py)
-vtk_add_test_python(TestTriangleFilter.py)
-vtk_add_test_python(capCow.py)
-vtk_add_test_python(capSphere.py)
-vtk_add_test_python(clipArt.py)
-vtk_add_test_python(combStreamers.py)
-vtk_add_test_python(combStreamers2.py)
-vtk_add_test_python(constrainedDelaunay.py)
-vtk_add_test_python(contourCells.py)
-vtk_add_test_python(contourQuadraticCells.py)
-vtk_add_test_python(createBFont.py)
-vtk_add_test_python(cutLoop.py)
-vtk_add_test_python(dispPlot.py)
-vtk_add_test_python(fieldToPolyData.py)
-vtk_add_test_python(fieldToRGrid.py)
-vtk_add_test_python(fieldToSGrid.py)
-vtk_add_test_python(fieldToUGrid.py)
-vtk_add_test_python(glyphComb.py)
-vtk_add_test_python(hull.py)
-vtk_add_test_python(mergeFilter.py)
-vtk_add_test_python(multipleComponentContour.py)
-vtk_add_test_python(multipleIso.py)
-vtk_add_test_python(polyConn.py)
-vtk_add_test_python(probeComb.py)
-vtk_add_test_python(reverseNormals.py)
-vtk_add_test_python(smoothMeshOnMesh.py)
-vtk_add_test_python(streamComb.py)
-vtk_add_test_python(streamSurface.py)
-vtk_add_test_python(streamSurface2.py)
-vtk_add_test_python(stripF.py)
-vtk_add_test_python(teapotHulls.py)
-vtk_add_test_python(tubeComb.py)
-vtk_add_test_python(deciFranFace.py NO_RT)
-vtk_add_test_python(deciPlane NO_RT)
-vtk_add_test_python(financialField NO_RT)
-vtk_add_test_python(skinOrder NO_RT)
-vtk_add_test_python(MassProperties NO_RT)
-vtk_add_test_python(financialField2 NO_RT)
-vtk_add_test_python(financialField3 NO_RT)
-vtk_add_test_python(TestContourCases.py NO_DATA NO_VALID)
-vtk_add_test_python(pointsPrecisions.py NO_OUTPUT NO_DATA NO_VALID NO_RT)
-vtk_add_test_python(TestCompositeCutter.py NO_VALID)
+# Data files:
+#  deciPlane,NO_RT
+#  financialField,NO_RT
+#  skinOrder,NO_RT
+#  MassProperties,NO_RT
+#  financialField2,NO_RT
+#  financialField3,NO_RT
+
+vtk_add_test_python(
+  CellDataToPointData.py
+  Delaunay2D.py
+  Delaunay2DAlpha.py
+  Delaunay2DTransform.py
+  Delaunay3D.py
+  Delaunay3DAlphaTest.py
+  QuadricDecimation.py
+  StreamPolyData.py
+  TestGridSynchronizedTemplates3D.py
+  TestMarchingSquares.py
+  TestRectilinearSynchronizedTemplates.py
+  TestSynchronizedTemplates2D.py
+  TestSynchronizedTemplates3D.py
+  TestContourGrid.py,NO_VALID
+  TestTensorGlyph.py,NO_RT
+  TestTextureGlyph.py
+  TestTriangleFilter.py
+  capCow.py
+  capSphere.py
+  clipArt.py
+  combStreamers.py
+  combStreamers2.py
+  constrainedDelaunay.py
+  contourCells.py
+  contourQuadraticCells.py
+  createBFont.py
+  cutLoop.py
+  dispPlot.py
+  fieldToPolyData.py
+  fieldToRGrid.py
+  fieldToSGrid.py
+  fieldToUGrid.py
+  glyphComb.py
+  hull.py
+  mergeFilter.py
+  multipleComponentContour.py
+  multipleIso.py
+  polyConn.py
+  probeComb.py
+  reverseNormals.py
+  smoothMeshOnMesh.py
+  streamComb.py
+  streamSurface.py
+  streamSurface2.py
+  stripF.py
+  teapotHulls.py
+  tubeComb.py
+  deciFranFace.py,NO_RT
+  TestContourCases.py,NO_DATA,NO_VALID
+  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID,NO_RT
+  TestCompositeCutter.py,NO_VALID
+  )

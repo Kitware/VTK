@@ -1,6 +1,8 @@
-vtk_add_test_python(dataSetSurfaceFilter.py)
-vtk_add_test_python(geomFilter.py)
-vtk_add_test_python(officeStreamPoints.py)
-vtk_add_test_python(rectGrid.py)
-vtk_add_test_python(structuredGridBlanking.py)
-vtk_add_test_python(TestGhostPoints.py NO_DATA NO_VALID NO_OUTPUT)
+vtk_add_test_python(
+  dataSetSurfaceFilter.py
+  geomFilter.py
+  officeStreamPoints.py
+  rectGrid.py
+  structuredGridBlanking.py
+  TestGhostPoints.py,NO_DATA,NO_VALID,NO_OUTPUT
+  )
