@@ -23,7 +23,7 @@
 #include <vector>
 
 static int TestPi();
-#if !defined(VTK_LEGACY_REMOVE)
+#if 0
 static int TestDoublePi();
 static int TestDoubleTwoPi();
 #endif
@@ -97,7 +97,7 @@ int UnitTestMath(int,char *[])
 
   status += TestPi();
 
-#if !defined(VTK_LEGACY_REMOVE)
+#if 0
   status += TestDoublePi(); // legacy
   status += TestDoubleTwoPi(); // legacy
 #endif
@@ -200,7 +200,7 @@ int TestPi()
   return status;
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
+#if 0
 // Validate by comparing to atan/4
 int TestDoublePi()
 {
@@ -528,10 +528,10 @@ int TestNearestPowerOfTwo()
   int status = 0;
   std::cout << "NearestPowerOfTwo..";
 
-  std::vector<int> values;
+  std::vector<vtkTypeUInt64> values;
   std::vector<int> expecteds;
   int largestPower = std::numeric_limits<int>::digits;
-  int shifted = 1;
+  vtkTypeUInt64 shifted = 1;
   for ( int p = 1; p < largestPower; ++p)
     {
     shifted *= 2;
@@ -958,7 +958,9 @@ int TestDot()
   for ( size_t i = 0; i < values.size(); ++i)
     {
     double result = vtkMath::Dot(values[i].a, values[i].b);
-    if (result != expecteds[i])
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expecteds[i],
+          std::numeric_limits<double>::epsilon()*128.0))
       {
       std::cout << " Dot got " << result
                 << " but expected " << expecteds[i];
@@ -1001,7 +1003,9 @@ int TestDot()
   for ( size_t i = 0; i < values.size(); ++i)
     {
     float result = vtkMath::Dot(values[i].a, values[i].b);
-    if (result != expecteds[i])
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expecteds[i],
+          std::numeric_limits<float>::epsilon()*128.0f))
       {
       std::cout << " Dot got " << result
                 << " but expected " << expecteds[i];
@@ -1051,8 +1055,8 @@ int Cross()
     {
     for (int i = 0; i < 3; ++i)
       {
-      a[i] = vtkMath::Random(-1000.0, 1000.0);
-      b[i] = vtkMath::Random(-1000.0, 1000.0);
+      a[i] = vtkMath::Random(-1.0, 1.0);
+      b[i] = vtkMath::Random(-1.0, 1.0);
       }
     vtkMath::Cross(a, b, c);
     vtkMath::MultiplyScalar(b, (T) -1.0);
@@ -1496,7 +1500,9 @@ int TestDot2D()
   for ( size_t i = 0; i < values.size(); ++i)
     {
     double result = vtkMath::Dot2D(values[i].a, values[i].b);
-    if (result != expecteds[i])
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expecteds[i],
+          std::numeric_limits<double>::epsilon()*128.0))
       {
       std::cout << " Dot got " << result
                 << " but expected " << expecteds[i];
@@ -1531,7 +1537,9 @@ int TestDot2D()
   for ( size_t i = 0; i < values.size(); ++i)
     {
     float result = vtkMath::Dot2D(values[i].a, values[i].b);
-    if (result != expecteds[i])
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expecteds[i],
+          std::numeric_limits<float>::epsilon()*128.0f))
       {
       std::cout << " Dot got " << result
                 << " but expected " << expecteds[i];
