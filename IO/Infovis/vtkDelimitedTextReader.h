@@ -158,6 +158,7 @@ public:
 
   // Description:
   // Set/get whether to treat the first line of the file as headers.
+  // The default is false (no headers).
   vtkGetMacro(HaveHeaders, bool);
   vtkSetMacro(HaveHeaders, bool);
 
