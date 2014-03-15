@@ -1,1 +1,3 @@
-vtk_add_test_tcl(cursor3D)
+vtk_add_test_tcl(
+  cursor3D.tcl
+  )
