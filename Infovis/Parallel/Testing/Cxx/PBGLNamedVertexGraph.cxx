@@ -227,7 +227,7 @@ void TestWithIntArray()
 }
 
 //----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int PBGLNamedVertexGraph(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
   TestNamedUndirectedGraph();

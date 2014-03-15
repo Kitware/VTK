@@ -115,7 +115,7 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
 }
 
 //=============================================================================
-int main(int argc, char *argv[])
+int PLSDynaReader(int argc, char *argv[])
 {
   int retval = 1;
 

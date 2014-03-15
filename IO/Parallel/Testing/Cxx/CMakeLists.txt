@@ -26,6 +26,10 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/SLAC/ll-9cell-f523/,REGEX:.*}"
     )
 
-  vtk_add_test_mpi(PSLACReaderLinear.cxx TESTING_DATA)
-  vtk_add_test_mpi(PSLACReaderQuadratic.cxx TESTING_DATA)
+  vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
+    TESTING_DATA
+    PSLACReaderLinear.cxx
+    PSLACReaderQuadratic.cxx
+    )
+  vtk_test_mpi_executable(${vtk-module}CxxTests-MPI tests)
 endif()

@@ -42,6 +42,9 @@
 #include <boost/graph/use_mpi.hpp>
 #include <boost/graph/distributed/mpi_process_group.hpp>
 
+namespace
+{
+
 #define myassert(Cond)                                  \
   if (!(Cond))                                          \
     {                                                   \
@@ -148,8 +151,10 @@ void TestPSQLGraphReader()
     }
 }
 
+}
+
 //----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int TestPBGLCollapseGraph(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
   TestPSQLGraphReader();

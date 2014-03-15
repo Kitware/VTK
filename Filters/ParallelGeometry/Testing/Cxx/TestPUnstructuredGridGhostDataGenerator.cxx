@@ -39,7 +39,7 @@
 
 //------------------------------------------------------------------------------
 // Program main
-int main(int argc, char** argv)
+int TestPUnstructuredGridGhostDataGenerator(int argc, char* argv[])
 {
   int rc             = 0;
   double ellapsed    = 0.0;
@@ -49,17 +49,17 @@ int main(int argc, char** argv)
   vtkMPIController* cntrl = vtkMPIController::New();
   cntrl->Initialize( &argc, &argv, 0 );
   vtkMultiProcessController::SetGlobalController( cntrl );
-  Rank   = cntrl->GetLocalProcessId();
-  NRanks = cntrl->GetNumberOfProcesses();
+  global::Rank   = cntrl->GetLocalProcessId();
+  global::NRanks = cntrl->GetNumberOfProcesses();
 
   // STEP 1: Generate grid in parallel in each process
-  Grid = vtkUnstructuredGrid::New();
+  global::Grid = vtkUnstructuredGrid::New();
   GenerateDataSet();
 
   // STEP 2: Setup ghost data generator
   vtkPUnstructuredGridGhostDataGenerator* ghostGenerator =
       vtkPUnstructuredGridGhostDataGenerator::New();
-  ghostGenerator->SetInputData(Grid);
+  ghostGenerator->SetInputData(global::Grid);
 
   // STEP 3: Update ghost zones
   std::ostringstream grdfname;   // input grid name at each iteration for I/O
@@ -76,9 +76,9 @@ int main(int argc, char** argv)
 
     // update grid in this iteration...
     UpdateGrid(i);
-    Grid->Modified();
+    global::Grid->Modified();
 #ifdef DEBUG
-    WriteDataSet(Grid,grdfname.str().c_str());
+    WriteDataSet(global::Grid,grdfname.str().c_str());
 #endif
 
     // update ghost zones in this iteration...
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
   // STEP 5: Delete the ghost generator
   timer->Delete();
   ghostGenerator->Delete();
-  Grid->Delete();
+  global::Grid->Delete();
   cntrl->Finalize();
   cntrl->Delete();
   return( rc );

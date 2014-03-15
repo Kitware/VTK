@@ -464,7 +464,7 @@ int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
 }
 
 
-int main(int argc, char* argv[])
+int TestPParticleTracers(int argc, char* argv[])
 {
   vtkSmartPointer<vtkMPIController> c=vtkSmartPointer<vtkMPIController>::New();
   vtkMultiProcessController::SetGlobalController(c);

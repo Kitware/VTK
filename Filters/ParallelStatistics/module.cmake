@@ -8,4 +8,5 @@ vtk_module(vtkFiltersParallelStatistics
     vtkParallelCore
   TEST_DEPENDS
     vtkParallelMPI
+    vtkTestingCore
   )

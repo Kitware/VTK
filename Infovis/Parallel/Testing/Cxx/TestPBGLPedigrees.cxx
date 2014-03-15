@@ -38,6 +38,9 @@
 #include <boost/graph/use_mpi.hpp>
 #include <boost/graph/distributed/mpi_process_group.hpp>
 
+namespace
+{
+
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -867,8 +870,11 @@ void UseCase5()
     (cout << " done.\n").flush();
     }
 }
+
+}
+
 //=================================================================================
-int main(int argc, char** argv)
+int TestPBGLPedigrees(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
   UseCase0();

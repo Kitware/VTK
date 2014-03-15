@@ -120,6 +120,10 @@ struct IsSelfLoop : std::unary_function<AddedEdge, bool>
     return e.Source == e.Target;
   }
 };
+
+namespace
+{
+
 //----------------------------------------------------------------------------
 // Given the locally-generated edges in outEdges (which must be sorted
 // by the source or target of the edge, depending on whether source is
@@ -1384,8 +1388,11 @@ void TestUndirectedGraphProperties()
     (cout << "done.\n").flush();
     }
 }
+
+}
+
 //----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int PBGLRandomGraph(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
   TestDirectedGraph();
