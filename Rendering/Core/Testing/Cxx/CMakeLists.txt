@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   FrustumClip.cxx
   Mace.cxx
   RGrid.cxx
@@ -15,4 +15,4 @@ vtk_add_test_cxx(
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

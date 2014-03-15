@@ -1,14 +1,11 @@
-vtk_add_test_cxx(NO_DATA NO_VALID
-  otherCoordinate.cxx
-  )
-
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # For tests that actually use a vtkRenderWindow
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+  otherCoordinate.cxx,NO_DATA,NO_VALID
   LoadOpenGLExtension.cxx
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx
@@ -75,16 +72,23 @@ vtk_add_test_cxx(
   TestTranslucentLUTTextureDepthPeeling.cxx
   )
 if(NOT APPLE)
-  vtk_add_test_cxx(TestShadowMapPass.cxx)
+  vtk_add_test_cxx(${vtk-module}CxxTests no_apple_tests
+    TestShadowMapPass.cxx)
+  list(APPEND render_window_tests
+    ${no_apple_tests})
 endif()
 
 if(WIN32 AND NOT VTK_USE_X)
-  vtk_add_test_cxx(TestWin32OpenGLRenderWindow.cxx NO_VALID)
+  vtk_add_test_cxx(${vtk-module}CxxTests win32_tests
+    NO_VALID
+    TestWin32OpenGLRenderWindow.cxx)
+  list(APPEND render_window_tests
+    ${win32_tests})
 endif()
 
 include_directories(${OPENGL_INCLUDE_DIR})
 
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
   TestAreaSelections.cxx
   TestGlyph3DMapperArrow.cxx
   TestMultiblockDisplayProperties.cxx
@@ -110,14 +114,19 @@ vtk_add_test_cxx(
 set(VTK_USE_GLSL_SHADERS FALSE)
 if(VTK_USE_GLSL_SHADERS)
   # Tests testing GLSL Shaders.
-  vtk_add_test_cxx(
+  vtk_add_test_cxx(${vtk-module}CxxTests glsl_tests
     TestGenericVertexAttributesGLSLCxx.cxx
     TestGenericVertexAttributesGLSLAlphaBlending.cxx
     TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
     )
+  list(APPEND ogl_tests
+    ${glsl_tests})
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+set(all_tests
+  ${render_window_tests}
+  ${ogl_tests})
+vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
 
 set(TEST_FBO_IMPLEMENTATION_EXE
   TestFBOImplementation)

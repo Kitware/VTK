@@ -1,50 +1,80 @@
-# add tests that do not require data
-vtk_add_test_cxx(NO_DATA NO_VALID
-  TestContextScene.cxx
-  TestControlPointsItem.cxx
-  TestControlPointsItemEvents.cxx
+set(TestChartUnicode_ARGS
+  DATA{../Data/Fonts/DejaVuSans.ttf}
+  -E 25
+  )
+set(TestChartsOn3D_ARGS
+  -E 16
+  )
+set(TestColorTransferFunction_ARGS
+  -E 80
+  )
+set(TestContextUnicode_ARGS
+  DATA{../Data/Fonts/DejaVuSans.ttf}
+  )
+set(TestControlPointsHandleItem_ARGS
+  -E 30
+  )
+set(TestLinePlot_ARGS
+  -E 25
+  )
+set(TestLinePlot2_ARGS
+  -E 25
+  )
+set(TestLinePlotInteraction_ARGS
+  -E 25
+  )
+set(TestMultipleRenderers_ARGS
+  -E 25
+  )
+set(TestMultipleScalarsToColors_ARGS
+  -E 25
+  )
+set(TestParallelCoordinates_ARGS
+  -E 15
+  )
+set(TestParallelCoordinatesDouble_ARGS
+  -E 15
   )
 
-set(TestChartUnicode_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
-set(TestContextUnicode_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
-
-# add tests that require data
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestContextScene.cxx,NO_DATA,NO_VALID
+  TestControlPointsItem.cxx,NO_DATA,NO_VALID
+  TestControlPointsItemEvents.cxx,NO_DATA,NO_VALID
   TestAxes.cxx
   TestBagPlot.cxx
   TestBarGraph.cxx
   TestBarGraphHorizontal.cxx
   TestBoxPlot.cxx
   TestCategoryLegend.cxx
-  TestColorTransferFunction.cxx,-E80
+  TestColorTransferFunction.cxx
   TestChartDouble.cxx
   TestChartMatrix.cxx
-  TestChartUnicode.cxx,-E25
-  TestChartsOn3D.cxx,-E16
+  TestChartUnicode.cxx
+  TestChartsOn3D.cxx
   TestChartXYZ.cxx
   TestContext.cxx
   TestContextImage.cxx
   TestContextUnicode.cxx
-  TestControlPointsHandleItem.cxx,-E30
+  TestControlPointsHandleItem.cxx
   TestDiagram.cxx
   TestFunctionalBagPlot.cxx
   TestHistogram2D.cxx
   TestInteractiveChartXYZ.cxx
   TestLegendHiddenPlots.cxx
-  TestLinePlot.cxx,-E25
+  TestLinePlot.cxx
   TestLinePlotDouble.cxx
   TestLinePlotDouble2.cxx
   TestLinePlot3D.cxx
   TestLinePlotAxisFonts.cxx
-  TestLinePlot2.cxx,-E25
-  TestLinePlotInteraction.cxx,-E25
+  TestLinePlot2.cxx
+  TestLinePlotInteraction.cxx
   TestLinePlotSelection.cxx
   TestLinePlotSelection2.cxx
   TestMultipleChartRenderers.cxx
-  TestMultipleRenderers.cxx,-E25
-  TestMultipleScalarsToColors.cxx,-E25
-  TestParallelCoordinates.cxx,-E15
-  TestParallelCoordinatesDouble.cxx,-E15
+  TestMultipleRenderers.cxx
+  TestMultipleScalarsToColors.cxx
+  TestParallelCoordinates.cxx
+  TestParallelCoordinatesDouble.cxx
   TestPieChart.cxx
   TestPlotMatrix.cxx
   TestScalarsToColors.cxx
@@ -58,5 +88,6 @@ vtk_add_test_cxx(
   TestSurfacePlot.cxx
   TestZoomAxis.cxx
   )
-
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY
+  )

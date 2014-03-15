@@ -1,9 +1,9 @@
-set (NEEDS_DATA
+set(NEEDS_DATA
   TestStringToNumeric.cxx,NO_VALID
   TestMergeTables.cxx,NO_VALID
   )
 
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${NEEDS_DATA}
   ArraySparseArrayToTable.cxx,NO_VALID
   ArrayTableToSparseArray.cxx,NO_VALID
@@ -28,4 +28,4 @@ vtk_add_test_cxx(
   # TestTimePoint.cxx             # deprecated dep
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

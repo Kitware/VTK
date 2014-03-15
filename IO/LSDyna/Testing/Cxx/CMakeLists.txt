@@ -5,10 +5,10 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/hemi.draw/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
     TestLSDynaReader.cxx
     TestLSDynaReaderSPH.cxx
     )
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

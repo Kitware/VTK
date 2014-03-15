@@ -9,17 +9,8 @@ if(NOT MATPLOTLIB_FOUND)
 endif()
 
 if(MATPLOTLIB_FOUND)
-  if(VTK_GHOSTSCRIPT_EXECUTABLE)
-    set(GL2PSTests
-      TestGL2PSMathTextActor.cxx
-      TestGL2PSMathTextActor3D.cxx
-      TestGL2PSMathTextOutput.cxx
-      TestGL2PSMathTextScaling.cxx
-    )
-  endif()
-
   # add tests that require data
-  vtk_add_test_cxx(
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
     TestContextMathTextImage.cxx
     TestMathTextActor.cxx
     TestMathTextActor3D.cxx
@@ -28,17 +19,21 @@ if(MATPLOTLIB_FOUND)
     TestIndexedLookupScalarBar.cxx
     TestScalarBarCombinatorics.cxx
     )
-else()
-  # The ctest test driver needs at least one test defined. This small test
-  # makes the driver produce valid C++ code. Some compilers detected an
-  # out of bounds array access.
-  vtk_add_test_cxx(
-    TestsAreDisabled.cxx,NO_VALID
+
+  if(VTK_GHOSTSCRIPT_EXECUTABLE)
+    vtk_add_test_cxx(${vtk-module}CxxTests gl2ps_tests
+      TestGL2PSMathTextActor.cxx
+      TestGL2PSMathTextActor3D.cxx
+      TestGL2PSMathTextOutput.cxx
+      TestGL2PSMathTextScaling.cxx
     )
+    list(APPEND tests
+      ${gl2ps_tests})
+  endif()
 endif()
 
-vtk_add_test_cxx(${GL2PSTests})
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY)
 
 # The GL2PS tests produce postscript output, which cannot be compared using
 # the built-in image regression framework. The tests added above will create the

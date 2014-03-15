@@ -1,6 +1,7 @@
 include(vtkQt)
 
-vtk_add_test_cxx(NO_VALID
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  NO_VALID
   TestQtDebugLeaksView.cxx
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx
@@ -15,7 +16,8 @@ else()
   include(${QT_USE_FILE})
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests QTestApp.cxx)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  QTestApp.cxx)
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
   set_target_properties(${vtk-module}CxxTests PROPERTIES

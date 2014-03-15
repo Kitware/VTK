@@ -62,7 +62,7 @@ vtkStructuredGrid* GetGridFromFile( std::string &file )
 //------------------------------------------------------------------------------
 // Description:
 // Program Main
-int main( int argc, char **argv )
+int TestStructuredGridPartitioner( int argc, char *argv[] )
 {
 
   if( argc != 3)

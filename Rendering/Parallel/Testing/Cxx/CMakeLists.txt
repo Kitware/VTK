@@ -1,7 +1,9 @@
 include(vtkMPI)
 
-vtk_add_test_cxx(PrmMagnify.cxx)
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  PrmMagnify.cxx
+  )
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
 vtk_add_test_mpi(TestDistributedDataCompositeZPass.cxx TESTING_DATA)
 vtk_add_test_mpi(TestPCompositeZPass.cxx TESTING_DATA)

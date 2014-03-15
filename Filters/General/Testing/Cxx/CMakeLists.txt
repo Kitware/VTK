@@ -1,4 +1,8 @@
-vtk_add_test_cxx(
+set(TestDensifyPolyData_ARGS
+  -E15
+  )
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   ArrayExtractFactoredArray.cxx,NO_VALID
   ArrayMatricizeArray.cxx,NO_VALID
   ArrayNormalizeMatrixVectors.cxx,NO_VALID
@@ -18,7 +22,7 @@ vtk_add_test_cxx(
   TestContourTriangulator.cxx
   TestContourTriangulatorMarching.cxx
   TestDeformPointSet.cxx
-  TestDensifyPolyData.cxx,-E15
+  TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   TestImageDataToPointSet.cxx,NO_VALID
@@ -32,13 +36,18 @@ vtk_add_test_cxx(
   TestUncertaintyTubeFilter.cxx
   UnitTestMultiThreshold.cxx,NO_VALID
   )
-
 # Tests with data
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestGradientAndVorticity.cxx,NO_VALID
   TestIconGlyphFilterGravity.cxx
   TestQuadraturePoints.cxx
   TestYoungsMaterialInterface.cxx
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+set(all_tests
+  ${tests}
+  ${data_tests}
+  )
+
+vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
+  RENDERING_FACTORY)
