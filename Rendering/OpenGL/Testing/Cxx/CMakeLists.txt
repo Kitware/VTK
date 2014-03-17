@@ -144,9 +144,6 @@ target_link_libraries(TestFBOImplementation LINK_PRIVATE
 
 if(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
   target_link_libraries(TestFBOImplementation LINK_PRIVATE ${OSMESA_LIBRARY})
-endif()
-
-if(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
   target_link_libraries(${vtk-module}CxxTests LINK_PRIVATE ${OSMESA_LIBRARY})
 endif()
 
