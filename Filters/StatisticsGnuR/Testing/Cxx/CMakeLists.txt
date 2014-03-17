@@ -2,11 +2,12 @@
 add_definitions(-DUSE_GNU_R)
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  # These tests are in Filters/Statistics but perform R testnig when USE_GNU_R is defined
-  ${vtkFiltersStatistics_SOURCE_DIR}/Testing/Cxx/TestCorrelativeStatistics.cxx
-  ${vtkFiltersStatistics_SOURCE_DIR}/Testing/Cxx/TestContingencyStatistics.cxx
-  ${vtkFiltersStatistics_SOURCE_DIR}/Testing/Cxx/TestPCAStatistics.cxx
-  ${vtkFiltersStatistics_SOURCE_DIR}/Testing/Cxx/TestDescriptiveStatistics.cxx
+  NO_DATA NO_VALID NO_OUTPUT
+  # These tests are copies from Filters/Statistics but perform R testing when USE_GNU_R is defined
+  TestCorrelativeStatistics.cxx
+  TestContingencyStatistics.cxx
+  TestPCAStatistics.cxx
+  TestDescriptiveStatistics.cxx
 
   TestRCalculatorFilter.cxx
   TestRInterface.cxx

@@ -25,7 +25,7 @@
 
 //=============================================================================
 // When changing this file, change the corresponding file in
-// StatisticsGnuR/Testing/Cxx as well.
+// Statistics/Testing/Cxx as well.
 //=============================================================================
 
 // Perform a fuzzy compare of floats/doubles
