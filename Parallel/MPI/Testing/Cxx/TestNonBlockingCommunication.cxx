@@ -109,5 +109,7 @@ int TestNonBlockingCommunication( int argc, char **argv )
 
   myController->Finalize();
   myController->Delete();
+
+  return 0;
 }
 
