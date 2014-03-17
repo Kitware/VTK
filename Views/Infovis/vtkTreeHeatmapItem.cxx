@@ -181,27 +181,27 @@ vtkTree * vtkTreeHeatmapItem::GetColumnTree()
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkDendrogramItem> vtkTreeHeatmapItem::GetDendrogram()
+vtkDendrogramItem * vtkTreeHeatmapItem::GetDendrogram()
 {
-  return this->Dendrogram;
+  return this->Dendrogram.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::SetDendrogram(vtkSmartPointer<vtkDendrogramItem> item)
+void vtkTreeHeatmapItem::SetDendrogram(vtkDendrogramItem *dendrogram)
 {
-  this->Dendrogram = item;
+  this->Dendrogram = dendrogram;
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkHeatmapItem> vtkTreeHeatmapItem::GetHeatmap()
+vtkHeatmapItem * vtkTreeHeatmapItem::GetHeatmap()
 {
-  return this->Heatmap;
+  return this->Heatmap.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
-void vtkTreeHeatmapItem::SetHeatmap(vtkSmartPointer<vtkHeatmapItem> item)
+void vtkTreeHeatmapItem::SetHeatmap(vtkHeatmapItem *heatmap)
 {
-  this->Heatmap = item;
+  this->Heatmap = heatmap;
 }
 
 //-----------------------------------------------------------------------------
