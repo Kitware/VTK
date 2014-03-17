@@ -1,6 +1,6 @@
 (function ($, GLOBAL) {
     var TOOLBAR_ANALYSIS_ITEM_TEMPLATE = '<li class="action add-viewer" data-type="TYPE" data-path="PATH" data-title="TITLE"><span class="CLASS">TITLE<i>DESCRIPTION</i></span></li>',
-    OPTION_ANALYSIS_ITEM_TEMPLATE = '<option value="PATH">TITLE</option>',
+    OPTION_ANALYSIS_ITEM_TEMPLATE = '<option value="TYPE:PATH">TITLE</option>',
     TOOLBAR_PROJECT_TEMPLATE = '<li class="action"><span class="vtk-icon-info-1" data-path="PATH">TITLE<i><table class="description">TABLE_CONTENT</table></i></span></li>',
     TABLE_LINE_TEMPLATE = '<tr><td class="key">KEY</td><td class="value">VALUE</td></tr>',
     TOOLBAR_LAYOUT = '<ul class="left">LIST</ul>',
@@ -29,6 +29,20 @@
             factory: function(domToFill, path) {
                 domToFill.vtkCatalystPVWeb(path);
             }
+        }
+    },
+    SEARCH_FACTORY = {
+        "catalyst-viewer": function(domToFill, path) {
+            domToFill.vtkCatalystAnalysisSearch(path);
+        },
+        "catalyst-resample-viewer" : function(domToFill, path) {
+            domToFill.vtkCatalystAnalysisSearch(path);
+        },
+        "composite-image-stack" : function(domToFill, path) {
+            domToFill.vtkCatalystCompositeSearch(path);
+        },
+        "catalyst-pvweb" : function(domToFill, path) {
+            domToFill.empty().html("<p style='padding: 20px;font-weight: bold;'>This type of data is not searchable.</p>");
         }
     };
 
@@ -187,6 +201,7 @@
 
     function analysisItemToOPTION(basePath, item) {
         return OPTION_ANALYSIS_ITEM_TEMPLATE
+            .replace(/TYPE/g, item.type)
             .replace(/PATH/g, basePath + '/' + item.id)
             .replace(/TITLE/g, item.title);
     }
@@ -258,7 +273,8 @@
 
         // Search panel data selection
         $('select[name="exploration"]').change(function(){
-            $('.search-results', container).vtkCatalystAnalysisSearch($(this).val());
+            var type_path = $(this).val().split(':');
+            SEARCH_FACTORY[type_path[0]]($('.search-results', container), type_path[1]);
         }).trigger('change');
     }
 
