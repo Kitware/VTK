@@ -9,7 +9,6 @@
     border-radius: 0 0 0 10px;
     top: 0px;
     right: 0px;
-    width: 70%;
     z-index: 2;
 }
 
@@ -50,6 +49,11 @@
     padding: 10px;
 }
 
+.vtkweb-catalyst-composite .control .parameters select {
+    position: relative;
+    top: -2px;
+}
+
 .vtkweb-catalyst-composite .control .parameters .layer-selector {
     display: none;
 }
@@ -80,10 +84,15 @@
 
 .vtkweb-catalyst-composite .control .parameters .right-control {
     float: right;
+    margin-left: 30px;
 }
 
 .vtkweb-catalyst-composite .control .parameters .pipeline li ul {
     margin-left: 20px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .pipeline li {
+    margin: 5px 0;
 }
 
 .vtkweb-catalyst-composite .control .parameters li {
@@ -147,5 +156,192 @@
 
 .vtkweb-catalyst-composite .control .parameters .background li.color.active {
     border-radius: 10px;
+}
 
+/* -------------------- Search -------------------- */
+
+.vtkweb-catalyst-analysis-composite-search .control .parameters .pipeline li {
+    margin: 15px 0;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .parameters select {
+    position: relative;
+    top: -8px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .parameters .pipeline {
+    padding: 0 10px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .header {
+    display: none;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control {
+    float: left;
+    background: white;
+    position: inherit;
+    margin: 10px;
+    border-radius: 0 0 10px 10px;
+}
+
+.vtkweb-catalyst-analysis-composite-search span.shift {
+    position: relative;
+    top: -6px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .parameters .fields li.active {
+    background: none;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .ratio-value {
+    width: 40px;
+    text-align: right;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .ratio-type {
+    margin-left: 20px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .fields .toggle-active {
+    position: relative;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .fields .toggle-active input {
+    position: relative;
+    width: 150px;
+}
+
+/*.vtkweb-catalyst-analysis-composite-search .control .fields .toggle-active i.help {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 100px;
+    right: 160px;
+    padding: 5px;
+    height: 15px;
+    text-align: right;
+    border: none;
+}*/
+
+.vtkweb-catalyst-analysis-composite-search .search-bar {
+    padding: 20px 10px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-bar li {
+    padding: 5px;
+    border: solid 1px black;
+    border-radius: 5px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-bar .search-result {
+    padding-top: 20px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-bar .working {
+    visibility: hidden;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-bar .disabled {
+    color: #ddd;
+}
+
+.vtkweb-catalyst-analysis-composite-search .control .parameters .fields .compute-coverage {
+    background: #ddd;
+    border: 1px solid;
+    border-radius: 5px;
+    margin-top: 20px;
+    padding: 5px;
+    position: relative;
+}
+
+.vtkweb-catalyst-analysis-composite-search .chart-container {
+    float: right;
+    width: 10px;
+    height: 10px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar {
+    clear: both;
+    position: relative;
+    width: 98%;
+    width: 100%;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar .table {
+    display: table;
+    width: 100%;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar .cell {
+    display: table-cell;
+    padding: 0 10px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar .cell.expand {
+    width: 100%;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar input.query-expression {
+    width: 100%;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar input.zoom-level {
+    width: 150px;
+    position: relative;
+    top: 6px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar i {
+    display: none;
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    padding: 5px;
+    text-align: left;
+    border: solid 1px black;
+    border-radius: 5px;
+    background: white;
+    z-index: 100;
+}
+
+.vtkweb-catalyst-analysis-composite-search .search-toolbar:hover i {
+    display: block;
+}
+
+.vtkweb-catalyst-analysis-composite-search .toggle-stats {
+    padding: 2px;
+    border-radius: 4px;
+    border: solid 1px black;
+    background: white;
+}
+
+.vtkweb-catalyst-analysis-composite-search .toggle-stats.stats {
+    background: #ccc;
+}
+
+.vtkweb-catalyst-analysis-composite-search .composite-result li {
+    list-style: none;
+    display: list-item;
+}
+
+.vtkweb-catalyst-analysis-composite-search .composite-result {
+    margin: 10px;
+    border-radius: 5px;
+    border: solid 1px black;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    float: left;
+}
+
+.vtkweb-catalyst-analysis-composite-search .composite-result ul {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px;
 }
