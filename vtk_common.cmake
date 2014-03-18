@@ -34,6 +34,7 @@
 #   dashboard_cvs_tag         = CVS tag to checkout (ex: VTK-5-6)
 #   dashboard_do_coverage     = True to enable coverage (ex: gcov)
 #   dashboard_do_memcheck     = True to enable memcheck (ex: valgrind)
+#   dashboard_do_superbuild   = True to do a superbuild dashboard.
 #   CTEST_UPDATE_COMMAND      = path to svn command-line client
 #   CTEST_BUILD_FLAGS         = build tool arguments (ex: -j2)
 #   CTEST_DASHBOARD_ROOT      = Where to put source and build trees
@@ -134,6 +135,10 @@ if (dashboard_branch_type STREQUAL "5.10")
     set (dashboard_git_branch "release-5.10")
   endif()
 endif()
+if(dashboard_do_superbuild)
+  set(branch_needs_data_repo FALSE)
+  set(dashboard_git_branch unified)
+endif()
 
 # Select the top dashboard directory.
 if(NOT DEFINED dashboard_root_name)
@@ -179,7 +184,11 @@ endif()
 
 # Select Git source to use.
 if(NOT DEFINED dashboard_git_url)
-  set(dashboard_git_url "git://vtk.org/VTK.git")
+  if (dashboard_do_superbuild)
+    set(dashboard_git_url "https://github.com/demarle/VTK-superbuild.git")
+  else()
+    set(dashboard_git_url "git://vtk.org/VTK.git")
+  endif()
 endif()
 
 if (branch_needs_data_repo)
@@ -224,6 +233,8 @@ endif()
 if(NOT DEFINED CTEST_BINARY_DIRECTORY)
   if(DEFINED dashboard_binary_name)
     set(CTEST_BINARY_DIRECTORY ${CTEST_DASHBOARD_ROOT}/${dashboard_binary_name})
+  elseif(dashboard_do_superbuild)
+    set(CTEST_SOURCE_DIRECTORY ${CTEST_DASHBOARD_ROOT}/VTKSuperbuild)
   else()
     set(CTEST_BINARY_DIRECTORY ${CTEST_SOURCE_DIRECTORY}-build)
   endif()
@@ -528,6 +539,21 @@ while(NOT dashboard_done)
     if(dashboard_do_memcheck)
       ctest_memcheck(${CTEST_TEST_ARGS})
       ctest_submit(PARTS MemCheck)
+    endif()
+
+    if(dashboard_do_superbuild)
+      # not sure if I can make platform tests here so just globbing
+      # for all expected archive types.
+      file(GLOB tar_balls ${CTEST_BINARY_DIRECTORY}/*.tar.gz)
+      file(GLOB tar_balls_2 ${CTEST_BINARY_DIRECTORY}/*.tgz)
+      file(GLOB dmgs ${CTEST_BINARY_DIRECTORY}/*.dmg)
+      file(GLOB exes ${CTEST_BINARY_DIRECTORY}/*.exe)
+      file(GLOB zips ${CTEST_BINARY_DIRECTORY}/*.zip)
+      set (files ${tar_balls} ${tar_balls_2} ${dmgs} ${exes} ${zips})
+      if (files)
+        ctest_upload(FILES ${files})
+        ctest_submit(PARTS Upload)
+      endif()
     endif()
 
     if(COMMAND dashboard_hook_submit)
