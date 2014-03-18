@@ -65,7 +65,6 @@ public:
   vtkOStreamWrapper& operator << (const vtkLargeInteger&);
   vtkOStreamWrapper& operator << (const vtkSmartPointerBase&);
   vtkOStreamWrapper& operator << (const vtkStdString&);
-  vtkOStreamWrapper& operator << (const std::string&);
   vtkOStreamWrapper& operator << (const char*);
   vtkOStreamWrapper& operator << (void*);
   vtkOStreamWrapper& operator << (char);
