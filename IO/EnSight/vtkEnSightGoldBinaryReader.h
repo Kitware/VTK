@@ -40,6 +40,7 @@
 #include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
 
+
 class vtkMultiBlockDataSet;
 
 class VTKIOENSIGHT_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
@@ -78,7 +79,8 @@ protected:
   // the data array, it is assumed that 0 is the first component added.
   virtual int ReadScalarsPerNode(const char* fileName, const char* description,
     int timeStep, vtkMultiBlockDataSet *output,
-    int measured = 0, int numberOfComponents = 1,
+    int measured = 0,
+    int numberOfComponents = 1,
     int component = 0);
 
   // Description:
@@ -161,6 +163,11 @@ protected:
   int ReadIntArray(int *result, int numInts);
 
   // Description:
+  // Internal function to read in a single long.
+  // Returns zero if there was an error.
+  int ReadLong(long *result);
+
+  // Description:
   // Internal function to read in a float array.
   // Returns zero if there was an error.
   int ReadFloatArray(float *result, int numFloats);
@@ -180,6 +187,18 @@ protected:
   int SkipRectilinearGrid(char line[256]);
   int SkipImageData(char line[256]);
 
+  // Description:
+  // Seeks the IFile to the nearest time step that is <= the target time step
+  int SeekToCachedTimeStep(const char* fileName, int realTimeStep);
+
+  // Description:
+  // Add an entry the time step cache
+  void AddTimeStepToCache(const char* fileName, int realTimeStep, long address);
+
+  // Description:
+  // Read the file index, if available, and add it to the time step cache
+  void AddFileIndexToCache(const char* fileName);
+
   int NodeIdsListed;
   int ElementIdsListed;
   int Fortran;
@@ -187,6 +206,11 @@ protected:
   ifstream *IFile;
   // The size of the file could be used to choose byte order.
   vtkIdType FileSize;
+
+  //BTX
+  class FileOffsetMapInternal;
+  FileOffsetMapInternal *FileOffsets;
+  //ETX
 
 private:
   int SizeOfInt;

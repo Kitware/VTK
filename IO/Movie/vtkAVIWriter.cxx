@@ -141,7 +141,8 @@ void vtkAVIWriter::Start()
   char fourcc[4] = {' ', ' ', ' ', ' '};
   if (this->CompressorFourCC)
     {
-    memcpy(fourcc, this->CompressorFourCC, strlen(this->CompressorFourCC));
+    size_t len = strlen(this->CompressorFourCC);
+    memcpy(fourcc, this->CompressorFourCC, len > 4 ? 4 : len);
     }
   opts.fccHandler=mmioFOURCC(fourcc[0], fourcc[1], fourcc[2], fourcc[3]);
   switch (this->GetQuality())

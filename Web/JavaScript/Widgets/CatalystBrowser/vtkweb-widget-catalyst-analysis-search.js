@@ -69,8 +69,6 @@
             increment();
         }
 
-        console.log('Got ' + results.length + ' entry for that data exploration');
-
         return results;
     }
 

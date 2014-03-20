@@ -953,7 +953,6 @@ void vtkOpenGLBufferObjectState::BufferAccessFlagsToStream(ostream &os)
       os << "|";
       }
     os << "GL_MAP_UNSYNCHRONIZED_BIT";
-    firstFlag=false;
     }
 }
 

@@ -1026,6 +1026,7 @@ void vtkHyperOctree::CopyStructure(vtkDataSet *ds)
   assert("pre: same_type" && vtkHyperOctree::SafeDownCast(ds)!=0);
 
   vtkHyperOctree *ho=vtkHyperOctree::SafeDownCast(ds);
+  assert(ho);
 
 //  this->Superclass::CopyStructure(ho);
 
@@ -2165,6 +2166,10 @@ vtkCell *vtkHyperOctree::GetCell(vtkIdType cellId)
     case 3:
       cell = this->Voxel;
       break;
+
+    default:
+      return NULL;
+      break;
     }
 
   if (this->DualGridFlag)
@@ -2411,9 +2416,9 @@ void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       }
     }
 
-  if (minNumCells == VTK_INT_MAX && numPts == 0) {
+  if (minNumCells == VTK_INT_MAX || numPts == 0) {
     vtkErrorMacro("input point ids empty.");
-    minNumCells = 0;
+    return;
   }
   //Now for each cell, see if it contains all the points
   //in the ptIds list.

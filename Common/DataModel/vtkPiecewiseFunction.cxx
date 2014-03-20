@@ -289,21 +289,19 @@ double *vtkPiecewiseFunction::GetDataPointer()
 // function. Note that the value at this point may be zero.
 double vtkPiecewiseFunction::GetFirstNonZeroValue()
 {
-  unsigned int   i;
-  int   all_zero = 1;
-  double x = 0.0;
-
   // Check if no points specified
   if( this->Internal->Nodes.size() == 0 )
     {
     return 0;
     }
 
+  unsigned int   i;
+  int   all_zero = 1;
+  double x = 0.0;
   for( i=0; i < this->Internal->Nodes.size(); i++ )
     {
     if( this->Internal->Nodes[i]->Y != 0.0 )
       {
-      x = this->Internal->Nodes[i]->X;
       all_zero = 0;
       break;
       }

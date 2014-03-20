@@ -1154,15 +1154,6 @@ int vtkTessellatorFilter::RequestData(
           }
         continue;
         }
-      else if ( np == VTK_VOXEL || np == VTK_HEXAHEDRON ||
-        np == VTK_QUADRATIC_HEXAHEDRON )
-        {
-        np = 27;
-        }
-      else
-        {
-        np = cp->GetNumberOfPoints();
-        }
       double* pcoord = cp->GetParametricCoords();
       double* gcoord;
       vtkDataArray* field;

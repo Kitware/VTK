@@ -203,6 +203,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
 
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast( ds );
+  assert(htg);
 
   // Copy grid parameters
   this->Dimension = htg->Dimension;
@@ -689,10 +690,10 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
       }
     }
 
-  if ( minNumCells == VTK_INT_MAX && numPts == 0 )
+  if ( minNumCells == VTK_INT_MAX || numPts == 0 )
     {
     vtkErrorMacro( "input point ids empty." );
-    minNumCells = 0;
+    return;
     }
 
   // For all cells that contNow for each cell, see if it contains all the points

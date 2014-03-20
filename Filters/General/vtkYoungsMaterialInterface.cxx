@@ -612,6 +612,11 @@ int vtkYoungsMaterialInterface::RequestData(
 
   // Initialize number of materials
   int nmat = static_cast<int>( this->Internals->Materials.size() );
+  if (nmat <= 0)
+    {
+    vtkErrorMacro(<<"Invalid materials size\n");
+    return 0;
+    }
 
   // alocate composite iterator
   vtkSmartPointer<vtkCompositeDataIterator> inputIterator;
@@ -2886,14 +2891,14 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     // Construct the surface functions
     REAL coef;
 
-    // Search S0(x) = coef * (x-d0)²
+    // Search S0(x) = coef * (x-d0)^2
     coef = ( d1 > d0 )  ?  ( surf1 / ((d1-d0)*(d1-d0)) ) : REAL_CONST(0.0) ;
     func[0] = coef * make_REAL3( 1 , -2*d0 , d0*d0 ) ;
 
     // Search S1(x) = quadric interpolation of surf1, surf12, surf2 at the points d1, d12, d2
     func[1] = quadraticInterpFunc( d1, surf1, d12, surf12, d2, surf2 );
 
-    // S(x) = coef * (d3-x)²
+    // S(x) = coef * (d3-x)^2
     coef = ( d3 > d2 )  ?  ( surf2 / ((d3-d2)*(d3-d2)) ) : REAL_CONST(0.0) ;
     func[2] = coef * make_REAL3( 1 , -2*d3 , d3*d3 ) ;
 

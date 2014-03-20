@@ -255,8 +255,8 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
   double contVal=-1000;
   double *values;
 
-  vtkCell *linearCell;
-  vtkIdType ptsCount;
+  vtkCell *linearCell = 0;
+  vtkIdType ptsCount = 0;
 
   range[0]=0; // to fix warning
   range[1]=0; // on some compilers
@@ -310,8 +310,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         break;
       default:
         assert("check: impossible case" && 0);
-        linearCell=0; // just to fix warning of some compilers
-        ptsCount=0; // just to fix warning of some compilers
+        return;
         break;
       }
     int currComp=attributes->GetActiveComponent();
@@ -412,9 +411,9 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       ptsCount=3;
       break;
     default:
-      linearCell=0;
-      ptsCount=0;
       assert("TODO: dimension 1 and 0" && 0);
+      return;
+      break;
     }
 
   vtkIdType npts, *pts = 0;
@@ -505,8 +504,8 @@ void vtkGenericAdaptorCell::Clip(double value,
   double contVal=-1000;
   double *values;
 
-  vtkCell *linearCell;
-  vtkIdType ptsCount;
+  vtkCell *linearCell = 0;
+  vtkIdType ptsCount = 0;
 
   this->Reset();
 
@@ -557,8 +556,7 @@ void vtkGenericAdaptorCell::Clip(double value,
         break;
       default:
         assert("check: impossible case" && 0);
-        linearCell=0; // just to fix warning of some compilers
-        ptsCount=0;// just to fix warning of some compilers
+        return;
         break;
       }
     int currComp=attributes->GetActiveComponent();
@@ -640,9 +638,9 @@ void vtkGenericAdaptorCell::Clip(double value,
       ptsCount=3;
       break;
     default:
-      linearCell=0;
-      ptsCount=0;
       assert("TODO: dimension 1 and 0" && 0);
+      return;
+      break;
     }
 
   vtkIdType npts, *pts = 0;
@@ -733,7 +731,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
 #ifndef NDEBUG
   vtkIdType valid_npts=0; // for the check assertion
 #endif
-  int linearCellType;
+  int linearCellType = VTK_EMPTY_CELL;
   this->Reset();
 
   assert("check: TODO: Tessellate only works with 2D and 3D cells" && (this->GetDimension() == 3 ||  this->GetDimension() == 2));
@@ -756,7 +754,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         }
       attrib++;
       }
-    int numVerts;
+    int numVerts = 0;
 
     switch(this->GetType())
       {
@@ -786,8 +784,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         break;
       default:
         assert("check: impossible case" && 0);
-        linearCellType=0; // just to fix warning of some compilers
-        numVerts=0; // just to fix warning of some compilers
+        return;
         break;
       }
     double *locals=this->GetParametricCoords();

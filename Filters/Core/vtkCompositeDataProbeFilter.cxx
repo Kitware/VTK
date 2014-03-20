@@ -131,6 +131,7 @@ int vtkCompositeDataProbeFilter::RequestData(
     idx++;
     }
 
+  this->PassAttributeData(input, sourceComposite, output);
   return 1;
 }
 //----------------------------------------------------------------------------

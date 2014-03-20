@@ -88,7 +88,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
   vtkPoints* knots = vtkPoints::New(VTK_DOUBLE);
   knots->SetNumberOfPoints(npts);
 
-  double xm1[3];
+  double xm1[3] = {0.0,0.0,0.0};
   double x[3];
   for (int n = 0; n < npts; ++n)
     {

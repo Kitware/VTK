@@ -567,8 +567,8 @@ void vtkTreeHeatmapItem::GetSize(double size[2])
   double bounds[4];
   this->GetBounds(bounds);
 
-  size[0] = abs(bounds[1] - bounds[0]);
-  size[1] = abs(bounds[3] - bounds[2]);
+  size[0] = fabs(bounds[1] - bounds[0]);
+  size[1] = fabs(bounds[3] - bounds[2]);
 }
 
 //-----------------------------------------------------------------------------

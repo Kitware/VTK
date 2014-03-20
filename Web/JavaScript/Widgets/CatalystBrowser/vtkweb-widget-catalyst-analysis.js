@@ -163,8 +163,6 @@
     // ------------------------------------------------------------------------
 
     function buildBillEntry(item, cost, dollars) {
-        console.log(item);
-        console.log(cost);
         var classType = VIEWER_FACTORY[item["type"]]["class"],
         title = item["title"],
         time = cost["time"],

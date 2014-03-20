@@ -1,4 +1,3 @@
-cmake_minimum_required (VERSION 2.8)
 PROJECT (HDF5_SRC C CXX)
 
 #-----------------------------------------------------------------------------
@@ -602,27 +601,6 @@ ADD_CUSTOM_COMMAND (
     COMMAND ${CMDL}
     ARGS > ${HDF5_BINARY_DIR}/H5lib_settings.c
     DEPENDS H5make_libsettings
-)
-
-ADD_CUSTOM_COMMAND (
-    TARGET ${HDF5_BINARY_DIR}/H5Edefin.h
-    PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E perl ${HDF5_SOURCE_DIR}/bin/make_err ${HDF5_SOURCE_DIR}/src/H5err.txt
-    COMMENT " Creating err headers"
-)
-
-ADD_CUSTOM_COMMAND (
-    TARGET ${HDF5_BINARY_DIR}/H5version.h
-    PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E perl ${HDF5_SOURCE_DIR}/bin/make_vers ${HDF5_SOURCE_DIR}/src/H5vers.txt
-    COMMENT " Creating API version macro"
-)
-
-ADD_CUSTOM_COMMAND (
-    TARGET ${HDF5_BINARY_DIR}/H5overflow.h
-    PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E perl ${HDF5_SOURCE_DIR}/bin/make_overflow ${HDF5_SOURCE_DIR}/src/H5overflow.txt
-    COMMENT " Creating Assignment overflow macro"
 )
 
 #-----------------------------------------------------------------------------

@@ -1420,7 +1420,7 @@ int vtkDecimatePro::CollapseEdge(int type, vtkIdType ptId,
       }
     }//if interior vertex
 
-  else // if ( numDeleted == 1 ) e.g., VTK_BOUNDARY_VERTEX
+  else if ( numDeleted == 1 ) // e.g., VTK_BOUNDARY_VERTEX
     {
     // delete one triangle
     this->Mesh->RemoveReferenceToCell(pt1, tri[0]);
@@ -1442,6 +1442,10 @@ int vtkDecimatePro::CollapseEdge(int type, vtkIdType ptId,
         }
       }
     } //else boundary vertex
+  else
+    {
+    vtkErrorMacro(<<"invalid numDeleted count");
+    }
 
   // Update surrounding vertices. Need to copy verts first because the V/T
   // arrays might change as points are being reinserted.

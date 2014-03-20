@@ -799,12 +799,12 @@ std::string vtkHeatmapItem::GetTooltipText(float x, float y)
   if (orientation == vtkHeatmapItem::UP_TO_DOWN ||
       orientation == vtkHeatmapItem::DOWN_TO_UP)
     {
-    sceneRow = floor(abs(x - this->Position[0]) / this->CellHeight);
+    sceneRow = floor(fabs(x - this->Position[0]) / this->CellHeight);
     sceneColumn = floor((y - this->MinY) / this->CellWidth);
     }
   else
     {
-    sceneRow = floor(abs(y - this->Position[1]) / this->CellHeight);
+    sceneRow = floor(fabs(y - this->Position[1]) / this->CellHeight);
     sceneColumn = floor((x - this->MinX) / this->CellWidth);
     }
 

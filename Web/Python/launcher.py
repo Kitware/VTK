@@ -213,7 +213,7 @@ class ProxyMappingManager(object):
 
 class ProxyMappingManagerTXT(ProxyMappingManager):
 
-    def __init__(self, file_path, pattern="%s %s:%d"):
+    def __init__(self, file_path, pattern="%s %s:%d\n"):
         self.file_path = file_path
         self.pattern = pattern
 

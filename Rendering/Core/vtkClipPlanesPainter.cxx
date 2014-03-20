@@ -19,7 +19,6 @@
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
-#include "vtkBoundingBox.h"
 
 // Return NULL if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkClipPlanesPainter)
@@ -64,33 +63,4 @@ void vtkClipPlanesPainter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << " (none)" << endl;
     }
-}
-//-----------------------------------------------------------------------------
-void vtkClipPlanesPainter::UpdateBounds(double bounds[6])
-{
-  if(!vtkBoundingBox::IsValid(bounds))
-    {
-    return;
-    }
-  vtkPlaneCollection* planes =this->ClippingPlanes;
-  if(planes)
-    {
-    int numPlanes = planes->GetNumberOfItems();
-    for(int i=0; i<numPlanes; i++)
-      {
-      vtkPlane *plane = planes->GetItem(i);
-      if(plane)
-        {
-        double n[3],p[3];
-        plane->GetNormal(n);
-        plane->GetOrigin(p);
-        vtkBoundingBox bb(bounds);
-        if(bb.IntersectPlane(p,n))
-          {
-          bb.GetBounds(bounds);
-          }
-        }
-      }
-    }
-
 }

@@ -1729,6 +1729,9 @@ void vtkGetSetPixelsFunc(
       case 4:
         *setpixels = &vtkImageResliceSetPixels<vtkTypeInt32>::Set4;
         break;
+      default:
+        *setpixels = 0;
+        break;
       }
     return;
     }
@@ -1879,7 +1882,7 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
                                  vtkImageData *outData, void *outPtr,
                                  int outExt[6], int threadId)
 {
-  void (*setpixels)(void *&out, const void *in, int numscalars, int n);
+  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
 
   // for the progress meter
   unsigned long count = 0;
@@ -1955,9 +1958,9 @@ void vtkImageResliceExecute(vtkImageReslice *self,
                             int outExt[6], int threadId, F newmat[4][4],
                             vtkAbstractTransform *newtrans)
 {
-  void (*convertpixels)(void *&out, const F *in, int numscalars, int n);
-  void (*setpixels)(void *&out, const void *in, int numscalars, int n);
-  void (*composite)(F *in, int numscalars, int n);
+  void (*convertpixels)(void *&out, const F *in, int numscalars, int n) = 0;
+  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
+  void (*composite)(F *in, int numscalars, int n) = 0;
 
   // for the progress meter
   unsigned long count = 0;
@@ -2781,9 +2784,9 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
   // get type-specific functions
   void (*summation)(void *&out, int idX, int idY, int idZ, int numscalars,
-                    int n, vtkInterpolationWeights *weights);
-  void (*conversion)(void *&out, const F *in, int numscalars, int n);
-  void (*setpixels)(void *&out, const void *in, int numscalars, int n);
+                    int n, vtkInterpolationWeights *weights) = 0;
+  void (*conversion)(void *&out, const F *in, int numscalars, int n) = 0;
+  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
   vtkGetSummationFunc(&summation, scalarType, outComponents);
   vtkGetConversionFunc(&conversion,
     floatType, scalarType, interpolationMode, self->GetSlabMode());

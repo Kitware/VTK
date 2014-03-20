@@ -637,11 +637,11 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D *painter)
         tickPositionInPixels[1] += offset[1];
 
         // we store this offset so we know where to draw the axis label later
-        if (abs(offset[0]) > abs(labelOffset[0]))
+        if (fabs(offset[0]) > fabs(labelOffset[0]))
           {
           labelOffset[0] = offset[0];
           }
-        if (abs(offset[1]) > abs(labelOffset[1]))
+        if (fabs(offset[1]) > fabs(labelOffset[1]))
           {
           labelOffset[1] = offset[1];
           }
@@ -721,8 +721,8 @@ void vtkChartXYZ::DetermineWhichAxesToLabel()
           if (midpoint[0] > this->DataBounds[0] &&
               midpoint[0] < this->DataBounds[2])
             {
-            double d1 = abs(midpoint[1] - this->DataBounds[1]);
-            double d2 = abs(midpoint[1] - this->DataBounds[3]);
+            double d1 = fabs(midpoint[1] - this->DataBounds[1]);
+            double d2 = fabs(midpoint[1] - this->DataBounds[3]);
             if (d1 < d2)
               {
               directionToData = 0;  // data is "up" from the axis
@@ -739,8 +739,8 @@ void vtkChartXYZ::DetermineWhichAxesToLabel()
           else if (midpoint[1] > this->DataBounds[1] &&
                    midpoint[1] < this->DataBounds[3])
             {
-            double d1 = abs(midpoint[0] - this->DataBounds[0]);
-            double d2 = abs(midpoint[0] - this->DataBounds[2]);
+            double d1 = fabs(midpoint[0] - this->DataBounds[0]);
+            double d2 = fabs(midpoint[0] - this->DataBounds[2]);
             if (d1 < d2)
               {
               directionToData = 2;  // data is "right" from the axis

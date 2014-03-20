@@ -1,3 +1,7 @@
+.vtkweb-catalyst-composite .action {
+    cursor: pointer;
+}
+
 .vtkweb-catalyst-composite .control {
     position: absolute;
     background: rgba(255, 255, 255, 0.7);
@@ -5,7 +9,7 @@
     border-radius: 0 0 0 10px;
     top: 0px;
     right: 0px;
-    width: 300px;
+    width: 70%;
     z-index: 2;
 }
 
@@ -15,24 +19,6 @@
 
 .vtkweb-catalyst-composite.small .control .header {
   border-radius: 0 0 0 8px;
-}
-
-.vtkweb-catalyst-composite .control .parameters .extended-control {
-    position: relative;
-    top: 0px;
-    left: 170px;
-    width: 130px;
-    padding-bottom: 10px;
-}
-
-.vtkweb-catalyst-composite .control .parameters .extended-control .animation-type {
-    margin-top: 10px;
-}
-
-.vtkweb-catalyst-composite .control .parameters .extended-control .action {
-    margin: 5px;
-    border: 1px solid black;
-    border-radius: 3px;
 }
 
 .vtkweb-catalyst-composite .stop {
@@ -60,6 +46,31 @@
     position: relative;
 }
 
+.vtkweb-catalyst-composite .control .parameters .pipeline {
+    padding: 10px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .layer-selector {
+    display: none;
+}
+
+.vtkweb-catalyst-composite .control .parameters .layer-selector ul {
+    margin: 10px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .layer-selector li {
+    padding: 2px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .layer-selector .head {
+    background: #ddd;
+    color: black;
+    font-weight: normal;
+    height: 1.4em;
+    border-radius: 0;
+    padding: 0 10px;
+}
+
 .vtkweb-catalyst-composite .control .parameters .toggle-container {
     position: relative;
     padding: 10px;
@@ -67,15 +78,74 @@
     left: 160px;
 }
 
-.vtkweb-catalyst-composite .control span img {
-    position: absolute;
-    left: -150px;
-    top: 10px;
-    display: none;
-    border: solid 1px black;
-    width: 150px;
+.vtkweb-catalyst-composite .control .parameters .right-control {
+    float: right;
 }
 
-.vtkweb-catalyst-composite .control span:hover img {
-    display: block;
+.vtkweb-catalyst-composite .control .parameters .pipeline li ul {
+    margin-left: 20px;
+}
+
+.vtkweb-catalyst-composite .control .parameters li {
+    list-style: none;
+    display: list-item;
+    margin: 0;
+    padding: 0;
+}
+
+.vtkweb-catalyst-composite .control .parameters .pipeline .label {
+}
+
+.vtkweb-catalyst-composite .control .parameters .fields {
+    margin: 0 10px 0 10px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .fields li {
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 2px 0;
+    display: none;
+}
+
+.vtkweb-catalyst-composite .control .parameters .fields li.active {
+    background: #ddd;
+    border-radius: 5px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .fields span.value {
+    text-align: right;
+    margin-right: 20px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .fields span.title {
+    width: 100px;
+    font-weight: bold;
+}
+
+.vtkweb-catalyst-composite .bg {
+    display: none;
+}
+
+.vtkweb-catalyst-composite .control .parameters .background  {
+    margin: 0 10px 10px 10px;
+    font-weight: bold;
+}
+
+.vtkweb-catalyst-composite .control .parameters .background li {
+    list-style: none;
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.vtkweb-catalyst-composite .control .parameters .background li.color {
+    padding: 0 10px;
+    border: solid 1px black;
+    border-radius: 0;
+    margin-left: 10px;
+}
+
+.vtkweb-catalyst-composite .control .parameters .background li.color.active {
+    border-radius: 10px;
+
 }

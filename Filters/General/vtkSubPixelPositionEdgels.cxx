@@ -95,6 +95,11 @@ int vtkSubPixelPositionEdgels::RequestData(
     MapData = vtkFloatArray::SafeDownCast(gradMaps->GetPointData()
                                           ->GetScalars())->GetPointer(0);
     }
+  else
+    {
+    vtkErrorMacro(<<"Point data must be float or double!");
+    return 1;
+    }
 
   inVectors = gradMaps->GetPointData()->GetVectors();
 

@@ -122,7 +122,6 @@ int vtkGlyph3D::RequestData(
   vtkDataArray *inNormals, *sourceNormals = NULL;
   vtkDataArray *sourceTCoords = NULL;
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
-  int index;
   vtkPoints *sourcePts = NULL;
   vtkSmartPointer<vtkPoints> transformedSourcePts = vtkSmartPointer<vtkPoints>::New();
   vtkPoints *newPts;
@@ -467,11 +466,7 @@ int vtkGlyph3D::RequestData(
       }
 
     // Compute index into table of glyphs
-    if ( this->IndexMode == VTK_INDEXING_OFF )
-      {
-      index = 0;
-      }
-    else
+    if ( this->IndexMode != VTK_INDEXING_OFF )
       {
       if ( this->IndexMode == VTK_INDEXING_BY_SCALAR )
         {
@@ -482,7 +477,7 @@ int vtkGlyph3D::RequestData(
         value = vMag;
         }
 
-      index = static_cast<int>((value - this->Range[0])*numberOfSources / den);
+      int index = static_cast<int>((value - this->Range[0])*numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
 
