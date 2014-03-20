@@ -289,8 +289,8 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
                                           int fieldAssociation,
                                           const char *name)
 {
-  // ignore empty string
-  if (!name || name[0] == '\0')
+  // ignore NULL string
+  if (!name)
     {
     return;
     }
@@ -573,7 +573,7 @@ vtkAbstractArray *vtkAlgorithm::GetInputAbstractArrayToProcess(
     association = vtkDataObject::FIELD_ASSOCIATION_CELLS;
     return inputDS->GetCellData()->GetAbstractArray(name);
     }
-  else
+  else if (inArrayInfo->Has(vtkDataObject::FIELD_ATTRIBUTE_TYPE()))
     {
     vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
     if (!inputDS)
@@ -595,6 +595,10 @@ vtkAbstractArray *vtkAlgorithm::GetInputAbstractArrayToProcess(
 
     association = vtkDataObject::FIELD_ASSOCIATION_CELLS;
     return inputDS->GetCellData()->GetAbstractAttribute(fType);
+    }
+  else
+    {
+    return NULL;
     }
 }
 
