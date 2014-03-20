@@ -181,6 +181,9 @@ int vtkExtractUnstructuredGridPiece::RequestData(
   int numCellPts;
   vtkIdType *cellPointer;
   vtkIdType *ids;
+  vtkIdType *faceStream;
+  vtkIdType numFaces;
+  vtkIdType numFacePts;
   double *x;
 
   // Pipeline update piece will tell us what to generate.
@@ -261,22 +264,53 @@ int vtkExtractUnstructuredGridPiece::RequestData(
           (unsigned char)(cellTags->GetValue(cellId)));
         }
 
-      for (i=0; i < numCellPts; i++)
+      if (cellType != VTK_POLYHEDRON)
         {
-        ptId = ids[i];
-        if ( (newId = pointMap->GetId(ptId)) < 0 )
+        for (i=0; i < numCellPts; i++)
           {
-          x = input->GetPoint(ptId);
-          newId = newPoints->InsertNextPoint(x);
-          if (pointGhostLevels && pointOwnership)
+          ptId = ids[i];
+          if ( (newId = pointMap->GetId(ptId)) < 0 )
             {
-            pointGhostLevels->InsertNextValue(
-              cellTags->GetValue(pointOwnership->GetId(ptId)));
+            x = input->GetPoint(ptId);
+            newId = newPoints->InsertNextPoint(x);
+            if (pointGhostLevels && pointOwnership)
+              {
+              pointGhostLevels->InsertNextValue(
+                    cellTags->GetValue(pointOwnership->GetId(ptId)));
+              }
+            pointMap->SetId(ptId,newId);
+            outPD->CopyData(pd,ptId,newId);
             }
-          pointMap->SetId(ptId,newId);
-          outPD->CopyData(pd,ptId,newId);
+          newCellPts->InsertId(i,newId);
           }
-        newCellPts->InsertId(i,newId);
+        }
+      else
+        { // Polyhedron, need to process face stream.
+        faceStream = input->GetFaces(cellId);
+        numFaces = *faceStream++;
+        newCellPts->InsertNextId(numFaces);
+        for (vtkIdType face = 0; face < numFaces; ++face)
+          {
+          numFacePts = *faceStream++;
+          newCellPts->InsertNextId(numFacePts);
+          while (numFacePts-- > 0)
+            {
+            ptId = *faceStream++;
+            if ( (newId = pointMap->GetId(ptId)) < 0 )
+              {
+              x = input->GetPoint(ptId);
+              newId = newPoints->InsertNextPoint(x);
+              if (pointGhostLevels && pointOwnership)
+                {
+                pointGhostLevels->InsertNextValue(
+                      cellTags->GetValue(pointOwnership->GetId(ptId)));
+                }
+              pointMap->SetId(ptId,newId);
+              outPD->CopyData(pd,ptId,newId);
+              }
+            newCellPts->InsertNextId(newId);
+            }
+          }
         }
       newCellId = output->InsertNextCell(cellType,newCellPts);
       outCD->CopyData(cd,cellId,newCellId);
