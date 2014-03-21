@@ -193,7 +193,7 @@
                 var entry = result[count].count;
                 for(var layer in entry) {
                     if(layer !== '+') {
-                        var percent = Math.floor(entry[layer]);
+                        var percent = Math.ceil(entry[layer]);
                         layerSeriesData[layer][percent]++;
                     }
                 }
@@ -230,8 +230,8 @@
 
             // Create brand new graph
             var options = {
-                'renderer': 'line',  // Type of chart [line, area, bar, scatterplot]
-                'stacked' : false,
+                'renderer': 'bar',  // Type of chart [line, area, bar, scatterplot]
+                'stacked' : true,
                 'series': series,
                 'axes': [ "bottom", "left", "top"], // Draw axis on border with scale
                 'chart-padding': [0, 150, 0, 0],   // Graph padding [top, right, bottom, left] in px. Useful to save space for legend
@@ -250,6 +250,10 @@
                     formulaSTR += layer + ' = obj.count.' + layer + ';\n';
                 }
             }
+
+            var sortQuery = $('.sortby-expression', container).val(),
+            sortFunctionSTR = "function extractValue(obj) {" + formulaSTR + "return " + sortQuery + ";}; return extractValue(a) - extractValue(b);";
+
             formulaSTR += "return true";
             if(userQuery.trim().length > 0) {
                 formulaSTR += " && " + userQuery + ';';
@@ -261,7 +265,8 @@
             var func = new Function("obj", formulaSTR),
             count = result.length,
             found = 0,
-            finalResults = [];
+            finalResults = []
+            sortFunc = new Function(["a","b"], sortFunctionSTR);
 
             $('.result-count', container).html('Found&nbsp;0&nbsp;result.');
 
@@ -271,6 +276,11 @@
                    finalResults.push(result[count]);
                 }
             }
+
+            if(sortQuery.length > 0) {
+                finalResults.sort(sortFunc);
+            }
+
             $('.result-count', container).html("Found&nbsp;VALUE&nbsp;results.".replace(/VALUE/g, found));
 
             var resultContainer = $('.composite-search-results', container).empty();
@@ -299,7 +309,7 @@
             }
             for(var layer in obj.count){
                 if(layer != '+' && obj.count[layer] > 0) {
-                    buffer.push(layerToLabel[layer] + ': ' + Math.floor(obj.count[layer]) + ' %');
+                    buffer.push(layerToLabel[layer] + ': ' + Number(obj.count[layer]).toFixed(2) + ' %');
                 }
             }
             $("<div/>", {
@@ -1171,6 +1181,14 @@
             var me = $(this), userQuery = me.val();
             manager.applyQuery(userQuery);
         });
+        $('.sortby-expression', container).bind('change keyup', function(e){
+            // Apply search
+            if(e.type === 'keyup' && e.keyCode !== 13) {
+                return;
+            }
+            var me = $('.query-expression', container), userQuery = me.val();
+            manager.applyQuery(userQuery);
+        });
 
         $('.zoom-level', container).bind('change keyup', function(){
             // Apply search
@@ -1310,7 +1328,7 @@
 
                     // Add search/results containers
                     $('<div/>', {class: "chart-container"}).appendTo(me);
-                    $('<div/>', {class: "search-toolbar", html: '<div class="table"><span class="cell"><b>Query</b></span><span class="cell expand"><input type="text" class="query-expression"></span><span class="cell"><span class="result-count"></span></span><span class="cell"><span class="vtk-icon-chart-area toggle-stats stats action"></span></span><span class="cell"><span class="vtk-icon-picture-1 render-all-composites action" title="Render all composites alt="Render all composites"></span></span><span class="cell"><input type="range" class="zoom-level" value="10" max="100" min="10"></span></div><i>HELP</i>'.replace(/HELP/g, helpTxt)}).appendTo(me);
+                    $('<div/>', {class: "search-toolbar", html: '<div class="table"><span class="cell"><b>Query</b></span><span class="cell expand"><input type="text" class="query-expression"></span><span class="cell"><b>Sort&nbsp;by</b></span><span class="cell expand"><input type="text" class="sortby-expression"></span><span class="cell"><span class="result-count"></span></span><span class="cell"><span class="vtk-icon-chart-area toggle-stats stats action"></span></span><span class="cell"><span class="vtk-icon-picture-1 render-all-composites action" title="Render all composites alt="Render all composites"></span></span><span class="cell"><input type="range" class="zoom-level" value="10" max="100" min="10"></span></div><i>HELP</i>'.replace(/HELP/g, helpTxt)}).appendTo(me);
                     $('<div/>', {class: "composite-search-results"}).appendTo(me);
 
                     initializeListeners(me, createSearchManager(me, data, dataBasePath), null);
