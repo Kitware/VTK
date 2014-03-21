@@ -1028,6 +1028,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   height = abs(y_hi-y_low) + 1;
 
   /* write out a row of pixels */
+  glDisable( GL_ALPHA_TEST );
   glDisable( GL_SCISSOR_TEST );
   glViewport(0, 0, this->Size[0], this->Size[1]);
   glMatrixMode( GL_MODELVIEW );
@@ -1356,11 +1357,12 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
+  glDisable( GL_ALPHA_TEST );
+  glDisable( GL_SCISSOR_TEST );
+
   // Disable writing on the z-buffer.
   glDepthMask(GL_FALSE);
   glDisable(GL_DEPTH_TEST);
-
-  glDisable( GL_SCISSOR_TEST );
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
@@ -1555,9 +1557,11 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
+  glDisable( GL_ALPHA_TEST );
+  glDisable( GL_SCISSOR_TEST );
+
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
-  glDisable( GL_SCISSOR_TEST );
   glDisable( GL_TEXTURE_2D );
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
