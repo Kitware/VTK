@@ -165,7 +165,7 @@ protected:
   // Description:
   // Internal function to read in a single long.
   // Returns zero if there was an error.
-  int ReadLong(long *result);
+  int ReadLong(vtkTypeInt64 *result);
 
   // Description:
   // Internal function to read in a float array.
@@ -193,7 +193,7 @@ protected:
 
   // Description:
   // Add an entry the time step cache
-  void AddTimeStepToCache(const char* fileName, int realTimeStep, long address);
+  void AddTimeStepToCache(const char* fileName, int realTimeStep, vtkTypeInt64 address);
 
   // Description:
   // Read the file index, if available, and add it to the time step cache
