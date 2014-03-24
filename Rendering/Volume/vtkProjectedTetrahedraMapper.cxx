@@ -152,6 +152,10 @@ void vtkProjectedTetrahedraMapper::TransformPoints(
                                                  const float modelview_mat[16],
                                                  vtkFloatArray *outPoints)
 {
+  if (!inPoints)
+    {
+    return;
+    }
   outPoints->SetNumberOfComponents(3);
   outPoints->SetNumberOfTuples(inPoints->GetNumberOfPoints());
   switch (inPoints->GetDataType())
