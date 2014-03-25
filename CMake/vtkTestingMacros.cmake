@@ -315,6 +315,7 @@ function(vtk_add_test_python)
     ExternalData_add_test(VTKData
       NAME    ${vtk-module}Python-${vtk_test_prefix}${name}
       COMMAND ${VTK_PYTHON_EXE} --enable-bt
+              ${VTK_PYTHON_ARGS}
               ${rtImageTest}
               ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
               ${args}
