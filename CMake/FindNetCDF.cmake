@@ -38,17 +38,26 @@ if (NETCDF_INCLUDE_DIR AND NETCDF_LIBRARY)
   set (NETCDF_FIND_QUIETLY TRUE)
 endif ()
 
+set(USE_DEFAULT_PATHS "NO_DEFAULT_PATH")
+if(NETCDF_USE_DEFAULT_PATHS)
+  set(USE_DEFAULT_PATHS "")
+endif()
+
 find_path (NETCDF_INCLUDE_DIR netcdf.h
-  HINTS NETCDF_DIR ENV NETCDF_DIR)
+  HINTS "${NETCDF_DIR}/include")
 mark_as_advanced (NETCDF_INCLUDE_DIR)
 set (NETCDF_C_INCLUDE_DIRS ${NETCDF_INCLUDE_DIR})
 
-find_library (NETCDF_LIBRARY NAMES netcdf)
+find_library (NETCDF_LIBRARY NAMES netcdf
+  HINTS "${NETCDF_DIR}/lib")
 mark_as_advanced (NETCDF_LIBRARY)
+
 set (NETCDF_C_LIBRARIES ${NETCDF_LIBRARY})
 
 #start finding requested language components
 set (NetCDF_libs "")
+set (NetCDF_includes "${NETCDF_INCLUDE_DIR}")
+
 get_filename_component (NetCDF_lib_dirs "${NETCDF_LIBRARY}" PATH)
 set (NETCDF_HAS_INTERFACES "YES") # will be set to NO if we're missing any interfaces
 
@@ -56,9 +65,15 @@ macro (NetCDF_check_interface lang header libs)
   if (NETCDF_${lang})
     #search starting from user modifiable cache var
     find_path (NETCDF_${lang}_INCLUDE_DIR NAMES ${header}
-      HINTS "${NETCDF_INCLUDE_DIR}" NO_DEFAULT_PATH)
+      HINTS "${NETCDF_INCLUDE_DIR}"
+      HINTS "${NETCDF_${lang}_ROOT}/include"
+      ${USE_DEFAULT_PATHS})
+
     find_library (NETCDF_${lang}_LIBRARY NAMES ${libs}
-      HINTS "${NetCDF_lib_dirs}" NO_DEFAULT_PATH)
+      HINTS "${NetCDF_lib_dirs}"
+      HINTS "${NETCDF_${lang}_ROOT}/lib"
+      ${USE_DEFAULT_PATHS})
+
     mark_as_advanced (NETCDF_${lang}_INCLUDE_DIR NETCDF_${lang}_LIBRARY)
 
     #export to internal varS that rest of project can use directly
@@ -67,6 +82,7 @@ macro (NetCDF_check_interface lang header libs)
 
     if (NETCDF_${lang}_INCLUDE_DIR AND NETCDF_${lang}_LIBRARY)
       list (APPEND NetCDF_libs ${NETCDF_${lang}_LIBRARY})
+      list (APPEND NetCDF_includes ${NETCDF_${lang}_INCLUDE_DIR})
     else ()
       set (NETCDF_HAS_INTERFACES "NO")
       message (STATUS "Failed to find NetCDF interface for ${lang}")
@@ -93,7 +109,7 @@ NetCDF_check_interface (F90 netcdf.mod  netcdff)
 #export accumulated results to internal varS that rest of project can depend on
 list (APPEND NetCDF_libs "${NETCDF_C_LIBRARIES}")
 set (NETCDF_LIBRARIES ${NetCDF_libs})
-set (NETCDF_INCLUDE_DIRS ${NETCDF_INCLUDE_DIR})
+set (NETCDF_INCLUDE_DIRS ${NetCDF_includes})
 
 # handle the QUIETLY and REQUIRED arguments and set NETCDF_FOUND to TRUE if
 # all listed variables are TRUE
