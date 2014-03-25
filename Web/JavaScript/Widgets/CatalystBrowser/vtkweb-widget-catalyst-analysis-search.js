@@ -1,5 +1,21 @@
 (function ($, GLOBAL) {
-    var SEARCH_TEMPLATE = '<div class="search-toolbar"><b>Query</b><input type="text" class="query-expression"/><input type="range" min="10" max="100" value="10" class="zoom-level"/><span class="result-count"></span><i>HELP</i></div><div class="query-results"></div>';
+    var SEARCH_TEMPLATE = '<div class="search-toolbar"><b>Query</b><input type="text" class="query-expression"/><input type="range" min="10" max="100" value="10" class="zoom-level"/><span class="result-count"></span><i>HELP</i></div><div class="query-results"></div>',
+    TOOLBAR_TEMPLATE = '<div class=sub-menu><ul class="menu left"><li class="vtk-icon-list-add sub action" data-type="composite-image-stack"><ul></ul></li><li class="vtk-icon-chart-line sub action" data-type="catalyst-resample-viewer"><ul></ul></li><li class="vtk-icon-loop-alt sub action" data-type="catalyst-viewer"><ul></ul></li></ul><ul class="menu right"><li class="search-title"/></ul></div><div class="search-panel"></div>',
+    ENTRY_TEMPLATE = '<li class="create-search" data-path="PATH" data-title="TITLE">TITLE<i class=help>DESCRIPTION</i></li>',
+    SEARCH_FACTORY = {
+        "catalyst-viewer": function(domToFill, path) {
+            domToFill.vtkCatalystAnalysisGenericSearch(path);
+        },
+        "catalyst-resample-viewer" : function(domToFill, path) {
+            domToFill.vtkCatalystAnalysisGenericSearch(path);
+        },
+        "composite-image-stack" : function(domToFill, path) {
+            domToFill.vtkCatalystCompositeSearch(path);
+        },
+        "catalyst-pvweb" : function(domToFill, path) {
+            domToFill.empty().html("<p style='padding: 20px;font-weight: bold;'>This type of data is not searchable.</p>");
+        }
+    };
 
     // ------------------------------------------------------------------------
 
@@ -176,7 +192,7 @@
      * Root directory for data to visualize
      */
 
-    $.fn.vtkCatalystAnalysisSearch = function(dataBasePath) {
+    $.fn.vtkCatalystAnalysisGenericSearch = function(dataBasePath) {
         return this.each(function() {
             var me = $(this).unbind().empty().addClass('vtkweb-catalyst-analysis-search');
 
@@ -201,6 +217,54 @@
                     console.log("error when trying to download " + dataBasePath + '/info.json');
                     console.log(error);
                 }
+            });
+        });
+    }
+
+    /**
+     * jQuery catalyst view constructor.
+     *
+     * @member jQuery.vtkCatalystViewer
+     * @param basePath
+     * Root directory for data to visualize
+     */
+
+    $.fn.vtkCatalystAnalysisSearch = function(project, dataBasePath) {
+        return this.each(function() {
+            var me = $(this).unbind().empty().html(TOOLBAR_TEMPLATE),
+            menu = $('.menu.left', me),
+            buffer = [],
+            analysis = project.analysis,
+            count = analysis.length,
+            containers = {
+                "composite-image-stack" : $('.menu.left > li[data-type="composite-image-stack"] > ul', me),
+                "catalyst-resample-viewer" : $('.menu.left > li[data-type="catalyst-resample-viewer"] > ul', me),
+                "catalyst-viewer" : $('.menu.left > li[data-type="catalyst-viewer"] > ul', me)
+            },
+            buffers = { "composite-image-stack" : [], "catalyst-resample-viewer" : [], "catalyst-viewer" : [], "catalyst-pvweb" : [] },
+            rootContainer = me;
+
+            // Fill buffers
+            while(count--) {
+                var item = analysis[count];
+                buffers[item.type].push(ENTRY_TEMPLATE.replace(/PATH/g, dataBasePath + '/' + item.id).replace(/TITLE/g, item.title).replace(/DESCRIPTION/g, item.description));
+            }
+
+            // Update UI
+            for(var key in containers) {
+                containers[key].html(buffers[key].join(''));
+            }
+
+            // Attach search query listeners
+            $('.create-search', me).addClass('action').click(function(){
+                var me = $(this),
+                path = me.attr('data-path'),
+                type = me.parent().parent().attr('data-type'),
+                title = me.attr('data-title'),
+                searchPanel = $('.search-panel', rootContainer).removeClass().addClass('search-panel').unbind().empty();
+
+                $('.search-title', rootContainer).html(title);
+                SEARCH_FACTORY[type](searchPanel, path);
             });
         });
     }
