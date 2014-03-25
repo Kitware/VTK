@@ -740,7 +740,7 @@
                 count = composite.length;
                 while(count--) {
                     var str = composite[count];
-                    if(str.startsWith('@')) {
+                    if(str[0] === '@') {
                         composite[count] = Number(str.substr(1))
                     } else {
                         if(!orderMapping.hasOwnProperty(str)) {
