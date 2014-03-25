@@ -30,10 +30,10 @@ if(MATPLOTLIB_FOUND)
     list(APPEND tests
       ${gl2ps_tests})
   endif()
-endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
-  RENDERING_FACTORY)
+  vtk_test_cxx_executable(${vtk-module}CxxTests tests
+    RENDERING_FACTORY)
+endif()
 
 # The GL2PS tests produce postscript output, which cannot be compared using
 # the built-in image regression framework. The tests added above will create the
