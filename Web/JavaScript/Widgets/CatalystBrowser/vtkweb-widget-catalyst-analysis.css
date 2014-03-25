@@ -1,3 +1,43 @@
+
+/* ========== Main toolbar Info ========== */
+
+.vtkweb-catalyst-analysis .toolbar-main {
+    position: relative;
+    font-weight: bold;
+    font-size: 25px;
+    vertical-align: middle;
+    background: #333;
+    padding:  0 5px;
+    color: white;
+}
+
+.vtkweb-catalyst-analysis .toolbar-main li.logo {
+    background-image: url('../../ext/pv/pv-cinema-ww.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    position: relative;
+    width: 30px;
+    height: 27px;
+    top: 3px;
+
+    display: inline-block;
+}
+
+.vtkweb-catalyst-analysis ul.toolbar-main  {
+    list-style: none;
+}
+
+.vtkweb-catalyst-analysis ul.toolbar-main li {
+    display: inline;
+    padding: 0;
+    margin: -2px 10px;
+}
+
+.vtkweb-catalyst-analysis ul.toolbar-main li.right {
+    float: right;
+}
+
 .vtkweb-catalyst-analysis .action {
     cursor: pointer;
     -webkit-touch-callout: none;
@@ -6,204 +46,86 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
 }
 
-.vtkweb-catalyst-analysis .action.active {
-    border-bottom: 1px solid white;
+.vtkweb-catalyst-analysis .toggle-button.active {
+    background-color: #999;
 }
 
-.vtkweb-catalyst-analysis .workbench-toolbar {
-    position: relative;
-    top: 0px;
-    left: 0;
-    right: 0;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    background: #777;
-    color: #ffffff;
-    font-size: 100%;
-    font-weight: normal;
-    padding-left: 10px;
-}
-
-.vtkweb-catalyst-analysis ul {
-    list-style: none;
-}
-
-.vtkweb-catalyst-analysis .workbench-toolbar li {
-    display: inline;
-}
-
-.vtkweb-catalyst-analysis ul.left {
-    position: relative;
-    top: 0;
-    left: 0;
-    width: 85%;
-}
-
-.vtkweb-catalyst-analysis ul.right {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-}
-
-.vtkweb-catalyst-analysis .content {
-    position: relative;
-    top: 0px;
-    left: 0;
-}
-
-.vtkweb-catalyst-analysis li {
-    font-weight: bold;
-    margin-right: 5px;
-    left: -5px;
-}
-
-.vtkweb-catalyst-analysis li span {
-    display: inline-block;
-}
-
-.vtkweb-catalyst-analysis li.add-viewer {
-    border-left: solid 2px black;
-    margin-left: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-.vtkweb-catalyst-analysis li i {
+.vtkweb-catalyst-analysis .toolbar-main .need-project {
     display: none;
 }
 
-.vtkweb-catalyst-analysis li:hover i {
-    display: block;
-    border-radius: 5px;
-    border: solid 1px black;
-    padding: 10px;
-    color: black;
-    left: 5px;
-    right: 5px;
-    position: absolute;
-    top: 40px;
-    background: white;
-    z-index: 10;
+.vtkweb-catalyst-analysis .toggle-content {
+    display: none;
 }
 
-.vtkweb-catalyst-analysis table td {
+.vtkweb-catalyst-analysis i.help {
+    display: none;
+}
+
+/* ========== Project Info ========== */
+
+.vtkweb-catalyst-analysis .info-content {
+    margin: 15px;
+}
+
+.vtkweb-catalyst-analysis .info-content table td {
     padding-bottom: 10px;
 }
 
-.vtkweb-catalyst-analysis .key {
+.vtkweb-catalyst-analysis .info-content .key {
     font-weight: bold;
     text-align: right;
 }
-.vtkweb-catalyst-analysis .value {
+.vtkweb-catalyst-analysis .info-content .value {
     font-weight: normal;
     padding-left: 15px;
 }
 
-/* -------------------------------------------- */
-/* view content */
-/* -------------------------------------------- */
+/* ========== Run content ========== */
 
-.vtkweb-catalyst-analysis .view {
-    position: relative;
-    top: 5px;
-}
-
-.vtkweb-catalyst-analysis .view .viewer {
-    position: relative;
-    float: left;
-    border: solid 1px black;
-    border-radius: 5px;
-    margin-left: 10px;
-    margin-top: 10px;
-    overflow: hidden;
-}
-
-.vtkweb-catalyst-analysis .view .viewer .title-bar {
-    position: relative;
-    width: 100%;
-    background: black;
-    height: 20px;
-    color: white;
-    padding-left: 5px;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.vtkweb-catalyst-analysis .view .viewer .title-bar .right {
-    float: right;
-    margin-right: 5px;
-    cursor: pointer;
-}
-
-
-.vtkweb-catalyst-analysis .view .viewer .content {
+.vtkweb-catalyst-analysis .run-content {
     position: absolute;
-    top: 20px;
-    bottom: 0px;
+    top: 31px;
     left: 0px;
-    right: 0px;
+    width: 200px;
+    background: #333;
+    color: white;
+    z-index: 102;
 }
 
-.vtkweb-catalyst-analysis .view.search {
-    display: none;
+.vtkweb-catalyst-analysis .run-content li {
+    padding: 5px 20px;
+    border-bottom: solid 1px #aaa;
 }
 
-.vtkweb-catalyst-analysis .view.cost {
-    display: none;
+.vtkweb-catalyst-analysis .run-content li:hover {
+    background: #999;
 }
 
-.vtkweb-catalyst-analysis .view.search select[name="exploration"] {
-    position: relative;
-    left: 10px;
-    top: 3px;
+
+.vtkweb-catalyst-analysis .run-content li i.help {
+    position: absolute;
+    left: 210px;
+    width: 300px;
+    top: 10px;
+    color: black;
+
+    padding: 10px;
+    background: #FFFFCC;
+    border-radius: 5px;
+    margin-left: 5px;
+    border: solid 1px #999;
 }
 
-.vtkweb-catalyst-analysis table.catalyst-bill  {
-    width: 98%;
-    border-collapse:collapse;
-    margin: 20px auto;
+.vtkweb-catalyst-analysis .run-content li:hover i.help {
+   display: block;
 }
 
-.vtkweb-catalyst-analysis .catalyst-bill td {
-    vertical-align: middle;
-}
+/* ========== User Share content ========== */
 
-.vtkweb-catalyst-analysis .catalyst-bill td.title {
-    text-align: left;
-}
-
-.vtkweb-catalyst-analysis .catalyst-bill td.value {
-    width: 150px;
-    text-align: center;
-}
-
-.vtkweb-catalyst-analysis .catalyst-bill tr.head {
-    background: #ddd;
-}
-
-.vtkweb-catalyst-analysis .catalyst-bill tr.head td {
-    text-align: center;
-}
-
-.vtkweb-catalyst-analysis .catalyst-bill tr.head td.empty {
-}
-
-.vtkweb-catalyst-analysis .catalyst-bill tr td {
-    border: solid 1px #ccc;
-    padding: 5px;
-}
-
-.vtkweb-catalyst-analysis .catalyst-bill tr.sum {
-    background: #ddd;
-}
-
-.vtkweb-catalyst-analysis .catalyst-bill tr.sum td {
-    text-align: center;
-    font-weight: bold;
+.vtkweb-catalyst-analysis .share-content {
+    padding: 15px;
 }
