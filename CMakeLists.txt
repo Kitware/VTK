@@ -40,7 +40,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Test input data staging directory.
-set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/Testing")
+file(RELATIVE_PATH vtk_reldir "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/${vtk_reldir}/Testing")
 
 # Test input data directory.
 set(VTK_TEST_INPUT_DIR "${VTK_SOURCE_DIR}/Testing/Data")
