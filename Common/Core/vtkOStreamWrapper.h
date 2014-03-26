@@ -41,8 +41,15 @@ class VTKCOMMONCORE_EXPORT vtkStdString;
 class vtkStdString;
 #endif
 
+namespace std
+{
+  template <typename, typename, typename> class basic_string;
+}
+
 class VTKCOMMONCORE_EXPORT vtkOStreamWrapper
 {
+  typedef std::basic_string< char, std::char_traits<char>,
+                             std::allocator<char> > std_string;
 public:
   // Description:
   // Construct class to reference a real ostream.  All methods and
@@ -65,6 +72,7 @@ public:
   vtkOStreamWrapper& operator << (const vtkLargeInteger&);
   vtkOStreamWrapper& operator << (const vtkSmartPointerBase&);
   vtkOStreamWrapper& operator << (const vtkStdString&);
+  vtkOStreamWrapper& operator << (const std_string&);
   vtkOStreamWrapper& operator << (const char*);
   vtkOStreamWrapper& operator << (void*);
   vtkOStreamWrapper& operator << (char);
