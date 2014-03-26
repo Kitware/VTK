@@ -941,7 +941,7 @@ void vtkImageInterpolatorPrecomputeWeights(
           }
         }
 
-      int inId[4];
+      int inId[4] = { 0, 0, 0, 0 };
       int l = 0;
       switch (weights->BorderMode)
         {
