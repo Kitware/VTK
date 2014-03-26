@@ -14,6 +14,7 @@ vtk_add_test_cxx(
   TestAnimationScene.cxx
   TestBackfaceCulling.cxx
   TestBlurAndSobelPasses.cxx
+  TestCellPickerImage.cxx
   TestDynamic2DLabelMapper.cxx
   TestFBO.cxx,NO_VALID
   TestFollowerPicking.cxx
