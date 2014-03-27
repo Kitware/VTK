@@ -21,8 +21,6 @@
 #include "vtkObjectBase.h"
 #include "vtkSmartPointerBase.h"
 
-#include <string>
-
 #define VTKOSTREAM_OPERATOR(type) \
   vtkOStreamWrapper& vtkOStreamWrapper::operator << (type a) \
     { this->ostr << a; return *this; }
@@ -59,7 +57,6 @@ VTKOSTREAM_OPERATOR(vtkObjectBase&);
 VTKOSTREAM_OPERATOR(const vtkLargeInteger&);
 VTKOSTREAM_OPERATOR(const vtkSmartPointerBase&);
 VTKOSTREAM_OPERATOR(const vtkStdString&);
-VTKOSTREAM_OPERATOR(const std_string&);
 VTKOSTREAM_OPERATOR(const char*);
 VTKOSTREAM_OPERATOR(void*);
 VTKOSTREAM_OPERATOR(char);
