@@ -997,7 +997,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     ofieldData->AddArray(arr);
     }
 
-  if ( this->ModelParameters.title )
+  // Add the title
     {
     vtkStringArray* sarr = vtkStringArray::New();
     sarr->SetName( "Title" );
