@@ -106,8 +106,6 @@ protected:
   // by this class.
   void SetTimerDictionary(void *dictionary);    // Really an NSMutableDictionary*
   void *GetTimerDictionary();
-  void SetCocoaServer(void *server);            // Really a vtkCocoaServer*
-  void *GetCocoaServer();
 
   //BTX
   // Description:
