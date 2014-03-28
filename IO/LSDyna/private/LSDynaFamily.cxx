@@ -439,8 +439,6 @@ int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
     this->ChunkValid += bytesRead;
     if ( bytesRead < bytesLeft )
       {
-      std::cout << "bytesRead < bytesLeft" << std::endl;
-      std::cout << "bytesRead " << bytesRead << " bytesLeft" << bytesLeft << std::endl;
       if ( bytesRead <= 0 )
         { // try advancing to next file
         VTK_LSDYNA_CLOSEFILE(this->FD);

@@ -13,7 +13,6 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkDaxMarchingCubes.h"
@@ -39,7 +38,7 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   renWin->AddRenderer(ren.GetPointer());
   iren->SetRenderWindow(renWin.GetPointer());
 
-  vtkNew<vtkDaxMarchingCubes> cubes;
+  vtkNew<vtkMarchingCubes> cubes;
 
   cubes->SetInputConnection(t->GetOutputPort());
   cubes->SetNumberOfContours(1);

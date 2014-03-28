@@ -534,7 +534,7 @@ public:
   // General matrix multiplication.  You must allocate output storage.
   // colA == rowB
   // and matrix C is rowA x colB
-  static void MultiplyMatrix(const double **A, const double **B,
+  static void MultiplyMatrix(double **A, double **B,
                              unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C);
@@ -717,6 +717,7 @@ public:
   // real symmetric matrix. Square 3x3 matrix a; output eigenvalues in w;
   // and output eigenvectors in v. Resulting eigenvalues/vectors are sorted
   // in decreasing order; eigenvectors are normalized.
+  // NOTE: the input matirx a is modified during the solution
   static int Jacobi(float **a, float *w, float **v);
   static int Jacobi(double **a, double *w, double **v);
 
@@ -726,6 +727,7 @@ public:
   // eigenvalues in w; and output eigenvectors in v. Resulting
   // eigenvalues/vectors are sorted in decreasing order; eigenvectors are
   // normalized.  w and v need to be allocated previously
+  // NOTE: the input matirx a is modified during the solution
   static int JacobiN(float **a, int n, float *w, float **v);
   static int JacobiN(double **a, int n, double *w, double **v);
 
@@ -930,7 +932,7 @@ public:
   // three non-collinear points P1, P2, and P3. Using Cartesian coordinates
   // to represent these points as spatial vectors, it is possible to use the
   // dot product and cross product to calculate the radius and center of the
-  // circle. See: http://en.wikipedia.org/wiki/Circumcircle and more
+  // circle. See: http://en.wikipedia.org/wiki/Circumscribed_circle and more
   // specifically the section Barycentric coordinates from cross- and
   // dot-products
   static double Solve3PointCircle(const double p1[3], const double p2[3], const double p3[3], double center[3]);

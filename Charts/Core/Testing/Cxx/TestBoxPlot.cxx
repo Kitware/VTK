@@ -13,18 +13,20 @@
 
 =========================================================================*/
 
+#include "vtkAxis.h"
+#include "vtkChartBox.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkIntArray.h"
+#include "vtkLookupTable.h"
+#include "vtkNew.h"
+#include "vtkPlotBox.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkChartBox.h"
-#include "vtkPlotBox.h"
-#include "vtkTable.h"
-#include "vtkLookupTable.h"
-#include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
 int TestBoxPlot(int , char* [])
@@ -39,31 +41,29 @@ int TestBoxPlot(int , char* [])
 
   // Creates a vtkPlotBox input table
   // The vtkPlotBox object will display 4 (arbitrary) box plots
-  int numParam = 4;
+  int numParam = 5;
   vtkNew<vtkTable> inputBoxPlotTable;
 
   for (int i = 0; i < numParam; i++)
     {
-    char num[3];
-    sprintf(num, "%d", i);
-    char name[10];
-    strcpy(name,"Param ");
-    strcat(name,num);
-
+    char num[10];
+    sprintf(num, "P%d", i);
     vtkNew<vtkIntArray> arrIndex;
-    arrIndex->SetName(name);
+    arrIndex->SetName(num);
     inputBoxPlotTable->AddColumn(arrIndex.GetPointer());
     }
 
   inputBoxPlotTable->SetNumberOfRows(5);
 
+  // This scaling parameter can be used to test Y axis positioning
+  const double scale = 1e02;
   for (int i = 0; i < numParam; i++)
     {
-    inputBoxPlotTable->SetValue(0, i, i/2); //Q0
-    inputBoxPlotTable->SetValue(1, i, 2*i + 2 - i); //Q1
-    inputBoxPlotTable->SetValue(2, i, 2*i + 4); //Q2
-    inputBoxPlotTable->SetValue(3, i, 2*i + 7); //Q3
-    inputBoxPlotTable->SetValue(4, i, 2*i + 8); //Q4
+    inputBoxPlotTable->SetValue(0, i, (i/2) * scale); //Q0
+    inputBoxPlotTable->SetValue(1, i, (2*i + 2 - i) * scale); //Q1
+    inputBoxPlotTable->SetValue(2, i, (2*i + 4) * scale); //Q2
+    inputBoxPlotTable->SetValue(3, i, (2*i + 7) * scale); //Q3
+    inputBoxPlotTable->SetValue(4, i, (2*i + 8) * scale); //Q4
     }
 
   vtkNew<vtkLookupTable> lookup;
@@ -74,8 +74,23 @@ int TestBoxPlot(int , char* [])
   chart->GetPlot(0)->SetInputData(inputBoxPlotTable.GetPointer());
   chart->SetColumnVisibilityAll(true);
   chart->SetShowLegend(true);
-  double rgb[3] = { 1., 1., 0. };
-  vtkPlotBox::SafeDownCast(chart->GetPlot(0))->SetColumnColor("Param 1", rgb);
+
+  // Hide one box plot
+  chart->SetColumnVisibility(3, false);
+
+  // Set the labels
+  vtkNew<vtkStringArray> labels;
+  labels->SetNumberOfValues(5);
+  labels->SetValue(0, "Param 0");
+  labels->SetValue(1, "Param 1");
+  labels->SetValue(2, "Param 2");
+  labels->SetValue(3, "Param 3");
+  labels->SetValue(4, "Param 4");
+  chart->GetPlot(0)->SetLabels(labels.GetPointer());
+
+  // Manually change the color of one serie
+  double rgb[3] = { 0.5, 0.5, 0.5 };
+  vtkPlotBox::SafeDownCast(chart->GetPlot(0))->SetColumnColor("P1", rgb);
 
   // Render the scene
   view->GetRenderWindow()->SetMultiSamples(0);

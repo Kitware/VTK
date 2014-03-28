@@ -200,6 +200,16 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
 }
 
 //-----------------------------------------------------------------------------
+vtkStringArray* vtkPlotBox::GetLabels()
+{
+  if (this->Labels)
+    {
+    return this->Labels;
+    }
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkPlotBox::PaintLegend(vtkContext2D* painter, const vtkRectf& rec, int)
 {
   if (this->Storage->size() == 0 || this->Storage->at(0).size() < 5)
@@ -215,6 +225,10 @@ bool vtkPlotBox::PaintLegend(vtkContext2D* painter, const vtkRectf& rec, int)
   for (int i = 0; i < nbCols; i++)
     {
     vtkStdString colName = parent->GetVisibleColumns()->GetValue(i);
+    if (this->GetLabels() && this->GetLabels()->GetNumberOfValues() > i)
+      {
+      colName = this->GetLabels()->GetValue(parent->GetColumnId(colName));
+      }
     painter->DrawString(parent->GetXPosition(i), rec.GetY(), colName);
     }
   return true;

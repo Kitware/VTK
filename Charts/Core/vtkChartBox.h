@@ -53,6 +53,7 @@ public:
   // Description:
   // Set the visibility of the specified column.
   void SetColumnVisibility(const vtkStdString& name, bool visible);
+  void SetColumnVisibility(vtkIdType column, bool visible);
 
   // Description:
   // Set the visibility of all columns (true will make them all visible, false
@@ -62,6 +63,11 @@ public:
   // Description:
   // Get the visibility of the specified column.
   bool GetColumnVisibility(const vtkStdString& name);
+  bool GetColumnVisibility(vtkIdType column);
+
+  // Description:
+  // Get the input table column id of a column by its name.
+  vtkIdType GetColumnId(const vtkStdString& name);
 
   // Description:
   // Get a list of the columns, and the order in which they are displayed.
@@ -152,6 +158,7 @@ protected:
   // Description:
   // Index of the selected column in the visible columns list.
   int SelectedColumn;
+  float SelectedColumnDelta;
 
   // Description:
   // The point cache is marked dirty until it has been initialized.
@@ -162,7 +169,7 @@ protected:
   vtkSmartPointer<vtkTooltipItem> Tooltip;
 
   void ResetSelection();
-  void UpdateGeometry();
+  void UpdateGeometry(vtkContext2D*);
   void CalculatePlotTransform();
   void SwapAxes(int a1, int a2);
 

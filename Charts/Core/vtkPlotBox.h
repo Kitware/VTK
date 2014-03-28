@@ -70,6 +70,11 @@ public:
   }
 
   // Description:
+  // Get the plot labels. If this array has a length greater than 1 the index
+  // refers to the stacked objects in the plot.
+  virtual vtkStringArray *GetLabels();
+
+  // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated
   // or -1.

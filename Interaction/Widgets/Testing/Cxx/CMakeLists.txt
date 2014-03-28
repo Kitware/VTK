@@ -53,6 +53,7 @@ vtk_add_test_cxx(
   TestSliderWidget2D.cxx
   TestSliderWidget.cxx
   TestSplineWidget.cxx
+  TestSphereWidgetZoomInOut.cxx
   TestTextWidget.cxx
   )
 vtk_add_test_cxx(NO_VALID

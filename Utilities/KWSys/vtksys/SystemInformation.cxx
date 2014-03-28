@@ -3162,8 +3162,17 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   kwsys_stl::string cores =
                         this->ExtractValueFromCpuInfoFile(buffer,"cpu cores");
   int numberOfCoresPerCPU=atoi(cores.c_str());
-  this->NumberOfPhysicalCPU=static_cast<unsigned int>(
-    numberOfCoresPerCPU*(maxId+1));
+  if (maxId > 0)
+    {
+    this->NumberOfPhysicalCPU=static_cast<unsigned int>(
+      numberOfCoresPerCPU*(maxId+1));
+    }
+  else
+    {
+    // Linux Sparc: get cpu count
+    this->NumberOfPhysicalCPU=
+            atoi(this->ExtractValueFromCpuInfoFile(buffer,"ncpus active").c_str());
+    }
 
 #else // __CYGWIN__
   // does not have "physical id" entries, neither "cpu cores"
@@ -3185,7 +3194,19 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
 
   // CPU speed (checking only the first processor)
   kwsys_stl::string CPUSpeed = this->ExtractValueFromCpuInfoFile(buffer,"cpu MHz");
-  this->CPUSpeedInMHz = static_cast<float>(atof(CPUSpeed.c_str()));
+  if(!CPUSpeed.empty())
+    {
+    this->CPUSpeedInMHz = static_cast<float>(atof(CPUSpeed.c_str()));
+    }
+#ifdef __linux
+  else
+    {
+    // Linux Sparc: CPU speed is in Hz and encoded in hexadecimal
+    CPUSpeed = this->ExtractValueFromCpuInfoFile(buffer,"Cpu0ClkTck");
+    this->CPUSpeedInMHz = static_cast<float>(
+                                 strtoull(CPUSpeed.c_str(),0,16))/1000000.0f;
+    }
+#endif
 
   // Chip family
   kwsys_stl::string familyStr =
@@ -4677,11 +4698,28 @@ bool SystemInformationImplementation::QueryHaikuInfo()
 {
 #if defined(__HAIKU__)
 
+  // CPU count
   system_info info;
   get_system_info(&info);
-
   this->NumberOfPhysicalCPU = info.cpu_count;
-  this->CPUSpeedInMHz = info.cpu_clock_speed / 1000000.0F;
+
+  // CPU speed
+  uint32 topologyNodeCount = 0;
+  cpu_topology_node_info* topology = 0;
+  get_cpu_topology_info(0, &topologyNodeCount);
+  if (topologyNodeCount != 0)
+    topology = new cpu_topology_node_info[topologyNodeCount];
+  get_cpu_topology_info(topology, &topologyNodeCount);
+
+  for (uint32 i = 0; i < topologyNodeCount; i++) {
+    if (topology[i].type == B_TOPOLOGY_CORE) {
+      this->CPUSpeedInMHz = topology[i].data.core.default_frequency /
+        1000000.0f;
+      break;
+    }
+  }
+
+  delete[] topology;
 
   // Physical Memory
   this->TotalPhysicalMemory = (info.max_pages * B_PAGE_SIZE) / (1024 * 1024) ;
@@ -4991,7 +5029,12 @@ bool SystemInformationImplementation::QueryHPUXProcessor()
     case CPU_PA_RISC2_0:
       this->ChipID.Vendor = "Hewlett-Packard";
       this->ChipID.Family = 0x200;
+#  ifdef CPU_HP_INTEL_EM_1_0
+    case CPU_HP_INTEL_EM_1_0:
+#  endif
+#  ifdef CPU_IA64_ARCHREV_0
     case CPU_IA64_ARCHREV_0:
+#  endif
       this->ChipID.Vendor = "GenuineIntel";
       this->Features.HasIA64 = true;
       break;

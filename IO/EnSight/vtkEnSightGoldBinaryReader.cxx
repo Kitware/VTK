@@ -4308,7 +4308,10 @@ void vtkEnSightGoldBinaryReader::AddFileIndexToCache(const char* fileName)
     this->FileOffsets->Map[fileName] = tsMap;
 
     // Read the last 80 characters (+ a long) of the file and check for FILE_INDEX
-    this->IFile->seekg(-80*sizeof(char)-sizeof(long), ios::end);
+    vtkIdType seekOffset =
+      ( vtkIdType(-80) * static_cast<vtkIdType>(sizeof(char)) ) -
+                         static_cast<vtkIdType>(sizeof(long));
+    this->IFile->seekg(seekOffset, ios::end);
 
     // right before the FILE_INDEX entry we might find the address of the index start
     this->ReadLong(&addr);

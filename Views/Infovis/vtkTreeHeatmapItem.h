@@ -88,13 +88,13 @@ public:
 
   // Description:
   // Get/Set the dendrogram contained by this item.
-  vtkSmartPointer<vtkDendrogramItem> GetDendrogram();
-  void SetDendrogram(vtkSmartPointer<vtkDendrogramItem>);
+  vtkDendrogramItem * GetDendrogram();
+  void SetDendrogram(vtkDendrogramItem *dendrogram);
 
   // Description:
   // Get/Set the heatmap contained by this item.
-  vtkSmartPointer<vtkHeatmapItem> GetHeatmap();
-  void SetHeatmap(vtkSmartPointer<vtkHeatmapItem>);
+  vtkHeatmapItem * GetHeatmap();
+  void SetHeatmap(vtkHeatmapItem *heatmap);
 
   // Description:
   // Reorder the rows in the table so they match the order of the leaf

@@ -30,7 +30,7 @@
     list-style: none;
 }
 
-.vtkweb-catalyst-analysis li {
+.vtkweb-catalyst-analysis .workbench-toolbar li {
     display: inline;
 }
 
