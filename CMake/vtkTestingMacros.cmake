@@ -86,6 +86,7 @@ endfunction()
 function(vtk_add_test_mpi exename tests)
   set(mpi_options
     TESTING_DATA
+    CUSTOM_BASELINES
     )
   _vtk_test_parse_args("${mpi_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${mpi_options}" "" ${options})
@@ -114,7 +115,11 @@ function(vtk_add_test_mpi exename tests)
     if(local_TESTING_DATA)
       set(_D -D ${data_dir})
       set(_T -T ${VTK_BINARY_DIR}/Testing/Temporary)
-      set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+      if(local_CUSTOM_BASELINES)
+        set(_V -V "${data_dir}/Baseline")
+      else()
+        set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+      endif()
     endif()
 
     set(numprocs ${default_numprocs})
@@ -174,6 +179,7 @@ function(vtk_add_test_cxx exename _tests)
     NO_DATA
     NO_VALID
     NO_OUTPUT
+    CUSTOM_BASELINES
     )
   _vtk_test_parse_args("${cxx_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${cxx_options}" "" ${options})
@@ -211,7 +217,11 @@ function(vtk_add_test_cxx exename _tests)
 
     set(_V "")
     if(NOT local_NO_VALID)
-      set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+      if(local_CUSTOM_BASELINES)
+        set(_V -V "${data_dir}/Baseline")
+      else()
+        set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+      endif()
     endif()
 
     ExternalData_add_test(VTKData
