@@ -1,5 +1,5 @@
 (function ($, GLOBAL) {
-    var TOOLBAR_TEMPLATE = '<ul class=toolbar-main><li class="logo"/><li class="vtk-icon-menu-1 toggle-button" data-group=runs data-view="run-content">Runs</li><li class="vtk-icon-info-1 toggle-button need-project" data-group="content" data-view="info-content" alt="Toggle Informations" title="Toggle Informations"/><li class="vtk-icon-th toggle-button need-project" data-group=content data-view="bench-content" alt="Toggle Exploration" title="Toggle Exploration"/><li class="vtk-icon-beaker toggle-button need-project" data-group=content data-view="search-content" alt="Toggle Search" title="Toggle Search"/><li class="vtk-icon-dollar toggle-button need-project" data-group=content data-view="cost-content" alt="Toggle Cost" title="Toggle Cost"/><li class="vtk-icon-user-add-1 toggle-button need-project right" data-group=content data-view="share-content" alt="Share active project" title="Share active project"/></ul><ul class="toggle-content run-content" data-group=runs></ul><div class="info-content toggle-content" data-group=content></div><div class="bench-content toggle-content" data-group="content"></div><div class="search-content toggle-content" data-group=content></div><div class="cost-content toggle-content" data-group="content"></div><div class="share-content toggle-content" data-group="content">The current version does not support user management.</div>',
+    var TOOLBAR_TEMPLATE = '<ul class=toolbar-main><li class="logo"/><li class="vtk-icon-menu-1 toggle-button" data-animation="left" data-group=runs data-view="run-content">Runs</li><li class="vtk-icon-info-1 toggle-button need-project default-toggle" data-group="content" data-view="info-content" alt="Toggle Informations" title="Toggle Informations"/><li class="vtk-icon-th toggle-button need-project" data-group=content data-view="bench-content" alt="Toggle Exploration" title="Toggle Exploration"/><li class="vtk-icon-beaker toggle-button need-project" data-group=content data-view="search-content" alt="Toggle Search" title="Toggle Search"/><li class="vtk-icon-dollar toggle-button need-project" data-group=content data-view="cost-content" alt="Toggle Cost" title="Toggle Cost"/><li class="vtk-icon-user-add-1 toggle-button need-project right" data-group=content data-view="share-content" alt="Share active project" title="Share active project"/></ul><ul class="toggle-content run-content" data-group=runs></ul><div class="info-content toggle-content" data-group=content></div><div class="bench-content toggle-content" data-group="content"></div><div class="search-content toggle-content" data-group=content></div><div class="cost-content toggle-content" data-group="content"></div><div class="share-content toggle-content" data-group="content">The current version does not support user management.</div>',
     RUN_LINE_TEMPLATE = '<li class=select-run data-path=PATH>TITLE<i class=help>DESCRIPTION</i></li>',
     TABLE_LINE_TEMPLATE = '<tr><td class="key">KEY</td><td class="value">VALUE</td></tr>';
 
@@ -45,18 +45,39 @@
             var me = $(this),
             group = me.attr('data-group'),
             view = me.attr('data-view'),
+            animation = me.attr('data-animation'),
             isActive = me.hasClass('active'),
             buttons = $('.toggle-button[data-group="' + group + '"]', container),
             contents = $('.toggle-content[data-group="' + group + '"]', container);
 
             // Disable all
             buttons.removeClass('active');
-            contents.hide();
+            if(animation && isActive) {
+                contents.animate({
+                    left: "-1000"
+                }, 500, function() {
+                    // Animation complete.
+                    contents.hide();
+                });
+            } else {
+                contents.hide();
+            }
+
 
             // Enable local one if not previously active
             if(!isActive) {
                 me.addClass('active');
-                $('.toggle-content.' + view, container).show();
+                if(animation) {
+                    $('.toggle-content.' + view, container).show().animate({
+                        left: "0"
+                    }, 500, function() {
+                        // Animation complete.
+                    });
+                } else {
+                    $('.toggle-content.' + view, container).show();
+                }
+            } else {
+                $('.default-toggle[data-group="' + group + '"]', container).trigger('click');
             }
         });
 
@@ -82,6 +103,9 @@
 
                     // Update title
                     document.title = data.title;
+
+                    // Show default
+                    $('.default-toggle[data-group="content"]', container).trigger('click');
                 },
                 error: function(error) {
                     console.log("error when trying to download " + basePath + '/info.json');

@@ -89,8 +89,7 @@
 .vtkweb-catalyst-analysis .run-content {
     position: absolute;
     top: 31px;
-    left: 0px;
-    width: 200px;
+    left: -1000px;
     background: #333;
     color: white;
     z-index: 102;
@@ -108,7 +107,7 @@
 
 .vtkweb-catalyst-analysis .run-content li i.help {
     position: absolute;
-    left: 210px;
+    left: 100%;
     width: 300px;
     top: 10px;
     color: black;
@@ -116,7 +115,7 @@
     padding: 10px;
     background: #FFFFCC;
     border-radius: 5px;
-    margin-left: 5px;
+    margin-left: 15px;
     border: solid 1px #999;
 }
 
