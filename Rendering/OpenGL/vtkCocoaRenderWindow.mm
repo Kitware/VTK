@@ -482,16 +482,7 @@ int vtkCocoaRenderWindow::SupportsOpenGL()
     {
     return 0;
     }
-
-  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  GLint currentScreen = [context currentVirtualScreen];
-
-  NSOpenGLPixelFormat* pixelFormat = (NSOpenGLPixelFormat*)this->GetPixelFormat();
-  GLint pfd = 0;
-  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFACompliant forVirtualScreen: currentScreen];
-
-  int supportsOpenGL = (pfd == 0) ? 0 : 1;
-  return supportsOpenGL;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
