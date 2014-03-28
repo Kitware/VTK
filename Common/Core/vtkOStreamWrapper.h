@@ -106,16 +106,6 @@ public:
   vtkOStreamWrapper& operator << (const char* (*)(void*));
   vtkOStreamWrapper& operator << (void (*)(void*, int*));
 
-  // Accept std::string without a declaration.  Any caller will
-  // have included <string> which defines the ostream operator.
-  template <typename C, typename T, typename A,
-            template <typename, typename, typename> class S>
-  vtkOStreamWrapper& operator << (const S<C,T,A>& s)
-    {
-    this->ostr << s;
-    return *this;
-    }
-
   // Description:
   // Forward the write method to the real stream.
   vtkOStreamWrapper& write(const char*, unsigned long);
