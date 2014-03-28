@@ -71,7 +71,7 @@ public:
   // Description:
   // Enumeration of the axis locations in a conventional XY chart. Other
   // layouts are possible.
-  enum {
+  enum Location {
     LEFT = 0,
     BOTTOM,
     RIGHT,
