@@ -1,5 +1,5 @@
 (function ($, GLOBAL) {
-    var SEARCH_TEMPLATE = '<div class="search-toolbar"><b>Query</b><input type="text" class="query-expression"/><input type="range" min="10" max="100" value="10" class="zoom-level"/><span class="result-count"></span><i>HELP</i></div><div class="query-results"></div>',
+    var SEARCH_TEMPLATE = '<div class="search-toolbar"><b>Query</b><input type="text" class="query-expression"/><b>Sort&nbsp;by</b><input type="text" class="sort-expression"/><input type="range" min="10" max="100" value="10" class="zoom-level"/><span class="result-count"></span><span class="vtk-icon-chart-area toggle-stats stats action search-button"></span><span class="vtk-icon-picture-1 render-all action search-button" title="Render all images" alt="Render all images"></span><i>HELP</i></div><div class="query-results"></div>',
     TOOLBAR_TEMPLATE = '<div class=sub-menu><ul class="menu left"><li class="vtk-icon-list-add sub action" data-type="composite-image-stack"><ul></ul></li><li class="vtk-icon-chart-line sub action" data-type="catalyst-resample-viewer"><ul></ul></li><li class="vtk-icon-loop-alt sub action" data-type="catalyst-viewer"><ul></ul></li></ul><ul class="menu right"><li class="search-title"/></ul></div><div class="search-panel"></div>',
     ENTRY_TEMPLATE = '<li class="create-search" data-path="PATH" data-title="TITLE">TITLE<i class=help>DESCRIPTION</i></li>',
     SEARCH_FACTORY = {
@@ -150,16 +150,34 @@
         resultContainer = $('.query-results', container),
         imageList = [],
         count = results.length,
-        width = $('.zoom-level', container).val(),
-        imgStr = '<img class="query-result" src="URL" width="WIDTH%" title="ALT" alt="ALT"/>'.replace(/WIDTH/g, width);
+        sortQuery = $('.sort-expression', container).val(),
+        imgStr = '<div class="query-result" data-url="URL"><div class="query-stats">STATS</div><img class="image-result"/></div>';
+
+        // Sort results if possible
+        if(sortQuery.trim().length > 0) {
+            var exposeVars = "var noop = 0";
+            for(var key in results[0]['args']) {
+                exposeVars += ', ' + key + ' = obj.args["' + key + '"]';
+            }
+            exposeVars += ';';
+
+            var sortFunctionSTR = "function extractValue(obj) {" + exposeVars + "return " + sortQuery + ";}; return extractValue(a) - extractValue(b);",
+            sortFunc = new Function(["a","b"], sortFunctionSTR);
+            results.sort(sortFunc);
+        }
 
         while(count--) {
             if(results[count]['keep']) {
-                imageList.push(imgStr.replace(/URL/g, results[count]['url']).replace(/ALT/g, JSON.stringify(results[count]["args"]).replace(/["{}]/g,'').replace(/,/g,'\n').replace(/:/g,' : ')));
+                imageList.push(imgStr.replace(/URL/g, results[count]['url']).replace(/STATS/g, JSON.stringify(results[count]["args"]).replace(/["{}]/g,'').replace(/,/g,'<br/>').replace(/:/g,' : ')));
             }
         }
 
         resultContainer.empty()[0].innerHTML = imageList.join('');
+        $('.zoom-level', container).trigger('change');
+        $('.query-result', container).click(function(){
+            var me = $(this), img = $('img', me), url = me.attr('data-url');
+            img.attr('src', url);
+        });
     }
 
     // ------------------------------------------------------------------------
@@ -167,7 +185,10 @@
     function initializeListeners(container) {
         var query = $('.query-expression', container),
         zoom = $('.zoom-level', container),
+        sort = $('.sort-expression', container),
         resultCountTxt = $('.result-count', container),
+        toggleStats = $('.toggle-stats', container),
+        renderAll = $('.render-all', container),
         resultCount = 0;
 
         query.change(function(){
@@ -179,9 +200,33 @@
         });
 
         zoom.bind('change mousemove keyup', function(){
-            $('.query-result', container).css('width', $(this).val() +'%');
+            var widthRef = $(window).width() * Number($(this).val()) / 100.0;
+            $('.query-result', container).css('width', widthRef).css('height', widthRef);
         })
 
+        sort.bind('change keyup', function(e){
+            // Apply search
+            if(e.type === 'keyup' && e.keyCode !== 13) {
+                return;
+            }
+            query.trigger('change');
+        });
+
+        toggleStats.click(function(){
+            var me = $(this).toggleClass('stats'), isActive = me.hasClass('stats');
+            if(isActive) {
+                $('.query-stats').show();
+            } else {
+                $('.query-stats').hide();
+            }
+        });
+
+        renderAll.click(function(){
+            $('.query-result', container).each(function(){
+                var me = $(this), img = $('img', me), url = me.attr('data-url');
+                img.attr('src', url);
+            });
+        });
     }
 
     /**
