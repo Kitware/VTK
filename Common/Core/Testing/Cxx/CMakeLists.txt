@@ -37,7 +37,6 @@ vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
   TestObjectFactory.cxx
   TestObservers.cxx
   TestObserversPerformance.cxx
-  TestOStreamWrapper.cxx
   TestSMP.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx
