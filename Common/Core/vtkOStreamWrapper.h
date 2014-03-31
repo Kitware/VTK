@@ -43,6 +43,7 @@ class vtkStdString;
 
 class VTKCOMMONCORE_EXPORT vtkOStreamWrapper
 {
+  class std_string;
 public:
   // Description:
   // Construct class to reference a real ostream.  All methods and
@@ -106,6 +107,14 @@ public:
   vtkOStreamWrapper& operator << (const char* (*)(void*));
   vtkOStreamWrapper& operator << (void (*)(void*, int*));
 
+  // Accept std::string without a declaration.
+  template <template <typename, typename, typename> class S>
+  vtkOStreamWrapper& operator << (const
+    S< char, std::char_traits<char>, std::allocator<char> >& s)
+    {
+    return *this << reinterpret_cast<std_string const&>(s);
+    }
+
   // Description:
   // Forward the write method to the real stream.
   vtkOStreamWrapper& write(const char*, unsigned long);
@@ -137,6 +146,7 @@ protected:
   ostream& ostr;
 private:
   vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r); // Not Implemented.
+  vtkOStreamWrapper& operator << (std_string const&);
 };
 
 #endif
