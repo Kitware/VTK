@@ -31,6 +31,7 @@ vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
   this->NumberOfGhostLayers  = 0;
   this->NumExtents           = 0;
   this->NumberOfPartitions   = 2;
+  this->DuplicateNodes       = 1;
   this->ExtentIsPartitioned  = false;
   this->DataDescription      = VTK_EMPTY;
   for( int i=0; i < 3; ++i )
@@ -219,8 +220,17 @@ void vtkExtentRCBPartitioner::SplitExtent(
 
   numNodes      = (parent[maxIdx]-parent[minIdx]) + 1;
   mid           = (int)vtkMath::Floor(0.5*numNodes);
-  s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
-  s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
+
+  if( this->DuplicateNodes == 1 )
+    {
+    s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
+    s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
+    }
+  else
+    {
+    s1[ maxIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid) : mid;
+    s2[ minIdx ]  = (mid < s1[minIdx])? (s1[minIdx]+mid)+1 : mid+1;
+    }
 
 //  this->PrintExtent( "Parent", parent );
 //  this->PrintExtent( "s1", s1 );
