@@ -9,8 +9,12 @@
 }
 
 .vtkweb-catalyst-analysis-search .search-toolbar input[type='text'] {
-    width: 500px;
+    width: 30%;
     margin: 0 10px 0 10px;
+}
+
+.vtkweb-catalyst-analysis-search .search-toolbar input.sort-expression {
+    width: 7%;
 }
 
 .vtkweb-catalyst-analysis-search .search-toolbar i {
