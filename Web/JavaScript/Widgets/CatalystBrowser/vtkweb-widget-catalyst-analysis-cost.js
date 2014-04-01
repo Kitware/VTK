@@ -33,7 +33,9 @@
         buffer = [];
 
         seconds %= 60;
+        seconds = Math.floor(seconds);
         minutes %= 60;
+        minutes = Math.floor(minutes);
 
         if(hours > 0) {
            buffer.push(hours);
