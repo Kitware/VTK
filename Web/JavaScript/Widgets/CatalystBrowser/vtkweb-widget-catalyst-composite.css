@@ -247,6 +247,7 @@
 }
 
 .vtkweb-catalyst-analysis-composite-search .control .parameters .fields .compute-coverage {
+    display: none;
     background: #ddd;
     border: 1px solid;
     border-radius: 5px;
@@ -344,4 +345,19 @@
     background: rgba(255, 255, 255, 0.7);
     padding: 10px;
     border-radius: 5px;
+}
+
+.vtkweb-catalyst-analysis-composite-search .progress {
+    background-color: #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    position: relative;
+}
+
+.vtkweb-catalyst-analysis-composite-search .progress > div {
+    background-color: black;
+    width: 5%;
+    height: 15px;
+    border-radius: 5px;
+    margin: 3px;
 }
