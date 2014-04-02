@@ -25,6 +25,10 @@
 
 #include <vtksys/ios/sstream>
 
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
+
 vtkStandardNewMacro(vtkGeoJSONWriter);
 
 #define VTK_GJWRITER_MAXPOINTS 32000
@@ -32,28 +36,59 @@ vtkStandardNewMacro(vtkGeoJSONWriter);
 class vtkGeoJSONWriter::Internals
 {
 public:
-   Internals(vtkGeoJSONWriter *owner) : Owner(owner)
-   {
-     this->Buffer = new std::string;
-     this->Buffer->reserve(VTK_GJWRITER_MAXPOINTS*10);
-   };
-   ~Internals()
-   {
-     delete this->Buffer;
-   }
-   inline void append(const char *newcontent)
-   {
-     this->Buffer->append(newcontent);
-   }
-   inline void append(const double newcontent)
-   {
-     snprintf(buffer, 256, "%g", newcontent);
-     this->Buffer->append(buffer);
-    }
-   std::string *Buffer;
-   char buffer[256];
-   vtkGeoJSONWriter *Owner;
- };
+  Internals()
+  {
+    this->MaxBufferSize = 128;
+    this->Buffer = new char[this->MaxBufferSize];
+    this->Top = this->Buffer;
+  };
+  ~Internals()
+  {
+    delete[] this->Buffer;
+  }
+  inline size_t GetSize()
+  {
+    return this->Top-this->Buffer;
+  }
+  void Clear()
+  {
+    this->Top = this->Buffer;
+  }
+  inline void Grow()
+  {
+    this->MaxBufferSize*=2;
+    //cerr << "GROW " << this->MaxBufferSize << endl;
+    char *biggerBuffer = new char[this->MaxBufferSize];
+    size_t curSize = this->Top-this->Buffer;
+    memcpy(biggerBuffer, this->Buffer, curSize);
+    delete[] this->Buffer;
+    this->Buffer = biggerBuffer;
+    this->Top = this->Buffer+curSize;
+  }
+  inline void append(const char *newcontent)
+  {
+    while (this->Top+strlen(newcontent)>=this->Buffer+this->MaxBufferSize)
+      {
+      this->Grow();
+      }
+    int nchars = sprintf(this->Top, "%s", newcontent);
+    this->Top+=nchars;
+  }
+  inline void append(const double newcontent)
+  {
+    snprintf(this->NumBuffer, 64, "%g", newcontent);
+    while (this->Top+strlen(NumBuffer)>=this->Buffer+this->MaxBufferSize)
+      {
+      this->Grow();
+      }
+     int nchars = sprintf(this->Top, "%s", this->NumBuffer);
+     this->Top+=nchars;
+  }
+  char *Buffer;
+  char *Top;
+  size_t MaxBufferSize;
+  char NumBuffer[64];
+};
 
  //------------------------------------------------------------------------------
  vtkGeoJSONWriter::vtkGeoJSONWriter()
@@ -64,7 +99,7 @@ public:
    this->WriteToOutputString = false;
    this->ScalarFormat = 2;
    this->LookupTable = NULL;
-   this->WriterHelper = new vtkGeoJSONWriter::Internals(this);
+   this->WriterHelper = new vtkGeoJSONWriter::Internals();
  }
 
  //------------------------------------------------------------------------------
@@ -481,18 +516,18 @@ public:
    this->WriterHelper->append("}\n");//feature.geometry
    this->WriterHelper->append("}\n");//feature
 
-   fp->write(this->WriterHelper->Buffer->c_str(), this->WriterHelper->Buffer->size());
-   this->WriterHelper->Buffer->clear();
+   fp->write(this->WriterHelper->Buffer, this->WriterHelper->GetSize());
+   this->WriterHelper->Clear();
 
-  fp->flush();
-  if (fp->fail())
-    {
-    vtkErrorMacro("Problem writing result check disk space.");
-    delete fp;
-    fp = NULL;
-    }
+   fp->flush();
+   if (fp->fail())
+     {
+     vtkErrorMacro("Problem writing result check disk space.");
+     delete fp;
+     fp = NULL;
+     }
 
-  this->CloseFile(fp);
+   this->CloseFile(fp);
 }
 
 //------------------------------------------------------------------------------
