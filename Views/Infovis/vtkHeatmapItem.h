@@ -28,6 +28,7 @@
 
 #include "vtkNew.h"                // For vtkNew ivars
 #include "vtkSmartPointer.h"       // For vtkSmartPointer ivars
+#include "vtkStdString.h"          // For get/set ivars
 #include "vtkVector.h"             // For vtkVector2f ivar
 #include <map>                     // For column ranges
 #include <set>                     // For blank row support
@@ -57,6 +58,19 @@ public:
   // Description:
   // Get the table that this item draws.
   vtkTable * GetTable();
+
+  // Description:
+  // Get the table that this item draws.
+  vtkStringArray * GetRowNames();
+
+  // Description:
+  // Get/Set the name of the column that specifies the name
+  // of this table's rows.  By default, we assume this
+  // column will be named "name".  If no such column can be
+  // found, we then assume that the 1st column in the table
+  // names the rows.
+  vtkGetMacro(NameColumn, vtkStdString);
+  vtkSetMacro(NameColumn, vtkStdString);
 
   // Description:
   // Set which way the table should face within the visualization.
@@ -219,6 +233,8 @@ protected:
   void PositionLegends(int orientation);
 
   vtkSmartPointer<vtkTable> Table;
+  vtkStringArray * RowNames;
+  vtkStdString NameColumn;
 
 private:
   vtkHeatmapItem(const vtkHeatmapItem&); // Not implemented

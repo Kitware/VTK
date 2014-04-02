@@ -219,9 +219,26 @@ vtkTable * vtkTreeHeatmapItem::GetTable()
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::ReorderTable()
 {
-  // make a copy of our table and then empty out the original.
+  // make a copy of our table.
   vtkNew<vtkTable> tableCopy;
   tableCopy->DeepCopy(this->GetTable());
+
+  // grab a separate copy of the row names column.
+  vtkNew<vtkStringArray> rowNames;
+  rowNames->DeepCopy(this->Heatmap->GetRowNames());
+
+  // we also need to know which number column it is
+  vtkIdType rowNamesColNum = 0;
+  for (vtkIdType col = 0; col < this->GetTable()->GetNumberOfColumns(); ++col)
+    {
+    if (this->GetTable()->GetColumn(col) == this->Heatmap->GetRowNames())
+      {
+      rowNamesColNum = col;
+      break;
+      }
+    }
+
+  // empty out our original table.
   for (vtkIdType row = this->GetTable()->GetNumberOfRows() - 1; row > -1; --row)
     {
     this->GetTable()->RemoveRow(row);
@@ -231,9 +248,6 @@ void vtkTreeHeatmapItem::ReorderTable()
   vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
     this->GetTree()->GetVertexData()->GetAbstractArray("node name"));
 
-  // get array of row names from the table.  We assume this is the first row.
-  vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
-    tableCopy->GetColumn(0));
 
   for (vtkIdType vertex = 0; vertex < this->GetTree()->GetNumberOfVertices();
        ++vertex)
@@ -249,7 +263,8 @@ void vtkTreeHeatmapItem::ReorderTable()
     if (tableRow < 0)
       {
       vtkIdType newRowNum = this->GetTable()->InsertNextBlankRow();
-      this->GetTable()->SetValue(newRowNum, 0, vtkVariant(vertexName));
+      this->GetTable()->SetValue(newRowNum, rowNamesColNum,
+                                 vtkVariant(vertexName));
       this->Heatmap->MarkRowAsBlank(vertexName);
       continue;
       }
@@ -426,8 +441,11 @@ void vtkTreeHeatmapItem::CollapseHeatmapRows()
     this->Dendrogram->GetPrunedTree()->GetVertexData()
     ->GetAbstractArray("node name"));
 
-  vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
-    this->GetTable()->GetColumn(0));
+  vtkStringArray *rowNames = this->Heatmap->GetRowNames();
+  if (!rowNames)
+    {
+    return;
+    }
 
   for (vtkIdType row = 0; row < this->GetTable()->GetNumberOfRows(); ++row)
     {

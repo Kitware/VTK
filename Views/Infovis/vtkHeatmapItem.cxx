@@ -47,6 +47,7 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
   this->Interactive = true;
   this->HeatmapBuildTime = 0;
   this->Table = vtkSmartPointer<vtkTable>::New();
+  this->NameColumn = "name";
 
   this->CollapsedRowsArray = NULL;
   this->CollapsedColumnsArray = NULL;
@@ -105,12 +106,37 @@ void vtkHeatmapItem::SetTable(vtkTable *table)
     return;
     }
   this->Table = table;
+
+  // get the row names for this table
+  vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
+    this->Table->GetColumnByName(this->NameColumn));
+  if (rowNames == NULL)
+    {
+    rowNames = vtkStringArray::SafeDownCast(
+      this->Table->GetColumn(0));
+    }
+  if (rowNames == NULL)
+    {
+    vtkWarningMacro("Could not determine row name column."
+      "Try calling vtkHeatmapItem::SetNameColumn(vtkStdString)");
+    this->RowNames = NULL;
+    }
+  else
+    {
+    this->RowNames = rowNames;
+    }
 }
 
 //-----------------------------------------------------------------------------
 vtkTable * vtkHeatmapItem::GetTable()
 {
   return this->Table;
+}
+
+//-----------------------------------------------------------------------------
+vtkStringArray * vtkHeatmapItem::GetRowNames()
+{
+  return this->RowNames;
 }
 
 //-----------------------------------------------------------------------------
@@ -169,9 +195,13 @@ void vtkHeatmapItem::InitializeLookupTables()
   this->ColumnRanges.clear();
   this->CategoricalDataValues->Reset();
 
-  for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
+  for (vtkIdType column = 0; column < this->Table->GetNumberOfColumns();
        ++column)
     {
+    if (this->Table->GetColumn(column) == this->GetRowNames())
+      {
+      continue;
+      }
     if (this->Table->GetValue(0, column).IsString())
       {
       this->AccumulateProminentCategoricalDataValues(column);
@@ -308,10 +338,6 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
   double labelStartX = 0.0;
   double labelStartY = 0.0;
 
-  // the name of each row.
-  vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
-    this->Table->GetColumn(0));
-
   bool currentlyCollapsingRows = false;
 
   bool currentlyCollapsingColumns = false;
@@ -443,18 +469,24 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
 
     // get the name of this row
     std::string name = "";
-    if (rowNames)
+    if (this->RowNames)
       {
-      name = rowNames->GetValue(row);
+      name = this->RowNames->GetValue(row);
       }
 
     // only draw the cells of this row if it isn't explicitly marked as blank
     if (this->BlankRows.find(name) == this->BlankRows.end())
       {
       columnToDraw = 0;
-      for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
+      for (vtkIdType column = 0; column < this->Table->GetNumberOfColumns();
            ++column)
         {
+        // don't draw the name column as part of the heatmap
+        // (it's used later to label the rows instead)
+        if (this->Table->GetColumn(column) == this->GetRowNames())
+          {
+          continue;
+          }
 
         // check if this column has been collapsed or not
         if (this->CollapsedColumnsArray &&
@@ -619,9 +651,16 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
   painter->GetTextProp()->SetJustificationToLeft();
 
   columnToDraw = 1;
-  for (vtkIdType column = 1; column < this->Table->GetNumberOfColumns();
+  for (vtkIdType column = 0; column < this->Table->GetNumberOfColumns();
        ++column)
     {
+    // don't draw the name column as part of the heatmap
+    // (it's used later to label the rows instead)
+    if (this->Table->GetColumn(column) == this->GetRowNames())
+      {
+      continue;
+      }
+
     // check if this column has been collapsed or not
     if (this->CollapsedColumnsArray &&
         this->CollapsedColumnsArray->GetValue(column) == 1)
@@ -822,12 +861,10 @@ std::string vtkHeatmapItem::GetTooltipText(float x, float y)
 
   if (row > -1 && column > -1)
     {
-    vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
-      this->Table->GetColumn(0));
     std::string rowName;
-    if (rowNames)
+    if (this->RowNames)
       {
-      rowName = rowNames->GetValue(row);
+      rowName = this->RowNames->GetValue(row);
       }
     else
       {
@@ -932,9 +969,7 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D *painter)
 
   float bounds[4];
   // find the longest row label
-  vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
-    this->Table->GetColumn(0));
-  if (rowNames)
+  if (this->RowNames)
     {
 
     for (vtkIdType row = 0; row != this->Table->GetNumberOfRows(); ++row)
@@ -944,7 +979,7 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D *painter)
         {
         continue;
         }
-      std::string name = rowNames->GetValue(row);
+      std::string name = this->RowNames->GetValue(row);
       painter->ComputeStringBounds(name, bounds);
       if (bounds[2] > this->RowLabelWidth)
         {
@@ -954,8 +989,12 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D *painter)
     }
 
   // find the longest column label
-  for (vtkIdType col = 1; col != this->Table->GetNumberOfColumns(); ++col)
+  for (vtkIdType col = 0; col != this->Table->GetNumberOfColumns(); ++col)
     {
+    if (this->Table->GetColumn(col) == this->GetRowNames())
+      {
+      continue;
+      }
     if (this->CollapsedColumnsArray &&
         this->CollapsedColumnsArray->GetValue(col) == 1)
       {
@@ -1000,8 +1039,12 @@ void vtkHeatmapItem::ComputeBounds()
   // figure out how many actual columns will be drawn
   bool currentlyCollapsingColumns = false;
   int numColumns = 0;
-  for (vtkIdType col = 1; col != this->Table->GetNumberOfColumns(); ++col)
+  for (vtkIdType col = 0; col != this->Table->GetNumberOfColumns(); ++col)
     {
+    if (this->Table->GetColumn(col) == this->GetRowNames())
+      {
+      continue;
+      }
     if (this->CollapsedColumnsArray &&
         this->CollapsedColumnsArray->GetValue(col) == 1)
       {
