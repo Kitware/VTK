@@ -16,6 +16,9 @@ if(NOT VTK_DATA_STORE)
     # Generic adjacent directory created by user.
     get_filename_component(VTK_DATA_STORE_DEFAULT
       "${CMAKE_SOURCE_DIR}/../ExternalData" ABSOLUTE)
+  elseif(DEFINED "ENV{VTKExternalData_OBJECT_STORES}")
+    # The VTKExternalData environment variable.
+    file(TO_CMAKE_PATH "$ENV{VTKExternalData_OBJECT_STORES}" VTK_DATA_STORE_DEFAULT)
   elseif(DEFINED "ENV{ExternalData_OBJECT_STORES}")
     # Generic ExternalData environment variable.
     file(TO_CMAKE_PATH "$ENV{ExternalData_OBJECT_STORES}" VTK_DATA_STORE_DEFAULT)
