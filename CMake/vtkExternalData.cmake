@@ -4,9 +4,9 @@ include(${_VTKExternalData_DIR}/ExternalData.cmake)
 if(NOT VTK_DATA_STORE)
   # Select a default from the following.
   set(VTK_DATA_STORE_DEFAULT "")
-  if(EXISTS "${CMAKE_SOURCE_DIR}/.ExternalData/config/store")
+  if(EXISTS "${VTK_SOURCE_DIR}/.ExternalData/config/store")
     # Configuration left by developer setup script.
-    file(STRINGS "${CMAKE_SOURCE_DIR}/.ExternalData/config/store"
+    file(STRINGS "${VTK_SOURCE_DIR}/.ExternalData/config/store"
       VTK_DATA_STORE_DEFAULT LIMIT_COUNT 1 LIMIT_INPUT 1024)
   elseif(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../VTKExternalData")
     # Adjacent directory created by user.
