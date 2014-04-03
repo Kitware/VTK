@@ -141,6 +141,7 @@ function(vtk_add_test_mpi exename tests)
               ${name}
               ${_D} ${_T} ${_V}
               ${args}
+              ${${vtk-module}_ARGS}
               ${${name}_ARGS}
               ${VTK_MPI_POSTFLAGS})
     set_tests_properties(${vtk-module}Cxx-MPI-${vtk_test_prefix}${name}
@@ -239,6 +240,7 @@ function(vtk_add_test_cxx exename _tests)
       COMMAND $<TARGET_FILE:${exename}>
               ${name}
               ${args}
+              ${${prefix}_ARGS}
               ${${name}_ARGS}
               ${_D} ${_T} ${_V})
     set_tests_properties(${prefix}Cxx-${vtk_test_prefix}${name}
@@ -372,6 +374,7 @@ function(vtk_add_test_python)
               ${rtImageTest}
               ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
               ${args}
+              ${${vtk-module}_ARGS}
               ${${name}_ARGS}
               ${_D} ${_B} ${_T} ${_V} ${_A})
     set_tests_properties(${vtk-module}Python-${vtk_test_prefix}${name}
@@ -454,6 +457,7 @@ function(vtk_add_test_tcl name)
               ${rtImageTest}
               ${CMAKE_CURRENT_SOURCE_DIR}/${name}.tcl
               ${args}
+              ${${vtk-module}_ARGS}
               ${${name}_ARGS}
               ${_D} ${_T} ${_V} ${_A})
     set_tests_properties(${vtk-module}Tcl-${vtk_test_prefix}${name}
