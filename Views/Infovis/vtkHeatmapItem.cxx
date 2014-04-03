@@ -48,6 +48,7 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
   this->HeatmapBuildTime = 0;
   this->Table = vtkSmartPointer<vtkTable>::New();
   this->NameColumn = "name";
+  this->RowNames = NULL;
 
   this->CollapsedRowsArray = NULL;
   this->CollapsedColumnsArray = NULL;
