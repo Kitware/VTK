@@ -321,6 +321,7 @@ function(vtk_add_test_python)
     NO_VALID
     NO_OUTPUT
     NO_RT
+    JUST_VALID
     )
   _vtk_test_parse_args("${python_options}" "py" ${ARGN})
   _vtk_test_set_options("${python_options}" "" ${options})
@@ -356,9 +357,11 @@ function(vtk_add_test_python)
       if(local_NO_RT)
         set(_B -B "DATA{${baseline_dir}/,REGEX:${name}(_[0-9]+)?.png}")
       else()
-        set(rtImageTest ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py)
         set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
-        set(_A -A ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py)
+        if(NOT local_JUST_VALID)
+          set(rtImageTest ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py)
+          set(_A -A ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py)
+        endif()
       endif()
     endif()
 
