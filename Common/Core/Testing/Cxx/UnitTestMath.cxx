@@ -604,6 +604,8 @@ int TestFactorial()
 int TestBinomial()
 {
   int status = 0;
+  int m;
+  int n;
   std::cout << "Binomial..";
 
   std::vector<int> mvalues;
@@ -611,9 +613,9 @@ int TestBinomial()
 
   std::vector<vtkTypeInt64> expecteds;
   vtkTypeInt64 expected;
-  for (int m = 1; m < 31; ++m)
+  for (m = 1; m < 31; ++m)
     {
-    for (int n = 1; n <= m; ++n)
+    for (n = 1; n <= m; ++n)
       {
       mvalues.push_back(m);
       nvalues.push_back(n);
@@ -639,8 +641,8 @@ int TestBinomial()
     }
 
   // Now test the combination iterator
-  int m = 6;
-  int n = 3;
+  m = 6;
+  n = 3;
   int more = 1;
   int count = 0;
   int *comb;
@@ -1065,7 +1067,8 @@ int Cross()
     for (int i = 0; i < 3; ++i)
       {
       if (!vtkMathUtilities::FuzzyCompare(
-            c[i], d[i]))
+            c[i], d[i],
+            std::numeric_limits<T>::epsilon()*(T)128.0))
         {
         std::cout << " Cross expected " << c[i]
                   << " but got " << d[i];
@@ -3309,41 +3312,48 @@ int TestGetScalarTypeFittingRange()
   rangeMax = (double) std::numeric_limits<long>::max();
   int scalarType = vtkMath::GetScalarTypeFittingRange(
     rangeMin, rangeMax, 1.0, 0.0);
-#ifndef _WIN32
-  if (scalarType != VTK_LONG)
+  if (sizeof(long) == sizeof(int))
     {
-    std::cout << " Bad fitting range for VTK_LONG" << std::endl;
-    std::cout << " Expected " << VTK_LONG << " but got " << scalarType;
-    ++status;
+    if (scalarType != VTK_INT)
+      {
+      std::cout << " Bad fitting range for VTK_LONG" << std::endl;
+      std::cout << " Expected " << VTK_INT << " but got " << scalarType;
+      ++status;
+      }
     }
-#else
-  if (scalarType != VTK_INT)
+  else
     {
-    std::cout << " Bad fitting range for VTK_LONG" << std::endl;
-    std::cout << " Expected " << VTK_INT << " but got " << scalarType;
-    ++status;
+    if (scalarType != VTK_LONG)
+      {
+      std::cout << " Bad fitting range for VTK_LONG" << std::endl;
+      std::cout << " Expected " << VTK_LONG << " but got " << scalarType;
+      ++status;
+      }
     }
-#endif
 
   rangeMin = (double) std::numeric_limits<unsigned long>::min();
   rangeMax = (double) std::numeric_limits<unsigned long>::max();
   scalarType = vtkMath::GetScalarTypeFittingRange(
     rangeMin, rangeMax, 1.0, 0.0);
-#ifndef _WIN32
-  if (scalarType != VTK_UNSIGNED_LONG)
+  if (sizeof(unsigned long) == sizeof(unsigned int))
     {
-    std::cout << " Bad fitting range for VTK_UNSIGNED_LONG" << std::endl;
-    std::cout << " Expected " << VTK_UNSIGNED_LONG << " but got " << scalarType;
-    ++status;
+    if (scalarType != VTK_UNSIGNED_INT)
+      {
+      std::cout << " Bad fitting range for VTK_UNSIGNED_LONG" << std::endl;
+      std::cout << " Expected " << VTK_UNSIGNED_INT << " but got " << scalarType;
+      ++status;
+      }
     }
-#else
-  if (scalarType != VTK_UNSIGNED_INT)
+  else
     {
-    std::cout << " Bad fitting range for VTK_UNSIGNED_LONG" << std::endl;
-    std::cout << " Expected " << VTK_UNSIGNED_INT << " but got " << scalarType;
-    ++status;
+    if (scalarType != VTK_UNSIGNED_LONG)
+      {
+      std::cout << " Bad fitting range for VTK_UNSIGNED_LONG" << std::endl;
+      std::cout << " Expected " << VTK_UNSIGNED_LONG << " but got " << scalarType;
+      ++status;
+      }
     }
-#endif
+
   rangeMin = (double) std::numeric_limits<short>::min();
   rangeMax = (double) std::numeric_limits<short>::max();
   if (vtkMath::GetScalarTypeFittingRange(
