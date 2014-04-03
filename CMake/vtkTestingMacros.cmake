@@ -371,8 +371,9 @@ function(vtk_add_test_python)
     endif()
 
     ExternalData_add_test(${externaldata_target}
-      NAME    ${vtk-module}Python-${vtk_test_prefix}${name}
-      COMMAND ${VTK_PYTHON_EXE} --enable-bt
+      NAME    ${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${name}
+      COMMAND ${_vtk_test_python_pre_args}
+              ${VTK_PYTHON_EXE} --enable-bt
               ${VTK_PYTHON_ARGS}
               ${rtImageTest}
               ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
@@ -380,11 +381,27 @@ function(vtk_add_test_python)
               ${${vtk-module}_ARGS}
               ${${name}_ARGS}
               ${_D} ${_B} ${_T} ${_V} ${_A})
-    set_tests_properties(${vtk-module}Python-${vtk_test_prefix}${name}
+    set_tests_properties(${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
       )
   endforeach()
+endfunction()
+
+function(vtk_add_test_python_mpi)
+  set(_vtk_test_python_suffix "-MPI")
+
+  set(numprocs ${VTK_MPI_MAX_NUMPROCS})
+  if(${vtk-module}_NUMPROCS)
+    set(numprocs ${${vtk-module}_NUMPROCS})
+  endif()
+
+  set(_vtk_test_python_pre_args
+    ${VTK_MPIRUN_EXE}
+    ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${numprocs}
+    ${VTK_MPI_PREFLAGS})
+
+  vtk_add_test_python(${ARGN})
 endfunction()
 
 # -----------------------------------------------------------------------------
