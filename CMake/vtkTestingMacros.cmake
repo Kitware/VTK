@@ -106,6 +106,11 @@ function(vtk_add_test_mpi exename tests)
     set(baseline_dir ${VTK_BASELINE_DIR})
   endif()
 
+  set(externaldata_target VTKData)
+  if(VTK_TEST_DATA_TARGET)
+    set(externaldata_target ${VTK_TEST_DATA_TARGET})
+  endif()
+
   foreach(name IN LISTS names)
     _vtk_test_set_options("${mpi_options}" "local_" ${_${name}_options})
 
@@ -127,7 +132,7 @@ function(vtk_add_test_mpi exename tests)
       set(numprocs ${${name}_NUMPROCS})
     endif()
 
-    ExternalData_add_test(VTKData
+    ExternalData_add_test(${externaldata_target}
       NAME ${vtk-module}Cxx-MPI-${vtk_test_prefix}${name}
       COMMAND ${VTK_MPIRUN_EXE}
               ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${numprocs}
@@ -202,6 +207,11 @@ function(vtk_add_test_cxx exename _tests)
     set(data_dir "${${vtk-module}_DATA_DIR}")
   endif()
 
+  set(externaldata_target VTKData)
+  if(VTK_TEST_DATA_TARGET)
+    set(externaldata_target ${VTK_TEST_DATA_TARGET})
+  endif()
+
   foreach(name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
 
@@ -224,7 +234,7 @@ function(vtk_add_test_cxx exename _tests)
       endif()
     endif()
 
-    ExternalData_add_test(VTKData
+    ExternalData_add_test(${externaldata_target}
       NAME    ${prefix}Cxx-${vtk_test_prefix}${name}
       COMMAND $<TARGET_FILE:${exename}>
               ${name}
@@ -323,6 +333,11 @@ function(vtk_add_test_python)
     set(baseline_dir ${VTK_BASELINE_DIR})
   endif()
 
+  set(externaldata_target VTKData)
+  if(VTK_TEST_DATA_TARGET)
+    set(externaldata_target ${VTK_TEST_DATA_TARGET})
+  endif()
+
   foreach(name IN LISTS names)
     _vtk_test_set_options("${python_options}" "local_" ${_${name}_options})
 
@@ -350,7 +365,7 @@ function(vtk_add_test_python)
       set(_T -T ${VTK_TEST_OUTPUT_DIR})
     endif()
 
-    ExternalData_add_test(VTKData
+    ExternalData_add_test(${externaldata_target}
       NAME    ${vtk-module}Python-${vtk_test_prefix}${name}
       COMMAND ${VTK_PYTHON_EXE} --enable-bt
               ${VTK_PYTHON_ARGS}
@@ -403,6 +418,11 @@ function(vtk_add_test_tcl name)
     set(baseline_dir ${VTK_BASELINE_DIR})
   endif()
 
+  set(externaldata_target VTKData)
+  if(VTK_TEST_DATA_TARGET)
+    set(externaldata_target ${VTK_TEST_DATA_TARGET})
+  endif()
+
   foreach(name IN LISTS names)
     _vtk_test_set_options("${tcl_options}" "local_" ${_${name}_options})
 
@@ -428,7 +448,7 @@ function(vtk_add_test_tcl name)
     endif()
     set(_A -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 
-    ExternalData_add_test(VTKData
+    ExternalData_add_test(${externaldata_target}
       NAME    ${vtk-module}Tcl-${vtk_test_prefix}${name}
       COMMAND ${VTK_TCL_EXE}
               ${rtImageTest}
