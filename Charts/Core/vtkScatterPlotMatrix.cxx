@@ -153,6 +153,8 @@ public:
         axis->GetLabelProperties()->SetOpacity(prop->GetOpacity());
         axis->GetLabelProperties()->SetFontFamilyAsString(
           prop->GetFontFamilyAsString());
+        axis->GetLabelProperties()->SetBold(prop->GetBold());
+        axis->GetLabelProperties()->SetItalic(prop->GetItalic());
         }
       }
     }
