@@ -147,9 +147,46 @@ void vtkChartMatrix::SetBorders(int left, int bottom, int right, int top)
   this->LayoutIsDirty = true;
 }
 
+void vtkChartMatrix::SetBorderLeft(int value)
+{
+  this->Borders[vtkAxis::LEFT] = value;
+  this->LayoutIsDirty = true;
+}
+
+void vtkChartMatrix::SetBorderBottom(int value)
+{
+  this->Borders[vtkAxis::BOTTOM] = value;
+  this->LayoutIsDirty = true;
+}
+
+void vtkChartMatrix::SetBorderRight(int value)
+{
+  this->Borders[vtkAxis::RIGHT] = value;
+  this->LayoutIsDirty = true;
+}
+
+void vtkChartMatrix::SetBorderTop(int value)
+{
+  this->Borders[vtkAxis::TOP] = value;
+  this->LayoutIsDirty = true;
+}
+
+
 void vtkChartMatrix::SetGutter(const vtkVector2f &gutter)
 {
   this->Gutter = gutter;
+  this->LayoutIsDirty = true;
+}
+
+void vtkChartMatrix::SetGutterX(float value)
+{
+  this->Gutter.SetX (value);
+  this->LayoutIsDirty = true;
+}
+
+void vtkChartMatrix::SetGutterY(float value)
+{
+  this->Gutter.SetY (value);
   this->LayoutIsDirty = true;
 }
 
