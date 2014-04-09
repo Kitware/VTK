@@ -60,6 +60,10 @@ public:
   // Description:
   // Set/get the borders of the chart matrix (space in pixels around each chart).
   virtual void SetBorders(int left, int bottom, int right, int top);
+  void SetBorderLeft(int value);
+  void SetBorderBottom(int value);
+  void SetBorderRight(int value);
+  void SetBorderTop(int value);
   virtual void GetBorders(int borders[4])
   {
     for(int i=0;i<4;i++)
@@ -71,6 +75,8 @@ public:
   // Description:
   // Set the gutter that should be left between the charts in the matrix.
   virtual void SetGutter(const vtkVector2f& gutter);
+  void SetGutterX(float value);
+  void SetGutterY(float value);
 
   // Description:
   // Get the gutter that should be left between the charts in the matrix.
