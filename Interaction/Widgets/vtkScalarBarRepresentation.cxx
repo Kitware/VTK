@@ -64,6 +64,17 @@ void vtkScalarBarRepresentation::SetScalarBarActor(vtkScalarBarActor* actor)
     if (actor && oldActor)
       {
       actor->SetOrientation(oldActor->GetOrientation());
+      if(actor->GetOrientation())
+        {
+        this->ShowHorizontalBorder = 2;
+        this->ShowVerticalBorder = 0;
+        }
+      else
+        {
+        this->ShowHorizontalBorder = 0;
+        this->ShowVerticalBorder = 2;
+        }
+      this->UpdateShowBorder();
       }
     }
 }

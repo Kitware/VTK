@@ -1,0 +1,44 @@
+
+.vtkweb-catalyst-analysis .cost-content table.catalyst-bill  {
+    width: 98%;
+    border-collapse:collapse;
+    margin: 15px auto;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill td {
+    vertical-align: middle;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill td.title {
+    text-align: left;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill td.value {
+    width: 150px;
+    text-align: center;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill tr.head {
+    background: #ddd;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill tr.head td {
+    text-align: center;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill tr.head td.empty {
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill tr td {
+    border: solid 1px #ccc;
+    padding: 5px;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill tr.sum {
+    background: #ddd;
+}
+
+.vtkweb-catalyst-analysis .cost-content .catalyst-bill tr.sum td {
+    text-align: center;
+    font-weight: bold;
+}

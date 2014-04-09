@@ -111,8 +111,10 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
   int _timerId;
 }
 
-- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor timerId:(int)myTimerId;
-- (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating;
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor
+                 timerId:(int)myTimerId;
+- (void)startTimerWithInterval:(NSTimeInterval)interval
+                     repeating:(BOOL)repeating;
 - (void)stopTimer;
 - (void)timerFired:(NSTimer *)myTimer;
 
@@ -122,7 +124,8 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 @implementation vtkCocoaTimer
 
 //----------------------------------------------------------------------------
-- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor timerId:(int)myTimerId
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor
+                 timerId:(int)myTimerId
 {
   self = [super init];
   if (self)
@@ -141,15 +144,19 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 }
 
 //----------------------------------------------------------------------------
-- (void)startTimerWithInterval:(NSTimeInterval)interval repeating:(BOOL)repeating
+- (void)startTimerWithInterval:(NSTimeInterval)interval
+                     repeating:(BOOL)repeating
 {
-  _timer = [[NSTimer timerWithTimeInterval:interval
-                                    target:self
-                                  selector:@selector(timerFired:)
-                                  userInfo:nil
-                                   repeats:repeating] retain];
-  [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
-  [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSEventTrackingRunLoopMode];
+  _timer = [NSTimer timerWithTimeInterval:interval
+                                   target:self
+                                 selector:@selector(timerFired:)
+                                 userInfo:nil
+                                  repeats:repeating];
+  [_timer retain];
+
+  NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+  [runLoop addTimer:_timer forMode:NSDefaultRunLoopMode];
+  [runLoop addTimer:_timer forMode:NSEventTrackingRunLoopMode];
 }
 
 //----------------------------------------------------------------------------
@@ -162,177 +169,36 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 @end
 
-// This is a private class and an implementation detail, do not use it.
-// It manages the application run loop of a "pure vtk application",
-// as opposed to a regular Mac app that happens to use VTK.
 //----------------------------------------------------------------------------
-@interface vtkCocoaServer : NSObject
+// Private
+static void VTKStartNSApplicationEventLoop(void)
 {
-  @private
-  vtkCocoaRenderWindow* _renWin;
-}
-
-+ (id)cocoaServerWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow;
-
-- (void)start;
-- (void)stop;
-
-@end
-
-//----------------------------------------------------------------------------
-@implementation vtkCocoaServer
-
-//----------------------------------------------------------------------------
-- (id)initWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow
-{
-  self = [super init];
-  if (self)
-    {
-    _renWin = inRenderWindow;
-    }
-  return self;
-}
-
-//----------------------------------------------------------------------------
-+ (id)cocoaServerWithRenderWindow:(vtkCocoaRenderWindow *)inRenderWindow
-{
-  vtkCocoaServer *server = [[[vtkCocoaServer alloc]
-                            initWithRenderWindow:inRenderWindow]
-                            autorelease];
-  return server;
-}
-
-//----------------------------------------------------------------------------
-- (void)start
-{
-  // Retrieve the NSWindow and the NSView.
-  NSWindow *win = nil;
-  NSView *view = nil;
-  if (_renWin != NULL)
-    {
-    win = reinterpret_cast<NSWindow *>(_renWin->GetRootWindow());
-
-    // We don't want to be informed of every window closing, so check for nil.
-    if (win != nil)
-      {
-      // Register for the windowWillClose notification in order to stop
-      // the run loop if the window closes.
-      NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-      [nc addObserver:self selector:@selector(windowWillClose:)
-                               name:NSWindowWillCloseNotification
-                             object:win];
-      }
-
-    view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
-
-    if (view != nil)
-      {
-      // Receive notifications of frame rectangle changes.
-      NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-      [nc addObserver:self selector:@selector(viewFrameChanged:)
-                               name:NSViewFrameDidChangeNotification
-                             object:view];
-      }
-    }
-
   // Start the NSApplication's run loop
-  NSApplication* application = [NSApplication sharedApplication];
+  NSApplication *application = [NSApplication sharedApplication];
   [application run];
 }
 
 //----------------------------------------------------------------------------
-- (void)stop
+// Private
+static void VTKStopNSApplicationEventLoop(void)
 {
-  // Retrieve the NSWindow and the NSView.
-  NSWindow *win = nil;
-  NSView *view = nil;
-  if (_renWin != NULL)
-    {
-    win = reinterpret_cast<NSWindow *>(_renWin->GetRootWindow());
-    view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
-    if (view != nil)
-      {
-      NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-      [nc removeObserver:self name:NSViewFrameDidChangeNotification
-                            object:view];
-      }
-    }
+  // Stop the current run loop. Do not terminate as it will not return to
+  // main. However, the stop message puts the run loop asleep. Let's send
+  // some event to wake it up so it can get out of the loop.
+  NSApplication *application = [NSApplication sharedApplication];
+  [application stop:application];
 
-  // Close the window, removing it from the screen and releasing it
-  [win close];
+  NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
+                                      location:NSZeroPoint
+                                 modifierFlags:0
+                                     timestamp:0
+                                  windowNumber:-1
+                                       context:nil
+                                       subtype:0
+                                         data1:0
+                                         data2:0];
+  [application postEvent:event atStart:YES];
 }
-
-//----------------------------------------------------------------------------
-- (void)windowWillClose:(NSNotification*)aNotification
-{
-  (void)aNotification;
-
-  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  [nc removeObserver:self name:NSWindowWillCloseNotification object:nil];
-
-  if (_renWin)
-    {
-    int windowCreated = _renWin->GetWindowCreated();
-    if (windowCreated)
-      {
-      // Stop the current run loop. Do not terminate as it will not return to
-      // main. However, the stop message puts the run loop asleep. Let's send
-      // some event to wake it up so it can get out of the loop.
-      NSApplication* application = [NSApplication sharedApplication];
-      [application stop:application];
-
-      NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
-                                          location:NSZeroPoint
-                                     modifierFlags:0
-                                         timestamp:0
-                                      windowNumber:-1
-                                           context:nil
-                                           subtype:0
-                                             data1:0
-                                             data2:0];
-      [application postEvent:event atStart:YES];
-
-      // The NSWindow is closing, so prevent anyone from accidentally using it
-      _renWin->SetRootWindow(NULL);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-- (void)viewFrameChanged:(NSNotification *)aNotification
-{
-  (void)aNotification;
-
-  // Retrieve the NSView and the Interactor.
-  NSView *view = nil;
-  vtkRenderWindowInteractor *interactor = NULL;
-  if (_renWin != NULL)
-    {
-    view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
-    interactor = _renWin->GetInteractor();
-    }
-
-  if (view == nil || interactor == NULL || !interactor->GetEnabled())
-    {
-    return;
-    }
-
-  // Get the frame size, send ConfigureEvent from the Interactor.
-  NSRect frameRect = [view frame];
-  int width = (int)round(NSWidth(frameRect));
-  int height = (int)round(NSHeight(frameRect));
-
-  int size[2];
-  interactor->GetSize(size);
-
-  if (width != size[0] || height != size[1])
-    {
-    interactor->UpdateSize(width, height);
-    interactor->InvokeEvent(vtkCommand::ConfigureEvent, NULL);
-    }
-}
-
-@end
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
@@ -341,17 +207,17 @@ vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
 
   // First, create the cocoa objects manager. The dictionary is empty so
   // essentially all objects are initialized to NULL.
-  NSMutableDictionary * cocoaManager = [NSMutableDictionary dictionary];
+  NSMutableDictionary *cocoaManager = [NSMutableDictionary dictionary];
 
   // SetCocoaManager works like an Obj-C setter, so do like Obj-C and
   // init the ivar to null first.
   this->CocoaManager = NULL;
   this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
-  [cocoaManager self]; // prevent premature collection.
+  [cocoaManager self]; // prevent premature collection under GC.
 
-  NSMutableDictionary* timerDictionary = [NSMutableDictionary dictionary];
+  NSMutableDictionary *timerDictionary = [NSMutableDictionary dictionary];
   this->SetTimerDictionary(reinterpret_cast<void *>(timerDictionary));
-  [timerDictionary self]; // prevent premature collection.
+  [timerDictionary self]; // prevent premature collection under GC.
 
 #ifdef VTK_USE_TDX
   this->Device=vtkTDxMacDevice::New();
@@ -363,7 +229,6 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 {
   this->Enabled = 0;
   this->SetTimerDictionary(NULL);
-  this->SetCocoaServer(NULL);
   this->SetCocoaManager(NULL);
 #ifdef VTK_USE_TDX
   this->Device->Delete();
@@ -386,14 +251,7 @@ void vtkCocoaRenderWindowInteractor::Start()
     return;
     }
 
-  // Start server.
-  vtkCocoaRenderWindow *renWin = vtkCocoaRenderWindow::SafeDownCast(this->GetRenderWindow());
-  if (renWin != NULL)
-    {
-    vtkCocoaServer *server = [vtkCocoaServer cocoaServerWithRenderWindow:renWin];
-    this->SetCocoaServer(reinterpret_cast<void *>(server));
-    [server start];
-    }
+  VTKStartNSApplicationEventLoop();
 }
 
 //----------------------------------------------------------------------------
@@ -473,33 +331,7 @@ void vtkCocoaRenderWindowInteractor::Disable()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::TerminateApp()
 {
-  // Retrieve the cocoa render window.
-  vtkCocoaRenderWindow *renWin = vtkCocoaRenderWindow::SafeDownCast(this->RenderWindow);
-  if (renWin)
-    {
-    // Check if the NSWindow was created by VTK. If so, let's use the
-    // vtkCocoaServer to stop the application since it started it.
-    // This means that the interactor was started using the Start method.
-    // The vtkCocoaServer is used to get out of that method without quiting
-    // the application, allowing to access code after the Start() call, like
-    // object deletion for example.
-    int windowCreated = renWin->GetWindowCreated();
-    if (windowCreated)
-      {
-      vtkCocoaServer *server = reinterpret_cast<vtkCocoaServer *>(this->GetCocoaServer());
-      [server stop];
-      }
-    else
-      {
-      // The NSWindow was not created by vtk itself, so let's terminate the
-      // application as requested.
-      NSApplication* application = [NSApplication sharedApplication];
-      [application terminate:application];
-      }
-    }
-
-   // Release vtkCocoaServer if created by the start method.
-   this->SetCocoaServer(NULL);
+  VTKStopNSApplicationEventLoop();
 }
 
 //----------------------------------------------------------------------------
@@ -613,14 +445,14 @@ void vtkCocoaRenderWindowInteractor::SetTimerDictionary(void *dictionary)
 {
   if (dictionary != NULL)
     {
-    NSMutableDictionary* manager =
+    NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
     [manager setObject:reinterpret_cast<id>(dictionary)
                 forKey:@"TimerDictionary"];
     }
   else
     {
-    NSMutableDictionary* manager =
+    NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
     [manager removeObjectForKey:@"TimerDictionary"];
     }
@@ -629,43 +461,17 @@ void vtkCocoaRenderWindowInteractor::SetTimerDictionary(void *dictionary)
 //----------------------------------------------------------------------------
 void *vtkCocoaRenderWindowInteractor::GetTimerDictionary()
 {
-  NSMutableDictionary* manager =
+  NSMutableDictionary *manager =
     reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
   return reinterpret_cast<void *>([manager objectForKey:@"TimerDictionary"]);
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindowInteractor::SetCocoaServer(void *server)
-{
-  if (server != NULL)
-    {
-    NSMutableDictionary* manager =
-      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
-    [manager setObject:reinterpret_cast<vtkCocoaServer *>(server)
-                forKey:@"CocoaServer"];
-    }
-  else
-    {
-    NSMutableDictionary* manager =
-      reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
-    [manager removeObjectForKey:@"CocoaServer"];
-    }
-}
-
-//----------------------------------------------------------------------------
-void *vtkCocoaRenderWindowInteractor::GetCocoaServer()
-{
-  NSMutableDictionary* manager =
-    reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
-  return reinterpret_cast<void *>([manager objectForKey:@"CocoaServer"]);
-}
-
-//----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::SetCocoaManager(void *manager)
 {
-  NSMutableDictionary* currentCocoaManager =
+  NSMutableDictionary *currentCocoaManager =
     reinterpret_cast<NSMutableDictionary *>(this->CocoaManager);
-  NSMutableDictionary* newCocoaManager =
+  NSMutableDictionary *newCocoaManager =
     reinterpret_cast<NSMutableDictionary *>(manager);
 
   if (currentCocoaManager != newCocoaManager)
@@ -682,7 +488,7 @@ void vtkCocoaRenderWindowInteractor::SetCocoaManager(void *manager)
       }
     if (newCocoaManager)
       {
-      this->CocoaManager = const_cast<void*>(CFRetain (newCocoaManager));
+      this->CocoaManager = const_cast<void *>(CFRetain (newCocoaManager));
       }
     else
       {

@@ -291,7 +291,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentNN( T *data,
 
     VTKKWRCHelper_CroppingCheckNN( pos );
     unsigned short normal[4];
-    unsigned char  mag[4];
+    unsigned char  mag[4] = { 1, 1, 1, 1};
     for ( c = 0; c < components; c++ )
       {
       val[c]     = static_cast<unsigned short>(((*(dptr+c)) + shift[c])*scale[c]);

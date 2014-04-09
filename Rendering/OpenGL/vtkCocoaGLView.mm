@@ -25,6 +25,7 @@
 @implementation vtkCocoaGLView
 
 //----------------------------------------------------------------------------
+// Private
 - (void)emptyMethod:(id)sender
 {
   (void)sender;
@@ -74,7 +75,7 @@
 {
   if (_myVTKRenderWindow)
     {
-    return (vtkCocoaRenderWindowInteractor*)_myVTKRenderWindow->GetInteractor();
+    return (vtkCocoaRenderWindowInteractor *)_myVTKRenderWindow->GetInteractor();
     }
   else
     {
@@ -95,6 +96,7 @@
 }
 
 //----------------------------------------------------------------------------
+// Private
 - (void)clearTrackingRect
 {
   // remove any tracking rect we have
@@ -106,6 +108,7 @@
 }
 
 //----------------------------------------------------------------------------
+// Private
 - (void)resetTrackingRect
 {
   //clear out the old tracking rect
@@ -184,7 +187,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -256,7 +259,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -324,7 +327,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -407,7 +410,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -452,7 +455,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -487,7 +490,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -522,7 +525,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -565,7 +568,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -595,7 +598,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
 
-  NSApplication* application = [NSApplication sharedApplication];
+  NSApplication *application = [NSApplication sharedApplication];
   NSDate* infinity = [NSDate distantFuture];
   do
     {
@@ -643,7 +646,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -673,7 +676,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   interactor->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
 
-  NSApplication* application = [NSApplication sharedApplication];
+  NSApplication *application = [NSApplication sharedApplication];
   NSDate* infinity = [NSDate distantFuture];
   do
     {
@@ -721,7 +724,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
     }
 
-  vtkCocoaRenderWindow* renWin =
+  vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
   if (!renWin)
@@ -751,7 +754,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   interactor->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
 
-  NSApplication* application = [NSApplication sharedApplication];
+  NSApplication *application = [NSApplication sharedApplication];
   NSDate* infinity = [NSDate distantFuture];
   do
     {

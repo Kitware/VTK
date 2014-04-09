@@ -1659,7 +1659,13 @@ const char *preproc_find_include_file(
             }
           }
         }
-      else if (stat(output, &fs) == 0)
+#if defined(_WIN32) && !defined(__CYGWIN__)
+      else if (stat(output, &fs) == 0 &&
+               (fs.st_mode & _S_IFMT) != _S_IFDIR)
+#else
+      else if (stat(output, &fs) == 0 &&
+               !S_ISDIR(fs.st_mode))
+#endif
         {
         nn = info->NumberOfIncludeFiles;
         info->IncludeFiles = (const char **)preproc_array_check(

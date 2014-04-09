@@ -357,12 +357,23 @@ vtkTable* vtkRAdapter::RToVTKTable(SEXP variable)
     nc = Rf_ncols(variable);
     nr = Rf_nrows(variable);
     result = vtkTable::New();
+    names = getAttrib(variable, R_DimNamesSymbol);
+    if(!isNull(names))
+     {
+       vtkStringArray* rowNames = vtkStringArray::New();
+       for (i = 0; i < nr; ++i)
+         {
+         std::string rowName = CHAR(STRING_ELT(VECTOR_ELT(names,0),i));
+         rowNames->InsertNextValue(rowName);
+         }
+       result->AddColumn(rowNames);
+       rowNames->Delete();
+     }
 
     for(j=0;j<nc;j++)
       {
       vtkDoubleArray* da = vtkDoubleArray::New();
       da->SetNumberOfComponents(1);
-      names = getAttrib(variable, R_DimNamesSymbol);
       if(!isNull(names))
         {
         da->SetName(CHAR(STRING_ELT(VECTOR_ELT(names,1),j)));
