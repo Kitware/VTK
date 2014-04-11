@@ -126,13 +126,13 @@
      * Root directory for data to visualize
      */
 
-    $.fn.vtkCatalystAnalysis = function(dataBasePath) {
+    $.fn.vtkCatalystAnalysis = function(fullURL) {
         return this.each(function() {
             var me = $(this).unbind().empty().addClass('vtkweb-catalyst-analysis');
 
             // Get meta-data
             $.ajax({
-                url: dataBasePath + '/info.json',
+                url: fullURL,
                 dataType: 'json',
                 success: function( data ) {
                     // Store metadata
@@ -148,7 +148,7 @@
                     $('.estimate-content',me).vtkCatalystAnalysisCostEstimate();
                 },
                 error: function(error) {
-                    console.log("error when trying to download " + dataBasePath + '/info.json');
+                    console.log("error when trying to download " + fullURL);
                     console.log(error);
                 }
             });
