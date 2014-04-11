@@ -741,6 +741,8 @@ void vtkTIFFReader::ReadVolume(T* buffer)
 
   for (unsigned int page = 0; page < this->InternalImage->NumberOfPages; ++page)
     {
+    this->UpdateProgress(static_cast<double>(page + 1) /
+                         this->InternalImage->NumberOfPages);
     if (this->InternalImage->SubFiles > 0)
       {
       long subfiletype = 6;
