@@ -1368,6 +1368,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     cellIter = vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
     }
 
+  vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
+    input->GetPointData()->GetArray("vtkGhostLevels"));
   vtkCellArray *newVerts;
   vtkCellArray *newLines;
   vtkCellArray *newPolys;
@@ -1802,6 +1804,22 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
            || cellType == VTK_BIQUADRATIC_QUAD
            || cellType == VTK_QUADRATIC_LINEAR_QUAD)
       {
+      bool allGhosts = true;
+      pointIdList = cellIter->GetPointIds();
+      vtkIdType nIds = pointIdList->GetNumberOfIds();
+      for ( i=0; i < nIds; i++ )
+        {
+        if (!ghosts || ghosts->GetValue(pointIdList->GetId(i)) == 0)
+          {
+          allGhosts = false;
+          }
+        }
+      // If all points of the polygon are ghosts, we throw it away.
+      if (allGhosts)
+        {
+        continue;
+        }
+
       // Note: we should not be here if this->NonlinearSubdivisionLevel is less
       // than 1.  See the check above.
       cellIter->GetCell(cell);
@@ -1908,10 +1926,20 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   this->InitQuadHashTraversal();
   while ( (q = this->GetNextVisibleQuadFromHash()) )
     {
+    bool allGhosts = true;
     // handle all polys
     for (i = 0; i < q->numPts; i++)
       {
+      if (!ghosts || ghosts->GetValue(q->ptArray[i]) == 0)
+        {
+        allGhosts = false;
+        }
       q->ptArray[i] = this->GetOutputPointId(q->ptArray[i], input, newPts, outputPD);
+      }
+    // If all points of the polygon are ghosts, we throw it away.
+    if (allGhosts)
+      {
+      continue;
       }
     newPolys->InsertNextCell(q->numPts, q->ptArray);
     this->RecordOrigCellId(this->NumberOfNewCells, q);
