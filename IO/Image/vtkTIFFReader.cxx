@@ -730,12 +730,6 @@ void vtkTIFFReader::Initialize()
 template<typename T>
 void vtkTIFFReader::ReadVolume(T* buffer)
 {
-  if (this->InternalImage->Compression == COMPRESSION_OJPEG)
-    {
-    vtkErrorMacro("This reader cannot read old JPEG compression");
-    return;
-    }
-
   int width  = this->InternalImage->Width;
   int height = this->InternalImage->Height;
 
@@ -824,12 +818,6 @@ void vtkTIFFReader::ReadVolume(T* buffer)
 /** Read a tiled tiff */
 void vtkTIFFReader::ReadTiles(void* buffer)
 {
-  if (this->InternalImage->Compression == COMPRESSION_OJPEG)
-    {
-    vtkErrorMacro("This reader cannot read old JPEG compression");
-    return;
-    }
-
   unsigned char* volume = reinterpret_cast<unsigned char*>(buffer);
 
   for (unsigned int col = 0; col < this->InternalImage->Width;
