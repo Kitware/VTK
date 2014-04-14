@@ -37,15 +37,15 @@ const double densities[] = {
   0.289692,
   0.36827,
   0.398942,
-  0.36827,
-  0.289692,
-  0.194186,
-  0.110921,
-  0.053991,
-  0.0223945,
-  0.00791545,
-  0.00238409,
-  0.000611902
+  0.368271,
+  0.2896921,
+  0.1941861,
+  0.1109211,
+  0.0539911,
+  0.02239451,
+  0.007915451,
+  0.002384091,
+  0.0006119021
 };
 
 //----------------------------------------------------------------------------
@@ -77,9 +77,6 @@ int TestExtractFunctionalBagPlot(int , char * [])
       }
     }
 
-  cout << "\n## Input data table:\n";
-  table->Dump();
-
   // Create a density table
 
   vtkNew<vtkDoubleArray> density;
@@ -91,11 +88,8 @@ int TestExtractFunctionalBagPlot(int , char * [])
   varName->SetNumberOfValues(numCols);
   for (int j = 0; j < numCols; j++)
     {
-    //double x = j * 8. / static_cast<double>(numCols) - 4.;
-    //double d = (1. / sqrt(vtkMath::Pi() * 2.)) * exp(-(x*x) / 2.);
     double d = densities[j];
     density->SetValue(j, d);
-
     varName->SetValue(j, table->GetColumn(j)->GetName());
     }
 
@@ -103,15 +97,10 @@ int TestExtractFunctionalBagPlot(int , char * [])
   inTableDensity->AddColumn(density.GetPointer());
   inTableDensity->AddColumn(varName.GetPointer());
 
-  cout << "\n## Input density table:\n";
-  inTableDensity->Dump();
-
   vtkNew<vtkExtractFunctionalBagPlot> ebp;
 
    // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
   ebp->Update();
-  cout << "done.\n";
 
   ebp->SetInputData(0, table.GetPointer());
   ebp->SetInputData(1, inTableDensity.GetPointer());
@@ -121,9 +110,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
     vtkDataObject::FIELD_ASSOCIATION_ROWS, "ColName");
   ebp->Update();
 
-  cout << "\n## Results:" << endl;
   vtkTable* outBPTable = ebp->GetOutput();
-  outBPTable->Dump();
 
   vtkDoubleArray* q3Points =
     vtkDoubleArray::SafeDownCast(outBPTable->GetColumnByName("Q3Points"));
@@ -132,6 +119,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
 
   if (!q3Points || !q2Points)
     {
+    outBPTable->Dump();
     cout << "## Failure: Missing Q3Points or QMedPoints columns!" << endl;
     return EXIT_FAILURE;
     }
@@ -139,6 +127,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
   if (q3Points->GetNumberOfTuples() != numPoints ||
     q2Points->GetNumberOfTuples() != numPoints)
     {
+    outBPTable->Dump();
     cout << "## Failure: Bad number of tuples in Q3Points or QMedPoints columns!" << endl;
     return EXIT_FAILURE;
     }
@@ -146,6 +135,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
   if (q3Points->GetNumberOfComponents() != 2 ||
     q2Points->GetNumberOfComponents() != 2)
     {
+    outBPTable->Dump();
     cout << "## Failure: Q3Points or QMedPoints does not have 2 components!" << endl;
     return EXIT_FAILURE;
     }
@@ -156,11 +146,11 @@ int TestExtractFunctionalBagPlot(int , char * [])
   double q2v[2];
   q2Points->GetTuple(19, q2v);
 
-  if (q3v[0] != 38 || q3v[1] != 323 || q2v[0] != 95 || q2v[1] != 285)
+  if (q3v[0] != 95 || q3v[1] != 304 || q2v[0] != 171 || q2v[1] != 209)
     {
+    outBPTable->Dump();
     cout << "## Failure: bad values found in Q3Points or QMedPoints" << endl;
     return EXIT_FAILURE;
     }
-  cout << "## Success!" << endl;
   return EXIT_SUCCESS;
 }

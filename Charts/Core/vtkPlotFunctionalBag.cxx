@@ -21,6 +21,7 @@
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
