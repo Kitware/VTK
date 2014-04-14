@@ -140,15 +140,35 @@ void vtkProperty::DeepCopy(vtkProperty *p)
 //----------------------------------------------------------------------------
 void vtkProperty::SetColor(double r, double g, double b)
 {
-  // Really should set the placeholder Color[3] variable
-  this->Color[0] = r;
-  this->Color[1] = g;
-  this->Color[2] = b;
+  double newColor[3] = { r, g, b };
 
-  // Use Set macros to insure proper modified time behavior
-  this->SetAmbientColor(this->Color);
-  this->SetDiffuseColor(this->Color);
-  this->SetSpecularColor(this->Color);
+  // SetColor is shorthand for "set all colors"
+  double *color[4] = {
+    this->Color,
+    this->AmbientColor,
+    this->DiffuseColor,
+    this->SpecularColor
+  };
+
+  // Set colors, and check for changes
+  bool modified = false;
+  for (int i = 0; i < 4; i++)
+    {
+    for (int j = 0; j < 3; j++)
+      {
+      if (color[i][j] != newColor[j])
+        {
+        modified = true;
+        color[i][j] = newColor[j];
+        }
+      }
+    }
+
+  // Call Modified() if anything changed
+  if (modified)
+    {
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
