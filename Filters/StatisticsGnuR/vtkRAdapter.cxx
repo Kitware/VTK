@@ -416,6 +416,19 @@ vtkTable* vtkRAdapter::RToVTKTable(SEXP variable)
 
     result = vtkTable::New();
     names = getAttrib(variable, R_NamesSymbol);
+    SEXP names2 = getAttrib(variable, R_RowNamesSymbol);
+    if (!isNull(names2))
+      {
+       vtkStringArray* rowNames = vtkStringArray::New();
+       for (i = 0; i < nr; ++i)
+         {
+         std::string rowName = CHAR(STRING_ELT(names2, i));
+         rowNames->InsertNextValue(rowName);
+         }
+       result->AddColumn(rowNames);
+       rowNames->Delete();
+      }
+
     vtkAbstractArray *aa;
     for(j=0;j<nc;j++)
       {
