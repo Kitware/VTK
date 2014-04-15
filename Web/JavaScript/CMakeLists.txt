@@ -28,6 +28,7 @@ set(lib_js_min_files
   )
 
 set(widgets_js_min_files
+  "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-cost-estimate.js"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-cost.js"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-bench.js"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-viewer.js"
@@ -41,6 +42,7 @@ set(widgets_js_min_files
   "${widgets_source_dir}/TreeWidget/vtkweb-widget-tree.js"
 )
 set(widgets_css_min_files
+  "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-cost-estimate.css"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-cost.css"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-analysis-bench.css"
   "${widgets_source_dir}/CatalystBrowser/vtkweb-widget-catalyst-viewer.css"

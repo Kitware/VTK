@@ -1,0 +1,83 @@
+.vtkweb-catalyst-analysis .estimate-content {
+    margin-top: 10px;
+}
+
+.vtkweb-catalyst-analysis .estimate-content select {
+    position: relative;
+    right: 0px;
+    width: 50%;
+}
+
+.vtkweb-catalyst-analysis .estimate-content li {
+    line-height: 2em;
+}
+
+.vtkweb-catalyst-analysis .estimate-content div.label {
+    position: relative;
+    width: 40%;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.vtkweb-catalyst-analysis .estimate-content div.label > .value {
+    position: absolute;
+    right: 5px;
+}
+
+.vtkweb-catalyst-analysis .estimate-content input[type='range'] {
+    position: relative;
+    left: -8px;
+    top: 3px;
+    width: 50%;
+}
+
+.vtkweb-catalyst-analysis .estimate-content input[type='text'] {
+    position: relative;
+    width: 50%;
+}
+
+.vtkweb-catalyst-analysis .estimate-content input[type='text'].half {
+    position: relative;
+    width: 22%;
+}
+
+.vtkweb-catalyst-analysis .estimate-content ul {
+    list-style: none;
+}
+
+.vtkweb-catalyst-analysis .estimate-content .input {
+    position: relative;
+    float: left;
+    clear: left;
+    width: 45%;
+    padding: 10px;
+    margin: 10px 0;
+    margin-left: 1.5%;
+    border-radius: 5px;
+    border: solid 1px black;
+}
+.vtkweb-catalyst-analysis .estimate-content .input.right {
+    float: right;
+    margin: 10px 0;
+    margin-right: 1.5%;
+}
+
+.vtkweb-catalyst-analysis .estimate-content .title {
+    position: absolute;
+    top: -0.8em;
+    left: 10px;
+    background: white;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+.vtkweb-catalyst-analysis .estimate-content .output {
+    clear: both;
+    position: relative;
+    width: 96%;
+    padding: 10px;
+    margin: 0px auto;
+    border-radius: 5px;
+    border: solid 1px black;
+    top: 20px;
+}

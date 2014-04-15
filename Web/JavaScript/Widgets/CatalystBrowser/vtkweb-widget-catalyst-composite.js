@@ -1,7 +1,7 @@
 (function ($, GLOBAL) {
     var SELECT_OPTION = '<option value="VALUE">NAME</option>',
     TEMPLATE_CANVAS = '<canvas class="front-renderer"></canvas><canvas class="single-size-back-buffer bg"></canvas><canvas class="back-buffer bg"></canvas>',
-    TEMPLATE_CONTENT = '<div class="header"><span class="vtk-icon-tools toggle"></span><span class="vtk-icon-resize-full-2 reset"></span><span class="vtk-icon-play play"></span><span class="vtk-icon-stop stop"></span></div><div class="parameters"><div class="layer-selector"></div><div class="pipeline-container"><div class="pipeline"><ul>PIPELINE</ul></div><div class="background">Background<div class="right-control"><ul><li class="color" data-color="#cccccc" style="background: #cccccc"></li><li class="color" data-color="#000000" style="background: #000000"></li><li class="color" data-color="#ffffff" style="background: #ffffff"></li></ul></div></div><div class="fields"><ul><li class="time loop toggle-active"><span class="vtk-icon-clock-1 action title">Time</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="phi loop toggle-active"><span class="vtk-icon-resize-horizontal-1 action title">Phi</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="theta toggle-active"><span class="vtk-icon-resize-vertical-1 action title">Theta</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="compute-coverage action">Compute pixel coverage<div class="right-control"><span class="vtk-icon-sort-alt-down"/></div></li></ul></div></div></div>',
+    TEMPLATE_CONTENT = '<div class="header"><span class="vtk-icon-tools toggle"></span><span class="vtk-icon-resize-full-2 reset"></span><span class="vtk-icon-play play"></span><span class="vtk-icon-stop stop"></span></div><div class="parameters"><div class="layer-selector"></div><div class="pipeline-container"><div class="pipeline"><ul>PIPELINE</ul></div><div class="background">Background<div class="right-control"><ul><li class="color" data-color="#cccccc" style="background: #cccccc"></li><li class="color" data-color="#000000" style="background: #000000"></li><li class="color" data-color="#ffffff" style="background: #ffffff"></li></ul></div></div><div class="fields"><ul><li class="time loop toggle-active"><span class="vtk-icon-clock-1 action title">Time</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="phi loop toggle-active"><span class="vtk-icon-resize-horizontal-1 action title">Phi</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="theta toggle-active"><span class="vtk-icon-resize-vertical-1 action title">Theta</span><div class="right-control"><span class="value">0</span><span class="vtk-icon-to-start-1 action vcr" data-action="begin"></span><span class="vtk-icon-left-dir action vcr" data-action="previous"></span><span class="vtk-icon-right-dir action vcr" data-action="next"></span><span class="vtk-icon-to-end-1 action vcr" data-action="end"></span></div></li><li class="compute-coverage action"><span>Compute pixel coverage</span><div class="right-control"><span class="vtk-icon-sort-alt-down"/></div></li><li class="progress"><div></div></li></ul></div></div></div>',
     PIPELINE_ENTRY = '<li class="show enabled" data-id="ID"><span class="FRONT_ICON action"></span><span class="label">LABEL</span>CONTROL</li>',
     DIRECTORY_CONTROL = '<span class="vtk-icon-plus-circled right-control action select-layer"></span><ul>CHILDREN</ul>',
     TEMPLATE_SELECTOR = '<div class="head"><span class="title">TITLE</span><span class="vtk-icon-ok action right-control validate-layer"></span></div><ul>LIST</ul>',
@@ -38,6 +38,7 @@
             pipeline = data.metadata.pipeline,
             args = data.arguments,
             idList = [],
+            dataList = [],
             result = [],
             layerOlderInvalid = true,
             filePattern = data.name_pattern.replace(/{filename}/g, 'query.json'),
@@ -146,6 +147,8 @@
                     if(count == 0) {
                         sendNumberOfPrixel(data.dimensions[0] * data.dimensions[1]);
                     }
+                    // Fetch next one
+                    processDataList();
                 },
                 error: function(error) {
                     console.log("error when trying to download " + url);
@@ -154,6 +157,25 @@
             });
         }
 
+        // ------------------------------
+
+        var processIdx = 0,
+        progressBar = $('.progress > div', container);
+
+        $('.progress', container).show();
+
+        function processDataList() {
+            if(processIdx < idList.length) {
+                fetchData(idList[processIdx], dataList[processIdx], processIdx);
+                processIdx++;
+                progressBar.css('width', Math.floor(95*processIdx / idList.length) + '%');
+            } else {
+                $('.compute-coverage', container).show();
+                progressBar.parent().hide();
+            }
+        }
+
+        // ------------------------------
 
         // Generate image list
         while(timeCount--) {
@@ -164,9 +186,11 @@
                 var currentURL = baseURL.replace(/{theta}/g, thetaList[thetaCount]);
                 while(phiCount--) {
                     var url = currentURL.replace(/{phi}/g, phiList[phiCount]);
-                    fetchData(url, { time: timeList[timeCount], phi: phiList[phiCount], theta: thetaList[thetaCount]}, idList.length);
+                    dataList.push({ time: timeList[timeCount], phi: phiList[phiCount], theta: thetaList[thetaCount]});
                     idList.push(url);
-                    $('.result-total', container).html(idList.length);
+                    if(idList.length === 1) {
+                        processDataList();
+                    }
                 }
             }
         }
@@ -230,11 +254,11 @@
 
             // Create brand new graph
             var options = {
-                'renderer': 'bar',  // Type of chart [line, area, bar, scatterplot]
+                'renderer': 'area',  // Type of chart [line, area, bar, scatterplot]
                 'stacked' : true,
                 'series': series,
                 'axes': [ "bottom", "left", "top"], // Draw axis on border with scale
-                'chart-padding': [0, 150, 0, 0],   // Graph padding [top, right, bottom, left] in px. Useful to save space for legend
+                'chart-padding': [0, 100, 0, 0],   // Graph padding [top, right, bottom, left] in px. Useful to save space for legend
             };
             $('.chart-container', container).empty().vtkChart(options);
         }
@@ -1324,7 +1348,6 @@
                             fieldContainer.attr('data-values', args[key].values.join(':')).attr('data-index', '0').attr('data-size', args[key].values.length);
                         }
                     }
-                    $('.compute-coverage', me).show();
 
                     // Add search/results containers
                     $('<div/>', {class: "chart-container"}).appendTo(me);

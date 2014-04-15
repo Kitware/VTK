@@ -33,7 +33,9 @@
         buffer = [];
 
         seconds %= 60;
+        seconds = Math.floor(seconds);
         minutes %= 60;
+        minutes = Math.floor(minutes);
 
         if(hours > 0) {
            buffer.push(hours);
@@ -73,7 +75,7 @@
     // ------------------------------------------------------------------------
 
     function buildBillingPage(info, path, formula) {
-        var content = [ "<table class='catalyst-bill'><tr class='head'></td><td class='empty title'></td><td><span class='vtk-icon-clock'/></td><td><span class='vtk-icon-database'/></td><td><span class='vtk-icon-picture-1'/></td><td><span class='vtk-icon-dollar'/></td></tr>" ],
+        var content = [ "<table class='catalyst-bill'><tr class='head'></td><td class='empty title'></td><td><span class='vtk-icon-resize-horizontal-1'/></td><td><span class='vtk-icon-clock'/></td><td><span class='vtk-icon-database'/></td><td><span class='vtk-icon-picture-1'/></td><td><span class='vtk-icon-dollar'/></td></tr>" ],
         total = { "space": 0, "images": 0, "time": 0 , "dollars": 0},
         analysisCount = info['analysis'].length;
 
@@ -92,7 +94,7 @@
         }
 
         // Add total
-        content.push("<tr class='sum'><td>Total</td><td>"+ formatTime(total["time"]) +"</td><td>"+ formatSpace(total["space"]) +"</td><td>"+ total["images"] +"</td><td>"+ formatDollars(total["dollars"]) +"</td></tr></table>")
+        content.push("<tr class='sum'><td>Total</td><td></td><td>"+ formatTime(total["time"]) +"</td><td>"+ formatSpace(total["space"]) +"</td><td>"+ total["images"] +"</td><td>"+ formatDollars(total["dollars"]) +"</td></tr></table>")
 
         return "<div class='view cost'>" + content.join('') + "</div>";
     }
@@ -104,9 +106,10 @@
         title = item["title"],
         time = cost["time"],
         space = cost["space"],
-        images = cost["images"];
+        images = cost["images"],
+        width = cost.hasOwnProperty('image-width') ? cost["image-width"] : "";
 
-        return "<tr><td class='title'><span class='" + classType + "'/>" + title + "</td><td class='time value'>" + formatTime(time) + "</td><td class='space value'>" + formatSpace(space) + "</td><td class='images value'>" + images + "</td><td class='dollars value'>" + formatDollars(dollars) + "</td></tr>";
+        return "<tr><td class='title'><span class='" + classType + "'/>" + title + "</td><td class='image-width value'>"+width+"</td><td class='time value'>" + formatTime(time) + "</td><td class='space value'>" + formatSpace(space) + "</td><td class='images value'>" + images + "</td><td class='dollars value'>" + formatDollars(dollars) + "</td></tr>";
     }
 
     /**

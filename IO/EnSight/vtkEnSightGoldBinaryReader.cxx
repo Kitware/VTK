@@ -40,7 +40,7 @@ vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 class vtkEnSightGoldBinaryReader::FileOffsetMapInternal
 {
   typedef std::string MapKey;
-  typedef std::map<int,long> MapValue;
+  typedef std::map<int,vtkTypeInt64> MapValue;
   public:
     typedef std::map<MapKey, MapValue>::const_iterator const_iterator;
     typedef std::map<MapKey, MapValue>::value_type value_type;
@@ -4150,9 +4150,9 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
   return 1;
 }
 
-// Internal function to read a single long.
+// Internal function to read a single vtkTypeInt64.
 // Returns zero if there was an error.
-int vtkEnSightGoldBinaryReader::ReadLong(long *result)
+int vtkEnSightGoldBinaryReader::ReadLong(vtkTypeInt64 *result)
 {
   char dummy[4];
   if (this->Fortran)
@@ -4164,7 +4164,7 @@ int vtkEnSightGoldBinaryReader::ReadLong(long *result)
       }
     }
 
-  if (!this->IFile->read((char*)result, sizeof(long)))
+  if (!this->IFile->read((char*)result, sizeof(vtkTypeInt64)))
     {
     vtkErrorMacro("Read failed");
     return 0;
@@ -4282,11 +4282,11 @@ int vtkEnSightGoldBinaryReader::SeekToCachedTimeStep(const char* fileName,
 // Add a cached file offset
 void vtkEnSightGoldBinaryReader::AddTimeStepToCache(const char* fileName,
                                                     int realTimeStep,
-                                                    long address)
+                                                    vtkTypeInt64 address)
 {
   if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
     {
-    std::map<int, long> tsMap;
+    std::map<int, vtkTypeInt64> tsMap;
     this->FileOffsets->Map[fileName] = tsMap;
     }
   this->FileOffsets->Map[fileName][realTimeStep] = address;
@@ -4300,17 +4300,17 @@ void vtkEnSightGoldBinaryReader::AddFileIndexToCache(const char* fileName)
   if (this->FileOffsets->Map.find(fileName) == this->FileOffsets->Map.end())
     {
     char line[80];
-    long addr;
+    vtkTypeInt64 addr;
     int  numTS;
 
     // We add an empty map to prevent further attempts at reading the file index
-    std::map<int, long> tsMap;
+    std::map<int, vtkTypeInt64> tsMap;
     this->FileOffsets->Map[fileName] = tsMap;
 
-    // Read the last 80 characters (+ a long) of the file and check for FILE_INDEX
+    // Read the last 80 characters (+ a vtkTypeInt64) of the file and check for FILE_INDEX
     vtkIdType seekOffset =
       ( vtkIdType(-80) * static_cast<vtkIdType>(sizeof(char)) ) -
-                         static_cast<vtkIdType>(sizeof(long));
+                         static_cast<vtkIdType>(sizeof(vtkTypeInt64));
     this->IFile->seekg(seekOffset, ios::end);
 
     // right before the FILE_INDEX entry we might find the address of the index start

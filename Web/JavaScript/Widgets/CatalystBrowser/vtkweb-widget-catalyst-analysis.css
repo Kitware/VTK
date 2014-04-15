@@ -53,6 +53,10 @@
     background-color: #999;
 }
 
+.vtkweb-catalyst-analysis .toolbar-main .run-button {
+    padding-right: 15px;
+}
+
 .vtkweb-catalyst-analysis .toolbar-main .need-project {
     display: none;
 }

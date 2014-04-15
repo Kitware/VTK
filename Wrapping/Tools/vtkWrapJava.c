@@ -411,7 +411,7 @@ void copy_and_release_args(FILE *fp, int i)
   /* handle VAR FUNCTIONS */
   if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
     {
-    fprintf(fp,"  if (temp%i_str) delete[] temp%i_str;\n",i,i);
+    fprintf(fp,"  delete[] temp%i_str;\n",i);
     return;
     }
 
@@ -432,7 +432,7 @@ void copy_and_release_args(FILE *fp, int i)
       fprintf(fp,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray%i,0);\n",i,i);
       break;
     case VTK_PARSE_CHAR_PTR:
-      fprintf(fp,"  if (temp%i) delete[] temp%i;\n",i,i);
+      fprintf(fp,"  delete[] temp%i;\n",i);
       break;
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_LONG_PTR:
@@ -1387,8 +1387,8 @@ int main(int argc, char *argv[])
     fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj);\n");
     fprintf(fp,"  unsigned long     temp20;\n");
     fprintf(fp,"  temp20 = op->AddObserver(temp0,cbc);\n");
-    fprintf(fp,"  if (temp0) delete[] temp0;\n");
-    fprintf(fp,"  if (temp2) delete[] temp2;\n");
+    fprintf(fp,"  delete[] temp0;\n");
+    fprintf(fp,"  delete[] temp2;\n");
     fprintf(fp,"  cbc->Delete();\n");
     fprintf(fp,"  return temp20;\n}\n");
    }
