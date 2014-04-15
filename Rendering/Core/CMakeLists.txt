@@ -137,6 +137,11 @@ set(Module_SRCS
   vtkTextMapper.cxx
   vtkTextProperty.cxx
   vtkTextRenderer.cxx
+
+  # Some of the new rendering code - may move around in the future.
+  vtkAbstractInteractionDevice.cxx
+  vtkAbstractRenderDevice.cxx
+  vtkRenderWidget.cxx
   )
 
 set(${vtk-module}_HDRS
