@@ -69,8 +69,14 @@ public:
   vtkGetMacro(SlabThickness, double);
 
   // Description:
-  // The slab type, for thick slicing (default: mean)
-  vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_MEAN);
+  // The slab type, for thick slicing (default: Mean).
+  // The resulting view is a parallel projection through the volume.  This
+  // method can be used to generate a facsimile of a digitally-reconstructed
+  // radiograph or a minimum-intensity projection as long as perspective
+  // geometry is not required.  Note that the Sum mode provides an output
+  // with units of intensity times distance, while all other modes provide
+  // an output with units of intensity.
+  vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   vtkGetMacro(SlabType, int);
   void SetSlabTypeToMin() {
     this->SetSlabType(VTK_IMAGE_SLAB_MIN); };
@@ -78,6 +84,8 @@ public:
     this->SetSlabType(VTK_IMAGE_SLAB_MAX); };
   void SetSlabTypeToMean() {
     this->SetSlabType(VTK_IMAGE_SLAB_MEAN); };
+  void SetSlabTypeToSum() {
+    this->SetSlabType(VTK_IMAGE_SLAB_SUM); };
   virtual const char *GetSlabTypeAsString();
 
   // Description:
