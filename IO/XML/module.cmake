@@ -4,6 +4,7 @@ vtk_module(vtkIOXML
   DEPENDS
     vtkIOXMLParser
     vtkIOGeometry
+    vtkFiltersAMR
   PRIVATE_DEPENDS
     vtksys
   TEST_DEPENDS

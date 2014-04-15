@@ -16,6 +16,7 @@
 
 #include "vtkAMRBox.h"
 #include "vtkAMRInformation.h"
+#include "vtkAMRUtilities.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkInformation.h"
@@ -294,6 +295,8 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
         }
       }
     }
+
+  this->Metadata->GenerateParentChildInformation();
   return 1;
 }
 
@@ -369,7 +372,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
 
   vtkInformation* outinfo = this->GetCurrentOutputInformation();
   bool has_block_requests =
-    outinfo->Has(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES()) != 0;
+    outinfo->Has(vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS()) != 0;
 
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(amr);
   vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(amr);
@@ -457,8 +460,10 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
       }
     }
 
-  //Blanking is not done right now.
-  //This information should be in the file.vtkAMRUtilities::BlankCells(hbox,NULL);
+  if( (oamr != NULL) && !has_block_requests )
+    {
+    vtkAMRUtilities::BlankCells(oamr,NULL);
+    }
 }
 
 //----------------------------------------------------------------------------
