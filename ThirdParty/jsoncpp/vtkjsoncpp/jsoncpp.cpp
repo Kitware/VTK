@@ -363,6 +363,17 @@ Reader::readValue()
 
    if ( collectComments_  &&  !commentsBefore_.empty() )
    {
+      // Remove newline characters at the end of the comments
+      size_t lastNonNewline = commentsBefore_.find_last_not_of("\r\n");
+      if (lastNonNewline != std::string::npos)
+      {
+         commentsBefore_.erase(lastNonNewline+1);
+      }
+      else
+      {
+         commentsBefore_.clear();
+      }
+
       currentValue().setComment( commentsBefore_, commentBefore );
       commentsBefore_ = "";
    }
@@ -578,8 +589,6 @@ Reader::addComment( Location begin,
    }
    else
    {
-      if ( !commentsBefore_.empty() )
-         commentsBefore_ += "\n";
       commentsBefore_ += std::string( begin, end );
    }
 }
@@ -3888,7 +3897,19 @@ StyledWriter::writeCommentBeforeValue( const Value &root )
 {
    if ( !root.hasComment( commentBefore ) )
       return;
-   document_ += normalizeEOL( root.getComment( commentBefore ) );
+   document_ += "\n";
+   writeIndent();
+   std::string normalizedComment = normalizeEOL( root.getComment( commentBefore ) );
+   std::string::const_iterator iter = normalizedComment.begin();
+   while (iter != normalizedComment.end())
+   {
+      document_ += *iter;
+      if (*iter == '\n')
+         writeIndent();
+      ++iter;
+   }
+
+   // Comments are stripped of newlines, so add one here
    document_ += "\n";
 }
 
