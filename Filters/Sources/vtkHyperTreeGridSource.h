@@ -42,10 +42,10 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
-#include "vtkStdString.h" // For vtkStdString ivars
 
-#include <vector> // STL Header
+#include <string> // STL Header
 #include <map> // STL Header
+#include <vector> // STL Header
 
 class vtkDataArray;
 class vtkBitArray;
@@ -162,8 +162,8 @@ public:
 
   // Description:
   // Helpers to convert string descriptors & mask to bit arrays
-  vtkBitArray* ConvertDescriptorStringToBitArray( const vtkStdString& );
-  vtkBitArray* ConvertMaterialMaskStringToBitArray( const vtkStdString& );
+  vtkBitArray* ConvertDescriptorStringToBitArray( const std::string& );
+  vtkBitArray* ConvertMaterialMaskStringToBitArray( const std::string& );
 
 protected:
   vtkHyperTreeGridSource();
@@ -239,8 +239,8 @@ protected:
 
   char* Descriptor;
   char* MaterialMask;
-  std::vector<vtkStdString> LevelDescriptors;
-  std::vector<vtkStdString> LevelMaterialMasks;
+  std::vector<std::string> LevelDescriptors;
+  std::vector<std::string> LevelMaterialMasks;
 
   vtkBitArray* DescriptorBits;
   vtkBitArray* MaterialMaskBits;
