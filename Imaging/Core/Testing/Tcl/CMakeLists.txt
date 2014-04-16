@@ -1,90 +1,92 @@
-vtk_add_test_tcl(ContinuousClose2D)
-vtk_add_test_tcl(IdealHighPass)
-vtk_add_test_tcl(LaplacianEdgeEnhance)
-vtk_add_test_tcl(MultipleUpdateExtents)
-vtk_add_test_tcl(ResliceBSpline)
-vtk_add_test_tcl(ResliceColorWrap)
-vtk_add_test_tcl(ResliceInformationInput)
-vtk_add_test_tcl(ResliceInterpolationModes)
-vtk_add_test_tcl(ResliceInterpolationOblique)
-vtk_add_test_tcl(ResliceLanczosKaiser)
-vtk_add_test_tcl(ResliceMirrorOblique)
-vtk_add_test_tcl(ResliceMirrorPad)
-vtk_add_test_tcl(ResliceOptimizationOff)
-vtk_add_test_tcl(ReslicePermutations)
-vtk_add_test_tcl(ReslicePermuteResample)
-vtk_add_test_tcl(ReslicePermuteSlab)
-vtk_add_test_tcl(ResliceSlabModes)
-vtk_add_test_tcl(ResliceToColors)
-vtk_add_test_tcl(ResliceWrapOblique)
-vtk_add_test_tcl(ResliceWrapPad)
-vtk_add_test_tcl(Spectrum)
-vtk_add_test_tcl(TestAccumulate)
-vtk_add_test_tcl(TestAllBlends)
-vtk_add_test_tcl(TestAllBlendsFloat)
-vtk_add_test_tcl(TestAllFlips)
-vtk_add_test_tcl(TestAllLogic)
-vtk_add_test_tcl(TestAllMaskBits)
-vtk_add_test_tcl(TestAllShrinks)
-vtk_add_test_tcl(TestAnisotropicDiffusion2D)
-vtk_add_test_tcl(TestAnisotropicDiffusion3D)
-vtk_add_test_tcl(TestBlendStencil)
-vtk_add_test_tcl(TestButterworthHighPass)
-vtk_add_test_tcl(TestButterworthLowPass)
-vtk_add_test_tcl(TestCache)
-vtk_add_test_tcl(TestChangeInformation)
-vtk_add_test_tcl(TestCityBlockDistance)
-vtk_add_test_tcl(TestDivergence)
-vtk_add_test_tcl(TestDotProduct)
-vtk_add_test_tcl(TestEuclideanDistance)
-vtk_add_test_tcl(TestEuclideanDistanceCached)
-vtk_add_test_tcl(TestGradientMagnitude)
-vtk_add_test_tcl(TestGradientMagnitude2)
-vtk_add_test_tcl(TestIdealLowPass)
-vtk_add_test_tcl(TestImageCanvas)
-vtk_add_test_tcl(TestImageProjection)
-vtk_add_test_tcl(TestImageThresholdConnectivity)
-vtk_add_test_tcl(TestImageWeightedSum)
-vtk_add_test_tcl(TestInPlaceFilter)
-vtk_add_test_tcl(TestIslandRemoval2D)
-vtk_add_test_tcl(TestLassoStencil)
-vtk_add_test_tcl(TestMapToRGBABlockStreaming)
-vtk_add_test_tcl(TestMapToWindowLevelColors2)
-vtk_add_test_tcl(TestMask2)
-vtk_add_test_tcl(TestMedian3D)
-vtk_add_test_tcl(TestOpenClose3D)
-vtk_add_test_tcl(TestPermute)
-vtk_add_test_tcl(TestQuantizeTo16Colors)
-vtk_add_test_tcl(TestRange3D)
-vtk_add_test_tcl(TestResample)
-vtk_add_test_tcl(TestROIStencil)
-vtk_add_test_tcl(TestSeparableFilter)
-vtk_add_test_tcl(TestShiftScale)
-vtk_add_test_tcl(TestShiftScale2)
-vtk_add_test_tcl(TestSimpleImageExample)
-vtk_add_test_tcl(TestSobel2D)
-vtk_add_test_tcl(TestSobel3D)
-vtk_add_test_tcl(TestStencilWithFunction)
-vtk_add_test_tcl(TestStencilWithImage)
-vtk_add_test_tcl(TestThreshold)
-vtk_add_test_tcl(TestVariance3D)
-vtk_add_test_tcl(TestWrapPad)
-vtk_add_test_tcl(reconstructSurface)
-vtk_add_test_tcl(resampledTexture)
-vtk_add_test_tcl(imageMCAll)
-vtk_add_test_tcl(TestAllMathematics)
-vtk_add_test_tcl(TestCheckerboard)
-vtk_add_test_tcl(TestConvolve)
-vtk_add_test_tcl(TestCorrelation)
-vtk_add_test_tcl(TestEuclideanToPolar)
-vtk_add_test_tcl(TestFFTCorrelation)
-vtk_add_test_tcl(TestHSIToRGB)
-vtk_add_test_tcl(TestHSVToRGB)
-vtk_add_test_tcl(TestHybridMedian2D)
-vtk_add_test_tcl(TestMapToWindowLevelColors)
-vtk_add_test_tcl(TestNormalize)
-vtk_add_test_tcl(TestSkeleton2D)
-vtk_add_test_tcl(TestStencilToImage)
-vtk_add_test_tcl(TestWipe)
-vtk_add_test_tcl(voxelModel)
-vtk_add_test_tcl(TestExtractVOI)
+vtk_add_test_tcl(
+  ContinuousClose2D.tcl
+  IdealHighPass.tcl
+  LaplacianEdgeEnhance.tcl
+  MultipleUpdateExtents.tcl
+  ResliceBSpline.tcl
+  ResliceColorWrap.tcl
+  ResliceInformationInput.tcl
+  ResliceInterpolationModes.tcl
+  ResliceInterpolationOblique.tcl
+  ResliceLanczosKaiser.tcl
+  ResliceMirrorOblique.tcl
+  ResliceMirrorPad.tcl
+  ResliceOptimizationOff.tcl
+  ReslicePermutations.tcl
+  ReslicePermuteResample.tcl
+  ReslicePermuteSlab.tcl
+  ResliceSlabModes.tcl
+  ResliceToColors.tcl
+  ResliceWrapOblique.tcl
+  ResliceWrapPad.tcl
+  Spectrum.tcl
+  TestAccumulate.tcl
+  TestAllBlends.tcl
+  TestAllBlendsFloat.tcl
+  TestAllFlips.tcl
+  TestAllLogic.tcl
+  TestAllMaskBits.tcl
+  TestAllShrinks.tcl
+  TestAnisotropicDiffusion2D.tcl
+  TestAnisotropicDiffusion3D.tcl
+  TestBlendStencil.tcl
+  TestButterworthHighPass.tcl
+  TestButterworthLowPass.tcl
+  TestCache.tcl
+  TestChangeInformation.tcl
+  TestCityBlockDistance.tcl
+  TestDivergence.tcl
+  TestDotProduct.tcl
+  TestEuclideanDistance.tcl
+  TestEuclideanDistanceCached.tcl
+  TestGradientMagnitude.tcl
+  TestGradientMagnitude2.tcl
+  TestIdealLowPass.tcl
+  TestImageCanvas.tcl
+  TestImageProjection.tcl
+  TestImageThresholdConnectivity.tcl
+  TestImageWeightedSum.tcl
+  TestInPlaceFilter.tcl
+  TestIslandRemoval2D.tcl
+  TestLassoStencil.tcl
+  TestMapToRGBABlockStreaming.tcl
+  TestMapToWindowLevelColors2.tcl
+  TestMask2.tcl
+  TestMedian3D.tcl
+  TestOpenClose3D.tcl
+  TestPermute.tcl
+  TestQuantizeTo16Colors.tcl
+  TestRange3D.tcl
+  TestResample.tcl
+  TestROIStencil.tcl
+  TestSeparableFilter.tcl
+  TestShiftScale.tcl
+  TestShiftScale2.tcl
+  TestSimpleImageExample.tcl
+  TestSobel2D.tcl
+  TestSobel3D.tcl
+  TestStencilWithFunction.tcl
+  TestStencilWithImage.tcl
+  TestThreshold.tcl
+  TestVariance3D.tcl
+  TestWrapPad.tcl
+  reconstructSurface.tcl
+  resampledTexture.tcl
+  imageMCAll.tcl
+  TestAllMathematics.tcl
+  TestCheckerboard.tcl
+  TestConvolve.tcl
+  TestCorrelation.tcl
+  TestEuclideanToPolar.tcl
+  TestFFTCorrelation.tcl
+  TestHSIToRGB.tcl
+  TestHSVToRGB.tcl
+  TestHybridMedian2D.tcl
+  TestMapToWindowLevelColors.tcl
+  TestNormalize.tcl
+  TestSkeleton2D.tcl
+  TestStencilToImage.tcl
+  TestWipe.tcl
+  voxelModel.tcl
+  TestExtractVOI.tcl
+  )

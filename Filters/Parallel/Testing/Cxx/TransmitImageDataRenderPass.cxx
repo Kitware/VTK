@@ -50,6 +50,9 @@
 
 #include <mpi.h>
 
+namespace
+{
+
 class MyProcess : public vtkProcess
 {
 public:
@@ -252,7 +255,9 @@ void MyProcess::Execute()
   renderer->Delete();
 }
 
-int main(int argc, char **argv)
+}
+
+int TransmitImageDataRenderPass(int argc, char *argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the

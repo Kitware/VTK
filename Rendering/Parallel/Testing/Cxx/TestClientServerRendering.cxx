@@ -55,6 +55,9 @@
 
 #include <vtksys/CommandLineArguments.hxx>
 
+namespace
+{
+
 class MyProcess : public vtkObject
 {
 public:
@@ -249,8 +252,10 @@ bool MyProcess::Execute(int argc, char** argv)
   return success;
 }
 
+}
+
 //-----------------------------------------------------------------------------
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
   int image_reduction_factor = 1;
   int is_server = 0;

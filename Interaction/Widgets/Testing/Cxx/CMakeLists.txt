@@ -1,5 +1,5 @@
 set(TerrainPolylineEditor_ARGS -ProjectionMode 2 -HeightOffset 100)
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   BoxWidget2.cxx
   BoxWidget.cxx
   ImagePlaneWidget.cxx
@@ -56,7 +56,8 @@ vtk_add_test_cxx(
   TestSphereWidgetZoomInOut.cxx
   TestTextWidget.cxx
   )
-vtk_add_test_cxx(NO_VALID
+vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
+  NO_VALID
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
   vtkAngleWidgetTest1.cxx
@@ -79,7 +80,7 @@ vtk_add_test_cxx(NO_VALID
   )
 
 # Tests with data
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestDijkstraGraphGeodesicPath.cxx
   TestLineWidget2.cxx
   TestLineWidget.cxx
@@ -95,10 +96,19 @@ vtk_add_test_cxx(
   )
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
-  vtk_add_test_cxx(TestPickingManagerWidgets.cxx)
+  vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
+    TestPickingManagerWidgets.cxx
+    )
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+set(all_tests
+  ${tests}
+  ${no_valid_tests}
+  ${data_tests}
+  ${ogl_tests}
+  )
+vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
+  RENDERING_FACTORY)
 
 set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
   PROPERTIES TIMEOUT 90)

@@ -1,47 +1,49 @@
-vtk_add_test_tcl(QuadricDecimation)
-vtk_add_test_tcl(TestGridSynchronizedTemplates3D)
-vtk_add_test_tcl(TestMarchingSquares)
-vtk_add_test_tcl(TestRectilinearSynchronizedTemplates)
-vtk_add_test_tcl(TestSynchronizedTemplates2D)
-vtk_add_test_tcl(TestSynchronizedTemplates3D)
-vtk_add_test_tcl(capCow)
-vtk_add_test_tcl(clipArt)
-vtk_add_test_tcl(combStreamers)
-vtk_add_test_tcl(combStreamers2)
-vtk_add_test_tcl(createBFont)
-vtk_add_test_tcl(deciFranFace)
-vtk_add_test_tcl(dispPlot)
-vtk_add_test_tcl(fieldToPolyData)
-vtk_add_test_tcl(fieldToRGrid)
-vtk_add_test_tcl(fieldToSGrid)
-vtk_add_test_tcl(fieldToUGrid)
-vtk_add_test_tcl(financialField)
-vtk_add_test_tcl(mergeFilter)
-vtk_add_test_tcl(multipleIso)
-vtk_add_test_tcl(polyConn)
-vtk_add_test_tcl(probe)
-vtk_add_test_tcl(probeComb)
-vtk_add_test_tcl(reverseNormals)
-vtk_add_test_tcl(skinOrder)
-vtk_add_test_tcl(smoothMeshOnMesh)
-vtk_add_test_tcl(stripF)
-vtk_add_test_tcl(teapotHulls)
-vtk_add_test_tcl(CellDataToPointData)
-vtk_add_test_tcl(Delaunay2D)
-vtk_add_test_tcl(Delaunay2DAlpha)
-vtk_add_test_tcl(Delaunay2DTransform)
-vtk_add_test_tcl(Delaunay3D)
-vtk_add_test_tcl(StreamPolyData)
-vtk_add_test_tcl(TestTriangleFilter)
-vtk_add_test_tcl(capSphere)
-vtk_add_test_tcl(constrainedDelaunay)
-vtk_add_test_tcl(contourCells)
-vtk_add_test_tcl(contourQuadraticCells)
-vtk_add_test_tcl(cutLoop)
-vtk_add_test_tcl(deciPlane)
-vtk_add_test_tcl(hull)
-vtk_add_test_tcl(multipleComponentContour)
+vtk_add_test_tcl(
+  QuadricDecimation.tcl
+  TestGridSynchronizedTemplates3D.tcl
+  TestMarchingSquares.tcl
+  TestRectilinearSynchronizedTemplates.tcl
+  TestSynchronizedTemplates2D.tcl
+  TestSynchronizedTemplates3D.tcl
+  capCow.tcl
+  clipArt.tcl
+  combStreamers.tcl
+  combStreamers2.tcl
+  createBFont.tcl
+  deciFranFace.tcl
+  dispPlot.tcl
+  fieldToPolyData.tcl
+  fieldToRGrid.tcl
+  fieldToSGrid.tcl
+  fieldToUGrid.tcl
+  financialField.tcl
+  mergeFilter.tcl
+  multipleIso.tcl
+  polyConn.tcl
+  probe.tcl
+  probeComb.tcl
+  reverseNormals.tcl
+  skinOrder.tcl
+  smoothMeshOnMesh.tcl
+  stripF.tcl
+  teapotHulls.tcl
+  CellDataToPointData.tcl
+  Delaunay2D.tcl
+  Delaunay2DAlpha.tcl
+  Delaunay2DTransform.tcl
+  Delaunay3D.tcl
+  StreamPolyData.tcl
+  TestTriangleFilter.tcl
+  capSphere.tcl
+  constrainedDelaunay.tcl
+  contourCells.tcl
+  contourQuadraticCells.tcl
+  cutLoop.tcl
+  deciPlane.tcl
+  hull.tcl
+  multipleComponentContour.tcl
 
-vtk_add_test_tcl(MassProperties)
-vtk_add_test_tcl(financialField2)
-vtk_add_test_tcl(financialField3)
+  MassProperties.tcl
+  financialField2.tcl
+  financialField3.tcl
+  )

@@ -1,7 +1,8 @@
-vtk_add_test_tcl(TestXMLImageDataIO)
-vtk_add_test_tcl(TestXMLRectilinearGridIO)
-vtk_add_test_tcl(TestEmptyXML NO_DATA NO_VALID)
-vtk_add_test_tcl(TestXMLStructuredGridIO)
-
-#    TestXMLUnstructuredGridIO depends on Parallel
-#    TestXMLPolyDataIO depends on Parallel
+vtk_add_test_tcl(
+  TestXMLImageDataIO.tcl
+  TestXMLRectilinearGridIO.tcl
+  TestEmptyXML.tcl,NO_DATA,NO_VALID
+  TestXMLStructuredGridIO.tcl
+  # TestXMLUnstructuredGridIO.tcl # depends on Parallel
+  # TestXMLPolyDataIO.tcl # depends on Parallel
+  )

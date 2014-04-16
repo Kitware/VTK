@@ -43,6 +43,9 @@
 
 #include "vtkProcess.h"
 
+namespace
+{
+
 class MyProcess : public vtkProcess
 {
 public:
@@ -222,7 +225,9 @@ void MyProcess::Execute()
   prm->Delete();
 }
 
-int main(int argc, char **argv)
+}
+
+int TransmitStructuredGrid(int argc, char *argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the

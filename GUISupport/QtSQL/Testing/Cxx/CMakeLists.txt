@@ -1,6 +1,7 @@
 include(vtkQt)
 
-vtk_add_test_cxx(NO_VALID
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  NO_VALID
   TestQtSQLDatabase.cxx
   )
 
@@ -13,7 +14,7 @@ else()
   include(${QT_USE_FILE})
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
   set_target_properties(${vtk-module}CxxTests PROPERTIES

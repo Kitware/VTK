@@ -149,7 +149,7 @@ void PrintGraph(vtkGraph *graph)
   cerr << "}" << endl;
 }
 
-int main(int argc, char* argv[])
+int TestPBGLCollectGraph(int argc, char* argv[])
 {
   boost::mpi::environment env(argc, argv);
   boost::mpi::communicator world;

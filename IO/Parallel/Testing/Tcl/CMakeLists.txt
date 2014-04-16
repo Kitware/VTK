@@ -1,2 +1,4 @@
-vtk_add_test_tcl(TestPDataSetReaderGrid)
-vtk_add_test_tcl(TestPImageWriter)
+vtk_add_test_tcl(
+  TestPDataSetReaderGrid.tcl
+  TestPImageWriter.tcl
+  )

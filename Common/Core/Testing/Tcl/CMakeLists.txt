@@ -1,13 +1,10 @@
-set(tests
-  TestArrays
-  TestEmptyInput
-  TestSetGet
-  TestString
-  TestIgnoreBTX
-  otherInterp
-  otherPrint
+vtk_add_test_tcl(
+  NO_DATA NO_RT
+  TestArrays.tcl
+  TestEmptyInput.tcl
+  TestSetGet.tcl
+  TestString.tcl
+  TestIgnoreBTX.tcl
+  otherInterp.tcl
+  otherPrint.tcl
   )
-
-foreach(test ${tests})
-  vtk_add_test_tcl(${test}.tcl NO_DATA NO_RT)
-endforeach()

@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestArcSource.cxx,NO_VALID
   TestConeSource.cxx,NO_VALID
   TestCubeSource.cxx,NO_VALID
@@ -23,4 +23,4 @@ vtk_add_test_cxx(
   TestTextSource.cxx,NO_VALID
   TestTexturedSphereSource.cxx,NO_VALID
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

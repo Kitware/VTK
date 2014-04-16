@@ -232,7 +232,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 }
 
 
-int main( int argc, char* argv[] )
+int ParallelIso( int argc, char* argv[] )
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the

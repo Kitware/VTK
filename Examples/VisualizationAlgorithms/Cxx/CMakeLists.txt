@@ -31,11 +31,13 @@ if(BUILD_TESTING)
     set(vtk-example VisualizationAlgorithmsExamples)
     set(TestFilledContours_ARGS "DATA{${VTK_TEST_INPUT_DIR}/filledContours.vtp}" 10)
     set(TestBandedContours_ARGS "DATA{${VTK_TEST_INPUT_DIR}/filledContours.vtp}" 10)
-    vtk_add_test_cxx(
+    vtk_add_test_cxx(${vtk-example}CxxTests tests
       TestTubesWithVaryingRadiusAndColors.cxx
       TestFilledContours.cxx
       TestBandedContours.cxx
       )
-    vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+    vtk_test_cxx_executable(${vtk-example}CxxTests tests
+      RENDERING_FACTORY
+      )
   endif()
 endif()

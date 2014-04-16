@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   FastSplatter.cxx
   ImageAccumulate.cxx,NO_VALID
   ImageAutoRange.cxx
@@ -12,11 +12,11 @@ vtk_add_test_cxx(
   ImportExport.cxx,NO_VALID
   TestUpdateExtentReset.cxx,NO_VALID
   )
-
-# The stencil test is special
-set_property(DIRECTORY APPEND PROPERTY VTK_TEST_CXX_SOURCES
+list(APPEND tests
   TestImageStencilData.cxx
   )
+
+# The stencil test is special
 ExternalData_add_test(VTKData
   NAME ${vtk-module}Cxx-AddStencilData
   COMMAND ${vtk-module}CxxTests TestImageStencilData 1
@@ -36,4 +36,6 @@ ExternalData_add_test(VTKData
     -T ${VTK_TEST_OUTPUT_DIR}
     -V DATA{../Data/Baseline/TestClipStencilData.png,:})
 
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY
+  )

@@ -1,5 +1,7 @@
-vtk_add_test_python(RectOutline.py)
-vtk_add_test_python(TestCutMaterial.py)
-vtk_add_test_python(TestExtractCTHPart.py)
-vtk_add_test_python(TestExtrudePiece.py)
-vtk_add_test_python(TestImageStreamer.py)
+vtk_add_test_python(
+  RectOutline.py
+  TestCutMaterial.py
+  TestExtractCTHPart.py
+  TestExtrudePiece.py
+  TestImageStreamer.py
+  )

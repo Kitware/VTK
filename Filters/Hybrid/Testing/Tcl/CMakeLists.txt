@@ -1,21 +1,23 @@
-vtk_add_test_tcl(TestFacetReader)
-vtk_add_test_tcl(TestGreedyTerrainDecimation)
-vtk_add_test_tcl(TestGridWarp3D)
-vtk_add_test_tcl(TestGridWarpCubic)
-vtk_add_test_tcl(TestGridWarpLinear)
-vtk_add_test_tcl(TestGridWarpNearest)
-vtk_add_test_tcl(TestImageStencilWithPolydata)
-vtk_add_test_tcl(TestProjectedTerrainPath)
-vtk_add_test_tcl(earth)
-vtk_add_test_tcl(imageToPolyData)
-vtk_add_test_tcl(largeImageOffset)
-vtk_add_test_tcl(largeImageParallel)
-vtk_add_test_tcl(3DMorph)
-vtk_add_test_tcl(TestPCA)
-vtk_add_test_tcl(TestProcrustes)
-vtk_add_test_tcl(TestProcrustesRigidCentroid)
-vtk_add_test_tcl(WarpPolyData)
-vtk_add_test_tcl(appendImplicitModel)
-vtk_add_test_tcl(appendImplicitModelNoBounds)
-vtk_add_test_tcl(banana)
-vtk_add_test_tcl(depthSort)
+vtk_add_test_tcl(
+  TestFacetReader.tcl
+  TestGreedyTerrainDecimation.tcl
+  TestGridWarp3D.tcl
+  TestGridWarpCubic.tcl
+  TestGridWarpLinear.tcl
+  TestGridWarpNearest.tcl
+  TestImageStencilWithPolydata.tcl
+  TestProjectedTerrainPath.tcl
+  earth.tcl
+  imageToPolyData.tcl
+  largeImageOffset.tcl
+  largeImageParallel.tcl
+  3DMorph.tcl
+  TestPCA.tcl
+  TestProcrustes.tcl
+  TestProcrustesRigidCentroid.tcl
+  WarpPolyData.tcl
+  appendImplicitModel.tcl
+  appendImplicitModelNoBounds.tcl
+  banana.tcl
+  depthSort.tcl
+  )

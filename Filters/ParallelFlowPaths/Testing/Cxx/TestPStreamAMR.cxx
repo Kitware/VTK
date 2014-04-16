@@ -153,7 +153,7 @@ vtkStandardNewMacro(TestAMRVectorSource);
 
 
 
-int main( int argc, char* argv[] )
+int TestPStreamAMR( int argc, char* argv[] )
 {
 
   vtkNew<vtkMPIController> c;

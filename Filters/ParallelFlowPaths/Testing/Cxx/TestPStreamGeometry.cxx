@@ -55,7 +55,7 @@ inline double ComputeLength(vtkIdList* poly, vtkPoints* pts)
 
 
 
-int main( int argc, char* argv[] )
+int TestPStreamGeometry( int argc, char* argv[] )
 {
   vtkNew<vtkMPIController> c;
   vtkMultiProcessController::SetGlobalController(c.GetPointer());

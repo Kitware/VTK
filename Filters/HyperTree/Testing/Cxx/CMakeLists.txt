@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestClipHyperOctree.cxx
   TestHyperOctreeContourFilter.cxx
   TestHyperOctreeCutter.cxx
@@ -31,4 +31,4 @@ vtk_add_test_cxx(
   TestHyperTreeGridTernaryHyperbola.cxx
   TestHyperTreeGridTernarySphereMaterial.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

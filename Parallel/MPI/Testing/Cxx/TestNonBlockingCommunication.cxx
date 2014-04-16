@@ -40,7 +40,7 @@ void FillArray( const int rank, const int size, double array[] )
 }
 
 //------------------------------------------------------------------------------
-int main( int argc, char **argv )
+int TestNonBlockingCommunication( int argc, char **argv )
 {
   vtkMPIController *myController = vtkMPIController::New();
   myController->Initialize( &argc, &argv, 0);
@@ -109,5 +109,7 @@ int main( int argc, char **argv )
 
   myController->Finalize();
   myController->Delete();
+
+  return 0;
 }
 

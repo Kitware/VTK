@@ -1,24 +1,26 @@
-vtk_add_test_python(TestBunykRayCastFunction.py)
-vtk_add_test_python(TestLODProp3D.py)
-vtk_add_test_python(TestPTZSweep.py)
-vtk_add_test_python(gaussian.py)
-vtk_add_test_python(volRCClipPlanes.py)
-vtk_add_test_python(volRCCropRegions.py)
-vtk_add_test_python(volRCRotateClip.py)
-vtk_add_test_python(volTM2DCropRegions.py)
-vtk_add_test_python(volTM2DRotateClip.py)
-vtk_add_test_python(VolumeOutlineSource.py)
-vtk_add_test_python(VolumeOutlineSourceClipped.py)
-vtk_add_test_python(VolumePickerCrop.py)
-vtk_add_test_python(cursor3D.py)
-vtk_add_test_python(volTM3DCompressedCropRegions.py)
-vtk_add_test_python(volTM3DCropRegions.py)
-vtk_add_test_python(volTM3DRotateClip.py)
-vtk_add_test_python(TestFixedPointRayCasterLinear.py NO_RT)
-vtk_add_test_python(TestFixedPointRayCasterLinearCropped.py NO_RT)
-vtk_add_test_python(TestFixedPointRayCasterNearest.py NO_RT)
-vtk_add_test_python(TestFixedPointRayCasterNearestCropped.py NO_RT)
-vtk_add_test_python(VolumePicker.py NO_RT)
+vtk_add_test_python(
+  TestBunykRayCastFunction.py
+  TestLODProp3D.py
+  TestPTZSweep.py
+  gaussian.py
+  volRCClipPlanes.py
+  volRCCropRegions.py
+  volRCRotateClip.py
+  volTM2DCropRegions.py
+  volTM2DRotateClip.py
+  VolumeOutlineSource.py
+  VolumeOutlineSourceClipped.py
+  VolumePickerCrop.py
+  cursor3D.py
+  volTM3DCompressedCropRegions.py
+  volTM3DCropRegions.py
+  volTM3DRotateClip.py
+  TestFixedPointRayCasterLinear.py,NO_RT
+  TestFixedPointRayCasterLinearCropped.py,NO_RT
+  TestFixedPointRayCasterNearest.py,NO_RT
+  TestFixedPointRayCasterNearestCropped.py,NO_RT
+  VolumePicker.py,NO_RT
+  )
 
 set_tests_properties(vtkRenderingVolumePython-volTM3DCompressedCropRegions
   PROPERTIES TIMEOUT 250)

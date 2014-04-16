@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx
   PartialPreIntegration.cxx
@@ -25,10 +25,6 @@ vtk_add_test_cxx(
   TestSmartVolumeMapperWindowLevel.cxx
   TestTM3DLightComponents.cxx
   ZsweepConcavities.cxx
-  )
-
-# Tests with data
-vtk_add_test_cxx(
   ProjectedTetrahedraZoomIn.cxx,NO_VALID
   TestFinalColorWindowLevel.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
@@ -40,7 +36,8 @@ vtk_add_test_cxx(
   volProt.cxx
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY
   ExerciseUnstructuredGridRayCastMapper.cxx)
 
 if(NOT VTK_TEST_TIMEOUT_TestProp3DFollower)

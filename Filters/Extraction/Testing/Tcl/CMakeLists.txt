@@ -1,6 +1,8 @@
-vtk_add_test_tcl(extractRectGrid)
-vtk_add_test_tcl(extractUGrid)
-vtk_add_test_tcl(extractVectors)
-vtk_add_test_tcl(ExtractEdgesQuadraticCells)
-vtk_add_test_tcl(ExtractTensors)
-vtk_add_test_tcl(extractPolyData)
+vtk_add_test_tcl(
+  extractRectGrid.tcl
+  extractUGrid.tcl
+  extractVectors.tcl
+  ExtractEdgesQuadraticCells.tcl
+  ExtractTensors.tcl
+  extractPolyData.tcl
+  )

@@ -33,7 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 
-int main(int argc,char **argv)
+int TestPProbe(int argc,char *argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
