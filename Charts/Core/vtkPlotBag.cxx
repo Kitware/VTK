@@ -371,8 +371,14 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
           vtkAbstractArray *colName = vtkAbstractArray::SafeDownCast(
             this->GetInput()->GetColumnByName("ColName"));
           std::stringstream ss;
-          ss << (!colName ? "?" :
-            colName->GetVariantValue(seriesIndex).ToString());
+          if (colName)
+            {
+            ss << colName->GetVariantValue(seriesIndex).ToString();
+            }
+          else
+            {
+            ss << "?";
+            }
           tooltipLabel += ss.str();
           }
           break;
