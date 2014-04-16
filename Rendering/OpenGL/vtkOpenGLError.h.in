@@ -108,18 +108,18 @@ int vtkGetOpenGLErrors(
       unsigned int *errCode,
       const char **errDesc)
 {
-  int i=0;
+  int i = 0;
   GLenum code = glGetError();
-  if (i<maxNum)
+  if (i < maxNum)
     {
     errCode[i] = static_cast<unsigned int>(code);
     errDesc[i] = vtkOpenGLStrError(code);
     }
-  while (code!=GL_NO_ERROR)
+  while (code != GL_NO_ERROR && i < maxNum)
     {
-    i+=1;
+    i++;
     code = glGetError();
-    if (i<maxNum)
+    if (i < maxNum)
       {
       errCode[i] = static_cast<unsigned int>(code);
       errDesc[i] = vtkOpenGLStrError(code);
@@ -189,13 +189,23 @@ void vtkPrintOpenGLErrors(
 // Clear OpenGL's error flags.
 #if defined(VTK_REPORT_OPENGL_ERRORS)
 inline
-void vtkClearOpenGLErrors()
+void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
 {
-  while (glGetError()!=GL_NO_ERROR){;}
+  GLenum glError;
+  unsigned int i = 0;
+  do
+    {
+    glError = glGetError();
+    ++i;
+    }
+  while(i < maxErrors && glError != GL_NO_ERROR);
 }
 #else
 inline
-void vtkClearOpenGLErrors(){}
+void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
+{
+  (void) maxErrors;
+}
 #endif
 
 #if !defined(VTK_REPORT_OPENGL_ERRORS)
@@ -203,7 +213,7 @@ void vtkClearOpenGLErrors(){}
 # define vtkOpenGLCheckErrorMacro(message)
 # define vtkOpenGLStaticCheckErrorMacro(message)
 #else
-# define vtkOpenGLClearErrorMacro() vtkClearOpenGLErrors();
+# define vtkOpenGLClearErrorMacro() vtkClearOpenGLErrors(16);
 # include <sstream> // for error macro
 # define vtkOpenGLCheckErrorMacroImpl(ostr, message) \
 {                                                    \
