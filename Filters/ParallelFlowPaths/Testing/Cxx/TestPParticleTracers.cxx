@@ -376,11 +376,10 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
   traceMapper->Update();
 
   vtkPolyData* out = filter->GetOutput();
-  vtkPoints* pts = out->GetPoints();
   vtkPointData* pd = out->GetPointData();
   for(int i=0; i<pd->GetNumberOfArrays();i++)
     {
-    assert(pd->GetArray(i)->GetNumberOfTuples()==pts->GetNumberOfPoints());
+    assert(pd->GetArray(i)->GetNumberOfTuples()==out->GetPoints()->GetNumberOfPoints());
     }
 
   vtkCellArray* lines = out->GetLines();
