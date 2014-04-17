@@ -243,9 +243,6 @@ bool vtkWebApplication::HandleInteractionEvent(
     return false;
     }
 
-
-
-
   int ctrlKey =
     (event->GetModifiers() & vtkWebInteractionEvent::CTRL_KEY) != 0?  1: 0;
   int shiftKey =
@@ -335,17 +332,11 @@ const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
     return NULL;
     }
 
-/*
   // We use the camera focal point to be the center of rotation
   double centerOfRotation[3];
-  vtkRenderer *ren = renWin->GetRenderers()->GetFirstRenderer();
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkCamera *cam = view->GetRenderers()->GetFirstRenderer()->GetActiveCamera();
   cam->GetFocalPoint(centerOfRotation);
-  this->Internals->WebGLExporter->SetCenterOfRotation(
-                                 static_cast<float>(centerOfRotation[0]),
-                                 static_cast<float>(centerOfRotation[1]),
-                                 static_cast<float>(centerOfRotation[2]));
-*/
+
   if(this->Internals->ViewWebGLMap.find(view) ==
     this->Internals->ViewWebGLMap.end())
     {
@@ -376,6 +367,10 @@ const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
       }
     }
   this->Internals->WebGLExporterObjIdMap[webglExporter] = webglMap;
+  webglExporter->SetCenterOfRotation(
+        static_cast<float>(centerOfRotation[0]),
+        static_cast<float>(centerOfRotation[1]),
+        static_cast<float>(centerOfRotation[2]));
   return webglExporter->GenerateMetadata();
 }
 
