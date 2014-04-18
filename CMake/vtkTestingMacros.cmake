@@ -23,7 +23,7 @@ function(_vtk_test_parse_args options source_ext)
     endforeach()
     if(handled)
       # Do nothing.
-    elseif("x${arg}" MATCHES "^x([^.]*)\\.${source_ext},?(.*)$")
+    elseif(source_ext AND "x${arg}" MATCHES "^x([^.]*)\\.${source_ext},?(.*)$")
       set(name "${CMAKE_MATCH_1}")
       string(REPLACE "," ";" _${name}_options "${CMAKE_MATCH_2}")
       list(APPEND names ${name})
@@ -269,7 +269,7 @@ function(vtk_test_cxx_executable exename _tests)
   set(exe_options
     RENDERING_FACTORY
     )
-  _vtk_test_parse_args("${exe_options}" "cxx" ${ARGN})
+  _vtk_test_parse_args("${exe_options}" "" ${ARGN})
   _vtk_test_set_options("${exe_options}" "" ${options})
 
   set(test_driver vtkTestDriver.h)
@@ -278,11 +278,7 @@ function(vtk_test_cxx_executable exename _tests)
     set(test_driver ${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.h)
   endif()
 
-  set(extra_sources)
-  foreach(name IN LISTS names)
-    list(APPEND extra_sources
-      ${name}.cxx)
-  endforeach()
+  set(extra_sources ${args})
 
   if(vtk-module)
     set(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
