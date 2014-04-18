@@ -341,24 +341,24 @@ int vtkRCalculatorFilter::RequestDataObject(
         }
       else
         {
-         if (!output || !output->IsA(input->GetClassName()))
-           {
-           vtkDataObject* newOutput = NULL;
-            if (this->rcfi->GetTableNames.Count() > 0)
-              {
-              newOutput = vtkTable::New();
-              }
-            else if (this->rcfi->GetTreeNames.Count() > 0)
-              {
-              newOutput = vtkTree::New();
-              }
-            else
-              {
-              newOutput = input->NewInstance();
-              }
-           info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
-           newOutput->Delete();
-           }
+        if (!output || !output->IsA(input->GetClassName()))
+          {
+          vtkDataObject* newOutput = NULL;
+          if (this->rcfi->GetTableNames.Count() > 0)
+            {
+            newOutput = vtkTable::New();
+            }
+          else if (this->rcfi->GetTreeNames.Count() > 0)
+            {
+            newOutput = vtkTree::New();
+            }
+          else
+            {
+            newOutput = input->NewInstance();
+            }
+          info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+          newOutput->Delete();
+          }
         }
       }
     return (1);
