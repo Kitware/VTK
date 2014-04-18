@@ -167,7 +167,7 @@ void UpdateGrid(const int iteration)
           global::Grid->GetPointData()->GetArray("NodeXYZ"));
   assert("pre: nodeXYZ != NULL" && (nodeXYZ != NULL) );
   assert("pre: nodeXYZ numtuples mismatch!" &&
-          (Grid->GetNumberOfPoints()==nodeXYZ->GetNumberOfTuples()));
+          (global::Grid->GetNumberOfPoints()==nodeXYZ->GetNumberOfTuples()));
   assert("pre: nodeXYZ numcomponents mismatch!" &&
           (nodeXYZ->GetNumberOfComponents()==3));
 
@@ -184,7 +184,7 @@ void UpdateGrid(const int iteration)
       vtkDoubleArray::SafeDownCast(
           global::Grid->GetCellData()->GetArray("CentroidXYZ"));
   assert("pre: nodeXYZ numtuples mismatch!" &&
-          (Grid->GetNumberOfCells()==cellXYZ->GetNumberOfTuples()));
+          (global::Grid->GetNumberOfCells()==cellXYZ->GetNumberOfTuples()));
   assert("pre: nodeXYZ numcomponents mismatch!" &&
           (cellXYZ->GetNumberOfComponents()==3));
 
