@@ -10,6 +10,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDescriptiveStatistics.cxx
 
   TestRCalculatorFilter.cxx
+  TestRCalculatorFilterAsymmetrical.cxx
   TestRInterface.cxx
   TestRRandomTableSource.cxx
   )
