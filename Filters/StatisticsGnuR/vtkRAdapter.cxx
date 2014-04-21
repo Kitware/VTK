@@ -621,7 +621,10 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
 
 vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
 {
-  int nedge, nnode, ntip;
+  int numEdges = 0, numEdgeLengths = 0, numNodes = 0, numNodeLabels = 0;
+  int *edge = NULL;
+  double *edgeLength = NULL;
+  bool haveNodeLabels = false;
   vtkTree * tree = vtkTree::New();
 
   if (isNewList(variable))
@@ -629,119 +632,149 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     int nELT = length(variable);
     if (nELT < 4)
       {
-      vtkErrorMacro(<<"RToVTKTree():R tree list does not contain required four elements!");
+      vtkErrorMacro(<<"RToVTKTree(): R tree list does not contain required four elements!");
       return NULL;
       }
 
-    //1) edge
-    int * edge;
-    SEXP r_edge = VECTOR_ELT(variable,0);
-    if (isInteger(r_edge))
-      {
-      edge = INTEGER(r_edge);
-      nedge = length(r_edge)/2;
-      }
-    else
-      {
-      vtkErrorMacro(<<"RToVTKTree(): \"edge\" array is not integer type. ");
-      return NULL;
-      }
+    vtkNew<vtkStringArray> nodeLabels;
+    vtkNew<vtkStringArray> tipLabels;
+    SEXP listNames = getAttrib(variable, R_NamesSymbol);
+    SEXP rTipLabels = NULL;
+    SEXP rNodeLabels = NULL;
 
-
-    //2)Nnode
-    SEXP r_nnode = VECTOR_ELT(variable, 1);
-    if (isInteger(r_nnode))
+    // collect data from R.  The elements of the tree list are apparently not
+    // guaranteed to be in any specific order.
+    for (int i = 0; i < nELT; ++i)
       {
-      nnode =  INTEGER(r_nnode)[0];
-      if (length(r_nnode) != 1)
+      const char *name = CHAR(STRING_ELT(listNames, i));
+
+      if (strcmp(name, "edge") == 0)
         {
-        vtkErrorMacro(<<"RToVTKTree(): Expect a single scalar of \"Nnode\". ");
-        return NULL;
-        }
-      }
-    else
-      {
-      vtkErrorMacro(<<"RToVTKTree(): \"Nnode\" is not integer type. ");
-      return NULL;
-      }
-
-    //3) tip.label
-    SEXP r_tip_label = VECTOR_ELT(variable, 2);
-    ntip = nedge - nnode + 1;
-    vtkNew<vtkStringArray> tip_label;
-    tip_label->SetNumberOfValues(ntip);
-    if (isString(r_tip_label))
-      {
-      if (length(r_tip_label) != ntip)
-        {
-        vtkErrorMacro(<<"RToVTKTree(): \"node_label\"'s size does not match up with \"nnode\".");
-        return NULL;
-        }
-      for (int i = 0; i < ntip; i++)
-        {
-        const char * a = CHAR(STRING_ELT(r_tip_label,i));
-        tip_label->SetValue(i,a);
-        }
-      }
-
-    //4) edge.length
-    SEXP r_edge_length = VECTOR_ELT(variable, 3);
-    double * edge_length;
-    if (isReal(r_edge_length))
-      {
-      edge_length = REAL(r_edge_length);
-      if (nedge != length(r_edge_length))
-        {
-        vtkErrorMacro(<<"RToVTKTree():  \"edge_length\"'s size does not match up with \"nedge\".");
-        return NULL;
-        }
-      }
-
-    // 5) node.label (optional)
-    vtkNew<vtkStringArray> node_label;
-    node_label->SetNumberOfValues(nnode);
-    if ( nELT  == 5) //node labels provided by the r tree
-      {
-      SEXP r_node_label = VECTOR_ELT(variable, 4);
-
-      if (isString(r_node_label))
-        {
-        if (length(r_node_label) != nnode)
+        SEXP rEdge = VECTOR_ELT(variable, i);
+        if (isInteger(rEdge))
           {
-          vtkErrorMacro(<<"RToVTKTree(): \"node_label\"'s size does not match up with \"nnode\". ");
+          edge = INTEGER(rEdge);
+          numEdges = length(rEdge)/2;
+          }
+        else
+          {
+          vtkErrorMacro(<<"RToVTKTree(): \"edge\" array is not integer type. ");
           return NULL;
           }
-        for (int i = 0; i < nnode; i++)
+        }
+
+      else if (strcmp(name, "Nnode") == 0)
+        {
+        SEXP rNnode = VECTOR_ELT(variable, i);
+        if (isInteger(rNnode))
           {
-          node_label->SetValue(i,CHAR(STRING_ELT(r_node_label,i)));
+          numNodes =  INTEGER(rNnode)[0];
+          if (length(rNnode) != 1)
+            {
+            vtkErrorMacro(<<"RToVTKTree(): Expect a single scalar of \"Nnode\". ");
+            return NULL;
+            }
           }
+        else
+          {
+          vtkErrorMacro(<<"RToVTKTree(): \"Nnode\" is not integer type. ");
+          return NULL;
+          }
+        }
+
+      else if (strcmp(name, "tip.label") == 0)
+        {
+        rTipLabels = VECTOR_ELT(variable, i);
+        }
+
+      else if (strcmp(name, "edge.length") == 0)
+        {
+        SEXP rEdgeLength = VECTOR_ELT(variable, i);
+        numEdgeLengths = length(rEdgeLength);
+        if (isReal(rEdgeLength))
+          {
+          edgeLength = REAL(rEdgeLength);
+          }
+        }
+
+      else if (strcmp(name, "node.label") == 0)
+        {
+        // optional node labels
+        rNodeLabels = VECTOR_ELT(variable, i);
+        haveNodeLabels = true;
+        numNodeLabels = length(rNodeLabels);
+        }
+
+      else
+        {
+        vtkWarningMacro(<<"Unexpected tree element encountered: " << name);
+        }
+      }
+
+    // Perform some safety checks to make sure that the data extracted from R
+    // is sane.
+    if (numEdges != numEdgeLengths)
+      {
+      vtkErrorMacro(<<"RToVTKTree(): "
+                    << "edgeLength's size does not match up with numEdges.");
+      return NULL;
+      }
+
+    if (haveNodeLabels && numNodeLabels != numNodes)
+      {
+      vtkErrorMacro(<<"RToVTKTree(): node.label's size does not match numNodes.");
+      return NULL;
+      }
+
+    // Populate node & tip label arrays.  If no such labels were specified by R
+    // do so with empty strings.
+    nodeLabels->SetNumberOfValues(numNodes);
+    if (rNodeLabels != NULL && isString(rNodeLabels))
+      {
+      for (int i = 0; i < numNodes; i++)
+        {
+        nodeLabels->SetValue(i, CHAR(STRING_ELT(rNodeLabels, i)));
         }
       }
     else
       {
-      for (int i = 0; i < nnode; i++)
+      for (int i = 0; i < numNodes; i++)
         {
-        node_label->SetValue(i,"");
+        nodeLabels->SetValue(i, "");
         }
-    }
+      }
+
+    int numTips = numEdges - numNodes + 1;
+    tipLabels->SetNumberOfValues(numTips);
+    if (rTipLabels != NULL && isString(rTipLabels))
+      {
+      for (int i = 0; i < numTips; i++)
+        {
+        tipLabels->SetValue(i, CHAR(STRING_ELT(rTipLabels, i)));
+        }
+      }
+    else
+      {
+      for (int i = 0; i < numTips; i++)
+        {
+        tipLabels->SetValue(i, "");
+        }
+      }
 
     //------------  Build the VTKTree -----------
     vtkNew<vtkMutableDirectedGraph> builder;
 
-
-    // Create all of the tree vertice (number of edges +1)
-    // number of edges = nedge(in R tree)
-    int numOfEdges = nedge;
-    for(int i = 0; i <= numOfEdges; i++)
+    // Create all of the tree vertices (number of edges +1)
+    for(int i = 0; i <= numEdges; i++)
       {
       builder->AddVertex();
       }
 
-    for(int i = 0; i < nedge; i++)
+    for(int i = 0; i < numEdges; i++)
       {
       // -1 because R vertices begin with 1, whereas VTK vertices begin with 0.
       vtkIdType source = edge[i] - 1;
-      vtkIdType target = edge[i+nedge] - 1;
+      vtkIdType target = edge[i+numEdges] - 1;
       builder->AddEdge(source, target);
       }
 
@@ -749,27 +782,28 @@ vtkTree* vtkRAdapter::RToVTKTree(SEXP variable)
     vtkNew<vtkDoubleArray> weights;
     weights->SetNumberOfComponents(1);
     weights->SetName("weight");
-    weights->SetNumberOfValues(numOfEdges);
-    for (int i = 0; i < nedge; i++)
+    weights->SetNumberOfValues(numEdges);
+    for (int i = 0; i < numEdges; i++)
       {
-      weights->SetValue(i, edge_length[i]);
+      weights->SetValue(i, edgeLength[i]);
       }
     builder->GetEdgeData()->AddArray(weights.GetPointer());
 
     // Create the names array
-    // In R tree, the numeric id of the vertice is ordered such that the tips are listed first
-    // followed by the internal nodes. The order are matching up with the label arrays (tip_label and node_label).
+    // In R tree, the numeric id of the vertice is ordered such that the tips
+    // are listed first followed by the internal nodes. Match up this order
+    // with the label arrays (tip.label and node.label).
     vtkNew<vtkStringArray> names;
     names->SetNumberOfComponents(1);
     names->SetName("node name");
-    names->SetNumberOfValues(ntip + nnode);
-    for (int i = 0; i < ntip; i++)
+    names->SetNumberOfValues(numTips + numNodes);
+    for (int i = 0; i < numTips; i++)
       {
-      names->SetValue(i, tip_label->GetValue(i));
+      names->SetValue(i, tipLabels->GetValue(i));
       }
-    for (int i = 0; i < nnode; i++)
+    for (int i = 0; i < numNodes; i++)
       {
-      names->SetValue(i + ntip, node_label->GetValue(i));
+      names->SetValue(i + numTips, nodeLabels->GetValue(i));
       }
     builder->GetVertexData()->AddArray(names.GetPointer());
 
