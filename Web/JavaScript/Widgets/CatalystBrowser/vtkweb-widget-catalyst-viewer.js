@@ -426,14 +426,16 @@
             }
 
             if(Math.abs(deltaTheta) > stepTheta) {
-                changeDetected = true;
                 currentThetaIdx += (deltaTheta > 0) ? 1 : -1;
                 if(currentThetaIdx >= thetaValues.length) {
-                    currentThetaIdx -= 1;
+                    currentThetaIdx = thetaValues.length - 1;
                 } else if(currentThetaIdx < 0) {
-                    currentThetaIdx += 1;
+                    currentThetaIdx = 0;
                 }
-                currentArgs['theta'] = thetaValues[currentThetaIdx];
+                if(currentArgs['theta'] !== thetaValues[currentThetaIdx]) {
+                    currentArgs['theta'] = thetaValues[currentThetaIdx];
+                    changeDetected = true;
+                }
             }
 
             if(changeDetected) {
