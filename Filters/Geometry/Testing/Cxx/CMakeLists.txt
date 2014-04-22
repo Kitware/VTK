@@ -18,6 +18,3 @@ set(all_tests
   ${no_data_tests}
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
-target_link_libraries(${vtk-module}CxxTests
-  vtkFiltersGeometry
-  vtkIOXML)
