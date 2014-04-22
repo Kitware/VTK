@@ -1,8 +1,10 @@
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM
   ${OPENGL_INCLUDE_DIR}
-  ${GLEW_INCLUDE_DIRS})
+  ${GLEW_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR})
 if(WIN32 AND NOT BUILD_SHARED_LIBS)
   add_definitions(-DGLEW_STATIC)
 endif()
@@ -12,8 +14,36 @@ set(${vtk-module}_SYSTEM_INCLUDE_DIRS
   ${GLEW_INCLUDE_DIRS})
 
 set(Module_SRCS
+  vtkglBufferObject.cxx
+  vtkglShader.cxx
+  vtkglShaderProgram.cxx
+  vtkglTexture2D.cxx
+  vtkVBOPolyDataMapper.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
+
+set(shader_files
+  glsl/mesh_vs.glsl
+  glsl/mesh_fs.glsl
+  )
+
+unset(shader_h_files)
+foreach(file ${shader_files})
+  get_filename_component(file_we ${file} NAME_WE)
+  set(src  ${CMAKE_CURRENT_SOURCE_DIR}/${file})
+  set(res  ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.cxx)
+  set(resh ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.h)
+  list(APPEND shader_h_files ${resh})
+  add_custom_command(
+    OUTPUT ${res} ${resh}
+    DEPENDS ${src} vtkEncodeString
+    COMMAND vtkEncodeString
+    ARGS ${res} ${src} ${file_we}
+      --build-header VTKRENDERINGOPENGL2_EXPORT vtkRenderingOpenGL2Module.h
+    )
+  list(APPEND Module_SRCS ${res})
+  set_source_files_properties(${file_we} WRAP_EXCLUDE)
+endforeach()
 
 if(VTK_USE_X)
   find_package(X11 REQUIRED)
