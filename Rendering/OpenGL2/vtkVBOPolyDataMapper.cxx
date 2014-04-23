@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
 #include "vtkVector.h"
+#include "vtkProperty.h"
 
 #include "vtkglBufferObject.h"
 #include "vtkglShader.h"
@@ -70,7 +71,7 @@ void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow*)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor*)
+void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 {
   vtkDataObject *input= this->GetInputDataObject(0, 0);
 
@@ -130,6 +131,13 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor*)
     return;
     }
 
+  // Query the actor for some of the properties that can be applied.
+  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+  double *pColor = actor->GetProperty()->GetColor();
+  vtkgl::Vector3ub color(static_cast<unsigned char>(pColor[0] * 255.0),
+                         static_cast<unsigned char>(pColor[1] * 255.0),
+                         static_cast<unsigned char>(pColor[2] * 255.0));
+
   this->Internal->vbo.bind();
   this->Internal->ibo.bind();
 
@@ -149,8 +157,8 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor*)
   glGetFloatv(GL_PROJECTION_MATRIX, proj.matrix().data());
   vtkgl::Matrix3f normalMatrix = mv.linear().inverse().transpose();
 
-  this->Internal->program.setUniformValue("color",
-                                          vtkgl::Vector3ub(0, 255, 0));
+  this->Internal->program.setUniformValue("opacity", opacity);
+  this->Internal->program.setUniformValue("color", color);
   this->Internal->program.setUniformValue("modelView", mv.matrix());
   this->Internal->program.setUniformValue("projection", proj.matrix());
   this->Internal->program.setUniformValue("normalMatrix", normalMatrix);
@@ -201,7 +209,6 @@ void vtkVBOPolyDataMapper::UpdateVBO()
   // Due to the requirement to use derived classes rather than typedefs for
   // the vtkVector types, it is simpler to add a few convenience typedefs here
   // than use the classes which are then harder for the compiler to interpret.
-  typedef vtkVector<int,    3> Vector3i;
   typedef vtkVector<float,  3> Vector3f;
   typedef vtkVector<double, 3> Vector3d;
 

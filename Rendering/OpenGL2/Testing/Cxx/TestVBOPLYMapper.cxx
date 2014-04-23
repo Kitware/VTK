@@ -22,6 +22,7 @@
 #include "vtkVBOPolyDataMapper.h"
 #include "vtkPLYReader.h"
 #include "vtkNew.h"
+#include "vtkProperty.h"
 
 #include "vtkTimerLog.h"
 
@@ -52,6 +53,8 @@ int TestVBOPLYMapper(int argc, char *argv[])
 
   mapper->SetInputConnection(computeNormals->GetOutputPort());
   actor->SetMapper(mapper.Get());
+  actor->GetProperty()->SetColor(1.0, 1.0, 0.0);
+  actor->GetProperty()->SetOpacity(0.6);
 
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renderWindow.Get());
