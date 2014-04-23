@@ -34,6 +34,37 @@ vtkMultiBlockDataGroupFilter::~vtkMultiBlockDataGroupFilter()
 }
 
 //-----------------------------------------------------------------------------
+int vtkMultiBlockDataGroupFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  info->Remove(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMultiBlockDataGroupFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
+{
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
+  for (int i=0; i<numInputs; i++)
+    {
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(i);
+    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+      {
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+        inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+        6);
+      }
+    }
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
 int vtkMultiBlockDataGroupFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
