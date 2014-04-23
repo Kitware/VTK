@@ -5,8 +5,6 @@ vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
 if(VTK_MPI_MAX_NUMPROCS GREATER 1)
   include(vtkMPI)
-  find_package(MPI REQUIRED)
-  include_directories(${MPI_INCLUDE_PATH})
 
   set(${vtk-module}Cxx-MPI_NUMPROCS 2)
   vtk_add_test_mpi(${vtk-module}Cxx-MPI tests

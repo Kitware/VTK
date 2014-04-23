@@ -6,8 +6,7 @@ if (DEFINED CMAKE_WORDS_BIGENDIAN)
 endif()
 
 if (VTK_USE_LARGE_DATA AND _known_little_endian AND NOT WIN32)
-  find_package(MPI REQUIRED)
-  include_directories(${MPI_INCLUDE_PATH})
+  include(vtkMPI)
 
   # Tell ExternalData to fetch test input at build time.
   ExternalData_Expand_Arguments(VTKData _

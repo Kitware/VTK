@@ -21,6 +21,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
 if(VTK_USE_LARGE_DATA)
+  include(vtkMPI)
+
   # Tell ExternalData to fetch test input at build time.
   ExternalData_Expand_Arguments(VTKData _
     "DATA{${VTK_TEST_INPUT_DIR}/SLAC/ll-9cell-f523/,REGEX:.*}"

@@ -1,3 +1,5 @@
+include(vtkMPI)
+
 set(TestPStream_NUMPROCS 2)
 set(TestPStreamGeometry_NUMPROCS 4)
 set(TestPParticleTracers_NUMPROCS 2)
