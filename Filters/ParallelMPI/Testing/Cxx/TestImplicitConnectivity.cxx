@@ -700,7 +700,7 @@ int TestImplicitGridConnectivity3D( )
 
 //------------------------------------------------------------------------------
 // Program main
-int main( int argc, char **argv )
+int TestImplicitConnectivity( int argc, char *argv[] )
 {
   int rc = 0;
 
