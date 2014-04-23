@@ -88,6 +88,14 @@ class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
         vtkMultiProcessStream& bytestream);
 
     // Description:
+    // Deserializes the field data from a bytestream to a the given sub-extent.
+    // The field data can be either cell-centered or node-centered depending
+    // on what subext and gridExtent actually represent.
+    static void DeSerializeToSubExtent(
+        int subext[6], int gridExtent[6], vtkFieldData *fieldData,
+        vtkMultiProcessStream& bytestream);
+
+    // Description:
     // Deserializes the field data from a bytestream.
     static void Deserialize(
         vtkMultiProcessStream& bytestream, vtkFieldData *fieldData );
