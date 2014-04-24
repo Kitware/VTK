@@ -9,7 +9,7 @@ vtk_module(vtkFiltersParallelMPI
     vtkParallelMPI
   TEST_DEPENDS
     vtkIOXML
-    vtkIOParallel
+    vtkIOParallelXML
     vtkCommonDataModel
     vtkTestingCore
   )
