@@ -5,6 +5,7 @@ vtk_module(vtkFiltersParallelMPI
     vtkFiltersExtraction
     vtkFiltersGeneral
     vtkFiltersParallel
+    vtkImagingCore
     vtkParallelCore
     vtkParallelMPI
   TEST_DEPENDS
