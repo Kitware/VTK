@@ -364,19 +364,32 @@ macro(vtk_target_export _name)
   set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
 endmacro()
 
-macro(vtk_target_install _name)
+function(vtk_target_install _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
     if(APPLE AND VTK_JAVA_INSTALL)
        set_target_properties(${_name} PROPERTIES SUFFIX ".jnilib")
     endif(APPLE AND VTK_JAVA_INSTALL)
+    if(VTK_INSTALL_NO_DEVELOPMENT)
+      # Installation for deployment does not need static libraries.
+      get_property(_type TARGET ${_name} PROPERTY TYPE)
+      if(_type STREQUAL "STATIC_LIBRARY")
+        return()
+      endif()
+      set(_archive_destination "")
+    else()
+      # Installation for development needs static libraries.
+      set(_archive_destination
+        ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
+        )
+    endif()
     install(TARGETS ${_name}
       EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
       LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
-      ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
+      ${_archive_destination}
       )
   endif()
-endmacro()
+endfunction()
 
 macro(vtk_target _name)
   set(_install 1)
