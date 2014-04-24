@@ -32,16 +32,13 @@
     display: block;
 }
 
-.vtkweb-catalyst-analysis-search .query-results {
-    position: relative;
-}
-
 .vtkweb-catalyst-analysis-search .query-result {
     margin: 10px;
     border-radius: 5px;
     border: solid 1px black;
     position: relative;
     float: left;
+    overflow: hidden;
 }
 
 .vtkweb-catalyst-analysis-search .query-stats {
@@ -56,7 +53,7 @@
 
 .vtkweb-catalyst-analysis-search .query-result .image-result {
     position: relative;
-    width: 95%;
+    width: 100%;
     z-index: 1;
 }
 
