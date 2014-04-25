@@ -4,12 +4,18 @@ foreach(p
     CMP0020 # CMake 2.8.11
     CMP0022 # CMake 2.8.12
     CMP0025 # CMake 3.0
-    CMP0042 # CMake 3.0
     )
   if(POLICY ${p})
     cmake_policy(SET ${p} NEW)
   endif()
 endforeach()
+
+# Set a consistent MACOSX_RPATH default across all CMake versions.
+# When CMake 2.8.12 is required, change this default to 1.
+# When CMake 3.0.0 is required, remove this block (see CMP0042).
+if(NOT DEFINED CMAKE_MACOSX_RPATH)
+  set(CMAKE_MACOSX_RPATH 0)
+endif()
 
 project(VTK)
 
