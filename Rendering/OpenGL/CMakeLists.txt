@@ -301,6 +301,13 @@ set(opengl_overrides
 list(APPEND vtk_module_overrides "vtkPolyDataMapper")
 set(vtk_module_vtkPolyDataMapper_override "vtkPainterPolyDataMapper")
 
+# A crazy hack, Ken encouraged me to write, where we override the overrides
+# when the option is set to see what the new OpenGL2 code does in all regression
+# tests. Right now there is just one (the poly data mapper) with more to follow.
+if(VTK_REPLACE_OPENGL_OVERRIDES)
+  set(vtk_module_vtkPolyDataMapper_override "vtkVBOPolyDataMapper")
+endif()
+
 # FIXME: Not sure that this is the best way to handle X...
 if(VTK_USE_X)
   find_package(X11 REQUIRED)
