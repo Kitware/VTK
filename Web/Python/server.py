@@ -60,6 +60,10 @@ def add_arguments(parser):
     parser.add_argument("-a", "--authKey", default='vtkweb-secret',
         help="Authentication key for clients to connect to the WebSocket.")
     parser.add_argument("-f", "--force-flush", default=False, help="If provided, this option will force additional padding content to the output.  Useful when application is triggered by a session manager.", dest="forceFlush", action='store_true')
+    parser.add_argument("-k", "--sslKey", type=str, default="",
+        help="SSL key.  Use this and --sslCert to start the server on https.")
+    parser.add_argument("-j", "--sslCert", type=str, default="",
+        help="SSL certificate.  Use this and --sslKey to start the server on https.")
 
     # Hook to extract any testing arguments we need
     testing.add_arguments(parser)
@@ -122,15 +126,27 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
     if not disableLogging:
         log.startLogging(sys.stdout)
 
+    contextFactory = None
+
+    use_SSL = False
+    if options.sslKey and options.sslCert:
+      use_SSL = True
+      wsProtocol = "wss"
+      from twisted.internet import ssl
+      contextFactory = ssl.DefaultOpenSSLContextFactory(
+        options.sslKey, options.sslCert)
+    else:
+      wsProtocol = "ws"
+
     # setup the server-factory
     wampFactory = wamp.ReapingWampServerFactory(
-        "ws://%s:%d" % (options.host, options.port), options.debug, options.timeout)
+        "%s://%s:%d" % (wsProtocol, options.host, options.port), options.debug, options.timeout)
     wampFactory.protocol = protocol
 
     # Do we serve static content or just websocket ?
     if len(options.content) == 0:
         # Only WebSocket
-        listenWS(wampFactory)
+        listenWS(wampFactory, contextFactory)
     else:
         # Static HTTP + WebSocket
         wsResource = WebSocketResource(wampFactory)
@@ -145,7 +161,10 @@ def start_webserver(options, protocol=wamp.ServerProtocol, disableLogging=False)
 
         site = Site(root)
 
-        reactor.listenTCP(options.port, site)
+        if use_SSL:
+          reactor.listenSSL(options.port, site, contextFactory)
+        else:
+          reactor.listenTCP(options.port, site)
 
     # Work around to force the output buffer to be flushed
     # This allow the process launcher to parse the output and
