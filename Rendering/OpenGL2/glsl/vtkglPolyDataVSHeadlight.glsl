@@ -27,8 +27,8 @@ attribute vec4 vertexMC;
 attribute vec3 normalMC;
 
 // material property values
+//VTK::Color::Dec
 uniform float opacity;
-uniform vec3 diffuseColor;
 uniform vec3 specularColor;
 uniform float specularPower;
 
@@ -49,7 +49,7 @@ void main()
   float sf = pow(df, specularPower);
 
   //vec3 ambient = 0.4 * color;
-  vec3 diffuse = df * diffuseColor;
+  vec3 diffuse = df * color.rgb;
   vec3 specular = sf * specularColor;
 
   fcolor = vec4(diffuse + specular, opacity);

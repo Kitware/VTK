@@ -72,7 +72,10 @@ protected:
 
   // Description:
   // Update the scene when necessary.
-  void UpdateVBO();
+  void UpdateVBO(vtkActor *act);
+
+  void MapScalars(vtkDataSet* output, double alpha, bool multiplyWithAlpha,
+                  vtkDataSet* input);
 
   // Description:
   // Set the shader parameteres related to lighting
@@ -91,6 +94,7 @@ protected:
   class Private;
   Private *Internal;
 
+  bool UsingScalarColoring;
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   bool Initialized; // Hack - ensure glewinit has been called - move to window.
 

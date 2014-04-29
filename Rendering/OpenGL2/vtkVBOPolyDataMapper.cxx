@@ -29,6 +29,8 @@
 #include "vtkProperty.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
+#include "vtkLookupTable.h"
+#include "vtkCellData.h"
 
 #include "vtkglBufferObject.h"
 #include "vtkglShader.h"
@@ -59,14 +61,49 @@ public:
   vtkgl::Shader vertexShader;
   vtkgl::Shader fragmentShader;
   vtkgl::ShaderProgram program;
+
+  // Array of colors, along with the number of components.
+  std::vector<unsigned char> colors;
+  unsigned char colorComponents;
+  bool colorAttributes;
+
+  bool buidNormals;
+  int interpolation;
+
+  vtkTimeStamp propertiesTime;
+  vtkTimeStamp shaderBuildTime;
+
+  Private() : colorAttributes(false), buidNormals(true) { }
 };
+
+// Process the string, and return a version with replacements.
+std::string replace(std::string source, const std::string &search,
+                    const std::string replace, bool all = true)
+{
+  std::string::size_type pos = 0;
+  bool first = true;
+  while ((pos = source.find(search, 0)) != std::string::npos)
+    {
+    source.replace(pos, search.length(), replace);
+    pos += search.length();
+    if (first)
+      {
+      first = false;
+      if (!all)
+        {
+        return source;
+        }
+      }
+    }
+  return source;
+}
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVBOPolyDataMapper)
 
 //-----------------------------------------------------------------------------
 vtkVBOPolyDataMapper::vtkVBOPolyDataMapper()
-  : Internal(new Private), Initialized(false)
+  : Internal(new Private), UsingScalarColoring(false), Initialized(false)
 {
 }
 
@@ -142,10 +179,27 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
 
   // compile and link the shader program if it has changed
   // eventually use some sort of caching here
-  if (this->Internal->vertexShader.type() == vtkgl::Shader::Unknown)
+  if (this->Internal->vertexShader.type() == vtkgl::Shader::Unknown ||
+      this->Internal->propertiesTime > this->Internal->shaderBuildTime)
     {
+    // Build our shader if necessary.
+    std::string vertexShaderSource = this->Internal->vertexShaderFile;
+    if (this->Internal->colorAttributes)
+      {
+      vertexShaderSource = replace(vertexShaderSource,
+                                   "//VTK::Color::Dec",
+                                   "attribute vec4 color;");
+      }
+    else
+      {
+      vertexShaderSource = replace(vertexShaderSource,
+                                   "//VTK::Color::Dec",
+                                   "uniform vec3 color;");
+      }
+    cout << "VS: " << vertexShaderSource << endl;
+
     this->Internal->vertexShader.setType(vtkgl::Shader::Vertex);
-    this->Internal->vertexShader.setSource(this->Internal->vertexShaderFile);
+    this->Internal->vertexShader.setSource(vertexShaderSource);
     this->Internal->fragmentShader.setType(vtkgl::Shader::Fragment);
     this->Internal->fragmentShader.setSource(this->Internal->fragmentShaderFile);
     if (!this->Internal->vertexShader.compile())
@@ -156,14 +210,20 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       {
       vtkErrorMacro(<< this->Internal->fragmentShader.error());
       }
-    this->Internal->program.attachShader(this->Internal->vertexShader);
-    this->Internal->program.attachShader(this->Internal->fragmentShader);
+    if (!this->Internal->program.attachShader(this->Internal->vertexShader))
+      {
+      vtkErrorMacro(<< this->Internal->program.error());
+      }
+    if (!this->Internal->program.attachShader(this->Internal->fragmentShader))
+      {
+      vtkErrorMacro(<< this->Internal->program.error());
+      }
     if (!this->Internal->program.link())
       {
       vtkErrorMacro(<< this->Internal->program.error());
       }
+    this->Internal->shaderBuildTime.Modified();
     }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -365,15 +425,15 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->Initialized = true;
     }
 
-  // compute the lighting sections of the shaders
-  this->UpdateShader(ren,actor);
-
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime())
     {
-    this->UpdateVBO();
+    this->UpdateVBO(actor);
     this->VBOUpdateTime.Modified();
     }
+
+  // Figure out and build the appropriate shader for the mapped geometry.
+  this->UpdateShader(ren, actor);
 
   if (!this->Internal->program.bind())
     {
@@ -388,16 +448,34 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->Internal->vbo.bind();
   this->Internal->ibo.bind();
 
+  size_t stride = sizeof(float) * 6;
+  if (this->Internal->colorAttributes)
+    {
+    stride += sizeof(float);
+    }
+
   this->Internal->program.enableAttributeArray("vertexMC");
   this->Internal->program.useAttributeArray("vertexMC", 0,
-                                            sizeof(float) * 6,
+                                            stride,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
   this->Internal->program.enableAttributeArray("normalMC");
   this->Internal->program.useAttributeArray("normalMC", sizeof(float) * 3,
-                                            sizeof(float) * 6,
+                                            stride,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
+  if (this->Internal->colorAttributes)
+    {
+    if (!this->Internal->program.enableAttributeArray("color"))
+      {
+      vtkErrorMacro(<< this->Internal->program.error());
+      }
+    this->Internal->program.useAttributeArray("color", sizeof(float) * 6,
+                                              stride,
+                                              VTK_UNSIGNED_CHAR,
+                                              this->Internal->colorComponents,
+                                              vtkgl::ShaderProgram::NoNormalize);
+    }
 
   // Render the loaded spheres using the shader and bound VBO.
   glDrawRangeElements(GL_TRIANGLES, 0,
@@ -408,8 +486,12 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   this->Internal->vbo.release();
   this->Internal->ibo.release();
-  this->Internal->program.disableAttributeArray("vertex");
-  this->Internal->program.disableAttributeArray("normal");
+  this->Internal->program.disableAttributeArray("vertexMC");
+  this->Internal->program.disableAttributeArray("normalMC");
+  if (this->Internal->colorAttributes)
+    {
+    this->Internal->program.disableAttributeArray("color");
+    }
   this->Internal->program.release();
 
   // If the timer is not accurate enough, set it to a small
@@ -434,19 +516,53 @@ void vtkVBOPolyDataMapper::ComputeBounds()
 }
 
 //-------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::UpdateVBO()
+void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
 {
   vtkPolyData *poly = this->GetInput();
-  if (poly == NULL || !poly->GetPointData()->GetNormals())
+  if (poly == NULL)// || !poly->GetPointData()->GetNormals())
     {
     return;
     }
+
+  // This replicates how the painter decided on normal generation.
+  int interpolation = act->GetProperty()->GetInterpolation();
+  bool buildNormals = this->Internal->buidNormals;
+  if (buildNormals)
+    {
+    buildNormals = ((poly->GetPointData()->GetNormals() && interpolation != VTK_FLAT) ||
+                    poly->GetCellData()->GetNormals()) ? false : true;
+
+    if (buildNormals)
+      {
+      // FIXME: Add implementation for normal generation.
+      vtkErrorMacro("Asked to generate normals, needs to be implemented!");
+      return;
+      }
+    }
+
+  // Mark our properties as updated.
+  this->Internal->propertiesTime.Modified();
 
   // Due to the requirement to use derived classes rather than typedefs for
   // the vtkVector types, it is simpler to add a few convenience typedefs here
   // than use the classes which are then harder for the compiler to interpret.
   typedef vtkVector<float,  3> Vector3f;
   typedef vtkVector<double, 3> Vector3d;
+
+  bool colorAttributes = false;
+  if (this->ScalarVisibility)
+    {
+    // We must figure out how the scalars should be mapped to the polydata.
+    this->MapScalars(NULL, 1.0, false, poly);
+    if (this->Internal->colorComponents == 3 ||
+        this->Internal->colorComponents == 4)
+      {
+      this->Internal->colorAttributes = colorAttributes = true;
+      cout << "Scalar colors: "
+           << this->Internal->colors.size() / this->Internal->colorComponents
+           << " with " << int(this->Internal->colorComponents) << " components." <<  endl;
+      }
+    }
 
   // Create a mesh packed with two vector 3f for vertex then normal.
   vtkDataArray* normals = poly->GetPointData()->GetNormals();
@@ -455,15 +571,36 @@ void vtkVBOPolyDataMapper::UpdateVBO()
     vtkErrorMacro(<< "Polydata with bad normals.");
     }
 
-  std::vector<Vector3f> packedMesh;
-  packedMesh.reserve(poly->GetNumberOfPoints() * 2);
+  std::vector<float> packedMesh;
+  packedMesh.reserve(poly->GetNumberOfPoints() * (colorAttributes ? 7 : 6));
   Vector3d tmp;
   for (vtkIdType i = 0; i < poly->GetNumberOfPoints(); ++i)
     {
     poly->GetPoint(i, tmp.GetData());
-    packedMesh.push_back(tmp.Cast<float>());
+    for (int j = 0; j < 3; ++j)
+      {
+      packedMesh.push_back(tmp.Cast<float>()[j]);
+      }
     normals->GetTuple(i, tmp.GetData());
-    packedMesh.push_back(tmp.Cast<float>());
+    for (int j = 0; j < 3; ++j)
+      {
+      packedMesh.push_back(tmp.Cast<float>()[j]);
+      }
+    if (colorAttributes)
+      {
+      if (this->Internal->colorComponents == 4)
+        {
+        packedMesh.push_back(
+              *reinterpret_cast<float *>(&this->Internal->colors[i * 4]));
+        }
+      else if (this->Internal->colorComponents == 3)
+        {
+        unsigned char c[4] = { this->Internal->colors[i * 4],
+                               this->Internal->colors[i * 4 + 1],
+                               this->Internal->colors[i * 4 + 2], 255 };
+        packedMesh.push_back(*reinterpret_cast<float *>(&c));
+        }
+      }
     }
 
   vtkCellArray* polys = poly->GetPolys();
@@ -521,6 +658,145 @@ bool vtkVBOPolyDataMapper::GetIsOpaque()
       }
     }
   return this->Superclass::GetIsOpaque();
+}
+
+namespace
+{
+inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
+{
+  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(array);
+  if (!colors || colors->GetNumberOfComponents() != 4)
+    {
+    return;
+    }
+  unsigned char* ptr = colors->GetPointer(0);
+  vtkIdType numValues =
+      colors->GetNumberOfTuples() * colors->GetNumberOfComponents();
+  if (numValues <= 4)
+    {
+    return;
+    }
+  for (vtkIdType cc = 0; cc < numValues; cc += 4, ptr += 4)
+    {
+    double alpha = (0x0ff & ptr[3]) / 255.0;
+    ptr[0] = static_cast<unsigned char>(0x0ff &
+                                        static_cast<int>((0x0ff &
+                                                          ptr[0]) * alpha));
+    ptr[1] = static_cast<unsigned char>(0x0ff &
+                                        static_cast<int>((0x0ff &
+                                                          ptr[1]) * alpha));
+    ptr[2] = static_cast<unsigned char>(0x0ff &
+                                        static_cast<int>((0x0ff &
+                                                          ptr[2]) * alpha));
+    }
+}
+}
+
+//-----------------------------------------------------------------------------
+// This method has the same functionality as the old vtkMapper::MapScalars.
+void vtkVBOPolyDataMapper::MapScalars(vtkDataSet*, double alpha,
+                                      bool multiplyWithAlpha, vtkDataSet* input)
+{
+  int cellFlag;
+  double origAlpha;
+  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(input,
+    this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+    this->ArrayName, cellFlag);
+
+  int arraycomponent = this->ArrayComponent;
+  // This is for a legacy feature: selection of the array component to color by
+  // from the mapper.  It is now in the lookuptable.  When this feature
+  // is removed, we can remove this condition.
+  if (scalars == 0 || scalars->GetNumberOfComponents() <= this->ArrayComponent)
+    {
+    arraycomponent = 0;
+    }
+
+  if (!this->ScalarVisibility || scalars == 0 || input == 0)
+    {
+    return;
+    }
+
+  // Let subclasses know that scalar coloring was employed in the current pass.
+  this->UsingScalarColoring = true;
+  if (this->ColorTextureMap)
+    {
+    /// FIXME: Implement, or move this.
+    // Implies that we have verified that we must use texture map for scalar
+    // coloring. Just create texture coordinates for the input dataset.
+    //this->MapScalarsToTexture(output, scalars, input);
+    return;
+    }
+
+  vtkScalarsToColors* lut = 0;
+  // Get the lookup table.
+  if (scalars->GetLookupTable())
+    {
+    lut = scalars->GetLookupTable();
+    }
+  else
+    {
+    lut = this->GetLookupTable();
+    lut->Build();
+    }
+
+  if (!this->UseLookupTableScalarRange)
+    {
+    lut->SetRange(this->ScalarRange);
+    }
+
+  // The LastUsedAlpha checks ensures that opacity changes are reflected
+  // correctly when this->MapScalars(..) is called when iterating over a
+  // composite dataset.
+  /*if (colors &&
+    this->LastUsedAlpha == alpha &&
+    this->LastUsedMultiplyWithAlpha == multiplyWithAlpha)
+    {
+    if (this->GetMTime() < colors->GetMTime() &&
+      input->GetMTime() < colors->GetMTime() &&
+      lut->GetMTime() < colors->GetMTime())
+      {
+      // using old colors.
+      return;
+      }
+    }*/
+
+  // Get rid of old colors.
+  vtkDataArray *colors = 0;
+  origAlpha = lut->GetAlpha();
+  lut->SetAlpha(alpha);
+  colors = lut->MapScalars(scalars, this->ColorMode, arraycomponent);
+  lut->SetAlpha(origAlpha);
+  if (multiplyWithAlpha)
+    {
+    // It is possible that the LUT simply returns the scalars as the
+    // colors. In which case, we allocate a new array to ensure
+    // that we don't modify the array in the input.
+    if (scalars == colors)
+      {
+      // Since we will be changing the colors array
+      // we create a copy.
+      colors->Delete();
+      colors = scalars->NewInstance();
+      colors->DeepCopy(scalars);
+      }
+    vtkMultiplyColorsWithAlpha(colors);
+    }
+
+  vtkUnsignedCharArray* colorArray = vtkUnsignedCharArray::SafeDownCast(colors);
+  if (!colorArray)
+    {
+    vtkErrorMacro("Error: color array not of type unsigned char...");
+    return;
+    }
+  unsigned char* ptr = colorArray->GetPointer(0);
+  vtkIdType numValues =
+      colorArray->GetNumberOfTuples() * colorArray->GetNumberOfComponents();
+  this->Internal->colorComponents = colorArray->GetNumberOfComponents();
+  this->Internal->colors.reserve(numValues);
+  this->Internal->colors.assign(ptr, ptr + numValues);
+
+  colors->Delete();
 }
 
 //-----------------------------------------------------------------------------
