@@ -518,9 +518,12 @@ void vtkTIFFReader::ExecuteInformation()
    // If the tiff is tiled
    if (this->InternalImage->NumberOfTiles > 1)
      {
-     this->DataExtent[1]  = this->InternalImage->TileWidth;
-     this->DataExtent[3]  = this->InternalImage->TileHeight;
-     this->DataExtent[5]  = this->InternalImage->NumberOfTiles;
+     this->DataExtent[0] = 0;
+     this->DataExtent[1]  = this->InternalImage->TileWidth - 1;
+     this->DataExtent[2] = 0;
+     this->DataExtent[3]  = this->InternalImage->TileHeight - 1;
+     this->DataExtent[4] = 0;
+     this->DataExtent[5]  = this->InternalImage->NumberOfTiles - 1;
      if (!SpacingSpecifiedFlag)
        {
        this->DataSpacing[2] = 1.0;
