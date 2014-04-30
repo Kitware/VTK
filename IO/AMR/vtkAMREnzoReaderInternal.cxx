@@ -882,6 +882,12 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
     stream >> theStr;
     }
 
+  if( this->NumberOfLevels==0 && this->NumberOfBlocks > 0 )
+    {
+    // unigrid dataset, change the number of levels to 1
+    this->NumberOfLevels = 1;
+    }
+
   stream.close();
 }
 
