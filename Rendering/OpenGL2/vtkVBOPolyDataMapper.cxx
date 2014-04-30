@@ -103,22 +103,10 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *actor)
       numberOfLights++;
       }
 
-    double *dc = light->GetDiffuseColor();
-    double *sc = light->GetSpecularColor();
-    bool colored = false;
-    for (int i = 0; i < 3; ++i)
-      {
-        if (dc[i] != 1.0 || sc[i] != 1.0)
-          {
-            colored = true;
-            break;
-          }
-      }
-
     if (lightComplexity == 1
-        && (light->GetIntensity() != 1.0
-          || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT
-          || colored))
+        && (numberOfLights > 1
+          || light->GetIntensity() != 1.0
+          || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
       {
         lightComplexity = 2;
       }

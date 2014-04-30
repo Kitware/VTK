@@ -18,6 +18,7 @@ set(Module_SRCS
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglTexture2D.cxx
+  vtkOpenGL2Light.cxx
   vtkVBOPolyDataMapper.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )

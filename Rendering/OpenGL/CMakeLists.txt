@@ -301,13 +301,6 @@ set(opengl_overrides
 list(APPEND vtk_module_overrides "vtkPolyDataMapper")
 set(vtk_module_vtkPolyDataMapper_override "vtkPainterPolyDataMapper")
 
-# A crazy hack, Ken encouraged me to write, where we override the overrides
-# when the option is set to see what the new OpenGL2 code does in all regression
-# tests. Right now there is just one (the poly data mapper) with more to follow.
-if(VTK_REPLACE_OPENGL_OVERRIDES)
-  set(vtk_module_vtkPolyDataMapper_override "vtkVBOPolyDataMapper")
-endif()
-
 # FIXME: Not sure that this is the best way to handle X...
 if(VTK_USE_X)
   find_package(X11 REQUIRED)
@@ -404,6 +397,14 @@ endif()
 foreach(_override ${opengl_overrides})
   vtk_add_override(vtk${_override} vtkOpenGL${_override})
 endforeach()
+
+# A crazy hack, Ken encouraged me to write, where we override the overrides
+# when the option is set to see what the new OpenGL2 code does in all regression
+# tests. Right now there is just one (the poly data mapper) with more to follow.
+if(VTK_REPLACE_OPENGL_OVERRIDES)
+  set(vtk_module_vtkPolyDataMapper_override "vtkVBOPolyDataMapper")
+  set(vtk_module_vtkLight_override "vtkOpenGL2Light")
+endif()
 
 # Now we iterate and create that class file...
 foreach(_class ${vtk_module_overrides})
