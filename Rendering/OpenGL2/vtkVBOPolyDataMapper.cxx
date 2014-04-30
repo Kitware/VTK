@@ -217,7 +217,7 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
       }
     }
   this->Internal->program.setUniformValue("lightColor", numberOfLights, lightColor);
-  this->Internal->program.setUniformValue("lightDirection", numberOfLights, lightDirection);
+  this->Internal->program.setUniformValue("lightDirectionVC", numberOfLights, lightDirection);
   this->Internal->program.setUniformValue("numberOfLights", numberOfLights);
 
 }
@@ -250,10 +250,12 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* ren, vtkActo
   vtkgl::Vector3ub specularColor(static_cast<unsigned char>(sColor[0] * sIntensity * 255.0),
                          static_cast<unsigned char>(sColor[1] * sIntensity * 255.0),
                          static_cast<unsigned char>(sColor[2] * sIntensity * 255.0));
+  float specularPower = actor->GetProperty()->GetSpecularPower();
 
   this->Internal->program.setUniformValue("opacity", opacity);
   this->Internal->program.setUniformValue("diffuseColor", diffuseColor);
   this->Internal->program.setUniformValue("specularColor", specularColor);
+  this->Internal->program.setUniformValue("specularPower", specularPower);
 }
 
 //-----------------------------------------------------------------------------
@@ -327,13 +329,13 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->Internal->vbo.bind();
   this->Internal->ibo.bind();
 
-  this->Internal->program.enableAttributeArray("vertex");
-  this->Internal->program.useAttributeArray("vertex", 0,
+  this->Internal->program.enableAttributeArray("vertexMC");
+  this->Internal->program.useAttributeArray("vertexMC", 0,
                                             sizeof(float) * 6,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
-  this->Internal->program.enableAttributeArray("normal");
-  this->Internal->program.useAttributeArray("normal", sizeof(float) * 3,
+  this->Internal->program.enableAttributeArray("normalMC");
+  this->Internal->program.useAttributeArray("normalMC", sizeof(float) * 3,
                                             sizeof(float) * 6,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);

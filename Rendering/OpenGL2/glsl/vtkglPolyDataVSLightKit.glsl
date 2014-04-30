@@ -15,43 +15,59 @@
 // and supports the VTK light kit, multiple lights
 // some off axis from the camera, Gouraud shading
 
-attribute vec4 vertex;
-attribute vec3 normal;
+// all variables that represent positions or directions have a suffix
+// indicating the coordinate system they are in. The possible values are
+// MC - Model Coordinates
+// WC - WC world coordinates
+// VC - View Coordinates
+// DC - Display Coordinates
+
+attribute vec4 vertexMC;
+attribute vec3 normalMC;
 
 // material property values
 uniform float opacity;
 uniform vec3 diffuseColor;
 uniform vec3 specularColor;
-uniform vec3 specularPower;
+uniform float specularPower;
 
 // camera and actor matrix values
-uniform mat4 modelView;
-uniform mat4 projection;
-uniform mat3 normalMatrix;
+uniform mat4 modelView;  // combined actor (model) and view matricies
+uniform mat4 projection;  // the camera's projection matrix
+uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
 
 
 uniform int numberOfLights; // only allow for up to 6 active lights
-uniform vec3 lightColor[6]; // intensity weighted
-uniform vec3 lightDirection[6]; // normalized and in camera coords
+uniform vec3 lightColor[6]; // intensity weighted color
+uniform vec3 lightDirectionVC[6]; // normalized
 
+// the resulting vertex color to be passed down to the fragment shader
 varying vec4 fcolor;
 
 void main()
 {
-  gl_Position = projection * modelView * vertex;
-  vec3 N = normalize(normalMatrix * normal);
-  vec3 E = vec3(0, 0, 1); // eye/view/camera direction
+  // compute the projected vertex position
+  vec4 vertexVC = modelView * vertexMC;
+  gl_Position = projection * vertexVC;
+
+  // now compute the vertex color
+  vec3 normalVC = normalize(normalMatrix * normalMC);
+  vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC);
 
   vec3 diffuse = vec3(0,0,0);
   vec3 specular = vec3(0,0,0);
   for (int lightNum = 0; lightNum < numberOfLights; lightNum++)
     {
     // diffuse and specular lighting
-    float df = max(0.0, dot(N, lightDirection[lightNum]));
+    float df = max(0.0, dot(normalVC, lightDirectionVC[lightNum]));
     diffuse += (df * lightColor[lightNum]);
 
-    float sf = pow( max(0.0, dot(reflect(lightDirection[lightNum], N), E)), 20.0);
-    specular += (sf * lightColor[lightNum]);
+    if (dot(normalVC, lightDirectionVC[lightNum]) > 0.0)
+      {
+      float sf = pow( max(0.0, dot(
+        reflect(lightDirectionVC[lightNum], normalVC), viewDirectionVC)), specularPower);
+      specular += (sf * lightColor[lightNum]);
+      }
     }
 
   diffuse = diffuse * diffuseColor;

@@ -15,14 +15,22 @@
 // it requires only one white light, positioned at the camera
 // Gouraud shading
 
-attribute vec4 vertex;
-attribute vec3 normal;
+// all variables that represent positions or directions have a suffix
+// indicating the coordinate system they are in. The possible values are
+// MC - Model Coordinates
+// WC - WC world coordinates
+// VC - View Coordinates
+// DC - Display Coordinates
+
+
+attribute vec4 vertexMC;
+attribute vec3 normalMC;
 
 // material property values
 uniform float opacity;
 uniform vec3 diffuseColor;
 uniform vec3 specularColor;
-uniform vec3 specularPower;
+uniform float specularPower;
 
 // camera and actor matrix values
 uniform mat4 modelView;
@@ -33,12 +41,12 @@ varying vec4 fcolor;
 
 void main()
 {
-  gl_Position = projection * modelView * vertex;
-  vec3 N = normalize(normalMatrix * normal);
+  gl_Position = projection * modelView * vertexMC;
+  vec3 normalVC = normalize(normalMatrix * normalMC);
 
   // diffuse and specular lighting
-  float df = max(0.0, dot(N, vec3(0,0,-1)));
-  float sf = pow(df, 20.0);
+  float df = max(0.0, dot(normalVC, vec3(0,0,-1)));
+  float sf = pow(df, specularPower);
 
   //vec3 ambient = 0.4 * color;
   vec3 diffuse = df * diffuseColor;

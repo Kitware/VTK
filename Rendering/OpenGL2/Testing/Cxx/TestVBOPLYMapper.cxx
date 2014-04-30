@@ -23,6 +23,7 @@
 #include "vtkPLYReader.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkLightKit.h"
 
 #include "vtkTimerLog.h"
 
@@ -41,6 +42,10 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
 
+  vtkNew<vtkLightKit> lightKit;
+  lightKit->AddLightsToRenderer(renderer.Get());
+
+
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                               "Data/bunny.ply");
 
@@ -53,9 +58,9 @@ int TestVBOPLYMapper(int argc, char *argv[])
 
   mapper->SetInputConnection(computeNormals->GetOutputPort());
   actor->SetMapper(mapper.Get());
-  actor->GetProperty()->SetDiffuseColor(1.0, 1.0, 0.0);
+  actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
-  actor->GetProperty()->SetSpecular(1.0);
+  actor->GetProperty()->SetSpecular(0.5);
   actor->GetProperty()->SetOpacity(1.0);
 
   vtkNew<vtkRenderWindowInteractor> interactor;
