@@ -16,6 +16,8 @@
 #include <GL/glew.h>
 
 #include "vtkCommand.h"
+#include "vtkCamera.h"
+#include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
@@ -25,16 +27,21 @@
 #include "vtkCellArray.h"
 #include "vtkVector.h"
 #include "vtkProperty.h"
+#include "vtkMatrix4x4.h"
 
 #include "vtkglBufferObject.h"
 #include "vtkglShader.h"
 #include "vtkglShaderProgram.h"
 
+#include "vtkLight.h"
+#include "vtkLightCollection.h"
+
 #include <vector>
 
 // Bring in our shader symbols.
-extern const char * mesh_vs;
-extern const char * mesh_fs;
+#include "vtkglPolyDataVSLightKit.h"
+#include "vtkglPolyDataVSHeadlight.h"
+#include "vtkglPolyDataFS.h"
 
 class vtkVBOPolyDataMapper::Private
 {
@@ -43,6 +50,9 @@ public:
   vtkgl::BufferObject ibo;
   size_t numberOfVertices;
   size_t numberOfIndices;
+
+  const char *vertexShaderFile;
+  const char *fragmentShaderFile;
 
   vtkgl::Shader vertexShader;
   vtkgl::Shader fragmentShader;
@@ -68,6 +78,182 @@ vtkVBOPolyDataMapper::~vtkVBOPolyDataMapper()
 void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow*)
 {
   // FIXME: Implement resource release.
+}
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *actor)
+{
+  // first see if anything has changed, if not, just return
+  // do this by checking lightcollection mtime
+
+  // consider the lighting complexity to determine which case applies
+  // simple headlight, Light Kit, the whole feature set of VTK
+  int lightComplexity = 1;
+  int numberOfLights = 0;
+  vtkLightCollection *lc = ren->GetLights();
+  vtkLight *light;
+
+  vtkCollectionSimpleIterator sit;
+  for(lc->InitTraversal(sit);
+      (light = lc->GetNextLight(sit)); )
+    {
+    float status = light->GetSwitch();
+    if (status > 0.0)
+      {
+      numberOfLights++;
+      }
+
+    double *dc = light->GetDiffuseColor();
+    double *sc = light->GetSpecularColor();
+    bool colored = false;
+    for (int i = 0; i < 3; ++i)
+      {
+        if (dc[i] != 1.0 || sc[i] != 1.0)
+          {
+            colored = true;
+            break;
+          }
+      }
+
+    if (lightComplexity == 1
+        && (light->GetIntensity() != 1.0
+          || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT
+          || colored))
+      {
+        lightComplexity = 2;
+      }
+    if (lightComplexity < 3
+        && (light->GetPositional()))
+      {
+        lightComplexity = 3;
+        break;
+      }
+    }
+
+  // pick which shader code to use based on above factors
+  switch (lightComplexity)
+    {
+    case 1:
+        this->Internal->fragmentShaderFile = vtkglPolyDataFS;
+        this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
+      break;
+    case 2:
+        this->Internal->fragmentShaderFile = vtkglPolyDataFS;
+        this->Internal->vertexShaderFile = vtkglPolyDataVSLightKit;
+      break;
+    case 3:
+      break;
+    }
+
+  // compile and link the shader program if it has changed
+  // eventually use some sort of caching here
+  if (this->Internal->vertexShader.type() == vtkgl::Shader::Unknown)
+    {
+    this->Internal->vertexShader.setType(vtkgl::Shader::Vertex);
+    this->Internal->vertexShader.setSource(this->Internal->vertexShaderFile);
+    this->Internal->fragmentShader.setType(vtkgl::Shader::Fragment);
+    this->Internal->fragmentShader.setSource(this->Internal->fragmentShaderFile);
+    if (!this->Internal->vertexShader.compile())
+      {
+      vtkErrorMacro(<< this->Internal->vertexShader.error());
+      }
+    if (!this->Internal->fragmentShader.compile())
+      {
+      vtkErrorMacro(<< this->Internal->fragmentShader.error());
+      }
+    this->Internal->program.attachShader(this->Internal->vertexShader);
+    this->Internal->program.attachShader(this->Internal->fragmentShader);
+    if (!this->Internal->program.link())
+      {
+      vtkErrorMacro(<< this->Internal->program.error());
+      }
+    }
+
+}
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActor *actor)
+{
+  // for headlight there are no lighting parameters
+  if (this->Internal->vertexShaderFile == vtkglPolyDataVSHeadlight)
+    {
+      return;
+    }
+
+  // for lightkit case there are some parameters to set
+  vtkCamera *cam = ren->GetActiveCamera();
+  vtkTransform* viewTF = cam->GetModelViewTransformObject();
+
+  // bind some light settings
+  int numberOfLights = 0;
+  vtkLightCollection *lc = ren->GetLights();
+  vtkLight *light;
+
+  vtkCollectionSimpleIterator sit;
+  float lightColor[6][3];
+  float lightDirection[6][3];
+  for(lc->InitTraversal(sit);
+      (light = lc->GetNextLight(sit)); )
+    {
+    float status = light->GetSwitch();
+    if (status > 0.0)
+      {
+      double *dColor = light->GetDiffuseColor();
+      double intensity = light->GetIntensity();
+      lightColor[numberOfLights][0] = dColor[0] * intensity;
+      lightColor[numberOfLights][1] = dColor[1] * intensity;
+      lightColor[numberOfLights][2] = dColor[2] * intensity;
+      // get required info from light
+      double *lfp = light->GetTransformedFocalPoint();
+      double *lp = light->GetTransformedPosition();
+      double lightDir[3];
+      vtkMath::Subtract(lfp,lp,lightDir);
+      vtkMath::Normalize(lightDir);
+      double *tDir = viewTF->TransformNormal(lightDir);
+      lightDirection[numberOfLights][0] = tDir[0];
+      lightDirection[numberOfLights][1] = tDir[1];
+      lightDirection[numberOfLights][2] = tDir[2];
+      numberOfLights++;
+      }
+    }
+  this->Internal->program.setUniformValue("lightColor", numberOfLights, lightColor);
+  this->Internal->program.setUniformValue("lightDirection", numberOfLights, lightDirection);
+  this->Internal->program.setUniformValue("numberOfLights", numberOfLights);
+
+}
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor *actor)
+{
+  Eigen::Affine3f mv, proj;
+  glGetFloatv(GL_MODELVIEW_MATRIX, mv.matrix().data());
+  glGetFloatv(GL_PROJECTION_MATRIX, proj.matrix().data());
+  vtkgl::Matrix3f normalMatrix = mv.linear().inverse().transpose();
+
+  this->Internal->program.setUniformValue("modelView", mv.matrix());
+  this->Internal->program.setUniformValue("projection", proj.matrix());
+  this->Internal->program.setUniformValue("normalMatrix", normalMatrix);
+}
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* ren, vtkActor *actor)
+{
+  // Query the actor for some of the properties that can be applied.
+  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+  double *dColor = actor->GetProperty()->GetDiffuseColor();
+  double dIntensity = actor->GetProperty()->GetDiffuse();
+  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
+                         static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
+                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
+  double *sColor = actor->GetProperty()->GetSpecularColor();
+  double sIntensity = actor->GetProperty()->GetSpecular();
+  vtkgl::Vector3ub specularColor(static_cast<unsigned char>(sColor[0] * sIntensity * 255.0),
+                         static_cast<unsigned char>(sColor[1] * sIntensity * 255.0),
+                         static_cast<unsigned char>(sColor[2] * sIntensity * 255.0));
+
+  this->Internal->program.setUniformValue("opacity", opacity);
+  this->Internal->program.setUniformValue("diffuseColor", diffuseColor);
+  this->Internal->program.setUniformValue("specularColor", specularColor);
 }
 
 //-----------------------------------------------------------------------------
@@ -118,6 +304,9 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->Initialized = true;
     }
 
+  // compute the lighting sections of the shaders
+  this->UpdateShader(ren,actor);
+
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime())
     {
@@ -131,12 +320,9 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     return;
     }
 
-  // Query the actor for some of the properties that can be applied.
-  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
-  double *pColor = actor->GetProperty()->GetColor();
-  vtkgl::Vector3ub color(static_cast<unsigned char>(pColor[0] * 255.0),
-                         static_cast<unsigned char>(pColor[1] * 255.0),
-                         static_cast<unsigned char>(pColor[2] * 255.0));
+  this->SetLightingShaderParameters(ren, actor);
+  this->SetPropertyShaderParameters(ren, actor);
+  this->SetCameraShaderParameters(ren, actor);
 
   this->Internal->vbo.bind();
   this->Internal->ibo.bind();
@@ -151,17 +337,6 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                             sizeof(float) * 6,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
-
-  Eigen::Affine3f mv, proj;
-  glGetFloatv(GL_MODELVIEW_MATRIX, mv.matrix().data());
-  glGetFloatv(GL_PROJECTION_MATRIX, proj.matrix().data());
-  vtkgl::Matrix3f normalMatrix = mv.linear().inverse().transpose();
-
-  this->Internal->program.setUniformValue("opacity", opacity);
-  this->Internal->program.setUniformValue("color", color);
-  this->Internal->program.setUniformValue("modelView", mv.matrix());
-  this->Internal->program.setUniformValue("projection", proj.matrix());
-  this->Internal->program.setUniformValue("normalMatrix", normalMatrix);
 
   // Render the loaded spheres using the shader and bound VBO.
   glDrawRangeElements(GL_TRIANGLES, 0,
@@ -251,28 +426,6 @@ void vtkVBOPolyDataMapper::UpdateVBO()
   this->Internal->numberOfVertices = packedMesh.size() / 2;
   this->Internal->numberOfIndices = indexArray.size();
 
-  // Check if the shader has been initialized.
-  if (this->Internal->vertexShader.type() == vtkgl::Shader::Unknown)
-    {
-    this->Internal->vertexShader.setType(vtkgl::Shader::Vertex);
-    this->Internal->vertexShader.setSource(mesh_vs);
-    this->Internal->fragmentShader.setType(vtkgl::Shader::Fragment);
-    this->Internal->fragmentShader.setSource(mesh_fs);
-    if (!this->Internal->vertexShader.compile())
-      {
-      vtkErrorMacro(<< this->Internal->vertexShader.error());
-      }
-    if (!this->Internal->fragmentShader.compile())
-      {
-      vtkErrorMacro(<< this->Internal->fragmentShader.error());
-      }
-    this->Internal->program.attachShader(this->Internal->vertexShader);
-    this->Internal->program.attachShader(this->Internal->fragmentShader);
-    if (!this->Internal->program.link())
-      {
-      vtkErrorMacro(<< this->Internal->program.error());
-      }
-    }
 }
 
 //-----------------------------------------------------------------------------

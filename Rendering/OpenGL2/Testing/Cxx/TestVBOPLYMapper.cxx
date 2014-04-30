@@ -42,7 +42,7 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderer->AddActor(actor.Get());
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                              "Data/dragon.ply");
+                                                              "Data/bunny.ply");
 
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
@@ -53,8 +53,10 @@ int TestVBOPLYMapper(int argc, char *argv[])
 
   mapper->SetInputConnection(computeNormals->GetOutputPort());
   actor->SetMapper(mapper.Get());
-  actor->GetProperty()->SetColor(1.0, 1.0, 0.0);
-  actor->GetProperty()->SetOpacity(0.6);
+  actor->GetProperty()->SetDiffuseColor(1.0, 1.0, 0.0);
+  actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
+  actor->GetProperty()->SetSpecular(1.0);
+  actor->GetProperty()->SetOpacity(1.0);
 
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renderWindow.Get());

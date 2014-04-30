@@ -67,8 +67,24 @@ protected:
   virtual void ComputeBounds();
 
   // Description:
+  // Determine what shader to use and compile/link it
+  virtual void UpdateShader(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Update the scene when necessary.
   void UpdateVBO();
+
+  // Description:
+  // Set the shader parameteres related to lighting
+  void SetLightingShaderParameters(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Set the shader parameteres related to lighting
+  void SetCameraShaderParameters(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Set the shader parameteres related to lighting
+  void SetPropertyShaderParameters(vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // The scene used by the mapper, all rendering is deferred to the scene.

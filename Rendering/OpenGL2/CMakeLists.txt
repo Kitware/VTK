@@ -23,8 +23,9 @@ set(Module_SRCS
   )
 
 set(shader_files
-  glsl/mesh_vs.glsl
-  glsl/mesh_fs.glsl
+  glsl/vtkglPolyDataVSLightKit.glsl
+  glsl/vtkglPolyDataVSHeadlight.glsl
+  glsl/vtkglPolyDataFS.glsl
   )
 
 unset(shader_h_files)

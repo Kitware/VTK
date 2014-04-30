@@ -154,6 +154,9 @@ public:
   bool setUniformValue(const std::string &name, float f);
 
   /** Set the @p name uniform value to @p matrix. */
+  bool setUniformValue(const std::string &name, const int count, const float (*f)[3]);
+
+  /** Set the @p name uniform value to @p matrix. */
   bool setUniformValue(const std::string &name, const Matrix3f &matrix);
   bool setUniformValue(const std::string &name, const Matrix4f &matrix);
 
