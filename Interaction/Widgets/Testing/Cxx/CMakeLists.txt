@@ -1,3 +1,4 @@
+set(TestOrientedGlyphContour_ARGS "--PlaybackFile" "DATA{../Data/Input/TestOrientedGlyphContourEventLog.txt}")
 set(TerrainPolylineEditor_ARGS -ProjectionMode 2 -HeightOffset 100)
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   BoxWidget2.cxx
@@ -13,6 +14,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBrokenLineWidget.cxx
   TestButtonWidget.cxx
   TestCameraWidget.cxx
+  TestCaptionWidget.cxx
   TestCellCentersPointPlacer.cxx
   TestCenteredSliderWidget2D.cxx
   TestCheckerboardWidget.cxx
@@ -84,6 +86,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestDijkstraGraphGeodesicPath.cxx
   TestLineWidget2.cxx
   TestLineWidget.cxx
+  TestOrientedGlyphContour.cxx
   TestPlaneWidget.cxx
   TestPointWidget.cxx
   TestPolygonalHandleRepresentations.cxx
@@ -108,7 +111,8 @@ set(all_tests
   ${ogl_tests}
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
-  RENDERING_FACTORY)
+  RENDERING_FACTORY
+  )
 
 set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
   PROPERTIES TIMEOUT 90)

@@ -27,9 +27,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkTesting.h"
 
-int TestCameraWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestCameraWidget(int argc, char *argv[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -70,31 +70,17 @@ int TestCameraWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
 
-  // record events
-  vtkSmartPointer<vtkInteractorEventRecorder> recorder =
-    vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren);
-  recorder->SetFileName("c:/record.log");
-//  recorder->Record();
-//  recorder->ReadFromInputStringOn();
-//  recorder->SetInputString(eventLog);
-
   // render the image
   //
   iren->Initialize();
   renWin->Render();
   rep->SetCamera(ren1->GetActiveCamera());
   widget->On();
-//  recorder->Play();
 
-  // Remove the observers so we can go interactive. Without this the "-I"
-  // testing option fails.
-  recorder->Off();
+  int retVal = vtkTesting::InteractorEventLoop(
+    argc, argv, iren);
 
-  iren->Start();
-
-  return EXIT_SUCCESS;
-
+  return retVal;
 }
 
 
