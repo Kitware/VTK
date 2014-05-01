@@ -130,8 +130,8 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       break;
     case 2:
         this->Internal->fragmentShaderFile = vtkglPolyDataFS;
-        this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
-//        this->Internal->vertexShaderFile = vtkglPolyDataVSLightKit;
+//        this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
+        this->Internal->vertexShaderFile = vtkglPolyDataVSLightKit;
 //        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
       break;
     case 3:
@@ -222,8 +222,10 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
 
   // if positional lights pass down more parameters
   float lightAttenuation[6][3];
+  float lightPosition[6][3];
   float lightConeAngle[6];
   float lightExponent[6];
+  int lightPositional[6];
   numberOfLights = 0;
   for(lc->InitTraversal(sit);
       (light = lc->GetNextLight(sit)); )
@@ -237,10 +239,17 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
       lightAttenuation[numberOfLights][2] = attn[2];
       lightExponent[numberOfLights] = light->GetExponent();
       lightConeAngle[numberOfLights] = light->GetConeAngle();
+      double *lp = light->GetTransformedPosition();
+      lightPosition[numberOfLights][0] = lp[0];
+      lightPosition[numberOfLights][1] = lp[1];
+      lightPosition[numberOfLights][2] = lp[2];
+      lightPositional[numberOfLights] = light->GetPositional();
       numberOfLights++;
       }
     }
   this->Internal->program.setUniformValue("lightAttenuation", numberOfLights, lightAttenuation);
+  this->Internal->program.setUniformValue("lightPositional", numberOfLights, lightPositional);
+  this->Internal->program.setUniformValue("lightPositionWC", numberOfLights, lightPosition);
   this->Internal->program.setUniformValue("lightExponent", numberOfLights, lightExponent);
   this->Internal->program.setUniformValue("lightConeAngle", numberOfLights, lightConeAngle);
 

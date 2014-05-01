@@ -157,6 +157,7 @@ public:
   bool setUniformValue(const std::string &name, float f);
 
   /** Set the @p name uniform array to @p f with @p count elements */
+  bool setUniformValue(const std::string &name, const int count, const int *f);
   bool setUniformValue(const std::string &name, const int count, const float *f);
   bool setUniformValue(const std::string &name, const int count, const float (*f)[3]);
 
