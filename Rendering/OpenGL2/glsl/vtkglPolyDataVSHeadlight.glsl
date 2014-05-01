@@ -33,15 +33,15 @@ uniform vec3 specularColor;
 uniform float specularPower;
 
 // camera and actor matrix values
-uniform mat4 modelView;
-uniform mat4 projection;
+uniform mat4 MCVCMatrix;
+uniform mat4 VCDCMatrix;
 uniform mat3 normalMatrix;
 
 varying vec4 fcolor;
 
 void main()
 {
-  gl_Position = projection * modelView * vertexMC;
+  gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
   vec3 normalVC = normalize(normalMatrix * normalMC);
 
   // diffuse and specular lighting

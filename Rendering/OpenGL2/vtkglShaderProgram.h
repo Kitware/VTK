@@ -24,6 +24,9 @@
 #include <vector> // For member variables.
 #include <map>    // For member variables.
 
+class vtkMatrix3x3;
+class vtkMatrix4x4;
+
 namespace vtkgl {
 
 class Shader;
@@ -153,8 +156,12 @@ public:
   /** Set the @p name uniform value to float @p f. */
   bool setUniformValue(const std::string &name, float f);
 
-  /** Set the @p name uniform value to @p matrix. */
+  /** Set the @p name uniform array to @p f with @p count elements */
+  bool setUniformValue(const std::string &name, const int count, const float *f);
   bool setUniformValue(const std::string &name, const int count, const float (*f)[3]);
+
+  bool setUniformValue(const std::string &name, vtkMatrix3x3 *mat);
+  bool setUniformValue(const std::string &name, vtkMatrix4x4 *mat);
 
   /** Set the @p name uniform value to @p matrix. */
   bool setUniformValue(const std::string &name, const Matrix3f &matrix);

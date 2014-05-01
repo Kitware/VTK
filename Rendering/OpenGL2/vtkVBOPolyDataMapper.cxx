@@ -27,6 +27,7 @@
 #include "vtkCellArray.h"
 #include "vtkVector.h"
 #include "vtkProperty.h"
+#include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 
 #include "vtkglBufferObject.h"
@@ -41,6 +42,7 @@
 // Bring in our shader symbols.
 #include "vtkglPolyDataVSLightKit.h"
 #include "vtkglPolyDataVSHeadlight.h"
+#include "vtkglPolyDataVSPositionalLights.h"
 #include "vtkglPolyDataFS.h"
 
 class vtkVBOPolyDataMapper::Private
@@ -81,7 +83,7 @@ void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow*)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
   // first see if anything has changed, if not, just return
   // do this by checking lightcollection mtime
@@ -124,12 +126,17 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *actor)
     case 1:
         this->Internal->fragmentShaderFile = vtkglPolyDataFS;
         this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
+//        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
       break;
     case 2:
         this->Internal->fragmentShaderFile = vtkglPolyDataFS;
-        this->Internal->vertexShaderFile = vtkglPolyDataVSLightKit;
+        this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
+//        this->Internal->vertexShaderFile = vtkglPolyDataVSLightKit;
+//        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
       break;
     case 3:
+        this->Internal->fragmentShaderFile = vtkglPolyDataFS;
+        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
       break;
     }
 
@@ -160,7 +167,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *actor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
   // for headlight there are no lighting parameters
   if (this->Internal->vertexShaderFile == vtkglPolyDataVSHeadlight)
@@ -208,23 +215,78 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
   this->Internal->program.setUniformValue("lightDirectionVC", numberOfLights, lightDirection);
   this->Internal->program.setUniformValue("numberOfLights", numberOfLights);
 
+  if (this->Internal->vertexShaderFile == vtkglPolyDataVSLightKit)
+    {
+      return;
+    }
+
+  // if positional lights pass down more parameters
+  float lightAttenuation[6][3];
+  float lightConeAngle[6];
+  float lightExponent[6];
+  numberOfLights = 0;
+  for(lc->InitTraversal(sit);
+      (light = lc->GetNextLight(sit)); )
+    {
+    float status = light->GetSwitch();
+    if (status > 0.0)
+      {
+      double *attn = light->GetAttenuationValues();
+      lightAttenuation[numberOfLights][0] = attn[0];
+      lightAttenuation[numberOfLights][1] = attn[1];
+      lightAttenuation[numberOfLights][2] = attn[2];
+      lightExponent[numberOfLights] = light->GetExponent();
+      lightConeAngle[numberOfLights] = light->GetConeAngle();
+      numberOfLights++;
+      }
+    }
+  this->Internal->program.setUniformValue("lightAttenuation", numberOfLights, lightAttenuation);
+  this->Internal->program.setUniformValue("lightExponent", numberOfLights, lightExponent);
+  this->Internal->program.setUniformValue("lightConeAngle", numberOfLights, lightConeAngle);
+
 }
 
 //-----------------------------------------------------------------------------
 void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor *actor)
 {
-  Eigen::Affine3f mv, proj;
-  glGetFloatv(GL_MODELVIEW_MATRIX, mv.matrix().data());
-  glGetFloatv(GL_PROJECTION_MATRIX, proj.matrix().data());
-  vtkgl::Matrix3f normalMatrix = mv.linear().inverse().transpose();
+  // pass down the various model and camera transformations
+  vtkCamera *cam = ren->GetActiveCamera();
+  // really just view  matrix in spite of it's name
+  vtkTransform* viewTF = cam->GetModelViewTransformObject();
+  this->Internal->program.setUniformValue("WCVCMatrix", viewTF->GetMatrix());
 
-  this->Internal->program.setUniformValue("modelView", mv.matrix());
-  this->Internal->program.setUniformValue("projection", proj.matrix());
-  this->Internal->program.setUniformValue("normalMatrix", normalMatrix);
+  // set the MCWC matrix
+  this->Internal->program.setUniformValue("MCWCMatrix", actor->GetMatrix());
+
+  // compute the combined ModelView matrix and send it down to save time in the shader
+  vtkMatrix4x4 *tmpMat = vtkMatrix4x4::New();
+  vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(), tmpMat);
+  tmpMat->Transpose();
+  this->Internal->program.setUniformValue("MCVCMatrix", tmpMat);
+
+  // set the normal matrix and send it down
+  // (make this a function in camera at some point returning a 3x3)
+  tmpMat->DeepCopy(cam->GetCameraLightTransformMatrix());
+  vtkMatrix3x3 *tmpMat3d = vtkMatrix3x3::New();
+  for(int i = 0; i < 3; ++i)
+    {
+    for (int j = 0; j < 3; ++j)
+      {
+        tmpMat3d->SetElement(i,j,tmpMat->GetElement(i,j));
+      }
+    }
+  this->Internal->program.setUniformValue("normalMatrix", tmpMat3d);
+
+
+  tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
+  this->Internal->program.setUniformValue("VCDCMatrix", tmpMat);
+
+  tmpMat->Delete();
+  tmpMat3d->Delete();
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* vtkNotUsed(ren), vtkActor *actor)
 {
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());

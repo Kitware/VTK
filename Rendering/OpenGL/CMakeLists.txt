@@ -404,6 +404,7 @@ endforeach()
 if(VTK_REPLACE_OPENGL_OVERRIDES)
   set(vtk_module_vtkPolyDataMapper_override "vtkVBOPolyDataMapper")
   set(vtk_module_vtkLight_override "vtkOpenGL2Light")
+#  set(vtk_module_vtkCamera_override "vtkOpenGL2Camera")
 endif()
 
 # Now we iterate and create that class file...

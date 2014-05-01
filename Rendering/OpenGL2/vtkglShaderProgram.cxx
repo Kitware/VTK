@@ -16,6 +16,8 @@
 #include <GL/glew.h>
 #include "vtkglShader.h"
 #include "vtkglTexture2D.h"
+#include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
 
 namespace vtkgl {
 
@@ -377,6 +379,54 @@ bool ShaderProgram::setUniformValue(const std::string &name,
   }
   glUniformMatrix4fv(location, 1, GL_FALSE,
                      static_cast<const GLfloat *>(matrix.data()));
+  return true;
+}
+
+bool ShaderProgram::setUniformValue(const std::string &name,
+                                    vtkMatrix4x4 *matrix)
+{
+  GLint location = static_cast<GLint>(findUniform(name));
+  if (location == -1) {
+    m_error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+  }
+  float data[16];
+  for (int i = 0; i < 16; ++i)
+    {
+      data[i] = matrix->Element[i/4][i%4];
+    }
+  glUniformMatrix4fv(location, 1, GL_FALSE,
+                     data);
+  return true;
+}
+
+bool ShaderProgram::setUniformValue(const std::string &name,
+                                    vtkMatrix3x3 *matrix)
+{
+  GLint location = static_cast<GLint>(findUniform(name));
+  if (location == -1) {
+    m_error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+  }
+  float data[9];
+  for (int i = 0; i < 9; ++i)
+    {
+      data[i] = matrix->GetElement(i/3,i%3);
+    }
+  glUniformMatrix3fv(location, 1, GL_FALSE,
+                     data);
+  return true;
+}
+
+bool ShaderProgram::setUniformValue(const std::string &name, const int count,
+                                    const float *v)
+{
+  GLint location = static_cast<GLint>(findUniform(name));
+  if (location == -1) {
+    m_error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+  }
+  glUniform1fv(location, count, (const GLfloat *)v);
   return true;
 }
 

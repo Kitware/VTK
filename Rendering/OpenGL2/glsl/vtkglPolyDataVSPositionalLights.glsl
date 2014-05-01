@@ -11,9 +11,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// the lighting model for this shader is more complex
-// and supports the VTK light kit, multiple lights
-// some off axis from the camera, Gouraud shading
+// the lighting model for this shader is complex
+// and supports the full VTK light API
 
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are
@@ -42,6 +41,10 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 uniform int numberOfLights; // only allow for up to 6 active lights
 uniform vec3 lightColor[6]; // intensity weighted color
 uniform vec3 lightDirectionVC[6]; // normalized
+uniform vec4 lightPositionWC[6];
+uniform vec3 lightAttenuation[6];
+uniform float lightConeAngle[6];
+uniform float lightExponent[6];
 
 // the resulting vertex color to be passed down to the fragment shader
 varying vec4 fcolor;

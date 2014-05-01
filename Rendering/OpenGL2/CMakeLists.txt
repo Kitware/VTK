@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkglShaderProgram.cxx
   vtkglTexture2D.cxx
   vtkOpenGL2Light.cxx
+#  vtkOpenGL2Camera.cxx
   vtkVBOPolyDataMapper.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
@@ -26,6 +27,7 @@ set(Module_SRCS
 set(shader_files
   glsl/vtkglPolyDataVSLightKit.glsl
   glsl/vtkglPolyDataVSHeadlight.glsl
+  glsl/vtkglPolyDataVSPositionalLights.glsl
   glsl/vtkglPolyDataFS.glsl
   )
 
