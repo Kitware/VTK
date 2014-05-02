@@ -1,22 +1,22 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkWin32OpenGLRenderWindow.h
+  Program:   Visualization Toolkit
+  Module:    vtkWin32OpenGLRenderWindow.h
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 // .NAME vtkWin32OpenGLRenderWindow - OpenGL rendering window
 // .SECTION Description
 // vtkWin32OpenGLRenderWindow is a concrete implementation of the abstract
 // class vtkRenderWindow. vtkWin32OpenGLRenderer interfaces to the standard
-// OpenGL graphics library in the Windows/NT environment..
+// OpenGL graphics library in the Windows environment.
 
 #ifndef __vtkWin32OpenGLRenderWindow_h
 #define __vtkWin32OpenGLRenderWindow_h
@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRen
 {
 public:
   static vtkWin32OpenGLRenderWindow *New();
-  vtkTypeMacro(vtkWin32OpenGLRenderWindow,vtkOpenGLRenderWindow);
+  vtkTypeMacro(vtkWin32OpenGLRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,12 +49,12 @@ public:
   // Initialize the rendering window.  This will setup all system-specific
   // resources.  This method and Finalize() must be symmetric and it
   // should be possible to call them multiple times, even changing WindowId
-  // in-between.  This is what WindowRemap does.
+  // in-between. This is what WindowRemap does.
   virtual void Initialize(void);
 
   // Description:
   // Finalize the rendering window.  This will shutdown all system-specific
-  // resources.  After having called this, it should be possible to destroy
+  // resources. After having called this, it should be possible to destroy
   // a window that was used for a SetWindowId() call without any ill effects.
   virtual void Finalize(void);
 
@@ -72,8 +72,8 @@ public:
 
   // Description:
   // Set the size of the window in pixels.
-  virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {vtkOpenGLRenderWindow::SetSize(a);};
+  virtual void SetSize(int width, int height);
+  virtual void SetSize(int a[2]) { vtkOpenGLRenderWindow::SetSize(a); }
 
   // Description:
   // Get the current size of the window in pixels.
@@ -81,8 +81,8 @@ public:
 
   // Description:
   // Set the position of the window.
-  virtual void SetPosition(int,int);
-  virtual void SetPosition(int a[2]) {vtkOpenGLRenderWindow::SetPosition(a);};
+  virtual void SetPosition(int x, int y);
+  virtual void SetPosition(int a[2]) { vtkOpenGLRenderWindow::SetPosition(a); }
 
   // Description:
   // Get the current size of the screen in pixels.
@@ -95,36 +95,36 @@ public:
   // Description:
   // Set the name of the window. This appears at the top of the window
   // normally.
-  virtual void SetWindowName(const char *);
+  virtual void SetWindowName(const char*);
 
   // Description:
   // Set this RenderWindow's window id to a pre-existing window.
-  void SetWindowInfo(char *);
+  void SetWindowInfo(char*);
 
   // Description:
   // Sets the WindowInfo that will be used after a WindowRemap.
-  void SetNextWindowInfo(char *);
+  void SetNextWindowInfo(char*);
 
   // Description:
   // Sets the HWND id of the window that WILL BE created.
-  void SetParentInfo(char *);
+  void SetParentInfo(char*);
 
   //BTX
-  virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
-  virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
-  virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
-  virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
-  virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
-  virtual void SetDisplayId(void *);
+  virtual void *GetGenericDisplayId() { return (void*)this->ContextId; }
+  virtual void *GetGenericWindowId()  { return (void*)this->WindowId; }
+  virtual void *GetGenericParentId()  { return (void*)this->ParentId; }
+  virtual void *GetGenericContext()   { return (void*)this->DeviceContext; }
+  virtual void *GetGenericDrawable()  { return (void*)this->WindowId; }
+  virtual void SetDisplayId(void*);
 
   // Description:
   // Get the window id.
-  virtual HWND  GetWindowId();
+  virtual HWND GetWindowId();
 
   // Description:
   // Set the window id to a pre-existing window.
-  virtual void  SetWindowId(HWND);
-  void  SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+  virtual void SetWindowId(HWND);
+  void SetWindowId(void *foo) { this->SetWindowId((HWND)foo); }
 
   // Description:
   // Initialize the render window from the information associated
@@ -133,15 +133,20 @@ public:
 
   // Description:
   // Set the window's parent id to a pre-existing window.
-  virtual void  SetParentId(HWND);
-  void  SetParentId(void *foo) {this->SetParentId((HWND)foo);};
+  virtual void SetParentId(HWND);
+  void SetParentId(void *foo) { this->SetParentId((HWND)foo); }
 
-  void  SetContextId(HGLRC);    // hsr
-  void  SetDeviceContext(HDC);  // hsr
+  // Description:
+  // Set the window's context id
+  void SetContextId(HGLRC);
+
+  // Description:
+  // Set the window's device context
+  void SetDeviceContext(HDC);
 
   // Description:
   // Set the window id of the new window once a WindowRemap is done.
-  virtual void  SetNextWindowId(HWND);
+  virtual void SetNextWindowId(HWND);
 
   // Description:
   // Set the window id of the new window once a WindowRemap is done.
@@ -192,13 +197,13 @@ public:
   void SetupMemoryRendering(HBITMAP hbmp);
   void ResumeScreenRendering(void);
   HDC GetMemoryDC();
-  unsigned char *GetMemoryData(){return this->MemoryData;};
+  unsigned char *GetMemoryData() { return this->MemoryData; }
 
   // Description:
   // Initialize OpenGL for this window.
   virtual void SetupPalette(HDC hDC);
   virtual void SetupPixelFormat(HDC hDC, DWORD dwFlags, int debug,
-                                int bpp=16, int zbpp=16);
+                                int bpp = 16, int zbpp = 16);
 
   // Description:
   // Clean up device contexts, rendering contexts, etc.
@@ -207,10 +212,10 @@ public:
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
-  // Set cursor position in window (note that (0,0) is the lower left
-  // corner).
   void HideCursor();
   void ShowCursor();
+  // Description:
+  // Set cursor position in window (note that (0,0) is the lower left corner).
   void SetCursorPosition(int x, int y);
 
   // Description:
@@ -272,7 +277,7 @@ protected:
   void CleanUpOffScreenRendering(void);
   void CreateOffScreenDC(int xsize, int ysize, HDC aHdc);
   void CreateOffScreenDC(HBITMAP hbmp, HDC aHdc);
-  void CreateOffScreenWindow(int width,int height);
+  void CreateOffScreenWindow(int width, int height);
   void SaveScreenRendering();
   void CleanUpRenderers();
 
@@ -281,6 +286,4 @@ private:
   void operator=(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
 };
 
-
 #endif
-
