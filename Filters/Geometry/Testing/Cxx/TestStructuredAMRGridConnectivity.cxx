@@ -83,6 +83,7 @@ const double h0 = 1.0;
 // Global origin
 const double origin[3] = {0.0,0.0,0.0};
 
+#ifdef ENABLE_IO
 //------------------------------------------------------------------------------
 void WriteGrid(vtkUniformGrid *grid, std::string prefix)
 {
@@ -94,11 +95,10 @@ void WriteGrid(vtkUniformGrid *grid, std::string prefix)
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData( grid );
-#ifdef ENABLE_IO
   writer->Write();
-#endif
   writer->Delete();
 }
+#endif
 
 //------------------------------------------------------------------------------
 void GetPoint(
