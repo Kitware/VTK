@@ -107,7 +107,7 @@ int vtkHyperTreeGridAlgorithm::ProcessRequest(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::FillOutputPortInformation( int vtkNotUsed(port), 
+int vtkHyperTreeGridAlgorithm::FillOutputPortInformation( int vtkNotUsed(port),
                                                           vtkInformation* info )
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
@@ -139,10 +139,10 @@ int vtkHyperTreeGridAlgorithm::RequestUpdateExtent(
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   int numInputPorts = this->GetNumberOfInputPorts();
-  for (int i=0; i<numInputPorts; i++)
+  for (int i = 0; i < numInputPorts; i++)
     {
     int numInputConnections = this->GetNumberOfInputConnections(i);
-    for (int j=0; j<numInputConnections; j++)
+    for (int j = 0; j<numInputConnections; j++)
       {
       vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);

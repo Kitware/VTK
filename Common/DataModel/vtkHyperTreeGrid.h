@@ -25,6 +25,7 @@
 // .SECTION Caveats
 // It is not a spatial search object. If you are looking for this kind of
 // octree see vtkCellLocator instead.
+// Extent support is not finished yet.
 //
 // .SECTION See Also
 // vtkHyperTree vtkRectilinearGrid
@@ -84,7 +85,14 @@ public:
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
   void SetGridSize( unsigned int[3] );
+  void SetGridSize( unsigned int i, unsigned int j, unsigned int k );
   vtkGetVector3Macro(GridSize, unsigned int);
+
+  // Description:
+  // Set/Get extent of this rectilinear grid dataset
+  void SetGridExtent(int extent[6]);
+  void SetGridExtent(int iMin, int iMax, int jMin, int jMax,
+                     int kMin, int kMax);
 
   // Description:
   // Specify whether indexing mode of grid root cells must be transposed to
@@ -298,6 +306,10 @@ public:
   void DeepCopy( vtkDataObject* );
 
   // Description:
+  // Structured extent. The extent type is a 3D extent
+  int GetExtentType() { return VTK_3D_EXTENT; }
+
+  // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the
@@ -358,6 +370,7 @@ protected:
 
   unsigned int Dimension;    // 1, 2 or 3.
   unsigned int GridSize[3];
+  int Extent[6];
   unsigned int BranchFactor;
   unsigned int NumberOfChildren;
   bool TransposedRootIndexing;

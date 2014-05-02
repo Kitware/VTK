@@ -30,6 +30,9 @@ vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
+  this->PlaneNormalAxis = 0;
+  this->PlanePosition = 0.;
+
   this->Input = 0;
   this->Output = 0;
 
@@ -38,25 +41,11 @@ vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 
   this->Points = 0;
   this->Cells = 0;
-
-  this->PlanePosition = 0.;
-  this->PlaneNormalAxis = 0;
 }
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
 {
-  if ( this->Points )
-    {
-    this->Points->Delete();
-    this->Points = 0;
-    }
-
-  if ( this->Cells )
-    {
-    this->Cells->Delete();
-    this->Cells = 0;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -84,46 +73,6 @@ void vtkHyperTreeGridAxisCut::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "Output: ( none )\n";
     }
 
-  if( this->InData )
-    {
-    os << indent << "InData:\n";
-    this->InData->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "InData: ( none )\n";
-    }
-
-  if( this->OutData )
-    {
-    os << indent << "OutData:\n";
-    this->OutData->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "OutData: ( none )\n";
-    }
-
-  if( this->Points )
-    {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Points: ( none )\n";
-    }
-
-  if( this->Cells )
-    {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Cells: ( none )\n";
-    }
-
   os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
   os << indent << "Plane Position : " << this->PlanePosition << endl;
 }
@@ -145,8 +94,10 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
 
   // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Input =
+    vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output =
+    vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // This filter is only for 2D slices of 3D grids
   if ( this->Input->GetDimension() != 3 )
@@ -156,8 +107,10 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
     }
 
   // Initialize output cell data
-  this->InData = static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
-  this->OutData = static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
+  this->InData =
+    static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
+  this->OutData =
+    static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
   this->OutData->CopyAllocate( this->InData );
 
   // Cut through hyper tree grid
@@ -166,6 +119,8 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   // Clean up
   this->Input = 0;
   this->Output = 0;
+  this->InData = 0;
+  this->OutData = 0;
 
   this->UpdateProgress ( 1. );
 
@@ -201,6 +156,11 @@ void vtkHyperTreeGridAxisCut::ProcessTrees()
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );
   this->Output->SetPolys( this->Cells );
+
+  this->Points->UnRegister( this );
+  this->Points = 0;
+  this->Cells->UnRegister( this );
+  this->Cells = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -266,7 +226,7 @@ void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
   vtkIdType inId = cursor0->GetGlobalNodeIndex();
 
   // If leaf is masked, skip it
-  if ( this->Input->GetMaterialMask()->GetTuple1( inId ) )
+  if ( this->Input->GetMaterialMask()->GetValue( inId ) )
     {
     return;
     }
@@ -302,6 +262,6 @@ void vtkHyperTreeGridAxisCut::ProcessLeaf3D( void* sc )
       return;
     }
 
-  this->AddFace( inId, superCursor->Origin, superCursor->Size,
-    k, this->PlaneNormalAxis, axis1, axis2 );
+  this->AddFace( inId, superCursor->Origin, superCursor->Size, k,
+    this->PlaneNormalAxis, axis1, axis2 );
 }

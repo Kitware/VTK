@@ -48,18 +48,6 @@ vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
 {
-  if ( this->Points )
-    {
-    this->Points->Delete();
-    this->Points = 0;
-    }
-
-  if ( this->Cells )
-    {
-    this->Cells->Delete();
-    this->Cells = 0;
-    }
-
   delete [] this->Coefficients;
   this->Coefficients = 0;
 }
@@ -87,46 +75,6 @@ void vtkHyperTreeGridToUnstructuredGrid::PrintSelf( ostream& os, vtkIndent inden
   else
     {
     os << indent << "Output: ( none )\n";
-    }
-
-  if( this->InData )
-    {
-    os << indent << "InData:\n";
-    this->InData->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "InData: ( none )\n";
-    }
-
-  if( this->OutData )
-    {
-    os << indent << "OutData:\n";
-    this->OutData->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "OutData: ( none )\n";
-    }
-
-  if( this->Points )
-    {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Points: ( none )\n";
-    }
-
-  if( this->Cells )
-    {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Cells: ( none )\n";
     }
 
   os << indent << "Dimension : " << this->Dimension << endl;
@@ -164,10 +112,13 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
 
   // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  this->Output = vtkUnstructuredGrid::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Input =
+    vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output =
+    vtkUnstructuredGrid::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   delete [] this->Coefficients;
+  this->Coefficients = 0;
 
   // Set instance variables needed for this conversion
   this->Dimension = this->Input->GetDimension();
@@ -209,8 +160,10 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
     }
 
   // Initialize output cell data
-  this->InData = static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
-  this->OutData = static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
+  this->InData =
+    static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
+  this->OutData =
+    static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
   this->OutData->CopyAllocate( this->InData );
 
   // Convert hyper tree grid to unstructured grid
@@ -219,6 +172,8 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
   // Clean up
   this->Input = 0;
   this->Output = 0;
+  this->InData = 0;
+  this->OutData = 0;
 
   this->UpdateProgress ( 1. );
 
@@ -253,18 +208,25 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
 
   // Set output geometry and topology
   this->Output->SetPoints( this->Points );
-  switch ( this->Dimension )
+  switch ( this->CellSize )
     {
-    case 1:
+    case 2:
       this->Output->SetCells( VTK_LINE, this->Cells );
       break;
-    case 2:
+    case 4:
       this->Output->SetCells( VTK_QUAD, this->Cells );
       break;
-    case 3:
+    case 8:
       this->Output->SetCells( VTK_VOXEL, this->Cells );
       break;
+    default:
+      break;
     }
+
+  this->Points->UnRegister( this );
+  this->Points = 0;
+  this->Cells->UnRegister( this );
+  this->Cells = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -306,7 +268,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursiveProcessTree( void* sc )
     // Cursor is a leaf, retrieve its global index
     vtkIdType inId = cursor->GetGlobalNodeIndex();
     // If leaf is masked, skip it
-    if ( ! this->Input->GetMaterialMask()->GetTuple1( inId ) )
+    if ( ! this->Input->GetMaterialMask()->GetValue( inId ) )
       {
       // Create cell
       this->AddCell( inId, superCursor->Origin, superCursor->Size );
