@@ -104,8 +104,8 @@ public:
   // a filter should be (re-)executed because what is in
   // the current output is different that what is being requested
   // by the key. For example, DATA_PIECE_NUMBER != UPDATE_PIECE_NUMBER.
-  virtual bool NeedToExecute(vtkInformation* pipelineInfo,
-                             vtkInformation* dobjInfo) {return false;}
+  virtual bool NeedToExecute(vtkInformation* vtkNotUsed(pipelineInfo),
+                             vtkInformation* vtkNotUsed(dobjInfo)) {return false;}
 
   // Description:
   // This function is only relevant when the pertaining key
@@ -120,9 +120,9 @@ public:
   // the DATA_PIECE_NUMBER. DATA_PIECE_NUMBER can later be compared
   // to a new UPDATA_PIECE_NUMBER to decide whether a filter should
   // re-execute.
-  virtual void StoreMetaData(vtkInformation* request,
-                             vtkInformation* pipelineInfo,
-                             vtkInformation* dobjInfo) {}
+  virtual void StoreMetaData(vtkInformation* vtkNotUsed(request),
+                             vtkInformation* vtkNotUsed(pipelineInfo),
+                             vtkInformation* vtkNotUsed(dobjInfo)) {}
 
   // Description:
   // This function is only relevant when the pertaining key
@@ -131,9 +131,9 @@ public:
   // during a particular pipeline pass. For example, meta-data keys
   // can copy themselves during REQUEST_INFORMATION whereas request
   // keys can copy themselves during REQUEST_UPDATE_EXTENT.
-  virtual void CopyDefaultInformation(vtkInformation* request,
-                                      vtkInformation* fromInfo,
-                                      vtkInformation* toInfo) {}
+  virtual void CopyDefaultInformation(vtkInformation* vtkNotUsed(request),
+                                      vtkInformation* vtkNotUsed(fromInfo),
+                                      vtkInformation* vtkNotUsed(toInfo)) {}
 
 protected:
   const char* Name;

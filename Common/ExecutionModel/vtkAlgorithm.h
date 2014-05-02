@@ -449,6 +449,10 @@ public:
   // Bring the algorithm's information up-to-date.
   virtual void UpdateInformation();
 
+  // Description:
+  // Create output object(s).
+  virtual void UpdateDataObject();
+
   // Description::
   // Propagate meta-data upstream.
   virtual void PropagateUpdateExtent();

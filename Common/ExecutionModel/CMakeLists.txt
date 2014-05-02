@@ -11,6 +11,7 @@ SET(Module_SRCS
   vtkDataSetAlgorithm.cxx
   vtkDemandDrivenPipeline.cxx
   vtkDirectedGraphAlgorithm.cxx
+  vtkEnsembleSource.cxx
   vtkExecutive.cxx
   vtkExtentSplitter.cxx
   vtkExtentTranslator.cxx
