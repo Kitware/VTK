@@ -56,27 +56,6 @@ namespace
 
 //------------------------------------------------------------------------------
 // Description:
-// Writes the grid to a file
-void WriteGrid( vtkUniformGrid *grid, std::string prefix )
-{
-
-
-  assert( "pre: input grid is NULL" && (grid != NULL) );
-
-  vtkXMLImageDataWriter *writer = vtkXMLImageDataWriter::New();
-
-  std::ostringstream oss;
-  oss << prefix << "." << writer->GetDefaultFileExtension();
-  writer->SetFileName( oss.str().c_str() );
-  writer->SetInputData( grid );
-#ifdef ENABLE_IO
-  writer->Write();
-#endif
-  writer->Delete();
-}
-
-//------------------------------------------------------------------------------
-// Description:
 // This method attaches a point array to the given grid that will label the
 // the points by color -- 0(off) or 1(on) -- to indicate whether or not a
 // particular flag is "ON"

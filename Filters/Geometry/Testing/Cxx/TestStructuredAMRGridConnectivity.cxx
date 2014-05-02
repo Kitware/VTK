@@ -223,24 +223,6 @@ void AttachCellBlanking(vtkOverlappingAMR *amr)
 }
 
 //------------------------------------------------------------------------------
-void ComputeCellCenter(
-    vtkUniformGrid *grid, vtkIdType cellIdx,double center[3])
-{
-  assert("pre: input grid is NULL" && (grid != NULL) );
-  assert("pre: cell index is out-of-bounds" &&
-         (cellIdx < grid->GetNumberOfCells() ) );
-
-  vtkCell *myCell = grid->GetCell( cellIdx );
-  assert( "ERROR: Cell is NULL" && (myCell != NULL) );
-
-  double pcenter[3];
-  double *weights = new double[ myCell->GetNumberOfPoints() ];
-  int subId = myCell->GetParametricCenter( pcenter );
-  myCell->EvaluateLocation( subId, pcenter, center, weights );
-  delete [] weights;
-}
-
-//------------------------------------------------------------------------------
 void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
 {
   assert( "pre: grd should not be NULL" && (grd != NULL)  );
