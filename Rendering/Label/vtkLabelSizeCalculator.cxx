@@ -187,8 +187,7 @@ int vtkLabelSizeCalculator::RequestData(
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
-      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
-      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE )
+      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES)
       {
       outFD = graphOutput->GetVertexData();
       outFD->AddArray( lsz );

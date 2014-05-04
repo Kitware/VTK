@@ -843,7 +843,7 @@ inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
     orient[ idx ] = vtkStructuredNeighbor::SUPERSET;
     }
   // D. Partially-overlapping (non-subset) cases
-  else if( !(this->IsSubset(A,B) || this->IsSubset(A,B)) )
+  else if( !(this->IsSubset(A,B)) )
     {
     if( this->InBounds( A[0], B[0], B[1] ) )
       {

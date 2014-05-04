@@ -586,7 +586,7 @@ CanRead(const char *_fileName) const
   {
   if(_fileName)
     {
-    return false;
+    return true;
     }
   else
     {

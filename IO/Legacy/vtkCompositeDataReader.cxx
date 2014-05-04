@@ -209,7 +209,7 @@ int vtkCompositeDataReader::RequestData(vtkInformation *, vtkInformationVector *
   // RequestDataObject() so we just skip it here without any additional
   // validation.
   char line[256];
-  if (!this->ReadString(line) || !this->ReadString(line))
+  if (!this->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile ();

@@ -4379,7 +4379,7 @@ xmlGetNodePath(xmlNodePtr node)
                 while (tmp != NULL && occur == 0) {
                   if (tmp->type == XML_COMMENT_NODE)
                     occur++;
-                    tmp = tmp->next;
+                  tmp = tmp->next;
                 }
                 if (occur != 0)
                     occur = 1;

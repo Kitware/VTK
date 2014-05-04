@@ -102,7 +102,6 @@ extern "C" void jpeg_mem_src (j_decompress_ptr cinfo, void* buffer, long nbytes)
   cinfo->src = (struct jpeg_source_mgr *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
       sizeof(struct jpeg_source_mgr));
-  cinfo->src = (struct jpeg_source_mgr*) cinfo->src;
   cinfo->src->init_source = jpg_null;
   cinfo->src->fill_input_buffer = fill_input_buffer;
   cinfo->src->skip_input_data = skip_input_data;

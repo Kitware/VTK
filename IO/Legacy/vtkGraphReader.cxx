@@ -125,6 +125,7 @@ int vtkGraphReader::RequestData(
     }
 
   int done = 0;
+  //This while condition is always true.
   while(!done)
     {
     if(!this->ReadString(line))

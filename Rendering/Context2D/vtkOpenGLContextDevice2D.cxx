@@ -1023,14 +1023,7 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
 
   vtkVector2f tex(1.0, 1.0);
   GLuint index = 0;
-  if (this->Storage->PowerOfTwoTextures)
-    {
-    index = this->Storage->TextureFromImage(image, tex);
-    }
-  else
-    {
-    index = this->Storage->TextureFromImage(image, tex);
-    }
+  index = this->Storage->TextureFromImage(image, tex);
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
   float points[] = { pos.GetX()              , pos.GetY(),
