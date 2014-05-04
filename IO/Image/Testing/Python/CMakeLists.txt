@@ -6,6 +6,7 @@ vtk_add_test_python(
   TestTIFFReader.py
   dem.py
   TestMetaImage2D.py
+  TestNIFTIReaderWriter.py
   TestSetFileNames.py
   TestImageJSONWriter.py,NO_VALID
   )

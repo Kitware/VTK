@@ -868,13 +868,23 @@ int vtkTesting::CompareAverageOfL2Norm(vtkDataSet *dsA, vtkDataSet *dsB,
 int vtkTesting::InteractorEventLoop(int argc,
                                     char *argv[],
                                     vtkRenderWindowInteractor *iren,
-                                    const char *playbackStream )
+                                    const char *playbackStream)
 {
-  bool disableReplay = false, record = false;
+  bool disableReplay = false, record = false, playbackFile = false;;
+  std::string playbackFileName;
   for (int i = 0; i < argc; i++)
     {
     disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
     record        |= (strcmp("--Record", argv[i]) == 0);
+    playbackFile  |= (strcmp("--PlaybackFile", argv[i]) == 0);
+    if (playbackFile && playbackFileName.empty())
+      {
+      if (i + 1 < argc)
+        {
+        playbackFileName = std::string(argv[i + 1]);
+        ++i;
+        }
+      }
     }
 
   vtkNew<vtkInteractorEventRecorder> recorder;
@@ -895,6 +905,14 @@ int vtkTesting::InteractorEventLoop(int argc,
         {
         recorder->ReadFromInputStringOn();
         recorder->SetInputString(playbackStream);
+        recorder->Play();
+
+        // Without this, the "-I" option if specified will fail
+        recorder->Off();
+        }
+      else if (playbackFile)
+        {
+        recorder->SetFileName(playbackFileName.c_str());
         recorder->Play();
 
         // Without this, the "-I" option if specified will fail

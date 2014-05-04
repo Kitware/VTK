@@ -218,18 +218,29 @@
 
                         viewport.bind(me[0]);
 
+                        // Init pipeline
+                        if(data.hasOwnProperty('configuration')) {
+                           session.call("vtk:initializePipeline", data["configuration"]).then(function(){
+                              viewport.render();
+                           },function(e){
+                              console.log(e);
+                           });
+                        }
+
                         // Load files
+                        if(data.hasOwnProperty('files')) {
                            session.call("vtk:openFileFromPath", data["files"]).then(function(){
                               viewport.render();
                            },function(e){
                               console.log(e);
                            });
+                        }
 
                         // Create Control UI
-                           session.call("vtk:getArguments").then(function(args){
-                               createControlPanel(me, args);
-                               initializeListener(me);
-                           });
+                        session.call("vtk:getArguments").then(function(args){
+                            createControlPanel(me, args);
+                            initializeListener(me);
+                        });
 
                         // Update stop method to use the connection
                         stop = function() {

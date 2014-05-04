@@ -788,31 +788,37 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os,vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << "Controller: "      << this->Controller << std::endl;
-  os << "Number of Ranks: " << this->Controller->GetNumberOfProcesses();
-  os << std::endl;
+  if( this->Controller != NULL )
+    {
+    os << "Number of Ranks: " << this->Controller->GetNumberOfProcesses();
+    os << std::endl;
+    } // END if Controller != NULL
 
   os << "Input Grid: " << this->InputGrid  << std::endl;
-  os << "Extent: [" << this->InputGrid->Extent[0];
-  os << ", " << this->InputGrid->Extent[1];
-  os << ", " << this->InputGrid->Extent[2];
-  os << ", " << this->InputGrid->Extent[3];
-  os << ", " << this->InputGrid->Extent[4];
-  os << ", " << this->InputGrid->Extent[5];
-  os << "] " << std::endl;
-
-  os << "Grow: [" << this->InputGrid->Grow[0];
-  os << ", " << this->InputGrid->Grow[1];
-  os << ", " << this->InputGrid->Grow[2];
-  os << "] " << std::endl;
-
-  os << "Number of Neighbors: " << this->InputGrid->Neighbors.size();
-  os << std::endl;
-  int N = this->InputGrid->Neighbors.size();
-  for(int nei=0; nei < N; ++nei)
+  if( this->InputGrid != NULL )
     {
-    os << "\t" << this->InputGrid->Neighbors[ nei ].ToString();
+    os << "Extent: [" << this->InputGrid->Extent[0];
+    os << ", " << this->InputGrid->Extent[1];
+    os << ", " << this->InputGrid->Extent[2];
+    os << ", " << this->InputGrid->Extent[3];
+    os << ", " << this->InputGrid->Extent[4];
+    os << ", " << this->InputGrid->Extent[5];
+    os << "] " << std::endl;
+
+    os << "Grow: [" << this->InputGrid->Grow[0];
+    os << ", " << this->InputGrid->Grow[1];
+    os << ", " << this->InputGrid->Grow[2];
+    os << "] " << std::endl;
+
+    os << "Number of Neighbors: " << this->InputGrid->Neighbors.size();
     os << std::endl;
-    } // END for all neighbors
+    int N = this->InputGrid->Neighbors.size();
+    for(int nei=0; nei < N; ++nei)
+      {
+      os << "\t" << this->InputGrid->Neighbors[ nei ].ToString();
+      os << std::endl;
+      } // END for all neighbors
+    } // END if InputGrid != NULL
 }
 
 //------------------------------------------------------------------------------
