@@ -321,12 +321,13 @@ int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
   origin[2] = this->ZCoordinates->GetTuple1( 0 );
   outInfo->Set( vtkDataObject::ORIGIN(), origin, 3 );
 
-  int extent[6] =
-    {
-    0, this->GridSize[0] - 1,
-    0, this->GridSize[1] - 1,
-    0, this->GridSize[2] - 1
-    };
+  int extent[6];
+  extent[0] = 0;
+  extent[1] = this->GridSize[0] - 1;
+  extent[2] = 0;
+  extent[3] = this->GridSize[1] - 1;
+  extent[4] = 0;
+  extent[5] = this->GridSize[2] - 1;
   outInfo->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6 );
 
   return 1;
