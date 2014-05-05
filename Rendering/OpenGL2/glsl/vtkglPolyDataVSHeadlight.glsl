@@ -49,7 +49,7 @@ void main()
   float sf = pow(df, specularPower);
 
   //vec3 ambient = 0.4 * color;
-  vec3 diffuse = df * color.rgb;
+  vec3 diffuse = df * diffuseColor.rgb;
   vec3 specular = sf * specularColor;
 
   fcolor = vec4(diffuse + specular, opacity);

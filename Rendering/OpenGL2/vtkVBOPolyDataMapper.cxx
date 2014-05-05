@@ -188,13 +188,13 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       {
       vertexShaderSource = replace(vertexShaderSource,
                                    "//VTK::Color::Dec",
-                                   "attribute vec4 color;");
+                                   "attribute vec4 diffuseColor;");
       }
     else
       {
       vertexShaderSource = replace(vertexShaderSource,
                                    "//VTK::Color::Dec",
-                                   "uniform vec3 color;");
+                                   "uniform vec3 diffuseColor;");
       }
     cout << "VS: " << vertexShaderSource << endl;
 
@@ -466,11 +466,11 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                             vtkgl::ShaderProgram::NoNormalize);
   if (this->Internal->colorAttributes)
     {
-    if (!this->Internal->program.enableAttributeArray("color"))
+    if (!this->Internal->program.enableAttributeArray("diffuseColor"))
       {
       vtkErrorMacro(<< this->Internal->program.error());
       }
-    this->Internal->program.useAttributeArray("color", sizeof(float) * 6,
+    this->Internal->program.useAttributeArray("diffuseColor", sizeof(float) * 6,
                                               stride,
                                               VTK_UNSIGNED_CHAR,
                                               this->Internal->colorComponents,
@@ -490,7 +490,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->Internal->program.disableAttributeArray("normalMC");
   if (this->Internal->colorAttributes)
     {
-    this->Internal->program.disableAttributeArray("color");
+    this->Internal->program.disableAttributeArray("diffuseColor");
     }
   this->Internal->program.release();
 

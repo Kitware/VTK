@@ -101,10 +101,10 @@ void main()
       }
 
     // diffuse and specular lighting
-    float df = max(0.0, attenuation*dot(normalVC, vertLightDirectionVC));
+    float df = max(0.0, attenuation*dot(normalVC, -vertLightDirectionVC));
     diffuse += (df * lightColor[lightNum]);
 
-    if (dot(normalVC, vertLightDirectionVC) > 0.0)
+    if (dot(normalVC, -vertLightDirectionVC) > 0.0)
       {
       float sf = attenuation*pow( max(0.0, dot(
         reflect(vertLightDirectionVC, normalVC), viewDirectionVC)), specularPower);
@@ -112,7 +112,7 @@ void main()
       }
     }
 
-  diffuse = diffuse * color.rgb;
+  diffuse = diffuse * diffuseColor.rgb;
   specular = specular * specularColor;
   fcolor = vec4(diffuse + specular, opacity);
 }

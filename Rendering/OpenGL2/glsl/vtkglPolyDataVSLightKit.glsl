@@ -60,10 +60,10 @@ void main()
   for (int lightNum = 0; lightNum < numberOfLights; lightNum++)
     {
     // diffuse and specular lighting
-    float df = max(0.0, dot(normalVC, lightDirectionVC[lightNum]));
+    float df = max(0.0, dot(normalVC, -lightDirectionVC[lightNum]));
     diffuse += (df * lightColor[lightNum]);
 
-    if (dot(normalVC, lightDirectionVC[lightNum]) > 0.0)
+    if (dot(normalVC, -lightDirectionVC[lightNum]) > 0.0)
       {
       float sf = pow( max(0.0, dot(
         reflect(lightDirectionVC[lightNum], normalVC), viewDirectionVC)), specularPower);
@@ -71,7 +71,7 @@ void main()
       }
     }
 
-  diffuse = diffuse * color.rgb;
+  diffuse = diffuse * diffuseColor.rgb;
   specular = specular * specularColor;
   fcolor = vec4(diffuse + specular, opacity);
 }
