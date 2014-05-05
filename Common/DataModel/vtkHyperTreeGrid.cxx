@@ -98,12 +98,14 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->Voxel = vtkVoxel::New();
   this->Pixel = vtkPixel::New();
   this->Line = vtkLine::New();
-  int extent[6] =
-    {
-    0, this->GridSize[0] - 1,
-    0, this->GridSize[1] - 1,
-    0, this->GridSize[2] - 1
-    };
+  int extent[6];
+  extent[0] = 0;
+  extent[1] = this->GridSize[0] - 1;
+  extent[2] = 0;
+  extent[3] = this->GridSize[1] - 1;
+  extent[4] = 0;
+  extent[5] = this->GridSize[2] - 1;
+
   memcpy( this->Extent, extent, 6 * sizeof(int) );
 
   this->Information->Set( vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT) ;
