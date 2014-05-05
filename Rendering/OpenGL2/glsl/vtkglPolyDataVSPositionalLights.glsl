@@ -27,7 +27,8 @@ attribute vec3 normalMC;
 // material property values
 //VTK::Color::Dec
 uniform float opacity;
-uniform vec3 specularColor;
+uniform vec3 ambientColor; // intensity weighted color
+uniform vec3 specularColor; // intensity weighted color
 uniform float specularPower;
 
 // camera and actor matrix values
@@ -114,7 +115,7 @@ void main()
 
   diffuse = diffuse * diffuseColor.rgb;
   specular = specular * specularColor;
-  fcolor = vec4(diffuse + specular, opacity);
+  fcolor = vec4(ambientColor + diffuse + specular, opacity);
 }
 
 

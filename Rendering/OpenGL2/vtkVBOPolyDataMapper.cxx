@@ -359,6 +359,11 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* vtkNotUsed(r
 {
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+  double *aColor = actor->GetProperty()->GetAmbientColor();
+  double aIntensity = actor->GetProperty()->GetAmbient();
+  vtkgl::Vector3ub ambientColor(static_cast<unsigned char>(aColor[0] * aIntensity * 255.0),
+                         static_cast<unsigned char>(aColor[1] * aIntensity * 255.0),
+                         static_cast<unsigned char>(aColor[2] * aIntensity * 255.0));
   double *dColor = actor->GetProperty()->GetDiffuseColor();
   double dIntensity = actor->GetProperty()->GetDiffuse();
   vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
@@ -372,6 +377,7 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* vtkNotUsed(r
   float specularPower = actor->GetProperty()->GetSpecularPower();
 
   this->Internal->program.setUniformValue("opacity", opacity);
+  this->Internal->program.setUniformValue("ambientColor", ambientColor);
   this->Internal->program.setUniformValue("diffuseColor", diffuseColor);
   this->Internal->program.setUniformValue("specularColor", specularColor);
   this->Internal->program.setUniformValue("specularPower", specularPower);
