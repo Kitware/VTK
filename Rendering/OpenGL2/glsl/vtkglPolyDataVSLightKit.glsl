@@ -26,8 +26,8 @@ attribute vec4 vertexMC;
 attribute vec3 normalMC;
 
 // material property values
+//VTK::Color::Dec
 uniform float opacity;
-uniform vec3 diffuseColor;
 uniform vec3 specularColor;
 uniform float specularPower;
 
@@ -37,7 +37,6 @@ uniform mat4 MCWCMatrix;  // model to world matrix
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
-
 
 uniform int numberOfLights; // only allow for up to 6 active lights
 uniform vec3 lightColor[6]; // intensity weighted color
@@ -54,7 +53,7 @@ void main()
 
   // now compute the vertex color
   vec3 normalVC = normalize(normalMatrix * normalMC);
-  vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC);
+  vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC.xyz);
 
   vec3 diffuse = vec3(0,0,0);
   vec3 specular = vec3(0,0,0);
@@ -72,10 +71,7 @@ void main()
       }
     }
 
-  diffuse = diffuse * diffuseColor;
+  diffuse = diffuse * color.rgb;
   specular = specular * specularColor;
   fcolor = vec4(diffuse + specular, opacity);
 }
-
-
-

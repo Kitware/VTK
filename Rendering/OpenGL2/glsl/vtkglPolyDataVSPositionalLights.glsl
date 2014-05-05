@@ -25,8 +25,8 @@ attribute vec4 vertexMC;
 attribute vec3 normalMC;
 
 // material property values
+//VTK::Color::Dec
 uniform float opacity;
-uniform vec3 diffuseColor;
 uniform vec3 specularColor;
 uniform float specularPower;
 
@@ -112,7 +112,7 @@ void main()
       }
     }
 
-  diffuse = diffuse * diffuseColor;
+  diffuse = diffuse * color.rgb;
   specular = specular * specularColor;
   fcolor = vec4(diffuse + specular, opacity);
 }
