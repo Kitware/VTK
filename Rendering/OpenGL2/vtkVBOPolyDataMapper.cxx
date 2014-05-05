@@ -474,7 +474,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                               stride,
                                               VTK_UNSIGNED_CHAR,
                                               this->Internal->colorComponents,
-                                              vtkgl::ShaderProgram::NoNormalize);
+                                              vtkgl::ShaderProgram::Normalize);
     }
 
   // Render the loaded spheres using the shader and bound VBO.

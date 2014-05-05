@@ -45,7 +45,7 @@ void main()
   vec3 normalVC = normalize(normalMatrix * normalMC);
 
   // diffuse and specular lighting
-  float df = max(0.0, dot(normalVC, vec3(0,0,-1)));
+  float df = max(0.0, dot(normalVC, vec3(0, 0, 1)));
   float sf = pow(df, specularPower);
 
   //vec3 ambient = 0.4 * color;
