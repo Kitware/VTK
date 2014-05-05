@@ -41,7 +41,6 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderWindow->SetSize(300, 300);
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
-
   vtkNew<vtkLightKit> lightKit;
   lightKit->AddLightsToRenderer(renderer.Get());
 

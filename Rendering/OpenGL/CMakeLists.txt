@@ -398,15 +398,6 @@ foreach(_override ${opengl_overrides})
   vtk_add_override(vtk${_override} vtkOpenGL${_override})
 endforeach()
 
-# A crazy hack, Ken encouraged me to write, where we override the overrides
-# when the option is set to see what the new OpenGL2 code does in all regression
-# tests. Right now there is just one (the poly data mapper) with more to follow.
-if(VTK_REPLACE_OPENGL_OVERRIDES)
-  set(vtk_module_vtkPolyDataMapper_override "vtkVBOPolyDataMapper")
-  set(vtk_module_vtkLight_override "vtkOpenGL2Light")
-#  set(vtk_module_vtkCamera_override "vtkOpenGL2Camera")
-endif()
-
 # Now we iterate and create that class file...
 foreach(_class ${vtk_module_overrides})
   set(_override ${vtk_module_${_class}_override})

@@ -18,8 +18,8 @@ set(Module_SRCS
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglTexture2D.cxx
+  vtkOpenGL2Camera.cxx
   vtkOpenGL2Light.cxx
-#  vtkOpenGL2Camera.cxx
   vtkVBOPolyDataMapper.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
@@ -66,6 +66,26 @@ if(VTK_USE_X)
     )
 endif()
 
+set_source_files_properties(
+  vtkRenderingOpenGL2ObjectFactory
+  WRAP_EXCLUDE
+  )
+
+
+# A crazy hack, Marcus endorsed :-P, where we override the overrides
+# when the option is set to see what the new OpenGL2 code does in all regression
+# tests.
+if(VTK_REPLACE_OPENGL_OVERRIDES)
+  set(opengl_overrides
+    Camera
+    Light
+    )
+endif()
+
+foreach(_override ${opengl_overrides})
+  vtk_add_override(vtk${_override} vtkOpenGL2${_override})
+endforeach()
+
 # Now we iterate and create that class file...
 foreach(_class ${vtk_module_overrides})
   set(_override ${vtk_module_${_class}_override})
@@ -84,8 +104,9 @@ endforeach()
 string(TOUPPER ${vtk-module} VTK-MODULE)
 configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.h)
-configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.cxx.in
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGL2ObjectFactory.cxx.in
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
+
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 target_link_libraries(${vtk-module}
