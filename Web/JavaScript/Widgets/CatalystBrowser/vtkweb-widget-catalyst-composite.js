@@ -449,6 +449,102 @@
         };
     }
 
+    // ----------------------------------------------------------------------
+
+    function attachTouchListener(container) {
+        var current_button = null, posX, posY, defaultDragButton = 1,
+        isZooming = false, isDragging = false, mouseAction = 'up', target;
+
+        function mobileTouchInteraction(evt) {
+            evt.gesture.preventDefault();
+            switch(evt.type) {
+                case 'drag':
+                    if(isZooming) {
+                        return;
+                    }
+                    current_button = defaultDragButton;
+                    if(mouseAction === 'up') {
+                        mouseAction = "down";
+
+                        target = evt.gesture.target;
+                        isDragging = true;
+                    } else {
+                        mouseAction = "move";
+                    }
+
+                    posX = evt.gesture.touches[0].pageX;
+                    posY = evt.gesture.touches[0].pageY;
+                    break;
+                case 'hold':
+                    if(defaultDragButton === 1) {
+                        defaultDragButton = 2;
+                        //container.html("Pan mode").css('color','#FFFFFF');
+                    } else {
+                        defaultDragButton = 1;
+                        //container.html("Rotation mode").css('color','#FFFFFF');
+                    }
+
+                    break;
+                case 'release':
+                    //container.html('');
+                    current_button = 0;
+                    mouseAction = "up";
+                    isZooming = false;
+                    isDragging = false;
+                    break;
+                case 'doubletap':
+                    container.trigger('resetCamera');
+                    return;
+                case 'pinch':
+                    if(isDragging) {
+                        return;
+                    }
+                    current_button = 3;
+                    if(mouseAction === 'up') {
+                        mouseAction = 'down';
+                        posX = 0;
+                        posY = container.height();
+                        target = evt.gesture.target;
+                        isZooming = true;
+                    } else {
+                        mouseAction = 'move';
+                        posY = container.height() * (1+(evt.gesture.scale-1)/2);
+                    }
+                    break;
+            }
+
+            // Trigger event
+            container.trigger({
+                type: 'mouse',
+                action: mouseAction,
+                current_button: current_button,
+                charCode: '',
+                altKey: false,
+                ctrlKey: false,
+                shiftKey: false,
+                metaKey: false,
+                delegateTarget: target,
+                pageX: posX,
+                pageY: posY
+            });
+        }
+
+        // Bind listener to UI container
+        container.hammer({
+            prevent_default : true,
+            prevent_mouseevents : true,
+            transform : true,
+            transform_always_block : true,
+            transform_min_scale : 0.03,
+            transform_min_rotation : 2,
+            drag : true,
+            drag_max_touches : 1,
+            drag_min_distance : 10,
+            swipe : false,
+            hold : true // To switch from rotation to pan
+        }).on("doubletap pinch drag release hold", mobileTouchInteraction);
+    }
+
     // ------------------------------------------------------------------------
 
     function createZoomableCanvasObject(container, bgCanvas, frontCanvas, pixelZoomRatio, stepPhi, stepTheta) {
@@ -493,6 +589,80 @@
 
                 // Redraw the image in the canvas
                 redrawImage();
+            });
+
+            // Handle mobile
+            attachTouchListener(element);
+            element.bind('mouse', function(e){
+                // action: mouseAction,
+                // current_button: current_button,
+                // charCode: '',
+                // altKey: false,
+                // ctrlKey: false,
+                // shiftKey: false,
+                // metaKey: false,
+                // delegateTarget: target,
+                // pageX: posX,
+                // pageY: posY
+                var action = e.action,
+                altKey = e.altKey,
+                shiftKey = e.shiftKey,
+                ctrlKey = e.ctrlKey,
+                x = e.pageX,
+                y = e.pageY,
+                current_button = e.current_button;
+
+                if(action === 'down') {
+                    if (e.altKey) {
+                        current_button = 2;
+                        e.altKey = false;
+                    } else if (e.shiftKey) {
+                        current_button = 3;
+                        e.shiftKey = false;
+                    }
+                    // Detect interaction mode
+                    switch(current_button) {
+                        case 2: // middle mouse down = pan
+                            mouseMode = modePan;
+                            break;
+                        case 3: // right mouse down = zoom
+                            mouseMode = modeZoom;
+                            break;
+                        default:
+                            mouseMode = modeRotation;
+                            break;
+                    }
+
+                    // Store mouse location
+                    lastLocation = [x, y];
+
+                    e.preventDefault();
+                } else if(action === 'up') {
+                    mouseMode = modeNone;
+                    e.preventDefault();
+                } else if(action === 'move') {
+                    if(mouseMode != modeNone) {
+                        var loc = [x,y];
+
+                        // Can NOT use switch as (modeRotation == modePan) is
+                        // possible when Pan should take over rotation as
+                        // rotation is not possible
+                        if(mouseMode === modePan) {
+                            handlePan(loc);
+                        } else if (mouseMode === modeZoom) {
+                            var deltaY = loc[1] - lastLocation[1];
+                            handleZoom(deltaY * dzScale);
+
+                            // Update mouse location
+                            lastLocation = loc;
+                        } else {
+                           handleRotation(loc);
+                        }
+
+                        // Redraw the image in the canvas
+                        redrawImage();
+                    }
+                }
             });
 
             // Zoom and pan events with mouse buttons and drag
