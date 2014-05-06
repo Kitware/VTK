@@ -29,7 +29,7 @@
 
 int QTestApp::Error = 0;
 
-QTestApp::QTestApp(int _argc, char** _argv)
+QTestApp::QTestApp(int _argc, char* _argv[])
 {
 #if QT_VERSION >= 0x050000
   qInstallMessageHandler(QTestApp::messageHandler);

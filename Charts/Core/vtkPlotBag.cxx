@@ -27,8 +27,10 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimeStamp.h"
+#include "vtkMath.h"
 
 #include <algorithm>
+#include <sstream>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotBag);
@@ -40,7 +42,7 @@ vtkPlotBag::vtkPlotBag()
 {
   this->MedianPoints = vtkPoints2D::New();
   this->Q3Points = vtkPoints2D::New();
-  this->TooltipDefaultLabelFormat = "%l (%x, %y): %z";
+  this->TooltipDefaultLabelFormat = "%C, %l (%x, %y): %z";
   this->Brush->SetColor(255, 0, 0);
   this->Brush->SetOpacity(255);
   this->Pen->SetColor(0, 0, 0);
@@ -101,15 +103,16 @@ void vtkPlotBag::Update()
 }
 
 //-----------------------------------------------------------------------------
-class ArraySorter
+class DensityVal
 {
 public:
-  ArraySorter(vtkDataArray* arr) : Array(arr) {}
-  bool operator()(const vtkIdType& a, const vtkIdType& b)
+  DensityVal(double d, vtkIdType cid) : Density(d), Id(cid) {}
+  bool operator<(const DensityVal& b) const
   {
-    return this->Array->GetTuple1(a) > this->Array->GetTuple1(b);
+    return this->Density > b.Density;
   }
-  vtkDataArray* Array;
+  double Density;
+  vtkIdType Id;
 };
 
 //-----------------------------------------------------------------------------
@@ -122,34 +125,43 @@ void vtkPlotBag::UpdateTableCache(vtkDataArray* density)
     {
     return;
     }
-  vtkIdType nbPoints = density->GetNumberOfTuples();
+  vtkDataArray* d = density;
+  vtkPoints2D* points = this->Points;
 
-  // Sort the density array
-  std::vector<vtkIdType> ids;
-  ids.resize(nbPoints);
-  for (vtkIdType i = 0; i < nbPoints; i++)
+  vtkIdType nbPoints = d->GetNumberOfTuples();
+
+  // Fetch and sort arrays according their density
+  std::vector<DensityVal> ids;
+  ids.reserve(nbPoints);
+  for (int i = 0; i < nbPoints; i++)
     {
-    ids[i] = i;
+    ids.push_back(DensityVal(d->GetTuple1(i), i));
     }
-
-  // Sort array by density
-  ArraySorter arraySorter(density);
-  std::sort(ids.begin(), ids.end(), arraySorter);
+  std::sort(ids.begin(), ids.end());
 
   vtkNew<vtkPointsProjectedHull> q3Points;
   q3Points->Allocate(nbPoints);
   vtkNew<vtkPointsProjectedHull> medianPoints;
   medianPoints->Allocate(nbPoints);
 
+  // Compute total density sum
+  double densitySum = 0.0;
+  for (vtkIdType i = 0; i < nbPoints; i++)
+    {
+    densitySum += d->GetTuple1(i);
+    }
+
+  double sum = 0.0;
   for (vtkIdType i = 0; i < nbPoints; i++)
     {
     double x[3];
-    this->Points->GetPoint(ids[i], x);
-    if (i < static_cast<vtkIdType>(nbPoints * 0.5))
+    points->GetPoint(ids[i].Id, x);
+    sum += ids[i].Density;
+    if (sum < 0.5 * densitySum)
       {
       medianPoints->InsertNextPoint(x);
       }
-    if (i < static_cast<vtkIdType>(nbPoints * 0.75))
+    if (sum < 0.99 * densitySum)
       {
       q3Points->InsertNextPoint(x);
       }
@@ -347,6 +359,29 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
           // GetLabel() is GetLabel(0) in this implementation
           tooltipLabel += this->GetLabel();
           break;
+        case 'c':
+          {
+          std::stringstream ss;
+          ss << seriesIndex;
+          tooltipLabel += ss.str();
+          }
+          break;
+        case 'C':
+          {
+          vtkAbstractArray *colName = vtkAbstractArray::SafeDownCast(
+            this->GetInput()->GetColumnByName("ColName"));
+          std::stringstream ss;
+          if (colName)
+            {
+            ss << colName->GetVariantValue(seriesIndex).ToString();
+            }
+          else
+            {
+            ss << "?";
+            }
+          tooltipLabel += ss.str();
+          }
+          break;
         default: // If no match, insert the entire format tag
           tooltipLabel += "%";
           tooltipLabel += format[i];
@@ -380,7 +415,6 @@ void vtkPlotBag::SetInputData(vtkTable *table)
 void vtkPlotBag::SetInputData(vtkTable *table, const vtkStdString &yColumn,
                               const vtkStdString &densityColumn)
 {
-
   vtkDebugMacro(<< "Setting input, Y column = \"" << yColumn.c_str() << "\", "
                 << "Density column = \"" << densityColumn.c_str() << "\"");
 

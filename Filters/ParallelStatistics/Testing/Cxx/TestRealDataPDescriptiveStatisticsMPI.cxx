@@ -39,6 +39,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtksys/CommandLineArguments.hxx"
 
+namespace
+{
+
 struct RealDataDescriptiveStatisticsArgs
 {
   int* retVal;
@@ -382,8 +385,10 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
 
 }
 
+}
+
 //----------------------------------------------------------------------------
-int main( int argc, char** argv )
+int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
 {
   // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();

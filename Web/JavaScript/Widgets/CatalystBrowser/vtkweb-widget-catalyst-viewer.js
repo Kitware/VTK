@@ -116,6 +116,7 @@
     function initializeListeners(container) {
         var play = $('.play', container),
         stop = $('.stop', container),
+        currentArgs = container.data('active-args'),
         activeArgName = null,
         activeValues = [],
         activeValueIndex = 0,
@@ -132,6 +133,28 @@
                 }
             }
         }
+
+        // Update Control UI when camera position change
+        container.bind('invalidate-viewport', function(){
+            // Update phi
+            var currentPhi = Number(currentArgs.phi),
+            phiSlider = $('input[name="phi"]', container),
+            values = phiSlider.attr('data-values').split(':'),
+            newIdx = 0,
+            count = values.length;
+
+            // Find matching index
+            while(count--) {
+                if(Number(values[count]) === currentPhi) {
+                    newIdx = count;
+                    count = 0;
+                }
+            }
+
+            // Update slider value
+            phiSlider.val(newIdx).trigger('change');
+            $('span.phi-value', container).html(currentArgs.phi);
+        });
 
         // Attach slider listener
         $('input[type="range"]', container).bind('change keyup mousemove',function(){
@@ -426,14 +449,16 @@
             }
 
             if(Math.abs(deltaTheta) > stepTheta) {
-                changeDetected = true;
                 currentThetaIdx += (deltaTheta > 0) ? 1 : -1;
                 if(currentThetaIdx >= thetaValues.length) {
-                    currentThetaIdx -= 1;
+                    currentThetaIdx = thetaValues.length - 1;
                 } else if(currentThetaIdx < 0) {
-                    currentThetaIdx += 1;
+                    currentThetaIdx = 0;
                 }
-                currentArgs['theta'] = thetaValues[currentThetaIdx];
+                if(currentArgs['theta'] !== thetaValues[currentThetaIdx]) {
+                    currentArgs['theta'] = thetaValues[currentThetaIdx];
+                    changeDetected = true;
+                }
             }
 
             if(changeDetected) {

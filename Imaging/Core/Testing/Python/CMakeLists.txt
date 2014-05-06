@@ -1,91 +1,93 @@
-vtk_add_test_python(ContinuousClose2D.py)
-vtk_add_test_python(IdealHighPass.py)
-vtk_add_test_python(LaplacianEdgeEnhance.py)
-vtk_add_test_python(MultipleUpdateExtents.py)
-vtk_add_test_python(ResliceBSpline.py)
-vtk_add_test_python(ResliceColorWrap.py)
-vtk_add_test_python(ResliceInformationInput.py)
-vtk_add_test_python(ResliceInterpolationModes.py)
-vtk_add_test_python(ResliceInterpolationOblique.py)
-vtk_add_test_python(ResliceLanczosKaiser.py)
-vtk_add_test_python(ResliceMirrorOblique.py)
-vtk_add_test_python(ResliceMirrorPad.py)
-vtk_add_test_python(ResliceOptimizationOff.py)
-vtk_add_test_python(ReslicePermutations.py)
-vtk_add_test_python(ReslicePermuteResample.py)
-vtk_add_test_python(ReslicePermuteSlab.py)
-vtk_add_test_python(ResliceSlabModes.py)
-vtk_add_test_python(ResliceToColors.py)
-vtk_add_test_python(ResliceWrapOblique.py)
-vtk_add_test_python(ResliceWrapPad.py)
-vtk_add_test_python(Spectrum.py)
-vtk_add_test_python(TestAccumulate.py)
-vtk_add_test_python(TestAllFlips.py)
-vtk_add_test_python(TestAnisotropicDiffusion2D.py)
-vtk_add_test_python(TestAnisotropicDiffusion3D.py)
-vtk_add_test_python(TestButterworthHighPass.py)
-vtk_add_test_python(TestButterworthLowPass.py)
-vtk_add_test_python(TestCache.py)
-vtk_add_test_python(TestChangeInformation.py)
-vtk_add_test_python(TestCheckerboard.py)
-vtk_add_test_python(TestCityBlockDistance.py)
-vtk_add_test_python(TestConvolve.py)
-vtk_add_test_python(TestCorrelation.py)
-vtk_add_test_python(TestDivergence.py)
-vtk_add_test_python(TestDotProduct.py)
-vtk_add_test_python(TestEuclideanDistance.py)
-vtk_add_test_python(TestEuclideanDistanceCached.py)
-vtk_add_test_python(TestEuclideanToPolar.py)
-vtk_add_test_python(TestFFTCorrelation.py)
-vtk_add_test_python(TestGradientMagnitude.py)
-vtk_add_test_python(TestGradientMagnitude2.py)
-vtk_add_test_python(TestHSIToRGB.py)
-vtk_add_test_python(TestHSVToRGB.py)
-vtk_add_test_python(TestHybridMedian2D.py)
-vtk_add_test_python(TestIdealLowPass.py)
-vtk_add_test_python(TestImageCanvas.py)
-vtk_add_test_python(TestImageProjection.py)
-vtk_add_test_python(TestInPlaceFilter.py)
-vtk_add_test_python(TestIslandRemoval2D.py)
-vtk_add_test_python(TestLassoStencil.py)
-vtk_add_test_python(TestMapToRGBABlockStreaming.py)
-vtk_add_test_python(TestMapToWindowLevelColors.py)
-vtk_add_test_python(TestMapToWindowLevelColors2.py)
-vtk_add_test_python(TestMask2.py)
-vtk_add_test_python(TestMedian3D.py)
-vtk_add_test_python(TestNormalize.py)
-vtk_add_test_python(TestOpenClose3D.py)
-vtk_add_test_python(TestPermute.py)
-vtk_add_test_python(TestQuantizeTo16Colors.py)
-vtk_add_test_python(TestROIStencil.py)
-vtk_add_test_python(TestRange3D.py)
-vtk_add_test_python(TestResample.py)
-vtk_add_test_python(TestSeparableFilter.py)
-vtk_add_test_python(TestShiftScale.py)
-vtk_add_test_python(TestShiftScale2.py)
-vtk_add_test_python(TestSimpleImageExample.py)
-vtk_add_test_python(TestSkeleton2D.py)
-vtk_add_test_python(TestSobel2D.py)
-vtk_add_test_python(TestSobel3D.py)
-vtk_add_test_python(TestStencilToImage.py)
-vtk_add_test_python(TestStencilWithFunction.py)
-vtk_add_test_python(TestStencilWithImage.py)
-vtk_add_test_python(TestVariance3D.py)
-vtk_add_test_python(TestWrapPad.py)
-vtk_add_test_python(resampledTexture.py)
-vtk_add_test_python(voxelModel.py)
-vtk_add_test_python(TestBlendStencil.py)
-vtk_add_test_python(TestExtractVOI.py)
-vtk_add_test_python(TestImageWeightedSum.py)
-# vtk_add_test_python(WindowLevelInterface.py) # TCL test not being made as well !!!
-vtk_add_test_python(imageMCAll NO_RT)
-vtk_add_test_python(TestAllBlends NO_RT)
-vtk_add_test_python(TestAllBlendsFloat NO_RT)
-vtk_add_test_python(TestAllLogic NO_RT)
-vtk_add_test_python(TestAllMaskBits NO_RT)
-vtk_add_test_python(TestAllMathematics NO_RT)
-vtk_add_test_python(TestAllShrinks NO_RT)
-vtk_add_test_python(TestImageThresholdConnectivity NO_RT)
-vtk_add_test_python(TestThreshold NO_RT)
-vtk_add_test_python(TestWipe NO_RT)
-vtk_add_test_python(reconstructSurface NO_RT)
+vtk_add_test_python(
+  ContinuousClose2D.py
+  IdealHighPass.py
+  LaplacianEdgeEnhance.py
+  MultipleUpdateExtents.py
+  ResliceBSpline.py
+  ResliceColorWrap.py
+  ResliceInformationInput.py
+  ResliceInterpolationModes.py
+  ResliceInterpolationOblique.py
+  ResliceLanczosKaiser.py
+  ResliceMirrorOblique.py
+  ResliceMirrorPad.py
+  ResliceOptimizationOff.py
+  ReslicePermutations.py
+  ReslicePermuteResample.py
+  ReslicePermuteSlab.py
+  ResliceSlabModes.py
+  ResliceToColors.py
+  ResliceWrapOblique.py
+  ResliceWrapPad.py
+  Spectrum.py
+  TestAccumulate.py
+  TestAllFlips.py
+  TestAnisotropicDiffusion2D.py
+  TestAnisotropicDiffusion3D.py
+  TestButterworthHighPass.py
+  TestButterworthLowPass.py
+  TestCache.py
+  TestChangeInformation.py
+  TestCheckerboard.py
+  TestCityBlockDistance.py
+  TestConvolve.py
+  TestCorrelation.py
+  TestDivergence.py
+  TestDotProduct.py
+  TestEuclideanDistance.py
+  TestEuclideanDistanceCached.py
+  TestEuclideanToPolar.py
+  TestFFTCorrelation.py
+  TestGradientMagnitude.py
+  TestGradientMagnitude2.py
+  TestHSIToRGB.py
+  TestHSVToRGB.py
+  TestHybridMedian2D.py
+  TestIdealLowPass.py
+  TestImageCanvas.py
+  TestImageProjection.py
+  TestInPlaceFilter.py
+  TestIslandRemoval2D.py
+  TestLassoStencil.py
+  TestMapToRGBABlockStreaming.py
+  TestMapToWindowLevelColors.py
+  TestMapToWindowLevelColors2.py
+  TestMask2.py
+  TestMedian3D.py
+  TestNormalize.py
+  TestOpenClose3D.py
+  TestPermute.py
+  TestQuantizeTo16Colors.py
+  TestROIStencil.py
+  TestRange3D.py
+  TestResample.py
+  TestSeparableFilter.py
+  TestShiftScale.py
+  TestShiftScale2.py
+  TestSimpleImageExample.py
+  TestSkeleton2D.py
+  TestSobel2D.py
+  TestSobel3D.py
+  TestStencilToImage.py
+  TestStencilWithFunction.py
+  TestStencilWithImage.py
+  TestVariance3D.py
+  TestWrapPad.py
+  resampledTexture.py
+  voxelModel.py
+  TestBlendStencil.py
+  TestExtractVOI.py
+  TestImageWeightedSum.py
+  # WindowLevelInterface.py  # TCL test not being made as well !!!
+  imageMCAll,NO_RT
+  TestAllBlends,NO_RT
+  TestAllBlendsFloat,NO_RT
+  TestAllLogic,NO_RT
+  TestAllMaskBits,NO_RT
+  TestAllMathematics,NO_RT
+  TestAllShrinks,NO_RT
+  TestImageThresholdConnectivity,NO_RT
+  TestThreshold,NO_RT
+  TestWipe,NO_RT
+  reconstructSurface,NO_RT
+  )

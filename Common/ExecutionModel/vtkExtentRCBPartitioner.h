@@ -62,6 +62,12 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
       }
 
     // Description:
+    // On/Off DuplicateNodes between partitions. Default is On.
+    vtkSetMacro(DuplicateNodes,int);
+    vtkGetMacro(DuplicateNodes,int);
+    vtkBooleanMacro(DuplicateNodes,int);
+
+    // Description:
     // Set/Get macro for the number of ghost layers.
     vtkSetMacro(NumberOfGhostLayers,int);
     vtkGetMacro(NumberOfGhostLayers,int);
@@ -164,6 +170,12 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      int GlobalExtent[6];
      int NumberOfPartitions;
      int NumExtents;
+
+     int DuplicateNodes; // indicates whether nodes are duplicated between
+                         // partitions, so that they are abutting. This is
+                         // set to true by default. If disabled, the resulting
+                         // partitions will have gaps.
+
      bool ExtentIsPartitioned;
 
      // BTX

@@ -46,7 +46,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int main(int argc, char* argv[])
+int TestPRMATGraphSource(int argc, char* argv[])
 {
   boost::mpi::environment env(argc, argv);
   boost::mpi::communicator world;

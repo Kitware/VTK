@@ -45,7 +45,7 @@ struct TestArgs
 };
 
 //=============================================================================
-void PSLACReaderLinear(vtkMultiProcessController *controller, void *_args)
+void PSLACReaderLinearMethod(vtkMultiProcessController *controller, void *_args)
 {
   TestArgs *args = reinterpret_cast<TestArgs *>(_args);
   int argc = args->argc;
@@ -139,7 +139,7 @@ void PSLACReaderLinear(vtkMultiProcessController *controller, void *_args)
 }
 
 //=============================================================================
-int main(int argc, char *argv[])
+int PSLACReaderLinear(int argc, char *argv[])
 {
   int retval = 1;
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
   args.argc = argc;
   args.argv = argv;
 
-  controller->SetSingleMethod(PSLACReaderLinear, &args);
+  controller->SetSingleMethod(PSLACReaderLinearMethod, &args);
   controller->SingleMethodExecute();
 
   controller->Finalize();

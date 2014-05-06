@@ -1,14 +1,16 @@
-vtk_add_test_python(ParticleReader.py)
-vtk_add_test_python(Plot3D NO_VALID)
-vtk_add_test_python(Plot3DScalars.py)
-vtk_add_test_python(Plot3DVectors.py)
-vtk_add_test_python(TestAVSucdReader.py)
-vtk_add_test_python(TestGAMBITReader.py)
-# vtk_add_test_python(TestPolygonWriters.py) # needs vtkCGMWriter (not built)
-vtk_add_test_python(TestXYZMol.py)
-vtk_add_test_python(caffeine.py)
-vtk_add_test_python(motor.py)
-vtk_add_test_python(testHexaPenta.py)
-vtk_add_test_python(TestChacoReader.py)
-vtk_add_test_python(TestSimplePointsReader.py)
-vtk_add_test_python(TestPlot3DMeta.py)
+vtk_add_test_python(
+  ParticleReader.py
+  Plot3D,NO_VALID
+  Plot3DScalars.py
+  Plot3DVectors.py
+  TestAVSucdReader.py
+  TestGAMBITReader.py
+  # TestPolygonWriters.py # needs vtkCGMWriter (not built)
+  TestXYZMol.py
+  caffeine.py
+  motor.py
+  testHexaPenta.py
+  TestChacoReader.py
+  TestSimplePointsReader.py
+  TestPlot3DMeta.py
+  )

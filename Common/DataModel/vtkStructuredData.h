@@ -75,7 +75,7 @@ public:
   // If the method is used within a tight loop it is advised to pre-acquire and
   // pass the data description to the method to avoid any latency associated
   // with computing the data description internally multiple times.
-  static int GetNumberOfNodes( int ext[6], int dataDescription=VTK_EMPTY );
+  static vtkIdType GetNumberOfNodes(int ext[6], int dataDescription=VTK_EMPTY);
 
   // Description:
   // Given the grid extent, this method returns the total number of cells
@@ -85,7 +85,7 @@ public:
   // If the method is used within a tight loop it is advised to pre-acquire and
   // pass the data description to the method to avoid any latency associated
   // with computing the data description internally multiple times.
-  static int GetNumberOfCells( int ext[6], int dataDescription=VTK_EMPTY );
+  static vtkIdType GetNumberOfCells(int ext[6], int dataDescription=VTK_EMPTY);
 
   // Description:
   // Given the node extent of a grid, this method computes the corresponding

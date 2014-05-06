@@ -215,7 +215,10 @@ public:
   virtual vtkAbstractImageInterpolator *GetInterpolator();
 
   // Description:
-  // Set the slab mode, the default is average.
+  // Set the slab mode, for generating thick slices. The default is Mean.
+  // If SetSlabNumberOfSlices(N) is called with N greater than one, then
+  // each output slice will actually be a composite of N slices.  This method
+  // specifies the compositing mode to be used.
   vtkSetClampMacro(SlabMode, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   vtkGetMacro(SlabMode, int);
   void SetSlabModeToMin() {
@@ -247,6 +250,36 @@ public:
   vtkSetMacro(Optimization, int);
   vtkGetMacro(Optimization, int);
   vtkBooleanMacro(Optimization, int);
+
+  // Description:
+  // Set a value to add to all the output voxels.
+  // After a sample value has been interpolated from the input image, the
+  // equation u = (v + ScalarShift)*ScalarScale will be applied to it before
+  // it is written to the output image.  The result will always be clamped to
+  // the limits of the output data type.
+  vtkSetMacro(ScalarShift, double);
+  vtkGetMacro(ScalarShift, double);
+
+  // Description:
+  // Set multiplication factor to apply to all the output voxels.
+  // After a sample value has been interpolated from the input image, the
+  // equation u = (v + ScalarShift)*ScalarScale will be applied to it before
+  // it is written to the output image.  The result will always be clamped to
+  // the limits of the output data type.
+  vtkSetMacro(ScalarScale, double);
+  vtkGetMacro(ScalarScale, double)
+
+  // Description:
+  // Set the scalar type of the output to be different from the input.
+  // The default value is -1, which means that the input scalar type will be
+  // used to set the output scalar type.  Otherwise, this must be set to one
+  // of the following types: VTK_CHAR, VTK_SIGNED_CHAR, VTK_UNSIGNED_CHAR,
+  // VTK_SHORT, VTK_UNSIGNED_SHORT, VTK_INT, VTK_UNSIGNED_INT, VTK_FLOAT,
+  // or VTK_DOUBLE.  Other types are not permitted.  If the output type
+  // is an integer type, the output will be rounded and clamped to the
+  // limits of the type.
+  vtkSetMacro(OutputScalarType, int);
+  vtkGetMacro(OutputScalarType, int);
 
   // Description:
   // Set the background color (for multi-component images).
@@ -364,6 +397,8 @@ protected:
   int SlabMode;
   int SlabNumberOfSlices;
   int SlabTrapezoidIntegration;
+  double ScalarShift;
+  double ScalarScale;
   double BackgroundColor[4];
   double OutputOrigin[3];
   double OutputSpacing[3];

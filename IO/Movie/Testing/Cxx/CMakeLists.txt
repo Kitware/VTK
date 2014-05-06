@@ -8,9 +8,10 @@ if(vtkIOMovie_vtkoggtheora)
   list(APPEND TEST_SRC TestOggTheoraWriter.cxx)
 endif()
 
-vtk_add_test_cxx(NO_VALID
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  NO_VALID
   # TestMovieWriter.cxx           # fixme (deps not satisfied)
   ${TEST_SRC}
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

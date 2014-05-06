@@ -376,11 +376,10 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
   traceMapper->Update();
 
   vtkPolyData* out = filter->GetOutput();
-  vtkPoints* pts = out->GetPoints();
   vtkPointData* pd = out->GetPointData();
   for(int i=0; i<pd->GetNumberOfArrays();i++)
     {
-    assert(pd->GetArray(i)->GetNumberOfTuples()==pts->GetNumberOfPoints());
+    assert(pd->GetArray(i)->GetNumberOfTuples()==out->GetPoints()->GetNumberOfPoints());
     }
 
   vtkCellArray* lines = out->GetLines();
@@ -464,7 +463,7 @@ int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
 }
 
 
-int main(int argc, char* argv[])
+int TestPParticleTracers(int argc, char* argv[])
 {
   vtkSmartPointer<vtkMPIController> c=vtkSmartPointer<vtkMPIController>::New();
   vtkMultiProcessController::SetGlobalController(c);

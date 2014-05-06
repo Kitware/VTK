@@ -19,6 +19,9 @@ set(Module_SRCS
   vtkMedicalImageReader2.cxx
   vtkMetaImageReader.cxx
   vtkMetaImageWriter.cxx
+  vtkNIFTIImageHeader.cxx
+  vtkNIFTIImageReader.cxx
+  vtkNIFTIImageWriter.cxx
   vtkNrrdReader.cxx
   vtkPNGReader.cxx
   vtkPNGWriter.cxx
@@ -35,6 +38,11 @@ set(Module_SRCS
 set_source_files_properties(
   vtkVolumeReader
   ABSTRACT
+  )
+
+set_source_files_properties(
+  vtkNIFTIPrivate.h
+  WRAP_EXCLUDE
   )
 
 vtk_module_library(vtkIOImage ${Module_SRCS})

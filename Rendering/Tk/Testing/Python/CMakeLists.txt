@@ -1,4 +1,5 @@
-if(VTK_PYTHON_EXE)
-  vtk_add_test_python(TestTkRenderWidget.py NO_RT)
-  vtk_add_test_python(TestTkRenderWindowInteractor.py NO_RT)
-endif()
+vtk_add_test_python(
+  NO_RT
+  TestTkRenderWidget.py
+  TestTkRenderWindowInteractor.py
+  )

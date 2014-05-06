@@ -1,15 +1,20 @@
 include(vtkMPI)
 
-vtk_add_test_mpi(DistributedData.cxx TESTING_DATA)
-vtk_add_test_mpi(DistributedDataRenderPass.cxx TESTING_DATA)
-vtk_add_test_mpi(TransmitImageData.cxx TESTING_DATA)
-vtk_add_test_mpi(TransmitImageDataRenderPass.cxx TESTING_DATA)
-vtk_add_test_mpi(TransmitRectilinearGrid.cxx TESTING_DATA)
-vtk_add_test_mpi(TransmitStructuredGrid.cxx TESTING_DATA)
-vtk_add_test_mpi(ParallelResampling.cxx)
+vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
+  TESTING_DATA
+  DistributedData.cxx
+  DistributedDataRenderPass.cxx
+  TransmitImageData.cxx
+  TransmitImageDataRenderPass.cxx
+  TransmitRectilinearGrid.cxx
+  TransmitStructuredGrid.cxx
+  )
+vtk_add_test_mpi(${vtk-module}CxxTests-MPI no_data_tests
+  ParallelResampling.cxx
+  )
 
-vtk_mpi_link(TransmitImageData)
-vtk_mpi_link(TransmitImageDataRenderPass)
-vtk_mpi_link(TransmitRectilinearGrid)
-vtk_mpi_link(TransmitStructuredGrid)
-vtk_mpi_link(ParallelResampling)
+set(all_tests
+  ${tests}
+  ${no_data_tests}
+  )
+vtk_test_mpi_executable(${vtk-module}CxxTests-MPI all_tests)

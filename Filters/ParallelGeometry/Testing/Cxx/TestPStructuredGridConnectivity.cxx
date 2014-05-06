@@ -46,6 +46,9 @@
 #include "vtkXMLPMultiBlockDataWriter.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+namespace
+{
+
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
 //------------------------------------------------------------------------------
@@ -491,9 +494,11 @@ int TestGhostLayerCreation( int factor, int ng )
   return 0;
 }
 
+}
+
 //------------------------------------------------------------------------------
 // Program main
-int main( int argc, char **argv )
+int TestPStructuredGridConnectivity( int argc, char *argv[] )
 {
   int rc       = 0;
 

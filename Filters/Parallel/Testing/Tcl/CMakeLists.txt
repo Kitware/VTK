@@ -1,5 +1,7 @@
-vtk_add_test_tcl(RectOutline.tcl)
-vtk_add_test_tcl(TestExtractCTHPart.tcl)
-vtk_add_test_tcl(TestImageStreamer.tcl)
-vtk_add_test_tcl(TestCutMaterial.tcl)
-vtk_add_test_tcl(TestExtrudePiece.tcl)
+vtk_add_test_tcl(
+  RectOutline.tcl
+  TestExtractCTHPart.tcl
+  TestImageStreamer.tcl
+  TestCutMaterial.tcl
+  TestExtrudePiece.tcl
+  )

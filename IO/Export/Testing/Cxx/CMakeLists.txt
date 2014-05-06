@@ -16,9 +16,13 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
   )
 endif()
 
-vtk_add_test_cxx(X3DTest.cxx NO_DATA NO_VALID)
-vtk_add_test_cxx(${GL2PSTests})
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  X3DTest.cxx,NO_DATA,NO_VALID
+  ${GL2PSTests}
+  )
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY
+  )
 
 # The GL2PS tests produce postscript output, which cannot be compared using
 # the built-in image regression framework. The tests added above will create the
@@ -43,6 +47,7 @@ if(GL2PSTests)
         DEPENDS "${vtk-module}Cxx-${TName}"
         REQUIRED_FILES
           "${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
+        LABELS "${${vtk-module}_TEST_LABELS}"
     )
 
     # Convert ps to png
@@ -67,6 +72,7 @@ if(GL2PSTests)
         DEPENDS "${vtk-module}Cxx-${TName}-RasterizePNG"
         REQUIRED_FILES
           "${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
+        LABELS "${${vtk-module}_TEST_LABELS}"
     )
   endforeach()
 endif()

@@ -1,24 +1,26 @@
-vtk_add_test_tcl(TestImageMarchingCubes)
-vtk_add_test_tcl(TestRibbonAndTube)
-vtk_add_test_tcl(contour2DAll)
-vtk_add_test_tcl(contour3DAll)
-vtk_add_test_tcl(eleState)
-vtk_add_test_tcl(sync3dAll)
-vtk_add_test_tcl(camera)
-vtk_add_test_tcl(extrudeCopyCD)
-vtk_add_test_tcl(Hyper)
-vtk_add_test_tcl(HyperScalarBar)
-vtk_add_test_tcl(KlineBottle)
-vtk_add_test_tcl(schwarz)
-vtk_add_test_tcl(smoothCyl)
-vtk_add_test_tcl(smoothCyl2)
-vtk_add_test_tcl(subdividePointData)
-vtk_add_test_tcl(subDivideTetra)
-vtk_add_test_tcl(TenEllip)
-vtk_add_test_tcl(TestBandedContourFilter)
-vtk_add_test_tcl(TestBoxFunction)
-vtk_add_test_tcl(TestFillHolesFilter)
-vtk_add_test_tcl(TestRuledSurface)
-vtk_add_test_tcl(TestRuledSurface2)
-vtk_add_test_tcl(TestSpherePuzzle)
-vtk_add_test_tcl(TestSpherePuzzleArrows)
+vtk_add_test_tcl(
+  TestImageMarchingCubes.tcl
+  TestRibbonAndTube.tcl
+  contour2DAll.tcl
+  contour3DAll.tcl
+  eleState.tcl
+  sync3dAll.tcl
+  camera.tcl
+  extrudeCopyCD.tcl
+  Hyper.tcl
+  HyperScalarBar.tcl
+  KlineBottle.tcl
+  schwarz.tcl
+  smoothCyl.tcl
+  smoothCyl2.tcl
+  subdividePointData.tcl
+  subDivideTetra.tcl
+  TenEllip.tcl
+  TestBandedContourFilter.tcl
+  TestBoxFunction.tcl
+  TestFillHolesFilter.tcl
+  TestRuledSurface.tcl
+  TestRuledSurface2.tcl
+  TestSpherePuzzle.tcl
+  TestSpherePuzzleArrows.tcl
+  )

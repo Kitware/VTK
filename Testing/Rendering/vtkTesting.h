@@ -91,29 +91,49 @@ public:
   // Description:
   // This method is intended to be a comprehensive, one line replacement for
   // vtkRegressionTest and for the replay based testing using
-  // vtkInteractorEventRecorder greatly simplifying API and code bloat. It scans
-  // the command line specified for the following :
-  // - If a "--DisableReplay" is specified, it disables the testing replay. This
-  //   is particularly useful in enabling the user to exercise the widgets.
-  //   Typically the widgets are defined by the testing replay, so the user
-  //   misses out on playing around with the widget definition behaviour.
-  // - If a "--Record" is specified in the command line, it records the
-  //   interactions into a "vtkInteractorEventRecorder.log" file. This is useful
-  //   when creating the playback stream that is plugged into tests.
+  // vtkInteractorEventRecorder, greatly simplifying API and code
+  // bloat. It scans the command line specified for the following :
+  // - If a "--DisableReplay" is specified, it disables the testing
+  //   replay. This is particularly useful in enabling the user to
+  //   exercise the widgets. Typically the widgets are defined by the
+  //   testing replay, so the user misses out on playing around with the
+  //   widget definition behaviour.
+  // - If a "--Record" is specified, it records the interactions into
+  //   a "vtkInteractorEventRecorder.log" file. This is useful when
+  //   creating the playback stream that is plugged into tests. The
+  //   file can be used to create a const char * variable for playback
+  //   or can copied into a location as a playback file.
+  // - If a "--PlaybackFile filename is specified,the provided file
+  //   contains the events and is passed to the event recorder.
   //
   // Typical usage in a test for a VTK widget that needs playback
   // testing / recording is :
   //
-  //   const char TestFooWidgetTestLog[] = {
+  //   const char TestFooWidgetLog[] = {
   //    ....
   //    };
   //
   //   int TestFooWidget( int argc, char *argv[] )
   //   {
   //     ...
-  //     return vtkTesting::InteractorEventLoop( argc, argv, iren, TestFooWidgetTestLog );
+  //     return vtkTesting::InteractorEventLoop(
+  //         argc, argv, iren,
+  //         TestFooWidgetLog );
   //   }
   //
+  // In tests that playback events from a file:
+  // TestFooEventLog.txt stored in  ../Data/Input/TestFooEventLog.txt
+  // The CMakeLists.txt file should contain:
+  //
+  // set(TestFoo_ARGS "--PlaybackFile"
+  //   "DATA{../Data/Input/TestFooEventLog.txt}")
+  //
+  // and the API is
+  //   int TestFoo( int argc, char *argv[] )
+  //   {
+  //     ...
+  //     return vtkTesting::InteractorEventLoop( argc, argv, iren );
+  //   }
   //
   // In tests where no playback is exercised, the API is simply
   //

@@ -1,5 +1,7 @@
-vtk_add_test_tcl(NetCDFCF2DBounds)
-vtk_add_test_tcl(NetCDFCFSetOutputType)
-vtk_add_test_tcl(NetCDFCFSphericalCoords)
-vtk_add_test_tcl(NetCDFCFUnstructured)
-vtk_add_test_tcl(NetCDFReader)
+vtk_add_test_tcl(
+  NetCDFCF2DBounds.tcl
+  NetCDFCFSetOutputType.tcl
+  NetCDFCFSphericalCoords.tcl
+  NetCDFCFUnstructured.tcl
+  NetCDFReader.tcl
+  )

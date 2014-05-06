@@ -41,6 +41,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtksys/CommandLineArguments.hxx"
 
+namespace
+{
+
 struct RandomContingencyStatisticsArgs
 {
   int nVals;
@@ -364,8 +367,10 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   timer->Delete();
 }
 
+}
+
 //----------------------------------------------------------------------------
-int main( int argc, char** argv )
+int TestRandomPContingencyStatisticsMPI( int argc, char* argv[] )
 {
   // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();

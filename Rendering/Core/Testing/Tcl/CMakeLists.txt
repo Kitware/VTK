@@ -1,34 +1,36 @@
-vtk_add_test_tcl(ImageActor)
-vtk_add_test_tcl(PickerWithLocator)
-vtk_add_test_tcl(PolyDataMapperAllPolygons)
-vtk_add_test_tcl(PolyDataMapperAllWireframe)
-vtk_add_test_tcl(SurfacePickerWithTexture)
-vtk_add_test_tcl(TestCameraInterpolator)
-vtk_add_test_tcl(TestOpacity2)
-vtk_add_test_tcl(TexturedSphere)
-vtk_add_test_tcl(cells)
-vtk_add_test_tcl(cowHair2)
-vtk_add_test_tcl(cowHair)
-vtk_add_test_tcl(rendererSource)
-vtk_add_test_tcl(rotations)
+vtk_add_test_tcl(
+  ImageActor.tcl
+  PickerWithLocator.tcl
+  PolyDataMapperAllPolygons.tcl
+  PolyDataMapperAllWireframe.tcl
+  SurfacePickerWithTexture.tcl
+  TestCameraInterpolator.tcl
+  TestOpacity2.tcl
+  TexturedSphere.tcl
+  cells.tcl
+  cowHair2.tcl
+  cowHair.tcl
+  rendererSource.tcl
+  rotations.tcl
 
-vtk_add_test_tcl(assembly)
-vtk_add_test_tcl(CamBlur)
-vtk_add_test_tcl(ImageActorStressed)
-vtk_add_test_tcl(ScalarBar)
-vtk_add_test_tcl(TestLeaderActor2D)
-vtk_add_test_tcl(TestOnePoint)
-vtk_add_test_tcl(TestTriangleStripCellColor)
-vtk_add_test_tcl(TestWindowToImageTransparency)
-vtk_add_test_tcl(pickCells)
-vtk_add_test_tcl(propAssembly)
+  assembly.tcl
+  CamBlur.tcl
+  ImageActorStressed.tcl
+  ScalarBar.tcl
+  TestLeaderActor2D.tcl
+  TestOnePoint.tcl
+  TestTriangleStripCellColor.tcl
+  TestWindowToImageTransparency.tcl
+  pickCells.tcl
+  propAssembly.tcl
 
-vtk_add_test_tcl(NoLightGeneration)
-vtk_add_test_tcl(TestRotate)
-vtk_add_test_tcl(TestTransformCoordinateSystems)
-vtk_add_test_tcl(TestTransformInterpolator)
-vtk_add_test_tcl(TransformConcatenation)
-vtk_add_test_tcl(TransformCoverage)
-vtk_add_test_tcl(TransformImageData)
-vtk_add_test_tcl(TransformPolyData)
-vtk_add_test_tcl(stereoDresdenMace)
+  NoLightGeneration.tcl
+  TestRotate.tcl
+  TestTransformCoordinateSystems.tcl
+  TestTransformInterpolator.tcl
+  TransformConcatenation.tcl
+  TransformCoverage.tcl
+  TransformImageData.tcl
+  TransformPolyData.tcl
+  stereoDresdenMace.tcl
+  )

@@ -1,20 +1,22 @@
-vtk_add_test_tcl(TestBunykRayCastFunction)
-vtk_add_test_tcl(TestLODProp3D)
-vtk_add_test_tcl(VolumeOutlineSourceClipped)
-vtk_add_test_tcl(VolumePickerCrop)
-vtk_add_test_tcl(VolumePicker)
-vtk_add_test_tcl(gaussian)
-vtk_add_test_tcl(volRCClipPlanes)
-vtk_add_test_tcl(volRCCropRegions)
-vtk_add_test_tcl(volRCRotateClip)
-vtk_add_test_tcl(volTM3DCompressedCropRegions)
-vtk_add_test_tcl(volTM3DCropRegions)
-vtk_add_test_tcl(volTM3DRotateClip)
-vtk_add_test_tcl(volTM2DCropRegions)
-vtk_add_test_tcl(VolumeOutlineSource)
-vtk_add_test_tcl(TestFixedPointRayCasterLinearCropped)
-vtk_add_test_tcl(TestFixedPointRayCasterLinear)
-vtk_add_test_tcl(TestFixedPointRayCasterNearestCropped)
-vtk_add_test_tcl(TestFixedPointRayCasterNearest)
-vtk_add_test_tcl(TestPTZSweep)
-vtk_add_test_tcl(volTM2DRotateClip)
+vtk_add_test_tcl(
+  TestBunykRayCastFunction.tcl
+  TestLODProp3D.tcl
+  VolumeOutlineSourceClipped.tcl
+  VolumePickerCrop.tcl
+  VolumePicker.tcl
+  gaussian.tcl
+  volRCClipPlanes.tcl
+  volRCCropRegions.tcl
+  volRCRotateClip.tcl
+  volTM3DCompressedCropRegions.tcl
+  volTM3DCropRegions.tcl
+  volTM3DRotateClip.tcl
+  volTM2DCropRegions.tcl
+  VolumeOutlineSource.tcl
+  TestFixedPointRayCasterLinearCropped.tcl
+  TestFixedPointRayCasterLinear.tcl
+  TestFixedPointRayCasterNearestCropped.tcl
+  TestFixedPointRayCasterNearest.tcl
+  TestPTZSweep.tcl
+  volTM2DRotateClip.tcl
+  )

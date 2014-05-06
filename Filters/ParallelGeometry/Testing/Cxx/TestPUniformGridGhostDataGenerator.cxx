@@ -43,6 +43,9 @@
 
 //#define DEBUG_ON
 
+namespace
+{
+
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
 //------------------------------------------------------------------------------
@@ -518,8 +521,10 @@ int Test3D(
   return( rc );
 }
 
+}
+
 //------------------------------------------------------------------------------
-int main(int argc, char **argv)
+int TestPUniformGridGhostDataGenerator(int argc, char *argv[])
 {
   int rc = 0;
   Controller = vtkMPIController::New();

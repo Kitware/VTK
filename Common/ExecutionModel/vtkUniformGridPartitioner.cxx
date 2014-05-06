@@ -34,6 +34,7 @@ vtkUniformGridPartitioner::vtkUniformGridPartitioner()
 {
   this->NumberOfPartitions  = 2;
   this->NumberOfGhostLayers = 0;
+  this->DuplicateNodes      = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -48,6 +49,7 @@ void vtkUniformGridPartitioner::PrintSelf(std::ostream &oss, vtkIndent indent)
   this->Superclass::PrintSelf( oss, indent );
   oss << "NumberOfPartitions: " << this->NumberOfPartitions << std::endl;
   oss << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
+  oss << "DuplicateNodes: " << this->DuplicateNodes << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -99,6 +101,14 @@ int vtkUniformGridPartitioner::RequestData(
   extentPartitioner->SetGlobalExtent( extent );
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
+  if( this->DuplicateNodes == 1 )
+    {
+    extentPartitioner->DuplicateNodesOn();
+    }
+  else
+    {
+    extentPartitioner->DuplicateNodesOff();
+    }
 
   // STEP 4: Partition
   extentPartitioner->Partition();

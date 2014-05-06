@@ -1059,10 +1059,18 @@ void vtkImageResliceMapper::UpdateResliceInterpolation(
     }
   this->ImageReslice->SetOutputSpacing(spacing);
   int slabMode = this->SlabType;
+  double scalarScale = 1.0;
+  if (slabMode == VTK_IMAGE_SLAB_SUM)
+    {
+    // "sum" means integrating over the path length of each ray through
+    // the volume, so we need to include the sample spacing as a factor
+    scalarScale = spacing[2];
+    }
 
   this->ImageReslice->SetInterpolationMode(interpMode);
   this->ImageReslice->SetSlabMode(slabMode);
   this->ImageReslice->SetSlabNumberOfSlices(slabSlices);
+  this->ImageReslice->SetScalarScale(scalarScale);
   this->ImageReslice->SlabTrapezoidIntegrationOn();
 }
 
@@ -1426,6 +1434,8 @@ const char *vtkImageResliceMapper::GetSlabTypeAsString()
       return "Max";
     case VTK_IMAGE_SLAB_MEAN:
       return "Mean";
+    case VTK_IMAGE_SLAB_SUM:
+      return "Sum";
     }
   return "";
 }

@@ -320,6 +320,9 @@
                 imgURL = drawResult(time, phi, theta);
                 $('img', me).attr('src', imgURL);
             });
+
+            // Update zoom level
+            $('.zoom-level', container).trigger('change');
         }
 
         // ------------------------------

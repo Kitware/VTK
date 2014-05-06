@@ -28,10 +28,13 @@ if(BUILD_TESTING)
     set(TestParticleReader_ARGS
       "${VTK_TEST_DATA_DIR}/Data/golf.csv"
       ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
-    vtk_add_test_cxx(NO_DATA NO_VALID NO_OUTPUT
+    vtk_add_test_cxx(${vtk-example}CxxTests tests
+      NO_DATA NO_VALID NO_OUTPUT
       TestParticleReader.cxx
       TestDumpXMLFile.cxx
       )
-    vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+    vtk_test_cxx_executable(${vtk-example}CxxTests tests
+      RENDERING_FACTORY
+      )
   endif()
 endif()

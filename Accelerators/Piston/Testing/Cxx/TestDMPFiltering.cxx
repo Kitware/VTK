@@ -225,7 +225,7 @@ void MyMain(vtkMultiProcessController *controller, void *arg)
   elev->Delete();
 }
 
-int main(int argc, char *argv[])
+int TestDMPFiltering(int argc, char *argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the

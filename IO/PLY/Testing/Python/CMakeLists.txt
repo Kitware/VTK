@@ -1,1 +1,3 @@
-vtk_add_test_python(TestPLYReadWrite.py)
+vtk_add_test_python(
+  TestPLYReadWrite.py
+  )

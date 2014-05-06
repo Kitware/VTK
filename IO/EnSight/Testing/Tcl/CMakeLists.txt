@@ -1,29 +1,24 @@
-unset(tests)
-set(tests
-  EnSight6Elements
-  EnSight6OfficeBin
-  EnSightBlow1ASCII
-  EnSightBlow1Bin
-  EnSightBlow2ASCII
-  EnSightBlow2Bin
-  EnSightBlow3Bin
-  EnSightBlow4Bin
-  EnSightBlow5ASCII
-  EnSightCompound
-  EnSightGoldElements
-  EnSightIronProtASCII
-  EnSightIronProtBin
-  EnSightMandelbrot
-  EnSightNfacedASCII
-  EnSightNfacedBin
-  EnSightOfficeASCII
-  EnSightOfficeBin
-  EnSightRectGridASCII
-  EnSightRectGridBin
-  EnSightSelectArrays
-  nacaBinary
+vtk_add_test_tcl(
+  EnSight6Elements.tcl
+  EnSight6OfficeBin.tcl
+  EnSightBlow1ASCII.tcl
+  EnSightBlow1Bin.tcl
+  EnSightBlow2ASCII.tcl
+  EnSightBlow2Bin.tcl
+  EnSightBlow3Bin.tcl
+  EnSightBlow4Bin.tcl
+  EnSightBlow5ASCII.tcl
+  EnSightCompound.tcl
+  EnSightGoldElements.tcl
+  EnSightIronProtASCII.tcl
+  EnSightIronProtBin.tcl
+  EnSightMandelbrot.tcl
+  EnSightNfacedASCII.tcl
+  EnSightNfacedBin.tcl
+  EnSightOfficeASCII.tcl
+  EnSightOfficeBin.tcl
+  EnSightRectGridASCII.tcl
+  EnSightRectGridBin.tcl
+  EnSightSelectArrays.tcl
+  nacaBinary.tcl
   )
-
-foreach( tfile ${tests})
-  vtk_add_test_tcl(${tfile}.tcl)
-endforeach()

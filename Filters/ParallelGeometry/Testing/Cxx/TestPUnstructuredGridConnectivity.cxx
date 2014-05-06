@@ -38,7 +38,7 @@
 
 //------------------------------------------------------------------------------
 // Program main
-int main(int argc, char** argv)
+int TestPUnstructuredGridConnectivity(int argc, char* argv[])
 {
   int rc             = 0;
   double ellapsed    = 0.0;
@@ -48,11 +48,11 @@ int main(int argc, char** argv)
   vtkMPIController* cntrl = vtkMPIController::New();
   cntrl->Initialize( &argc, &argv, 0 );
   vtkMultiProcessController::SetGlobalController( cntrl );
-  Rank   = cntrl->GetLocalProcessId();
-  NRanks = cntrl->GetNumberOfProcesses();
+  global::Rank   = cntrl->GetLocalProcessId();
+  global::NRanks = cntrl->GetNumberOfProcesses();
 
   // STEP 1: Generate grid in parallel in each process
-  Grid = vtkUnstructuredGrid::New();
+  global::Grid = vtkUnstructuredGrid::New();
   GenerateDataSet();
 
   // STEP 2: Generate ghost zones
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
   vtkPUnstructuredGridConnectivity* ghostGen =
       vtkPUnstructuredGridConnectivity::New();
   ghostGen->SetController(cntrl);
-  ghostGen->RegisterGrid(Grid);
+  ghostGen->RegisterGrid(global::Grid);
   timer->StartTimer();
   ghostGen->BuildGhostZoneConnectivity();
   timer->StopTimer();
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
   // STEP 5: Delete the ghost generator
   timer->Delete();
   ghostGen->Delete();
-  Grid->Delete();
+  global::Grid->Delete();
   cntrl->Finalize();
   cntrl->Delete();
   return( rc );

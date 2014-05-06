@@ -84,7 +84,7 @@ void printDistributedGraph(vtkGraph * G);
 
 //------------------------------------------------------------------------------
 int
-TestPBGLGraphSQLReaderFile(int argc, char* argv[])
+TestPBGLGraphSQLReaderFile_internal(int argc, char* argv[])
 {
   boost::mpi::environment env(argc, argv);
   boost::mpi::communicator world;
@@ -473,10 +473,10 @@ void printDistributedGraph(vtkGraph * G)
 
 
 //------------------------------------------------------------------------------
-int main(int argc, char** argv)
+int TestPBGLGraphSQLReaderFile(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
-  TestPBGLGraphSQLReaderFile(argc, argv);
+  TestPBGLGraphSQLReaderFile_internal(argc, argv);
   cerr << "finalizing." << endl;
   MPI_Finalize();
   cerr << "done." << endl;

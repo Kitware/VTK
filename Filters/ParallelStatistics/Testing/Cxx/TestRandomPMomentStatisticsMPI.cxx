@@ -51,6 +51,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/sstream>
 
+namespace
+{
+
 struct RandomSampleStatisticsArgs
 {
   int nVals;
@@ -856,8 +859,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
   timer->Delete();
 }
 
+}
+
 //----------------------------------------------------------------------------
-int main( int argc, char** argv )
+int TestRandomPMomentStatisticsMPI( int argc, char* argv[] )
 {
   // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();

@@ -441,8 +441,9 @@
             gl.useProgram(renderingContext.shaderProgram);
             gl.uniform1i(renderingContext.shaderProgram.uIsLine, false);
 
-            var projMatrix = mat4.clone(camera.getCameraMatrices()[0]);
-            var mvMatrix = mat4.clone(camera.getCameraMatrices()[1]);
+            var projMatrix = mat4.create();
+            var mvMatrix = mat4.create();
+            var normalMatrix = mat4.create();
 
             // @note Not sure if this is required
             mat4.translate(mvMatrix, mvMatrix, [0.0, 0.0, -1.0]);
@@ -454,11 +455,6 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, background.cbuff);
             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, background.cbuff.itemSize, gl.FLOAT, false, 0, 0);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, background.ibuff);
-
-            var mvMatrixInv = mat4.create(),
-            normalMatrix = mat4.create();
-            mat4.invert(mvMatrixInv, mvMatrix);
-            mat4.transpose(normalMatrix, mvMatrixInv);
 
             renderingContext.gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, projMatrix);
             renderingContext.gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);

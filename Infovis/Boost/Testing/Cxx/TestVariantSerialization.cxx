@@ -118,8 +118,3 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   return errors;
 }
-
-int main(int argc, char *argv[])
-{
-  return TestVariantSerialization(argc, argv);
-}

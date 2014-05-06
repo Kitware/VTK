@@ -50,6 +50,9 @@
 #define KMIN(ext) ext[4]
 #define KMAX(ext) ext[5]
 
+namespace
+{
+
 //------------------------------------------------------------------------------
 //  GLOBAL DATA
 //------------------------------------------------------------------------------
@@ -665,7 +668,7 @@ int Test3DAMR(const int ratio)
 }
 
 //------------------------------------------------------------------------------
-int TestStructuredAMRGridConnectivity(int argc, char *argv[])
+int TestStructuredAMRGridConnectivity_internal(int argc, char *argv[])
 {
   // STEP 0: Silence some compiler warnings here
   static_cast<void>(argc);
@@ -706,8 +709,11 @@ int TestSimpleAMRGridConnectivity(int vtkNotUsed(argc), char *argv[])
     }
   return( rc );
 }
+
+}
+
 //------------------------------------------------------------------------------
-int main(int argc, char **argv)
+int TestStructuredAMRGridConnectivity(int argc, char *argv[])
 {
   int rc = 0;
   if( argc > 1 )
@@ -716,7 +722,7 @@ int main(int argc, char **argv)
     }
   else
     {
-    rc += TestStructuredAMRGridConnectivity(argc, argv);
+    rc += TestStructuredAMRGridConnectivity_internal(argc, argv);
     }
 
   return( rc );

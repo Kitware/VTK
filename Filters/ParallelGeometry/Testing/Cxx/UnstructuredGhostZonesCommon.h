@@ -27,14 +27,20 @@
 //------------------------------------------------------------------------------
 //    G L O B A L   D A T A
 //------------------------------------------------------------------------------
-double Origin[3]  = {0.0,0.0,0.0};
-double Spacing[3] = {0.5,0.5,0.5};
-int Dims[3]       = {50,50,50};
+struct global
+{
+  static double Origin[3];
+  static double Spacing[3];
+  static int Dims[3];
 
-int Rank   = -1;
-int NRanks = 0;
+  static int Rank;
+  static int NRanks;
 
-vtkUnstructuredGrid* Grid;
+  static vtkUnstructuredGrid* Grid;
+};
+
+namespace
+{
 
 int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
 {
@@ -158,15 +164,15 @@ void UpdateGrid(const int iteration)
   // increment node fields by the iteration number
   vtkDoubleArray* nodeXYZ =
       vtkDoubleArray::SafeDownCast(
-          Grid->GetPointData()->GetArray("NodeXYZ"));
+          global::Grid->GetPointData()->GetArray("NodeXYZ"));
   assert("pre: nodeXYZ != NULL" && (nodeXYZ != NULL) );
   assert("pre: nodeXYZ numtuples mismatch!" &&
-          (Grid->GetNumberOfPoints()==nodeXYZ->GetNumberOfTuples()));
+          (global::Grid->GetNumberOfPoints()==nodeXYZ->GetNumberOfTuples()));
   assert("pre: nodeXYZ numcomponents mismatch!" &&
           (nodeXYZ->GetNumberOfComponents()==3));
 
   double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
-  for(vtkIdType nodeIdx=0; nodeIdx < Grid->GetNumberOfPoints(); ++nodeIdx)
+  for(vtkIdType nodeIdx=0; nodeIdx < global::Grid->GetNumberOfPoints(); ++nodeIdx)
     {
     ptr[ nodeIdx*3   ] += static_cast<double>(iteration);
     ptr[ nodeIdx*3+1 ] += static_cast<double>(iteration);
@@ -176,14 +182,14 @@ void UpdateGrid(const int iteration)
   // increment cell fields by the iteration number
   vtkDoubleArray* cellXYZ =
       vtkDoubleArray::SafeDownCast(
-          Grid->GetCellData()->GetArray("CentroidXYZ"));
+          global::Grid->GetCellData()->GetArray("CentroidXYZ"));
   assert("pre: nodeXYZ numtuples mismatch!" &&
-          (Grid->GetNumberOfCells()==cellXYZ->GetNumberOfTuples()));
+          (global::Grid->GetNumberOfCells()==cellXYZ->GetNumberOfTuples()));
   assert("pre: nodeXYZ numcomponents mismatch!" &&
           (cellXYZ->GetNumberOfComponents()==3));
 
   double* cptr = static_cast<double*>(cellXYZ->GetVoidPointer(0));
-  for(vtkIdType cellIdx=0; cellIdx < Grid->GetNumberOfCells(); ++cellIdx)
+  for(vtkIdType cellIdx=0; cellIdx < global::Grid->GetNumberOfCells(); ++cellIdx)
     {
     cptr[ cellIdx*3   ] += static_cast<double>(iteration);
     cptr[ cellIdx*3+1 ] += static_cast<double>(iteration);
@@ -197,20 +203,20 @@ void SetXYZCellField()
   vtkDoubleArray* centerXYZ = vtkDoubleArray::New();
   centerXYZ->SetName("CentroidXYZ");
   centerXYZ->SetNumberOfComponents(3);
-  centerXYZ->SetNumberOfTuples( Grid->GetNumberOfCells() );
+  centerXYZ->SetNumberOfTuples( global::Grid->GetNumberOfCells() );
   double* ptr = static_cast<double*>(centerXYZ->GetVoidPointer(0));
 
   double centroid[3];
   vtkIdList* ptIds = vtkIdList::New();
-  for(vtkIdType cell=0; cell < Grid->GetNumberOfCells(); ++cell)
+  for(vtkIdType cell=0; cell < global::Grid->GetNumberOfCells(); ++cell)
     {
     centroid[0] = centroid[1] = centroid[2] = 0.0;
-    Grid->GetCellPoints(cell,ptIds);
+    global::Grid->GetCellPoints(cell,ptIds);
     for(vtkIdType n=0; n < ptIds->GetNumberOfIds(); ++n)
       {
-      centroid[0] += Grid->GetPoint(ptIds->GetId(n))[0];
-      centroid[1] += Grid->GetPoint(ptIds->GetId(n))[1];
-      centroid[2] += Grid->GetPoint(ptIds->GetId(n))[2];
+      centroid[0] += global::Grid->GetPoint(ptIds->GetId(n))[0];
+      centroid[1] += global::Grid->GetPoint(ptIds->GetId(n))[1];
+      centroid[2] += global::Grid->GetPoint(ptIds->GetId(n))[2];
       } // END for all cell nodes
 
     centroid[0] /= static_cast<double>(ptIds->GetNumberOfIds());
@@ -220,7 +226,7 @@ void SetXYZCellField()
     memcpy(&ptr[cell*3],centroid,3*sizeof(double));
     } // END for all cells
 
-  Grid->GetCellData()->AddArray( centerXYZ );
+  global::Grid->GetCellData()->AddArray( centerXYZ );
   centerXYZ->Delete();
   ptIds->Delete();
 }
@@ -231,16 +237,16 @@ void SetXYZNodeField()
   vtkDoubleArray* nodeXYZ = vtkDoubleArray::New();
   nodeXYZ->SetName("NodeXYZ");
   nodeXYZ->SetNumberOfComponents(3);
-  nodeXYZ->SetNumberOfTuples( Grid->GetNumberOfPoints() );
+  nodeXYZ->SetNumberOfTuples( global::Grid->GetNumberOfPoints() );
   double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
 
-  for(vtkIdType node=0; node < Grid->GetNumberOfPoints(); ++node)
+  for(vtkIdType node=0; node < global::Grid->GetNumberOfPoints(); ++node)
     {
     // copy the point coordinates in to the array
-    memcpy(&ptr[node*3],Grid->GetPoint(node),3*sizeof(double));
+    memcpy(&ptr[node*3],global::Grid->GetPoint(node),3*sizeof(double));
     } // END for all cells
 
-  Grid->GetPointData()->AddArray(nodeXYZ);
+  global::Grid->GetPointData()->AddArray(nodeXYZ);
   nodeXYZ->Delete();
 }
 
@@ -249,7 +255,7 @@ void WriteDataSet(
       vtkUnstructuredGrid* grid, const std::string& file)
 {
   std::ostringstream oss;
-  oss << file << "-" << Rank << ".vtk";
+  oss << file << "-" << global::Rank << ".vtk";
 
   vtkUnstructuredGridWriter* writer = vtkUnstructuredGridWriter::New();
   writer->SetFileName(oss.str().c_str());
@@ -262,9 +268,9 @@ void WriteDataSet(
 void GetPoint(
       const int i, const int j, const int k,double pnt[3])
 {
-  pnt[0] = Origin[0]+i*Spacing[0];
-  pnt[1] = Origin[1]+j*Spacing[1];
-  pnt[2] = Origin[2]+k*Spacing[2];
+  pnt[0] = global::Origin[0]+i*global::Spacing[0];
+  pnt[1] = global::Origin[1]+j*global::Spacing[1];
+  pnt[2] = global::Origin[2]+k*global::Spacing[2];
 }
 
 //------------------------------------------------------------------------------
@@ -285,13 +291,13 @@ void GenerateDataSet()
 {
   // STEP 0: partition the global extent to the number of processes
   vtkExtentRCBPartitioner* partitioner = vtkExtentRCBPartitioner::New();
-  partitioner->SetGlobalExtent(0,Dims[0]-1,0,Dims[1]-1,0,Dims[2]-1);
-  partitioner->SetNumberOfPartitions( NRanks );
+  partitioner->SetGlobalExtent(0,global::Dims[0]-1,0,global::Dims[1]-1,0,global::Dims[2]-1);
+  partitioner->SetNumberOfPartitions( global::NRanks );
   partitioner->Partition();
 
   // STEP 1: get the extent of this process
   int ext[6];
-  partitioner->GetPartitionExtent(Rank,ext);
+  partitioner->GetPartitionExtent(global::Rank,ext);
   partitioner->Delete();
 
   // STEP 2: Allocate the unstructured grid instance of this process
@@ -314,7 +320,7 @@ void GenerateDataSet()
   vtkIdType* globalIdxPtr =
       static_cast<vtkIdType*>(globalIds->GetVoidPointer(0));
 
-  Grid->Allocate(numCells,8);
+  global::Grid->Allocate(numCells,8);
 
   // STEP 3: Loop through the extent assigned in this process and update
   // the nodes and connectivity of the unstructured grid.
@@ -364,26 +370,26 @@ void GenerateDataSet()
           J(IJK) = j+hexNodeOffSet[node*3+1];
           K(IJK) = k+hexNodeOffSet[node*3+2];
           globalNodeIdx =
-              vtkStructuredData::ComputePointId(Dims,IJK,dataDescription);
+              vtkStructuredData::ComputePointId(global::Dims,IJK,dataDescription);
 
           globalIdxPtr[localNodeIdx] = globalNodeIdx;
           GetPoint(I(IJK),J(IJK),K(IJK),&nodesPtr[localNodeIdx*3]);
           } // END for all nodes
 
-        Grid->InsertNextCell(VTK_HEXAHEDRON,8,cell);
+        global::Grid->InsertNextCell(VTK_HEXAHEDRON,8,cell);
         } // END for all k
       } // END for all j
     } // END for all i
 
-  Grid->SetPoints(nodes);
+  global::Grid->SetPoints(nodes);
   nodes->Delete();
-  Grid->GetPointData()->AddArray(globalIds);
+  global::Grid->GetPointData()->AddArray(globalIds);
   globalIds->Delete();
 
   SetXYZCellField();
   SetXYZNodeField();
 }
 
-
+}
 
 #endif /* UNSTRUCTUREDGHOSTZONESCOMMON_H_ */
