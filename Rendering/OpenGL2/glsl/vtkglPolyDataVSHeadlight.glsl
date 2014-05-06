@@ -43,7 +43,7 @@ varying vec4 fcolor;
 void main()
 {
   gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
-  vec3 normalVC = normalize(normalMatrix * normalMC);
+  vec3 normalVC = normalMatrix * normalMC;
 
   // diffuse and specular lighting
   float df = max(0.0, dot(normalVC, vec3(0, 0, 1)));

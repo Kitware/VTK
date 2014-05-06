@@ -58,7 +58,7 @@ void main()
   gl_Position = VCDCMatrix * vertexVC;
 
   // now compute the vertex color
-  vec3 normalVC = normalize(normalMatrix * normalMC);
+  vec3 normalVC = normalMatrix * normalMC;
   vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC.xyz);
 
   vec3 diffuse = vec3(0,0,0);

@@ -335,7 +335,7 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor 
 
   // set the normal matrix and send it down
   // (make this a function in camera at some point returning a 3x3)
-  tmpMat->DeepCopy(cam->GetCameraLightTransformMatrix());
+  tmpMat->DeepCopy(cam->GetViewTransformMatrix());
   vtkMatrix3x3 *tmpMat3d = vtkMatrix3x3::New();
   for(int i = 0; i < 3; ++i)
     {
@@ -344,6 +344,7 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor 
         tmpMat3d->SetElement(i,j,tmpMat->GetElement(i,j));
       }
     }
+  tmpMat3d->Invert();
   this->Internal->program.setUniformValue("normalMatrix", tmpMat3d);
 
 
@@ -618,7 +619,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     vtkIdType num(0);
     // Each triangle cell is of length 4 (count, tri1, tri2, tri3).
     polys->GetCell(4 * i, num, indices);
-    assert(num == 3);
+    if (num != 3) exit(-1); // assert(num == 3);
     indexArray.push_back(static_cast<unsigned int>(indices[0]));
     indexArray.push_back(static_cast<unsigned int>(indices[1]));
     indexArray.push_back(static_cast<unsigned int>(indices[2]));
