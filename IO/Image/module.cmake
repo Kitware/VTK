@@ -15,6 +15,7 @@ vtk_module(vtkIOImage
     vtktiff
     vtkMetaIO
     vtkDICOMParser
+    vtkzlib
     vtksys
   TEST_DEPENDS
     vtkTestingCore
