@@ -83,6 +83,7 @@ const double h0 = 1.0;
 // Global origin
 const double origin[3] = {0.0,0.0,0.0};
 
+#ifdef ENABLE_IO
 //------------------------------------------------------------------------------
 void WriteGrid(vtkUniformGrid *grid, std::string prefix)
 {
@@ -94,11 +95,10 @@ void WriteGrid(vtkUniformGrid *grid, std::string prefix)
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData( grid );
-#ifdef ENABLE_IO
   writer->Write();
-#endif
   writer->Delete();
 }
+#endif
 
 //------------------------------------------------------------------------------
 void GetPoint(
@@ -220,24 +220,6 @@ void AttachCellBlanking(vtkOverlappingAMR *amr)
       } // END for all data
     } // END for all levels
 
-}
-
-//------------------------------------------------------------------------------
-void ComputeCellCenter(
-    vtkUniformGrid *grid, vtkIdType cellIdx,double center[3])
-{
-  assert("pre: input grid is NULL" && (grid != NULL) );
-  assert("pre: cell index is out-of-bounds" &&
-         (cellIdx < grid->GetNumberOfCells() ) );
-
-  vtkCell *myCell = grid->GetCell( cellIdx );
-  assert( "ERROR: Cell is NULL" && (myCell != NULL) );
-
-  double pcenter[3];
-  double *weights = new double[ myCell->GetNumberOfPoints() ];
-  int subId = myCell->GetParametricCenter( pcenter );
-  myCell->EvaluateLocation( subId, pcenter, center, weights );
-  delete [] weights;
 }
 
 //------------------------------------------------------------------------------
