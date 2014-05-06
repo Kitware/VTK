@@ -128,6 +128,10 @@ public:
   void CloseR()
     {
     this->refcount--;
+    if (this->refcount < 1 && ins)
+      {
+      delete ins;
+      }
     };
 
 protected:
@@ -151,24 +155,12 @@ private:
 };
 
 
-
-void vtkImplementationRSingleton::shutdownR(void)
-{
-   if(ins)
-     {
-     delete ins;
-     }
-}
-
 vtkImplementationRSingleton* vtkImplementationRSingleton::Instance()
 {
 
   if(ins == 0)
     {
     ins = new vtkImplementationRSingleton;
-
-    // Setup atexit() function to shutdown R interpreter when application exits
-    atexit(shutdownR);
     }
 
   ins->InitializeR();
