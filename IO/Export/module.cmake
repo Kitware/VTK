@@ -9,7 +9,7 @@ vtk_module(vtkIOExport
     vtkRenderingFreeType
     vtkRenderingGL2PS
     vtkRenderingLabel
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkImagingCore
   PRIVATE_DEPENDS
     vtkIOImage

@@ -11,5 +11,5 @@ vtk_module(vtkDomainsChemistry
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
   )

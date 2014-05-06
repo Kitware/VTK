@@ -4,7 +4,7 @@ vtk_module(vtkIOVPIC
     vtkCommonExecutionModel
     vtkParallelCore
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   )

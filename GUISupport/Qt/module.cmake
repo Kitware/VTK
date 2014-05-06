@@ -3,7 +3,7 @@ vtk_module(vtkGUISupportQt
     Qt
   DEPENDS
     vtkCommonExecutionModel
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkInteractionStyle
     vtkImagingCore
   PRIVATE_DEPENDS

@@ -9,7 +9,7 @@ vtk_module(vtkFiltersExtraction
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   )

@@ -355,12 +355,12 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor 
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* vtkNotUsed(ren), vtkActor *actor)
+void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* ren, vtkActor *actor)
 {
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *aColor = actor->GetProperty()->GetAmbientColor();
-  double aIntensity = actor->GetProperty()->GetAmbient();
+  double aIntensity = actor->GetProperty()->GetAmbient();  // ignoring renderer ambient
   vtkgl::Vector3ub ambientColor(static_cast<unsigned char>(aColor[0] * aIntensity * 255.0),
                          static_cast<unsigned char>(aColor[1] * aIntensity * 255.0),
                          static_cast<unsigned char>(aColor[2] * aIntensity * 255.0));

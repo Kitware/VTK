@@ -14,5 +14,5 @@ vtk_module(vtkFiltersCore
     vtkIOXML
     vtkImagingCore
     vtkFiltersGeneral
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
   )

@@ -8,7 +8,7 @@ vtk_module(vtkFiltersGeneral
     vtkIOLegacy
     vtkIOXML
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkRenderingFreeTypeOpenGL
     vtkRenderingAnnotation
     vtkRenderingLabel

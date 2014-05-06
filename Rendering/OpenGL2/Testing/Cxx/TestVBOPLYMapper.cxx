@@ -62,8 +62,8 @@ int TestVBOPLYMapper(int argc, char *argv[])
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
   actor->GetProperty()->SetSpecular(0.5);
-  actor->GetProperty()->SetDiffuse(0.5);
-  actor->GetProperty()->SetAmbient(0.3);
+  actor->GetProperty()->SetDiffuse(0.7);
+  actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
 

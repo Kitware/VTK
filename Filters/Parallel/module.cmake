@@ -11,7 +11,7 @@ vtk_module(vtkFiltersParallel
     vtkParallelMPI
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkRenderingParallel
     vtkFiltersParallelMPI
     vtkFiltersParallelImaging

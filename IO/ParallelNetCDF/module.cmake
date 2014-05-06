@@ -8,7 +8,7 @@ vtk_module(vtkIOParallelNetCDF
     vtknetcdf
   TEST_DEPENDS
     vtkCommonExecutionModel
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   )

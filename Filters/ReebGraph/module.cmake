@@ -2,7 +2,7 @@ vtk_module(vtkFiltersReebGraph
   DEPENDS
     vtkFiltersCore
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   )

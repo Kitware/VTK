@@ -3,7 +3,7 @@ vtk_module(vtkRenderingGL2PS
   DEPENDS
     vtkRenderingContext2D
   PRIVATE_DEPENDS
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkRenderingFreeType
     vtkgl2ps
   TEST_DEPENDS

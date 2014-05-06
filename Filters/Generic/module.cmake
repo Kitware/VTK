@@ -7,7 +7,7 @@ vtk_module(vtkFiltersGeneric
   TEST_DEPENDS
     vtkIOXML
     vtkIOLegacy
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkRenderingFreeTypeOpenGL
     vtkFiltersModeling
     vtkRenderingLabel

@@ -8,7 +8,7 @@ vtk_module(vtkFiltersSelection
     vtkFiltersExtraction
     vtkIOLegacy
     vtkIOXML
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkRenderingFreeTypeOpenGL
     vtkRenderingAnnotation
     vtkTestingRendering

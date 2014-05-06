@@ -1,6 +1,7 @@
 vtk_module(vtkRenderingOpenGL2
   DEPENDS
     vtkCommonExecutionModel
+    vtkRenderingOpenGL
   IMPLEMENTS
     vtkRenderingCore
   PRIVATE_DEPENDS
@@ -13,6 +14,5 @@ vtk_module(vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOPLY
-    vtkRenderingOpenGL
   EXCLUDE_FROM_WRAPPING
   )

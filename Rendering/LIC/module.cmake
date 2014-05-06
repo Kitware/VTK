@@ -5,7 +5,7 @@ vtk_module(vtkRenderingLIC
     vtkIOXML
     vtkIOLegacy
     vtkImagingSources
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
   PRIVATE_DEPENDS
     vtksys
   TEST_DEPENDS

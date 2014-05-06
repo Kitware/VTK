@@ -13,5 +13,5 @@ vtk_module(vtkRenderingCore
     vtkIOXML
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
   )

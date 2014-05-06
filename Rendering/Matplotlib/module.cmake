@@ -14,7 +14,7 @@ vtk_module(vtkRenderingMatplotlib
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingGL2PS
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkRenderingFreeTypeOpenGL
     vtkViewsContext2D
   )

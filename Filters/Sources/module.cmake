@@ -8,7 +8,7 @@ vtk_module(vtkFiltersSources
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkRenderingFreeTypeOpenGL
     vtkFiltersModeling
     vtkIOXML

@@ -18,6 +18,7 @@ set(Module_SRCS
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglTexture2D.cxx
+  vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
   vtkOpenGL2Light.cxx
   vtkVBOPolyDataMapper.cxx
@@ -77,10 +78,12 @@ set_source_files_properties(
 # tests.
 if(VTK_REPLACE_OPENGL_OVERRIDES)
   set(opengl_overrides
+    Actor
     Camera
     Light
     )
 endif()
+vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
 
 foreach(_override ${opengl_overrides})
   vtk_add_override(vtk${_override} vtkOpenGL2${_override})
