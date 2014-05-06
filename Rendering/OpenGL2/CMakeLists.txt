@@ -21,6 +21,7 @@ set(Module_SRCS
   vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
   vtkOpenGL2Light.cxx
+  vtkOpenGL2Property.cxx
   vtkVBOPolyDataMapper.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
@@ -81,6 +82,7 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
     Actor
     Camera
     Light
+    Property
     )
 endif()
 vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
