@@ -1145,28 +1145,53 @@ void vtkDataArray::ComputeScalarRange(double range[2], int comp)
       }
 }
 
+
+//----------------------------------------------------------------------------
+template <class ValueType, class InputIterator>
+void vtkDataArrayComputeVectorRange(InputIterator begin, InputIterator end,
+                                    int numberOfComponents, double range[2])
+{
+  //We have to use doubles instead of the ValueType for the minmaxRange,
+  //because we are taking the magnitude of the value before storing it, and
+  //the mag function only supports float and double primitive types.
+  double mag = 0;
+  //fill the min max range explicitly with the first tuples magnitude
+  for(int i=0; i < numberOfComponents; ++i)
+    {
+    mag += static_cast<double>(begin[i] * begin[i]);
+    }
+  mag = sqrt(mag);
+
+  range[0] = mag;
+  range[1] = mag;
+
+  //iterate Tuples 1 - N, since we already computed Tuple 0 above
+  for(begin+=numberOfComponents; begin != end; begin+=numberOfComponents)
+    {
+    mag = 0;
+    for(int i=0; i < numberOfComponents; ++i)
+      {
+      mag += static_cast<double>(begin[i] * begin[i]);
+      }
+    mag = sqrt(mag);
+    range[0] = std::min(mag,range[0]);
+    range[1] = std::max(mag,range[1]);
+    }
+}
+
+
 //-----------------------------------------------------------------------------
 void vtkDataArray::ComputeVectorRange(double range[2])
 {
-  vtkIdType numTuples=this->GetNumberOfTuples();
-  for (vtkIdType i=0; i<numTuples; i++)
+  switch (this->GetDataType())
     {
-    // Compute range of vector magnitude.
-    double s = 0.0;
-    for (int j=0; j < this->NumberOfComponents; ++j)
-      {
-      double t = this->GetComponent(i,j);
-      s += t*t;
-      }
-    s = sqrt(s);
-    if ( s < range[0] )
-      {
-      range[0] = s;
-      }
-    if ( s > range[1] )
-      {
-      range[1] = s;
-      }
+    vtkDataArrayIteratorMacro(this,
+        vtkDataArrayComputeVectorRange<vtkDAValueType>(
+                                       vtkDABegin, vtkDAEnd,
+                                       this->GetNumberOfComponents(), range)
+    );
+    default:
+      break;
     }
 }
 
