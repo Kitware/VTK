@@ -38,10 +38,215 @@
 #include "vtkUnsignedShortArray.h"
 
 #include <algorithm> // for min(), max()
+namespace {
+
+//----------------------------------------------------------------------------
+template <class InputIterator>
+void vtkDeepCopySwitchOnOutput(InputIterator begin, InputIterator end,
+                               vtkDataArray *outputArray)
+{
+  switch (outputArray->GetDataType())
+    {
+    vtkDataArrayIteratorMacro(outputArray,
+                              std::copy(begin, end, vtkDABegin));
+
+    default:
+      vtkGenericWarningMacro("Unsupported data type "
+                             << outputArray->GetDataTypeAsString() << "!");
+    }
+}
+
+//--------------------------------------------------------------------------
+template <class T>
+inline void vtkDataArrayRoundIfNecessary(double val, T* retVal)
+{
+  val = std::max(val, static_cast<double>(vtkTypeTraits<T>::Min()));
+  val = std::min(val, static_cast<double>(vtkTypeTraits<T>::Max()));
+  *retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
+}
+
+//--------------------------------------------------------------------------
+VTK_TEMPLATE_SPECIALIZE
+inline void vtkDataArrayRoundIfNecessary(double val, double* retVal)
+{
+  *retVal = val;
+}
+
+//--------------------------------------------------------------------------
+VTK_TEMPLATE_SPECIALIZE
+inline void vtkDataArrayRoundIfNecessary(double val, float* retVal)
+{
+  *retVal = static_cast<float>(val);
+}
+
+//--------------------------------------------------------------------------
+template <class Scalar, class Iterator>
+void vtkDataArrayInterpolateTuple(Iterator from, Scalar *to, int numComp,
+  vtkIdType* ids, vtkIdType numIds, double* weights)
+{
+  for(int i=0; i < numComp; ++i)
+    {
+    double c = 0;
+    for(vtkIdType j=0; j < numIds; ++j)
+      {
+      c += weights[j] * static_cast<double>(from[ids[j]*numComp+i]);
+      }
+    // Round integer types. Don't round floating point types.
+    vtkDataArrayRoundIfNecessary(c, to);
+    ++to;
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class Scalar, class Iterator>
+void vtkDataArrayInterpolateTuple(Iterator from1, Iterator from2, Scalar* to,
+  int numComp, double t)
+{
+  const double oneMinusT = 1.0 - t;
+  while (numComp-- > 0)
+    {
+    *(to++) = oneMinusT * (*(from1++)) + t * (*(from2++));
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class InputIterator, class OutputIterator>
+void vtkDataArrayGetTuplesTemplate2(vtkIdType* ids, vtkIdType* idsEnd,
+                                    InputIterator inIter,
+                                    OutputIterator outIter,
+                                    int numComps)
+{
+  InputIterator inPt;
+  while (ids != idsEnd)
+    {
+    inPt = inIter + (*(ids++) * numComps);
+    outIter = std::copy(inPt, inPt + numComps, outIter);
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class InputIterator>
+void vtkDataArrayGetTuplesTemplate1(vtkIdType* ids, vtkIdType* idsEnd,
+                                    InputIterator inIter,
+                                    vtkDataArray *outArray,
+                                    int numComps)
+{
+  switch (outArray->GetDataType())
+    {
+    vtkDataArrayIteratorMacro(outArray,
+      vtkDataArrayGetTuplesTemplate2(ids, idsEnd, inIter, vtkDABegin, numComps)
+      );
+    default:
+      vtkGenericWarningMacro("vtkDataArray::GetTuples: "
+                             "Unsupported output type.");
+      return;
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class IT, class OT>
+void vtkCopyTuples(IT* input, OT* output, int nComp,
+                   vtkIdType p1, vtkIdType p2)
+{
+  vtkIdType i;
+  int j;
+  vtkIdType num=p2-p1+1;
+  for (i=0; i<num; i++)
+    {
+    for (j=0; j<nComp; j++)
+      {
+      output[i*nComp+j] = static_cast<OT>(input[(p1+i)*nComp+j]);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class IT>
+void vtkCopyTuples1(IT* input, vtkDataArray* output,
+                    vtkIdType p1, vtkIdType p2)
+{
+  switch (output->GetDataType())
+    {
+    vtkTemplateMacro(vtkCopyTuples( input,
+                                    static_cast<VTK_TT *>(output->GetVoidPointer(0)),
+                                    output->GetNumberOfComponents(), p1, p2) );
+
+    default:
+      vtkGenericWarningMacro("Sanity check failed: Unsupported data type "
+                             << output->GetDataType() << ".");
+      return;
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class ValueType, class InputIterator>
+void vtkDataArrayComputeScalarRange(InputIterator begin, InputIterator end,
+                                    int numberOfComponents, int component,
+                                    double range[2])
+{
+  ValueType minmaxRange[2];
+  minmaxRange[0] = *begin;
+  minmaxRange[1] = *begin;
+
+  //special case of a single value scalar range
+  if(numberOfComponents == 1 && component == 0)
+    {
+    for(; begin != end; ++begin)
+      {
+      minmaxRange[0] = std::min(*begin,minmaxRange[0]);
+      minmaxRange[1] = std::max(*begin,minmaxRange[1]);
+      }
+    }
+  else
+    {
+    for(; begin != end; begin+=numberOfComponents)
+      {
+      minmaxRange[0] = std::min(begin[component],minmaxRange[0]);
+      minmaxRange[1] = std::max(begin[component],minmaxRange[1]);
+      }
+    }
+
+  range[0] = std::min(static_cast<double>(minmaxRange[0]),range[0]);
+  range[1] = std::max(static_cast<double>(minmaxRange[1]),range[1]);
+}
+
+//----------------------------------------------------------------------------
+template <class ValueType, class InputIterator>
+void vtkDataArrayComputeVectorRange(InputIterator begin, InputIterator end,
+                                    int numberOfComponents, double range[2])
+{
+  //We have to use doubles instead of the ValueType for the minmaxRange,
+  //because we are taking the magnitude of the value before storing it, and
+  //the mag function only supports float and double primitive types.
+  double mag = 0;
+  //fill the min max range explicitly with the first tuples magnitude
+  for(int i=0; i < numberOfComponents; ++i)
+    {
+    mag += static_cast<double>(begin[i] * begin[i]);
+    }
+  mag = sqrt(mag);
+
+  range[0] = mag;
+  range[1] = mag;
+
+  //iterate Tuples 1 - N, since we already computed Tuple 0 above
+  for(begin+=numberOfComponents; begin != end; begin+=numberOfComponents)
+    {
+    mag = 0;
+    for(int i=0; i < numberOfComponents; ++i)
+      {
+      mag += static_cast<double>(begin[i] * begin[i]);
+      }
+    mag = sqrt(mag);
+    range[0] = std::min(mag,range[0]);
+    range[1] = std::max(mag,range[1]);
+    }
+}
+
+} // end anon namespace
 
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
-
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -60,22 +265,6 @@ vtkDataArray::~vtkDataArray()
     this->LookupTable->Delete();
     }
   this->SetName(0);
-}
-
-//----------------------------------------------------------------------------
-template <class InputIterator>
-void vtkDeepCopySwitchOnOutput(InputIterator begin, InputIterator end,
-                               vtkDataArray *outputArray)
-{
-  switch (outputArray->GetDataType())
-    {
-    vtkDataArrayIteratorMacro(outputArray,
-                              std::copy(begin, end, vtkDABegin));
-
-    default:
-      vtkGenericWarningMacro("Unsupported data type "
-                             << outputArray->GetDataTypeAsString() << "!");
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -230,47 +419,6 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
   delete [] tuple;
 }
 
-//--------------------------------------------------------------------------
-template <class T>
-inline void vtkDataArrayRoundIfNecessary(double val, T* retVal)
-{
-  val = std::max(val, static_cast<double>(vtkTypeTraits<T>::Min()));
-  val = std::min(val, static_cast<double>(vtkTypeTraits<T>::Max()));
-  *retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
-}
-
-//--------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
-inline void vtkDataArrayRoundIfNecessary(double val, double* retVal)
-{
-  *retVal = val;
-}
-
-//--------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
-inline void vtkDataArrayRoundIfNecessary(double val, float* retVal)
-{
-  *retVal = static_cast<float>(val);
-}
-
-//--------------------------------------------------------------------------
-template <class Scalar, class Iterator>
-void vtkDataArrayInterpolateTuple(Iterator from, Scalar *to, int numComp,
-  vtkIdType* ids, vtkIdType numIds, double* weights)
-{
-  for(int i=0; i < numComp; ++i)
-    {
-    double c = 0;
-    for(vtkIdType j=0; j < numIds; ++j)
-      {
-      c += weights[j] * static_cast<double>(from[ids[j]*numComp+i]);
-      }
-    // Round integer types. Don't round floating point types.
-    vtkDataArrayRoundIfNecessary(c, to);
-    ++to;
-    }
-}
-
 //----------------------------------------------------------------------------
 // Interpolate array value from other array value given the
 // indices and associated interpolation weights.
@@ -326,19 +474,6 @@ void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
       vtkErrorMacro("Unsupported data type " << fromData->GetDataType()
         << " during interpolation!");
       }
-    }
-}
-
-
-//----------------------------------------------------------------------------
-template <class Scalar, class Iterator>
-void vtkDataArrayInterpolateTuple(Iterator from1, Iterator from2, Scalar* to,
-  int numComp, double t)
-{
-  const double oneMinusT = 1.0 - t;
-  while (numComp-- > 0)
-    {
-    *(to++) = oneMinusT * (*(from1++)) + t * (*(from2++));
     }
 }
 
@@ -776,47 +911,6 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
   return da;
 }
 
-namespace {
-//----------------------------------------------------------------------------
-typedef vtkIdType* IdIterator;
-
-//----------------------------------------------------------------------------
-template <class InputIterator, class OutputIterator>
-void vtkDataArrayGetTuplesTemplate2(IdIterator ids, IdIterator idsEnd,
-                                    InputIterator inIter,
-                                    OutputIterator outIter,
-                                    int numComps)
-{
-  InputIterator inPt;
-  while (ids != idsEnd)
-    {
-    inPt = inIter + (*(ids++) * numComps);
-    outIter = std::copy(inPt, inPt + numComps, outIter);
-    }
-}
-
-//----------------------------------------------------------------------------
-template <class InputIterator>
-void vtkDataArrayGetTuplesTemplate1(IdIterator ids, IdIterator idsEnd,
-                                    InputIterator inIter,
-                                    vtkDataArray *outArray,
-                                    int numComps)
-{
-  switch (outArray->GetDataType())
-    {
-    vtkDataArrayIteratorMacro(outArray,
-      vtkDataArrayGetTuplesTemplate2(ids, idsEnd, inIter, vtkDABegin, numComps)
-      );
-    default:
-      vtkGenericWarningMacro("vtkDataArray::GetTuples: "
-                             "Unsupported output type.");
-      return;
-    }
-}
-
-} // end anon namespace
-
-
 //----------------------------------------------------------------------------
 void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkAbstractArray *aa)
 {
@@ -833,8 +927,8 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkAbstractArray *aa)
     return;
     }
 
-  IdIterator ids = ptIds->GetPointer(0);
-  IdIterator idsEnd = ptIds->GetPointer(ptIds->GetNumberOfIds());
+  vtkIdType* ids = ptIds->GetPointer(0);
+  vtkIdType* idsEnd = ptIds->GetPointer(ptIds->GetNumberOfIds());
 
   switch (this->GetDataType())
     {
@@ -851,42 +945,6 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkAbstractArray *aa)
       break;
     }
 }
-
-//----------------------------------------------------------------------------
-template <class IT, class OT>
-void vtkCopyTuples(IT* input, OT* output, int nComp,
-                   vtkIdType p1, vtkIdType p2)
-{
-  vtkIdType i;
-  int j;
-  vtkIdType num=p2-p1+1;
-  for (i=0; i<num; i++)
-    {
-    for (j=0; j<nComp; j++)
-      {
-      output[i*nComp+j] = static_cast<OT>(input[(p1+i)*nComp+j]);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-template <class IT>
-void vtkCopyTuples1(IT* input, vtkDataArray* output,
-                    vtkIdType p1, vtkIdType p2)
-{
-  switch (output->GetDataType())
-    {
-    vtkTemplateMacro(vtkCopyTuples( input,
-                                    static_cast<VTK_TT *>(output->GetVoidPointer(0)),
-                                    output->GetNumberOfComponents(), p1, p2) );
-
-    default:
-      vtkGenericWarningMacro("Sanity check failed: Unsupported data type "
-                             << output->GetDataType() << ".");
-      return;
-    }
-}
-
 
 //----------------------------------------------------------------------------
 void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *aa)
@@ -1097,39 +1155,6 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
 }
 
 //----------------------------------------------------------------------------
-template <class ValueType, class InputIterator>
-void vtkDataArrayComputeScalarRange(InputIterator begin, InputIterator end,
-                                    int numberOfComponents, int component,
-                                    double range[2])
-{
-  ValueType minmaxRange[2];
-  minmaxRange[0] = *begin;
-  minmaxRange[1] = *begin;
-
-  //special case of a single value scalar range
-  if(numberOfComponents == 1 && component == 0)
-    {
-    for(; begin != end; ++begin)
-      {
-      minmaxRange[0] = std::min(*begin,minmaxRange[0]);
-      minmaxRange[1] = std::max(*begin,minmaxRange[1]);
-      }
-    }
-  else
-    {
-    for(; begin != end; begin+=numberOfComponents)
-      {
-      minmaxRange[0] = std::min(begin[component],minmaxRange[0]);
-      minmaxRange[1] = std::max(begin[component],minmaxRange[1]);
-      }
-    }
-
-  range[0] = std::min(static_cast<double>(minmaxRange[0]),range[0]);
-  range[1] = std::max(static_cast<double>(minmaxRange[1]),range[1]);
-
-}
-
-//----------------------------------------------------------------------------
 void vtkDataArray::ComputeScalarRange(double range[2], int comp)
 {
   switch (this->GetDataType())
@@ -1144,41 +1169,6 @@ void vtkDataArray::ComputeScalarRange(double range[2], int comp)
         break;
       }
 }
-
-
-//----------------------------------------------------------------------------
-template <class ValueType, class InputIterator>
-void vtkDataArrayComputeVectorRange(InputIterator begin, InputIterator end,
-                                    int numberOfComponents, double range[2])
-{
-  //We have to use doubles instead of the ValueType for the minmaxRange,
-  //because we are taking the magnitude of the value before storing it, and
-  //the mag function only supports float and double primitive types.
-  double mag = 0;
-  //fill the min max range explicitly with the first tuples magnitude
-  for(int i=0; i < numberOfComponents; ++i)
-    {
-    mag += static_cast<double>(begin[i] * begin[i]);
-    }
-  mag = sqrt(mag);
-
-  range[0] = mag;
-  range[1] = mag;
-
-  //iterate Tuples 1 - N, since we already computed Tuple 0 above
-  for(begin+=numberOfComponents; begin != end; begin+=numberOfComponents)
-    {
-    mag = 0;
-    for(int i=0; i < numberOfComponents; ++i)
-      {
-      mag += static_cast<double>(begin[i] * begin[i]);
-      }
-    mag = sqrt(mag);
-    range[0] = std::min(mag,range[0]);
-    range[1] = std::max(mag,range[1]);
-    }
-}
-
 
 //-----------------------------------------------------------------------------
 void vtkDataArray::ComputeVectorRange(double range[2])
