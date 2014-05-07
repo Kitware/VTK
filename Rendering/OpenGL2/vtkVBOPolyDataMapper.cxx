@@ -31,6 +31,9 @@
 #include "vtkMatrix4x4.h"
 #include "vtkLookupTable.h"
 #include "vtkCellData.h"
+#include "vtkPolyDataNormals.h"
+#include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 #include "vtkglShader.h"
 #include "vtkglShaderProgram.h"
@@ -534,6 +537,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     return;
     }
 
+  vtkSmartPointer<vtkDataArray> n;
+
   // This replicates how the painter decided on normal generation.
   int interpolation = act->GetProperty()->GetInterpolation();
   bool buildNormals = this->Internal->buidNormals;
@@ -545,8 +550,14 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     if (buildNormals)
       {
       // FIXME: Add implementation for normal generation.
-      vtkErrorMacro("Asked to generate normals, needs to be implemented!");
-      return;
+      vtkNew<vtkPolyDataNormals> computeNormals;
+      computeNormals->SetInputData(poly);
+      computeNormals->Update();
+      n = computeNormals->GetOutput()->GetPointData()->GetNormals();
+      }
+    else
+      {
+      n = poly->GetPointData()->GetNormals();
       }
     }
 
@@ -569,7 +580,6 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     }
 
   // Create a mesh packed with vertex, normal and possibly color.
-  vtkDataArray* n = poly->GetPointData()->GetNormals();
   if (n->GetNumberOfTuples() != poly->GetNumberOfPoints())
     {
     vtkErrorMacro(<< "Polydata without enough normals for all points. "
