@@ -53,7 +53,6 @@ int TestVBOPLYMapper(int argc, char *argv[])
   reader->Update();
   vtkNew<vtkPolyDataNormals> computeNormals;
   computeNormals->SetInputConnection(reader->GetOutputPort());
-  computeNormals->FlipNormalsOn();
   computeNormals->Update();
 
   mapper->SetInputConnection(computeNormals->GetOutputPort());
