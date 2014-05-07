@@ -31,10 +31,13 @@
 #include "vtkMatrix4x4.h"
 #include "vtkLookupTable.h"
 #include "vtkCellData.h"
+#include "vtkPolyDataNormals.h"
+#include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkglBufferObject.h"
 #include "vtkglShader.h"
 #include "vtkglShaderProgram.h"
+#include "vtkglVBOHelper.h"
 
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
@@ -51,8 +54,8 @@ class vtkVBOPolyDataMapper::Private
 {
 public:
   vtkgl::BufferObject vbo;
+  vtkgl::VBOLayout layout;
   vtkgl::BufferObject ibo;
-  size_t numberOfVertices;
   size_t numberOfIndices;
 
   const char *vertexShaderFile;
@@ -358,7 +361,8 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor 
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer*,
+                                                       vtkActor *actor)
 {
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
@@ -463,32 +467,34 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     stride += sizeof(float);
     }
 
+  vtkgl::VBOLayout &layout = this->Internal->layout;
+
   this->Internal->program.enableAttributeArray("vertexMC");
-  this->Internal->program.useAttributeArray("vertexMC", 0,
-                                            stride,
+  this->Internal->program.useAttributeArray("vertexMC", layout.VertexOffset,
+                                            layout.Stride,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
   this->Internal->program.enableAttributeArray("normalMC");
-  this->Internal->program.useAttributeArray("normalMC", sizeof(float) * 3,
-                                            stride,
+  this->Internal->program.useAttributeArray("normalMC", layout.NormalOffset,
+                                            layout.Stride,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
-  if (this->Internal->colorAttributes)
+  if (layout.ColorComponents != 0)
     {
     if (!this->Internal->program.enableAttributeArray("diffuseColor"))
       {
       vtkErrorMacro(<< this->Internal->program.error());
       }
-    this->Internal->program.useAttributeArray("diffuseColor", sizeof(float) * 6,
-                                              stride,
+    this->Internal->program.useAttributeArray("diffuseColor", layout.ColorOffset,
+                                              layout.Stride,
                                               VTK_UNSIGNED_CHAR,
-                                              this->Internal->colorComponents,
+                                              layout.ColorComponents,
                                               vtkgl::ShaderProgram::Normalize);
     }
 
   // Render the loaded spheres using the shader and bound VBO.
   glDrawRangeElements(GL_TRIANGLES, 0,
-                      static_cast<GLuint>(this->Internal->numberOfVertices - 1),
+                      static_cast<GLuint>(layout.VertexCount - 1),
                       static_cast<GLsizei>(this->Internal->numberOfIndices),
                       GL_UNSIGNED_INT,
                       reinterpret_cast<const GLvoid *>(NULL));
@@ -533,6 +539,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     return;
     }
 
+  vtkSmartPointer<vtkDataArray> n;
+
   // This replicates how the painter decided on normal generation.
   int interpolation = act->GetProperty()->GetInterpolation();
   bool buildNormals = this->Internal->buidNormals;
@@ -544,19 +552,19 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     if (buildNormals)
       {
       // FIXME: Add implementation for normal generation.
-      vtkErrorMacro("Asked to generate normals, needs to be implemented!");
-      return;
+      vtkNew<vtkPolyDataNormals> computeNormals;
+      computeNormals->SetInputData(poly);
+      computeNormals->Update();
+      n = computeNormals->GetOutput()->GetPointData()->GetNormals();
+      }
+    else
+      {
+      n = poly->GetPointData()->GetNormals();
       }
     }
 
   // Mark our properties as updated.
   this->Internal->propertiesTime.Modified();
-
-  // Due to the requirement to use derived classes rather than typedefs for
-  // the vtkVector types, it is simpler to add a few convenience typedefs here
-  // than use the classes which are then harder for the compiler to interpret.
-  typedef vtkVector<float,  3> Vector3f;
-  typedef vtkVector<double, 3> Vector3d;
 
   bool colorAttributes = false;
   if (this->ScalarVisibility)
@@ -573,65 +581,31 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
       }
     }
 
-  // Create a mesh packed with two vector 3f for vertex then normal.
-  vtkDataArray* normals = poly->GetPointData()->GetNormals();
-  if (normals->GetNumberOfTuples() != poly->GetNumberOfPoints())
+  // Create a mesh packed with vertex, normal and possibly color.
+  if (n->GetNumberOfTuples() != poly->GetNumberOfPoints())
     {
-    vtkErrorMacro(<< "Polydata with bad normals.");
+    vtkErrorMacro(<< "Polydata without enough normals for all points. "
+                  << poly->GetNumberOfPoints() - n->GetNumberOfTuples());
     }
 
-  std::vector<float> packedMesh;
-  packedMesh.reserve(poly->GetNumberOfPoints() * (colorAttributes ? 7 : 6));
-  Vector3d tmp;
-  for (vtkIdType i = 0; i < poly->GetNumberOfPoints(); ++i)
+  // Iterate through all of the different types in the polydata, building VBOs
+  // and IBOs as appropriate for each type.
+  vtkPoints* p = poly->GetPoints();
+  switch(p->GetDataType())
     {
-    poly->GetPoint(i, tmp.GetData());
-    for (int j = 0; j < 3; ++j)
-      {
-      packedMesh.push_back(tmp.Cast<float>()[j]);
-      }
-    normals->GetTuple(i, tmp.GetData());
-    for (int j = 0; j < 3; ++j)
-      {
-      packedMesh.push_back(tmp.Cast<float>()[j]);
-      }
-    if (colorAttributes)
-      {
-      if (this->Internal->colorComponents == 4)
-        {
-        packedMesh.push_back(
-              *reinterpret_cast<float *>(&this->Internal->colors[i * 4]));
-        }
-      else if (this->Internal->colorComponents == 3)
-        {
-        unsigned char c[4] = { this->Internal->colors[i * 4],
-                               this->Internal->colors[i * 4 + 1],
-                               this->Internal->colors[i * 4 + 2], 255 };
-        packedMesh.push_back(*reinterpret_cast<float *>(&c));
-        }
-      }
+    vtkTemplateMacro(
+      this->Internal->layout =
+        CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
+                          static_cast<VTK_TT*>(n->GetVoidPointer(0)),
+                          p->GetNumberOfPoints(), &this->Internal->colors[0],
+                          this->Internal->colorComponents,
+                          this->Internal->vbo));
     }
 
-  vtkCellArray* polys = poly->GetPolys();
-  std::vector<unsigned int> indexArray;
-  indexArray.reserve(polys->GetNumberOfCells() * 3);
-  for (vtkIdType i = 0; i < polys->GetNumberOfCells(); ++i)
-    {
-    vtkIdType* indices(NULL);
-    vtkIdType num(0);
-    // Each triangle cell is of length 4 (count, tri1, tri2, tri3).
-    polys->GetCell(4 * i, num, indices);
-    if (num != 3) exit(-1); // assert(num == 3);
-    indexArray.push_back(static_cast<unsigned int>(indices[0]));
-    indexArray.push_back(static_cast<unsigned int>(indices[1]));
-    indexArray.push_back(static_cast<unsigned int>(indices[2]));
-    }
-
-  // Now we need to upload the two arrays to the GPU.
-  this->Internal->vbo.upload(packedMesh, vtkgl::BufferObject::ArrayBuffer);
-  this->Internal->ibo.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
-  this->Internal->numberOfVertices = packedMesh.size() / 2;
-  this->Internal->numberOfIndices = indexArray.size();
+  // From vtkStandardPolyDataPainter the ordering of the points is defined as
+  // Verts -> Lines -> Polys -> Strips.
+  this->Internal->numberOfIndices = CreateIndexBuffer(poly->GetPolys(),
+                                                      this->Internal->ibo, 3);
 
 }
 
