@@ -73,7 +73,11 @@ public:
   vtkTimeStamp propertiesTime;
   vtkTimeStamp shaderBuildTime;
 
-  Private() : colorAttributes(false), buidNormals(true) { }
+  Private() : colorAttributes(false), buidNormals(true)
+  {
+    this->vertexShader.setType(vtkgl::Shader::Vertex);
+    this->fragmentShader.setType(vtkgl::Shader::Fragment);
+  }
 };
 
 // Process the string, and return a version with replacements.
@@ -198,9 +202,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       }
     cout << "VS: " << vertexShaderSource << endl;
 
-    this->Internal->vertexShader.setType(vtkgl::Shader::Vertex);
     this->Internal->vertexShader.setSource(vertexShaderSource);
-    this->Internal->fragmentShader.setType(vtkgl::Shader::Fragment);
     this->Internal->fragmentShader.setSource(this->Internal->fragmentShaderFile);
     if (!this->Internal->vertexShader.compile())
       {

@@ -34,8 +34,8 @@
 int TestVBOPLYMapper(int argc, char *argv[])
 {
   vtkNew<vtkActor> actor;
-  vtkNew<vtkVBOPolyDataMapper> mapper;
   vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkPolyDataMapper> mapper;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
