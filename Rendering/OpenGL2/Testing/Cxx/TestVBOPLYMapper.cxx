@@ -46,7 +46,7 @@ int TestVBOPLYMapper(int argc, char *argv[])
 
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                              "Data/bunny.ply");
+                                                              "Data/dragon.ply");
 
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
