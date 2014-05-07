@@ -46,8 +46,6 @@ protected:
 
   virtual int RequestData( vtkInformation*,
     vtkInformationVector**, vtkInformationVector* );
-  virtual int RequestUpdateExtent( vtkInformation*,
-    vtkInformationVector**, vtkInformationVector* );
   virtual int FillInputPortInformation( int, vtkInformation* );
 
   void ProcessTrees();

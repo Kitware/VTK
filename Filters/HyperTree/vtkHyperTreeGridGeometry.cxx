@@ -97,54 +97,6 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
-{
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
-  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
-
-  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get( vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR() ) );
-  int *wholeExt =
-    inInfo->Get( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT() );
-
-  // Copy whole extent only if present
-  int ext[6];
-  if ( wholeExt )
-    {
-    memcpy( ext, wholeExt, 6 * sizeof( int ) );
-    }
-
-  // Get request from output information
-  int piece =
-    outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER() );
-  int numPieces =
-    outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES() );
-
-  // get the extent associated with the piece.
-  if ( translator == NULL )
-    {
-    // Default behavior
-    if ( piece != 0 )
-      {
-      ext[0] = ext[2] = ext[4] = 0;
-      ext[1] = ext[3] = ext[5] = -1;
-      }
-    }
-  else
-    {
-    translator->PieceToExtentThreadSafe( piece, numPieces, 0, wholeExt, ext,
-                                         translator->GetSplitMode(), 0 );
-    }
-  // Set the update extent of the input.
-  inInfo->Set( vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6 );
-  return 1;
-}
-
-//-----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::ProcessTrees()
 {
   // TODO: MTime on generation of this table.
