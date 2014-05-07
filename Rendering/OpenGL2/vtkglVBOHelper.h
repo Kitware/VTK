@@ -43,9 +43,18 @@ VBOLayout CreateTriangleVBO(T* points, T* normals, vtkIdType numPts,
 {
   VBOLayout layout;
   // Figure out how big each block will be, currently 6 or 7 floats.
-  int blockSize = 6;
+  int blockSize = 3;
   layout.VertexOffset = 0;
-  layout.NormalOffset = sizeof(float) * 3;
+  if (normals)
+    {
+    blockSize += 3;
+    layout.NormalOffset = sizeof(float) * 3;
+    }
+  else
+    {
+    layout.NormalOffset = 0;
+    }
+
   if (colors)
     {
     ++blockSize;
@@ -70,9 +79,12 @@ VBOLayout CreateTriangleVBO(T* points, T* normals, vtkIdType numPts,
     *(it++) = *(points++);
     *(it++) = *(points++);
     *(it++) = *(points++);
-    *(it++) = *(normals++);
-    *(it++) = *(normals++);
-    *(it++) = *(normals++);
+    if (normals)
+      {
+      *(it++) = *(normals++);
+      *(it++) = *(normals++);
+      *(it++) = *(normals++);
+      }
     if (colors)
       {
       if (colorComponents == 4)
@@ -85,11 +97,6 @@ VBOLayout CreateTriangleVBO(T* points, T* normals, vtkIdType numPts,
         unsigned char c[4] = { *(colors++), *(colors++), *(colors++), 255 };
         *(it++) = *reinterpret_cast<float *>(c);
         }
-      }
-    if (it == packedVBO.end())
-      {
-      cout << "Error!!!" << endl;
-      break;
       }
     }
   vertexBuffer.upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);

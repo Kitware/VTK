@@ -56,7 +56,11 @@ public:
   vtkgl::BufferObject vbo;
   vtkgl::VBOLayout layout;
   vtkgl::BufferObject ibo;
-  size_t numberOfIndices;
+  vtkgl::BufferObject lineIBO;
+  vtkgl::BufferObject pointIBO;
+  size_t numberOfTris;
+  size_t numberOfLines;
+  size_t numberOfPoints;
 
   const char *vertexShaderFile;
   const char *fragmentShaderFile;
@@ -457,13 +461,6 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->SetCameraShaderParameters(ren, actor);
 
   this->Internal->vbo.bind();
-  this->Internal->ibo.bind();
-
-  size_t stride = sizeof(float) * 6;
-  if (this->Internal->colorAttributes)
-    {
-    stride += sizeof(float);
-    }
 
   vtkgl::VBOLayout &layout = this->Internal->layout;
 
@@ -472,11 +469,14 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                             layout.Stride,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
-  this->Internal->program.enableAttributeArray("normalMC");
-  this->Internal->program.useAttributeArray("normalMC", layout.NormalOffset,
-                                            layout.Stride,
-                                            VTK_FLOAT, 3,
-                                            vtkgl::ShaderProgram::NoNormalize);
+  if (layout.VertexOffset != layout.NormalOffset)
+    {
+    this->Internal->program.enableAttributeArray("normalMC");
+    this->Internal->program.useAttributeArray("normalMC", layout.NormalOffset,
+                                              layout.Stride,
+                                              VTK_FLOAT, 3,
+                                              vtkgl::ShaderProgram::NoNormalize);
+    }
   if (layout.ColorComponents != 0)
     {
     if (!this->Internal->program.enableAttributeArray("diffuseColor"))
@@ -490,17 +490,48 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                               vtkgl::ShaderProgram::Normalize);
     }
 
-  // Render the loaded spheres using the shader and bound VBO.
-  glDrawRangeElements(GL_TRIANGLES, 0,
-                      static_cast<GLuint>(layout.VertexCount - 1),
-                      static_cast<GLsizei>(this->Internal->numberOfIndices),
-                      GL_UNSIGNED_INT,
-                      reinterpret_cast<const GLvoid *>(NULL));
+  // Render the VBO contents as appropriate, I think we really need separate
+  // shaders for triangles, lines and points too...
+  if (this->Internal->numberOfTris)
+    {
+    this->Internal->ibo.bind();
+    glDrawRangeElements(GL_TRIANGLES, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->numberOfTris),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    this->Internal->ibo.release();
+    }
+
+  if (this->Internal->numberOfLines)
+    {
+    this->Internal->lineIBO.bind();
+    glDrawRangeElements(GL_LINES, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->numberOfLines),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    this->Internal->lineIBO.release();
+    }
+
+  if (this->Internal->numberOfPoints)
+    {
+    this->Internal->pointIBO.bind();
+    glDrawRangeElements(GL_POINTS, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->numberOfPoints),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    this->Internal->pointIBO.release();
+    }
 
   this->Internal->vbo.release();
-  this->Internal->ibo.release();
+
   this->Internal->program.disableAttributeArray("vertexMC");
-  this->Internal->program.disableAttributeArray("normalMC");
+  if (layout.VertexOffset != layout.NormalOffset)
+    {
+    this->Internal->program.disableAttributeArray("normalMC");
+    }
   if (this->Internal->colorAttributes)
     {
     this->Internal->program.disableAttributeArray("diffuseColor");
@@ -580,7 +611,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     }
 
   // Create a mesh packed with vertex, normal and possibly color.
-  if (n->GetNumberOfTuples() != poly->GetNumberOfPoints())
+  if (n && n->GetNumberOfTuples() != poly->GetNumberOfPoints())
     {
     vtkErrorMacro(<< "Polydata without enough normals for all points. "
                   << poly->GetNumberOfPoints() - n->GetNumberOfTuples());
@@ -589,22 +620,42 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
   vtkPoints* p = poly->GetPoints();
-  switch(p->GetDataType())
+  if (n)
     {
-    vtkTemplateMacro(
-      this->Internal->layout =
-        CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
-                          static_cast<VTK_TT*>(n->GetVoidPointer(0)),
-                          p->GetNumberOfPoints(), &this->Internal->colors[0],
-                          this->Internal->colorComponents,
-                          this->Internal->vbo));
+    switch(p->GetDataType())
+      {
+      vtkTemplateMacro(
+        this->Internal->layout =
+          CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
+                            static_cast<VTK_TT*>(n->GetVoidPointer(0)),
+                            p->GetNumberOfPoints(), &this->Internal->colors[0],
+                            this->Internal->colorComponents,
+                            this->Internal->vbo));
+      }
+    }
+  else
+    {
+    switch(p->GetDataType())
+      {
+      vtkTemplateMacro(
+        this->Internal->layout =
+          CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
+                            static_cast<VTK_TT*>(NULL),
+                            p->GetNumberOfPoints(), &this->Internal->colors[0],
+                            this->Internal->colorComponents,
+                            this->Internal->vbo));
+      }
     }
 
   // From vtkStandardPolyDataPainter the ordering of the points is defined as
   // Verts -> Lines -> Polys -> Strips.
-  this->Internal->numberOfIndices = CreateIndexBuffer(poly->GetPolys(),
+  this->Internal->numberOfTris = CreateIndexBuffer(poly->GetPolys(),
                                                       this->Internal->ibo, 3);
 
+  this->Internal->numberOfLines = CreateIndexBuffer(poly->GetLines(),
+                                                    this->Internal->lineIBO, 2);
+  this->Internal->numberOfPoints = CreateIndexBuffer(poly->GetVerts(),
+                                                     this->Internal->pointIBO, 1);
 }
 
 //-----------------------------------------------------------------------------
