@@ -810,7 +810,8 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform *transform)
   this->SetInverseIterations(gridTransform->InverseIterations);
   this->CalculateSpline = gridTransform->CalculateSpline;
   this->ConnectionHolder->SetInputConnection(
-    0, gridTransform->ConnectionHolder->GetInputConnection(0, 0));
+    0, gridTransform->ConnectionHolder->GetNumberOfInputConnections(0) ?
+    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : 0);
   this->SetDisplacementScale(gridTransform->DisplacementScale);
   this->SetBorderMode(gridTransform->BorderMode);
 

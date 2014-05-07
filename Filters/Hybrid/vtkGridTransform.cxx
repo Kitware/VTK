@@ -1151,7 +1151,8 @@ void vtkGridTransform::InternalDeepCopy(vtkAbstractTransform *transform)
   this->InterpolationFunction = gridTransform->InterpolationFunction;
   this->SetDisplacementScale(gridTransform->DisplacementScale);
   this->ConnectionHolder->SetInputConnection(
-    0, gridTransform->ConnectionHolder->GetInputConnection(0, 0));
+    0, gridTransform->ConnectionHolder->GetNumberOfInputConnections(0) ?
+    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : 0);
   this->SetDisplacementShift(gridTransform->DisplacementShift);
   this->SetDisplacementScale(gridTransform->DisplacementScale);
 
