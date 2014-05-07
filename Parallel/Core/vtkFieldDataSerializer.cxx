@@ -298,7 +298,7 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
   subSetArray->SetName( inputDataArray->GetName() );
   subSetArray->SetNumberOfComponents( inputDataArray->GetNumberOfComponents());
   subSetArray->SetNumberOfTuples(
-      vtkStructuredData::GetNumberOfNodes(subext,description));
+      vtkStructuredData::GetNumberOfPoints(subext,description));
 
   int ijk[3];
   for( ijk[0]=subext[0]; ijk[0] <= subext[1]; ++ijk[0] )

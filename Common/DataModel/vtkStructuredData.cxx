@@ -45,7 +45,7 @@ int vtkStructuredData::GetDataDimension(int dataDescription)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkStructuredData::GetNumberOfNodes( int ext[6], int dataDescription )
+vtkIdType vtkStructuredData::GetNumberOfPoints( int ext[6], int dataDescription )
 {
   if( dataDescription == VTK_EMPTY )
     {
@@ -170,7 +170,7 @@ int vtkStructuredData::GetDataDescription(int dims[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredData::GetCellExtentFromNodeExtent(
+void vtkStructuredData::GetCellExtentFromPointExtent(
     int nodeExtent[6], int cellExtent[6], int dataDescription )
 {
   if( dataDescription == VTK_EMPTY )
@@ -293,7 +293,7 @@ void vtkStructuredData::GetCellDimensionsFromExtent(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredData::GetCellDimensionsFromNodeDimensions(
+void vtkStructuredData::GetCellDimensionsFromPointDimensions(
     int nodeDims[3], int cellDims[3] )
 {
   assert( "pre: node dims must be at least 1" && nodeDims[0] >= 1);

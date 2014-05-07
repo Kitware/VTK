@@ -424,7 +424,7 @@ struct StructuredGrid
       } // END for all dimensions
 
     // the number of nodes in the grown extent
-    vtkIdType nnodes = vtkStructuredData::GetNumberOfNodes(
+    vtkIdType nnodes = vtkStructuredData::GetNumberOfPoints(
         this->Extent,grid->DataDescription);
 
    // Allocate coordinates, if needed
@@ -1168,7 +1168,7 @@ void vtkStructuredImplicitConnectivity::PackData(
 
   if( this->OutputGrid->Nodes != NULL )
     {
-    vtkIdType nnodes = vtkStructuredData::GetNumberOfNodes(ext);
+    vtkIdType nnodes = vtkStructuredData::GetNumberOfPoints(ext);
     bytestream << nnodes;
 
     int ijk[3] = {0,0,0};
