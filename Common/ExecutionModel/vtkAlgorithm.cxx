@@ -1412,10 +1412,12 @@ vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
   if(index < 0 || index >= this->GetNumberOfInputConnections(port))
     {
-    vtkErrorMacro("Attempt to get connection index " << index
-                  << " for input port " << port << ", which has "
-                  << this->GetNumberOfInputConnections(port)
-                  << " connections.");
+#if !defined NDEBUG
+    vtkWarningMacro("Attempt to get connection index " << index
+                    << " for input port " << port << ", which has "
+                    << this->GetNumberOfInputConnections(port)
+                    << " connections.");
+#endif
     return 0;
     }
   if(vtkInformation* info =
