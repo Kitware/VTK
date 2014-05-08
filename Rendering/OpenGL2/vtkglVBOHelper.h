@@ -16,6 +16,8 @@
 #define __vtkGLVBOHelpher_h
 
 #include "vtkglBufferObject.h"
+#include "vtkglShader.h"
+#include "vtkglShaderProgram.h"
 #include <vector>
 
 namespace vtkgl
@@ -27,6 +29,18 @@ std::string replace(std::string source, const std::string &search,
 
 size_t CreateIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                          int num);
+// Store the shaders, program, and ibo in a common struct.
+struct CellBO
+{
+  Shader vs;
+  Shader fs;
+  const char* vsFile;
+  const char* fsFile;
+  ShaderProgram program;
+  BufferObject ibo;
+  size_t indexCount;
+  vtkTimeStamp buildTime;
+};
 
 // Sizes/offsets are all in bytes as OpenGL API expects them.
 struct VBOLayout
