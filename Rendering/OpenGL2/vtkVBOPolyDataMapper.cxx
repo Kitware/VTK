@@ -646,7 +646,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
         this->Internal->layout =
           CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
                             static_cast<VTK_TT*>(NULL),
-                            p->GetNumberOfPoints(), &this->Internal->colors[0],
+                            p->GetNumberOfPoints(),
+                            this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
                             this->Internal->colorComponents,
                             this->Internal->vbo));
       }
