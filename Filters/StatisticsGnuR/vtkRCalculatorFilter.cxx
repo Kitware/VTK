@@ -402,7 +402,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataObject* output = outinfo->Get(vtkDataObject::DATA_OBJECT());
 
   // initialize the output's components if it is a composite data set.
-  if (this->rcfi->GetTreeNames.Count() + this->rcfi->GetTableNames.Count() > 1)
+  if (this->HasMultipleGets())
     {
     vtkMultiPieceDataSet* outComposite =
         vtkMultiPieceDataSet::SafeDownCast(output);
@@ -1263,11 +1263,11 @@ void vtkRCalculatorFilter::GetTrees(vtkStringArray* NamesOfRvars)
 
 int vtkRCalculatorFilter::HasMultipleGets()
 {
-  return (rcfi->GetTreeNames.Count() > 1 || rcfi->GetTableNames.Count() > 1);
+  return rcfi->GetTreeNames.Count() + rcfi->GetTableNames.Count() > 1;
 
 }
 
 int vtkRCalculatorFilter::HasMultiplePuts()
 {
-  return (rcfi->PutTreeNames.Count() > 1 || rcfi->PutTableNames.Count() > 1);
+  return rcfi->PutTreeNames.Count() + rcfi->PutTableNames.Count() > 1;
 }

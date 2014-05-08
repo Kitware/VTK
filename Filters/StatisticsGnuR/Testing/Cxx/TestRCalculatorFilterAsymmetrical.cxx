@@ -58,14 +58,14 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
     }
 
   // test case #2: 2 input tables, 1 output tree
-  vtkNew<vtkMultiPieceDataSet> inComposite;
-  inComposite->SetNumberOfPieces(2);
-  inComposite->SetPiece(0, inTable1.GetPointer());
-  inComposite->SetPiece(1, inTable2.GetPointer());
+  vtkNew<vtkMultiPieceDataSet> inComposite1;
+  inComposite1->SetNumberOfPieces(2);
+  inComposite1->SetPiece(0, inTable1.GetPointer());
+  inComposite1->SetPiece(1, inTable2.GetPointer());
 
   vtkNew<vtkRCalculatorFilter> r2;
   r2->SetRscript("library(ape)\noutput_tree1 <- rtree(3)\n");
-  r2->AddInputData(0, inComposite.GetPointer());
+  r2->AddInputData(0, inComposite1.GetPointer());
   r2->PutTable("input_table1");
   r2->PutTable("input_table2");
   r2->GetTree("output_tree1");
@@ -81,7 +81,7 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
   // test case #3: 2 input tables, 2 output trees
   vtkNew<vtkRCalculatorFilter> r3;
   r3->SetRscript("library(ape)\noutput_tree1 <- rtree(3)\noutput_tree2 <- rtree(3)\n");
-  r3->AddInputData(0, inComposite.GetPointer());
+  r3->AddInputData(0, inComposite1.GetPointer());
   r3->PutTable("input_table1");
   r3->PutTable("input_table2");
   r3->GetTree("output_tree1");
@@ -117,6 +117,41 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
   r4->Update();
 
   outComposite = vtkMultiPieceDataSet::SafeDownCast(r4->GetOutput());
+  if(outComposite == NULL)
+    {
+    cerr << "case #4 failed because outComposite is NULL." << endl;
+    return EXIT_FAILURE;
+    }
+  outTree1 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(0));
+  if (outTree1 == NULL)
+    {
+    cerr << "case #4 failed because outTree1 is NULL." << endl;
+    return EXIT_FAILURE;
+    }
+  outTree2 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(1));
+  if (outTree2 == NULL)
+    {
+    cerr << "case #4 failed because outTree2 is NULL." << endl;
+    return EXIT_FAILURE;
+    }
+
+  // test case #5: 1 input table, 1 input tree, 2 output trees
+  vtkNew<vtkTree> inTree1;
+  vtkNew<vtkMultiPieceDataSet> inComposite2;
+  inComposite2->SetNumberOfPieces(2);
+  inComposite2->SetPiece(0, inTable1.GetPointer());
+  inComposite2->SetPiece(1, inTree1.GetPointer());
+
+  vtkNew<vtkRCalculatorFilter> r5;
+  r5->SetRscript("library(ape)\noutput_tree1 <- rtree(3)\noutput_tree2 <- rtree(3)\n");
+  r5->AddInputData(0, inTable1.GetPointer());
+  r5->PutTable("input_table1");
+  r5->PutTree("input_tree1");
+  r5->GetTree("output_tree1");
+  r5->GetTree("output_tree2");
+  r5->Update();
+
+  outComposite = vtkMultiPieceDataSet::SafeDownCast(r5->GetOutput());
   if(outComposite == NULL)
     {
     cerr << "case #4 failed because outComposite is NULL." << endl;
