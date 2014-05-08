@@ -32,6 +32,7 @@ set(shader_files
   glsl/vtkglPolyDataVSLightKit.glsl
   glsl/vtkglPolyDataVSHeadlight.glsl
   glsl/vtkglPolyDataVSPositionalLights.glsl
+  glsl/vtkglVertexShader.glsl
   glsl/vtkglPolyDataFS.glsl
   )
 

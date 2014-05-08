@@ -48,6 +48,7 @@
 #include "vtkglPolyDataVSLightKit.h"
 #include "vtkglPolyDataVSHeadlight.h"
 #include "vtkglPolyDataVSPositionalLights.h"
+#include "vtkglVertexShader.h"
 #include "vtkglPolyDataFS.h"
 
 class vtkVBOPolyDataMapper::Private
@@ -67,7 +68,9 @@ public:
 
   vtkgl::Shader vertexShader;
   vtkgl::Shader fragmentShader;
+  vtkgl::Shader pointShader;
   vtkgl::ShaderProgram program;
+  vtkgl::ShaderProgram pointProgram;
 
   // Array of colors, along with the number of components.
   std::vector<unsigned char> colors;
@@ -232,6 +235,62 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       vtkErrorMacro(<< this->Internal->program.error());
       }
     this->Internal->shaderBuildTime.Modified();
+    }
+}
+
+void vtkVBOPolyDataMapper::UpdateVertexShader(vtkRenderer *ren, vtkActor *actor)
+{
+  // Compile and link the shader program if it has changed.
+  // FIXME: Use caching for shaders/programs.
+  if (this->Internal->pointShader.type() == vtkgl::Shader::Unknown)
+    {
+    // Build our shader if necessary.
+    std::string vertexShaderSource = vtkglVertexShader;
+    if (this->Internal->colorAttributes)
+      {
+      vertexShaderSource = replace(vertexShaderSource,
+                                   "//VTK::Color::Dec",
+                                   "attribute vec4 diffuseColor;");
+      }
+    else
+      {
+      vertexShaderSource = replace(vertexShaderSource,
+                                   "//VTK::Color::Dec",
+                                   "uniform vec3 diffuseColor;");
+      }
+    cout << "VS: " << vertexShaderSource << endl;
+
+    vtkgl::Shader &vs = this->Internal->pointShader;
+    vtkgl::Shader &fs = this->Internal->fragmentShader;
+    vtkgl::ShaderProgram &prog = this->Internal->pointProgram;
+    vs.setType(vtkgl::Shader::Vertex);
+    vs.setSource(vertexShaderSource);
+    if (fs.type() == vtkgl::Shader::Unknown)
+      {
+      fs.setType(vtkgl::Shader::Fragment);
+      fs.setSource(vtkglPolyDataFS);
+      if (!fs.compile())
+        {
+        vtkErrorMacro(<< fs.error());
+        }
+      }
+    if (!vs.compile())
+      {
+      vtkErrorMacro(<< vs.error());
+      }
+
+    if (!prog.attachShader(vs))
+      {
+      vtkErrorMacro(<< prog.error());
+      }
+    if (!prog.attachShader(fs))
+      {
+      vtkErrorMacro(<< prog.error());
+      }
+    if (!prog.link())
+      {
+      vtkErrorMacro(<< prog.error());
+      }
     }
 }
 
@@ -507,6 +566,54 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   if (this->Internal->numberOfLines)
     {
+    // Update/build the shader.
+    this->UpdateVertexShader(ren, actor);
+    if (!this->Internal->pointProgram.bind())
+      {
+      vtkErrorMacro(<< this->Internal->pointProgram.error());
+      return;
+      }
+
+    // Query the actor for some of the properties that can be applied.
+    float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+    double *dColor = actor->GetProperty()->GetDiffuseColor();
+    double dIntensity = actor->GetProperty()->GetDiffuse();
+    vtkgl::Vector3ub diffuseColor(
+          static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
+          static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
+          static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
+    this->Internal->pointProgram.setUniformValue("opacity", opacity);
+    this->Internal->pointProgram.setUniformValue("diffuseColor", diffuseColor);
+
+    // pass down the various model and camera transformations
+    vtkCamera *cam = ren->GetActiveCamera();
+    vtkTransform* viewTF = cam->GetModelViewTransformObject();
+    // compute the combined ModelView matrix and send it down to save time in the shader
+    vtkNew<vtkMatrix4x4> tmpMat;
+    vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(),
+                              tmpMat.Get());
+    tmpMat->Transpose();
+    this->Internal->pointProgram.setUniformValue("MCVCMatrix", tmpMat.Get());
+    tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
+    this->Internal->pointProgram.setUniformValue("VCDCMatrix", tmpMat.Get());
+
+    this->Internal->pointProgram.enableAttributeArray("vertexMC");
+    this->Internal->pointProgram.useAttributeArray("vertexMC", layout.VertexOffset,
+                                                   layout.Stride,
+                                                   VTK_FLOAT, 3,
+                                                   vtkgl::ShaderProgram::NoNormalize);
+    if (layout.ColorComponents != 0)
+      {
+      if (!this->Internal->pointProgram.enableAttributeArray("diffuseColor"))
+        {
+        vtkErrorMacro(<< this->Internal->pointProgram.error());
+        }
+      this->Internal->pointProgram.useAttributeArray("diffuseColor", layout.ColorOffset,
+                                                     layout.Stride,
+                                                     VTK_UNSIGNED_CHAR,
+                                                     layout.ColorComponents,
+                                                    vtkgl::ShaderProgram::Normalize);
+      }
     this->Internal->lineIBO.bind();
     glDrawRangeElements(GL_LINES, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
@@ -514,9 +621,11 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Internal->lineIBO.release();
+    this->Internal->pointProgram.release();
+    this->Internal->program.bind();
     }
 
-  if (this->Internal->numberOfPoints)
+  if (this->Internal->numberOfPoints && false)
     {
     this->Internal->pointIBO.bind();
     glDrawRangeElements(GL_POINTS, 0,

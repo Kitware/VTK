@@ -71,6 +71,10 @@ protected:
   virtual void UpdateShader(vtkRenderer *ren, vtkActor *act);
 
   // Description:
+  // Set up the vertex shader, and get it ready for use.
+  void UpdateVertexShader(vtkRenderer *ren, vtkActor *actor);
+
+  // Description:
   // Update the scene when necessary.
   void UpdateVBO(vtkActor *act);
 
