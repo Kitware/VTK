@@ -94,6 +94,9 @@ int TestVBOPointsLines(int, char *[])
 
   // Set some properties.
   mapper->SetInputConnection(prod->GetOutputPort());
+  actor->GetProperty()->SetPointSize(5);
+  actor->GetProperty()->SetLineWidth(2);
+  actor->GetProperty()->SetDiffuseColor(1.0, 0.0, 0.0);
   actor->SetMapper(mapper.Get());
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);

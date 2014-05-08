@@ -84,14 +84,15 @@ public:
   {
     // Query the actor for some of the properties that can be applied.
     float opacity = static_cast<float>(property->GetOpacity());
-    double *dColor = property->GetDiffuseColor();
-    double dIntensity = property->GetDiffuse();
+    double *color = property->GetDiffuseColor();
     vtkgl::Vector3ub diffuseColor(
-          static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
-          static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
-          static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
+          static_cast<unsigned char>(color[0] * 255.0),
+          static_cast<unsigned char>(color[1] * 255.0),
+          static_cast<unsigned char>(color[2] * 255.0));
     program.setUniformValue("opacity", opacity);
     program.setUniformValue("diffuseColor", diffuseColor);
+    program.setUniformValue("pointSize", property->GetPointSize());
+    glLineWidth(property->GetLineWidth());
   }
 
   void SetCameraUniforms(vtkgl::ShaderProgram &program, vtkRenderer *ren,
