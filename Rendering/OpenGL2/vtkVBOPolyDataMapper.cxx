@@ -79,6 +79,36 @@ public:
   Private() : colorAttributes(false), buidNormals(true)
   {
   }
+
+  void SetMaterialUniforms(vtkgl::ShaderProgram &program, vtkProperty *property)
+  {
+    // Query the actor for some of the properties that can be applied.
+    float opacity = static_cast<float>(property->GetOpacity());
+    double *dColor = property->GetDiffuseColor();
+    double dIntensity = property->GetDiffuse();
+    vtkgl::Vector3ub diffuseColor(
+          static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
+          static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
+          static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
+    program.setUniformValue("opacity", opacity);
+    program.setUniformValue("diffuseColor", diffuseColor);
+  }
+
+  void SetCameraUniforms(vtkgl::ShaderProgram &program, vtkRenderer *ren,
+                         vtkActor *actor)
+  {
+    // pass down the various model and camera transformations
+    vtkCamera *cam = ren->GetActiveCamera();
+    vtkTransform* viewTF = cam->GetModelViewTransformObject();
+    // compute the combined ModelView matrix and send it down to save time in the shader
+    vtkNew<vtkMatrix4x4> tmpMat;
+    vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(),
+                              tmpMat.Get());
+    tmpMat->Transpose();
+    program.setUniformValue("MCVCMatrix", tmpMat.Get());
+    tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
+    program.setUniformValue("VCDCMatrix", tmpMat.Get());
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -599,28 +629,9 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
       return;
       }
 
-    // Query the actor for some of the properties that can be applied.
-    float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
-    double *dColor = actor->GetProperty()->GetDiffuseColor();
-    double dIntensity = actor->GetProperty()->GetDiffuse();
-    vtkgl::Vector3ub diffuseColor(
-          static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
-          static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
-          static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
-    this->Internal->lines.program.setUniformValue("opacity", opacity);
-    this->Internal->lines.program.setUniformValue("diffuseColor", diffuseColor);
-
-    // pass down the various model and camera transformations
-    vtkCamera *cam = ren->GetActiveCamera();
-    vtkTransform* viewTF = cam->GetModelViewTransformObject();
-    // compute the combined ModelView matrix and send it down to save time in the shader
-    vtkNew<vtkMatrix4x4> tmpMat;
-    vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(),
-                              tmpMat.Get());
-    tmpMat->Transpose();
-    this->Internal->lines.program.setUniformValue("MCVCMatrix", tmpMat.Get());
-    tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
-    this->Internal->lines.program.setUniformValue("VCDCMatrix", tmpMat.Get());
+    this->Internal->SetMaterialUniforms(this->Internal->lines.program,
+                                        actor->GetProperty());
+    this->Internal->SetCameraUniforms(this->Internal->lines.program, ren, actor);
 
     this->Internal->lines.program.enableAttributeArray("vertexMC");
     this->Internal->lines.program.useAttributeArray("vertexMC", layout.VertexOffset,
@@ -649,8 +660,37 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->Internal->lines.program.release();
     }
 
-  if (this->Internal->points.indexCount && false)
+  if (this->Internal->points.indexCount)
     {
+    // Update/build the shader.
+    this->UpdateVertexShader(ren, actor);
+    if (!this->Internal->points.program.bind())
+      {
+      vtkErrorMacro(<< this->Internal->points.program.error());
+      return;
+      }
+
+    this->Internal->SetMaterialUniforms(this->Internal->points.program,
+                                        actor->GetProperty());
+    this->Internal->SetCameraUniforms(this->Internal->points.program, ren, actor);
+
+    this->Internal->points.program.enableAttributeArray("vertexMC");
+    this->Internal->points.program.useAttributeArray("vertexMC", layout.VertexOffset,
+                                                     layout.Stride,
+                                                     VTK_FLOAT, 3,
+                                                     vtkgl::ShaderProgram::NoNormalize);
+    if (layout.ColorComponents != 0)
+      {
+      if (!this->Internal->points.program.enableAttributeArray("diffuseColor"))
+        {
+        vtkErrorMacro(<< this->Internal->points.program.error());
+        }
+      this->Internal->points.program.useAttributeArray("diffuseColor", layout.ColorOffset,
+                                                      layout.Stride,
+                                                      VTK_UNSIGNED_CHAR,
+                                                      layout.ColorComponents,
+                                                      vtkgl::ShaderProgram::Normalize);
+      }
     this->Internal->points.ibo.bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
@@ -658,6 +698,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Internal->points.ibo.release();
+    this->Internal->points.program.release();
     }
 
   this->Internal->vbo.release();
