@@ -28,6 +28,7 @@ set(Module_SRCS
   )
 
 set(shader_files
+  glsl/vtkglPolyData2DVS.glsl
   glsl/vtkglPolyDataVSLightKit.glsl
   glsl/vtkglPolyDataVSHeadlight.glsl
   glsl/vtkglPolyDataVSPositionalLights.glsl

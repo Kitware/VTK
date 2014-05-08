@@ -174,13 +174,13 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
     case 1:
         this->Internal->fragmentShaderFile = vtkglPolyDataFS;
         this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
-//        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
+  //        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
       break;
     case 2:
         this->Internal->fragmentShaderFile = vtkglPolyDataFS;
-//        this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
+  //        this->Internal->vertexShaderFile = vtkglPolyDataVSHeadlight;
         this->Internal->vertexShaderFile = vtkglPolyDataVSLightKit;
-//        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
+  //        this->Internal->vertexShaderFile = vtkglPolyDataVSPositionalLights;
       break;
     case 3:
         this->Internal->fragmentShaderFile = vtkglPolyDataFS;
@@ -585,6 +585,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
       // FIXME: Add implementation for normal generation.
       vtkNew<vtkPolyDataNormals> computeNormals;
       computeNormals->SetInputData(poly);
+      computeNormals->SplittingOff();
       computeNormals->Update();
       n = computeNormals->GetOutput()->GetPointData()->GetNormals();
       }
@@ -598,6 +599,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
   this->Internal->propertiesTime.Modified();
 
   bool colorAttributes = false;
+  this->Internal->colorComponents = 0;
   if (this->ScalarVisibility)
     {
     // We must figure out how the scalars should be mapped to the polydata.
@@ -630,7 +632,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
         this->Internal->layout =
           CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
                             static_cast<VTK_TT*>(n->GetVoidPointer(0)),
-                            p->GetNumberOfPoints(), &this->Internal->colors[0],
+                            p->GetNumberOfPoints(),
+                            this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
                             this->Internal->colorComponents,
                             this->Internal->vbo));
       }
