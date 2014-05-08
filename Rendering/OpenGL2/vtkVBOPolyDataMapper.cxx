@@ -847,7 +847,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
   indexArray.reserve(lines->GetNumberOfCells() * 3);
   for (lines->InitTraversal(); lines->GetNextCell(npts,pts); ++cellNum)
     {
-    this->Internal->lines.offsetArray.push_back(count);
+    this->Internal->lines.offsetArray.push_back(count*sizeof(unsigned int));
     this->Internal->lines.elementsArray.push_back(npts);
     for (int j = 0; j < npts; ++j)
       {
