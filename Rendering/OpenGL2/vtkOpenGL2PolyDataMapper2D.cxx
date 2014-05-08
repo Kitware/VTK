@@ -86,6 +86,7 @@ vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
 vtkOpenGL2PolyDataMapper2D::vtkOpenGL2PolyDataMapper2D()
   : Internal(new Private)
 {
+
 }
 
 
