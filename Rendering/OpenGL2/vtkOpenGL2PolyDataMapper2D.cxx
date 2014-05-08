@@ -19,6 +19,7 @@
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkOpenGLGL2PSHelper.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
@@ -84,9 +85,14 @@ vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
 
 //-----------------------------------------------------------------------------
 vtkOpenGL2PolyDataMapper2D::vtkOpenGL2PolyDataMapper2D()
-  : Internal(new Private)
+  : Internal(new Private), Initialized(false)
 {
+}
 
+//-----------------------------------------------------------------------------
+vtkOpenGL2PolyDataMapper2D::~vtkOpenGL2PolyDataMapper2D()
+{
+  delete this->Internal;
 }
 
 
@@ -143,209 +149,24 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkViewport* vtkNotUsed(viewport),
     }
 }
 
-//-------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *vtkNotUsed(act))
+//-----------------------------------------------------------------------------
+void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(vtkViewport*,
+                                                       vtkActor2D *actor)
 {
-  vtkPolyData *poly = this->GetInput();
-  if (poly == NULL)
-    {
-    return;
-    }
+  // Query the actor for some of the properties that can be applied.
+  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+  double *dColor = actor->GetProperty()->GetColor();
+  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * 255.0),
+                         static_cast<unsigned char>(dColor[1] * 255.0),
+                         static_cast<unsigned char>(dColor[2] * 255.0));
 
-  // Mark our properties as updated.
-  this->Internal->propertiesTime.Modified();
-
-  // Due to the requirement to use derived classes rather than typedefs for
-  // the vtkVector types, it is simpler to add a few convenience typedefs here
-  // than use the classes which are then harder for the compiler to interpret.
-  typedef vtkVector<float,  3> Vector3f;
-  typedef vtkVector<double, 3> Vector3d;
-
-/*
-  aPrim = input->GetVerts();
-  glBegin(GL_POINTS);
-  for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    {
-    for (j = 0; j < npts; j++)
-      {
-      if (c)
-        {
-        if (cellScalars)
-          {
-          rgba = c->GetPointer(4*cellNum);
-          }
-        else
-          {
-          rgba = c->GetPointer(4*pts[j]);
-          }
-        glColor4ubv(rgba);
-        }
-      if (t)
-        {
-        glTexCoord2dv(t->GetTuple(pts[j]));
-        }
-      // this is done to work around an OpenGL bug, otherwise we could just
-      // call glVertex2dv
-      dptr = p->GetPoint(pts[j]);
-      glVertex3d(dptr[0],dptr[1],0);
-      }
-    }
-  glEnd();
-*/
-
-/*
-  aPrim = input->GetStrips();
-  for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    {
-    glBegin(GL_TRIANGLE_STRIP);
-    for (j = 0; j < npts; j++)
-      {
-      if (c)
-        {
-        if (cellScalars)
-          {
-          rgba = c->GetPointer(4*cellNum);
-          }
-        else
-          {
-          rgba = c->GetPointer(4*pts[j]);
-          }
-        glColor4ubv(rgba);
-        }
-      if (t)
-        {
-        glTexCoord2dv(t->GetTuple(pts[j]));
-        }
-      // this is done to work around an OpenGL bug, otherwise we could just
-      // call glVertex2dv
-      dptr = p->GetPoint(pts[j]);
-      glVertex3d(dptr[0],dptr[1],0);
-      }
-    glEnd();
-    }
-
-  aPrim = input->GetPolys();
-  for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    {
-    glBegin(GL_POLYGON);
-    for (j = 0; j < npts; j++)
-      {
-      if (c)
-        {
-        if (cellScalars)
-          {
-          rgba = c->GetPointer(4*cellNum);
-          }
-        else
-          {
-          rgba = c->GetPointer(4*pts[j]);
-          }
-        glColor4ubv(rgba);
-        }
-      if (t)
-        {
-        glTexCoord2dv(t->GetTuple(pts[j]));
-        }
-      // this is done to work around an OpenGL bug, otherwise we could just
-      // call glVertex2dv
-      dptr = p->GetPoint(pts[j]);
-      glVertex3d(dptr[0],dptr[1],0);
-      }
-    glEnd();
-    }
-*/
-
-  // Iterate through all of the different types in the polydata, building VBOs
-  // and IBOs as appropriate for each type.
-  vtkPoints* p = poly->GetPoints();
-  switch(p->GetDataType())
-    {
-    vtkTemplateMacro(
-      this->Internal->layout =
-        CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
-                          static_cast<VTK_TT*>(NULL),
-                          p->GetNumberOfPoints(),
-                          this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
-                          this->Internal->colorComponents,
-                          this->Internal->vbo));
-    }
-
-  vtkIdType      *pts = 0;
-  vtkIdType      npts = 0;
-  int            cellNum = 0;
-  vtkCellArray* lines = poly->GetLines();
-  std::vector<unsigned int> indexArray;
-  unsigned int count = 0;
-  indexArray.reserve(lines->GetNumberOfCells() * 3);
-  for (lines->InitTraversal(); lines->GetNextCell(npts,pts); cellNum++)
-    {
-    this->Internal->offsetArray.push_back(count);
-    this->Internal->elementsArray.push_back(npts);
-    for (int j = 0; j < npts; ++j)
-      {
-      indexArray.push_back(static_cast<unsigned int>(pts[j]));
-      count++;
-      }
-    }
-  this->Internal->lineIBO.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
-  this->Internal->numberOfIndices = indexArray.size();
-
-  this->Internal->numberOfPoints = CreateIndexBuffer(poly->GetVerts(),
-                                                    this->Internal->pointIBO, 1);
+  this->Internal->program.setUniformValue("opacity", opacity);
+  this->Internal->program.setUniformValue("diffuseColor", diffuseColor);
 }
 
-
-void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
-                                              vtkActor2D* actor)
+//-----------------------------------------------------------------------------
+void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(vtkViewport* viewport, vtkActor2D *actor)
 {
-  vtkOpenGLClearErrorMacro();
-  int            numPts;
-  vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
-  int            j;
-  vtkPoints      *p, *displayPts;
-  unsigned char  color[4];
-  vtkPlaneCollection *clipPlanes;
-  vtkPlane           *plane;
-  int                 i,numClipPlanes;
-  double              planeEquation[4];
-  vtkDataArray*  t = 0;
-
-  vtkDebugMacro (<< "vtkOpenGL2PolyDataMapper2D::Render");
-
-  if ( input == NULL )
-    {
-    vtkErrorMacro(<< "No input!");
-    return;
-    }
-  else
-    {
-    this->GetInputAlgorithm()->Update();
-    numPts = input->GetNumberOfPoints();
-    }
-
-  if (numPts == 0)
-    {
-    vtkDebugMacro(<< "No points!");
-    return;
-    }
-
-  if ( this->LookupTable == NULL )
-    {
-    this->CreateDefaultLookupTable();
-    }
-
-  // Texture and color by texture
-  t = input->GetPointData()->GetTCoords();
-  if ( t )
-    {
-    int tDim = t->GetNumberOfComponents();
-    if (tDim != 2)
-      {
-      vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
-      t = 0;
-      }
-    }
-
   // Get the position of the actor
   int size[2];
   size[0] = viewport->GetSize()[0];
@@ -375,56 +196,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   size[1] =
     vtkMath::Round(size[1]*(visVP[3] - visVP[1])/(vport[3] - vport[1]));
 
-  // Set up the font color from the text actor
-  double* actorColor = actor->GetProperty()->GetColor();
-  color[0] = static_cast<unsigned char>(actorColor[0] * 255.0);
-  color[1] = static_cast<unsigned char>(actorColor[1] * 255.0);
-  color[2] = static_cast<unsigned char>(actorColor[2] * 255.0);
-  color[3] = static_cast<unsigned char>(
-    255.0*actor->GetProperty()->GetOpacity());
-
-  // Transform the points, if necessary
-  p = input->GetPoints();
-  if ( this->TransformCoordinate )
-    {
-    numPts = p->GetNumberOfPoints();
-    displayPts = vtkPoints::New();
-    displayPts->SetNumberOfPoints(numPts);
-    for ( j=0; j < numPts; j++ )
-      {
-      this->TransformCoordinate->SetValue(p->GetPoint(j));
-      if (this->TransformCoordinateUseDouble)
-        {
-        double* dtmp = this->TransformCoordinate->GetComputedDoubleViewportValue(viewport);
-        displayPts->SetPoint(j,dtmp[0], dtmp[1], 0.0);
-        }
-      else
-        {
-        int* itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
-        displayPts->SetPoint(j,itmp[0], itmp[1], 0.0);
-        }
-      }
-    p = displayPts;
-    }
-
-  // push a 2D matrix on the stack
-  if(viewport->GetIsPicking())
-    {
-    vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
-                     viewport->GetPickWidth(),
-                     viewport->GetPickHeight(),
-                     viewport->GetOrigin(), viewport->GetSize());
-    }
-
-  if (!t)
-    {
-    glDisable(GL_TEXTURE_2D);
-    }
-
-  // Assume we want to do Zbuffering for now.
-  // we may turn this off later
-  glDepthMask(GL_TRUE);
-
   int *winSize = viewport->GetVTKWindow()->GetSize();
 
   int xoff = static_cast<int>(actorPos[0] - (visVP[0] - vport[0])*
@@ -449,69 +220,213 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     top = bottom + 1.0;
     }
 
-  if (actor->GetProperty()->GetDisplayLocation() ==
+  float nearV = 0;
+  float farV = 1;
+  if (actor->GetProperty()->GetDisplayLocation() !=
        VTK_FOREGROUND_LOCATION)
     {
-    glOrtho(left, right, bottom, top, 0, 1);
-    }
-  else
-    {
-    glOrtho(left, right, bottom, top, -1, 0);
+    nearV = -1;
+    farV = 0;
     }
 
-  // Clipping plane stuff
-  clipPlanes = this->ClippingPlanes;
+  // compute the combined ModelView matrix and send it down to save time in the shader
+  vtkMatrix4x4 *tmpMat = vtkMatrix4x4::New();
+  tmpMat->SetElement(0,0,2.0/(right - left));
+  tmpMat->SetElement(1,1,2.0/(top - bottom));
+  tmpMat->SetElement(2,2,-2.0/(farV - nearV));
+  tmpMat->SetElement(3,3,1.0);
+  tmpMat->SetElement(0,3,-1.0*(right+left)/(right-left));
+  tmpMat->SetElement(1,3,-1.0*(top+bottom)/(top-bottom));
+  tmpMat->SetElement(2,3,-1.0*(farV+nearV)/(farV-nearV));
+  tmpMat->Transpose();
+  this->Internal->program.setUniformValue("WCVCMatrix", tmpMat);
 
-  if (clipPlanes == NULL)
+  tmpMat->Delete();
+}
+
+
+//-------------------------------------------------------------------------
+void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *vtkNotUsed(act))
+{
+  vtkPolyData *poly = this->GetInput();
+  if (poly == NULL)
     {
-    numClipPlanes = 0;
+    return;
     }
-  else
+
+  // Mark our properties as updated.
+  this->Internal->propertiesTime.Modified();
+
+  bool colorAttributes = false;
+  this->Internal->colorComponents = 0;
+  if (this->ScalarVisibility)
     {
-    numClipPlanes = clipPlanes->GetNumberOfItems();
-    if (numClipPlanes > 4)
+    // We must figure out how the scalars should be mapped to the polydata.
+    //this->MapScalars(NULL, 1.0, false, poly);
+    if (this->Internal->colorComponents == 3 ||
+        this->Internal->colorComponents == 4)
       {
-      vtkErrorMacro(<< "Only 4 clipping planes are used with 2D mappers");
+      this->Internal->colorAttributes = colorAttributes = true;
+      cout << "Scalar colors: "
+           << this->Internal->colors.size() / this->Internal->colorComponents
+           << " with " << int(this->Internal->colorComponents) << " components." <<  endl;
       }
     }
 
-  for (i = 0; i < numClipPlanes; i++)
+
+  // Iterate through all of the different types in the polydata, building VBOs
+  // and IBOs as appropriate for each type.
+  vtkPoints* p = poly->GetPoints();
+  switch(p->GetDataType())
     {
-    glEnable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
+    vtkTemplateMacro(
+      this->Internal->layout =
+        CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
+                          static_cast<VTK_TT*>(NULL),
+                          p->GetNumberOfPoints(),
+                          this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
+                          this->Internal->colorComponents,
+                          this->Internal->vbo));
     }
 
-  for (i = 0; i < numClipPlanes; i++)
+  vtkIdType      *pts = 0;
+  vtkIdType      npts = 0;
+  int            cellNum = 0;
+  vtkCellArray* lines = poly->GetLines();
+  std::vector<unsigned int> indexArray;
+  unsigned int count = 0;
+  indexArray.reserve(lines->GetNumberOfCells() * 3);
+  for (lines->InitTraversal(); lines->GetNextCell(npts,pts); cellNum++)
     {
-    plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
+    this->Internal->offsetArray.push_back(count*sizeof(unsigned int));
+    this->Internal->elementsArray.push_back(npts);
+    for (int j = 0; j < npts; ++j)
+      {
+      indexArray.push_back(static_cast<unsigned int>(pts[j]));
+      count++;
+      }
+    }
+  this->Internal->lineIBO.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  this->Internal->numberOfIndices = indexArray.size();
 
-    planeEquation[0] = plane->GetNormal()[0];
-    planeEquation[1] = plane->GetNormal()[1];
-    planeEquation[2] = plane->GetNormal()[2];
-    planeEquation[3] = -(planeEquation[0]*plane->GetOrigin()[0]+
-                         planeEquation[1]*plane->GetOrigin()[1]+
-                         planeEquation[2]*plane->GetOrigin()[2]);
-    glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0+i),planeEquation);
+  this->Internal->numberOfPoints = CreateIndexBuffer(poly->GetVerts(),
+                                                    this->Internal->pointIBO, 1);
+}
+
+
+void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
+                                              vtkActor2D* actor)
+{
+  vtkOpenGLClearErrorMacro();
+  int            numPts;
+  vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
+  int            j;
+  vtkPoints      *p, *displayPts;
+  vtkDataArray*  t = 0;
+
+  vtkDebugMacro (<< "vtkOpenGL2PolyDataMapper2D::Render");
+
+  if ( input == NULL )
+    {
+    vtkErrorMacro(<< "No input!");
+    return;
+    }
+  else
+    {
+    this->GetInputAlgorithm()->Update();
+    numPts = input->GetNumberOfPoints();
     }
 
-  // Set the PointSize
-  glPointSize(actor->GetProperty()->GetPointSize());
-  vtkOpenGLGL2PSHelper::SetPointSize(actor->GetProperty()->GetPointSize());
+  if (numPts == 0)
+    {
+    vtkDebugMacro(<< "No points!");
+    return;
+    }
 
+  // FIXME: This should be moved to the renderer, render window or similar.
+  if (!this->Initialized)
+    {
+    GLenum result = glewInit();
+    bool m_valid = (result == GLEW_OK);
+    if (!m_valid)
+      {
+      vtkErrorMacro("GLEW could not be initialized.");
+      return;
+      }
+
+    if (!GLEW_VERSION_2_1)
+      {
+      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
+      //m_valid = false;
+      return;
+      }
+    this->Initialized = true;
+    }
+
+  if ( this->LookupTable == NULL )
+    {
+    this->CreateDefaultLookupTable();
+    }
+
+  // Texture and color by texture
+  t = input->GetPointData()->GetTCoords();
+  if ( t )
+    {
+    int tDim = t->GetNumberOfComponents();
+    if (tDim != 2)
+      {
+      vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
+      t = 0;
+      }
+    }
+
+  // Transform the points, if necessary
+  p = input->GetPoints();
+  if ( this->TransformCoordinate )
+    {
+    numPts = p->GetNumberOfPoints();
+    displayPts = vtkPoints::New();
+    displayPts->SetNumberOfPoints(numPts);
+    for ( j=0; j < numPts; j++ )
+      {
+      this->TransformCoordinate->SetValue(p->GetPoint(j));
+      if (this->TransformCoordinateUseDouble)
+        {
+        double* dtmp = this->TransformCoordinate->GetComputedDoubleViewportValue(viewport);
+        displayPts->SetPoint(j,dtmp[0], dtmp[1], 0.0);
+        }
+      else
+        {
+        int* itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
+        displayPts->SetPoint(j,itmp[0], itmp[1], 0.0);
+        }
+      }
+    p = displayPts;
+    }
   if ( this->TransformCoordinate )
     {
     p->Delete();
     }
 
-  for (i = 0; i < numClipPlanes; i++)
+  // push a 2D matrix on the stack
+  if(viewport->GetIsPicking())
     {
-    glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
+    vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
+                     viewport->GetPickWidth(),
+                     viewport->GetPickHeight(),
+                     viewport->GetOrigin(), viewport->GetSize());
     }
 
-  // Turn it back on in case we've turned it off
-  glDepthMask(GL_TRUE);
-  glDisable(GL_TEXTURE_2D);
+  if (!t)
+    {
+    glDisable(GL_TEXTURE_2D);
+    }
 
-    // Update the VBO if needed.
+  // Assume we want to do Zbuffering for now.
+  // we may turn this off later
+  glDepthMask(GL_TRUE);
+
+  // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime())
     {
     this->UpdateVBO(actor);
@@ -527,7 +442,8 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     return;
     }
 
-  //this->SetPropertyShaderParameters(ren, actor);
+  this->SetCameraShaderParameters(viewport, actor);
+  this->SetPropertyShaderParameters(viewport, actor);
 
   this->Internal->vbo.bind();
 
@@ -537,8 +453,8 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     stride += sizeof(float);
     }
 
-  this->Internal->program.enableAttributeArray("vertexMC");
-  this->Internal->program.useAttributeArray("vertexMC", 0,
+  this->Internal->program.enableAttributeArray("vertexWC");
+  this->Internal->program.useAttributeArray("vertexWC", 0,
                                             stride,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
@@ -568,6 +484,10 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   if (this->Internal->numberOfPoints)
     {
+    // Set the PointSize
+    glPointSize(actor->GetProperty()->GetPointSize());
+    //vtkOpenGLGL2PSHelper::SetPointSize(actor->GetProperty()->GetPointSize());
+
     this->Internal->pointIBO.bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(this->Internal->layout.VertexCount - 1),
@@ -579,7 +499,7 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
 
   this->Internal->vbo.release();
-  this->Internal->program.disableAttributeArray("vertexMC");
+  this->Internal->program.disableAttributeArray("vertexWC");
   if (this->Internal->colorAttributes)
     {
     this->Internal->program.disableAttributeArray("diffuseColor");

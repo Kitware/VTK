@@ -19,17 +19,19 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
-attribute vec4 vertexMC;
+attribute vec4 vertexWC;
 
 // material property values
 //VTK::Color::Dec
 uniform float opacity;
 
+uniform mat4 WCVCMatrix;  // World to view matrix
+
 varying vec4 fcolor;
 
 void main()
 {
-  gl_Position = vertexMC;
+  gl_Position = WCVCMatrix*vertexWC;
   fcolor = vec4(diffuseColor.rgb, opacity);
 }
 

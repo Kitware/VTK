@@ -42,11 +42,14 @@ public:
 
 protected:
   vtkOpenGL2PolyDataMapper2D();
-  ~vtkOpenGL2PolyDataMapper2D() {}
+  ~vtkOpenGL2PolyDataMapper2D();
 
   // Description:
   // Determine what shader to use and compile/link it
   virtual void UpdateShader(vtkViewport *viewport, vtkActor2D *act);
+
+  void SetCameraShaderParameters(vtkViewport *ren, vtkActor2D *act);
+  void SetPropertyShaderParameters(vtkViewport *ren, vtkActor2D *act);
 
   // Description:
   // Update the scene when necessary.
@@ -56,6 +59,8 @@ protected:
   Private *Internal;
 
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
+  bool Initialized; // Hack - ensure glewinit has been called - move to window.
+
 
 private:
   vtkOpenGL2PolyDataMapper2D(const vtkOpenGL2PolyDataMapper2D&);  // Not implemented.
