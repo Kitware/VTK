@@ -15,6 +15,7 @@ set(${vtk-module}_SYSTEM_INCLUDE_DIRS
 
 set(Module_SRCS
   vtkglBufferObject.cxx
+  vtkglVBOHelper.cxx
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglTexture2D.cxx

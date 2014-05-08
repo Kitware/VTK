@@ -23,26 +23,10 @@ namespace vtkgl
 
 // Process the string, and return a version with replacements.
 std::string replace(std::string source, const std::string &search,
-                    const std::string replace, bool all = true)
-{
-  std::string::size_type pos = 0;
-  bool first = true;
-  while ((pos = source.find(search, 0)) != std::string::npos)
-    {
-    source.replace(pos, search.length(), replace);
-    pos += search.length();
-    if (first)
-      {
-      first = false;
-      if (!all)
-        {
-        return source;
-        }
-      }
-    }
-  return source;
-}
+                    const std::string replace, bool all = true);
 
+size_t CreateIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
+                         int num);
 
 // Sizes/offsets are all in bytes as OpenGL API expects them.
 struct VBOLayout
@@ -127,27 +111,6 @@ VBOLayout CreateTriangleVBO(T* points, T* normals, vtkIdType numPts,
   return layout;
 }
 
-size_t CreateIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                         int num)
-{
-  std::vector<unsigned int> indexArray;
-  vtkIdType* indices(NULL);
-  vtkIdType points(0);
-  indexArray.reserve(cells->GetNumberOfCells() * num);
-  for (cells->InitTraversal(); cells->GetNextCell(points, indices); )
-    {
-    if (points != num)
-      {
-      exit(-1); // assert(points == num);
-      }
-    for (int j = 0; j < num; ++j)
-      {
-      indexArray.push_back(static_cast<unsigned int>(*(indices++)));
-      }
-    }
-  indexBuffer.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
-  return indexArray.size();
-}
 
 } // End namespace
 

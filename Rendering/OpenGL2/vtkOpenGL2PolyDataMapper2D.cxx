@@ -34,6 +34,8 @@
 #include "vtkOpenGLError.h"
 #include <math.h>
 
+#include "vtkglVBOHelper.h"
+
 #include "vtkglBufferObject.h"
 #include "vtkglShader.h"
 #include "vtkglShaderProgram.h"
@@ -46,12 +48,15 @@ class vtkOpenGL2PolyDataMapper2D::Private
 {
 public:
   vtkgl::BufferObject vbo;
-  vtkgl::BufferObject ibo;
-  size_t numberOfVertices;
+  vtkgl::VBOLayout layout;
+  vtkgl::BufferObject lineIBO;
+  vtkgl::BufferObject polyIBO;
+  vtkgl::BufferObject pointIBO;
+  vtkgl::BufferObject triStripIBO;
+  size_t numberOfPoints;
   size_t numberOfIndices;
   std::vector<GLintptr> offsetArray;
   std::vector<unsigned int> elementsArray;
-
 
   const char *vertexShaderFile;
   const char *fragmentShaderFile;
@@ -74,28 +79,6 @@ public:
     this->fragmentShader.setType(vtkgl::Shader::Fragment);
   }
 };
-
-// Process the string, and return a version with replacements.
-std::string replace2D(std::string source, const std::string &search,
-                    const std::string replace, bool all = true)
-{
-  std::string::size_type pos = 0;
-  bool first = true;
-  while ((pos = source.find(search, 0)) != std::string::npos)
-    {
-    source.replace(pos, search.length(), replace);
-    pos += search.length();
-    if (first)
-      {
-      first = false;
-      if (!all)
-        {
-        return source;
-        }
-      }
-    }
-  return source;
-}
 
 vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
 
@@ -121,13 +104,13 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkViewport* vtkNotUsed(viewport),
     std::string vertexShaderSource = this->Internal->vertexShaderFile;
     if (this->Internal->colorAttributes)
       {
-      vertexShaderSource = replace2D(vertexShaderSource,
+      vertexShaderSource = vtkgl::replace(vertexShaderSource,
                                    "//VTK::Color::Dec",
                                    "attribute vec4 diffuseColor;");
       }
     else
       {
-      vertexShaderSource = replace2D(vertexShaderSource,
+      vertexShaderSource = vtkgl::replace(vertexShaderSource,
                                    "//VTK::Color::Dec",
                                    "uniform vec3 diffuseColor;");
       }
@@ -271,35 +254,19 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *vtkNotUsed(act))
     }
 */
 
-  // Set the LineWidth todo
-  // Set the LineStipple todo
-  bool colorAttributes = false;
-
-  std::vector<float> packedMesh;
-  packedMesh.reserve(poly->GetNumberOfPoints() * (colorAttributes ? 4 : 3));
-  Vector3d tmp;
-  for (vtkIdType i = 0; i < poly->GetNumberOfPoints(); ++i)
+  // Iterate through all of the different types in the polydata, building VBOs
+  // and IBOs as appropriate for each type.
+  vtkPoints* p = poly->GetPoints();
+  switch(p->GetDataType())
     {
-    poly->GetPoint(i, tmp.GetData());
-    for (int j = 0; j < 3; ++j)
-      {
-      packedMesh.push_back(tmp.Cast<float>()[j]);
-      }
-    if (colorAttributes)
-      {
-      if (this->Internal->colorComponents == 4)
-        {
-        packedMesh.push_back(
-              *reinterpret_cast<float *>(&this->Internal->colors[i * 4]));
-        }
-      else if (this->Internal->colorComponents == 3)
-        {
-        unsigned char c[4] = { this->Internal->colors[i * 4],
-                               this->Internal->colors[i * 4 + 1],
-                               this->Internal->colors[i * 4 + 2], 255 };
-        packedMesh.push_back(*reinterpret_cast<float *>(&c));
-        }
-      }
+    vtkTemplateMacro(
+      this->Internal->layout =
+        CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
+                          static_cast<VTK_TT*>(NULL),
+                          p->GetNumberOfPoints(),
+                          this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
+                          this->Internal->colorComponents,
+                          this->Internal->vbo));
     }
 
   vtkIdType      *pts = 0;
@@ -319,12 +286,11 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *vtkNotUsed(act))
       count++;
       }
     }
-
-  // Now we need to upload the two arrays to the GPU.
-  this->Internal->vbo.upload(packedMesh, vtkgl::BufferObject::ArrayBuffer);
-  this->Internal->ibo.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
-  this->Internal->numberOfVertices = poly->GetNumberOfPoints();
+  this->Internal->lineIBO.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   this->Internal->numberOfIndices = indexArray.size();
+
+  this->Internal->numberOfPoints = CreateIndexBuffer(poly->GetVerts(),
+                                                    this->Internal->pointIBO, 1);
 }
 
 
@@ -563,7 +529,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   //this->SetPropertyShaderParameters(ren, actor);
 
   this->Internal->vbo.bind();
-  this->Internal->ibo.bind();
 
   size_t stride = sizeof(float) * 3;
   if (this->Internal->colorAttributes)
@@ -591,15 +556,28 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   if (this->Internal->offsetArray.size() > 0)
     {
+    this->Internal->lineIBO.bind();
     glMultiDrawElements(GL_LINE_STRIP,
                         (GLsizei *)(&this->Internal->elementsArray[0]),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid **>(&(this->Internal->offsetArray[0])),
                         this->Internal->offsetArray.size());
+    this->Internal->lineIBO.release();
     }
 
+  if (this->Internal->numberOfPoints)
+    {
+    this->Internal->pointIBO.bind();
+    glDrawRangeElements(GL_POINTS, 0,
+                        static_cast<GLuint>(this->Internal->layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->numberOfPoints),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    this->Internal->pointIBO.release();
+    }
+
+
   this->Internal->vbo.release();
-  this->Internal->ibo.release();
   this->Internal->program.disableAttributeArray("vertexMC");
   if (this->Internal->colorAttributes)
     {
