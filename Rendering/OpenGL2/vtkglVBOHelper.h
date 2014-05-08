@@ -21,6 +21,29 @@
 namespace vtkgl
 {
 
+// Process the string, and return a version with replacements.
+std::string replace(std::string source, const std::string &search,
+                    const std::string replace, bool all = true)
+{
+  std::string::size_type pos = 0;
+  bool first = true;
+  while ((pos = source.find(search, 0)) != std::string::npos)
+    {
+    source.replace(pos, search.length(), replace);
+    pos += search.length();
+    if (first)
+      {
+      first = false;
+      if (!all)
+        {
+        return source;
+        }
+      }
+    }
+  return source;
+}
+
+
 // Sizes/offsets are all in bytes as OpenGL API expects them.
 struct VBOLayout
 {
