@@ -292,7 +292,7 @@ int vtkStreamingDemandDrivenPipeline
         result = 1;
         }
       }
-    if (!this->NeedToExecuteData(outputPort,inInfoVec,outInfoVec))
+    if (!N2E)
       {
       if(outInfo && outInfo->Has(COMBINED_UPDATE_EXTENT()))
         {
