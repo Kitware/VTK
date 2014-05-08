@@ -733,6 +733,9 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   /// Local variables
   double bounds[6];
   vol->Update();
+
+  /// TODO
+  /// Compute bounds from the image
   vol->GetBounds(bounds);
 
   /// Load volume data if needed
@@ -924,8 +927,8 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   glBindVertexArray(0);
   glDisable(GL_BLEND);
 
+  glActiveTexture(GL_TEXTURE0);
+
   glDisable(GL_TEXTURE_3D);
   glDisable(GL_TEXTURE_1D);
-
-  glActiveTexture(GL_TEXTURE0);
 }
