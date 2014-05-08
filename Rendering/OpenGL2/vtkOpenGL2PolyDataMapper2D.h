@@ -41,7 +41,7 @@ public:
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
-  vtkOpenGL2PolyDataMapper2D() {}
+  vtkOpenGL2PolyDataMapper2D();
   ~vtkOpenGL2PolyDataMapper2D() {}
 
   // Description:

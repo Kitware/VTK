@@ -84,7 +84,7 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
     Actor
     Camera
     Light
-    PolyDataMapper2D
+#    PolyDataMapper2D
     Property
     )
 endif()

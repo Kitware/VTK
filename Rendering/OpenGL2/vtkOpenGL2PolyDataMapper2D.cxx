@@ -100,6 +100,13 @@ std::string replace2D(std::string source, const std::string &search,
 vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
 
 //-----------------------------------------------------------------------------
+vtkOpenGL2PolyDataMapper2D::vtkOpenGL2PolyDataMapper2D()
+  : Internal(new Private)
+{
+}
+
+
+//-----------------------------------------------------------------------------
 void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkViewport* vtkNotUsed(viewport), vtkActor2D *vtkNotUsed(actor))
 {
   this->Internal->fragmentShaderFile = vtkglPolyDataFS;
@@ -582,11 +589,14 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkgl::ShaderProgram::Normalize);
     }
 
-  glMultiDrawElements(GL_LINE_STRIP,
-                      (GLsizei *)(&this->Internal->elementsArray[0]),
-                      GL_UNSIGNED_INT,
-                      reinterpret_cast<const GLvoid **>(&(this->Internal->offsetArray[0])),
-                      this->Internal->offsetArray.size());
+  if (this->Internal->offsetArray.size() > 0)
+    {
+    glMultiDrawElements(GL_LINE_STRIP,
+                        (GLsizei *)(&this->Internal->elementsArray[0]),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid **>(&(this->Internal->offsetArray[0])),
+                        this->Internal->offsetArray.size());
+    }
 
   this->Internal->vbo.release();
   this->Internal->ibo.release();
