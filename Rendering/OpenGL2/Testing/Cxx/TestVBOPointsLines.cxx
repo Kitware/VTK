@@ -21,7 +21,6 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkVBOPolyDataMapper.h"
-#include "vtkPainterPolyDataMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkTrivialProducer.h"
@@ -70,6 +69,13 @@ int TestVBOPointsLines(int, char *[])
   lines->InsertCellPoint(3);
   lines->InsertNextCell(2);
   lines->InsertCellPoint(0);
+  lines->InsertCellPoint(4);
+
+  // Try inserting a polyline now...
+  lines->InsertNextCell(4);
+  lines->InsertCellPoint(0);
+  lines->InsertCellPoint(2);
+  lines->InsertCellPoint(3);
   lines->InsertCellPoint(4);
 
   vtkNew<vtkCellArray> tris;

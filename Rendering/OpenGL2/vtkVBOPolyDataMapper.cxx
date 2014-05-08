@@ -640,11 +640,11 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                                       vtkgl::ShaderProgram::Normalize);
       }
     this->Internal->lines.ibo.bind();
-    glDrawRangeElements(GL_LINES, 0,
-                        static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Internal->lines.indexCount),
+    glMultiDrawElements(GL_LINE_STRIP,
+                        (GLsizei *)(&this->Internal->lines.elementsArray[0]),
                         GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
+                        reinterpret_cast<const GLvoid **>(&(this->Internal->lines.offsetArray[0])),
+                        this->Internal->lines.offsetArray.size());
     this->Internal->lines.ibo.release();
     this->Internal->lines.program.release();
     }
@@ -792,12 +792,30 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
                                                       this->Internal->tris.ibo,
                                                       3);
 
-  this->Internal->lines.indexCount = CreateIndexBuffer(poly->GetLines(),
-                                                       this->Internal->lines.ibo,
-                                                       2);
   this->Internal->points.indexCount = CreateIndexBuffer(poly->GetVerts(),
                                                         this->Internal->points.ibo,
                                                         1);
+
+  // Taken from Ken's polydatamapper2d, it should be pulled into a helper too.
+  vtkIdType      *pts = 0;
+  vtkIdType      npts = 0;
+  int            cellNum = 0;
+  vtkCellArray* lines = poly->GetLines();
+  std::vector<unsigned int> indexArray;
+  unsigned int count = 0;
+  indexArray.reserve(lines->GetNumberOfCells() * 3);
+  for (lines->InitTraversal(); lines->GetNextCell(npts,pts); ++cellNum)
+    {
+    this->Internal->lines.offsetArray.push_back(count);
+    this->Internal->lines.elementsArray.push_back(npts);
+    for (int j = 0; j < npts; ++j)
+      {
+      indexArray.push_back(static_cast<unsigned int>(pts[j]));
+      ++count;
+      }
+    }
+  this->Internal->lines.ibo.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  this->Internal->lines.indexCount = indexArray.size();
 }
 
 //-----------------------------------------------------------------------------
