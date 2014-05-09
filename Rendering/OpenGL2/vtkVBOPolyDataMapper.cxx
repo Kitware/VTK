@@ -558,7 +558,8 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     }
 
   // Update the VBO if needed.
-  if (this->VBOUpdateTime < this->GetMTime())
+  if (this->VBOUpdateTime < this->GetMTime() ||
+      this->VBOUpdateTime < actor->GetProperty()->GetMTime())
     {
     this->UpdateVBO(actor);
     this->VBOUpdateTime.Modified();
@@ -611,13 +612,89 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     // Render the VBO contents as appropriate, I think we really need separate
     // shaders for triangles, lines and points too...
     this->Internal->tris.ibo.bind();
-    glDrawRangeElements(GL_TRIANGLES, 0,
-                        static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Internal->tris.indexCount),
+
+    if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
+      {
+      glDrawRangeElements(GL_TRIANGLES, 0,
+                          static_cast<GLuint>(layout.VertexCount - 1),
+                          static_cast<GLsizei>(this->Internal->tris.indexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
+      }
+    else if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+#if 1
+      glMultiDrawElements(GL_LINE_LOOP,
+                        (GLsizei *)(&this->Internal->tris.elementsArray[0]),
                         GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
+                        reinterpret_cast<const GLvoid **>(&(this->Internal->tris.offsetArray[0])),
+                        this->Internal->tris.offsetArray.size());
+#else
+      for (int eCount = 0; eCount < this->Internal->tris.offsetArray.size(); ++eCount)
+        {
+        glDrawElements(GL_LINE_LOOP,
+          this->Internal->tris.elementsArray[eCount],
+          GL_UNSIGNED_INT,
+          (GLvoid *)(this->Internal->tris.offsetArray[eCount]));
+        }
+#endif
+      }
     this->Internal->tris.ibo.release();
     this->Internal->tris.program.release();
+    }
+
+  if (this->Internal->triStrips.indexCount)
+    {
+    // First we do the triangles, update the shader, set uniforms, etc.
+    this->UpdateShader(ren, actor);
+    if (!this->Internal->triStrips.program.bind())
+      {
+      vtkErrorMacro(<< this->Internal->triStrips.program.error());
+      return;
+      }
+
+    this->SetLightingShaderParameters(ren, actor);
+    this->SetPropertyShaderParameters(ren, actor);
+    this->SetCameraShaderParameters(ren, actor);
+
+    this->Internal->triStrips.program.enableAttributeArray("vertexMC");
+    this->Internal->triStrips.program.useAttributeArray("vertexMC", layout.VertexOffset,
+                                                   layout.Stride,
+                                                   VTK_FLOAT, 3,
+                                                   vtkgl::ShaderProgram::NoNormalize);
+    if (layout.VertexOffset != layout.NormalOffset)
+      {
+      this->Internal->triStrips.program.enableAttributeArray("normalMC");
+      this->Internal->triStrips.program.useAttributeArray("normalMC", layout.NormalOffset,
+                                                     layout.Stride,
+                                                     VTK_FLOAT, 3,
+                                                     vtkgl::ShaderProgram::NoNormalize);
+      }
+    if (layout.ColorComponents != 0)
+      {
+      if (!this->Internal->triStrips.program.enableAttributeArray("diffuseColor"))
+        {
+        vtkErrorMacro(<< this->Internal->triStrips.program.error());
+        }
+      this->Internal->triStrips.program.useAttributeArray("diffuseColor", layout.ColorOffset,
+                                                     layout.Stride,
+                                                     VTK_UNSIGNED_CHAR,
+                                                     layout.ColorComponents,
+                                                     vtkgl::ShaderProgram::Normalize);
+      }
+
+    // Render the VBO contents as appropriate, I think we really need separate
+    // shaders for triangles, lines and points too...
+    this->Internal->triStrips.ibo.bind();
+    for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+      {
+      glDrawElements(GL_LINE_STRIP,
+        this->Internal->triStrips.elementsArray[eCount],
+        GL_UNSIGNED_INT,
+        (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
+      }
+    this->Internal->triStrips.ibo.release();
+    this->Internal->triStrips.program.release();
     }
 
   if (this->Internal->lines.indexCount)
@@ -652,11 +729,13 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                                       vtkgl::ShaderProgram::Normalize);
       }
     this->Internal->lines.ibo.bind();
-    glMultiDrawElements(GL_LINE_STRIP,
-                        (GLsizei *)(&this->Internal->lines.elementsArray[0]),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid **>(&(this->Internal->lines.offsetArray[0])),
-                        this->Internal->lines.offsetArray.size());
+    for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
+      {
+      glDrawElements(GL_LINE_STRIP,
+        this->Internal->lines.elementsArray[eCount],
+        GL_UNSIGNED_INT,
+        (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
+      }
     this->Internal->lines.ibo.release();
     this->Internal->lines.program.release();
     }
@@ -757,7 +836,6 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
 
     if (buildNormals)
       {
-      // FIXME: Add implementation for normal generation.
       vtkNew<vtkPolyDataNormals> computeNormals;
       computeNormals->SetInputData(poly);
       computeNormals->SplittingOff();
@@ -798,66 +876,41 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
 
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
-  vtkPoints* p = poly->GetPoints();
-  if (n)
+  this->Internal->layout =
+    CreateVBO(poly->GetPoints(),
+              n,
+              this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
+              this->Internal->colorComponents,
+              this->Internal->vbo);
+
+  // create the IBOs
+  // for polys if we are wireframe handle it with multiindiex buffer
+  if (act->GetProperty()->GetRepresentation() == VTK_SURFACE)
     {
-    switch(p->GetDataType())
-      {
-      vtkTemplateMacro(
-        this->Internal->layout =
-          CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
-                            static_cast<VTK_TT*>(n->GetVoidPointer(0)),
-                            p->GetNumberOfPoints(),
-                            this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
-                            this->Internal->colorComponents,
-                            this->Internal->vbo));
-      }
+    this->Internal->tris.indexCount = CreateTriangleIndexBuffer(poly->GetPolys(),
+                                                        this->Internal->tris.ibo,
+                                                        poly->GetPoints());
     }
-  else
+  else if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
     {
-    switch(p->GetDataType())
-      {
-      vtkTemplateMacro(
-        this->Internal->layout =
-          CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
-                            static_cast<VTK_TT*>(NULL),
-                            p->GetNumberOfPoints(),
-                            this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
-                            this->Internal->colorComponents,
-                            this->Internal->vbo));
-      }
+    this->Internal->tris.indexCount = CreateMultiIndexBuffer(poly->GetPolys(),
+                           this->Internal->tris.ibo,
+                           this->Internal->tris.offsetArray,
+                           this->Internal->tris.elementsArray);
     }
 
-  // From vtkStandardPolyDataPainter the ordering of the points is defined as
-  // Verts -> Lines -> Polys -> Strips.
-  this->Internal->tris.indexCount = CreateIndexBuffer(poly->GetPolys(),
-                                                      this->Internal->tris.ibo,
-                                                      3);
+  this->Internal->points.indexCount = CreatePointIndexBuffer(poly->GetVerts(),
+                                                        this->Internal->points.ibo);
 
-  this->Internal->points.indexCount = CreateIndexBuffer(poly->GetVerts(),
-                                                        this->Internal->points.ibo,
-                                                        1);
+  this->Internal->triStrips.indexCount = CreateMultiIndexBuffer(poly->GetStrips(),
+                         this->Internal->triStrips.ibo,
+                         this->Internal->triStrips.offsetArray,
+                         this->Internal->triStrips.elementsArray);
 
-  // Taken from Ken's polydatamapper2d, it should be pulled into a helper too.
-  vtkIdType      *pts = 0;
-  vtkIdType      npts = 0;
-  int            cellNum = 0;
-  vtkCellArray* lines = poly->GetLines();
-  std::vector<unsigned int> indexArray;
-  unsigned int count = 0;
-  indexArray.reserve(lines->GetNumberOfCells() * 3);
-  for (lines->InitTraversal(); lines->GetNextCell(npts,pts); ++cellNum)
-    {
-    this->Internal->lines.offsetArray.push_back(count*sizeof(unsigned int));
-    this->Internal->lines.elementsArray.push_back(npts);
-    for (int j = 0; j < npts; ++j)
-      {
-      indexArray.push_back(static_cast<unsigned int>(pts[j]));
-      ++count;
-      }
-    }
-  this->Internal->lines.ibo.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
-  this->Internal->lines.indexCount = indexArray.size();
+  this->Internal->lines.indexCount = CreateMultiIndexBuffer(poly->GetLines(),
+                         this->Internal->lines.ibo,
+                         this->Internal->lines.offsetArray,
+                         this->Internal->lines.elementsArray);
 }
 
 //-----------------------------------------------------------------------------

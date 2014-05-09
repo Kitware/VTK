@@ -50,14 +50,12 @@ class vtkOpenGL2PolyDataMapper2D::Private
 public:
   vtkgl::BufferObject vbo;
   vtkgl::VBOLayout layout;
-  vtkgl::BufferObject lineIBO;
-  vtkgl::BufferObject polyIBO;
-  vtkgl::BufferObject pointIBO;
-  vtkgl::BufferObject triStripIBO;
-  size_t numberOfPoints;
-  size_t numberOfIndices;
-  std::vector<GLintptr> offsetArray;
-  std::vector<unsigned int> elementsArray;
+
+  // Structures for the various cell types we render.
+  vtkgl::CellBO points;
+  vtkgl::CellBO lines;
+  vtkgl::CellBO tris;
+  vtkgl::CellBO triStrips;
 
   const char *vertexShaderFile;
   const char *fragmentShaderFile;
@@ -246,7 +244,7 @@ void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(vtkViewport* viewport
 
 
 //-------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *vtkNotUsed(act))
+void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
 {
   vtkPolyData *poly = this->GetInput();
   if (poly == NULL)
@@ -257,60 +255,42 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *vtkNotUsed(act))
   // Mark our properties as updated.
   this->Internal->propertiesTime.Modified();
 
-  bool colorAttributes = false;
-  this->Internal->colorComponents = 0;
+  this->Internal->colorAttributes = false;
   if (this->ScalarVisibility)
     {
     // We must figure out how the scalars should be mapped to the polydata.
-    //this->MapScalars(NULL, 1.0, false, poly);
-    if (this->Internal->colorComponents == 3 ||
-        this->Internal->colorComponents == 4)
+    this->MapScalars(act->GetProperty()->GetOpacity());
+    if (this->Colors && (this->Colors->GetNumberOfComponents() == 3 ||
+        this->Colors->GetNumberOfComponents() == 4))
       {
-      this->Internal->colorAttributes = colorAttributes = true;
-      cout << "Scalar colors: "
-           << this->Internal->colors.size() / this->Internal->colorComponents
-           << " with " << int(this->Internal->colorComponents) << " components." <<  endl;
+      this->Internal->colorAttributes = true;
       }
     }
 
 
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
-  vtkPoints* p = poly->GetPoints();
-  switch(p->GetDataType())
-    {
-    vtkTemplateMacro(
-      this->Internal->layout =
-        CreateTriangleVBO(static_cast<VTK_TT*>(p->GetVoidPointer(0)),
-                          static_cast<VTK_TT*>(NULL),
-                          p->GetNumberOfPoints(),
-                          this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
-                          this->Internal->colorComponents,
-                          this->Internal->vbo));
-    }
+  this->Internal->layout =
+    CreateVBO(poly->GetPoints(),
+              NULL,
+              this->Internal->colorAttributes ? this->Colors->GetPointer(0) : NULL,
+              this->Colors ? this->Colors->GetNumberOfComponents() : 0,
+              this->Internal->vbo);
 
-  vtkIdType      *pts = 0;
-  vtkIdType      npts = 0;
-  int            cellNum = 0;
-  vtkCellArray* lines = poly->GetLines();
-  std::vector<unsigned int> indexArray;
-  unsigned int count = 0;
-  indexArray.reserve(lines->GetNumberOfCells() * 3);
-  for (lines->InitTraversal(); lines->GetNextCell(npts,pts); cellNum++)
-    {
-    this->Internal->offsetArray.push_back(count*sizeof(unsigned int));
-    this->Internal->elementsArray.push_back(npts);
-    for (int j = 0; j < npts; ++j)
-      {
-      indexArray.push_back(static_cast<unsigned int>(pts[j]));
-      count++;
-      }
-    }
-  this->Internal->lineIBO.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
-  this->Internal->numberOfIndices = indexArray.size();
 
-  this->Internal->numberOfPoints = CreateIndexBuffer(poly->GetVerts(),
-                                                    this->Internal->pointIBO, 1);
+  this->Internal->triStrips.indexCount = CreateMultiIndexBuffer(poly->GetStrips(),
+                         this->Internal->triStrips.ibo,
+                         this->Internal->triStrips.offsetArray,
+                         this->Internal->triStrips.elementsArray);
+  this->Internal->lines.indexCount = CreateMultiIndexBuffer(poly->GetLines(),
+                         this->Internal->lines.ibo,
+                         this->Internal->lines.offsetArray,
+                         this->Internal->lines.elementsArray);
+  this->Internal->points.indexCount = CreatePointIndexBuffer(poly->GetVerts(),
+                                                    this->Internal->points.ibo);
+  this->Internal->tris.indexCount = CreateTriangleIndexBuffer(poly->GetPolys(),
+                                                              this->Internal->tris.ibo,
+                                                              poly->GetPoints());
 }
 
 
@@ -467,36 +447,61 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->Internal->program.useAttributeArray("diffuseColor", sizeof(float) * 6,
                                               stride,
                                               VTK_UNSIGNED_CHAR,
-                                              this->Internal->colorComponents,
+                                              this->Colors->GetNumberOfComponents(),
                                               vtkgl::ShaderProgram::Normalize);
     }
 
-  if (this->Internal->offsetArray.size() > 0)
-    {
-    this->Internal->lineIBO.bind();
-    glMultiDrawElements(GL_LINE_STRIP,
-                        (GLsizei *)(&this->Internal->elementsArray[0]),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid **>(&(this->Internal->offsetArray[0])),
-                        this->Internal->offsetArray.size());
-    this->Internal->lineIBO.release();
-    }
-
-  if (this->Internal->numberOfPoints)
+  if (this->Internal->points.indexCount)
     {
     // Set the PointSize
     glPointSize(actor->GetProperty()->GetPointSize());
     //vtkOpenGLGL2PSHelper::SetPointSize(actor->GetProperty()->GetPointSize());
 
-    this->Internal->pointIBO.bind();
+    this->Internal->points.ibo.bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(this->Internal->layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Internal->numberOfPoints),
+                        static_cast<GLsizei>(this->Internal->points.indexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Internal->pointIBO.release();
+    this->Internal->points.ibo.release();
     }
 
+  if (this->Internal->tris.indexCount)
+    {
+    this->Internal->tris.ibo.bind();
+    glDrawRangeElements(GL_TRIANGLES, 0,
+                        static_cast<GLuint>(this->Internal->layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->tris.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    this->Internal->tris.ibo.release();
+    }
+
+  if (this->Internal->lines.offsetArray.size() > 0)
+    {
+    this->Internal->lines.ibo.bind();
+    for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
+      {
+      glDrawElements(GL_LINE_STRIP,
+        this->Internal->lines.elementsArray[eCount],
+        GL_UNSIGNED_INT,
+        (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
+      }
+    this->Internal->lines.ibo.release();
+    }
+
+  if (this->Internal->triStrips.offsetArray.size() > 0)
+    {
+    this->Internal->triStrips.ibo.bind();
+    for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+      {
+      glDrawElements(GL_LINE_STRIP,
+        this->Internal->triStrips.elementsArray[eCount],
+        GL_UNSIGNED_INT,
+        (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
+      }
+    this->Internal->triStrips.ibo.release();
+    }
 
   this->Internal->vbo.release();
   this->Internal->program.disableAttributeArray("vertexWC");
