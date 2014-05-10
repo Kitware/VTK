@@ -52,6 +52,16 @@ vtkStandardNewMacro(vtkRInterface);
 
 #include "vtksys/SystemTools.hxx"
 
+/**
+ * This global boolean is used to keep track of whether or not R has been
+ * initialized.  Rf_initialize_R() cannot be called more than once, yet
+ * R provides no way to detect whether or not it has already been called.
+ * In previous versions of this code we used atexit() to shut down the R
+ * interface, but this causes nondeterministic errors when working with R's
+ * parallel library.
+ **/
+bool VTK_R_INITIALIZED = false;
+
 class vtkImplementationRSingleton
 {
 public:
@@ -79,16 +89,22 @@ public:
     }
     const char *R_argv[]= {"vtkRInterface", "--gui=none", "--no-save", "--no-readline", "--silent"};
 
-    Rf_initialize_R(sizeof(R_argv)/sizeof(R_argv[0]), const_cast<char **>(R_argv));
+    if (!VTK_R_INITIALIZED)
+      {
+      Rf_initialize_R(sizeof(R_argv)/sizeof(R_argv[0]),
+                      const_cast<char **>(R_argv));
 
-#ifdef CSTACK_DEFNS
-    R_CStackLimit = (uintptr_t)-1;
-#endif
+      #ifdef CSTACK_DEFNS
+          R_CStackLimit = (uintptr_t)-1;
+      #endif
 
-#ifndef WIN32
-    R_Interactive = static_cast<Rboolean>(TRUE);
-#endif
-    setup_Rmainloop();
+      #ifndef WIN32
+          R_Interactive = static_cast<Rboolean>(TRUE);
+      #endif
+          setup_Rmainloop();
+
+      VTK_R_INITIALIZED = true;
+      }
 
     this->Rinitialized = 1;
     this->refcount++;
@@ -131,6 +147,7 @@ public:
     if (this->refcount < 1 && ins)
       {
       delete ins;
+      ins = NULL;
       }
     };
 
