@@ -112,6 +112,13 @@ int TestVBOPointsLines(int, char *[])
   interactor->SetRenderWindow(renderWindow.Get());
   renderWindow->SetMultiSamples(0);
   interactor->Initialize();
+
+  // Ensure we can change properties between renders and trigger updates in the
+  // mapper.
+  renderWindow->Render();
+  actor->GetProperty()->SetPointSize(2.0);
+  renderWindow->Render();
+
   interactor->Start();
 
   return EXIT_SUCCESS;
