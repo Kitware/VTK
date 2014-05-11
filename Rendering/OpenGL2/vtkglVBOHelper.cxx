@@ -83,7 +83,7 @@ VBOLayout TemplatedCreateVBO2(T* points, T2* normals, vtkIdType numPts,
         }
       }
     }
-  vertexBuffer.upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);
+  vertexBuffer.Upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);
   layout.VertexCount = numPts;
   return layout;
 }
@@ -224,7 +224,7 @@ size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
     polygon->Delete();
     tris->Delete();
     }
-  indexBuffer.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
@@ -240,7 +240,7 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
     {
     indexArray.push_back(static_cast<unsigned int>(*(indices++)));
     }
-  indexBuffer.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
@@ -264,7 +264,7 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
       count++;
       }
     }
-  indexBuffer.upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 

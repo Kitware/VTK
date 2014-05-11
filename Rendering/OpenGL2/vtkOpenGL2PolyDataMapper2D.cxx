@@ -420,7 +420,7 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   this->SetCameraShaderParameters(viewport, actor);
   this->SetPropertyShaderParameters(viewport, actor);
 
-  this->Internal->vbo.bind();
+  this->Internal->vbo.Bind();
 
   size_t stride = sizeof(float) * 3;
   if (this->Internal->colorAttributes)
@@ -452,29 +452,29 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glPointSize(actor->GetProperty()->GetPointSize());
     //vtkOpenGLGL2PSHelper::SetPointSize(actor->GetProperty()->GetPointSize());
 
-    this->Internal->points.ibo.bind();
+    this->Internal->points.ibo.Bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(this->Internal->layout.VertexCount - 1),
                         static_cast<GLsizei>(this->Internal->points.indexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Internal->points.ibo.release();
+    this->Internal->points.ibo.Release();
     }
 
   if (this->Internal->tris.indexCount)
     {
-    this->Internal->tris.ibo.bind();
+    this->Internal->tris.ibo.Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->Internal->layout.VertexCount - 1),
                         static_cast<GLsizei>(this->Internal->tris.indexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Internal->tris.ibo.release();
+    this->Internal->tris.ibo.Release();
     }
 
   if (this->Internal->lines.offsetArray.size() > 0)
     {
-    this->Internal->lines.ibo.bind();
+    this->Internal->lines.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
       {
       glDrawElements(GL_LINE_STRIP,
@@ -482,12 +482,12 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
         GL_UNSIGNED_INT,
         (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
       }
-    this->Internal->lines.ibo.release();
+    this->Internal->lines.ibo.Release();
     }
 
   if (this->Internal->triStrips.offsetArray.size() > 0)
     {
-    this->Internal->triStrips.ibo.bind();
+    this->Internal->triStrips.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
       {
       glDrawElements(GL_LINE_STRIP,
@@ -495,10 +495,10 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
         GL_UNSIGNED_INT,
         (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
       }
-    this->Internal->triStrips.ibo.release();
+    this->Internal->triStrips.ibo.Release();
     }
 
-  this->Internal->vbo.release();
+  this->Internal->vbo.Release();
   this->Internal->program.disableAttributeArray("vertexWC");
   if (this->Internal->colorAttributes)
     {

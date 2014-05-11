@@ -22,7 +22,8 @@ namespace vtkgl {
 /**
  * @brief OpenGL buffer object
  *
- * OpenGL buffer object to store geometry/attribute data on the GPU.
+ * OpenGL buffer object to store index, geometry and/or attribute data on the
+ * GPU.
  */
 
 class VTKRENDERINGOPENGL2_EXPORT BufferObject
@@ -37,13 +38,13 @@ public:
   ~BufferObject();
 
   /** Get the type of the buffer object. */
-  ObjectType type() const;
+  ObjectType GetType() const;
 
   /** Get the handle of the buffer object. */
-  int handle() const;
+  int GetHandle() const;
 
   /** Determine if the buffer object is ready to be used. */
-  bool ready() const { return m_dirty == false; }
+  bool IsReady() const { return Dirty == false; }
 
   /**
    * Upload data to the buffer object. The BufferObject::type() must match
@@ -55,46 +56,47 @@ public:
    * supported containers.
    */
   template <class T>
-  bool upload(const T &array, ObjectType type);
+  bool Upload(const T &array, ObjectType type);
 
   /**
    * Bind the buffer object ready for rendering.
    * @note Only one ARRAY_BUFFER and one ELEMENT_ARRAY_BUFFER may be bound at
    * any time.
    */
-  bool bind();
+  bool Bind();
 
   /**
    * Release the buffer. This should be done after rendering is complete.
    */
-  bool release();
+  bool Release();
 
   /**
    * Return a string describing errors.
    */
-  std::string error() const { return m_error; }
+  std::string GetError() const { return Error; }
 
 private:
-  bool uploadInternal(const void *buffer, size_t size, ObjectType objectType);
+  bool UploadInternal(const void *buffer, size_t size, ObjectType objectType);
 
   struct Private;
   Private *d;
-  bool  m_dirty;
 
-  std::string m_error;
+  bool  Dirty;
+  std::string Error;
 };
 
 template <class T>
-inline bool BufferObject::upload(const T &array,
+inline bool BufferObject::Upload(const T &array,
                                  BufferObject::ObjectType objectType)
 {
-  if (array.empty()) {
-    m_error = "Refusing to upload empty array.";
+  if (array.empty())
+    {
+    this->Error = "Refusing to upload empty array.";
     return false;
-  }
-  return uploadInternal(&array[0],
-                        array.size() * sizeof(typename T::value_type),
-                        objectType);
+    }
+  return this->UploadInternal(&array[0],
+                              array.size() * sizeof(typename T::value_type),
+                              objectType);
 }
 
 }

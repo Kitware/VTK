@@ -560,7 +560,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     }
 
   // Bind the VBO, this is shared between the different primitive/cell types.
-  this->Internal->vbo.bind();
+  this->Internal->vbo.Bind();
   vtkgl::VBOLayout &layout = this->Internal->layout;
 
   if (this->Internal->tris.indexCount)
@@ -605,7 +605,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
     // Render the VBO contents as appropriate, I think we really need separate
     // shaders for triangles, lines and points too...
-    this->Internal->tris.ibo.bind();
+    this->Internal->tris.ibo.Bind();
 
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
       {
@@ -633,7 +633,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         }
 #endif
       }
-    this->Internal->tris.ibo.release();
+    this->Internal->tris.ibo.Release();
     this->Internal->tris.program.release();
     }
 
@@ -679,7 +679,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
     // Render the VBO contents as appropriate, I think we really need separate
     // shaders for triangles, lines and points too...
-    this->Internal->triStrips.ibo.bind();
+    this->Internal->triStrips.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
       {
       glDrawElements(GL_LINE_STRIP,
@@ -687,7 +687,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         GL_UNSIGNED_INT,
         (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
       }
-    this->Internal->triStrips.ibo.release();
+    this->Internal->triStrips.ibo.Release();
     this->Internal->triStrips.program.release();
     }
 
@@ -722,7 +722,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                                       layout.ColorComponents,
                                                       vtkgl::ShaderProgram::Normalize);
       }
-    this->Internal->lines.ibo.bind();
+    this->Internal->lines.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
       {
       glDrawElements(GL_LINE_STRIP,
@@ -730,7 +730,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         GL_UNSIGNED_INT,
         (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
       }
-    this->Internal->lines.ibo.release();
+    this->Internal->lines.ibo.Release();
     this->Internal->lines.program.release();
     }
 
@@ -765,17 +765,17 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                                       layout.ColorComponents,
                                                       vtkgl::ShaderProgram::Normalize);
       }
-    this->Internal->points.ibo.bind();
+    this->Internal->points.ibo.Bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
                         static_cast<GLsizei>(this->Internal->points.indexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Internal->points.ibo.release();
+    this->Internal->points.ibo.Release();
     this->Internal->points.program.release();
     }
 
-  this->Internal->vbo.release();
+  this->Internal->vbo.Release();
 
 //  this->Internal->program.disableAttributeArray("vertexMC");
 //  if (layout.VertexOffset != layout.NormalOffset)

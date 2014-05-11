@@ -20,13 +20,14 @@ namespace vtkgl {
 namespace {
 inline GLenum convertType(BufferObject::ObjectType type)
 {
-  switch (type) {
-  default:
-  case BufferObject::ArrayBuffer:
-    return GL_ARRAY_BUFFER;
-  case BufferObject::ElementArrayBuffer:
-    return GL_ELEMENT_ARRAY_BUFFER;
-  }
+  switch (type)
+    {
+    default:
+    case BufferObject::ArrayBuffer:
+      return GL_ARRAY_BUFFER;
+    case BufferObject::ElementArrayBuffer:
+      return GL_ELEMENT_ARRAY_BUFFER;
+    }
 }
 }
 
@@ -37,69 +38,85 @@ struct BufferObject::Private
   GLuint handle;
 };
 
-BufferObject::BufferObject(ObjectType type_)
-  : d(new Private), m_dirty(true)
+BufferObject::BufferObject(ObjectType type)
+  : d(new Private), Dirty(true)
 {
-  if (type_ == ArrayBuffer)
-    d->type = GL_ARRAY_BUFFER;
+  if (type == ArrayBuffer)
+    {
+    this->d->type = GL_ARRAY_BUFFER;
+    }
   else
-    d->type = GL_ELEMENT_ARRAY_BUFFER;
+    {
+    this->d->type = GL_ELEMENT_ARRAY_BUFFER;
+    }
 }
 
 BufferObject::~BufferObject()
 {
-  if (d->handle != 0)
-    glDeleteBuffers(1, &d->handle);
-  delete d;
+  if (this->d->handle != 0)
+    {
+    glDeleteBuffers(1, &this->d->handle);
+    }
+  delete this->d;
 }
 
-BufferObject::ObjectType BufferObject::type() const
+BufferObject::ObjectType BufferObject::GetType() const
 {
-  if (d->type == GL_ARRAY_BUFFER)
+  if (this->d->type == GL_ARRAY_BUFFER)
+    {
     return ArrayBuffer;
+    }
   else
+    {
     return ElementArrayBuffer;
+    }
 }
 
-int BufferObject::handle() const
+int BufferObject::GetHandle() const
 {
-  return static_cast<int>(d->handle);
+  return static_cast<int>(this->d->handle);
 }
 
-bool BufferObject::bind()
+bool BufferObject::Bind()
 {
-  if (!d->handle)
+  if (!this->d->handle)
+    {
     return false;
+    }
 
-  glBindBuffer(d->type, d->handle);
+  glBindBuffer(this->d->type, this->d->handle);
   return true;
 }
 
-bool BufferObject::release()
+bool BufferObject::Release()
 {
-  if (!d->handle)
+  if (!this->d->handle)
+    {
     return false;
+    }
 
-  glBindBuffer(d->type, 0);
+  glBindBuffer(this->d->type, 0);
   return true;
 }
 
-bool BufferObject::uploadInternal(const void *buffer, size_t size,
+bool BufferObject::UploadInternal(const void *buffer, size_t size,
                                   ObjectType objectType)
 {
   GLenum objectTypeGl = convertType(objectType);
-  if (d->handle == 0) {
-    glGenBuffers(1, &d->handle);
-    d->type = objectTypeGl;
-  }
-  else if (d->type != objectTypeGl) {
-    m_error = "Trying to upload array buffer to incompatible buffer.";
+  if (d->handle == 0)
+    {
+    glGenBuffers(1, &this->d->handle);
+    this->d->type = objectTypeGl;
+    }
+  else if (this->d->type != objectTypeGl)
+    {
+    this->Error = "Trying to upload array buffer to incompatible buffer.";
     return false;
-  }
-  glBindBuffer(d->type, d->handle);
-  glBufferData(d->type, size, static_cast<const GLvoid *>(buffer),
+    }
+  glBindBuffer(this->d->type, this->d->handle);
+  glBufferData(this->d->type, size, static_cast<const GLvoid *>(buffer),
                GL_STATIC_DRAW);
-  m_dirty = false;
+  this->Dirty = false;
   return true;
 }
 
