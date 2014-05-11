@@ -124,15 +124,15 @@ bool ShaderProgram::attachShader(const Shader &shader)
     if (m_vertexShader != 0) {
       glDetachShader(static_cast<GLuint>(m_handle),
                      static_cast<GLuint>(m_vertexShader));
-      m_vertexShader = shader.handle();
     }
+    m_vertexShader = shader.handle();
   }
   else if (shader.type() == Shader::Fragment) {
     if (m_fragmentShader != 0) {
       glDetachShader(static_cast<GLuint>(m_handle),
                      static_cast<GLuint>(m_fragmentShader));
-      m_fragmentShader = shader.handle();
     }
+    m_fragmentShader = shader.handle();
   }
   else {
     m_error = "Unknown shader type encountered - this should not happen.";
