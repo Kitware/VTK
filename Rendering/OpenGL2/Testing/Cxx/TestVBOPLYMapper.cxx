@@ -18,7 +18,6 @@
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
-#include "vtkPolyDataNormals.h"
 #include "vtkVBOPolyDataMapper.h"
 #include "vtkPLYReader.h"
 #include "vtkNew.h"
@@ -44,16 +43,12 @@ int TestVBOPLYMapper(int argc, char *argv[])
   vtkNew<vtkLightKit> lightKit;
   lightKit->AddLightsToRenderer(renderer.Get());
 
-
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                               "Data/dragon.ply");
 
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
-  //vtkNew<vtkPolyDataNormals> computeNormals;
-  //computeNormals->SetInputConnection(reader->GetOutputPort());
-  //computeNormals->Update();
 
   mapper->SetInputConnection(reader->GetOutputPort());
   actor->SetMapper(mapper.Get());
