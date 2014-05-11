@@ -18,8 +18,8 @@
 
 namespace vtkgl {
 
-Shader::Shader(Type type_, const std::string &source_)
-  : m_type(type_), m_handle(0), m_dirty(true), m_source(source_)
+Shader::Shader(Type type, const std::string &source)
+  : ShaderType(type), Handle(0), Dirty(true), Source(source)
 {
 }
 
@@ -27,66 +27,73 @@ Shader::~Shader()
 {
 }
 
-void Shader::setType(Type type_)
+void Shader::SetType(Type type)
 {
-  m_type = type_;
-  m_dirty = true;
+  this->ShaderType = type;
+  this->Dirty = true;
 }
 
-void Shader::setSource(const std::string &source_)
+void Shader::SetSource(const std::string &source)
 {
-  m_source = source_;
-  m_dirty = true;
+  this->Source = source;
+  this->Dirty = true;
 }
 
-bool Shader::compile()
+bool Shader::Compile()
 {
-  if (m_source.empty() || m_type == Unknown || !m_dirty)
+  if (this->Source.empty() || this->ShaderType == Unknown || !this->Dirty)
+    {
     return false;
+    }
 
   // Ensure we delete the previous shader if necessary.
-  if (m_handle != 0) {
-    glDeleteShader(static_cast<GLuint>(m_handle));
-    m_handle = 0;
-  }
+  if (Handle != 0)
+    {
+    glDeleteShader(static_cast<GLuint>(Handle));
+    Handle = 0;
+    }
 
-  GLenum type_ = m_type == Vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
-  GLuint handle_ = glCreateShader(type_);
-  const GLchar *source_ = static_cast<const GLchar *>(m_source.c_str());
-  glShaderSource(handle_, 1, &source_, NULL);
-  glCompileShader(handle_);
+  GLenum type = ShaderType == Vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+  GLuint handle = glCreateShader(type);
+  const GLchar *source = static_cast<const GLchar *>(this->Source.c_str());
+  glShaderSource(handle, 1, &source, NULL);
+  glCompileShader(handle);
   GLint isCompiled;
-  glGetShaderiv(handle_, GL_COMPILE_STATUS, &isCompiled);
+  glGetShaderiv(handle, GL_COMPILE_STATUS, &isCompiled);
 
   // Handle shader compilation failures.
-  if (!isCompiled) {
+  if (!isCompiled)
+    {
     GLint length(0);
-    glGetShaderiv(handle_, GL_INFO_LOG_LENGTH, &length);
-    if (length > 1) {
+    glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &length);
+    if (length > 1)
+      {
       char *logMessage = new char[length];
-      glGetShaderInfoLog(handle_, length, NULL, logMessage);
-      m_error = logMessage;
+      glGetShaderInfoLog(handle, length, NULL, logMessage);
+      this->Error = logMessage;
       delete[] logMessage;
-    }
-    glDeleteShader(handle_);
+      }
+    glDeleteShader(handle);
     return false;
   }
 
   // The shader compiled, store its handle and return success.
-  m_handle = static_cast<int>(handle_);
-  m_dirty = false;
+  this->Handle = static_cast<int>(handle);
+  this->Dirty = false;
 
   return true;
 }
 
-void Shader::cleanup()
+void Shader::Cleanup()
 {
-  if (m_type == Unknown || m_handle == 0)
+  if (this->ShaderType == Unknown || this->Handle == 0)
+    {
     return;
+    }
 
-  glDeleteShader(static_cast<GLuint>(m_handle));
-  m_handle = 0;
-  m_dirty = false;
+  glDeleteShader(static_cast<GLuint>(this->Handle));
+  this->Handle = 0;
+  this->Dirty = false;
 }
 
 }

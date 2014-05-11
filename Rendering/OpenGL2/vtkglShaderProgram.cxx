@@ -101,11 +101,11 @@ ShaderProgram::~ShaderProgram()
 
 bool ShaderProgram::attachShader(const Shader &shader)
 {
-  if (shader.handle() == 0) {
+  if (shader.GetHandle() == 0) {
     m_error = "Shader object was not initialized, cannot attach it.";
     return false;
   }
-  if (shader.type() == Shader::Unknown) {
+  if (shader.GetType() == Shader::Unknown) {
     m_error = "Shader object is of type Unknown and cannot be used.";
     return false;
   }
@@ -120,19 +120,19 @@ bool ShaderProgram::attachShader(const Shader &shader)
     m_linked = false;
   }
 
-  if (shader.type() == Shader::Vertex) {
+  if (shader.GetType() == Shader::Vertex) {
     if (m_vertexShader != 0) {
       glDetachShader(static_cast<GLuint>(m_handle),
                      static_cast<GLuint>(m_vertexShader));
     }
-    m_vertexShader = shader.handle();
+    m_vertexShader = shader.GetHandle();
   }
-  else if (shader.type() == Shader::Fragment) {
+  else if (shader.GetType() == Shader::Fragment) {
     if (m_fragmentShader != 0) {
       glDetachShader(static_cast<GLuint>(m_handle),
                      static_cast<GLuint>(m_fragmentShader));
     }
-    m_fragmentShader = shader.handle();
+    m_fragmentShader = shader.GetHandle();
   }
   else {
     m_error = "Unknown shader type encountered - this should not happen.";
@@ -140,18 +140,18 @@ bool ShaderProgram::attachShader(const Shader &shader)
   }
 
   glAttachShader(static_cast<GLuint>(m_handle),
-                 static_cast<GLuint>(shader.handle()));
+                 static_cast<GLuint>(shader.GetHandle()));
   m_linked = false;
   return true;
 }
 
 bool ShaderProgram::detachShader(const Shader &shader)
 {
-  if (shader.handle() == 0) {
+  if (shader.GetHandle() == 0) {
     m_error = "Shader object was not initialized, cannot attach it.";
     return false;
   }
-  if (shader.type() == Shader::Unknown) {
+  if (shader.GetType() == Shader::Unknown) {
     m_error = "Shader object is of type Unknown and cannot be used.";
     return false;
   }
@@ -159,27 +159,27 @@ bool ShaderProgram::detachShader(const Shader &shader)
     m_error = "This shader prorgram has not been initialized yet.";
   }
 
-  switch (shader.type()) {
+  switch (shader.GetType()) {
   case Shader::Vertex:
-    if (m_vertexShader != shader.handle()) {
+    if (m_vertexShader != shader.GetHandle()) {
       m_error = "The supplied shader was not attached to this program.";
       return false;
     }
     else {
       glDetachShader(static_cast<GLuint>(m_handle),
-                     static_cast<GLuint>(shader.handle()));
+                     static_cast<GLuint>(shader.GetHandle()));
       m_vertexShader = 0;
       m_linked = false;
       return true;
     }
   case Shader::Fragment:
-    if (m_fragmentShader != shader.handle()) {
+    if (m_fragmentShader != shader.GetHandle()) {
       m_error = "The supplied shader was not attached to this program.";
       return false;
     }
     else {
       glDetachShader(static_cast<GLuint>(m_handle),
-                     static_cast<GLuint>(shader.handle()));
+                     static_cast<GLuint>(shader.GetHandle()));
       m_fragmentShader = 0;
       m_linked = false;
       return true;

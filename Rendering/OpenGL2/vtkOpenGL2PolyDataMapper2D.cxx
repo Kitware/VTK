@@ -69,8 +69,8 @@ public:
 
   Private() : colorAttributes(false)
   {
-    this->vertexShader.setType(vtkgl::Shader::Vertex);
-    this->fragmentShader.setType(vtkgl::Shader::Fragment);
+    this->vertexShader.SetType(vtkgl::Shader::Vertex);
+    this->fragmentShader.SetType(vtkgl::Shader::Fragment);
   }
 };
 
@@ -97,7 +97,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkViewport* vtkNotUsed(viewport),
 
   // compile and link the shader program if it has changed
   // eventually use some sort of caching here
-  if (this->Internal->vertexShader.type() == vtkgl::Shader::Unknown ||
+  if (this->Internal->vertexShader.GetType() == vtkgl::Shader::Unknown ||
       this->Internal->propertiesTime > this->Internal->shaderBuildTime)
     {
     // Build our shader if necessary.
@@ -116,15 +116,15 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkViewport* vtkNotUsed(viewport),
       }
     cout << "VS: " << vertexShaderSource << endl;
 
-    this->Internal->vertexShader.setSource(vertexShaderSource);
-    this->Internal->fragmentShader.setSource(this->Internal->fragmentShaderFile);
-    if (!this->Internal->vertexShader.compile())
+    this->Internal->vertexShader.SetSource(vertexShaderSource);
+    this->Internal->fragmentShader.SetSource(this->Internal->fragmentShaderFile);
+    if (!this->Internal->vertexShader.Compile())
       {
-      vtkErrorMacro(<< this->Internal->vertexShader.error());
+      vtkErrorMacro(<< this->Internal->vertexShader.GetError());
       }
-    if (!this->Internal->fragmentShader.compile())
+    if (!this->Internal->fragmentShader.Compile())
       {
-      vtkErrorMacro(<< this->Internal->fragmentShader.error());
+      vtkErrorMacro(<< this->Internal->fragmentShader.GetError());
       }
     if (!this->Internal->program.attachShader(this->Internal->vertexShader))
       {

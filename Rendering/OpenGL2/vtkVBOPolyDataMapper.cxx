@@ -189,7 +189,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
 
   // compile and link the shader program if it has changed
   // eventually use some sort of caching here
-  if (tris.vs.type() == vtkgl::Shader::Unknown ||
+  if (tris.vs.GetType() == vtkgl::Shader::Unknown ||
       this->Internal->propertiesTime > tris.buildTime)
     {
     // Build our shader if necessary.
@@ -208,17 +208,17 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       }
     cout << "VS: " << vertexShaderSource << endl;
 
-    tris.vs.setSource(vertexShaderSource);
-    tris.vs.setType(vtkgl::Shader::Vertex);
-    tris.fs.setSource(tris.fsFile);
-    tris.fs.setType(vtkgl::Shader::Fragment);
-    if (!tris.vs.compile())
+    tris.vs.SetSource(vertexShaderSource);
+    tris.vs.SetType(vtkgl::Shader::Vertex);
+    tris.fs.SetSource(tris.fsFile);
+    tris.fs.SetType(vtkgl::Shader::Fragment);
+    if (!tris.vs.Compile())
       {
-      vtkErrorMacro(<< tris.vs.error());
+      vtkErrorMacro(<< tris.vs.GetError());
       }
-    if (!tris.fs.compile())
+    if (!tris.fs.Compile())
       {
-      vtkErrorMacro(<< tris.fs.error());
+      vtkErrorMacro(<< tris.fs.GetError());
       }
     if (!tris.program.attachShader(tris.vs))
       {
@@ -230,7 +230,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       }
     if (!tris.program.link())
       {
-      vtkErrorMacro(<< tris.program.error());
+      vtkErrorMacro(<< "Links failed: " << tris.program.error());
       }
     tris.buildTime.Modified();
     }
@@ -241,10 +241,10 @@ void vtkVBOPolyDataMapper::UpdateVertexShader(vtkRenderer *, vtkActor *)
   // Compile and link the shader program if it has changed.
   // FIXME: Use caching for shaders/programs.
   vtkgl::CellBO &points = this->Internal->points;
-  if (points.vs.type() == vtkgl::Shader::Unknown)
+  if (points.vs.GetType() == vtkgl::Shader::Unknown)
     {
-    points.vs.setType(vtkgl::Shader::Vertex);
-    points.fs.setType(vtkgl::Shader::Fragment);
+    points.vs.SetType(vtkgl::Shader::Vertex);
+    points.fs.SetType(vtkgl::Shader::Fragment);
     // Build our shader if necessary.
     std::string vertexShaderSource = vtkglVertexShader;
     if (this->Internal->colorAttributes)
@@ -261,17 +261,17 @@ void vtkVBOPolyDataMapper::UpdateVertexShader(vtkRenderer *, vtkActor *)
       }
     cout << "VS: " << vertexShaderSource << endl;
 
-    points.vs.setType(vtkgl::Shader::Vertex);
-    points.vs.setSource(vertexShaderSource);
-    points.fs.setType(vtkgl::Shader::Fragment);
-    points.fs.setSource(vtkglPolyDataFS);
-    if (!points.fs.compile())
+    points.vs.SetType(vtkgl::Shader::Vertex);
+    points.vs.SetSource(vertexShaderSource);
+    points.fs.SetType(vtkgl::Shader::Fragment);
+    points.fs.SetSource(vtkglPolyDataFS);
+    if (!points.fs.Compile())
       {
-      vtkErrorMacro(<< points.fs.error());
+      vtkErrorMacro(<< points.fs.GetError());
       }
-    if (!points.vs.compile())
+    if (!points.vs.Compile())
       {
-      vtkErrorMacro(<< points.vs.error());
+      vtkErrorMacro(<< points.vs.GetError());
       }
 
     if (!points.program.attachShader(points.vs))
@@ -294,10 +294,10 @@ void vtkVBOPolyDataMapper::UpdateLineShader(vtkRenderer *, vtkActor *)
   // Compile and link the shader program if it has changed.
   // FIXME: Use caching for shaders/programs.
   vtkgl::CellBO &lines = this->Internal->lines;
-  if (lines.vs.type() == vtkgl::Shader::Unknown)
+  if (lines.vs.GetType() == vtkgl::Shader::Unknown)
     {
-    lines.vs.setType(vtkgl::Shader::Vertex);
-    lines.fs.setType(vtkgl::Shader::Fragment);
+    lines.vs.SetType(vtkgl::Shader::Vertex);
+    lines.fs.SetType(vtkgl::Shader::Fragment);
     // Build our shader if necessary.
     std::string vertexShaderSource = vtkglVertexShader;
     if (this->Internal->colorAttributes)
@@ -314,17 +314,17 @@ void vtkVBOPolyDataMapper::UpdateLineShader(vtkRenderer *, vtkActor *)
       }
     cout << "VS: " << vertexShaderSource << endl;
 
-    lines.vs.setType(vtkgl::Shader::Vertex);
-    lines.vs.setSource(vertexShaderSource);
-    lines.fs.setType(vtkgl::Shader::Fragment);
-    lines.fs.setSource(vtkglPolyDataFS);
-    if (!lines.fs.compile())
+    lines.vs.SetType(vtkgl::Shader::Vertex);
+    lines.vs.SetSource(vertexShaderSource);
+    lines.fs.SetType(vtkgl::Shader::Fragment);
+    lines.fs.SetSource(vtkglPolyDataFS);
+    if (!lines.fs.Compile())
       {
-      vtkErrorMacro(<< lines.fs.error());
+      vtkErrorMacro(<< lines.fs.GetError());
       }
-    if (!lines.vs.compile())
+    if (!lines.vs.Compile())
       {
-      vtkErrorMacro(<< lines.vs.error());
+      vtkErrorMacro(<< lines.vs.GetError());
       }
 
     if (!lines.program.attachShader(lines.vs))

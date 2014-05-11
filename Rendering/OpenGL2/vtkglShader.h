@@ -41,41 +41,41 @@ public:
   ~Shader();
 
   /** Set the shader type. */
-  void setType(Type type);
+  void SetType(Type type);
 
   /** Get the shader type, typically Vertex or Fragment. */
-  Type type() const { return m_type; }
+  Type GetType() const { return ShaderType; }
 
   /** Set the shader source to the supplied string. */
-  void setSource(const std::string &source);
+  void SetSource(const std::string &source);
 
   /** Get the source for the shader. */
-  std::string source() const { return m_source; }
+  std::string GetSource() const { return Source; }
 
   /** Get the error message (empty if none) for the shader. */
-  std::string error() const { return m_error; }
+  std::string GetError() const { return Error; }
 
   /** Get the handle of the shader. */
-  int handle() const { return m_handle; }
+  int GetHandle() const { return Handle; }
 
   /** Compile the shader.
    * @note A valid context must to current in order to compile the shader.
    */
-  bool compile();
+  bool Compile();
 
   /** Delete the shader.
    * @note This should only be done once the ShaderProgram is done with the
    * Shader.
    */
-  void cleanup();
+  void Cleanup();
 
 protected:
-  Type m_type;
-  int  m_handle;
-  bool m_dirty;
+  Type ShaderType;
+  int  Handle;
+  bool Dirty;
 
-  std::string m_source;
-  std::string m_error;
+  std::string Source;
+  std::string Error;
 };
 
 }
