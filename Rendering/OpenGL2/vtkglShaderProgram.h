@@ -66,45 +66,45 @@ public:
    * attached to a shader prorgram.
    * @return true on success.
    */
-  bool attachShader(const Shader &shader);
+  bool AttachShader(const Shader &shader);
 
   /** Detach the supplied shader from this program.
    * @note A maximum of one Vertex shader and one Fragment shader can be
    * attached to a shader prorgram.
    * @return true on success.
    */
-  bool detachShader(const Shader &shader);
+  bool DetachShader(const Shader &shader);
 
   /**
    * Attempt to link the shader program.
    * @return false on failure. Query error to get the reason.
    * @note The shaders attached to the program must have been compiled.
    */
-  bool link();
+  bool Link();
 
   /**
    * Bind the program in order to use it. If the program has not been linked
    * then link() will be called.
    */
-  bool bind();
+  bool Bind();
 
   /** Releases the shader program from the current context. */
-  void release();
+  void Release();
 
   /** Get the error message (empty if none) for the shader program. */
-  std::string error() const { return m_error; }
+  std::string GetError() const { return Error; }
 
   /**
    * Enable the named attribute array. Return false if the attribute array is
    * not contained in the linked shader program.
    */
-  bool enableAttributeArray(const std::string &name);
+  bool EnableAttributeArray(const std::string &name);
 
   /**
    * Disable the named attribute array. Return false if the attribute array is
    * not contained in the linked shader program.
    */
-  bool disableAttributeArray(const std::string &name);
+  bool DisableAttributeArray(const std::string &name);
 
   /**
    * Use the named attribute array with the bound BufferObject.
@@ -121,7 +121,7 @@ public:
    * See NormalizeOption for more information.
    * @return false if the attribute array does not exist.
    */
-  bool useAttributeArray(const std::string &name, int offset, size_t stride,
+  bool UseAttributeArray(const std::string &name, int offset, size_t stride,
                          int elementType, int elementTupleSize,
                          NormalizeOption normalize);
 
@@ -143,72 +143,74 @@ public:
    * The std::vector classes is an example of such a container.
    */
   template <class T>
-  bool setAttributeArray(const std::string &name, const T &array,
+  bool SetAttributeArray(const std::string &name, const T &array,
                          int tupleSize, NormalizeOption normalize);
 
   /** Set the sampler @a samplerName to use the specified texture. */
-  bool setTextureSampler(const std::string &samplerName,
+  bool SetTextureSampler(const std::string &samplerName,
                          const Texture2D &texture);
 
   /** Set the @p name uniform value to int @p i. */
-  bool setUniformValue(const std::string &name, int i);
+  bool SetUniformValue(const std::string &name, int i);
 
   /** Set the @p name uniform value to float @p f. */
-  bool setUniformValue(const std::string &name, float f);
+  bool SetUniformValue(const std::string &name, float f);
 
   /** Set the @p name uniform array to @p f with @p count elements */
-  bool setUniformValue(const std::string &name, const int count, const int *f);
-  bool setUniformValue(const std::string &name, const int count, const float *f);
-  bool setUniformValue(const std::string &name, const int count, const float (*f)[3]);
+  bool SetUniformValue(const std::string &name, const int count, const int *f);
+  bool SetUniformValue(const std::string &name, const int count, const float *f);
+  bool SetUniformValue(const std::string &name, const int count, const float (*f)[3]);
 
-  bool setUniformValue(const std::string &name, vtkMatrix3x3 *mat);
-  bool setUniformValue(const std::string &name, vtkMatrix4x4 *mat);
+  bool SetUniformValue(const std::string &name, vtkMatrix3x3 *mat);
+  bool SetUniformValue(const std::string &name, vtkMatrix4x4 *mat);
 
   /** Set the @p name uniform value to @p matrix. */
-  bool setUniformValue(const std::string &name, const Matrix3f &matrix);
-  bool setUniformValue(const std::string &name, const Matrix4f &matrix);
+  bool SetUniformValue(const std::string &name, const Matrix3f &matrix);
+  bool SetUniformValue(const std::string &name, const Matrix4f &matrix);
 
   /** Set the @p name uniform value to the supplied value. @{ */
-  bool setUniformValue(const std::string &name, const Vector3f &v);
-  bool setUniformValue(const std::string &name, const Vector2i &v);
-  bool setUniformValue(const std::string &name, const Vector3ub &v);
+  bool SetUniformValue(const std::string &name, const Vector3f &v);
+  bool SetUniformValue(const std::string &name, const Vector2i &v);
+  bool SetUniformValue(const std::string &name, const Vector3ub &v);
   /** @} */
 
 protected:
-  bool setAttributeArrayInternal(const std::string &name, void *buffer,
+  bool SetAttributeArrayInternal(const std::string &name, void *buffer,
                                  int type, int tupleSize,
                                  NormalizeOption normalize);
-  int m_handle;
-  int m_vertexShader;
-  int m_fragmentShader;
+  int Handle;
+  int VertexShaderHandle;
+  int FragmentShaderHandle;
 
-  bool m_linked;
+  bool Linked;
 
-  std::string m_error;
+  std::string Error;
 
-  std::map<std::string, int> m_attributes;
+  std::map<std::string, int> Attributes;
 
-  std::map<const Texture2D*, int> m_textureUnitBindings;
-  std::vector<bool> m_boundTextureUnits;
+  std::map<const Texture2D*, int> TextureUnitBindings;
+  std::vector<bool> BoundTextureUnits;
 
 private:
-  void initializeTextureUnits();
-  void releaseAllTextureUnits();
-  int findAttributeArray(const std::string &name);
-  int findUniform(const std::string &name);
+  void InitializeTextureUnits();
+  void ReleaseAllTextureUnits();
+  int FindAttributeArray(const std::string &name);
+  int FindUniform(const std::string &name);
 };
 
 template <class T>
-inline bool ShaderProgram::setAttributeArray(
-    const std::string &name, const T &array, int tupleSize,
-    NormalizeOption normalize)
+inline bool ShaderProgram::SetAttributeArray(const std::string &name,
+                                             const T &array, int tupleSize,
+                                             NormalizeOption normalize)
 {
-  if (array.empty()) {
-    m_error = "Refusing to upload empty array for attribute " + name + ".";
+  if (array.empty())
+    {
+    this->Error = "Refusing to upload empty array for attribute " + name + ".";
     return false;
-  }
+    }
   int type = vtkTypeTraits<typename T::value_type>::VTKTypeID();
-  return setAttributeArrayInternal(name, &array[0], type, tupleSize, normalize);
+  return this->SetAttributeArrayInternal(name, &array[0], type, tupleSize,
+                                         normalize);
 }
 
 }

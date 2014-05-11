@@ -83,9 +83,9 @@ public:
           static_cast<unsigned char>(color[0] * 255.0),
           static_cast<unsigned char>(color[1] * 255.0),
           static_cast<unsigned char>(color[2] * 255.0));
-    program.setUniformValue("opacity", opacity);
-    program.setUniformValue("diffuseColor", diffuseColor);
-    program.setUniformValue("pointSize", property->GetPointSize());
+    program.SetUniformValue("opacity", opacity);
+    program.SetUniformValue("diffuseColor", diffuseColor);
+    program.SetUniformValue("pointSize", property->GetPointSize());
     glLineWidth(property->GetLineWidth());
   }
 
@@ -100,9 +100,9 @@ public:
     vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(),
                               tmpMat.Get());
     tmpMat->Transpose();
-    program.setUniformValue("MCVCMatrix", tmpMat.Get());
+    program.SetUniformValue("MCVCMatrix", tmpMat.Get());
     tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
-    program.setUniformValue("VCDCMatrix", tmpMat.Get());
+    program.SetUniformValue("VCDCMatrix", tmpMat.Get());
   }
 };
 
@@ -220,17 +220,17 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       {
       vtkErrorMacro(<< tris.fs.GetError());
       }
-    if (!tris.program.attachShader(tris.vs))
+    if (!tris.program.AttachShader(tris.vs))
       {
-      vtkErrorMacro(<< this->Internal->tris.program.error());
+      vtkErrorMacro(<< this->Internal->tris.program.GetError());
       }
-    if (!tris.program.attachShader(tris.fs))
+    if (!tris.program.AttachShader(tris.fs))
       {
-      vtkErrorMacro(<< tris.program.error());
+      vtkErrorMacro(<< tris.program.GetError());
       }
-    if (!tris.program.link())
+    if (!tris.program.Link())
       {
-      vtkErrorMacro(<< "Links failed: " << tris.program.error());
+      vtkErrorMacro(<< "Links failed: " << tris.program.GetError());
       }
     tris.buildTime.Modified();
     }
@@ -274,17 +274,17 @@ void vtkVBOPolyDataMapper::UpdateVertexShader(vtkRenderer *, vtkActor *)
       vtkErrorMacro(<< points.vs.GetError());
       }
 
-    if (!points.program.attachShader(points.vs))
+    if (!points.program.AttachShader(points.vs))
       {
-      vtkErrorMacro(<< points.program.error());
+      vtkErrorMacro(<< points.program.GetError());
       }
-    if (!points.program.attachShader(points.fs))
+    if (!points.program.AttachShader(points.fs))
       {
-      vtkErrorMacro(<< points.program.error());
+      vtkErrorMacro(<< points.program.GetError());
       }
-    if (!points.program.link())
+    if (!points.program.Link())
       {
-      vtkErrorMacro(<< points.program.error());
+      vtkErrorMacro(<< points.program.GetError());
       }
     }
 }
@@ -327,17 +327,17 @@ void vtkVBOPolyDataMapper::UpdateLineShader(vtkRenderer *, vtkActor *)
       vtkErrorMacro(<< lines.vs.GetError());
       }
 
-    if (!lines.program.attachShader(lines.vs))
+    if (!lines.program.AttachShader(lines.vs))
       {
-      vtkErrorMacro(<< lines.program.error());
+      vtkErrorMacro(<< lines.program.GetError());
       }
-    if (!lines.program.attachShader(lines.fs))
+    if (!lines.program.AttachShader(lines.fs))
       {
-      vtkErrorMacro(<< lines.program.error());
+      vtkErrorMacro(<< lines.program.GetError());
       }
-    if (!lines.program.link())
+    if (!lines.program.Link())
       {
-      vtkErrorMacro(<< lines.program.error());
+      vtkErrorMacro(<< lines.program.GetError());
       }
     }
 }
@@ -389,9 +389,9 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
     }
   vtkgl::ShaderProgram &program = this->Internal->tris.program;
 
-  program.setUniformValue("lightColor", numberOfLights, lightColor);
-  program.setUniformValue("lightDirectionVC", numberOfLights, lightDirection);
-  program.setUniformValue("numberOfLights", numberOfLights);
+  program.SetUniformValue("lightColor", numberOfLights, lightColor);
+  program.SetUniformValue("lightDirectionVC", numberOfLights, lightDirection);
+  program.SetUniformValue("numberOfLights", numberOfLights);
 
   if (this->Internal->tris.vsFile == vtkglPolyDataVSLightKit)
     {
@@ -425,11 +425,11 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
       numberOfLights++;
       }
     }
-  program.setUniformValue("lightAttenuation", numberOfLights, lightAttenuation);
-  program.setUniformValue("lightPositional", numberOfLights, lightPositional);
-  program.setUniformValue("lightPositionWC", numberOfLights, lightPosition);
-  program.setUniformValue("lightExponent", numberOfLights, lightExponent);
-  program.setUniformValue("lightConeAngle", numberOfLights, lightConeAngle);
+  program.SetUniformValue("lightAttenuation", numberOfLights, lightAttenuation);
+  program.SetUniformValue("lightPositional", numberOfLights, lightPositional);
+  program.SetUniformValue("lightPositionWC", numberOfLights, lightPosition);
+  program.SetUniformValue("lightExponent", numberOfLights, lightExponent);
+  program.SetUniformValue("lightConeAngle", numberOfLights, lightConeAngle);
 }
 
 //-----------------------------------------------------------------------------
@@ -440,16 +440,16 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor 
   vtkCamera *cam = ren->GetActiveCamera();
   // really just view  matrix in spite of it's name
   vtkTransform* viewTF = cam->GetModelViewTransformObject();
-  program.setUniformValue("WCVCMatrix", viewTF->GetMatrix());
+  program.SetUniformValue("WCVCMatrix", viewTF->GetMatrix());
 
   // set the MCWC matrix
-  program.setUniformValue("MCWCMatrix", actor->GetMatrix());
+  program.SetUniformValue("MCWCMatrix", actor->GetMatrix());
 
   // compute the combined ModelView matrix and send it down to save time in the shader
   vtkMatrix4x4 *tmpMat = vtkMatrix4x4::New();
   vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(), tmpMat);
   tmpMat->Transpose();
-  program.setUniformValue("MCVCMatrix", tmpMat);
+  program.SetUniformValue("MCVCMatrix", tmpMat);
 
   // set the normal matrix and send it down
   // (make this a function in camera at some point returning a 3x3)
@@ -463,10 +463,10 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor 
       }
     }
   tmpMat3d->Invert();
-  program.setUniformValue("normalMatrix", tmpMat3d);
+  program.SetUniformValue("normalMatrix", tmpMat3d);
 
   tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
-  program.setUniformValue("VCDCMatrix", tmpMat);
+  program.SetUniformValue("VCDCMatrix", tmpMat);
 
   tmpMat->Delete();
   tmpMat3d->Delete();
@@ -496,11 +496,11 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer*,
   float specularPower = actor->GetProperty()->GetSpecularPower();
 
   vtkgl::ShaderProgram &program = this->Internal->tris.program;
-  program.setUniformValue("opacity", opacity);
-  program.setUniformValue("ambientColor", ambientColor);
-  program.setUniformValue("diffuseColor", diffuseColor);
-  program.setUniformValue("specularColor", specularColor);
-  program.setUniformValue("specularPower", specularPower);
+  program.SetUniformValue("opacity", opacity);
+  program.SetUniformValue("ambientColor", ambientColor);
+  program.SetUniformValue("diffuseColor", diffuseColor);
+  program.SetUniformValue("specularColor", specularColor);
+  program.SetUniformValue("specularPower", specularPower);
 }
 
 //-----------------------------------------------------------------------------
@@ -567,9 +567,9 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(ren, actor);
-    if (!this->Internal->tris.program.bind())
+    if (!this->Internal->tris.program.Bind())
       {
-      vtkErrorMacro(<< this->Internal->tris.program.error());
+      vtkErrorMacro(<< this->Internal->tris.program.GetError());
       return;
       }
 
@@ -577,26 +577,26 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->SetPropertyShaderParameters(ren, actor);
     this->SetCameraShaderParameters(ren, actor);
 
-    this->Internal->tris.program.enableAttributeArray("vertexMC");
-    this->Internal->tris.program.useAttributeArray("vertexMC", layout.VertexOffset,
+    this->Internal->tris.program.EnableAttributeArray("vertexMC");
+    this->Internal->tris.program.UseAttributeArray("vertexMC", layout.VertexOffset,
                                                    layout.Stride,
                                                    VTK_FLOAT, 3,
                                                    vtkgl::ShaderProgram::NoNormalize);
     if (layout.VertexOffset != layout.NormalOffset)
       {
-      this->Internal->tris.program.enableAttributeArray("normalMC");
-      this->Internal->tris.program.useAttributeArray("normalMC", layout.NormalOffset,
+      this->Internal->tris.program.EnableAttributeArray("normalMC");
+      this->Internal->tris.program.UseAttributeArray("normalMC", layout.NormalOffset,
                                                      layout.Stride,
                                                      VTK_FLOAT, 3,
                                                      vtkgl::ShaderProgram::NoNormalize);
       }
     if (layout.ColorComponents != 0)
       {
-      if (!this->Internal->tris.program.enableAttributeArray("diffuseColor"))
+      if (!this->Internal->tris.program.EnableAttributeArray("diffuseColor"))
         {
-        vtkErrorMacro(<< this->Internal->tris.program.error());
+        vtkErrorMacro(<< this->Internal->tris.program.GetError());
         }
-      this->Internal->tris.program.useAttributeArray("diffuseColor", layout.ColorOffset,
+      this->Internal->tris.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
                                                      layout.Stride,
                                                      VTK_UNSIGNED_CHAR,
                                                      layout.ColorComponents,
@@ -634,16 +634,16 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 #endif
       }
     this->Internal->tris.ibo.Release();
-    this->Internal->tris.program.release();
+    this->Internal->tris.program.Release();
     }
 
   if (this->Internal->triStrips.indexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(ren, actor);
-    if (!this->Internal->triStrips.program.bind())
+    if (!this->Internal->triStrips.program.Bind())
       {
-      vtkErrorMacro(<< this->Internal->triStrips.program.error());
+      vtkErrorMacro(<< this->Internal->triStrips.program.GetError());
       return;
       }
 
@@ -651,26 +651,26 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->SetPropertyShaderParameters(ren, actor);
     this->SetCameraShaderParameters(ren, actor);
 
-    this->Internal->triStrips.program.enableAttributeArray("vertexMC");
-    this->Internal->triStrips.program.useAttributeArray("vertexMC", layout.VertexOffset,
+    this->Internal->triStrips.program.EnableAttributeArray("vertexMC");
+    this->Internal->triStrips.program.UseAttributeArray("vertexMC", layout.VertexOffset,
                                                    layout.Stride,
                                                    VTK_FLOAT, 3,
                                                    vtkgl::ShaderProgram::NoNormalize);
     if (layout.VertexOffset != layout.NormalOffset)
       {
-      this->Internal->triStrips.program.enableAttributeArray("normalMC");
-      this->Internal->triStrips.program.useAttributeArray("normalMC", layout.NormalOffset,
+      this->Internal->triStrips.program.EnableAttributeArray("normalMC");
+      this->Internal->triStrips.program.UseAttributeArray("normalMC", layout.NormalOffset,
                                                      layout.Stride,
                                                      VTK_FLOAT, 3,
                                                      vtkgl::ShaderProgram::NoNormalize);
       }
     if (layout.ColorComponents != 0)
       {
-      if (!this->Internal->triStrips.program.enableAttributeArray("diffuseColor"))
+      if (!this->Internal->triStrips.program.EnableAttributeArray("diffuseColor"))
         {
-        vtkErrorMacro(<< this->Internal->triStrips.program.error());
+        vtkErrorMacro(<< this->Internal->triStrips.program.GetError());
         }
-      this->Internal->triStrips.program.useAttributeArray("diffuseColor", layout.ColorOffset,
+      this->Internal->triStrips.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
                                                      layout.Stride,
                                                      VTK_UNSIGNED_CHAR,
                                                      layout.ColorComponents,
@@ -688,16 +688,16 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
       }
     this->Internal->triStrips.ibo.Release();
-    this->Internal->triStrips.program.release();
+    this->Internal->triStrips.program.Release();
     }
 
   if (this->Internal->lines.indexCount)
     {
     // Update/build the shader.
     this->UpdateLineShader(ren, actor);
-    if (!this->Internal->lines.program.bind())
+    if (!this->Internal->lines.program.Bind())
       {
-      vtkErrorMacro(<< this->Internal->lines.program.error());
+      vtkErrorMacro(<< this->Internal->lines.program.GetError());
       return;
       }
 
@@ -705,18 +705,18 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                         actor->GetProperty());
     this->Internal->SetCameraUniforms(this->Internal->lines.program, ren, actor);
 
-    this->Internal->lines.program.enableAttributeArray("vertexMC");
-    this->Internal->lines.program.useAttributeArray("vertexMC", layout.VertexOffset,
+    this->Internal->lines.program.EnableAttributeArray("vertexMC");
+    this->Internal->lines.program.UseAttributeArray("vertexMC", layout.VertexOffset,
                                                      layout.Stride,
                                                      VTK_FLOAT, 3,
                                                      vtkgl::ShaderProgram::NoNormalize);
     if (layout.ColorComponents != 0)
       {
-      if (!this->Internal->lines.program.enableAttributeArray("diffuseColor"))
+      if (!this->Internal->lines.program.EnableAttributeArray("diffuseColor"))
         {
-        vtkErrorMacro(<< this->Internal->lines.program.error());
+        vtkErrorMacro(<< this->Internal->lines.program.GetError());
         }
-      this->Internal->lines.program.useAttributeArray("diffuseColor", layout.ColorOffset,
+      this->Internal->lines.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
                                                       layout.Stride,
                                                       VTK_UNSIGNED_CHAR,
                                                       layout.ColorComponents,
@@ -731,16 +731,16 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
       }
     this->Internal->lines.ibo.Release();
-    this->Internal->lines.program.release();
+    this->Internal->lines.program.Release();
     }
 
   if (this->Internal->points.indexCount)
     {
     // Update/build the shader.
     this->UpdateVertexShader(ren, actor);
-    if (!this->Internal->points.program.bind())
+    if (!this->Internal->points.program.Bind())
       {
-      vtkErrorMacro(<< this->Internal->points.program.error());
+      vtkErrorMacro(<< this->Internal->points.program.GetError());
       return;
       }
 
@@ -748,18 +748,18 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                         actor->GetProperty());
     this->Internal->SetCameraUniforms(this->Internal->points.program, ren, actor);
 
-    this->Internal->points.program.enableAttributeArray("vertexMC");
-    this->Internal->points.program.useAttributeArray("vertexMC", layout.VertexOffset,
+    this->Internal->points.program.EnableAttributeArray("vertexMC");
+    this->Internal->points.program.UseAttributeArray("vertexMC", layout.VertexOffset,
                                                      layout.Stride,
                                                      VTK_FLOAT, 3,
                                                      vtkgl::ShaderProgram::NoNormalize);
     if (layout.ColorComponents != 0)
       {
-      if (!this->Internal->points.program.enableAttributeArray("diffuseColor"))
+      if (!this->Internal->points.program.EnableAttributeArray("diffuseColor"))
         {
-        vtkErrorMacro(<< this->Internal->points.program.error());
+        vtkErrorMacro(<< this->Internal->points.program.GetError());
         }
-      this->Internal->points.program.useAttributeArray("diffuseColor", layout.ColorOffset,
+      this->Internal->points.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
                                                       layout.Stride,
                                                       VTK_UNSIGNED_CHAR,
                                                       layout.ColorComponents,
@@ -772,7 +772,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Internal->points.ibo.Release();
-    this->Internal->points.program.release();
+    this->Internal->points.program.Release();
     }
 
   this->Internal->vbo.Release();

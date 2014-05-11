@@ -126,17 +126,17 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkViewport* vtkNotUsed(viewport),
       {
       vtkErrorMacro(<< this->Internal->fragmentShader.GetError());
       }
-    if (!this->Internal->program.attachShader(this->Internal->vertexShader))
+    if (!this->Internal->program.AttachShader(this->Internal->vertexShader))
       {
-      vtkErrorMacro(<< this->Internal->program.error());
+      vtkErrorMacro(<< this->Internal->program.GetError());
       }
-    if (!this->Internal->program.attachShader(this->Internal->fragmentShader))
+    if (!this->Internal->program.AttachShader(this->Internal->fragmentShader))
       {
-      vtkErrorMacro(<< this->Internal->program.error());
+      vtkErrorMacro(<< this->Internal->program.GetError());
       }
-    if (!this->Internal->program.link())
+    if (!this->Internal->program.Link())
       {
-      vtkErrorMacro(<< this->Internal->program.error());
+      vtkErrorMacro(<< this->Internal->program.GetError());
       }
     this->Internal->shaderBuildTime.Modified();
     }
@@ -153,8 +153,8 @@ void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(vtkViewport*,
                          static_cast<unsigned char>(dColor[1] * 255.0),
                          static_cast<unsigned char>(dColor[2] * 255.0));
 
-  this->Internal->program.setUniformValue("opacity", opacity);
-  this->Internal->program.setUniformValue("diffuseColor", diffuseColor);
+  this->Internal->program.SetUniformValue("opacity", opacity);
+  this->Internal->program.SetUniformValue("diffuseColor", diffuseColor);
 }
 
 //-----------------------------------------------------------------------------
@@ -232,7 +232,7 @@ void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(vtkViewport* viewport
   tmpMat->SetElement(1,3,-1.0*(top+bottom)/(top-bottom));
   tmpMat->SetElement(2,3,-1.0*(farV+nearV)/(farV-nearV));
   tmpMat->Transpose();
-  this->Internal->program.setUniformValue("WCVCMatrix", tmpMat);
+  this->Internal->program.SetUniformValue("WCVCMatrix", tmpMat);
 
   tmpMat->Delete();
 }
@@ -411,9 +411,9 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // Figure out and build the appropriate shader for the mapped geometry.
   this->UpdateShader(viewport, actor);
 
-  if (!this->Internal->program.bind())
+  if (!this->Internal->program.Bind())
     {
-    vtkErrorMacro(<< this->Internal->program.error());
+    vtkErrorMacro(<< this->Internal->program.GetError());
     return;
     }
 
@@ -428,18 +428,18 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     stride += sizeof(float);
     }
 
-  this->Internal->program.enableAttributeArray("vertexWC");
-  this->Internal->program.useAttributeArray("vertexWC", 0,
+  this->Internal->program.EnableAttributeArray("vertexWC");
+  this->Internal->program.UseAttributeArray("vertexWC", 0,
                                             stride,
                                             VTK_FLOAT, 3,
                                             vtkgl::ShaderProgram::NoNormalize);
   if (this->Internal->colorAttributes)
     {
-    if (!this->Internal->program.enableAttributeArray("diffuseColor"))
+    if (!this->Internal->program.EnableAttributeArray("diffuseColor"))
       {
-      vtkErrorMacro(<< this->Internal->program.error());
+      vtkErrorMacro(<< this->Internal->program.GetError());
       }
-    this->Internal->program.useAttributeArray("diffuseColor", sizeof(float) * 6,
+    this->Internal->program.UseAttributeArray("diffuseColor", sizeof(float) * 6,
                                               stride,
                                               VTK_UNSIGNED_CHAR,
                                               this->Colors->GetNumberOfComponents(),
@@ -499,12 +499,12 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
 
   this->Internal->vbo.Release();
-  this->Internal->program.disableAttributeArray("vertexWC");
+  this->Internal->program.DisableAttributeArray("vertexWC");
   if (this->Internal->colorAttributes)
     {
-    this->Internal->program.disableAttributeArray("diffuseColor");
+    this->Internal->program.DisableAttributeArray("diffuseColor");
     }
-  this->Internal->program.release();
+  this->Internal->program.Release();
 
   vtkOpenGLCheckErrorMacro("failed after RenderOverlay");
 }
