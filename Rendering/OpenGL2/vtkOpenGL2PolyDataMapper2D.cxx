@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkOpenGL2PolyDataMapper2D.h"
 
-#include <GL/glew.h>
+#include "vtkglVBOHelper.h"
 
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
@@ -33,13 +33,8 @@
 #include "vtkWindow.h"
 #include "vtkgluPickMatrix.h"
 #include "vtkOpenGLError.h"
-#include <math.h>
 
-#include "vtkglVBOHelper.h"
-
-#include "vtkglBufferObject.h"
-#include "vtkglShader.h"
-#include "vtkglShaderProgram.h"
+#include <cmath>
 
 // Bring in our shader symbols.
 #include "vtkglPolyData2DVS.h"

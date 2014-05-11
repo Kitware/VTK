@@ -13,7 +13,7 @@
 =========================================================================*/
 #include "vtkVBOPolyDataMapper.h"
 
-#include <GL/glew.h>
+#include "vtkglVBOHelper.h"
 
 #include "vtkCommand.h"
 #include "vtkCamera.h"
@@ -35,14 +35,8 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkglShader.h"
-#include "vtkglShaderProgram.h"
-#include "vtkglVBOHelper.h"
-
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
-
-#include <vector>
 
 // Bring in our shader symbols.
 #include "vtkglPolyDataVSLightKit.h"

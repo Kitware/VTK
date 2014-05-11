@@ -15,12 +15,16 @@
 #ifndef __vtkGLVBOHelpher_h
 #define __vtkGLVBOHelpher_h
 
-#include <GL/glew.h>
-
 #include "vtkglBufferObject.h"
 #include "vtkglShader.h"
 #include "vtkglShaderProgram.h"
+
+#include <GL/glew.h>
+
 #include <vector>
+
+class vtkCellArray;
+class vtkPoints;
 
 namespace vtkgl
 {
