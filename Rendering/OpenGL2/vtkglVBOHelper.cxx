@@ -119,6 +119,7 @@ VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
                           colorComponents,
                           vertexBuffer);
     }
+  return VBOLayout();
 }
 
 
@@ -141,6 +142,7 @@ VBOLayout CreateVBO(vtkPoints *points, vtkDataArray *normals,
                   colorComponents,
                   vertexBuffer));
     }
+  return VBOLayout();
 }
 
 // Process the string, and return a version with replacements.

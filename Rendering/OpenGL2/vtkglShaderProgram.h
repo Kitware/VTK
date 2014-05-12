@@ -31,6 +31,7 @@ namespace vtkgl {
 
 class Shader;
 class Texture2D;
+class VertexArrayObject;
 
 /**
  * @brief The ShaderProgram uses one or more Shader objects.
@@ -88,8 +89,17 @@ public:
    */
   bool Bind();
 
+  /**
+   * Check if the program is currently bound, or not.
+   * @return True if the program is bound, false otherwise.
+   */
+  bool isBound() const { return this->Bound; }
+
   /** Releases the shader program from the current context. */
   void Release();
+
+  /** Get the handle of the shader program. */
+  int GetHandle() const { return Handle; }
 
   /** Get the error message (empty if none) for the shader program. */
   std::string GetError() const { return Error; }
@@ -183,6 +193,7 @@ protected:
   int FragmentShaderHandle;
 
   bool Linked;
+  bool Bound;
 
   std::string Error;
 
@@ -190,6 +201,8 @@ protected:
 
   std::map<const Texture2D*, int> TextureUnitBindings;
   std::vector<bool> BoundTextureUnits;
+
+  friend class VertexArrayObject;
 
 private:
   void InitializeTextureUnits();

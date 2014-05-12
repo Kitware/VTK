@@ -92,7 +92,7 @@ inline GLenum LookupTextureUnit(GLint index)
 } // end anon namespace
 
 ShaderProgram::ShaderProgram() : Handle(0), VertexShaderHandle(0),
-  FragmentShaderHandle(0), Linked(false)
+  FragmentShaderHandle(0), Linked(false), Bound(false)
 {
   this->InitializeTextureUnits();
 }
@@ -250,12 +250,14 @@ bool ShaderProgram::Bind()
     }
 
   glUseProgram(static_cast<GLuint>(this->Handle));
+  this->Bound = true;
   return true;
 }
 
 void ShaderProgram::Release()
 {
   glUseProgram(0);
+  this->Bound = false;
   ReleaseAllTextureUnits();
 }
 

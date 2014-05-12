@@ -234,6 +234,39 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       }
     tris.buildTime.Modified();
     }
+  // Now to update the VAO too, if necessary.
+  vtkgl::VBOLayout &layout = this->Internal->layout;
+  if (tris.indexCount && this->VBOUpdateTime > tris.attributeUpdateTime)
+    {
+    tris.program.Bind();
+    tris.vao.Bind();
+    if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+                                    "vertexMC", layout.VertexOffset,
+                                    layout.Stride, VTK_FLOAT, 3, false))
+      {
+      vtkErrorMacro(<< "Error setting 'vertexMC' in triangle VAO.");
+      }
+    if (layout.VertexOffset != layout.NormalOffset)
+      {
+      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+                                      "normalMC", layout.NormalOffset,
+                                      layout.Stride, VTK_FLOAT, 3, false))
+        {
+        vtkErrorMacro(<< "Error setting 'normalMC' in triangle VAO.");
+        }
+      }
+    if (layout.ColorComponents != 0)
+      {
+      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+                                      "diffuseColor", layout.ColorOffset,
+                                      layout.Stride, VTK_UNSIGNED_CHAR,
+                                      layout.ColorComponents, true))
+        {
+        vtkErrorMacro(<< "Error setting 'diffuseColor' in triangle VAO.");
+        }
+      }
+    tris.attributeUpdateTime.Modified();
+    }
 }
 
 void vtkVBOPolyDataMapper::UpdateVertexShader(vtkRenderer *, vtkActor *)
@@ -287,6 +320,40 @@ void vtkVBOPolyDataMapper::UpdateVertexShader(vtkRenderer *, vtkActor *)
       vtkErrorMacro(<< points.program.GetError());
       }
     }
+  // Now to update the VAO too, if necessary.
+  vtkgl::VBOLayout &layout = this->Internal->layout;
+  if (points.indexCount && this->VBOUpdateTime > points.attributeUpdateTime)
+    {
+    points.program.Bind();
+    points.vao.Bind();
+    if (!points.vao.AddAttributeArray(points.program, this->Internal->vbo,
+                                      "vertexMC", layout.VertexOffset,
+                                       layout.Stride, VTK_FLOAT, 3, false))
+      {
+      vtkErrorMacro(<< "Error setting 'vertexMC' in VAO.");
+      }
+    // Do we want normals in lines?
+    /* if (layout.VertexOffset != layout.NormalOffset)
+      {
+      if (!points.vao.AddAttributeArray(points.program, this->Internal->vbo,
+                                        "normalMC", layout.NormalOffset,
+                                        layout.Stride, VTK_FLOAT, 3, false))
+        {
+        vtkErrorMacro(<< "Error setting 'normalMC' in VAO.");
+        }
+      } */
+    if (layout.ColorComponents != 0)
+      {
+      if (!points.vao.AddAttributeArray(points.program, this->Internal->vbo,
+                                        "diffuseColor", layout.ColorOffset,
+                                        layout.Stride, VTK_UNSIGNED_CHAR,
+                                        layout.ColorComponents, true))
+        {
+        vtkErrorMacro(<< "Error setting 'diffuseColor' in VAO.");
+        }
+      }
+    points.attributeUpdateTime.Modified();
+    }
 }
 
 void vtkVBOPolyDataMapper::UpdateLineShader(vtkRenderer *, vtkActor *)
@@ -339,6 +406,40 @@ void vtkVBOPolyDataMapper::UpdateLineShader(vtkRenderer *, vtkActor *)
       {
       vtkErrorMacro(<< lines.program.GetError());
       }
+    }
+  // Now to update the VAO too, if necessary.
+  vtkgl::VBOLayout &layout = this->Internal->layout;
+  if (lines.indexCount && this->VBOUpdateTime > lines.attributeUpdateTime)
+    {
+    lines.program.Bind();
+    lines.vao.Bind();
+    if (!lines.vao.AddAttributeArray(lines.program, this->Internal->vbo,
+                                     "vertexMC", layout.VertexOffset,
+                                     layout.Stride, VTK_FLOAT, 3, true))
+      {
+      vtkErrorMacro(<< "Error setting 'vertexMC' in VAO.");
+      }
+    // Do we want normals in lines?
+    /* if (layout.VertexOffset != layout.NormalOffset)
+      {
+      if (!lines.vao.AddAttributeArray(lines.program, this->Internal->vbo,
+                                       "normalMC", layout.NormalOffset,
+                                       layout.Stride, VTK_FLOAT, 3, false))
+        {
+        vtkErrorMacro(<< "Error setting 'normalMC' in VAO.");
+        }
+      } */
+    if (layout.ColorComponents != 0)
+      {
+      if (!lines.vao.AddAttributeArray(lines.program, this->Internal->vbo,
+                                       "diffuseColor", layout.ColorOffset,
+                                       layout.Stride, VTK_UNSIGNED_CHAR,
+                                       layout.ColorComponents, true))
+        {
+        vtkErrorMacro(<< "Error setting 'diffuseColor' in VAO.");
+        }
+      }
+    lines.attributeUpdateTime.Modified();
     }
 }
 
@@ -557,31 +658,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->SetPropertyShaderParameters(ren, actor);
     this->SetCameraShaderParameters(ren, actor);
 
-    this->Internal->tris.program.EnableAttributeArray("vertexMC");
-    this->Internal->tris.program.UseAttributeArray("vertexMC", layout.VertexOffset,
-                                                   layout.Stride,
-                                                   VTK_FLOAT, 3,
-                                                   vtkgl::ShaderProgram::NoNormalize);
-    if (layout.VertexOffset != layout.NormalOffset)
-      {
-      this->Internal->tris.program.EnableAttributeArray("normalMC");
-      this->Internal->tris.program.UseAttributeArray("normalMC", layout.NormalOffset,
-                                                     layout.Stride,
-                                                     VTK_FLOAT, 3,
-                                                     vtkgl::ShaderProgram::NoNormalize);
-      }
-    if (layout.ColorComponents != 0)
-      {
-      if (!this->Internal->tris.program.EnableAttributeArray("diffuseColor"))
-        {
-        vtkErrorMacro(<< this->Internal->tris.program.GetError());
-        }
-      this->Internal->tris.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
-                                                     layout.Stride,
-                                                     VTK_UNSIGNED_CHAR,
-                                                     layout.ColorComponents,
-                                                     vtkgl::ShaderProgram::Normalize);
-      }
+    this->Internal->tris.vao.Bind();
 
     // Render the VBO contents as appropriate, I think we really need separate
     // shaders for triangles, lines and points too...
@@ -613,17 +690,18 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         }
 #endif
       }
+    this->Internal->tris.vao.Release();
     this->Internal->tris.ibo.Release();
     this->Internal->tris.program.Release();
     }
 
   if (this->Internal->triStrips.indexCount)
     {
-    // First we do the triangles, update the shader, set uniforms, etc.
+    // Use the tris shader program/VAO, but triStrips ibo.
     this->UpdateShader(ren, actor);
-    if (!this->Internal->triStrips.program.Bind())
+    if (!this->Internal->tris.program.Bind())
       {
-      vtkErrorMacro(<< this->Internal->triStrips.program.GetError());
+      vtkErrorMacro(<< this->Internal->tris.program.GetError());
       return;
       }
 
@@ -631,44 +709,20 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->SetPropertyShaderParameters(ren, actor);
     this->SetCameraShaderParameters(ren, actor);
 
-    this->Internal->triStrips.program.EnableAttributeArray("vertexMC");
-    this->Internal->triStrips.program.UseAttributeArray("vertexMC", layout.VertexOffset,
-                                                   layout.Stride,
-                                                   VTK_FLOAT, 3,
-                                                   vtkgl::ShaderProgram::NoNormalize);
-    if (layout.VertexOffset != layout.NormalOffset)
-      {
-      this->Internal->triStrips.program.EnableAttributeArray("normalMC");
-      this->Internal->triStrips.program.UseAttributeArray("normalMC", layout.NormalOffset,
-                                                     layout.Stride,
-                                                     VTK_FLOAT, 3,
-                                                     vtkgl::ShaderProgram::NoNormalize);
-      }
-    if (layout.ColorComponents != 0)
-      {
-      if (!this->Internal->triStrips.program.EnableAttributeArray("diffuseColor"))
-        {
-        vtkErrorMacro(<< this->Internal->triStrips.program.GetError());
-        }
-      this->Internal->triStrips.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
-                                                     layout.Stride,
-                                                     VTK_UNSIGNED_CHAR,
-                                                     layout.ColorComponents,
-                                                     vtkgl::ShaderProgram::Normalize);
-      }
+    this->Internal->tris.vao.Bind();
 
-    // Render the VBO contents as appropriate, I think we really need separate
-    // shaders for triangles, lines and points too...
+    // Render the triangle strips, iterating over each strip.
     this->Internal->triStrips.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
       {
-      glDrawElements(GL_LINE_STRIP,
+      glDrawElements(GL_TRIANGLE_STRIP,
         this->Internal->triStrips.elementsArray[eCount],
         GL_UNSIGNED_INT,
         (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
       }
+    this->Internal->tris.vao.Release();
     this->Internal->triStrips.ibo.Release();
-    this->Internal->triStrips.program.Release();
+    this->Internal->tris.program.Release();
     }
 
   if (this->Internal->lines.indexCount)
@@ -685,23 +739,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                         actor->GetProperty());
     this->Internal->SetCameraUniforms(this->Internal->lines.program, ren, actor);
 
-    this->Internal->lines.program.EnableAttributeArray("vertexMC");
-    this->Internal->lines.program.UseAttributeArray("vertexMC", layout.VertexOffset,
-                                                     layout.Stride,
-                                                     VTK_FLOAT, 3,
-                                                     vtkgl::ShaderProgram::NoNormalize);
-    if (layout.ColorComponents != 0)
-      {
-      if (!this->Internal->lines.program.EnableAttributeArray("diffuseColor"))
-        {
-        vtkErrorMacro(<< this->Internal->lines.program.GetError());
-        }
-      this->Internal->lines.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
-                                                      layout.Stride,
-                                                      VTK_UNSIGNED_CHAR,
-                                                      layout.ColorComponents,
-                                                      vtkgl::ShaderProgram::Normalize);
-      }
+    this->Internal->lines.vao.Bind();
     this->Internal->lines.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
       {
@@ -710,6 +748,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         GL_UNSIGNED_INT,
         (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
       }
+    this->Internal->lines.vao.Release();
     this->Internal->lines.ibo.Release();
     this->Internal->lines.program.Release();
     }
@@ -728,45 +767,19 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                                         actor->GetProperty());
     this->Internal->SetCameraUniforms(this->Internal->points.program, ren, actor);
 
-    this->Internal->points.program.EnableAttributeArray("vertexMC");
-    this->Internal->points.program.UseAttributeArray("vertexMC", layout.VertexOffset,
-                                                     layout.Stride,
-                                                     VTK_FLOAT, 3,
-                                                     vtkgl::ShaderProgram::NoNormalize);
-    if (layout.ColorComponents != 0)
-      {
-      if (!this->Internal->points.program.EnableAttributeArray("diffuseColor"))
-        {
-        vtkErrorMacro(<< this->Internal->points.program.GetError());
-        }
-      this->Internal->points.program.UseAttributeArray("diffuseColor", layout.ColorOffset,
-                                                      layout.Stride,
-                                                      VTK_UNSIGNED_CHAR,
-                                                      layout.ColorComponents,
-                                                      vtkgl::ShaderProgram::Normalize);
-      }
+    this->Internal->points.vao.Bind();
     this->Internal->points.ibo.Bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
                         static_cast<GLsizei>(this->Internal->points.indexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
+    this->Internal->points.vao.Release();
     this->Internal->points.ibo.Release();
     this->Internal->points.program.Release();
     }
 
   this->Internal->vbo.Release();
-
-//  this->Internal->program.disableAttributeArray("vertexMC");
-//  if (layout.VertexOffset != layout.NormalOffset)
-//    {
-//    this->Internal->program.disableAttributeArray("normalMC");
-//    }
-//  if (this->Internal->colorAttributes)
-//    {
-//    this->Internal->program.disableAttributeArray("diffuseColor");
-//    }
-//  this->Internal->program.release();
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
@@ -859,18 +872,19 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
 
   // create the IBOs
   // for polys if we are wireframe handle it with multiindiex buffer
+  vtkgl::CellBO &tris = this->Internal->tris;
   if (act->GetProperty()->GetRepresentation() == VTK_SURFACE)
     {
-    this->Internal->tris.indexCount = CreateTriangleIndexBuffer(poly->GetPolys(),
-                                                        this->Internal->tris.ibo,
-                                                        poly->GetPoints());
+    tris.indexCount = CreateTriangleIndexBuffer(poly->GetPolys(),
+                                                tris.ibo,
+                                                poly->GetPoints());
     }
   else if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
     {
-    this->Internal->tris.indexCount = CreateMultiIndexBuffer(poly->GetPolys(),
-                           this->Internal->tris.ibo,
-                           this->Internal->tris.offsetArray,
-                           this->Internal->tris.elementsArray);
+    tris.indexCount = CreateMultiIndexBuffer(poly->GetPolys(),
+                                             tris.ibo,
+                                             tris.offsetArray,
+                                             tris.elementsArray);
     }
 
   this->Internal->points.indexCount = CreatePointIndexBuffer(poly->GetVerts(),
