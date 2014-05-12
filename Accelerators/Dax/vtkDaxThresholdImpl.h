@@ -38,6 +38,7 @@
 #include "vtkWedge.h"
 
 //fields we support
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
@@ -85,14 +86,14 @@ namespace detail{
           case 1:
             //first we extract the field type of the array
             //second we extract the number of components
-            typedef typename vtkToDax::FieldTypeToType<LHS,1>::FieldType FT1;
-            return dispatchOnFieldType<LHS,FT1>(arrayField);
+            typedef typename vtkToDax::FieldTypeToType<LHS,1>::DaxValueType VT1;
+            return dispatchOnFieldType<LHS,VT1>(arrayField);
           case 2:
-            typedef typename vtkToDax::FieldTypeToType<LHS,2>::FieldType FT2;
-          return dispatchOnFieldType<LHS,FT2>(arrayField);
+            typedef typename vtkToDax::FieldTypeToType<LHS,2>::DaxValueType VT2;
+          return dispatchOnFieldType<LHS,VT2>(arrayField);
           case 3:
-            typedef typename vtkToDax::FieldTypeToType<LHS,3>::FieldType FT3;
-            return dispatchOnFieldType<LHS,FT3>(arrayField);
+            typedef typename vtkToDax::FieldTypeToType<LHS,3>::DaxValueType VT3;
+            return dispatchOnFieldType<LHS,VT3>(arrayField);
         default:
           //currently only support 1 to 3 components
           //we need to make dispatch on field data smarter in that it does
@@ -103,20 +104,19 @@ namespace detail{
 
       }
 
-    template<typename VTKArrayType, typename DaxFieldType>
+    template<typename VTKArrayType, typename DaxValueType>
     int dispatchOnFieldType(VTKArrayType& vtkField) const
       {
-      typedef DaxFieldType FieldType;
       typedef vtkToDax::vtkArrayContainerTag<VTKArrayType> FieldTag;
-      typedef dax::cont::ArrayHandle<FieldType,FieldTag> FieldHandle;
-      typedef typename dax::cont::ArrayHandle<FieldType,
+      typedef dax::cont::ArrayHandle<DaxValueType,FieldTag> FieldHandle;
+      typedef typename dax::cont::ArrayHandle<DaxValueType,
                       FieldTag>::PortalConstControl      PortalType;
 
       FieldHandle field = FieldHandle( PortalType(&vtkField,
                                             vtkField.GetNumberOfTuples() ) );
       vtkToDax::Threshold<FieldHandle> threshold(field,
-                                                 FieldType(Min),
-                                                 FieldType(Max));
+                                                 DaxValueType(Min),
+                                                 DaxValueType(Max));
       threshold.setFieldName(vtkField.GetName());
       threshold.setOutputGrid(this->Result);
 
@@ -162,6 +162,7 @@ int Threshold(vtkDataSet* input, vtkUnstructuredGrid *output,
   //setup the dispatch to only allow float and int array to go to the next step
   vtkDispatcher<vtkAbstractArray,int> fieldDispatcher;
   fieldDispatcher.Add<vtkFloatArray>(validInput);
+  fieldDispatcher.Add<vtkDoubleArray>(validInput);
   fieldDispatcher.Add<vtkUnsignedCharArray>(validInput);
   fieldDispatcher.Add<vtkIntArray>(validInput);
   return fieldDispatcher.Go(field);
