@@ -104,7 +104,6 @@ protected:
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
-  bool Initialized; // Hack - ensure glewinit has been called - move to window.
 
 private:
   vtkVBOPolyDataMapper(const vtkVBOPolyDataMapper&); // Not implemented.

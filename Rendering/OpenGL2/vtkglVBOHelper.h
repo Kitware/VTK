@@ -25,6 +25,7 @@
 
 class vtkCellArray;
 class vtkPoints;
+class vtkDataArray;
 
 namespace vtkgl
 {

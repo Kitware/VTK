@@ -111,7 +111,7 @@ vtkStandardNewMacro(vtkVBOPolyDataMapper)
 
 //-----------------------------------------------------------------------------
 vtkVBOPolyDataMapper::vtkVBOPolyDataMapper()
-  : Internal(new Private), UsingScalarColoring(false), Initialized(false)
+  : Internal(new Private), UsingScalarColoring(false)
 {
 }
 
@@ -530,26 +530,6 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     }
 
   this->TimeToDraw = 0.0;
-
-  // FIXME: This should be moved to the renderer, render window or similar.
-  if (!this->Initialized)
-    {
-    GLenum result = glewInit();
-    bool m_valid = (result == GLEW_OK);
-    if (!m_valid)
-      {
-      vtkErrorMacro("GLEW could not be initialized.");
-      return;
-      }
-
-    if (!GLEW_VERSION_2_1)
-      {
-      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
-      //m_valid = false;
-      return;
-      }
-    this->Initialized = true;
-    }
 
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime() ||

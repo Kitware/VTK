@@ -24,6 +24,7 @@ set(Module_SRCS
   vtkOpenGL2Light.cxx
   vtkOpenGL2PolyDataMapper2D.cxx
   vtkOpenGL2Property.cxx
+  vtkOpenGL2Renderer.cxx
   vtkVBOPolyDataMapper.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
@@ -88,6 +89,7 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
     Light
 #    PolyDataMapper2D
     Property
+    Renderer
     )
 endif()
 

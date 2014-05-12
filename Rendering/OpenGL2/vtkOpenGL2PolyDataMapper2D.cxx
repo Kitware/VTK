@@ -78,7 +78,7 @@ vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
 
 //-----------------------------------------------------------------------------
 vtkOpenGL2PolyDataMapper2D::vtkOpenGL2PolyDataMapper2D()
-  : Internal(new Private), Initialized(false)
+  : Internal(new Private)
 {
 }
 
@@ -318,26 +318,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     return;
     }
 
-  // FIXME: This should be moved to the renderer, render window or similar.
-  if (!this->Initialized)
-    {
-    GLenum result = glewInit();
-    bool m_valid = (result == GLEW_OK);
-    if (!m_valid)
-      {
-      vtkErrorMacro("GLEW could not be initialized.");
-      return;
-      }
-
-    if (!GLEW_VERSION_2_1)
-      {
-      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
-      //m_valid = false;
-      return;
-      }
-    this->Initialized = true;
-    }
-
   if ( this->LookupTable == NULL )
     {
     this->CreateDefaultLookupTable();
@@ -474,6 +454,10 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   if (this->Internal->lines.offsetArray.size() > 0)
     {
+    // Set the LineWidth
+    glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
+    vtkOpenGLGL2PSHelper::SetLineWidth(actor->GetProperty()->GetLineWidth());
+
     this->Internal->lines.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
       {
