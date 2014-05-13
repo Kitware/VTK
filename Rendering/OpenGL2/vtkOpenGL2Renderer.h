@@ -45,11 +45,6 @@ public:
   // override this method.
   virtual void DeviceRenderTranslucentPolygonalGeometry();
 
-  // Description:
-  // Internal method temporarily removes lights before reloading them
-  // into graphics pipeline.
-  void ClearLights(void) {};
-
   void Clear(void);
 
   // Description:

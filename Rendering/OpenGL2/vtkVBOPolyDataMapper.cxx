@@ -39,6 +39,8 @@
 #include "vtkLightCollection.h"
 
 // Bring in our shader symbols.
+#include "vtkglPolyDataVSFlatOld.h"
+#include "vtkglPolyDataFSFlatOld.h"
 #include "vtkglPolyDataVSLightKit.h"
 #include "vtkglPolyDataVSHeadlight.h"
 #include "vtkglPolyDataVSPositionalLights.h"
@@ -173,19 +175,18 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
     case 1:
         tris.fsFile = vtkglPolyDataFS;
         tris.vsFile = vtkglPolyDataVSHeadlight;
-  //        tris.vsFile = vtkglPolyDataVSPositionalLights;
       break;
     case 2:
         tris.fsFile = vtkglPolyDataFS;
-  //        tris.vsFile = vtkglPolyDataVSHeadlight;
         tris.vsFile = vtkglPolyDataVSLightKit;
-  //        tris.vsFile = vtkglPolyDataVSPositionalLights;
       break;
     case 3:
         tris.fsFile = vtkglPolyDataFS;
         tris.vsFile = vtkglPolyDataVSPositionalLights;
       break;
     }
+  tris.fsFile = vtkglPolyDataFSFlatOld;
+  tris.vsFile = vtkglPolyDataVSFlatOld;
 
   // compile and link the shader program if it has changed
   // eventually use some sort of caching here
@@ -798,6 +799,29 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     return;
     }
 
+
+  // are they cell or point scalars
+  bool cellScalars = false;
+  if ( this->Colors )
+    {
+    if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
+          this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
+          this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
+          !input->GetPointData()->GetScalars() )
+         && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+      {
+      cellScalars = true;
+      }
+    }
+
+  // if we have cell scalars then we have to
+  // explode the data, at the same time we will triangulate
+  // any non triangles
+  if (cellScalars)
+    {
+    }
+
+
   vtkSmartPointer<vtkDataArray> n;
 
   // This replicates how the painter decided on normal generation.
@@ -813,6 +837,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
       vtkNew<vtkPolyDataNormals> computeNormals;
       computeNormals->SetInputData(poly);
       computeNormals->SplittingOff();
+      //computeNormals->SetfeatureAngle(0.01);
       computeNormals->Update();
       n = computeNormals->GetOutput()->GetPointData()->GetNormals();
       }

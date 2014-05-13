@@ -36,6 +36,8 @@ set(shader_files
   glsl/vtkglPolyDataVSPositionalLights.glsl
   glsl/vtkglVertexShader.glsl
   glsl/vtkglPolyDataFS.glsl
+  glsl/vtkglPolyDataVSFlatOld.glsl
+  glsl/vtkglPolyDataFSFlatOld.glsl
   )
 
 unset(shader_h_files)

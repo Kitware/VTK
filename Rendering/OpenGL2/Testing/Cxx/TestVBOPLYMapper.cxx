@@ -60,7 +60,7 @@ int TestVBOPLYMapper(int argc, char *argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
-  actor->GetProperty()->SetRepresentationToWireframe();
+  //actor->GetProperty()->SetRepresentationToWireframe();
 
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renderWindow.Get());

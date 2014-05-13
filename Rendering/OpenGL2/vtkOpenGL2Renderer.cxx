@@ -213,27 +213,10 @@ void vtkOpenGL2Renderer::DeviceRender(void)
     this->RenderWindow->MakeCurrent();
     vtkOpenGLClearErrorMacro();
 
-    // standard render method
-    this->ClearLights();
-
     this->UpdateCamera();
     this->UpdateLightGeometry();
     this->UpdateLights();
-
-    // set matrix mode for actors
-    glMatrixMode(GL_MODELVIEW);
-
     this->UpdateGeometry();
-
-    // clean up the model view matrix set up by the camera
-    glMatrixMode(GL_MODELVIEW);
-
-    GLint mvDepth;
-    glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &mvDepth);
-    if (mvDepth>1)
-      {
-      glPopMatrix();
-      }
 
     vtkOpenGLCheckErrorMacro("failed after DeviceRender");
     }
@@ -1085,9 +1068,6 @@ void vtkOpenGL2Renderer::Clear(void)
     glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
-    glDisable(GL_TEXTURE_1D);
-    glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
     glShadeModel(GL_SMOOTH); // color interpolation
 
@@ -1208,21 +1188,12 @@ void vtkOpenGL2Renderer::DevicePickRender()
   this->RenderWindow->MakeCurrent();
   vtkOpenGLClearErrorMacro();
 
-  // standard render method
-  this->ClearLights();
-
   this->UpdateCamera();
   this->UpdateLightGeometry();
   this->UpdateLights();
 
-  // set matrix mode for actors
-  glMatrixMode(GL_MODELVIEW);
-
   this->PickGeometry();
 
-  // clean up the model view matrix set up by the camera
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
   vtkOpenGLCheckErrorMacro("failed after DevicePickRender");
 }
 
