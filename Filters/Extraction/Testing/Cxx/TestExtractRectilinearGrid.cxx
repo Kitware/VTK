@@ -151,6 +151,10 @@ int TestExtractRectilinearGrid( int argc, char* argv[])
 {
   int rc = 0;
 
+  // silence compiler warnings
+  static_cast<void>(argc);
+  static_cast<void>(argv);
+
   int ext[6] = {0,49,0,49,0,0};
   vtkRectilinearGrid* grid = vtkRectilinearGrid::New();
   GenerateGrid( grid, ext );

@@ -132,7 +132,8 @@ void vtkExtractStructuredGridHelper::Initialize(
 
     // Update output whole extent
     this->OutputWholeExtent[2*dim]   = 0;
-    this->OutputWholeExtent[2*dim+1] = this->IndexMap->Mapping[dim].size()-1;
+    this->OutputWholeExtent[2*dim+1] =
+        static_cast<int>( this->IndexMap->Mapping[dim].size()-1 );
     } // END for all dimensions
 }
 
@@ -185,7 +186,6 @@ void vtkExtractStructuredGridHelper::ComputeBeginAndEnd(
     // output data.
     for(int dim=0; dim < 3; ++dim)
       {
-      int nIdx = this->GetSize( dim );
       for(int idx=0; idx < this->GetSize(dim); ++idx)
         {
         if( this->GetMapping(dim,idx) >= uExt[2*dim] &&
