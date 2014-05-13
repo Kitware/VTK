@@ -215,32 +215,26 @@ template <class ValueType, class InputIterator>
 void vtkDataArrayComputeVectorRange(InputIterator begin, InputIterator end,
                                     int numberOfComponents, double range[2])
 {
-  //We have to use doubles instead of the ValueType for the minmaxRange,
-  //because we are taking the magnitude of the value before storing it, and
-  //the mag function only supports float and double primitive types.
-  double mag = 0;
-  //fill the min max range explicitly with the first tuples magnitude
-  for(int i=0; i < numberOfComponents; ++i)
-    {
-    mag += static_cast<double>(begin[i] * begin[i]);
-    }
-  mag = sqrt(mag);
+  range[0] = VTK_DOUBLE_MAX;
+  range[1] = VTK_DOUBLE_MIN;
 
-  range[0] = mag;
-  range[1] = mag;
-
-  //iterate Tuples 1 - N, since we already computed Tuple 0 above
-  for(begin+=numberOfComponents; begin != end; begin+=numberOfComponents)
+  //iterate over all the tuples
+  for(; begin != end; begin+=numberOfComponents)
     {
-    mag = 0;
+    double squaredSum = 0;
     for(int i=0; i < numberOfComponents; ++i)
       {
-      mag += static_cast<double>(begin[i] * begin[i]);
+      squaredSum += static_cast<double>(begin[i]) *
+                    static_cast<double>(begin[i]);
       }
-    mag = sqrt(mag);
-    range[0] = std::min(mag,range[0]);
-    range[1] = std::max(mag,range[1]);
+    range[0] = std::min(squaredSum,range[0]);
+    range[1] = std::max(squaredSum,range[1]);
     }
+
+  //now that we have computed the smallest and largest value, take the
+  //square root of that value.
+  range[0] = sqrt(range[0]);
+  range[1] = sqrt(range[1]);
 }
 
 } // end anon namespace
