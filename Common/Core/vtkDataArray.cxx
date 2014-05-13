@@ -1097,21 +1097,52 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataArray::ComputeScalarRange(double range[2], int comp)
+template <class ValueType, class InputIterator>
+void vtkDataArrayComputeScalarRange(InputIterator begin, InputIterator end,
+                                    int numberOfComponents, int component,
+                                    double range[2])
 {
-  vtkIdType numTuples=this->GetNumberOfTuples();
-  for (vtkIdType i=0; i<numTuples; i++)
+  ValueType minmaxRange[2];
+  minmaxRange[0] = *begin;
+  minmaxRange[1] = *begin;
+
+  //special case of a single value scalar range
+  if(numberOfComponents == 1 && component == 0)
     {
-    double s = this->GetComponent(i,comp);
-    if ( s < range[0] )
+    for(; begin != end; ++begin)
       {
-      range[0] = s;
-      }
-    if ( s > range[1] )
-      {
-      range[1] = s;
+      minmaxRange[0] = std::min(*begin,minmaxRange[0]);
+      minmaxRange[1] = std::max(*begin,minmaxRange[1]);
       }
     }
+  else
+    {
+    for(; begin != end; begin+=numberOfComponents)
+      {
+      minmaxRange[0] = std::min(begin[component],minmaxRange[0]);
+      minmaxRange[1] = std::max(begin[component],minmaxRange[1]);
+      }
+    }
+
+  range[0] = std::min(static_cast<double>(minmaxRange[0]),range[0]);
+  range[1] = std::max(static_cast<double>(minmaxRange[1]),range[1]);
+
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::ComputeScalarRange(double range[2], int comp)
+{
+  switch (this->GetDataType())
+      {
+      vtkDataArrayIteratorMacro(this,
+          vtkDataArrayComputeScalarRange<vtkDAValueType>(
+                                         vtkDABegin, vtkDAEnd,
+                                         this->GetNumberOfComponents(), comp,
+                                         range)
+      );
+      default:
+        break;
+      }
 }
 
 //-----------------------------------------------------------------------------
