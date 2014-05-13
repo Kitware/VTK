@@ -45,6 +45,7 @@ public:
   vtkMultiProcessStream& operator << (float value);
   vtkMultiProcessStream& operator << (int value);
   vtkMultiProcessStream& operator << (char value);
+  vtkMultiProcessStream& operator << (bool value);
   vtkMultiProcessStream& operator << (unsigned int value);
   vtkMultiProcessStream& operator << (unsigned char value);
   vtkMultiProcessStream& operator << (vtkTypeInt64 value);
@@ -58,6 +59,7 @@ public:
   vtkMultiProcessStream& operator >> (float &value);
   vtkMultiProcessStream& operator >> (int &value);
   vtkMultiProcessStream& operator >> (char &value);
+  vtkMultiProcessStream& operator >> (bool &value);
   vtkMultiProcessStream& operator >> (unsigned int &value);
   vtkMultiProcessStream& operator >> (unsigned char &value);
   vtkMultiProcessStream& operator >> (vtkTypeInt64 &value);
