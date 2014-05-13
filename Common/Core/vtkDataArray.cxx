@@ -188,7 +188,8 @@ void vtkDataArrayComputeScalarRange(InputIterator begin, InputIterator end,
   minmaxRange[0] = *begin;
   minmaxRange[1] = *begin;
 
-  //special case of a single value scalar range
+  //special case of a single value scalar range to help the compiler onroll
+  //the for loop
   if(numberOfComponents == 1 && component == 0)
     {
     for(; begin != end; ++begin)
@@ -199,7 +200,11 @@ void vtkDataArrayComputeScalarRange(InputIterator begin, InputIterator end,
     }
   else
     {
-    for(; begin != end; begin+=numberOfComponents)
+    //Since we are dealing with arbitrary iterators instead of pointers
+    //we can't compute the exact end iterator value since the iterators them
+    //selves could check if they go out of bounds. So we have to use the less
+    //then operator to evaluate that our iterator is still valid.
+    for(; begin < end; begin+=numberOfComponents)
       {
       minmaxRange[0] = std::min(begin[component],minmaxRange[0]);
       minmaxRange[1] = std::max(begin[component],minmaxRange[1]);
