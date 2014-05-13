@@ -560,6 +560,16 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (char value)
 }
 
 //----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator << (bool v)
+{
+  char value = v;
+  this->Internals->Data.push_back(vtkInternals::char_value);
+  this->Internals->Push(reinterpret_cast<unsigned char*>(&value), sizeof(char));
+  return (*this);
+}
+
+
+//----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator << (unsigned int value)
 {
   this->Internals->Data.push_back(vtkInternals::uint32_value);
@@ -693,6 +703,18 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (char &value)
   this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(char));
   return (*this);
 }
+
+//----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator >> (bool &v)
+{
+  char value;
+  assert(this->Internals->Data.front() == vtkInternals::char_value);
+  this->Internals->Data.pop_front();
+  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(char));
+  v = static_cast<bool>(value);
+  return (*this);
+}
+
 
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator >> (unsigned int &value)
