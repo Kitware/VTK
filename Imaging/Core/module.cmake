@@ -18,6 +18,7 @@ vtk_module(vtkImagingCore
     vtkImagingMath # Move tests
     vtkImagingStencil # Move tests
     vtkImagingGeneral # Move tests
+    vtkImagingSources
     vtkImagingStatistics # Move tests
     vtkRenderingImage # Move tests
   )

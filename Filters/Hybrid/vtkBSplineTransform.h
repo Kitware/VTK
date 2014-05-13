@@ -61,7 +61,8 @@ public:
 
   // Description:
   // Set/Get a scale to apply to the transformation.
-  vtkSetMacro(DisplacementScale,double);
+  vtkSetMacro(DisplacementScale, double);
+  vtkGetMacro(DisplacementScale, double);
 
   // Description:
   // Set/Get the border mode, to alter behavior at the edge of the grid.
