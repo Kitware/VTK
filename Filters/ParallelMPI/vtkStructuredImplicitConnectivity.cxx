@@ -16,6 +16,7 @@
 
 // VTK includes
 #include "vtkFieldDataSerializer.h"
+#include "vtkImageData.h"
 #include "vtkMPIController.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
@@ -25,7 +26,6 @@
 #include "vtkStructuredData.h"
 #include "vtkStructuredExtent.h"
 #include "vtkStructuredGrid.h"
-#include "vtkUniformGrid.h"
 
 // C/C++ includes
 #include <algorithm>
@@ -1075,8 +1075,8 @@ void vtkStructuredImplicitConnectivity::GetOutputStructuredGrid(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredImplicitConnectivity::GetOutputUniformGrid(
-        const int gridID, vtkUniformGrid* grid)
+void vtkStructuredImplicitConnectivity::GetOutputImageData(
+        const int gridID, vtkImageData* grid)
 {
   assert("pre: NULL output grid!" && (grid != NULL) );
   assert("pre: output grid is NULL!" && (this->OutputGrid != NULL));
@@ -1086,7 +1086,6 @@ void vtkStructuredImplicitConnectivity::GetOutputUniformGrid(
   // implementation in the future to allow multiple grids per process.
   static_cast<void>(gridID);
 
-  grid->Initialize();
   grid->SetExtent(this->OutputGrid->Extent);
   grid->GetPointData()->ShallowCopy(this->OutputGrid->PointData);
 }

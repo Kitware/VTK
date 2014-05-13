@@ -41,12 +41,12 @@
 #include "vtkObject.h"
 
 // Forward declarations
+class vtkImageData;
 class vtkMPIController;
 class vtkMultiProcessStream;
 class vtkPointData;
 class vtkPoints;
 class vtkStructuredGrid;
-class vtkUniformGrid;
 
 namespace vtk
 {
@@ -120,7 +120,7 @@ public:
   // \brief Gets the output uniform grid instance on this process.
   // \param gridID the ID of the grid.
   // \param grid pointer to data-structure where to store the output.
-  void GetOutputUniformGrid(const int gridID, vtkUniformGrid* grid);
+  void GetOutputImageData(const int gridID, vtkImageData* grid);
 
 protected:
   vtkStructuredImplicitConnectivity();
