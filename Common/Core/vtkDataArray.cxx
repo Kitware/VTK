@@ -215,8 +215,8 @@ template <class ValueType, class InputIterator>
 void vtkDataArrayComputeVectorRange(InputIterator begin, InputIterator end,
                                     int numberOfComponents, double range[2])
 {
-  range[0] = VTK_DOUBLE_MAX;
-  range[1] = VTK_DOUBLE_MIN;
+  range[0] = vtkTypeTraits<double>::Max();
+  range[1] = vtkTypeTraits<double>::Min();
 
   //iterate over all the tuples
   for(; begin != end; begin+=numberOfComponents)
@@ -1106,8 +1106,8 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
       {
       infoVec->SetNumberOfInformationObjects( this->NumberOfComponents );
       double rtmp[2];
-      rtmp[0] = VTK_DOUBLE_MAX;
-      rtmp[1] = VTK_DOUBLE_MIN;
+      rtmp[0] = vtkTypeTraits<double>::Max();
+      rtmp[1] = vtkTypeTraits<double>::Min();
       // Since the MTime() of these new keys will be newer than this->MTime(), we must
       // be sure that their ranges are marked "invalid" so that we know they must be
       // computed.
@@ -1125,7 +1125,8 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
     if ( this->GetMTime() <= info->GetMTime() )
       {
       info->Get( rkey, range );
-      if ( range[0] != VTK_DOUBLE_MAX && range[1] != VTK_DOUBLE_MIN )
+      if ( range[0] != vtkTypeTraits<double>::Max() &&
+           range[1] != vtkTypeTraits<double>::Min() )
         {
         // Only accept these values if they are reasonable. Otherwise, it is an
         // indication that they've never been computed before.
@@ -1134,8 +1135,8 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
       }
     }
 
-  range[0] =  VTK_DOUBLE_MAX;
-  range[1] =  VTK_DOUBLE_MIN;
+  range[0] = vtkTypeTraits<double>::Max();
+  range[1] = vtkTypeTraits<double>::Min();
   if ( comp < 0 )
     {
     this->ComputeVectorRange(range);

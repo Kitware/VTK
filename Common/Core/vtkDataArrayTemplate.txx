@@ -1013,8 +1013,8 @@ void vtkDataArrayTemplate<T>::ComputeVectorRange(double range[2])
 
   // Compute the range of vector magnitude squared.
   int numComp = this->NumberOfComponents;
-  range[0] = VTK_DOUBLE_MAX;
-  range[1] = VTK_DOUBLE_MIN;
+  range[0] = vtkTypeTraits<double>::Max();
+  range[1] = vtkTypeTraits<double>::Min();
   for(T* i = begin; i != end; i += numComp)
     {
     double s = 0.0;
