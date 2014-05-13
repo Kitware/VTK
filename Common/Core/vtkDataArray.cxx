@@ -188,8 +188,8 @@ void vtkDataArrayComputeScalarRange(InputIterator begin, InputIterator end,
   minmaxRange[0] = *begin;
   minmaxRange[1] = *begin;
 
-  //special case of a single value scalar range to help the compiler onroll
-  //the for loop
+  //Special case for single value scalar range. This is done to help the
+  //compiler detect it can perform loop optimizations.
   if(numberOfComponents == 1 && component == 0)
     {
     for(; begin != end; ++begin)
