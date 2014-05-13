@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglTexture2D.cxx
+  vtkglVertexArrayObject.cxx
   vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
   vtkOpenGL2Light.cxx
