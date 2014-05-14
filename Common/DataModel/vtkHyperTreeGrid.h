@@ -394,7 +394,7 @@ protected:
   void DeleteTrees();
 
 //BTX
-#ifndef __WRAP__
+#if !defined(__WRAP__) && !defined(__WRAP_GCCXML__)
   void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, unsigned int );
 
   void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* );
