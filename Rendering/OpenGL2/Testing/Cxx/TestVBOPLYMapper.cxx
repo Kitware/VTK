@@ -23,7 +23,7 @@
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkLightKit.h"
-
+#include "vtkPolyDataNormals.h"
 #include "vtkTimerLog.h"
 
 #include "vtkRegressionTestImage.h"
@@ -50,7 +50,14 @@ int TestVBOPLYMapper(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
-  mapper->SetInputConnection(reader->GetOutputPort());
+  vtkNew<vtkPolyDataNormals> norms;
+  norms->SetInputConnection(reader->GetOutputPort());
+  norms->Update();
+
+
+
+  //mapper->SetInputConnection(reader->GetOutputPort());
+  mapper->SetInputConnection(norms->GetOutputPort());
   actor->SetMapper(mapper.Get());
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);

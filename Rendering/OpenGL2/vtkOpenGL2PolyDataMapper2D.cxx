@@ -267,10 +267,11 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
   // and IBOs as appropriate for each type.
   this->Internal->layout =
     CreateVBO(poly->GetPoints(),
+              poly->GetPoints()->GetNumberOfPoints(),
               NULL,
               this->Internal->colorAttributes ? this->Colors->GetPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              this->Internal->vbo);
+              this->Internal->vbo, NULL, NULL);
 
 
   this->Internal->triStrips.indexCount = CreateMultiIndexBuffer(poly->GetStrips(),

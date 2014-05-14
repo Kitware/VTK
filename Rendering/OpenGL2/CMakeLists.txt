@@ -31,14 +31,19 @@ set(Module_SRCS
   )
 
 set(shader_files
+  # lighting in the VS
   glsl/vtkglPolyData2DVS.glsl
   glsl/vtkglPolyDataVSLightKit.glsl
   glsl/vtkglPolyDataVSHeadlight.glsl
   glsl/vtkglPolyDataVSPositionalLights.glsl
   glsl/vtkglVertexShader.glsl
   glsl/vtkglPolyDataFS.glsl
-  glsl/vtkglPolyDataVSFlatOld.glsl
-  glsl/vtkglPolyDataFSFlatOld.glsl
+
+  # lighting in the FS
+  glsl/vtkglPolyDataVSFragmentLit.glsl
+  glsl/vtkglPolyDataFSHeadlight.glsl
+  glsl/vtkglPolyDataFSLightKit.glsl
+  glsl/vtkglPolyDataFSPositionalLights.glsl
   )
 
 unset(shader_h_files)

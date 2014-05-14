@@ -23,7 +23,8 @@ namespace vtkgl {
 template<typename T, typename T2>
 VBOLayout TemplatedCreateVBO2(T* points, T2* normals, vtkIdType numPts,
                     unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer)
+                    BufferObject &vertexBuffer, unsigned int *cellPointMap,
+                    unsigned int *pointCellMap)
 {
   VBOLayout layout;
   // Figure out how big each block will be, currently 6 or 7 floats.
@@ -59,26 +60,46 @@ VBOLayout TemplatedCreateVBO2(T* points, T2* normals, vtkIdType numPts,
 
   for (vtkIdType i = 0; i < numPts; ++i)
     {
+    T *pointPtr;
+    T2 *normalPtr;
+    if (cellPointMap && cellPointMap[i] > 0)
+      {
+      pointPtr = points + (cellPointMap[i]-1)*3;
+      normalPtr = normals + (cellPointMap[i]-1)*3;
+      }
+    else
+      {
+      pointPtr = points + i*3;
+      normalPtr = normals + i*3;
+      }
     // Vertices
-    *(it++) = *(points++);
-    *(it++) = *(points++);
-    *(it++) = *(points++);
+    *(it++) = *(pointPtr++);
+    *(it++) = *(pointPtr++);
+    *(it++) = *(pointPtr++);
     if (normals)
       {
-      *(it++) = *(normals++);
-      *(it++) = *(normals++);
-      *(it++) = *(normals++);
+      *(it++) = *(normalPtr++);
+      *(it++) = *(normalPtr++);
+      *(it++) = *(normalPtr++);
       }
     if (colors)
       {
-      if (colorComponents == 4)
+      unsigned char *colorPtr;
+      if (pointCellMap)
         {
-        *(it++) = *reinterpret_cast<float *>(colors);
-        colors += 4;
+        colorPtr = colors + pointCellMap[i]*colorComponents;
         }
       else
         {
-        unsigned char c[4] = { *(colors++), *(colors++), *(colors++), 255 };
+        colorPtr = colors + i*colorComponents;
+        }
+      if (colorComponents == 4)
+        {
+        *(it++) = *reinterpret_cast<float *>(colorPtr);
+        }
+      else
+        {
+        unsigned char c[4] = { *(colorPtr++), *(colorPtr++), *(colorPtr), 255 };
         *(it++) = *reinterpret_cast<float *>(c);
         }
       }
@@ -93,7 +114,8 @@ VBOLayout TemplatedCreateVBO2(T* points, T2* normals, vtkIdType numPts,
 template<typename T>
 VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
                     unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer)
+                    BufferObject &vertexBuffer, unsigned int *cellPointMap,
+                    unsigned int *pointCellMap)
 {
   if (normals)
     {
@@ -106,7 +128,7 @@ VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
                     numPts,
                     colors,
                     colorComponents,
-                    vertexBuffer));
+                    vertexBuffer, cellPointMap, pointCellMap));
       }
     }
   else
@@ -117,7 +139,7 @@ VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
                           numPts,
                           colors,
                           colorComponents,
-                          vertexBuffer);
+                          vertexBuffer, cellPointMap, pointCellMap);
     }
   return VBOLayout();
 }
@@ -127,9 +149,9 @@ VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
 // takes whatever the input type might be and packs them into a VBO using
 // floats for the vertices and normals, and unsigned char for the colors (if
 // the array is non-null).
-VBOLayout CreateVBO(vtkPoints *points, vtkDataArray *normals,
+VBOLayout CreateVBO(vtkPoints *points, unsigned int numPts, vtkDataArray *normals,
                     unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer)
+                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap)
 {
   switch(points->GetDataType())
     {
@@ -137,10 +159,10 @@ VBOLayout CreateVBO(vtkPoints *points, vtkDataArray *normals,
       return
         TemplatedCreateVBO(static_cast<VTK_TT*>(points->GetVoidPointer(0)),
                   normals,
-                  points->GetNumberOfPoints(),
+                  numPts,
                   colors,
                   colorComponents,
-                  vertexBuffer));
+                  vertexBuffer, cellPointMap, pointCellMap));
     }
   return VBOLayout();
 }

@@ -80,9 +80,9 @@ struct VBOLayout
 // takes whatever the input type might be and packs them into a VBO using
 // floats for the vertices and normals, and unsigned char for the colors (if
 // the array is non-null).
-VBOLayout CreateVBO(vtkPoints *points, vtkDataArray *normals,
+VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints, vtkDataArray *normals,
                     unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer);
+                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap);
 
 
 

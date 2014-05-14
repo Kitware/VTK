@@ -38,9 +38,13 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 
-// Bring in our shader symbols.
-#include "vtkglPolyDataVSFlatOld.h"
-#include "vtkglPolyDataFSFlatOld.h"
+// Bring in our fragment lit shader symbols.
+#include "vtkglPolyDataVSFragmentLit.h"
+#include "vtkglPolyDataFSHeadlight.h"
+#include "vtkglPolyDataFSLightKit.h"
+#include "vtkglPolyDataFSPositionalLights.h"
+
+// bring in vertex lit shader symbols
 #include "vtkglPolyDataVSLightKit.h"
 #include "vtkglPolyDataVSHeadlight.h"
 #include "vtkglPolyDataVSPositionalLights.h"
@@ -172,6 +176,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
   // pick which shader code to use based on above factors
   switch (lightComplexity)
     {
+      #if 0
     case 1:
         tris.fsFile = vtkglPolyDataFS;
         tris.vsFile = vtkglPolyDataVSHeadlight;
@@ -184,9 +189,20 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
         tris.fsFile = vtkglPolyDataFS;
         tris.vsFile = vtkglPolyDataVSPositionalLights;
       break;
+      #endif
+    case 1:
+        tris.vsFile = vtkglPolyDataVSFragmentLit;
+        tris.fsFile = vtkglPolyDataFSHeadlight;
+      break;
+    case 2:
+        tris.vsFile = vtkglPolyDataVSFragmentLit;
+        tris.fsFile = vtkglPolyDataFSLightKit;
+      break;
+    case 3:
+        tris.vsFile = vtkglPolyDataVSFragmentLit;
+        tris.fsFile = vtkglPolyDataFSPositionalLights;
+      break;
     }
-  tris.fsFile = vtkglPolyDataFSFlatOld;
-  tris.vsFile = vtkglPolyDataVSFlatOld;
 
   // compile and link the shader program if it has changed
   // eventually use some sort of caching here
@@ -194,22 +210,36 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       this->Internal->propertiesTime > tris.buildTime)
     {
     // Build our shader if necessary.
-    std::string vertexShaderSource = tris.vsFile;
+    std::string VSSource = tris.vsFile;
     if (this->Internal->colorAttributes)
       {
-      vertexShaderSource = replace(vertexShaderSource,
+      VSSource = replace(VSSource,
                                    "//VTK::Color::Dec",
                                    "attribute vec4 diffuseColor;");
       }
     else
       {
-      vertexShaderSource = replace(vertexShaderSource,
+      VSSource = replace(VSSource,
                                    "//VTK::Color::Dec",
                                    "uniform vec3 diffuseColor;");
       }
-    cout << "VS: " << vertexShaderSource << endl;
+    // normals?
+/*    if (this->GetInput()->GetPointData()->GetNormals())
+      {
+      VSSource = replace(VSSource,
+                                   "//VTK::Normal::Dec",
+                                   "attribute vec3 normalMC;");
+      }
+    else
+      {
+      VSSource = replace(VSSource,
+                                   "//VTK::Normal::Dec",
+                                   "uniform vec3 normalMC;");
+      }
+  */
+    cout << "VS: " << VSSource << endl;
 
-    tris.vs.SetSource(vertexShaderSource);
+    tris.vs.SetSource(VSSource);
     tris.vs.SetType(vtkgl::Shader::Vertex);
     tris.fs.SetSource(tris.fsFile);
     tris.fs.SetType(vtkgl::Shader::Fragment);
@@ -241,20 +271,20 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
     {
     tris.program.Bind();
     tris.vao.Bind();
+    if (this->GetInput()->GetPointData()->GetNormals())
+      {
+      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+                                      "zinger", layout.NormalOffset,
+                                      layout.Stride, VTK_FLOAT, 3, false))
+        {
+        vtkErrorMacro(<< "Error setting 'zinger' in triangle VAO.");
+        }
+      }
     if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
       vtkErrorMacro(<< "Error setting 'vertexMC' in triangle VAO.");
-      }
-    if (layout.VertexOffset != layout.NormalOffset)
-      {
-      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
-                                      "normalMC", layout.NormalOffset,
-                                      layout.Stride, VTK_FLOAT, 3, false))
-        {
-        vtkErrorMacro(<< "Error setting 'normalMC' in triangle VAO.");
-        }
       }
     if (layout.ColorComponents != 0)
       {
@@ -813,57 +843,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     }
 
 
-  // are they cell or point scalars
-  bool cellScalars = false;
-  if ( this->Colors )
-    {
-    if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
-          this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
-          this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
-          !input->GetPointData()->GetScalars() )
-         && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
-      {
-      cellScalars = true;
-      }
-    }
-
-  // if we have cell scalars then we have to
-  // explode the data, at the same time we will triangulate
-  // any non triangles
-  if (cellScalars)
-    {
-    }
-
-
-  vtkSmartPointer<vtkDataArray> n;
-
-  // This replicates how the painter decided on normal generation.
-  int interpolation = act->GetProperty()->GetInterpolation();
-  bool buildNormals = this->Internal->buidNormals;
-  if (buildNormals)
-    {
-    buildNormals = ((poly->GetPointData()->GetNormals() && interpolation != VTK_FLAT) ||
-                    poly->GetCellData()->GetNormals()) ? false : true;
-
-    if (buildNormals)
-      {
-      vtkNew<vtkPolyDataNormals> computeNormals;
-      computeNormals->SetInputData(poly);
-      computeNormals->SplittingOff();
-      //computeNormals->SetfeatureAngle(0.01);
-      computeNormals->Update();
-      n = computeNormals->GetOutput()->GetPointData()->GetNormals();
-      }
-    else
-      {
-      n = poly->GetPointData()->GetNormals();
-      }
-    }
-
-  // Mark our properties as updated.
-  this->Internal->propertiesTime.Modified();
-
   bool colorAttributes = false;
+  bool cellScalars = false;
   this->Internal->colorComponents = 0;
   if (this->ScalarVisibility)
     {
@@ -877,50 +858,123 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
            << this->Internal->colors.size() / this->Internal->colorComponents
            << " with " << int(this->Internal->colorComponents) << " components." <<  endl;
       }
+    if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
+          this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
+          this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
+          !poly->GetPointData()->GetScalars() )
+         && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+      {
+      cellScalars = true;
+      }
     }
 
-  // Create a mesh packed with vertex, normal and possibly color.
-  if (n && n->GetNumberOfTuples() != poly->GetNumberOfPoints())
+
+  // if we have cell scalars then we have to
+  // explode the data
+  vtkCellArray *prims[4];
+  prims[0] =  poly->GetVerts();
+  prims[1] =  poly->GetLines();
+  prims[2] =  poly->GetPolys();
+  prims[3] =  poly->GetStrips();
+  std::vector<unsigned int> cellPointMap;
+  std::vector<unsigned int> pointCellMap;
+  if (cellScalars)
     {
-    vtkErrorMacro(<< "Polydata without enough normals for all points. "
-                  << poly->GetNumberOfPoints() - n->GetNumberOfTuples());
-    }
+    vtkCellArray *newPrims[4];
+
+    // need an array to track what points have already been used
+    cellPointMap.resize(prims[0]->GetSize() +
+                         prims[1]->GetSize() +
+                         prims[2]->GetSize() +
+                         prims[3]->GetSize(), 0);
+    // need an array to track what cells the points are part of
+    pointCellMap.resize(prims[0]->GetSize() +
+                       prims[1]->GetSize() +
+                       prims[2]->GetSize() +
+                       prims[3]->GetSize(), 0);
+    vtkIdType* indices(NULL);
+    vtkIdType npts(0);
+    unsigned int nextId = poly->GetPoints()->GetNumberOfPoints();
+
+    unsigned int cellCount = 0;
+    for (int primType = 0; primType < 4; primType++)
+      {
+      newPrims[primType] = vtkCellArray::New();
+      for (prims[primType]->InitTraversal(); prims[primType]->GetNextCell(npts, indices); )
+        {
+        newPrims[primType]->InsertNextCell(npts);
+
+        for (int i=0; i < npts; ++i)
+          {
+          // point not used yet?
+          if (cellPointMap[indices[i]] == 0)
+            {
+            cellPointMap[indices[i]] = indices[i] + 1;
+            newPrims[primType]->InsertCellPoint(indices[i]);
+            pointCellMap[indices[i]] = cellCount;
+            }
+          // point used, need new point
+          else
+            {
+            cellPointMap[nextId] = indices[i] + 1;
+            newPrims[primType]->InsertCellPoint(nextId);
+            pointCellMap[nextId] = cellCount;
+            nextId++;
+            }
+          }
+          cellCount++;
+        } // for cell
+
+      prims[primType] = newPrims[primType];
+      } // for primType
+
+    cellPointMap.resize(nextId);
+    pointCellMap.resize(nextId);
+    } // if cell scalars
+
+  // Mark our properties as updated.
+  this->Internal->propertiesTime.Modified();
+
+  cout << "Normals: " << (poly->GetPointData()->GetNormals() ? " have them " : " don't ") << endl;
 
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
   this->Internal->layout =
     CreateVBO(poly->GetPoints(),
-              n,
+              cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
+              poly->GetPointData()->GetNormals(),
               this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
               this->Internal->colorComponents,
-              this->Internal->vbo);
+              this->Internal->vbo,
+              cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
+              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL);
 
   // create the IBOs
   // for polys if we are wireframe handle it with multiindiex buffer
   vtkgl::CellBO &tris = this->Internal->tris;
   if (act->GetProperty()->GetRepresentation() == VTK_SURFACE)
     {
-    tris.indexCount = CreateTriangleIndexBuffer(poly->GetPolys(),
+    tris.indexCount = CreateTriangleIndexBuffer(prims[2],
                                                 tris.ibo,
                                                 poly->GetPoints());
     }
   else if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
     {
-    tris.indexCount = CreateMultiIndexBuffer(poly->GetPolys(),
+    tris.indexCount = CreateMultiIndexBuffer(prims[2],
                                              tris.ibo,
                                              tris.offsetArray,
                                              tris.elementsArray);
     }
 
-  this->Internal->points.indexCount = CreatePointIndexBuffer(poly->GetVerts(),
+  this->Internal->points.indexCount = CreatePointIndexBuffer(prims[0],
                                                         this->Internal->points.ibo);
 
-  this->Internal->triStrips.indexCount = CreateMultiIndexBuffer(poly->GetStrips(),
+  this->Internal->triStrips.indexCount = CreateMultiIndexBuffer(prims[3],
                          this->Internal->triStrips.ibo,
                          this->Internal->triStrips.offsetArray,
                          this->Internal->triStrips.elementsArray);
 
-  this->Internal->lines.indexCount = CreateMultiIndexBuffer(poly->GetLines(),
+  this->Internal->lines.indexCount = CreateMultiIndexBuffer(prims[1],
                          this->Internal->lines.ibo,
                          this->Internal->lines.offsetArray,
                          this->Internal->lines.elementsArray);
