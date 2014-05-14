@@ -211,6 +211,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
     {
     // Build our shader if necessary.
     std::string VSSource = tris.vsFile;
+    std::string FSSource = tris.fsFile;
     if (this->Internal->colorAttributes)
       {
       VSSource = replace(VSSource,
@@ -224,24 +225,34 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
                                    "uniform vec3 diffuseColor;");
       }
     // normals?
-/*    if (this->GetInput()->GetPointData()->GetNormals())
+    if (this->GetInput()->GetPointData()->GetNormals())
       {
       VSSource = replace(VSSource,
                                    "//VTK::Normal::Dec",
-                                   "attribute vec3 normalMC;");
+                                   "attribute vec3 normalMC; varying vec3 normalVC;");
+      VSSource = replace(VSSource,
+                                   "//VTK::Normal::Impl",
+                                   "normalVC = normalMatrix * normalMC;");
+      FSSource = replace(FSSource,
+                                   "//VTK::Normal::Dec",
+                                   "varying vec3 normalVC;");
+      FSSource = replace(FSSource,
+                                   "//VTK::Normal::Impl","");
       }
     else
       {
-      VSSource = replace(VSSource,
-                                   "//VTK::Normal::Dec",
-                                   "uniform vec3 normalMC;");
+      VSSource = replace(VSSource,"//VTK::Normal::Dec","");
+      VSSource = replace(VSSource,"//VTK::Normal::Impl","");
+      FSSource = replace(FSSource,"//VTK::Normal::Dec","");
+      FSSource = replace(FSSource,"//VTK::Normal::Impl",
+                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
       }
-  */
     cout << "VS: " << VSSource << endl;
+    cout << "FS: " << FSSource << endl;
 
     tris.vs.SetSource(VSSource);
     tris.vs.SetType(vtkgl::Shader::Vertex);
-    tris.fs.SetSource(tris.fsFile);
+    tris.fs.SetSource(FSSource);
     tris.fs.SetType(vtkgl::Shader::Fragment);
     if (!tris.vs.Compile())
       {
@@ -271,20 +282,20 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
     {
     tris.program.Bind();
     tris.vao.Bind();
-    if (this->GetInput()->GetPointData()->GetNormals())
-      {
-      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
-                                      "zinger", layout.NormalOffset,
-                                      layout.Stride, VTK_FLOAT, 3, false))
-        {
-        vtkErrorMacro(<< "Error setting 'zinger' in triangle VAO.");
-        }
-      }
     if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
       vtkErrorMacro(<< "Error setting 'vertexMC' in triangle VAO.");
+      }
+    if (this->GetInput()->GetPointData()->GetNormals())
+      {
+      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+                                      "normalMC", layout.NormalOffset,
+                                      layout.Stride, VTK_FLOAT, 3, false))
+        {
+        vtkErrorMacro(<< "Error setting 'normalMC' in triangle VAO.");
+        }
       }
     if (layout.ColorComponents != 0)
       {
@@ -934,8 +945,6 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
 
   // Mark our properties as updated.
   this->Internal->propertiesTime.Modified();
-
-  cout << "Normals: " << (poly->GetPointData()->GetNormals() ? " have them " : " don't ") << endl;
 
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.

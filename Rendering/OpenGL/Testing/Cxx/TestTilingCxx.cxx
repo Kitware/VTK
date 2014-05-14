@@ -82,7 +82,6 @@ int TestTilingCxx(int argc, char* argv[])
   VTK_CREATE(vtkActor, sphereActor);
   sphereActor->SetMapper(mapper);
 
-#if 0
   // Create a scalar bar
   VTK_CREATE(vtkScalarBarActor, scalarBar);
   scalarBar->SetLookupTable(mapper->GetLookupTable());
@@ -96,33 +95,32 @@ int TestTilingCxx(int argc, char* argv[])
 
   // Test the Get/Set Position
   scalarBar->SetPosition(scalarBar->GetPosition());
-#endif
 
   // Create graphics stuff
   // Create the RenderWindow, Renderer and both Actors
   VTK_CREATE(vtkRenderer, ren1);
-  //VTK_CREATE(vtkRenderer, ren2);
+  VTK_CREATE(vtkRenderer, ren2);
   VTK_CREATE(vtkRenderWindow, renWin);
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren1);
-  //renWin->AddRenderer(ren2);
+  renWin->AddRenderer(ren2);
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renWin);
 
   ren1->AddActor(sphereActor);
-  //ren2->AddActor2D(scalarBar);
+  ren2->AddActor2D(scalarBar);
   renWin->SetSize(160, 160);
   ren1->SetViewport(0, 0, 0.75, 1.0);
-  //ren2->SetViewport(0.75, 0, 1.0, 1.0);
-  //ren2->SetBackground(0.3, 0.3, 0.3);
+  ren2->SetViewport(0.75, 0, 1.0, 1.0);
+  ren2->SetBackground(0.3, 0.3, 0.3);
 
   // render the image
-  //scalarBar->SetNumberOfLabels(8);
+  scalarBar->SetNumberOfLabels(8);
   renWin->Render();
   renWin->Render(); // perform an extra render before capturing window
 
   vtksys::SystemTools::Delay(1000);
-/*
+
   VTK_CREATE(vtkWindowToImageFilter, w2i);
   w2i->SetInput(renWin);
   w2i->SetMagnification(2);
@@ -155,13 +153,13 @@ int TestTilingCxx(int argc, char* argv[])
   renWin->Render();
 
   vtksys::SystemTools::Delay(1000);
-*/
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
 
-  //outputData->Delete();
+  outputData->Delete();
   return !retVal;
 }

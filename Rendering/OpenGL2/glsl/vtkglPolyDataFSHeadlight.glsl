@@ -29,13 +29,15 @@ uniform float specularPower;
 // passed from the vertex shader
 varying vec4 vertexVC;
 varying vec4 vertexWC;
-varying vec4 vertexColor;
-varying vec3 normalVC;
+varying vec3 vertexColor;
+
+// optional normal declaration
+//VTK::Normal::Dec
 
 void main()
 {
-  // now compute the vertex color
-  vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));
+  // Generate the normal if we are not passed in one
+  //VTK::Normal::Impl
 
   // diffuse and specular lighting
   float df = max(0.0, dot(normalVC, vec3(0, 0, 1)));

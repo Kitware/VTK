@@ -44,7 +44,7 @@ VBOLayout TemplatedCreateVBO2(T* points, T2* normals, vtkIdType numPts,
     {
     ++blockSize;
     layout.ColorComponents = colorComponents;
-    layout.ColorOffset = sizeof(float) * 6;
+    layout.ColorOffset = layout.NormalOffset + sizeof(float) * 3;
     }
   else
     {

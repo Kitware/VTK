@@ -47,12 +47,16 @@ uniform int lightPositional[6];
 // passed from the vertex shader
 varying vec4 vertexVC;
 varying vec4 vertexWC;
-varying vec4 vertexColor;
+varying vec3 vertexColor;
+
+// optional normal declaration
+//VTK::Normal::Dec
 
 void main()
 {
-  // now compute the vertex color
-  vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));
+  // Generate the normal if we are not passed in one
+  //VTK::Normal::Impl
+
   vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC.xyz);
 
   vec3 diffuse = vec3(0,0,0);

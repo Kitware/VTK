@@ -22,7 +22,9 @@
 // DC - Display Coordinates
 
 attribute vec4 vertexMC;
-attribute vec3 zinger;
+
+// optional normal declaration
+//VTK::Normal::Dec
 
 uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
 
@@ -37,11 +39,10 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 varying vec4 vertexVC;
 varying vec4 vertexWC;
 varying vec3 vertexColor;
-//varying vec3 normalVC;
 
 void main()
 {
-  //vec3 normalVC = normalMatrix * normalMC;
+  //VTK::Normal::Impl
 
   // compute the projected vertex position
   vertexWC = MCWCMatrix * vertexMC;
