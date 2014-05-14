@@ -20,8 +20,9 @@
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 
-#include "Portals.h"
 #include "Allocators.h"
+#include "FieldTypeToType.h"
+#include "Portals.h"
 
 namespace vtkToDax {
 
@@ -52,13 +53,17 @@ namespace cont {
 namespace internal {
 
 
-template <typename ValueT, typename VTKArrayType>
-class ArrayContainerControl<ValueT,vtkToDax::vtkArrayContainerTag<VTKArrayType> >
+template <typename DaxValueType, typename VTKArrayType>
+class ArrayContainerControl<DaxValueType,vtkToDax::vtkArrayContainerTag<VTKArrayType> >
 {
+  typedef typename vtkToDax::FieldTypeToType<
+        VTKArrayType,
+        dax::VectorTraits<DaxValueType>::NUM_COMPONENTS>::VTKComponentType
+      VTKComponentType;
 public:
-  typedef ValueT ValueType;
-  typedef vtkToDax::vtkArrayPortal<ValueType> PortalType;
-  typedef vtkToDax::vtkArrayPortal<const ValueType> PortalConstType;
+  typedef DaxValueType ValueType;
+  typedef vtkToDax::vtkArrayPortal<DaxValueType, VTKComponentType> PortalType;
+  typedef vtkToDax::vtkArrayPortal<const DaxValueType, const VTKComponentType> PortalConstType;
 
 private:
   //determine the number of components we need to allocate in the vtkArray
