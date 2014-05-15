@@ -56,6 +56,11 @@ void main()
 {
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl
+  if (!gl_FrontFacing)
+    {
+    normalVC = -normalVC;
+    }
+
 
   vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC.xyz);
 

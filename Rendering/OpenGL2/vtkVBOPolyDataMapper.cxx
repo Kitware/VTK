@@ -45,10 +45,10 @@
 #include "vtkglPolyDataFSPositionalLights.h"
 
 // bring in vertex lit shader symbols
-#include "vtkglPolyDataVSLightKit.h"
-#include "vtkglPolyDataVSHeadlight.h"
-#include "vtkglPolyDataVSPositionalLights.h"
-#include "vtkglVertexShader.h"
+//#include "vtkglPolyDataVSLightKit.h"
+//#include "vtkglPolyDataVSHeadlight.h"
+//#include "vtkglPolyDataVSPositionalLights.h"
+#include "vtkglPolyDataVSNoLighting.h"
 #include "vtkglPolyDataFS.h"
 
 using vtkgl::replace;
@@ -65,6 +65,7 @@ public:
   vtkgl::CellBO lines;
   vtkgl::CellBO tris;
   vtkgl::CellBO triStrips;
+  vtkgl::CellBO *lastBoundBO;
 
   // Array of colors, along with the number of components.
   std::vector<unsigned char> colors;
@@ -80,36 +81,6 @@ public:
   {
   }
 
-  void SetMaterialUniforms(vtkgl::ShaderProgram &program, vtkProperty *property)
-  {
-    // Query the actor for some of the properties that can be applied.
-    float opacity = static_cast<float>(property->GetOpacity());
-    double *color = property->GetDiffuseColor();
-    vtkgl::Vector3ub diffuseColor(
-          static_cast<unsigned char>(color[0] * 255.0),
-          static_cast<unsigned char>(color[1] * 255.0),
-          static_cast<unsigned char>(color[2] * 255.0));
-    program.SetUniformValue("opacity", opacity);
-    program.SetUniformValue("diffuseColor", diffuseColor);
-    program.SetUniformValue("pointSize", property->GetPointSize());
-    glLineWidth(property->GetLineWidth());
-  }
-
-  void SetCameraUniforms(vtkgl::ShaderProgram &program, vtkRenderer *ren,
-                         vtkActor *actor)
-  {
-    // pass down the various model and camera transformations
-    vtkCamera *cam = ren->GetActiveCamera();
-    vtkTransform* viewTF = cam->GetModelViewTransformObject();
-    // compute the combined ModelView matrix and send it down to save time in the shader
-    vtkNew<vtkMatrix4x4> tmpMat;
-    vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(),
-                              tmpMat.Get());
-    tmpMat->Transpose();
-    program.SetUniformValue("MCVCMatrix", tmpMat.Get());
-    tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
-    program.SetUniformValue("VCDCMatrix", tmpMat.Get());
-  }
 };
 
 //-----------------------------------------------------------------------------
@@ -134,155 +105,151 @@ void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow*)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
+void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren, vtkActor *actor)
 {
-  // first see if anything has changed, if not, just return
-  // do this by checking lightcollection mtime
+  int lightComplexity = 0;
 
-  // consider the lighting complexity to determine which case applies
-  // simple headlight, Light Kit, the whole feature set of VTK
-  int lightComplexity = 1;
-  int numberOfLights = 0;
-  vtkLightCollection *lc = ren->GetLights();
-  vtkLight *light;
-
-  vtkCollectionSimpleIterator sit;
-  for(lc->InitTraversal(sit);
-      (light = lc->GetNextLight(sit)); )
+  // do we need lighting?
+  if (this->GetInput()->GetPointData()->GetNormals() ||
+      &cellBO == &this->Internal->tris || &cellBO == &this->Internal->triStrips)
     {
-    float status = light->GetSwitch();
-    if (status > 0.0)
-      {
-      numberOfLights++;
-      }
+    // consider the lighting complexity to determine which case applies
+    // simple headlight, Light Kit, the whole feature set of VTK
+    lightComplexity = 1;
+    int numberOfLights = 0;
+    vtkLightCollection *lc = ren->GetLights();
+    vtkLight *light;
 
-    if (lightComplexity == 1
-        && (numberOfLights > 1
-          || light->GetIntensity() != 1.0
-          || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
+    vtkCollectionSimpleIterator sit;
+    for(lc->InitTraversal(sit);
+        (light = lc->GetNextLight(sit)); )
       {
-        lightComplexity = 2;
-      }
-    if (lightComplexity < 3
-        && (light->GetPositional()))
-      {
-        lightComplexity = 3;
-        break;
+      float status = light->GetSwitch();
+      if (status > 0.0)
+        {
+        numberOfLights++;
+        }
+
+      if (lightComplexity == 1
+          && (numberOfLights > 1
+            || light->GetIntensity() != 1.0
+            || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
+        {
+          lightComplexity = 2;
+        }
+      if (lightComplexity < 3
+          && (light->GetPositional()))
+        {
+          lightComplexity = 3;
+          break;
+        }
       }
     }
-
-  vtkgl::CellBO &tris = this->Internal->tris;
 
   // pick which shader code to use based on above factors
   switch (lightComplexity)
     {
-      #if 0
+    case 0:
+        cellBO.vsFile = vtkglPolyDataVSNoLighting;
+        cellBO.fsFile = vtkglPolyDataFS;
+      break;
     case 1:
-        tris.fsFile = vtkglPolyDataFS;
-        tris.vsFile = vtkglPolyDataVSHeadlight;
+        cellBO.vsFile = vtkglPolyDataVSFragmentLit;
+        cellBO.fsFile = vtkglPolyDataFSHeadlight;
       break;
     case 2:
-        tris.fsFile = vtkglPolyDataFS;
-        tris.vsFile = vtkglPolyDataVSLightKit;
+        cellBO.vsFile = vtkglPolyDataVSFragmentLit;
+        cellBO.fsFile = vtkglPolyDataFSLightKit;
       break;
     case 3:
-        tris.fsFile = vtkglPolyDataFS;
-        tris.vsFile = vtkglPolyDataVSPositionalLights;
-      break;
-      #endif
-    case 1:
-        tris.vsFile = vtkglPolyDataVSFragmentLit;
-        tris.fsFile = vtkglPolyDataFSHeadlight;
-      break;
-    case 2:
-        tris.vsFile = vtkglPolyDataVSFragmentLit;
-        tris.fsFile = vtkglPolyDataFSLightKit;
-      break;
-    case 3:
-        tris.vsFile = vtkglPolyDataVSFragmentLit;
-        tris.fsFile = vtkglPolyDataFSPositionalLights;
+        cellBO.vsFile = vtkglPolyDataVSFragmentLit;
+        cellBO.fsFile = vtkglPolyDataFSPositionalLights;
       break;
     }
+    //cellBO.vsFile = vtkglPolyDataVSHeadlight;
+    //cellBO.fsFile = vtkglPolyDataFS;
 
-  // compile and link the shader program if it has changed
-  // eventually use some sort of caching here
-  if (tris.vs.GetType() == vtkgl::Shader::Unknown ||
-      this->Internal->propertiesTime > tris.buildTime)
+  if (this->Internal->lastBoundBO &&
+      this->Internal->lastBoundBO->vsFile == cellBO.vsFile &&
+      this->Internal->lastBoundBO->fsFile == cellBO.fsFile)
     {
-    // Build our shader if necessary.
-    std::string VSSource = tris.vsFile;
-    std::string FSSource = tris.fsFile;
-    if (this->Internal->colorAttributes)
-      {
-      VSSource = replace(VSSource,
-                                   "//VTK::Color::Dec",
-                                   "attribute vec4 diffuseColor;");
-      }
-    else
-      {
-      VSSource = replace(VSSource,
-                                   "//VTK::Color::Dec",
-                                   "uniform vec3 diffuseColor;");
-      }
-    // normals?
-    if (this->GetInput()->GetPointData()->GetNormals())
-      {
-      VSSource = replace(VSSource,
-                                   "//VTK::Normal::Dec",
-                                   "attribute vec3 normalMC; varying vec3 normalVC;");
-      VSSource = replace(VSSource,
-                                   "//VTK::Normal::Impl",
-                                   "normalVC = normalMatrix * normalMC;");
-      FSSource = replace(FSSource,
-                                   "//VTK::Normal::Dec",
-                                   "varying vec3 normalVC;");
-      FSSource = replace(FSSource,
-                                   "//VTK::Normal::Impl","");
-      }
-    else
-      {
-      VSSource = replace(VSSource,"//VTK::Normal::Dec","");
-      VSSource = replace(VSSource,"//VTK::Normal::Impl","");
-      FSSource = replace(FSSource,"//VTK::Normal::Dec","");
-      FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
-      }
-    cout << "VS: " << VSSource << endl;
-    cout << "FS: " << FSSource << endl;
-
-    tris.vs.SetSource(VSSource);
-    tris.vs.SetType(vtkgl::Shader::Vertex);
-    tris.fs.SetSource(FSSource);
-    tris.fs.SetType(vtkgl::Shader::Fragment);
-    if (!tris.vs.Compile())
-      {
-      vtkErrorMacro(<< tris.vs.GetError());
-      }
-    if (!tris.fs.Compile())
-      {
-      vtkErrorMacro(<< tris.fs.GetError());
-      }
-    if (!tris.program.AttachShader(tris.vs))
-      {
-      vtkErrorMacro(<< this->Internal->tris.program.GetError());
-      }
-    if (!tris.program.AttachShader(tris.fs))
-      {
-      vtkErrorMacro(<< tris.program.GetError());
-      }
-    if (!tris.program.Link())
-      {
-      vtkErrorMacro(<< "Links failed: " << tris.program.GetError());
-      }
-    tris.buildTime.Modified();
+      return;
     }
+
+  // Build our shader if necessary.
+  std::string VSSource = cellBO.vsFile;
+  std::string FSSource = cellBO.fsFile;
+  if (this->Internal->colorAttributes)
+    {
+    VSSource = replace(VSSource,
+                                 "//VTK::Color::Dec",
+                                 "attribute vec4 diffuseColor;");
+    }
+  else
+    {
+    VSSource = replace(VSSource,
+                                 "//VTK::Color::Dec",
+                                 "uniform vec3 diffuseColor;");
+    }
+  // normals?
+  if (this->GetInput()->GetPointData()->GetNormals())
+    {
+    VSSource = replace(VSSource,
+                                 "//VTK::Normal::Dec",
+                                 "attribute vec3 normalMC; varying vec3 normalVC;");
+    VSSource = replace(VSSource,
+                                 "//VTK::Normal::Impl",
+                                 "normalVC = normalMatrix * normalMC;");
+    FSSource = replace(FSSource,
+                                 "//VTK::Normal::Dec",
+                                 "varying vec3 normalVC;");
+    FSSource = replace(FSSource,
+                                 "//VTK::Normal::Impl","");
+    }
+  else
+    {
+    VSSource = replace(VSSource,"//VTK::Normal::Dec","");
+    VSSource = replace(VSSource,"//VTK::Normal::Impl","");
+    FSSource = replace(FSSource,"//VTK::Normal::Dec","");
+    FSSource = replace(FSSource,"//VTK::Normal::Impl",
+                                 "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
+    }
+  //cout << "VS: " << VSSource << endl;
+  //cout << "FS: " << FSSource << endl;
+
+  cellBO.vs.SetSource(VSSource);
+  cellBO.vs.SetType(vtkgl::Shader::Vertex);
+  cellBO.fs.SetSource(FSSource);
+  cellBO.fs.SetType(vtkgl::Shader::Fragment);
+  if (!cellBO.vs.Compile())
+    {
+    vtkErrorMacro(<< cellBO.vs.GetError());
+    }
+  if (!cellBO.fs.Compile())
+    {
+    vtkErrorMacro(<< cellBO.fs.GetError());
+    }
+  if (!cellBO.program.AttachShader(cellBO.vs))
+    {
+    vtkErrorMacro(<< cellBO.program.GetError());
+    }
+  if (!cellBO.program.AttachShader(cellBO.fs))
+    {
+    vtkErrorMacro(<< cellBO.program.GetError());
+    }
+  if (!cellBO.program.Link())
+    {
+    vtkErrorMacro(<< "Links failed: " << cellBO.program.GetError());
+    }
+  cellBO.buildTime.Modified();
+
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Internal->layout;
-  if (tris.indexCount && this->VBOUpdateTime > tris.attributeUpdateTime)
+  if (cellBO.indexCount && this->VBOUpdateTime > cellBO.attributeUpdateTime)
     {
-    tris.program.Bind();
-    tris.vao.Bind();
-    if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+    cellBO.program.Bind();
+    cellBO.vao.Bind();
+    if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
@@ -290,7 +257,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       }
     if (this->GetInput()->GetPointData()->GetNormals())
       {
-      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
                                       "normalMC", layout.NormalOffset,
                                       layout.Stride, VTK_FLOAT, 3, false))
         {
@@ -299,7 +266,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
       }
     if (layout.ColorComponents != 0)
       {
-      if (!tris.vao.AddAttributeArray(tris.program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
                                       "diffuseColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
@@ -307,192 +274,35 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkRenderer* ren, vtkActor *vtkNotUsed(a
         vtkErrorMacro(<< "Error setting 'diffuseColor' in triangle VAO.");
         }
       }
-    tris.attributeUpdateTime.Modified();
+    cellBO.attributeUpdateTime.Modified();
     }
-}
 
-void vtkVBOPolyDataMapper::UpdateVertexShader(vtkRenderer *, vtkActor *)
-{
-  // Compile and link the shader program if it has changed.
-  // FIXME: Use caching for shaders/programs.
-  vtkgl::CellBO &points = this->Internal->points;
-  if (points.vs.GetType() == vtkgl::Shader::Unknown)
-    {
-    points.vs.SetType(vtkgl::Shader::Vertex);
-    points.fs.SetType(vtkgl::Shader::Fragment);
-    // Build our shader if necessary.
-    std::string vertexShaderSource = vtkglVertexShader;
-    if (this->Internal->colorAttributes)
-      {
-      vertexShaderSource = replace(vertexShaderSource,
-                                   "//VTK::Color::Dec",
-                                   "attribute vec4 diffuseColor;");
-      }
-    else
-      {
-      vertexShaderSource = replace(vertexShaderSource,
-                                   "//VTK::Color::Dec",
-                                   "uniform vec3 diffuseColor;");
-      }
-    cout << "VS: " << vertexShaderSource << endl;
 
-    points.vs.SetType(vtkgl::Shader::Vertex);
-    points.vs.SetSource(vertexShaderSource);
-    points.fs.SetType(vtkgl::Shader::Fragment);
-    points.fs.SetSource(vtkglPolyDataFS);
-    if (!points.fs.Compile())
+    if (!cellBO.program.Bind())
       {
-      vtkErrorMacro(<< points.fs.GetError());
-      }
-    if (!points.vs.Compile())
-      {
-      vtkErrorMacro(<< points.vs.GetError());
+      vtkErrorMacro(<< cellBO.program.GetError());
+      return;
       }
 
-    if (!points.program.AttachShader(points.vs))
-      {
-      vtkErrorMacro(<< points.program.GetError());
-      }
-    if (!points.program.AttachShader(points.fs))
-      {
-      vtkErrorMacro(<< points.program.GetError());
-      }
-    if (!points.program.Link())
-      {
-      vtkErrorMacro(<< points.program.GetError());
-      }
-    }
-  // Now to update the VAO too, if necessary.
-  vtkgl::VBOLayout &layout = this->Internal->layout;
-  if (points.indexCount && this->VBOUpdateTime > points.attributeUpdateTime)
-    {
-    points.program.Bind();
-    points.vao.Bind();
-    if (!points.vao.AddAttributeArray(points.program, this->Internal->vbo,
-                                      "vertexMC", layout.VertexOffset,
-                                       layout.Stride, VTK_FLOAT, 3, false))
-      {
-      vtkErrorMacro(<< "Error setting 'vertexMC' in VAO.");
-      }
-    // Do we want normals in lines?
-    /* if (layout.VertexOffset != layout.NormalOffset)
-      {
-      if (!points.vao.AddAttributeArray(points.program, this->Internal->vbo,
-                                        "normalMC", layout.NormalOffset,
-                                        layout.Stride, VTK_FLOAT, 3, false))
-        {
-        vtkErrorMacro(<< "Error setting 'normalMC' in VAO.");
-        }
-      } */
-    if (layout.ColorComponents != 0)
-      {
-      if (!points.vao.AddAttributeArray(points.program, this->Internal->vbo,
-                                        "diffuseColor", layout.ColorOffset,
-                                        layout.Stride, VTK_UNSIGNED_CHAR,
-                                        layout.ColorComponents, true))
-        {
-        vtkErrorMacro(<< "Error setting 'diffuseColor' in VAO.");
-        }
-      }
-    points.attributeUpdateTime.Modified();
-    }
-}
+    this->SetPropertyShaderParameters(cellBO, ren, actor);
+    this->SetCameraShaderParameters(cellBO, ren, actor);
+    this->SetLightingShaderParameters(cellBO, ren, actor);
+    cellBO.vao.Bind();
 
-void vtkVBOPolyDataMapper::UpdateLineShader(vtkRenderer *, vtkActor *)
-{
-  // Compile and link the shader program if it has changed.
-  // FIXME: Use caching for shaders/programs.
-  vtkgl::CellBO &lines = this->Internal->lines;
-  if (lines.vs.GetType() == vtkgl::Shader::Unknown)
-    {
-    lines.vs.SetType(vtkgl::Shader::Vertex);
-    lines.fs.SetType(vtkgl::Shader::Fragment);
-    // Build our shader if necessary.
-    std::string vertexShaderSource = vtkglVertexShader;
-    if (this->Internal->colorAttributes)
-      {
-      vertexShaderSource = replace(vertexShaderSource,
-                                   "//VTK::Color::Dec",
-                                   "attribute vec4 diffuseColor;");
-      }
-    else
-      {
-      vertexShaderSource = replace(vertexShaderSource,
-                                   "//VTK::Color::Dec",
-                                   "uniform vec3 diffuseColor;");
-      }
-    cout << "VS: " << vertexShaderSource << endl;
-
-    lines.vs.SetType(vtkgl::Shader::Vertex);
-    lines.vs.SetSource(vertexShaderSource);
-    lines.fs.SetType(vtkgl::Shader::Fragment);
-    lines.fs.SetSource(vtkglPolyDataFS);
-    if (!lines.fs.Compile())
-      {
-      vtkErrorMacro(<< lines.fs.GetError());
-      }
-    if (!lines.vs.Compile())
-      {
-      vtkErrorMacro(<< lines.vs.GetError());
-      }
-
-    if (!lines.program.AttachShader(lines.vs))
-      {
-      vtkErrorMacro(<< lines.program.GetError());
-      }
-    if (!lines.program.AttachShader(lines.fs))
-      {
-      vtkErrorMacro(<< lines.program.GetError());
-      }
-    if (!lines.program.Link())
-      {
-      vtkErrorMacro(<< lines.program.GetError());
-      }
-    }
-  // Now to update the VAO too, if necessary.
-  vtkgl::VBOLayout &layout = this->Internal->layout;
-  if (lines.indexCount && this->VBOUpdateTime > lines.attributeUpdateTime)
-    {
-    lines.program.Bind();
-    lines.vao.Bind();
-    if (!lines.vao.AddAttributeArray(lines.program, this->Internal->vbo,
-                                     "vertexMC", layout.VertexOffset,
-                                     layout.Stride, VTK_FLOAT, 3, true))
-      {
-      vtkErrorMacro(<< "Error setting 'vertexMC' in VAO.");
-      }
-    // Do we want normals in lines?
-    /* if (layout.VertexOffset != layout.NormalOffset)
-      {
-      if (!lines.vao.AddAttributeArray(lines.program, this->Internal->vbo,
-                                       "normalMC", layout.NormalOffset,
-                                       layout.Stride, VTK_FLOAT, 3, false))
-        {
-        vtkErrorMacro(<< "Error setting 'normalMC' in VAO.");
-        }
-      } */
-    if (layout.ColorComponents != 0)
-      {
-      if (!lines.vao.AddAttributeArray(lines.program, this->Internal->vbo,
-                                       "diffuseColor", layout.ColorOffset,
-                                       layout.Stride, VTK_UNSIGNED_CHAR,
-                                       layout.ColorComponents, true))
-        {
-        vtkErrorMacro(<< "Error setting 'diffuseColor' in VAO.");
-        }
-      }
-    lines.attributeUpdateTime.Modified();
-    }
+    this->Internal->lastBoundBO = &cellBO;
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
+void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
+                                                      vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
   // for headlight there are no lighting parameters
-  if (this->Internal->tris.vsFile == vtkglPolyDataVSHeadlight)
+  if (cellBO.fsFile == vtkglPolyDataFSHeadlight)
     {
     return;
     }
+
+  vtkgl::ShaderProgram &program = cellBO.program;
 
   // for lightkit case there are some parameters to set
   vtkCamera *cam = ren->GetActiveCamera();
@@ -530,13 +340,12 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
       numberOfLights++;
       }
     }
-  vtkgl::ShaderProgram &program = this->Internal->tris.program;
 
   program.SetUniformValue("lightColor", numberOfLights, lightColor);
   program.SetUniformValue("lightDirectionVC", numberOfLights, lightDirection);
   program.SetUniformValue("numberOfLights", numberOfLights);
 
-  if (this->Internal->tris.vsFile == vtkglPolyDataVSLightKit)
+  if (cellBO.fsFile == vtkglPolyDataFSLightKit)
     {
     return;
     }
@@ -576,9 +385,11 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkRenderer* ren, vtkActo
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
+                                                    vtkRenderer* ren, vtkActor *actor)
 {
-  vtkgl::ShaderProgram &program = this->Internal->tris.program;
+  vtkgl::ShaderProgram &program = cellBO.program;
+
   // pass down the various model and camera transformations
   vtkCamera *cam = ren->GetActiveCamera();
   // really just view  matrix in spite of it's name
@@ -616,9 +427,11 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkRenderer* ren, vtkActor 
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer*,
-                                                       vtkActor *actor)
+void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
+                                                       vtkRenderer*, vtkActor *actor)
 {
+  vtkgl::ShaderProgram &program = cellBO.program;
+
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *aColor = actor->GetProperty()->GetAmbientColor();
@@ -638,7 +451,6 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkRenderer*,
                          static_cast<unsigned char>(sColor[2] * sIntensity * 255.0));
   float specularPower = actor->GetProperty()->GetSpecularPower();
 
-  vtkgl::ShaderProgram &program = this->Internal->tris.program;
   program.SetUniformValue("opacity", opacity);
   program.SetUniformValue("ambientColor", ambientColor);
   program.SetUniformValue("diffuseColor", diffuseColor);
@@ -676,7 +488,8 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime() ||
-      this->VBOUpdateTime < actor->GetProperty()->GetMTime())
+      this->VBOUpdateTime < actor->GetProperty()->GetMTime() ||
+      this->VBOUpdateTime < input->GetMTime() )
     {
     this->UpdateVBO(actor);
     this->VBOUpdateTime.Modified();
@@ -686,24 +499,44 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->Internal->vbo.Bind();
   vtkgl::VBOLayout &layout = this->Internal->layout;
 
+  this->Internal->lastBoundBO = NULL;
+
+  // in the case where we have no passed in normals AND
+  // we have points or lines AND we have tris or strips
+  // we need two shader programs because the points lines
+  // are not lit while the tris/strips are
+  if (this->Internal->points.indexCount)
+    {
+    // Update/build/etc the shader.
+    this->UpdateShader(this->Internal->points, ren, actor);
+    this->Internal->points.ibo.Bind();
+    glDrawRangeElements(GL_POINTS, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->points.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    this->Internal->points.ibo.Release();
+    }
+
+  if (this->Internal->lines.indexCount)
+    {
+    this->UpdateShader(this->Internal->lines, ren, actor);
+    this->Internal->lines.ibo.Bind();
+    for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
+      {
+      glDrawElements(GL_LINE_STRIP,
+        this->Internal->lines.elementsArray[eCount],
+        GL_UNSIGNED_INT,
+        (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
+      }
+    this->Internal->lines.ibo.Release();
+    }
+
+  // now handle lit primatives
   if (this->Internal->tris.indexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShader(ren, actor);
-    if (!this->Internal->tris.program.Bind())
-      {
-      vtkErrorMacro(<< this->Internal->tris.program.GetError());
-      return;
-      }
-
-    this->SetLightingShaderParameters(ren, actor);
-    this->SetPropertyShaderParameters(ren, actor);
-    this->SetCameraShaderParameters(ren, actor);
-
-    this->Internal->tris.vao.Bind();
-
-    // Render the VBO contents as appropriate, I think we really need separate
-    // shaders for triangles, lines and points too...
+    this->UpdateShader(this->Internal->tris, ren, actor);
     this->Internal->tris.ibo.Bind();
 
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
@@ -732,28 +565,13 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
         }
 #endif
       }
-    this->Internal->tris.vao.Release();
     this->Internal->tris.ibo.Release();
-    this->Internal->tris.program.Release();
     }
 
   if (this->Internal->triStrips.indexCount)
     {
     // Use the tris shader program/VAO, but triStrips ibo.
-    this->UpdateShader(ren, actor);
-    if (!this->Internal->tris.program.Bind())
-      {
-      vtkErrorMacro(<< this->Internal->tris.program.GetError());
-      return;
-      }
-
-    this->SetLightingShaderParameters(ren, actor);
-    this->SetPropertyShaderParameters(ren, actor);
-    this->SetCameraShaderParameters(ren, actor);
-
-    this->Internal->tris.vao.Bind();
-
-    // Render the triangle strips, iterating over each strip.
+    this->UpdateShader(this->Internal->triStrips, ren, actor);
     this->Internal->triStrips.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
       {
@@ -764,61 +582,12 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
       }
     this->Internal->tris.vao.Release();
     this->Internal->triStrips.ibo.Release();
-    this->Internal->tris.program.Release();
     }
 
-  if (this->Internal->lines.indexCount)
+  if (this->Internal->lastBoundBO)
     {
-    // Update/build the shader.
-    this->UpdateLineShader(ren, actor);
-    if (!this->Internal->lines.program.Bind())
-      {
-      vtkErrorMacro(<< this->Internal->lines.program.GetError());
-      return;
-      }
-
-    this->Internal->SetMaterialUniforms(this->Internal->lines.program,
-                                        actor->GetProperty());
-    this->Internal->SetCameraUniforms(this->Internal->lines.program, ren, actor);
-
-    this->Internal->lines.vao.Bind();
-    this->Internal->lines.ibo.Bind();
-    for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
-      {
-      glDrawElements(GL_LINE_STRIP,
-        this->Internal->lines.elementsArray[eCount],
-        GL_UNSIGNED_INT,
-        (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
-      }
-    this->Internal->lines.vao.Release();
-    this->Internal->lines.ibo.Release();
-    this->Internal->lines.program.Release();
-    }
-
-  if (this->Internal->points.indexCount)
-    {
-    // Update/build the shader.
-    this->UpdateVertexShader(ren, actor);
-    if (!this->Internal->points.program.Bind())
-      {
-      vtkErrorMacro(<< this->Internal->points.program.GetError());
-      return;
-      }
-
-    this->Internal->SetMaterialUniforms(this->Internal->points.program,
-                                        actor->GetProperty());
-    this->Internal->SetCameraUniforms(this->Internal->points.program, ren, actor);
-
-    this->Internal->points.vao.Bind();
-    this->Internal->points.ibo.Bind();
-    glDrawRangeElements(GL_POINTS, 0,
-                        static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Internal->points.indexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    this->Internal->points.vao.Release();
-    this->Internal->points.ibo.Release();
-    this->Internal->points.program.Release();
+    this->Internal->lastBoundBO->vao.Release();
+    this->Internal->lastBoundBO->program.Release();
     }
 
   this->Internal->vbo.Release();

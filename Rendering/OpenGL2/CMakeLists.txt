@@ -36,7 +36,7 @@ set(shader_files
   glsl/vtkglPolyDataVSLightKit.glsl
   glsl/vtkglPolyDataVSHeadlight.glsl
   glsl/vtkglPolyDataVSPositionalLights.glsl
-  glsl/vtkglVertexShader.glsl
+  glsl/vtkglPolyDataVSNoLighting.glsl
   glsl/vtkglPolyDataFS.glsl
 
   # lighting in the FS

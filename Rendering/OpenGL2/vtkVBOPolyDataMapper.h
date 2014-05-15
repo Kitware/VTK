@@ -21,6 +21,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
 
+namespace vtkgl {struct CellBO; }
+
 class VTKRENDERINGOPENGL2_EXPORT vtkVBOPolyDataMapper : public vtkPolyDataMapper
 {
 public:
@@ -68,15 +70,7 @@ protected:
 
   // Description:
   // Determine what shader to use and compile/link it
-  virtual void UpdateShader(vtkRenderer *ren, vtkActor *act);
-
-  // Description:
-  // Set up the vertex shader, and get it ready for use.
-  void UpdateVertexShader(vtkRenderer *ren, vtkActor *actor);
-
-  // Description:
-  // Set up the vertex shader, and get it ready for use.
-  void UpdateLineShader(vtkRenderer *ren, vtkActor *actor);
+  virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Update the scene when necessary.
@@ -87,15 +81,15 @@ protected:
 
   // Description:
   // Set the shader parameteres related to lighting
-  void SetLightingShaderParameters(vtkRenderer *ren, vtkActor *act);
+  void SetLightingShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to lighting
-  void SetCameraShaderParameters(vtkRenderer *ren, vtkActor *act);
+  void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to lighting
-  void SetPropertyShaderParameters(vtkRenderer *ren, vtkActor *act);
+  void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // The scene used by the mapper, all rendering is deferred to the scene.

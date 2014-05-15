@@ -49,7 +49,6 @@ void main()
   float df = max(0.0, dot(normalVC, vec3(0, 0, 1)));
   float sf = pow(df, specularPower);
 
-  //vec3 ambient = 0.4 * color;
   vec3 diffuse = df * diffuseColor.rgb;
   vec3 specular = sf * specularColor;
 
