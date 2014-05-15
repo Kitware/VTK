@@ -15,6 +15,7 @@
 #include "vtkStructuredImplicitConnectivity.h"
 
 // VTK includes
+#include "vtkDataArray.h"
 #include "vtkFieldDataSerializer.h"
 #include "vtkImageData.h"
 #include "vtkMPIController.h"
@@ -23,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredExtent.h"
 #include "vtkStructuredGrid.h"
@@ -405,7 +407,55 @@ struct StructuredGrid
   vtkPoints* Nodes;
   vtkPointData* PointData;
 
+  // arrays used if the grid is a rectilinear grid
+  vtkDataArray* X_Coords;
+  vtkDataArray* Y_Coords;
+  vtkDataArray* Z_Coords;
+
   std::vector< ImplicitNeighbor > Neighbors;
+
+//------------------------------------------------------------------------------
+  bool IsRectilinearGrid()
+  {
+    if( (this->X_Coords != NULL) &&
+        (this->Y_Coords != NULL) &&
+        (this->Z_Coords != NULL) )
+      {
+      return true;
+      }
+    return false;
+  }
+
+//------------------------------------------------------------------------------
+  void Clear()
+  {
+    if( this->Nodes != NULL )
+      {
+      this->Nodes->Delete();
+      this->Nodes = NULL;
+      }
+    if( this->PointData != NULL )
+      {
+      this->PointData->Delete();
+      this->PointData = NULL;
+      }
+    if( this->X_Coords != NULL )
+      {
+      this->X_Coords->Delete();
+      this->X_Coords = NULL;
+      }
+    if( this->Y_Coords != NULL )
+      {
+      this->Y_Coords->Delete();
+      this->Y_Coords = NULL;
+      }
+    if( this->Z_Coords != NULL )
+      {
+      this->Z_Coords->Delete();
+      this->Z_Coords = NULL;
+      }
+    this->Neighbors.clear();
+  }
 
 //------------------------------------------------------------------------------
   void Initialize(StructuredGrid* grid)
@@ -437,6 +487,46 @@ struct StructuredGrid
    else
      {
      this->Nodes = NULL;
+     }
+
+   // Allocate rectilinear grid coordinates, if needed
+   if( (grid->X_Coords != NULL) &&
+       (grid->Y_Coords != NULL) &&
+       (grid->Z_Coords != NULL) )
+     {
+     int dims[3];
+     vtkStructuredData::GetDimensionsFromExtent(
+         this->Extent,dims,this->DataDescription);
+
+     this->X_Coords = vtkDataArray::CreateDataArray(
+         grid->X_Coords->GetDataType());
+     this->X_Coords->SetNumberOfTuples( dims[0] );
+     for(vtkIdType idx=0; idx < grid->X_Coords->GetNumberOfTuples(); ++idx)
+       {
+       this->X_Coords->SetTuple(idx,idx,grid->X_Coords);
+       }
+
+     this->Y_Coords = vtkDataArray::CreateDataArray(
+         grid->Y_Coords->GetDataType());
+     this->Y_Coords->SetNumberOfTuples( dims[1] );
+     for(vtkIdType idx=0; idx < grid->Y_Coords->GetNumberOfTuples(); ++idx)
+        {
+        this->Y_Coords->SetTuple(idx,idx,grid->Y_Coords);
+        }
+
+     this->Z_Coords = vtkDataArray::CreateDataArray(
+         grid->Z_Coords->GetDataType());
+     this->Z_Coords->SetNumberOfTuples( dims[2] );
+     for(vtkIdType idx=0; idx < grid->Z_Coords->GetNumberOfTuples(); ++idx)
+        {
+        this->Z_Coords->SetTuple(idx,idx,grid->Z_Coords);
+        }
+     } // END if rectilinear grid
+   else
+     {
+     grid->X_Coords = NULL;
+     grid->Y_Coords = NULL;
+     grid->Z_Coords = NULL;
      }
 
    // Allocate fields, if needed
@@ -496,6 +586,47 @@ struct StructuredGrid
   }
 
 //------------------------------------------------------------------------------
+  void Initialize(int id, int ext[6], vtkDataArray* x_coords,
+      vtkDataArray* y_coords, vtkDataArray* z_coords, vtkPointData* fields)
+  {
+    assert("pre: NULL x_coords!" && (x_coords != NULL) );
+    assert("pre: NULL y_coords!" && (y_coords != NULL) );
+    assert("pre: NULL z_coords!" && (z_coords != NULL) );
+
+    this->ID = id;
+    memcpy(this->Extent,ext,6*sizeof(int));
+    this->DataDescription = vtkStructuredData::GetDataDescriptionFromExtent(ext);
+    std::fill(this->Grow,this->Grow+3,0);
+    std::fill(this->Implicit,this->Implicit+3,0);
+
+    this->Nodes = NULL;
+
+    // Effectively, shallow copy the coordinate arrays and maintain ownership
+    // of these arrays in the caller.
+    this->X_Coords = vtkDataArray::CreateDataArray(x_coords->GetDataType());
+    this->X_Coords->SetVoidArray(
+        x_coords->GetVoidPointer(0),x_coords->GetNumberOfTuples(),1);
+
+    this->Y_Coords = vtkDataArray::CreateDataArray(y_coords->GetDataType());
+    this->Y_Coords->SetVoidArray(
+        y_coords->GetVoidPointer(0),y_coords->GetNumberOfTuples(),1);
+
+    this->Z_Coords = vtkDataArray::CreateDataArray(z_coords->GetDataType());
+    this->Z_Coords->SetVoidArray(
+        z_coords->GetVoidPointer(0),z_coords->GetNumberOfTuples(),1);
+
+    if(fields != NULL)
+      {
+      this->PointData = vtkPointData::New();
+      this->PointData->ShallowCopy(fields);
+      }
+    else
+      {
+      this->PointData = NULL;
+      }
+  }
+
+//------------------------------------------------------------------------------
   void Initialize(int id, int ext[6], vtkPoints* nodes, vtkPointData* fields)
   {
   this->ID = id;
@@ -503,6 +634,10 @@ struct StructuredGrid
   this->DataDescription = vtkStructuredData::GetDataDescriptionFromExtent(ext);
   std::fill(this->Grow,this->Grow+3,0);
   std::fill(this->Implicit,this->Implicit+3,0);
+
+  this->X_Coords = NULL;
+  this->Y_Coords = NULL;
+  this->Z_Coords = NULL;
 
   if(nodes != NULL)
     {
@@ -742,34 +877,14 @@ vtkStructuredImplicitConnectivity::~vtkStructuredImplicitConnectivity()
 
   if( this->InputGrid != NULL )
     {
-    if(this->InputGrid->Nodes != NULL)
-      {
-      this->InputGrid->Nodes->Delete();
-      this->InputGrid->Nodes = NULL;
-      }
-    if(this->InputGrid->PointData != NULL)
-      {
-      this->InputGrid->PointData->Delete();
-      this->InputGrid->PointData = NULL;
-      }
-
+    this->InputGrid->Clear();
     delete this->InputGrid;
     this->InputGrid = NULL;
     }
 
   if( this->OutputGrid != NULL )
     {
-    if( this->OutputGrid->Nodes != NULL)
-      {
-      this->OutputGrid->Nodes->Delete();
-      this->OutputGrid->Nodes = NULL;
-      }
-    if(this->OutputGrid->PointData != NULL)
-      {
-      this->OutputGrid->PointData->Delete();
-      this->OutputGrid->PointData = NULL;
-      }
-
+    this->OutputGrid->Clear();
     delete this->OutputGrid;
     this->OutputGrid = NULL;
     }
@@ -780,6 +895,7 @@ vtkStructuredImplicitConnectivity::~vtkStructuredImplicitConnectivity()
     delete this->CommManager;
     this->CommManager = NULL;
     }
+
   this->Controller = NULL;
 }
 
@@ -858,6 +974,31 @@ void vtkStructuredImplicitConnectivity::RegisterGrid(
 
   assert("post: grid DataDescription does not match domain DataDescription" &&
         (this->DomainInfo->DataDescription==this->InputGrid->DataDescription));
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredImplicitConnectivity::RegisterRectilinearGrid(
+            const int gridID,
+            int extent[6],
+            vtkDataArray* xcoords,
+            vtkDataArray* ycoords,
+            vtkDataArray* zcoords,
+            vtkPointData* pointData)
+{
+  // Sanity Checks!
+  assert("pre: NULL Domain, whole extent is not set!" &&
+          (this->DomainInfo != NULL) );
+  assert("pre: input not NULL in this process!" &&
+          (this->InputGrid == NULL) );
+  assert("pre: input grid is not within domain!" &&
+          (this->DomainInfo->HasGrid(extent)));
+  assert("pre: input grid ID should be >= 0" && (gridID >= 0) );
+
+  this->InputGrid = new vtk::detail::StructuredGrid();
+  this->InputGrid->Initialize(gridID,extent,xcoords,ycoords,zcoords,pointData);
+
+  assert("post: grid DataDescription does not match domain DataDescription" &&
+         (this->DomainInfo->DataDescription==this->InputGrid->DataDescription));
 }
 
 //------------------------------------------------------------------------------
@@ -1091,20 +1232,30 @@ void vtkStructuredImplicitConnectivity::GetOutputImageData(
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredImplicitConnectivity::GetOutputRectilinearGrid(
+      const int gridID, vtkRectilinearGrid* grid)
+{
+  assert("pre: NULL output grid!" && (grid != NULL) );
+  assert("pre: output grid is NULL!" && (this->OutputGrid != NULL));
+  assert("pre: mismatch gridID" && (this->OutputGrid->ID == gridID));
+
+  // silence warnings, the intent for the gridID here is for extending the
+  // implementation in the future to allow multiple grids per process.
+  static_cast<void>(gridID);
+
+  grid->SetExtent(this->OutputGrid->Extent);
+  grid->GetPointData()->ShallowCopy(this->OutputGrid->PointData);
+  grid->SetXCoordinates(this->OutputGrid->X_Coords);
+  grid->SetYCoordinates(this->OutputGrid->Y_Coords);
+  grid->SetZCoordinates(this->OutputGrid->Z_Coords);
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredImplicitConnectivity::ConstructOutput()
 {
   if( this->OutputGrid != NULL )
     {
-    if( this->OutputGrid->Nodes != NULL)
-      {
-      this->OutputGrid->Nodes->Delete();
-      this->OutputGrid->Nodes = NULL;
-      }
-    if(this->OutputGrid->PointData != NULL)
-      {
-      this->OutputGrid->PointData->Delete();
-      this->OutputGrid->PointData = NULL;
-      }
+    this->OutputGrid->Clear();
     delete this->OutputGrid;
     this->OutputGrid = NULL;
     }
@@ -1167,6 +1318,7 @@ void vtkStructuredImplicitConnectivity::PackData(
 
   if( this->OutputGrid->Nodes != NULL )
     {
+    bytestream << VTK_STRUCTURED_GRID;
     vtkIdType nnodes = vtkStructuredData::GetNumberOfPoints(ext);
     bytestream << nnodes;
 
@@ -1183,10 +1335,33 @@ void vtkStructuredImplicitConnectivity::PackData(
           } // END for all k
         } // END for all j
       } // END for all i
-
-    }
+    } // END if structured grid
+  else if( this->OutputGrid->IsRectilinearGrid() )
+    {
+    bytestream << VTK_RECTILINEAR_GRID;
+    vtkDataArray* coords[3];
+    coords[0] = this->OutputGrid->X_Coords;
+    coords[1] = this->OutputGrid->Y_Coords;
+    coords[2] = this->OutputGrid->Z_Coords;
+    for(int dim=0; dim < 3; ++dim)
+      {
+      assert("pre: NULL coordinates" && coords[dim] != NULL);
+      int flag = -1;
+      if( ext[dim*2] == ext[dim*2+1] )
+        {
+        flag = 1;
+        bytestream << flag;
+        bytestream << coords[ dim ]->GetTuple1(0);
+        }
+      else
+        {
+        bytestream << flag;
+        }
+      } // END for all dimensions
+    } // END if rectilinear grid
   else
     {
+    bytestream << VTK_UNIFORM_GRID;
     bytestream << 0;
     }
 
@@ -1225,11 +1400,15 @@ void vtkStructuredImplicitConnectivity::UnPackData(
   assert("post: ext is out-of-bounds the output grid!" &&
           vtkStructuredExtent::Smaller(ext,this->OutputGrid->Extent));
 
-  int nnodes = 0;
-  bytestream >> nnodes;
+  int datatype = -1;
+  bytestream >> datatype;
 
-  if( nnodes > 0)
+
+  if( datatype == VTK_STRUCTURED_GRID )
     {
+    int nnodes   = 0;
+    bytestream >> nnodes;
+    assert("pre: nnodes must be greater than 0!" && (nnodes > 0) );
     assert("post: output grid must have nodes!" &&
            (this->OutputGrid->Nodes != NULL) );
 
@@ -1257,7 +1436,27 @@ void vtkStructuredImplicitConnectivity::UnPackData(
       } // END for all i
 
     delete [] pnt;
-    } // END if has nodes
+    } // END if structured
+  else if( datatype == VTK_RECTILINEAR_GRID )
+    {
+    vtkDataArray* coords[3];
+    coords[0] = this->OutputGrid->X_Coords;
+    coords[1] = this->OutputGrid->Y_Coords;
+    coords[2] = this->OutputGrid->Z_Coords;
+    for(int dim=0; dim < 3; ++dim)
+      {
+      assert("pre: NULL coordinates" && coords[dim] != NULL);
+      int flag = 0;
+      bytestream >> flag;
+      if( flag == 1 )
+        {
+        double coordinate;
+        vtkIdType lastIdx = coords[ dim ]->GetNumberOfTuples()-1;
+        bytestream >> coordinate;
+        coords[ dim ]->SetTuple1(lastIdx, coordinate);
+        }
+      } // END for all dimensions
+    } // END if rectilinear
 
   // de-serialize the node-centered fields
   if( this->OutputGrid->PointData != NULL )

@@ -13,16 +13,19 @@
 
  =========================================================================*/
 #include "vtkRectilinearGridPartitioner.h"
-#include "vtkObjectFactory.h"
-#include "vtkIndent.h"
+
+// VTK includes
+#include "vtkDoubleArray.h"
 #include "vtkExtentRCBPartitioner.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredData.h"
-#include "vtkStructuredExtent.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkDoubleArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredData.h"
+#include "vtkStructuredExtent.h"
 
 #include <cassert>
 
@@ -33,6 +36,7 @@ vtkRectilinearGridPartitioner::vtkRectilinearGridPartitioner()
 {
   this->NumberOfPartitions  = 2;
   this->NumberOfGhostLayers = 0;
+  this->DuplicateNodesOn();
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
@@ -80,169 +84,31 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
 
   int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(subext);
 
-  int dims[3];
-  vtkStructuredData::GetDimensionsFromExtent(subext,dims,dataDescription );
+  int ndims[3];
+  vtkStructuredData::GetDimensionsFromExtent(subext,ndims,dataDescription );
 
-  int i,j,k;
-  int lidx;    // local linear index
-  double p[3];
-  switch( dataDescription )
+  vtkDoubleArray* coords[3];
+  coords[0] = xcoords;
+  coords[1] = ycoords;
+  coords[2] = zcoords;
+
+  vtkDataArray* src_coords[3];
+  src_coords[0] = grd->GetXCoordinates();
+  src_coords[1] = grd->GetYCoordinates();
+  src_coords[2] = grd->GetZCoordinates();
+
+  for(int dim=0; dim < 3; ++dim)
     {
-    case VTK_XY_PLANE:
-      // Sanity checks
-      assert("pre: dimension should be greater than 0" && (dims[0] > 0) );
-      assert("pre: dimension should be greater than 0" && (dims[1] > 0) );
+    coords[ dim ]->SetNumberOfComponents( 1 );
+    coords[ dim ]->SetNumberOfTuples( ndims[ dim ] );
 
-      // Allocate coordinate arrays
-      xcoords->SetNumberOfComponents(1);
-      xcoords->SetNumberOfTuples(dims[0]);
-      ycoords->SetNumberOfComponents(1);
-      ycoords->SetNumberOfTuples(dims[1]);
+    for(int idx=subext[dim*2]; idx <= subext[dim*2+1]; ++idx)
+      {
+      vtkIdType lidx = idx-subext[dim*2];
+      coords[ dim ]->SetTuple1(lidx,src_coords[dim]->GetTuple1(idx));
+      } // END for all ids
 
-      zcoords->SetNumberOfComponents(1);
-      zcoords->SetNumberOfTuples(0);
-
-      // Copy coordinates from the whole grid
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; i <= subext[1]; ++i )
-        {
-        lidx = i-subext[0];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[0]) );
-        grd->GetPoint( i,j,k,p );
-        xcoords->SetComponent(lidx,0, p[0] );
-        } // END for all i
-
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; j <= subext[3]; ++j )
-        {
-        lidx = j-subext[2];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[1]) );
-        grd->GetPoint( i,j,k,p );
-        ycoords->SetComponent(lidx,0,p[1]);
-        } // END for all j
-      break;
-    case VTK_XZ_PLANE:
-      // Sanity checks
-      assert("pre: dimension should be greater than 0" && (dims[0] > 0) );
-      assert("pre: dimension should be greater than 0" && (dims[2] > 0) );
-
-      // Allocate coordinate arrays
-      xcoords->SetNumberOfComponents(1);
-      xcoords->SetNumberOfTuples(dims[0]);
-      zcoords->SetNumberOfComponents(1);
-      zcoords->SetNumberOfTuples(dims[2]);
-
-      ycoords->SetNumberOfComponents(1);
-      ycoords->SetNumberOfTuples(0);
-
-      // Copy coordinates from the whole grid
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; i <= subext[1]; ++i )
-        {
-        lidx = i-subext[0];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[0]) );
-        grd->GetPoint( i,j,k,p );
-        xcoords->SetComponent(lidx,0, p[0] );
-        } // END for all i
-
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; k <= subext[5]; ++k )
-        {
-        lidx = k-subext[4];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[2]) );
-        grd->GetPoint( i,j,k,p );
-        zcoords->SetComponent( lidx,0,p[2] );
-        } // END for all k
-      break;
-    case VTK_YZ_PLANE:
-      // Sanity checks
-      assert("pre: dimension should be greater than 0" && (dims[1] > 0) );
-      assert("pre: dimension should be greater than 0" && (dims[2] > 0) );
-
-      // Allocate coordinate arrays
-      ycoords->SetNumberOfComponents(1);
-      ycoords->SetNumberOfTuples(dims[1]);
-      zcoords->SetNumberOfComponents(1);
-      zcoords->SetNumberOfTuples(dims[2]);
-
-      xcoords->SetNumberOfComponents(1);
-      xcoords->SetNumberOfTuples(dims[0]);
-
-      // Copy coordinates from the whole grid
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; j <= subext[3]; ++j )
-        {
-        lidx = j-subext[2];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[1]) );
-        grd->GetPoint( i,j,k,p );
-        ycoords->SetComponent(lidx,0,p[1]);
-        } // END for all j
-
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; k <= subext[5]; ++k )
-        {
-        lidx = k-subext[4];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[2]) );
-        grd->GetPoint( i,j,k,p );
-        zcoords->SetComponent( lidx,0,p[2] );
-        } // END for all k
-      break;
-    case VTK_XYZ_GRID:
-      // Sanity checks
-      assert("pre: dimension should be greater than 0" && (dims[0] > 0) );
-      assert("pre: dimension should be greater than 0" && (dims[1] > 0) );
-      assert("pre: dimension should be greater than 0" && (dims[2] > 0) );
-
-      // Allocate coordinate arrays
-      xcoords->SetNumberOfComponents(1);
-      xcoords->SetNumberOfTuples( dims[0] );
-      ycoords->SetNumberOfComponents(1);
-      ycoords->SetNumberOfTuples( dims[1] );
-
-      zcoords->SetNumberOfComponents(1);
-      zcoords->SetNumberOfTuples( dims[2] );
-
-      // Copy coordinates from the whole grid
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; i <= subext[1]; ++i )
-        {
-        lidx = i-subext[0];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[0]) );
-        grd->GetPoint( i,j,k,p );
-        xcoords->SetComponent(lidx,0, p[0] );
-        } // END for all i
-
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; j <= subext[3]; ++j )
-        {
-        lidx = j-subext[2];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[1]) );
-        grd->GetPoint( i,j,k,p );
-        ycoords->SetComponent(lidx,0,p[1]);
-        } // END for all j
-
-      i=subext[0]; k=subext[4]; j=subext[2];
-      for( ; k <= subext[5]; ++k )
-        {
-        lidx = k-subext[4];
-        assert("pre: local linear index is out-of-bounds!" &&
-               (lidx >= 0) && (lidx < dims[2]) );
-        grd->GetPoint( i,j,k,p );
-        zcoords->SetComponent( lidx,0,p[2] );
-        } // END for all k
-      break;
-    default:
-      vtkErrorMacro("Cannot handle structured data!");
-    }
-
+    } // END for all dimensions
 }
 
 //------------------------------------------------------------------------------
@@ -274,12 +140,24 @@ int vtkRectilinearGridPartitioner::RequestData(
   extentPartitioner->SetGlobalExtent( extent );
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
+  if( this->DuplicateNodes == 1 )
+    {
+    extentPartitioner->DuplicateNodesOn();
+    }
+  else
+    {
+    extentPartitioner->DuplicateNodesOff();
+    }
 
   // STEP 4: Partition
   extentPartitioner->Partition();
 
   // STEP 5: Extract partition in a multi-block
   multiblock->SetNumberOfBlocks( extentPartitioner->GetNumExtents( ) );
+
+  // Set the whole extent of the grid
+  multiblock->GetInformation()->Set(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
 
   int subext[6];
   unsigned int blockIdx = 0;
@@ -293,12 +171,21 @@ int vtkRectilinearGridPartitioner::RequestData(
     vtkDoubleArray *ycoords = vtkDoubleArray::New();
     vtkDoubleArray *zcoords = vtkDoubleArray::New();
 
+    this->ExtractGridCoordinates(grd,subext,xcoords,ycoords,zcoords);
+
     subgrid->SetXCoordinates( xcoords );
     subgrid->SetYCoordinates( ycoords );
     subgrid->SetZCoordinates( zcoords );
     xcoords->Delete();
     ycoords->Delete();
     zcoords->Delete();
+
+    vtkInformation *metadata = multiblock->GetMetaData( blockIdx );
+    assert( "pre: metadata is NULL" && (metadata != NULL) );
+    metadata->Set( vtkDataObject::PIECE_EXTENT(), subext, 6);
+
+    multiblock->SetBlock(blockIdx, subgrid);
+    subgrid->Delete();
     } // END for all blocks
 
   extentPartitioner->Delete();
