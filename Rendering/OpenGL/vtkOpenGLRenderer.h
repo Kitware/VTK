@@ -50,7 +50,7 @@ public:
   // into graphics pipeline.
   void ClearLights(void);
 
-  void Clear(void);
+  virtual void Clear(void);
 
   // Description:
   // Ask lights to load themselves into graphics pipeline.

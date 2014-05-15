@@ -19,18 +19,18 @@
 // library. Application programmers should normally use vtkRenderWindow
 // instead of the OpenGL specific version.
 
-#ifndef __vtkExtOpenGLRenderWindow_h
-#define __vtkExtOpenGLRenderWindow_h
+#ifndef __vtkExternalOpenGLRenderWindow_h
+#define __vtkExternalOpenGLRenderWindow_h
 
-#include "vtkRenderingOpenGLModule.h" // For export macro
+#include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #include <X11/Xutil.h> // Needed for X types used in the public interface
 
 class vtkIdList;
-class vtkExtOpenGLRenderWindowInternal;
+class vtkExternalOpenGLRenderWindowInternal;
 
-class VTKRENDERINGOPENGL_EXPORT vtkExternalOpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkExternalOpenGLRenderWindow *New();
@@ -237,7 +237,7 @@ protected:
   vtkExternalOpenGLRenderWindow();
   ~vtkExternalOpenGLRenderWindow();
 
-  vtkExtOpenGLRenderWindowInternal *Internal;
+  vtkExternalOpenGLRenderWindowInternal *Internal;
 
   Window   ParentId;
   Window   WindowId;

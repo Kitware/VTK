@@ -53,11 +53,11 @@
 
 class vtkExternalOpenGLRenderWindow;
 class vtkRenderWindow;
-class vtkExtOpenGLRenderWindowInternal
+class vtkExternalOpenGLRenderWindowInternal
 {
   friend class vtkExternalOpenGLRenderWindow;
 private:
-  vtkExtOpenGLRenderWindowInternal(vtkRenderWindow*);
+  vtkExternalOpenGLRenderWindowInternal(vtkRenderWindow*);
 
   GLXContext ContextId;
 
@@ -85,7 +85,7 @@ private:
 #endif
 };
 
-vtkExtOpenGLRenderWindowInternal::vtkExtOpenGLRenderWindowInternal(
+vtkExternalOpenGLRenderWindowInternal::vtkExternalOpenGLRenderWindowInternal(
   vtkRenderWindow *rw)
 {
   this->ContextId = NULL;
@@ -408,7 +408,7 @@ vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
   this->ColorMap = static_cast<Colormap>(0);
   this->OwnWindow = 0;
 
-  this->Internal = new vtkExtOpenGLRenderWindowInternal(this);
+  this->Internal = new vtkExternalOpenGLRenderWindowInternal(this);
 
   this->XCCrosshair = 0;
   this->XCArrow     = 0;
