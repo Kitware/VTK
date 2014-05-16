@@ -217,31 +217,38 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
   //cout << "VS: " << VSSource << endl;
   //cout << "FS: " << FSSource << endl;
 
-  cellBO.vs.SetSource(VSSource);
-  cellBO.vs.SetType(vtkgl::Shader::Vertex);
-  cellBO.fs.SetSource(FSSource);
-  cellBO.fs.SetType(vtkgl::Shader::Fragment);
-  if (!cellBO.vs.Compile())
+  // only recompile if the shader has changed
+  if (cellBO.vs.GetSource().size() == 0 ||
+      cellBO.vs.GetSource().compare(VSSource) ||
+      cellBO.fs.GetSource().compare(FSSource))
     {
-    vtkErrorMacro(<< cellBO.vs.GetError());
+    cellBO.vs.SetSource(VSSource);
+    cellBO.vs.SetType(vtkgl::Shader::Vertex);
+    cellBO.fs.SetSource(FSSource);
+    cellBO.fs.SetType(vtkgl::Shader::Fragment);
+
+    if (!cellBO.vs.Compile())
+      {
+      vtkErrorMacro(<< cellBO.vs.GetError());
+      }
+    if (!cellBO.fs.Compile())
+      {
+      vtkErrorMacro(<< cellBO.fs.GetError());
+      }
+    if (!cellBO.program.AttachShader(cellBO.vs))
+      {
+      vtkErrorMacro(<< cellBO.program.GetError());
+      }
+    if (!cellBO.program.AttachShader(cellBO.fs))
+      {
+      vtkErrorMacro(<< cellBO.program.GetError());
+      }
+    if (!cellBO.program.Link())
+      {
+      vtkErrorMacro(<< "Links failed: " << cellBO.program.GetError());
+      }
+    cellBO.buildTime.Modified();
     }
-  if (!cellBO.fs.Compile())
-    {
-    vtkErrorMacro(<< cellBO.fs.GetError());
-    }
-  if (!cellBO.program.AttachShader(cellBO.vs))
-    {
-    vtkErrorMacro(<< cellBO.program.GetError());
-    }
-  if (!cellBO.program.AttachShader(cellBO.fs))
-    {
-    vtkErrorMacro(<< cellBO.program.GetError());
-    }
-  if (!cellBO.program.Link())
-    {
-    vtkErrorMacro(<< "Links failed: " << cellBO.program.GetError());
-    }
-  cellBO.buildTime.Modified();
 
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Internal->layout;
@@ -278,18 +285,18 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     }
 
 
-    if (!cellBO.program.Bind())
-      {
-      vtkErrorMacro(<< cellBO.program.GetError());
-      return;
-      }
+  if (!cellBO.program.Bind())
+    {
+    vtkErrorMacro(<< cellBO.program.GetError());
+    return;
+    }
 
-    this->SetPropertyShaderParameters(cellBO, ren, actor);
-    this->SetCameraShaderParameters(cellBO, ren, actor);
-    this->SetLightingShaderParameters(cellBO, ren, actor);
-    cellBO.vao.Bind();
+  this->SetPropertyShaderParameters(cellBO, ren, actor);
+  this->SetCameraShaderParameters(cellBO, ren, actor);
+  this->SetLightingShaderParameters(cellBO, ren, actor);
+  cellBO.vao.Bind();
 
-    this->Internal->lastBoundBO = &cellBO;
+  this->Internal->lastBoundBO = &cellBO;
 }
 
 //-----------------------------------------------------------------------------
@@ -711,10 +718,15 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
           // point used, need new point
           else
             {
-            // might be beyond the current allocation so use insert
-            cellPointMap.insert(cellPointMap.begin() + nextId, indices[i] + 1);
+            // might be beyond the current allocation
+            if (nextId >= cellPointMap.size())
+              {
+              cellPointMap.resize(nextId*1.5);
+              pointCellMap.resize(nextId*1.5);
+              }
+            cellPointMap[nextId] = indices[i] + 1;
             newPrims[primType]->InsertCellPoint(nextId);
-            pointCellMap.insert(pointCellMap.begin() + nextId, cellCount);
+            pointCellMap[nextId] = cellCount;
             nextId++;
             }
           }
