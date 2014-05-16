@@ -24,7 +24,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGL2Renderer.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -79,7 +79,7 @@ int TestLightActor(int argc, char* argv[])
   vtkRenderer *renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
-  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkOpenGL2Renderer *glrenderer = vtkOpenGL2Renderer::SafeDownCast(renderer);
 
   vtkCameraPass *cameraP=vtkCameraPass::New();
 

@@ -204,7 +204,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
                                  "//VTK::Normal::Dec",
                                  "varying vec3 normalVC;");
     FSSource = replace(FSSource,
-                                 "//VTK::Normal::Impl","");
+                                 "//VTK::Normal::Impl","  if (!gl_FrontFacing) normalVC = -normalVC;");
     }
   else
     {
@@ -484,6 +484,12 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
     }
 
+  // if there are no points then we are done
+  if (!this->GetInput()->GetPoints())
+    {
+    return;
+    }
+
   this->TimeToDraw = 0.0;
 
   // Update the VBO if needed.
@@ -549,6 +555,9 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
       }
     else if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
+      // TODO wireframe of triangles is not lit properly right now
+      // you either have to generate normals and send them down
+      // or use a geometry shader.
 #if 1
       glMultiDrawElements(GL_LINE_LOOP,
                         (GLsizei *)(&this->Internal->tris.elementsArray[0]),

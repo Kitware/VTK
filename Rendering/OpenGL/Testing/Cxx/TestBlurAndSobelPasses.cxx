@@ -25,7 +25,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGL2Renderer.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -63,7 +63,7 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
-  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkOpenGL2Renderer *glrenderer = vtkOpenGL2Renderer::SafeDownCast(renderer);
 
   vtkCameraPass *cameraP=vtkCameraPass::New();
 

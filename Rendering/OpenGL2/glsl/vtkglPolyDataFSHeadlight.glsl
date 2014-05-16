@@ -38,13 +38,9 @@ void main()
 {
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl
-  if (!gl_FrontFacing)
-    {
-    normalVC = -normalVC;
-    }
 
   // diffuse and specular lighting
-  float df = abs(dot(normalVC, vec3(0, 0, 1)));
+  float df = max(0,dot(normalVC, vec3(0, 0, 1)));
   float sf = pow(df, specularPower);
 
   vec3 diffuse = df * vertexColor;
