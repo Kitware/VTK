@@ -684,6 +684,12 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
     unsigned int nextId = poly->GetPoints()->GetNumberOfPoints();
+    // make sure we have at least Num Points entries
+	  if (cellPointMap.size() < nextId)
+		  {
+        cellPointMap.resize(nextId);
+        pointCellMap.resize(nextId);
+		  }
 
     unsigned int cellCount = 0;
     for (int primType = 0; primType < 4; primType++)
@@ -698,16 +704,17 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
           // point not used yet?
           if (cellPointMap[indices[i]] == 0)
             {
-            cellPointMap[indices[i]] = indices[i] + 1;
+            cellPointMap[indices[i]] =  indices[i] + 1;
             newPrims[primType]->InsertCellPoint(indices[i]);
             pointCellMap[indices[i]] = cellCount;
             }
           // point used, need new point
           else
             {
-            cellPointMap[nextId] = indices[i] + 1;
+            // might be beyond the current allocation so use insert
+            cellPointMap.insert(cellPointMap.begin() + nextId, indices[i] + 1);
             newPrims[primType]->InsertCellPoint(nextId);
-            pointCellMap[nextId] = cellCount;
+            pointCellMap.insert(pointCellMap.begin() + nextId, cellCount);
             nextId++;
             }
           }
@@ -765,6 +772,15 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
                          this->Internal->lines.ibo,
                          this->Internal->lines.offsetArray,
                          this->Internal->lines.elementsArray);
+
+  // free up new cel arrays
+  if (cellScalars)
+    {
+    for (int primType = 0; primType < 4; primType++)
+      {
+      prims[primType]->UnRegister(this);
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
