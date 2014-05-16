@@ -65,10 +65,13 @@ public:
 // of the vtk/python garbage collection system, because it contains
 // exactly one pointer reference for each VTK object known to python)
 class vtkPythonObjectMap
-  : public std::map<vtkObjectBase*, PyObject *>
+  : public std::map<vtkObjectBase*, std::pair<PyObject *, vtkAtomicInt<vtkTypeInt32> > >
 {
 public:
   ~vtkPythonObjectMap();
+
+  void add(vtkObjectBase* key, PyObject* value);
+  void remove(vtkObjectBase* key);
 };
 
 // Call Delete instead of relying on vtkSmartPointer, so that crashes
@@ -78,7 +81,48 @@ vtkPythonObjectMap::~vtkPythonObjectMap()
   iterator i;
   for (i = this->begin(); i != this->end(); ++i)
     {
-    i->first->Delete();
+    for (int j = 0; j < i->second.second; ++j)
+      {
+      i->first->Delete();
+      }
+    }
+}
+
+void
+vtkPythonObjectMap::add(vtkObjectBase* key, PyObject* value)
+{
+  key->Register(0);
+  iterator i = this->find(key);
+  if (i == this->end())
+    {
+    (*this)[key] = std::make_pair(value, 1);
+    }
+  else
+    {
+    i->second.first = value;
+    ++i->second.second;
+    }
+}
+
+void
+vtkPythonObjectMap::remove(vtkObjectBase* key)
+{
+  iterator i = this->find(key);
+  if (i != this->end())
+    {
+    // Save the object. The iterator will become invalid if the iterator is
+    // erased.
+    vtkObjectBase* obj = i->first;
+    // Remove it from the map if necessary.
+    if (!--i->second.second)
+      {
+      this->erase(i);
+      }
+    // Remove a reference to the object. This must be done *after* removing it
+    // from the map (if needed) because if there's a callback which reacts when
+    // the reference is dropped, it might call RemoveObjectFromMap as well. If
+    // it still exists in the map at that point, this becomes an infinite loop.
+    obj->Delete();
     }
 }
 
@@ -302,9 +346,8 @@ void vtkPythonUtil::AddObjectToMap(PyObject *obj, vtkObjectBase *ptr)
   vtkGenericWarningMacro("Adding an object to map ptr = " << ptr);
 #endif
 
-  ptr->Register(0);
   ((PyVTKObject *)obj)->vtk_ptr = ptr;
-  vtkPythonMap->ObjectMap->insert(std::make_pair(ptr, obj));
+  vtkPythonMap->ObjectMap->add(ptr, obj);
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Added object to map obj= " << obj << " "
@@ -333,8 +376,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
       wptr = pobj->vtk_ptr;
       }
 
-    vtkPythonMap->ObjectMap->erase(pobj->vtk_ptr);
-    pobj->vtk_ptr->Delete();
+    vtkPythonMap->ObjectMap->remove(pobj->vtk_ptr);
 
     // if the VTK object still exists, then make a ghost
     if (wptr.GetPointer())
@@ -387,7 +429,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
       vtkPythonMap->ObjectMap->find(ptr);
     if (i != vtkPythonMap->ObjectMap->end())
       {
-      obj = i->second;
+      obj = i->second.first;
       }
     if (obj)
       {
