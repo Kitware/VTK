@@ -653,14 +653,14 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
       cout << "Scalar colors: "
            << this->Internal->colors.size() / this->Internal->colorComponents
            << " with " << int(this->Internal->colorComponents) << " components." <<  endl;
-      }
-    if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
-          this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
-          this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
-          !poly->GetPointData()->GetScalars() )
-         && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
-      {
-      cellScalars = true;
+      if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
+            this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
+            this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
+            !poly->GetPointData()->GetScalars() )
+           && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+        {
+        cellScalars = true;
+        }
       }
     }
 

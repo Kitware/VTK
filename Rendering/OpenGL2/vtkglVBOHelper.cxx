@@ -153,6 +153,22 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPts, vtkDataArray *normal
                     unsigned char *colors, int colorComponents,
                     BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap)
 {
+  // fast path
+  if (!normals && !colors && points->GetDataType() == VTK_FLOAT)
+    {
+    VBOLayout layout;
+    int blockSize = 3;
+    layout.VertexOffset = 0;
+    layout.NormalOffset = 0;
+    layout.ColorComponents = 0;
+    layout.ColorOffset = 0;
+    layout.Stride = sizeof(float) * blockSize;
+    vertexBuffer.Upload((float *)(points->GetVoidPointer(0)), numPts*3, vtkgl::BufferObject::ArrayBuffer);
+    layout.VertexCount = numPts;
+    return layout;
+    }
+
+  //slower path
   switch(points->GetDataType())
     {
     vtkTemplateMacro(

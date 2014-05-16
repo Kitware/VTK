@@ -58,6 +58,9 @@ public:
   template <class T>
   bool Upload(const T &array, ObjectType type);
 
+  // non vector version for float
+  bool Upload(const float *array, int numElements, ObjectType type);
+
   /**
    * Bind the buffer object ready for rendering.
    * @note Only one ARRAY_BUFFER and one ELEMENT_ARRAY_BUFFER may be bound at
