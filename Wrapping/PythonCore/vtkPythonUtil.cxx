@@ -75,7 +75,7 @@ public:
 // caused by deletion are easier to follow in the debug stack trace
 vtkPythonObjectMap::~vtkPythonObjectMap()
 {
-  std::map<vtkObjectBase*, PyObject *>::iterator i;
+  iterator i;
   for (i = this->begin(); i != this->end(); ++i)
     {
     i->first->Delete();
@@ -343,7 +343,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
       std::vector<PyObject*> delList;
 
       // Erase ghosts of VTK objects that have been deleted
-      std::map<vtkObjectBase*, PyVTKObjectGhost>::iterator i =
+      vtkPythonGhostMap::iterator i =
         vtkPythonMap->GhostMap->begin();
       while (i != vtkPythonMap->GhostMap->end())
         {
@@ -383,7 +383,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
 
   if (ptr)
     {
-    std::map<vtkObjectBase*, PyObject *>::iterator i =
+    vtkPythonObjectMap::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
     if (i != vtkPythonMap->ObjectMap->end())
       {
@@ -402,7 +402,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
     }
 
   // search weak list for object, resurrect if it is there
-  std::map<vtkObjectBase*, PyVTKObjectGhost>::iterator j =
+  vtkPythonGhostMap::iterator j =
     vtkPythonMap->GhostMap->find(ptr);
   if (j != vtkPythonMap->GhostMap->end())
     {
@@ -420,7 +420,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
     {
     // create a new object
     PyObject *vtkclass = NULL;
-    std::map<std::string, PyObject*>::iterator k =
+    vtkPythonClassMap::iterator k =
       vtkPythonMap->ClassMap->find(ptr->GetClassName());
     if (k != vtkPythonMap->ClassMap->end())
       {
@@ -740,7 +740,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
     }
 
   // try to construct the special object from the supplied object
-  std::map<std::string, PyVTKSpecialType>::iterator it =
+  vtkPythonSpecialTypeMap::iterator it =
     vtkPythonMap->SpecialTypeMap->find(result_type);
   if(it != vtkPythonMap->SpecialTypeMap->end())
     {
