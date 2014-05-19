@@ -262,7 +262,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       {
       vtkErrorMacro(<< "Error setting 'vertexMC' in triangle VAO.");
       }
-    if (this->GetInput()->GetPointData()->GetNormals())
+    if (layout.NormalOffset)
       {
       if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
                                       "normalMC", layout.NormalOffset,
@@ -664,7 +664,6 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
       }
     }
 
-
   // if we have cell scalars then we have to
   // explode the data
   vtkCellArray *prims[4];
@@ -676,69 +675,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
   std::vector<unsigned int> pointCellMap;
   if (cellScalars)
     {
-    vtkCellArray *newPrims[4];
-
-    // need an array to track what points have already been used
-    cellPointMap.resize(prims[0]->GetSize() +
-                         prims[1]->GetSize() +
-                         prims[2]->GetSize() +
-                         prims[3]->GetSize(), 0);
-    // need an array to track what cells the points are part of
-    pointCellMap.resize(prims[0]->GetSize() +
-                       prims[1]->GetSize() +
-                       prims[2]->GetSize() +
-                       prims[3]->GetSize(), 0);
-    vtkIdType* indices(NULL);
-    vtkIdType npts(0);
-    unsigned int nextId = poly->GetPoints()->GetNumberOfPoints();
-    // make sure we have at least Num Points entries
-	  if (cellPointMap.size() < nextId)
-		  {
-        cellPointMap.resize(nextId);
-        pointCellMap.resize(nextId);
-		  }
-
-    unsigned int cellCount = 0;
-    for (int primType = 0; primType < 4; primType++)
-      {
-      newPrims[primType] = vtkCellArray::New();
-      for (prims[primType]->InitTraversal(); prims[primType]->GetNextCell(npts, indices); )
-        {
-        newPrims[primType]->InsertNextCell(npts);
-
-        for (int i=0; i < npts; ++i)
-          {
-          // point not used yet?
-          if (cellPointMap[indices[i]] == 0)
-            {
-            cellPointMap[indices[i]] =  indices[i] + 1;
-            newPrims[primType]->InsertCellPoint(indices[i]);
-            pointCellMap[indices[i]] = cellCount;
-            }
-          // point used, need new point
-          else
-            {
-            // might be beyond the current allocation
-            if (nextId >= cellPointMap.size())
-              {
-              cellPointMap.resize(nextId*1.5);
-              pointCellMap.resize(nextId*1.5);
-              }
-            cellPointMap[nextId] = indices[i] + 1;
-            newPrims[primType]->InsertCellPoint(nextId);
-            pointCellMap[nextId] = cellCount;
-            nextId++;
-            }
-          }
-          cellCount++;
-        } // for cell
-
-      prims[primType] = newPrims[primType];
-      } // for primType
-
-    cellPointMap.resize(nextId);
-    pointCellMap.resize(nextId);
-    } // if cell scalars
+    vtkgl::CreateCellSupportArrays(poly, prims, cellPointMap, pointCellMap);
+    }
 
   // Mark our properties as updated.
   this->Internal->propertiesTime.Modified();
@@ -749,6 +687,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               poly->GetPointData()->GetNormals(),
+              poly->GetPointData()->GetTCoords(),
               this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
               this->Internal->colorComponents,
               this->Internal->vbo,

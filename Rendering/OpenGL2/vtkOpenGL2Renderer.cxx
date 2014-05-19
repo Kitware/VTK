@@ -14,6 +14,16 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenGL2Renderer.h"
 
+#include "vtkNew.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkPolyData.h"
+#include "vtkPointData.h"
+#include "vtkCellArray.h"
+#include "vtkTrivialProducer.h"
+#include "vtkActor2D.h"
+
 #include "vtkglVBOHelper.h"
 
 #include "vtkCuller.h"
@@ -1063,75 +1073,75 @@ void vtkOpenGL2Renderer::Clear(void)
   if (!this->Transparent() &&
       (this->GradientBackground || this->TexturedBackground))
     {
+    int size[2];
+    size[0] = this->GetSize()[0];
+    size[1] = this->GetSize()[1];
+
     double tile_viewport[4];
     this->GetRenderWindow()->GetTileViewport(tile_viewport);
-    glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT);
+
+    vtkNew<vtkActor2D> actor;
+    vtkNew<vtkPolyDataMapper2D> mapper;
+    vtkNew<vtkPolyData> polydata;
+    vtkNew<vtkPoints> points;
+    points->SetNumberOfPoints(4);
+    points->SetPoint(0, 0, 0, 0);
+    points->SetPoint(1, size[0], 0, 0);
+    points->SetPoint(2, size[0], size[1], 0);
+    points->SetPoint(3, 0, size[1], 0);
+
+    vtkNew<vtkUnsignedCharArray> colors;
+    colors->SetNumberOfComponents(4);
+    colors->SetNumberOfTuples(4);
+    colors->SetTuple(0,this->Background);
+    colors->SetTuple(1,this->Background);
+    colors->SetTuple(2,this->Background2);
+    colors->SetTuple(3,this->Background2);
+    polydata->GetPointData()->SetScalars(colors.Get());
+
+    vtkNew<vtkCellArray> tris;
+    tris->InsertNextCell(3);
+    tris->InsertCellPoint(0);
+    tris->InsertCellPoint(1);
+    tris->InsertCellPoint(2);
+    tris->InsertCellPoint(0);
+    tris->InsertCellPoint(2);
+    tris->InsertCellPoint(3);
+    polydata->SetPolys(tris.Get());
+
+    vtkNew<vtkTrivialProducer> prod;
+    prod->SetOutput(polydata.Get());
+
+    // Set some properties.
+    mapper->SetInputConnection(prod->GetOutputPort());
+    actor->SetMapper(mapper.Get());
+
+    actor->RenderOverlay(this);
+
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    glShadeModel(GL_SMOOTH); // color interpolation
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    {
-      glLoadIdentity();
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
+    //top vertices
+    if(this->TexturedBackground && this->BackgroundTexture)
       {
-        glLoadIdentity();
-        glOrtho(
-          tile_viewport[0],
-          tile_viewport[2],
-          tile_viewport[1],
-          tile_viewport[3],
-          -1.0, 1.0);
+      glEnable(GL_TEXTURE_2D);
 
-        //top vertices
-        if(this->TexturedBackground && this->BackgroundTexture)
-          {
-          glEnable(GL_TEXTURE_2D);
+      this->BackgroundTexture->Render(this);
 
-          this->BackgroundTexture->Render(this);
+      // NOTE: By default the mode is GL_MODULATE. Since the user
+      // cannot set the mode, the default is set to replace.
+      glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-          // NOTE: By default the mode is GL_MODULATE. Since the user
-          // cannot set the mode, the default is set to replace.
-          glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-          // NOTE: vtkTexture Render enables the alpha test
-          // so that no buffer is affected if alpha of incoming fragment is
-          // below the threshold. Here we have to enable it so that it won't
-          // rejects the fragments of the quad as the alpha is set to 0 on it.
-          glDisable(GL_ALPHA_TEST);
-          }
-
-        glBegin(GL_QUADS);
-        glColor4d(this->Background[0],this->Background[1],this->Background[2],
-                  0.0);
-        glTexCoord2f(0.0, 0.0);
-        glVertex2f(0.0, 0.0);
-
-        glTexCoord2f(1.0, 0.0);
-        glVertex2f(1.0, 0);
-
-        //bottom vertices
-        glColor4d(this->Background2[0],this->Background2[1],
-                  this->Background2[2],0.0);
-        glTexCoord2f(1.0, 1.0);
-        glVertex2f(1.0, 1.0);
-
-        glTexCoord2f(0.0, 1.0);
-        glVertex2f(0.0, 1.0);
-
-        glEnd();
+      // NOTE: vtkTexture Render enables the alpha test
+      // so that no buffer is affected if alpha of incoming fragment is
+      // below the threshold. Here we have to enable it so that it won't
+      // rejects the fragments of the quad as the alpha is set to 0 on it.
+      glDisable(GL_ALPHA_TEST);
       }
-      glMatrixMode(GL_PROJECTION);
-      glPopMatrix();
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glPopAttrib();
+
     }
   vtkOpenGLCheckErrorMacro("failed after Clear");
 }

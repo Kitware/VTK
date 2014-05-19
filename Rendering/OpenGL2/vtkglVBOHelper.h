@@ -27,6 +27,7 @@
 class vtkCellArray;
 class vtkPoints;
 class vtkDataArray;
+class vtkPolyData;
 
 namespace vtkgl
 {
@@ -72,6 +73,8 @@ struct VBOLayout
   int Stride;       // The size of a complete vertex + attributes
   int VertexOffset; // Offset of the vertex
   int NormalOffset; // Offset of the normal
+  int TCoordOffset; // Offset of the texture coordinates
+  int TCoordComponents; // Number of texture dimensions
   int ColorOffset;  // Offset of the color
   int ColorComponents; // Number of color components
 };
@@ -81,10 +84,15 @@ struct VBOLayout
 // floats for the vertices and normals, and unsigned char for the colors (if
 // the array is non-null).
 VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints, vtkDataArray *normals,
+                    vtkDataArray *tcoords,
                     unsigned char *colors, int colorComponents,
                     BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap);
 
 
+// used to create an IBO for stripped primatives such as lines and triangle strips
+void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *[4],
+                             std::vector<unsigned int> &cellPointMap,
+                             std::vector<unsigned int> &pointCellMap);
 
 } // End namespace
 

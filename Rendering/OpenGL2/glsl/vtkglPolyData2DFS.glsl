@@ -12,30 +12,14 @@
 
 =========================================================================*/
 
-// all variables that represent positions or directions have a suffix
-// indicating the coordinate system they are in. The possible values are
-// MC - Model Coordinates
-// WC - WC world coordinates
-// VC - View Coordinates
-// DC - Display Coordinates
-
-attribute vec4 vertexWC;
-
-// material property values
-//VTK::Color::Dec
-uniform float opacity;
 
 // Texture coordinates
 //VTK::TCoord::Dec
-
-uniform mat4 WCVCMatrix;  // World to view matrix
 
 varying vec4 fcolor;
 
 void main()
 {
-  gl_Position = WCVCMatrix*vertexWC;
+  gl_FragColor = fcolor;
   //VTK::TCoord::Impl
-  fcolor = vec4(diffuseColor.rgb, opacity);
 }
-

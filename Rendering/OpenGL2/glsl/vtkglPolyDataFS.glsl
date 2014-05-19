@@ -11,6 +11,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 varying vec4 fcolor;
 
 void main()

@@ -167,15 +167,11 @@ vtkScalarBarActor::vtkScalarBarActor()
   tc->Delete();
 
   vtkCellArray* polys2 = vtkCellArray::New();
-  polys2->InsertNextCell(3);
+  polys2->InsertNextCell(4);
   polys2->InsertCellPoint(0);
   polys2->InsertCellPoint(1);
   polys2->InsertCellPoint(2);
-  polys2->InsertNextCell(3);
-  polys2->InsertCellPoint(0);
-  polys2->InsertCellPoint(2);
   polys2->InsertCellPoint(3);
-  this->TexturePolyData->SetPolys(polys2);
   polys2->Delete();
 
   vtkProperty2D* imageProperty = vtkProperty2D::New();

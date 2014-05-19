@@ -29,6 +29,8 @@
 
 class vtkRenderer;
 
+namespace vtkgl {struct CellBO; }
+
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2PolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
@@ -44,12 +46,18 @@ protected:
   vtkOpenGL2PolyDataMapper2D();
   ~vtkOpenGL2PolyDataMapper2D();
 
+
   // Description:
   // Determine what shader to use and compile/link it
-  virtual void UpdateShader(vtkViewport *viewport, vtkActor2D *act);
+  virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
-  void SetCameraShaderParameters(vtkViewport *ren, vtkActor2D *act);
-  void SetPropertyShaderParameters(vtkViewport *ren, vtkActor2D *act);
+    // Description:
+  // Set the shader parameteres related to the Camera
+  void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *act);
+
+  // Description:
+  // Set the shader parameteres related to the property
+  void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
   // Description:
   // Update the scene when necessary.

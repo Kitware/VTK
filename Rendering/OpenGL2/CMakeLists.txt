@@ -25,14 +25,16 @@ set(Module_SRCS
   vtkOpenGL2Light.cxx
   vtkOpenGL2PolyDataMapper2D.cxx
   vtkOpenGL2Property.cxx
-  vtkOpenGL2Renderer.cxx
   vtkVBOPolyDataMapper.cxx
+  vtkOpenGL2Renderer.cxx
+  vtkOpenGL2Texture.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
 set(shader_files
   # lighting in the VS
   glsl/vtkglPolyData2DVS.glsl
+  glsl/vtkglPolyData2DFS.glsl
   glsl/vtkglPolyDataVSLightKit.glsl
   glsl/vtkglPolyDataVSHeadlight.glsl
   glsl/vtkglPolyDataVSPositionalLights.glsl
@@ -95,9 +97,10 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
     Actor
     Camera
     Light
-#    PolyDataMapper2D
+    PolyDataMapper2D
     Property
     Renderer
+    Texture
     )
 endif()
 

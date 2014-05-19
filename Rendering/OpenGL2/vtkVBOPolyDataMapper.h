@@ -84,11 +84,11 @@ protected:
   void SetLightingShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to lighting
+  // Set the shader parameteres related to the Camera
   void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to lighting
+  // Set the shader parameteres related to the property
   void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
