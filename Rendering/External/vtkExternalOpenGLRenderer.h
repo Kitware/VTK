@@ -37,15 +37,19 @@ public:
   void Clear(void);
 
   // Description:
-  // Set/Get whether to clear the OpenGL context buffer
-  vtkGetMacro(ClearBuffers, int);
-  vtkSetMacro(ClearBuffers, int);
+  // Normally the vtkOpenGLRenderer clears the color buffer before rendering a
+  // new frame. When this flag is true, the color buffer is not cleared. This
+  // can be helpful when rendering there are multiple visualization systems
+  // sharing the same context. Default value is 0.
+  vtkGetMacro(PreserveColorBuffer, int);
+  vtkSetMacro(PreserveColorBuffer, int);
+  vtkBooleanMacro(PreserveColorBuffer, int);
 
 protected:
   vtkExternalOpenGLRenderer();
   ~vtkExternalOpenGLRenderer();
 
-  int ClearBuffers;
+  int PreserveColorBuffer;
 
 private:
   vtkExternalOpenGLRenderer(const vtkExternalOpenGLRenderer&);  // Not implemented.

@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderer);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderer::vtkExternalOpenGLRenderer()
 {
-  this->ClearBuffers = 0;
+  this->PreserveColorBuffer = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ void vtkExternalOpenGLRenderer::Clear()
 
   GLbitfield  clear_mask = 0;
 
-  if (!this->Transparent() && !this->GetClearBuffers())
+  if (!this->Transparent() && !this->GetPreserveColorBuffer())
     {
     glClearColor( static_cast<GLclampf>(this->Background[0]),
                   static_cast<GLclampf>(this->Background[1]),
@@ -141,6 +141,6 @@ void vtkExternalOpenGLRenderer::Clear()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderer::PrintSelf(ostream &os, vtkIndent indent)
 {
-  os << indent << "ClearBuffers: " << this->ClearBuffers << "\n";
+  os << indent << "PreserveColorBuffer: " << this->PreserveColorBuffer << "\n";
   this->Superclass::PrintSelf(os, indent);
 }
