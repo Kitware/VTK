@@ -14,7 +14,11 @@
 
 varying vec4 fcolor;
 
+// Texture coordinates
+//VTK::TCoord::Dec
+
 void main()
 {
   gl_FragColor = fcolor;
+  //VTK::TCoord::Impl
 }

@@ -26,6 +26,9 @@ attribute vec4 vertexMC;
 // optional normal declaration
 //VTK::Normal::Dec
 
+// Texture coordinates
+//VTK::TCoord::Dec
+
 uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
 
 // material property values
@@ -43,6 +46,8 @@ varying vec3 vertexColor;
 void main()
 {
   //VTK::Normal::Impl
+
+  //VTK::TCoord::Impl
 
   // compute the projected vertex position
   vertexWC = MCWCMatrix * vertexMC;

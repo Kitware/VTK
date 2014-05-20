@@ -72,14 +72,6 @@ void vtkOpenGL2Property::Render(vtkActor *anActor, vtkRenderer *ren)
     return;
     }
 
-  // Set the PointSize
-  glPointSize(this->PointSize);
-  //vtkOpenGLGL2PSHelper::SetPointSize(this->PointSize);
-
-  // Set the LineWidth
-  glLineWidth(this->LineWidth);
-  //vtkOpenGLGL2PSHelper::SetLineWidth(this->LineWidth);
-
   // Set the LineStipple
   if (this->LineStipplePattern != 0xFFFF)
     {
@@ -97,8 +89,6 @@ void vtkOpenGL2Property::Render(vtkActor *anActor, vtkRenderer *ren)
     glDisable(GL_LINE_STIPPLE);
     //vtkOpenGLGL2PSHelper::DisableStipple();
     }
-
-  glDisable(GL_TEXTURE_2D); // fixed-pipeline
 
   // disable alpha testing (this may have been enabled
   // by another actor in OpenGLTexture)
@@ -226,8 +216,6 @@ void vtkOpenGL2Property::PostRender(vtkActor *actor, vtkRenderer *renderer)
                              static_cast<GLenum>(texture_unit));
         // Disable any possible texture.  Wouldn't having a PostRender on
         // vtkTexture be better?
-        glDisable(GL_TEXTURE_1D);
-        glDisable(GL_TEXTURE_2D);
         glDisable(vtkgl::TEXTURE_3D);
         glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
         glDisable(vtkgl::TEXTURE_CUBE_MAP);

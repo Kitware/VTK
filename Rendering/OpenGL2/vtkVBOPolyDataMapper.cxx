@@ -214,6 +214,51 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     FSSource = replace(FSSource,"//VTK::Normal::Impl",
                                  "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
     }
+  if (this->Internal->layout.TCoordComponents)
+    {
+    if (this->Internal->layout.TCoordComponents == 1)
+      {
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "attribute float tcoordMC; varying float tcoordVC;");
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "tcoordVC = tcoordMC;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "varying float tcoordVC; uniform sampler1D texture1;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "gl_FragColor = gl_FragColor*texture1D(texture1, tcoordVC);");
+      }
+    else
+      {
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "attribute vec2 tcoordMC; varying vec2 tcoordVC;");
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "tcoordVC = tcoordMC;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "varying vec2 tcoordVC; uniform sampler2D texture1;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
+      }
+    }
+  else
+    {
+    VSSource = vtkgl::replace(VSSource,
+                                 "//VTK::TCoord::Dec","");
+    VSSource = vtkgl::replace(VSSource,
+                                 "//VTK::TCoord::Impl","");
+    FSSource = vtkgl::replace(FSSource,
+                                 "//VTK::TCoord::Dec","");
+    FSSource = vtkgl::replace(FSSource,
+                                 "//VTK::TCoord::Impl","");
+    }
+
   //cout << "VS: " << VSSource << endl;
   //cout << "FS: " << FSSource << endl;
 
@@ -271,6 +316,15 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
         vtkErrorMacro(<< "Error setting 'normalMC' in triangle VAO.");
         }
       }
+    if (layout.TCoordComponents)
+      {
+      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+                                      "tcoordMC", layout.TCoordOffset,
+                                      layout.Stride, VTK_FLOAT, layout.TCoordComponents, false))
+        {
+        vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
+        }
+      }
     if (layout.ColorComponents != 0)
       {
       if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
@@ -289,6 +343,11 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     {
     vtkErrorMacro(<< cellBO.program.GetError());
     return;
+    }
+
+  if (layout.TCoordComponents)
+    {
+    cellBO.program.SetUniformValue("texture1", 0);
     }
 
   this->SetPropertyShaderParameters(cellBO, ren, actor);
@@ -501,7 +560,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime() ||
-      this->VBOUpdateTime < actor->GetProperty()->GetMTime() ||
+      this->VBOUpdateTime < actor->GetMTime() ||
       this->VBOUpdateTime < input->GetMTime() )
     {
     this->UpdateVBO(actor);

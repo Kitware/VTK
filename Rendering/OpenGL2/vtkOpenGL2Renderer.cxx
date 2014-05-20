@@ -1089,14 +1089,23 @@ void vtkOpenGL2Renderer::Clear(void)
     points->SetPoint(1, size[0], 0, 0);
     points->SetPoint(2, size[0], size[1], 0);
     points->SetPoint(3, 0, size[1], 0);
+	  polydata->SetPoints(points.Get());
 
     vtkNew<vtkUnsignedCharArray> colors;
+    float tmp[4];
+    tmp[0] = this->Background[0]*255;
+    tmp[1] = this->Background[1]*255;
+    tmp[2] = this->Background[2]*255;
+    tmp[3] = 255;
     colors->SetNumberOfComponents(4);
     colors->SetNumberOfTuples(4);
-    colors->SetTuple(0,this->Background);
-    colors->SetTuple(1,this->Background);
-    colors->SetTuple(2,this->Background2);
-    colors->SetTuple(3,this->Background2);
+    colors->SetTuple(0,tmp);
+    colors->SetTuple(1,tmp);
+    tmp[0] = this->Background2[0]*255;
+    tmp[1] = this->Background2[1]*255;
+    tmp[2] = this->Background2[2]*255;
+    colors->SetTuple(2,tmp);
+    colors->SetTuple(3,tmp);
     polydata->GetPointData()->SetScalars(colors.Get());
 
     vtkNew<vtkCellArray> tris;
@@ -1104,6 +1113,7 @@ void vtkOpenGL2Renderer::Clear(void)
     tris->InsertCellPoint(0);
     tris->InsertCellPoint(1);
     tris->InsertCellPoint(2);
+    tris->InsertNextCell(3);
     tris->InsertCellPoint(0);
     tris->InsertCellPoint(2);
     tris->InsertCellPoint(3);

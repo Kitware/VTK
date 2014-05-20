@@ -17,11 +17,13 @@
 #include "vtkglVBOHelper.h"
 
 #include "vtkActor2D.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLGL2PSHelper.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGL2Texture.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
@@ -175,7 +177,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Internal->layout;
-  if (cellBO.indexCount && this->VBOUpdateTime > cellBO.attributeUpdateTime)
+  if (this->VBOUpdateTime > cellBO.attributeUpdateTime)
     {
     cellBO.program.Bind();
     cellBO.vao.Bind();
@@ -216,6 +218,13 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 
   if (layout.TCoordComponents)
     {
+    vtkTexturedActor2D *ta =
+      vtkTexturedActor2D::SafeDownCast(actor);
+    if (ta)
+      {
+      vtkOpenGL2Texture* texture =
+        static_cast<vtkOpenGL2Texture*>(ta->GetTexture());
+      }
     cellBO.program.SetUniformValue("texture1", 0);
     }
 
@@ -346,7 +355,8 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
           this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
           this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
           !poly->GetPointData()->GetScalars() )
-         && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+         && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA
+         && this->Colors)
       {
       cellScalars = true;
       }
@@ -489,29 +499,24 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                      viewport->GetOrigin(), viewport->GetSize());
     }
 
-  if (!t)
-    {
-    glDisable(GL_TEXTURE_2D);
-    }
-
   // Assume we want to do Zbuffering for now.
   // we may turn this off later
   glDepthMask(GL_TRUE);
 
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime() ||
-      this->VBOUpdateTime < actor->GetProperty()->GetMTime() ||
+      this->VBOUpdateTime < actor->GetMTime() ||
       this->VBOUpdateTime < input->GetMTime() )
     {
     this->UpdateVBO(actor);
     this->VBOUpdateTime.Modified();
     }
 
-  // Figure out and build the appropriate shader for the mapped geometry.
-  this->UpdateShader(this->Internal->points, viewport, actor);
-
   this->Internal->vbo.Bind();
   vtkgl::VBOLayout &layout = this->Internal->layout;
+
+  // Figure out and build the appropriate shader for the mapped geometry.
+  this->UpdateShader(this->Internal->points, viewport, actor);
 
   if (this->Internal->points.indexCount)
     {
@@ -519,8 +524,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glPointSize(actor->GetProperty()->GetPointSize());
     //vtkOpenGLGL2PSHelper::SetPointSize(actor->GetProperty()->GetPointSize());
 
-    // Update/build/etc the shader.
-    this->UpdateShader(this->Internal->points, viewport, actor);
     this->Internal->points.ibo.Bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
@@ -536,7 +539,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
     vtkOpenGLGL2PSHelper::SetLineWidth(actor->GetProperty()->GetLineWidth());
 
-    this->UpdateShader(this->Internal->lines, viewport, actor);
     this->Internal->lines.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
       {
@@ -551,8 +553,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // now handle lit primatives
   if (this->Internal->tris.indexCount)
     {
-    // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShader(this->Internal->tris, viewport, actor);
     this->Internal->tris.ibo.Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
@@ -564,8 +564,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   if (this->Internal->triStrips.indexCount)
     {
-    // Use the tris shader program/VAO, but triStrips ibo.
-    this->UpdateShader(this->Internal->triStrips, viewport, actor);
     this->Internal->triStrips.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
       {
@@ -574,17 +572,12 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
         GL_UNSIGNED_INT,
         (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
       }
-    this->Internal->tris.vao.Release();
     this->Internal->triStrips.ibo.Release();
     }
 
+  this->Internal->points.vao.Release();
+  this->Internal->points.program.Release();
   this->Internal->vbo.Release();
-  // this->Internal->program.DisableAttributeArray("vertexWC");
-  // if (this->Internal->colorAttributes)
-  //   {
-  //   this->Internal->program.DisableAttributeArray("diffuseColor");
-  //   }
-  // this->Internal->program.Release();
 
   vtkOpenGLCheckErrorMacro("failed after RenderOverlay");
 }

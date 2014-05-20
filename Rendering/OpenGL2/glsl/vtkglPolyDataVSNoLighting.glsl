@@ -27,11 +27,16 @@ uniform float opacity;
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
+// Texture coordinates
+//VTK::TCoord::Dec
+
 // the resulting vertex color to be passed down to the fragment shader
 varying vec4 fcolor;
 
 void main()
 {
+  //VTK::TCoord::Impl
+
   gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
   fcolor = vec4(diffuseColor.rgb, opacity);
 }

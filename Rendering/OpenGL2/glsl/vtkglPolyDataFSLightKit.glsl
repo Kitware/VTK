@@ -46,6 +46,9 @@ varying vec3 vertexColor;
 // optional normal declaration
 //VTK::Normal::Dec
 
+// Texture coordinates
+//VTK::TCoord::Dec
+
 void main()
 {
   // Generate the normal if we are not passed in one
@@ -74,6 +77,7 @@ void main()
   specular = specular * specularColor;
 
   gl_FragColor = vec4(ambientColor + diffuse + specular, opacity);
+  //VTK::TCoord::Impl
 }
 
 

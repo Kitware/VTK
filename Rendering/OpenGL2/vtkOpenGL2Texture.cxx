@@ -14,6 +14,9 @@
 =========================================================================*/
 #include "vtkOpenGL2Texture.h"
 
+#include "vtkglVBOHelper.h"
+
+
 #include "vtkHomogeneousTransform.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
@@ -237,6 +240,7 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
 
     // define a display list for this texture
     // get a unique display list id
+    glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tempIndex);
     vtkOpenGLCheckErrorMacro("failed at glGenTextures");
     this->Index = static_cast<long>(tempIndex);
@@ -350,9 +354,8 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
       }
     }
 
-  // execute the display list that uses creates the texture
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, this->Index);
-  vtkOpenGLCheckErrorMacro("failed at glBindTexture");
 
   // don't accept fragments if they have zero opacity. this will stop the
   // zbuffer from be blocked by totally transparent texture fragments.

@@ -159,7 +159,7 @@ VBOLayout TemplatedCreateVBO2(T* points, T2 *normals, vtkIdType numPts,
     {
     return
       TemplatedCreateVBO3(points,
-                          (float *)NULL,
+                          normals,
                           numPts,
                           (float *)NULL, 0,
                           colors,
@@ -225,6 +225,8 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPts,
     int blockSize = 3;
     layout.VertexOffset = 0;
     layout.NormalOffset = 0;
+    layout.TCoordOffset = 0;
+    layout.TCoordComponents = 0;
     layout.ColorComponents = 0;
     layout.ColorOffset = 0;
     layout.Stride = sizeof(float) * blockSize;
