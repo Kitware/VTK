@@ -1,0 +1,29 @@
+SET(ENV{PATH} "${PATH}${SEPARATOR}$ENV{PATH}")
+SET(ENV{LD_LIBRARY_PATH} "${LDPATH}${SEPARATOR}$ENV{LD_LIBRARY_PATH}")
+
+MESSAGE("| Calling:\t${EXECUTABLE} ${ARGUMENTS}")
+EXECUTE_PROCESS(
+       COMMAND ${EXECUTABLE} ${ARGUMENTS} 
+			RESULT_VARIABLE cxx_result
+            OUTPUT_VARIABLE cxx_output
+            ERROR_VARIABLE  cxx_error
+)
+
+MESSAGE("| Call Result:\t${cxx_result}")
+MESSAGE("| Call Output: Begin\n${cxx_output}")
+MESSAGE("| Call Output: End")
+IF(cxx_error)
+	MESSAGE("| Call Error: Begin\n${cxx_error}")
+	MESSAGE("| Call Error: End")
+ENDIF(cxx_error)
+MESSAGE("| Call Ended")
+MESSAGE("----------------------------------------------------------")
+
+# Let's make sure that if the test failed, it failed with CTest too
+IF(cxx_error)
+	MESSAGE(SEND_ERROR "Test Failed.")
+ENDIF(cxx_error)
+
+IF(NOT ${cxx_result} EQUAL "0")
+	MESSAGE(SEND_ERROR "Test Failed.")
+ENDIF(NOT ${cxx_result} EQUAL "0")
