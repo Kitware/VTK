@@ -18,11 +18,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyDataMapper2D.h"
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkFloatArray.h"
 #include "vtkPolyData.h"
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
 #include "vtkTrivialProducer.h"
 #include "vtkActor2D.h"
+#include "vtkTexturedActor2D.h"
 
 #include "vtkglVBOHelper.h"
 
@@ -1060,12 +1062,6 @@ void vtkOpenGL2Renderer::Clear(void)
     clear_mask |= GL_COLOR_BUFFER_BIT;
     }
 
-  if (!this->GetPreserveDepthBuffer())
-    {
-    glClearDepth(static_cast<GLclampf>(1.0));
-    clear_mask |= GL_DEPTH_BUFFER_BIT;
-    }
-
   vtkDebugMacro(<< "glClear\n");
   glClear(clear_mask);
 
@@ -1080,7 +1076,7 @@ void vtkOpenGL2Renderer::Clear(void)
     double tile_viewport[4];
     this->GetRenderWindow()->GetTileViewport(tile_viewport);
 
-    vtkNew<vtkActor2D> actor;
+    vtkNew<vtkTexturedActor2D> actor;
     vtkNew<vtkPolyDataMapper2D> mapper;
     vtkNew<vtkPolyData> polydata;
     vtkNew<vtkPoints> points;
@@ -1090,23 +1086,6 @@ void vtkOpenGL2Renderer::Clear(void)
     points->SetPoint(2, size[0], size[1], 0);
     points->SetPoint(3, 0, size[1], 0);
 	  polydata->SetPoints(points.Get());
-
-    vtkNew<vtkUnsignedCharArray> colors;
-    float tmp[4];
-    tmp[0] = this->Background[0]*255;
-    tmp[1] = this->Background[1]*255;
-    tmp[2] = this->Background[2]*255;
-    tmp[3] = 255;
-    colors->SetNumberOfComponents(4);
-    colors->SetNumberOfTuples(4);
-    colors->SetTuple(0,tmp);
-    colors->SetTuple(1,tmp);
-    tmp[0] = this->Background2[0]*255;
-    tmp[1] = this->Background2[1]*255;
-    tmp[2] = this->Background2[2]*255;
-    colors->SetTuple(2,tmp);
-    colors->SetTuple(3,tmp);
-    polydata->GetPointData()->SetScalars(colors.Get());
 
     vtkNew<vtkCellArray> tris;
     tris->InsertNextCell(3);
@@ -1126,33 +1105,58 @@ void vtkOpenGL2Renderer::Clear(void)
     mapper->SetInputConnection(prod->GetOutputPort());
     actor->SetMapper(mapper.Get());
 
-    actor->RenderOverlay(this);
-
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-
-    //top vertices
     if(this->TexturedBackground && this->BackgroundTexture)
       {
-      glEnable(GL_TEXTURE_2D);
+      this->BackgroundTexture->InterpolateOn();
+      actor->SetTexture(this->BackgroundTexture);
 
-      this->BackgroundTexture->Render(this);
-
-      // NOTE: By default the mode is GL_MODULATE. Since the user
-      // cannot set the mode, the default is set to replace.
-      glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-      // NOTE: vtkTexture Render enables the alpha test
-      // so that no buffer is affected if alpha of incoming fragment is
-      // below the threshold. Here we have to enable it so that it won't
-      // rejects the fragments of the quad as the alpha is set to 0 on it.
-      glDisable(GL_ALPHA_TEST);
+      vtkNew<vtkFloatArray> tcoords;
+      float tmp[2];
+      tmp[0] = 0;
+      tmp[1] = 0;
+      tcoords->SetNumberOfComponents(2);
+      tcoords->SetNumberOfTuples(4);
+      tcoords->SetTuple(0,tmp);
+      tmp[0] = 1.0;
+      tcoords->SetTuple(1,tmp);
+      tmp[1] = 1.0;
+      tcoords->SetTuple(2,tmp);
+      tmp[0] = 0.0;
+      tcoords->SetTuple(3,tmp);
+      polydata->GetPointData()->SetTCoords(tcoords.Get());
+      }
+    else // gradient
+      {
+      vtkNew<vtkUnsignedCharArray> colors;
+      float tmp[4];
+      tmp[0] = this->Background[0]*255;
+      tmp[1] = this->Background[1]*255;
+      tmp[2] = this->Background[2]*255;
+      tmp[3] = 255;
+      colors->SetNumberOfComponents(4);
+      colors->SetNumberOfTuples(4);
+      colors->SetTuple(0,tmp);
+      colors->SetTuple(1,tmp);
+      tmp[0] = this->Background2[0]*255;
+      tmp[1] = this->Background2[1]*255;
+      tmp[2] = this->Background2[2]*255;
+      colors->SetTuple(2,tmp);
+      colors->SetTuple(3,tmp);
+      polydata->GetPointData()->SetScalars(colors.Get());
       }
 
+    glDisable(GL_DEPTH_TEST);
+    actor->RenderOverlay(this);
     }
+
+  if (!this->GetPreserveDepthBuffer())
+    {
+    glClearDepth(static_cast<GLclampf>(1.0));
+    glClear(GL_DEPTH_BUFFER_BIT);
+    }
+
+  glEnable(GL_DEPTH_TEST);
+
   vtkOpenGLCheckErrorMacro("failed after Clear");
 }
 

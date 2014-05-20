@@ -450,18 +450,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->CreateDefaultLookupTable();
     }
 
-  // Texture and color by texture
-  t = input->GetPointData()->GetTCoords();
-  if ( t )
-    {
-    int tDim = t->GetNumberOfComponents();
-    if (tDim != 2)
-      {
-      vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
-      t = 0;
-      }
-    }
-
   // Transform the points, if necessary
   p = input->GetPoints();
   if ( this->TransformCoordinate )
