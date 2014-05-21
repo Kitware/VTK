@@ -128,30 +128,22 @@ bool vtkOpenGL2Property::RenderTextures(vtkActor*, vtkRenderer* ren)
     {
     if (true) // fixed-pipeline multitexturing or old XML shaders.
       {
-      this->LoadMultiTexturingExtensions(ren);
-      if (vtkgl::ActiveTexture)
+      GLint numSupportedTextures;
+      glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+      for (int t = 0; t < numTextures; t++)
         {
-        GLint numSupportedTextures;
-        glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-        for (int t = 0; t < numTextures; t++)
+        int texture_unit = this->GetTextureUnitAtIndex(t);
+        if (texture_unit >= numSupportedTextures || texture_unit < 0)
           {
-          int texture_unit = this->GetTextureUnitAtIndex(t);
-          if (texture_unit >= numSupportedTextures || texture_unit < 0)
-            {
-            vtkErrorMacro("Hardware does not support the number of textures defined.");
-            continue;
-            }
-
-          vtkgl::ActiveTexture(vtkgl::TEXTURE0 +
-                               static_cast<GLenum>(texture_unit));
-          this->GetTextureAtIndex(t)->Render(ren);
+          vtkErrorMacro("Hardware does not support the number of textures defined.");
+          continue;
           }
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+
+        vtkgl::ActiveTexture(vtkgl::TEXTURE0 +
+                             static_cast<GLenum>(texture_unit));
+        this->GetTextureAtIndex(t)->Render(ren);
         }
-      else
-        {
-        this->GetTextureAtIndex(0)->Render(ren); // one-texture fixed-pipeline
-        }
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       }
     else
       {
@@ -243,34 +235,6 @@ void vtkOpenGL2Property::PostRender(vtkActor *actor, vtkRenderer *renderer)
 // Implement base class method.
 void vtkOpenGL2Property::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *ren)
 {
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGL2Property::LoadMultiTexturingExtensions(vtkRenderer* ren)
-{
-  if (!vtkgl::MultiTexCoord2d || !vtkgl::ActiveTexture)
-    {
-    vtkOpenGLExtensionManager* extensions = vtkOpenGLExtensionManager::New();
-    extensions->SetRenderWindow(ren->GetRenderWindow());
-
-    // multitexture is a core feature of OpenGL 1.3.
-    // multitexture is an ARB extension of OpenGL 1.2.1
-    int supports_GL_1_3 = extensions->ExtensionSupported( "GL_VERSION_1_3" );
-    int supports_GL_1_2_1 = extensions->ExtensionSupported("GL_VERSION_1_2");
-    int supports_ARB_mutlitexture = extensions->ExtensionSupported(
-        "GL_ARB_multitexture");
-
-    if (supports_GL_1_3)
-      {
-      extensions->LoadExtension("GL_VERSION_1_3");
-      }
-    else if(supports_GL_1_2_1 && supports_ARB_mutlitexture)
-      {
-      extensions->LoadExtension("GL_VERSION_1_2");
-      extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
-    extensions->Delete();
-    }
 }
 
 //-----------------------------------------------------------------------------

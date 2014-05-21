@@ -740,13 +740,16 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
   // Mark our properties as updated.
   this->Internal->propertiesTime.Modified();
 
+  // do we have texture maps?
+  bool haveTextures = act->GetTexture() ? true : act->GetProperty()->GetNumberOfTextures() ? true : false;
+
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
   this->Internal->layout =
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               poly->GetPointData()->GetNormals(),
-              act->GetTexture() ? poly->GetPointData()->GetTCoords() : NULL,
+              haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
               this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
               this->Internal->colorComponents,
               this->Internal->vbo,

@@ -23,9 +23,6 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkProperty.h"
 
-class vtkOpenGLRenderer;
-class vtkOpenGLRenderWindow;
-
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Property : public vtkProperty
 {
 public:
@@ -63,10 +60,6 @@ protected:
   // Method called in vtkOpenGLProperty::Render() to render textures.
   // Last argument is the value returned from RenderShaders() call.
   bool RenderTextures(vtkActor* actor, vtkRenderer* renderer);
-
-  // Description:
-  // Load OpenGL extensions for multi texturing.
-  void LoadMultiTexturingExtensions(vtkRenderer* ren);
 
 private:
   vtkOpenGL2Property(const vtkOpenGL2Property&);  // Not implemented.
