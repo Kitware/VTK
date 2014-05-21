@@ -73,7 +73,7 @@ vec3 data_pos;
 const vec3 clamp_min = vec3(0.0);
 const vec3 clamp_max = vec3(1.0);
 
-mat4 inv_scene_matrix;
+mat4 ogl_scene_matrix;
 
 vec3 light_pos_obj;
 vec3 eye_pos_obj;
@@ -161,10 +161,10 @@ void main()
   data_pos = texture_coords.xyz;
 
   /// inverse is available only on 120 or above
-  inv_scene_matrix = inverse(scene_matrix);
+  ogl_scene_matrix = inverse(transpose(scene_matrix));
 
   /// Eye position in object space
-  eye_pos_obj = (inv_scene_matrix * vec4(camera_pos, 1.0)).xyz;
+  eye_pos_obj = (ogl_scene_matrix * vec4(camera_pos, 1.0)).xyz;
 
   /// Getting the ray marching direction (in object space);
   vec3 geom_dir = normalize(vertex_pos.xyz - eye_pos_obj);
@@ -177,7 +177,7 @@ void main()
   bool stop = false;
 
   /// Light position in object space
-  light_pos_obj = (inv_scene_matrix *  vec4(light_pos, 1.0)).xyz;
+  light_pos_obj = (ogl_scene_matrix *  vec4(light_pos, 1.0)).xyz;
 
   data_pos += dir_step * texture(noise, data_pos.xy).x;
 

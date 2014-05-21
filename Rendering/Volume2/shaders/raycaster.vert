@@ -35,7 +35,7 @@ void main()
   /// Get clipspace position
   mat4 ogl_projection_matrix = transpose(projection_matrix);
   mat4 ogl_modelview_matrix = transpose(modelview_matrix);
-  vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * scene_matrix *
+  vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * transpose(scene_matrix) *
              vec4(in_vertex_pos.xyz, 1);
   gl_Position = pos;
   vertex_pos = in_vertex_pos;
