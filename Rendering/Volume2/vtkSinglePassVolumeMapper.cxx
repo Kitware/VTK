@@ -65,7 +65,12 @@ public:
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
 
-    // TODO Initialize extents and scalars range
+    this->Extents[0]=VTK_INT_MAX;
+    this->Extents[1]=VTK_INT_MIN;
+    this->Extents[2]=VTK_INT_MAX;
+    this->Extents[3]=VTK_INT_MIN;
+    this->Extents[4]=VTK_INT_MAX;
+    this->Extents[5]=VTK_INT_MIN;
     }
 
   ~vtkInternal()
@@ -107,11 +112,10 @@ public:
   bool IsInitialized();
 
   ///
-  /// \brief vtkSinglePassVolumeMapper::vtkInternal::HasBoundsChanged
-  /// \param bounds
-  /// \return
+  /// \brief ComputeBounds
+  /// \param input
   ///
-  bool HasBoundsChanged(double* bounds);
+  void ComputeBounds(vtkImageData* input);
 
   ///
   /// \brief UpdateColorTransferFunction
@@ -142,7 +146,7 @@ public:
   ///
   /// \brief UpdateVolumeGeometry
   ///
-  void UpdateVolumeGeometry(double* bounds);
+  void UpdateVolumeGeometry();
 
   ///
   /// Private member variables
@@ -168,6 +172,7 @@ public:
 
   double ScalarsRange[2];
   double Bounds[6];
+  int Extents[6];
   double SampleDistance[3];
   double CellScale[3];
   double Scale;
@@ -389,23 +394,15 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
 
   /// Update scale
   this->Scale = scale;
-
-  int* ext = imageData->GetExtent();
-  this->TextureExtents[0] = ext[0];
-  this->TextureExtents[1] = ext[1];
-  this->TextureExtents[2] = ext[2];
-  this->TextureExtents[3] = ext[3];
-  this->TextureExtents[4] = ext[4];
-  this->TextureExtents[5] = ext[5];
+  imageData->GetExtent(this->Extents);
 
   void* dataPtr = scalars->GetVoidPointer(0);
   int i = 0;
   while(i < 3)
     {
-    this->TextureSize[i] = this->TextureExtents[2*i+1] - this->TextureExtents[2*i] + 1;
+    this->TextureSize[i] = this->Extents[2*i+1] - this->Extents[2*i] + 1;
     ++i;
     }
-
 
   glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
                this->TextureSize[0],this->TextureSize[1],this->TextureSize[2], 0,
@@ -452,22 +449,79 @@ bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
 }
 
 //--------------------------------------------------------------------------
-bool vtkSinglePassVolumeMapper::vtkInternal::HasBoundsChanged(double* bounds)
+///
+/// \brief vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds
+/// \param bounds
+///
+void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
 {
-  /// TODO Detect if the camera is inside the bbox and if yes, update the bounds
-  /// accordingly so that we can zoom through it.
-  if (bounds[0] == this->Bounds[0] &&
-      bounds[1] == this->Bounds[1] &&
-      bounds[2] == this->Bounds[2] &&
-      bounds[3] == this->Bounds[3] &&
-      bounds[4] == this->Bounds[4] &&
-      bounds[5] == this->Bounds[5])
+  double spacing[3];
+  double origin[3];
+
+  input->GetSpacing(spacing);
+  input->GetOrigin(origin);
+  input->GetExtent(this->Extents);
+
+  int swapBounds[3];
+  swapBounds[0] = (spacing[0] < 0);
+  swapBounds[1] = (spacing[1] < 0);
+  swapBounds[2] = (spacing[2] < 0);
+
+  /// Loaded data represents points
+  if (!this->CellFlag)
     {
-    return false;
+    // If spacing is negative, we may have to rethink the equation
+    // between real point and texture coordinate...
+    this->Bounds[0] = origin[0]+
+      static_cast<double>(this->Extents[0+swapBounds[0]])*spacing[0];
+    this->Bounds[2] = origin[1]+
+      static_cast<double>(this->Extents[2+swapBounds[1]])*spacing[1];
+    this->Bounds[4] = origin[2]+
+      static_cast<double>(this->Extents[4+swapBounds[2]])*spacing[2];
+    this->Bounds[1] = origin[0]+
+      static_cast<double>(this->Extents[1-swapBounds[0]])*spacing[0];
+    this->Bounds[3] = origin[1]+
+      static_cast<double>(this->Extents[3-swapBounds[1]])*spacing[1];
+    this->Bounds[5] = origin[2]+
+      static_cast<double>(this->Extents[5-swapBounds[2]])*spacing[2];
     }
+  // Loaded extents represent cells
   else
     {
-    return true;
+    int wholeTextureExtent[6];
+    input->GetExtent(wholeTextureExtent);
+    int i = 1;
+    while (i < 6)
+      {
+      wholeTextureExtent[i]--;
+      i += 2;
+      }
+
+    i = 0;
+    while (i < 3)
+      {
+      if(this->Extents[2*i] == wholeTextureExtent[2*i])
+        {
+        this->Bounds[2*i+swapBounds[i]] = origin[i];
+        }
+      else
+        {
+        this->Bounds[2 * i + swapBounds[i]] = origin[i] +
+          (static_cast<double>(this->Extents[2 * i]) + 0.5) * spacing[i];
+        }
+
+      if(this->Extents[2 * i + 1] == wholeTextureExtent[2 * i + 1])
+        {
+        this->Bounds[2 * i + 1 - swapBounds[i]] = origin[i] +
+          (static_cast<double>(this->Extents[2 * i + 1]) + 1.0) * spacing[i];
+        }
+      else
+        {
+        this->Bounds[2 * i + 1-swapBounds[i]] = origin[i] +
+          (static_cast<double>(this->Extents[2 * i + 1]) + 0.5) * spacing[i];
+        }
+      ++i;
+      }
     }
 }
 
@@ -614,19 +668,19 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
 }
 
 //--------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry(double* bounds)
+void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
 {
   /// Cube vertices
   double vertices[8][3] =
     {
-    {bounds[0], bounds[2], bounds[4]}, // 0
-    {bounds[1], bounds[2], bounds[4]}, // 1
-    {bounds[1], bounds[3], bounds[4]}, // 2
-    {bounds[0], bounds[3], bounds[4]}, // 3
-    {bounds[0], bounds[2], bounds[5]}, // 4
-    {bounds[1], bounds[2], bounds[5]}, // 5
-    {bounds[1], bounds[3], bounds[5]}, // 6
-    {bounds[0], bounds[3], bounds[5]}  // 7
+    {this->Bounds[0], this->Bounds[2], this->Bounds[4]}, // 0
+    {this->Bounds[1], this->Bounds[2], this->Bounds[4]}, // 1
+    {this->Bounds[1], this->Bounds[3], this->Bounds[4]}, // 2
+    {this->Bounds[0], this->Bounds[3], this->Bounds[4]}, // 3
+    {this->Bounds[0], this->Bounds[2], this->Bounds[5]}, // 4
+    {this->Bounds[1], this->Bounds[2], this->Bounds[5]}, // 5
+    {this->Bounds[1], this->Bounds[3], this->Bounds[5]}, // 6
+    {this->Bounds[0], this->Bounds[3], this->Bounds[5]}  // 7
     };
 
   /// Cube indices
@@ -708,6 +762,9 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   /// Make sure the context is current
   ren->GetRenderWindow()->MakeCurrent();
 
+  /// Update volume
+  vol->Update();
+
   vtkImageData* input = this->GetInput();
 
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -730,18 +787,13 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 
   scalars->GetRange(this->Implementation->ScalarsRange);
 
-  /// Local variables
-  double bounds[6];
-  vol->Update();
-
-  /// TODO
-  /// Compute bounds from the image
-  vol->GetBounds(bounds);
-
   /// Load volume data if needed
   if (this->Implementation->IsDataDirty(input))
     {
+    /// Update bounds
+    this->Implementation->ComputeBounds(input);
     this->Implementation->LoadVolume(input, scalars);
+    this->Implementation->UpdateVolumeGeometry();
     }
 
   /// Use the shader
@@ -761,11 +813,6 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 
   GL_CHECK_ERRORS
 
-  if (this->Implementation->HasBoundsChanged(bounds))
-    {
-    this->Implementation->UpdateVolumeGeometry(bounds);
-    }
-
   /// Enable depth test
   glEnable(GL_DEPTH_TEST);
 
@@ -778,13 +825,13 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   GL_CHECK_ERRORS
 
   /// Update sampling distance
-  this->Implementation->SampleDistance[0] = 1.0 / (bounds[1] - bounds[0]);
-  this->Implementation->SampleDistance[1] = 1.0 / (bounds[3] - bounds[2]);
-  this->Implementation->SampleDistance[2] = 1.0 / (bounds[5] - bounds[4]);
+  this->Implementation->SampleDistance[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
+  this->Implementation->SampleDistance[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
+  this->Implementation->SampleDistance[2] = 1.0 / (this->Bounds[5] - this->Bounds[4]);
 
-  this->Implementation->CellScale[0] = (bounds[1] - bounds[0]) * 0.5;
-  this->Implementation->CellScale[1] = (bounds[3] - bounds[2]) * 0.5;
-  this->Implementation->CellScale[2] = (bounds[5] - bounds[4]) * 0.5;
+  this->Implementation->CellScale[0] = (this->Bounds[1] - this->Bounds[0]) * 0.5;
+  this->Implementation->CellScale[1] = (this->Bounds[3] - this->Bounds[2]) * 0.5;
+  this->Implementation->CellScale[2] = (this->Bounds[5] - this->Bounds[4]) * 0.5;
 
   /// Pass constant uniforms at initialization
   /// Step should be dependant on the bounds and not on the texture size
@@ -898,19 +945,27 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   /// NOTE Assuming that light is located on the camera
   glUniform3fv(this->Implementation->Shader("light_pos"), 1, &(pos[0]));
 
-  float volExtentsMin[3] = {bounds[0], bounds[2], bounds[4]};
-  float volExtentsMax[3] = {bounds[1], bounds[3], bounds[5]};
+  float volExtentsMin[3] = {this->Bounds[0], this->Bounds[2], this->Bounds[4]};
+  float volExtentsMax[3] = {this->Bounds[1], this->Bounds[3], this->Bounds[5]};
 
   glUniform3fv(this->Implementation->Shader("vol_extents_min"), 1,
                &(volExtentsMin[0]));
   glUniform3fv(this->Implementation->Shader("vol_extents_max"), 1,
                &(volExtentsMax[0]));
 
-  int textureExtents[6];
-  input->GetExtent(textureExtents);
+  float textureExtentsMin[3] =
+    {
+    static_cast<int>(this->Implementation->Extents[0]),
+    static_cast<int>(this->Implementation->Extents[2]),
+    static_cast<int>(this->Implementation->Extents[4])
+    };
 
-  float textureExtentsMin[3] = { textureExtents[0], textureExtents[2], textureExtents[4] };
-  float textureExtentsMax[3] = { textureExtents[1], textureExtents[3], textureExtents[5] };
+  float textureExtentsMax[3] =
+    {
+    static_cast<int>(this->Implementation->Extents[1]),
+    static_cast<int>(this->Implementation->Extents[3]),
+    static_cast<int>(this->Implementation->Extents[5])
+    };
 
   glUniform3fv(this->Implementation->Shader("texture_extents_min"), 1,
                &(textureExtentsMin[0]));
