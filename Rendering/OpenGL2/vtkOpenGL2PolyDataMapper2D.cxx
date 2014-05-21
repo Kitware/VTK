@@ -94,7 +94,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
     {
     VSSource = vtkgl::replace(VSSource,
                                  "//VTK::Color::Dec",
-                                 "uniform vec3 diffuseColor;");
+                                 "uniform vec4 diffuseColor;");
     }
   if (this->Internal->layout.TCoordComponents)
     {
@@ -242,11 +242,11 @@ void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *dColor = actor->GetProperty()->GetColor();
-  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * 255.0),
+  vtkgl::Vector4ub diffuseColor(static_cast<unsigned char>(dColor[0] * 255.0),
                          static_cast<unsigned char>(dColor[1] * 255.0),
-                         static_cast<unsigned char>(dColor[2] * 255.0));
+                         static_cast<unsigned char>(dColor[2] * 255.0),
+                         static_cast<unsigned char>(opacity * 255.0));
 
-  program.SetUniformValue("opacity", opacity);
   program.SetUniformValue("diffuseColor", diffuseColor);
 }
 

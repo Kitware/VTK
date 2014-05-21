@@ -23,7 +23,6 @@ attribute vec4 vertexWC;
 
 // material property values
 //VTK::Color::Dec
-uniform float opacity;
 
 // Texture coordinates
 //VTK::TCoord::Dec
@@ -36,6 +35,6 @@ void main()
 {
   gl_Position = WCVCMatrix*vertexWC;
   //VTK::TCoord::Impl
-  fcolor = vec4(diffuseColor.rgb, opacity);
+  fcolor = diffuseColor;
 }
 

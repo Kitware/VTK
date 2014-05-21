@@ -41,7 +41,7 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
 varying vec4 vertexVC;
 varying vec4 vertexWC;
-varying vec3 vertexColor;
+varying vec4 vertexColor;
 
 void main()
 {
@@ -53,7 +53,7 @@ void main()
   vertexWC = MCWCMatrix * vertexMC;
   vertexVC = MCVCMatrix * vertexMC;
   gl_Position = VCDCMatrix * vertexVC;
-  vertexColor = diffuseColor.rgb;
+  vertexColor = diffuseColor;
 }
 
 

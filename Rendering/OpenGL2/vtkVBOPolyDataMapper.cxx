@@ -110,8 +110,9 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
   int lightComplexity = 0;
 
   // do we need lighting?
-  if (this->GetInput()->GetPointData()->GetNormals() ||
-      &cellBO == &this->Internal->tris || &cellBO == &this->Internal->triStrips)
+  if (actor->GetProperty()->GetLighting() &&
+      (this->GetInput()->GetPointData()->GetNormals() ||
+       &cellBO == &this->Internal->tris || &cellBO == &this->Internal->triStrips))
     {
     // consider the lighting complexity to determine which case applies
     // simple headlight, Light Kit, the whole feature set of VTK
@@ -189,7 +190,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     {
     VSSource = replace(VSSource,
                                  "//VTK::Color::Dec",
-                                 "uniform vec3 diffuseColor;");
+                                 "uniform vec4 diffuseColor;");
     }
   // normals?
   if (this->GetInput()->GetPointData()->GetNormals())
@@ -507,9 +508,10 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
                          static_cast<unsigned char>(aColor[2] * aIntensity * 255.0));
   double *dColor = actor->GetProperty()->GetDiffuseColor();
   double dIntensity = actor->GetProperty()->GetDiffuse();
-  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
+  vtkgl::Vector4ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
                          static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
-                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
+                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0),
+                         static_cast<unsigned char>(opacity*255.0));
   double *sColor = actor->GetProperty()->GetSpecularColor();
   double sIntensity = actor->GetProperty()->GetSpecular();
   vtkgl::Vector3ub specularColor(static_cast<unsigned char>(sColor[0] * sIntensity * 255.0),
@@ -517,7 +519,6 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
                          static_cast<unsigned char>(sColor[2] * sIntensity * 255.0));
   float specularPower = actor->GetProperty()->GetSpecularPower();
 
-  program.SetUniformValue("opacity", opacity);
   program.SetUniformValue("ambientColor", ambientColor);
   program.SetUniformValue("diffuseColor", diffuseColor);
   program.SetUniformValue("specularColor", specularColor);
@@ -579,6 +580,9 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   // are not lit while the tris/strips are
   if (this->Internal->points.indexCount)
     {
+    // Set the PointSize
+    glPointSize(actor->GetProperty()->GetPointSize());
+
     // Update/build/etc the shader.
     this->UpdateShader(this->Internal->points, ren, actor);
     this->Internal->points.ibo.Bind();
@@ -592,6 +596,9 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   if (this->Internal->lines.indexCount)
     {
+    // Set the LineWidth
+    glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
+
     this->UpdateShader(this->Internal->lines, ren, actor);
     this->Internal->lines.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)

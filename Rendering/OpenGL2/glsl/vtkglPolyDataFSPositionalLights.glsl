@@ -22,7 +22,6 @@
 // DC - Display Coordinates
 
 // material property values
-uniform float opacity;
 uniform vec3 ambientColor; // intensity weighted color
 uniform vec3 specularColor; // intensity weighted color
 uniform float specularPower;
@@ -47,7 +46,7 @@ uniform int lightPositional[6];
 // passed from the vertex shader
 varying vec4 vertexVC;
 varying vec4 vertexWC;
-varying vec3 vertexColor;
+varying vec4 vertexColor;
 
 // optional normal declaration
 //VTK::Normal::Dec
@@ -117,7 +116,7 @@ void main()
   diffuse = diffuse * vertexColor.rgb;
   specular = specular * specularColor;
 
-  gl_FragColor = vec4(ambientColor + diffuse + specular, opacity);
+  gl_FragColor = vec4(ambientColor + diffuse + specular, vertexColor.a);
   //VTK::TCoord::Impl
 }
 

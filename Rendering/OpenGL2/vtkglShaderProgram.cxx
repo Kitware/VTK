@@ -536,6 +536,20 @@ bool ShaderProgram::SetUniformValue(const std::string &name,
   return true;
 }
 
+bool ShaderProgram::SetUniformValue(const std::string &name,
+                                    const Vector4ub &v)
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+    }
+  vtkColor4f colorf(v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, v[3] / 255.0f);
+  glUniform4fv(location, 1, colorf.GetData());
+  return true;
+}
+
 bool ShaderProgram::SetAttributeArrayInternal(
     const std::string &name, void *buffer, int type, int tupleSize,
     ShaderProgram::NormalizeOption normalize)

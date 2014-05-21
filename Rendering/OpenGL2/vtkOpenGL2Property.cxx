@@ -15,6 +15,8 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGL2Property.h"
 
+#include "vtkglVBOHelper.h"
+
 #include "vtkOpenGL.h"
 
 #include "vtkObjectFactory.h"
@@ -126,46 +128,20 @@ bool vtkOpenGL2Property::RenderTextures(vtkActor*, vtkRenderer* ren)
   int numTextures = this->GetNumberOfTextures();
   if (numTextures > 0)
     {
-    if (true) // fixed-pipeline multitexturing or old XML shaders.
+    GLint numSupportedTextures;
+    glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+    for (int t = 0; t < numTextures; t++)
       {
-      GLint numSupportedTextures;
-      glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-      for (int t = 0; t < numTextures; t++)
+      int texture_unit = this->GetTextureUnitAtIndex(t);
+      if (texture_unit >= numSupportedTextures || texture_unit < 0)
         {
-        int texture_unit = this->GetTextureUnitAtIndex(t);
-        if (texture_unit >= numSupportedTextures || texture_unit < 0)
-          {
-          vtkErrorMacro("Hardware does not support the number of textures defined.");
-          continue;
-          }
-
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0 +
-                             static_cast<GLenum>(texture_unit));
-        this->GetTextureAtIndex(t)->Render(ren);
+        vtkErrorMacro("Hardware does not support the number of textures defined.");
+        continue;
         }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-      }
-    else
-      {
-      // texture unit are assigned at each call to render, as render can
-      // happen in different/multiple passes.
 
-      vtkTextureUnitManager *m = context->GetTextureUnitManager();
-      for (int t = 0; t < numTextures; t++)
-        {
-        vtkTexture *tex = this->GetTextureAtIndex(t);
-        int unit = m->Allocate();
-        if (unit == -1)
-          {
-          vtkErrorMacro(<<" not enough texture units.");
-          return false;
-          }
-        this->SetTexture(unit,tex);
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0 + static_cast<GLenum>(unit));
-        // bind (and load if not yet loaded)
-        tex->Render(ren);
-        }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      glActiveTexture(GL_TEXTURE0 +
+                           static_cast<GLenum>(texture_unit));
+      this->GetTextureAtIndex(t)->Render(ren);
       }
     }
 
@@ -188,46 +164,6 @@ void vtkOpenGL2Property::PostRender(vtkActor *actor, vtkRenderer *renderer)
 
   this->Superclass::PostRender(actor, renderer);
 
-  // render any textures.
-  int numTextures = this->GetNumberOfTextures();
-  if (numTextures > 0 && vtkgl::ActiveTexture)
-    {
-    if (true) // fixed-pipeline multitexturing or old XML shaders.
-      {
-      GLint numSupportedTextures;
-      glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-      for (int i = 0; i < numTextures; i++)
-        {
-        int texture_unit = this->GetTextureUnitAtIndex(i);
-        if (texture_unit >= numSupportedTextures || texture_unit < 0)
-          {
-          vtkErrorMacro("Hardware does not support the number of textures defined.");
-          continue;
-          }
-        vtkgl::ActiveTexture(vtkgl::TEXTURE0+
-                             static_cast<GLenum>(texture_unit));
-        // Disable any possible texture.  Wouldn't having a PostRender on
-        // vtkTexture be better?
-        glDisable(vtkgl::TEXTURE_3D);
-        glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
-        glDisable(vtkgl::TEXTURE_CUBE_MAP);
-        }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-      }
-    else
-      {
-      vtkTextureUnitManager* m =
-        static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetTextureUnitManager();
-
-      for (int t = 0; t < numTextures; t++)
-        {
-        int textureUnit=this->GetTextureUnitAtIndex(t);
-        m->Free(textureUnit);
-        }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-      }
-    }
-
   vtkOpenGLCheckErrorMacro("failed after PostRender");
 }
 
@@ -242,31 +178,7 @@ void vtkOpenGL2Property::ReleaseGraphicsResources(vtkWindow *win)
 {
   // release any textures.
   int numTextures = this->GetNumberOfTextures();
-  if (win && win->GetMapped() && numTextures > 0 && vtkgl::ActiveTexture)
-    {
-    vtkOpenGLClearErrorMacro();
-    GLint numSupportedTextures;
-    glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
-    for (int i = 0; i < numTextures; i++)
-      {
-      if (vtkOpenGLTexture::SafeDownCast(this->GetTextureAtIndex(i))->GetIndex() == 0)
-        {
-        continue;
-        }
-      int texture_unit = this->GetTextureUnitAtIndex(i);
-      if (texture_unit >= numSupportedTextures || texture_unit < 0)
-        {
-        vtkErrorMacro("Hardware does not support the texture unit " << texture_unit << ".");
-        continue;
-        }
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0 +
-                           static_cast<GLenum>(texture_unit));
-      this->GetTextureAtIndex(i)->ReleaseGraphicsResources(win);
-      }
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-    vtkOpenGLCheckErrorMacro("failwed during ReleaseGraphicsResources");
-    }
-  else if (numTextures > 0 && vtkgl::ActiveTexture)
+  if (numTextures > 0)
     {
     for (int i = 0; i < numTextures; i++)
       {
@@ -275,7 +187,6 @@ void vtkOpenGL2Property::ReleaseGraphicsResources(vtkWindow *win)
     }
 
   this->Superclass::ReleaseGraphicsResources(win);
-
 }
 
 //----------------------------------------------------------------------------

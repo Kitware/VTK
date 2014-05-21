@@ -28,7 +28,6 @@ attribute vec3 normalMC;
 
 // material property values
 //VTK::Color::Dec
-uniform float opacity;
 uniform vec3 ambientColor; // intensity weighted color
 uniform vec3 specularColor; // intensity weighted color
 uniform float specularPower;
@@ -52,6 +51,6 @@ void main()
   vec3 diffuse = df * diffuseColor.rgb;
   vec3 specular = sf * specularColor;
 
-  fcolor = vec4(ambientColor + diffuse + specular, opacity);
+  fcolor = vec4(ambientColor + diffuse + specular, diffuseColor.a);
 }
 

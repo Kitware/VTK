@@ -182,6 +182,7 @@ public:
   bool SetUniformValue(const std::string &name, const Vector3f &v);
   bool SetUniformValue(const std::string &name, const Vector2i &v);
   bool SetUniformValue(const std::string &name, const Vector3ub &v);
+  bool SetUniformValue(const std::string &name, const Vector4ub &v);
   /** @} */
 
 protected:

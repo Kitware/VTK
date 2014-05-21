@@ -21,7 +21,6 @@ attribute vec4 vertexMC;
 
 // material property values
 //VTK::Color::Dec
-uniform float opacity;
 
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
@@ -33,5 +32,5 @@ varying vec4 fcolor;
 void main()
 {
   gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
-  fcolor = vec4(diffuseColor.rgb, opacity);
+  fcolor = vec4(diffuseColor.rgb, diffuseColor.a);
 }
