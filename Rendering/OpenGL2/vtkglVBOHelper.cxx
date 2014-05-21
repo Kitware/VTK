@@ -342,11 +342,14 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
   std::vector<unsigned int> indexArray;
   vtkIdType* indices(NULL);
   vtkIdType npts(0);
-  indexArray.reserve(cells->GetNumberOfCells());
+  indexArray.reserve(cells->GetNumberOfConnectivityEntries());
 
   for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
     {
-    indexArray.push_back(static_cast<unsigned int>(*(indices++)));
+    for (int i = 0; i < npts; ++i)
+      {
+      indexArray.push_back(static_cast<unsigned int>(*(indices++)));
+      }
     }
   indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();

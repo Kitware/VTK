@@ -746,7 +746,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               poly->GetPointData()->GetNormals(),
-              poly->GetPointData()->GetTCoords(),
+              act->GetTexture() ? poly->GetPointData()->GetTCoords() : NULL,
               this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
               this->Internal->colorComponents,
               this->Internal->vbo,
