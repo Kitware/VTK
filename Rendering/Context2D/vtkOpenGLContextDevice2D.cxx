@@ -340,6 +340,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->SetRepeat(properties & vtkContextDevice2D::Repeat);
       this->Storage->SpriteTexture->SetInterpolate(properties & vtkContextDevice2D::Linear);
+      glEnable(GL_TEXTURE_2D);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
 
@@ -440,6 +441,7 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
     {
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
+    glEnable(GL_TEXTURE_2D);
     this->Storage->Texture->Render(this->Renderer);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     texCoord = this->Storage->TexCoords(f, n);
@@ -474,6 +476,7 @@ void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
     {
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
+    glEnable(GL_TEXTURE_2D);
     this->Storage->Texture->Render(this->Renderer);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     texCoord = this->Storage->TexCoords(f, n);
@@ -507,6 +510,7 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
     {
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
+    glEnable(GL_TEXTURE_2D);
     this->Storage->Texture->Render(this->Renderer);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     texCoord = this->Storage->TexCoords(f, n);
@@ -840,6 +844,7 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
     cache.TextHeight = textDims[1];
     }
   vtkTexture* texture = cache.Texture;
+  glEnable(GL_TEXTURE_2D);
   texture->Render(this->Renderer);
 
   int imgDims[3];
@@ -938,6 +943,7 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
     }
 
   vtkTexture* texture = cache.Texture;
+  glEnable(GL_TEXTURE_2D);
   texture->Render(this->Renderer);
 
   GLfloat mv[16];
@@ -988,6 +994,7 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   vtkOpenGLClearErrorMacro();
 
   this->SetTexture(image);
+  glEnable(GL_TEXTURE_2D);
   this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
   float points[] = { p[0]                     , p[1],
@@ -1022,6 +1029,7 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
   vtkOpenGLClearErrorMacro();
 
   vtkVector2f tex(1.0, 1.0);
+  glEnable(GL_TEXTURE_2D);
   GLuint index = 0;
   if (this->Storage->PowerOfTwoTextures)
     {
