@@ -982,16 +982,23 @@ void vtkDataArrayTemplate<T>::ComputeScalarRange(double range[2], int comp)
   // Compute the range of scalar values.
   int numComp = this->NumberOfComponents;
   T tempRange[2] = {vtkTypeTraits<T>::Max(), vtkTypeTraits<T>::Min()};
-  for(T* i = begin; i != end; i += numComp)
+
+  if(numComp == 1)
     {
-    T s = *i;
-    if(s < tempRange[0])
+    //Special case for single value scalar range. This is done to help the
+    //compiler detect it can perform loop optimizations.
+    for(T* i = begin; i != end; ++i)
       {
-      tempRange[0] = s;
+      tempRange[0] = std::min(*i,tempRange[0]);
+      tempRange[1] = std::max(*i,tempRange[1]);
       }
-    if(s > tempRange[1])
+    }
+  else
+    {
+    for(T* i = begin; i != end; i += numComp)
       {
-      tempRange[1] = s;
+      tempRange[0] = std::min(*i,tempRange[0]);
+      tempRange[1] = std::max(*i,tempRange[1]);
       }
     }
 
@@ -1013,8 +1020,8 @@ void vtkDataArrayTemplate<T>::ComputeVectorRange(double range[2])
 
   // Compute the range of vector magnitude squared.
   int numComp = this->NumberOfComponents;
-  range[0] = VTK_DOUBLE_MAX;
-  range[1] = VTK_DOUBLE_MIN;
+  range[0] = vtkTypeTraits<double>::Max();
+  range[1] = vtkTypeTraits<double>::Min();
   for(T* i = begin; i != end; i += numComp)
     {
     double s = 0.0;
