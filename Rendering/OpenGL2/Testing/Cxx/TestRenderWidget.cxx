@@ -16,6 +16,9 @@
 
 int TestRenderWidget(int, char * [])
 {
+  // just fail until I get a clue about this render widget stuff
+  return -1;
+
   vtkNew<vtkRenderWidget> widget;
   widget->Start();
   return EXIT_SUCCESS;

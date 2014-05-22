@@ -778,7 +778,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
             this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
             this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
             !poly->GetPointData()->GetScalars() )
-           && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+           && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA &&
+           this->Internal->colors.size() > 0)
         {
         cellScalars = true;
         }
@@ -812,7 +813,8 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL,
               haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
-              this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
+              this->Internal->colorComponents && (this->Internal->colors.size() > 0)
+                ? &this->Internal->colors[0] : NULL,
               this->Internal->colorComponents,
               this->Internal->vbo,
               cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
