@@ -473,17 +473,17 @@ void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
     // If spacing is negative, we may have to rethink the equation
     // between real point and texture coordinate...
     this->Bounds[0] = origin[0]+
-      static_cast<double>(this->Extents[0+swapBounds[0]])*spacing[0];
+      static_cast<double>(this->Extents[0+swapBounds[0]]) * spacing[0];
     this->Bounds[2] = origin[1]+
-      static_cast<double>(this->Extents[2+swapBounds[1]])*spacing[1];
+      static_cast<double>(this->Extents[2+swapBounds[1]]) * spacing[1];
     this->Bounds[4] = origin[2]+
-      static_cast<double>(this->Extents[4+swapBounds[2]])*spacing[2];
+      static_cast<double>(this->Extents[4+swapBounds[2]]) * spacing[2];
     this->Bounds[1] = origin[0]+
-      static_cast<double>(this->Extents[1-swapBounds[0]])*spacing[0];
+      static_cast<double>(this->Extents[1-swapBounds[0]]) * spacing[0];
     this->Bounds[3] = origin[1]+
-      static_cast<double>(this->Extents[3-swapBounds[1]])*spacing[1];
+      static_cast<double>(this->Extents[3-swapBounds[1]]) * spacing[1];
     this->Bounds[5] = origin[2]+
-      static_cast<double>(this->Extents[5-swapBounds[2]])*spacing[2];
+      static_cast<double>(this->Extents[5-swapBounds[2]]) * spacing[2];
     }
   // Loaded extents represent cells
   else
@@ -500,9 +500,9 @@ void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
     i = 0;
     while (i < 3)
       {
-      if(this->Extents[2*i] == wholeTextureExtent[2*i])
+      if(this->Extents[2 * i] == wholeTextureExtent[2 * i])
         {
-        this->Bounds[2*i+swapBounds[i]] = origin[i];
+        this->Bounds[ 2 * i + swapBounds[i]] = origin[i];
         }
       else
         {
@@ -916,6 +916,7 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
       }
     }
 
+  /// Will require transpose of this matrix for OpenGL
   /// Scene matrix
   float sceneMat[16];
   vtkMatrix4x4* scMat = vol->GetMatrix();
