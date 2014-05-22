@@ -762,14 +762,13 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   /// Make sure the context is current
   ren->GetRenderWindow()->MakeCurrent();
 
-  /// Update volume
+  /// Update volume first to make sure states are current
   vol->Update();
 
   vtkImageData* input = this->GetInput();
 
-  glClear(GL_DEPTH_BUFFER_BIT);
-  glClearColor(1.0, 1.0, 1.0, 1.0);
-
+  /// Enable texture 1D and 3D as we are using it
+  /// for transfer functions and volume data
   glEnable(GL_TEXTURE_1D);
   glEnable(GL_TEXTURE_3D);
 
@@ -892,7 +891,6 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   ren->GetActiveCamera()->GetClippingRange(clippingRange);
 
   /// Will require transpose of this matrix for OpenGL
-  /// Fix this
   vtkMatrix4x4* projMat = ren->GetActiveCamera()->
     GetProjectionTransformMatrix(aspect[0]/aspect[1], -1, 1);
   float projectionMat[16];
@@ -905,7 +903,6 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
     }
 
   /// Will require transpose of this matrix for OpenGL
-  /// Fix this
   vtkMatrix4x4* mvMat = ren->GetActiveCamera()->GetViewTransformMatrix();
   float modelviewMat[16];
   for (int i = 0; i < 4; ++i)
