@@ -46,20 +46,6 @@ vtkTessellatedBoxSource::~vtkTessellatedBoxSource()
 {
 }
 
-//----------------------------------------------------------------------------
-//
-int vtkTessellatedBoxSource::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
-{
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-               this->Bounds,6);
-  return 1;
-}
-
 // Duplicate point method.
 // Each face of the box is defined by the 3 points: an origin, a point along
 // a first axis, a point along a second axis. The axes are oriented
@@ -119,8 +105,7 @@ int vtkTessellatedBoxSource::RequestData(
     vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // get the bounds
-  double bounds[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),bounds);
+  double* bounds = this->Bounds;
 
   vtkPoints *points = vtkPoints::New();
 

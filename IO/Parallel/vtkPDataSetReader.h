@@ -63,6 +63,10 @@ protected:
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector);
 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
+                                 vtkInformationVector*);
+
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*);

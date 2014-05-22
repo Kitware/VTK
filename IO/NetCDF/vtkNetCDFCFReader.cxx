@@ -996,10 +996,14 @@ int vtkNetCDFCFReader::RequestInformation(vtkInformation *request,
   // "extents" (pieces).
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
-  if (output && (output->GetExtentType() != VTK_3D_EXTENT))
+  if (output->GetExtentType() != VTK_3D_EXTENT)
     {
     outInfo->Set(
-              vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+              CAN_HANDLE_PIECE_REQUEST(), 1);
+    }
+  else
+    {
+    outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
     }
 
   return 1;

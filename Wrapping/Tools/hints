@@ -45,7 +45,6 @@ vtkDataArray                          GetTuple3                         307  3
 vtkDataArray                          GetTuple4                         307  4
 vtkDataArray                          GetTuple9                         307  9
 vtkDataObject                         GetUpdateExtent                   304  6
-vtkDataObject                         GetWholeBoundingBox               307  6
 vtkDataObject                         GetWholeExtent                    304  6
 vtkDataSet                            GetBounds                         307  6
 vtkDataSet                            GetCenter                         307  3

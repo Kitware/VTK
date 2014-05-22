@@ -65,6 +65,8 @@ protected:
   // Pipeline execute data driver.  Called by vtkXMLReader.
   void ReadXMLData();
 
+  void SetupOutputInformation(vtkInformation *outInfo);
+
   // Internal representation of pieces in the file that may have come
   // from a streamed write.
   int* PieceExtents;

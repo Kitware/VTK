@@ -85,7 +85,6 @@ protected:
   // Data generation method
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkMultiProcessController *Controller;

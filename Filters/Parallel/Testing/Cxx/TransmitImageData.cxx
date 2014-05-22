@@ -107,6 +107,7 @@ void MyProcess::Execute()
     spr->SetFileName(fname);
 
     sp = spr->GetOutput();
+    sp->Register(0);
 
     spr->Update();
 
@@ -125,6 +126,7 @@ void MyProcess::Execute()
     }
   else
     {
+    sp = vtkStructuredPoints::New();
     }
 
   vtkMPICommunicator *comm =
@@ -138,6 +140,7 @@ void MyProcess::Execute()
       {
       spr->Delete();
       }
+    sp->Delete();
     prm->Delete();
     return;
     }
@@ -145,13 +148,7 @@ void MyProcess::Execute()
   // FILTER WE ARE TRYING TO TEST
   vtkTransmitImageDataPiece *pass = vtkTransmitImageDataPiece::New();
   pass->SetController(this->Controller);
-  if (me == 0)
-    {
-    pass->SetInputData(sp);
-    }
-  else
-    {
-    }
+  pass->SetInputData(sp);
 
   // FILTERING
   vtkContourFilter *cf = vtkContourFilter::New();
@@ -181,16 +178,6 @@ void MyProcess::Execute()
   prm->SetRenderWindow(renWin);
   prm->SetController(this->Controller);
   prm->InitializeOffScreen();   // Mesa GL only
-  if (me == 0)
-    {
-    prm->ResetAllCameras();
-    }
-
-  // We must update the whole pipeline here, otherwise node 0
-  // goes into GetActiveCamera which updates the pipeline, putting
-  // it into vtkDistributedDataFilter::Execute() which then hangs.
-  // If it executes here, dd will be up-to-date won't have to
-  // execute in GetActiveCamera.
 
   mapper->SetPiece(me);
   mapper->SetNumberOfPieces(numProcs);
@@ -203,6 +190,8 @@ void MyProcess::Execute()
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
+
+    prm->ResetAllCameras();
 
     renWin->Render();
     renWin->Render();
@@ -234,6 +223,7 @@ void MyProcess::Execute()
     {
     spr->Delete();
     }
+  sp->Delete();
   prm->Delete();
 }
 

@@ -4,6 +4,8 @@ from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+vtk.vtkMultiThreader.SetGlobalMaximumNumberOfThreads(1)
+
 reader = vtk.vtkImageReader()
 reader.SetDataByteOrderToLittleEndian()
 reader.SetDataExtent(0,63,0,63,1,93)

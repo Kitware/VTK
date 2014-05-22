@@ -41,12 +41,14 @@
 #include "vtkObject.h"
 
 // Forward declarations
+class vtkDataArray;
+class vtkImageData;
 class vtkMPIController;
 class vtkMultiProcessStream;
 class vtkPointData;
 class vtkPoints;
+class vtkRectilinearGrid;
 class vtkStructuredGrid;
-class vtkUniformGrid;
 
 namespace vtk
 {
@@ -90,6 +92,25 @@ public:
         vtkPointData* pointData
         );
 
+  // \brief Registers the rectilinear grid dataset belonging to this process.
+  // \param gridID the ID of the in this rank.
+  // \param extent the [imin,imax,jmin,jmax,kmin,kmax] of the grid.
+  // \param xcoords the x-coordinates array of the rectilinear grid.
+  // \param ycoords the y-coordinates array of the rectilinear grid.
+  // \param zcoords the z-coordinates array of the rectilinear grid.
+  // \param pointData pointer to the node-centered fields of the grid.
+  // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
+  // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
+  // \note A rank with no or an empty grid, should not call this method.
+  void RegisterRectilinearGrid(
+        const int gridID,
+        int extent[6],
+        vtkDataArray* xcoords,
+        vtkDataArray* ycoords,
+        vtkDataArray* zcoords,
+        vtkPointData* pointData
+        );
+
   // Description:
   // \brief Finds implicit connectivity for a distributed structured dataset.
   // \note This is a collective operation, all ranks must call this method.
@@ -120,7 +141,13 @@ public:
   // \brief Gets the output uniform grid instance on this process.
   // \param gridID the ID of the grid.
   // \param grid pointer to data-structure where to store the output.
-  void GetOutputUniformGrid(const int gridID, vtkUniformGrid* grid);
+  void GetOutputImageData(const int gridID, vtkImageData* grid);
+
+  // Description:
+  // \brief Gets the output rectilinear grid instance on this process.
+  // \param gridID the ID of the grid.
+  // \param grid pointer to data-structure where to store the output.
+  void GetOutputRectilinearGrid(const int gridID, vtkRectilinearGrid* grid);
 
 protected:
   vtkStructuredImplicitConnectivity();

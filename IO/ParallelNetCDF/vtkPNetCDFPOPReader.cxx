@@ -288,6 +288,8 @@ int vtkPNetCDFPOPReader::RequestInformation(
 
   //fill in the extent information
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+  outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
+
   return 1;
 }
 

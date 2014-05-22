@@ -44,6 +44,11 @@ protected:
   vtkXMLPUnstructuredDataReader();
   ~vtkXMLPUnstructuredDataReader();
 
+  virtual int RequestInformation(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
+                                 vtkInformationVector *outputVector);
+
+
   vtkPointSet* GetOutputAsPointSet();
   vtkPointSet* GetPieceInputAsPointSet(int piece);
   virtual void SetupOutputTotals();

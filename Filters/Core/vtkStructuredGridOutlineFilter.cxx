@@ -70,7 +70,7 @@ int vtkStructuredGridOutlineFilter::RequestData(
   // Since it is possible that the extent is larger than the whole extent,
   // and we want the outline to be the whole extent,
   // compute the clipped extent.
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), cExt);
+  memcpy(cExt, ext, 6*sizeof(int));
   for (i = 0; i < 3; ++i)
     {
     if (cExt[2*i] < wExt[2*i])

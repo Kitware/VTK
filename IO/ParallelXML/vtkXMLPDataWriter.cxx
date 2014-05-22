@@ -17,9 +17,13 @@
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
+#include "vtkMultiProcessController.h"
 
 #include <vtksys/ios/sstream>
 
+vtkCxxSetObjectMacro(vtkXMLPDataWriter,
+                     Controller,
+                     vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
@@ -28,8 +32,7 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
   this->EndPiece = 0;
   this->NumberOfPieces = 1;
   this->GhostLevel = 0;
-  this->WriteSummaryFileInitialized = 0;
-  this->WriteSummaryFile = 0;
+  this->WriteSummaryFile = 1;
 
   this->PathName = 0;
   this->FileNameBase = 0;
@@ -40,6 +43,9 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
   this->ProgressObserver = vtkCallbackCommand::New();
   this->ProgressObserver->SetCallback(&vtkXMLPDataWriter::ProgressCallbackFunction);
   this->ProgressObserver->SetClientData(this);
+
+  this->Controller = 0;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
@@ -49,6 +55,7 @@ vtkXMLPDataWriter::~vtkXMLPDataWriter()
   delete [] this->FileNameBase;
   delete [] this->FileNameExtension;
   delete [] this->PieceFileNameExtension;
+  this->SetController(0);
   this->ProgressObserver->Delete();
 }
 
@@ -66,7 +73,6 @@ void vtkXMLPDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkXMLPDataWriter::SetWriteSummaryFile(int flag)
 {
-  this->WriteSummaryFileInitialized = 1;
   vtkDebugMacro(<< this->GetClassName() << " ("
                 << this << "): setting WriteSummaryFile to " << flag);
   if(this->WriteSummaryFile != flag)
@@ -91,13 +97,12 @@ int vtkXMLPDataWriter::WriteInternal()
 
   // Decide whether to write the summary file.
   int writeSummary = 0;
-  if(this->WriteSummaryFileInitialized)
+  if(this->WriteSummaryFile)
     {
-    writeSummary = this->WriteSummaryFile;
-    }
-  else if(this->StartPiece == 0)
-    {
-    writeSummary = 1;
+    if (!this->Controller || this->Controller->GetLocalProcessId() == 0)
+      {
+      writeSummary = this->WriteSummaryFile;
+      }
     }
 
   // Write the summary file if requested.

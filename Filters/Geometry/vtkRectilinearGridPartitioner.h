@@ -52,6 +52,11 @@ public:
   vtkGetMacro(NumberOfGhostLayers,int);
   vtkSetMacro(NumberOfGhostLayers,int);
 
+  // Description:
+  vtkGetMacro(DuplicateNodes,int);
+  vtkSetMacro(DuplicateNodes,int);
+  vtkBooleanMacro(DuplicateNodes,int);
+
 protected:
   vtkRectilinearGridPartitioner();
   virtual ~vtkRectilinearGridPartitioner();
@@ -72,6 +77,7 @@ protected:
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
+  int DuplicateNodes;
 
 private:
   vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &); // Not implemented

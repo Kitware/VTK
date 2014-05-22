@@ -105,6 +105,7 @@ void MyProcess::Execute()
     rgr->SetFileName(fname);
 
     rg = rgr->GetOutput();
+    rg->Register(0);
 
     rgr->Update();
 
@@ -118,6 +119,10 @@ void MyProcess::Execute()
       go = 0;
       }
     }
+  else
+    {
+    rg = vtkRectilinearGrid::New();
+    }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -130,6 +135,7 @@ void MyProcess::Execute()
       {
       rgr->Delete();
       }
+    rg->Delete();
     prm->Delete();
     return;
     }
@@ -137,10 +143,7 @@ void MyProcess::Execute()
   // FILTER WE ARE TRYING TO TEST
   vtkTransmitRectilinearGridPiece *pass = vtkTransmitRectilinearGridPiece::New();
   pass->SetController(this->Controller);
-  if (me == 0)
-    {
-    pass->SetInputData(rg);
-    }
+  pass->SetInputData(rg);
 
   // FILTERING
   vtkContourFilter *cf = vtkContourFilter::New();
@@ -170,10 +173,6 @@ void MyProcess::Execute()
   prm->SetRenderWindow(renWin);
   prm->SetController(this->Controller);
   prm->InitializeOffScreen();   // Mesa GL only
-  if (me == 0)
-    {
-    prm->ResetAllCameras();
-    }
 
   // We must update the whole pipeline here, otherwise node 0
   // goes into GetActiveCamera which updates the pipeline, putting
@@ -192,6 +191,8 @@ void MyProcess::Execute()
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
+
+    prm->ResetAllCameras();
 
     renWin->Render();
     renWin->Render();
@@ -223,6 +224,7 @@ void MyProcess::Execute()
     {
     rgr->Delete();
     }
+  rg->Delete();
   prm->Delete();
 }
 

@@ -98,14 +98,8 @@ int vtkPChacoReader::RequestInformation(
     return 0;
     }
 
-  // Setting maximum number of pieces to -1 indicates to the
-  // upstream consumer that I can provide the same number of pieces
-  // as there are number of processors
-  // get the info object
-
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   int retVal = 1;
 

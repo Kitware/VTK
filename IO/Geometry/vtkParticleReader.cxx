@@ -181,11 +181,28 @@ int vtkParticleReader::RequestInformation(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  this->OpenFile();
+  int ft = this->FileType;
+  if ( ft == FILE_TYPE_IS_UNKNOWN )
+    {
+    ft = DetermineFileType();
+    if ( ft == FILE_TYPE_IS_UNKNOWN )
+      {
+      vtkErrorMacro(<< "File type cannot be determined.");
+      return 0;
+      }
+    }
+  this->File->close();
+  delete this->File;
+  this->File = NULL;
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
+
+  if (ft == FILE_TYPE_IS_BINARY)
+    {
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
+                 1);
+    }
 
   return 1;
 }

@@ -16,11 +16,6 @@ reader = vtk.vtkStructuredGridReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/office.binary.vtk")
 reader.Update()
 
-# force a read to occur
-# to add coverage for vtkOnePieceExtentTranslator
-translator = vtk.vtkOnePieceExtentTranslator()
-reader.GetExecutive().SetExtentTranslator(0, translator)
-
 length = reader.GetOutput().GetLength()
 maxVelocity = reader.GetOutput().GetPointData().GetVectors().GetMaxNorm()
 maxTime = 35.0 * length / maxVelocity

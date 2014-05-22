@@ -417,14 +417,11 @@ int vtkPSLACReader::RequestInformation(vtkInformation *request,
     return 0;
     }
 
-  // We only work if each process requests the piece corresponding to its
-  // own local process id.  Hint at this by saying that we support the same
-  // amount of pieces as processes.
   for (int i = 0; i < vtkPSLACReader::NUM_OUTPUTS; i++)
     {
     vtkInformation *outInfo = outputVector->GetInformationObject(i);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-                 this->Controller->GetNumberOfProcesses());
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
+                 1);
     }
 
   return 1;

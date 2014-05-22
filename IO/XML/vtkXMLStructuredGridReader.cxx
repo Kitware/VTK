@@ -213,5 +213,6 @@ int vtkXMLStructuredGridReader::ReadPieceData()
 int vtkXMLStructuredGridReader::FillOutputPortInformation(int, vtkInformation *info)
   {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
+
   return 1;
   }

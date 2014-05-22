@@ -428,8 +428,7 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
 
   //Say that this filter can break up its output into any number of pieces
   vtkInformation *outInfo = outV->GetInformationObject(0);
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   //If my output is an atomic structured type, fill in the whole extent info
   vtkInternalStructureCache *top = this->Structure->children.front();

@@ -232,10 +232,9 @@ int vtkParticleTracerBase::ProcessRequest(
 int vtkParticleTracerBase::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   vtkInformation *inInfo  = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
     {
@@ -268,9 +267,6 @@ int vtkParticleTracerBase::RequestInformation(
     vtkErrorMacro(<<"Input information has no TIME_STEPS set");
     return 0;
     }
-
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
   return 1;
 }
@@ -460,7 +456,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
           inp->ComputeBounds();
           inp->GetBounds(&bbox.b[0]);
           this->CachedBounds[T].push_back(bbox);
-          bool static_dataset = this->StaticMesh == 0 ? false : true;
+          bool static_dataset = (this->StaticMesh != 0);
           this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
           this->Interpolator->SetDataSetAtTime(index++, T, this->GetCacheDataTime(T), inp, static_dataset);

@@ -121,6 +121,10 @@ void MyProcess::Execute()
       go = 0;
       }
     }
+  else
+    {
+    sp = vtkSmartPointer<vtkStructuredPoints>::New();
+    }
 
   vtkMPICommunicator *comm =
     vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
@@ -134,10 +138,7 @@ void MyProcess::Execute()
   vtkSmartPointer<vtkTransmitImageDataPiece> pass =
     vtkSmartPointer<vtkTransmitImageDataPiece>::New();
   pass->SetController(this->Controller);
-  if (me == 0)
-    {
-    pass->SetInputData(sp);
-    }
+  pass->SetInputData(sp);
 
   // FILTERING
   vtkSmartPointer<vtkContourFilter> cf =
@@ -204,7 +205,6 @@ void MyProcess::Execute()
   prm->InitializeOffScreen();   // Mesa GL only
   if (me == 0)
     {
-    prm->ResetAllCameras();
     }
 
   // We must update the whole pipeline here, otherwise node 0
@@ -213,18 +213,9 @@ void MyProcess::Execute()
   // If it executes here, dd will be up-to-date won't have to
   // execute in GetActiveCamera.
 
-  // mapper->SetPiece(me);
-  // mapper->SetNumberOfPieces(numProcs);
+  mapper->SetPiece(me);
+  mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
-
-  if (me ==1)
-    {
-    vtkSmartPointer<vtkPolyDataWriter> writer =
-      vtkSmartPointer<vtkPolyDataWriter>::New();
-    writer->SetInputConnection(elev->GetOutputPort());
-    writer->SetFileName("contour1.vtk");
-    writer->Write();
-    }
 
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
@@ -233,6 +224,8 @@ void MyProcess::Execute()
     vtkCamera *camera = renderer->GetActiveCamera();
     //camera->UpdateViewport(renderer);
     camera->SetParallelScale(16);
+
+    prm->ResetAllCameras();
 
     renWin->Render();
     renWin->Render();

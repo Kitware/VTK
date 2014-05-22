@@ -93,12 +93,6 @@ protected:
   ~vtkTessellatedBoxSource();
 
   // Description:
-  // Called by the superclass. Send the WHOLE_BOUNDING_BOX key.
-  virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
-
-  // Description:
   // Called by the superclass. Actual creation of the points and cells
   // happens here.
   virtual int RequestData(vtkInformation *request,

@@ -108,11 +108,11 @@ void vtkPExtractArraysOverTime::PostExecute(
     // composite-data meta-data yet.
     vtkMultiProcessStream stream;
     vtkCompositeDataIterator* iter = output->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    for (iter->InitTraversal(); iter->IsDoneWithTraversal() != 1;
       iter->GoToNextItem())
       {
       stream << iter->GetCurrentFlatIndex()
-        << iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
+        << std::string(iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME()));
       }
     iter->Delete();
     this->Controller->Send(stream, 0, EXCHANGE_DATA);

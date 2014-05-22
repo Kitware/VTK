@@ -39,8 +39,19 @@ vtkDataSetTriangleFilter tris2
 vtkGeometryFilter geom
   geom SetInputConnection [tris GetOutputPort]
 
+vtkProgrammableFilter pf
+  pf SetInputConnection [tris2 GetOutputPort]
+  pf SetExecuteMethod stripGhosts
+
+proc stripGhosts {} {
+   set inputDS [pf GetPolyDataInput]
+   set outputDS [pf GetUnstructuredGridOutput]
+   $outputDS ShallowCopy $inputDS
+   $outputDS RemoveGhostCells 1
+}
+
 vtkExtractEdges edges
-  edges SetInputConnection [tris2 GetOutputPort]
+  edges SetInputConnection [pf GetOutputPort]
 
 vtkPolyDataMapper mapper1
   mapper1 SetInputConnection [geom GetOutputPort]

@@ -26,12 +26,12 @@
 #ifndef __vtkXMLPUniformGridAMRWriter_h
 #define __vtkXMLPUniformGridAMRWriter_h
 
-#include "vtkIOParallelModule.h" // For export macro
+#include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLUniformGridAMRWriter.h"
 
 class vtkMultiProcessController;
 
-class VTKIOPARALLEL_EXPORT vtkXMLPUniformGridAMRWriter : public vtkXMLUniformGridAMRWriter
+class VTKIOPARALLELXML_EXPORT vtkXMLPUniformGridAMRWriter : public vtkXMLUniformGridAMRWriter
 {
 public:
   static vtkXMLPUniformGridAMRWriter* New();

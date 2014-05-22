@@ -61,7 +61,6 @@ protected:
   void WriteInlinePiece(vtkIndent indent);
   void GetInputExtent(int* extent);
   const char* GetDataSetName();
-  vtkDataArray* CreateExactCoordinates(vtkDataArray* a, int xyz);
   void CalculateSuperclassFraction(float* fractions);
 
   // Coordinate array appended data positions.

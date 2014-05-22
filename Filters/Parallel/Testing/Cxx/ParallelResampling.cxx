@@ -87,6 +87,8 @@ void MyProcess::Execute()
 
   sampler->SetInputConnection(wavelet->GetOutputPort());
   sampler->SetSamplingDimension(21,21,21); // 21 for perfect match with wavelet default extent
+  //sampler->SetUseInputBounds(0);
+  //sampler->SetCustomSamplingBounds(-10, 10, -10, 10, -10, 10);
 
   toPolyData->SetInputConnection(sampler->GetOutputPort());
 
@@ -128,7 +130,6 @@ void MyProcess::Execute()
     }
   else
     {
-
     if(sampler->GetOutput()->GetNumberOfPoints() != 0 || wavelet->GetOutput()->GetNumberOfPoints() == 0)
       {
       this->ReturnValue = 0;

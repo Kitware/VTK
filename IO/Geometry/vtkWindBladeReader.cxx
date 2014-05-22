@@ -332,13 +332,17 @@ int vtkWindBladeReader::RequestInformation(vtkInformation* reqInfo,
     field->SetDimensions(this->Dimension);
     fieldInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    this->WholeExtent, 6);
+    fieldInfo->Set(CAN_PRODUCE_SUB_EXTENT(),1);
 
     ground->SetDimensions(this->GDimension);
     groundInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    this->GExtent, 6);
+    groundInfo->Set(CAN_PRODUCE_SUB_EXTENT(),1);
 
     bladeInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    this->WholeExtent, 6);
+    // Simply loads the blade on all processes
+    bladeInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
     // Create the rectilinear coordinate spacing for entire problem
     this->CreateCoordinates();

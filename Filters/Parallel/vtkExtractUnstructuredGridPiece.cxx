@@ -53,6 +53,17 @@ vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
   this->CreateGhostCells = 1;
 }
 
+int vtkExtractUnstructuredGridPiece::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+
+  return 1;
+}
+
 int vtkExtractUnstructuredGridPiece::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -65,20 +76,6 @@ int vtkExtractUnstructuredGridPiece::RequestUpdateExtent(
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
               0);
-  return 1;
-}
-
-int vtkExtractUnstructuredGridPiece::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
-{
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
-
   return 1;
 }
 
