@@ -746,7 +746,8 @@ vtkSinglePassVolumeMapper::~vtkSinglePassVolumeMapper()
 /// \param os
 /// \param indent
 ///
-void vtkSinglePassVolumeMapper::PrintSelf(ostream &os, vtkIndent indent)
+void vtkSinglePassVolumeMapper::PrintSelf(ostream& vtkNotUsed(os),
+                                          vtkIndent indent)
 {
   // TODO Implement this method
 }
