@@ -954,16 +954,16 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 
   float textureExtentsMin[3] =
     {
-    static_cast<int>(this->Implementation->Extents[0]),
-    static_cast<int>(this->Implementation->Extents[2]),
-    static_cast<int>(this->Implementation->Extents[4])
+    static_cast<float>(this->Implementation->Extents[0]),
+    static_cast<float>(this->Implementation->Extents[2]),
+    static_cast<float>(this->Implementation->Extents[4])
     };
 
   float textureExtentsMax[3] =
     {
-    static_cast<int>(this->Implementation->Extents[1]),
-    static_cast<int>(this->Implementation->Extents[3]),
-    static_cast<int>(this->Implementation->Extents[5])
+    static_cast<float>(this->Implementation->Extents[1]),
+    static_cast<float>(this->Implementation->Extents[3]),
+    static_cast<float>(this->Implementation->Extents[5])
     };
 
   glUniform3fv(this->Implementation->Shader("texture_extents_min"), 1,
