@@ -227,8 +227,19 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     VSSource = replace(VSSource,"//VTK::Normal::Dec","");
     VSSource = replace(VSSource,"//VTK::Normal::Impl","");
     FSSource = replace(FSSource,"//VTK::Normal::Dec","");
-    FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                 "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
+    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+      // generate a normal for lines, it will be perpendicular to the line
+      // and maximally aligned with the camera view direction
+      // no clue if this is the best way to do this.
+      FSSource = replace(FSSource,"//VTK::Normal::Impl",
+                                   "vec3 normalVC; if (abs(dot(dFdx(vertexVC.xyz),vec3(1,1,1))) > abs(dot(dFdy(vertexVC.xyz),vec3(1,1,1)))) { normalVC = normalize(cross(cross(dFdx(vertexVC.xyz), vec3(0,0,1)), dFdx(vertexVC.xyz))); } else { normalVC = normalize(cross(cross(dFdy(vertexVC.xyz), vec3(0,0,1)), dFdy(vertexVC.xyz)));}");
+      }
+    else
+      {
+      FSSource = replace(FSSource,"//VTK::Normal::Impl",
+                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
+      }
     }
   if (this->Internal->layout.TCoordComponents)
     {
