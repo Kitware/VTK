@@ -1,6 +1,6 @@
 ﻿#include "vtkSinglePassVolumeMapper.h"
 
-#include "GLSLShader.h"
+#include "vtkGLSLShader.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
 
@@ -162,7 +162,7 @@ public:
   GLuint TransferFuncId;
   GLuint NoiseTextureId;
 
-  GLSLShader Shader;
+  vtkGLSLShader Shader;
 
   int CellFlag;
   int TextureSize[3];
@@ -752,7 +752,7 @@ void vtkSinglePassVolumeMapper::PrintSelf(ostream& vtkNotUsed(os),
   // TODO Implement this method
 }
 
-//--------------------------------------------------------------------------
+///---------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::Render
 /// \param ren

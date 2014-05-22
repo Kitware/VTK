@@ -1,9 +1,9 @@
 find_package(GLEW REQUIRED)
 
-set(Module_SRCS vtkSinglePassVolumeMapper.cxx GLSLShader.cxx)
+set(Module_SRCS vtkSinglePassVolumeMapper.cxx vtkGLSLShader.cxx)
 set_source_files_properties(
   vtkSinglePassVolumeMapper
-  GLSLShader
+  vtkGLSLShader
   WRAP_EXCLUDE
 )
 

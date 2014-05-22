@@ -1,16 +1,18 @@
-#pragma once
-#include <string>
+#ifndef __vtkGLSLShader_h
+#define __vtkGLSLShader_h
 
 #include <GL/glew.h>
+
+#include <string>
 #include <map>
 
 using namespace std;
 
-class GLSLShader
+class vtkGLSLShader
 {
 public:
-    GLSLShader(void);
-    ~GLSLShader(void);
+    vtkGLSLShader(void);
+    ~vtkGLSLShader(void);
     void LoadFromString(GLenum whichShader, const string& source);
     void LoadFromFile(GLenum whichShader, const string& filename);
     void CreateAndLinkProgram();
@@ -20,7 +22,7 @@ public:
     void AddUniform(const string& uniform);
     unsigned int GetProgram()
       {
-      return this->_program;
+      return this->Program;
       }
 
     //An indexer that returns the location of the attribute/uniform
@@ -30,9 +32,11 @@ public:
 
 private:
     enum ShaderType {VERTEX_SHADER, FRAGMENT_SHADER, GEOMETRY_SHADER};
-    GLuint	_program;
-    int _totalShaders;
-    GLuint _shaders[3];//0->vertexshader, 1->fragmentshader, 2->geometryshader
-    map<string,GLuint> _attributeList;
-    map<string,GLuint> _uniformLocationList;
+    GLuint	Program;
+    int TotalShaders;
+    GLuint Shaders[3];//0->vertexshader, 1->fragmentshader, 2->geometryshader
+    map<string,GLuint> AttributeList;
+    map<string,GLuint> UniformLocationList;
 };
+
+#endif // __vtkGLSLShader_h
