@@ -350,6 +350,11 @@ struct DomainMetaData
     this->DataDescription =
         vtkStructuredData::GetDataDescriptionFromExtent(wholeExt);
 
+    if (this->DataDescription == VTK_EMPTY)
+      {
+      return;
+      }
+
     // Sanity checks!
     assert( "pre: data description is VTK_EMPTY!" &&
              (this->DataDescription != VTK_EMPTY) );

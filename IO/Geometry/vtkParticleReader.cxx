@@ -181,6 +181,12 @@ int vtkParticleReader::RequestInformation(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<<"FileName must be specified.");
+    return 0;
+    }
+
   this->OpenFile();
   int ft = this->FileType;
   if ( ft == FILE_TYPE_IS_UNKNOWN )
