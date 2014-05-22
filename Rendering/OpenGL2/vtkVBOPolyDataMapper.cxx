@@ -109,10 +109,25 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
 {
   int lightComplexity = 0;
 
+  // wacky backwards compatibility with old VTK lighting
+  // soooo there are many factors that determine if a primative is lit or not.
+  // three that mix in a complex way are representation POINT, Interpolation FLAT
+  // and having normals or not.
+  bool needLighting = false;
+  bool haveNormals = (this->GetInput()->GetPointData()->GetNormals() != NULL);
+  if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
+    {
+    needLighting = (actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals);
+    }
+  else  // wireframe or surface rep
+    {
+    bool isTrisOrStrips = (&cellBO == &this->Internal->tris || &cellBO == &this->Internal->triStrips);
+    needLighting = (isTrisOrStrips ||
+      (!isTrisOrStrips && actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals));
+    }
+
   // do we need lighting?
-  if (actor->GetProperty()->GetLighting() &&
-      (this->GetInput()->GetPointData()->GetNormals() ||
-       &cellBO == &this->Internal->tris || &cellBO == &this->Internal->triStrips))
+  if (actor->GetProperty()->GetLighting() && needLighting)
     {
     // consider the lighting complexity to determine which case applies
     // simple headlight, Light Kit, the whole feature set of VTK
@@ -193,7 +208,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
                                  "uniform vec4 diffuseColor;");
     }
   // normals?
-  if (this->GetInput()->GetPointData()->GetNormals())
+  if (this->Internal->layout.NormalOffset)
     {
     VSSource = replace(VSSource,
                                  "//VTK::Normal::Dec",
@@ -363,8 +378,9 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
 void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
                                                       vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
-  // for headlight there are no lighting parameters
-  if (cellBO.fsFile == vtkglPolyDataFSHeadlight)
+  // for unlit and headlight there are no lighting parameters
+  if (cellBO.fsFile == vtkglPolyDataFSHeadlight ||
+      cellBO.vsFile == vtkglPolyDataVSNoLighting)
     {
     return;
     }
@@ -472,25 +488,38 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   tmpMat->Transpose();
   program.SetUniformValue("MCVCMatrix", tmpMat);
 
-  // set the normal matrix and send it down
-  // (make this a function in camera at some point returning a 3x3)
-  tmpMat->DeepCopy(cam->GetViewTransformMatrix());
-  vtkMatrix3x3 *tmpMat3d = vtkMatrix3x3::New();
-  for(int i = 0; i < 3; ++i)
-    {
-    for (int j = 0; j < 3; ++j)
-      {
-        tmpMat3d->SetElement(i,j,tmpMat->GetElement(i,j));
-      }
-    }
-  tmpMat3d->Invert();
-  program.SetUniformValue("normalMatrix", tmpMat3d);
-
   tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
   program.SetUniformValue("VCDCMatrix", tmpMat);
 
+  // for lit shaders set normal matrix
+  if (cellBO.vsFile != vtkglPolyDataVSNoLighting)
+    {
+    // set the normal matrix and send it down
+    // (make this a function in camera at some point returning a 3x3)
+    tmpMat->DeepCopy(cam->GetViewTransformMatrix());
+    if (!actor->GetIsIdentity())
+      {
+      vtkMatrix4x4::Multiply4x4(tmpMat, actor->GetMatrix(), tmpMat);
+      vtkTransform *aTF = vtkTransform::New();
+      aTF->SetMatrix(tmpMat);
+      double *scale = aTF->GetScale();
+      aTF->Scale(1.0/scale[0],1.0/scale[1],1.0/scale[2]);
+      tmpMat->DeepCopy(aTF->GetMatrix());
+      }
+    vtkMatrix3x3 *tmpMat3d = vtkMatrix3x3::New();
+    for(int i = 0; i < 3; ++i)
+      {
+      for (int j = 0; j < 3; ++j)
+        {
+          tmpMat3d->SetElement(i,j,tmpMat->GetElement(i,j));
+        }
+      }
+    tmpMat3d->Invert();
+    program.SetUniformValue("normalMatrix", tmpMat3d);
+    tmpMat3d->Delete();
+    }
+
   tmpMat->Delete();
-  tmpMat3d->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -574,15 +603,13 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   this->Internal->lastBoundBO = NULL;
 
-  // in the case where we have no passed in normals AND
-  // we have points or lines AND we have tris or strips
-  // we need two shader programs because the points lines
-  // are not lit while the tris/strips are
+  // Set the PointSize and LineWidget
+  glPointSize(actor->GetProperty()->GetPointSize());
+  glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
+
+  // draw points
   if (this->Internal->points.indexCount)
     {
-    // Set the PointSize
-    glPointSize(actor->GetProperty()->GetPointSize());
-
     // Update/build/etc the shader.
     this->UpdateShader(this->Internal->points, ren, actor);
     this->Internal->points.ibo.Bind();
@@ -594,30 +621,57 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->Internal->points.ibo.Release();
     }
 
+  // draw lines
   if (this->Internal->lines.indexCount)
     {
-    // Set the LineWidth
-    glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
-
     this->UpdateShader(this->Internal->lines, ren, actor);
     this->Internal->lines.ibo.Bind();
-    for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
+    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
       {
-      glDrawElements(GL_LINE_STRIP,
-        this->Internal->lines.elementsArray[eCount],
-        GL_UNSIGNED_INT,
-        (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
+      glDrawRangeElements(GL_POINTS, 0,
+                          static_cast<GLuint>(layout.VertexCount - 1),
+                          static_cast<GLsizei>(this->Internal->lines.indexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
+      }
+    else
+      {
+      for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
+        {
+        glDrawElements(GL_LINE_STRIP,
+          this->Internal->lines.elementsArray[eCount],
+          GL_UNSIGNED_INT,
+          (GLvoid *)(this->Internal->lines.offsetArray[eCount]));
+        }
       }
     this->Internal->lines.ibo.Release();
     }
 
-  // now handle lit primatives
+  // draw polygons
   if (this->Internal->tris.indexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Internal->tris, ren, actor);
     this->Internal->tris.ibo.Bind();
-
+    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
+      {
+      glDrawRangeElements(GL_POINTS, 0,
+                          static_cast<GLuint>(layout.VertexCount - 1),
+                          static_cast<GLsizei>(this->Internal->tris.indexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
+      }
+    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+      // TODO wireframe of triangles is not lit properly right now
+      // you either have to generate normals and send them down
+      // or use a geometry shader.
+      glMultiDrawElements(GL_LINE_LOOP,
+                        (GLsizei *)(&this->Internal->tris.elementsArray[0]),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid **>(&(this->Internal->tris.offsetArray[0])),
+                        this->Internal->tris.offsetArray.size());
+      }
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
       {
       glDrawRangeElements(GL_TRIANGLES, 0,
@@ -626,43 +680,44 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
-    else if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-      {
-      // TODO wireframe of triangles is not lit properly right now
-      // you either have to generate normals and send them down
-      // or use a geometry shader.
-#if 1
-      glMultiDrawElements(GL_LINE_LOOP,
-                        (GLsizei *)(&this->Internal->tris.elementsArray[0]),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid **>(&(this->Internal->tris.offsetArray[0])),
-                        this->Internal->tris.offsetArray.size());
-#else
-      for (int eCount = 0; eCount < this->Internal->tris.offsetArray.size(); ++eCount)
-        {
-        glDrawElements(GL_LINE_LOOP,
-          this->Internal->tris.elementsArray[eCount],
-          GL_UNSIGNED_INT,
-          (GLvoid *)(this->Internal->tris.offsetArray[eCount]));
-        }
-#endif
-      }
     this->Internal->tris.ibo.Release();
     }
 
+  // draw strips
   if (this->Internal->triStrips.indexCount)
     {
     // Use the tris shader program/VAO, but triStrips ibo.
     this->UpdateShader(this->Internal->triStrips, ren, actor);
     this->Internal->triStrips.ibo.Bind();
-    for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
       {
-      glDrawElements(GL_TRIANGLE_STRIP,
-        this->Internal->triStrips.elementsArray[eCount],
-        GL_UNSIGNED_INT,
-        (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
+      glDrawRangeElements(GL_POINTS, 0,
+                          static_cast<GLuint>(layout.VertexCount - 1),
+                          static_cast<GLsizei>(this->Internal->triStrips.indexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
       }
-    this->Internal->tris.vao.Release();
+    // TODO fix wireframe
+    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+      for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+        {
+        glDrawElements(GL_LINE_STRIP,
+          this->Internal->triStrips.elementsArray[eCount],
+          GL_UNSIGNED_INT,
+          (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
+        }
+      }
+    if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
+      {
+      for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+        {
+        glDrawElements(GL_TRIANGLE_STRIP,
+          this->Internal->triStrips.elementsArray[eCount],
+          GL_UNSIGNED_INT,
+          (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
+        }
+      }
     this->Internal->triStrips.ibo.Release();
     }
 
@@ -755,7 +810,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
   this->Internal->layout =
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
-              poly->GetPointData()->GetNormals(),
+              (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL,
               haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
               this->Internal->colorComponents ? &this->Internal->colors[0] : NULL,
               this->Internal->colorComponents,
@@ -764,36 +819,47 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
               pointCellMap.size() > 0 ? &pointCellMap.front() : NULL);
 
   // create the IBOs
-  // for polys if we are wireframe handle it with multiindiex buffer
-  vtkgl::CellBO &tris = this->Internal->tris;
-  if (act->GetProperty()->GetRepresentation() == VTK_SURFACE)
-    {
-    tris.indexCount = CreateTriangleIndexBuffer(prims[2],
-                                                tris.ibo,
-                                                poly->GetPoints());
-    }
-  else if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-    {
-    tris.indexCount = CreateMultiIndexBuffer(prims[2],
-                                             tris.ibo,
-                                             tris.offsetArray,
-                                             tris.elementsArray);
-    }
-
   this->Internal->points.indexCount = CreatePointIndexBuffer(prims[0],
                                                         this->Internal->points.ibo);
 
-  this->Internal->triStrips.indexCount = CreateMultiIndexBuffer(prims[3],
-                         this->Internal->triStrips.ibo,
-                         this->Internal->triStrips.offsetArray,
-                         this->Internal->triStrips.elementsArray);
+  if (act->GetProperty()->GetRepresentation() == VTK_POINTS)
+    {
+    this->Internal->lines.indexCount = CreatePointIndexBuffer(prims[1],
+                         this->Internal->lines.ibo);
 
-  this->Internal->lines.indexCount = CreateMultiIndexBuffer(prims[1],
-                         this->Internal->lines.ibo,
-                         this->Internal->lines.offsetArray,
-                         this->Internal->lines.elementsArray);
+    this->Internal->tris.indexCount = CreatePointIndexBuffer(prims[2],
+                                                this->Internal->tris.ibo);
+    this->Internal->triStrips.indexCount = CreatePointIndexBuffer(prims[3],
+                         this->Internal->triStrips.ibo);
+    }
+  else // WIREFRAME OR SURFACE
+    {
+    this->Internal->lines.indexCount = CreateMultiIndexBuffer(prims[1],
+                           this->Internal->lines.ibo,
+                           this->Internal->lines.offsetArray,
+                           this->Internal->lines.elementsArray);
 
-  // free up new cel arrays
+    if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+      this->Internal->tris.indexCount = CreateMultiIndexBuffer(prims[2],
+                                             this->Internal->tris.ibo,
+                                             this->Internal->tris.offsetArray,
+                                             this->Internal->tris.elementsArray);
+      }
+   else // SURFACE
+      {
+      this->Internal->tris.indexCount = CreateTriangleIndexBuffer(prims[2],
+                                                this->Internal->tris.ibo,
+                                                poly->GetPoints());
+      }
+
+    this->Internal->triStrips.indexCount = CreateMultiIndexBuffer(prims[3],
+                           this->Internal->triStrips.ibo,
+                           this->Internal->triStrips.offsetArray,
+                           this->Internal->triStrips.elementsArray);
+    }
+
+  // free up new cell arrays
   if (cellScalars)
     {
     for (int primType = 0; primType < 4; primType++)
