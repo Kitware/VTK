@@ -223,6 +223,7 @@ if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
     rendering/vtkInteractorForwarder
     rendering/awt/vtkAwtComponent
     rendering/awt/vtkInternalAwtComponent
+    rendering/awt/vtkPanelComponent
     )
   if(VTK_JAVA_SWT_COMPONENT)
     set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
