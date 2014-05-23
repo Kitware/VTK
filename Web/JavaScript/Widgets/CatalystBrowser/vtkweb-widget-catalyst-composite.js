@@ -10,7 +10,7 @@
     scripts = document.getElementsByTagName('script'),
     scriptPath = scripts[scripts.length - 1].src.split('/'),
     workerURL = '/CatalystBrowser/vtkweb-composite-worker.js',
-    NB_RESULT_PER_PAGE = 4;
+    NB_RESULT_PER_PAGE = 8;
 
 
     // Compute worker path
@@ -529,7 +529,8 @@
             updatePixelRatioOrder:updatePixelRatioOrder,
             search: search,
             applyQuery: applyQuery,
-            renderActivePage: renderActivePage
+            renderActivePage: renderActivePage,
+            layerToLabel: layerToLabel
         };
     }
 
@@ -1131,15 +1132,22 @@
             frontBuffer = null, frontPixels = null, pixelIdx = 0, localIdx;
 
             // Fill with bg color
-            if(bgColor) {
-                frontCTX.fillStyle = bgColor;
-                frontCTX.fillRect(0,0,singleImageSize[0], singleImageSize[1]);
-                frontBuffer = frontCTX.getImageData(0, 0, singleImageSize[0], singleImageSize[1]);
-                frontPixels = frontBuffer.data;
-            } else {
-                frontBuffer = bgCTX.getImageData(0, (nbImages - 1) * singleImageSize[1], singleImageSize[0], singleImageSize[1]);
-                frontPixels = frontBuffer.data;
-            }
+            //if(bgColor) {
+            //    frontCTX.fillStyle = bgColor;
+            //    frontCTX.fillRect(0,0,singleImageSize[0], singleImageSize[1]);
+            //    frontBuffer = frontCTX.getImageData(0, 0, singleImageSize[0], singleImageSize[1]);
+            //    frontPixels = frontBuffer.data;
+            //} else {
+            //    frontBuffer = bgCTX.getImageData(0, (nbImages - 1) * singleImageSize[1], singleImageSize[0], singleImageSize[1]);
+            //    frontPixels = frontBuffer.data;
+            //}
+
+            // Clear front pixels
+            //frontCTX.fillStyle = "#ffffff";
+            //frontCTX.fillRect(0,0,singleImageSize[0], singleImageSize[1]);
+            frontCTX.clearRect(0, 0, singleImageSize[0], singleImageSize[1]);
+            frontBuffer = frontCTX.getImageData(0, 0, singleImageSize[0], singleImageSize[1]);
+            frontPixels = frontBuffer.data;
 
             for(var i = 0; i < count; ++i) {
                 var order = composite[i];
@@ -1169,7 +1177,7 @@
         }
 
         function toDataURL() {
-            return frontCanvas[0].toDataURL("image/jpeg");
+            return frontCanvas[0].toDataURL("image/png");
         }
 
         return {
@@ -1264,8 +1272,8 @@
             }
         }
 
-        function updatePipelineUI(query, args, color) {
-            var queryObj = {}, count = query.length, queryStr = "";
+        function updatePipelineUI(query, args, color, sortValue) {
+            var queryObj = {}, count = query.length, queryStr = "", sortStr = sortValue;
             for(var i = 0; i < count; i += 2) {
                 queryObj[query[i]] = query[i+1];
             }
@@ -1322,8 +1330,12 @@
 
             // Update query if search mode
             queryExp = $('.query-expression', container);
+            sortExp = $('.sortby-expression', container);
             if(queryExp) {
                 queryExp.val(queryStr);
+                if(sortStr) {
+                    sortExp.val(sortStr);
+                }
                 setTimeout(function(){
                     $('.compute-coverage', container).trigger('click');
                     setTimeout(function(){
@@ -1333,7 +1345,7 @@
             }
         }
         container.bind('updateControl', function(event){
-            updatePipelineUI(event.query, event.args, event.color);
+            updatePipelineUI(event.query, event.args, event.color, event.sort);
         });
 
         function updatePipeline() {
@@ -1712,7 +1724,8 @@
                     var layer_fields = data.metadata.layer_fields,
                     fields = data.metadata.fields,
                     pipeline = data.metadata.pipeline,
-                    args = data.arguments;
+                    args = data.arguments,
+                    searchManager = createSearchManager(me, data, dataBasePath);
 
                     // Keep data info
                     me.data('basepath', dataBasePath);
@@ -1722,8 +1735,12 @@
                     createControlPanel(me, pipeline, layer_fields, fields, false);
 
                     // Enable additional fields if any (time, phi, theta)
-                    var helpTxt = "", excludeList = {"filename": true, "field": true};
+                    var helpTxt = "", excludeList = {"filename": true, "field": true},
+                    layerVarNames = "<hr/>";
                     for(var key in args) {
+                        if(key === 'layer') {
+                            continue;
+                        }
                         var fieldContainer = $('.' + key, me);
                         if(fieldContainer) {
                             // Add documentation
@@ -1741,12 +1758,18 @@
                         }
                     }
 
+                    // Create layer labels
+                    for(var key in searchManager.layerToLabel) {
+                        layerVarNames += "<b>NAME</b>: VALUES <br/>".replace(/NAME/g, key).replace(/VALUES/g, searchManager.layerToLabel[key]);
+                    }
+                    helpTxt += layerVarNames;
+
                     // Add search/results containers
                     $('<div/>', {class: "chart-container"}).appendTo(me);
-                    $('<div/>', {class: "search-toolbar", html: '<div class="table"><span class="cell"><b>Query</b></span><span class="cell expand"><input type="text" class="query-expression"></span><span class="cell"><b>Sort&nbsp;by</b></span><span class="cell expand"><input type="text" class="sortby-expression"></span><span class="cell"><span class="result-count"></span></span><span class="cell"><span class="vtk-icon-chart-area toggle-stats action"></span></span><span class="cell"><ul><li class="vtk-icon-to-start-1 action page-result-action" data-action="first"></li><li class="vtk-icon-left-dir-1 action page-result-action" data-action="previous"></li><li><input type="text" value="1" class="result-page-index page-result-action" data-action="go-to"></li><li> / </li><li class="result-page-number"></li><li class="vtk-icon-right-dir-1 action page-result-action" data-action="next"></li><li class="vtk-icon-to-end-1 action page-result-action" data-action="last"></li></ul></span></div></div><i>HELP</i>'.replace(/HELP/g, helpTxt)}).appendTo(me);
+                    $('<div/>', {class: "search-toolbar", html: '<div class="table"><span class="cell"><b>Query</b></span><span class="cell expand"><input type="text" class="query-expression"></span><span class="cell"><b>Sort&nbsp;by</b></span><span class="cell expand"><input type="text" class="sortby-expression"></span><span class="cell"><span class="result-count"></span></span><span class="cell"><span class="vtk-icon-info-1 toggle-stats action" title="Toggle statistics"></span></span><span class="cell"><ul><li class="vtk-icon-to-start-1 action page-result-action" data-action="first"></li><li class="vtk-icon-left-dir-1 action page-result-action" data-action="previous"></li><li><input type="text" value="1" class="result-page-index page-result-action" data-action="go-to"></li><li> / </li><li class="result-page-number"></li><li class="vtk-icon-right-dir-1 action page-result-action" data-action="next"></li><li class="vtk-icon-to-end-1 action page-result-action" data-action="last"></li></ul></span></div></div><i>HELP</i>'.replace(/HELP/g, helpTxt)}).appendTo(me);
                     $('<div/>', {class: "composite-search-results"}).appendTo(me);
 
-                    initializeListeners(me, createSearchManager(me, data, dataBasePath), null);
+                    initializeListeners(me, searchManager, null);
                 },
                 error: function(error) {
                     console.log("error when trying to download " + dataBasePath + '/info.json');
