@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkglPolyDataVSNoLighting.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -21,6 +22,7 @@ attribute vec4 vertexMC;
 
 // material property values
 //VTK::Color::Dec
+uniform vec3 ambientColor; // intensity weighted color
 
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
@@ -34,8 +36,7 @@ varying vec4 fcolor;
 
 void main()
 {
-  //VTK::TCoord::Impl
-
   gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
-  fcolor = diffuseColor;
+  //VTK::TCoord::Impl
+  fcolor = vec4(ambientColor + diffuseColor.rgb, diffuseColor.a);
 }

@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkglPolyData2DFS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.

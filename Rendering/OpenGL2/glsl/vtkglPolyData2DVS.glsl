@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkglPolyData2DVS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -23,6 +24,7 @@ attribute vec4 vertexWC;
 
 // material property values
 //VTK::Color::Dec
+uniform vec3 ambientColor; // intensity weighted color
 
 // Texture coordinates
 //VTK::TCoord::Dec
@@ -35,6 +37,6 @@ void main()
 {
   gl_Position = WCVCMatrix*vertexWC;
   //VTK::TCoord::Impl
-  fcolor = diffuseColor;
+  fcolor = vec4(ambientColor + diffuseColor.rgb, diffuseColor.a);
 }
 
