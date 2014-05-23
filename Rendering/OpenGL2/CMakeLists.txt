@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
   vtkOpenGL2ImageSliceMapper.cxx
+  vtkOpenGL2Glyph3DMapper.cxx
   vtkOpenGL2Light.cxx
   vtkOpenGL2PolyDataMapper2D.cxx
   vtkOpenGL2Property.cxx
@@ -98,6 +99,7 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
     Actor
     Camera
     ImageSliceMapper
+    Glyph3DMapper
     Light
     PolyDataMapper2D
     Property

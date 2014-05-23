@@ -84,7 +84,8 @@ vtkStandardNewMacro(vtkVBOPolyDataMapper)
 
 //-----------------------------------------------------------------------------
 vtkVBOPolyDataMapper::vtkVBOPolyDataMapper()
-  : Internal(new Private), UsingScalarColoring(false)
+  : Internal(new Private), UsingScalarColoring(false),
+    ModelTransformMatrix(NULL), ModelColor(NULL)
 {
   this->InternalColorTexture = 0;
 }
@@ -496,19 +497,27 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   vtkCamera *cam = ren->GetActiveCamera();
   // really just view  matrix in spite of it's name
   vtkTransform* viewTF = cam->GetModelViewTransformObject();
-  program.SetUniformValue("WCVCMatrix", viewTF->GetMatrix());
+
+  vtkNew<vtkMatrix4x4> tmpMat;
+  tmpMat->DeepCopy(viewTF->GetMatrix());
+  if (this->ModelTransformMatrix)
+    {
+    // Apply this extra transform from things like the glyph mapper.
+    vtkMatrix4x4::Multiply4x4(tmpMat.Get(), this->ModelTransformMatrix,
+                              tmpMat.Get());
+    }
+  program.SetUniformValue("WCVCMatrix", tmpMat.Get());
 
   // set the MCWC matrix
   program.SetUniformValue("MCWCMatrix", actor->GetMatrix());
 
   // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkMatrix4x4 *tmpMat = vtkMatrix4x4::New();
-  vtkMatrix4x4::Multiply4x4(viewTF->GetMatrix(), actor->GetMatrix(), tmpMat);
+  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
   tmpMat->Transpose();
-  program.SetUniformValue("MCVCMatrix", tmpMat);
+  program.SetUniformValue("MCVCMatrix", tmpMat.Get());
 
   tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
-  program.SetUniformValue("VCDCMatrix", tmpMat);
+  program.SetUniformValue("VCDCMatrix", tmpMat.Get());
 
   // for lit shaders set normal matrix
   if (cellBO.vsFile != vtkglPolyDataVSNoLighting)
@@ -518,27 +527,24 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
     tmpMat->DeepCopy(cam->GetViewTransformMatrix());
     if (!actor->GetIsIdentity())
       {
-      vtkMatrix4x4::Multiply4x4(tmpMat, actor->GetMatrix(), tmpMat);
+      vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
       vtkTransform *aTF = vtkTransform::New();
-      aTF->SetMatrix(tmpMat);
+      aTF->SetMatrix(tmpMat.Get());
       double *scale = aTF->GetScale();
       aTF->Scale(1.0/scale[0],1.0/scale[1],1.0/scale[2]);
       tmpMat->DeepCopy(aTF->GetMatrix());
       }
-    vtkMatrix3x3 *tmpMat3d = vtkMatrix3x3::New();
+    vtkNew<vtkMatrix3x3> tmpMat3d;
     for(int i = 0; i < 3; ++i)
       {
       for (int j = 0; j < 3; ++j)
         {
-          tmpMat3d->SetElement(i,j,tmpMat->GetElement(i,j));
+        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
         }
       }
     tmpMat3d->Invert();
-    program.SetUniformValue("normalMatrix", tmpMat3d);
-    tmpMat3d->Delete();
+    program.SetUniformValue("normalMatrix", tmpMat3d.Get());
     }
-
-  tmpMat->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -566,6 +572,15 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
                          static_cast<unsigned char>(sColor[1] * sIntensity * 255.0),
                          static_cast<unsigned char>(sColor[2] * sIntensity * 255.0));
   float specularPower = actor->GetProperty()->GetSpecularPower();
+
+  // Override the model color when the value was set directly on the mapper.
+  if (this->ModelColor)
+    {
+    for (int i = 0; i < 4; ++i)
+      {
+      diffuseColor[i] = this->ModelColor[i];
+      }
+    }
 
   program.SetUniformValue("ambientColor", ambientColor);
   program.SetUniformValue("diffuseColor", diffuseColor);
@@ -678,7 +693,8 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
       }
     else
       {
-      for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)
+      for (size_t eCount = 0; eCount < this->Internal->lines.offsetArray.size();
+           ++eCount)
         {
         glDrawElements(GL_LINE_STRIP,
           this->Internal->lines.elementsArray[eCount],
@@ -742,7 +758,8 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     // TODO fix wireframe
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
-      for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+      for (size_t eCount = 0;
+           eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
         {
         glDrawElements(GL_LINE_STRIP,
           this->Internal->triStrips.elementsArray[eCount],
@@ -752,7 +769,8 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
       {
-      for (int eCount = 0; eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+      for (size_t eCount = 0;
+           eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
         {
         glDrawElements(GL_TRIANGLE_STRIP,
           this->Internal->triStrips.elementsArray[eCount],

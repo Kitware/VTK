@@ -42,6 +42,16 @@ public:
   // resources to release. Merely propagates the call to the painter.
   void ReleaseGraphicsResources(vtkWindow *);
 
+  void SetModelTransform(vtkMatrix4x4* matrix)
+  {
+    this->ModelTransformMatrix = matrix;
+  }
+
+  void SetModelColor(unsigned char *color)
+  {
+    this->ModelColor = color;
+  }
+
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -99,6 +109,8 @@ protected:
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   vtkOpenGL2Texture* InternalColorTexture;
 
+  vtkMatrix4x4* ModelTransformMatrix;
+  unsigned char* ModelColor;
 
 private:
   vtkVBOPolyDataMapper(const vtkVBOPolyDataMapper&); // Not implemented.
