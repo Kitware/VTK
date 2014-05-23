@@ -634,6 +634,21 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   glPointSize(actor->GetProperty()->GetPointSize());
   glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
 
+  if ( this->GetResolveCoincidentTopology() )
+    {
+    if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
+      {
+      vtkErrorMacro(<< "GetResolveCoincidentTopologyZShift is not supported use Polygon offset instead");
+      }
+    else
+      {
+      double f, u;
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+      glPolygonOffset(f,u);  // supported on ES2/3/etc
+      }
+    }
+
   // draw points
   if (this->Internal->points.indexCount)
     {
@@ -755,6 +770,12 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     }
 
   this->Internal->vbo.Release();
+
+  if ( this->GetResolveCoincidentTopology() )
+    {
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    }
+
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
