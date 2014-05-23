@@ -122,30 +122,6 @@ void vtkOpenGL2Camera::Render(vtkRenderer *ren)
   ren->vtkViewport::GetAspect(aspect2);
   double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
 
-/*
-  glMatrixMode(GL_PROJECTION);
-  if (usize && vsize)
-    {
-    matrix->DeepCopy(this->GetProjectionTransformMatrix(
-                       aspectModification * usize / vsize, -1, 1));
-    matrix->Transpose();
-    }
-  if (ren->GetIsPicking())
-    {
-    int size[2] = {usize, vsize};
-    glLoadIdentity();
-    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(),
-                     ren->GetPickWidth(), ren->GetPickHeight(),
-                     lowerLeft, size);
-    glMultMatrixd(matrix->Element[0]);
-    }
-  else
-    {
-    // insert camera view transformation
-    glLoadMatrixd(matrix->Element[0]);
-    }
-*/
-
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
     {

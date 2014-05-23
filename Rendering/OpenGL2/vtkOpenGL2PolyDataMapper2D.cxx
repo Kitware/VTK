@@ -218,13 +218,6 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 
   if (layout.TCoordComponents)
     {
-    vtkTexturedActor2D *ta =
-      vtkTexturedActor2D::SafeDownCast(actor);
-    if (ta)
-      {
-      vtkOpenGL2Texture* texture =
-        static_cast<vtkOpenGL2Texture*>(ta->GetTexture());
-      }
     cellBO.program.SetUniformValue("texture1", 0);
     }
 
@@ -376,13 +369,22 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
     vtkgl::CreateCellSupportArrays(poly, prims, cellPointMap, pointCellMap);
     }
 
+  // do we have texture maps?
+  bool haveTextures = false;
+  vtkTexturedActor2D *ta =
+      vtkTexturedActor2D::SafeDownCast(act);
+  if (ta)
+    {
+    haveTextures = (ta->GetTexture() != NULL);
+    }
+
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
   this->Internal->layout =
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               NULL,
-              poly->GetPointData()->GetTCoords(),
+              haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
               this->Internal->vbo,

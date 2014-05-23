@@ -269,13 +269,11 @@ SET(VTK_HAS_EXODUS 1)
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
 #-----------------------------------------------------------------------------
-# A crazy hack that makes the vtkRenderingOpenGL module depend on the new
-# vtkRenderingOpenGL2 module and then changes the overrides for things we
-# have very experimental replacements for (that will get less experimental
-# over time). This is likely to break many things right now, and less soon...
+# Use the OpenGL2 versions of classes
 option(VTK_REPLACE_OPENGL_OVERRIDES
   "Replace OpenGL overrides with experimental OpenGL2 overrides (experimental"
-  OFF)
+  ON)
+set(Module_vtkRenderingOpenGL2 ON CACHE BOOL "Always build OpenGL2 classes for this branch" FORCE)
 
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.

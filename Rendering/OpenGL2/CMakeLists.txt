@@ -22,6 +22,7 @@ set(Module_SRCS
   vtkglVertexArrayObject.cxx
   vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
+  vtkOpenGL2ImageSliceMapper.cxx
   vtkOpenGL2Light.cxx
   vtkOpenGL2PolyDataMapper2D.cxx
   vtkOpenGL2Property.cxx
@@ -96,18 +97,18 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
   set(opengl_overrides
     Actor
     Camera
+    ImageSliceMapper
     Light
     PolyDataMapper2D
     Property
     Renderer
     Texture
     )
+  vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
+  foreach(_override ${opengl_overrides})
+    vtk_add_override(vtk${_override} vtkOpenGL2${_override})
+  endforeach()
 endif()
-
-vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
-foreach(_override ${opengl_overrides})
-  vtk_add_override(vtk${_override} vtkOpenGL2${_override})
-endforeach()
 
 # Now we iterate and create that class file...
 foreach(_class ${vtk_module_overrides})
