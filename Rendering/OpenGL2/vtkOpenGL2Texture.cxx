@@ -237,7 +237,6 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
         resultData = dataPtr;
         }
 
-
     // define a display list for this texture
     // get a unique display list id
     glActiveTexture(GL_TEXTURE0);

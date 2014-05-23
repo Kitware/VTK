@@ -108,10 +108,10 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
                                    "tcoordVC = tcoordMC;");
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Dec",
-                                   "varying float tcoordVC; uniform sampler1D texture1;");
+                                   "varying float tcoordVC; uniform sampler2D texture1;");
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture1D(texture1, tcoordVC);");
+                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0));");
       }
     else
       {
@@ -424,7 +424,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
   int            j;
   vtkPoints      *p, *displayPts;
-  vtkDataArray*  t = 0;
 
   vtkDebugMacro (<< "vtkOpenGL2PolyDataMapper2D::Render");
 

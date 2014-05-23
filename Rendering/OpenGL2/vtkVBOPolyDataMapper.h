@@ -21,6 +21,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
 
+class vtkOpenGL2Texture;
+
 namespace vtkgl {struct CellBO; }
 
 class VTKRENDERINGOPENGL2_EXPORT vtkVBOPolyDataMapper : public vtkPolyDataMapper
@@ -76,9 +78,6 @@ protected:
   // Update the scene when necessary.
   void UpdateVBO(vtkActor *act);
 
-  void MapScalars(vtkDataSet* output, double alpha, bool multiplyWithAlpha,
-                  vtkDataSet* input);
-
   // Description:
   // Set the shader parameteres related to lighting
   void SetLightingShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
@@ -98,6 +97,8 @@ protected:
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
+  vtkOpenGL2Texture* InternalColorTexture;
+
 
 private:
   vtkVBOPolyDataMapper(const vtkVBOPolyDataMapper&); // Not implemented.

@@ -38,6 +38,10 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkOpenGL2Texture.h"
+
 // Bring in our fragment lit shader symbols.
 #include "vtkglPolyDataVSFragmentLit.h"
 #include "vtkglPolyDataFSHeadlight.h"
@@ -67,17 +71,9 @@ public:
   vtkgl::CellBO triStrips;
   vtkgl::CellBO *lastBoundBO;
 
-  // Array of colors, along with the number of components.
-  std::vector<unsigned char> colors;
-  unsigned char colorComponents;
-  bool colorAttributes;
-
-  bool buidNormals;
-  int interpolation;
-
   vtkTimeStamp propertiesTime;
 
-  Private() : colorAttributes(false), buidNormals(true)
+  Private()
   {
   }
 
@@ -90,18 +86,30 @@ vtkStandardNewMacro(vtkVBOPolyDataMapper)
 vtkVBOPolyDataMapper::vtkVBOPolyDataMapper()
   : Internal(new Private), UsingScalarColoring(false)
 {
+  this->InternalColorTexture = 0;
 }
+
 
 //-----------------------------------------------------------------------------
 vtkVBOPolyDataMapper::~vtkVBOPolyDataMapper()
 {
   delete this->Internal;
+  if (this->InternalColorTexture)
+    { // Resources released previously.
+    this->InternalColorTexture->Delete();
+    this->InternalColorTexture = 0;
+    }
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow*)
+void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   // FIXME: Implement resource release.
+    // We may not want to do this here.
+  if (this->InternalColorTexture)
+    {
+    this->InternalColorTexture->ReleaseGraphicsResources(win);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -195,7 +203,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
   // Build our shader if necessary.
   std::string VSSource = cellBO.vsFile;
   std::string FSSource = cellBO.fsFile;
-  if (this->Internal->colorAttributes)
+  if (this->Internal->layout.ColorComponents != 0)
     {
     VSSource = replace(VSSource,
                                  "//VTK::Color::Dec",
@@ -253,10 +261,10 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
                                    "tcoordVC = tcoordMC;");
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Dec",
-                                   "varying float tcoordVC; uniform sampler1D texture1;");
+                                   "varying float tcoordVC; uniform sampler2D texture1;");
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture1D(texture1, tcoordVC);");
+                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0));");
       }
     else
       {
@@ -608,6 +616,14 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->VBOUpdateTime.Modified();
     }
 
+
+  // If we are coloring by texture, then load the texture map.
+  // Use Map as indicator, because texture hangs around.
+  if (this->InternalColorTexture)
+    {
+    this->InternalColorTexture->Load(ren);
+    }
+
   // Bind the VBO, this is shared between the different primitive/cell types.
   this->Internal->vbo.Bind();
   vtkgl::VBOLayout &layout = this->Internal->layout;
@@ -771,29 +787,37 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     }
 
 
-  bool colorAttributes = false;
+  // For vertex coloring, this sets this->Colors as side effect.
+  // For texture map coloring, this sets ColorCoordinates
+  // and ColorTextureMap as a side effect.
+  // I moved this out of the conditional because it is fast.
+  // Color arrays are cached. If nothing has changed,
+  // then the scalars do not have to be regenerted.
+  this->MapScalars(act->GetProperty()->GetOpacity());
+
+  // If we are coloring by texture, then load the texture map.
+  if (this->ColorTextureMap)
+    {
+    if (this->InternalColorTexture == 0)
+      {
+      this->InternalColorTexture = vtkOpenGL2Texture::New();
+      this->InternalColorTexture->RepeatOff();
+      }
+    this->InternalColorTexture->SetInputData(this->ColorTextureMap);
+    }
+
   bool cellScalars = false;
-  this->Internal->colorComponents = 0;
   if (this->ScalarVisibility)
     {
     // We must figure out how the scalars should be mapped to the polydata.
-    this->MapScalars(NULL, 1.0, false, poly);
-    if (this->Internal->colorComponents == 3 ||
-        this->Internal->colorComponents == 4)
+    if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
+          this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
+          this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
+          !poly->GetPointData()->GetScalars() )
+         && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA
+         && this->Colors)
       {
-      this->Internal->colorAttributes = colorAttributes = true;
-      cout << "Scalar colors: "
-           << this->Internal->colors.size() / this->Internal->colorComponents
-           << " with " << int(this->Internal->colorComponents) << " components." <<  endl;
-      if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
-            this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
-            this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
-            !poly->GetPointData()->GetScalars() )
-           && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA &&
-           this->Internal->colors.size() > 0)
-        {
-        cellScalars = true;
-        }
+      cellScalars = true;
       }
     }
 
@@ -815,7 +839,23 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
   this->Internal->propertiesTime.Modified();
 
   // do we have texture maps?
-  bool haveTextures = act->GetTexture() ? true : act->GetProperty()->GetNumberOfTextures() ? true : false;
+  bool haveTextures = (this->ColorTextureMap || act->GetTexture() || act->GetProperty()->GetNumberOfTextures());
+
+  // Set the texture if we are going to use texture
+  // for coloring with a point attribute.
+  // fixme ... make the existence of the coordinate array the signal.
+  vtkDataArray *tcoords = NULL;
+  if (haveTextures)
+    {
+    if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
+      {
+      tcoords = this->ColorCoordinates;
+      }
+    else
+      {
+      tcoords = poly->GetPointData()->GetTCoords();
+      }
+    }
 
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
@@ -823,10 +863,9 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL,
-              haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
-              this->Internal->colorComponents && (this->Internal->colors.size() > 0)
-                ? &this->Internal->colors[0] : NULL,
-              this->Internal->colorComponents,
+              tcoords,
+              this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
+              this->Colors ? this->Colors->GetNumberOfComponents() : 0,
               this->Internal->vbo,
               cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
               pointCellMap.size() > 0 ? &pointCellMap.front() : NULL);
@@ -946,113 +985,6 @@ inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
                                                           ptr[2]) * alpha));
     }
 }
-}
-
-//-----------------------------------------------------------------------------
-// This method has the same functionality as the old vtkMapper::MapScalars.
-void vtkVBOPolyDataMapper::MapScalars(vtkDataSet*, double alpha,
-                                      bool multiplyWithAlpha, vtkDataSet* input)
-{
-  int cellFlag;
-  double origAlpha;
-  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(input,
-    this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
-    this->ArrayName, cellFlag);
-
-  int arraycomponent = this->ArrayComponent;
-  // This is for a legacy feature: selection of the array component to color by
-  // from the mapper.  It is now in the lookuptable.  When this feature
-  // is removed, we can remove this condition.
-  if (scalars == 0 || scalars->GetNumberOfComponents() <= this->ArrayComponent)
-    {
-    arraycomponent = 0;
-    }
-
-  if (!this->ScalarVisibility || scalars == 0 || input == 0)
-    {
-    return;
-    }
-
-  // Let subclasses know that scalar coloring was employed in the current pass.
-  this->UsingScalarColoring = true;
-  if (this->ColorTextureMap)
-    {
-    /// FIXME: Implement, or move this.
-    // Implies that we have verified that we must use texture map for scalar
-    // coloring. Just create texture coordinates for the input dataset.
-    //this->MapScalarsToTexture(output, scalars, input);
-    return;
-    }
-
-  vtkScalarsToColors* lut = 0;
-  // Get the lookup table.
-  if (scalars->GetLookupTable())
-    {
-    lut = scalars->GetLookupTable();
-    }
-  else
-    {
-    lut = this->GetLookupTable();
-    lut->Build();
-    }
-
-  if (!this->UseLookupTableScalarRange)
-    {
-    lut->SetRange(this->ScalarRange);
-    }
-
-  // The LastUsedAlpha checks ensures that opacity changes are reflected
-  // correctly when this->MapScalars(..) is called when iterating over a
-  // composite dataset.
-  /*if (colors &&
-    this->LastUsedAlpha == alpha &&
-    this->LastUsedMultiplyWithAlpha == multiplyWithAlpha)
-    {
-    if (this->GetMTime() < colors->GetMTime() &&
-      input->GetMTime() < colors->GetMTime() &&
-      lut->GetMTime() < colors->GetMTime())
-      {
-      // using old colors.
-      return;
-      }
-    }*/
-
-  // Get rid of old colors.
-  vtkDataArray *colors = 0;
-  origAlpha = lut->GetAlpha();
-  lut->SetAlpha(alpha);
-  colors = lut->MapScalars(scalars, this->ColorMode, arraycomponent);
-  lut->SetAlpha(origAlpha);
-  if (multiplyWithAlpha)
-    {
-    // It is possible that the LUT simply returns the scalars as the
-    // colors. In which case, we allocate a new array to ensure
-    // that we don't modify the array in the input.
-    if (scalars == colors)
-      {
-      // Since we will be changing the colors array
-      // we create a copy.
-      colors->Delete();
-      colors = scalars->NewInstance();
-      colors->DeepCopy(scalars);
-      }
-    vtkMultiplyColorsWithAlpha(colors);
-    }
-
-  vtkUnsignedCharArray* colorArray = vtkUnsignedCharArray::SafeDownCast(colors);
-  if (!colorArray)
-    {
-    vtkErrorMacro("Error: color array not of type unsigned char...");
-    return;
-    }
-  unsigned char* ptr = colorArray->GetPointer(0);
-  vtkIdType numValues =
-      colorArray->GetNumberOfTuples() * colorArray->GetNumberOfComponents();
-  this->Internal->colorComponents = colorArray->GetNumberOfComponents();
-  this->Internal->colors.reserve(numValues);
-  this->Internal->colors.assign(ptr, ptr + numValues);
-
-  colors->Delete();
 }
 
 //-----------------------------------------------------------------------------
