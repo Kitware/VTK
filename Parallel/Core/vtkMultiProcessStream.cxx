@@ -604,6 +604,13 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator << (vtkTypeUInt64 value)
 }
 
 //----------------------------------------------------------------------------
+vtkMultiProcessStream& vtkMultiProcessStream::operator << (const char* value)
+{
+  this->operator<< (std::string(value));
+  return *this;
+}
+
+//----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator << (const std::string& value)
 {
   // Find the real string size
