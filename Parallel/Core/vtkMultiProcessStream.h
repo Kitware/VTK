@@ -51,6 +51,9 @@ public:
   vtkMultiProcessStream& operator << (vtkTypeInt64 value);
   vtkMultiProcessStream& operator << (vtkTypeUInt64 value);
   vtkMultiProcessStream& operator << (const std::string& value);
+  // Without this operator, the compiler would convert
+  // a char* to a bool instead of a std::string.
+  vtkMultiProcessStream& operator << (const char* value);
   vtkMultiProcessStream& operator << (const vtkMultiProcessStream&);
 
   // Description:
