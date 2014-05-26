@@ -154,7 +154,8 @@ if(PYTHON_EXECUTABLE)
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/tk
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/util
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/wx
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/test)
+    ${CMAKE_CURRENT_BINARY_DIR}/vtk/test
+    ${CMAKE_CURRENT_BINARY_DIR}/vtk/numpy_interface)
 
 # Now create a list of Python files.
 
@@ -220,6 +221,13 @@ if(PYTHON_EXECUTABLE)
     vtk/gtk/GtkGLExtVTKRenderWindowInteractor
     )
 
+# vtk.numpy_interface related files
+  list(APPEND VTK_PYTHON_FILES
+    vtk/numpy_interface/__init__
+    vtk/numpy_interface/algorithms
+    vtk/numpy_interface/dataset_adapter
+    vtk/numpy_interface/internal_algorithms
+    )
 # Done listing of files.
 
 # Now copy these files if necessary.
