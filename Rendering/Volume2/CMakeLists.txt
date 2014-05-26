@@ -1,13 +1,33 @@
 find_package(GLEW REQUIRED)
 
+ # Source files
 set(Module_SRCS vtkSinglePassVolumeMapper.cxx vtkGLSLShader.cxx)
 set_source_files_properties(
   vtkSinglePassVolumeMapper
   vtkGLSLShader
-  WRAP_EXCLUDE
-)
+  WRAP_EXCLUDE)
 
+set(shader_files
+    shaders/raycasterfs.glsl
+    shaders/raycastervs.glsl)
 
+unset(shader_h_files)
+foreach(file ${shader_files})
+  get_filename_component(file_we ${file} NAME_WE)
+  set(src  ${CMAKE_CURRENT_SOURCE_DIR}/${file})
+  set(res  ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.cxx)
+  set(resh ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.h)
+  list(APPEND shader_h_files ${resh})
+  add_custom_command(
+    OUTPUT ${res} ${resh}
+    DEPENDS ${src} vtkEncodeString
+    COMMAND vtkEncodeString
+    ARGS ${res} ${src} ${file_we}
+      --build-header VTKVOLUME_EXPORT vtkVolumeModule.h
+    )
+  list(APPEND Module_SRCS ${res})
+  set_source_files_properties(${file_we} WRAP_EXCLUDE)
+endforeach()
 
 vtk_module_library(vtkVolume ${Module_SRCS})
 target_link_libraries(vtkVolume LINK_PRIVATE ${GLEW_LIBRARY})

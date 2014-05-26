@@ -21,7 +21,7 @@ in vec3 vertex_pos;
 //////////////////////////////////////////////////////////////////////////////
 
 /// Volume dataset
-uniform sampler3D	volume;
+uniform sampler3D volume;
 
 /// Transfer functions
 uniform sampler1D color_transfer_func;

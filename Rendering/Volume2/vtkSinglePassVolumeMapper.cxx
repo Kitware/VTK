@@ -17,7 +17,10 @@
 
 #include "vtkGLSLShader.h"
 #include "vtkOpenGLOpacityTable.h"
-#include "vtkOpenGLVolumeRGBTable.h"
+#include "vtkOpenGLRGBTable.h"
+
+#include <raycasterfs.h>
+#include <raycastervs.h>
 
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
@@ -69,7 +72,7 @@ public:
     VolumeTextureId(0),
     TransferFuncId(0),
     NoiseTextureId(0),
-    CellFlag(-1),
+    CellFlag(0),
     TextureWidth(1024),
     Parent(parent),
     RGBTable(0)
@@ -196,7 +199,7 @@ public:
   GLint NoiseTextureSize;
 
   vtkSinglePassVolumeMapper* Parent;
-  vtkOpenGLVolumeRGBTable* RGBTable;
+  vtkOpenGLRGBTable* RGBTable;
   vtkOpenGLOpacityTables* OpacityTables;
 
   vtkTimeStamp VolumeBuildTime;
@@ -206,14 +209,17 @@ public:
 void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
 {
   GLenum err = glewInit();
-  if (GLEW_OK != err)	{
-      cerr <<"Error: "<< glewGetErrorString(err)<<endl;
-  } else {
+  if (GLEW_OK != err)
+    {
+    cerr <<"Error: "<< glewGetErrorString(err)<<endl;
+    }
+  else
+    {
       if (GLEW_VERSION_3_3)
-      {
-          cout<<"Driver supports OpenGL 3.3\nDetails:"<<endl;
-      }
-  }
+        {
+        cout<<"Driver supports OpenGL 3.3\nDetails:"<<endl;
+        }
+    }
   /// This is to ignore INVALID ENUM error 1282
   err = glGetError();
   GL_CHECK_ERRORS
@@ -226,8 +232,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   cout<<"\tGLSL: "<< glGetString (GL_SHADING_LANGUAGE_VERSION)<<endl;
 
   /// Load the raycasting shader
-  this->Shader.LoadFromFile(GL_VERTEX_SHADER, "shaders/raycaster.vert");
-  this->Shader.LoadFromFile(GL_FRAGMENT_SHADER, "shaders/raycaster.frag");
+  this->Shader.LoadFromString(GL_VERTEX_SHADER, raycastervs);
+  this->Shader.LoadFromString(GL_FRAGMENT_SHADER, raycasterfs);
 
   /// Compile and link the shader
   this->Shader.CreateAndLinkProgram();
@@ -263,7 +269,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   glGenBuffers(1, &this->CubeVBOId);
   glGenBuffers(1, &this->CubeIndicesId);
 
-  this->RGBTable = new vtkOpenGLVolumeRGBTable();
+  this->RGBTable = new vtkOpenGLRGBTable();
 
   /// TODO Currently we are supporting only one level
   this->OpacityTables = new vtkOpenGLOpacityTables(1);
@@ -278,7 +284,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
                                                         vtkDataArray* scalars)
 {
   /// Generate OpenGL texture
-  glEnable(GL_TEXTURE_3D);
+  glActiveTexture(GL_TEXTURE0);
   glGenTextures(1, &this->VolumeTextureId);
   glBindTexture(GL_TEXTURE_3D, this->VolumeTextureId);
 
@@ -306,7 +312,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
   int needTypeConversion = 0;
 
   int scalarType = scalars->GetDataType();
-  if(scalars->GetNumberOfComponents()==4)
+  if (scalars->GetNumberOfComponents()==4)
     {
     internalFormat = GL_RGBA16;
     format = GL_RGBA;
@@ -487,20 +493,20 @@ void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
     {
     // If spacing is negative, we may have to rethink the equation
     // between real point and texture coordinate...
-    this->Bounds[0] = origin[0]+
-      static_cast<double>(this->Extents[0+swapBounds[0]]) * spacing[0];
-    this->Bounds[2] = origin[1]+
-      static_cast<double>(this->Extents[2+swapBounds[1]]) * spacing[1];
-    this->Bounds[4] = origin[2]+
-      static_cast<double>(this->Extents[4+swapBounds[2]]) * spacing[2];
-    this->Bounds[1] = origin[0]+
-      static_cast<double>(this->Extents[1-swapBounds[0]]) * spacing[0];
-    this->Bounds[3] = origin[1]+
-      static_cast<double>(this->Extents[3-swapBounds[1]]) * spacing[1];
-    this->Bounds[5] = origin[2]+
-      static_cast<double>(this->Extents[5-swapBounds[2]]) * spacing[2];
+    this->Bounds[0] = origin[0] +
+      static_cast<double>(this->Extents[0 + swapBounds[0]]) * spacing[0];
+    this->Bounds[2] = origin[1] +
+      static_cast<double>(this->Extents[2 + swapBounds[1]]) * spacing[1];
+    this->Bounds[4] = origin[2] +
+      static_cast<double>(this->Extents[4 + swapBounds[2]]) * spacing[2];
+    this->Bounds[1] = origin[0] +
+      static_cast<double>(this->Extents[1 - swapBounds[0]]) * spacing[0];
+    this->Bounds[3] = origin[1] +
+      static_cast<double>(this->Extents[3 - swapBounds[1]]) * spacing[1];
+    this->Bounds[5] = origin[2] +
+      static_cast<double>(this->Extents[5 - swapBounds[2]]) * spacing[2];
     }
-  // Loaded extents represent cells
+  /// Loaded extents represent cells
   else
     {
     int wholeTextureExtent[6];
@@ -517,7 +523,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
       {
       if(this->Extents[2 * i] == wholeTextureExtent[2 * i])
         {
-        this->Bounds[ 2 * i + swapBounds[i]] = origin[i];
+        this->Bounds[2 * i + swapBounds[i]] = origin[i];
         }
       else
         {
@@ -559,9 +565,6 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateColorTransferFunction(
       colorTransferFunction->AddRGBPoint(this->ScalarsRange[0], 0.0, 0.0, 0.0);
       colorTransferFunction->AddRGBPoint(this->ScalarsRange[1], 1.0, 1.0, 1.0);
       }
-
-    /// Activate texture 1
-    glActiveTexture(GL_TEXTURE1);
 
     this->RGBTable->Update(
       colorTransferFunction, this->ScalarsRange,
@@ -605,9 +608,6 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
     scalarOpacity->AddPoint(this->ScalarsRange[1], 0.5);
     }
 
-  /// Activate texture 2
-  glActiveTexture(GL_TEXTURE2);
-
   this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->BlendMode,
     this->SampleDistance,
@@ -626,9 +626,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
 {
   if (this->NoiseTextureData == 0)
     {
-    glGenTextures(1, &this->NoiseTextureId);
-
     glActiveTexture(GL_TEXTURE3);
+    glGenTextures(1, &this->NoiseTextureId);
     glBindTexture(GL_TEXTURE_2D, this->NoiseTextureId);
 
     GLsizei size = 128;
@@ -672,10 +671,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, size, size, 0,
                  GL_RED, GL_FLOAT, this->NoiseTextureData);
 
-    GLfloat borderColor[4]={0.0, 0.0, 0.0, 0.0};
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glActiveTexture(GL_TEXTURE0);
@@ -786,6 +783,7 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   /// Enable texture 1D and 3D as we are using it
   /// for transfer functions and volume data
   glEnable(GL_TEXTURE_1D);
+  glEnable(GL_TEXTURE_2D);
   glEnable(GL_TEXTURE_3D);
 
   if (!this->Implementation->IsInitialized())
@@ -886,12 +884,10 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   glBindTexture(GL_TEXTURE_3D, this->Implementation->VolumeTextureId);
 
   /// Color texture is at unit 1
-  glActiveTexture(GL_TEXTURE1);
   this->Implementation->RGBTable->Bind();
 
   /// Opacity texture is at unit 2
   /// TODO Supports only one table for now
-  glActiveTexture(GL_TEXTURE2);
   this->Implementation->OpacityTables->GetTable(0)->Bind();
 
   /// Noise texture is at unit 3
@@ -999,5 +995,6 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   glActiveTexture(GL_TEXTURE0);
 
   glDisable(GL_TEXTURE_3D);
+  glDisable(GL_TEXTURE_2D);
   glDisable(GL_TEXTURE_1D);
 }

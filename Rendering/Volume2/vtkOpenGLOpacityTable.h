@@ -58,7 +58,7 @@ public:
   ///
   bool IsLoaded()
     {
-      return this->Loaded;
+    return this->Loaded;
     }
 
   //--------------------------------------------------------------------------
@@ -67,7 +67,10 @@ public:
   ///
   void Bind()
     {
-      glBindTexture(GL_TEXTURE_1D, this->TextureId);
+    /// Activate texture 2
+    glActiveTexture(GL_TEXTURE2);
+
+    glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
 
   //--------------------------------------------------------------------------
@@ -87,49 +90,52 @@ public:
               double unitDistance,
               bool linearInterpolation)
     {
+    /// Activate texture 2
+    glActiveTexture(GL_TEXTURE2);
 
-      bool needUpdate=false;
-      if(this->TextureId == 0)
+
+    bool needUpdate=false;
+    if(this->TextureId == 0)
+      {
+      glGenTextures(1,&this->TextureId);
+      needUpdate = true;
+      }
+
+    if (this->LastRange[0] != range[0] ||
+        this->LastRange[1] != range[1])
+      {
+      needUpdate = true;
+      this->LastRange[0] = range[0];
+      this->LastRange[1] = range[1];
+      }
+
+    glBindTexture(GL_TEXTURE_1D,this->TextureId);
+    if(needUpdate)
+      {
+      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
+                      vtkgl::CLAMP_TO_EDGE);
+      }
+
+    if(scalarOpacity->GetMTime() > this->BuildTime ||
+       (this->LastBlendMode != blendMode) ||
+       (blendMode == vtkVolumeMapper::COMPOSITE_BLEND &&
+        this->LastSampleDistance[0] != sampleDistance[0] &&
+        this->LastSampleDistance[1] != sampleDistance[1] &&
+        this->LastSampleDistance[2] != sampleDistance[2]) ||
+       needUpdate || !this->Loaded)
+      {
+      this->Loaded = false;
+      if(this->Table == 0)
         {
-        glGenTextures(1,&this->TextureId);
-        needUpdate = true;
+        this->Table = new float[this->TextureWidth];
         }
 
-      if (this->LastRange[0] != range[0] ||
-          this->LastRange[1] != range[1])
-        {
-        needUpdate = true;
-        this->LastRange[0] = range[0];
-        this->LastRange[1] = range[1];
-        }
+      scalarOpacity->GetTable(range[0], range[1], this->TextureWidth, this->Table);
+      this->LastBlendMode = blendMode;
 
-      glBindTexture(GL_TEXTURE_1D,this->TextureId);
-      if(needUpdate)
-        {
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
-                        vtkgl::CLAMP_TO_EDGE);
-        }
-
-      if(scalarOpacity->GetMTime() > this->BuildTime ||
-         (this->LastBlendMode != blendMode) ||
-         (blendMode == vtkVolumeMapper::COMPOSITE_BLEND &&
-          this->LastSampleDistance[0] != sampleDistance[0] &&
-          this->LastSampleDistance[1] != sampleDistance[1] &&
-          this->LastSampleDistance[2] != sampleDistance[2]) ||
-         needUpdate || !this->Loaded)
-        {
-        this->Loaded = false;
-        if(this->Table == 0)
-          {
-          this->Table = new float[this->TextureWidth];
-          }
-
-        scalarOpacity->GetTable(range[0], range[1], this->TextureWidth, this->Table);
-        this->LastBlendMode = blendMode;
-
-        /// Correct the opacity array for the spacing between the planes if we
-        /// are using a composite blending operation
-        /// TODO Fix this code for sample distance in three dimensions
+      /// Correct the opacity array for the spacing between the planes if we
+      /// are using a composite blending operation
+      /// TODO Fix this code for sample distance in three dimensions
 //        if(blendMode == vtkVolumeMapper::COMPOSITE_BLEND)
 //          {
 //          float* ptr = this->Table;
@@ -168,21 +174,21 @@ public:
 //          this->LastSampleDistance[2] = sampleDistance[2];
 //          }
 
-        glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
-                     this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
-        this->Loaded = true;
-        this->BuildTime.Modified();
-        }
+      glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
+                   this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
+      this->Loaded = true;
+      this->BuildTime.Modified();
+      }
 
-      needUpdate= needUpdate ||
-        this->LastLinearInterpolation!=linearInterpolation;
-      if(needUpdate)
-        {
-        this->LastLinearInterpolation = linearInterpolation;
-        GLint value = linearInterpolation ? GL_LINEAR : GL_NEAREST;
-        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,value);
-        glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MAG_FILTER,value);
-        }
+    needUpdate= needUpdate ||
+      this->LastLinearInterpolation!=linearInterpolation;
+    if(needUpdate)
+      {
+      this->LastLinearInterpolation = linearInterpolation;
+      GLint value = linearInterpolation ? GL_LINEAR : GL_NEAREST;
+      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, value);
+      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, value);
+      }
     }
 
 protected:
