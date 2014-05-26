@@ -47,18 +47,16 @@ static T vtkClamp(T val, T min, T max)
   return val;
 }
 
-class vtkColorMapper : public vtkMapper
+class vtkOpenGL2Glyph3DMapper::vtkColorMapper : public vtkMapper
 {
 public:
   vtkTypeMacro(vtkColorMapper, vtkMapper);
-  static vtkColorMapper* New();
+  static vtkColorMapper* New() { return new vtkColorMapper; }
   void Render(vtkRenderer *, vtkActor *) {}
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 
-vtkStandardNewMacro(vtkColorMapper);
-
-class vtkOpenGL2Glyph3DMapperArray
+class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray
 {
 public:
   std::vector<vtkSmartPointer<vtkVBOPolyDataMapper > > Mappers;
@@ -113,6 +111,11 @@ void vtkOpenGL2Glyph3DMapper::CopyInformationToSubMapper(
   mapper->SetImmediateModeRendering(this->ImmediateModeRendering);
 }
 
+void vtkOpenGL2Glyph3DMapper::SetupColorMapper()
+{
+  this->ColorMapper->ShallowCopy(this);
+}
+
 // ---------------------------------------------------------------------------
 // Description:
 // Method initiates the mapping process. Generally sent by the actor
@@ -121,9 +124,11 @@ void vtkOpenGL2Glyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 {
   vtkOpenGLClearErrorMacro();
 
-  vtkHardwareSelector* selector = ren->GetSelector();
-  bool selecting_points = selector && (selector->GetFieldAssociation() ==
-    vtkDataObject::FIELD_ASSOCIATION_POINTS);
+  this->SetupColorMapper();
+
+  vtkHardwareSelector* selector = NULL;// ren->GetSelector();
+  bool selecting_points = false; /* selector && (selector->GetFieldAssociation() ==
+    vtkDataObject::FIELD_ASSOCIATION_POINTS); */
 
   if (selector)
     {
@@ -306,10 +311,9 @@ void vtkOpenGL2Glyph3DMapper::Render(
 
   /// FIXME: Didn't handle the premultiplycolorswithalpha aspect...
   vtkUnsignedCharArray* colors = NULL;
-  vtkNew<vtkColorMapper> colorMapper;
-  colorMapper->SetInputDataObject(dataset);
-  colorMapper->MapScalars(actor->GetProperty()->GetOpacity());
-  colors = colorMapper->GetColors();
+  this->ColorMapper->SetInputDataObject(dataset);
+  this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
+  colors = this->ColorMapper->GetColors();
 //  bool multiplyWithAlpha =
 //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   // Traverse all Input points, transforming Source points

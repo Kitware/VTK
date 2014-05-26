@@ -30,8 +30,8 @@
 #include "vtkGlyph3DMapper.h"
 #include "vtkGlyph3D.h" // for the constants (VTK_SCALE_BY_SCALAR, ...).
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include "vtkNew.h" // For vtkNew
 
-class vtkOpenGL2Glyph3DMapperArray;
 class vtkVBOPolyDataMapper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Glyph3DMapper
@@ -64,6 +64,12 @@ protected:
   // \pre mapper_exists: mapper != 0
   void CopyInformationToSubMapper(vtkVBOPolyDataMapper*);
 
+  void SetupColorMapper();
+
+  class vtkColorMapper;
+  vtkNew<vtkColorMapper> ColorMapper;
+
+  class vtkOpenGL2Glyph3DMapperArray;
   vtkOpenGL2Glyph3DMapperArray *SourceMappers; // array of mappers
 
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
