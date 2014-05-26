@@ -39,8 +39,6 @@
 #include <cassert>
 #include <vector>
 
-vtkStandardNewMacro(vtkOpenGL2Glyph3DMapper)
-
 template <class T>
 static T vtkClamp(T val, T min, T max)
 {
@@ -49,11 +47,24 @@ static T vtkClamp(T val, T min, T max)
   return val;
 }
 
+class vtkColorMapper : public vtkMapper
+{
+public:
+  vtkTypeMacro(vtkColorMapper, vtkMapper);
+  static vtkColorMapper* New();
+  void Render(vtkRenderer *, vtkActor *) {}
+  vtkUnsignedCharArray* GetColors() { return this->Colors; }
+};
+
+vtkStandardNewMacro(vtkColorMapper);
+
 class vtkOpenGL2Glyph3DMapperArray
 {
 public:
   std::vector<vtkSmartPointer<vtkVBOPolyDataMapper > > Mappers;
 };
+
+vtkStandardNewMacro(vtkOpenGL2Glyph3DMapper)
 
 // ---------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -293,12 +304,12 @@ void vtkOpenGL2Glyph3DMapper::Render(
     return;
     }
 
-  /// FIXME: This just wants the color array from a map scalars to colors...
+  /// FIXME: Didn't handle the premultiplycolorswithalpha aspect...
   vtkUnsignedCharArray* colors = NULL;
-//  this->ScalarsToColorsPainter->SetInput(dataset);
-//  this->ScalarsToColorsPainter->Render(ren, actor, 0xff, false);
-//  vtkUnsignedCharArray* colors = this->GetColors(
-//    vtkDataSet::SafeDownCast(this->ScalarsToColorsPainter->GetOutput()));
+  vtkNew<vtkColorMapper> colorMapper;
+  colorMapper->SetInputDataObject(dataset);
+  colorMapper->MapScalars(actor->GetProperty()->GetOpacity());
+  colors = colorMapper->GetColors();
 //  bool multiplyWithAlpha =
 //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   // Traverse all Input points, transforming Source points
