@@ -193,9 +193,14 @@ void vtkExternalOpenGLCamera::SetViewTransformMatrix(
     {
     return;
     }
-  this->Transform->SetMatrix(elements);
-  this->ModelViewTransform->SetMatrix(elements);
+  // Transpose the matrix to undo the transpose that VTK does internally
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(elements);
+  matrix->Transpose();
+  this->Transform->SetMatrix(matrix);
+  this->ModelViewTransform->SetMatrix(matrix);
   this->UserProvidedViewTransform = true;
+  matrix->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -206,8 +211,13 @@ void vtkExternalOpenGLCamera::SetProjectionTransformMatrix(
     {
     return;
     }
-  this->ProjectionTransform->SetMatrix(elements);
+  // Transpose the matrix to undo the transpose that VTK does internally
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(elements);
+  matrix->Transpose();
+  this->ProjectionTransform->SetMatrix(matrix);
   this->UserProvidedProjectionTransform = true;
+  matrix->Delete();
 }
 
 //----------------------------------------------------------------------------

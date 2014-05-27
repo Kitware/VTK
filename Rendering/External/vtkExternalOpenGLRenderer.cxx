@@ -14,9 +14,14 @@
 =========================================================================*/
 #include "vtkExternalOpenGLRenderer.h"
 
+#include "vtkCamera.h"
+#include "vtkLightCollection.h"
+#include "vtkLight.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGL.h"
 #include "vtkRenderWindow.h"
 #include "vtkTexture.h"
 
@@ -138,6 +143,62 @@ void vtkExternalOpenGLRenderer::Clear()
   vtkOpenGLCheckErrorMacro("failed after Clear");
 }
 
+//----------------------------------------------------------------------------
+int vtkExternalOpenGLRenderer::UpdateLightsGeometryToFollowCamera(void)
+{
+  vtkCamera* camera;
+  vtkLight* light;
+  vtkMatrix4x4* lightMatrix;
+
+  camera = this->GetActiveCameraAndResetIfCreated();
+
+  lightMatrix = camera->GetModelViewTransformMatrix();
+  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(lightMatrix);
+  matrix->Invert();
+
+  vtkCollectionSimpleIterator sit;
+  for(this->Lights->InitTraversal(sit);
+    (light = this->Lights->GetNextLight(sit)); )
+    {
+    // Compensate with the camera view transform matrix
+    light->SetTransformMatrix(matrix);
+    if (light->LightTypeIsSceneLight())
+      {
+      }
+    else if (light->LightTypeIsHeadlight())
+      {
+      // update the position and orientation of light to match camera
+      light->SetPosition(camera->GetPosition());
+      light->SetFocalPoint(camera->GetFocalPoint());
+      }
+    else if (light->LightTypeIsCameraLight())
+      {
+      lightMatrix = camera->GetModelViewTransformMatrix();
+      double viewUp[4], newViewUp[4];
+      camera->GetViewUp(viewUp);
+      viewUp[3] = 1;
+      lightMatrix->MultiplyPoint(viewUp, newViewUp);
+      vtkMath::Normalize(newViewUp);
+      camera->SetViewUp(newViewUp);
+
+      double position[4], newPosition[4];
+      camera->GetPosition(position);
+      position[3] = 1;
+      lightMatrix->MultiplyPoint(position, newPosition);
+      vtkMath::Normalize(newPosition);
+      camera->SetPosition(newPosition);
+//      lightMatrix = camera->GetCameraLightTransformMatrix();
+//      light->SetTransformMatrix(lightMatrix);
+      }
+    else
+      {
+      vtkErrorMacro(<< "light has unknown light type");
+      }
+    }
+  matrix->Delete();
+  return 1;
+}
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderer::PrintSelf(ostream &os, vtkIndent indent)
 {
