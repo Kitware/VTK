@@ -18,7 +18,7 @@ endfunction()
 
 # Function to simplify checking if a Python module is available
 function(find_python_module module_name result)
-  if(NOT DEFINED PYTHON_MODULE_${module_name}_FOUND)
+  if(NOT PYTHON_MODULE_${module_name}_FOUND)
     _find_python_module_internal(${module_name})
   endif()
   set(${result} ${PYTHON_MODULE_${module_name}_FOUND} PARENT_SCOPE)
