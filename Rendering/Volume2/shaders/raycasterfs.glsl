@@ -181,6 +181,9 @@ void main()
 
   data_pos += dir_step * texture(noise, data_pos.xy).x;
 
+  /// Initialize dst (output) to 0
+  dst = vec4(0.0);
+
   /// For all samples along the ray
   for (int i = 0; i < MAX_SAMPLES; ++i) {
     /// The two constants tex_min and tex_max have a value of vec3(-1,-1,-1)
