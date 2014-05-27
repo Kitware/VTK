@@ -19,6 +19,7 @@
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
 
+/// Include compiled shader code
 #include <raycasterfs.h>
 #include <raycastervs.h>
 
@@ -52,10 +53,10 @@ vtkStandardNewMacro(vtkSinglePassVolumeMapper);
   assert(glGetError()== GL_NO_ERROR); \
   }
 
-//--------------------------------------------------------------------------
 ///
 /// \brief The vtkSinglePassVolumeMapper::vtkInternal class
 ///
+///----------------------------------------------------------------------------
 class vtkSinglePassVolumeMapper::vtkInternal
 {
 public:
@@ -205,7 +206,7 @@ public:
   vtkTimeStamp VolumeBuildTime;
 };
 
-//--------------------------------------------------------------------------
+///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
 {
   GLenum err = glewInit();
@@ -279,7 +280,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   this->Initialized = true;
 }
 
-//--------------------------------------------------------------------------
+///----------------------------------------------------------------------------
 bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
                                                         vtkDataArray* scalars)
 {
@@ -441,22 +442,20 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
   return 1;
 }
 
-//--------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::vtkInternal::IsInitialized
 /// \return
-///
+///----------------------------------------------------------------------------
 bool vtkSinglePassVolumeMapper::vtkInternal::IsInitialized()
 {
   return this->Initialized;
 }
 
-//--------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty
 /// \param input
 /// \return
-///
+///----------------------------------------------------------------------------
 bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
 {
   /// Check if the scalars modified time is higher than the last build time
@@ -469,11 +468,10 @@ bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
   return false;
 }
 
-//--------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds
 /// \param bounds
-///
+///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
 {
   double spacing[3];
@@ -546,7 +544,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
     }
 }
 
-//--------------------------------------------------------------------------
+///----------------------------------------------------------------------------
 int vtkSinglePassVolumeMapper::vtkInternal::UpdateColorTransferFunction(
   vtkVolume* vol, int numberOfScalarComponents)
 {
@@ -581,7 +579,7 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateColorTransferFunction(
   return 0;
 }
 
-//--------------------------------------------------------------------------
+///----------------------------------------------------------------------------
 int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
   vtkVolume* vol, int numberOfScalarComponents, unsigned int level)
 {
@@ -621,7 +619,7 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
   return 0;
 }
 
-//--------------------------------------------------------------------------
+///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
 {
   if (this->NoiseTextureData == 0)
@@ -679,7 +677,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
     }
 }
 
-//--------------------------------------------------------------------------
+///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
 {
   /// Cube vertices
@@ -733,43 +731,39 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
   glBindVertexArray(0);
 }
 
-//--------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper
-///
+///----------------------------------------------------------------------------
 vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper() : vtkVolumeMapper()
 {
   this->Implementation = new vtkInternal(this);
 }
 
-//--------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::~vtkSinglePassVolumeMapper
-///
+///----------------------------------------------------------------------------
 vtkSinglePassVolumeMapper::~vtkSinglePassVolumeMapper()
 {
   delete this->Implementation;
   this->Implementation = 0;
 }
 
-//--------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::PrintSelf
 /// \param os
 /// \param indent
-///
+///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::PrintSelf(ostream& vtkNotUsed(os),
                                           vtkIndent indent)
 {
   // TODO Implement this method
 }
 
-///---------------------------------------------------------------------------
 ///
 /// \brief vtkSinglePassVolumeMapper::Render
 /// \param ren
 /// \param vol
-///
+///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 {
   /// Make sure the context is current

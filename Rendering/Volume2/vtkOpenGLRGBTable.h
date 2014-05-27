@@ -6,17 +6,15 @@
 #include <GL/glew.h>
 #include <vtkgl.h>
 
-//----------------------------------------------------------------------------
 ///
 /// \brief The vtkOpenGLRGBTable class
-///
+///----------------------------------------------------------------------------
 class vtkOpenGLRGBTable
 {
 public:
-  //--------------------------------------------------------------------------
   ///
   /// \brief Constructor.
-  ///
+  ///--------------------------------------------------------------------------
   vtkOpenGLRGBTable()
     {
     this->Loaded = false;
@@ -28,8 +26,9 @@ public:
     this->Table = 0;
     }
 
-  //--------------------------------------------------------------------------
+  ///
   /// \brief Destructor.
+  ///--------------------------------------------------------------------------
   ~vtkOpenGLRGBTable()
     {
     if(this->TextureId!=0)
@@ -44,20 +43,18 @@ public:
       }
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Check if color transfer function texture is loaded.
   /// \return
-  ///
+  ///--------------------------------------------------------------------------
   bool IsLoaded()
     {
     return this->Loaded;
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Bind texture.
-  ///
+  ///--------------------------------------------------------------------------
   void Bind()
     {
     /// Activate texture 1
@@ -66,13 +63,12 @@ public:
     glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Update color transfer function texture.
   /// \param scalarRGB
   /// \param range
   /// \param linearInterpolation
-  ///
+  ///--------------------------------------------------------------------------
   void Update(vtkColorTransferFunction* scalarRGB,
               double range[2],
               bool linearInterpolation)

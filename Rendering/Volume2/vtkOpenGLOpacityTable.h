@@ -7,17 +7,15 @@
 #include <GL/glew.h>
 #include <vtkgl.h>
 
-//----------------------------------------------------------------------------
 ///
 /// \brief The vtkOpenGLOpacityTable class
-///
+///----------------------------------------------------------------------------
 class vtkOpenGLOpacityTable
 {
 public:
-  //--------------------------------------------------------------------------
   ///
   /// \brief Constructor.
-  ///
+  ///--------------------------------------------------------------------------
   vtkOpenGLOpacityTable(int width = 1024)
     {
       this->TextureId = 0;
@@ -32,10 +30,9 @@ public:
       this->LastRange[0] = this->LastRange[1] = 0.0;
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Destructor.
-  ///
+  ///--------------------------------------------------------------------------
   ~vtkOpenGLOpacityTable()
     {
       if (this->TextureId != 0)
@@ -51,20 +48,18 @@ public:
         }
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Check if opacity transfer function texture is loaded.
   /// \return
-  ///
+  ///--------------------------------------------------------------------------
   bool IsLoaded()
     {
     return this->Loaded;
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Bind texture.
-  ///
+  ///--------------------------------------------------------------------------
   void Bind()
     {
     /// Activate texture 2
@@ -73,7 +68,6 @@ public:
     glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Update opacity tranfer function texture.
   /// \param scalarOpacity
@@ -82,7 +76,7 @@ public:
   /// \param range
   /// \param unitDistance
   /// \param linearInterpolation
-  ///
+  ///--------------------------------------------------------------------------
   void Update(vtkPiecewiseFunction* scalarOpacity,
               int blendMode,
               double* sampleDistance,
@@ -215,42 +209,38 @@ private:
 class vtkOpenGLOpacityTables
 {
 public:
-  //---------------------------------------------------------------------------
   ///
   /// \brief Constructor.
   /// \param numberOfTables
-  ///
+  ///--------------------------------------------------------------------------
   vtkOpenGLOpacityTables(unsigned int numberOfTables)
     {
     this->Tables = new vtkOpenGLOpacityTable[numberOfTables];
     this->NumberOfTables = numberOfTables;
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Destructor.
-  ///
+  ///--------------------------------------------------------------------------
   ~vtkOpenGLOpacityTables()
     {
     delete [] this->Tables;
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Get opacity table at a given index.
   /// \param i
   /// \return
-  ///
+  ///--------------------------------------------------------------------------
   vtkOpenGLOpacityTable* GetTable(unsigned int i)
     {
     return &this->Tables[i];
     }
 
-  //--------------------------------------------------------------------------
   ///
   /// \brief Get number of tables.
   /// \return
-  ///
+  ///--------------------------------------------------------------------------
   unsigned int GetNumberOfTables()
     {
     return this->NumberOfTables;
