@@ -498,48 +498,51 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   // really just view  matrix in spite of it's name
   vtkTransform* viewTF = cam->GetModelViewTransformObject();
 
-  vtkNew<vtkMatrix4x4> tmpMat;
-  tmpMat->DeepCopy(viewTF->GetMatrix());
+  vtkNew<vtkMatrix4x4> tmpMV;
+  tmpMV->DeepCopy(viewTF->GetMatrix());
   if (this->ModelTransformMatrix)
     {
     // Apply this extra transform from things like the glyph mapper.
-    vtkMatrix4x4::Multiply4x4(tmpMat.Get(), this->ModelTransformMatrix,
-                              tmpMat.Get());
+    vtkMatrix4x4::Multiply4x4(tmpMV.Get(), this->ModelTransformMatrix,
+                              tmpMV.Get());
     }
-  program.SetUniformValue("WCVCMatrix", tmpMat.Get());
+  program.SetUniformValue("WCVCMatrix", tmpMV.Get());
 
   // set the MCWC matrix
   program.SetUniformValue("MCWCMatrix", actor->GetMatrix());
 
   // compute the combined ModelView matrix and send it down to save time in the shader
+  vtkNew<vtkMatrix4x4> tmpMat;
+  tmpMat->DeepCopy(tmpMV.Get());
   vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
   tmpMat->Transpose();
   program.SetUniformValue("MCVCMatrix", tmpMat.Get());
 
-  tmpMat->DeepCopy(cam->GetProjectionTransformMatrix(ren));
-  program.SetUniformValue("VCDCMatrix", tmpMat.Get());
+  vtkNew<vtkMatrix4x4> tmpProj;
+  tmpProj->DeepCopy(cam->GetProjectionTransformMatrix(ren));
+  program.SetUniformValue("VCDCMatrix", tmpProj.Get());
 
   // for lit shaders set normal matrix
   if (cellBO.vsFile != vtkglPolyDataVSNoLighting)
     {
     // set the normal matrix and send it down
     // (make this a function in camera at some point returning a 3x3)
-    tmpMat->DeepCopy(cam->GetViewTransformMatrix());
-    if (!actor->GetIsIdentity())
+    // Reuse the matrix we already got (and possibly multiplied with model mat.
+    if (!actor->GetIsIdentity() || this->ModelTransformMatrix)
       {
-      vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
-      vtkTransform *aTF = vtkTransform::New();
-      aTF->SetMatrix(tmpMat.Get());
+      vtkMatrix4x4::Multiply4x4(tmpMV.Get(), actor->GetMatrix(), tmpMV.Get());
+      vtkNew<vtkTransform> aTF;
+      aTF->SetMatrix(tmpMV.Get());
       double *scale = aTF->GetScale();
-      aTF->Scale(1.0/scale[0],1.0/scale[1],1.0/scale[2]);
-      tmpMat->DeepCopy(aTF->GetMatrix());
+      aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
+      tmpMV->DeepCopy(aTF->GetMatrix());
       }
     vtkNew<vtkMatrix3x3> tmpMat3d;
     for(int i = 0; i < 3; ++i)
       {
       for (int j = 0; j < 3; ++j)
         {
-        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
+        tmpMat3d->SetElement(i, j, tmpMV->GetElement(i, j));
         }
       }
     tmpMat3d->Invert();
