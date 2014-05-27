@@ -38,6 +38,9 @@ class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
     vtkSinglePassVolumeMapper();
     ~vtkSinglePassVolumeMapper();
 
+    int ValidateRender(vtkRenderer* ren, vtkVolume* vol);
+    void GPURender(vtkRenderer *ren, vtkVolume *vol);
+
     class vtkInternal;
     vtkInternal* Implementation;
 
