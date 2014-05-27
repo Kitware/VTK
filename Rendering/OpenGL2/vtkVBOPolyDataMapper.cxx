@@ -651,14 +651,18 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   if ( this->GetResolveCoincidentTopology() )
     {
+    glEnable(GL_POLYGON_OFFSET_FILL);
     if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
       {
       vtkErrorMacro(<< "GetResolveCoincidentTopologyZShift is not supported use Polygon offset instead");
+      // do something rough as better than nothing
+      double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
+      double u = zRes*20.0; // float up to 20 units above the zbuffer
+      glPolygonOffset(0.0,u);  // supported on ES2/3/etc
       }
     else
       {
       double f, u;
-      glEnable(GL_POLYGON_OFFSET_FILL);
       this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
       glPolygonOffset(f,u);  // supported on ES2/3/etc
       }
