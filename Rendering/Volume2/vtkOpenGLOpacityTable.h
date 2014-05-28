@@ -22,8 +22,7 @@ public:
       this->LastBlendMode = vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
       this->TextureWidth = width;
       this->TextureHeight = 0;
-      this->LastSampleDistance[0] = this->LastSampleDistance[1] =
-        this->LastSampleDistance[2] = 1.0;
+      this->LastSampleDistance = 1.0;
       this->Table = 0;
       this->Loaded = false;
       this->LastLinearInterpolation = false;
@@ -79,7 +78,7 @@ public:
   ///--------------------------------------------------------------------------
   void Update(vtkPiecewiseFunction* scalarOpacity,
               int blendMode,
-              double* sampleDistance,
+              double sampleDistance,
               double range[2],
               double unitDistance,
               bool linearInterpolation)
@@ -113,9 +112,7 @@ public:
     if(scalarOpacity->GetMTime() > this->BuildTime ||
        (this->LastBlendMode != blendMode) ||
        (blendMode == vtkVolumeMapper::COMPOSITE_BLEND &&
-        this->LastSampleDistance[0] != sampleDistance[0] &&
-        this->LastSampleDistance[1] != sampleDistance[1] &&
-        this->LastSampleDistance[2] != sampleDistance[2]) ||
+        this->LastSampleDistance != sampleDistance) ||
        needUpdate || !this->Loaded)
       {
       this->Loaded = false;
@@ -191,7 +188,7 @@ protected:
   int TextureWidth;
   int TextureHeight;
 
-  double LastSampleDistance[3];
+  double LastSampleDistance;
   vtkTimeStamp BuildTime;
   float *Table;
   bool Loaded;

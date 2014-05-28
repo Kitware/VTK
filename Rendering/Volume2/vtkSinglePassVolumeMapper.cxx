@@ -23,6 +23,7 @@
 #include <raycasterfs.h>
 #include <raycastervs.h>
 
+/// VTK includes
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
@@ -42,6 +43,7 @@
 #include <vtkUnsignedCharArray.h>
 #include <vtkVolumeProperty.h>
 
+/// GL includes
 #include <GL/glew.h>
 #include <vtkgl.h>
 
@@ -81,8 +83,6 @@ public:
     RGBTable(0)
     {
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
-    this->SampleDistance[0] = this->SampleDistance[1] =
-      this->SampleDistance[2] = 0.0;
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
 
@@ -194,7 +194,7 @@ public:
   double ScalarsRange[2];
   double Bounds[6];
   int Extents[6];
-  double SampleDistance[3];
+  double StepSize[3];
   double CellScale[3];
   double Scale;
 
@@ -253,6 +253,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   this->Shader.AddUniform("camera_pos");
   this->Shader.AddUniform("light_pos");
   this->Shader.AddUniform("step_size");
+  this->Shader.AddUniform("sample_distance");
   this->Shader.AddUniform("scale");
   this->Shader.AddUniform("cell_scale");
   this->Shader.AddUniform("color_transfer_func");
@@ -612,7 +613,7 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
 
   this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->BlendMode,
-    this->SampleDistance,
+    this->Parent->SampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
@@ -740,6 +741,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
 ///----------------------------------------------------------------------------
 vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper() : vtkVolumeMapper()
 {
+  this->SampleDistance = 1.0;
+
   this->Implementation = new vtkInternal(this);
 }
 
@@ -1027,9 +1030,9 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   GL_CHECK_ERRORS
 
   /// Update sampling distance
-  this->Implementation->SampleDistance[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
-  this->Implementation->SampleDistance[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
-  this->Implementation->SampleDistance[2] = 1.0 / (this->Bounds[5] - this->Bounds[4]);
+  this->Implementation->StepSize[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
+  this->Implementation->StepSize[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
+  this->Implementation->StepSize[2] = 1.0 / (this->Bounds[5] - this->Bounds[4]);
 
   this->Implementation->CellScale[0] = (this->Bounds[1] - this->Bounds[0]) * 0.5;
   this->Implementation->CellScale[1] = (this->Bounds[3] - this->Bounds[2]) * 0.5;
@@ -1039,16 +1042,20 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   /// Step should be dependant on the bounds and not on the texture size
   /// since we can have non uniform voxel size / spacing / aspect ratio
   glUniform3f(this->Implementation->Shader("step_size"),
-              this->Implementation->SampleDistance[0],
-              this->Implementation->SampleDistance[1],
-              this->Implementation->SampleDistance[2]);
+              this->Implementation->StepSize[0],
+              this->Implementation->StepSize[1],
+              this->Implementation->StepSize[2]);
+
+  glUniform1f(this->Implementation->Shader("sample_distance"),
+              this->SampleDistance);
 
   glUniform3f(this->Implementation->Shader("cell_scale"),
               this->Implementation->CellScale[0],
               this->Implementation->CellScale[1],
               this->Implementation->CellScale[2]);
 
-  glUniform1f(this->Implementation->Shader("scale"), this->Implementation->Scale);
+  glUniform1f(this->Implementation->Shader("scale"),
+              this->Implementation->Scale);
 
   glUniform1i(this->Implementation->Shader("volume"), 0);
   glUniform1i(this->Implementation->Shader("color_transfer_func"), 1);

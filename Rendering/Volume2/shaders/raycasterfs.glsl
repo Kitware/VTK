@@ -39,6 +39,9 @@ uniform mat4 scene_matrix;
 /// Ray step size
 uniform vec3 step_size;
 
+/// Sample distance
+uniform float sample_distance;
+
 /// Scales
 uniform vec3 cell_scale;
 uniform float scale;
@@ -171,7 +174,7 @@ void main()
 
   /// Multiply the raymarching direction with the step size to get the
   /// sub-step size we need to take at each raymarching step
-  vec3 dir_step = geom_dir * step_size;
+  vec3 dir_step = geom_dir * step_size * sample_distance;
 
   /// Flag to indicate if the raymarch loop should terminate
   bool stop = false;

@@ -19,6 +19,7 @@
 #include "vtkVolumeModule.h" // For export macro
 
 #include <vtkVolumeMapper.h>
+#include <vtkSetGet.h>
 
 //----------------------------------------------------------------------------
 ///
@@ -34,12 +35,19 @@ class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
 
     virtual void Render(vtkRenderer *ren, vtkVolume *vol);
 
+    /// Set/Get the distance between samples used for rendering
+    /// Initial value is 1.0.
+    vtkSetMacro(SampleDistance, double);
+    vtkGetMacro(SampleDistance, double);
+
   protected:
     vtkSinglePassVolumeMapper();
     ~vtkSinglePassVolumeMapper();
 
     int ValidateRender(vtkRenderer* ren, vtkVolume* vol);
     void GPURender(vtkRenderer *ren, vtkVolume *vol);
+
+    double SampleDistance;
 
     class vtkInternal;
     vtkInternal* Implementation;
