@@ -1,5 +1,5 @@
-#ifndef VTKGEOJSONFEATURE_H
-#define VTKGEOJSONFEATURE_H
+#ifndef __vtkGeoJSONFeature_h
+#define __vtkGeoJSONFeature_h
 
 //VTK Includes
 #include <vtkPolyData.h>
@@ -90,4 +90,4 @@ protected:
     bool isMultiPolygon(Json::Value root);
 };
 
-#endif // VTKGEOJSONFEATURE_H
+#endif // __vtkGeoJSONFeature_h
