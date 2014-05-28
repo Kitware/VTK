@@ -1,9 +1,18 @@
 #include "vtkGeoJSONReader.h"
 
+vtkStandardNewMacro(vtkGeoJSONReader);
+
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::vtkGeoJSONReader()
 {
-  this->OutputData = NULL;
+    this->SetNumberOfInputPorts(0);
+    this->SetNumberOfOutputPorts(1);
+}
+
+//----------------------------------------------------------------------------
+vtkGeoJSONReader::~vtkGeoJSONReader()
+{
+
 }
 
 //----------------------------------------------------------------------------
@@ -28,14 +37,22 @@ void vtkGeoJSONReader::SetFileName(const char* fileName)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONReader::Update()
+int vtkGeoJSONReader::RequestData(vtkInformation *vtkNotUsed(request),
+                                   vtkInformationVector **vtkNotUsed(request),
+                                   vtkInformationVector *outputVector)
 {
-  // Read data from the geoJSON file and update outputData with appropriate
-  // vtkPolyData generated according to the data in the source file
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
+  // get the ouptut
+ vtkPolyData *output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+
+  // vtkPolyData generated according to the data in the source file
   if(!this->CanReadFile(this->FileName))
     {
-    vtkErrorMacro(<< "Unable to Open File in parseFile " << this->FileName);
+    vtkErrorMacro(<< "Unable to Open File " << this->FileName);
+    return VTK_ERROR;
     }
 
   Json::Value root;
@@ -49,19 +66,20 @@ void vtkGeoJSONReader::Update()
     // Report failures and their locations in the document
     vtkErrorMacro(<<"Failed to parse JSON" << endl <<
                   reader.getFormatedErrorMessages());
-    return;
+    return VTK_ERROR;
     }
 
   // If parsed successfully into Json parser Values and Arrays, then convert it
   // into appropriate vtkPolyData
   if (root.isObject())
     {
-    ParseRoot(root);
+    ParseRoot(root, output);
     }
+  return VTK_OK;
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONReader::ParseRoot(Json::Value root)
+void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 {
   Json::Value rootType = root.get("type", -1);
   Json::Value rootFeatures = root.get("features", -1);
@@ -73,7 +91,7 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root)
     }
 
   //Initialising polyData to which data will be appended
-  initialiseOutputData();
+  initialiseOutputData(output);
 
   if(rootFeatures.isArray())
     {
@@ -83,44 +101,27 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root)
       //Append extracted geometry to existing outputData
       Json::Value child = rootFeatures[i];
       vtkGeoJSONFeature *feature = new vtkGeoJSONFeature();
-      feature->extractGeoJSONFeature(child, this->OutputData);
+      feature->extractGeoJSONFeature(child, output);
       }
     }
   else
     {
     // Single feature in the geoJSON data
     vtkGeoJSONFeature *feature = new vtkGeoJSONFeature();
-    feature->extractGeoJSONFeature(rootFeatures, this->OutputData);
+    feature->extractGeoJSONFeature(rootFeatures, output);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONReader::initialiseOutputData()
+void vtkGeoJSONReader::initialiseOutputData(vtkPolyData *output)
 {
-  if (this->OutputData != NULL)
-    {
-    // Cleaning previous data
-    this->OutputData->Delete();
-    }
-
-  this->OutputData = vtkPolyData::New();
-
-  this->OutputData->SetPoints(vtkPoints::New());//Initialising containers for points,
-  this->OutputData->SetVerts(vtkCellArray::New());//Vertices,
-  this->OutputData->SetLines(vtkCellArray::New());//Lines and
-  this->OutputData->SetPolys(vtkCellArray::New());//Polygons
+  output->SetPoints(vtkPoints::New());//Initialising containers for points,
+  output->SetVerts(vtkCellArray::New());//Vertices,
+  output->SetLines(vtkCellArray::New());//Lines and
+  output->SetPolys(vtkCellArray::New());//Polygons
 }
 
-//----------------------------------------------------------------------------
-vtkGeoJSONReader::~vtkGeoJSONReader()
+void vtkGeoJSONReader::PrintSelf(ostream &os, vtkIndent indent)
 {
-  // ToDo.
-}
 
-//----------------------------------------------------------------------------
-vtkPolyData* vtkGeoJSONReader::GetOutput()
-{
-  // Return the outputData generated after parsing the data from the
-  // geoJSON source file
-  return this->OutputData;
 }

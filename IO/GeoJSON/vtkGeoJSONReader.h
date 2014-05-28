@@ -1,17 +1,18 @@
-#ifndef VTKGEOJSONREADER_H
-#define VTKGEOJSONREADER_H
+#ifndef __vtkGeoJSONReader_h
+#define __vtkGeoJSONReader_h
 
 // Local includes
 #include "vtkGeoJSONFeature.h"
 
 // VTK Includes
 #include <vtkPolyDataAlgorithm.h>
-#include <vtkAppendPolyData.h>
-#include <vtkCleanPolyData.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkStdString.h>
 #include <vtk_jsoncpp.h>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
+#include <vtkObjectFactory.h>
 
 // C++ includes
 #include <fstream>
@@ -20,38 +21,34 @@
 class vtkGeoJSONReader: public vtkPolyDataAlgorithm
 {
 public:
-    vtkGeoJSONReader();
+    static vtkGeoJSONReader* New();
+    virtual void PrintSelf(ostream &os, vtkIndent indent);
 
     // Description:
     // Set filename for the geoJSON data source
     void SetFileName(const char *fileName);
 
-    // Description:
-    // Parse the data and update the output data according to the
-    // geoJSON data in the source file
-    void Update();
-
-    // Description:
-    // Get the outputData generated after Update() i.e.
-    // outputData containing vtkPolyData corresponding to the data in geoJSON fileName
-    vtkPolyData* GetOutput();
-
 protected:
+    vtkGeoJSONReader();
+    virtual ~vtkGeoJSONReader();
+
+    int RequestData(vtkInformation *request, vtkInformationVector **inputVector, vtkInformationVector *outputVector);
+
     ifstream file;
     vtkStdString FileName;
-    vtkPolyData* OutputData;
 
     //Parse the Json Value corresponding to the root of the geoJSON data from the file
-    void ParseRoot(Json::Value root);
+    void ParseRoot(Json::Value root, vtkPolyData *output);
 
     //Verify if file exists and can be read by the parser
     bool CanReadFile(const char *filename);
 
-    void initialiseOutputData();
+    void initialiseOutputData(vtkPolyData *output);
 
-    //Destructor for the reader. To Do.
-    ~vtkGeoJSONReader();
 
+private:
+    vtkGeoJSONReader(const vtkGeoJSONReader&);  //Not implemented
+    void operator=(const vtkGeoJSONReader&);    //Not implemented
 };
 
-#endif // VTKGEOJSONREADER_H
+#endif // __vtkGeoJSONReader_h
