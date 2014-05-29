@@ -100,6 +100,8 @@ vtkMultiProcessController::vtkMultiProcessController()
   this->BreakFlag = 0;
   this->ForceDeepCopy = 1;
 
+  this->BroadcastTriggerRMI = false;
+
   this->OutputWindow = 0;
 
   // Define an rmi internally to exit from the processing loop.
@@ -137,6 +139,8 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Force deep copy: " << (this->ForceDeepCopy ? "(yes)" : "(no)")
      << endl;
   os << indent << "Output window: ";
+  os << indent << "BroadcastTriggerRMI: " <<
+      (this->BroadcastTriggerRMI ? "(yes)" : "(no)");
   if (this->OutputWindow)
     {
     os << endl;
@@ -427,18 +431,26 @@ unsigned long vtkMultiProcessController::AddRMI(vtkRMIFunctionType f,
 void vtkMultiProcessController::TriggerRMIOnAllChildren(
   void *arg, int argLength, int rmiTag)
 {
-  int myid = this->GetLocalProcessId();
-  int childid = 2 * myid + 1;
-  int numProcs = this->GetNumberOfProcesses();
-  if (numProcs > childid)
+
+  if( this->BroadcastTriggerRMI )
     {
-    this->TriggerRMIInternal(childid, arg, argLength, rmiTag, true);
-    }
-  childid++;
-  if (numProcs > childid)
+    this->BroadcastTriggerRMIOnAllChildren(arg,argLength,rmiTag);
+    } // END if use broadcast method
+  else
     {
-    this->TriggerRMIInternal(childid, arg, argLength, rmiTag, true);
-    }
+    int myid = this->GetLocalProcessId();
+    int childid = 2 * myid + 1;
+    int numProcs = this->GetNumberOfProcesses();
+    if (numProcs > childid)
+      {
+      this->TriggerRMIInternal(childid, arg, argLength, rmiTag, true);
+      }
+    childid++;
+    if (numProcs > childid)
+      {
+      this->TriggerRMIInternal(childid, arg, argLength, rmiTag, true);
+      }
+    } // END else
 }
 
 //----------------------------------------------------------------------------
@@ -446,6 +458,12 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
                                            void *arg, int argLength,
                                            int rmiTag)
 {
+  if( this->BroadcastTriggerRMI  )
+    {
+    vtkErrorMacro(
+        "TriggerRMI should not be called when BroadcastTriggerRMI is ON");
+    }
+
   // Deal with sending RMI to ourself here for now.
   if (remoteProcessId == this->GetLocalProcessId())
     {
@@ -454,6 +472,103 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
     }
 
   this->TriggerRMIInternal(remoteProcessId, arg, argLength, rmiTag, false);
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiProcessController::BroadcastTriggerRMIOnAllChildren(
+    void *arg, int argLength, int rmiTag)
+{
+  // This is called by the root process, namely rank 0. The sattelite ranks
+  // call BroadcastProcessRMIs().
+
+  int triggerMessage[128];
+  triggerMessage[0] = rmiTag;
+  triggerMessage[1] = argLength;
+
+  // Note: We don't need to set the local process ID & propagate
+
+  // We send the header in Little Endian order.
+  vtkByteSwap::SwapLERange(triggerMessage, 2);
+
+  // If possible, send the data over a single broadcast
+  int buffer_size = sizeof(int)*(126 /*128-2*/);
+  if( (argLength >= 0) && (argLength < buffer_size) )
+    {
+    if( argLength > 0 )
+      {
+      memcpy(&triggerMessage[2],arg,argLength);
+      }
+    this->RMICommunicator->Broadcast(triggerMessage,128,0);
+    }
+  else
+    {
+    this->RMICommunicator->Broadcast(triggerMessage,128,0);
+    this->RMICommunicator->Broadcast(
+        reinterpret_cast<unsigned char*>(arg),argLength,0);
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::BroadcastProcessRMIs(
+    int vtkNotUsed(reportErrors), int dont_loop )
+{
+  int triggerMessage[128];
+  int rmiTag;
+  int argLength;
+  unsigned char *arg = NULL;
+  int error = RMI_NO_ERROR;
+
+  this->InvokeEvent(vtkCommand::StartEvent);
+
+  do
+    {
+    this->RMICommunicator->Broadcast(triggerMessage,128,0);
+
+#ifdef VTK_WORDS_BIGENDIAN
+    // Header is sent in little-endian form. We need to convert it to  big
+    // endian.
+    vtkByteSwap::SwapLERange(triggerMessage, 2);
+#endif
+
+    rmiTag    = triggerMessage[0];
+    argLength = triggerMessage[1];
+
+    if( argLength > 0 )
+      {
+      arg = new unsigned char[ argLength ];
+      int buffer_size = sizeof(int)*(126 /*128-2*/);
+
+      if( argLength < buffer_size )
+        {
+        memcpy(arg,&triggerMessage[2],argLength);
+        } // END if message is inline
+      else
+        {
+        this->RMICommunicator->Broadcast(arg,argLength,0);
+        } // END else message was not inline
+
+      } // END if non-null arguments
+
+    this->ProcessRMI(0 /*we broadcast from rank 0*/, arg, argLength,rmiTag);
+
+    if( arg != NULL )
+      {
+      delete [] arg;
+      arg = NULL;
+      }
+
+    // check for break
+    if (this->BreakFlag)
+      {
+      this->BreakFlag = 0;
+      this->InvokeEvent(vtkCommand::EndEvent);
+      return error;
+      }
+
+    } while( !dont_loop );
+
+  this->InvokeEvent(vtkCommand::EndEvent);
+  return error;
 }
 
 //----------------------------------------------------------------------------
@@ -507,6 +622,12 @@ void vtkMultiProcessController::TriggerBreakRMIs()
 {
   int idx, num;
 
+  if( this->BroadcastTriggerRMI == 1 )
+    {
+    this->BroadcastTriggerRMIOnAllChildren(NULL,0,BREAK_RMI_TAG);
+    return;
+    }
+
   if (this->GetLocalProcessId() != 0)
     {
     vtkErrorMacro("Break should be triggered from process 0.");
@@ -529,6 +650,12 @@ int vtkMultiProcessController::ProcessRMIs()
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 {
+  if( this->BroadcastTriggerRMI )
+    {
+    return this->BroadcastProcessRMIs(reportErrors,dont_loop);
+    }
+
+
   this->InvokeEvent(vtkCommand::StartEvent);
   int triggerMessage[128];
   unsigned char *arg = NULL;
@@ -605,6 +732,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
     if (this->BreakFlag)
       {
       this->BreakFlag = 0;
+      this->InvokeEvent(vtkCommand::EndEvent);
       return error;
       }
     } while (!dont_loop);
