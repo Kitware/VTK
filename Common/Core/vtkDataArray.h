@@ -291,21 +291,24 @@ public:
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
   // Description:
-  // Return the range of the array values for the given component.
-  // If comp is equal to -1, it returns the range of the magnitude
-  // (if the number of components is equal to 1 it still returns the range of
-  // component 0).
+  // The range of the data array values for the given component will be
+  // returned in the provided range array argument. If comp is -1, the range
+  // of the magnitude (L2 norm) over all components will be provided. The
+  // range is computed and then cached, and will not be re-computed on
+  // subsequent calls to GetRange() unless the array is modified or the
+  // requested component changes.
+  // THIS METHOD IS NOT THREAD SAFE.
   void GetRange(double range[2], int comp)
     {
     this->ComputeRange(range, comp);
     }
 
   // Description:
-  // Return the range of the array values for the given component.
-  // Range is copied into the array provided.
-  // If comp is equal to -1, it returns the range of the magnitude
-  // (if the number of components is equal to 1 it still returns the range of
-  // component 0).
+  // Return the range of the data array values for the given component. If
+  // comp is -1, return the range of the magnitude (L2 norm) over all
+  // components.The range is computed and then cached, and will not be
+  // re-computed on subsequent calls to GetRange() unless the array is
+  // modified or the requested component changes.
   // THIS METHOD IS NOT THREAD SAFE.
   double* GetRange(int comp)
     {
@@ -314,7 +317,10 @@ public:
     }
 
   // Description:
-  // Return the range of the array values for the 0th component.
+  // Return the range of the data array. If the array has multiple components,
+  // then this will return the range of only the first component (component
+  // zero). The range is computed and then cached, and will not be re-computed
+  // on subsequent calls to GetRange() unless the array is modified.
   // THIS METHOD IS NOT THREAD SAFE.
   double* GetRange()
     {
@@ -322,12 +328,17 @@ public:
     }
 
   // Description:
-  // Return the range of the array values for the 0th component.
-  // Range is copied into the array provided.
+  // The the range of the data array values will be returned in the provided
+  // range array argument. If the data array has multiple components, then
+  // this will return the range of only the first component (component zero).
+  // The range is computend and then cached, and will not be re-computed on
+  // subsequent calls to GetRange() unless the array is modified.
+  // THIS METHOD IS NOT THREAD SAFE.
   void GetRange(double range[2])
     {
     this->GetRange(range,0);
     }
+
   // Description:
   // These methods return the Min and Max possible range of the native
   // data type. For example if a vtkScalars consists of unsigned char
@@ -386,7 +397,9 @@ protected:
   // then L2 norm is computed on all components. Call ClearRange
   // to force a recomputation if it is needed. The range is copied
   // to the range argument.
+  // THIS METHOD IS NOT THREAD SAFE.
   virtual void ComputeRange(double range[2], int comp);
+
   // Description:
   // Slow range computation methods. Reimplement.
   virtual void ComputeScalarRange(double range[2], int comp);
