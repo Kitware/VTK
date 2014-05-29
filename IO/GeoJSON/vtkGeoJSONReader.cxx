@@ -5,6 +5,7 @@ vtkStandardNewMacro(vtkGeoJSONReader);
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::vtkGeoJSONReader()
 {
+  this->FileName = NULL;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -12,14 +13,13 @@ vtkGeoJSONReader::vtkGeoJSONReader()
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::~vtkGeoJSONReader()
 {
+    delete[] FileName;
 }
 
 //----------------------------------------------------------------------------
-
 int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
 {
-    // Check if file can be opened for reading
-  fstream file;
+  ifstream file;
   file.open(filename);
 
   if (!file.is_open())
@@ -33,12 +33,13 @@ int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
   //parse the entire geoJSON data into the Json::Value root
   bool parsedSuccess = reader.parse(file, root, false);
 
-  if (!parsedSuccess)
+  if(!parsedSuccess)
     {
     // Report failures and their locations in the document
     vtkErrorMacro(<<"Failed to parse JSON" << endl << reader.getFormatedErrorMessages());
     return VTK_ERROR;
     }
+
   return VTK_OK;
 }
 
@@ -80,8 +81,10 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
     return;
     }
 
-  //Initialising polyData to which data will be appended
-  initialiseOutputData(output);
+  output->SetPoints(vtkPoints::New());//Initialising containers for points,
+  output->SetVerts(vtkCellArray::New());//Vertices,
+  output->SetLines(vtkCellArray::New());//Lines and
+  output->SetPolys(vtkCellArray::New());//Polygons
 
   if(rootFeatures.isArray())
     {
@@ -103,17 +106,7 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONReader::initialiseOutputData(vtkPolyData *output)
-{
-  output->SetPoints(vtkPoints::New());//Initialising containers for points,
-  output->SetVerts(vtkCellArray::New());//Vertices,
-  output->SetLines(vtkCellArray::New());//Lines and
-  output->SetPolys(vtkCellArray::New());//Polygons
-}
-
-//----------------------------------------------------------------------------
 void vtkGeoJSONReader::PrintSelf(ostream &os, vtkIndent indent)
 {
     Superclass::PrintSelf(os, indent);
-
 }

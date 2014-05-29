@@ -26,6 +26,7 @@ class vtkGeoJSONFeature : public vtkObject
 public:
   static vtkGeoJSONFeature *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
+  vtkTypeMacro(vtkGeoJSONFeature,vtkObject);
 
   //Description:
   //Extract the geometry and properties corresponding to the geoJSON feature stored at root

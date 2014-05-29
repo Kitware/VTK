@@ -31,20 +31,22 @@ public:
 protected:
   vtkGeoJSONReader();
   virtual ~vtkGeoJSONReader();
+  vtkTypeMacro(vtkGeoJSONReader,vtkPolyDataAlgorithm);
 
+  //Decription:
+  //Core implementation of the
   int RequestData(vtkInformation *request, vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
-  ifstream file;
-  char *FileName;
-
+  //Decription:
   //Parse the Json Value corresponding to the root of the geoJSON data from the file
   void ParseRoot(Json::Value root, vtkPolyData *output);
 
+  //Decription:
   //Verify if file exists and can be read by the parser
   //If exists, parse into Jsoncpp data structure
   int CanParse(const char *filename, Json::Value &root);
 
-  void initialiseOutputData(vtkPolyData *output);
+  char *FileName;
 
 private:
   vtkGeoJSONReader(const vtkGeoJSONReader&);  //Not implemented
