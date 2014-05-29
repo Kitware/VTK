@@ -273,7 +273,9 @@ OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 option(VTK_REPLACE_OPENGL_OVERRIDES
   "Replace OpenGL overrides with experimental OpenGL2 overrides (experimental"
   ON)
-set(Module_vtkRenderingOpenGL2 ON CACHE BOOL "Always build OpenGL2 classes for this branch" FORCE)
+if (VTK_REPLACE_OPENGL_OVERRIDES)
+  set(Module_vtkRenderingOpenGL2 ON CACHE BOOL "Always build OpenGL2 classes for this branch" FORCE)
+endif()
 
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.

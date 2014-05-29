@@ -28,6 +28,7 @@
 
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;
+class vtkActor;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2ImageSliceMapper :
   public vtkImageSliceMapper
@@ -52,12 +53,6 @@ protected:
   ~vtkOpenGL2ImageSliceMapper();
 
   // Description:
-  // Call the OpenGL code that does color and lighting.
-  void RenderColorAndLighting(
-    double red, double green, double blue,
-    double alpha, double ambient, double diffuse);
-
-  // Description:
   // Recursive internal method, will call the non-recursive method
   // as many times as necessary if the texture must be broken up into
   // pieces that are small enough for the GPU to render
@@ -75,13 +70,13 @@ protected:
   // Description:
   // Basic polygon rendering, if the textured parameter is set the tcoords
   // are included, otherwise they aren't.
-  void RenderPolygon(vtkPoints *points, const int extent[6], bool textured);
+  void RenderPolygon(vtkActor *actor, vtkPoints *points, const int extent[6], vtkRenderer *ren);
 
   // Description:
   // Render the background, which means rendering everything within the
   // plane of the image except for the polygon that displays the image data.
   void RenderBackground(
-    vtkPoints *points, const int extent[6], bool textured);
+    vtkActor *actor, vtkPoints *points, const int extent[6], vtkRenderer *ren);
 
   // Description:
   // Bind the fragment program, and generate it first if necessary.
@@ -118,6 +113,10 @@ protected:
   int TextureBytesPerPixel;
   int LastOrientation;
   int LastSliceNumber;
+
+  vtkActor *PolyDataActor;
+  vtkActor *BackingPolyDataActor;
+  vtkActor *BackgroundPolyDataActor;
 
   vtkTimeStamp LoadTime;
   int LoadCount;
