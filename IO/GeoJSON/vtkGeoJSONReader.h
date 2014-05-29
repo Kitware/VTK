@@ -1,7 +1,6 @@
 #ifndef __vtkGeoJSONReader_h
 #define __vtkGeoJSONReader_h
 
-// Local includes
 #include "vtkGeoJSONFeature.h"
 
 // VTK Includes
@@ -24,9 +23,10 @@ public:
   static vtkGeoJSONReader* New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Set filename for the geoJSON data source
-  void SetFileName(const char *fileName);
+  //Decription:
+  // Accessor for name of the file that will be opened on WriteData
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
 protected:
   vtkGeoJSONReader();
@@ -35,13 +35,14 @@ protected:
   int RequestData(vtkInformation *request, vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
   ifstream file;
-  vtkStdString FileName;
+  char *FileName;
 
   //Parse the Json Value corresponding to the root of the geoJSON data from the file
   void ParseRoot(Json::Value root, vtkPolyData *output);
 
   //Verify if file exists and can be read by the parser
-  bool CanReadFile(const char *filename);
+  //If exists, parse into Jsoncpp data structure
+  int CanParse(const char *filename, Json::Value &root);
 
   void initialiseOutputData(vtkPolyData *output);
 
