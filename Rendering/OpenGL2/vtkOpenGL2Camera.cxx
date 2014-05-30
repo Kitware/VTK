@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkOutputWindow.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGL2RenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkgluPickMatrix.h"
 
@@ -32,12 +32,11 @@ void vtkOpenGL2Camera::Render(vtkRenderer *ren)
 {
   vtkOpenGLClearErrorMacro();
 
-  double aspect[2];
   int  lowerLeft[2];
   int usize, vsize;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
-  vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGL2RenderWindow *win = vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
@@ -111,16 +110,6 @@ void vtkOpenGL2Camera::Render(vtkRenderer *ren)
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
   glEnable(GL_SCISSOR_TEST);
   glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
-
-  // some renderer subclasses may have more complicated computations for the
-  // aspect ratio. So take that into account by computing the difference
-  // between our simple aspect ratio and what the actual renderer is reporting.
-  ren->ComputeAspect();
-  ren->GetAspect(aspect);
-  double aspect2[2];
-  ren->vtkViewport::ComputeAspect();
-  ren->vtkViewport::GetAspect(aspect2);
-  double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())

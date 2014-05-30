@@ -27,7 +27,7 @@
 #include "vtkImageSliceMapper.h"
 
 class vtkRenderWindow;
-class vtkOpenGLRenderWindow;
+class vtkOpenGL2RenderWindow;
 class vtkActor;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2ImageSliceMapper :
@@ -103,7 +103,7 @@ protected:
 
   // Description:
   // Check various OpenGL capabilities
-  void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
+  void CheckOpenGLCapabilities(vtkOpenGL2RenderWindow *renWin);
 
   long TextureIndex; // OpenGL ID for texture or display list
   long BackgroundTextureIndex; // OpenGL ID for texture or display list

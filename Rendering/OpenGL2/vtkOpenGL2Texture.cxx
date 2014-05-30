@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGL2RenderWindow.h"
 #include "vtkTransform.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkOpenGL.h"
@@ -116,8 +116,8 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
   // to load when only the desired update rate changed).
   // If a better check is required, check something more specific,
   // like the graphics context.
-  vtkOpenGLRenderWindow* renWin =
-    static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGL2RenderWindow* renWin =
+    static_cast<vtkOpenGL2RenderWindow*>(ren->GetRenderWindow());
 
   vtkOpenGLClearErrorMacro();
 
@@ -250,7 +250,7 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
     //opengl render window
     if (this->RenderWindow->IsA("vtkOpenGLRenderWindow"))
       {
-      static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())->
+      static_cast<vtkOpenGL2RenderWindow *>(ren->GetRenderWindow())->
         RegisterTextureResource( this->Index );
       }
 

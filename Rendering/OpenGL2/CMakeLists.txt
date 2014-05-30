@@ -28,8 +28,10 @@ set(Module_SRCS
   vtkOpenGL2PolyDataMapper2D.cxx
   vtkOpenGL2Property.cxx
   vtkVBOPolyDataMapper.cxx
+  vtkOpenGL2RenderWindow.cxx
   vtkOpenGL2Renderer.cxx
   vtkOpenGL2Texture.cxx
+  vtkOpenGL2TextureUnitManager.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
@@ -86,14 +88,17 @@ if(VTK_USE_X)
 endif()
 
 set_source_files_properties(
+  vtkOpenGL2RenderWindow
+  ABSTRACT
+  )
+
+
+set_source_files_properties(
   vtkRenderingOpenGL2ObjectFactory
   WRAP_EXCLUDE
   )
 
-
-# A crazy hack, Marcus endorsed :-P, where we override the overrides
-# when the option is set to see what the new OpenGL2 code does in all regression
-# tests.
+# setup factory overrides
 if(VTK_REPLACE_OPENGL_OVERRIDES)
   set(opengl_overrides
     Actor
@@ -110,7 +115,77 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
   foreach(_override ${opengl_overrides})
     vtk_add_override(vtk${_override} vtkOpenGL2${_override})
   endforeach()
+
+# FIXME: Not sure that this is the best way to handle X...
+if(VTK_USE_X)
+  find_package(X11 REQUIRED)
+  if(NOT X11_Xt_FOUND)
+    message(FATAL_ERROR "X11_Xt_LIB could not be found. Required for VTK X lib.")
+  endif()
+  include_directories(${X11_INCLUDE_DIR} ${X11_Xt_INCLUDE_PATH})
+  # Add some custom overrides
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkXOpenGL2RenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkXOpenGL2RenderWindow")
+  list(APPEND Module_SRCS
+    vtkXOpenGL2RenderWindowInteractor.cxx
+    vtkXOpenGL2RenderWindow.cxx
+    )
+elseif(VTK_USE_OSMESA)
+  message("VTK will be built with OSMesa support!")
+  find_package(OSMesa REQUIRED)
+  if(NOT OSMESA_FOUND)
+    message(FATAL_ERROR "The OSMesa library could not be found. REQUIRED for off screen rendering")
+  endif()
+  include_directories(${OSMESA_INCLUDE_DIR})
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkOSOpenGL2RenderWindow")
+  list(APPEND Module_SRCS vtkOSOpenGL2RenderWindow.cxx)
+elseif(WIN32)
+  # Add some custom overrides
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkWin32OpenGL2RenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkWin32OpenGL2RenderWindow")
+  list(APPEND Module_SRCS
+    vtkWin32OpenGL2RenderWindowInteractor.cxx
+    vtkWin32OpenGL2RenderWindow.cxx
+    )
+elseif(VTK_USE_COCOA)
+  # Add some custom overrides
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkCocoaRenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkCocoaRenderWindow")
+  list(APPEND Module_SRCS
+    vtkCocoaRenderWindowInteractor.mm
+    vtkCocoaRenderWindow.mm
+    vtkCocoaGLView.mm
+    )
+  list(APPEND ${vtk-module}_HDRS
+    vtkCocoaMacOSXSDKCompatibility.h
+    )
+  # Set specified Objective-C++ flags, if any.
+  if(VTK_REQUIRED_OBJCXX_FLAGS)
+    set_source_files_properties(vtkCocoaRenderWindowInteractor.mm
+                                vtkCocoaRenderWindow.mm
+                                vtkCocoaGLView.mm
+                                PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
+  endif(VTK_REQUIRED_OBJCXX_FLAGS)
+  set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
+elseif(VTK_USE_CARBON)
+  # Add some custom overrides
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkCarbonRenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkCarbonRenderWindow")
+  list(APPEND Module_SRCS
+    vtkCarbonRenderWindowInteractor.cxx
+    vtkCarbonRenderWindow.cxx
+    )
 endif()
+endif() # VTK_REPLACE_OPENGL_OVERRIDES
 
 # Now we iterate and create that class file...
 foreach(_class ${vtk_module_overrides})

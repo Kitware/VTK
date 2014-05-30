@@ -6,6 +6,10 @@ vtk_add_test_cxx(
   TestStructuredGridLIC2DYSlice.cxx
   TestStructuredGridLIC2DZSlice.cxx
   )
+
+# temporary, remove when LIC is implemented
+if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
+
 # surface lic painter tests
 # get decent coverage by calling
 # varying arguments to the following
@@ -373,3 +377,5 @@ ExternalData_add_test(VTKData
     --mask-intensity=0.41
     --mask-color 0 0 0
     )
+
+endif() # opengl2

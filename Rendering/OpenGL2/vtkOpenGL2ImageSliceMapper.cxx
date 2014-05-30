@@ -26,7 +26,7 @@
 #include "vtkMapper.h"
 #include "vtkOpenGL2Camera.h"
 #include "vtkOpenGL2Renderer.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGL2RenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkTimerLog.h"
 #include "vtkGarbageCollector.h"
@@ -236,8 +236,8 @@ void vtkOpenGL2ImageSliceMapper::RenderTexturedPolygon(
   unsigned long loadTime = this->LoadTime.GetMTime();
 
   // the render window, needed for state information
-  vtkOpenGLRenderWindow *renWin =
-    static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow());
+  vtkOpenGL2RenderWindow *renWin =
+    static_cast<vtkOpenGL2RenderWindow *>(ren->GetRenderWindow());
 
   bool reuseTexture = true;
 
@@ -857,8 +857,8 @@ void vtkOpenGL2ImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGLRenderWindow *renWin =
-    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGL2RenderWindow *renWin =
+    vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
 
   if (renWin && (renWin != this->RenderWindow ||
       renWin->GetContextCreationTime() > this->LoadTime.GetMTime()))
@@ -989,7 +989,7 @@ void vtkOpenGL2ImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
 //----------------------------------------------------------------------------
 void vtkOpenGL2ImageSliceMapper::CheckOpenGLCapabilities(
-  vtkOpenGLRenderWindow *renWin)
+  vtkOpenGL2RenderWindow *renWin)
 {
   vtkOpenGLExtensionManager *manager = 0;
 

@@ -13,12 +13,10 @@ vtk_add_test_cxx(
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx
   TestBackfaceCulling.cxx
-  TestBlurAndSobelPasses.cxx
   TestCellPickerImage.cxx
   TestDynamic2DLabelMapper.cxx
   TestFBO.cxx,NO_VALID
   TestFollowerPicking.cxx
-  TestGaussianBlurPass.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapperMasking.cxx
   TestGlyph3DMapperOrientationArray.cxx
@@ -45,7 +43,6 @@ vtk_add_test_cxx(
   TestLabelPlacerCoincidentPoints.cxx
   TestLabelPlacementMapper2D.cxx
   TestLabelPlacementMapperCoincidentPoints.cxx
-  TestLightActor.cxx
   TestLODActor.cxx,NO_VALID
   TestManyActors.cxx,NO_VALID
   TestMonitors.cxx,NO_VALID
@@ -58,7 +55,6 @@ vtk_add_test_cxx(
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
   TestSetImageOrientation.cxx
-  TestSobelGradientMagnitudePass.cxx
   TestTextActorAlphaBlending.cxx
   TestTextActorDepthPeeling.cxx
   TestTextActor3DAlphaBlending.cxx
@@ -70,16 +66,24 @@ vtk_add_test_cxx(
   TestTransformCoordinateUseDouble.cxx
   TestTranslucentLUTAlphaBlending.cxx
   TestTranslucentLUTDepthPeeling.cxx
-  TestTranslucentLUTDepthPeelingPass.cxx
   TestTranslucentLUTTextureAlphaBlending.cxx
   TestTranslucentLUTTextureDepthPeeling.cxx
   )
-if(NOT APPLE)
-  vtk_add_test_cxx(TestShadowMapPass.cxx)
-endif()
+if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
+vtk_add_test_cxx(
+  TestBlurAndSobelPasses.cxx
+  TestGaussianBlurPass.cxx
+  TestLightActor.cxx
+  TestSobelGradientMagnitudePass.cxx
+  TestTranslucentLUTDepthPeelingPass.cxx)
+  if(NOT APPLE)
+    vtk_add_test_cxx(TestShadowMapPass.cxx)
+  endif()
 
-if(WIN32 AND NOT VTK_USE_X)
-  vtk_add_test_cxx(TestWin32OpenGLRenderWindow.cxx NO_VALID)
+  if(WIN32 AND NOT VTK_USE_X)
+    vtk_add_test_cxx(TestWin32OpenGLRenderWindow.cxx NO_VALID)
+  endif()
+
 endif()
 
 include_directories(${OPENGL_INCLUDE_DIR})
@@ -87,9 +91,6 @@ include_directories(${OPENGL_INCLUDE_DIR})
 vtk_add_test_cxx(
   TestAreaSelections.cxx
   TestGlyph3DMapperArrow.cxx
-  TestMultiblockDisplayProperties.cxx
-  TestMultiTexturing.cxx
-  TestMultiTexturingTransform.cxx
   TestImageSliceMapperBorder.cxx
   TestImageResliceMapperBorder.cxx
   TestScalarBar.cxx
@@ -106,6 +107,12 @@ vtk_add_test_cxx(
   SurfacePlusEdges.cxx
   TestLabelPlacementMapper.cxx
   )
+if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
+  vtk_add_test_cxx(
+  TestMultiblockDisplayProperties.cxx
+  TestMultiTexturing.cxx
+  TestMultiTexturingTransform.cxx)
+endif()
 
 set(VTK_USE_GLSL_SHADERS FALSE)
 if(VTK_USE_GLSL_SHADERS)

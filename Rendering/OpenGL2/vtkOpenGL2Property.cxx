@@ -20,14 +20,12 @@
 #include "vtkOpenGL.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLExtensionManager.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkTexture.h"
 
 #include "vtkgl.h" // vtkgl namespace
 
-#include "vtkTextureUnitManager.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGL2TextureUnitManager.h"
 #include "vtkOpenGLError.h"
 
 #include <cassert>
@@ -65,15 +63,6 @@ vtkOpenGL2Property::~vtkOpenGL2Property()
 // Implement base class method.
 void vtkOpenGL2Property::Render(vtkActor *anActor, vtkRenderer *ren)
 {
-  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
-      ren->GetRenderWindow());
-
-  if (!context)
-    {
-    // must be an OpenGL context.
-    return;
-    }
-
   // Set the LineStipple
   if (this->LineStipplePattern != 0xFFFF)
     {
@@ -120,10 +109,6 @@ void vtkOpenGL2Property::Render(vtkActor *anActor, vtkRenderer *ren)
 //-----------------------------------------------------------------------------
 bool vtkOpenGL2Property::RenderTextures(vtkActor*, vtkRenderer* ren)
 {
-  vtkOpenGLRenderWindow* context = vtkOpenGLRenderWindow::SafeDownCast(
-      ren->GetRenderWindow());
-  assert(context!=NULL);
-
   // render any textures.
   int numTextures = this->GetNumberOfTextures();
   if (numTextures > 0)
