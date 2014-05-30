@@ -123,7 +123,7 @@
     m_rendererAttrs = $(m_divContainer).addClass(FACTORY_KEY).css(RENDERER_CSS).append($(m_canvas2D).css(RENDERER_CSS).css(RENDERER_CSS_2D)).append($(m_canvas3D).css(RENDERER_CSS).css(RENDERER_CSS_3D)),
     m_sceneJSON = null,
     m_objectHandler = create3DObjectHandler(),
-    m_vglVtkReader = ogs.vgl.vtkReader(),
+    m_vglVtkReader = vgl.vtkReader(),
     m_viewer = null,
     m_interactorStyle,
     originalMouseDown =  document.onmousedown,
@@ -248,9 +248,9 @@
         });
 
         m_interactorStyle = m_viewer.interactorStyle();
-        $(m_interactorStyle).on(ogs.vgl.command.leftButtonPressEvent, m_viewer.render);
-        $(m_interactorStyle).on(ogs.vgl.command.middleButtonPressEvent, m_viewer.render);
-        $(m_interactorStyle).on(ogs.vgl.command.rightButtonPressEvent, m_viewer.render);
+        $(m_interactorStyle).on(vgl.event.leftButtonPressEvent, m_viewer.render);
+        $(m_interactorStyle).on(vgl.event.middleButtonPressEvent, m_viewer.render);
+        $(m_interactorStyle).on(vgl.event.rightButtonPressEvent, m_viewer.render);
 
         m_viewer.render();
 
@@ -312,7 +312,7 @@
     // Add viewport listener
     m_container.bind('invalidateScene', function() {
       if(m_rendererAttrs.hasClass('active')){
-        m_vglVtkReader = ogs.vgl.vtkReader();
+        m_vglVtkReader = vgl.vtkReader();
         m_canvas3D.width = m_rendererAttrs.width();
         m_canvas3D.height = m_rendererAttrs.height();
         fetchScene();
