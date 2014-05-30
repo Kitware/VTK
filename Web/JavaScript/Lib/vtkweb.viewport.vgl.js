@@ -199,18 +199,21 @@
     // ------------------------------------------------------------------
 
     function drawScene() {
-      var layer;
+      var layer, viewer;
 
       try {
         if (m_sceneJSON === null || typeof m_sceneJSON === 'undefined') {
           return;
         }
 
-        m_viewer = m_vglVtkReader.updateViewer(m_canvas3D);
+        viewer = m_vglVtkReader.updateViewer(m_canvas3D);
 
-        if (m_viewer === null) {
+        if (viewer === null) {
           return;
         }
+
+        m_viewer = viewer;
+
         var width = m_rendererAttrs.width(),
         height = m_rendererAttrs.height(),
         nbObjects;
