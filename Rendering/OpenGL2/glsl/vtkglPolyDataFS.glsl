@@ -17,8 +17,18 @@ varying vec4 fcolor;
 // Texture coordinates
 //VTK::TCoord::Dec
 
+// material property values
+uniform float opacityUniform; // the fragment opacity
+uniform vec3 ambientColorUniform; // intensity weighted color
+uniform vec3 diffuseColorUniform; // intensity weighted color
+
+//VTK::Color::Dec
+
 void main()
 {
-  gl_FragColor = fcolor;
+  //VTK::Color::Impl
+  // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
+
+  gl_FragColor =  vec4(ambientColor + diffuseColor, opacity);
   //VTK::TCoord::Impl
 }

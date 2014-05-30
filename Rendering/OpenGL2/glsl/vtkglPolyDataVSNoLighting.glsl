@@ -22,7 +22,6 @@ attribute vec4 vertexMC;
 
 // material property values
 //VTK::Color::Dec
-uniform vec3 ambientColor; // intensity weighted color
 
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
@@ -31,12 +30,9 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 // Texture coordinates
 //VTK::TCoord::Dec
 
-// the resulting vertex color to be passed down to the fragment shader
-varying vec4 fcolor;
-
 void main()
 {
   gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
   //VTK::TCoord::Impl
-  fcolor = vec4(ambientColor + diffuseColor.rgb, diffuseColor.a);
+  //VTK::Color::Impl
 }

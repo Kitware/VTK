@@ -191,8 +191,6 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
         cellBO.fsFile = vtkglPolyDataFSPositionalLights;
       break;
     }
-    //cellBO.vsFile = vtkglPolyDataVSHeadlight;
-    //cellBO.fsFile = vtkglPolyDataFS;
 
   if (this->Internal->lastBoundBO &&
       this->Internal->lastBoundBO->vsFile == cellBO.vsFile &&
@@ -206,15 +204,34 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
   std::string FSSource = cellBO.fsFile;
   if (this->Internal->layout.ColorComponents != 0)
     {
-    VSSource = replace(VSSource,
-                                 "//VTK::Color::Dec",
-                                 "attribute vec4 diffuseColor;");
+    VSSource = replace(VSSource,"//VTK::Color::Dec",
+                                "attribute vec4 scalarColor; varying vec4 vertexColor;");
+    VSSource = replace(VSSource,"//VTK::Color::Impl",
+                                "vertexColor =  scalarColor;");
+    FSSource = replace(FSSource,"//VTK::Color::Dec",
+                                "varying vec4 vertexColor;");
+    if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
+          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
+      {
+      FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                    "vec3 ambientColor = vertexColor.rgb; vec3 diffuseColor = diffuseColorUniform.rgb; float opacity = vertexColor.a;");
+      }
+    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
+          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
+      {
+      FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                  "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = ambientColorUniform; float opacity = vertexColor.a;");
+      }
+    else
+      {
+      FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                   "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = vertexColor.rgb; float opacity = vertexColor.a;");
+      }
     }
   else
     {
-    VSSource = replace(VSSource,
-                                 "//VTK::Color::Dec",
-                                 "uniform vec4 diffuseColor;");
+    FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                  "vec3 ambientColor = ambientColorUniform; vec3 diffuseColor = diffuseColorUniform; float opacity = opacityUniform;");
     }
   // normals?
   if (this->Internal->layout.NormalOffset)
@@ -233,9 +250,6 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     }
   else
     {
-    VSSource = replace(VSSource,"//VTK::Normal::Dec","");
-    VSSource = replace(VSSource,"//VTK::Normal::Impl","");
-    FSSource = replace(FSSource,"//VTK::Normal::Dec","");
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       // generate a normal for lines, it will be perpendicular to the line
@@ -282,17 +296,6 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
                                    "//VTK::TCoord::Impl",
                                    "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
       }
-    }
-  else
-    {
-    VSSource = vtkgl::replace(VSSource,
-                                 "//VTK::TCoord::Dec","");
-    VSSource = vtkgl::replace(VSSource,
-                                 "//VTK::TCoord::Impl","");
-    FSSource = vtkgl::replace(FSSource,
-                                 "//VTK::TCoord::Dec","");
-    FSSource = vtkgl::replace(FSSource,
-                                 "//VTK::TCoord::Impl","");
     }
 
   //cout << "VS: " << VSSource << endl;
@@ -364,11 +367,11 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     if (layout.ColorComponents != 0)
       {
       if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
-                                      "diffuseColor", layout.ColorOffset,
+                                      "scalarColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
         {
-        vtkErrorMacro(<< "Error setting 'diffuseColor' in triangle VAO.");
+        vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
         }
       }
     cellBO.attributeUpdateTime.Modified();
@@ -565,10 +568,9 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
                          static_cast<unsigned char>(aColor[2] * aIntensity * 255.0));
   double *dColor = actor->GetProperty()->GetDiffuseColor();
   double dIntensity = actor->GetProperty()->GetDiffuse();
-  vtkgl::Vector4ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
+  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
                          static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
-                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0),
-                         static_cast<unsigned char>(opacity*255.0));
+                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
   double *sColor = actor->GetProperty()->GetSpecularColor();
   double sIntensity = actor->GetProperty()->GetSpecular();
   vtkgl::Vector3ub specularColor(static_cast<unsigned char>(sColor[0] * sIntensity * 255.0),
@@ -579,14 +581,16 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   // Override the model color when the value was set directly on the mapper.
   if (this->ModelColor)
     {
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 3; ++i)
       {
       diffuseColor[i] = this->ModelColor[i];
       }
+    opacity = this->ModelColor[3]/255.0;
     }
 
-  program.SetUniformValue("ambientColor", ambientColor);
-  program.SetUniformValue("diffuseColor", diffuseColor);
+  program.SetUniformValue("opacityUniform", opacity);
+  program.SetUniformValue("ambientColorUniform", ambientColor);
+  program.SetUniformValue("diffuseColorUniform", diffuseColor);
   program.SetUniformValue("specularColor", specularColor);
   program.SetUniformValue("specularPower", specularPower);
 }

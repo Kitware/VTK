@@ -41,10 +41,11 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
 varying vec4 vertexVC;
 varying vec4 vertexWC;
-varying vec4 vertexColor;
 
 void main()
 {
+  //VTK::Color::Impl
+
   //VTK::Normal::Impl
 
   //VTK::TCoord::Impl
@@ -53,7 +54,6 @@ void main()
   vertexWC = MCWCMatrix * vertexMC;
   vertexVC = MCVCMatrix * vertexMC;
   gl_Position = VCDCMatrix * vertexVC;
-  vertexColor = diffuseColor;
 }
 
 
