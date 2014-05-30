@@ -35,6 +35,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkOpenGLExtensionManager.h"
 
 #include "vtksys/SystemTools.hxx"
