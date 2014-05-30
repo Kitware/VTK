@@ -77,7 +77,7 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 
   if(rootFeatures == -1)
     {
-    std::cout << "Parse Root :: Features :: -1" << std::endl;
+    vtkErrorMacro (<<"Parse Root :: Features :: -1");
     return;
     }
 
@@ -109,4 +109,6 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 void vtkGeoJSONReader::PrintSelf(ostream &os, vtkIndent indent)
 {
     Superclass::PrintSelf(os, indent);
+    os << "vtkGeoJSONReader" << std::endl;
+    os << "Filename: " << this->FileName << std::endl;
 }
