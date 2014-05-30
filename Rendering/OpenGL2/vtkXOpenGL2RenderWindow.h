@@ -34,7 +34,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGL2RenderWindow : public vtkOpenGL2Rend
 {
 public:
   static vtkXOpenGL2RenderWindow *New();
-  vtkTypeMacro(vtkXOpenGL2RenderWindow,vtkOpenGLRenderWindow);
+  vtkTypeMacro(vtkXOpenGL2RenderWindow, vtkOpenGL2RenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
