@@ -233,10 +233,19 @@
         HTMLCanvasElement.prototype.relMouseCoords =
           m_viewer.relMouseCoords;
 
-        document.onmousedown = m_viewer.handleMouseDown;
-        document.onmouseup = m_viewer.handleMouseUp;
-        document.onmousemove = m_viewer.handleMouseMove;
-        document.oncontextmenu = m_viewer.handleContextMenu;
+        m_container.on('mouse', function(event) {
+          if (m_viewer) {
+            if (event.action === 'move') {
+              m_viewer.handleMouseMove(event.originalEvent);
+            }
+            else if (event.action === 'up') {
+              m_viewer.handleMouseUp(event.originalEvent);
+            }
+            else if (event.action === 'down') {
+              m_viewer.handleMouseDown(event.originalEvent);
+            }
+          }
+        });
 
         m_interactorStyle = m_viewer.interactorStyle();
         $(m_interactorStyle).on(ogs.vgl.command.leftButtonPressEvent, m_viewer.render);
