@@ -26,7 +26,7 @@
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
+// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
 #ifndef __vtkParametricEllipsoid_h
@@ -58,17 +58,17 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // Set/Get the scaling factor for the x-axis. Default = 1.
+  // Set/Get the scaling factor for the x-axis. Default is 1.
   vtkSetMacro(XRadius,double);
   vtkGetMacro(XRadius,double);
 
   // Description:
-  // Set/Get the scaling factor for the y-axis. Default = 1.
+  // Set/Get the scaling factor for the y-axis. Default is 1.
   vtkSetMacro(YRadius,double);
   vtkGetMacro(YRadius,double);
 
   // Description:
-  // Set/Get the scaling factor for the z-axis. Default = 1.
+  // Set/Get the scaling factor for the z-axis. Default is 1.
   vtkSetMacro(ZRadius,double);
   vtkGetMacro(ZRadius,double);
 

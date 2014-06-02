@@ -71,8 +71,8 @@ void vtkParametricDini::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   double tv2 = tan(0.5*v);
   if ( tv2 != 0 )
      Dv[2] = this->A*(-sv+(0.5+0.5*tv2*tv2)/tv2);
-  else
-     Dv[2] = this->A*(-sv+(0.5+0.5*tv2*tv2)/0.0001); // Avoid division by zero.
+  else // Avoid division by zero at the singularity.
+     Dv[2] = this->A*(-sv+0.00005);
 }
 
 //----------------------------------------------------------------------------
