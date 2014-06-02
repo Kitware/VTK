@@ -5,11 +5,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 
 /**
  * This class implement vtkEventInterceptor with no event interception at all.
  *
- * @see {@link MouseMotionListener} {@link MouseListener} {@link KeyListener}
+ * @see {@link MouseMotionListener} {@link MouseListener} {@link MouseWheelListener}
+ *      {@link KeyListener}
  *
  * @author    Sebastien Jourdain - sebastien.jourdain@kitware.com, Kitware Inc 2013
  */
@@ -63,6 +65,11 @@ public class vtkAbstractEventInterceptor implements vtkEventInterceptor {
 
 	@Override
 	public boolean mouseReleased(MouseEvent e) {
+		return false;
+	}
+
+	@Override
+	public boolean mouseWheelMoved(MouseWheelEvent e) {
 		return false;
 	}
 }

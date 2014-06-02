@@ -58,10 +58,12 @@ public class vtkPanelComponent implements vtkComponent<vtkPanel> {
        this.panel.removeKeyListener(this.panel);
        this.panel.removeMouseListener(this.panel);
       this.panel.removeMouseMotionListener(this.panel);
+      this.panel.removeMouseWheelListener(this.panel);
 
       // Add mouse listener that update interactor
       this.panel.addMouseListener(this.eventForwarder);
       this.panel.addMouseMotionListener(this.eventForwarder);
+      this.panel.addMouseWheelListener(this.eventForwarder);
 
       // Make sure we update the light position when interacting
       this.panel.addMouseMotionListener(new MouseMotionAdapter() {

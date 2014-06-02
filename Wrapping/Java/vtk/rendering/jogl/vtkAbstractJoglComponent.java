@@ -70,6 +70,7 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
         vtkInteractorForwarder forwarder = this.getInteractorForwarder();
         this.uiComponent.addMouseListener(forwarder);
         this.uiComponent.addMouseMotionListener(forwarder);
+        this.uiComponent.addMouseWheelListener(forwarder);
         this.uiComponent.addKeyListener(forwarder);
 
         // Make sure when VTK internaly request a Render, the Render get

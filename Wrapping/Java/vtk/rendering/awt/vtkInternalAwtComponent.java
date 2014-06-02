@@ -15,6 +15,7 @@ public class vtkInternalAwtComponent extends Canvas {
     this.parent = parent;
     this.addMouseListener(this.parent.getInteractorForwarder());
     this.addMouseMotionListener(this.parent.getInteractorForwarder());
+    this.addMouseWheelListener(this.parent.getInteractorForwarder());
     this.addKeyListener(this.parent.getInteractorForwarder());
   }
 

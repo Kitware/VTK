@@ -10,6 +10,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import javax.swing.Timer;
 
@@ -20,7 +22,7 @@ import javax.swing.Timer;
  * @see vtkPanel
  * @author Kitware
  */
-public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionListener, KeyListener {
+public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     private static final long serialVersionUID = 1L;
     protected vtkGenericRenderWindowInteractor iren = new vtkGenericRenderWindowInteractor();
     protected Timer timer = new Timer(10, new DelayAction());
@@ -229,6 +231,25 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
 
         Lock();
         iren.MouseMoveEvent();
+        UnLock();
+
+        UpdateLight();
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        if (ren.VisibleActorCount() == 0)
+            return;
+
+        ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
+        shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
+
+        iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
+
+        Lock();
+        if (e.getWheelRotation() > 0)
+            iren.MouseWheelBackwardEvent();
+        else
+            iren.MouseWheelForwardEvent();
         UnLock();
 
         UpdateLight();

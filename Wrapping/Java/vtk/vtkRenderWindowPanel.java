@@ -3,6 +3,7 @@ package vtk;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 /**
  * vtkRenderWindowPanel is a vtkCanvas which allows additional vtkRenderers to
@@ -82,6 +83,20 @@ public class vtkRenderWindowPanel extends vtkCanvas {
 
         Lock();
         iren.MouseMoveEvent();
+        UnLock();
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
+        shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
+
+        iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
+
+        Lock();
+        if (e.getWheelRotation() > 0)
+            iren.MouseWheelBackwardEvent();
+        else
+            iren.MouseWheelForwardEvent();
         UnLock();
     }
 

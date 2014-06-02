@@ -8,6 +8,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import javax.swing.SwingUtilities;
 
@@ -20,7 +22,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Kitware
  */
-public class vtkPanel extends Canvas implements MouseListener, MouseMotionListener, KeyListener {
+public class vtkPanel extends Canvas implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     private static final long serialVersionUID = 1L;
     protected vtkRenderWindow rw = new vtkRenderWindow();
     protected vtkRenderer ren = new vtkRenderer();
@@ -85,6 +87,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         rw.AddRenderer(ren);
         addMouseListener(this);
         addMouseMotionListener(this);
+        addMouseWheelListener(this);
         addKeyListener(this);
         super.setSize(200, 200);
         rw.SetSize(200, 200);
@@ -329,6 +332,22 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         }
         lastX = x;
         lastY = y;
+        this.Render();
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        if (ren.VisibleActorCount() == 0)
+            return;
+        int exponent;
+        exponent = -10 * e.getWheelRotation() / Math.abs(e.getWheelRotation());
+        double zoomFactor;
+        zoomFactor = Math.pow(1.02, exponent);
+        if (cam.GetParallelProjection() == 1) {
+            cam.SetParallelScale(cam.GetParallelScale() / zoomFactor);
+        } else {
+            cam.Dolly(zoomFactor);
+            resetCameraClippingRange();
+        }
         this.Render();
     }
 
