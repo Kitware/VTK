@@ -28,6 +28,7 @@ uniform sampler1D color_transfer_func;
 uniform sampler1D opacity_transfer_func;
 
 uniform sampler2D noise;
+uniform sampler2D depth;
 
 /// Camera position
 uniform vec3 camera_pos;
@@ -35,6 +36,8 @@ uniform vec3 light_pos;
 
 /// view and model matrices
 uniform mat4 scene_matrix;
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
 
 /// Ray step size
 uniform vec3 step_size;
@@ -54,6 +57,10 @@ uniform vec3 diffuse;
 uniform vec3 ambient;
 uniform vec3 specular;
 uniform float shininess;
+
+uniform vec2 window_lower_left_corner;
+uniform vec2 inv_original_window_size;
+uniform vec2 inv_window_size;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -80,6 +87,12 @@ mat4 ogl_scene_matrix;
 
 vec3 light_pos_obj;
 vec3 eye_pos_obj;
+
+/// 2D Texture fragment coordinates [0,1] from fragment coordinates
+/// the frame buffer texture has the size of the plain buffer but
+/// we use a fraction of it. The texture coordinates is less than 1 if
+/// the reduction factor is less than 1.
+vec2 fragTexCoord;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -133,9 +146,9 @@ vec3 shade()
   }
 
   /// Two-sided shading
-    if (nDotH < 0.0) {
-      nDotH =- nDotH;
-    }
+  if (nDotH < 0.0) {
+    nDotH =- nDotH;
+  }
 
   /// Ambient term for this light
   finalColor += ambient;
@@ -160,11 +173,43 @@ vec3 shade()
 //////////////////////////////////////////////////////////////////////////////
 void main()
 {
-  /// Get the 3D texture coordinates for lookup into the volume dataset
-  data_pos = texture_coords.xyz;
+  /// Device coordinates are between -1 and 1. We need texture coordinates
+  /// between 0 and 1 the depth buffer has the original size buffer.
+  fragTexCoord = (gl_FragCoord.xy - window_lower_left_corner) * inv_window_size;
+  vec4 depthValue = texture2D(depth, fragTexCoord);
+  float tMax = 0.0;
+
+  /// Depth test
+  if(gl_FragCoord.z >= depthValue.x) {
+    discard;
+  }
 
   /// inverse is available only on 120 or above
   ogl_scene_matrix = inverse(transpose(scene_matrix));
+
+  /// color buffer or max scalar buffer have a reduced size.
+  fragTexCoord = (gl_FragCoord.xy - window_lower_left_corner) *
+                 inv_original_window_size;
+
+  /// Abscissa of the point on the depth buffer along the ray.
+  /// point in texture coordinates
+  vec4 maxPoint;
+
+  maxPoint.x = (gl_FragCoord.x - window_lower_left_corner.x) * 2.0 * inv_window_size.x - 1.0;
+  maxPoint.y = (gl_FragCoord.y - window_lower_left_corner.y) * 2.0 * inv_window_size.y - 1.0;
+  maxPoint.z = (2.0 * depthValue.x - (gl_DepthRange.near + gl_DepthRange.far)) / gl_DepthRange.diff;
+  maxPoint.w = 1.0;
+
+  /// From normalized device coordinates to eye coordinates. projection_matrix
+  /// is inversed because of way VT
+  /// From eye coordinates to texture coordinates
+  maxPoint = ogl_scene_matrix * inverse(transpose(modelview_matrix)) *
+             inverse(transpose(projection_matrix)) *
+             vec4(maxPoint.xyz, 1.0) * vec4(step_size, 1.0);
+  maxPoint /= maxPoint.w;
+
+  /// Get the 3D texture coordinates for lookup into the volume dataset
+  data_pos = texture_coords.xyz;
 
   /// Eye position in object space
   eye_pos_obj = (ogl_scene_matrix * vec4(camera_pos, 1.0)).xyz;
@@ -181,11 +226,13 @@ void main()
 
   /// Light position in object space
   light_pos_obj = (ogl_scene_matrix *  vec4(light_pos, 1.0)).xyz;
-
   data_pos += dir_step * texture(noise, data_pos.xy).x;
 
   /// Initialize dst (output) to 0
   dst = vec4(0.0);
+
+  tMax = length(maxPoint.xyz - data_pos.xyz) / length(dir_step);
+  float t = 0.0;
 
   /// For all samples along the ray
   for (int i = 0; i < MAX_SAMPLES; ++i) {
@@ -233,7 +280,14 @@ void main()
       break;
     }
 
+    if (t >= tMax) {
+      break;
+    }
+    ++t;
+
     /// Advance ray by dir_step
     data_pos += dir_step;
   }
+
+  dst = vec4(maxPoint.xyz, 1.0);
 }

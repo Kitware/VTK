@@ -47,7 +47,9 @@
 #include <GL/glew.h>
 #include <vtkgl.h>
 
+/// C/C++ includes
 #include <cassert>
+#include <sstream>
 
 vtkStandardNewMacro(vtkSinglePassVolumeMapper);
 
@@ -71,12 +73,13 @@ public:
   vtkInternal(vtkSinglePassVolumeMapper* parent) :
     Initialized(false),
     ValidTransferFunction(false),
+    LoadDepthTextureExtensionsSucceeded(false),
     CubeVBOId(0),
     CubeVAOId(0),
     CubeIndicesId(0),
     VolumeTextureId(0),
-    TransferFuncId(0),
     NoiseTextureId(0),
+    DepthTextureId(0),
     CellFlag(0),
     TextureWidth(1024),
     Parent(parent),
@@ -165,29 +168,42 @@ public:
   void UpdateNoiseTexture();
 
   ///
+  /// \brief UpdateDepthTexture
+  ///
+  void UpdateDepthTexture(vtkRenderer* ren, vtkVolume* vol);
+
+  ///
   /// \brief UpdateVolumeGeometry
   ///
   void UpdateVolumeGeometry();
+
+  ///
+  /// \brief Load OpenGL extensiosn required to grab depth buffer
+  ///
+  void LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin);
 
   ///
   /// Private member variables
 
   bool Initialized;
   bool ValidTransferFunction;
+  bool LoadDepthTextureExtensionsSucceeded;
 
   GLuint CubeVBOId;
   GLuint CubeVAOId;
   GLuint CubeIndicesId;
 
   GLuint VolumeTextureId;
-  GLuint TransferFuncId;
   GLuint NoiseTextureId;
+  GLuint DepthTextureId;
 
   vtkGLSLShader Shader;
 
   int CellFlag;
   int TextureSize[3];
   int TextureExtents[6];
+  int WindowLowerLeft[2];
+  int WindowSize[2];
   int TextureWidth;
   int BlendMode;
 
@@ -200,6 +216,8 @@ public:
 
   float* NoiseTextureData;
   GLint NoiseTextureSize;
+
+  std::ostringstream ExtensionsStringStream;
 
   vtkSinglePassVolumeMapper* Parent;
   vtkOpenGLRGBTable* RGBTable;
@@ -259,6 +277,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   this->Shader.AddUniform("color_transfer_func");
   this->Shader.AddUniform("opacity_transfer_func");
   this->Shader.AddUniform("noise");
+  this->Shader.AddUniform("depth");
   this->Shader.AddUniform("vol_extents_min");
   this->Shader.AddUniform("vol_extents_max");
   this->Shader.AddUniform("texture_extents_min");
@@ -269,6 +288,9 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   this->Shader.AddUniform("diffuse");
   this->Shader.AddUniform("specular");
   this->Shader.AddUniform("shininess");
+  this->Shader.AddUniform("window_lower_left_corner");
+  this->Shader.AddUniform("inv_original_window_size");
+  this->Shader.AddUniform("inv_window_size");
 
   // Setup unit cube vertex array and vertex buffer objects
   glGenVertexArrays(1, &this->CubeVAOId);
@@ -683,6 +705,54 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
 }
 
 ///----------------------------------------------------------------------------
+void vtkSinglePassVolumeMapper::vtkInternal::UpdateDepthTexture(
+  vtkRenderer* ren, vtkVolume* vol)
+{
+  /// Make sure our render window is the current OpenGL context
+  ren->GetRenderWindow()->MakeCurrent();
+
+  /// Load required extensions for grabbing depth buffer
+  if (!this->LoadDepthTextureExtensionsSucceeded)
+    {
+    this->LoadRequireDepthTextureExtensions(ren->GetRenderWindow());
+    }
+
+  /// If we can't load the necessary extensions, provide
+  /// feedback on why it failed.
+  if(!this->LoadDepthTextureExtensionsSucceeded)
+    {
+    std::cerr << this->ExtensionsStringStream.str() << std::endl;
+    return;
+    }
+
+  /// Now grab the depth buffer as texture
+  ren->GetTiledSizeAndOrigin(this->WindowSize, this->WindowSize + 1,
+                             this->WindowLowerLeft, this->WindowLowerLeft + 1);
+
+  glActiveTexture(GL_TEXTURE4);
+  if (!this->DepthTextureId)
+    {
+    /// TODO Use framebuffer objects for best performance
+    glGenTextures(1, &this->DepthTextureId);
+    glBindTexture(GL_TEXTURE_2D, this->DepthTextureId);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
+                 this->WindowSize[0], this->WindowSize[1],
+                 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL );
+
+    }
+  glBindTexture(GL_TEXTURE_2D, this->DepthTextureId);
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
+                      this->WindowLowerLeft[0], this->WindowLowerLeft[1],
+                      this->WindowSize[0], this->WindowSize[1]);
+  GL_CHECK_ERRORS
+}
+
+///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
 {
   /// Cube vertices
@@ -734,6 +804,54 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
   GL_CHECK_ERRORS
 
   glBindVertexArray(0);
+}
+
+///
+/// \brief vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper
+///----------------------------------------------------------------------------
+void vtkSinglePassVolumeMapper::vtkInternal::LoadRequireDepthTextureExtensions(
+  vtkRenderWindow* renWin)
+{
+  /// Reset the message stream for extensions
+  this->ExtensionsStringStream.str("");
+  this->ExtensionsStringStream.clear();
+
+  if (!GLEW_VERSION_2_0)
+    {
+    this->ExtensionsStringStream << "Requires OpenGL 2.0 or higher";
+    return;
+    }
+
+  /// Check for npot even though it should be supported since
+  /// it is in core since 2.0 as per specification
+  if (!glewIsSupported("GL_ARB_texture_non_power_of_two"))
+    {
+    this->ExtensionsStringStream << "Required extension "
+      << " GL_ARB_texture_non_power_of_two is not supported";
+    return;
+    }
+
+  /// Check for float texture support. This extension became core
+  /// in 3.0
+  if (!glewIsSupported("GL_ARB_texture_float"))
+    {
+    this->ExtensionsStringStream << "Required extension "
+      << " GL_ARB_texture_float is not supported";
+    return;
+    }
+
+  /// Check for framebuffer objects. Framebuffer objects
+  /// are core since version 3.0 only
+  if (!glewIsSupported("GL_EXT_framebuffer_object"))
+    {
+    this->ExtensionsStringStream << "Required extension "
+      << " GL_EXT_framebuffer_object is not supported";
+    return;
+    }
+
+  /// NOTE: Support for depth texture made into the core since version
+  /// 1.4 and therefore we are no longer checking for it.
+  this->LoadDepthTextureExtensionsSucceeded = true;
 }
 
 ///
@@ -1001,9 +1119,6 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
     this->Implementation->UpdateVolumeGeometry();
     }
 
-  /// Use the shader
-  this->Implementation->Shader.Use();
-
   /// Update opacity transfer function
   /// TODO Passing level 0 for now
   this->Implementation->UpdateOpacityTransferFunction(vol,
@@ -1015,6 +1130,10 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 
   /// Update noise texture
   this->Implementation->UpdateNoiseTexture();
+
+  /// Grab depth buffer (to handle cases when we are rendering geometry
+  /// and volume together
+  this->Implementation->UpdateDepthTexture(ren, vol);
 
   GL_CHECK_ERRORS
 
@@ -1037,6 +1156,9 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   this->Implementation->CellScale[0] = (this->Bounds[1] - this->Bounds[0]) * 0.5;
   this->Implementation->CellScale[1] = (this->Bounds[3] - this->Bounds[2]) * 0.5;
   this->Implementation->CellScale[2] = (this->Bounds[5] - this->Bounds[4]) * 0.5;
+
+  /// Now use the shader
+  this->Implementation->Shader.Use();
 
   /// Pass constant uniforms at initialization
   /// Step should be dependant on the bounds and not on the texture size
@@ -1061,6 +1183,7 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   glUniform1i(this->Implementation->Shader("color_transfer_func"), 1);
   glUniform1i(this->Implementation->Shader("opacity_transfer_func"), 2);
   glUniform1i(this->Implementation->Shader("noise"), 3);
+  glUniform1i(this->Implementation->Shader("depth"), 4);
 
   /// Shading is ON by default
   /// TODO Add an API to enable / disable shading if not present
@@ -1089,6 +1212,10 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   /// Noise texture is at unit 3
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, this->Implementation->NoiseTextureId);
+
+  /// Depth texture is at unit 4
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_2D, this->Implementation->DepthTextureId);
 
   /// Look at the OpenGL Camera for the exact aspect computation
   double aspect[2];
@@ -1177,6 +1304,23 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
                &(textureExtentsMin[0]));
   glUniform3fv(this->Implementation->Shader("texture_extents_max"), 1,
                &(textureExtentsMax[0]));
+
+  /// TODO Take consideration of reduction factor
+  float fvalue[2];
+  fvalue[0] = static_cast<float>(this->Implementation->WindowLowerLeft[0]);
+  fvalue[1] = static_cast<float>(this->Implementation->WindowLowerLeft[1]);
+  std::cerr << "window_lower_left_corner " << fvalue[0] << " " << fvalue[1] << std::endl;
+  glUniform2fv(this->Implementation->Shader("window_lower_left_corner"), 1, &fvalue[0]);
+
+  fvalue[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
+  fvalue[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
+  std::cerr << "inv_original_window_size " << fvalue[0] << " " << fvalue[1] << std::endl;
+  glUniform2fv(this->Implementation->Shader("inv_original_window_size"), 1, &fvalue[0]);
+
+  fvalue[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
+  fvalue[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
+  std::cerr << "inv_window_size " << fvalue[0] << " " << fvalue[1] << std::endl;
+  glUniform2fv(this->Implementation->Shader("inv_window_size"), 1, &fvalue[0]);
 
   glBindVertexArray(this->Implementation->CubeVAOId);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
