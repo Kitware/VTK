@@ -127,43 +127,39 @@ public:
       /// Correct the opacity array for the spacing between the planes if we
       /// are using a composite blending operation
       /// TODO Fix this code for sample distance in three dimensions
-//        if(blendMode == vtkVolumeMapper::COMPOSITE_BLEND)
-//          {
-//          float* ptr = this->Table;
-//          double factor = sampleDistance[0]/unitDistance;
-//          int i=0;
-//          while(i < this->TextureWidth)
-//            {
-//            if(*ptr > 0.0001f)
-//              {
-//              *ptr = static_cast<float>(1.0-pow(1.0-static_cast<double>(*ptr),
-//                                        factor));
-//              }
-//            ++ptr;
-//            ++i;
-//            }
-//          this->LastSampleDistance[0] = sampleDistance[0];
-//          this->LastSampleDistance[1] = sampleDistance[1];
-//          this->LastSampleDistance[2] = sampleDistance[2];
-//          }
-//        else if (blendMode==vtkVolumeMapper::ADDITIVE_BLEND)
-//          {
-//          float* ptr = this->Table;
-//          double factor = sampleDistance[0]/unitDistance;
-//          int i = 0;
-//          while( i < this->TextureWidth)
-//            {
-//            if(*ptr > 0.0001f)
-//              {
-//              *ptr = static_cast<float>(static_cast<double>(*ptr)*factor);
-//              }
-//            ++ptr;
-//            ++i;
-//            }
-//          this->LastSampleDistance[0] = sampleDistance[0];
-//          this->LastSampleDistance[1] = sampleDistance[1];
-//          this->LastSampleDistance[2] = sampleDistance[2];
-//          }
+        if(blendMode == vtkVolumeMapper::COMPOSITE_BLEND)
+          {
+          float* ptr = this->Table;
+          double factor = sampleDistance/unitDistance;
+          int i=0;
+          while(i < this->TextureWidth)
+            {
+            if(*ptr > 0.0001f)
+              {
+              *ptr = static_cast<float>(1.0-pow(1.0-static_cast<double>(*ptr),
+                                        factor));
+              }
+            ++ptr;
+            ++i;
+            }
+          this->LastSampleDistance = sampleDistance;
+          }
+        else if (blendMode==vtkVolumeMapper::ADDITIVE_BLEND)
+          {
+          float* ptr = this->Table;
+          double factor = sampleDistance/unitDistance;
+          int i = 0;
+          while( i < this->TextureWidth)
+            {
+            if(*ptr > 0.0001f)
+              {
+              *ptr = static_cast<float>(static_cast<double>(*ptr)*factor);
+              }
+            ++ptr;
+            ++i;
+            }
+          this->LastSampleDistance = sampleDistance;
+          }
 
       glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
                    this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
