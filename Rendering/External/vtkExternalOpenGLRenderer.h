@@ -37,6 +37,10 @@ public:
   void Clear(void);
 
   // Description:
+  // Synchronize camera and light parameters
+  void Render(void);
+
+  // Description:
   // Normally the vtkOpenGLRenderer clears the color buffer before rendering a
   // new frame. When this flag is true, the color buffer is not cleared. This
   // can be helpful when rendering there are multiple visualization systems
@@ -45,10 +49,15 @@ public:
   vtkSetMacro(PreserveColorBuffer, int);
   vtkBooleanMacro(PreserveColorBuffer, int);
 
+//  // Description:
+//  // Extend the superclass UpdateLightsGeometryToFollowCamera() to correct the
+//  // effects of the camera transform matrix on the lights
+//  int UpdateLightsGeometryToFollowCamera(void);
+
   // Description:
-  // Extend the superclass UpdateLightsGeometryToFollowCamera() to correct the
-  // effects of the camera transform matrix on the lights
-  int UpdateLightsGeometryToFollowCamera(void);
+  // Create a new Camera sutible for use with this type of Renderer.
+  // This function creates the vtkExternalOpenGLCamera.
+  vtkCamera* MakeCamera();
 
 protected:
   vtkExternalOpenGLRenderer();

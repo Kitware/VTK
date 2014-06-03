@@ -197,9 +197,11 @@ void vtkExternalOpenGLCamera::SetViewTransformMatrix(
   vtkMatrix4x4* matrix = vtkMatrix4x4::New();
   matrix->DeepCopy(elements);
   matrix->Transpose();
-  this->Transform->SetMatrix(matrix);
+  this->ViewTransform->SetMatrix(matrix);
   this->ModelViewTransform->SetMatrix(matrix);
+//  std::cout << "Setting view transform "<< std::endl;
   this->UserProvidedViewTransform = true;
+//  this->ComputeCameraLightTransform();
   matrix->Delete();
 }
 
