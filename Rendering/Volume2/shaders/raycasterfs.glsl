@@ -38,6 +38,7 @@ uniform vec3 light_pos;
 uniform mat4 scene_matrix;
 uniform mat4 projection_matrix;
 uniform mat4 modelview_matrix;
+uniform mat4 texture_dataset_matrix;
 
 /// Ray step size
 uniform vec3 step_size;
@@ -124,11 +125,14 @@ vec3 shade()
   g2 = normalize(g1 - g2);
 
   float normalLength = length(g2);
-  if(normalLength > 0.0) {
+  if(normalLength > 0.0)
+    {
     g2 = normalize(g2);
-  } else {
+    }
+  else
+    {
     g2 = vec3(0.0, 0.0, 0.0);
-  }
+    }
 
   /// Initialize color to 1.0
   vec3 finalColor = vec3(0.0);
@@ -141,14 +145,16 @@ vec3 shade()
   /// get black spots.
 
   /// Two-sided shading
-  if (nDotL < 0.0) {
+  if (nDotL < 0.0)
+    {
     nDotL =- nDotL;
-  }
+    }
 
   /// Two-sided shading
-  if (nDotH < 0.0) {
+  if (nDotH < 0.0)
+    {
     nDotH =- nDotH;
-  }
+    }
 
   /// Ambient term for this light
   finalColor += ambient;
@@ -180,9 +186,10 @@ void main()
   float tMax = 0.0;
 
   /// Depth test
-  if(gl_FragCoord.z >= depthValue.x) {
+  if(gl_FragCoord.z >= depthValue.x)
+    {
     discard;
-  }
+    }
 
   /// inverse is available only on 120 or above
   ogl_scene_matrix = inverse(transpose(scene_matrix));
@@ -203,9 +210,9 @@ void main()
   /// From normalized device coordinates to eye coordinates. projection_matrix
   /// is inversed because of way VT
   /// From eye coordinates to texture coordinates
-  maxPoint = ogl_scene_matrix * inverse(transpose(modelview_matrix)) *
+  maxPoint = inverse(transpose(texture_dataset_matrix)) * ogl_scene_matrix * inverse(transpose(modelview_matrix)) *
              inverse(transpose(projection_matrix)) *
-             vec4(maxPoint.xyz, 1.0) * vec4(step_size, 1.0);
+             maxPoint;
   maxPoint /= maxPoint.w;
 
   /// Get the 3D texture coordinates for lookup into the volume dataset
@@ -235,7 +242,8 @@ void main()
   float t = 0.0;
 
   /// For all samples along the ray
-  for (int i = 0; i < MAX_SAMPLES; ++i) {
+  for (int i = 0; i < MAX_SAMPLES; ++i)
+    {
     /// The two constants tex_min and tex_max have a value of vec3(-1,-1,-1)
     /// and vec3(1,1,1) respectively. To determine if the data value is
     /// outside the volume data, we use the sign function. The sign function
@@ -250,9 +258,10 @@ void main()
     stop = dot(sign(data_pos - tex_min), sign(tex_max - data_pos)) < 3.0;
 
     //if the stopping condition is true we brek out of the ray marching loop
-    if (stop) {
+    if (stop)
+      {
       break;
-    }
+      }
 
     /// Data fetching from the red channel of volume texture
     float scalar = texture(volume, data_pos).r * scale;
@@ -266,28 +275,26 @@ void main()
     /// Next, this alpha is multiplied with the current sample colour and accumulated
     /// to the composited colour. The alpha value from the previous steps is then
     /// accumulated to the composited colour alpha.
-    if (src.a > 0.01 && enable_shading) {
+    if (src.a > 0.01 && enable_shading)
+      {
       src.rgb += shade().rgb;
-    }
+      }
 
     src.rgb *= src.a;
     dst = (1.0f - dst.a) * src + dst;
 
     /// Early ray termination
     /// if the currently composited colour alpha is already fully saturated
-    /// we terminated the loop
-    if(dst.a > (1 - 1/255.0)) {
+    /// we terminated the loop or if we have hit an obstacle in the direction of
+    /// they ray (using depth buffer) we terminate as well.
+    if((dst.a > (1 - 1/255.0)) || t >= tMax)
+      {
       break;
-    }
+      }
 
-    if (t >= tMax) {
-      break;
-    }
     ++t;
 
     /// Advance ray by dir_step
     data_pos += dir_step;
-  }
-
-  dst = vec4(maxPoint.xyz, 1.0);
+    }
 }

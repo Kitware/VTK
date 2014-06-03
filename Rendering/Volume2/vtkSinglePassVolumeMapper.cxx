@@ -213,6 +213,7 @@ public:
   double StepSize[3];
   double CellScale[3];
   double Scale;
+  double ElapsedDrawTime;
 
   float* NoiseTextureData;
   GLint NoiseTextureSize;
@@ -225,7 +226,8 @@ public:
 
   vtkTimeStamp VolumeBuildTime;
   vtkNew<vtkTimerLog> Timer;
-  double ElapsedDrawTime;
+
+  vtkNew<vtkMatrix4x4> TextureToDataSetMat;
 };
 
 ///----------------------------------------------------------------------------
@@ -267,6 +269,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   this->Shader.AddUniform("scene_matrix");
   this->Shader.AddUniform("modelview_matrix");
   this->Shader.AddUniform("projection_matrix");
+  this->Shader.AddUniform("texture_dataset_matrix");
   this->Shader.AddUniform("volume");
   this->Shader.AddUniform("camera_pos");
   this->Shader.AddUniform("light_pos");
@@ -1260,12 +1263,40 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
       }
     }
 
+  /// Compute texture to dataset matrix
+  this->Implementation->TextureToDataSetMat->Identity();
+  this->Implementation->TextureToDataSetMat->SetElement(0, 0,
+    (1.0 / this->Implementation->StepSize[0]));
+  this->Implementation->TextureToDataSetMat->SetElement(1, 1,
+    (1.0 / this->Implementation->StepSize[1]));
+  this->Implementation->TextureToDataSetMat->SetElement(2, 2,
+    (1.0 / this->Implementation->StepSize[2]));
+  this->Implementation->TextureToDataSetMat->SetElement(3, 3,
+    1.0);
+  this->Implementation->TextureToDataSetMat->SetElement(0, 3,
+    this->Implementation->Bounds[0]);
+  this->Implementation->TextureToDataSetMat->SetElement(1, 3,
+    this->Implementation->Bounds[2]);
+  this->Implementation->TextureToDataSetMat->SetElement(2, 3,
+    this->Implementation->Bounds[4]);
+
+  float textureDataSetMat[16];
+  for (int i = 0; i < 4; ++i)
+    {
+    for (int j = 0; j < 4; ++j)
+      {
+      textureDataSetMat[i * 4 + j] = this->Implementation->TextureToDataSetMat->Element[i][j];
+      }
+    }
+
   glUniformMatrix4fv(this->Implementation->Shader("projection_matrix"), 1,
                      GL_FALSE, &(projectionMat[0]));
   glUniformMatrix4fv(this->Implementation->Shader("modelview_matrix"), 1,
                      GL_FALSE, &(modelviewMat[0]));
   glUniformMatrix4fv(this->Implementation->Shader("scene_matrix"), 1,
                      GL_FALSE, &(sceneMat[0]));
+  glUniformMatrix4fv(this->Implementation->Shader("texture_dataset_matrix"), 1,
+                     GL_FALSE, &(textureDataSetMat[0]));
 
   /// We are using float for now
   double* cameraPos = ren->GetActiveCamera()->GetPosition();
