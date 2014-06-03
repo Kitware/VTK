@@ -161,10 +161,11 @@ void vtkExternalOpenGLRenderer::Render(void)
   vtkMatrix4x4* cameraMatrix = camera->GetViewTransformMatrix();
   vtkMatrix4x4* matrix = vtkMatrix4x4::New();
   matrix->DeepCopy(cameraMatrix);
+
   // Synchronize camera viewUp
   double viewUp[4], newViewUp[4];
   camera->GetViewUp(viewUp);
-  viewUp[3] = 1;
+  viewUp[3] = 0;
   matrix->MultiplyPoint(viewUp, newViewUp);
   vtkMath::Normalize(newViewUp);
   camera->SetViewUp(newViewUp);
@@ -176,6 +177,14 @@ void vtkExternalOpenGLRenderer::Render(void)
   matrix->MultiplyPoint(position, newPosition);
   vtkMath::Normalize(newPosition);
   camera->SetPosition(newPosition);
+
+  // Synchronize focal point
+  double focalPoint[4], newFocalPoint[4];
+  camera->GetFocalPoint(focalPoint);
+  focalPoint[3] = 1;
+  matrix->MultiplyPoint(focalPoint, newFocalPoint);
+  vtkMath::Normalize(newFocalPoint);
+  camera->SetFocalPoint(newFocalPoint);
 
   matrix->DeepCopy(camera->GetViewTransformMatrix());
   matrix->Invert();
