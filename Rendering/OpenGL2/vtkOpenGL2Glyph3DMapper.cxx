@@ -509,6 +509,7 @@ void vtkOpenGL2Glyph3DMapper::Render(
         this->Mapper->SetModelTransform(entry->Matrices[inPtId]);
         this->Mapper->RenderPieceStart(ren, actor);
         }
+      primed = true;
       }
     if (fastPath)
       {
