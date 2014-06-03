@@ -63,7 +63,6 @@ struct CellBO
   std::vector<ptrdiff_t> offsetArray;
   std::vector<unsigned int> elementsArray;
 
-  vtkTimeStamp buildTime;
   vtkTimeStamp attributeUpdateTime;
 };
 

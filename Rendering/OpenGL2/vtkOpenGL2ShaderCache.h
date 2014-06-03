@@ -64,20 +64,4 @@ private:
 
 };
 
-/*
-  Shader vs;
-  Shader fs;
-  const char* vsFile;
-  const char* fsFile;
-  ShaderProgram program;
-  BufferObject ibo;
-  VertexArrayObject vao;
-  size_t indexCount;
-  // These are client side objects for multi draw where IBOs are not used.
-  std::vector<ptrdiff_t> offsetArray;
-  std::vector<unsigned int> elementsArray;
-  vtkTimeStamp buildTime;
-  vtkTimeStamp attributeUpdateTime;
-*/
-
 #endif

@@ -58,9 +58,6 @@ public:
   vtkgl::CellBO tris;
   vtkgl::CellBO triStrips;
 
-  vtkTimeStamp propertiesTime;
-  vtkTimeStamp shaderBuildTime;
-
   Private()  { }
 };
 
@@ -330,9 +327,6 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
     {
     return;
     }
-
-  // Mark our properties as updated.
-  this->Internal->propertiesTime.Modified();
 
   bool cellScalars = false;
   if (this->ScalarVisibility)

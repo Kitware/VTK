@@ -63,6 +63,7 @@ class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry
 public:
   std::vector<unsigned char> Colors;
   std::vector<vtkMatrix4x4 * > Matrices;
+  vtkTimeStamp BuildTime;
 };
 
 class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray
@@ -286,7 +287,7 @@ void vtkOpenGL2Glyph3DMapper::Render(
       }
     }
 
-  if (building)
+  if (building || entry->BuildTime < dataset->GetMTime())
     {
     entry->Colors.resize(numPts*4);
     entry->Matrices.resize(numPts);
@@ -474,6 +475,7 @@ void vtkOpenGL2Glyph3DMapper::Render(
       entry->Matrices[inPtId]->DeepCopy(trans->GetMatrix());
       }
     trans->Delete();
+    entry->BuildTime.Modified();
     }
 
   // now draw, there is a fast path for a special case of
