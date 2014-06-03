@@ -395,26 +395,6 @@ void vtkOpenGL2RenderWindow::OpenGLInitState()
 
 void vtkOpenGL2RenderWindow::OpenGLInitContext()
 {
-  // When a new OpenGL context is created, force an update
-  if (!this->Initialized)
-    {
-    GLenum result = glewInit();
-    bool m_valid = (result == GLEW_OK);
-    if (!m_valid)
-      {
-      vtkErrorMacro("GLEW could not be initialized.");
-      return;
-      }
-
-    if (!GLEW_VERSION_2_1)
-      {
-      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
-      //m_valid = false;
-      return;
-      }
-    this->Initialized = true;
-    }
-
   // of the extension manager by calling modified on it.
   vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
   extensions->Modified();
@@ -438,6 +418,26 @@ void vtkOpenGL2RenderWindow::OpenGLInitContext()
       {
       extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
       }
+    }
+
+  // When a new OpenGL context is created, force an update
+  if (!this->Initialized)
+    {
+    GLenum result = glewInit();
+    bool m_valid = (result == GLEW_OK);
+    if (!m_valid)
+      {
+      vtkErrorMacro("GLEW could not be initialized.");
+      return;
+      }
+
+    if (!GLEW_VERSION_2_1)
+      {
+      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
+      //m_valid = false;
+      return;
+      }
+    this->Initialized = true;
     }
 
 }

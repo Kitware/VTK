@@ -154,7 +154,7 @@ void vtkOpenGL2Property::PostRender(vtkActor *actor, vtkRenderer *renderer)
 
 //-----------------------------------------------------------------------------
 // Implement base class method.
-void vtkOpenGL2Property::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *ren)
+void vtkOpenGL2Property::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *vtkNotUsed(ren))
 {
 }
 

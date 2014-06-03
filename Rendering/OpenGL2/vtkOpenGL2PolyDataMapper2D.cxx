@@ -58,9 +58,6 @@ public:
   vtkgl::CellBO tris;
   vtkgl::CellBO triStrips;
 
-  vtkTimeStamp ShaderSourceTime;
-
-
   vtkTimeStamp propertiesTime;
   vtkTimeStamp shaderBuildTime;
 
@@ -159,16 +156,22 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
   // property modified (representation interpolation and lighting)
   // input modified
   // light complexity changed
-  if (this->Internal->ShaderSourceTime < this->GetMTime() ||
-      this->Internal->ShaderSourceTime < actor->GetMTime() ||
-      this->Internal->ShaderSourceTime < this->GetInput()->GetMTime())
+  if (cellBO.ShaderSourceTime < this->GetMTime() ||
+      cellBO.ShaderSourceTime < actor->GetMTime() ||
+      cellBO.ShaderSourceTime < this->GetInput()->GetMTime())
     {
     std::string VSSource;
     std::string FSSource;
     this->BuildShader(VSSource,FSSource,viewport,actor);
-    cellBO.CachedProgram = renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
-    this->Internal->ShaderSourceTime.Modified();
-    cellBO.vao.Initialize(); // reset the VAO as the shader has changed
+    vtkOpenGL2ShaderCache::CachedShaderProgram *newShader =
+      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
+    cellBO.ShaderSourceTime.Modified();
+    // if the shader changed reinitialize the VAO
+    if (newShader != cellBO.CachedProgram)
+      {
+      cellBO.CachedProgram = newShader;
+      cellBO.vao.Initialize(); // reset the VAO as the shader has changed
+      }
     }
     else
     {

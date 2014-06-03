@@ -74,10 +74,8 @@ public:
   vtkgl::CellBO triStrips;
   vtkgl::CellBO *lastBoundBO;
 
-  vtkTimeStamp ShaderSourceTime;
   int LastLightComplexity;
-
-  vtkTimeStamp propertiesTime;
+  vtkTimeStamp LightComplexityChanged;
 
   Private()
   {
@@ -122,7 +120,7 @@ void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* vtkNotUsed(ren), vtkActor *actor)
 {
   switch (lightComplexity)
     {
@@ -305,23 +303,35 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
 
   vtkOpenGL2RenderWindow *renWin = vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
 
+
+  if (this->Internal->LastLightComplexity != lightComplexity)
+    {
+    this->Internal->LightComplexityChanged.Modified();
+    this->Internal->LastLightComplexity = lightComplexity;
+    }
+
   // has something changed that would require us to recreate the shader?
   // candidates are
   // property modified (representation interpolation and lighting)
   // input modified
   // light complexity changed
-  if (this->Internal->ShaderSourceTime < this->GetMTime() ||
-      this->Internal->ShaderSourceTime < actor->GetMTime() ||
-      this->Internal->ShaderSourceTime < this->GetInput()->GetMTime() ||
-      this->Internal->LastLightComplexity != lightComplexity)
+  if (cellBO.ShaderSourceTime < this->GetMTime() ||
+      cellBO.ShaderSourceTime < actor->GetMTime() ||
+      cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
+      cellBO.ShaderSourceTime < this->Internal->LightComplexityChanged)
     {
     std::string VSSource;
     std::string FSSource;
     this->BuildShader(VSSource,FSSource,lightComplexity,ren,actor);
-    cellBO.CachedProgram = renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
-    this->Internal->LastLightComplexity = lightComplexity;
-    this->Internal->ShaderSourceTime.Modified();
-    cellBO.vao.Initialize(); // reset the VAO as the shader has changed
+    vtkOpenGL2ShaderCache::CachedShaderProgram *newShader =
+      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
+    cellBO.ShaderSourceTime.Modified();
+    // if the shader changed reinitialize the VAO
+    if (newShader != cellBO.CachedProgram)
+      {
+      cellBO.CachedProgram = newShader;
+      cellBO.vao.Initialize(); // reset the VAO as the shader has changed
+      }
     }
     else
     {
@@ -892,9 +902,6 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     {
     vtkgl::CreateCellSupportArrays(poly, prims, cellPointMap, pointCellMap);
     }
-
-  // Mark our properties as updated.
-  this->Internal->propertiesTime.Modified();
 
   // do we have texture maps?
   bool haveTextures = (this->ColorTextureMap || act->GetTexture() || act->GetProperty()->GetNumberOfTextures());
