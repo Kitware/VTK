@@ -507,8 +507,6 @@ void vtkOpenGL2Glyph3DMapper::Render(
         }
       else
         {
-        this->Mapper->SetModelColor(rgba);
-        this->Mapper->SetModelTransform(entry->Matrices[inPtId]);
         this->Mapper->RenderPieceStart(ren, actor);
         }
       primed = true;
@@ -519,6 +517,8 @@ void vtkOpenGL2Glyph3DMapper::Render(
       }
     else
       {
+      this->Mapper->SetModelColor(rgba);
+      this->Mapper->SetModelTransform(entry->Matrices[inPtId]);
       this->Mapper->RenderPieceDraw(ren, actor);
       }
     }
