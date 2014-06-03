@@ -1,8 +1,4 @@
 vtk_module(vtkRenderingExternal
-  GROUPS
-    Rendering
-  PRIVATE_DEPENDS
-    vtksys
   DEPENDS
     vtkRenderingCore
     vtkRenderingOpenGL
