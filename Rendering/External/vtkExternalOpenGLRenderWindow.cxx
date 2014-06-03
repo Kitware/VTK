@@ -42,6 +42,15 @@ void vtkExternalOpenGLRenderWindow::Start(void)
 }
 
 //----------------------------------------------------------------------------
+void vtkExternalOpenGLRenderWindow::Render()
+{
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  this->SetSize(viewport[2], viewport[3]);
+  this->Superclass::Render();
+}
+
+//----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "DrawWindow: " << this->DrawWindow << "\n";

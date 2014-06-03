@@ -47,6 +47,11 @@ public:
   vtkGetMacro(DrawWindow, int);
   vtkBooleanMacro(DrawWindow, int);
 
+  // Description:
+  // This computes the size of the render window
+  // before calling the superclass' Render() method
+  void Render();
+
 protected:
   vtkExternalOpenGLRenderWindow();
   ~vtkExternalOpenGLRenderWindow();
