@@ -152,25 +152,6 @@ void vtkExternalOpenGLRenderer::Render(void)
   glGetDoublev(GL_MODELVIEW_MATRIX,mv);
   glGetDoublev(GL_PROJECTION_MATRIX,p);
 
-#if 0 // Printing matrices
-        std::cout << "Display camera " << std::endl;
-        std::cout << "VTK MV:" << std::endl;
-        for(int i=0;i<4;++i)
-          {
-          for(int j=0;j<4;++j)
-            std::cout<<" "<<std::setw(12)<<mv[i+j*4];
-          std::cout << std::endl;
-          }
-        std::cout << std::endl << "VTK P:" << std::endl;
-        std::cout<<"        ";
-        for(int i=0;i<4;++i)
-          {
-          for(int j=0;j<4;++j)
-            std::cout<<" "<<std::setw(12)<<p[i+j*4];
-          std::cout<<std::endl;
-          }
-        std::cout<<std::endl;
-#endif
   vtkExternalOpenGLCamera* camera = vtkExternalOpenGLCamera::SafeDownCast(
     this->GetActiveCameraAndResetIfCreated());
 
@@ -195,15 +176,6 @@ void vtkExternalOpenGLRenderer::Render(void)
   matrix->MultiplyPoint(position, newPosition);
   vtkMath::Normalize(newPosition);
   camera->SetPosition(newPosition);
-//  std::cout << "Before: " << std::endl;
-//      for(int i = 0;  i < 4; i++)
-//        {
-//        for(int j=0; j < 4; j++)
-//          {
-//          std::cout << " " << setw(12) << matrix->GetElement(i,j);
-//          }
-//        std::cout << std::endl;
-//        }
 
   matrix->DeepCopy(camera->GetViewTransformMatrix());
   matrix->Invert();
@@ -215,86 +187,11 @@ void vtkExternalOpenGLRenderer::Render(void)
     light->SetTransformMatrix(matrix);
     }
 
-//  std::cout << "After: " << std::endl;
-//      for(int i = 0;  i < 4; i++)
-//        {
-//        for(int j=0; j < 4; j++)
-//          {
-//          std::cout << " " << setw(12) << matrix->GetElement(i,j);
-//          }
-//        std::cout << std::endl;
-//        }
-
-//  matrix->DeepCopy(camera->GetModelViewTransformMatrix());
-//  std::cout << "After: " << std::endl;
-//      for(int i = 0;  i < 4; i++)
-//        {
-//        for(int j=0; j < 4; j++)
-//          {
-//          std::cout << " " << setw(12) << matrix->GetElement(i,j);
-//          }
-//        std::cout << std::endl;
-//        }
-//  std::cout << "Render" << std::endl;
-
   matrix->Delete();
+
   // Forward the call to the Superclass
   this->Superclass::Render();
 }
-
-////----------------------------------------------------------------------------
-//int vtkExternalOpenGLRenderer::UpdateLightsGeometryToFollowCamera(void)
-//{
-//  vtkCamera* camera;
-//  vtkLight* light;
-//  vtkMatrix4x4* lightMatrix;
-//
-//  camera = this->GetActiveCameraAndResetIfCreated();
-//
-////  lightMatrix = camera->GetModelViewTransformMatrix();
-////  vtkMatrix4x4* matrix = vtkMatrix4x4::New();
-////  matrix->DeepCopy(lightMatrix);
-////  matrix->Invert();
-//
-//  vtkCollectionSimpleIterator sit;
-//  for(this->Lights->InitTraversal(sit);
-//    (light = this->Lights->GetNextLight(sit)); )
-//    {
-//    // Compensate with the camera view transform matrix
-////    light->SetTransformMatrix(matrix);
-//    if (light->LightTypeIsSceneLight())
-//      {
-//      }
-//    else if (light->LightTypeIsHeadlight())
-//      {
-//      // update the position and orientation of light to match camera
-////      std::cout << "Updating light" << std::endl;
-//      light->SetPosition(camera->GetPosition());
-//      light->SetFocalPoint(camera->GetFocalPoint());
-//      }
-//    else if (light->LightTypeIsCameraLight())
-//      {
-//      lightMatrix = camera->GetCameraLightTransformMatrix();
-////      std::cout << "Light matrix in the renderer" << std::endl;
-////      for(int i = 0;  i < 4; i++)
-////        {
-////        for(int j=0; j < 4; j++)
-////          {
-////          std::cout << " " << setw(12) << lightMatrix->GetElement(i,j);
-////          }
-////        std::cout << std::endl;
-////        }
-////      lightMatrix->Invert();
-//      light->SetTransformMatrix(lightMatrix);
-//      }
-//    else
-//      {
-//      vtkErrorMacro(<< "light has unknown light type");
-//      }
-//    }
-////  matrix->Delete();
-//  return 1;
-//}
 
 //----------------------------------------------------------------------------
 vtkCamera* vtkExternalOpenGLRenderer::MakeCamera()

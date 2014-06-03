@@ -49,11 +49,6 @@ public:
   vtkSetMacro(PreserveColorBuffer, int);
   vtkBooleanMacro(PreserveColorBuffer, int);
 
-//  // Description:
-//  // Extend the superclass UpdateLightsGeometryToFollowCamera() to correct the
-//  // effects of the camera transform matrix on the lights
-//  int UpdateLightsGeometryToFollowCamera(void);
-
   // Description:
   // Create a new Camera sutible for use with this type of Renderer.
   // This function creates the vtkExternalOpenGLCamera.
