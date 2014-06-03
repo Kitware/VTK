@@ -38,6 +38,8 @@
 
 #include <cassert>
 #include <vector>
+#include <map>
+
 
 template <class T>
 static T vtkClamp(T val, T min, T max)
@@ -56,10 +58,17 @@ public:
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 
+class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry
+{
+public:
+  std::vector<unsigned char> Colors;
+  std::vector<vtkMatrix4x4 * > Matrices;
+};
+
 class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray
 {
 public:
-  std::vector<vtkSmartPointer<vtkVBOPolyDataMapper > > Mappers;
+  std::map<const vtkDataSet *, vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry *>  Entries;
 };
 
 vtkStandardNewMacro(vtkOpenGL2Glyph3DMapper)
@@ -71,21 +80,26 @@ vtkStandardNewMacro(vtkOpenGL2Glyph3DMapper)
 // initial sources are defined.
 vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapper()
 {
-  this->SourceMappers = 0;
+  this->GlyphValues = new vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray();
+  this->Mapper = vtkVBOPolyDataMapper::New();
   this->LastWindow = 0;
 }
 
 // ---------------------------------------------------------------------------
 vtkOpenGL2Glyph3DMapper::~vtkOpenGL2Glyph3DMapper()
 {
-  delete this->SourceMappers;
-  this->SourceMappers = 0;
+  if (this->GlyphValues)
+    {
+    delete this->GlyphValues;
+    this->GlyphValues = NULL;
+    }
 
   if (this->LastWindow)
     {
     this->ReleaseGraphicsResources(this->LastWindow);
     this->LastWindow = 0;
     }
+  this->Mapper->UnRegister(this);
 }
 
 // ---------------------------------------------------------------------------
@@ -145,7 +159,6 @@ void vtkOpenGL2Glyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 
   if (true) // Only supporting this path now, maybe with MTime
     {
-    int numberOfSources = this->GetNumberOfInputConnections(1);
     // Check input for consistency
     //
     // Create a default source, if no source is specified.
@@ -168,75 +181,37 @@ void vtkOpenGL2Glyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       defaultPoints->Delete();
       defaultPoints = NULL;
       }
+    this->Mapper->SetInputData(this->GetSource());
+    }
 
-    if (!this->SourceMappers)
+  // Copy mapper ivar to sub-mapper
+  this->CopyInformationToSubMapper(this->Mapper);
+
+  // Render the input dataset or every dataset in the input composite dataset.
+  vtkDataSet* ds = vtkDataSet::SafeDownCast(inputDO);
+  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(inputDO);
+  if (ds)
+    {
+    this->Render(ren, actor, ds);
+    }
+  else if (cd)
+    {
+    vtkCompositeDataIterator* iter = cd->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+      iter->GoToNextItem())
       {
-      this->SourceMappers = new vtkOpenGL2Glyph3DMapperArray();
-      }
-    if (/*indexArray*/ true)
-      {
-      this->SourceMappers->Mappers.resize(static_cast<size_t>(numberOfSources));
-      }
-    else
-      {
-      this->SourceMappers->Mappers.resize(1);
-      }
-    for (size_t cc = 0; cc < this->SourceMappers->Mappers.size(); cc++)
-      {
-      vtkPolyData *s = this->GetSource(static_cast<int>(cc));
-      // s can be null.
-      if (!this->SourceMappers->Mappers[cc])
+      ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (ds)
         {
-        this->SourceMappers->Mappers[cc] = vtkVBOPolyDataMapper::New();
-        this->SourceMappers->Mappers[cc]->Delete();
-        }
-      // Copy mapper ivar to sub-mapper
-      this->CopyInformationToSubMapper(this->SourceMappers->Mappers[cc]);
-
-      vtkPolyData *ss = this->SourceMappers->Mappers[cc]->GetInput();
-      if (!ss)
-        {
-        ss = vtkPolyData::New();
-        this->SourceMappers->Mappers[cc]->SetInputData(ss);
-        ss->Delete();
-        ss->ShallowCopy(s);
-        }
-
-      if (s->GetMTime() > ss->GetMTime())
-        {
-        ss->ShallowCopy(s);
-        }
-
-      /// Create the VBOs, etc, FIXME: Add function to do so without calling render?
-      //this->SourceMappers->Mappers[cc]->Render(ren, actor);
-      }
-
-    // Render the input dataset or every dataset in the input composite dataset.
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(inputDO);
-    vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(inputDO);
-    if (ds)
-      {
-      this->Render(ren, actor, ds);
-      }
-    else if (cd)
-      {
-      vtkCompositeDataIterator* iter = cd->NewIterator();
-      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-        iter->GoToNextItem())
-        {
-        ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-        if (ds)
+        if (selector)
           {
-          if (selector)
-            {
-            selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
-            }
-          this->Render(ren, actor, ds);
+          selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
           }
+        this->Render(ren, actor, ds);
         }
-      iter->Delete();
       }
-    } // if(immediateMode||createDisplayList)
+    iter->Delete();
+    }
 
   if (selector && !selecting_points)
     {
@@ -264,6 +239,22 @@ void vtkOpenGL2Glyph3DMapper::Render(
     return;
     }
 
+  // lookup the values for this dataset
+  vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry *entry;
+  bool building = true;
+  typedef std::map<const vtkDataSet *,vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry *>::iterator GVIter;
+  GVIter found = this->GlyphValues->Entries.find(dataset);
+  if (found == this->GlyphValues->Entries.end())
+    {
+    entry = new vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry();
+    this->GlyphValues->Entries.insert(std::make_pair(dataset, entry));
+    }
+  else
+    {
+    building = false;
+    entry = found->second;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -276,14 +267,7 @@ void vtkOpenGL2Glyph3DMapper::Render(
     den = 1.0;
     }
 
-  int numberOfSources = this->GetNumberOfInputConnections(1);
-  vtkTransform *trans = vtkTransform::New();
-  vtkDataArray* scaleArray = this->GetScaleArray(dataset);
-  vtkDataArray* orientArray = this->GetOrientationArray(dataset);
-  vtkDataArray* indexArray = this->GetSourceIndexArray(dataset);
-  vtkDataArray* selectionArray = this->GetSelectionIdArray(dataset);
   vtkBitArray *maskArray = 0;
-
   if (this->Masking)
     {
     maskArray = vtkBitArray::SafeDownCast(this->GetMaskArray(dataset));
@@ -302,103 +286,100 @@ void vtkOpenGL2Glyph3DMapper::Render(
       }
     }
 
-  if (orientArray !=0 && orientArray->GetNumberOfComponents() != 3)
+  if (building)
     {
-    vtkErrorMacro(" expecting an orientation array with 3 component, getting "
-      << orientArray->GetNumberOfComponents() << " components.");
-    return;
-    }
-
-  /// FIXME: Didn't handle the premultiplycolorswithalpha aspect...
-  vtkUnsignedCharArray* colors = NULL;
-  this->ColorMapper->SetInputDataObject(dataset);
-  this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
-  colors = this->ColorMapper->GetColors();
-//  bool multiplyWithAlpha =
-//    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
-  // Traverse all Input points, transforming Source points
-  for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
-    {
-    if (!(inPtId % 10000))
+    entry->Colors.resize(numPts*4);
+    entry->Matrices.resize(numPts);
+    vtkTransform *trans = vtkTransform::New();
+    vtkDataArray* scaleArray = this->GetScaleArray(dataset);
+    vtkDataArray* orientArray = this->GetOrientationArray(dataset);
+    vtkDataArray* selectionArray = this->GetSelectionIdArray(dataset);
+    if (orientArray !=0 && orientArray->GetNumberOfComponents() != 3)
       {
-      this->UpdateProgress (static_cast<double>(inPtId)/
-        static_cast<double>(numPts));
-      if (this->GetAbortExecute())
-        {
-        break;
-        }
+      vtkErrorMacro(" expecting an orientation array with 3 component, getting "
+        << orientArray->GetNumberOfComponents() << " components.");
+      return;
       }
 
-    if (maskArray && maskArray->GetValue(inPtId) == 0)
+    /// FIXME: Didn't handle the premultiplycolorswithalpha aspect...
+    vtkUnsignedCharArray* colors = NULL;
+    this->ColorMapper->SetInputDataObject(dataset);
+    this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
+    colors = this->ColorMapper->GetColors();
+  //  bool multiplyWithAlpha =
+  //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
+    // Traverse all Input points, transforming Source points
+    for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
       {
-      continue;
-      }
+      entry->Colors[inPtId*4] = 255;
+      entry->Colors[inPtId*4+1] = 255;
+      entry->Colors[inPtId*4+2] = 255;
+      entry->Colors[inPtId*4+3] = 255;
 
-    double scalex = 1.0;
-    double scaley = 1.0;
-    double scalez = 1.0;
-    // Get the scalar and vector data
-    if (scaleArray)
-      {
-      double* tuple = scaleArray->GetTuple(inPtId);
-      switch (this->ScaleMode)
+      if (!(inPtId % 10000))
         {
-      case SCALE_BY_MAGNITUDE:
-        scalex = scaley = scalez = vtkMath::Norm(tuple,
-          scaleArray->GetNumberOfComponents());
-        break;
-      case SCALE_BY_COMPONENTS:
-        if (scaleArray->GetNumberOfComponents() != 3)
+        this->UpdateProgress (static_cast<double>(inPtId)/
+          static_cast<double>(numPts));
+        if (this->GetAbortExecute())
           {
-          vtkErrorMacro("Cannot scale by components since " <<
-            scaleArray->GetName() << " does not have 3 components.");
+          break;
           }
-        else
-          {
-          scalex = tuple[0];
-          scaley = tuple[1];
-          scalez = tuple[2];
-          }
-        break;
-      case NO_DATA_SCALING:
-      default:
-        break;
         }
 
-      // Clamp data scale if enabled
-      if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
+      if (maskArray && maskArray->GetValue(inPtId) == 0)
         {
-        scalex = (scalex < this->Range[0] ? this->Range[0] :
-          (scalex > this->Range[1] ? this->Range[1] : scalex));
-        scalex = (scalex - this->Range[0]) / den;
-        scaley = (scaley < this->Range[0] ? this->Range[0] :
-          (scaley > this->Range[1] ? this->Range[1] : scaley));
-        scaley = (scaley - this->Range[0]) / den;
-        scalez = (scalez < this->Range[0] ? this->Range[0] :
-          (scalez > this->Range[1] ? this->Range[1] : scalez));
-        scalez = (scalez - this->Range[0]) / den;
+        continue;
         }
-      }
-    scalex *= this->ScaleFactor;
-    scaley *= this->ScaleFactor;
-    scalez *= this->ScaleFactor;
 
-    int index = 0;
-    // Compute index into table of glyphs
-    if (indexArray)
-      {
-      double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
-        indexArray->GetNumberOfComponents());
-      index = static_cast<int>((value - this->Range[0]) * numberOfSources / den);
-      index = ::vtkClamp(index, 0, numberOfSources - 1);
-      }
+      double scalex = 1.0;
+      double scaley = 1.0;
+      double scalez = 1.0;
+      // Get the scalar and vector data
+      if (scaleArray)
+        {
+        double* tuple = scaleArray->GetTuple(inPtId);
+        switch (this->ScaleMode)
+          {
+        case SCALE_BY_MAGNITUDE:
+          scalex = scaley = scalez = vtkMath::Norm(tuple,
+            scaleArray->GetNumberOfComponents());
+          break;
+        case SCALE_BY_COMPONENTS:
+          if (scaleArray->GetNumberOfComponents() != 3)
+            {
+            vtkErrorMacro("Cannot scale by components since " <<
+              scaleArray->GetName() << " does not have 3 components.");
+            }
+          else
+            {
+            scalex = tuple[0];
+            scaley = tuple[1];
+            scalez = tuple[2];
+            }
+          break;
+        case NO_DATA_SCALING:
+        default:
+          break;
+          }
 
-    // source can be null.
-    vtkPolyData *source = this->GetSource(index);
+        // Clamp data scale if enabled
+        if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
+          {
+          scalex = (scalex < this->Range[0] ? this->Range[0] :
+            (scalex > this->Range[1] ? this->Range[1] : scalex));
+          scalex = (scalex - this->Range[0]) / den;
+          scaley = (scaley < this->Range[0] ? this->Range[0] :
+            (scaley > this->Range[1] ? this->Range[1] : scaley));
+          scaley = (scaley - this->Range[0]) / den;
+          scalez = (scalez < this->Range[0] ? this->Range[0] :
+            (scalez > this->Range[1] ? this->Range[1] : scalez));
+          scalez = (scalez - this->Range[0]) / den;
+          }
+        }
+      scalex *= this->ScaleFactor;
+      scaley *= this->ScaleFactor;
+      scalez *= this->ScaleFactor;
 
-    // Make sure we're not indexing into empty glyph
-    if (source)
-      {
       // Now begin copying/transforming glyph
       trans->Identity();
 
@@ -440,9 +421,6 @@ void vtkOpenGL2Glyph3DMapper::Render(
           }
         }
 
-      vtkVBOPolyDataMapper *mapper =
-          this->SourceMappers->Mappers[static_cast<size_t>(index)];
-
       // Set color
       if (selecting_points)
         {
@@ -468,7 +446,10 @@ void vtkOpenGL2Glyph3DMapper::Render(
         {
         unsigned char rgba[4];
         colors->GetTupleValue(inPtId, rgba);
-        mapper->SetModelColor(rgba);
+        entry->Colors[inPtId*4] = rgba[0];
+        entry->Colors[inPtId*4+1] = rgba[1];
+        entry->Colors[inPtId*4+2] = rgba[2];
+        entry->Colors[inPtId*4+3] = rgba[3];
         }
 
       // scale data if appropriate
@@ -489,29 +470,169 @@ void vtkOpenGL2Glyph3DMapper::Render(
         trans->Scale(scalex, scaley, scalez);
         }
 
-      // multiply points and normals by resulting matrix
-      vtkMatrix4x4* mat = trans->GetMatrix();
-      mapper->SetModelTransform(mat);
-      mapper->Render(ren, actor);
-      mapper->SetModelTransform(0);
+      entry->Matrices[inPtId] = vtkMatrix4x4::New();
+      entry->Matrices[inPtId]->DeepCopy(trans->GetMatrix());
       }
+    trans->Delete();
     }
-  trans->Delete();
+
+  // now draw
+  bool primed = false;
+  for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
+    {
+    if (maskArray && maskArray->GetValue(inPtId) == 0)
+      {
+      continue;
+      }
+    unsigned char rgba[4];
+    rgba[0] = entry->Colors[inPtId*4];
+    rgba[1] = entry->Colors[inPtId*4+1];
+    rgba[2] = entry->Colors[inPtId*4+2];
+    rgba[3] = entry->Colors[inPtId*4+3];
+    this->Mapper->SetModelColor(rgba);
+    this->Mapper->SetModelTransform(entry->Matrices[inPtId]);
+    if (!primed)
+      {
+      this->Mapper->RenderPieceStart(ren, actor);
+      primed = true;
+      }
+
+
+
+
+
+
+    this->Mapper->RenderPieceDraw(ren, actor);
+    }
+  if (primed)
+    {
+    this->Mapper->RenderPieceFinish(ren, actor);
+    }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
+
+/*
+{
+  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+
+  vtkCamera *cam = ren->GetActiveCamera();
+
+  vtkNew<vtkMatrix4x4> tmpMat;
+  tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
+  if (this->ModelTransformMatrix)
+    {
+    // Apply this extra transform from things like the glyph mapper.
+    vtkMatrix4x4::Multiply4x4(tmpMat.Get(), this->ModelTransformMatrix,
+                              tmpMat.Get());
+    }
+
+  // compute the combined ModelView matrix and send it down to save time in the shader
+  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
+  tmpMat->Transpose();
+  program.SetUniformValue("MCVCMatrix", tmpMat.Get());
+
+  // for lit shaders set normal matrix
+  if (this->Internal->LastLightComplexity > 0)
+    {
+    tmpMat->Transpose();
+
+    // set the normal matrix and send it down
+    // (make this a function in camera at some point returning a 3x3)
+    // Reuse the matrix we already got (and possibly multiplied with model mat.
+    if (!actor->GetIsIdentity() || this->ModelTransformMatrix)
+      {
+      vtkNew<vtkTransform> aTF;
+      aTF->SetMatrix(tmpMat.Get());
+      double *scale = aTF->GetScale();
+      aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
+      tmpMat->DeepCopy(aTF->GetMatrix());
+      }
+    vtkNew<vtkMatrix3x3> tmpMat3d;
+    for(int i = 0; i < 3; ++i)
+      {
+      for (int j = 0; j < 3; ++j)
+        {
+        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
+        }
+      }
+    tmpMat3d->Invert();
+    program.SetUniformValue("normalMatrix", tmpMat3d.Get());
+    }
+
+  // Query the actor for some of the properties that can be applied.
+  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
+                         static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
+                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
+
+  // Override the model color when the value was set directly on the mapper.
+  if (this->ModelColor)
+    {
+    for (int i = 0; i < 3; ++i)
+      {
+      diffuseColor[i] = this->ModelColor[i];
+      }
+    opacity = this->ModelColor[3]/255.0;
+    }
+
+  program.SetUniformValue("opacityUniform", opacity);
+  program.SetUniformValue("diffuseColorUniform", diffuseColor);
+
+  if (first)
+    {
+    this->Internal->triStrips.ibo.Bind();
+    }
+
+  if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
+    {
+    glDrawRangeElements(GL_POINTS, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->triStrips.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    }
+  // TODO fix wireframe
+  if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    {
+    for (size_t eCount = 0;
+         eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+      {
+      glDrawElements(GL_LINE_STRIP,
+        this->Internal->triStrips.elementsArray[eCount],
+        GL_UNSIGNED_INT,
+        (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
+      }
+    }
+  if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
+    {
+    for (size_t eCount = 0;
+         eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
+      {
+      glDrawElements(GL_TRIANGLE_STRIP,
+        this->Internal->triStrips.elementsArray[eCount],
+        GL_UNSIGNED_INT,
+        (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
+      }
+    }
+
+  if (last)
+    {
+    this->Internal->triStrips.ibo.Release();
+    }
+}
+*/
+
+
 
 // ---------------------------------------------------------------------------
 // Description:
 // Release any graphics resources that are being consumed by this mapper.
 void vtkOpenGL2Glyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 {
-  if (this->SourceMappers)
+  if (this->Mapper)
     {
-    for (size_t i = 0; i < this->SourceMappers->Mappers.size(); ++i)
-      {
-      this->SourceMappers->Mappers[i]->ReleaseGraphicsResources(window);
-      }
+    this->Mapper->ReleaseGraphicsResources(window);
     }
 }
 

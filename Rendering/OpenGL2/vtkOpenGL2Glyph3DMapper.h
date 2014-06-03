@@ -69,10 +69,13 @@ protected:
   class vtkColorMapper;
   vtkNew<vtkColorMapper> ColorMapper;
 
+  class vtkOpenGL2Glyph3DMapperEntry;
   class vtkOpenGL2Glyph3DMapperArray;
-  vtkOpenGL2Glyph3DMapperArray *SourceMappers; // array of mappers
+  vtkOpenGL2Glyph3DMapperArray *GlyphValues; // array of value for datasets
 
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
+
+  vtkVBOPolyDataMapper *Mapper;
 
   vtkTimeStamp PainterUpdateTime;
 

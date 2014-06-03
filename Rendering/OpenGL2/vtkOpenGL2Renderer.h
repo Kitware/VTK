@@ -164,8 +164,6 @@ protected:
   friend class vtkRenderPass;
   vtkRenderPass *Pass;
 
-  bool Initialized; // Hack - ensure glewinit has been called - move to window.
-
 private:
   vtkOpenGL2Renderer(const vtkOpenGL2Renderer&);  // Not implemented.
   void operator=(const vtkOpenGL2Renderer&);  // Not implemented.

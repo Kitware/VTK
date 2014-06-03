@@ -24,12 +24,14 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindow.h"
+
 #include "vtkOpenGL.h" // Needed for GLuint.
 
 class vtkIdList;
 class vtkOpenGLExtensionManager;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGL2TextureUnitManager;
+class vtkOpenGL2ShaderCache;
 class vtkStdString;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2RenderWindow : public vtkRenderWindow
@@ -176,6 +178,10 @@ public:
   vtkOpenGLExtensionManager* GetExtensionManager();
 
   // Description:
+  // Returns an Shader Cache object
+  vtkGetObjectMacro(ShaderCache,vtkOpenGL2ShaderCache);
+
+  // Description:
   // Returns an Hardware Support object. A new one will be created if one
   // hasn't already been set up.
   vtkOpenGLHardwareSupport* GetHardwareSupport();
@@ -195,6 +201,8 @@ public:
 protected:
   vtkOpenGL2RenderWindow();
   ~vtkOpenGL2RenderWindow();
+
+  vtkOpenGL2ShaderCache *ShaderCache;
 
   long OldMonitorSetting;
   vtkIdList *TextureResourceIds;
@@ -264,6 +272,8 @@ protected:
   vtkTimeStamp ContextCreationTime;
 
   vtkOpenGL2TextureUnitManager *TextureUnitManager;
+
+  bool Initialized; // ensure glewinit has been called
 
 private:
   vtkOpenGL2RenderWindow(const vtkOpenGL2RenderWindow&);  // Not implemented.

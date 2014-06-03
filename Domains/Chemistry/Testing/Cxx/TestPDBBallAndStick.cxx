@@ -27,6 +27,12 @@
 #include "vtkRenderer.h"
 #include "vtkPDBReader.h"
 
+#include "vtkTimerLog.h"
+#include "vtkSmartPointer.h"
+#include "vtkCamera.h"
+
+
+
 int TestPDBBallAndStick(int argc, char *argv[])
 {
   char* fileName =
@@ -65,6 +71,29 @@ int TestPDBBallAndStick(int argc, char *argv[])
   ren->GetActiveCamera()->Zoom(1.7);
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(450, 450);
+
+
+  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
+  int numRenders = 85;
+  timer->StartTimer();
+  win->Render();
+  timer->StopTimer();
+  double firstRender = timer->GetElapsedTime();
+  cerr << "first render time: " << firstRender << endl;
+
+  timer->StartTimer();
+  for (int i = 0; i < numRenders; ++i)
+    {
+    ren->GetActiveCamera()->Azimuth(1);
+    ren->GetActiveCamera()->Elevation(1);
+    win->Render();
+    }
+  timer->StopTimer();
+  double elapsed = timer->GetElapsedTime();
+  cerr << "interactive render time: " << elapsed / numRenders << endl;
+
+
+
   win->Render();
 
   // Finally render the scene and compare the image to a reference image

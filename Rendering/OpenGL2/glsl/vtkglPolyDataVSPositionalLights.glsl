@@ -31,7 +31,6 @@ uniform vec3 specularColor; // intensity weighted color
 uniform float specularPower;
 
 // camera and actor matrix values
-uniform mat4 WCVCMatrix;  // world to view matrix
 uniform mat4 MCWCMatrix;  // model to world matrix
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix

@@ -37,6 +37,12 @@ public:
   virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
 
   // Description:
+  // Implemented by sub classes. Actual rendering is done here.
+  virtual void RenderPieceStart(vtkRenderer *ren, vtkActor *act);
+  virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
+  virtual void RenderPieceFinish(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
   // resources to release. Merely propagates the call to the painter.
@@ -83,6 +89,10 @@ protected:
   // Description:
   // Determine what shader to use and compile/link it
   virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Build the shader source code
+  virtual void BuildShader(std::string &VertexCode, std::string &fragmentCode, int lightComplexity, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Update the scene when necessary.

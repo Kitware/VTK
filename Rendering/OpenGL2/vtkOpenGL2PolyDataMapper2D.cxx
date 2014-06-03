@@ -36,6 +36,9 @@
 #include "vtkgluPickMatrix.h"
 #include "vtkOpenGLError.h"
 
+#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGL2ShaderCache.h"
+
 #include <cmath>
 
 // Bring in our shader symbols.
@@ -54,6 +57,9 @@ public:
   vtkgl::CellBO lines;
   vtkgl::CellBO tris;
   vtkgl::CellBO triStrips;
+
+  vtkTimeStamp ShaderSourceTime;
+
 
   vtkTimeStamp propertiesTime;
   vtkTimeStamp shaderBuildTime;
@@ -75,13 +81,11 @@ vtkOpenGL2PolyDataMapper2D::~vtkOpenGL2PolyDataMapper2D()
   delete this->Internal;
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
-    vtkViewport* viewport, vtkActor2D *actor)
+void vtkOpenGL2PolyDataMapper2D::BuildShader(std::string &VSSource, std::string &FSSource, vtkViewport* ren, vtkActor2D *actor)
 {
-  std::string VSSource = vtkglPolyData2DVS;
-  std::string FSSource = vtkglPolyData2DFS;
+  VSSource = vtkglPolyData2DVS;
+  FSSource = vtkglPolyData2DFS;
 
   // Build our shader if necessary.
   if (this->Colors && this->Colors->GetNumberOfComponents())
@@ -141,47 +145,42 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
                                  "//VTK::TCoord::Impl","");
     }
   //cout << "VS: " << VSSource << endl;
+}
 
-  // only recompile if the shader has changed
-  if (cellBO.vs.GetSource().size() == 0 ||
-      cellBO.vs.GetSource().compare(VSSource) ||
-      cellBO.fs.GetSource().compare(FSSource))
+
+//-----------------------------------------------------------------------------
+void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
+    vtkViewport* viewport, vtkActor2D *actor)
+{
+  vtkOpenGL2RenderWindow *renWin = vtkOpenGL2RenderWindow::SafeDownCast(viewport->GetVTKWindow());
+
+  // has something changed that would require us to recreate the shader?
+  // candidates are
+  // property modified (representation interpolation and lighting)
+  // input modified
+  // light complexity changed
+  if (this->Internal->ShaderSourceTime < this->GetMTime() ||
+      this->Internal->ShaderSourceTime < actor->GetMTime() ||
+      this->Internal->ShaderSourceTime < this->GetInput()->GetMTime())
     {
-    cellBO.vs.SetSource(VSSource);
-    cellBO.vs.SetType(vtkgl::Shader::Vertex);
-    cellBO.fs.SetSource(FSSource);
-    cellBO.fs.SetType(vtkgl::Shader::Fragment);
-
-    if (!cellBO.vs.Compile())
-      {
-      vtkErrorMacro(<< cellBO.vs.GetError());
-      }
-    if (!cellBO.fs.Compile())
-      {
-      vtkErrorMacro(<< cellBO.fs.GetError());
-      }
-    if (!cellBO.program.AttachShader(cellBO.vs))
-      {
-      vtkErrorMacro(<< cellBO.program.GetError());
-      }
-    if (!cellBO.program.AttachShader(cellBO.fs))
-      {
-      vtkErrorMacro(<< cellBO.program.GetError());
-      }
-    if (!cellBO.program.Link())
-      {
-      vtkErrorMacro(<< "Links failed: " << cellBO.program.GetError());
-      }
-    cellBO.buildTime.Modified();
+    std::string VSSource;
+    std::string FSSource;
+    this->BuildShader(VSSource,FSSource,viewport,actor);
+    cellBO.CachedProgram = renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
+    this->Internal->ShaderSourceTime.Modified();
+    cellBO.vao.Initialize(); // reset the VAO as the shader has changed
+    }
+    else
+    {
+    renWin->GetShaderCache()->ReadyShader(cellBO.CachedProgram);
     }
 
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Internal->layout;
   if (this->VBOUpdateTime > cellBO.attributeUpdateTime)
     {
-    cellBO.program.Bind();
     cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+    if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
                                     "vertexWC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
@@ -189,7 +188,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
       }
     if (layout.TCoordComponents)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
                                       "tcoordMC", layout.TCoordOffset,
                                       layout.Stride, VTK_FLOAT, layout.TCoordComponents, false))
         {
@@ -198,7 +197,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
       }
     if (layout.ColorComponents != 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
                                       "diffuseColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
@@ -209,16 +208,9 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
     cellBO.attributeUpdateTime.Modified();
     }
 
-  if (!cellBO.program.Bind())
-    {
-    vtkErrorMacro(<< cellBO.program.GetError());
-    return;
-    }
-
-
   if (layout.TCoordComponents)
     {
-    cellBO.program.SetUniformValue("texture1", 0);
+    cellBO.CachedProgram->Program.SetUniformValue("texture1", 0);
     }
 
   this->SetPropertyShaderParameters(cellBO, viewport, actor);
@@ -230,7 +222,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport*, vtkActor2D *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.program;
+  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
 
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
@@ -247,7 +239,7 @@ void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(
 void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport* viewport, vtkActor2D *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.program;
+  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
 
   // Get the position of the actor
   int size[2];
@@ -565,7 +557,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
 
   this->Internal->points.vao.Release();
-  this->Internal->points.program.Release();
   this->Internal->vbo.Release();
 
   vtkOpenGLCheckErrorMacro("failed after RenderOverlay");

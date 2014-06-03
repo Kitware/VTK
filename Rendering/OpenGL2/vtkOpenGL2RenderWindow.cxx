@@ -12,7 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <GL/glew.h>
 #include "vtkOpenGL2RenderWindow.h"
+
 #include <cassert>
 #include "vtkFloatArray.h"
 #include "vtkgl.h"
@@ -28,6 +30,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGL2Texture.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkOpenGL2ShaderCache.h"
 #include "vtkOpenGL2TextureUnitManager.h"
 #include "vtkStdString.h"
 #include <sstream>
@@ -61,6 +64,10 @@ int vtkOpenGL2RenderWindow::GetGlobalMaximumNumberOfMultiSamples()
 // ----------------------------------------------------------------------------
 vtkOpenGL2RenderWindow::vtkOpenGL2RenderWindow()
 {
+  this->Initialized = false;
+
+  this->ShaderCache = vtkOpenGL2ShaderCache::New();
+
   this->ExtensionManager = NULL;
   this->HardwareSupport = NULL;
   this->TextureUnitManager=0;
@@ -109,6 +116,7 @@ vtkOpenGL2RenderWindow::~vtkOpenGL2RenderWindow()
   this->SetTextureUnitManager(0);
   this->SetExtensionManager(0);
   this->SetHardwareSupport(0);
+  this->ShaderCache->UnRegister(this);
 }
 
 // ----------------------------------------------------------------------------
@@ -388,6 +396,25 @@ void vtkOpenGL2RenderWindow::OpenGLInitState()
 void vtkOpenGL2RenderWindow::OpenGLInitContext()
 {
   // When a new OpenGL context is created, force an update
+  if (!this->Initialized)
+    {
+    GLenum result = glewInit();
+    bool m_valid = (result == GLEW_OK);
+    if (!m_valid)
+      {
+      vtkErrorMacro("GLEW could not be initialized.");
+      return;
+      }
+
+    if (!GLEW_VERSION_2_1)
+      {
+      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
+      //m_valid = false;
+      return;
+      }
+    this->Initialized = true;
+    }
+
   // of the extension manager by calling modified on it.
   vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
   extensions->Modified();
@@ -412,6 +439,7 @@ void vtkOpenGL2RenderWindow::OpenGLInitContext()
       extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
       }
     }
+
 }
 
 void vtkOpenGL2RenderWindow::PrintSelf(ostream& os, vtkIndent indent)

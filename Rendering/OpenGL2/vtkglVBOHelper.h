@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#include "vtkOpenGL2ShaderCache.h"
+
 class vtkCellArray;
 class vtkPoints;
 class vtkDataArray;
@@ -51,11 +53,7 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
 // Store the shaders, program, and ibo in a common struct.
 struct CellBO
 {
-  Shader vs;
-  Shader fs;
-  const char* vsFile;
-  const char* fsFile;
-  ShaderProgram program;
+  vtkOpenGL2ShaderCache::CachedShaderProgram *CachedProgram;
   BufferObject ibo;
   VertexArrayObject vao;
   size_t indexCount;

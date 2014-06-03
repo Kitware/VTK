@@ -38,6 +38,9 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 
+#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGL2ShaderCache.h"
+
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkOpenGL2Texture.h"
@@ -71,10 +74,14 @@ public:
   vtkgl::CellBO triStrips;
   vtkgl::CellBO *lastBoundBO;
 
+  vtkTimeStamp ShaderSourceTime;
+  int LastLightComplexity;
+
   vtkTimeStamp propertiesTime;
 
   Private()
   {
+    this->LastLightComplexity = -1;
   }
 
 };
@@ -111,6 +118,130 @@ void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     {
     this->InternalColorTexture->ReleaseGraphicsResources(win);
     }
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+{
+  switch (lightComplexity)
+    {
+    case 0:
+        VSSource = vtkglPolyDataVSNoLighting;
+        FSSource = vtkglPolyDataFS;
+      break;
+    case 1:
+        VSSource = vtkglPolyDataVSFragmentLit;
+        FSSource = vtkglPolyDataFSHeadlight;
+      break;
+    case 2:
+        VSSource = vtkglPolyDataVSFragmentLit;
+        FSSource = vtkglPolyDataFSLightKit;
+      break;
+    case 3:
+        VSSource = vtkglPolyDataVSFragmentLit;
+        FSSource = vtkglPolyDataFSPositionalLights;
+      break;
+    }
+
+  if (this->Internal->layout.ColorComponents != 0)
+    {
+    VSSource = replace(VSSource,"//VTK::Color::Dec",
+                                "attribute vec4 scalarColor; varying vec4 vertexColor;");
+    VSSource = replace(VSSource,"//VTK::Color::Impl",
+                                "vertexColor =  scalarColor;");
+    FSSource = replace(FSSource,"//VTK::Color::Dec",
+                                "varying vec4 vertexColor;");
+    if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
+          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
+      {
+      FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                    "vec3 ambientColor = vertexColor.rgb; vec3 diffuseColor = diffuseColorUniform.rgb; float opacity = vertexColor.a;");
+      }
+    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
+          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
+      {
+      FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                  "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = ambientColorUniform; float opacity = vertexColor.a;");
+      }
+    else
+      {
+      FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                   "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = vertexColor.rgb; float opacity = vertexColor.a;");
+      }
+    }
+  else
+    {
+    FSSource = replace(FSSource,"//VTK::Color::Impl",
+                                  "vec3 ambientColor = ambientColorUniform; vec3 diffuseColor = diffuseColorUniform; float opacity = opacityUniform;");
+    }
+  // normals?
+  if (this->Internal->layout.NormalOffset)
+    {
+    VSSource = replace(VSSource,
+                                 "//VTK::Normal::Dec",
+                                 "attribute vec3 normalMC; varying vec3 normalVCVarying;");
+    VSSource = replace(VSSource,
+                                 "//VTK::Normal::Impl",
+                                 "normalVCVarying = normalMatrix * normalMC;");
+    FSSource = replace(FSSource,
+                                 "//VTK::Normal::Dec",
+                                 "varying vec3 normalVCVarying;");
+    FSSource = replace(FSSource,
+                                 "//VTK::Normal::Impl","vec3 normalVC; if (!gl_FrontFacing) { normalVC = -normalVCVarying; } else { normalVC = normalVCVarying; }");
+    }
+  else
+    {
+    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+      {
+      // generate a normal for lines, it will be perpendicular to the line
+      // and maximally aligned with the camera view direction
+      // no clue if this is the best way to do this.
+      FSSource = replace(FSSource,"//VTK::Normal::Impl",
+                                   "vec3 normalVC; if (abs(dot(dFdx(vertexVC.xyz),vec3(1,1,1))) > abs(dot(dFdy(vertexVC.xyz),vec3(1,1,1)))) { normalVC = normalize(cross(cross(dFdx(vertexVC.xyz), vec3(0,0,1)), dFdx(vertexVC.xyz))); } else { normalVC = normalize(cross(cross(dFdy(vertexVC.xyz), vec3(0,0,1)), dFdy(vertexVC.xyz)));}");
+      }
+    else
+      {
+      FSSource = replace(FSSource,"//VTK::Normal::Impl",
+                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
+      }
+    }
+  if (this->Internal->layout.TCoordComponents)
+    {
+    if (this->Internal->layout.TCoordComponents == 1)
+      {
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "attribute float tcoordMC; varying float tcoordVC;");
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "tcoordVC = tcoordMC;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "varying float tcoordVC; uniform sampler2D texture1;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0));");
+      }
+    else
+      {
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "attribute vec2 tcoordMC; varying vec2 tcoordVC;");
+      VSSource = vtkgl::replace(VSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "tcoordVC = tcoordMC;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Dec",
+                                   "varying vec2 tcoordVC; uniform sampler2D texture1;");
+      FSSource = vtkgl::replace(FSSource,
+                                   "//VTK::TCoord::Impl",
+                                   "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
+      }
+    }
+
+  //cout << "VS: " << VSSource << endl;
+  //cout << "FS: " << FSSource << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -171,176 +302,38 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     }
 
-  // pick which shader code to use based on above factors
-  switch (lightComplexity)
-    {
-    case 0:
-        cellBO.vsFile = vtkglPolyDataVSNoLighting;
-        cellBO.fsFile = vtkglPolyDataFS;
-      break;
-    case 1:
-        cellBO.vsFile = vtkglPolyDataVSFragmentLit;
-        cellBO.fsFile = vtkglPolyDataFSHeadlight;
-      break;
-    case 2:
-        cellBO.vsFile = vtkglPolyDataVSFragmentLit;
-        cellBO.fsFile = vtkglPolyDataFSLightKit;
-      break;
-    case 3:
-        cellBO.vsFile = vtkglPolyDataVSFragmentLit;
-        cellBO.fsFile = vtkglPolyDataFSPositionalLights;
-      break;
-    }
 
-  if (this->Internal->lastBoundBO &&
-      this->Internal->lastBoundBO->vsFile == cellBO.vsFile &&
-      this->Internal->lastBoundBO->fsFile == cellBO.fsFile)
-    {
-      return;
-    }
+  vtkOpenGL2RenderWindow *renWin = vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
 
-  // Build our shader if necessary.
-  std::string VSSource = cellBO.vsFile;
-  std::string FSSource = cellBO.fsFile;
-  if (this->Internal->layout.ColorComponents != 0)
+  // has something changed that would require us to recreate the shader?
+  // candidates are
+  // property modified (representation interpolation and lighting)
+  // input modified
+  // light complexity changed
+  if (this->Internal->ShaderSourceTime < this->GetMTime() ||
+      this->Internal->ShaderSourceTime < actor->GetMTime() ||
+      this->Internal->ShaderSourceTime < this->GetInput()->GetMTime() ||
+      this->Internal->LastLightComplexity != lightComplexity)
     {
-    VSSource = replace(VSSource,"//VTK::Color::Dec",
-                                "attribute vec4 scalarColor; varying vec4 vertexColor;");
-    VSSource = replace(VSSource,"//VTK::Color::Impl",
-                                "vertexColor =  scalarColor;");
-    FSSource = replace(FSSource,"//VTK::Color::Dec",
-                                "varying vec4 vertexColor;");
-    if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
-          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
-      {
-      FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                    "vec3 ambientColor = vertexColor.rgb; vec3 diffuseColor = diffuseColorUniform.rgb; float opacity = vertexColor.a;");
-      }
-    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
-          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
-      {
-      FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                  "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = ambientColorUniform; float opacity = vertexColor.a;");
-      }
+    std::string VSSource;
+    std::string FSSource;
+    this->BuildShader(VSSource,FSSource,lightComplexity,ren,actor);
+    cellBO.CachedProgram = renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
+    this->Internal->LastLightComplexity = lightComplexity;
+    this->Internal->ShaderSourceTime.Modified();
+    cellBO.vao.Initialize(); // reset the VAO as the shader has changed
+    }
     else
-      {
-      FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                   "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = vertexColor.rgb; float opacity = vertexColor.a;");
-      }
-    }
-  else
     {
-    FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                  "vec3 ambientColor = ambientColorUniform; vec3 diffuseColor = diffuseColorUniform; float opacity = opacityUniform;");
-    }
-  // normals?
-  if (this->Internal->layout.NormalOffset)
-    {
-    VSSource = replace(VSSource,
-                                 "//VTK::Normal::Dec",
-                                 "attribute vec3 normalMC; varying vec3 normalVC;");
-    VSSource = replace(VSSource,
-                                 "//VTK::Normal::Impl",
-                                 "normalVC = normalMatrix * normalMC;");
-    FSSource = replace(FSSource,
-                                 "//VTK::Normal::Dec",
-                                 "varying vec3 normalVC;");
-    FSSource = replace(FSSource,
-                                 "//VTK::Normal::Impl","  if (!gl_FrontFacing) normalVC = -normalVC;");
-    }
-  else
-    {
-    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-      {
-      // generate a normal for lines, it will be perpendicular to the line
-      // and maximally aligned with the camera view direction
-      // no clue if this is the best way to do this.
-      FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                   "vec3 normalVC; if (abs(dot(dFdx(vertexVC.xyz),vec3(1,1,1))) > abs(dot(dFdy(vertexVC.xyz),vec3(1,1,1)))) { normalVC = normalize(cross(cross(dFdx(vertexVC.xyz), vec3(0,0,1)), dFdx(vertexVC.xyz))); } else { normalVC = normalize(cross(cross(dFdy(vertexVC.xyz), vec3(0,0,1)), dFdy(vertexVC.xyz)));}");
-      }
-    else
-      {
-      FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
-      }
-    }
-  if (this->Internal->layout.TCoordComponents)
-    {
-    if (this->Internal->layout.TCoordComponents == 1)
-      {
-      VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "attribute float tcoordMC; varying float tcoordVC;");
-      VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "tcoordVC = tcoordMC;");
-      FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "varying float tcoordVC; uniform sampler2D texture1;");
-      FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0));");
-      }
-    else
-      {
-      VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "attribute vec2 tcoordMC; varying vec2 tcoordVC;");
-      VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "tcoordVC = tcoordMC;");
-      FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "varying vec2 tcoordVC; uniform sampler2D texture1;");
-      FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
-      }
-    }
-
-  //cout << "VS: " << VSSource << endl;
-  //cout << "FS: " << FSSource << endl;
-
-  // only recompile if the shader has changed
-  if (cellBO.vs.GetSource().size() == 0 ||
-      cellBO.vs.GetSource().compare(VSSource) ||
-      cellBO.fs.GetSource().compare(FSSource))
-    {
-    cellBO.vs.SetSource(VSSource);
-    cellBO.vs.SetType(vtkgl::Shader::Vertex);
-    cellBO.fs.SetSource(FSSource);
-    cellBO.fs.SetType(vtkgl::Shader::Fragment);
-
-    if (!cellBO.vs.Compile())
-      {
-      vtkErrorMacro(<< cellBO.vs.GetError());
-      }
-    if (!cellBO.fs.Compile())
-      {
-      vtkErrorMacro(<< cellBO.fs.GetError());
-      }
-    if (!cellBO.program.AttachShader(cellBO.vs))
-      {
-      vtkErrorMacro(<< cellBO.program.GetError());
-      }
-    if (!cellBO.program.AttachShader(cellBO.fs))
-      {
-      vtkErrorMacro(<< cellBO.program.GetError());
-      }
-    if (!cellBO.program.Link())
-      {
-      vtkErrorMacro(<< "Links failed: " << cellBO.program.GetError());
-      }
-    cellBO.buildTime.Modified();
+    renWin->GetShaderCache()->ReadyShader(cellBO.CachedProgram);
     }
 
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Internal->layout;
   if (cellBO.indexCount && this->VBOUpdateTime > cellBO.attributeUpdateTime)
     {
-    cellBO.program.Bind();
     cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+    if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
@@ -348,7 +341,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     if (layout.NormalOffset)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
                                       "normalMC", layout.NormalOffset,
                                       layout.Stride, VTK_FLOAT, 3, false))
         {
@@ -357,7 +350,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     if (layout.TCoordComponents)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
                                       "tcoordMC", layout.TCoordOffset,
                                       layout.Stride, VTK_FLOAT, layout.TCoordComponents, false))
         {
@@ -366,7 +359,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     if (layout.ColorComponents != 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
                                       "scalarColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
@@ -378,15 +371,9 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     }
 
 
-  if (!cellBO.program.Bind())
-    {
-    vtkErrorMacro(<< cellBO.program.GetError());
-    return;
-    }
-
   if (layout.TCoordComponents)
     {
-    cellBO.program.SetUniformValue("texture1", 0);
+    cellBO.CachedProgram->Program.SetUniformValue("texture1", 0);
     }
 
   this->SetPropertyShaderParameters(cellBO, ren, actor);
@@ -402,13 +389,12 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
                                                       vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
   // for unlit and headlight there are no lighting parameters
-  if (cellBO.fsFile == vtkglPolyDataFSHeadlight ||
-      cellBO.vsFile == vtkglPolyDataVSNoLighting)
+  if (this->Internal->LastLightComplexity < 2)
     {
     return;
     }
 
-  vtkgl::ShaderProgram &program = cellBO.program;
+  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
 
   // for lightkit case there are some parameters to set
   vtkCamera *cam = ren->GetActiveCamera();
@@ -451,7 +437,8 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
   program.SetUniformValue("lightDirectionVC", numberOfLights, lightDirection);
   program.SetUniformValue("numberOfLights", numberOfLights);
 
-  if (cellBO.fsFile == vtkglPolyDataFSLightKit)
+  // we are done unless we have positional lights
+  if (this->Internal->LastLightComplexity < 3)
     {
     return;
     }
@@ -494,70 +481,69 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
 void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.program;
+  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
 
-  // pass down the various model and camera transformations
+  // set the MCWC matrix for positional lighting
+  if (this->Internal->LastLightComplexity > 2)
+    {
+    program.SetUniformValue("MCWCMatrix", actor->GetMatrix());
+    }
+
   vtkCamera *cam = ren->GetActiveCamera();
-  // really just view  matrix in spite of it's name
-  vtkTransform* viewTF = cam->GetModelViewTransformObject();
 
-  vtkNew<vtkMatrix4x4> tmpMV;
-  tmpMV->DeepCopy(viewTF->GetMatrix());
+  vtkNew<vtkMatrix4x4> tmpMat;
+  tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
   if (this->ModelTransformMatrix)
     {
     // Apply this extra transform from things like the glyph mapper.
-    vtkMatrix4x4::Multiply4x4(tmpMV.Get(), this->ModelTransformMatrix,
-                              tmpMV.Get());
+    vtkMatrix4x4::Multiply4x4(tmpMat.Get(), this->ModelTransformMatrix,
+                              tmpMat.Get());
     }
-  program.SetUniformValue("WCVCMatrix", tmpMV.Get());
-
-  // set the MCWC matrix
-  program.SetUniformValue("MCWCMatrix", actor->GetMatrix());
 
   // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkNew<vtkMatrix4x4> tmpMat;
-  tmpMat->DeepCopy(tmpMV.Get());
   vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
   tmpMat->Transpose();
   program.SetUniformValue("MCVCMatrix", tmpMat.Get());
 
-  vtkNew<vtkMatrix4x4> tmpProj;
-  tmpProj->DeepCopy(cam->GetProjectionTransformMatrix(ren));
-  program.SetUniformValue("VCDCMatrix", tmpProj.Get());
-
   // for lit shaders set normal matrix
-  if (cellBO.vsFile != vtkglPolyDataVSNoLighting)
+  if (this->Internal->LastLightComplexity > 0)
     {
+    tmpMat->Transpose();
+
     // set the normal matrix and send it down
     // (make this a function in camera at some point returning a 3x3)
     // Reuse the matrix we already got (and possibly multiplied with model mat.
     if (!actor->GetIsIdentity() || this->ModelTransformMatrix)
       {
-      vtkMatrix4x4::Multiply4x4(tmpMV.Get(), actor->GetMatrix(), tmpMV.Get());
       vtkNew<vtkTransform> aTF;
-      aTF->SetMatrix(tmpMV.Get());
+      aTF->SetMatrix(tmpMat.Get());
       double *scale = aTF->GetScale();
       aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
-      tmpMV->DeepCopy(aTF->GetMatrix());
+      tmpMat->DeepCopy(aTF->GetMatrix());
       }
     vtkNew<vtkMatrix3x3> tmpMat3d;
     for(int i = 0; i < 3; ++i)
       {
       for (int j = 0; j < 3; ++j)
         {
-        tmpMat3d->SetElement(i, j, tmpMV->GetElement(i, j));
+        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
         }
       }
     tmpMat3d->Invert();
     program.SetUniformValue("normalMatrix", tmpMat3d.Get());
     }
+
+  vtkMatrix4x4 *tmpProj;
+  tmpProj = cam->GetProjectionTransformMatrix(ren); // allocates a matrix
+  program.SetUniformValue("VCDCMatrix", tmpProj);
+  tmpProj->UnRegister(this);
 }
 
 //-----------------------------------------------------------------------------
 void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
                                                        vtkRenderer*, vtkActor *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.program;
+  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
 
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
@@ -591,12 +577,17 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   program.SetUniformValue("opacityUniform", opacity);
   program.SetUniformValue("ambientColorUniform", ambientColor);
   program.SetUniformValue("diffuseColorUniform", diffuseColor);
+  // we are done unless we have lighting
+  if (this->Internal->LastLightComplexity < 1)
+    {
+    return;
+    }
   program.SetUniformValue("specularColor", specularColor);
   program.SetUniformValue("specularPower", specularPower);
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
   vtkDataObject *input= this->GetInputDataObject(0, 0);
 
@@ -648,7 +639,6 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   // Bind the VBO, this is shared between the different primitive/cell types.
   this->Internal->vbo.Bind();
-  vtkgl::VBOLayout &layout = this->Internal->layout;
 
   this->Internal->lastBoundBO = NULL;
 
@@ -674,6 +664,12 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
       glPolygonOffset(f,u);  // supported on ES2/3/etc
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
+{
+  vtkgl::VBOLayout &layout = this->Internal->layout;
 
   // draw points
   if (this->Internal->points.indexCount)
@@ -792,10 +788,14 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     this->Internal->triStrips.ibo.Release();
     }
 
+}
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *actor)
+{
   if (this->Internal->lastBoundBO)
     {
     this->Internal->lastBoundBO->vao.Release();
-    this->Internal->lastBoundBO->program.Release();
     }
 
   this->Internal->vbo.Release();
@@ -814,6 +814,14 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     }
 
   this->UpdateProgress(1.0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
+{
+    this->RenderPieceStart(ren, actor);
+    this->RenderPieceDraw(ren, actor);
+    this->RenderPieceFinish(ren, actor);
 }
 
 //-------------------------------------------------------------------------

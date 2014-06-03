@@ -30,7 +30,6 @@ uniform float specularPower;
 
 // passed from the vertex shader
 varying vec4 vertexVC;
-varying vec4 vertexWC;
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec

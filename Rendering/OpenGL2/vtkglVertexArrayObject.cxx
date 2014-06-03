@@ -99,7 +99,7 @@ public:
   bool supported;
 
   typedef std::map< GLuint, std::vector<VertexAttributes> > AttributeMap;
-  AttributeMap atttributes;
+  AttributeMap attributes;
 };
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -127,7 +127,7 @@ void VertexArrayObject::Bind()
   else if (this->d->IsReady())
     {
     Private::AttributeMap::const_iterator it;
-    for (it = this->d->atttributes.begin(); it != this->d->atttributes.end();
+    for (it = this->d->attributes.begin(); it != this->d->attributes.end();
          ++it)
       {
       std::vector<VertexAttributes>::const_iterator attrIt;
@@ -152,7 +152,7 @@ void VertexArrayObject::Release()
   else if (this->d->IsReady())
     {
     Private::AttributeMap::const_iterator it;
-    for (it = this->d->atttributes.begin(); it != this->d->atttributes.end();
+    for (it = this->d->attributes.begin(); it != this->d->attributes.end();
          ++it)
       {
       std::vector<VertexAttributes>::const_iterator attrIt;
@@ -162,6 +162,21 @@ void VertexArrayObject::Release()
         }
       }
     }
+}
+
+void VertexArrayObject::Initialize()
+{
+  this->Release();
+
+  Private::AttributeMap::iterator it;
+  for (it = this->d->attributes.begin(); it != this->d->attributes.end();
+       ++it)
+    {
+    it->second.clear();
+    }
+  this->d->attributes.clear();
+
+  this->d->handleProgram = 0;
 }
 
 bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,
@@ -214,8 +229,8 @@ bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,
   if (!this->d->supported)
     {
     GLuint handleBuffer = buffer.GetHandle();
-    Private::AttributeMap::iterator it = this->d->atttributes.find(handleBuffer);
-    if (it != this->d->atttributes.end())
+    Private::AttributeMap::iterator it = this->d->attributes.find(handleBuffer);
+    if (it != this->d->attributes.end())
       {
       std::vector<VertexAttributes> &attribsVector = it->second;
       std::vector<VertexAttributes>::iterator it2;
@@ -234,7 +249,7 @@ bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,
       {
       std::vector<VertexAttributes> attribsVector;
       attribsVector.push_back(attribs);
-      this->d->atttributes[handleBuffer] = attribsVector;
+      this->d->attributes[handleBuffer] = attribsVector;
       }
     }
 
@@ -260,7 +275,7 @@ bool VertexArrayObject::RemoveAttributeArray(const std::string &name)
   if (!this->d->supported)
     {
     Private::AttributeMap::iterator it;
-    for (it = this->d->atttributes.begin(); it != this->d->atttributes.end();
+    for (it = this->d->attributes.begin(); it != this->d->attributes.end();
          ++it)
       {
       std::vector<VertexAttributes>::iterator attrIt;

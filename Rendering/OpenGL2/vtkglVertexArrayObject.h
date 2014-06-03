@@ -43,6 +43,8 @@ public:
 
   void Release();
 
+  void Initialize();
+
   bool AddAttributeArray(ShaderProgram &program, BufferObject &buffer,
                          const std::string &name, int offset, size_t stride,
                          int elementType, int elementTupleSize, bool normalize);

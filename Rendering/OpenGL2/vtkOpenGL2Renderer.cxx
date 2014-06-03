@@ -76,8 +76,6 @@ public:
 
 vtkOpenGL2Renderer::vtkOpenGL2Renderer()
 {
-  this->Initialized = false;
-
   this->PickInfo = new vtkGLPickInfo;
   this->PickInfo->PickBuffer = 0;
   this->PickInfo->PickedId = 0;
@@ -187,27 +185,6 @@ int vtkOpenGL2Renderer::GetDepthPeelingHigherLayer()
 void vtkOpenGL2Renderer::DeviceRender(void)
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
-
-  // FIXME: This should be moved to the renderwindow probably
-  if (!this->Initialized)
-    {
-    GLenum result = glewInit();
-    bool m_valid = (result == GLEW_OK);
-    if (!m_valid)
-      {
-      vtkErrorMacro("GLEW could not be initialized.");
-      return;
-      }
-
-    if (!GLEW_VERSION_2_1)
-      {
-      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
-      //m_valid = false;
-      return;
-      }
-    this->Initialized = true;
-    }
-
 
   if(this->Pass!=0)
     {

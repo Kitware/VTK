@@ -30,6 +30,7 @@ set(Module_SRCS
   vtkVBOPolyDataMapper.cxx
   vtkOpenGL2RenderWindow.cxx
   vtkOpenGL2Renderer.cxx
+  vtkOpenGL2ShaderCache.cxx
   vtkOpenGL2Texture.cxx
   vtkOpenGL2TextureUnitManager.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx

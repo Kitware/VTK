@@ -28,8 +28,6 @@ uniform vec3 specularColor; // intensity weighted color
 uniform float specularPower;
 
 // camera and actor matrix values
-uniform mat4 WCVCMatrix;  // world to view matrix
-uniform mat4 MCWCMatrix;  // model to world matrix
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
@@ -41,7 +39,6 @@ uniform vec3 lightDirectionVC[6]; // normalized
 
 // passed from the vertex shader
 varying vec4 vertexVC;
-varying vec4 vertexWC;
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec

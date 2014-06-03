@@ -46,6 +46,9 @@ protected:
   vtkOpenGL2PolyDataMapper2D();
   ~vtkOpenGL2PolyDataMapper2D();
 
+  // Description:
+  // Build the shader source code
+  virtual void BuildShader(std::string &VertexCode, std::string &fragmentCode, vtkViewport *ren, vtkActor2D *act);
 
   // Description:
   // Determine what shader to use and compile/link it
