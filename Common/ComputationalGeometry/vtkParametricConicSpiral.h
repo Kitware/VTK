@@ -22,7 +22,7 @@
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
+// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
 #ifndef __vtkParametricConicSpiral_h
@@ -59,20 +59,23 @@ public:
   vtkGetMacro(A,double);
 
   // Description:
-  // Set/Get the A function coefficient (see equation below).
-  // Default = 1.
+  // Set/Get the A function coefficient.
+  // See the definition in Parametric surfaces referred to above.
+  // Default is 1.
   vtkSetMacro(B,double);
   vtkGetMacro(B,double);
 
   // Description:
-  // Set/Get the B function coefficient (see equation below).
-  // Default = 0.1.
+  // Set/Get the B function coefficient.
+  // See the definition in Parametric surfaces referred to above.
+  // Default is 0.1.
   vtkSetMacro(C,double);
   vtkGetMacro(C,double);
 
   // Description:
-  // Set/Get the C function coefficient (see equation below).
-  // Default = 2.
+  // Set/Get the C function coefficient.
+  // See the definition in Parametric surfaces referred to above.
+  // Default is 2.
   vtkSetMacro(N,double);
   vtkGetMacro(N,double);
 
