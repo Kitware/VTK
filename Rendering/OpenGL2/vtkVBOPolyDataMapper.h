@@ -76,6 +76,10 @@ public:
   // opaque geometry.
   virtual bool GetIsOpaque();
 
+  // testing performance
+  void GlyphRender(vtkRenderer* ren, vtkActor* actor, unsigned char rgba[4], vtkMatrix4x4 *gmat, int stage);
+
+
 protected:
   vtkVBOPolyDataMapper();
   ~vtkVBOPolyDataMapper();

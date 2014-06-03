@@ -476,154 +476,63 @@ void vtkOpenGL2Glyph3DMapper::Render(
     trans->Delete();
     }
 
-  // now draw
+  // now draw, there is a fast path for a special case of
+  // only triangles
+  bool fastPath = false;
+  vtkPolyData* pd = this->Mapper->GetInput();
+  if (pd && pd->GetNumberOfVerts() == 0 && pd->GetNumberOfLines() == 0 && pd->GetNumberOfStrips() == 0)
+    {
+    fastPath = true;
+    }
+
   bool primed = false;
+  unsigned char rgba[4];
   for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
     {
     if (maskArray && maskArray->GetValue(inPtId) == 0)
       {
       continue;
       }
-    unsigned char rgba[4];
     rgba[0] = entry->Colors[inPtId*4];
     rgba[1] = entry->Colors[inPtId*4+1];
     rgba[2] = entry->Colors[inPtId*4+2];
     rgba[3] = entry->Colors[inPtId*4+3];
-    this->Mapper->SetModelColor(rgba);
-    this->Mapper->SetModelTransform(entry->Matrices[inPtId]);
     if (!primed)
       {
-      this->Mapper->RenderPieceStart(ren, actor);
-      primed = true;
+      if (fastPath)
+        {
+        this->Mapper->GlyphRender(ren, actor, rgba, entry->Matrices[inPtId], 1);
+        }
+      else
+        {
+        this->Mapper->SetModelColor(rgba);
+        this->Mapper->SetModelTransform(entry->Matrices[inPtId]);
+        this->Mapper->RenderPieceStart(ren, actor);
+        }
       }
-
-
-
-
-
-
-    this->Mapper->RenderPieceDraw(ren, actor);
+    if (fastPath)
+      {
+      this->Mapper->GlyphRender(ren, actor, rgba, entry->Matrices[inPtId], 2);
+      }
+    else
+      {
+      this->Mapper->RenderPieceDraw(ren, actor);
+      }
     }
   if (primed)
     {
-    this->Mapper->RenderPieceFinish(ren, actor);
+    if (fastPath)
+      {
+      this->Mapper->GlyphRender(ren, actor, rgba, NULL, 3);
+      }
+    else
+      {
+      this->Mapper->RenderPieceFinish(ren, actor);
+      }
     }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
-
-/*
-{
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
-
-  vtkCamera *cam = ren->GetActiveCamera();
-
-  vtkNew<vtkMatrix4x4> tmpMat;
-  tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
-  if (this->ModelTransformMatrix)
-    {
-    // Apply this extra transform from things like the glyph mapper.
-    vtkMatrix4x4::Multiply4x4(tmpMat.Get(), this->ModelTransformMatrix,
-                              tmpMat.Get());
-    }
-
-  // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
-  tmpMat->Transpose();
-  program.SetUniformValue("MCVCMatrix", tmpMat.Get());
-
-  // for lit shaders set normal matrix
-  if (this->Internal->LastLightComplexity > 0)
-    {
-    tmpMat->Transpose();
-
-    // set the normal matrix and send it down
-    // (make this a function in camera at some point returning a 3x3)
-    // Reuse the matrix we already got (and possibly multiplied with model mat.
-    if (!actor->GetIsIdentity() || this->ModelTransformMatrix)
-      {
-      vtkNew<vtkTransform> aTF;
-      aTF->SetMatrix(tmpMat.Get());
-      double *scale = aTF->GetScale();
-      aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
-      tmpMat->DeepCopy(aTF->GetMatrix());
-      }
-    vtkNew<vtkMatrix3x3> tmpMat3d;
-    for(int i = 0; i < 3; ++i)
-      {
-      for (int j = 0; j < 3; ++j)
-        {
-        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
-        }
-      }
-    tmpMat3d->Invert();
-    program.SetUniformValue("normalMatrix", tmpMat3d.Get());
-    }
-
-  // Query the actor for some of the properties that can be applied.
-  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
-  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
-                         static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
-                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
-
-  // Override the model color when the value was set directly on the mapper.
-  if (this->ModelColor)
-    {
-    for (int i = 0; i < 3; ++i)
-      {
-      diffuseColor[i] = this->ModelColor[i];
-      }
-    opacity = this->ModelColor[3]/255.0;
-    }
-
-  program.SetUniformValue("opacityUniform", opacity);
-  program.SetUniformValue("diffuseColorUniform", diffuseColor);
-
-  if (first)
-    {
-    this->Internal->triStrips.ibo.Bind();
-    }
-
-  if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
-    {
-    glDrawRangeElements(GL_POINTS, 0,
-                        static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Internal->triStrips.indexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    }
-  // TODO fix wireframe
-  if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-    {
-    for (size_t eCount = 0;
-         eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
-      {
-      glDrawElements(GL_LINE_STRIP,
-        this->Internal->triStrips.elementsArray[eCount],
-        GL_UNSIGNED_INT,
-        (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
-      }
-    }
-  if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
-    {
-    for (size_t eCount = 0;
-         eCount < this->Internal->triStrips.offsetArray.size(); ++eCount)
-      {
-      glDrawElements(GL_TRIANGLE_STRIP,
-        this->Internal->triStrips.elementsArray[eCount],
-        GL_UNSIGNED_INT,
-        (GLvoid *)(this->Internal->triStrips.offsetArray[eCount]));
-      }
-    }
-
-  if (last)
-    {
-    this->Internal->triStrips.ibo.Release();
-    }
-}
-*/
-
-
 
 // ---------------------------------------------------------------------------
 // Description:

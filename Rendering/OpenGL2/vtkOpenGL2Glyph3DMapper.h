@@ -84,6 +84,7 @@ private:
   void operator=(const vtkOpenGL2Glyph3DMapper&); // Not implemented.
 
   virtual void Render(vtkRenderer*, vtkActor*, vtkDataSet*);
+
   //ETX
 };
 

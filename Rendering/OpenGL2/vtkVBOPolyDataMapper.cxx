@@ -1045,6 +1045,108 @@ inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 }
 }
 
+
+
+void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsigned char rgba[4], vtkMatrix4x4 *gmat, int stage)
+{
+  // handle staring up
+  if (stage == 1)
+    {
+    this->RenderPieceStart(ren,actor);
+    this->UpdateShader(this->Internal->tris, ren, actor);
+    this->Internal->tris.ibo.Bind();
+    return;
+    }
+
+  // handle ending
+  if (stage == 3)
+    {
+    this->Internal->tris.ibo.Release();
+    this->RenderPieceFinish(ren,actor);
+    return;
+    }
+
+  vtkgl::ShaderProgram &program = this->Internal->tris.CachedProgram->Program;
+  vtkgl::VBOLayout &layout = this->Internal->layout;
+
+  // handle the middle
+
+  // these three lines could realy be cached and passed in
+  vtkCamera *cam = ren->GetActiveCamera();
+  vtkNew<vtkMatrix4x4> tmpMat;
+  tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
+
+  // Apply this extra transform from things like the glyph mapper.
+  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), gmat, tmpMat.Get());
+
+  // compute the combined ModelView matrix and send it down to save time in the shader
+  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
+  tmpMat->Transpose();
+  program.SetUniformValue("MCVCMatrix", tmpMat.Get());
+
+  // for lit shaders set normal matrix
+  if (this->Internal->LastLightComplexity > 0)
+    {
+    tmpMat->Transpose();
+
+    // set the normal matrix and send it down
+    // (make this a function in camera at some point returning a 3x3)
+    // Reuse the matrix we already got (and possibly multiplied with model mat.
+    vtkNew<vtkTransform> aTF;
+    aTF->SetMatrix(tmpMat.Get());
+    double *scale = aTF->GetScale();
+    aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
+    tmpMat->DeepCopy(aTF->GetMatrix());
+    vtkNew<vtkMatrix3x3> tmpMat3d;
+    for(int i = 0; i < 3; ++i)
+      {
+      for (int j = 0; j < 3; ++j)
+        {
+        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
+        }
+      }
+    tmpMat3d->Invert();
+    program.SetUniformValue("normalMatrix", tmpMat3d.Get());
+    }
+
+  // Query the actor for some of the properties that can be applied.
+  vtkgl::Vector3ub diffuseColor(rgba[0],rgba[1],rgba[2]);
+  float opacity = rgba[3]/255.0;
+
+  program.SetUniformValue("opacityUniform", opacity);
+  program.SetUniformValue("diffuseColorUniform", diffuseColor);
+
+  // First we do the triangles, update the shader, set uniforms, etc.
+  if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
+    {
+    glDrawRangeElements(GL_POINTS, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->tris.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    }
+  if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    {
+    // TODO wireframe of triangles is not lit properly right now
+    // you either have to generate normals and send them down
+    // or use a geometry shader.
+    glMultiDrawElements(GL_LINE_LOOP,
+                      (GLsizei *)(&this->Internal->tris.elementsArray[0]),
+                      GL_UNSIGNED_INT,
+                      reinterpret_cast<const GLvoid **>(&(this->Internal->tris.offsetArray[0])),
+                      this->Internal->tris.offsetArray.size());
+    }
+  if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
+    {
+    glDrawRangeElements(GL_TRIANGLES, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Internal->tris.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    }
+}
+
+
 //-----------------------------------------------------------------------------
 void vtkVBOPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
