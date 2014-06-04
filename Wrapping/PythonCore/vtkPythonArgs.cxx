@@ -901,6 +901,21 @@ vtkObjectBase *vtkPythonArgs::GetSelfFromFirstArg(
 //--------------------------------------------------------------------
 // Define the GetArg methods for getting objects
 
+PyObject *vtkPythonArgs::GetArgAsPythonObject(
+  bool &valid)
+{
+  PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
+  valid = true;
+  return o;
+}
+
+PyObject *vtkPythonArgs::GetArgAsPythonObject(
+  PyObject *o, bool &valid)
+{
+  valid = true;
+  return o;
+}
+
 vtkObjectBase *vtkPythonArgs::GetArgAsVTKObject(
   const char *classname, bool &valid)
 {
