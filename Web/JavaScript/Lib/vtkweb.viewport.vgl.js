@@ -174,7 +174,7 @@
 
             //add object to the reader
             newObject = {
-              md5: sceneObject.md5,
+              sceneMD5: sceneObject.md5,
               part: part,
               vid: viewId,
               id: sceneObject.id,
