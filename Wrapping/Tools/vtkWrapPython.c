@@ -1237,6 +1237,10 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
         result[currPos++] = 's';
         result[currPos++] = '#';
         }
+      else if (vtkWrap_IsPythonObject(arg))
+        {
+        result[currPos++] = '@';
+        }
       else
         {
         result[currPos++] = 'O';
