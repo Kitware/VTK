@@ -26,7 +26,6 @@
 
 #include <vtkActor.h>
 #include <vtkCamera.h>
-#include <vtkExternalOpenGLCamera.h>
 #include <vtkExternalOpenGLRenderer.h>
 #include <vtkExternalOpenGLRenderWindow.h>
 #include <vtkNew.h>
@@ -37,7 +36,6 @@
 // Global variables used by the glutDisplayFunc and glutIdleFunc
 vtkNew<vtkExternalOpenGLRenderer> ren;
 vtkNew<vtkExternalOpenGLRenderWindow> renWin;
-vtkNew<vtkExternalOpenGLCamera> cam;
 bool initilaized = false;
 int NumArgs;
 char** ArgV;
@@ -48,9 +46,6 @@ void display()
 {
   if (!initilaized)
     {
-    ren->SetActiveCamera(cam.GetPointer());
-    ren->PreserveColorBufferOn();
-    ren->PreserveDepthBufferOn();
     renWin->SetSize(400,400);
     renWin->AddRenderer(ren.GetPointer());
     vtkNew<vtkPolyDataMapper> mapper;
@@ -77,8 +72,6 @@ void display()
   GLdouble mv[16],p[16];
   glGetDoublev(GL_MODELVIEW_MATRIX,mv);
   glGetDoublev(GL_PROJECTION_MATRIX,p);
-  cam->SetViewTransformMatrix(mv);
-  cam->SetProjectionTransformMatrix(p);
   renWin->SetSize(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
   renWin->Render();
 }

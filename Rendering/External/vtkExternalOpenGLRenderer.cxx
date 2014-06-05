@@ -32,7 +32,8 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderer);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderer::vtkExternalOpenGLRenderer()
 {
-  this->PreserveColorBuffer = 0;
+  this->PreserveColorBuffer = 1;
+  this->PreserveDepthBuffer = 1;
 }
 
 //----------------------------------------------------------------------------

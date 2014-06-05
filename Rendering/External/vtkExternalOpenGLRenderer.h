@@ -44,7 +44,7 @@ public:
   // Normally the vtkOpenGLRenderer clears the color buffer before rendering a
   // new frame. When this flag is true, the color buffer is not cleared. This
   // can be helpful when rendering there are multiple visualization systems
-  // sharing the same context. Default value is 0.
+  // sharing the same context. Default value is 1.
   vtkGetMacro(PreserveColorBuffer, int);
   vtkSetMacro(PreserveColorBuffer, int);
   vtkBooleanMacro(PreserveColorBuffer, int);
