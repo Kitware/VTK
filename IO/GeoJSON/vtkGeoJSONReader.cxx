@@ -13,7 +13,7 @@ vtkGeoJSONReader::vtkGeoJSONReader()
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::~vtkGeoJSONReader()
 {
-    delete[] FileName;
+  delete[] FileName;
 }
 
 //----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
   //parse the entire geoJSON data into the Json::Value root
   bool parsedSuccess = reader.parse(file, root, false);
 
-  if(!parsedSuccess)
+  if (!parsedSuccess)
     {
     // Report failures and their locations in the document
     vtkErrorMacro(<<"Failed to parse JSON" << endl << reader.getFormatedErrorMessages());
@@ -44,15 +44,15 @@ int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
 }
 
 //----------------------------------------------------------------------------
-int vtkGeoJSONReader::RequestData(vtkInformation *vtkNotUsed(request),
-                                   vtkInformationVector **vtkNotUsed(request),
-                                   vtkInformationVector *outputVector)
+int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
+                                   vtkInformationVector** vtkNotUsed(request),
+                                   vtkInformationVector* outputVector)
 {
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  // Get the info object
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
-  vtkPolyData *output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // Get the ouptut
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   Json::Value root;
   if(CanParse(this->FileName, root) == VTK_ERROR)
@@ -91,7 +91,7 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
     // If it is a collection of features
     for(int i = 0; i < rootFeatures.size(); i++)
       {
-      //Append extracted geometry to existing outputData
+      // Append extracted geometry to existing outputData
       Json::Value child = rootFeatures[i];
       vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
       feature->ExtractGeoJSONFeature(child, output);
@@ -108,7 +108,7 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 //----------------------------------------------------------------------------
 void vtkGeoJSONReader::PrintSelf(ostream &os, vtkIndent indent)
 {
-    Superclass::PrintSelf(os, indent);
-    os << "vtkGeoJSONReader" << std::endl;
-    os << "Filename: " << this->FileName << std::endl;
+  Superclass::PrintSelf(os, indent);
+  os << "vtkGeoJSONReader" << std::endl;
+  os << "Filename: " << this->FileName << std::endl;
 }

@@ -1,7 +1,7 @@
 #ifndef __vtkGeoJSONFeature_h
 #define __vtkGeoJSONFeature_h
 
-//VTK Includes
+// VTK Includes
 #include <vtkPolyData.h>
 #include <vtkPoints.h>
 #include <vtkCellArray.h>
@@ -12,7 +12,7 @@
 #include <vtk_jsoncpp.h>
 #include <vtkObjectFactory.h>
 
-//Currently implemented geoJSON compatible Geometries
+// Currently implemented geoJSON compatible Geometries
 #define POINT                   "Point"
 #define MULTI_POINT             "MultiPoint"
 #define LINE_STRING             "LineString"
@@ -28,11 +28,11 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   vtkTypeMacro(vtkGeoJSONFeature,vtkObject);
 
-  //Description:
+  // Description:
   //Extract the geometry and properties corresponding to the geoJSON feature stored at root
   void ExtractGeoJSONFeature(Json::Value root, vtkPolyData *outputData);
 
-  //Description:
+  // Description:
   //Return the vtkPolyData corresponding to the geoJSON feature stord in featureRoot
   vtkPolyData *GetOutput();
 
@@ -40,32 +40,34 @@ protected:
   vtkGeoJSONFeature();
   ~vtkGeoJSONFeature();
 
-  //Description:
-  //vtkPolyData containing the polydata generated from the geoJSON feature
+  // Description:
+  // vtkPolyData containing the polydata generated from the geoJSON feature
   vtkPolyData *outputData;
 
-  //Description:
-  //Json::Value featureRoot corresponds to the root of the geoJSON feature from which the geometry and properties are to be extracted
+  // Description:
+  // Json::Value featureRoot corresponds to the root of the geoJSON feature
+  // from which the geometry and properties are to be extracted
   Json::Value featureRoot;
 
-  //Description:
-  //Extract geoJSON geometry into vtkPolyData *
+  // Description:
+  // Extract geoJSON geometry into vtkPolyData *
   void ExtractGeoJSONFeatureGeometry(Json::Value root, vtkPolyData *outputData);
 
-  //Description:
-  //In extractXXXX() Extract geoJSON geometries XXXX into outputData
+  // Description:
+  // In extractXXXX() Extract geoJSON geometries XXXX into outputData
   vtkPolyData *ExtractPoint(Json::Value coordinates, vtkPolyData *outputData);
   vtkPolyData *ExtractLineString(Json::Value coordinates, vtkPolyData *outputData);
   vtkPolyData *ExtractPolygon(Json::Value coordinate, vtkPolyData *outputData);
 
-  //Description:
-  //extractMultiXXXX extracts an array of geometries XXXX into the outputData
+  // Description:
+  // extractMultiXXXX extracts an array of geometries XXXX into the outputData
   vtkPolyData *ExtractMultiPoint(Json::Value coordinates, vtkPolyData *outputData);
   vtkPolyData *ExtractMultiLineString(Json::Value coordinateArray, vtkPolyData *outputData);
   vtkPolyData *ExtractMultiPolygon(Json::Value coordinateArray, vtkPolyData *outputData);
 
-  //Description:
-  //Check if the root contains corresponding appropriate geometry in the Jsoncpp root
+  // Description:
+  // Check if the root contains corresponding appropriate geometry in the
+  // Jsoncpp root
   bool IsPoint(Json::Value root);
   bool IsMultiPoint(Json::Value root);
   bool IsLineString(Json::Value root);  //To Do.
@@ -73,12 +75,12 @@ protected:
   bool IsPolygon(Json::Value root); //To Do.
   bool IsMultiPolygon(Json::Value root);  //To Do.
 
-  //Description:
-  //Point[] from its JSON equivalent
+  // Description:
+  // Point[] from its JSON equivalent
   double *CreatePoint(Json::Value coordinates);
 
-  //Description:
-  //Case insensitive string comparison
+  // Description:
+  // Case insensitive string comparison
   bool IsEqual(vtkStdString str1, vtkStdString str2);
 
 private:

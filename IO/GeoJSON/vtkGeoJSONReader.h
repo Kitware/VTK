@@ -21,9 +21,10 @@ class vtkGeoJSONReader: public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoJSONReader* New();
+  vtkTypeMacro(vtkGeoJSONReader,vtkPolyDataAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  //Decription:
+  // Decription:
   // Accessor for name of the file that will be opened on WriteData
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -31,26 +32,26 @@ public:
 protected:
   vtkGeoJSONReader();
   virtual ~vtkGeoJSONReader();
-  vtkTypeMacro(vtkGeoJSONReader,vtkPolyDataAlgorithm);
 
-  //Decription:
-  //Core implementation of the
-  int RequestData(vtkInformation *request, vtkInformationVector **inputVector, vtkInformationVector *outputVector);
+  // Decription:
+  // Core implementation of the
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector);
 
-  //Decription:
-  //Parse the Json Value corresponding to the root of the geoJSON data from the file
+  // Decription:
+  // Parse the Json Value corresponding to the root of the geoJSON data from the file
   void ParseRoot(Json::Value root, vtkPolyData *output);
 
-  //Decription:
-  //Verify if file exists and can be read by the parser
-  //If exists, parse into Jsoncpp data structure
+  // Decription:
+  // Verify if file exists and can be read by the parser
+  // If exists, parse into Jsoncpp data structure
   int CanParse(const char *filename, Json::Value &root);
 
   char *FileName;
 
 private:
-  vtkGeoJSONReader(const vtkGeoJSONReader&);  //Not implemented
-  void operator=(const vtkGeoJSONReader&);    //Not implemented
+  vtkGeoJSONReader(const vtkGeoJSONReader&);  // Not implemented
+  void operator=(const vtkGeoJSONReader&);    // Not implemented
 };
 
 #endif // __vtkGeoJSONReader_h
