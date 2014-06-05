@@ -36,6 +36,9 @@ double *vtkGeoJSONFeature::CreatePoint(Json::Value coordinates)
 
   //Initialise the 3D coordinates to 0
   double *point = new double[3];
+  point[0] = 0;
+  point[1] = 0;
+  point[2] = 0;
 
   if(coordinates.size() == 1)
     {
@@ -139,12 +142,14 @@ vtkPolyData *vtkGeoJSONFeature::ExtractLineString(Json::Value coordinates, vtkPo
   int LINE_COUNT = coordinates.size();
 
   double *start = CreatePoint(coordinates[0]);
+
   vtkIdType lineId[2];
   lineId[0] = points->InsertNextPoint(start);
 
   for(int i = 1; i < LINE_COUNT; i++)
     {
     double *end = CreatePoint(coordinates[i]);
+
     lineId[1] = points->InsertNextPoint(end);
 
     vtkLine *line = vtkLine::New();
