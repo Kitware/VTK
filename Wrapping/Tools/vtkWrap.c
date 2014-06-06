@@ -87,6 +87,13 @@ int vtkWrap_IsSpecialObject(ValueInfo *val)
           val->Class[0] == 'v' && strncmp(val->Class, "vtk", 3) == 0);
 }
 
+int vtkWrap_IsPythonObject(ValueInfo *val)
+{
+  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
+  return (t == VTK_PARSE_UNKNOWN &&
+          strncmp(val->Class, "Py", 2) == 0);
+}
+
 int vtkWrap_IsQtObject(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
