@@ -15,7 +15,6 @@
 
 #include <GL/glew.h>
 #include "vtkglShader.h"
-#include "vtkglTexture2D.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 
@@ -304,74 +303,7 @@ bool ShaderProgram::UseAttributeArray(const std::string &name, int offset,
   return true;
 }
 
-bool ShaderProgram::SetTextureSampler(const std::string &name,
-                                      const Texture2D &texture)
-{
-  // Look up sampler location:
-  GLint location = static_cast<GLint>(this->FindUniform(name));
-  if (location == -1)
-    {
-    this->Error = "Could not set sampler " + name + ". No uniform with that name.";
-    return false;
-    }
-
-  // Check if the texture is already bound:
-  GLint textureUnitId = 0;
-  typedef std::map<const Texture2D*, int>::const_iterator TMapIter;
-  TMapIter result = TextureUnitBindings.find(&texture);
-  if (result == TextureUnitBindings.end())
-    {
-    // Not bound. Attempt to bind the texture to an available texture unit.
-    // We'll leave GL_TEXTURE0 unbound, as it is used for manipulating
-    // textures.
-    std::vector<bool>::iterator begin = BoundTextureUnits.begin() + 1;
-    std::vector<bool>::iterator end = BoundTextureUnits.end();
-    std::vector<bool>::iterator available = std::find(begin, end, false);
-
-    if (available == end)
-      {
-      this->Error = "Could not set sampler " + name + ". No remaining texture "
-          "units available.";
-      return false;
-      }
-
-    textureUnitId = static_cast<GLint>(available - begin);
-
-    GLenum textureUnit = LookupTextureUnit(textureUnitId);
-    if (textureUnit == 0)
-      {
-      this->Error = "Could not set sampler " + name
-          + ". Texture unit lookup failed.";
-      return false;
-      }
-
-    glActiveTexture(textureUnit);
-    if (!texture.bind())
-      {
-      this->Error = "Could not set sampler " + name + ": Error while binding "
-          "texture: '" + texture.error() + "'.";
-      glActiveTexture(GL_TEXTURE0);
-      return false;
-      }
-    glActiveTexture(GL_TEXTURE0);
-
-    // Mark texture unit as in-use.
-    TextureUnitBindings.insert(std::make_pair(&texture, textureUnitId));
-    *available = true;
-    }
-  else
-    {
-    // Texture is already bound.
-    textureUnitId = result->second;
-    }
-
-  // Set the texture unit uniform
-  glUniform1i(location, textureUnitId);
-
-  return true;
-}
-
-bool ShaderProgram::SetUniformValue(const std::string &name, int i)
+bool ShaderProgram::SetUniformi(const std::string &name, int i)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -383,7 +315,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name, int i)
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name, float f)
+bool ShaderProgram::SetUniformf(const std::string &name, float f)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -395,35 +327,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name, float f)
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name,
-                                    const Matrix3f &matrix)
-{
-  GLint location = static_cast<GLint>(this->FindUniform(name));
-  if (location == -1)
-    {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
-    return false;
-    }
-  glUniformMatrix3fv(location, 1, GL_FALSE,
-                     static_cast<const GLfloat *>(matrix.data()));
-  return true;
-}
-
-bool ShaderProgram::SetUniformValue(const std::string &name,
-                                    const Matrix4f &matrix)
-{
-  GLint location = static_cast<GLint>(this->FindUniform(name));
-  if (location == -1)
-    {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
-    return false;
-    }
-  glUniformMatrix4fv(location, 1, GL_FALSE,
-                     static_cast<const GLfloat *>(matrix.data()));
-  return true;
-}
-
-bool ShaderProgram::SetUniformValue(const std::string &name,
+bool ShaderProgram::SetUniformMatrix(const std::string &name,
                                     vtkMatrix4x4 *matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
@@ -441,7 +345,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name,
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name,
+bool ShaderProgram::SetUniformMatrix(const std::string &name,
                                     vtkMatrix3x3 *matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
@@ -459,7 +363,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name,
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name, const int count,
+bool ShaderProgram::SetUniform1fv(const std::string &name, const int count,
                                     const float *v)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
@@ -472,7 +376,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name, const int count,
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name, const int count,
+bool ShaderProgram::SetUniform1iv(const std::string &name, const int count,
                                     const int *v)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
@@ -485,7 +389,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name, const int count,
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name, const int count,
+bool ShaderProgram::SetUniform3fv(const std::string &name, const int count,
                                     const float (*v)[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
@@ -498,7 +402,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name, const int count,
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name, const float v[3])
+bool ShaderProgram::SetUniform3f(const std::string &name, const float v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -510,7 +414,7 @@ bool ShaderProgram::SetUniformValue(const std::string &name, const float v[3])
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name, const Vector3f &v)
+bool ShaderProgram::SetUniform4f(const std::string &name, const float v[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -518,11 +422,11 @@ bool ShaderProgram::SetUniformValue(const std::string &name, const Vector3f &v)
     this->Error = "Could not set uniform " + name + ". No such uniform.";
     return false;
     }
-  glUniform3fv(location, 1, v.data());
+  glUniform4fv(location, 1, v);
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name, const Vector2i &v)
+bool ShaderProgram::SetUniform2i(const std::string &name, const int v[2])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -530,12 +434,12 @@ bool ShaderProgram::SetUniformValue(const std::string &name, const Vector2i &v)
     this->Error = "Could not set uniform " + name + ". No such uniform.";
     return false;
     }
-  glUniform2iv(location, 1, v.data());
+  glUniform2iv(location, 1, v);
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name,
-                                    const Vector3ub &v)
+bool ShaderProgram::SetUniform3uc(const std::string &name,
+                                    const unsigned char v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -543,13 +447,13 @@ bool ShaderProgram::SetUniformValue(const std::string &name,
     this->Error = "Could not set uniform " + name + ". No such uniform.";
     return false;
     }
-  vtkColor3f colorf(v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f);
-  glUniform3fv(location, 1, colorf.GetData());
+  float colorf[3] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f};
+  glUniform3fv(location, 1, colorf);
   return true;
 }
 
-bool ShaderProgram::SetUniformValue(const std::string &name,
-                                    const Vector4ub &v)
+bool ShaderProgram::SetUniform4uc(const std::string &name,
+                                    const unsigned char v[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
@@ -557,8 +461,8 @@ bool ShaderProgram::SetUniformValue(const std::string &name,
     this->Error = "Could not set uniform " + name + ". No such uniform.";
     return false;
     }
-  vtkColor4f colorf(v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, v[3] / 255.0f);
-  glUniform4fv(location, 1, colorf.GetData());
+  float colorf[4] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, v[3] / 255.0f};
+  glUniform4fv(location, 1, colorf);
   return true;
 }
 

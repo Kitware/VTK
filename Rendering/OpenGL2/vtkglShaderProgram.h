@@ -15,8 +15,6 @@
 #define __vtkglShaderProgram_h
 
 #include "vtkRenderingOpenGL2Module.h"
-#include "vtkglVector.h" // For API
-#include "vtkglMatrix.h" // For API
 #include "vtkVector.h" // For API
 #include "vtkColor.h" // For API
 #include "vtkTypeTraits.h" // For type traits inline template
@@ -156,36 +154,23 @@ public:
   bool SetAttributeArray(const std::string &name, const T &array,
                          int tupleSize, NormalizeOption normalize);
 
-  /** Set the sampler @a samplerName to use the specified texture. */
-  bool SetTextureSampler(const std::string &samplerName,
-                         const Texture2D &texture);
-
-  /** Set the @p name uniform value to int @p i. */
-  bool SetUniformValue(const std::string &name, int i);
-
-  /** Set the @p name uniform value to float @p f. */
-  bool SetUniformValue(const std::string &name, float f);
+  /** Set the @p name uniform value to int @p v. */
+  bool SetUniformi(const std::string &name, int v);
+  bool SetUniformf(const std::string &name, float v);
+  bool SetUniform2i(const std::string &name, const int v[2]);
+  bool SetUniform3f(const std::string &name, const float v[3]);
+  bool SetUniform4f(const std::string &name, const float v[4]);
+  bool SetUniform3uc(const std::string &name, const unsigned char v[3]); // maybe remove
+  bool SetUniform4uc(const std::string &name, const unsigned char v[4]); // maybe remove
+  bool SetUniformMatrix(const std::string &name, vtkMatrix3x3 *v);
+  bool SetUniformMatrix(const std::string &name, vtkMatrix4x4 *v);
 
   /** Set the @p name uniform array to @p f with @p count elements */
-  bool SetUniformValue(const std::string &name, const int count, const int *f);
-  bool SetUniformValue(const std::string &name, const int count, const float *f);
-  bool SetUniformValue(const std::string &name, const int count, const float (*f)[3]);
-
-  bool SetUniformValue(const std::string &name, const float v[3]);
-
-  bool SetUniformValue(const std::string &name, vtkMatrix3x3 *mat);
-  bool SetUniformValue(const std::string &name, vtkMatrix4x4 *mat);
-
-  /** Set the @p name uniform value to @p matrix. */
-  bool SetUniformValue(const std::string &name, const Matrix3f &matrix);
-  bool SetUniformValue(const std::string &name, const Matrix4f &matrix);
-
-  /** Set the @p name uniform value to the supplied value. @{ */
-  bool SetUniformValue(const std::string &name, const Vector3f &v);
-  bool SetUniformValue(const std::string &name, const Vector2i &v);
-  bool SetUniformValue(const std::string &name, const Vector3ub &v);
-  bool SetUniformValue(const std::string &name, const Vector4ub &v);
-  /** @} */
+  bool SetUniform1iv(const std::string &name, const int count, const int *f);
+  bool SetUniform2iv(const std::string &name, const int count, const int *f);
+  bool SetUniform3uv(const std::string &name, const int count, const unsigned char *f);
+  bool SetUniform1fv(const std::string &name, const int count, const float *f);
+  bool SetUniform3fv(const std::string &name, const int count, const float (*f)[3]);
 
 protected:
   bool SetAttributeArrayInternal(const std::string &name, void *buffer,

@@ -208,7 +208,7 @@ bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,
   VertexAttributes attribs;
   attribs.index = glGetAttribLocation(this->d->handleProgram, namePtr);
   attribs.offset = offset;
-  attribs.stride = stride;
+  attribs.stride = static_cast<GLsizei>(stride);
   attribs.type = convertTypeToGL(elementType);
   attribs.size = elementTupleSize;
   attribs.normalize = normalize;

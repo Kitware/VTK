@@ -418,7 +418,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
 
   if (layout.TCoordComponents)
     {
-    cellBO.CachedProgram->Program.SetUniformValue("texture1", 0);
+    cellBO.CachedProgram->Program.SetUniformi("texture1", 0);
     }
 
   if (picking)
@@ -428,11 +428,11 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       if (selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24)
         {
         float tmp[3] = {0,0,0};
-        cellBO.CachedProgram->Program.SetUniformValue("mapperIndex", tmp);
+        cellBO.CachedProgram->Program.SetUniform3f("mapperIndex", tmp);
         }
       else
         {
-        cellBO.CachedProgram->Program.SetUniformValue("mapperIndex", selector->GetPropColorValue());
+        cellBO.CachedProgram->Program.SetUniform3f("mapperIndex", selector->GetPropColorValue());
         }
       }
     else
@@ -440,7 +440,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       unsigned int idx = ren->GetCurrentPickId();
       float color[3];
       vtkHardwareSelector::Convert(idx, color);
-      cellBO.CachedProgram->Program.SetUniformValue("mapperIndex", color);
+      cellBO.CachedProgram->Program.SetUniform3f("mapperIndex", color);
       }
     }
 
@@ -501,9 +501,9 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
       }
     }
 
-  program.SetUniformValue("lightColor", numberOfLights, lightColor);
-  program.SetUniformValue("lightDirectionVC", numberOfLights, lightDirection);
-  program.SetUniformValue("numberOfLights", numberOfLights);
+  program.SetUniform3fv("lightColor", numberOfLights, lightColor);
+  program.SetUniform3fv("lightDirectionVC", numberOfLights, lightDirection);
+  program.SetUniformi("numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights
   if (this->Internal->LastLightComplexity < 3)
@@ -538,11 +538,11 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
       numberOfLights++;
       }
     }
-  program.SetUniformValue("lightAttenuation", numberOfLights, lightAttenuation);
-  program.SetUniformValue("lightPositional", numberOfLights, lightPositional);
-  program.SetUniformValue("lightPositionWC", numberOfLights, lightPosition);
-  program.SetUniformValue("lightExponent", numberOfLights, lightExponent);
-  program.SetUniformValue("lightConeAngle", numberOfLights, lightConeAngle);
+  program.SetUniform3fv("lightAttenuation", numberOfLights, lightAttenuation);
+  program.SetUniform1iv("lightPositional", numberOfLights, lightPositional);
+  program.SetUniform3fv("lightPositionWC", numberOfLights, lightPosition);
+  program.SetUniform1fv("lightExponent", numberOfLights, lightExponent);
+  program.SetUniform1fv("lightConeAngle", numberOfLights, lightConeAngle);
 }
 
 //-----------------------------------------------------------------------------
@@ -554,7 +554,7 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   // set the MCWC matrix for positional lighting
   if (this->Internal->LastLightComplexity > 2)
     {
-    program.SetUniformValue("MCWCMatrix", actor->GetMatrix());
+    program.SetUniformMatrix("MCWCMatrix", actor->GetMatrix());
     }
 
   vtkCamera *cam = ren->GetActiveCamera();
@@ -573,7 +573,7 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
     }
 
   tmpMat->Transpose();
-  program.SetUniformValue("MCVCMatrix", tmpMat.Get());
+  program.SetUniformMatrix("MCVCMatrix", tmpMat.Get());
 
   // for lit shaders set normal matrix
   if (this->Internal->LastLightComplexity > 0)
@@ -600,12 +600,12 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
         }
       }
     tmpMat3d->Invert();
-    program.SetUniformValue("normalMatrix", tmpMat3d.Get());
+    program.SetUniformMatrix("normalMatrix", tmpMat3d.Get());
     }
 
   vtkMatrix4x4 *tmpProj;
   tmpProj = cam->GetProjectionTransformMatrix(ren); // allocates a matrix
-  program.SetUniformValue("VCDCMatrix", tmpProj);
+  program.SetUniformMatrix("VCDCMatrix", tmpProj);
   tmpProj->UnRegister(this);
 }
 
@@ -619,19 +619,13 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *aColor = actor->GetProperty()->GetAmbientColor();
   double aIntensity = actor->GetProperty()->GetAmbient();  // ignoring renderer ambient
-  vtkgl::Vector3ub ambientColor(static_cast<unsigned char>(aColor[0] * aIntensity * 255.0),
-                         static_cast<unsigned char>(aColor[1] * aIntensity * 255.0),
-                         static_cast<unsigned char>(aColor[2] * aIntensity * 255.0));
+  float ambientColor[3] = {aColor[0] * aIntensity, aColor[1] * aIntensity, aColor[2] * aIntensity};
   double *dColor = actor->GetProperty()->GetDiffuseColor();
   double dIntensity = actor->GetProperty()->GetDiffuse();
-  vtkgl::Vector3ub diffuseColor(static_cast<unsigned char>(dColor[0] * dIntensity * 255.0),
-                         static_cast<unsigned char>(dColor[1] * dIntensity * 255.0),
-                         static_cast<unsigned char>(dColor[2] * dIntensity * 255.0));
+  float diffuseColor[3] = {dColor[0] * dIntensity, dColor[1] * dIntensity, dColor[2] * dIntensity};
   double *sColor = actor->GetProperty()->GetSpecularColor();
   double sIntensity = actor->GetProperty()->GetSpecular();
-  vtkgl::Vector3ub specularColor(static_cast<unsigned char>(sColor[0] * sIntensity * 255.0),
-                         static_cast<unsigned char>(sColor[1] * sIntensity * 255.0),
-                         static_cast<unsigned char>(sColor[2] * sIntensity * 255.0));
+  float specularColor[3] = {sColor[0] * sIntensity, sColor[1] * sIntensity, sColor[2] * sIntensity};
   float specularPower = actor->GetProperty()->GetSpecularPower();
 
   // Override the model color when the value was set directly on the mapper.
@@ -639,21 +633,21 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
     {
     for (int i = 0; i < 3; ++i)
       {
-      diffuseColor[i] = this->ModelColor[i];
+      diffuseColor[i] = this->ModelColor[i]/255.0;
       }
     opacity = this->ModelColor[3]/255.0;
     }
 
-  program.SetUniformValue("opacityUniform", opacity);
-  program.SetUniformValue("ambientColorUniform", ambientColor);
-  program.SetUniformValue("diffuseColorUniform", diffuseColor);
+  program.SetUniformf("opacityUniform", opacity);
+  program.SetUniform3f("ambientColorUniform", ambientColor);
+  program.SetUniform3f("diffuseColorUniform", diffuseColor);
   // we are done unless we have lighting
   if (this->Internal->LastLightComplexity < 1)
     {
     return;
     }
-  program.SetUniformValue("specularColor", specularColor);
-  program.SetUniformValue("specularPower", specularPower);
+  program.SetUniform3f("specularColor", specularColor);
+  program.SetUniformf("specularPower", specularPower);
 }
 
 //-----------------------------------------------------------------------------
@@ -1122,24 +1116,22 @@ void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsign
     return;
     }
 
+  // handle the middle
   vtkgl::ShaderProgram &program = this->Internal->tris.CachedProgram->Program;
   vtkgl::VBOLayout &layout = this->Internal->layout;
 
-  // handle the middle
 
-  // these three lines could realy be cached and passed in
+  // these next four lines could be cached and passed in to save time
   vtkCamera *cam = ren->GetActiveCamera();
   vtkNew<vtkMatrix4x4> tmpMat;
   tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
-
-  // compute the combined ModelView matrix and send it down to save time in the shader
   vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
 
   // Apply this extra transform from things like the glyph mapper.
   vtkMatrix4x4::Multiply4x4(tmpMat.Get(), gmat, tmpMat.Get());
 
   tmpMat->Transpose();
-  program.SetUniformValue("MCVCMatrix", tmpMat.Get());
+  program.SetUniformMatrix("MCVCMatrix", tmpMat.Get());
 
   // for lit shaders set normal matrix
   if (this->Internal->LastLightComplexity > 0)
@@ -1163,20 +1155,20 @@ void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsign
         }
       }
     tmpMat3d->Invert();
-    program.SetUniformValue("normalMatrix", tmpMat3d.Get());
+    program.SetUniformMatrix("normalMatrix", tmpMat3d.Get());
     }
 
   // Query the actor for some of the properties that can be applied.
-  vtkgl::Vector3ub diffuseColor(rgba[0],rgba[1],rgba[2]);
+  float diffuseColor[3] = {rgba[0]/255.0,rgba[1]/255.0,rgba[2]/255.0};
   float opacity = rgba[3]/255.0;
 
-  program.SetUniformValue("opacityUniform", opacity);
-  program.SetUniformValue("diffuseColorUniform", diffuseColor);
+  program.SetUniformf("opacityUniform", opacity);
+  program.SetUniform3f("diffuseColorUniform", diffuseColor);
 
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector)
     {
-    program.SetUniformValue("mapperIndex", selector->GetPropColorValue());
+    program.SetUniform3f("mapperIndex", selector->GetPropColorValue());
     float *fv = selector->GetPropColorValue();
     int iv = (int)(fv[0]*255) + (int)(fv[1]*255)*256;
     if (iv == 0)

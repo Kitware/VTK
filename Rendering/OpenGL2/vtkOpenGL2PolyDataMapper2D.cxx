@@ -212,7 +212,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 
   if (layout.TCoordComponents)
     {
-    cellBO.CachedProgram->Program.SetUniformValue("texture1", 0);
+    cellBO.CachedProgram->Program.SetUniformi("texture1", 0);
     }
 
   this->SetPropertyShaderParameters(cellBO, viewport, actor);
@@ -229,12 +229,9 @@ void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *dColor = actor->GetProperty()->GetColor();
-  vtkgl::Vector4ub diffuseColor(static_cast<unsigned char>(dColor[0] * 255.0),
-                         static_cast<unsigned char>(dColor[1] * 255.0),
-                         static_cast<unsigned char>(dColor[2] * 255.0),
-                         static_cast<unsigned char>(opacity * 255.0));
+  float diffuseColor[4] = {dColor[0], dColor[1], dColor[2], opacity};
 
-  program.SetUniformValue("diffuseColor", diffuseColor);
+  program.SetUniform4f("diffuseColor", diffuseColor);
 }
 
 //-----------------------------------------------------------------------------
@@ -315,7 +312,7 @@ void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(
   tmpMat->SetElement(1,3,-1.0*(top+bottom)/(top-bottom));
   tmpMat->SetElement(2,3,-1.0*(farV+nearV)/(farV-nearV));
   tmpMat->Transpose();
-  program.SetUniformValue("WCVCMatrix", tmpMat);
+  program.SetUniformMatrix("WCVCMatrix", tmpMat);
 
   tmpMat->Delete();
 }

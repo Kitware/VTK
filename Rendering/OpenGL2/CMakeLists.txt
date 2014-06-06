@@ -1,10 +1,8 @@
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM
   ${OPENGL_INCLUDE_DIR}
-  ${GLEW_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIR})
+  ${GLEW_INCLUDE_DIRS})
 if(WIN32 AND NOT BUILD_SHARED_LIBS)
   add_definitions(-DGLEW_STATIC)
 endif()
@@ -18,7 +16,6 @@ set(Module_SRCS
   vtkglVBOHelper.cxx
   vtkglShader.cxx
   vtkglShaderProgram.cxx
-  vtkglTexture2D.cxx
   vtkglVertexArrayObject.cxx
   vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
