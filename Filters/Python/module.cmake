@@ -1,0 +1,9 @@
+vtk_module(vtkFiltersPython
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkPython
+  PRIVATE_DEPENDS
+    vtkWrappingPythonCore
+  )
