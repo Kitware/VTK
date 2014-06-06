@@ -25,7 +25,6 @@
 
 class vtkOpenGL2RendererLayerList; // Pimpl
 class vtkRenderPass;
-class vtkShaderProgram2;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Renderer : public vtkRenderer
 {
@@ -57,13 +56,6 @@ public:
   // If so, the uniform variables UseTexture and Texture can be set.
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int GetDepthPeelingHigherLayer();
-
-  //BTX
-  // Description:
-  //
-  vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2);
-  virtual void SetShaderProgram(vtkShaderProgram2 *program);
-  //ETX
 
   // Description:
   // Set/Get a custom render pass.
@@ -114,16 +106,6 @@ protected:
   //ETX
 
   // Description:
-  // Access to the OpenGL program shader uniform variable "useTexture" from the
-  // vtkOpenGLProperty or vtkOpenGLTexture.
-  int GetUseTextureUniformVariable();
-
-  // Description:
-  // Access to the OpenGL program shader uniform variable "texture" from the
-  // vtkOpenGLProperty or vtkOpenGLTexture.
-  int GetTextureUniformVariable();
-
-  // Description:
   // This flag is on if the current OpenGL context supports extensions
   // required by the depth peeling technique.
   int DepthPeelingIsSupported;
@@ -158,8 +140,6 @@ protected:
   // If so, the uniform variables UseTexture and Texture can be set.
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int DepthPeelingHigherLayer;
-
-  vtkShaderProgram2 *ShaderProgram;
 
   friend class vtkRenderPass;
   vtkRenderPass *Pass;

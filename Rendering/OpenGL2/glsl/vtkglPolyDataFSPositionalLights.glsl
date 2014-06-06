@@ -56,6 +56,9 @@ varying vec4 vertexWC;
 // Texture coordinates
 //VTK::TCoord::Dec
 
+// picking support
+//VTK::Picking::Dec
+
 void main()
 {
   //VTK::Color::Impl
@@ -122,6 +125,13 @@ void main()
 
   gl_FragColor = vec4(ambientColor + diffuse + specular, opacity);
   //VTK::TCoord::Impl
+
+  if (gl_FragColor.a <= 0)
+    {
+    discard;
+    }
+
+  //VTK::Picking::Impl
 }
 
 

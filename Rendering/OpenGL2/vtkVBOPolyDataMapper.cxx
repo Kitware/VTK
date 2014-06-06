@@ -45,6 +45,8 @@
 #include "vtkImageData.h"
 #include "vtkOpenGL2Texture.h"
 
+#include "vtkHardwareSelector.h"
+
 // Bring in our fragment lit shader symbols.
 #include "vtkglPolyDataVSFragmentLit.h"
 #include "vtkglPolyDataFSHeadlight.h"
@@ -52,9 +54,6 @@
 #include "vtkglPolyDataFSPositionalLights.h"
 
 // bring in vertex lit shader symbols
-//#include "vtkglPolyDataVSLightKit.h"
-//#include "vtkglPolyDataVSHeadlight.h"
-//#include "vtkglPolyDataVSPositionalLights.h"
 #include "vtkglPolyDataVSNoLighting.h"
 #include "vtkglPolyDataFS.h"
 
@@ -77,9 +76,13 @@ public:
   int LastLightComplexity;
   vtkTimeStamp LightComplexityChanged;
 
+  bool LastSelectionState;
+  vtkTimeStamp SelectionStateChanged;
+
   Private()
   {
     this->LastLightComplexity = -1;
+    this->LastSelectionState = false;
   }
 
 };
@@ -93,6 +96,7 @@ vtkVBOPolyDataMapper::vtkVBOPolyDataMapper()
     ModelTransformMatrix(NULL), ModelColor(NULL)
 {
   this->InternalColorTexture = 0;
+  this->PopulateSelectionSettings = 1;
 }
 
 
@@ -120,7 +124,7 @@ void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* vtkNotUsed(ren), vtkActor *actor)
+void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* ren, vtkActor *actor)
 {
   switch (lightComplexity)
     {
@@ -238,6 +242,30 @@ void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSou
       }
     }
 
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
+  if (picking)
+    {
+    FSSource = vtkgl::replace(FSSource,
+                                 "//VTK::Picking::Dec","uniform vec3 mapperIndex;");
+    FSSource = vtkgl::replace(FSSource,
+                              "//VTK::Picking::Impl",
+                              "if (mapperIndex == vec3(0,0,0))  { "
+                              "  int idx = gl_PrimitiveID + 1;"
+                              "  gl_FragColor = vec4((idx%256)/255.0, ((idx/256)%256)/255.0, (idx/65536)/255.0, 1.0);"
+                              "  } "
+                              "else { "
+                              "  gl_FragColor = vec4(mapperIndex,1.0);"
+                              "  }");
+    }
+  // else
+  //   {
+  //   FSSource = vtkgl::replace(FSSource,
+  //                             "//VTK::Picking::Impl",
+  //                             "  if (gl_PrimitiveID != 50816 && gl_PrimitiveID != 50992) discard;  gl_FragColor = vec4(0.2,0.2,0.2,1); if (gl_PrimitiveID == 50816) {gl_FragColor = vec4(1,0,1,1);} if (gl_PrimitiveID == 50992) {gl_FragColor = vec4(0,1,1,1);}");
+  //   }
+
   //cout << "VS: " << VSSource << endl;
   //cout << "FS: " << FSSource << endl;
 }
@@ -300,14 +328,20 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     }
 
-
   vtkOpenGL2RenderWindow *renWin = vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
-
 
   if (this->Internal->LastLightComplexity != lightComplexity)
     {
     this->Internal->LightComplexityChanged.Modified();
     this->Internal->LastLightComplexity = lightComplexity;
+    }
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool picking = (renWin->GetIsPicking() || selector != NULL);
+  if (this->Internal->LastSelectionState != picking)
+    {
+    this->Internal->SelectionStateChanged.Modified();
+    this->Internal->LastSelectionState = picking;
     }
 
   // has something changed that would require us to recreate the shader?
@@ -318,6 +352,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
   if (cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
+      cellBO.ShaderSourceTime < this->Internal->SelectionStateChanged ||
       cellBO.ShaderSourceTime < this->Internal->LightComplexityChanged)
     {
     std::string VSSource;
@@ -384,6 +419,29 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
   if (layout.TCoordComponents)
     {
     cellBO.CachedProgram->Program.SetUniformValue("texture1", 0);
+    }
+
+  if (picking)
+    {
+    if (selector)
+      {
+      if (selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24)
+        {
+        float tmp[3] = {0,0,0};
+        cellBO.CachedProgram->Program.SetUniformValue("mapperIndex", tmp);
+        }
+      else
+        {
+        cellBO.CachedProgram->Program.SetUniformValue("mapperIndex", selector->GetPropColorValue());
+        }
+      }
+    else
+      {
+      unsigned int idx = ren->GetCurrentPickId();
+      float color[3];
+      vtkHardwareSelector::Convert(idx, color);
+      cellBO.CachedProgram->Program.SetUniformValue("mapperIndex", color);
+      }
     }
 
   this->SetPropertyShaderParameters(cellBO, ren, actor);
@@ -503,6 +561,10 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 
   vtkNew<vtkMatrix4x4> tmpMat;
   tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
+
+  // compute the combined ModelView matrix and send it down to save time in the shader
+  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
+
   if (this->ModelTransformMatrix)
     {
     // Apply this extra transform from things like the glyph mapper.
@@ -510,8 +572,6 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                               tmpMat.Get());
     }
 
-  // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
   tmpMat->Transpose();
   program.SetUniformValue("MCVCMatrix", tmpMat.Get());
 
@@ -601,31 +661,21 @@ void vtkVBOPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
   vtkDataObject *input= this->GetInputDataObject(0, 0);
 
-  // Make sure that we have been properly initialized.
-  if (ren->GetRenderWindow()->CheckAbortStatus())
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && this->PopulateSelectionSettings)
     {
-    return;
-    }
-
-  if (input == NULL)
-    {
-    vtkErrorMacro(<< "No input!");
-    return;
-    }
-  else
-    {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    if (!this->Static)
+    selector->BeginRenderProp();
+    if (selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
       {
-      this->GetInputAlgorithm()->Update();
+      selector->RenderCompositeIndex(1);
       }
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
-    }
-
-  // if there are no points then we are done
-  if (!this->GetInput()->GetPoints())
-    {
-    return;
+    if (selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24 ||
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_MID24 ||
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_HIGH16)
+      {
+      // TODO need more smarts in here for mid and high
+      selector->RenderAttributeId(0);
+      }
     }
 
   this->TimeToDraw = 0.0;
@@ -801,8 +851,14 @@ void vtkVBOPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *actor)
+void vtkVBOPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && this->PopulateSelectionSettings)
+    {
+    selector->EndRenderProp();
+    }
+
   if (this->Internal->lastBoundBO)
     {
     this->Internal->lastBoundBO->vao.Release();
@@ -829,9 +885,36 @@ void vtkVBOPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *actor)
 //-----------------------------------------------------------------------------
 void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 {
-    this->RenderPieceStart(ren, actor);
-    this->RenderPieceDraw(ren, actor);
-    this->RenderPieceFinish(ren, actor);
+  // Make sure that we have been properly initialized.
+  if (ren->GetRenderWindow()->CheckAbortStatus())
+    {
+    return;
+    }
+
+  vtkDataObject *input= this->GetInputDataObject(0, 0);
+
+  if (input == NULL)
+    {
+    vtkErrorMacro(<< "No input!");
+    return;
+    }
+
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
+  if (!this->Static)
+    {
+    this->GetInputAlgorithm()->Update();
+    }
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
+
+  // if there are no points then we are done
+  if (!this->GetInput()->GetPoints())
+    {
+    return;
+    }
+
+  this->RenderPieceStart(ren, actor);
+  this->RenderPieceDraw(ren, actor);
+  this->RenderPieceFinish(ren, actor);
 }
 
 //-------------------------------------------------------------------------
@@ -1020,40 +1103,6 @@ bool vtkVBOPolyDataMapper::GetIsOpaque()
   return this->Superclass::GetIsOpaque();
 }
 
-namespace
-{
-inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
-{
-  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(array);
-  if (!colors || colors->GetNumberOfComponents() != 4)
-    {
-    return;
-    }
-  unsigned char* ptr = colors->GetPointer(0);
-  vtkIdType numValues =
-      colors->GetNumberOfTuples() * colors->GetNumberOfComponents();
-  if (numValues <= 4)
-    {
-    return;
-    }
-  for (vtkIdType cc = 0; cc < numValues; cc += 4, ptr += 4)
-    {
-    double alpha = (0x0ff & ptr[3]) / 255.0;
-    ptr[0] = static_cast<unsigned char>(0x0ff &
-                                        static_cast<int>((0x0ff &
-                                                          ptr[0]) * alpha));
-    ptr[1] = static_cast<unsigned char>(0x0ff &
-                                        static_cast<int>((0x0ff &
-                                                          ptr[1]) * alpha));
-    ptr[2] = static_cast<unsigned char>(0x0ff &
-                                        static_cast<int>((0x0ff &
-                                                          ptr[2]) * alpha));
-    }
-}
-}
-
-
-
 void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsigned char rgba[4], vtkMatrix4x4 *gmat, int stage)
 {
   // handle staring up
@@ -1083,11 +1132,12 @@ void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsign
   vtkNew<vtkMatrix4x4> tmpMat;
   tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
 
+  // compute the combined ModelView matrix and send it down to save time in the shader
+  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
+
   // Apply this extra transform from things like the glyph mapper.
   vtkMatrix4x4::Multiply4x4(tmpMat.Get(), gmat, tmpMat.Get());
 
-  // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
   tmpMat->Transpose();
   program.SetUniformValue("MCVCMatrix", tmpMat.Get());
 
@@ -1122,6 +1172,19 @@ void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsign
 
   program.SetUniformValue("opacityUniform", opacity);
   program.SetUniformValue("diffuseColorUniform", diffuseColor);
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector)
+    {
+    program.SetUniformValue("mapperIndex", selector->GetPropColorValue());
+    float *fv = selector->GetPropColorValue();
+    int iv = (int)(fv[0]*255) + (int)(fv[1]*255)*256;
+    if (iv == 0)
+      {
+      abort();
+      }
+    }
+
 
   // First we do the triangles, update the shader, set uniforms, etc.
   if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)

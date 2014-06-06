@@ -58,12 +58,15 @@ public:
     this->ModelColor = color;
   }
 
+  vtkGetMacro(PopulateSelectionSettings,int);
+  void SetPopulateSelectionSettings(int v) { this->PopulateSelectionSettings = v; };
+
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Used by vtkHardwareSelector to determine if the prop supports hardware
   // selection.
-  virtual bool GetSupportsSelection() { return false; }
+  virtual bool GetSupportsSelection() { return true; }
 
   // Description:
   // Returns if the mapper does not expect to have translucent geometry. This
@@ -125,6 +128,8 @@ protected:
 
   vtkMatrix4x4* ModelTransformMatrix;
   unsigned char* ModelColor;
+
+  int PopulateSelectionSettings;
 
 private:
   vtkVBOPolyDataMapper(const vtkVBOPolyDataMapper&); // Not implemented.

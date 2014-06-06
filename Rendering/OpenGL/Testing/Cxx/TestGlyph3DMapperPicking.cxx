@@ -83,7 +83,7 @@ public:
 
     vtkSelection *res = sel->Select();
 
-#if 0
+#if 1
     cerr << "x0 " << x0 << " y0 " << y0 << "\t";
     cerr << "x1 " << x1 << " y1 " << y1 << endl;
     res->Print(cout);

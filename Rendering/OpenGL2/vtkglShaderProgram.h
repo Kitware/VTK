@@ -171,6 +171,8 @@ public:
   bool SetUniformValue(const std::string &name, const int count, const float *f);
   bool SetUniformValue(const std::string &name, const int count, const float (*f)[3]);
 
+  bool SetUniformValue(const std::string &name, const float v[3]);
+
   bool SetUniformValue(const std::string &name, vtkMatrix3x3 *mat);
   bool SetUniformValue(const std::string &name, vtkMatrix4x4 *mat);
 

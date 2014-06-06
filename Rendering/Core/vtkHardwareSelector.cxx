@@ -511,10 +511,6 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
     return 0;
     }
 
-  // I have no idea what this comment means. Preserving from the original code.
-  //todo: save off and swap in other renderer/renderwindow settings that
-  //could affect colors
-
   int propsRenderered = 0;
   // loop through props and give them a chance to
   // render themselves as opaque geometry

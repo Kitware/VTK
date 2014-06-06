@@ -76,7 +76,9 @@ vtkOpenGL2PolyDataMapper2D::~vtkOpenGL2PolyDataMapper2D()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::BuildShader(std::string &VSSource, std::string &FSSource, vtkViewport* ren, vtkActor2D *actor)
+void vtkOpenGL2PolyDataMapper2D::BuildShader(
+  std::string &VSSource, std::string &FSSource,
+  vtkViewport* vtkNotUsed(ren), vtkActor2D *vtkNotUsed(actor))
 {
   VSSource = vtkglPolyData2DVS;
   FSSource = vtkglPolyData2DFS;

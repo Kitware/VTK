@@ -330,10 +330,8 @@ void vtkOpenGL2RenderWindow::OpenGLInit()
 
 void vtkOpenGL2RenderWindow::OpenGLInitState()
 {
-  glMatrixMode( GL_MODELVIEW );
   glDepthFunc( GL_LEQUAL );
   glEnable( GL_DEPTH_TEST );
-  glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
   // initialize blending for transparency
   if(vtkgl::BlendFuncSeparate!=0)
@@ -373,10 +371,6 @@ void vtkOpenGL2RenderWindow::OpenGLInitState()
     {
     glDisable(GL_POLYGON_SMOOTH);
     }
-
-  glEnable(GL_NORMALIZE);
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-  glAlphaFunc(GL_GREATER,0);
 
   // Default OpenGL is 4 bytes but it is only safe with RGBA format.
   // If format is RGB, row alignment is 4 bytes only if the width is divisible
@@ -630,42 +624,10 @@ int vtkOpenGL2RenderWindow::GetPixelData(int x1, int y1,
 
   glDisable( GL_SCISSOR_TEST );
 
-#if defined(sparc) && !defined(GL_VERSION_1_2)
-  // We need to read the image data one row at a time and convert it
-  // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
-  long    xloop, yloop;
-  unsigned char *buffer;
-  unsigned char *p_data = NULL;
-
-  buffer = new unsigned char [4*(x_hi - x_low + 1)];
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-    {
-    // read in a row of pixels
-    glReadPixels(x_low,yloop,(x_hi-x_low+1),1,
-                 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    for (xloop = 0; xloop <= x_hi-x_low; xloop++)
-      {
-      *p_data = buffer[xloop*4]; p_data++;
-      *p_data = buffer[xloop*4+1]; p_data++;
-      *p_data = buffer[xloop*4+2]; p_data++;
-      }
-    }
-
-  delete [] buffer;
-#else
-  // If the Sun bug is ever fixed, then we could use the following
-  // technique which provides a vast speed improvement on the SGI
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
                GL_UNSIGNED_BYTE, data);
-#endif
 
   if (glGetError() != GL_NO_ERROR)
     {
@@ -774,57 +736,6 @@ int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glDisable( GL_SCISSOR_TEST );
   glViewport(0, 0, this->Size[0], this->Size[1]);
 
-#if defined(sparc) && !defined(GL_VERSION_1_2)
-  // We need to read the image data one row at a time and convert it
-  // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
-  long    xloop, yloop;
-  unsigned char *buffer;
-  unsigned char *p_data = NULL;
-
-  buffer = new unsigned char [4*(x_hi - x_low + 1)];
-
-  // now write the binary info one row at a time
-  glDisable(GL_BLEND);
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-    {
-    for (xloop = 0; xloop <= x_hi - x_low; xloop++)
-      {
-      buffer[xloop*4] = *p_data; p_data++;
-      buffer[xloop*4+1] = *p_data; p_data++;
-      buffer[xloop*4+2] = *p_data; p_data++;
-      buffer[xloop*4+3] = 0xff;
-      }
-    /* write out a row of pixels */
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
-                   (2.0 * static_cast<GLfloat>(yloop) / this->Size[1] - 1),
-                   -1.0 );
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
-
-  // This seems to be necessary for the image to show up
-  glFlush();
-
-  glEnable(GL_BLEND);
-#else
-  // If the Sun bug is ever fixed, then we could use the following
-  // technique which provides a vast speed improvement on the SGI
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
   // now write the binary info
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -843,12 +754,11 @@ int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
   glDisable(GL_BLEND);
   glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
-               GL_RGB, GL_UNSIGNED_BYTE, data);
+               GL_RGB, GL_UNSIGNED_BYTE, data);  // TODO replace as this is a deprecated function
   glEnable(GL_BLEND);
 
   // This seems to be necessary for the image to show up
   glFlush();
-#endif
 
   glDrawBuffer(buffer);
 
@@ -1141,7 +1051,7 @@ int vtkOpenGL2RenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   if (!blend)
     {
     glDisable(GL_BLEND);
-    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data); // TODO replace dprecated function
     glEnable(GL_BLEND);
     }
   else
@@ -1306,10 +1216,6 @@ int vtkOpenGL2RenderWindow::GetRGBACharPixelData(int x1, int y1,
 
   glDisable( GL_SCISSOR_TEST );
 
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
                 data);
 
@@ -1455,15 +1361,11 @@ int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   glDepthMask(GL_FALSE);
   glDisable(GL_DEPTH_TEST);
 
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
   if (!blend)
     {
     glDisable(GL_BLEND);
     glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-                  data);
+                  data); // TODO replace
     glEnable(GL_BLEND);
     }
   else
@@ -1532,7 +1434,6 @@ int vtkOpenGL2RenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
   glDisable( GL_SCISSOR_TEST );
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
@@ -1651,12 +1552,9 @@ int vtkOpenGL2RenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glDisable( GL_ALPHA_TEST );
   glDisable( GL_SCISSOR_TEST );
 
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
-  glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
+  glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer); // TODO replace
 
   // This seems to be necessary for the image to show up
   glFlush();

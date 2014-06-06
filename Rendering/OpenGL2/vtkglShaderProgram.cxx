@@ -498,6 +498,18 @@ bool ShaderProgram::SetUniformValue(const std::string &name, const int count,
   return true;
 }
 
+bool ShaderProgram::SetUniformValue(const std::string &name, const float v[3])
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+    }
+  glUniform3fv(location, 1, v);
+  return true;
+}
+
 bool ShaderProgram::SetUniformValue(const std::string &name, const Vector3f &v)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));

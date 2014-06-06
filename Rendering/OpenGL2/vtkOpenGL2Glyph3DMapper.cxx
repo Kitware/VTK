@@ -64,6 +64,9 @@ public:
   std::vector<unsigned char> Colors;
   std::vector<vtkMatrix4x4 * > Matrices;
   vtkTimeStamp BuildTime;
+  bool LastSelectingState;
+
+  vtkOpenGL2Glyph3DMapperEntry()  { this->LastSelectingState = false; };
 };
 
 class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray
@@ -83,6 +86,7 @@ vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapper()
 {
   this->GlyphValues = new vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray();
   this->Mapper = vtkVBOPolyDataMapper::New();
+  this->Mapper->SetPopulateSelectionSettings(0);
   this->LastWindow = 0;
 }
 
@@ -141,9 +145,9 @@ void vtkOpenGL2Glyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 
   this->SetupColorMapper();
 
-  vtkHardwareSelector* selector = NULL;// ren->GetSelector();
-  bool selecting_points = false; /* selector && (selector->GetFieldAssociation() ==
-    vtkDataObject::FIELD_ASSOCIATION_POINTS); */
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool selecting_points = selector && (selector->GetFieldAssociation() ==
+    vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
   if (selector)
     {
@@ -287,7 +291,8 @@ void vtkOpenGL2Glyph3DMapper::Render(
       }
     }
 
-  if (building || entry->BuildTime < dataset->GetMTime())
+  if (building || entry->BuildTime < dataset->GetMTime() ||
+      entry->LastSelectingState != selecting_points)
     {
     entry->Colors.resize(numPts*4);
     entry->Matrices.resize(numPts);
@@ -437,11 +442,14 @@ void vtkOpenGL2Glyph3DMapper::Render(
             }
           else
             {
-          selectionId = static_cast<vtkIdType>(
+            selectionId = static_cast<vtkIdType>(
                 *selectionArray->GetTuple(inPtId));
             }
           }
-        selector->RenderAttributeId(selectionId);
+        entry->Colors[inPtId*4] = selectionId & 0xff;
+        entry->Colors[inPtId*4+1] = (selectionId & 0xff00) >> 8;
+        entry->Colors[inPtId*4+2] = (selectionId & 0xff0000) >> 16;
+        entry->Colors[inPtId*4+3] = 255;
         }
       else if (colors)
         {
@@ -475,6 +483,7 @@ void vtkOpenGL2Glyph3DMapper::Render(
       entry->Matrices[inPtId]->DeepCopy(trans->GetMatrix());
       }
     trans->Delete();
+    entry->LastSelectingState = selecting_points;
     entry->BuildTime.Modified();
     }
 
@@ -499,6 +508,11 @@ void vtkOpenGL2Glyph3DMapper::Render(
     rgba[1] = entry->Colors[inPtId*4+1];
     rgba[2] = entry->Colors[inPtId*4+2];
     rgba[3] = entry->Colors[inPtId*4+3];
+
+    if (selecting_points)
+      {
+      selector->RenderAttributeId(rgba[0] + (rgba[1] << 8) + (rgba[2] << 16));
+      }
     if (!primed)
       {
       if (fastPath)
