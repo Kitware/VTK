@@ -302,9 +302,9 @@
     m_container.bind('invalidateScene', function() {
       if(m_rendererAttrs.hasClass('active')){
         m_vglVtkReader = vgl.vtkReader();
-        m_vglVtkReader.createNewViewer(m_canvas3D);
         m_canvas3D.width = m_rendererAttrs.width();
         m_canvas3D.height = m_rendererAttrs.height();
+        m_vglVtkReader.createNewViewer(m_canvas3D);
 
         fetchScene();
       }
