@@ -199,20 +199,14 @@
     // ------------------------------------------------------------------
 
     function drawScene() {
-      var layer, viewer;
+      var layer;
 
       try {
         if (m_sceneJSON === null || typeof m_sceneJSON === 'undefined') {
           return;
         }
 
-        viewer = m_vglVtkReader.updateViewer(m_canvas3D);
-
-        if (viewer === null) {
-          return;
-        }
-
-        m_viewer = viewer;
+        m_vglVtkReader.updateViewer(m_canvas3D);
 
         var width = m_rendererAttrs.width(),
         height = m_rendererAttrs.height(),
@@ -223,20 +217,6 @@
           type: 'stats',
           stat_id: 'webgl-fps',
           stat_value: 0
-        });
-
-        m_container.on('mouse', function(event) {
-          if (m_viewer) {
-            if (event.action === 'move') {
-              m_viewer.handleMouseMove(event.originalEvent);
-            }
-            else if (event.action === 'up') {
-              m_viewer.handleMouseUp(event.originalEvent);
-            }
-            else if (event.action === 'down') {
-              m_viewer.handleMouseDown(event.originalEvent);
-            }
-          }
         });
 
         m_viewer.render();
@@ -304,7 +284,22 @@
         m_vglVtkReader = vgl.vtkReader();
         m_canvas3D.width = m_rendererAttrs.width();
         m_canvas3D.height = m_rendererAttrs.height();
-        m_vglVtkReader.createNewViewer(m_canvas3D);
+        m_viewer = m_vglVtkReader.createNewViewer(m_canvas3D);
+
+        // Bind mouse event handlers
+        m_container.on('mouse', function(event) {
+            if (m_viewer) {
+              if (event.action === 'move') {
+                m_viewer.handleMouseMove(event.originalEvent);
+              }
+              else if (event.action === 'up') {
+                m_viewer.handleMouseUp(event.originalEvent);
+              }
+              else if (event.action === 'down') {
+                m_viewer.handleMouseDown(event.originalEvent);
+              }
+            }
+        });
 
         fetchScene();
       }
