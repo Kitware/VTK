@@ -4888,12 +4888,13 @@ void vtkWrapPython_AddConstant(
   if (objcreated)
     {
     fprintf(fp,
-            "%sif (%s && PyDict_SetItemString(%s, (char *)\"%s\", %s) != 0)\n"
+            "%sif (%s)\n"
             "%s  {\n"
+            "%s  PyDict_SetItemString(%s, (char *)\"%s\", %s);\n"
             "%s  Py_DECREF(%s);\n"
             "%s  }\n",
-            indent, objvar, dictvar, val->Name, objvar,
-            indent, indent, objvar, indent);
+            indent, objvar, indent, indent, dictvar, val->Name, objvar,
+            indent, objvar, indent);
     }
 }
 
