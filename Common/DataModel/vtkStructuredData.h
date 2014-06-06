@@ -68,14 +68,14 @@ public:
   static int GetDataDimension( int ext[6] );
 
   // Description:
-  // Given the grid extent, this method returns the total number of nodes
+  // Given the grid extent, this method returns the total number of points
   // within the extent.
   // The method accepts as an optional parameter the data description of the
   // grid. If a data description is not provided, it will be computed internally.
   // If the method is used within a tight loop it is advised to pre-acquire and
   // pass the data description to the method to avoid any latency associated
   // with computing the data description internally multiple times.
-  static vtkIdType GetNumberOfNodes(int ext[6], int dataDescription=VTK_EMPTY);
+  static vtkIdType GetNumberOfPoints(int ext[6], int dataDescription=VTK_EMPTY);
 
   // Description:
   // Given the grid extent, this method returns the total number of cells
@@ -88,15 +88,15 @@ public:
   static vtkIdType GetNumberOfCells(int ext[6], int dataDescription=VTK_EMPTY);
 
   // Description:
-  // Given the node extent of a grid, this method computes the corresponding
+  // Given the point extent of a grid, this method computes the corresponding
   // cell extent for the grid.
   // The method accepts as an optional parameter the data description of the
   // grid. If a data description is not provided, it will be computed internally.
   // If the method is used within a tight loop it is advised to pre-acquire and
   // pass the data description to the method to avoid any latency associated
   // with computing the data description internally multiple times.
-  static void GetCellExtentFromNodeExtent(
-      int nodeExtent[6], int cellExtent[6], int dataDescription=VTK_EMPTY );
+  static void GetCellExtentFromPointExtent(
+      int pntExtent[6], int cellExtent[6], int dataDescription=VTK_EMPTY );
 
   // Description:
   // Computes the structured grid dimensions based on the given extent.
@@ -111,14 +111,14 @@ public:
       int ext[6], int celldims[3], int dataDescription=VTK_EMPTY );
 
   // Description:
-  // Given the node dimensions of the grid, in node dims, this method returns
+  // Given the dimensions of the grid, in pntdims, this method returns
   // the corresponding cell dimensions for the given grid.
-  static void GetCellDimensionsFromNodeDimensions(
-      int nodeDims[3],int cellDims[3] );
+  static void GetCellDimensionsFromPointDimensions(
+      int pntdims[3],int cellDims[3] );
 
   // Description:
   // Given the global structured coordinates for a point or cell, ijk, w.r.t.
-  // as well as, the global sub-grid cell or node extent, this method computes
+  // as well as, the global sub-grid cell or point extent, this method computes
   // the corresponding local structured coordinates, lijk, starting from 0.
   // The method accepts as an optional parameter the data description of the
   // grid. If a data description is not provided, it will be computed internally.

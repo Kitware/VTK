@@ -40,18 +40,6 @@ vtkRegularPolygonSource::vtkRegularPolygonSource()
   this->SetNumberOfInputPorts(0);
 }
 
-int vtkRegularPolygonSource::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
-{
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),-1);
-
-  return 1;
-}
-
 int vtkRegularPolygonSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -63,12 +51,6 @@ int vtkRegularPolygonSource::RequestData(
   // Get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  // We only produce one piece
-  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-    {
-    return 1;
-    }
 
   double x[3], r[3];
   int i, j, numPts=this->NumberOfSides;

@@ -325,7 +325,7 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
 
   // STEP 3: Get the corresponding cell-extent for accessing cell fields
   int realCellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent(
+  vtkStructuredData::GetCellExtentFromPointExtent(
       realExtent,realCellExtent,dataDescription);
 
   // STEP 4: Loop through all real nodes/cells and copy the fields onto the

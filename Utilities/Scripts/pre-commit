@@ -47,7 +47,7 @@ ExternalData_stage_linked_content() {
   # Move staged object to local store if it is in Git.
   if test -f "$staged" && test -n "$obj"; then
     mkdir -p "${stored%/*}" &&
-    mv -n "$staged" "$stored" &&
+    mv "$staged" "$stored" &&
     rm -f "$staged" &&
     echo "$file: Added content to local store at $stored"
   fi

@@ -1,6 +1,5 @@
 set(Module_SRCS
   vtkImageDataLIC2D.cxx
-  vtkImageDataLIC2DExtentTranslator.cxx
   vtkLineIntegralConvolution2D.cxx
   vtkPixelTransfer.cxx
   vtkStructuredGridLIC2D.cxx

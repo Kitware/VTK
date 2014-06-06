@@ -26,12 +26,12 @@
 #ifndef __vtkXMLPPolyDataWriter_h
 #define __vtkXMLPPolyDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataWriter.h"
 
 class vtkPolyData;
 
-class VTKIOXML_EXPORT vtkXMLPPolyDataWriter : public vtkXMLPUnstructuredDataWriter
+class VTKIOPARALLELXML_EXPORT vtkXMLPPolyDataWriter : public vtkXMLPUnstructuredDataWriter
 {
 public:
   static vtkXMLPPolyDataWriter* New();

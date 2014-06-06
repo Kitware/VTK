@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -55,10 +54,6 @@ vtkRectilinearSynchronizedTemplates::vtkRectilinearSynchronizedTemplates()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
   this->GenerateTriangles = 1;
-
-  this->ExecuteExtent[0] = this->ExecuteExtent[1]
-    = this->ExecuteExtent[2] = this->ExecuteExtent[3]
-    = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
 
   this->ArrayComponent = 0;
 
@@ -150,20 +145,20 @@ static void vtkRectilinearSynchronizedTemplatesInitializeOutput(
 //----------------------------------------------------------------------------
 // Calculate the gradient using central difference.
 template <class T>
-void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
+void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *inExt,
                                int xInc, int yInc, int zInc,
                                double *spacing, double n[3])
 {
   double sp, sm;
 
   // x-direction
-  if ( i == wholeExt[0] )
+  if ( i == inExt[0] )
     {
     sp = *(s+xInc);
     sm = *s;
     n[0] = (sp - sm) / spacing[1];
     }
-  else if ( i == wholeExt[1] )
+  else if ( i == inExt[1] )
     {
     sp = *s;
     sm = *(s-xInc);
@@ -177,13 +172,13 @@ void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // y-direction
-  if ( j == wholeExt[2] )
+  if ( j == inExt[2] )
     {
     sp = *(s+yInc);
     sm = *s;
     n[1] = (sp - sm) / spacing[3];
     }
-  else if ( j == wholeExt[3] )
+  else if ( j == inExt[3] )
     {
     sp = *s;
     sm = *(s-yInc);
@@ -197,13 +192,13 @@ void vtkRSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // z-direction
-  if ( k == wholeExt[4] )
+  if ( k == inExt[4] )
     {
     sp = *(s+zInc);
     sm = *s;
     n[2] = (sp - sm) / spacing[5];
     }
-  else if ( k == wholeExt[5] )
+  else if ( k == inExt[5] )
     {
     sp = *s;
     sm = *(s-zInc);
@@ -224,11 +219,11 @@ if (NeedGradients) \
   if (!g0) \
     { \
     self->ComputeSpacing(data, i, j, k, exExt, spacing); \
-    vtkRSTComputePointGradient(i, j, k, s0, exExt, xInc, yInc, zInc, spacing, n0); \
+    vtkRSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0); \
     g0 = 1; \
     } \
   self->ComputeSpacing(data, i2, j2, k2, exExt, spacing); \
-  vtkRSTComputePointGradient(i2, j2, k2, s, exExt, xInc, yInc, zInc, spacing, n1); \
+  vtkRSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
     n[jj] = n0[jj] + t * (n1[jj] - n0[jj]); \
@@ -692,14 +687,6 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
 
   vtkDebugMacro(<< "Executing 3D structured contour");
 
-  if ( this->ExecuteExtent[0] >= this->ExecuteExtent[1] ||
-       this->ExecuteExtent[2] >= this->ExecuteExtent[3] ||
-       this->ExecuteExtent[4] >= this->ExecuteExtent[5] )
-    {
-    vtkDebugMacro(<<"3D structured contours requires 3D data");
-    return 1;
-    }
-
   //
   // Check data type and execute appropriate function
   //
@@ -707,6 +694,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
   if (inScalars == NULL)
     {
     vtkErrorMacro("No scalars for contouring.");
+    return 1;
     }
   int numComps = inScalars->GetNumberOfComponents();
 
@@ -717,11 +705,27 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
     return 1;
     }
 
-  ptr = this->GetScalarsForExtent(inScalars, this->ExecuteExtent, data);
+  int* inExt = data->GetExtent();
+  ptr = this->GetScalarsForExtent(inScalars, inExt, data);
+
+  int exExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
+  for (int i=0; i<3; i++)
+    {
+    if (inExt[2*i] > exExt[2*i])
+      {
+      exExt[2*i] = inExt[2*i];
+      }
+    if (inExt[2*i+1] < exExt[2*i+1])
+      {
+      exExt[2*i+1] = inExt[2*i+1];
+      }
+    }
+
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
-      ContourRectilinearGrid(this, this->ExecuteExtent, data,
+      ContourRectilinearGrid(this, exExt, data,
                              output, (VTK_TT *)ptr, inScalars,this->GenerateTriangles!=0));
     }
 
@@ -734,95 +738,19 @@ int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces;
-  int *wholeExt;
-  int ext[6];
-  vtkExtentTranslator *translator;
-
-  translator = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-
-  wholeExt =
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  memcpy(ext, wholeExt, 6*sizeof(int));
-
-  // Get request from output
-  piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // get the extent associated with the piece.
-  if (translator == NULL)
-    {
-    // Default behavior
-    if (piece != 0)
-      {
-      ext[0] = ext[2] = ext[4] = 0;
-      ext[1] = ext[3] = ext[5] = -1;
-      }
-    }
-  else
-    {
-    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext,
-                                        translator->GetSplitMode(),0);
-    }
-
-  // As a side product of this call, ExecuteExtent is set.
-  // This is the region that we are really updating, although
-  // we may require a larger input region in order to generate
-  // it if normals / gradients are being computed
-
-  this->ExecuteExtent[0] = ext[0];
-  this->ExecuteExtent[1] = ext[1];
-  this->ExecuteExtent[2] = ext[2];
-  this->ExecuteExtent[3] = ext[3];
-  this->ExecuteExtent[4] = ext[4];
-  this->ExecuteExtent[5] = ext[5];
-
-  // expand if we need to compute gradients
+  // These require extra ghost levels
   if (this->ComputeGradients || this->ComputeNormals)
     {
-    ext[0] -= 1;
-    if (ext[0] < wholeExt[0])
-      {
-      ext[0] = wholeExt[0];
-      }
-    ext[1] += 1;
-    if (ext[1] > wholeExt[1])
-      {
-      ext[1] = wholeExt[1];
-      }
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-    ext[2] -= 1;
-    if (ext[2] < wholeExt[2])
-      {
-      ext[2] = wholeExt[2];
-      }
-    ext[3] += 1;
-    if (ext[3] > wholeExt[3])
-      {
-      ext[3] = wholeExt[3];
-      }
-
-    ext[4] -= 1;
-    if (ext[4] < wholeExt[4])
-      {
-      ext[4] = wholeExt[4];
-      }
-    ext[5] += 1;
-    if (ext[5] > wholeExt[5])
-      {
-      ext[5] = wholeExt[5];
-      }
+    int ghostLevels;
+    ghostLevels =
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevels + 1);
     }
-
-  // Set the update extent of the input.
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
   return 1;
 }

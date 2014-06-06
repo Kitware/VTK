@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
@@ -549,7 +548,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int* exExt = outInfo->Get(vtkSynchronizedTemplates3D::EXECUTE_EXTENT());
+  int* exExt = data->GetExtent();
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
     vtkDebugMacro(<<"Cutter3D structured contours requires Cutter3D data");
@@ -563,7 +562,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
 
 //----------------------------------------------------------------------------
 int vtkSynchronizedTemplatesCutter3D::RequestData(
-  vtkInformation *request,
+  vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -576,9 +575,6 @@ int vtkSynchronizedTemplatesCutter3D::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  // to be safe recompute the
-  this->RequestUpdateExtent(request,inputVector,outputVector);
 
   // Just call the threaded execute directly.
   this->ThreadedExecute(input, outInfo, 0);

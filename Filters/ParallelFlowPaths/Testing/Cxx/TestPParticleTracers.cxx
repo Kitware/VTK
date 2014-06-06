@@ -186,6 +186,8 @@ protected:
     double origin[3] = {this->BoundingBox[0],this->BoundingBox[2],this->BoundingBox[4]};
     outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
 
+    outInfo->Set(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT(), 1);
+
     return 1;
   }
 

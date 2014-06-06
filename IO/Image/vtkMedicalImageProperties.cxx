@@ -187,11 +187,11 @@ public:
     for( WindowLevelPresetPoolIterator it = WindowLevelPresetPool.begin(); it != WindowLevelPresetPool.end(); ++it )
       {
       const WindowLevelPreset &wlp = *it;
-      os << indent << "Window:" << wlp.Window << endl;
-      os << indent << "Level:" << wlp.Level << endl;
-      os << indent << "Comment:" << wlp.Comment << endl;
+      os << indent.GetNextIndent() << "Window: " << wlp.Window << "\n";
+      os << indent.GetNextIndent() << "Level: " << wlp.Level << "\n";
+      os << indent.GetNextIndent() << "Comment: " << wlp.Comment << "\n";
       }
-    os << indent << "UID(s): ";
+    os << indent << "UID(s):\n";
     for( VolumeSliceUIDType::const_iterator it = UID.begin();
       it != UID.end();
       ++it)
@@ -200,21 +200,23 @@ public:
         it2 != it->end();
         ++it2)
         {
-        os << indent << it2->first <<  "  " << it2->second << "\n";
+        os << indent.GetNextIndent()
+           << it2->first <<  "  " << it2->second << "\n";
         }
       }
-    os << indent << "Orientation(s): ";
+    os << indent << "Orientation(s):\n";
     for( std::vector<unsigned int>::const_iterator it = Orientation.begin();
       it != Orientation.end(); ++it)
       {
-      os << indent << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << endl;
+      os << indent.GetNextIndent()
+         << vtkMedicalImageProperties::GetStringFromOrientationType(*it) << "\n";
       }
-    os << endl;
     os << indent << "User Defined Values: (" << UserDefinedValuePool.size() << ")\n";
     UserDefinedValues::const_iterator it2 = UserDefinedValuePool.begin();
     for(; it2 != UserDefinedValuePool.end(); ++it2)
       {
-      os << indent << it2->Name << " -> " << it2->Value << "\n";
+      os << indent.GetNextIndent()
+         << it2->Name << " -> " << it2->Value << "\n";
       }
     }
   std::vector<unsigned int> Orientation;
@@ -899,7 +901,7 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << "\n" << indent << "PatientName: ";
+  os << indent << "PatientName: ";
   if (this->PatientName)
     {
     os << this->PatientName;
@@ -1085,11 +1087,12 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
     os << this->Exposure;
     }
 
-  os << indent << "Direction Cosine: (" << this->DirectionCosine[0] << ", "
-     << this->DirectionCosine[1] << ", " << this->DirectionCosine[2] << "), ("
+  os << "\n" << indent << "DirectionCosine: ("
+     << this->DirectionCosine[0] << ", " << this->DirectionCosine[1]
+     << ", " << this->DirectionCosine[2] << "), ("
      << this->DirectionCosine[3] << ", " << this->DirectionCosine[4]
      << ", " << this->DirectionCosine[5] << ")\n";
 
-  this->Internals->Print(os << "\n", indent.GetNextIndent() );
+  this->Internals->Print(os, indent);
 }
 

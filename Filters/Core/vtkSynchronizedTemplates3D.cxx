@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerVectorKey.h"
@@ -42,8 +41,6 @@
 #include <math.h>
 
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
-
-vtkInformationKeyRestrictedMacro(vtkSynchronizedTemplates3D, EXECUTE_EXTENT, IntegerVector, 6);
 
 //----------------------------------------------------------------------------
 // Description:
@@ -151,20 +148,20 @@ static void vtkSynchronizedTemplates3DInitializeOutput(
 //----------------------------------------------------------------------------
 // Calculate the gradient using central difference.
 template <class T>
-void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
+void vtkSTComputePointGradient(int i, int j, int k, T *s, int *inExt,
                                int xInc, int yInc, int zInc,
                                double *spacing, double n[3])
 {
   double sp, sm;
 
   // x-direction
-  if ( i == wholeExt[0] )
+  if ( i == inExt[0] )
     {
     sp = *(s+xInc);
     sm = *s;
     n[0] = (sp - sm) / spacing[0];
     }
-  else if ( i == wholeExt[1] )
+  else if ( i == inExt[1] )
     {
     sp = *s;
     sm = *(s-xInc);
@@ -178,13 +175,13 @@ void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // y-direction
-  if ( j == wholeExt[2] )
+  if ( j == inExt[2] )
     {
     sp = *(s+yInc);
     sm = *s;
     n[1] = (sp - sm) / spacing[1];
     }
-  else if ( j == wholeExt[3] )
+  else if ( j == inExt[3] )
     {
     sp = *s;
     sm = *(s-yInc);
@@ -198,13 +195,13 @@ void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
     }
 
   // z-direction
-  if ( k == wholeExt[4] )
+  if ( k == inExt[4] )
     {
     sp = *(s+zInc);
     sm = *s;
     n[2] = (sp - sm) / spacing[2];
     }
-  else if ( k == wholeExt[5] )
+  else if ( k == inExt[5] )
     {
     sp = *s;
     sm = *(s-zInc);
@@ -224,10 +221,10 @@ if (NeedGradients) \
 { \
   if (!g0) \
     { \
-    vtkSTComputePointGradient(i, j, k, s0, wholeExt, xInc, yInc, zInc, spacing, n0); \
+    vtkSTComputePointGradient(i, j, k, s0, inExt, xInc, yInc, zInc, spacing, n0); \
     g0 = 1; \
     } \
-  vtkSTComputePointGradient(i2, j2, k2, s, wholeExt, xInc, yInc, zInc, spacing, n1); \
+  vtkSTComputePointGradient(i2, j2, k2, s, inExt, xInc, yInc, zInc, spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
     n[jj] = n0[jj] + t * (n1[jj] - n0[jj]); \
@@ -253,8 +250,7 @@ if (ComputeScalars) \
 // Contouring filter specialized for images
 //
 template <class T>
-void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
-                  vtkInformation *inInfo,
+void ContourImage(vtkSynchronizedTemplates3D *self, int* exExt,
                   vtkImageData *data, vtkPolyData *output, T *ptr,
                   vtkDataArray *inScalars, bool outputTriangles)
 {
@@ -286,7 +282,6 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int v0, v1, v2, v3;
   vtkIdType ptIds[3];
   double value;
-  int *wholeExt;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
   vtkPointData *inPD = data->GetPointData();
@@ -335,8 +330,6 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   xInc = inScalars->GetNumberOfComponents();
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
-
-  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Kens increments, probably to do with edge array
   zstep = xdim*ydim;
@@ -688,7 +681,7 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 // Contouring filter specialized for images (or slices from images)
 //
 void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
-                                                 vtkInformation *inInfo,
+                                                 vtkInformation* inInfo,
                                                  vtkInformation *outInfo,
                                                  vtkDataArray *inScalars)
 {
@@ -699,7 +692,20 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int* exExt = outInfo->Get(vtkSynchronizedTemplates3D::EXECUTE_EXTENT());
+  int* inExt = data->GetExtent();
+  int exExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
+  for (int i=0; i<3; i++)
+    {
+    if (inExt[2*i] > exExt[2*i])
+      {
+      exExt[2*i] = inExt[2*i];
+      }
+    if (inExt[2*i+1] < exExt[2*i+1])
+      {
+      exExt[2*i+1] = inExt[2*i+1];
+      }
+    }
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
     vtkDebugMacro(<<"3D structured contours requires 3D data");
@@ -727,7 +733,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
-      ContourImage(this, exExt, inInfo, data, output,
+      ContourImage(this, exExt, data, output,
                    (VTK_TT *)ptr, inScalars, this->GenerateTriangles!=0));
     }
 }
@@ -767,99 +773,19 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces, ghostLevels;
-  int *wholeExt;
-  int ext[6];
-
-  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-  wholeExt =
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-
-  if (!wholeExt)
-    {
-    return 1;
-    }
-
-
-  // Get request from output
-  piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevels =
-    outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-
-  // Start with the whole grid.
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
-
-  // get the extent associated with the piece.
-  if (translator == NULL)
-    {
-    // Default behavior
-    if (piece != 0)
-      {
-      ext[0] = ext[2] = ext[4] = 0;
-      ext[1] = ext[3] = ext[5] = -1;
-      }
-    }
-  else
-    {
-    translator->PieceToExtentThreadSafe(piece, numPieces, ghostLevels,
-                                        wholeExt, ext,
-                                        translator->GetSplitMode(),0);
-    }
-
-  // As a side product of this call, ExecuteExtent is set.
-  // This is the region that we are really updating, although
-  // we may require a larger input region in order to generate
-  // it if normals / gradients are being computed
-  outInfo->Set(vtkSynchronizedTemplates3D::EXECUTE_EXTENT(), ext, 6);
-
-  // expand if we need to compute gradients
+  // These require extra ghost levels
   if (this->ComputeGradients || this->ComputeNormals)
     {
-    ext[0] -= 1;
-    if (ext[0] < wholeExt[0])
-      {
-      ext[0] = wholeExt[0];
-      }
-    ext[1] += 1;
-    if (ext[1] > wholeExt[1])
-      {
-      ext[1] = wholeExt[1];
-      }
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-    ext[2] -= 1;
-    if (ext[2] < wholeExt[2])
-      {
-      ext[2] = wholeExt[2];
-      }
-    ext[3] += 1;
-    if (ext[3] > wholeExt[3])
-      {
-      ext[3] = wholeExt[3];
-      }
-
-    ext[4] -= 1;
-    if (ext[4] < wholeExt[4])
-      {
-      ext[4] = wholeExt[4];
-      }
-    ext[5] += 1;
-    if (ext[5] > wholeExt[5])
-      {
-      ext[5] = wholeExt[5];
-      }
+    int ghostLevels;
+    ghostLevels =
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevels + 1);
     }
-
-  // Set the update extent of the input.
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
   return 1;
 }

@@ -97,7 +97,6 @@ protected:
   VPICDataSet* vpicData;                // Data structure controlling access
   GridExchange* exchanger;		// Exchange ghost cells between procs
 
-  int NumberOfPieces;                   // Number of files in dataset
   vtkIdType NumberOfNodes;              // Number of points in grid
   vtkIdType NumberOfCells;              // Number of cells in grid
   vtkIdType NumberOfTuples;             // Number of tuples in sub extent

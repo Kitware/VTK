@@ -114,10 +114,18 @@ vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
   RENDERING_FACTORY
   )
 
+# Allow local customization of timeout for this test.
+if(NOT VTK_TEST_TIMEOUT_TerrainPolylineEditor)
+  set(VTK_TEST_TIMEOUT_TerrainPolylineEditor 90)
+endif()
 set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
-  PROPERTIES TIMEOUT 90)
+  PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TerrainPolylineEditor})
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
+  # Allow local customization of timeout for this test.
+  if(NOT VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget)
+    set(VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget 60)
+  endif()
   set_tests_properties(${vtk-module}Cxx-TestPickingManagerSeedWidget
-    PROPERTIES TIMEOUT 60)
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget})
 endif()

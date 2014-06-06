@@ -1670,7 +1670,7 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
 
 void vtkRenderer::PickGeometry()
 {
-  int        i;
+  int i;
 
   this->NumberOfPropsRendered = 0;
 
@@ -1679,11 +1679,9 @@ void vtkRenderer::PickGeometry()
     return ;
     }
 
-  // We can render everything because if it was
-  // not visible it would not have been put in the
-  // list in the first place, and if it was allocated
-  // no time (culled) it would have been removed from
-  // the list
+  // We have to take care about prop's visible & pickable parameters
+  // because in the case of Assembly, the previous culling pass
+  // add all the paths even if some are not visible.
 
   // loop through props and give them a change to
   // render themselves as opaque geometry
@@ -1693,10 +1691,13 @@ void vtkRenderer::PickGeometry()
     {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
-    matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
-    prop->PokeMatrix(matrix);
-    this->NumberOfPropsRendered += prop->RenderOpaqueGeometry(this);
-    prop->PokeMatrix(NULL);
+    if (prop->GetVisibility() && prop->GetPickable())
+      {
+      matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
+      prop->PokeMatrix(matrix);
+      this->NumberOfPropsRendered += prop->RenderOpaqueGeometry(this);
+      prop->PokeMatrix(NULL);
+      }
     }
 
   // loop through props and give them a chance to
@@ -1705,35 +1706,44 @@ void vtkRenderer::PickGeometry()
     {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
-    matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
-    prop->PokeMatrix(matrix);
-    this->NumberOfPropsRendered +=
-      prop->RenderTranslucentPolygonalGeometry(this);
-    prop->PokeMatrix(NULL);
+    if (prop->GetVisibility() && prop->GetPickable())
+      {
+      matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
+      prop->PokeMatrix(matrix);
+      this->NumberOfPropsRendered +=
+        prop->RenderTranslucentPolygonalGeometry(this);
+      prop->PokeMatrix(NULL);
+      }
     }
 
-   // loop through props and give them a chance to
+  // loop through props and give them a chance to
   // render themselves as volumetric geometry
   for ( i = 0; i < this->PathArrayCount; i++ )
     {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
-    matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
-    prop->PokeMatrix(matrix);
-    this->NumberOfPropsRendered +=
-      prop->RenderVolumetricGeometry(this);
-    prop->PokeMatrix(NULL);
+    if (prop->GetVisibility() && prop->GetPickable())
+      {
+      matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
+      prop->PokeMatrix(matrix);
+      this->NumberOfPropsRendered +=
+        prop->RenderVolumetricGeometry(this);
+      prop->PokeMatrix(NULL);
+      }
     }
 
   for ( i = 0; i < this->PathArrayCount; i++ )
     {
     this->UpdatePickId();
     prop = this->PathArray[i]->GetLastNode()->GetViewProp();
-    matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
-    prop->PokeMatrix(matrix);
-    this->NumberOfPropsRendered +=
-      prop->RenderOverlay(this);
-    prop->PokeMatrix(NULL);
+    if (prop->GetVisibility() && prop->GetPickable())
+      {
+      matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
+      prop->PokeMatrix(matrix);
+      this->NumberOfPropsRendered +=
+        prop->RenderOverlay(this);
+      prop->PokeMatrix(NULL);
+      }
     }
 
   vtkDebugMacro( << "Pick Rendered " <<

@@ -607,7 +607,7 @@ void vtkCCSMakePolysFromLines(
     usedLines.set(lineId-firstLine, 1);
     remainingLines--;
 
-    int noLinesMatch = 0;
+    int noLinesMatch = (remainingLines == 0 && !completePoly);
 
     while (!completePoly && !noLinesMatch && remainingLines > 0)
       {
@@ -774,7 +774,10 @@ void vtkCCSJoinLooseEnds(
       double v[3];
       v[0] = p2[0] - p1[0]; v[1] = p2[1] - p1[1]; v[2] = p2[2] - p1[2];
       double d = vtkMath::Norm(v);
-      v[0] /= d; v[1] /= d; v[2] /= d;
+      if (d != 0)
+        {
+        v[0] /= d; v[1] /= d; v[2] /= d;
+        }
 
       // Compute the midpoint of the edge
       double pm[3];

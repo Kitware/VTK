@@ -55,10 +55,6 @@ public:
   vtkGetMacro(ClipData, int);
   vtkBooleanMacro(ClipData, int);
 
-  // Description:
-  // Hack set output by piece
-  void SetOutputWholeExtent(int piece, int numPieces);
-
 protected:
   vtkStructuredGridClip();
   ~vtkStructuredGridClip() {}

@@ -118,19 +118,8 @@ int vtkXMLPDataSetWriter::WriteInternal()
   writer->SetGhostLevel(this->GetGhostLevel());
   writer->SetStartPiece(this->GetStartPiece());
   writer->SetEndPiece(this->GetEndPiece());
+  writer->SetWriteSummaryFile(this->WriteSummaryFile);
   writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
-
-  // Decide whether to write the summary file.
-  int writeSummary = 0;
-  if(this->WriteSummaryFileInitialized)
-    {
-    writeSummary = this->WriteSummaryFile;
-    }
-  else if(this->StartPiece == 0)
-    {
-    writeSummary = 1;
-    }
-  writer->SetWriteSummaryFile(writeSummary);
 
   // Try to write.
   int result = writer->Write();

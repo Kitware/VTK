@@ -327,16 +327,7 @@ int vtkSphereSource::RequestInformation(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-               this->Center[0] - this->Radius,
-               this->Center[0] + this->Radius,
-               this->Center[1] - this->Radius,
-               this->Center[1] + this->Radius,
-               this->Center[2] - this->Radius,
-               this->Center[2] + this->Radius);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   return 1;
 }

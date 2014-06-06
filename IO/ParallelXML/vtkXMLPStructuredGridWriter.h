@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXMLPRectilinearGridWriter.h
+  Module:    vtkXMLPStructuredGridWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,37 +12,37 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXMLPRectilinearGridWriter - Write PVTK XML RectilinearGrid files.
+// .NAME vtkXMLPStructuredGridWriter - Write PVTK XML StructuredGrid files.
 // .SECTION Description
-// vtkXMLPRectilinearGridWriter writes the PVTK XML RectilinearGrid
-// file format.  One rectilinear grid input can be written into a
+// vtkXMLPStructuredGridWriter writes the PVTK XML StructuredGrid
+// file format.  One structured grid input can be written into a
 // parallel file format with any number of pieces spread across files.
-// The standard extension for this writer's file format is "pvtr".
-// This writer uses vtkXMLRectilinearGridWriter to write the
-// individual piece files.
+// The standard extension for this writer's file format is "pvts".
+// This writer uses vtkXMLStructuredGridWriter to write the individual
+// piece files.
 
 // .SECTION See Also
-// vtkXMLRectilinearGridWriter
+// vtkXMLStructuredGridWriter
 
-#ifndef __vtkXMLPRectilinearGridWriter_h
-#define __vtkXMLPRectilinearGridWriter_h
+#ifndef __vtkXMLPStructuredGridWriter_h
+#define __vtkXMLPStructuredGridWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataWriter.h"
 
-class vtkRectilinearGrid;
+class vtkStructuredGrid;
 
-class VTKIOXML_EXPORT vtkXMLPRectilinearGridWriter : public vtkXMLPStructuredDataWriter
+class VTKIOPARALLELXML_EXPORT vtkXMLPStructuredGridWriter : public vtkXMLPStructuredDataWriter
 {
 public:
-  static vtkXMLPRectilinearGridWriter* New();
-  vtkTypeMacro(vtkXMLPRectilinearGridWriter,vtkXMLPStructuredDataWriter);
+  static vtkXMLPStructuredGridWriter* New();
+  vtkTypeMacro(vtkXMLPStructuredGridWriter,vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX
   // Description:
   // Get/Set the writer's input.
-  vtkRectilinearGrid* GetInput();
+  vtkStructuredGrid* GetInput();
   //ETX
 
   // Description:
@@ -50,8 +50,8 @@ public:
   const char* GetDefaultFileExtension();
 
 protected:
-  vtkXMLPRectilinearGridWriter();
-  ~vtkXMLPRectilinearGridWriter();
+  vtkXMLPStructuredGridWriter();
+  ~vtkXMLPStructuredGridWriter();
 
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
@@ -61,8 +61,8 @@ protected:
   void WritePData(vtkIndent indent);
 
 private:
-  vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
+  vtkXMLPStructuredGridWriter(const vtkXMLPStructuredGridWriter&);  // Not implemented.
+  void operator=(const vtkXMLPStructuredGridWriter&);  // Not implemented.
 };
 
 #endif

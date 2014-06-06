@@ -2,10 +2,11 @@ vtk_module(vtkImagingCore
   GROUPS
     StandAlone
   DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMath
     vtkCommonSystem
     vtkCommonTransforms
-    vtkCommonMath
-    vtkCommonExecutionModel
   TEST_DEPENDS
     vtkIOLegacy
     vtkFiltersModeling
@@ -18,6 +19,7 @@ vtk_module(vtkImagingCore
     vtkImagingMath # Move tests
     vtkImagingStencil # Move tests
     vtkImagingGeneral # Move tests
+    vtkImagingSources
     vtkImagingStatistics # Move tests
     vtkRenderingImage # Move tests
   )

@@ -77,7 +77,7 @@ vtkPoints* vtkStructuredGridPartitioner::ExtractSubGridPoints(
 {
   assert("pre: whole grid is NULL" && (wholeGrid != NULL) );
 
-  int numNodes    = vtkStructuredData::GetNumberOfNodes( subext );
+  int numNodes    = vtkStructuredData::GetNumberOfPoints( subext );
   vtkPoints *pnts = vtkPoints::New();
   pnts->SetDataTypeToDouble();
   pnts->SetNumberOfPoints( numNodes );

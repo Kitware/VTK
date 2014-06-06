@@ -507,7 +507,7 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
 
   // STEP 3: Get the cell extent
   int CellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent(
+  vtkStructuredData::GetCellExtentFromPointExtent(
       GridExtent,CellExtent,dataDescription );
 
   // STEP 4: Get the data dimension
@@ -1150,7 +1150,7 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
   int gridExtent[6];
   this->GetGridExtent( gridID, gridExtent );
 
-  int numNodes = vtkStructuredData::GetNumberOfNodes(
+  int numNodes = vtkStructuredData::GetNumberOfPoints(
       ghostedExtent, this->DataDescription );
 
   int numCells = vtkStructuredData::GetNumberOfCells(
@@ -1211,7 +1211,7 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
   int numNodesPerCell = this->GetNumberOfNodesPerCell( dim );
 
   int CellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent( ghostedExtent,CellExtent );
+  vtkStructuredData::GetCellExtentFromPointExtent( ghostedExtent,CellExtent );
 
   this->FillCellsGhostArray(
       this->DataDescription, numNodesPerCell, dims, CellExtent,
@@ -1291,7 +1291,7 @@ void vtkStructuredGridConnectivity::InitializeGhostData(const int gridID)
 
   // STEP 1: Get the number of nodes/cells in the ghosted extent
   int numNodes =
-      vtkStructuredData::GetNumberOfNodes(
+      vtkStructuredData::GetNumberOfPoints(
           GhostedGridExtent, this->DataDescription );
   int numCells =
       vtkStructuredData::GetNumberOfCells(
@@ -1386,7 +1386,7 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
 
   // STEP 1: Get the registered grid cell extent
   int GridCellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent(
+  vtkStructuredData::GetCellExtentFromPointExtent(
       GridExtent, GridCellExtent, this->DataDescription );
 
   // STEP 2: Get the ghosted grid extent
@@ -1395,7 +1395,7 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
 
   // STEP 3: Get the ghosted grid cell extent
   int GhostedGridCellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent(
+  vtkStructuredData::GetCellExtentFromPointExtent(
       GhostedGridExtent, GhostedGridCellExtent, this->DataDescription );
 
   // STEP 2: Loop over the registered grid extent
@@ -1491,18 +1491,18 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
   int GhostedGridExtent[6];
   this->GetGhostedGridExtent( gridID, GhostedGridExtent );
   int GhostedGridCellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent(
+  vtkStructuredData::GetCellExtentFromPointExtent(
       GhostedGridExtent, GhostedGridCellExtent );
 
   // STEP 1: Get the neighbor (node) extent and corresponding cell extent
   int NeighborExtent[6];
   this->GetGridExtent( Neighbor.NeighborID, NeighborExtent );
   int NeighborCellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent(
+  vtkStructuredData::GetCellExtentFromPointExtent(
       NeighborExtent, NeighborCellExtent );
 
   int RcvCellExtent[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent(
+  vtkStructuredData::GetCellExtentFromPointExtent(
       const_cast<int*>(Neighbor.RcvExtent), RcvCellExtent );
 
   // STEP 3: Transfer the RcvExtent to the grid from the Neighbor

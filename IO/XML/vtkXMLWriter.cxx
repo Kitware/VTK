@@ -2226,9 +2226,8 @@ void vtkXMLWriter::WritePointDataInline(vtkPointData* pd, vtkIndent indent)
   for(i=0; i < pd->GetNumberOfArrays(); ++i)
     {
     this->SetProgressRange(progressRange, i, pd->GetNumberOfArrays());
-    vtkAbstractArray* a = this->CreateArrayForPoints(pd->GetAbstractArray(i));
+    vtkAbstractArray* a = pd->GetAbstractArray(i);
     this->WriteArrayInline(a, indent.GetNextIndent(), names[i]);
-    a->Delete();
     if (this->ErrorCode != vtkErrorCode::NoError)
       {
       this->DestroyStringArray(pd->GetNumberOfArrays(), names);
@@ -2271,9 +2270,8 @@ void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
   for(i=0; i < cd->GetNumberOfArrays(); ++i)
     {
     this->SetProgressRange(progressRange, i, cd->GetNumberOfArrays());
-    vtkAbstractArray* a = this->CreateArrayForCells(cd->GetAbstractArray(i));
+    vtkAbstractArray* a = cd->GetAbstractArray(i);
     this->WriteArrayInline(a, indent.GetNextIndent(), names[i]);
-    a->Delete();
     if (this->ErrorCode != vtkErrorCode::NoError)
       {
       this->DestroyStringArray(cd->GetNumberOfArrays(), names);
@@ -2424,7 +2422,7 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
     unsigned long mtime = pd->GetMTime();
     // Only write pd if MTime has changed
     unsigned long &pdMTime = pdManager->GetElement(i).GetLastMTime();
-    vtkAbstractArray* a = this->CreateArrayForPoints(pd->GetAbstractArray(i));
+    vtkAbstractArray* a = pd->GetAbstractArray(i);
     if( pdMTime != mtime )
       {
       pdMTime = mtime;
@@ -2457,7 +2455,6 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
         (pdManager->GetElement(i).GetRangeMaxPosition(timestep),
          range[1],"RangeMax" );
       }
-    a->Delete();
     }
 }
 
@@ -2518,7 +2515,7 @@ void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd, int timestep,
     unsigned long mtime = cd->GetMTime();
     // Only write pd if MTime has changed
     unsigned long &cdMTime = cdManager->GetElement(i).GetLastMTime();
-    vtkAbstractArray* a = this->CreateArrayForCells(cd->GetAbstractArray(i));
+    vtkAbstractArray* a = cd->GetAbstractArray(i);
     if( cdMTime != mtime )
       {
       cdMTime = mtime;
@@ -2552,7 +2549,6 @@ void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd, int timestep,
         (cdManager->GetElement(i).GetRangeMaxPosition(timestep),
          range[1],"RangeMax" );
       }
-    a->Delete();
     }
 }
 
@@ -2623,8 +2619,7 @@ void vtkXMLWriter::WritePointsAppendedData(vtkPoints* points, int timestep,
     // Only write points if MTime has changed
     unsigned long &pointsMTime = ptManager->GetLastMTime();
     // since points->Data is a vtkDataArray.
-    vtkDataArray* outPoints = vtkDataArray::SafeDownCast(
-      this->CreateArrayForPoints(points->GetData()));
+    vtkDataArray* outPoints = points->GetData();
     if( pointsMTime != mtime || timestep == 0 )
       {
       pointsMTime = mtime;
@@ -2646,7 +2641,6 @@ void vtkXMLWriter::WritePointsAppendedData(vtkPoints* points, int timestep,
     this->ForwardAppendedDataDouble
       (ptManager->GetRangeMaxPosition(timestep),
        range[1],"RangeMax" );
-    outPoints->Delete();
     }
 }
 
@@ -2658,9 +2652,8 @@ void vtkXMLWriter::WritePointsInline(vtkPoints* points, vtkIndent indent)
   os << indent << "<Points>\n";
   if(points)
     {
-    vtkAbstractArray* outPoints = this->CreateArrayForPoints(points->GetData());
+    vtkAbstractArray* outPoints = points->GetData();
     this->WriteArrayInline(outPoints, indent.GetNextIndent());
-    outPoints->Delete();
     }
   os << indent << "</Points>\n";
 
@@ -2681,14 +2674,11 @@ void vtkXMLWriter::WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
   os << indent << "<Coordinates>\n";
   if(xc && yc && zc)
     {
-    vtkDataArray* oxc = this->CreateExactCoordinates(xc, 0);
-    vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
-    vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
 
     // Split progress over the three coordinates arrays.
-    vtkIdType total = (oxc->GetNumberOfTuples()+
-                       oyc->GetNumberOfTuples()+
-                       ozc->GetNumberOfTuples());
+    vtkIdType total = (xc->GetNumberOfTuples()+
+                       yc->GetNumberOfTuples()+
+                       zc->GetNumberOfTuples());
     if(total == 0)
       {
       total = 1;
@@ -2696,46 +2686,34 @@ void vtkXMLWriter::WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
     float fractions[4] =
       {
         0,
-        float(oxc->GetNumberOfTuples()) / total,
-        float(oxc->GetNumberOfTuples()+oyc->GetNumberOfTuples()) / total,
+        float(xc->GetNumberOfTuples()) / total,
+        float(xc->GetNumberOfTuples()+yc->GetNumberOfTuples()) / total,
         1
       };
     float progressRange[2] = {0,0};
     this->GetProgressRange(progressRange);
 
     this->SetProgressRange(progressRange, 0, fractions);
-    this->WriteArrayInline(oxc, indent.GetNextIndent());
+    this->WriteArrayInline(xc, indent.GetNextIndent());
     if (this->ErrorCode != vtkErrorCode::NoError)
       {
-      oxc->Delete();
-      oyc->Delete();
-      ozc->Delete();
       return;
       }
 
     this->SetProgressRange(progressRange, 1, fractions);
-    this->WriteArrayInline(oyc, indent.GetNextIndent());
+    this->WriteArrayInline(yc, indent.GetNextIndent());
     if (this->ErrorCode != vtkErrorCode::NoError)
       {
-      oxc->Delete();
-      oyc->Delete();
-      ozc->Delete();
       return;
       }
 
     this->SetProgressRange(progressRange, 2, fractions);
-    this->WriteArrayInline(ozc, indent.GetNextIndent());
+    this->WriteArrayInline(zc, indent.GetNextIndent());
     if (this->ErrorCode != vtkErrorCode::NoError)
       {
-      oxc->Delete();
-      oyc->Delete();
-      ozc->Delete();
       return;
       }
 
-    oxc->Delete();
-    oyc->Delete();
-    ozc->Delete();
     }
   os << indent << "</Coordinates>\n";
 
@@ -2796,14 +2774,10 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* 
   // Only write coordinates if they exist.
   if(xc && yc && zc)
     {
-    vtkDataArray* oxc = this->CreateExactCoordinates(xc, 0);
-    vtkDataArray* oyc = this->CreateExactCoordinates(yc, 1);
-    vtkDataArray* ozc = this->CreateExactCoordinates(zc, 2);
-
     // Split progress over the three coordinates arrays.
-    vtkIdType total = (oxc->GetNumberOfTuples()+
-                       oyc->GetNumberOfTuples()+
-                       ozc->GetNumberOfTuples());
+    vtkIdType total = (xc->GetNumberOfTuples()+
+                       yc->GetNumberOfTuples()+
+                       zc->GetNumberOfTuples());
     if(total == 0)
       {
       total = 1;
@@ -2811,8 +2785,8 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* 
     float fractions[4] =
       {
         0,
-        float(oxc->GetNumberOfTuples()) / total,
-        float(oxc->GetNumberOfTuples()+oyc->GetNumberOfTuples()) / total,
+        float(xc->GetNumberOfTuples()) / total,
+        float(xc->GetNumberOfTuples()+yc->GetNumberOfTuples()) / total,
         1
       };
     float progressRange[2] = {0,0};
@@ -2820,9 +2794,9 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* 
 
     // Helper for the 'for' loop
     vtkDataArray *allcoords[3];
-    allcoords[0] = oxc;
-    allcoords[1] = oyc;
-    allcoords[2] = ozc;
+    allcoords[0] = xc;
+    allcoords[1] = yc;
+    allcoords[2] = zc;
 
     for(int i=0; i<3; ++i)
       {
@@ -2838,9 +2812,6 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* 
           coordManager->GetElement(i).GetOffsetValue(timestep));
         if (this->ErrorCode != vtkErrorCode::NoError)
           {
-          oxc->Delete();
-          oyc->Delete();
-          ozc->Delete();
           return;
           }
         }
@@ -2848,39 +2819,7 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* 
         {
         }
       }
-
-    oxc->Delete();
-    oyc->Delete();
-    ozc->Delete();
     }
-}
-
-//----------------------------------------------------------------------------
-vtkAbstractArray* vtkXMLWriter::CreateArrayForPoints(vtkAbstractArray* inArray)
-{
-  // Only some subclasses need to do anything.  By default, just
-  // return the array as given.
-  inArray->Register(0);
-  return inArray;
-}
-
-//----------------------------------------------------------------------------
-vtkAbstractArray* vtkXMLWriter::CreateArrayForCells(vtkAbstractArray* inArray)
-{
-  // Only some subclasses need to do anything.  By default, just
-  // return the array as given.
-  inArray->Register(0);
-  return inArray;
-}
-
-//----------------------------------------------------------------------------
-vtkDataArray* vtkXMLWriter::CreateExactCoordinates(vtkDataArray* inArray, int)
-{
-  // This method is just a dummy because we don't want a pure virtual.
-  // Subclasses that need it should define the real version.
-  vtkErrorMacro("vtkXMLWriter::CreateExactCoordinates should never be called.");
-  inArray->Register(0);
-  return inArray;
 }
 
 //----------------------------------------------------------------------------

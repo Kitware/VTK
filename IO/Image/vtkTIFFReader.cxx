@@ -515,7 +515,7 @@ void vtkTIFFReader::ExecuteInformation()
 
     if (!SpacingSpecifiedFlag)
       {
-      this->DataSpacing[2] = 1.0;
+      this->DataSpacing[2] = this->DataSpacing[0];
       }
     if (!OriginSpecifiedFlag)
       {

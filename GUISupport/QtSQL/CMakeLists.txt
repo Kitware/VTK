@@ -22,6 +22,10 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
   add_definitions(${_qt_definitions})
 
   set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5Sql_LIBRARIES})
+
+  # When this module is loaded by an app, load Qt too.
+  vtk_module_export_code_find_package(Qt5Widgets)
+  vtk_module_export_code_find_package(Qt5Sql)
 else()
   # import Qt4 build settings
   set(QT_USE_QTSQL 1)

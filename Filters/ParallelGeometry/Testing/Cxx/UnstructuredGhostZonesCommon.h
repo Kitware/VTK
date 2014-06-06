@@ -302,7 +302,7 @@ void GenerateDataSet()
 
   // STEP 2: Allocate the unstructured grid instance of this process
   int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(ext);
-  int numNodes = vtkStructuredData::GetNumberOfNodes(ext,dataDescription);
+  int numNodes = vtkStructuredData::GetNumberOfPoints(ext,dataDescription);
   int numCells = vtkStructuredData::GetNumberOfCells(ext,dataDescription);
 
   int dims[3];

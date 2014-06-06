@@ -641,7 +641,22 @@ int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer,
       }
     else if (id)
       {
+      // If we fix the extent, we need to fix the origin too.
+      double origin[3];
+      id->GetOrigin(origin);
+      double spacing[3];
+      id->GetSpacing(spacing);
+      int readerExt[6];
+      id->GetExtent(readerExt);
+      for (int i=0; i<3; i++)
+        {
+        if (readerExt[2*i] != extent[2*i])
+          {
+          origin[i] = origin[i] - (extent[2*i] - readerExt[2*i])*spacing[i];
+          }
+        }
       id->SetExtent(extent);
+      id->SetOrigin(origin);
       }
     }
 

@@ -332,8 +332,7 @@
     border-radius: 5px;
     border: solid 1px black;
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 20%;
     overflow: hidden;
     float: left;
 }
@@ -345,6 +344,26 @@
     background: rgba(255, 255, 255, 0.7);
     padding: 10px;
     border-radius: 5px;
+}
+
+
+.vtkweb-catalyst-analysis-composite-search .cell > ul li {
+    list-style: none;
+    display: table-cell;
+}
+
+
+.vtkweb-catalyst-analysis-composite-search .result-page-index {
+    width: 20px;
+    position: relative;
+}
+
+.vtkweb-catalyst-analysis-composite-search .composite-search-results .result-page {
+    display: none;
+}
+
+.vtkweb-catalyst-analysis-composite-search .composite-search-results .result-page.active {
+    display: block;
 }
 
 .vtkweb-catalyst-analysis-composite-search .progress {

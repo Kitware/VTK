@@ -76,10 +76,10 @@ int TestGetNumNodesAndCells()
       static_cast<vtkIdType>(dims[1])*
       static_cast<vtkIdType>(dims[2]);
 
-  if( vtkStructuredData::GetNumberOfNodes(ext) != nNodesExpected )
+  if( vtkStructuredData::GetNumberOfPoints(ext) != nNodesExpected )
     {
     std::cerr << "ERROR: GetNumberOfNodes(ext) failed!\n";
-    std::cerr << "val=" << vtkStructuredData::GetNumberOfNodes(ext) << "\n";
+    std::cerr << "val=" << vtkStructuredData::GetNumberOfPoints(ext) << "\n";
     std::cerr << "expected=" << nNodesExpected << "\n";
     return EXIT_FAILURE;
     }

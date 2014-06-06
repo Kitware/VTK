@@ -9,7 +9,8 @@
     // Extract worker url
     scripts = document.getElementsByTagName('script'),
     scriptPath = scripts[scripts.length - 1].src.split('/'),
-    workerURL = '/CatalystBrowser/vtkweb-composite-worker.js';
+    workerURL = '/CatalystBrowser/vtkweb-composite-worker.js',
+    NB_RESULT_PER_PAGE = 8;
 
 
     // Compute worker path
@@ -169,9 +170,17 @@
                 fetchData(idList[processIdx], dataList[processIdx], processIdx);
                 processIdx++;
                 progressBar.css('width', Math.floor(95*processIdx / idList.length) + '%');
+
+                // Update page number and possible results
+                $('.result-count', container).html("Found&nbsp;VALUE&nbsp;results.".replace(/VALUE/g, idList.length));
+                $('.result-page-number', container).html(Math.floor(idList.length / NB_RESULT_PER_PAGE) + 1);
             } else {
                 $('.compute-coverage', container).show();
                 progressBar.parent().hide();
+
+                // Update page number and possible results
+                $('.result-count', container).html("Found&nbsp;VALUE&nbsp;results.".replace(/VALUE/g, idList.length));
+                $('.result-page-number', container).html(Math.floor(idList.length / NB_RESULT_PER_PAGE) + 1);
             }
         }
 
@@ -265,7 +274,7 @@
 
 
         function applyQuery(userQuery) {
-            $('.toggle-stats', container).addClass('stats');
+            $('.toggle-stats', container).removeClass('stats');
             // Generate function str
             // Extract forumla
             formulaSTR = "var time = Number(obj.fields.time), phi = Number(obj.fields.phi), theta = Number(obj.fields.theta);\n";
@@ -308,21 +317,95 @@
             $('.result-count', container).html("Found&nbsp;VALUE&nbsp;results.".replace(/VALUE/g, found));
 
             var resultContainer = $('.composite-search-results', container).empty();
-            count = finalResults.length;
+            count = finalResults.length,
+            nbPages = Math.floor(count / NB_RESULT_PER_PAGE),
+            pages = [],
+            resultNumber = 0;
+
+            if(count % NB_RESULT_PER_PAGE) {
+                ++nbPages;
+            }
+
+            $('.result-page-number', container).html(nbPages);
+
+            for(var idx = 0; idx < nbPages; ++idx) {
+                var page = $('<div/>', { "class": 'result-page', "data-page": idx });
+                page.appendTo(resultContainer);
+                pages.push(page);
+            }
+            pages[0].addClass('active');
+
             while(count--) {
-                addResultToUI(finalResults[count], resultContainer);
+                addResultToUI(finalResults[count], pages[Math.floor(resultNumber++ / NB_RESULT_PER_PAGE)]);
             }
 
             // Add render callback
-            $('.composite-result', container).click(function(){
-                var me = $(this), fields = me.attr('data-fields').split(':'),
-                time = fields[0], phi = fields[1], theta = fields[2],
-                imgURL = drawResult(time, phi, theta);
-                $('img', me).attr('src', imgURL);
-            });
+            // $('.composite-result', container).click(function(){
+            //     var me = $(this), fields = me.attr('data-fields').split(':'),
+            //     time = fields[0], phi = fields[1], theta = fields[2],
+            //     imgURL = drawResult(time, phi, theta);
+            //     $('img', me).attr('src', imgURL);
+            // });
 
-            // Update zoom level
-            $('.zoom-level', container).trigger('change');
+            $('.composite-result', container).dblclick(function(){
+                var me = $(this), fields = me.attr('data-fields').split(':');
+
+                var colorContainer = $('.color.active', container);
+                if(colorContainer) {
+                    container.trigger({
+                        type: "open-view",
+                        query: container.data('pipeline-query'),
+                        args: {
+                            time : fields[0],
+                            phi : fields[1],
+                            theta : fields[2]
+                        },
+                        color: colorContainer.attr('data-color')
+                    });
+                } else {
+                    me.trigger({
+                        type: "open-view",
+                        query: container.data('pipeline-query'),
+                        args: {
+                            time : fields[0],
+                            phi : fields[1],
+                            theta : fields[2]
+                        },
+                    });
+                }
+            });
+            renderActivePage();
+        }
+
+        // ------------------------------
+
+        function renderActivePage(){
+            var processingQueue = [];
+            function renderCompositeResult() {
+                if(processingQueue.length > 0) {
+                    // [ container, time, phi, theta ]
+                    var item = processingQueue.pop(),
+                    time = item[1], phi = item[2], theta = item[3];
+                    if(renderManager.updateFields(time, phi, theta)) {
+                        item[0].attr('src', drawResult(time, phi, theta));
+                        item[4].hide();
+                    } else {
+                        // Not ready yet
+                        processingQueue.push(item);
+                    }
+
+                    // Process remaining
+                    setTimeout(renderCompositeResult, 50);
+                }
+            }
+            $('.result-page.active .composite-result', container).each(function(){
+                var me = $(this), fields = me.attr('data-fields').split(':'),
+                time = fields[0], phi = fields[1], theta = fields[2];
+                processingQueue.push([$('img', me), time, phi, theta, $('ul', me)]);
+            });
+            processingQueue.reverse();
+            $('.result-page-index', container).val(1+Number($('.result-page.active').attr('data-page')));
+            renderCompositeResult();
         }
 
         // ------------------------------
@@ -349,7 +432,7 @@
         // ------------------------------
 
         function updateFields(time, phi, theta) {
-            console.log('search updateFields: ' + time + " " + phi + " " + theta);
+            //console.log('search updateFields: ' + time + " " + phi + " " + theta);
         }
 
         // ------------------------------
@@ -376,7 +459,7 @@
         // ------------------------------
 
         function draw() {
-            console.log('search draw');
+            //console.log('search draw');
         }
 
         // ------------------------------
@@ -445,8 +528,106 @@
             updatePixelRatio:updatePixelRatio,
             updatePixelRatioOrder:updatePixelRatioOrder,
             search: search,
-            applyQuery: applyQuery
+            applyQuery: applyQuery,
+            renderActivePage: renderActivePage,
+            layerToLabel: layerToLabel
         };
+    }
+
+    // ----------------------------------------------------------------------
+
+    function attachTouchListener(container) {
+        var current_button = null, posX, posY, defaultDragButton = 1,
+        isZooming = false, isDragging = false, mouseAction = 'up', target;
+
+        function mobileTouchInteraction(evt) {
+            evt.gesture.preventDefault();
+            switch(evt.type) {
+                case 'drag':
+                    if(isZooming) {
+                        return;
+                    }
+                    current_button = defaultDragButton;
+                    if(mouseAction === 'up') {
+                        mouseAction = "down";
+
+                        target = evt.gesture.target;
+                        isDragging = true;
+                    } else {
+                        mouseAction = "move";
+                    }
+
+                    posX = evt.gesture.touches[0].pageX;
+                    posY = evt.gesture.touches[0].pageY;
+                    break;
+                case 'hold':
+                    if(defaultDragButton === 1) {
+                        defaultDragButton = 2;
+                        //container.html("Pan mode").css('color','#FFFFFF');
+                    } else {
+                        defaultDragButton = 1;
+                        //container.html("Rotation mode").css('color','#FFFFFF');
+                    }
+
+                    break;
+                case 'release':
+                    //container.html('');
+                    current_button = 0;
+                    mouseAction = "up";
+                    isZooming = false;
+                    isDragging = false;
+                    break;
+                case 'doubletap':
+                    container.trigger('resetCamera');
+                    return;
+                case 'pinch':
+                    if(isDragging) {
+                        return;
+                    }
+                    current_button = 3;
+                    if(mouseAction === 'up') {
+                        mouseAction = 'down';
+                        posX = 0;
+                        posY = container.height();
+                        target = evt.gesture.target;
+                        isZooming = true;
+                    } else {
+                        mouseAction = 'move';
+                        posY = container.height() * (1+(evt.gesture.scale-1)/2);
+                    }
+                    break;
+            }
+
+            // Trigger event
+            container.trigger({
+                type: 'mouse',
+                action: mouseAction,
+                current_button: current_button,
+                charCode: '',
+                altKey: false,
+                ctrlKey: false,
+                shiftKey: false,
+                metaKey: false,
+                delegateTarget: target,
+                pageX: posX,
+                pageY: posY
+            });
+        }
+
+        // Bind listener to UI container
+        container.hammer({
+            prevent_default : true,
+            prevent_mouseevents : true,
+            transform : true,
+            transform_always_block : true,
+            transform_min_scale : 0.03,
+            transform_min_rotation : 2,
+            drag : true,
+            drag_max_touches : 1,
+            drag_min_distance : 10,
+            swipe : false,
+            hold : true // To switch from rotation to pan
+        }).on("doubletap pinch drag release hold", mobileTouchInteraction);
     }
 
     // ------------------------------------------------------------------------
@@ -493,6 +674,80 @@
 
                 // Redraw the image in the canvas
                 redrawImage();
+            });
+
+            // Handle mobile
+            attachTouchListener(element);
+            element.bind('mouse', function(e){
+                // action: mouseAction,
+                // current_button: current_button,
+                // charCode: '',
+                // altKey: false,
+                // ctrlKey: false,
+                // shiftKey: false,
+                // metaKey: false,
+                // delegateTarget: target,
+                // pageX: posX,
+                // pageY: posY
+                var action = e.action,
+                altKey = e.altKey,
+                shiftKey = e.shiftKey,
+                ctrlKey = e.ctrlKey,
+                x = e.pageX,
+                y = e.pageY,
+                current_button = e.current_button;
+
+                if(action === 'down') {
+                    if (e.altKey) {
+                        current_button = 2;
+                        e.altKey = false;
+                    } else if (e.shiftKey) {
+                        current_button = 3;
+                        e.shiftKey = false;
+                    }
+                    // Detect interaction mode
+                    switch(current_button) {
+                        case 2: // middle mouse down = pan
+                            mouseMode = modePan;
+                            break;
+                        case 3: // right mouse down = zoom
+                            mouseMode = modeZoom;
+                            break;
+                        default:
+                            mouseMode = modeRotation;
+                            break;
+                    }
+
+                    // Store mouse location
+                    lastLocation = [x, y];
+
+                    e.preventDefault();
+                } else if(action === 'up') {
+                    mouseMode = modeNone;
+                    e.preventDefault();
+                } else if(action === 'move') {
+                    if(mouseMode != modeNone) {
+                        var loc = [x,y];
+
+                        // Can NOT use switch as (modeRotation == modePan) is
+                        // possible when Pan should take over rotation as
+                        // rotation is not possible
+                        if(mouseMode === modePan) {
+                            handlePan(loc);
+                        } else if (mouseMode === modeZoom) {
+                            var deltaY = loc[1] - lastLocation[1];
+                            handleZoom(deltaY * dzScale);
+
+                            // Update mouse location
+                            lastLocation = loc;
+                        } else {
+                           handleRotation(loc);
+                        }
+
+                        // Redraw the image in the canvas
+                        redrawImage();
+                    }
+                }
             });
 
             // Zoom and pan events with mouse buttons and drag
@@ -802,8 +1057,9 @@
                 cache[activeKey] = {};
                 downloadImage(activeKey, basepath + '/' + activeKey.replace('{filename}', 'rgb.jpg'));
                 downloadComposite(activeKey, basepath + '/' + activeKey.replace('{filename}', 'composite.json'));
+                return false;
             } else {
-                draw();
+                return draw();
             }
         }
 
@@ -861,7 +1117,7 @@
 
         function draw() {
             if(!cache.hasOwnProperty(activeKey) || !cache[activeKey].hasOwnProperty('composite') || !cache[activeKey].hasOwnProperty('image')) {
-                return;
+                return false;
             }
             var composite = cache[activeKey]['composite'],
             img = cache[activeKey]['image'],
@@ -876,15 +1132,22 @@
             frontBuffer = null, frontPixels = null, pixelIdx = 0, localIdx;
 
             // Fill with bg color
-            if(bgColor) {
-                frontCTX.fillStyle = bgColor;
-                frontCTX.fillRect(0,0,singleImageSize[0], singleImageSize[1]);
-                frontBuffer = frontCTX.getImageData(0, 0, singleImageSize[0], singleImageSize[1]);
-                frontPixels = frontBuffer.data;
-            } else {
-                frontBuffer = bgCTX.getImageData(0, (nbImages - 1) * singleImageSize[1], singleImageSize[0], singleImageSize[1]);
-                frontPixels = frontBuffer.data;
-            }
+            //if(bgColor) {
+            //    frontCTX.fillStyle = bgColor;
+            //    frontCTX.fillRect(0,0,singleImageSize[0], singleImageSize[1]);
+            //    frontBuffer = frontCTX.getImageData(0, 0, singleImageSize[0], singleImageSize[1]);
+            //    frontPixels = frontBuffer.data;
+            //} else {
+            //    frontBuffer = bgCTX.getImageData(0, (nbImages - 1) * singleImageSize[1], singleImageSize[0], singleImageSize[1]);
+            //    frontPixels = frontBuffer.data;
+            //}
+
+            // Clear front pixels
+            //frontCTX.fillStyle = "#ffffff";
+            //frontCTX.fillRect(0,0,singleImageSize[0], singleImageSize[1]);
+            frontCTX.clearRect(0, 0, singleImageSize[0], singleImageSize[1]);
+            frontBuffer = frontCTX.getImageData(0, 0, singleImageSize[0], singleImageSize[1]);
+            frontPixels = frontBuffer.data;
 
             for(var i = 0; i < count; ++i) {
                 var order = composite[i];
@@ -910,10 +1173,11 @@
             // Draw buffer to canvas
             frontCTX.putImageData(frontBuffer, 0, 0);
             container.trigger('render-bg');
+            return true;
         }
 
         function toDataURL() {
-            return frontCanvas[0].toDataURL("image/jpeg");
+            return frontCanvas[0].toDataURL("image/png");
         }
 
         return {
@@ -921,7 +1185,8 @@
             draw:draw,
             updatePipeline:updatePipeline,
             updateColor:updateColor,
-            toDataURL:toDataURL
+            toDataURL:toDataURL,
+            search:function(){}
         };
     }
 
@@ -1007,6 +1272,82 @@
             }
         }
 
+        function updatePipelineUI(query, args, color, sortValue) {
+            var queryObj = {}, count = query.length, queryStr = "", sortStr = sortValue;
+            for(var i = 0; i < count; i += 2) {
+                queryObj[query[i]] = query[i+1];
+            }
+
+            // Update pipeline
+            $('.pipeline > ul > li > ul > li', container).hide();
+            $('.pipeline li', container).each(function(){
+                var me = $(this),
+                id = me.attr('data-id'),
+                visibleLayer = (queryObj[id] != '_'),
+                selectContainer = $('select', me),
+                iconContainer = $('.toggle-eye', me);
+
+                selectContainer.val(queryObj[id]);
+                iconContainer.removeClass('vtk-icon-eye vtk-icon-eye-off').addClass(visibleLayer ? 'vtk-icon-eye':'vtk-icon-eye-off');
+                if(visibleLayer) {
+                    me.addClass('show enabled').show();
+                } else {
+                    me.removeClass('enabled show');
+                }
+            });
+
+            // Update args
+            for(var key in args) {
+                var argContainer = $('.'+key, container),
+                values = argContainer.attr('data-values').split(':'),
+                labelContainer = $('.value', argContainer),
+                count = values.length,
+                targetValue = args[key];
+
+                while(count--) {
+                    if(values[count] == targetValue) {
+                        labelContainer.html(targetValue);
+                        argContainer.attr('data-index', count);
+                        count = 0;
+                    }
+                }
+
+                // Update Query STR
+                queryStr += " && " + key + " == " + targetValue;
+            }
+            queryStr = queryStr.substr(4);
+
+            // Update color
+            $('.color').removeClass('active');
+            if(color) {
+                $('.color[data-color="' + color + '"]', container).addClass('active');
+            }
+
+            // Render the new content
+            updatePipeline();
+            updateComposite();
+            manager.updateColor(color);
+
+            // Update query if search mode
+            queryExp = $('.query-expression', container);
+            sortExp = $('.sortby-expression', container);
+            if(queryExp) {
+                queryExp.val(queryStr);
+                if(sortStr) {
+                    sortExp.val(sortStr);
+                }
+                setTimeout(function(){
+                    $('.compute-coverage', container).trigger('click');
+                    setTimeout(function(){
+                        queryExp.trigger('change');
+                    }, 600);
+                }, 100);
+            }
+        }
+        container.bind('updateControl', function(event){
+            updatePipelineUI(event.query, event.args, event.color, event.sort);
+        });
+
         function updatePipeline() {
             var query = "";
 
@@ -1022,7 +1363,7 @@
                     toggleLayer[layer] = false;
                 }
             }
-
+            container.data('pipeline-query', query);
             manager.updatePipeline(query);
         }
 
@@ -1035,6 +1376,7 @@
             phi = extractFieldValue($('.phi', container)),
             theta = extractFieldValue($('.theta', container));
             manager.updateFields(time, phi, theta);
+            container.data('args', {time:time, phi:phi, theta:theta});
         }
 
         $('.color', container).click(function(){
@@ -1080,6 +1422,17 @@
             }
 
             updatePipeline();
+
+            // Update query if search mode
+            var queryExp = $('.query-expression', container);
+            if(queryExp) {
+                setTimeout(function(){
+                    $('.compute-coverage', container).trigger('click');
+                    setTimeout(function(){
+                        queryExp.trigger('change');
+                    }, 600);
+                }, 100);
+            }
         });
 
         $('.remove', container).click(function(){
@@ -1149,6 +1502,17 @@
                 layerSelector.hide();
 
                 updatePipeline();
+
+                // Update query if search mode
+                var queryExp = $('.query-expression', container);
+                if(queryExp) {
+                    setTimeout(function(){
+                        $('.compute-coverage', container).trigger('click');
+                        setTimeout(function(){
+                            queryExp.trigger('change');
+                        }, 600);
+                    }, 100);
+                }
             });
             $('input', layerSelector).change(function(){
                 var me = $(this),
@@ -1157,9 +1521,9 @@
                 item = $('li[data-id="' + id + '"]', container);
 
                 if(checked) {
-                    item.addClass("enabled").show();
+                    item.addClass("enabled show").show();
                 } else {
-                    item.removeClass("enabled").hide();
+                    item.removeClass("enabled show").hide();
                 }
             });
 
@@ -1217,12 +1581,6 @@
             manager.applyQuery(userQuery);
         });
 
-        $('.zoom-level', container).bind('change keyup', function(){
-            // Apply search
-            var me = $(this), value = me.val(), results = $('.composite-result', container).css('width', value + '%');
-            results.css('height', results.width());
-        });
-
         $('.toggle-stats', container).click(function(){
             var me = $(this), shouldShow = me.toggleClass('stats').hasClass('stats');
             if(shouldShow) {
@@ -1232,9 +1590,34 @@
             }
         });
 
-        $('.render-all-composites', container).click(function(){
-            $('.composite-result', container).trigger('click');
+        $('.page-result-action', container).bind('click change',function(){
+            var me = $(this),
+            action = me.attr('data-action'),
+            pages = $('.composite-search-results .result-page', container),
+            activePage = $('.composite-search-results .result-page.active', container),
+            activeIdx = Number(activePage.attr("data-page")),
+            nbPages = pages.length;
+
+            pages.removeClass('active');
+
+            if(action === "first") {
+                $('.result-page[data-page=0]', container).addClass('active');
+            } else if(action === "previous") {
+                $('.result-page[data-page='+((nbPages + activeIdx - 1)%nbPages)+']', container).addClass('active');
+            } else if(action === "next") {
+                $('.result-page[data-page='+((activeIdx + 1)%nbPages)+']', container).addClass('active');
+            } else if(action === "last") {
+                $('.result-page[data-page='+(nbPages - 1)+']', container).addClass('active');
+            } else if(action === "go-to") {
+                var newIdx = Number($('.result-page-index', container).val()) - 1;
+                $('.result-page[data-page='+newIdx+']', container).addClass('active');
+            }
+            manager.renderActivePage();
         });
+
+        // $('.render-all-composites', container).click(function(){
+        //     $('.composite-result', container).trigger('click');
+        // });
     }
 
     /**
@@ -1293,6 +1676,24 @@
 
                     // Attach interaction listeners
                     initializeListeners(me, manager, zoomableRender);
+
+                    $('.front-renderer', me).dblclick(function(){
+                        var colorContainer = $('.color.active', me);
+                        if(colorContainer) {
+                            me.trigger({
+                                type: "open-view",
+                                query: me.data('pipeline-query'),
+                                args: me.data('args'),
+                                color: colorContainer.attr('data-color')
+                            });
+                        } else {
+                            me.trigger({
+                                type: "open-view",
+                                query: me.data('pipeline-query'),
+                                args: me.data('args')
+                            });
+                        }
+                    });
                 },
                 error: function(error) {
                     console.log("error when trying to download " + dataBasePath + '/info.json');
@@ -1323,7 +1724,8 @@
                     var layer_fields = data.metadata.layer_fields,
                     fields = data.metadata.fields,
                     pipeline = data.metadata.pipeline,
-                    args = data.arguments;
+                    args = data.arguments,
+                    searchManager = createSearchManager(me, data, dataBasePath);
 
                     // Keep data info
                     me.data('basepath', dataBasePath);
@@ -1333,8 +1735,12 @@
                     createControlPanel(me, pipeline, layer_fields, fields, false);
 
                     // Enable additional fields if any (time, phi, theta)
-                    var helpTxt = "", excludeList = {"filename": true, "field": true};
+                    var helpTxt = "", excludeList = {"filename": true, "field": true},
+                    layerVarNames = "<hr/>";
                     for(var key in args) {
+                        if(key === 'layer') {
+                            continue;
+                        }
                         var fieldContainer = $('.' + key, me);
                         if(fieldContainer) {
                             // Add documentation
@@ -1352,12 +1758,18 @@
                         }
                     }
 
+                    // Create layer labels
+                    for(var key in searchManager.layerToLabel) {
+                        layerVarNames += "<b>NAME</b>: VALUES <br/>".replace(/NAME/g, key).replace(/VALUES/g, searchManager.layerToLabel[key]);
+                    }
+                    helpTxt += layerVarNames;
+
                     // Add search/results containers
                     $('<div/>', {class: "chart-container"}).appendTo(me);
-                    $('<div/>', {class: "search-toolbar", html: '<div class="table"><span class="cell"><b>Query</b></span><span class="cell expand"><input type="text" class="query-expression"></span><span class="cell"><b>Sort&nbsp;by</b></span><span class="cell expand"><input type="text" class="sortby-expression"></span><span class="cell"><span class="result-count"></span></span><span class="cell"><span class="vtk-icon-chart-area toggle-stats stats action"></span></span><span class="cell"><span class="vtk-icon-picture-1 render-all-composites action" title="Render all composites" alt="Render all composites"></span></span><span class="cell"><input type="range" class="zoom-level" value="10" max="100" min="10"></span></div><i>HELP</i>'.replace(/HELP/g, helpTxt)}).appendTo(me);
+                    $('<div/>', {class: "search-toolbar", html: '<div class="table"><span class="cell"><b>Query</b></span><span class="cell expand"><input type="text" class="query-expression"></span><span class="cell"><b>Sort&nbsp;by</b></span><span class="cell expand"><input type="text" class="sortby-expression"></span><span class="cell"><span class="result-count"></span></span><span class="cell"><span class="vtk-icon-info-1 toggle-stats action" title="Toggle statistics"></span></span><span class="cell"><ul><li class="vtk-icon-to-start-1 action page-result-action" data-action="first"></li><li class="vtk-icon-left-dir-1 action page-result-action" data-action="previous"></li><li><input type="text" value="1" class="result-page-index page-result-action" data-action="go-to"></li><li> / </li><li class="result-page-number"></li><li class="vtk-icon-right-dir-1 action page-result-action" data-action="next"></li><li class="vtk-icon-to-end-1 action page-result-action" data-action="last"></li></ul></span></div></div><i>HELP</i>'.replace(/HELP/g, helpTxt)}).appendTo(me);
                     $('<div/>', {class: "composite-search-results"}).appendTo(me);
 
-                    initializeListeners(me, createSearchManager(me, data, dataBasePath), null);
+                    initializeListeners(me, searchManager, null);
                 },
                 error: function(error) {
                     console.log("error when trying to download " + dataBasePath + '/info.json');

@@ -25,7 +25,7 @@
 // the contents of the composite dataset in this pass.
 // Sources that can produce more than one piece (note that a piece is
 // different than a block; each piece consistes of 0 or more blocks) should
-// set MAXIMUM_NUMBER_OF_PIECES to -1.
+// set CAN_HANDLE_PIECE_REQUEST.
 //
 // * REQUEST_UPDATE_EXTENT: This pass is identical to the one implemented
 // in vtkStreamingDemandDrivenPipeline
@@ -118,8 +118,6 @@ protected:
                                       vtkInformationVector** inInfoVec,
                                       vtkInformationVector* outInfoVec);
 
-  virtual void CopyFromDataToInformation(
-    vtkDataObject* dobj, vtkInformation* inInfo);
   virtual void PushInformation(vtkInformation*);
   virtual void PopInformation (vtkInformation*);
 

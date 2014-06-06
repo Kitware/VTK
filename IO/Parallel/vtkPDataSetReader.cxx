@@ -32,6 +32,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
+#include "vtkNew.h"
 
 vtkStandardNewMacro(vtkPDataSetReader);
 
@@ -517,12 +518,6 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
     if (strcmp(param, "numberOfPieces") == 0)
       {
       this->SetNumberOfPieces(atoi(val));
-      if (! this->StructuredFlag)
-        {
-        info->Set(
-          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-          this->NumberOfPieces);
-        }
       }
 
     // Handle parameter: wholeExtent.
@@ -761,10 +756,6 @@ void vtkPDataSetReader::ReadVTKFileInformation(
     vtkErrorMacro("I can not figure out what type of data set this is: " << str);
     return;
     }
-  if (this->DataType == VTK_POLY_DATA || this->DataType == VTK_UNSTRUCTURED_GRID)
-    {
-    info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
-    }
 }
 
 void vtkPDataSetReader::SkipFieldData(ifstream *file)
@@ -885,6 +876,17 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
 }
 
 //----------------------------------------------------------------------------
+int vtkPDataSetReader::RequestInformation(vtkInformation*,
+                                          vtkInformationVector**,
+                                          vtkInformationVector* outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkPDataSetReader::RequestData(vtkInformation* request,
                                    vtkInformationVector** inputVector ,
                                    vtkInformationVector* outputVector)
@@ -895,47 +897,42 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
 
   if (this->VTKFileFlag)
     {
-    vtkDataSetReader *reader = vtkDataSetReader::New();
-    reader->ReadAllScalarsOn();
-    reader->ReadAllVectorsOn();
-    reader->ReadAllNormalsOn();
-    reader->ReadAllTensorsOn();
-    reader->ReadAllColorScalarsOn();
-    reader->ReadAllTCoordsOn();
-    reader->ReadAllFieldsOn();
-    reader->SetFileName(this->FileName);
-    reader->Update();
-    vtkDataSet *data = reader->GetOutput();
-
-    if (data == NULL)
+    int updatePiece = vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info);
+    if (updatePiece == 0)
       {
-      vtkErrorMacro("Could not read file: " << this->FileName);
-      return 0;
+      vtkDataSetReader *reader = vtkDataSetReader::New();
+      reader->ReadAllScalarsOn();
+      reader->ReadAllVectorsOn();
+      reader->ReadAllNormalsOn();
+      reader->ReadAllTensorsOn();
+      reader->ReadAllColorScalarsOn();
+      reader->ReadAllTCoordsOn();
+      reader->ReadAllFieldsOn();
+      reader->SetFileName(this->FileName);
+      reader->Update();
+      vtkDataSet *data = reader->GetOutput();
+
+      if (data == NULL)
+        {
+        vtkErrorMacro("Could not read file: " << this->FileName);
+        return 0;
+        }
+
+      if (data->CheckAttributes())
+        {
+        vtkErrorMacro("Attribute Mismatch.");
+        return 0;
+        }
+
+      output->CopyStructure(data);
+      output->GetFieldData()->PassData(data->GetFieldData());
+      output->GetCellData()->PassData(data->GetCellData());
+      output->GetPointData()->PassData(data->GetPointData());
+      this->SetNumberOfPieces(0);
+
+      reader->Delete();
       }
-//    data->Update();
-
-    if (data->CheckAttributes())
-      {
-      vtkErrorMacro("Attribute Mismatch.");
-      return 0;
-      }
-
-    // Do not copy the ExtentTranslator (hack)
-    // reader should probably set the extent translator
-    // not paraview.
-    vtkExtentTranslator *tmp =
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(info);
-    tmp->Register(this);
-    output->CopyStructure(data);
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(info, tmp);
-    tmp->UnRegister(tmp);
-    output->GetFieldData()->PassData(data->GetFieldData());
-    output->GetCellData()->PassData(data->GetCellData());
-    output->GetPointData()->PassData(data->GetPointData());
-    this->SetNumberOfPieces(0);
-
-    reader->Delete();
-    return 1;
+      return 1;
     }
 
   switch (this->DataType)
@@ -1118,7 +1115,19 @@ int vtkPDataSetReader::ImageDataExecute(
   int i, j;
 
   // Allocate the data object.
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, uExt);
+  int wUExt[6];
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, wUExt);
+  vtkNew<vtkExtentTranslator> et;
+  et->SetWholeExtent(wUExt);
+  et->SetPiece(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  et->SetNumberOfPieces(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  int ghostLevels = info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  et->SetGhostLevel(ghostLevels);
+  et->PieceToExtent();
+  et->GetExtent(uExt);
   output->SetExtent(uExt);
   output->AllocateScalars(info);
 
@@ -1183,6 +1192,15 @@ int vtkPDataSetReader::ImageDataExecute(
   delete [] pieceMask;
   reader->Delete();
 
+  if (ghostLevels > 0)
+    {
+    et->SetGhostLevel(0);
+    et->PieceToExtent();
+    int zeroExt[6];
+    et->GetExtent(zeroExt);
+    output->GenerateGhostLevelArray(zeroExt);
+    }
+
   return 1;
 }
 
@@ -1219,7 +1237,19 @@ int vtkPDataSetReader::StructuredGridExecute(
     {
     pieceMask[i] = 0;
     }
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, uExt);
+  int wUExt[6];
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, wUExt);
+  vtkNew<vtkExtentTranslator> et;
+  et->SetWholeExtent(wUExt);
+  et->SetPiece(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  et->SetNumberOfPieces(info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  int ghostLevels = info->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  et->SetGhostLevel(ghostLevels);
+  et->PieceToExtent();
+  et->GetExtent(uExt);
   this->CoverExtent(uExt, pieceMask);
 
   // Now read the pieces.
@@ -1355,6 +1385,16 @@ int vtkPDataSetReader::StructuredGridExecute(
   delete [] pieceMask;
 
   reader->Delete();
+
+  if (ghostLevels > 0)
+    {
+    et->SetGhostLevel(0);
+    et->PieceToExtent();
+    int zeroExt[6];
+    et->GetExtent(zeroExt);
+    output->GenerateGhostLevelArray(zeroExt);
+    }
+
   return 1;
 }
 

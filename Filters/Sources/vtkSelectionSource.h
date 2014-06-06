@@ -134,9 +134,8 @@ protected:
   ~vtkSelectionSource();
 
   virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
-
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);

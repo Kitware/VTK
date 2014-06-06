@@ -40,6 +40,9 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
+// Forward Declarations
+class vtkExtractStructuredGridHelper;
+
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractGrid : public vtkStructuredGridAlgorithm
 {
 public:
@@ -76,7 +79,7 @@ public:
 
 protected:
   vtkExtractGrid();
-  ~vtkExtractGrid() {}
+  ~vtkExtractGrid();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -85,6 +88,8 @@ protected:
   int VOI[6];
   int SampleRate[3];
   int IncludeBoundary;
+
+  vtkExtractStructuredGridHelper* Internal;
 
 private:
   vtkExtractGrid(const vtkExtractGrid&);  // Not implemented.

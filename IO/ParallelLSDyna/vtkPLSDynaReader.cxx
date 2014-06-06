@@ -139,9 +139,8 @@ int vtkPLSDynaReader::RequestInformation( vtkInformation* request,
   //be a massive chunk of code
   this->Superclass::RequestInformation(request,iinfo,outputVector);
 
-  //force an override of the serial reader setting the number of pieces to 1
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-              -1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(),
+               1);
   return 1;
 }
 

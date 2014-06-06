@@ -45,11 +45,15 @@ public:
   vtkMultiProcessStream& operator << (float value);
   vtkMultiProcessStream& operator << (int value);
   vtkMultiProcessStream& operator << (char value);
+  vtkMultiProcessStream& operator << (bool value);
   vtkMultiProcessStream& operator << (unsigned int value);
   vtkMultiProcessStream& operator << (unsigned char value);
   vtkMultiProcessStream& operator << (vtkTypeInt64 value);
   vtkMultiProcessStream& operator << (vtkTypeUInt64 value);
   vtkMultiProcessStream& operator << (const std::string& value);
+  // Without this operator, the compiler would convert
+  // a char* to a bool instead of a std::string.
+  vtkMultiProcessStream& operator << (const char* value);
   vtkMultiProcessStream& operator << (const vtkMultiProcessStream&);
 
   // Description:
@@ -58,6 +62,7 @@ public:
   vtkMultiProcessStream& operator >> (float &value);
   vtkMultiProcessStream& operator >> (int &value);
   vtkMultiProcessStream& operator >> (char &value);
+  vtkMultiProcessStream& operator >> (bool &value);
   vtkMultiProcessStream& operator >> (unsigned int &value);
   vtkMultiProcessStream& operator >> (unsigned char &value);
   vtkMultiProcessStream& operator >> (vtkTypeInt64 &value);

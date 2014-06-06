@@ -267,6 +267,7 @@ int vtkAMRBaseReader::RequestInformation(
   this->Metadata->GenerateParentChildInformation();
   vtkTimerLog::MarkEndEvent("vtkAMRBaseReader::GenerateParentChildInformation");
 
+  info->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   // std::cout<<"Generate Meta Data: ";
   // for(int levelIdx=0 ; levelIdx < this->Metadata->GetNumberOfLevels(); ++levelIdx )

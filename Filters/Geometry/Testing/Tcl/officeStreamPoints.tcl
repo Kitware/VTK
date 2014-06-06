@@ -13,10 +13,6 @@ vtkStructuredGridReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/office.binary.vtk"
     reader Update;#force a read to occur
 
-# to add coverage for vtkOnePieceExtentTranslator
-vtkOnePieceExtentTranslator translator
-[reader GetExecutive] SetExtentTranslator 0 translator
-
 set length [[reader GetOutput] GetLength]
 
 set maxVelocity \

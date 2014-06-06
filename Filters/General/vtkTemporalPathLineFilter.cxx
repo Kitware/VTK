@@ -167,15 +167,13 @@ void vtkTemporalPathLineFilter::SetSelectionData(vtkDataSet *input)
 int vtkTemporalPathLineFilter::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  vtkInformation *outInfo0 = outputVector->GetInformationObject(0);
-  outInfo0->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS())) {
+  if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+    {
     this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  }
+    }
   return 1;
 }
 //---------------------------------------------------------------------------

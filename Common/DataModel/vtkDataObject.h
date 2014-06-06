@@ -298,6 +298,7 @@ public:
   static vtkInformationDataObjectKey* DATA_OBJECT();
   static vtkInformationIntegerKey* DATA_EXTENT_TYPE();
   static vtkInformationIntegerPointerKey* DATA_EXTENT();
+  static vtkInformationIntegerVectorKey* ALL_PIECES_EXTENT();
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();

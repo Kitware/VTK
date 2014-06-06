@@ -41,6 +41,8 @@
             size = $(window).width() / layoutSize - 15,
             viewer = $('<div/>', { class: 'viewer', 'data-type': type, html: "<div class='title-bar'><span class='title'>"+title+"</span><span class='right action close vtk-icon-cancel'/></div><div class='content'></div>"});
 
+            $('li.sub', container).removeClass('active');
+
             // Attach close action to viewer
             $('.close', viewer).bind('click', function(){
                 viewer.remove();
@@ -71,6 +73,13 @@
             $('.layout-value', me.parent).html( Math.floor(100/size) + ' %');
         });
         $('.vtk-icon-magic').hide();
+        $('.sub-menu li.sub', container).click(function(){
+            var me = $(this), alreadyActive = me.hasClass('active');
+            $('li.sub', me.parent()).removeClass('active');
+            if(!alreadyActive) {
+                me.addClass('active');
+            }
+        });
     }
 
     /**

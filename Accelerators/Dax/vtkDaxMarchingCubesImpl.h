@@ -26,11 +26,13 @@
 #include "vtkNew.h"
 
 //fields we support
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 
 //cell types we support
 #include "vtkCellTypes.h"
 #include "vtkGenericCell.h"
+#include "vtkHexahedron.h"
 #include "vtkTriangle.h"
 #include "vtkVoxel.h"
 
@@ -72,26 +74,25 @@ namespace detail {
         {
         //first we extract the field type of the array
         //second we extract the number of components
-        typedef typename vtkToDax::FieldTypeToType<LHS,1>::FieldType FT1;
-        return dispatchOnFieldType<LHS,FT1>(arrayField);
+        typedef typename vtkToDax::FieldTypeToType<LHS,1>::DaxValueType VT1;
+        return dispatchOnFieldType<LHS,VT1>(arrayField);
         }
       return 0;
       }
 
-    template<typename VTKArrayType, typename DaxFieldType>
+    template<typename VTKArrayType, typename DaxValueType>
     int dispatchOnFieldType(VTKArrayType& vtkField) const
       {
-      typedef DaxFieldType FieldType;
       typedef vtkToDax::vtkArrayContainerTag<VTKArrayType> FieldTag;
-      typedef dax::cont::ArrayHandle<FieldType,FieldTag> FieldHandle;
+      typedef dax::cont::ArrayHandle<DaxValueType,FieldTag> FieldHandle;
 
       typedef typename dax::cont::ArrayHandle
-        <FieldType, FieldTag>::PortalConstControl PortalType;
+        <DaxValueType, FieldTag>::PortalConstControl PortalType;
 
       FieldHandle field = FieldHandle( PortalType(&vtkField,
                                             vtkField.GetNumberOfTuples() ) );
       vtkToDax::MarchingCubes<FieldHandle> marching(field,
-                                                 FieldType(IsoValue));
+                                                    DaxValueType(IsoValue));
       marching.setFieldName(vtkField.GetName());
       marching.setOutputGrid(this->Result);
 
@@ -100,6 +101,7 @@ namespace detail {
       vtkDoubleDispatcher<vtkDataSet,vtkCell,int> dataDispatcher;
       dataDispatcher.Add<vtkImageData,vtkVoxel>(marching);
       dataDispatcher.Add<vtkUniformGrid,vtkVoxel>(marching);
+      dataDispatcher.Add<vtkUnstructuredGrid,vtkHexahedron>(marching);
 
       int validMC = dataDispatcher.Go(this->Input,this->Cell);
       return validMC;
@@ -128,6 +130,7 @@ int MarchingCubes(vtkDataSet* input, vtkPolyData *output,
   //setup the dispatch to only allow float and int array to go to the next step
   vtkDispatcher<vtkAbstractArray,int> fieldDispatcher;
   fieldDispatcher.Add<vtkFloatArray>(validInput);
+  fieldDispatcher.Add<vtkDoubleArray>(validInput);
   return fieldDispatcher.Go(field);
 }
 

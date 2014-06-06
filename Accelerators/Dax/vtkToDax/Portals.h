@@ -122,42 +122,43 @@ namespace vtkToDax
 {
 
 
-template <typename Type,
-          int NUM_COMPONENTS = dax::VectorTraits<Type>::NUM_COMPONENTS>
+template <typename DaxValueType, typename VTKComponentType>
 class vtkArrayPortal
 {
+  static const int NUM_COMPONENTS =
+      dax::VectorTraits<DaxValueType>::NUM_COMPONENTS;
 public:
-  typedef typename ConstCorrectedType<Type>::Type ValueType;
-  typedef typename ConstCorrectedType<Type>::ComponentType ComponentType;
+  typedef typename ConstCorrectedType<DaxValueType>::Type ValueType;
+  typedef typename ConstCorrectedType<DaxValueType>::ComponentType ComponentType;
 
   DAX_CONT_EXPORT vtkArrayPortal():
-    Data(NULL),
+    VTKData(NULL),
     Array(NULL),
     Size(0)
-    {
-    }
+  {
+  }
 
   DAX_CONT_EXPORT vtkArrayPortal(vtkDataArray* array, dax::Id size):
-    Data(array),
-    Array(static_cast<ComponentType*>(array->GetVoidPointer(0))),
+    VTKData(array),
+    Array(static_cast<VTKComponentType*>(array->GetVoidPointer(0))),
     Size(size)
-    {
+  {
     DAX_ASSERT_CONT(this->GetNumberOfValues() >= 0);
-    }
+  }
 
 
   /// Copy constructor for any other vtkArrayPortal with an iterator
   /// type that can be copied to this iterator type. This allows us to do any
   /// type casting that the iterators do (like the non-const to const cast).
   ///
-  template<typename OtherType>
+  template<typename OtherDaxType, typename OtherVTKType>
   DAX_CONT_EXPORT
-  vtkArrayPortal(const vtkArrayPortal<OtherType> &src):
-    Data(src.GetVtkData()),
-    Array(static_cast<ComponentType*>(src.GetVtkData()->GetVoidPointer(0))),
+  vtkArrayPortal(const vtkArrayPortal<OtherDaxType, OtherVTKType> &src):
+    VTKData(src.GetVtkData()),
+    Array(src.Array),
     Size(src.GetNumberOfValues())
-    {
-    }
+  {
+  }
 
   DAX_CONT_EXPORT
   dax::Id GetNumberOfValues() const
@@ -168,14 +169,14 @@ public:
   DAX_CONT_EXPORT
   ValueType Get(dax::Id index) const
     {
-    const ComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
+    VTKComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
     return readVector<ValueType,NUM_COMPONENTS>()(rawArray);
     }
 
   DAX_CONT_EXPORT
   void Set(dax::Id index, const ValueType& value) const
     {
-    ComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
+    VTKComponentType *rawArray = this->Array + (index * NUM_COMPONENTS);
     //use template magic to auto unroll insertion
     fillComponents<NUM_COMPONENTS>()(rawArray,value);
     }
@@ -192,11 +193,12 @@ public:
     return IteratorType(*this, this->Size);
     }
 
-  vtkDataArray* GetVtkData() const { return Data; }
+  DAX_CONT_EXPORT
+  vtkDataArray *GetVtkData() const { return this->VTKData; }
 
 private:
-  vtkDataArray* Data;
-  ComponentType *Array;
+  vtkDataArray *VTKData;
+  VTKComponentType *Array;
   dax::Id Size;
 
 };

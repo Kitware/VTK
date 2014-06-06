@@ -458,7 +458,7 @@ unsigned long vtkBSplineTransform::GetMTime()
 void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3],
                                                 double outPoint[3])
 {
-  if (this->GridPointer || !this->CalculateSpline)
+  if (!this->GridPointer || !this->CalculateSpline)
     {
     outPoint[0] = inPoint[0];
     outPoint[1] = inPoint[1];
@@ -810,7 +810,8 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform *transform)
   this->SetInverseIterations(gridTransform->InverseIterations);
   this->CalculateSpline = gridTransform->CalculateSpline;
   this->ConnectionHolder->SetInputConnection(
-    0, gridTransform->ConnectionHolder->GetInputConnection(0, 0));
+    0, gridTransform->ConnectionHolder->GetNumberOfInputConnections(0) ?
+    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : 0);
   this->SetDisplacementScale(gridTransform->DisplacementScale);
   this->SetBorderMode(gridTransform->BorderMode);
 

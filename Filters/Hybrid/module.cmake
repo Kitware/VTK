@@ -9,6 +9,7 @@ vtk_module(vtkFiltersHybrid
     vtkIOXML
     vtkRenderingOpenGL
     vtkImagingCore
+    vtkImagingStencil
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOLegacy

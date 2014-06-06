@@ -538,6 +538,9 @@ int vtkImageReader2::RequestInformation (
 
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->DataScalarType,
     this->NumberOfScalarComponents);
+
+  outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
+
   return 1;
 }
 

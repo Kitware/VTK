@@ -16,7 +16,6 @@
 
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -68,47 +67,6 @@ const char* vtkXMLRectilinearGridWriter::GetDataSetName()
 const char* vtkXMLRectilinearGridWriter::GetDefaultFileExtension()
 {
   return "vtr";
-}
-
-//----------------------------------------------------------------------------
-vtkDataArray*
-vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
-{
-  int inExtent[6];
-  int outExtent[6];
-  this->GetInput()->GetExtent(inExtent);
-  this->ExtentTranslator->SetPiece(this->CurrentPiece);
-  this->ExtentTranslator->PieceToExtent();
-  this->ExtentTranslator->GetExtent(outExtent);
-  int* inBounds = inExtent+xyz*2;
-  int* outBounds = outExtent+xyz*2;
-
-  if(!a)
-    {
-    // There are no coordinates.  This can happen with empty input.
-    return vtkFloatArray::New();
-    }
-
-  if((inBounds[0] == outBounds[0]) && (inBounds[1] == outBounds[1]))
-    {
-    // Use the entire coordinates array.
-    a->Register(0);
-    return a;
-    }
-  else
-    {
-    // Create a subset of the coordinates array.
-    int components = a->GetNumberOfComponents();
-    size_t tupleSize = components*this->GetWordTypeSize(a->GetDataType());
-    vtkDataArray* b = a->NewInstance();
-    b->SetNumberOfComponents(components);
-    b->SetName(a->GetName());
-    int tuples = outBounds[1] - outBounds[0] + 1;
-    int offset = outBounds[0] - inBounds[0];
-    b->SetNumberOfTuples(tuples);
-    memcpy(b->GetVoidPointer(0), a->GetVoidPointer(offset), tuples*tupleSize);
-    return b;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -207,9 +165,7 @@ void vtkXMLRectilinearGridWriter::WriteInlinePiece(vtkIndent indent)
 void vtkXMLRectilinearGridWriter::CalculateSuperclassFraction(float* fractions)
 {
   int extent[6];
-  this->ExtentTranslator->SetPiece(this->CurrentPiece);
-  this->ExtentTranslator->PieceToExtent();
-  this->ExtentTranslator->GetExtent(extent);
+  this->GetInputExtent(extent);
   int dims[3] = {extent[1]-extent[0]+1,
                  extent[3]-extent[2]+1,
                  extent[5]-extent[4]+1};
