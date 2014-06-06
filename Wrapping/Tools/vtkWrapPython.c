@@ -1237,10 +1237,6 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
         result[currPos++] = 's';
         result[currPos++] = '#';
         }
-      else if (vtkWrap_IsPythonObject(arg))
-        {
-        result[currPos++] = '@';
-        }
       else
         {
         result[currPos++] = 'O';
@@ -1314,13 +1310,18 @@ static char *vtkWrapPython_ArgCheckString(
     else if (argtype == VTK_PARSE_OBJECT_REF ||
         argtype == VTK_PARSE_OBJECT_PTR ||
         argtype == VTK_PARSE_OBJECT ||
+        argtype == VTK_PARSE_UNKNOWN ||
+        argtype == VTK_PARSE_UNKNOWN_REF ||
+        argtype == VTK_PARSE_UNKNOWN_PTR ||
         argtype == VTK_PARSE_QOBJECT ||
         argtype == VTK_PARSE_QOBJECT_REF ||
         argtype == VTK_PARSE_QOBJECT_PTR)
       {
       vtkWrapPython_PythonicName(arg->Class, pythonname);
+
       result[currPos++] = ' ';
-      if (argtype == VTK_PARSE_OBJECT_REF &&
+      if ((argtype == VTK_PARSE_OBJECT_REF ||
+           argtype == VTK_PARSE_UNKNOWN_REF) &&
           (argtype & VTK_PARSE_CONST) == 0)
         {
         result[currPos++] = '&';
@@ -1330,6 +1331,7 @@ static char *vtkWrapPython_ArgCheckString(
         result[currPos++] = '&';
         }
       else if (argtype == VTK_PARSE_OBJECT_PTR ||
+               argtype == VTK_PARSE_UNKNOWN_PTR ||
                argtype == VTK_PARSE_QOBJECT_PTR)
         {
         result[currPos++] = '*';
