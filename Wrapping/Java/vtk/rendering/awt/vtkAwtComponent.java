@@ -60,8 +60,8 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
 
       // Execute callback if need be
       if(this.onWindowCreatedCallback != null) {
-          this.onWindowCreatedCallback.run();
-          this.onWindowCreatedCallback = null;
+        this.onWindowCreatedCallback.run();
+        this.onWindowCreatedCallback = null;
       }
     } catch (InterruptedException e) {
       // Nothing that we can do except skipping execution
@@ -113,7 +113,7 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
    * @param callback
    */
   public void setWindowReadyCallback(Runnable callback) {
-	  this.onWindowCreatedCallback = callback;
+    this.onWindowCreatedCallback = callback;
   }
 
   /**

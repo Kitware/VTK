@@ -18,58 +18,58 @@ import java.awt.event.MouseWheelEvent;
 
 public class vtkAbstractEventInterceptor implements vtkEventInterceptor {
 
-	@Override
-	public boolean keyPressed(KeyEvent e) {
-		return false;
-	}
+  @Override
+  public boolean keyPressed(KeyEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean keyReleased(KeyEvent e) {
-		return false;
-	}
+  @Override
+  public boolean keyReleased(KeyEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean keyTyped(KeyEvent e) {
-		return false;
-	}
+  @Override
+  public boolean keyTyped(KeyEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mouseDragged(MouseEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mouseDragged(MouseEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mouseMoved(MouseEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mouseMoved(MouseEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mouseClicked(MouseEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mouseClicked(MouseEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mouseEntered(MouseEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mouseEntered(MouseEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mouseExited(MouseEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mouseExited(MouseEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mousePressed(MouseEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mousePressed(MouseEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mouseReleased(MouseEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mouseReleased(MouseEvent e) {
+    return false;
+  }
 
-	@Override
-	public boolean mouseWheelMoved(MouseWheelEvent e) {
-		return false;
-	}
+  @Override
+  public boolean mouseWheelMoved(MouseWheelEvent e) {
+    return false;
+  }
 }

@@ -28,101 +28,101 @@ import vtk.rendering.vtkInteractorForwarder;
  */
 
 public class vtkPanelComponent implements vtkComponent<vtkPanel> {
-   protected vtkPanel panel;
-   protected ReentrantLock lock;
-   protected vtkGenericRenderWindowInteractor windowInteractor;
-   protected vtkInteractorForwarder eventForwarder;
+  protected vtkPanel panel;
+  protected ReentrantLock lock;
+  protected vtkGenericRenderWindowInteractor windowInteractor;
+  protected vtkInteractorForwarder eventForwarder;
 
-   public vtkPanelComponent() {
-      this.panel = new vtkPanel();
-      this.lock = new ReentrantLock();
+  public vtkPanelComponent() {
+    this.panel = new vtkPanel();
+    this.lock = new ReentrantLock();
 
-       // Init interactor
-      this.windowInteractor = new vtkGenericRenderWindowInteractor();
-       this.windowInteractor.SetRenderWindow(this.panel.GetRenderWindow());
-       this.windowInteractor.TimerEventResetsTimerOff();
+    // Init interactor
+    this.windowInteractor = new vtkGenericRenderWindowInteractor();
+    this.windowInteractor.SetRenderWindow(this.panel.GetRenderWindow());
+    this.windowInteractor.TimerEventResetsTimerOff();
 
-       this.windowInteractor.SetSize(200, 200);
-       this.windowInteractor.ConfigureEvent();
+    this.windowInteractor.SetSize(200, 200);
+    this.windowInteractor.ConfigureEvent();
 
-       // Update style
-       vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
-       this.windowInteractor.SetInteractorStyle(style);
+    // Update style
+    vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
+    this.windowInteractor.SetInteractorStyle(style);
 
-       // Setup event forwarder
-       this.eventForwarder = new vtkInteractorForwarder(this);
-       this.windowInteractor.AddObserver("CreateTimerEvent", this.eventForwarder, "StartTimer");
-       this.windowInteractor.AddObserver("DestroyTimerEvent", this.eventForwarder, "DestroyTimer");
+    // Setup event forwarder
+    this.eventForwarder = new vtkInteractorForwarder(this);
+    this.windowInteractor.AddObserver("CreateTimerEvent", this.eventForwarder, "StartTimer");
+    this.windowInteractor.AddObserver("DestroyTimerEvent", this.eventForwarder, "DestroyTimer");
 
-       // Remove unwanted listeners
-       this.panel.removeKeyListener(this.panel);
-       this.panel.removeMouseListener(this.panel);
-      this.panel.removeMouseMotionListener(this.panel);
-      this.panel.removeMouseWheelListener(this.panel);
+    // Remove unwanted listeners
+    this.panel.removeKeyListener(this.panel);
+    this.panel.removeMouseListener(this.panel);
+    this.panel.removeMouseMotionListener(this.panel);
+    this.panel.removeMouseWheelListener(this.panel);
 
-      // Add mouse listener that update interactor
-      this.panel.addMouseListener(this.eventForwarder);
-      this.panel.addMouseMotionListener(this.eventForwarder);
-      this.panel.addMouseWheelListener(this.eventForwarder);
+    // Add mouse listener that update interactor
+    this.panel.addMouseListener(this.eventForwarder);
+    this.panel.addMouseMotionListener(this.eventForwarder);
+    this.panel.addMouseWheelListener(this.eventForwarder);
 
-      // Make sure we update the light position when interacting
-      this.panel.addMouseMotionListener(new MouseMotionAdapter() {
-         public void mouseDragged(MouseEvent e) {
-            panel.UpdateLight();
-         }
-      });
-   }
+    // Make sure we update the light position when interacting
+    this.panel.addMouseMotionListener(new MouseMotionAdapter() {
+      public void mouseDragged(MouseEvent e) {
+        panel.UpdateLight();
+      }
+    });
+  }
 
-   public void resetCamera() {
-      this.panel.resetCamera();
-   }
+  public void resetCamera() {
+    this.panel.resetCamera();
+  }
 
-   public void resetCameraClippingRange() {
-      this.panel.resetCameraClippingRange();
-   }
+  public void resetCameraClippingRange() {
+    this.panel.resetCameraClippingRange();
+  }
 
-   public vtkCamera getActiveCamera() {
-      return this.panel.GetRenderer().GetActiveCamera();
-   }
+  public vtkCamera getActiveCamera() {
+    return this.panel.GetRenderer().GetActiveCamera();
+  }
 
-   public vtkRenderer getRenderer() {
-      return this.panel.GetRenderer();
-   }
+  public vtkRenderer getRenderer() {
+    return this.panel.GetRenderer();
+  }
 
-   public vtkRenderWindow getRenderWindow() {
-      return this.panel.GetRenderWindow();
-   }
+  public vtkRenderWindow getRenderWindow() {
+    return this.panel.GetRenderWindow();
+  }
 
-   public vtkGenericRenderWindowInteractor getRenderWindowInteractor() {
-      return this.windowInteractor;
-   }
+  public vtkGenericRenderWindowInteractor getRenderWindowInteractor() {
+    return this.windowInteractor;
+  }
 
-   public void setInteractorStyle(vtkInteractorStyle style) {
-      this.getRenderWindowInteractor().SetInteractorStyle(style);
-   }
+  public void setInteractorStyle(vtkInteractorStyle style) {
+    this.getRenderWindowInteractor().SetInteractorStyle(style);
+  }
 
-   public void setSize(int w, int h) {
-      this.panel.setSize(w, h);
-      this.getRenderWindowInteractor().SetSize(w, h);
-   }
+  public void setSize(int w, int h) {
+    this.panel.setSize(w, h);
+    this.getRenderWindowInteractor().SetSize(w, h);
+  }
 
-   public vtkPanel getComponent() {
-      return this.panel;
-   }
+  public vtkPanel getComponent() {
+    return this.panel;
+  }
 
-   public void Delete() {
-      this.panel.Delete();
-   }
+  public void Delete() {
+    this.panel.Delete();
+  }
 
-   public void Render() {
-      this.panel.Render();
-   }
+  public void Render() {
+    this.panel.Render();
+  }
 
-   public vtkInteractorForwarder getInteractorForwarder() {
-      return this.eventForwarder;
-   }
+  public vtkInteractorForwarder getInteractorForwarder() {
+    return this.eventForwarder;
+  }
 
-   public ReentrantLock getVTKLock() {
-      return this.lock;
-   }
+  public ReentrantLock getVTKLock() {
+    return this.lock;
+  }
 }

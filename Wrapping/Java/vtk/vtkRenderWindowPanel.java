@@ -14,103 +14,103 @@ import java.awt.event.MouseWheelEvent;
  * @author Kitware
  */
 public class vtkRenderWindowPanel extends vtkCanvas {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public vtkRenderWindowPanel() {
-        cam = new vtkCamera();
-        lgt = new vtkLight();
-    }
+  public vtkRenderWindowPanel() {
+    cam = new vtkCamera();
+    lgt = new vtkLight();
+  }
 
-    public vtkRenderWindowPanel(vtkRenderWindow win) {
-        super(win);
-        cam = new vtkCamera();
-        lgt = new vtkLight();
-    }
+  public vtkRenderWindowPanel(vtkRenderWindow win) {
+    super(win);
+    cam = new vtkCamera();
+    lgt = new vtkLight();
+  }
 
-    public synchronized void Render() {
-        if (!rendering) {
-            rendering = true;
-            if (rw != null) {
-                if (windowset == 0) {
-                    // set the window id and the active camera
-                    RenderCreate(rw);
-                    Lock();
-                    rw.SetSize(getWidth(), getHeight());
-                    UnLock();
-                    windowset = 1;
-                    // notify observers that we have a renderwindow created
-                    // windowSetObservable.notifyObservers();
-                }
-                Lock();
-                rw.Render();
-                UnLock();
-            }
-            rendering = false;
+  public synchronized void Render() {
+    if (!rendering) {
+      rendering = true;
+      if (rw != null) {
+        if (windowset == 0) {
+          // set the window id and the active camera
+          RenderCreate(rw);
+          Lock();
+          rw.SetSize(getWidth(), getHeight());
+          UnLock();
+          windowset = 1;
+          // notify observers that we have a renderwindow created
+          // windowSetObservable.notifyObservers();
         }
-    }
-
-    public void mousePressed(MouseEvent e) {
         Lock();
-        rw.SetDesiredUpdateRate(5.0);
-        lastX = e.getX();
-        lastY = e.getY();
-
-        ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
-        shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
-
-        iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
-
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
-            iren.LeftButtonPressEvent();
-        }
-
-        else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK) {
-            iren.MiddleButtonPressEvent();
-        }
-
-        else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
-            iren.RightButtonPressEvent();
-        }
-
+        rw.Render();
         UnLock();
+      }
+      rendering = false;
+    }
+  }
+
+  public void mousePressed(MouseEvent e) {
+    Lock();
+    rw.SetDesiredUpdateRate(5.0);
+    lastX = e.getX();
+    lastY = e.getY();
+
+    ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
+    shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
+
+    iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
+
+    if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
+      iren.LeftButtonPressEvent();
     }
 
-    public void mouseDragged(MouseEvent e) {
-        ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
-        shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
-
-        iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
-
-        Lock();
-        iren.MouseMoveEvent();
-        UnLock();
+    else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK) {
+      iren.MiddleButtonPressEvent();
     }
 
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
-        shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
-
-        iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
-
-        Lock();
-        if (e.getWheelRotation() > 0)
-            iren.MouseWheelBackwardEvent();
-        else
-            iren.MouseWheelForwardEvent();
-        UnLock();
+    else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
+      iren.RightButtonPressEvent();
     }
 
-    public void keyPressed(KeyEvent e) {
-        char keyChar = e.getKeyChar();
+    UnLock();
+  }
 
-        ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
-        shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
+  public void mouseDragged(MouseEvent e) {
+    ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
+    shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
 
-        iren.SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, keyChar, 0, String.valueOf(keyChar));
+    iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
 
-        Lock();
-        iren.KeyPressEvent();
-        iren.CharEvent();
-        UnLock();
-    }
+    Lock();
+    iren.MouseMoveEvent();
+    UnLock();
+  }
+
+  public void mouseWheelMoved(MouseWheelEvent e) {
+    ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
+    shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
+
+    iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
+
+    Lock();
+    if (e.getWheelRotation() > 0)
+      iren.MouseWheelBackwardEvent();
+    else
+      iren.MouseWheelForwardEvent();
+    UnLock();
+  }
+
+  public void keyPressed(KeyEvent e) {
+    char keyChar = e.getKeyChar();
+
+    ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
+    shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
+
+    iren.SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, keyChar, 0, String.valueOf(keyChar));
+
+    Lock();
+    iren.KeyPressEvent();
+    iren.CharEvent();
+    UnLock();
+  }
 }
