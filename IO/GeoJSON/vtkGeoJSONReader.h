@@ -12,6 +12,7 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
+#include <vtkTriangleFilter.h>
 
 // C++ includes
 #include <fstream>

@@ -65,6 +65,13 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
   if(root.isObject())
     {
     ParseRoot(root, output);
+
+    //Convert Concave Polygons to convex polygons using triangulation
+    vtkTriangleFilter *filter = vtkTriangleFilter::New();
+    filter->SetInputData(output);
+    filter->Update();
+
+    output->ShallowCopy(filter->GetOutput());
     }
   return VTK_OK;
 }
