@@ -218,6 +218,7 @@ if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
     vtkPanel
 
     rendering/vtkAbstractComponent
+    rendering/vtkAbstractEventInterceptor
     rendering/vtkComponent
     rendering/vtkEventInterceptor
     rendering/vtkInteractorForwarder
