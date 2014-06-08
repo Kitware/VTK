@@ -9,16 +9,16 @@ import vtk.vtkRenderWindow;
 
 public class vtkJoglPanelComponent extends vtkAbstractJoglComponent<GLJPanel> {
 
-	public vtkJoglPanelComponent() {
-		this(new vtkGenericOpenGLRenderWindow());
-	}
+  public vtkJoglPanelComponent() {
+    this(new vtkGenericOpenGLRenderWindow());
+  }
 
-	public vtkJoglPanelComponent(vtkRenderWindow renderWindow) {
-		this(renderWindow, new GLCapabilities(GLProfile.getDefault()));
-	}
+  public vtkJoglPanelComponent(vtkRenderWindow renderWindow) {
+    this(renderWindow, new GLCapabilities(GLProfile.getDefault()));
+  }
 
-	public vtkJoglPanelComponent(vtkRenderWindow renderWindow, GLCapabilities capabilities) {
-		super(renderWindow, new GLJPanel(capabilities));
-		this.getComponent().addGLEventListener(this.glEventListener);
-	}
+  public vtkJoglPanelComponent(vtkRenderWindow renderWindow, GLCapabilities capabilities) {
+    super(renderWindow, new GLJPanel(capabilities));
+    this.getComponent().addGLEventListener(this.glEventListener);
+  }
 }
