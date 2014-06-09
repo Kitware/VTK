@@ -500,6 +500,7 @@ set_source_files_properties(
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
   vtkDataArrayTemplate.h
+  vtkDataArrayPrivate.txx
 
   vtkABI.h
   vtkArrayInterpolate.h

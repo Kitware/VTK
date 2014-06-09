@@ -342,8 +342,8 @@ protected:
   int SaveUserArray;
   int DeleteMethod;
 
-  virtual void ComputeScalarRange(double range[2], int comp);
-  virtual void ComputeVectorRange(double range[2]);
+  virtual bool ComputeScalarRange(double* ranges);
+  virtual bool ComputeVectorRange(double range[2]);
 private:
   vtkDataArrayTemplate(const vtkDataArrayTemplate&);  // Not implemented.
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.
