@@ -77,6 +77,27 @@ int vtkPExodusIIWriter::CheckParameters ()
   return this->Superclass::CheckParametersInternal(numberOfProcesses, myRank);
 }
 
+//----------------------------------------------------------------------------
+int vtkPExodusIIWriter::RequestUpdateExtent (
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
+  vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
+  if (c)
+    {
+    int numberOfProcesses = c->GetNumberOfProcesses();
+    int myRank = c->GetLocalProcessId();
+
+    vtkInformation *info = inputVector[0]->GetInformationObject(0);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), myRank);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numberOfProcesses);
+    }
+
+  return 1;
+}
+
 void vtkPExodusIIWriter::CheckBlockInfoMap ()
 {
   // if we're multiprocess we need to make sure the block info map matches
