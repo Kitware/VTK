@@ -235,7 +235,7 @@ void vtkAlgorithm::SetInputArrayToProcess(
 {
   if (!fieldAssociation)
     {
-    vtkErrorMacro("Association is requied");
+    vtkErrorMacro("Association is required");
     return;
     }
   if (!fieldAttributeTypeOrName)
