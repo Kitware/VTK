@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkglVertexArrayObject.cxx
   vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
+  vtkOpenGL2ImageMapper.cxx
   vtkOpenGL2ImageSliceMapper.cxx
   vtkOpenGL2Glyph3DMapper.cxx
   vtkOpenGL2HardwareSelector.cxx
@@ -103,6 +104,7 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
     Actor
     Camera
     HardwareSelector
+    ImageMapper
     ImageSliceMapper
     Glyph3DMapper
     Light

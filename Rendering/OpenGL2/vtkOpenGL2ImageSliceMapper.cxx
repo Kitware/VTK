@@ -884,8 +884,8 @@ void vtkOpenGL2ImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 
 
   // and now enable/disable as needed for our render
-//  glDisable(GL_CULL_FACE);
-//  glDisable(GL_COLOR_MATERIAL);
+  //  glDisable(GL_CULL_FACE);
+  //  glDisable(GL_COLOR_MATERIAL);
 
   // do an offset to avoid depth buffer issues
   if (vtkMapper::GetResolveCoincidentTopology() !=
