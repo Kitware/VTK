@@ -14,6 +14,7 @@
     var parentModule = {}, module = {}, testToRun = 0;
     testSuite = {}, testOrder = [], outputLog = [], w = $(window),
     testTotal = 0, testRunned = 0, success = 0, failure = 0,
+     testNameToRun = [],
     testLineTemplate = '<tr id="NAME"><td><input type="checkbox" value="NAME" checked/></td><td width="100%">NAME</td><td align="center" class="status">STATUS</td></tr>',
     tableHeader = '<thead><tr><th><input type="checkbox" value="select-all-test" title="Toggle all test selection" checked/></th><th width="100%">Test names</th><th>Status</th></tr>',
     outputLogHTML = '<div class="row-fluid log" style="display: none;"><div class="span12"><textarea style="width: 98%;height: 150px;"></textarea></div></div></thead>',
@@ -118,6 +119,8 @@
 
         if(testTotal === testRunned) {
             w.trigger('vtk-test-done');
+        } else {
+            runAnotherTest();
         }
     }
 
@@ -126,6 +129,14 @@
     function testToString(testName) {
         return testLineTemplate.replace(/ID/g, testName).replace(/NAME/g, testName).replace('STATUS', statusNotRunned);
     }
+
+     // ----------------------------------------------------------------------
+
+     function runAnotherTest() {
+         var testName = testNameToRun.shift();
+         var testFunction = testSuite[testName].func;
+         testFunction(testName, resultCallback);
+     }
 
     // ----------------------------------------------------------------------
     // Export methods to the vtkWeb.testing module
@@ -162,7 +173,7 @@
         log("Start testings...");
 
         // Extract active tests list
-        var testNameToRun = [];
+        testNameToRun = [];
         for(var idx in testOrder) {
             if(testSuite[testOrder[idx]].active) {
                 testNameToRun.push(testOrder[idx]);
@@ -170,11 +181,8 @@
         }
         testTotal = testNameToRun.length;
 
-        for(var idx in testNameToRun) {
-            var testName = testNameToRun[idx];
-            var testFunction = testSuite[testName].func;
-            testFunction(testName, resultCallback)
-        }
+        // Start the tests running
+        runAnotherTest();
     }
 
     // ----------------------------------------------------------------------
