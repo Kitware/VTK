@@ -138,7 +138,7 @@ void vtkPythonAlgorithm::SetPythonObject(PyObject* obj)
   this->Object = obj;
   Py_INCREF(this->Object);
 
-  const char* mname = "Initialize";
+  char mname[] = "Initialize";
   VTK_GET_METHOD(method, this->Object, mname, /* no return */)
 
   PyObject* args = PyTuple_New(1);
@@ -167,7 +167,7 @@ int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
                                        vtkInformationVector** inInfo,
                                        vtkInformationVector* outInfo)
 {
-  const char* mname = "ProcessRequest";
+  char mname[] = "ProcessRequest";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
   PyObject* args = PyTuple_New(4);
@@ -199,7 +199,7 @@ int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
 
 int vtkPythonAlgorithm::FillInputPortInformation(int port, vtkInformation* info)
 {
-  const char* mname = "FillInputPortInformation";
+  char mname[] = "FillInputPortInformation";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
   PyObject* args = PyTuple_New(3);
@@ -222,7 +222,7 @@ int vtkPythonAlgorithm::FillInputPortInformation(int port, vtkInformation* info)
 
 int vtkPythonAlgorithm::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  const char* mname = "FillOutputPortInformation";
+  char mname[] = "FillOutputPortInformation";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
   PyObject* args = PyTuple_New(3);
