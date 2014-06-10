@@ -1,5 +1,4 @@
 vtk_add_test_cxx(
-  TestPolyDataMapper2D.cxx
   TestRenderWidget.cxx
   TestVBOPLYMapper.cxx
   TestVBOPointsLines.cxx
