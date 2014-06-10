@@ -6,9 +6,7 @@ class TestPythonAlgorithm(Testing.vtkTest):
     def testSource(self):
         class MyAlgorithm(vta.VTKAlgorithm):
             def __init__(self):
-                vta.VTKAlgorithm.__init__(self)
-                self.NumberOfInputPorts = 0
-                self.OutputType = 'vtkImageData'
+                vta.VTKAlgorithm.__init__(self, nInputPorts=0, outputType='vtkImageData')
                 self.Wavelet = vtk.vtkRTAnalyticSource()
 
             def RequestInformation(self, vtkself, request, inInfo, outInfo):

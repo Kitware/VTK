@@ -16,15 +16,16 @@ class VTKAlgorithm(object):
     the input and output types based on data members.
     """
 
-    def __init__(self):
+    def __init__(self, nInputPorts=1, inputType='vtkDataSet',
+                       nOutputPorts=1, outputType='vtkPolyData'):
         """Sets up default NumberOfInputPorts, NumberOfOutputPorts,
         InputType and OutputType that are used by various initialization
         methods."""
 
-        self.NumberOfInputPorts = 1
-        self.NumberOfOutputPorts = 1
-        self.InputType = 'vtkDataSet'
-        self.OutputType = 'vtkPolyData'
+        self.NumberOfInputPorts = nInputPorts
+        self.NumberOfOutputPorts = nOutputPorts
+        self.InputType = inputType
+        self.OutputType = outputType
 
     def Initialize(self, vtkself):
         """Sets up number of input and output ports based on
