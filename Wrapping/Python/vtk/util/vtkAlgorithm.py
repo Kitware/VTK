@@ -63,7 +63,7 @@ class VTKAlgorithm(object):
 
     def RequestData(self, vtkself, request, inInfo, outInfo):
         """Overwritten by subclass to execute the algorithm."""
-        return 1
+        raise NotImplementedError('RequestData must be implemented')
 
     def ProcessRequest(self, vtkself, request, inInfo, outInfo):
         """Splits a request to RequestXXX() methods."""
