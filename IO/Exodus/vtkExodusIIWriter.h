@@ -271,6 +271,10 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  virtual int RequestUpdateExtent (vtkInformation* request,
+                                   vtkInformationVector** inputVector,
+                                   vtkInformationVector* outputVector);
+
   int FillInputPortInformation (int port, vtkInformation* info);
 
   int RequestData (vtkInformation* request,

@@ -30,7 +30,7 @@
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
+// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
 #ifndef __vtkParametricFigure8Klein_h
@@ -57,7 +57,7 @@ public:
   static vtkParametricFigure8Klein *New();
 
   // Description:
-  // Set/Get the radius of the bottle.
+  // Set/Get the radius of the bottle. Default is 1.
   vtkSetMacro(Radius,double);
   vtkGetMacro(Radius,double);
 

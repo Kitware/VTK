@@ -634,8 +634,9 @@ static void vtkWrapPython_DeclareVariables(
     {
     arg = theFunc->Parameters[i];
 
-    /* a callable python object for function args */
-    if (vtkWrap_IsFunction(arg))
+    if (vtkWrap_IsPythonObject(arg) ||
+        /* a callable python object for function args */
+        vtkWrap_IsFunction(arg))
       {
       fprintf(fp,
               "  PyObject *temp%d = NULL;\n",
@@ -792,7 +793,12 @@ static void vtkWrapPython_GetSingleArgument(
     sprintf(argname, "arg%d, ", i);
     }
 
-  if (vtkWrap_IsVTKObject(arg))
+  if (vtkWrap_IsPythonObject(arg))
+    {
+    fprintf(fp, "%s%sGetPythonObject(temp%d)",
+            prefix, argname, i);
+    }
+  else if (vtkWrap_IsVTKObject(arg))
     {
     vtkWrapPython_PythonicName(arg->Class, pythonname);
     if (strcmp(arg->Class, pythonname) != 0)
@@ -958,6 +964,11 @@ static void vtkWrapPython_ReturnValue(
     fprintf(fp,
             "      result = %sBuildNone();\n",
             prefix);
+    }
+  else if (vtkWrap_IsPythonObject(val))
+    {
+    fprintf(fp,
+            "      result = tempr;\n");
     }
   else if (vtkWrap_IsVTKObject(val))
     {
@@ -1299,13 +1310,18 @@ static char *vtkWrapPython_ArgCheckString(
     else if (argtype == VTK_PARSE_OBJECT_REF ||
         argtype == VTK_PARSE_OBJECT_PTR ||
         argtype == VTK_PARSE_OBJECT ||
+        argtype == VTK_PARSE_UNKNOWN ||
+        argtype == VTK_PARSE_UNKNOWN_REF ||
+        argtype == VTK_PARSE_UNKNOWN_PTR ||
         argtype == VTK_PARSE_QOBJECT ||
         argtype == VTK_PARSE_QOBJECT_REF ||
         argtype == VTK_PARSE_QOBJECT_PTR)
       {
       vtkWrapPython_PythonicName(arg->Class, pythonname);
+
       result[currPos++] = ' ';
-      if (argtype == VTK_PARSE_OBJECT_REF &&
+      if ((argtype == VTK_PARSE_OBJECT_REF ||
+           argtype == VTK_PARSE_UNKNOWN_REF) &&
           (argtype & VTK_PARSE_CONST) == 0)
         {
         result[currPos++] = '&';
@@ -1315,6 +1331,7 @@ static char *vtkWrapPython_ArgCheckString(
         result[currPos++] = '&';
         }
       else if (argtype == VTK_PARSE_OBJECT_PTR ||
+               argtype == VTK_PARSE_UNKNOWN_PTR ||
                argtype == VTK_PARSE_QOBJECT_PTR)
         {
         result[currPos++] = '*';
@@ -2768,6 +2785,7 @@ static int vtkWrapPython_IsValueWrappable(
     VTK_PARSE_LONG, VTK_PARSE_UNSIGNED_LONG,
     VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
     VTK_PARSE_SSIZE_T, VTK_PARSE_SIZE_T,
+    VTK_PARSE_UNKNOWN,
 #ifdef VTK_TYPE_USE_LONG_LONG
     VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
 #endif
@@ -2849,7 +2867,11 @@ static int vtkWrapPython_IsValueWrappable(
       {
       return 1;
       }
-    if (vtkWrap_IsObject(val))
+    if (vtkWrap_IsPythonObject(val))
+      {
+      return 1;
+      }
+    else if (vtkWrap_IsObject(val))
       {
       if (vtkWrap_IsVTKObjectBaseType(hinfo, aClass) ||
           vtkWrap_IsQtObject(val))
@@ -4888,12 +4910,13 @@ void vtkWrapPython_AddConstant(
   if (objcreated)
     {
     fprintf(fp,
-            "%sif (%s && PyDict_SetItemString(%s, (char *)\"%s\", %s) != 0)\n"
+            "%sif (%s)\n"
             "%s  {\n"
+            "%s  PyDict_SetItemString(%s, (char *)\"%s\", %s);\n"
             "%s  Py_DECREF(%s);\n"
             "%s  }\n",
-            indent, objvar, dictvar, val->Name, objvar,
-            indent, indent, objvar, indent);
+            indent, objvar, indent, indent, dictvar, val->Name, objvar,
+            indent, objvar, indent);
     }
 }
 

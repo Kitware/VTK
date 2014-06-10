@@ -90,6 +90,10 @@ protected:
   virtual int CheckParameters ();
   virtual void CheckBlockInfoMap();
 
+  virtual int RequestUpdateExtent (vtkInformation* request,
+                                   vtkInformationVector** inputVector,
+                                   vtkInformationVector* outputVector);
+
 private:
   vtkPExodusIIWriter (const vtkPExodusIIWriter&); // Not Implemented
   void operator= (const vtkPExodusIIWriter&); // Not Implemented

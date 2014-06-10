@@ -5,12 +5,14 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 
 /**
  * This interface defines what should be implemented to intercept interaction
  * events and create custom behavior.
  *
- * @see {@link MouseMotionListener} {@link MouseListener} {@link KeyListener}
+ * @see {@link MouseMotionListener} {@link MouseListener} {@link MouseWheelListener}
+ *      {@link KeyListener}
  *
  * @author    Sebastien Jourdain - sebastien.jourdain@kitware.com, Kitware Inc 2012
  * @copyright This work was supported by CEA/CESTA
@@ -98,4 +100,12 @@ public interface vtkEventInterceptor {
    *         to the vtkInteractor
    */
   boolean mouseReleased(MouseEvent e);
+
+  /**
+   * @param e
+   *            event
+   * @return true if the event has been consumed and should not be forwarded
+   *         to the vtkInteractor
+   */
+  boolean mouseWheelMoved(MouseWheelEvent e);
 }

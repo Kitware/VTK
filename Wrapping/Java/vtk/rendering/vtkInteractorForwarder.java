@@ -6,6 +6,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  *            Commissariat a l'Energie Atomique et aux Energies Alternatives,
  *            15 avenue des Sablieres, CS 60001, 33116 Le Barp, France.
  */
-public class vtkInteractorForwarder implements MouseListener, MouseMotionListener, KeyListener {
+public class vtkInteractorForwarder implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
   final public static int MOUSE_BUTTON_1 = 1;
   final public static int MOUSE_BUTTON_2 = 2;
   final public static int MOUSE_BUTTON_3 = 4;
@@ -277,6 +279,35 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     // Allow user to override some behavior
     if (this.eventInterceptor != null && this.eventInterceptor.mouseClicked(e)) {
       return;
+    }
+  }
+
+  public void mouseWheelMoved(MouseWheelEvent e) {
+    if (component == null || component.getRenderer() == null) {
+      return;
+    }
+
+    // Allow user to override some behavior
+    if (this.eventInterceptor != null && this.eventInterceptor.mouseWheelMoved(e)) {
+      return;
+    }
+
+    try {
+      component.getVTKLock().lockInterruptibly();
+      component.getRenderWindow().SetDesiredUpdateRate(this.updateRateRelease);
+      lastX = e.getX();
+      lastY = e.getY();
+      ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
+      shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
+      component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
+      if (e.getWheelRotation() > 0)
+        component.getRenderWindowInteractor().MouseWheelBackwardEvent();
+      else
+        component.getRenderWindowInteractor().MouseWheelForwardEvent();
+    } catch (InterruptedException interupt) {
+      // Nothing to do
+    } finally {
+      component.getVTKLock().unlock();
     }
   }
 
