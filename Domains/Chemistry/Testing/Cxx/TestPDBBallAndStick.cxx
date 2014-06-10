@@ -92,7 +92,11 @@ int TestPDBBallAndStick(int argc, char *argv[])
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
 
-
+  ren->GetActiveCamera()->SetPosition(0,0,1);
+  ren->GetActiveCamera()->SetFocalPoint(0,0,0);
+  ren->GetActiveCamera()->SetViewUp(0,1,0);
+  ren->ResetCamera();
+  ren->GetActiveCamera()->Zoom(1.7);
 
   win->Render();
 

@@ -363,6 +363,8 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   vtkIdType      *pts = 0;
   vtkIdType      npts = 0;
   std::vector<unsigned int> indexArray;
+  memoryOffsetArray.clear();
+  elementCountArray.clear();
   unsigned int count = 0;
   indexArray.reserve(cells->GetData()->GetSize());
   for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )

@@ -249,7 +249,14 @@ void vtkOpenGL2Renderer::Clear(void)
     clear_mask |= GL_COLOR_BUFFER_BIT;
     }
 
+  if (!this->GetPreserveDepthBuffer())
+    {
+    glClearDepth(static_cast<GLclampf>(1.0));
+    clear_mask |= GL_DEPTH_BUFFER_BIT;
+    }
+
   vtkDebugMacro(<< "glClear\n");
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glClear(clear_mask);
 
   // If gradient background is turned on, draw it now.
@@ -334,12 +341,6 @@ void vtkOpenGL2Renderer::Clear(void)
 
     glDisable(GL_DEPTH_TEST);
     actor->RenderOverlay(this);
-    }
-
-  if (!this->GetPreserveDepthBuffer())
-    {
-    glClearDepth(static_cast<GLclampf>(1.0));
-    glClear(GL_DEPTH_BUFFER_BIT);
     }
 
   glEnable(GL_DEPTH_TEST);

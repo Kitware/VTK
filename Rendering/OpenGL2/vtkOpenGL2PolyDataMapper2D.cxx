@@ -67,11 +67,16 @@ vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
 vtkOpenGL2PolyDataMapper2D::vtkOpenGL2PolyDataMapper2D()
   : Internal(new Private)
 {
+  this->TransformedPoints = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkOpenGL2PolyDataMapper2D::~vtkOpenGL2PolyDataMapper2D()
 {
+  if (this->TransformedPoints)
+    {
+    this->TransformedPoints->UnRegister(this);
+    }
   delete this->Internal;
 }
 
@@ -319,8 +324,12 @@ void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(
 
 
 //-------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
+void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport)
 {
+  vtkPoints      *p, *displayPts;
+  int            numPts;
+  int            j;
+
   vtkPolyData *poly = this->GetInput();
   if (poly == NULL)
     {
@@ -366,10 +375,37 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
     haveTextures = (ta->GetTexture() != NULL);
     }
 
+  // Transform the points, if necessary
+  p = poly->GetPoints();
+  if ( this->TransformCoordinate )
+    {
+    numPts = p->GetNumberOfPoints();
+    if (!this->TransformedPoints)
+      {
+      this->TransformedPoints = vtkPoints::New();
+      }
+    this->TransformedPoints->SetNumberOfPoints(numPts);
+    for ( j=0; j < numPts; j++ )
+      {
+      this->TransformCoordinate->SetValue(p->GetPoint(j));
+      if (this->TransformCoordinateUseDouble)
+        {
+        double* dtmp = this->TransformCoordinate->GetComputedDoubleViewportValue(viewport);
+        this->TransformedPoints->SetPoint(j,dtmp[0], dtmp[1], 0.0);
+        }
+      else
+        {
+        int* itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
+        this->TransformedPoints->SetPoint(j,itmp[0], itmp[1], 0.0);
+        }
+      }
+    p = this->TransformedPoints;
+    }
+
   // Iterate through all of the different types in the polydata, building VBOs
   // and IBOs as appropriate for each type.
   this->Internal->layout =
-    CreateVBO(poly->GetPoints(),
+    CreateVBO(p,
               cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               NULL,
               haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
@@ -402,7 +438,6 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act)
       prims[primType]->UnRegister(this);
       }
     }
-
 }
 
 
@@ -410,10 +445,8 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)
 {
   vtkOpenGLClearErrorMacro();
-  int            numPts;
+  int numPts;
   vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
-  int            j;
-  vtkPoints      *p, *displayPts;
 
   vtkDebugMacro (<< "vtkOpenGL2PolyDataMapper2D::Render");
 
@@ -439,43 +472,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->CreateDefaultLookupTable();
     }
 
-  // Transform the points, if necessary
-  p = input->GetPoints();
-  if ( this->TransformCoordinate )
-    {
-    numPts = p->GetNumberOfPoints();
-    displayPts = vtkPoints::New();
-    displayPts->SetNumberOfPoints(numPts);
-    for ( j=0; j < numPts; j++ )
-      {
-      this->TransformCoordinate->SetValue(p->GetPoint(j));
-      if (this->TransformCoordinateUseDouble)
-        {
-        double* dtmp = this->TransformCoordinate->GetComputedDoubleViewportValue(viewport);
-        displayPts->SetPoint(j,dtmp[0], dtmp[1], 0.0);
-        }
-      else
-        {
-        int* itmp = this->TransformCoordinate->GetComputedViewportValue(viewport);
-        displayPts->SetPoint(j,itmp[0], itmp[1], 0.0);
-        }
-      }
-    p = displayPts;
-    }
-  if ( this->TransformCoordinate )
-    {
-    p->Delete();
-    }
-
-  // push a 2D matrix on the stack
-  if(viewport->GetIsPicking())
-    {
-    vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
-                     viewport->GetPickWidth(),
-                     viewport->GetPickHeight(),
-                     viewport->GetOrigin(), viewport->GetSize());
-    }
-
   // Assume we want to do Zbuffering for now.
   // we may turn this off later
   glDepthMask(GL_TRUE);
@@ -485,7 +481,7 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       this->VBOUpdateTime < actor->GetMTime() ||
       this->VBOUpdateTime < input->GetMTime() )
     {
-    this->UpdateVBO(actor);
+    this->UpdateVBO(actor, viewport);
     this->VBOUpdateTime.Modified();
     }
 

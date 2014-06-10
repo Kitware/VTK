@@ -356,11 +356,6 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, this->Index);
 
-  // don't accept fragments if they have zero opacity. this will stop the
-  // zbuffer from be blocked by totally transparent texture fragments.
-  glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0.f));
-  glEnable(GL_ALPHA_TEST);
-
   if (this->PremultipliedAlpha)
     {
     // save the blend function.

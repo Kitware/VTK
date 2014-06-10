@@ -28,6 +28,7 @@
 #include "vtkPolyDataMapper2D.h"
 
 class vtkRenderer;
+class vtkPoints;
 
 namespace vtkgl {struct CellBO; }
 
@@ -64,12 +65,13 @@ protected:
 
   // Description:
   // Update the scene when necessary.
-  void UpdateVBO(vtkActor2D *act);
+  void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
   class Private;
   Private *Internal;
 
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
+  vtkPoints *TransformedPoints;
 
 private:
   vtkOpenGL2PolyDataMapper2D(const vtkOpenGL2PolyDataMapper2D&);  // Not implemented.
