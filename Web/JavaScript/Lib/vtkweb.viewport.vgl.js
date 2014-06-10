@@ -285,6 +285,8 @@
         m_canvas3D.width = m_rendererAttrs.width();
         m_canvas3D.height = m_rendererAttrs.height();
         m_viewer = m_vglVtkReader.createNewViewer(m_canvas3D);
+        m_viewer.renderWindow().activeRenderer().setResetScene(false);
+        m_viewer.renderWindow().activeRenderer().setResetClippingRange(false);
 
         // Bind mouse event handlers
         m_container.on('mouse', function(event) {
