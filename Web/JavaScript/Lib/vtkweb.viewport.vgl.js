@@ -74,6 +74,9 @@
     return a;
   }
 
+  function getKey(object) {
+      return object.id + '_' + object.md5 + '_' + object.part;
+  }
 
   // ----------------------------------------------------------------------
   // 3D object handler
@@ -81,12 +84,6 @@
 
   function create3DObjectHandler() {
     var objectIndex = {}, displayList = {}, sceneJSON;
-
-    // ------------------------------------------------------------------
-
-    function getKey(object) {
-      return object.id + '_' + object.md5;
-    }
 
     return {
       fetchMissingObjects: function(fetchMethod, sceneJSON) {
@@ -121,6 +118,7 @@
     m_ctx2d = m_canvas2D.getContext('2d'),
     gl = m_canvas3D.getContext("webgl") || m_canvas3D.getContext("experimental-webgl"),
     m_rendererAttrs = $(m_divContainer).addClass(FACTORY_KEY).css(RENDERER_CSS).append($(m_canvas2D).css(RENDERER_CSS).css(RENDERER_CSS_2D)).append($(m_canvas3D).css(RENDERER_CSS).css(RENDERER_CSS_3D)),
+    m_sceneData = null,
     m_sceneJSON = null,
     m_objectHandler = create3DObjectHandler(),
     m_vglVtkReader = vgl.vtkReader(),
@@ -130,8 +128,8 @@
     originalMouseUp = document.onmouseup,
     originalMouseMove = document.onmousemove,
     originalContextMenu = document.oncontextmenu,
-
     m_background = null;
+    m_vglActors = {}
 
     // Helper functions -------------------------------------------------
     function fetchScene() {
@@ -141,6 +139,10 @@
         stat_value: 0
       });
       m_session.call("viewport.webgl.metadata", [Number(m_options.view)]).then(function(data) {
+        if (m_sceneData === data) {
+          return;
+        }
+        m_sceneData = data;
         m_sceneJSON = JSON.parse(data);
         m_vglVtkReader.setVtkScene(m_sceneJSON);
         m_container.trigger({
@@ -157,7 +159,7 @@
     function fetchObject(sceneObject, part) {
       try {
         var viewId = Number(m_options.view),
-        newObject;
+        newObject, renderer, actor, key;
 
         m_container.trigger({
           type: 'stats',
@@ -174,7 +176,7 @@
 
             //add object to the reader
             newObject = {
-              sceneMD5: sceneObject.md5,
+              md5: sceneObject.md5,
               part: part,
               vid: viewId,
               id: sceneObject.id,
@@ -183,7 +185,27 @@
               layer: sceneObject.layer
             };
 
-            m_vglVtkReader.addVtkObjectData(newObject);
+            renderer = m_vglVtkReader.getRenderer(sceneObject.layer);
+            key = getKey(newObject);
+
+            // Parse the new object if its not parsed already
+            // if parsed already then check if exists in  current renderer
+            if (key in m_vglActors) {
+                actor = m_vglActors[key];
+                // if exists in current renderer do nothing
+                if (!renderer.hasActor(actor)) {
+                    renderer.addActor(actor);
+                }
+            }
+            // if not parsed then parse it, create actor and add it to the
+            // renderer.
+            else {
+                actor = m_vglVtkReader.parseObject(newObject);
+                m_vglActors[key] = actor;
+                renderer.addActor(actor);
+            }
+
+            // call render on viewer
 
             // Redraw the scene
             drawScene();
@@ -205,8 +227,6 @@
         if (m_sceneJSON === null || typeof m_sceneJSON === 'undefined') {
           return;
         }
-
-        m_vglVtkReader.updateViewer(m_canvas3D);
 
         var width = m_rendererAttrs.width(),
         height = m_rendererAttrs.height(),
@@ -263,6 +283,8 @@
           return;
         }
 
+        m_vglVtkReader.initScene();
+
         // Fetch the object that we are missing
         m_objectHandler.fetchMissingObjects(fetchObject, m_sceneJSON);
 
@@ -281,12 +303,20 @@
     // Add viewport listener
     m_container.bind('invalidateScene', function() {
       if(m_rendererAttrs.hasClass('active')){
-        m_vglVtkReader = vgl.vtkReader();
+
+        if (m_vglVtkReader === null) {
+          m_vglVtkReader = vgl.vtkReader();
+        } else {
+          m_vglVtkReader.deleteViewer();
+        }
+
         m_canvas3D.width = m_rendererAttrs.width();
         m_canvas3D.height = m_rendererAttrs.height();
-        m_viewer = m_vglVtkReader.createNewViewer(m_canvas3D);
+        m_viewer = m_vglVtkReader.createViewer(m_canvas3D);
         m_viewer.renderWindow().activeRenderer().setResetScene(false);
         m_viewer.renderWindow().activeRenderer().setResetClippingRange(false);
+
+
 
         // Bind mouse event handlers
         m_container.on('mouse', function(event) {
