@@ -7,5 +7,7 @@ if (VTK_WRAP_PYTHON)
       vtkPython
     PRIVATE_DEPENDS
       vtkWrappingPythonCore
+    EXCLUDE_FROM_TCL_WRAPPING
+    EXCLUDE_FROM_JAVA_WRAPPING
     )
 endif ()
