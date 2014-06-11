@@ -57,13 +57,10 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkGLPickInfo
 {
 public:
-  GLuint* PickBuffer;
   GLuint PickedId;
   GLuint NumPicked;
-
-  GLuint PickingFBO;
-  GLuint PickingTexture;
-  GLuint DepthTexture;
+  bool PerformedHardwarePick;
+  std::map<unsigned int,float> PickValues;
 };
 
 vtkStandardNewMacro(vtkOpenGL2Renderer);
@@ -80,7 +77,6 @@ public:
 vtkOpenGL2Renderer::vtkOpenGL2Renderer()
 {
   this->PickInfo = new vtkGLPickInfo;
-  this->PickInfo->PickBuffer = 0;
   this->PickInfo->PickedId = 0;
   this->PickInfo->NumPicked = 0;
   this->PickedZ = 0;
@@ -218,7 +214,6 @@ void vtkOpenGL2Renderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "PickBuffer " << this->PickInfo->PickBuffer << "\n";
   os << indent << "PickedId" << this->PickInfo->PickedId<< "\n";
   os << indent << "NumPicked" << this->PickInfo->NumPicked<< "\n";
   os << indent << "PickedZ " << this->PickedZ << "\n";
@@ -242,10 +237,17 @@ void vtkOpenGL2Renderer::Clear(void)
 
   if (! this->Transparent())
     {
-    glClearColor( static_cast<GLclampf>(this->Background[0]),
-                  static_cast<GLclampf>(this->Background[1]),
-                  static_cast<GLclampf>(this->Background[2]),
-                  static_cast<GLclampf>(0.0));
+    if (this->IsPicking)
+      {
+      glClearColor(0.0,0.0,0.0,0.0);
+      }
+    else
+      {
+      glClearColor( static_cast<GLclampf>(this->Background[0]),
+                    static_cast<GLclampf>(this->Background[1]),
+                    static_cast<GLclampf>(this->Background[2]),
+                    static_cast<GLclampf>(0.0));
+      }
     clear_mask |= GL_COLOR_BUFFER_BIT;
     }
 
@@ -399,6 +401,11 @@ void vtkOpenGL2Renderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
   this->RenderWindow->MakeCurrent();
   this->RenderWindow->IsPickingOn();
   this->IsPicking = 1;
+  this->PickInfo->PerformedHardwarePick = false;
+  this->PickInfo->PickValues.clear();
+  this->PickInfo->NumPicked = 0;
+  this->PickInfo->PickedId = 0;
+
   this->Clear();
 
   vtkOpenGLCheckErrorMacro("failed after StartPick");
@@ -433,70 +440,74 @@ void vtkOpenGL2Renderer::DevicePickRender()
 
   this->PickGeometry();
 
+  this->PickInfo->PerformedHardwarePick = true;
+
   vtkOpenGLCheckErrorMacro("failed after DevicePickRender");
 }
 
 
 void vtkOpenGL2Renderer::DonePick()
 {
-  glFlush();
-
-  std::map<unsigned int,float> depthValues;
-
-  unsigned char *pixBuffer = this->GetRenderWindow()->GetPixelData(
-    this->PickX1, this->PickY1, this->PickX2, this->PickY2, 0);
-//    (this->GetRenderWindow()->GetSwapBuffers() == 1) ? 0 : 1);
-
-  // for debugging save out the image
-  FILE * pFile;
-  pFile = fopen ("myfile.ppm", "wb");
-  fwrite (pixBuffer , sizeof(unsigned char), 3*((int)this->PickY2-(int)this->PickY1+1)*((int)this->PickX2-(int)this->PickX1+1), pFile);
-  fclose (pFile);
-
-  float *depthBuffer = this->GetRenderWindow()->GetZbufferData(
-    this->PickX1, this->PickY1, this->PickX2, this->PickY2);
-
-  // read the color and z buffer values for the region
-  // to see what hits we have
-  unsigned char *pb = pixBuffer;
-  float *dbPtr = depthBuffer;
-  for (int y = this->PickY1; y <= this->PickY2; y++)
+  if (this->PickInfo->PerformedHardwarePick)
     {
-    for (int x = this->PickX1; x <= this->PickX2; x++)
+    glFlush();
+
+    unsigned char *pixBuffer = this->GetRenderWindow()->GetPixelData(
+      this->PickX1, this->PickY1, this->PickX2, this->PickY2, 0);
+  //    (this->GetRenderWindow()->GetSwapBuffers() == 1) ? 0 : 1);
+
+    // for debugging save out the image
+    FILE * pFile;
+    pFile = fopen ("myfile.ppm", "wb");
+    fwrite (pixBuffer , sizeof(unsigned char), 3*((int)this->PickY2-(int)this->PickY1+1)*((int)this->PickX2-(int)this->PickX1+1), pFile);
+    fclose (pFile);
+
+    float *depthBuffer = this->GetRenderWindow()->GetZbufferData(
+      this->PickX1, this->PickY1, this->PickX2, this->PickY2);
+
+    // read the color and z buffer values for the region
+    // to see what hits we have
+    this->PickInfo->PickValues.clear();
+    unsigned char *pb = pixBuffer;
+    float *dbPtr = depthBuffer;
+    for (int y = this->PickY1; y <= this->PickY2; y++)
       {
-      unsigned char rgb[3];
-      rgb[0] = *pb++;
-      rgb[1] = *pb++;
-      rgb[2] = *pb++;
-      int val = 0;
-      val |= rgb[2];
-      val = val << 8;
-      val |= rgb[1];
-      val = val << 8;
-      val |= rgb[0];
-      if (val > 0)
+      for (int x = this->PickX1; x <= this->PickX2; x++)
         {
-        if (depthValues.find(val) == depthValues.end())
+        unsigned char rgb[3];
+        rgb[0] = *pb++;
+        rgb[1] = *pb++;
+        rgb[2] = *pb++;
+        int val = 0;
+        val |= rgb[2];
+        val = val << 8;
+        val |= rgb[1];
+        val = val << 8;
+        val |= rgb[0];
+        if (val > 0)
           {
-          depthValues.insert(std::pair<unsigned int,float>(val,*dbPtr));
+          if (this->PickInfo->PickValues.find(val) == this->PickInfo->PickValues.end())
+            {
+            this->PickInfo->PickValues.insert(std::pair<unsigned int,float>(val,*dbPtr));
+            }
           }
+        dbPtr++;
         }
-      dbPtr++;
       }
-    }
 
-  this->PickInfo->NumPicked = depthValues.size();
+    this->PickInfo->NumPicked = this->PickInfo->PickValues.size();
 
-  this->PickInfo->PickedId = 0;
-  std::map<unsigned int,float>::const_iterator dvItr =
-    depthValues.begin();
-  this->PickedZ = 1.0;
-  for ( ; dvItr != depthValues.end(); dvItr++)
-    {
-    if(dvItr->second < this->PickedZ)
+    this->PickInfo->PickedId = 0;
+    std::map<unsigned int,float>::const_iterator dvItr =
+      this->PickInfo->PickValues.begin();
+    this->PickedZ = 1.0;
+    for ( ; dvItr != this->PickInfo->PickValues.end(); dvItr++)
       {
-      this->PickedZ = dvItr->second;
-      this->PickInfo->PickedId = dvItr->first - 1;
+      if(dvItr->second < this->PickedZ)
+        {
+        this->PickedZ = dvItr->second;
+        this->PickInfo->PickedId = dvItr->first - 1;
+        }
       }
     }
 
@@ -519,11 +530,6 @@ unsigned int vtkOpenGL2Renderer::GetPickedId()
 
 vtkOpenGL2Renderer::~vtkOpenGL2Renderer()
 {
-  if (this->PickInfo->PickBuffer)
-    {
-    delete [] this->PickInfo->PickBuffer;
-    this->PickInfo->PickBuffer = 0;
-    }
   delete this->PickInfo;
 
   if(this->Pass!=0)
@@ -540,25 +546,22 @@ unsigned int vtkOpenGL2Renderer::GetNumPickedIds()
 int vtkOpenGL2Renderer::GetPickedIds(unsigned int atMost,
                                     unsigned int *callerBuffer)
 {
-  if (!this->PickInfo->PickBuffer)
+  if (this->PickInfo->PickValues.empty())
     {
     return 0;
     }
 
   unsigned int max = (atMost < this->PickInfo->NumPicked) ? atMost : this->PickInfo->NumPicked;
-  GLuint* iptr = this->PickInfo->PickBuffer;
+
+  unsigned int k = 0;
   unsigned int *optr = callerBuffer;
-  unsigned int k;
-  for(k =0; k < max; k++)
+  std::map<unsigned int,float>::const_iterator dvItr =
+    this->PickInfo->PickValues.begin();
+  this->PickedZ = 1.0;
+  for ( ; dvItr != this->PickInfo->PickValues.end() && k < max; dvItr++)
     {
-    int num_names = *iptr;
-    iptr++; // move to first depth value
-    iptr++; // move to next depth value
-    iptr++; // move to first name picked
-    *optr = static_cast<unsigned int>(*iptr);
+    *optr = static_cast<unsigned int>(dvItr->first);
     optr++;
-    // skip additional names
-    iptr += num_names;
     }
   return k;
 }

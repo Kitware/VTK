@@ -16,9 +16,12 @@
 #include "vtkOpenGL2RenderWindow.h"
 
 #include <cassert>
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkgl.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGL2Actor.h"
 #include "vtkOpenGL2Camera.h"
@@ -29,10 +32,16 @@
 #include "vtkOpenGL2Renderer.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGL2Texture.h"
+#include "vtkPoints.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkOpenGL2ShaderCache.h"
 #include "vtkOpenGL2TextureUnitManager.h"
 #include "vtkStdString.h"
+#include "vtkTrivialProducer.h"
 #include <sstream>
 using std::ostringstream;
 
@@ -91,6 +100,40 @@ vtkOpenGL2RenderWindow::vtkOpenGL2RenderWindow()
   this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
   #endif
 
+  this->DrawPixelsActor = vtkTexturedActor2D::New();
+  vtkNew<vtkPolyDataMapper2D> mapper;
+  vtkNew<vtkPolyData> polydata;
+  vtkNew<vtkPoints> points;
+  points->SetNumberOfPoints(4);
+  polydata->SetPoints(points.Get());
+
+  vtkNew<vtkCellArray> tris;
+  tris->InsertNextCell(3);
+  tris->InsertCellPoint(0);
+  tris->InsertCellPoint(1);
+  tris->InsertCellPoint(2);
+  tris->InsertNextCell(3);
+  tris->InsertCellPoint(0);
+  tris->InsertCellPoint(2);
+  tris->InsertCellPoint(3);
+  polydata->SetPolys(tris.Get());
+
+  vtkNew<vtkTrivialProducer> prod;
+  prod->SetOutput(polydata.Get());
+
+  // Set some properties.
+  mapper->SetInputConnection(prod->GetOutputPort());
+  this->DrawPixelsActor->SetMapper(mapper.Get());
+
+  vtkNew<vtkTexture> texture;
+  texture->RepeatOff();
+  this->DrawPixelsActor->SetTexture(texture.Get());
+
+  vtkNew<vtkFloatArray> tcoords;
+  tcoords->SetNumberOfComponents(2);
+  tcoords->SetNumberOfTuples(4);
+  polydata->GetPointData()->SetTCoords(tcoords.Get());
+
   this->OwnContext=1;
 }
 
@@ -98,6 +141,11 @@ vtkOpenGL2RenderWindow::vtkOpenGL2RenderWindow()
 // ----------------------------------------------------------------------------
 vtkOpenGL2RenderWindow::~vtkOpenGL2RenderWindow()
 {
+  if(this->DrawPixelsActor!=0)
+    {
+    this->DrawPixelsActor->UnRegister(this);
+    this->DrawPixelsActor = NULL;
+    }
   this->TextureResourceIds->Delete();
   if(this->TextureUnitManager!=0)
     {
@@ -682,33 +730,10 @@ int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-                                        unsigned char *data, int front)
+void vtkOpenGL2RenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numComponents, int dataType, void *data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
-
-  // set the current window
-  this->MakeCurrent();
-
-  // Error checking
-  // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR)
-    {
-    ;
-    }
-
-  GLint buffer;
-  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
-
-  if (front)
-    {
-    glDrawBuffer(this->GetFrontBuffer());
-    }
-  else
-    {
-    glDrawBuffer(this->GetBackBuffer());
-    }
 
   if (y1 < y2)
     {
@@ -733,32 +758,78 @@ int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_hi  = x1;
     }
 
+  vtkPolyData *pd = vtkPolyDataMapper2D::SafeDownCast(this->DrawPixelsActor->GetMapper())->GetInput();
+  vtkPoints *points = pd->GetPoints();
+  points->SetPoint(0, x_low, y_low, 0);
+  points->SetPoint(1, x_hi, y_low, 0);
+  points->SetPoint(2, x_hi, y_hi, 0);
+  points->SetPoint(3, x_low, y_hi, 0);
+
+  vtkDataArray *tcoords = pd->GetPointData()->GetTCoords();
+  float tmp[2];
+  tmp[0] = 0;
+  tmp[1] = 0;
+  tcoords->SetTuple(0,tmp);
+  tmp[0] = 1.0;
+  tcoords->SetTuple(1,tmp);
+  tmp[1] = 1.0;
+  tcoords->SetTuple(2,tmp);
+  tmp[0] = 0.0;
+  tcoords->SetTuple(3,tmp);
+
+  vtkImageData *id = vtkImageData::New();
+  id->SetExtent(0,x_hi-x_low, 0,y_hi-y_low, 0,0);
+
+  vtkDataArray* da = vtkDataArray::CreateDataArray(dataType);
+  da->SetNumberOfComponents(numComponents);
+  da->SetVoidArray(data,(x_hi-x_low+1)*(y_hi-y_low+1)*numComponents,true);
+  id->GetPointData()->SetScalars(da);
+
+  this->DrawPixelsActor->GetTexture()->SetInputData(id);
+
   glDisable( GL_SCISSOR_TEST );
   glViewport(0, 0, this->Size[0], this->Size[1]);
 
-  // now write the binary info
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
-                 (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
-                 -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
+  glDisable(GL_DEPTH_TEST);
 
-  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
-  glDisable(GL_BLEND);
-  glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
-               GL_RGB, GL_UNSIGNED_BYTE, data);  // TODO replace as this is a deprecated function
-  glEnable(GL_BLEND);
+  vtkRenderer *vp = vtkRenderer::New();
+  this->AddRenderer(vp);
+  this->DrawPixelsActor->RenderOverlay(vp);
+  this->RemoveRenderer(vp);
+  vp->Delete();
+
+  glEnable(GL_DEPTH_TEST);
 
   // This seems to be necessary for the image to show up
   glFlush();
+}
+
+int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+                                        unsigned char *data, int front)
+{
+  // set the current window
+  this->MakeCurrent();
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR)
+    {
+    ;
+    }
+
+  GLint buffer;
+  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
+
+  if (front)
+    {
+    glDrawBuffer(this->GetFrontBuffer());
+    }
+  else
+    {
+    glDrawBuffer(this->GetBackBuffer());
+    }
+
+  this->DrawPixels(x1, y1, x2, y2, 3, VTK_UNSIGNED_CHAR, data);
 
   glDrawBuffer(buffer);
 
@@ -1030,37 +1101,17 @@ int vtkOpenGL2RenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   /* write out a row of pixels */
   glDisable( GL_ALPHA_TEST );
-  glDisable( GL_SCISSOR_TEST );
-  glViewport(0, 0, this->Size[0], this->Size[1]);
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
-                 (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
-                 -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
-
-  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   if (!blend)
     {
     glDisable(GL_BLEND);
-    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data); // TODO replace dprecated function
+    this->DrawPixels(x1, y1, x2, y2, 4, VTK_FLOAT, data); // TODO replace dprecated function
     glEnable(GL_BLEND);
     }
   else
     {
-    glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+    this->DrawPixels(x1, y1, x2, y2, 4, VTK_FLOAT, data);
     }
-
-  // This seems to be necessary for the image to show up
-  glFlush();
 
   glDrawBuffer(buffer);
 
@@ -1281,11 +1332,6 @@ int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
                                                 int y2, unsigned char *data,
                                                 int front, int blend)
 {
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  int     width, height;
-
-
   // set the current window
   this->MakeCurrent();
 
@@ -1310,52 +1356,8 @@ int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     }
 
 
-  if (y1 < y2)
-    {
-    y_low = y1;
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2;
-    y_hi  = y1;
-    }
-
-
-  if (x1 < x2)
-    {
-    x_low = x1;
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2;
-    x_hi  = x1;
-    }
-
-
-  width  = abs(x_hi-x_low) + 1;
-  height = abs(y_hi-y_low) + 1;
-
-
-  /* write out a row of pixels */
-  glViewport(0, 0, this->Size[0], this->Size[1]);
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
-  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
-                 (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
-                 -1.0 );
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
 
   glDisable( GL_ALPHA_TEST );
-  glDisable( GL_SCISSOR_TEST );
 
   // Disable writing on the z-buffer.
   glDepthMask(GL_FALSE);
@@ -1364,14 +1366,12 @@ int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   if (!blend)
     {
     glDisable(GL_BLEND);
-    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-                  data); // TODO replace
+    this->DrawPixels(x1,y1,x2,y2,4, VTK_UNSIGNED_CHAR, data);
     glEnable(GL_BLEND);
     }
   else
     {
-    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-                  data);
+    this->DrawPixels(x1,y1,x2,y2,4, VTK_UNSIGNED_CHAR, data);
     }
 
   // Renenable writing on the z-buffer.

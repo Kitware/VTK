@@ -33,6 +33,7 @@ class vtkOpenGLHardwareSupport;
 class vtkOpenGL2TextureUnitManager;
 class vtkOpenGL2ShaderCache;
 class vtkStdString;
+class vtkTexturedActor2D;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2RenderWindow : public vtkRenderWindow
 {
@@ -272,6 +273,12 @@ protected:
   vtkTimeStamp ContextCreationTime;
 
   vtkOpenGL2TextureUnitManager *TextureUnitManager;
+
+  vtkTexturedActor2D *DrawPixelsActor;
+
+  // Description:
+  // Replacement for the old glDrawPixels function
+  void DrawPixels(int x1, int y1, int x2, int y2, int numComponents, int dataType, void *data);
 
   bool Initialized; // ensure glewinit has been called
 
