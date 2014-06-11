@@ -51,6 +51,5 @@ void vtkExternalOpenGLRenderWindow::Render()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "DrawWindow: " << this->DrawWindow << "\n";
   this->Superclass::PrintSelf(os, indent);
 }
