@@ -21,7 +21,6 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 {
-  this->DrawWindow = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -32,12 +31,11 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
-  if(this->DrawWindow)
+  if (!this->DisplayId || !this->WindowId)
     {
-    this->Initialize();
+    this->InitializeFromCurrentContext();
     }
 
-  // set the current window
   this->MakeCurrent();
 }
 
