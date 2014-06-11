@@ -83,7 +83,7 @@ endfunction()
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
 #   used only when required.
-function(vtk_add_test_mpi exename tests)
+function(vtk_add_test_mpi exename _tests)
   set(mpi_options
     TESTING_DATA
     CUSTOM_BASELINES
@@ -150,7 +150,7 @@ function(vtk_add_test_mpi exename tests)
       )
   endforeach()
 
-  set(${tests} "${names}"
+  set(${_tests} ${${_tests}} "${names}"
     PARENT_SCOPE)
 endfunction()
 
@@ -253,7 +253,7 @@ function(vtk_add_test_cxx exename _tests)
       )
   endforeach()
 
-  set(${_tests} "${names}"
+  set(${_tests} ${${_tests}} "${names}"
     PARENT_SCOPE)
 endfunction()
 
