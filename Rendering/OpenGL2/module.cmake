@@ -7,7 +7,6 @@ vtk_module(vtkRenderingOpenGL2
   PRIVATE_DEPENDS
     vtksys
     vtkRenderingOpenGL
-    vtkFiltersCore # Do we want this just for vtkPolyDataNormals?
   COMPILE_DEPENDS
     vtkUtilitiesEncodeString
   TEST_DEPENDS
