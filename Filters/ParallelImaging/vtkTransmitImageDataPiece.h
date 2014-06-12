@@ -12,57 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransmitImageDataPiece - For parallel processing, restrict IO to
-// the first process in the cluste.r
+// .NAME vtkTransmitRectilinearGridPiece - Redistributes data produced
+// by serial readers
 //
 // .SECTION Description
-// This filter updates the appropriate piece by requesting the piece from
-// process 0.  Process 0 always updates all of the data.  It is important that
-// Execute get called on all processes, otherwise the filter will deadlock.
+// This filter can be used to redistribute data from producers that can't
+// produce data in parallel. All data is produced on first process and
+// the distributed to others using the multiprocess controller.
+//
+// Note that this class is legacy. The superclass does all the work and
+// can be used directly instead.
 
 
 #ifndef __vtkTransmitImageDataPiece_h
 #define __vtkTransmitImageDataPiece_h
 
 #include "vtkFiltersParallelImagingModule.h" // For export macro
-#include "vtkImageAlgorithm.h"
+#include "vtkTransmitStructuredDataPiece.h"
 
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELIMAGING_EXPORT vtkTransmitImageDataPiece : public vtkImageAlgorithm
+class VTKFILTERSPARALLELIMAGING_EXPORT vtkTransmitImageDataPiece : public vtkTransmitStructuredDataPiece
 {
 public:
   static vtkTransmitImageDataPiece *New();
-  vtkTypeMacro(vtkTransmitImageDataPiece, vtkImageAlgorithm);
+  vtkTypeMacro(vtkTransmitImageDataPiece, vtkTransmitStructuredDataPiece);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // By defualt this filter uses the global controller,
-  // but this method can be used to set another instead.
-  virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller, vtkMultiProcessController);
-
-  // Description:
-  // Turn on/off creating ghost cells (on by default).
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
 
 protected:
   vtkTransmitImageDataPiece();
   ~vtkTransmitImageDataPiece();
-
-  // Data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  void RootExecute(vtkImageData *input, vtkImageData *output,
-                   vtkInformation *outInfo);
-  void SatelliteExecute(int procId, vtkImageData *output,
-                        vtkInformation *outInfo);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-
-  int CreateGhostCells;
-  vtkMultiProcessController *Controller;
 
 private:
   vtkTransmitImageDataPiece(const vtkTransmitImageDataPiece&); // Not implemented

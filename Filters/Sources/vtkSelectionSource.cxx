@@ -264,10 +264,8 @@ int vtkSelectionSource::RequestInformation(
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  // We can handle multiple piece request.
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  info->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   return 1;
 }

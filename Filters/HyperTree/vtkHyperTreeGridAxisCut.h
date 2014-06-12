@@ -46,19 +46,18 @@ public:
   void PrintSelf( ostream&, vtkIndent );
 
   // Description:
-  // Normal axis: 0=X, 1=Y, 2=Z
-  // Position of plane: Axis constant.
+  // Normal axis: 0=X, 1=Y, 2=Z. Default is 0
   vtkSetMacro(PlaneNormalAxis, int);
   vtkGetMacro(PlaneNormalAxis, int);
+
+  // Description:
+  // Position of plane: Axis constant. Default is 0.0
   vtkSetMacro(PlanePosition, double);
   vtkGetMacro(PlanePosition, double);
 
 protected:
   vtkHyperTreeGridAxisCut();
   ~vtkHyperTreeGridAxisCut();
-
-  int PlaneNormalAxis;
-  double PlanePosition;
 
   virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
   virtual int FillInputPortInformation( int, vtkInformation* );
@@ -68,6 +67,9 @@ protected:
   void ProcessLeaf3D( void* );
   void AddFace( vtkIdType inId, double* origin, double* size,
                 double offset0, int axis0, int axis1, int axis2 );
+
+  int PlaneNormalAxis;
+  double PlanePosition;
 
   vtkHyperTreeGrid* Input;
   vtkPolyData* Output;

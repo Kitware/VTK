@@ -1,4 +1,6 @@
-vtk_add_test_tcl(TestParametricFunctions)
-vtk_add_test_tcl(CSpline)
-vtk_add_test_tcl(KSpline)
-vtk_add_test_tcl(closedSplines)
+vtk_add_test_tcl(
+  TestParametricFunctions.tcl
+  CSpline.tcl
+  KSpline.tcl
+  closedSplines.tcl
+  )

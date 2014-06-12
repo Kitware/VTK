@@ -40,6 +40,9 @@
 #include <stdlib.h>
 #include <cassert>
 
+namespace
+{
+
 using std::pair;
 using std::vector;
 
@@ -313,7 +316,9 @@ void TestUndirectedGraph()
     }
 }
 
-int main(int argc, char** argv)
+}
+
+int TestPBGLAlgorithms(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
   TestDirectedGraph();

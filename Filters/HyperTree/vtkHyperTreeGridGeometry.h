@@ -44,7 +44,8 @@ protected:
   vtkHyperTreeGridGeometry();
   ~vtkHyperTreeGridGeometry();
 
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  virtual int RequestData( vtkInformation*,
+    vtkInformationVector**, vtkInformationVector* );
   virtual int FillInputPortInformation( int, vtkInformation* );
 
   void ProcessTrees();

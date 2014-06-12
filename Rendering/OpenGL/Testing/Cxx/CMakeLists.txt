@@ -1,14 +1,11 @@
-vtk_add_test_cxx(NO_DATA NO_VALID
-  otherCoordinate.cxx
-  )
-
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # For tests that actually use a vtkRenderWindow
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+  otherCoordinate.cxx,NO_DATA,NO_VALID
   LoadOpenGLExtension.cxx
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx
@@ -70,25 +67,26 @@ vtk_add_test_cxx(
   TestTranslucentLUTTextureDepthPeeling.cxx
   )
 if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
-vtk_add_test_cxx(
-  TestBlurAndSobelPasses.cxx
-  TestGaussianBlurPass.cxx
-  TestLightActor.cxx
-  TestSobelGradientMagnitudePass.cxx
-  TestTranslucentLUTDepthPeelingPass.cxx)
+  vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+    TestBlurAndSobelPasses.cxx
+    TestGaussianBlurPass.cxx
+    TestLightActor.cxx
+    TestSobelGradientMagnitudePass.cxx
+    TestTranslucentLUTDepthPeelingPass.cxx)
   if(NOT APPLE)
-    vtk_add_test_cxx(TestShadowMapPass.cxx)
+    vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+      TestShadowMapPass.cxx)
   endif()
 
   if(WIN32 AND NOT VTK_USE_X)
-    vtk_add_test_cxx(TestWin32OpenGLRenderWindow.cxx NO_VALID)
+    vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+      TestWin32OpenGLRenderWindow.cxx NO_VALID)
   endif()
-
 endif()
 
 include_directories(${OPENGL_INCLUDE_DIR})
 
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
   TestAreaSelections.cxx
   TestGlyph3DMapperArrow.cxx
   TestImageSliceMapperBorder.cxx
@@ -117,14 +115,19 @@ endif()
 set(VTK_USE_GLSL_SHADERS FALSE)
 if(VTK_USE_GLSL_SHADERS)
   # Tests testing GLSL Shaders.
-  vtk_add_test_cxx(
+  vtk_add_test_cxx(${vtk-module}CxxTests glsl_tests
     TestGenericVertexAttributesGLSLCxx.cxx
     TestGenericVertexAttributesGLSLAlphaBlending.cxx
     TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
     )
+  list(APPEND ogl_tests
+    ${glsl_tests})
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+set(all_tests
+  ${render_window_tests}
+  ${ogl_tests})
+vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
 
 set(TEST_FBO_IMPLEMENTATION_EXE
   TestFBOImplementation)
@@ -142,9 +145,6 @@ target_link_libraries(TestFBOImplementation LINK_PRIVATE
 
 if(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
   target_link_libraries(TestFBOImplementation LINK_PRIVATE ${OSMESA_LIBRARY})
-endif()
-
-if(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
   target_link_libraries(${vtk-module}CxxTests LINK_PRIVATE ${OSMESA_LIBRARY})
 endif()
 

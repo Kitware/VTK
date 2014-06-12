@@ -66,7 +66,6 @@ private:
   vtkMultiProcessController *Controller;
   caseType CaseType;
   unsigned long MTimeOld;
-  int MaximumNumberOfPieces;
   int NumProcesses;
   int ProcessId;
 

@@ -16,7 +16,7 @@ ExternalData_Expand_Arguments(VTKData _
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/constant/polyMesh/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/system/,REGEX:.*}"
   )
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDataObjectIO.cxx,NO_VALID
   TestIncrementalOctreePointLocator.cxx,NO_VALID
   UnstructuredGridCellGradients.cxx
@@ -26,10 +26,7 @@ vtk_add_test_cxx(
   TestProStarReader.cxx
   TestTecplotReader.cxx
   TestAMRReadWrite.cxx,NO_VALID
-  )
-
-vtk_add_test_cxx(NO_VALID
-  TestSimplePointsReaderWriter.cxx
+  TestSimplePointsReaderWriter.cxx,NO_VALID
   )
 
 set(_known_little_endian FALSE)
@@ -47,12 +44,13 @@ if(VTK_USE_LARGE_DATA AND _known_little_endian)
     "DATA{${VTK_TEST_INPUT_DIR}/MFIXReader/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(
+  vtk_add_test_cxx(${vtk-module}CxxTests large_data_tests
     TestWindBladeReader.cxx
+    TestMFIXReader.cxx,NO_VALID
     )
-  vtk_add_test_cxx(NO_VALID
-    TestMFIXReader.cxx
+  list(APPEND tests
+    ${large_data_tests}
     )
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

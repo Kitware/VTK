@@ -143,29 +143,7 @@ int vtkExodusIIWriter::ProcessRequest (
   else if(request->Has(
       vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    // get the requested update extent
-    if(!this->TimeValues)
-      {
-      this->TimeValues = vtkDoubleArray::New();
-      vtkInformation *info = inputVector[0]->GetInformationObject(0);
-      double *data = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-      int len = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-      this->TimeValues->SetNumberOfValues (len);
-      for (int i = 0; i < len; i ++)
-        {
-        this->TimeValues->SetValue (i, data[i]);
-        }
-      }
-    if (this->WriteAllTimeSteps)
-      {
-      if(this->TimeValues->GetPointer(0))
-        {
-        double timeReq= this->TimeValues->GetValue(this->CurrentTimeIndex);
-        inputVector[0]->GetInformationObject(0)->Set
-        ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),  timeReq);
-        }
-      }
-    return 1;
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
   // generate the data
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -193,6 +171,37 @@ int vtkExodusIIWriter::RequestInformation (
     this->NumberOfTimeSteps = 0;
     }
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExodusIIWriter::RequestUpdateExtent (
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
+{
+  // get the requested update extent
+  if(!this->TimeValues)
+    {
+    this->TimeValues = vtkDoubleArray::New();
+    vtkInformation *info = inputVector[0]->GetInformationObject(0);
+    double *data = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    int len = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    this->TimeValues->SetNumberOfValues (len);
+    for (int i = 0; i < len; i ++)
+      {
+      this->TimeValues->SetValue (i, data[i]);
+      }
+    }
+  if (this->WriteAllTimeSteps)
+    {
+    if(this->TimeValues->GetPointer(0))
+      {
+      double timeReq= this->TimeValues->GetValue(this->CurrentTimeIndex);
+      inputVector[0]->GetInformationObject(0)->Set
+      ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),  timeReq);
+      }
+    }
   return 1;
 }
 

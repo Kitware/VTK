@@ -28,11 +28,13 @@ if(BUILD_TESTING)
   if(vtkTestingRendering_LOADED)
     ######## Regression Testing ########
     set(vtk-example WidgetsExamples)
-    vtk_add_test_cxx(
+    vtk_add_test_cxx(${vtk-example}CxxTests tests
       TestSlider.cxx
       TestSlider2D.cxx
       TestBalloonWidget.cxx
       )
-    vtk_test_cxx_executable(${vtk-example}CxxTests RENDERING_FACTORY)
+    vtk_test_cxx_executable(${vtk-example}CxxTests tests
+      RENDERING_FACTORY
+      )
   endif()
 endif()

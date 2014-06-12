@@ -2,6 +2,7 @@ vtk_module(vtkFiltersExtraction
   GROUPS
     StandAlone
   DEPENDS
+    vtkCommonDataModel
     vtkCommonExecutionModel
     vtkFiltersCore
     vtkFiltersGeneral

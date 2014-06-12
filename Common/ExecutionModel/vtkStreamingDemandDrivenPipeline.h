@@ -29,7 +29,6 @@
 #define VTK_UPDATE_EXTENT_COMBINE 1
 #define VTK_UPDATE_EXTENT_REPLACE 2
 
-class vtkExtentTranslator;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIdTypeKey;
@@ -72,18 +71,6 @@ public:
   // only necessary if there is temporal meta data that must be updated
   int PropagateTime(int outputPort);
   int UpdateTimeDependentInformation(int outputPort);
-
-
-  // Description:
-  // Set/Get the maximum number of pieces that can be requested from
-  // the given port.  The maximum number of pieces is meta data for
-  // unstructured data sets.  It gets set by the source during the
-  // update information call.  A value of -1 indicates that there is
-  // no maximum.
-  int SetMaximumNumberOfPieces(int port, int n);
-  static int SetMaximumNumberOfPieces(vtkInformation *, int n);
-  int GetMaximumNumberOfPieces(int port);
-  static int GetMaximumNumberOfPieces(vtkInformation *);
 
   // Description:
   // Set/Get the whole extent of an output port.  The whole extent is
@@ -140,22 +127,6 @@ public:
   int GetRequestExactExtent(int port);
 
   // Description:
-  // Get/Set the object that will translate pieces into structured
-  // extents for an output port.
-  int SetExtentTranslator(int port, vtkExtentTranslator* translator);
-  static int SetExtentTranslator(vtkInformation *, vtkExtentTranslator* translator);
-  vtkExtentTranslator* GetExtentTranslator(int port);
-  static vtkExtentTranslator* GetExtentTranslator(vtkInformation *info);
-
-  // Description:
-  // Set/Get the whole bounding box of an output port data object.
-  // The whole whole bounding box is meta data for data sets.  It gets
-  // set by the algorithm during the update information pass.
-  int SetWholeBoundingBox(int port, double bb[6]);
-  void GetWholeBoundingBox(int port, double bb[6]);
-  double* GetWholeBoundingBox(int port);
-
-  // Description:
   // Key defining a request to propagate the update extent upstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
@@ -171,10 +142,6 @@ public:
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
 
   // Description:
-  // Key to store an extent translator in pipeline information.
-  static vtkInformationObjectBaseKey* EXTENT_TRANSLATOR();
-
-  // Description:
   // Keys to store an update request in pipeline information.
   static vtkInformationIntegerKey* UPDATE_EXTENT_INITIALIZED();
   static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
@@ -188,11 +155,6 @@ public:
   static vtkInformationIntegerVectorKey* COMBINED_UPDATE_EXTENT();
 
   // Description:
-  // This is set if the extent was set through extent translation.
-  // GenerateGhostLevelArray() is called only when this is set.
-  static vtkInformationIntegerKey* UPDATE_EXTENT_TRANSLATED();
-
-  // Description:
   // Key to store the whole extent provided in pipeline information.
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
 
@@ -201,16 +163,6 @@ public:
   // whole extent, for sources that can generate an extent of
   // any requested size.
   static vtkInformationIntegerKey* UNRESTRICTED_UPDATE_EXTENT();
-
-  // Description:
-  // Key to store the maximum number of pieces provided in pipeline
-  // information.
-  static vtkInformationIntegerKey* MAXIMUM_NUMBER_OF_PIECES();
-
-  // Description:
-  // Key to store the bounding box of the entire data set in pipeline
-  // information.
-  static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
 
   // Description:
   // Key to specify the request for exact extent in pipeline information.
@@ -225,16 +177,12 @@ public:
   static vtkInformationDoubleVectorKey* TIME_RANGE();
 
   // Description:
-  // Key to store the label that should be used for labelling the time in the UI
-  static vtkInformationStringKey* TIME_LABEL_ANNOTATION();
-
-  // Description:
   // Update time steps requested by the pipeline.
   static vtkInformationDoubleKey* UPDATE_TIME_STEP();
 
   // Description:
   // Whether there are time dependent meta information
-  // if there is, the pipe will perform two extra passes
+  // if there is, the pipeline will perform two extra passes
   // to gather the time dependent information
   static vtkInformationIntegerKey* TIME_DEPENDENT_INFORMATION();
 

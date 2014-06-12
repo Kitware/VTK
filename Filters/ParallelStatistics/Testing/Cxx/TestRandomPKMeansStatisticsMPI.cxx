@@ -43,6 +43,9 @@
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/vector>
 
+namespace
+{
+
 struct RandomSampleStatisticsArgs
 {
   int nObsPerCluster;
@@ -241,8 +244,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
 }
 
+}
+
 //----------------------------------------------------------------------------
-int main( int argc, char** argv )
+int TestRandomPKMeansStatisticsMPI( int argc, char* argv[] )
 {
   // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();

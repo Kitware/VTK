@@ -47,7 +47,7 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkDataArrayTemplate, which is ignored
   // by the wrappers.
-#ifdef __WRAP__
+#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(unsigned long);
 #endif
 

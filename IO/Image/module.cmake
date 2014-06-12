@@ -15,11 +15,13 @@ vtk_module(vtkIOImage
     vtktiff
     vtkMetaIO
     vtkDICOMParser
+    vtkzlib
     vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkImagingSources
     vtkImagingMath
+    vtkInteractionStyle
     vtkRenderingContext2D
     vtkRenderingCore
     vtkTestingCore

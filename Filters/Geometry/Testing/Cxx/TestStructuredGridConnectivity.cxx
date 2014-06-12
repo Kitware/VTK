@@ -51,26 +51,8 @@
 
 //#define ENABLE_IO
 
-//------------------------------------------------------------------------------
-// Description:
-// Writes the grid to a file
-void WriteGrid( vtkUniformGrid *grid, std::string prefix )
+namespace
 {
-
-
-  assert( "pre: input grid is NULL" && (grid != NULL) );
-
-  vtkXMLImageDataWriter *writer = vtkXMLImageDataWriter::New();
-
-  std::ostringstream oss;
-  oss << prefix << "." << writer->GetDefaultFileExtension();
-  writer->SetFileName( oss.str().c_str() );
-  writer->SetInputData( grid );
-#ifdef ENABLE_IO
-  writer->Write();
-#endif
-  writer->Delete();
-}
 
 //------------------------------------------------------------------------------
 // Description:
@@ -563,7 +545,7 @@ bool Check(
 
 //------------------------------------------------------------------------------
 // Program main
-int TestStructuredGridConnectivity( int argc, char *argv[] )
+int TestStructuredGridConnectivity_internal( int argc, char *argv[] )
 {
   // Silence compiler wanrings for unused vars argc and argv
   static_cast<void>( argc );
@@ -857,9 +839,11 @@ int SimpleTest( int argc, char **argv )
   return 0;
 }
 
+}
+
 //------------------------------------------------------------------------------
 // Program main
-int main( int argc, char **argv )
+int TestStructuredGridConnectivity( int argc, char *argv[] )
 {
   int rc = 0;
 
@@ -869,7 +853,7 @@ int main( int argc, char **argv )
     }
   else
     {
-    rc = TestStructuredGridConnectivity( argc, argv );
+    rc = TestStructuredGridConnectivity_internal( argc, argv );
     }
   return( rc );
 }

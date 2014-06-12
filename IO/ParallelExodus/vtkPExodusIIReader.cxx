@@ -237,13 +237,9 @@ int vtkPExodusIIReader::RequestInformation(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector )
 {
-  // Setting maximum number of pieces to -1 indicates to the
-  // upstream consumer that I can provide the same number of pieces
-  // as there are number of processors
-  // get the info object
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
+   CAN_HANDLE_PIECE_REQUEST(), 1);
 
 #ifdef DBG_PEXOIIRDR
   this->Controller->Barrier();

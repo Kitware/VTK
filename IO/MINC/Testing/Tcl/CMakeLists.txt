@@ -1,5 +1,7 @@
-vtk_add_test_tcl(TestMINCImageReader)
-vtk_add_test_tcl(TestMINCImageWriter)
-vtk_add_test_tcl(TestMNIObjects)
-vtk_add_test_tcl(TestMNITagPoints)
-vtk_add_test_tcl(TestMNITransforms)
+vtk_add_test_tcl(
+  TestMINCImageReader.tcl
+  TestMINCImageWriter.tcl
+  TestMNIObjects.tcl
+  TestMNITagPoints.tcl
+  TestMNITransforms.tcl
+  )

@@ -23,8 +23,8 @@
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for
-// creating and contributing the class.
+// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
+// class.
 //
 #ifndef __vtkParametricBoy_h
 #define __vtkParametricBoy_h
@@ -56,7 +56,7 @@ public:
 
   // Description:
   // Set/Get the scale factor for the z-coordinate.
-  // Default = 1/8, giving a nice shape.
+  // Default is 1/8, giving a nice shape.
   vtkSetMacro(ZScale,double);
   vtkGetMacro(ZScale,double);
 

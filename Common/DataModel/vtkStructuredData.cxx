@@ -45,17 +45,19 @@ int vtkStructuredData::GetDataDimension(int dataDescription)
 }
 
 //------------------------------------------------------------------------------
-int vtkStructuredData::GetNumberOfNodes( int ext[6], int dataDescription )
+vtkIdType vtkStructuredData::GetNumberOfPoints( int ext[6], int dataDescription )
 {
   if( dataDescription == VTK_EMPTY )
     {
     dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
     }
 
-  int N = 0;
+  vtkIdType N = 0;
   int nodeDims[3];
   vtkStructuredData::GetDimensionsFromExtent( ext,nodeDims,dataDescription );
 
+  // Note, when we compute N below, we statically cast to vtkIdType to
+  // ensure the compiler will generate a 32x32=64 instruction.
   switch( dataDescription )
     {
     case VTK_SINGLE_POINT:
@@ -71,16 +73,21 @@ int vtkStructuredData::GetNumberOfNodes( int ext[6], int dataDescription )
       N = nodeDims[2];
       break;
     case VTK_XY_PLANE:
-      N = nodeDims[0]*nodeDims[1];
+      N = static_cast<vtkIdType>(nodeDims[0])*
+          static_cast<vtkIdType>(nodeDims[1]);
       break;
     case VTK_YZ_PLANE:
-      N = nodeDims[1]*nodeDims[2];
+      N = static_cast<vtkIdType>(nodeDims[1])*
+          static_cast<vtkIdType>(nodeDims[2]);
       break;
     case VTK_XZ_PLANE:
-      N = nodeDims[0]*nodeDims[2];
+      N = static_cast<vtkIdType>(nodeDims[0])*
+          static_cast<vtkIdType>(nodeDims[2]);
       break;
     case VTK_XYZ_GRID:
-      N = nodeDims[0]*nodeDims[1]*nodeDims[2];
+      N = static_cast<vtkIdType>(nodeDims[0])*
+          static_cast<vtkIdType>(nodeDims[1])*
+          static_cast<vtkIdType>(nodeDims[2]);
       break;
     default:
       vtkGenericWarningMacro("Undefined data description!");
@@ -90,17 +97,19 @@ int vtkStructuredData::GetNumberOfNodes( int ext[6], int dataDescription )
 }
 
 //------------------------------------------------------------------------------
-int vtkStructuredData::GetNumberOfCells( int ext[6], int dataDescription )
+vtkIdType vtkStructuredData::GetNumberOfCells( int ext[6], int dataDescription )
 {
   if( dataDescription == VTK_EMPTY )
     {
     dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
     }
 
-  int N = 0;
+  vtkIdType N = 0;
   int cellDims[3];
   vtkStructuredData::GetCellDimensionsFromExtent(ext,cellDims,dataDescription);
 
+  // Note, when we compute N below, we statically cast to vtkIdType to
+  // ensure the compiler will generate a 32x32=64 instruction.
   switch( dataDescription )
     {
     case VTK_SINGLE_POINT:
@@ -116,16 +125,21 @@ int vtkStructuredData::GetNumberOfCells( int ext[6], int dataDescription )
       N = cellDims[2];
       break;
     case VTK_XY_PLANE:
-      N = cellDims[0]*cellDims[1];
+      N = static_cast<vtkIdType>(cellDims[0])*
+          static_cast<vtkIdType>(cellDims[1]);
       break;
     case VTK_YZ_PLANE:
-      N = cellDims[1]*cellDims[2];
+      N = static_cast<vtkIdType>(cellDims[1])*
+          static_cast<vtkIdType>(cellDims[2]);
       break;
     case VTK_XZ_PLANE:
-      N = cellDims[0]*cellDims[2];
+      N = static_cast<vtkIdType>(cellDims[0])*
+          static_cast<vtkIdType>(cellDims[2]);
       break;
     case VTK_XYZ_GRID:
-      N = cellDims[0]*cellDims[1]*cellDims[2];
+      N = static_cast<vtkIdType>(cellDims[0])*
+          static_cast<vtkIdType>(cellDims[1])*
+          static_cast<vtkIdType>(cellDims[2]);
       break;
     default:
       vtkGenericWarningMacro("Undefined data description!");
@@ -156,7 +170,7 @@ int vtkStructuredData::GetDataDescription(int dims[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredData::GetCellExtentFromNodeExtent(
+void vtkStructuredData::GetCellExtentFromPointExtent(
     int nodeExtent[6], int cellExtent[6], int dataDescription )
 {
   if( dataDescription == VTK_EMPTY )
@@ -279,7 +293,7 @@ void vtkStructuredData::GetCellDimensionsFromExtent(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredData::GetCellDimensionsFromNodeDimensions(
+void vtkStructuredData::GetCellDimensionsFromPointDimensions(
     int nodeDims[3], int cellDims[3] )
 {
   assert( "pre: node dims must be at least 1" && nodeDims[0] >= 1);

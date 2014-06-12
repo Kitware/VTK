@@ -94,7 +94,7 @@ void RenderGraph(vtkAlgorithm* alg, vtkRenderer* ren, double r, double g, double
   ren->AddActor(vertActor);
 }
 
-int main(int argc, char** argv)
+int TestPBGLPipeline(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
 

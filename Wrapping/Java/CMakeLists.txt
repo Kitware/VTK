@@ -6,6 +6,14 @@ include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 # Add the option to package VTK for custom Java packaging
 option(VTK_JAVA_INSTALL "Use the Java rules to build the native libraries." OFF)
 if(VTK_JAVA_INSTALL)
+
+  # Make sure we embed the runtime libraries when packaging the Java binaries
+  if(WIN32)
+    # install system runtimes.
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "bin")
+    include(InstallRequiredSystemLibraries)
+  endif()
+
   set(VTK_CUSTOM_LIBRARY_SUFFIX "" CACHE STRING "" FORCE)
   mark_as_advanced(VTK_CUSTOM_LIBRARY_SUFFIX)
   if(APPLE)
@@ -210,11 +218,13 @@ if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
     vtkPanel
 
     rendering/vtkAbstractComponent
+    rendering/vtkAbstractEventInterceptor
     rendering/vtkComponent
     rendering/vtkEventInterceptor
     rendering/vtkInteractorForwarder
     rendering/awt/vtkAwtComponent
     rendering/awt/vtkInternalAwtComponent
+    rendering/awt/vtkPanelComponent
     )
   if(VTK_JAVA_SWT_COMPONENT)
     set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}

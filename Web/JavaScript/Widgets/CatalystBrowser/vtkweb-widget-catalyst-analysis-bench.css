@@ -58,6 +58,13 @@
     color: black;
 }
 
+.vtkweb-catalyst-analysis .sub-menu li.sub.active > ul {
+    display: block;
+    position: absolute;
+    white-space: nowrap;
+    color: black;
+}
+
 .vtkweb-catalyst-analysis .sub-menu ul.menu > li.sub:hover > ul {
     top: 100%;
     left: 0;

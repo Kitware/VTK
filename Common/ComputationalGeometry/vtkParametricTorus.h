@@ -21,8 +21,8 @@
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for
-// creating and contributing the class.
+// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
+// class.
 //
 #ifndef __vtkParametricTorus_h
 #define __vtkParametricTorus_h
@@ -50,13 +50,12 @@ public:
 
   // Description:
   // Set/Get the radius from the center to the middle of the ring of the
-  // torus.  The default value is 1.0.
+  // torus. Default is 1.0.
   vtkSetMacro(RingRadius,double);
   vtkGetMacro(RingRadius,double);
 
   // Description:
-  // Set/Get the radius of the cross section of ring of the torus.  The default value
-  // is 0.5.
+  // Set/Get the radius of the cross section of ring of the torus. Default is 0.5.
   vtkSetMacro(CrossSectionRadius,double);
   vtkGetMacro(CrossSectionRadius,double);
 

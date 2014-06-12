@@ -1,24 +1,26 @@
-vtk_add_test_python(EnSight6Elements.py)
-vtk_add_test_python(EnSight6ElementsBin.py)
-vtk_add_test_python(EnSight6OfficeBin.py)
-vtk_add_test_python(EnSightBlow1ASCII.py)
-vtk_add_test_python(EnSightBlow1Bin.py)
-vtk_add_test_python(EnSightBlow2ASCII.py)
-vtk_add_test_python(EnSightBlow2Bin.py)
-vtk_add_test_python(EnSightBlow3Bin.py)
-vtk_add_test_python(EnSightBlow4Bin.py)
-vtk_add_test_python(EnSightBlow5ASCII.py)
-vtk_add_test_python(EnSightCompound.py)
-vtk_add_test_python(EnSightGoldElements.py)
-vtk_add_test_python(EnSightGoldElementsBin.py)
-vtk_add_test_python(EnSightIronProtASCII.py)
-vtk_add_test_python(EnSightIronProtBin.py)
-vtk_add_test_python(EnSightMandelbrot.py)
-vtk_add_test_python(EnSightNfacedASCII.py)
-vtk_add_test_python(EnSightNfacedBin.py)
-vtk_add_test_python(EnSightOfficeASCII.py)
-vtk_add_test_python(EnSightOfficeBin.py)
-vtk_add_test_python(EnSightRectGridASCII.py)
-vtk_add_test_python(EnSightRectGridBin.py)
-vtk_add_test_python(EnSightSelectArrays.py)
-vtk_add_test_python(nacaBinary.py)
+vtk_add_test_python(
+  EnSight6Elements.py
+  EnSight6ElementsBin.py
+  EnSight6OfficeBin.py
+  EnSightBlow1ASCII.py
+  EnSightBlow1Bin.py
+  EnSightBlow2ASCII.py
+  EnSightBlow2Bin.py
+  EnSightBlow3Bin.py
+  EnSightBlow4Bin.py
+  EnSightBlow5ASCII.py
+  EnSightCompound.py
+  EnSightGoldElements.py
+  EnSightGoldElementsBin.py
+  EnSightIronProtASCII.py
+  EnSightIronProtBin.py
+  EnSightMandelbrot.py
+  EnSightNfacedASCII.py
+  EnSightNfacedBin.py
+  EnSightOfficeASCII.py
+  EnSightOfficeBin.py
+  EnSightRectGridASCII.py
+  EnSightRectGridBin.py
+  EnSightSelectArrays.py
+  nacaBinary.py
+  )

@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCoincidentGraphLayoutView.cxx
   TestColumnTree.cxx
   TestConeLayoutStrategy.cxx
@@ -9,6 +9,7 @@ vtk_add_test_cxx(
   TestHeatmapScalarLegend.cxx
   TestHierarchicalGraphView.cxx
   TestIcicleView.cxx
+  TestIconGlyphFilter.cxx
   TestInteractorStyleTreeMapHover.cxx
   TestNetworkViews.cxx
   TestParallelCoordinatesView.cxx
@@ -21,6 +22,5 @@ vtk_add_test_cxx(
   TestTreeRingView.cxx
   )
 
-vtk_add_test_cxx(TestIconGlyphFilter.cxx)
-
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY)

@@ -489,17 +489,10 @@ int vtkTemporalFractal::ProcessRequest(
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    if(request->Has(vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT()))
-      {
-      int outputPort = request->Get(
-        vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT());
-      vtkInformation* info = outputVector->GetInformationObject(outputPort);
-      if (info)
-        {
-        info->Set(
-          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-        }
-      }
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    info->Set(
+      CAN_HANDLE_PIECE_REQUEST(), 1);
+
     return this->RequestInformation(request, inputVector, outputVector);
     }
 
@@ -550,7 +543,6 @@ int vtkTemporalFractal::RequestInformation(
   trange[1] = 10.0;
   info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),trange,2);
 
-  info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),-1);
   return 1;
 }
 

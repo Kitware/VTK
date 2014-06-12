@@ -1,28 +1,25 @@
+# temporary, remove when LIC is implemented
+if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
+
 # basic tests on the legacy filters
 # excercises line integral convolution 2d
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImageDataLIC2D.cxx
   TestStructuredGridLIC2DXSlice.cxx
   TestStructuredGridLIC2DYSlice.cxx
   TestStructuredGridLIC2DZSlice.cxx
   )
 
-# temporary, remove when LIC is implemented
-if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
-
 # surface lic painter tests
 # get decent coverage by calling
 # varying arguments to the following
-# test exec. to get unqiue test names
+# test exec. to get unique test names
 # avoid vtk_add_test_cxx and add exec
 # and it's test cases manually
-set_property(
-  DIRECTORY APPEND PROPERTY
-  VTK_TEST_CXX_SOURCES
-  TestSurfaceLIC.cxx
+list(APPEND tests
+  TestSurfaceLIC
   )
-vtk_test_cxx_executable(
-  ${vtk-module}CxxTests
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
   RENDERING_FACTORY
   vtkStructuredGridLIC2DTestDriver.cxx
   vtkSurfaceLICTestDriver.cxx

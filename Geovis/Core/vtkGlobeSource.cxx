@@ -363,28 +363,6 @@ int vtkGlobeSource::RequestData(
   return 1;
 }
 
-
-
-//----------------------------------------------------------------------------
-int vtkGlobeSource::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
-{
-  // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
-               -this->Radius, this->Radius,
-               -this->Radius, this->Radius,
-               -this->Radius, this->Radius);
-
-  return 1;
-}
-
 //----------------------------------------------------------------------------
 void vtkGlobeSource::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -104,6 +104,17 @@ public:
   int GetArgSize(int i);
 
   // Description:
+  // Get the next argument as a naked Python object.
+  bool GetPythonObject(PyObject *&v) {
+    bool b;
+    v = this->GetArgAsPythonObject(b);
+    return b; }
+  bool GetPythonObject(PyObject *o, PyObject *&v) {
+    bool b;
+    v = vtkPythonArgs::GetArgAsPythonObject(o, b);
+    return b; }
+
+  // Description:
   // Get the next argument as a vtkObjectBase derived type.
   // It uses a C-style cast instead of a static_cast, which
   // means that it works on incomplete types, and also means
@@ -489,6 +500,12 @@ protected:
   // Description:
   // Get the "self" object from the first argument.
   static vtkObjectBase *GetSelfFromFirstArg(PyObject *self, PyObject *args);
+
+  // Description:
+  // Get the next argument as an object of the given type.
+  PyObject *GetArgAsPythonObject(bool &valid);
+  static PyObject *GetArgAsPythonObject(
+    PyObject *o, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.

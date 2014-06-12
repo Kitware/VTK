@@ -1,25 +1,27 @@
-vtk_add_test_python(Hyper.py)
-vtk_add_test_python(HyperScalarBar.py)
-vtk_add_test_python(KlineBottle.py)
-vtk_add_test_python(TenEllip.py)
-vtk_add_test_python(TestBandedContourFilter.py)
-vtk_add_test_python(TestBoxFunction.py)
-vtk_add_test_python(TestImageMarchingCubes.py)
-vtk_add_test_python(TestRibbonAndTube.py)
-vtk_add_test_python(TestRuledSurface.py)
-vtk_add_test_python(TestRuledSurface2.py)
-vtk_add_test_python(TestSpherePuzzle.py)
-vtk_add_test_python(TestSpherePuzzleArrows.py)
-vtk_add_test_python(camera.py)
-vtk_add_test_python(eleState.py)
-vtk_add_test_python(extrudeCopyCD.py)
-vtk_add_test_python(schwarz.py)
-vtk_add_test_python(smoothCyl.py)
-vtk_add_test_python(smoothCyl2.py)
-vtk_add_test_python(subDivideTetra.py)
-vtk_add_test_python(subdividePointData.py)
-vtk_add_test_python(TestFillHolesFilter.py)
-vtk_add_test_python(TestNamedColorsIntegration.py NO_RT)
-vtk_add_test_python(contour2DAll.py NO_RT)
-vtk_add_test_python(contour3DAll.py NO_RT)
-vtk_add_test_python(sync3dAll.py NO_RT)
+vtk_add_test_python(
+  Hyper.py
+  HyperScalarBar.py
+  KlineBottle.py
+  TenEllip.py
+  TestBandedContourFilter.py
+  TestBoxFunction.py
+  TestImageMarchingCubes.py
+  TestRibbonAndTube.py
+  TestRuledSurface.py
+  TestRuledSurface2.py
+  TestSpherePuzzle.py
+  TestSpherePuzzleArrows.py
+  camera.py
+  eleState.py
+  extrudeCopyCD.py
+  schwarz.py
+  smoothCyl.py
+  smoothCyl2.py
+  subDivideTetra.py
+  subdividePointData.py
+  TestFillHolesFilter.py
+  TestNamedColorsIntegration.py,NO_RT
+  contour2DAll.py,NO_RT
+  contour3DAll.py,NO_RT
+  sync3dAll.py,NO_RT
+  )

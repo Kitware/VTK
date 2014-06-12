@@ -172,7 +172,7 @@ struct Transpose
 //
 //
 
-int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayCasting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
     {

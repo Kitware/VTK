@@ -897,8 +897,6 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
     fclose(qFp);
     }
 
-  info->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 1);
   return 1;
 }
 

@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkSmartPointer.h"
 
 #include <math.h>
 #include <string>
@@ -230,8 +231,8 @@ int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(info),
 void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector *output)
 {
   vtkIdType numPts = this->UResolution + 1;
-  vtkCellArray *lines = vtkCellArray::New();
-  vtkPoints *pts = vtkPoints::New();
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
@@ -264,19 +265,18 @@ void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector *output)
     (outInfo->Get( vtkDataObject::DATA_OBJECT() ));
   outData->SetPoints(pts);
   outData->SetLines(lines);
-
-  pts->Delete();
-  lines->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
 {
   // Used to hold the surface
-  vtkPolyData * pd = vtkPolyData::New();
+  vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
 
-  // Adjust so the range this->MinimumU ... this->ParametricFunction->GetMaximumU(), this->MinimumV
-  // ... this->ParametricFunction->GetMaximumV() is included in the triangulation.
+  // Adjust so the ranges:
+  // this->MinimumU ... this->ParametricFunction->GetMaximumU(),
+  // this->MinimumV ... this->ParametricFunction->GetMaximumV()
+  // are included in the triangulation.
   double MaxU = this->ParametricFunction->GetMaximumU() +
     (this->ParametricFunction->GetMaximumU() - this->ParametricFunction->GetMinimumU()) /
     (this->UResolution-1);
@@ -288,22 +288,23 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   int totPts = PtsU * PtsV;
 
   // Scalars associated with each point
-  vtkFloatArray * sval = vtkFloatArray::New();
-  sval->SetNumberOfTuples( totPts );
+  vtkSmartPointer<vtkFloatArray> sval = vtkSmartPointer<vtkFloatArray>::New();
+  sval->SetNumberOfTuples(totPts);
+  sval->SetName("Scalars");
 
   // The normals to the surface
-  vtkFloatArray * nval = vtkFloatArray::New();
+  vtkSmartPointer<vtkFloatArray> nval = vtkSmartPointer<vtkFloatArray>::New();
   nval->SetNumberOfComponents(3);
   nval->SetNumberOfTuples(totPts);
+  nval->SetName("Normals");
 
   // Texture coordinates
-  double tc[2];
-  vtkFloatArray *newTCoords;
-  newTCoords = vtkFloatArray::New();
+  vtkSmartPointer<vtkFloatArray> newTCoords = vtkSmartPointer<vtkFloatArray>::New();
   newTCoords->SetNumberOfComponents(2);
   newTCoords->Allocate(2*totPts);
+  newTCoords->SetName("Textures");
 
-  vtkPoints * points = vtkPoints::New();
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
@@ -355,6 +356,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
     uv[0] += uStep;
     uv[1] = this->ParametricFunction->GetMinimumV() - vStep;
 
+    double tc[2];
     if ( this->GenerateTextureCoordinates != 0 )
       {
       tc[0] = i/MaxI;
@@ -495,7 +497,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
     }
 
   // Make the triangle strips
-  vtkCellArray * strips = vtkCellArray::New();
+  vtkSmartPointer<vtkCellArray> strips = vtkSmartPointer<vtkCellArray>::New();
   // This is now a list of ID's defining the triangles.
   this->MakeTriangleStrips ( strips, PtsU, PtsV );
 
@@ -513,9 +515,9 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
     }
   pd->Modified();
 
-  vtkTriangleFilter * tri = vtkTriangleFilter::New();
-  vtkPolyDataNormals * norm = vtkPolyDataNormals::New();
-  if ( this->ParametricFunction->GetDerivativesAvailable() )
+  vtkSmartPointer<vtkTriangleFilter> tri = vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkSmartPointer<vtkPolyDataNormals> norm = vtkSmartPointer<vtkPolyDataNormals>::New();
+  if (this->ParametricFunction->GetDerivativesAvailable())
     {
     //Generate polygons from the triangle strips
     tri->SetInputData(pd);
@@ -539,16 +541,6 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
     {
     outData->GetPointData()->SetTCoords( newTCoords );
     }
-
-  // Were done, clean up.
-  points->Delete();
-  sval->Delete();
-  nval->Delete();
-  newTCoords->Delete();
-  strips->Delete();
-  pd->Delete();
-  tri->Delete();
-  norm->Delete();
 }
 
 /*

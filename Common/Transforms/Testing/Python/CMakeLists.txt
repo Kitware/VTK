@@ -1,5 +1,7 @@
-vtk_add_test_python(MatrixToTransform.py)
-vtk_add_test_python(TestThinPlateWarp.py)
-vtk_add_test_python(TestThinPlateWarp3D.py)
-vtk_add_test_python(cylindrical.py)
-vtk_add_test_python(spherical.py)
+vtk_add_test_python(
+  MatrixToTransform.py
+  TestThinPlateWarp.py
+  TestThinPlateWarp3D.py
+  cylindrical.py
+  spherical.py
+  )

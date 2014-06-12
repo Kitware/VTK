@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestButterflyScalars.cxx
   TestNamedColorsIntegration.cxx
   TestPolyDataPointSampler.cxx
@@ -7,4 +7,4 @@ vtk_add_test_cxx(
   TestRotationalExtrusion.cxx
   TestSelectEnclosedPoints.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

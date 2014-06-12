@@ -276,7 +276,6 @@ void vtkCellLocatorInterpolatedVelocityField::CopyParameters
   ( vtkAbstractInterpolatedVelocityField * from )
 {
   vtkAbstractInterpolatedVelocityField::CopyParameters( from );
-  cout<<"XXXXXXXXXXXXXXXXXXXXXX Copy XXXXXXXXXXXXXXXXXXXXXXXXXX"<<endl;
 
   if (  from->IsA( "vtkCellLocatorInterpolatedVelocityField" )  )
     {

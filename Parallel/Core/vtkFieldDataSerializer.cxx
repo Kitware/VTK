@@ -12,15 +12,16 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-#include "vtkFieldDataSerializer.h"
-#include "vtkObjectFactory.h"
-#include "vtkFieldData.h"
 #include "vtkDataArray.h"
+#include "vtkFieldData.h"
+#include "vtkFieldDataSerializer.h"
 #include "vtkIdList.h"
-#include "vtkStructuredData.h"
-#include "vtkStringArray.h"
 #include "vtkIntArray.h"
 #include "vtkMultiProcessStream.h"
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
+#include "vtkStructuredData.h"
+#include "vtkStructuredExtent.h"
 
 #include <cassert> // For assert()
 #include <cstring> // For memcpy
@@ -222,6 +223,63 @@ void vtkFieldDataSerializer::SerializeSubExtent(
 }
 
 //------------------------------------------------------------------------------
+void vtkFieldDataSerializer::DeSerializeToSubExtent(
+      int subext[6], int gridExtent[6], vtkFieldData* fieldData,
+      vtkMultiProcessStream& bytestream)
+{
+  assert("pre: sub-extent outside grid-extent" &&
+          vtkStructuredExtent::Smaller(subext,gridExtent));
+
+  if( fieldData == NULL )
+    {
+    vtkGenericWarningMacro("Field data is NULL!");
+    return;
+    }
+
+  int numArrays = 0;
+  bytestream >> numArrays;
+  assert("post: numArrays mismatch!" &&
+         (numArrays==fieldData->GetNumberOfArrays()) );
+
+  int ijk[3];
+  for( int array=0; array < numArrays; ++array )
+    {
+    vtkDataArray* dataArray = NULL;
+    vtkFieldDataSerializer::DeserializeDataArray(bytestream,dataArray);
+    assert("post: dataArray is NULL!" && (dataArray != NULL) );
+    assert("post: fieldData does not have array!" &&
+            fieldData->HasArray(dataArray->GetName()));
+
+    vtkDataArray* targetArray = fieldData->GetArray( dataArray->GetName() );
+    assert("post: ncomp mismatch!" &&
+    (dataArray->GetNumberOfComponents()==targetArray->GetNumberOfComponents()));
+
+    for(ijk[0]=subext[0]; ijk[0] <= subext[1]; ++ijk[0])
+      {
+      for(ijk[1]=subext[2]; ijk[1] <= subext[3]; ++ijk[1])
+        {
+        for(ijk[2]=subext[4]; ijk[2] <= subext[5]; ++ijk[2])
+          {
+          vtkIdType sourceIdx =
+              vtkStructuredData::ComputePointIdForExtent(subext,ijk);
+          assert("post: sourceIdx out-of-bounds!" && (sourceIdx >= 0) &&
+                  (sourceIdx < dataArray->GetNumberOfTuples()) );
+
+          vtkIdType targetIdx =
+              vtkStructuredData::ComputePointIdForExtent(gridExtent,ijk);
+          assert("post: targetIdx out-of-bounds!" && (targetIdx >= 0) &&
+                  (targetIdx < targetArray->GetNumberOfTuples()) );
+
+          targetArray->SetTuple(targetIdx,sourceIdx,dataArray);
+          } // END for all k
+        } // END for all j
+      } // END for all i
+
+    dataArray->Delete();
+    } // END for all arrays
+}
+
+//------------------------------------------------------------------------------
 vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
     int subext[6], int gridExtent[6], vtkDataArray *inputDataArray )
 {
@@ -240,7 +298,7 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
   subSetArray->SetName( inputDataArray->GetName() );
   subSetArray->SetNumberOfComponents( inputDataArray->GetNumberOfComponents());
   subSetArray->SetNumberOfTuples(
-      vtkStructuredData::GetNumberOfNodes(subext,description));
+      vtkStructuredData::GetNumberOfPoints(subext,description));
 
   int ijk[3];
   for( ijk[0]=subext[0]; ijk[0] <= subext[1]; ++ijk[0] )

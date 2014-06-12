@@ -51,6 +51,11 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
       vtkGetMacro(NumberOfGhostLayers,int);
       vtkSetMacro(NumberOfGhostLayers,int);
 
+      // Description:
+      vtkGetMacro(DuplicateNodes,int);
+      vtkSetMacro(DuplicateNodes,int);
+      vtkBooleanMacro(DuplicateNodes,int);
+
   protected:
     vtkUniformGridPartitioner();
     virtual ~vtkUniformGridPartitioner();
@@ -63,6 +68,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
 
     int NumberOfPartitions;
     int NumberOfGhostLayers;
+    int DuplicateNodes;
   private:
     vtkUniformGridPartitioner(const vtkUniformGridPartitioner &); // Not implemented
     void operator=(const vtkUniformGridPartitioner &); // Not implemented

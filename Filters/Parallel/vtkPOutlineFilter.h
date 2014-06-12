@@ -45,7 +45,6 @@ protected:
   vtkMultiProcessController* Controller;
   vtkOutlineSource *OutlineSource;
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:

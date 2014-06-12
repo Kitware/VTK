@@ -17,6 +17,11 @@
 #include "vtkContingencyStatistics.h"
 
 //=============================================================================
+// When changing this file, change the corresponding file in
+// StatisticsGnuR/Testing/Cxx as well.
+//=============================================================================
+
+//=============================================================================
 int TestContingencyStatistics( int, char *[] )
 {
   int testStatus = 0;

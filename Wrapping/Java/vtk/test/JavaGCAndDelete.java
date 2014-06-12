@@ -12,32 +12,32 @@ import vtk.vtkPolyDataMapper;
  */
 public class JavaGCAndDelete {
 
-	public static void main(final String[] args) {
-	    vtkJavaTesting.Initialize(args);
-	    long timeout = System.currentTimeMillis() + 60000; // +1 minute
-		int i = 0;
-		int k = 0;
-		while (System.currentTimeMillis() < timeout) {
-			final vtkArrowSource arrowSource = new vtkArrowSource();
-			final vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-			mapper.SetInputConnection(arrowSource.GetOutputPort());
-			final vtkActor actor = new vtkActor();
-			actor.SetMapper(mapper);
+  public static void main(final String[] args) {
+    vtkJavaTesting.Initialize(args);
+    long timeout = System.currentTimeMillis() + 60000; // +1 minute
+    int i = 0;
+    int k = 0;
+    while (System.currentTimeMillis() < timeout) {
+      final vtkArrowSource arrowSource = new vtkArrowSource();
+      final vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+      mapper.SetInputConnection(arrowSource.GetOutputPort());
+      final vtkActor actor = new vtkActor();
+      actor.SetMapper(mapper);
 
-			arrowSource.GetOutput().Delete();
-			arrowSource.Delete();
-            mapper.Delete();
-            actor.Delete();
+      arrowSource.GetOutput().Delete();
+      arrowSource.Delete();
+      mapper.Delete();
+      actor.Delete();
 
-			++i;
-			if (i >= 10000) {
-				++k;
-				System.out.println(vtkObject.JAVA_OBJECT_MANAGER.gc(true).listKeptReferenceToString());
-				System.out.println(k * 10000);
-				i = 0;
-			}
-		}
-		vtkJavaTesting.Exit(vtkJavaTesting.PASSED);
-	}
+      ++i;
+      if (i >= 10000) {
+        ++k;
+        System.out.println(vtkObject.JAVA_OBJECT_MANAGER.gc(true).listKeptReferenceToString());
+        System.out.println(k * 10000);
+        i = 0;
+      }
+    }
+    vtkJavaTesting.Exit(vtkJavaTesting.PASSED);
+  }
 
 }

@@ -12,12 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransmitPolyDataPiece - Return specified piece, including specified
-// number of ghost levels.
+// .NAME vtkTransmitRectilinearGridPiece - Redistributes data produced
+// by serial readers
+//
 // .SECTION Description
-// This filter updates the appropriate piece by requesting the piece from
-// process 0.  Process 0 always updates all of the data.  It is important that
-// Execute get called on all processes, otherwise the filter will deadlock.
+// This filter can be used to redistribute data from producers that can't
+// produce data in parallel. All data is produced on first process and
+// the distributed to others using the multiprocess controller.
 
 
 #ifndef __vtkTransmitPolyDataPiece_h
@@ -55,8 +56,6 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void RootExecute(vtkPolyData *input, vtkPolyData *output, vtkInformation *outInfo);
   void SatelliteExecute(int procId, vtkPolyData *output, vtkInformation *outInfo);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int CreateGhostCells;
   vtkMultiProcessController *Controller;

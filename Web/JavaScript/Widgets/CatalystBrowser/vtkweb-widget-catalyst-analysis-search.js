@@ -173,6 +173,7 @@
         }
 
         resultContainer.empty()[0].innerHTML = imageList.join('');
+        $('.toggle-stats', container).addClass('stats');
         $('.zoom-level', container).trigger('change');
         $('.query-result', container).click(function(){
             var me = $(this), img = $('img', me), url = me.attr('data-url');

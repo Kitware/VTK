@@ -20,6 +20,11 @@
 #include "vtkDescriptiveStatistics.h"
 
 //=============================================================================
+// When changing this file, change the corresponding file in
+// StatisticsGnuR/Testing/Cxx as well.
+//=============================================================================
+
+//=============================================================================
 int TestDescriptiveStatistics( int, char *[] )
 {
   int testStatus = 0;

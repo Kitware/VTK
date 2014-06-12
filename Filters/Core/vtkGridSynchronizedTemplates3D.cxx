@@ -18,7 +18,6 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkInformation.h"
@@ -54,10 +53,6 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
   this->GenerateTriangles = 1;
-
-  this->ExecuteExtent[0] = this->ExecuteExtent[1]
-    = this->ExecuteExtent[2] = this->ExecuteExtent[3]
-    = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
 
   this->MinimumPieceSize[0] = 10;
   this->MinimumPieceSize[1] = 10;
@@ -799,11 +794,27 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 
 //----------------------------------------------------------------------------
 // Contouring filter specialized for images (or slices from images)
-void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
-                                                     vtkStructuredGrid *input,
+void vtkGridSynchronizedTemplates3D::ThreadedExecute(vtkStructuredGrid *input,
                                                      vtkInformationVector **inputVector,
                                                      vtkInformation *outInfo)
 {
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  int* inExt = input->GetExtent();
+
+  int exExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
+  for (int i=0; i<3; i++)
+    {
+    if (inExt[2*i] > exExt[2*i])
+      {
+      exExt[2*i] = inExt[2*i];
+      }
+    if (inExt[2*i+1] < exExt[2*i+1])
+      {
+      exExt[2*i+1] = inExt[2*i+1];
+      }
+    }
+
   vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -870,94 +881,20 @@ int vtkGridSynchronizedTemplates3D::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces;
-  int *wholeExt;
-  int ext[6];
-
-  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-
-  // Get request from output
-  piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // Start with the whole grid.
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
-
-  // get the extent associated with the piece.
-  if (translator == NULL)
-    {
-    // Default behavior
-    if (piece != 0)
-      {
-      ext[0] = ext[2] = ext[4] = 0;
-      ext[1] = ext[3] = ext[5] = -1;
-      }
-    }
-  else
-    {
-    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext,
-                                        translator->GetSplitMode(),0);
-    }
-
-  // As a side product of this call, ExecuteExtent is set.
-  // This is the region that we are really updating, although
-  // we may require a larger input region in order to generate
-  // it if normals / gradients are being computed
-
-  this->ExecuteExtent[0] = ext[0];
-  this->ExecuteExtent[1] = ext[1];
-  this->ExecuteExtent[2] = ext[2];
-  this->ExecuteExtent[3] = ext[3];
-  this->ExecuteExtent[4] = ext[4];
-  this->ExecuteExtent[5] = ext[5];
-
-  // expand if we need to compute gradients
+  // These require extra ghost levels
   if (this->ComputeGradients || this->ComputeNormals)
     {
-    ext[0] -= 1;
-    if (ext[0] < wholeExt[0])
-      {
-      ext[0] = wholeExt[0];
-      }
-    ext[1] += 1;
-    if (ext[1] > wholeExt[1])
-      {
-      ext[1] = wholeExt[1];
-      }
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-    ext[2] -= 1;
-    if (ext[2] < wholeExt[2])
-      {
-      ext[2] = wholeExt[2];
-      }
-    ext[3] += 1;
-    if (ext[3] > wholeExt[3])
-      {
-      ext[3] = wholeExt[3];
-      }
-
-    ext[4] -= 1;
-    if (ext[4] < wholeExt[4])
-      {
-      ext[4] = wholeExt[4];
-      }
-    ext[5] += 1;
-    if (ext[5] > wholeExt[5])
-      {
-      ext[5] = wholeExt[5];
-      }
+    int ghostLevels;
+    ghostLevels =
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevels + 1);
     }
 
-  // Set the update extent of the input.
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
   return 1;
 }
 
@@ -1012,7 +949,7 @@ int vtkGridSynchronizedTemplates3D::RequestData(
     }
 
   // just call the threaded execute directly.
-  this->ThreadedExecute(this->GetExecuteExtent(), 0, input, inputVector, outInfo);
+  this->ThreadedExecute(input, inputVector, outInfo);
 
   output->Squeeze();
 

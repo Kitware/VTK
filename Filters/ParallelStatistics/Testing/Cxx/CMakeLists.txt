@@ -1,16 +1,12 @@
 include(vtkMPI)
 
-vtk_add_test_mpi(TestRandomPContingencyStatisticsMPI.cxx)
-vtk_add_test_mpi(TestRandomPKMeansStatisticsMPI.cxx)
-vtk_add_test_mpi(TestRandomPMomentStatisticsMPI.cxx)
-vtk_add_test_mpi(TestRandomPOrderStatisticsMPI.cxx)
-
-vtk_mpi_link(TestRandomPContingencyStatisticsMPI)
-vtk_mpi_link(TestRandomPKMeansStatisticsMPI)
-vtk_mpi_link(TestRandomPMomentStatisticsMPI)
-vtk_mpi_link(TestRandomPOrderStatisticsMPI)
-
-# # -----------------------------------------------------------------------------
-# # The following file was being compiled but never added as a testin older
-# # vtk. Why is that so?
-# vtk_add_test_mpi(TestRealDataPDescriptiveStatisticsMPI)
+vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
+  TestRandomPContingencyStatisticsMPI.cxx
+  TestRandomPKMeansStatisticsMPI.cxx
+  TestRandomPMomentStatisticsMPI.cxx
+  TestRandomPOrderStatisticsMPI.cxx
+  # # The following file was being compiled but never added as a testin older
+  # # vtk. Why is that so?
+  # TestRealDataPDescriptiveStatisticsMPI.cxx
+  )
+vtk_test_mpi_executable(${vtk-module}CxxTests-MPI tests)

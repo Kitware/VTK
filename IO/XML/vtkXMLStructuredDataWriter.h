@@ -24,7 +24,6 @@
 #include "vtkXMLWriter.h"
 
 class vtkAbstractArray;
-class vtkExtentTranslator;
 class vtkInformation;
 class vtkInformationVector;
 
@@ -41,16 +40,22 @@ public:
   vtkGetMacro(NumberOfPieces, int);
 
   // Description:
+  // Get/Set the piece to write to the file.  If this is
+  // negative, all pieces will be written.
+  vtkSetMacro(WritePiece, int);
+  vtkGetMacro(WritePiece, int);
+
+  // Description:
+  // Get/Set the ghost level used to pad each piece.
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
+
+  // Description:
   // Get/Set the extent of the input that should be treated as the
   // WholeExtent in the output file.  The default is the WholeExtent
   // of the input.
   vtkSetVector6Macro(WriteExtent, int);
   vtkGetVector6Macro(WriteExtent, int);
-
-  // Description:
-  // Get/Set the extent translator used for streaming.
-  virtual void SetExtentTranslator(vtkExtentTranslator*);
-  vtkGetObjectMacro(ExtentTranslator, vtkExtentTranslator);
 
 protected:
   vtkXMLStructuredDataWriter();
@@ -70,17 +75,10 @@ protected:
   virtual void AllocatePositionArrays();
   virtual void DeletePositionArrays();
 
-  void SetupExtentTranslator();
-  vtkAbstractArray* CreateExactExtent(vtkAbstractArray* array, int* inExtent,
-                                  int* outExtent, int isPoint);
   virtual int WriteInlineMode(vtkIndent indent);
   vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
                           int i, int j, int k);
   void CalculatePieceFractions(float* fractions);
-
-  // Define utility methods required by vtkXMLWriter.
-  virtual vtkAbstractArray* CreateArrayForPoints(vtkAbstractArray* inArray);
-  virtual vtkAbstractArray* CreateArrayForCells(vtkAbstractArray* inArray);
 
   void SetInputUpdateExtent(int piece);
   int ProcessRequest(vtkInformation* request,
@@ -98,12 +96,15 @@ protected:
   // Number of pieces used for streaming.
   int NumberOfPieces;
 
-  // Translate piece number to extent.
-  vtkExtentTranslator* ExtentTranslator;
+  int WritePiece;
 
   float* ProgressFractions;
 
   int CurrentPiece;
+
+  int GhostLevel;
+
+  vtkTypeInt64* ExtentPositions;
 
   // Appended data offsets of point and cell data arrays.
   // Store offset position (add TimeStep support)

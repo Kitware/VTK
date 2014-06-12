@@ -25,8 +25,8 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkProperty.h"
 #include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkImageActor.h"
 #include "vtkImageMapper3D.h"
 #include "vtkVolume16Reader.h"
@@ -40,6 +40,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetEvent.h"
 #include "vtkEvent.h"
+#include "vtkTesting.h"
 
 int TestOrientedGlyphContour( int argc, char *argv[] )
 {
@@ -142,10 +143,13 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
     vtkCommand::KeyPressEvent,
     vtkEvent::NoModifier, 103, 0, "g",
     vtkWidgetEvent::AddFinalPoint );
-
+  eventTranslator->SetTranslation(
+    vtkCommand::RightButtonPressEvent,
+    vtkWidgetEvent::Translate );
   contourWidget->On();
 
   contourRep->SetPointPlacer( placer );
+//  contourRep->AlwaysOnTopOn();
 
   placer->SetProjectionNormalToZAxis();
   placer->SetProjectionPosition(imageActor->GetCenter()[2]);
@@ -155,10 +159,11 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   placer->AddBoundingPlane(p3);
   placer->AddBoundingPlane(p4);
 
+
   iren->Initialize();
+  renWin->Render();
+  int retVal = vtkTesting::InteractorEventLoop(
+    argc, argv, iren);
 
-  iren->Start();
-
-  return EXIT_SUCCESS;
-
+  return retVal;
 }

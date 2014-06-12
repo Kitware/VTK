@@ -18,12 +18,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkMultiProcessController.h"
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkErrorCode.h"
 
 vtkStandardNewMacro(vtkPDataSetWriter);
+
+vtkCxxSetObjectMacro(vtkPDataSetWriter,
+                     Controller,
+                     vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkPDataSetWriter::vtkPDataSetWriter()
@@ -36,12 +41,16 @@ vtkPDataSetWriter::vtkPDataSetWriter()
   this->FilePattern = NULL;
   this->SetFilePattern("%s.%d.vtk");
   this->UseRelativeFileNames = 1;
+
+  this->Controller = 0;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPDataSetWriter::~vtkPDataSetWriter()
 {
   this->SetFilePattern(NULL);
+  this->SetController(0);
 }
 
 
@@ -139,8 +148,71 @@ int vtkPDataSetWriter::Write()
       }
     }
 
-  // Lets write the toplevel file.
-  if (this->StartPiece == 0)
+
+  // Restore the fileRoot to the full path.
+  strncpy(fileRoot, this->FileName, length);
+  fileRoot[length] = '\0';
+  // Trim off the pvtk extension.
+  if (strncmp(fileRoot+length-5, ".pvtk", 5) == 0)
+    {
+    fileRoot[length-5] = '\0';
+    }
+  if (strncmp(fileRoot+length-4, ".vtk", 4) == 0)
+    {
+    fileRoot[length-4] = '\0';
+    }
+
+  this->UpdateInformation();
+
+  // Now write the pieces assigned to this writer.
+  vtkDataSetWriter *writer = vtkDataSetWriter::New();
+  writer->SetFileTypeToBinary();
+  vtkDataObject *copy;
+  for (i = this->StartPiece; i <= this->EndPiece; ++i)
+    {
+    sprintf(fileName, this->FilePattern, fileRoot, i);
+    writer->SetFileName(fileName);
+    inputAlg->SetUpdateExtent(inputAlgPort,
+                              i, this->NumberOfPieces, this->GhostLevel);
+    inputAlg->Update();
+
+    // Store the extent of this piece in Extents. This is later used
+    // to write the extents in the pvtk file.
+    vtkInformation* info = input->GetInformation();
+    int* ext = 0;
+    if (info->Has(vtkDataObject::DATA_EXTENT()))
+      {
+      ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+      }
+    if (ext)
+      {
+      this->Extents[i] = std::vector<int>(ext, ext+6);
+      }
+
+    copy = input->NewInstance();
+    copy->ShallowCopy(input);
+    // I am putting this in here because shallow copy does not copy the
+    // UpdateExtentInitializedFlag, and I do not want to touch ShallowCopy
+    // in ParaViews release.
+    // copy->Crop(vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+    //              this->GetInputInformation()));
+    writer->SetInputData(vtkDataSet::SafeDownCast(copy));
+    writer->Write();
+    copy->Delete();
+    copy = NULL;
+    if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DeleteFiles();
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      break;
+      }
+    }
+  writer->Delete();
+  writer = NULL;
+
+    // Lets write the toplevel file.
+  if (this->StartPiece == 0 &&
+      (!this->Controller || this->Controller->GetLocalProcessId() == 0))
     {
     fptr = this->OpenFile();
     if (fptr == NULL)
@@ -164,7 +236,6 @@ int vtkPDataSetWriter::Write()
       return 0;
       }
 
-    inputAlg->UpdateInformation();
     switch (input->GetDataObjectType())
       {
       case VTK_POLY_DATA:
@@ -226,50 +297,6 @@ int vtkPDataSetWriter::Write()
     delete fptr;
     }
 
-  // Restore the fileRoot to the full path.
-  strncpy(fileRoot, this->FileName, length);
-  fileRoot[length] = '\0';
-  // Trim off the pvtk extension.
-  if (strncmp(fileRoot+length-5, ".pvtk", 5) == 0)
-    {
-    fileRoot[length-5] = '\0';
-    }
-  if (strncmp(fileRoot+length-4, ".vtk", 4) == 0)
-    {
-    fileRoot[length-4] = '\0';
-    }
-
-  // Now write the pieces assigned to this writer.
-  vtkDataSetWriter *writer = vtkDataSetWriter::New();
-  writer->SetFileTypeToBinary();
-  vtkDataObject *copy;
-  for (i = this->StartPiece; i <= this->EndPiece; ++i)
-    {
-    sprintf(fileName, this->FilePattern, fileRoot, i);
-    writer->SetFileName(fileName);
-    inputAlg->SetUpdateExtent(inputAlgPort,
-                              i, this->NumberOfPieces, this->GhostLevel);
-    inputAlg->Update();
-    copy = input->NewInstance();
-    copy->ShallowCopy(input);
-    // I am putting this in here because shallow copy does not copy the
-    // UpdateExtentInitializedFlag, and I do not want to touch ShallowCopy
-    // in ParaViews release.
-    copy->Crop(vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
-                 this->GetInputInformation()));
-    writer->SetInputData(vtkDataSet::SafeDownCast(copy));
-    writer->Write();
-    copy->Delete();
-    copy = NULL;
-    if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
-      {
-      this->DeleteFiles();
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      break;
-      }
-    }
-  writer->Delete();
-  writer = NULL;
   delete [] fileName;
   delete [] fileRoot;
 
@@ -306,12 +333,9 @@ int vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
 int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
                                           char *root, char *str, ostream *fptr)
 {
-  int i;
   int *pi;
   double *pf;
   vtkInformation* inInfo = this->GetInputInformation();
-  int inputAlgPort;
-  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
@@ -332,11 +356,85 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
   // some processes.
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
 
-  for (i = 0; i < this->NumberOfPieces; ++i)
+  // The code below gathers extens from all processes to write in the
+  // meta-file. Note that the extent of each piece was already stored by
+  // each writer. This is gathering it all to root node.
+  if (this->Controller)
     {
-    inputAlg->SetUpdateExtent(inputAlgPort,
-                              i, this->NumberOfPieces, this->GhostLevel);
-    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+    // Even though the logic is pretty straightforward, we need to
+    // do a fair amount of work to use GatherV. Each rank simply
+    // serializes its extents to 7 int blocks - piece number and 6
+    // extent values. Then we gather this all to root.
+    int rank = this->Controller->GetLocalProcessId();
+    int nRanks = this->Controller->GetNumberOfProcesses();
+
+    int nPiecesTotal = 0;
+    vtkIdType nPieces = this->Extents.size();
+
+    vtkIdType* offsets = 0;
+    vtkIdType* nPiecesAll = 0;
+    vtkIdType* recvLengths = 0;
+    if (rank == 0)
+      {
+      nPiecesAll = new vtkIdType[nRanks];
+      recvLengths = new vtkIdType[nRanks];
+      offsets = new vtkIdType[nRanks];
+      }
+    this->Controller->Gather(&nPieces, nPiecesAll, 1, 0);
+    if (rank == 0)
+      {
+      for (int i=0; i<nRanks; i++)
+        {
+        offsets[i] = nPiecesTotal*7;
+        nPiecesTotal += nPiecesAll[i];
+        recvLengths[i] = nPiecesAll[i]*7;
+        }
+      }
+    int* sendBuffer = 0;
+    int sendSize = nPieces*7;
+    if (nPieces > 0)
+      {
+      sendBuffer = new int[sendSize];
+      ExtentsType::iterator iter = this->Extents.begin();
+      for (int count = 0; iter != this->Extents.end(); iter++, count++)
+        {
+        sendBuffer[count*7] = iter->first;
+        memcpy(&sendBuffer[count*7+1], &iter->second[0], 6*sizeof(int));
+        }
+      }
+    int* recvBuffer = 0;
+    if (rank == 0)
+      {
+      recvBuffer = new int[nPiecesTotal*7];
+      }
+    this->Controller->GatherV(sendBuffer, recvBuffer, sendSize,
+      recvLengths, offsets, 0);
+
+    if (rank == 0)
+      {
+      // Add all received values to Extents.
+      // These are later written in WritePPieceAttributes()
+      for (int i=1; i<nRanks; i++)
+        {
+        for (int j=0; j<nPiecesAll[i]; j++)
+          {
+          int* buffer = recvBuffer + offsets[i] + j*7;
+          this->Extents[*buffer] =
+            std::vector<int>(buffer+1, buffer+7);
+          }
+        }
+      }
+
+    delete[] nPiecesAll;
+    delete[] recvBuffer;
+    delete[] offsets;
+    delete[] recvLengths;
+    delete[] sendBuffer;
+    }
+
+  for (int i = 0; i < this->NumberOfPieces; ++i)
+    {
+    pi = &this->Extents[i][0];
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
@@ -357,8 +455,6 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
 {
   int i;
   int *pi;
-  int inputAlgPort;
-  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
@@ -374,10 +470,7 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    inputAlg->SetUpdateExtent(inputAlgPort,
-                              i, this->NumberOfPieces, this->GhostLevel);
-    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
-      this->GetInputInformation());
+    pi = &this->Extents[i][0];
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
@@ -399,8 +492,6 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
 {
   int i;
   int *pi;
-  int inputAlgPort;
-  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
@@ -416,10 +507,7 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    inputAlg->SetUpdateExtent(inputAlgPort,
-                              i, this->NumberOfPieces, this->GhostLevel);
-    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
-      this->GetInputInformation());
+    pi = &this->Extents[i][0];
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "

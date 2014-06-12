@@ -124,7 +124,8 @@ public:
   void GenerateValues(int numContours, double rangeStart, double rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
-  void ThreadedExecute(vtkImageData *data, vtkInformation *inInfo,
+  void ThreadedExecute(vtkImageData *data,
+                       vtkInformation *inInfo,
                        vtkInformation *outInfo,
                        vtkDataArray *inScalars);
 
@@ -156,8 +157,6 @@ protected:
   int ArrayComponent;
 
   int GenerateTriangles;
-
-  static vtkInformationIntegerVectorKey* EXECUTE_EXTENT();
 
 private:
   vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&);  // Not implemented.

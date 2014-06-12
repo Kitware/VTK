@@ -1,6 +1,8 @@
-vtk_add_test_python(ExtractEdgesQuadraticCells.py)
-vtk_add_test_python(ExtractTensors.py)
-vtk_add_test_python(extractPolyData.py)
-vtk_add_test_python(extractRectGrid.py)
-vtk_add_test_python(extractUGrid.py)
-vtk_add_test_python(extractVectors.py)
+vtk_add_test_python(
+  ExtractEdgesQuadraticCells.py
+  ExtractTensors.py
+  extractPolyData.py
+  extractRectGrid.py
+  extractUGrid.py
+  extractVectors.py
+  )

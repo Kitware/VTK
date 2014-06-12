@@ -1,1 +1,4 @@
-vtk_add_test_python(TestGeoJSONWriter.py NO_VALID)
+vtk_add_test_python(
+  NO_VALID
+  TestGeoJSONWriter.py
+  )

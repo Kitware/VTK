@@ -102,8 +102,10 @@ int TestImageResliceMapperSlab(int argc, char* argv[])
     else
       {
       imageMapper->ResampleToScreenPixelsOff();
-      imageMapper->SetSlabType(VTK_IMAGE_SLAB_MEAN);
+      imageMapper->SetSlabTypeToSum();
       imageMapper->SetSlabThickness(100);
+      image->GetProperty()->SetColorWindow(2000*100);
+      image->GetProperty()->SetColorLevel(1000*100);
       camera->Azimuth(91);
       camera->Roll(90);
       }

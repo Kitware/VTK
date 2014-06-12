@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   # TestAssignCoordinates.cxx # todo (unsatisfied deps)
   TestChacoGraphReader.cxx
   TestCirclePackLayoutStrategy.cxx
@@ -7,5 +7,4 @@ vtk_add_test_cxx(
   TestIncrementalForceLayout.cxx,NO_VALID
   TestTreeMapLayoutStrategy.cxx
   )
-
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)

@@ -1,42 +1,44 @@
-vtk_add_test_tcl(Canny)
-vtk_add_test_tcl(TestClipClosedSurface)
-vtk_add_test_tcl(TestMultiBlockStreamer)
-vtk_add_test_tcl(TestSplineFilter)
-vtk_add_test_tcl(WarpVectorImage)
-vtk_add_test_tcl(blankGrid)
-vtk_add_test_tcl(clipComb)
-vtk_add_test_tcl(clipImage)
-vtk_add_test_tcl(cursor3D)
-vtk_add_test_tcl(dicer)
-vtk_add_test_tcl(edgePoints)
-vtk_add_test_tcl(mcubes)
-vtk_add_test_tcl(recursiveDC)
-vtk_add_test_tcl(spatialRepAll)
-vtk_add_test_tcl(splitVectors)
-vtk_add_test_tcl(streamTracer)
-vtk_add_test_tcl(testDataSetTriangleFilter)
-vtk_add_test_tcl(testDataSetTriangleFilter2)
-vtk_add_test_tcl(warplens)
-vtk_add_test_tcl(OBBCylinder)
-vtk_add_test_tcl(TestCellDerivs)
-vtk_add_test_tcl(TestClipOutline)
-vtk_add_test_tcl(TestCurvatures)
-vtk_add_test_tcl(TestDiscreteMarchingCubes)
-vtk_add_test_tcl(TestGraphLayoutFilter)
-vtk_add_test_tcl(TestRandomAttributeGenerator)
-vtk_add_test_tcl(TestRectilinearGridToTetrahedra)
-vtk_add_test_tcl(WarpScalarImage)
-vtk_add_test_tcl(WarpToImage)
-vtk_add_test_tcl(clipQuadraticCells)
-vtk_add_test_tcl(clipVolume)
-vtk_add_test_tcl(clipVolume2)
-vtk_add_test_tcl(clipVolume3)
-vtk_add_test_tcl(contoursToSurface)
-vtk_add_test_tcl(cursor2D)
-vtk_add_test_tcl(subPixelPositionMin)
-vtk_add_test_tcl(testReflect)
+vtk_add_test_tcl(
+  Canny.tcl
+  TestClipClosedSurface.tcl
+  TestMultiBlockStreamer.tcl
+  TestSplineFilter.tcl
+  WarpVectorImage.tcl
+  blankGrid.tcl
+  clipComb.tcl
+  clipImage.tcl
+  cursor3D.tcl
+  dicer.tcl
+  edgePoints.tcl
+  mcubes.tcl
+  recursiveDC.tcl
+  spatialRepAll.tcl
+  splitVectors.tcl
+  streamTracer.tcl
+  testDataSetTriangleFilter.tcl
+  testDataSetTriangleFilter2.tcl
+  warplens.tcl
+  OBBCylinder.tcl
+  TestCellDerivs.tcl
+  TestClipOutline.tcl
+  TestCurvatures.tcl
+  TestDiscreteMarchingCubes.tcl
+  TestGraphLayoutFilter.tcl
+  TestRandomAttributeGenerator.tcl
+  TestRectilinearGridToTetrahedra.tcl
+  WarpScalarImage.tcl
+  WarpToImage.tcl
+  clipQuadraticCells.tcl
+  clipVolume.tcl
+  clipVolume2.tcl
+  clipVolume3.tcl
+  contoursToSurface.tcl
+  cursor2D.tcl
+  subPixelPositionMin.tcl
+  testReflect.tcl
 
-vtk_add_test_tcl(clipHex)
-vtk_add_test_tcl(clipPyramid)
-vtk_add_test_tcl(clipTet)
-vtk_add_test_tcl(clipWedge)
+  clipHex.tcl
+  clipPyramid.tcl
+  clipTet.tcl
+  clipWedge.tcl
+  )

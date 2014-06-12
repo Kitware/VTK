@@ -15,12 +15,15 @@
 #include "vtkExtractVOI.h"
 
 #include "vtkCellData.h"
+#include "vtkExtractStructuredGridHelper.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredData.h"
+
 
 vtkStandardNewMacro(vtkExtractVOI);
 
@@ -31,198 +34,153 @@ vtkExtractVOI::vtkExtractVOI()
   this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_INT_MAX;
 
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
+  this->IncludeBoundary = 0;
+
+  this->Internal = vtkExtractStructuredGridHelper::New();
 }
 
+//------------------------------------------------------------------------------
+vtkExtractVOI::~vtkExtractVOI()
+{
+  if( this->Internal != NULL )
+    {
+    this->Internal->Delete();
+    }
+}
+
+//------------------------------------------------------------------------------
 int vtkExtractVOI::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  int i;
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  int i, ext[6], voi[6];
-  int *inWholeExt, *outWholeExt, *updateExt;
-  int rate[3];
-
-  inWholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  outWholeExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  updateExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-
-  for (i = 0; i < 3; ++i)
+  bool emptyExtent = false;
+  int uExt[6];
+  for (i=0; i<3; i++)
     {
-    rate[i] = this->SampleRate[i];
-    if (rate[i] < 1)
+    if (this->Internal->GetSize(i) < 1)
       {
-      rate[i] = 1;
+      uExt[0] = uExt[2] = uExt[4] = 0;
+      uExt[1] = uExt[3] = uExt[5] = -1;
+      emptyExtent = true;
+      break;
       }
     }
 
-  // Once again, clip the VOI with the input whole extent.
-  for (i = 0; i < 3; ++i)
+  if (!emptyExtent)
     {
-    voi[i*2] = this->VOI[2*i];
-    if (voi[2*i] < inWholeExt[2*i])
+    // Find input update extent based on requested output
+    // extent
+    int oUExt[6];
+    outputVector->GetInformationObject(0)->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), oUExt);
+
+    if( (this->SampleRate[0]==1) &&
+        (this->SampleRate[1]==1) &&
+        (this->SampleRate[2]==1)  )
       {
-      voi[2*i] = inWholeExt[2*i];
-      }
-    voi[i*2+1] = this->VOI[2*i+1];
-    if (voi[2*i+1] > inWholeExt[2*i+1])
+      memcpy(uExt,oUExt,sizeof(int)*6);
+      } // END if sub-sampling
+    else
       {
-      voi[2*i+1] = inWholeExt[2*i+1];
-      }
-    }
+      for (i=0; i<3; i++)
+        {
+        int idx = oUExt[2*i];
+        if (idx < 0 || oUExt[2*i] >= (int)this->Internal->GetSize(i))
+          {
+          vtkWarningMacro("Requested extent outside whole extent.")
+          idx = 0;
+          }
+        uExt[2*i] = this->Internal->GetMapping(i,idx);
+        int jdx = oUExt[2*i+1];
+        if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
+          {
+          vtkWarningMacro("Requested extent outside whole extent.")
+          jdx = 0;
+          }
+        uExt[2*i + 1] = this->Internal->GetMapping(i,jdx);
+        }
+      } // END else if sub-sampling
 
-  ext[0] = voi[0] + (updateExt[0]-outWholeExt[0])*rate[0];
-  ext[1] = voi[0] + (updateExt[1]-outWholeExt[0])*rate[0];
-  if (ext[1] > voi[1])
-    {
-    ext[1] = voi[1];
-    }
-  ext[2] = voi[2] + (updateExt[2]-outWholeExt[2])*rate[1];
-  ext[3] = voi[2] + (updateExt[3]-outWholeExt[2])*rate[1];
-  if (ext[3] > voi[3])
-    {
-    ext[3] = voi[3];
-    }
-  ext[4] = voi[4] + (updateExt[4]-outWholeExt[4])*rate[2];
-  ext[5] = voi[4] + (updateExt[5]-outWholeExt[4])*rate[2];
-  if (ext[5] > voi[5])
-    {
-    ext[5] = voi[5];
-    }
+    } // END if extent is not empty
 
-  // I do not think we need this extra check, but it cannot hurt.
-  if (ext[0] < inWholeExt[0])
-    {
-    ext[0] = inWholeExt[0];
-    }
-  if (ext[1] > inWholeExt[1])
-    {
-    ext[1] = inWholeExt[1];
-    }
-
-  if (ext[2] < inWholeExt[2])
-    {
-    ext[2] = inWholeExt[2];
-    }
-  if (ext[3] > inWholeExt[3])
-    {
-    ext[3] = inWholeExt[3];
-    }
-
-  if (ext[4] < inWholeExt[4])
-    {
-    ext[4] = inWholeExt[4];
-    }
-  if (ext[5] > inWholeExt[5])
-    {
-    ext[5] = inWholeExt[5];
-    }
-
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
   // We can handle anything.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
 
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkExtractVOI::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  double in_origin[3];
+  double in_spacing[3];
+  double out_spacing[3];
+  double out_origin[3];
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  int i, outDims[3], voi[6], wholeExtent[6];
-  int mins[3];
-  int rate[3];
+  int wholeExtent[6], outWholeExt[6];
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+  inInfo->Get(vtkDataObject::SPACING(),in_spacing);
+  inInfo->Get(vtkDataObject::ORIGIN(),in_origin);
 
-  double spacing[3], outSpacing[3];
-  inInfo->Get(vtkDataObject::SPACING(), spacing);
+  this->Internal->Initialize(
+      this->VOI,wholeExtent,this->SampleRate,(this->IncludeBoundary==1));
+  this->Internal->GetOutputWholeExtent(outWholeExt);
 
-  double origin[3], outOrigin[3];
-  inInfo->Get(vtkDataObject::ORIGIN(), origin );
-
-  // Copy because we need to take union of voi and whole extent.
-  for ( i=0; i < 6; i++ )
+  if( (this->SampleRate[0]==1) &&
+      (this->SampleRate[1]==1) &&
+      (this->SampleRate[2]==1) )
     {
-    voi[i] = this->VOI[i];
-    }
-
-  for ( i=0; i < 3; i++ )
+    memcpy(out_spacing,in_spacing,sizeof(double)*3);
+    memcpy(out_origin,in_origin,sizeof(double)*3);
+    memcpy(outWholeExt,this->VOI,sizeof(int)*6);
+    } // END if no sub-sampling
+  else
     {
-    // Empty request.
-    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < wholeExtent[2*i] ||
-        voi[2*i] > wholeExtent[2*i+1])
+    // Calculate out_origin and out_spacing
+    for(int dim=0; dim < 3; ++dim)
       {
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                   0,-1,0,-1,0,-1);
-      return 1;
+      out_spacing[dim] = in_spacing[dim]*this->SampleRate[dim];
+      out_origin[dim]  = in_origin[dim] + this->VOI[dim*2]*in_spacing[dim];
       }
-
-    // Make sure VOI is in the whole extent.
-    if ( voi[2*i+1] > wholeExtent[2*i+1] )
-      {
-      voi[2*i+1] = wholeExtent[2*i+1];
-      }
-    else if ( voi[2*i+1] < wholeExtent[2*i] )
-      {
-      voi[2*i+1] = wholeExtent[2*i];
-      }
-    if ( voi[2*i] > wholeExtent[2*i+1] )
-      {
-      voi[2*i] = wholeExtent[2*i+1];
-      }
-    else if ( voi[2*i] < wholeExtent[2*i] )
-      {
-      voi[2*i] = wholeExtent[2*i];
-      }
-
-    if ( (rate[i] = this->SampleRate[i]) < 1 )
-      {
-      rate[i] = 1;
-      }
-
-    outDims[i] = (voi[2*i+1] - voi[2*i]) / rate[i] + 1;
-    if ( outDims[i] < 1 )
-      {
-      outDims[i] = 1;
-      }
-    // We might as well make this work for negative extents.
-    mins[i] = static_cast<int>(floor(static_cast<float>(voi[2*i])
-                                     / static_cast<float>(rate[i])));
-
-    outSpacing[i] = spacing[i] * rate[i];
-    outOrigin[i] = origin[i] + voi[2*i]*spacing[i]-mins[i]*outSpacing[i];
-    }
-
-  // Set the whole extent of the output
-  wholeExtent[0] = mins[0];
-  wholeExtent[1] = mins[0] + outDims[0] - 1;
-  wholeExtent[2] = mins[1];
-  wholeExtent[3] = mins[1] + outDims[1] - 1;
-  wholeExtent[4] = mins[2];
-  wholeExtent[5] = mins[2] + outDims[2] - 1;
+    } // END else if sub-sampling
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               wholeExtent, 6);
-  outInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
-  outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
+               outWholeExt, 6);
+  outInfo->Set(vtkDataObject::SPACING(),out_spacing,3);
+  outInfo->Set(vtkDataObject::ORIGIN(),out_origin,3);
 
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkExtractVOI::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if( (this->SampleRate[0] < 1) ||
+      (this->SampleRate[1] < 1) ||
+      (this->SampleRate[2] < 1) )
+    {
+    vtkErrorWithObjectMacro(
+        this,"SampleRate must be >= 1 in all 3 dimenstions!");
+    }
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -233,176 +191,79 @@ int vtkExtractVOI::RequestData(
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointData *pd=input->GetPointData();
-  vtkCellData *cd=input->GetCellData();
-  vtkPointData *outPD=output->GetPointData();
-  vtkCellData *outCD=output->GetCellData();
-  vtkIdType i, j, k, uExt[6], voi[6];
-  int uExt32[6];
-
-  const vtkTypeInt32* inExt32;
-  vtkIdType inExt[6];
-
-  const vtkTypeInt32* inWholeExt32;
-  vtkIdType inWholeExt[6];
-
-  vtkIdType iIn, jIn, kIn;
-  vtkIdType outSize, jOffset, kOffset, rate[3];
-  vtkIdType idx, newIdx, newCellId;
-  vtkIdType inInc1, inInc2;
-  // Function to convert output index to input index f(i) = Rate*I + shift
-  vtkIdType shift[3];
-
-  vtkDebugMacro(<< "Extracting Grid");
-
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt32);
-  uExt[0] = uExt32[0]; uExt[1] = uExt32[1]; uExt[2] = uExt32[2];
-  uExt[3] = uExt32[3]; uExt[4] = uExt32[4]; uExt[5] = uExt32[5];
-
-  inExt32 = input->GetExtent();
-  inExt[0] = inExt32[0]; inExt[1] = inExt32[1]; inExt[2] = inExt32[2];
-  inExt[3] = inExt32[3]; inExt[4] = inExt32[4]; inExt[5] = inExt32[5];
-  inInc1 = (inExt[1]-inExt[0]+1);
-  inInc2 = inInc1*(inExt[3]-inExt[2]+1);
-
-  for (i = 0; i < 3; ++i)
+  if (input->GetNumberOfPoints() == 0)
     {
-    if ( (rate[i] = this->SampleRate[i]) < 1 )
-      {
-      rate[i] = 1;
-      }
-    }
-
-  // Clip the VOI by the input whole extent
-  inWholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  inWholeExt[0] = inWholeExt32[0];
-  inWholeExt[1] = inWholeExt32[1];
-  inWholeExt[2] = inWholeExt32[2];
-  inWholeExt[3] = inWholeExt32[3];
-  inWholeExt[4] = inWholeExt32[4];
-  inWholeExt[5] = inWholeExt32[5];
-
-  for (i = 0; i < 3; ++i)
-    {
-    voi[i*2] = this->VOI[2*i];
-    if (voi[2*i] < inWholeExt[2*i])
-      {
-      voi[2*i] = inWholeExt[2*i];
-      }
-    voi[i*2+1] = this->VOI[2*i+1];
-    if (voi[2*i+1] > inWholeExt[2*i+1])
-      {
-      voi[2*i+1] = inWholeExt[2*i+1];
-      }
-    }
-
-  // Compute the shift.
-  // The shift is necessary because the starting VOI may not be on stride boundary.
-  // We need to duplicate the computation done in
-  // ExecuteInformtation for the output whole extent.
-  // Use shift as temporary variable (output mins).
-  shift[0] = static_cast<vtkIdType>(
-    floor(static_cast<float>(voi[0])/static_cast<float>(rate[0]) ));
-  shift[1] = static_cast<vtkIdType>(
-    floor( static_cast<float>(voi[2])/static_cast<float>(rate[1]) ));
-  shift[2] = static_cast<vtkIdType>(
-    floor( static_cast<float>(voi[4])/static_cast<float>(rate[2]) ));
-  // Take the different between the output and input mins (in input coordinates).
-  shift[0] = voi[0] - (shift[0]*rate[0]);
-  shift[1] = voi[2] - (shift[1]*rate[1]);
-  shift[2] = voi[4] - (shift[2]*rate[2]);
-
-  output->SetExtent(uExt32);
-
-  // If output same as input, just pass data through
-  if ( uExt[0] <= inExt[0] && uExt[1] >= inExt[1] &&
-       uExt[2] <= inExt[2] && uExt[3] >= inExt[3] &&
-       uExt[4] <= inExt[4] && uExt[5] >= inExt[5] &&
-       rate[0] == 1 && rate[1] == 1 && rate[2] == 1)
-    {
-    output->GetPointData()->PassData(input->GetPointData());
-    output->GetCellData()->PassData(input->GetCellData());
-    vtkDebugMacro(<<"Passed data through bacause input and output are the same");
     return 1;
     }
 
-  // Allocate necessary objects
-  //
-  outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
-  outPD->CopyAllocate(pd,outSize,outSize);
-  outCD->CopyAllocate(cd,outSize,outSize);
+  // compute output spacing
+  double h[3];
+  input->GetSpacing(h);
+  h[0] *= this->SampleRate[0];
+  h[1] *= this->SampleRate[1];
+  h[2] *= this->SampleRate[2];
 
-  // Traverse input data and copy point attributes to output
-  // iIn,jIn,kIn are in input grid coordinates.
-  newIdx = 0;
-  for ( k=uExt[4]; k <= uExt[5]; ++k)
-    { // Convert out coords to in coords.
-    kIn = shift[2] + (k*rate[2]);
-    if (kIn > voi[5])
+  output->SetSpacing(h);
+
+  vtkPointData *pd    = input->GetPointData();
+  vtkCellData *cd     = input->GetCellData();
+  vtkPointData *outPD = output->GetPointData();
+  vtkCellData *outCD  = output->GetCellData();
+
+  int *inExt;
+  int *outExt;
+
+  vtkDebugMacro(<< "Extracting Grid");
+
+  // set output extent
+  inExt = input->GetExtent();
+  int begin[3];
+  int end[3];
+  this->Internal->ComputeBeginAndEnd(inExt,this->VOI,begin,end);
+
+  int inBegin[3];
+  double outOrigin[3];
+  bool useMapping = true;
+  if( (this->SampleRate[0]==1) &&
+      (this->SampleRate[1]==1) &&
+      (this->SampleRate[2]==1) )
+    {
+    // convert to a global extent w.r.t. the input extent
+    for(int dim=0; dim < 3; ++dim)
       {
-      kIn = voi[5];
+      int delta = end[ dim ]-begin[ dim ];
+      begin[ dim ] = this->VOI[ dim*2 ];
+      end[ dim ]   = begin[ dim ]+delta;
       }
-    kOffset = (kIn-inExt[4]) * inInc2;
-    for ( j=uExt[2]; j <= uExt[3]; ++j)
-      { // Convert out coords to in coords.
-      jIn = shift[1] + (j*rate[1]);
-      if (jIn > voi[3])
-        {
-        jIn = voi[3];
-        }
-      jOffset = (jIn-inExt[2]) * inInc1;
-      for ( i=uExt[0]; i <= uExt[1]; ++i)
-        { // Convert out coords to in coords.
-        iIn = shift[0] + (i*rate[0]);
-        if (iIn > voi[1])
-          {
-          iIn = voi[1];
-          }
-        idx = (iIn-inExt[0]) + jOffset + kOffset;
-        outPD->CopyData(pd, idx, newIdx++);
-        }
-      }
-    }
+    memcpy(inBegin,begin,sizeof(int)*3);
+    useMapping = false;
 
-  // Traverse input data and copy cell attributes to output
-  //
-  newCellId = 0;
-  inInc1 = (inExt[1]-inExt[0]);
-  inInc2 = inInc1*(inExt[3]-inExt[2]);
-  // This will take care of 2D and 1D cells.
-  // Each loop has to excute at least once.
-  if (uExt[4] == uExt[5])
+    // set output origin to be the same as the input
+    input->GetOrigin( outOrigin );
+    } // END if no sub-sampling
+  else
     {
-    uExt[5] = uExt[5] + 1;
-    }
-  if (uExt[2] == uExt[3])
-    {
-    uExt[3] = uExt[3] + 1;
-    }
-  if (uExt[0] == uExt[1])
-    {
-    uExt[1] = uExt[1] + 1;
-    }
-  for ( k=uExt[4]; k < uExt[5]; ++k )
-    { // Convert out coords to in coords.
-    kIn = shift[2] + (k*rate[2]);
-    kOffset = (kIn-inExt[4]) * inInc2;
-    for ( j=uExt[2]; j < uExt[3]; ++j )
-      { // Convert out coords to in coords.
-      jIn = shift[1] + (j*rate[1]);
-      jOffset = (jIn-inExt[2]) * inInc1;
-      for ( i=uExt[0]; i < uExt[1]; ++i )
-        {
-        iIn = shift[0] + (i*rate[0]);
-        idx = (iIn-inExt[0]) + jOffset + kOffset;
-        outCD->CopyData(cd, idx, newCellId++);
-        }
-      }
-    }
+    inBegin[0] = this->Internal->GetMapping(0,begin[0]);
+    inBegin[1] = this->Internal->GetMapping(1,begin[1]);
+    inBegin[2] = this->Internal->GetMapping(2,begin[2]);
+
+    // shift the origin accordingly
+    // set output origin
+    vtkIdType idx = vtkStructuredData::ComputePointIdForExtent(inExt,inBegin);
+    input->GetPoint(idx,outOrigin);
+    } // END else if sub-sampling
+
+  output->SetExtent(begin[0], end[0], begin[1], end[1], begin[2], end[2]);
+  outExt = output->GetExtent();
+  output->SetOrigin( outOrigin );
+  this->Internal->CopyPointsAndPointData(
+      inExt,outExt,pd,NULL,outPD,NULL,useMapping);
+  this->Internal->CopyCellData(inExt,outExt,cd,outCD,useMapping);
 
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -419,4 +280,6 @@ void vtkExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
                << this->SampleRate[1] << ", "
                << this->SampleRate[2] << ")\n";
 
+  os << indent << "Include Boundary: "
+      << (this->IncludeBoundary ? "On\n" : "Off\n");
 }

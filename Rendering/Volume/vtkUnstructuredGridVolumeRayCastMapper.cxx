@@ -201,6 +201,12 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     return;
     }
 
+  int inputAlgPort;
+  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
+  inputAlg->UpdateInformation();
+  inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
+  inputAlg->Update();
+
   this->Scalars = this->GetScalars(this->GetInput(), this->ScalarMode,
                                    this->ArrayAccessMode,
                                    this->ArrayId, this->ArrayName,
@@ -211,12 +217,6 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     vtkErrorMacro("Can't use the ray cast mapper without scalars!");
     return;
     }
-
-  int inputAlgPort;
-  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
-  inputAlg->UpdateInformation();
-  inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
-  inputAlg->Update();
 
   // Check to make sure we have an appropriate integrator.
   if (this->RayIntegrator)

@@ -36,6 +36,9 @@
 #include "vtkDataSetSurfaceFilter.h"
 #include <mpi.h>
 
+namespace
+{
+
 class MyProcess : public vtkProcess
 {
 public:
@@ -84,6 +87,8 @@ void MyProcess::Execute()
 
   sampler->SetInputConnection(wavelet->GetOutputPort());
   sampler->SetSamplingDimension(21,21,21); // 21 for perfect match with wavelet default extent
+  //sampler->SetUseInputBounds(0);
+  //sampler->SetCustomSamplingBounds(-10, 10, -10, 10, -10, 10);
 
   toPolyData->SetInputConnection(sampler->GetOutputPort());
 
@@ -125,7 +130,6 @@ void MyProcess::Execute()
     }
   else
     {
-
     if(sampler->GetOutput()->GetNumberOfPoints() != 0 || wavelet->GetOutput()->GetNumberOfPoints() == 0)
       {
       this->ReturnValue = 0;
@@ -133,7 +137,9 @@ void MyProcess::Execute()
     }
 }
 
-int main(int argc, char **argv)
+}
+
+int ParallelResampling(int argc, char *argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the

@@ -1,45 +1,47 @@
-vtk_add_test_python(Canny.py)
-vtk_add_test_python(OBBCylinder.py)
-vtk_add_test_python(TestCellDerivs.py)
-vtk_add_test_python(TestClipClosedSurface.py)
-vtk_add_test_python(TestClipOutline.py)
-vtk_add_test_python(TestCurvatures.py)
-vtk_add_test_python(TestDeformPointSet.py)
-vtk_add_test_python(TestDiscreteMarchingCubes.py)
-vtk_add_test_python(TestGraphLayoutFilter.py)
-vtk_add_test_python(TestMultiBlockStreamer.py)
-vtk_add_test_python(TestRectilinearGridToTetrahedra.py)
-vtk_add_test_python(TestSplineFilter.py)
-vtk_add_test_python(WarpToImage.py)
-vtk_add_test_python(blankGrid.py)
-vtk_add_test_python(clipComb.py)
-vtk_add_test_python(clipHex.py)
-vtk_add_test_python(clipImage.py)
-vtk_add_test_python(clipPyramid.py)
-vtk_add_test_python(clipQuadraticCells.py)
-vtk_add_test_python(clipTet.py)
-vtk_add_test_python(clipVolume.py)
-vtk_add_test_python(clipVolume2.py)
-vtk_add_test_python(clipVolume3.py)
-vtk_add_test_python(clipWedge.py)
-vtk_add_test_python(contoursToSurface.py)
-vtk_add_test_python(cursor3D.py)
-vtk_add_test_python(dicer.py)
-vtk_add_test_python(edgePoints.py)
-vtk_add_test_python(mcubes.py)
-vtk_add_test_python(recursiveDC.py)
-vtk_add_test_python(splitVectors.py)
-vtk_add_test_python(streamTracer.py)
-vtk_add_test_python(subPixelPositionMin.py)
-vtk_add_test_python(testDataSetTriangleFilter.py)
-vtk_add_test_python(testDataSetTriangleFilter2.py)
-vtk_add_test_python(testReflect.py)
-vtk_add_test_python(warplens.py)
-vtk_add_test_python(TestRandomAttributeGenerator.py)
-vtk_add_test_python(TestRandomAttributeGeneratorScalar.py)
-vtk_add_test_python(WarpScalarImage.py)
-vtk_add_test_python(WarpVectorImage.py)
-vtk_add_test_python(cursor2D.py)
-vtk_add_test_python(spatialRepAll.py NO_RT)
-vtk_add_test_python(pointsPrecisions.py NO_OUTPUT NO_DATA NO_VALID NO_RT)
-vtk_add_test_python(tableBasedClip.py NO_RT)
+vtk_add_test_python(
+  Canny.py
+  OBBCylinder.py
+  TestCellDerivs.py
+  TestClipClosedSurface.py
+  TestClipOutline.py
+  TestCurvatures.py
+  TestDeformPointSet.py
+  TestDiscreteMarchingCubes.py
+  TestGraphLayoutFilter.py
+  TestMultiBlockStreamer.py
+  TestRectilinearGridToTetrahedra.py
+  TestSplineFilter.py
+  WarpToImage.py
+  blankGrid.py
+  clipComb.py
+  clipHex.py
+  clipImage.py
+  clipPyramid.py
+  clipQuadraticCells.py
+  clipTet.py
+  clipVolume.py
+  clipVolume2.py
+  clipVolume3.py
+  clipWedge.py
+  contoursToSurface.py
+  cursor3D.py
+  dicer.py
+  edgePoints.py
+  mcubes.py
+  recursiveDC.py
+  splitVectors.py
+  streamTracer.py
+  subPixelPositionMin.py
+  testDataSetTriangleFilter.py
+  testDataSetTriangleFilter2.py
+  testReflect.py
+  warplens.py
+  TestRandomAttributeGenerator.py
+  TestRandomAttributeGeneratorScalar.py
+  WarpScalarImage.py
+  WarpVectorImage.py
+  cursor2D.py
+  spatialRepAll.py,NO_RT
+  pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID,NO_RT
+  tableBasedClip.py,NO_RT
+  )

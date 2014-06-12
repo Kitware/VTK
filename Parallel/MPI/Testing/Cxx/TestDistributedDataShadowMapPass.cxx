@@ -81,6 +81,9 @@
 #include "vtkTreeCompositer.h"
 #include "vtkOpenGLRenderWindow.h"
 
+namespace
+{
+
 // Defined in TestLightActor.cxx
 // For each spotlight, add a light frustum wireframe representation and a cone
 // wireframe representation, colored with the light color.
@@ -423,7 +426,36 @@ void MyProcess::Execute()
   this->ReturnValue=retVal;
 }
 
-int main(int argc, char **argv)
+// DUPLICATE for VTK/Rendering/Testing/Cxx/TestLightActor.cxx
+
+// For each spotlight, add a light frustum wireframe representation and a cone
+// wireframe representation, colored with the light color.
+void AddLightActors(vtkRenderer *r)
+{
+  assert("pre: r_exists" && r!=0);
+
+  vtkLightCollection *lights=r->GetLights();
+
+  lights->InitTraversal();
+  vtkLight *l=lights->GetNextItem();
+  while(l!=0)
+    {
+    double angle=l->GetConeAngle();
+    if(l->LightTypeIsSceneLight() && l->GetPositional()
+       && angle<180.0) // spotlight
+      {
+      vtkLightActor *la=vtkLightActor::New();
+      la->SetLight(l);
+      r->AddViewProp(la);
+      la->Delete();
+      }
+    l=lights->GetNextItem();
+    }
+}
+
+}
+
+int TestDistributedDataShadowMapPass(int argc, char *argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -476,31 +508,4 @@ int main(int argc, char **argv)
   contr->Delete();
 
   return !retVal;
-}
-
-// DUPLICATE for VTK/Rendering/Testing/Cxx/TestLightActor.cxx
-
-// For each spotlight, add a light frustum wireframe representation and a cone
-// wireframe representation, colored with the light color.
-void AddLightActors(vtkRenderer *r)
-{
-  assert("pre: r_exists" && r!=0);
-
-  vtkLightCollection *lights=r->GetLights();
-
-  lights->InitTraversal();
-  vtkLight *l=lights->GetNextItem();
-  while(l!=0)
-    {
-    double angle=l->GetConeAngle();
-    if(l->LightTypeIsSceneLight() && l->GetPositional()
-       && angle<180.0) // spotlight
-      {
-      vtkLightActor *la=vtkLightActor::New();
-      la->SetLight(l);
-      r->AddViewProp(la);
-      la->Delete();
-      }
-    l=lights->GetNextItem();
-    }
 }

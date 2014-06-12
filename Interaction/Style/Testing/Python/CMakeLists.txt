@@ -1,11 +1,13 @@
 if(NOT VTK_OPENGL_HAS_OSMESA)
-  vtk_add_test_python(TestFlyTo.py)
-  vtk_add_test_python(TestStyleRubberBandZoom.py)
-  vtk_add_test_python(TestInteractorStyleTerrain.py)
-  vtk_add_test_python(TestStyleBaseSpike.py NO_RT)
-  vtk_add_test_python(TestStyleJoystickActor.py NO_RT)
-  vtk_add_test_python(TestStyleJoystickCamera.py NO_RT)
-  vtk_add_test_python(TestStyleTerrain.py NO_RT)
-  vtk_add_test_python(TestStyleTrackballActor.py NO_RT)
-  vtk_add_test_python(TestStyleTrackballCamera.py NO_RT)
+  vtk_add_test_python(
+    TestFlyTo.py
+    TestStyleRubberBandZoom.py
+    TestInteractorStyleTerrain.py
+    TestStyleBaseSpike.py,NO_RT
+    TestStyleJoystickActor.py,NO_RT
+    TestStyleJoystickCamera.py,NO_RT
+    TestStyleTerrain.py,NO_RT
+    TestStyleTrackballActor.py,NO_RT
+    TestStyleTrackballCamera.py,NO_RT
+    )
 endif()

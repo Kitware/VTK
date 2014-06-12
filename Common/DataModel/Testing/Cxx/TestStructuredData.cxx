@@ -21,6 +21,7 @@ static int TestCellIds();
 static int TestPointIds();
 static int Test1DCases();
 static int Test2DCases();
+static int TestGetNumNodesAndCells();
 
 int TestStructuredData(int,char *[])
 {
@@ -45,6 +46,65 @@ int TestStructuredData(int,char *[])
     return EXIT_FAILURE;
     }
 
+  if( TestGetNumNodesAndCells() != EXIT_SUCCESS )
+    {
+    std::cerr << "TestGetNumNodesAndCells() failed!\n";
+    return EXIT_FAILURE;
+    }
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestGetNumNodesAndCells()
+{
+  // Extent for 2048^3 grid
+  int ext[6]={0,2047, 0,2047, 0,2047};
+
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent(ext,dims);
+  if( (dims[0] != 2048) || (dims[1] != 2048) || (dims[2] != 2048) )
+    {
+    std::cerr << "Wrong dims computed: ";
+    std::cerr << dims[0] << ", " << dims[1] << ", " << dims[2] << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // Compute expected number of nodes. Note, we cast dims to vtkIdType to
+  // ensure the compiler will generate a 32x32=64 multiply instruction.
+  vtkIdType nNodesExpected =
+      static_cast<vtkIdType>(dims[0])*
+      static_cast<vtkIdType>(dims[1])*
+      static_cast<vtkIdType>(dims[2]);
+
+  if( vtkStructuredData::GetNumberOfPoints(ext) != nNodesExpected )
+    {
+    std::cerr << "ERROR: GetNumberOfNodes(ext) failed!\n";
+    std::cerr << "val=" << vtkStructuredData::GetNumberOfPoints(ext) << "\n";
+    std::cerr << "expected=" << nNodesExpected << "\n";
+    return EXIT_FAILURE;
+    }
+
+  vtkStructuredData::GetCellDimensionsFromExtent(ext,dims);
+  if( (dims[0] != 2047) || (dims[1] != 2047) || (dims[2] != 2047) )
+    {
+    std::cerr << "Wrong dims computed: ";
+    std::cerr << dims[0] << ", " << dims[1] << ", " << dims[2] << std::endl;
+    return EXIT_FAILURE;
+    }
+  // Compute expected number of nodes. Note, we cast dims to vtkIdType to
+  // ensure the compiler will generate a 32x32=64 multiply instruction.
+  vtkIdType nCellsExpected =
+      static_cast<vtkIdType>(dims[0])*
+      static_cast<vtkIdType>(dims[1])*
+      static_cast<vtkIdType>(dims[2]);
+
+  if( vtkStructuredData::GetNumberOfCells(ext) != nCellsExpected )
+    {
+    std::cerr << "ERROR: GetNumberOfNodes(ext) failed!\n";
+    std::cerr << "val=" << vtkStructuredData::GetNumberOfCells(ext) << "\n";
+    std::cerr << "expected=" << nCellsExpected << "\n";
+    return EXIT_FAILURE;
+    }
   return EXIT_SUCCESS;
 }
 

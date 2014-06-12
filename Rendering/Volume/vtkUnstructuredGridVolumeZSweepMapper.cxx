@@ -2663,6 +2663,12 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     return;
     }
 
+  int inputAlgPort;
+  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
+  inputAlg->UpdateInformation();
+  inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
+  inputAlg->Update();
+
   this->Scalars = this->GetScalars(this->GetInput(), this->ScalarMode,
                                    this->ArrayAccessMode,
                                    this->ArrayId, this->ArrayName,
@@ -2673,12 +2679,6 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     vtkErrorMacro("Can't use the ZSweep mapper without scalars!");
     return;
     }
-
-  int inputAlgPort;
-  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
-  inputAlg->UpdateInformation();
-  inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
-  inputAlg->Update();
 
    // Check to make sure we have an appropriate integrator.
   if (this->RayIntegrator)

@@ -246,9 +246,6 @@ int vtkTemporalStreamTracer::RequestInformation(
     return 0;
     }
 
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
                &this->OutputTimeValues[0],
                static_cast<int>(this->OutputTimeValues.size()));
@@ -409,7 +406,7 @@ int vtkTemporalStreamTracer::InitializeInterpolator()
           inp->ComputeBounds();
           inp->GetBounds(&bbox.b[0]);
           this->CachedBounds[T].push_back(bbox);
-          bool static_dataset = this->StaticMesh == 0 ? false : true;
+          bool static_dataset = (this->StaticMesh != 0);
           this->AllFixedGeometry = this->AllFixedGeometry && static_dataset;
           // add the dataset to the interpolator
           this->Interpolator->SetDataSetAtTime(index++, T, this->CurrentTimeSteps[T], inp, static_dataset);

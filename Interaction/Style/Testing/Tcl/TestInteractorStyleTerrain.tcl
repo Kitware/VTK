@@ -8,7 +8,7 @@ vtkLookupTable lut
   lut SetValueRange 0.5 1.0
 
 vtkDEMReader demModel
-  demModel SetFileName $VTK_DATA_ROOT/Data/SainteHelens.dem
+  demModel SetFileName "$VTK_DATA_ROOT/Data/SainteHelens.dem"
   demModel Update
 
 demModel Print

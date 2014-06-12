@@ -1,1 +1,3 @@
-vtk_add_test_tcl(TestPLYReadWrite)
+vtk_add_test_tcl(
+  TestPLYReadWrite.tcl
+  )

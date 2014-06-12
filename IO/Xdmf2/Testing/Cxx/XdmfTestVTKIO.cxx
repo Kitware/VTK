@@ -188,7 +188,7 @@ bool TestXDMFConversion(vtkDataObject*input, char *prefix)
   return fail;
 }
 
-int main (int ac, char **av)
+int XdmfTestVTKIO (int ac, char *av[])
 {
 
   for (int i = 1; i < ac; i++)

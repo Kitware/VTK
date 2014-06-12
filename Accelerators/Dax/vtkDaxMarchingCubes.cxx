@@ -63,7 +63,7 @@ int vtkDaxMarchingCubes::RequestData(vtkInformation *request,
 
   vtkPolyData* output = vtkPolyData::SafeDownCast(
                                   outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataArray *scalars = input->GetPointData()->GetScalars();
+  vtkDataArray *scalars = this->GetInputArrayToProcess(0, inputVector);
   int result = 0;
   if(scalars)
     {

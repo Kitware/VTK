@@ -18,11 +18,7 @@ reader.SetDefaultExecutivePrototype(cdp)
 del cdp
 reader.SetCaseFileName("" + str(VTK_DATA_ROOT) + "/Data/EnSight/office6_bin.case")
 reader.Update()
-# to add coverage for vtkOnePieceExtentTranslator
-translator = vtk.vtkOnePieceExtentTranslator()
-sddp = vtk.vtkStreamingDemandDrivenPipeline()
-Outinfo = reader.GetOutputInformation(0)
-sddp.SetExtentTranslator(Outinfo,translator)
+
 outline = vtk.vtkStructuredGridOutlineFilter()
 outline.SetInputConnection(reader.GetOutputPort())
 mapOutline = vtk.vtkHierarchicalPolyDataMapper()
