@@ -78,7 +78,7 @@ class SRVConnectorTest(unittest.TestCase):
                                                    payload=payload)]
         self.connector.connect()
 
-        self.assertIdentical(None, self.factory.reason)
+        self.assertIs(None, self.factory.reason)
         self.assertEqual(
             self.reactor.tcpClients.pop()[:2], ('host.example.org', 6269))
 
@@ -90,7 +90,7 @@ class SRVConnectorTest(unittest.TestCase):
         client.theResolver.failure = DNSNameError('example.org')
         self.connector.connect()
 
-        self.assertIdentical(None, self.factory.reason)
+        self.assertIs(None, self.factory.reason)
         self.assertEqual(
             self.reactor.tcpClients.pop()[:2], ('example.org', 'xmpp-server'))
 
@@ -102,7 +102,7 @@ class SRVConnectorTest(unittest.TestCase):
         client.theResolver.results = []
         self.connector.connect()
 
-        self.assertIdentical(None, self.factory.reason)
+        self.assertIs(None, self.factory.reason)
         self.assertEqual(
             self.reactor.tcpClients.pop()[:2], ('example.org', 'xmpp-server'))
 
@@ -119,7 +119,7 @@ class SRVConnectorTest(unittest.TestCase):
         client.theResolver.failure = ServiceNameUnknownError()
         self.connector.connect()
 
-        self.assertIdentical(None, self.factory.reason)
+        self.assertIs(None, self.factory.reason)
         self.assertEqual(
             self.reactor.tcpClients.pop()[:2], ('example.org', 5222))
 
@@ -148,7 +148,7 @@ class SRVConnectorTest(unittest.TestCase):
                                                    payload=None)]
         self.connector.connect()
 
-        self.assertIdentical(None, self.factory.reason)
+        self.assertIs(None, self.factory.reason)
         self.assertEqual(
             self.reactor.tcpClients.pop()[:2], ('example.org', 'xmpp-server'))
 
@@ -164,6 +164,18 @@ class SRVConnectorTest(unittest.TestCase):
                                                    payload=payload)]
         self.connector.connect()
 
-        self.assertNotIdentical(None, self.factory.reason)
+        self.assertIsNot(None, self.factory.reason)
         self.factory.reason.trap(DNSLookupError)
         self.assertEqual(self.reactor.tcpClients, [])
+
+
+    def test_unicodeDomain(self):
+        """
+        L{srvconnect.SRVConnector} automatically encodes unicode domain using
+        C{idna} encoding.
+        """
+        self.connector = srvconnect.SRVConnector(
+            self.reactor, 'xmpp-client', u'\u00e9chec.example.org',
+            self.factory)
+        self.assertIsInstance(self.connector.domain, bytes)
+        self.assertEqual(b'xn--chec-9oa.example.org', self.connector.domain)

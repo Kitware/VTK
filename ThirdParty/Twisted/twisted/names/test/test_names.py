@@ -1,4 +1,3 @@
-# -*- test-case-name: twisted.names.test.test_names -*-
 # Copyright (c) Twisted Matrix Laboratories.
 # See LICENSE for details.
 
@@ -8,21 +7,20 @@ Test cases for twisted.names.
 
 import socket, operator, copy
 from StringIO import StringIO
+from functools import partial, reduce
 
 from twisted.trial import unittest
 
 from twisted.internet import reactor, defer, error
-from twisted.internet.task import Clock
 from twisted.internet.defer import succeed
 from twisted.names import client, server, common, authority, dns
-from twisted.python import failure
 from twisted.names.dns import Message
+from twisted.names.error import DomainError
 from twisted.names.client import Resolver
 from twisted.names.secondary import (
     SecondaryAuthorityService, SecondaryAuthority)
 
-from twisted.python.compat import reduce
-from twisted.test.proto_helpers import StringTransport, MemoryReactor
+from twisted.test.proto_helpers import StringTransport, MemoryReactorClock
 
 def justPayload(results):
     return [r.payload for r in results[0]]
@@ -190,22 +188,28 @@ class ServerDNSTestCase(unittest.TestCase):
             conn.transport.loseConnection()
 
 
-    def namesTest(self, d, r):
-        self.response = None
-        def setDone(response):
-            self.response = response
+    def namesTest(self, querying, expectedRecords):
+        """
+        Assert that the DNS response C{querying} will eventually fire with
+        contains exactly a certain collection of records.
 
-        def checkResults(ignored):
-            if isinstance(self.response, failure.Failure):
-                raise self.response
-            results = justPayload(self.response)
-            assert len(results) == len(r), "%s != %s" % (map(str, results), map(str, r))
-            for rec in results:
-                assert rec in r, "%s not in %s" % (rec, map(str, r))
+        @param querying: A L{Deferred} returned from one of the DNS client
+            I{lookup} methods.
 
-        d.addBoth(setDone)
-        d.addCallback(checkResults)
-        return d
+        @param expectedRecords: A L{list} of L{IRecord} providers which must be
+            in the response or the test will be failed.
+
+        @return: A L{Deferred} that fires when the assertion has been made.  It
+            fires with a success result if the assertion succeeds and with a
+            L{Failure} if it fails.
+        """
+        def checkResults(response):
+            receivedRecords = justPayload(response)
+            self.assertEqual(set(expectedRecords), set(receivedRecords))
+
+        querying.addCallback(checkResults)
+        return querying
+
 
     def testAddressRecord1(self):
         """Test simple DNS 'A' record queries"""
@@ -239,12 +243,16 @@ class ServerDNSTestCase(unittest.TestCase):
         )
 
 
-    def testMailExchangeRecord(self):
-        """Test DNS 'MX' record queries"""
+    def test_mailExchangeRecord(self):
+        """
+        The DNS client can issue an MX query and receive a response including
+        an MX record as well as any A record hints.
+        """
         return self.namesTest(
-            self.resolver.lookupMailExchange('test-domain.com'),
-            [dns.Record_MX(10, 'host.test-domain.com', ttl=19283784)]
-        )
+            self.resolver.lookupMailExchange(b"test-domain.com"),
+            [dns.Record_MX(10, b"host.test-domain.com", ttl=19283784),
+             dns.Record_A(b"123.242.1.5", ttl=19283784),
+             dns.Record_A(b"0.255.0.255", ttl=19283784)])
 
 
     def testNameserver(self):
@@ -276,13 +284,6 @@ class ServerDNSTestCase(unittest.TestCase):
             self.resolver.lookupCanonicalName('test-domain.com'),
             [dns.Record_CNAME('canonical.name.com', ttl=19283784)]
         )
-
-    def testCNAMEAdditional(self):
-        """Test additional processing for CNAME records"""
-        return self.namesTest(
-        self.resolver.lookupAddress('cname.test-domain.com'),
-        [dns.Record_CNAME('test-domain.com', ttl=19283784), dns.Record_A('127.0.0.1', ttl=19283784)]
-    )
 
     def testMB(self):
         """Test DNS 'MB' record queries"""
@@ -432,82 +433,13 @@ class ServerDNSTestCase(unittest.TestCase):
 
 
 
-class DNSServerFactoryTests(unittest.TestCase):
-    """
-    Tests for L{server.DNSServerFactory}.
-    """
-    def _messageReceivedTest(self, methodName, message):
-        """
-        Assert that the named method is called with the given message when
-        it is passed to L{DNSServerFactory.messageReceived}.
-        """
-        # Make it appear to have some queries so that
-        # DNSServerFactory.allowQuery allows it.
-        message.queries = [None]
-
-        receivedMessages = []
-        def fakeHandler(message, protocol, address):
-            receivedMessages.append((message, protocol, address))
-
-        class FakeProtocol(object):
-            def writeMessage(self, message):
-                pass
-
-        protocol = FakeProtocol()
-        factory = server.DNSServerFactory(None)
-        setattr(factory, methodName, fakeHandler)
-        factory.messageReceived(message, protocol)
-        self.assertEqual(receivedMessages, [(message, protocol, None)])
-
-
-    def test_notifyMessageReceived(self):
-        """
-        L{DNSServerFactory.messageReceived} passes messages with an opcode
-        of C{OP_NOTIFY} on to L{DNSServerFactory.handleNotify}.
-        """
-        # RFC 1996, section 4.5
-        opCode = 4
-        self._messageReceivedTest('handleNotify', Message(opCode=opCode))
-
-
-    def test_updateMessageReceived(self):
-        """
-        L{DNSServerFactory.messageReceived} passes messages with an opcode
-        of C{OP_UPDATE} on to L{DNSServerFactory.handleOther}.
-
-        This may change if the implementation ever covers update messages.
-        """
-        # RFC 2136, section 1.3
-        opCode = 5
-        self._messageReceivedTest('handleOther', Message(opCode=opCode))
-
-
-    def test_connectionTracking(self):
-        """
-        The C{connectionMade} and C{connectionLost} methods of
-        L{DNSServerFactory} cooperate to keep track of all
-        L{DNSProtocol} objects created by a factory which are
-        connected.
-        """
-        protoA, protoB = object(), object()
-        factory = server.DNSServerFactory()
-        factory.connectionMade(protoA)
-        self.assertEqual(factory.connections, [protoA])
-        factory.connectionMade(protoB)
-        self.assertEqual(factory.connections, [protoA, protoB])
-        factory.connectionLost(protoA)
-        self.assertEqual(factory.connections, [protoB])
-        factory.connectionLost(protoB)
-        self.assertEqual(factory.connections, [])
-
-
 class HelperTestCase(unittest.TestCase):
     def testSerialGenerator(self):
         f = self.mktemp()
         a = authority.getSerial(f)
         for i in range(20):
             b = authority.getSerial(f)
-            self.failUnless(a < b)
+            self.assertTrue(a < b)
             a = b
 
 
@@ -590,6 +522,21 @@ class AuthorityTests(unittest.TestCase):
     Tests for the basic response record selection code in L{FileAuthority}
     (independent of its fileness).
     """
+
+    def test_domainErrorForNameWithCommonSuffix(self):
+        """
+        L{FileAuthority} lookup methods errback with L{DomainError} if
+        the requested C{name} shares a common suffix with its zone but
+        is not actually a descendant of its zone, in terms of its
+        sequence of DNS name labels. eg www.the-example.com has
+        nothing to do with the zone example.com.
+        """
+        testDomain = test_domain_com
+        testDomainName = 'nonexistent.prefix-' + testDomain.soa[0]
+        f = self.failureResultOf(testDomain.lookupAddress(testDomainName))
+        self.assertIsInstance(f.value, DomainError)
+
+
     def test_recordMissing(self):
         """
         If a L{FileAuthority} has a zone which includes an I{NS} record for a
@@ -633,9 +580,7 @@ class AuthorityTests(unittest.TestCase):
                     nameserver,
                     ]})
         d = getattr(authority, method)(subdomain)
-        result = []
-        d.addCallback(result.append)
-        answer, authority, additional = result[0]
+        answer, authority, additional = self.successResultOf(d)
         self.assertEqual(answer, [])
         self.assertEqual(
             authority, [dns.RRHeader(
@@ -659,6 +604,223 @@ class AuthorityTests(unittest.TestCase):
         A referral is also generated for a request of type C{ALL_RECORDS}.
         """
         self._referralTest('lookupAllRecords')
+
+
+
+class AdditionalProcessingTests(unittest.TestCase):
+    """
+    Tests for L{FileAuthority}'s additional processing for those record types
+    which require it (MX, CNAME, etc).
+    """
+    _A = dns.Record_A(b"10.0.0.1")
+    _AAAA = dns.Record_AAAA(b"f080::1")
+
+    def _lookupSomeRecords(self, method, soa, makeRecord, target, addresses):
+        """
+        Perform a DNS lookup against a L{FileAuthority} configured with records
+        as defined by C{makeRecord} and C{addresses}.
+
+        @param method: The name of the lookup method to use; for example,
+            C{"lookupNameservers"}.
+        @type method: L{str}
+
+        @param soa: A L{Record_SOA} for the zone for which the L{FileAuthority}
+            is authoritative.
+
+        @param makeRecord: A one-argument callable which accepts a name and
+            returns an L{IRecord} provider.  L{FileAuthority} is constructed
+            with this record.  The L{FileAuthority} is queried for a record of
+            the resulting type with the given name.
+
+        @param target: The extra name which the record returned by
+            C{makeRecord} will be pointed at; this is the name which might
+            require extra processing by the server so that all the available,
+            useful information is returned.  For example, this is the target of
+            a CNAME record or the mail exchange host pointed to by an MX record.
+        @type target: L{bytes}
+
+        @param addresses: A L{list} of records giving addresses of C{target}.
+
+        @return: A L{Deferred} that fires with the result of the resolver
+            method give by C{method}.
+        """
+        authority = NoFileAuthority(
+            soa=(soa.mname.name, soa),
+            records={
+                soa.mname.name: [makeRecord(target)],
+                target: addresses,
+                },
+            )
+        return getattr(authority, method)(soa_record.mname.name)
+
+
+    def assertRecordsMatch(self, expected, computed):
+        """
+        Assert that the L{RRHeader} instances given by C{expected} and
+        C{computed} carry all the same information but without requiring the
+        records appear in the same order.
+
+        @param expected: A L{list} of L{RRHeader} instances giving the expected
+            records.
+
+        @param computed: A L{list} of L{RRHeader} instances giving the records
+            computed by the scenario under test.
+
+        @raise self.failureException: If the two collections of records disagree.
+        """
+        # RRHeader instances aren't inherently ordered.  Impose an ordering
+        # that's good enough for the purposes of these tests - in which we
+        # never have more than one record of a particular type.
+        key = lambda rr: rr.type
+        self.assertEqual(sorted(expected, key=key), sorted(computed, key=key))
+
+
+    def _additionalTest(self, method, makeRecord, addresses):
+        """
+        Verify that certain address records are included in the I{additional}
+        section of a response generated by L{FileAuthority}.
+
+        @param method: See L{_lookupSomeRecords}
+
+        @param makeRecord: See L{_lookupSomeRecords}
+
+        @param addresses: A L{list} of L{IRecord} providers which the
+            I{additional} section of the response is required to match
+            (ignoring order).
+
+        @raise self.failureException: If the I{additional} section of the
+            response consists of different records than those given by
+            C{addresses}.
+        """
+        target = b"mail." + soa_record.mname.name
+        d = self._lookupSomeRecords(
+            method, soa_record, makeRecord, target, addresses)
+        answer, authority, additional = self.successResultOf(d)
+
+        self.assertRecordsMatch(
+            [dns.RRHeader(
+                    target, address.TYPE, ttl=soa_record.expire, payload=address,
+                    auth=True)
+             for address in addresses],
+            additional)
+
+
+    def _additionalMXTest(self, addresses):
+        """
+        Verify that a response to an MX query has certain records in the
+        I{additional} section.
+
+        @param addresses: See C{_additionalTest}
+        """
+        self._additionalTest(
+            "lookupMailExchange", partial(dns.Record_MX, 10), addresses)
+
+
+    def test_mailExchangeAdditionalA(self):
+        """
+        If the name of the MX response has A records, they are included in the
+        additional section of the response.
+        """
+        self._additionalMXTest([self._A])
+
+
+    def test_mailExchangeAdditionalAAAA(self):
+        """
+        If the name of the MX response has AAAA records, they are included in
+        the additional section of the response.
+        """
+        self._additionalMXTest([self._AAAA])
+
+
+    def test_mailExchangeAdditionalBoth(self):
+        """
+        If the name of the MX response has both A and AAAA records, they are
+        all included in the additional section of the response.
+        """
+        self._additionalMXTest([self._A, self._AAAA])
+
+
+    def _additionalNSTest(self, addresses):
+        """
+        Verify that a response to an NS query has certain records in the
+        I{additional} section.
+
+        @param addresses: See C{_additionalTest}
+        """
+        self._additionalTest(
+            "lookupNameservers", dns.Record_NS, addresses)
+
+
+    def test_nameserverAdditionalA(self):
+        """
+        If the name of the NS response has A records, they are included in the
+        additional section of the response.
+        """
+        self._additionalNSTest([self._A])
+
+
+    def test_nameserverAdditionalAAAA(self):
+        """
+        If the name of the NS response has AAAA records, they are included in
+        the additional section of the response.
+        """
+        self._additionalNSTest([self._AAAA])
+
+
+    def test_nameserverAdditionalBoth(self):
+        """
+        If the name of the NS response has both A and AAAA records, they are
+        all included in the additional section of the response.
+        """
+        self._additionalNSTest([self._A, self._AAAA])
+
+
+    def _answerCNAMETest(self, addresses):
+        """
+        Verify that a response to a CNAME query has certain records in the
+        I{answer} section.
+
+        @param addresses: See C{_additionalTest}
+        """
+        target = b"www." + soa_record.mname.name
+        d = self._lookupSomeRecords(
+            "lookupCanonicalName", soa_record, dns.Record_CNAME, target,
+            addresses)
+        answer, authority, additional = self.successResultOf(d)
+
+        alias = dns.RRHeader(
+            soa_record.mname.name, dns.CNAME, ttl=soa_record.expire,
+            payload=dns.Record_CNAME(target), auth=True)
+        self.assertRecordsMatch(
+            [dns.RRHeader(
+                    target, address.TYPE, ttl=soa_record.expire, payload=address,
+                    auth=True)
+             for address in addresses] + [alias],
+            answer)
+
+
+    def test_canonicalNameAnswerA(self):
+        """
+        If the name of the CNAME response has A records, they are included in
+        the answer section of the response.
+        """
+        self._answerCNAMETest([self._A])
+
+
+    def test_canonicalNameAnswerAAAA(self):
+        """
+        If the name of the CNAME response has AAAA records, they are included
+        in the answer section of the response.
+        """
+        self._answerCNAMETest([self._AAAA])
+
+
+    def test_canonicalNameAnswerBoth(self):
+        """
+        If the name of the CNAME response has both A and AAAA records, they are
+        all included in the answer section of the response.
+        """
+        self._answerCNAMETest([self._A, self._AAAA])
 
 
 
@@ -787,14 +949,9 @@ class SecondaryAuthorityTests(unittest.TestCase):
         L{SecondaryAuthority} was constructed with from the server address it
         was constructed with when L{SecondaryAuthority.transfer} is called.
         """
-        class ClockMemoryReactor(Clock, MemoryReactor):
-            def __init__(self):
-                Clock.__init__(self)
-                MemoryReactor.__init__(self)
-
         secondary = SecondaryAuthority.fromServerAddressAndDomain(
             ('192.168.1.2', 1234), 'example.com')
-        secondary._reactor = reactor = ClockMemoryReactor()
+        secondary._reactor = reactor = MemoryReactorClock()
 
         secondary.transfer()
 

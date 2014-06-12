@@ -46,28 +46,49 @@ from twisted.python.util import sibpath
 from twisted.lore.scripts import lore
 
 from twisted.web import domhelpers
+from twisted.test.testutils import XMLAssertionMixin
+
 
 def sp(originalFileName):
     return sibpath(__file__, originalFileName)
 
-options = {"template" : sp("template.tpl"), 'baseurl': '%s', 'ext': '.xhtml' }
+
+
+options = {"template" : sp("template.tpl"), 'baseurl': '%s', 'ext': '.xhtml'}
 d = options
 
 
-class _XMLAssertionMixin:
+
+class RemoveBlanksTests(unittest.TestCase):
     """
-    Test mixin defining a method for comparing serialized XML documents.
+    Tests for L{tree._removeLeadingBlankLines} and
+    L{tree._removeLeadingTrailingBlankLines}.
     """
-    def assertXMLEqual(self, first, second):
-        """
-        Verify that two strings represent the same XML document.
-        """
-        self.assertEqual(
-            dom.parseString(first).toxml(),
-            dom.parseString(second).toxml())
+    def setUp(self):
+        self.inputString = '\n\n\n\nfoo\nbar\n\n\n'
 
 
-class TestFactory(unittest.TestCase, _XMLAssertionMixin):
+    def test_removeLeadingBlankLines(self):
+        """
+        L{tree._removeLeadingBlankLines} removes leading blank lines from a
+        a string and returns a list containing the remaining characters.
+        """
+        result = tree._removeLeadingBlankLines(self.inputString)
+        self.assertEqual(result,
+            ['f', 'o', 'o', '\n', 'b', 'a', 'r', '\n', '\n', '\n'])
+
+
+    def test_removeLeadingTrailingBlankLines(self):
+        """
+        L{tree._removeLeadingTrailingBlankLines} removes leading and trailing
+        blank lines from a string and returns a string with all lines joined.
+        """
+        result = tree._removeLeadingTrailingBlankLines(self.inputString)
+        self.assertEqual(result, 'foo\nbar\n')
+
+
+
+class TestFactory(unittest.TestCase, XMLAssertionMixin):
 
     file = sp('simple.html')
     linkrel = ""
@@ -1144,7 +1165,7 @@ class XMLParsingTests(unittest.TestCase):
 
 
 
-class XMLSerializationTests(unittest.TestCase, _XMLAssertionMixin):
+class XMLSerializationTests(unittest.TestCase, XMLAssertionMixin):
     """
     Tests for L{tree._writeDocument}.
     """

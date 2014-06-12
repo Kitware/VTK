@@ -5,18 +5,16 @@
 Test cases for L{twisted.names.client}.
 """
 
-import sys
+from zope.interface.verify import verifyClass, verifyObject
 
-from zope.interface.verify import verifyObject
-
-from twisted.python.compat import set
 from twisted.python import failure
+from twisted.python.filepath import FilePath
 from twisted.python.runtime import platform
 
 from twisted.internet import defer
-from twisted.internet.error import CannotListenError
+from twisted.internet.error import CannotListenError, ConnectionRefusedError
 from twisted.internet.interfaces import IResolver
-from twisted.internet.test.modulehelpers import NoReactor
+from twisted.internet.test.modulehelpers import AlternateReactor
 from twisted.internet.task import Clock
 
 from twisted.names import error, client, dns, hosts, cache
@@ -24,6 +22,9 @@ from twisted.names.error import DNSQueryTimeoutError
 from twisted.names.common import ResolverBase
 
 from twisted.names.test.test_hosts import GoodTempPathMixin
+from twisted.names.test.test_rootresolve import MemoryReactor
+
+from twisted.test import proto_helpers
 
 from twisted.trial import unittest
 
@@ -31,24 +32,6 @@ if platform.isWindows():
     windowsSkip = "These tests need more work before they'll work on Windows."
 else:
     windowsSkip = None
-
-class AlternateReactor(NoReactor):
-    """
-    A context manager which temporarily installs a different object as the global reactor.
-    """
-    def __init__(self, reactor):
-        """
-        @param reactor: Any object to install as the global reactor.
-        """
-        NoReactor.__init__(self)
-        self.alternate = reactor
-
-
-    def __enter__(self):
-        NoReactor.__enter__(self)
-        import twisted.internet
-        twisted.internet.reactor = self.alternate
-        sys.modules['twisted.internet.reactor'] = self.alternate
 
 
 
@@ -136,7 +119,7 @@ class GetResolverTests(unittest.TestCase):
         with AlternateReactor(Clock()):
             a = client.getResolver()
             b = client.getResolver()
-        self.assertIdentical(a, b)
+        self.assertIs(a, b)
 
 
 
@@ -160,7 +143,6 @@ class CreateResolverTests(unittest.TestCase, GoodTempPathMixin):
         specified.
         """
         with AlternateReactor(Clock()):
-            sys.modules["twisted.internet.reactor"] = Clock()
             resolver = client.createResolver()
         self._hostsTest(resolver, b"/etc/hosts")
 
@@ -196,7 +178,7 @@ class CreateResolverTests(unittest.TestCase, GoodTempPathMixin):
             resolver = client.createResolver()
         res = [r for r in resolver.resolvers if isinstance(r, client.Resolver)]
         self.assertEqual(1, len(res))
-        self.assertIdentical(reactor, res[0]._reactor)
+        self.assertIs(reactor, res[0]._reactor)
 
 
     def test_defaultResolvConf(self):
@@ -269,6 +251,22 @@ class ResolverTests(unittest.TestCase):
     """
     Tests for L{client.Resolver}.
     """
+
+    def test_clientProvidesIResolver(self):
+        """
+        L{client} provides L{IResolver} through a series of free
+        functions.
+        """
+        verifyObject(IResolver, client)
+
+
+    def test_clientResolverProvidesIResolver(self):
+        """
+        L{client.Resolver} provides L{IResolver}.
+        """
+        verifyClass(IResolver, client.Resolver)
+
+
     def test_noServers(self):
         """
         L{client.Resolver} raises L{ValueError} if constructed with neither
@@ -285,6 +283,22 @@ class ResolverTests(unittest.TestCase):
         """
         resolver = client.Resolver(resolv=self.mktemp(), reactor=Clock())
         self.assertEqual([("127.0.0.1", 53)], resolver.dynServers)
+
+
+    def test_closesResolvConf(self):
+        """
+        As part of its constructor, C{StubResolver} opens C{/etc/resolv.conf};
+        then, explicitly closes it and does not count on the GC to do so for
+        it.
+        """
+        handle = FilePath(self.mktemp())
+        resolvConf = handle.open(mode='w+')
+        class StubResolver(client.Resolver):
+            def _openFile(self, name):
+                return resolvConf
+        StubResolver(servers=["example.com", 53], resolv='/etc/resolv.conf',
+                     reactor=Clock())
+        self.assertTrue(resolvConf.closed)
 
 
     def test_domainEmptyArgument(self):
@@ -327,16 +341,16 @@ class ResolverTests(unittest.TestCase):
         queryResult.addCallback(self.assertEqual, expectedResult)
 
         self.assertEqual(len(protocol.queries), 1)
-        self.assertIdentical(protocol.queries[0][0], servers[0])
+        self.assertIs(protocol.queries[0][0], servers[0])
         protocol.queries[0][-1].errback(DNSQueryTimeoutError(0))
         self.assertEqual(len(protocol.queries), 2)
-        self.assertIdentical(protocol.queries[1][0], servers[1])
+        self.assertIs(protocol.queries[1][0], servers[1])
         protocol.queries[1][-1].errback(DNSQueryTimeoutError(1))
         self.assertEqual(len(protocol.queries), 3)
-        self.assertIdentical(protocol.queries[2][0], dynServers[0])
+        self.assertIs(protocol.queries[2][0], dynServers[0])
         protocol.queries[2][-1].errback(DNSQueryTimeoutError(2))
         self.assertEqual(len(protocol.queries), 4)
-        self.assertIdentical(protocol.queries[3][0], dynServers[1])
+        self.assertIs(protocol.queries[3][0], dynServers[1])
         protocol.queries[3][-1].callback(expectedResult)
 
         return queryResult
@@ -466,8 +480,8 @@ class ResolverTests(unittest.TestCase):
         firstProto = resolver._connectedProtocol()
         secondProto = resolver._connectedProtocol()
 
-        self.assertNotIdentical(firstProto.transport, None)
-        self.assertNotIdentical(secondProto.transport, None)
+        self.assertIsNot(firstProto.transport, None)
+        self.assertIsNot(secondProto.transport, None)
         self.assertNotEqual(
             firstProto.transport.getHost().port,
             secondProto.transport.getHost().port)
@@ -475,6 +489,18 @@ class ResolverTests(unittest.TestCase):
         return defer.gatherResults([
                 defer.maybeDeferred(firstProto.transport.stopListening),
                 defer.maybeDeferred(secondProto.transport.stopListening)])
+
+
+    def test_resolverUsesOnlyParameterizedReactor(self):
+        """
+        If a reactor instance is supplied to L{client.Resolver}
+        L{client.Resolver._connectedProtocol} should pass that reactor
+        to L{twisted.names.dns.DNSDatagramProtocol}.
+        """
+        reactor = MemoryReactor()
+        resolver = client.Resolver(resolv=self.mktemp(), reactor=reactor)
+        proto = resolver._connectedProtocol()
+        self.assertIs(proto._reactor, reactor)
 
 
     def test_differentProtocol(self):
@@ -641,6 +667,132 @@ class ResolverTests(unittest.TestCase):
         # Disconnecting should remove the protocol from the connection list:
         protocol.connectionLost(None)
         self.assertNotIn(protocol, resolver.connections)
+
+
+    def test_singleTCPQueryErrbackOnConnectionFailure(self):
+        """
+        The deferred returned by L{client.Resolver.queryTCP} will
+        errback when the TCP connection attempt fails. The reason for
+        the connection failure is passed as the argument to errback.
+        """
+        reactor = proto_helpers.MemoryReactor()
+        resolver = client.Resolver(
+            servers=[('192.0.2.100', 53)],
+            reactor=reactor)
+
+        d = resolver.queryTCP(dns.Query('example.com'))
+        host, port, factory, timeout, bindAddress = reactor.tcpClients[0]
+
+        class SentinelException(Exception):
+            pass
+
+        factory.clientConnectionFailed(
+            reactor.connectors[0], failure.Failure(SentinelException()))
+
+        self.failureResultOf(d, SentinelException)
+
+
+    def test_multipleTCPQueryErrbackOnConnectionFailure(self):
+        """
+        All pending L{resolver.queryTCP} C{deferred}s will C{errback}
+        with the same C{Failure} if the connection attempt fails.
+        """
+        reactor = proto_helpers.MemoryReactor()
+        resolver = client.Resolver(
+            servers=[('192.0.2.100', 53)],
+            reactor=reactor)
+
+        d1 = resolver.queryTCP(dns.Query('example.com'))
+        d2 = resolver.queryTCP(dns.Query('example.net'))
+        host, port, factory, timeout, bindAddress = reactor.tcpClients[0]
+
+        class SentinelException(Exception):
+            pass
+
+        factory.clientConnectionFailed(
+            reactor.connectors[0], failure.Failure(SentinelException()))
+
+        f1 = self.failureResultOf(d1, SentinelException)
+        f2 = self.failureResultOf(d2, SentinelException)
+        self.assertIdentical(f1, f2)
+
+
+    def test_reentrantTCPQueryErrbackOnConnectionFailure(self):
+        """
+        An errback on the deferred returned by
+        L{client.Resolver.queryTCP} may trigger another TCP query.
+        """
+        reactor = proto_helpers.MemoryReactor()
+        resolver = client.Resolver(
+            servers=[('127.0.0.1', 10053)],
+            reactor=reactor)
+
+        q = dns.Query('example.com')
+
+        # First query sent
+        d = resolver.queryTCP(q)
+
+        # Repeat the query when the first query fails
+        def reissue(e):
+            e.trap(ConnectionRefusedError)
+            return resolver.queryTCP(q)
+        d.addErrback(reissue)
+
+        self.assertEqual(len(reactor.tcpClients), 1)
+        self.assertEqual(len(reactor.connectors), 1)
+
+        host, port, factory, timeout, bindAddress = reactor.tcpClients[0]
+
+        # First query fails
+        f1 = failure.Failure(ConnectionRefusedError())
+        factory.clientConnectionFailed(
+            reactor.connectors[0],
+            f1)
+
+        # A second TCP connection is immediately attempted
+        self.assertEqual(len(reactor.tcpClients), 2)
+        self.assertEqual(len(reactor.connectors), 2)
+        # No result expected until the second chained query returns
+        self.assertNoResult(d)
+
+        # Second query fails
+        f2 = failure.Failure(ConnectionRefusedError())
+        factory.clientConnectionFailed(
+            reactor.connectors[1],
+            f2)
+
+        # Original deferred now fires with the second failure
+        f = self.failureResultOf(d, ConnectionRefusedError)
+        self.assertIdentical(f, f2)
+
+
+    def test_pendingEmptiedInPlaceOnError(self):
+        """
+        When the TCP connection attempt fails, the
+        L{client.Resolver.pending} list is emptied in place. It is not
+        replaced with a new empty list.
+        """
+        reactor = proto_helpers.MemoryReactor()
+        resolver = client.Resolver(
+            servers=[('192.0.2.100', 53)],
+            reactor=reactor)
+
+        d = resolver.queryTCP(dns.Query('example.com'))
+
+        host, port, factory, timeout, bindAddress = reactor.tcpClients[0]
+
+        prePending = resolver.pending
+        self.assertEqual(len(prePending), 1)
+
+        class SentinelException(Exception):
+            pass
+
+        factory.clientConnectionFailed(
+            reactor.connectors[0], failure.Failure(SentinelException()))
+
+        self.failureResultOf(d, SentinelException)
+        self.assertIdentical(resolver.pending, prePending)
+        self.assertEqual(len(prePending), 0)
 
 
 
@@ -871,6 +1023,19 @@ class ClientTestCase(unittest.TestCase):
         """
         d = client.lookupNamingAuthorityPointer(self.hostname)
         d.addCallback(self.checkResult, dns.NAPTR)
+        return d
+
+
+    def test_query(self):
+        """
+        L{client.query} accepts a L{dns.Query} instance and dispatches
+        it to L{client.theResolver}.C{query}, which in turn dispatches
+        to an appropriate C{lookup*} method of L{client.theResolver},
+        based on the L{dns.Query} type.
+        """
+        q = dns.Query(self.hostname, dns.A)
+        d = client.query(q)
+        d.addCallback(self.checkResult, dns.A)
         return d
 
 

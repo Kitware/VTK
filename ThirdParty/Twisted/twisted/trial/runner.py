@@ -9,10 +9,9 @@ Maintainer: Jonathan Lange
 """
 
 __all__ = [
-    'suiteVisit', 'TestSuite',
+    'TestSuite',
 
-    'DestructiveTestSuite', 'DryRunVisitor',
-    'ErrorHolder', 'LoggedSuite', 'PyUnitTestCase',
+    'DestructiveTestSuite', 'DryRunVisitor', 'ErrorHolder', 'LoggedSuite',
     'TestHolder', 'TestLoader', 'TrialRunner', 'TrialSuite',
 
     'filenameToModule', 'isPackage', 'isPackageDirectory', 'isTestCase',
@@ -23,15 +22,16 @@ import os, types, warnings, sys, inspect, imp
 import doctest, time
 
 from twisted.python import reflect, log, failure, modules, filepath
-from twisted.python.compat import set
+from twisted.python.deprecate import deprecatedModuleAttribute
+from twisted.python.versions import Version
 
 from twisted.internet import defer
 from twisted.trial import util, unittest
 from twisted.trial.itrial import ITestCase
-from twisted.trial.reporter import UncleanWarningsReporterWrapper
+from twisted.trial.reporter import _ExitWrapper, UncleanWarningsReporterWrapper
 
 # These are imported so that they remain in the public API for t.trial.runner
-from twisted.trial.unittest import suiteVisit, TestSuite
+from twisted.trial.unittest import TestSuite
 
 from zope.interface import implements
 
@@ -183,61 +183,6 @@ class LoggedSuite(TestSuite):
 
 
 
-class PyUnitTestCase(object):
-    """
-    DEPRECATED in Twisted 8.0.
-
-    This class decorates the pyunit.TestCase class, mainly to work around the
-    differences between unittest in Python 2.3, 2.4, and 2.5. These
-    differences are::
-
-        - The way doctest unittests describe themselves
-        - Where the implementation of TestCase.run is (used to be in __call__)
-        - Where the test method name is kept (mangled-private or non-mangled
-          private variable)
-
-    It also implements visit, which we like.
-    """
-
-    def __init__(self, test):
-        warnings.warn("Deprecated in Twisted 8.0.",
-                      category=DeprecationWarning)
-        self._test = test
-        test.id = self.id
-
-    def id(self):
-        cls = self._test.__class__
-        tmn = getattr(self._test, '_TestCase__testMethodName', None)
-        if tmn is None:
-            # python2.5's 'unittest' module is more sensible; but different.
-            tmn = self._test._testMethodName
-        return (cls.__module__ + '.' + cls.__name__ + '.' +
-                tmn)
-
-    def __repr__(self):
-        return 'PyUnitTestCase<%r>'%(self.id(),)
-
-    def __call__(self, results):
-        return self._test(results)
-
-
-    def visit(self, visitor):
-        """
-        Call the given visitor with the original, standard library, test case
-        that C{self} wraps. See L{unittest.TestCase.visit}.
-
-        Deprecated in Twisted 8.0.
-        """
-        warnings.warn("Test visitors deprecated in Twisted 8.0",
-                      category=DeprecationWarning)
-        visitor(self._test)
-
-
-    def __getattr__(self, name):
-        return getattr(self._test, name)
-
-
-
 class TrialSuite(TestSuite):
     """
     Suite to wrap around every single test in a C{trial} run. Used internally
@@ -374,10 +319,8 @@ class ErrorHolder(TestHolder):
 
 
     def __repr__(self):
-        return "<ErrorHolder description=%r error=%s%s>" % (
-            # Format the exception type and arguments explicitly, as exception
-            # objects do not have nice looking string formats on Python 2.4.
-            self.description, self.error[0].__name__, self.error[1].args)
+        return "<ErrorHolder description=%r error=%r>" % (
+            self.description, self.error[1])
 
 
     def run(self, result):
@@ -390,13 +333,6 @@ class ErrorHolder(TestHolder):
         result.startTest(self)
         result.addError(self, self.error)
         result.stopTest(self)
-
-
-    def visit(self, visitor):
-        """
-        See L{unittest.TestCase.visit}.
-        """
-        visitor(self)
 
 
 
@@ -663,13 +599,16 @@ class TestLoader(object):
         to same value and collapse to one test unexpectedly if using simpler
         means: e.g. set().
         """
-        entries = []
+        seen = set()
         for thing in things:
             if isinstance(thing, types.MethodType):
-                entries.append((thing, thing.im_class))
+                thing = (thing, thing.im_class)
             else:
-                entries.append((thing,))
-        return [entry[0] for entry in set(entries)]
+                thing = (thing,)
+
+            if thing not in seen:
+                yield thing[0]
+                seen.add(thing)
 
 
 
@@ -678,6 +617,12 @@ class DryRunVisitor(object):
     A visitor that makes a reporter think that every test visited has run
     successfully.
     """
+
+    deprecatedModuleAttribute(
+            Version("Twisted", 13, 0, 0),
+            "Trial no longer has support for visitors",
+            "twisted.trial.runner", "DryRunVisitor")
+
 
     def __init__(self, reporter):
         """
@@ -722,6 +667,8 @@ class TrialRunner(object):
     def _makeResult(self):
         reporter = self.reporterFactory(self.stream, self.tbformat,
                                         self.rterrors, self._log)
+        if self._exitFirst:
+            reporter = _ExitWrapper(reporter)
         if self.uncleanWarnings:
             reporter = UncleanWarningsReporterWrapper(reporter)
         return reporter
@@ -736,7 +683,8 @@ class TrialRunner(object):
                  uncleanWarnings=False,
                  workingDirectory=None,
                  forceGarbageCollection=False,
-                 debugger=None):
+                 debugger=None,
+                 exitFirst=False):
         self.reporterFactory = reporterFactory
         self.logfile = logfile
         self.mode = mode
@@ -750,6 +698,7 @@ class TrialRunner(object):
         self._logFileObject = None
         self._forceGarbageCollection = forceGarbageCollection
         self.debugger = debugger
+        self._exitFirst = exitFirst
         if profile:
             self.run = util.profiled(self.run, 'profile.data')
 

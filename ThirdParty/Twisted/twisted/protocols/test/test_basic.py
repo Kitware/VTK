@@ -9,11 +9,15 @@ from __future__ import division, absolute_import
 
 import sys
 import struct
+from io import BytesIO
+
+from zope.interface.verify import verifyObject
 
 from twisted.python.compat import _PY3, iterbytes
 from twisted.trial import unittest
 from twisted.protocols import basic
 from twisted.internet import protocol, error, task
+from twisted.internet.interfaces import IProducer
 from twisted.test import proto_helpers
 
 _PY3NEWSTYLESKIP = "All classes are new style on Python 3."
@@ -147,7 +151,8 @@ class LineOnlyTester(basic.LineOnlyReceiver):
 
 class LineReceiverTestCase(unittest.SynchronousTestCase):
     """
-    Test LineReceiver, using the C{LineTester} wrapper.
+    Test L{twisted.protocols.basic.LineReceiver}, using the C{LineTester}
+    wrapper.
     """
     buffer = b'''\
 len 10
@@ -297,6 +302,124 @@ a'''
         self.assertEqual(b'x' * limit, b''.join(proto.lines))
 
 
+    def test_rawDataError(self):
+        """
+        C{LineReceiver.dataReceived} forwards errors returned by
+        C{rawDataReceived}.
+        """
+        proto = basic.LineReceiver()
+        proto.rawDataReceived = lambda data: RuntimeError("oops")
+        transport = proto_helpers.StringTransport()
+        proto.makeConnection(transport)
+        proto.setRawMode()
+        why = proto.dataReceived(b'data')
+        self.assertIsInstance(why, RuntimeError)
+
+
+    def test_rawDataReceivedNotImplemented(self):
+        """
+        When L{LineReceiver.rawDataReceived} is not overridden in a
+        subclass, calling it raises C{NotImplementedError}.
+        """
+        proto = basic.LineReceiver()
+        self.assertRaises(NotImplementedError, proto.rawDataReceived, 'foo')
+
+
+    def test_lineReceivedNotImplemented(self):
+        """
+        When L{LineReceiver.lineReceived} is not overridden in a subclass,
+        calling it raises C{NotImplementedError}.
+        """
+        proto = basic.LineReceiver()
+        self.assertRaises(NotImplementedError, proto.lineReceived, 'foo')
+
+
+
+class ExcessivelyLargeLineCatcher(basic.LineReceiver):
+    """
+    Helper for L{LineReceiverLineLengthExceededTests}.
+
+    @ivar longLines: A L{list} of L{bytes} giving the values
+        C{lineLengthExceeded} has been called with.
+    """
+    def connectionMade(self):
+        self.longLines = []
+
+
+    def lineReceived(self, line):
+        """
+        Disregard any received lines.
+        """
+
+
+    def lineLengthExceeded(self, data):
+        """
+        Record any data that exceeds the line length limits.
+        """
+        self.longLines.append(data)
+
+
+
+class LineReceiverLineLengthExceededTests(unittest.SynchronousTestCase):
+    """
+    Tests for L{twisted.protocols.basic.LineReceiver.lineLengthExceeded}.
+    """
+    def setUp(self):
+        self.proto = ExcessivelyLargeLineCatcher()
+        self.proto.MAX_LENGTH = 6
+        self.transport = proto_helpers.StringTransport()
+        self.proto.makeConnection(self.transport)
+
+
+    def test_longUnendedLine(self):
+        """
+        If more bytes than C{LineReceiver.MAX_LENGTH} arrive containing no line
+        delimiter, all of the bytes are passed as a single string to
+        L{LineReceiver.lineLengthExceeded}.
+        """
+        excessive = b'x' * (self.proto.MAX_LENGTH * 2 + 2)
+        self.proto.dataReceived(excessive)
+        self.assertEqual([excessive], self.proto.longLines)
+
+
+    def test_longLineAfterShortLine(self):
+        """
+        If L{LineReceiver.dataReceived} is called with bytes representing a
+        short line followed by bytes that exceed the length limit without a
+        line delimiter, L{LineReceiver.lineLengthExceeded} is called with all
+        of the bytes following the short line's delimiter.
+        """
+        excessive = b'x' * (self.proto.MAX_LENGTH * 2 + 2)
+        self.proto.dataReceived(b'x' + self.proto.delimiter + excessive)
+        self.assertEqual([excessive], self.proto.longLines)
+
+
+    def test_longLineWithDelimiter(self):
+        """
+        If L{LineReceiver.dataReceived} is called with more than
+        C{LineReceiver.MAX_LENGTH} bytes containing a line delimiter somewhere
+        not in the first C{MAX_LENGTH} bytes, the entire byte string is passed
+        to L{LineReceiver.lineLengthExceeded}.
+        """
+        excessive = self.proto.delimiter.join(
+            [b'x' * (self.proto.MAX_LENGTH * 2 + 2)] * 2)
+        self.proto.dataReceived(excessive)
+        self.assertEqual([excessive], self.proto.longLines)
+
+
+    def test_multipleLongLines(self):
+        """
+        If L{LineReceiver.dataReceived} is called with more than
+        C{LineReceiver.MAX_LENGTH} bytes containing multiple line delimiters
+        somewhere not in the first C{MAX_LENGTH} bytes, the entire byte string
+        is passed to L{LineReceiver.lineLengthExceeded}.
+        """
+        excessive = (
+            b'x' * (self.proto.MAX_LENGTH * 2 + 2) + self.proto.delimiter) * 2
+        self.proto.dataReceived(excessive)
+        self.assertEqual([excessive], self.proto.longLines)
+
+
     def test_maximumLineLength(self):
         """
         C{LineReceiver} disconnects the transport if it receives a line longer
@@ -321,24 +444,10 @@ a'''
         self.assertTrue(transport.disconnecting)
 
 
-    def test_rawDataError(self):
-        """
-        C{LineReceiver.dataReceived} forwards errors returned by
-        C{rawDataReceived}.
-        """
-        proto = basic.LineReceiver()
-        proto.rawDataReceived = lambda data: RuntimeError("oops")
-        transport = proto_helpers.StringTransport()
-        proto.makeConnection(transport)
-        proto.setRawMode()
-        why = proto.dataReceived(b'data')
-        self.assertIsInstance(why, RuntimeError)
-
-
 
 class LineOnlyReceiverTestCase(unittest.SynchronousTestCase):
     """
-    Test line only receiveer.
+    Tests for L{twisted.protocols.basic.LineOnlyReceiver}.
     """
     buffer = b"""foo
     bleakness
@@ -367,6 +476,15 @@ class LineOnlyReceiverTestCase(unittest.SynchronousTestCase):
         a.makeConnection(t)
         res = a.dataReceived(b'x' * 200)
         self.assertIsInstance(res, error.ConnectionLost)
+
+
+    def test_lineReceivedNotImplemented(self):
+        """
+        When L{LineOnlyReceiver.lineReceived} is not overridden in a subclass,
+        calling it raises C{NotImplementedError}.
+        """
+        proto = basic.LineOnlyReceiver()
+        self.assertRaises(NotImplementedError, proto.lineReceived, 'foo')
 
 
 
@@ -426,7 +544,9 @@ class LPTestCaseMixin:
 
 
 class NetstringReceiverTestCase(unittest.SynchronousTestCase, LPTestCaseMixin):
-
+    """
+    Tests for L{twisted.protocols.basic.NetstringReceiver}.
+    """
     strings = [b'hello', b'world', b'how', b'are', b'you123', b':today',
                b"a" * 515]
 
@@ -645,34 +765,13 @@ class NetstringReceiverTestCase(unittest.SynchronousTestCase, LPTestCaseMixin):
                           self.netstringReceiver._consumeLength)
 
 
-    def test_deprecatedModuleAttributes(self):
+    def test_stringReceivedNotImplemented(self):
         """
-        Accessing one of the old module attributes used by the
-        NetstringReceiver parser emits a deprecation warning.
+        When L{NetstringReceiver.stringReceived} is not overridden in a
+        subclass, calling it raises C{NotImplementedError}.
         """
-        basic.LENGTH, basic.DATA, basic.COMMA, basic.NUMBER
-        warnings = self.flushWarnings(
-            offendingFunctions=[self.test_deprecatedModuleAttributes])
-
-        self.assertEqual(len(warnings), 4)
-        for warning in warnings:
-            self.assertEqual(warning['category'], DeprecationWarning)
-        self.assertEqual(
-            warnings[0]['message'],
-            ("twisted.protocols.basic.LENGTH was deprecated in Twisted 10.2.0: "
-             "NetstringReceiver parser state is private."))
-        self.assertEqual(
-            warnings[1]['message'],
-            ("twisted.protocols.basic.DATA was deprecated in Twisted 10.2.0: "
-             "NetstringReceiver parser state is private."))
-        self.assertEqual(
-            warnings[2]['message'],
-            ("twisted.protocols.basic.COMMA was deprecated in Twisted 10.2.0: "
-             "NetstringReceiver parser state is private."))
-        self.assertEqual(
-            warnings[3]['message'],
-            ("twisted.protocols.basic.NUMBER was deprecated in Twisted 10.2.0: "
-             "NetstringReceiver parser state is private."))
+        proto = basic.NetstringReceiver()
+        self.assertRaises(NotImplementedError, proto.stringReceived, 'foo')
 
 
 
@@ -743,6 +842,15 @@ class IntNTestCaseMixin(LPTestCaseMixin):
         r.dataReceived(
             struct.pack(r.structFormat, 11) + b'x' * 11)
         self.assertEqual(r.received, [])
+
+
+    def test_stringReceivedNotImplemented(self):
+        """
+        When L{IntNStringReceiver.stringReceived} is not overridden in a
+        subclass, calling it raises C{NotImplementedError}.
+        """
+        proto = basic.IntNStringReceiver()
+        self.assertRaises(NotImplementedError, proto.stringReceived, 'foo')
 
 
 
@@ -1059,3 +1167,113 @@ class ProducerTestCase(unittest.SynchronousTestCase):
         self.assertEqual(t.data, [b'hello, world', b'hello', b'world', b'goodbye'])
         self.failIf(t.paused)
         self.failIf(p.paused)
+
+
+
+class FileSenderTestCase(unittest.TestCase):
+    """
+    Tests for L{basic.FileSender}.
+    """
+
+    def test_interface(self):
+        """
+        L{basic.FileSender} implements the L{IPullProducer} interface.
+        """
+        sender = basic.FileSender()
+        self.assertTrue(verifyObject(IProducer, sender))
+
+
+    def test_producerRegistered(self):
+        """
+        When L{basic.FileSender.beginFileTransfer} is called, it registers
+        itself with provided consumer, as a non-streaming producer.
+        """
+        source = BytesIO(b"Test content")
+        consumer = proto_helpers.StringTransport()
+        sender = basic.FileSender()
+        sender.beginFileTransfer(source, consumer)
+        self.assertEqual(consumer.producer, sender)
+        self.assertFalse(consumer.streaming)
+
+
+    def test_transfer(self):
+        """
+        L{basic.FileSender} sends the content of the given file using a
+        C{IConsumer} interface via C{beginFileTransfer}. It returns a
+        L{Deferred} which fires with the last byte sent.
+        """
+        source = BytesIO(b"Test content")
+        consumer = proto_helpers.StringTransport()
+        sender = basic.FileSender()
+        d = sender.beginFileTransfer(source, consumer)
+        sender.resumeProducing()
+        # resumeProducing only finishes after trying to read at eof
+        sender.resumeProducing()
+        self.assertEqual(consumer.producer, None)
+
+        self.assertEqual(b"t", self.successResultOf(d))
+        self.assertEqual(b"Test content", consumer.value())
+
+
+    def test_transferMultipleChunks(self):
+        """
+        L{basic.FileSender} reads at most C{CHUNK_SIZE} every time it resumes
+        producing.
+        """
+        source = BytesIO(b"Test content")
+        consumer = proto_helpers.StringTransport()
+        sender = basic.FileSender()
+        sender.CHUNK_SIZE = 4
+        d = sender.beginFileTransfer(source, consumer)
+        # Ideally we would assertNoResult(d) here, but <http://tm.tl/6291>
+        sender.resumeProducing()
+        self.assertEqual(b"Test", consumer.value())
+        sender.resumeProducing()
+        self.assertEqual(b"Test con", consumer.value())
+        sender.resumeProducing()
+        self.assertEqual(b"Test content", consumer.value())
+        # resumeProducing only finishes after trying to read at eof
+        sender.resumeProducing()
+
+        self.assertEqual(b"t", self.successResultOf(d))
+        self.assertEqual(b"Test content", consumer.value())
+
+
+    def test_transferWithTransform(self):
+        """
+        L{basic.FileSender.beginFileTransfer} takes a C{transform} argument
+        which allows to manipulate the data on the fly.
+        """
+
+        def transform(chunk):
+            return chunk.swapcase()
+
+        source = BytesIO(b"Test content")
+        consumer = proto_helpers.StringTransport()
+        sender = basic.FileSender()
+        d = sender.beginFileTransfer(source, consumer, transform)
+        sender.resumeProducing()
+        # resumeProducing only finishes after trying to read at eof
+        sender.resumeProducing()
+
+        self.assertEqual(b"T", self.successResultOf(d))
+        self.assertEqual(b"tEST CONTENT", consumer.value())
+
+
+    def test_abortedTransfer(self):
+        """
+        The C{Deferred} returned by L{basic.FileSender.beginFileTransfer} fails
+        with an C{Exception} if C{stopProducing} when the transfer is not
+        complete.
+        """
+        source = BytesIO(b"Test content")
+        consumer = proto_helpers.StringTransport()
+        sender = basic.FileSender()
+        d = sender.beginFileTransfer(source, consumer)
+        # Abort the transfer right away
+        sender.stopProducing()
+
+        failure = self.failureResultOf(d)
+        failure.trap(Exception)
+        self.assertEqual("Consumer asked us to stop producing",
+                         str(failure.value))

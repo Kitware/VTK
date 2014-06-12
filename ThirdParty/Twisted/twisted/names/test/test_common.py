@@ -7,6 +7,9 @@ Tests for L{twisted.names.common}.
 
 from __future__ import division, absolute_import
 
+from zope.interface.verify import verifyClass
+
+from twisted.internet.interfaces import IResolver
 from twisted.trial.unittest import SynchronousTestCase
 from twisted.python.failure import Failure
 from twisted.names.common import ResolverBase
@@ -29,7 +32,7 @@ class ExceptionForCodeTests(SynchronousTestCase):
         L{ResolverBase.exceptionForCode} converts L{EFORMAT} to
         L{DNSFormatError}.
         """
-        self.assertIdentical(self.exceptionForCode(EFORMAT), DNSFormatError)
+        self.assertIs(self.exceptionForCode(EFORMAT), DNSFormatError)
 
 
     def test_eserver(self):
@@ -37,14 +40,14 @@ class ExceptionForCodeTests(SynchronousTestCase):
         L{ResolverBase.exceptionForCode} converts L{ESERVER} to
         L{DNSServerError}.
         """
-        self.assertIdentical(self.exceptionForCode(ESERVER), DNSServerError)
+        self.assertIs(self.exceptionForCode(ESERVER), DNSServerError)
 
 
     def test_ename(self):
         """
         L{ResolverBase.exceptionForCode} converts L{ENAME} to L{DNSNameError}.
         """
-        self.assertIdentical(self.exceptionForCode(ENAME), DNSNameError)
+        self.assertIs(self.exceptionForCode(ENAME), DNSNameError)
 
 
     def test_enotimp(self):
@@ -52,8 +55,7 @@ class ExceptionForCodeTests(SynchronousTestCase):
         L{ResolverBase.exceptionForCode} converts L{ENOTIMP} to
         L{DNSNotImplementedError}.
         """
-        self.assertIdentical(
-            self.exceptionForCode(ENOTIMP), DNSNotImplementedError)
+        self.assertIs(self.exceptionForCode(ENOTIMP), DNSNotImplementedError)
 
 
     def test_erefused(self):
@@ -61,8 +63,7 @@ class ExceptionForCodeTests(SynchronousTestCase):
         L{ResolverBase.exceptionForCode} converts L{EREFUSED} to
         L{DNSQueryRefusedError}.
         """
-        self.assertIdentical(
-            self.exceptionForCode(EREFUSED), DNSQueryRefusedError)
+        self.assertIs(self.exceptionForCode(EREFUSED), DNSQueryRefusedError)
 
 
     def test_other(self):
@@ -70,8 +71,7 @@ class ExceptionForCodeTests(SynchronousTestCase):
         L{ResolverBase.exceptionForCode} converts any other response code to
         L{DNSUnknownError}.
         """
-        self.assertIdentical(
-            self.exceptionForCode(object()), DNSUnknownError)
+        self.assertIs(self.exceptionForCode(object()), DNSUnknownError)
 
 
 
@@ -79,6 +79,14 @@ class QueryTests(SynchronousTestCase):
     """
     Tests for L{ResolverBase.query}.
     """
+
+    def test_resolverBaseProvidesIResolver(self):
+        """
+        L{ResolverBase} provides the L{IResolver} interface.
+        """
+        verifyClass(IResolver, ResolverBase)
+
+
     def test_typeToMethodDispatch(self):
         """
         L{ResolverBase.query} looks up a method to invoke using the type of the
@@ -123,4 +131,3 @@ class QueryTests(SynchronousTestCase):
         queryDeferred.addBoth(result.append)
         self.assertIsInstance(result[0], Failure)
         result[0].trap(NotImplementedError)
-

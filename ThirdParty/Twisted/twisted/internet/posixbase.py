@@ -15,7 +15,7 @@ import sys
 
 from zope.interface import implementer, classImplements
 
-from twisted.python.compat import set, _PY3
+from twisted.python.compat import _PY3
 from twisted.internet.interfaces import IReactorUNIX, IReactorUNIXDatagram
 from twisted.internet.interfaces import (
     IReactorTCP, IReactorUDP, IReactorSSL, IReactorSocket)
@@ -23,7 +23,7 @@ from twisted.internet.interfaces import IReactorProcess, IReactorMulticast
 from twisted.internet.interfaces import IHalfCloseableDescriptor
 from twisted.internet import error, udp, tcp
 
-from twisted.python import log, failure, _utilpy3 as util
+from twisted.python import log, failure, util
 from twisted.python.runtime import platformType, platform
 
 from twisted.internet.base import ReactorBase, _SignalReactorMixin
@@ -391,8 +391,6 @@ class PosixReactorBase(_SignalReactorMixin, _DisconnectSelectableMixin,
     # IReactorUNIX
 
     def connectUNIX(self, address, factory, timeout=30, checkPID=0):
-        """@see: twisted.internet.interfaces.IReactorUNIX.connectUNIX
-        """
         assert unixEnabled, "UNIX support is not present"
         # Move this import back up to main level when twisted.internet.unix is
         # ported to Python 3:
@@ -402,9 +400,6 @@ class PosixReactorBase(_SignalReactorMixin, _DisconnectSelectableMixin,
         return c
 
     def listenUNIX(self, address, factory, backlog=50, mode=0o666, wantPID=0):
-        """
-        @see: twisted.internet.interfaces.IReactorUNIX.listenUNIX
-        """
         assert unixEnabled, "UNIX support is not present"
         # Move this import back up to main level when twisted.internet.unix is
         # ported to Python 3:
@@ -480,18 +475,27 @@ class PosixReactorBase(_SignalReactorMixin, _DisconnectSelectableMixin,
             fileDescriptor, addressFamily, factory, self)
 
 
+    def adoptDatagramPort(self, fileDescriptor, addressFamily, protocol,
+                          maxPacketSize=8192):
+        if addressFamily not in (socket.AF_INET, socket.AF_INET6):
+            raise error.UnsupportedAddressFamily(addressFamily)
+
+        p = udp.Port._fromListeningDescriptor(
+            self, fileDescriptor, addressFamily, protocol,
+            maxPacketSize=maxPacketSize)
+        p.startListening()
+        return p
+
+
+
     # IReactorTCP
 
     def listenTCP(self, port, factory, backlog=50, interface=''):
-        """@see: twisted.internet.interfaces.IReactorTCP.listenTCP
-        """
         p = tcp.Port(port, factory, backlog, interface, self)
         p.startListening()
         return p
 
     def connectTCP(self, host, port, factory, timeout=30, bindAddress=None):
-        """@see: twisted.internet.interfaces.IReactorTCP.connectTCP
-        """
         c = tcp.Connector(host, port, factory, timeout, bindAddress, self)
         c.connect()
         return c
@@ -499,8 +503,6 @@ class PosixReactorBase(_SignalReactorMixin, _DisconnectSelectableMixin,
     # IReactorSSL (sometimes, not implemented)
 
     def connectSSL(self, host, port, factory, contextFactory, timeout=30, bindAddress=None):
-        """@see: twisted.internet.interfaces.IReactorSSL.connectSSL
-        """
         if tls is not None:
             tlsFactory = tls.TLSMemoryBIOFactory(contextFactory, True, factory)
             return self.connectTCP(host, port, tlsFactory, timeout, bindAddress)
@@ -515,8 +517,6 @@ class PosixReactorBase(_SignalReactorMixin, _DisconnectSelectableMixin,
 
 
     def listenSSL(self, port, factory, contextFactory, backlog=50, interface=''):
-        """@see: twisted.internet.interfaces.IReactorSSL.listenSSL
-        """
         if tls is not None:
             tlsFactory = tls.TLSMemoryBIOFactory(contextFactory, False, factory)
             port = self.listenTCP(port, tlsFactory, backlog, interface)
@@ -594,7 +594,7 @@ class _PollLikeMixin(object):
             # Any non-disconnect event turns into a doRead or a doWrite.
             try:
                 # First check to see if the descriptor is still valid.  This
-                # gives fileno() a chance to raise an exception, too. 
+                # gives fileno() a chance to raise an exception, too.
                 # Ideally, disconnection would always be indicated by the
                 # return value of doRead or doWrite (or an exception from
                 # one of those methods), but calling fileno here helps make

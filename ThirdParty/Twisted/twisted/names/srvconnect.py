@@ -2,15 +2,15 @@
 # Copyright (c) Twisted Matrix Laboratories.
 # See LICENSE for details.
 
-import random
+from functools import reduce
 
 from zope.interface import implements
 
 from twisted.internet import error, interfaces
-
 from twisted.names import client, dns
 from twisted.names.error import DNSNameError
-from twisted.python.compat import reduce
+from twisted.python.compat import unicode
+
 
 class _SRVConnector_ClientFactoryWrapper:
     def __init__(self, connector, wrappedFactory):
@@ -29,6 +29,8 @@ class _SRVConnector_ClientFactoryWrapper:
     def __getattr__(self, key):
         return getattr(self.__wrappedFactory, key)
 
+
+
 class SRVConnector:
     """A connector that looks up DNS SRV records. See RFC2782."""
 
@@ -43,7 +45,10 @@ class SRVConnector:
                  defaultPort=None,
                  ):
         """
-        @ivar defaultPort: Optional default port number to be used when SRV
+        @param domain: The domain to connect to.  If passed as a unicode
+            string, it will be encoded using C{idna} encoding.
+        @type domain: L{bytes} or L{unicode}
+        @param defaultPort: Optional default port number to be used when SRV
             lookup fails and the service name is unknown. This should be the
             port number associated with the service name as defined by the IANA
             registry.
@@ -51,6 +56,8 @@ class SRVConnector:
         """
         self.reactor = reactor
         self.service = service
+        if isinstance(domain, unicode):
+            domain = domain.encode('idna')
         self.domain = domain
         self.factory = factory
 
@@ -154,7 +161,6 @@ class SRVConnector:
         weightIndex = zip(xrange(len(self.servers)), [x[1] for x in self.servers
                                                       if x[0]==minPriority])
         weightSum = reduce(lambda x, y: (None, x[1]+y[1]), weightIndex, (None, 0))[1]
-        rand = random.randint(0, weightSum)
 
         for index, weight in weightIndex:
             weightSum -= weight

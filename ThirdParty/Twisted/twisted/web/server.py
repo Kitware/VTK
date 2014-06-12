@@ -9,9 +9,6 @@ infrastructure.
 
 from __future__ import division, absolute_import
 
-import warnings
-import string
-import types
 import copy
 import os
 try:
@@ -34,10 +31,10 @@ if _PY3:
         """
 else:
     from twisted.spread.pb import Copyable, ViewPoint
-from twisted.internet import address, task
+from twisted.internet import address
 from twisted.web import iweb, http, html
 from twisted.web.http import unquote
-from twisted.python import log, _reflectpy3 as reflect, failure, components
+from twisted.python import log, reflect, failure, components
 from twisted import copyright
 # Re-enable as part of #6178 when twisted.web.util is ported to Python 3:
 if not _PY3:
@@ -537,10 +534,8 @@ class Session(components.Componentized):
     @ivar _reactor: An object providing L{IReactorTime} to use for scheduling
         expiration.
     @ivar sessionTimeout: timeout of a session, in seconds.
-    @ivar loopFactory: Deprecated in Twisted 9.0.  Does nothing.  Do not use.
     """
     sessionTimeout = 900
-    loopFactory = task.LoopingCall
 
     _expireCall = None
 
@@ -561,19 +556,12 @@ class Session(components.Componentized):
         self.sessionNamespaces = {}
 
 
-    def startCheckingExpiration(self, lifetime=None):
+    def startCheckingExpiration(self):
         """
         Start expiration tracking.
 
-        @param lifetime: Ignored; deprecated.
-
         @return: C{None}
         """
-        if lifetime is not None:
-            warnings.warn(
-                "The lifetime parameter to startCheckingExpiration is "
-                "deprecated since Twisted 9.0.  See Session.sessionTimeout "
-                "instead.", DeprecationWarning, stacklevel=2)
         self._expireCall = self._reactor.callLater(
             self.sessionTimeout, self.expire)
 
@@ -608,16 +596,6 @@ class Session(components.Componentized):
             self._expireCall.reset(self.sessionTimeout)
 
 
-    def checkExpired(self):
-        """
-        Deprecated; does nothing.
-        """
-        warnings.warn(
-            "Session.checkExpired is deprecated since Twisted 9.0; sessions "
-            "check themselves now, you don't need to.",
-            stacklevel=2, category=DeprecationWarning)
-
-
 version = networkString("TwistedWeb/%s" % (copyright.version,))
 
 
@@ -639,11 +617,16 @@ class Site(http.HTTPFactory):
     sessionFactory = Session
     sessionCheckTime = 1800
 
-    def __init__(self, resource, logPath=None, timeout=60*60*12):
+    def __init__(self, resource, *args, **kwargs):
         """
-        Initialize.
+        @param resource: The root of the resource hierarchy.  All request
+            traversal for requests received by this factory will begin at this
+            resource.
+        @type resource: L{IResource} provider
+
+        @see: L{twisted.web.http.HTTPFactory.__init__}
         """
-        http.HTTPFactory.__init__(self, logPath=logPath, timeout=timeout)
+        http.HTTPFactory.__init__(self, *args, **kwargs)
         self.sessions = {}
         self.resource = resource
 
@@ -660,7 +643,7 @@ class Site(http.HTTPFactory):
         """
         (internal) Generate an opaque, unique ID for a user's session.
         """
-        from twisted.python.hashlib import md5
+        from hashlib import md5
         import random
         self.counter = self.counter + 1
         return md5(networkString(
