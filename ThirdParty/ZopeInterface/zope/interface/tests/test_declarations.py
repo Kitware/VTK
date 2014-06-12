@@ -15,7 +15,7 @@
 """
 import unittest
 
-from zope.interface._compat import _skip_under_py3k
+from zope.interface._compat import _skip_under_py3k, _u
 
 
 class _SilencePy3Deprecations(unittest.TestCase):
@@ -51,7 +51,38 @@ class _Py3ClassAdvice(object):
                 else:
                     if fails_under_py3k:
                         self.fail("Didn't raise TypeError")
- 
+
+
+class NamedTests(unittest.TestCase):
+
+    def test_class(self):
+        from zope.interface.declarations import named
+
+        @named(_u('foo'))
+        class Foo(object):
+            pass
+
+        self.assertEqual(Foo.__component_name__, _u('foo'))
+
+    def test_function(self):
+        from zope.interface.declarations import named
+
+        @named(_u('foo'))
+        def doFoo(object):
+            pass
+
+        self.assertEqual(doFoo.__component_name__, _u('foo'))
+
+    def test_instance(self):
+        from zope.interface.declarations import named
+
+        class Foo(object):
+            pass
+        foo = Foo()
+        named(_u('foo'))(foo)
+
+        self.assertEqual(foo.__component_name__, _u('foo'))
+
 
 class DeclarationTests(_SilencePy3Deprecations):
 
@@ -61,7 +92,7 @@ class DeclarationTests(_SilencePy3Deprecations):
 
     def _makeOne(self, *args, **kw):
         return self._getTargetClass()(*args, **kw)
- 
+
     def test_ctor_no_bases(self):
         decl = self._makeOne()
         self.assertEqual(list(decl.__bases__), [])
@@ -217,7 +248,7 @@ class DeclarationTests(_SilencePy3Deprecations):
         other = self._makeOne(IBar, IBaz)
         after = before + other
         self.assertEqual(list(after), [IFoo, IBar, IBaz])
- 
+
 
 class ImplementsTests(_SilencePy3Deprecations):
 
@@ -227,19 +258,19 @@ class ImplementsTests(_SilencePy3Deprecations):
 
     def _makeOne(self, *args, **kw):
         return self._getTargetClass()(*args, **kw)
- 
+
     def test_ctor_no_bases(self):
         impl = self._makeOne()
         self.assertEqual(impl.inherit, None)
         self.assertEqual(impl.declared, ())
         self.assertEqual(impl.__name__, '?')
         self.assertEqual(list(impl.__bases__), [])
- 
+
     def test___repr__(self):
         impl = self._makeOne()
         impl.__name__ = 'Testing'
         self.assertEqual(repr(impl), '<implementedBy Testing>')
- 
+
     def test___reduce__(self):
         from zope.interface.declarations import implementedBy
         impl = self._makeOne()
