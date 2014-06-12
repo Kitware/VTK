@@ -85,7 +85,7 @@ void main()
   gl_FragColor = vec4(ambientColor + diffuse + specular, opacity);
   //VTK::TCoord::Impl
 
-  if (gl_FragColor.a <= 0)
+  if (gl_FragColor.a <= 0.0)
     {
     discard;
     }
