@@ -1,6 +1,6 @@
 ###############################################################################
 ##
-##  Copyright 2012-2013 Tavendo GmbH
+##  Copyright (C) 2012-2014 Tavendo GmbH
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -21,21 +21,24 @@ __all__ = ("WebSocketResource",
            "WSGIRootResource",)
 
 
-from zope.interface import implements
+from zope.interface import implementer
 
-from twisted.python import log
 from twisted.protocols.policies import ProtocolWrapper
 try:
    from twisted.web.error import NoResource
 except:
    ## starting from Twisted 12.2, NoResource has moved
    from twisted.web.resource import NoResource
-from twisted.web.error import UnsupportedMethod
 from twisted.web.resource import IResource, Resource
-from twisted.web.server import NOT_DONE_YET
+
+## The following imports reactor at module level
+## See: https://twistedmatrix.com/trac/ticket/6849
 from twisted.web.http import HTTPChannel
 
-from websocket import WebSocketServerFactory, WebSocketServerProtocol
+## .. and this also, since it imports t.w.http
+##
+from twisted.web.server import NOT_DONE_YET
+
 
 
 class HTTPChannelHixie76Aware(HTTPChannel):
@@ -49,7 +52,7 @@ class HTTPChannelHixie76Aware(HTTPChannel):
    `twisted.web.server.Site <http://twistedmatrix.com/documents/current/api/twisted.web.server.Site.html>`_ instance.
 
    See:
-      * `Autobahn Twisted Web site example <https://github.com/tavendo/AutobahnPython/tree/master/examples/websocket/echo_site>`_
+      * `Autobahn Twisted Web site example <https://github.com/tavendo/AutobahnPython/tree/master/examples/twisted/websocket/echo_site>`_
    """
 
    def headerReceived(self, line):
@@ -57,6 +60,7 @@ class HTTPChannelHixie76Aware(HTTPChannel):
       if header == "sec-websocket-key1" and not self._transferDecoder:
          HTTPChannel.headerReceived(self, "Content-Length: 8")
       HTTPChannel.headerReceived(self, line)
+
 
 
 class WSGIRootResource(Resource):
@@ -70,7 +74,7 @@ class WSGIRootResource(Resource):
    does not provide a `putChild()` method.
 
    See also:
-      * `Autobahn Twisted Web WSGI example <https://github.com/tavendo/AutobahnPython/tree/master/examples/websocket/echo_wsgi>`_
+      * `Autobahn Twisted Web WSGI example <https://github.com/tavendo/AutobahnPython/tree/master/examples/twisted/websocket/echo_wsgi>`_
       * `Original hack <http://blog.vrplumber.com/index.php?/archives/2426-Making-your-Twisted-resources-a-url-sub-tree-of-your-WSGI-resource....html>`_
    """
 
@@ -93,13 +97,13 @@ class WSGIRootResource(Resource):
       return self._wsgiResource
 
 
+
+@implementer(IResource)
 class WebSocketResource(object):
    """
    A Twisted Web resource for WebSocket. This resource needs to be instantiated
    with a factory derived from WebSocketServerFactory.
    """
-
-   implements(IResource)
 
    isLeaf = True
 
@@ -107,7 +111,7 @@ class WebSocketResource(object):
       """
       Ctor.
 
-      :param factory: An instance of WebSocketServerFactory.
+      :param factory: An instance of :class:`autobahn.twisted.websocket.WebSocketServerFactory`.
       :type factory: obj
       """
       self._factory = factory
@@ -162,7 +166,7 @@ class WebSocketResource(object):
       ## which we will do a 2nd time), but it's totally non-invasive to our
       ## code. Maybe improve this.
       ##
-      data = "%s %s HTTP/1.1\x0d\x0a" % (request.method, request.path)
+      data = "%s %s HTTP/1.1\x0d\x0a" % (request.method, request.uri)
       for h in request.requestHeaders.getAllRawHeaders():
          data += "%s: %s\x0d\x0a" % (h[0], ",".join(h[1]))
       data += "\x0d\x0a"

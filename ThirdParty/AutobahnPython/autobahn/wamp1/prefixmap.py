@@ -1,6 +1,6 @@
 ###############################################################################
 ##
-##  Copyright 2011-2013 Tavendo GmbH
+##  Copyright (C) 2011-2013 Tavendo GmbH
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 ###############################################################################
 
 __all__ = ("PrefixMap",)
+
 
 class PrefixMap:
    """
@@ -80,7 +81,7 @@ class PrefixMap:
       :param prefix: Prefix for which mapping should be removed.
       :type str
       """
-      uri = index.get(index, None)
+      uri = self.index.get(prefix, None)
       if uri:
          del self.index[prefix]
          del self.rindex[uri]
@@ -136,9 +137,9 @@ class PrefixMap:
 
 if __name__ == '__main__':
    m = PrefixMap()
-   print m.resolve("http://www.w3.org/1999/02/22-rdf-syntax-ns#label")
-   print m.resolve("rdf:label")
-   print m.resolve("foobar:label")
-   print m.shrink("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-   print m.shrink("http://www.w3.org/1999/02/22-rdf-syntax-ns#label")
-   print m.shrink("http://foobar.org#label")
+   print(m.resolve("http://www.w3.org/1999/02/22-rdf-syntax-ns#label"))
+   print(m.resolve("rdf:label"))
+   print(m.resolve("foobar:label"))
+   print(m.shrink("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+   print(m.shrink("http://www.w3.org/1999/02/22-rdf-syntax-ns#label"))
+   print(m.shrink("http://foobar.org#label"))

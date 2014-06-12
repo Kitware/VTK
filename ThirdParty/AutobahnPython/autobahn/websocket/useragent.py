@@ -1,6 +1,6 @@
 ###############################################################################
 ##
-##  Copyright 2011-2013 Tavendo GmbH
+##  Copyright (C) 2011-2013 Tavendo GmbH
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -307,6 +307,6 @@ def lookupWsSupport(ua, debug = True):
       else:
          msg = "ERROR"
 
-      print "DETECT_WS_SUPPORT", ua, ws[0], ws[1], ws[2], msg
+      print("DETECT_WS_SUPPORT: %s %s %s %s %s" % (ua, ws[0], ws[1], ws[2], msg))
 
    return ws

@@ -44,12 +44,20 @@
 __all__ = ("pbkdf2_hex",
            "pbkdf2_bin",)
 
+import sys
+PY3 = sys.version_info >= (3,)
+
+
 import hmac
 import hashlib
 from struct import Struct
 from operator import xor
-from itertools import izip, starmap
+from itertools import starmap
 
+if PY3:
+   izip = zip
+else:
+   from itertools import izip, starmap
 
 _pack_int = Struct('>I').pack
 
@@ -86,14 +94,14 @@ def test():
     def check(data, salt, iterations, keylen, expected):
         rv = pbkdf2_hex(data, salt, iterations, keylen)
         if rv != expected:
-            print 'Test failed:'
-            print '  Expected:   %s' % expected
-            print '  Got:        %s' % rv
-            print '  Parameters:'
-            print '    data=%s' % data
-            print '    salt=%s' % salt
-            print '    iterations=%d' % iterations
-            print
+            print('Test failed:')
+            print('  Expected:   %s' % expected)
+            print('  Got:        %s' % rv)
+            print('  Parameters:')
+            print('    data=%s' % data)
+            print('    salt=%s' % salt)
+            print('    iterations=%d' % iterations)
+            print()
             failed.append(1)
 
     # From RFC 6070

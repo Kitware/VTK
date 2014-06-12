@@ -21,9 +21,6 @@ __all__ = ("FlashPolicyProtocol", "FlashPolicyFactory",)
 
 import re
 
-from twisted.python import log
-from twisted.internet import reactor
-from twisted.application.internet import TCPServer
 from twisted.internet.protocol import Protocol, Factory
 
 
@@ -38,7 +35,7 @@ class FlashPolicyProtocol(Protocol):
    older browser, in particular MSIE9/8.
 
    See:
-      * `Autobahn WebSocket fallbacks example <https://github.com/tavendo/AutobahnPython/tree/master/examples/websocket/echo_wsfallbacks>`_
+      * `Autobahn WebSocket fallbacks example <https://github.com/tavendo/AutobahnPython/tree/master/examples/twisted/websocket/echo_wsfallbacks>`_
       * `Flash policy files background <http://www.lightsphere.com/dev/articles/flash_socket_policy.html>`_
    """
 
@@ -65,7 +62,7 @@ class FlashPolicyProtocol(Protocol):
       def dropConnection():
          self.transport.abortConnection()
          self.dropConnection = None
-      self.dropConnection = reactor.callLater(FlashPolicyProtocol.REQUESTTIMEOUT, dropConnection)
+      self.dropConnection = self.factory.reactor.callLater(FlashPolicyProtocol.REQUESTTIMEOUT, dropConnection)
 
 
    def connectionLost(self, reason):
@@ -93,14 +90,24 @@ class FlashPolicyProtocol(Protocol):
 
 class FlashPolicyFactory(Factory):
 
-   def __init__(self, allowedPort):
+   def __init__(self, allowedPort, reactor = None):
       """
       Ctor.
 
       :param allowedPort: The port to which Flash player should be allowed to connect.
       :type allowedPort: int
+      :param reactor: Twisted reactor to use. If not given, autoimport.
+      :type reactor: obj
       """
+      ## lazy import to avoid reactor install upon module import
+      if reactor is None:
+         from twisted.internet import reactor
+      self.reactor = reactor
+
       self.allowedPort = allowedPort
 
+
    def buildProtocol(self, addr):
-      return FlashPolicyProtocol(self.allowedPort)
+      proto = FlashPolicyProtocol(self.allowedPort)
+      proto.factory = self
+      return proto

@@ -1,6 +1,6 @@
 ###############################################################################
 ##
-##  Copyright 2011-2013 Tavendo GmbH
+##  Copyright (C) 2011-2013 Tavendo GmbH
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -16,6 +16,12 @@
 ##
 ###############################################################################
 
+from __future__ import absolute_import
+
+import sys
+PY3 = sys.version_info >= (3,)
+
+
 __all__ = ("WampProtocol",
            "WampFactory",
            "WampServerProtocol",
@@ -24,31 +30,38 @@ __all__ = ("WampProtocol",
            "WampClientFactory",
            "WampCraProtocol",
            "WampCraClientProtocol",
-           "WampCraServerProtocol",)
+           "WampCraServerProtocol",
+           "json_lib",
+           "json_loads",
+           "json_dumps",)
 
-import json
-import random
+
 import inspect, types
 import traceback
 
-import hashlib, hmac, binascii
+if PY3:
+   from io import StringIO
+else:
+   import StringIO
+
+import hashlib, hmac, binascii, random
 
 from twisted.python import log
-from twisted.internet import reactor
 from twisted.internet.defer import Deferred, \
-                                   maybeDeferred, \
-                                   returnValue, \
-                                   inlineCallbacks
+                                   maybeDeferred
 
-from _version import __version__
-from websocket import WebSocketProtocol, HttpException, Timings
-from websocket import WebSocketClientProtocol, WebSocketClientFactory
-from websocket import WebSocketServerFactory, WebSocketServerProtocol
+from autobahn import __version__
 
-from httpstatus import HTTP_STATUS_CODE_BAD_REQUEST
-from pbkdf2 import pbkdf2_bin
-from prefixmap import PrefixMap
-from util import utcstr, utcnow, parseutc, newid
+from autobahn.websocket.protocol import WebSocketProtocol, \
+                                        Timings
+from autobahn.websocket import http
+from autobahn.twisted.websocket import WebSocketClientProtocol, \
+                                       WebSocketClientFactory, \
+                                       WebSocketServerFactory, \
+                                       WebSocketServerProtocol
+from autobahn.wamp1.pbkdf2 import pbkdf2_bin
+from autobahn.wamp1.prefixmap import PrefixMap
+from autobahn.util import utcnow, newid
 
 
 def exportRpc(arg = None):
@@ -130,6 +143,11 @@ class WampProtocol:
    DESC_WAMP_ERROR_INTERNAL = "internal error"
    """
    Description for WAMP internal errors.
+   """
+
+   URI_WAMP_ERROR_NO_SUCH_RPC_ENDPOINT = URI_WAMP_ERROR + "NoSuchRPCEndpoint"
+   """
+   WAMP error URI for RPC endpoint not found.
    """
 
    WAMP_PROTOCOL_VERSION         = 1
@@ -458,23 +476,43 @@ class WampProtocol:
 
 
 
+## use Ultrajson (https://github.com/esnme/ultrajson) if available
+##
+try:
+   import ujson
+   json_lib = ujson
+   json_loads = ujson.loads
+   json_dumps = lambda x: ujson.dumps(x, ensure_ascii = False)
+except:
+   import json
+   json_lib = json
+   json_loads = json.loads
+   json_dumps = json.dumps
+
+
+
 class WampFactory:
    """
    WAMP factory base class. Mixin for WampServerFactory and WampClientFactory.
    """
 
+   def __init__(self):
+      if self.debugWamp:
+         log.msg("Using JSON processor '%s'" % json_lib.__name__)
+
+
    def _serialize(self, obj):
       """
       Default object serializer.
       """
-      return json.dumps(obj)
+      return json_dumps(obj)
 
 
    def _unserialize(self, bytes):
       """
       Default object deserializer.
       """
-      return json.loads(bytes)
+      return json_loads(bytes)
 
 
 
@@ -502,7 +540,7 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
 
       ## include traceback as error detail for RPC errors with
       ## no error URI - that is errors returned with URI_WAMP_ERROR_GENERIC
-      self.includeTraceback = True
+      self.includeTraceback = False
 
       msg = [WampProtocol.MESSAGE_TYPEID_WELCOME,
              self.session_id,
@@ -523,8 +561,8 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
       """
       for p in connectionRequest.protocols:
          if p in self.factory.protocols:
-            return p
-      raise HttpException(HTTP_STATUS_CODE_BAD_REQUEST[0], "this server only speaks WAMP")
+            return (p, {}) # return (protocol, headers)
+      raise http.HttpException(http.BAD_REQUEST[0], "this server only speaks WAMP")
 
 
    def connectionMade(self):
@@ -557,10 +595,20 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
       WebSocketServerProtocol.connectionLost(self, reason)
 
 
-   def sendMessage(self, payload):
+   def sendMessage(self,
+                   payload,
+                   binary = False,
+                   payload_frag_size = None,
+                   sync = False,
+                   doNotCompress = False):
       if self.debugWamp:
          log.msg("TX WAMP: %s" % str(payload))
-      WebSocketServerProtocol.sendMessage(self, payload)
+      WebSocketServerProtocol.sendMessage(self,
+                                          payload,
+                                          binary,
+                                          payload_frag_size,
+                                          sync,
+                                          doNotCompress)
 
 
    def _getPubHandler(self, topicUri):
@@ -742,22 +790,24 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
 
                         ## topic handled by subscription handler
                         else:
-                           try:
-                              ## handler is object method
-                              if h[2]:
-                                 a = h[3](h[2], str(h[0]), str(h[1]))
+                           ## handler is object method
+                           if h[2]:
+                              a = maybeDeferred(h[3], h[2], str(h[0]), str(h[1]))
 
-                              ## handler is free standing procedure
-                              else:
-                                 a = h[3](str(h[0]), str(h[1]))
+                           ## handler is free standing procedure
+                           else:
+                              a = maybeDeferred(h[3], str(h[0]), str(h[1]))
 
-                              ## only subscribe client if handler did return True
-                              if a:
-                                 self.factory._subscribeClient(self, topicUri)
-                           except:
+                           def fail(failure):
                               if self.debugWamp:
-                                 log.msg("exception during topic subscription handler:")
-                              traceback.print_exc()
+                                 log.msg("exception during custom subscription handler: %s" % failure)
+
+                           def done(result):
+                              ## only subscribe client if handler did return True
+                              if result:
+                                 self.factory._subscribeClient(self, topicUri)
+
+                           a.addCallback(done).addErrback(fail)
                      else:
                         if self.debugWamp:
                            log.msg("topic %s matches only by prefix and prefix match disallowed" % topicUri)
@@ -815,22 +865,24 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
 
                         ## topic handled by publication handler
                         else:
-                           try:
-                              ## handler is object method
-                              if h[2]:
-                                 e = h[3](h[2], str(h[0]), str(h[1]), event)
+                           ## handler is object method
+                           if h[2]:
+                              e = maybeDeferred(h[3], h[2], str(h[0]), str(h[1]), event)
 
-                              ## handler is free standing procedure
-                              else:
-                                 e = h[3](str(h[0]), str(h[1]), event)
+                           ## handler is free standing procedure
+                           else:
+                              e = maybeDeferred(h[3], str(h[0]), str(h[1]), event)
 
-                              ## only dispatch event if handler did return event
-                              if e:
-                                 self.factory.dispatch(topicUri, e, exclude, eligible)
-                           except:
+                           def fail(failure):
                               if self.debugWamp:
-                                 log.msg("exception during topic publication handler:")
-                              traceback.print_exc()
+                                 log.msg("exception during custom publication handler: %s" % failure)
+
+                           def done(result):
+                              ## only dispatch event if handler did return event
+                              if result:
+                                 self.factory.dispatch(topicUri, result, exclude, eligible)
+
+                           e.addCallback(done).addErrback(fail)
                      else:
                         if self.debugWamp:
                            log.msg("topic %s matches only by prefix and prefix match disallowed" % topicUri)
@@ -849,7 +901,7 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
                   log.msg("unknown message type")
             else:
                log.msg("msg not a list")
-         except Exception, e:
+         except Exception as e:
             traceback.print_exc()
       else:
          log.msg("binary message")
@@ -866,10 +918,24 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
    Twisted protocol used by default for WAMP servers.
    """
 
-   def __init__(self, url, debug = False, debugCodePaths = False, debugWamp = False, debugApp = False, externalPort = None):
-      WebSocketServerFactory.__init__(self, url, protocols = ["wamp"], debug = debug, debugCodePaths = debugCodePaths, externalPort = externalPort)
+   def __init__(self,
+                url,
+                debug = False,
+                debugCodePaths = False,
+                debugWamp = False,
+                debugApp = False,
+                externalPort = None,
+                reactor = None):
       self.debugWamp = debugWamp
       self.debugApp = debugApp
+      WebSocketServerFactory.__init__(self,
+                                      url,
+                                      protocols = ["wamp"],
+                                      debug = debug,
+                                      debugCodePaths = debugCodePaths,
+                                      externalPort = externalPort,
+                                      reactor = reactor)
+      WampFactory.__init__(self)
 
 
    def onClientSubscribed(self, proto, topicUri):
@@ -895,11 +961,11 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
       if not proto in self.subscriptions[topicUri]:
          self.subscriptions[topicUri].add(proto)
          if self.debugWamp:
-            log.msg("subscribed peer %s on topic %s" % (proto.peerstr, topicUri))
+            log.msg("subscribed peer %s on topic %s" % (proto.peer, topicUri))
          self.onClientSubscribed(proto, topicUri)
       else:
          if self.debugWamp:
-            log.msg("peer %s already subscribed on topic %s" % (proto.peerstr, topicUri))
+            log.msg("peer %s already subscribed on topic %s" % (proto.peer, topicUri))
 
 
    def onClientUnsubscribed(self, proto, topicUri):
@@ -922,7 +988,7 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
          if self.subscriptions.has_key(topicUri) and proto in self.subscriptions[topicUri]:
             self.subscriptions[topicUri].discard(proto)
             if self.debugWamp:
-               log.msg("unsubscribed peer %s from topic %s" % (proto.peerstr, topicUri))
+               log.msg("unsubscribed peer %s from topic %s" % (proto.peer, topicUri))
             if len(self.subscriptions[topicUri]) == 0:
                del self.subscriptions[topicUri]
                if self.debugWamp:
@@ -930,20 +996,20 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
             self.onClientUnsubscribed(proto, topicUri)
          else:
             if self.debugWamp:
-               log.msg("peer %s not subscribed on topic %s" % (proto.peerstr, topicUri))
+               log.msg("peer %s not subscribed on topic %s" % (proto.peer, topicUri))
       else:
          for topicUri, subscribers in self.subscriptions.items():
             if proto in subscribers:
                subscribers.discard(proto)
                if self.debugWamp:
-                  log.msg("unsubscribed peer %s from topic %s" % (proto.peerstr, topicUri))
+                  log.msg("unsubscribed peer %s from topic %s" % (proto.peer, topicUri))
                if len(subscribers) == 0:
                   del self.subscriptions[topicUri]
                   if self.debugWamp:
                      log.msg("topic %s removed from subscriptions map - no one subscribed anymore" % topicUri)
                self.onClientUnsubscribed(proto, topicUri)
          if self.debugWamp:
-            log.msg("unsubscribed peer %s from all topics" % (proto.peerstr))
+            log.msg("unsubscribed peer %s from all topics" % (proto.peer))
 
 
    def dispatch(self, topicUri, event, exclude = [], eligible = None):
@@ -998,7 +1064,7 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
                msg = self._serialize(o)
                if self.debugWamp:
                   log.msg("serialized event msg: " + str(msg))
-            except Exception, e:
+            except Exception as e:
                raise Exception("invalid type for event - serialization failed [%s]" % e)
 
             preparedMsg = self.prepareMessage(msg)
@@ -1036,7 +1102,7 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
                   pass
                else:
                   if self.debugWamp:
-                     log.msg("delivered event to peer %s" % proto.peerstr)
+                     log.msg("delivered event to peer %s" % proto.peer)
                   delivered += 1
          except KeyError:
             # all receivers done
@@ -1045,7 +1111,7 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
 
       if not done:
          ## if there are receivers left, redo
-         reactor.callLater(0, self._sendEvents, preparedMsg, recvs, delivered, requested, d)
+         self.reactor.callLater(0, self._sendEvents, preparedMsg, recvs, delivered, requested, d)
       else:
          ## else fire final result
          d.callback((delivered, requested))
@@ -1217,7 +1283,7 @@ class WampClientProtocol(WebSocketClientProtocol, WampProtocol):
       ##
       try:
          obj = self.factory._unserialize(msg)
-      except Exception, e:
+      except Exception as e:
          self._protocolError("WAMP message payload could not be unserialized [%s]" % e)
          return
 
@@ -1323,8 +1389,9 @@ class WampClientProtocol(WebSocketClientProtocol, WampProtocol):
 
    def prefix(self, prefix, uri):
       """
-      Establishes a prefix to be used in CURIEs instead of URIs having that
-      prefix for both client-to-server and server-to-client messages.
+      Establishes a prefix to be used in `CURIEs <http://en.wikipedia.org/wiki/CURIE>`_
+      instead of URIs having that prefix for both client-to-server and
+      server-to-client messages.
 
       :param prefix: Prefix to be used in CURIEs.
       :type prefix: str
@@ -1420,7 +1487,7 @@ class WampClientProtocol(WebSocketClientProtocol, WampProtocol):
       if type(topicUri) not in [unicode, str]:
          raise Exception("invalid type for parameter 'topicUri' - must be string (was %s)" % type(topicUri))
 
-      if type(handler) not in [types.FunctionType, types.MethodType, types.BuiltinFunctionType, types.BuiltinMethodType]:
+      if not hasattr(handler, '__call__'):
          raise Exception("invalid type for parameter 'handler' - must be a callable (was %s)" % type(handler))
 
       turi = self.prefixes.resolveOrPass(topicUri) ### PFX - keep
@@ -1457,10 +1524,22 @@ class WampClientFactory(WebSocketClientFactory, WampFactory):
 
    protocol = WampClientProtocol
 
-   def __init__(self, url, debug = False, debugCodePaths = False, debugWamp = False, debugApp = False):
-      WebSocketClientFactory.__init__(self, url, protocols = ["wamp"], debug = debug, debugCodePaths = debugCodePaths)
+   def __init__(self,
+                url,
+                debug = False,
+                debugCodePaths = False,
+                debugWamp = False,
+                debugApp = False,
+                reactor = None):
       self.debugWamp = debugWamp
       self.debugApp = debugApp
+      WebSocketClientFactory.__init__(self,
+                                      url,
+                                      protocols = ["wamp"],
+                                      debug = debug,
+                                      debugCodePaths = debugCodePaths,
+                                      reactor = reactor)
+      WampFactory.__init__(self)
 
 
    def startFactory(self):
@@ -1539,6 +1618,8 @@ class WampCraProtocol(WampProtocol):
       """
       if authSecret is None:
          authSecret = ""
+      if isinstance(authSecret, unicode):
+         authSecret = authSecret.encode('utf8')
       authSecret = WampCraProtocol.deriveKey(authSecret, authExtra)
       h = hmac.new(authSecret, authChallenge, hashlib.sha256)
       sig = binascii.b2a_base64(h.digest()).strip()
@@ -1680,12 +1761,14 @@ class WampCraServerProtocol(WampServerProtocol, WampCraProtocol):
          self.failConnection()
 
 
-   def onAuthenticated(self, permissions):
+   def onAuthenticated(self, authKey, permissions):
       """
       Fired when client authentication was successful.
 
       Override in derived class and register PubSub topics and/or RPC endpoints.
 
+      :param authKey: The authentication key the session was authenticated for.
+      :type authKey: str
       :param permissions: The permissions object returned from :meth:`getAuthPermissions`.
       :type permissions: obj
       """
@@ -1731,7 +1814,7 @@ class WampCraServerProtocol(WampServerProtocol, WampCraProtocol):
       ## client authentication timeout
       ##
       if self.clientAuthTimeout > 0:
-         self._clientAuthTimeoutCall = reactor.callLater(self.clientAuthTimeout, self.onAuthTimeout)
+         self._clientAuthTimeoutCall = self.factory.reactor.callLater(self.clientAuthTimeout, self.onAuthTimeout)
 
 
    @exportRpc("authreq")
@@ -1852,9 +1935,21 @@ class WampCraServerProtocol(WampServerProtocol, WampCraProtocol):
          raise Exception(self.shrink(WampProtocol.URI_WAMP_ERROR + "invalid-argument"), "signature must be a string or None (was %s)" % str(type(signature)))
       if self._clientPendingAuth[1] != signature:
          ## delete pending authentication, so that no retries are possible. authid is only valid for 1 try!!
-         ## FIXME: drop the connection?
+         ##
          self._clientPendingAuth = None
-         raise Exception(self.shrink(WampProtocol.URI_WAMP_ERROR + "invalid-signature"), "signature for authentication request is invalid")
+
+         ## notify the client of failed authentication, but only after a random,
+         ## exponentially distributed delay. this (further) protects against
+         ## timing attacks
+         ##
+         d = Deferred()
+         def fail():
+            ## FIXME: (optionally) drop the connection instead of returning RPC error?
+            ##
+            d.errback(Exception(self.shrink(WampProtocol.URI_WAMP_ERROR + "invalid-signature"), "signature for authentication request is invalid"))
+         failDelaySecs = random.expovariate(1.0 / 0.8) # mean = 0.8 secs
+         self.factory.reactor.callLater(failDelaySecs, fail)
+         return d
 
       ## at this point, the client has successfully authenticated!
 
@@ -1984,7 +2079,6 @@ class CallHandler(Handler):
    A handler for incoming RPC calls.
    """
 
-
    typeid = WampProtocol.MESSAGE_TYPEID_CALL
 
 
@@ -2019,8 +2113,10 @@ class CallHandler(Handler):
       Perform the RPC call and attach callbacks to its deferred object.
       """
       call = self._onBeforeCall()
+
       ## execute incoming RPC
       d = maybeDeferred(self._callProcedure, call)
+
       ## register callback and errback with extra argument call
       d.addCallbacks(self._onAfterCallSuccess,
                      self._onAfterCallError,
@@ -2032,8 +2128,7 @@ class CallHandler(Handler):
       """
       Create call object to move around call data
       """
-      uri, args = self.proto.onBeforeCall(self.callid, self.uri, self.args,
-                                          bool(self.proto.procForUri(self.uri)))
+      uri, args = self.proto.onBeforeCall(self.callid, self.uri, self.args, bool(self.proto.procForUri(self.uri)))
 
       call = Call(self.proto, self.callid, uri, args)
       self.maybeTrackTimings(call, "onBeforeCall")
@@ -2046,7 +2141,7 @@ class CallHandler(Handler):
       """
       m = self.proto.procForUri(call.uri)
       if m is None:
-         raise Exception("no procedure registered for %s" % call.uri)
+         raise Exception(WampProtocol.URI_WAMP_ERROR_NO_SUCH_RPC_ENDPOINT, "No RPC endpoint registered for %s." % call.uri)
 
       obj, method_or_proc, is_handler = m[:3]
       if not is_handler:
@@ -2085,6 +2180,7 @@ class CallHandler(Handler):
       """
       Execute custom success handler and send call result.
       """
+      ## track timing and fire user callback
       self.maybeTrackTimings(call, "onAfterCallSuccess")
       call.result = self.proto.onAfterCallSuccess(result, call)
 
@@ -2096,8 +2192,8 @@ class CallHandler(Handler):
       """
       Execute custom error handler and send call error.
       """
+      ## track timing and fire user callback
       self.maybeTrackTimings(call, "onAfterCallError")
-      ## fire user callback
       call.error = self.proto.onAfterCallError(error, call)
 
       ## send out WAMP message
@@ -2114,10 +2210,11 @@ class CallHandler(Handler):
       except:
          raise Exception("call result not JSON serializable")
       else:
+         ## now actually send WAMP message
          self.proto.sendMessage(rmsg)
-         ### XXX self.maybeTrackTimings(call, "onAfterSendCallSuccess")
-         if self.proto.trackTimings:
-            self.proto.trackedTimings.track("onAfterSendCallSuccess")
+
+         ## track timing and fire user callback
+         self.maybeTrackTimings(call, "onAfterSendCallSuccess")
          self.proto.onAfterSendCallSuccess(rmsg, call)
 
 
@@ -2126,13 +2223,25 @@ class CallHandler(Handler):
       Marshal and send a RPC error result.
       """
       killsession = False
+      rmsg = None
       try:
          error_info, killsession = self._extractErrorInfo(call)
          rmsg = self._assembleErrorMessage(call, *error_info)
-      except Exception, e:
+      except Exception as e:
          rmsg = self._handleProcessingError(call, e)
       finally:
-         self._sendMessageAndCleanUp(rmsg, call, killsession)
+         if rmsg:
+            ## now actually send WAMP message
+            self.proto.sendMessage(rmsg)
+
+            ## track timing and fire user callback
+            self.maybeTrackTimings(call, "onAfterSendCallError")
+            self.proto.onAfterSendCallError(rmsg, call)
+
+            if killsession:
+               self.proto.sendClose(3000, "killing WAMP session upon request by application exception")
+         else:
+            raise Exception("fatal: internal error in CallHandler._sendCallError")
 
 
    def _extractErrorInfo(self, call):
@@ -2142,35 +2251,66 @@ class CallHandler(Handler):
       ## get error args and len
       ##
       eargs = call.error.value.args
-      num_args = len(eargs)
+      nargs = len(eargs)
 
-      if num_args > 4:
-         raise Exception("invalid args length %d for exception" % num_args)
+      if nargs > 4:
+         raise Exception("invalid args length %d for exception" % nargs)
 
-      erroruri = (WampProtocol.URI_WAMP_ERROR_GENERIC
-                  if num_args < 1
-                  else eargs[0])
-      errordesc = (WampProtocol.DESC_WAMP_ERROR_GENERIC
-                   if num_args < 2
-                   else eargs[1])
-      # errordetails must be JSON serializable .. if not, we get exception
-      # later in sendMessage
-      errordetails = (eargs[2]
-                      if num_args >= 3
-                      else (call.error.getTraceback().splitlines()
-                            if self.proto.includeTraceback
-                            else None))
-      killsession = (eargs[3]
-                     if num_args >= 4
-                     else False)
+      ## erroruri & errordesc
+      ##
+      if nargs == 0:
+         erroruri = WampProtocol.URI_WAMP_ERROR_GENERIC
+         errordesc = WampProtocol.DESC_WAMP_ERROR_GENERIC
+      elif nargs == 1:
+         erroruri = WampProtocol.URI_WAMP_ERROR_GENERIC
+         errordesc = eargs[0]
+      else:
+         erroruri = eargs[0]
+         errordesc = eargs[1]
 
+      ## errordetails
+      ##
+      errordetails = None
+      if nargs >= 3:
+         errordetails = eargs[2]
+      elif self.proto.includeTraceback:
+         try:
+            ## we'd like to do ..
+            #tb = call.error.getTraceback()
+
+            ## .. but the implementation in Twisted
+            ## http://twistedmatrix.com/trac/browser/tags/releases/twisted-13.1.0/twisted/python/failure.py#L529
+            ## uses cStringIO which cannot handle Unicode string in tracebacks. Hence we do our own:
+            io = StringIO.StringIO()
+            call.error.printTraceback(file = io)
+            tb = io.getvalue()
+
+         except Exception as ie:
+            print("INTERNAL ERROR [_extractErrorInfo / getTraceback()]: %s" % ie)
+            traceback.print_stack()
+         else:
+            errordetails = tb.splitlines()
+
+      ## killsession
+      ##
+      killsession = False
+      if nargs >= 4:
+         killsession = eargs[3]
+
+      ## recheck all error component types
+      ##
       if type(erroruri) not in [str, unicode]:
          raise Exception("invalid type %s for errorUri" % type(erroruri))
+
       if type(errordesc) not in [str, unicode]:
          raise Exception("invalid type %s for errorDesc" % type(errordesc))
+
+      ## errordetails must be JSON serializable. If not, we get exception later in sendMessage.
+      ## We don't check here, since the only way would be to serialize to JSON and
+      ## then we'd serialize twice (here and in sendMessage)
+
       if type(killsession) not in [bool, types.NoneType]:
-         raise Exception("invalid type %s for killSession" %
-                         type(killsession))
+         raise Exception("invalid type %s for killSession" % type(killsession))
 
       return (erroruri, errordesc, errordetails), killsession
 
@@ -2195,7 +2335,7 @@ class CallHandler(Handler):
       ## serializable
       try:
          rmsg = self.proto.serializeMessage(msg)
-      except Exception, e:
+      except Exception as e:
          raise Exception(
             "invalid object for errorDetails - not serializable (%s)" %
             str(e))
@@ -2215,21 +2355,18 @@ class CallHandler(Handler):
              str(e)]
 
       if self.proto.includeTraceback:
-         msg.append(call.error.getTraceback().splitlines())
+         try:
+            tb = call.error.getTraceback()
+         except Exception as ie:
+            ## FIXME: find out why this can fail with
+            ## "'unicode' does not have the buffer interface"
+            print("INTERNAL ERROR (getTraceback): %s" % ie)
+         else:
+            msg.append(tb.splitlines())
+
       result = self.proto.serializeMessage(msg)
       return result
 
-
-   def _sendMessageAndCleanUp(self, rmsg, call, killsession):
-      self.proto.sendMessage(rmsg)
-      ### XXX maybeTrackTimings("onAfterSendCallError")
-      if self.proto.trackTimings:
-         self.proto.doTrack("onAfterSendCallError")
-      self.proto.onAfterSendCallError(rmsg, call)
-
-      if killsession:
-         self.proto.sendClose(3000,
-            "killing WAMP session upon request by application exception")
 
 
 
