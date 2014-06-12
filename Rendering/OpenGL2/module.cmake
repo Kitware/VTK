@@ -6,7 +6,6 @@ vtk_module(vtkRenderingOpenGL2
     vtkRenderingCore
   PRIVATE_DEPENDS
     vtksys
-    vtkRenderingOpenGL
   COMPILE_DEPENDS
     vtkUtilitiesEncodeString
   TEST_DEPENDS
