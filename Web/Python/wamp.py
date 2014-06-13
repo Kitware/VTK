@@ -3,20 +3,22 @@ WAMP related class for the purpose of vtkWeb.
 
 """
 
-import string
-import random
-import types
-import logging
+import inspect, types, string, random, logging, six
 
 from threading import Timer
 
-from twisted.python     import log
-from twisted.internet   import reactor
+from twisted.python         import log
+from twisted.internet       import reactor
+from twisted.internet.defer import Deferred, returnValue
 
-from autobahn.resource  import WebSocketResource
-from autobahn.websocket import listenWS
-from autobahn.wamp      import exportRpc, WampServerProtocol, WampCraProtocol, \
-                               WampCraServerProtocol, WampServerFactory
+from autobahn      import wamp
+from autobahn.wamp import types
+from autobahn.wamp import procedure as exportRpc
+
+from autobahn.twisted.wamp import ApplicationSession
+from autobahn.twisted.websocket import WampWebSocketServerFactory
+from autobahn.twisted.websocket import WampWebSocketServerProtocol
+
 try:
     from vtkWebCore import vtkWebApplication
 except:
@@ -25,13 +27,14 @@ except:
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 application = None
+
 # =============================================================================
 #
 # Base class for vtkWeb WampServerProtocol
 #
 # =============================================================================
 
-class ServerProtocol(WampCraServerProtocol):
+class ServerProtocol(ApplicationSession):
     """
     Defines the core server protocol for vtkWeb. Adds support to
     marshall/unmarshall RPC callbacks that involve ServerManager proxies as
@@ -42,10 +45,8 @@ class ServerProtocol(WampCraServerProtocol):
     interactive visualizations. For that, use vtkWebServerProtocol.
     """
 
-    AUTHEXTRA = {'salt': salt, 'keylen': 32, 'iterations': 1000}
-    SECRETS   = {'vtkweb': WampCraProtocol.deriveKey("vtkweb-secret", AUTHEXTRA)}
-
     def __init__(self):
+        ApplicationSession.__init__(self, types.ComponentConfig(realm = "vtkweb"))
         self.vtkWebProtocols = []
         self.Application = self.initApplication()
         self.initialize()
@@ -67,25 +68,11 @@ class ServerProtocol(WampCraServerProtocol):
             application = vtkWebApplication()
         return application
 
-    def getAuthPermissions(self, authKey, authExtra):
-        return {'permissions': 'all', 'authextra': self.AUTHEXTRA}
-
-    def updateSecret(self, newSecret):
-        self.SECRETS['vtkweb'] = WampCraProtocol.deriveKey(newSecret, self.AUTHEXTRA)
-
-    def getAuthSecret(self, authKey):
-        ## return the auth secret for the given auth key or None when the auth key
-        ## does not exist
-        secret = self.SECRETS.get(authKey, None)
-        return secret
-
-    def onAuthenticated(self, authKey, perms):
-        ## register RPC endpoints
-        if authKey is not None:
-            self.registerForPubSub("http://vtk.org/event#", True)
-            self.registerForRpc(self, "http://vtk.org/vtk#")
-            for protocol in self.vtkWebProtocols:
-                self.registerForRpc(protocol, "http://vtk.org/vtk#")
+    def onJoin(self, details):
+        ApplicationSession.onJoin(self, details)
+        self.register(self)
+        for protocol in self.vtkWebProtocols:
+            self.register(protocol)
 
     def setApplication(self, application):
         self.Application = application
@@ -97,80 +84,10 @@ class ServerProtocol(WampCraServerProtocol):
     def getVtkWebProtocols(self):
         return self.vtkWebProtocols
 
-    def onAfterCallSuccess(self, result, callid):
-        """
-        Callback fired after executing incoming RPC with success.
+    def updateSecret(self, newSecret):
+        pass
 
-        The default implementation will just return `result` to the client.
-
-        :param result: Result returned for executing the incoming RPC.
-        :type result: Anything returned by the user code for the endpoint.
-        :param callid: WAMP call ID for incoming RPC.
-        :type callid: str
-        :returns obj -- Result send back to client.
-        """
-        return self.marshall(result)
-
-    def onBeforeCall(self, callid, uri, args, isRegistered):
-        """
-        Callback fired before executing incoming RPC. This can be used for
-        logging, statistics tracking or redirecting RPCs or argument mangling i.e.
-
-        The default implementation just returns the incoming URI/args.
-
-        :param uri: RPC endpoint URI (fully-qualified).
-        :type uri: str
-        :param args: RPC arguments array.
-        :type args: list
-        :param isRegistered: True, iff RPC endpoint URI is registered in this session.
-        :type isRegistered: bool
-        :returns pair -- Must return URI/Args pair.
-        """
-        return uri, self.unmarshall(args)
-
-    def marshall(self, argument):
-        return argument
-
-    def unmarshall(self, argument):
-        """
-        Demarshalls the "argument".
-        """
-        if isinstance(argument, types.ListType):
-            # for lists, unmarshall each argument in the list.
-            result = []
-            for arg in argument:
-                arg = self.unmarshall(arg)
-                result.append(arg)
-            return result
-        return argument
-
-    def onConnect(self, connection_request):
-        """
-        Callback  fired during WebSocket opening handshake when new WebSocket
-        client connection is about to be established.
-
-        Call the factory to increment the connection count.
-        """
-        try:
-            self.factory.on_connect()
-        except AttributeError:
-            pass
-        return WampCraServerProtocol.onConnect(self, connection_request)
-
-    def connectionLost(self, reason):
-        """
-        Called by Twisted when established TCP connection from client was lost.
-
-        Call the factory to decrement the connection count and start a reaper if
-        necessary.
-        """
-        try:
-            self.factory.connection_lost()
-        except AttributeError:
-            pass
-        WampCraServerProtocol.connectionLost(self, reason)
-
-    @exportRpc("exit")
+    @exportRpc("application.exit")
     def exit(self):
         """RPC callback to exit"""
         reactor.stop()
@@ -181,54 +98,53 @@ class ServerProtocol(WampCraServerProtocol):
 #
 # =============================================================================
 
-class ReapingWampServerFactory(WampServerFactory):
+class TimeoutWampWebSocketServerFactory(WampWebSocketServerFactory):
     """
-    ReapingWampServerFactory is WampServerFactory subclass that adds support to
-    close the web-server after a timeout when the last connected client drops.
+    TimeoutWampWebSocketServerFactory is WampWebSocketServerFactory subclass
+    that adds support to close the web-server after a timeout when the last
+    connected client drops.
 
-    Currently, the protocol must call on_connect() and connection_lost() methods
+    Currently, the protocol must call connectionMade() and connectionLost() methods
     to notify the factory that the connection was started/closed.
-
     If the connection count drops to zero, then the reap timer
     is started which will end the process if no other connections are made in
     the timeout interval.
     """
 
-    def __init__(self, url, debugWamp, timeout):
-        self._reaper = None
+    def __init__(self, factory, *args, **kwargs):
         self._connection_count = 0
-        self._timeout = timeout
-        WampServerFactory.__init__(self, url, debugWamp)
+        self._timeout = kwargs['timeout']
+        self._reaper = reactor.callLater(self._timeout, lambda: reactor.stop())
 
-    def startFactory(self):
-        if not self._reaper:
-            self._reaper = reactor.callLater(self._timeout, lambda: reactor.stop())
-        WampServerFactory.startFactory(self)
+        del kwargs['timeout']
+        WampWebSocketServerFactory.__init__(self, factory, *args, **kwargs)
+        WampWebSocketServerFactory.protocol = TimeoutWampWebSocketServerProtocol
 
-    def on_connect(self):
-        """
-        Called when a new connection is made.
-        """
+    def connectionMade(self):
         if self._reaper:
-            log.msg("Client has reconnected, cancelling reaper",
-                logLevel=logging.DEBUG)
+            log.msg("Client has reconnected, cancelling reaper", logLevel=logging.DEBUG)
             self._reaper.cancel()
             self._reaper = None
-
         self._connection_count += 1
-        log.msg("on_connect: connection count = %s" % self._connection_count,
-            logLevel=logging.DEBUG)
+        log.msg("on_connect: connection count = %s" % self._connection_count, logLevel=logging.DEBUG)
 
-    def connection_lost(self):
-        """
-        Called when a connection is lost.
-        """
+    def connectionLost(self, reason):
         if self._connection_count > 0:
             self._connection_count -= 1
-        log.msg("connection_lost: connection count = %s" % self._connection_count,
-            logLevel=logging.DEBUG)
+        log.msg("connection_lost: connection count = %s" % self._connection_count, logLevel=logging.DEBUG)
 
         if self._connection_count == 0 and not self._reaper:
-            log.msg("Starting timer, process will terminate in: %ssec" % self._timeout,
-                logLevel=logging.DEBUG)
+            log.msg("Starting timer, process will terminate in: %ssec" % self._timeout, logLevel=logging.DEBUG)
             self._reaper = reactor.callLater(self._timeout, lambda: reactor.stop())
+
+# =============================================================================
+
+class TimeoutWampWebSocketServerProtocol(WampWebSocketServerProtocol):
+
+    def connectionMade(self):
+        WampWebSocketServerProtocol.connectionMade(self)
+        self.factory.connectionMade()
+
+    def connectionLost(self, reason):
+        WampWebSocketServerProtocol.connectionLost(self, reason)
+        self.factory.connectionLost(reason)

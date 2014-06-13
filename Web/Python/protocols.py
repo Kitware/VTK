@@ -6,10 +6,8 @@ very specific web application.
 from time import time
 import os, sys, logging, types, inspect, traceback, logging, re
 
-# import RPC annotation
-from autobahn.wamp import exportRpc
-
 from vtkWebCorePython import vtkWebApplication, vtkWebInteractionEvent
+from autobahn.wamp import procedure as exportRpc
 
 # =============================================================================
 #
@@ -72,7 +70,7 @@ class vtkWebProtocol(object):
 
 class vtkWebMouseHandler(vtkWebProtocol):
 
-    @exportRpc("mouseInteraction")
+    @exportRpc("viewport.mouse.interaction")
     def mouseInteraction(self, event):
         """
         RPC Callback for mouse interactions.
@@ -121,7 +119,7 @@ class vtkWebMouseHandler(vtkWebProtocol):
 
 class vtkWebViewPort(vtkWebProtocol):
 
-    @exportRpc("resetCamera")
+    @exportRpc("viewport.camera.reset")
     def resetCamera(self, view):
         """
         RPC callback to reset camera.
@@ -138,7 +136,7 @@ class vtkWebViewPort(vtkWebProtocol):
         self.getApplication().InvalidateCache(view)
         return str(self.getGlobalId(view))
 
-    @exportRpc("updateOrientationAxesVisibility")
+    @exportRpc("viewport.axes.orientation.visibility.update")
     def updateOrientationAxesVisibility(self, view, showAxis):
         """
         RPC callback to show/hide OrientationAxis.
@@ -149,7 +147,7 @@ class vtkWebViewPort(vtkWebProtocol):
         self.getApplication().InvalidateCache(view)
         return str(self.getGlobalId(view))
 
-    @exportRpc("updateCenterAxesVisibility")
+    @exportRpc("viewport.axes.center.visibility.update")
     def updateCenterAxesVisibility(self, view, showAxis):
         """
         RPC callback to show/hide CenterAxesVisibility.
@@ -160,7 +158,7 @@ class vtkWebViewPort(vtkWebProtocol):
         self.getApplication().InvalidateCache(view)
         return str(self.getGlobalId(view))
 
-    @exportRpc("updateCamera")
+    @exportRpc("viewport.camera.update")
     def updateCamera(self, view_id, focal_point, view_up, position):
         view = self.getView(view_id)
 
@@ -178,7 +176,7 @@ class vtkWebViewPort(vtkWebProtocol):
 
 class vtkWebViewPortImageDelivery(vtkWebProtocol):
 
-    @exportRpc("stillRender")
+    @exportRpc("viewport.image.render")
     def stillRender(self, options):
         """
         RPC Callback to render a view and obtain the rendered image.
@@ -225,13 +223,13 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
 
 class vtkWebViewPortGeometryDelivery(vtkWebProtocol):
 
-    @exportRpc("getSceneMetaData")
+    @exportRpc("viewport.webgl.metadata")
     def getSceneMetaData(self, view_id):
         view  = self.getView(view_id);
         data = self.getApplication().GetWebGLSceneMetaData(view)
         return data
 
-    @exportRpc("getWebGLData")
+    @exportRpc("viewport.webgl.data")
     def getWebGLData(self, view_id, object_id, part):
         view  = self.getView(view_id)
         data = self.getApplication().GetWebGLBinaryData(view, str(object_id), part-1)
@@ -257,7 +255,7 @@ class vtkWebFileBrowser(vtkWebProtocol):
         self.pattern = re.compile(excludeRegex)
         self.gPattern = re.compile(groupRegex)
 
-    @exportRpc("listServerDirectory")
+    @exportRpc("file.server.directory.list")
     def listServerDirectory(self, relativeDir='.'):
         """
         RPC Callback to list a server directory relative to the basePath
