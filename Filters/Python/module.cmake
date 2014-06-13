@@ -9,5 +9,7 @@ if (VTK_WRAP_PYTHON)
       vtkWrappingPythonCore
     EXCLUDE_FROM_TCL_WRAPPING
     EXCLUDE_FROM_JAVA_WRAPPING
+    TEST_DEPENDS
+      vtkTestingCore
     )
 endif ()
