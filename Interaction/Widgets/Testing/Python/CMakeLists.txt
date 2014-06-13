@@ -1,7 +1,9 @@
 if(NOT VTK_OPENGL_HAS_OSMESA)
-  vtk_add_test_python(TestImagePlaneWidget.py)
-  vtk_add_test_python(TestBoxWidget.py NO_RT)
-  vtk_add_test_python(TestInteractorEventRecorder.py NO_RT)
-  vtk_add_test_python(TestSphereWidget.py NO_RT)
-  vtk_add_test_python(TestTextWidget.py NO_RT)
+  vtk_add_test_python(
+    TestImagePlaneWidget.py
+    TestBoxWidget.py,NO_RT
+    TestInteractorEventRecorder.py,NO_RT
+    TestSphereWidget.py,NO_RT
+    TestTextWidget.py,NO_RT
+    )
 endif()

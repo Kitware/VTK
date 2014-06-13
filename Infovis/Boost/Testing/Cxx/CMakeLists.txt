@@ -3,9 +3,10 @@ find_package(Boost REQUIRED
   )
 include_directories(${Boost_INCLUDE_DIRS})
 
-vtk_module_test_executable(TestVariantSerialization TestVariantSerialization.cxx
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  NO_DATA NO_VALID NO_OUTPUT
+  TestVariantSerialization.cxx
   )
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
-target_link_libraries(TestVariantSerialization LINK_PRIVATE ${Boost_SERIALIZATION_LIBRARY})
-
-add_test(NAME ${vtk-module}-TestVariantSerialization COMMAND TestVariantSerialization)
+target_link_libraries(${vtk-module}CxxTests LINK_PRIVATE ${Boost_SERIALIZATION_LIBRARY})

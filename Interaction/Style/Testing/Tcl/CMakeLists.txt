@@ -1,14 +1,14 @@
 if(NOT VTK_OPENGL_HAS_OSMESA)
-  vtk_add_test_tcl(TestInteractorStyleTerrain)
-  vtk_add_test_tcl(TestStyleRubberBandZoom)
-endif()
+  vtk_add_test_tcl(
+    TestInteractorStyleTerrain.tcl
+    TestStyleRubberBandZoom.tcl
 
-if(NOT VTK_OPENGL_HAS_OSMESA)
-  vtk_add_test_tcl(TestStyleJoystickCamera)
-  vtk_add_test_tcl(TestFlyTo)
-  vtk_add_test_tcl(TestStyleTerrain)
-  vtk_add_test_tcl(TestStyleTrackballActor)
-  vtk_add_test_tcl(TestStyleBaseSpike)
-  vtk_add_test_tcl(TestStyleTrackballCamera)
-  vtk_add_test_tcl(TestStyleJoystickActor)
+    TestStyleJoystickCamera.tcl
+    TestFlyTo.tcl
+    TestStyleTerrain.tcl
+    TestStyleTrackballActor.tcl
+    TestStyleBaseSpike.tcl
+    TestStyleTrackballCamera.tcl
+    TestStyleJoystickActor.tcl
+    )
 endif()

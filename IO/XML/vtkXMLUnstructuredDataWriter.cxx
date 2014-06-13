@@ -121,18 +121,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       return 0;
       }
 
-    // We don't want to write more pieces than the pipeline can produce,
-    // but we need to preserve the user's requested number of pieces in
-    // case the input changes later.  If MaximumNumberOfPieces is lower
-    // than 1, any number of pieces can be produced by the pipeline.
-    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     int numPieces = this->NumberOfPieces;
-    int maxPieces =
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
-    if((maxPieces > 0) && (this->NumberOfPieces > maxPieces))
-      {
-      this->NumberOfPieces = maxPieces;
-      }
 
     if (this->WritePiece >= 0)
       {

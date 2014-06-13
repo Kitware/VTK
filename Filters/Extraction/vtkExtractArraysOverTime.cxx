@@ -30,7 +30,6 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrderStatistics.h"
-#include "vtkOnePieceExtentTranslator.h"
 #include "vtkPointData.h"
 #include "vtkTable.h"
 #include "vtkSelection.h"
@@ -847,11 +846,6 @@ int vtkExtractArraysOverTime::RequestInformation(
     outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
     }
 
-  /*
-   * This filter is no longer producing rectilinear grid, instead it is
-   * producing a multiblock of rectilinear grids. That being the case, we do not
-   * need any specific extent translation
-   */
   return 1;
 }
 
@@ -871,10 +865,6 @@ int vtkExtractArraysOverTime::RequestUpdateExtent(
     double timeReq= inTimes[this->CurrentTimeIndex];
     inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
     }
-
-  /* Again, extent related stuff is no longer relevant since we are not
-   * producing rectilinear grid as the output, instead it is multiblock.
-   */
 
   return 1;
 }

@@ -17,6 +17,7 @@
 #include "vtkExecutive.h"
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
@@ -109,6 +110,24 @@ void vtkPolyDataMapper::Update(int port)
 void vtkPolyDataMapper::Update()
 {
   this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
+                                      vtkInformationVector** inputVector,
+                                      vtkInformationVector*)
+{
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    int currentPiece = this->NumberOfSubPieces * this->Piece;
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      inInfo,
+      currentPiece,
+      this->NumberOfSubPieces * this->NumberOfPieces,
+      this->GhostLevel);
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -66,7 +66,7 @@ void main()
 
   if (gl_FragColor.a <= 0.0)
     {
-      discard;
+    discard;
     }
 
   //VTK::Picking::Impl

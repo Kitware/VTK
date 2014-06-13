@@ -816,7 +816,7 @@ namespace Json {
 
    /** \brief Experimental and untested: represents an element of the "path" to access a node.
     */
-   class PathArgument
+   class JSON_API PathArgument
    {
    public:
       friend class Path;
@@ -849,7 +849,7 @@ namespace Json {
     * - ".%" => member name is provided as parameter
     * - ".[%]" => index is provied as parameter
     */
-   class Path
+   class JSON_API Path
    {
    public:
       Path( const std::string &path,

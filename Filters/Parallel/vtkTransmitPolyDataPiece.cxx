@@ -46,62 +46,6 @@ vtkTransmitPolyDataPiece::~vtkTransmitPolyDataPiece()
 }
 
 //----------------------------------------------------------------------------
-int vtkTransmitPolyDataPiece::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
-{
-  // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
-  if (this->Controller == NULL)
-    {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                1);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                0);
-    return 1;
-    }
-
-  if (this->Controller->GetLocalProcessId() == 0)
-    { // Request everything.
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                1);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                0);
-    }
-  else
-    { // Request nothing.
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                0);
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkTransmitPolyDataPiece::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
-{
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR(),
-               inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkTransmitPolyDataPiece::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,

@@ -29,71 +29,85 @@ class vtkUnsignedCharArray;
 namespace vtkToDax
 {
 
-template<typename T, int NUM_COMP> struct FieldTypeToType;
+namespace internal {
 
 template<int NUM_COMP>
-struct FieldTypeToType<vtkIntArray,NUM_COMP>
+struct IdType
 {
-  static const int NUM_COMPNENTS = NUM_COMP;
-  typedef dax::Tuple<dax::Id,NUM_COMPNENTS> FieldType;
-  typedef dax::Id ComponentType;
+  static const int NUM_COMPONENTS = NUM_COMP;
+  typedef dax::Tuple<dax::Id,NUM_COMPONENTS> DaxValueType;
+  typedef dax::Id DaxComponentType;
 };
 
 template<>
-struct FieldTypeToType<vtkIntArray,1>
+struct IdType<1>
 {
-  static const int NUM_COMPNENTS = 1;
-  typedef dax::Id FieldType;
-  typedef dax::Id ComponentType;
+  static const int NUM_COMPONENTS = 1;
+  typedef dax::Id DaxValueType;
+  typedef dax::Id DaxComponentType;
 };
 
 template<int NUM_COMP>
-struct FieldTypeToType<vtkIdTypeArray,NUM_COMP>
+struct ScalarType
 {
-  static const int NUM_COMPNENTS = NUM_COMP;
-  typedef dax::Tuple<dax::Id,NUM_COMPNENTS> FieldType;
-  typedef dax::Id ComponentType;
+  static const int NUM_COMPONENTS = NUM_COMP;
+  typedef dax::Tuple<dax::Scalar,NUM_COMPONENTS> DaxValueType;
+  typedef dax::Scalar DaxComponentType;
 };
 
 template<>
-struct FieldTypeToType<vtkIdTypeArray,1>
+struct ScalarType<1>
 {
-  static const int NUM_COMPNENTS = 1;
-  typedef dax::Id FieldType;
-  typedef dax::Id ComponentType;
+  static const int NUM_COMPONENTS = 1;
+  typedef dax::Scalar DaxValueType;
+  typedef dax::Scalar DaxComponentType;
+};
+
+} // namespace internal
+
+template<typename VTKArrayType, int NUM_COMP> struct FieldTypeToType;
+
+template<int NUM_COMP>
+struct FieldTypeToType<vtkIntArray,NUM_COMP> : internal::IdType<NUM_COMP>
+{
+  typedef int VTKComponentType;
+};
+
+template<int NUM_COMP>
+struct FieldTypeToType<vtkIdTypeArray,NUM_COMP> : internal::IdType<NUM_COMP>
+{
+  typedef vtkIdType VTKComponentType;
 };
 
 
 template<int NUM_COMP>
-struct FieldTypeToType<vtkFloatArray,NUM_COMP>
+struct FieldTypeToType<vtkFloatArray,NUM_COMP> : internal::ScalarType<NUM_COMP>
 {
-  static const int NUM_COMPNENTS = NUM_COMP;
-  typedef dax::Tuple<dax::Scalar,NUM_COMPNENTS> FieldType;
-  typedef dax::Scalar ComponentType;
+  typedef float VTKComponentType;
 };
 
-template<>
-struct FieldTypeToType<vtkFloatArray,1>
+template<int NUM_COMP>
+struct FieldTypeToType<vtkDoubleArray,NUM_COMP> : internal::ScalarType<NUM_COMP>
 {
-  static const int NUM_COMPNENTS = 1;
-  typedef dax::Scalar FieldType;
-  typedef dax::Scalar ComponentType;
+  typedef double VTKComponentType;
 };
 
 template<int NUM_COMP>
 struct FieldTypeToType<vtkUnsignedCharArray,NUM_COMP>
 {
   static const int NUM_COMPNENTS = NUM_COMP;
-  typedef dax::Tuple<uint8_t,NUM_COMPNENTS> FieldType;
-  typedef uint8_t ComponentType;
+  typedef dax::Tuple<uint8_t,NUM_COMPNENTS> DaxValueType;
+  typedef uint8_t DaxComponentType;
+  typedef uint8_t VTKComponentType;
 };
 
 template<>
 struct FieldTypeToType<vtkUnsignedCharArray,1>
 {
   static const int NUM_COMPNENTS = 1;
-  typedef uint8_t FieldType;
-  typedef uint8_t ComponentType;
+  typedef uint8_t DaxValueType;
+  typedef uint8_t DaxComponentType;
+  typedef uint8_t VTKComponentType;
 };
 }
 

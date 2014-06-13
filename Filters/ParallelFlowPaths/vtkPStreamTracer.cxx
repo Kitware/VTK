@@ -1542,17 +1542,6 @@ int vtkPStreamTracer::RequestUpdateExtent(
   return 1;
 }
 
-int vtkPStreamTracer::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-
-  return 1;
-}
-
 int vtkPStreamTracer::RequestData(
   vtkInformation *request,
   vtkInformationVector **inputVector,
@@ -1643,12 +1632,6 @@ int vtkPStreamTracer::RequestData(
   while( (task = taskManager.NextTask()))
     {
     iterations++;
-    int res = this->CheckInputs(func, &maxCellSize);
-    if (res!=VTK_OK)
-      {
-      vtkErrorMacro("No appropriate inputs have been found.");
-      continue;
-      }
     PStreamTracerPoint* point = task->GetPoint();
 
     vtkSmartPointer<vtkPolyData> traceOut;
@@ -1694,10 +1677,6 @@ int vtkPStreamTracer::RequestData(
 
     traceIds.push_back(task->GetId());
     traceOutputs.push_back(traceOut);
-    if(func)
-      {
-      func->Delete();
-      }
     }
 
   this->Controller->Barrier();

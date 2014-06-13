@@ -29,6 +29,9 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"
 
+// Forward Declarations
+class vtkExtractStructuredGridHelper;
+
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractRectilinearGrid : public vtkRectilinearGridAlgorithm
 {
 public:
@@ -65,7 +68,7 @@ public:
 
 protected:
   vtkExtractRectilinearGrid();
-  ~vtkExtractRectilinearGrid() {}
+  ~vtkExtractRectilinearGrid();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -75,6 +78,7 @@ protected:
   int SampleRate[3];
   int IncludeBoundary;
 
+  vtkExtractStructuredGridHelper* Internal;
 private:
   vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&);  // Not implemented.
   void operator=(const vtkExtractRectilinearGrid&);  // Not implemented.

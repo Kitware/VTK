@@ -15,6 +15,9 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
   qt5_wrap_cpp(LibMocSrcs ${MocHeaders})
 
   set(QT_LIBRARIES ${Qt5WebKitWidgets_LIBRARIES})
+
+  # When this module is loaded by an app, load Qt too.
+  vtk_module_export_code_find_package(Qt5WebKitWidgets)
 else()
   find_package(Qt4 REQUIRED QtCore QtGui QtWebKit QUIET)
 

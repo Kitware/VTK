@@ -61,14 +61,17 @@ protected:
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
+
+  double* CalculateBounds(vtkDataSet* input);
 
   vtkMultiProcessController* Controller;
   int UseInputBounds;
   double CustomSamplingBounds[6];
   int SamplingDimension[3];
+  double Bounds[6];
 
 private:
   vtkPResampleFilter(const vtkPResampleFilter&);  // Not implemented.

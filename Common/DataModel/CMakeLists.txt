@@ -45,6 +45,7 @@ set(Module_SRCS
   vtkEdgeTable.cxx
   vtkEmptyCell.cxx
   vtkExplicitCell.cxx
+  vtkExtractStructuredGridHelper.cxx
   vtkFieldData.cxx
   vtkGenericAdaptorCell.cxx
   vtkGenericAttributeCollection.cxx
@@ -205,7 +206,6 @@ set(Module_SRCS
   vtkAMRDataInternals.cxx
   vtkUniformGridAMR.cxx
   vtkUniformGridAMRDataIterator.cxx
-  vtkExtentTranslator.cxx # needed by vtkDataSet
   )
 
 set(${vtk-module}_HDRS

@@ -123,10 +123,6 @@ protected:
     vtkInformation *,
     vtkInformationVector **,
     vtkInformationVector *);
-  int RequestInformation(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *);
 
   void AddPoint(
     double theta, double phi, double radius,

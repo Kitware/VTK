@@ -72,6 +72,18 @@ TestModuleBrowsers = type("Enum", (), {k: i for i, k in enumerate(test_module_br
 
 
 # =============================================================================
+# We can use this exception type to indicate that the test shouldn't actually
+# "fail", rather that it was unable to run because some dependencies were not
+# met.
+# =============================================================================
+class DependencyError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+
+# =============================================================================
 # Checks whether test script supplied, if so, safely imports needed modules
 # =============================================================================
 def initialize(opts, reactor=None) :
@@ -96,18 +108,18 @@ def initialize(opts, reactor=None) :
     if (testModuleOptions.testScriptPath != "" and testModuleOptions.testScriptPath is not None) :
         # Check if we ran into trouble with any of the testing imports
         if import_warning_info != "" :
-            print "WARNING: Testing will cannot be enabled for the following reasons:"
+            print "WARNING: Some tests may have unmet dependencies"
             print import_warning_info
+
+        if reactor is not None :
+            # Add startTest callback to the reactor callback queue, so that
+            # the test thread get started after the reactor is running.  Of
+            # course this should only happen if everything is good for tests.
+            reactor.callWhenRunning(_start_test_thread)
         else :
-            if reactor is not None :
-                # Add startTest callback to the reactor callback queue, so that
-                # the test thread get started after the reactor is running.  Of
-                # course this should only happen if everything is good for tests.
-                reactor.callWhenRunning(_start_test_thread)
-            else :
-                # Otherwise, our aim is to start the thread from another process
-                # so just call the start method.
-                _start_test_thread()
+            # Otherwise, our aim is to start the thread from another process
+            # so just call the start method.
+            _start_test_thread()
 
 
 # =============================================================================
@@ -316,6 +328,7 @@ class WebTest(object) :
 
     def run_test(self):
         try:
+            self.checkdependencies()
             self.initialize()
             self.setup()
             self.capture()
@@ -328,6 +341,9 @@ class WebTest(object) :
             raise
 
         self.cleanup()
+
+    def checkdependencies(self):
+        pass
 
     def initialize(self):
         pass
@@ -365,14 +381,19 @@ class BrowserBasedWebTest(WebTest):
         WebTest.__init__(self, **kwargs)
 
     def initialize(self):
-        if self.browser is None or self.browser == TestModuleBrowsers.chrome:
-            self.window = webdriver.Chrome()
-        elif self.browser == TestModuleBrowsers.firefox:
-            self.window = webdriver.Firefox()
-        elif self.browser == TestModuleBrowsers.internet_explorer:
-            self.window = webdriver.Ie()
-        else:
-            raise ValueError("self.browser argument has illegal value %r" % (self.browser))
+        try:
+            if self.browser is None or self.browser == TestModuleBrowsers.chrome:
+                self.window = webdriver.Chrome()
+            elif self.browser == TestModuleBrowsers.firefox:
+                self.window = webdriver.Firefox()
+            elif self.browser == TestModuleBrowsers.internet_explorer:
+                self.window = webdriver.Ie()
+            else:
+                raise DependencyError("self.browser argument has illegal value %r" % (self.browser))
+        except DependencyError as dErr:
+            raise
+        except Exception as inst:
+            raise DependencyError(inst)
 
         if self.size is not None:
             self.window.set_window_size(self.size[0], self.size[1])
@@ -381,7 +402,10 @@ class BrowserBasedWebTest(WebTest):
             self.window.get(self.url)
 
     def cleanup(self):
-        self.window.quit()
+        try:
+            self.window.quit()
+        except:
+            print 'Unable to call window.quit, perhaps this is expected because of unmet browser dependency.'
 
 
 # =============================================================================
@@ -631,7 +655,12 @@ def launch_web_test(*args, **kwargs) :
             # If we were able to instantiate the test, run it, otherwise we
             # consider it a failure.
             if testInstance is not None :
-                testInstance.run_test()
+                try:
+                    testInstance.run_test()
+                except DependencyError as derr:
+                    # TODO: trigger return SKIP_RETURN_CODE when CMake 3 is required
+                    print 'Some dependency of this test was not met, allowing it to pass'
+                    test_pass(testName)
             else :
                 print 'Unable to instantiate test instance, failing test'
                 test_fail(testName)

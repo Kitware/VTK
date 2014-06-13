@@ -1,22 +1,24 @@
-vtk_add_test_python(3DMorph.py)
-vtk_add_test_python(TestFacetReader.py)
-vtk_add_test_python(TestGreedyTerrainDecimation.py)
-vtk_add_test_python(TestGridWarp3D.py)
-vtk_add_test_python(TestGridWarpCubic.py)
-vtk_add_test_python(TestGridWarpLinear.py)
-vtk_add_test_python(TestGridWarpNearest.py)
-vtk_add_test_python(TestImageStencilWithPolydata.py)
-vtk_add_test_python(TestPCA.py)
-vtk_add_test_python(TestProcrustes.py)
-vtk_add_test_python(TestProjectedTerrainPath.py)
-vtk_add_test_python(TestTemporalSnapToTimeStep.py NO_DATA NO_VALID)
-vtk_add_test_python(WarpPolyData.py)
-vtk_add_test_python(appendImplicitModel.py)
-vtk_add_test_python(appendImplicitModelNoBounds.py)
-vtk_add_test_python(banana.py)
-vtk_add_test_python(depthSort.py)
-vtk_add_test_python(earth.py)
-vtk_add_test_python(imageToPolyData.py)
-vtk_add_test_python(largeImageOffset.py)
-vtk_add_test_python(largeImageParallel.py)
-vtk_add_test_python(TestProcrustesRigidCentroid.py)
+vtk_add_test_python(
+  3DMorph.py
+  TestFacetReader.py
+  TestGreedyTerrainDecimation.py
+  TestGridWarp3D.py
+  TestGridWarpCubic.py
+  TestGridWarpLinear.py
+  TestGridWarpNearest.py
+  TestImageStencilWithPolydata.py
+  TestPCA.py
+  TestProcrustes.py
+  TestProjectedTerrainPath.py
+  TestTemporalSnapToTimeStep.py,NO_DATA,NO_VALID
+  WarpPolyData.py
+  appendImplicitModel.py
+  appendImplicitModelNoBounds.py
+  banana.py
+  depthSort.py
+  earth.py
+  imageToPolyData.py
+  largeImageOffset.py
+  largeImageParallel.py
+  TestProcrustesRigidCentroid.py
+  )

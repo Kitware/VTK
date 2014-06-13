@@ -13,6 +13,9 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
   set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES})
+
+  # When this module is loaded by an app, load Qt too.
+  vtk_module_export_code_find_package(Qt5Widgets)
 else()
   # import Qt4 build settings
   find_package(Qt4 REQUIRED QtCore QtGui QUIET)

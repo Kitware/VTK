@@ -257,10 +257,6 @@ int vtkSLACParticleReader::RequestInformation(
   timeRange[0] = timeRange[1] = timeValue;
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 
-  // Report that we support any number of pieces (but we are only really going
-  // to load anything for piece 0).
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-
   return 1;
 }
 
@@ -275,14 +271,6 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
     {
     vtkErrorMacro("No filename specified.");
     return 0;
-    }
-
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int requestedPiece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  if (requestedPiece != 0)
-    {
-    // Return empty data for all but piece 0.
-    return 1;
     }
 
   vtkSLACParticleReaderAutoCloseNetCDF ncFD(this->FileName, NC_NOWRITE);

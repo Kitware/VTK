@@ -382,6 +382,20 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
   tp->Delete();
   tp = 0;
 
+  vtkDataObject* inputCopy = input->NewInstance();
+  inputCopy->ShallowCopy(input);
+  tp = vtkTrivialProducer::New();
+  tp->SetOutput(inputCopy);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    {
+    tp->SetWholeExtent(
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+    }
+  subFilter->SetInputConnection(0, tp->GetOutputPort());
+  tp->Delete();
+
+  subFilter->UpdateInformation();
+
   vtkDebugMacro(<< "Preparing subfilter to extract from dataset");
   //pass all required information to the helper filter
   int piece = -1;
@@ -403,13 +417,6 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     subFilter->SetUpdateExtent(0, uExtent);
     }
-
-  vtkDataObject* inputCopy = input->NewInstance();
-  inputCopy->ShallowCopy(input);
-  tp = vtkTrivialProducer::New();
-  tp->SetOutput(inputCopy);
-  subFilter->SetInputConnection(0, tp->GetOutputPort());
-  tp->Delete();
 
   subFilter->Update();
 

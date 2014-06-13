@@ -90,3 +90,57 @@ case "$ans" in
   *)  mkdir -p "${config_store%/*}" && echo "$ans" > "$config_store" ;;
 esac &&
 say_store
+
+say_exclude() {
+  if test -f "$config_exclude"; then
+    echo 'A default for VTK_DATA_EXCLUDE_FROM_ALL is configured as:' &&
+    echo &&
+    sed 's/^/  /' < "$config_exclude" &&
+    echo
+  else
+    echo 'No default for VTK_DATA_EXCLUDE_FROM_ALL is configured.' &&
+    echo
+  fi
+}
+
+ask_exclude() {
+  ans='?'
+  while test "$ans" = '?'; do
+    read -ep 'From the options
+
+ <empty>     = No change
+ d,delete    = No default or delete current default
+ n,no,off    = Include VTKData target in default build
+ y,yes,on    = Exclude VTKData target from default build
+
+select a default for VTK_DATA_EXCLUDE_FROM_ALL [d/n/y]: ' ans &&
+    case "$ans" in
+      d|D|delete) ans='D' ;;
+      n|N|no|off) ans='OFF' ;;
+      y|Y|yes|on) ans='ON' ;;
+      '') ans='' ;;
+      *) echo; echo "Invalid response '$ans'!"; echo; ans='?' ;;
+    esac
+  done
+  eval "$1='$ans'"
+}
+
+
+cd "${BASH_SOURCE%/*}/../.." &&
+config_exclude='.ExternalData/config/exclude-from-all' &&
+echo 'VTK defines a "VTKData" build target to download data
+objects at build time to make them available for running tests.
+VTK build trees have a VTK_DATA_EXCLUDE_FROM_ALL CMake
+cache option to exclude the "VTKData" target from being built
+as part of the default ("all") build.  A default for this value to
+be used in build trees created with this source tree may now be
+chosen.
+' &&
+say_exclude &&
+ask_exclude ans &&
+case "$ans" in
+  '') ;;
+  D) rm -f "$config_exclude" ;;
+  *)  mkdir -p "${config_exclude%/*}" && echo "$ans" > "$config_exclude" ;;
+esac &&
+say_exclude

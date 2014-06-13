@@ -73,8 +73,8 @@ implements MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListe
 
   public void mouseMove(MouseEvent e) {
     if (((e.stateMask & SWT.BUTTON1) == 0)
-      && ((e.stateMask & SWT.BUTTON2) == 0)
-      && ((e.stateMask & SWT.BUTTON3) == 0)) {
+        && ((e.stateMask & SWT.BUTTON2) == 0)
+        && ((e.stateMask & SWT.BUTTON3) == 0)) {
       super.mouseMoved(convertMouseEvent(e));
     } else {
       super.mouseDragged(convertMouseEvent(e));

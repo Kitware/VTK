@@ -25,6 +25,20 @@
 // The internal (RMI) communications are done using a second internal
 // communicator (called RMICommunicator).
 //
+// There are two modes for RMI communication: (1) Send/Receive mode and
+// (2) Broadcast (collective) mode. The Send/Receive mode arranges processes
+// in a binary tree using post-order traversal and propagates the RMI trigger
+// starting from the root (rank 0) to the children. It is commonly employed to
+// communicate between client/server over TCP. Although, the Send/Receive mode
+// can be employed transparently over TCP or MPI, it is not optimal for
+// triggering the RMIs on the satellite ranks. The Broadcast mode provides a
+// more desirable alternative, namely, it uses MPI_Broadcast for communication,
+// which is the nominal way of achieving this in an MPI context. The underlying
+// communication mode used for triggering RMIs is controlled by the
+// "BroadcastTriggerRMI" variable. Note, that mixing between the two modes
+// for RMI communication is not correct behavior. All processes within the
+// vtkMultiProcessController must use the same mode for triggering RMI.
+//
 // .SECTION see also
 // vtkMPIController
 // vtkCommunicator vtkMPICommunicator
@@ -259,6 +273,7 @@ public:
     {
     this->TriggerRMIOnAllChildren(NULL, 0, tag);
     }
+  void BroadcastTriggerRMIOnAllChildren(void* arg, int argLength, int tag);
 
   // Description:
   // Calling this method gives control to the controller to start
@@ -272,6 +287,7 @@ public:
   // and exits.
   int ProcessRMIs(int reportErrors, int dont_loop = 0);
   int ProcessRMIs();
+  int BroadcastProcessRMIs(int reportErrors, int dont_loop=0);
 
   // Description:
   // Setting this flag to 1 will cause the ProcessRMIs loop to return.
@@ -279,6 +295,14 @@ public:
   // their WaitForUpdate loops.
   vtkSetMacro(BreakFlag, int);
   vtkGetMacro(BreakFlag, int);
+
+  // Description:
+  // Setting this flag to 1 will cause the TriggerRMIOnAllChildren to use
+  // a collective broadcast operation to communicate the RMI tag to the
+  // sattelites.
+  vtkSetMacro(BroadcastTriggerRMI,bool);
+  vtkGetMacro(BroadcastTriggerRMI,bool);
+  vtkBooleanMacro(BroadcastTriggerRMI,bool);
 
   // Description:
   // Returns the communicator associated with this controller.
@@ -996,6 +1020,11 @@ protected:
 
   // This flag can force deep copies during send.
   int ForceDeepCopy;
+
+  // This flag can be used to indicate that an MPI Broadcast will be used
+  // when calling TriggerRMIOnAllChildren(), instead of the binary tree
+  // propagation of the data to the sattelite ranks from rank 0.
+  bool BroadcastTriggerRMI;
 
   vtkOutputWindow* OutputWindow;
 

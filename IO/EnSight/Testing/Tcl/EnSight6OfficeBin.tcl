@@ -17,12 +17,6 @@ cdp Delete
 reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office6_bin.case"
 reader Update
 
-# to add coverage for vtkOnePieceExtentTranslator
-vtkOnePieceExtentTranslator translator
-vtkStreamingDemandDrivenPipeline sddp
-set Outinfo [reader GetOutputInformation 0]
-sddp SetExtentTranslator $Outinfo translator
-
 vtkStructuredGridOutlineFilter outline
     outline SetInputConnection [reader GetOutputPort]
 vtkHierarchicalPolyDataMapper mapOutline

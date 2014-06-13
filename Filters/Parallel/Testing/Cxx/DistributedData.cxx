@@ -48,6 +48,9 @@
 
 #include "vtkProcess.h"
 
+namespace
+{
+
 class MyProcess : public vtkProcess
 {
 public:
@@ -315,7 +318,9 @@ void MyProcess::Execute()
   prm->Delete();
 }
 
-int main(int argc, char **argv)
+}
+
+int DistributedData(int argc, char *argv[])
 {
   int retVal = 1;
 

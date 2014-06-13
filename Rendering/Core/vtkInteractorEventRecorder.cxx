@@ -365,10 +365,20 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
         break;
 
       default:
-        self->WriteEvent(vtkCommand::GetStringFromEventId(event),
-                         rwi->GetEventPosition(), rwi->GetControlKey(),
-                         rwi->GetShiftKey(), rwi->GetKeyCode(),
-                         rwi->GetRepeatCount(), rwi->GetKeySym());
+        // A 'e' or a 'q' will stop the recording
+        if (rwi->GetKeySym() &&
+            (rwi->GetKeySym() == std::string("e") ||
+             rwi->GetKeySym() == std::string("q")))
+          {
+          self->Off();
+          }
+        else
+          {
+          self->WriteEvent(vtkCommand::GetStringFromEventId(event),
+                           rwi->GetEventPosition(), rwi->GetControlKey(),
+                           rwi->GetShiftKey(), rwi->GetKeyCode(),
+                           rwi->GetRepeatCount(), rwi->GetKeySym());
+          }
       }
     self->OutputStream->flush();
     }

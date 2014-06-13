@@ -84,7 +84,6 @@ protected:
   ~vtkRegularPolygonSource() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int    NumberOfSides;
   double Center[3];

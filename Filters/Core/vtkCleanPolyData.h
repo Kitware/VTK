@@ -167,7 +167,6 @@ protected:
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int   PointMerging;

@@ -23,14 +23,14 @@
 // technical description "Parametric surfaces" in http://www.vtk.org/documents.php
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
-// Also see: http://astronomy.swin.edu.au/~pbourke/surfaces/
+// Also see: http://paulbourke.net/geometry/superellipse/
 //
 // .SECTION Caveats
 // Care needs to be taken specifying the bounds correctly. You may need to
 // carefully adjust MinimumU, MinimumV, MaximumU, MaximumV.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
+// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
 #ifndef __vtkParametricSuperEllipsoid_h
@@ -62,27 +62,27 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // Set/Get the scaling factor for the x-axis. Default = 1.
+  // Set/Get the scaling factor for the x-axis. Default is 1.
   vtkSetMacro(XRadius,double);
   vtkGetMacro(XRadius,double);
 
   // Description:
-  // Set/Get the scaling factor for the y-axis. Default = 1.
+  // Set/Get the scaling factor for the y-axis. Default is 1.
   vtkSetMacro(YRadius,double);
   vtkGetMacro(YRadius,double);
 
   // Description:
-  // Set/Get the scaling factor for the z-axis. Default = 1.
+  // Set/Get the scaling factor for the z-axis. Default is 1.
   vtkSetMacro(ZRadius,double);
   vtkGetMacro(ZRadius,double);
 
   // Description:
-  // Set/Get the "squareness" parameter in the z axis.  Default = 1.
+  // Set/Get the "squareness" parameter in the z axis.  Default is 1.
   vtkSetMacro(N1,double);
   vtkGetMacro(N1,double);
 
   // Description:
-  //  Set/Get the "squareness" parameter in the x-y plane. Default = 1.
+  //  Set/Get the "squareness" parameter in the x-y plane. Default is 1.
   vtkSetMacro(N2,double);
   vtkGetMacro(N2,double);
 

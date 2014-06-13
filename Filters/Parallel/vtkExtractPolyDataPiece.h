@@ -43,7 +43,6 @@ protected:
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // A method for labeling which piece the cells belong to.

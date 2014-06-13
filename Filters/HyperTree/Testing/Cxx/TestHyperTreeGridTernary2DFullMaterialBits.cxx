@@ -175,7 +175,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   cout << "Constructing geometry..." << endl;
   timer->StartTimer();
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( htGrid->GetOutputPort() );
+  geometry->SetInputData( htGrid->GetOutput() );
   geometry->Update();
   vtkPolyData* pd = geometry->GetOutput();
   timer->StopTimer();

@@ -201,16 +201,6 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    if(request->Has(vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT()))
-      {
-      int outputPort = request->Get(
-        vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT());
-      vtkInformation* info = outputVector->GetInformationObject(outputPort);
-      if (info)
-        {
-        info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-        }
-      }
     // Upstream changed, clear the cache.
     this->Cache.clear();
     return this->RequestInformation(request, inputVector, outputVector);

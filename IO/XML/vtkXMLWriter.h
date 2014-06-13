@@ -409,9 +409,6 @@ protected:
   void WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* yc,
                                     vtkDataArray* zc, int timestep,
                                     OffsetsManagerGroup *coordManager);
-  virtual vtkAbstractArray* CreateArrayForPoints(vtkAbstractArray* inArray);
-  virtual vtkAbstractArray* CreateArrayForCells(vtkAbstractArray* inArray);
-  virtual vtkDataArray* CreateExactCoordinates(vtkDataArray* inArray, int xyz);
   void WritePPointData(vtkPointData* pd, vtkIndent indent);
   void WritePCellData(vtkCellData* cd, vtkIndent indent);
   void WritePPoints(vtkPoints* points, vtkIndent indent);

@@ -27,6 +27,62 @@ extern "C" {
 #include "vtk_tiff.h"
 }
 
+namespace {
+struct FlipTrue {};
+struct FlipFalse {};
+
+int GetFileRow(int row, int height, FlipTrue)
+{
+  return height - row - 1;
+}
+
+int GetFileRow(int row, int, FlipFalse)
+{
+  return row;
+}
+
+// Simple scan line copy of a slice in a volume with tightly packed memory.
+template<typename T, typename Flip>
+bool ReadTemplatedImage(T* out, Flip flip,
+                        int startCol, int endCol,
+                        int startRow, int endRow,
+                        int yIncrements,
+                        unsigned int height, TIFF *image)
+{
+  unsigned int isize = TIFFScanlineSize(image);
+  size_t scanLineSize = endCol - startCol + 1;
+  if (scanLineSize * sizeof(T) == isize)
+    {
+    // We can copy straight into the image data output.
+    for (int i = startRow; i <= endRow; ++i)
+      {
+      T* tmp = out + (i - startRow) * yIncrements;
+      if (TIFFReadScanline(image, tmp, GetFileRow(i, height, flip), 0) <= 0)
+        {
+        return false;
+        }
+      }
+    }
+  else
+    {
+    // Copy into a buffer of the appropriate size, then subset into the output.
+    tdata_t buf = _TIFFmalloc(isize);
+    for (int i = startRow; i <= endRow; ++i)
+      {
+      T* tmp = out + (i - startRow) * yIncrements;
+      if (TIFFReadScanline(image, buf, GetFileRow(i, height, flip), 0) <= 0)
+        {
+        _TIFFfree(buf);
+        return false;
+        }
+      memcpy(tmp, static_cast<T*>(buf) + startCol, sizeof(T) * scanLineSize);
+      }
+    _TIFFfree(buf);
+    }
+  return true;
+}
+}
+
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader)
 
@@ -222,15 +278,15 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
       TIFFSetDirectory(this->Image, 0);
       }
 
-      // TIFFTAG_ORIENTATION tag from the image data and use it if available.
-      // If the tag is not found in the image data, use ORIENTATION_BOTLEFT by
-      // default.
-      int status = TIFFGetField(this->Image, TIFFTAG_ORIENTATION,
-                                &this->Orientation);
-      if (!status)
-        {
-        this->Orientation = ORIENTATION_BOTLEFT;
-        }
+    // TIFFTAG_ORIENTATION tag from the image data and use it if available.
+    // If the tag is not found in the image data, use ORIENTATION_BOTLEFT by
+    // default.
+    int status = TIFFGetField(this->Image, TIFFTAG_ORIENTATION,
+                              &this->Orientation);
+    if (!status)
+      {
+      this->Orientation = ORIENTATION_BOTLEFT;
+      }
 
     TIFFGetFieldDefaulted(this->Image, TIFFTAG_SAMPLESPERPIXEL,
                           &this->SamplesPerPixel);
@@ -239,6 +295,14 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
                           &this->BitsPerSample);
     TIFFGetFieldDefaulted(this->Image, TIFFTAG_PLANARCONFIG, &this->PlanarConfig);
     TIFFGetFieldDefaulted(this->Image, TIFFTAG_SAMPLEFORMAT, &this->SampleFormat);
+
+    // If SamplesPerPixel is one, then PlanarConfig has no meaning and some
+    // files have it set arbitrarily.  Therefore, set it to CONTIG so that
+    // the reader will not refuse to read the file on a technicality.
+    if (this->SamplesPerPixel == 1)
+      {
+      this->PlanarConfig = PLANARCONFIG_CONTIG;
+      }
 
     // If TIFFGetField returns false, there's no Photometric Interpretation
     // set for this image, but that's a required field so we set a warning flag.
@@ -451,7 +515,7 @@ void vtkTIFFReader::ExecuteInformation()
 
     if (!SpacingSpecifiedFlag)
       {
-      this->DataSpacing[2] = 1.0;
+      this->DataSpacing[2] = this->DataSpacing[0];
       }
     if (!OriginSpecifiedFlag)
       {
@@ -462,9 +526,12 @@ void vtkTIFFReader::ExecuteInformation()
    // If the tiff is tiled
    if (this->InternalImage->NumberOfTiles > 1)
      {
-     this->DataExtent[1]  = this->InternalImage->TileWidth;
-     this->DataExtent[3]  = this->InternalImage->TileHeight;
-     this->DataExtent[5]  = this->InternalImage->NumberOfTiles;
+     this->DataExtent[0] = 0;
+     this->DataExtent[1]  = this->InternalImage->TileWidth - 1;
+     this->DataExtent[2] = 0;
+     this->DataExtent[3]  = this->InternalImage->TileHeight - 1;
+     this->DataExtent[4] = 0;
+     this->DataExtent[5]  = this->InternalImage->NumberOfTiles - 1;
      if (!SpacingSpecifiedFlag)
        {
        this->DataSpacing[2] = 1.0;
@@ -732,11 +799,16 @@ void vtkTIFFReader::ReadVolume(T* buffer)
 {
   int width  = this->InternalImage->Width;
   int height = this->InternalImage->Height;
-
-  for (unsigned int page = 0; page < this->InternalImage->NumberOfPages; ++page)
+  unsigned int npages = this->InternalImage->NumberOfPages;
+  if (this->InternalImage->SubFiles > 0)
     {
-    this->UpdateProgress(static_cast<double>(page + 1) /
-                         this->InternalImage->NumberOfPages);
+    // See ExecuteInformation
+    npages = this->InternalImage->SubFiles;
+    }
+
+  for (unsigned int page = 0; page < npages; ++page)
+    {
+    this->UpdateProgress(static_cast<double>(page + 1) / npages);
     if (this->InternalImage->SubFiles > 0)
       {
       long subfiletype = 6;
@@ -1012,6 +1084,41 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage(void *out,
 template<typename T>
 void vtkTIFFReader::ReadGenericImage(T* out, unsigned int, unsigned int height)
 {
+  // Fast path for simple images
+  unsigned int format = this->GetFormat();
+  if (this->InternalImage->PlanarConfig == PLANARCONFIG_CONTIG &&
+      this->OutputIncrements[0] == 1 &&
+      (format == vtkTIFFReader::GRAYSCALE &&
+       this->InternalImage->Photometrics == PHOTOMETRIC_MINISBLACK &&
+       this->InternalImage->SamplesPerPixel ==  1))
+    {
+    if (this->InternalImage->Orientation == ORIENTATION_TOPLEFT)
+      {
+      FlipFalse flip;
+      if (!ReadTemplatedImage(out, flip,
+                              this->OutputExtent[0], this->OutputExtent[1],
+                              this->OutputExtent[2], this->OutputExtent[3],
+                              this->OutputIncrements[1],
+                              height, this->InternalImage->Image))
+        {
+        vtkErrorMacro(<< "Problem reading slice of volume in TIFF file.");
+        }
+      }
+    else
+      {
+      FlipTrue flip;
+      if (!ReadTemplatedImage(out, flip,
+                              this->OutputExtent[0], this->OutputExtent[1],
+                              this->OutputExtent[2], this->OutputExtent[3],
+                              this->OutputIncrements[1],
+                              height, this->InternalImage->Image))
+        {
+        vtkErrorMacro(<< "Problem reading slice of volume in TIFF file.");
+        }
+      }
+    return;
+    }
+
   unsigned int isize = TIFFScanlineSize(this->InternalImage->Image);
   tdata_t buf = _TIFFmalloc(isize);
 

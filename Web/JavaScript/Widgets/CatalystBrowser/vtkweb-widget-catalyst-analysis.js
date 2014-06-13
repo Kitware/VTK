@@ -27,11 +27,23 @@
 
     // ------------------------------------------------------------------------
 
-    function createControlToolbar(container, projectList) {
+    function handlePath(fullPath, projectPath) {
+        if(projectPath.indexOf("http://") === 0 || projectPath.indexOf("https://") === 0 || projectPath.indexOf("file://") === 0) {
+            return projectPath;
+        } else {
+            // Relative path
+            var basePath = fullPath.substr(0, 1 + fullPath.lastIndexOf("/"));
+            return basePath + projectPath;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    function createControlToolbar(container, projectList, fullURL) {
         // Fill run list
         var count = projectList.length, buffer = [];
         while(count--) {
-           buffer.push(RUN_LINE_TEMPLATE.replace(/PATH/g, projectList[count].path).replace(/TITLE/g, projectList[count].title).replace(/DESCRIPTION/g, projectList[count].description));
+            buffer.push(RUN_LINE_TEMPLATE.replace(/PATH/g, handlePath(fullURL, projectList[count].path)).replace(/TITLE/g, projectList[count].title).replace(/DESCRIPTION/g, projectList[count].description));
         }
         container.html(TOOLBAR_TEMPLATE);
         $('.run-content', container).html(buffer.join(''));
@@ -139,7 +151,7 @@
                     me.data('projects', data);
 
                     // Create project list
-                    createControlToolbar(me, data);
+                    createControlToolbar(me, data, fullURL);
 
                     // Attach interaction listeners
                     initializeListeners(me);

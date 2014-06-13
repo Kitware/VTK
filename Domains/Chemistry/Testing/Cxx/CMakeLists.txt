@@ -1,4 +1,4 @@
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBallAndStick.cxx
   TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
@@ -16,8 +16,8 @@ vtk_add_test_cxx(
   TestProteinRibbon.cxx
   TestSimpleBondPerceiver.cxx,NO_VALID
   TestVDWSpheres.cxx
+  TestCMLMoleculeReader.cxx
   )
-
-vtk_add_test_cxx(TestCMLMoleculeReader.cxx)
-
-vtk_test_cxx_executable(${vtk-module}CxxTests RENDERING_FACTORY)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY
+  )

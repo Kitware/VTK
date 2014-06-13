@@ -227,7 +227,7 @@ enum
   vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentCropping,
   vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentNoCropping,
   vtkOpenGLGPUVolumeRayCastMapperAdditiveCropping,
-  vtkOpenGLGPUVolumeRayCastMapperAdditiveNoCropping,
+  vtkOpenGLGPUVolumeRayCastMapperAdditiveNoCropping
 };
 
 enum

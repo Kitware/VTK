@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkOnePieceExtentTranslator.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -41,30 +40,6 @@ vtkPProbeFilter::vtkPProbeFilter()
 vtkPProbeFilter::~vtkPProbeFilter()
 {
   this->SetController(0);
-}
-
-//----------------------------------------------------------------------------
-int vtkPProbeFilter::RequestInformation(vtkInformation *request,
-                                        vtkInformationVector **inputVector,
-                                        vtkInformationVector *outputVector)
-{
-  this->Superclass::RequestInformation(request, inputVector, outputVector);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
-
-  // Setup ExtentTranslator so that all downstream piece requests are
-  // converted to whole extent update requests, as need by this filter.
-  if (strcmp(
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo)
-        ->GetClassName(), "vtkOnePieceExtentTranslator") != 0)
-    {
-    vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, et);
-    et->Delete();
-    }
-
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -158,12 +133,16 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(inInfo);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, 0, 1, 0);
 
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
 //            0);
+  // If structured data, we want the whole extent. This is necessary because
+  // the pipeline will copy the update extent from the output to all inputs.
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(sourceInfo);
+  // Then we want the same as output pieces.
   sourceInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));

@@ -46,7 +46,7 @@ struct TestArgs
 };
 
 //=============================================================================
-void PSLACReaderQuadratic(vtkMultiProcessController *controller, void *_args)
+void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_args)
 {
   TestArgs *args = reinterpret_cast<TestArgs *>(_args);
   int argc = args->argc;
@@ -152,7 +152,7 @@ void PSLACReaderQuadratic(vtkMultiProcessController *controller, void *_args)
 }
 
 //=============================================================================
-int main(int argc, char *argv[])
+int PSLACReaderQuadratic(int argc, char *argv[])
 {
   int retval = 1;
 
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
   args.argc = argc;
   args.argv = argv;
 
-  controller->SetSingleMethod(PSLACReaderQuadratic, &args);
+  controller->SetSingleMethod(PSLACReaderQuadraticMethod, &args);
   controller->SingleMethodExecute();
 
   controller->Finalize();

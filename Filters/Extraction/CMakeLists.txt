@@ -18,8 +18,8 @@ set(Module_SRCS
   vtkExtractSelectedPolyDataIds.cxx
   vtkExtractSelectedRows.cxx
   vtkExtractSelectedThresholds.cxx
-  vtkExtractSelectionBase.cxx
   vtkExtractSelection.cxx
+  vtkExtractSelectionBase.cxx
   vtkExtractTemporalFieldData.cxx
   vtkExtractTensorComponents.cxx
   vtkExtractUnstructuredGrid.cxx

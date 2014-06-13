@@ -16,19 +16,21 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkBitArray.h"
 #include "vtkDataArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
-#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeCursor.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkQuadric.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include <cassert>
 
@@ -319,6 +321,15 @@ int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
   origin[2] = this->ZCoordinates->GetTuple1( 0 );
   outInfo->Set( vtkDataObject::ORIGIN(), origin, 3 );
 
+  int extent[6];
+  extent[0] = 0;
+  extent[1] = this->GridSize[0] - 1;
+  extent[2] = 0;
+  extent[3] = this->GridSize[1] - 1;
+  extent[4] = 0;
+  extent[5] = this->GridSize[2] - 1;
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6 );
+
   return 1;
 }
 
@@ -329,12 +340,17 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
 {
   // Retrieve the output
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
-  this->Output = vtkHyperTreeGrid::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->Output =
+    vtkHyperTreeGrid::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
   if ( ! this->Output )
     {
     return 0;
     }
   vtkPointData* outData = this->Output->GetPointData();
+
+  // TODO: add support for update extent
+  //int updateExtent[6];
+  //outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent );
 
   this->LevelBitsIndexCnt.clear();
   this->LevelBitsIndexCnt.push_back(0);
@@ -370,7 +386,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   // Create geometry
   for ( unsigned int i = 0; i < 3; ++ i )
     {
-    vtkDoubleArray* coords = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> coords;
     unsigned int n = this->GridSize[i] + 1;
     coords->SetNumberOfValues( n );
     for ( unsigned int j = 0; j < n; ++ j )
@@ -382,22 +398,21 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     switch ( i )
       {
       case 0:
-        this->Output->SetXCoordinates( coords );
+        this->Output->SetXCoordinates( coords.GetPointer() );
         break;
       case 1:
-        this->Output->SetYCoordinates( coords );
+        this->Output->SetYCoordinates( coords.GetPointer() );
         break;
       case 2:
-        this->Output->SetZCoordinates( coords );
+        this->Output->SetZCoordinates( coords.GetPointer() );
+        break;
+      default:
         break;
       }
-
-    // Clean up
-    coords->Delete();
     }
 
   // Prepare array of doubles for depth values
-  vtkDoubleArray* depthArray = vtkDoubleArray::New();
+  vtkNew<vtkDoubleArray> depthArray;
   depthArray->SetName( "Depth" );
   depthArray->SetNumberOfComponents( 1 );
   vtkIdType fact = 1;
@@ -407,19 +422,17 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     }
   fact *= fact;
   depthArray->Allocate( fact );
-  outData->SetScalars( depthArray );
-  depthArray->UnRegister( this );
+  outData->SetScalars( depthArray.GetPointer() );
 
   if ( ! this->UseDescriptor )
     {
     // Prepare array of doubles for quadric values
-    vtkDoubleArray* quadricArray = vtkDoubleArray::New();
+    vtkNew<vtkDoubleArray> quadricArray;
     quadricArray->SetName( "Quadric" );
     quadricArray->SetNumberOfComponents( 1 );
 
     quadricArray->Allocate( fact );
-    outData->AddArray( quadricArray );
-    quadricArray->UnRegister( this );
+    outData->AddArray( quadricArray.GetPointer() );
     }
 
   // Iterate over all hyper trees
@@ -429,11 +442,6 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   while ( vtkHyperTree* tree = it.GetNextTree( index ) )
     {
     unsigned int i, j, k;
-    //if ( this->TransposedRootIndexing )
-    //  {
-    //  this->Output->GetLevelZeroCoordsFromIndex( index, k, j, i );
-    //  }
-    //else
     this->Output->GetLevelZeroCoordsFromIndex( index, i, j, k );
 
     // Initialize cursor
@@ -526,8 +534,8 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   unsigned int nLeaves = 0;
   unsigned int nNextLevel = nTotal;
   bool rootLevel = true;
-  vtksys_ios::ostringstream descriptor;
-  vtksys_ios::ostringstream mask;
+  std::ostringstream descriptor;
+  std::ostringstream mask;
 
   for ( size_t i = 0; i < descLen; ++ i )
     {
@@ -664,7 +672,8 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
     }
 
   // Reset maximum depth if fewer levels are described
-  unsigned int nLevels = static_cast<unsigned int>( this->LevelDescriptors.size() );
+  unsigned int nLevels =
+    static_cast<unsigned int>( this->LevelDescriptors.size() );
   if ( nLevels < this->MaximumLevel )
     {
     this->MaximumLevel = nLevels;
@@ -680,7 +689,8 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   this->LevelBitsIndex.push_back(0);
   for ( unsigned int i = 1; i < nLevels; ++ i )
     {
-    this->LevelBitsIndex.push_back(LevelBitsIndex[i-1] + this->LevelDescriptors[i-1].length());
+    this->LevelBitsIndex.push_back(
+      LevelBitsIndex[i-1] + this->LevelDescriptors[i-1].length());
     }
   this->LevelBitsIndexCnt = this->LevelBitsIndex;
 
@@ -688,12 +698,9 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::SubdivideFromStringDescriptor( vtkHyperTreeCursor* cursor,
-                                                      unsigned int level,
-                                                      int treeIdx,
-                                                      int childIdx,
-                                                      int idx[3],
-                                                      int parentPos )
+void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(
+  vtkHyperTreeCursor* cursor, unsigned int level, int treeIdx, int childIdx,
+  int idx[3], int parentPos )
 {
   // Get handle on leaf scalar data
   vtkDataArray* depthArray = this->Output->GetPointData()->GetArray( "Depth" );
@@ -736,9 +743,8 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor( vtkHyperTreeCursor* 
           cursor->ToChild( newChildIdx );
 
           // Recurse
-          this->SubdivideFromStringDescriptor(
-            cursor, level + 1, treeIdx, newChildIdx, newIdx,
-            this->LevelCounters.at( level ) );
+          this->SubdivideFromStringDescriptor( cursor, level + 1, treeIdx,
+            newChildIdx, newIdx, this->LevelCounters.at( level ) );
 
           // Reset cursor to parent
           cursor->ToParent();
@@ -769,8 +775,7 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
     && this->MaterialMaskBits->GetSize() != this->DescriptorBits->GetSize() )
     {
     vtkErrorMacro(<<"Material mask is used but has length "
-                  << this->MaterialMaskBits->GetSize()
-                  << " != "
+                  << this->MaterialMaskBits->GetSize() << " != "
                   << this->DescriptorBits->GetSize()
                   << " which is the length of the grid descriptor.");
 
@@ -814,11 +819,8 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
   // Verify and append last level string
   if ( nCurrentLevelCount != nNextLevel )
     {
-    vtkErrorMacro(<<"Level descriptor "
-                  << nCurrentLevel
-                  << " has cardinality "
-                  << nCurrentLevelCount
-                  << " which is not expected value of "
+    vtkErrorMacro(<<"Level descriptor " << nCurrentLevel << " has cardinality "
+                  << nCurrentLevelCount << " which is not expected value of "
                   << nNextLevel);
 
     return 0;
@@ -844,12 +846,9 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeCursor* cursor,
-                                                      unsigned int level,
-                                                      int treeIdx,
-                                                      int childIdx,
-                                                      int idx[3],
-                                                      int parentPos )
+void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor(
+  vtkHyperTreeCursor* cursor, unsigned int level, int treeIdx, int childIdx,
+  int idx[3], int parentPos )
 {
   // Get handle on leaf scalar data
   vtkDataArray* depthArray = this->Output->GetPointData()->GetArray( "Depth" );
@@ -938,8 +937,8 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeCursor* cu
       {
       if ( this->LevelZeroMaterialIndex )
         {
-        isMasked = ( level == 0 ) ? false :
-          this->MaterialMaskBits->GetValue( startIdx - this->LevelBitsIndex[1] + pointer ) == 0;
+        isMasked = ( level == 0 ) ? false : this->MaterialMaskBits->GetValue(
+          startIdx - this->LevelBitsIndex[1] + pointer ) == 0;
         }
       else
         {
@@ -965,7 +964,8 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
   vtkDataArray* quadricArray = outData->GetArray( "Quadric" );
 
     // Calculate the node global index
-  vtkIdType id = cursor->GetTree()->GetGlobalIndexFromLocal( cursor->GetNodeId() );
+  vtkIdType id =
+    cursor->GetTree()->GetGlobalIndexFromLocal( cursor->GetNodeId() );
   this->LevelBitsIndexCnt[0]++;
 
   // Compute cell origin coordinates
@@ -1071,12 +1071,8 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
           cursor->ToChild( newChildIdx );
 
           // Recurse
-          this->SubdivideFromQuadric( cursor,
-                                      level + 1,
-                                      treeIdx,
-                                      newIdx,
-                                      origin,
-                                      newSize );
+          this->SubdivideFromQuadric( cursor, level + 1, treeIdx, newIdx,
+                                      origin, newSize );
 
           // Reset cursor to parent
           cursor->ToParent();
@@ -1137,10 +1133,12 @@ unsigned long vtkHyperTreeGridSource::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray( const vtkStdString& str )
+vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray(
+  const std::string& str )
 {
   vtkBitArray* desc = vtkBitArray::New();
-  for ( vtkStdString::const_iterator dit = str.begin();
+  desc->Allocate( str.length() );
+  for ( std::string::const_iterator dit = str.begin();
     dit != str.end();  ++ dit )
     {
     switch ( *dit )
@@ -1172,11 +1170,13 @@ vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray( const vt
         return 0;
       } // switch( *dit )
     }
+  desc->Squeeze();
   return desc;
 }
 
 //----------------------------------------------------------------------------
-vtkBitArray* vtkHyperTreeGridSource::ConvertMaterialMaskStringToBitArray( const vtkStdString& str )
+vtkBitArray* vtkHyperTreeGridSource::ConvertMaterialMaskStringToBitArray(
+  const std::string& str )
 {
   return ConvertDescriptorStringToBitArray( str );
 }

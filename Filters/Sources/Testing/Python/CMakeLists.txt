@@ -1,7 +1,9 @@
-vtk_add_test_python(Disk.py)
-vtk_add_test_python(OSCone.py)
-vtk_add_test_python(TestButtonSource.py)
-vtk_add_test_python(TestRegularPolygonSource.py)
-vtk_add_test_python(coneResolution.py)
-vtk_add_test_python(glyph2D.py)
-vtk_add_test_python(TestPlatonicSolids.py NO_RT)
+vtk_add_test_python(
+  Disk.py
+  OSCone.py
+  TestButtonSource.py
+  TestRegularPolygonSource.py
+  coneResolution.py
+  glyph2D.py
+  TestPlatonicSolids.py,NO_RT
+  )

@@ -20,7 +20,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkOnePieceExtentTranslator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkMultiBlockDataGroupFilter);
@@ -37,20 +36,30 @@ vtkMultiBlockDataGroupFilter::~vtkMultiBlockDataGroupFilter()
 //-----------------------------------------------------------------------------
 int vtkMultiBlockDataGroupFilter::RequestInformation(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **,
+  vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  info->Remove(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  return 1;
+}
 
-  // Setup ExtentTranslator so that all downstream piece requests are
-  // converted to whole extent update requests, as need by the histogram filter.
-  if (strcmp(
-      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo)
-        ->GetClassName(), "vtkOnePieceExtentTranslator") != 0)
+//-----------------------------------------------------------------------------
+int vtkMultiBlockDataGroupFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
+{
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
+  for (int i=0; i<numInputs; i++)
     {
-    vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
-    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, et);
-    et->Delete();
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(i);
+    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+      {
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+        inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+        6);
+      }
     }
   return 1;
 }

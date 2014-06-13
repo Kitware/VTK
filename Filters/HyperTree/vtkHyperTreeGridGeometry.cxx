@@ -18,12 +18,14 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkExtentTranslator.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
@@ -43,82 +45,12 @@ vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::~vtkHyperTreeGridGeometry()
 {
-  if ( this->Points )
-    {
-    this->Points->Delete();
-    this->Points = 0;
-    }
-  if ( this->Cells )
-    {
-    this->Cells->Delete();
-    this->Cells = 0;
-    }
 }
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-
-  if( this->Input )
-    {
-    os << indent << "Input:\n";
-    this->Input->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Input: ( none )\n";
-    }
-
-  if( this->Output )
-    {
-    os << indent << "Output:\n";
-    this->Output->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Output: ( none )\n";
-    }
-
-  if( this->InData )
-    {
-    os << indent << "InData:\n";
-    this->InData->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "InData: ( none )\n";
-    }
-
-  if( this->OutData )
-    {
-    os << indent << "OutData:\n";
-    this->OutData->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "OutData: ( none )\n";
-    }
-
-  if( this->Points )
-    {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Points: ( none )\n";
-    }
-
-  if( this->Cells )
-    {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf( os, indent.GetNextIndent() );
-    }
-  else
-    {
-    os << indent << "Cells: ( none )\n";
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -138,12 +70,16 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
 
   // Retrieve input and output
-  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  this->Output= vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Input =
+    vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output =
+    vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Initialize output cell data
-  this->InData = static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
-  this->OutData = static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
+  this->InData =
+    static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
+  this->OutData =
+    static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
   this->OutData->CopyAllocate( this->InData );
 
   // Extract geometry from hyper tree grid
@@ -152,8 +88,11 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   // Clean up
   this->Input = 0;
   this->Output = 0;
+  this->InData = 0;
+  this->OutData = 0;
 
   this->UpdateProgress( 1. );
+
   return 1;
 }
 
@@ -193,6 +132,11 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
     {
     this->Output->SetPolys( this->Cells );
     }
+
+  this->Points->UnRegister( this );
+  this->Points = 0;
+  this->Cells->UnRegister( this );
+  this->Cells = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -258,7 +202,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* sc )
   // Cell at cursor 0 is a leaf, retrieve its global index
   vtkIdType id0 = cursor0->GetGlobalNodeIndex();
   // In 2D all unmasked faces are generated
-  if ( id0 >= 0 && ! this->Input->GetMaterialMask()->GetTuple1( id0 ) )
+  if ( id0 >= 0 && ! this->Input->GetMaterialMask()->GetValue( id0 ) )
     {
     this->AddFace( id0, superCursor->Origin, superCursor->Size, 0, 2 );
     }
@@ -272,11 +216,13 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
     static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
   vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
+  vtkBitArray* matMask = this->Input->GetMaterialMask();
+
   // Cell at cursor 0 is a leaf, retrieve its global index
   vtkIdType id0 = cursor0->GetGlobalNodeIndex();
 
   int neighborIdx = -1;
-  int masked = this->Input->GetMaterialMask()->GetTuple1( id0 );
+  int masked = matMask->GetValue( id0 );
   // In 3D masked and unmasked cells are handles differently
   for ( unsigned int f = 0; f < 3; ++ f, neighborIdx *= 3 )
     {
@@ -297,7 +243,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
           && cursor->GetLevel() < cursor0->GetLevel() )
           {
 
-          if ( id >=0 && ! this->Input->GetMaterialMask()->GetTuple1( id ) )
+          if ( id >=0 && ! matMask->GetValue( id ) )
             {
             this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
             }
@@ -308,8 +254,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
         // Boundary faces, or faces shared by a masked cell, must be created
         if ( ! cursor->GetTree()
           ||
-          ( cursor->IsLeaf()
-          && this->Input->GetMaterialMask()->GetTuple1( id ) ) )
+          ( cursor->IsLeaf() && matMask->GetValue( id ) ) )
           {
           this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
           }
@@ -323,7 +268,7 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
                                         double* origin, double* size,
                                         int offset, int orientation )
 {
-  // Initialize points
+  // Initialize point
   double pt[3];
   memcpy( pt, origin, 3 * sizeof(double) );
 

@@ -64,7 +64,7 @@ vtkRectilinearGrid* GetGridFromFile( std::string &file )
 //------------------------------------------------------------------------------
 // Description:
 // Program Main
-int main( int argc, char **argv )
+int TestRectilinearGridPartitioner( int argc, char *argv[] )
 {
   if( argc != 3 )
     {

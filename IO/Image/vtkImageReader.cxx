@@ -103,6 +103,8 @@ int vtkImageReader::RequestInformation (
 
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT(), 1);
+
   double spacing[3];
   int extent[6];
   double origin[3];
@@ -213,6 +215,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
   // Get the requested extents.
   data->GetExtent(inExtent);
+
   // Convert them into to the extent needed from the file.
   self->ComputeInverseTransformedExtent(inExtent,dataExtent);
 

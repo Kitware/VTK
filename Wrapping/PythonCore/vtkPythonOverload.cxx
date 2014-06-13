@@ -565,6 +565,21 @@ int vtkPythonOverload::CheckArg(
           }
         }
 
+      // Generic python objects
+      else if (classname[0] == '*' && classname[1] == 'P' &&
+               classname[2] == 'y')
+        {
+        // Skip over the "*"
+        classname++;
+
+        // Mark this match as low priority compared to other matches
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+
+        // Code can be added here to do inheritance-based checks, but
+        // this has to be done on a case-by-case basis because the "C"
+        // name of a python type is different from its "Python" name.
+        }
+
       // Qt objects and enums
       else if (((classname[0] == '*' || classname[0] == '&') &&
                 (classname[1] == 'Q' && isalpha(classname[2]))) ||

@@ -19,9 +19,11 @@
 #include "vtkCharArray.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataObjectTypes.h"
+#include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLParser.h"
 
@@ -272,7 +274,7 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
   vtkXdmfDomain* domain = this->XdmfDocument->GetActiveDomain();
 
   // * Publish the fact that this reader can satisfy any piece request.
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   this->LastTimeIndex = this->ChooseTimeStep(outInfo);
 
@@ -369,6 +371,18 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
     {
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       update_extent);
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+      {
+      int wholeExtent[6];
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+      vtkNew<vtkExtentTranslator> et;
+      et->SetWholeExtent(wholeExtent);
+      et->SetPiece(updatePiece);
+      et->SetNumberOfPieces(updateNumPieces);
+      et->SetGhostLevel(ghost_levels);
+      et->PieceToExtent();
+      et->GetExtent(update_extent);
+      }
     }
 
   this->LastTimeIndex = this->ChooseTimeStep(outInfo);

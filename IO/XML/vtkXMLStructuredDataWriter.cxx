@@ -20,7 +20,6 @@
 #include "vtkDataCompressor.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
-#include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
@@ -30,20 +29,16 @@
 #include "vtkXMLOffsetsManager.h"
 #undef  vtkXMLOffsetsManager_DoNotInclude
 
-vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
-                     vtkExtentTranslator);
-
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter::vtkXMLStructuredDataWriter()
 {
-  this->ExtentTranslator = vtkExtentTranslator::New();
+  this->WritePiece = -1;
   this->NumberOfPieces = 1;
+  this->GhostLevel = 0;
+
   this->WriteExtent[0] = 0; this->WriteExtent[1] = -1;
   this->WriteExtent[2] = 0; this->WriteExtent[3] = -1;
   this->WriteExtent[4] = 0; this->WriteExtent[5] = -1;
-  this->InternalWriteExtent[0] = 0; this->InternalWriteExtent[1] = -1;
-  this->InternalWriteExtent[2] = 0; this->InternalWriteExtent[3] = -1;
-  this->InternalWriteExtent[4] = 0; this->InternalWriteExtent[5] = -1;
 
   this->CurrentPiece = 0;
   this->ProgressFractions = 0;
@@ -55,7 +50,6 @@ vtkXMLStructuredDataWriter::vtkXMLStructuredDataWriter()
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter::~vtkXMLStructuredDataWriter()
 {
-  this->SetExtentTranslator(0);
   delete[] this->ProgressFractions;
   delete this->PointDataOM;
   delete this->CellDataOM;
@@ -69,36 +63,31 @@ void vtkXMLStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
      << this->WriteExtent[0] << " " << this->WriteExtent[1] << "  "
      << this->WriteExtent[2] << " " << this->WriteExtent[3] << "  "
      << this->WriteExtent[4] << " " << this->WriteExtent[5] << "\n";
-  os << indent << "InternalWriteExtent: "
-     << this->InternalWriteExtent[0] << " "
-     << this->InternalWriteExtent[1] << "  "
-     << this->InternalWriteExtent[2] << " "
-     << this->InternalWriteExtent[3] << "  "
-     << this->InternalWriteExtent[4] << " "
-     << this->InternalWriteExtent[5] << "\n";
-  if(this->ExtentTranslator)
-    {
-    os << indent << "ExtentTranslator: " << this->ExtentTranslator << "\n";
-    }
-  else
-    {
-    os << indent << "ExtentTranslator: (none)\n";
-    }
   os << indent << "NumberOfPieces" << this->NumberOfPieces << "\n";
+  os << indent << "WritePiece: " << this->WritePiece << "\n";
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
 {
-  this->ExtentTranslator->SetPiece(piece);
-  this->ExtentTranslator->PieceToExtent();
-
   vtkInformation* inInfo =
     this->GetExecutive()->GetInputInformation(0, 0);
-  inInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-    this->ExtentTranslator->GetExtent(),
-    6);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo,
+    piece, this->NumberOfPieces, this->GhostLevel);
+  if((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
+     (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
+     (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
+    {
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+      6);
+    }
+  else
+    {
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      this->WriteExtent, 6);
+    }
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 }
 
 //----------------------------------------------------------------------------
@@ -108,10 +97,17 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
   vtkInformationVector* outputVector)
 {
 
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    if (this->WritePiece >= 0)
+      {
+      this->CurrentPiece = this->WritePiece;
+      }
+    return 1;
+    }
+
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    // Prepare the extent translator to create the set of pieces.
-    this->SetupExtentTranslator();
     this->SetInputUpdateExtent(this->CurrentPiece);
 
     return 1;
@@ -139,7 +135,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     this->SetProgressRange(wholeProgressRange, 0, 1);
 
     int result = 1;
-    if (this->CurrentPiece == 0 && this->CurrentTimeIndex == 0 )
+    if ((this->CurrentPiece == 0 || this->WritePiece >= 0) && this->CurrentTimeIndex == 0 )
       {
       if (!this->OpenStream())
         {
@@ -175,14 +171,17 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
       result = this->WriteAPiece();
       }
 
-    // Tell the pipeline to start looping.
-    if (this->CurrentPiece == 0)
+    if(this->WritePiece < 0)
       {
-      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+      // Tell the pipeline to start looping.
+      if (this->CurrentPiece == 0)
+        {
+        request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+        }
+      this->CurrentPiece++;
       }
-    this->CurrentPiece++;
 
-    if (this->CurrentPiece == this->NumberOfPieces)
+    if (this->CurrentPiece == this->NumberOfPieces || this->WritePiece >= 0)
       {
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->CurrentPiece = 0;
@@ -217,6 +216,8 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::AllocatePositionArrays()
 {
+  this->ExtentPositions = new vtkTypeInt64[this->NumberOfPieces];
+
   // Prepare storage for the point and cell data array appended data
   // offsets for each piece.
   this->PointDataOM->Allocate(this->NumberOfPieces);
@@ -226,6 +227,8 @@ void vtkXMLStructuredDataWriter::AllocatePositionArrays()
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::DeletePositionArrays()
 {
+  delete[] this->ExtentPositions;
+  this->ExtentPositions = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -244,22 +247,26 @@ int vtkXMLStructuredDataWriter::WriteHeader()
 
   if(this->DataMode == vtkXMLWriter::Appended)
     {
+    int begin = this->WritePiece;
+    int end = this->WritePiece + 1;
+    if (this->WritePiece < 0)
+      {
+      begin = 0;
+      end = this->NumberOfPieces;
+      }
     vtkIndent nextIndent = indent.GetNextIndent();
 
     this->AllocatePositionArrays();
 
-    int extent[6];
     // Loop over each piece and write its structure.
-    int i;
-    for(i=0; i < this->NumberOfPieces; ++i)
+    for(int i=begin; i < end; ++i)
       {
       // Update the piece's extent.
-      this->ExtentTranslator->SetPiece(i);
-      this->ExtentTranslator->PieceToExtent();
-      this->ExtentTranslator->GetExtent(extent);
 
       os << nextIndent << "<Piece";
-      this->WriteVectorAttribute("Extent", 6, extent);
+      // We allocate 66 characters because that is as big as 6 integers
+      // with spaces can get.
+      this->ExtentPositions[i] = this->ReserveAttributeSpace("Extent", 66);
       os << ">\n";
 
       if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -381,10 +388,7 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   vtkDataSet* input = this->GetInputAsDataSet();
   ostream& os = *(this->Stream);
 
-  int extent[6];
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  inInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
+  int* extent = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
 
   // Split progress of the data write by the fraction contributed by
   // each piece.
@@ -426,38 +430,6 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLStructuredDataWriter::SetupExtentTranslator()
-{
-  int* wExt = this->GetInputInformation(0, 0)->Get(
-    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-
-  // If no write extent has been set, use the whole extent.
-  if((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
-     (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
-     (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
-    {
-    this->SetInternalWriteExtent(wExt);
-    }
-  else
-    {
-    this->SetInternalWriteExtent(this->WriteExtent);
-    }
-
-  // Our WriteExtent becomes the WholeExtent of the file.
-  this->ExtentTranslator->SetWholeExtent(this->InternalWriteExtent);
-  this->ExtentTranslator->SetNumberOfPieces(this->NumberOfPieces);
-
-  vtkDebugMacro("Writing Extent: "
-    << this->InternalWriteExtent[0] << " "
-    << this->InternalWriteExtent[1] << " "
-    << this->InternalWriteExtent[2] << " "
-    << this->InternalWriteExtent[3] << " "
-    << this->InternalWriteExtent[4] << " "
-    << this->InternalWriteExtent[5] << " in "
-    << this->NumberOfPieces << " pieces.");
-}
-
-//----------------------------------------------------------------------------
 template <class iterT>
 inline void vtkXMLStructuredDataWriterCopyTuples(
   iterT* destIter, vtkIdType destTuple,
@@ -489,125 +461,27 @@ inline void vtkXMLStructuredDataWriterCopyTuples(
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractArray*
-vtkXMLStructuredDataWriter
-::CreateExactExtent(vtkAbstractArray* array, int* inExtent, int* outExtent,
-                    int isPoint)
-{
-  int outDimensions[3];
-  outDimensions[0] = outExtent[1]-outExtent[0]+isPoint;
-  outDimensions[1] = outExtent[3]-outExtent[2]+isPoint;
-  outDimensions[2] = outExtent[5]-outExtent[4]+isPoint;
-
-  int inDimensions[3];
-  inDimensions[0] = inExtent[1]-inExtent[0]+isPoint;
-  inDimensions[1] = inExtent[3]-inExtent[2]+isPoint;
-  inDimensions[2] = inExtent[5]-inExtent[4]+isPoint;
-
-  if((inDimensions[0] == outDimensions[0]) &&
-     (inDimensions[1] == outDimensions[1]) &&
-     (inDimensions[2] == outDimensions[2]))
-    {
-    array->Register(0);
-    return array;
-    }
-
-  vtkIdType rowTuples = outDimensions[0];
-  vtkIdType sliceTuples = rowTuples*outDimensions[1];
-  vtkIdType volumeTuples = sliceTuples*outDimensions[2];
-
-  vtkIdType inIncrements[3];
-  inIncrements[0] = 1;
-  inIncrements[1] = inDimensions[0]*inIncrements[0];
-  inIncrements[2] = inDimensions[1]*inIncrements[1];
-
-  vtkIdType outIncrements[3];
-  outIncrements[0] = 1;
-  outIncrements[1] = outDimensions[0]*outIncrements[0];
-  outIncrements[2] = outDimensions[1]*outIncrements[1];
-
-  vtkAbstractArray* newArray = array->NewInstance();
-  newArray->SetName(array->GetName());
-  newArray->SetNumberOfComponents(array->GetNumberOfComponents());
-  newArray->SetNumberOfTuples(volumeTuples);
-
-  if((inDimensions[0] == outDimensions[0]) &&
-     (inDimensions[1] == outDimensions[1]))
-    {
-    // Copy an entire slice at a time.
-    int k;
-    for(k=0;k < outDimensions[2];++k)
-      {
-      vtkIdType sourceTuple =
-        this->GetStartTuple(inExtent, inIncrements,
-                            outExtent[0], outExtent[2], outExtent[4]+k);
-      vtkIdType destTuple =
-        this->GetStartTuple(outExtent, outIncrements,
-                            outExtent[0], outExtent[2], outExtent[4]+k);
-      switch (newArray->GetDataType())
-        {
-        vtkArrayIteratorTemplateMacro(
-          vtkArrayIterator* iterS = array->NewIterator();
-          vtkArrayIterator* iterD = newArray->NewIterator();
-          vtkXMLStructuredDataWriterCopyTuples(
-            static_cast<VTK_TT*>(iterD),
-            destTuple,
-            static_cast<VTK_TT*>(iterS),
-            sourceTuple, sliceTuples);
-          iterD->Delete();
-          iterS->Delete());
-      default:
-        vtkWarningMacro("Unsupported array type: "
-          << newArray->GetDataTypeAsString());
-        }
-      }
-    }
-  else
-    {
-    // Copy a row at a time.
-    int j, k;
-    for(k=0;k < outDimensions[2];++k)
-      {
-      for(j=0;j < outDimensions[1];++j)
-        {
-        vtkIdType sourceTuple =
-          this->GetStartTuple(inExtent, inIncrements,
-                              outExtent[0], outExtent[2]+j, outExtent[4]+k);
-        vtkIdType destTuple =
-          this->GetStartTuple(outExtent, outIncrements,
-                              outExtent[0], outExtent[2]+j, outExtent[4]+k);
-
-      switch (newArray->GetDataType())
-        {
-        vtkArrayIteratorTemplateMacro(
-          vtkArrayIterator* iterS = array->NewIterator();
-          vtkArrayIterator* iterD = newArray->NewIterator();
-          vtkXMLStructuredDataWriterCopyTuples(
-            static_cast<VTK_TT*>(iterD), destTuple,
-            static_cast<VTK_TT*>(iterS), sourceTuple, rowTuples);
-          iterD->Delete();
-          iterS->Delete());
-        /*
-         * XML Writers cannot handle Bit Arrays anyways.....
-         */
-      default:
-        vtkWarningMacro("Unsupported array type: "
-          << newArray->GetDataTypeAsString());
-        }
-        }
-      }
-    }
-
-  return newArray;
-}
-
-//----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::WritePrimaryElementAttributes(ostream &os,
                                                                vtkIndent indent)
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
 
-  this->WriteVectorAttribute("WholeExtent", 6, this->InternalWriteExtent);
+  int* ext = this->WriteExtent;
+  if((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
+     (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
+     (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
+    {
+    ext = this->GetInputInformation(0, 0)->Get(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    }
+
+  if (this->WritePiece >= 0)
+    {
+    vtkDataSet* input = this->GetInputAsDataSet();
+    ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+    }
+
+  this->WriteVectorAttribute("WholeExtent", 6, ext);
 }
 
 //----------------------------------------------------------------------------
@@ -635,6 +509,19 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
 {
   // Write the point data and cell data arrays.
   vtkDataSet* input = this->GetInputAsDataSet();
+
+  int* ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
+
+  ostream& os = *(this->Stream);
+
+  std::streampos returnPosition = os.tellp();
+  os.seekp(std::streampos(this->ExtentPositions[index]));
+  this->WriteVectorAttribute("Extent", 6, ext);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  os.seekp(returnPosition);
 
   // Split progress between point data and cell data arrays.
   float progressRange[2] = {0,0};
@@ -707,35 +594,6 @@ vtkIdType vtkXMLStructuredDataWriter::GetStartTuple(int* extent,
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractArray*
-vtkXMLStructuredDataWriter::CreateArrayForPoints(vtkAbstractArray* inArray)
-{
-  int inExtent[6];
-  int outExtent[6];
-  this->GetInputExtent(inExtent);
-
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  inInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExtent);
-
-  return this->CreateExactExtent(inArray, inExtent, outExtent, 1);
-}
-
-//----------------------------------------------------------------------------
-vtkAbstractArray*
-vtkXMLStructuredDataWriter::CreateArrayForCells(vtkAbstractArray* inArray)
-{
-  int inExtent[6];
-  int outExtent[6];
-  this->GetInputExtent(inExtent);
-
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  inInfo->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExtent);
-  return this->CreateExactExtent(inArray, inExtent, outExtent, 0);
-}
-
-//----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::CalculatePieceFractions(float* fractions)
 {
   int i;
@@ -745,10 +603,7 @@ void vtkXMLStructuredDataWriter::CalculatePieceFractions(float* fractions)
   fractions[0] = 0;
   for(i=0;i < this->NumberOfPieces;++i)
     {
-    // Update the piece's extent.
-    this->ExtentTranslator->SetPiece(i);
-    this->ExtentTranslator->PieceToExtent();
-    this->ExtentTranslator->GetExtent(extent);
+    this->GetInputExtent(extent);
 
     // Add this piece's size to the cumulative fractions array.
     fractions[i+1] = fractions[i] + ((extent[1]-extent[0]+1)*

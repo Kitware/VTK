@@ -165,17 +165,17 @@ public abstract class vtkAbstractComponent<T> implements vtkComponent<T> {
    * @param vtkComponent<?>
    */
   public static void attachOrientationAxes(vtkComponent<?> component) {
-      // only build this once, because it creates its own renderer.
-      // Extra renderers causes issues with resetting.
-      vtkAxesActor axes = new vtkAxesActor();
-      vtkOrientationMarkerWidget axesWidget = new vtkOrientationMarkerWidget();
+    // only build this once, because it creates its own renderer.
+    // Extra renderers causes issues with resetting.
+    vtkAxesActor axes = new vtkAxesActor();
+    vtkOrientationMarkerWidget axesWidget = new vtkOrientationMarkerWidget();
 
-      axesWidget.SetOutlineColor(0.9300, 0.5700, 0.1300);
-      axesWidget.SetOrientationMarker(axes);
-      axesWidget.SetInteractor(component.getRenderWindowInteractor());
-      axesWidget.SetDefaultRenderer(component.getRenderer());
-      axesWidget.SetViewport(0.0, 0.0, .2, .2);
-      axesWidget.EnabledOn();
-      axesWidget.InteractiveOff();
+    axesWidget.SetOutlineColor(0.9300, 0.5700, 0.1300);
+    axesWidget.SetOrientationMarker(axes);
+    axesWidget.SetInteractor(component.getRenderWindowInteractor());
+    axesWidget.SetDefaultRenderer(component.getRenderer());
+    axesWidget.SetViewport(0.0, 0.0, .2, .2);
+    axesWidget.EnabledOn();
+    axesWidget.InteractiveOff();
   }
 }

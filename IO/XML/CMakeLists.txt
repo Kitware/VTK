@@ -18,24 +18,15 @@ set(Module_SRCS
   vtkXMLMultiBlockDataWriter.cxx
   vtkXMLMultiGroupDataReader.cxx
   vtkXMLPDataReader.cxx
-  vtkXMLPDataSetWriter.cxx
-  vtkXMLPDataWriter.cxx
   vtkXMLPImageDataReader.cxx
-  vtkXMLPImageDataWriter.cxx
   vtkXMLPolyDataReader.cxx
   vtkXMLPolyDataWriter.cxx
   vtkXMLPPolyDataReader.cxx
-  vtkXMLPPolyDataWriter.cxx
   vtkXMLPRectilinearGridReader.cxx
-  vtkXMLPRectilinearGridWriter.cxx
   vtkXMLPStructuredDataReader.cxx
-  vtkXMLPStructuredDataWriter.cxx
   vtkXMLPStructuredGridReader.cxx
-  vtkXMLPStructuredGridWriter.cxx
   vtkXMLPUnstructuredDataReader.cxx
-  vtkXMLPUnstructuredDataWriter.cxx
   vtkXMLPUnstructuredGridReader.cxx
-  vtkXMLPUnstructuredGridWriter.cxx
   vtkXMLReader.cxx
   vtkXMLRectilinearGridReader.cxx
   vtkXMLRectilinearGridWriter.cxx
@@ -58,11 +49,8 @@ set_source_files_properties(
   vtkXMLCompositeDataWriter
   vtkXMLDataReader
   vtkXMLPDataReader
-  vtkXMLPDataWriter
   vtkXMLPStructuredDataReader
-  vtkXMLPStructuredDataWriter
   vtkXMLPUnstructuredDataReader
-  vtkXMLPUnstructuredDataWriter
   vtkXMLReader
   vtkXMLStructuredDataReader
   vtkXMLStructuredDataWriter

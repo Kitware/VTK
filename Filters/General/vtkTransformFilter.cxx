@@ -152,7 +152,6 @@ int vtkTransformFilter::RequestData(
 
   if ( !inPts )
     {
-    vtkErrorMacro(<<"No input data");
     return 1;
     }
 

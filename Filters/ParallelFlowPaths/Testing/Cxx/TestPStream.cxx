@@ -218,7 +218,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Mapper6->Delete();
 }
 
-int main( int argc, char* argv[] )
+int TestPStream( int argc, char* argv[] )
 {
   vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv);

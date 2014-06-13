@@ -292,25 +292,7 @@ void vtkWindowToImageFilter::RequestData(
     viewAngles[i] = cams[i]->GetViewAngle();
     parallelScale[i] = cams[i]->GetParallelScale();
     cam = cams[i]->NewInstance();
-    cam->SetPosition(cams[i]->GetPosition());
-    cam->SetFocalPoint(cams[i]->GetFocalPoint());
-    cam->SetViewUp(cams[i]->GetViewUp());
-    cam->SetClippingRange(cams[i]->GetClippingRange());
-    cam->SetParallelProjection(cams[i]->GetParallelProjection());
-    cam->SetFocalDisk(cams[i]->GetFocalDisk());
-    cam->SetUserTransform(cams[i]->GetUserTransform());
-    cam->SetUseHorizontalViewAngle(cams[i]->GetUseHorizontalViewAngle());
-    cam->SetViewShear(cams[i]->GetViewShear());
-    cam->SetModelTransformMatrix(cams[i]->GetModelTransformMatrix());
-    cam->SetEyeTransformMatrix(cams[i]->GetEyeTransformMatrix());
-    cam->SetUseOffAxisProjection(cams[i]->GetUseOffAxisProjection());
-    cam->SetScreenBottomLeft(cams[i]->GetScreenBottomLeft());
-    cam->SetScreenBottomRight(cams[i]->GetScreenBottomRight());
-    cam->SetScreenTopRight(cams[i]->GetScreenTopRight());
-    cam->SetEyeSeparation(cams[i]->GetEyeSeparation());
-    double eyePos[3];
-    cams[i]->GetEyePosition(eyePos);
-    cam->SetEyePosition(eyePos);
+    cam->ShallowCopy(cams[i]);
     aren->SetActiveCamera(cam);
     }
 

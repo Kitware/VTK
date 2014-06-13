@@ -53,6 +53,12 @@ public:
   vtkGetMacro(NumberOfGhostLayers,int);
   vtkSetMacro(NumberOfGhostLayers,int);
 
+  // Description:
+  // Set/Get & boolean macro for the DuplicateNodes property.
+  vtkGetMacro(DuplicateNodes,int);
+  vtkSetMacro(DuplicateNodes,int);
+  vtkBooleanMacro(DuplicateNodes,int);
+
 protected:
   vtkStructuredGridPartitioner();
   virtual ~vtkStructuredGridPartitioner();
@@ -69,6 +75,8 @@ protected:
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
+  int DuplicateNodes;
+
 private:
   vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &); // Not implemented
   void operator=(const vtkStructuredGridPartitioner &); // Not implemented

@@ -38,7 +38,7 @@
 #include <sstream>
 
 // Main program
-int TestGDALVectorReader(int argc, char** argv)
+int TestGDALVectorReader(int argc, char* argv[])
 {
   const char* vectorFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                  "Data/GIS/countries.shp");

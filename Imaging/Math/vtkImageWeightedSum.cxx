@@ -208,21 +208,47 @@ void vtkImageWeightedSum::ThreadedRequestData (
 
   int numInputs = this->GetNumberOfInputConnections(0);
   int numWeights = this->Weights->GetNumberOfTuples();
-  if( numWeights != numInputs )
+  if(numWeights != numInputs)
     {
-    vtkErrorMacro( << "Execute: There are " << numInputs << " vtkImageData provided"
-      << " but only " << numWeights << " number of weights provided" );
+    if (id == 0)
+      {
+      vtkErrorMacro("ThreadedRequestData: There are " << numInputs
+                    << " vtkImageData inputs provided but only "
+                    << numWeights << " weights provided");
+      }
     return;
     }
 
-  switch (inData[0][0]->GetScalarType())
+  int scalarType = inData[0][0]->GetScalarType();
+  int numComp = inData[0][0]->GetNumberOfScalarComponents();
+  for (int i = 1; i < numInputs; ++i)
+    {
+    int otherType = inData[0][i]->GetScalarType();
+    int otherComp = inData[0][i]->GetNumberOfScalarComponents();
+    if (otherType != scalarType || otherComp != numComp)
+      {
+      if (id == 0)
+        {
+        vtkErrorMacro("ThreadedRequestData: Input " << i
+                      << " has " << otherComp << " components of type "
+                      << otherType << ", but input 0 has " << numComp
+                      << " components of type " << scalarType);
+        }
+      return;
+      }
+    }
+
+  switch (scalarType)
     {
     vtkTemplateMacro(
-      vtkImageWeightedSumExecute(this , inData[0], numInputs,
+      vtkImageWeightedSumExecute(this, inData[0], numInputs,
         outData[0], outExt, id, static_cast<VTK_TT *>(0))
       );
     default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      if (id == 0)
+        {
+        vtkErrorMacro(<< "Execute: Unknown ScalarType");
+        }
       return;
     }
 }

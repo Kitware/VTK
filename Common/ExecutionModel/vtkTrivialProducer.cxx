@@ -41,6 +41,8 @@ vtkTrivialProducer::vtkTrivialProducer()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->Output = 0;
+  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] =  0;
+  this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -110,6 +112,38 @@ int vtkTrivialProducer::FillOutputPortInformation(int, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
+void vtkTrivialProducer::FillOutputDataInformation(vtkDataObject* output,
+                                                   vtkInformation* outInfo)
+{
+  vtkInformation* dataInfo = output->GetInformation();
+  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+    {
+    int extent[6];
+    dataInfo->Get(vtkDataObject::DATA_EXTENT(), extent);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                 extent, 6);
+    }
+
+  if (output->IsA("vtkImageData"))
+    {
+    vtkImageData* img = static_cast<vtkImageData*>(output);
+
+    double spacing[3];
+    img->GetSpacing(spacing);
+    outInfo->Set(vtkDataObject::SPACING(), spacing[0], spacing[1], spacing[2]);
+
+    double origin[3];
+    img->GetOrigin(origin);
+    outInfo->Set(vtkDataObject::ORIGIN(), origin[0], origin[1], origin[2]);
+
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
+                                                img->GetScalarType(),
+                                                img->GetNumberOfScalarComponents());
+
+    }
+}
+
+//----------------------------------------------------------------------------
 int
 vtkTrivialProducer::ProcessRequest(vtkInformation* request,
                                    vtkInformationVector** inputVector,
@@ -119,41 +153,26 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
      this->Output)
     {
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
-    vtkInformation* dataInfo = this->Output->GetInformation();
-    if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
+
+    vtkTrivialProducer::FillOutputDataInformation(this->Output, outputInfo);
+
+    // Overwrite the whole extent if WholeExtent is set. This is needed
+    // for distributed structured data.
+    if (this->WholeExtent[0] <= this->WholeExtent[1] &&
+        this->WholeExtent[2] <= this->WholeExtent[3] &&
+        this->WholeExtent[4] <= this->WholeExtent[5])
       {
-      // There is no real source to  change the output data, so we can
-      // produce exactly one piece.
-      outputInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
-      }
-    else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
-      {
-      // The whole extent is just the extent because the output has no
-      // real source to change its data.
-      int extent[6];
-      dataInfo->Get(vtkDataObject::DATA_EXTENT(), extent);
       outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                      extent, 6);
+                      this->WholeExtent, 6);
       }
 
-    if (this->Output->IsA("vtkImageData"))
-      {
-      vtkImageData* img = static_cast<vtkImageData*>(this->Output);
-
-      double spacing[3];
-      img->GetSpacing(spacing);
-      outputInfo->Set(vtkDataObject::SPACING(), spacing[0], spacing[1], spacing[2]);
-
-      double origin[3];
-      img->GetOrigin(origin);
-      outputInfo->Set(vtkDataObject::ORIGIN(), origin[0], origin[1], origin[2]);
-
-      vtkDataObject::SetPointDataActiveScalarInfo(outputInfo,
-                                                  img->GetScalarType(),
-                                                  img->GetNumberOfScalarComponents());
-
-      }
+    // We assume that whoever sets up the trivial producer handles
+    // partitioned data properly. For structured data, this means setting
+    // up WHOLE_EXTENT as above. For unstructured data, nothing special is
+    // required
+    outputInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
     }
+
 #if VTK_TRIVIAL_PRODUCER_CHECK_UPDATE_EXTENT
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
@@ -249,24 +268,21 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
         {
         // If EXACT_EXTENT() is not there,
         // make sure that we provide requested extent or more
-        int dataExt[6];
         vtkDataObject* output = outputInfo->Get(vtkDataObject::DATA_OBJECT());
-        output->GetInformation()->Get(vtkDataObject::DATA_EXTENT(), dataExt);
-        if (updateExt[0] < dataExt[0] ||
-            updateExt[1] > dataExt[1] ||
-            updateExt[2] < dataExt[2] ||
-            updateExt[3] > dataExt[3] ||
-            updateExt[4] < dataExt[4] ||
-            updateExt[5] > dataExt[5])
+        if (updateExt[0] < wholeExt[0] ||
+            updateExt[1] > wholeExt[1] ||
+            updateExt[2] < wholeExt[2] ||
+            updateExt[3] > wholeExt[3] ||
+            updateExt[4] < wholeExt[4] ||
+            updateExt[5] > wholeExt[5])
           {
-          if (output != this->Output)
-            {
-            outputInfo->Set(vtkDataObject::DATA_OBJECT(), this->Output);
-            }
-          else
-            {
-            vtkErrorMacro("This data object does not contain the requested extent.");
-            }
+          vtkErrorMacro("This data object does not contain the requested extent.");
+          }
+        // This means that we used a previously cropped output, replace it
+        // with current
+        else if (output != this->Output)
+          {
+          outputInfo->Set(vtkDataObject::DATA_OBJECT(), this->Output);
           }
         }
       }

@@ -1,12 +1,14 @@
-vtk_add_test_tcl(ParticleReader)
-vtk_add_test_tcl(Plot3DScalars)
-vtk_add_test_tcl(Plot3DVectors)
-vtk_add_test_tcl(TestAVSucdReader)
-vtk_add_test_tcl(TestChacoReader)
-vtk_add_test_tcl(TestGAMBITReader)
-vtk_add_test_tcl(TestPolygonWriters)
-vtk_add_test_tcl(TestSimplePointsReader)
-vtk_add_test_tcl(TestXYZMol)
-vtk_add_test_tcl(caffeine)
-vtk_add_test_tcl(motor)
-vtk_add_test_tcl(testHexaPenta)
+vtk_add_test_tcl(
+  ParticleReader.tcl
+  Plot3DScalars.tcl
+  Plot3DVectors.tcl
+  TestAVSucdReader.tcl
+  TestChacoReader.tcl
+  TestGAMBITReader.tcl
+  TestPolygonWriters.tcl
+  TestSimplePointsReader.tcl
+  TestXYZMol.tcl
+  caffeine.tcl
+  motor.tcl
+  testHexaPenta.tcl
+  )

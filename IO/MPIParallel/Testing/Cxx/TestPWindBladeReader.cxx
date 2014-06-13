@@ -52,7 +52,7 @@ void AddColor(vtkDataSet* grid)
   color->Delete();
 }
 
-int main( int argc, char *argv[] )
+int TestPWindBladeReader( int argc, char *argv[] )
 {
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize(&argc, &argv, 0);

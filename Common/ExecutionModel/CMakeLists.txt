@@ -13,6 +13,7 @@ SET(Module_SRCS
   vtkDirectedGraphAlgorithm.cxx
   vtkExecutive.cxx
   vtkExtentSplitter.cxx
+  vtkExtentTranslator.cxx
   vtkFilteringInformationKeyManager.cxx
   vtkGraphAlgorithm.cxx
   vtkHierarchicalBoxDataSetAlgorithm.cxx
@@ -27,7 +28,6 @@ SET(Module_SRCS
   vtkInformationExecutivePortVectorKey.cxx
   vtkMultiBlockDataSetAlgorithm.cxx
   vtkMultiTimeStepAlgorithm.cxx
-  vtkOnePieceExtentTranslator.cxx
   vtkPassInputTypeAlgorithm.cxx
   vtkPiecewiseFunctionAlgorithm.cxx
   vtkPiecewiseFunctionShiftScale.cxx
@@ -40,7 +40,6 @@ SET(Module_SRCS
   vtkStreamingDemandDrivenPipeline.cxx
   vtkStructuredGridAlgorithm.cxx
   vtkTableAlgorithm.cxx
-  vtkTableExtentTranslator.cxx
   vtkSMPProgressObserver.cxx
   vtkThreadedCompositeDataPipeline.cxx
   vtkThreadedImageAlgorithm.cxx

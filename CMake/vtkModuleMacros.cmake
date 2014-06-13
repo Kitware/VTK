@@ -173,6 +173,42 @@ macro(vtk_module_impl)
   endif()
 endmacro()
 
+# vtk_module_export_code_find_package(<name>)
+#
+# Add code that runs when the module is loaded in an application
+# to find the given package in the same place VTK found it.
+# This is useful for finding external dependencies that provide
+# imported targets linked by VTK libraries.
+#
+# The <name>_DIR variable must be set to the package location.
+# The VTK_INSTALL_FIND_PACKAGE_<name>_DIR variable may be set
+# to an alternative location for the install tree to reference,
+# or to a false value to remove any default location.
+macro(vtk_module_export_code_find_package _name)
+  if(${_name}_DIR)
+    if(DEFINED VTK_INSTALL_FIND_PACKAGE_${_name}_DIR)
+      set(_dir "${VTK_INSTALL_FIND_PACKAGE_${_name}_DIR}")
+    else()
+      set(_dir "${${_name}_DIR}")
+    endif()
+    if(_dir)
+      set(${vtk-module}_EXPORT_CODE_INSTALL "${${vtk-module}_EXPORT_CODE_INSTALL}
+if(NOT ${_name}_DIR)
+  set(${_name}_DIR \"${_dir}\")
+endif()")
+    endif()
+    set(${vtk-module}_EXPORT_CODE_INSTALL "${${vtk-module}_EXPORT_CODE_INSTALL}
+find_package(${_name} REQUIRED QUIET)
+")
+    set(${vtk-module}_EXPORT_CODE_BUILD "${${vtk-module}_EXPORT_CODE_BUILD}
+if(NOT ${_name}_DIR)
+  set(${_name}_DIR \"${${_name}_DIR}\")
+endif()
+find_package(${_name} REQUIRED QUIET)
+")
+  endif()
+endmacro()
+
 # vtk_module_export_info()
 #
 # Export just the essential data from a module such as name, include directory,
@@ -364,19 +400,32 @@ macro(vtk_target_export _name)
   set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
 endmacro()
 
-macro(vtk_target_install _name)
+function(vtk_target_install _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
     if(APPLE AND VTK_JAVA_INSTALL)
        set_target_properties(${_name} PROPERTIES SUFFIX ".jnilib")
     endif(APPLE AND VTK_JAVA_INSTALL)
+    if(VTK_INSTALL_NO_DEVELOPMENT)
+      # Installation for deployment does not need static libraries.
+      get_property(_type TARGET ${_name} PROPERTY TYPE)
+      if(_type STREQUAL "STATIC_LIBRARY")
+        return()
+      endif()
+      set(_archive_destination "")
+    else()
+      # Installation for development needs static libraries.
+      set(_archive_destination
+        ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
+        )
+    endif()
     install(TARGETS ${_name}
       EXPORT ${VTK_INSTALL_EXPORT_NAME}
       RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
       LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
-      ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
+      ${_archive_destination}
       )
   endif()
-endmacro()
+endfunction()
 
 macro(vtk_target _name)
   set(_install 1)

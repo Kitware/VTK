@@ -111,18 +111,19 @@ void convertCells(ContainerTag, GridType& grid, OutputType* output)
   //get the portal from the grid.
   typedef typename GridType::CellConnectionsType::PortalConstControl
                                                                 DaxPortalType;
-  DaxPortalType daxPortal = grid.GetCellConnections.GetPortalConstControl();
+  DaxPortalType daxPortal = grid.GetCellConnections().GetPortalConstControl();
 
   //ask the vtkToDax allocator to make us memory
   ::vtkToDax::vtkAlloc<vtkCellArray, CellType::NUM_POINTS> alloc;
   vtkCellArray* cells = alloc.allocate(num_cells+alloc_size);
 
   vtkIdType* cellPointer = cells->GetPointer();
+  vtkIdType index = 0;
   for(vtkIdType i=0; i < num_cells; ++i)
     {
     *cellPointer = CellType::NUM_POINTS;
     ++cellPointer;
-    for(vtkIdType j=0; j < CellType::NUM_POINTS; ++j, ++cellPointer)
+    for(vtkIdType j=0; j < CellType::NUM_POINTS; ++j, ++cellPointer, ++index)
       {
       *cellPointer = daxPortal.Get(index);
       }
@@ -174,10 +175,10 @@ void convertPoints(ContainerTag, GridType& grid, OutputType* output)
   //get the coord portal from the grid.
   typedef typename GridType::PointCoordinatesType::PortalConstControl
                                                                 DaxPortalType;
-  DaxPortalType daxPortal = grid.GetPointCoordinates.GetPortalConstControl();
+  DaxPortalType daxPortal = grid.GetPointCoordinates().GetPortalConstControl();
 
-  std::copy(daxPortal.GetBeginIterator(),
-            daxPortal.GetEndIterator(),
+  std::copy(daxPortal.GetIteratorBegin(),
+            daxPortal.GetIteratorEnd(),
             raw_pts);
 
   output->SetPoints( points );

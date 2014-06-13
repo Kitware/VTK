@@ -30,6 +30,7 @@ set(Module_SRCS
   vtkProcessIdScalars.cxx
   vtkRectilinearGridOutlineFilter.cxx
   vtkTransmitPolyDataPiece.cxx
+  vtkTransmitStructuredDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx
   vtkTransmitStructuredGridPiece.cxx
   vtkTransmitUnstructuredGridPiece.cxx

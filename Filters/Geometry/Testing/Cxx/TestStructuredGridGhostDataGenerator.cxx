@@ -46,6 +46,9 @@
 
 //#define DEBUG_ON
 
+namespace
+{
+
 //------------------------------------------------------------------------------
 // Description:
 // Write the uniform grid multi-block dataset into an XML file.
@@ -462,7 +465,7 @@ int Test3D(
 //------------------------------------------------------------------------------
 // Description:
 // Tests StructuredGridGhostDataGenerator
-int TestStructuredGridGhostDataGenerator(int, char *[])
+int TestStructuredGridGhostDataGenerator_internal(int, char *[])
 {
   int rc = 0;
   rc += Test2D(false,false,4,0);
@@ -476,14 +479,16 @@ int TestStructuredGridGhostDataGenerator(int, char *[])
   return( rc );
 }
 
+}
+
 //------------------------------------------------------------------------------
 // Description:
 // Program main
-int main( int argc, char **argv )
+int TestStructuredGridGhostDataGenerator( int argc, char *argv[] )
 {
   if( argc==1 )
     {
-    return( TestStructuredGridGhostDataGenerator(argc, argv) );
+    return( TestStructuredGridGhostDataGenerator_internal(argc, argv) );
     }
   int rc             = 0;
   int NumBlocks      = 0;

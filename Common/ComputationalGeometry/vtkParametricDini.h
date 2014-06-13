@@ -23,8 +23,8 @@
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for
-// creating and contributing the class.
+// Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
+// class.
 //
 #ifndef __vtkParametricDini_h
 #define __vtkParametricDini_h
@@ -56,13 +56,15 @@ public:
 
   // Description:
   // Set/Get the scale factor.
-  // Default = 1.
+  // See the definition in Parametric surfaces referred to above.
+  // Default is 1.
   vtkSetMacro(A,double);
   vtkGetMacro(A,double);
 
   // Description:
   // Set/Get the scale factor.
-  // Default = 0.2
+  // See the definition in Parametric surfaces referred to above.
+  // Default is 0.2
   vtkSetMacro(B,double);
   vtkGetMacro(B,double);
 

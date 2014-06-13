@@ -1,9 +1,11 @@
-vtk_add_test_python(TestCaptionActor.py)
-vtk_add_test_python(bore.py)
-vtk_add_test_python(cubeAxes.py)
-vtk_add_test_python(xyPlot.py)
-vtk_add_test_python(xyPlot2.py)
-vtk_add_test_python(xyPlot3.py)
-vtk_add_test_python(xyPlot4.py)
-vtk_add_test_python(cubeAxes2.py)
-vtk_add_test_python(cubeAxes3.py)
+vtk_add_test_python(
+  TestCaptionActor.py
+  bore.py
+  cubeAxes.py
+  xyPlot.py
+  xyPlot2.py
+  xyPlot3.py
+  xyPlot4.py
+  cubeAxes2.py
+  cubeAxes3.py
+  )

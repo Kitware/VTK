@@ -96,6 +96,15 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLStructuredDataReader::SetupOutputInformation(
+  vtkInformation *outInfo)
+{
+  this->Superclass::SetupOutputInformation(outInfo);
+
+  outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
+}
+
+//----------------------------------------------------------------------------
 void
 vtkXMLStructuredDataReader::CopyOutputInformation(vtkInformation* outInfo,
                                                   int port)
@@ -218,6 +227,28 @@ void vtkXMLStructuredDataReader::ReadXMLData()
   vtkInformation* outInfo = this->GetCurrentOutputInformation();
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       this->UpdateExtent);
+
+  // For debugging
+  /*
+  int numPieces = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int piece = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numGhosts = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
+  if (piece == 0)
+    {
+    cout << "Piece:" << piece << " " << numPieces << " " << numGhosts << endl;
+    cout << "Extent: "
+         << this->UpdateExtent[0] << " "
+         << this->UpdateExtent[1] << " "
+         << this->UpdateExtent[2] << " "
+         << this->UpdateExtent[3] << " "
+         << this->UpdateExtent[4] << " "
+         << this->UpdateExtent[5] << endl;
+    }
+  */
 
   vtkDebugMacro("Updating extent "
                 << this->UpdateExtent[0] << " " << this->UpdateExtent[1] << " "

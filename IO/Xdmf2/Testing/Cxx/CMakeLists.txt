@@ -1,6 +1,5 @@
-vtk_module_test_executable(XdmfTestVTKIO XdmfTestVTKIO.cxx)
-
-add_test(NAME XdmfTestVTKIO
-  COMMAND XdmfTestVTKIO
-  -T {VTK_TEST_OUTPUT_DIR}
-)
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  NO_DATA NO_VALID
+  XdmfTestVTKIO.cxx
+  )
+vtk_test_cxx_executable(${vtk-module}CxxTests tests)
