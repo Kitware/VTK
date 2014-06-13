@@ -104,7 +104,7 @@
             container.data('active-args')[name] = value;
             $('span.'+name+'-value', container).html(value);
 
-            container.data('session').call("vtk:updateActiveArgument", name, value).then(function(){
+            container.data('session').call("catalyst.active.argument.update", [name, value]).then(function(){
                 container.data('viewport').render(callback);
             });
         }
@@ -220,7 +220,7 @@
 
                         // Init pipeline
                         if(data.hasOwnProperty('configuration')) {
-                           session.call("vtk:initializePipeline", data["configuration"]).then(function(){
+                           session.call("catalyst.pipeline.initialize", [data["configuration"]]).then(function(){
                               viewport.render();
                            },function(e){
                               console.log(e);
@@ -229,7 +229,7 @@
 
                         // Load files
                         if(data.hasOwnProperty('files')) {
-                           session.call("vtk:openFileFromPath", data["files"]).then(function(){
+                           session.call("catalyst.file.open", [data["files"]]).then(function(){
                               viewport.render();
                            },function(e){
                               console.log(e);
@@ -237,14 +237,14 @@
                         }
 
                         // Create Control UI
-                        session.call("vtk:getArguments").then(function(args){
+                        session.call("catalyst.arguments.get").then(function(args){
                             createControlPanel(me, args);
                             initializeListener(me);
                         });
 
                         // Update stop method to use the connection
                         stop = function() {
-                            connection.session.call('vtk:exit').then(function() {connection.session.close();});
+                            connection.session.call('application.exit').then(function() {connection.session.close();});
                         }
 
                         $('.close',me.parent()).click(stop);

@@ -13,7 +13,7 @@
     var vtkWebLibs = {
         "core" : [
         "ext/core/jquery-1.8.3.min.js",
-        "ext/core/autobahn.js",
+        "ext/core/autobahn.min.js",
         "ext/core/gl-matrix.js",
         "ext/core/jquery.hammer.js",
         "ext/core/vgl.min.js",

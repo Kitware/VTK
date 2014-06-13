@@ -140,7 +140,7 @@
         stat_id: 'webgl-fetch-scene',
         stat_value: 0
       });
-      m_session.call("vtk:getSceneMetaData", Number(m_options.view)).then(function(data) {
+      m_session.call("viewport.webgl.metadata", [Number(m_options.view)]).then(function(data) {
         m_sceneJSON = JSON.parse(data);
         m_vglVtkReader.setVtkScene(m_sceneJSON);
         m_container.trigger({
@@ -164,7 +164,7 @@
           stat_id: 'webgl-fetch-object',
           stat_value: 0
         });
-        m_session.call("vtk:getWebGLData", viewId, sceneObject.id, part).then(function(data) {
+        m_session.call("viewport.webgl.data", [viewId, sceneObject.id, part]).then(function(data) {
           try {
             m_container.trigger({
               type: 'stats',
@@ -270,7 +270,7 @@
             fp = [fp_[0], fp_[1], fp_[2]],
             up = [up_[0], up_[1], up_[2]],
             pos = [pos_[0], pos_[1], pos_[2]];
-        session.call("vtk:updateCamera", Number(m_options.view), fp, up, pos);
+        session.call("viewport.camera.update", [Number(m_options.view), fp, up, pos]);
       }
     }
 
