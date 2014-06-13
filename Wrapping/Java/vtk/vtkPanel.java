@@ -336,7 +336,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
   }
 
   public void mouseWheelMoved(MouseWheelEvent e) {
-    if (ren.VisibleActorCount() == 0)
+    if (ren.VisibleActorCount() == 0 || e.getWheelRotation() == 0)
       return;
     int exponent;
     exponent = -10 * e.getWheelRotation() / Math.abs(e.getWheelRotation());
