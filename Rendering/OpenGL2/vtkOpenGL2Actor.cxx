@@ -18,6 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkProperty.h"
 #include "vtkOpenGLError.h"
 
@@ -39,14 +40,9 @@ void vtkOpenGL2Actor::Render(vtkRenderer *ren, vtkMapper *mapper)
     }
   else
     {
-    // Add this check here for GL_SELECT mode
-    // If we are not picking, then don't write to the zbuffer
-    // because we probably haven't sorted the polygons. If we
-    // are picking, then translucency doesn't matter - we want to
-    // pick the thing closest to us.
-    GLint param;
-    glGetIntegerv(GL_RENDER_MODE, &param);
-    if (param == GL_SELECT )
+    vtkHardwareSelector* selector = ren->GetSelector();
+    bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
+    if (picking)
       {
       glDepthMask(GL_TRUE);
       }

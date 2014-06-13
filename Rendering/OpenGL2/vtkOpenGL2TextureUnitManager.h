@@ -55,8 +55,8 @@ public:
 
   // Description:
   // Reserve a texture unit. It returns its number.
-  // It returns -1 if the allocation failed (because there is no more
-  // texture unit left).
+  // It returns -1 if the allocation failed (because there are no more
+  // texture units left).
   // \post valid_result: result==-1 || result>=0 && result<this->GetNumberOfTextureUnits())
   // \post allocated: result==-1 || this->IsAllocated(result)
   virtual int Allocate();

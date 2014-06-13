@@ -38,6 +38,7 @@
 
 #include "vtkOpenGL2RenderWindow.h"
 #include "vtkOpenGL2ShaderCache.h"
+#include "vtkOpenGL2Renderer.h"
 
 #include <cmath>
 
@@ -58,7 +59,13 @@ public:
   vtkgl::CellBO tris;
   vtkgl::CellBO triStrips;
 
-  Private()  { }
+  int LastDepthPeeling;
+  vtkTimeStamp DepthPeelingChanged;
+
+  Private()
+  {
+  this->LastDepthPeeling = 0;
+  }
 };
 
 vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
@@ -83,10 +90,12 @@ vtkOpenGL2PolyDataMapper2D::~vtkOpenGL2PolyDataMapper2D()
 //-----------------------------------------------------------------------------
 void vtkOpenGL2PolyDataMapper2D::BuildShader(
   std::string &VSSource, std::string &FSSource,
-  vtkViewport* vtkNotUsed(ren), vtkActor2D *vtkNotUsed(actor))
+  vtkViewport* viewport, vtkActor2D *vtkNotUsed(actor))
 {
   VSSource = vtkglPolyData2DVS;
   FSSource = vtkglPolyData2DFS;
+
+  vtkOpenGL2Renderer *ren = vtkOpenGL2Renderer::SafeDownCast(viewport);
 
   // Build our shader if necessary.
   if (this->Colors && this->Colors->GetNumberOfComponents())
@@ -145,6 +154,37 @@ void vtkOpenGL2PolyDataMapper2D::BuildShader(
     FSSource = vtkgl::replace(FSSource,
                                  "//VTK::TCoord::Impl","");
     }
+
+  if (ren && ren->GetLastRenderingUsedDepthPeeling() == 2)
+    {
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::DepthPeeling::Dec",
+      "uniform sampler2DRect translucentRGBATexture;"
+      "uniform sampler2DRect currentRGBATexture;");
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::DepthPeeling::Impl", ""
+      "vec4 t1Color = texture2DRect(translucentRGBATexture, gl_FragCoord.xy); "
+      "vec4 t2Color = texture2DRect(currentRGBATexture, gl_FragCoord.xy); "
+      "gl_FragColor.a = t1Color.a + t2Color.a * (1.0-t1Color.a); "
+      "if (gl_FragColor.a > 0.0) { gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*t2Color.a*(1.0-t1Color.a))/gl_FragColor.a; } "
+      "else { gl_FragColor.rgb = vec3(0.0,0.0,0.0); }"
+      );
+    }
+  if (ren && ren->GetLastRenderingUsedDepthPeeling() == 3)
+    {
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::DepthPeeling::Dec",
+      "uniform sampler2DRect translucentRGBATexture;"
+      "uniform sampler2DRect currentRGBATexture;");
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::DepthPeeling::Impl", ""
+      "vec4 t1Color = texture2DRect(translucentRGBATexture, gl_FragCoord.xy); "
+      "vec4 t2Color = texture2DRect(currentRGBATexture, gl_FragCoord.xy); "
+      "gl_FragColor.a = 1.0;"
+      "gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a));"
+      );
+    }
+
   //cout << "VS: " << VSSource << endl;
 }
 
@@ -155,6 +195,15 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 {
   vtkOpenGL2RenderWindow *renWin = vtkOpenGL2RenderWindow::SafeDownCast(viewport->GetVTKWindow());
 
+  vtkOpenGL2Renderer *ren = vtkOpenGL2Renderer::SafeDownCast(viewport);
+
+  if (ren != NULL && this->Internal->LastDepthPeeling !=
+      ren->GetLastRenderingUsedDepthPeeling())
+    {
+    this->Internal->DepthPeelingChanged.Modified();
+    this->Internal->LastDepthPeeling = ren->GetLastRenderingUsedDepthPeeling();
+    }
+
   // has something changed that would require us to recreate the shader?
   // candidates are
   // property modified (representation interpolation and lighting)
@@ -162,6 +211,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
   // light complexity changed
   if (cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
+      cellBO.ShaderSourceTime < this->Internal->DepthPeelingChanged ||
       cellBO.ShaderSourceTime < this->GetInput()->GetMTime())
     {
     std::string VSSource;
@@ -217,8 +267,34 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 
   if (layout.TCoordComponents)
     {
-    cellBO.CachedProgram->Program.SetUniformi("texture1", 0);
+    vtkTexturedActor2D *ta = vtkTexturedActor2D::SafeDownCast(actor);
+    int tunit = 0;
+    if (ta)
+      {
+      vtkTexture *texture = ta->GetTexture();
+      tunit = renWin->GetTextureUnitForTexture(texture);
+      }
+    cellBO.CachedProgram->Program.SetUniformi("texture1", tunit);
     }
+
+  // if depth peeling for trabslucetn compositing
+  if (ren->GetLastRenderingUsedDepthPeeling() == 2)
+    {
+    int ttunit = renWin->GetTextureUnitForTexture(ren->GetTranslucentRGBATexture());
+    cellBO.CachedProgram->Program.SetUniformi("translucentRGBATexture", ttunit);
+    int ctunit = renWin->GetTextureUnitForTexture(ren->GetCurrentRGBATexture());
+    cellBO.CachedProgram->Program.SetUniformi("currentRGBATexture", ctunit);
+    }
+  // if depth peeling final compositing
+  if (ren->GetLastRenderingUsedDepthPeeling() == 3)
+    {
+    int ttunit = renWin->GetTextureUnitForTexture(ren->GetTranslucentRGBATexture());
+    cellBO.CachedProgram->Program.SetUniformi("translucentRGBATexture", ttunit);
+    int ctunit = renWin->GetTextureUnitForTexture(ren->GetOpaqueRGBATexture());
+    cellBO.CachedProgram->Program.SetUniformi("currentRGBATexture", ctunit);
+    }
+
+
 
   this->SetPropertyShaderParameters(cellBO, viewport, actor);
   this->SetCameraShaderParameters(cellBO, viewport, actor);
@@ -326,7 +402,7 @@ void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(
 //-------------------------------------------------------------------------
 void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport)
 {
-  vtkPoints      *p, *displayPts;
+  vtkPoints      *p;
   int            numPts;
   int            j;
 

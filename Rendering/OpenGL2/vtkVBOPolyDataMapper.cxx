@@ -38,6 +38,7 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 
+#include "vtkOpenGL2Renderer.h"
 #include "vtkOpenGL2RenderWindow.h"
 #include "vtkOpenGL2ShaderCache.h"
 
@@ -79,10 +80,14 @@ public:
   bool LastSelectionState;
   vtkTimeStamp SelectionStateChanged;
 
+  int LastDepthPeeling;
+  vtkTimeStamp DepthPeelingChanged;
+
   Private()
   {
     this->LastLightComplexity = -1;
     this->LastSelectionState = false;
+    this->LastDepthPeeling = 0;
   }
 
 };
@@ -266,6 +271,22 @@ void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSou
   //                             "  if (gl_PrimitiveID != 50816 && gl_PrimitiveID != 50992) discard;  gl_FragColor = vec4(0.2,0.2,0.2,1); if (gl_PrimitiveID == 50816) {gl_FragColor = vec4(1,0,1,1);} if (gl_PrimitiveID == 50992) {gl_FragColor = vec4(0,1,1,1);}");
   //   }
 
+  if (ren->GetLastRenderingUsedDepthPeeling())
+    {
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::DepthPeeling::Dec",
+      "uniform sampler2DRect opaqueZTexture;"
+      "uniform sampler2DRect translucentZTexture;");
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::DepthPeeling::Impl",
+      "float odepth = texture2DRect(opaqueZTexture, gl_FragCoord.xy).r; "
+      "if (gl_FragCoord.z >= odepth) { discard; } "
+      "float tdepth = texture2DRect(translucentZTexture, gl_FragCoord.xy).r; "
+      "if (gl_FragCoord.z <= tdepth) { discard; } "
+     // "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
+      );
+    }
+
   //cout << "VS: " << VSSource << endl;
   //cout << "FS: " << FSSource << endl;
 }
@@ -336,6 +357,13 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     this->Internal->LastLightComplexity = lightComplexity;
     }
 
+  if (this->Internal->LastDepthPeeling !=
+      ren->GetLastRenderingUsedDepthPeeling())
+    {
+    this->Internal->DepthPeelingChanged.Modified();
+    this->Internal->LastDepthPeeling = ren->GetLastRenderingUsedDepthPeeling();
+    }
+
   vtkHardwareSelector* selector = ren->GetSelector();
   bool picking = (renWin->GetIsPicking() || selector != NULL);
   if (this->Internal->LastSelectionState != picking)
@@ -353,6 +381,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
       cellBO.ShaderSourceTime < this->Internal->SelectionStateChanged ||
+      cellBO.ShaderSourceTime < this->Internal->DepthPeelingChanged ||
       cellBO.ShaderSourceTime < this->Internal->LightComplexityChanged)
     {
     std::string VSSource;
@@ -418,7 +447,28 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
 
   if (layout.TCoordComponents)
     {
-    cellBO.CachedProgram->Program.SetUniformi("texture1", 0);
+    vtkTexture *texture = actor->GetTexture();
+    if (this->ColorTextureMap)
+      {
+      texture = this->InternalColorTexture;
+      }
+    if (!texture && actor->GetProperty()->GetNumberOfTextures())
+      {
+      texture = actor->GetProperty()->GetTexture(0);
+      }
+    int tunit = renWin->GetTextureUnitForTexture(texture);
+    cellBO.CachedProgram->Program.SetUniformi("texture1", tunit);
+    }
+
+  // if depth peeling set the required uniforms
+  if (ren->GetLastRenderingUsedDepthPeeling())
+    {
+    vtkOpenGL2Renderer *oglren = vtkOpenGL2Renderer::SafeDownCast(ren);
+    int otunit = renWin->GetTextureUnitForTexture(oglren->GetOpaqueZTexture());
+    cellBO.CachedProgram->Program.SetUniformi("opaqueZTexture", otunit);
+
+    int ttunit = renWin->GetTextureUnitForTexture(oglren->GetTranslucentZTexture());
+    cellBO.CachedProgram->Program.SetUniformi("translucentZTexture", ttunit);
     }
 
   if (picking)
@@ -930,7 +980,6 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     {
     return;
     }
-
 
   // For vertex coloring, this sets this->Colors as side effect.
   // For texture map coloring, this sets ColorCoordinates

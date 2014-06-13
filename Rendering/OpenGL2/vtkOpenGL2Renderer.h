@@ -23,8 +23,9 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
 
-class vtkOpenGL2RendererLayerList; // Pimpl
 class vtkRenderPass;
+class vtkOpenGL2Texture;
+class vtkTexturedActor2D;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Renderer : public vtkRenderer
 {
@@ -63,6 +64,15 @@ public:
   void SetPass(vtkRenderPass *p);
   vtkGetObjectMacro(Pass, vtkRenderPass);
 
+  // Description:
+  // get the various textures used for Depth Peeling
+  // the Mappers make use of these
+  vtkGetObjectMacro(OpaqueZTexture,vtkOpenGL2Texture);
+  vtkGetObjectMacro(OpaqueRGBATexture,vtkOpenGL2Texture);
+  vtkGetObjectMacro(TranslucentZTexture,vtkOpenGL2Texture);
+  vtkGetObjectMacro(TranslucentRGBATexture,vtkOpenGL2Texture);
+  vtkGetObjectMacro(CurrentRGBATexture,vtkOpenGL2Texture);
+
 protected:
   vtkOpenGL2Renderer();
   ~vtkOpenGL2Renderer();
@@ -99,10 +109,10 @@ protected:
   int RenderPeel(int layer);
 
   //BTX
-  friend class vtkOpenGLProperty;
-  friend class vtkOpenGLTexture;
-  friend class vtkOpenGLImageSliceMapper;
-  friend class vtkOpenGLImageResliceMapper;
+  friend class vtkOpenGL2Property;
+  friend class vtkOpenGL2Texture;
+  friend class vtkOpenGL2ImageSliceMapper;
+  friend class vtkOpenGL2ImageResliceMapper;
   //ETX
 
   // Description:
@@ -114,14 +124,14 @@ protected:
   // This flag is on once the OpenGL extensions required by the depth peeling
   // technique have been checked.
   int DepthPeelingIsSupportedChecked;
+  vtkTexturedActor2D *DepthPeelingActor;
 
-  // Description:
-  // Used by the depth peeling technique to store the transparency layers.
-  vtkOpenGL2RendererLayerList *LayerList;
+  vtkOpenGL2Texture *OpaqueZTexture;
+  vtkOpenGL2Texture *OpaqueRGBATexture;
+  vtkOpenGL2Texture *TranslucentRGBATexture;
+  vtkOpenGL2Texture *TranslucentZTexture;
+  vtkOpenGL2Texture *CurrentRGBATexture;
 
-  unsigned int OpaqueLayerZ;
-  unsigned int TransparentLayerZ;
-  unsigned int ProgramShader;
 
   // Description:
   // Cache viewport values for depth peeling.

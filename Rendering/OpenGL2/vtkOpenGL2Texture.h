@@ -56,6 +56,21 @@ public:
   // Get the openGL texture name to which this texture is bound.
   vtkGetMacro(Index, long);
 
+  // Description
+  // copy the renderers read buffer into this texture
+  void CopyTexImage(vtkRenderer *ren, int x, int y, int width, int height);
+
+  // Description
+  // Provide for specifying a format for the texture
+  // GL_DEPTH
+  vtkGetMacro(TextureFormat,int);
+  vtkSetMacro(TextureFormat,int);
+
+  // Description
+  // What type of texture map GL_TEXTURE_2D versus GL_TEXTURE_RECTANGLE
+  vtkGetMacro(TextureType,int);
+  vtkSetMacro(TextureType,int);
+
 protected:
 //BTX
   vtkOpenGL2Texture();
@@ -64,10 +79,9 @@ protected:
   vtkTimeStamp   LoadTime;
   unsigned int Index; // actually GLuint
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
-  bool CheckedHardwareSupport;
-  bool SupportsNonPowerOfTwoTextures;
-  bool SupportsPBO;
-  vtkPixelBufferObject *PBO;
+
+  int TextureFormat;
+  int TextureType;
 
   // used when the texture exceeds the GL limit
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize,

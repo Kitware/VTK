@@ -24,6 +24,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindow.h"
+#include <map> // for ivar
 
 #include "vtkOpenGL.h" // Needed for GLuint.
 
@@ -34,6 +35,7 @@ class vtkOpenGL2TextureUnitManager;
 class vtkOpenGL2ShaderCache;
 class vtkStdString;
 class vtkTexturedActor2D;
+class vtkTexture;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2RenderWindow : public vtkRenderWindow
 {
@@ -92,8 +94,16 @@ public:
                               vtkFloatArray *buffer );
 
   // Description:
-  // Register a texture name with this render window.
-  void RegisterTextureResource (GLuint id);
+  // Activate a texture unit for this texture
+  void ActivateTexture(vtkTexture *);
+
+  // Description:
+  // Deactive a previously activated texture
+  void DeactivateTexture(vtkTexture *);
+
+  // Description:
+  // Get the texture unit for a given texture object
+  int GetTextureUnitForTexture(vtkTexture *);
 
   // Description:
   // Get the size of the depth buffer.
@@ -206,7 +216,10 @@ protected:
   vtkOpenGL2ShaderCache *ShaderCache;
 
   long OldMonitorSetting;
-  vtkIdList *TextureResourceIds;
+
+  //BTX
+  std::map<const vtkTexture *, int> TextureResourceIds;
+  //ETX
 
   int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
   int GetRGBAPixelData(int x, int y, int x2, int y2, int front, float* data);

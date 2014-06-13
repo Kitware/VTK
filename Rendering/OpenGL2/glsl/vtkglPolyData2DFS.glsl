@@ -19,8 +19,12 @@
 
 varying vec4 fcolor;
 
+// Depth Peeling
+//VTK::DepthPeeling::Dec
+
 void main()
 {
   gl_FragColor = fcolor;
   //VTK::TCoord::Impl
+  //VTK::DepthPeeling::Impl
 }

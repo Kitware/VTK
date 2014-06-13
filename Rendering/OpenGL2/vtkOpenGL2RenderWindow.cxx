@@ -82,7 +82,6 @@ vtkOpenGL2RenderWindow::vtkOpenGL2RenderWindow()
   this->TextureUnitManager=0;
 
   this->MultiSamples = vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples;
-  this->TextureResourceIds = vtkIdList::New();
   delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
   strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
@@ -146,7 +145,7 @@ vtkOpenGL2RenderWindow::~vtkOpenGL2RenderWindow()
     this->DrawPixelsActor->UnRegister(this);
     this->DrawPixelsActor = NULL;
     }
-  this->TextureResourceIds->Delete();
+  this->TextureResourceIds.clear();
   if(this->TextureUnitManager!=0)
     {
     this->TextureUnitManager->SetContext(0);
@@ -1570,9 +1569,46 @@ int vtkOpenGL2RenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 }
 
 
-void vtkOpenGL2RenderWindow::RegisterTextureResource (GLuint id)
+void vtkOpenGL2RenderWindow::ActivateTexture(vtkTexture *texture)
 {
-  this->TextureResourceIds->InsertNextId (static_cast<int>(id));
+  // Only add if it isn't already there
+  typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
+  TRIter found = this->TextureResourceIds.find(texture);
+  if (found == this->TextureResourceIds.end())
+    {
+    int activeUnit =  this->GetTextureUnitManager()->Allocate();
+    this->TextureResourceIds.insert(std::make_pair(texture, activeUnit));
+    glActiveTexture(GL_TEXTURE0 + activeUnit);
+    }
+  else
+    {
+    glActiveTexture(GL_TEXTURE0 + found->second);
+    }
+}
+
+void vtkOpenGL2RenderWindow::DeactivateTexture(vtkTexture *texture)
+{
+  // Only deactivate if it isn't already there
+  typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
+  TRIter found = this->TextureResourceIds.find(texture);
+  if (found != this->TextureResourceIds.end())
+    {
+    this->GetTextureUnitManager()->Free(found->second);
+    this->TextureResourceIds.erase(found);
+    }
+}
+
+int vtkOpenGL2RenderWindow::GetTextureUnitForTexture(vtkTexture *texture)
+{
+  // Only deactivate if it isn't already there
+  typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
+  TRIter found = this->TextureResourceIds.find(texture);
+  if (found != this->TextureResourceIds.end())
+    {
+    return found->second;
+    }
+
+  return -1;
 }
 
 // ----------------------------------------------------------------------------

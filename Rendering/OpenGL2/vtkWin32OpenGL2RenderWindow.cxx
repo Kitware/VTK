@@ -78,8 +78,6 @@ vtkWin32OpenGL2RenderWindow::~vtkWin32OpenGL2RenderWindow()
 
 void vtkWin32OpenGL2RenderWindow::Clean()
 {
-  GLuint id;
-
   /* finish OpenGL rendering */
   if (this->OwnContext && this->ContextId)
     {
@@ -92,23 +90,6 @@ void vtkWin32OpenGL2RenderWindow::Clean()
       glDisable((GLenum)cur_light);
       }
 
-    /* now delete all textures */
-    glDisable(GL_TEXTURE_2D);
-    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
-      {
-      id = (GLuint) this->TextureResourceIds->GetId(i);
-#ifdef GL_VERSION_1_1
-      if (glIsTexture(id))
-        {
-        glDeleteTextures(1, &id);
-        }
-#else
-      if (glIsList(id))
-        {
-        glDeleteLists(id,1);
-        }
-#endif
-      }
     vtkOpenGLCheckErrorMacro("failed in Clean");
 
     this->CleanUpRenderers();

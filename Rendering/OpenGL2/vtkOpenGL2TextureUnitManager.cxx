@@ -12,12 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+#include <GL/glew.h>
 #include "vtkOpenGL2TextureUnitManager.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGL2RenderWindow.h"
-#include "vtkOpenGLHardwareSupport.h"
 
 #include <cassert>
 
@@ -76,8 +75,7 @@ void vtkOpenGL2TextureUnitManager::SetContext(vtkOpenGL2RenderWindow *context)
     this->Context=context;
     if(this->Context!=0)
       {
-      vtkOpenGLHardwareSupport *info=context->GetHardwareSupport();
-      this->NumberOfTextureUnits=info->GetNumberOfTextureUnits();
+      glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
       if(this->NumberOfTextureUnits>0)
         {
         this->TextureUnits=new bool[this->NumberOfTextureUnits];
