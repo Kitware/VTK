@@ -33,8 +33,11 @@ class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
     vtkTypeMacro(vtkSinglePassVolumeMapper, vtkVolumeMapper);
     void PrintSelf( ostream& os, vtkIndent indent );
 
-    virtual void Render(vtkRenderer *ren, vtkVolume *vol);
+    /// Description:
+    /// Render volume
+    virtual void Render(vtkRenderer* ren, vtkVolume* vol);
 
+    /// Description:
     /// Set/Get the distance between samples used for rendering
     /// Initial value is 1.0.
     vtkSetMacro(SampleDistance, double);
@@ -44,7 +47,17 @@ class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
     vtkSinglePassVolumeMapper();
     ~vtkSinglePassVolumeMapper();
 
+    /// Description:
+    /// Build vertex and fragment shader for the volume rendering
+    void BuildShader(std::string& vertexShader, std::string& fragmentShader,
+                     vtkRenderer* ren, vtkVolume* vol);
+
+    /// Description:
+    /// Validate before performing volume rendering
     int ValidateRender(vtkRenderer* ren, vtkVolume* vol);
+
+    /// Description:
+    /// Rendering volume on GPU
     void GPURender(vtkRenderer *ren, vtkVolume *vol);
 
     double SampleDistance;

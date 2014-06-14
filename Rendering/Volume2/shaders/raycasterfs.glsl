@@ -50,9 +50,6 @@ uniform float sample_distance;
 uniform vec3 cell_scale;
 uniform float scale;
 
-/// Enable / disable shading
-uniform bool enable_shading;
-
 /// Material and lighting
 uniform vec3 diffuse;
 uniform vec3 ambient;
@@ -94,83 +91,6 @@ vec3 eye_pos_obj;
 /// we use a fraction of it. The texture coordinates is less than 1 if
 /// the reduction factor is less than 1.
 vec2 fragTexCoord;
-
-//////////////////////////////////////////////////////////////////////////////
-///
-/// Perform shading on the volume
-///
-///
-//////////////////////////////////////////////////////////////////////////////
-vec3 shade()
-{
-  /// g1 - g2 is gradient in object space
-  vec3 g1;
-  vec3 g2;
-  vec3 ldir = normalize(light_pos_obj - vertex_pos);
-  vec3 vdir = normalize(eye_pos_obj - vertex_pos);
-  vec3 h = normalize(ldir + vdir);
-
-  vec3 xvec = vec3(step_size[0], 0.0, 0.0);
-  vec3 yvec = vec3(0.0, step_size[1], 0.0);
-  vec3 zvec = vec3(0.0, 0.0, step_size[2]);
-
-  g1.x = texture(volume, vec3(data_pos + xvec)).x;
-  g1.y = texture(volume, vec3(data_pos + yvec)).x;
-  g1.z = texture(volume, vec3(data_pos + zvec)).x;
-
-  g2.x = texture(volume, vec3(data_pos - xvec)).x;
-  g2.y = texture(volume, vec3(data_pos - yvec)).x;
-  g2.z = texture(volume, vec3(data_pos - zvec)).x;
-
-  g2 = normalize(g1 - g2);
-
-  float normalLength = length(g2);
-  if(normalLength > 0.0)
-    {
-    g2 = normalize(g2);
-    }
-  else
-    {
-    g2 = vec3(0.0, 0.0, 0.0);
-    }
-
-  /// Initialize color to 1.0
-  vec3 finalColor = vec3(0.0);
-
-  /// Perform simple light calculations
-  float nDotL = dot(g2, ldir);
-  float nDotH = dot(g2, h);
-
-  /// Separate nDotL and nDotH for two-sided shading, otherwise we
-  /// get black spots.
-
-  /// Two-sided shading
-  if (nDotL < 0.0)
-    {
-    nDotL =- nDotL;
-    }
-
-  /// Two-sided shading
-  if (nDotH < 0.0)
-    {
-    nDotH =- nDotH;
-    }
-
-  /// Ambient term for this light
-  finalColor += ambient;
-
-  /// Diffuse term for this light
-  finalColor += diffuse * nDotL;
-
-  /// Specular term for this light
-  float shininessFactor = pow(nDotH, shininess);
-  finalColor += specular * shininessFactor;
-
-  /// clamp values otherwise we get black spots
-  finalColor = clamp(finalColor, clamp_min, clamp_max);
-
-  return finalColor;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -268,6 +188,9 @@ void main()
     vec4 src = vec4(texture(color_transfer_func, scalar).xyz,
                     texture(opacity_transfer_func, scalar).w);
 
+    /// Perform shading if enabled or else no op
+    @SHADING@
+
     /// Opacity calculation using compositing:
     /// here we use front to back compositing scheme whereby the current sample
     /// value is multiplied to the currently accumulated alpha and then this product
@@ -275,12 +198,8 @@ void main()
     /// Next, this alpha is multiplied with the current sample colour and accumulated
     /// to the composited colour. The alpha value from the previous steps is then
     /// accumulated to the composited colour alpha.
-    if (src.a > 0.01 && enable_shading)
-      {
-      src.rgb += shade().rgb;
-      }
-
     src.rgb *= src.a;
+
     dst = (1.0f - dst.a) * src + dst;
 
     /// Early ray termination

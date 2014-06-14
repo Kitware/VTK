@@ -18,6 +18,7 @@
 #include "vtkGLSLShader.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
+#include "vtkVolumeHelper.h"
 
 /// Include compiled shader code
 #include <raycasterfs.h>
@@ -112,7 +113,7 @@ public:
   ///
   /// \brief Initialize
   ///
-  void Initialize();
+  void Initialize(vtkRenderer* ren, vtkVolume* vol);
 
   ///
   /// \brief vtkSinglePassVolumeMapper::vtkInternal::LoadVolume
@@ -134,6 +135,13 @@ public:
   /// \return
   ///
   bool IsInitialized();
+
+
+  ///
+  /// \brief CompileAndLinkShader
+  ///
+  void CompileAndLinkShader(const string& vertexShader,
+                            const string& fragmentShader);
 
   ///
   /// \brief ComputeBounds
@@ -231,7 +239,8 @@ public:
 };
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
+void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
+                                                        vtkVolume* vol)
 {
   GLenum err = glewInit();
   if (GLEW_OK != err)
@@ -257,11 +266,14 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   cout<<"\tGLSL: "<< glGetString (GL_SHADING_LANGUAGE_VERSION)<<endl;
 
   /// Load the raycasting shader
-  this->Shader.LoadFromString(GL_VERTEX_SHADER, raycastervs);
-  this->Shader.LoadFromString(GL_FRAGMENT_SHADER, raycasterfs);
+  std::string vertexShader (raycastervs);
+  std::string fragmentShader (raycasterfs);
 
-  /// Compile and link the shader
-  this->Shader.CreateAndLinkProgram();
+  this->Parent->BuildShader(vertexShader, fragmentShader, ren, vol);
+
+  /// Compile and link it
+  this->CompileAndLinkShader(vertexShader, fragmentShader);
+
   this->Shader.Use();
 
   /// Add attributes and uniforms
@@ -286,7 +298,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   this->Shader.AddUniform("texture_extents_min");
   this->Shader.AddUniform("texture_extents_max");
   this->Shader.AddUniform("texture_coord_offset");
-  this->Shader.AddUniform("enable_shading");
   this->Shader.AddUniform("ambient");
   this->Shader.AddUniform("diffuse");
   this->Shader.AddUniform("specular");
@@ -295,7 +306,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize()
   this->Shader.AddUniform("inv_original_window_size");
   this->Shader.AddUniform("inv_window_size");
 
-  // Setup unit cube vertex array and vertex buffer objects
+  /// Setup unit cube vertex array and vertex buffer objects
   glGenVertexArrays(1, &this->CubeVAOId);
   glGenBuffers(1, &this->CubeVBOId);
   glGenBuffers(1, &this->CubeIndicesId);
@@ -496,6 +507,20 @@ bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
     }
 
   return false;
+}
+
+///
+/// \brief vtkSinglePassVolumeMapper::vtkInternal::CompileAndLinkShader
+///
+///----------------------------------------------------------------------------
+void vtkSinglePassVolumeMapper::vtkInternal::CompileAndLinkShader(
+  const std::string& vertexShader, const std::string& fragmentShader)
+{
+  this->Shader.LoadFromString(GL_VERTEX_SHADER, vertexShader);
+  this->Shader.LoadFromString(GL_FRAGMENT_SHADER, fragmentShader);
+
+  /// Compile and link the shader
+  this->Shader.CreateAndLinkProgram();
 }
 
 ///
@@ -888,6 +913,30 @@ void vtkSinglePassVolumeMapper::PrintSelf(ostream& vtkNotUsed(os),
 }
 
 ///
+/// \brief vtkSinglePassVolumeMapper::BuildShader
+/// \param vertexShader
+/// \param fragmentShader
+/// \param ren
+/// \param vol
+///----------------------------------------------------------------------------
+void vtkSinglePassVolumeMapper::BuildShader(string& vertexShader,
+                                            string& fragmentShader,
+                                            vtkRenderer* ren,
+                                            vtkVolume* vol)
+{
+  /// Shading
+  if (vol->GetProperty()->GetShade(0))
+    {
+    fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING@",
+                                        vtkvolume::shade(), true);
+    }
+  else
+    {
+    fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING@","", true);
+    }
+}
+
+///
 /// \brief vtkSinglePassVolumeMapper::ValidateRender
 /// \param ren
 /// \param vol
@@ -1072,7 +1121,8 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 
   /// Stop the timer
   this->Implementation->Timer->StopTimer();
-  this->Implementation->ElapsedDrawTime = this->Implementation->Timer->GetElapsedTime();
+  this->Implementation->ElapsedDrawTime =
+    this->Implementation->Timer->GetElapsedTime();
 
   // Invoke a VolumeMapperRenderEndEvent
   this->InvokeEvent(vtkCommand::VolumeMapperRenderEndEvent,0);
@@ -1101,7 +1151,7 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 
   if (!this->Implementation->IsInitialized())
     {
-    this->Implementation->Initialize();
+    this->Implementation->Initialize(ren, vol);
     }
 
   vtkDataArray* scalars = this->GetScalars(input,
@@ -1188,10 +1238,6 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   glUniform1i(this->Implementation->Shader("noise"), 3);
   glUniform1i(this->Implementation->Shader("depth"), 4);
 
-  /// Shading is ON by default
-  /// TODO Add an API to enable / disable shading if not present
-  glUniform1i(this->Implementation->Shader("enable_shading"),
-              vol->GetProperty()->GetShade(0));
   glUniform3f(this->Implementation->Shader("ambient"),
               0.0, 0.0, 0.0);
   glUniform3f(this->Implementation->Shader("diffuse"),
