@@ -17,19 +17,19 @@
 // vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
 // vtkOpenGLActor interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOpenGL2Actor_h
-#define __vtkOpenGL2Actor_h
+#ifndef __vtkOpenGLActor_h
+#define __vtkOpenGLActor_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkActor.h"
 
 class vtkOpenGLRenderer;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Actor : public vtkActor
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLActor : public vtkActor
 {
 public:
-  static vtkOpenGL2Actor *New();
-  vtkTypeMacro(vtkOpenGL2Actor, vtkActor);
+  static vtkOpenGLActor *New();
+  vtkTypeMacro(vtkOpenGLActor, vtkActor);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -37,12 +37,12 @@ public:
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 
 protected:
-  vtkOpenGL2Actor() {}
-  ~vtkOpenGL2Actor() {}
+  vtkOpenGLActor() {}
+  ~vtkOpenGLActor() {}
 
 private:
-  vtkOpenGL2Actor(const vtkOpenGL2Actor&);  // Not implemented.
-  void operator=(const vtkOpenGL2Actor&);  // Not implemented.
+  vtkOpenGLActor(const vtkOpenGLActor&);  // Not implemented.
+  void operator=(const vtkOpenGLActor&);  // Not implemented.
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkOpenGL2Renderer.cxx
+Module:    vtkOpenGLRenderer.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,7 +12,7 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2Renderer.h"
+#include "vtkOpenGLRenderer.h"
 
 #include "vtkNew.h"
 #include "vtkPolyDataMapper2D.h"
@@ -30,11 +30,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCuller.h"
 #include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2Camera.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkLight.h"
-#include "vtkOpenGL2Property.h"
-#include "vtkOpenGL2RenderWindow.h"
-#include "vtkOpenGL2Texture.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkTimerLog.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
@@ -57,11 +57,11 @@ public:
   std::map<unsigned int,float> PickValues;
 };
 
-vtkStandardNewMacro(vtkOpenGL2Renderer);
+vtkStandardNewMacro(vtkOpenGLRenderer);
 
-vtkCxxSetObjectMacro(vtkOpenGL2Renderer, Pass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkOpenGLRenderer, Pass, vtkRenderPass);
 
-vtkOpenGL2Renderer::vtkOpenGL2Renderer()
+vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
   this->PickInfo = new vtkGLPickInfo;
   this->PickInfo->PickedId = 0;
@@ -86,7 +86,7 @@ vtkOpenGL2Renderer::vtkOpenGL2Renderer()
 }
 
 // Ask lights to load themselves into graphics pipeline.
-int vtkOpenGL2Renderer::UpdateLights ()
+int vtkOpenGLRenderer::UpdateLights ()
 {
   vtkOpenGLClearErrorMacro();
 
@@ -134,14 +134,14 @@ int vtkOpenGL2Renderer::UpdateLights ()
 // rendering a layer other than the first one? (Boolean value)
 // If so, the uniform variables UseTexture and Texture can be set.
 // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
-int vtkOpenGL2Renderer::GetDepthPeelingHigherLayer()
+int vtkOpenGLRenderer::GetDepthPeelingHigherLayer()
 {
   return this->DepthPeelingHigherLayer;
 }
 
 // ----------------------------------------------------------------------------
 // Concrete open gl render method.
-void vtkOpenGL2Renderer::DeviceRender(void)
+void vtkOpenGLRenderer::DeviceRender(void)
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
@@ -173,9 +173,9 @@ void vtkOpenGL2Renderer::DeviceRender(void)
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
 }
 
-vtkOpenGL2Texture *vtkOpenGL2RendererCreateDepthPeelingTexture(int width, int height, int numComponents, int tFormat)
+vtkOpenGLTexture *vtkOpenGLRendererCreateDepthPeelingTexture(int width, int height, int numComponents, int tFormat)
 {
-  vtkOpenGL2Texture *result = vtkOpenGL2Texture::New();
+  vtkOpenGLTexture *result = vtkOpenGLTexture::New();
 
   vtkImageData *id = vtkImageData::New();
   id->SetExtent(0,width-1, 0,height-1, 0,0);
@@ -203,14 +203,14 @@ vtkOpenGL2Texture *vtkOpenGL2RendererCreateDepthPeelingTexture(int width, int he
 // UpdateTranslucentPolygonalGeometry().
 // Subclasses of vtkRenderer that can deal with depth peeling must
 // override this method.
-void vtkOpenGL2Renderer::DeviceRenderTranslucentPolygonalGeometry()
+void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 {
   vtkOpenGLClearErrorMacro();
 
   if(this->UseDepthPeeling)
     {
-    vtkOpenGL2RenderWindow *context
-      = vtkOpenGL2RenderWindow::SafeDownCast(this->RenderWindow);
+    vtkOpenGLRenderWindow *context
+      = vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow);
     if (!context)
       {
       vtkErrorMacro("OpenGL render window is required.")
@@ -251,15 +251,15 @@ void vtkOpenGL2Renderer::DeviceRenderTranslucentPolygonalGeometry()
     // create textures actors we need if not done already
     if (this->OpaqueZTexture == NULL)
       {
-      this->OpaqueZTexture = vtkOpenGL2RendererCreateDepthPeelingTexture(
+      this->OpaqueZTexture = vtkOpenGLRendererCreateDepthPeelingTexture(
         this->ViewportWidth, this->ViewportHeight, 1, GL_DEPTH);
-      this->TranslucentZTexture = vtkOpenGL2RendererCreateDepthPeelingTexture(
+      this->TranslucentZTexture = vtkOpenGLRendererCreateDepthPeelingTexture(
         this->ViewportWidth, this->ViewportHeight, 1, GL_DEPTH);
-      this->OpaqueRGBATexture = vtkOpenGL2RendererCreateDepthPeelingTexture(
+      this->OpaqueRGBATexture = vtkOpenGLRendererCreateDepthPeelingTexture(
         this->ViewportWidth, this->ViewportHeight, 4, GL_RGBA);
-      this->TranslucentRGBATexture = vtkOpenGL2RendererCreateDepthPeelingTexture(
+      this->TranslucentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTexture(
         this->ViewportWidth, this->ViewportHeight, 4, GL_RGBA);
-      this->CurrentRGBATexture = vtkOpenGL2RendererCreateDepthPeelingTexture(
+      this->CurrentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTexture(
         this->ViewportWidth, this->ViewportHeight, 4, GL_RGBA);
 
       this->DepthPeelingActor = vtkTexturedActor2D::New();
@@ -392,7 +392,7 @@ void vtkOpenGL2Renderer::DeviceRenderTranslucentPolygonalGeometry()
 // return false otherwise returns true. Also if layer==0 and no prop have
 // been rendered (there is no translucent geometry), it returns false.
 // \pre positive_layer: layer>=0
-int vtkOpenGL2Renderer::RenderPeel(int layer)
+int vtkOpenGLRenderer::RenderPeel(int layer)
 {
   assert("pre: positive_layer" && layer>=0);
  return 0;
@@ -401,7 +401,7 @@ int vtkOpenGL2Renderer::RenderPeel(int layer)
 
 
 // ----------------------------------------------------------------------------
-void vtkOpenGL2Renderer::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
@@ -420,7 +420,7 @@ void vtkOpenGL2Renderer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void vtkOpenGL2Renderer::Clear(void)
+void vtkOpenGLRenderer::Clear(void)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -541,7 +541,7 @@ void vtkOpenGL2Renderer::Clear(void)
   vtkOpenGLCheckErrorMacro("failed after Clear");
 }
 
-void vtkOpenGL2Renderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
+void vtkOpenGLRenderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
 {
   vtkOpenGLClearErrorMacro();
 
@@ -602,7 +602,7 @@ void vtkOpenGL2Renderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
   vtkOpenGLCheckErrorMacro("failed after StartPick");
 }
 
-void vtkOpenGL2Renderer::ReleaseGraphicsResources(vtkWindow *w)
+void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
 {
   if (w && this->Pass)
     {
@@ -610,13 +610,13 @@ void vtkOpenGL2Renderer::ReleaseGraphicsResources(vtkWindow *w)
     }
 }
 
-void vtkOpenGL2Renderer::UpdatePickId()
+void vtkOpenGLRenderer::UpdatePickId()
 {
   this->CurrentPickId++;
 }
 
 
-void vtkOpenGL2Renderer::DevicePickRender()
+void vtkOpenGLRenderer::DevicePickRender()
 {
   // Do not remove this MakeCurrent! Due to Start / End methods on
   // some objects which get executed during a pipeline update,
@@ -637,7 +637,7 @@ void vtkOpenGL2Renderer::DevicePickRender()
 }
 
 
-void vtkOpenGL2Renderer::DonePick()
+void vtkOpenGLRenderer::DonePick()
 {
   if (this->PickInfo->PerformedHardwarePick)
     {
@@ -709,17 +709,17 @@ void vtkOpenGL2Renderer::DonePick()
   this->IsPicking = 0;
 }
 
-double vtkOpenGL2Renderer::GetPickedZ()
+double vtkOpenGLRenderer::GetPickedZ()
 {
   return this->PickedZ;
 }
 
-unsigned int vtkOpenGL2Renderer::GetPickedId()
+unsigned int vtkOpenGLRenderer::GetPickedId()
 {
   return static_cast<unsigned int>(this->PickInfo->PickedId);
 }
 
-vtkOpenGL2Renderer::~vtkOpenGL2Renderer()
+vtkOpenGLRenderer::~vtkOpenGLRenderer()
 {
   delete this->PickInfo;
 
@@ -761,12 +761,12 @@ vtkOpenGL2Renderer::~vtkOpenGL2Renderer()
     }
 }
 
-unsigned int vtkOpenGL2Renderer::GetNumPickedIds()
+unsigned int vtkOpenGLRenderer::GetNumPickedIds()
 {
   return static_cast<unsigned int>(this->PickInfo->NumPicked);
 }
 
-int vtkOpenGL2Renderer::GetPickedIds(unsigned int atMost,
+int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
                                     unsigned int *callerBuffer)
 {
   if (this->PickInfo->PickValues.empty())

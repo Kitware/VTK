@@ -17,8 +17,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIdList.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2Renderer.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkRendererCollection.h"
 #include "vtkWin32OpenGL2RenderWindowInteractor.h"
@@ -1152,7 +1152,7 @@ int *vtkWin32OpenGL2RenderWindow::GetSize(void)
 
     }
 
-  return this->vtkOpenGL2RenderWindow::GetSize();
+  return this->vtkOpenGLRenderWindow::GetSize();
 }
 
 // Get the current size of the window.

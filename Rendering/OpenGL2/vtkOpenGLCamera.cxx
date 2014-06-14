@@ -11,23 +11,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2Camera.h"
+#include "vtkOpenGLCamera.h"
 
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkOutputWindow.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
 #include "vtkOpenGL.h"
 
 #include <math.h>
 
-vtkStandardNewMacro(vtkOpenGL2Camera);
+vtkStandardNewMacro(vtkOpenGLCamera);
 
 // Implement base class method.
-void vtkOpenGL2Camera::Render(vtkRenderer *ren)
+void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -35,7 +35,7 @@ void vtkOpenGL2Camera::Render(vtkRenderer *ren)
   int usize, vsize;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
-  vtkOpenGL2RenderWindow *win = vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
@@ -122,7 +122,7 @@ void vtkOpenGL2Camera::Render(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2Camera::UpdateViewport(vtkRenderer *ren)
+void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -138,7 +138,7 @@ void vtkOpenGL2Camera::UpdateViewport(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2Camera::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

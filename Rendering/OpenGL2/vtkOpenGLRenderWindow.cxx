@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2RenderWindow.cxx
+  Module:    vtkOpenGLRenderWindow.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include <GL/glew.h>
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 
 #include <cassert>
 #include "vtkCellArray.h"
@@ -22,59 +22,59 @@
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2Actor.h"
-#include "vtkOpenGL2Camera.h"
-#include "vtkOpenGL2Light.h"
-#include "vtkOpenGL2Property.h"
-#include "vtkOpenGL2Renderer.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
+#include "vtkOpenGLLight.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLError.h"
-#include "vtkOpenGL2Texture.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkTexturedActor2D.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkOpenGL2ShaderCache.h"
-#include "vtkOpenGL2TextureUnitManager.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLTextureUnitManager.h"
 #include "vtkStdString.h"
 #include "vtkTrivialProducer.h"
 #include <sstream>
 using std::ostringstream;
 
-vtkCxxSetObjectMacro(vtkOpenGL2RenderWindow, TextureUnitManager, vtkOpenGL2TextureUnitManager);
+vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkOpenGLTextureUnitManager);
 
 // Initialize static member that controls global maximum number of multisamples
 // (off by default on Apple because it causes problems on some Mac models).
 #if defined(__APPLE__)
-static int vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples = 0;
+static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 0;
 #else
-static int vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples = 8;
+static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 #endif
 
 // ----------------------------------------------------------------------------
-void vtkOpenGL2RenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
+void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
-  if (val == vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples) return;
-  vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples = val;
+  if (val == vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples) return;
+  vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = val;
 }
 
 // ----------------------------------------------------------------------------
-int vtkOpenGL2RenderWindow::GetGlobalMaximumNumberOfMultiSamples()
+int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
 {
-  return vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples;
+  return vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
 }
 
 // ----------------------------------------------------------------------------
-vtkOpenGL2RenderWindow::vtkOpenGL2RenderWindow()
+vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
   this->Initialized = false;
 
-  this->ShaderCache = vtkOpenGL2ShaderCache::New();
+  this->ShaderCache = vtkOpenGLShaderCache::New();
 
   this->TextureUnitManager=0;
 
-  this->MultiSamples = vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples;
+  this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
   strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
@@ -131,7 +131,7 @@ vtkOpenGL2RenderWindow::vtkOpenGL2RenderWindow()
 
 // free up memory & close the window
 // ----------------------------------------------------------------------------
-vtkOpenGL2RenderWindow::~vtkOpenGL2RenderWindow()
+vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
   if(this->DrawPixelsActor!=0)
     {
@@ -149,7 +149,7 @@ vtkOpenGL2RenderWindow::~vtkOpenGL2RenderWindow()
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkOpenGL2RenderWindow::GetContextCreationTime()
+unsigned long vtkOpenGLRenderWindow::GetContextCreationTime()
 {
   return this->ContextCreationTime.GetMTime();
 }
@@ -160,8 +160,8 @@ unsigned long vtkOpenGL2RenderWindow::GetContextCreationTime()
 // It is GL_BACK_LEFT if GL is bound to the window-system-provided
 // framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
-// It is used by vtkOpenGL2Camera.
-unsigned int vtkOpenGL2RenderWindow::GetBackLeftBuffer()
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetBackLeftBuffer()
 {
   return this->BackLeftBuffer;
 }
@@ -172,8 +172,8 @@ unsigned int vtkOpenGL2RenderWindow::GetBackLeftBuffer()
 // It is GL_BACK_RIGHT if GL is bound to the window-system-provided
 // framebuffer. It is GL_COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
-// It is used by vtkOpenGL2Camera.
-unsigned int vtkOpenGL2RenderWindow::GetBackRightBuffer()
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetBackRightBuffer()
 {
   return this->BackRightBuffer;
 }
@@ -184,8 +184,8 @@ unsigned int vtkOpenGL2RenderWindow::GetBackRightBuffer()
 // It is GL_FRONT_LEFT if GL is bound to the window-system-provided
 // framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
-// It is used by vtkOpenGL2Camera.
-unsigned int vtkOpenGL2RenderWindow::GetFrontLeftBuffer()
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetFrontLeftBuffer()
 {
   return this->FrontLeftBuffer;
 }
@@ -196,8 +196,8 @@ unsigned int vtkOpenGL2RenderWindow::GetFrontLeftBuffer()
 // It is GL_FRONT_RIGHT if GL is bound to the window-system-provided
 // framebuffer. It is GL_COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
-// It is used by vtkOpenGL2Camera.
-unsigned int vtkOpenGL2RenderWindow::GetFrontRightBuffer()
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetFrontRightBuffer()
 {
   return this->FrontRightBuffer;
 }
@@ -208,8 +208,8 @@ unsigned int vtkOpenGL2RenderWindow::GetFrontRightBuffer()
 // It is GL_BACK if GL is bound to the window-system-provided
 // framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
-// It is used by vtkOpenGL2Camera.
-unsigned int vtkOpenGL2RenderWindow::GetBackBuffer()
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetBackBuffer()
 {
   return this->BackBuffer;
 }
@@ -220,14 +220,14 @@ unsigned int vtkOpenGL2RenderWindow::GetBackBuffer()
 // It is GL_FRONT if GL is bound to the window-system-provided
 // framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
-// It is used by vtkOpenGL2Camera.
-unsigned int vtkOpenGL2RenderWindow::GetFrontBuffer()
+// It is used by vtkOpenGLCamera.
+unsigned int vtkOpenGLRenderWindow::GetFrontBuffer()
 {
   return this->FrontBuffer;
 }
 
 // Update system if needed due to stereo rendering.
-void vtkOpenGL2RenderWindow::StereoUpdate(void)
+void vtkOpenGLRenderWindow::StereoUpdate(void)
 {
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
@@ -289,21 +289,21 @@ void vtkOpenGL2RenderWindow::StereoUpdate(void)
 
 #ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
-void vtkOpenGL2RenderWindow::CheckGraphicError()
+void vtkOpenGLRenderWindow::CheckGraphicError()
 {
   VTK_LEGACY_BODY(vtkRenderWindow::CheckGraphicError, "VTK 6.1");
   this->LastGraphicError=static_cast<unsigned int>(glGetError());
 }
 
 //----------------------------------------------------------------------------
-int vtkOpenGL2RenderWindow::HasGraphicError()
+int vtkOpenGLRenderWindow::HasGraphicError()
 {
   VTK_LEGACY_BODY(vtkRenderWindow::HasGraphics, "VTK 6.1");
   return static_cast<GLenum>(this->LastGraphicError)!=GL_NO_ERROR;
 }
 
 //----------------------------------------------------------------------------
-const char *vtkOpenGL2RenderWindow::GetLastGraphicErrorString()
+const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
 {
   VTK_LEGACY_BODY(vtkRenderWindow::GetLastGraphicErrorString, "VTK 6.1");
   const char *result;
@@ -347,13 +347,13 @@ const char *vtkOpenGL2RenderWindow::GetLastGraphicErrorString()
 #endif
 
 
-void vtkOpenGL2RenderWindow::OpenGLInit()
+void vtkOpenGLRenderWindow::OpenGLInit()
 {
   OpenGLInitContext();
   OpenGLInitState();
 }
 
-void vtkOpenGL2RenderWindow::OpenGLInitState()
+void vtkOpenGLRenderWindow::OpenGLInitState()
 {
   glDepthFunc( GL_LEQUAL );
   glEnable( GL_DEPTH_TEST );
@@ -412,7 +412,7 @@ void vtkOpenGL2RenderWindow::OpenGLInitState()
   this->SetAlphaBitPlanes(rgba[3]);
 }
 
-void vtkOpenGL2RenderWindow::OpenGLInitContext()
+void vtkOpenGLRenderWindow::OpenGLInitContext()
 {
   this->ContextCreationTime.Modified();
 
@@ -437,12 +437,12 @@ void vtkOpenGL2RenderWindow::OpenGLInitContext()
     }
 }
 
-void vtkOpenGL2RenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
-int vtkOpenGL2RenderWindow::GetDepthBufferSize()
+int vtkOpenGLRenderWindow::GetDepthBufferSize()
 {
   GLint size;
 
@@ -460,7 +460,7 @@ int vtkOpenGL2RenderWindow::GetDepthBufferSize()
     }
 }
 
-int vtkOpenGL2RenderWindow::GetColorBufferSizes(int *rgba)
+int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
 {
   GLint size;
 
@@ -497,7 +497,7 @@ int vtkOpenGL2RenderWindow::GetColorBufferSizes(int *rgba)
     }
 }
 
-unsigned char* vtkOpenGL2RenderWindow::GetPixelData(int x1, int y1,
+unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
                                                    int x2, int y2,
                                                    int front)
 {
@@ -532,7 +532,7 @@ unsigned char* vtkOpenGL2RenderWindow::GetPixelData(int x1, int y1,
   return data;
 }
 
-int vtkOpenGL2RenderWindow::GetPixelData(int x1, int y1,
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
                                         int x2, int y2,
                                         int front,
                                         vtkUnsignedCharArray* data)
@@ -576,7 +576,7 @@ int vtkOpenGL2RenderWindow::GetPixelData(int x1, int y1,
 
 }
 
-int vtkOpenGL2RenderWindow::GetPixelData(int x1, int y1,
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
                                         int x2, int y2,
                                         int front, unsigned char* data)
 {
@@ -641,7 +641,7 @@ int vtkOpenGL2RenderWindow::GetPixelData(int x1, int y1,
 
 }
 
-int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
                                         vtkUnsignedCharArray *data, int front)
 {
   int     y_low, y_hi;
@@ -683,7 +683,7 @@ int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-void vtkOpenGL2RenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numComponents, int dataType, void *data)
+void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numComponents, int dataType, void *data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -757,7 +757,7 @@ void vtkOpenGL2RenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numC
   glFlush();
 }
 
-int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
                                         unsigned char *data, int front)
 {
   // set the current window
@@ -796,7 +796,7 @@ int vtkOpenGL2RenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-float* vtkOpenGL2RenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
                                                int front)
 {
 
@@ -836,7 +836,7 @@ float* vtkOpenGL2RenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-int vtkOpenGL2RenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
                                             int front, vtkFloatArray* data)
 {
   int     y_low, y_hi;
@@ -880,7 +880,7 @@ int vtkOpenGL2RenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-int vtkOpenGL2RenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
                                             int front, float* data)
 {
   int     y_low, y_hi;
@@ -949,12 +949,12 @@ int vtkOpenGL2RenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-void vtkOpenGL2RenderWindow::ReleaseRGBAPixelData(float *data)
+void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
 {
   delete[] data;
 }
 
-int vtkOpenGL2RenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
                                             vtkFloatArray *data, int front,
                                             int blend)
 {
@@ -998,7 +998,7 @@ int vtkOpenGL2RenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
                                 blend);
 }
 
-int vtkOpenGL2RenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
                                             float *data, int front, int blend)
 {
   int     y_low, y_hi;
@@ -1078,7 +1078,7 @@ int vtkOpenGL2RenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-unsigned char *vtkOpenGL2RenderWindow::GetRGBACharPixelData(int x1, int y1,
+unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
                                                            int x2, int y2,
                                                            int front)
 {
@@ -1118,7 +1118,7 @@ unsigned char *vtkOpenGL2RenderWindow::GetRGBACharPixelData(int x1, int y1,
   return data;
 }
 
-int vtkOpenGL2RenderWindow::GetRGBACharPixelData(int x1, int y1,
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
                                                 int x2, int y2,
                                                 int front,
                                                 vtkUnsignedCharArray* data)
@@ -1162,7 +1162,7 @@ int vtkOpenGL2RenderWindow::GetRGBACharPixelData(int x1, int y1,
                                     data->GetPointer(0));
 }
 
-int vtkOpenGL2RenderWindow::GetRGBACharPixelData(int x1, int y1,
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
                                                 int x2, int y2,
                                                 int front,
                                                 unsigned char* data)
@@ -1235,7 +1235,7 @@ int vtkOpenGL2RenderWindow::GetRGBACharPixelData(int x1, int y1,
 }
 
 
-int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
                                                 vtkUnsignedCharArray *data,
                                                 int front, int blend)
 {
@@ -1281,7 +1281,7 @@ int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
 
 }
 
-int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
                                                 int y2, unsigned char *data,
                                                 int front, int blend)
 {
@@ -1347,7 +1347,7 @@ int vtkOpenGL2RenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 }
 
 
-int vtkOpenGL2RenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
                                            float* z_data )
 {
   int             y_low;
@@ -1405,7 +1405,7 @@ int vtkOpenGL2RenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
     }
 }
 
-float *vtkOpenGL2RenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
+float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {
   float           *z_data;
 
@@ -1419,7 +1419,7 @@ float *vtkOpenGL2RenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
   return z_data;
 }
 
-int vtkOpenGL2RenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
                                            vtkFloatArray *buffer )
 {
   int  width, height;
@@ -1435,7 +1435,7 @@ int vtkOpenGL2RenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
   return this->GetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
 }
 
-int vtkOpenGL2RenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
                                            vtkFloatArray *buffer )
 {
   int width, height;
@@ -1450,7 +1450,7 @@ int vtkOpenGL2RenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   return this->SetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
 }
 
-int vtkOpenGL2RenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
                                            float *buffer )
 {
   int             y_low;
@@ -1523,7 +1523,7 @@ int vtkOpenGL2RenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 }
 
 
-void vtkOpenGL2RenderWindow::ActivateTexture(vtkTexture *texture)
+void vtkOpenGLRenderWindow::ActivateTexture(vtkTexture *texture)
 {
   // Only add if it isn't already there
   typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
@@ -1540,7 +1540,7 @@ void vtkOpenGL2RenderWindow::ActivateTexture(vtkTexture *texture)
     }
 }
 
-void vtkOpenGL2RenderWindow::DeactivateTexture(vtkTexture *texture)
+void vtkOpenGLRenderWindow::DeactivateTexture(vtkTexture *texture)
 {
   // Only deactivate if it isn't already there
   typedef std::map<const vtkTexture *, int>::iterator TRIter;
@@ -1552,7 +1552,7 @@ void vtkOpenGL2RenderWindow::DeactivateTexture(vtkTexture *texture)
     }
 }
 
-int vtkOpenGL2RenderWindow::GetTextureUnitForTexture(vtkTexture *texture)
+int vtkOpenGLRenderWindow::GetTextureUnitForTexture(vtkTexture *texture)
 {
   // Only deactivate if it isn't already there
   typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
@@ -1574,7 +1574,7 @@ int vtkOpenGL2RenderWindow::GetTextureUnitForTexture(vtkTexture *texture)
 // \pre not_initialized: !OffScreenUseFrameBuffer
 // \post valid_result: (result==0 || result==1)
 //                     && (result implies OffScreenUseFrameBuffer)
-int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
+int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
 {
   assert("pre: positive_width" && width>0);
   assert("pre: positive_height" && height>0);
@@ -1783,7 +1783,7 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
 // Destroy an offscreen window based on OpenGL framebuffer extension.
 // \pre initialized: OffScreenUseFrameBuffer
 // \post destroyed: !OffScreenUseFrameBuffer
-void vtkOpenGL2RenderWindow::DestroyHardwareOffScreenWindow()
+void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
 {
   assert("pre: initialized" && this->OffScreenUseFrameBuffer);
 
@@ -1824,11 +1824,11 @@ void vtkOpenGL2RenderWindow::DestroyHardwareOffScreenWindow()
 // Description:
 // Returns its texture unit manager object. A new one will be created if one
 // hasn't already been set up.
-vtkOpenGL2TextureUnitManager *vtkOpenGL2RenderWindow::GetTextureUnitManager()
+vtkOpenGLTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
 {
   if(this->TextureUnitManager==0)
     {
-    vtkOpenGL2TextureUnitManager *manager=vtkOpenGL2TextureUnitManager::New();
+    vtkOpenGLTextureUnitManager *manager=vtkOpenGLTextureUnitManager::New();
 
     // This does not form a reference loop since vtkOpenGLHardwareSupport does
     // not keep a reference to the render window.
@@ -1843,7 +1843,7 @@ vtkOpenGL2TextureUnitManager *vtkOpenGL2RenderWindow::GetTextureUnitManager()
 // Description:
 // Block the thread until the actual rendering is finished().
 // Useful for measurement only.
-void vtkOpenGL2RenderWindow::WaitForCompletion()
+void vtkOpenGLRenderWindow::WaitForCompletion()
 {
   glFinish();
 }

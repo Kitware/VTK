@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2Actor.h"
+#include "vtkOpenGLActor.h"
 
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2Renderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkProperty.h"
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
@@ -25,10 +25,10 @@
 #include "vtkOpenGL.h"
 #include <math.h>
 
-vtkStandardNewMacro(vtkOpenGL2Actor);
+vtkStandardNewMacro(vtkOpenGLActor);
 
 // Actual actor render method.
-void vtkOpenGL2Actor::Render(vtkRenderer *ren, vtkMapper *mapper)
+void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -71,7 +71,7 @@ void vtkOpenGL2Actor::Render(vtkRenderer *ren, vtkMapper *mapper)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2Actor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

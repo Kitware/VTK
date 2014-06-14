@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2HardwareSelector.h
+  Module:    vtkOpenGLHardwareSelector.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,26 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGL2HardwareSelector - implements the device specific code of
-//  vtkOpenGL2HardwareSelector.
+// .NAME vtkOpenGLHardwareSelector - implements the device specific code of
+//  vtkOpenGLHardwareSelector.
 //
 // .SECTION Description
-// Implements the device specific code of vtkOpenGL2HardwareSelector.
+// Implements the device specific code of vtkOpenGLHardwareSelector.
 //
 // .SECTION See Also
 // vtkHardwareSelector
 
-#ifndef __vtkOpenGL2HardwareSelector_h
-#define __vtkOpenGL2HardwareSelector_h
+#ifndef __vtkOpenGLHardwareSelector_h
+#define __vtkOpenGLHardwareSelector_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkHardwareSelector.h"
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2HardwareSelector : public vtkHardwareSelector
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareSelector
 {
 public:
-  static vtkOpenGL2HardwareSelector* New();
-  vtkTypeMacro(vtkOpenGL2HardwareSelector, vtkHardwareSelector);
+  static vtkOpenGLHardwareSelector* New();
+  vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,8 +55,8 @@ public:
   virtual void RenderProcessId(unsigned int processid);
 
 protected:
-  vtkOpenGL2HardwareSelector();
-  virtual ~vtkOpenGL2HardwareSelector();
+  vtkOpenGLHardwareSelector();
+  virtual ~vtkOpenGLHardwareSelector();
 
   // Called internally before and after each prop is rendered
   // for device specific configuration/preparation etc.
@@ -68,8 +68,8 @@ protected:
   vtkInternals* Internals;
 
 private:
-  vtkOpenGL2HardwareSelector(const vtkOpenGL2HardwareSelector&); // Not implemented.
-  void operator=(const vtkOpenGL2HardwareSelector&); // Not implemented.
+  vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&); // Not implemented.
+  void operator=(const vtkOpenGLHardwareSelector&); // Not implemented.
 };
 
 #endif

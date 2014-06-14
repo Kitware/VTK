@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2RenderWindow.h
+  Module:    vtkOpenGLRenderWindow.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGL2RenderWindow - OpenGL rendering window
+// .NAME vtkOpenGLRenderWindow - OpenGL rendering window
 // .SECTION Description
-// vtkOpenGL2RenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkOpenGL2Renderer interfaces to the OpenGL graphics
+// vtkOpenGLRenderWindow is a concrete implementation of the abstract class
+// vtkRenderWindow. vtkOpenGLRenderer interfaces to the OpenGL graphics
 // library. Application programmers should normally use vtkRenderWindow
 // instead of the OpenGL specific version.
 
-#ifndef __vtkOpenGL2RenderWindow_h
-#define __vtkOpenGL2RenderWindow_h
+#ifndef __vtkOpenGLRenderWindow_h
+#define __vtkOpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindow.h"
@@ -30,16 +30,16 @@
 
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
-class vtkOpenGL2TextureUnitManager;
-class vtkOpenGL2ShaderCache;
+class vtkOpenGLTextureUnitManager;
+class vtkOpenGLShaderCache;
 class vtkStdString;
 class vtkTexturedActor2D;
 class vtkTexture;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2RenderWindow : public vtkRenderWindow
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
 public:
-  vtkTypeMacro(vtkOpenGL2RenderWindow, vtkRenderWindow);
+  vtkTypeMacro(vtkOpenGLRenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -128,7 +128,7 @@ public:
   // It is GL_BACK_LEFT if GL is bound to the window-system-provided
   // framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
   // application-created framebuffer object (GPU-based offscreen rendering)
-  // It is used by vtkOpenGL2Camera.
+  // It is used by vtkOpenGLCamera.
   unsigned int GetBackLeftBuffer();
 
   // Description:
@@ -136,7 +136,7 @@ public:
   // It is GL_BACK_RIGHT if GL is bound to the window-system-provided
   // framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
   // application-created framebuffer object (GPU-based offscreen rendering)
-  // It is used by vtkOpenGL2Camera.
+  // It is used by vtkOpenGLCamera.
   unsigned int GetBackRightBuffer();
 
   // Description:
@@ -144,7 +144,7 @@ public:
   // It is GL_FRONT_LEFT if GL is bound to the window-system-provided
   // framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
   // application-created framebuffer object (GPU-based offscreen rendering)
-  // It is used by vtkOpenGL2Camera.
+  // It is used by vtkOpenGLCamera.
   unsigned int GetFrontLeftBuffer();
 
   // Description:
@@ -152,7 +152,7 @@ public:
   // It is GL_FRONT_RIGHT if GL is bound to the window-system-provided
   // framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
   // application-created framebuffer object (GPU-based offscreen rendering)
-  // It is used by vtkOpenGL2Camera.
+  // It is used by vtkOpenGLCamera.
   unsigned int GetFrontRightBuffer();
 
   // Description:
@@ -160,7 +160,7 @@ public:
   // It is GL_BACK if GL is bound to the window-system-provided
   // framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
   // application-created framebuffer object (GPU-based offscreen rendering)
-  // It is used by vtkOpenGL2Camera.
+  // It is used by vtkOpenGLCamera.
   unsigned int GetBackBuffer();
 
   // Description:
@@ -168,7 +168,7 @@ public:
   // It is GL_FRONT if GL is bound to the window-system-provided
   // framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
   // application-created framebuffer object (GPU-based offscreen rendering)
-  // It is used by vtkOpenGL2Camera.
+  // It is used by vtkOpenGLCamera.
   unsigned int GetFrontBuffer();
 
   // Description:
@@ -184,13 +184,13 @@ public:
 
   // Description:
   // Returns an Shader Cache object
-  vtkGetObjectMacro(ShaderCache,vtkOpenGL2ShaderCache);
+  vtkGetObjectMacro(ShaderCache,vtkOpenGLShaderCache);
 
   //BTX
   // Description:
   // Returns its texture unit manager object. A new one will be created if one
   // hasn't already been set up.
-  vtkOpenGL2TextureUnitManager *GetTextureUnitManager();
+  vtkOpenGLTextureUnitManager *GetTextureUnitManager();
   //ETX
 
   // Description:
@@ -199,10 +199,10 @@ public:
   virtual void WaitForCompletion();
 
 protected:
-  vtkOpenGL2RenderWindow();
-  ~vtkOpenGL2RenderWindow();
+  vtkOpenGLRenderWindow();
+  ~vtkOpenGLRenderWindow();
 
-  vtkOpenGL2ShaderCache *ShaderCache;
+  vtkOpenGLShaderCache *ShaderCache;
 
   long OldMonitorSetting;
 
@@ -252,7 +252,7 @@ protected:
 
   // Description:
   // Set the texture unit manager.
-  void SetTextureUnitManager(vtkOpenGL2TextureUnitManager *textureUnitManager);
+  void SetTextureUnitManager(vtkOpenGLTextureUnitManager *textureUnitManager);
 
   unsigned int BackLeftBuffer;
   unsigned int BackRightBuffer;
@@ -274,7 +274,7 @@ protected:
 
   vtkTimeStamp ContextCreationTime;
 
-  vtkOpenGL2TextureUnitManager *TextureUnitManager;
+  vtkOpenGLTextureUnitManager *TextureUnitManager;
 
   vtkTexturedActor2D *DrawPixelsActor;
 
@@ -285,8 +285,8 @@ protected:
   bool Initialized; // ensure glewinit has been called
 
 private:
-  vtkOpenGL2RenderWindow(const vtkOpenGL2RenderWindow&);  // Not implemented.
-  void operator=(const vtkOpenGL2RenderWindow&);  // Not implemented.
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
 };
 
 #endif

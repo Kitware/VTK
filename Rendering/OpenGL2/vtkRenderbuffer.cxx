@@ -16,7 +16,7 @@
 
 #include <GL/glew.h>
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
 #include <cassert>
@@ -43,7 +43,7 @@ bool vtkRenderbuffer::IsSupported(vtkRenderWindow *win)
 {
   bool supported = false;
 
-  vtkOpenGL2RenderWindow *glwin = dynamic_cast<vtkOpenGL2RenderWindow*>(win);
+  vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
     {
     bool floatTex = glewIsSupported("GL_ARB_texture_float");
@@ -61,7 +61,7 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
 {
   bool supported = false;
 
-  vtkOpenGL2RenderWindow *glwin = dynamic_cast<vtkOpenGL2RenderWindow*>(win);
+  vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
     {
 
@@ -123,7 +123,7 @@ void vtkRenderbuffer::SetContext(vtkRenderWindow *renWin)
   this->Modified();
 
   // check for supported context
-  vtkOpenGL2RenderWindow *context = dynamic_cast<vtkOpenGL2RenderWindow*>(renWin);
+  vtkOpenGLRenderWindow *context = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
   if ( !context
     || !this->LoadRequiredExtensions(renWin) )
     {

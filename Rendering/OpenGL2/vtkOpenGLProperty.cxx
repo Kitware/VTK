@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2Renderer.h"
-#include "vtkOpenGL2Property.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLProperty.h"
 
 #include "vtkglVBOHelper.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2Texture.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkTexture.h"
 
-#include "vtkOpenGL2TextureUnitManager.h"
+#include "vtkOpenGLTextureUnitManager.h"
 #include "vtkOpenGLError.h"
 
 #include <cassert>
@@ -44,20 +44,20 @@ namespace
     }
 }
 
-vtkStandardNewMacro(vtkOpenGL2Property);
+vtkStandardNewMacro(vtkOpenGLProperty);
 
-vtkOpenGL2Property::vtkOpenGL2Property()
+vtkOpenGLProperty::vtkOpenGLProperty()
 {
 }
 
-vtkOpenGL2Property::~vtkOpenGL2Property()
+vtkOpenGLProperty::~vtkOpenGLProperty()
 {
 }
 
 
 // ----------------------------------------------------------------------------
 // Implement base class method.
-void vtkOpenGL2Property::Render(vtkActor *anActor, vtkRenderer *ren)
+void vtkOpenGLProperty::Render(vtkActor *anActor, vtkRenderer *ren)
 {
   // Set the LineStipple
   if (this->LineStipplePattern != 0xFFFF)
@@ -103,7 +103,7 @@ void vtkOpenGL2Property::Render(vtkActor *anActor, vtkRenderer *ren)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGL2Property::RenderTextures(vtkActor*, vtkRenderer* ren)
+bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren)
 {
   // render any textures.
   int numTextures = this->GetNumberOfTextures();
@@ -132,7 +132,7 @@ bool vtkOpenGL2Property::RenderTextures(vtkActor*, vtkRenderer* ren)
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGL2Property::PostRender(vtkActor *actor, vtkRenderer *renderer)
+void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -150,12 +150,12 @@ void vtkOpenGL2Property::PostRender(vtkActor *actor, vtkRenderer *renderer)
 
 //-----------------------------------------------------------------------------
 // Implement base class method.
-void vtkOpenGL2Property::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *vtkNotUsed(ren))
+void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRenderer *vtkNotUsed(ren))
 {
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGL2Property::ReleaseGraphicsResources(vtkWindow *win)
+void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
 {
   // release any textures.
   int numTextures = this->GetNumberOfTextures();
@@ -171,7 +171,7 @@ void vtkOpenGL2Property::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2Property::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 

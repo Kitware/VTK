@@ -21,7 +21,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
 
-class vtkOpenGL2Texture;
+class vtkOpenGLTexture;
 
 namespace vtkgl {struct CellBO; }
 
@@ -124,7 +124,7 @@ protected:
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
-  vtkOpenGL2Texture* InternalColorTexture;
+  vtkOpenGLTexture* InternalColorTexture;
 
   vtkMatrix4x4* ModelTransformMatrix;
   unsigned char* ModelColor;

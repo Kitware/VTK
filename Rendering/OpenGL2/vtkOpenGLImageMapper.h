@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2ImageMapper.h
+  Module:    vtkOpenGLImageMapper.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,20 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGL2ImageMapper - 2D image display support for OpenGL
+// .NAME vtkOpenGLImageMapper - 2D image display support for OpenGL
 // .SECTION Description
-// vtkOpenGL2ImageMapper is a concrete subclass of vtkImageMapper that
+// vtkOpenGLImageMapper is a concrete subclass of vtkImageMapper that
 // renders images under OpenGL
 
 // .SECTION Caveats
-// vtkOpenGL2ImageMapper does not support vtkBitArray, you have to convert the array first
+// vtkOpenGLImageMapper does not support vtkBitArray, you have to convert the array first
 // to vtkUnsignedCharArray (for example)
 //
 // .SECTION See Also
 // vtkImageMapper
 
-#ifndef __vtkOpenGL2ImageMapper_h
-#define __vtkOpenGL2ImageMapper_h
+#ifndef __vtkOpenGLImageMapper_h
+#define __vtkOpenGLImageMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageMapper.h"
@@ -33,11 +33,11 @@
 class vtkActor2D;
 class vtkTexturedActor2D;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2ImageMapper : public vtkImageMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageMapper : public vtkImageMapper
 {
 public:
-  static vtkOpenGL2ImageMapper *New();
-  vtkTypeMacro(vtkOpenGL2ImageMapper, vtkImageMapper);
+  static vtkOpenGLImageMapper *New();
+  vtkTypeMacro(vtkOpenGLImageMapper, vtkImageMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -57,14 +57,14 @@ public:
   void DrawPixels(vtkViewport *vp, int width, int height, int numComponents, void *data);
 
 protected:
-  vtkOpenGL2ImageMapper();
-  ~vtkOpenGL2ImageMapper();
+  vtkOpenGLImageMapper();
+  ~vtkOpenGLImageMapper();
 
   vtkTexturedActor2D *Actor;
 
 private:
-  vtkOpenGL2ImageMapper(const vtkOpenGL2ImageMapper&);  // Not implemented.
-  void operator=(const vtkOpenGL2ImageMapper&);  // Not implemented.
+  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLImageMapper&);  // Not implemented.
 };
 
 #endif

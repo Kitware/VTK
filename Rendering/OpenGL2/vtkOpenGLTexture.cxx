@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2Texture.cxx
+  Module:    vtkOpenGLTexture.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2Texture.h"
+#include "vtkOpenGLTexture.h"
 
 #include "vtkglVBOHelper.h"
 
@@ -22,10 +22,10 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2Renderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
@@ -34,10 +34,10 @@
 
 
 // ----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGL2Texture);
+vtkStandardNewMacro(vtkOpenGLTexture);
 
 // ----------------------------------------------------------------------------
-vtkOpenGL2Texture::vtkOpenGL2Texture()
+vtkOpenGLTexture::vtkOpenGLTexture()
 {
   this->Index = 0;
   this->RenderWindow = 0;
@@ -46,7 +46,7 @@ vtkOpenGL2Texture::vtkOpenGL2Texture()
 }
 
 // ----------------------------------------------------------------------------
-vtkOpenGL2Texture::~vtkOpenGL2Texture()
+vtkOpenGLTexture::~vtkOpenGLTexture()
 {
   if (this->RenderWindow)
     {
@@ -56,13 +56,13 @@ vtkOpenGL2Texture::~vtkOpenGL2Texture()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGL2Texture::Initialize(vtkRenderer* vtkNotUsed(ren))
+void vtkOpenGLTexture::Initialize(vtkRenderer* vtkNotUsed(ren))
 {
 }
 
 // ----------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
-void vtkOpenGL2Texture::ReleaseGraphicsResources(vtkWindow *win)
+void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->Index && win && win->GetMapped())
     {
@@ -85,10 +85,10 @@ void vtkOpenGL2Texture::ReleaseGraphicsResources(vtkWindow *win)
   this->Modified();
 }
 
-void vtkOpenGL2Texture::CopyTexImage(vtkRenderer *ren, int x, int y, int width, int height)
+void vtkOpenGLTexture::CopyTexImage(vtkRenderer *ren, int x, int y, int width, int height)
 {
-  vtkOpenGL2RenderWindow* renWin =
-    static_cast<vtkOpenGL2RenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow* renWin =
+    static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
   renWin->ActivateTexture(this);
   if (this->TextureFormat == GL_DEPTH)
     {
@@ -104,7 +104,7 @@ void vtkOpenGL2Texture::CopyTexImage(vtkRenderer *ren, int x, int y, int width, 
 
 // ----------------------------------------------------------------------------
 // Implement base class method.
-void vtkOpenGL2Texture::Load(vtkRenderer *ren)
+void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
   GLenum format = GL_LUMINANCE;
   vtkImageData *input = this->GetInput();
@@ -116,8 +116,8 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
   // to load when only the desired update rate changed).
   // If a better check is required, check something more specific,
   // like the graphics context.
-  vtkOpenGL2RenderWindow* renWin =
-    static_cast<vtkOpenGL2RenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow* renWin =
+    static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
 
   vtkOpenGLClearErrorMacro();
 
@@ -345,10 +345,10 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGL2Texture::PostRender(vtkRenderer *ren)
+void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
 {
-  vtkOpenGL2RenderWindow* renWin =
-    static_cast<vtkOpenGL2RenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow* renWin =
+    static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
   // activate a free texture unit for this texture
   renWin->DeactivateTexture(this);
   if (this->GetInput() && this->PremultipliedAlpha)
@@ -382,7 +382,7 @@ static int FindPowerOfTwo(int i)
 // ----------------------------------------------------------------------------
 // Creates resampled unsigned char texture map that is a power of two in both
 // x and y.
-unsigned char *vtkOpenGL2Texture::ResampleToPowerOfTwo(int &xs,
+unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
                                                       int &ys,
                                                       unsigned char *dptr,
                                                       int bpp)
@@ -488,7 +488,7 @@ unsigned char *vtkOpenGL2Texture::ResampleToPowerOfTwo(int &xs,
 
 
 // ----------------------------------------------------------------------------
-void vtkOpenGL2Texture::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Index: " << this->Index << endl;

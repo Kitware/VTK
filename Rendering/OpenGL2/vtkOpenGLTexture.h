@@ -17,8 +17,8 @@
 // vtkOpenGLTexture is a concrete implementation of the abstract class
 // vtkTexture. vtkOpenGLTexture interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOpenGL2Texture_h
-#define __vtkOpenGL2Texture_h
+#ifndef __vtkOpenGLTexture_h
+#define __vtkOpenGLTexture_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTexture.h"
@@ -30,11 +30,11 @@ class vtkWindow;
 class vtkRenderWindow;
 class vtkPixelBufferObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Texture : public vtkTexture
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
-  static vtkOpenGL2Texture *New();
-  vtkTypeMacro(vtkOpenGL2Texture, vtkTexture);
+  static vtkOpenGLTexture *New();
+  vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -73,8 +73,8 @@ public:
 
 protected:
 //BTX
-  vtkOpenGL2Texture();
-  ~vtkOpenGL2Texture();
+  vtkOpenGLTexture();
+  ~vtkOpenGLTexture();
 
   vtkTimeStamp   LoadTime;
   unsigned int Index; // actually GLuint
@@ -90,8 +90,8 @@ protected:
 
 
 private:
-  vtkOpenGL2Texture(const vtkOpenGL2Texture&);  // Not implemented.
-  void operator=(const vtkOpenGL2Texture&);  // Not implemented.
+  vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
+  void operator=(const vtkOpenGLTexture&);  // Not implemented.
 
   // Description:
   // Handle loading in extension support

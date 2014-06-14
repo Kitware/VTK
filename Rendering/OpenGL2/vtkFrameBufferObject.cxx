@@ -17,7 +17,7 @@
 #include <GL/glew.h>
 
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkRenderbuffer.h"
 #include "vtkPixelBufferObject.h"
@@ -118,8 +118,8 @@ void vtkFrameBufferObject::SetContext(vtkRenderWindow *renWin)
     return;
     }
   // check for support
-  vtkOpenGL2RenderWindow *context
-    = vtkOpenGL2RenderWindow::SafeDownCast(renWin);
+  vtkOpenGLRenderWindow *context
+    = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   if ( !context
     || !this->LoadRequiredExtensions(renWin))
     {

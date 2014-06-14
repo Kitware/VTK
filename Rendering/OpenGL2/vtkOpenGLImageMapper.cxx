@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2ImageMapper.cxx
+  Module:    vtkOpenGLImageMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2ImageMapper.h"
+#include "vtkOpenGLImageMapper.h"
 
 #include <GL/glew.h>
 
@@ -40,9 +40,9 @@
 
 #include "vtkOpenGLError.h"
 
-vtkStandardNewMacro(vtkOpenGL2ImageMapper);
+vtkStandardNewMacro(vtkOpenGLImageMapper);
 
-vtkOpenGL2ImageMapper::vtkOpenGL2ImageMapper()
+vtkOpenGLImageMapper::vtkOpenGLImageMapper()
 {
   this->Actor = vtkTexturedActor2D::New();
   vtkNew<vtkPolyDataMapper2D> mapper;
@@ -79,7 +79,7 @@ vtkOpenGL2ImageMapper::vtkOpenGL2ImageMapper()
   polydata->GetPointData()->SetTCoords(tcoords.Get());
 }
 
-vtkOpenGL2ImageMapper::~vtkOpenGL2ImageMapper()
+vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
 {
   this->Actor->UnRegister(this);
 }
@@ -137,7 +137,7 @@ inline int vtkPadToFour(int n)
 // 3) draw using DrawPixels
 
 template <class T>
-void vtkOpenGL2ImageMapperRenderDouble(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *data,
                                       T *dataPtr, double shift, double scale,
                                       int *actorPos, int *actorPos2, int front, int *vsize,
                                       vtkViewport *viewport)
@@ -247,7 +247,7 @@ void vtkOpenGL2ImageMapperRenderDouble(vtkOpenGL2ImageMapper *self, vtkImageData
 // overflow cannot occur.
 
 template <class T>
-void vtkOpenGL2ImageMapperRenderShort(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *data,
                                      T *dataPtr, double shift, double scale,
                                      int *actorPos, int *actorPos2, int front,
                                      int *vsize, vtkViewport *viewport)
@@ -375,7 +375,7 @@ void vtkOpenGL2ImageMapperRenderShort(vtkOpenGL2ImageMapper *self, vtkImageData 
 // render unsigned char data without any shift/scale
 
 template <class T>
-void vtkOpenGL2ImageMapperRenderChar(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *data,
                                     T *dataPtr, int *actorPos, int *actorPos2,
                                     int front, int *vsize, vtkViewport *viewport)
 {
@@ -507,88 +507,88 @@ void vtkOpenGL2ImageMapperRenderChar(vtkOpenGL2ImageMapper *self, vtkImageData *
 // the non-template even when the template is otherwise an equal
 // match.
 template <class T>
-void vtkOpenGL2ImageMapperRender(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
                                 T *dataPtr, double shift, double scale,
                                 int *actorPos, int *actorPos2, int front, int *vsize,
                                 vtkViewport *viewport)
 {
-  vtkOpenGL2ImageMapperRenderDouble(self, data, dataPtr, shift, scale,
+  vtkOpenGLImageMapperRenderDouble(self, data, dataPtr, shift, scale,
                                    actorPos, actorPos2, front, vsize, viewport);
 }
 
-static void vtkOpenGL2ImageMapperRender(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
                                        char* dataPtr, double shift, double scale,
                                        int *actorPos, int *actorPos2, int front, int *vsize,
                                        vtkViewport *viewport)
 {
   if(shift == 0.0 && scale == 1.0)
     {
-    vtkOpenGL2ImageMapperRenderChar(self, data, dataPtr,
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
                                    actorPos, actorPos2, front, vsize, viewport);
     }
   else
     {
-    vtkOpenGL2ImageMapperRenderShort(self, data, dataPtr, shift, scale,
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                     actorPos, actorPos2, front, vsize, viewport);
     }
 }
 
-static void vtkOpenGL2ImageMapperRender(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
                                        unsigned char* dataPtr, double shift, double scale,
                                        int *actorPos, int *actorPos2, int front, int *vsize,
                                        vtkViewport *viewport)
 {
   if(shift == 0.0 && scale == 1.0)
     {
-    vtkOpenGL2ImageMapperRenderChar(self, data, dataPtr,
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
                                    actorPos, actorPos2, front, vsize, viewport);
     }
   else
     {
-    vtkOpenGL2ImageMapperRenderShort(self, data, dataPtr, shift, scale,
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                     actorPos, actorPos2, front, vsize, viewport);
     }
 }
 
-static void vtkOpenGL2ImageMapperRender(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
                                        signed char* dataPtr, double shift, double scale,
                                        int *actorPos, int *actorPos2, int front, int *vsize,
                                        vtkViewport *viewport)
 {
   if(shift == 0.0 && scale == 1.0)
     {
-    vtkOpenGL2ImageMapperRenderChar(self, data, dataPtr,
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
                                    actorPos, actorPos2, front, vsize, viewport);
     }
   else
     {
-    vtkOpenGL2ImageMapperRenderShort(self, data, dataPtr, shift, scale,
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                     actorPos, actorPos2, front, vsize, viewport);
     }
 }
 
-static void vtkOpenGL2ImageMapperRender(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
                                        short* dataPtr, double shift, double scale,
                                        int *actorPos, int *actorPos2, int front, int *vsize,
                                        vtkViewport *viewport)
 {
-  vtkOpenGL2ImageMapperRenderShort(self, data, dataPtr, shift, scale,
+  vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                   actorPos, actorPos2, front, vsize, viewport);
 }
 
-static void vtkOpenGL2ImageMapperRender(vtkOpenGL2ImageMapper *self, vtkImageData *data,
+static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
                                        unsigned short* dataPtr, double shift, double scale,
                                        int *actorPos, int *actorPos2, int front, int *vsize,
                                        vtkViewport *viewport)
 {
-  vtkOpenGL2ImageMapperRenderShort(self, data, dataPtr, shift, scale,
+  vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                   actorPos, actorPos2, front, vsize, viewport);
 }
 
 //----------------------------------------------------------------------------
 // Expects data to be X, Y, components
 
-void vtkOpenGL2ImageMapper::RenderData(vtkViewport* viewport,
+void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
                                       vtkImageData *data, vtkActor2D *actor)
 {
   void *ptr0;
@@ -597,7 +597,7 @@ void vtkOpenGL2ImageMapper::RenderData(vtkViewport* viewport,
   vtkWindow* window = static_cast<vtkWindow *>(viewport->GetVTKWindow());
   if (!window)
     {
-    vtkErrorMacro (<<"vtkOpenGL2ImageMapper::RenderData - no window set for viewport");
+    vtkErrorMacro (<<"vtkOpenGLImageMapper::RenderData - no window set for viewport");
     return;
     }
 
@@ -633,7 +633,7 @@ void vtkOpenGL2ImageMapper::RenderData(vtkViewport* viewport,
   switch (data->GetPointData()->GetScalars()->GetDataType())
     {
     vtkTemplateMacro(
-      vtkOpenGL2ImageMapperRender(this, data, static_cast<VTK_TT*>(ptr0),
+      vtkOpenGLImageMapperRender(this, data, static_cast<VTK_TT*>(ptr0),
                                  shift, scale, actorPos, actorPos2, front, vsize,
                                  viewport)
       );
@@ -646,7 +646,7 @@ void vtkOpenGL2ImageMapper::RenderData(vtkViewport* viewport,
 
 
 
-void vtkOpenGL2ImageMapper::DrawPixels(vtkViewport *viewport, int width, int height, int numComponents, void *data)
+void vtkOpenGLImageMapper::DrawPixels(vtkViewport *viewport, int width, int height, int numComponents, void *data)
 {
   int* actorPos =
     this->Actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
@@ -697,7 +697,7 @@ void vtkOpenGL2ImageMapper::DrawPixels(vtkViewport *viewport, int width, int hei
 }
 
 
-void vtkOpenGL2ImageMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

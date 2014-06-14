@@ -38,13 +38,13 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 
-#include "vtkOpenGL2Renderer.h"
-#include "vtkOpenGL2RenderWindow.h"
-#include "vtkOpenGL2ShaderCache.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
 
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
-#include "vtkOpenGL2Texture.h"
+#include "vtkOpenGLTexture.h"
 
 #include "vtkHardwareSelector.h"
 
@@ -349,7 +349,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     }
 
-  vtkOpenGL2RenderWindow *renWin = vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
   if (this->Internal->LastLightComplexity != lightComplexity)
     {
@@ -387,7 +387,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
     std::string VSSource;
     std::string FSSource;
     this->BuildShader(VSSource,FSSource,lightComplexity,ren,actor);
-    vtkOpenGL2ShaderCache::CachedShaderProgram *newShader =
+    vtkOpenGLShaderCache::CachedShaderProgram *newShader =
       renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
     cellBO.ShaderSourceTime.Modified();
     // if the shader changed reinitialize the VAO
@@ -463,7 +463,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
   // if depth peeling set the required uniforms
   if (ren->GetLastRenderingUsedDepthPeeling())
     {
-    vtkOpenGL2Renderer *oglren = vtkOpenGL2Renderer::SafeDownCast(ren);
+    vtkOpenGLRenderer *oglren = vtkOpenGLRenderer::SafeDownCast(ren);
     int otunit = renWin->GetTextureUnitForTexture(oglren->GetOpaqueZTexture());
     cellBO.CachedProgram->Program.SetUniformi("opaqueZTexture", otunit);
 
@@ -994,7 +994,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
     {
     if (this->InternalColorTexture == 0)
       {
-      this->InternalColorTexture = vtkOpenGL2Texture::New();
+      this->InternalColorTexture = vtkOpenGLTexture::New();
       this->InternalColorTexture->RepeatOff();
       }
     this->InternalColorTexture->SetInputData(this->ColorTextureMap);

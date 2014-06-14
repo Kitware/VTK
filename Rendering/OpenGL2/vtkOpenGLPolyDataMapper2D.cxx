@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2PolyDataMapper2D.h"
+#include "vtkOpenGLPolyDataMapper2D.h"
 
 #include "vtkglVBOHelper.h"
 
@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2Texture.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
@@ -34,9 +34,9 @@
 #include "vtkWindow.h"
 #include "vtkOpenGLError.h"
 
-#include "vtkOpenGL2RenderWindow.h"
-#include "vtkOpenGL2ShaderCache.h"
-#include "vtkOpenGL2Renderer.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLRenderer.h"
 
 #include <cmath>
 
@@ -44,7 +44,7 @@
 #include "vtkglPolyData2DVS.h"
 #include "vtkglPolyData2DFS.h"
 
-class vtkOpenGL2PolyDataMapper2D::Private
+class vtkOpenGLPolyDataMapper2D::Private
 {
 public:
   vtkgl::BufferObject vbo;
@@ -66,17 +66,17 @@ public:
   }
 };
 
-vtkStandardNewMacro(vtkOpenGL2PolyDataMapper2D);
+vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 
 //-----------------------------------------------------------------------------
-vtkOpenGL2PolyDataMapper2D::vtkOpenGL2PolyDataMapper2D()
+vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   : Internal(new Private)
 {
   this->TransformedPoints = NULL;
 }
 
 //-----------------------------------------------------------------------------
-vtkOpenGL2PolyDataMapper2D::~vtkOpenGL2PolyDataMapper2D()
+vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
 {
   if (this->TransformedPoints)
     {
@@ -86,14 +86,14 @@ vtkOpenGL2PolyDataMapper2D::~vtkOpenGL2PolyDataMapper2D()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::BuildShader(
+void vtkOpenGLPolyDataMapper2D::BuildShader(
   std::string &VSSource, std::string &FSSource,
   vtkViewport* viewport, vtkActor2D *vtkNotUsed(actor))
 {
   VSSource = vtkglPolyData2DVS;
   FSSource = vtkglPolyData2DFS;
 
-  vtkOpenGL2Renderer *ren = vtkOpenGL2Renderer::SafeDownCast(viewport);
+  vtkOpenGLRenderer *ren = vtkOpenGLRenderer::SafeDownCast(viewport);
 
   // Build our shader if necessary.
   if (this->Colors && this->Colors->GetNumberOfComponents())
@@ -188,12 +188,12 @@ void vtkOpenGL2PolyDataMapper2D::BuildShader(
 
 
 //-----------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
+void vtkOpenGLPolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
     vtkViewport* viewport, vtkActor2D *actor)
 {
-  vtkOpenGL2RenderWindow *renWin = vtkOpenGL2RenderWindow::SafeDownCast(viewport->GetVTKWindow());
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(viewport->GetVTKWindow());
 
-  vtkOpenGL2Renderer *ren = vtkOpenGL2Renderer::SafeDownCast(viewport);
+  vtkOpenGLRenderer *ren = vtkOpenGLRenderer::SafeDownCast(viewport);
 
   if (ren != NULL && this->Internal->LastDepthPeeling !=
       ren->GetLastRenderingUsedDepthPeeling())
@@ -215,7 +215,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
     std::string VSSource;
     std::string FSSource;
     this->BuildShader(VSSource,FSSource,viewport,actor);
-    vtkOpenGL2ShaderCache::CachedShaderProgram *newShader =
+    vtkOpenGLShaderCache::CachedShaderProgram *newShader =
       renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
     cellBO.ShaderSourceTime.Modified();
     // if the shader changed reinitialize the VAO
@@ -300,7 +300,7 @@ void vtkOpenGL2PolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(
+void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport*, vtkActor2D *actor)
 {
   vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
@@ -314,7 +314,7 @@ void vtkOpenGL2PolyDataMapper2D::SetPropertyShaderParameters(
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(
+void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport* viewport, vtkActor2D *actor)
 {
   vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
@@ -398,7 +398,7 @@ void vtkOpenGL2PolyDataMapper2D::SetCameraShaderParameters(
 
 
 //-------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport)
+void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport)
 {
   vtkPoints      *p;
   int            numPts;
@@ -515,14 +515,14 @@ void vtkOpenGL2PolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewpor
 }
 
 
-void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
+void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)
 {
   vtkOpenGLClearErrorMacro();
   int numPts;
   vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
 
-  vtkDebugMacro (<< "vtkOpenGL2PolyDataMapper2D::Render");
+  vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
   if ( input == NULL )
     {
@@ -627,7 +627,7 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2PolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

@@ -17,7 +17,7 @@
 #include <GL/glew.h>
 
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 
 #include "vtkOpenGLError.h"
 

@@ -22,15 +22,15 @@ PURPOSE.  See the above copyright notice for more information.
 #define __vtkWin32OpenGL2RenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 
 class vtkIdList;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGL2RenderWindow : public vtkOpenGL2RenderWindow
+class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGL2RenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkWin32OpenGL2RenderWindow *New();
-  vtkTypeMacro(vtkWin32OpenGL2RenderWindow,vtkOpenGL2RenderWindow);
+  vtkTypeMacro(vtkWin32OpenGL2RenderWindow,vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -73,7 +73,7 @@ public:
   // Description:
   // Set the size of the window in pixels.
   virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {vtkOpenGL2RenderWindow::SetSize(a);};
+  virtual void SetSize(int a[2]) {vtkOpenGLRenderWindow::SetSize(a);};
 
   // Description:
   // Get the current size of the window in pixels.
@@ -82,7 +82,7 @@ public:
   // Description:
   // Set the position of the window.
   virtual void SetPosition(int,int);
-  virtual void SetPosition(int a[2]) {vtkOpenGL2RenderWindow::SetPosition(a);};
+  virtual void SetPosition(int a[2]) {vtkOpenGLRenderWindow::SetPosition(a);};
 
   // Description:
   // Get the current size of the screen in pixels.

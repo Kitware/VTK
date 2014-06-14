@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2ShaderCache.cxx
+  Module:    vtkOpenGLShaderCache.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2ShaderCache.h"
+#include "vtkOpenGLShaderCache.h"
 #include <GL/glew.h>
 
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
@@ -27,7 +27,7 @@
 
 #include "vtksys/MD5.h"
 
-class vtkOpenGL2ShaderCache::Private
+class vtkOpenGLShaderCache::Private
 {
 public:
   vtksysMD5* md5;
@@ -65,22 +65,22 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGL2ShaderCache);
+vtkStandardNewMacro(vtkOpenGLShaderCache);
 
 // ----------------------------------------------------------------------------
-vtkOpenGL2ShaderCache::vtkOpenGL2ShaderCache() : Internal(new Private)
+vtkOpenGLShaderCache::vtkOpenGLShaderCache() : Internal(new Private)
 {
   this->LastShaderBound  = NULL;
 }
 
 // ----------------------------------------------------------------------------
-vtkOpenGL2ShaderCache::~vtkOpenGL2ShaderCache()
+vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
 {
   delete this->Internal;
 }
 
 // return NULL if there is an issue
-vtkOpenGL2ShaderCache::CachedShaderProgram *vtkOpenGL2ShaderCache::ReadyShader(const char *vertexCode, const char *fragmentCode)
+vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(const char *vertexCode, const char *fragmentCode)
 {
   CachedShaderProgram *shader = this->GetShader(vertexCode, fragmentCode);
   if (!shader)
@@ -104,8 +104,8 @@ vtkOpenGL2ShaderCache::CachedShaderProgram *vtkOpenGL2ShaderCache::ReadyShader(c
 }
 
 // return NULL if there is an issue
-vtkOpenGL2ShaderCache::CachedShaderProgram *vtkOpenGL2ShaderCache::ReadyShader(
-    vtkOpenGL2ShaderCache::CachedShaderProgram *shader)
+vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
+    vtkOpenGLShaderCache::CachedShaderProgram *shader)
 {
   // compile if needed
   if (!shader->Compiled && !this->CompileShader(shader))
@@ -122,19 +122,19 @@ vtkOpenGL2ShaderCache::CachedShaderProgram *vtkOpenGL2ShaderCache::ReadyShader(
   return shader;
 }
 
-vtkOpenGL2ShaderCache::CachedShaderProgram *vtkOpenGL2ShaderCache::GetShader(const char *vertexCode, const char *fragmentCode)
+vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(const char *vertexCode, const char *fragmentCode)
 {
   // compute the MD5 and the check the map
   std::string result;
   this->Internal->ComputeMD5(vertexCode, fragmentCode, result);
 
   // does it already exist?
-  typedef std::map<std::string,vtkOpenGL2ShaderCache::CachedShaderProgram*>::const_iterator SMapIter;
+  typedef std::map<std::string,vtkOpenGLShaderCache::CachedShaderProgram*>::const_iterator SMapIter;
   SMapIter found = this->Internal->ShaderPrograms.find(result);
   if (found == this->Internal->ShaderPrograms.end())
     {
     // create one
-    vtkOpenGL2ShaderCache::CachedShaderProgram *sps = new vtkOpenGL2ShaderCache::CachedShaderProgram();
+    vtkOpenGLShaderCache::CachedShaderProgram *sps = new vtkOpenGLShaderCache::CachedShaderProgram();
     sps->VS.SetSource(vertexCode);
     sps->VS.SetType(vtkgl::Shader::Vertex);
     sps->FS.SetSource(fragmentCode);
@@ -151,7 +151,7 @@ vtkOpenGL2ShaderCache::CachedShaderProgram *vtkOpenGL2ShaderCache::GetShader(con
 }
 
 // return 0 if there is an issue
-int vtkOpenGL2ShaderCache::CompileShader(vtkOpenGL2ShaderCache::CachedShaderProgram* shader)
+int vtkOpenGLShaderCache::CompileShader(vtkOpenGLShaderCache::CachedShaderProgram* shader)
 {
   if (!shader->VS.Compile())
     {
@@ -184,7 +184,7 @@ int vtkOpenGL2ShaderCache::CompileShader(vtkOpenGL2ShaderCache::CachedShaderProg
 }
 
 
-int vtkOpenGL2ShaderCache::BindShader(vtkOpenGL2ShaderCache::CachedShaderProgram* shader)
+int vtkOpenGLShaderCache::BindShader(vtkOpenGLShaderCache::CachedShaderProgram* shader)
 {
   if (this->LastShaderBound == shader)
     {
@@ -203,7 +203,7 @@ int vtkOpenGL2ShaderCache::BindShader(vtkOpenGL2ShaderCache::CachedShaderProgram
 
 
 // ----------------------------------------------------------------------------
-void vtkOpenGL2ShaderCache::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLShaderCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

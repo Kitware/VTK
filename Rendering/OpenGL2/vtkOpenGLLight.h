@@ -11,24 +11,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGL2Light - OpenGL light
+// .NAME vtkOpenGLLight - OpenGL light
 // .SECTION Description
-// vtkOpenGL2Light is a concrete implementation of the abstract class vtkLight.
-// vtkOpenGL2Light interfaces to the OpenGL rendering library.
+// vtkOpenGLLight is a concrete implementation of the abstract class vtkLight.
+// vtkOpenGLLight interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOpenGL2Light_h
-#define __vtkOpenGL2Light_h
+#ifndef __vtkOpenGLLight_h
+#define __vtkOpenGLLight_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkLight.h"
 
 class vtkOpenGLRenderer;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Light : public vtkLight
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLight : public vtkLight
 {
 public:
-  static vtkOpenGL2Light *New();
-  vtkTypeMacro(vtkOpenGL2Light, vtkLight);
+  static vtkOpenGLLight *New();
+  vtkTypeMacro(vtkOpenGLLight, vtkLight);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -36,12 +36,12 @@ public:
   void Render(vtkRenderer *ren, int light_index);
 
 protected:
-  vtkOpenGL2Light() {}
-  ~vtkOpenGL2Light() {}
+  vtkOpenGLLight() {}
+  ~vtkOpenGLLight() {}
 
 private:
-  vtkOpenGL2Light(const vtkOpenGL2Light&);  // Not implemented.
-  void operator=(const vtkOpenGL2Light&);  // Not implemented.
+  vtkOpenGLLight(const vtkOpenGLLight&);  // Not implemented.
+  void operator=(const vtkOpenGLLight&);  // Not implemented.
 };
 
 #endif

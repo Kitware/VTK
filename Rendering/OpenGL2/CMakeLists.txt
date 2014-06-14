@@ -32,21 +32,21 @@ set(Module_SRCS
   vtkglShaderProgram.cxx
   vtkglVertexArrayObject.cxx
   vtkFrameBufferObject.cxx
-  vtkOpenGL2Actor.cxx
-  vtkOpenGL2Camera.cxx
-  vtkOpenGL2ImageMapper.cxx
-  vtkOpenGL2ImageSliceMapper.cxx
-  vtkOpenGL2Glyph3DMapper.cxx
-  vtkOpenGL2HardwareSelector.cxx
-  vtkOpenGL2Light.cxx
-  vtkOpenGL2PolyDataMapper2D.cxx
-  vtkOpenGL2Property.cxx
+  vtkOpenGLActor.cxx
+  vtkOpenGLCamera.cxx
+  vtkOpenGLImageMapper.cxx
+  vtkOpenGLImageSliceMapper.cxx
+  vtkOpenGLGlyph3DMapper.cxx
+  vtkOpenGLHardwareSelector.cxx
+  vtkOpenGLLight.cxx
+  vtkOpenGLPolyDataMapper2D.cxx
+  vtkOpenGLProperty.cxx
   vtkVBOPolyDataMapper.cxx
-  vtkOpenGL2RenderWindow.cxx
-  vtkOpenGL2Renderer.cxx
-  vtkOpenGL2ShaderCache.cxx
-  vtkOpenGL2Texture.cxx
-  vtkOpenGL2TextureUnitManager.cxx
+  vtkOpenGLRenderWindow.cxx
+  vtkOpenGLRenderer.cxx
+  vtkOpenGLShaderCache.cxx
+  vtkOpenGLTexture.cxx
+  vtkOpenGLTextureUnitManager.cxx
   vtkPixelBufferObject.cxx
   vtkRenderbuffer.cxx
   vtkRenderPass.cxx
@@ -114,7 +114,7 @@ if(VTK_USE_X)
 endif()
 
 set_source_files_properties(
-  vtkOpenGL2RenderWindow
+  vtkOpenGLRenderWindow
   ABSTRACT
   )
 
@@ -140,7 +140,7 @@ if(VTK_REPLACE_OPENGL_OVERRIDES)
     )
   vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
   foreach(_override ${opengl_overrides})
-    vtk_add_override(vtk${_override} vtkOpenGL2${_override})
+    vtk_add_override(vtk${_override} vtkOpenGL${_override})
   endforeach()
 
 # FIXME: Not sure that this is the best way to handle X...

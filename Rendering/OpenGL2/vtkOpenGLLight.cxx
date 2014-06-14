@@ -11,21 +11,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2Light.h"
+#include "vtkOpenGLLight.h"
 
 #include "vtkObjectFactory.h"
 
 
-vtkStandardNewMacro(vtkOpenGL2Light);
+vtkStandardNewMacro(vtkOpenGLLight);
 
 // Implement base class method.
-void vtkOpenGL2Light::Render(vtkRenderer *vtkNotUsed(ren), int vtkNotUsed(light_index))
+void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int vtkNotUsed(light_index))
 {
   // all handled by the mappers
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2Light::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

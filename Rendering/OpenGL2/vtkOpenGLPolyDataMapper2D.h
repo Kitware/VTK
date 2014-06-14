@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkPolyDataMapper2D
 
-#ifndef __vtkOpenGL2PolyDataMapper2D_h
-#define __vtkOpenGL2PolyDataMapper2D_h
+#ifndef __vtkOpenGLPolyDataMapper2D_h
+#define __vtkOpenGLPolyDataMapper2D_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper2D.h"
@@ -32,11 +32,11 @@ class vtkPoints;
 
 namespace vtkgl {struct CellBO; }
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2PolyDataMapper2D : public vtkPolyDataMapper2D
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
-  vtkTypeMacro(vtkOpenGL2PolyDataMapper2D, vtkPolyDataMapper2D);
-  static vtkOpenGL2PolyDataMapper2D *New();
+  vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);
+  static vtkOpenGLPolyDataMapper2D *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -44,8 +44,8 @@ public:
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
-  vtkOpenGL2PolyDataMapper2D();
-  ~vtkOpenGL2PolyDataMapper2D();
+  vtkOpenGLPolyDataMapper2D();
+  ~vtkOpenGLPolyDataMapper2D();
 
   // Description:
   // Build the shader source code
@@ -74,8 +74,8 @@ protected:
   vtkPoints *TransformedPoints;
 
 private:
-  vtkOpenGL2PolyDataMapper2D(const vtkOpenGL2PolyDataMapper2D&);  // Not implemented.
-  void operator=(const vtkOpenGL2PolyDataMapper2D&);  // Not implemented.
+  vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
+  void operator=(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
 };
 
 #endif

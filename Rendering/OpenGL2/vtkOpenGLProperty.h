@@ -17,17 +17,17 @@
 // vtkOpenGLProperty is a concrete implementation of the abstract class
 // vtkProperty. vtkOpenGLProperty interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOpenGL2Property_h
-#define __vtkOpenGL2Property_h
+#ifndef __vtkOpenGLProperty_h
+#define __vtkOpenGLProperty_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkProperty.h"
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Property : public vtkProperty
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLProperty : public vtkProperty
 {
 public:
-  static vtkOpenGL2Property *New();
-  vtkTypeMacro(vtkOpenGL2Property, vtkProperty);
+  static vtkOpenGLProperty *New();
+  vtkTypeMacro(vtkOpenGLProperty, vtkProperty);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -53,8 +53,8 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *win);
 
 protected:
-  vtkOpenGL2Property();
-  ~vtkOpenGL2Property();
+  vtkOpenGLProperty();
+  ~vtkOpenGLProperty();
 
   // Description:
   // Method called in vtkOpenGLProperty::Render() to render textures.
@@ -62,8 +62,8 @@ protected:
   bool RenderTextures(vtkActor* actor, vtkRenderer* renderer);
 
 private:
-  vtkOpenGL2Property(const vtkOpenGL2Property&);  // Not implemented.
-  void operator=(const vtkOpenGL2Property&);  // Not implemented.
+  vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
+  void operator=(const vtkOpenGLProperty&);  // Not implemented.
 };
 
 #endif

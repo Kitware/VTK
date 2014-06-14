@@ -23,18 +23,18 @@
 #define __vtkXOpenGL2RenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #include <X11/Xutil.h> // Needed for X types used in the public interface
 
 class vtkIdList;
 class vtkXOpenGL2RenderWindowInternal;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGL2RenderWindow : public vtkOpenGL2RenderWindow
+class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGL2RenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkXOpenGL2RenderWindow *New();
-  vtkTypeMacro(vtkXOpenGL2RenderWindow, vtkOpenGL2RenderWindow);
+  vtkTypeMacro(vtkXOpenGL2RenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

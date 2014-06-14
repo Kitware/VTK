@@ -14,7 +14,7 @@
 =========================================================================*/
 
 #include "vtkXOpenGL2RenderWindow.h"
-#include "vtkOpenGL2Renderer.h"
+#include "vtkOpenGLRenderer.h"
 
 #include <GL/glew.h>
 
@@ -468,7 +468,7 @@ void vtkXOpenGL2RenderWindow::SetStereoCapableWindow(int capable)
 #endif
     )
     {
-    vtkOpenGL2RenderWindow::SetStereoCapableWindow(capable);
+    vtkOpenGLRenderWindow::SetStereoCapableWindow(capable);
     }
   else
     {
@@ -723,9 +723,9 @@ void vtkXOpenGL2RenderWindow::DestroyWindow()
     // destructor)
     vtkRenderer* ren;
     this->Renderers->InitTraversal();
-    for ( ren = vtkOpenGL2Renderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
+    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
           ren != NULL;
-          ren = vtkOpenGL2Renderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
       {
       ren->SetRenderWindow(NULL);
       ren->SetRenderWindow(this);
@@ -1723,7 +1723,7 @@ void vtkXOpenGL2RenderWindow::SetWindowName(const char * cname)
   strcpy(name, cname);
   XTextProperty win_name_text_prop;
 
-  this->vtkOpenGL2RenderWindow::SetWindowName( name );
+  this->vtkOpenGLRenderWindow::SetWindowName( name );
 
   if (this->Mapped)
     {
@@ -1791,7 +1791,7 @@ void vtkXOpenGL2RenderWindow::Render()
     }
 
   // Now do the superclass stuff
-  this->vtkOpenGL2RenderWindow::Render();
+  this->vtkOpenGLRenderWindow::Render();
 }
 
 //----------------------------------------------------------------------------

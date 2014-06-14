@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2HardwareSelector.cxx
+  Module:    vtkOpenGLHardwareSelector.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2HardwareSelector.h"
+#include "vtkOpenGLHardwareSelector.h"
 
 #include <GL/glew.h>
 
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 
 #include "vtkOpenGLError.h"
 
@@ -27,10 +27,10 @@
 
 // Description:
 // Internal state and helper methods.
-class vtkOpenGL2HardwareSelector::vtkInternals
+class vtkOpenGLHardwareSelector::vtkInternals
 {
 public:
-  vtkOpenGL2RenderWindow *Context;
+  vtkOpenGLRenderWindow *Context;
   bool MultisampleSupport;
   bool OriginalMultisample;
   bool OriginalBlending;
@@ -128,31 +128,31 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGL2HardwareSelector);
+vtkStandardNewMacro(vtkOpenGLHardwareSelector);
 
 //----------------------------------------------------------------------------
-vtkOpenGL2HardwareSelector::vtkOpenGL2HardwareSelector()
+vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector()
 {
-  #ifdef vtkOpenGL2HardwareSelectorDEBUG
-  cerr << "=====vtkOpenGL2HardwareSelector::vtkOpenGL2HardwareSelector" << endl;
+  #ifdef vtkOpenGLHardwareSelectorDEBUG
+  cerr << "=====vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector" << endl;
   #endif
   this->Internals = new vtkInternals;
 }
 
 //----------------------------------------------------------------------------
-vtkOpenGL2HardwareSelector::~vtkOpenGL2HardwareSelector()
+vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
 {
-  #ifdef vtkOpenGL2HardwareSelectorDEBUG
-  cerr << "=====vtkOpenGL2HardwareSelector::~vtkOpenGL2HardwareSelector" << endl;
+  #ifdef vtkOpenGLHardwareSelectorDEBUG
+  cerr << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
   #endif
   delete this->Internals;
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2HardwareSelector::BeginRenderProp(vtkRenderWindow *context)
+void vtkOpenGLHardwareSelector::BeginRenderProp(vtkRenderWindow *context)
 {
-  #ifdef vtkOpenGL2HardwareSelectorDEBUG
-  cerr << "=====vtkOpenGL2HardwareSelector::BeginRenderProp" << endl;
+  #ifdef vtkOpenGLHardwareSelectorDEBUG
+  cerr << "=====vtkOpenGLHardwareSelector::BeginRenderProp" << endl;
   #endif
 
   this->Internals->SetContext(context);
@@ -166,10 +166,10 @@ void vtkOpenGL2HardwareSelector::BeginRenderProp(vtkRenderWindow *context)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2HardwareSelector::EndRenderProp(vtkRenderWindow *)
+void vtkOpenGLHardwareSelector::EndRenderProp(vtkRenderWindow *)
 {
-  #ifdef vtkOpenGL2HardwareSelectorDEBUG
-  cerr << "=====vtkOpenGL2HardwareSelector::EndRenderProp" << endl;
+  #ifdef vtkOpenGLHardwareSelectorDEBUG
+  cerr << "=====vtkOpenGLHardwareSelector::EndRenderProp" << endl;
   #endif
 
   // Restore multisample, lighting, and blending.
@@ -178,7 +178,7 @@ void vtkOpenGL2HardwareSelector::EndRenderProp(vtkRenderWindow *)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2HardwareSelector::BeginRenderProp()
+void vtkOpenGLHardwareSelector::BeginRenderProp()
 {
   this->InPropRender++;
   if (this->InPropRender != 1)
@@ -217,7 +217,7 @@ void vtkOpenGL2HardwareSelector::BeginRenderProp()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2HardwareSelector::RenderCompositeIndex(unsigned int index)
+void vtkOpenGLHardwareSelector::RenderCompositeIndex(unsigned int index)
 {
 
   if (index > 0xffffff)
@@ -238,7 +238,7 @@ void vtkOpenGL2HardwareSelector::RenderCompositeIndex(unsigned int index)
 
 //----------------------------------------------------------------------------
 // TODO: make inline
-void vtkOpenGL2HardwareSelector::RenderAttributeId(vtkIdType attribid)
+void vtkOpenGLHardwareSelector::RenderAttributeId(vtkIdType attribid)
 {
   if (attribid < 0)
     {
@@ -272,7 +272,7 @@ void vtkOpenGL2HardwareSelector::RenderAttributeId(vtkIdType attribid)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2HardwareSelector::RenderProcessId(unsigned int processid)
+void vtkOpenGLHardwareSelector::RenderProcessId(unsigned int processid)
 {
   if (this->CurrentPass == PROCESS_PASS && this->UseProcessIdFromData)
     {
@@ -292,7 +292,7 @@ void vtkOpenGL2HardwareSelector::RenderProcessId(unsigned int processid)
 
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2HardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os

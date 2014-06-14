@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2ImageSliceMapper.cxx
+  Module:    vtkOpenGLImageSliceMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2ImageSliceMapper.h"
+#include "vtkOpenGLImageSliceMapper.h"
 
 #include <GL/glew.h>
 
@@ -26,9 +26,9 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 #include "vtkMapper.h"
-#include "vtkOpenGL2Camera.h"
-#include "vtkOpenGL2Renderer.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLCamera.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkGarbageCollector.h"
 #include "vtkTemplateAliasMacro.h"
@@ -51,11 +51,11 @@
 
 #include "vtkOpenGLError.h"
 
-vtkStandardNewMacro(vtkOpenGL2ImageSliceMapper);
+vtkStandardNewMacro(vtkOpenGLImageSliceMapper);
 
 //----------------------------------------------------------------------------
 // Initializes an instance, generates a unique index.
-vtkOpenGL2ImageSliceMapper::vtkOpenGL2ImageSliceMapper()
+vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 {
   // setup the polygon mapper
   {
@@ -144,7 +144,7 @@ vtkOpenGL2ImageSliceMapper::vtkOpenGL2ImageSliceMapper()
 }
 
 //----------------------------------------------------------------------------
-vtkOpenGL2ImageSliceMapper::~vtkOpenGL2ImageSliceMapper()
+vtkOpenGLImageSliceMapper::~vtkOpenGLImageSliceMapper()
 {
   this->RenderWindow = NULL;
   this->BackgroundPolyDataActor->UnRegister(this);
@@ -154,7 +154,7 @@ vtkOpenGL2ImageSliceMapper::~vtkOpenGL2ImageSliceMapper()
 
 //----------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
-void vtkOpenGL2ImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
+void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   this->BackgroundPolyDataActor->ReleaseGraphicsResources(renWin);
   this->BackingPolyDataActor->ReleaseGraphicsResources(renWin);
@@ -169,7 +169,7 @@ void vtkOpenGL2ImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 
 //----------------------------------------------------------------------------
 // Subdivide the image until the pieces fit into texture memory
-void vtkOpenGL2ImageSliceMapper::RecursiveRenderTexturedPolygon(
+void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
   vtkRenderer *ren, vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
@@ -227,7 +227,7 @@ void vtkOpenGL2ImageSliceMapper::RecursiveRenderTexturedPolygon(
 
 //----------------------------------------------------------------------------
 // Load the given image extent into a texture and render it
-void vtkOpenGL2ImageSliceMapper::RenderTexturedPolygon(
+void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   vtkRenderer *ren, vtkImageProperty *property,
   vtkImageData *input, int extent[6], bool recursive)
 {
@@ -235,8 +235,8 @@ void vtkOpenGL2ImageSliceMapper::RenderTexturedPolygon(
   unsigned long loadTime = this->LoadTime.GetMTime();
 
   // the render window, needed for state information
-  vtkOpenGL2RenderWindow *renWin =
-    static_cast<vtkOpenGL2RenderWindow *>(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow *renWin =
+    static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow());
 
   bool reuseTexture = true;
 
@@ -380,7 +380,7 @@ void vtkOpenGL2ImageSliceMapper::RenderTexturedPolygon(
 
 //----------------------------------------------------------------------------
 // Render the polygon that displays the image data
-void vtkOpenGL2ImageSliceMapper::RenderPolygon(
+void vtkOpenGLImageSliceMapper::RenderPolygon(
   vtkActor *actor, vtkPoints *points, const int extent[6], vtkRenderer *ren)
 {
   vtkOpenGLClearErrorMacro();
@@ -473,7 +473,7 @@ void vtkOpenGL2ImageSliceMapper::RenderPolygon(
 //----------------------------------------------------------------------------
 // Render a wide black border around the polygon, wide enough to fill
 // the entire viewport.
-void vtkOpenGL2ImageSliceMapper::RenderBackground(
+void vtkOpenGLImageSliceMapper::RenderBackground(
   vtkActor *actor, vtkPoints *points, const int extent[6], vtkRenderer *ren)
 {
   vtkOpenGLClearErrorMacro();
@@ -593,7 +593,7 @@ void vtkOpenGL2ImageSliceMapper::RenderBackground(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2ImageSliceMapper::BindFragmentProgram(
+void vtkOpenGLImageSliceMapper::BindFragmentProgram(
   vtkRenderer *ren, vtkImageProperty *property)
 {
   vtkOpenGLClearErrorMacro();
@@ -670,7 +670,7 @@ void vtkOpenGL2ImageSliceMapper::BindFragmentProgram(
 }
 
 //----------------------------------------------------------------------------
-vtkStdString vtkOpenGL2ImageSliceMapper::BuildFragmentProgram(
+vtkStdString vtkOpenGLImageSliceMapper::BuildFragmentProgram(
   vtkImageProperty *property)
 {
   vtkStdString prog =
@@ -794,7 +794,7 @@ vtkStdString vtkOpenGL2ImageSliceMapper::BuildFragmentProgram(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2ImageSliceMapper::ComputeTextureSize(
+void vtkOpenGLImageSliceMapper::ComputeTextureSize(
   const int extent[6], int &xdim, int &ydim,
   int imageSize[2], int textureSize[2])
 {
@@ -823,7 +823,7 @@ void vtkOpenGL2ImageSliceMapper::ComputeTextureSize(
 
 //----------------------------------------------------------------------------
 // Determine if a given texture size is supported by the video card
-bool vtkOpenGL2ImageSliceMapper::TextureSizeOK(const int size[2])
+bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
 {
   vtkOpenGLClearErrorMacro();
 
@@ -850,14 +850,14 @@ bool vtkOpenGL2ImageSliceMapper::TextureSizeOK(const int size[2])
 
 //----------------------------------------------------------------------------
 // Set the modelview transform and load the texture
-void vtkOpenGL2ImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
+void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGL2RenderWindow *renWin =
-    vtkOpenGL2RenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLRenderWindow *renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
   if (renWin && (renWin != this->RenderWindow ||
       renWin->GetContextCreationTime() > this->LoadTime.GetMTime()))
@@ -987,7 +987,7 @@ void vtkOpenGL2ImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2ImageSliceMapper::CheckOpenGLCapabilities(vtkOpenGL2RenderWindow*)
+void vtkOpenGLImageSliceMapper::CheckOpenGLCapabilities(vtkOpenGLRenderWindow*)
 {
   this->UseClampToEdge = true;
   this->UsePowerOfTwoTextures = true;
@@ -995,7 +995,7 @@ void vtkOpenGL2ImageSliceMapper::CheckOpenGLCapabilities(vtkOpenGL2RenderWindow*
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2ImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

@@ -15,7 +15,7 @@
 
 #include "vtkRenderPass.h"
 #include <cassert>
-#include "vtkOpenGL2Renderer.h"
+#include "vtkOpenGLRenderer.h"
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -62,7 +62,7 @@ void vtkRenderPass::UpdateCamera(vtkRenderer *renderer)
 void vtkRenderPass::ClearLights(vtkRenderer *renderer)
 {
   assert("pre: renderer_exists" && renderer != 0);
-  vtkOpenGL2Renderer *oRenderer = vtkOpenGL2Renderer::SafeDownCast(renderer);
+  vtkOpenGLRenderer *oRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   /// FIXME: What to do if there is no clear lights? Remove this API?
   //oRenderer->ClearLights();
 }

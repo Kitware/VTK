@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGL2ShaderCache - manage Shader Programs within a context
+// .NAME vtkOpenGLShaderCache - manage Shader Programs within a context
 // .SECTION Description
-// vtkOpenGL2ShaderCache manages shader program compilation and binding
+// vtkOpenGLShaderCache manages shader program compilation and binding
 
-#ifndef __vtkOpenGL2ShaderCache_h
-#define __vtkOpenGL2ShaderCache_h
+#ifndef __vtkOpenGLShaderCache_h
+#define __vtkOpenGLShaderCache_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
@@ -25,11 +25,11 @@
 #include "vtkglShader.h"
 #include "vtkglShaderProgram.h"
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2ShaderCache : public vtkObject
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 {
 public:
-  static vtkOpenGL2ShaderCache *New();
-  vtkTypeMacro(vtkOpenGL2ShaderCache, vtkObject);
+  static vtkOpenGLShaderCache *New();
+  vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // store the program and shaders in a simple struct
@@ -47,8 +47,8 @@ public:
   virtual CachedShaderProgram *ReadyShader(CachedShaderProgram *shader);
 
 protected:
-  vtkOpenGL2ShaderCache();
-  ~vtkOpenGL2ShaderCache();
+  vtkOpenGLShaderCache();
+  ~vtkOpenGLShaderCache();
 
   virtual CachedShaderProgram* GetShader(const char *vertexCode, const char *fragmentCode);
   virtual int CompileShader(CachedShaderProgram* shader);
@@ -59,8 +59,8 @@ protected:
   CachedShaderProgram *LastShaderBound;
 
 private:
-  vtkOpenGL2ShaderCache(const vtkOpenGL2ShaderCache&);  // Not implemented.
-  void operator=(const vtkOpenGL2ShaderCache&);  // Not implemented.
+  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&);  // Not implemented.
+  void operator=(const vtkOpenGLShaderCache&);  // Not implemented.
 
 };
 

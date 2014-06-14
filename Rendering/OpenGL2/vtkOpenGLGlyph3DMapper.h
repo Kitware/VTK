@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2Glyph3DMapper.h
+  Module:    vtkOpenGLGlyph3DMapper.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGL2Glyph3DMapper - vtkOpenGLGlyph3D on the GPU.
+// .NAME vtkOpenGLGlyph3DMapper - vtkOpenGLGlyph3D on the GPU.
 // .SECTION Description
 // Do the same job than vtkGlyph3D but on the GPU. For this reason, it is
 // a mapper not a vtkPolyDataAlgorithm. Also, some methods of vtkOpenGLGlyph3D
-// don't make sense in vtkOpenGL2Glyph3DMapper: GeneratePointIds, old-style
+// don't make sense in vtkOpenGLGlyph3DMapper: GeneratePointIds, old-style
 // SetSource, PointIdsName, IsPointVisible.
 // .SECTION Implementation
 //
 // .SECTION See Also
 // vtkOpenGLGlyph3D
 
-#ifndef __vtkOpenGL2Glyph3DMapper_h
-#define __vtkOpenGL2Glyph3DMapper_h
+#ifndef __vtkOpenGLGlyph3DMapper_h
+#define __vtkOpenGLGlyph3DMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkGlyph3DMapper.h"
@@ -34,12 +34,12 @@
 
 class vtkVBOPolyDataMapper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2Glyph3DMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DMapper
     : public vtkGlyph3DMapper
 {
 public:
-  static vtkOpenGL2Glyph3DMapper* New();
-  vtkTypeMacro(vtkOpenGL2Glyph3DMapper, vtkGlyph3DMapper);
+  static vtkOpenGLGlyph3DMapper* New();
+  vtkTypeMacro(vtkOpenGLGlyph3DMapper, vtkGlyph3DMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
    // Description:
@@ -56,8 +56,8 @@ public:
 
 protected:
   //BTX
-  vtkOpenGL2Glyph3DMapper();
-  ~vtkOpenGL2Glyph3DMapper();
+  vtkOpenGLGlyph3DMapper();
+  ~vtkOpenGLGlyph3DMapper();
 
   // Description:
   // Send mapper ivars to sub-mapper.
@@ -69,9 +69,9 @@ protected:
   class vtkColorMapper;
   vtkNew<vtkColorMapper> ColorMapper;
 
-  class vtkOpenGL2Glyph3DMapperEntry;
-  class vtkOpenGL2Glyph3DMapperArray;
-  vtkOpenGL2Glyph3DMapperArray *GlyphValues; // array of value for datasets
+  class vtkOpenGLGlyph3DMapperEntry;
+  class vtkOpenGLGlyph3DMapperArray;
+  vtkOpenGLGlyph3DMapperArray *GlyphValues; // array of value for datasets
 
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
 
@@ -80,8 +80,8 @@ protected:
   vtkTimeStamp PainterUpdateTime;
 
 private:
-  vtkOpenGL2Glyph3DMapper(const vtkOpenGL2Glyph3DMapper&); // Not implemented.
-  void operator=(const vtkOpenGL2Glyph3DMapper&); // Not implemented.
+  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&); // Not implemented.
+  void operator=(const vtkOpenGLGlyph3DMapper&); // Not implemented.
 
   virtual void Render(vtkRenderer*, vtkActor*, vtkDataSet*);
 

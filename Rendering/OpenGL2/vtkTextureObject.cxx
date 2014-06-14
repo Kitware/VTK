@@ -18,7 +18,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPixelBufferObject.h"
-#include "vtkOpenGL2RenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
 #include <cassert>
@@ -264,8 +264,8 @@ void vtkTextureObject::SetContext(vtkRenderWindow* renWin)
     return;
     }
   // check for support
-  vtkOpenGL2RenderWindow *context
-     = dynamic_cast<vtkOpenGL2RenderWindow*>(renWin);
+  vtkOpenGLRenderWindow *context
+     = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
 
   if ( !context
     || !this->LoadRequiredExtensions(renWin) )

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2Glyph3DMapper.cxx
+  Module:    vtkOpenGLGlyph3DMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGL2Glyph3DMapper.h"
+#include "vtkOpenGLGlyph3DMapper.h"
 
 #include "vtkActor.h"
 #include "vtkBitArray.h"
@@ -49,7 +49,7 @@ static T vtkClamp(T val, T min, T max)
   return val;
 }
 
-class vtkOpenGL2Glyph3DMapper::vtkColorMapper : public vtkMapper
+class vtkOpenGLGlyph3DMapper::vtkColorMapper : public vtkMapper
 {
 public:
   vtkTypeMacro(vtkColorMapper, vtkMapper);
@@ -58,7 +58,7 @@ public:
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 
-class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry
+class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry
 {
 public:
   std::vector<unsigned char> Colors;
@@ -66,32 +66,32 @@ public:
   vtkTimeStamp BuildTime;
   bool LastSelectingState;
 
-  vtkOpenGL2Glyph3DMapperEntry()  { this->LastSelectingState = false; };
+  vtkOpenGLGlyph3DMapperEntry()  { this->LastSelectingState = false; };
 };
 
-class vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray
+class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray
 {
 public:
-  std::map<const vtkDataSet *, vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry *>  Entries;
+  std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>  Entries;
 };
 
-vtkStandardNewMacro(vtkOpenGL2Glyph3DMapper)
+vtkStandardNewMacro(vtkOpenGLGlyph3DMapper)
 
 // ---------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector. Clamping and indexing are turned off. No
 // initial sources are defined.
-vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapper()
+vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 {
-  this->GlyphValues = new vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperArray();
+  this->GlyphValues = new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray();
   this->Mapper = vtkVBOPolyDataMapper::New();
   this->Mapper->SetPopulateSelectionSettings(0);
   this->LastWindow = 0;
 }
 
 // ---------------------------------------------------------------------------
-vtkOpenGL2Glyph3DMapper::~vtkOpenGL2Glyph3DMapper()
+vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 {
   if (this->GlyphValues)
     {
@@ -111,7 +111,7 @@ vtkOpenGL2Glyph3DMapper::~vtkOpenGL2Glyph3DMapper()
 // Description:
 // Send mapper ivars to sub-mapper.
 // \pre mapper_exists: mapper!=0
-void vtkOpenGL2Glyph3DMapper::CopyInformationToSubMapper(
+void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(
     vtkVBOPolyDataMapper *mapper)
 {
   assert("pre: mapper_exists" && mapper!=0);
@@ -130,7 +130,7 @@ void vtkOpenGL2Glyph3DMapper::CopyInformationToSubMapper(
   mapper->SetImmediateModeRendering(this->ImmediateModeRendering);
 }
 
-void vtkOpenGL2Glyph3DMapper::SetupColorMapper()
+void vtkOpenGLGlyph3DMapper::SetupColorMapper()
 {
   this->ColorMapper->ShallowCopy(this);
 }
@@ -139,7 +139,7 @@ void vtkOpenGL2Glyph3DMapper::SetupColorMapper()
 // Description:
 // Method initiates the mapping process. Generally sent by the actor
 // as each frame is rendered.
-void vtkOpenGL2Glyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
+void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -234,7 +234,7 @@ void vtkOpenGL2Glyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
 }
 
 // ---------------------------------------------------------------------------
-void vtkOpenGL2Glyph3DMapper::Render(
+void vtkOpenGLGlyph3DMapper::Render(
   vtkRenderer* ren, vtkActor* actor, vtkDataSet* dataset)
 {
   vtkIdType numPts = dataset->GetNumberOfPoints();
@@ -245,13 +245,13 @@ void vtkOpenGL2Glyph3DMapper::Render(
     }
 
   // lookup the values for this dataset
-  vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry *entry;
+  vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry;
   bool building = true;
-  typedef std::map<const vtkDataSet *,vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry *>::iterator GVIter;
+  typedef std::map<const vtkDataSet *,vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator GVIter;
   GVIter found = this->GlyphValues->Entries.find(dataset);
   if (found == this->GlyphValues->Entries.end())
     {
-    entry = new vtkOpenGL2Glyph3DMapper::vtkOpenGL2Glyph3DMapperEntry();
+    entry = new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry();
     this->GlyphValues->Entries.insert(std::make_pair(dataset, entry));
     }
   else
@@ -554,7 +554,7 @@ void vtkOpenGL2Glyph3DMapper::Render(
 // ---------------------------------------------------------------------------
 // Description:
 // Release any graphics resources that are being consumed by this mapper.
-void vtkOpenGL2Glyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
+void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 {
   if (this->Mapper)
     {
@@ -563,7 +563,7 @@ void vtkOpenGL2Glyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGL2Glyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGL2ImageSliceMapper.h
+  Module:    vtkOpenGLImageSliceMapper.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,30 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGL2ImageSliceMapper - OpenGL mapper for image slice display
+// .NAME vtkOpenGLImageSliceMapper - OpenGL mapper for image slice display
 // .SECTION Description
-// vtkOpenGL2ImageSliceMapper is a concrete implementation of the abstract
+// vtkOpenGLImageSliceMapper is a concrete implementation of the abstract
 // class vtkImageSliceMapper that interfaces to the OpenGL library.
 // .SECTION Thanks
 // Thanks to David Gobbi at the Seaman Family MR Centre and Dept. of Clinical
 // Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
 
-#ifndef __vtkOpenGL2ImageSliceMapper_h
-#define __vtkOpenGL2ImageSliceMapper_h
+#ifndef __vtkOpenGLImageSliceMapper_h
+#define __vtkOpenGLImageSliceMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageSliceMapper.h"
 
 class vtkRenderWindow;
-class vtkOpenGL2RenderWindow;
+class vtkOpenGLRenderWindow;
 class vtkActor;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGL2ImageSliceMapper :
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageSliceMapper :
   public vtkImageSliceMapper
 {
 public:
-  static vtkOpenGL2ImageSliceMapper *New();
-  vtkTypeMacro(vtkOpenGL2ImageSliceMapper, vtkImageSliceMapper);
+  static vtkOpenGLImageSliceMapper *New();
+  vtkTypeMacro(vtkOpenGLImageSliceMapper, vtkImageSliceMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,8 +49,8 @@ public:
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
-  vtkOpenGL2ImageSliceMapper();
-  ~vtkOpenGL2ImageSliceMapper();
+  vtkOpenGLImageSliceMapper();
+  ~vtkOpenGLImageSliceMapper();
 
   // Description:
   // Recursive internal method, will call the non-recursive method
@@ -103,7 +103,7 @@ protected:
 
   // Description:
   // Check various OpenGL capabilities
-  void CheckOpenGLCapabilities(vtkOpenGL2RenderWindow *renWin);
+  void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
 
   long TextureIndex; // OpenGL ID for texture or display list
   long BackgroundTextureIndex; // OpenGL ID for texture or display list
@@ -126,8 +126,8 @@ protected:
   bool UseFragmentProgram;
 
 private:
-  vtkOpenGL2ImageSliceMapper(const vtkOpenGL2ImageSliceMapper&);  // Not implemented.
-  void operator=(const vtkOpenGL2ImageSliceMapper&);  // Not implemented.
+  vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLImageSliceMapper&);  // Not implemented.
 };
 
 #endif
