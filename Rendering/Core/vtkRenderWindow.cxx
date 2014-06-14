@@ -122,7 +122,10 @@ vtkRenderWindow::~vtkRenderWindow()
 
   this->Renderers->Delete();
 
-  this->PainterDeviceAdapter->Delete();
+  if (this->PainterDeviceAdapter)
+    {
+    this->PainterDeviceAdapter->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
