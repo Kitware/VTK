@@ -472,7 +472,7 @@ void vtkOpenGL2Renderer::Clear(void)
     points->SetPoint(1, size[0], 0, 0);
     points->SetPoint(2, size[0], size[1], 0);
     points->SetPoint(3, 0, size[1], 0);
-	  polydata->SetPoints(points.Get());
+    polydata->SetPoints(points.Get());
 
     vtkNew<vtkCellArray> tris;
     tris->InsertNextCell(3);
