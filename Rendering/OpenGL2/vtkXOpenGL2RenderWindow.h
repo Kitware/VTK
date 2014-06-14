@@ -77,7 +77,7 @@ public:
   // Description:
   // Specify the size of the rendering window in pixels.
   virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
+  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);}
 
   // Description:
   // Get the X properties of an ideal rendering window.

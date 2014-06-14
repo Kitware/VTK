@@ -17,10 +17,10 @@
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkOpenGL2Renderer.h"
 #include "vtkProperty.h"
 #include "vtkOpenGLError.h"
+#include "vtkRenderWindow.h"
 
 #include "vtkOpenGL.h"
 #include <math.h>

@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkOpenGL2ImageSliceMapper.h"
 
+#include <GL/glew.h>
+
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkImageSlice.h"
@@ -27,7 +29,6 @@
 #include "vtkOpenGL2Camera.h"
 #include "vtkOpenGL2Renderer.h"
 #include "vtkOpenGL2RenderWindow.h"
-#include "vtkOpenGLExtensionManager.h"
 #include "vtkTimerLog.h"
 #include "vtkGarbageCollector.h"
 #include "vtkTemplateAliasMacro.h"
@@ -48,9 +49,7 @@
 
 #include <math.h>
 
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
-#include "vtkgl.h" // vtkgl namespace
 
 vtkStandardNewMacro(vtkOpenGL2ImageSliceMapper);
 
@@ -373,7 +372,7 @@ void vtkOpenGL2ImageSliceMapper::RenderTexturedPolygon(
 
   if (useFragmentProgram)
     {
-    glDisable(vtkgl::FRAGMENT_PROGRAM_ARB);
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
     }
 
   vtkOpenGLCheckErrorMacro("failed after RenderTexturedPolygon");
@@ -608,7 +607,7 @@ void vtkOpenGL2ImageSliceMapper::BindFragmentProgram(
 
   // Bind the bicubic interpolation fragment program, it will
   // not do anything if modern shader objects are also in play.
-  vtkgl::BindProgramARB(vtkgl::FRAGMENT_PROGRAM_ARB,
+  glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB,
                         this->FragmentShaderIndex);
 
   // checkerboard information
@@ -632,7 +631,7 @@ void vtkOpenGL2ImageSliceMapper::BindFragmentProgram(
   vtkMatrix4x4::Multiply4x4(*c->Element, mat, mat);
 
   // first parameter: texture size needed for bicubic interpolator
-  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 0,
+  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0,
     static_cast<float>(this->TextureSize[0]),
     static_cast<float>(this->TextureSize[1]),
     static_cast<float>(1.0/this->TextureSize[0]),
@@ -640,7 +639,7 @@ void vtkOpenGL2ImageSliceMapper::BindFragmentProgram(
 
   // second parameter: scale and offset for converting texture coords
   // into the input image's data coords
-  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 1,
+  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1,
     static_cast<float>(this->TextureSize[0]*spacing[xdim]),
     static_cast<float>(this->TextureSize[1]*spacing[ydim]),
     static_cast<float>(origin[xdim] +
@@ -650,7 +649,7 @@ void vtkOpenGL2ImageSliceMapper::BindFragmentProgram(
 
   // third parameter: scale and offset for converting data coords into
   // checkboard square indices, for checkerboarding
-  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 2,
+  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2,
     static_cast<float>(0.5/checkSpacing[0]),
     static_cast<float>(0.5/checkSpacing[1]),
     static_cast<float>(-0.5*checkOffset[0]),
@@ -660,10 +659,10 @@ void vtkOpenGL2ImageSliceMapper::BindFragmentProgram(
   // from data coords to camera coords (including a pre-translation of
   // z from zero to the z position of the slice, since the texture coords
   // are 2D and do not provide the z position)
-  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 3,
+  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 3,
     static_cast<float>(mat[0]), static_cast<float>(mat[1]),
     static_cast<float>(mat[2]), static_cast<float>(mat[3]));
-  vtkgl::ProgramLocalParameter4fARB(vtkgl::FRAGMENT_PROGRAM_ARB, 4,
+  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 4,
     static_cast<float>(mat[4]), static_cast<float>(mat[5]),
     static_cast<float>(mat[6]), static_cast<float>(mat[7]));
 
@@ -988,34 +987,11 @@ void vtkOpenGL2ImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGL2ImageSliceMapper::CheckOpenGLCapabilities(
-  vtkOpenGL2RenderWindow *renWin)
+void vtkOpenGL2ImageSliceMapper::CheckOpenGLCapabilities(vtkOpenGL2RenderWindow*)
 {
-  vtkOpenGLExtensionManager *manager = 0;
-
-  if (renWin)
-    {
-    manager = renWin->GetExtensionManager();
-    }
-
-  if (renWin && manager)
-    {
-    this->UseClampToEdge =
-      (manager->ExtensionSupported("GL_VERSION_1_2") ||
-       manager->ExtensionSupported("GL_EXT_texture_edge_clamp"));
-    this->UsePowerOfTwoTextures =
-      !(manager->ExtensionSupported("GL_VERSION_2_0") ||
-        manager->ExtensionSupported("GL_ARB_texture_non_power_of_two"));
-    this->UseFragmentProgram =
-      (manager->ExtensionSupported("GL_VERSION_1_3") &&
-       manager->LoadSupportedExtension("GL_ARB_fragment_program"));
-    }
-  else
-    {
-    this->UseClampToEdge = false;
-    this->UsePowerOfTwoTextures = true;
-    this->UseFragmentProgram = false;
-    }
+  this->UseClampToEdge = true;
+  this->UsePowerOfTwoTextures = true;
+  this->UseFragmentProgram = true;
 }
 
 //----------------------------------------------------------------------------

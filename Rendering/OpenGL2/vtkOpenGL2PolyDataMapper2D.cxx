@@ -21,7 +21,6 @@
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
-#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGL2Texture.h"
 #include "vtkPlane.h"
@@ -33,7 +32,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkgluPickMatrix.h"
 #include "vtkOpenGLError.h"
 
 #include "vtkOpenGL2RenderWindow.h"
@@ -571,7 +569,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     {
     // Set the PointSize
     glPointSize(actor->GetProperty()->GetPointSize());
-    //vtkOpenGLGL2PSHelper::SetPointSize(actor->GetProperty()->GetPointSize());
 
     this->Internal->points.ibo.Bind();
     glDrawRangeElements(GL_POINTS, 0,
@@ -586,7 +583,6 @@ void vtkOpenGL2PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     {
     // Set the LineWidth
     glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
-    vtkOpenGLGL2PSHelper::SetLineWidth(actor->GetProperty()->GetLineWidth());
 
     this->Internal->lines.ibo.Bind();
     for (int eCount = 0; eCount < this->Internal->lines.offsetArray.size(); ++eCount)

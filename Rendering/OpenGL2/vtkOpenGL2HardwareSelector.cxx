@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkOpenGL2HardwareSelector.h"
 
+#include <GL/glew.h>
+
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGL2RenderWindow.h"
-#include "vtkOpenGLExtensionManager.h"
 
-#include "vtkgl.h"
 #include "vtkOpenGLError.h"
 
 #define ID_OFFSET 1
@@ -49,22 +49,7 @@ public:
     {
     if (this->Context != context)
       {
-      this->MultisampleSupport = false;
-      this->Context = vtkOpenGL2RenderWindow::SafeDownCast(context);
-      if (this->Context)
-        {
-        vtkOpenGLExtensionManager *manager
-           = this->Context->GetExtensionManager();
-
-        // don't need any of the functions so don't bother
-        // to load the extension, but do make sure enums are
-        // defined.
-        this->MultisampleSupport
-          = manager->ExtensionSupported("GL_ARB_multisample")==1;
-
-        // todo the above line currently does not work so we hard code it to true
-        this->MultisampleSupport = true;
-        }
+      this->MultisampleSupport = true;
       }
     }
 
@@ -90,11 +75,11 @@ public:
       {
       if (mode)
         {
-        glEnable(vtkgl::MULTISAMPLE);
+        glEnable(GL_MULTISAMPLE);
         }
       else
         {
-        glDisable(vtkgl::MULTISAMPLE);
+        glDisable(GL_MULTISAMPLE);
         }
       }
     }
@@ -103,7 +88,7 @@ public:
   // Check if multisample is enabled.
   bool QueryMultisampling()
     {
-    if (this->MultisampleSupport && glIsEnabled(vtkgl::MULTISAMPLE))
+    if (this->MultisampleSupport && glIsEnabled(GL_MULTISAMPLE))
       {
       return true;
       }

@@ -19,7 +19,6 @@
 #include "vtkOutputWindow.h"
 #include "vtkOpenGL2RenderWindow.h"
 #include "vtkOpenGLError.h"
-#include "vtkgluPickMatrix.h"
 
 #include "vtkOpenGL.h"
 

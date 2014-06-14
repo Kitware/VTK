@@ -76,7 +76,7 @@ void vtkOpenGL2TextureUnitManager::SetContext(vtkOpenGL2RenderWindow *context)
     if(this->Context!=0)
       {
       glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
-      if(this->NumberOfTextureUnits>0)
+      if(this->NumberOfTextureUnits > 0)
         {
         this->TextureUnits=new bool[this->NumberOfTextureUnits];
         size_t i=0;

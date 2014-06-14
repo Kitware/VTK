@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkOpenGL2ImageMapper.h"
 
+#include <GL/glew.h>
+
 #include "vtkActor2D.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
@@ -36,7 +38,6 @@
 
 #include "vtkNew.h"
 
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGL2ImageMapper);

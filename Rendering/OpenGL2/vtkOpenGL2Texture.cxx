@@ -16,6 +16,7 @@
 
 #include "vtkglVBOHelper.h"
 
+#include "vtkHomogeneousTransform.h"
 
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
@@ -24,12 +25,10 @@
 #include "vtkOpenGL2Renderer.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
-#include "vtkOpenGLExtensionManager.h"
 #include "vtkOpenGL2RenderWindow.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
-#include "vtkgl.h" // vtkgl namespace
 
 #include <math.h>
 
@@ -263,8 +262,8 @@ void vtkOpenGL2Texture::Load(vtkRenderer *ren)
       {
       if (this->EdgeClamp)
         {
-        glTexParameterf(this->TextureType , GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-        glTexParameterf(this->TextureType , GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         }
       else
         {

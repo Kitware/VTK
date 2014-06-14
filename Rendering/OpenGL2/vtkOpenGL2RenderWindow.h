@@ -26,10 +26,9 @@
 #include "vtkRenderWindow.h"
 #include <map> // for ivar
 
-#include "vtkOpenGL.h" // Needed for GLuint.
+#include <GL/glew.h> // Needed for GLuint.
 
 class vtkIdList;
-class vtkOpenGLExtensionManager;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGL2TextureUnitManager;
 class vtkOpenGL2ShaderCache;
@@ -184,18 +183,8 @@ public:
   virtual unsigned long GetContextCreationTime();
 
   // Description:
-  // Returns the extension manager. A new one will be created if one hasn't
-  // already been set up.
-  vtkOpenGLExtensionManager* GetExtensionManager();
-
-  // Description:
   // Returns an Shader Cache object
   vtkGetObjectMacro(ShaderCache,vtkOpenGL2ShaderCache);
-
-  // Description:
-  // Returns an Hardware Support object. A new one will be created if one
-  // hasn't already been set up.
-  vtkOpenGLHardwareSupport* GetHardwareSupport();
 
   //BTX
   // Description:
@@ -298,12 +287,6 @@ protected:
 private:
   vtkOpenGL2RenderWindow(const vtkOpenGL2RenderWindow&);  // Not implemented.
   void operator=(const vtkOpenGL2RenderWindow&);  // Not implemented.
-
-  void SetExtensionManager(vtkOpenGLExtensionManager*);
-  void SetHardwareSupport(vtkOpenGLHardwareSupport * renderWindow);
-
-  vtkOpenGLExtensionManager* ExtensionManager;
-  vtkOpenGLHardwareSupport* HardwareSupport;
 };
 
 #endif

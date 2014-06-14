@@ -30,13 +30,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCuller.h"
 #include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGL2Camera.h"
 #include "vtkLight.h"
-#include "vtkOpenGLProperty.h"
-#include "vtkRenderWindow.h"
+#include "vtkOpenGL2Property.h"
 #include "vtkOpenGL2RenderWindow.h"
-#include "vtkOpenGLExtensionManager.h"
-#include "vtkgl.h" // vtkgl namespace
-#include "vtkOpenGLTexture.h"
+#include "vtkOpenGL2Texture.h"
 #include "vtkTimerLog.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
@@ -48,7 +46,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <list>
 
-#include "vtkOpenGL2Texture.h"
 #include "vtkImageData.h"
 
 class vtkGLPickInfo
@@ -242,13 +239,13 @@ void vtkOpenGL2Renderer::DeviceRenderTranslucentPolygonalGeometry()
     // get z bits
     GLint depthBits;
     glGetIntegerv(GL_DEPTH_BITS,&depthBits);
-    if(depthBits==16)
+    if(depthBits == 16)
       {
-      this->DepthFormat=vtkgl::DEPTH_COMPONENT16_ARB;
+      this->DepthFormat = GL_DEPTH_COMPONENT16_ARB;
       }
     else
       {
-      this->DepthFormat=vtkgl::DEPTH_COMPONENT24_ARB;
+      this->DepthFormat = GL_DEPTH_COMPONENT24_ARB;
       }
 
     // create textures actors we need if not done already

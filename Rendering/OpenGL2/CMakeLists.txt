@@ -7,9 +7,23 @@ if(WIN32 AND NOT BUILD_SHARED_LIBS)
   add_definitions(-DGLEW_STATIC)
 endif()
 
+# Now we need to generate the object factory for this module. Create a list of
+# overrides, and then generate the class that overrides those classes.
+macro(vtk_add_override base override)
+  list(APPEND vtk_module_overrides ${base})
+  set(vtk_module_${base}_override ${override})
+endmacro()
+
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS
   ${OPENGL_INCLUDE_DIR}
   ${GLEW_INCLUDE_DIRS})
+
+# FIXME: The TDx support needs some refactoring before we can build it in a
+# modular fashion, for now it must remain an option on vtkRenderingOpenGL.
+option(VTK_USE_TDX "Use TDx interaction devices" OFF)
+mark_as_advanced(VTK_USE_TDX)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h)
 
 set(Module_SRCS
   vtkglBufferObject.cxx
@@ -17,6 +31,7 @@ set(Module_SRCS
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglVertexArrayObject.cxx
+  vtkFrameBufferObject.cxx
   vtkOpenGL2Actor.cxx
   vtkOpenGL2Camera.cxx
   vtkOpenGL2ImageMapper.cxx
@@ -32,7 +47,18 @@ set(Module_SRCS
   vtkOpenGL2ShaderCache.cxx
   vtkOpenGL2Texture.cxx
   vtkOpenGL2TextureUnitManager.cxx
+  vtkPixelBufferObject.cxx
+  vtkRenderbuffer.cxx
+  vtkRenderPass.cxx
+  vtkRenderState.cxx
+  vtkTextureObject.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  )
+
+set(${vtk-module}_HDRS
+  vtkOpenGL.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h
   )
 
 set(shader_files
@@ -91,7 +117,6 @@ set_source_files_properties(
   vtkOpenGL2RenderWindow
   ABSTRACT
   )
-
 
 set_source_files_properties(
   vtkRenderingOpenGL2ObjectFactory
@@ -202,6 +227,14 @@ VTK_CREATE_CREATE_FUNCTION(${_override})")
                          \"Override for ${vtk-module} module\", 1,
                          vtkObjectFactoryCreate${_override});")
 endforeach()
+
+# Detect and clear OpenGL errors. If not then other classes/user code
+# may detect VTK's OpenGL errors and vice-versa.
+set(VTK_REPORT_OPENGL_ERRORS ON CACHE BOOL "Enable OpenGL error check and report")
+mark_as_advanced(VTK_REPORT_OPENGL_ERRORS)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)
 
 # Now lets create the object factory classes
 string(TOUPPER ${vtk-module} VTK-MODULE)

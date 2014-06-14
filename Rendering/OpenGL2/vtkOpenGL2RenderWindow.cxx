@@ -18,15 +18,12 @@
 #include <cassert>
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
-#include "vtkgl.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGL2Actor.h"
 #include "vtkOpenGL2Camera.h"
-#include "vtkOpenGLExtensionManager.h"
-#include "vtkOpenGLHardwareSupport.h"
 #include "vtkOpenGL2Light.h"
 #include "vtkOpenGL2Property.h"
 #include "vtkOpenGL2Renderer.h"
@@ -45,8 +42,6 @@
 #include <sstream>
 using std::ostringstream;
 
-vtkCxxSetObjectMacro(vtkOpenGL2RenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
-vtkCxxSetObjectMacro(vtkOpenGL2RenderWindow, HardwareSupport, vtkOpenGLHardwareSupport);
 vtkCxxSetObjectMacro(vtkOpenGL2RenderWindow, TextureUnitManager, vtkOpenGL2TextureUnitManager);
 
 // Initialize static member that controls global maximum number of multisamples
@@ -77,8 +72,6 @@ vtkOpenGL2RenderWindow::vtkOpenGL2RenderWindow()
 
   this->ShaderCache = vtkOpenGL2ShaderCache::New();
 
-  this->ExtensionManager = NULL;
-  this->HardwareSupport = NULL;
   this->TextureUnitManager=0;
 
   this->MultiSamples = vtkOpenGL2RenderWindowGlobalMaximumNumberOfMultiSamples;
@@ -151,18 +144,7 @@ vtkOpenGL2RenderWindow::~vtkOpenGL2RenderWindow()
     this->TextureUnitManager->SetContext(0);
     }
 
-  if (this->ExtensionManager)
-    {
-    this->ExtensionManager->SetRenderWindow(0);
-    }
-  if (this->HardwareSupport)
-    {
-    this->HardwareSupport->SetExtensionManager(0);
-    //this->HardwareSupport->Delete();
-    }
   this->SetTextureUnitManager(0);
-  this->SetExtensionManager(0);
-  this->SetHardwareSupport(0);
   this->ShaderCache->UnRegister(this);
 }
 
@@ -176,7 +158,7 @@ unsigned long vtkOpenGL2RenderWindow::GetContextCreationTime()
 // Description:
 // Return the OpenGL name of the back left buffer.
 // It is GL_BACK_LEFT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
+// framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGL2Camera.
 unsigned int vtkOpenGL2RenderWindow::GetBackLeftBuffer()
@@ -188,7 +170,7 @@ unsigned int vtkOpenGL2RenderWindow::GetBackLeftBuffer()
 // Description:
 // Return the OpenGL name of the back right buffer.
 // It is GL_BACK_RIGHT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
+// framebuffer. It is GL_COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGL2Camera.
 unsigned int vtkOpenGL2RenderWindow::GetBackRightBuffer()
@@ -200,7 +182,7 @@ unsigned int vtkOpenGL2RenderWindow::GetBackRightBuffer()
 // Description:
 // Return the OpenGL name of the front left buffer.
 // It is GL_FRONT_LEFT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
+// framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGL2Camera.
 unsigned int vtkOpenGL2RenderWindow::GetFrontLeftBuffer()
@@ -212,7 +194,7 @@ unsigned int vtkOpenGL2RenderWindow::GetFrontLeftBuffer()
 // Description:
 // Return the OpenGL name of the front right buffer.
 // It is GL_FRONT_RIGHT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
+// framebuffer. It is GL_COLOR_ATTACHMENT0_EXT+1 if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGL2Camera.
 unsigned int vtkOpenGL2RenderWindow::GetFrontRightBuffer()
@@ -224,7 +206,7 @@ unsigned int vtkOpenGL2RenderWindow::GetFrontRightBuffer()
 // Description:
 // Return the OpenGL name of the back left buffer.
 // It is GL_BACK if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
+// framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGL2Camera.
 unsigned int vtkOpenGL2RenderWindow::GetBackBuffer()
@@ -236,7 +218,7 @@ unsigned int vtkOpenGL2RenderWindow::GetBackBuffer()
 // Description:
 // Return the OpenGL name of the front left buffer.
 // It is GL_FRONT if GL is bound to the window-system-provided
-// framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
+// framebuffer. It is GL_COLOR_ATTACHMENT0_EXT if GL is bound to an
 // application-created framebuffer object (GPU-based offscreen rendering)
 // It is used by vtkOpenGL2Camera.
 unsigned int vtkOpenGL2RenderWindow::GetFrontBuffer()
@@ -348,17 +330,13 @@ const char *vtkOpenGL2RenderWindow::GetLastGraphicErrorString()
     case GL_OUT_OF_MEMORY:
       result="Out of memory";
       break;
-    case vtkgl::TABLE_TOO_LARGE:
+    case GL_TABLE_TOO_LARGE:
       // GL_ARB_imaging
       result="Table too large";
       break;
-    case vtkgl::INVALID_FRAMEBUFFER_OPERATION_EXT:
+    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
       // GL_EXT_framebuffer_object
       result="Invalid framebuffer operation";
-      break;
-    case vtkgl::TEXTURE_TOO_LARGE_EXT:
-      // GL_EXT_texture
-      result="Texture too large";
       break;
     default:
       result="Unknown error";
@@ -381,9 +359,9 @@ void vtkOpenGL2RenderWindow::OpenGLInitState()
   glEnable( GL_DEPTH_TEST );
 
   // initialize blending for transparency
-  if(vtkgl::BlendFuncSeparate!=0)
+  if(glBlendFuncSeparate != 0)
     {
-    vtkgl::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
                              GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
     }
   else
@@ -436,30 +414,7 @@ void vtkOpenGL2RenderWindow::OpenGLInitState()
 
 void vtkOpenGL2RenderWindow::OpenGLInitContext()
 {
-  // of the extension manager by calling modified on it.
-  vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
-  extensions->Modified();
-
   this->ContextCreationTime.Modified();
-
-  // We have to set the function pointer to null, otherwise the following
-  // scenario would fail on Windows (and maybe other kind of configurations):
-  // 1. Render onscreen on GPU that supports OpenGL 1.4
-  // 2. Switch to offscreen with GDI Windows implementation (1.1)
-  vtkgl::BlendFuncSeparate=0;
-
-  // Try to initialize vtkgl::BlendFuncSeparate() if available.
-  if (extensions->ExtensionSupported("GL_VERSION_1_4"))
-    {
-    extensions->LoadExtension("GL_VERSION_1_4");
-    }
-  else
-    {
-    if (extensions->ExtensionSupported("GL_EXT_blend_func_separate"))
-      {
-      extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
-      }
-    }
 
   // When a new OpenGL context is created, force an update
   if (!this->Initialized)
@@ -480,7 +435,6 @@ void vtkOpenGL2RenderWindow::OpenGLInitContext()
       }
     this->Initialized = true;
     }
-
 }
 
 void vtkOpenGL2RenderWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -1589,7 +1543,7 @@ void vtkOpenGL2RenderWindow::ActivateTexture(vtkTexture *texture)
 void vtkOpenGL2RenderWindow::DeactivateTexture(vtkTexture *texture)
 {
   // Only deactivate if it isn't already there
-  typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
+  typedef std::map<const vtkTexture *, int>::iterator TRIter;
   TRIter found = this->TextureResourceIds.find(texture);
   if (found != this->TextureResourceIds.end())
     {
@@ -1630,58 +1584,23 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   this->CreateAWindow();
   this->MakeCurrent();
 
-  // 2. check for OpenGL extensions GL_EXT_framebuffer_object and
-  // GL_ARB_texture_non_power_of_two (core-promoted feature in OpenGL 2.0)
-  vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
-
-  int supports_GL_EXT_framebuffer_object=
-    extensions->ExtensionSupported("GL_EXT_framebuffer_object");
-
-  // TODO Mesa 6.5.1 is from 2006 verify that this is still an issue
-  // with  newer releases
-  // We skip it if you use Mesa. Even if the VTK offscreen test passes (OSCone)
-  // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
-  // After too much time spent to investigate this case, we just skip it.
-  int isMesa
-    = extensions->DriverGLRendererHas("Mesa")
-    && !extensions->GetIgnoreDriverBugs("Mesa 6.5.1 pvbatch offscreen bug");
-
-  int supports_texture_non_power_of_two=
-    extensions->ExtensionSupported("GL_VERSION_2_0") ||
-    extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
-  int supports_texture_rectangle=
-    extensions->ExtensionSupported("GL_ARB_texture_rectangle");
+  int supports_GL_EXT_framebuffer_object
+      = glewIsSupported("GL_EXT_framebuffer_object");
 
   // The following extension does not exist on ATI. There will be no HW
   // Offscreen on ATI if a stencil buffer is required.
-  int supports_packed_depth_stencil=
-    extensions->ExtensionSupported("GL_EXT_packed_depth_stencil");
+  bool supports_packed_depth_stencil
+      = glewIsSupported("GL_EXT_packed_depth_stencil");
 
-  int result=0;
+  int result = 0;
 
   if(!(supports_GL_EXT_framebuffer_object &&
-       (supports_texture_non_power_of_two || supports_texture_rectangle) &&
-       !isMesa && (!this->StencilCapable || supports_packed_depth_stencil)))
+      (!this->StencilCapable || supports_packed_depth_stencil)))
     {
     if(!supports_GL_EXT_framebuffer_object)
       {
       vtkDebugMacro( << " extension GL_EXT_framebuffer_object is not supported. "
         "Hardware accelerated offscreen rendering is not available" );
-      }
-    if(!supports_texture_non_power_of_two)
-      {
-      vtkDebugMacro( << " extension texture_non_power_of_two is not supported "
-        "because neither OpenGL 2.0 nor GL_ARB_texture_non_power_of_two extension "
-        "is supported. Hardware accelerated offscreen rendering is not available");
-      }
-    if(!supports_texture_rectangle)
-      {
-      vtkDebugMacro(<<" extension GL_ARB_texture_rectangle is not supported");
-      }
-    if(isMesa)
-      {
-      vtkDebugMacro(<<" Renderer is Mesa. Hardware accelerated offscreen "
-        "rendering is not available");
       }
     if(this->StencilCapable && !supports_packed_depth_stencil)
       {
@@ -1692,12 +1611,10 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     }
   else
     {
-    extensions->LoadExtension("GL_EXT_framebuffer_object");
-
     // 3. regular framebuffer code
-    this->NumberOfFrameBuffers=1;
+    this->NumberOfFrameBuffers = 1;
     GLboolean flag;
-    glGetBooleanv(GL_STEREO,&flag);
+    glGetBooleanv(GL_STEREO, &flag);
     if(flag)
       {
       this->NumberOfFrameBuffers<<=1;
@@ -1708,8 +1625,8 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
 
     GLuint frameBufferObject;
     GLuint depthRenderBufferObject;
-    vtkgl::GenFramebuffersEXT(1, &frameBufferObject); // color
-    vtkgl::GenRenderbuffersEXT(1, &depthRenderBufferObject); // depth
+    glGenFramebuffersEXT(1, &frameBufferObject); // color
+    glGenRenderbuffersEXT(1, &depthRenderBufferObject); // depth
     int i=0;
     while(i<this->NumberOfFrameBuffers)
       {
@@ -1718,37 +1635,28 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       }
     glGenTextures(this->NumberOfFrameBuffers,textureObjects);
     // Color buffers
-    vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,frameBufferObject);
 
-    GLenum target;
-    if(supports_texture_non_power_of_two)
-      {
-      target=GL_TEXTURE_2D;
-      }
-    else
-      {
-      target=vtkgl::TEXTURE_RECTANGLE_ARB;
-      }
+    GLenum target = GL_TEXTURE_2D;
 
     i=0;
     while(i<this->NumberOfFrameBuffers)
       {
       glBindTexture(target,textureObjects[i]);
-      glTexParameteri(target, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-      glTexParameteri(target, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+      glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexImage2D(target,0,GL_RGBA8,width,height,
                    0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
-      vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
-                                     vtkgl::COLOR_ATTACHMENT0_EXT+i,
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                     GL_COLOR_ATTACHMENT0_EXT+i,
                                      target, textureObjects[i], 0);
       ++i;
       }
     GLenum status;
-    status=vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
-    if(status==vtkgl::FRAMEBUFFER_UNSUPPORTED_EXT && target==GL_TEXTURE_2D &&
-       supports_texture_rectangle)
+    status=glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    if(status==GL_FRAMEBUFFER_UNSUPPORTED_EXT && target==GL_TEXTURE_2D)
       {
       // The following cards fall in this case:
       // GeForce FX Go5650/AGP/SSE2 with Linux driver 2.0.2 NVIDIA 87.76
@@ -1756,7 +1664,7 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       // GeForce FX 5200/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.3
       // Quadro FX 1000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
       // Quadro FX 2000/AGP/SSE2 with Windows XP SP2 32bit driver 2.0.1
-      target=vtkgl::TEXTURE_RECTANGLE_ARB;
+      target=GL_TEXTURE_RECTANGLE_ARB;
       // try again.
       glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
       glGenTextures(this->NumberOfFrameBuffers,textureObjects);
@@ -1764,66 +1672,66 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       while(i<this->NumberOfFrameBuffers)
         {
         glBindTexture(target,textureObjects[i]);
-        glTexParameteri(target, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(target,0,GL_RGBA8,width,height,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
-        vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
-                                       vtkgl::COLOR_ATTACHMENT0_EXT+i,
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                       GL_COLOR_ATTACHMENT0_EXT+i,
                                        target, textureObjects[i], 0);
         ++i;
         }
       // Ask for the status again.
-      status=vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
+      status=glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
       }
-    if(status!=vtkgl::FRAMEBUFFER_COMPLETE_EXT)
+    if(status!=GL_FRAMEBUFFER_COMPLETE_EXT)
       {
       vtkDebugMacro(<<"Hardware does not support GPU Offscreen rendering.");
       glBindTexture(target,0);
-      vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,0);
-      vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
-      vtkgl::DeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+      glDeleteFramebuffersEXT(1,&frameBufferObject);
+      glDeleteRenderbuffersEXT(1,&depthRenderBufferObject);
       glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
       this->DestroyWindow();
       }
     else
       {
       // Set up the depth (and stencil), render buffer
-      vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,
+      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT,
                                  depthRenderBufferObject);
       if(this->StencilCapable)
         {
-        vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
-                                      vtkgl::DEPTH_STENCIL_EXT, width,height);
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
+                                      GL_DEPTH_STENCIL_EXT, width,height);
         }
       else
         {
-        vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
-                                      vtkgl::DEPTH_COMPONENT24,width,height);
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
+                                      GL_DEPTH_COMPONENT24,width,height);
         }
-      vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                        vtkgl::DEPTH_ATTACHMENT_EXT,
-                                        vtkgl::RENDERBUFFER_EXT,
+      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
+                                        GL_DEPTH_ATTACHMENT_EXT,
+                                        GL_RENDERBUFFER_EXT,
                                         depthRenderBufferObject);
       if(this->StencilCapable)
         {
-        vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
-                                          vtkgl::STENCIL_ATTACHMENT_EXT,
-                                          vtkgl::RENDERBUFFER_EXT,
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
+                                          GL_STENCIL_ATTACHMENT_EXT,
+                                          GL_RENDERBUFFER_EXT,
                                           depthRenderBufferObject);
         }
 
       // Last check to see if the FBO is supported or not.
-      status=vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
-      if(status!=vtkgl::FRAMEBUFFER_COMPLETE_EXT)
+      status=glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+      if(status!=GL_FRAMEBUFFER_COMPLETE_EXT)
         {
         vtkDebugMacro(<<"Hardware does not support GPU Offscreen rendering withthis depth/stencil configuration.");
         glBindTexture(target,0);
-        vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,0);
-        vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
-        vtkgl::DeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+        glDeleteFramebuffersEXT(1,&frameBufferObject);
+        glDeleteRenderbuffersEXT(1,&depthRenderBufferObject);
         glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
         this->DestroyWindow();
         }
@@ -1831,21 +1739,21 @@ int vtkOpenGL2RenderWindow::CreateHardwareOffScreenWindow(int width, int height)
         {
         result=1;
         this->BackLeftBuffer=
-          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0_EXT);
         this->FrontLeftBuffer=
-          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0_EXT);
 
         this->BackBuffer=static_cast<unsigned int>(
-          vtkgl::COLOR_ATTACHMENT0_EXT);
+          GL_COLOR_ATTACHMENT0_EXT);
         this->FrontBuffer=
-          static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
+          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0_EXT);
 
         if(this->NumberOfFrameBuffers==2)
           {
           this->BackRightBuffer=
-            static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+            static_cast<unsigned int>(GL_COLOR_ATTACHMENT1_EXT);
           this->FrontRightBuffer=
-            static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
+            static_cast<unsigned int>(GL_COLOR_ATTACHMENT1_EXT);
           }
 
         // Save GL objects by static casting to standard C types. GL* types
@@ -1880,7 +1788,7 @@ void vtkOpenGL2RenderWindow::DestroyHardwareOffScreenWindow()
   assert("pre: initialized" && this->OffScreenUseFrameBuffer);
 
   this->MakeCurrent();
-  vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT, 0 );
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0 );
 
   // Restore framebuffer names.
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
@@ -1891,10 +1799,10 @@ void vtkOpenGL2RenderWindow::DestroyHardwareOffScreenWindow()
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
 
   GLuint frameBufferObject=static_cast<GLuint>(this->FrameBufferObject);
-  vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
+  glDeleteFramebuffersEXT(1,&frameBufferObject);
 
   GLuint depthRenderBufferObject=static_cast<GLuint>(this->DepthRenderBufferObject);
-  vtkgl::DeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+  glDeleteRenderbuffersEXT(1,&depthRenderBufferObject);
 
   GLuint textureObjects[4];
   int i=0;
@@ -1910,44 +1818,6 @@ void vtkOpenGL2RenderWindow::DestroyHardwareOffScreenWindow()
   this->OffScreenUseFrameBuffer=0;
 
   assert("post: destroyed" && !this->OffScreenUseFrameBuffer);
-}
-
-
-// ----------------------------------------------------------------------------
-// Description:
-// Returns the extension manager. A new one will be created if one hasn't
-// already been set up.
-vtkOpenGLExtensionManager* vtkOpenGL2RenderWindow::GetExtensionManager()
-{
-  if (!this->ExtensionManager)
-    {
-    vtkOpenGLExtensionManager* mgr = vtkOpenGLExtensionManager::New();
-    // This does not form a reference loop since vtkOpenGLExtensionManager does
-    // not keep a reference to the render window.
-    mgr->SetRenderWindow(this);
-    this->SetExtensionManager(mgr);
-    mgr->Delete();
-    }
-  return this->ExtensionManager;
-}
-
-// ----------------------------------------------------------------------------
-// Description:
-// Returns an Hardware Support object. A new one will be created if one hasn't
-// already been set up.
-vtkOpenGLHardwareSupport* vtkOpenGL2RenderWindow::GetHardwareSupport()
-{
-  if (!this->HardwareSupport)
-    {
-    vtkOpenGLHardwareSupport* hardware = vtkOpenGLHardwareSupport::New();
-
-    // This does not form a reference loop since vtkOpenGLHardwareSupport does
-    // not keep a reference to the render window.
-    hardware->SetExtensionManager(this->GetExtensionManager());
-    this->SetHardwareSupport(hardware);
-    hardware->Delete();
-    }
-  return this->HardwareSupport;
 }
 
 // ----------------------------------------------------------------------------

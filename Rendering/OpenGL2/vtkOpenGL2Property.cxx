@@ -12,18 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGL2Renderer.h"
 #include "vtkOpenGL2Property.h"
 
 #include "vtkglVBOHelper.h"
 
-#include "vtkOpenGL.h"
-
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLTexture.h"
+#include "vtkOpenGL2Texture.h"
 #include "vtkTexture.h"
-
-#include "vtkgl.h" // vtkgl namespace
 
 #include "vtkOpenGL2TextureUnitManager.h"
 #include "vtkOpenGLError.h"
@@ -114,7 +110,7 @@ bool vtkOpenGL2Property::RenderTextures(vtkActor*, vtkRenderer* ren)
   if (numTextures > 0)
     {
     GLint numSupportedTextures;
-    glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
+    glGetIntegerv(GL_MAX_TEXTURE_UNITS, &numSupportedTextures);
     for (int t = 0; t < numTextures; t++)
       {
       int texture_unit = this->GetTextureUnitAtIndex(t);

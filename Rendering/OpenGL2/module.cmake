@@ -1,7 +1,6 @@
 vtk_module(vtkRenderingOpenGL2
   DEPENDS
     vtkCommonExecutionModel
-    vtkRenderingOpenGL
   IMPLEMENTS
     vtkRenderingCore
   PRIVATE_DEPENDS

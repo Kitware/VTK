@@ -18,7 +18,6 @@
 #include "vtkOpenGL2RenderWindow.h"
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
-#include "vtkgl.h" // vtkgl namespace
 
 #include <math.h>
 
