@@ -1,13 +1,16 @@
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  set(_groups GROUPS Rendering)
+endif()
+
 vtk_module(vtkGeovisCore
-  GROUPS
-    Rendering
+  ${_groups}
   DEPENDS
     vtkIOXML
     vtkInteractionWidgets
     vtkInteractionStyle
     vtkInfovisLayout
     vtkViewsCore
-    vtkRenderingOpenGL2 # For vtkOpenGLHardwareSupport in vtkGeoTerrain
+    vtkRenderingOpenGL # For vtkOpenGLHardwareSupport in vtkGeoTerrain
     vtklibproj4
   TEST_DEPENDS
     vtkViewsGeovis

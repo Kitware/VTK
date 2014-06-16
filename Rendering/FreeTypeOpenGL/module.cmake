@@ -1,11 +1,11 @@
 vtk_module(vtkRenderingFreeTypeOpenGL
-  GROUPS
-    Rendering
   IMPLEMENTS
     vtkRenderingCore
+  BACKEND
+    OpenGL
   DEPENDS
     vtkRenderingFreeType
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
