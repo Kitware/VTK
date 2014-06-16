@@ -83,6 +83,7 @@ void vtkOpenGL2ContextDevice2D::DrawPointSprites(vtkImageData *sprite,
       this->Storage->SpriteTexture->SetRepeat(properties & vtkContextDevice2D::Repeat);
       this->Storage->SpriteTexture->SetInterpolate(properties & vtkContextDevice2D::Linear);
       this->Storage->SpriteTexture->Render(this->Renderer);
+      glEnable(GL_TEXTURE_2D);
       }
 
     // We can actually use point sprites here
@@ -115,6 +116,7 @@ void vtkOpenGL2ContextDevice2D::DrawImage(float p[2], float scale,
   vtkOpenGLClearErrorMacro();
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
+  glEnable(GL_TEXTURE_2D);
   int *extent = image->GetExtent();
   float points[] = { p[0]                     , p[1],
                      p[0]+scale*extent[1]+1.0f, p[1],
@@ -148,6 +150,7 @@ void vtkOpenGL2ContextDevice2D::DrawImage(const vtkRectf& pos,
   GLuint index = this->Storage->TextureFromImage(image);
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
+  glEnable(GL_TEXTURE_2D);
   float points[] = { pos.GetX()              , pos.GetY(),
                      pos.GetX() + pos.GetWidth(), pos.GetY(),
                      pos.GetX() + pos.GetWidth(), pos.GetY() + pos.GetHeight(),
