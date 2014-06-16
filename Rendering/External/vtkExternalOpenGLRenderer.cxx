@@ -84,11 +84,11 @@ void vtkExternalOpenGLRenderer::Clear()
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    {
+      {
       glLoadIdentity();
       glMatrixMode(GL_PROJECTION);
       glPushMatrix();
-      {
+        {
         glLoadIdentity();
         glOrtho(
           tile_viewport[0],
@@ -98,7 +98,7 @@ void vtkExternalOpenGLRenderer::Clear()
           -1.0, 1.0);
 
         //top vertices
-        if(this->TexturedBackground && this->BackgroundTexture)
+        if (this->TexturedBackground && this->BackgroundTexture)
           {
           glEnable(GL_TEXTURE_2D);
 
@@ -136,10 +136,10 @@ void vtkExternalOpenGLRenderer::Clear()
         glVertex2f(0.0, 1.0);
 
         glEnd();
-      }
+        }
       glMatrixMode(GL_PROJECTION);
       glPopMatrix();
-    }
+      }
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     glPopAttrib();
@@ -201,7 +201,7 @@ void vtkExternalOpenGLRenderer::Render(void)
 
   vtkCollectionSimpleIterator sit;
   vtkLight* light;
-  for(this->Lights->InitTraversal(sit);
+  for (this->Lights->InitTraversal(sit);
     (light = this->Lights->GetNextLight(sit)); )
     {
     // If we set the transform matrix then even for the headlight

@@ -189,7 +189,7 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
 void vtkExternalOpenGLCamera::SetViewTransformMatrix(
   const double elements[16])
 {
-  if(!elements)
+  if (!elements)
     {
     return;
     }
@@ -207,7 +207,7 @@ void vtkExternalOpenGLCamera::SetViewTransformMatrix(
 void vtkExternalOpenGLCamera::SetProjectionTransformMatrix(
   const double elements[16])
 {
-  if(!elements)
+  if (!elements)
     {
     return;
     }
@@ -225,7 +225,7 @@ void vtkExternalOpenGLCamera::ComputeProjectionTransform(double aspect,
                                                          double nearz,
                                                          double farz)
 {
-  if(this->UserProvidedProjectionTransform)
+  if (this->UserProvidedProjectionTransform)
     {
     // Do not do anything
     return;
@@ -239,7 +239,7 @@ void vtkExternalOpenGLCamera::ComputeProjectionTransform(double aspect,
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLCamera::ComputeViewTransform()
 {
-  if(this->UserProvidedViewTransform)
+  if (this->UserProvidedViewTransform)
     {
     // Do not do anything
     return;
