@@ -927,13 +927,28 @@ void vtkSinglePassVolumeMapper::BuildShader(string& vertexShader,
   /// Shading
   if (vol->GetProperty()->GetShade(0))
     {
-    fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING@",
-                                        vtkvolume::shade(), true);
+    fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_LOOP@",
+                                        vtkvolume::ShadeLoop(), true);
+    fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
+                                        "", true);
     }
   else
     {
-    fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING@","", true);
+    fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_LOOP@","", true);
     }
+
+  /// Nothing to do for shading init and exit
+  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
+                                      "", true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
+                                      "", true);
+
+  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_INIT@",
+                                      vtkvolume::TerminateInit(), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_LOOP@",
+                                      vtkvolume::TerminateLoop(), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_EXIT@",
+                                      vtkvolume::TerminateExit(), true);
 }
 
 ///

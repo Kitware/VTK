@@ -42,10 +42,10 @@ namespace vtkvolume
     }
 
 
-  std::string shade()
+  std::string ShadeLoop()
     {
     return std::string
-    ("if (src.a > 0.01) \
+    ("if (m_src_color.a > 0.01) \
         { \
         vec3 g1; \
         vec3 g2; \
@@ -71,26 +71,79 @@ namespace vtkvolume
           { \
           g2 = vec3(0.0, 0.0, 0.0); \
           } \
-        vec3 finalColor = vec3(0.0); \
-        float nDotL = dot(g2, ldir); \
-        float nDotH = dot(g2, h); \
-        if (nDotL < 0.0) \
+        vec3 final_color = vec3(0.0); \
+        float n_dot_l = dot(g2, ldir); \
+        float n_dot_h = dot(g2, h); \
+        if (n_dot_l < 0.0) \
           { \
-          nDotL =- nDotL; \
+          n_dot_l =- n_dot_l; \
           } \
-        if (nDotH < 0.0) \
+        if (n_dot_h < 0.0) \
           { \
-          nDotH =- nDotH; \
+          n_dot_h =- n_dot_h; \
           } \
-        finalColor += ambient; \
-        finalColor += diffuse * nDotL; \
-        float shininessFactor = pow(nDotH, shininess); \
-        finalColor += specular * shininessFactor; \
-        finalColor = clamp(finalColor, clamp_min, clamp_max); \
-        src.rgb += finalColor.rgb; \
+        final_color += ambient; \
+        final_color += diffuse * n_dot_l; \
+        float shine_factor = pow(n_dot_h, shininess); \
+        final_color += specular * shine_factor; \
+        final_color = clamp(final_color, clamp_min, clamp_max); \
+        m_src_color.rgb += final_color.rgb; \
        }"
     );
     }
+
+  std::string TerminateInit()
+    {
+    return std::string(" \
+    \/\/\/ Compute max number of iterations it will take before we hit \
+    \/\/\/ the termination point \
+    \
+    \/\/\/ Abscissa of the point on the depth buffer along the ray. \
+    \/\/\/ point in texture coordinates \
+    \vec4 m_terminate_point; \
+    m_terminate_point.x = (gl_FragCoord.x - window_lower_left_corner.x) * 2.0 * \
+                          inv_window_size.x - 1.0; \
+    m_terminate_point.y = (gl_FragCoord.y - window_lower_left_corner.y) * 2.0 * \
+                          inv_window_size.y - 1.0; \
+    m_terminate_point.z = (2.0 * depthValue.x - (gl_DepthRange.near + \
+                          gl_DepthRange.far)) / gl_DepthRange.diff; \
+    m_terminate_point.w = 1.0; \
+    \
+    \/\/\/ From normalized device coordinates to eye coordinates. projection_matrix \
+    \/\/\/ is inversed because of way VT \
+    \/\/\/ From eye coordinates to texture coordinates \
+    m_terminate_point = inverse(transpose(texture_dataset_matrix)) * \
+                        ogl_scene_matrix * inverse(transpose(modelview_matrix)) * \
+                        inverse(transpose(projection_matrix)) * \
+                        m_terminate_point; \
+    m_terminate_point /= m_terminate_point.w; \
+    \
+    m_terminate_point_max = length(m_terminate_point.xyz - data_pos.xyz) / \
+                            length(dir_step); \
+    float m_current_t = 0.0;"
+    );
+    }
+
+  std::string TerminateLoop()
+    {
+    return std::string(" \
+      \/\/\/ Early ray termination \
+      \/\/\/ if the currently composited colour alpha is already fully saturated \
+      \/\/\/ we terminated the loop or if we have hit an obstacle in the direction of \
+      \/\/\/ they ray (using depth buffer) we terminate as well. \
+      if((m_frag_color.a > (1 - 1/255.0)) ||  \
+          m_current_t >= m_terminate_point_max) \
+        { \
+        break; \
+        } \
+      ++m_current_t;"
+    );
+    }
+
+  std::string TerminateExit()
+   {
+    return std::string("");
+   }
 }
 
 

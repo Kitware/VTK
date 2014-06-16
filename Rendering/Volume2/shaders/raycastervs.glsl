@@ -33,8 +33,8 @@ uniform vec3 texture_extents_min;
 //////////////////////////////////////////////////////////////////////////////
 
 /// 3D texture coordinates for texture lookup in the fragment shader
-out vec3 texture_coords;
-out vec3 vertex_pos;
+out vec3 m_texture_coords;
+out vec3 m_vertex_pos;
 
 void main()
 {
@@ -44,12 +44,12 @@ void main()
   vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * transpose(scene_matrix) *
              vec4(in_vertex_pos.xyz, 1);
   gl_Position = pos;
-  vertex_pos = in_vertex_pos;
+  m_vertex_pos = in_vertex_pos;
 
   /// Compute texture coordinates
   /// Assuming point data only. Also, we offset the texture coordinate to account
   /// for OpenGL treating voxel at the center of the cell.
   vec3 uvx = (in_vertex_pos - vol_extents_min) / (vol_extents_max - vol_extents_min);
   vec3 delta = texture_extents_max - texture_extents_min;
-  texture_coords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;
+  m_texture_coords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;
 }
