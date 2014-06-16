@@ -21,9 +21,10 @@
 #include "vtkRect.h"
 #include "vtkStdString.h"
 
-
 #include "vtkObjectFactory.h"
 #include <cassert>
+
+vtkAbstractObjectFactoryNewMacro(vtkContextDevice2D)
 
 vtkContextDevice2D::vtkContextDevice2D()
 {

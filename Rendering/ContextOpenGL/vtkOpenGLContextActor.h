@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkContextActor.h
+  Module:    vtkOpenGLContextActor.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkContextActor - provides a vtkProp derived object.
+// .NAME vtkOpenGLContextActor - provides a vtkProp derived object.
 // .SECTION Description
 // This object provides the entry point for the vtkContextScene to be rendered
 // in a vtkRenderer. Uses the RenderOverlay pass to render the 2D
 // vtkContextScene.
 
-#ifndef __vtkContextActor_h
-#define __vtkContextActor_h
+#ifndef __vtkOpenGLContextActor_h
+#define __vtkOpenGLContextActor_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkRenderingContextOpenGLModule.h" // For export macro
 #include "vtkProp.h"
 #include "vtkNew.h"          // For ivars
 #include "vtkSmartPointer.h" // For ivars
@@ -30,13 +30,13 @@ class vtkContext2D;
 class vtkContext3D;
 class vtkContextScene;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkContextActor : public vtkProp
+class VTKRENDERINGCONTEXTOPENGL_EXPORT vtkOpenGLContextActor : public vtkProp
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkContextActor,vtkProp);
+  vtkTypeMacro(vtkOpenGLContextActor, vtkProp);
 
-  static vtkContextActor* New();
+  static vtkOpenGLContextActor* New();
 
   // Description:
   // We only render in the overlay for the context scene.
@@ -61,12 +61,12 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
 protected:
-  vtkContextActor();
-  ~vtkContextActor();
+  vtkOpenGLContextActor();
+  ~vtkOpenGLContextActor();
 
   // Description:
   // Initialize the actor - right now we just decide which device to initialize.
-  virtual void Initialize(vtkViewport* viewport);
+  void Initialize(vtkViewport* viewport);
 
   vtkSmartPointer<vtkContextScene> Scene;
   vtkNew<vtkContext2D> Context;
@@ -74,8 +74,8 @@ protected:
   bool Initialized;
 
 private:
-  vtkContextActor(const vtkContextActor&);  // Not implemented.
-  void operator=(const vtkContextActor&);  // Not implemented.
+  vtkOpenGLContextActor(const vtkOpenGLContextActor&);  // Not implemented.
+  void operator=(const vtkOpenGLContextActor&);  // Not implemented.
 };
 
 #endif

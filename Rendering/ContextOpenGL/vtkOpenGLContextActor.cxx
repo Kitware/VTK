@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkContextActor.cxx
+  Module:    vtkOpenGLContextActor.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,19 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkContextActor.h"
+#include "vtkOpenGLContextActor.h"
 
 #include "vtkContext2D.h"
-#include "vtkContextDevice2D.h"
+#include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGL2ContextDevice2D.h"
 
 #include "vtkContext3D.h"
+#include "vtkOpenGLContextDevice3D.h"
 #include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGL2ContextDevice2D.h"
+#include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkTransform2D.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
+
 
 namespace
 {
@@ -110,10 +118,10 @@ namespace
     }
 }
 
-vtkObjectFactoryNewMacro(vtkContextActor);
+vtkStandardNewMacro(vtkOpenGLContextActor);
 
 //----------------------------------------------------------------------------
-vtkContextActor::vtkContextActor()
+vtkOpenGLContextActor::vtkOpenGLContextActor()
 {
   this->Initialized = false;
   this->Scene = vtkSmartPointer<vtkContextScene>::New();
@@ -122,7 +130,7 @@ vtkContextActor::vtkContextActor()
 }
 
 //----------------------------------------------------------------------------
-vtkContextActor::~vtkContextActor()
+vtkOpenGLContextActor::~vtkOpenGLContextActor()
 {
   if (this->Context.GetPointer())
     {
@@ -135,31 +143,42 @@ vtkContextActor::~vtkContextActor()
 }
 
 //----------------------------------------------------------------------------
-vtkContextScene * vtkContextActor::GetScene()
+vtkContextScene * vtkOpenGLContextActor::GetScene()
 {
   return this->Scene.GetPointer();
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::SetScene(vtkContextScene *scene)
+void vtkOpenGLContextActor::SetScene(vtkContextScene *scene)
 {
   this->Scene = scene;
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
+void vtkOpenGLContextActor::ReleaseGraphicsResources(vtkWindow *window)
 {
+  vtkOpenGLContextDevice2D *device =
+      vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice());
+  if (device)
+    {
+    device->ReleaseGraphicsResources(window);
+    }
+
+  if(this->Scene.GetPointer())
+    {
+    this->Scene->ReleaseGraphicsResources();
+    }
 }
 
 //----------------------------------------------------------------------------
 // Renders an actor2D's property and then it's mapper.
-int vtkContextActor::RenderOverlay(vtkViewport* viewport)
+int vtkOpenGLContextActor::RenderOverlay(vtkViewport* viewport)
 {
-  vtkDebugMacro(<< "vtkContextActor::RenderOverlay");
+  vtkDebugMacro(<< "vtkOpenGLContextActor::RenderOverlay");
 
   if (!this->Context.GetPointer())
     {
-    vtkErrorMacro(<< "vtkContextActor::Render - No painter set");
+    vtkErrorMacro(<< "vtkOpenGLContextActor::Render - No painter set");
     return 0;
     }
 
@@ -224,13 +243,38 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::Initialize(vtkViewport*)
+void vtkOpenGLContextActor::Initialize(vtkViewport* viewport)
 {
-  // Initialization deferred to the derived actor classes.
+  vtkOpenGLContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
+  this->Context3D->Begin(dev);
+  dev->Delete();
+
+  vtkContextDevice2D *device = NULL;
+  if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
+    {
+    vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
+    device = vtkOpenGL2ContextDevice2D::New();
+    }
+  else
+    {
+    vtkDebugMacro("Using OpenGL 1 for 2D rendering.")
+    device = vtkOpenGLContextDevice2D::New();
+    }
+  if (device)
+    {
+    this->Context->Begin(device);
+    device->Delete();
+    this->Initialized = true;
+    }
+  else
+    {
+    // Failed
+    vtkErrorMacro("Error: failed to initialize the render device.")
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLContextActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 

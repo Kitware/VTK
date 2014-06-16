@@ -27,7 +27,7 @@
 #ifndef __vtkOpenGLContextDevice2D_h
 #define __vtkOpenGLContextDevice2D_h
 
-#include "vtkRenderingContextOpenGLModule.h" // For export macro
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextDevice2D.h"
 
 #include <list> // for std::list
@@ -39,7 +39,7 @@ class vtkStringToImage;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLExtensionManager;
 
-class VTKRENDERINGCONTEXTOPENGL_EXPORT vtkOpenGLContextDevice2D : public vtkContextDevice2D
+class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice2D : public vtkContextDevice2D
 {
 public:
   vtkTypeMacro(vtkOpenGLContextDevice2D, vtkContextDevice2D);
@@ -308,10 +308,6 @@ protected:
   // Private data pointer of the class
   class Private;
   Private *Storage;
-
-  // Description:
-  // Load the OpenGL extensions we need.
-  virtual bool LoadExtensions(vtkOpenGLExtensionManager *m);
 
   // Description:
   // The OpenGL render window being used by the device

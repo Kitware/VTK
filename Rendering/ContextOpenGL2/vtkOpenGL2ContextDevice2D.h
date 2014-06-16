@@ -33,7 +33,7 @@
 
 #include "vtkOpenGLContextDevice2D.h"
 
-class VTKRENDERINGCONTEXTOPENGL_EXPORT vtkOpenGL2ContextDevice2D :
+class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGL2ContextDevice2D :
     public vtkOpenGLContextDevice2D
 {
 public:
@@ -76,10 +76,6 @@ public:
 protected:
   vtkOpenGL2ContextDevice2D();
   virtual ~vtkOpenGL2ContextDevice2D();
-
-  // Description:
-  // Load the OpenGL extensions we need.
-  virtual bool LoadExtensions(vtkOpenGLExtensionManager *m);
 
 private:
   vtkOpenGL2ContextDevice2D(const vtkOpenGL2ContextDevice2D &); // Not implemented.

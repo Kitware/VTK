@@ -5,7 +5,7 @@ vtk_module(vtkRenderingFreeTypeOpenGL
     vtkRenderingCore
   DEPENDS
     vtkRenderingFreeType
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering

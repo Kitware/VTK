@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkTextureObject.h"
-#include "vtkgl.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
@@ -169,7 +168,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
         }
 
       // Fixed-pipeline stuff
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      glActiveTexture(GL_TEXTURE0);
       this->Texture->Bind();
       glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
       glEnable(GL_TEXTURE_2D);
