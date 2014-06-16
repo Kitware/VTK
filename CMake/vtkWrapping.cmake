@@ -54,7 +54,7 @@ function(vtk_add_wrapping module_name module_srcs module_hdrs)
       endif()
 
       # Now to wrap the languages that are on.
-      if(VTK_WRAP_PYTHON AND ${module_name}_WRAP_PYTHON AND NOT ${module_name}_EXCLUDE_FROM_PYTHON_WRAPPING)
+      if(VTK_WRAP_PYTHON AND NOT ${module_name}_EXCLUDE_FROM_PYTHON_WRAPPING)
         # Note that the module should be Python wrapped.
         set_property(GLOBAL APPEND PROPERTY VTK_PYTHON_WRAPPED ${module_name})
       endif()
