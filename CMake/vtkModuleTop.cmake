@@ -24,11 +24,28 @@ if (module_files)
   file(REMOVE ${module_files})
 endif()
 
+# This is a little hackish, but define the rendering backend if none was passed
+# in for the first CMake invocation for modules that depend on the backend
+# chosen.
+if(NOT DEFINED VTK_RENDERING_BACKEND)
+  set(VTK_RENDERING_BACKEND "OpenGL")
+  set(_backend_set_for_first_cmake TRUE)
+endif()
+
 # Assess modules, and tests in the repository.
 vtk_module_search(${_test_languages})
 
+# Need to ensure the state is restored so that cache variable defaults can be
+# added if necessary on the first CMake run, offering up the choice of backend.
+if(_backend_set_for_first_cmake)
+  unset(VTK_RENDERING_BACKEND)
+endif()
+
 # Now include the module group logic.
 include(vtkGroups)
+
+# Now figure out which rendering backend to use.
+include(vtkBackends)
 
 # Validate the module DAG.
 macro(vtk_module_check vtk-module _needed_by stack)

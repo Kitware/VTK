@@ -3,7 +3,7 @@ vtk_module(vtkGUISupportQtOpenGL
     Qt
   DEPENDS
     vtkGUISupportQt
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
   TEST_DEPENDS
     vtkTestingCore
   EXCLUDE_FROM_WRAPPING

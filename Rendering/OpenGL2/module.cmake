@@ -3,6 +3,8 @@ vtk_module(vtkRenderingOpenGL2
     vtkCommonExecutionModel
   IMPLEMENTS
     vtkRenderingCore
+  BACKEND
+    OpenGL2
   PRIVATE_DEPENDS
     vtksys
   COMPILE_DEPENDS

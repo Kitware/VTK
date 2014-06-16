@@ -5,7 +5,7 @@ vtk_module(vtkFiltersGeometry
     vtkFiltersCore
   TEST_DEPENDS
     vtkIOXML
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
   )

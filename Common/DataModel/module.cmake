@@ -15,6 +15,5 @@ vtk_module(vtkCommonDataModel
     vtkIOGeometry
     vtkIOLegacy
     vtkIOXML
-    vtkRenderingCore
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
   )

@@ -276,15 +276,6 @@ SET(VTK_HAS_EXODUS 1)
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
 #-----------------------------------------------------------------------------
-# Use the OpenGL2 versions of classes
-option(VTK_REPLACE_OPENGL_OVERRIDES
-  "Replace OpenGL overrides with experimental OpenGL2 overrides (experimental"
-  ON)
-if (VTK_REPLACE_OPENGL_OVERRIDES)
-  set(Module_vtkRenderingOpenGL2 ON CACHE BOOL "Always build OpenGL2 classes for this branch" FORCE)
-endif()
-
-#-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
 
 # Include the sockets test.
