@@ -104,6 +104,8 @@ macro(vtk_module _name)
       endif()
       list(APPEND VTK_BACKEND_${arg}_MODULES ${vtk-module})
       list(APPEND ${vtk-module}_BACKEND "${arg}")
+      # Being a backend implicitly excludes from all (mutual exclusivity).
+      set(${vtk-module}_EXCLUDE_FROM_ALL 1)
     elseif("${_doing}" MATCHES "^DEFAULT")
       message(FATAL_ERROR "Invalid argument [DEFAULT]")
     elseif("${_doing}" MATCHES "^GROUPS")

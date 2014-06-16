@@ -161,24 +161,23 @@ set_source_files_properties(
   )
 
 # setup factory overrides
-if(VTK_REPLACE_OPENGL_OVERRIDES)
-  set(opengl_overrides
-    Actor
-    Camera
-    HardwareSelector
-    ImageMapper
-    ImageSliceMapper
-    Glyph3DMapper
-    Light
-    PolyDataMapper2D
-    Property
-    Renderer
-    Texture
-    )
-  vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
-  foreach(_override ${opengl_overrides})
-    vtk_add_override(vtk${_override} vtkOpenGL${_override})
-  endforeach()
+set(opengl_overrides
+  Actor
+  Camera
+  HardwareSelector
+  ImageMapper
+  ImageSliceMapper
+  Glyph3DMapper
+  Light
+  PolyDataMapper2D
+  Property
+  Renderer
+  Texture
+  )
+vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
+foreach(_override ${opengl_overrides})
+  vtk_add_override(vtk${_override} vtkOpenGL${_override})
+endforeach()
 
 # FIXME: Not sure that this is the best way to handle X...
 if(VTK_USE_X)
@@ -249,7 +248,6 @@ elseif(VTK_USE_CARBON)
     vtkCarbonRenderWindow.cxx
     )
 endif()
-endif() # VTK_REPLACE_OPENGL_OVERRIDES
 
 # Now we iterate and create that class file...
 foreach(_class ${vtk_module_overrides})
