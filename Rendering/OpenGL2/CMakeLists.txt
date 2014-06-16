@@ -1,3 +1,7 @@
+if(TARGET vtkRenderingOpenGL)
+  message(FATAL_ERROR "vtkRenderingOpenGL2 cannot be built with vtkRenderingOpenGL, please disable one of them.")
+endif()
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 include_directories(SYSTEM
