@@ -252,11 +252,6 @@ if(VTK_WRAP_PYTHON)
   if(NOT VTK_WRAP_PYTHON_MODULES)
     set(VTK_WRAP_PYTHON_MODULES ${VTK_MODULES_ENABLED})
   endif()
-  foreach(_wrap_module ${VTK_WRAP_PYTHON_MODULES})
-    if(NOT ${_wrap_module}_EXCLUDE_FROM_WRAPPING)
-      set(${_wrap_module}_WRAP_PYTHON ON)
-    endif()
-  endforeach()
 endif()
 
 # Build all modules.
