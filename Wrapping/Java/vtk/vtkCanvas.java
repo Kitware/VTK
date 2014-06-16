@@ -243,13 +243,15 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
     ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
     shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
 
-    iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
-
     Lock();
-    if (e.getWheelRotation() > 0)
+    if (e.getWheelRotation() > 0) {
+      iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
       iren.MouseWheelBackwardEvent();
-    else
+    }
+    else if (e.getWheelRotation() < 0) {
+      iren.SetEventInformationFlipY(e.getX(), e.getY(), ctrlPressed, shiftPressed, '0', 0, "0");
       iren.MouseWheelForwardEvent();
+    }
     UnLock();
 
     UpdateLight();

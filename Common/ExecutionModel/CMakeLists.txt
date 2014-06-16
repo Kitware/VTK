@@ -11,6 +11,7 @@ SET(Module_SRCS
   vtkDataSetAlgorithm.cxx
   vtkDemandDrivenPipeline.cxx
   vtkDirectedGraphAlgorithm.cxx
+  vtkEnsembleSource.cxx
   vtkExecutive.cxx
   vtkExtentSplitter.cxx
   vtkExtentTranslator.cxx
@@ -24,8 +25,10 @@ SET(Module_SRCS
   vtkImageProgressIterator.cxx
   vtkImageToStructuredGrid.cxx
   vtkImageToStructuredPoints.cxx
+  vtkInformationDataObjectMetaDataKey.cxx
   vtkInformationExecutivePortKey.cxx
   vtkInformationExecutivePortVectorKey.cxx
+  vtkInformationIntegerRequestKey.cxx
   vtkMultiBlockDataSetAlgorithm.cxx
   vtkMultiTimeStepAlgorithm.cxx
   vtkPassInputTypeAlgorithm.cxx

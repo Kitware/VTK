@@ -27,6 +27,7 @@
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationStringKey.h"
@@ -291,7 +292,7 @@ int vtkStreamingDemandDrivenPipeline
         result = 1;
         }
       }
-    if (!this->NeedToExecuteData(outputPort,inInfoVec,outInfoVec))
+    if (!N2E)
       {
       if(outInfo && outInfo->Has(COMBINED_UPDATE_EXTENT()))
         {
@@ -1109,6 +1110,22 @@ vtkStreamingDemandDrivenPipeline
         {
         outInfo->Remove(PREVIOUS_UPDATE_TIME_STEP());
         }
+
+      // Give the keys an opportunity to store meta-data in
+      // the data object about what update request lead to
+      // the last execution. This information can later be
+      // used to decide whether an execution is necessary.
+      vtkSmartPointer<vtkInformationIterator> infoIter =
+        vtkSmartPointer<vtkInformationIterator>::New();
+      infoIter->SetInformation(outInfo);
+      infoIter->InitTraversal();
+      while(!infoIter->IsDoneWithTraversal())
+        {
+        vtkInformationKey* key = infoIter->GetCurrentKey();
+        key->StoreMetaData(request, outInfo, dataInfo);
+        infoIter->GoToNextItem();
+        }
+
       }
     }
 }
@@ -1234,6 +1251,25 @@ int vtkStreamingDemandDrivenPipeline
   if (this->NeedToExecuteBasedOnTime(outInfo, dataObject))
     {
     return 1;
+    }
+
+  // Ask the keys if we need to execute. Keys can overwrite
+  // NeedToExecute() to make their own decision about whether
+  // what they are asking for is different than what is in the
+  // data and whether the filter should execute.
+  vtkSmartPointer<vtkInformationIterator> infoIter =
+    vtkSmartPointer<vtkInformationIterator>::New();
+  infoIter->SetInformation(outInfo);
+
+  infoIter->InitTraversal();
+  while(!infoIter->IsDoneWithTraversal())
+    {
+    vtkInformationKey* key = infoIter->GetCurrentKey();
+    if (key->NeedToExecute(outInfo, dataInfo))
+      {
+      return 1;
+      }
+    infoIter->GoToNextItem();
     }
 
   // We do not need to execute.

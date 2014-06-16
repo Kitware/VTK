@@ -178,6 +178,7 @@ if(PYTHON_EXECUTABLE)
     vtk/util/vtkVariant
     vtk/util/colors
     vtk/util/numpy_support
+    vtk/util/vtkAlgorithm
     )
 
 # vtk.test package
