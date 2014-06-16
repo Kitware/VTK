@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXOpenGL2RenderWindow.h
+  Module:    vtkXOpenGLRenderWindow.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXOpenGL2RenderWindow - OpenGL rendering window
+// .NAME vtkXOpenGLRenderWindow - OpenGL rendering window
 // .SECTION Description
-// vtkXOpenGL2RenderWindow is a concrete implementation of the abstract class
+// vtkXOpenGLRenderWindow is a concrete implementation of the abstract class
 // vtkRenderWindow. vtkOpenGLRenderer interfaces to the OpenGL graphics
 // library. Application programmers should normally use vtkRenderWindow
 // instead of the OpenGL specific version.
 
-#ifndef __vtkXOpenGL2RenderWindow_h
-#define __vtkXOpenGL2RenderWindow_h
+#ifndef __vtkXOpenGLRenderWindow_h
+#define __vtkXOpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
@@ -28,13 +28,13 @@
 #include <X11/Xutil.h> // Needed for X types used in the public interface
 
 class vtkIdList;
-class vtkXOpenGL2RenderWindowInternal;
+class vtkXOpenGLRenderWindowInternal;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGL2RenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
-  static vtkXOpenGL2RenderWindow *New();
-  vtkTypeMacro(vtkXOpenGL2RenderWindow, vtkOpenGLRenderWindow);
+  static vtkXOpenGLRenderWindow *New();
+  vtkTypeMacro(vtkXOpenGLRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -234,10 +234,10 @@ public:
   void SetOffScreenRendering(int i);
 
 protected:
-  vtkXOpenGL2RenderWindow();
-  ~vtkXOpenGL2RenderWindow();
+  vtkXOpenGLRenderWindow();
+  ~vtkXOpenGLRenderWindow();
 
-  vtkXOpenGL2RenderWindowInternal *Internal;
+  vtkXOpenGLRenderWindowInternal *Internal;
 
   Window   ParentId;
   Window   WindowId;
@@ -273,8 +273,8 @@ protected:
 
 
 private:
-  vtkXOpenGL2RenderWindow(const vtkXOpenGL2RenderWindow&);  // Not implemented.
-  void operator=(const vtkXOpenGL2RenderWindow&);  // Not implemented.
+  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkXOpenGLRenderWindow&);  // Not implemented.
 };
 
 

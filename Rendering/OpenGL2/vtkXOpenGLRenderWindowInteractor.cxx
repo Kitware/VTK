@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXOpenGL2RenderWindowInteractor.cxx
+  Module:    vtkXOpenGLRenderWindowInteractor.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,9 +22,9 @@
 #define XTSTRINGDEFINES
 #include <X11/X.h>
 #include <X11/keysym.h>
-#include "vtkXOpenGL2RenderWindowInteractor.h"
+#include "vtkXOpenGLRenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
-#include "vtkXOpenGL2RenderWindow.h"
+#include "vtkXOpenGLRenderWindow.h"
 #include "vtkCallbackCommand.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
@@ -39,23 +39,23 @@
 #include "vtkTDxUnixDevice.h"
 #endif
 
-vtkStandardNewMacro(vtkXOpenGL2RenderWindowInteractor);
+vtkStandardNewMacro(vtkXOpenGLRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
 // is separate from the TimerMap in the vtkRenderWindowInteractor
 // superclass.  This is used to avoid passing 64-bit values back
 // through the "int" return type of InternalCreateTimer.
-class vtkXOpenGL2RenderWindowInteractorInternals
+class vtkXOpenGLRenderWindowInteractorInternals
 {
 public:
-  vtkXOpenGL2RenderWindowInteractorInternals()
+  vtkXOpenGLRenderWindowInteractorInternals()
     {
     this->TimerIdCount = 1;
 #ifdef VTK_USE_TDX
     this->Device=vtkTDxUnixDevice::New();
 #endif
     }
-  ~vtkXOpenGL2RenderWindowInteractorInternals()
+  ~vtkXOpenGLRenderWindowInteractorInternals()
     {
 #ifdef VTK_USE_TDX
       this->Device->Delete();
@@ -98,9 +98,9 @@ private:
 };
 
 // Initialize static members:
-int vtkXOpenGL2RenderWindowInteractor::NumAppInitialized = 0;
-XtAppContext vtkXOpenGL2RenderWindowInteractor::App = 0;
-int vtkXOpenGL2RenderWindowInteractor::BreakLoopFlag = 1;
+int vtkXOpenGLRenderWindowInteractor::NumAppInitialized = 0;
+XtAppContext vtkXOpenGLRenderWindowInteractor::App = 0;
+int vtkXOpenGLRenderWindowInteractor::BreakLoopFlag = 1;
 
 
 typedef struct
@@ -111,9 +111,9 @@ typedef struct
 OptionsRec      Options;
 
 //-------------------------------------------------------------------------
-vtkXOpenGL2RenderWindowInteractor::vtkXOpenGL2RenderWindowInteractor()
+vtkXOpenGLRenderWindowInteractor::vtkXOpenGLRenderWindowInteractor()
 {
-  this->Internal = new vtkXOpenGL2RenderWindowInteractorInternals;
+  this->Internal = new vtkXOpenGLRenderWindowInteractorInternals;
   this->Top = 0;
   this->OwnTop = 0;
   this->OwnApp = 0;
@@ -121,7 +121,7 @@ vtkXOpenGL2RenderWindowInteractor::vtkXOpenGL2RenderWindowInteractor()
 }
 
 //-------------------------------------------------------------------------
-vtkXOpenGL2RenderWindowInteractor::~vtkXOpenGL2RenderWindowInteractor()
+vtkXOpenGLRenderWindowInteractor::~vtkXOpenGLRenderWindowInteractor()
 {
   this->Disable();
 
@@ -132,17 +132,17 @@ vtkXOpenGL2RenderWindowInteractor::~vtkXOpenGL2RenderWindowInteractor()
 
   delete this->Internal;
 
-  if (vtkXOpenGL2RenderWindowInteractor::App)
+  if (vtkXOpenGLRenderWindowInteractor::App)
     {
-    if(vtkXOpenGL2RenderWindowInteractor::NumAppInitialized == 1)
+    if(vtkXOpenGLRenderWindowInteractor::NumAppInitialized == 1)
       {
       if(this->OwnApp)
         {
-        XtDestroyApplicationContext(vtkXOpenGL2RenderWindowInteractor::App);
+        XtDestroyApplicationContext(vtkXOpenGLRenderWindowInteractor::App);
         }
-      vtkXOpenGL2RenderWindowInteractor::App = 0;
+      vtkXOpenGLRenderWindowInteractor::App = 0;
       }
-    vtkXOpenGL2RenderWindowInteractor::NumAppInitialized--;
+    vtkXOpenGLRenderWindowInteractor::NumAppInitialized--;
     }
 }
 
@@ -161,7 +161,7 @@ vtkXOpenGL2RenderWindowInteractor::~vtkXOpenGL2RenderWindowInteractor()
 // create a drawing area or some other widget to serve as the rendering
 // window. You must use the SetWidget method to tell this Interactor
 // about that widget. It's X and it's not terribly easy, but it looks cool.
-void  vtkXOpenGL2RenderWindowInteractor::SetWidget(Widget foo)
+void  vtkXOpenGLRenderWindowInteractor::SetWidget(Widget foo)
 {
   this->Top = foo;
   this->OwnTop = 0;
@@ -181,9 +181,9 @@ void  vtkXOpenGL2RenderWindowInteractor::SetWidget(Widget foo)
 // keyboard events. The following calls need to be made:
 //     vtkRenderWindow's display ID need to be set to the top level shell's
 //           display ID.
-//     vtkXOpenGL2RenderWindowInteractor's Widget has to be set to the vtkRenderWindow's
+//     vtkXOpenGLRenderWindowInteractor's Widget has to be set to the vtkRenderWindow's
 //           container widget
-//     vtkXOpenGL2RenderWindowInteractor's TopLevel has to be set to the top level
+//     vtkXOpenGLRenderWindowInteractor's TopLevel has to be set to the top level
 //           shell widget
 // note that the procedure for setting up render window in a widget needs to
 // be followed.  See vtkRenderWindowInteractor's SetWidget method.
@@ -195,7 +195,7 @@ void  vtkXOpenGL2RenderWindowInteractor::SetWidget(Widget foo)
 // reinitialized every time an interactor is initialized), do not set the
 // widgets (so the render windows would be in their own windows), and do
 // not set TopLevelShell (each has its own top level shell already)
-void vtkXOpenGL2RenderWindowInteractor::SetTopLevelShell(Widget topLevel)
+void vtkXOpenGLRenderWindowInteractor::SetTopLevelShell(Widget topLevel)
 {
   this->TopLevelShell = topLevel;
 }
@@ -204,7 +204,7 @@ void vtkXOpenGL2RenderWindowInteractor::SetTopLevelShell(Widget topLevel)
 // TerminateApp() notifies the event loop to exit.
 // The event loop is started by Start() or by one own's method.
 // This results in Start() returning to its caller.
-void vtkXOpenGL2RenderWindowInteractor::TerminateApp()
+void vtkXOpenGLRenderWindowInteractor::TerminateApp()
 {
   if(this->BreakLoopFlag)
     {
@@ -246,7 +246,7 @@ void vtkXOpenGL2RenderWindowInteractor::TerminateApp()
   XFlush(client.display);
 }
 
-void vtkXOpenGL2RenderWindowInteractor::SetBreakLoopFlag(int f)
+void vtkXOpenGLRenderWindowInteractor::SetBreakLoopFlag(int f)
 {
   if(f)
     {
@@ -258,13 +258,13 @@ void vtkXOpenGL2RenderWindowInteractor::SetBreakLoopFlag(int f)
     }
 }
 
-void vtkXOpenGL2RenderWindowInteractor::BreakLoopFlagOff()
+void vtkXOpenGLRenderWindowInteractor::BreakLoopFlagOff()
 {
   this->BreakLoopFlag = 0;
   this->Modified();
 }
 
-void vtkXOpenGL2RenderWindowInteractor::BreakLoopFlagOn()
+void vtkXOpenGLRenderWindowInteractor::BreakLoopFlagOn()
 {
   this->TerminateApp();
   this->Modified();
@@ -274,7 +274,7 @@ void vtkXOpenGL2RenderWindowInteractor::BreakLoopFlagOn()
 // This will start up the X event loop. If you
 // call this method it will loop processing X events until the
 // loop is exited.
-void vtkXOpenGL2RenderWindowInteractor::Start()
+void vtkXOpenGLRenderWindowInteractor::Start()
 {
   // Let the compositing handle the event loop if it wants to.
   if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
@@ -296,7 +296,7 @@ void vtkXOpenGL2RenderWindowInteractor::Start()
   do
     {
     XEvent event;
-    XtAppNextEvent(vtkXOpenGL2RenderWindowInteractor::App, &event);
+    XtAppNextEvent(vtkXOpenGLRenderWindowInteractor::App, &event);
     XtDispatchEvent(&event);
     }
   while (this->BreakLoopFlag == 0);
@@ -306,9 +306,9 @@ void vtkXOpenGL2RenderWindowInteractor::Start()
 //-------------------------------------------------------------------------
 // Initializes the event handlers using an XtAppContext that you have
 // provided.  This assumes that you want to own the event loop.
-void vtkXOpenGL2RenderWindowInteractor::Initialize(XtAppContext app)
+void vtkXOpenGLRenderWindowInteractor::Initialize(XtAppContext app)
 {
-  vtkXOpenGL2RenderWindowInteractor::App = app;
+  vtkXOpenGLRenderWindowInteractor::App = app;
 
   this->Initialize();
 }
@@ -317,14 +317,14 @@ void vtkXOpenGL2RenderWindowInteractor::Initialize(XtAppContext app)
 // Initializes the event handlers without an XtAppContext.  This is
 // good for when you don't have a user interface, but you still
 // want to have mouse interaction.
-void vtkXOpenGL2RenderWindowInteractor::Initialize()
+void vtkXOpenGLRenderWindowInteractor::Initialize()
 {
   if (this->Initialized)
     {
     return;
     }
 
-  vtkXOpenGL2RenderWindow *ren;
+  vtkXOpenGLRenderWindow *ren;
   int depth;
   Colormap cmap;
   Visual  *vis;
@@ -341,21 +341,21 @@ void vtkXOpenGL2RenderWindowInteractor::Initialize()
     }
 
   this->Initialized = 1;
-  ren = static_cast<vtkXOpenGL2RenderWindow *>(this->RenderWindow);
+  ren = static_cast<vtkXOpenGLRenderWindow *>(this->RenderWindow);
 
   // do initialization stuff if not initialized yet
-  if (vtkXOpenGL2RenderWindowInteractor::App)
+  if (vtkXOpenGLRenderWindowInteractor::App)
     {
-    vtkXOpenGL2RenderWindowInteractor::NumAppInitialized++;
+    vtkXOpenGLRenderWindowInteractor::NumAppInitialized++;
     }
-  if (!vtkXOpenGL2RenderWindowInteractor::NumAppInitialized)
+  if (!vtkXOpenGLRenderWindowInteractor::NumAppInitialized)
     {
-    vtkDebugMacro( << "Toolkit init :" << vtkXOpenGL2RenderWindowInteractor::App );
+    vtkDebugMacro( << "Toolkit init :" << vtkXOpenGLRenderWindowInteractor::App );
     XtToolkitInitialize();
-    vtkXOpenGL2RenderWindowInteractor::App = XtCreateApplicationContext();
+    vtkXOpenGLRenderWindowInteractor::App = XtCreateApplicationContext();
     this->OwnApp = 1;
-    vtkDebugMacro( << "App context :" << vtkXOpenGL2RenderWindowInteractor::App);
-    vtkXOpenGL2RenderWindowInteractor::NumAppInitialized = 1;
+    vtkDebugMacro( << "App context :" << vtkXOpenGLRenderWindowInteractor::App);
+    vtkXOpenGLRenderWindowInteractor::NumAppInitialized = 1;
     }
 
   this->DisplayId = ren->GetDisplayId();
@@ -363,7 +363,7 @@ void vtkXOpenGL2RenderWindowInteractor::Initialize()
     {
     vtkDebugMacro("opening display");
     this->DisplayId =
-      XtOpenDisplay(vtkXOpenGL2RenderWindowInteractor::App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
+      XtOpenDisplay(vtkXOpenGLRenderWindowInteractor::App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
     vtkDebugMacro("opened display");
     }
   else
@@ -371,7 +371,7 @@ void vtkXOpenGL2RenderWindowInteractor::Initialize()
     // if there is no parent widget
     if (!this->Top)
       {
-      XtDisplayInitialize(vtkXOpenGL2RenderWindowInteractor::App,this->DisplayId,
+      XtDisplayInitialize(vtkXOpenGLRenderWindowInteractor::App,this->DisplayId,
                           "VTK","vtk",NULL,0,&argc,NULL);
       }
     }
@@ -454,7 +454,7 @@ void vtkXOpenGL2RenderWindowInteractor::Initialize()
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractor::Enable()
+void vtkXOpenGLRenderWindowInteractor::Enable()
 {
   // avoid cycles of calling Initialize() and Enable()
   if (this->Enabled)
@@ -480,7 +480,7 @@ void vtkXOpenGL2RenderWindowInteractor::Enable()
                     EnterWindowMask | LeaveWindowMask |
                     PointerMotionHintMask | PointerMotionMask,
                     True,  // True means we also observe ClientMessage
-                    vtkXOpenGL2RenderWindowInteractorCallback,
+                    vtkXOpenGLRenderWindowInteractorCallback,
                     static_cast<XtPointer>(this));
 
   // Setup for capturing the window deletion
@@ -493,7 +493,7 @@ void vtkXOpenGL2RenderWindowInteractor::Enable()
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractor::Disable()
+void vtkXOpenGLRenderWindowInteractor::Disable()
 {
   if (!this->Enabled)
     {
@@ -520,7 +520,7 @@ void vtkXOpenGL2RenderWindowInteractor::Disable()
                         ExposureMask | ButtonReleaseMask |
                         EnterWindowMask | LeaveWindowMask |
                         PointerMotionHintMask | PointerMotionMask,
-                        True,vtkXOpenGL2RenderWindowInteractorCallback,
+                        True,vtkXOpenGLRenderWindowInteractorCallback,
                         static_cast<XtPointer>(this));
     }
 
@@ -528,11 +528,11 @@ void vtkXOpenGL2RenderWindowInteractor::Disable()
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXOpenGLRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (vtkXOpenGL2RenderWindowInteractor::App)
+  if (vtkXOpenGLRenderWindowInteractor::App)
     {
     os << indent << "App: " << this->App << "\n";
     }
@@ -546,7 +546,7 @@ void vtkXOpenGL2RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractor::UpdateSize(int x,int y)
+void vtkXOpenGLRenderWindowInteractor::UpdateSize(int x,int y)
 {
   // if the size changed send this on to the RenderWindow
   if ((x != this->Size[0])||(y != this->Size[1]))
@@ -558,11 +558,11 @@ void vtkXOpenGL2RenderWindowInteractor::UpdateSize(int x,int y)
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractorTimer(XtPointer client_data,
+void vtkXOpenGLRenderWindowInteractorTimer(XtPointer client_data,
                                      XtIntervalId *id)
 {
-  vtkXOpenGL2RenderWindowInteractor *me =
-    static_cast<vtkXOpenGL2RenderWindowInteractor*>(client_data);
+  vtkXOpenGLRenderWindowInteractor *me =
+    static_cast<vtkXOpenGLRenderWindowInteractor*>(client_data);
   XtIntervalId xid = *id;
 
   int platformTimerId = me->Internal->GetLocalId(xid);
@@ -581,37 +581,37 @@ void vtkXOpenGL2RenderWindowInteractorTimer(XtPointer client_data,
 
 //-------------------------------------------------------------------------
 // X always creates one shot timers
-int vtkXOpenGL2RenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
+int vtkXOpenGLRenderWindowInteractor::InternalCreateTimer(int vtkNotUsed(timerId),
                                                     int vtkNotUsed(timerType),
                                                     unsigned long duration)
 {
   duration = (duration > 0 ? duration : this->TimerDuration);
   XtIntervalId xid =
-    this->AddTimeOut(vtkXOpenGL2RenderWindowInteractor::App,
+    this->AddTimeOut(vtkXOpenGLRenderWindowInteractor::App,
                      duration,
-                     vtkXOpenGL2RenderWindowInteractorTimer,
+                     vtkXOpenGLRenderWindowInteractorTimer,
                      static_cast<XtPointer>(this));
   int platformTimerId = this->Internal->CreateLocalId(xid);
   return platformTimerId;
 }
 
 //-------------------------------------------------------------------------
-int vtkXOpenGL2RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
+int vtkXOpenGLRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
   XtRemoveTimeOut(this->Internal->DestroyLocalId(platformTimerId));
   return 1;
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractorCallback(Widget vtkNotUsed(w),
+void vtkXOpenGLRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                         XtPointer client_data,
                                         XEvent *event,
                                         Boolean *vtkNotUsed(ctd))
 {
-  vtkXOpenGL2RenderWindowInteractor *me;
+  vtkXOpenGLRenderWindowInteractor *me;
   int xp, yp;
 
-  me = static_cast<vtkXOpenGL2RenderWindowInteractor *>(client_data);
+  me = static_cast<vtkXOpenGLRenderWindowInteractor *>(client_data);
 
   switch (event->type)
     {
@@ -938,7 +938,7 @@ void vtkXOpenGL2RenderWindowInteractorCallback(Widget vtkNotUsed(w),
 }
 
 //-------------------------------------------------------------------------
-XtIntervalId vtkXOpenGL2RenderWindowInteractor::AddTimeOut(XtAppContext app_context,
+XtIntervalId vtkXOpenGLRenderWindowInteractor::AddTimeOut(XtAppContext app_context,
                                                     unsigned long interval,
                                                     XtTimerCallbackProc proc,
                                                     XtPointer client_data)
@@ -947,7 +947,7 @@ XtIntervalId vtkXOpenGL2RenderWindowInteractor::AddTimeOut(XtAppContext app_cont
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractor::GetMousePosition(int *x, int *y)
+void vtkXOpenGLRenderWindowInteractor::GetMousePosition(int *x, int *y)
 {
   Window root,child;
   int root_x,root_y;
@@ -960,17 +960,17 @@ void vtkXOpenGL2RenderWindowInteractor::GetMousePosition(int *x, int *y)
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractor::Timer(XtPointer client_data,
+void vtkXOpenGLRenderWindowInteractor::Timer(XtPointer client_data,
                                        XtIntervalId *id)
 {
-  vtkXOpenGL2RenderWindowInteractorTimer(client_data, id);
+  vtkXOpenGLRenderWindowInteractorTimer(client_data, id);
 }
 
 //-------------------------------------------------------------------------
-void vtkXOpenGL2RenderWindowInteractor::Callback(Widget w,
+void vtkXOpenGLRenderWindowInteractor::Callback(Widget w,
                                           XtPointer client_data,
                                           XEvent *event,
                                           Boolean *ctd)
 {
-  vtkXOpenGL2RenderWindowInteractorCallback(w, client_data, event, ctd);
+  vtkXOpenGLRenderWindowInteractorCallback(w, client_data, event, ctd);
 }

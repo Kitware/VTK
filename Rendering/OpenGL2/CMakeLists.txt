@@ -18,6 +18,38 @@ set(${vtk-module}_SYSTEM_INCLUDE_DIRS
   ${OPENGL_INCLUDE_DIR}
   ${GLEW_INCLUDE_DIRS})
 
+# Copy of what is in vtkRenderingOpenGL for logic on X, Carbon, Cocoa, etc.
+set(VTK_USE_X_DEFAULT OFF)
+
+if(APPLE)
+  option(VTK_USE_COCOA "Use Cocoa for VTK render windows" ON)
+  option(VTK_USE_CARBON "Use Carbon for VTK render windows (deprecated)" OFF)
+  mark_as_advanced(VTK_USE_COCOA VTK_USE_CARBON)
+  if(VTK_USE_COCOA AND VTK_USE_CARBON)
+    message(FATAL_ERROR "You can't enable Carbon and Cocoa - you must choose one.")
+  endif()
+elseif(UNIX)
+  set(VTK_USE_X_DEFAULT ON)
+endif()
+
+option(VTK_USE_X "Use X for VTK render windows" ${VTK_USE_X_DEFAULT})
+mark_as_advanced(VTK_USE_X)
+
+# OSMesa logic for offscreen mesa rendering.
+option(VTK_OPENGL_HAS_OSMESA
+  "The OpenGL library being used supports off screen Mesa calls" OFF)
+option(VTK_USE_OFFSCREEN "Use off screen calls by default" OFF)
+unset(VTK_CAN_DO_OFFSCREEN)
+if(VTK_OPENGL_HAS_OSMESA OR WIN32)
+  set(VTK_CAN_DO_OFFSCREEN 1)
+endif()
+mark_as_advanced(VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN)
+if(VTK_USE_X OR VTK_USE_CARBON OR VTK_USE_COCOA OR WIN32)
+  set(VTK_USE_OSMESA FALSE)
+else()
+  set(VTK_USE_OSMESA TRUE)
+endif()
+
 # FIXME: The TDx support needs some refactoring before we can build it in a
 # modular fashion, for now it must remain an option on vtkRenderingOpenGL.
 option(VTK_USE_TDX "Use TDx interaction devices" OFF)
@@ -59,6 +91,7 @@ set(${vtk-module}_HDRS
   vtkOpenGL.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
   )
 
 set(shader_files
@@ -152,12 +185,12 @@ if(VTK_USE_X)
   include_directories(${X11_INCLUDE_DIR} ${X11_Xt_INCLUDE_PATH})
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
-  set(vtk_module_vtkRenderWindowInteractor_override "vtkXOpenGL2RenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkXOpenGLRenderWindowInteractor")
   list(APPEND vtk_module_overrides "vtkRenderWindow")
-  set(vtk_module_vtkRenderWindow_override "vtkXOpenGL2RenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkXOpenGLRenderWindow")
   list(APPEND Module_SRCS
-    vtkXOpenGL2RenderWindowInteractor.cxx
-    vtkXOpenGL2RenderWindow.cxx
+    vtkXOpenGLRenderWindowInteractor.cxx
+    vtkXOpenGLRenderWindow.cxx
     )
 elseif(VTK_USE_OSMESA)
   message("VTK will be built with OSMesa support!")
@@ -243,6 +276,11 @@ configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.h.in
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGL2ObjectFactory.cxx.in
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
 
+# Configure the module specific settings into a module configured header.
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h)
+# Set up some of the module specific preprocessor definitions.
+set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 target_link_libraries(${vtk-module}

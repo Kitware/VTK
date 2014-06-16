@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXOpenGL2RenderWindowInteractor.h
+  Module:    vtkXOpenGLRenderWindowInteractor.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXOpenGL2RenderWindowInteractor - an X event driven interface for a RenderWindow
+// .NAME vtkXOpenGLRenderWindowInteractor - an X event driven interface for a RenderWindow
 // .SECTION Description
-// vtkXOpenGL2RenderWindowInteractor is a convenience object that provides event
+// vtkXOpenGLRenderWindowInteractor is a convenience object that provides event
 // bindings to common graphics functions. For example, camera and actor
 // functions such as zoom-in/zoom-out, azimuth, roll, and pan. IT is one of
 // the window system specific subclasses of vtkRenderWindowInteractor. Please
@@ -27,8 +27,8 @@
 // the basic structure and if you're lucky it might even work!
 // but frankly I doubt it
 
-#ifndef __vtkXOpenGL2RenderWindowInteractor_h
-#define __vtkXOpenGL2RenderWindowInteractor_h
+#ifndef __vtkXOpenGLRenderWindowInteractor_h
+#define __vtkXOpenGLRenderWindowInteractor_h
 
 //===========================================================
 // now we define the C++ class
@@ -39,19 +39,19 @@
 #include <X11/Intrinsic.h> // Needed for X types in the public interface
 
 class vtkCallbackCommand;
-class vtkXOpenGL2RenderWindowInteractorInternals;
+class vtkXOpenGLRenderWindowInteractorInternals;
 
 //BTX
 // Forward declare internal friend functions.
-void VTKRENDERINGOPENGL2_EXPORT vtkXOpenGL2RenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
-void VTKRENDERINGOPENGL2_EXPORT vtkXOpenGL2RenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+void VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
+void VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 //ETX
 
-class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGL2RenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
-  static vtkXOpenGL2RenderWindowInteractor *New();
-  vtkTypeMacro(vtkXOpenGL2RenderWindowInteractor,vtkRenderWindowInteractor);
+  static vtkXOpenGLRenderWindowInteractor *New();
+  vtkTypeMacro(vtkXOpenGLRenderWindowInteractor,vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -134,9 +134,9 @@ public:
   // keyboard events. The following calls need to be made:
   //     vtkRenderWindow's display ID need to be set to the top level shell's
   //           display ID.
-  //     vtkXOpenGL2RenderWindowInteractor's Widget has to be set to the vtkRenderWindow's
+  //     vtkXOpenGLRenderWindowInteractor's Widget has to be set to the vtkRenderWindow's
   //           container widget
-  //     vtkXOpenGL2RenderWindowInteractor's TopLevel has to be set to the top level
+  //     vtkXOpenGLRenderWindowInteractor's TopLevel has to be set to the top level
   //           shell widget
   // note that the procedure for setting up render window in a widget needs to
   // be followed.  See vtkRenderWindowInteractor's SetWidget method.
@@ -157,13 +157,13 @@ public:
 
   // Description:
   // Functions that are used internally.
-  friend void vtkXOpenGL2RenderWindowInteractorCallback(Widget,XtPointer,
+  friend void vtkXOpenGLRenderWindowInteractorCallback(Widget,XtPointer,
                                                  XEvent *,Boolean *);
-  friend void vtkXOpenGL2RenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+  friend void vtkXOpenGLRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 
 protected:
-  vtkXOpenGL2RenderWindowInteractor();
-  ~vtkXOpenGL2RenderWindowInteractor();
+  vtkXOpenGLRenderWindowInteractor();
+  ~vtkXOpenGLRenderWindowInteractor();
 
   //Using static here to avoid detroying context when many apps are open:
   static XtAppContext App;
@@ -178,7 +178,7 @@ protected:
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
   int TimerId;
-  vtkXOpenGL2RenderWindowInteractorInternals* Internal;
+  vtkXOpenGLRenderWindowInteractorInternals* Internal;
 
   // Description:
   // X-specific internal timer methods. See the superclass for detailed
@@ -194,8 +194,8 @@ protected:
   static int BreakLoopFlag;
 
 private:
-  vtkXOpenGL2RenderWindowInteractor(const vtkXOpenGL2RenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkXOpenGL2RenderWindowInteractor&);  // Not implemented.
+  vtkXOpenGLRenderWindowInteractor(const vtkXOpenGLRenderWindowInteractor&);  // Not implemented.
+  void operator=(const vtkXOpenGLRenderWindowInteractor&);  // Not implemented.
 };
 
 #endif
