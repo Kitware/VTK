@@ -46,7 +46,6 @@
 #include "vtkOpenGLError.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkContextBufferId.h"
 #include "vtkOpenGLContextBufferId.h"
 
 #include "vtkOpenGLContextDevice2DPrivate.h"
