@@ -11,19 +11,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLPolyDataMapper - PolyDataMapper using OpenGLs primarily to render.
+// .NAME vtkOpenGLPolyDataMapper - PolyDataMapper using OpenGL to render.
 // .SECTION Description
-// PolyDataMapper that uses a OpenGLs to do the actual rendering.
+// PolyDataMapper that uses a OpenGL to do the actual rendering.
 
 #ifndef __vtkOpenGLPolyDataMapper_h
 #define __vtkOpenGLPolyDataMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
+#include "vtkglVBOHelper.h"
 
 class vtkOpenGLTexture;
-
-namespace vtkgl {struct CellBO; }
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -48,16 +47,6 @@ public:
   // resources to release. Merely propagates the call to the painter.
   void ReleaseGraphicsResources(vtkWindow *);
 
-  void SetModelTransform(vtkMatrix4x4* matrix)
-  {
-    this->ModelTransformMatrix = matrix;
-  }
-
-  void SetModelColor(unsigned char *color)
-  {
-    this->ModelColor = color;
-  }
-
   vtkGetMacro(PopulateSelectionSettings,int);
   void SetPopulateSelectionSettings(int v) { this->PopulateSelectionSettings = v; };
 
@@ -79,10 +68,6 @@ public:
   // opaque geometry.
   virtual bool GetIsOpaque();
 
-  // testing performance
-  void GlyphRender(vtkRenderer* ren, vtkActor* actor, unsigned char rgba[4], vtkMatrix4x4 *gmat, int stage);
-
-
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
@@ -94,40 +79,62 @@ protected:
   virtual void ComputeBounds();
 
   // Description:
-  // Determine what shader to use and compile/link it
+  // Make sure an appropriate shader is defined, compiled and bound.  This method
+  // orchistrates the process, much of the work is done in other methods
   virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Build the shader source code
+  // Does the shader source need to be recomputed
+  virtual bool GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Build the shader source code, called by UpdateShader
   virtual void BuildShader(std::string &VertexCode, std::string &fragmentCode, int lightComplexity, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Update the scene when necessary.
-  void UpdateOpenGL(vtkActor *act);
+  // Set the shader parameteres related to the mapper/input data, called by UpdateShader
+  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to lighting
-  void SetLightingShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  // Set the shader parameteres related to lighting, called by UpdateShader
+  virtual void SetLightingShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to the Camera
-  void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  // Set the shader parameteres related to the Camera, called by UpdateShader
+  virtual void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to the property
-  void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  // Set the shader parameteres related to the property, called by UpdateShader
+  virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // The scene used by the mapper, all rendering is deferred to the scene.
-  class Private;
-  Private *Internal;
+  // Update the VBO to contain point based values
+  virtual void UpdateVBO(vtkActor *act);
+
+  // The VBO and its layout.
+  vtkgl::BufferObject VBO;
+  vtkgl::VBOLayout layout;
+
+  // Structures for the various cell types we render.
+  vtkgl::CellBO points;
+  vtkgl::CellBO lines;
+  vtkgl::CellBO tris;
+  vtkgl::CellBO triStrips;
+  vtkgl::CellBO *lastBoundBO;
+
+  // values we use to determine if we need to rebuild
+  int LastLightComplexity;
+  vtkTimeStamp LightComplexityChanged;
+
+  bool LastSelectionState;
+  vtkTimeStamp SelectionStateChanged;
+
+  int LastDepthPeeling;
+  vtkTimeStamp DepthPeelingChanged;
 
   bool UsingScalarColoring;
   vtkTimeStamp OpenGLUpdateTime; // When was the OpenGL updated?
   vtkOpenGLTexture* InternalColorTexture;
-
-  vtkMatrix4x4* ModelTransformMatrix;
-  unsigned char* ModelColor;
 
   int PopulateSelectionSettings;
 

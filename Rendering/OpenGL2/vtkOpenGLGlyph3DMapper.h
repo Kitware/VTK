@@ -32,7 +32,7 @@
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 #include "vtkNew.h" // For vtkNew
 
-class vtkOpenGLPolyDataMapper;
+class vtkOpenGLGlyph3DHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DMapper
     : public vtkGlyph3DMapper
@@ -62,7 +62,7 @@ protected:
   // Description:
   // Send mapper ivars to sub-mapper.
   // \pre mapper_exists: mapper != 0
-  void CopyInformationToSubMapper(vtkOpenGLPolyDataMapper*);
+  void CopyInformationToSubMapper(vtkOpenGLGlyph3DHelper*);
 
   void SetupColorMapper();
 
@@ -75,7 +75,8 @@ protected:
 
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
 
-  vtkOpenGLPolyDataMapper *Mapper;
+  // subclass of vtkOpenGLPolyDataMapper
+  vtkOpenGLGlyph3DHelper *Mapper;
 
   vtkTimeStamp PainterUpdateTime;
 

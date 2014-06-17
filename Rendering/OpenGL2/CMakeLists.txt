@@ -72,6 +72,7 @@ set(Module_SRCS
   vtkOpenGLCamera.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
+  vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
   vtkOpenGLLight.cxx
