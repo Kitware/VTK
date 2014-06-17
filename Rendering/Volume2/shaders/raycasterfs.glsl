@@ -50,11 +50,8 @@ uniform float m_sample_distance;
 uniform vec3 m_cell_m_scale;
 uniform float m_scale;
 
-/// Material and lighting
-uniform vec3 diffuse;
-uniform vec3 ambient;
-uniform vec3 specular;
-uniform float shininess;
+@SHADING_ATTRIBUTES@
+@SHADING_UNIFORMS@
 
 uniform vec2 m_window_lower_left_corner;
 uniform vec2 m_inv_original_window_size;
@@ -103,11 +100,11 @@ void main()
   /// between 0 and 1 the m_depth_sampler buffer has the original size buffer.
   m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) *
                       m_inv_window_size;
-  vec4 depthValue = texture2D(m_depth_sampler, m_frag_tex_coord);
+  vec4 m_depth_value = texture2D(m_depth_sampler, m_frag_tex_coord);
   float m_terminate_point_max = 0.0;
 
   /// Depth test
-  if(gl_FragCoord.z >= depthValue.x)
+  if(gl_FragCoord.z >= m_depth_value.x)
     {
     discard;
     }
