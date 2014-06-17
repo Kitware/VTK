@@ -24,13 +24,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 
+#include "vtkWindows.h" // For windows API
+
 class vtkIdList;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGL2RenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
-  static vtkWin32OpenGL2RenderWindow *New();
-  vtkTypeMacro(vtkWin32OpenGL2RenderWindow,vtkOpenGLRenderWindow);
+  static vtkWin32OpenGLRenderWindow *New();
+  vtkTypeMacro(vtkWin32OpenGLRenderWindow,vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -223,8 +225,8 @@ public:
   virtual void SetOffScreenRendering(int offscreen);
 
 protected:
-  vtkWin32OpenGL2RenderWindow();
-  ~vtkWin32OpenGL2RenderWindow();
+  vtkWin32OpenGLRenderWindow();
+  ~vtkWin32OpenGLRenderWindow();
 
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
@@ -277,8 +279,8 @@ protected:
   void CleanUpRenderers();
 
 private:
-  vtkWin32OpenGL2RenderWindow(const vtkWin32OpenGL2RenderWindow&);  // Not implemented.
-  void operator=(const vtkWin32OpenGL2RenderWindow&);  // Not implemented.
+  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
 };
 
 

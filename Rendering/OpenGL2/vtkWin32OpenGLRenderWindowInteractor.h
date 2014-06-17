@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkWin32OpenGL2RenderWindowInteractor.h
+  Module:    vtkWin32OpenGLRenderWindowInteractor.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWin32OpenGL2RenderWindowInteractor - implements Win32 specific functions
+// .NAME vtkWin32OpenGLRenderWindowInteractor - implements Win32 specific functions
 // required by vtkRenderWindowInteractor.
 //
 // .SECTION Description
@@ -23,8 +23,8 @@
 // messages into the event bindings by setting InstallMessageProc to false.
 // This provides a minimal "Mapped" mode of interaction
 //
-#ifndef __vtkWin32OpenGL2RenderWindowInteractor_h
-#define __vtkWin32OpenGL2RenderWindowInteractor_h
+#ifndef __vtkWin32OpenGLRenderWindowInteractor_h
+#define __vtkWin32OpenGLRenderWindowInteractor_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
@@ -35,14 +35,14 @@
 class vtkTDxWinDevice;
 #endif
 
-class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGL2RenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGOPENGL2_EXPORT vtkWin32OpenGLRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   // Description:
   // Construct object so that light follows camera motion.
-  static vtkWin32OpenGL2RenderWindowInteractor *New();
+  static vtkWin32OpenGLRenderWindowInteractor *New();
 
-  vtkTypeMacro(vtkWin32OpenGL2RenderWindowInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkWin32OpenGLRenderWindowInteractor,vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -83,7 +83,7 @@ public:
 
   //BTX
   friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
-  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32OpenGL2RenderWindowInteractor *me);
+  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32OpenGLRenderWindowInteractor *me);
 
   // Description:
   // Various methods that a Win32 window can redirect to this class to be
@@ -121,8 +121,8 @@ public:
   virtual void ExitCallback();
 
 protected:
-  vtkWin32OpenGL2RenderWindowInteractor();
-  ~vtkWin32OpenGL2RenderWindowInteractor();
+  vtkWin32OpenGLRenderWindowInteractor();
+  ~vtkWin32OpenGLRenderWindowInteractor();
 
   HWND    WindowId;
   WNDPROC OldProc;
@@ -151,8 +151,8 @@ protected:
 #endif
 
 private:
-  vtkWin32OpenGL2RenderWindowInteractor(const vtkWin32OpenGL2RenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkWin32OpenGL2RenderWindowInteractor&);  // Not implemented.
+  vtkWin32OpenGLRenderWindowInteractor(const vtkWin32OpenGLRenderWindowInteractor&);  // Not implemented.
+  void operator=(const vtkWin32OpenGLRenderWindowInteractor&);  // Not implemented.
 };
 
 #endif
