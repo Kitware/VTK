@@ -30,13 +30,8 @@ import os
 
 # import vtk modules.
 import vtk
-from vtk.web import protocols
-from vtk.web import server2 as server
-from vtk.web import wamp2 as vtk_wamp
-from vtk.web.wamp2 import exportRpc
-
-# import annotations
-from autobahn import wamp
+from vtk.web import protocols, server
+from vtk.web import wamp as vtk_wamp
 
 try:
     import argparse
