@@ -23,7 +23,6 @@
 #include "vtkWeakPointer.h" // for render context
 
 class vtkRenderWindow;
-class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkRenderbuffer : public vtkObject
 {

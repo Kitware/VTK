@@ -77,10 +77,6 @@ void vtkOpenGLProperty::Render(vtkActor *anActor, vtkRenderer *ren)
     //vtkOpenGLGL2PSHelper::DisableStipple();
     }
 
-  // disable alpha testing (this may have been enabled
-  // by another actor in OpenGLTexture)
-  glDisable (GL_ALPHA_TEST);
-
   // turn on/off backface culling
   if (! this->BackfaceCulling && ! this->FrontfaceCulling)
     {
@@ -107,23 +103,9 @@ bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren)
 {
   // render any textures.
   int numTextures = this->GetNumberOfTextures();
-  if (numTextures > 0)
+  for (int t = 0; t < numTextures; t++)
     {
-    GLint numSupportedTextures;
-    glGetIntegerv(GL_MAX_TEXTURE_UNITS, &numSupportedTextures);
-    for (int t = 0; t < numTextures; t++)
-      {
-      int texture_unit = this->GetTextureUnitAtIndex(t);
-      if (texture_unit >= numSupportedTextures || texture_unit < 0)
-        {
-        vtkErrorMacro("Hardware does not support the number of textures defined.");
-        continue;
-        }
-
-      glActiveTexture(GL_TEXTURE0 +
-                           static_cast<GLenum>(texture_unit));
-      this->GetTextureAtIndex(t)->Render(ren);
-      }
+    this->GetTextureAtIndex(t)->Render(ren);
     }
 
   vtkOpenGLCheckErrorMacro("failed after Render");

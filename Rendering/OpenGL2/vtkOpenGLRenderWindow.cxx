@@ -1531,6 +1531,11 @@ void vtkOpenGLRenderWindow::ActivateTexture(vtkTexture *texture)
   if (found == this->TextureResourceIds.end())
     {
     int activeUnit =  this->GetTextureUnitManager()->Allocate();
+    if (activeUnit < 0)
+      {
+      vtkErrorMacro("Hardware does not support the number of textures defined.");
+      return;
+      }
     this->TextureResourceIds.insert(std::make_pair(texture, activeUnit));
     glActiveTexture(GL_TEXTURE0 + activeUnit);
     }
