@@ -11,7 +11,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkVBOPolyDataMapper.h"
+#include "vtkOpenGLPolyDataMapper.h"
 
 #include "vtkglVBOHelper.h"
 
@@ -60,11 +60,11 @@
 
 using vtkgl::replace;
 
-class vtkVBOPolyDataMapper::Private
+class vtkOpenGLPolyDataMapper::Private
 {
 public:
-  // The VBO and its layout.
-  vtkgl::BufferObject vbo;
+  // The OpenGL and its layout.
+  vtkgl::BufferObject OpenGL;
   vtkgl::VBOLayout layout;
 
   // Structures for the various cell types we render.
@@ -93,10 +93,10 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkVBOPolyDataMapper)
+vtkStandardNewMacro(vtkOpenGLPolyDataMapper)
 
 //-----------------------------------------------------------------------------
-vtkVBOPolyDataMapper::vtkVBOPolyDataMapper()
+vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : Internal(new Private), UsingScalarColoring(false),
     ModelTransformMatrix(NULL), ModelColor(NULL)
 {
@@ -106,7 +106,7 @@ vtkVBOPolyDataMapper::vtkVBOPolyDataMapper()
 
 
 //-----------------------------------------------------------------------------
-vtkVBOPolyDataMapper::~vtkVBOPolyDataMapper()
+vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 {
   delete this->Internal;
   if (this->InternalColorTexture)
@@ -117,7 +117,7 @@ vtkVBOPolyDataMapper::~vtkVBOPolyDataMapper()
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
+void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   // FIXME: Implement resource release.
     // We may not want to do this here.
@@ -129,7 +129,7 @@ void vtkVBOPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* ren, vtkActor *actor)
 {
   switch (lightComplexity)
     {
@@ -292,7 +292,7 @@ void vtkVBOPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSou
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren, vtkActor *actor)
 {
   int lightComplexity = 0;
 
@@ -404,10 +404,10 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
 
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Internal->layout;
-  if (cellBO.indexCount && this->VBOUpdateTime > cellBO.attributeUpdateTime)
+  if (cellBO.indexCount && this->OpenGLUpdateTime > cellBO.attributeUpdateTime)
     {
     cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
+    if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->OpenGL,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
@@ -415,7 +415,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     if (layout.NormalOffset)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->OpenGL,
                                       "normalMC", layout.NormalOffset,
                                       layout.Stride, VTK_FLOAT, 3, false))
         {
@@ -424,7 +424,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     if (layout.TCoordComponents)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->OpenGL,
                                       "tcoordMC", layout.TCoordOffset,
                                       layout.Stride, VTK_FLOAT, layout.TCoordComponents, false))
         {
@@ -433,7 +433,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
       }
     if (layout.ColorComponents != 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->vbo,
+      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->Internal->OpenGL,
                                       "scalarColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
@@ -503,7 +503,7 @@ void vtkVBOPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* ren,
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
                                                       vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
   // for unlit and headlight there are no lighting parameters
@@ -596,7 +596,7 @@ void vtkVBOPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
   vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
@@ -660,7 +660,7 @@ void vtkVBOPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
                                                        vtkRenderer*, vtkActor *actor)
 {
   vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
@@ -701,7 +701,7 @@ void vtkVBOPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
   vtkDataObject *input= this->GetInputDataObject(0, 0);
 
@@ -724,13 +724,13 @@ void vtkVBOPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 
   this->TimeToDraw = 0.0;
 
-  // Update the VBO if needed.
-  if (this->VBOUpdateTime < this->GetMTime() ||
-      this->VBOUpdateTime < actor->GetMTime() ||
-      this->VBOUpdateTime < input->GetMTime() )
+  // Update the OpenGL if needed.
+  if (this->OpenGLUpdateTime < this->GetMTime() ||
+      this->OpenGLUpdateTime < actor->GetMTime() ||
+      this->OpenGLUpdateTime < input->GetMTime() )
     {
-    this->UpdateVBO(actor);
-    this->VBOUpdateTime.Modified();
+    this->UpdateOpenGL(actor);
+    this->OpenGLUpdateTime.Modified();
     }
 
 
@@ -741,8 +741,8 @@ void vtkVBOPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
     this->InternalColorTexture->Load(ren);
     }
 
-  // Bind the VBO, this is shared between the different primitive/cell types.
-  this->Internal->vbo.Bind();
+  // Bind the OpenGL, this is shared between the different primitive/cell types.
+  this->Internal->OpenGL.Bind();
 
   this->Internal->lastBoundBO = NULL;
 
@@ -771,7 +771,7 @@ void vtkVBOPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   vtkgl::VBOLayout &layout = this->Internal->layout;
 
@@ -895,7 +895,7 @@ void vtkVBOPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
+void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->PopulateSelectionSettings)
@@ -908,7 +908,7 @@ void vtkVBOPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkNotU
     this->Internal->lastBoundBO->vao.Release();
     }
 
-  this->Internal->vbo.Release();
+  this->Internal->OpenGL.Release();
 
   if ( this->GetResolveCoincidentTopology() )
     {
@@ -927,7 +927,7 @@ void vtkVBOPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkNotU
 }
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 {
   // Make sure that we have been properly initialized.
   if (ren->GetRenderWindow()->CheckAbortStatus())
@@ -962,7 +962,7 @@ void vtkVBOPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 }
 
 //-------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::ComputeBounds()
+void vtkOpenGLPolyDataMapper::ComputeBounds()
 {
   if (!this->GetInput())
     {
@@ -973,7 +973,7 @@ void vtkVBOPolyDataMapper::ComputeBounds()
 }
 
 //-------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
+void vtkOpenGLPolyDataMapper::UpdateOpenGL(vtkActor *act)
 {
   vtkPolyData *poly = this->GetInput();
   if (poly == NULL)// || !poly->GetPointData()->GetNormals())
@@ -1048,7 +1048,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
       }
     }
 
-  // Iterate through all of the different types in the polydata, building VBOs
+  // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
   this->Internal->layout =
     CreateVBO(poly->GetPoints(),
@@ -1057,7 +1057,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
               tcoords,
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              this->Internal->vbo,
+              this->Internal->OpenGL,
               cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
               pointCellMap.size() > 0 ? &pointCellMap.front() : NULL);
 
@@ -1113,7 +1113,7 @@ void vtkVBOPolyDataMapper::UpdateVBO(vtkActor *act)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkVBOPolyDataMapper::GetIsOpaque()
+bool vtkOpenGLPolyDataMapper::GetIsOpaque()
 {
   // Straight copy of what the vtkPainterPolyDataMapper was doing.
   if (this->ScalarVisibility &&
@@ -1146,7 +1146,7 @@ bool vtkVBOPolyDataMapper::GetIsOpaque()
   return this->Superclass::GetIsOpaque();
 }
 
-void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsigned char rgba[4], vtkMatrix4x4 *gmat, int stage)
+void vtkOpenGLPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsigned char rgba[4], vtkMatrix4x4 *gmat, int stage)
 {
   // handle staring up
   if (stage == 1)
@@ -1259,7 +1259,7 @@ void vtkVBOPolyDataMapper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsign
 
 
 //-----------------------------------------------------------------------------
-void vtkVBOPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

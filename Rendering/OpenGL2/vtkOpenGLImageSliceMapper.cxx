@@ -38,7 +38,7 @@
 
 #include "vtkTexture.h"
 #include "vtkPointData.h"
-#include "vtkVBOPolyDataMapper.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
@@ -74,7 +74,7 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 
   vtkNew<vtkTrivialProducer> prod;
   prod->SetOutput(polydata.Get());
-  vtkNew<vtkVBOPolyDataMapper> polyDataMapper;
+  vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->PolyDataActor = vtkActor::New();
   this->PolyDataActor->SetMapper(polyDataMapper.Get());
@@ -95,7 +95,7 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 
   vtkNew<vtkTrivialProducer> prod;
   prod->SetOutput(polydata.Get());
-  vtkNew<vtkVBOPolyDataMapper> polyDataMapper;
+  vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->BackingPolyDataActor = vtkActor::New();
   this->BackingPolyDataActor->SetMapper(polyDataMapper.Get());
@@ -113,7 +113,7 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 
   vtkNew<vtkTrivialProducer> prod;
   prod->SetOutput(polydata.Get());
-  vtkNew<vtkVBOPolyDataMapper> polyDataMapper;
+  vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->BackgroundPolyDataActor = vtkActor::New();
   this->BackgroundPolyDataActor->SetMapper(polyDataMapper.Get());

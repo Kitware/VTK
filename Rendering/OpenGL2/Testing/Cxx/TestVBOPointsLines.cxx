@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
-#include "vtkVBOPolyDataMapper.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkTrivialProducer.h"
@@ -33,7 +33,7 @@ int TestVBOPointsLines(int, char *[])
 {
   // Initialize everything
   vtkNew<vtkActor> actor;
-  vtkNew<vtkVBOPolyDataMapper> mapper;
+  vtkNew<vtkPolyDataMapper> mapper;
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;

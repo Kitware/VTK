@@ -75,9 +75,9 @@ set(Module_SRCS
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
   vtkOpenGLLight.cxx
+  vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
-  vtkVBOPolyDataMapper.cxx
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
@@ -169,12 +169,12 @@ set(opengl_overrides
   ImageSliceMapper
   Glyph3DMapper
   Light
+  PolyDataMapper
   PolyDataMapper2D
   Property
   Renderer
   Texture
   )
-vtk_add_override(vtkPolyDataMapper vtkVBOPolyDataMapper)
 foreach(_override ${opengl_overrides})
   vtk_add_override(vtk${_override} vtkOpenGL${_override})
 endforeach()

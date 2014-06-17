@@ -24,7 +24,7 @@
 #include "vtkHardwareSelector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkVBOPolyDataMapper.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPointData.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -85,7 +85,7 @@ vtkStandardNewMacro(vtkOpenGLGlyph3DMapper)
 vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 {
   this->GlyphValues = new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray();
-  this->Mapper = vtkVBOPolyDataMapper::New();
+  this->Mapper = vtkOpenGLPolyDataMapper::New();
   this->Mapper->SetPopulateSelectionSettings(0);
   this->LastWindow = 0;
 }
@@ -112,7 +112,7 @@ vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 // Send mapper ivars to sub-mapper.
 // \pre mapper_exists: mapper!=0
 void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(
-    vtkVBOPolyDataMapper *mapper)
+    vtkOpenGLPolyDataMapper *mapper)
 {
   assert("pre: mapper_exists" && mapper!=0);
   mapper->SetStatic(this->Static);

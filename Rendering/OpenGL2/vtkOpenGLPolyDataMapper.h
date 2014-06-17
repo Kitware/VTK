@@ -11,12 +11,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVBOPolyDataMapper - PolyDataMapper using VBOs primarily to render.
+// .NAME vtkOpenGLPolyDataMapper - PolyDataMapper using OpenGLs primarily to render.
 // .SECTION Description
-// PolyDataMapper that uses a VBOs to do the actual rendering.
+// PolyDataMapper that uses a OpenGLs to do the actual rendering.
 
-#ifndef __vtkVBOPolyDataMapper_h
-#define __vtkVBOPolyDataMapper_h
+#ifndef __vtkOpenGLPolyDataMapper_h
+#define __vtkOpenGLPolyDataMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
@@ -25,11 +25,11 @@ class vtkOpenGLTexture;
 
 namespace vtkgl {struct CellBO; }
 
-class VTKRENDERINGOPENGL2_EXPORT vtkVBOPolyDataMapper : public vtkPolyDataMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
 public:
-  static vtkVBOPolyDataMapper* New();
-  vtkTypeMacro(vtkVBOPolyDataMapper, vtkPolyDataMapper)
+  static vtkOpenGLPolyDataMapper* New();
+  vtkTypeMacro(vtkOpenGLPolyDataMapper, vtkPolyDataMapper)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -84,8 +84,8 @@ public:
 
 
 protected:
-  vtkVBOPolyDataMapper();
-  ~vtkVBOPolyDataMapper();
+  vtkOpenGLPolyDataMapper();
+  ~vtkOpenGLPolyDataMapper();
 
   // Description:
   // Called in GetBounds(). When this method is called, the consider the input
@@ -103,7 +103,7 @@ protected:
 
   // Description:
   // Update the scene when necessary.
-  void UpdateVBO(vtkActor *act);
+  void UpdateOpenGL(vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to lighting
@@ -123,7 +123,7 @@ protected:
   Private *Internal;
 
   bool UsingScalarColoring;
-  vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
+  vtkTimeStamp OpenGLUpdateTime; // When was the OpenGL updated?
   vtkOpenGLTexture* InternalColorTexture;
 
   vtkMatrix4x4* ModelTransformMatrix;
@@ -132,8 +132,8 @@ protected:
   int PopulateSelectionSettings;
 
 private:
-  vtkVBOPolyDataMapper(const vtkVBOPolyDataMapper&); // Not implemented.
-  void operator=(const vtkVBOPolyDataMapper&); // Not implemented.
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
+  void operator=(const vtkOpenGLPolyDataMapper&); // Not implemented.
 };
 
 #endif

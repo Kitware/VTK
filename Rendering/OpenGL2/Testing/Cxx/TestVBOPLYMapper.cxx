@@ -18,7 +18,7 @@
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
-#include "vtkVBOPolyDataMapper.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkPLYReader.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
