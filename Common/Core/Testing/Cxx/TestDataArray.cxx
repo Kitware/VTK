@@ -52,6 +52,16 @@ int TestDataArray(int,char *[])
     array->InsertNextTuple1(cc);
     }
   array->GetRange( range, 0 ); // Range is now 0-9. Used to check MTimes.
+  if ( range[0] != 0 || range[1] != 9 )
+    {
+    cerr
+      << "Getting range (" << range[0] << "-" << range[1]
+      << ") of array marked for modified didn't cause recomputation of range!";
+    array->Delete();
+    return 1;
+    }
+
+  cerr << "Getting range (" << range[0] << "-" << range[1] << ")" << std::endl;
   array->RemoveFirstTuple();
   array->RemoveTuple(3);
   array->RemoveTuple(4);
