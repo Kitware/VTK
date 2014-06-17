@@ -76,4 +76,3 @@ void vtkInformationRequestKey::Print(ostream& os, vtkInformation* info)
     os << "1\n";
     }
 }
-
