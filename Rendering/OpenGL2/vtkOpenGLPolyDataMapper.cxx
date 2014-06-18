@@ -163,7 +163,8 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource, std::string &FS
                                  "//VTK::Normal::Dec",
                                  "varying vec3 normalVCVarying;");
     FSSource = replace(FSSource,
-                                 "//VTK::Normal::Impl","vec3 normalVC; if (!gl_FrontFacing) { normalVC = -normalVCVarying; } else { normalVC = normalVCVarying; }");
+                                 "//VTK::Normal::Impl",
+                                 "vec3 normalVC; if (!gl_FrontFacing) { normalVC = -normalVCVarying; } else { normalVC = normalVCVarying; }");
     }
   else
     {
@@ -173,12 +174,17 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource, std::string &FS
       // and maximally aligned with the camera view direction
       // no clue if this is the best way to do this.
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                   "vec3 normalVC; if (abs(dot(dFdx(vertexVC.xyz),vec3(1,1,1))) > abs(dot(dFdy(vertexVC.xyz),vec3(1,1,1)))) { normalVC = normalize(cross(cross(dFdx(vertexVC.xyz), vec3(0,0,1)), dFdx(vertexVC.xyz))); } else { normalVC = normalize(cross(cross(dFdy(vertexVC.xyz), vec3(0,0,1)), dFdy(vertexVC.xyz)));}");
+                                   "vec3 normalVC;\n"
+                                   "if (abs(dot(dFdx(vertexVC.xyz),vec3(1,1,1))) > abs(dot(dFdy(vertexVC.xyz),vec3(1,1,1))))\n"
+                                   " { normalVC = normalize(cross(cross(dFdx(vertexVC.xyz), vec3(0,0,1)), dFdx(vertexVC.xyz))); }\n"
+                                   "else { normalVC = normalize(cross(cross(dFdy(vertexVC.xyz), vec3(0,0,1)), dFdy(vertexVC.xyz)));}");
       }
     else
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));");
+                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
+                                   "if (normalVC.z < 0) { normalVC = -1.0*normalVC; }"
+                                   );
       }
     }
   if (this->layout.TCoordComponents)
@@ -232,12 +238,6 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource, std::string &FS
                               "  gl_FragColor = vec4(mapperIndex,1.0);"
                               "  }");
     }
-  // else
-  //   {
-  //   FSSource = vtkgl::replace(FSSource,
-  //                             "//VTK::Picking::Impl",
-  //                             "  if (gl_PrimitiveID != 50816 && gl_PrimitiveID != 50992) discard;  gl_FragColor = vec4(0.2,0.2,0.2,1); if (gl_PrimitiveID == 50816) {gl_FragColor = vec4(1,0,1,1);} if (gl_PrimitiveID == 50992) {gl_FragColor = vec4(0,1,1,1);}");
-  //   }
 
   if (ren->GetLastRenderingUsedDepthPeeling())
     {
