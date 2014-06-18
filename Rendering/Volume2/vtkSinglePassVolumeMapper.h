@@ -49,8 +49,7 @@ class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
 
     /// Description:
     /// Build vertex and fragment shader for the volume rendering
-    void BuildShader(std::string& vertexShader, std::string& fragmentShader,
-                     vtkRenderer* ren, vtkVolume* vol);
+    void BuildShader(vtkRenderer* ren, vtkVolume* vol);
 
     /// Description:
     /// Validate before performing volume rendering

@@ -233,6 +233,8 @@ public:
   vtkOpenGLOpacityTables* OpacityTables;
 
   vtkTimeStamp VolumeBuildTime;
+  vtkTimeStamp ShaderBuildTime;
+
   vtkNew<vtkTimerLog> Timer;
 
   vtkNew<vtkMatrix4x4> TextureToDataSetMat;
@@ -264,45 +266,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
   cout<<"\tRenderer: "<< glGetString (GL_RENDERER)<<endl;
   cout<<"\tVersion: "<< glGetString (GL_VERSION)<<endl;
   cout<<"\tGLSL: "<< glGetString (GL_SHADING_LANGUAGE_VERSION)<<endl;
-
-  /// Load the raycasting shader
-  std::string vertexShader (raycastervs);
-  std::string fragmentShader (raycasterfs);
-
-  this->Parent->BuildShader(vertexShader, fragmentShader, ren, vol);
-
-  /// Compile and link it
-  this->CompileAndLinkShader(vertexShader, fragmentShader);
-
-  /// Add attributes and uniforms
-  this->Shader.AddAttribute("m_in_vertex_pos");
-
-  this->Shader.AddUniform("m_scene_matrix");
-  this->Shader.AddUniform("m_modelview_matrix");
-  this->Shader.AddUniform("m_projection_matrix");
-  this->Shader.AddUniform("m_texture_dataset_matrix");
-  this->Shader.AddUniform("m_volume");
-  this->Shader.AddUniform("m_camera_pos");
-  this->Shader.AddUniform("m_light_pos");
-  this->Shader.AddUniform("m_step_size");
-  this->Shader.AddUniform("m_sample_distance");
-  this->Shader.AddUniform("m_scale");
-  this->Shader.AddUniform("m_cell_scale");
-  this->Shader.AddUniform("m_color_transfer_func");
-  this->Shader.AddUniform("m_opacity_transfer_func");
-  this->Shader.AddUniform("m_noise_sampler");
-  this->Shader.AddUniform("m_depth_sampler");
-  this->Shader.AddUniform("m_vol_extents_min");
-  this->Shader.AddUniform("m_vol_extents_max");
-  this->Shader.AddUniform("m_texture_extents_min");
-  this->Shader.AddUniform("m_texture_extents_max");
-  this->Shader.AddUniform("m_ambient");
-  this->Shader.AddUniform("m_diffuse");
-  this->Shader.AddUniform("m_specular");
-  this->Shader.AddUniform("m_shininess");
-  this->Shader.AddUniform("m_window_lower_left_corner");
-  this->Shader.AddUniform("m_inv_original_window_size");
-  this->Shader.AddUniform("m_inv_window_size");
 
   /// Setup unit cube vertex array and vertex buffer objects
   glGenVertexArrays(1, &this->CubeVAOId);
@@ -917,11 +880,14 @@ void vtkSinglePassVolumeMapper::PrintSelf(ostream& vtkNotUsed(os),
 /// \param ren
 /// \param vol
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::BuildShader(string& vertexShader,
-                                            string& fragmentShader,
-                                            vtkRenderer* ren,
-                                            vtkVolume* vol)
+void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
 {
+  this->Implementation->Shader.DeleteShaderProgram();
+
+  /// Load the raycasting shader
+  std::string vertexShader (raycastervs);
+  std::string fragmentShader (raycasterfs);
+
   /// Preprocess vertex shader
   vertexShader = vtkvolume::replace(vertexShader, "@BASE_ATTRIBUTES_VERT@",
                                     vtkvolume::BaseAttributesVert(ren, vol), true);
@@ -979,6 +945,41 @@ void vtkSinglePassVolumeMapper::BuildShader(string& vertexShader,
                                       vtkvolume::IncrementTermination(ren, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_EXIT@",
                                       vtkvolume::ExitTermination(ren, vol), true);
+
+  /// Compile and link it
+  this->Implementation->CompileAndLinkShader(vertexShader, fragmentShader);
+
+  /// Add attributes and uniforms
+  this->Implementation->Shader.AddAttribute("m_in_vertex_pos");
+
+  this->Implementation->Shader.AddUniform("m_scene_matrix");
+  this->Implementation->Shader.AddUniform("m_modelview_matrix");
+  this->Implementation->Shader.AddUniform("m_projection_matrix");
+  this->Implementation->Shader.AddUniform("m_texture_dataset_matrix");
+  this->Implementation->Shader.AddUniform("m_volume");
+  this->Implementation->Shader.AddUniform("m_camera_pos");
+  this->Implementation->Shader.AddUniform("m_light_pos");
+  this->Implementation->Shader.AddUniform("m_step_size");
+  this->Implementation->Shader.AddUniform("m_sample_distance");
+  this->Implementation->Shader.AddUniform("m_scale");
+  this->Implementation->Shader.AddUniform("m_cell_scale");
+  this->Implementation->Shader.AddUniform("m_color_transfer_func");
+  this->Implementation->Shader.AddUniform("m_opacity_transfer_func");
+  this->Implementation->Shader.AddUniform("m_noise_sampler");
+  this->Implementation->Shader.AddUniform("m_depth_sampler");
+  this->Implementation->Shader.AddUniform("m_vol_extents_min");
+  this->Implementation->Shader.AddUniform("m_vol_extents_max");
+  this->Implementation->Shader.AddUniform("m_texture_extents_min");
+  this->Implementation->Shader.AddUniform("m_texture_extents_max");
+  this->Implementation->Shader.AddUniform("m_ambient");
+  this->Implementation->Shader.AddUniform("m_diffuse");
+  this->Implementation->Shader.AddUniform("m_specular");
+  this->Implementation->Shader.AddUniform("m_shininess");
+  this->Implementation->Shader.AddUniform("m_window_lower_left_corner");
+  this->Implementation->Shader.AddUniform("m_inv_original_window_size");
+  this->Implementation->Shader.AddUniform("m_inv_window_size");
+
+  this->Implementation->ShaderBuildTime.Modified();
 }
 
 ///
@@ -1197,6 +1198,12 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   if (!this->Implementation->IsInitialized())
     {
     this->Implementation->Initialize(ren, vol);
+    }
+
+  if (vol->GetProperty()->GetMTime() >
+      this->Implementation->ShaderBuildTime.GetMTime())
+    {
+    this->BuildShader(ren, vol);
     }
 
   vtkDataArray* scalars = this->GetScalars(input,

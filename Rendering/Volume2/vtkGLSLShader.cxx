@@ -44,6 +44,8 @@ vtkGLSLShader::~vtkGLSLShader(void)
 void vtkGLSLShader::DeleteShaderProgram()
 {
     glDeleteProgram(this->Program);
+    this->AttributeList.clear();
+    this->UniformLocationList.clear();
 }
 
 ///---------------------------------------------------------------------------
