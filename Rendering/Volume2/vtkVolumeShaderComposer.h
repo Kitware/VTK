@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkVolumeHelper_h
-#define __vtkVolumeHelper_h
+#ifndef ___vtkVolumeShaderComposer_h
+#define ___vtkVolumeShaderComposer_h
 
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
@@ -423,4 +423,4 @@ namespace vtkvolume
 }
 
 
-#endif // __vtkVolumeHelper_h
+#endif // ___vtkVolumeShaderComposer_h

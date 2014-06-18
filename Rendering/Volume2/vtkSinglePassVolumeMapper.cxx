@@ -18,7 +18,7 @@
 #include "vtkGLSLShader.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
-#include "vtkVolumeHelper.h"
+#include "vtkVolumeShaderComposer.h"
 
 /// Include compiled shader code
 #include <raycasterfs.h>
