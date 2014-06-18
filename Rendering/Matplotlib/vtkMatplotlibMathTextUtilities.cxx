@@ -81,22 +81,6 @@ vtkMatplotlibMathTextUtilities::NOT_TESTED;
 // work in release mode builds.
 #define vtkMplStartUpDebugMacro(x) if(debug){vtkGenericWarningMacro(x);}
 
-namespace {
-
-  //----------------------------------------------------------------------------
-  // Used to replace "\ " with " " in paths.
-  void UnEscapeSpaces(std::string &str)
-    {
-    size_t pos = str.rfind("\\ ");
-    while (pos != std::string::npos)
-      {
-      str.erase(pos, 1);
-      pos = str.rfind("\\ ", pos);
-      }
-    }
-
-} // end anon namespace
-
 //----------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
 {
