@@ -368,7 +368,8 @@ namespace vtkvolume
       return std::string(
       "vec4 l_src_color = vec4(texture(m_color_transfer_func, maxValue * m_scale).xyz, \n\
         texture(m_opacity_transfer_func, maxValue * m_scale).w); \n\
-        m_frag_color = l_src_color;"
+        m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
+        m_frag_color.a = l_src_color.a;"
       );
       }
     else

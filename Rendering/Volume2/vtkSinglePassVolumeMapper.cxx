@@ -311,7 +311,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
   GLenum type = 0;
 
   double shift = 0.0;
-  double m_scale = 1.0;
+  double scale = 1.0;
   int needTypeConversion = 0;
 
   int scalarType = scalars->GetDataType();
@@ -337,14 +337,14 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
         format = GL_RED;
         type = GL_FLOAT;
         shift=-ScalarsRange[0];
-        m_scale = 1/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        scale = 1/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         break;
       case VTK_UNSIGNED_CHAR:
         internalFormat = GL_INTENSITY8;
         format = GL_RED;
         type = GL_UNSIGNED_BYTE;
         shift = -this->ScalarsRange[0]/VTK_UNSIGNED_CHAR_MAX;
-        m_scale =
+        scale =
           VTK_UNSIGNED_CHAR_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         break;
       case VTK_SIGNED_CHAR:
@@ -352,7 +352,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
         format = GL_RED;
         type = GL_BYTE;
         shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_CHAR_MAX;
-        m_scale = VTK_SIGNED_CHAR_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        scale = VTK_SIGNED_CHAR_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         break;
       case VTK_CHAR:
         // not supported
@@ -371,7 +371,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
         format = GL_RED;
         type = GL_INT;
         shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_INT_MAX;
-        m_scale = VTK_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        scale = VTK_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         break;
       case VTK_DOUBLE:
       case VTK___INT64:
@@ -388,7 +388,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
         format = GL_RED;
         type = GL_SHORT;
         shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_SHORT_MAX;
-        m_scale = VTK_SHORT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        scale = VTK_SHORT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         break;
       case VTK_STRING:
         // not supported
@@ -400,7 +400,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
         type = GL_UNSIGNED_SHORT;
 
         shift=-this->ScalarsRange[0]/VTK_UNSIGNED_SHORT_MAX;
-        m_scale=
+        scale=
           VTK_UNSIGNED_SHORT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         break;
       case VTK_UNSIGNED_INT:
@@ -408,7 +408,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
         format = GL_RED;
         type = GL_UNSIGNED_INT;
         shift=-this->ScalarsRange[0]/VTK_UNSIGNED_INT_MAX;
-        m_scale = VTK_UNSIGNED_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        scale = VTK_UNSIGNED_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         break;
       default:
         assert("check: impossible case" && 0);
@@ -416,8 +416,8 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
       }
     }
 
-  /// Update m_scale
-  this->Scale = m_scale;
+  /// Update scale
+  this->Scale = scale;
   imageData->GetExtent(this->Extents);
 
   void* dataPtr = scalars->GetVoidPointer(0);
