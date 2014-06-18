@@ -358,7 +358,8 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
 // used to create an IBO for stripped primatives such as lines and triangle strips
 size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               std::vector<GLintptr> &memoryOffsetArray,
-                              std::vector<unsigned int> &elementCountArray)
+                              std::vector<unsigned int> &elementCountArray,
+                              bool wireframeTriStrips)
 {
   vtkIdType      *pts = 0;
   vtkIdType      npts = 0;
@@ -370,12 +371,26 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
     {
     memoryOffsetArray.push_back(count*sizeof(unsigned int));
-    elementCountArray.push_back(npts);
     for (int j = 0; j < npts; ++j)
       {
       indexArray.push_back(static_cast<unsigned int>(pts[j]));
       count++;
       }
+    if (wireframeTriStrips)
+      {
+      for (int j = (npts-1)/2; j >= 0; j--)
+        {
+        indexArray.push_back(static_cast<unsigned int>(pts[j*2]));
+        count++;
+        }
+      for (int j = 1; j < (npts/2)*2; j += 2)
+        {
+        indexArray.push_back(static_cast<unsigned int>(pts[j]));
+        count++;
+        }
+      npts *= 2;
+      }
+    elementCountArray.push_back(npts);
     }
   indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();

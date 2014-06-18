@@ -844,7 +844,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
-    // TODO fix wireframe
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       for (size_t eCount = 0;
@@ -1058,26 +1057,29 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
     this->lines.indexCount = CreateMultiIndexBuffer(prims[1],
                            this->lines.ibo,
                            this->lines.offsetArray,
-                           this->lines.elementsArray);
+                           this->lines.elementsArray, false);
 
     if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       this->tris.indexCount = CreateMultiIndexBuffer(prims[2],
                                              this->tris.ibo,
                                              this->tris.offsetArray,
-                                             this->tris.elementsArray);
+                                             this->tris.elementsArray, false);
+      this->triStrips.indexCount = CreateMultiIndexBuffer(prims[3],
+                           this->triStrips.ibo,
+                           this->triStrips.offsetArray,
+                           this->triStrips.elementsArray, true);
       }
    else // SURFACE
       {
       this->tris.indexCount = CreateTriangleIndexBuffer(prims[2],
                                                 this->tris.ibo,
                                                 poly->GetPoints());
-      }
-
-    this->triStrips.indexCount = CreateMultiIndexBuffer(prims[3],
+      this->triStrips.indexCount = CreateMultiIndexBuffer(prims[3],
                            this->triStrips.ibo,
                            this->triStrips.offsetArray,
-                           this->triStrips.elementsArray);
+                           this->triStrips.elementsArray, false);
+      }
     }
 
   // free up new cell arrays

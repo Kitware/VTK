@@ -48,7 +48,8 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
 // used to create an IBO for line strips and triangle strips
 size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               std::vector<GLintptr> &memoryOffsetArray,
-                              std::vector<unsigned int> &elementCountArray);
+                              std::vector<unsigned int> &elementCountArray,
+                              bool wireframeTriStrips);
 
 // Store the shaders, program, and ibo in a common struct.
 struct CellBO
