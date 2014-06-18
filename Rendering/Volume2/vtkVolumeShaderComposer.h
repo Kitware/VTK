@@ -48,7 +48,8 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string BaseUniformsVert(vtkRenderer* ren, vtkVolume* vol)
+  std::string BaseUniformsVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                               vtkVolume* vol)
     { return std::string(
     "uniform mat4 m_modelview_matrix; \n\
     uniform mat4 m_projection_matrix; \n\
@@ -63,7 +64,8 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string BaseUniformsFrag(vtkRenderer* ren, vtkVolume* vol)
+  std::string BaseUniformsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                               vtkVolume* vol)
     {
     return std::string(
       "/// Volume dataset \n\
@@ -108,7 +110,8 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string BaseAttributesVert(vtkRenderer* ren, vtkVolume* vol)
+  std::string BaseAttributesVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                 vtkVolume* vol)
     {
     return std::string(
       "layout(location = 0) in vec3 m_in_vertex_pos;"
@@ -116,61 +119,71 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string BaseAttributesFrag(vtkRenderer* ren, vtkVolume* vol)
+  std::string BaseAttributesFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                 vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string TerminationUniformVert(vtkRenderer* ren, vtkVolume* vol)
+  std::string TerminationUniformVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                     vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string TerminationAttributesVert(vtkRenderer* ren, vtkVolume* vol)
+  std::string TerminationAttributesVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                        vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string TerminationUniformsFrag(vtkRenderer* ren, vtkVolume* vol)
+  std::string TerminationUniformsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                      vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string TerminationAttributesFrag(vtkRenderer* ren, vtkVolume* vol)
+  std::string TerminationAttributesFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                        vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string ShadingUniformsVert(vtkRenderer* ren, vtkVolume* vol)
+  std::string ShadingUniformsVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                  vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string ShadingAttributesVert(vtkRenderer* ren, vtkVolume* vol)
+  std::string ShadingAttributesVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                    vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string ShadingUniformsFrag(vtkRenderer* ren, vtkVolume* vol)
+  std::string ShadingUniformsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                  vtkVolume* vol)
     {
       return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string ShadingAttributesFrag(vtkRenderer* ren, vtkVolume* vol)
+  std::string ShadingAttributesFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                    vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string ComputeClip(vtkRenderer* ren, vtkVolume* vol)
+  std::string ComputeClip(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                          vtkVolume* vol)
     {
     return std::string(
       "mat4 ogl_projection_matrix = transpose(m_projection_matrix); \n\
@@ -182,7 +195,8 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ComputeTextureCoords(vtkRenderer* ren, vtkVolume* vol)
+  std::string ComputeTextureCoords(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                   vtkVolume* vol)
     {
     return std::string(
       "/// Assuming point data only. Also, we offset the texture coordinate to account \n\
@@ -194,7 +208,8 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string InitBase(vtkRenderer* ren, vtkVolume* vol)
+  std::string InitBase(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                       vtkVolume* vol)
     {
     return std::string(
       "vec3 l_light_pos_obj; \n\
@@ -220,13 +235,14 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string IncrementBase(vtkRenderer* ren, vtkVolume* vol)
+  std::string IncrementBase(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                            vtkVolume* vol)
     {
     return std::string("");
     }
 
   //--------------------------------------------------------------------------
-  std::string ExitBase(vtkRenderer* ren, vtkVolume* vol)
+  std::string ExitBase(vtkRenderer* ren, vtkVolumeMapper* mapper, vtkVolume* vol)
     {
     return std::string("");
     }
@@ -352,7 +368,6 @@ namespace vtkvolume
       return std::string(
       "vec4 l_src_color = vec4(texture(m_color_transfer_func, maxValue * m_scale).xyz, \n\
         texture(m_opacity_transfer_func, maxValue * m_scale).w); \n\
-        l_src_color.rgb *= l_src_color.a; \n\
         m_frag_color = (1.0f - m_frag_color.a) * l_src_color + m_frag_color;"
       );
       }
@@ -363,7 +378,8 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string InitTermination(vtkRenderer* ren, vtkVolume* vol)
+  std::string InitTermination(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                              vtkVolume* vol)
     {
     return std::string(
     "/// Total samples for each ray march step \n\
@@ -432,7 +448,8 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string IncrementTermination(vtkRenderer* ren, vtkVolume* vol)
+  std::string IncrementTermination(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                   vtkVolume* vol)
     {
     return std::string(
       "/// The two constants l_tex_min and l_tex_max have a value of vec3(-1,-1,-1) \n\
@@ -467,7 +484,8 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ExitTermination(vtkRenderer* ren, vtkVolume* vol)
+  std::string ExitTermination(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                              vtkVolume* vol)
    {
     return std::string("");
    }
