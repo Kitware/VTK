@@ -744,7 +744,7 @@ unsigned int CommunicationManager::GetRcvBufferSize(const int fromRank)
 //------------------------------------------------------------------------------
 int CommunicationManager::NumMsgs()
 {
-  return( this->Send.size()+this->Rcv.size() );
+  return static_cast<int>( this->Send.size()+this->Rcv.size() );
 }
 
 //------------------------------------------------------------------------------
@@ -933,8 +933,8 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os,vtkIndent indent)
 
     os << "Number of Neighbors: " << this->InputGrid->Neighbors.size();
     os << std::endl;
-    int N = this->InputGrid->Neighbors.size();
-    for(int nei=0; nei < N; ++nei)
+    size_t N = this->InputGrid->Neighbors.size();
+    for(size_t nei=0; nei < N; ++nei)
       {
       os << "\t" << this->InputGrid->Neighbors[ nei ].ToString();
       os << std::endl;
@@ -1277,8 +1277,8 @@ void vtkStructuredImplicitConnectivity::UpdateNeighborList(const int dim)
   assert("pre: domain info is NULL!" && this->DomainInfo != NULL);
 
   vtk::detail::ImplicitNeighbor* neiPtr = NULL;
-  int nNeis = this->InputGrid->Neighbors.size();
-  for( int nei=0; nei < nNeis; ++nei )
+  size_t nNeis = this->InputGrid->Neighbors.size();
+  for( size_t nei=0; nei < nNeis; ++nei )
     {
     neiPtr     = &(this->InputGrid->Neighbors)[nei];
     int orient = neiPtr->Orientation[ dim ];
@@ -1488,8 +1488,8 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(const int dim)
   // we carry out the communication along each dimension independently.
   this->CommManager->Clear();
 
-  int nNeis = this->InputGrid->Neighbors.size();
-  for(int nei=0; nei < nNeis; ++nei)
+  size_t nNeis = this->InputGrid->Neighbors.size();
+  for(size_t nei=0; nei < nNeis; ++nei)
     {
     vtk::detail::ImplicitNeighbor* neiPtr= &(this->InputGrid->Neighbors)[nei];
     int orient = neiPtr->Orientation[ dim ];
@@ -1528,8 +1528,8 @@ void vtkStructuredImplicitConnectivity::GrowGrid(const int dim)
   this->CommManager->Exchange(this->Controller);
 
   // STEP 4: Unpack data to output grid
-  int nNeis = this->InputGrid->Neighbors.size();
-  for( int nei=0; nei < nNeis; ++nei)
+  size_t nNeis = this->InputGrid->Neighbors.size();
+  for( size_t nei=0; nei < nNeis; ++nei)
     {
     vtk::detail::ImplicitNeighbor* neiPtr= &(this->InputGrid->Neighbors)[nei];
     int orient  = neiPtr->Orientation[ dim ];
