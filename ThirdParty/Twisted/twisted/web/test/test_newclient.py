@@ -14,7 +14,7 @@ from twisted.python import log
 from twisted.python.failure import Failure
 from twisted.internet.interfaces import IConsumer, IPushProducer
 from twisted.internet.error import ConnectionDone, ConnectionLost
-from twisted.internet.defer import Deferred, succeed, fail
+from twisted.internet.defer import Deferred, succeed, fail, CancelledError
 from twisted.internet.protocol import Protocol
 from twisted.trial.unittest import TestCase
 from twisted.test.proto_helpers import StringTransport, AccumulatingProtocol
@@ -30,6 +30,25 @@ from twisted.web._newclient import TransportProxyProducer, LengthEnforcingConsum
 from twisted.web.http_headers import Headers
 from twisted.web.http import _DataLoss
 from twisted.web.iweb import IBodyProducer, IResponse
+
+
+
+class StringTransport(StringTransport):
+    """
+    A version of C{StringTransport} that supports C{abortConnection}.
+    """
+    aborting = False
+
+
+    def abortConnection(self):
+        """
+        A testable version of the C{ITCPTransport.abortConnection} method.
+
+        Since this is a special case of closing the connection,
+        C{loseConnection} is also called.
+        """
+        self.aborting = True
+        self.loseConnection()
 
 
 
@@ -70,7 +89,7 @@ def assertWrapperExceptionTypes(self, deferred, mainType, reasonTypes):
         trapped on C{deferred}.
 
     @param reasonTypes: A sequence of exception types which will be trapped on
-        the resulting L{mainType} exception instance's C{reasons} sequence.
+        the resulting C{mainType} exception instance's C{reasons} sequence.
 
     @return: A L{Deferred} which fires with the C{mainType} instance
         C{deferred} fails with, or which fails somehow.
@@ -394,7 +413,7 @@ class HTTPClientParserTests(TestCase):
         checkParsing('HTTP/1.1 bar OK')
 
 
-    def _noBodyTest(self, request, response):
+    def _noBodyTest(self, request, status, response):
         """
         Assert that L{HTTPClientParser} parses the given C{response} to
         C{request}, resulting in a response with no body and no extra bytes and
@@ -402,23 +421,32 @@ class HTTPClientParserTests(TestCase):
 
         @param request: A L{Request} instance which might have caused a server
             to return the given response.
+        @param status: A string giving the status line of the response to be
+            parsed.
         @param response: A string giving the response to be parsed.
 
         @return: A C{dict} of headers from the response.
         """
         header = {}
         finished = []
+        body = []
+        bodyDataFinished = []
         protocol = HTTPClientParser(request, finished.append)
         protocol.headerReceived = header.__setitem__
-        body = []
-        protocol._bodyDataReceived = body.append
         transport = StringTransport()
         protocol.makeConnection(transport)
+        # Deliver just the status to initialize the response object so we can
+        # monkey-patch it to observe progress of the response parser.
+        protocol.dataReceived(status)
+        protocol.response._bodyDataReceived = body.append
+        protocol.response._bodyDataFinished = (
+            lambda: bodyDataFinished.append(True))
         protocol.dataReceived(response)
         self.assertEqual(transport.producerState, 'producing')
         self.assertEqual(protocol.state, DONE)
         self.assertEqual(body, [])
         self.assertEqual(finished, [''])
+        self.assertEqual(bodyDataFinished, [True])
         self.assertEqual(protocol.response.length, 0)
         return header
 
@@ -430,11 +458,11 @@ class HTTPClientParserTests(TestCase):
         the header callback.
         """
         request = Request('HEAD', '/', _boringHeaders, None)
-        status = (
-            'HTTP/1.1 200 OK\r\n'
+        status = 'HTTP/1.1 200 OK\r\n'
+        response = (
             'Content-Length: 10\r\n'
             '\r\n')
-        header = self._noBodyTest(request, status)
+        header = self._noBodyTest(request, status, response)
         self.assertEqual(header, {'Content-Length': '10'})
 
 
@@ -444,10 +472,9 @@ class HTTPClientParserTests(TestCase):
         the body callback is not invoked.
         """
         request = Request('GET', '/', _boringHeaders, None)
-        status = (
-            'HTTP/1.1 204 NO CONTENT\r\n'
-            '\r\n')
-        self._noBodyTest(request, status)
+        status = 'HTTP/1.1 204 NO CONTENT\r\n'
+        response = '\r\n'
+        self._noBodyTest(request, status, response)
 
 
     def test_notModifiedResponse(self):
@@ -456,10 +483,9 @@ class HTTPClientParserTests(TestCase):
         the body callback is not invoked.
         """
         request = Request('GET', '/', _boringHeaders, None)
-        status = (
-            'HTTP/1.1 304 NOT MODIFIED\r\n'
-            '\r\n')
-        self._noBodyTest(request, status)
+        status = 'HTTP/1.1 304 NOT MODIFIED\r\n'
+        response = '\r\n'
+        self._noBodyTest(request, status, response)
 
 
     def test_responseHeaders(self):
@@ -1109,7 +1135,7 @@ class HTTP11ClientProtocolTests(TestCase):
     def test_connectionLostAfterReceivingResponseBeforeRequestGenerationDone(self):
         """
         If response bytes are delivered to L{HTTP11ClientProtocol} before the
-        request completes, calling L{connectionLost} on the protocol will
+        request completes, calling C{connectionLost} on the protocol will
         result in protocol being moved to C{'CONNECTION_LOST'} state.
         """
         request = SlowRequest()
@@ -1449,6 +1475,51 @@ class HTTP11ClientProtocolTests(TestCase):
         self.assertEqual(protocol._responseDeferred, None)
 
 
+    def test_transportProducingWhenQuiescentAfterFullBody(self):
+        """
+        The C{quiescentCallback} passed to L{HTTP11ClientProtocol} will only be
+        invoked once that protocol is in a state similar to its initial state.
+        One of the aspects of this initial state is the producer-state of its
+        transport; an L{HTTP11ClientProtocol} begins with a transport that is
+        producing, i.e. not C{pauseProducing}'d.
+
+        Therefore, when C{quiescentCallback} is invoked the protocol will still
+        be producing.
+        """
+        quiescentResult = []
+        def callback(p):
+            self.assertEqual(p, protocol)
+            self.assertEqual(p.state, "QUIESCENT")
+            quiescentResult.append(p)
+
+        transport = StringTransport()
+        protocol = HTTP11ClientProtocol(callback)
+        protocol.makeConnection(transport)
+        requestDeferred = protocol.request(
+            Request('GET', '/', _boringHeaders, None, persistent=True))
+        protocol.dataReceived(
+            "HTTP/1.1 200 OK\r\n"
+            "Content-length: 3\r\n"
+            "\r\n"
+            "BBB" # _full_ content of the response.
+        )
+
+        response = self.successResultOf(requestDeferred)
+        # Sanity check: response should have full response body, just waiting
+        # for deliverBody
+        self.assertEqual(response._state, 'DEFERRED_CLOSE')
+
+        # The transport is quiescent, because the response has been received.
+        # If we were connection pooling here, it would have been returned to
+        # the pool.
+        self.assertEqual(len(quiescentResult), 1)
+
+        # And that transport is totally still reading, right? Because it would
+        # leak forever if it were sitting there disconnected from the
+        # reactor...
+        self.assertEqual(transport.producerState, 'producing')
+
+
     def test_quiescentCallbackCalledEmptyResponse(self):
         """
         The quiescentCallback is called before the request C{Deferred} fires,
@@ -1564,6 +1635,89 @@ class HTTP11ClientProtocolTests(TestCase):
         errors = self.flushLoggedErrors(ZeroDivisionError)
         self.assertEqual(len(errors), 1)
         self.assertTrue(transport.disconnecting)
+
+
+    def test_cancelBeforeResponse(self):
+        """
+        The L{Deferred} returned by L{HTTP11ClientProtocol.request} will fire
+        with a L{ResponseNeverReceived} failure containing a L{CancelledError}
+        exception if the request was cancelled before any response headers were
+        received.
+        """
+        transport = StringTransport()
+        protocol = HTTP11ClientProtocol()
+        protocol.makeConnection(transport)
+        result = protocol.request(Request('GET', '/', _boringHeaders, None))
+        result.cancel()
+        self.assertTrue(transport.aborting)
+        return assertWrapperExceptionTypes(
+            self, result, ResponseNeverReceived, [CancelledError])
+
+
+    def test_cancelDuringResponse(self):
+        """
+        The L{Deferred} returned by L{HTTP11ClientProtocol.request} will fire
+        with a L{ResponseFailed} failure containing a L{CancelledError}
+        exception if the request was cancelled before all response headers were
+        received.
+        """
+        transport = StringTransport()
+        protocol = HTTP11ClientProtocol()
+        protocol.makeConnection(transport)
+        result = protocol.request(Request('GET', '/', _boringHeaders, None))
+        protocol.dataReceived("HTTP/1.1 200 OK\r\n")
+        result.cancel()
+        self.assertTrue(transport.aborting)
+        return assertResponseFailed(self, result, [CancelledError])
+
+
+    def assertCancelDuringBodyProduction(self, producerLength):
+        """
+        The L{Deferred} returned by L{HTTP11ClientProtocol.request} will fire
+        with a L{RequestGenerationFailed} failure containing a
+        L{CancelledError} exception if the request was cancelled before a
+        C{bodyProducer} has finished producing.
+        """
+        transport = StringTransport()
+        protocol = HTTP11ClientProtocol()
+        protocol.makeConnection(transport)
+        producer = StringProducer(producerLength)
+
+        nonlocal = {'cancelled': False}
+        def cancel(ign):
+            nonlocal['cancelled'] = True
+        def startProducing(consumer):
+            producer.consumer = consumer
+            producer.finished = Deferred(cancel)
+            return producer.finished
+        producer.startProducing = startProducing
+
+        result = protocol.request(Request('POST', '/bar', _boringHeaders, producer))
+        producer.consumer.write('x' * 5)
+        result.cancel()
+        self.assertTrue(transport.aborting)
+        self.assertTrue(nonlocal['cancelled'])
+        return assertRequestGenerationFailed(self, result, [CancelledError])
+
+
+    def test_cancelDuringBodyProduction(self):
+        """
+        The L{Deferred} returned by L{HTTP11ClientProtocol.request} will fire
+        with a L{RequestGenerationFailed} failure containing a
+        L{CancelledError} exception if the request was cancelled before a
+        C{bodyProducer} with an explicit length has finished producing.
+        """
+        return self.assertCancelDuringBodyProduction(10)
+
+
+    def test_cancelDuringChunkedBodyProduction(self):
+        """
+        The L{Deferred} returned by L{HTTP11ClientProtocol.request} will fire
+        with a L{RequestGenerationFailed} failure containing a
+        L{CancelledError} exception if the request was cancelled before a
+        C{bodyProducer} with C{UNKNOWN_LENGTH} has finished producing.
+        """
+        return self.assertCancelDuringBodyProduction(UNKNOWN_LENGTH)
 
 
 

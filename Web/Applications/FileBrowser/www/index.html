@@ -19,7 +19,7 @@
                 connection = serverConnection;
 
                 // Create file browser widget
-                connection.session.call('vtk:listServerDirectory','.').then(function(files){
+                connection.session.call('file.server.directory.list',['.']).then(function(files){
                     $('.browser').fileBrowser({data: [files], session: connection.session}).bind('file-click directory-click directory-not-found file-group-click', function(e){
                         console.log(e.type + " click: " + e.name + " - path: " + e.path );
                         if(e.hasOwnProperty('relativePathList')) {
@@ -35,7 +35,7 @@
             // Method call at exit time
             function stop() {
                 if(false && connection.session) {
-                    connection.session.call('vtk:exit');
+                    connection.session.call('application.exit');
                     connection.session.close();
                     connection.session = null;
                 }

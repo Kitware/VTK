@@ -76,6 +76,10 @@ def _verify(iface, candidate, tentative=0, vtype=None):
         elif (isinstance(attr, MethodTypes)
               and type(attr.__func__) is FunctionType):
             meth = fromMethod(attr, iface, name)
+        elif isinstance(attr, property) and vtype == 'c':
+            # We without an instance we cannot be sure it's not a
+            # callable.
+            continue
         else:
             if not callable(attr):
                 raise BrokenMethodImplementation(name, "Not a method")

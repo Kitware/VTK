@@ -9,16 +9,25 @@ from __future__ import division, absolute_import
 
 import time
 
+from zope.interface.verify import verifyClass
+
 from twisted.trial import unittest
 
 from twisted.names import dns, cache
-from twisted.internet import task
+from twisted.internet import task, interfaces
 
 
 class Caching(unittest.TestCase):
     """
     Tests for L{cache.CacheResolver}.
     """
+
+    def test_interface(self):
+        """
+        L{cache.CacheResolver} implements L{interfaces.IResolver}
+        """
+        verifyClass(interfaces.IResolver, cache.CacheResolver)
+
 
     def test_lookup(self):
         c = cache.CacheResolver({
@@ -75,10 +84,10 @@ class Caching(unittest.TestCase):
         clock.advance(1)
 
         def cbLookup(result):
-            self.assertEquals(result[0][0].ttl, 59)
-            self.assertEquals(result[1][0].ttl, 49)
-            self.assertEquals(result[2][0].ttl, 39)
-            self.assertEquals(result[0][0].name.name, b"example.com")
+            self.assertEqual(result[0][0].ttl, 59)
+            self.assertEqual(result[1][0].ttl, 49)
+            self.assertEqual(result[2][0].ttl, 39)
+            self.assertEqual(result[0][0].name.name, b"example.com")
 
         return c.lookupAddress(b"example.com").addCallback(cbLookup)
 

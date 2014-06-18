@@ -18,8 +18,8 @@ from zope.interface import Interface
 
 from twisted.python.compat import unicode, _PY3
 from twisted.python import context
-from twisted.python import _reflectpy3 as reflect
-from twisted.python import _utilpy3 as util
+from twisted.python import reflect
+from twisted.python import util
 from twisted.python import failure
 from twisted.python.threadable import synchronize
 
@@ -93,11 +93,6 @@ def callWithLogger(logger, func, *args, **kw):
 
 
 
-_keepErrors = 0
-_keptErrors = []
-_ignoreErrors = []
-
-
 def err(_stuff=None, _why=None, **kw):
     """
     Write a failure to the log.
@@ -121,20 +116,6 @@ def err(_stuff=None, _why=None, **kw):
     if _stuff is None:
         _stuff = failure.Failure()
     if isinstance(_stuff, failure.Failure):
-        if _keepErrors:
-            if _ignoreErrors:
-                keep = 0
-                for err in _ignoreErrors:
-                    r = _stuff.check(err)
-                    if r:
-                        keep = 0
-                        break
-                    else:
-                        keep = 1
-                if keep:
-                    _keptErrors.append(_stuff)
-            else:
-                _keptErrors.append(_stuff)
         msg(failure=_stuff, why=_why, isError=1, **kw)
     elif isinstance(_stuff, Exception):
         msg(failure=failure.Failure(_stuff), why=_why, isError=1, **kw)
@@ -200,6 +181,18 @@ class LogPublisher:
         >>> log.msg('Hello ', 'world.')
 
         This form only works (sometimes) by accident.
+
+        Keyword arguments will be converted into items in the event
+        dict that is passed to L{ILogObserver} implementations.
+        Each implementation, in turn, can define keys that are used
+        by it specifically, in addition to common keys listed at
+        L{ILogObserver.__call__}.
+
+        For example, to set the C{system} parameter while logging
+        a message::
+
+        >>> log.msg('Started', system='Foo')
+
         """
         actualEventDict = (context.get(ILogContext) or {}).copy()
         actualEventDict.update(kw)
@@ -351,6 +344,7 @@ class FileLogObserver:
         self.write = f.write
         self.flush = f.flush
 
+
     def getTimezoneOffset(self, when):
         """
         Return the current local timezone offset from UTC.
@@ -365,6 +359,7 @@ class FileLogObserver:
         offset = datetime.utcfromtimestamp(when) - datetime.fromtimestamp(when)
         return offset.days * (60 * 60 * 24) + offset.seconds
 
+
     def formatTime(self, when):
         """
         Format the given UTC value as a string representing that time in the
@@ -373,7 +368,7 @@ class FileLogObserver:
         By default it's formatted as a ISO8601-like string (ISO8601 date and
         ISO8601 time separated by a space). It can be customized using the
         C{timeFormat} attribute, which will be used as input for the underlying
-        C{time.strftime} call.
+        L{datetime.datetime.strftime} call.
 
         @type when: C{int}
         @param when: POSIX (ie, UTC) timestamp for which to find the offset.
@@ -381,7 +376,7 @@ class FileLogObserver:
         @rtype: C{str}
         """
         if self.timeFormat is not None:
-            return time.strftime(self.timeFormat, time.localtime(when))
+            return datetime.fromtimestamp(when).strftime(self.timeFormat)
 
         tzOffset = -self.getTimezoneOffset(when)
         when = datetime.utcfromtimestamp(when + tzOffset)
