@@ -933,11 +933,11 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
                                       vtkvolume::ExitBase(ren, vol), true);
 
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
-                                      vtkvolume::InitShading(ren, vol), true);
+                                      vtkvolume::InitShading(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_LOOP@",
-                                      vtkvolume::IncrementShading(ren, vol), true);
+                                      vtkvolume::IncrementShading(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
-                                      vtkvolume::ExitShading(ren, vol), true);
+                                      vtkvolume::ExitShading(ren, this, vol), true);
 
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_INIT@",
                                       vtkvolume::InitTermination(ren, vol), true);

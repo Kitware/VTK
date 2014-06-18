@@ -18,6 +18,7 @@
 
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
+#include <vtkVolumeMapper.h>
 #include <vtkVolumeProperty.h>
 
 #include <string>
@@ -231,9 +232,17 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string InitShading(vtkRenderer* vtkNotUsed(ren), vtkVolume* vol)
+  std::string InitShading(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
+                          vtkVolume* vol)
     {
-    if (vol->GetProperty()->GetShade())
+    if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
+      {
+      return std::string(
+        "/// We get data between 0.0 - 1.0 range \n\
+        float maxValue = 0.0;"
+      );
+      }
+    else if (vol->GetProperty()->GetShade())
       {
       return std::string(
         "/// Light position in object space \n\
@@ -247,11 +256,19 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string IncrementShading(vtkRenderer* ren, vtkVolume* vol)
+  std::string IncrementShading(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                               vtkVolume* vol)
     {
     std::string shaderStr;
 
-    if (vol->GetProperty()->GetShade())
+    if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
+      {
+      shaderStr = std::string(
+      "float scalar = texture(m_volume, l_data_pos).r; \n\
+       maxValue = max(maxValue, scalar);"
+      );
+      }
+    else if (vol->GetProperty()->GetShade())
       {
       shaderStr = std::string(
       "/// Data fetching from the red channel of m_volume texture \n\
@@ -327,11 +344,23 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ExitShading(vtkRenderer* vtkNotUsed(ren),
+  std::string ExitShading(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
                           vtkVolume* vtkNotUsed(vol))
     {
-    return std::string("");
-    }
+    if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
+      {
+      return std::string(
+      "vec4 l_src_color = vec4(texture(m_color_transfer_func, maxValue * m_scale).xyz, \n\
+        texture(m_opacity_transfer_func, maxValue * m_scale).w); \n\
+        l_src_color.rgb *= l_src_color.a; \n\
+        m_frag_color = (1.0f - m_frag_color.a) * l_src_color + m_frag_color;"
+      );
+      }
+    else
+      {
+      return std::string("");
+      }
+  }
 
   //--------------------------------------------------------------------------
   std::string InitTermination(vtkRenderer* ren, vtkVolume* vol)
