@@ -249,59 +249,81 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string IncrementShading(vtkRenderer* ren, vtkVolume* vol)
     {
+    std::string shaderStr;
+
     if (vol->GetProperty()->GetShade())
       {
-      return std::string
-      ("if (l_src_color.a > 0.01) \
-          { \
-          vec3 g1; \n\
-          vec3 g2; \n\
-          vec3 ldir = normalize(l_light_pos_obj - m_vertex_pos); \n\
-          vec3 vdir = normalize(l_eye_pos_obj - m_vertex_pos); \n\
-          vec3 h = normalize(ldir + vdir); \n\
-          vec3 xvec = vec3(m_step_size[0], 0.0, 0.0); \n\
-          vec3 yvec = vec3(0.0, m_step_size[1], 0.0); \n\
-          vec3 zvec = vec3(0.0, 0.0, m_step_size[2]); \n\
-          g1.x = texture(m_volume, vec3(l_data_pos + xvec)).x; \n\
-          g1.y = texture(m_volume, vec3(l_data_pos + yvec)).x; \n\
-          g1.z = texture(m_volume, vec3(l_data_pos + zvec)).x; \n\
-          g2.x = texture(m_volume, vec3(l_data_pos - xvec)).x; \n\
-          g2.y = texture(m_volume, vec3(l_data_pos - yvec)).x; \n\
-          g2.z = texture(m_volume, vec3(l_data_pos - zvec)).x; \n\
-          g2 = normalize(g1 - g2); \n\
-          float normalLength = length(g2); \n\
-          if (normalLength > 0.0) \
-            { \
-            g2 = normalize(g2); \n\
-            } \
-          else \
-            { \
-            g2 = vec3(0.0, 0.0, 0.0); \n\
-            } \
-          vec3 final_color = vec3(0.0); \n\
-          float n_dot_l = dot(g2, ldir); \n\
-          float n_dot_h = dot(g2, h); \n\
-          if (n_dot_l < 0.0) \
-            { \
-            n_dot_l =- n_dot_l; \n\
-            } \
-          if (n_dot_h < 0.0) \
-            { \
-            n_dot_h =- n_dot_h; \n\
-            } \
-          final_color += m_ambient; \n\
-          final_color += m_diffuse * n_dot_l; \n\
-          float m_shine_factor = pow(n_dot_h, m_shininess); \n\
-          final_color += m_specular * m_shine_factor; \n\
-          final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
-          l_src_color.rgb += final_color.rgb; \n\
-         }"
+      shaderStr = std::string(
+      "/// Data fetching from the red channel of m_volume texture \n\
+      float scalar = texture(m_volume, l_data_pos).r * m_scale; \n\
+      vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz, \n\
+                      texture(m_opacity_transfer_func, scalar).w);"
+      );
+
+      if (vol->GetProperty()->GetShade())
+        {
+        shaderStr += std::string
+            ("if (l_src_color.a > 0.01) \
+                { \n\
+                vec3 g1; \n\
+                vec3 g2; \n\
+                vec3 ldir = normalize(l_light_pos_obj - m_vertex_pos); \n\
+                vec3 vdir = normalize(l_eye_pos_obj - m_vertex_pos); \n\
+                vec3 h = normalize(ldir + vdir); \n\
+                vec3 xvec = vec3(m_step_size[0], 0.0, 0.0); \n\
+                vec3 yvec = vec3(0.0, m_step_size[1], 0.0); \n\
+                vec3 zvec = vec3(0.0, 0.0, m_step_size[2]); \n\
+                g1.x = texture(m_volume, vec3(l_data_pos + xvec)).x; \n\
+                g1.y = texture(m_volume, vec3(l_data_pos + yvec)).x; \n\
+                g1.z = texture(m_volume, vec3(l_data_pos + zvec)).x; \n\
+                g2.x = texture(m_volume, vec3(l_data_pos - xvec)).x; \n\
+                g2.y = texture(m_volume, vec3(l_data_pos - yvec)).x; \n\
+                g2.z = texture(m_volume, vec3(l_data_pos - zvec)).x; \n\
+                g2 = normalize(g1 - g2); \n\
+                float normalLength = length(g2); \n\
+                if (normalLength > 0.0) \
+                  { \
+                  g2 = normalize(g2); \n\
+                  } \
+                else \
+                  { \
+                  g2 = vec3(0.0, 0.0, 0.0); \n\
+                  } \
+                vec3 final_color = vec3(0.0); \n\
+                float n_dot_l = dot(g2, ldir); \n\
+                float n_dot_h = dot(g2, h); \n\
+                if (n_dot_l < 0.0) \
+                  { \
+                  n_dot_l =- n_dot_l; \n\
+                  } \
+                if (n_dot_h < 0.0) \
+                  { \
+                  n_dot_h =- n_dot_h; \n\
+                  } \
+                final_color += m_ambient; \n\
+                final_color += m_diffuse * n_dot_l; \n\
+                float m_shine_factor = pow(n_dot_h, m_shininess); \n\
+                final_color += m_specular * m_shine_factor; \n\
+                final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
+                l_src_color.rgb += final_color.rgb; \n\
+               }"
+            );
+        }
+
+      shaderStr += std::string(
+      "/// Opacity calculation using compositing: \n\
+      /// here we use front to back compositing scheme whereby the current sample \n\
+      /// value is multiplied to the currently accumulated alpha and then this product \n\
+      /// is subtracted from the sample value to get the alpha from the previous steps. \n\
+      /// Next, this alpha is multiplied with the current sample colour and accumulated \n\
+      /// to the composited colour. The alpha value from the previous steps is then \n\
+      /// accumulated to the composited colour alpha. \n\
+      l_src_color.rgb *= l_src_color.a; \n\
+      m_frag_color = (1.0f - m_frag_color.a) * l_src_color + m_frag_color;"
       );
       }
-    else
-      {
-      return std::string("");
-      }
+
+    return shaderStr;
     }
 
   //--------------------------------------------------------------------------

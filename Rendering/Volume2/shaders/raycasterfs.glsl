@@ -58,30 +58,14 @@ void main()
     {
     @BASE_LOOP@
     @TERMINATE_LOOP@
-
-    /// Data fetching from the red channel of m_volume texture
-    float scalar = texture(m_volume, l_data_pos).r * m_scale;
-    vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz,
-                    texture(m_opacity_transfer_func, scalar).w);
-
-    /// Perform shading if enabled or else no op
     @SHADING_LOOP@
-
-    /// Opacity calculation using compositing:
-    /// here we use front to back compositing scheme whereby the current sample
-    /// value is multiplied to the currently accumulated alpha and then this product
-    /// is subtracted from the sample value to get the alpha from the previous steps.
-    /// Next, this alpha is multiplied with the current sample colour and accumulated
-    /// to the composited colour. The alpha value from the previous steps is then
-    /// accumulated to the composited colour alpha.
-    l_src_color.rgb *= l_src_color.a;
-    m_frag_color = (1.0f - m_frag_color.a) * l_src_color + m_frag_color;
 
     /// Advance ray by m_dir_step
     l_data_pos += m_dir_step;
     }
 
+
   @BASE_EXIT@
-  @SHADING_EXIT@
   @TERMINATE_EXIT@
+  @SHADING_EXIT@
 }
