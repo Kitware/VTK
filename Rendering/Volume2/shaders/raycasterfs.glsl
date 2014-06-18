@@ -54,7 +54,7 @@ void main()
   @SHADING_INIT@
 
   /// For all samples along the ray
-  for (int i = 0; i < MAX_SAMPLES; ++i)
+  while (true)
     {
     @BASE_LOOP@
     @TERMINATE_LOOP@
@@ -62,7 +62,7 @@ void main()
 
     /// Advance ray by m_dir_step
     l_data_pos += m_dir_step;
-    }
+    };
 
 
   @BASE_EXIT@

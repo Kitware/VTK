@@ -383,10 +383,7 @@ namespace vtkvolume
                               vtkVolume* vol)
     {
     return std::string(
-    "/// Total samples for each ray march step \n\
-    const int MAX_SAMPLES = 1024; \n\
-    \n\
-    /// Minimum texture access coordinate \n\
+    "/// Minimum texture access coordinate \n\
     const vec3 l_tex_min = vec3(0); \n\
     \n\
     /// Maximum texture access coordinate \n\
