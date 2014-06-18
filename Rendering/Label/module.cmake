@@ -5,4 +5,10 @@ vtk_module(vtkRenderingLabel
     vtkRenderingFreeType
   PRIVATE_DEPENDS
     vtkFiltersExtraction
+  TEST_DEPENDS
+    vtkIOXML
+    vtkTestingCore
+    vtkTestingRendering
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkInteractionStyle
   )

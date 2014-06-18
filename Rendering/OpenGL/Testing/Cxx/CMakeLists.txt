@@ -7,39 +7,12 @@ INCLUDE_DIRECTORIES(
 vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   otherCoordinate.cxx,NO_DATA,NO_VALID
   LoadOpenGLExtension.cxx
-  TestActorLightingFlag.cxx
-  TestAnimationScene.cxx
-  TestBackfaceCulling.cxx
-  TestCellPickerImage.cxx
-  TestDynamic2DLabelMapper.cxx
   TestFBO.cxx,NO_VALID
-  TestFollowerPicking.cxx
-  TestGlyph3DMapper.cxx
-  TestGlyph3DMapperMasking.cxx
-  TestGlyph3DMapperOrientationArray.cxx
-  TestGlyph3DMapperPicking.cxx
   TestGPUInfo.cxx,NO_VALID
   TestGradientBackground.cxx
   TestHomogeneousTransformOfActor.cxx
-  TestImageResliceMapperAlpha.cxx
-  TestImageResliceMapperBackground.cxx
-  TestImageResliceMapperInterpolation.cxx
-  TestImageResliceMapperOffAxis.cxx
-  TestImageResliceMapperOrient3D.cxx
-  TestImageResliceMapperSlab.cxx
-  TestImageSliceMapperAlpha.cxx
-  TestImageSliceMapperBackground.cxx
-  TestImageSliceMapperOrient2D.cxx
-  TestImageSliceMapperOrient3D.cxx
-  TestImageSliceMapperInterpolation.cxx
-  TestImageStack.cxx
   TestInteractorStyleImageProperty.cxx,NO_VALID
   TestInteractorTimers.cxx,NO_VALID
-  TestLabelPlacer.cxx
-  TestLabelPlacer2D.cxx
-  TestLabelPlacerCoincidentPoints.cxx
-  TestLabelPlacementMapper2D.cxx
-  TestLabelPlacementMapperCoincidentPoints.cxx
   TestLODActor.cxx,NO_VALID
   TestManyActors.cxx,NO_VALID
   TestMonitors.cxx,NO_VALID
@@ -87,7 +60,6 @@ endif()
 include_directories(${OPENGL_INCLUDE_DIR})
 
 vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
-  TestAreaSelections.cxx
   TestGlyph3DMapperArrow.cxx
   TestImageSliceMapperBorder.cxx
   TestImageResliceMapperBorder.cxx
@@ -101,8 +73,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
   TestTStripsNormalsColorsTCoords.cxx
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
-  RenderNonFinite.cxx
-  SurfacePlusEdges.cxx
   TestLabelPlacementMapper.cxx
   )
 if(NOT VTK_REPLACE_OPENGL_OVERRIDES)

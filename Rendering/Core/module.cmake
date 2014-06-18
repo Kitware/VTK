@@ -14,4 +14,8 @@ vtk_module(vtkRenderingCore
     vtkTestingCore
     vtkTestingRendering
     vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingFreeType
+    vtkInteractionStyle
+    vtkFiltersSources
+    vtkImagingSources
   )
