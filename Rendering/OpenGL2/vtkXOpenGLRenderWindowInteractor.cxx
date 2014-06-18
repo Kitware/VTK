@@ -34,11 +34,6 @@
 
 #include <map>
 
-#include "vtkTDxConfigure.h" // defines VTK_USE_TDX
-#ifdef VTK_USE_TDX
-#include "vtkTDxUnixDevice.h"
-#endif
-
 vtkStandardNewMacro(vtkXOpenGLRenderWindowInteractor);
 
 // Map between the X native id to our own integer count id.  Note this
@@ -51,15 +46,9 @@ public:
   vtkXOpenGLRenderWindowInteractorInternals()
     {
     this->TimerIdCount = 1;
-#ifdef VTK_USE_TDX
-    this->Device=vtkTDxUnixDevice::New();
-#endif
     }
   ~vtkXOpenGLRenderWindowInteractorInternals()
     {
-#ifdef VTK_USE_TDX
-      this->Device->Delete();
-#endif
     }
 
   int CreateLocalId(XtIntervalId xid)
@@ -82,14 +71,6 @@ public:
     this->XToLocal.erase(xid);
     return xid;
     }
-#ifdef VTK_USE_TDX
-  vtkTDxUnixDevice *GetDevice()
-    {
-      return this->Device;
-    }
-protected:
-  vtkTDxUnixDevice *Device;
-#endif
 
 private:
   int TimerIdCount;
@@ -212,18 +193,6 @@ void vtkXOpenGLRenderWindowInteractor::TerminateApp()
     }
 
   this->BreakLoopFlag = 1;
-
-#ifdef VTK_USE_TDX
-  // 3DConnexion device
-  if(this->UseTDx)
-    {
-    vtkTDxUnixDevice *d=this->Internal->GetDevice();
-    if(d->GetInitialized())
-      {
-      d->Close();
-      }
-    }
-#endif
 
   // Send a VTK_BreakXtLoop ClientMessage event to be sure we pop out of the
   // event loop.  This "wakes up" the event loop.  Otherwise, it might sit idle
@@ -430,22 +399,6 @@ void vtkXOpenGLRenderWindowInteractor::Initialize()
     }
 
   this->WindowId = XtWindow(this->Top);
-
-#ifdef VTK_USE_TDX
-  // 3DConnexion device
-  if(this->UseTDx)
-    {
-    vtkTDxUnixDevice *d=this->Internal->GetDevice();
-    d->SetDisplayId(this->DisplayId);
-    d->SetWindowId(static_cast<vtkTDxUnixDeviceWindow>(this->WindowId));
-    d->SetInteractor(this);
-    d->Initialize();
-    if(!d->GetInitialized())
-      {
-      vtkWarningMacro(<< "failed to initialize a 3Dconnexion device.");
-      }
-    }
-#endif
 
   ren->Start();
   this->Enable();
@@ -921,17 +874,6 @@ void vtkXOpenGLRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         {
         me->ExitCallback();
         }
-#ifdef VTK_USE_TDX
-      else
-        {
-        vtkTDxUnixDevice *d=me->Internal->GetDevice();
-        bool caught=false;
-        if(d->GetInitialized())
-          {
-          caught=d->ProcessEvent(event);
-          }
-        }
-#endif
       }
       break;
     }

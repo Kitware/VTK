@@ -13,10 +13,4 @@
 
 =========================================================================*/
 
-#ifndef __vtkTDxConfigure_h
-#define __vtkTDxConfigure_h
-
-/* Whether the 3Dconnexion devices are being used */
-#cmakedefine VTK_USE_TDX
-
-#endif /*  __vtkTDxConfigure_h */
+/* The TDx support has not been ported, this header defines nothing. */
