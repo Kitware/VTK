@@ -274,8 +274,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
   /// Compile and link it
   this->CompileAndLinkShader(vertexShader, fragmentShader);
 
-  this->Shader.Use();
-
   /// Add attributes and uniforms
   this->Shader.AddAttribute("m_in_vertex_pos");
 
@@ -311,12 +309,12 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
   glGenBuffers(1, &this->CubeVBOId);
   glGenBuffers(1, &this->CubeIndicesId);
 
+  /// Create RGB lookup table
   this->RGBTable = new vtkOpenGLRGBTable();
 
   /// TODO Currently we are supporting only one level
+  /// Create opacity lookup table
   this->OpacityTables = new vtkOpenGLOpacityTables(1);
-
-  this->Shader.UnUse();
 
   this->Initialized = true;
 }
