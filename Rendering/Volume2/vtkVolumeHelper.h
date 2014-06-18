@@ -96,7 +96,13 @@ namespace vtkvolume
       uniform float m_scale; \n\
       uniform vec2 m_window_lower_left_corner; \n\
       uniform vec2 m_inv_original_window_size; \n\
-      uniform vec2 m_inv_window_size; "
+      uniform vec2 m_inv_window_size; \n\
+      \n\
+      \/\/\/ Material and lighting \n\
+      uniform vec3 m_diffuse; \n\
+      uniform vec3 m_ambient; \n\
+      uniform vec3 m_specular; \n\
+      uniform float m_shininess;"
       );
     }
 
@@ -153,20 +159,7 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string ShadingUniformsFrag(vtkRenderer* ren, vtkVolume* vol)
     {
-    if (vol->GetProperty()->GetShade())
-      {
-      return std::string("\n\
-        \/\/\/ Material and lighting \n\
-        uniform vec3 m_diffuse; \n\
-        uniform vec3 m_ambient; \n\
-        uniform vec3 m_specular; \n\
-        uniform float m_shininess;"
-      );
-      }
-    else
-      {
       return std::string("");
-      }
     }
 
   //--------------------------------------------------------------------------
@@ -183,8 +176,7 @@ namespace vtkvolume
       mat4 ogl_modelview_matrix = transpose(m_modelview_matrix); \n\
       vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * transpose(m_scene_matrix) * \n\
                  vec4(m_in_vertex_pos.xyz, 1); \n\
-      gl_Position = pos; \n\
-      m_vertex_pos = m_in_vertex_pos;"
+      gl_Position = pos;"
     );
     }
 
@@ -198,6 +190,44 @@ namespace vtkvolume
       vec3 delta = m_texture_extents_max - m_texture_extents_min; \n\
       m_texture_coords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;"
     );
+    }
+
+  //--------------------------------------------------------------------------
+  std::string InitBase(vtkRenderer* ren, vtkVolume* vol)
+    {
+    return std::string(" \n\
+      vec3 m_light_pos_obj; \n\
+      \n\
+      \/\/\/ inverse is available only on 120 or above \n\
+      mat4 m_ogl_scene_matrix = inverse(transpose(m_scene_matrix)); \n\
+      \n\
+      \/\/\/ Get the 3D texture coordinates for lookup into the m_volume dataset  \n\
+      vec3 m_data_pos = m_texture_coords.xyz; \n\
+      \n\
+      \/\/\/ Eye position in object space  \n\
+      vec3 m_eye_pos_obj = (m_ogl_scene_matrix * vec4(m_camera_pos, 1.0)).xyz; \n\
+      \n\
+      \/\/\/ Getting the ray marching direction (in object space); \n\
+      vec3 geom_dir = normalize(m_vertex_pos.xyz - m_eye_pos_obj); \n\
+      \n\
+      \/\/\/ Multiply the raymarching direction with the step size to get the  \n\
+      \/\/\/ sub-step size we need to take at each raymarching step  \n\
+      vec3 m_dir_step = geom_dir * m_step_size * m_sample_distance; \n\
+      \n\
+      m_data_pos += m_dir_step * texture(m_noise_sampler, m_data_pos.xy).x;"
+    );
+    }
+
+  //--------------------------------------------------------------------------
+  std::string IncrementBase(vtkRenderer* ren, vtkVolume* vol)
+    {
+    return std::string("");
+    }
+
+  //--------------------------------------------------------------------------
+  std::string ExitBase(vtkRenderer* ren, vtkVolume* vol)
+    {
+    return std::string("");
     }
 
   //--------------------------------------------------------------------------

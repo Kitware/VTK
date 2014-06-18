@@ -36,8 +36,11 @@ out vec3 m_vertex_pos;
 void main()
 {
   /// Get clipspace position
-  @COMPUTE_CLIP@
+  @COMPUTE_CLIP_POS@
 
   /// Compute texture coordinates
   @COMPUTE_TEXTURE_COORDS@
+
+  /// Copy incoming vertex position for the fragment shader
+  m_vertex_pos = m_in_vertex_pos;
 }

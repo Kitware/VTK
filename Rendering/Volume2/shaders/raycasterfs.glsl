@@ -46,35 +46,17 @@ layout(location = 0) out vec4 m_frag_color;
 //////////////////////////////////////////////////////////////////////////////
 void main()
 {
-  vec3 m_light_pos_obj;
-
-  /// inverse is available only on 120 or above
-  mat4 m_ogl_scene_matrix = inverse(transpose(m_scene_matrix));
-
-  /// Get the 3D texture coordinates for lookup into the m_volume dataset
-  vec3 m_data_pos = m_texture_coords.xyz;
-
-  /// Eye position in object space
-  vec3 m_eye_pos_obj = (m_ogl_scene_matrix * vec4(m_camera_pos, 1.0)).xyz;
-
-  /// Getting the ray marching direction (in object space);
-  vec3 geom_dir = normalize(m_vertex_pos.xyz - m_eye_pos_obj);
-
-  /// Multiply the raymarching direction with the step size to get the
-  /// sub-step size we need to take at each raymarching step
-  vec3 m_dir_step = geom_dir * m_step_size * m_sample_distance;
-
-  m_data_pos += m_dir_step * texture(m_noise_sampler, m_data_pos.xy).x;
-
   /// Initialize m_frag_color (output) to 0
   m_frag_color = vec4(0.0);
 
+  @BASE_INIT@
   @TERMINATE_INIT@
   @SHADING_INIT@
 
   /// For all samples along the ray
   for (int i = 0; i < MAX_SAMPLES; ++i)
     {
+    @BASE_LOOP@
     @TERMINATE_LOOP@
 
     /// Data fetching from the red channel of m_volume texture
@@ -99,6 +81,7 @@ void main()
     m_data_pos += m_dir_step;
     }
 
+  @BASE_EXIT@
   @SHADING_EXIT@
   @TERMINATE_EXIT@
 }

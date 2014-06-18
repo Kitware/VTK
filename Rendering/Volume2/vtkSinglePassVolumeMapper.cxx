@@ -278,6 +278,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
 
   /// Add attributes and uniforms
   this->Shader.AddAttribute("m_in_vertex_pos");
+
   this->Shader.AddUniform("m_scene_matrix");
   this->Shader.AddUniform("m_modelview_matrix");
   this->Shader.AddUniform("m_projection_matrix");
@@ -923,37 +924,50 @@ void vtkSinglePassVolumeMapper::BuildShader(string& vertexShader,
                                             vtkRenderer* ren,
                                             vtkVolume* vol)
 {
+  /// Preprocess vertex shader
   vertexShader = vtkvolume::replace(vertexShader, "@BASE_ATTRIBUTES_VERT@",
                                     vtkvolume::BaseAttributesVert(ren, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "@BASE_UNIFORMS_VERT@",
                                     vtkvolume::BaseUniformsVert(ren, vol), true);
+
   vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_ATTRIBUTES_VERT@",
                                     vtkvolume::TerminationAttributesVert(ren, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_UNIFORMS_VERT@",
                                     vtkvolume::TerminationAttributesVert(ren, vol), true);
+
   vertexShader = vtkvolume::replace(vertexShader, "@SHADING_ATTRIBUTES_VERT@",
                                     vtkvolume::ShadingAttributesVert(ren, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "@SHADING_UNIFORMS_VERT@",
                                     vtkvolume::ShadingUniformsVert(ren, vol), true);
-  vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_CLIP@",
+
+  vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_CLIP_POS@",
                                     vtkvolume::ComputeClip(ren, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_TEXTURE_COORDS@",
                                     vtkvolume::ComputeTextureCoords(ren, vol), true);
 
-  std::cerr << "vertexShader shader " << vertexShader << std::endl;
-
+  /// Preprocess fragment shader
   fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_UNIFORMS_FRAG@",
                                       vtkvolume::BaseUniformsFrag(ren, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_ATTRIBUTES_FRAG@",
                                       vtkvolume::BaseAttributesFrag(ren, vol), true);
+
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATION_UNIFORMS_FRAG@",
                                       vtkvolume::TerminationUniformsFrag(ren, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATION_ATTRIBUTES_FRAG@",
                                       vtkvolume::TerminationAttributesFrag(ren, vol), true);
+
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_UNIFORMS_FRAG@",
                                       vtkvolume::ShadingUniformsFrag(ren, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_ATTRIBUTES_FRAG@",
                                       vtkvolume::ShadingAttributesFrag(ren, vol), true);
+
+  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_INIT@",
+                                      vtkvolume::InitBase(ren, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_LOOP@",
+                                      vtkvolume::IncrementBase(ren, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_EXIT@",
+                                      vtkvolume::ExitBase(ren, vol), true);
+
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
                                       vtkvolume::InitShading(ren, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_LOOP@",
@@ -967,8 +981,6 @@ void vtkSinglePassVolumeMapper::BuildShader(string& vertexShader,
                                       vtkvolume::IncrementTermination(ren, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_EXIT@",
                                       vtkvolume::ExitTermination(ren, vol), true);
-
-  std::cerr << "fragmentShader shader " << fragmentShader << std::endl;
 }
 
 ///
