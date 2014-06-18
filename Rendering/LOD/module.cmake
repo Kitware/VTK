@@ -4,4 +4,8 @@ vtk_module(vtkRenderingLOD
   DEPENDS
     vtkRenderingCore
     vtkFiltersModeling
+  TEST_DEPENDS
+    vtkTestingRendering
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkInteractionStyle
   )

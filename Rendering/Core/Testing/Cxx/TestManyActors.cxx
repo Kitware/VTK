@@ -128,4 +128,3 @@ int TestManyActors(int argc, char* argv[])
 
   return 0;
 }
-

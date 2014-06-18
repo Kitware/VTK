@@ -173,4 +173,3 @@ int otherCoordinate(int,char *[])
   vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return Test(vtkmsg_with_warning_C4701);
 }
-

@@ -3,6 +3,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestLabelPlacer.cxx
   TestLabelPlacer2D.cxx
   TestLabelPlacerCoincidentPoints.cxx
+  TestLabelPlacementMapper.cxx
   TestLabelPlacementMapper2D.cxx
   TestLabelPlacementMapperCoincidentPoints.cxx
   )

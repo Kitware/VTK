@@ -39,4 +39,3 @@ int TestGradientBackground(int argc, char* argv[])
     }
   return !retVal;
 }
-

@@ -58,4 +58,3 @@ int TestTexturedBackground(int argc, char* argv[])
     }
   return !retVal;
 }
-

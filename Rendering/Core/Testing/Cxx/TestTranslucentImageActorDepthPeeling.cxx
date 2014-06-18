@@ -83,4 +83,3 @@ int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
 
   return !retVal;
 }
-
