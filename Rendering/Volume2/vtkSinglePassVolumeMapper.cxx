@@ -19,6 +19,7 @@
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
 #include "vtkVolumeShaderComposer.h"
+#include "vtkVolumeStateRAII.h"
 
 /// Include compiled shader code
 #include <raycasterfs.h>
@@ -186,7 +187,7 @@ public:
   void UpdateVolumeGeometry();
 
   ///
-  /// \brief Load OpenGL extensiosn required to grab m_depth_sampler buffer
+  /// \brief Load OpenGL extensiosn required to grab depth sampler buffer
   ///
   void LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin);
 
@@ -700,7 +701,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateDepthTexture(
   /// Make sure our render window is the current OpenGL context
   ren->GetRenderWindow()->MakeCurrent();
 
-  /// Load required extensions for grabbing m_depth_sampler buffer
+  /// Load required extensions for grabbing depth sampler buffer
   if (!this->LoadDepthTextureExtensionsSucceeded)
     {
     this->LoadRequireDepthTextureExtensions(ren->GetRenderWindow());
@@ -714,7 +715,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateDepthTexture(
     return;
     }
 
-  /// Now grab the m_depth_sampler buffer as texture
+  /// Now grab the depth sampler buffer as texture
   ren->GetTiledSizeAndOrigin(this->WindowSize, this->WindowSize + 1,
                              this->WindowLowerLeft, this->WindowLowerLeft + 1);
 
@@ -838,7 +839,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::LoadRequireDepthTextureExtensions(
     return;
     }
 
-  /// NOTE: Support for m_depth_sampler texture made into the core since version
+  /// NOTE: Support for depth sampler texture made into the core since version
   /// 1.4 and therefore we are no longer checking for it.
   this->LoadDepthTextureExtensionsSucceeded = true;
 }
@@ -1189,11 +1190,8 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 
   vtkImageData* input = this->GetInput();
 
-  /// Enable texture 1D and 3D as we are using it
-  /// for transfer functions and m_volume data
-  glEnable(GL_TEXTURE_1D);
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_TEXTURE_3D);
+  /// Set OpenGL states
+  vtkVolumeStateRAII glState;
 
   if (!this->Implementation->IsInitialized())
     {
@@ -1233,23 +1231,12 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   this->Implementation->UpdateColorTransferFunction(vol,
     scalars->GetNumberOfComponents());
 
-  /// Update m_noise_sampler texture
+  /// Update noise sampler texture
   this->Implementation->UpdateNoiseTexture();
 
-  /// Grab m_depth_sampler buffer (to handle cases when we are rendering geometry
+  /// Grab depth sampler buffer (to handle cases when we are rendering geometry
   /// and m_volume together
   this->Implementation->UpdateDepthTexture(ren, vol);
-
-  GL_CHECK_ERRORS
-
-  /// Enable m_depth_sampler test
-  glEnable(GL_DEPTH_TEST);
-
-  /// Set the over blending function
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  /// Enable blending
-  glEnable(GL_BLEND);
 
   GL_CHECK_ERRORS
 
@@ -1457,13 +1444,4 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   /// Undo binds and state changes
   /// TODO Provide a stack implementation
   this->Implementation->Shader.UnUse();
-
-  glBindVertexArray(0);
-  glDisable(GL_BLEND);
-
-  glActiveTexture(GL_TEXTURE0);
-
-  glDisable(GL_TEXTURE_3D);
-  glDisable(GL_TEXTURE_2D);
-  glDisable(GL_TEXTURE_1D);
 }
