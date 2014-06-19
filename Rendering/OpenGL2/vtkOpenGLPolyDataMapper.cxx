@@ -410,15 +410,15 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
-      vtkErrorMacro(<< "Error setting 'vertexMC' in triangle VAO.");
+      vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
       }
-    if (layout.NormalOffset)
+    if (layout.NormalOffset && this->LastLightComplexity > 0)
       {
       if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
                                       "normalMC", layout.NormalOffset,
                                       layout.Stride, VTK_FLOAT, 3, false))
         {
-        vtkErrorMacro(<< "Error setting 'normalMC' in triangle VAO.");
+        vtkErrorMacro(<< "Error setting 'normalMC' in shader VAO.");
         }
       }
     if (layout.TCoordComponents)
