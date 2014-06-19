@@ -10,7 +10,7 @@ Use "--help" to list the supported arguments.
 
 """
 
-import sys
+import sys, logging
 
 from . import testing
 from . import upload

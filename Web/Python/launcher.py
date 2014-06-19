@@ -43,7 +43,7 @@ Here is a sample of what a configuration file could looks like:
         "content": "/.../www",                    # Optional: Directory shared over HTTP
         "proxy_file" : "/.../proxy-mapping.txt",  # Proxy-Mapping file for Apache
         "sessionURL" : "ws://${host}:${port}/ws", # ws url used by the client to connect to the started process
-        "timeout" : 5,                            # Wait time in second after process start
+        "timeout" : 25,                           # Wait time in second after process start
         "log_dir" : "/.../viz-logs",              # Directory for log files
         "upload_dir" : "/.../data",               # If launcher should act as upload server, where to put files
         "fields" : ["file", "host", "port", "updir"]       # List of fields that should be send back to client
@@ -53,7 +53,7 @@ Here is a sample of what a configuration file could looks like:
       ## Useful session vars for client
       ## ===============================
 
-      "sessionData" : { updir": "/Home" }         # Tells client which path to updateFileBrowser after uploads
+      "sessionData" : { "updir": "/Home" },      # Tells client which path to updateFileBrowser after uploads
 
       ## ===============================
       ## Resources list for applications
@@ -323,15 +323,19 @@ class ProcessManager(object):
     # ========================================================================
     # Look for ready line in process output. Return True if found, False
     # otherwise. If no ready_line is configured and process is running return
-    # True.
+    # False. This will then rely on the timout time.
     # ========================================================================
 
-    def isReady(self, session):
+    def isReady(self, session, count = 0):
       id = session['id']
 
       # The process has to be running to be ready!
+      if not self.isRunning(id) and count < 60:
+        return False
+
+      # Give up after 60 seconds if still not running
       if not self.isRunning(id):
-          return False
+        return True
 
       application = self.config['apps'][session['application']]
       ready_line  = application.get('ready_line', None)
@@ -339,7 +343,7 @@ class ProcessManager(object):
       # If no ready_line is configured and the process is running then thats
       # enough.
       if not ready_line:
-          return True
+          return False
 
       ready = False
 
@@ -422,11 +426,11 @@ class LauncherResource(resource.Resource, object):
         # If a ready_line is configured create a Deferred object to wait for
         # ready line to be produced
         if 'ready_line' in self._config['apps'][session['application']]:
-          ready_deferred = self._waitForReady(session, request)
-          ready_deferred.addCallback(self._delayedRenderReady, session)
-          ready_deferred.addErrback(errback)
-          # Make sure other deferred is canceled once one has been fired
-          request.notifyFinish().addCallback(lambda x: ready_deferred.cancel())
+            ready_deferred = self._waitForReady(session, request)
+            ready_deferred.addCallback(self._delayedRenderReady, session)
+            ready_deferred.addErrback(errback)
+            # Make sure other deferred is canceled once one has been fired
+            request.notifyFinish().addCallback(lambda x: ready_deferred.cancel())
 
         return NOT_DONE_YET
 
@@ -437,12 +441,12 @@ class LauncherResource(resource.Resource, object):
     # be triggered when the session is ready
     # ========================================================================
 
-    def _waitForReady(self, session, request, d=None):
+    def _waitForReady(self, session, request, count=0, d=None):
         if not d:
             d = defer.Deferred()
 
-        if not self.process_manager.isReady(session):
-            reactor.callLater(1, self._waitForReady, session, request, d)
+        if not self.process_manager.isReady(session, count + 1):
+            reactor.callLater(1, self._waitForReady, session, request, count + 1, d)
         else:
             d.callback(request)
 
@@ -454,7 +458,7 @@ class LauncherResource(resource.Resource, object):
     # ========================================================================
 
     def _delayedRenderTimeout(self, request, session):
-        ready = self.process_manager.isReady(session)
+        ready = self.process_manager.isReady(session, 0)
 
         if ready:
             request.write(json.dumps(filterResponse(session, self.field_filter)))
