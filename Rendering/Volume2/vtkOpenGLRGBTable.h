@@ -4,7 +4,6 @@
 #include <vtkColorTransferFunction.h>
 
 #include <GL/glew.h>
-#include <vtkgl.h>
 
 ///
 /// \brief The vtkOpenGLRGBTable class
@@ -93,7 +92,7 @@ public:
     if(needUpdate)
       {
       glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
-                      vtkgl::CLAMP_TO_EDGE);
+                      GL_CLAMP_TO_EDGE);
       }
     if(scalarRGB->GetMTime() > this->BuildTime || needUpdate || !this->Loaded)
       {
