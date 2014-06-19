@@ -366,8 +366,8 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       return std::string(
-      "vec4 l_src_color = vec4(texture(m_color_transfer_func, maxValue * m_scale).xyz, \n\
-        texture(m_opacity_transfer_func, maxValue * m_scale).w); \n\
+      "vec4 l_src_color = texture(m_color_transfer_func, maxValue * m_scale); \n\
+       l_src_color.a = texture(m_opacity_transfer_func, maxValue * m_scale).a; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;"
       );
