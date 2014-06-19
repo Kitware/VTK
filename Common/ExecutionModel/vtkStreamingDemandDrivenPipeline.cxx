@@ -555,15 +555,7 @@ vtkStreamingDemandDrivenPipeline
       for (int j=0; j<numInConnections; j++)
         {
         vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
-        if(inInfo->Has(WHOLE_EXTENT()))
-          {
-          int extent[6] = {0, -1, 0, -1, 0, -1};
-          inInfo->Get(WHOLE_EXTENT(), extent);
-          this->SetUpdateExtent(inInfo, extent);
-          }
-        vtkStreamingDemandDrivenPipeline::SetUpdatePiece(inInfo, 0);
-        vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(inInfo, 1);
-        vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(inInfo, 0);
+        this->SetUpdateExtentToWholeExtent(inInfo);
         }
       }
 
@@ -1413,26 +1405,19 @@ int vtkStreamingDemandDrivenPipeline
 
   // Request all data.
   int modified = 0;
-  if(vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT()))
-    {
-    modified |=
-      vtkStreamingDemandDrivenPipeline::SetUpdatePiece(info, 0);
-    modified |=
-      vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(info, 1);
-    modified |=
-      vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(info, 0);
+  modified |=
+    vtkStreamingDemandDrivenPipeline::SetUpdatePiece(info, 0);
+  modified |=
+    vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces(info, 1);
+  modified |=
+    vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(info, 0);
 
-    if(data->GetExtentType() == VTK_3D_EXTENT)
-      {
-      int extent[6] = {0,-1,0,-1,0,-1};
-      info->Get(WHOLE_EXTENT(), extent);
-      modified |=
-        vtkStreamingDemandDrivenPipeline::SetUpdateExtent(info, extent);
-      }
-    }
-  else
+  if(info->Has(WHOLE_EXTENT()))
     {
-    vtkGenericWarningMacro("SetUpdateExtentToWholeExtent called with no data object.");
+    int extent[6] = {0,-1,0,-1,0,-1};
+    info->Get(WHOLE_EXTENT(), extent);
+    modified |=
+      vtkStreamingDemandDrivenPipeline::SetUpdateExtent(info, extent);
     }
 
   // Make sure the update extent will remain the whole extent until
@@ -1599,7 +1584,6 @@ int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(vtkInformation *info, do
     {
     info->Set(UPDATE_TIME_STEP(),time);
     }
-  info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;
 }
 
