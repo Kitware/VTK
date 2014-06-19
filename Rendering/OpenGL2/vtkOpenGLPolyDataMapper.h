@@ -40,6 +40,7 @@ public:
   virtual void RenderPieceStart(vtkRenderer *ren, vtkActor *act);
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
   virtual void RenderPieceFinish(vtkRenderer *ren, vtkActor *act);
+  virtual void RenderEdges(vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.

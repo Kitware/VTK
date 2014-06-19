@@ -736,8 +736,8 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       vtkErrorMacro(<< "GetResolveCoincidentTopologyZShift is not supported use Polygon offset instead");
       // do something rough as better than nothing
       double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
-      double u = zRes*20.0; // float up to 20 units above the zbuffer
-      glPolygonOffset(0.0,u);  // supported on ES2/3/etc
+      double f = zRes*4.0;
+      glPolygonOffset(f,0.0);  // supported on ES2/3/etc
       }
     else
       {
@@ -940,7 +940,85 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->RenderPieceStart(ren, actor);
   this->RenderPieceDraw(ren, actor);
   this->RenderPieceFinish(ren, actor);
+
+  // if EdgeVisibility is on then draw the wireframe also
+  this->RenderEdges(ren,actor);
 }
+
+void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
+{
+  vtkProperty *prop = actor->GetProperty();
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+  if (draw_surface_with_edges)
+    {
+    // store old values
+    double f, u;
+    this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+    double zRes = this->GetResolveCoincidentTopologyZShift();
+    int oldRCT = this->GetResolveCoincidentTopology();
+    vtkProperty *oldProp = vtkProperty::New();
+    oldProp->DeepCopy(prop);
+
+    // setup new values and render
+    if (oldRCT == VTK_RESOLVE_SHIFT_ZBUFFER)
+      {
+      this->SetResolveCoincidentTopologyZShift(zRes*2.0);
+      }
+    else
+      {
+      this->SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);
+      this->SetResolveCoincidentTopologyPolygonOffsetParameters(f+0.5,u*1.5);
+      }
+    prop->LightingOff();
+    prop->SetAmbientColor(prop->GetEdgeColor());
+    prop->SetAmbient(1.0);
+    prop->SetDiffuse(0.0);
+    prop->SetSpecular(0.0);
+    prop->SetRepresentationToWireframe();
+    this->RenderPieceStart(ren, actor);
+    this->RenderPieceDraw(ren, actor);
+    this->RenderPieceFinish(ren, actor);
+
+    // restore old values
+    prop->SetRepresentationToSurface();
+    prop->SetLighting(oldProp->GetLighting());
+    prop->SetAmbientColor(oldProp->GetAmbientColor());
+    prop->SetAmbient(oldProp->GetAmbient());
+    prop->SetDiffuse(oldProp->GetDiffuse());
+    prop->SetSpecular(oldProp->GetSpecular());
+    this->SetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+    this->SetResolveCoincidentTopologyZShift(zRes);
+    this->SetResolveCoincidentTopology(oldRCT);
+    oldProp->UnRegister(this);
+
+/*
+    glPushAttrib(GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_ENABLE_BIT);
+    double color[4];
+    prop->GetEdgeColor(color);
+    color[0] *= prop->GetOpacity();
+    color[1] *= prop->GetOpacity();
+    color[2] *= prop->GetOpacity();
+
+    // Disable textures when rendering the surface edges.
+    // This ensures that edges are always drawn solid.
+    glDisable(GL_TEXTURE_2D);
+
+    this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
+    this->Superclass::RenderInternal(renderer, actor, typeflags,
+                                     forceCompileOnly);
+    this->TimeToDraw += this->DelegatePainter?
+      this->DelegatePainter->GetTimeToDraw() : 0;
+    this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
+
+    // reset the default.
+    glPolygonMode(face, GL_FILL);
+
+    glPopAttrib(); //(GL_CURRENT_BIT|GL_LIGHTING|GL_ENABLE_BIT)
+    */
+   }
+}
+
 
 //-------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ComputeBounds()
