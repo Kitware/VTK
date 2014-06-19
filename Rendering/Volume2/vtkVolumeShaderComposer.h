@@ -280,7 +280,7 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       shaderStr = std::string(
-      "float scalar = texture(m_volume, l_data_pos).r; \n\
+      "float scalar = texture(m_volume, l_data_pos).r * m_scale; \n\
        maxValue = max(maxValue, scalar);"
       );
       }
@@ -366,8 +366,8 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       return std::string(
-      "vec4 l_src_color = texture(m_color_transfer_func, maxValue * m_scale); \n\
-       l_src_color.a = texture(m_opacity_transfer_func, maxValue * m_scale).a; \n\
+      "vec4 l_src_color = texture(m_color_transfer_func, maxValue); \n\
+       l_src_color.a = texture(m_opacity_transfer_func, maxValue).a; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;"
       );
