@@ -69,9 +69,9 @@ void main()
     discard;
     }
 
-  //VTK::Picking::Impl
-
   //VTK::DepthPeeling::Impl
+
+  //VTK::Picking::Impl
 
 }
 

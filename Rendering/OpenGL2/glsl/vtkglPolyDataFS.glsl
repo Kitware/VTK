@@ -27,6 +27,9 @@ uniform vec3 diffuseColorUniform; // intensity weighted color
 // picking support
 //VTK::Picking::Dec
 
+// Depth Peeling Support
+//VTK::DepthPeeling::Dec
+
 void main()
 {
   //VTK::Color::Impl
@@ -40,5 +43,8 @@ void main()
     discard;
     }
 
+  //VTK::DepthPeeling::Impl
+
   //VTK::Picking::Impl
+
 }
