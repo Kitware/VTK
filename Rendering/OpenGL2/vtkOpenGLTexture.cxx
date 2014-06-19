@@ -349,7 +349,7 @@ void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
 {
   vtkOpenGLRenderWindow* renWin =
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
-  // activate a free texture unit for this texture
+  // deactivate the texture
   renWin->DeactivateTexture(this);
   if (this->GetInput() && this->PremultipliedAlpha)
     {

@@ -892,6 +892,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkN
     glDisable(GL_POLYGON_OFFSET_FILL);
     }
 
+  if (this->InternalColorTexture)
+    {
+    this->InternalColorTexture->PostRender(ren);
+    }
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
