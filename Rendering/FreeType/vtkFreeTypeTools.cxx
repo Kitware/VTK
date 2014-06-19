@@ -93,9 +93,6 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkInstantiatorNewMacro(vtkFreeTypeTools);
-
-//----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
 vtkFreeTypeTools* vtkFreeTypeTools::Instance = NULL;
 vtkFreeTypeToolsCleanup vtkFreeTypeTools::Cleanup;

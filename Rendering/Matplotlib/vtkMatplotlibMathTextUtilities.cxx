@@ -168,7 +168,6 @@ vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
   return new vtkMatplotlibMathTextUtilities;
 }
 
-vtkInstantiatorNewMacro(vtkMatplotlibMathTextUtilities)
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
   : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL),

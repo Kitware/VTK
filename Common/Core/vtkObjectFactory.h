@@ -322,16 +322,14 @@ vtkObjectFactory* vtkLoad()                     \
   thisClass* thisClass::New() \
   { \
   VTK_STANDARD_NEW_BODY(thisClass) \
-  } \
-  vtkInstantiatorNewMacro(thisClass)
+  }
 
 // Macro to implement the object factory form of the New() method.
 #define vtkObjectFactoryNewMacro(thisClass) \
   thisClass* thisClass::New() \
   { \
   VTK_OBJECT_FACTORY_NEW_BODY(thisClass) \
-  } \
-  vtkInstantiatorNewMacro(thisClass)
+  }
 
 // Macro to implement the abstract object factory form of the New() method.
 // That is an abstract base class that can only be instantiated if the
@@ -340,5 +338,4 @@ vtkObjectFactory* vtkLoad()                     \
   thisClass* thisClass::New() \
   { \
   VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass) \
-  } \
-  vtkInstantiatorNewMacro(thisClass)
+  }

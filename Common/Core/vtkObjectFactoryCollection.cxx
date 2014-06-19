@@ -17,10 +17,6 @@
 #include "vtkDebugLeaks.h"
 
 
-//----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkObjectFactoryCollection);
-
 vtkObjectFactoryCollection* vtkObjectFactoryCollection::New()
 {
 #ifdef VTK_DEBUG_LEAKS

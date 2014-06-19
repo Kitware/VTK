@@ -55,10 +55,6 @@ typedef std::map<int,vtkTimerStruct>::iterator vtkTimerIdMapIterator;
 static int vtkTimerId = 1;
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkRenderWindowInteractor);
-//----------------------------------------------------------------------------
-
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor,Picker,vtkAbstractPicker);
 
 //----------------------------------------------------------------------
