@@ -231,11 +231,13 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
   if (picking)
     {
     FSSource = vtkgl::replace(FSSource,
-                                 "//VTK::Picking::Dec","uniform vec3 mapperIndex;");
+                                 "//VTK::Picking::Dec",
+                                 "uniform vec3 mapperIndex;\n"
+                                 "uniform int pickingAttributeIDOffset;");
     FSSource = vtkgl::replace(FSSource,
                               "//VTK::Picking::Impl",
                               "if (mapperIndex == vec3(0,0,0))  { "
-                              "  int idx = gl_PrimitiveID + 1;"
+                              "  int idx = gl_PrimitiveID + 1 + pickingAttributeIDOffset;"
                               "  gl_FragColor = vec4((idx%256)/255.0, ((idx/256)%256)/255.0, (idx/65536)/255.0, 1.0);"
                               "  } "
                               "else { "
@@ -403,7 +405,6 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
   this->lastBoundBO = &cellBO;
 }
 
-
 void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                                       vtkRenderer* ren, vtkActor *actor)
 {
@@ -481,6 +482,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
 
   if (this->LastSelectionState)
     {
+    cellBO.CachedProgram->Program.SetUniformi("pickingAttributeIDOffset", this->pickingAttributeIDOffset);
     vtkHardwareSelector* selector = ren->GetSelector();
     if (selector)
       {
@@ -702,12 +704,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
         selector->GetCurrentPass() == vtkHardwareSelector::ID_MID24 ||
         selector->GetCurrentPass() == vtkHardwareSelector::ID_HIGH16)
       {
-      // TODO need more smarts in here for mid and high
       selector->RenderAttributeId(0);
       }
     }
 
   this->TimeToDraw = 0.0;
+  this->pickingAttributeIDOffset = 0;
 
   // Update the OpenGL if needed.
   if (this->OpenGLUpdateTime < this->GetMTime() ||
@@ -772,6 +774,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->points.ibo.Release();
+    this->pickingAttributeIDOffset += this->points.indexCount;
     }
 
   // draw lines
@@ -799,6 +802,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
         }
       }
     this->lines.ibo.Release();
+    this->pickingAttributeIDOffset += this->lines.indexCount;
     }
 
   // draw polygons
@@ -835,6 +839,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           reinterpret_cast<const GLvoid *>(NULL));
       }
     this->tris.ibo.Release();
+    this->pickingAttributeIDOffset += this->tris.indexCount;
     }
 
   // draw strips

@@ -142,6 +142,7 @@ protected:
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;
+  int pickingAttributeIDOffset;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
