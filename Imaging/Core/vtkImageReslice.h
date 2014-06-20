@@ -245,6 +245,17 @@ public:
   vtkGetMacro(SlabTrapezoidIntegration, int);
 
   // Description:
+  // The slab spacing as a fraction of the output slice spacing.
+  // When one of the various slab modes is chosen, each output slice is
+  // produced by generating several "temporary" output slices and then
+  // combining them according to the slab mode.  By default, the spacing
+  // between these temporary slices is the Z component of the OutputSpacing.
+  // This method sets the spacing between these temporary slices to be a
+  // fraction of the output spacing.
+  vtkSetMacro(SlabSliceSpacingFraction, double);
+  vtkGetMacro(SlabSliceSpacingFraction, double);
+
+  // Description:
   // Turn on and off optimizations (default on, they should only be
   // turned off for testing purposes).
   vtkSetMacro(Optimization, int);
@@ -397,6 +408,7 @@ protected:
   int SlabMode;
   int SlabNumberOfSlices;
   int SlabTrapezoidIntegration;
+  double SlabSliceSpacingFraction;
   double ScalarShift;
   double ScalarScale;
   double BackgroundColor[4];
