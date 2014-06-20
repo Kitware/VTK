@@ -4,7 +4,7 @@ vtk_module(vtkIOGDAL
     vtkCommonExecutionModel
   TEST_DEPENDS
     vtkTestingCore
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
 )
