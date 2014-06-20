@@ -23,7 +23,7 @@ namespace vtkgl {
 /**
  * @brief Vertex or Fragment shader, combined into a ShaderProgram.
  *
- * This class creates a Vertex or Fragment shader, that can be attached to a
+ * This class creates a Vertex, Fragment or Geometry shader, that can be attached to a
  * ShaderProgram in order to render geometry etc.
  */
 
@@ -34,6 +34,7 @@ public:
   enum Type {
     Vertex,    /**< Vertex shader */
     Fragment,  /**< Fragment shader */
+    Geometry,  /**< Geometry shader */
     Unknown    /**< Unknown (default) */
   };
 

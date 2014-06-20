@@ -87,11 +87,12 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::BuildShader(
-  std::string &VSSource, std::string &FSSource,
+  std::string &VSSource, std::string &FSSource, std::string &GSSource,
   vtkViewport* viewport, vtkActor2D *vtkNotUsed(actor))
 {
   VSSource = vtkglPolyData2DVS;
   FSSource = vtkglPolyData2DFS;
+  GSSource.clear();
 
   vtkOpenGLRenderer *ren = vtkOpenGLRenderer::SafeDownCast(viewport);
 
@@ -214,9 +215,12 @@ void vtkOpenGLPolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
     {
     std::string VSSource;
     std::string FSSource;
-    this->BuildShader(VSSource,FSSource,viewport,actor);
+    std::string GSSource;
+    this->BuildShader(VSSource,FSSource,GSSource,viewport,actor);
     vtkOpenGLShaderCache::CachedShaderProgram *newShader =
-      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
+      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
+                                            FSSource.c_str(),
+                                            GSSource.c_str());
     cellBO.ShaderSourceTime.Modified();
     // if the shader changed reinitialize the VAO
     if (newShader != cellBO.CachedProgram)

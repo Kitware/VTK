@@ -37,20 +37,25 @@ public:
   {
     vtkgl::Shader VS;
     vtkgl::Shader FS;
+    vtkgl::Shader GS;
     vtkgl::ShaderProgram Program;
     bool Compiled;
     std::string md5Hash;
   };
 
   // make sure the specified shader is compiled, linked, and bound
-  virtual CachedShaderProgram *ReadyShader(const char *vertexCode, const char *fragmentCode);
+  virtual CachedShaderProgram *ReadyShader(const char *vertexCode,
+                                           const char *fragmentCode,
+                                           const char *geometryCode);
   virtual CachedShaderProgram *ReadyShader(CachedShaderProgram *shader);
 
 protected:
   vtkOpenGLShaderCache();
   ~vtkOpenGLShaderCache();
 
-  virtual CachedShaderProgram* GetShader(const char *vertexCode, const char *fragmentCode);
+  virtual CachedShaderProgram* GetShader(const char *vertexCode,
+                                         const char *fragmentCode,
+                                         const char *geometryCode);
   virtual int CompileShader(CachedShaderProgram* shader);
   virtual int BindShader(CachedShaderProgram* shader);
 

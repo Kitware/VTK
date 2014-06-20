@@ -46,7 +46,10 @@ public:
   }
 
   //-----------------------------------------------------------------------------
-  void ComputeMD5(const char* content, const char* content2, std::string &hash)
+  void ComputeMD5(const char* content,
+                  const char* content2,
+                  const char* content3,
+                  std::string &hash)
   {
     unsigned char digest[16];
     char md5Hash[33];
@@ -55,6 +58,7 @@ public:
     vtksysMD5_Initialize(this->md5);
     vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content), (int)strlen(content));
     vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content2), (int)strlen(content2));
+    vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content3), (int)strlen(content3));
     vtksysMD5_Finalize(this->md5, digest);
     vtksysMD5_DigestToHex(digest, md5Hash);
 
@@ -80,9 +84,12 @@ vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
 }
 
 // return NULL if there is an issue
-vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(const char *vertexCode, const char *fragmentCode)
+vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
+  const char *vertexCode,
+  const char *fragmentCode,
+  const char *geometryCode)
 {
-  CachedShaderProgram *shader = this->GetShader(vertexCode, fragmentCode);
+  CachedShaderProgram *shader = this->GetShader(vertexCode, fragmentCode, geometryCode);
   if (!shader)
     {
     return NULL;
@@ -122,11 +129,14 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   return shader;
 }
 
-vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(const char *vertexCode, const char *fragmentCode)
+vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(
+  const char *vertexCode,
+  const char *fragmentCode,
+  const char *geometryCode)
 {
   // compute the MD5 and the check the map
   std::string result;
-  this->Internal->ComputeMD5(vertexCode, fragmentCode, result);
+  this->Internal->ComputeMD5(vertexCode, fragmentCode, geometryCode, result);
 
   // does it already exist?
   typedef std::map<std::string,vtkOpenGLShaderCache::CachedShaderProgram*>::const_iterator SMapIter;
@@ -139,6 +149,11 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(const
     sps->VS.SetType(vtkgl::Shader::Vertex);
     sps->FS.SetSource(fragmentCode);
     sps->FS.SetType(vtkgl::Shader::Fragment);
+    if (geometryCode != NULL)
+      {
+      sps->GS.SetSource(geometryCode);
+      sps->GS.SetType(vtkgl::Shader::Geometry);
+      }
     sps->Compiled = false;
     sps->md5Hash = result;
     this->Internal->ShaderPrograms.insert(std::make_pair(result, sps));

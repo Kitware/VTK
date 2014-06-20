@@ -97,7 +97,10 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource, std::string &FSSource, int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
+                                          std::string &FSSource,
+                                          std::string &GSSource,
+                                          int lightComplexity, vtkRenderer* ren, vtkActor *actor)
 {
   switch (lightComplexity)
     {
@@ -118,6 +121,7 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource, std::string &FS
         FSSource = vtkglPolyDataFSPositionalLights;
       break;
     }
+  GSSource.clear();
 
   if (this->layout.ColorComponents != 0)
     {
@@ -367,11 +371,14 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
     // build the shader source code
     std::string VSSource;
     std::string FSSource;
-    this->BuildShader(VSSource,FSSource,this->LastLightComplexity,ren,actor);
+    std::string GSSource;
+    this->BuildShader(VSSource,FSSource,GSSource,this->LastLightComplexity,ren,actor);
 
     // compile and bind it if needed
     vtkOpenGLShaderCache::CachedShaderProgram *newShader =
-      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(), FSSource.c_str());
+      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
+                                            FSSource.c_str(),
+                                            GSSource.c_str());
 
     // if the shader changed reinitialize the VAO
     if (newShader != cellBO.CachedProgram)
@@ -993,28 +1000,15 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
     oldProp->UnRegister(this);
 
 /*
-    glPushAttrib(GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_ENABLE_BIT);
-    double color[4];
-    prop->GetEdgeColor(color);
-    color[0] *= prop->GetOpacity();
-    color[1] *= prop->GetOpacity();
-    color[2] *= prop->GetOpacity();
-
     // Disable textures when rendering the surface edges.
     // This ensures that edges are always drawn solid.
     glDisable(GL_TEXTURE_2D);
 
     this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
-    this->Superclass::RenderInternal(renderer, actor, typeflags,
-                                     forceCompileOnly);
-    this->TimeToDraw += this->DelegatePainter?
-      this->DelegatePainter->GetTimeToDraw() : 0;
     this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
 
     // reset the default.
     glPolygonMode(face, GL_FILL);
-
-    glPopAttrib(); //(GL_CURRENT_BIT|GL_LIGHTING|GL_ENABLE_BIT)
     */
    }
 }

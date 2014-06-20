@@ -90,7 +90,11 @@ protected:
 
   // Description:
   // Build the shader source code, called by UpdateShader
-  virtual void BuildShader(std::string &VertexCode, std::string &fragmentCode, int lightComplexity, vtkRenderer *ren, vtkActor *act);
+  virtual void BuildShader(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader

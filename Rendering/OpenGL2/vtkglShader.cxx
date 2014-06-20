@@ -54,6 +54,8 @@ bool Shader::Compile()
     }
 
   GLenum type = ShaderType == Vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+  // TODO: handle geometry shaders if supported
+
   GLuint handle = glCreateShader(type);
   const GLchar *source = static_cast<const GLchar *>(this->Source.c_str());
   glShaderSource(handle, 1, &source, NULL);
