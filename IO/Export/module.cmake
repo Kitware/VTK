@@ -1,6 +1,8 @@
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  set(_groups GROUPS Rendering)
+endif()
 vtk_module(vtkIOExport
-  GROUPS
-    StandAlone
+  ${_groups}
   DEPENDS
     vtkCommonCore
     vtkRenderingAnnotation

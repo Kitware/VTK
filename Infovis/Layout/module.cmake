@@ -8,7 +8,7 @@ vtk_module(vtkInfovisLayout
     vtkInfovisCore
   TEST_DEPENDS
     vtkRenderingLabel
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOInfovis

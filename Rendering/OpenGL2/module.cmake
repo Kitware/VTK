@@ -1,0 +1,18 @@
+vtk_module(vtkRenderingOpenGL2
+  DEPENDS
+    vtkCommonExecutionModel
+  IMPLEMENTS
+    vtkRenderingCore
+  BACKEND
+    OpenGL2
+  PRIVATE_DEPENDS
+    vtksys
+  COMPILE_DEPENDS
+    vtkUtilitiesEncodeString
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkIOPLY
+  EXCLUDE_FROM_WRAPPING
+  )

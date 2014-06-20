@@ -513,53 +513,93 @@ const char *vtkMapper::GetScalarMaterialModeAsString(void)
     }
 }
 
+//-----------------------------------------------------------------------------
+template<class T>
+void vtkMapperScalarToTextureCoordinate(
+                                T scalar_value,         // Input scalar
+                                double range_min,       // range[0]
+                                double inv_range_width, // 1/(range[1]-range[0])
+                                float &tex_coord_s,     // 1st tex coord
+                                float &tex_coord_t)     // 2nd tex coord
+{
+  if (vtkMath::IsNan(scalar_value))
+    {
+    tex_coord_s = 0.5;  // Scalar value is arbitrary when NaN
+    tex_coord_t = 1.0;  // 1.0 in t coordinate means NaN
+    }
+  else
+    {
+    // 0.0 in t coordinate means not NaN.  So why am I setting it to 0.49?
+    // Because when you are mapping scalars and you have a NaN adjacent to
+    // anything else, the interpolation everywhere should be NaN.  Thus, I
+    // want the NaN color everywhere except right on the non-NaN neighbors.
+    // To simulate this, I set the t coord for the real numbers close to
+    // the threshold so that the interpolation almost immediately looks up
+    // the NaN value.
+    tex_coord_t = 0.49;
 
+    double ranged_scalar = (scalar_value - range_min) * inv_range_width;
+    if (ranged_scalar <= 0.0)
+      {
+      tex_coord_s = 0.0;
+      }
+    else if (ranged_scalar >= 1.0)
+      {
+      tex_coord_s = 1.0;
+      }
+    else
+      {
+      tex_coord_s = static_cast<float>(ranged_scalar);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 template<class T>
 void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
-                                            vtkIdType num, int numComps,
-                                            int component, const double* range)
+                                            vtkIdType numScalars, int numComps,
+                                            int component, double* range,
+                                            const double* table_range,
+                                            bool use_log_scale)
 {
-  double tmp, sum;
-  double k = 1.0 / (range[1]-range[0]);
-  vtkIdType i;
-  int j;
+  double inv_range_width = 1.0 / (range[1]-range[0]);
 
   if (component < 0 || component >= numComps)
     {
-    for (i = 0; i < num; ++i)
+    for (vtkIdType scalarIdx = 0; scalarIdx < numScalars; ++scalarIdx)
       {
-      sum = 0;
-      for (j = 0; j < numComps; ++j)
+      double sum = 0;
+      for (int compIdx = 0; compIdx < numComps; ++compIdx)
         {
-        tmp = static_cast<double>(*input);
+        double tmp = static_cast<double>(*input);
         sum += (tmp * tmp);
         ++input;
         }
-      output[i] = k * (sqrt(sum) - range[0]);
-      if (output[i] > 1.0)
+      double magnitude = sqrt(sum);
+      if (use_log_scale)
         {
-        output[i] = 1.0;
+        magnitude = vtkLookupTable::ApplyLogScale(
+          magnitude, table_range, range);
         }
-      if (output[i] < 0.0)
-        {
-        output[i] = 0.0;
-        }
+      vtkMapperScalarToTextureCoordinate(magnitude, range[0], inv_range_width,
+                                         output[0], output[1]);
+      output += 2;
       }
     }
   else
     {
     input += component;
-    for (i = 0; i < num; ++i)
+    for (vtkIdType scalarIdx = 0; scalarIdx < numScalars; ++scalarIdx)
       {
-      output[i] = k * (static_cast<double>(*input) - range[0]);
-      if (output[i] > 1.0)
+      double input_value = static_cast<double>(*input);
+      if (use_log_scale)
         {
-        output[i] = 1.0;
+        input_value = vtkLookupTable::ApplyLogScale(
+          input_value, table_range, range);
         }
-      if (output[i] < 0.0)
-        {
-        output[i] = 0.0;
-        }
+      vtkMapperScalarToTextureCoordinate(input_value, range[0], inv_range_width,
+                                         output[0], output[1]);
+      output += 2;
       input = input + numComps;
       }
     }
@@ -571,7 +611,16 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
 // this->ColorTexture are set.
 void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
 {
-  const double* range = this->LookupTable->GetRange();
+  double range[2];
+  range[0] = this->LookupTable->GetRange()[0];
+  range[1] = this->LookupTable->GetRange()[1];
+  bool use_log_scale = (this->LookupTable->UsingLogScale() != 0);
+  if (use_log_scale)
+    {
+    // convert range to log.
+    vtkLookupTable::GetLogRange(range, range);
+    }
+
   double orig_alpha = this->LookupTable->GetAlpha();
 
   // Get rid of vertex color array.  Only texture or vertex coloring
@@ -601,16 +650,23 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
     // In the future, we could extend vtkScalarsToColors.
     double k = (range[1]-range[0]) / (ColorTextureMapSize-1);
     vtkFloatArray* tmp = vtkFloatArray::New();
-    tmp->SetNumberOfTuples(ColorTextureMapSize);
+    tmp->SetNumberOfTuples(ColorTextureMapSize*2);
     float* ptr = tmp->GetPointer(0);
     for (int i = 0; i < ColorTextureMapSize; ++i)
       {
       *ptr = range[0] + i * k;
       ++ptr;
       }
+    // Dimension on NaN.
+    double nan = vtkMath::Nan();
+    for (int i = 0; i < ColorTextureMapSize; ++i)
+      {
+      *ptr = nan;
+      ++ptr;
+      }
     this->ColorTextureMap = vtkImageData::New();
     this->ColorTextureMap->SetExtent(0,ColorTextureMapSize-1,
-                                     0,0, 0,0);
+                                     0,1, 0,0);
     this->ColorTextureMap->GetPointData()->SetScalars(
          this->LookupTable->MapScalars(tmp, this->ColorMode, 0));
     this->LookupTable->SetAlpha(orig_alpha);
@@ -641,6 +697,7 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
     void* input = scalars->GetVoidPointer(0);
     vtkIdType num = scalars->GetNumberOfTuples();
     this->ColorCoordinates = vtkFloatArray::New();
+    this->ColorCoordinates->SetNumberOfComponents(2);
     this->ColorCoordinates->SetNumberOfTuples(num);
     float* output = this->ColorCoordinates->GetPointer(0);
     int scalarComponent;
@@ -660,7 +717,9 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
       vtkTemplateMacro(
         vtkMapperCreateColorTextureCoordinates(static_cast<VTK_TT*>(input),
                                                output, num, numComps,
-                                               scalarComponent, range)
+                                               scalarComponent, range,
+                                               this->LookupTable->GetRange(),
+                                               use_log_scale)
         );
       case VTK_BIT:
         vtkErrorMacro("Cannot color by bit array.");

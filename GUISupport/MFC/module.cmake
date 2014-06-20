@@ -3,7 +3,7 @@ if(WIN32)
   vtk_module(vtkGUISupportMFC
     GROUPS
     DEPENDS
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkInteractionStyle
     EXCLUDE_FROM_WRAPPING
     )

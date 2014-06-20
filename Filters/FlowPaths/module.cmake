@@ -12,5 +12,5 @@ vtk_module(vtkFiltersFlowPaths
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
   )

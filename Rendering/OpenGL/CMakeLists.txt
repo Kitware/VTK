@@ -1,3 +1,7 @@
+# This module cannot be built at the same time as vtkRenderingOpenGL2
+if(TARGET vtkRenderingOpenGL2)
+  message(FATAL_ERROR "vtkRenderingOpenGL cannot be built with vtkRenderingOpenGL2, please disable one of them.")
+endif()
 # FIXME: This should probably be fixed, vtkgl generation needs some refinement
 # to allow for things to split up properly.
 

@@ -3,7 +3,7 @@ vtk_module(vtkInfovisBoostGraphAlgorithms
     vtkInfovisCore
     vtkCommonExecutionModel
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOInfovis

@@ -20,7 +20,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
-#include "vtkActor2D.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkPolyData.h"
 #include "vtkTexture.h"
 #include "vtkPolyDataMapper2D.h"
@@ -69,8 +69,9 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   tc->Delete();
   this->TextureMapper = vtkPolyDataMapper2D::New();
   this->TextureMapper->SetInputData(this->TexturePolyData);
-  this->TextureActor = vtkActor2D::New();
+  this->TextureActor = vtkTexturedActor2D::New();
   this->TextureActor->SetMapper(this->TextureMapper);
+  this->TextureActor->SetTexture(this->Texture);
   this->ImageProperty->SetOpacity(0.25);
   this->TextureActor->SetProperty(this->ImageProperty);
 
@@ -188,7 +189,6 @@ void vtkLogoRepresentation::GetActors2D(vtkPropCollection *pc)
 //-------------------------------------------------------------------------
 void vtkLogoRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 {
-  this->Texture->ReleaseGraphicsResources(w);
   this->TextureActor->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
@@ -200,7 +200,6 @@ int vtkLogoRepresentation::RenderOverlay(vtkViewport *v)
   vtkRenderer* ren = vtkRenderer::SafeDownCast(v);
   if (ren)
     {
-    this->Texture->Render(ren);
     count += this->TextureActor->RenderOverlay(v);
     }
   return count;

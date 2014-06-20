@@ -30,6 +30,7 @@
 #include "vtkCamera.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTriangleFilter.h"
 
 int TestUncertaintyTubeFilter( int, char*[] )
 {
@@ -93,9 +94,14 @@ int TestUncertaintyTubeFilter( int, char*[] )
   utf->SetInputData(pd);
   utf->SetNumberOfSides(8);
 
+  vtkSmartPointer<vtkTriangleFilter> tf =
+    vtkSmartPointer<vtkTriangleFilter>::New();
+  tf->SetInputConnection(utf->GetOutputPort());
+
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInputConnection( utf->GetOutputPort() );
+  //mapper->SetInputConnection( utf->GetOutputPort() );
+  mapper->SetInputConnection( tf->GetOutputPort() );
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();

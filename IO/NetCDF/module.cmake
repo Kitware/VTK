@@ -10,7 +10,7 @@ vtk_module(vtkIONetCDF
     vtknetcdf
   TEST_DEPENDS
     vtkCommonExecutionModel
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   )

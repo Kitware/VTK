@@ -15,7 +15,7 @@ vtk_module(vtkIOXML
     vtkImagingSources
     vtkInfovisCore
     vtkIOLegacy
-    vtkRenderingOpenGL
+    vtkRenderingOpenGL2
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle

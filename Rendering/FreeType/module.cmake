@@ -11,4 +11,6 @@ vtk_module(vtkRenderingFreeType
     vtkRenderingMatplotlib
     vtkTestingRendering
     vtkViewsContext2D
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
   )

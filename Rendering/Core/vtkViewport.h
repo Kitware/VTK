@@ -230,6 +230,8 @@ public:
   double GetPickX2() const {return this->PickX2;}
   double GetPickY2() const {return this->PickY2;}
   vtkGetMacro(IsPicking, int);
+  vtkGetMacro(CurrentPickId, unsigned int);
+  void SetCurrentPickId(unsigned int a) {this->CurrentPickId = a;};
   vtkGetObjectMacro(PickResultProps, vtkPropCollection);
 
   // Description:

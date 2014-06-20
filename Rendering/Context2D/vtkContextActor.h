@@ -66,7 +66,7 @@ protected:
 
   // Description:
   // Initialize the actor - right now we just decide which device to initialize.
-  void Initialize(vtkViewport* viewport);
+  virtual void Initialize(vtkViewport* viewport);
 
   vtkSmartPointer<vtkContextScene> Scene;
   vtkNew<vtkContext2D> Context;

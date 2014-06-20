@@ -26,6 +26,8 @@ endif()
 #  DESCRIPTION = Free text description of the module
 #  TCL_NAME = Alternative name for the TCL wrapping (cannot contain numbers)
 #  IMPLEMENTS = Modules that this module implements, using the auto init feature
+#  BACKEND = An implementation backend that this module belongs (valid with
+#            IMPLEMENTS only)
 #  GROUPS = Module groups this module should be included in
 #  TEST_LABELS = Add labels to the tests for the module
 #
@@ -48,6 +50,7 @@ macro(vtk_module _name)
   set(${vtk-module}_PRIVATE_DEPENDS "")
   set(${vtk-module-test}_DEPENDS "${vtk-module}")
   set(${vtk-module}_IMPLEMENTS "")
+  set(${vtk-module}_BACKEND "")
   set(${vtk-module}_DESCRIPTION "description")
   set(${vtk-module}_TCL_NAME "${vtk-module}")
   set(${vtk-module}_EXCLUDE_FROM_ALL 0)
@@ -55,7 +58,7 @@ macro(vtk_module _name)
   set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
   set(${vtk-module}_TEST_LABELS "")
   foreach(arg ${ARGN})
-    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|DEFAULT|GROUPS|TEST_LABELS)$")
+    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS)$")
       set(_doing "${arg}")
     elseif("${arg}" MATCHES "^EXCLUDE_FROM_ALL$")
       set(_doing "")
@@ -92,6 +95,17 @@ macro(vtk_module _name)
     elseif("${_doing}" MATCHES "^IMPLEMENTS$")
       list(APPEND ${vtk-module}_DEPENDS "${arg}")
       list(APPEND ${vtk-module}_IMPLEMENTS "${arg}")
+    elseif("${_doing}" MATCHES "^BACKEND$")
+      # Backends control groups of implementation modules, a module may be in
+      # multiple groups, and it should be an implementation of an interface
+      # module. The current BACKENDS are OpenGL and OpenGL2 (new rendering).
+      if(NOT DEFINED VTK_BACKEND_${arg}_MODULES)
+        list(APPEND VTK_BACKENDS ${arg})
+      endif()
+      list(APPEND VTK_BACKEND_${arg}_MODULES ${vtk-module})
+      list(APPEND ${vtk-module}_BACKEND "${arg}")
+      # Being a backend implicitly excludes from all (mutual exclusivity).
+      set(${vtk-module}_EXCLUDE_FROM_ALL 1)
     elseif("${_doing}" MATCHES "^DEFAULT")
       message(FATAL_ERROR "Invalid argument [DEFAULT]")
     elseif("${_doing}" MATCHES "^GROUPS")

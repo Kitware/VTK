@@ -1,0 +1,11 @@
+vtk_module(vtkRenderingContextOpenGL2
+  DEPENDS
+    vtkRenderingOpenGL2
+  IMPLEMENTS
+    vtkRenderingContext2D
+  BACKEND
+    OpenGL2
+  PRIVATE_DEPENDS
+    vtkRenderingFreeType
+  EXCLUDE_FROM_WRAPPING
+  )

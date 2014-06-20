@@ -48,6 +48,8 @@ public:
   vtkTypeMacro(vtkContextDevice2D, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  static vtkContextDevice2D * New();
+
   // Description:
   // Draw a poly line using the points - fastest code path due to memory
   // layout of the coordinates. The line will be colored by
