@@ -112,6 +112,9 @@ macro(vtk_module_enable vtk-module _needed_by)
     foreach(dep IN LISTS ${vtk-module}_DEPENDS)
       vtk_module_enable(${dep} ${vtk-module})
     endforeach()
+    foreach(imp IN LISTS ${vtk-module}_IMPLEMENTATIONS)
+      vtk_module_enable(${imp} ${vtk-module})
+    endforeach()
 
     # If VTK_BUILD_ALL_MODULES_FOR_TESTS is true, then and then
     # alone do we include the test modules in building build the dependency
