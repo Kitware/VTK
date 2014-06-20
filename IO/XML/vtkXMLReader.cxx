@@ -744,14 +744,6 @@ int vtkXMLReader::CreateInformationKey(
     }
 
   if ((strcmp(location, "vtkQuadratureSchemeDefinition")==0)
-      &&(strcmp(name, "DICTIONARY")==0))
-    {
-    vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
-    key->RestoreState(info, eInfoKey);
-    vtkIndent indent;
-    }
-
-  if ((strcmp(location, "vtkQuadratureSchemeDefinition")==0)
       &&(strcmp(name, "QUADRATURE_OFFSET_ARRAY_NAME")==0))
     {
     const char *value=eInfoKey->GetAttribute("value");

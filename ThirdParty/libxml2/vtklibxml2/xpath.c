@@ -12593,7 +12593,7 @@ xmlXPathCompOpEvalFirst(xmlXPathParserContextPtr ctxt,
             return (total);
 #ifdef XP_OPTIMIZED_FILTER_FIRST
         case XPATH_OP_FILTER:
-                total =+ xmlXPathCompOpEvalFilterFirst(ctxt, op, first);
+                total += xmlXPathCompOpEvalFilterFirst(ctxt, op, first);
             return (total);
 #endif
         default:

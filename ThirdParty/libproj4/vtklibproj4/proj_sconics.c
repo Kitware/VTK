@@ -73,7 +73,6 @@ phi12(PROJ *P, double *del) {
     *del = 0.5 * (p2 - p1);
     P->sig = 0.5 * (p2 + p1);
     err = (fabs(*del) < EPS || fabs(P->sig) < EPS) ? -42 : 0;
-    *del = *del;
   }
   return err;
 }

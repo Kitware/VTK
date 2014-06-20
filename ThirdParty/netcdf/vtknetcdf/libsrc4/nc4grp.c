@@ -200,7 +200,7 @@ NC4_inq_grpname_full(int ncid, size_t *lenp, char *full_name)
       ret = nc_inq_grp_parent(gid[i - 1], &gid[i]);
 
    /* Assemble the full name. */
-   for (i = g - 1; !ret && i >= 0 && !ret; i--)
+   for (i = g - 1; !ret && i >= 0; i--)
    {
       if ((ret = nc_inq_grpname(gid[i], grp_name)))
 	 break;

@@ -50,6 +50,7 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
 
   decode_ptr = return_ptr = new unsigned char[size];
 
+  //This while is always true.
   while( !done )
   {
     current_value = *(curr_ptr++);

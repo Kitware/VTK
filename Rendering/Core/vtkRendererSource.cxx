@@ -75,6 +75,7 @@ void vtkRendererSource::RequestData(vtkInformation*,
 
   if (this->Input == NULL)
     {
+    vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
     }
 
@@ -89,12 +90,6 @@ void vtkRendererSource::RequestData(vtkInformation*,
   vtkRenderWindow *renWin;
 
   vtkDebugMacro(<<"Converting points");
-
-  if (this->Input == NULL )
-    {
-    vtkErrorMacro(<<"Please specify a renderer as input!");
-    return;
-    }
 
   renWin = this->Input->GetRenderWindow();
   if (renWin == NULL)

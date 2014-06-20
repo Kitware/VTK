@@ -13870,7 +13870,7 @@ xmlSchemaCheckCOSNSSubset(xmlSchemaWildcardPtr sub,
     */
     if ((sub->negNsSet != NULL) &&
         (super->negNsSet != NULL) &&
-        (sub->negNsSet->value == sub->negNsSet->value))
+        (sub->negNsSet->value == super->negNsSet->value))
         return (0);
     /*
     * 3.1 sub must be a set whose members are either namespace names or ·absent·.

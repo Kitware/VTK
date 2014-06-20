@@ -217,7 +217,6 @@ int vtkFacetReader::RequestData(
     if ( !GetLineFromStream(ifs, line) ||
       sscanf(line.c_str(), "%d", &cell_point_index) != 1 ||
       cell_point_index != 0 ||
-      !GetLineFromStream(ifs, line) ||
       sscanf(line.c_str(), "%d %d %d", &numpts, &tmp, &tmp) != 3 ||
       numpts < 0 )
       {

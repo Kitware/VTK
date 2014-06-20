@@ -13025,20 +13025,16 @@ xmlCtxtResetPush(xmlParserCtxtPtr ctxt, const char *chunk,
     xmlParserInputBufferPtr buf;
     xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
 
-    if (ctxt == NULL)
+    if (ctxt == NULL) {
+        xmlFreeParserInputBuffer(buf);
         return(1);
-
+	}
     if ((encoding == NULL) && (chunk != NULL) && (size >= 4))
         enc = xmlDetectCharEncoding((const xmlChar *) chunk, size);
 
     buf = xmlAllocParserInputBuffer(enc);
     if (buf == NULL)
         return(1);
-
-    if (ctxt == NULL) {
-        xmlFreeParserInputBuffer(buf);
-        return(1);
-    }
 
     xmlCtxtReset(ctxt);
 

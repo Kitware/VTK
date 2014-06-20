@@ -1165,7 +1165,7 @@ public:
         // fall through
       case '.':
         // scalar token
-        if (c == '.' && charI < MAXLEN)
+        if (c == '.')
           {
           // read decimal fraction part
           buf[charI++] = c;

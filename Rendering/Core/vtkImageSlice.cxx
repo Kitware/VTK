@@ -295,7 +295,8 @@ void vtkImageSlice::Render(vtkRenderer *ren)
   // Force the creation of a property
   if (!this->Property)
     {
-    this->GetProperty();
+    this->GetProperty(); //In the GetProperty method, we delete the same 
+	//property before trying to return it. This should be revisited.
     }
 
   if (!this->Property)
@@ -369,7 +370,7 @@ vtkImageProperty *vtkImageSlice::GetProperty()
     {
     this->Property = vtkImageProperty::New();
     this->Property->Register(this);
-    this->Property->Delete();
+    this->Property->Delete(); //Why is the property deleted here?
     }
   return this->Property;
 }

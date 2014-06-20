@@ -582,6 +582,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   vtkCellArray *connectivity = input->GetCells();
   if (connectivity == NULL)
     {
+    vtkDebugMacro(<<"Nothing to extract");
     return;
     }
   vtkIdType cellId;
@@ -628,13 +629,6 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   else
     {
     cellGhostLevels=static_cast<vtkUnsignedCharArray *>(temp)->GetPointer(0);
-    }
-
-  // Check input
-  if ( connectivity == NULL )
-    {
-    vtkDebugMacro(<<"Nothing to extract");
-    return;
     }
 
   // Determine nature of what we have to do
