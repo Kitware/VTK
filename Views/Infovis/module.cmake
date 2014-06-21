@@ -18,5 +18,6 @@ vtk_module(vtkViewsInfovis
     vtkIOInfovis
     vtkIOSQL
     vtkRenderingFreeTypeOpenGL
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
   )
