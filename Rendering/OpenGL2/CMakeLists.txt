@@ -11,16 +11,11 @@ if(WIN32 AND NOT BUILD_SHARED_LIBS)
   add_definitions(-DGLEW_STATIC)
 endif()
 
-# Now we need to generate the object factory for this module. Create a list of
-# overrides, and then generate the class that overrides those classes.
-macro(vtk_add_override base override)
-  list(APPEND vtk_module_overrides ${base})
-  set(vtk_module_${base}_override ${override})
-endmacro()
-
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS
   ${OPENGL_INCLUDE_DIR}
   ${GLEW_INCLUDE_DIRS})
+
+include(vtkObjectFactory)
 
 # Copy of what is in vtkRenderingOpenGL for logic on X, Carbon, Cocoa, etc.
 set(VTK_USE_X_DEFAULT OFF)
@@ -248,19 +243,7 @@ elseif(VTK_USE_CARBON)
     )
 endif()
 
-# Now we iterate and create that class file...
-foreach(_class ${vtk_module_overrides})
-  set(_override ${vtk_module_${_class}_override})
-  set(_vtk_override_includes "${_vtk_override_includes}
-#include \"${_override}.h\"")
-  set(_vtk_override_creates "${_vtk_override_creates}
-VTK_CREATE_CREATE_FUNCTION(${_override})")
-  set(_vtk_override_do "${_vtk_override_do}
-  this->RegisterOverride(\"${_class}\",
-                         \"${_override}\",
-                         \"Override for ${vtk-module} module\", 1,
-                         vtkObjectFactoryCreate${_override});")
-endforeach()
+vtk_object_factory_configure("${vtk_module_overrides}")
 
 # Detect and clear OpenGL errors. If not then other classes/user code
 # may detect VTK's OpenGL errors and vice-versa.
@@ -269,13 +252,6 @@ mark_as_advanced(VTK_REPORT_OPENGL_ERRORS)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)
-
-# Now lets create the object factory classes
-string(TOUPPER ${vtk-module} VTK-MODULE)
-configure_file(${VTK_CMAKE_DIR}/vtkObjectFactory.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.h)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGL2ObjectFactory.cxx.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
 
 # Configure the module specific settings into a module configured header.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in
