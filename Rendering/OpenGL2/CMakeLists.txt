@@ -11,16 +11,11 @@ if(WIN32 AND NOT BUILD_SHARED_LIBS)
   add_definitions(-DGLEW_STATIC)
 endif()
 
-# Now we need to generate the object factory for this module. Create a list of
-# overrides, and then generate the class that overrides those classes.
-macro(vtk_add_override base override)
-  list(APPEND vtk_module_overrides ${base})
-  set(vtk_module_${base}_override ${override})
-endmacro()
-
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS
   ${OPENGL_INCLUDE_DIR}
   ${GLEW_INCLUDE_DIRS})
+
+include(vtkObjectFactory)
 
 # Copy of what is in vtkRenderingOpenGL for logic on X, Carbon, Cocoa, etc.
 set(VTK_USE_X_DEFAULT OFF)

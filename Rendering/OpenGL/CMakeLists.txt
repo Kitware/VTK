@@ -43,6 +43,8 @@ mark_as_advanced(VTK_USE_TDX)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h)
 
+include(vtkObjectFactory)
+
 set(Module_SRCS
   vtkCameraPass.cxx
   vtkClearZPass.cxx
@@ -270,13 +272,6 @@ foreach(file ${shader_files})
   list(APPEND Module_SRCS ${res})
   set_source_files_properties(${file_we} WRAP_EXCLUDE)
 endforeach()
-
-# Now we need to generate the object factory for this module. Create a list of
-# overrides, and then generate the class that overrides those classes.
-macro(vtk_add_override base override)
-  list(APPEND vtk_module_overrides ${base})
-  set(vtk_module_${base}_override ${override})
-endmacro()
 
 set(opengl_overrides
   Actor

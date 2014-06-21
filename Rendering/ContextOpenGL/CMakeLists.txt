@@ -1,3 +1,5 @@
+include(vtkObjectFactory)
+
 set(module_SRCS
   #vtkContextBufferId.cxx
   vtkOpenGLContextActor.cxx
@@ -7,12 +9,6 @@ set(module_SRCS
   vtkOpenGLContextDevice3D.cxx
   )
 
-# Now we need to generate the object factory for this module. Create a list of
-# overrides, and then generate the class that overrides those classes.
-macro(vtk_add_override base override)
-  list(APPEND vtk_module_overrides ${base})
-  set(vtk_module_${base}_override ${override})
-endmacro()
 set(_opengl_overrides
   "ContextActor"
   "ContextDevice2D"

@@ -1,3 +1,5 @@
+include(vtkObjectFactory)
+
 set(Module_SRCS
   vtkPTemporalStreamTracer.cxx
   vtkPStreamTracer.cxx

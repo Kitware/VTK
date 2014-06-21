@@ -1,3 +1,5 @@
+include(vtkObjectFactory)
+
 set(Module_SRCS
   vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLHAVSVolumeMapper.cxx
