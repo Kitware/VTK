@@ -17,6 +17,14 @@ set(module_SRCS
   vtkOpenGLContextDevice3D.cxx
   )
 
+set_source_files_properties(
+  vtkOpenGL2ContextDevice2D
+  vtkOpenGLContextBufferId
+  vtkOpenGLContextDevice2D
+  vtkOpenGLContextDevice3D
+  WRAP_EXCLUDE
+  )
+
 set(_opengl_overrides
   "ContextActor"
   "ContextDevice2D"
