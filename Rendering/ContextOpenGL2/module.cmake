@@ -1,4 +1,6 @@
 vtk_module(vtkRenderingContextOpenGL2
+  TCL_NAME
+    vtkRenderingContextOpenGLTwo
   DEPENDS
     vtkRenderingOpenGL2
   IMPLEMENTS
