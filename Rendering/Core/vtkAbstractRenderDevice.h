@@ -16,6 +16,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include <string> // For std::string
 
 class vtkRecti;
 
