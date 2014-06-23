@@ -162,7 +162,9 @@ endfunction()
 #   the variable 'tests'. See also 'vtk_test_cxx_executable'.
 function(vtk_test_mpi_executable exename _tests)
   vtk_test_cxx_executable("${exename}" "${_tests}" ${ARGN})
-  vtk_mpi_link("${exename}")
+  if(TARGET "${exename}")
+    vtk_mpi_link("${exename}")
+  endif()
 endfunction()
 
 # -----------------------------------------------------------------------------
@@ -271,6 +273,11 @@ function(vtk_test_cxx_executable exename _tests)
     )
   _vtk_test_parse_args("${exe_options}" "" ${ARGN})
   _vtk_test_set_options("${exe_options}" "" ${options})
+
+  if(NOT ${_tests})
+    # No tests -> no need for an executable.
+    return()
+  endif()
 
   set(test_driver vtkTestDriver.h)
   if(RENDERING_FACTORY)
