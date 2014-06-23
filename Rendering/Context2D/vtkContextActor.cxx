@@ -147,7 +147,7 @@ void vtkContextActor::SetScene(vtkContextScene *scene)
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
+void vtkContextActor::ReleaseGraphicsResources(vtkWindow *)
 {
 }
 
