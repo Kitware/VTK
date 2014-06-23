@@ -3,7 +3,7 @@ vtk_module(vtkInfovisBoostGraphAlgorithms
     vtkInfovisCore
     vtkCommonExecutionModel
   TEST_DEPENDS
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOInfovis
