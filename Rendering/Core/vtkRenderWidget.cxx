@@ -74,7 +74,7 @@ void vtkRenderWidget::Initialize()
          this->InteractionDevice.Get() != NULL);
   this->InteractionDevice->SetRenderWidget(this);
   this->InteractionDevice->SetRenderDevice(this->RenderDevice.Get());
-  this->RenderDevice->CreateWindow(vtkRecti(this->Position.GetX(),
+  this->RenderDevice->CreateNewWindow(vtkRecti(this->Position.GetX(),
                                             this->Position.GetY(),
                                             this->Size.GetX(),
                                             this->Size.GetY()),
