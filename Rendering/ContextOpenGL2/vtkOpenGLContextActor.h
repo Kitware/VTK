@@ -23,12 +23,6 @@
 
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextActor.h"
-#include "vtkNew.h"          // For ivars
-#include "vtkSmartPointer.h" // For ivars
-
-class vtkContext2D;
-class vtkContext3D;
-class vtkContextScene;
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextActor : public vtkContextActor
 {

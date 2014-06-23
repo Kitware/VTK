@@ -22,15 +22,6 @@
 #include "vtkOpenGLContextDevice3D.h"
 #include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2ContextDevice2D.h"
-#include "vtkOpenGLContextDevice2D.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkTransform2D.h"
-#include "vtkViewport.h"
-#include "vtkWindow.h"
-
-#include <algorithm>
 
 vtkStandardNewMacro(vtkOpenGLContextActor);
 
