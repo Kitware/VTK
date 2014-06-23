@@ -29,7 +29,7 @@ public:
 
   static vtkXOpenGLRenderDevice* New();
 
-  virtual bool CreateWindow(const vtkRecti &geometry, const std::string &name);
+  virtual bool CreateNewWindow(const vtkRecti &geometry, const std::string &name);
 
   virtual void MakeCurrent();
 

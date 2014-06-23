@@ -154,8 +154,10 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
+  vtkAbstractInteractionDevice
   vtkAbstractMapper3D
   vtkAbstractMapper
+  vtkAbstractRenderDevice
   vtkAbstractVolumeMapper
   vtkAbstractPicker
   vtkAbstractPropPicker
