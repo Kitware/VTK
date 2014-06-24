@@ -5,12 +5,13 @@
 Tests for L{twisted.words.protocols.irc}.
 """
 
+import operator
 import time
 
 from twisted.trial import unittest
 from twisted.trial.unittest import TestCase
 from twisted.words.protocols import irc
-from twisted.words.protocols.irc import IRCClient
+from twisted.words.protocols.irc import IRCClient, attributes as A
 from twisted.internet import protocol, task
 from twisted.test.proto_helpers import StringTransport, StringIOWithoutClosing
 
@@ -168,6 +169,322 @@ class ModeParsingTests(unittest.TestCase):
                                   ('b', 'nick!user@host'),
                                   ('b', 'other!*@*')])
         self.assertEqual(removed, [])
+
+
+
+class MiscTests(unittest.TestCase):
+    """
+    Tests for miscellaneous functions.
+    """
+    def test_foldr(self):
+        """
+        Apply a function of two arguments cumulatively to the items of
+        a sequence, from right to left, so as to reduce the sequence to
+        a single value.
+        """
+        self.assertEqual(
+            irc._foldr(operator.sub, 0, [1, 2, 3, 4]),
+            -2)
+
+        def insertTop(l, x):
+            l.insert(0, x)
+            return l
+
+        self.assertEqual(
+            irc._foldr(insertTop, [], [[1], [2], [3], [4]]),
+            [[[[[], 4], 3], 2], 1])
+
+
+
+class FormattedTextTests(unittest.TestCase):
+    """
+    Tests for parsing and assembling formatted IRC text.
+    """
+    def assertAssembledEqually(self, text, expectedFormatted):
+        """
+        Assert that C{text} is parsed and assembled to the same value as what
+        C{expectedFormatted} is assembled to. This provides a way to ignore
+        meaningless differences in the formatting structure that would be
+        difficult to detect without rendering the structures.
+        """
+        formatted = irc.parseFormattedText(text)
+        self.assertAssemblesTo(formatted, expectedFormatted)
+
+
+    def assertAssemblesTo(self, formatted, expectedFormatted):
+        """
+        Assert that C{formatted} and C{expectedFormatted} assemble to the same
+        value.
+        """
+        text = irc.assembleFormattedText(formatted)
+        expectedText = irc.assembleFormattedText(expectedFormatted)
+        self.assertEqual(
+            irc.assembleFormattedText(formatted),
+            expectedText,
+            '%r (%r) is not equivalent to %r (%r)' % (
+                text, formatted, expectedText, expectedFormatted))
+
+
+    def test_parseEmpty(self):
+        """
+        An empty string parses to a I{normal} attribute with no text.
+        """
+        self.assertAssembledEqually('', A.normal)
+
+
+    def test_assembleEmpty(self):
+        """
+        An attribute with no text assembles to the empty string. An attribute
+        whose text is the empty string assembles to two control codes: C{off}
+        and that of the attribute.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(A.normal),
+            '')
+
+        # Attempting to apply an attribute to the empty string should still
+        # produce two control codes.
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.bold['']),
+            '\x0f\x02')
+
+
+    def test_assembleNormal(self):
+        """
+        A I{normal} string assembles to a string prefixed with the I{off}
+        control code.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.normal['hello']),
+            '\x0fhello')
+
+
+    def test_assembleBold(self):
+        """
+        A I{bold} string assembles to a string prefixed with the I{off} and
+        I{bold} control codes.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.bold['hello']),
+            '\x0f\x02hello')
+
+
+    def test_assembleUnderline(self):
+        """
+        An I{underline} string assembles to a string prefixed with the I{off}
+        and I{underline} control codes.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.underline['hello']),
+            '\x0f\x1fhello')
+
+
+    def test_assembleReverseVideo(self):
+        """
+        A I{reverse video} string assembles to a string prefixed with the I{off}
+        and I{reverse video} control codes.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.reverseVideo['hello']),
+            '\x0f\x16hello')
+
+
+    def test_assembleForegroundColor(self):
+        """
+        A I{foreground color} string assembles to a string prefixed with the
+        I{off} and I{color} (followed by the relevant foreground color code)
+        control codes.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.fg.blue['hello']),
+            '\x0f\x0302hello')
+
+
+    def test_assembleBackgroundColor(self):
+        """
+        A I{background color} string assembles to a string prefixed with the
+        I{off} and I{color} (followed by a I{,} to indicate the absence of a
+        foreground color, followed by the relevant background color code)
+        control codes.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.bg.blue['hello']),
+            '\x0f\x03,02hello')
+
+
+    def test_assembleColor(self):
+        """
+        A I{foreground} and I{background} color string assembles to a string
+        prefixed with the I{off} and I{color} (followed by the relevant
+        foreground color, I{,} and the relevant background color code) control
+        codes.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.fg.red[A.bg.blue['hello']]),
+            '\x0f\x0305,02hello')
+
+
+    def test_assembleNested(self):
+        """
+        Nested attributes retain the attributes of their parents.
+        """
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.bold['hello', A.underline[' world']]),
+            '\x0f\x02hello\x0f\x02\x1f world')
+
+        self.assertEqual(
+            irc.assembleFormattedText(
+                A.normal[
+                    A.fg.red[A.bg.green['hello'], ' world'],
+                    A.reverseVideo[' yay']]),
+            '\x0f\x0305,03hello\x0f\x0305 world\x0f\x16 yay')
+
+
+    def test_parseUnformattedText(self):
+        """
+        Parsing unformatted text results in text with attributes that
+        constitute a no-op.
+        """
+        self.assertEqual(
+            irc.parseFormattedText('hello'),
+            A.normal['hello'])
+
+
+    def test_colorFormatting(self):
+        """
+        Correctly formatted text with colors uses 2 digits to specify
+        foreground and (optionally) background.
+        """
+        self.assertEqual(
+            irc.parseFormattedText('\x0301yay\x03'),
+            A.fg.black['yay'])
+        self.assertEqual(
+            irc.parseFormattedText('\x0301,02yay\x03'),
+            A.fg.black[A.bg.blue['yay']])
+        self.assertEqual(
+            irc.parseFormattedText('\x0301yay\x0302yipee\x03'),
+            A.fg.black['yay', A.fg.blue['yipee']])
+
+
+    def test_weirdColorFormatting(self):
+        """
+        Formatted text with colors can use 1 digit for both foreground and
+        background, as long as the text part does not begin with a digit.
+        Foreground and background colors are only processed to a maximum of 2
+        digits per component, anything else is treated as text. Color sequences
+        must begin with a digit, otherwise processing falls back to unformatted
+        text.
+        """
+        self.assertAssembledEqually(
+            '\x031kinda valid',
+            A.fg.black['kinda valid'])
+        self.assertAssembledEqually(
+            '\x03999,999kinda valid',
+            A.fg.green['9,999kinda valid'])
+        self.assertAssembledEqually(
+            '\x031,2kinda valid',
+            A.fg.black[A.bg.blue['kinda valid']])
+        self.assertAssembledEqually(
+            '\x031,999kinda valid',
+            A.fg.black[A.bg.green['9kinda valid']])
+        self.assertAssembledEqually(
+            '\x031,242 is a special number',
+            A.fg.black[A.bg.yellow['2 is a special number']])
+        self.assertAssembledEqually(
+            '\x03,02oops\x03',
+            A.normal[',02oops'])
+        self.assertAssembledEqually(
+            '\x03wrong',
+            A.normal['wrong'])
+        self.assertAssembledEqually(
+            '\x031,hello',
+            A.fg.black['hello'])
+        self.assertAssembledEqually(
+            '\x03\x03',
+            A.normal)
+
+
+    def test_clearColorFormatting(self):
+        """
+        An empty color format specifier clears foreground and background
+        colors.
+        """
+        self.assertAssembledEqually(
+            '\x0301yay\x03reset',
+            A.normal[A.fg.black['yay'], 'reset'])
+        self.assertAssembledEqually(
+            '\x0301,02yay\x03reset',
+            A.normal[A.fg.black[A.bg.blue['yay']], 'reset'])
+
+
+    def test_resetFormatting(self):
+        """
+        A reset format specifier clears all formatting attributes.
+        """
+        self.assertAssembledEqually(
+            '\x02\x1fyay\x0freset',
+            A.normal[A.bold[A.underline['yay']], 'reset'])
+        self.assertAssembledEqually(
+            '\x0301yay\x0freset',
+            A.normal[A.fg.black['yay'], 'reset'])
+        self.assertAssembledEqually(
+            '\x0301,02yay\x0freset',
+            A.normal[A.fg.black[A.bg.blue['yay']], 'reset'])
+
+
+    def test_stripFormatting(self):
+        """
+        Strip formatting codes from formatted text, leaving only the text parts.
+        """
+        self.assertEqual(
+            irc.stripFormatting(
+                irc.assembleFormattedText(
+                    A.bold[
+                        A.underline[
+                            A.reverseVideo[A.fg.red[A.bg.green['hello']]],
+                            ' world']])),
+            'hello world')
+
+
+
+class FormattingStateAttributeTests(unittest.TestCase):
+    """
+    Tests for L{twisted.words.protocols.irc._FormattingState}.
+    """
+    def test_equality(self):
+        """
+        L{irc._FormattingState}s must have matching character attribute
+        values (bold, underline, etc) with the same values to be considered
+        equal.
+        """
+        self.assertEqual(
+            irc._FormattingState(),
+            irc._FormattingState())
+
+        self.assertEqual(
+            irc._FormattingState(),
+            irc._FormattingState(off=False))
+
+        self.assertEqual(
+            irc._FormattingState(
+                bold=True, underline=True, off=False, reverseVideo=True,
+                foreground=irc._IRC_COLORS['blue']),
+            irc._FormattingState(
+                bold=True, underline=True, off=False, reverseVideo=True,
+                foreground=irc._IRC_COLORS['blue']))
+
+        self.assertNotEquals(
+            irc._FormattingState(bold=True),
+            irc._FormattingState(bold=False))
 
 
 
@@ -1318,6 +1635,38 @@ class BasicServerFunctionalityTestCase(unittest.TestCase):
         self.assertEqual(self.f.getvalue(), s)
 
 
+    def test_sendMessage(self):
+        """
+        Passing a command and parameters to L{IRC.sendMessage} results in a
+        query string that consists of the command and parameters, seperated by
+        a space, ending with '\r\n'.
+        """
+        self.p.sendMessage('CMD', 'param1', 'param2')
+        self.check('CMD param1 param2\r\n')
+
+
+    def test_sendMessageNoCommand(self):
+        """
+        Passing C{None} as the command to L{IRC.sendMessage} raises a
+        C{ValueError}.
+        """
+        error = self.assertRaises(ValueError, self.p.sendMessage, None,
+            'param1', 'param2')
+        self.assertEqual(str(error), "IRC message requires a command.")
+
+
+    def test_sendMessageInvalidCommand(self):
+        """
+        Passing an invalid string command to L{IRC.sendMessage} raises a
+        C{ValueError}.
+        """
+        error = self.assertRaises(ValueError, self.p.sendMessage, ' ',
+            'param1', 'param2')
+        self.assertEqual(str(error),
+            "Somebody screwed up, 'cuz this doesn't look like a command to "
+            "me:  ")
+
+
     def testPrivmsg(self):
         self.p.privmsg("this-is-sender", "this-is-recip", "this is message")
         self.check(":this-is-sender PRIVMSG this-is-recip :this is message\r\n")
@@ -1686,7 +2035,7 @@ class ClientTests(TestCase):
 
     def test_away(self):
         """
-        L{IRCCLient.away} sends an AWAY command with the specified message.
+        L{IRCClient.away} sends an AWAY command with the specified message.
         """
         message = "Sorry, I'm not here."
         self.protocol.away(message)
@@ -1882,17 +2231,378 @@ class ClientTests(TestCase):
 
 
 
+class CollectorClient(irc.IRCClient):
+    """
+    A client that saves in a list the names of the methods that got called.
+    """
+    def __init__(self, methodsList):
+        """
+        @param methodsList: list of methods' names that should be replaced.
+        @type methodsList: C{list}
+        """
+        self.methods = []
+        self.nickname = 'Wolf'
+
+        for method in methodsList:
+            def fake_method(method=method):
+                """
+                Collects C{method}s.
+                """
+                def inner(*args):
+                    self.methods.append((method, args))
+                return inner
+            setattr(self, method, fake_method())
+
+
+
+class DccTests(unittest.TestCase):
+    """
+    Tests for C{dcc_*} methods.
+    """
+    def setUp(self):
+        methods = ['dccDoSend', 'dccDoAcceptResume', 'dccDoResume',
+            'dccDoChat']
+        self.user = 'Wolf!~wolf@yok.utu.fi'
+        self.channel = '#twisted'
+        self.client = CollectorClient(methods)
+
+
+    def test_dccSend(self):
+        """
+        L{irc.IRCClient.dcc_SEND} invokes L{irc.IRCClient.dccDoSend}.
+        """
+        self.client.dcc_SEND(self.user, self.channel, 'foo.txt 127.0.0.1 1025')
+        self.assertEqual(self.client.methods,
+            [('dccDoSend', (self.user, '127.0.0.1', 1025, 'foo.txt', -1,
+            ['foo.txt', '127.0.0.1', '1025']))])
+
+
+    def test_dccSendMalformedRequest(self):
+        """
+        L{irc.IRCClient.dcc_SEND} raises L{irc.IRCBadMessage} when it is passed
+        a malformed query string.
+        """
+        result = self.assertRaises(irc.IRCBadMessage, self.client.dcc_SEND,
+            self.user, self.channel, 'foo')
+        self.assertEqual(str(result), "malformed DCC SEND request: ['foo']")
+
+
+    def test_dccSendIndecipherableAddress(self):
+        """
+        L{irc.IRCClient.dcc_SEND} raises L{irc.IRCBadMessage} when it is passed
+        a query string that doesn't contain a valid address.
+        """
+        result = self.assertRaises(irc.IRCBadMessage, self.client.dcc_SEND,
+            self.user, self.channel, 'foo.txt #23 sd@d')
+        self.assertEqual(str(result), "Indecipherable address '#23'")
+
+
+    def test_dccSendIndecipherablePort(self):
+        """
+        L{irc.IRCClient.dcc_SEND} raises L{irc.IRCBadMessage} when it is passed
+        a query string that doesn't contain a valid port number.
+        """
+        result = self.assertRaises(irc.IRCBadMessage, self.client.dcc_SEND,
+            self.user, self.channel, 'foo.txt 127.0.0.1 sd@d')
+        self.assertEqual(str(result), "Indecipherable port 'sd@d'")
+
+
+    def test_dccAccept(self):
+        """
+        L{irc.IRCClient.dcc_ACCEPT} invokes L{irc.IRCClient.dccDoAcceptResume}.
+        """
+        self.client.dcc_ACCEPT(self.user, self.channel, 'foo.txt 1025 2')
+        self.assertEqual(self.client.methods,
+            [('dccDoAcceptResume', (self.user, 'foo.txt', 1025, 2))])
+
+
+    def test_dccAcceptMalformedRequest(self):
+        """
+        L{irc.IRCClient.dcc_ACCEPT} raises L{irc.IRCBadMessage} when it is
+        passed a malformed query string.
+        """
+        result = self.assertRaises(irc.IRCBadMessage, self.client.dcc_ACCEPT,
+            self.user, self.channel, 'foo')
+        self.assertEqual(str(result),
+            "malformed DCC SEND ACCEPT request: ['foo']")
+
+
+    def test_dccResume(self):
+        """
+        L{irc.IRCClient.dcc_RESUME} invokes L{irc.IRCClient.dccDoResume}.
+        """
+        self.client.dcc_RESUME(self.user, self.channel, 'foo.txt 1025 2')
+        self.assertEqual(self.client.methods,
+            [('dccDoResume', (self.user, 'foo.txt', 1025, 2))])
+
+
+    def test_dccResumeMalformedRequest(self):
+        """
+        L{irc.IRCClient.dcc_RESUME} raises L{irc.IRCBadMessage} when it is
+        passed a malformed query string.
+        """
+        result = self.assertRaises(irc.IRCBadMessage, self.client.dcc_RESUME,
+            self.user, self.channel, 'foo')
+        self.assertEqual(str(result),
+            "malformed DCC SEND RESUME request: ['foo']")
+
+
+    def test_dccChat(self):
+        """
+        L{irc.IRCClient.dcc_CHAT} invokes L{irc.IRCClient.dccDoChat}.
+        """
+        self.client.dcc_CHAT(self.user, self.channel, 'foo.txt 127.0.0.1 1025')
+        self.assertEqual(self.client.methods,
+            [('dccDoChat', (self.user, self.channel, '127.0.0.1', 1025,
+            ['foo.txt', '127.0.0.1', '1025']))])
+
+
+    def test_dccChatMalformedRequest(self):
+        """
+        L{irc.IRCClient.dcc_CHAT} raises L{irc.IRCBadMessage} when it is
+        passed a malformed query string.
+        """
+        result = self.assertRaises(irc.IRCBadMessage, self.client.dcc_CHAT,
+            self.user, self.channel, 'foo')
+        self.assertEqual(str(result),
+            "malformed DCC CHAT request: ['foo']")
+
+
+    def test_dccChatIndecipherablePort(self):
+        """
+        L{irc.IRCClient.dcc_CHAT} raises L{irc.IRCBadMessage} when it is passed
+        a query string that doesn't contain a valid port number.
+        """
+        result = self.assertRaises(irc.IRCBadMessage, self.client.dcc_CHAT,
+            self.user, self.channel, 'foo.txt 127.0.0.1 sd@d')
+        self.assertEqual(str(result), "Indecipherable port 'sd@d'")
+
+
+
+class TestServerToClient(TestCase):
+    """
+    Tests for the C{irc_*} methods sent from the server to the client.
+    """
+    def setUp(self):
+        self.user = 'Wolf!~wolf@yok.utu.fi'
+        self.channel = '#twisted'
+        methods = ['joined', 'userJoined', 'left', 'userLeft', 'userQuit',
+                        'noticed', 'kickedFrom', 'userKicked', 'topicUpdated']
+        self.client = CollectorClient(methods)
+
+
+    def test_irc_JOIN(self):
+        """
+        L{IRCClient.joined} is called when I join a channel;
+        L{IRCClient.userJoined} is called when someone else joins.
+        """
+        self.client.irc_JOIN(self.user, [self.channel])
+        self.client.irc_JOIN('Svadilfari!~svadi@yok.utu.fi', ['#python'])
+        self.assertEqual(self.client.methods,
+                         [('joined', (self.channel,)),
+                          ('userJoined', ('Svadilfari', '#python'))])
+
+
+    def test_irc_PART(self):
+        """
+        L{IRCClient.left} is called when I part the channel;
+        L{IRCClient.userLeft} is called when someone else parts.
+        """
+        self.client.irc_PART(self.user, [self.channel])
+        self.client.irc_PART('Svadilfari!~svadi@yok.utu.fi', ['#python'])
+        self.assertEqual(self.client.methods,
+                         [('left', (self.channel,)),
+                          ('userLeft', ('Svadilfari', '#python'))])
+
+
+    def test_irc_QUIT(self):
+        """
+        L{IRCClient.userQuit} is called whenever someone quits
+        the channel (myself included).
+        """
+        self.client.irc_QUIT('Svadilfari!~svadi@yok.utu.fi', ['Adios.'])
+        self.client.irc_QUIT(self.user, ['Farewell.'])
+        self.assertEqual(self.client.methods,
+                         [('userQuit', ('Svadilfari', 'Adios.')),
+                          ('userQuit', ('Wolf', 'Farewell.'))])
+
+
+    def test_irc_NOTICE(self):
+        """
+        L{IRCClient.noticed} is called when a notice is received.
+        """
+        msg = ('%(X)cextended%(X)cdata1%(X)cextended%(X)cdata2%(X)c%(EOL)s' %
+               {'X': irc.X_DELIM, 'EOL': irc.CR + irc.LF})
+        self.client.irc_NOTICE(self.user, [self.channel, msg])
+        self.assertEqual(self.client.methods,
+                         [('noticed', (self.user, '#twisted', 'data1 data2'))])
+
+
+    def test_irc_KICK(self):
+        """
+        L{IRCClient.kickedFrom} is called when I get kicked from the channel;
+        L{IRCClient.userKicked} is called when someone else gets kicked.
+        """
+        # Fight!
+        self.client.irc_KICK('Svadilfari!~svadi@yok.utu.fi',
+                             ['#python', 'WOLF', 'shoryuken!'])
+        self.client.irc_KICK(self.user,
+                             [self.channel, 'Svadilfari', 'hadouken!'])
+        self.assertEqual(self.client.methods,
+                         [('kickedFrom',
+                           ('#python', 'Svadilfari', 'shoryuken!')),
+                          ('userKicked',
+                           ('Svadilfari', self.channel, 'Wolf', 'hadouken!'))])
+
+
+    def test_irc_TOPIC(self):
+        """
+        L{IRCClient.topicUpdated} is called when someone sets the topic.
+        """
+        self.client.irc_TOPIC(self.user,
+                              [self.channel, 'new topic is new'])
+        self.assertEqual(self.client.methods,
+                         [('topicUpdated',
+                           ('Wolf', self.channel, 'new topic is new'))])
+
+
+    def test_irc_RPL_TOPIC(self):
+        """
+        L{IRCClient.topicUpdated} is called when the topic is initially
+        reported.
+        """
+        self.client.irc_RPL_TOPIC(self.user,
+                              ['?', self.channel, 'new topic is new'])
+        self.assertEqual(self.client.methods,
+                         [('topicUpdated',
+                           ('Wolf', self.channel, 'new topic is new'))])
+
+
+    def test_irc_RPL_NOTOPIC(self):
+        """
+        L{IRCClient.topicUpdated} is called when the topic is removed.
+        """
+        self.client.irc_RPL_NOTOPIC(self.user, ['?', self.channel])
+        self.assertEqual(self.client.methods,
+                         [('topicUpdated', ('Wolf', self.channel, ''))])
+
+
+
+class TestCTCPQuery(TestCase):
+    """
+    Tests for the C{ctcpQuery_*} methods.
+    """
+    def setUp(self):
+        self.user = 'Wolf!~wolf@yok.utu.fi'
+        self.channel = '#twisted'
+        self.client = CollectorClient(['ctcpMakeReply'])
+
+
+    def test_ctcpQuery_PING(self):
+        """
+        L{IRCClient.ctcpQuery_PING} calls L{IRCClient.ctcpMakeReply} with the
+        correct args.
+        """
+        self.client.ctcpQuery_PING(self.user, self.channel, 'data')
+        self.assertEqual(self.client.methods,
+                         [('ctcpMakeReply', ('Wolf', [('PING', 'data')]))])
+
+
+    def test_ctcpQuery_FINGER(self):
+        """
+        L{IRCClient.ctcpQuery_FINGER} calls L{IRCClient.ctcpMakeReply} with the
+        correct args.
+        """
+        self.client.fingerReply = 'reply'
+        self.client.ctcpQuery_FINGER(self.user, self.channel, 'data')
+        self.assertEqual(self.client.methods,
+                         [('ctcpMakeReply', ('Wolf', [('FINGER', 'reply')]))])
+
+
+    def test_ctcpQuery_SOURCE(self):
+        """
+        L{IRCClient.ctcpQuery_SOURCE} calls L{IRCClient.ctcpMakeReply} with the
+        correct args.
+        """
+        self.client.sourceURL = 'url'
+        self.client.ctcpQuery_SOURCE(self.user, self.channel, 'data')
+        self.assertEqual(self.client.methods,
+                         [('ctcpMakeReply', ('Wolf', [('SOURCE', 'url'),
+                                                      ('SOURCE', None)]))])
+
+
+    def test_ctcpQuery_USERINFO(self):
+        """
+        L{IRCClient.ctcpQuery_USERINFO} calls L{IRCClient.ctcpMakeReply} with
+        the correct args.
+        """
+        self.client.userinfo = 'info'
+        self.client.ctcpQuery_USERINFO(self.user, self.channel, 'data')
+        self.assertEqual(self.client.methods,
+                         [('ctcpMakeReply', ('Wolf', [('USERINFO', 'info')]))])
+
+
+    def test_ctcpQuery_CLIENTINFO(self):
+        """
+        L{IRCClient.ctcpQuery_CLIENTINFO} calls L{IRCClient.ctcpMakeReply} with
+        the correct args.
+        """
+        self.client.ctcpQuery_CLIENTINFO(self.user, self.channel, '')
+        self.client.ctcpQuery_CLIENTINFO(self.user, self.channel, 'PING PONG')
+        info = ('CLIENTINFO PING DCC SOURCE VERSION '
+                'USERINFO TIME ACTION ERRMSG FINGER')
+        self.assertEqual(self.client.methods,
+                         [('ctcpMakeReply', ('Wolf', [('CLIENTINFO', info)])),
+                          ('ctcpMakeReply', ('Wolf', [('CLIENTINFO', None)]))])
+
+
+    def test_ctcpQuery_TIME(self):
+        """
+        L{IRCClient.ctcpQuery_TIME} calls L{IRCClient.ctcpMakeReply} with the
+        correct args.
+        """
+        self.client.ctcpQuery_TIME(self.user, self.channel, 'data')
+        self.assertEqual(self.client.methods[0][1][0], 'Wolf')
+
+
+    def test_ctcpQuery_DCC(self):
+        """
+        L{IRCClient.ctcpQuery_DCC} calls L{IRCClient.ctcpMakeReply} with the
+        correct args.
+        """
+        self.client.ctcpQuery_DCC(self.user, self.channel, 'data')
+        self.assertEqual(self.client.methods,
+                         [('ctcpMakeReply',
+                           ('Wolf', [('ERRMSG',
+                                      "DCC data :Unknown DCC type 'DATA'")]))])
+
+
+
 class DccChatFactoryTests(unittest.TestCase):
     """
-    Tests for L{DccChatFactory}
+    Tests for L{DccChatFactory}.
     """
     def test_buildProtocol(self):
         """
-        An instance of the DccChat protocol is returned, which has the factory
-        property set to the factory which created it.
+        An instance of the L{irc.DccChat} protocol is returned, which has the
+        factory property set to the factory which created it.
         """
         queryData = ('fromUser', None, None)
-        f = irc.DccChatFactory(None, queryData)
-        p = f.buildProtocol('127.0.0.1')
-        self.assertTrue(isinstance(p, irc.DccChat))
-        self.assertEqual(p.factory, f)
+        factory = irc.DccChatFactory(None, queryData)
+        protocol = factory.buildProtocol('127.0.0.1')
+        self.assertIsInstance(protocol, irc.DccChat)
+        self.assertEqual(protocol.factory, factory)
+
+
+
+class DccDescribeTests(unittest.TestCase):
+    """
+    Tests for L{dccDescribe}.
+    """
+    def test_address(self):
+        """
+        L{irc.dccDescribe} supports long IP addresses.
+        """
+        result = irc.dccDescribe('CHAT arg 3232235522 6666')
+        self.assertEqual(result, "CHAT for host 192.168.0.2, port 6666")
+

@@ -299,11 +299,14 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
       lastY = e.getY();
       ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
       shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
-      component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
-      if (e.getWheelRotation() > 0)
+      if (e.getWheelRotation() > 0) {
+        component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
         component.getRenderWindowInteractor().MouseWheelBackwardEvent();
-      else
+      }
+      else if (e.getWheelRotation() < 0) {
+        component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
         component.getRenderWindowInteractor().MouseWheelForwardEvent();
+      }
     } catch (InterruptedException interupt) {
       // Nothing to do
     } finally {

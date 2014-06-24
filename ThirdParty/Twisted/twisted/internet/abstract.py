@@ -14,7 +14,7 @@ from zope.interface import implementer
 
 # Twisted Imports
 from twisted.python.compat import _PY3, unicode, lazyByteSlice
-from twisted.python import _reflectpy3 as reflect, failure
+from twisted.python import reflect, failure
 from twisted.internet import interfaces, main
 
 if _PY3:
@@ -59,7 +59,7 @@ class _ConsumerMixin(object):
 
     @ivar producerPaused: A flag indicating whether the producer is currently
         paused.
-    @type producerPaused: C{bool} or C{int}
+    @type producerPaused: L{bool}
 
     @ivar streamingProducer: A flag indicating whether the producer was
         registered as a streaming (ie push) producer or not (ie a pull
@@ -176,6 +176,11 @@ class FileDescriptor(_ConsumerMixin, _LogOwner):
     SEND_LIMIT = 128*1024
 
     def __init__(self, reactor=None):
+        """
+        @param reactor: An L{IReactorFDSet} provider which this descriptor will
+            use to get readable and writeable event notifications.  If no value
+            is given, the global reactor will be used.
+        """
         if not reactor:
             from twisted.internet import reactor
         self.reactor = reactor
@@ -267,7 +272,7 @@ class FileDescriptor(_ConsumerMixin, _LogOwner):
             if self.producer is not None and ((not self.streamingProducer)
                                               or self.producerPaused):
                 # tell them to supply some more.
-                self.producerPaused = 0
+                self.producerPaused = False
                 self.producer.resumeProducing()
             elif self.disconnecting:
                 # But if I was previously asked to let the connection die, do
@@ -327,7 +332,7 @@ class FileDescriptor(_ConsumerMixin, _LogOwner):
             # and our buffer is full,
             if self._isSendBufferFull():
                 # pause it.
-                self.producerPaused = 1
+                self.producerPaused = True
                 self.producer.pauseProducing()
 
 
@@ -457,8 +462,8 @@ class FileDescriptor(_ConsumerMixin, _LogOwner):
     # producer interface implementation
 
     def resumeProducing(self):
-        assert self.connected and not self.disconnecting
-        self.startReading()
+        if self.connected and not self.disconnecting:
+            self.startReading()
 
     def pauseProducing(self):
         self.stopReading()

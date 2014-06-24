@@ -155,6 +155,7 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
         this->BagPoints->SetPoint(2 * i, x, y[0]);
         this->BagPoints->SetPoint(2 * i + 1, x, y[1]);
         }
+      this->BagPoints->Modified();
       }
     }
 

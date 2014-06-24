@@ -94,12 +94,17 @@ public:
 
   // Description:
   // Set/Get the random generation flag.
-  // A value of 0 will disable the generation of random hills on the surface.
-  // This allows a reproducible shape to be generated.
+  // A value of 0 will disable the generation of random hills on the surface
+  // allowing a reproducible number of identically shaped hills to be
+  // generated. If zero, then the number of hills used will be the nearest
+  // perfect square less than or equal to the number of hills.
+  // For example, selecting 30 hills will result in a 5 X 5 array of
+  // hills being generated. Thus a square array of hills will be generated.
+  //
   // Any other value means that the generation of the hills will be done
   // randomly.
   // Default is 1.
-  vtkSetMacro(AllowRandomGeneration,int);
+  vtkSetClampMacro(AllowRandomGeneration,int,0,1);
   vtkGetMacro(AllowRandomGeneration,int);
   vtkBooleanMacro(AllowRandomGeneration,int);
 
@@ -126,9 +131,8 @@ public:
   // their amplitudes. This function creates a series of vectors representing
   // the u, v coordinates of each hill, its variance in the u, v directions and
   // the amplitude.
-  //
-  // NOTE: This function must be called whenever any of the parameters are changed.
-  void GenerateTheHills( void );
+  // \deprecated 6.2 This function is no longer needed.
+  VTK_LEGACY(void GenerateTheHills(void));
 
   // Description:
   // Construct a terrain consisting of randomly placed hills on a surface.
@@ -173,6 +177,17 @@ protected:
   double AmplitudeScaleFactor;
   int AllowRandomGeneration;
 
+  // These variables store the previous values of the above ones.
+  int previousNumberOfHills;
+  double previousHillXVariance;
+  double previousHillYVariance;
+  double previousHillAmplitude;
+  int previousRandomSeed;
+  double previousXVarianceScaleFactor;
+  double previousYVarianceScaleFactor;
+  double previousAmplitudeScaleFactor;
+  int previousAllowRandomGeneration;
+
 private:
   vtkParametricRandomHills(const vtkParametricRandomHills&);  // Not implemented.
   void operator=(const vtkParametricRandomHills&);  // Not implemented.
@@ -186,8 +201,23 @@ private:
   double Rand ( void );
 
   // Description:
+  // Generate the centers of the hills, their standard deviations and
+  // their amplitudes. This function creates a series of vectors representing
+  // the u, v coordinates of each hill, its variance in the u, v directions and
+  // the amplitude.
+  void MakeTheHillData( void );
+
+  // Description:
+  // True if any parameters have changed.
+  bool ParametersChanged();
+
+  // Description:
+  // Set the previous values of the parameters with the current values.
+  void CopyParameters();
+
+  // Description:
   // Center (x,y), variances (x,y) and amplitudes of the hills.
-  vtkDoubleArray * hillData;
+  vtkDoubleArray *hillData;
 };
 
 #endif

@@ -16,6 +16,7 @@
 #define __vtkDataArrayTemplate_txx
 
 #include "vtkDataArrayTemplate.h"
+#include "vtkDataArrayPrivate.txx"
 
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkTypedDataArrayIterator.h"
@@ -969,82 +970,26 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextValue(T f)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkDataArrayTemplate<T>::ComputeScalarRange(double range[2], int comp)
+bool vtkDataArrayTemplate<T>::ComputeScalarRange(double* ranges)
 {
-  // Compute range only if there are data.
-  T* begin = this->Array+comp;
-  T* end = this->Array+comp+this->MaxId+1;
-  if(begin == end)
-    {
-    return;
-    }
+  const T* begin = this->Array;
+  const T* end = this->Array+this->MaxId+1;
+  const int numComp = this->NumberOfComponents;
 
-  // Compute the range of scalar values.
-  int numComp = this->NumberOfComponents;
-  T tempRange[2] = {vtkTypeTraits<T>::Max(), vtkTypeTraits<T>::Min()};
-
-  if(numComp == 1)
-    {
-    //Special case for single value scalar range. This is done to help the
-    //compiler detect it can perform loop optimizations.
-    for(T* i = begin; i != end; ++i)
-      {
-      tempRange[0] = std::min(*i,tempRange[0]);
-      tempRange[1] = std::max(*i,tempRange[1]);
-      }
-    }
-  else
-    {
-    for(T* i = begin; i != end; i += numComp)
-      {
-      tempRange[0] = std::min(*i,tempRange[0]);
-      tempRange[1] = std::max(*i,tempRange[1]);
-      }
-    }
-
-  range[0] = static_cast<double>(tempRange[0]);
-  range[1] = static_cast<double>(tempRange[1]);
+  return vtkDataArrayPrivate::DoComputeScalarRange<T>(begin,end,
+                                                      numComp,ranges);
 }
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkDataArrayTemplate<T>::ComputeVectorRange(double range[2])
+bool vtkDataArrayTemplate<T>::ComputeVectorRange(double range[2])
 {
-  // Compute range only if there are data.
-  T* begin = this->Array;
-  T* end = this->Array+this->MaxId+1;
-  if(begin == end)
-    {
-    return;
-    }
+  const T* begin = this->Array;
+  const T* end = this->Array+this->MaxId+1;
+  const int numComp = this->NumberOfComponents;
 
-  // Compute the range of vector magnitude squared.
-  int numComp = this->NumberOfComponents;
-  range[0] = vtkTypeTraits<double>::Max();
-  range[1] = vtkTypeTraits<double>::Min();
-  for(T* i = begin; i != end; i += numComp)
-    {
-    double s = 0.0;
-    for(int j=0; j < numComp; ++j)
-      {
-      double t = static_cast<double>(i[j]);
-      s += t*t;
-      }
-    if(s < range[0])
-      {
-      range[0] = s;
-      }
-    // this cannot be an elseif because there may be only one vector in which
-    // case the range[1] would be left at a bad value
-    if(s > range[1])
-      {
-      range[1] = s;
-      }
-    }
-
-  // Store the range of vector magnitude.
-  range[0] = sqrt(range[0]);
-  range[1] = sqrt(range[1]);
+  return vtkDataArrayPrivate::DoComputeVectorRange<T>(begin,end,
+                                                      numComp,range);
 }
 
 //----------------------------------------------------------------------------

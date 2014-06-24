@@ -1,0 +1,115 @@
+#ifndef PyMPI_CONFIG_LAMMPI_H
+#define PyMPI_CONFIG_LAMMPI_H
+
+#define PyMPI_MISSING_MPI_IN_PLACE 1
+#define PyMPI_MISSING_MPI_AINT 1
+#define PyMPI_MISSING_MPI_OFFSET 1
+#define PyMPI_MISSING_MPI_SIGNED_CHAR 1
+#define PyMPI_MISSING_MPI_C_BOOL 1
+#define PyMPI_MISSING_MPI_INT8_T 1
+#define PyMPI_MISSING_MPI_INT16_T 1
+#define PyMPI_MISSING_MPI_INT32_T 1
+#define PyMPI_MISSING_MPI_INT64_T 1
+#define PyMPI_MISSING_MPI_UINT8_T 1
+#define PyMPI_MISSING_MPI_UINT16_T 1
+#define PyMPI_MISSING_MPI_UINT32_T 1
+#define PyMPI_MISSING_MPI_UINT64_T 1
+#define PyMPI_MISSING_MPI_C_COMPLEX 1
+#define PyMPI_MISSING_MPI_C_FLOAT_COMPLEX 1
+#define PyMPI_MISSING_MPI_C_DOUBLE_COMPLEX 1
+#define PyMPI_MISSING_MPI_C_LONG_DOUBLE_COMPLEX 1
+#define PyMPI_MISSING_MPI_LOGICAL1 1
+#define PyMPI_MISSING_MPI_LOGICAL2 1
+#define PyMPI_MISSING_MPI_LOGICAL4 1
+#define PyMPI_MISSING_MPI_LOGICAL8 1
+#define PyMPI_MISSING_MPI_INTEGER16 1
+#define PyMPI_MISSING_MPI_REAL2 1
+#define PyMPI_MISSING_MPI_COMPLEX4 1
+#define PyMPI_MISSING_MPI_COMPLEX8 1
+#define PyMPI_MISSING_MPI_COMPLEX16 1
+#define PyMPI_MISSING_MPI_COMPLEX32 1
+#define PyMPI_MISSING_MPI_Type_create_indexed_block 1
+#define PyMPI_MISSING_MPI_Type_create_f90_integer 1
+#define PyMPI_MISSING_MPI_Type_create_f90_real 1
+#define PyMPI_MISSING_MPI_Type_create_f90_complex 1
+#define PyMPI_MISSING_MPI_TYPECLASS_INTEGER 1
+#define PyMPI_MISSING_MPI_TYPECLASS_REAL 1
+#define PyMPI_MISSING_MPI_TYPECLASS_COMPLEX 1
+#define PyMPI_MISSING_MPI_Type_match_size 1
+#define PyMPI_MISSING_MPI_Pack_external 1
+#define PyMPI_MISSING_MPI_Unpack_external 1
+#define PyMPI_MISSING_MPI_Pack_external_size 1
+#define PyMPI_MISSING_MPI_Status_set_elements 1
+#define PyMPI_MISSING_MPI_Status_set_cancelled 1
+#define PyMPI_MISSING_MPI_Request_get_status 1
+#define PyMPI_MISSING_MPI_Grequest_cancel_function 1
+#define PyMPI_MISSING_MPI_Grequest_free_function 1
+#define PyMPI_MISSING_MPI_Grequest_query_function 1
+#define PyMPI_MISSING_MPI_Grequest_start 1
+#define PyMPI_MISSING_MPI_Grequest_complete 1
+#define PyMPI_MISSING_MPI_Op_commutative 1
+#define PyMPI_MISSING_MPI_Reduce_local 1
+#define PyMPI_MISSING_MPI_Reduce_scatter_block 1
+#define PyMPI_MISSING_MPI_DIST_GRAPH 1
+#define PyMPI_MISSING_MPI_UNWEIGHTED 1
+#define PyMPI_MISSING_MPI_Dist_graph_create_adjacent 1
+#define PyMPI_MISSING_MPI_Dist_graph_create 1
+#define PyMPI_MISSING_MPI_Dist_graph_neighbors_count 1
+#define PyMPI_MISSING_MPI_Dist_graph_neighbors 1
+#define PyMPI_MISSING_MPI_Comm_errhandler_function 1
+#define PyMPI_MISSING_MPI_Comm_call_errhandler 1
+#define PyMPI_MISSING_MPI_LASTUSEDCODE 1
+#define PyMPI_MISSING_MPI_Win_test 1
+#define PyMPI_MISSING_MPI_LOCK_EXCLUSIVE 1
+#define PyMPI_MISSING_MPI_LOCK_SHARED 1
+#define PyMPI_MISSING_MPI_Win_lock 1
+#define PyMPI_MISSING_MPI_Win_unlock 1
+#define PyMPI_MISSING_MPI_Win_errhandler_function 1
+#define PyMPI_MISSING_MPI_Win_call_errhandler 1
+#define PyMPI_MISSING_MPI_Datarep_conversion_function 1
+#define PyMPI_MISSING_MPI_Datarep_extent_function 1
+#define PyMPI_MISSING_MPI_Register_datarep 1
+#define PyMPI_MISSING_MPI_Add_error_class 1
+#define PyMPI_MISSING_MPI_Add_error_code 1
+#define PyMPI_MISSING_MPI_Add_error_string 1
+#define PyMPI_MISSING_MPI_ERR_INFO 1
+#define PyMPI_MISSING_MPI_ERR_PORT 1
+#define PyMPI_MISSING_MPI_ERR_FILE 1
+#define PyMPI_MISSING_MPI_ERR_NOT_SAME 1
+#define PyMPI_MISSING_MPI_ERR_BAD_FILE 1
+#define PyMPI_MISSING_MPI_ERR_NO_SUCH_FILE 1
+#define PyMPI_MISSING_MPI_ERR_FILE_EXISTS 1
+#define PyMPI_MISSING_MPI_ERR_FILE_IN_USE 1
+#define PyMPI_MISSING_MPI_ERR_AMODE 1
+#define PyMPI_MISSING_MPI_ERR_ACCESS 1
+#define PyMPI_MISSING_MPI_ERR_READ_ONLY 1
+#define PyMPI_MISSING_MPI_ERR_NO_SPACE 1
+#define PyMPI_MISSING_MPI_ERR_QUOTA 1
+#define PyMPI_MISSING_MPI_ERR_UNSUPPORTED_DATAREP 1
+#define PyMPI_MISSING_MPI_ERR_UNSUPPORTED_OPERATION 1
+#define PyMPI_MISSING_MPI_ERR_CONVERSION 1
+#define PyMPI_MISSING_MPI_ERR_DUP_DATAREP 1
+#define PyMPI_MISSING_MPI_ERR_IO 1
+#define PyMPI_MISSING_MPI_ERR_SIZE 1
+#define PyMPI_MISSING_MPI_ERR_DISP 1
+#define PyMPI_MISSING_MPI_ERR_ASSERT 1
+#define PyMPI_MISSING_MPI_ERR_LOCKTYPE 1
+#define PyMPI_MISSING_MPI_ERR_RMA_CONFLICT 1
+#define PyMPI_MISSING_MPI_ERR_RMA_SYNC 1
+
+#ifndef ROMIO_VERSION
+#include "lammpiio.h"
+#else
+#define PyMPI_MISSING_MPI_File_iread_at 1
+#define PyMPI_MISSING_MPI_File_iwrite_at 1
+#define PyMPI_MISSING_MPI_File_iread 1
+#define PyMPI_MISSING_MPI_File_iwrite 1
+#define PyMPI_MISSING_MPI_File_iread_shared 1
+#define PyMPI_MISSING_MPI_File_iwrite_shared 1
+#define PyMPI_MISSING_MPI_File_errhandler_fn 1
+#define PyMPI_MISSING_MPI_File_errhandler_function 1
+#define PyMPI_MISSING_MPI_File_create_errhandler 1
+#define PyMPI_MISSING_MPI_File_call_errhandler 1
+#endif /* !ROMIO_VERSION */
+
+#endif /* !PyMPI_CONFIG_LAMMPI_H */

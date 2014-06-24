@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: autobahn
-Version: 0.5.9
+Version: 0.8.9
 Summary: AutobahnPython - WebSocket/WAMP implementation for Python/Twisted.
 Home-page: http://autobahn.ws/python
 Author: Tavendo GmbH

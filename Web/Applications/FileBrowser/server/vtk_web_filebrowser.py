@@ -30,10 +30,8 @@ import os
 
 # import vtk modules.
 import vtk
-from vtk.web import server, wamp, protocols
-
-# import annotations
-from autobahn.wamp import exportRpc
+from vtk.web import protocols, server
+from vtk.web import wamp as vtk_wamp
 
 try:
     import argparse
@@ -46,7 +44,7 @@ except ImportError:
 # Create custom File Opener class to handle clients requests
 # =============================================================================
 
-class _WebFileBrowser(wamp.ServerProtocol):
+class _WebFileBrowser(vtk_wamp.ServerProtocol):
 
     # Application configuration
     authKey = "vtkweb-secret"

@@ -62,6 +62,10 @@ int main(void)
 #endif
 
 #ifdef H5_LDOUBLE_TO_INTEGER_WORKS_TEST
+
+#include <stdlib.h>
+#include <string.h>
+
 int main(void)
 {
   void *align;
@@ -80,7 +84,7 @@ int main(void)
   v2 = (short) (*((long double*) align));
   v3 = (unsigned int) (*((long double*) align));
 
-  done: exit(ret);
+  exit(ret);
 }
 
 #endif
@@ -248,7 +252,8 @@ main ()
 #ifdef H5_ULLONG_TO_LDOUBLE_PRECISION_TEST
 
 #include <stddef.h>
-
+#include <stdlib.h>
+#include <string.h>
 
 int main(void)
 {

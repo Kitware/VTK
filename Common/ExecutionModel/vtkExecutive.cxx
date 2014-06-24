@@ -22,6 +22,7 @@
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationIterator.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -673,6 +674,11 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
       vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
       int length = request->Length(KEYS_TO_COPY());
       vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
+
+      vtkSmartPointer<vtkInformationIterator> infoIter =
+        vtkSmartPointer<vtkInformationIterator>::New();
+      infoIter->SetInformation(inInfo);
+
       int oiobj = outInfoVec->GetNumberOfInformationObjects();
       for(int i=0; i < oiobj; ++i)
         {
@@ -688,6 +694,15 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
             {
             outInfo->CopyEntries(inInfo, vkey);
             }
+          }
+
+        // Give the keys an opportunity to copy themselves.
+        infoIter->InitTraversal();
+        while(!infoIter->IsDoneWithTraversal())
+          {
+          vtkInformationKey* key = infoIter->GetCurrentKey();
+          key->CopyDefaultInformation(request, inInfo, outInfo);
+          infoIter->GoToNextItem();
           }
         }
       }
@@ -709,6 +724,11 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
       vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
       int length = request->Length(KEYS_TO_COPY());
       vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
+
+      vtkSmartPointer<vtkInformationIterator> infoIter =
+        vtkSmartPointer<vtkInformationIterator>::New();
+      infoIter->SetInformation(outInfo);
+
       for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
         {
         for(int j=0; j < inInfoVec[i]->GetNumberOfInformationObjects(); ++j)
@@ -725,6 +745,15 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
               {
               inInfo->CopyEntries(outInfo, vkey);
               }
+            }
+
+          // Give the keys an opportunity to copy themselves.
+          infoIter->InitTraversal();
+          while(!infoIter->IsDoneWithTraversal())
+            {
+            vtkInformationKey* key = infoIter->GetCurrentKey();
+            key->CopyDefaultInformation(request, outInfo, inInfo);
+            infoIter->GoToNextItem();
             }
           }
         }
