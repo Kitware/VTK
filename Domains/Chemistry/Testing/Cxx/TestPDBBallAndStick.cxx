@@ -28,10 +28,7 @@
 #include "vtkPDBReader.h"
 
 #include "vtkTimerLog.h"
-#include "vtkSmartPointer.h"
 #include "vtkCamera.h"
-
-
 
 int TestPDBBallAndStick(int argc, char *argv[])
 {
@@ -72,9 +69,8 @@ int TestPDBBallAndStick(int argc, char *argv[])
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(450, 450);
 
-
-  vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
-  int numRenders = 85;
+  vtkNew<vtkTimerLog> timer;
+  int numRenders = 15;
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
