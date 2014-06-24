@@ -185,6 +185,12 @@ set_source_files_properties(
   ABSTRACT
   )
 
+set_source_files_properties(
+  vtkAbstractInteractionDevice
+  vtkAbstractRenderDevice
+  WRAP_EXCLUDE
+  )
+
 # On OS X, vtkRenderWindowJava must be compiled with Objective C++
 if(APPLE)
   set_source_files_properties(
