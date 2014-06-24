@@ -26,7 +26,7 @@
 #include "vtkRenderWindow.h"
 #include <map> // for ivar
 
-#include <GL/glew.h> // Needed for GLuint.
+#include "vtk_glew.h" // Needed for GLuint.
 
 class vtkIdList;
 class vtkOpenGLHardwareSupport;

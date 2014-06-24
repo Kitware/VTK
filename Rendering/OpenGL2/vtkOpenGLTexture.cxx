@@ -27,7 +27,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkPixelBufferObject.h"
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
 #include <math.h>

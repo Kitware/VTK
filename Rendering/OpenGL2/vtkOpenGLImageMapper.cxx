@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkOpenGLImageMapper.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 #include "vtkActor2D.h"
 #include "vtkDataArray.h"

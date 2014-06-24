@@ -39,7 +39,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
 #include <math.h>

@@ -29,8 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
-#include <GL\wglew.h>
-
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8

@@ -15,7 +15,7 @@
 #include "vtkglVertexArrayObject.h"
 #include "vtkglBufferObject.h"
 #include "vtkglShaderProgram.h"
-#include "GL/glew.h"
+#include "vtk_glew.h"
 
 #include <map>
 #include <vector>

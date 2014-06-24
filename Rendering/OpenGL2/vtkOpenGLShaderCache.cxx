@@ -13,10 +13,9 @@
 
 =========================================================================*/
 #include "vtkOpenGLShaderCache.h"
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
 #include <math.h>

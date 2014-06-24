@@ -13,7 +13,7 @@
 =========================================================================*/
 #include "vtkglShaderProgram.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 #include "vtkglShader.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"

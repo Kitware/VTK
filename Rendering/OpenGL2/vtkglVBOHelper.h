@@ -20,7 +20,7 @@
 #include "vtkglShaderProgram.h"
 #include "vtkglVertexArrayObject.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 #include <vector>
 

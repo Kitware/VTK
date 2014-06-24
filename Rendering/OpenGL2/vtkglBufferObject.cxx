@@ -13,7 +13,7 @@
 =========================================================================*/
 #include "vtkglBufferObject.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 namespace vtkgl {
 
