@@ -1489,18 +1489,8 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
     }
 
   glViewport(0, 0, this->Size[0], this->Size[1]);
-  glMatrixMode( GL_MODELVIEW );
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix();
-  glLoadIdentity();
   glRasterPos2f( 2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1,
                  2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1);
-  glMatrixMode( GL_PROJECTION );
-  glPopMatrix();
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
 
   glDisable( GL_ALPHA_TEST );
   glDisable( GL_SCISSOR_TEST );
