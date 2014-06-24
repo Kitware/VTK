@@ -74,6 +74,54 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
   CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   )
 
+# some specific defaults for Andriod to give folks
+# a reasonable starting point
+if (ANDROID)
+  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2
+       CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
+       CACHE STRING "Output from TRY_RUN" FORCE)
+  SET( VTK_TYPE_CHAR_IS_SIGNED 1
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( VTK_ANSI_STREAM_EOF_RESULT 0
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( KWSYS_CHAR_IS_SIGNED 1
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( KWSYS_LFS_WORKS 2
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
+     CACHE STRING "Output from TRY_RUN" FORCE)
+
+  set(BUILD_SHARED_LIBS OFF)
+  set(VTK_RENDERING_BACKEND OpenGL2)
+  set(VTK_Group_StandAlone OFF)
+  set(Module_vtkFiltersCore ON)
+  set(Module_vtkFiltersModeling ON)
+  set(Module_vtkFiltersSources ON)
+  set(Module_vtkFiltersGeometry ON)
+  set(Module_vtkIOGeometry ON)
+  set(Module_vtkIOLegacy ON)
+  set(Module_vtkIOXML ON)
+  set(Module_vtkIOImage ON)
+  set(Module_vtkIOPLY ON)
+  set(Module_vtkIOInfovis ON)
+  set(Module_vtkImagingCore ON)
+  set(Module_vtkParallelCore ON)
+  set(Module_vtkRenderingCore ON)
+
+  # find opengl es2 (maybe someday add an option for ES3)
+  find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h
+     ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
+     ${_OPENGL_INCLUDE_PATH}
+     )
+  find_library(OPENGL_gl_LIBRARY
+     NAMES GLESv2
+     PATHS
+       ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
+       ${_OPENGL_LIB_PATH}
+     )
+endif()
+
 # Choose static or shared libraries.
 option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
