@@ -16,7 +16,7 @@
 #define __vtkOpenGLError_h
 
 #include "vtkSetGet.h"
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 #cmakedefine VTK_REPORT_OPENGL_ERRORS
 

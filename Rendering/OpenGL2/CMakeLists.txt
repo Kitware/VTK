@@ -3,13 +3,8 @@ if(TARGET vtkRenderingOpenGL)
 endif()
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
 include_directories(SYSTEM
-  ${OPENGL_INCLUDE_DIR}
-  ${GLEW_INCLUDE_DIRS})
-if(WIN32 AND NOT BUILD_SHARED_LIBS)
-  add_definitions(-DGLEW_STATIC)
-endif()
+  ${OPENGL_INCLUDE_DIR})
 
 # Now we need to generate the object factory for this module. Create a list of
 # overrides, and then generate the class that overrides those classes.
@@ -19,8 +14,7 @@ macro(vtk_add_override base override)
 endmacro()
 
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS
-  ${OPENGL_INCLUDE_DIR}
-  ${GLEW_INCLUDE_DIRS})
+  ${OPENGL_INCLUDE_DIR})
 
 # Copy of what is in vtkRenderingOpenGL for logic on X, Carbon, Cocoa, etc.
 set(VTK_USE_X_DEFAULT OFF)
@@ -285,7 +279,6 @@ set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 target_link_libraries(${vtk-module}
-  LINK_PRIVATE ${GLEW_LIBRARY}
   LINK_PUBLIC  ${OPENGL_LIBRARIES})
 if(VTK_USE_X)
   target_link_libraries(${vtk-module}
