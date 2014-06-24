@@ -14,7 +14,11 @@
 =========================================================================*/
 // .NAME vtkParametricRandomHills - Generate a surface covered with randomly placed hills.
 // .SECTION Description
-// vtkParametricRandomHills generates a surface covered with randomly placed hills.
+// vtkParametricRandomHills generates a surface covered with randomly placed
+// hills. Hills will vary in shape and height since the presence
+// of nearby hills will contribute to the shape and height of a given hill.
+// An option is provided for placing hills on a regular grid on the surface.
+// In this case the hills will all have the same shape and height.
 //
 // For further information about this surface, please consult the
 // technical description "Parametric surfaces" in http://www.vtk.org/documents.php
@@ -101,8 +105,8 @@ public:
   // For example, selecting 30 hills will result in a 5 X 5 array of
   // hills being generated. Thus a square array of hills will be generated.
   //
-  // Any other value means that the generation of the hills will be done
-  // randomly.
+  // Any other value means that the hills will be placed randomly on the
+  // surface.
   // Default is 1.
   vtkSetClampMacro(AllowRandomGeneration,int,0,1);
   vtkGetMacro(AllowRandomGeneration,int);
@@ -135,11 +139,7 @@ public:
   VTK_LEGACY(void GenerateTheHills(void));
 
   // Description:
-  // Construct a terrain consisting of randomly placed hills on a surface.
-  //
-  // It is assumed that the function GenerateTheHills() has been executed
-  // to build the vectors of coordinates required to generate the point Pt.
-  // Pt represents the sum of all the amplitudes over the space.
+  // Construct a terrain consisting of hills on a surface.
   //
   // This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
@@ -203,8 +203,8 @@ private:
   // Description:
   // Generate the centers of the hills, their standard deviations and
   // their amplitudes. This function creates a series of vectors representing
-  // the u, v coordinates of each hill, its variance in the u, v directions and
-  // the amplitude.
+  // the u, v coordinates of each hill, their variances in the u, v directions
+  // and their amplitudes.
   void MakeTheHillData( void );
 
   // Description:
@@ -216,7 +216,7 @@ private:
   void CopyParameters();
 
   // Description:
-  // Center (x,y), variances (x,y) and amplitudes of the hills.
+  // Centers (x,y), variances (x,y) and amplitudes of the hills.
   vtkDoubleArray *hillData;
 };
 
