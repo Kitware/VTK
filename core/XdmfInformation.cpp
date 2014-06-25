@@ -33,7 +33,7 @@ XdmfInformation::New()
 {
   shared_ptr<XdmfInformation> p(new XdmfInformation());
   return p;
-};
+}
 
 shared_ptr<XdmfInformation>
 XdmfInformation::New(const std::string & key,
@@ -41,7 +41,7 @@ XdmfInformation::New(const std::string & key,
 {
   shared_ptr<XdmfInformation> p(new XdmfInformation(key, value));
   return p;
-};
+}
 
 XdmfInformation::XdmfInformation(const std::string & key,
                                  const std::string & value) :
@@ -130,13 +130,13 @@ XdmfInformation::populateItem(const std::map<std::string, std::string> & itemPro
 void
 XdmfInformation::setKey(const std::string & key)
 {
-  mKey= key;
+  mKey = key;
 }
 
 void
 XdmfInformation::setValue(const std::string & value)
 {
-  mValue= value;
+  mValue = value;
 }
 
 void

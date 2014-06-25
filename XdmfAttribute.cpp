@@ -107,6 +107,10 @@ XdmfAttribute::populateItem(const std::map<std::string, std::string> & itemPrope
       ++iter) {
     if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
       this->swap(array);
+      if (array->getReference()) {
+        this->setReference(array->getReference());
+        this->setReadMode(XdmfArray::Reference);
+      }
       break;
     }
   }
@@ -121,7 +125,7 @@ XdmfAttribute::setCenter(const shared_ptr<const XdmfAttributeCenter> center)
 void
 XdmfAttribute::setName(const std::string & name)
 {
-  mName= name;
+  mName = name;
 }
 
 void

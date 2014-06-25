@@ -70,13 +70,13 @@ public:
 
   virtual ~XdmfDomain();
 
-  LOKI_DEFINE_VISITABLE(XdmfDomain, XdmfItem);
-  XDMF_CHILDREN(XdmfDomain, XdmfGridCollection, GridCollection, Name);
-  XDMF_CHILDREN(XdmfDomain, XdmfGraph, Graph, Name);
-  XDMF_CHILDREN(XdmfDomain, XdmfCurvilinearGrid, CurvilinearGrid, Name);
-  XDMF_CHILDREN(XdmfDomain, XdmfRectilinearGrid, RectilinearGrid, Name);
-  XDMF_CHILDREN(XdmfDomain, XdmfRegularGrid, RegularGrid, Name);
-  XDMF_CHILDREN(XdmfDomain, XdmfUnstructuredGrid, UnstructuredGrid, Name);
+  LOKI_DEFINE_VISITABLE(XdmfDomain, XdmfItem)
+  XDMF_CHILDREN(XdmfDomain, XdmfGridCollection, GridCollection, Name)
+  XDMF_CHILDREN(XdmfDomain, XdmfGraph, Graph, Name)
+  XDMF_CHILDREN(XdmfDomain, XdmfCurvilinearGrid, CurvilinearGrid, Name)
+  XDMF_CHILDREN(XdmfDomain, XdmfRectilinearGrid, RectilinearGrid, Name)
+  XDMF_CHILDREN(XdmfDomain, XdmfRegularGrid, RegularGrid, Name)
+  XDMF_CHILDREN(XdmfDomain, XdmfUnstructuredGrid, UnstructuredGrid, Name)
   static const std::string ItemTag;
 
   std::map<std::string, std::string> getItemProperties() const;

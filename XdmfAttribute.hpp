@@ -68,7 +68,7 @@ public:
 
   virtual ~XdmfAttribute();
 
-  LOKI_DEFINE_VISITABLE(XdmfAttribute, XdmfArray);
+  LOKI_DEFINE_VISITABLE(XdmfAttribute, XdmfArray)
   static const std::string ItemTag;
 
   /**

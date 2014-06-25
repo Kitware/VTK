@@ -61,7 +61,7 @@ public:
 
   virtual ~XdmfTime();
 
-  LOKI_DEFINE_VISITABLE(XdmfTime, XdmfItem);
+  LOKI_DEFINE_VISITABLE(XdmfTime, XdmfItem)
   static const std::string ItemTag;
 
   std::map<std::string, std::string> getItemProperties() const;

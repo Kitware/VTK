@@ -85,7 +85,12 @@ XdmfSparseMatrix::getItemTag() const
 std::string
 XdmfSparseMatrix::getName() const
 {
-  return mName;
+  if (mName.c_str() == NULL) {
+    return "";
+  }
+  else {
+    return mName;
+  }
 }
 
 unsigned int
@@ -118,6 +123,12 @@ XdmfSparseMatrix::getValuesString() const
 
   std::stringstream toReturn;
   for(unsigned int i=0; i<mNumberRows; ++i) {
+    if (i + 1 < mNumberRows) {
+      if (mRowPointer->getValue<unsigned int>(i) > mRowPointer->getValue<unsigned int>(i+1)) {
+        XdmfError::message(XdmfError::FATAL,
+                           "Error: getValuesString(), Sparse Matrix Row Pointer is not sorted.");
+      }
+    }
     unsigned int index = 0;
     for(unsigned int j=mRowPointer->getValue<unsigned int>(i);
         j<mRowPointer->getValue<unsigned int>(i+1);

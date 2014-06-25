@@ -280,8 +280,8 @@ public:
 
   virtual ~XdmfItem() = 0;
 
-  LOKI_DEFINE_VISITABLE_BASE();
-  XDMF_CHILDREN(XdmfItem, XdmfInformation, Information, Key);
+  LOKI_DEFINE_VISITABLE_BASE()
+  XDMF_CHILDREN(XdmfItem, XdmfInformation, Information, Key)
   friend class XdmfCoreReader;
 
   /**

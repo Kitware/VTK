@@ -62,21 +62,13 @@ XdmfHDF5Controller::XdmfHDF5Controller(const std::string & hdf5FilePath,
                                        const std::vector<unsigned int> & dimensions,
                                        const std::vector<unsigned int> & dataspaceDimensions) :
   XdmfHeavyDataController(hdf5FilePath,
-                          dataSetPath,
                           type,
                           dimensions),
+  mDataSetPath(dataSetPath),
   mDataspaceDimensions(dataspaceDimensions),
   mStart(start),
   mStride(stride)
 {
-  if(!(mStart.size() == mStride.size() && 
-       mStride.size() == mDimensions.size() &&
-       mDimensions.size() == mDataspaceDimensions.size())) {
-    XdmfError::message(XdmfError::FATAL,
-                       "mStart, mStride, mDimensions, and "
-                       "mDataSpaceDimensions must all be of equal length in "
-                       "XdmfHDF5Controller constructor");
-  }
 }
 
 XdmfHDF5Controller::~XdmfHDF5Controller()
@@ -93,6 +85,18 @@ XdmfHDF5Controller::closeFiles()
   }
   mOpenFiles.clear();
   mOpenFileUsage.clear();
+}
+
+std::string
+XdmfHDF5Controller::getDataSetPath() const
+{
+  return mDataSetPath;
+}
+
+std::string
+XdmfHDF5Controller::getDescriptor() const
+{
+  return ":" + mDataSetPath;
 }
 
 std::vector<unsigned int> 

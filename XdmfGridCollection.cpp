@@ -32,7 +32,7 @@ XdmfGridCollection::New()
 {
   shared_ptr<XdmfGridCollection> p(new XdmfGridCollection());
   return p;
-};
+}
 
 XdmfGridCollection::XdmfGridCollection() :
   XdmfDomain(),

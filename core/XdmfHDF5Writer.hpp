@@ -144,8 +144,6 @@ protected:
 
   XdmfHDF5Writer(const std::string & filePath);
 
-  using XdmfHeavyDataWriter::controllerSplitting;
-
   /**
    * Create a new HDF5 Controller that is able to read in after being
    * written by this writer.
@@ -174,7 +172,10 @@ protected:
                    const std::vector<unsigned int> & dimensions,
                    const std::vector<unsigned int> & dataspaceDimensions);
 
-  virtual int getDataSetSize(std::string fileName, std::string dataSetName, const int fapl);
+  virtual shared_ptr<XdmfHeavyDataController>
+  createController(const shared_ptr<XdmfHeavyDataController> & refController);
+
+  virtual int getDataSetSize(const std::string & fileName, const std::string & dataSetName, const int fapl);
 
   /**
    * Open hdf5 file with a fapl.
@@ -200,6 +201,25 @@ private:
 
   XdmfHDF5Writer(const XdmfHDF5Writer &);  // Not implemented.
   void operator=(const XdmfHDF5Writer &);  // Not implemented.
+
+  virtual void controllerSplitting(XdmfArray & array,
+                                   const int & fapl,
+                                   int & controllerIndexOffset,
+                                   shared_ptr<XdmfHeavyDataController> heavyDataController,
+                                   const std::string & checkFileName,
+                                   const std::string & checkFileExt,
+                                   const std::string & dataSetPath,
+                                   const std::vector<unsigned int> & dimensions,
+                                   const std::vector<unsigned int> & dataspaceDimensions,
+                                   const std::vector<unsigned int> & start,
+                                   const std::vector<unsigned int> & stride,
+                                   std::list<std::string> & filesWritten,
+                                   std::list<void *> & arraysWritten,
+                                   std::list<std::vector<unsigned int> > & startsWritten,
+                                   std::list<std::vector<unsigned int> > & stridesWritten,
+                                   std::list<std::vector<unsigned int> > & dimensionsWritten,
+                                   std::list<std::vector<unsigned int> > & dataSizesWritten,
+                                   std::list<unsigned int> & arrayOffsetsWritten);
 
   XdmfHDF5WriterImpl * mImpl;
 

@@ -157,7 +157,7 @@ public:
 
   virtual ~XdmfRegularGrid();
 
-  LOKI_DEFINE_VISITABLE(XdmfRegularGrid, XdmfGrid);
+  LOKI_DEFINE_VISITABLE(XdmfRegularGrid, XdmfGrid)
   static const std::string ItemTag;
 
   /**

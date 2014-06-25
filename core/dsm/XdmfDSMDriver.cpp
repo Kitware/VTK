@@ -195,6 +195,13 @@ XDMF_dsm_init_interface(void)
   FUNC_LEAVE_NOAPI(XDMF_dsm_init())
 }
 
+void
+XdmfUnused(void)
+{
+  //To remove warning about XDMF_dsm_init_interface being unused
+  XDMF_dsm_init_interface();
+}
+
 hid_t
 XDMF_dsm_init(void)
 {
@@ -422,8 +429,9 @@ XDMFH5Pget_fapl_dsm(hid_t fapl_id, MPI_Comm *intra_comm /* out */,
 done:
   if (FAIL == ret_value) {
     /* need to free anything created here */
-    if (intra_comm_tmp != MPI_COMM_NULL)
+    if (intra_comm_tmp != MPI_COMM_NULL) {
       MPI_Comm_free(&intra_comm_tmp);
+    }
   }
 
   FUNC_LEAVE_API(ret_value)
@@ -463,8 +471,9 @@ XDMF_dsm_fapl_get(H5FD_t *_file)
 done:
   if ((NULL == ret_value) && err_occurred) {
     /* need to free anything created here */
-    if (fa && (MPI_COMM_NULL != fa->intra_comm))
+    if (fa && (MPI_COMM_NULL != fa->intra_comm)) {
       MPI_Comm_free(&fa->intra_comm);
+    }
   }
 
   FUNC_LEAVE_NOAPI(ret_value)
@@ -501,9 +510,12 @@ XDMF_dsm_fapl_copy(const void *_old_fa)
 done:
   if ((NULL == ret_value) && err_occurred) {
     /* cleanup */
-    if (new_fa && (MPI_COMM_NULL != new_fa->intra_comm))
+    if (new_fa && (MPI_COMM_NULL != new_fa->intra_comm)) {
       MPI_Comm_free(&new_fa->intra_comm);
-    if (new_fa) free(new_fa);
+    }
+    if (new_fa) {
+      free(new_fa);
+    }
   }
 
   FUNC_LEAVE_NOAPI(ret_value)
@@ -650,7 +662,9 @@ XDMF_dsm_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
 done:
   if((ret_value == NULL) && err_occurred) {
     if (file && file->name) HDfree(file->name);
-    if ((MPI_COMM_NULL != intra_comm_dup)) MPI_Comm_free(&intra_comm_dup);
+    if ((MPI_COMM_NULL != intra_comm_dup)) {
+      MPI_Comm_free(&intra_comm_dup);
+    }
     if (file) free(file);
   } /* end if */
 
@@ -1029,12 +1043,14 @@ xdmf_dsm_get_properties(MPI_Comm *intra_comm, void **buf_ptr_ptr, size_t *buf_le
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
 
-  if (intra_comm) *intra_comm = dsmManager->GetDsmBuffer()->GetComm()->GetIntraComm();
+  if (intra_comm) {
+    MPI_Comm_dup(dsmManager->GetDsmBuffer()->GetComm()->GetIntraComm(), intra_comm);
+  }
   if (dsmManager->GetIsServer()) {
     if (buf_ptr_ptr) *buf_ptr_ptr =
         dsmManager->GetDsmBuffer()->GetDataPointer();
@@ -1111,7 +1127,7 @@ xdmf_dsm_set_options(unsigned long flags)
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1153,7 +1169,7 @@ xdmf_dsm_connect()
     try {
       XdmfError::message(XdmfError::FATAL, "Already Connected");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1161,7 +1177,7 @@ xdmf_dsm_connect()
   try {
     dsmManager->Connect();
   }
-  catch (XdmfError e) {
+  catch (XdmfError & e) {
     return FAIL;
   }
 
@@ -1182,7 +1198,7 @@ xdmf_dsm_update_entry(haddr_t start, haddr_t end)
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1197,7 +1213,7 @@ xdmf_dsm_update_entry(haddr_t start, haddr_t end)
     try {
       dsmBuffer->Put(addr, sizeof(entry), &entry);
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1219,7 +1235,7 @@ xdmf_dsm_get_entry(haddr_t *start_ptr, haddr_t *end_ptr)
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1229,7 +1245,7 @@ xdmf_dsm_get_entry(haddr_t *start_ptr, haddr_t *end_ptr)
   try {
     dsmBuffer->Get(addr, sizeof(entry), &entry);
   }
-  catch (XdmfError e) {
+  catch (XdmfError & e) {
     return FAIL;
   }
 
@@ -1250,7 +1266,7 @@ xdmf_dsm_lock()
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1272,7 +1288,7 @@ xdmf_dsm_unlock(unsigned long flag)
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1294,7 +1310,7 @@ xdmf_dsm_read(haddr_t addr, size_t len, void *buf_ptr)
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1302,7 +1318,7 @@ xdmf_dsm_read(haddr_t addr, size_t len, void *buf_ptr)
   try {
     dsmBuffer->Get(addr, len, buf_ptr);
   }
-  catch (XdmfError e) {
+  catch (XdmfError & e) {
     return FAIL;
   }
 
@@ -1320,7 +1336,7 @@ xdmf_dsm_write(haddr_t addr, size_t len, const void *buf_ptr)
     try {
       XdmfError::message(XdmfError::FATAL, "No DSM manager found");
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       return FAIL;
     }
   }
@@ -1328,7 +1344,7 @@ xdmf_dsm_write(haddr_t addr, size_t len, const void *buf_ptr)
   try {
     dsmBuffer->Put(addr, len, buf_ptr);
   }
-  catch (XdmfError e) {
+  catch (XdmfError & e) {
     return FAIL;
   }
 

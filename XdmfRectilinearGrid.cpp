@@ -324,7 +324,10 @@ XdmfRectilinearGrid::XdmfRectilinearGrid(const std::vector<shared_ptr<XdmfArray>
 
 XdmfRectilinearGrid::~XdmfRectilinearGrid()
 {
-  delete mImpl;
+  if (mImpl) {
+    delete mImpl;
+  }
+  mImpl = NULL;
 }
 
 const std::string XdmfRectilinearGrid::ItemTag = "Grid";

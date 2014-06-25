@@ -24,6 +24,7 @@
 #include "XdmfGeometry.hpp"
 #include "XdmfGeometryType.hpp"
 #include "XdmfError.hpp"
+#include "XdmfFunction.hpp"
 
 shared_ptr<XdmfGeometry> XdmfGeometry::New()
 {
@@ -32,6 +33,7 @@ shared_ptr<XdmfGeometry> XdmfGeometry::New()
 }
 
 XdmfGeometry::XdmfGeometry() :
+  XdmfArray(),
   mNumberPoints(0),
   mType(XdmfGeometryType::NoGeometryType())
 {
@@ -78,15 +80,91 @@ XdmfGeometry::populateItem(const std::map<std::string, std::string> & itemProper
                            const XdmfCoreReader * const reader)
 {
   XdmfItem::populateItem(itemProperties, childItems, reader);
-  mType = XdmfGeometryType::New(itemProperties);
-  for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter = 
-        childItems.begin();
-      iter != childItems.end();
-      ++iter) {
-    if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
-      this->swap(array);
-      break;
+  std::map<std::string, std::string>::const_iterator type =
+    itemProperties.find("Type");
+  if(type == itemProperties.end()) {
+    type = itemProperties.find("GeometryType");
+  }
+
+  if (type != itemProperties.end()) {
+    if(type->second.compare("X_Y_Z") == 0) {
+      mType = XdmfGeometryType::XYZ();
+
+      // Building Function equivalent
+      std::vector<std::string> dimensionIDVector;
+      dimensionIDVector.push_back("X");
+      dimensionIDVector.push_back("Y");
+      dimensionIDVector.push_back("Z");
+
+      std::map<std::string, shared_ptr<XdmfArray> > dimensionMap;
+
+      unsigned int dimensionIDIndex = 0;
+
+      // Find X, Y, and Z Arrays
+      for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter =
+            childItems.begin();
+          iter != childItems.end() && dimensionIDIndex < dimensionIDVector.size();
+          ++iter) {
+        if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
+          dimensionMap[dimensionIDVector[dimensionIDIndex]] = array;
+          dimensionIDIndex++;
+        }
+      }
+
+      shared_ptr<XdmfFunction> geoFunction = XdmfFunction::New("X#Y#Z", dimensionMap);
+
+      this->setReference(geoFunction);
+      this->setReadMode(XdmfArray::Reference);
     }
+    else if(type->second.compare("X_Y") == 0) {
+      mType = XdmfGeometryType::XY();
+
+      // Building Function equivalent
+      std::vector<std::string> dimensionIDVector;
+      dimensionIDVector.push_back("X");
+      dimensionIDVector.push_back("Y");
+
+      std::map<std::string, shared_ptr<XdmfArray> > dimensionMap;
+
+      unsigned int dimensionIDIndex = 0;
+
+      // Find X, Y, and Z Arrays
+      for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter =
+            childItems.begin();
+          iter != childItems.end() && dimensionIDIndex < dimensionIDVector.size();
+          ++iter) {
+        if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
+          dimensionMap[dimensionIDVector[dimensionIDIndex]] = array;
+          dimensionIDIndex++;
+        }
+      }
+
+      shared_ptr<XdmfFunction> geoFunction = XdmfFunction::New("X#Y", dimensionMap);
+
+      this->setReference(geoFunction);
+      this->setReadMode(XdmfArray::Reference);
+    }
+    else {
+      mType = XdmfGeometryType::New(itemProperties);
+      for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter =
+            childItems.begin();
+          iter != childItems.end();
+          ++iter) {
+        if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
+          this->swap(array);
+          if (array->getReference()) {
+            this->setReference(array->getReference());
+            this->setReadMode(XdmfArray::Reference);
+          }
+          break;
+        }
+      }
+    }
+  }
+  else {
+    XdmfError::message(XdmfError::FATAL,
+                       "Neither 'Type' nor 'GeometryType' in itemProperties "
+                       "in XdmfGeometry::populateItem");
   }
 }
 

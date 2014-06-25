@@ -29,10 +29,10 @@ class XdmfArray;
 class XdmfArrayType;
 
 // Includes
+#include "XdmfCore.hpp"
 #include <string>
 #include <vector>
-#include "XdmfCore.hpp"
-#include "XdmfItemProperty.hpp"
+#include <map>
 #include "XdmfSharedPtr.hpp"
 
 /**
@@ -47,11 +47,36 @@ class XdmfArrayType;
  * to be released from memory but still be accessible or have its
  * location written to light data.
  */
-class XDMFCORE_EXPORT XdmfHeavyDataController : public XdmfItemProperty {
+class XDMFCORE_EXPORT XdmfHeavyDataController {
 
 public:
 
   virtual ~XdmfHeavyDataController() = 0;
+
+  /**
+   * Gets the controller in string form. For writing to file.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHeavyDataController.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getDescriptor
+   * @until //#getDescriptor
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHeavyDataController.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getDescriptor
+   * @until #//getDescriptor
+   *
+   * @return    A string that contains relevant information for the controller
+   */
+  virtual std::string getDescriptor() const = 0;
 
   /**
    * Get the dimensions of the heavy data set owned by this controller.
@@ -78,6 +103,33 @@ public:
    *            set owned by this controller.
    */
   std::vector<unsigned int> getDimensions() const;
+
+  /**
+   * Get the absolute path to the heavy data file on disk where the
+   * data set owned by this controller resides.
+   * For "/home/output.h5:/foo/data" this is "/home/output.h5"
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfHeavyDataController.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getFilePath
+   * @until //#getFilePath
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleHeavyDataController.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getFilePath
+   * @until #//getFilePath
+   *
+   * @return    A std::string containing the path to the heavy data file.
+   */
+  std::string getFilePath() const;
 
   /**
    * Get the name of this heavy data format. E.g. "HDF" for hdf5
@@ -184,62 +236,7 @@ public:
    */
   unsigned int getArrayOffset() const;
 
-  /**
-   * Get the path of the data set within the heavy data file owned by
-   * this controller.
-   * For "/home/output.h5:/foo/data" this is "/foo/data"
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfHeavyDataController.cpp
-   * @skipline //#initialization
-   * @until //#initialization
-   * @skipline //#getDataSetPath
-   * @until //#getDataSetPath
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleHeavyDataController.py
-   * @skipline #//initialization
-   * @until #//initialization
-   * @skipline #//getDataSetPath
-   * @until #//getDataSetPath
-   *
-   * @return    A std::string containing the path of the data set.
-   */
-  std::string getDataSetPath() const;
-
-  /**
-   * Get the absolute path to the heavy data file on disk where the
-   * data set owned by this controller resides.
-   * For "/home/output.h5:/foo/data" this is "/home/output.h5"
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfHeavyDataController.cpp
-   * @skipline //#initialization
-   * @until //#initialization
-   * @skipline //#getFilePath
-   * @until //#getFilePath
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleHeavyDataController.py
-   * @skipline #//initialization
-   * @until #//initialization
-   * @skipline #//getFilePath
-   * @until #//getFilePath
-   *
-   * @return    A std::string containing the path to the heavy data file.
-   */
-  std::string getFilePath() const;
-
-  virtual void
-  getProperties(std::map<std::string, std::string> & collectedProperties) const = 0;
+  virtual void getProperties(std::map<std::string, std::string> & collectedProperties) const = 0;
 
   /**
    * Get the array type of the heavy data set owned by this
@@ -295,16 +292,14 @@ public:
 
 protected:
 
-  XdmfHeavyDataController(const std::string & hdf5FilePath,
-                          const std::string & dataSetPath,
+  XdmfHeavyDataController(const std::string & filePath,
                           const shared_ptr<const XdmfArrayType> & type,
                           const std::vector<unsigned int> & dimensions);
 
-  const std::string mDataSetPath;
   const std::vector<unsigned int> mDimensions;
   const std::string mFilePath;
-  const shared_ptr<const XdmfArrayType> mType;
   unsigned int mArrayStartOffset;
+  const shared_ptr<const XdmfArrayType> mType;
 
 private:
 

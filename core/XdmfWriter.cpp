@@ -35,6 +35,7 @@
 #include "XdmfWriter.hpp"
 #include "XdmfVersion.hpp"
 #include "XdmfError.hpp"
+#include "string.h"
 
 /**
  * PIMPL
@@ -184,6 +185,13 @@ XdmfWriter::XdmfWriter(const std::string & xmlFilePath,
 {
 }
 
+XdmfWriter::XdmfWriter(const XdmfWriter & writerRef)
+{
+  char * transferPath = strdup(writerRef.getFilePath().c_str());
+  char * heavyTransferPath = strdup(writerRef.getHeavyDataWriter()->getFilePath().c_str());
+  mImpl = new XdmfWriterImpl(transferPath, XdmfHDF5Writer::New(heavyTransferPath), NULL);
+}
+
 XdmfWriter::~XdmfWriter()
 {
   delete mImpl;
@@ -320,18 +328,19 @@ XdmfWriter::visit(XdmfArray & array,
          array.getSize() > mImpl->mLightDataLimit) {
         // Write values to heavy data
 
+        // This takes about half the time needed
         mImpl->mHeavyDataWriter->visit(array, mImpl->mHeavyDataWriter);
 
         std::stringstream valuesStream;
         for(unsigned int i = 0; i < array.getNumberHeavyDataControllers(); ++i) {
+
           std::string heavyDataPath =
             array.getHeavyDataController(i)->getFilePath();
           size_t index = heavyDataPath.find_last_of("/\\");
           if(index != std::string::npos) {
             // If path is not a folder
             // put the directory path into this variable
-            const std::string heavyDataDir = 
-              heavyDataPath.substr(0, index + 1);
+            const std::string heavyDataDir = heavyDataPath.substr(0, index + 1);
             // If the directory is in the XML File Path
             if(mImpl->mXMLFilePath.find(heavyDataDir) == 0) {
               heavyDataPath =
@@ -341,6 +350,7 @@ XdmfWriter::visit(XdmfArray & array,
             }
             // Otherwise the full path is required
           }
+
           std::stringstream dimensionStream;
           for (unsigned int j = 0; j < array.getHeavyDataController(i)->getDimensions().size(); ++j) {
             dimensionStream << array.getHeavyDataController(i)->getDimensions()[j];
@@ -348,24 +358,13 @@ XdmfWriter::visit(XdmfArray & array,
               dimensionStream << " ";
             }
           }
-
-          const std::string dataSetPath = 
-            array.getHeavyDataController(i)->getDataSetPath();
-
           // Clear the stream
           valuesStream.str(std::string());
+          valuesStream << heavyDataPath << array.getHeavyDataController(i)->getDescriptor();
           if (array.getNumberHeavyDataControllers() > 1) {
-            valuesStream << heavyDataPath << ":"
-                         << dataSetPath
-                         << "|" << dimensionStream.str();
-            if (i + 1 < array.getNumberHeavyDataControllers()){
+            valuesStream << "|" << dimensionStream.str();
+            if (i + 1 < array.getNumberHeavyDataControllers()) {
               valuesStream << "|";
-            }
-          }
-          else {
-            valuesStream << heavyDataPath;
-            if(!dataSetPath.empty()) {
-              valuesStream << ":" << dataSetPath;
             }
           }
           xmlTextValues.push_back(valuesStream.str());
@@ -427,7 +426,6 @@ void
 XdmfWriter::visit(XdmfItem & item,
                   const shared_ptr<XdmfBaseVisitor> visitor)
 {
-
   if (mImpl->mDepth == 0) {
     mImpl->openFile();
   }

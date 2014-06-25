@@ -46,9 +46,14 @@ XdmfArrayReference::getConstructedProperties()
 }
 
 std::string
-XdmfArrayReference::getConstructedType()
+XdmfArrayReference::getConstructedType() const
 {
-  return mConstructedType;
+  if (mConstructedType.c_str() != NULL) {
+    return mConstructedType;
+  }
+  else {
+    return "";
+  }
 }
 
 void

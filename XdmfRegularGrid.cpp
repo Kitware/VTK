@@ -353,7 +353,10 @@ XdmfRegularGrid::XdmfRegularGrid(const shared_ptr<XdmfArray> brickSize,
 
 XdmfRegularGrid::~XdmfRegularGrid()
 {
-  delete mImpl;
+  if (mImpl) {
+    delete mImpl;
+  }
+  mImpl = NULL;
 }
 
 const std::string XdmfRegularGrid::ItemTag = "Grid";

@@ -26,7 +26,7 @@
 #include "XdmfArrayType.hpp"
 #include "XdmfFunction.hpp"
 #include <stack>
-#include <math.h>
+#include <cmath>
 #include <boost/assign.hpp>
 #include "XdmfError.hpp"
 
@@ -84,15 +84,19 @@ class XdmfOperationInternalImpl : public XdmfFunction::XdmfOperationInternal {
     shared_ptr<XdmfArray> (*mInternalOperation)(shared_ptr<XdmfArray>, shared_ptr<XdmfArray>);
 };
 
-std::string XdmfFunction::mSupportedOperations = "|#()";
+std::string XdmfFunction::mSupportedOperations = "-+/*|#()";
 const std::string XdmfFunction::mValidVariableChars =
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_:.";
-const std::string XdmfFunction::mValidDigitChars = "-1234567890.";
+const std::string XdmfFunction::mValidDigitChars = "1234567890.";
 // List the priorities for the operations, based on the order of operations
 // The index of the corresponding operation in validOperationChars
 // is the same as the index of its priority in this array
 std::map<char, int> XdmfFunction::mOperationPriority = 
-	boost::assign::map_list_of ('|', 2)
+	boost::assign::map_list_of ('-', 4)
+                                   ('+', 4)
+                                   ('/', 3)
+                                   ('*', 3)
+                                   ('|', 2)
                                    ('#', 1)
                                    ('(', 0)
                                    (')', 0);
@@ -106,14 +110,42 @@ std::map<char, int> XdmfFunction::mOperationPriority =
 std::map<std::string, shared_ptr<XdmfFunction::XdmfFunctionInternal> >
   XdmfFunction::arrayFunctions =
     boost::assign::map_list_of
+      ("ABS", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::abs))
+      ("ABS_TOKEN", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::abs))
+      ("ACOS", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::arccos))
+      ("ASIN", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::arcsin))
+      ("ATAN", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::arctan))
+      ("AVE", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::average))
+      ("COS", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::cos))
+      ("EXP", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::exponent))
+      ("JOIN", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::join))
+      ("LOG", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::log))
+      ("SIN", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::sin))
+      ("SQRT", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::sqrt))
       ("SUM", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
                                             XdmfFunction::sum))
-      ("AVE", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
-                                            XdmfFunction::average));
+      ("TAN", XdmfFunctionInternalImpl::New((shared_ptr<XdmfArray> (*)(std::vector<shared_ptr<XdmfArray> >))
+                                            XdmfFunction::tan));
 
 std::map<char, shared_ptr<XdmfFunction::XdmfOperationInternal> >
   XdmfFunction::operations =
     boost::assign::map_list_of
+      ('-', XdmfOperationInternalImpl::New(XdmfFunction::subtraction))
+      ('+', XdmfOperationInternalImpl::New(XdmfFunction::addition))
+      ('*', XdmfOperationInternalImpl::New(XdmfFunction::multiplication))
+      ('/', XdmfOperationInternalImpl::New(XdmfFunction::division))
       ('|', XdmfOperationInternalImpl::New(XdmfFunction::chunk))
       ('#', XdmfOperationInternalImpl::New(XdmfFunction::interlace));
 
@@ -149,6 +181,21 @@ XdmfFunction::~XdmfFunction()
 }
 
 const std::string XdmfFunction::ItemTag = "Function";
+
+shared_ptr<XdmfArray>
+XdmfFunction::abs(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function abs");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(std::abs(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
+}
 
 int
 XdmfFunction::addFunction(std::string name,
@@ -233,17 +280,99 @@ XdmfFunction::addOperation(char newoperator,
 }
 
 shared_ptr<XdmfArray>
+XdmfFunction::addition(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
+    if (val1->getSize() == val2->getSize()) {
+      returnArray->pushBack(val1->getValue<double>(i) + val2->getValue<double>(i));
+    }
+    else if (val1->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(0) + val2->getValue<double>(i));
+    }
+    else if (val2->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(i) + val2->getValue<double>(0));
+    }
+    else {
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Array Size Mismatch in Function addition");
+    }
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::arcsin(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function arcsin");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(asin(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::arccos(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function arccos");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(acos(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::arctan(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function arctan");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(atan(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
 XdmfFunction::average(std::vector<shared_ptr<XdmfArray> > values)
 {
-        double total = sum(values)->getValue<double>(0);;
-        int totalSize = 0;
-        for (unsigned int i = 0; i < values.size(); ++i)
-        {
-                totalSize += values[i]->getSize();
-        }
-        shared_ptr<XdmfArray> returnArray = XdmfArray::New();
-        returnArray->insert(0, total/totalSize);
-        return returnArray;
+  double total = sum(values)->getValue<double>(0);;
+  int totalSize = 0;
+  for (unsigned int i = 0; i < values.size(); ++i)
+  {
+    totalSize += values[i]->getSize();
+  }
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  returnArray->insert(0, total/totalSize);
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::cos(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function cos");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(std::cos(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
 }
 
 shared_ptr<XdmfArray>
@@ -308,6 +437,55 @@ XdmfFunction::chunk(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
 }
 
 shared_ptr<XdmfArray>
+XdmfFunction::exponent(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 2) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: Two Arrays Needed for Function exponent");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize() || i < values[1]->getSize(); ++i) {
+    if (values[0]->getSize() == values[1]->getSize()) {
+      returnArray->pushBack(std::pow(values[0]->getValue<double>(i), values[1]->getValue<double>(i)));
+    }
+    else if (values[0]->getSize() == 1) {
+      returnArray->pushBack(std::pow(values[0]->getValue<double>(0), values[1]->getValue<double>(i)));
+    }
+    else if (values[1]->getSize() == 1) {
+      returnArray->pushBack(std::pow(values[0]->getValue<double>(i), values[1]->getValue<double>(0)));
+    }
+    else {
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Array Size Mismatch in Function exponent");
+    }
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::division(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
+    if (val1->getSize() == val2->getSize()) {
+      returnArray->pushBack(val1->getValue<double>(i) / val2->getValue<double>(i));
+    }
+    else if (val1->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(0) / val2->getValue<double>(i));
+    }
+    else if (val2->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(i) / val2->getValue<double>(0));
+    }
+    else {
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Array Size Mismatch in Function division");
+    }
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
 XdmfFunction::evaluateExpression(std::string expression,
                                  std::map<std::string,
                                    shared_ptr<XdmfArray> > variables)
@@ -318,8 +496,32 @@ XdmfFunction::evaluateExpression(std::string expression,
   // String is parsed left to right
   // Elements of the same priority are evaluated right to left
   for (unsigned int i = 0; i < expression.size(); ++i) {
+    bool hyphenIsDigit = false;
+    // hyphen is a special case since it can be used to annotate negative numbers
+    if (expression[i] == '-') {
+      if (i == 0) {
+        //would have to be a digit, otherwise it would be a unpaired operation
+        hyphenIsDigit = true;
+      }
+      else if (mValidDigitChars.find(expression[i+1]) != std::string::npos) {
+        // If value after is a valid digit,
+        // check value before
+        // If a digit, it's an operation
+        // If a variable, it's an operation
+        // If an operation, it's a digit character
+        if (mSupportedOperations.find(expression[i-1]) != std::string::npos) {
+          hyphenIsDigit = true;
+        }
+        else if (expression[i-1] <= ' ') {
+          // If whitespace is in front of the hyphen it is presumed to be a negative sign
+          // This is to handle passing negative values to functions properly
+          hyphenIsDigit = true;
+        }
+      }
+    }
     // Found to be a digit
-    if (mValidDigitChars.find(expression[i]) != std::string::npos) {
+    if (mValidDigitChars.find(expression[i]) != std::string::npos ||
+        (expression[i] == '-' && hyphenIsDigit)) {
       // Progress until a non-digit is found
       int valueStart = i;
       if (i + 1 < expression.size()) {
@@ -409,7 +611,7 @@ XdmfFunction::evaluateExpression(std::string expression,
     }
     else if (mSupportedOperations.find(expression[i]) != std::string::npos) {
       // Found to be an operation
-      // Ppop operations off the stack until one of a lower or equal importance is found
+      // Pop operations off the stack until one of a lower or equal importance is found
       if (operationStack.size() > 0) {
         if (expression[i] == ')') {
           // To close a parenthesis pop off all operations until another parentheis is found
@@ -508,7 +710,14 @@ XdmfFunction::evaluateExpression(std::string expression,
                        "Warning: Left Over Values in evaluateExpression");
   }
 
-  return valueStack.top();
+  // Ensure that an array is returned
+  // Will error out if this is not done.
+  if (valueStack.size() > 0) {
+    return valueStack.top();
+  }
+  else {
+    return XdmfArray::New();
+  }
 }
 
 shared_ptr<XdmfArray>
@@ -537,7 +746,7 @@ XdmfFunction::evaluateFunction(std::vector<shared_ptr<XdmfArray> > valueVector,
 }
 
 std::string
-XdmfFunction::getExpression()
+XdmfFunction::getExpression() const
 {
   return mExpression;
 }
@@ -561,6 +770,16 @@ XdmfFunction::getItemProperties() const
        ++constructedIt) {
     functionProperties[constructedIt->first] = constructedIt->second;
   }
+
+  std::stringstream variableStream;
+
+  for (std::map<std::string, shared_ptr<XdmfArray> >::const_iterator variableIter = mVariableList.begin();
+       variableIter != mVariableList.end();
+       ++variableIter) {
+    variableStream << "|" << variableIter->first;
+  }
+
+  functionProperties["VariableNames"] = variableStream.str();
 
   return functionProperties;
 }
@@ -612,7 +831,12 @@ XdmfFunction::getValidVariableChars()
 shared_ptr<XdmfArray>
 XdmfFunction::getVariable(std::string key)
 {
-  return mVariableList[key];
+  if (mVariableList.count(key) > 0) {
+    return mVariableList[key];
+  }
+  else {
+    return shared_ptr<XdmfArray>();
+  }
 }
 
 std::vector<std::string>
@@ -752,7 +976,74 @@ XdmfFunction::insertVariable(std::string key, shared_ptr<XdmfArray> value)
 }
 
 shared_ptr<XdmfArray>
-XdmfFunction::read()
+XdmfFunction::join(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  for (unsigned int i = 0; i < values.size(); ++i) {
+    returnArray->insert(returnArray->getSize(),
+                        values[i],
+                        0,
+                        values[i]->getSize(),
+                        1,
+                        1);
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::log(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function log");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    if (values.size() > 1) {
+      if (values[0]->getSize() == values[1]->getSize()) {
+        returnArray->pushBack(std::log(values[0]->getValue<double>(i))/std::log(values[1]->getValue<double>(i)));
+      }
+      else if (values[1]->getSize() == 1) {
+        returnArray->pushBack(std::log(values[0]->getValue<double>(i))/std::log(values[1]->getValue<double>(0)));
+      }
+      else {
+        XdmfError::message(XdmfError::FATAL,
+                           "Error: Array Size Missmatch in Function Log");
+      }
+    }
+    else {
+      returnArray->pushBack(std::log(values[0]->getValue<double>(i)));
+    }
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::multiplication(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
+    if (val1->getSize() == val2->getSize()) {
+      returnArray->pushBack(val1->getValue<double>(i) * val2->getValue<double>(i));
+    }
+    else if (val1->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(0) * val2->getValue<double>(i));
+    }
+    else if (val2->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(i) * val2->getValue<double>(0));
+    }
+    else {
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Array Size Mismatch in Function multiplication");
+    }
+  }
+  return returnArray;
+}
+
+
+shared_ptr<XdmfArray>
+XdmfFunction::read() const
 {
   return evaluateExpression(mExpression, mVariableList);
 }
@@ -774,6 +1065,58 @@ XdmfFunction::setExpression(std::string newExpression)
 }
 
 shared_ptr<XdmfArray>
+XdmfFunction::sin(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function sin");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(std::sin(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::sqrt(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function sqrt");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(std::sqrt(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
+XdmfFunction::subtraction(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
+    if (val1->getSize() == val2->getSize()) {
+      returnArray->pushBack(val1->getValue<double>(i) - val2->getValue<double>(i));
+    }
+    else if (val1->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(0) - val2->getValue<double>(i));
+    }
+    else if (val2->getSize() == 1) {
+      returnArray->pushBack(val1->getValue<double>(i) - val2->getValue<double>(0));
+    }
+    else {
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Array Size Mismatch in Function subtraction");
+    }
+  }
+  return returnArray;
+}
+
+shared_ptr<XdmfArray>
 XdmfFunction::sum(std::vector<shared_ptr<XdmfArray> > values)
 {
   double total = 0.0;
@@ -787,15 +1130,33 @@ XdmfFunction::sum(std::vector<shared_ptr<XdmfArray> > values)
   return returnArray;
 }
 
+shared_ptr<XdmfArray>
+XdmfFunction::tan(std::vector<shared_ptr<XdmfArray> > values)
+{
+  shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  // Only working with the first array provided
+  if (values.size() < 1) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Error: No Array Passed to Function tan");
+  }
+  for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
+    returnArray->pushBack(std::tan(values[0]->getValue<double>(i)));
+  }
+  return returnArray;
+}
+
 void
 XdmfFunction::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 {
   XdmfItem::traverse(visitor);
 
+  shared_ptr<XdmfArray> spacerarray = XdmfArray::New();
+  spacerarray->pushBack((int)0);
+  spacerarray->accept(visitor);
+
   for (std::map<std::string, shared_ptr<XdmfArray> >::iterator it = mVariableList.begin();
        it != mVariableList.end();
        ++it) {
-    it->second->setName(it->first);
     it->second->accept(visitor);
   }
 }

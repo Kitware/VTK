@@ -139,7 +139,7 @@ public:
 
   virtual ~XdmfRectilinearGrid();
 
-  LOKI_DEFINE_VISITABLE(XdmfRectilinearGrid, XdmfGrid);
+  LOKI_DEFINE_VISITABLE(XdmfRectilinearGrid, XdmfGrid)
   static const std::string ItemTag;
 
   /**

@@ -126,9 +126,33 @@ public:
 
   virtual ~XdmfFunction();
 
-  LOKI_DEFINE_VISITABLE(XdmfFunction, XdmfItem);
+  LOKI_DEFINE_VISITABLE(XdmfFunction, XdmfItem)
 
   static const std::string ItemTag;
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the absolute value equivalent of that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#abs
+   * @until //#abs
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//abs
+   * @until #//abs
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the absolute value
+   *                    equivalent of the first array
+   */
+  static shared_ptr<XdmfArray> abs(std::vector<shared_ptr<XdmfArray> > values);
 
   /*
    * Adds a specified function to the list of functions used while
@@ -278,6 +302,114 @@ public:
                int priority);
 
   /**
+   * Takes the arrays provided adds them together, returning the result.
+   *
+   * If the first array has one value an array is generated adding
+   * it to each value of the second array.
+   *
+   * If the second array has one value. That value is added to
+   * all values in the first array.
+   *
+   * If both arrays have the same number of values, the
+   * value of the first array is added to the value of the second array
+   * with the same index.
+   *
+   * An error is thrown if the array sizes are both large than 1
+   * and do not match.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#addition
+   * @until //#addition
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//addition
+   * @until #//addition
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the sums
+   *                    of the values of the arrays
+   */
+  static shared_ptr<XdmfArray> addition(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the arcsin of all the values in that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#arcsin
+   * @until //#arcsin
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//arcsin
+   * @until #//arcsin
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the arcsin of the
+   *                    values of the first array
+   */
+  static shared_ptr<XdmfArray> arcsin(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the arccos of all the values in that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#arccos
+   * @until //#arccos
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//arccos
+   * @until #//arccos
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the arccos of the
+   *                    values of the first array
+   */
+  static shared_ptr<XdmfArray> arccos(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the arctan of all the values in that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#arctan
+   * @until //#arctan
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//arctan
+   * @until #//arctan
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the arctan of the
+   *                    values of the first array
+   */
+  static shared_ptr<XdmfArray> arctan(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
    * Averages the values contained in all the provided arrays.
    *
    * Example of Use:
@@ -333,6 +465,104 @@ public:
   static shared_ptr<XdmfArray>
   chunk(shared_ptr<XdmfArray> val1,
         shared_ptr<XdmfArray> val2);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the cos of all the values in that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#cos
+   * @until //#cos
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//cos
+   * @until #//cos
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the cos of the
+   *                    values of the first array
+   */
+  static shared_ptr<XdmfArray> cos(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the arrays provided and divides the first one by the second,
+   * returning the result.
+   *
+   * If the first array has one value an array is generated
+   * by dividing it by each value of the second array.
+   *
+   * If the second array has one value. Each value in the
+   * first array is divided by that value.
+   *
+   * If both arrays have the same number of values, each value of
+   * the first array is divided by the value of the second array
+   * with the same index.
+   *
+   * An error is thrown if the array sizes are both large than 1
+   * and do not match.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#division
+   * @until //#division
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//division
+   * @until #//division
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the results
+   *                    of the division of the arrays
+   */
+  static shared_ptr<XdmfArray> division(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the values in that array taken to a power relative to the second array.
+   *
+   * If the first array has one value an array is generated by raising that
+   * value to the power of each of the values in the second array
+   *
+   * If the second array has one value. That power is applied to each
+   * value of the first array
+   *
+   * If both arrays have the same number of values, each value of the
+   * first array is raised to the power of the value of the
+   * corresponding index of the second array.
+   *
+   * An error is thrown if the array sizes are both large than 1
+   * and do not match.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#exp
+   * @until //#exp
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//exp
+   * @until #//exp
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the powers
+   *                    of the values of the first array
+   */
+  static shared_ptr<XdmfArray> exponent(std::vector<shared_ptr<XdmfArray> > values);
 
   /**
    * Evaluates an expression based on the list of variables provided.
@@ -515,7 +745,7 @@ public:
    *
    * @return    The expression that the function is currently using to evaluate
    */
-  std::string getExpression();
+  std::string getExpression() const;
 
   std::map<std::string, std::string> getItemProperties() const;
 
@@ -752,6 +982,103 @@ public:
   void insertVariable(std::string key, shared_ptr<XdmfArray> value);
 
   /**
+   * Concatenates all provided arrays in order provided.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#join
+   * @until //#join
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//join
+   * @until #//join
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the combined values
+   */
+  static shared_ptr<XdmfArray> join(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the log of all the values in that array. If a second array is provided
+   * it specifies the base for the log used. Default is natural log.
+   *
+   * If the first array has one value an array is generated using a log
+   * whose base is specified in the second array.
+   *
+   * If the second array has one value. A log of that base is applied to
+   * all values of the first array.
+   *
+   * If both arrays have the same number of values, the
+   * log of the base specified by the value of the same index
+   * in the second array is used.
+   *
+   * An error is thrown if the array sizes are both large than 1
+   * and do not match.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#log
+   * @until //#log
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//log
+   * @until #//log
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the log
+   *                    of the values of the first array
+   */
+  static shared_ptr<XdmfArray> log(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the arrays provided and multiplies the first one by the second,
+   * returning the result.
+   *
+   * If the first array has one value an array is generated
+   * by multiplying it by each value of the second array.
+   *
+   * If the second array has one value. Each value in the
+   * first array is multiplied by that value.
+   *
+   * If both arrays have the same number of values, each value of
+   * the first array is multiplied by the value of the second array
+   * with the same index.
+   *
+   * An error is thrown if the array sizes are both large than 1
+   * and do not match.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#multiplication
+   * @until //#multiplication
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//multiplication
+   * @until #//multiplication
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the products
+   *                    of the multiplication of the arrays
+   */
+  static shared_ptr<XdmfArray> multiplication(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2);
+
+  /**
    * Parses the expression that the function contains and generates an array
    * containing the values that the function produces.
    *
@@ -773,7 +1100,7 @@ public:
    * @skipline #//read
    * @until #//read
    */
-  virtual shared_ptr<XdmfArray> read();
+  virtual shared_ptr<XdmfArray> read() const;
 
   /**
    * Removes a variable from the function if it exists.
@@ -830,6 +1157,91 @@ public:
   void setExpression(std::string newExpression);
 
   /**
+   * Takes the first array provided and returns an array containing
+   * the sin of all the values in that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#sin
+   * @until //#sin
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//sin
+   * @until #//sin
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the sin of the
+   *                    values of the first array
+   */
+  static shared_ptr<XdmfArray> sin(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the square root of all the values in that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#sqrt
+   * @until //#sqrt
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//sqrt
+   * @until #//sqrt
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the square root
+   *                    of the values of the first array
+   */
+  static shared_ptr<XdmfArray> sqrt(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the arrays provided and subtracts the second from the first,
+   * returning the result.
+   *
+   * If the first array has one value an array is generated
+   * by subtracting each value of the second array.
+   *
+   * If the second array has one value. That value is
+   * subtracted from each value of the first array.
+   *
+   * If both arrays have the same number of values, each value of
+   * the second array is subtracted from the value of the first array
+   * with the same index.
+   *
+   * An error is thrown if the array sizes are both large than 1
+   * and do not match.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#subtraction
+   * @until //#subtraction
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//subtraction
+   * @until #//subtraction
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the difference
+   *                    of the arrays
+   */
+  static shared_ptr<XdmfArray> subtraction(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2);
+
+  /**
    * Adds together all the values contained in the provided arrays.
    *
    * Example of Use:
@@ -856,6 +1268,30 @@ public:
    */
   static shared_ptr<XdmfArray>
   sum(std::vector<shared_ptr<XdmfArray> > values);
+
+  /**
+   * Takes the first array provided and returns an array containing
+   * the tan of all the values in that array.
+   *
+   * Example of Use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfFunction.cpp
+   * @skipline //#tan
+   * @until //#tan
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleFunction.py
+   * @skipline #//tan
+   * @until #//tan
+   *
+   * @param     values  A vector containing the array to be used
+   * @return            An XdmfArray containing the tan of the
+   *                    values of the first array
+   */
+  static shared_ptr<XdmfArray> tan(std::vector<shared_ptr<XdmfArray> > values);
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 

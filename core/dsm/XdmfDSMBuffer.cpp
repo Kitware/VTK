@@ -59,7 +59,7 @@
 #include <stdlib.h>
 #include <algorithm>
 
-#ifdef _WIN32
+#ifndef _WIN32
   #include <unistd.h>
 #endif
 
@@ -118,28 +118,18 @@ XdmfDSMBuffer::AddressToId(int Address)
       // This finds out which server the address provided starts on
       ServerId = this->StartServerId + (Address / this->Length);
       if(ServerId > this->EndServerId ){
-        try {
-          std::stringstream message;
-          message << "ServerId " << ServerId << " for Address "
-                  << Address << " is larger than EndServerId "
-                  << this->EndServerId;
-          XdmfError::message(XdmfError::FATAL, message.str());
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        std::stringstream message;
+        message << "ServerId " << ServerId << " for Address "
+                << Address << " is larger than EndServerId "
+                << this->EndServerId;
+        XdmfError::message(XdmfError::FATAL, message.str());
       }
       break;
     default :
       // Not Implemented
-      try {
-        std::stringstream message;
-        message << "DsmType " << this->DsmType << " not yet implemented";
-        XdmfError::message(XdmfError::FATAL, message.str());
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      std::stringstream message;
+      message << "DsmType " << this->DsmType << " not yet implemented";
+      XdmfError::message(XdmfError::FATAL, message.str());
       break;
     }
     return(ServerId);
@@ -152,19 +142,14 @@ XdmfDSMBuffer::BroadcastComm(int *comm, int root)
 
   status = MPI_Bcast(comm, sizeof(int), MPI_UNSIGNED_CHAR, root, this->Comm->GetIntraComm());
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError(XdmfError::FATAL, "Broadcast of Comm failed");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError(XdmfError::FATAL, "Broadcast of Comm failed");
   }
 }
 
 int
 XdmfDSMBuffer::BufferService(int *returnOpcode)
 {
-  int        opcode, who, status = XDMF_DSM_FAIL;
+  int        opcode, who;
   int        aLength;
   int          address;
   char        *datap;
@@ -172,115 +157,71 @@ XdmfDSMBuffer::BufferService(int *returnOpcode)
 
   if (this->CommChannel == XDMF_DSM_ANY_COMM) {
     if (this->Comm->GetId() == 0) {
-      try {
-        this->ProbeCommandHeader(&this->CommChannel);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      this->ProbeCommandHeader(&this->CommChannel);
     }
-    try {
-      this->BroadcastComm(&this->CommChannel, 0);
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    this->BroadcastComm(&this->CommChannel, 0);
   }
 
-  try {
-    this->ReceiveCommandHeader(&opcode,
-                               &who,
-                               &address,
-                               &aLength,
-                               this->CommChannel,
-                               syncId);
-  }
-  catch (XdmfError e) {
-    throw e;
-  }
+  this->ReceiveCommandHeader(&opcode,
+                             &who,
+                             &address,
+                             &aLength,
+                             this->CommChannel,
+                             syncId);
 
   // Connection is an ID for client or server,
-  int communicatorId = this->CommChannel;
+//  int communicatorId = this->CommChannel;
 
   switch(opcode) {
 
   // H5FD_DSM_OPCODE_PUT
   case XDMF_DSM_OPCODE_PUT:
     if (((unsigned int) aLength + address) > this->Length) {
-      try {
-        std::stringstream message;
-        message << "Length " << aLength << " too long for Address " << address 
-                << "\n" << "Server Start = " << this->StartAddress << " End = "
-                << this->EndAddress;
-        XdmfError::message(XdmfError::FATAL, message.str());
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      std::stringstream message;
+      message << "Length " << aLength << " too long for Address " << address 
+              << "\n" << "Server Start = " << this->StartAddress << " End = "
+              << this->EndAddress;
+      XdmfError::message(XdmfError::FATAL, message.str());
     }
     if ((datap = this->DataPointer) == NULL) {
-       try {
-         XdmfError::message(XdmfError::FATAL,
-                            "Null Data Pointer when trying to put data");
-       }
-       catch (XdmfError e) {
-         throw e;
-       }
+       XdmfError::message(XdmfError::FATAL,
+                          "Null Data Pointer when trying to put data");
     }
     datap += address;
-    try {
-      this->ReceiveData(who,
-                        datap,
-                        aLength,
-                        XDMF_DSM_PUT_DATA_TAG,
-                        0,
-                        this->CommChannel);
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    this->ReceiveData(who,
+                      datap,
+                      aLength,
+                      XDMF_DSM_PUT_DATA_TAG,
+                      0,
+                      this->CommChannel);
     break;
 
   // H5FD_DSM_OPCODE_GET
   case XDMF_DSM_OPCODE_GET:
     if (((unsigned int) aLength + address) > this->Length) {
-      try {
-        std::stringstream message;
-        message << "Length " << aLength << " too long for Address " << address
-                << "\n" << "Server Start = " << this->StartAddress << " End = "
-                << this->EndAddress;
-        XdmfError::message(XdmfError::FATAL, message.str());
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      std::stringstream message;
+      message << "Length " << aLength << " too long for Address " << address
+              << "\n" << "Server Start = " << this->StartAddress << " End = "
+              << this->EndAddress;
+      XdmfError::message(XdmfError::FATAL, message.str());
     }
     if ((datap = this->DataPointer) == NULL) {
-      try {
-         XdmfError::message(XdmfError::FATAL,
-                            "Null Data Pointer when trying to put data");
-       }
-       catch (XdmfError e) {
-         throw e;
-       }
+       XdmfError::message(XdmfError::FATAL,
+                          "Null Data Pointer when trying to put data");
     }
     datap += address;
-    try {
-      this->SendData(who,
-                     datap,
-                     aLength,
-                     XDMF_DSM_GET_DATA_TAG,
-                     0,
-                     this->CommChannel);
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    this->SendData(who,
+                   datap,
+                   aLength,
+                   XDMF_DSM_GET_DATA_TAG,
+                   0,
+                   this->CommChannel);
     break;
 
 // H5FD_DSM_ACCEPT
   // Comes from client
   case XDMF_DSM_ACCEPT:
+  {
     int numConnections;	
     this->ReceiveAcknowledgment(who,
                                 numConnections,
@@ -289,7 +230,7 @@ XdmfDSMBuffer::BufferService(int *returnOpcode)
     this->Comm->Accept(numConnections);
     this->SendInfo();
     break;
-
+  }
   // H5FD_DSM_LOCK_ACQUIRE
   // Comes from client or server depending on communicator
   case XDMF_DSM_LOCK_ACQUIRE:
@@ -309,14 +250,9 @@ XdmfDSMBuffer::BufferService(int *returnOpcode)
 
   // DEFAULT
   default :
-    try {
-      std::stringstream message;
-      message << "Error: Unknown Opcode " << opcode;
-      XdmfError::message(XdmfError::FATAL, message.str());
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    std::stringstream message;
+    message << "Error: Unknown Opcode " << opcode;
+    XdmfError::message(XdmfError::FATAL, message.str());
   }
 
   if (returnOpcode) *returnOpcode = opcode;
@@ -328,12 +264,7 @@ XdmfDSMBuffer::BufferServiceLoop(int *returnOpcode)
 {
   int op, status = XDMF_DSM_SUCCESS;
   while (status == XDMF_DSM_SUCCESS) {
-    try {
-      status = this->BufferService(&op);
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    status = this->BufferService(&op);
     if (returnOpcode) *returnOpcode = op;
     if (op == XDMF_DSM_OPCODE_DONE) {
       break;
@@ -371,17 +302,12 @@ XdmfDSMBuffer::ConfigureUniform(XdmfDSMCommMPI *aComm, long aLength,
   if ((aComm->GetId() >= startId) &&
       (aComm->GetId() <= endId) &&
       this->IsServer) {
-    try {
-      if (aBlockLength) {
-        // For optimization we make the DSM length fit to a multiple of block size
-        this->SetLength(((long)(aLength / aBlockLength)) * aBlockLength);
-      }
-      else {
-        this->SetLength(aLength);
-      }
+    if (aBlockLength) {
+      // For optimization we make the DSM length fit to a multiple of block size
+      this->SetLength(((long)(aLength / aBlockLength)) * aBlockLength);
     }
-    catch (XdmfError e) {
-      throw e;
+    else {
+      this->SetLength(aLength);
     }
     this->StartAddress = (aComm->GetId() - startId) * aLength;
     this->EndAddress = this->StartAddress + aLength - 1;
@@ -409,12 +335,7 @@ XdmfDSMBuffer::Get(long Address, long aLength, void *Data)
     // Figure out what server core the address is located on
     who = this->AddressToId(Address);
     if(who == XDMF_DSM_FAIL){
-      try {
-        XdmfError::message(XdmfError::FATAL, "Address Error");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Address Error");
     }
     // Get the start and end of the block listed
     this->GetAddressRangeForId(who, &astart, &aend);
@@ -431,23 +352,12 @@ XdmfDSMBuffer::Get(long Address, long aLength, void *Data)
     }
     else{
       // Otherwise send it to the appropriate core to deal with
-      int   status;
       int   dataComm = XDMF_DSM_INTRA_COMM;
       if (this->Comm->GetInterComm() != MPI_COMM_NULL) {
         dataComm = XDMF_DSM_INTER_COMM;
       }
-      try {
-        this->SendCommandHeader(XDMF_DSM_OPCODE_GET, who, Address - astart, len, dataComm);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
-      try {
-        this->ReceiveData(who, datap, len, XDMF_DSM_GET_DATA_TAG, Address - astart, dataComm);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      this->SendCommandHeader(XDMF_DSM_OPCODE_GET, who, Address - astart, len, dataComm);
+      this->ReceiveData(who, datap, len, XDMF_DSM_GET_DATA_TAG, Address - astart, dataComm);
     }
     // Shift all the numbers by the length of the data written
     // Until aLength = 0
@@ -475,14 +385,9 @@ XdmfDSMBuffer::GetAddressRangeForId(int Id, int *Start, int *End){
         break;
       default :
         // Not Implemented
-        try {
-          std::stringstream message;
-          message << "DsmType " << this->DsmType << " not yet implemented";
-          XdmfError::message(XdmfError::FATAL, message.str());
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        std::stringstream message;
+        message << "DsmType " << this->DsmType << " not yet implemented";
+        XdmfError::message(XdmfError::FATAL, message.str());
         break;
     }
 }
@@ -579,13 +484,8 @@ XdmfDSMBuffer::ProbeCommandHeader(int *comm)
                         &signalStatus);
     if (status != MPI_SUCCESS)
     {
-       try {
-         XdmfError::message(XdmfError::FATAL,
-                            "Error: Failed to probe for command header");
-       }
-       catch (XdmfError e) {
-         throw e;
-       }
+       XdmfError::message(XdmfError::FATAL,
+                          "Error: Failed to probe for command header");
     }
     if (flag) {
       status = XDMF_DSM_SUCCESS;
@@ -624,12 +524,7 @@ XdmfDSMBuffer::Put(long Address, long aLength, const void *Data)
     // Figure out what server core the address is located on
     who = this->AddressToId(Address);
     if(who == XDMF_DSM_FAIL){
-      try {
-        XdmfError::message(XdmfError::FATAL, "Address Error");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Address Error");
     }
     // Get the start and end of the block listed
     this->GetAddressRangeForId(who, &astart, &aend);
@@ -651,27 +546,17 @@ XdmfDSMBuffer::Put(long Address, long aLength, const void *Data)
       if (this->Comm->GetInterComm() != MPI_COMM_NULL) {
         dataComm = XDMF_DSM_INTER_COMM;
       }
-      try {
-        this->SendCommandHeader(XDMF_DSM_OPCODE_PUT,
-                                who,
-                                Address - astart,
-                                len,
-                                dataComm);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
-      try {
-        this->SendData(who,
-                       datap, 
-                       len,
-                       XDMF_DSM_PUT_DATA_TAG,
-                       Address - astart,
-                       dataComm);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      this->SendCommandHeader(XDMF_DSM_OPCODE_PUT,
+                              who,
+                              Address - astart,
+                              len,
+                              dataComm);
+      this->SendData(who,
+                     datap, 
+                     len,
+                     XDMF_DSM_PUT_DATA_TAG,
+                     Address - astart,
+                     dataComm);
     }
     // Shift all the numbers by the length of the data written
     // Until aLength = 0
@@ -716,12 +601,7 @@ XdmfDSMBuffer::ReceiveAcknowledgment(int source, int &data, int tag, int comm)
   }
 
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to receive data");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to receive data");
   }
 }
 
@@ -768,12 +648,7 @@ XdmfDSMBuffer::ReceiveCommandHeader(int *opcode, int *source, int *address, int 
   }
 
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to receive command header");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to receive command header");
   }
   else {
     *opcode  = cmd.Opcode;
@@ -817,12 +692,7 @@ XdmfDSMBuffer::ReceiveData(int source, char * data, int aLength, int tag, int aA
                       &signalStatus);
   }
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to receive data");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to receive data");
   }
 }
 
@@ -831,7 +701,6 @@ XdmfDSMBuffer::ReceiveInfo()
 {
   InfoMsg  dsmInfo;
   int status;
-  MPI_Status signalStatus;
 
   memset(&dsmInfo, 0, sizeof(InfoMsg));
 
@@ -858,12 +727,7 @@ XdmfDSMBuffer::ReceiveInfo()
                      sendCore,
                      static_cast<XdmfDSMCommMPI *>(this->Comm)->GetInterComm());
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to broadcast info");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to broadcast info");
   }
   this->SetDsmType(dsmInfo.type);
   // We are a client so don't allocate anything but only set a virtual remote length
@@ -918,12 +782,7 @@ XdmfDSMBuffer::SendAcknowledgment(int dest, int data, int tag, int comm)
                       tempComm);
   }
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to receive data");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to receive data");
   }
 }
 
@@ -969,12 +828,7 @@ XdmfDSMBuffer::SendCommandHeader(int opcode, int dest, int address, int aLength,
                       tempComm);
   }
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to send command header");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to send command header");
   }
 }
 
@@ -1003,38 +857,28 @@ XdmfDSMBuffer::SendData(int dest, char * data, int aLength, int tag, int aAddres
     status = MPI_Send(data, aLength, MPI_UNSIGNED_CHAR, dest, tag, tempComm);
   }
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to send data");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to send data");
   }
 }
 
 void
 XdmfDSMBuffer::SendDone()
 {
-  try {
-    if (static_cast<XdmfDSMCommMPI *>(this->Comm)->GetInterComm() == MPI_COMM_NULL)
-    {
-      for (int i = this->StartServerId; i <= this->EndServerId; ++i) {
-        if (i != this->Comm->GetId()){
-          this->SendCommandHeader(XDMF_DSM_OPCODE_DONE, i, 0, 0, XDMF_DSM_INTRA_COMM);
-        }
-      }
-    }
-    else
-    {
-      for (int i = this->StartServerId; i <= this->EndServerId; ++i) {
-        if (i != this->Comm->GetId()){
-          this->SendCommandHeader(XDMF_DSM_OPCODE_DONE, i, 0, 0, XDMF_DSM_INTER_COMM);
-        }
+  if (static_cast<XdmfDSMCommMPI *>(this->Comm)->GetInterComm() == MPI_COMM_NULL)
+  {
+    for (int i = this->StartServerId; i <= this->EndServerId; ++i) {
+      if (i != this->Comm->GetId()){
+        this->SendCommandHeader(XDMF_DSM_OPCODE_DONE, i, 0, 0, XDMF_DSM_INTRA_COMM);
       }
     }
   }
-  catch (XdmfError e) {
-    throw e;
+  else
+  {
+    for (int i = this->StartServerId; i <= this->EndServerId; ++i) {
+      if (i != this->Comm->GetId()){
+        this->SendCommandHeader(XDMF_DSM_OPCODE_DONE, i, 0, 0, XDMF_DSM_INTER_COMM);
+      }
+    }
   }
 }
 
@@ -1081,12 +925,7 @@ XdmfDSMBuffer::SendInfo()
                      sendCore,
                      static_cast<XdmfDSMCommMPI *>(this->Comm)->GetInterComm());
   if (status != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Error: Failed to send info");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Error: Failed to send info");
   }
 }
 
@@ -1134,8 +973,14 @@ XdmfDSMBuffer::SetLength(long aLength)
 #ifdef _WIN32
     this->DataPointer = calloc(this->Length, sizeof(char));
 #else
+  #ifdef _SC_PAGESIZE
+    posix_memalign((void **)(&this->DataPointer), sysconf(_SC_PAGESIZE), this->Length);
+    memset(this->DataPointer, 0, this->Length);
+  #else
+    // Older linux variation, for backwards compatibility
     posix_memalign((void **)(&this->DataPointer), getpagesize(), this->Length);
     memset(this->DataPointer, 0, this->Length);
+  #endif
 #endif
   }
 

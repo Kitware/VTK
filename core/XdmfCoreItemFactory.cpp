@@ -26,6 +26,8 @@
 #include "XdmfError.hpp"
 #include "XdmfFunction.hpp"
 #include "XdmfSubset.hpp"
+#include "XdmfInformation.hpp"
+#include "XdmfSparseMatrix.hpp"
 #include <boost/tokenizer.hpp>
 
 XdmfCoreItemFactory::XdmfCoreItemFactory()
@@ -69,19 +71,46 @@ XdmfCoreItemFactory::createItem(const std::string & itemTag,
     else {
       expressionToParse = expression->second;
     }
-    std::map<std::string, shared_ptr<XdmfArray> > variableCollection;
-    for (unsigned int i = 0; i < childItems.size(); ++i) {
-      try {
-        shared_ptr<XdmfArray> tempArray =
-          shared_dynamic_cast<XdmfArray>(childItems[i]);
-        variableCollection[tempArray->getName()] = tempArray;
-        tempArray->read();
+
+    std::map<std::string, std::string>::const_iterator variableNames =
+      itemProperties.find("VariableNames");
+    std::vector<std::string> nameVector;
+
+    std::string variableList = variableNames->second;
+
+    size_t barSplit = 0;
+    std::string subcontent;
+    while (barSplit != std::string::npos) {
+      barSplit = 0;
+      barSplit = variableList.find_first_of("|", barSplit);
+      if (barSplit == std::string::npos) {
+        subcontent = variableList;
       }
-      catch (...) {
-        XdmfError::message(XdmfError::FATAL,
-                           "Error: Function passed non-Array item");
+      else {
+        subcontent = variableList.substr(0, barSplit);
+        variableList = variableList.substr(barSplit+1);
+        barSplit++;
+      }
+      nameVector.push_back(subcontent);
+    }
+
+
+    std::map<std::string, shared_ptr<XdmfArray> > variableCollection;
+    for (unsigned int i = 0; i < childItems.size() && i < nameVector.size(); ++i) {
+      if (nameVector[i].compare("") != 0) {
+        if (shared_ptr<XdmfArray> array =
+          shared_dynamic_cast<XdmfArray>(childItems[i])) {
+
+          variableCollection[nameVector[i]] = array;
+          array->read();
+        }
+        else {
+          XdmfError::message(XdmfError::FATAL,
+                             "Error: Function passed non-Array item");
+        }
       }
     }
+
     shared_ptr<XdmfArray> parsedArray = shared_ptr<XdmfArray>();
     parsedArray = XdmfFunction::evaluateExpression(expressionToParse,
                                                    variableCollection);
@@ -167,7 +196,22 @@ XdmfCoreItemFactory::createItem(const std::string & itemTag,
       dimensionVector.push_back(atoi((*iter).c_str()));
     }
 
-    referenceArray = shared_dynamic_cast<XdmfArray>(childItems[0]);
+    bool foundspacer = false;
+
+    for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter =
+          childItems.begin();
+        iter != childItems.end();
+        ++iter) {
+      if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
+        if (foundspacer) {
+          referenceArray = shared_dynamic_cast<XdmfArray>(array);
+          break;
+        }
+        else {
+          foundspacer = true;
+        }
+      }
+    }
 
     shared_ptr<XdmfSubset> newSubset = XdmfSubset::New(referenceArray,
                                                        startVector,
