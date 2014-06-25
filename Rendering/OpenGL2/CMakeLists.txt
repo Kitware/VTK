@@ -92,6 +92,43 @@ set(${vtk-module}_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
   )
 
+set_source_files_properties(
+  vtkglBufferObject
+  vtkglVBOHelper
+  vtkglShader
+  vtkglShaderProgram
+  vtkglVertexArrayObject
+  vtkFrameBufferObject
+  vtkOpenGLActor
+  vtkOpenGLCamera
+  vtkOpenGLImageMapper
+  vtkOpenGLImageSliceMapper
+  vtkOpenGLGlyph3DHelper
+  vtkOpenGLGlyph3DMapper
+  vtkOpenGLHardwareSelector
+  vtkOpenGLLight
+  vtkOpenGLPolyDataMapper
+  vtkOpenGLPolyDataMapper2D
+  vtkOpenGLProperty
+  vtkOpenGLRenderer
+  vtkOpenGLShaderCache
+  vtkOpenGLTexture
+  vtkOpenGLTextureUnitManager
+  vtkPixelBufferObject
+  vtkRenderbuffer
+  vtkRenderPass
+  vtkRenderState
+  vtkTextureObject
+  ${vtk-module}ObjectFactory
+  WRAP_EXCLUDE)
+
+set_source_files_properties(
+  vtkOpenGLRenderWindow
+  vtkRenderPass
+  vtkRenderState
+  ABSTRACT
+  )
+
 set(shader_files
   # lighting in the VS
   glsl/vtkglPolyData2DVS.glsl

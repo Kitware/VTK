@@ -14,5 +14,4 @@ vtk_module(vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOPLY
-  EXCLUDE_FROM_WRAPPING
   )
