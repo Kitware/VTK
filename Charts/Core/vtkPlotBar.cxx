@@ -162,7 +162,7 @@ public:
 
 class vtkPlotBarSegment : public vtkObject {
   public:
-    vtkTypeMacro(vtkPlotBarSegment,vtkObject);
+    vtkTypeMacro(vtkPlotBarSegment, vtkObject);
     static vtkPlotBarSegment *New();
 
     vtkPlotBarSegment()
@@ -226,28 +226,38 @@ class vtkPlotBarSegment : public vtkObject {
           vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
       float *p = NULL;
       if (this->Previous)
+        {
         p = vtkFloatArray::SafeDownCast(
               this->Previous->Points->GetData())->GetPointer(0);
+        }
 
       for (int i = 0; i < n; ++i)
         {
         if (orientation == vtkPlotBar::VERTICAL)
           {
           if (p)
-            painter->DrawRect(f[2*i]-(width/2)-offset, p[2*i+1],
-                              width, f[2*i+1] - p[2*i+1]);
+            {
+            painter->DrawRect(f[2 * i] - (width / 2) - offset, p[2 * i + 1],
+                              width, f[2 * i + 1] - p[2 * i + 1]);
+            }
           else
-            painter->DrawRect(f[2*i]-(width/2)-offset, 0.0,
-                              width, f[2*i+1]);
+            {
+            painter->DrawRect(f[2 * i] - (width / 2) - offset, 0.0,
+                              width, f[2 * i + 1]);
+            }
           }
         else // HORIZONTAL orientation
           {
           if (p)
-            painter->DrawRect(p[2*i+1], f[2*i]-(width/2)-offset,
-                              f[2*i+1] - p[2*i+1], width);
+            {
+            painter->DrawRect(p[2 * i + 1], f[2 * i] - (width / 2) - offset,
+                              f[2 * i + 1] - p[2 * i + 1], width);
+            }
           else
-            painter->DrawRect(0.0, f[2*i]-(width/2)-offset,
-                              f[2*i+1], width);
+            {
+            painter->DrawRect(0.0, f[2 * i] - (width / 2) - offset,
+                              f[2 * i + 1], width);
+            }
           }
         }
       // Paint selections if there are any.
@@ -263,20 +273,28 @@ class vtkPlotBarSegment : public vtkObject {
         if (orientation == vtkPlotBar::VERTICAL)
           {
           if (p)
+            {
             painter->DrawRect(f[2 * i] - (width / 2) - offset, p[2 * i + 1],
                               width, f[2 * i + 1] - p[2 * i + 1]);
+            }
           else
+            {
             painter->DrawRect(f[2 * i] - (width / 2) - offset, 0.0,
                               width, f[2 * i + 1]);
+            }
           }
         else // HORIZONTAL orientation
           {
           if (p)
+            {
             painter->DrawRect(p[2 * i + 1], f[2 * i] - (width / 2) - offset,
                               f[2 * i + 1] - p[2 * i + 1], width);
+            }
           else
+            {
             painter->DrawRect(0.0, f[2 * i] - (width / 2) - offset,
                               f[2 * i + 1], width);
+            }
           }
         }
       }
