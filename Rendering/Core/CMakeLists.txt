@@ -188,6 +188,7 @@ set_source_files_properties(
 set_source_files_properties(
   vtkAbstractInteractionDevice
   vtkAbstractRenderDevice
+  vtkRenderWidget
   WRAP_EXCLUDE
   )
 
