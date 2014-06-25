@@ -55,7 +55,7 @@ set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
 add_executable(SimpleCocoaVTK MACOSX_BUNDLE ${SimpleCocoaVTK_SRCS} ${SimpleCocoaVTK_HDRS})
 
 # Probably a better way to set the framework link libraries.
-target_link_libraries(SimpleCocoaVTK "-framework Cocoa -framework OpenGL -framework IOKit"
+target_link_libraries(SimpleCocoaVTK "-framework Cocoa -framework OpenGL"
                       vtkRenderingOpenGL vtkRenderingFreeTypeOpenGL vtkInteractionStyle )
 
 # Set a custom plist file for the app bundle
