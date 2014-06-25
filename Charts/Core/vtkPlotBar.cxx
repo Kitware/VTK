@@ -171,13 +171,11 @@ class vtkPlotBarSegment : public vtkObject {
       this->Points = NULL;
       this->Sorted = NULL;
       this->Previous = NULL;
-      this->SelectionSet = NULL;
       }
 
     ~vtkPlotBarSegment()
       {
       delete this->Sorted;
-      delete this->SelectionSet;
       }
 
     void Configure(vtkPlotBar* bar, vtkDataArray* xArray, vtkDataArray* yArray,
@@ -191,7 +189,6 @@ class vtkPlotBarSegment : public vtkObject {
         }
       // For the atypical case that Configure is called on a non-fresh "this"
       delete this->Sorted;
-      delete this->SelectionSet;
 
       int logScale = (xAxis->GetLogScaleActive() ? 1 : 0) +
           (yAxis->GetLogScaleActive() ? 2 : 0);
@@ -234,16 +231,6 @@ class vtkPlotBarSegment : public vtkObject {
 
       for (int i = 0; i < n; ++i)
         {
-        if (this->SelectionSet &&
-            this->SelectionSet->find(static_cast<vtkIdType>(i)) !=
-            this->SelectionSet->end())
-          {
-          painter->GetBrush()->SetColor(255, 50, 0, 150);
-          }
-        else
-          {
-          painter->GetBrush()->SetColor(brush->GetColorObject());
-          }
         if (orientation == vtkPlotBar::VERTICAL)
           {
           if (p)
@@ -261,6 +248,35 @@ class vtkPlotBarSegment : public vtkObject {
           else
             painter->DrawRect(0.0, f[2*i]-(width/2)-offset,
                               f[2*i+1], width);
+          }
+        }
+      // Paint selections if there are any.
+      vtkIdTypeArray *selection = this->Bar->GetSelection();
+      if (!selection)
+        {
+        return;
+        }
+      painter->GetBrush()->SetColor(255, 50, 0, 150);
+      for (vtkIdType j = 0; j < selection->GetNumberOfTuples(); ++j)
+        {
+        int i = selection->GetValue(j);
+        if (orientation == vtkPlotBar::VERTICAL)
+          {
+          if (p)
+            painter->DrawRect(f[2 * i] - (width / 2) - offset, p[2 * i + 1],
+                              width, f[2 * i + 1] - p[2 * i + 1]);
+          else
+            painter->DrawRect(f[2 * i] - (width / 2) - offset, 0.0,
+                              width, f[2 * i + 1]);
+          }
+        else // HORIZONTAL orientation
+          {
+          if (p)
+            painter->DrawRect(p[2 * i + 1], f[2 * i] - (width / 2) - offset,
+                              f[2 * i + 1] - p[2 * i + 1], width);
+          else
+            painter->DrawRect(0.0, f[2 * i] - (width / 2) - offset,
+                              f[2 * i + 1], width);
           }
         }
       }
@@ -347,13 +363,6 @@ class vtkPlotBarSegment : public vtkObject {
 
       this->CreateSortedPoints();
 
-      if (!this->SelectionSet)
-        {
-        // Use a Set for faster lookup during paint
-        this->SelectionSet = new std::set<vtkIdType>();
-        }
-      this->SelectionSet->clear();
-
       // If orientation is VERTICAL, search normally. For HORIZONTAL,
       // transpose the selection box.
       vtkVector2f targetMin(min);
@@ -378,6 +387,8 @@ class vtkPlotBarSegment : public vtkObject {
       VectorPIMPL &v = *this->Sorted;
       low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
 
+      std::vector<vtkIdType> selected;
+
       while (low != v.end())
         {
         // Is the bar's X coordinates at least partially within the box?
@@ -389,7 +400,7 @@ class vtkPlotBarSegment : public vtkObject {
               (targetMax.GetY() < 0 && low->pos.GetY() <= targetMax.GetY()) ||
               (targetMin.GetY() < 0 && targetMax.GetY() > 0))
             {
-            this->SelectionSet->insert(low->index);
+            selected.push_back(low->index);
             }
           }
         // Is the left side of the bar beyond the box?
@@ -400,12 +411,21 @@ class vtkPlotBarSegment : public vtkObject {
         ++low;
         }
 
-      if (this->SelectionSet->empty())
+      if (selected.empty())
         {
         return false;
         }
       else
         {
+        std::sort(selected.begin(), selected.end());
+        this->Bar->GetSelection()->SetNumberOfTuples(selected.size());
+        vtkIdType *ptr =
+            static_cast<vtkIdType *>(this->Bar->GetSelection()->GetVoidPointer(0));
+        for (size_t i = 0; i < selected.size(); ++i)
+          {
+          ptr[i] = selected[i];
+          }
+        this->Bar->GetSelection()->Modified();
         return true;
         }
       }
@@ -414,7 +434,6 @@ class vtkPlotBarSegment : public vtkObject {
     vtkSmartPointer<vtkPoints2D> Points;
     vtkPlotBar *Bar;
     VectorPIMPL* Sorted;
-    std::set<vtkIdType>* SelectionSet;
     vtkVector2d ScalingFactor;
     };
 
@@ -485,31 +504,15 @@ public:
     }
 
   bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max,
-                    float width, float offset, int orientation,
-                    vtkIdTypeArray* selection)
+                    float width, float offset, int orientation)
   {
-    // Selection functionality not supported for stacked plots (yet)
+    // Selection functionality not supported for stacked plots (yet)...
     if (this->Segments.size() != 1)
       {
       return false;
       }
 
-    // This has the side effect of generating SelectionSet
-    if (this->Segments[0]->SelectPoints(min, max, width, offset, orientation))
-      {
-      for(std::set<vtkIdType>::const_iterator itr =
-            this->Segments[0]->SelectionSet->begin();
-          itr != this->Segments[0]->SelectionSet->end();
-          itr++)
-        {
-        selection->InsertNextValue(*itr);
-        }
-      return true;
-      }
-    else
-      {
-      return false;
-      }
+    return this->Segments[0]->SelectPoints(min, max, width, offset, orientation);
   }
 
   std::vector<vtkSmartPointer<vtkPlotBarSegment> > Segments;
@@ -906,8 +909,7 @@ bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
   this->Selection->SetNumberOfTuples(0);
 
   return this->Private->SelectPoints(min, max, this->Width, this->Offset,
-                                                this->Orientation,
-                                                this->Selection);
+                                     this->Orientation);
 }
 
 //-----------------------------------------------------------------------------
