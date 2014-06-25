@@ -435,7 +435,6 @@ class vtkPlotBarSegment : public vtkObject {
         }
       else
         {
-        std::sort(selected.begin(), selected.end());
         this->Bar->GetSelection()->SetNumberOfTuples(selected.size());
         vtkIdType *ptr =
             static_cast<vtkIdType *>(this->Bar->GetSelection()->GetVoidPointer(0));
