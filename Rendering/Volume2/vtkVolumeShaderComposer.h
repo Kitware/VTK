@@ -100,6 +100,8 @@ namespace vtkvolume
       uniform vec2 m_window_lower_left_corner; \n\
       uniform vec2 m_inv_original_window_size; \n\
       uniform vec2 m_inv_window_size; \n\
+      uniform vec3 m_texture_extents_max; \n\
+      uniform vec3 m_texture_extents_min; \n\
       \n\
       /// Material and lighting \n\
       uniform vec3 m_diffuse; \n\
@@ -284,13 +286,13 @@ namespace vtkvolume
        maxValue = max(maxValue, scalar);"
       );
       }
-    else if (vol->GetProperty()->GetShade())
+    else
       {
       shaderStr = std::string(
       "/// Data fetching from the red channel of m_volume texture \n\
       float scalar = texture(m_volume, l_data_pos).r * m_scale; \n\
       vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz, \n\
-                      texture(m_opacity_transfer_func, scalar).w);"
+                           texture(m_opacity_transfer_func, scalar).w);"
       );
 
       if (vol->GetProperty()->GetShade())
@@ -415,7 +417,7 @@ namespace vtkvolume
     \n\
     /// color buffer or max scalar buffer have a reduced size. \n\
     m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
-                  m_inv_original_window_size; \n\
+                         m_inv_original_window_size; \n\
     \n\
     /// Compute max number of iterations it will take before we hit \n\
     /// the termination point \n\

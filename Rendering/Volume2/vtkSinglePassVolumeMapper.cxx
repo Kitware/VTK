@@ -28,8 +28,10 @@
 /// VTK includes
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
+#include <vtkCellArray.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCommand.h>
+#include <vtkDensifyPolyData.h>
 #include <vtkFloatArray.h>
 #include <vtkImageData.h>
 #include <vtkMatrix4x4.h>
@@ -38,11 +40,14 @@
 #include <vtkPerlinNoise.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkSmartPointer.h>
+#include <vtkTessellatedBoxSource.h>
 #include <vtkTimerLog.h>
 #include <vtkUnsignedCharArray.h>
+#include <vtkUnsignedIntArray.h>
 #include <vtkVolumeProperty.h>
 
 /// GL includes
@@ -187,6 +192,11 @@ public:
   void UpdateVolumeGeometry();
 
   ///
+  /// \brief
+  ///
+  void UpdateCropping(vtkRenderer* ren, vtkVolume* vol);
+
+  ///
   /// \brief Load OpenGL extensiosn required to grab depth sampler buffer
   ///
   void LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin);
@@ -239,6 +249,8 @@ public:
   vtkNew<vtkTimerLog> Timer;
 
   vtkNew<vtkMatrix4x4> TextureToDataSetMat;
+
+  vtkSmartPointer<vtkPolyData> BBoxPolyData;
 };
 
 ///----------------------------------------------------------------------------
@@ -745,55 +757,103 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateDepthTexture(
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
 {
-  /// Cube vertices
-  double vertices[8][3] =
-    {
-    {this->Bounds[0], this->Bounds[2], this->Bounds[4]}, // 0
-    {this->Bounds[1], this->Bounds[2], this->Bounds[4]}, // 1
-    {this->Bounds[1], this->Bounds[3], this->Bounds[4]}, // 2
-    {this->Bounds[0], this->Bounds[3], this->Bounds[4]}, // 3
-    {this->Bounds[0], this->Bounds[2], this->Bounds[5]}, // 4
-    {this->Bounds[1], this->Bounds[2], this->Bounds[5]}, // 5
-    {this->Bounds[1], this->Bounds[3], this->Bounds[5]}, // 6
-    {this->Bounds[0], this->Bounds[3], this->Bounds[5]}  // 7
-    };
+  vtkNew<vtkTessellatedBoxSource> boxSource;
+  vtkNew<vtkDensifyPolyData> densityPolyData;
+  boxSource->SetBounds(this->Bounds);
+  boxSource->QuadsOn();
+  boxSource->SetLevel(0);
 
-  /// Cube indices
-  GLushort cubeIndices[36]=
+  densityPolyData->SetInputConnection(boxSource->GetOutputPort());
+  densityPolyData->Update();
+  densityPolyData->SetNumberOfSubdivisions(2);
+
+  this->BBoxPolyData = densityPolyData->GetOutput();
+  vtkPoints* points = this->BBoxPolyData->GetPoints();
+  vtkCellArray* cells = this->BBoxPolyData->GetPolys();
+
+  vtkNew<vtkUnsignedIntArray> polys;
+  polys->SetNumberOfComponents(3);
+  vtkIdType npts;
+  vtkIdType *pts;
+  while(cells->GetNextCell(npts, pts))
     {
-    0,5,4, // bottom
-    5,0,1, // bottom
-    3,7,6, // top
-    3,6,2, // op
-    7,4,6, // front
-    6,4,5, // front
-    2,1,3, // left side
-    3,1,0, // left side
-    3,0,7, // right side
-    7,0,4, // right side
-    6,5,2, // back
-    2,5,1  // back
-    };
+    polys->InsertNextTuple3(pts[0], pts[1], pts[2]);
+    }
 
   glBindVertexArray(this->CubeVAOId);
 
   /// Pass cube vertices to buffer object memory
   glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
-  glBufferData (GL_ARRAY_BUFFER, sizeof(vertices), &(vertices[0][0]), GL_STATIC_DRAW);
+  glBufferData (GL_ARRAY_BUFFER, points->GetData()->GetDataSize() *
+                points->GetData()->GetDataTypeSize(),
+                points->GetData()->GetVoidPointer(0), GL_STATIC_DRAW);
 
   GL_CHECK_ERRORS
 
   /// Enable vertex attributre array for position
   /// and pass indices to element array  buffer
   glEnableVertexAttribArray(this->Shader["m_in_vertex_pos"]);
-  glVertexAttribPointer(this->Shader["m_in_vertex_pos"], 3, GL_DOUBLE, GL_FALSE, 0, 0);
+  glVertexAttribPointer(this->Shader["m_in_vertex_pos"], 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
-  glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), &cubeIndices[0], GL_STATIC_DRAW);
+  glBufferData (GL_ELEMENT_ARRAY_BUFFER, polys->GetDataSize() *
+                polys->GetDataTypeSize(), polys->GetVoidPointer(0),
+                GL_STATIC_DRAW);
 
   GL_CHECK_ERRORS
 
   glBindVertexArray(0);
+}
+
+///----------------------------------------------------------------------------
+/// \brief vtkSinglePassVolumeMapper::UpdateCropping
+void vtkSinglePassVolumeMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
+                                                            vtkVolume* vol)
+{
+  if (this->Parent->GetCropping())
+    {
+    int cropFlags = this->Parent->GetCroppingRegionFlags();
+    double croppingRegionPlanes[6];
+    this->Parent->GetCroppingRegionPlanes(croppingRegionPlanes);
+
+    /// Clamp it
+    croppingRegionPlanes[0] = croppingRegionPlanes[0] < this->Bounds[0] ?
+                              this->Bounds[0] : croppingRegionPlanes[0];
+    croppingRegionPlanes[0] = croppingRegionPlanes[0] > this->Bounds[1] ?
+                              this->Bounds[1] : croppingRegionPlanes[0];
+    croppingRegionPlanes[1] = croppingRegionPlanes[1] < this->Bounds[0] ?
+                              this->Bounds[0] : croppingRegionPlanes[1];
+    croppingRegionPlanes[1] = croppingRegionPlanes[1] > this->Bounds[1] ?
+                              this->Bounds[1] : croppingRegionPlanes[1];
+
+    croppingRegionPlanes[2] = croppingRegionPlanes[2] < this->Bounds[2] ?
+                              this->Bounds[2] : croppingRegionPlanes[2];
+    croppingRegionPlanes[2] = croppingRegionPlanes[2] > this->Bounds[3] ?
+                              this->Bounds[3] : croppingRegionPlanes[2];
+    croppingRegionPlanes[3] = croppingRegionPlanes[3] < this->Bounds[2] ?
+                              this->Bounds[2] : croppingRegionPlanes[3];
+    croppingRegionPlanes[3] = croppingRegionPlanes[3] > this->Bounds[3] ?
+                              this->Bounds[3] : croppingRegionPlanes[3];
+
+    croppingRegionPlanes[4] = croppingRegionPlanes[4] < this->Bounds[4] ?
+                              this->Bounds[4] : croppingRegionPlanes[4];
+    croppingRegionPlanes[4] = croppingRegionPlanes[4] > this->Bounds[5] ?
+                              this->Bounds[5] : croppingRegionPlanes[4];
+    croppingRegionPlanes[5] = croppingRegionPlanes[5] < this->Bounds[4] ?
+                              this->Bounds[4] : croppingRegionPlanes[5];
+    croppingRegionPlanes[5] = croppingRegionPlanes[5] > this->Bounds[5] ?
+                              this->Bounds[5] : croppingRegionPlanes[5];
+
+    float cropPlanes[6] = { static_cast<double>(croppingRegionPlanes[0]),
+                            static_cast<double>(croppingRegionPlanes[1]),
+                            static_cast<double>(croppingRegionPlanes[2]),
+                            static_cast<double>(croppingRegionPlanes[3]),
+                            static_cast<double>(croppingRegionPlanes[4]),
+                            static_cast<double>(croppingRegionPlanes[5]) };
+
+    glUniform1fv(this->Shader("cropping_planes"), 6, cropPlanes);
+    glUniform1i(this->Shader("cropping_flags"), cropFlags);
+    }
 }
 
 ///
@@ -979,6 +1039,12 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   this->Implementation->Shader.AddUniform("m_window_lower_left_corner");
   this->Implementation->Shader.AddUniform("m_inv_original_window_size");
   this->Implementation->Shader.AddUniform("m_inv_window_size");
+
+  if (this->GetCropping())
+    {
+    this->Implementation->Shader.AddUniform("cropping_planes");
+    this->Implementation->Shader.AddUniform("cropping_flags");
+    }
 
   this->Implementation->ShaderBuildTime.Modified();
 }
@@ -1199,7 +1265,8 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
     }
 
   if (vol->GetProperty()->GetMTime() >
-      this->Implementation->ShaderBuildTime.GetMTime())
+      this->Implementation->ShaderBuildTime.GetMTime() ||
+      this->GetMTime() > this->Implementation->ShaderBuildTime)
     {
     this->BuildShader(ren, vol);
     }
@@ -1425,21 +1492,23 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   float fvalue[2];
   fvalue[0] = static_cast<float>(this->Implementation->WindowLowerLeft[0]);
   fvalue[1] = static_cast<float>(this->Implementation->WindowLowerLeft[1]);
-  std::cerr << "m_window_lower_left_corner " << fvalue[0] << " " << fvalue[1] << std::endl;
   glUniform2fv(this->Implementation->Shader("m_window_lower_left_corner"), 1, &fvalue[0]);
 
   fvalue[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
   fvalue[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
-  std::cerr << "m_inv_original_window_size " << fvalue[0] << " " << fvalue[1] << std::endl;
   glUniform2fv(this->Implementation->Shader("m_inv_original_window_size"), 1, &fvalue[0]);
 
   fvalue[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
   fvalue[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
-  std::cerr << "m_inv_window_size " << fvalue[0] << " " << fvalue[1] << std::endl;
   glUniform2fv(this->Implementation->Shader("m_inv_window_size"), 1, &fvalue[0]);
 
+  /// Updating cropping if enabled
+  this->Implementation->UpdateCropping(ren, vol);
+
   glBindVertexArray(this->Implementation->CubeVAOId);
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES,
+                 this->Implementation->BBoxPolyData->GetNumberOfCells() * 3,
+                 GL_UNSIGNED_INT, 0);
 
   /// Undo binds and state changes
   /// TODO Provide a stack implementation

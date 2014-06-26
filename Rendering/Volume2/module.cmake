@@ -2,6 +2,7 @@ vtk_module(vtkVolume
   DEPENDS
     vtkCommonDataModel
     vtkCommonExecutionModel
+    vtkFiltersSources
     vtkRenderingVolume
     vtkRenderingOpenGL
   TEST_DEPENDS
