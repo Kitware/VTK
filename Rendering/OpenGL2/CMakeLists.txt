@@ -179,12 +179,11 @@ if(VTK_USE_X)
     vtkXInteractionDevice.cxx
     vtkXOpenGLRenderDevice.cxx
     )
+  set_source_files_properties(
+    vtkXInteractionDevice
+    vtkXOpenGLRenderDevice
+    WRAP_EXCLUDE)
 endif()
-
-set_source_files_properties(
-  vtkOpenGLRenderWindow
-  ABSTRACT
-  )
 
 set_source_files_properties(
   vtkRenderingOpenGL2ObjectFactory
