@@ -734,7 +734,9 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   this->lastBoundBO = NULL;
 
   // Set the PointSize and LineWidget
-  glPointSize(actor->GetProperty()->GetPointSize());
+#if GL_ES_VERSION_2_0 != 1
+  glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
+#endif
   glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
 
   if ( this->GetResolveCoincidentTopology() )
@@ -821,9 +823,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
-      // TODO wireframe of triangles is not lit properly right now
-      // you either have to generate normals and send them down
-      // or use a geometry shader.
       glMultiDrawElements(GL_LINE_LOOP,
                         (GLsizei *)(&this->tris.elementsArray[0]),
                         GL_UNSIGNED_INT,
@@ -1011,9 +1010,6 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
 
     this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
     this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
-
-    // reset the default.
-    glPolygonMode(face, GL_FILL);
     */
    }
 }

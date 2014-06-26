@@ -28,7 +28,6 @@ class vtkMatrix4x4;
 namespace vtkgl {
 
 class Shader;
-class Texture2D;
 class VertexArrayObject;
 
 /**
@@ -187,14 +186,9 @@ protected:
 
   std::map<std::string, int> Attributes;
 
-  std::map<const Texture2D*, int> TextureUnitBindings;
-  std::vector<bool> BoundTextureUnits;
-
   friend class VertexArrayObject;
 
 private:
-  void InitializeTextureUnits();
-  void ReleaseAllTextureUnits();
   int FindAttributeArray(const std::string &name);
   int FindUniform(const std::string &name);
 };

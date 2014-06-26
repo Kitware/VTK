@@ -59,7 +59,6 @@ set(Module_SRCS
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglVertexArrayObject.cxx
-  vtkFrameBufferObject.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
   vtkOpenGLImageMapper.cxx
@@ -76,13 +75,19 @@ set(Module_SRCS
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx
   vtkOpenGLTextureUnitManager.cxx
-  vtkPixelBufferObject.cxx
-  vtkRenderbuffer.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
-  vtkTextureObject.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
+
+if (NOT ANDROID)
+  set(Module_SRCS ${Module_SRCS}
+  vtkPixelBufferObject.cxx
+  vtkFrameBufferObject.cxx
+  vtkTextureObject.cxx
+  )
+endif()
+
 
 set(${vtk-module}_HDRS
   vtkOpenGL.h

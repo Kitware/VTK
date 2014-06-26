@@ -45,7 +45,12 @@ inline GLenum convertTypeToGL(int type)
     case VTK_FLOAT:
       return GL_FLOAT;
     case VTK_DOUBLE:
+#ifdef GL_DOUBLE
       return GL_DOUBLE;
+#else
+      assert("Attempt to use GL_DOUBLE when not supported" && 0);
+      return 0;
+#endif
     default:
       return 0;
     }

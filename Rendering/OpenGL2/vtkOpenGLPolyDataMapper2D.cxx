@@ -572,8 +572,9 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (this->Internal->points.indexCount)
     {
     // Set the PointSize
-    glPointSize(actor->GetProperty()->GetPointSize());
-
+#if GL_ES_VERSION_2_0 != 1
+    glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
+#endif
     this->Internal->points.ibo.Bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),

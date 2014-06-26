@@ -54,25 +54,12 @@ public:
     }
 
   // Description:
-  // Check if lighting is enabled.
-  bool QueryLighting()
-    {
-    if (glIsEnabled(GL_LIGHTING))
-      {
-      return true;
-      }
-    else
-      {
-      return false;
-      }
-    }
-
-  // Description:
   // Enable/disable multisampling.
   void EnableMultisampling(bool mode)
     {
     if (this->MultisampleSupport)
       {
+#if GL_ES_VERSION_2_0 != 1
       if (mode)
         {
         glEnable(GL_MULTISAMPLE);
@@ -81,6 +68,7 @@ public:
         {
         glDisable(GL_MULTISAMPLE);
         }
+#endif
       }
     }
 
@@ -88,6 +76,7 @@ public:
   // Check if multisample is enabled.
   bool QueryMultisampling()
     {
+#if GL_ES_VERSION_2_0 != 1
     if (this->MultisampleSupport && glIsEnabled(GL_MULTISAMPLE))
       {
       return true;
@@ -96,6 +85,9 @@ public:
       {
       return false;
       }
+#else
+    return false;
+#endif
     }
 
   // Description:
@@ -157,7 +149,7 @@ void vtkOpenGLHardwareSelector::BeginRenderProp(vtkRenderWindow *context)
 
   this->Internals->SetContext(context);
 
-  // Disable multisample, lighting, and blending.
+  // Disable multisample, and blending.
   this->Internals->OriginalMultisample = this->Internals->QueryMultisampling();
   this->Internals->EnableMultisampling(false);
 
@@ -172,7 +164,7 @@ void vtkOpenGLHardwareSelector::EndRenderProp(vtkRenderWindow *)
   cerr << "=====vtkOpenGLHardwareSelector::EndRenderProp" << endl;
   #endif
 
-  // Restore multisample, lighting, and blending.
+  // Restore multisample, and blending.
   this->Internals->EnableMultisampling(this->Internals->OriginalMultisample);
   this->Internals->EnableBlending(this->Internals->OriginalBlending);
 }

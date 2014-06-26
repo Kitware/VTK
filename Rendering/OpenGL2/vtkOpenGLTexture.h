@@ -62,9 +62,8 @@ public:
 
   // Description
   // Provide for specifying a format for the texture
-  // GL_DEPTH
-  vtkGetMacro(TextureFormat,int);
-  vtkSetMacro(TextureFormat,int);
+  vtkGetMacro(IsDepthTexture,int);
+  vtkSetMacro(IsDepthTexture,int);
 
   // Description
   // What type of texture map GL_TEXTURE_2D versus GL_TEXTURE_RECTANGLE
@@ -80,7 +79,7 @@ protected:
   unsigned int Index; // actually GLuint
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
 
-  int TextureFormat;
+  int IsDepthTexture;
   int TextureType;
 
   // used when the texture exceeds the GL limit

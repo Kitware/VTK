@@ -19,7 +19,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
-#include "vtkRenderbuffer.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkOpenGLError.h"
 

@@ -77,7 +77,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->CurrentRGBATexture = NULL;
   this->DepthPeelingActor = NULL;
 
-  this->DepthFormat =0;
   this->DepthPeelingHigherLayer=0;
 
   this->BackgroundTexture = 0;
@@ -173,22 +172,22 @@ void vtkOpenGLRenderer::DeviceRender(void)
 }
 
 vtkOpenGLTexture *vtkOpenGLRendererCreateDepthPeelingTexture(
-  int width, int height, int numComponents, int tFormat)
+  int width, int height, int numComponents, bool isDepth)
 {
   vtkOpenGLTexture *result = vtkOpenGLTexture::New();
 
   vtkImageData *id = vtkImageData::New();
   id->SetExtent(0,width-1, 0,height-1, 0,0);
 
-  if (tFormat == GL_DEPTH)
+  if (isDepth == true)
     {
     id->AllocateScalars(VTK_FLOAT, numComponents);
+    result->SetIsDepthTexture(1);
     }
   else
     {
     id->AllocateScalars(VTK_UNSIGNED_CHAR, numComponents);
     }
-  result->SetTextureFormat(tFormat);
 
   result->SetTextureType(GL_TEXTURE_RECTANGLE);
   result->InterpolateOff();
@@ -236,31 +235,19 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     this->GetTiledSizeAndOrigin(&this->ViewportWidth, &this->ViewportHeight,
                                 &this->ViewportX, &this->ViewportY);
 
-    // get z bits
-    GLint depthBits;
-    glGetIntegerv(GL_DEPTH_BITS,&depthBits);
-    if(depthBits == 16)
-      {
-      this->DepthFormat = GL_DEPTH_COMPONENT16_ARB;
-      }
-    else
-      {
-      this->DepthFormat = GL_DEPTH_COMPONENT24_ARB;
-      }
-
     // create textures actors we need if not done already
     if (this->OpaqueZTexture == NULL)
       {
       this->OpaqueZTexture = vtkOpenGLRendererCreateDepthPeelingTexture(
-        this->ViewportWidth, this->ViewportHeight, 1, GL_DEPTH);
+        this->ViewportWidth, this->ViewportHeight, 1, true);
       this->TranslucentZTexture = vtkOpenGLRendererCreateDepthPeelingTexture(
-        this->ViewportWidth, this->ViewportHeight, 1, GL_DEPTH);
+        this->ViewportWidth, this->ViewportHeight, 1, true);
       this->OpaqueRGBATexture = vtkOpenGLRendererCreateDepthPeelingTexture(
-        this->ViewportWidth, this->ViewportHeight, 4, GL_RGBA);
+        this->ViewportWidth, this->ViewportHeight, 4, false);
       this->TranslucentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTexture(
-        this->ViewportWidth, this->ViewportHeight, 4, GL_RGBA);
+        this->ViewportWidth, this->ViewportHeight, 4, false);
       this->CurrentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTexture(
-        this->ViewportWidth, this->ViewportHeight, 4, GL_RGBA);
+        this->ViewportWidth, this->ViewportHeight, 4, false);
 
       this->DepthPeelingActor = vtkTexturedActor2D::New();
       vtkNew<vtkPolyDataMapper2D> mapper;
@@ -328,8 +315,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glClearColor(0.0,0.0,0.0,0.0); // always clear to black
-    glClearDepth(static_cast<GLclampf>(1.0));
+    //glClearDepth(static_cast<GLclampf>(1.0));
+#ifdef GL_MULTISAMPLE
     glDisable(GL_MULTISAMPLE);
+#endif
     glDisable(GL_BLEND);
 
     // Get opaqueRGBA
@@ -357,8 +346,10 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     // Do render loop until complete
     unsigned int threshold=static_cast<unsigned int>(this->ViewportWidth*this->ViewportHeight*OcclusionRatio);
 
+#if GL_ES_VERSION_2_0 != 1
     GLuint queryId;
     glGenQueries(1,&queryId);
+#endif
 
     bool done = false;
     GLuint nbPixels = 0;
@@ -371,22 +362,25 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
       // render the translucent geometry
       this->LastRenderingUsedDepthPeeling=1;
+#if GL_ES_VERSION_2_0 != 1
       glBeginQuery(GL_SAMPLES_PASSED,queryId);
+#endif
       this->UpdateTranslucentPolygonalGeometry();
 
       // update translucentZ
       this->TranslucentZTexture->CopyTexImage(this, this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
-
-      glEndQuery(GL_SAMPLES_PASSED);
-
       previousNbPixels = nbPixels;
-      peelCount++;
-      if(this->MaximumNumberOfPeels && peelCount >= this->MaximumNumberOfPeels)
+
+#if GL_ES_VERSION_2_0 != 1
+      glEndQuery(GL_SAMPLES_PASSED);
+      glGetQueryObjectuiv(queryId,GL_QUERY_RESULT,&nbPixels);
+      if (nbPixels <= threshold)
         {
         done = true;
         }
-      glGetQueryObjectuiv(queryId,GL_QUERY_RESULT,&nbPixels);
-      if (nbPixels <= threshold)
+#endif
+      peelCount++;
+      if(this->MaximumNumberOfPeels && peelCount >= this->MaximumNumberOfPeels)
         {
         done = true;
         }
@@ -434,8 +428,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 int vtkOpenGLRenderer::RenderPeel(int layer)
 {
   assert("pre: positive_layer" && layer>=0);
- return 0;
-  }
+  return 0;
+}
 
 
 
@@ -483,7 +477,7 @@ void vtkOpenGLRenderer::Clear(void)
 
   if (!this->GetPreserveDepthBuffer())
     {
-    glClearDepth(static_cast<GLclampf>(1.0));
+    //glClearDepth(static_cast<GLclampf>(1.0));
     clear_mask |= GL_DEPTH_BUFFER_BIT;
     }
 

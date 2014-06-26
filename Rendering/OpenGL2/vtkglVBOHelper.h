@@ -61,7 +61,7 @@ struct CellBO
 
   size_t indexCount;
   // These are client side objects for multi draw where IBOs are not used.
-  std::vector<ptrdiff_t> offsetArray;
+  std::vector<GLintptr> offsetArray;
   std::vector<unsigned int> elementsArray;
 
   vtkTimeStamp attributeUpdateTime;

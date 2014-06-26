@@ -370,11 +370,6 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     this->RenderBackground(this->BackgroundPolyDataActor, points, extent, ren);
     }
 
-  if (useFragmentProgram)
-    {
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
-    }
-
   vtkOpenGLCheckErrorMacro("failed after RenderTexturedPolygon");
 }
 
@@ -598,73 +593,8 @@ void vtkOpenGLImageSliceMapper::BindFragmentProgram(
 {
   vtkOpenGLClearErrorMacro();
 
-  int xdim, ydim, zdim; // orientation of texture wrt input image
-  vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
-  zdim = 3 - xdim - ydim; // they sum to three
-  double *spacing = this->DataSpacing;
-  double *origin = this->DataOrigin;
-  int *extent = this->DisplayExtent;
+  // TODO: change all this
 
-  // Bind the bicubic interpolation fragment program, it will
-  // not do anything if modern shader objects are also in play.
-  glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB,
-                        this->FragmentShaderIndex);
-
-  // checkerboard information
-  double checkSpacing[2], checkOffset[2];
-  property->GetCheckerboardSpacing(checkSpacing);
-  property->GetCheckerboardOffset(checkOffset);
-
-  // transformation to permute texture-oriented coords to data coords
-  double mat[16];
-  vtkMatrix4x4::Identity(mat);
-  mat[0] = mat[5] = mat[10] = 0.0;
-  mat[4*xdim] = mat[1+4*ydim] = 1.0;
-  int dimsep = ydim - xdim + 3*(xdim > ydim);
-  mat[2+4*zdim] = (((dimsep % 3) == 1) ? 1.0 : -1.0);
-  mat[4*zdim+3] = origin[zdim] + spacing[zdim]*extent[2*zdim];
-
-  // checkerboard uses view coordinates
-  vtkMatrix4x4 *m = this->GetDataToWorldMatrix();
-  vtkMatrix4x4 *c = ren->GetActiveCamera()->GetViewTransformMatrix();
-  vtkMatrix4x4::Multiply4x4(*m->Element, mat, mat);
-  vtkMatrix4x4::Multiply4x4(*c->Element, mat, mat);
-
-  // first parameter: texture size needed for bicubic interpolator
-  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0,
-    static_cast<float>(this->TextureSize[0]),
-    static_cast<float>(this->TextureSize[1]),
-    static_cast<float>(1.0/this->TextureSize[0]),
-    static_cast<float>(1.0/this->TextureSize[1]));
-
-  // second parameter: scale and offset for converting texture coords
-  // into the input image's data coords
-  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1,
-    static_cast<float>(this->TextureSize[0]*spacing[xdim]),
-    static_cast<float>(this->TextureSize[1]*spacing[ydim]),
-    static_cast<float>(origin[xdim] +
-                       spacing[xdim]*(extent[2*xdim] - 0.5)),
-    static_cast<float>(origin[ydim] +
-                       spacing[ydim]*(extent[2*ydim] - 0.5)));
-
-  // third parameter: scale and offset for converting data coords into
-  // checkboard square indices, for checkerboarding
-  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2,
-    static_cast<float>(0.5/checkSpacing[0]),
-    static_cast<float>(0.5/checkSpacing[1]),
-    static_cast<float>(-0.5*checkOffset[0]),
-    static_cast<float>(-0.5*checkOffset[1]));
-
-  // fourth, fifth param: first two rows of the transformation matrix
-  // from data coords to camera coords (including a pre-translation of
-  // z from zero to the z position of the slice, since the texture coords
-  // are 2D and do not provide the z position)
-  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 3,
-    static_cast<float>(mat[0]), static_cast<float>(mat[1]),
-    static_cast<float>(mat[2]), static_cast<float>(mat[3]));
-  glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 4,
-    static_cast<float>(mat[4]), static_cast<float>(mat[5]),
-    static_cast<float>(mat[6]), static_cast<float>(mat[7]));
 
   vtkOpenGLCheckErrorMacro("failed after BindFragmentProgram");
 }
@@ -673,122 +603,11 @@ void vtkOpenGLImageSliceMapper::BindFragmentProgram(
 vtkStdString vtkOpenGLImageSliceMapper::BuildFragmentProgram(
   vtkImageProperty *property)
 {
+
+  // TODO change all this
   vtkStdString prog =
     "!!ARBfp1.0\n"
     "\n";
-
-  // parameters needed for cubic interpolation:
-  // texdim is texture size {width, height, 1.0/width, 1.0/height}
-  // parameters needed for checkerboarding:
-  // todata is for converting tex coords to VTK data coords
-  // togrid converts transformed data coords to checkerboard squares
-  // mx, my are first two rows of matrix for transforming data coords
-  prog.append(
-    "PARAM texdim = program.local[0];\n"
-    "PARAM todata = program.local[1];\n"
-    "PARAM togrid = program.local[2];\n"
-    "PARAM mx = program.local[3];\n"
-    "PARAM my = program.local[4];\n"
-    "TEMP coord, coord2;\n"
-    "TEMP c, c1, c2;\n"
-    "TEMP weightx, weighty;\n"
-    "\n");
-
-  // checkerboard
-  if (property->GetCheckerboard())
-    {
-    prog.append(
-    "# generate a checkerboard pattern\n"
-    "MOV coord.xyzw, {0, 0, 0, 1};\n"
-    "MAD coord.xy, fragment.texcoord.xyxy, todata.xyxy, todata.zwzw;\n"
-    "DP4 coord2.x, coord, mx;\n"
-    "DP4 coord2.y, coord, my;\n"
-    "MAD coord.xy, coord2.xyxy, togrid.xyxy, togrid.zwzw;\n"
-    "FRC coord.xy, coord;\n"
-    "SUB coord.xy, coord, {0.5, 0.5, 0.5, 0.5};\n"
-    "MUL coord.x, coord.x, coord.y;\n"
-    "KIL coord.x;\n"
-    "\n");
-    }
-
-  // interpolate
-  if (property->GetInterpolationType() == VTK_CUBIC_INTERPOLATION)
-    {
-    // create a bicubic interpolation program
-    prog.append(
-    "# compute the {rx, ry, fx, fy} fraction vector\n"
-    "MAD coord, fragment.texcoord.xyxy, texdim.xyxy, {0.5, 0.5, 0.5, 0.5};\n"
-    "FRC coord, coord;\n"
-    "SUB coord.xy, {1, 1, 1, 1}, coord;\n"
-    "\n"
-    "# compute the x weights\n"
-    "MAD weightx, coord.zzxx, {0.5, 1.5, 1.5, 0.5}, {0,-1,-1, 0};\n"
-    "MAD weightx, weightx, coord.xzxz, {0,-1,-1, 0};\n"
-    "MUL weightx, weightx, -coord.xxzz;\n"
-    "\n"
-    "# compute the y weights\n"
-    "MAD weighty, coord.wwyy, {0.5, 1.5, 1.5, 0.5}, {0,-1,-1, 0};\n"
-    "MAD weighty, weighty, coord.ywyw, {0,-1,-1, 0};\n"
-    "MUL weighty, weighty, -coord.yyww;\n"
-    "\n"
-    "# get the texture coords for the coefficients\n"
-    "ADD coord, coord.xyxy, {-2,-2,-1,-2};\n"
-    "MAD coord, coord, texdim.zwzw, fragment.texcoord.xyxy;\n"
-    "MAD coord2, texdim.zwzw, {2, 0, 2, 0}, coord;\n"
-    "\n");
-
-    // loop through the rows of the kernel
-    for (int i = 0; i < 4; i++)
-      {
-      prog.append(
-        "# do a row of texture lookups and weights\n"
-        "TEX c2, coord.xyzw, texture, 2D;\n"
-        "MUL c1, c2, weightx.xxxx;\n"
-        "TEX c2, coord.zwxy, texture, 2D;\n"
-        "MAD c1, c2, weightx.yyyy, c1;\n"
-        "TEX c2, coord2.xyzw, texture, 2D;\n"
-        "MAD c1, c2, weightx.zzzz, c1;\n"
-        "TEX c2, coord2.zwxy, texture, 2D;\n"
-        "MAD c1, c2, weightx.wwww, c1;\n");
-
-      // choose the y weight for current row
-      static const char *rowsum[4] = {
-        "MUL c, weighty.xxxx, c1;\n\n",
-        "MAD c, weighty.yyyy, c1, c;\n\n",
-        "MAD c, weighty.zzzz, c1, c;\n\n",
-        "MAD c, weighty.wwww, c1, c;\n\n"
-        };
-
-      prog.append(rowsum[i]);
-
-      if (i < 3)
-        {
-        prog.append(
-        "# advance y coord to next row\n"
-        "ADD coord.yw, coord, texdim.wwww;\n"
-        "ADD coord2.yw, coord2, texdim.wwww;\n"
-        "\n");
-        }
-      }
-    }
-  else
-    {
-    // use currently set texture interpolation
-    prog.append(
-    "# interpolate the texture\n"
-    "TEX c, fragment.texcoord, texture, 2D;\n"
-    "\n");
-    }
-
-  // modulate the fragment color with the texture
-  prog.append(
-    "# output the color\n"
-    "MUL result.color, fragment.color, c;\n"
-    "\n");
-
-  // end program
-  prog.append(
-    "END\n");
 
   return prog;
 }
@@ -835,17 +654,10 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
     return 0;
     }
 
-  // Test a proxy texture to see if it fits in memory
-  glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA8, size[0], size[1],
-               0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  GLint params = 0;
-  glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,
-                           &params);
-
   vtkOpenGLCheckErrorMacro("failed after TextureSizeOK");
 
   // if it does fit, we will render it later
-  return (params == 0 ? 0 : 1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -896,28 +708,8 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     glPolygonOffset(f,u);
     }
 
-  // Add all the clipping planes
-  int numClipPlanes = this->GetNumberOfClippingPlanes();
-  if (numClipPlanes > 6)
-    {
-    vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
-    }
-
-  for (int i = 0; i < 6; i++)
-    {
-    GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
-    if (i < numClipPlanes)
-      {
-      double planeEquation[4];
-      this->GetClippingPlaneInDataCoords(matrix, i, planeEquation);
-      glClipPlane(clipPlaneId, planeEquation);
-      glEnable(clipPlaneId);
-      }
-    else
-      {
-      glDisable(clipPlaneId);
-      }
-    }
+  // Add all the clipping planes  TODO: really in the mapper
+  //int numClipPlanes = this->GetNumberOfClippingPlanes();
 
   // Whether to write to the depth buffer and color buffer
   glDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE); // supported in all

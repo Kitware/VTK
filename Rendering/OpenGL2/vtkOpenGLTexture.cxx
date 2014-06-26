@@ -26,7 +26,6 @@
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkPixelBufferObject.h"
 #include "vtkOpenGLError.h"
 
 #include <math.h>
@@ -40,7 +39,7 @@ vtkOpenGLTexture::vtkOpenGLTexture()
 {
   this->Index = 0;
   this->RenderWindow = 0;
-  this->TextureFormat = GL_RGBA;
+  this->IsDepthTexture = 0;
   this->TextureType = GL_TEXTURE_2D;
 }
 
@@ -89,7 +88,7 @@ void vtkOpenGLTexture::CopyTexImage(vtkRenderer *ren, int x, int y, int width, i
   vtkOpenGLRenderWindow* renWin =
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
   renWin->ActivateTexture(this);
-  if (this->TextureFormat == GL_DEPTH)
+  if (this->IsDepthTexture == 1)
     {
     glCopyTexImage2D(this->TextureType, 0, GL_DEPTH_COMPONENT,
       x, y, width, height, 0);
@@ -173,7 +172,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     int bytesPerPixel = scalars->GetNumberOfComponents();
 
     // make sure using unsigned char data of color scalars type
-    if (this->TextureFormat != GL_DEPTH &&
+    if (this->IsDepthTexture != 1 &&
       (this->MapColorScalarsThroughLookupTable ||
        scalars->GetDataType() != VTK_UNSIGNED_CHAR ))
       {
@@ -264,11 +263,13 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         }
+#ifdef GL_CLAMP
       else
         {
         glTexParameterf(this->TextureType , GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameterf(this->TextureType , GL_TEXTURE_WRAP_T, GL_CLAMP);
         }
+#endif
       }
     vtkOpenGLCheckErrorMacro("failed at glTexParameterf");
     int internalFormat = bytesPerPixel;
@@ -283,6 +284,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     // if we are using OpenGL 1.1, you can force 32 or16 bit textures
     if (this->Quality == VTK_TEXTURE_QUALITY_32BIT)
       {
+#ifdef GL_LUMINANCE8
       switch (bytesPerPixel)
         {
         case 1: internalFormat = GL_LUMINANCE8; break;
@@ -290,9 +292,11 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         case 3: internalFormat = GL_RGB8; break;
         case 4: internalFormat = GL_RGBA8; break;
         }
+#endif
       }
     else if (this->Quality == VTK_TEXTURE_QUALITY_16BIT)
       {
+#ifdef GL_LUMINANCE4
       switch (bytesPerPixel)
         {
         case 1: internalFormat = GL_LUMINANCE4; break;
@@ -300,13 +304,18 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         case 3: internalFormat = GL_RGB4; break;
         case 4: internalFormat = GL_RGBA4; break;
         }
+#endif
       }
 
     // handle depth textures
-    if (this->TextureFormat == GL_DEPTH)
+    if (this->IsDepthTexture == 1)
       {
       format = GL_DEPTH_COMPONENT;
+#ifdef GL_DEPTH_COMPONENT32F
       internalFormat = GL_DEPTH_COMPONENT32F;
+#else
+      internalFormat = GL_DEPTH_COMPONENT16;
+#endif
       dataType = GL_FLOAT;
       }
 
@@ -333,9 +342,6 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
   if (this->PremultipliedAlpha)
     {
-    // save the blend function.
-    glPushAttrib(GL_COLOR_BUFFER_BIT);
-
     // make the blend function correct for textures premultiplied by alpha.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -350,12 +356,6 @@ void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
   // deactivate the texture
   renWin->DeactivateTexture(this);
-  if (this->GetInput() && this->PremultipliedAlpha)
-    {
-    // restore the blend function
-    glPopAttrib();
-    vtkOpenGLCheckErrorMacro("failed after PostRender");
-    }
 }
 
 // ----------------------------------------------------------------------------

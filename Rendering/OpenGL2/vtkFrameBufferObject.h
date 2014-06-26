@@ -35,7 +35,6 @@
 
 class vtkRenderWindow;
 class vtkTextureObject;
-class vtkRenderbuffer;
 class vtkPixelBufferObject;
 class vtkOpenGLRenderWindow;
 

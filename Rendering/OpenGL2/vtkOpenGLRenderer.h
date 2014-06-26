@@ -140,11 +140,6 @@ protected:
   int ViewportWidth;
   int ViewportHeight;
 
-  // Description:
-  // Actual depth format: vtkgl::DEPTH_COMPONENT16_ARB
-  // or vtkgl::DEPTH_COMPONENT24_ARB
-  unsigned int DepthFormat;
-
   // Is rendering at translucent geometry stage using depth peeling and
   // rendering a layer other than the first one? (Boolean value)
   // If so, the uniform variables UseTexture and Texture can be set.
