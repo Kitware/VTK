@@ -1,4 +1,6 @@
 vtk_module(vtkRenderingOpenGL2
+  TCL_NAME
+    vtkRenderingOpenGLII
   DEPENDS
     vtkCommonExecutionModel
   IMPLEMENTS
