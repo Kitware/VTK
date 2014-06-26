@@ -24,6 +24,8 @@ ExternalVTKWidget::ExternalVTKWidget()
   this->RenderWindow = vtkExternalOpenGLRenderWindow::New();
   this->Renderer = vtkExternalOpenGLRenderer::New();
   this->RenderWindow->AddRenderer(this->Renderer);
+  this->Interactor = vtkGenericRenderWindowInteractor::New();
+  this->Interactor->SetRenderWindow(this->RenderWindow);
 }
 
 //----------------------------------------------------------------------------
@@ -31,6 +33,7 @@ ExternalVTKWidget::~ExternalVTKWidget()
 {
   this->Renderer->Delete();
   this->RenderWindow->Delete();
+  this->Interactor->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -43,6 +46,12 @@ vtkExternalOpenGLRenderWindow* ExternalVTKWidget::GetRenderWindow()
 vtkExternalOpenGLRenderer* ExternalVTKWidget::GetRenderer()
 {
   return this->Renderer;
+}
+
+//----------------------------------------------------------------------------
+vtkGenericRenderWindowInteractor* ExternalVTKWidget::GetInteractor()
+{
+  return this->Interactor;
 }
 
 //----------------------------------------------------------------------------
