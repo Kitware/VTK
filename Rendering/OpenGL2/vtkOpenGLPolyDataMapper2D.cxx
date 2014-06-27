@@ -484,7 +484,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   // and IBOs as appropriate for each type.
   this->Internal->layout =
     CreateVBO(p,
-              cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
+              cellPointMap.size() > 0 ? (unsigned int)cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               NULL,
               haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
