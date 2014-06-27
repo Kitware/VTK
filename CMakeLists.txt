@@ -100,14 +100,14 @@ if (ANDROID)
   set(Module_vtkFiltersModeling ON)
   set(Module_vtkFiltersSources ON)
   set(Module_vtkFiltersGeometry ON)
-  set(Module_vtkIOGeometry ON)
-  set(Module_vtkIOLegacy ON)
-  set(Module_vtkIOXML ON)
-  set(Module_vtkIOImage ON)
-  set(Module_vtkIOPLY ON)
-  set(Module_vtkIOInfovis ON)
-  set(Module_vtkImagingCore ON)
-  set(Module_vtkParallelCore ON)
+  # set(Module_vtkIOGeometry ON)
+  # set(Module_vtkIOLegacy ON)
+  # set(Module_vtkIOXML ON)
+  # set(Module_vtkIOImage ON)
+  # set(Module_vtkIOPLY ON)
+  # set(Module_vtkIOInfovis ON)
+  # set(Module_vtkImagingCore ON)
+  # set(Module_vtkParallelCore ON)
   set(Module_vtkRenderingCore ON)
 
   # find opengl es2 (maybe someday add an option for ES3)
@@ -117,6 +117,12 @@ if (ANDROID)
      )
   find_library(OPENGL_gl_LIBRARY
      NAMES GLESv2
+     PATHS
+       ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
+       ${_OPENGL_LIB_PATH}
+     )
+  find_library(OPENGL_egl_LIBRARY
+     NAMES EGL
      PATHS
        ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
        ${_OPENGL_LIB_PATH}

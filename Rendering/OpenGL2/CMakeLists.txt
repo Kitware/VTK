@@ -245,6 +245,16 @@ elseif(VTK_USE_CARBON)
     vtkCarbonRenderWindowInteractor.cxx
     vtkCarbonRenderWindow.cxx
     )
+elseif(ANDROID)
+  # Add some custom overrides
+#  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+#  set(vtk_module_vtkRenderWindowInteractor_override "vtkEGLRenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkEGLRenderWindow")
+  list(APPEND Module_SRCS
+#    vtkEGLRenderWindowInteractor.cxx
+    vtkEGLRenderWindow.cxx
+    )
 endif()
 
 # Now we iterate and create that class file...
@@ -288,4 +298,9 @@ target_link_libraries(${vtk-module}
 if(VTK_USE_X)
   target_link_libraries(${vtk-module}
     LINK_PUBLIC ${X11_LIBRARIES} ${X11_Xt_LIB})
+endif()
+
+if(ANDROID)
+  target_link_libraries(${vtk-module}
+    LINK_PUBLIC ${OPENGL_egl_LIBRARY})
 endif()
