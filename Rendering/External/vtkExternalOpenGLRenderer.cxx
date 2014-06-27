@@ -152,15 +152,16 @@ void vtkExternalOpenGLRenderer::Render(void)
 {
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
-  if (viewport[2] <= viewport[0])
-    {
-    viewport[2] += viewport[0];
-    }
+  //std::cout << "Viewport " << Viewport[0] << "," << viewport[1] << "," << viewport[2] << "," << viewport[3] << std::endl;
+  int* size = this->RenderWindow->GetSize();
+  //std::cout << "Renderer Size" << size[0] << "," << size[1] << std::endl;
   this->SetViewport(
-    static_cast<double>(viewport[0])/viewport[2],
-    static_cast<double>(viewport[1])/viewport[3],
-    static_cast<double>(viewport[2])/viewport[2],
-    static_cast<double>(viewport[3])/viewport[3]);
+    static_cast<double>(viewport[0])/size[0],
+    static_cast<double>(viewport[1])/size[1],
+    static_cast<double>(viewport[2] + viewport[0])/size[0],
+    static_cast<double>(viewport[3] + viewport[1])/size[1]);
+  //std::cout << static_cast<double>(viewport[0])/size[0] << "," << static_cast<double>(viewport[1])/size[1] << "," <<
+//static_cast<double>(viewport[2] + viewport[0])/size[0] << "," << static_cast<double>(viewport[3] + viewport[1])/size[1] << std::endl;
 
   GLdouble mv[16],p[16];
   glGetDoublev(GL_MODELVIEW_MATRIX,mv);
@@ -194,21 +195,11 @@ void vtkExternalOpenGLRenderer::Render(void)
     newPosition[2] /= newPosition[3];
     newPosition[3] = 1.0;
     }
-//  std::cerr << "new position is "
-//            << newPosition[0] << " "
-//            << newPosition[1] << " "
-//            << newPosition[2] << " "
-//            << newPosition[3] << " " << std::endl;
   camera->SetPosition(newPosition);
 
   // Synchronize focal point
   double focalPoint[4] = {0.0, 0.0, 0.0, 1.0}, newFocalPoint[4];
   matrix->MultiplyPoint(focalPoint, newFocalPoint);
-//  std::cerr << "new focalPoint is "
-//            << newFocalPoint[0] << " "
-//            << newFocalPoint[1] << " "
-//            << newFocalPoint[2] << " "
-//            << newFocalPoint[3] << " " << std::endl;
   camera->SetFocalPoint(newFocalPoint);
 
   vtkCollectionSimpleIterator sit;
