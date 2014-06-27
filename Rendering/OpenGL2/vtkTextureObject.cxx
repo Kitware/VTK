@@ -201,7 +201,7 @@ vtkTextureObject::~vtkTextureObject()
 }
 
 //----------------------------------------------------------------------------
-bool vtkTextureObject::IsSupported(vtkRenderWindow* win,
+bool vtkTextureObject::IsSupported(vtkRenderWindow* vtkNotUsed(win),
       bool requireTexFloat,
       bool requireDepthFloat,
       bool requireTexInt)
@@ -209,36 +209,36 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win,
   bool texFloat = true;
   if (requireTexFloat)
     {
-    texFloat = glewIsSupported("GL_ARB_texture_float");
+    texFloat = (glewIsSupported("GL_ARB_texture_float") != 0);
     }
 
   bool depthFloat = true;
   if (requireDepthFloat)
     {
-    depthFloat = glewIsSupported("GL_ARB_depth_buffer_float");
+    depthFloat = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
     }
 
   bool texInt = true;
   if (requireTexInt)
     {
-    texInt = glewIsSupported("GL_EXT_texture_integer");
+    texInt = (glewIsSupported("GL_EXT_texture_integer") != 0);
     }
 
   return texFloat && depthFloat && texInt;
 }
 
 //----------------------------------------------------------------------------
-bool vtkTextureObject::LoadRequiredExtensions(vtkRenderWindow *renWin)
+bool vtkTextureObject::LoadRequiredExtensions(vtkRenderWindow *vtkNotUsed(renWin))
 {
-  this->SupportsTextureInteger = glewIsSupported("GL_EXT_texture_integer");
+  this->SupportsTextureInteger = (glewIsSupported("GL_EXT_texture_integer") != 0);
 
   bool texInt = (!this->RequireTextureInteger || this->SupportsTextureInteger);
 
-  this->SupportsTextureFloat = glewIsSupported("GL_ARB_texture_float");
+  this->SupportsTextureFloat = (glewIsSupported("GL_ARB_texture_float") != 0);
 
   bool texFloat = (!this->RequireTextureFloat || this->SupportsTextureFloat);
 
-  this->SupportsDepthBufferFloat = glewIsSupported("GL_ARB_depth_buffer_float");
+  this->SupportsDepthBufferFloat = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
 
   bool depthFloat = (!this->RequireDepthBufferFloat ||
                      this->SupportsDepthBufferFloat);

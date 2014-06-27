@@ -1433,7 +1433,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 }
 
 int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-                                           float *buffer )
+                                           float *vtkNotUsed(buffer) )
 {
   int             y_low;
   int             x_low;

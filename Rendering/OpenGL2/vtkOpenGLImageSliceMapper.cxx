@@ -257,10 +257,10 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   vtkImageSliceMapper::GetDimensionIndices(this->Orientation, xdim, ydim);
 
   // check whether to use a shader for bicubic interpolation
-  bool checkerboard = (property && property->GetCheckerboard());
-  bool cubicInterpolation = (property &&
-    property->GetInterpolationType() == VTK_CUBIC_INTERPOLATION);
-  bool useFragmentProgram = false;
+  //bool checkerboard = (property && property->GetCheckerboard());
+  //bool cubicInterpolation = (property &&
+  //  property->GetInterpolationType() == VTK_CUBIC_INTERPOLATION);
+  //bool useFragmentProgram = false;
     // (this->UseFragmentProgram &&
     //  (!this->ExactPixelMatch || !this->SliceFacesCamera) &&
     //  (cubicInterpolation || checkerboard));
@@ -589,7 +589,7 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLImageSliceMapper::BindFragmentProgram(
-  vtkRenderer *ren, vtkImageProperty *property)
+  vtkRenderer *vtkNotUsed(ren), vtkImageProperty *vtkNotUsed(property))
 {
   vtkOpenGLClearErrorMacro();
 
@@ -601,7 +601,7 @@ void vtkOpenGLImageSliceMapper::BindFragmentProgram(
 
 //----------------------------------------------------------------------------
 vtkStdString vtkOpenGLImageSliceMapper::BuildFragmentProgram(
-  vtkImageProperty *property)
+  vtkImageProperty *vtkNotUsed(property))
 {
 
   // TODO change all this

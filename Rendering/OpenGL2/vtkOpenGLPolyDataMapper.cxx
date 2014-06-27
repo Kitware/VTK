@@ -776,7 +776,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->points.ibo.Release();
-    this->pickingAttributeIDOffset += this->points.indexCount;
+    this->pickingAttributeIDOffset += (int)this->points.indexCount;
     }
 
   // draw lines
@@ -794,17 +794,14 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     else
       {
-      for (size_t eCount = 0; eCount < this->lines.offsetArray.size();
-           ++eCount)
-        {
-        glDrawElements(GL_LINE_STRIP,
-          this->lines.elementsArray[eCount],
-          GL_UNSIGNED_INT,
-          (GLvoid *)(this->lines.offsetArray[eCount]));
-        }
+      glMultiDrawElements(GL_LINE_STRIP,
+                        (GLsizei *)(&this->lines.elementsArray[0]),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid **>(&(this->lines.offsetArray[0])),
+                        (GLsizei)this->lines.offsetArray.size());
       }
     this->lines.ibo.Release();
-    this->pickingAttributeIDOffset += this->lines.indexCount;
+    this->pickingAttributeIDOffset += (int)this->lines.indexCount;
     }
 
   // draw polygons
@@ -827,7 +824,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                         (GLsizei *)(&this->tris.elementsArray[0]),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid **>(&(this->tris.offsetArray[0])),
-                        this->tris.offsetArray.size());
+                        (GLsizei)this->tris.offsetArray.size());
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
       {
@@ -838,7 +835,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           reinterpret_cast<const GLvoid *>(NULL));
       }
     this->tris.ibo.Release();
-    this->pickingAttributeIDOffset += this->tris.indexCount;
+    this->pickingAttributeIDOffset += (int)this->tris.indexCount;
     }
 
   // draw strips
@@ -857,25 +854,19 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
-      for (size_t eCount = 0;
-           eCount < this->triStrips.offsetArray.size(); ++eCount)
-        {
-        glDrawElements(GL_LINE_STRIP,
-          this->triStrips.elementsArray[eCount],
-          GL_UNSIGNED_INT,
-          (GLvoid *)(this->triStrips.offsetArray[eCount]));
-        }
+      glMultiDrawElements(GL_LINE_STRIP,
+                        (GLsizei *)(&this->triStrips.elementsArray[0]),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid **>(&(this->triStrips.offsetArray[0])),
+                        (GLsizei)this->triStrips.offsetArray.size());
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
       {
-      for (size_t eCount = 0;
-           eCount < this->triStrips.offsetArray.size(); ++eCount)
-        {
-        glDrawElements(GL_TRIANGLE_STRIP,
-          this->triStrips.elementsArray[eCount],
-          GL_UNSIGNED_INT,
-          (GLvoid *)(this->triStrips.offsetArray[eCount]));
-        }
+      glMultiDrawElements(GL_TRIANGLE_STRIP,
+                        (GLsizei *)(&this->triStrips.elementsArray[0]),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid **>(&(this->triStrips.offsetArray[0])),
+                        (GLsizei)this->triStrips.offsetArray.size());
       }
     this->triStrips.ibo.Release();
     }
@@ -1106,7 +1097,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
   // and IBOs as appropriate for each type.
   this->layout =
     CreateVBO(poly->GetPoints(),
-              cellPointMap.size() > 0 ? cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
+              cellPointMap.size() > 0 ? (unsigned int)cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
               (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL,
               tcoords,
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,

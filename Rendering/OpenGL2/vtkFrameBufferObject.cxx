@@ -82,17 +82,17 @@ void vtkFrameBufferObject::DestroyFBO()
 //----------------------------------------------------------------------------
 bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *)
 {
-    bool fbo = glewIsSupported("GL_EXT_framebuffer_object");
-    bool fboBlit = glewIsSupported("GL_EXT_framebuffer_blit");
+    bool fbo = (glewIsSupported("GL_EXT_framebuffer_object") != 0);
+    bool fboBlit = (glewIsSupported("GL_EXT_framebuffer_blit") != 0);
 
     return fbo && fboBlit;
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::LoadRequiredExtensions(vtkRenderWindow *win)
+bool vtkFrameBufferObject::LoadRequiredExtensions(vtkRenderWindow *vtkNotUsed(win))
 {
-  bool fbo = glewIsSupported("GL_EXT_framebuffer_object");
-  bool fboBlit = glewIsSupported("GL_EXT_framebuffer_blit");
+  bool fbo = (glewIsSupported("GL_EXT_framebuffer_object") != 0);
+  bool fboBlit = (glewIsSupported("GL_EXT_framebuffer_blit") != 0);
 
   return fbo && fboBlit;
 }
