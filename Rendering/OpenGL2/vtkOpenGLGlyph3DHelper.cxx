@@ -173,7 +173,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
                       (GLsizei *)(&this->tris.elementsArray[0]),
                       GL_UNSIGNED_INT,
                       reinterpret_cast<const GLvoid **>(&(this->tris.offsetArray[0])),
-                      this->tris.offsetArray.size());
+                      (GLsizei)this->tris.offsetArray.size());
     }
   if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
     {
