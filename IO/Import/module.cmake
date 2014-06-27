@@ -7,7 +7,7 @@ vtk_module(vtkIOImport
   PRIVATE_DEPENDS
     vtkFiltersSources
   TEST_DEPENDS
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
   )

@@ -599,10 +599,10 @@ void vtkGL2PSExporter::GetVisibleContextActors(vtkPropCollection *result,
   for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     vtkCollection *pCol = ren->GetViewProps();
-    vtkContextActor *act;
-    for (pCol->InitTraversal();
-         (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
+    vtkObject *object;
+    for (pCol->InitTraversal(); (object = pCol->GetNextItemAsObject());)
       {
+      vtkContextActor *act = vtkContextActor::SafeDownCast(object);
       if (!act || !act->GetVisibility())
         {
         continue;

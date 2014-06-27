@@ -1,4 +1,6 @@
 vtk_module(vtkRenderingContextOpenGL2
+  TCL_NAME
+    vtkRenderingContextOpenGLII
   DEPENDS
     vtkRenderingOpenGL2
   IMPLEMENTS
@@ -8,5 +10,4 @@ vtk_module(vtkRenderingContextOpenGL2
   PRIVATE_DEPENDS
     vtkRenderingFreeType
     vtkglew
-  EXCLUDE_FROM_WRAPPING
   )

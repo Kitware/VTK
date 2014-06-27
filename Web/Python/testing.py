@@ -36,6 +36,7 @@ import_warning_info = ""
 test_module_comm_queue = None
 
 import vtk
+import server
 
 # Try standard Python imports
 try :

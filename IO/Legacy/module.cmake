@@ -11,6 +11,6 @@ vtk_module(vtkIOLegacy
   TEST_DEPENDS
     vtkFiltersAMR
     vtkInteractionStyle
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
   )

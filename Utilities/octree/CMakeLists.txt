@@ -1,6 +1,9 @@
 project( ndtree )
 
   cmake_minimum_required( VERSION 2.6 )
+  if(POLICY CMP0053)
+    cmake_policy(SET CMP0053 NEW) # CMake 3.1
+  endif()
 
   find_package( VTK REQUIRED )
   include( ${VTK_USE_FILE} )

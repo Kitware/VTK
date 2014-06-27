@@ -12,5 +12,5 @@ vtk_module(vtkIOMPIImage
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
   )
