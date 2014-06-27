@@ -145,8 +145,8 @@ bool vtkXOpenGLRenderDevice::Private::GetDesiredVisualInfo(Display *display,
   return true;
 }
 
-bool vtkXOpenGLRenderDevice::CreateWindow(const vtkRecti &geometry,
-                                          const std::string &name)
+bool vtkXOpenGLRenderDevice::CreateNewWindow(const vtkRecti &geometry,
+                                             const std::string &name)
 {
   XVisualInfo  *v, matcher;
   XSetWindowAttributes  attr;

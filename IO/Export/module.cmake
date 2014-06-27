@@ -26,5 +26,6 @@ vtk_module(vtkIOExport
     vtkRenderingAnnotation
     vtkRenderingFreeTypeOpenGL
     vtkRenderingVolumeOpenGL
+    vtkRenderingContextOpenGL
     vtkViewsContext2D
   )

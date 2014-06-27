@@ -22,8 +22,7 @@ vtk_module(vtkIOImage
     vtkImagingSources
     vtkImagingMath
     vtkInteractionStyle
-    vtkRenderingContext2D
-    vtkRenderingCore
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkTestingCore
     vtkTestingRendering
     vtkIOLegacy

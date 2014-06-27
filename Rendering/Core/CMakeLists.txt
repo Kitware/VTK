@@ -154,8 +154,10 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
+  vtkAbstractInteractionDevice
   vtkAbstractMapper3D
   vtkAbstractMapper
+  vtkAbstractRenderDevice
   vtkAbstractVolumeMapper
   vtkAbstractPicker
   vtkAbstractPropPicker
@@ -181,6 +183,13 @@ set_source_files_properties(
   vtkVisibilitySort
   vtkStringToImage
   ABSTRACT
+  )
+
+set_source_files_properties(
+  vtkAbstractInteractionDevice
+  vtkAbstractRenderDevice
+  vtkRenderWidget
+  WRAP_EXCLUDE
   )
 
 # On OS X, vtkRenderWindowJava must be compiled with Objective C++

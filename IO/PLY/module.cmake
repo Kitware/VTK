@@ -6,7 +6,7 @@ vtk_module(vtkIOPLY
     vtkCommonExecutionModel
     vtkIOGeometry
   TEST_DEPENDS
-    vtkRenderingOpenGL2
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkIOImage
     vtkTestingRendering
     vtkInteractionStyle

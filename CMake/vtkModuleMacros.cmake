@@ -128,7 +128,8 @@ macro(vtk_module _name)
   list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
   list(SORT ${vtk-module-test}_DEPENDS) # Deterministic order.
   list(SORT ${vtk-module}_IMPLEMENTS) # Deterministic order.
-  if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
+  if(NOT (${vtk-module}_EXCLUDE_FROM_WRAPPING OR
+          ${vtk-module}_EXCLUDE_FROM_TCL_WRAPPING) AND
       "${${vtk-module}_TCL_NAME}" MATCHES "[0-9]")
     message(AUTHOR_WARNING "Specify a TCL_NAME with no digits.")
   endif()

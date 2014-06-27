@@ -1,4 +1,6 @@
 vtk_module(vtkRenderingOpenGL2
+  TCL_NAME
+    vtkRenderingOpenGLII
   DEPENDS
     vtkCommonExecutionModel
   IMPLEMENTS
@@ -15,5 +17,4 @@ vtk_module(vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOPLY
-  EXCLUDE_FROM_WRAPPING
   )

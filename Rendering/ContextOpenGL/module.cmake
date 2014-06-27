@@ -7,5 +7,4 @@ vtk_module(vtkRenderingContextOpenGL
     OpenGL
   PRIVATE_DEPENDS
     vtkRenderingFreeType
-  EXCLUDE_FROM_WRAPPING
   )
