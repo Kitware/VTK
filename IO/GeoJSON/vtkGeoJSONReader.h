@@ -1,22 +1,30 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkGeoJSONReader.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkGeoJSONReader - Convert Geo JSON format to vtkPolyData
+// .SECTION Description
+// Outputs a vtkPolyData from the input
+// Geo JSON Data (http://www.geojson.org)
+
 #ifndef __vtkGeoJSONReader_h
 #define __vtkGeoJSONReader_h
 
-#include "vtkGeoJSONFeature.h"
-
 // VTK Includes
-#include <vtkPolyDataAlgorithm.h>
-#include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
-#include <vtkStdString.h>
-#include <vtk_jsoncpp.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
-#include <vtkTriangleFilter.h>
+#include "vtkPolyDataAlgorithm.h"
+#include "vtk_jsoncpp.h" // For json parser
 
-// C++ includes
-#include <fstream>
-#include <iostream>
+class vtkPolyData;
 
 class vtkGeoJSONReader: public vtkPolyDataAlgorithm
 {

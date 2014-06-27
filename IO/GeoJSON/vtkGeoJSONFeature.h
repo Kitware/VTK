@@ -1,16 +1,31 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkGeoJSONFeature.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkGeoJSONFeature - Convert GeoJSON objects/Geometries into vtkPolyData
+// .SECTION Description
+// Outputs a vtkPolyData containing geometry from the input
+// Geo JSON data (http://www.geojson.org)
+
 #ifndef __vtkGeoJSONFeature_h
 #define __vtkGeoJSONFeature_h
 
 // VTK Includes
-#include <vtkPolyData.h>
-#include <vtkPoints.h>
-#include <vtkCellArray.h>
-#include <vtkAppendPolyData.h>
-#include <vtkCleanPolyData.h>
-#include <vtkLine.h>
-#include <vtkPolygon.h>
-#include <vtk_jsoncpp.h>
-#include <vtkObjectFactory.h>
+#include "vtkDataObject.h"
+#include "vtk_jsoncpp.h" // For json parser
+
+class vtkPolyData;
+class vtkStdString;
 
 // Currently implemented geoJSON compatible Geometries
 #define POINT                   "Point"
@@ -21,12 +36,12 @@
 #define MULTI_POLYGON           "MultiPolygon"
 #define GEOMETRY_COLLECTION     "GeometryCollection"
 
-class vtkGeoJSONFeature : public vtkObject
+class vtkGeoJSONFeature : public vtkDataObject
 {
 public:
   static vtkGeoJSONFeature *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-  vtkTypeMacro(vtkGeoJSONFeature,vtkObject);
+  vtkTypeMacro(vtkGeoJSONFeature,vtkDataObject);
 
   // Description:
   //Extract the geometry and properties corresponding to the geoJSON feature stored at root

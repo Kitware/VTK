@@ -1,4 +1,33 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkGeoJSONReader.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "vtkGeoJSONReader.h"
+
+// VTK Includes
+#include "vtkPolyData.h"
+#include "vtkStdString.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkTriangleFilter.h"
+#include "vtkCellArray.h"
+#include "vtkGeoJSONFeature.h"
+
+// C++ includes
+#include <fstream>
+#include <iostream>
 
 vtkStandardNewMacro(vtkGeoJSONReader);
 
