@@ -8,5 +8,5 @@ vtk_module(vtkIOParallelLSDyna
    vtkRenderingParallel
    vtkTestingRendering
    vtkInteractionStyle
-   vtkRenderingOpenGL
+   vtkRendering${VTK_RENDERING_BACKEND}
   )

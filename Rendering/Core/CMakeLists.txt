@@ -137,6 +137,11 @@ set(Module_SRCS
   vtkTextMapper.cxx
   vtkTextProperty.cxx
   vtkTextRenderer.cxx
+
+  # Some of the new rendering code - may move around in the future.
+  vtkAbstractInteractionDevice.cxx
+  vtkAbstractRenderDevice.cxx
+  vtkRenderWidget.cxx
   )
 
 set(${vtk-module}_HDRS
@@ -149,8 +154,10 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
+  vtkAbstractInteractionDevice
   vtkAbstractMapper3D
   vtkAbstractMapper
+  vtkAbstractRenderDevice
   vtkAbstractVolumeMapper
   vtkAbstractPicker
   vtkAbstractPropPicker
@@ -176,6 +183,13 @@ set_source_files_properties(
   vtkVisibilitySort
   vtkStringToImage
   ABSTRACT
+  )
+
+set_source_files_properties(
+  vtkAbstractInteractionDevice
+  vtkAbstractRenderDevice
+  vtkRenderWidget
+  WRAP_EXCLUDE
   )
 
 # On OS X, vtkRenderWindowJava must be compiled with Objective C++

@@ -38,11 +38,15 @@
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkRenderWindow;
+
 class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextBufferId : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextBufferId, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
+
+  static vtkAbstractContextBufferId * New();
 
   // Description:
   // Number of columns. Initial value is 0.
@@ -59,6 +63,16 @@ public:
   // Description:
   // Set the number of rows. Initial value is 0.
   vtkSetMacro(Height,int);
+
+  // Description:
+  // Set/Get the OpenGL context owning the texture object resource.
+  virtual void SetContext(vtkRenderWindow *context) = 0;
+  virtual vtkRenderWindow *GetContext() = 0;
+
+  // Description:
+  // Returns if the context supports the required extensions.
+  // \pre context_is_set: this->GetContext()!=0
+  virtual bool IsSupported() = 0;
 
   // Description:
   // Allocate the memory for at least Width*Height elements.

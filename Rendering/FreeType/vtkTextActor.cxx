@@ -33,7 +33,6 @@
 #include <algorithm>
 
 vtkStandardNewMacro(vtkTextActor);
-vtkCxxSetObjectMacro(vtkTextActor,Texture,vtkTexture);
 
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()
@@ -68,18 +67,15 @@ vtkTextActor::vtkTextActor()
   tc->Delete();
 
   this->ImageData = vtkImageData::New();
-  this->Texture = NULL;
   vtkTexture* texture = vtkTexture::New();
   texture->SetInputData(this->ImageData);
   this->SetTexture(texture);
   texture->Delete();
 
   vtkPolyDataMapper2D *mapper = vtkPolyDataMapper2D::New();
-  this->PDMapper = 0;
   this->SetMapper(mapper);
+  mapper->SetInputData(this->Rectangle);
   mapper->Delete();
-  // Done already in SetMapper.
-  //this->PDMapper->SetInput(this->Rectangle);
 
   this->TextProperty = vtkTextProperty::New();
   this->ScaledTextProperty = vtkTextProperty::New();
@@ -337,32 +333,6 @@ void vtkTextActor::SetNonLinearFontScale(double exp, int tgt)
 }
 
 // ----------------------------------------------------------------------------
-void vtkTextActor::SetMapper(vtkPolyDataMapper2D *mapper)
-{
-  // I will not reference count this because the superclass does.
-  this->PDMapper = mapper; // So what is the point of have the ivar PDMapper?
-  this->Superclass::SetMapper( mapper );
-
-  if (mapper)
-    {
-    mapper->SetInputData(this->Rectangle);
-    }
-}
-
-// ----------------------------------------------------------------------------
-void vtkTextActor::SetMapper(vtkMapper2D *mapper)
-{
-  if (mapper && mapper->IsA("vtkPolyDataMapper2D"))
-    {
-    this->SetMapper( static_cast<vtkPolyDataMapper2D *>(mapper) );
-    }
-  else
-    {
-    vtkErrorMacro(<<"Must use a vtkPolyDataMapper2D with this class");
-  }
-}
-
-// ----------------------------------------------------------------------------
 bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *)
 {
   vtkStdString text;
@@ -459,7 +429,6 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
 void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->Superclass::ReleaseGraphicsResources(win);
-  this->Texture->ReleaseGraphicsResources(win);
 }
 
 // ----------------------------------------------------------------------------
@@ -468,16 +437,6 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
   if (!this->Visibility)
     {
     return 0;
-    }
-
-  // render the texture
-  if (this->Texture && this->Input && this->Input[0] != '\0')
-    {
-    vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
-    if (ren)
-      {
-      this->Texture->Render(ren);
-      }
     }
 
   // Everything is built in RenderOpaqueGeometry, just have to render
@@ -517,7 +476,8 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Everything is built, just have to render
-  return this->Superclass::RenderOpaqueGeometry(viewport);
+  // but we do not render opaque geometry so return 0
+  return 0; // this->Superclass::RenderOpaqueGeometry(viewport);
 }
 
 //-----------------------------------------------------------------------------
@@ -1086,10 +1046,5 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TextScaleMode: " << this->TextScaleMode << endl;
   os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "FontScaleExponent: " << this->FontScaleExponent << endl;
-  os << indent << "Texture: " << this->Texture << "\n";
   os << indent << "UseBorderAlign: " << this->UseBorderAlign << "\n";
-  if (this->Texture)
-    {
-    this->Texture->PrintSelf(os, indent.GetNextIndent());
-    }
 }

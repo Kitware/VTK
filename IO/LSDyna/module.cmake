@@ -7,7 +7,7 @@ vtk_module(vtkIOLSDyna
   PRIVATE_DEPENDS
     vtksys
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
   )

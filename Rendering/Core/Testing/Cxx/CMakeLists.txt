@@ -1,16 +1,57 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  otherCoordinate.cxx,NO_DATA,NO_VALID
   FrustumClip.cxx
   Mace.cxx
   RGrid.cxx
-  TestAssemblyBounds.cxx,NO_VALID
-  TestPickingManager.cxx,NO_VALID
   TestActor2DTextures.cxx
+  TestActorLightingFlag.cxx
+  TestAnimationScene.cxx
+  TestAreaSelections.cxx
+  TestAssemblyBounds.cxx,NO_VALID
+  TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
+  TestFollowerPicking.cxx
+  TestGlyph3DMapper.cxx
+  TestGlyph3DMapperArrow.cxx
+  TestGlyph3DMapperMasking.cxx
+  TestGlyph3DMapperOrientationArray.cxx
+  TestGlyph3DMapperPicking.cxx
+  TestGradientBackground.cxx
+  TestHomogeneousTransformOfActor.cxx
+  TestInteractorStyleImageProperty.cxx,NO_VALID
+  TestInteractorTimers.cxx,NO_VALID
+  TestPickingManager.cxx,NO_VALID
+  TestManyActors.cxx,NO_VALID
   TestMapVectorsAsRGBColors.cxx
   TestMapVectorsToColors.cxx
+  TestOffAxisStereo.cxx
+  TestOrderedTriangulator.cxx
+  TestOpacity.cxx
+  TestOSConeCxx.cxx
+  TestPolygonSelection.cxx
+  TestResetCameraVerticalAspectRatio.cxx
+  TestResetCameraVerticalAspectRatioParallel.cxx
   TestSplitViewportStereoHorizontal.cxx
+  TestTexturedBackground.cxx
+  TestTextureSize.cxx,NO_VALID
+  TestTextureRGBA.cxx
+  TestTextureRGBADepthPeeling.cxx
+  TestTilingCxx.cxx
+  TestTransformCoordinateUseDouble.cxx
+  TestTranslucentImageActorAlphaBlending.cxx
+  TestTranslucentImageActorDepthPeeling.cxx
+  TestTranslucentLUTAlphaBlending.cxx
+  TestTranslucentLUTDepthPeeling.cxx
+  TestTranslucentLUTTextureAlphaBlending.cxx
+  TestTranslucentLUTTextureDepthPeeling.cxx
+  TestTStripsColorsTCoords.cxx
+  TestTStripsNormalsColorsTCoords.cxx
+  TestTStripsNormalsTCoords.cxx
+  TestTStripsTCoords.cxx
   otherLookupTable.cxx,NO_VALID
   otherLookupTableWithEnabling.cxx,NO_VALID
+  RenderNonFinite.cxx
+  SurfacePlusEdges.cxx
   # TestViewDependentErrorMetric.cxx # Loads of extra deps - move?
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )

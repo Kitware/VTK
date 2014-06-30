@@ -14,7 +14,7 @@ vtk_module(vtkIOGeometry
     vtkIOAMR
     vtkIOLegacy
     vtkFiltersGeometry
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
   )

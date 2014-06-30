@@ -13,5 +13,11 @@ vtk_module(vtkRenderingCore
     vtkIOXML
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingFreeType
+    vtkRenderingAnnotation
+    vtkInteractionStyle
+    vtkImagingSources
+    vtkFiltersSources
+    vtkFiltersProgrammable
   )

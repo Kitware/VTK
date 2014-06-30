@@ -66,6 +66,7 @@ class vtkTextActor;
 class vtkTextMapper;
 class vtkTextProperty;
 class vtkTexture;
+class vtkTexturedActor2D;
 
 #define VTK_ORIENT_HORIZONTAL 0
 #define VTK_ORIENT_VERTICAL 1
@@ -179,7 +180,7 @@ public:
 
   // Description:
   // Get the texture actor.. you may want to change some properties on it
-  vtkGetObjectMacro( TextureActor, vtkActor2D );
+  vtkGetObjectMacro( TextureActor, vtkTexturedActor2D );
 
 //BTX
   enum { PrecedeScalarBar = 0, SucceedScalarBar };
@@ -537,7 +538,7 @@ protected:
   vtkActor2D* ScalarBarActor; //!< Actor for \a ScalarBar.
   vtkPolyData* TexturePolyData; //!< Polygon colored when UseOpacity is true.
   vtkTexture* Texture; //!< Color data for \a TexturePolyData.
-  vtkActor2D* TextureActor; //!< Actor for \a TexturePolyData.
+  vtkTexturedActor2D* TextureActor; //!< Actor for \a TexturePolyData.
 
   vtkPolyData* Background; //!< Polygon used to fill the background.
   vtkPolyDataMapper2D* BackgroundMapper; //!< Mapper for \a Background.

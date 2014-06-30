@@ -34,6 +34,7 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkMathTextUtilities.h"
@@ -151,7 +152,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->TexturePolyData = vtkPolyData::New();
   vtkPolyDataMapper2D* textureMapper = vtkPolyDataMapper2D::New();
   textureMapper->SetInputData(this->TexturePolyData);
-  this->TextureActor = vtkActor2D::New();
+  this->TextureActor = vtkTexturedActor2D::New();
   this->TextureActor->SetMapper(textureMapper);
   textureMapper->Delete();
   this->TextureActor->GetPositionCoordinate()->
@@ -172,7 +173,6 @@ vtkScalarBarActor::vtkScalarBarActor()
   polys2->InsertCellPoint(1);
   polys2->InsertCellPoint(2);
   polys2->InsertCellPoint(3);
-  this->TexturePolyData->SetPolys(polys2);
   polys2->Delete();
 
   vtkProperty2D* imageProperty = vtkProperty2D::New();
@@ -201,6 +201,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->Texture = vtkTexture::New();
   this->Texture->SetInputData( image );
   this->Texture->RepeatOn();
+  this->TextureActor->SetTexture(this->Texture);
   image->Delete();
 
   // Default text position : Above scalar bar if orientation is horizontal
@@ -359,7 +360,6 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 
   if (this->UseOpacity && this->DrawColorBar)
     {
-    this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
     renderedSomething += this->TextureActor->RenderOverlay(viewport);
     }
 

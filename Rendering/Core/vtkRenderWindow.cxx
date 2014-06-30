@@ -79,7 +79,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AnaglyphColorSaturation = 0.65f;
   this->AnaglyphColorMask[0] = 4;  // red
   this->AnaglyphColorMask[1] = 3;  // cyan
-  this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
+  this->PainterDeviceAdapter = NULL;
 #ifndef VTK_LEGACY_REMOVE
   this->ReportGraphicErrors = 0; // false
 #endif
@@ -122,7 +122,10 @@ vtkRenderWindow::~vtkRenderWindow()
 
   this->Renderers->Delete();
 
-  this->PainterDeviceAdapter->Delete();
+  if (this->PainterDeviceAdapter)
+    {
+    this->PainterDeviceAdapter->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------

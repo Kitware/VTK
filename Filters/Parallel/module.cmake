@@ -12,7 +12,7 @@ vtk_module(vtkFiltersParallel
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingParallel
     vtkFiltersParallelMPI
     vtkFiltersParallelImaging

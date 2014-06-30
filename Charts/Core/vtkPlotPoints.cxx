@@ -446,7 +446,6 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
         }
       ++low;
     }
-  std::sort(selected.begin(), selected.end());
   this->Selection->SetNumberOfTuples(selected.size());
   vtkIdType *ptr = static_cast<vtkIdType *>(this->Selection->GetVoidPointer(0));
   for (size_t i = 0; i < selected.size(); ++i)

@@ -33,7 +33,7 @@
 #define __vtkTextActor_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
-#include "vtkActor2D.h"
+#include "vtkTexturedActor2D.h"
 
 class vtkTextProperty;
 class vtkPolyDataMapper2D;
@@ -42,12 +42,11 @@ class vtkTextRenderer;
 class vtkTransform;
 class vtkPolyData;
 class vtkPoints;
-class vtkTexture;
 
-class VTKRENDERINGFREETYPE_EXPORT vtkTextActor : public vtkActor2D
+class VTKRENDERINGFREETYPE_EXPORT vtkTextActor : public vtkTexturedActor2D
 {
 public:
-  vtkTypeMacro(vtkTextActor,vtkActor2D);
+  vtkTypeMacro(vtkTextActor,vtkTexturedActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -59,11 +58,6 @@ public:
   // Shallow copy of this text actor. Overloads the virtual
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
-
-  // Description:
-  // Override the vtkPolyDataMapper2D that defines the text to be drawn.
-  // One will be created by default if none is supplied
-  void SetMapper(vtkPolyDataMapper2D *mapper);
 
   // Description:
   // Set the text string to be displayed. "\n" is recognized
@@ -243,10 +237,6 @@ public:
 
 protected:
   // Description:
-  // Hide access methods that use superclass vtkMapper2D and not vtkImageMapper
-  void SetMapper(vtkMapper2D *mapper);
-
-  // Description:
   // Render Input to Image using the supplied font property.
   virtual bool RenderImage(vtkTextProperty *tprop, vtkViewport *viewport);
 
@@ -267,9 +257,6 @@ protected:
 
   vtkTextProperty *TextProperty;
   vtkImageData *ImageData;
-  // This used to be "Mapper" but I changed it to PDMapper because
-  // Mapper is an ivar in Actor2D (bad form).
-  vtkPolyDataMapper2D *PDMapper;
   vtkTextRenderer *TextRenderer;
   vtkTimeStamp  BuildTime;
   vtkTransform *Transform;
@@ -284,7 +271,6 @@ protected:
   // Stuff needed to display the image text as a texture map.
   vtkPolyData* Rectangle;
   vtkPoints*   RectanglePoints;
-  vtkTexture *Texture;
 
   virtual void ComputeRectangle(vtkViewport *viewport);
 
@@ -301,14 +287,6 @@ protected:
   // This may be called with a NULL viewport when bounds are required before
   // a rendering has occurred.
   virtual int UpdateRectangle(vtkViewport* viewport);
-
-  // Set/Get the texture object to control rendering texture maps.  This will
-  // be a vtkTexture object. An actor does not need to have an associated
-  // texture map and multiple actors can share one texture.
-  // This was added for orienated text which is rendered with a
-  // vtkPolyDataMaper2D and a texture.
-  virtual void SetTexture(vtkTexture*);
-  vtkGetObjectMacro(Texture,vtkTexture);
 
 private:
   vtkTextActor(const vtkTextActor&);  // Not implemented.

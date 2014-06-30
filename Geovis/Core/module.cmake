@@ -7,12 +7,13 @@ vtk_module(vtkGeovisCore
     vtkInteractionStyle
     vtkInfovisLayout
     vtkViewsCore
-    vtkRenderingOpenGL # For vtkOpenGLHardwareSupport in vtkGeoTerrain
+    vtkRenderingCore
     vtklibproj4
   TEST_DEPENDS
     vtkViewsGeovis
     vtkViewsInfovis
     vtkRenderingCore
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingFreeTypeOpenGL
     vtkTestingRendering
     vtkInteractionStyle

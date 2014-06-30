@@ -8,7 +8,7 @@ vtk_module(vtkInfovisCore
     vtkFiltersGeneral
   TEST_DEPENDS
     vtkInfovisLayout
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOInfovis

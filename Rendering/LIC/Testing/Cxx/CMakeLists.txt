@@ -1,3 +1,6 @@
+# temporary, remove when LIC is implemented
+if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
+
 # basic tests on the legacy filters
 # excercises line integral convolution 2d
 vtk_add_test_cxx(${vtk-module}CxxTests tests
@@ -6,6 +9,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestStructuredGridLIC2DYSlice.cxx
   TestStructuredGridLIC2DZSlice.cxx
   )
+
 # surface lic painter tests
 # get decent coverage by calling
 # varying arguments to the following
@@ -370,3 +374,5 @@ ExternalData_add_test(VTKData
     --mask-intensity=0.41
     --mask-color 0 0 0
     )
+
+endif() # opengl2

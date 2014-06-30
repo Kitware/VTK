@@ -313,6 +313,7 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
                          p3[2] + s*(p2[2]-p3[2]));
   this->Points->SetPoint(7, p0[0] + t*(p3[0]-p0[0]), p0[1] + t*(p3[1]-p0[1]),
                          p0[2] + t*(p3[2]-p0[2]));
+  this->Points->Modified();
 
 
   // Define the lines
