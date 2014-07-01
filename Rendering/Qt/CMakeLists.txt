@@ -23,4 +23,4 @@ else()
 endif()
 
 vtk_module_library(${vtk-module} ${LibSrcs})
-target_link_libraries(${vtk-module} LINK_PRIVATE ${QT_LIBRARIES})
+vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${QT_LIBRARIES})

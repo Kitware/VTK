@@ -601,7 +601,7 @@ function(vtk_module_library name)
 
   vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
-    target_link_libraries(${vtk-module} LINK_PUBLIC ${${dep}_LIBRARIES})
+    vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${${dep}_LIBRARIES})
     if(_help_vs7 AND ${dep}_LIBRARIES)
       add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
     endif()
@@ -615,7 +615,7 @@ function(vtk_module_library name)
     if(${dep}_LIBRARY_DIRS)
       link_directories(${${dep}_LIBRARY_DIRS})
     endif()
-    target_link_libraries(${vtk-module} LINK_PRIVATE ${${dep}_LIBRARIES})
+    vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${${dep}_LIBRARIES})
     if(_help_vs7 AND ${dep}_LIBRARIES)
       add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
     endif()
@@ -713,6 +713,16 @@ VTK_AUTOINIT(${vtk-module})
       DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
       COMPONENT Development
       )
+  endif()
+endfunction()
+
+function(vtk_module_link_libraries module)
+  if(VTK_ENABLE_KITS AND ${module}_KIT)
+    set_property(GLOBAL APPEND
+      PROPERTY
+        ${${module}_KIT}_LIBS ${ARGN})
+  else()
+    target_link_libraries(${module} ${ARGN})
   endif()
 endfunction()
 

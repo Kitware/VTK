@@ -91,7 +91,7 @@ if(TK_FOUND AND VTK_USE_TK)
 
     vtk_add_library(vtkRenderingTkTCL ${Module_TCL_SRCS})
 
-    target_link_libraries(vtkRenderingTkTCL
+    vtk_module_link_libraries(vtkRenderingTkTCL
           vtkRenderingCore vtkCommonDataModel vtkCommonCoreTCL
           vtkInteractionImage
           ${Module_TCL_LIBS})
@@ -134,7 +134,7 @@ if(TK_FOUND AND VTK_USE_TK)
       set(Module_PYTHON_LIBS ${Module_PYTHON_LIBS} "-framework Carbon")
     endif()
 
-    target_link_libraries(vtkRenderingPythonTkWidgets
+    vtk_module_link_libraries(vtkRenderingPythonTkWidgets
                           vtkRenderingCore vtkCommonDataModel
                           vtkInteractionImage
                           ${Module_PYTHON_LIBS})
