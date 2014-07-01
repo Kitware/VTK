@@ -199,6 +199,42 @@ list(SORT VTK_MODULES_DISABLED) # Deterministic order.
 # Order list to satisfy dependencies.
 include(CMake/TopologicalSort.cmake)
 topological_sort(VTK_MODULES_ENABLED "" _DEPENDS)
+set(vtk_modules_and_kits ${VTK_MODULES_ENABLED})
+if(VTK_ENABLE_KITS)
+  set(vtk_kits)
+  foreach(module IN LISTS VTK_MODULES_ENABLED)
+    if(${module}_KIT)
+      set(kit ${${module}_KIT})
+      # Set kit management variables.
+      set(_${kit}_is_kit 1)
+      list(APPEND _${kit}_modules ${module})
+      list(APPEND vtk_kits ${kit})
+      list(APPEND ${kit}_KIT_DEPENDS ${module})
+    else()
+      set(kit ${module})
+    endif()
+
+    foreach(dep IN LISTS ${module}_DEPENDS)
+      if(${dep}_KIT)
+        # Ignore self dependencies.
+        if(NOT kit STREQUAL ${dep}_KIT)
+          # Depend on the dependency's kit.
+          list(APPEND ${module}_KIT_DEPENDS ${${dep}_KIT})
+        endif()
+      endif()
+
+      # Keep the original dependency.
+      list(APPEND ${module}_KIT_DEPENDS ${dep})
+    endforeach()
+  endforeach()
+
+  # Put all kits in the list (if they are not dependencies of any module, they
+  # will be dropped otherwise).
+  list(APPEND vtk_modules_and_kits ${vtk_kits})
+
+  # Sort all modules and kits.
+  topological_sort(vtk_modules_and_kits "" _KIT_DEPENDS)
+endif()
 
 
 # Report what will be built.
