@@ -14,4 +14,6 @@ vtk_module(vtkFiltersGeneral
     vtkRenderingAnnotation
     vtkRenderingLabel
     vtkTestingRendering
+  KIT
+    vtkFilters
   )

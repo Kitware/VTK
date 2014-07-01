@@ -13,4 +13,6 @@ vtk_module(vtkFiltersSelection
     vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkFilters
   )

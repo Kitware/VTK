@@ -12,4 +12,6 @@ vtk_module(vtkFiltersSources
     vtkRenderingFreeTypeOpenGL
     vtkFiltersModeling
     vtkIOXML
+  KIT
+    vtkFilters
   )

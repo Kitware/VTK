@@ -4,4 +4,6 @@ vtk_module(vtkImagingStatistics
     StandAlone
   DEPENDS
     vtkImagingCore
+  KIT
+    vtkImaging
   )

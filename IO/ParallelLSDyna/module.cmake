@@ -9,4 +9,6 @@ vtk_module(vtkIOParallelLSDyna
    vtkTestingRendering
    vtkInteractionStyle
    vtkRendering${VTK_RENDERING_BACKEND}
+  KIT
+    vtkParallel
   )

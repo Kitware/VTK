@@ -7,4 +7,6 @@ vtk_module(vtkIOVPIC
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkParallel
   )

@@ -13,4 +13,6 @@ vtk_module(vtkRenderingParallel
     vtkRenderingOpenGL
     vtkInteractionStyle
     vtkTestingCore
+  KIT
+    vtkParallel
   )

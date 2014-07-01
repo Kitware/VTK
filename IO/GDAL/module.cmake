@@ -7,4 +7,6 @@ vtk_module(vtkIOGDAL
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkIO
 )

@@ -19,4 +19,6 @@ vtk_module(vtkIOXML
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOParallelXML
+  KIT
+    vtkIO
   )

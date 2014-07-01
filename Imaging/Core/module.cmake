@@ -22,4 +22,6 @@ vtk_module(vtkImagingCore
     vtkImagingSources
     vtkImagingStatistics # Move tests
     vtkRenderingImage # Move tests
+  KIT
+    vtkImaging
   )

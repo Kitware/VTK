@@ -12,4 +12,6 @@ vtk_module(vtkRenderingLabel
     vtkRenderingFreeTypeOpenGL
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkInteractionStyle
+  KIT
+    vtkRendering
   )

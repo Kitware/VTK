@@ -4,4 +4,6 @@ vtk_module(vtkIOFFMPEG
   TEST_DEPENDS
    vtkTestingCore
    vtkImagingSources
+  KIT
+    vtkIO
   )

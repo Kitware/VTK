@@ -3,4 +3,6 @@ vtk_module(vtkPythonInterpreter
     vtkCommonCore
     vtkPython
     vtksys
+  KIT
+    vtkWrapping
 )

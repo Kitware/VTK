@@ -7,4 +7,6 @@ vtk_module(vtkCommonSystem
     vtksys
   TEST_DEPENDS
    vtkTestingCore
+  KIT
+    vtkCommon
   )

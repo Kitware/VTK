@@ -11,4 +11,6 @@ vtk_module(vtkFiltersHyperTree
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingFreeTypeOpenGL
+  KIT
+    vtkFilters
   )

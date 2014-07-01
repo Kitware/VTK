@@ -21,4 +21,6 @@ vtk_module(vtkRenderingCore
     vtkImagingSources
     vtkFiltersSources
     vtkFiltersProgrammable
+  KIT
+    vtkRendering
   )

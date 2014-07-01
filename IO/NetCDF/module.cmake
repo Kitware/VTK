@@ -13,4 +13,6 @@ vtk_module(vtkIONetCDF
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkIO
   )

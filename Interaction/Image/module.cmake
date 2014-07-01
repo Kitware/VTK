@@ -8,4 +8,6 @@ vtk_module(vtkInteractionImage
     vtkImagingColor
     vtkInteractionStyle
     vtkInteractionWidgets
+  KIT
+    vtkInteraction
   )

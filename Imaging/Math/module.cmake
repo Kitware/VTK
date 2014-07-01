@@ -5,4 +5,6 @@ vtk_module(vtkImagingMath
   DEPENDS
     vtkCommonDataModel
     vtkCommonExecutionModel
+  KIT
+    vtkImaging
   )

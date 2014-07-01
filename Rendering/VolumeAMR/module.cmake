@@ -5,4 +5,6 @@ vtk_module(vtkRenderingVolumeAMR
     vtkParallelCore
     vtkRenderingVolume
     vtkFiltersAMR
+  KIT
+    vtkParallel
   )
