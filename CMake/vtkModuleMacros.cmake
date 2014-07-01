@@ -516,7 +516,9 @@ endmacro()
 
 function(vtk_add_library name)
   add_library(${name} ${ARGN} ${headers})
-  vtk_target(${name})
+  if(NOT ARGV1 STREQUAL OBJECT)
+    vtk_target(${name})
+  endif()
 endfunction()
 
 function(vtk_add_executable name)
