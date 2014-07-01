@@ -12,7 +12,7 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
-// .NAME vtkAMRUtilities -- Support for distributed/serial AMR operations
+// .NAME vtkAMRUtilities -- Support for serial AMR operations
 //
 // .SECTION Description
 //  A concrete instance of vtkObject that employs a singleton design
@@ -24,20 +24,16 @@
 #ifndef VTKAMRUTILITIES_H_
 #define VTKAMRUTILITIES_H_
 
-#include "vtkFiltersAMRModule.h" // For export macro
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 #include <vector> // For C++ vector
 
 // Forward declarations
-class vtkAMRBox;
 class vtkFieldData;
-class vtkMultiProcessController;
 class vtkOverlappingAMR;
-class vtkUniformGridAMR;
 class vtkUniformGrid;
-class vtkAMRInformation;
 
-class VTKFILTERSAMR_EXPORT vtkAMRUtilities : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkAMRUtilities : public vtkObject
 {
 public:
   // Standard Routines
@@ -54,8 +50,7 @@ public:
   // 1) The ghosted AMR data must have complete metadata information.
   static void StripGhostLayers(
       vtkOverlappingAMR *ghostedAMRData,
-      vtkOverlappingAMR *strippedAMRData,
-      vtkMultiProcessController *myController=NULL);
+      vtkOverlappingAMR *strippedAMRData);
 
   // Description:
   // A quick test of whether partially overlapping ghost cells exist. This test
@@ -65,12 +60,8 @@ public:
   static bool HasPartiallyOverlappingGhostCells(vtkOverlappingAMR *amr);
 
   // Description:
-  // Compute map from block indices to process ids
-  static void DistributeProcessInformation(vtkOverlappingAMR* amr, vtkMultiProcessController *myController, std::vector<int>& ProcessMap);
-
-  // Description:
   // Blank cells in overlapping AMR
-  static void BlankCells(vtkOverlappingAMR* amr,  vtkMultiProcessController *myController);
+  static void BlankCells(vtkOverlappingAMR* amr);
 
 protected:
   vtkAMRUtilities() {}
@@ -99,6 +90,9 @@ protected:
   static vtkUniformGrid* StripGhostLayersFromGrid(
       vtkUniformGrid* grid, int ghost[6]);
 
+  static void BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
+                          std::vector<std::vector<unsigned int> >& children,
+                          const std::vector<int>& processMap);
 private:
   vtkAMRUtilities(const vtkAMRUtilities&); // Not implemented
   void operator=(const vtkAMRUtilities&); // Not implemented

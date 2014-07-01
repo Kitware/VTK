@@ -32,7 +32,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkAMRInformation.h"
-#include "vtkAMRUtilities.h"
+#include "vtkParallelAMRUtilities.h"
 
 #include <cassert>
 
@@ -580,7 +580,7 @@ int vtkAMRBaseReader::RequestData(
     this->AssignAndLoadBlocks( output );
 
     vtkTimerLog::MarkStartEvent( "AMR::Generate Blanking" );
-    vtkAMRUtilities::BlankCells(output, this->Controller);
+    vtkParallelAMRUtilities::BlankCells(output, this->Controller);
     vtkTimerLog::MarkEndEvent( "AMR::Generate Blanking" );
     }
 
