@@ -214,6 +214,10 @@ if(VTK_ENABLE_KITS)
       set(kit ${module})
     endif()
 
+    # The module graph is modified so that any M1 -> M2 dependency, if ${M2_KIT}
+    # is set, an edge is added for M1 -> ${M2_KIT}, however, if ${M1_KIT} is the
+    # same as ${M2_KIT}, the kit dependency is ignored.
+
     foreach(dep IN LISTS ${module}_DEPENDS)
       if(${dep}_KIT)
         # Ignore self dependencies.
@@ -315,10 +319,8 @@ if(VTK_WRAP_PYTHON)
   endif()
 endif()
 
-# Build all modules.
-foreach(vtk-module ${VTK_MODULES_ENABLED})
-
-  set(_module ${vtk-module})
+macro(_vtk_build_module _module)
+  set(vtk-module ${_module})
 
   if(NOT ${_module}_IS_TEST)
     init_module_vars()
@@ -328,7 +330,64 @@ foreach(vtk-module ${VTK_MODULES_ENABLED})
 
   include("${${_module}_SOURCE_DIR}/vtk-module-init.cmake" OPTIONAL)
   add_subdirectory("${${_module}_SOURCE_DIR}" "${${_module}_BINARY_DIR}")
+endmacro()
+
+# Build all modules.
+foreach(kit IN LISTS vtk_modules_and_kits)
+  if(_${kit}_is_kit)
+    set(_vtk_build_as_kit ${kit})
+    set(kit_srcs)
+    foreach(kit_module IN LISTS _${kit}_modules)
+      list(APPEND kit_srcs $<TARGET_OBJECTS:${kit_module}Objects>)
+    endforeach()
+
+    configure_file("${_VTKModuleMacros_DIR}/vtkKit.cxx.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${kit}Kit.cxx" @ONLY)
+    add_library(${kit} "${CMAKE_CURRENT_BINARY_DIR}/${kit}Kit.cxx" ${kit_srcs})
+    get_property(kit_libs GLOBAL
+      PROPERTY
+        ${kit}_LIBS)
+    set(kit_priv)
+    set(kit_pub)
+    set(is_priv)
+    foreach(lib IN LISTS kit_libs)
+      if(lib STREQUAL LINK_PUBLIC)
+        set(is_priv 0)
+      elseif(lib STREQUAL LINK_PRIVATE)
+        set(is_priv 1)
+      else()
+        if(${lib}_KIT)
+          set(lib ${${lib}_KIT})
+        endif()
+        if(is_priv)
+          list(APPEND kit_priv ${lib})
+        else()
+          list(APPEND kit_pub ${lib})
+        endif()
+      endif()
+    endforeach()
+    if(kit_priv)
+      list(REMOVE_DUPLICATES kit_priv)
+      list(REMOVE_ITEM kit_priv ${kit})
+    endif()
+    if(kit_pub)
+      list(REMOVE_DUPLICATES kit_pub)
+      list(REMOVE_ITEM kit_pub ${kit})
+    endif()
+    target_link_libraries(${kit}
+      LINK_PRIVATE ${kit_priv}
+      LINK_PUBLIC  ${kit_pub})
+    vtk_target(${kit})
+  else()
+    if(VTK_ENABLE_KITS)
+      set(_vtk_build_as_kit ${${kit}_KIT})
+    else()
+      set(_vtk_build_as_kit)
+    endif()
+    _vtk_build_module(${kit})
+  endif()
 endforeach()
+unset(vtk-module)
 
 #----------------------------------------------------------------------
 # Generate VTKConfig* files

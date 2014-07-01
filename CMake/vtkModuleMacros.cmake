@@ -601,7 +601,34 @@ function(vtk_module_library name)
     set(_help_vs7 0)
   endif()
 
-  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
+  set(target_suffix)
+  set(force_object)
+  set(export_symbol_object)
+  if(_vtk_build_as_kit)
+    # Hack up the target name to end with 'Objects' and make it an OBJECT
+    # library.
+    set(target_suffix Objects)
+    set(force_object ${target_suffix} OBJECT)
+    set(export_symbol_object ${target_suffix} BASE_NAME ${vtk-module})
+    add_definitions(-D${vtk-module}_EXPORTS)
+    # OBJECT libraries don't like this variable being set; clear it.
+    unset(${vtk-module}_LIB_DEPENDS CACHE)
+  endif()
+  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
+  if(_vtk_build_as_kit)
+    # Make an interface library to link with for libraries.
+    add_library(${vtk-module} INTERFACE)
+    vtk_target_export(${vtk-module})
+    vtk_target_install(${vtk-module})
+    set_target_properties(${vtk-module}
+      PROPERTIES
+        INTERFACE_LINK_LIBRARIES "${_vtk_build_as_kit}")
+    if(BUILD_SHARED_LIBS)
+      set_target_properties(${vtk-module}Objects
+        PROPERTIES
+          POSITION_INDEPENDENT_CODE TRUE)
+    endif()
+  endif()
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
     vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${${dep}_LIBRARIES})
     if(_help_vs7 AND ${dep}_LIBRARIES)
@@ -659,15 +686,18 @@ VTK_AUTOINIT(${vtk-module})
   endif()
 
   # Generate the export macro header for symbol visibility/Windows DLL declspec
-  generate_export_header(${vtk-module} EXPORT_FILE_NAME ${vtk-module}Module.h)
-  get_property(_buildtype TARGET ${vtk-module} PROPERTY TYPE)
-  if (NOT "${_buildtype}" STREQUAL STATIC_LIBRARY)
+  if(target_suffix)
+    set(${vtk-module}${target_suffix}_EXPORT_CODE
+      ${${vtk-module}_EXPORT_CODE})
+  endif()
+  generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
+  if (BUILD_SHARED_LIBS)
     # export flags are only added when building shared libs, they cause
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
     # time to do that, we skip visibility flags for static libraries.
     add_compiler_export_flags(my_abi_flags)
-    set_property(TARGET ${vtk-module} APPEND
+    set_property(TARGET ${vtk-module}${target_suffix} APPEND
       PROPERTY COMPILE_FLAGS "${my_abi_flags}")
   endif()
 
