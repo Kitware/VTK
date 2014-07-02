@@ -25,6 +25,9 @@
 #include "XdmfDsmCommMpi.h"
 #include "XdmfDsmMsg.h"
 
+namespace xdmf2
+{
+
 XdmfDsmCommMpi::XdmfDsmCommMpi() {
     this->Comm = MPI_COMM_WORLD;
 }
@@ -130,3 +133,4 @@ XdmfDsmCommMpi::Barrier() {
   return XDMF_SUCCESS;
 }
 
+}

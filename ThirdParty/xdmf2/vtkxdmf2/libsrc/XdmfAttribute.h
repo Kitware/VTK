@@ -43,6 +43,9 @@
 #define XDMF_ATTRIBUTE_CENTER_EDGE  3
 #define XDMF_ATTRIBUTE_CENTER_NODE  4
 
+namespace xdmf2
+{
+
 class XdmfTopology;
 class XdmfDataDesc;
 class XdmfDataItem;
@@ -157,4 +160,5 @@ protected:
   XdmfString Units;      // Ian Curington, HR Wallingford Ltd.
 };
 
+}
 #endif // __XdmfAttribute_h

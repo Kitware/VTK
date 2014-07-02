@@ -27,6 +27,9 @@
 #include "XdmfDsmMsg.h"
 #include "XdmfArray.h"
 
+namespace xdmf2
+{
+
 // Align
 typedef struct {
     XdmfInt64   Opcode;
@@ -259,4 +262,6 @@ XdmfDsm::ReceiveData(XdmfInt32 Source, void *Data, XdmfInt64 aLength, XdmfInt32 
         }
     }
     return(Status);
+}
+
 }

@@ -28,6 +28,9 @@
 
 #include "XdmfDataItem.h"
 
+namespace xdmf2
+{
+
 class XdmfArray;
 
 
@@ -67,4 +70,5 @@ public :
 protected :
 };
 
+}
 #endif

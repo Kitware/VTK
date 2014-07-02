@@ -5,6 +5,9 @@
 #include "XdmfArray.h"
 #include "XdmfDOM.h"
 
+namespace xdmf2
+{
+
 XdmfMap::XdmfMap() {
   this->SetElementName("Map");
   this->IdsAreMine = 1;
@@ -336,4 +339,5 @@ for(i=0 ; i < NumberOfDataItems ; i++){
     }
 }
 return( XDMF_SUCCESS );
+}
 }

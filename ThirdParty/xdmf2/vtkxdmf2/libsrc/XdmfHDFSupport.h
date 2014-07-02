@@ -39,11 +39,14 @@ extern "C" {
 
 #endif /* SWIG */
 
+namespace xdmf2
+{
+
 extern XDMF_EXPORT hid_t    XdmfTypeToHDF5Type( XdmfInt32 XdmfType );
 extern XDMF_EXPORT XdmfInt32  HDF5TypeToXdmfType( hid_t HDF5Type );
 extern XDMF_EXPORT XdmfConstString  XdmfTypeToString( XdmfInt32 XdmfType );
 extern XDMF_EXPORT XdmfInt32  StringToXdmfType( XdmfConstString TypeName );
 extern XDMF_EXPORT XdmfConstString  XdmfTypeToClassString( XdmfInt32 XdmfType );
 
-
+}
 #endif // __XdmfHDFSupport_h

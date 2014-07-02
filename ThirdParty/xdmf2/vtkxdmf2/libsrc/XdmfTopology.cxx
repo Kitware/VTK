@@ -29,6 +29,9 @@
 #include "XdmfDOM.h"
 #include "XdmfHDF.h" // For CopyArray()
 
+namespace xdmf2
+{
+
 XdmfTopology *HandleToXdmfTopology( XdmfString Source ){
   XdmfObject  *TempObj;
   XdmfTopology   *Topology;
@@ -823,4 +826,6 @@ XdmfTopology::GetFacesPerElement() {
     default :
       return 0;
   }
+}
+
 }
