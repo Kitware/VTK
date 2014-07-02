@@ -499,8 +499,8 @@ function(vtk_compile_tools_target _name)
       "vtk_compile_tools_target is being called when CMAKE_CROSSCOMPILING is true. "
       "This generally signifies a script issue. compile-tools are not expected "
       "to built, but rather imported when CMAKE_CROSSCOMPILING is ON")
-  endif (CMAKE_CROSSCOMPILING)
- set(_install 1)
+  endif ()
+  set(_install 1)
   foreach(arg IN LISTS ARGN)
     if(arg STREQUAL "NO_INSTALL")
       set(_install 0)
