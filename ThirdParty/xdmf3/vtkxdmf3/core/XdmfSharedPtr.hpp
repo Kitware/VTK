@@ -24,7 +24,7 @@
 #ifndef XDMFSHAREDPTR_HPP_
 #define XDMFSHAREDPTR_HPP_
 
-#include "XdmfConfig.hpp"
+#include "XdmfCoreConfig.hpp"
 #include <boost/shared_ptr.hpp>
 
 using boost::shared_ptr;

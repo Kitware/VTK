@@ -102,32 +102,4 @@ private:
 
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfGridCollection> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfGridCollection>,
-            std::allocator<shared_ptr<XdmfGridCollection> > >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfCurvilinearGrid> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfCurvilinearGrid>,
-            std::allocator<shared_ptr<XdmfCurvilinearGrid> > >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfRectilinearGrid> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfRectilinearGrid>,
-            std::allocator<shared_ptr<XdmfRectilinearGrid> > >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfRegularGrid> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfRegularGrid>,
-            std::allocator<shared_ptr<XdmfRegularGrid> > >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfUnstructuredGrid> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfUnstructuredGrid>,
-            std::allocator<shared_ptr<XdmfUnstructuredGrid> > >;
-#endif
-
 #endif /* XDMFDOMAIN_HPP_ */

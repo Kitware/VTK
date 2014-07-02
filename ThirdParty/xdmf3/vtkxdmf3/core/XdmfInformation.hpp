@@ -223,12 +223,4 @@ private:
   std::string mValue;
 };
 
-#ifdef _WIN32
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<Loki::BaseVisitor>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-Loki::Visitor<shared_ptr<XdmfInformation>,
-              shared_ptr<XdmfItem> >;
-#endif
-
 #endif /* XDMFINFORMATION_HPP_ */

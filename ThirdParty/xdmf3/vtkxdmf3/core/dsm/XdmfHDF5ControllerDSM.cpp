@@ -25,6 +25,7 @@
   #include <H5FDdsm.h>
   #include <H5FDdsmManager.h>
 #endif
+#include <H5public.h>
 #include <hdf5.h>
 #include "XdmfHDF5ControllerDSM.hpp"
 #include "XdmfDSMManager.hpp"

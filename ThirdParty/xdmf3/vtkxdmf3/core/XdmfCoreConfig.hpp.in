@@ -2,7 +2,7 @@
 /*                                    XDMF                                   */
 /*                       eXtensible Data Model and Format                    */
 /*                                                                           */
-/*  Id : XdmfItemFactory.hpp                                                 */
+/*  Id : XdmfCoreConfig.hpp                                                  */
 /*                                                                           */
 /*  Author:                                                                  */
 /*     Kenneth Leiter                                                        */
@@ -21,61 +21,15 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#ifndef XDMFITEMFACTORY_HPP_
-#define XDMFITEMFACTORY_HPP_
+#ifndef XDMFCORECONFIG_HPP_
+#define XDMFCORECONFIG_HPP_
 
-// Forward Declarations
-class XdmfItem;
+#cmakedefine HAVE_BOOST_SHARED_DYNAMIC_CAST
+#cmakedefine XDMF_BIG_ENDIAN
 
-// Includes
-#include "Xdmf.hpp"
-#include "XdmfCoreItemFactory.hpp"
+#cmakedefine BUILD_SHARED
+#ifndef BUILD_SHARED
+#  define XDMFSTATIC
+#endif
 
-/**
- * @brief Factory for constructing XdmfItems from their ItemTag and
- * ItemProperties.
- */
-class XDMF_EXPORT XdmfItemFactory : public XdmfCoreItemFactory {
-
-public:
-
-  /**
-   * Create a new XdmfItemFactory.
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfItemFactory.cpp
-   * @skipline //#initialization
-   * @until //#initialization
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleItemFactory.py
-   * @skipline #//initialization
-   * @until #//initialization
-   *
-   * @return    Constructed XdmfItemFactory.
-   */
-  static shared_ptr<XdmfItemFactory> New();
-
-  virtual ~XdmfItemFactory();
-
-  virtual shared_ptr<XdmfItem>
-  createItem(const std::string & itemTag,
-             const std::map<std::string, std::string> & itemProperties,
-             const std::vector<shared_ptr<XdmfItem> > & childItems) const;
-
-protected:
-
-  XdmfItemFactory();
-
-private:
-
-  XdmfItemFactory(const XdmfItemFactory &);  // Not implemented.
-  void operator=(const XdmfItemFactory &);  // Not implemented.
-
-};
-
-#endif /* XDMFITEMFACTORY_HPP_ */
+#endif /* XDMFCORECONFIG_HPP_ */

@@ -57,6 +57,7 @@
 #include <XdmfError.hpp>
 #include <mpi.h>
 
+#include <H5public.h>
 #include <hdf5.h>
 
 typedef struct XDMF_dsm_t

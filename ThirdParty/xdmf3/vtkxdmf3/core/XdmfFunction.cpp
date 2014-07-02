@@ -706,9 +706,9 @@ XdmfFunction::interlace(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
       if (((amountWritten * arrayRatio1) + i) < (int)val1->getSize()) {
         amountWritten++;
       }
-      if (amountWritten > floor(val2->getSize()/arrayRatio2)) {
-        arrayExcess1 += amountWritten - (int)floor(val2->getSize()/arrayRatio2);
-        amountWritten = (int)floor(val2->getSize()/arrayRatio2);
+      if (amountWritten > floor(static_cast<double>(val2->getSize()/arrayRatio2))) {
+        arrayExcess1 += amountWritten - (int)floor(static_cast<double>(val2->getSize()/arrayRatio2));
+        amountWritten = (int)floor(static_cast<double>(val2->getSize()/arrayRatio2));
       }
       returnArray->insert(i, val1, i, amountWritten, stride, arrayRatio1);
     }
@@ -718,9 +718,9 @@ XdmfFunction::interlace(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
       if (((amountWritten * arrayRatio2) + i) < (int)val2->getSize()) {
         amountWritten++;
       }
-      if (amountWritten > floor(val1->getSize()/arrayRatio1)) {
-        arrayExcess2 += amountWritten - (int)floor(val1->getSize()/arrayRatio1);
-        amountWritten = (int)floor(val1->getSize()/arrayRatio1);
+      if (amountWritten > floor(static_cast<double>(val1->getSize()/arrayRatio1))) {
+        arrayExcess2 += amountWritten - (int)floor(static_cast<double>(val1->getSize()/arrayRatio1));
+        amountWritten = (int)floor(static_cast<double>(val1->getSize()/arrayRatio1));
       }
       returnArray->insert(i, val2, i-arrayRatio1, amountWritten, stride, arrayRatio2);
     }

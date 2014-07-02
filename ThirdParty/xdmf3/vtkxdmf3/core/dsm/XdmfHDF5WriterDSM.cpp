@@ -28,6 +28,7 @@
   #include <H5FDdsmBufferService.h>
   #include <H5FDdsmComm.h>
 #endif
+#include <H5public.h>
 #include <hdf5.h>
 #include <XdmfDSMCommMPI.hpp>
 #include <XdmfDSMBuffer.hpp>

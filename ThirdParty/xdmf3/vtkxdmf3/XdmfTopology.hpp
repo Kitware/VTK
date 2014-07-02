@@ -182,9 +182,4 @@ private:
   shared_ptr<const XdmfTopologyType> mType;
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfTopologyType>;
-#endif
-
 #endif /* XDMFTOPOLOGY_HPP_ */

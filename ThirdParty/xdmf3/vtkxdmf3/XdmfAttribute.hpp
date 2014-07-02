@@ -256,11 +256,4 @@ private:
   shared_ptr<const XdmfAttributeType> mType;
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfAttributeType>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfAttributeCenter>;
-#endif
-
 #endif /* XDMFATTRIBUTE_HPP_ */

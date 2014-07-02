@@ -93,7 +93,4 @@ private:
   void operator=(const XdmfGraph &);  // Not implemented.
 };
 
-#ifdef _WIN32
-#endif
-
 #endif /* XDMFGRAPH_HPP_ */

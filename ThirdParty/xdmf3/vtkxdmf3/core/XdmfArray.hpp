@@ -1500,17 +1500,4 @@ private:
 
 #include "XdmfArray.tpp"
 
-#ifdef _WIN32
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<const XdmfArrayType>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<XdmfHeavyDataController>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<const XdmfHeavyDataController>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<Loki::BaseVisitor>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-Loki::Visitor<shared_ptr<XdmfArray>, shared_ptr<XdmfItem> >;
-#endif
-
 #endif /* XDMFARRAY_HPP_ */

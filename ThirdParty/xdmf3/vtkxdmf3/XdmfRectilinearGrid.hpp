@@ -392,11 +392,4 @@ private:
 
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfArray>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfArray>;
-#endif
-
 #endif /* XDMFRECTILINEARGRID_HPP_ */
