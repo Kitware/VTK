@@ -143,11 +143,11 @@ endmacro()
 # vtk_module_check_name(<name>)
 #
 # Check if the proposed module name is compliant.
-macro(vtk_module_check_name _name)
+function(vtk_module_check_name _name)
   if(NOT "${_name}" MATCHES "^[a-zA-Z][a-zA-Z0-9]*$")
     message(FATAL_ERROR "Invalid module name: ${_name}")
   endif()
-endmacro()
+endfunction()
 
 # vtk_module_impl()
 #
@@ -370,8 +370,8 @@ macro(vtk_module_test)
   endif()
 endmacro()
 
-macro(vtk_module_warnings_disable)
-  foreach(lang ${ARGN})
+function(vtk_module_warnings_disable)
+  foreach(lang IN LISTS ARGN)
     if(MSVC)
       string(REGEX REPLACE "(^| )[/-]W[0-4]( |$)" " "
         CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} -w")
@@ -380,24 +380,25 @@ macro(vtk_module_warnings_disable)
     else()
       set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} -w")
     endif()
+    set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS}" PARENT_SCOPE)
   endforeach()
-endmacro()
+endfunction()
 
-macro(vtk_target_label _target_name)
+function(vtk_target_label _target_name)
   if(vtk-module)
     set(_label ${vtk-module})
   else()
     set(_label ${_VTKModuleMacros_DEFAULT_LABEL})
   endif()
   set_property(TARGET ${_target_name} PROPERTY LABELS ${_label})
-endmacro()
+endfunction()
 
 # vtk_target_name(<name>)
 #
 # This macro does some basic checking for library naming, and also adds a suffix
 # to the output name with the VTK version by default. Setting the variable
 # VTK_CUSTOM_LIBRARY_SUFFIX will override the suffix.
-macro(vtk_target_name _name)
+function(vtk_target_name _name)
   get_property(_type TARGET ${_name} PROPERTY TYPE)
   if(NOT "${_type}" STREQUAL EXECUTABLE AND NOT VTK_JAVA_INSTALL)
     set_property(TARGET ${_name} PROPERTY VERSION 1)
@@ -417,11 +418,11 @@ macro(vtk_target_name _name)
     set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
   endif()
   set_property(TARGET ${_name} PROPERTY OUTPUT_NAME ${_vtk}${_name}${_lib_suffix})
-endmacro()
+endfunction()
 
-macro(vtk_target_export _name)
+function(vtk_target_export _name)
   set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
-endmacro()
+endfunction()
 
 function(vtk_target_install _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
@@ -450,9 +451,9 @@ function(vtk_target_install _name)
   endif()
 endfunction()
 
-macro(vtk_target _name)
+function(vtk_target _name)
   set(_install 1)
-  foreach(arg ${ARGN})
+  foreach(arg IN LISTS ARGN)
     if(arg STREQUAL "NO_INSTALL")
       set(_install 0)
     else()
@@ -465,17 +466,17 @@ macro(vtk_target _name)
   if(_install)
     vtk_target_install(${_name})
   endif()
-endmacro()
+endfunction()
 
 #------------------------------------------------------------------------------
 # Export a target for a tool that used during the compilation process.
 # This is called by vtk_compile_tools_target().
-macro(vtk_compile_tools_target_export _name)
+function(vtk_compile_tools_target_export _name)
   set_property(GLOBAL APPEND PROPERTY VTK_COMPILETOOLS_TARGETS ${_name})
-endmacro()
+endfunction()
 
 #------------------------------------------------------------------------------
-macro(vtk_compile_tools_target_install _name)
+function(vtk_compile_tools_target_install _name)
   if(NOT VTK_INSTALL_NO_DEVELOPMENT)
     install(TARGETS ${_name}
       EXPORT ${VTK_INSTALL_EXPORT_NAME}
@@ -484,7 +485,7 @@ macro(vtk_compile_tools_target_install _name)
       ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
       )
   endif()
-endmacro()
+endfunction()
 
 #------------------------------------------------------------------------------
 # vtk_compile_tools_target() is used to declare a target that builds a tool that
@@ -492,7 +493,7 @@ endmacro()
 # added to VTK_COMPILETOOLS_TARGETS global property. This also adds install
 # rules for the target unless NO_INSTALL argument is specified or
 # VTK_INSTALL_NO_DEVELOPMENT variable is set.
-macro(vtk_compile_tools_target _name)
+function(vtk_compile_tools_target _name)
   if (CMAKE_CROSSCOMPILING)
     message(AUTHOR_WARNING
       "vtk_compile_tools_target is being called when CMAKE_CROSSCOMPILING is true. "
@@ -500,7 +501,7 @@ macro(vtk_compile_tools_target _name)
       "to built, but rather imported when CMAKE_CROSSCOMPILING is ON")
   endif (CMAKE_CROSSCOMPILING)
  set(_install 1)
-  foreach(arg ${ARGN})
+  foreach(arg IN LISTS ARGN)
     if(arg STREQUAL "NO_INSTALL")
       set(_install 0)
     else()
@@ -513,7 +514,7 @@ macro(vtk_compile_tools_target _name)
   if(_install)
     vtk_compile_tools_target_install(${_name})
   endif()
-endmacro()
+endfunction()
 #------------------------------------------------------------------------------
 
 function(vtk_add_library name)
