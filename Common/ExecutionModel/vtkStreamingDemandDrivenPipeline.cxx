@@ -1109,7 +1109,7 @@ vtkStreamingDemandDrivenPipeline
       // used to decide whether an execution is necessary.
       vtkSmartPointer<vtkInformationIterator> infoIter =
         vtkSmartPointer<vtkInformationIterator>::New();
-      infoIter->SetInformation(outInfo);
+      infoIter->SetInformationWeak(outInfo);
       infoIter->InitTraversal();
       while(!infoIter->IsDoneWithTraversal())
         {
