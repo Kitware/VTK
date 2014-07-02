@@ -583,7 +583,7 @@ function(vtk_module_library name)
   if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
       NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
       ( VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA ))
-    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp)
+    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt)
   else()
     set(_hierarchy "")
   endif()
