@@ -228,11 +228,14 @@ namespace vtkvolume
       /// Getting the ray marching direction (in object space); \n\
       vec3 geom_dir = normalize(m_vertex_pos.xyz - l_eye_pos_obj); \n\
       \n\
-      /// Multiply the raymarching direction with the step size to get the  \n\
+      /// Multiply the raymarching direction with the step size to get the \n\
       /// sub-step size we need to take at each raymarching step  \n\
-      vec3 m_dir_step = geom_dir * m_step_size * m_sample_distance; \n\
+      vec3 l_dir_step = geom_dir * m_step_size * m_sample_distance; \n\
       \n\
-      l_data_pos += m_dir_step * texture(m_noise_sampler, l_data_pos.xy).x;"
+      l_data_pos += l_dir_step * texture(m_noise_sampler, l_data_pos.xy).x;\n\
+      \n\
+      /// Flag to deternmine if voxel should be considered for the rendering \n\
+      bool l_skip = false;"
     );
     }
 
@@ -240,7 +243,8 @@ namespace vtkvolume
   std::string IncrementBase(vtkRenderer* ren, vtkVolumeMapper* mapper,
                             vtkVolume* vol)
     {
-    return std::string("");
+    return std::string("\n\
+                       l_skip = false;");
     }
 
   //--------------------------------------------------------------------------
@@ -277,18 +281,19 @@ namespace vtkvolume
   std::string IncrementShading(vtkRenderer* ren, vtkVolumeMapper* mapper,
                                vtkVolume* vol)
     {
-    std::string shaderStr;
+    std::string shaderStr = "if (!l_skip) \n\
+                               {\n";
 
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
-      shaderStr = std::string(
+      shaderStr += std::string(
       "float scalar = texture(m_volume, l_data_pos).r; \n\
        maxValue = max(maxValue, scalar);"
       );
       }
     else
       {
-      shaderStr = std::string(
+      shaderStr += std::string(
       "/// Data fetching from the red channel of m_volume texture \n\
       float scalar = texture(m_volume, l_data_pos).r * m_scale; \n\
       vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz, \n\
@@ -358,6 +363,7 @@ namespace vtkvolume
       );
       }
 
+    shaderStr += std::string("\n}");
     return shaderStr;
     }
 
@@ -443,7 +449,7 @@ namespace vtkvolume
     m_terminate_point /= m_terminate_point.w; \n\
     \n\
     m_terminate_point_max = length(m_terminate_point.xyz - l_data_pos.xyz) / \n\
-                            length(m_dir_step); \n\
+                            length(l_dir_step); \n\
     float m_current_t = 0.0;"
     );
     }

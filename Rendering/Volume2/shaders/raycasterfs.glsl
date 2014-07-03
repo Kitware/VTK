@@ -139,16 +139,14 @@ void main()
     /// Pass the flag that its Ok to sample or not to do sample
     if (((1 << regionNo) & cropping_flags) == 0)
       {
-      /// Advance ray by m_dir_step
-      l_data_pos += m_dir_step;
-
-      continue;
+      /// Skip this voxel
+      l_skip = true;
       }
 
     @SHADING_LOOP@
 
     /// Advance ray by m_dir_step
-    l_data_pos += m_dir_step;
+    l_data_pos += l_dir_step;
     };
 
 

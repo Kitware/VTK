@@ -688,7 +688,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
         while(i < size)
           {
           this->NoiseTextureData[j * size + i] =
-            amplitude + static_cast<float>(noiseGenerator->EvaluateFunction(i, j, 0.0));
+            static_cast<float>(noiseGenerator->EvaluateFunction(i, j, 0.0));
           ++i;
           }
         ++j;
