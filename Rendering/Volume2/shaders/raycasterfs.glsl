@@ -136,6 +136,7 @@ void main()
     regionNo = max(0, regionNo - 1);
 
     /// Do & operation with cropping flags
+    /// Pass the flag that its Ok to sample or not to do sample
     if (((1 << regionNo) & cropping_flags) == 0)
       {
       /// Advance ray by m_dir_step

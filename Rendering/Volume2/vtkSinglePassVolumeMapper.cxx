@@ -659,8 +659,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
 
     GLsizei size = 128;
     GLint maxSize;
-    const float factor = 0.1f;
-    const float amplitude = 0.5f * factor;
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
     if (size > maxSize)
@@ -681,7 +679,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
       vtkNew<vtkPerlinNoise> noiseGenerator;
       noiseGenerator->SetFrequency(size, 1.0, 1.0);
       noiseGenerator->SetPhase(0.0, 0.0, 0.0);
-      noiseGenerator->SetAmplitude(amplitude);
+      /// -0.5 and 0.5 range
+      noiseGenerator->SetAmplitude(0.5);
       int j = 0;
       while(j < size)
         {
