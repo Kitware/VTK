@@ -11,8 +11,8 @@ INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 LINK_DIRECTORIES(${MATLAB_LIB_DIR})
 
 IF(UNIX)
-  SET(MEX_VER_FILE "${MATLAB_ROOT_DIR}/extern/src/mexversion.c")
   IF(APPLE)
+   SET(MEX_VER_FILE "${MATLAB_ROOT_DIR}/extern/src/mexversion.c")
    SET(MEX_LIBRARIES ${MATLAB_LIB_DIR}/libmx.dylib ${MATLAB_LIB_DIR}/libmex.dylib ${MATLAB_LIB_DIR}/libmat.dylib m stdc++)
    SET(MATLAB_ENGINE_LIBRARIES ${MATLAB_LIB_DIR}/libmx.dylib ${MATLAB_LIB_DIR}/libeng.dylib)
    IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32 bit Intel
@@ -32,6 +32,7 @@ IF(UNIX)
    SET(MEX_LIBRARIES ${MATLAB_LIB_DIR}/libmx.so ${MATLAB_LIB_DIR}/libmex.so ${MATLAB_LIB_DIR}/libmat.so m stdc++)
    SET(MATLAB_ENGINE_LIBRARIES ${MATLAB_LIB_DIR}/libmx.so ${MATLAB_LIB_DIR}/libeng.so)
    IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32 bit
+    SET(MEX_VER_FILE "${MATLAB_ROOT_DIR}/extern/src/mexversion.c")
     SET(MEX_CXX_FLAGS "-ansi -fPIC -pthread")
     SET(MEX_DEFINES "MATLAB_MEX_FILE -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE")
     SET(MEX_RPATH "-Wl,-rpath-link,${MATLAB_LIB_DIR}")
@@ -50,6 +51,7 @@ ELSE(UNIX)
   SET(MATLAB_ENGINE_LIBRARIES ${MATLAB_LIB_DIR}/libmx.lib ${MATLAB_LIB_DIR}/libeng.lib)
   SET(MEX_VER_FILE "")
   IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32 bit
+   SET(MEX_VER_FILE "${MATLAB_ROOT_DIR}/extern/src/mexversion.c")
    SET(MEX_CXX_FLAGS "")
    SET(MEX_DEFINES "MATLAB_MEX_FILE")
    SET(MEX_RPATH "")
@@ -66,7 +68,7 @@ ENDIF(UNIX)
 
 MACRO(ADD_MATLAB_MEX_FILE mexfilename)
   ADD_LIBRARY(${mexfilename} SHARED ${ARGN} ${MEX_VER_FILE})
-  TARGET_LINK_LIBRARIES(${mexfilename} ${MEX_LIBRARIES} vtksnlInfovisMatlabEngine)
+  TARGET_LINK_LIBRARIES(${mexfilename} ${MEX_LIBRARIES} vtkFiltersMatlab)
   SET_TARGET_PROPERTIES(${mexfilename} PROPERTIES
                         PREFIX ""
                         SUFFIX "${MEX_FILE_SUFFIX}"
@@ -74,4 +76,3 @@ MACRO(ADD_MATLAB_MEX_FILE mexfilename)
                         DEFINE_SYMBOL "${MEX_DEFINES} ${DEFINE_SYMBOL}"
                         LINK_FLAGS "${MEX_RPATH} ${MEX_LDFLAGS} ${LINK_FLAGS}")
 ENDMACRO(ADD_MATLAB_MEX_FILE)
-
