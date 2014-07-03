@@ -590,7 +590,7 @@ int vtkTemporalPathLineFilter::RequestData(
   output0->SetPoints(this->LineCoordinates);
   output0->SetLines(this->PolyLines);
   outPD->AddArray(this->TrailId);
-  outPD->SetScalars(this->TrailId);
+  outPD->SetActiveScalars(this->TrailId->GetName());
   this->Internals->InputFieldArrays.resize(0);
 
   // Vertex at Front of Trail
