@@ -496,6 +496,116 @@ namespace vtkvolume
    {
     return std::string("");
    }
+
+  //--------------------------------------------------------------------------
+  std::string CroppingUniformsVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                      vtkVolume* vol)
+  {
+    return std::string("");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string CroppingAttributesVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                     vtkVolume* vol)
+  {
+    return std::string("");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string CroppingUniformsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                      vtkVolume* vol)
+  {
+    return std::string("\n\
+      uniform float cropping_planes[6]; \n\
+      uniform int cropping_flags;");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string CroppingAttributesFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                     vtkVolume* vol)
+  {
+    return std::string("");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string GlobalsCropping(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                              vtkVolume* vol)
+  {
+    return std::string("\n\
+      /// X: axis = 0, Y: axis = 1, Z: axis = 2 \n\
+      /// cp Cropping plane bounds (minX, maxX, minY, maxY, minZ, maxZ) \n\
+      int computeRegionCoord(float cp[6], vec3 pos, int axis) \n\
+      { \n\
+        int cpmin = axis * 2; \n\
+        int cpmax = cpmin + 1; \n\
+        \n\
+        if (pos[axis] > m_texture_extents_min[axis] && \n\
+            pos[axis] < cp[cpmin]) \n\
+          { \n\
+          return 1; \n\
+          } \n\
+        else if (pos[axis] > cp[cpmin] && \n\
+                 pos[axis]  < cp[cpmax]) \n\
+          { \n\
+          return 2; \n\
+          } \n\
+        else if (pos[axis] > cp[cpmax] && \n\
+                 pos[axis] < m_texture_extents_max[axis]) \n\
+          { \n\
+          return 3; \n\
+          } \n\
+        return 0; \n\
+      } \n\
+      \n\
+      int computeRegion(float cp[6], vec3 pos) \n\
+      { \n\
+        return (computeRegionCoord(cp, pos, 0) * \n\
+                computeRegionCoord(cp, pos, 1) * \n\
+                computeRegionCoord(cp, pos, 2)); \n\
+      }");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string InitCropping(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                           vtkVolume* vol)
+  {
+    return std::string("\n\
+      /// Convert cropping region to texture space \n\
+      float cropping_planes_ts[6];\n\
+      cropping_planes_ts[0] = cropping_planes[0] * m_step_size[0];\n\
+      cropping_planes_ts[1] = cropping_planes[1] * m_step_size[0];\n\
+      \n\
+      cropping_planes_ts[2] = cropping_planes[2] * m_step_size[1];\n\
+      cropping_planes_ts[3] = cropping_planes[3] * m_step_size[1];\n\
+      \n\
+      cropping_planes_ts[4] = cropping_planes[4] * m_step_size[2];\n\
+      cropping_planes_ts[5] = cropping_planes[5] * m_step_size[2];");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string IncrementCropping(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                vtkVolume* vol)
+  {
+    return std::string("\n\
+      /// Determine region \n\
+      int regionNo = computeRegion(cropping_planes_ts, l_data_pos); \n\
+      regionNo = max(0, regionNo - 1); \n\
+      \n\
+      /// Do & operation with cropping flags \n\
+      /// Pass the flag that its Ok to sample or not to do sample \n\
+      if (((1 << regionNo) & cropping_flags) == 0) \n\
+       { \n\
+       /// Skip this voxel \n\
+       l_skip = true; \n\
+       }");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ExitCropping(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                           vtkVolume* vol)
+  {
+    return std::string("");
+  }
 }
 
 

@@ -1006,6 +1006,26 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_EXIT@",
     vtkvolume::ExitTermination(ren, this, vol), true);
 
+  vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_UNIFORMS_VERT@",
+    vtkvolume::CroppingUniformsVert(ren, this, vol), true);
+  vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_ATTRIBUTES_VERT@",
+    vtkvolume::CroppingAttributesVert(ren, this, vol), true);
+
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_UNIFORMS_FRAG@",
+    vtkvolume::CroppingUniformsFrag(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_ATTRIBUTES_FRAG@",
+    vtkvolume::CroppingAttributesFrag(ren, this, vol), true);
+
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_GLOBALS@",
+    vtkvolume::GlobalsCropping(ren, this, vol), true);
+
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_INIT@",
+    vtkvolume::InitCropping(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_LOOP@",
+    vtkvolume::IncrementCropping(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_EXIT@",
+    vtkvolume::ExitCropping(ren, this, vol), true);
+
   /// Compile and link it
   this->Implementation->CompileAndLinkShader(vertexShader, fragmentShader);
 
@@ -1044,6 +1064,8 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
     this->Implementation->Shader.AddUniform("cropping_planes");
     this->Implementation->Shader.AddUniform("cropping_flags");
     }
+
+  std::cerr << "fragment shader " << fragmentShader << std::endl;
 
   this->Implementation->ShaderBuildTime.Modified();
 }

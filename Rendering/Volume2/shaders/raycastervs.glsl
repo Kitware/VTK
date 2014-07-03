@@ -9,6 +9,7 @@
 /// Object space vertex position
 @BASE_ATTRIBUTES_VERT@
 @TERMINATION_ATTRIBUTES_VERT@
+@CROPPING_ATTRIBUTES_VERT@
 @SHADING_ATTRIBUTES_VERT@
 
 
@@ -21,6 +22,7 @@
 /// combined modelview projection matrix
 @BASE_UNIFORMS_VERT@
 @TERMINATION_UNIFORMS_VERT@
+@CROPPING_UNIFORMS_VERT@
 @SHADING_UNIFORMS_VERT@
 
 //////////////////////////////////////////////////////////////////////////////
