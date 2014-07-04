@@ -474,18 +474,18 @@ namespace vtkvolume
         int cpmin = axis * 2; \n\
         int cpmax = cpmin + 1; \n\
         \n\
-        if (pos[axis] > m_texture_extents_min[axis] && \n\
+        if (pos[axis] >= m_texture_extents_min[axis] && \n\
             pos[axis] < cp[cpmin]) \n\
           { \n\
           return 1; \n\
           } \n\
-        else if (pos[axis] > cp[cpmin] && \n\
+        else if (pos[axis] >= cp[cpmin] && \n\
                  pos[axis]  < cp[cpmax]) \n\
           { \n\
           return 2; \n\
           } \n\
-        else if (pos[axis] > cp[cpmax] && \n\
-                 pos[axis] < m_texture_extents_max[axis]) \n\
+        else if (pos[axis] >= cp[cpmax] && \n\
+                 pos[axis] <= m_texture_extents_max[axis]) \n\
           { \n\
           return 3; \n\
           } \n\
