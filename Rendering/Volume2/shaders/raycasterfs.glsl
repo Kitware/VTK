@@ -21,27 +21,13 @@ layout(location = 0) out vec4 m_frag_color;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
-/// Attributes
+/// Uniforms, attributes, and globals
 ///
 //////////////////////////////////////////////////////////////////////////////
-
-@BASE_ATTRIBUTES_FRAG@
-@TERMINATION_ATTRIBUTES_FRAG@
-@CROPPING_ATTRIBUTES_FRAG@
-@SHADING_ATTRIBUTES_FRAG@
-
-//////////////////////////////////////////////////////////////////////////////
-///
-/// Uniforms
-///
-//////////////////////////////////////////////////////////////////////////////
-
-@BASE_UNIFORMS_FRAG@
-@TERMINATION_UNIFORMS_FRAG@
-@CROPPING_UNIFORMS_FRAG@
-@SHADING_UNIFORMS_FRAG@
-
-@CROPPING_GLOBALS@
+@BASE_GLOBALS_FRAG@
+@TERMINATION_GLOBALS_FRAG@
+@CROPPING_GLOBALS_FRAG@
+@SHADING_GLOBALS_FRAG@
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -61,10 +47,10 @@ void main()
   /// For all samples along the ray
   while (true)
     {
-    @BASE_LOOP@
-    @TERMINATE_LOOP@
-    @CROPPING_LOOP@
-    @SHADING_LOOP@
+    @BASE_INCREMENT@
+    @TERMINATE_INCREMENT@
+    @CROPPING_INCREMENT@
+    @SHADING_INCREMENT@
 
     /// Advance ray by m_dir_step
     l_data_pos += l_dir_step;

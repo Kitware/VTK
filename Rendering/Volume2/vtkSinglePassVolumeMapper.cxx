@@ -948,83 +948,55 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
-  /// Preprocess vertex shader
-  vertexShader = vtkvolume::replace(vertexShader, "@BASE_ATTRIBUTES_VERT@",
-    vtkvolume::BaseAttributesVert(ren, this, vol), true);
-  vertexShader = vtkvolume::replace(vertexShader, "@BASE_UNIFORMS_VERT@",
-    vtkvolume::BaseUniformsVert(ren, this, vol), true);
-
-  vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_ATTRIBUTES_VERT@",
-    vtkvolume::TerminationAttributesVert(ren, this, vol), true);
-  vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_UNIFORMS_VERT@",
-    vtkvolume::TerminationAttributesVert(ren, this, vol), true);
-
-  vertexShader = vtkvolume::replace(vertexShader, "@SHADING_ATTRIBUTES_VERT@",
-    vtkvolume::ShadingAttributesVert(ren, this, vol), true);
-  vertexShader = vtkvolume::replace(vertexShader, "@SHADING_UNIFORMS_VERT@",
-    vtkvolume::ShadingUniformsVert(ren, this, vol), true);
-
   vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_CLIP_POS@",
     vtkvolume::ComputeClip(ren, this, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_TEXTURE_COORDS@",
     vtkvolume::ComputeTextureCoords(ren, this, vol), true);
 
-  /// Preprocess fragment shader
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_UNIFORMS_FRAG@",
-    vtkvolume::BaseUniformsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_ATTRIBUTES_FRAG@",
-    vtkvolume::BaseAttributesFrag(ren, this, vol), true);
-
-  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATION_UNIFORMS_FRAG@",
-    vtkvolume::TerminationUniformsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATION_ATTRIBUTES_FRAG@",
-    vtkvolume::TerminationAttributesFrag(ren, this, vol), true);
-
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_UNIFORMS_FRAG@",
-    vtkvolume::ShadingUniformsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_ATTRIBUTES_FRAG@",
-    vtkvolume::ShadingAttributesFrag(ren, this, vol), true);
-
+  vertexShader = vtkvolume::replace(vertexShader, "@BASE_GLOBALS_VERT@",
+    vtkvolume::BaseGlobalsVert(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_GLOBALS_FRAG@",
+    vtkvolume::BaseGlobalsFrag(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_INIT@",
-    vtkvolume::InitBase(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_LOOP@",
-    vtkvolume::IncrementBase(ren, this, vol), true);
+    vtkvolume::BaseInit(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_INCREMENT@",
+    vtkvolume::BaseIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_EXIT@",
-    vtkvolume::ExitBase(ren, this, vol), true);
+    vtkvolume::BaseExit(ren, this, vol), true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
-    vtkvolume::InitShading(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_LOOP@",
-    vtkvolume::IncrementShading(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
-    vtkvolume::ExitShading(ren, this, vol), true);
-
+  vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_GLOBALS_VERT@",
+    vtkvolume::TerminationGlobalsVert(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATION_GLOBALS_FRAG@",
+    vtkvolume::TerminationGlobalsFrag(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_INIT@",
-    vtkvolume::InitTermination(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_LOOP@",
-    vtkvolume::IncrementTermination(ren, this, vol), true);
+    vtkvolume::TerminationInit(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_INCREMENT@",
+    vtkvolume::TerminationIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_EXIT@",
-    vtkvolume::ExitTermination(ren, this, vol), true);
+    vtkvolume::TerminationExit(ren, this, vol), true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_UNIFORMS_VERT@",
-    vtkvolume::CroppingUniformsVert(ren, this, vol), true);
-  vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_ATTRIBUTES_VERT@",
-    vtkvolume::CroppingAttributesVert(ren, this, vol), true);
+  vertexShader = vtkvolume::replace(vertexShader, "@SHADING_GLOBALS_VERT@",
+    vtkvolume::ShadingGlobalsVert(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_GLOBALS_FRAG@",
+    vtkvolume::ShadingGlobalsFrag(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
+    vtkvolume::ShadingInit(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INCREMENT@",
+    vtkvolume::ShadingIncrement(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
+    vtkvolume::ShadingExit(ren, this, vol), true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_UNIFORMS_FRAG@",
-    vtkvolume::CroppingUniformsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_ATTRIBUTES_FRAG@",
-    vtkvolume::CroppingAttributesFrag(ren, this, vol), true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_GLOBALS@",
-    vtkvolume::GlobalsCropping(ren, this, vol), true);
-
+  vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_GLOBALS_VERT@",
+    vtkvolume::CroppingGlobalsVert(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_GLOBALS_FRAG@",
+    vtkvolume::CroppingGlobalsFrag(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_INIT@",
-    vtkvolume::InitCropping(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_LOOP@",
-    vtkvolume::IncrementCropping(ren, this, vol), true);
+    vtkvolume::CroppingInit(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_INCREMENT@",
+    vtkvolume::CroppingIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_EXIT@",
-    vtkvolume::ExitCropping(ren, this, vol), true);
+    vtkvolume::CroppingExit(ren, this, vol), true);
 
   /// Compile and link it
   this->Implementation->CompileAndLinkShader(vertexShader, fragmentShader);
