@@ -610,7 +610,6 @@ function(vtk_module_library name)
     set(target_suffix Objects)
     set(force_object ${target_suffix} OBJECT)
     set(export_symbol_object ${target_suffix} BASE_NAME ${vtk-module})
-    add_definitions(-D${vtk-module}_EXPORTS)
     # OBJECT libraries don't like this variable being set; clear it.
     unset(${vtk-module}_LIB_DEPENDS CACHE)
   endif()
@@ -624,8 +623,14 @@ function(vtk_module_library name)
       PROPERTIES
         INTERFACE_LINK_LIBRARIES "${_vtk_build_as_kit}")
     if(BUILD_SHARED_LIBS)
+      # Define a kit-wide export symbol for the objects in this module.
+      set_property(TARGET ${vtk-module}Objects APPEND
+        PROPERTY
+          COMPILE_DEFINITIONS ${${vtk-module}_KIT}_EXPORTS)
       set_target_properties(${vtk-module}Objects
         PROPERTIES
+          # Tell generate_export_header what kit-wide export symbol we use.
+          DEFINE_SYMBOL ${${vtk-module}_KIT}_EXPORTS
           POSITION_INDEPENDENT_CODE TRUE)
     endif()
   endif()
