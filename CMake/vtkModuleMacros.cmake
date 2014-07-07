@@ -753,6 +753,13 @@ function(vtk_module_link_libraries module)
     set_property(GLOBAL APPEND
       PROPERTY
         ${${module}_KIT}_LIBS ${ARGN})
+    foreach(dep IN LISTS ARGN)
+      if(TARGET ${dep}Objects)
+        add_dependencies(${module}Objects ${dep}Objects)
+      elseif(TARGET ${dep})
+        add_dependencies(${module}Objects ${dep})
+      endif()
+    endforeach()
   else()
     target_link_libraries(${module} ${ARGN})
   endif()
