@@ -287,7 +287,7 @@ if(PYTHON_EXECUTABLE)
     endif()
 
     # Install the conveniently configured python interpretters
-    if(NOT VTK_INSTALL_NO_PYTHON_EXES)
+    if(NOT VTK_INSTALL_NO_PYTHON_EXES AND VTK_ENABLE_VTKPYTHON)
       # Install the vtkpython executable
       install(TARGETS vtkpython
         DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
