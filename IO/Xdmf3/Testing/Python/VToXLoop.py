@@ -9,9 +9,6 @@ import os
 import sys
 import vtk
 
-#from vtk.util.misc import vtkGetDataRoot
-#VTK_DATA_ROOT = vtkGetDataRoot() #just to avoid unused arg ctest error
-
 hasresource = True
 try:
   import resource
@@ -27,6 +24,7 @@ from vtk.test import Testing
 
 CleanUpGood = True
 LightDataLimit = 10000
+OutputDir = ""
 
 timer = vtk.vtkTimerLog()
 
@@ -194,6 +192,7 @@ def DoDataObjectsDiffer(dobj1, dobj2):
 
 def TestXdmfConversion(dataInput, fileName):
   global CleanUpGood, timer
+  fileName = OutputDir + fileName
   xdmfFile = fileName + ".xmf"
   hdf5File = fileName + ".h5"
   vtkFile = fileName + ".vtk"
@@ -247,19 +246,22 @@ if __name__ == "__main__":
                       after testing complete (Default = False)",\
                       action="store_true")
   parser.add_argument("-ldl", "--lightDataLimit", nargs=1, dest="lightDataLimit")
+  parser.add_argument("-T", nargs=1, dest="outputDir")
   args = parser.parse_args()
   if args.dontClean:
     CleanUpGood = False
   if args.lightDataLimit:
     LightDataLimit = int(args.lightDataLimit[0])
+  if args.outputDir:
+    OutputDir = args.outputDir[0] + "/"
 
   fail = False
 
   print "TEST SET 1 - verify reader/writer work for range of canonical datasets"
   print MemUsage("Before starting TEST SET 1")
   dog = vtk.vtkDataObjectGenerator()
+  i = 0
   for testObject in testObjects:
-    i = 0
     fileName = "xdmfIOtest_" + str(i)
     print "Test vtk object", testObject
     dog.SetProgram(testObject)
@@ -273,9 +275,9 @@ if __name__ == "__main__":
   gsrc = vtk.vtkRandomGraphSource()
   gsrc.DirectedOn()
   gsrc.Update()
-  gFilePrefix = "xdmfIOTest_Graph"
-  gFileName = gFilePrefix + ".xdmf"
-  ghFileName = gFilePrefix + ".h5"
+  gFilePrefix = "xdmfIOtest_Graph"
+  gFileName = OutputDir + gFilePrefix + ".xdmf"
+  ghFileName = OutputDir + gFilePrefix + ".h5"
   xWriter = vtk.vtkXdmf3Writer()
   xWriter.SetLightDataLimit(LightDataLimit)
   xWriter.SetFileName(gFileName)
@@ -302,8 +304,8 @@ if __name__ == "__main__":
   tsrc.GrowingOn()
   tsrc.SetXAmplitude(2.0)
   tFilePrefix = "xdmfIOTest_Temporal"
-  tFileName = tFilePrefix + ".xdmf"
-  thFileName = tFilePrefix + ".h5"
+  tFileName = OutputDir + tFilePrefix + ".xdmf"
+  thFileName = OutputDir + tFilePrefix + ".h5"
   xWriter = vtk.vtkXdmf3Writer()
   xWriter.SetLightDataLimit(LightDataLimit)
   xWriter.WriteAllTimeStepsOn()

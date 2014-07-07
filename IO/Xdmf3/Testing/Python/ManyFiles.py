@@ -44,14 +44,13 @@ largeFiles = [
 "Iron/Iron_Protein.RectilinearGrid.Collection.xmf",
 "Iron/Iron_Protein.StructuredGrid.xmf",
 "Iron/Iron_Protein.StructuredGrid.Collection.xmf",
-"Scenario1_p1.xmf",
+"Big/Scenario1_p1.xmf",
 ]
 
 testfilenames = smallFiles
 
 import sys
 if "--do_big_files" in sys.argv:
-  print "DO LARGE TOO"
   testfilenames = smallFiles + largeFiles
 
 if __name__ == "__main__":

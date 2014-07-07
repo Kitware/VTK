@@ -10,6 +10,9 @@ if(VTK_MPI_MAX_NUMPROCS GREATER 1 AND VTK_USE_LARGE_DATA)
 
   include(vtkMPI)
     vtk_module_test_executable(${vtk-module}Cxx-${test} ${test}.cxx)
+    ExternalData_Expand_Arguments(VTKData _
+      "DATA{${VTK_TEST_INPUT_DIR}/XDMF/Iron/,REGEX:.*}"
+      )
     ExternalData_add_test(VTKData
       NAME ${vtk-module}Cxx-${test}
       COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
