@@ -15,6 +15,9 @@
 
 // Forward declaration of Xdmf classes
 
+namespace xdmf2
+{
+
 class XdmfArray;
 
 //! Class to support data side Sets.
@@ -154,4 +157,5 @@ protected:
   XdmfArray     *MapData;
 };
 
+}
 #endif // __XdmfMap_h

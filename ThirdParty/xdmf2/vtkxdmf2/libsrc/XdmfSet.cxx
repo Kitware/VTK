@@ -7,6 +7,9 @@
 #include "XdmfDOM.h"
 #include "XdmfMap.h"
 
+namespace xdmf2
+{
+
 XdmfSet::XdmfSet() {
   this->SetElementName("Set");
   this->IdsAreMine = 1;
@@ -414,4 +417,6 @@ for(i=0 ; i < NumberOfDataItems ; i++){
 }
 
 return( XDMF_SUCCESS );
+}
+
 }

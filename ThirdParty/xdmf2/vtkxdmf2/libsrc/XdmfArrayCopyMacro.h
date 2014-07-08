@@ -25,6 +25,9 @@
 #define XDMF_ARRAY_IN  0
 #define XDMF_ARRAY_OUT  1
 
+namespace xdmf2
+{
+
 template<class ArrayType, class ValueType>
 void XdmfArrayCopy(
   ArrayType* ArrayPointer, XdmfInt64 ArrayStride,
@@ -170,3 +173,4 @@ void XdmfArrayOperate(
         XdmfErrorMessage("Can't Assign Values to Compound Type"); \
         break; \
       }
+}

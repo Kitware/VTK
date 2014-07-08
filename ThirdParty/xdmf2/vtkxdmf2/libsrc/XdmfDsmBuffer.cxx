@@ -35,6 +35,8 @@
 #define XDMF_DSM_SEMA_AQUIRE    0x03
 #define XDMF_DSM_SEMA_RELEASE   0x04
 
+namespace xdmf2
+{
 
 extern "C"{
 XDMF_EXPORT void *
@@ -442,3 +444,4 @@ XdmfDsmBuffer::Get(XdmfInt64 Address, XdmfInt64 aLength, void *Data){
     return(XDMF_SUCCESS);
 }
 
+}

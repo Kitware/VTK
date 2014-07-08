@@ -39,6 +39,9 @@
 
 #include <libxml/tree.h>
 
+namespace xdmf2
+{
+
 XdmfDataItem::XdmfDataItem() {
     this->SetElementName("DataItem");
     this->Values = NULL;
@@ -854,4 +857,4 @@ XdmfDataItem::CheckValues(XdmfInt32 aFormat){
     return(XDMF_SUCCESS);
 }
 
-
+}

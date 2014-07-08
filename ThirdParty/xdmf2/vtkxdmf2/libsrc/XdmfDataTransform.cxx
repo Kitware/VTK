@@ -25,6 +25,9 @@
 #include "XdmfDataTransform.h"
 #include "XdmfArray.h"
 
+namespace xdmf2
+{
+
 XdmfDataTransform::XdmfDataTransform() {
     this->ItemType = XDMF_ITEM_FUNCTION;
 }
@@ -38,3 +41,4 @@ XdmfDataTransform::UpdateInformation(){
     return(XDMF_SUCCESS);
 }
 
+}

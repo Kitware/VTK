@@ -135,9 +135,12 @@ extern "C" {
 #include <XdmfHDF.h>
 #include <math.h>
 
-static XdmfArray *XdmfExprReturnValue;
+static xdmf2::XdmfArray *XdmfExprReturnValue;
 XdmfExprSymbol *XdmfExprItemsTable = NULL;
 
+
+namespace xdmf2
+{
 
 class XdmfInt64Array : public XdmfArray {
 public :
@@ -150,6 +153,8 @@ public :
                 this->SetNumberOfElements( 10 );
                 };
 };
+
+}
 
 #define ADD_XDMF_tokARRAY_TO_SYMBOL( a ) \
         { \
@@ -1188,10 +1193,10 @@ yyreduce:
   case 3:
 
     {
-                XdmfArray *TempArray = ( XdmfArray *)yyvsp[0].ArrayPointer;
+                xdmf2::XdmfArray *TempArray = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
 
                 /* printf("Setting %s from ArrayExpression\n", $1); */
-                XdmfExprReturnValue = (XdmfArray *)yyvsp[-2].ArrayPointer;
+                XdmfExprReturnValue = (xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
                 *XdmfExprReturnValue = *TempArray;
                 delete TempArray;
                 }
@@ -1201,7 +1206,7 @@ yyreduce:
 
     {
                 /* printf("Setting %s from ScalarExpression\n", $1); */
-                XdmfExprReturnValue = (XdmfArray *)yyvsp[-2].ArrayPointer;
+                XdmfExprReturnValue = (xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
                 *XdmfExprReturnValue = yyvsp[0].DoubleValue;
                 }
     break;
@@ -1209,8 +1214,8 @@ yyreduce:
   case 5:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
-                        XdmfArray        *Result = ( XdmfArray *)yyvsp[-5].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Result = ( xdmf2::XdmfArray *)yyvsp[-5].ArrayPointer;
                         XdmfLength        i, index, Length = Array1->GetNumberOfElements();
 
                         for( i = 0 ; i < Length ; i++ ){
@@ -1225,9 +1230,9 @@ yyreduce:
   case 6:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
-                        XdmfArray        *Array2 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray        *Result = ( XdmfArray *)yyvsp[-5].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray        *Result = ( xdmf2::XdmfArray *)yyvsp[-5].ArrayPointer;
                         XdmfFloat64        Value;
                         XdmfLength        i, index, Length = Array1->GetNumberOfElements();
 
@@ -1245,31 +1250,31 @@ yyreduce:
   case 7:
 
     {
-                        XdmfArray *Range;
+                        xdmf2::XdmfArray *Range;
 
                         /* printf("Array Range %d:%d = ScalarExpression \n", $3, $5);         */
-                        Range = (XdmfArray *)yyvsp[-7].ArrayPointer;
+                        Range = (xdmf2::XdmfArray *)yyvsp[-7].ArrayPointer;
                         XdmfExprReturnValue = Range->Reference( yyvsp[-5].IntegerValue, yyvsp[-3].IntegerValue ); /* This is a Reference */
                         *XdmfExprReturnValue = yyvsp[0].DoubleValue;
 
                         /* Now Point to the Entire Array */
-                        XdmfExprReturnValue = (XdmfArray *)yyvsp[-7].ArrayPointer;
+                        XdmfExprReturnValue = (xdmf2::XdmfArray *)yyvsp[-7].ArrayPointer;
                         }
     break;
 
   case 8:
 
     {
-                        XdmfArray *TempArray = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *Range;
+                        xdmf2::XdmfArray *TempArray = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Range;
 
                         /* printf("Array Range %d:%d = ArrayExpression \n", $3, $5);         */
-                        Range = (XdmfArray *)yyvsp[-7].ArrayPointer;
+                        Range = (xdmf2::XdmfArray *)yyvsp[-7].ArrayPointer;
                         XdmfExprReturnValue = Range->Reference( yyvsp[-5].IntegerValue, yyvsp[-3].IntegerValue ); /* This is a Reference */
                         *XdmfExprReturnValue = *TempArray;
 
                         /* Now Point to the Entire Array */
-                        XdmfExprReturnValue = (XdmfArray *)yyvsp[-7].ArrayPointer;
+                        XdmfExprReturnValue = (xdmf2::XdmfArray *)yyvsp[-7].ArrayPointer;
                         delete TempArray;
                         }
     break;
@@ -1277,7 +1282,7 @@ yyreduce:
   case 9:
 
     {
-                XdmfArray *TempArray = ( XdmfArray *)yyvsp[0].ArrayPointer;
+                xdmf2::XdmfArray *TempArray = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
 
                 /* printf("Clone from ArrayExpression\n"); */
                 XdmfExprReturnValue = TempArray;        
@@ -1295,8 +1300,8 @@ yyreduce:
   case 11:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Array2 = ( XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
 
                         /* printf("Array 0x%X + 0x%X\n", Array1, Array2); */
                         *Array1 += *Array2;
@@ -1309,9 +1314,9 @@ yyreduce:
 
     {
                         /* Interlace */
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Array2 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *NewArray = new XdmfArray();
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *NewArray = new xdmf2::XdmfArray();
                         XdmfInt32 i, Rank1, Rank2;
                         XdmfInt64 NewLength, Length1, Length2, IFactor, Lcd;
                         XdmfInt64 Dimension1[ XDMF_MAX_DIMENSION ];
@@ -1389,9 +1394,9 @@ yyreduce:
 
     {
                         /* Interlace */
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Array2 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *NewArray = new XdmfArray();
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *NewArray = new xdmf2::XdmfArray();
                         XdmfInt32 i, Rank1, Rank2;
                         XdmfInt64 Dimension1[ XDMF_MAX_DIMENSION ];
                         XdmfInt64 Dimension2[ XDMF_MAX_DIMENSION ];
@@ -1456,8 +1461,8 @@ yyreduce:
   case 14:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Array2 = ( XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
 
                         /* printf("Array 0x%X + 0x%X\n", Array1, Array2); */
                         *Array1 -= *Array2;
@@ -1469,8 +1474,8 @@ yyreduce:
   case 15:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Array2 = ( XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
 
                         /* printf("Array 0x%X * 0x%X\n", Array1, Array2); */
                         *Array1 *= *Array2;
@@ -1483,8 +1488,8 @@ yyreduce:
   case 16:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Array2 = ( XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
 
                         /* printf("Array 0x%X + 0x%X\n", Array1, Array2); */
                         *Array1 /= *Array2;
@@ -1496,8 +1501,8 @@ yyreduce:
   case 17:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array + %g\n", $3); */
                         Result  = Array1;
@@ -1509,8 +1514,8 @@ yyreduce:
   case 18:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array - %g\n", $3); */
                         Result  = Array1;
@@ -1522,8 +1527,8 @@ yyreduce:
   case 19:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array * %g\n", $3); */
                         Result  = Array1;
@@ -1535,8 +1540,8 @@ yyreduce:
   case 20:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-2].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-2].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array / %g\n", $3); */
                         Result  = Array1;
@@ -1548,8 +1553,8 @@ yyreduce:
   case 21:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array + %g\n", $1); */
                         Result  = Array1;
@@ -1561,8 +1566,8 @@ yyreduce:
   case 22:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array - %g\n", $1); */
                         Result  = Array1;
@@ -1574,8 +1579,8 @@ yyreduce:
   case 23:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array * %g\n", $1); */
                         Result  = Array1;
@@ -1587,8 +1592,8 @@ yyreduce:
   case 24:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("Array / %g\n", $1); */
                         Result  = Array1;
@@ -1600,9 +1605,9 @@ yyreduce:
   case 25:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
-                        XdmfArray        *Array2 = ( XdmfArray *)yyvsp[-1].ArrayPointer;
-                        XdmfArray        *Result;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array2 = ( xdmf2::XdmfArray *)yyvsp[-1].ArrayPointer;
+                        xdmf2::XdmfArray        *Result;
 
                         /* printf("ArrayExpression From Indexes\n"); */
                         Result = Array1->Clone( Array2 );
@@ -1614,8 +1619,8 @@ yyreduce:
   case 26:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[-5].ArrayPointer;
-                        XdmfArray *Range, *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-5].ArrayPointer;
+                        xdmf2::XdmfArray *Range, *Result;
 
                         /* printf("ArrayExpression From Array Range %d:%d\n", $3, $5);         */
                         Range = Array1->Reference( yyvsp[-3].IntegerValue, yyvsp[-1].IntegerValue ); /* This not a copy  */
@@ -1629,11 +1634,11 @@ yyreduce:
   case 27:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
-                        XdmfArray        *Array2 = ( XdmfArray *)yyvsp[-1].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array2 = ( xdmf2::XdmfArray *)yyvsp[-1].ArrayPointer;
                         XdmfLength        i, howmany = 0, cntr = 0;
                         XdmfLength        Length1 = Array1->GetNumberOfElements(), Length2;
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length1 );
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length1 );
                         XdmfInt64        A1Value, A2Value;
                         XdmfInt64        *A1Values, *A2Values;
                         float                Percent;
@@ -1671,19 +1676,19 @@ yyreduce:
                                         Index->SetValue( i, -1);
                                         }
                                 }        
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
   case 28:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
                         /* XdmfLength        howmany = 0; */
                         XdmfLength        i, cntr = 0;
                         XdmfLength        Length1 = Array1->GetNumberOfElements(), Length2;
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length1 );
-                        XdmfArray        *Array2 = ( XdmfArray *)yyvsp[-1].ArrayPointer;
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length1 );
+                        xdmf2::XdmfArray        *Array2 = ( xdmf2::XdmfArray *)yyvsp[-1].ArrayPointer;
                         XdmfFloat64        A1Value, A2Value;
 
                         Length2 = Array2->GetNumberOfElements();
@@ -1708,17 +1713,17 @@ yyreduce:
                                         Index->SetValue( i, -1);
                                         }
                                 }        
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
   case 29:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
                         XdmfLength        i, cntr = 0;
                         XdmfLength        Length = Array1->GetNumberOfElements();
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length );
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length );
                         XdmfFloat64        Value, SValue = yyvsp[-1].DoubleValue;
 
                         for( i = 0 ; i < Length ; i++ ){
@@ -1733,17 +1738,17 @@ yyreduce:
                                 return( 0 );
                                 }
                         Index->SetNumberOfElements( cntr );
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
   case 30:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
                         XdmfLength        i, cntr = 0;
                         XdmfLength        Length = Array1->GetNumberOfElements();
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length );
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length );
                         XdmfFloat64        Value, SValue = yyvsp[-1].DoubleValue;
 
                         for( i = 0 ; i < Length ; i++ ){
@@ -1758,17 +1763,17 @@ yyreduce:
                                 return( 0 );
                                 }
                         Index->SetNumberOfElements( cntr );
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
   case 31:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
                         XdmfLength        i, cntr = 0;
                         XdmfLength        Length = Array1->GetNumberOfElements();
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length );
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length );
                         XdmfFloat64        Value, SValue = yyvsp[-1].DoubleValue;
 
                         for( i = 0 ; i < Length ; i++ ){
@@ -1783,17 +1788,17 @@ yyreduce:
                                 return( 0 );
                                 }
                         Index->SetNumberOfElements( cntr );
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
   case 32:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
                         XdmfLength        i, cntr = 0;
                         XdmfLength        Length = Array1->GetNumberOfElements();
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length );
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length );
                         XdmfFloat64        Value, SValue = yyvsp[-1].DoubleValue;
 
                         for( i = 0 ; i < Length ; i++ ){
@@ -1808,17 +1813,17 @@ yyreduce:
                                 return( 0 );
                                 }
                         Index->SetNumberOfElements( cntr );
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
   case 33:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
                         XdmfLength        i, cntr = 0;
                         XdmfLength        Length = Array1->GetNumberOfElements();
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length );
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length );
                         XdmfFloat64        Value, SValue = yyvsp[-1].DoubleValue;
 
                         for( i = 0 ; i < Length ; i++ ){
@@ -1833,17 +1838,17 @@ yyreduce:
                                 return( 0 );
                                 }
                         Index->SetNumberOfElements( cntr );
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
   case 34:
 
     {
-                        XdmfArray        *Array1 = ( XdmfArray *)yyvsp[-3].ArrayPointer;
+                        xdmf2::XdmfArray        *Array1 = ( xdmf2::XdmfArray *)yyvsp[-3].ArrayPointer;
                         XdmfLength        i, cntr = 0;
                         XdmfLength        Length = Array1->GetNumberOfElements();
-                        XdmfInt64Array        *Index = new XdmfInt64Array( Length );
+                        xdmf2::XdmfInt64Array        *Index = new xdmf2::XdmfInt64Array( Length );
                         XdmfFloat64        Value, SValue = yyvsp[-1].DoubleValue;
 
                         for( i = 0 ; i < Length ; i++ ){
@@ -1858,7 +1863,7 @@ yyreduce:
                                 return( 0 );
                                 }
                         Index->SetNumberOfElements( cntr );
-                        yyval.ArrayPointer = ( XdmfArray *)Index;
+                        yyval.ArrayPointer = ( xdmf2::XdmfArray *)Index;
                         }
     break;
 
@@ -1870,7 +1875,7 @@ yyreduce:
                                 /* printf("Bad Function Ptr for %s\n", $1->Name ); */
                                 yyval.ArrayPointer = yyvsp[-1].ArrayPointer;
                         } else {
-                                XdmfArray *Array1 = ( XdmfArray *)yyvsp[-1].ArrayPointer;
+                                xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[-1].ArrayPointer;
                                 XdmfFloat64        Value;
                                 XdmfLength        i, Length = Array1->GetNumberOfElements();
 
@@ -1903,8 +1908,8 @@ yyreduce:
   case 38:
 
     {
-                        XdmfArray *Array1 = ( XdmfArray *)yyvsp[0].ArrayPointer;
-                        XdmfArray *Result;
+                        xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
+                        xdmf2::XdmfArray *Result;
 
                         /* printf("ArrayExpression From Array\n"); */
 
@@ -2291,13 +2296,13 @@ return( Item );
 /**/
 #endif
 
-XdmfArray *
+xdmf2::XdmfArray *
 XdmfExprParse( char *string ){
 
 XdmfExprSymbol        *Item;
 XdmfLength        CurrentTime;
 XdmfLength        TimeOfCreation;
-XdmfArray        *ap;
+xdmf2::XdmfArray        *ap;
 
 /* Build the Symbol Table if Necessary */
 Item = XdmfExprSymbolLookup( NULL );
@@ -2335,7 +2340,7 @@ InputBufferEnd = strlen( InputBuffer );
 InputBufferPtr = OutputBufferPtr = 0;
 XdmfExprReturnValue = NULL;
 /* printf("XdmfExprParse Scanning <%s>\n", InputBuffer); */
-CurrentTime = GetCurrentArrayTime();
+ CurrentTime = xdmf2::GetCurrentArrayTime();
 if ( yyparse() != 0 ){
         /* Error */
         XdmfExprReturnValue = NULL;
@@ -2355,7 +2360,7 @@ XdmfExprItemsTable = NULL;
 
 /* Remove All Arrays Older than when we started */
 /* printf("Cleaning up Temparary Arrays\n"); */
-while( ( ap = GetNextOlderArray( CurrentTime, &TimeOfCreation ) ) != NULL ){
+ while( ( ap = xdmf2::GetNextOlderArray( CurrentTime, &TimeOfCreation ) ) != NULL ){
         /* Don't remove the return value */
         if( ap != XdmfExprReturnValue ){
                 /* printf("Removing Temporary Array\n"); */

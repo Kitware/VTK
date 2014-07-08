@@ -1,0 +1,29 @@
+SET(ENV{PATH} "${PATH}${SEPARATOR}$ENV{PATH}")
+SET(ENV{LD_LIBRARY_PATH} "${LDPATH}${SEPARATOR}$ENV{LD_LIBRARY_PATH}")
+
+MESSAGE("| Calling:\t${EXECUTABLE} ${ARGUMENTS}")
+EXECUTE_PROCESS(
+       COMMAND ${EXECUTABLE} ${ARGUMENTS} 
+			RESULT_VARIABLE fortran_result
+            OUTPUT_VARIABLE fortran_output
+            ERROR_VARIABLE  fortran_error
+)
+
+MESSAGE("| Call Result:\t${fortran_result}")
+MESSAGE("| Call Output: Begin\n${fortran_output}")
+MESSAGE("| Call Output: End")
+IF(fortran_error)
+	MESSAGE("| Call Error: Begin\n${fortran_error}")
+	MESSAGE("| Call Error: End")
+ENDIF(fortran_error)
+MESSAGE("| Call Ended")
+MESSAGE("----------------------------------------------------------")
+
+# Let's make sure that if the test failed, it failed with CTest too
+IF(fortran_error)
+	MESSAGE(SEND_ERROR "Test Failed.")
+ENDIF(fortran_error)
+
+IF(NOT ${fortran_result} EQUAL "0")
+	MESSAGE(SEND_ERROR "Test Failed.")
+ENDIF(NOT ${fortran_result} EQUAL "0")

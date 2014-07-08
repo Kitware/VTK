@@ -27,6 +27,8 @@
 
 #include "XdmfElement.h"
 
+namespace xdmf2
+{
 
 class XdmfGeometry;
 class XdmfTopology;
@@ -327,4 +329,5 @@ protected:
 
 //! Using a SWIG style Pointer return an XdmfGrid Pointer
 extern XDMF_EXPORT XdmfGrid *HandleToXdmfGrid( XdmfString Source);
+}
 #endif // __XdmfGrid_h

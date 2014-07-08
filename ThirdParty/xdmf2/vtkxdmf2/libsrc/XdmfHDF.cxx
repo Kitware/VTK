@@ -33,6 +33,8 @@
 #define XDMF_HDF5_SIZE_T        hsize_t
 #endif
 
+namespace xdmf2
+{
 
 XdmfHDF::XdmfHDF() {
 
@@ -949,3 +951,5 @@ array->SetNumberOfElements(NumberOfElements);
 return( array );
 }
 */
+
+}
