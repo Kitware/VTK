@@ -750,6 +750,163 @@ bool TestSearchForSynonyms()
   return static_cast<int>(synonyms.size()) == NUMBER_OF_SYNONYMS;
 }
 
+//-----------------------------------------------------------------------------
+struct Data
+{
+  const char* colorString;
+  unsigned char colorVector[4];
+};
+
+bool TestHTMLColorToRGBA()
+{
+  bool testResult = true;
+
+  static const Data dataList[] = {
+      // Valid hexadecimal string.
+      { "#000", {0, 0, 0, 255} },
+      { "#70f", {0x77, 0x00, 0xFF, 0xFF} },
+      { " #70f ", {0x77, 0x00, 0xFF, 0xFF} },
+      { "#70faCC", {0x70, 0xFA, 0xCC, 0xFF} },
+      { " #70faCC ", {0x70, 0xFA, 0xCC, 0xFF} },
+
+      // Non-valid hexadecimal string.
+      { "#", {0, 0, 0, 0} },
+      { "#70faC", {0, 0, 0, 0} },
+      { "#70faCCF088", {0, 0, 0, 0} },
+      { "# 70faCCF0", {0, 0, 0, 0} },
+      { "#70 faCCF0", {0, 0, 0, 0} },
+      { "#70f aCCF0", {0, 0, 0, 0} },
+      { "#70faCC w", {0, 0, 0, 0} },
+      { "#70faCw", {0, 0, 0, 0} },
+      { "70facd", {0, 0, 0, 0} },
+      { "#70fa", {0, 0, 0, 0} },
+      { "#70faCCF0", {0, 0, 0, 0} },
+      { " #70faCCF0 ", {0, 0, 0, 0} },
+
+      // Valid rgb() string.
+      { "rgb(16, 0 , 250)", {16, 0, 250, 255} },
+      { "RGB(16, 0 , 250)", {16, 0, 250, 255} },
+      { "Rgb(16, 0 , 250)", {16, 0, 250, 255} },
+      { "rgB(16, 0 , 250)", {16, 0, 250, 255} },
+      { "rgb ( 020, 0 , 255 ) ", {20, 0, 255, 255} },
+      { "rgb(20,0,255)", {20, 0, 255, 255} },
+      { "rgb (20, 0 , 2558)", {20, 0, 255, 255} },
+      { "rgb(0, 0 , 256)", {0, 0, 255, 255} },
+      { "rgb(10, 0 , -2)", {10, 0, 0, 255} },
+
+      { "rgb(10%, 0%, 100%)", {25, 0, 255, 255} },
+      { "rgb ( 010%, 0% , 100% ) ", {25, 0, 255, 255} },
+      { "rgb(10%,0%,100%)", {25, 0, 255, 255} },
+      { "rgb (10%, 0%, 200%)", {25, 0, 255, 255} },
+      { "rgb(0%, 0% , -2%)", {0, 0, 0, 255} },
+      { "rgb(0%, 0% , 10.4%)", {0, 0, 26, 255} },
+
+      // Non-valid rgb() string.
+      { "rgb (20, 0 , 25, 58)", {0, 0, 0, 0} },
+      { "rgb (20, 0 , 25, 0.8)", {0, 0, 0, 0} },
+      { "rgb (  ", {0, 0, 0, 0} },
+      { "rgb (20,,25)", {0, 0, 0, 0} },
+      { "rgb (, 20,25)", {0, 0, 0, 0} },
+
+      { "rgb(10%%, 0%, 100%)", {0, 0, 0, 0} },
+      { "rgb(10%, %, 100%)", {0, 0, 0, 0} },
+      { "rgb(10%, 0%, 100 %)", {0, 0, 0, 0} },
+      { "rgb(10%, 0%, 100% %)", {0, 0, 0, 0} },
+      { "rgb(10%, 0%, 100%, 0.8)", {0, 0, 0, 0} },
+      { "rgb(10%, 0%, 100, )", {0, 0, 0, 0} },
+
+      // Valid rgba() string.
+      { "rgba ( 020, 0 , 255, 0 )", {20, 0, 255, 0} },
+      { "rgba (20, 0 , 255, 1.0 ) ", {20, 0, 255, 255} },
+      { "rgba(20, 0 , 255, 0.8)", {20, 0, 255, 204} },
+      { "rgba(20, 0 , 255, 1.2)", {20, 0, 255, 255} },
+      { "rgba(20, 0 , 255, -0.2)", {20, 0, 255, 0} },
+      { "rgba(10%, 0%, 100%, 0.8)", {25, 0, 255, 204} },
+
+      // Non-valid rgba() string.
+      { "rgba(20, 0 , 255)", {0, 0, 0, 0} },
+      { "rgba(10%, 0%, 100, 0.8)", {0, 0, 0, 0} },
+
+      // Valid named color string.
+      { "steelblue", {70, 130, 180, 255} },
+
+      // Non-valid color string.
+      { "xcnvvb", {0, 0, 0, 0} },
+      { "", {0, 0, 0, 0} },
+
+      // End element.
+      { "\n",  {0, 0, 0, 0} },
+  };
+
+  vtkSmartPointer<vtkNamedColors> color = vtkSmartPointer<vtkNamedColors>::New();
+
+  const char* inputString = "";
+  const unsigned char* expectedOutput;
+  vtkColor4ub outputColor;
+  unsigned int i = 0;
+  while (inputString[0] != '\n' )
+    {
+    inputString = dataList[i].colorString;
+    expectedOutput = dataList[i].colorVector;
+    outputColor = color->HTMLColorToRGBA(inputString);
+    if (outputColor != vtkColor4ub(expectedOutput))
+      {
+      vtkGenericWarningMacro(
+        << "Fail: input `" <<  inputString << "`"
+        << ", found " << outputColor
+        << ", expected " << vtkColor4ub(expectedOutput) << " instead."
+        );
+      testResult &= false;
+      }
+    ++i;
+    }
+
+  return testResult;
+}
+
+//-----------------------------------------------------------------------------
+bool TestRGBToHTMLColor()
+{
+  bool testResult = true;
+
+  static const Data dataList[] = {
+      { "#70facc", {0x70, 0xFA, 0xCC, 0xFF} },
+      { "#00facc", {0x00, 0xFA, 0xCC, 0xFF} },
+      { "#7000cc", {0x70, 0x00, 0xCC, 0xFF} },
+      { "#70fa00", {0x70, 0xFA, 0x00, 0xFF} },
+      { "#000000", {0x00, 0x00, 0x00, 0xFF} },
+      { "#ffffff", {0xFF, 0xFF, 0xFF, 0xFF} },
+
+      // End element.
+      { "\n",  {0, 0, 0, 0} },
+  };
+
+  vtkSmartPointer<vtkNamedColors> color = vtkSmartPointer<vtkNamedColors>::New();
+
+  vtkStdString outputString;
+  const char* expectedOutput = "";
+  unsigned int i = 0;
+  while ( dataList[i].colorString[0] != '\n' )
+    {
+    vtkColor3ub inputColor(dataList[i].colorVector);
+    expectedOutput = dataList[i].colorString;
+    outputString = color->RGBToHTMLColor(inputColor);
+    if (outputString.compare(expectedOutput) != 0)
+      {
+      vtkGenericWarningMacro(
+        << "Fail: input `" <<  inputColor << "`"
+        << ", found '" << outputString
+        << "', expected '" << expectedOutput << "' instead."
+        );
+      testResult &= false;
+      }
+    ++i;
+    }
+
+  return testResult;
+}
+
+//-----------------------------------------------------------------------------
 int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();
@@ -898,6 +1055,22 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       << os.str().size() << " instead."
       );
     testResult &= false;
+    }
+
+  testResult &= TestHTMLColorToRGBA();
+  if ( !testResult )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: TestHTMLColorToRGBA()"
+      );
+    }
+
+  testResult &= TestRGBToHTMLColor();
+  if ( !testResult )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: TestRGBToHTMLColor()"
+      );
     }
 
   if ( !testResult )
