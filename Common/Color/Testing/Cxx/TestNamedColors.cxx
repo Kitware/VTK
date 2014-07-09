@@ -73,6 +73,16 @@ std::vector<std::vector<vtkStdString> > ParseSynonyms(
 //  A test to see if searching for synonyms works.
 bool TestSearchForSynonyms();
 
+// A test to see if parsing of HTML string color works.
+bool TestHTMLColorToRGBA();
+
+// A test to see if transforming a vtkColor3ub into an HTML color string works.
+bool TestRGBToHTMLColor();
+
+// A test to see if transforming a vtkColor4ub into an HTML color string works.
+bool TestRGBAToHTMLColor();
+
+
 //-----------------------------------------------------------------------------
 bool TestEmptyColorName()
 {
@@ -751,7 +761,7 @@ bool TestSearchForSynonyms()
 }
 
 //-----------------------------------------------------------------------------
-struct Data
+struct ColorDataMap
 {
   const char* colorString;
   unsigned char colorVector[4];
@@ -761,7 +771,7 @@ bool TestHTMLColorToRGBA()
 {
   bool testResult = true;
 
-  static const Data dataList[] = {
+  static const ColorDataMap dataList[] = {
       // Valid hexadecimal string.
       { "#000", {0, 0, 0, 255} },
       { "#70f", {0x77, 0x00, 0xFF, 0xFF} },
@@ -835,7 +845,7 @@ bool TestHTMLColorToRGBA()
       { "", {0, 0, 0, 0} },
 
       // End element.
-      { "\n",  {0, 0, 0, 0} },
+      { "\n",  {0, 0, 0, 0} }
   };
 
   vtkSmartPointer<vtkNamedColors> color = vtkSmartPointer<vtkNamedColors>::New();
@@ -869,7 +879,7 @@ bool TestRGBToHTMLColor()
 {
   bool testResult = true;
 
-  static const Data dataList[] = {
+  static const ColorDataMap dataList[] = {
       { "#70facc", {0x70, 0xFA, 0xCC, 0xFF} },
       { "#00facc", {0x00, 0xFA, 0xCC, 0xFF} },
       { "#7000cc", {0x70, 0x00, 0xCC, 0xFF} },
@@ -878,7 +888,7 @@ bool TestRGBToHTMLColor()
       { "#ffffff", {0xFF, 0xFF, 0xFF, 0xFF} },
 
       // End element.
-      { "\n",  {0, 0, 0, 0} },
+      { "\n",  {0, 0, 0, 0} }
   };
 
   vtkSmartPointer<vtkNamedColors> color = vtkSmartPointer<vtkNamedColors>::New();
@@ -891,6 +901,50 @@ bool TestRGBToHTMLColor()
     vtkColor3ub inputColor(dataList[i].colorVector);
     expectedOutput = dataList[i].colorString;
     outputString = color->RGBToHTMLColor(inputColor);
+    if (outputString.compare(expectedOutput) != 0)
+      {
+      vtkGenericWarningMacro(
+        << "Fail: input `" <<  inputColor << "`"
+        << ", found '" << outputString
+        << "', expected '" << expectedOutput << "' instead."
+        );
+      testResult &= false;
+      }
+    ++i;
+    }
+
+  return testResult;
+}
+
+//-----------------------------------------------------------------------------
+bool TestRGBAToHTMLColor()
+{
+  bool testResult = true;
+
+  static const ColorDataMap dataList[] = {
+      { "rgba(70,200,140,1)", {70, 200, 140, 255} },
+      { "rgba(70,200,140,0)", {70, 200, 140, 0} },
+      { "rgba(70,200,140,0.392)", {70, 200, 140, 100} },
+      { "rgba(70,200,140,0.502)", {70, 200, 140, 128} },
+      { "rgba(0,0,0,0.784)", {0, 0, 0, 200} },
+      { "rgba(255,255,255,0)", {255, 255, 255, 0} },
+      { "rgba(0,0,0,0.00392)", {0, 0, 0, 1} },
+      { "rgba(0,0,0,0.996)", {0, 0, 0, 254} },
+
+      // End element.
+      { "\n",  {0, 0, 0, 0} }
+  };
+
+  vtkSmartPointer<vtkNamedColors> color = vtkSmartPointer<vtkNamedColors>::New();
+
+  vtkStdString outputString;
+  const char* expectedOutput = "";
+  unsigned int i = 0;
+  while ( dataList[i].colorString[0] != '\n' )
+    {
+    vtkColor4ub inputColor(dataList[i].colorVector);
+    expectedOutput = dataList[i].colorString;
+    outputString = color->RGBAToHTMLColor(inputColor);
     if (outputString.compare(expectedOutput) != 0)
       {
       vtkGenericWarningMacro(
@@ -1070,6 +1124,14 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     {
     vtkGenericWarningMacro(
       << "Fail: TestRGBToHTMLColor()"
+      );
+    }
+
+  testResult &= TestRGBAToHTMLColor();
+  if ( !testResult )
+    {
+    vtkGenericWarningMacro(
+      << "Fail: TestRGBAToHTMLColor()"
       );
     }
 

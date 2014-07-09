@@ -26,6 +26,10 @@
 #include <cctype> // Header to ensure std::tolower is present
 #include <cstdlib>
 
+#ifdef WIN32
+  #define snprintf _snprintf_s   // For vtkNamedColors::RGBToHTMLColor
+#endif
+
 class vtkNamedColorsDataStore
 {
 public:
@@ -704,10 +708,10 @@ private:
 
 //------------------------------------------------------------------------------
 // Helper class for parsing a string which defines a RGB or RGBA color.
-class ColorStringParser
+class vtkColorStringParser
 {
 public:
-  ColorStringParser(vtkNamedColors* namedColors)
+  vtkColorStringParser(vtkNamedColors* namedColors)
   {
     this->Color.Set(0, 0, 0, 255);
     this->StateGood = true;
@@ -755,7 +759,7 @@ private:
 // - a CSS3 color name, e.g. "steelblue"
 // If the passed string defines a color using one of the above formats returns
 // true else returns false.
-bool ColorStringParser::Parse(const vtkStdString& colorString)
+bool vtkColorStringParser::Parse(const vtkStdString& colorString)
 {
   vtkStdString color = this->ToLowercase(colorString);
 
@@ -835,7 +839,7 @@ double clipPercentage(double value)
 // Parse a string of type "#RRGGBB" or "#RRGGBBAA".
 // Heading and trailing spaces must be already trimmed.
 // If the parsed string is not valid set `StateGood` to false.
-void ColorStringParser::HexStringToRGBA(vtkStdString color)
+void vtkColorStringParser::HexStringToRGBA(vtkStdString color)
 {
   // Check if it is valid hexadecimal representation.
   vtkStdString::size_type pos = color.find_first_not_of("0123456789abcdefABCDEF");
@@ -882,7 +886,7 @@ void ColorStringParser::HexStringToRGBA(vtkStdString color)
 // r, g, b must be integral value in 0..255 or percentage values in 0.0%..100.0%
 // a is a floating number in 0.0..1.0.
 // If the parsed string is not valid set `StateGood` to false.
-void ColorStringParser::RGBAFuncStringToRGBA(vtkStdString color,
+void vtkColorStringParser::RGBAFuncStringToRGBA(vtkStdString color,
                                              vtkStdString::size_type pos,
                                              unsigned int argCount)
 {
@@ -967,7 +971,7 @@ vtkStandardNewMacro(vtkNamedColors);
 vtkNamedColors::vtkNamedColors()
 {
   this->Colors = new vtkNamedColorsDataStore;
-  this->Parser = new ColorStringParser(this);
+  this->Parser = new vtkColorStringParser(this);
 }
 
 //----------------------------------------------------------------------------
@@ -1333,11 +1337,6 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
 }
 
 //-----------------------------------------------------------------------------
-#ifdef WIN32
-  #define snprintf _snprintf_s
-#endif
-
-//-----------------------------------------------------------------------------
 vtkStdString vtkNamedColors::RGBToHTMLColor(const vtkColor3ub & rgb)
 {
   vtkStdString s = "#";
@@ -1349,4 +1348,14 @@ vtkStdString vtkNamedColors::RGBToHTMLColor(const vtkColor3ub & rgb)
   snprintf(buff, sizeof(buff) - 1, "%02x", rgb.GetBlue());
   s += buff;
   return s;
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkNamedColors::RGBAToHTMLColor(const vtkColor4ub & rgba)
+{
+  std::stringstream ss;
+  ss.precision(3);
+  ss << "rgba(" << (int)(rgba.GetRed()) << "," << (int)(rgba.GetGreen()) <<
+        "," << (int)(rgba.GetBlue()) << "," << (rgba.GetAlpha() / 255.0) << ")";
+  return ss.str();
 }

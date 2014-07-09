@@ -73,7 +73,7 @@
 #include "vtkStringArray.h" // For returning color names
 
 class vtkNamedColorsDataStore;
-class ColorStringParser;
+class vtkColorStringParser;
 
 class VTKCOMMONCOLOR_EXPORT vtkNamedColors : public vtkObject
 {
@@ -338,6 +338,11 @@ public:
   vtkStdString RGBToHTMLColor(const vtkColor3ub & rgb);
 
   // Description:
+  // Given a vtkColor4ub instance as input color return a valid HTML color
+  // string in the `rgba(r, g, b, a)` format.
+  vtkStdString RGBAToHTMLColor(const vtkColor4ub & rgba);
+
+  // Description:
   // Set the color by name.
   // The name is treated as being case-insensitive.
   // The color must be a valid HTML color string.
@@ -353,7 +358,7 @@ private:
   // Description:
   // The implementation of the color map and other required methods.
   vtkNamedColorsDataStore *Colors;
-  ColorStringParser* Parser;
+  vtkColorStringParser* Parser;
 
   vtkNamedColors(const vtkNamedColors&);  // Not implemented.
   void operator=(const vtkNamedColors&);  // Not implemented.
