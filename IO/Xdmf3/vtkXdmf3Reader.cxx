@@ -1385,7 +1385,6 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
   // Collect information about what spatial extent is requested.
   unsigned int updatePiece = 0;
   unsigned int updateNumPieces = 1;
-  int ghost_levels = 0;
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
       outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
     {
@@ -1394,18 +1393,23 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
     updateNumPieces =  static_cast<unsigned int>(
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
     }
+  /*
+  int ghost_levels = 0;
   if (outInfo->Has(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
     {
     ghost_levels = outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
     }
+  */
+  /*
   int update_extent[6] = {0, -1, 0, -1, 0, -1};
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
     {
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
         update_extent);
     }
+  */
 
   // Collect information about what temporal extent is requested.
   double time;
