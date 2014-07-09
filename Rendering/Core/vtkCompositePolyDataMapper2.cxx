@@ -45,6 +45,7 @@ vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
   this->SetSelectionPainter(selectionPainter);
   selectionPainter->FastDelete();
   this->SelectionCompositePainter = selectionPainter;
+  this->LastOpaqueCheckTime = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -106,6 +107,12 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
 {
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     this->GetInputDataObject(0, 0));
+  unsigned long int lastMTime = std::max(input->GetMTime(), this->GetMTime());
+  if (lastMTime <= this->LastOpaqueCheckTime)
+    {
+    return this->LastOpaqueCheckValue;
+    }
+  this->LastOpaqueCheckTime = lastMTime;
   if (this->ScalarVisibility &&
     this->ColorMode == VTK_COLOR_MODE_DEFAULT && input)
     {
@@ -131,6 +138,7 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
             {
             // If the opacity is 255, despite the fact that the user specified
             // RGBA, we know that the Alpha is 100% opaque. So treat as opaque.
+            this->LastOpaqueCheckValue = false;
             return false;
             }
           }
@@ -140,10 +148,12 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
   else if(this->CompositeAttributes &&
     this->CompositeAttributes->HasBlockOpacities())
     {
+    this->LastOpaqueCheckValue = false;
     return false;
     }
 
-  return this->Superclass::GetIsOpaque();
+  this->LastOpaqueCheckValue = this->Superclass::GetIsOpaque();
+  return this->LastOpaqueCheckValue;
 }
 
 //----------------------------------------------------------------------------
