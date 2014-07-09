@@ -30,9 +30,6 @@
 #include <algorithm>
 
 //----------------------------------------------------------------------------
-vtkInstantiatorNewMacro(vtkMathTextUtilities)
-
-//----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
 vtkMathTextUtilities* vtkMathTextUtilities::Instance = NULL;
 vtkMathTextUtilitiesCleanup vtkMathTextUtilities::Cleanup;

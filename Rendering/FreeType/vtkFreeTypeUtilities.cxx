@@ -48,9 +48,6 @@ using namespace ftgl;
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
-
-//----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
 
 vtkFreeTypeUtilities* vtkFreeTypeUtilities::Instance = NULL;

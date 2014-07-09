@@ -93,7 +93,6 @@ set(Module_SRCS
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
   vtkRenderbuffer.cxx
-  vtkRenderbuffer.cxx
   vtkSequencePass.cxx
   vtkShader2.cxx
   vtkShader2Collection.cxx

@@ -25,10 +25,6 @@
 
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkGlobFileNames);
-
-//----------------------------------------------------------------------------
 vtkGlobFileNames* vtkGlobFileNames::New()
 {
 #ifdef VTK_DEBUG_LEAKS

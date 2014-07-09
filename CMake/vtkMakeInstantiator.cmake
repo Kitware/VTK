@@ -72,6 +72,7 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
 
   # Initialize local variables
   SET(HEADER_CONTENTS)
+  SET(CXX_CONTENTS_INCLUDE)
   SET(CXX_CONTENTS)
   SET(CXX_CONTENTS2)
   SET(CXX_CONTENTS3)
@@ -110,6 +111,12 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
     IF (${FILE} MATCHES "vtkVariant")
       SET (WRAP_THIS_CLASS 0)
     ENDIF (${FILE} MATCHES "vtkVariant")
+    IF (${FILE} MATCHES "vtkObjectBase")
+      SET (WRAP_THIS_CLASS 0)
+    ENDIF ()
+    IF (${FILE} MATCHES "vtkInformation.*Key")
+      SET (WRAP_THIS_CLASS 0)
+    ENDIF ()
 
     # finally if we should wrap it, then ...
     IF (WRAP_THIS_CLASS)
@@ -117,9 +124,12 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
       # what is the filename without the extension
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
 
+      SET (CXX_CONTENTS_INCLUDE
+        "${CXX_CONTENTS_INCLUDE}#include \"${TMP_FILENAME}.h\"\n")
+
       # generate the implementation
       SET (CXX_CONTENTS
-        "${CXX_CONTENTS}extern vtkObject* vtkInstantiator${TMP_FILENAME}New();\n")
+        "${CXX_CONTENTS}vtkInstantiatorNewMacro(${TMP_FILENAME})\n")
 
       SET (CXX_CONTENTS2
         "${CXX_CONTENTS2}  vtkInstantiator::RegisterInstantiator(\"${TMP_FILENAME}\", vtkInstantiator${TMP_FILENAME}New);\n")

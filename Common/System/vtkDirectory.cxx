@@ -22,10 +22,6 @@
 
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkDirectory);
-
-//----------------------------------------------------------------------------
 vtkDirectory* vtkDirectory::New()
 {
 #ifdef VTK_DEBUG_LEAKS
