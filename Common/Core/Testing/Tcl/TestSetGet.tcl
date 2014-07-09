@@ -114,6 +114,10 @@ set classExceptions {
    vtkDataSetCellIterator
    vtkPointSetCellIterator
    vtkUnstructuredGridCellIterator
+   vtkQImageToImageSource
+   vtkQtLabelRenderStrategy
+   vtkQtStringToImage
+   vtkQtTreeRingLabelMapper
 }
 
 proc rtSetGetTest { fileid } {
