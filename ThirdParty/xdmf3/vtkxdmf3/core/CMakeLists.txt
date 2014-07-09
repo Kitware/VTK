@@ -14,7 +14,7 @@ if(VERSION_CONTROL_AUTOUPDATE OR
 endif(VERSION_CONTROL_AUTOUPDATE OR 
     NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/XdmfVersion.hpp)
 
-if(BUILD_SHARED)
+if(BUILD_SHARED_LIBS)
   set(LIBTYPE SHARED)
 else()
   set(LIBTYPE STATIC)
@@ -144,7 +144,7 @@ vtk_target_install(XdmfCore)
 
 if(WIN32)
   add_definitions(-D_HDF5USEDLL_ -D_HDF5USEHLDLL_)
-  if (BUILD_SHARED)
+  if (BUILD_SHARED_LIBS)
     set_target_properties(XdmfCore PROPERTIES
         DEFINE_SYMBOL XdmfCore_EXPORTS)
   endif()

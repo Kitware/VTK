@@ -12,7 +12,7 @@ if(MSVC10)
 	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 endif(MSVC10)
 
-if(BUILD_SHARED)
+if(BUILD_SHARED_LIBS)
   set(LIBTYPE SHARED)
 else()
   set(LIBTYPE STATIC)
@@ -270,7 +270,7 @@ if(NOT XDMF_BUILD_CORE_ONLY)
   vtk_target_install(vtkxdmf3)
 
   if(WIN32)
-    if (BUILD_SHARED)
+    if (BUILD_SHARED_LIBS)
       set_target_properties(vtkxdmf3 PROPERTIES
           DEFINE_SYMBOL vtkxdmf3_EXPORTS)
     endif()
