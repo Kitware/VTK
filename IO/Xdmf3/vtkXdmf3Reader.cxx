@@ -25,6 +25,8 @@
 #include "vtkInformationVector.h"
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
+#include "vtkMultiProcessController.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
@@ -207,7 +209,9 @@ public:
       vtkXdmf3ArraySelection* ce,
       vtkXdmf3ArraySelection* pn,
       vtkXdmf3ArraySelection* gc,
-      vtkXdmf3ArraySelection* sc
+      vtkXdmf3ArraySelection* sc,
+      unsigned int processor,
+      unsigned int nprocessors
       )
   {
     shared_ptr<vtkXdmfVisitor_Translator> p(new vtkXdmfVisitor_Translator());
@@ -218,6 +222,8 @@ public:
     p->GridsCache = gc;
     p->SetsCache = sc;
     p->MaxDepth = 0;
+    p->Rank = processor;
+    p->NumProcs = nprocessors;
     return p;
   }
 
@@ -329,6 +335,10 @@ public:
       unsigned int nGridCollections = coll->getNumberGridCollections();
       for (unsigned int i = 0; i < nGridCollections; i++)
         {
+        if (isDomain && !this->ShouldRead(i, nGridCollections))
+          {
+          continue;
+          }
         shared_ptr<XdmfGrid> child = coll->getGridCollection(i);
         this->InspectXDMF(child, silVertex, depth+1);
         }
@@ -587,14 +597,59 @@ private:
   }
 
 
+  bool ShouldRead(unsigned int piece, unsigned int npieces)
+  {
+    if (this->NumProcs<1)
+      {
+      //no parallel information given to us, assume serial
+      return true;
+      }
+    if (npieces == 1)
+      {
+      return true;
+      }
+    if (npieces < this->NumProcs)
+      {
+      if (piece == this->Rank)
+        {
+        return true;
+        }
+      return false;
+      }
+
+#if 0
+    unsigned int mystart = this->Rank*npieces/this->NumProcs;
+    unsigned int myend = (this->Rank+1)*npieces/this->NumProcs;
+    if (piece >= mystart)
+      {
+      if (piece < myend || (this->Rank==this->NumProcs-1))
+        {
+        return true;
+        }
+      }
+    return false;
+#else
+    if ((piece % this->NumProcs) == this->Rank)
+      {
+      return true;
+      }
+    else
+      {
+      return false;
+      }
+#endif
+
+  }
+
   vtkXdmf3Reader_SILBuilder *SILBuilder;
   vtkXdmf3ArraySelection *FieldArrays;
   vtkXdmf3ArraySelection *CellArrays; //ie EdgeArrays for Graphs
   vtkXdmf3ArraySelection *PointArrays; //ie NodeArrays for Graphs
   vtkXdmf3ArraySelection *GridsCache;
   vtkXdmf3ArraySelection *SetsCache;
-
   unsigned int MaxDepth;
+  unsigned int Rank;
+  unsigned int NumProcs;
   std::set<double> times; //relying on implicit sort from set<double>
 };
 
@@ -609,7 +664,8 @@ public:
       vtkXdmf3ArraySelection *gc, vtkXdmf3ArraySelection *sc,
       unsigned int processor, unsigned int nprocessors,
       bool dt, double t,
-      vtkXdmf3ArrayKeeper *keeper)
+      vtkXdmf3ArrayKeeper *keeper,
+      bool asTime )
   {
     shared_ptr<vtkXdmfVisitor_ReadGrids> p(new vtkXdmfVisitor_ReadGrids());
     p->FieldArrays = fs;
@@ -622,6 +678,7 @@ public:
     p->doTime = dt;
     p->time = t;
     p->Keeper = keeper;
+    p->AsTime = asTime;
     return p;
   }
 
@@ -778,26 +835,66 @@ public:
       this->doTime = false;
       }
 
-    vtkMultiBlockDataSet *top = vtkMultiBlockDataSet::SafeDownCast(toFill);
+    vtkMultiBlockDataSet *topB = vtkMultiBlockDataSet::SafeDownCast(toFill);
+    vtkMultiPieceDataSet *topP = vtkMultiPieceDataSet::SafeDownCast(toFill);
     vtkDataObject *result;
     unsigned int cnt = 0;
     unsigned int nGridCollections = group->getNumberGridCollections();
 
     for (unsigned int i = 0; i < nGridCollections; i++)
       {
-      vtkMultiBlockDataSet *child = vtkMultiBlockDataSet::New();
-      result = this->Populate(group->getGridCollection(i), child);
-      if (result)
+      if (!this->AsTime)
         {
-        top->SetBlock(cnt++, result);
+        if (isDomain && !this->ShouldRead(i,nGridCollections))
+          {
+          topB->SetBlock(cnt++, NULL);
+          continue;
+          }
+        if ((group->getGridCollection(i)->getNumberGridCollections() == 0))
+          {
+          vtkMultiPieceDataSet *child = vtkMultiPieceDataSet::New();
+          result = this->Populate(group->getGridCollection(i), child);
+          if (result)
+            {
+            topB->SetBlock(cnt++, result);
+            }
+          child->Delete();
+          }
+        else
+          {
+          vtkMultiBlockDataSet *child = vtkMultiBlockDataSet::New();
+          result = this->Populate(group->getGridCollection(i), child);
+          if (result)
+            {
+            topB->SetBlock(cnt++, result);
+            }
+          child->Delete();
+          }
         }
-      child->Delete();
+      else
+        {
+        vtkMultiBlockDataSet *child = vtkMultiBlockDataSet::New();
+        result = this->Populate(group->getGridCollection(i), child);
+        if (result)
+          {
+          topB->SetBlock(cnt++, result);
+          }
+        child->Delete();
+        }
       }
     unsigned int nUnstructuredGrids = group->getNumberUnstructuredGrids();
     for (unsigned int i = 0; i < nUnstructuredGrids; i++)
       {
-      if (!isTemporal && !this->ShouldRead(i,nUnstructuredGrids))
+      if (this->AsTime && !isTemporal && !this->ShouldRead(i,nUnstructuredGrids))
         {
+        if (topB)
+          {
+          topB->SetBlock(cnt++, NULL);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, NULL);
+          }
         continue;
         }
       shared_ptr<XdmfUnstructuredGrid> cGrid = group->getUnstructuredGrid(i);
@@ -814,15 +911,30 @@ public:
       result = this->Populate(group->getUnstructuredGrid(i), child);
       if (result)
         {
-        top->SetBlock(cnt++, result);
+        if (topB)
+          {
+          topB->SetBlock(cnt++, result);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, result);
+          }
         }
       child->Delete();
       }
     unsigned int nRectilinearGrids = group->getNumberRectilinearGrids();
     for (unsigned int i = 0; i < nRectilinearGrids; i++)
       {
-      if (!isTemporal && !this->ShouldRead(i,nRectilinearGrids))
+      if (this->AsTime && !isTemporal && !this->ShouldRead(i,nRectilinearGrids))
         {
+        if (topB)
+          {
+          topB->SetBlock(cnt++, NULL);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, NULL);
+          }
         continue;
         }
       shared_ptr<XdmfRectilinearGrid> cGrid = group->getRectilinearGrid(i);
@@ -839,15 +951,30 @@ public:
       result = this->Populate(cGrid, child);
       if (result)
         {
-        top->SetBlock(cnt++, result);
+        if (topB)
+          {
+          topB->SetBlock(cnt++, result);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, result);
+          }
         }
       child->Delete();
       }
     unsigned int nCurvilinearGrids= group->getNumberCurvilinearGrids();
     for (unsigned int i = 0; i < nCurvilinearGrids; i++)
       {
-      if (!isTemporal && !this->ShouldRead(i,nCurvilinearGrids))
+      if (this->AsTime && !isTemporal && !this->ShouldRead(i,nCurvilinearGrids))
         {
+        if (topB)
+          {
+          topB->SetBlock(cnt++, NULL);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, NULL);
+          }
         continue;
         }
       shared_ptr<XdmfCurvilinearGrid> cGrid = group->getCurvilinearGrid(i);
@@ -864,15 +991,30 @@ public:
       result = this->Populate(cGrid, child);
       if (result)
         {
-        top->SetBlock(cnt++, result);
+        if (topB)
+          {
+          topB->SetBlock(cnt++, result);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, result);
+          }
         }
       child->Delete();
       }
     unsigned int nRegularGrids = group->getNumberRegularGrids();
     for (unsigned int i = 0; i < nRegularGrids; i++)
       {
-      if (!isTemporal && !this->ShouldRead(i,nRegularGrids))
+      if (this->AsTime && !isTemporal && !this->ShouldRead(i,nRegularGrids))
         {
+        if (topB)
+          {
+          topB->SetBlock(cnt++, NULL);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, NULL);
+          }
         continue;
         }
       shared_ptr<XdmfRegularGrid> cGrid = group->getRegularGrid(i);
@@ -889,22 +1031,44 @@ public:
       result = this->Populate(cGrid, child);
       if (result)
         {
-        top->SetBlock(cnt++, result);
+        if (topB)
+          {
+          topB->SetBlock(cnt++, result);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, result);
+          }
         }
       child->Delete();
       }
     unsigned int nGraphs = group->getNumberGraphs();
     for (unsigned int i = 0; i < nGraphs; i++)
       {
-      if (!isTemporal && !this->ShouldRead(i,nGraphs))
+      if (this->AsTime && !isTemporal && !this->ShouldRead(i,nGraphs))
         {
+        if (topB)
+          {
+          topB->SetBlock(cnt++, NULL);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, NULL);
+          }
         continue;
         }
       vtkMutableDirectedGraph *child = vtkMutableDirectedGraph::New();
       result = this->Populate(group->getGraph(i), child);
       if (result)
         {
-        top->SetBlock(cnt++, result);
+        if (topB)
+          {
+          topB->SetBlock(cnt++, result);
+          }
+        else
+          {
+          topP->SetPiece(cnt++, result);
+          }
         }
       child->Delete();
       }
@@ -915,13 +1079,16 @@ public:
       this->doTime = true;
       }
 
-    if (isTemporal && top->GetNumberOfBlocks()==1)
+    if (isTemporal && topB->GetNumberOfBlocks()==1)
       {
       //temporal collection is just a place holder for its content
-      return top->GetBlock(0);
+      return topB->GetBlock(0);
       }
 
-    return top;
+    if (topB)
+      return topB;
+    else
+      return topP;
   }
 
   vtkXdmf3ArrayKeeper* Keeper;
@@ -950,6 +1117,7 @@ protected:
       return false;
       }
 
+#if 1
     unsigned int mystart = this->Rank*npieces/this->NumProcs;
     unsigned int myend = (this->Rank+1)*npieces/this->NumProcs;
     if (piece >= mystart)
@@ -960,6 +1128,17 @@ protected:
         }
       }
     return false;
+#else
+    if ((piece % this->NumProcs) == this->Rank)
+      {
+      return true;
+      }
+    else
+      {
+      return false;
+      }
+#endif
+
   }
 
   bool GridEnabled(shared_ptr<XdmfGrid> grid)
@@ -1064,6 +1243,7 @@ protected:
   vtkXdmf3ArraySelection* PointArrays;
   vtkXdmf3ArraySelection* GridsCache;
   vtkXdmf3ArraySelection* SetsCache;
+  bool AsTime;
 };
 
 //=============================================================================
@@ -1094,10 +1274,11 @@ public:
     delete this->SetsCache;
     delete this->SILBuilder;
     this->ReleaseArrays(true);
+    this->FileNames.clear();
   };
 
   //--------------------------------------------------------------------------
-  bool PrepareDocument(vtkXdmf3Reader *self, const char *FileName)
+  bool PrepareDocument(vtkXdmf3Reader *self, const char *FileName, bool AsTime)
   {
     if (this->Domain)
       {
@@ -1117,7 +1298,7 @@ public:
       }
     if (!this->Domain)
       {
-      this->Init(FileName);
+      this->Init(FileName, AsTime);
       }
     return true;
   }
@@ -1222,7 +1403,8 @@ public:
 
   //--------------------------------------------------------------------------
   void ReadHeavyData(unsigned int updatePiece, unsigned int updateNumPieces,
-      bool doTime, double time, vtkMultiBlockDataSet* mbds)
+                     bool doTime, double time, vtkMultiBlockDataSet* mbds,
+                     bool AsTime)
   {
     //traverse the xdmf hierarchy, and convert and return what was requested
     shared_ptr<vtkXdmfVisitor_ReadGrids> visitor =
@@ -1236,7 +1418,8 @@ public:
           updateNumPieces,
           doTime,
           time,
-          this->Keeper
+          this->Keeper,
+          AsTime
           );
       visitor->Populate(this->Domain, mbds);
   }
@@ -1269,10 +1452,13 @@ public:
   std::vector<double> TimeSteps;
   shared_ptr<XdmfItem> TopGrid;
   vtkXdmf3ArrayKeeper *Keeper;
+
+  std::vector<std::string> FileNames;
+
 private:
 
   //--------------------------------------------------------------------------
-  void Init(const char *filename)
+  void Init(const char *filename, bool AsTime)
   {
     vtkTimerLog::MarkStartEvent("X3R::Init");
 #if 0
@@ -1304,15 +1490,75 @@ private:
       this->Reader->parse(contents)
       );
 #else
-    //XdmfHDF5Controller::setMaxOpenedFiles(10);
+    unsigned int idx = this->FileNames.size();
+    assert(idx > 0);
+
     this->Reader = XdmfReader::New();
 
-    //TODO:
-    //Domains are no longer used in practice, and ParaView is not
-    //able to select from them dynamically anyway, so get rid of them
-    this->Domain = shared_dynamic_cast<XdmfDomain>(
-      this->Reader->read(filename)
-      );
+    unsigned int updatePiece = 0;
+    unsigned int updateNumPieces = 1;
+    vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
+    if (ctrl != NULL)
+      {
+      updatePiece = ctrl->GetLocalProcessId();
+      updateNumPieces = ctrl->GetNumberOfProcesses();
+      }
+    else
+      {
+      updatePiece = 0;
+      updateNumPieces = 1;
+      }
+
+    if (idx == 1)
+      {
+      this->Domain = shared_dynamic_cast<XdmfDomain>
+        (this->Reader->read(filename));
+      }
+    else
+      {
+      this->Domain = XdmfDomain::New();
+      shared_ptr<XdmfGridCollection> topc = XdmfGridCollection::New();
+      if (AsTime)
+        {
+        topc->setType(XdmfGridCollectionType::Temporal());
+        }
+      this->Domain->insert(topc);
+      for (int i = 0; i < idx; i++)
+        {
+        if (AsTime || (i%updateNumPieces == updatePiece))
+          {
+          cerr << updatePiece << "READING " << this->FileNames[i] << endl;
+
+          shared_ptr<XdmfDomain> fdomain = shared_dynamic_cast<XdmfDomain>
+            (this->Reader->read(this->FileNames[i]));
+
+          for (unsigned int i = 0; i < fdomain->getNumberGridCollections(); i++)
+            {
+            topc->insert(fdomain->getGridCollection(i));
+            }
+          for (unsigned int i = 0; i < fdomain->getNumberUnstructuredGrids(); i++)
+            {
+            topc->insert(fdomain->getUnstructuredGrid(i));
+            }
+          for (unsigned int i = 0; i < fdomain->getNumberRectilinearGrids(); i++)
+            {
+            topc->insert(fdomain->getRectilinearGrid(i));
+            }
+          for (unsigned int i = 0; i < fdomain->getNumberCurvilinearGrids(); i++)
+            {
+            topc->insert(fdomain->getCurvilinearGrid(i));
+            }
+          for (unsigned int i = 0; i < fdomain->getNumberRegularGrids(); i++)
+            {
+            topc->insert(fdomain->getRegularGrid(i));
+            }
+          for (unsigned int i = 0; i < fdomain->getNumberGraphs(); i++)
+            {
+            topc->insert(fdomain->getGraph(i));
+            }
+          }
+        }
+      }
 #endif
 
     this->VTKType = -1;
@@ -1327,6 +1573,22 @@ private:
   void GatherMetaInformation()
   {
     vtkTimerLog::MarkStartEvent("X3R::GatherMetaInfo");
+
+    unsigned int updatePiece = 0;
+    unsigned int updateNumPieces = 1;
+    vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
+    if (ctrl != NULL)
+      {
+      updatePiece = ctrl->GetLocalProcessId();
+      updateNumPieces = ctrl->GetNumberOfProcesses();
+      cerr << "RDO " << updatePiece << "/" << updateNumPieces << endl;
+      }
+    else
+      {
+      cerr << "ROH ROH RAGGIE" << endl;
+      updatePiece = 0;
+      updateNumPieces = 1;
+      }
     shared_ptr<vtkXdmfVisitor_Translator> visitor =
           vtkXdmfVisitor_Translator::New (
               this->SILBuilder,
@@ -1334,7 +1596,9 @@ private:
               this->CellArrays,
               this->PointArrays,
               this->GridsCache,
-              this->SetsCache);
+              this->SetsCache,
+              updatePiece,
+              updateNumPieces);
     visitor->InspectXDMF(this->Domain, -1);
     visitor->ClearGridsIfNeeded(this->Domain);
     if (this->TimeSteps.size())
@@ -1367,6 +1631,7 @@ vtkXdmf3Reader::vtkXdmf3Reader()
   this->FileName = NULL;
 
   this->Internal = new vtkXdmf3Reader::Internals();
+  this->FileSeriesAsTime = true;
 
   this->FieldArraysCache = this->Internal->FieldArrays;
   this->CellArraysCache = this->Internal->CellArrays;
@@ -1390,6 +1655,31 @@ void vtkXdmf3Reader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "FileName: " <<
     (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "FileSeriesAsTime: " <<
+    (this->FileSeriesAsTime ? "True" : "False") << endl;
+}
+
+//----------------------------------------------------------------------------
+void vtkXdmf3Reader::AddFileName(const char* filename)
+{
+  this->Internal->FileNames.push_back(filename);
+  if (this->Internal->FileNames.size()==1)
+    {
+    this->Superclass::SetFileName(filename);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXdmf3Reader::SetFileName(const char* filename)
+{
+  this->RemoveAllFileNames();
+  this->Superclass::SetFileName(filename);
+}
+
+//----------------------------------------------------------------------------
+void vtkXdmf3Reader::RemoveAllFileNames()
+{
+  this->Internal->FileNames.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -1439,7 +1729,7 @@ int vtkXdmf3Reader::RequestDataObject(vtkInformationVector *outputVector)
 {
   vtkTimerLog::MarkStartEvent("X3R::RDO");
   //let libXdmf parse XML
-  if (!this->Internal->PrepareDocument(this, this->FileName))
+  if (!this->Internal->PrepareDocument(this, this->FileName, this->FileSeriesAsTime))
     {
     vtkTimerLog::MarkEndEvent("X3R::RDO");
     return 0;
@@ -1477,7 +1767,7 @@ int vtkXdmf3Reader::RequestInformation(vtkInformation *,
   vtkInformationVector *outputVector)
 {
   vtkTimerLog::MarkStartEvent("X3R::RI");
-  if (!this->Internal->PrepareDocument(this, this->FileName))
+  if (!this->Internal->PrepareDocument(this, this->FileName, this->FileSeriesAsTime))
     {
     vtkTimerLog::MarkEndEvent("X3R::RI");
     return 0;
@@ -1573,7 +1863,7 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
 {
   vtkTimerLog::MarkStartEvent("X3R::RD");
 
-  if (!this->Internal->PrepareDocument(this, this->FileName))
+  if (!this->Internal->PrepareDocument(this, this->FileName, this->FileSeriesAsTime))
     {
     vtkTimerLog::MarkEndEvent("X3R::RD");
     return 0;
@@ -1648,7 +1938,8 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
   this->Internal->ReadHeavyData(
       updatePiece, updateNumPieces,
       doTime, time,
-      mbds);
+      mbds,
+      this->FileSeriesAsTime);
   if (mbds->GetNumberOfBlocks()==1)
     {
     output->ShallowCopy(mbds->GetBlock(0));

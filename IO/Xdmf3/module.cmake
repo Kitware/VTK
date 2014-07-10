@@ -6,6 +6,7 @@ vtk_module(vtkIOXdmf3
     vtkCommonDataModel
     vtkCommonExecutionModel
     vtkIOLegacy
+    vtkParallelCore
   PRIVATE_DEPENDS
     vtkFiltersExtraction
     vtksys
