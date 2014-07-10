@@ -34,6 +34,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 //----------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
