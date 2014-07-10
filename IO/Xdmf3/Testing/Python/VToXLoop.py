@@ -239,22 +239,7 @@ def TestXdmfConversion(dataInput, fileName):
     else:
       DoFilesExist(xdmfFile, hdf5File, None, CleanUpGood)
 
-if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description="Test Xdmf3 IO")
-  parser.add_argument("-dc", "--dont-clean", dest="dontClean",\
-                      help="Do not delete files created during test\
-                      after testing complete (Default = False)",\
-                      action="store_true")
-  parser.add_argument("-ldl", "--lightDataLimit", nargs=1, dest="lightDataLimit")
-  parser.add_argument("-T", nargs=1, dest="outputDir")
-  args = parser.parse_args()
-  if args.dontClean:
-    CleanUpGood = False
-  if args.lightDataLimit:
-    LightDataLimit = int(args.lightDataLimit[0])
-  if args.outputDir:
-    OutputDir = args.outputDir[0] + "/"
-
+def RunTest():
   fail = False
 
   print "TEST SET 1 - verify reader/writer work for range of canonical datasets"
@@ -355,3 +340,24 @@ if __name__ == "__main__":
     raiseErrorAndExit("Failed Temporal Test")
 
   print MemUsage("End of Testing")
+
+if __name__ == "__main__":
+  parser = argparse.ArgumentParser(description="Test Xdmf3 IO")
+  parser.add_argument("-dc", "--dont-clean", dest="dontClean",\
+                      help="Do not delete files created during test\
+                      after testing complete (Default = False)",\
+                      action="store_true")
+  parser.add_argument("-T", nargs=1, dest="outputDir")
+  args = parser.parse_args()
+  if args.dontClean:
+    CleanUpGood = False
+  if args.outputDir:
+    OutputDir = args.outputDir[0] + "/"
+
+  print "Test XML Arrays"
+  LightDataLimit = 10000
+  RunTest()
+  print "Test HDF5 Arrays"
+  LightDataLimit = 0
+  RunTest()
+  print "That's all folks"

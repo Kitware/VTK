@@ -588,6 +588,7 @@ public:
     p->GridsCache = gc;
     p->SetsCache = sc;
     p->doTime = false;
+    p->time = 0.0;
 
     return p;
   }
