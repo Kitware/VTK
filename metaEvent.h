@@ -35,19 +35,19 @@ class METAIO_EXPORT MetaEvent
 
 public:
 
-  MetaEvent(){m_Level = -1;};
-  virtual ~MetaEvent(){};
+  MetaEvent(){m_Level = -1;}
+  virtual ~MetaEvent(){}
 
   virtual void SetCurrentIteration(unsigned int n) {m_CurrentIteration = n;}
   virtual void StartReading(unsigned int n)
     {
     m_NumberOfIterations = n;
     m_Level++;
-    };
+    }
   virtual void StopReading()
     {
     m_Level--;
-    };
+    }
 
 protected:
 
