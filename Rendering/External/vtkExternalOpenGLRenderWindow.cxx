@@ -44,26 +44,9 @@ void vtkExternalOpenGLRenderWindow::Start(void)
     XGetWindowAttributes(this->DisplayId,
                          this->WindowId, &attribs);
     this->SetSize(attribs.width, attribs.height);
-    //std::cout << "Compute X window size " << attribs.width <<  "," << attribs.height << std::endl;
     }
 
   this->MakeCurrent();
-}
-
-//----------------------------------------------------------------------------
-void vtkExternalOpenGLRenderWindow::Render()
-{
-//  GLint viewport[4];
-//  // NOTE: We have to consider the size of the window as summation of
-//  // viewport[2] + viewport[0] (and same for vertical dimension) because
-//  // it is possible that this code gets called by external system twice.
-//  // In the first case you may get (0, 0, 960, 1080) viewport dimensions and
-//  // in the second case you will get (960, 0, 960, 1080). In the second case,
-//  // the window diemsion needs to be 960+960 (initial pos + width) or else the
-//  // rendering on the second viewport won't show anything.
-//  glGetIntegerv(GL_VIEWPORT, viewport);
-//  this->SetSize(viewport[2] + viewport[0], viewport[3] + viewport[1]);
-//std::cout << "Renwin Render size " << this->Size[0] << "," << this->Size[1] << std::endl;
 
   // For stereo, render the correct eye based on the OpenGL buffer mode
   GLint bufferType;
@@ -83,6 +66,11 @@ void vtkExternalOpenGLRenderWindow::Render()
       renderer->GetActiveCamera()->SetLeftEye(1);
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkExternalOpenGLRenderWindow::Render()
+{
   this->Superclass::Render();
 }
 

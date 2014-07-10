@@ -152,16 +152,12 @@ void vtkExternalOpenGLRenderer::Render(void)
 {
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
-  //std::cout << "Viewport " << Viewport[0] << "," << viewport[1] << "," << viewport[2] << "," << viewport[3] << std::endl;
   int* size = this->RenderWindow->GetSize();
-  //std::cout << "Renderer Size" << size[0] << "," << size[1] << std::endl;
   this->SetViewport(
     static_cast<double>(viewport[0])/size[0],
     static_cast<double>(viewport[1])/size[1],
     static_cast<double>(viewport[2] + viewport[0])/size[0],
     static_cast<double>(viewport[3] + viewport[1])/size[1]);
-  //std::cout << static_cast<double>(viewport[0])/size[0] << "," << static_cast<double>(viewport[1])/size[1] << "," <<
-//static_cast<double>(viewport[2] + viewport[0])/size[0] << "," << static_cast<double>(viewport[3] + viewport[1])/size[1] << std::endl;
 
   GLdouble mv[16],p[16];
   glGetDoublev(GL_MODELVIEW_MATRIX,mv);
