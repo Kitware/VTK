@@ -34,6 +34,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 //----------------------------------------------------------------------------
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
@@ -107,7 +109,7 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
 {
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     this->GetInputDataObject(0, 0));
-  unsigned long int lastMTime = std::max(input->GetMTime(), this->GetMTime());
+  unsigned long int lastMTime = std::max(input ? input->GetMTime() : 0, this->GetMTime());
   if (lastMTime <= this->LastOpaqueCheckTime)
     {
     return this->LastOpaqueCheckValue;
