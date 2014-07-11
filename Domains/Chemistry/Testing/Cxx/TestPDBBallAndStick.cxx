@@ -70,13 +70,14 @@ int TestPDBBallAndStick(int argc, char *argv[])
   win->SetSize(450, 450);
 
   vtkNew<vtkTimerLog> timer;
-  int numRenders = 15;
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
 
+/*
+  int numRenders = 15;
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
     {
@@ -95,7 +96,7 @@ int TestPDBBallAndStick(int argc, char *argv[])
   ren->GetActiveCamera()->Zoom(1.7);
 
   win->Render();
-
+*/
   // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
