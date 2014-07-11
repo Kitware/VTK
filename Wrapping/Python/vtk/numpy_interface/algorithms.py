@@ -126,12 +126,11 @@ def _make_dsfunc2(dsfunc):
 
 def _lookup_mpi_type(ntype):
     from mpi4py import MPI
-    if ntype == numpy.float64:
-        return MPI.DOUBLE
-    elif ntype == numpy.bool:
-        return MPI.BOOL
+    if ntype == numpy.bool:
+        typecode = 'b'
     else:
-        raise ValueError
+        typecode = numpy.dtype(ntype).char
+    return MPI.__TypeDict__[typecode]
 
 def _reduce_dims(array, comm):
     from mpi4py import MPI
@@ -145,7 +144,8 @@ def _reduce_dims(array, comm):
         else:
             dims = numpy.array(shp, dtype=numpy.int32)
     max_dims = numpy.array(dims, dtype=numpy.int32)
-    comm.Allreduce([dims, MPI.INT], [max_dims, MPI.INT], MPI.MAX)
+    mpitype = _lookup_mpi_type(numpy.int32)
+    comm.Allreduce([dims, mpitype], [max_dims, mpitype], MPI.MAX)
 
     if max_dims[1] == 0:
         max_dims = numpy.array((max_dims[0],))
@@ -358,25 +358,26 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
         # Get all ids from dataset, including empty ones.
         ids = []
-        lmax_id = numpy.int64(0)
+        lmax_id = numpy.int32(0)
         if dataset is not None:
             it = dataset.NewIterator()
             it.UnRegister(None)
             it.SetSkipEmptyNodes(False)
             while not it.IsDoneWithTraversal():
                 _id = it.GetCurrentFlatIndex()
-                lmax_id = numpy.max((lmax_id, _id))
+                lmax_id = numpy.max((lmax_id, _id)).astype(numpy.int32)
                 if it.GetCurrentDataObject() is not None:
                     ids.append(_id)
                 it.GoToNextItem()
-        max_id = numpy.array(0, dtype=numpy.int64)
-        comm.Allreduce([lmax_id, MPI.INT], [max_id, MPI.INT], MPI.MAX)
+        max_id = numpy.array(0, dtype=numpy.int32)
+        mpitype = _lookup_mpi_type(numpy.int32)
+        comm.Allreduce([lmax_id, mpitype], [max_id, mpitype], MPI.MAX)
 
         has_ids = numpy.zeros(max_id+1, dtype=numpy.int32)
         for _id in ids:
             has_ids[_id] = 1
         id_count = numpy.array(has_ids)
-        comm.Allreduce([has_ids, MPI.INT], [id_count, MPI.INT], MPI.SUM)
+        comm.Allreduce([has_ids, mpitype], [id_count, mpitype], MPI.SUM)
 
         if numpy.all(id_count <= 1):
             return dsa.VTKCompositeDataArray(results, dataset=dataset)
@@ -424,7 +425,8 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
         # Now do the MPI reduction.
         rresults = numpy.array(lresults)
-        comm.Allreduce([lresults, MPI.DOUBLE], [rresults, MPI.DOUBLE], impl.mpi_op())
+        mpitype = _lookup_mpi_type(numpy.double)
+        comm.Allreduce([lresults, mpitype], [rresults, mpitype], impl.mpi_op())
 
         if array is dsa.NoneArray:
             return dsa.NoneArray
@@ -559,7 +561,8 @@ def _array_count(array, axis, controller):
         comm = vtkMPI4PyCommunicator.ConvertToPython(controller.GetCommunicator())
 
         total_size = numpy.array(size, dtype=numpy.int64)
-        comm.Allreduce([size, MPI.INT64_T], [total_size, MPI.INT64_T], MPI.SUM)
+        mpitype = _lookup_mpi_type(numpy.int64)
+        comm.Allreduce([size, mpitype], [total_size, mpitype], MPI.SUM)
         size = total_size
 
     return size

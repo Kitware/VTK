@@ -243,5 +243,6 @@ else:
 
 res = numpy.array(res, dtype=numpy.bool)
 all_res = numpy.array(res)
-MPI.COMM_WORLD.Allreduce([res, MPI.BOOL], [all_res, MPI.BOOL], MPI.LAND)
+mpitype = algs._lookup_mpi_type(numpy.bool)
+MPI.COMM_WORLD.Allreduce([res, mpitype], [all_res, mpitype], MPI.LAND)
 assert all_res
