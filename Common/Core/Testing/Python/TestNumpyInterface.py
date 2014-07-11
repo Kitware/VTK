@@ -158,6 +158,11 @@ assert algs.cross(na, v.Arrays[0]) is na
 
 assert algs.make_vector(na, g[:,0], elev) is na
 
+pd = vtk.vtkPolyData()
+pdw = dsa.WrapDataObject(pd)
+pdw.PointData.append(na, 'foo')
+assert pdw.PointData.GetNumberOfArrays() == 0
+
 # --------------------------------------
 
 na2 = dsa.VTKCompositeDataArray([randomVec.Arrays[0], na])
@@ -182,3 +187,18 @@ assert algs.cross(na2, v).Arrays[1] is na
 assert algs.make_vector(na2[:, 0], elev, elev).Arrays[1] is na
 assert algs.make_vector(elev, elev, na2[:, 0]).Arrays[1] is na
 assert algs.make_vector(elev, na2[:, 0], elev).Arrays[1] is na
+
+mb = vtk.vtkMultiBlockDataSet()
+mb.SetBlock(0, pd)
+pd2 = vtk.vtkPolyData()
+mb.SetBlock(1, pd2)
+mbw = dsa.WrapDataObject(mb)
+
+mbw.PointData.append(dsa.NoneArray, 'foo')
+assert mbw.GetBlock(0).GetPointData().GetNumberOfArrays() == 0
+assert mbw.GetBlock(1).GetPointData().GetNumberOfArrays() == 0
+
+mbw.PointData.append(na2, 'foo')
+assert mbw.GetBlock(0).GetPointData().GetNumberOfArrays() == 1
+assert mbw.GetBlock(1).GetPointData().GetNumberOfArrays() == 0
+assert mbw.GetBlock(0).GetPointData().GetArray(0).GetName() == 'foo'
