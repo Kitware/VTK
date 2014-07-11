@@ -53,6 +53,15 @@
 // identified by the letters RGB in the names, are provided.
 // These get functions return just the red, green and blue components of
 // a color.
+//
+// The class also provides methods for defining a color through an HTML color
+// string. The following formats are supported:
+//
+// - #RGB                  (3-digit hexadecimal number, where #4F2 is a shortcut for #44FF22)
+// - #RRGGBB               (6-digit hexadecimal number)
+// - rgb(r, g, b)          (where r, g, b are in 0..255 or percentage values)
+// - rgba(r, g, b, a)      (where r, g, b, are in 0..255 or percentage values, a is in 0.0..1.0)
+// - a CSS3 color name     (e.g. "steelblue")
 
 #ifndef __vtkNamedColors_h
 #define __vtkNamedColors_h
@@ -64,6 +73,7 @@
 #include "vtkStringArray.h" // For returning color names
 
 class vtkNamedColorsDataStore;
+class vtkColorStringParser;
 
 class VTKCOMMONCOLOR_EXPORT vtkNamedColors : public vtkObject
 {
@@ -296,6 +306,50 @@ public:
   // data structure they require.
   vtkStdString GetSynonyms();
 
+  // Description:
+  // Return a vtkColor4ub instance from an HTML color string in any of
+  // the following formats:
+  // - #RGB
+  // - #RRGGBB
+  // - rgb(r, g, b)
+  // - rgba(r, g, b, a)
+  // - a CSS3 color name, e.g. "steelblue"
+  // If the string argument defines a color using one of the above formats
+  // the method returns the successfully parsed color else returns a color
+  // equal to `rgba(0, 0, 0, 0)`.
+  vtkColor4ub HTMLColorToRGBA(const vtkStdString& colorString);
+
+  // Description:
+  // Return a vtkColor3ub instance from an HTML color string in any of
+  // the following formats:
+  // - #RGB
+  // - #RRGGBB
+  // - rgb(r, g, b)
+  // - rgba(r, g, b, a)
+  // - a CSS3 color name, e.g. "steelblue"
+  // If the string argument defines a color using one of the above formats
+  // the method returns the successfully parsed color else returns the color
+  // black.
+  vtkColor3ub HTMLColorToRGB(const vtkStdString& colorString);
+
+  // Description:
+  // Given a vtkColor3ub instance as input color return a valid HTML color
+  // string in the `#RRGGBB` format.
+  vtkStdString RGBToHTMLColor(const vtkColor3ub & rgb);
+
+  // Description:
+  // Given a vtkColor4ub instance as input color return a valid HTML color
+  // string in the `rgba(r, g, b, a)` format.
+  vtkStdString RGBAToHTMLColor(const vtkColor4ub & rgba);
+
+  // Description:
+  // Set the color by name.
+  // The name is treated as being case-insensitive.
+  // The color must be a valid HTML color string.
+  // No color is set if the name is empty or if `htmlString` is not a valid
+  // HTML color string.
+  void SetColor(const vtkStdString & name, const vtkStdString & htmlString);
+
 protected:
   vtkNamedColors();
   virtual ~vtkNamedColors();
@@ -304,6 +358,7 @@ private:
   // Description:
   // The implementation of the color map and other required methods.
   vtkNamedColorsDataStore *Colors;
+  vtkColorStringParser* Parser;
 
   vtkNamedColors(const vtkNamedColors&);  // Not implemented.
   void operator=(const vtkNamedColors&);  // Not implemented.
