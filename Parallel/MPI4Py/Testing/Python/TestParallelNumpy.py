@@ -171,7 +171,7 @@ w.SetWholeExtent(0, 10, 0, 10, 0, 10)
 w.Update()
 
 c = vtk.vtkMultiBlockDataSet()
-c.SetNumberOfBlocks(2*NUM_BLOCKS)
+c.SetNumberOfBlocks(size*NUM_BLOCKS)
 
 if rank == 0:
     start = 0
@@ -210,12 +210,40 @@ for axis in [None, 0]:
             all_max = algs.max(max, controller=dummy)
             all_max_true = numpy.max([algs.max(array, controller=dummy), algs.max(array2, controller=dummy)])
             res &= all_max == all_max_true
+            sum = algs.sum_per_block(array2, axis=axis)
+            sum_true = numpy.sum(array2.Arrays[0]) * (NUM_BLOCKS-1)
+            sum_true += numpy.sum(array.Arrays[0]) * 3
+            res &= numpy.sum(algs.sum(sum, controller=dummy) - algs.sum(sum_true, controller=dummy)) == 0
+            mean = algs.mean_per_block(array2, axis=axis)
+            res &= numpy.sum(mean.Arrays[0] - numpy.mean(array2.Arrays[0], axis=axis)) < 1E-6
+            if len(array.Arrays[0].shape) == 1:
+                stk = numpy.hstack
+            else:
+                stk = numpy.vstack
+            res &= numpy.sum(mean.Arrays[NUM_BLOCKS-2] - numpy.mean(stk((array.Arrays[0], array2.Arrays[0])), axis=axis)) < 1E-4
         elif rank == 2:
             min = algs.min_per_block(dsa.NoneArray, axis=axis)
             max = algs.max_per_block(dsa.NoneArray, axis=axis)
+            sum = algs.sum_per_block(dsa.NoneArray, axis=axis)
+            mean = algs.mean_per_block(dsa.NoneArray, axis=axis)
         else:
             min = algs.min_per_block(array, axis=axis)
             max = algs.max_per_block(array, axis=axis)
+            sum = algs.sum_per_block(array, axis=axis)
+            mean = algs.mean_per_block(array, axis=axis)
+        if array is g and axis == 0:
+            ug = algs.unstructured_from_composite_arrays(mean, [(mean, 'mean')])
+            if mean is dsa.NoneArray:
+                res &= ug.GetNumberOfPoints() == 0
+            else:
+                _array = ug.GetPointData().GetArray('mean')
+                ntuples = _array.GetNumberOfTuples()
+                for i in range(ntuples):
+                    if rank == 1:
+                        idx = i+3
+                    else:
+                        idx = i
+                    res &= _array.GetTuple(i) == tuple(mean.Arrays[idx])
 
 res &= algs.min_per_block(dsa.NoneArray) is dsa.NoneArray
 
