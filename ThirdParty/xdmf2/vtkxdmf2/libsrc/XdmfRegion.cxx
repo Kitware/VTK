@@ -5,6 +5,9 @@
 #include "XdmfArray.h"
 #include "XdmfDOM.h"
 
+namespace xdmf2
+{
+
 XdmfRegion::XdmfRegion() {
   this->SetElementName("Region");
   this->ValuesAreMine = 1;
@@ -212,4 +215,6 @@ if( ValuesNode ){
   return( XDMF_FAIL );
   }
 return( XDMF_SUCCESS );
+}
+
 }

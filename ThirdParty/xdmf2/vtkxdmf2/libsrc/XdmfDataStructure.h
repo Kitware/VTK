@@ -25,8 +25,10 @@
 #ifndef __XdmfDataStructure_h
 #define __XdmfDataStructure_h
 
-
 #include "XdmfDataItem.h"
+
+namespace xdmf2
+{
 
 class XdmfArray;
 
@@ -64,4 +66,5 @@ public :
 protected :
 };
 
+}
 #endif

@@ -32,6 +32,9 @@
 #define XDMF_HYPERSLAB    1
 #define XDMF_COORDINATES  2
 
+namespace xdmf2
+{
+
 class XdmfDsmBuffer;
 
 
@@ -242,4 +245,5 @@ protected:
   XdmfDsmBuffer *DsmBuffer;
 };
 
+}
 #endif // __XdmfDataDesc_h

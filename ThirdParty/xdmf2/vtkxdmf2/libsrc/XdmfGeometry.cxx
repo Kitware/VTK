@@ -30,6 +30,9 @@
 #include "XdmfDOM.h"
 #include "XdmfHDF.h"
 
+namespace xdmf2
+{
+
 XdmfGeometry *GetXdmfGeometryHandle( void *Pointer ){
   //XdmfGeometry *tmp = (XdmfGeometry *)Pointer;
   return((XdmfGeometry *)Pointer);
@@ -681,4 +684,6 @@ XdmfGeometry::Update() {
     this->PointsAreMine = 1;
   }
   return( XDMF_SUCCESS );
+}
+
 }

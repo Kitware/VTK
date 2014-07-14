@@ -30,6 +30,9 @@
 #define XDMF_LONGEST_LENGTH     (XdmfInt64)~0
 #define XDMF_ARRAY_TAG_LENGTH  80
 
+namespace xdmf2
+{
+
 //! Self Describing Data Structure
 /*!
 This is the SuperClass for All XDMF Arrays.
@@ -457,4 +460,5 @@ XDMF_EXPORT  XdmfArray  *GetNextOlderArray( XdmfLength Age, XdmfLength *AgeOfArr
 XDMF_EXPORT  XdmfLength  GetCurrentArrayTime( void );
 #endif /* DOXYGEN_SKIP */
 
+}
 #endif // __XdmfArray_h

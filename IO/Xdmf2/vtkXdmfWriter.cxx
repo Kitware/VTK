@@ -64,13 +64,15 @@
 # define SNPRINTF snprintf
 #endif
 
+using namespace xdmf2;
+
 struct  _xmlNode;
 typedef _xmlNode *XdmfXmlNode;
 struct vtkXW2NodeHelp {
-  XdmfDOM     *DOM;
+  xdmf2::XdmfDOM     *DOM;
   XdmfXmlNode  node;
   bool         staticFlag;
-  vtkXW2NodeHelp(XdmfDOM *d, XdmfXmlNode n, bool f) : DOM(d), node(n), staticFlag(f) {};
+  vtkXW2NodeHelp(xdmf2::XdmfDOM *d, XdmfXmlNode n, bool f) : DOM(d), node(n), staticFlag(f) {};
 };
 
 class vtkXdmfWriterDomainMemoryHandler
@@ -82,13 +84,13 @@ class vtkXdmfWriterDomainMemoryHandler
       }
     ~vtkXdmfWriterDomainMemoryHandler()
       {
-        for(std::vector<XdmfGrid*>::iterator iter = domainGrids.begin(); iter != domainGrids.end(); ++iter)
+        for(std::vector<xdmf2::XdmfGrid*>::iterator iter = domainGrids.begin(); iter != domainGrids.end(); ++iter)
         {
           delete *iter;
         }
         delete domain;
       }
-    void InsertGrid(XdmfGrid* grid)
+  void InsertGrid(xdmf2::XdmfGrid* grid)
       {
         domain->Insert(grid);
         domainGrids.push_back(grid);
@@ -99,7 +101,7 @@ class vtkXdmfWriterDomainMemoryHandler
       }
   private:
     XdmfDomain* domain;
-    std::vector<XdmfGrid*> domainGrids;
+  std::vector<xdmf2::XdmfGrid*> domainGrids;
 };
 
 //==============================================================================
@@ -256,7 +258,7 @@ int vtkXdmfWriter::Write()
   //TODO: Specify name of heavy data companion file?
   if (!this->DOM)
     {
-    this->DOM = new XdmfDOM();
+    this->DOM = new xdmf2::XdmfDOM();
     }
   this->DOM->SetOutputFileName(this->FileName);
 
@@ -353,7 +355,7 @@ int vtkXdmfWriter::RequestData(
       this->TopTemporalGrid = NULL;
       }
 
-    XdmfGrid *tgrid = new XdmfGrid();
+    xdmf2::XdmfGrid *tgrid = new xdmf2::XdmfGrid();
     tgrid->SetDeleteOnGridDelete(true);
     tgrid->SetGridType(XDMF_GRID_COLLECTION);
     tgrid->SetCollectionType(XDMF_GRID_COLLECTION_TEMPORAL);
@@ -367,7 +369,7 @@ int vtkXdmfWriter::RequestData(
     this->TopTemporalGrid = tgrid;
     }
 
-  XdmfGrid *grid = new XdmfGrid();
+  xdmf2::XdmfGrid *grid = new xdmf2::XdmfGrid();
   grid->SetDeleteOnGridDelete(true);
   if (this->TopTemporalGrid)
     {
@@ -412,7 +414,7 @@ int vtkXdmfWriter::RequestData(
 }
 
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid)
 {
   //TODO:
   // respect parallelism
@@ -438,7 +440,7 @@ int vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, XdmfGrid *grid)
 }
 
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, xdmf2::XdmfGrid *grid)
 {
   //cerr << "internal node " << dobj << " is a " << dobj->GetClassName() << endl;
   if (dobj->IsA("vtkMultiPieceDataSet"))
@@ -470,7 +472,7 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *gr
   iter->GoToFirstItem();
   while (!iter->IsDoneWithTraversal())
     {
-    XdmfGrid *childsGrid = new XdmfGrid();
+    xdmf2::XdmfGrid *childsGrid = new xdmf2::XdmfGrid();
     childsGrid->SetDeleteOnGridDelete(true);
     grid->Insert(childsGrid);
     vtkDataObject* ds = iter->GetCurrentDataObject();
@@ -483,7 +485,7 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *gr
   return 1;
 }
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata)
+int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata)
 {
   //cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
 
@@ -855,7 +857,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDim
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticdata)
+int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *staticdata)
 {
   //Geometry
   XdmfGeometry *geo = grid->GetGeometry();
@@ -957,7 +959,7 @@ int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticda
   return 1;
 }
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid)
 {
   cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
   vtkDataSet *ds = vtkDataSet::SafeDownCast(dobj);
@@ -991,7 +993,7 @@ int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, XdmfGrid *grid, int association,
+int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid *grid, int association,
                                  vtkIdType rank, vtkIdType *dims, const char *name)
 {
   if (fd)

@@ -37,7 +37,8 @@
 #endif
 
 
-
+namespace xdmf2
+{
 
 //#include <sys/stat.h>
 //#include <cassert>
@@ -437,3 +438,5 @@ bool XdmfValuesBinary::needByteSwap(){
 }
 #endif
 // vim: expandtab sw=4 :
+
+}

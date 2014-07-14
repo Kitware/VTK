@@ -24,6 +24,9 @@
 /*******************************************************************/
 #include "XdmfArray.h"
 
+namespace xdmf2
+{
+
 XDMF_EXPORT void XdmfArrayExpr( XdmfArray *Array,
     XdmfString Operation, XdmfArray *Values );
 XDMF_EXPORT void XdmfScalarExpr( XdmfArray *Array,
@@ -31,3 +34,4 @@ XDMF_EXPORT void XdmfScalarExpr( XdmfArray *Array,
 
 XDMF_EXPORT XdmfArray *XdmfExpr( XdmfString Statement );
 
+}

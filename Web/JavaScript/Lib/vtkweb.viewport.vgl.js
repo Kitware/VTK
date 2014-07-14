@@ -199,18 +199,21 @@
     // ------------------------------------------------------------------
 
     function drawScene() {
-      var layer;
+      var layer, viewer;
 
       try {
         if (m_sceneJSON === null || typeof m_sceneJSON === 'undefined') {
           return;
         }
 
-        m_viewer = m_vglVtkReader.updateViewer(m_canvas3D);
+        viewer = m_vglVtkReader.updateViewer(m_canvas3D);
 
-        if (m_viewer === null) {
+        if (viewer === null) {
           return;
         }
+
+        m_viewer = viewer;
+
         var width = m_rendererAttrs.width(),
         height = m_rendererAttrs.height(),
         nbObjects;
@@ -230,10 +233,19 @@
         HTMLCanvasElement.prototype.relMouseCoords =
           m_viewer.relMouseCoords;
 
-        document.onmousedown = m_viewer.handleMouseDown;
-        document.onmouseup = m_viewer.handleMouseUp;
-        document.onmousemove = m_viewer.handleMouseMove;
-        document.oncontextmenu = m_viewer.handleContextMenu;
+        m_container.on('mouse', function(event) {
+          if (m_viewer) {
+            if (event.action === 'move') {
+              m_viewer.handleMouseMove(event.originalEvent);
+            }
+            else if (event.action === 'up') {
+              m_viewer.handleMouseUp(event.originalEvent);
+            }
+            else if (event.action === 'down') {
+              m_viewer.handleMouseDown(event.originalEvent);
+            }
+          }
+        });
 
         m_interactorStyle = m_viewer.interactorStyle();
         $(m_interactorStyle).on(ogs.vgl.command.leftButtonPressEvent, m_viewer.render);
@@ -264,9 +276,9 @@
     function pushCameraState() {
       if(m_viewer !== null) {
         var cam =  m_viewer.renderWindow().activeRenderer().camera(),
-            fp_ = cam.getFocalPoint(),
-            up_ = cam.getViewUp(),
-            pos_ = cam.getPosition(),
+            fp_ = cam.focalPoint(),
+            up_ = cam.viewUpDirection(),
+            pos_ = cam.position(),
             fp = [fp_[0], fp_[1], fp_[2]],
             up = [up_[0], up_[1], up_[2]],
             pos = [pos_[0], pos_[1], pos_[2]];

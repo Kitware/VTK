@@ -27,6 +27,8 @@
 
 #include "XdmfObject.h"
 
+namespace xdmf2
+{
 
 //! Base comm message object for Distributed Shared Memory implementation
 /*!
@@ -66,4 +68,5 @@ class XDMF_EXPORT XdmfDsmMsg : public XdmfObject {
     void        *Data;
 };
 
+}
 #endif // __XdmfDsmMsg_h

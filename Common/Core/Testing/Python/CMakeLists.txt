@@ -7,6 +7,7 @@ vtk_add_test_python(
   TestIgnoreBTX.py
   TestMutable.py
   TestNumpySupport.py
+  TestNumpyInterface.py
   TestOperators.py
   TestPointers.py
   TestStrings.py

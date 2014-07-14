@@ -10,6 +10,9 @@
 #define XDMF_REGION_TYPE_EDGE  3
 #define XDMF_REGION_TYPE_NODE  4
 
+namespace xdmf2
+{
+
 // Forward declaration of Xdmf classes
 
 class XdmfTopology;
@@ -89,4 +92,5 @@ protected:
   XdmfInt32  Active;
 };
 
+}
 #endif // __XdmfGroup_h
