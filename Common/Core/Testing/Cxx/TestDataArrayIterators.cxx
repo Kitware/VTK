@@ -19,7 +19,7 @@
 #include "vtkTypedDataArrayIterator.h"
 #include "vtkNew.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 // undefine this to print benchmark results:

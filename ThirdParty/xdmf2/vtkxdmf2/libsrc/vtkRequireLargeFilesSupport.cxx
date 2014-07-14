@@ -3,7 +3,7 @@
 #define _FILE_OFFSET_BITS 64
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <assert.h>
+#include <cassert>
 #include <stdio.h>
 
 int main( int, char **argv )

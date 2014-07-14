@@ -22,7 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <assert.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkUnstructuredGridCellIterator)
 
