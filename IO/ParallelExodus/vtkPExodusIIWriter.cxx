@@ -42,7 +42,7 @@
 #include "vtkMultiProcessController.h"
 
 #include "vtk_exodusII.h"
-#include <time.h>
+#include <ctime>
 #include <ctype.h>
 
 vtkStandardNewMacro (vtkPExodusIIWriter);

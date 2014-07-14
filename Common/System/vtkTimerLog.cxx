@@ -34,7 +34,7 @@
 
 #ifndef _WIN32_WCE
 #include <sys/types.h>
-#include <time.h>
+#include <ctime>
 #endif
 #include "vtkObjectFactory.h"
 

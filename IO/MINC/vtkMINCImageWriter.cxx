@@ -82,7 +82,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include <cstdlib>
 #include <float.h>
-#include <time.h>
+#include <ctime>
 #include <string>
 #include <vector>
 #include <map>

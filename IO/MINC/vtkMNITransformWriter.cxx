@@ -68,7 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformationVector.h"
 #include "vtkPoints.h"
 
-#include <time.h>
+#include <ctime>
 #include <ctype.h>
 #include <stdio.h>
 
