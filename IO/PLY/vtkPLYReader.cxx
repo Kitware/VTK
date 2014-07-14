@@ -26,7 +26,7 @@
 #include "vtkSmartPointer.h"
 
 #include <ctype.h>
-#include <stddef.h>
+#include <cstddef>
 
 vtkStandardNewMacro(vtkPLYReader);
 
