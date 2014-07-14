@@ -234,9 +234,6 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
       first + recvLengths[this->UpdatePiece]/TypeSize;
     received.erase(first, last);
   }
-  if (received.size()>0) {
-    TotalParticles=TotalParticles; // brkpnt
-  }
 }
 //---------------------------------------------------------------------------
 int vtkPTemporalStreamTracer::RequestData(
