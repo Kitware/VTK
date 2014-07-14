@@ -696,6 +696,7 @@ class CompositeDataSet(DataObject):
         self._PointData = None
         self._CellData = None
         self._FieldData = None
+        self._Points = None
 
     def __iter__(self):
         "Creates an iterator for the contained datasets."
@@ -750,9 +751,31 @@ class CompositeDataSet(DataObject):
             self._FieldData = weakref.ref(fdata)
         return self._FieldData()
 
+    def GetPoints(self):
+        "Returns the points as a VTKCompositeDataArray instance."
+        if self._Points is None or self._Points() is None:
+            pts = []
+            for ds in self:
+                try:
+                    _pts = ds.Points
+                except AttributeError:
+                    _pts = None
+
+                if _pts is None:
+                    pts.append(NoneArray)
+                else:
+                    pts.append(_pts)
+            if len(pts) == 0 or all(map(lambda a : a is NoneArray, pts)):
+                cpts = NoneArray
+            else:
+                cpts = VTKCompositeDataArray(pts, dataset=self)
+            self._Points = weakref.ref(cpts)
+        return self._Points()
+
     PointData = property(GetPointData, None, None, "This property returns the point data of the dataset.")
     CellData = property(GetCellData, None, None, "This property returns the cell data of a dataset.")
     FieldData = property(GetFieldData, None, None, "This property returns the field data of a dataset.")
+    Points = property(GetPoints, None, None, "This property returns the points of the dataset.")
 
 class DataSet(DataObject):
     """This is a python friendly wrapper of a vtkDataSet that defines

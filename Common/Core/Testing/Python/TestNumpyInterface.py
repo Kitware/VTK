@@ -202,3 +202,23 @@ mbw.PointData.append(na2, 'foo')
 assert mbw.GetBlock(0).GetPointData().GetNumberOfArrays() == 1
 assert mbw.GetBlock(1).GetPointData().GetNumberOfArrays() == 0
 assert mbw.GetBlock(0).GetPointData().GetArray(0).GetName() == 'foo'
+
+# --------------------------------------
+
+mb = vtk.vtkMultiBlockDataSet()
+mb.SetBlock(0, vtk.vtkImageData())
+mb.SetBlock(1, vtk.vtkImageData())
+assert dsa.WrapDataObject(mb).Points is na
+
+mb = vtk.vtkMultiBlockDataSet()
+mb.SetBlock(0, vtk.vtkStructuredGrid())
+mb.SetBlock(1, vtk.vtkImageData())
+assert dsa.WrapDataObject(mb).Points is na
+
+mb = vtk.vtkMultiBlockDataSet()
+sg = vtk.vtkStructuredGrid()
+sg.SetPoints(vtk.vtkPoints())
+mb.SetBlock(0, sg)
+mb.SetBlock(1, vtk.vtkImageData())
+assert dsa.WrapDataObject(mb).Points.Arrays[0] is not na
+assert dsa.WrapDataObject(mb).Points.Arrays[1] is na
