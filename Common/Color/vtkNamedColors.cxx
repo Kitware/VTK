@@ -26,10 +26,6 @@
 #include <cctype> // Header to ensure std::tolower is present
 #include <cstdlib>
 
-#ifdef WIN32
-  #define snprintf _snprintf_s   // For vtkNamedColors::RGBToHTMLColor
-#endif
-
 class vtkNamedColorsDataStore
 {
 public:
@@ -753,7 +749,6 @@ private:
 // - #RGB
 // - #RGBA
 // - #RRGGBB
-// - #RRGGBBAA
 // - rgb(r, g, b)
 // - rgba(r, g, b, a)
 // - a CSS3 color name, e.g. "steelblue"
@@ -836,7 +831,7 @@ double clipPercentage(double value)
 }
 
 //------------------------------------------------------------------------------
-// Parse a string of type "#RRGGBB" or "#RRGGBBAA".
+// Parse a string of type "#RRGGBB".
 // Heading and trailing spaces must be already trimmed.
 // If the parsed string is not valid set `StateGood` to false.
 void vtkColorStringParser::HexStringToRGBA(vtkStdString color)
@@ -850,9 +845,12 @@ void vtkColorStringParser::HexStringToRGBA(vtkStdString color)
     if (color.size() == 3) // #RGB -> #RRGGBB
       {
       color.resize(6);
-      color[4] = color[5] = color[2];
-      color[2] = color[3] = color[1];
-      color[1] = color[0];
+      vtkStdString::size_type i = 3, j = 6;
+      do
+        {
+        color[--j] = color[--i];
+        color[--j] = color[i];
+        } while (i != 0);
       }
     else if (color.size() != 6)
       {
@@ -1339,15 +1337,13 @@ void vtkNamedColors::SetColor(const vtkStdString & name,
 //-----------------------------------------------------------------------------
 vtkStdString vtkNamedColors::RGBToHTMLColor(const vtkColor3ub & rgb)
 {
-  vtkStdString s = "#";
-  char buff[9];
-  snprintf(buff, sizeof(buff) - 1, "%02x", rgb.GetRed());
-  s += buff;
-  snprintf(buff, sizeof(buff) - 1, "%02x", rgb.GetGreen());
-  s += buff;
-  snprintf(buff, sizeof(buff) - 1, "%02x", rgb.GetBlue());
-  s += buff;
-  return s;
+  std::stringstream ss;
+  ss << "#" << std::hex << std::setfill('0')
+      << std::setw(2) << (int)(rgb.GetRed())
+      << std::setw(2) << (int)(rgb.GetGreen())
+      << std::setw(2) << (int)(rgb.GetBlue());
+
+  return ss.str();
 }
 
 //-----------------------------------------------------------------------------
