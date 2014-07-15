@@ -59,11 +59,12 @@ void vtkExternalOpenGLRenderWindow::Start(void)
     if (bufferType == GL_BACK_RIGHT || bufferType == GL_RIGHT
       || bufferType == GL_FRONT_RIGHT)
       {
-      renderer->GetActiveCamera()->SetLeftEye(0);
+      this->StereoRenderOn();
+      this->SetStereoTypeToRight();
       }
     else
       {
-      renderer->GetActiveCamera()->SetLeftEye(1);
+      this->SetStereoTypeToLeft();
       }
     }
 }
