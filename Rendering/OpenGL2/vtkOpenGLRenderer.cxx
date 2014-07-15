@@ -196,6 +196,28 @@ vtkOpenGLTexture *vtkOpenGLRendererCreateDepthPeelingTexture(
   return result;
 }
 
+// get the texture units for depth peeling
+int vtkOpenGLRenderer::GetOpaqueRGBATextureUnit()
+{
+  return vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow)->GetTextureUnitForTexture(this->OpaqueRGBATexture->GetTextureObject());
+}
+int vtkOpenGLRenderer::GetOpaqueZTextureUnit()
+{
+  return vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow)->GetTextureUnitForTexture(this->OpaqueZTexture->GetTextureObject());
+}
+int vtkOpenGLRenderer::GetTranslucentRGBATextureUnit()
+{
+  return vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow)->GetTextureUnitForTexture(this->TranslucentRGBATexture->GetTextureObject());
+}
+int vtkOpenGLRenderer::GetTranslucentZTextureUnit()
+{
+  return vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow)->GetTextureUnitForTexture(this->TranslucentZTexture->GetTextureObject());
+}
+int vtkOpenGLRenderer::GetCurrentRGBATextureUnit()
+{
+  return vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow)->GetTextureUnitForTexture(this->CurrentRGBATexture->GetTextureObject());
+}
+
 // ----------------------------------------------------------------------------
 // Description:
 // Render translucent polygonal geometry. Default implementation just call
@@ -314,8 +336,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       }
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glClearColor(0.0,0.0,0.0,0.0); // always clear to black
-    //glClearDepth(static_cast<GLclampf>(1.0));
+//    glClearColor(0.0,0.0,0.0,0.0); // always clear to black
+   // glClearDepth(static_cast<GLclampf>(1.0));
 #ifdef GL_MULTISAMPLE
     glDisable(GL_MULTISAMPLE);
 #endif
@@ -323,11 +345,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     // Get opaqueRGBA
     this->OpaqueRGBATexture->Load(this);
-    this->OpaqueRGBATexture->CopyTexImage(this, this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+    this->OpaqueRGBATexture->CopyTexImage(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
 
     // Get opaqueZ
     this->OpaqueZTexture->Load(this);
-    this->OpaqueZTexture->CopyTexImage(this, this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+    this->OpaqueZTexture->CopyTexImage(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
 
     // Initialize TranslucentZ to 0.0
     vtkImageData *id = this->TranslucentZTexture->GetImageDataInput(0);
@@ -359,6 +381,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       {
       // clear the zbuffer and color buffers
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      this->OpaqueZTexture->Load(this);
+      this->TranslucentZTexture->Load(this);
 
       // render the translucent geometry
       this->LastRenderingUsedDepthPeeling=1;
@@ -368,7 +392,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->UpdateTranslucentPolygonalGeometry();
 
       // update translucentZ
-      this->TranslucentZTexture->CopyTexImage(this, this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+      this->TranslucentZTexture->CopyTexImage(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
       previousNbPixels = nbPixels;
 
 #if GL_ES_VERSION_2_0 != 1
@@ -389,19 +413,23 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       // blend the last two peels together
       if (peelCount > 1)
         {
-        this->CurrentRGBATexture->CopyTexImage(this, this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+        this->CurrentRGBATexture->CopyTexImage(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+        this->TranslucentRGBATexture->Load(this);
+        this->CurrentRGBATexture->Load(this);
         this->LastRenderingUsedDepthPeeling = 2;
         // draw a full screen polygon that takes the TranslucentRGBA texture and blends it with the current frame buffer
         this->DepthPeelingActor->RenderOverlay(this);
         }
 
       // update translucent RGBA
-      this->TranslucentRGBATexture->CopyTexImage(this, this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+      this->TranslucentRGBATexture->CopyTexImage(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
       }
 
     // blend in OpaqueRGBA
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->LastRenderingUsedDepthPeeling = 3;
+    this->OpaqueRGBATexture->Load(this);
+    this->TranslucentRGBATexture->Load(this);
     this->DepthPeelingActor->RenderOverlay(this);
 
     // unload the textures

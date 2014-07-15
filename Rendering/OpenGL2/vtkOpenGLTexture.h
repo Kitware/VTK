@@ -26,9 +26,8 @@
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 //ETX
 
-class vtkWindow;
 class vtkRenderWindow;
-class vtkPixelBufferObject;
+class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTexture : public vtkTexture
 {
@@ -58,7 +57,7 @@ public:
 
   // Description
   // copy the renderers read buffer into this texture
-  void CopyTexImage(vtkRenderer *ren, int x, int y, int width, int height);
+  void CopyTexImage(int x, int y, int width, int height);
 
   // Description
   // Provide for specifying a format for the texture
@@ -70,6 +69,13 @@ public:
   vtkGetMacro(TextureType,int);
   vtkSetMacro(TextureType,int);
 
+  vtkGetObjectMacro(TextureObject, vtkTextureObject);
+  void SetTextureObject(vtkTextureObject *);
+
+  // Description:
+  // Return the texture unit used for this texture
+  int GetTextureUnit();
+
 protected:
 //BTX
   vtkOpenGLTexture();
@@ -79,6 +85,8 @@ protected:
   unsigned int Index; // actually GLuint
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
 
+  vtkTextureObject *TextureObject;
+
   int IsDepthTexture;
   int TextureType;
 
@@ -87,14 +95,9 @@ protected:
                                       unsigned char *dptr, int bpp);
 
 
-
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
   void operator=(const vtkOpenGLTexture&);  // Not implemented.
-
-  // Description:
-  // Handle loading in extension support
-  virtual void Initialize(vtkRenderer * ren);
 
 //ETX
 };

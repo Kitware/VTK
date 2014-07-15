@@ -92,39 +92,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
   #endif
 
-  this->DrawPixelsActor = vtkTexturedActor2D::New();
-  vtkNew<vtkPolyDataMapper2D> mapper;
-  vtkNew<vtkPolyData> polydata;
-  vtkNew<vtkPoints> points;
-  points->SetNumberOfPoints(4);
-  polydata->SetPoints(points.Get());
-
-  vtkNew<vtkCellArray> tris;
-  tris->InsertNextCell(3);
-  tris->InsertCellPoint(0);
-  tris->InsertCellPoint(1);
-  tris->InsertCellPoint(2);
-  tris->InsertNextCell(3);
-  tris->InsertCellPoint(0);
-  tris->InsertCellPoint(2);
-  tris->InsertCellPoint(3);
-  polydata->SetPolys(tris.Get());
-
-  vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
-
-  // Set some properties.
-  mapper->SetInputConnection(prod->GetOutputPort());
-  this->DrawPixelsActor->SetMapper(mapper.Get());
-
-  vtkNew<vtkTexture> texture;
-  texture->RepeatOff();
-  this->DrawPixelsActor->SetTexture(texture.Get());
-
-  vtkNew<vtkFloatArray> tcoords;
-  tcoords->SetNumberOfComponents(2);
-  tcoords->SetNumberOfTuples(4);
-  polydata->GetPointData()->SetTCoords(tcoords.Get());
+  this->DrawPixelsActor = NULL;
 
   this->OwnContext=1;
 }
@@ -690,6 +658,44 @@ void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numCo
     {
     x_low = x2;
     x_hi  = x1;
+    }
+
+
+  if (this->DrawPixelsActor == NULL)
+    {
+    this->DrawPixelsActor = vtkTexturedActor2D::New();
+    vtkNew<vtkPolyDataMapper2D> mapper;
+    vtkNew<vtkPolyData> polydata;
+    vtkNew<vtkPoints> points;
+    points->SetNumberOfPoints(4);
+    polydata->SetPoints(points.Get());
+
+    vtkNew<vtkCellArray> tris;
+    tris->InsertNextCell(3);
+    tris->InsertCellPoint(0);
+    tris->InsertCellPoint(1);
+    tris->InsertCellPoint(2);
+    tris->InsertNextCell(3);
+    tris->InsertCellPoint(0);
+    tris->InsertCellPoint(2);
+    tris->InsertCellPoint(3);
+    polydata->SetPolys(tris.Get());
+
+    vtkNew<vtkTrivialProducer> prod;
+    prod->SetOutput(polydata.Get());
+
+    // Set some properties.
+    mapper->SetInputConnection(prod->GetOutputPort());
+    this->DrawPixelsActor->SetMapper(mapper.Get());
+
+    vtkNew<vtkTexture> texture;
+    texture->RepeatOff();
+    this->DrawPixelsActor->SetTexture(texture.Get());
+
+    vtkNew<vtkFloatArray> tcoords;
+    tcoords->SetNumberOfComponents(2);
+    tcoords->SetNumberOfTuples(4);
+    polydata->GetPointData()->SetTCoords(tcoords.Get());
     }
 
   vtkPolyData *pd = vtkPolyDataMapper2D::SafeDownCast(this->DrawPixelsActor->GetMapper())->GetInput();
@@ -1496,10 +1502,10 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 }
 
 
-void vtkOpenGLRenderWindow::ActivateTexture(vtkTexture *texture)
+void vtkOpenGLRenderWindow::ActivateTexture(vtkTextureObject *texture)
 {
   // Only add if it isn't already there
-  typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
+  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
   TRIter found = this->TextureResourceIds.find(texture);
   if (found == this->TextureResourceIds.end())
     {
@@ -1518,10 +1524,10 @@ void vtkOpenGLRenderWindow::ActivateTexture(vtkTexture *texture)
     }
 }
 
-void vtkOpenGLRenderWindow::DeactivateTexture(vtkTexture *texture)
+void vtkOpenGLRenderWindow::DeactivateTexture(vtkTextureObject *texture)
 {
   // Only deactivate if it isn't already there
-  typedef std::map<const vtkTexture *, int>::iterator TRIter;
+  typedef std::map<const vtkTextureObject *, int>::iterator TRIter;
   TRIter found = this->TextureResourceIds.find(texture);
   if (found != this->TextureResourceIds.end())
     {
@@ -1530,10 +1536,10 @@ void vtkOpenGLRenderWindow::DeactivateTexture(vtkTexture *texture)
     }
 }
 
-int vtkOpenGLRenderWindow::GetTextureUnitForTexture(vtkTexture *texture)
+int vtkOpenGLRenderWindow::GetTextureUnitForTexture(vtkTextureObject *texture)
 {
   // Only deactivate if it isn't already there
-  typedef std::map<const vtkTexture *, int>::const_iterator TRIter;
+  typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
   TRIter found = this->TextureResourceIds.find(texture);
   if (found != this->TextureResourceIds.end())
     {

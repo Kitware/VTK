@@ -249,15 +249,16 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     {
     FSSource = vtkgl::replace(FSSource,
       "//VTK::DepthPeeling::Dec",
-      "uniform sampler2DRect opaqueZTexture;"
-      "uniform sampler2DRect translucentZTexture;");
+      "uniform vec2 screenSize;\n"
+      "uniform sampler2D opaqueZTexture;\n"
+      "uniform sampler2D translucentZTexture;\n");
     FSSource = vtkgl::replace(FSSource,
       "//VTK::DepthPeeling::Impl",
-      "float odepth = texture2DRect(opaqueZTexture, gl_FragCoord.xy).r; "
-      "if (gl_FragCoord.z >= odepth) { discard; } "
-      "float tdepth = texture2DRect(translucentZTexture, gl_FragCoord.xy).r; "
-      "if (gl_FragCoord.z <= tdepth) { discard; } "
-     // "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
+      "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
+      "if (gl_FragCoord.z >= odepth) { discard; }\n"
+      "float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
+      "if (gl_FragCoord.z <= tdepth) { discard; }\n"
+//      "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
       );
     }
 
@@ -465,7 +466,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       {
       texture = actor->GetProperty()->GetTexture(0);
       }
-    int tunit = renWin->GetTextureUnitForTexture(texture);
+    int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
     cellBO.CachedProgram->Program.SetUniformi("texture1", tunit);
     }
 
@@ -473,11 +474,17 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
   if (ren->GetLastRenderingUsedDepthPeeling())
     {
     vtkOpenGLRenderer *oglren = vtkOpenGLRenderer::SafeDownCast(ren);
-    int otunit = renWin->GetTextureUnitForTexture(oglren->GetOpaqueZTexture());
+    int otunit = oglren->GetOpaqueZTextureUnit();
     cellBO.CachedProgram->Program.SetUniformi("opaqueZTexture", otunit);
 
-    int ttunit = renWin->GetTextureUnitForTexture(oglren->GetTranslucentZTexture());
+    int ttunit = oglren->GetTranslucentZTextureUnit();
     cellBO.CachedProgram->Program.SetUniformi("translucentZTexture", ttunit);
+
+    int *renSize = ren->GetSize();
+    float screenSize[2];
+    screenSize[0] = renSize[0];
+    screenSize[1] = renSize[1];
+    cellBO.CachedProgram->Program.SetUniform2f("screenSize", screenSize);
     }
 
   if (this->LastSelectionState)

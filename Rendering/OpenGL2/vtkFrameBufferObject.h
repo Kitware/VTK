@@ -51,8 +51,8 @@ public:
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
-  void SetContext(vtkRenderWindow *context);
-  vtkRenderWindow *GetContext();
+  void SetContext(vtkOpenGLRenderWindow *context);
+  vtkOpenGLRenderWindow *GetContext();
 
   // Description:
   // User must take care that width/height match the dimensions of
@@ -158,7 +158,7 @@ public:
   // Description:
   // Returns if the context supports the required extensions.
   // Extension will be loaded when the conetxt is set.
-  static bool IsSupported(vtkRenderWindow *renWin);
+  static bool IsSupported(vtkOpenGLRenderWindow *renWin);
 
   // Description:
   // Validate the current FBO configuration (attachments, formats, etc)
@@ -170,7 +170,7 @@ protected:
   // Description:
   // Load all necessary extensions.
   static
-  bool LoadRequiredExtensions(vtkRenderWindow *renWin);
+  bool LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin);
 
   // gen buffer (occurs when context is set)
   void CreateFBO();
@@ -223,7 +223,7 @@ protected:
   vtkFrameBufferObject();
   ~vtkFrameBufferObject();
 
-  vtkWeakPointer<vtkRenderWindow> Context;
+  vtkWeakPointer<vtkOpenGLRenderWindow> Context;
 
   bool DepthBufferNeeded;
   bool ColorBuffersDirty;

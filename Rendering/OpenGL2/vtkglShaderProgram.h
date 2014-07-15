@@ -157,6 +157,7 @@ public:
   bool SetUniformi(const std::string &name, int v);
   bool SetUniformf(const std::string &name, float v);
   bool SetUniform2i(const std::string &name, const int v[2]);
+  bool SetUniform2f(const std::string &name, const float v[2]);
   bool SetUniform3f(const std::string &name, const float v[3]);
   bool SetUniform4f(const std::string &name, const float v[4]);
   bool SetUniform3uc(const std::string &name, const unsigned char v[3]); // maybe remove

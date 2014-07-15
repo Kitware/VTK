@@ -33,8 +33,9 @@ class vtkOpenGLHardwareSupport;
 class vtkOpenGLTextureUnitManager;
 class vtkOpenGLShaderCache;
 class vtkStdString;
-class vtkTexturedActor2D;
 class vtkTexture;
+class vtkTexturedActor2D;
+class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -92,17 +93,18 @@ public:
   virtual int SetZbufferData( int x1, int y1, int x2, int y2,
                               vtkFloatArray *buffer );
 
+
   // Description:
   // Activate a texture unit for this texture
-  void ActivateTexture(vtkTexture *);
+  void ActivateTexture(vtkTextureObject *);
 
   // Description:
   // Deactive a previously activated texture
-  void DeactivateTexture(vtkTexture *);
+  void DeactivateTexture(vtkTextureObject *);
 
   // Description:
   // Get the texture unit for a given texture object
-  int GetTextureUnitForTexture(vtkTexture *);
+  int GetTextureUnitForTexture(vtkTextureObject *);
 
   // Description:
   // Get the size of the depth buffer.
@@ -207,7 +209,7 @@ protected:
   long OldMonitorSetting;
 
   //BTX
-  std::map<const vtkTexture *, int> TextureResourceIds;
+  std::map<const vtkTextureObject *, int> TextureResourceIds;
   //ETX
 
   int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);

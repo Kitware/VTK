@@ -65,13 +65,13 @@ public:
   vtkGetObjectMacro(Pass, vtkRenderPass);
 
   // Description:
-  // get the various textures used for Depth Peeling
+  // get the various texture units used for Depth Peeling
   // the Mappers make use of these
-  vtkGetObjectMacro(OpaqueZTexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(OpaqueRGBATexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(TranslucentZTexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(TranslucentRGBATexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(CurrentRGBATexture,vtkOpenGLTexture);
+  int GetOpaqueRGBATextureUnit();
+  int GetOpaqueZTextureUnit();
+  int GetTranslucentRGBATextureUnit();
+  int GetTranslucentZTextureUnit();
+  int GetCurrentRGBATextureUnit();
 
 protected:
   vtkOpenGLRenderer();

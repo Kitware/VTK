@@ -72,6 +72,7 @@ set(Module_SRCS
   vtkOpenGLTextureUnitManager.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
+  vtkTextureObject.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
@@ -79,7 +80,6 @@ if (NOT ANDROID)
   set(Module_SRCS ${Module_SRCS}
   vtkPixelBufferObject.cxx
   vtkFrameBufferObject.cxx
-  vtkTextureObject.cxx
   )
 endif()
 
