@@ -56,7 +56,6 @@ vtkDelaunay2D::~vtkDelaunay2D()
 }
 
 //----------------------------------------------------------------------------
-// Specify the input data or filter. Old style.
 void vtkDelaunay2D::SetSourceData(vtkPolyData *input)
 {
   this->Superclass::SetInputData(1, input);
