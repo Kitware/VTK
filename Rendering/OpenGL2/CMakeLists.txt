@@ -296,10 +296,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in
 set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
-target_link_libraries(${vtk-module}
+vtk_module_link_libraries(${vtk-module}
   LINK_PRIVATE ${GLEW_LIBRARY}
   LINK_PUBLIC  ${OPENGL_LIBRARIES})
 if(VTK_USE_X)
-  target_link_libraries(${vtk-module}
+  vtk_module_link_libraries(${vtk-module}
     LINK_PUBLIC ${X11_LIBRARIES} ${X11_Xt_LIB})
 endif()

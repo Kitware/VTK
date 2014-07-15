@@ -15,4 +15,6 @@ vtk_module(vtkRenderingLIC
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkOpenGL
   )

@@ -5,4 +5,6 @@ vtk_module(vtkCommonMisc
     vtkCommonMath
   TEST_DEPENDS
     vtkTestingCore
+  KIT
+    vtkCommon
   )

@@ -9,4 +9,6 @@ vtk_module(vtkCommonTransforms
     vtkCommonMath
   TEST_DEPENDS
     vtkTestingCore
+  KIT
+    vtkCommon
   )

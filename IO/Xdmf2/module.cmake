@@ -14,4 +14,6 @@ vtk_module(vtkIOXdmf2
   TEST_DEPENDS
     vtkFiltersGeneral
     vtkTestingCore
+  KIT
+    vtkIO
   )

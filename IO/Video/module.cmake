@@ -5,4 +5,6 @@ vtk_module(vtkIOVideo
     vtkCommonExecutionModel
   PRIVATE_DEPENDS
     vtksys
+  KIT
+    vtkIO
   )

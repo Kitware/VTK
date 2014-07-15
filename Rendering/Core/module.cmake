@@ -10,6 +10,7 @@ vtk_module(vtkRenderingCore
     vtkFiltersExtraction
     vtksys
   TEST_DEPENDS
+    vtkIOLegacy
     vtkIOXML
     vtkTestingCore
     vtkTestingRendering
@@ -20,4 +21,6 @@ vtk_module(vtkRenderingCore
     vtkImagingSources
     vtkFiltersSources
     vtkFiltersProgrammable
+  KIT
+    vtkRendering
   )

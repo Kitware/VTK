@@ -11,4 +11,6 @@ vtk_module(vtkIOExodus
     vtkTestingRendering
     vtkInteractionStyle
     vtkRendering${VTK_RENDERING_BACKEND}
+  KIT
+    vtkIO
   )

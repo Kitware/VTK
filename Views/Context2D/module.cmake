@@ -6,4 +6,6 @@ vtk_module(vtkViewsContext2D
   DEPENDS
     vtkViewsCore
     vtkRenderingContext2D
+  KIT
+    vtkViews
   )

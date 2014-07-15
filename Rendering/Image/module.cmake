@@ -12,4 +12,6 @@ vtk_module(vtkRenderingImage
     vtkInteractionStyle
     vtkImagingSources
     vtkFiltersModeling
+  KIT
+    vtkRendering
   )

@@ -40,5 +40,5 @@ list(APPEND module_SRCS
 set_source_files_properties(${vtk-module}ObjectFactory WRAP_EXCLUDE)
 
 vtk_module_library(${vtk-module} ${module_SRCS})
-target_link_libraries(${vtk-module}
+vtk_module_link_libraries(${vtk-module}
   LINK_PRIVATE ${GLEW_LIBRARY} ${OPENGL_LIBRARIES})

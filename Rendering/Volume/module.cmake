@@ -15,4 +15,6 @@ vtk_module(vtkRenderingVolume
     vtkImagingHybrid
     vtkInteractionStyle
     vtkIOLegacy
+  KIT
+    vtkRendering
   )

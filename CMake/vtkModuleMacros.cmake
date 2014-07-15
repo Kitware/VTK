@@ -57,8 +57,9 @@ macro(vtk_module _name)
   set(${vtk-module}_EXCLUDE_FROM_WRAPPING 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
   set(${vtk-module}_TEST_LABELS "")
+  set(${vtk-module}_KIT "")
   foreach(arg ${ARGN})
-    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS)$")
+    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT)$")
       set(_doing "${arg}")
     elseif("${arg}" MATCHES "^EXCLUDE_FROM_ALL$")
       set(_doing "")
@@ -114,6 +115,8 @@ macro(vtk_module _name)
         list(APPEND VTK_GROUPS ${arg})
       endif()
       list(APPEND VTK_GROUP_${arg}_MODULES ${vtk-module})
+    elseif("${_doing}" MATCHES "^KIT$")
+      set(${vtk-module}_KIT "${arg}")
     else()
       set(_doing "")
       message(AUTHOR_WARNING "Unknown argument [${arg}]")
@@ -513,7 +516,9 @@ endmacro()
 
 function(vtk_add_library name)
   add_library(${name} ${ARGN} ${headers})
-  vtk_target(${name})
+  if(NOT ARGV1 STREQUAL OBJECT)
+    vtk_target(${name})
+  endif()
 endfunction()
 
 function(vtk_add_executable name)
@@ -583,7 +588,7 @@ function(vtk_module_library name)
   if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
       NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
       ( VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA ))
-    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp)
+    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt)
   else()
     set(_hierarchy "")
   endif()
@@ -596,9 +601,41 @@ function(vtk_module_library name)
     set(_help_vs7 0)
   endif()
 
-  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
+  set(target_suffix)
+  set(force_object)
+  set(export_symbol_object)
+  if(_vtk_build_as_kit)
+    # Hack up the target name to end with 'Objects' and make it an OBJECT
+    # library.
+    set(target_suffix Objects)
+    set(force_object ${target_suffix} OBJECT)
+    set(export_symbol_object ${target_suffix} BASE_NAME ${vtk-module})
+    # OBJECT libraries don't like this variable being set; clear it.
+    unset(${vtk-module}_LIB_DEPENDS CACHE)
+  endif()
+  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
+  if(_vtk_build_as_kit)
+    # Make an interface library to link with for libraries.
+    add_library(${vtk-module} INTERFACE)
+    vtk_target_export(${vtk-module})
+    vtk_target_install(${vtk-module})
+    set_target_properties(${vtk-module}
+      PROPERTIES
+        INTERFACE_LINK_LIBRARIES "${_vtk_build_as_kit}")
+    if(BUILD_SHARED_LIBS)
+      # Define a kit-wide export symbol for the objects in this module.
+      set_property(TARGET ${vtk-module}Objects APPEND
+        PROPERTY
+          COMPILE_DEFINITIONS ${${vtk-module}_KIT}_EXPORTS)
+      set_target_properties(${vtk-module}Objects
+        PROPERTIES
+          # Tell generate_export_header what kit-wide export symbol we use.
+          DEFINE_SYMBOL ${${vtk-module}_KIT}_EXPORTS
+          POSITION_INDEPENDENT_CODE TRUE)
+    endif()
+  endif()
   foreach(dep IN LISTS ${vtk-module}_LINK_DEPENDS)
-    target_link_libraries(${vtk-module} LINK_PUBLIC ${${dep}_LIBRARIES})
+    vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${${dep}_LIBRARIES})
     if(_help_vs7 AND ${dep}_LIBRARIES)
       add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
     endif()
@@ -612,7 +649,7 @@ function(vtk_module_library name)
     if(${dep}_LIBRARY_DIRS)
       link_directories(${${dep}_LIBRARY_DIRS})
     endif()
-    target_link_libraries(${vtk-module} LINK_PRIVATE ${${dep}_LIBRARIES})
+    vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${${dep}_LIBRARIES})
     if(_help_vs7 AND ${dep}_LIBRARIES)
       add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
     endif()
@@ -654,15 +691,18 @@ VTK_AUTOINIT(${vtk-module})
   endif()
 
   # Generate the export macro header for symbol visibility/Windows DLL declspec
-  generate_export_header(${vtk-module} EXPORT_FILE_NAME ${vtk-module}Module.h)
-  get_property(_buildtype TARGET ${vtk-module} PROPERTY TYPE)
-  if (NOT "${_buildtype}" STREQUAL STATIC_LIBRARY)
+  if(target_suffix)
+    set(${vtk-module}${target_suffix}_EXPORT_CODE
+      ${${vtk-module}_EXPORT_CODE})
+  endif()
+  generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
+  if (BUILD_SHARED_LIBS)
     # export flags are only added when building shared libs, they cause
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
     # time to do that, we skip visibility flags for static libraries.
     add_compiler_export_flags(my_abi_flags)
-    set_property(TARGET ${vtk-module} APPEND
+    set_property(TARGET ${vtk-module}${target_suffix} APPEND
       PROPERTY COMPILE_FLAGS "${my_abi_flags}")
   endif()
 
@@ -710,6 +750,23 @@ VTK_AUTOINIT(${vtk-module})
       DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
       COMPONENT Development
       )
+  endif()
+endfunction()
+
+function(vtk_module_link_libraries module)
+  if(VTK_ENABLE_KITS AND ${module}_KIT)
+    set_property(GLOBAL APPEND
+      PROPERTY
+        ${${module}_KIT}_LIBS ${ARGN})
+    foreach(dep IN LISTS ARGN)
+      if(TARGET ${dep}Objects)
+        add_dependencies(${module}Objects ${dep}Objects)
+      elseif(TARGET ${dep})
+        add_dependencies(${module}Objects ${dep})
+      endif()
+    endforeach()
+  else()
+    target_link_libraries(${module} ${ARGN})
   endif()
 endfunction()
 

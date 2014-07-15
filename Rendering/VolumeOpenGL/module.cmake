@@ -16,4 +16,6 @@ vtk_module(vtkRenderingVolumeOpenGL
     vtkImagingSources
     vtkImagingGeneral
     vtkInteractionStyle
+  KIT
+    vtkOpenGL
   )

@@ -9,4 +9,6 @@ vtk_module(vtkFiltersAMR
     vtkIOAMR
     vtkTestingCore
     vtkTestingRendering
+  KIT
+    vtkParallel
   )
