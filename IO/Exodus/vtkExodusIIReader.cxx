@@ -1128,7 +1128,8 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   if ( binfo->Size == 0 )
     {
     // No entries in this block.
-    // This happens in parallel filesets when all elements are distributed to other files.
+    // This happens in parallel filesets when all
+    // elements are distributed to other files.
     // Silently ignore.
     return;
     }
@@ -1136,20 +1137,16 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   vtkIntArray* ent = 0;
   if ( binfo->PointsPerCell == 0 )
     {
-    int arrId;
-    if (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN)
-      {
-      arrId = 0;
-      }
-    else
-      {
-      arrId = 1;
-      }
+    int arrId = (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN ? 0 : 1);
     ent = vtkIntArray::SafeDownCast(
-                    this->GetCacheOrRead( vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, arrId ) ) );
+      this->GetCacheOrRead(
+        vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, arrId
+          )));
     if ( ! ent )
       {
-      vtkErrorMacro( "Entity used 0 points per cell, but didn't return poly_hedra correctly" );
+      vtkErrorMacro(
+        "Entity used 0 points per cell, "
+        "but didn't return polyhedra correctly" );
       binfo->Status = 0;
       return;
       }
@@ -1157,15 +1154,18 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     }
 
   vtkIntArray* arr;
-  arr = vtkIntArray::SafeDownCast( this->GetCacheOrRead( vtkExodusIICacheKey( -1, conn_type, obj, 0 ) ) );
+  arr = vtkIntArray::SafeDownCast(
+    this->GetCacheOrRead(
+      vtkExodusIICacheKey( -1, conn_type, obj, 0 )));
   if ( ! arr )
     {
-    vtkWarningMacro( "Block wasn't present in file? Working around it. Expect trouble." );
+    vtkWarningMacro(
+      "Block wasn't present in file? Working around it. Expect trouble." );
     binfo->Status = 0;
     return;
     }
 
-  if ( this->SqueezePoints )
+  if (this->SqueezePoints)
     {
     std::vector<vtkIdType> cellIds;
     cellIds.resize( binfo->PointsPerCell );
@@ -1174,7 +1174,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     for ( int i = 0; i < binfo->Size; ++i )
       {
       int entitiesPerCell;
-      if ( ent != 0)
+      if (ent)
         {
         entitiesPerCell = ent->GetValue (i);
         cellIds.resize( entitiesPerCell );
@@ -1238,10 +1238,10 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       }
 #endif // VTK_USE_64BIT_IDS
     }
-    if (ent)
-      {
-      ent->UnRegister (this);
-      }
+  if (ent)
+    {
+    ent->UnRegister (this);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2181,15 +2181,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     }
   else if ( key.ObjectType == vtkExodusIIReader::ENTITY_COUNTS )
     {
-    int ctypidx;
-    if (key.ArrayId == 0)
-      {
-      ctypidx = 0;
-      }
-    else
-      {
-      ctypidx = 1;
-      }
+    int ctypidx = (key.ArrayId == 0 ? 0 : 1);
     int otypidx = conn_obj_idx_cvt[ctypidx];
     int otyp = obj_types[ otypidx ];
     BlockInfoType* binfop = (BlockInfoType*) this->GetObjectInfo( otypidx, key.ObjectId );
