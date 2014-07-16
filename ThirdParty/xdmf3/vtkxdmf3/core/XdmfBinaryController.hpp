@@ -68,6 +68,8 @@ public:
       const unsigned int seek,
       const std::vector<unsigned int> & dimensions);
 
+  virtual std::string getDescriptor() const;
+
   virtual Endian getEndian() const;
 
   virtual std::string getName() const;

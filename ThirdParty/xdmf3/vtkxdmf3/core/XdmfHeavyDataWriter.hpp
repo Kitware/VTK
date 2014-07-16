@@ -476,34 +476,9 @@ protected:
   XdmfHeavyDataWriter(const std::string & filePath, const double compression = 1, const unsigned int overhead = 0);
 
   virtual shared_ptr<XdmfHeavyDataController>
-  createController(const std::string & hdf5FilePath,
-                   const std::string & dataSetPath,
-                   const shared_ptr<const XdmfArrayType> type,
-                   const std::vector<unsigned int> & start,
-                   const std::vector<unsigned int> & stride,
-                   const std::vector<unsigned int> & dimensions,
-                   const std::vector<unsigned int> & dataspaceDimensions) = 0;
+  createController(const shared_ptr<XdmfHeavyDataController> & refController) = 0;
 
-  virtual void controllerSplitting(XdmfArray & array,
-                                   const int fapl,
-                                   int & controllerIndexOffset,
-                                   shared_ptr<XdmfHeavyDataController> heavyDataController,
-                                   std::string checkFileName,
-                                   std::string checkFileExt,
-                                   std::string dataSetPath,
-                                   std::vector<unsigned int> dimensions,
-                                   std::vector<unsigned int> dataspaceDimensions,
-                                   std::vector<unsigned int> start,
-                                   std::vector<unsigned int> stride,
-                                   std::list<std::string> & filesWritten,
-                                   std::list<shared_ptr<XdmfArray> > & arraysWritten,
-                                   std::list<std::vector<unsigned int> > & startsWritten,
-                                   std::list<std::vector<unsigned int> > & stridesWritten,
-                                   std::list<std::vector<unsigned int> > & dimensionsWritten,
-                                   std::list<std::vector<unsigned int> > & dataSizesWritten,
-                                   std::list<unsigned int> & arrayOffsetsWritten);
-
-  virtual int getDataSetSize(std::string fileName, std::string dataSetName, const int fapl) = 0;
+  virtual int getDataSetSize(const std::string & fileName, const std::string & dataSetName, const int fapl) = 0;
 
   bool mAllowSplitDataSets;
   int mDataSetId;

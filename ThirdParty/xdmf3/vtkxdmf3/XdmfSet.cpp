@@ -99,7 +99,12 @@ XdmfSet::populateItem(const std::map<std::string, std::string> & itemProperties,
     else if(shared_ptr<XdmfArray> array = 
             shared_dynamic_cast<XdmfArray>(*iter)) {
       this->swap(array);
+      if (array->getReference()) {
+        this->setReference(array->getReference());
+        this->setReadMode(XdmfArray::Reference);
+      }
       // TODO: If multiple dataitems.
+      break;
     }
   }
 }

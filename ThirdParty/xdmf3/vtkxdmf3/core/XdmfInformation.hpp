@@ -92,8 +92,8 @@ public:
 
   virtual ~XdmfInformation();
 
-  LOKI_DEFINE_VISITABLE(XdmfInformation, XdmfItem);
-  XDMF_CHILDREN(XdmfInformation, XdmfArray, Array, Name);
+  LOKI_DEFINE_VISITABLE(XdmfInformation, XdmfItem)
+  XDMF_CHILDREN(XdmfInformation, XdmfArray, Array, Name)
   static const std::string ItemTag;
 
   std::map<std::string, std::string> getItemProperties() const;

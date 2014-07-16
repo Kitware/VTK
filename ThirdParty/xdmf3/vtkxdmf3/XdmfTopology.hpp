@@ -79,7 +79,7 @@ public:
 
   virtual ~XdmfTopology();
 
-  LOKI_DEFINE_VISITABLE(XdmfTopology, XdmfArray);
+  LOKI_DEFINE_VISITABLE(XdmfTopology, XdmfArray)
   static const std::string ItemTag;
 
   std::map<std::string, std::string> getItemProperties() const;

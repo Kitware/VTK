@@ -80,7 +80,7 @@ public:
      *
      * @return  The error level of the exception
      */
-    Level getLevel();
+    Level getLevel() const;
 
     /**
      * Sets the level limit for Errors. This determines what level of errors will be thrown with message.
