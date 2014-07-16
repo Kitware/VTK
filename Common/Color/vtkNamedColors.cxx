@@ -857,22 +857,18 @@ void vtkColorStringParser::HexStringToRGBA(vtkStdString color)
       this->StateGood = false;
       }
 
-    // Parse all hex bytes at once.
+    // Parse hex bytes.
     if (this->StateGood)
       {
-      union
-        {
-        unsigned long int value;
-        unsigned char byte[3];
-        }
-      result;
-
-      result.value = strtoul(color.c_str(), NULL, 16);
-
+      std::istringstream istr;
+      int c;
       for (unsigned int i = 0; i < 3; ++i)
-        {
-        this->Color[i] = result.byte[2-i];
-        }
+      {
+        istr.str(color.substr(i * 2, 2));
+        istr >> std::hex >> c;
+        this->Color[i] = static_cast<unsigned char>(c);
+        istr.clear();
+      }
       this->Color[3] = 255;
       }
     }
