@@ -633,7 +633,7 @@ bool vtkChartBox::LocatePointInPlots(const vtkContextMouseEvent &mouse,
           this->GetVisibleColumns()->GetValue(seriesIndex);
         plotIndex.Position = plotPos;
         plotIndex.ScreenPosition = mouse.GetScreenPos();
-        plotIndex.Index = segmentIndex;;
+        plotIndex.Index = segmentIndex;
         // Invoke an event, with the client data supplied
         this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
         }
