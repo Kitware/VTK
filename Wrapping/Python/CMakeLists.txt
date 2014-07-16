@@ -17,6 +17,10 @@ foreach(module ${VTK_PYTHON_MODULES})
   vtk_add_python_wrapping(${module})
 endforeach()
 
+option(VTK_ENABLE_VTKPYTHON "Enable vtkpython and pvtkpython binaries" ON)
+mark_as_advanced(VTK_ENABLE_VTKPYTHON)
+if(VTK_ENABLE_VTKPYTHON)
+
 # Now to build the vtkPython executable, configure the .py files etc.
 get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
@@ -136,6 +140,8 @@ if(TARGET vtkParallelMPI)
     add_custom_command(TARGET pvtkpython POST_BUILD
       COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtkpython)
   endif()
+endif()
+
 endif()
 
 # Handle out-of-source builds correctly.
@@ -289,7 +295,7 @@ if(PYTHON_EXECUTABLE)
     endif()
 
     # Install the conveniently configured python interpretters
-    if(NOT VTK_INSTALL_NO_PYTHON_EXES)
+    if(NOT VTK_INSTALL_NO_PYTHON_EXES AND VTK_ENABLE_VTKPYTHON)
       # Install the vtkpython executable
       install(TARGETS vtkpython
         DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
