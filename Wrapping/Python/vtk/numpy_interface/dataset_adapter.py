@@ -458,7 +458,7 @@ class DataSetAttributes(VTKObjectWrapper):
         kys = []
         narrays = self.VTKObject.GetNumberOfArrays()
         for i in range(narrays):
-            name = self.VTKObject.GetArray(i).GetName()
+            name = self.VTKObject.GetAbstractArray(i).GetName()
             if name:
                 kys.append(name)
         return kys
@@ -468,7 +468,7 @@ class DataSetAttributes(VTKObjectWrapper):
         vals = []
         narrays = self.VTKObject.GetNumberOfArrays()
         for i in range(narrays):
-            a = self.VTKObject.GetArray(i)
+            a = self.VTKObject.GetAbstractArray(i)
             if a.GetName():
                 vals.append(a)
         return vals
