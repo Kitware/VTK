@@ -72,6 +72,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->DepthPeelingIsSupported=0;
   this->DepthPeelingIsSupportedChecked=0;
 
+  this->DepthZData = 0;
   this->OpaqueZTexture = NULL;
   this->TranslucentZTexture = NULL;
   this->OpaqueRGBATexture = NULL;
@@ -199,14 +200,22 @@ vtkOpenGLTexture *vtkOpenGLRendererCreateDepthPeelingTexture(
 }
 
 vtkTextureObject *vtkOpenGLRendererCreateDepthPeelingTextureObject(
-  vtkOpenGLRenderWindow *context, int width, int height, int numComponents, bool isDepth)
+  vtkOpenGLRenderWindow *context, int width, int height, int numComponents, bool isDepth, void *initialData)
 {
   vtkTextureObject *result = vtkTextureObject::New();
   result->SetContext(context);
 
   if (isDepth == true)
     {
-    result->AllocateDepth(width, height, vtkTextureObject::Float32);
+    if (initialData)
+      {
+      result->CreateDepthFromRaw(
+          width, height, vtkTextureObject::Float32, VTK_FLOAT, initialData);
+      }
+    else
+      {
+      result->AllocateDepth(width, height, vtkTextureObject::Float32);
+      }
     }
   else
     {
@@ -236,7 +245,7 @@ int vtkOpenGLRenderer::GetTranslucentRGBATextureUnit()
 }
 int vtkOpenGLRenderer::GetTranslucentZTextureUnit()
 {
-  return vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow)->GetTextureUnitForTexture(this->TranslucentZTexture->GetTextureObject());
+  return this->TranslucentZTexture->GetTextureUnit();
 }
 int vtkOpenGLRenderer::GetCurrentRGBATextureUnit()
 {
@@ -320,10 +329,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           this->OpaqueRGBATexture->GetWidth() != this->ViewportWidth ||
           this->OpaqueRGBATexture->GetHeight() != this->ViewportHeight))
       {
-      this->TranslucentZTexture->GetImageDataInput(0)->SetExtent(
-        0,this->ViewportWidth-1, 0, this->ViewportHeight-1, 0,0);
-      this->TranslucentZTexture->GetImageDataInput(0)->AllocateScalars(VTK_FLOAT,1);
-      this->TranslucentZTexture->GetImageDataInput(0)->Modified();
+      delete this->DepthZData;
+      this->DepthZData = 0;
 
       this->OpaqueZTexture->UnRegister(this);
       this->OpaqueZTexture = 0;
@@ -347,20 +354,19 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     // create textures we need if not done already
     if (this->OpaqueZTexture == NULL)
       {
-      if (this->TranslucentZTexture == NULL)
-        {
-        this->TranslucentZTexture = vtkOpenGLRendererCreateDepthPeelingTexture(
-          this->ViewportWidth, this->ViewportHeight, 1, true);
-        }
       this->OpaqueZTexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 1, true);
+        context, this->ViewportWidth, this->ViewportHeight, 1, true, NULL);
       this->OpaqueRGBATexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 4, false);
+        context, this->ViewportWidth, this->ViewportHeight, 4, false, NULL);
       this->TranslucentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 4, false);
+        context, this->ViewportWidth, this->ViewportHeight, 4, false, NULL);
       this->CurrentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 4, false);
+        context, this->ViewportWidth, this->ViewportHeight, 4, false, NULL);
+      this->DepthZData = new std::vector<float>(this->ViewportWidth * this->ViewportHeight, 0.0);
       }
+
+    this->TranslucentZTexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
+      context, this->ViewportWidth, this->ViewportHeight, 1, true, &((*this->DepthZData)[0]));
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 //    glClearColor(0.0,0.0,0.0,0.0); // always clear to black
@@ -379,15 +385,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->ViewportX, this->ViewportY,
       this->ViewportWidth, this->ViewportHeight);
 
-    // Initialize TranslucentZ to 0.0
-    vtkImageData *id = this->TranslucentZTexture->GetImageDataInput(0);
-    float *tzData = (float *)id->GetScalarPointer();
-    for (int i = 0; i < this->ViewportHeight*this->ViewportWidth; ++i)
-      {
-      *(tzData++) = 0.0;
-      }
-    id->Modified();
-    this->TranslucentZTexture->Load(this);
+    this->TranslucentZTexture->Activate();
+    this->OpaqueZTexture->Activate();
 
     // Do render loop until complete
     unsigned int threshold=
@@ -406,7 +405,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       {
       // clear the zbuffer and color buffers
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      this->OpaqueZTexture->Activate();
 
       // render the translucent geometry
       this->LastRenderingUsedDepthPeeling=1;
@@ -416,7 +414,9 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->UpdateTranslucentPolygonalGeometry();
 
       // update translucentZ
-      this->TranslucentZTexture->CopyTexImage(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
+      this->TranslucentZTexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
+          this->ViewportX, this->ViewportY,
+          this->ViewportWidth, this->ViewportHeight);
       previousNbPixels = nbPixels;
 
 #if GL_ES_VERSION_2_0 != 1
@@ -454,7 +454,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     // unload the textures we are done with
     this->CurrentRGBATexture->Deactivate();
     this->OpaqueZTexture->Deactivate();
-    this->TranslucentZTexture->PostRender(this);
+    this->TranslucentZTexture->UnRegister(this);
+    this->TranslucentZTexture = 0;
 
     // blend in OpaqueRGBA
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -817,6 +818,11 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     this->Pass = NULL;
     }
 
+  if (this->DepthZData)
+    {
+    delete this->DepthZData;
+    this->DepthZData = 0;
+    }
   if (this->OpaqueZTexture)
     {
     this->OpaqueZTexture->UnRegister(this);

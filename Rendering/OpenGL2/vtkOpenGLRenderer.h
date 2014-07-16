@@ -22,6 +22,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
+#include <vector>
 
 class vtkRenderPass;
 class vtkOpenGLTexture;
@@ -126,11 +127,12 @@ protected:
   // technique have been checked.
   int DepthPeelingIsSupportedChecked;
   vtkTexturedActor2D *DepthPeelingActor;
+  std::vector<float> *DepthZData;
 
   vtkTextureObject *OpaqueZTexture;
   vtkTextureObject *OpaqueRGBATexture;
   vtkTextureObject *TranslucentRGBATexture;
-  vtkOpenGLTexture *TranslucentZTexture;
+  vtkTextureObject *TranslucentZTexture;
   vtkTextureObject *CurrentRGBATexture;
 
 
