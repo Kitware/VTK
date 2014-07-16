@@ -160,6 +160,12 @@ public:
   virtual int GetFieldType();
 
   // Description:
+  // Methods to convert vtkSelectionNode::SelectionField to
+  // vtkDataSetAttribute::AttributeTypes and vice-versa.
+  static int ConvertSelectionFieldToAttributeType(int val);
+  static int ConvertAttributeTypeToSelectionField(int val);
+
+  // Description:
   // Set/Get the query expression string.
   vtkSetStringMacro(QueryString);
   vtkGetStringMacro(QueryString);
