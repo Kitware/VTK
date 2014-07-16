@@ -170,11 +170,32 @@ int vtkOpenGLShaderCache::CompileShader(vtkOpenGLShaderCache::CachedShaderProgra
   if (!shader->VS.Compile())
     {
     vtkErrorMacro(<< shader->VS.GetError());
+
+    int lineNum = 1;
+    std::istringstream stream(shader->VS.GetSource());
+    std::stringstream sstm;
+    std::string aline;
+    while (std::getline(stream, aline))
+      {
+      sstm << lineNum << ": " << aline << "\n";
+      lineNum++;
+      }
+    vtkErrorMacro(<< sstm.str());
     return 0;
     }
   if (!shader->FS.Compile())
     {
     vtkErrorMacro(<< shader->FS.GetError());
+    int lineNum = 1;
+    std::istringstream stream(shader->FS.GetSource());
+    std::stringstream sstm;
+    std::string aline;
+    while (std::getline(stream, aline))
+      {
+      sstm << lineNum << ": " << aline << "\n";
+      lineNum++;
+      }
+    vtkErrorMacro(<< sstm.str());
     return 0;
     }
   if (!shader->Program.AttachShader(shader->VS))
