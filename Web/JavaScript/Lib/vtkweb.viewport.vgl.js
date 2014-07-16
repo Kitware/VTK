@@ -74,6 +74,9 @@
     return a;
   }
 
+  function getKey(object) {
+      return object.id + '_' + object.md5 + '_' + object.part;
+  }
 
   // ----------------------------------------------------------------------
   // 3D object handler
@@ -81,12 +84,6 @@
 
   function create3DObjectHandler() {
     var objectIndex = {}, displayList = {}, sceneJSON;
-
-    // ------------------------------------------------------------------
-
-    function getKey(object) {
-      return object.id + '_' + object.md5;
-    }
 
     return {
       fetchMissingObjects: function(fetchMethod, sceneJSON) {
@@ -119,19 +116,19 @@
     m_canvas2D = GLOBAL.document.createElement('canvas'),
     m_canvas3D = GLOBAL.document.createElement('canvas'),
     m_ctx2d = m_canvas2D.getContext('2d'),
-    gl = m_canvas3D.getContext("experimental-webgl") || m_canvas3D.getContext("webgl"),
+    gl = m_canvas3D.getContext("webgl") || m_canvas3D.getContext("experimental-webgl"),
     m_rendererAttrs = $(m_divContainer).addClass(FACTORY_KEY).css(RENDERER_CSS).append($(m_canvas2D).css(RENDERER_CSS).css(RENDERER_CSS_2D)).append($(m_canvas3D).css(RENDERER_CSS).css(RENDERER_CSS_3D)),
     m_sceneJSON = null,
     m_objectHandler = create3DObjectHandler(),
-    m_vglVtkReader = ogs.vgl.vtkReader(),
+    m_vglVtkReader = vgl.vtkReader(),
     m_viewer = null,
     m_interactorStyle,
     originalMouseDown =  document.onmousedown,
     originalMouseUp = document.onmouseup,
     originalMouseMove = document.onmousemove,
     originalContextMenu = document.oncontextmenu,
-
     m_background = null;
+    m_vglActors = {}
 
     // Helper functions -------------------------------------------------
     function fetchScene() {
@@ -141,6 +138,10 @@
         stat_value: 0
       });
       m_session.call("viewport.webgl.metadata", [Number(m_options.view)]).then(function(data) {
+        if (m_sceneData === data) {
+          return;
+        }
+        m_sceneData = data;
         m_sceneJSON = JSON.parse(data);
         m_vglVtkReader.setVtkScene(m_sceneJSON);
         m_container.trigger({
@@ -157,7 +158,7 @@
     function fetchObject(sceneObject, part) {
       try {
         var viewId = Number(m_options.view),
-        newObject;
+        newObject, renderer, actor, key;
 
         m_container.trigger({
           type: 'stats',
@@ -182,9 +183,29 @@
               hasTransparency: sceneObject.transparency,
               layer: sceneObject.layer
             };
-            if (newObject.layer === 0) {
-              m_vglVtkReader.addVtkObjectData(newObject);
+
+            renderer = m_vglVtkReader.getRenderer(sceneObject.layer);
+            key = getKey(newObject);
+
+            // Parse the new object if its not parsed already
+            // if parsed already then check if exists in  current renderer
+            if (key in m_vglActors) {
+                actor = m_vglActors[key];
+                // if exists in current renderer do nothing
+                if (!renderer.hasActor(actor)) {
+                    renderer.addActor(actor);
+                }
             }
+            // if not parsed then parse it, create actor and add it to the
+            // renderer.
+            else {
+                actor = m_vglVtkReader.parseObject(newObject);
+                m_vglActors[key] = actor;
+                renderer.addActor(actor);
+            }
+            // Mark the actor as valid
+            actor.invalid = false;
+
             // Redraw the scene
             drawScene();
           } catch(error) {
@@ -199,20 +220,12 @@
     // ------------------------------------------------------------------
 
     function drawScene() {
-      var layer, viewer;
+      var layer;
 
       try {
         if (m_sceneJSON === null || typeof m_sceneJSON === 'undefined') {
           return;
         }
-
-        viewer = m_vglVtkReader.updateViewer(m_canvas3D);
-
-        if (viewer === null) {
-          return;
-        }
-
-        m_viewer = viewer;
 
         var width = m_rendererAttrs.width(),
         height = m_rendererAttrs.height(),
@@ -225,34 +238,9 @@
           stat_value: 0
         });
 
-        // Clear 2D overlay canvas
-        m_ctx2d.canvas.width = width;
-        m_ctx2d.canvas.height = height;
-        m_ctx2d.clearRect(0, 0, width, height);
-
-        HTMLCanvasElement.prototype.relMouseCoords =
-          m_viewer.relMouseCoords;
-
-        m_container.on('mouse', function(event) {
-          if (m_viewer) {
-            if (event.action === 'move') {
-              m_viewer.handleMouseMove(event.originalEvent);
-            }
-            else if (event.action === 'up') {
-              m_viewer.handleMouseUp(event.originalEvent);
-            }
-            else if (event.action === 'down') {
-              m_viewer.handleMouseDown(event.originalEvent);
-            }
-          }
-        });
-
-        m_interactorStyle = m_viewer.interactorStyle();
-        $(m_interactorStyle).on(ogs.vgl.command.leftButtonPressEvent, m_viewer.render);
-        $(m_interactorStyle).on(ogs.vgl.command.middleButtonPressEvent, m_viewer.render);
-        $(m_interactorStyle).on(ogs.vgl.command.rightButtonPressEvent, m_viewer.render);
-
         m_viewer.render();
+
+        numObjects = m_vglVtkReader.numObjects();
 
         // Update frame rate
         m_container.trigger({
@@ -264,7 +252,7 @@
         m_container.trigger({
           type: 'stats',
           stat_id: 'webgl-nb-objects',
-          stat_value: nbObjects
+          stat_value: numObjects
         });
       } catch(error) {
         console.log(error);
@@ -289,9 +277,24 @@
     // ------------------------------------------------------------------
 
     function updateScene() {
+      var key;
+
       try{
         if(m_sceneJSON === null || typeof(m_sceneJSON) === "undefined") {
           return;
+        }
+
+        m_vglVtkReader.initScene();
+
+        // Mark all actors as invalid
+        for (key in m_vglActors) {
+          if (m_vglActors[key].invalid !== undefined &&
+              !m_vglActors[key].invalid) {
+            delete m_vglActors[key];
+          }
+          else {
+            m_vglActors[key].invalid = true;
+          }
         }
 
         // Fetch the object that we are missing
@@ -312,19 +315,43 @@
     // Add viewport listener
     m_container.bind('invalidateScene', function() {
       if(m_rendererAttrs.hasClass('active')){
-        m_vglVtkReader = ogs.vgl.vtkReader();
+
+        if (m_vglVtkReader === null) {
+          m_vglVtkReader = vgl.vtkReader();
+        } else {
+          m_vglVtkReader.deleteViewer();
+        }
+
         m_canvas3D.width = m_rendererAttrs.width();
         m_canvas3D.height = m_rendererAttrs.height();
+        m_viewer = m_vglVtkReader.createViewer(m_canvas3D);
+        m_viewer.renderWindow().activeRenderer().setResetScene(false);
+        m_viewer.renderWindow().activeRenderer().setResetClippingRange(false);
+
+
+
+        // Bind mouse event handlers
+        m_container.on('mouse', function(event) {
+            if (m_viewer) {
+              if (event.action === 'move') {
+                m_viewer.handleMouseMove(event.originalEvent);
+              }
+              else if (event.action === 'up') {
+                m_viewer.handleMouseUp(event.originalEvent);
+              }
+              else if (event.action === 'down') {
+                m_viewer.handleMouseDown(event.originalEvent);
+              }
+            }
+        });
+
         fetchScene();
-      }
-      else {
-        originalMouseDown =  document.onmousedown;
-        originalMouseUp = document.onmouseup;
-        originalMouseMove = document.onmousemove;
-        originalContextMenu = document.oncontextmenu;
       }
     }).bind('render', function(){
       if(m_rendererAttrs.hasClass('active')){
+        m_canvas3D.width = m_rendererAttrs.width();
+        m_canvas3D.height = m_rendererAttrs.height();
+        m_viewer = m_vglVtkReader.updateCanvas(m_canvas3D);
         drawScene();
       }
     }).bind('resetViewId', function(e){
