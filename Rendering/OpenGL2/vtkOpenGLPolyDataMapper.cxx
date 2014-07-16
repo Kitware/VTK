@@ -452,9 +452,6 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
     cellBO.attributeUpdateTime.Modified();
     }
 
-
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-
   if (layout.TCoordComponents)
     {
     vtkTexture *texture = actor->GetTexture();

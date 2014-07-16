@@ -138,6 +138,9 @@ public:
   // Description:
   // Activate and Bind the texture
   void Activate();
+
+  // Description:
+  // Deactivate and UnBind the texture
   void Deactivate();
 
 
@@ -208,8 +211,6 @@ public:
   // vtkPixelBufferObject once it done with it.
   vtkPixelBufferObject* Download();
 
-#endif
-
   // Description:
   // Create a 2D depth texture using a PBO.
   // \pre: valid_internalFormat: internalFormat>=0 && internalFormat<NumberOfDepthFormats
@@ -217,6 +218,8 @@ public:
                    unsigned int height,
                    int internalFormat,
                    vtkPixelBufferObject *pbo);
+
+#endif
 
   // Description:
   // Create a 2D depth texture but does not initialize its values.
@@ -244,8 +247,6 @@ public:
 
   // Description:
   // Create texture without uploading any data.
-  // To create a DEPTH_COMPONENT texture, vtktype must be set to VTK_VOID and
-  // numComps must be 1.
   bool Create2D(unsigned int width, unsigned int height, int numComps,
                 int vtktype,
                 bool shaderSupportsTextureInt);

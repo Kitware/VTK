@@ -314,6 +314,9 @@ vtkOpenGLRenderWindow* vtkTextureObject::GetContext()
 //----------------------------------------------------------------------------
 void vtkTextureObject::DestroyTexture()
 {
+  // deactivate it first
+  this->Deactivate();
+
   // because we don't hold a reference to the render
   // context we don't have any control on when it is
   // destroyed. In fact it may be destroyed before
@@ -392,6 +395,7 @@ void vtkTextureObject::Deactivate()
 {
   if (this->Context)
     {
+    this->Context->ActivateTexture(this);
     this->UnBind();
     this->Context->DeactivateTexture(this);
     }
@@ -406,7 +410,7 @@ void vtkTextureObject::Bind()
   glBindTexture(this->Target, this->Handle);
   vtkOpenGLCheckErrorMacro("failed at glBindTexture");
 
-  if (this->AutoParameters && (this->GetMTime()>this->SendParametersTime))
+  if (this->AutoParameters && (this->GetMTime() > this->SendParametersTime))
     {
     this->SendParameters();
     }
@@ -1764,7 +1768,6 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
   this->Activate();
   glCopyTexImage2D(this->Target,0,this->Format,srcXmin,srcYmin,width,height,0);
   vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D");
-  this->Deactivate();
 
 #else
 

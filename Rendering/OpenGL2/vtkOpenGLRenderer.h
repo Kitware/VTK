@@ -25,6 +25,7 @@
 
 class vtkRenderPass;
 class vtkOpenGLTexture;
+class vtkTextureObject;
 class vtkTexturedActor2D;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
@@ -126,11 +127,11 @@ protected:
   int DepthPeelingIsSupportedChecked;
   vtkTexturedActor2D *DepthPeelingActor;
 
-  vtkOpenGLTexture *OpaqueZTexture;
-  vtkOpenGLTexture *OpaqueRGBATexture;
-  vtkOpenGLTexture *TranslucentRGBATexture;
+  vtkTextureObject *OpaqueZTexture;
+  vtkTextureObject *OpaqueRGBATexture;
+  vtkTextureObject *TranslucentRGBATexture;
   vtkOpenGLTexture *TranslucentZTexture;
-  vtkOpenGLTexture *CurrentRGBATexture;
+  vtkTextureObject *CurrentRGBATexture;
 
 
   // Description:
