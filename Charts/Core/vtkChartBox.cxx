@@ -614,7 +614,7 @@ bool vtkChartBox::LocatePointInPlots(const vtkContextMouseEvent &mouse,
       5*(1.0/transform->GetMatrix()->GetElement(1, 1)));
 
     vtkPlot* plot = this->Storage->Plot.GetPointer();
-    vtkIdType segmentIndex;
+    vtkIdType segmentIndex = -1;
     int seriesIndex =
       LocatePointInPlot(position, tolerance, plotPos, plot, segmentIndex);
 
