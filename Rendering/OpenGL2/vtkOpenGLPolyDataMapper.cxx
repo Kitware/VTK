@@ -135,24 +135,32 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
           (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
       {
       FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                    "vec3 ambientColor = vertexColor.rgb; vec3 diffuseColor = diffuseColorUniform.rgb; float opacity = vertexColor.a;");
+                                  "vec3 ambientColor = vertexColor.rgb;\n"
+                                  "vec3 diffuseColor = diffuseColorUniform.rgb;\n"
+                                  "float opacity = vertexColor.a;");
       }
     else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
           (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
       {
       FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                  "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = ambientColorUniform; float opacity = vertexColor.a;");
+                                  "vec3 diffuseColor = vertexColor.rgb;\n"
+                                  "vec3 ambientColor = ambientColorUniform;\n"
+                                  "float opacity = vertexColor.a;");
       }
     else
       {
       FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                   "vec3 diffuseColor = vertexColor.rgb; vec3 ambientColor = vertexColor.rgb; float opacity = vertexColor.a;");
+                                  "vec3 diffuseColor = vertexColor.rgb;\n"
+                                  "vec3 ambientColor = vertexColor.rgb;\n"
+                                  "float opacity = vertexColor.a;");
       }
     }
   else
     {
     FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                  "vec3 ambientColor = ambientColorUniform; vec3 diffuseColor = diffuseColorUniform; float opacity = opacityUniform;");
+                                "vec3 ambientColor = ambientColorUniform;\n"
+                                "vec3 diffuseColor = diffuseColorUniform;\n"
+                                "float opacity = opacityUniform;");
     }
   // normals?
   if (this->layout.NormalOffset)
@@ -187,7 +195,7 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
                                    "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
-                                   "if (normalVC.z < 0) { normalVC = -1.0*normalVC; }"
+                                   "if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
                                    );
       }
     }
