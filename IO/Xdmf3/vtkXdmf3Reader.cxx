@@ -1441,7 +1441,6 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
     output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
     }
 
-  cerr << "DT " << (doTime?"T":"F") << endl;
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
   this->Internal->ReadHeavyData(
       updatePiece, updateNumPieces,
