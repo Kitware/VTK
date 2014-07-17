@@ -52,20 +52,32 @@ public:
       this->Controller->Initialize(argc, argv, 1);
       vtkMultiProcessController::SetGlobalController(this->Controller);
     }
+  void Cleanup()
+    {
+    if ( this->Controller )
+      {
+      this->Controller->Finalize();
+      this->Controller->Delete();
+      this->Controller = NULL;
+      vtkMultiProcessController::SetGlobalController(NULL);
+      }
+    }
   ~vtkMPICleanup()
     {
-      if ( this->Controller )
-        {
-        this->Controller->Finalize();
-        this->Controller->Delete();
-        }
+    this->Cleanup();
     }
+
 private:
   vtkMPIController *Controller;
 };
 
 static vtkMPICleanup VTKMPICleanup;
-
+// AtExitCallback is needed to finalize the MPI controller if the python script
+// calls sys.exit() directly.
+static void AtExitCallback()
+{
+  VTKMPICleanup.Cleanup();
+}
 #endif // VTK_COMPILED_USING_MPI
 
 extern "C" {
@@ -98,6 +110,7 @@ int main(int argc, char **argv)
 
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
+  Py_AtExit(::AtExitCallback);
 #endif // VTK_COMPILED_USING_MPI
 
   int displayVersion = 0;
