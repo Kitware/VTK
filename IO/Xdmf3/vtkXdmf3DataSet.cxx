@@ -516,19 +516,29 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
         {
         switch (atype)
           {
-          //TODO: found a case here where setting two different arrays removed first somehow.
-          //track it down if it comes up again
           case SCALAR:
-            fdAsDSA->SetScalars(array);
+            if (!fdAsDSA->GetScalars())
+              {
+              fdAsDSA->SetScalars(array);
+              }
             break;
           case VECTOR:
-            fdAsDSA->SetVectors(array);
+            if (!fdAsDSA->GetVectors())
+              {
+              fdAsDSA->SetVectors(array);
+              }
             break;
           case TENSOR:
-            fdAsDSA->SetTensors(array);
+            if (!fdAsDSA->GetTensors())
+              {
+              fdAsDSA->SetTensors(array);
+              }
             break;
           case GLOBALID:
-            fdAsDSA->SetGlobalIds(array);
+            if (!fdAsDSA->GetGlobalIds())
+              {
+              fdAsDSA->SetGlobalIds(array);
+              }
             break;
           }
         }
