@@ -211,7 +211,18 @@ def vtk_to_numpy(vtk_array):
 
     # Get the data via the buffer interface
     dtype = get_numpy_array_type(typ)
-    result = numpy.frombuffer(vtk_array, dtype=dtype)
+    try:
+        result = numpy.frombuffer(vtk_array, dtype=dtype)
+    except ValueError:
+        # http://mail.scipy.org/pipermail/numpy-tickets/2011-August/005859.html
+        # numpy 1.5.1 (and maybe earlier) has a bug where if frombuffer is
+        # called with an empty buffer, it throws ValueError exception. This
+        # handles that issue.
+        if shape[0] == 0:
+            # create an empty array with the given shape.
+            result = numpy.empty(shape, dtype=dtype)
+        else:
+            raise
     if shape[1] == 1:
         shape = (shape[0], )
     result.shape = shape
