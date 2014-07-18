@@ -8,4 +8,6 @@ vtk_module(vtkCommonColor
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkCommon
 )

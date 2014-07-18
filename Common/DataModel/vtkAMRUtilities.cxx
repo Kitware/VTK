@@ -16,19 +16,14 @@
 #include "vtkAMRInformation.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCellData.h"
-#include "vtkCommunicator.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkDataArray.h"
 #include "vtkFieldData.h"
-#include "vtkMath.h"
-#include "vtkMultiProcessController.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
 #include "vtkStructuredData.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRInformation.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkSmartPointer.h"
-#include "vtkCompositeDataIterator.h"
 #include <cmath>
 #include <limits>
 #include <cassert>
@@ -39,153 +34,11 @@
 #define JMAX(ext) ext[3]
 #define KMIN(ext) ext[4]
 #define KMAX(ext) ext[5]
-#define PRINT(x) cout<<"("<<myRank<<")"<<x<<endl;
 
-namespace
-{
-  void BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx, std::vector<std::vector<unsigned int> >& children,
-                         const std::vector<int>& processMap)
-  {
-    unsigned int numDataSets = amr->GetNumberOfDataSets(levelIdx);
-    int N;
-
-    for( unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
-      {
-      const vtkAMRBox& box = amr->GetAMRBox(levelIdx, dataSetIdx);
-      vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataSetIdx);
-      if (grid == NULL )
-        {
-        continue;
-        }
-      N = grid->GetNumberOfCells();
-
-      vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
-      vis->SetName("visibility");
-      vis->SetNumberOfTuples( N );
-      vis->FillComponent(0,static_cast<char>(1));
-      grid->SetCellVisibilityArray(vis);
-      vis->Delete();
-
-      if (children.size() <= dataSetIdx)
-        continue;
-
-      std::vector<unsigned int>& dsChildren = children[dataSetIdx];
-      std::vector<unsigned int>::iterator iter;
-
-      // For each higher res box fill in the cells that
-      // it covers
-      for (iter=dsChildren.begin(); iter!=dsChildren.end(); iter++)
-        {
-        vtkAMRBox ibox;;
-        int childGridIndex  = amr->GetCompositeIndex(levelIdx+1, *iter);
-        if(processMap[childGridIndex]<0)
-          {
-          continue;
-          }
-        if (amr->GetAMRInfo()->GetCoarsenedAMRBox(levelIdx+1, *iter, ibox))
-          {
-          ibox.Intersect(box);
-          const int *loCorner=ibox.GetLoCorner();
-          int hi[3];
-          ibox.GetValidHiCorner(hi);
-          for( int iz=loCorner[2]; iz<=hi[2]; iz++ )
-            {
-            for( int iy=loCorner[1]; iy<=hi[1]; iy++ )
-              {
-              for( int ix=loCorner[0]; ix<=hi[0]; ix++ )
-                {
-                vtkIdType id =  vtkAMRBox::GetCellLinearIndex(box,ix, iy, iz, grid->GetDimensions());
-                vis->SetValue(id, 0);
-                } // END for x
-              } // END for y
-            } // END for z
-          }
-        } // Processing all higher boxes for a specific coarse grid
-      }
-  }
-};
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-}
-
-//------------------------------------------------------------------------------
-void vtkAMRUtilities::DistributeProcessInformation(vtkOverlappingAMR* amr,
-                                                   vtkMultiProcessController *controller,
-                                                   std::vector<int>& processMap)
-{
-  processMap.resize(amr->GetTotalNumberOfBlocks(),-1);
-  vtkSmartPointer<vtkCompositeDataIterator> iter;
-  iter.TakeReference(amr->NewIterator());
-  iter->SkipEmptyNodesOn();
-
-  if(!controller || controller->GetNumberOfProcesses()==1)
-    {
-    for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
-      unsigned int index = iter->GetCurrentFlatIndex();
-      processMap[index] = 0;
-      }
-    return;
-    }
-  vtkAMRInformation* amrInfo = amr->GetAMRInfo();
-  int myRank = controller->GetLocalProcessId();
-  int numProcs   = controller->GetNumberOfProcesses();
-
-  //get the active process ids
-  std::vector<int> myBlocks;
-  for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
-    myBlocks.push_back(iter->GetCurrentFlatIndex());
-    }
-
-  vtkIdType myNumBlocks = myBlocks.size();
-  std::vector<vtkIdType> numBlocks(numProcs,0);
-  numBlocks[myRank] = myNumBlocks;
-
-  //gather the active process counts
-  controller->AllGather( &myNumBlocks, &numBlocks[0], 1);
-
-  //gather the blocks each process owns into one array
-  std::vector<vtkIdType> offsets(numProcs,0);
-  vtkIdType currentOffset(0);
-  for(int i=0; i<numProcs;i++)
-    {
-    offsets[i] = currentOffset;
-    currentOffset+=numBlocks[i];
-    }
-  PRINT("total # of active blocks: "<<currentOffset<<" out of total "<<amrInfo->GetTotalNumberOfBlocks());
-  std::vector<int> allBlocks(currentOffset,-1);
-  controller->AllGatherV(&myBlocks[0], &allBlocks[0], (vtkIdType)myBlocks.size(), &numBlocks[0], &offsets[0] );
-
-#ifdef DEBUG
-  if(myRank==0)
-    {
-    for(int i=0; i<numProcs; i++)
-      {
-      vtkIdType offset= offsets[i];
-      int n = numBlocks[i];
-      cout<<"Rank "<<i<<" has: ";
-      for(vtkIdType j=offset; j<offset+n; j++)
-        {
-        cout<<allBlocks[j]<<" ";
-        }
-      cout<<endl;
-      }
-    }
-#endif
-  for(int rank=0; rank<numProcs; rank++)
-    {
-    int offset= offsets[rank];
-    int n = numBlocks[rank];
-    for(int j=offset; j<offset+n; j++)
-      {
-      int index = allBlocks[j];
-      assert(index>=0);
-      processMap[index] =rank;
-      }
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -438,8 +291,7 @@ vtkUniformGrid* vtkAMRUtilities::StripGhostLayersFromGrid(
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::StripGhostLayers(
         vtkOverlappingAMR *ghostedAMRData,
-        vtkOverlappingAMR *strippedAMRData,
-        vtkMultiProcessController *controller)
+        vtkOverlappingAMR *strippedAMRData)
 {
   assert("pre: input AMR data is NULL" && (ghostedAMRData != NULL) );
   assert("pre: outputAMR data is NULL" && (strippedAMRData != NULL) );
@@ -504,30 +356,99 @@ void vtkAMRUtilities::StripGhostLayers(
         }
       } // END for all data at the given level
     } // END for all levels
-
-  if( controller != NULL )
-    {
-    controller->Barrier();
-    }
 }
 
-void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr,  vtkMultiProcessController *myController)
+//------------------------------------------------------------------------------
+void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
 {
   vtkAMRInformation* info = amr->GetAMRInfo();
   if(!info->HasRefinementRatio())
     {
     info->GenerateRefinementRatio();
     }
-  unsigned int numLevels =info->GetNumberOfLevels();
   if(!info->HasChildrenInformation())
     {
     info->GenerateParentChildInformation();
     }
 
   std::vector<int> processorMap;
-  vtkAMRUtilities::DistributeProcessInformation(amr,myController,processorMap);
+  processorMap.resize(amr->GetTotalNumberOfBlocks(),-1);
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(amr->NewIterator());
+  iter->SkipEmptyNodesOn();
+
+  for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    unsigned int index = iter->GetCurrentFlatIndex();
+    processorMap[index] = 0;
+    }
+
+  unsigned int numLevels =info->GetNumberOfLevels();
   for(unsigned int i=0; i<numLevels; i++)
     {
     BlankGridsAtLevel(amr, i, info->GetChildrenAtLevel(i),processorMap);
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
+                        std::vector<std::vector<unsigned int> >& children,
+                        const std::vector<int>& processMap)
+{
+  unsigned int numDataSets = amr->GetNumberOfDataSets(levelIdx);
+  int N;
+
+  for( unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
+    {
+    const vtkAMRBox& box = amr->GetAMRBox(levelIdx, dataSetIdx);
+    vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataSetIdx);
+    if (grid == NULL )
+      {
+      continue;
+      }
+    N = grid->GetNumberOfCells();
+
+    vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
+    vis->SetName("visibility");
+    vis->SetNumberOfTuples( N );
+    vis->FillComponent(0,static_cast<char>(1));
+    grid->SetCellVisibilityArray(vis);
+    vis->Delete();
+
+    if (children.size() <= dataSetIdx)
+      continue;
+
+    std::vector<unsigned int>& dsChildren = children[dataSetIdx];
+    std::vector<unsigned int>::iterator iter;
+
+    // For each higher res box fill in the cells that
+    // it covers
+    for (iter=dsChildren.begin(); iter!=dsChildren.end(); iter++)
+      {
+      vtkAMRBox ibox;;
+      int childGridIndex  = amr->GetCompositeIndex(levelIdx+1, *iter);
+      if(processMap[childGridIndex]<0)
+        {
+        continue;
+        }
+      if (amr->GetAMRInfo()->GetCoarsenedAMRBox(levelIdx+1, *iter, ibox))
+        {
+        ibox.Intersect(box);
+        const int *loCorner=ibox.GetLoCorner();
+        int hi[3];
+        ibox.GetValidHiCorner(hi);
+        for( int iz=loCorner[2]; iz<=hi[2]; iz++ )
+          {
+          for( int iy=loCorner[1]; iy<=hi[1]; iy++ )
+            {
+            for( int ix=loCorner[0]; ix<=hi[0]; ix++ )
+              {
+              vtkIdType id =  vtkAMRBox::GetCellLinearIndex(box,ix, iy, iz, grid->GetDimensions());
+              vis->SetValue(id, 0);
+              } // END for x
+            } // END for y
+          } // END for z
+        }
+      } // Processing all higher boxes for a specific coarse grid
     }
 }

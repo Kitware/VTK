@@ -11,4 +11,6 @@ vtk_module(vtkIOParallelNetCDF
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkParallel
   )

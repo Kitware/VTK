@@ -17,4 +17,6 @@ vtk_module(vtkIOGeometry
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkIO
   )

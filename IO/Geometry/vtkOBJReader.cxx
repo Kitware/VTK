@@ -157,6 +157,7 @@ int vtkOBJReader::RequestData(
   float xyz[3];
 
   int lineNr = 0;
+  int numPoints = 0;
   while (everything_ok && fgets(rawLine, MAX_LINE, in) != NULL)
     {
     lineNr++;
@@ -186,6 +187,7 @@ int vtkOBJReader::RequestData(
       if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
         {
         points->InsertNextPoint(xyz);
+        numPoints++;
         }
       else
         {
@@ -237,7 +239,14 @@ int vtkOBJReader::RequestData(
           int iVert;
           if (sscanf(pLine, "%d", &iVert) == 1)
             {
-            pointElems->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              pointElems->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              pointElems->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (strcmp(pLine, "\\\n") == 0)
@@ -298,12 +307,26 @@ int vtkOBJReader::RequestData(
           if (sscanf(pLine, "%d/%d", &iVert, &dummyInt) == 2)
             {
             // we simply ignore texture information
-            lineElems->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              lineElems->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              lineElems->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (sscanf(pLine, "%d", &iVert) == 1)
             {
-            lineElems->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              lineElems->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              lineElems->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (strcmp(pLine, "\\\n") == 0)
@@ -366,7 +389,14 @@ int vtkOBJReader::RequestData(
           int iVert,iTCoord,iNormal;
           if (sscanf(pLine, "%d/%d/%d", &iVert, &iTCoord, &iNormal) == 3)
             {
-            polys->InsertCellPoint(iVert-1); // convert to 0-based index
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
             nTCoords++;
@@ -379,7 +409,14 @@ int vtkOBJReader::RequestData(
             }
           else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
             {
-            polys->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             normal_polys->InsertCellPoint(iNormal-1);
             nNormals++;
@@ -388,7 +425,14 @@ int vtkOBJReader::RequestData(
             }
           else if (sscanf(pLine, "%d/%d", &iVert, &iTCoord) == 2)
             {
-            polys->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
             nTCoords++;
@@ -397,7 +441,14 @@ int vtkOBJReader::RequestData(
             }
           else if (sscanf(pLine, "%d", &iVert) == 1)
             {
-            polys->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (strcmp(pLine, "\\\n") == 0)

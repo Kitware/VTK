@@ -10,4 +10,6 @@ vtk_module(vtkIOPLY
     vtkIOImage
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkIO
   )

@@ -16,4 +16,6 @@ vtk_module(vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOPLY
+  KIT
+    vtkOpenGL
   )

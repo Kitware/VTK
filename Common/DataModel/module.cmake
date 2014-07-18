@@ -16,4 +16,6 @@ vtk_module(vtkCommonDataModel
     vtkIOLegacy
     vtkIOXML
     vtkRendering${VTK_RENDERING_BACKEND}
+  KIT
+    vtkCommon
   )

@@ -462,7 +462,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
 
   if( (oamr != NULL) && !has_block_requests )
     {
-    vtkAMRUtilities::BlankCells(oamr,NULL);
+    vtkAMRUtilities::BlankCells(oamr);
     }
 }
 

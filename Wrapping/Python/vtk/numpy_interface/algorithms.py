@@ -32,15 +32,21 @@ def _apply_func2(func, array, args):
         return []
     res = []
     for a in array.Arrays:
-        res.append(func(a, *args))
+        if a is dsa.NoneArray:
+            res.append(dsa.NoneArray)
+        else:
+            res.append(func(a, *args))
     return res
 
-def _apply_func(func, array, args):
+def apply_ufunc(func, array, args=()):
     """Apply a function to each member of a VTKCompositeDataArray.
-    Returns a VTKCompositeDataArray of results.
-
-    Note that this function is mainly for internal use by this module."""
-    return dsa.VTKCompositeDataArray(_apply_func2(func, array, args), dataset = array.DataSet)
+    VTKArray and numpy arrays are also supported."""
+    if array is dsa.NoneArray:
+        return dsa.NoneArray
+    elif type(array) == dsa.VTKCompositeDataArray:
+        return dsa.VTKCompositeDataArray(_apply_func2(func, array, args), dataset = array.DataSet)
+    else:
+        return func(array)
 
 def _make_ufunc(ufunc):
     """ Given a ufunc, creates a closure that applies it to each member
@@ -48,19 +54,35 @@ def _make_ufunc(ufunc):
 
     Note that this function is mainly for internal use by this module."""
     def new_ufunc(array):
-        if type(array) == dsa.VTKCompositeDataArray:
-            res = []
-            for a in array.Arrays:
-                if a is dsa.NoneArray:
-                    res.append(dsa.NoneArray)
-                else:
-                    res.append(ufunc(a))
-            return dsa.VTKCompositeDataArray(res, dataset = array.DataSet)
-        elif array is dsa.NoneArray:
-            return dsa.NoneArray
-        else:
-            return ufunc(array)
+        return apply_ufunc(ufunc, array, ())
     return new_ufunc
+
+def apply_dfunc(dfunc, array1, val2):
+    """Apply a two argument function to each member of a VTKCompositeDataArray
+    and another argument The second argument can be a VTKCompositeDataArray, in
+    which case a one-to-one match between arrays is assumed. Otherwise, the
+    function is applied to the composite array with the second argument repeated.
+    VTKArray and numpy arrays are also supported."""
+    if type(array1) == dsa.VTKCompositeDataArray and type(val2) == dsa.VTKCompositeDataArray:
+        res = []
+        for a1, a2 in itertools.izip(array1.Arrays, val2.Arrays):
+            if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
+                res.append(dsa.NoneArray)
+            else:
+                res.append(dfunc(a1, a2))
+        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
+    elif type(array1) == dsa.VTKCompositeDataArray:
+        res = []
+        for a in array1.Arrays :
+            if a is dsa.NoneArray:
+                res.append(dsa.NoneArray)
+            else:
+                res.append(dfunc(a, val2))
+        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
+    elif array1 is dsa.NoneArray:
+        return dsa.NoneArray
+    else:
+        return dfunc(array1, val2)
 
 def _make_dfunc(dfunc):
     """ Given a function that requires two arguments, creates a closure that
@@ -68,26 +90,7 @@ def _make_dfunc(dfunc):
 
     Note that this function is mainly for internal use by this module."""
     def new_dfunc(array1, val2):
-        if type(array1) == dsa.VTKCompositeDataArray and type(val2) == dsa.VTKCompositeDataArray:
-            res = []
-            for a1, a2 in itertools.izip(array1.Arrays, val2.Arrays):
-                if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
-                    res.append(dsa.NoneArray)
-                else:
-                    res.append(dfunc(a1, a2))
-            return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
-        elif type(array1) == dsa.VTKCompositeDataArray:
-            res = []
-            for a in array1.Arrays :
-                if a is dsa.NoneArray:
-                    res.append(dsa.NoneArray)
-                else:
-                    res.append(dfunc(a, val2))
-            return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
-        elif array1 is dsa.NoneArray:
-            return dsa.NoneArray
-        else:
-            return dfunc(array1, val2)
+        return apply_dfunc(dfunc, array1, val2)
     return new_dfunc
 
 def _make_dsfunc(dsfunc):
@@ -126,12 +129,11 @@ def _make_dsfunc2(dsfunc):
 
 def _lookup_mpi_type(ntype):
     from mpi4py import MPI
-    if ntype == numpy.float64:
-        return MPI.DOUBLE
-    elif ntype == numpy.bool:
-        return MPI.BOOL
+    if ntype == numpy.bool:
+        typecode = 'b'
     else:
-        raise ValueError
+        typecode = numpy.dtype(ntype).char
+    return MPI.__TypeDict__[typecode]
 
 def _reduce_dims(array, comm):
     from mpi4py import MPI
@@ -145,7 +147,8 @@ def _reduce_dims(array, comm):
         else:
             dims = numpy.array(shp, dtype=numpy.int32)
     max_dims = numpy.array(dims, dtype=numpy.int32)
-    comm.Allreduce([dims, MPI.INT], [max_dims, MPI.INT], MPI.MAX)
+    mpitype = _lookup_mpi_type(numpy.int32)
+    comm.Allreduce([dims, mpitype], [max_dims, mpitype], MPI.MAX)
 
     if max_dims[1] == 0:
         max_dims = numpy.array((max_dims[0],))
@@ -163,7 +166,7 @@ def _global_func(impl, array, axis, controller):
         if axis is None or axis == 0:
             res = impl.serial_composite(array, axis)
         else:
-            res = _apply_func(impl.op(), array, (axis,))
+            res = apply_ufunc(impl.op(), array, (axis,))
     else:
         res = impl.op()(array, axis)
         if res is not dsa.NoneArray:
@@ -212,7 +215,7 @@ def sum(array, axis=None, controller=None):
     defined. To disable parallel summing when running in parallel, pass
     a dummy controller as follows:
 
-    sum(array, controller=vtk.vtkDummyController().
+    sum(array, controller=vtk.vtkDummyController()).
     """
     class SumImpl:
         def op(self):
@@ -252,7 +255,7 @@ def max(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    max(array, controller=vtk.vtkDummyController().
+    max(array, controller=vtk.vtkDummyController()).
     """
     class MaxImpl:
         def op(self):
@@ -290,7 +293,7 @@ def min(array, axis=None, controller=None):
     when a controller argument is passed or the global controller is defined.
     To disable parallel summing when running in parallel, pass a dummy controller as follows:
 
-    min(array, controller=vtk.vtkDummyController().
+    min(array, controller=vtk.vtkDummyController()).
     """
     class MinImpl:
         def op(self):
@@ -358,25 +361,26 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
         # Get all ids from dataset, including empty ones.
         ids = []
-        lmax_id = numpy.int64(0)
+        lmax_id = numpy.int32(0)
         if dataset is not None:
             it = dataset.NewIterator()
             it.UnRegister(None)
             it.SetSkipEmptyNodes(False)
             while not it.IsDoneWithTraversal():
                 _id = it.GetCurrentFlatIndex()
-                lmax_id = numpy.max((lmax_id, _id))
+                lmax_id = numpy.max((lmax_id, _id)).astype(numpy.int32)
                 if it.GetCurrentDataObject() is not None:
                     ids.append(_id)
                 it.GoToNextItem()
-        max_id = numpy.array(0, dtype=numpy.int64)
-        comm.Allreduce([lmax_id, MPI.INT], [max_id, MPI.INT], MPI.MAX)
+        max_id = numpy.array(0, dtype=numpy.int32)
+        mpitype = _lookup_mpi_type(numpy.int32)
+        comm.Allreduce([lmax_id, mpitype], [max_id, mpitype], MPI.MAX)
 
         has_ids = numpy.zeros(max_id+1, dtype=numpy.int32)
         for _id in ids:
             has_ids[_id] = 1
         id_count = numpy.array(has_ids)
-        comm.Allreduce([has_ids, MPI.INT], [id_count, MPI.INT], MPI.SUM)
+        comm.Allreduce([has_ids, mpitype], [id_count, mpitype], MPI.SUM)
 
         if numpy.all(id_count <= 1):
             return dsa.VTKCompositeDataArray(results, dataset=dataset)
@@ -424,7 +428,8 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
         # Now do the MPI reduction.
         rresults = numpy.array(lresults)
-        comm.Allreduce([lresults, MPI.DOUBLE], [rresults, MPI.DOUBLE], impl.mpi_op())
+        mpitype = _lookup_mpi_type(numpy.double)
+        comm.Allreduce([lresults, mpitype], [rresults, mpitype], impl.mpi_op())
 
         if array is dsa.NoneArray:
             return dsa.NoneArray
@@ -445,6 +450,91 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
     return dsa.VTKCompositeDataArray(results, dataset=dataset)
 
+def sum_per_block(array, axis=None, controller=None):
+    """Returns the sum of all values along a particular axis (dimension) for
+    each block of an VTKCompositeDataArray.
+
+    Given an array of m tuples and n components:
+    * Default is to return the sum of all values in an array.
+    * axis=0: Sum values of all components and return a one tuple,
+      n-component array.
+    * axis=1: Sum values of all components of each tuple and return an
+      m-tuple, 1-component array.
+
+    When called in parallel, this function will sum across processes
+    when a controller argument is passed or the global controller is
+    defined. To disable parallel summing when running in parallel, pass
+    a dummy controller as follows:
+
+    sum_per_block(array, controller=vtk.vtkDummyController()).
+    """
+    class SumPerBlockImpl:
+        def op(self):
+            return sum
+
+        def op2(self):
+            return algs.sum
+
+        def mpi_op(self):
+            from mpi4py import MPI
+            return MPI.SUM
+
+        def default(self):
+            return numpy.float64(0)
+
+    return _global_per_block(SumPerBlockImpl(), array, axis, controller)
+
+def count_per_block(array, axis=None, controller=None):
+    """Return the number of elements of each block in a VTKCompositeDataArray
+    along an axis.
+
+    - if axis is None, the number of all elements (ntuples * ncomponents) is
+    returned.
+    - if axis is 0, the number of tuples is returned.
+    """
+
+    if axis > 0:
+        raise ValueError, "Only axis=None and axis=0 are supported for count"
+
+    class CountPerBlockImpl:
+        def op(self):
+            return _array_count
+
+        def op2(self):
+            return _local_array_count
+
+        def mpi_op(self):
+            from mpi4py import MPI
+            return MPI.SUM
+
+        def default(self):
+            return numpy.float64(0)
+
+    return _global_per_block(CountPerBlockImpl(), array, axis, controller)
+
+def mean_per_block(array, axis=None, controller=None):
+    """Returns the mean of all values along a particular axis (dimension)
+    for each block of a VTKCompositeDataArray.
+
+    Given an array of m tuples and n components:
+    * Default is to return the mean of all values in an array.
+    * axis=0: Return the mean values of all components and return a one
+      tuple, n-component array.
+    * axis=1: Return the mean values of all components of each tuple and
+      return an m-tuple, 1-component array.
+
+    When called in parallel, this function will compute the mean across
+    processes when a controller argument is passed or the global controller
+    is defined. To disable parallel summing when running in parallel, pass a
+    dummy controller as follows:
+
+    mean(array, controller=vtk.vtkDummyController()).
+    """
+    if axis is None or axis == 0:
+        return sum_per_block(array, axis, controller) / count_per_block(array, axis, controller)
+    else:
+        return sum(array, axis, controller)
+
 def max_per_block(array, axis=None, controller=None):
     """Returns the max of all values along a particular axis (dimension)
     for each block of a VTKCompositeDataArray.
@@ -460,7 +550,7 @@ def max_per_block(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    max(array, controller=vtk.vtkDummyController().
+    max_per_block(array, controller=vtk.vtkDummyController()).
     """
     class MaxPerBlockImpl:
         def op(self):
@@ -493,7 +583,7 @@ def min_per_block(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    min(array, controller=vtk.vtkDummyController().
+    min_per_block(array, controller=vtk.vtkDummyController()).
     """
     class MinPerBlockImpl:
         def op(self):
@@ -542,6 +632,15 @@ def all(array, axis=None, controller=None):
 
     return _global_func(MinImpl(), array, axis, controller)
 
+def _local_array_count(array, axis):
+
+    if array is dsa.NoneArray:
+        return numpy.int64(0)
+    elif axis is None:
+        return numpy.int64(array.size)
+    else:
+        return numpy.int64(shape(array)[0])
+
 def _array_count(array, axis, controller):
 
     if array is dsa.NoneArray:
@@ -559,7 +658,8 @@ def _array_count(array, axis, controller):
         comm = vtkMPI4PyCommunicator.ConvertToPython(controller.GetCommunicator())
 
         total_size = numpy.array(size, dtype=numpy.int64)
-        comm.Allreduce([size, MPI.INT64_T], [total_size, MPI.INT64_T], MPI.SUM)
+        mpitype = _lookup_mpi_type(numpy.int64)
+        comm.Allreduce([size, mpitype], [total_size, mpitype], MPI.SUM)
         size = total_size
 
     return size
@@ -578,7 +678,7 @@ def mean(array, axis=None, controller=None, size=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    mean(array, controller=vtk.vtkDummyController().
+    mean(array, controller=vtk.vtkDummyController()).
     """
 
     if axis is None or axis == 0:
@@ -587,7 +687,7 @@ def mean(array, axis=None, controller=None, size=None):
         return sum(array, axis) / size
     else:
         if type(array) == dsa.VTKCompositeDataArray:
-            return _apply_func(algs.mean, array, (axis,))
+            return apply_ufunc(algs.mean, array, (axis,))
         else:
             return algs.mean(array, axis)
 
@@ -605,7 +705,7 @@ def var(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    var(array, controller=vtk.vtkDummyController().
+    var(array, controller=vtk.vtkDummyController()).
     """
 
     if axis is None or axis == 0:
@@ -614,7 +714,7 @@ def var(array, axis=None, controller=None):
         return sum(tmp*tmp, axis, controller) / size
     else:
         if type(array) == dsa.VTKCompositeDataArray:
-            return _apply_func(algs.var, array, (axis,))
+            return apply_ufunc(algs.var, array, (axis,))
         else:
             return algs.var(array, axis)
 
@@ -633,7 +733,7 @@ def std(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a dummy
     controller as follows:
 
-    std(array, controller=vtk.vtkDummyController().
+    std(array, controller=vtk.vtkDummyController()).
     """
     return sqrt(var(array, axis, controller))
 
@@ -679,6 +779,132 @@ def make_vector(arrayx, arrayy, arrayz=None):
         return dsa.VTKCompositeDataArray(res, dataset = arrayx.DataSet)
     else:
         return algs.make_vector(arrayx, arrayy, arrayz)
+
+def unstructured_from_composite_arrays(points, arrays, controller=None):
+    """Given a set of VTKCompositeDataArrays, creates a vtkUnstructuredGrid.
+    The main goal of this function is to transform the output of XXX_per_block()
+    methods to a single dataset that can be visualized and further processed.
+    Here arrays is an iterable (e.g. list) of (array, name) pairs. Here is
+    an example:
+
+    centroid = mean_per_block(composite_data.Points)
+    T = mean_per_block(composite_data.PointData['Temperature'])
+    ug = unstructured_from_composite_arrays(centroid, (T, 'Temperature'))
+
+    When called in parallel, this function makes sure that each array in
+    the input dataset is represented only on 1 process. This is important
+    because methods like mean_per_block() return the same value for blocks
+    that are partitioned on all of the participating processes. If the
+    same point were to be created across multiple processes in the output,
+    filters like histogram would report duplicate values erroneously.
+    """
+
+    try:
+        dataset = points.DataSet
+    except AttributeError:
+        dataset = None
+
+    if dataset is None and points is not dsa.NoneArray:
+        raise ValueError, "Expecting a points arrays with an associated dataset."
+
+    if points is dsa.NoneArray:
+        cpts = []
+    else:
+        cpts = points.Arrays
+    ownership = numpy.zeros(len(cpts), dtype=numpy.int32)
+    rank = 0
+
+    # Let's first create a map of array index to composite ids.
+    if dataset is None:
+        ids = []
+    else:
+        it = dataset.NewIterator()
+        it.UnRegister(None)
+        itr = cpts.__iter__()
+        ids = numpy.empty(len(cpts), dtype=numpy.int32)
+        counter = 0
+        while not it.IsDoneWithTraversal():
+            _id = it.GetCurrentFlatIndex()
+            ids[counter] = _id
+            counter += 1
+            it.GoToNextItem()
+
+    if controller is None and vtkMultiProcessController is not None:
+        controller = vtkMultiProcessController.GetGlobalController()
+    if controller and controller.IsA("vtkMPIController"):
+        from mpi4py import MPI
+        comm = vtkMPI4PyCommunicator.ConvertToPython(controller.GetCommunicator())
+        rank = comm.Get_rank()
+
+        # Determine the max id to use for reduction
+        # operations
+
+        # Get all ids from dataset, including empty ones.
+        lmax_id = numpy.int32(0)
+        if dataset is not None:
+            it = dataset.NewIterator()
+            it.UnRegister(None)
+            it.SetSkipEmptyNodes(False)
+            while not it.IsDoneWithTraversal():
+                _id = it.GetCurrentFlatIndex()
+                lmax_id = numpy.max((lmax_id, _id)).astype(numpy.int32)
+                it.GoToNextItem()
+        max_id = numpy.array(0, dtype=numpy.int32)
+        mpitype = _lookup_mpi_type(numpy.int32)
+        comm.Allreduce([lmax_id, mpitype], [max_id, mpitype], MPI.MAX)
+
+        # Now we figure out which processes have which ids
+        lownership = numpy.empty(max_id, dtype = numpy.int32)
+        lownership.fill(numpy.iinfo(numpy.int32).max)
+
+        ownership = numpy.empty(max_id, dtype = numpy.int32)
+
+        if dataset is not None:
+            it = dataset.NewIterator()
+            it.UnRegister(None)
+            it.InitTraversal()
+            itr = cpts.__iter__()
+            while not it.IsDoneWithTraversal():
+                _id = it.GetCurrentFlatIndex()
+                if itr.next() is not dsa.NoneArray:
+                    lownership[_id] = rank
+                it.GoToNextItem()
+        mpitype = _lookup_mpi_type(numpy.int32)
+        # The process with the lowest id containing a block will
+        # produce the output for that block.
+        comm.Allreduce([lownership, mpitype], [ownership, mpitype], MPI.MIN)
+
+    # Iterate over blocks to produce points and arrays
+    from vtk.vtkCommonDataModel import vtkUnstructuredGrid
+    from vtk.vtkCommonCore import vtkDoubleArray, vtkPoints
+    ugrid = vtkUnstructuredGrid()
+    da = vtkDoubleArray()
+    da.SetNumberOfComponents(3)
+    pts = vtkPoints()
+    pts.SetData(da)
+    counter = 0
+    for pt in cpts:
+        if ownership[ids[counter]] == rank:
+            pts.InsertNextPoint(tuple(pt))
+        counter += 1
+    ugrid.SetPoints(pts)
+
+    for ca, name in arrays:
+        if ca is not dsa.NoneArray:
+            da = vtkDoubleArray()
+            ncomps = ca.Arrays[0].flatten().shape[0]
+            da.SetNumberOfComponents(ncomps)
+            counter = 0
+            for a in ca.Arrays:
+                if ownership[ids[counter]] == rank:
+                    a = a.flatten()
+                    for i in range(ncomps):
+                        da.InsertNextValue(a[i])
+                counter += 1
+            if len(a) > 0:
+                da.SetName(name)
+                ugrid.GetPointData().AddArray(da)
+    return ugrid
 
 sqrt = _make_ufunc(numpy.sqrt)
 sqrt.__doc__ = "Computes square root."

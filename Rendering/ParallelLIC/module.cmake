@@ -5,4 +5,6 @@ vtk_module(vtkRenderingParallelLIC
     vtkRenderingOpenGL
     vtkParallelMPI
     vtkIOLegacy
+  KIT
+    vtkParallel
   )

@@ -10,4 +10,6 @@ vtk_module(vtkRenderingFreeTypeOpenGL
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkOpenGL
   )

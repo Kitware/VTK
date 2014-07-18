@@ -7,4 +7,6 @@ vtk_module(vtkFiltersProgrammable
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkFilters
   )

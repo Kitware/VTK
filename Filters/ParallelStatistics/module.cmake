@@ -9,4 +9,6 @@ vtk_module(vtkFiltersParallelStatistics
   TEST_DEPENDS
     vtkParallelMPI
     vtkTestingCore
+  KIT
+    vtkParallel
   )

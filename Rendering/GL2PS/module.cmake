@@ -9,4 +9,6 @@ vtk_module(vtkRenderingGL2PS
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkOpenGL
 )

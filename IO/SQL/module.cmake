@@ -10,4 +10,6 @@ vtk_module(vtkIOSQL
     vtkIOLegacy
     vtkTestingIOSQL
     vtkTestingCore
+  KIT
+    vtkIO
   )

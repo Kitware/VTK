@@ -33,7 +33,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRUtilities.h"
+#include "vtkParallelAMRUtilities.h"
 #include "vtkMath.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkNew.h"
@@ -843,7 +843,7 @@ public:
     AssertNe(this->InputData,NULL);
     this->AMR = vtkOverlappingAMR::SafeDownCast(this->InputData);
 
-    vtkAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
+    vtkParallelAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
     this->AMR->GenerateParentChildInformation();
   }
 

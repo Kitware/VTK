@@ -5,4 +5,6 @@ vtk_module(vtkFiltersReebGraph
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkFilters
   )

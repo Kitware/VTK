@@ -7,4 +7,6 @@ vtk_module(vtkRenderingContextOpenGL
     OpenGL
   PRIVATE_DEPENDS
     vtkRenderingFreeType
+  KIT
+    vtkOpenGL
   )

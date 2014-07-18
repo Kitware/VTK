@@ -24,4 +24,6 @@ vtk_module(vtkInteractionWidgets
     vtkFiltersProgrammable
     vtkRenderingLOD
     vtkImagingStencil
+  KIT
+    vtkInteraction
   )

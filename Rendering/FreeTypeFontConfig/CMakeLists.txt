@@ -22,4 +22,4 @@ vtk_object_factory_configure("${vtk_module_overrides}")
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 
-target_link_libraries(${vtk-module} LINK_PRIVATE ${FONTCONFIG_LIBRARIES})
+vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${FONTCONFIG_LIBRARIES})

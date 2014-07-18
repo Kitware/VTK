@@ -24,4 +24,6 @@ vtk_module(vtkRenderingOpenGL
     vtkFiltersProgrammable
     vtkFiltersSources
     vtkRenderingAnnotation
+  KIT
+    vtkOpenGL
   )
