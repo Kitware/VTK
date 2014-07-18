@@ -176,7 +176,10 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
                                  "varying vec3 normalVCVarying;");
     FSSource = replace(FSSource,
                                  "//VTK::Normal::Impl",
-                                 "vec3 normalVC; if (!gl_FrontFacing) { normalVC = -normalVCVarying; } else { normalVC = normalVCVarying; }");
+                                 "vec3 normalVC;\n"
+                                 "if (!gl_FrontFacing) { normalVC = -normalVCVarying; }\n"
+                                 "else { normalVC = normalVCVarying; }"
+                                 );
     }
   else
     {
@@ -187,16 +190,23 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
       // no clue if this is the best way to do this.
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
                                    "vec3 normalVC;\n"
-                                   "if (abs(dot(dFdx(vertexVC.xyz),vec3(1,1,1))) > abs(dot(dFdy(vertexVC.xyz),vec3(1,1,1))))\n"
-                                   " { normalVC = normalize(cross(cross(dFdx(vertexVC.xyz), vec3(0,0,1)), dFdx(vertexVC.xyz))); }\n"
-                                   "else { normalVC = normalize(cross(cross(dFdy(vertexVC.xyz), vec3(0,0,1)), dFdy(vertexVC.xyz)));}");
+                                   "vec3 fdx = normalize(dFdx(vertexVC.xyz));\n"
+                                   "vec3 fdy = normalize(dFdy(vertexVC.xyz));\n"
+                                   "if (abs(dot(fdx,vec3(0.5,0.5,0.5))) > abs(dot(fdy,vec3(0.5,0.5,0.5))))\n"
+                                   " { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
+                                   "else { normalVC = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
+                                   );
       }
     else
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                   "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
-                                   "if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
-                                   );
+                                  "vec3 fdx = normalize(dFdx(vertexVC.xyz));\n"
+                                  "vec3 fdy = normalize(dFdy(vertexVC.xyz));\n"
+                                  "vec3 normalVC = normalize(cross(fdx,fdy));\n"
+                                  // the code below is faster, but does not work on some devices
+                                  // "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
+                                  "if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
+                                  );
       }
     }
   if (this->layout.TCoordComponents)
@@ -214,7 +224,7 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
                                    "varying float tcoordVC; uniform sampler2D texture1;");
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0));");
+                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0.0));");
       }
     else
       {
@@ -244,12 +254,14 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
                                  "uniform int pickingAttributeIDOffset;");
     FSSource = vtkgl::replace(FSSource,
                               "//VTK::Picking::Impl",
-                              "if (mapperIndex == vec3(0,0,0))  { "
-                              "  int idx = gl_PrimitiveID + 1 + pickingAttributeIDOffset;"
-                              "  gl_FragColor = vec4((idx%256)/255.0, ((idx/256)%256)/255.0, (idx/65536)/255.0, 1.0);"
-                              "  } "
-                              "else { "
-                              "  gl_FragColor = vec4(mapperIndex,1.0);"
+                              "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
+                              "  {\n"
+                              "  int idx = gl_PrimitiveID + 1 + pickingAttributeIDOffset;\n"
+                              "  gl_FragColor = vec4((idx%256)/255.0, ((idx/256)%256)/255.0, (idx/65536)/255.0, 1.0);\n"
+                              "  }\n"
+                              "else\n"
+                              "  {\n"
+                              "  gl_FragColor = vec4(mapperIndex,1.0);\n"
                               "  }");
     }
 
