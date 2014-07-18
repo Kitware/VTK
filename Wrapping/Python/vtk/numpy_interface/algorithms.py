@@ -939,6 +939,9 @@ arccos.__doc__ = "Computes inverse cosine."
 arctan = _make_ufunc(numpy.arctan)
 arctan.__doc__ = "Computes inverse tangent."
 
+arctan2 = _make_dfunc(numpy.arctan2)
+arctan2.__doc__ = "Computes inverse tangent using two arguments."
+
 sinh = _make_ufunc(numpy.sinh)
 sinh.__doc__ = "Computes hyperbolic sine."
 
