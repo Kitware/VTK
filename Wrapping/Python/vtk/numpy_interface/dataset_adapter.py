@@ -458,7 +458,7 @@ class DataSetAttributes(VTKObjectWrapper):
         kys = []
         narrays = self.VTKObject.GetNumberOfArrays()
         for i in range(narrays):
-            name = self.VTKObject.GetArray(i).GetName()
+            name = self.VTKObject.GetAbstractArray(i).GetName()
             if name:
                 kys.append(name)
         return kys
@@ -468,7 +468,7 @@ class DataSetAttributes(VTKObjectWrapper):
         vals = []
         narrays = self.VTKObject.GetNumberOfArrays()
         for i in range(narrays):
-            a = self.VTKObject.GetArray(i)
+            a = self.VTKObject.GetAbstractArray(i)
             if a.GetName():
                 vals.append(a)
         return vals
@@ -497,7 +497,7 @@ class DataSetAttributes(VTKObjectWrapper):
                 arrLength = narray.shape[0]
 
         # Fixup input array length:
-        if not isinstance(narray, numpy.ndarray): # Scalar input
+        if not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0: # Scalar input
             narray = narray * numpy.ones((arrLength, 1))
         elif narray.shape[0] != arrLength: # Vector input
             components = reduce(operator.mul, narray.shape)
@@ -525,7 +525,14 @@ class DataSetAttributes(VTKObjectWrapper):
         if len(shape) == 3:
             narray = narray.reshape(shape[0], shape[1]*shape[2])
 
-        arr = numpyTovtkDataArray(narray, name)
+        # this handle the case when an input array is directly appended on the
+        # output. We want to make sure that the array added to the output is not
+        # referring to the input dataset.
+        copy = VTKArray(narray)
+        try:
+            copy.VTKObject = narray.VTKObject
+        except AttributeError: pass
+        arr = numpyTovtkDataArray(copy, name)
         self.VTKObject.AddArray(arr)
 
 
