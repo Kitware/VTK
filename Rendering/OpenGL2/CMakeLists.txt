@@ -278,13 +278,17 @@ elseif(VTK_USE_CARBON)
     )
 elseif(ANDROID)
   # Add some custom overrides
-#  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
-#  set(vtk_module_vtkRenderWindowInteractor_override "vtkEGLRenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkAndroidRenderWindowInteractor")
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkEGLRenderWindow")
   list(APPEND Module_SRCS
-#    vtkEGLRenderWindowInteractor.cxx
+    vtkAndroidRenderWindowInteractor.cxx
     vtkEGLRenderWindow.cxx
+    )
+  include_directories(
+    "${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include"
+    "${ANDROID_NDK}/sources/android/native_app_glue"
     )
 endif()
 

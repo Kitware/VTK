@@ -21,6 +21,17 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
+//VTK:Precision
+
+#ifdef GL_ES
+#extension GL_OES_standard_derivatives : enable
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+
 // material property values
 uniform float opacityUniform; // the fragment opacity
 uniform vec3 ambientColorUniform; // intensity weighted color
