@@ -6,6 +6,7 @@ if (CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 endif ()
 
 find_package(VTK COMPONENTS
+  vtkInteractionStyle
   vtkRenderingOpenGL2
 )
 include(${VTK_USE_FILE})
