@@ -10,6 +10,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   TestGPUInfo.cxx,NO_VALID
   TestMonitors.cxx,NO_VALID
   TestPOVExporter.cxx,NO_VALID
+  TestScalarsToColorsPainter.cxx
   TestSetImageOrientation.cxx
   TestTDx.cxx
   )
