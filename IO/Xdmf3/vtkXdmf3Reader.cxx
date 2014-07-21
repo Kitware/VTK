@@ -51,12 +51,12 @@
 #include "XdmfRegularGrid.hpp"
 #include "XdmfUnstructuredGrid.hpp"
 #include "XdmfTime.hpp"
+#include "XdmfSet.hpp"
 
 #include <set>
 #include <fstream>
 
 //TODO: benchmark and optimize
-//TODO: extract sets as optional ugrids inside MB next to parent grid
 //TODO: implement fast and approximate CanReadFile
 //TODO: read from buffer, allowing for xincludes
 //TODO: strided access to structured data
@@ -256,12 +256,26 @@ public:
       if (grid)
         {
         //atomic dataset
-        std::string name = grid->getName();
-        if (name.length() != 0 && parentVertex != -1)
+        vtkIdType parent = parentVertex;
+        if (parentVertex == -1)
           {
-          std::string uName = this->UniqueName(name);
+          parent = this->SILBuilder->GetHierarchyRoot();
+          }
+        unsigned int nSets = grid->getNumberSets();
+        std::string name = grid->getName();
+        if (name.length() != 0 && (nSets > 0 || parentVertex != -1))
+          {
+          std::string uName = this->UniqueName(name, true);
           grid->setName(uName);
-          this->AddNamedBlock(parentVertex, name, uName);
+          this->AddNamedBlock(parent, name, uName);
+          for (unsigned int s = 0; s < nSets; s++)
+            {
+            shared_ptr<XdmfSet> set = grid->getSet(s);
+            std::string sName = set->getName();
+            std::string usName = this->UniqueName(sName, false);
+            set->setName(usName);
+            this->AddNamedSet(parent, sName, usName);
+            }
           }
         return;
         }
@@ -272,7 +286,7 @@ public:
         std::string name = graph->getName();
         if (name.length() != 0 && parentVertex != -1)
           {
-          std::string uName = this->UniqueName(name);
+          std::string uName = this->UniqueName(name, true);
           graph->setName(uName);
           this->AddNamedBlock(parentVertex, name, uName);
           }
@@ -301,14 +315,13 @@ public:
         if (name.length() != 0 && !this->SILBuilder->IsMaxedOut())
           {
           silVertex = this->SILBuilder->AddVertex(name.c_str());
-          if (parentVertex == -1) //topmost entry, we are the root
+          vtkIdType parent = parentVertex;
+          if (parentVertex == -1)
             {
-            this->SILBuilder->AddChildEdge(this->SILBuilder->GetHierarchyRoot(), silVertex);
+            //topmost entry, we are the root
+            parent = this->SILBuilder->GetHierarchyRoot();
             }
-          else
-            {
-            this->SILBuilder->AddChildEdge(parentVertex, silVertex);
-            }
+          this->SILBuilder->AddChildEdge(parent, silVertex);
           }
         }
 
@@ -482,11 +495,13 @@ private:
   }
 
   //helper for InspectXDMF
-  std::string UniqueName(std::string name)
+  std::string UniqueName(std::string name, bool ForGrid)
   {
     std::string gridName = name;
     unsigned int count=1;
-    while (this->GridsCache->HasArray(gridName.c_str()))
+
+    vtkXdmf3ArraySelection* cache = (ForGrid?this->GridsCache:this->SetsCache);
+    while (cache->HasArray(gridName.c_str()))
       {
       vtksys_ios::ostringstream str;
       str << name << "[" << count << "]";
@@ -507,6 +522,12 @@ private:
     vtkIdType hierarchyVertex = this->SILBuilder->AddVertex(originalName.c_str());
     this->SILBuilder->AddChildEdge(parentVertex, hierarchyVertex);
     this->SILBuilder->AddCrossEdge(hierarchyVertex, silVertex);
+  }
+
+  //helper for InspectXDMF
+  void AddNamedSet(vtkIdType parentVertex, std::string originalName, std::string uniqueName)
+  {
+    this->SetsCache->AddArray(uniqueName.c_str());
   }
 
   //records times that xdmf grids supply data at
@@ -618,24 +639,108 @@ public:
       shared_ptr<XdmfUnstructuredGrid> unsGrid = shared_dynamic_cast<XdmfUnstructuredGrid>(item);
       if (unsGrid)
         {
-        return this->MakeUnsGrid(unsGrid, vtkUnstructuredGrid::SafeDownCast(toFill));
+        unsigned int nSets = unsGrid->getNumberSets();
+        if (nSets > 0)
+          {
+          vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+          vtkUnstructuredGrid *child = vtkUnstructuredGrid::New();
+          mbds->SetBlock
+            (0,
+             this->MakeUnsGrid
+             (unsGrid, child));
+          for (unsigned int i = 0; i < nSets; i++)
+            {
+            vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+            mbds->SetBlock
+              (i+1,
+               this->ExtractSet
+               (i, unsGrid, child, sub));
+            sub->Delete();
+            }
+          child->Delete();
+          return mbds;
+          }
+         return this->MakeUnsGrid(unsGrid, vtkUnstructuredGrid::SafeDownCast(toFill));
         }
 
       shared_ptr<XdmfRectilinearGrid> recGrid = shared_dynamic_cast<XdmfRectilinearGrid>(item);
       if (recGrid)
         {
+        unsigned int nSets = recGrid->getNumberSets();
+        if (nSets > 0)
+          {
+          vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+          vtkRectilinearGrid *child = vtkRectilinearGrid::New();
+          mbds->SetBlock
+            (0,
+             this->MakeRecGrid
+             (recGrid, child));
+          for (unsigned int i = 0; i < nSets; i++)
+            {
+            vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+            mbds->SetBlock
+              (i+1,
+               this->ExtractSet
+               (i, recGrid, child, sub));
+            sub->Delete();
+            }
+          child->Delete();
+          return mbds;
+          }
         return this->MakeRecGrid(recGrid, vtkRectilinearGrid::SafeDownCast(toFill));
         }
 
       shared_ptr<XdmfCurvilinearGrid> crvGrid = shared_dynamic_cast<XdmfCurvilinearGrid>(item);
       if (crvGrid)
         {
+        unsigned int nSets = crvGrid->getNumberSets();
+        if (nSets > 0)
+          {
+          vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+          vtkStructuredGrid *child = vtkStructuredGrid::New();
+          mbds->SetBlock
+            (0,
+             this->MakeCrvGrid
+             (crvGrid, child));
+          for (unsigned int i = 0; i < nSets; i++)
+            {
+            vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+            mbds->SetBlock
+              (i+1,
+               this->ExtractSet
+               (i, crvGrid, child, sub));
+            sub->Delete();
+            }
+          child->Delete();
+          return mbds;
+          }
         return this->MakeCrvGrid(crvGrid, vtkStructuredGrid::SafeDownCast(toFill));
         }
 
       shared_ptr<XdmfRegularGrid> regGrid = shared_dynamic_cast<XdmfRegularGrid>(item);
       if (regGrid)
         {
+        unsigned int nSets = regGrid->getNumberSets();
+        if (nSets > 0)
+          {
+          vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+          vtkImageData *child = vtkImageData::New();
+          mbds->SetBlock
+            (0,
+             this->MakeRegGrid
+             (regGrid, child));
+          for (unsigned int i = 0; i < nSets; i++)
+            {
+            vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+            mbds->SetBlock
+              (i+1,
+               this->ExtractSet
+               (i, regGrid, child, sub));
+            sub->Delete();
+            }
+          child->Delete();
+          return mbds;
+          }
         return this->MakeRegGrid(regGrid, vtkImageData::SafeDownCast(toFill));
         }
 
@@ -693,14 +798,17 @@ public:
         {
         continue;
         }
-
       shared_ptr<XdmfUnstructuredGrid> cGrid = group->getUnstructuredGrid(i);
       unsigned int nSets = cGrid->getNumberSets();
+      vtkDataObject *child;
       if (nSets > 0)
         {
-        //TODO: create subsets in multiblock
+        child = vtkMultiBlockDataSet::New();
         }
-      vtkUnstructuredGrid *child = vtkUnstructuredGrid::New();
+      else
+        {
+        child = vtkUnstructuredGrid::New();
+        }
       result = this->Populate(group->getUnstructuredGrid(i), child);
       if (result)
         {
@@ -715,8 +823,18 @@ public:
         {
         continue;
         }
-      vtkRectilinearGrid *child = vtkRectilinearGrid::New();
-      result = this->Populate(group->getRectilinearGrid(i), child);
+      shared_ptr<XdmfRectilinearGrid> cGrid = group->getRectilinearGrid(i);
+      unsigned int nSets = cGrid->getNumberSets();
+      vtkDataObject *child;
+      if (nSets > 0)
+        {
+        child = vtkMultiBlockDataSet::New();
+        }
+      else
+        {
+        child = vtkRectilinearGrid::New();
+        }
+      result = this->Populate(cGrid, child);
       if (result)
         {
         top->SetBlock(cnt++, result);
@@ -730,8 +848,18 @@ public:
         {
         continue;
         }
-      vtkStructuredGrid *child = vtkStructuredGrid::New();
-      result = this->Populate(group->getCurvilinearGrid(i), child);
+      shared_ptr<XdmfCurvilinearGrid> cGrid = group->getCurvilinearGrid(i);
+      unsigned int nSets = cGrid->getNumberSets();
+      vtkDataObject *child;
+      if (nSets > 0)
+        {
+        child = vtkMultiBlockDataSet::New();
+        }
+      else
+        {
+        child = vtkStructuredGrid::New();
+        }
+      result = this->Populate(cGrid, child);
       if (result)
         {
         top->SetBlock(cnt++, result);
@@ -745,8 +873,18 @@ public:
         {
         continue;
         }
-      vtkUniformGrid *child = vtkUniformGrid::New();
-      result = this->Populate(group->getRegularGrid(i), child);
+      shared_ptr<XdmfRegularGrid> cGrid = group->getRegularGrid(i);
+      unsigned int nSets = cGrid->getNumberSets();
+      vtkDataObject *child;
+      if (nSets > 0)
+        {
+        child = vtkMultiBlockDataSet::New();
+        }
+      else
+        {
+        child = vtkUniformGrid::New();
+        }
+      result = this->Populate(cGrid, child);
       if (result)
         {
         top->SetBlock(cnt++, result);
@@ -825,6 +963,11 @@ protected:
     return this->GridsCache->ArrayIsEnabled(grid->getName().c_str());
   }
 
+  bool SetEnabled(shared_ptr<XdmfSet> set)
+  {
+    return this->SetsCache->ArrayIsEnabled(set->getName().c_str());
+  }
+
   bool ForThisTime(shared_ptr<XdmfGrid> grid)
   {
     return (!this->doTime ||
@@ -892,6 +1035,22 @@ protected:
       }
     return NULL;
   }
+
+  vtkDataObject *ExtractSet(unsigned int setnum, shared_ptr<XdmfGrid> grid,
+                            vtkDataSet *dataSet,
+                            vtkUnstructuredGrid *subSet)
+  {
+    shared_ptr<XdmfSet> set = grid->getSet(setnum);
+    if (dataSet && subSet && SetEnabled(set) && ForThisTime(grid))
+      {
+      vtkXdmf3DataSet::XdmfSubsetToVTK(
+        this->FieldArrays, this->CellArrays, this->PointArrays,
+        grid.get(), setnum, dataSet, subSet);
+      return subSet;
+      }
+    return NULL;
+  }
+
 
   bool doTime;
   double time;
@@ -971,12 +1130,15 @@ public:
       {
       return this->VTKType;
       }
-    vtkTimerLog::MarkStartEvent("X3R::GetVTKType");
-
     unsigned int nGridCollections = this->Domain->getNumberGridCollections();
-    shared_ptr<XdmfDomain> toCheck = this->Domain;
+    if (nGridCollections > 1)
+      {
+      this->VTKType = VTK_MULTIBLOCK_DATA_SET;
+      return this->VTKType;
+      }
 
     //check for temporal of atomic, in which case we produce the atomic type
+    shared_ptr<XdmfDomain> toCheck = this->Domain;
     bool temporal = false;
     if (nGridCollections == 1)
       {
@@ -990,6 +1152,7 @@ public:
           }
         }
       }
+
     unsigned int nUnstructuredGrids = toCheck->getNumberUnstructuredGrids();
     unsigned int nRectilinearGrids = toCheck->getNumberRectilinearGrids();
     unsigned int nCurvilinearGrids= toCheck->getNumberCurvilinearGrids();
@@ -1032,14 +1195,22 @@ public:
       else if (nUnstructuredGrids>0)
         {
         this->VTKType = VTK_UNSTRUCTURED_GRID;
+        this->TopGrid = toCheck->getUnstructuredGrid(0);
         }
       else if (nGraphs>0)
         {
         this->VTKType = VTK_DIRECTED_GRAPH; //VTK_MUTABLE_DIRECTED_GRAPH more specifically
         }
       }
-     vtkTimerLog::MarkEndEvent("X3R::GetVTKType");
-
+      if (this->TopGrid)
+        {
+        shared_ptr<XdmfGrid> grid =
+          shared_dynamic_cast<XdmfGrid>(this->TopGrid);
+        if (grid && grid->getNumberSets()>0)
+          {
+          this->VTKType = VTK_MULTIBLOCK_DATA_SET;
+          }
+        }
      return this->VTKType;
   }
 

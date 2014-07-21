@@ -36,6 +36,8 @@ class XdmfArray;
 class vtkDataArray;
 class XdmfGrid;
 class vtkDataObject;
+class XdmfSet;
+class vtkDataSet;
 class XdmfTopologyType;
 class XdmfRegularGrid;
 class vtkImageData;
@@ -206,6 +208,33 @@ public:
     vtkDirectedGraph *dataSet,
     XdmfDomain *domain,
     bool hasTime, double time);
+
+
+  //Side Sets
+
+  // Description:
+  // Populates the given VTK DataObject's attribute arrays with the selected
+  // arrays from the Xdmf Grid
+  static void XdmfToVTKAttributes(
+/*
+    vtkXdmf3ArraySelection *fselection,
+    vtkXdmf3ArraySelection *cselection,
+    vtkXdmf3ArraySelection *pselection,
+*/
+    XdmfSet *grid, vtkDataObject *dObject);
+
+  // Description:
+  // Extracts numbered subset out of grid (grid corresponds to dataSet),
+  // and fills in subSet with it.
+  static void XdmfSubsetToVTK(
+    vtkXdmf3ArraySelection *fselection,
+    vtkXdmf3ArraySelection *cselection,
+    vtkXdmf3ArraySelection *pselection,
+    XdmfGrid *grid,
+    unsigned int setnum,
+    vtkDataSet *dataSet,
+    vtkUnstructuredGrid *subSet);
+
 };
 
 #endif

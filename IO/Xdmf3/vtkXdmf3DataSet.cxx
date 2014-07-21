@@ -22,13 +22,18 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
+#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkExtractSelection.h"
+#include "vtkMergePoints.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include <vtkSelection.h>
+#include <vtkSelectionNode.h>
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkType.h"
@@ -47,6 +52,8 @@
 #include "XdmfGraph.hpp"
 #include "XdmfRectilinearGrid.hpp"
 #include "XdmfRegularGrid.hpp"
+#include "XdmfSet.hpp"
+#include "XdmfSetType.hpp"
 #include "XdmfUnstructuredGrid.hpp"
 #include "XdmfTime.hpp"
 #include "XdmfTopology.hpp"
@@ -1792,4 +1799,351 @@ void vtkXdmf3DataSet::VTKToXdmf(
   //vtkXdmf3DataSet::SetTime(grid, hasTime, time);
 
   domain->insert(grid);
+}
+
+
+//==========================================================================
+//TODO: meld this with Grid XdmfToVTKAttributes
+//TODO: enable set atribute selections
+void vtkXdmf3DataSet::XdmfToVTKAttributes(
+/*
+  vtkXdmf3ArraySelection *fselection,
+  vtkXdmf3ArraySelection *cselection,
+  vtkXdmf3ArraySelection *pselection,
+*/
+  XdmfSet *grid, vtkDataObject *dObject)
+{
+  vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dObject);
+  if (!dataSet)
+    {
+    return;
+    }
+  unsigned int numCells = dataSet->GetNumberOfCells();
+  unsigned int numPoints = dataSet->GetNumberOfPoints();
+  unsigned int numAttributes = grid->getNumberAttributes();
+  for (unsigned int cc=0; cc < numAttributes; cc++)
+    {
+    shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
+    std::string attrName = xmfAttribute->getName();
+    if (attrName.length() == 0)
+      {
+      cerr << "Skipping unnamed array." << endl;
+      continue;
+      }
+
+    //figure out how many components in this array
+    std::vector<unsigned int> dims = xmfAttribute->getDimensions();
+    unsigned int ndims = dims.size();
+    unsigned int nvals = 1;
+    for (unsigned int i = 0; i < dims.size(); i++)
+      {
+      nvals = nvals * dims[i];
+      }
+
+    unsigned int ncomp = 1;
+
+    vtkFieldData * fieldData = 0;
+
+    shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
+    if (attrCenter == XdmfAttributeCenter::Grid())
+      {
+      /*
+      if (!fselection->ArrayIsEnabled(attrName.c_str()))
+        {
+        continue;
+        }
+      */
+      fieldData = dataSet->GetFieldData();
+      ncomp = dims[ndims-1];
+      }
+    else if (attrCenter == XdmfAttributeCenter::Cell())
+      {
+      /*
+      if (!cselection->ArrayIsEnabled(attrName.c_str()))
+        {
+        continue;
+        }
+      */
+      if (numCells == 0)
+        {
+        continue;
+        }
+      fieldData = dataSet->GetCellData();
+      ncomp = nvals/numCells;
+      }
+    else if (attrCenter == XdmfAttributeCenter::Node())
+      {
+      /*
+      if (!pselection->ArrayIsEnabled(attrName.c_str()))
+        {
+        continue;
+        }
+      */
+      if (numPoints == 0)
+        {
+        continue;
+        }
+      fieldData = dataSet->GetPointData();
+      ncomp = nvals/numPoints;
+      }
+    else
+      {
+      cerr << "skipping " << attrName << " unrecognized association" << endl;
+      continue; // unhandled.
+      }
+    vtkDataSetAttributes *fdAsDSA = vtkDataSetAttributes::SafeDownCast(
+      fieldData);
+
+    shared_ptr<const XdmfAttributeType> attrType = xmfAttribute->getType();
+    enum vAttType {NONE, SCALAR, VECTOR, TENSOR, MATRIX, TENSOR6, GLOBALID};
+    int atype = NONE;
+    if (attrType == XdmfAttributeType::Scalar() && ncomp==1)
+      {
+      atype = SCALAR;
+      }
+    else if (attrType == XdmfAttributeType::Vector() && ncomp==1)
+      {
+      atype = VECTOR;
+      }
+    else if (attrType == XdmfAttributeType::Tensor() && ncomp==9)
+      {
+      atype = TENSOR;
+      }
+    else if (attrType == XdmfAttributeType::Matrix())
+      {
+      atype = MATRIX;
+      }
+    else if (attrType == XdmfAttributeType::Tensor6())
+      {
+      atype = TENSOR6;
+      }
+    else if (attrType == XdmfAttributeType::GlobalId() && ncomp==1)
+      {
+      atype = GLOBALID;
+      }
+
+    vtkDataArray *array = XdmfToVTKArray(xmfAttribute.get(), attrName, ncomp);
+    if (array)
+      {
+      fieldData->AddArray(array);
+      if (fdAsDSA)
+        {
+        switch (atype)
+          {
+          case SCALAR:
+            if (!fdAsDSA->GetScalars())
+              {
+              fdAsDSA->SetScalars(array);
+              }
+            break;
+          case VECTOR:
+            if (!fdAsDSA->GetVectors())
+              {
+              fdAsDSA->SetVectors(array);
+              }
+            break;
+          case TENSOR:
+            if (!fdAsDSA->GetTensors())
+              {
+              fdAsDSA->SetTensors(array);
+              }
+            break;
+          case GLOBALID:
+            if (!fdAsDSA->GetGlobalIds())
+              {
+              fdAsDSA->SetGlobalIds(array);
+              }
+            break;
+          }
+        }
+      array->Delete();
+      }
+    }
+}
+
+//--------------------------------------------------------------------------
+void vtkXdmf3DataSet::XdmfSubsetToVTK(
+  vtkXdmf3ArraySelection *fselection,
+  vtkXdmf3ArraySelection *cselection,
+  vtkXdmf3ArraySelection *pselection,
+  XdmfGrid *grid,
+  unsigned int setnum,
+  vtkDataSet *dataSet,
+  vtkUnstructuredGrid *subSet)
+{
+  shared_ptr<XdmfSet> set = grid->getSet(setnum);
+  bool releaseMe = vtkXdmf3DataSet_ReadIfNeeded(set.get());
+  /*
+  if (set->getType() == XdmfSetType::NoSetType())
+    {
+    }
+  */
+  if (set->getType() == XdmfSetType::Node())
+    {
+    vtkDataArray *ids =
+      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 1);
+
+    vtkSmartPointer<vtkSelectionNode> selectionNode =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    selectionNode->SetFieldType(vtkSelectionNode::POINT);
+    selectionNode->SetContentType(vtkSelectionNode::INDICES);
+    selectionNode->SetSelectionList(ids);
+
+    vtkSmartPointer<vtkSelection> selection =
+      vtkSmartPointer<vtkSelection>::New();
+    selection->AddNode(selectionNode);
+
+    vtkSmartPointer<vtkExtractSelection> extractSelection =
+      vtkSmartPointer<vtkExtractSelection>::New();
+    extractSelection->SetInputData(0, dataSet);
+    extractSelection->SetInputData(1, selection);
+    extractSelection->Update();
+
+    //remove arrays from grid, only care about subsets own arrays
+    vtkUnstructuredGrid *dso = vtkUnstructuredGrid::SafeDownCast(extractSelection->GetOutput());
+    dso->GetPointData()->Initialize();
+    dso->GetCellData()->Initialize();
+    dso->GetFieldData()->Initialize();
+    subSet->ShallowCopy(dso);
+
+    vtkXdmf3DataSet::XdmfToVTKAttributes(set.get(), subSet);
+    ids->Delete();
+    }
+
+  if (set->getType() == XdmfSetType::Cell())
+    {
+    vtkDataArray *ids =
+      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 1);
+
+    vtkSmartPointer<vtkSelectionNode> selectionNode =
+      vtkSmartPointer<vtkSelectionNode>::New();
+    selectionNode->SetFieldType(vtkSelectionNode::CELL);
+    selectionNode->SetContentType(vtkSelectionNode::INDICES);
+    selectionNode->SetSelectionList(ids);
+
+    vtkSmartPointer<vtkSelection> selection =
+      vtkSmartPointer<vtkSelection>::New();
+    selection->AddNode(selectionNode);
+
+    vtkSmartPointer<vtkExtractSelection> extractSelection =
+      vtkSmartPointer<vtkExtractSelection>::New();
+    extractSelection->SetInputData(0, dataSet);
+    extractSelection->SetInputData(1, selection);
+    extractSelection->Update();
+
+    //remove arrays from grid, only care about subsets own arrays
+    vtkUnstructuredGrid *dso = vtkUnstructuredGrid::SafeDownCast(extractSelection->GetOutput());
+    dso->GetPointData()->Initialize();
+    dso->GetCellData()->Initialize();
+    dso->GetFieldData()->Initialize();
+    subSet->ShallowCopy(dso);
+
+    vtkXdmf3DataSet::XdmfToVTKAttributes(set.get(), subSet);
+    ids->Delete();
+    }
+
+  if (set->getType() == XdmfSetType::Face())
+    {
+    vtkPoints *pts = vtkPoints::New();
+    subSet->SetPoints(pts);
+    vtkSmartPointer<vtkMergePoints> mergePts =
+      vtkSmartPointer<vtkMergePoints>::New();
+    mergePts->InitPointInsertion(pts, dataSet->GetBounds());
+
+    vtkDataArray *ids =
+      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 2);
+    // ids is a 2 component array were each tuple is (cell-id, face-id).
+
+    vtkIdType numFaces = ids->GetNumberOfTuples();
+    for (vtkIdType cc=0; cc < numFaces; cc++)
+      {
+      vtkIdType cellId = ids->GetComponent(cc,0);
+      vtkIdType faceId = ids->GetComponent(cc,1);
+      vtkCell* cell = dataSet->GetCell(cellId);
+      if (!cell)
+        {
+        continue;
+        }
+      vtkCell* face = cell->GetFace(faceId);
+      if (!face)
+        {
+        continue;
+        }
+
+      // Now insert this face a new cell in the output dataset.
+      vtkIdType numPoints = face->GetNumberOfPoints();
+      vtkPoints* facePoints = face->GetPoints();
+      vtkIdType* outputPts = new vtkIdType[numPoints+1];
+      vtkIdType* cPt = outputPts;
+
+      double ptCoord[3];
+      for (vtkIdType pt = 0; pt < facePoints->GetNumberOfPoints(); pt++)
+        {
+        facePoints->GetPoint(pt, ptCoord);
+        mergePts->InsertUniquePoint(ptCoord, cPt[pt]);
+        }
+      subSet->InsertNextCell(face->GetCellType(), numPoints, outputPts);
+      delete [] outputPts;
+      }
+
+    ids->Delete();
+    pts->Delete();
+    }
+
+  if (set->getType() == XdmfSetType::Edge())
+    {
+    vtkPoints *pts = vtkPoints::New();
+    subSet->SetPoints(pts);
+    vtkSmartPointer<vtkMergePoints> mergePts =
+      vtkSmartPointer<vtkMergePoints>::New();
+    mergePts->InitPointInsertion(pts, dataSet->GetBounds());
+
+    vtkDataArray *ids =
+      vtkXdmf3DataSet::XdmfToVTKArray(set.get(), set->getName(), 3);
+    // ids is a 3 component array were each tuple is (cell-id, face-id, edge-id).
+
+    vtkIdType numEdges = ids->GetNumberOfTuples();
+    for (vtkIdType cc=0; cc < numEdges; cc++)
+      {
+      vtkIdType cellId = ids->GetComponent(cc,0);
+      vtkIdType faceId = ids->GetComponent(cc,1);
+      vtkIdType edgeId = ids->GetComponent(cc,2);
+      vtkCell* cell = dataSet->GetCell(cellId);
+      if (!cell)
+        {
+        continue;
+        }
+      vtkCell* face = cell->GetFace(faceId);
+      if (!face)
+        {
+        continue;
+        }
+      vtkCell* edge = face->GetEdge(edgeId);
+      if (!edge)
+        {
+        continue;
+        }
+
+      // Now insert this edge a new cell in the output dataset.
+      vtkIdType numPoints = edge->GetNumberOfPoints();
+      vtkPoints* edgePoints = edge->GetPoints();
+      vtkIdType* outputPts = new vtkIdType[numPoints+1];
+      vtkIdType* cPt = outputPts;
+
+      double ptCoord[3];
+      for (vtkIdType pt = 0; pt < edgePoints->GetNumberOfPoints(); pt++)
+        {
+        edgePoints->GetPoint(pt, ptCoord);
+        mergePts->InsertUniquePoint(ptCoord, cPt[pt]);
+        }
+      subSet->InsertNextCell(edge->GetCellType(), numPoints, outputPts);
+      delete [] outputPts;
+      }
+    ids->Delete();
+    pts->Delete();
+    }
+
+
+  vtkXdmf3DataSet_ReleaseIfNeeded(set.get(), releaseMe);
+  return;
 }
