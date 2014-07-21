@@ -39,6 +39,7 @@
 #include "vtkOpenGLTextureUnitManager.h"
 #include "vtkStdString.h"
 #include "vtkTrivialProducer.h"
+#include "vtkRendererCollection.h"
 #include <sstream>
 using std::ostringstream;
 
@@ -115,6 +116,30 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   this->SetTextureUnitManager(0);
   this->ShaderCache->UnRegister(this);
 }
+
+void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
+{
+  vtkCollectionSimpleIterator rsit;
+  this->Renderers->InitTraversal(rsit);
+  vtkRenderer *aren;
+  while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
+    {
+    // the following has the effect of release the graphics resources since
+    // Renderer's ReleaseGraphicsResources call is protected
+    aren->SetRenderWindow(NULL);
+    aren->SetRenderWindow(this);
+    }
+  // if(this->DrawPixelsActor!=0)
+  //   {
+  //   this->DrawPixelsActor->ReleaseGraphicsResources(this);
+  //   }
+  // if(this->TextureUnitManager!=0)
+  //   {
+  //   this->TextureUnitManager->ReleaseGraphicsResources(this);
+  //   }
+  // this->ShaderCache->ReleaseGraphicsResources(this);
+}
+
 
 // ----------------------------------------------------------------------------
 unsigned long vtkOpenGLRenderWindow::GetContextCreationTime()

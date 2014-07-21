@@ -26,11 +26,12 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper2D.h"
+#include "vtkglVBOHelper.h"
 
 class vtkRenderer;
 class vtkPoints;
 
-namespace vtkgl {struct CellBO; }
+namespace vtkgl {class CellBO; }
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
@@ -43,9 +44,19 @@ public:
   // Actually draw the poly data.
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkOpenGLPolyDataMapper2D();
   ~vtkOpenGLPolyDataMapper2D();
+
+  // Description:
+  // Does the shader source need to be recomputed
+  virtual bool GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkViewport *ren, vtkActor2D *act);
 
   // Description:
   // Build the shader source code
@@ -57,6 +68,11 @@ protected:
   // Description:
   // Determine what shader to use and compile/link it
   virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *act);
+
+  // Description:
+  // Set the shader parameteres related to the mapper/input data, called by UpdateShader
+  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkViewport *ren, vtkActor2D *act);
+
 
     // Description:
   // Set the shader parameteres related to the Camera
@@ -70,8 +86,18 @@ protected:
   // Update the scene when necessary.
   void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
-  class Private;
-  Private *Internal;
+  // The VBO and its layout.
+  vtkgl::BufferObject VBO;
+  vtkgl::VBOLayout Layout;
+
+  // Structures for the various cell types we render.
+  vtkgl::CellBO Points;
+  vtkgl::CellBO Lines;
+  vtkgl::CellBO Tris;
+  vtkgl::CellBO TriStrips;
+
+  int LastDepthPeeling;
+  vtkTimeStamp DepthPeelingChanged;
 
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   vtkPoints *TransformedPoints;

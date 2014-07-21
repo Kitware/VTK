@@ -95,6 +95,10 @@ public:
   /** Releases the shader program from the current context. */
   void Release();
 
+  // Description:
+  // release any graphics resources this class is using.
+  void ReleaseGraphicsResources();
+
   /** Get the handle of the shader program. */
   int GetHandle() const { return Handle; }
 

@@ -246,6 +246,10 @@ protected:
   virtual void DestroyWindow() = 0;
 
   // Description:
+  // Free up any graphics resources associated with this window
+  virtual void ReleaseGraphicsResources();
+
+  // Description:
   // Set the texture unit manager.
   void SetTextureUnitManager(vtkOpenGLTextureUnitManager *textureUnitManager);
 

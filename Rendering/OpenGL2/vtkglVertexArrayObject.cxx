@@ -99,6 +99,16 @@ public:
     return (this->handleVAO != 0 || this->supported == false);
   }
 
+  void ReleaseGraphicsResources()
+  {
+    if (this->handleVAO)
+      {
+      glDeleteVertexArrays(1, &this->handleVAO);
+      }
+    this->handleVAO = 0;
+    this->supported = true;
+  }
+
   GLuint handleVAO;
   GLuint handleProgram;
   bool supported;
@@ -169,7 +179,7 @@ void VertexArrayObject::Release()
     }
 }
 
-void VertexArrayObject::Initialize()
+void VertexArrayObject::ReleaseGraphicsResources()
 {
   this->Release();
 
@@ -181,7 +191,7 @@ void VertexArrayObject::Initialize()
     }
   this->d->attributes.clear();
 
-  this->d->handleProgram = 0;
+  this->d->ReleaseGraphicsResources();
 }
 
 bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,

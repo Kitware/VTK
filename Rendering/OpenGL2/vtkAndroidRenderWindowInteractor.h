@@ -98,6 +98,8 @@ protected:
   struct android_app *AndroidApplication;
   const char **KeyCodeToKeySymTable;
 
+  bool Done;  // is the event loop done running
+
   //BTX
   // Description:
   // Class variables so an exit method can be defined for this class

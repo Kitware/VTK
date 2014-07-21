@@ -76,7 +76,7 @@ bool ShaderProgram::AttachShader(const Shader &shader)
     return false;
     }
 
-  if (Handle == 0)
+  if (this->Handle == 0)
     {
     GLuint handle_ = glCreateProgram();
     if (handle_ == 0)
@@ -152,7 +152,7 @@ bool ShaderProgram::DetachShader(const Shader &shader)
         return true;
         }
     case Shader::Fragment:
-      if (FragmentShaderHandle != shader.GetHandle())
+      if (this->FragmentShaderHandle != shader.GetHandle())
         {
         this->Error = "The supplied shader was not attached to this program.";
         return false;
@@ -220,6 +220,18 @@ void ShaderProgram::Release()
 {
   glUseProgram(0);
   this->Bound = false;
+}
+
+void ShaderProgram::ReleaseGraphicsResources()
+{
+  this->Release();
+  if (this->Handle != 0)
+    {
+    glDeleteProgram(this->Handle);
+    this->Handle = 0;
+    this->Linked = false;
+    }
+
 }
 
 bool ShaderProgram::EnableAttributeArray(const std::string &name)

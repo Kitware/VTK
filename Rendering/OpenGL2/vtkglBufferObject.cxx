@@ -60,6 +60,16 @@ BufferObject::~BufferObject()
   delete this->d;
 }
 
+void BufferObject::ReleaseGraphicsResources()
+{
+  if (this->d->handle != 0)
+    {
+    glBindBuffer(this->d->type, 0);
+    glDeleteBuffers(1, &this->d->handle);
+    this->d->handle = 0;
+    }
+}
+
 BufferObject::ObjectType BufferObject::GetType() const
 {
   if (this->d->type == GL_ARRAY_BUFFER)

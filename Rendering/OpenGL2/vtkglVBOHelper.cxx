@@ -464,6 +464,21 @@ void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
 
   cellPointMap.resize(nextId);
   pointCellMap.resize(nextId);
-  } // if cell scalars
+}
+
+
+
+void CellBO::ReleaseGraphicsResources()
+{
+  if (this->CachedProgram)
+    {
+    this->CachedProgram->ShaderCache->ReleaseGraphicsResources(this->CachedProgram);
+    this->CachedProgram = 0;
+    }
+  this->ibo.ReleaseGraphicsResources();
+  this->vao.ReleaseGraphicsResources();
+  this->offsetArray.clear();
+  this->elementsArray.clear();
+}
 
 }

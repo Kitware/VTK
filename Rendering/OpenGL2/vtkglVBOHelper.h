@@ -30,6 +30,7 @@ class vtkCellArray;
 class vtkPoints;
 class vtkDataArray;
 class vtkPolyData;
+class vtkOpenGLShaderCache;
 
 namespace vtkgl
 {
@@ -52,8 +53,9 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               bool wireframeTriStrips);
 
 // Store the shaders, program, and ibo in a common struct.
-struct CellBO
+class CellBO
 {
+public:
   vtkOpenGLShaderCache::CachedShaderProgram *CachedProgram;
   BufferObject ibo;
   VertexArrayObject vao;
@@ -65,6 +67,9 @@ struct CellBO
   std::vector<unsigned int> elementsArray;
 
   vtkTimeStamp attributeUpdateTime;
+
+  CellBO() {this->CachedProgram = NULL; };
+  void ReleaseGraphicsResources();
 };
 
 // Sizes/offsets are all in bytes as OpenGL API expects them.

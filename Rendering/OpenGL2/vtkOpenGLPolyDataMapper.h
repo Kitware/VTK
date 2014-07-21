@@ -45,7 +45,7 @@ public:
   // Description:
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
-  // resources to release. Merely propagates the call to the painter.
+  // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
   vtkGetMacro(PopulateSelectionSettings,int);
@@ -118,14 +118,14 @@ protected:
 
   // The VBO and its layout.
   vtkgl::BufferObject VBO;
-  vtkgl::VBOLayout layout;
+  vtkgl::VBOLayout Layout;
 
   // Structures for the various cell types we render.
-  vtkgl::CellBO points;
-  vtkgl::CellBO lines;
-  vtkgl::CellBO tris;
-  vtkgl::CellBO triStrips;
-  vtkgl::CellBO *lastBoundBO;
+  vtkgl::CellBO Points;
+  vtkgl::CellBO Lines;
+  vtkgl::CellBO Tris;
+  vtkgl::CellBO TriStrips;
+  vtkgl::CellBO *LastBoundBO;
 
   // values we use to determine if we need to rebuild
   int LastLightComplexity;

@@ -95,7 +95,7 @@ void Shader::Cleanup()
 
   glDeleteShader(static_cast<GLuint>(this->Handle));
   this->Handle = 0;
-  this->Dirty = false;
+  this->Dirty = true;
 }
 
 }

@@ -275,10 +275,10 @@ void  vtkAndroidRenderWindowInteractor::Start()
     }
 
   this->StartedMessageLoop = 1;
+  this->Done = false;
 
-  bool done = false;
   LOGW("Starting event loop");
-  while (!done)
+  while (!this->Done)
     {
     // Read all pending events.
     int ident;
@@ -299,7 +299,6 @@ void  vtkAndroidRenderWindowInteractor::Start()
         {
         LOGW("Destroying Window");
         this->RenderWindow->Finalize();
-        done = true;
         LOGW("Destroyed");
         return;
         }
@@ -331,10 +330,16 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
         }
       break;
     case APP_CMD_TERM_WINDOW:
-      LOGW("Destroying Window");
+      {
+      LOGW("Terminating Window");
       this->RenderWindow->Finalize();
-      LOGW("Destroyed");
+      LOGW("Terminated");
   //    ANativeActivity_finish(this->AndroidApplication->activity);
+      }
+      break;
+    case APP_CMD_DESTROY:
+      LOGW("Destroying Application");
+      this->Done = true;
       break;
     }
 }

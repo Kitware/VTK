@@ -26,6 +26,8 @@
 
 #include "vtksys/MD5.h"
 
+using vtkgl::replace;
+
 class vtkOpenGLShaderCache::Private
 {
 public:
@@ -88,7 +90,29 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   const char *fragmentCode,
   const char *geometryCode)
 {
+  // perform system wide shader replacements
+  // desktops to not use percision statements
+#if GL_ES_VERSION_2_0 != 1
+  std::string VSSource = vertexCode;
+  VSSource = replace(VSSource,"//VTK::System",
+                              "#define highp\n"
+                              "#define mediump\n"
+                              "#define lowp");
+  std::string FSSource = fragmentCode;
+  FSSource = replace(FSSource,"//VTK::System",
+                              "#define highp\n"
+                              "#define mediump\n"
+                              "#define lowp");
+  std::string GSSource = geometryCode;
+  GSSource = replace(GSSource,"//VTK::System",
+                              "#define highp\n"
+                              "#define mediump\n"
+                              "#define lowp");
+  CachedShaderProgram *shader = this->GetShader(VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+#else
   CachedShaderProgram *shader = this->GetShader(vertexCode, fragmentCode, geometryCode);
+#endif
+
   if (!shader)
     {
     return NULL;
@@ -155,6 +179,7 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(
       }
     sps->Compiled = false;
     sps->md5Hash = result;
+    sps->ShaderCache = this;
     this->Internal->ShaderPrograms.insert(std::make_pair(result, sps));
     return sps;
     }
@@ -216,6 +241,27 @@ int vtkOpenGLShaderCache::CompileShader(vtkOpenGLShaderCache::CachedShaderProgra
 
   shader->Compiled = true;
   return 1;
+}
+
+void vtkOpenGLShaderCache::ReleaseGraphicsResources(
+    vtkOpenGLShaderCache::CachedShaderProgram *shader)
+{
+  // release if we need to
+  if (this->LastShaderBound == shader)
+    {
+    this->LastShaderBound->Program.Release();
+    }
+  this->LastShaderBound = NULL;
+
+  if (shader->Compiled)
+    {
+    shader->Program.DetachShader(shader->VS);
+    shader->Program.DetachShader(shader->FS);
+    shader->VS.Cleanup();
+    shader->FS.Cleanup();
+    shader->Program.ReleaseGraphicsResources();
+    shader->Compiled = false;
+    }
 }
 
 

@@ -24,7 +24,7 @@
 //VTK:Precision
 
 #ifdef GL_ES
-#extension GL_OES_standard_derivatives : enable
+#extension GL_OES_standard_derivatives : require
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else

@@ -147,6 +147,7 @@ void vtkEGLRenderWindow::CreateAWindow()
 
 void vtkEGLRenderWindow::DestroyWindow()
 {
+  this->ReleaseGraphicsResources();
   if (this->Mapped && this->Display != EGL_NO_DISPLAY)
     {
     // make sure all other code knows we're not mapped anymore
