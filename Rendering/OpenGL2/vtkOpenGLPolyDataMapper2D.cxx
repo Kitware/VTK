@@ -230,7 +230,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
     if (newShader != cellBO.CachedProgram)
       {
       cellBO.CachedProgram = newShader;
-      cellBO.vao.ReleaseGraphicsResources(); // reset the VAO as the shader has changed
+      cellBO.vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
       }
     }
     else

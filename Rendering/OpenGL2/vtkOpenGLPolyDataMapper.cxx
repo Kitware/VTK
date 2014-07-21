@@ -206,10 +206,8 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     else
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                  "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
-                                  "vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
-//                                  "vec3 fdx = normalize(dFdx(vertexVC.xyz));\n"
-//                                  "vec3 fdy = normalize(dFdy(vertexVC.xyz));\n"
+                                  "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+                                  "vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
                                   "vec3 normalVC = normalize(cross(fdx,fdy));\n"
                                   // the code below is faster, but does not work on some devices
                                   // "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
@@ -416,7 +414,7 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
     if (newShader != cellBO.CachedProgram)
       {
       cellBO.CachedProgram = newShader;
-      cellBO.vao.ReleaseGraphicsResources(); // reset the VAO as the shader has changed
+      cellBO.vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
       }
 
     cellBO.ShaderSourceTime.Modified();

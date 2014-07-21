@@ -107,6 +107,7 @@ public:
       }
     this->handleVAO = 0;
     this->supported = true;
+    this->handleProgram = 0;
   }
 
   GLuint handleVAO;
@@ -179,7 +180,7 @@ void VertexArrayObject::Release()
     }
 }
 
-void VertexArrayObject::ReleaseGraphicsResources()
+void VertexArrayObject::ShaderProgramChanged()
 {
   this->Release();
 
@@ -191,6 +192,12 @@ void VertexArrayObject::ReleaseGraphicsResources()
     }
   this->d->attributes.clear();
 
+  this->d->handleProgram = 0;
+}
+
+void VertexArrayObject::ReleaseGraphicsResources()
+{
+  this->ShaderProgramChanged();
   this->d->ReleaseGraphicsResources();
 }
 
