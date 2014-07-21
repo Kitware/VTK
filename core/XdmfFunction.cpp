@@ -191,8 +191,16 @@ XdmfFunction::abs(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function abs");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(std::abs(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
@@ -283,6 +291,16 @@ shared_ptr<XdmfArray>
 XdmfFunction::addition(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
 {
   shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  bool release1 = false;
+  bool release2 = false;
+  if (!val1->isInitialized()) {
+    val1->read();
+    release1 = true;
+  }
+  if (!val2->isInitialized()) {
+    val2->read();
+    release2 = true;
+  }
   for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
     if (val1->getSize() == val2->getSize()) {
       returnArray->pushBack(val1->getValue<double>(i) + val2->getValue<double>(i));
@@ -298,6 +316,12 @@ XdmfFunction::addition(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
                          "Error: Array Size Mismatch in Function addition");
     }
   }
+  if (release1) {
+    val1->release();
+  }
+  if (release2) {
+    val2->release();
+  }
   return returnArray;
 }
 
@@ -310,8 +334,16 @@ XdmfFunction::arcsin(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function arcsin");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(asin(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
@@ -325,8 +357,16 @@ XdmfFunction::arccos(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function arccos");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(acos(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
@@ -340,8 +380,16 @@ XdmfFunction::arctan(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function arctan");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(atan(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
@@ -369,8 +417,16 @@ XdmfFunction::cos(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function cos");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(std::cos(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
@@ -386,7 +442,16 @@ XdmfFunction::chunk(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
   shared_ptr<const XdmfArrayType> resultType =
     XdmfArrayType::comparePrecision(val1->getArrayType(),
                                     val2->getArrayType());
-
+  bool release1 = false;
+  bool release2 = false;
+  if (!val1->isInitialized()) {
+    val1->read();
+    release1 = true;
+  }
+  if (!val2->isInitialized()) {
+    val2->read();
+    release2 = true;
+  }
   if (resultType == XdmfArrayType::Int8()) {
     char sampleValue = 0;
     returnArray->resize(val1->getSize()+val2->getSize(), sampleValue);
@@ -433,6 +498,12 @@ XdmfFunction::chunk(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
   }
   returnArray->insert(0, val1, 0, val1->getSize(),  1, 1);
   returnArray->insert(val1->getSize(), val2, 0, val2->getSize(), 1, 1);
+  if (release1) {
+    val1->release();
+  }
+  if (release2) {
+    val2->release();
+  }
   return returnArray;
 }
 
@@ -444,6 +515,16 @@ XdmfFunction::exponent(std::vector<shared_ptr<XdmfArray> > values)
   if (values.size() < 2) {
     XdmfError::message(XdmfError::FATAL,
                        "Error: Two Arrays Needed for Function exponent");
+  }
+  bool release1 = false;
+  bool release2 = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release1 = true;
+  }
+  if (!values[1]->isInitialized()) {
+    values[1]->read();
+    release2 = true;
   }
   for (unsigned int i = 0; i < values[0]->getSize() || i < values[1]->getSize(); ++i) {
     if (values[0]->getSize() == values[1]->getSize()) {
@@ -460,12 +541,28 @@ XdmfFunction::exponent(std::vector<shared_ptr<XdmfArray> > values)
                          "Error: Array Size Mismatch in Function exponent");
     }
   }
+  if (release1) {
+    values[0]->release();
+  }
+  if (release2) {
+    values[1]->release();
+  }
   return returnArray;
 }
 
 shared_ptr<XdmfArray>
 XdmfFunction::division(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
 {
+  bool release1 = false;
+  bool release2 = false;
+  if (!val1->isInitialized()) {
+    val1->read();
+    release1 = true;
+  }
+  if (!val2->isInitialized()) {
+    val2->read();
+    release2 = true;
+  }
   shared_ptr<XdmfArray> returnArray = XdmfArray::New();
   for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
     if (val1->getSize() == val2->getSize()) {
@@ -481,6 +578,12 @@ XdmfFunction::division(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
       XdmfError::message(XdmfError::FATAL,
                          "Error: Array Size Mismatch in Function division");
     }
+  }
+  if (release1) {
+    val1->release();
+  }
+  if (release2) {
+    val2->release();
   }
   return returnArray;
 }
@@ -862,7 +965,16 @@ XdmfFunction::interlace(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
   // and to still have the smallest data type of the two
   shared_ptr<const XdmfArrayType> resultType =
     XdmfArrayType::comparePrecision(val1->getArrayType(), val2->getArrayType());
-
+  bool release1 = false;
+  bool release2 = false;
+  if (!val1->isInitialized()) {
+    val1->read();
+    release1 = true;
+  }
+  if (!val2->isInitialized()) {
+    val2->read();
+    release2 = true;
+  }
   if (resultType == XdmfArrayType::Int8()) {
     char sampleValue = 0;
     returnArray->resize(val1->getSize()+val2->getSize(), sampleValue);
@@ -930,9 +1042,9 @@ XdmfFunction::interlace(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
       if (((amountWritten * arrayRatio1) + i) < (int)val1->getSize()) {
         amountWritten++;
       }
-      if (amountWritten > floor(val2->getSize()/arrayRatio2)) {
-        arrayExcess1 += amountWritten - (int)floor(val2->getSize()/arrayRatio2);
-        amountWritten = (int)floor(val2->getSize()/arrayRatio2);
+      if (amountWritten > floor(static_cast<double>(val2->getSize())/arrayRatio2)) {
+        arrayExcess1 += amountWritten - (int)floor(static_cast<double>(val2->getSize())/arrayRatio2);
+        amountWritten = (int)floor(static_cast<double>(val2->getSize())/arrayRatio2);
       }
       returnArray->insert(i, val1, i, amountWritten, stride, arrayRatio1);
     }
@@ -942,9 +1054,9 @@ XdmfFunction::interlace(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
       if (((amountWritten * arrayRatio2) + i) < (int)val2->getSize()) {
         amountWritten++;
       }
-      if (amountWritten > floor(val1->getSize()/arrayRatio1)) {
-        arrayExcess2 += amountWritten - (int)floor(val1->getSize()/arrayRatio1);
-        amountWritten = (int)floor(val1->getSize()/arrayRatio1);
+      if (amountWritten > floor(static_cast<double>(val1->getSize())/arrayRatio1)) {
+        arrayExcess2 += amountWritten - (int)floor(static_cast<double>(val1->getSize())/arrayRatio1);
+        amountWritten = (int)floor(static_cast<double>(val1->getSize())/arrayRatio1);
       }
       returnArray->insert(i, val2, i-arrayRatio1, amountWritten, stride, arrayRatio2);
     }
@@ -966,6 +1078,12 @@ XdmfFunction::interlace(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
                         1);
   }
   // After all inserts are done, add the excess values to the end of the array
+  if (release1) {
+    val1->release();
+  }
+  if (release2) {
+    val2->release();
+  }
   return returnArray;
 }
 
@@ -979,13 +1097,22 @@ shared_ptr<XdmfArray>
 XdmfFunction::join(std::vector<shared_ptr<XdmfArray> > values)
 {
   shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  bool release = false;
   for (unsigned int i = 0; i < values.size(); ++i) {
+    release = false;
+    if (!values[i]->isInitialized()) {
+      values[i]->read();
+      release = true;
+    }
     returnArray->insert(returnArray->getSize(),
                         values[i],
                         0,
                         values[i]->getSize(),
                         1,
                         1);
+    if (release) {
+      values[i]->release();
+    }
   }
   return returnArray;
 }
@@ -998,6 +1125,18 @@ XdmfFunction::log(std::vector<shared_ptr<XdmfArray> > values)
   if (values.size() < 1) {
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function log");
+  }
+  bool release1 = false;
+  bool release2 = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release1 = true;
+  }
+  if (values.size() > 1) {
+    if (!values[1]->isInitialized()) {
+      values[1]->read();
+      release2 = true;
+    }
   }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     if (values.size() > 1) {
@@ -1016,6 +1155,12 @@ XdmfFunction::log(std::vector<shared_ptr<XdmfArray> > values)
       returnArray->pushBack(std::log(values[0]->getValue<double>(i)));
     }
   }
+  if (release1) {
+    values[0]->release();
+  }
+  if (release2) {
+    values[1]->release();
+  }
   return returnArray;
 }
 
@@ -1023,6 +1168,16 @@ shared_ptr<XdmfArray>
 XdmfFunction::multiplication(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
 {
   shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  bool release1 = false;
+  bool release2 = false;
+  if (!val1->isInitialized()) {
+    val1->read();
+    release1 = true;
+  }
+  if (!val2->isInitialized()) {
+    val2->read();
+    release2 = true;
+  }
   for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
     if (val1->getSize() == val2->getSize()) {
       returnArray->pushBack(val1->getValue<double>(i) * val2->getValue<double>(i));
@@ -1037,6 +1192,12 @@ XdmfFunction::multiplication(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> v
       XdmfError::message(XdmfError::FATAL,
                          "Error: Array Size Mismatch in Function multiplication");
     }
+  }
+  if (release1) {
+    val1->release();
+  }
+  if (release2) {
+    val2->release();
   }
   return returnArray;
 }
@@ -1073,8 +1234,16 @@ XdmfFunction::sin(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function sin");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(std::sin(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
@@ -1088,8 +1257,16 @@ XdmfFunction::sqrt(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function sqrt");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(std::sqrt(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
@@ -1098,6 +1275,16 @@ shared_ptr<XdmfArray>
 XdmfFunction::subtraction(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2)
 {
   shared_ptr<XdmfArray> returnArray = XdmfArray::New();
+  bool release1 = false;
+  bool release2 = false;
+  if (!val1->isInitialized()) {
+    val1->read();
+    release1 = true;
+  }
+  if (!val2->isInitialized()) {
+    val2->read();
+    release2 = true;
+  }
   for (unsigned int i = 0; i < val1->getSize() || i < val2->getSize(); ++i) {
     if (val1->getSize() == val2->getSize()) {
       returnArray->pushBack(val1->getValue<double>(i) - val2->getValue<double>(i));
@@ -1113,6 +1300,12 @@ XdmfFunction::subtraction(shared_ptr<XdmfArray> val1, shared_ptr<XdmfArray> val2
                          "Error: Array Size Mismatch in Function subtraction");
     }
   }
+  if (release1) {
+    val1->release();
+  }
+  if (release2) {
+    val2->release();
+  }
   return returnArray;
 }
 
@@ -1120,9 +1313,18 @@ shared_ptr<XdmfArray>
 XdmfFunction::sum(std::vector<shared_ptr<XdmfArray> > values)
 {
   double total = 0.0;
+  bool release = false;
   for (unsigned int i = 0; i < values.size(); ++i) {
+    release = false;
+    if (!values[i]->isInitialized()) {
+      values[i]->read();
+      release = true;
+    }
     for (unsigned int j = 0; j < values[i]->getSize(); ++j) {
       total += values[i]->getValue<double>(j);
+    }
+    if (release) {
+      values[i]->release();
     }
   }
   shared_ptr<XdmfArray> returnArray = XdmfArray::New();
@@ -1139,8 +1341,16 @@ XdmfFunction::tan(std::vector<shared_ptr<XdmfArray> > values)
     XdmfError::message(XdmfError::FATAL,
                        "Error: No Array Passed to Function tan");
   }
+  bool release = false;
+  if (!values[0]->isInitialized()) {
+    values[0]->read();
+    release = true;
+  }
   for (unsigned int i = 0; i < values[0]->getSize(); ++i) {
     returnArray->pushBack(std::tan(values[0]->getValue<double>(i)));
+  }
+  if (release) {
+    values[0]->release();
   }
   return returnArray;
 }
