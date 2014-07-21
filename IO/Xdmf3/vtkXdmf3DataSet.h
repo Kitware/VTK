@@ -32,6 +32,7 @@
 #include <string> //Needed only for XdmfArray::getName :(
 
 class vtkXdmf3ArraySelection;
+class vtkXdmf3ArrayKeeper;
 class XdmfArray;
 class vtkDataArray;
 class XdmfGrid;
@@ -66,7 +67,8 @@ public:
   static vtkDataArray *XdmfToVTKArray(
     XdmfArray* xArray,
     std::string attrName,//TODO: needed because XdmfArray::getName() misbehaves
-    unsigned int preferredComponents = 0);
+    unsigned int preferredComponents = 0,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Populates and Xdmf array corresponding to the VTK array it is given
@@ -82,7 +84,8 @@ public:
     vtkXdmf3ArraySelection *fselection,
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
-    XdmfGrid *grid, vtkDataObject *dObject);
+    XdmfGrid *grid, vtkDataObject *dObject,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Populates the given Xdmf Grid's attribute arrays with the selected
@@ -108,13 +111,15 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
     XdmfRegularGrid *grid,
-    vtkImageData *dataSet);
+    vtkImageData *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Helper that does topology for XdmfToVTK
   static void CopyShape(
     XdmfRegularGrid *grid,
-    vtkImageData *dataSet);
+    vtkImageData *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Populates the Xdmf Grid with the contents of the VTK data set
@@ -131,13 +136,15 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
     XdmfRectilinearGrid *grid,
-    vtkRectilinearGrid *dataSet);
+    vtkRectilinearGrid *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Helper that does topology for XdmfToVTK
   static void CopyShape(
     XdmfRectilinearGrid *grid,
-    vtkRectilinearGrid *dataSet);
+    vtkRectilinearGrid *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Populates the Xdmf Grid with the contents of the VTK data set
@@ -154,13 +161,15 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
     XdmfCurvilinearGrid *grid,
-    vtkStructuredGrid *dataSet);
+    vtkStructuredGrid *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Helper that does topology for XdmfToVTK
   static void CopyShape(
     XdmfCurvilinearGrid *grid,
-    vtkStructuredGrid *dataSet);
+    vtkStructuredGrid *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Populates the Xdmf Grid with the contents of the VTK data set
@@ -177,13 +186,15 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
     XdmfUnstructuredGrid *grid,
-    vtkUnstructuredGrid *dataSet);
+    vtkUnstructuredGrid *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Helper that does topology for XdmfToVTK
   static void CopyShape(
     XdmfUnstructuredGrid *grid,
-    vtkUnstructuredGrid *dataSet);
+    vtkUnstructuredGrid *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Populates the Xdmf Grid with the contents of the VTK data set
@@ -200,7 +211,8 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
     XdmfGraph *grid,
-    vtkMutableDirectedGraph *dataSet);
+    vtkMutableDirectedGraph *dataSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Populates the Xdmf Grid with the contents of the VTK data set
@@ -221,7 +233,8 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
 */
-    XdmfSet *grid, vtkDataObject *dObject);
+    XdmfSet *grid, vtkDataObject *dObject,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
   // Description:
   // Extracts numbered subset out of grid (grid corresponds to dataSet),
@@ -233,7 +246,8 @@ public:
     XdmfGrid *grid,
     unsigned int setnum,
     vtkDataSet *dataSet,
-    vtkUnstructuredGrid *subSet);
+    vtkUnstructuredGrid *subSet,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 
 };
 
