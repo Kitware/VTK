@@ -14,16 +14,13 @@
 =========================================================================*/
 // .NAME vtkCoreGraphicsGPUInfoList - Get GPUs VRAM information using CoreGraphics.
 // .SECTION Description
-// vtkCoreGraphicsGPUInfoList implements Probe() method of vtkGPUInfoList
-// through the CoreGraphics API (Apple Mac OS X) and the IOKit API.
-// The CoreGraphics framework is part of the ApplicationServices umbrella
-// framework. IOKit is a framework on its own.
-// ref: http://developer.apple.com/qa/qa2004/qa1168.html
+// vtkCoreGraphicsGPUInfoList implements the Probe() method of vtkGPUInfoList
+// using Mac OS X APIs.
 // .SECTION See Also
 // vtkGPUInfo vtkGPUInfoList
 
-#ifndef __vtkCoreGraphicsGPUInfoList_h
-#define __vtkCoreGraphicsGPUInfoList_h
+#ifndef vtkCoreGraphicsGPUInfoList_h
+#define vtkCoreGraphicsGPUInfoList_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkGPUInfoList.h"
