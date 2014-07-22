@@ -272,6 +272,12 @@ if(WIN32)
   set_property(SOURCE vtkWin32OutputWindowProcessEncoded.c PROPERTY WRAP_EXCLUDE 1)
 endif()
 
+if(ANDROID)
+  list(APPEND Module_SRCS
+    vtkAndroidOutputWindow.cxx
+    )
+endif()
+
 # Generate data for folding Unicode strings
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake @ONLY)

@@ -28,7 +28,6 @@ class vtkMatrix4x4;
 namespace vtkgl {
 
 class Shader;
-class Texture2D;
 class VertexArrayObject;
 
 /**
@@ -96,6 +95,10 @@ public:
   /** Releases the shader program from the current context. */
   void Release();
 
+  // Description:
+  // release any graphics resources this class is using.
+  void ReleaseGraphicsResources();
+
   /** Get the handle of the shader program. */
   int GetHandle() const { return Handle; }
 
@@ -158,6 +161,7 @@ public:
   bool SetUniformi(const std::string &name, int v);
   bool SetUniformf(const std::string &name, float v);
   bool SetUniform2i(const std::string &name, const int v[2]);
+  bool SetUniform2f(const std::string &name, const float v[2]);
   bool SetUniform3f(const std::string &name, const float v[3]);
   bool SetUniform4f(const std::string &name, const float v[4]);
   bool SetUniform3uc(const std::string &name, const unsigned char v[3]); // maybe remove
@@ -187,14 +191,9 @@ protected:
 
   std::map<std::string, int> Attributes;
 
-  std::map<const Texture2D*, int> TextureUnitBindings;
-  std::vector<bool> BoundTextureUnits;
-
   friend class VertexArrayObject;
 
 private:
-  void InitializeTextureUnits();
-  void ReleaseAllTextureUnits();
   int FindAttributeArray(const std::string &name);
   int FindUniform(const std::string &name);
 };

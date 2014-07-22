@@ -22,7 +22,6 @@
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 
-#include "vtkOpenGL.h"
 #include <math.h>
 
 vtkStandardNewMacro(vtkOpenGLActor);

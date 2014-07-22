@@ -13,7 +13,7 @@
 =========================================================================*/
 #include "vtkglShaderProgram.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 #include "vtkglShader.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -41,59 +41,22 @@ inline GLenum convertTypeToGL(int type)
     case VTK_FLOAT:
       return GL_FLOAT;
     case VTK_DOUBLE:
+#ifdef GL_DOUBLE
       return GL_DOUBLE;
+#else
+      assert("Attempt to use GL_DOUBLE when not supported" && 0);
+      return 0;
+#endif
     default:
       return 0;
     }
 }
 
-inline GLenum LookupTextureUnit(GLint index)
-{
-#define MAKE_TEXTURE_UNIT_CASE(i) case i: return GL_TEXTURE##i;
-  switch (index)
-    {
-    MAKE_TEXTURE_UNIT_CASE(0)
-    MAKE_TEXTURE_UNIT_CASE(1)
-    MAKE_TEXTURE_UNIT_CASE(2)
-    MAKE_TEXTURE_UNIT_CASE(3)
-    MAKE_TEXTURE_UNIT_CASE(4)
-    MAKE_TEXTURE_UNIT_CASE(5)
-    MAKE_TEXTURE_UNIT_CASE(6)
-    MAKE_TEXTURE_UNIT_CASE(7)
-    MAKE_TEXTURE_UNIT_CASE(8)
-    MAKE_TEXTURE_UNIT_CASE(9)
-    MAKE_TEXTURE_UNIT_CASE(10)
-    MAKE_TEXTURE_UNIT_CASE(11)
-    MAKE_TEXTURE_UNIT_CASE(12)
-    MAKE_TEXTURE_UNIT_CASE(13)
-    MAKE_TEXTURE_UNIT_CASE(14)
-    MAKE_TEXTURE_UNIT_CASE(15)
-    MAKE_TEXTURE_UNIT_CASE(16)
-    MAKE_TEXTURE_UNIT_CASE(17)
-    MAKE_TEXTURE_UNIT_CASE(18)
-    MAKE_TEXTURE_UNIT_CASE(19)
-    MAKE_TEXTURE_UNIT_CASE(20)
-    MAKE_TEXTURE_UNIT_CASE(21)
-    MAKE_TEXTURE_UNIT_CASE(22)
-    MAKE_TEXTURE_UNIT_CASE(23)
-    MAKE_TEXTURE_UNIT_CASE(24)
-    MAKE_TEXTURE_UNIT_CASE(25)
-    MAKE_TEXTURE_UNIT_CASE(26)
-    MAKE_TEXTURE_UNIT_CASE(27)
-    MAKE_TEXTURE_UNIT_CASE(28)
-    MAKE_TEXTURE_UNIT_CASE(29)
-    MAKE_TEXTURE_UNIT_CASE(30)
-    MAKE_TEXTURE_UNIT_CASE(31)
-    default:
-      return 0;
-    }
-}
 } // end anon namespace
 
 ShaderProgram::ShaderProgram() : Handle(0), VertexShaderHandle(0),
   FragmentShaderHandle(0), Linked(false), Bound(false)
 {
-  this->InitializeTextureUnits();
 }
 
 ShaderProgram::~ShaderProgram()
@@ -113,7 +76,7 @@ bool ShaderProgram::AttachShader(const Shader &shader)
     return false;
     }
 
-  if (Handle == 0)
+  if (this->Handle == 0)
     {
     GLuint handle_ = glCreateProgram();
     if (handle_ == 0)
@@ -189,7 +152,7 @@ bool ShaderProgram::DetachShader(const Shader &shader)
         return true;
         }
     case Shader::Fragment:
-      if (FragmentShaderHandle != shader.GetHandle())
+      if (this->FragmentShaderHandle != shader.GetHandle())
         {
         this->Error = "The supplied shader was not attached to this program.";
         return false;
@@ -257,7 +220,18 @@ void ShaderProgram::Release()
 {
   glUseProgram(0);
   this->Bound = false;
-  ReleaseAllTextureUnits();
+}
+
+void ShaderProgram::ReleaseGraphicsResources()
+{
+  this->Release();
+  if (this->Handle != 0)
+    {
+    glDeleteProgram(this->Handle);
+    this->Handle = 0;
+    this->Linked = false;
+    }
+
 }
 
 bool ShaderProgram::EnableAttributeArray(const std::string &name)
@@ -402,6 +376,18 @@ bool ShaderProgram::SetUniform3fv(const std::string &name, const int count,
   return true;
 }
 
+bool ShaderProgram::SetUniform2f(const std::string &name, const float v[2])
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+    }
+  glUniform2fv(location, 1, v);
+  return true;
+}
+
 bool ShaderProgram::SetUniform3f(const std::string &name, const float v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
@@ -485,28 +471,6 @@ bool ShaderProgram::SetAttributeArrayInternal(
   glVertexAttribPointer(location, tupleSize, convertTypeToGL(type),
                         normalize == Normalize ? GL_TRUE : GL_FALSE, 0, data);
   return true;
-}
-
-void ShaderProgram::InitializeTextureUnits()
-{
-  GLint numTextureUnits;
-  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &numTextureUnits);
-
-  // We'll impose a a hard limit of 32 texture units for symbolic lookups.
-  // This seems to be about the maximum available on current hardware.
-  // If increasing this limit, modify the lookupTextureUnit method
-  // appropriately.
-  numTextureUnits = std::min(std::max(numTextureUnits, 0), 32);
-
-  BoundTextureUnits.clear();
-  BoundTextureUnits.resize(numTextureUnits, false);
-  TextureUnitBindings.clear();
-}
-
-void ShaderProgram::ReleaseAllTextureUnits()
-{
-  std::fill(BoundTextureUnits.begin(), BoundTextureUnits.end(), false);
-  TextureUnitBindings.clear();
 }
 
 inline int ShaderProgram::FindAttributeArray(const std::string &name)

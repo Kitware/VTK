@@ -21,6 +21,10 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
+#ifdef GL_ES
+precision highp float;
+#endif
+
 attribute vec4 vertexMC;
 
 // optional normal declaration

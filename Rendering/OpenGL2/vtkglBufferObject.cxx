@@ -13,7 +13,7 @@
 =========================================================================*/
 #include "vtkglBufferObject.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 namespace vtkgl {
 
@@ -58,6 +58,16 @@ BufferObject::~BufferObject()
     glDeleteBuffers(1, &this->d->handle);
     }
   delete this->d;
+}
+
+void BufferObject::ReleaseGraphicsResources()
+{
+  if (this->d->handle != 0)
+    {
+    glBindBuffer(this->d->type, 0);
+    glDeleteBuffers(1, &this->d->handle);
+    this->d->handle = 0;
+    }
 }
 
 BufferObject::ObjectType BufferObject::GetType() const

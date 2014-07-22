@@ -3,17 +3,11 @@ if(TARGET vtkRenderingOpenGL)
 endif()
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
 include_directories(SYSTEM
-  ${OPENGL_INCLUDE_DIR}
-  ${GLEW_INCLUDE_DIRS})
-if(WIN32 AND NOT BUILD_SHARED_LIBS)
-  add_definitions(-DGLEW_STATIC)
-endif()
+  ${OPENGL_INCLUDE_DIR})
 
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS
-  ${OPENGL_INCLUDE_DIR}
-  ${GLEW_INCLUDE_DIRS})
+  ${OPENGL_INCLUDE_DIR})
 
 include(vtkObjectFactory)
 
@@ -27,7 +21,7 @@ if(APPLE)
   if(VTK_USE_COCOA AND VTK_USE_CARBON)
     message(FATAL_ERROR "You can't enable Carbon and Cocoa - you must choose one.")
   endif()
-elseif(UNIX)
+elseif(UNIX AND NOT ANDROID)
   set(VTK_USE_X_DEFAULT ON)
 endif()
 
@@ -43,7 +37,7 @@ if(VTK_OPENGL_HAS_OSMESA OR WIN32)
   set(VTK_CAN_DO_OFFSCREEN 1)
 endif()
 mark_as_advanced(VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN)
-if(VTK_USE_X OR VTK_USE_CARBON OR VTK_USE_COCOA OR WIN32)
+if(VTK_USE_X OR VTK_USE_CARBON OR VTK_USE_COCOA OR WIN32 OR ANDROID)
   set(VTK_USE_OSMESA FALSE)
 else()
   set(VTK_USE_OSMESA TRUE)
@@ -60,7 +54,6 @@ set(Module_SRCS
   vtkglShader.cxx
   vtkglShaderProgram.cxx
   vtkglVertexArrayObject.cxx
-  vtkFrameBufferObject.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
   vtkOpenGLImageMapper.cxx
@@ -77,13 +70,19 @@ set(Module_SRCS
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx
   vtkOpenGLTextureUnitManager.cxx
-  vtkPixelBufferObject.cxx
-  vtkRenderbuffer.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
   vtkTextureObject.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
+
+if (NOT ANDROID)
+  set(Module_SRCS ${Module_SRCS}
+  vtkPixelBufferObject.cxx
+  vtkFrameBufferObject.cxx
+  )
+endif()
+
 
 set(${vtk-module}_HDRS
   vtkOpenGL.h
@@ -277,6 +276,20 @@ elseif(VTK_USE_CARBON)
     vtkCarbonRenderWindowInteractor.cxx
     vtkCarbonRenderWindow.cxx
     )
+elseif(ANDROID)
+  # Add some custom overrides
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkAndroidRenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkEGLRenderWindow")
+  list(APPEND Module_SRCS
+    vtkAndroidRenderWindowInteractor.cxx
+    vtkEGLRenderWindow.cxx
+    )
+  include_directories(
+    "${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include"
+    "${ANDROID_NDK}/sources/android/native_app_glue"
+    )
 endif()
 
 vtk_object_factory_configure("${vtk_module_overrides}")
@@ -302,4 +315,9 @@ vtk_module_link_libraries(${vtk-module}
 if(VTK_USE_X)
   vtk_module_link_libraries(${vtk-module}
     LINK_PUBLIC ${X11_LIBRARIES} ${X11_Xt_LIB})
+endif()
+
+if(ANDROID)
+  target_link_libraries(${vtk-module}
+    LINK_PUBLIC ${OPENGL_egl_LIBRARY})
 endif()

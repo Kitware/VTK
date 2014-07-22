@@ -20,7 +20,7 @@
 #include "vtkglShaderProgram.h"
 #include "vtkglVertexArrayObject.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 #include <vector>
 
@@ -30,6 +30,7 @@ class vtkCellArray;
 class vtkPoints;
 class vtkDataArray;
 class vtkPolyData;
+class vtkOpenGLShaderCache;
 
 namespace vtkgl
 {
@@ -52,8 +53,9 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               bool wireframeTriStrips);
 
 // Store the shaders, program, and ibo in a common struct.
-struct CellBO
+class CellBO
 {
+public:
   vtkOpenGLShaderCache::CachedShaderProgram *CachedProgram;
   BufferObject ibo;
   VertexArrayObject vao;
@@ -61,10 +63,13 @@ struct CellBO
 
   size_t indexCount;
   // These are client side objects for multi draw where IBOs are not used.
-  std::vector<ptrdiff_t> offsetArray;
+  std::vector<GLintptr> offsetArray;
   std::vector<unsigned int> elementsArray;
 
   vtkTimeStamp attributeUpdateTime;
+
+  CellBO() {this->CachedProgram = NULL; };
+  void ReleaseGraphicsResources();
 };
 
 // Sizes/offsets are all in bytes as OpenGL API expects them.

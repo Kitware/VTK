@@ -8,6 +8,7 @@ vtk_module(vtkRenderingOpenGL2
   BACKEND
     OpenGL2
   PRIVATE_DEPENDS
+    vtkglew
     vtksys
   COMPILE_DEPENDS
     vtkUtilitiesEncodeString

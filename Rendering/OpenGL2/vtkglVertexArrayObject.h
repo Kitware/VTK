@@ -43,7 +43,9 @@ public:
 
   void Release();
 
-  void Initialize();
+  void ReleaseGraphicsResources();
+
+  void ShaderProgramChanged();
 
   bool AddAttributeArray(ShaderProgram &program, BufferObject &buffer,
                          const std::string &name, int offset, size_t stride,

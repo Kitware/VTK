@@ -14,12 +14,11 @@
 =========================================================================*/
 #include "vtkFrameBufferObject.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
-#include "vtkRenderbuffer.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkOpenGLError.h"
 
@@ -81,25 +80,25 @@ void vtkFrameBufferObject::DestroyFBO()
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *)
+bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *)
 {
-    bool fbo = glewIsSupported("GL_EXT_framebuffer_object");
-    bool fboBlit = glewIsSupported("GL_EXT_framebuffer_blit");
+    bool fbo = (glewIsSupported("GL_EXT_framebuffer_object") != 0);
+    bool fboBlit = (glewIsSupported("GL_EXT_framebuffer_blit") != 0);
 
     return fbo && fboBlit;
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::LoadRequiredExtensions(vtkRenderWindow *win)
+bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *vtkNotUsed(win))
 {
-  bool fbo = glewIsSupported("GL_EXT_framebuffer_object");
-  bool fboBlit = glewIsSupported("GL_EXT_framebuffer_blit");
+  bool fbo = (glewIsSupported("GL_EXT_framebuffer_object") != 0);
+  bool fboBlit = (glewIsSupported("GL_EXT_framebuffer_blit") != 0);
 
   return fbo && fboBlit;
 }
 
 //----------------------------------------------------------------------------
-void vtkFrameBufferObject::SetContext(vtkRenderWindow *renWin)
+void vtkFrameBufferObject::SetContext(vtkOpenGLRenderWindow *renWin)
 {
   // avoid pointless re-assignment
   if (this->Context==renWin)
@@ -118,10 +117,7 @@ void vtkFrameBufferObject::SetContext(vtkRenderWindow *renWin)
     return;
     }
   // check for support
-  vtkOpenGLRenderWindow *context
-    = vtkOpenGLRenderWindow::SafeDownCast(renWin);
-  if ( !context
-    || !this->LoadRequiredExtensions(renWin))
+  if (!this->LoadRequiredExtensions(renWin))
     {
     vtkErrorMacro("Context does not support the required extensions");
     return;
@@ -133,7 +129,7 @@ void vtkFrameBufferObject::SetContext(vtkRenderWindow *renWin)
 }
 
 //----------------------------------------------------------------------------
-vtkRenderWindow *vtkFrameBufferObject::GetContext()
+vtkOpenGLRenderWindow *vtkFrameBufferObject::GetContext()
 {
   return this->Context;
 }
@@ -387,8 +383,8 @@ void vtkFrameBufferObject::CreateColorBuffers(
       colorBuffer->SetContext(this->Context);
       colorBuffer->SetMinificationFilter(vtkTextureObject::Nearest);
       colorBuffer->SetLinearMagnification(false);
-      colorBuffer->SetWrapS(vtkTextureObject::Clamp);
-      colorBuffer->SetWrapT(vtkTextureObject::Clamp);
+      colorBuffer->SetWrapS(vtkTextureObject::ClampToEdge);
+      colorBuffer->SetWrapT(vtkTextureObject::ClampToEdge);
       if (!colorBuffer->Create2D(
                 width,
                 height,
