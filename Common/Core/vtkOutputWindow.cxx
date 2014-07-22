@@ -26,10 +26,6 @@
 
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkOutputWindow);
-
-//----------------------------------------------------------------------------
 
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
 vtkOutputWindowCleanup vtkOutputWindow::Cleanup;

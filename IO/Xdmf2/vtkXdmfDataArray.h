@@ -29,7 +29,10 @@
 #include "vtkObject.h"
 
 class vtkDataArray;
+namespace xdmf2
+{
 class XdmfArray;
+}
 
 class VTKIOXDMF2_EXPORT vtkXdmfDataArray : public vtkObject
 {
@@ -60,7 +63,7 @@ protected:
 
 private:
   vtkDataArray  *vtkArray;
-  XdmfArray  *Array;
+  xdmf2::XdmfArray  *Array;
   vtkXdmfDataArray(const vtkXdmfDataArray&); // Not implemented
   void operator=(const vtkXdmfDataArray&); // Not implemented
 };

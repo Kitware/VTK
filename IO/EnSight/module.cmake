@@ -3,4 +3,6 @@ vtk_module(vtkIOEnSight
     StandAlone
   DEPENDS
     vtkCommonExecutionModel
+  KIT
+    vtkIO
   )

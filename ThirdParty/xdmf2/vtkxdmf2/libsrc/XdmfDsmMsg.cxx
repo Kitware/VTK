@@ -24,10 +24,14 @@
 /*******************************************************************/
 #include "XdmfDsmMsg.h"
 
+namespace xdmf2
+{
 
 XdmfDsmMsg::XdmfDsmMsg() {
     this->Tag = XDMF_DSM_DEFAULT_TAG;
 }
 
 XdmfDsmMsg::~XdmfDsmMsg() {
+}
+
 }

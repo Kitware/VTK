@@ -149,7 +149,8 @@ public:
   // triangulation is created. The lines/polygons are assumed to reference
   // points in the input point set (i.e. point ids are identical in the
   // input and source).
-  // Old style. See SetSourceConnection.
+  // Note that this method does not connect the pipeline. See SetSourceConnection
+  // for connecting the pipeline.
   void SetSourceData(vtkPolyData *);
 
   // Description:

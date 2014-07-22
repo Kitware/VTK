@@ -11,4 +11,6 @@ vtk_module(vtkFiltersParallelGeometry
     vtkCommonDataModel
     vtkParallelMPI
     vtkTestingCore
+  KIT
+    vtkParallel
   )

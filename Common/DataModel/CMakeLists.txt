@@ -3,6 +3,7 @@ set(Module_SRCS
   vtkAbstractPointLocator.cxx
   vtkAdjacentVertexIterator.cxx
   vtkAMRBox.cxx
+  vtkAMRUtilities.cxx
   vtkAnimationScene.cxx
   vtkAnnotation.cxx
   vtkAnnotationLayers.cxx

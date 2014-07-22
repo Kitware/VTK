@@ -37,9 +37,13 @@ class vtkFieldData;
 class vtkInformation;
 class vtkInformationVector;
 class vtkXdmfWriterDomainMemoryHandler;
+
+namespace xdmf2
+{
 class XdmfArray;
 class XdmfDOM;
 class XdmfGrid;
+}
 
 class VTKIOXDMF2_EXPORT vtkXdmfWriter : public vtkDataObjectAlgorithm
 {
@@ -127,15 +131,15 @@ protected:
   //These do the work: recursively parse down input's structure all the way to arrays,
   //use XDMF lib to dump everything to file.
 
-  virtual int CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata);
-  virtual int CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticdata);
+  virtual int CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata);
+  virtual int CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *staticdata);
 
-  virtual int WriteDataSet(vtkDataObject *dobj, XdmfGrid *grid);
-  virtual int WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *grid);
-  virtual int WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid);
-  virtual int WriteArrays(vtkFieldData* dsa, XdmfGrid *grid, int association,
+  virtual int WriteDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid);
+  virtual int WriteCompositeDataSet(vtkCompositeDataSet *dobj, xdmf2::XdmfGrid *grid);
+  virtual int WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid);
+  virtual int WriteArrays(vtkFieldData* dsa, xdmf2::XdmfGrid *grid, int association,
                            vtkIdType rank, vtkIdType *dims, const char *name);
-  virtual void ConvertVToXArray(vtkDataArray *vda, XdmfArray *xda,
+  virtual void ConvertVToXArray(vtkDataArray *vda, xdmf2::XdmfArray *xda,
                                 vtkIdType rank, vtkIdType *dims,
                                 int AllocStrategy, const char *heavyprefix);
 
@@ -152,8 +156,8 @@ protected:
   int Piece;
   int NumberOfPieces;
 
-  XdmfDOM *DOM;
-  XdmfGrid *TopTemporalGrid;
+  xdmf2::XdmfDOM *DOM;
+  xdmf2::XdmfGrid *TopTemporalGrid;
 
   vtkXdmfWriterDomainMemoryHandler *DomainMemoryHandler;
 

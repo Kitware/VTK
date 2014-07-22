@@ -93,7 +93,6 @@ set(Module_SRCS
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
   vtkRenderbuffer.cxx
-  vtkRenderbuffer.cxx
   vtkSequencePass.cxx
   vtkShader2.cxx
   vtkShader2Collection.cxx
@@ -162,12 +161,7 @@ if(WIN32)
   endif()
 elseif(APPLE)
   set(VTK_USE_APPLE_LOADER 1)
-  find_package(ApplicationServices)
-  find_package(IOKit)
-  mark_as_advanced(ApplicationServices IOKit)
-  if(ApplicationServices_FOUND AND IOKit_FOUND)
-    set(VTK_USE_CORE_GRAPHICS 1)
-  endif()
+  set(VTK_USE_CORE_GRAPHICS 1)
 else()
   include(CheckFunctionExists)
   set(VTK_SAVE_CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
@@ -379,8 +373,7 @@ if(VTK_USE_NVCONTROL)
   set(vtk_module_vtkGPUInfoList_override "vtkXGPUInfoList")
 elseif(VTK_USE_CORE_GRAPHICS)
   list(APPEND Module_SRCS "vtkCoreGraphicsGPUInfoList.cxx")
-  set(extra_libs ${ApplicationServices_LIBRARY} ${IOKit_LIBRARY})
-  include_directories(${ApplicationServices_INCLUDE_DIR} ${IOKit_INCLUDE_DIR})
+  set(extra_libs)
   set(vtk_module_vtkGPUInfoList_override "vtkCoreGraphicsGPUInfoList")
 elseif(VTK_USE_DIRECTX)
   list(APPEND Module_SRCS "vtkDirectXGPUInfoList.cxx")
@@ -434,17 +427,17 @@ if (VTK_IGNORE_GLDRIVER_BUGS)
 endif()
 
 vtk_module_library(vtkRenderingOpenGL ${Module_SRCS})
-target_link_libraries(vtkRenderingOpenGL
+vtk_module_link_libraries(vtkRenderingOpenGL
   LINK_PUBLIC ${OPENGL_LIBRARIES} ${extra_libs})
 if(VTK_USE_X)
-  target_link_libraries(vtkRenderingOpenGL
+  vtk_module_link_libraries(vtkRenderingOpenGL
     LINK_PUBLIC ${X11_LIBRARIES} ${X11_Xt_LIB})
 elseif(VTK_USE_COCOA)
-  target_link_libraries(vtkRenderingOpenGL LINK_PUBLIC "-framework Cocoa")
+  vtk_module_link_libraries(vtkRenderingOpenGL LINK_PUBLIC "-framework Cocoa")
 elseif(VTK_USE_CARBON)
-  target_link_libraries(vtkRenderingOpenGL LINK_PUBLIC "-framework Carbon")
+  vtk_module_link_libraries(vtkRenderingOpenGL LINK_PUBLIC "-framework Carbon")
 endif()
 
 if(VTK_OPENGL_HAS_OSMESA)
-  target_link_libraries(vtkRenderingOpenGL LINK_PUBLIC ${OSMESA_LIBRARY})
+  vtk_module_link_libraries(vtkRenderingOpenGL LINK_PUBLIC ${OSMESA_LIBRARY})
 endif()

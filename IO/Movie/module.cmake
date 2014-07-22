@@ -14,4 +14,6 @@ vtk_module(vtkIOMovie
     vtkTestingCore
     vtkImagingCore
     vtkImagingSources
+  KIT
+    vtkIO
   )

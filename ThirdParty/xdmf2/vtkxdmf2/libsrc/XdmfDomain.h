@@ -27,6 +27,8 @@
 
 #include "XdmfElement.h"
 
+namespace xdmf2
+{
 
 /*! XdmfDomain represents the Domain Element in
 Xdmf. In XML it is the Element :
@@ -59,4 +61,5 @@ public:
 protected:
 };
 
+}
 #endif // __XdmfDomain_h

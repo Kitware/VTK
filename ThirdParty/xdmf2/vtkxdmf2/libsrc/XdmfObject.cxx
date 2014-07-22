@@ -25,6 +25,9 @@
 #include "XdmfObject.h"
 #include <string.h>
 
+namespace xdmf2
+{
+
 static XdmfInt32 GlobalDebugFlag = 0;
 static XdmfInt64 NameCntr = 0;
 
@@ -161,4 +164,6 @@ XDMF_READ_STREAM64(Handle, RealObjectPointer);
 *Rpt = reinterpret_cast<XdmfPointer>(RealObjectPointer);
 delete [] src;
 return( RealObject );
+}
+
 }

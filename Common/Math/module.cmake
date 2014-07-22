@@ -5,4 +5,6 @@ vtk_module(vtkCommonMath
     vtkTestingCore
     vtkCommonSystem
     vtkCommonTransforms
+  KIT
+    vtkCommon
   )

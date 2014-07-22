@@ -8,4 +8,6 @@ vtk_module(vtkFiltersSMP
     vtkImagingCore
     vtkIOXML
     vtkTestingCore
+  KIT
+    vtkFilters
   )

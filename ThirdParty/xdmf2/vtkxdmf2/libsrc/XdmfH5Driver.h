@@ -31,6 +31,9 @@
 
 #include "XdmfExport.h"
 
+namespace xdmf2
+{
+
 #define H5FD_DSM  (H5FD_dsm_init())
 /* Allocate memory in multiples of this size by default */
 #define H5FD_DSM_INCREMENT    1000000
@@ -41,4 +44,5 @@ XDMF_EXPORT hid_t H5FD_dsm_init(void);
 XDMF_EXPORT herr_t H5Pset_fapl_dsm(hid_t fapl_id, size_t increment, XdmfDsmBuffer *buffer);
 XDMF_EXPORT herr_t H5Pget_fapl_dsm(hid_t fapl_id, size_t *increment/*out*/, XdmfDsmBuffer **buffer);
 
+}
 #endif

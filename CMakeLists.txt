@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
+option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
+mark_as_advanced(VTK_ENABLE_KITS)
+if(VTK_ENABLE_KITS)
+  # Kits use INTERFACE libraries which were introduced in 3.0.
+  cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+endif()
+
 foreach(p
     CMP0020 # CMake 2.8.11
     CMP0022 # CMake 2.8.12

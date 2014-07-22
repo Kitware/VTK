@@ -38,6 +38,11 @@ extern "C" {
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+#if LIBAVCODEC_VERSION_MAJOR < 55
+# define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
+# define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
+#endif
+
 //---------------------------------------------------------------------------
 class vtkFFMPEGWriterInternal
 {
@@ -143,11 +148,11 @@ int vtkFFMPEGWriterInternal::Start()
   if (this->Writer->GetCompression())
     {
     //choose a codec that is easily playable on windows
-    this->avOutputFormat->video_codec = CODEC_ID_MJPEG;
+    this->avOutputFormat->video_codec = AV_CODEC_ID_MJPEG;
     }
   else
     {
-    this->avOutputFormat->video_codec = CODEC_ID_RAWVIDEO;
+    this->avOutputFormat->video_codec = AV_CODEC_ID_RAWVIDEO;
     }
 
   //assign the format to the context

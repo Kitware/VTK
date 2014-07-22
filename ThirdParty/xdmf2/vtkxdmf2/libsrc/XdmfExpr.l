@@ -36,7 +36,7 @@ if ( strcmp( _c, "NULL" ) == 0 ){
 
   /* Pointer values must start with leading underscore */
   if (*_c == '_') {
-	*_ptr = TagNameToArray( _c );
+	*_ptr = xdmf2::TagNameToArray( _c );
 	if( *_ptr == NULL ) {
 		return( 1 );
 	}

@@ -112,6 +112,10 @@ protected:
   vtkPainter* SelectionCompositePainter;
 
 private:
+  unsigned long int LastOpaqueCheckTime;
+  bool LastOpaqueCheckValue;
+
+private:
   vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&); // Not implemented.
   void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.
 //ETX

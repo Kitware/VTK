@@ -9,4 +9,6 @@ vtk_module(vtkIOParallelExodus
     vtkexodusII
   TEST_DEPENDS
     vtkTestingRendering
+  KIT
+    vtkParallel
   )

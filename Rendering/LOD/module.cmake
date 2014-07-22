@@ -8,4 +8,6 @@ vtk_module(vtkRenderingLOD
     vtkTestingRendering
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkInteractionStyle
+  KIT
+    vtkRendering
   )

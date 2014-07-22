@@ -381,8 +381,13 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
     {
     // Install an error handler
     MPI_Errhandler errhandler;
+#if (MPI_VERSION > 2) || ((MPI_VERSION == 2) && (MPI_SUBVERSION >= 2))
+    MPI_Comm_create_errhandler(vtkMPICommunicatorMPIErrorHandler, &errhandler);
+    MPI_Comm_set_errhandler(MPI_COMM_WORLD, errhandler);
+#else
     MPI_Errhandler_create(vtkMPICommunicatorMPIErrorHandler, &errhandler);
     MPI_Errhandler_set(MPI_COMM_WORLD, errhandler);
+#endif
     MPI_Errhandler_free(&errhandler);
 
     vtkMPICommunicator* comm = vtkMPICommunicator::New();

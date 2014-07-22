@@ -20,5 +20,5 @@ set(Module_SRCS
   )
 
 vtk_module_library(vtkInfovisParallel ${Module_SRCS})
-target_link_libraries(vtkInfovisParallel LINK_PUBLIC ${Boost_LIBRARIES})
+vtk_module_link_libraries(vtkInfovisParallel LINK_PUBLIC ${Boost_LIBRARIES})
 vtk_mpi_link(vtkInfovisParallel)

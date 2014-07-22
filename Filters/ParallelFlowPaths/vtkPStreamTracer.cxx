@@ -33,7 +33,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRUtilities.h"
+#include "vtkParallelAMRUtilities.h"
 #include "vtkMath.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkNew.h"
@@ -843,7 +843,7 @@ public:
     AssertNe(this->InputData,NULL);
     this->AMR = vtkOverlappingAMR::SafeDownCast(this->InputData);
 
-    vtkAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
+    vtkParallelAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
     this->AMR->GenerateParentChildInformation();
   }
 
@@ -900,6 +900,7 @@ namespace
 
   }
 
+#ifdef DEBUGTRACE
   inline double ComputeLength(vtkIdList* poly, vtkPoints* pts)
   {
     int n = poly->GetNumberOfIds();
@@ -919,20 +920,6 @@ namespace
     return s;
   }
 
-  inline int ComputePointDataSize(vtkPointData* data)
-  {
-    int size(0);
-    int numArrays(data->GetNumberOfArrays());
-    for(int i=0; i<numArrays;i++)
-      {
-      vtkDataArray* arr = data->GetArray(i);
-      int numComponents = arr->GetNumberOfComponents();
-      size+=numComponents;
-      }
-
-    return size;
-  }
-
   inline void PrintNames(ostream& out, vtkPointData* a)
   {
     for(int i=0; i<a->GetNumberOfArrays();i++)
@@ -941,6 +928,7 @@ namespace
       }
     out<<endl;
   }
+
   inline bool SameShape(vtkPointData* a, vtkPointData* b)
   {
     if (!a || !b)
@@ -966,6 +954,7 @@ namespace
 
     return true;
   }
+#endif
 
   class MessageBuffer
   {

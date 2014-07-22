@@ -33,6 +33,8 @@
 /*!
 */
 
+namespace xdmf2
+{
 
 class XdmfDsmMsg;
 class XdmfDsmComm;
@@ -129,4 +131,5 @@ protected:
     XdmfByte    *DataPointer;
 };
 
+}
 #endif // __XdmfDsm_h

@@ -61,6 +61,8 @@ def add_arguments(parser):
         help="SSL key.  Use this and --sslCert to start the server on https.")
     parser.add_argument("-j", "--sslCert", type=str, default="",
         help="SSL certificate.  Use this and --sslKey to start the server on https.")
+    parser.add_argument("-ws", "--ws-endpoint", type=str, default="ws", dest='ws',
+        help="Specify WebSocket endpoint. (Default: ws)")
 
     # Hook to extract any testing arguments we need
     testing.add_arguments(parser)
@@ -118,6 +120,7 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
     from twisted.internet import reactor
     from twisted.web.server import Site
     from twisted.web.static import File
+    from twisted.web.resource import Resource
     import sys
 
     if not disableLogging:
@@ -161,7 +164,17 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
         wsResource = WebSocketResource(transport_factory)
 
         root = File(options.content)
-        root.putChild("ws", wsResource)
+
+        # Handle complex ws endpoint
+        ws_fullpath = options.ws.split('/')
+        parent_path_item_resource = root
+        for path_item in ws_fullpath:
+            if path_item == ws_fullpath[-1]:
+                parent_path_item_resource.putChild(path_item, wsResource)
+            else:
+                new_resource = Resource()
+                parent_path_item_resource.putChild(path_item, new_resource)
+                parent_path_item_resource = new_resource
 
         if options.uploadPath != None :
             from upload import UploadPage

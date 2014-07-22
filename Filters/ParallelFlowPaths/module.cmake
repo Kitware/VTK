@@ -10,4 +10,6 @@ vtk_module(vtkFiltersParallelFlowPaths
     vtkTestingRendering
     vtkRenderingParallel
     vtkIOGeometry
+  KIT
+    vtkParallel
   )

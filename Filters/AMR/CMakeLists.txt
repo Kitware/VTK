@@ -4,8 +4,8 @@ set(Module_SRCS
   vtkAMRResampleFilter.cxx
   vtkAMRSliceFilter.cxx
   vtkAMRToMultiBlockFilter.cxx
-  vtkAMRUtilities.cxx
   vtkImageToAMR.cxx
+  vtkParallelAMRUtilities.cxx
   )
 
 set_source_files_properties(

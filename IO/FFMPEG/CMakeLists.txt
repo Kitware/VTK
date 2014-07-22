@@ -31,4 +31,4 @@ endif()
 
 vtk_module_library(vtkIOFFMPEG ${Module_SRCS})
 
-target_link_libraries(vtkIOFFMPEG LINK_PRIVATE ${_ffmpeg_libs})
+vtk_module_link_libraries(vtkIOFFMPEG LINK_PRIVATE ${_ffmpeg_libs})

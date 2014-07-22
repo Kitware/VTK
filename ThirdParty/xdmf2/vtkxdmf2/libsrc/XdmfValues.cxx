@@ -26,6 +26,9 @@
 #include "XdmfDataItem.h"
 #include "XdmfArray.h"
 
+namespace xdmf2
+{
+
 XdmfValues::XdmfValues() {
     this->Format = -1;
 }
@@ -81,3 +84,4 @@ XdmfValues::Write(XdmfArray *, XdmfConstString ){
     return(XDMF_FAIL);
 }
 
+}

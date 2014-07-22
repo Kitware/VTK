@@ -677,7 +677,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
 
       vtkSmartPointer<vtkInformationIterator> infoIter =
         vtkSmartPointer<vtkInformationIterator>::New();
-      infoIter->SetInformation(inInfo);
+      infoIter->SetInformationWeak(inInfo);
 
       int oiobj = outInfoVec->GetNumberOfInformationObjects();
       for(int i=0; i < oiobj; ++i)
@@ -727,7 +727,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
 
       vtkSmartPointer<vtkInformationIterator> infoIter =
         vtkSmartPointer<vtkInformationIterator>::New();
-      infoIter->SetInformation(outInfo);
+      infoIter->SetInformationWeak(outInfo);
 
       for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
         {

@@ -13,4 +13,6 @@ vtk_module(vtkIOMPIImage
     vtkTestingRendering
     vtkInteractionStyle
     vtkRendering${VTK_RENDERING_BACKEND}
+  KIT
+    vtkParallel
   )

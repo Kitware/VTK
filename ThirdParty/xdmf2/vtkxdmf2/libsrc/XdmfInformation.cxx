@@ -24,6 +24,9 @@
 /*******************************************************************/
 #include "XdmfInformation.h"
 
+namespace xdmf2
+{
+
 XdmfInformation::XdmfInformation() {
     this->SetElementName("Information");
     this->Value = NULL;
@@ -64,4 +67,6 @@ XdmfInt32 XdmfInformation::Build(){
         this->Set("Value", this->Value);
     }
     return(XDMF_SUCCESS);
+}
+
 }

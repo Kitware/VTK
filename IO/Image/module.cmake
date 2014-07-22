@@ -26,4 +26,6 @@ vtk_module(vtkIOImage
     vtkTestingCore
     vtkTestingRendering
     vtkIOLegacy
+  KIT
+    vtkIO
   )
