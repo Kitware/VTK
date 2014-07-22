@@ -47,7 +47,7 @@ DESCRIPTION
 static herr_t
 H5T_init_opaque_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5T_init_opaque_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5T_init())
 } /* H5T_init_opaque_interface() */
@@ -73,7 +73,7 @@ H5Tset_tag(hid_t type_id, const char *tag)
     H5T_t	*dt=NULL;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Tset_tag, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "i*s", type_id, tag);
 
     /* Check args */
@@ -120,7 +120,7 @@ H5Tget_tag(hid_t type_id)
     H5T_t	*dt=NULL;
     char	*ret_value;
 
-    FUNC_ENTER_API(H5Tget_tag, NULL)
+    FUNC_ENTER_API(NULL)
 
     /* Check args */
     if (NULL == (dt = H5I_object_verify(type_id,H5I_DATATYPE)))

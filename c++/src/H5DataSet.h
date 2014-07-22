@@ -14,15 +14,20 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-// Class DataSet inherits from AbstractDs and provides accesses to a dataset.
-
-#ifndef _H5DataSet_H
-#define _H5DataSet_H
+#ifndef __H5DataSet_H
+#define __H5DataSet_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+/*! \class DataSet
+    \brief Class DataSet operates on HDF5 datasets.
+
+    An datasets has many characteristics similar to an attribute, thus both
+    Attribute and DataSet are derivatives of AbstractDs.  DataSet also
+    inherits from H5Object because a dataset is an HDF5 object.
+*/
 class H5_DLLCPP DataSet : public H5Object, public AbstractDs {
    public:
 	// Close this dataset.
@@ -32,9 +37,12 @@ class H5_DLLCPP DataSet : public H5Object, public AbstractDs {
 	void extend( const hsize_t* size ) const;
 
 	// Fills a selection in memory with a value
-	void fillMemBuf(const void *fill, DataType& fill_type, void *buf, DataType& buf_type, DataSpace& space);
+	void fillMemBuf(const void *fill, const DataType& fill_type, void *buf, const DataType& buf_type, const DataSpace& space) const;
+	void fillMemBuf(const void *fill, DataType& fill_type, void *buf, DataType& buf_type, DataSpace& space); // kept for backward compatibility
+
 	// Fills a selection in memory with zero
-	void fillMemBuf(void *buf, DataType& buf_type, DataSpace& space);
+	void fillMemBuf(void *buf, const DataType& buf_type, const DataSpace& space) const;
+	void fillMemBuf(void *buf, DataType& buf_type, DataSpace& space); // kept for backward compatibility
 
 	// Gets the creation property list of this dataset.
 	DSetCreatPropList getCreatePlist() const;
@@ -55,7 +63,8 @@ class H5_DLLCPP DataSet : public H5Object, public AbstractDs {
 	virtual size_t getInMemDataSize() const;
 
 	// Returns the number of bytes required to store VL data.
-	hsize_t getVlenBufSize( DataType& type, DataSpace& space ) const;
+	hsize_t getVlenBufSize(const DataType& type, const DataSpace& space ) const;
+	hsize_t getVlenBufSize(DataType& type, DataSpace& space) const; // kept for backward compatibility
 
 	// Reclaims VL datatype memory buffers.
 	static void vlenReclaim(const DataType& type, const DataSpace& space, const DSetMemXferPropList& xfer_plist, void* buf );
@@ -76,21 +85,12 @@ class H5_DLLCPP DataSet : public H5Object, public AbstractDs {
 	// Iterates the selected elements in the specified dataspace - not implemented in C++ style yet
         int iterateElems( void* buf, const DataType& type, const DataSpace& space, H5D_operator_t op, void* op_data = NULL );
 
-#ifndef H5_NO_DEPRECATED_SYMBOLS
-	// Retrieves the type of object that an object reference points to.
-	H5G_obj_t getObjType(void *ref, H5R_type_t ref_type = H5R_OBJECT) const;
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-
-	// Retrieves a dataspace with the region pointed to selected.
-	DataSpace getRegion(void *ref, H5R_type_t ref_type = H5R_DATASET_REGION) const;
-
-	///\brief Returns this class name
+	///\brief Returns this class name.
 	virtual H5std_string fromClass () const { return("DataSet"); }
 
 	// Creates a dataset by way of dereference.
-	DataSet(H5Object& obj, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
-	DataSet(H5File& h5file, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
-	DataSet(Attribute& attr, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
+	DataSet(const H5Location& loc, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
+	DataSet(const Attribute& attr, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
 
 	// Default constructor.
 	DataSet();
@@ -110,7 +110,6 @@ class H5_DLLCPP DataSet : public H5Object, public AbstractDs {
    private:
 	hid_t id;       // HDF5 dataset id
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
         // This function contains the common code that is used by
         // getTypeClass and various API functions getXxxType
         // defined in AbstractDs for generic datatype and specific
@@ -122,6 +121,7 @@ class H5_DLLCPP DataSet : public H5Object, public AbstractDs {
 	void p_read_variable_len(const hid_t mem_type_id, const hid_t mem_space_id, const hid_t file_space_id, const hid_t xfer_plist_id, H5std_string& strg) const;
 
    protected:
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
         // Sets the dataset id.
         virtual void p_setId(const hid_t new_id);
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -129,4 +129,4 @@ class H5_DLLCPP DataSet : public H5Object, public AbstractDs {
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __H5DataSet_H

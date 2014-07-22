@@ -36,7 +36,7 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5HFpkg.h"		/* Fractal heaps			*/
-#include "H5Vprivate.h"		/* Vectors and arrays 			*/
+#include "H5VMprivate.h"		/* Vectors and arrays 			*/
 
 /****************/
 /* Local Macros */
@@ -95,7 +95,7 @@ H5FL_DEFINE(H5HF_block_loc_t);
 herr_t
 H5HF_man_iter_init(H5HF_block_iter_t *biter)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_man_iter_init)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -138,7 +138,7 @@ H5HF_man_iter_start_offset(H5HF_hdr_t *hdr, hid_t dxpl_id,
     hbool_t root_block = TRUE;  /* Flag to indicate the current block is the root indirect block */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_iter_start_offset)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -213,7 +213,7 @@ H5HF_man_iter_start_offset(H5HF_hdr_t *hdr, hid_t dxpl_id,
 
             /* Compute # of rows in context indirect block */
             child_size = hdr->man_dtable.row_block_size[biter->curr->up->row];
-            iblock_nrows = (H5V_log2_gen(child_size) - hdr->man_dtable.first_row_bits) + 1;
+            iblock_nrows = (H5VM_log2_gen(child_size) - hdr->man_dtable.first_row_bits) + 1;
         } /* end else */
 
         /* Load indirect block for this context location */
@@ -281,7 +281,7 @@ done:
 herr_t
 H5HF_man_iter_set_entry(const H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned entry)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_man_iter_set_entry)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -318,7 +318,7 @@ H5HF_man_iter_start_entry(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter,
     H5HF_block_loc_t *new_loc = NULL;   /* Pointer to new block location */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_iter_start_entry)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -376,7 +376,7 @@ H5HF_man_iter_reset(H5HF_block_iter_t *biter)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_iter_reset)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -434,7 +434,7 @@ done:
 herr_t
 H5HF_man_iter_next(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned nentries)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_man_iter_next)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -473,7 +473,7 @@ H5HF_man_iter_up(H5HF_block_iter_t *biter)
     H5HF_block_loc_t *up_loc;           /* Pointer to 'up' block location */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_iter_up)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -521,7 +521,7 @@ H5HF_man_iter_down(H5HF_block_iter_t *biter, H5HF_indirect_t *iblock)
     H5HF_block_loc_t *down_loc = NULL;  /* Pointer to new 'down' block location */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_iter_down)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -574,7 +574,7 @@ herr_t
 H5HF_man_iter_curr(H5HF_block_iter_t *biter, unsigned *row, unsigned *col,
     unsigned *entry, H5HF_indirect_t **block)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_man_iter_curr)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -614,7 +614,7 @@ H5HF_man_iter_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t *offset)
 {
     hsize_t curr_offset;        /* For computing offset in heap */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_man_iter_offset)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -652,7 +652,7 @@ H5HF_man_iter_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t *offset)
 hbool_t
 H5HF_man_iter_ready(H5HF_block_iter_t *biter)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_man_iter_ready)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.

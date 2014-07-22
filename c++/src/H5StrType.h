@@ -14,13 +14,14 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5StrType_H
-#define _H5StrType_H
+#ifndef __H5StrType_H
+#define __H5StrType_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+//! Class StrType operates on HDF5 string datatypes.
 class H5_DLLCPP StrType : public AtomType {
    public:
 	// Creates a string type using a predefined type
@@ -47,7 +48,7 @@ class H5_DLLCPP StrType : public AtomType {
 	// Defines the storage mechanism for character strings.
 	void setStrpad(H5T_str_t strpad) const;
 
-	///\brief Returns this class name
+	///\brief Returns this class name.
 	virtual H5std_string fromClass () const { return("StrType"); }
 
 	// default constructor
@@ -65,4 +66,4 @@ class H5_DLLCPP StrType : public AtomType {
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __H5StrType_H

@@ -53,6 +53,9 @@ const H5L_class_t H5L_EXTERN_LINK_CLASS[1] = {{
 /* Valid flags for external links */
 #define H5L_EXT_FLAGS_ALL       0
 
+/* Size of local link name buffer for traversing external links */
+#define H5L_EXT_TRAVERSE_BUF_SIZE       256
+
 
 /*--------------------------------------------------------------------------
 NAME
@@ -71,7 +74,7 @@ DESCRIPTION
 static herr_t
 H5L_init_extern_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5L_init_extern_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5L_init())
 } /* H5L_init_extern_interface() */
@@ -97,9 +100,9 @@ H5L_getenv_prefix_name(char **env_prefix/*in,out*/)
     char        *retptr=NULL;
     char        *strret=NULL;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5L_getenv_prefix_name)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    strret = HDstrchr(*env_prefix, COLON_SEPC);
+    strret = HDstrchr(*env_prefix, H5_COLON_SEPC);
     if (strret == NULL) {
         retptr = *env_prefix;
         *env_prefix = strret;
@@ -132,7 +135,7 @@ H5L_build_name(char *prefix, char *file_name, char **full_name/*out*/)
     size_t      fname_len;              /* Length of external link file name */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5L_build_name)
+    FUNC_ENTER_NOAPI_NOINIT
 
     prefix_len = HDstrlen(prefix);
     fname_len = HDstrlen(file_name);
@@ -141,15 +144,9 @@ H5L_build_name(char *prefix, char *file_name, char **full_name/*out*/)
     if(NULL == (*full_name = (char *)H5MM_malloc(prefix_len + fname_len + 2)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to allocate filename buffer")
 
-    /* Copy the prefix into the buffer */
-    HDstrcpy(*full_name, prefix);
-#ifndef H5_VMS
-    if (!CHECK_DELIMITER(prefix[prefix_len-1]))
-        HDstrcat(*full_name, DIR_SEPS);
-#endif
-
-    /* Add the external link's filename to the prefix supplied */
-    HDstrcat(*full_name, file_name);
+    /* Compose the full file name */
+    HDsnprintf(*full_name, (prefix_len + fname_len + 2), "%s%s%s", prefix,
+        (H5_CHECK_DELIMITER(prefix[prefix_len - 1]) ? "" : H5_DIR_SEPS), file_name);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -185,6 +182,9 @@ done:
  *		Otherwise, the file access property retrieved from H5Pget_elink_fapl()
  *		is used to H5F_open() the target file.
  *
+ *              Vailin Choi; Nov 2010
+ *              Free memory pointed to by tmp_env_prefix for HDF5_EXT_PREFIX case.
+ *
  *-------------------------------------------------------------------------
  */
 static hid_t
@@ -205,14 +205,16 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     H5L_elink_cb_t cb_info;             /* Callback info struct */
     hid_t       fapl_id = -1;           /* File access property list for external link's file */
     hid_t       ext_obj = -1;           /* ID for external link's object */
-    char        *temp_group_name = NULL;/* Temporary pointer to group name */
+    char        *parent_group_name = NULL;/* Temporary pointer to group name */
+    char        local_group_name[H5L_EXT_TRAVERSE_BUF_SIZE];  /* Local buffer to hold group name */
     char        *temp_file_name = NULL; /* Temporary pointer to file name */
+    size_t      temp_file_name_len;     /* Length of temporary file name */
     char        *actual_file_name = NULL; /* Parent file's actual name */
     H5P_genplist_t  *fa_plist;          /* File access property list pointer */
     H5F_close_degree_t 	fc_degree = H5F_CLOSE_WEAK;  /* File close degree for target file */
     hid_t       ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5L_extern_traverse, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
     HDassert(p);
@@ -264,40 +266,33 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     /* Make callback if it exists */
     if(cb_info.func) {
         const char  *parent_file_name;  /* Parent file name */
-        const char  *parent_group_name; /* Parent group name */
+        ssize_t group_name_len;         /* Length of parent group name */
 
         /* Get parent file name */
         parent_file_name = H5F_OPEN_NAME(loc.oloc->file);
 
+        /* Query length of parent group name */
+        if((group_name_len = H5G_get_name(&loc, NULL, (size_t) 0, NULL, lapl_id, H5AC_ind_dxpl_id)) < 0)
+            HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve length of group name")
+
+        /* Account for null terminator */
+        group_name_len++;
+
+        /* Check if we need to allocate larger buffer */
+        if((size_t)group_name_len > sizeof(local_group_name)) {
+            if(NULL == (parent_group_name = (char *)H5MM_malloc((size_t)group_name_len)))
+                HGOTO_ERROR(H5E_LINK, H5E_CANTALLOC, FAIL, "can't allocate buffer to hold group name, group_name_len = %Zu", group_name_len)
+        } /* end if */
+        else
+            parent_group_name = local_group_name;
+
         /* Get parent group name */
-        if(loc.path->user_path_r != NULL && loc.path->obj_hidden == 0)
-            /* Use user_path_r if possible */
-            parent_group_name = H5RS_get_str(loc.path->user_path_r);
-        else {
-            /* Otherwise use H5G_get_name */
-            ssize_t group_name_len; /* Length of parent group name */
-
-            /* Get length of parent group name */
-            if((group_name_len = H5G_get_name(cur_group, NULL, (size_t) 0, lapl_id, H5AC_ind_dxpl_id)) < 0)
-                HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve length of group name")
-
-            /* account for null terminator */
-            group_name_len++;
-
-            /* Copy parent group name */
-            if(NULL == (temp_group_name = (char *)H5MM_malloc((size_t)group_name_len)))
-                HGOTO_ERROR(H5E_LINK, H5E_NOSPACE, FAIL, "memory allocation failed")
-            if(H5G_get_name(cur_group, temp_group_name, (size_t) group_name_len, lapl_id, H5AC_ind_dxpl_id) < 0)
-                HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve group name")
-            parent_group_name = temp_group_name;
-        } /* end else */
+        if(H5G_get_name(&loc, parent_group_name, (size_t) group_name_len, NULL, lapl_id, H5AC_ind_dxpl_id) < 0)
+            HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve group name")
 
         /* Make callback */
         if((cb_info.func)(parent_file_name, parent_group_name, file_name, obj_name, &intent, fapl_id, cb_info.user_data) < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CALLBACK, FAIL, "traversal operator failed")
-
-        /* Free temp_group_name */
-        temp_group_name = (char *)H5MM_xfree(temp_group_name);
 
         /* Check access flags */
         if((intent & H5F_ACC_TRUNC) || (intent & H5F_ACC_EXCL))
@@ -318,26 +313,37 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     /* Copy the file name to use */
     if(NULL == (temp_file_name = H5MM_strdup(file_name)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+    temp_file_name_len = HDstrlen(temp_file_name);
 
     /* target file_name is an absolute pathname: see RM for detailed description */
-    if(CHECK_ABSOLUTE(file_name) || CHECK_ABS_PATH(file_name)) {
+    if(H5_CHECK_ABSOLUTE(file_name) || H5_CHECK_ABS_PATH(file_name)) {
         /* Try opening file */
-        if(NULL == (ext_file = H5F_open(file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id))) {
-            char *ptr = NULL;
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id))) {
+            char *ptr;
 
             H5E_clear_stack(NULL);
 
             /* get last component of file_name */
-	    GET_LAST_DELIMITER(file_name, ptr)
+	    H5_GET_LAST_DELIMITER(file_name, ptr)
 	    HDassert(ptr);
-	    HDstrcpy(temp_file_name, ++ptr);
+
+            /* Increment past delimiter */
+            ptr++;
+
+            /* Copy into the temp. file name */
+	    HDstrncpy(temp_file_name, ptr, temp_file_name_len);
+            temp_file_name[temp_file_name_len - 1] = '\0';
         } /* end if */
     } /* end if */
-    else if(CHECK_ABS_DRIVE(file_name)) {
-        if(NULL == (ext_file = H5F_open(file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id))) {
+    else if(H5_CHECK_ABS_DRIVE(file_name)) {
+        /* Try opening file */
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id))) {
+
             H5E_clear_stack(NULL);
+
 	    /* strip "<drive-letter>:" */
-	    HDstrcpy(temp_file_name, &file_name[2]);
+	    HDstrncpy(temp_file_name, &file_name[2], temp_file_name_len);
+            temp_file_name[temp_file_name_len - 1] = '\0';
 	} /* end if */
     } /* end if */
 
@@ -346,9 +352,9 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
         char *env_prefix;
 
         if(NULL != (env_prefix = HDgetenv("HDF5_EXT_PREFIX"))) {
-            char *tmp_env_prefix;
+            char *tmp_env_prefix, *saved_env;
 
-            if(NULL == (tmp_env_prefix = H5MM_strdup(env_prefix)))
+            if(NULL == (saved_env = tmp_env_prefix = H5MM_strdup(env_prefix)))
                 HGOTO_ERROR(H5E_LINK, H5E_NOSPACE, FAIL, "memory allocation failed")
 
             while((tmp_env_prefix) && (*tmp_env_prefix)) {
@@ -356,16 +362,19 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
 
                 out_prefix_name = H5L_getenv_prefix_name(&tmp_env_prefix/*in,out*/);
                 if(out_prefix_name && (*out_prefix_name)) {
-                    if(H5L_build_name(out_prefix_name, temp_file_name, &full_name/*out*/) < 0)
+                    if(H5L_build_name(out_prefix_name, temp_file_name, &full_name/*out*/) < 0) {
+			saved_env = (char *)H5MM_xfree(saved_env);
                         HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
+		    } /* end if */
 
-                    ext_file = H5F_open(full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id);
+                    ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id);
                     full_name = (char *)H5MM_xfree(full_name);
                     if(ext_file != NULL)
                         break;
                     H5E_clear_stack(NULL);
                 } /* end if */
             } /* end while */
+	    saved_env = (char *)H5MM_xfree(saved_env);
         } /* end if */
     } /* end if */
 
@@ -376,7 +385,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
         if(my_prefix) {
             if(H5L_build_name(my_prefix, temp_file_name, &full_name/*out*/) < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
-            if(NULL == (ext_file = H5F_open(full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+            if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
                 H5E_clear_stack(NULL);
             full_name = (char *)H5MM_xfree(full_name);
         } /* end if */
@@ -389,7 +398,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
         if(NULL != (extpath = H5F_EXTPATH(loc.oloc->file))) {
             if(H5L_build_name(extpath, temp_file_name, &full_name/*out*/) < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
-            if(NULL == (ext_file = H5F_open(full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+            if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
                 H5E_clear_stack(NULL);
             full_name = (char *)H5MM_xfree(full_name);
         } /* end if */
@@ -397,7 +406,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
 
     /* try the relative file_name stored in temp_file_name */
     if(ext_file == NULL) {
-        if(NULL == (ext_file = H5F_open(temp_file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, temp_file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
             H5E_clear_stack(NULL);
     } /* end if */
 
@@ -412,7 +421,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
             HGOTO_ERROR(H5E_LINK, H5E_CANTALLOC, FAIL, "can't duplicate resolved file name string")
 
         /* get last component of file_name */
-        GET_LAST_DELIMITER(actual_file_name, ptr)
+        H5_GET_LAST_DELIMITER(actual_file_name, ptr)
         if(!ptr)
             HGOTO_ERROR(H5E_LINK, H5E_CANTOPENFILE, FAIL, "unable to open external file, external link file name = '%s', temp_file_name = '%s'", file_name, temp_file_name)
 
@@ -424,50 +433,38 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
             HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
 
         /* Try opening with the resolved name */
-        if(NULL == (ext_file = H5F_open(full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
             HGOTO_ERROR(H5E_LINK, H5E_CANTOPENFILE, FAIL, "unable to open external file, external link file name = '%s', temp_file_name = '%s'", file_name, temp_file_name)
         full_name = (char *)H5MM_xfree(full_name);
     } /* end if */
 
 
-    /* Increment the number of open objects, to hold the file open */
-    H5F_incr_nopen_objs(ext_file);
-
     /* Retrieve the "group location" for the file's root group */
-    if(H5G_loc_root(ext_file, &root_loc) < 0)
+    if(H5G_root_loc(ext_file, &root_loc) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "unable to create location for file")
 
     /* Open the object referenced in the external file */
-    if((ext_obj = H5O_open_name(&root_loc, obj_name, lapl_id, FALSE)) < 0) {
-        H5F_decr_nopen_objs(ext_file);
+    if((ext_obj = H5O_open_name(&root_loc, obj_name, lapl_id, FALSE)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open object")
-    } /* end if */
-
-    /* Decrement the number of open objects, to let the file close */
-    H5F_decr_nopen_objs(ext_file);
-
-    /* Close the external file */
-    if(H5F_try_close(ext_file) < 0)
-        HGOTO_ERROR(H5E_LINK, H5E_CANTCLOSEFILE, FAIL, "problem closing external file")
-    ext_file = NULL;
 
     /* Set return value */
     ret_value = ext_obj;
 
 done:
     /* Release resources */
-    if(fapl_id > 0 && H5I_dec_ref(fapl_id, FALSE) < 0)
+    if(fapl_id > 0 && H5I_dec_ref(fapl_id) < 0)
         HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom for file access property list")
-    if(ext_file && H5F_try_close(ext_file) < 0)
+    if(ext_file && H5F_efc_close(loc.oloc->file, ext_file) < 0)
         HDONE_ERROR(H5E_LINK, H5E_CANTCLOSEFILE, FAIL, "problem closing external file")
+    if(parent_group_name && parent_group_name != local_group_name)
+        parent_group_name = (char *)H5MM_xfree(parent_group_name);
     full_name = (char *)H5MM_xfree(full_name);
-    temp_group_name = (char *)H5MM_xfree(temp_group_name);
     temp_file_name = (char *)H5MM_xfree(temp_file_name);
     actual_file_name = (char *)H5MM_xfree(actual_file_name);
 
     if(ret_value < 0) {
         /* Close object if it's open and something failed */
-        if(ext_obj >= 0 && H5I_dec_ref(ext_obj, FALSE) < 0)
+        if(ext_obj >= 0 && H5I_dec_ref(ext_obj) < 0)
             HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom for external object")
     } /* end if */
 
@@ -499,7 +496,7 @@ H5L_extern_query(const char UNUSED * link_name, const void *_udata, size_t udata
     const uint8_t *udata = (const uint8_t *)_udata;      /* Pointer to external link buffer */
     ssize_t     ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5L_extern_query)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check external link version & flags */
     if(((*udata >> 4) & 0x0F) != H5L_EXT_VERSION)
@@ -553,10 +550,12 @@ H5Lcreate_external(const char *file_name, const char *obj_name,
     char       *norm_obj_name = NULL;	/* Pointer to normalized current name */
     void       *ext_link_buf = NULL;    /* Buffer to contain external link */
     size_t      buf_size;               /* Size of buffer to hold external link */
+    size_t      file_name_len;          /* Length of file name string */
+    size_t      norm_obj_name_len;      /* Length of normalized object name string */
     uint8_t    *p;                      /* Pointer into external link buffer */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Lcreate_external, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE6("e", "*s*si*sii", file_name, obj_name, link_loc_id, link_name,
              lcpl_id, lapl_id);
 
@@ -575,16 +574,18 @@ H5Lcreate_external(const char *file_name, const char *obj_name,
         HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "can't normalize object name")
 
     /* Combine the filename and link name into a single buffer to give to the UD link */
-    buf_size = 1 + (HDstrlen(file_name) + 1) + (HDstrlen(norm_obj_name) + 1);
+    file_name_len = HDstrlen(file_name) + 1;
+    norm_obj_name_len = HDstrlen(norm_obj_name) + 1;
+    buf_size = 1 + file_name_len + norm_obj_name_len;
     if(NULL == (ext_link_buf = H5MM_malloc(buf_size)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to allocate udata buffer")
 
     /* Encode the external link information */
     p = (uint8_t *)ext_link_buf;
     *p++ = (H5L_EXT_VERSION << 4) | H5L_EXT_FLAGS_ALL;  /* External link version & flags */
-    HDstrcpy((char *)p, file_name);     /* Name of file containing external link's object */
-    p += HDstrlen(file_name) + 1;
-    HDstrcpy((char *)p, norm_obj_name);       /* External link's object */
+    HDstrncpy((char *)p, file_name, buf_size - 1);      /* Name of file containing external link's object */
+    p += file_name_len;
+    HDstrncpy((char *)p, norm_obj_name, buf_size - (file_name_len + 1));       /* External link's object */
 
     /* Create an external link */
     if(H5L_create_ud(&link_loc, link_name, ext_link_buf, buf_size, H5L_TYPE_EXTERNAL, lcpl_id, lapl_id, H5AC_dxpl_id) < 0)
@@ -617,7 +618,7 @@ H5L_register_external(void)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5L_register_external, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     if(H5L_register(H5L_EXTERN_LINK_CLASS) < 0)
         HGOTO_ERROR(H5E_LINK, H5E_NOTREGISTERED, FAIL, "unable to register external link class")
@@ -660,7 +661,7 @@ H5Lunpack_elink_val(const void *_ext_linkval, size_t link_size,
     size_t      len;                    /* Length of the filename in the linkval*/
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Lunpack_elink_val, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE5("e", "*xz*Iu**s**s", _ext_linkval, link_size, flags, filename,
              obj_path);
 

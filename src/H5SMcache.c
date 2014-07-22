@@ -17,7 +17,6 @@
 /* Module Setup */
 /****************/
 
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg 	  */
 #define H5SM_PACKAGE		/*suppress error about including H5SMpkg	  */
 
 
@@ -25,7 +24,7 @@
 /* Headers */
 /***********/
 #include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"		/* File access                          */
+#include "H5Fprivate.h"		/* File access                          */
 #include "H5FLprivate.h"	/* Free Lists                           */
 #include "H5MFprivate.h"        /* File memory management		*/
 #include "H5MMprivate.h"	/* Memory management			*/
@@ -117,7 +116,6 @@ static H5SM_master_table_t *
 H5SM_table_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void UNUSED *udata)
 {
     H5SM_master_table_t *table = NULL;
-    size_t        size;                 /* Size of SOHM master table on disk */
     H5WB_t        *wb = NULL;           /* Wrapped buffer for table data */
     uint8_t       tbl_buf[H5SM_TBL_BUF_SIZE]; /* Buffer for table */
     uint8_t       *buf;                 /* Reading buffer */
@@ -127,21 +125,21 @@ H5SM_table_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void UNUSED *udata)
     size_t        x;                    /* Counter variable for index headers */
     H5SM_master_table_t *ret_value;
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_table_load)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Verify that we're reading version 0 of the table; this is the only
      * version defined so far.
      */
-    HDassert(f->shared->sohm_vers == HDF5_SHAREDHEADER_VERSION);
+    HDassert(H5F_SOHM_VERS(f) == HDF5_SHAREDHEADER_VERSION);
 
     /* Allocate space for the master table in memory */
     if(NULL == (table = H5FL_CALLOC(H5SM_master_table_t)))
 	HGOTO_ERROR(H5E_SOHM, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Read number of indexes and version from file superblock */
-    table->num_indexes = f->shared->sohm_nindexes;
+    table->num_indexes = H5F_SOHM_NINDEXES(f);
 
-    HDassert(addr == f->shared->sohm_addr);
+    HDassert(addr == H5F_SOHM_ADDR(f));
     HDassert(addr != HADDR_UNDEF);
     HDassert(table->num_indexes > 0);
 
@@ -149,17 +147,17 @@ H5SM_table_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void UNUSED *udata)
     if(NULL == (wb = H5WB_wrap(tbl_buf, sizeof(tbl_buf))))
         HGOTO_ERROR(H5E_SOHM, H5E_CANTINIT, NULL, "can't wrap buffer")
 
-    /* Compute the size of the SOHM table header on disk.  This is the "table" itself
-     * plus each index within the table
+    /* Compute the size of the SOHM table header on disk.  This is the "table"
+     * itself plus each index within the table
      */
-    size = H5SM_TABLE_SIZE(f) + (table->num_indexes * H5SM_INDEX_HEADER_SIZE(f));
+    table->table_size = H5SM_TABLE_SIZE(f);
 
     /* Get a pointer to a buffer that's large enough for serialized table */
-    if(NULL == (buf = (uint8_t *)H5WB_actual(wb, size)))
+    if(NULL == (buf = (uint8_t *)H5WB_actual(wb, table->table_size)))
         HGOTO_ERROR(H5E_SOHM, H5E_NOSPACE, NULL, "can't get actual buffer")
 
     /* Read header from disk */
-    if(H5F_block_read(f, H5FD_MEM_SOHM_TABLE, addr, size, dxpl_id, buf) < 0)
+    if(H5F_block_read(f, H5FD_MEM_SOHM_TABLE, addr, table->table_size, dxpl_id, buf) < 0)
 	HGOTO_ERROR(H5E_SOHM, H5E_READERROR, NULL, "can't read SOHM table")
 
     /* Get temporary pointer to serialized table */
@@ -169,11 +167,6 @@ H5SM_table_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void UNUSED *udata)
     if(HDmemcmp(p, H5SM_TABLE_MAGIC, (size_t)H5_SIZEOF_MAGIC))
 	HGOTO_ERROR(H5E_SOHM, H5E_CANTLOAD, NULL, "bad SOHM table signature")
     p += H5_SIZEOF_MAGIC;
-
-    /* Don't count the checksum in the table size yet, since it comes after
-     * all of the index headers
-     */
-    HDassert((size_t)(p - (const uint8_t *)buf) == H5SM_TABLE_SIZE(f) - H5SM_SIZEOF_CHECKSUM);
 
     /* Allocate space for the index headers in memory*/
     if(NULL == (table->indexes = (H5SM_index_header_t *)H5FL_ARR_MALLOC(H5SM_index_header_t, (size_t)table->num_indexes)))
@@ -208,16 +201,19 @@ H5SM_table_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void UNUSED *udata)
 
         /* Address of the index's heap */
         H5F_addr_decode(f, &p, &(table->indexes[x].heap_addr));
+
+        /* Compute the size of a list index for this SOHM index */
+        table->indexes[x].list_size = H5SM_LIST_SIZE(f, table->indexes[x].list_max);
     } /* end for */
 
     /* Read in checksum */
     UINT32DECODE(p, stored_chksum);
 
     /* Sanity check */
-    HDassert((size_t)(p - (const uint8_t *)buf) == size);
+    HDassert((size_t)(p - (const uint8_t *)buf) == table->table_size);
 
     /* Compute checksum on entire header */
-    computed_chksum = H5_checksum_metadata(buf, (size - H5SM_SIZEOF_CHECKSUM), 0);
+    computed_chksum = H5_checksum_metadata(buf, (table->table_size - H5SM_SIZEOF_CHECKSUM), 0);
 
     /* Verify checksum */
     if(stored_chksum != computed_chksum)
@@ -258,7 +254,7 @@ H5SM_table_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5SM_ma
     uint8_t tbl_buf[H5SM_TBL_BUF_SIZE]; /* Buffer for table */
     herr_t ret_value = SUCCEED;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_table_flush)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check arguments */
     HDassert(f);
@@ -268,24 +264,20 @@ H5SM_table_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5SM_ma
     if(table->cache_info.is_dirty) {
         uint8_t  *buf;               /* Temporary buffer */
         uint8_t  *p;                 /* Pointer into raw data buffer */
-        size_t	 size;               /* Header size on disk */
         uint32_t computed_chksum;    /* Computed metadata checksum value */
         size_t   x;                  /* Counter variable */
 
         /* Verify that we're writing version 0 of the table; this is the only
          * version defined so far.
          */
-        HDassert(f->shared->sohm_vers == HDF5_SHAREDHEADER_VERSION);
+        HDassert(H5F_SOHM_VERS(f) == HDF5_SHAREDHEADER_VERSION);
 
         /* Wrap the local buffer for serialized header info */
         if(NULL == (wb = H5WB_wrap(tbl_buf, sizeof(tbl_buf))))
             HGOTO_ERROR(H5E_SOHM, H5E_CANTINIT, FAIL, "can't wrap buffer")
 
-        /* Encode the master table and all of the index headers as one big blob */
-        size = H5SM_TABLE_SIZE(f) + (H5SM_INDEX_HEADER_SIZE(f) * table->num_indexes);
-
         /* Get a pointer to a buffer that's large enough for serialized table */
-        if(NULL == (buf = (uint8_t *)H5WB_actual(wb, size)))
+        if(NULL == (buf = (uint8_t *)H5WB_actual(wb, table->table_size)))
             HGOTO_ERROR(H5E_SOHM, H5E_NOSPACE, FAIL, "can't get actual buffer")
 
         /* Get temporary pointer to buffer for serialized table */
@@ -326,12 +318,12 @@ H5SM_table_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5SM_ma
         } /* end for */
 
         /* Compute checksum on buffer */
-        computed_chksum = H5_checksum_metadata(buf, (size - H5SM_SIZEOF_CHECKSUM), 0);
+        computed_chksum = H5_checksum_metadata(buf, (table->table_size - H5SM_SIZEOF_CHECKSUM), 0);
         UINT32ENCODE(p, computed_chksum);
 
         /* Write the table to disk */
-        HDassert((size_t)(p - buf) == size);
-	if(H5F_block_write(f, H5FD_MEM_SOHM_TABLE, addr, size, dxpl_id, buf) < 0)
+        HDassert((size_t)(p - buf) == table->table_size);
+	if(H5F_block_write(f, H5FD_MEM_SOHM_TABLE, addr, table->table_size, dxpl_id, buf) < 0)
 	    HGOTO_ERROR(H5E_SOHM, H5E_CANTFLUSH, FAIL, "unable to save sohm table to disk")
 
 	table->cache_info.is_dirty = FALSE;
@@ -367,7 +359,7 @@ H5SM_table_dest(H5F_t UNUSED *f, H5SM_master_table_t* table)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_table_dest)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(table);
@@ -399,7 +391,7 @@ H5SM_table_clear(H5F_t *f, H5SM_master_table_t *table, hbool_t destroy)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_table_clear)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -431,9 +423,9 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5SM_table_size(const H5F_t *f, const H5SM_master_table_t *table, size_t *size_ptr)
+H5SM_table_size(const H5F_t UNUSED *f, const H5SM_master_table_t *table, size_t *size_ptr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_table_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check arguments */
     HDassert(f);
@@ -441,7 +433,7 @@ H5SM_table_size(const H5F_t *f, const H5SM_master_table_t *table, size_t *size_p
     HDassert(size_ptr);
 
     /* Set size value */
-    *size_ptr = H5SM_TABLE_SIZE(f) + (table->num_indexes * H5SM_INDEX_HEADER_SIZE(f));
+    *size_ptr = table->table_size;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5SM_table_size() */
@@ -465,7 +457,6 @@ H5SM_list_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     H5SM_list_t *list;          /* The SOHM list being read in */
     H5SM_list_cache_ud_t *udata = (H5SM_list_cache_ud_t *)_udata; /* User data for callback */
     H5SM_bt2_ctx_t ctx;         /* Message encoding context */
-    size_t size;                /* Size of SOHM list on disk */
     H5WB_t *wb = NULL;          /* Wrapped buffer for list index data */
     uint8_t lst_buf[H5SM_LST_BUF_SIZE]; /* Buffer for list index */
     uint8_t *buf;               /* Reading buffer */
@@ -475,7 +466,7 @@ H5SM_list_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     size_t x;                   /* Counter variable for messages in list */
     H5SM_list_t *ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_list_load)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(udata->header);
@@ -495,15 +486,12 @@ H5SM_list_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     if(NULL == (wb = H5WB_wrap(lst_buf, sizeof(lst_buf))))
         HGOTO_ERROR(H5E_SOHM, H5E_CANTINIT, NULL, "can't wrap buffer")
 
-    /* Compute the size of the SOHM list on disk */
-    size = H5SM_LIST_SIZE(udata->f, udata->header->num_messages);
-
     /* Get a pointer to a buffer that's large enough for serialized list index */
-    if(NULL == (buf = (uint8_t *)H5WB_actual(wb, size)))
+    if(NULL == (buf = (uint8_t *)H5WB_actual(wb, udata->header->list_size)))
         HGOTO_ERROR(H5E_SOHM, H5E_NOSPACE, NULL, "can't get actual buffer")
 
     /* Read list from disk */
-    if(H5F_block_read(f, H5FD_MEM_SOHM_INDEX, addr, size, dxpl_id, buf) < 0)
+    if(H5F_block_read(f, H5FD_MEM_SOHM_INDEX, addr, udata->header->list_size, dxpl_id, buf) < 0)
 	HGOTO_ERROR(H5E_SOHM, H5E_READERROR, NULL, "can't read SOHM list")
 
     /* Get temporary pointer to serialized list index */
@@ -526,10 +514,10 @@ H5SM_list_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     UINT32DECODE(p, stored_chksum);
 
     /* Sanity check */
-    HDassert((size_t)(p - buf) == size);
+    HDassert((size_t)(p - buf) <= udata->header->list_size);
 
     /* Compute checksum on entire header */
-    computed_chksum = H5_checksum_metadata(buf, (size - H5SM_SIZEOF_CHECKSUM), 0);
+    computed_chksum = H5_checksum_metadata(buf, ((size_t)(p - buf) - H5SM_SIZEOF_CHECKSUM), 0);
 
     /* Verify checksum */
     if(stored_chksum != computed_chksum)
@@ -575,7 +563,7 @@ H5SM_list_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5SM_lis
     uint8_t lst_buf[H5SM_LST_BUF_SIZE]; /* Buffer for list index */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_list_flush)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check arguments */
     HDassert(f);
@@ -587,7 +575,6 @@ H5SM_list_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5SM_lis
         H5SM_bt2_ctx_t ctx;         /* Message encoding context */
         uint8_t *buf;               /* Temporary buffer */
         uint8_t *p;                 /* Pointer into raw data buffer */
-        size_t size;                /* Header size on disk */
         uint32_t computed_chksum;   /* Computed metadata checksum value */
         size_t mesgs_written;       /* Number of messages written to list */
         size_t x;                   /* Local index variable */
@@ -596,10 +583,8 @@ H5SM_list_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5SM_lis
         if(NULL == (wb = H5WB_wrap(lst_buf, sizeof(lst_buf))))
             HGOTO_ERROR(H5E_SOHM, H5E_CANTINIT, FAIL, "can't wrap buffer")
 
-        size = H5SM_LIST_SIZE(f, list->header->num_messages);
-
         /* Get a pointer to a buffer that's large enough for serialized list index */
-        if(NULL == (buf = (uint8_t *)H5WB_actual(wb, size)))
+        if(NULL == (buf = (uint8_t *)H5WB_actual(wb, list->header->list_size)))
             HGOTO_ERROR(H5E_SOHM, H5E_NOSPACE, FAIL, "can't get actual buffer")
 
         /* Get temporary pointer to buffer for serialized list index */
@@ -624,12 +609,15 @@ H5SM_list_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5SM_lis
         HDassert(mesgs_written == list->header->num_messages);
 
         /* Compute checksum on buffer */
-        computed_chksum = H5_checksum_metadata(buf, (size - H5SM_SIZEOF_CHECKSUM), 0);
+        computed_chksum = H5_checksum_metadata(buf, (size_t)(p - buf), 0);
         UINT32ENCODE(p, computed_chksum);
+#ifdef H5_CLEAR_MEMORY
+HDmemset(p, 0, (list->header->list_size - (size_t)(p - buf)));
+#endif /* H5_CLEAR_MEMORY */
 
         /* Write the list to disk */
-        HDassert((size_t)(p - buf) == size);
-	if(H5F_block_write(f, H5FD_MEM_SOHM_INDEX, addr, size, dxpl_id, buf) < 0)
+        HDassert((size_t)(p - buf) <= list->header->list_size);
+	if(H5F_block_write(f, H5FD_MEM_SOHM_INDEX, addr, list->header->list_size, dxpl_id, buf) < 0)
 	    HGOTO_ERROR(H5E_SOHM, H5E_CANTFLUSH, FAIL, "unable to save sohm table to disk")
 
         list->cache_info.is_dirty = FALSE;
@@ -665,7 +653,7 @@ H5SM_list_dest(H5F_t *f, H5SM_list_t* list)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_list_dest)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(list);
@@ -679,7 +667,7 @@ H5SM_list_dest(H5F_t *f, H5SM_list_t* list)
     if(list->cache_info.free_file_space_on_destroy) {
         /* Release the space on disk */
         /* (XXX: Nasty usage of internal DXPL value! -QAK) */
-        if(H5MF_xfree(f, H5FD_MEM_SOHM_INDEX, H5AC_dxpl_id, list->cache_info.addr, (hsize_t)H5SM_LIST_SIZE(f, list->header->list_max)) < 0)
+        if(H5MF_xfree(f, H5FD_MEM_SOHM_INDEX, H5AC_dxpl_id, list->cache_info.addr, (hsize_t)list->header->list_size) < 0)
             HGOTO_ERROR(H5E_SOHM, H5E_NOSPACE, FAIL, "unable to free shared message list")
     } /* end if */
 
@@ -709,7 +697,7 @@ H5SM_list_clear(H5F_t *f, H5SM_list_t *list, hbool_t destroy)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_list_clear)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -743,7 +731,7 @@ done:
 static herr_t
 H5SM_list_size(const H5F_t UNUSED *f, const H5SM_list_t *list, size_t *size_ptr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_list_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check arguments */
     HDassert(f);
@@ -752,7 +740,7 @@ H5SM_list_size(const H5F_t UNUSED *f, const H5SM_list_t *list, size_t *size_ptr)
     HDassert(size_ptr);
 
     /* Set size value */
-    *size_ptr = H5SM_LIST_SIZE(f, list->header->list_max);
+    *size_ptr = list->header->list_size;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5SM_list_size() */

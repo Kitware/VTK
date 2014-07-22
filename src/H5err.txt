@@ -48,7 +48,7 @@
 MAJOR, H5E_ARGS, Invalid arguments to routine
 MAJOR, H5E_RESOURCE, Resource unavailable
 MAJOR, H5E_INTERNAL, Internal error (too specific to document in detail)
-MAJOR, H5E_FILE, File accessability
+MAJOR, H5E_FILE, File accessibilty
 MAJOR, H5E_IO, Low-level I/O
 MAJOR, H5E_FUNC, Function entry/exit
 MAJOR, H5E_ATOM, Object atom
@@ -74,12 +74,13 @@ MAJOR, H5E_ERROR, Error API
 MAJOR, H5E_SLIST, Skip Lists
 MAJOR, H5E_FSPACE, Free Space Manager
 MAJOR, H5E_SOHM, Shared Object Header Messages
+MAJOR, H5E_PLUGIN, Plugin for dynamically loaded library
 MAJOR, H5E_NONE_MAJOR, No error
 
 # Sections (for grouping minor errors)
 SECTION, ARGS, Argument errors
 SECTION, RESOURCE, Resource errors
-SECTION, FILEACC, File accessability errors
+SECTION, FILEACC, File accessibilty errors
 SECTION, FILE, Generic low-level file I/O errors
 SECTION, FUNC, Function entry/exit interface errors
 SECTION, ATOM, Object atom related errors
@@ -96,6 +97,7 @@ SECTION, HEAP, Heap errors
 SECTION, FSPACE, Free space errors
 SECTION, PIPELINE, I/O pipeline errors
 SECTION, SYSTEM, System level errors
+SECTION, PLUGIN, Plugin errors
 SECTION, NONE, No error
 
 # Minor errors
@@ -119,7 +121,7 @@ MINOR, RESOURCE, H5E_CANTGC, Unable to garbage collect
 MINOR, RESOURCE, H5E_CANTGETSIZE, Unable to compute size
 MINOR, RESOURCE, H5E_OBJOPEN, Object is already open
 
-# File accessability errors
+# File accessibilty errors
 MINOR, FILEACC, H5E_FILEEXISTS, File already exists
 MINOR, FILEACC, H5E_FILEOPEN, File already open
 MINOR, FILEACC, H5E_CANTCREATE, Unable to create file
@@ -214,6 +216,7 @@ MINOR, DSPACE, H5E_CANTCOMPARE, Can't compare objects
 MINOR, PLIST, H5E_CANTGET, Can't get value
 MINOR, PLIST, H5E_CANTSET, Can't set value
 MINOR, PLIST, H5E_DUPCLASS, Duplicate class name in parent class
+MINOR, PLIST, H5E_SETDISALLOWED, Disallowed operation
 
 # Link errors
 MINOR, LINK, H5E_TRAVERSE, Link traversal failure
@@ -250,6 +253,9 @@ MINOR, PIPELINE, H5E_CANTFILTER, Filter operation failed
 
 # System level errors
 MINOR, SYSTEM, H5E_SYSERRSTR, System error message
+
+# Plugin errors
+MINOR, PLUGIN, H5E_OPENERROR, Can't open directory or file
 
 # No error, for backward compatibility */
 MINOR, NONE, H5E_NONE_MINOR, No error

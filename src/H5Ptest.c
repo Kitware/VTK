@@ -63,7 +63,7 @@ H5P_get_class_path_test(hid_t pclass_id)
     H5P_genclass_t	*pclass;    /* Property class to query */
     char *ret_value;       /* return value */
 
-    FUNC_ENTER_NOAPI(H5P_get_class_path_test, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Check arguments. */
     if(NULL == (pclass = (H5P_genclass_t *)H5I_object_verify(pclass_id, H5I_GENPROP_CLS)))
@@ -104,7 +104,7 @@ H5P_open_class_path_test(const char *path)
     H5P_genclass_t *pclass=NULL;/* Property class to query */
     hid_t ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI(H5P_open_class_path_test, FAIL);
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check arguments. */
     if (NULL == path || *path=='\0')
@@ -122,7 +122,7 @@ done:
     if(ret_value<0 && pclass)
         H5P_close_class(pclass);
 
-    FUNC_LEAVE_NOAPI(ret_value);
+    FUNC_LEAVE_NOAPI(ret_value)
 }   /* H5P_open_class_path_test() */
 
 
@@ -149,7 +149,7 @@ H5P_reset_external_file_test(hid_t dcpl_id)
     H5P_genplist_t *plist;              /* Property list */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5P_reset_external_file_test, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check arguments */
     if(NULL == (plist = (H5P_genplist_t *)H5I_object(dcpl_id)))

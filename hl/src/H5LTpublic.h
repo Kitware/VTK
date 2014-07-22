@@ -16,6 +16,15 @@
 #ifndef _H5LTpublic_H
 #define _H5LTpublic_H
 
+/* Flag definitions for H5LTopen_file_image() */
+#define H5LT_FILE_IMAGE_OPEN_RW      0x0001 /* Open image for read-write */
+#define H5LT_FILE_IMAGE_DONT_COPY    0x0002 /* The HDF5 lib won't copy   */
+/* user supplied image buffer. The same image is open with the core driver.  */
+#define H5LT_FILE_IMAGE_DONT_RELEASE 0x0004 /* The HDF5 lib won't        */
+/* deallocate user supplied image buffer. The user application is reponsible */
+/* for doing so.                                                             */ 
+#define H5LT_FILE_IMAGE_ALL          0x0007
+
 typedef enum H5LT_lang_t {
     H5LT_LANG_ERR = -1, /*this is the first*/
     H5LT_DDL      = 0,  /*for DDL*/
@@ -340,8 +349,18 @@ H5_HLDLL herr_t H5LTdtype_to_text(hid_t dtype, char *str, H5LT_lang_t lang_type,
  *-------------------------------------------------------------------------
  */
 
-H5_HLDLL herr_t  H5LTfind_attribute( hid_t loc_id, const char *name );
+H5_HLDLL herr_t H5LTfind_attribute( hid_t loc_id, const char *name );
 
+H5_HLDLL htri_t H5LTpath_valid(hid_t loc_id, const char *path, hbool_t check_object_valid);
+
+/*-------------------------------------------------------------------------
+ *
+ * File image operations functions
+ *
+ *-------------------------------------------------------------------------
+ */
+
+H5_HLDLL hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, unsigned flags);
 
 #ifdef __cplusplus
 }

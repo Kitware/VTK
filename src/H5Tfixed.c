@@ -46,7 +46,7 @@ DESCRIPTION
 static herr_t
 H5T_init_fixed_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5T_init_fixed_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5T_init())
 } /* H5T_init_fixed_interface() */
@@ -75,7 +75,7 @@ H5Tget_sign(hid_t type_id)
     H5T_t		*dt = NULL;
     H5T_sign_t		ret_value;
 
-    FUNC_ENTER_API(H5Tget_sign, H5T_SGN_ERROR)
+    FUNC_ENTER_API(H5T_SGN_ERROR)
     H5TRACE1("Ts", "i", type_id);
 
     /* Check args */
@@ -111,9 +111,9 @@ H5T_get_sign(H5T_t const *dt)
 {
     H5T_sign_t		ret_value;
 
-    FUNC_ENTER_NOAPI(H5T_get_sign, H5T_SGN_ERROR)
+    FUNC_ENTER_NOAPI(H5T_SGN_ERROR)
 
-    assert(dt);
+    HDassert(dt);
 
     /* Defer to parent */
     while(dt->shared->parent)
@@ -154,7 +154,7 @@ H5Tset_sign(hid_t type_id, H5T_sign_t sign)
     H5T_t	*dt = NULL;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Tset_sign, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "iTs", type_id, sign);
 
     /* Check args */

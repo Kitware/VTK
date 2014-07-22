@@ -122,6 +122,7 @@ typedef struct H5MF_sect_ud_t {
     hid_t dxpl_id;              /* DXPL for VFD operations */
     H5FD_mem_t alloc_type;      /* Type of memory being allocated */
     hbool_t allow_sect_absorb;  /* Whether sections are allowed to absorb a block aggregator */
+    hbool_t allow_eoa_shrink_only;  /* Whether shrinking eoa is allowed only for the section */
 
     /* Up */
     H5MF_shrink_type_t shrink;  /* Type of shrink operation to perform */

@@ -22,7 +22,7 @@ include $(top_srcdir)/config/commence.am
 include $(top_srcdir)/config/lt_vers.am
 
 # Include src directory
-INCLUDES=-I$(top_srcdir)/src -I$(top_srcdir)/hl/src
+AM_CPPFLAGS+=-I$(top_srcdir)/src -I$(top_srcdir)/hl/src
 
 # This is our main target
 lib_LTLIBRARIES=libhdf5_hl_cpp.la
@@ -39,6 +39,9 @@ endif
 # Source files for the library
 # At the moment, only the H5PT Packet Table has a C++ API.
 libhdf5_hl_cpp_la_SOURCES=H5PacketTable.cpp
+
+# HDF5 HL C++ library depends on HDF5 Library.
+libhdf5_hl_cpp_la_LIBADD=$(LIBH5_HL) $(LIBH5CPP)
 
 # Public headers
 include_HEADERS=H5PacketTable.h

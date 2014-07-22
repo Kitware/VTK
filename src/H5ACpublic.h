@@ -354,21 +354,22 @@ extern "C" {
  * Parallel Configuration Fields:
  *
  * In PHDF5, all operations that modify metadata must be executed collectively.
+ *
  * We used to think that this was enough to ensure consistency across the
  * metadata caches, but since we allow processes to read metadata individually,
  * the order of dirty entries in the LRU list can vary across processes,
  * which can result in inconsistencies between the caches.
  *
- * To prevent this, only the metadata cache on process 0 is allowed to write
- * to file, and then only after synchronizing with the other caches.  After
- * it writes entries to file, it sends the base addresses of the now clean
- * entries to the other caches, so they can mark these entries clean as well.
+ * PHDF5 uses several strategies to prevent such inconsistencies in metadata,
+ * all of which use the fact that the same stream of dirty metadata is seen
+ * by all processes for purposes of synchronization.  This is done by 
+ * having each process count the number of bytes of dirty metadata generated,
+ * and then running a "sync point" whenever this count exceeds a user 
+ * specified threshold (see dirty_bytes_threshold below).
  *
- * The different caches know when to synchronize caches by counting the
- * number of bytes of dirty metadata created by the collective operations
- * modifying metadata.  Whenever this count exceeds a user specified
- * threshold (see below), process 0 flushes down to its minimum clean size,
- * and then sends the list of newly cleaned entries to the other caches.
+ * The current metadata write strategy is indicated by the 
+ * metadata_write_strategy field.  The possible values of this field, along
+ * with the associated metadata write strategies are discussed below.
  *
  * dirty_bytes_threshold:  Threshold of dirty byte creation used to
  * 	synchronize updates between caches. (See above for outline and
@@ -378,10 +379,66 @@ extern "C" {
  *	file.  This field is ignored unless HDF5 has been compiled for
  *	parallel.
  *
+ * metadata_write_strategy: Integer field containing a code indicating the
+ *	desired metadata write strategy.  The valid values of this field
+ *	are enumerated and discussed below:
+ *
+ *
+ *	H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY:
+ *
+ *	When metadata_write_strategy is set to this value, only process 
+ *	zero is allowed to write dirty metadata to disk.  All other 
+ *	processes must retain dirty metadata until they are informed at
+ *	a sync point that the dirty metadata in question has been written
+ *	to disk.
+ *
+ *	When the sync point is reached (or when there is a user generated
+ *	flush), process zero flushes sufficient entries to bring it into
+ *	complience with its min clean size (or flushes all dirty entries in
+ *	the case of a user generated flush), broad casts the list of 
+ *	entries just cleaned to all the other processes, and then exits
+ *	the sync point.
+ *
+ *	Upon receipt of the broadcast, the other processes mark the indicated
+ *	entries as clean, and leave the sync point as well.
+ *
+ *
+ *	H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED:
+ *
+ *	In the distributed metadata write strategy, process zero still makes
+ *	the decisions as to what entries should be flushed, but the actual 
+ *	flushes are distributed across the processes in the computation to 
+ *	the extent possible.
+ *
+ *	In this strategy, when a sync point is triggered (either by dirty
+ *	metadata creation or manual flush), all processes enter a barrier.
+ *
+ *	On the other side of the barrier, process 0 constructs an ordered
+ *	list of the entries to be flushed, and then broadcasts this list
+ *	to the caches in all the processes.
+ *
+ *	All processes then scan the list of entries to be flushed, flushing
+ *	some, and marking the rest as clean.  The algorithm for this purpose
+ *	ensures that each entry in the list is flushed exactly once, and 
+ *	all are marked clean in each cache.
+ *
+ *	Note that in the case of a flush of the cache, no message passing
+ *	is necessary, as all processes have the same list of dirty entries, 
+ *	and all of these entries must be flushed.  Thus in this case it is 
+ *	sufficient for each process to sort its list of dirty entries after 
+ *	leaving the initial barrier, and use this list as if it had been 
+ *	received from process zero.
+ *
+ *	To avoid possible messages from the past/future, all caches must
+ *	wait until all caches are done before leaving the sync point.
+ *      
  ****************************************************************************/
 
 #define H5AC__CURR_CACHE_CONFIG_VERSION 	1
 #define H5AC__MAX_TRACE_FILE_NAME_LEN		1024
+
+#define H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY    0
+#define H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED       1
 
 typedef struct H5AC_cache_config_t
 {
@@ -440,6 +497,7 @@ typedef struct H5AC_cache_config_t
 
     /* parallel configuration fields: */
     int                      dirty_bytes_threshold;
+    int                      metadata_write_strategy;
 
 } H5AC_cache_config_t;
 

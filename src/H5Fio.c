@@ -95,27 +95,22 @@ herr_t
 H5F_block_read(const H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
     hid_t dxpl_id, void *buf/*out*/)
 {
-    htri_t      accumulated;            /* Whether the data was accepted by the metadata accumulator */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5F_block_read, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(f);
     HDassert(f->shared);
     HDassert(buf);
+    HDassert(H5F_addr_defined(addr));
 
     /* Check for attempting I/O on 'temporary' file address */
     if(H5F_addr_le(f->shared->tmp_addr, (addr + size)))
         HGOTO_ERROR(H5E_IO, H5E_BADRANGE, FAIL, "attempting I/O in temporary file space")
 
-    /* Check if this I/O can be satisfied by the metadata accumulator */
-    if((accumulated = H5F_accum_read(f, dxpl_id, type, addr, size, buf)) < 0)
-        HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "read from metadata accumulator failed")
-    else if(accumulated == FALSE) {
-        /* Read the data */
-        if(H5FD_read(f->shared->lf, dxpl_id, type, addr, size, buf) < 0)
-            HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "driver read request failed")
-    } /* end else */
+    /* Pass through metadata accumulator layer */
+    if(H5F_accum_read(f, dxpl_id, type, addr, size, buf) < 0)
+        HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "read through metadata accumulator failed")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -141,31 +136,26 @@ herr_t
 H5F_block_write(const H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
     hid_t dxpl_id, const void *buf)
 {
-    htri_t      accumulated;            /* Whether the data was accepted by the metadata accumulator */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5F_block_write, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 #ifdef QAK
 HDfprintf(stderr, "%s: write to addr = %a, size = %Zu\n", FUNC, addr, size);
 #endif /* QAK */
 
     HDassert(f);
     HDassert(f->shared);
-    HDassert(f->intent & H5F_ACC_RDWR);
+    HDassert(H5F_INTENT(f) & H5F_ACC_RDWR);
     HDassert(buf);
+    HDassert(H5F_addr_defined(addr));
 
     /* Check for attempting I/O on 'temporary' file address */
     if(H5F_addr_le(f->shared->tmp_addr, (addr + size)))
         HGOTO_ERROR(H5E_IO, H5E_BADRANGE, FAIL, "attempting I/O in temporary file space")
 
-    /* Check for accumulating metadata */
-    if((accumulated = H5F_accum_write(f, dxpl_id, type, addr, size, buf)) < 0)
-        HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "write to metadata accumulator failed")
-    else if(accumulated == FALSE) {
-        /* Write the data */
-        if(H5FD_write(f->shared->lf, dxpl_id, type, addr, size, buf) < 0)
-            HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "file write failed")
-    } /* end else */
+    /* Pass through metadata accumulator layer */
+    if(H5F_accum_write(f, dxpl_id, type, addr, size, buf) < 0)
+        HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "write through metadata accumulator failed")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

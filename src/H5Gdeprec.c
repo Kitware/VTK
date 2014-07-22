@@ -34,7 +34,7 @@
 #define H5G_PACKAGE		/*suppress error about including H5Gpkg   */
 
 /* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5G_init_deprec_interface
+#define H5_INTERFACE_INIT_FUNC	H5G__init_deprec_interface
 
 
 /***********/
@@ -109,23 +109,47 @@ static H5G_obj_t H5G_obj_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx,
 
 /*--------------------------------------------------------------------------
 NAME
-   H5G_init_deprec_interface -- Initialize interface-specific information
+   H5G__init_deprec_interface -- Initialize interface-specific information
 USAGE
-    herr_t H5G_init_deprec_interface()
+    herr_t H5G__init_deprec_interface()
 RETURNS
     Non-negative on success/Negative on failure
 DESCRIPTION
     Initializes any interface-specific data or routines.  (Just calls
-    H5G_init() currently).
+    H5G__init() currently).
 
 --------------------------------------------------------------------------*/
 static herr_t
-H5G_init_deprec_interface(void)
+H5G__init_deprec_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_init_deprec_interface)
+    FUNC_ENTER_STATIC_NOERR
 
-    FUNC_LEAVE_NOAPI(H5G_init())
-} /* H5G_init_deprec_interface() */
+    FUNC_LEAVE_NOAPI(H5G__init())
+} /* H5G__init_deprec_interface() */
+
+
+/*--------------------------------------------------------------------------
+NAME
+   H5G__term_deprec_interface -- Terminate interface
+USAGE
+    herr_t H5G__term_deprec_interface()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Terminates interface.  (Just resets H5_interface_initialize_g
+    currently).
+
+--------------------------------------------------------------------------*/
+herr_t
+H5G__term_deprec_interface(void)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Mark closed */
+    H5_interface_initialize_g = 0;
+
+    FUNC_LEAVE_NOAPI(0)
+} /* H5G__term_deprec_interface() */
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
@@ -146,8 +170,8 @@ H5G_map_obj_type(H5O_type_t obj_type)
 {
     H5G_obj_t ret_value;        /* Return value */
 
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_map_obj_type)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Map object type to older "group" object type */
     switch(obj_type) {
@@ -206,7 +230,7 @@ H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
     hid_t           tmp_gcpl = (-1);    /* Temporary group creation property list */
     hid_t	    ret_value;          /* Return value */
 
-    FUNC_ENTER_API(H5Gcreate1, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE3("i", "i*sz", loc_id, name, size_hint);
 
     /* Check arguments */
@@ -245,7 +269,7 @@ H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
         tmp_gcpl = H5P_GROUP_CREATE_DEFAULT;
 
     /* Create the new group & get its ID */
-    if(NULL == (grp = H5G_create_named(&loc, name, H5P_LINK_CREATE_DEFAULT,
+    if(NULL == (grp = H5G__create_named(&loc, name, H5P_LINK_CREATE_DEFAULT,
             tmp_gcpl, H5P_GROUP_ACCESS_DEFAULT, H5AC_dxpl_id)))
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group")
     if((ret_value = H5I_register(H5I_GROUP, grp, TRUE)) < 0)
@@ -253,7 +277,7 @@ H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
 
 done:
     if(tmp_gcpl > 0 && tmp_gcpl != H5P_GROUP_CREATE_DEFAULT)
-        if(H5I_dec_ref(tmp_gcpl, FALSE) < 0)
+        if(H5I_dec_ref(tmp_gcpl) < 0)
             HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, FAIL, "unable to release property list")
 
     if(ret_value < 0)
@@ -288,7 +312,7 @@ H5Gopen1(hid_t loc_id, const char *name)
     H5G_loc_t	loc;                    /* Location of parent for group */
     hid_t       ret_value;              /* Return value */
 
-    FUNC_ENTER_API(H5Gopen1, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("i", "i*s", loc_id, name);
 
     /* Check args */
@@ -298,7 +322,7 @@ H5Gopen1(hid_t loc_id, const char *name)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
 
     /* Open the group */
-    if((grp = H5G_open_name(&loc, name, H5P_DEFAULT, H5AC_dxpl_id)) == NULL)
+    if((grp = H5G__open_name(&loc, name, H5P_DEFAULT, H5AC_dxpl_id)) == NULL)
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open group")
 
     /* Register an atom for the group */
@@ -328,7 +352,7 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_API(H5Glink, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE4("e", "iLl*s*s", cur_loc_id, type, cur_name, new_name);
 
     /* Check arguments */
@@ -374,7 +398,7 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type,
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_API(H5Glink2, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE5("e", "i*sLli*s", cur_loc_id, cur_name, type, new_loc_id, new_name);
 
     /* Check arguments */
@@ -435,7 +459,7 @@ H5G_link_hard(hid_t cur_loc_id, const char *cur_name, hid_t new_loc_id,
     H5G_loc_t	new_loc, *new_loc_p;    /* Information about new link's group */
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_link_hard)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Finish checking arguments */
     if(cur_loc_id == H5L_SAME_LOC && new_loc_id == H5L_SAME_LOC)
@@ -477,7 +501,7 @@ H5Gmove(hid_t src_loc_id, const char *src_name, const char *dst_name)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Gmove, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE3("e", "i*s*s", src_loc_id, src_name, dst_name);
 
     /* Call common routine to move the link */
@@ -502,7 +526,7 @@ H5Gmove2(hid_t src_loc_id, const char *src_name, hid_t dst_loc_id,
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Gmove2, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE4("e", "i*si*s", src_loc_id, src_name, dst_loc_id, dst_name);
 
     /* Call common routine to move the link */
@@ -539,7 +563,7 @@ H5G_move(hid_t src_loc_id, const char *src_name, hid_t dst_loc_id,
     H5G_loc_t	dst_loc, *dst_loc_p;    /* Group info for destination location */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_move)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     if(src_loc_id == H5L_SAME_LOC && dst_loc_id == H5L_SAME_LOC)
@@ -584,7 +608,7 @@ H5Gunlink(hid_t loc_id, const char *name)
     H5G_loc_t	loc;                    /* Group's location */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_API(H5Gunlink, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "i*s", loc_id, name);
 
     /* Check arguments */
@@ -616,7 +640,7 @@ H5Gget_linkval(hid_t loc_id, const char *name, size_t size, char *buf/*out*/)
     H5G_loc_t	loc;                    /* Group's location */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_API(H5Gget_linkval, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE4("e", "i*szx", loc_id, name, size, buf);
 
     /* Check arguments */
@@ -657,7 +681,7 @@ H5Gset_comment(hid_t loc_id, const char *name, const char *comment)
     H5G_loc_t	loc;
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Gset_comment, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE3("e", "i*s*s", loc_id, name, comment);
 
     if(H5G_loc(loc_id, &loc) < 0)
@@ -702,7 +726,7 @@ H5Gget_comment(hid_t loc_id, const char *name, size_t bufsize, char *buf)
     H5G_loc_t	loc;
     int	ret_value;
 
-    FUNC_ENTER_API(H5Gget_comment, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE4("Is", "i*sz*s", loc_id, name, bufsize, buf);
 
     if(H5G_loc(loc_id, &loc) < 0)
@@ -756,7 +780,7 @@ H5Giterate(hid_t loc_id, const char *name, int *idx_p, H5G_iterate_t op,
     hsize_t	idx;                    /* Internal location to hold index */
     herr_t	ret_value;
 
-    FUNC_ENTER_API(H5Giterate, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE5("e", "i*s*Isx*x", loc_id, name, idx_p, op, op_data);
 
     /* Check args */
@@ -812,7 +836,7 @@ H5Gget_num_objs(hid_t loc_id, hsize_t *num_objs)
     H5O_type_t          obj_type;       /* Type of object at location */
     herr_t		ret_value = SUCCEED;
 
-    FUNC_ENTER_API(H5Gget_num_objs, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "i*h", loc_id, num_objs);
 
     /* Check args */
@@ -826,7 +850,7 @@ H5Gget_num_objs(hid_t loc_id, hsize_t *num_objs)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "bad pointer to # of objects")
 
     /* Retrieve information about the group */
-    if(H5G_obj_info(loc.oloc, &grp_info, H5AC_ind_dxpl_id) < 0)
+    if(H5G__obj_info(loc.oloc, &grp_info, H5AC_ind_dxpl_id) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTCOUNT, FAIL, "can't determine")
 
     /* Set the number of objects [sic: links] in the group */
@@ -861,7 +885,7 @@ H5Gget_objinfo(hid_t loc_id, const char *name, hbool_t follow_link,
     H5G_loc_t	loc;
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Gget_objinfo, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE4("e", "i*sbx", loc_id, name, follow_link, statbuf);
 
     /* Check arguments */
@@ -893,13 +917,13 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_get_objinfo_cb(H5G_loc_t *grp_loc/*in*/, const char *name, const H5O_link_t *lnk,
+H5G_get_objinfo_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char *name, const H5O_link_t *lnk,
     H5G_loc_t *obj_loc, void *_udata/*in,out*/, H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_trav_goi_t *udata = (H5G_trav_goi_t *)_udata;   /* User data passed in */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_get_objinfo_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check if the name in this group resolved to a valid link */
     if(lnk == NULL && obj_loc == NULL)
@@ -910,7 +934,6 @@ H5G_get_objinfo_cb(H5G_loc_t *grp_loc/*in*/, const char *name, const H5O_link_t 
         H5G_stat_t *statbuf = udata->statbuf;   /* Convenience pointer for statbuf */
 
         /* Common code to retrieve the file's fileno */
-        /* (Use the object location's file info, if it's available) */
         if(H5F_get_fileno((obj_loc ? obj_loc : grp_loc)->oloc->file, &statbuf->fileno[0]) < 0)
             HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "unable to read fileno")
 
@@ -922,6 +945,7 @@ H5G_get_objinfo_cb(H5G_loc_t *grp_loc/*in*/, const char *name, const H5O_link_t 
 
             /* Go retrieve the object information */
             /* (don't need index & heap info) */
+            HDassert(obj_loc);
             if(H5O_get_info(obj_loc->oloc, udata->dxpl_id, FALSE, &oinfo) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to get object info")
 
@@ -981,7 +1005,7 @@ H5G_get_objinfo(const H5G_loc_t *loc, const char *name, hbool_t follow_link,
     H5G_trav_goi_t udata;           /* User data for callback */
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_get_objinfo)
+    FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(loc);
     HDassert(name && *name);
@@ -1058,7 +1082,7 @@ H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char *name, size_t size)
     H5O_type_t          obj_type;       /* Type of object at location */
     ssize_t		ret_value;
 
-    FUNC_ENTER_API(H5Gget_objname_by_idx, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE4("Zs", "ih*sz", loc_id, idx, name, size);
 
     /* Check args */
@@ -1100,7 +1124,7 @@ H5Gget_objtype_by_idx(hid_t loc_id, hsize_t idx)
     H5O_type_t          obj_type;       /* Type of object at location */
     H5G_obj_t		ret_value;
 
-    FUNC_ENTER_API(H5Gget_objtype_by_idx, H5G_UNKNOWN)
+    FUNC_ENTER_API(H5G_UNKNOWN)
     H5TRACE2("Go", "ih", loc_id, idx);
 
     /* Check args */
@@ -1142,29 +1166,29 @@ H5G_obj_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx, hid_t dxpl_id)
     htri_t linfo_exists;        /* Whether the link info message exists */
     H5G_obj_t ret_value;        /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_obj_get_type_by_idx, H5G_UNKNOWN)
+    FUNC_ENTER_NOAPI(H5G_UNKNOWN)
 
     /* Sanity check */
     HDassert(oloc);
 
     /* Attempt to get the link info for this group */
-    if((linfo_exists = H5G_obj_get_linfo(oloc, &linfo, dxpl_id)) < 0)
+    if((linfo_exists = H5G__obj_get_linfo(oloc, &linfo, dxpl_id)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5G_UNKNOWN, "can't check for link info message")
     if(linfo_exists) {
         if(H5F_addr_defined(linfo.fheap_addr)) {
             /* Get the object's name from the dense link storage */
-            if((ret_value = H5G_dense_get_type_by_idx(oloc->file, dxpl_id, &linfo, idx)) < 0)
+            if((ret_value = H5G__dense_get_type_by_idx(oloc->file, dxpl_id, &linfo, idx)) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, H5G_UNKNOWN, "can't locate type")
         } /* end if */
         else {
             /* Get the object's type from the link messages */
-            if((ret_value = H5G_compact_get_type_by_idx(oloc, dxpl_id, &linfo, idx)) < 0)
+            if((ret_value = H5G__compact_get_type_by_idx(oloc, dxpl_id, &linfo, idx)) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, H5G_UNKNOWN, "can't locate type")
         } /* end else */
     } /* end if */
     else {
         /* Get the object's type from the symbol table */
-        if((ret_value = H5G_stab_get_type_by_idx(oloc, idx, dxpl_id)) < 0)
+        if((ret_value = H5G__stab_get_type_by_idx(oloc, idx, dxpl_id)) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, H5G_UNKNOWN, "can't locate type")
     } /* end else */
 

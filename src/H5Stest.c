@@ -56,7 +56,7 @@ H5S_select_shape_same_test(hid_t sid1, hid_t sid2)
     H5S_t	*space2;                /* Pointer to 2nd dataspace */
     htri_t      ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5S_select_shape_same_test, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Get dataspace structures */
     if(NULL == (space1 = (H5S_t *)H5I_object_verify(sid1, H5I_DATASPACE)))
@@ -97,7 +97,7 @@ H5S_get_rebuild_status_test(hid_t space_id)
     H5S_t *space;               /* Pointer to 1st dataspace */
     htri_t ret_value;           /* Return value */
 
-    FUNC_ENTER_NOAPI(H5S_get_rebuild_status_test, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
      /* Get dataspace structures */
     if(NULL == (space = (H5S_t *)H5I_object_verify(space_id, H5I_DATASPACE)))

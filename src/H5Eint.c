@@ -132,7 +132,7 @@ DESCRIPTION
 static herr_t
 H5E_init_int_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_init_int_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5E_init())
 } /* H5E_init_int_interface() */
@@ -156,7 +156,7 @@ H5E_get_msg(const H5E_msg_t *msg, H5E_type_t *type, char *msg_str, size_t size)
 {
     ssize_t       len;          /* Length of error message */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_get_msg)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments */
     HDassert(msg);
@@ -227,7 +227,7 @@ H5E_walk1_cb(int n, H5E_error1_t *err_desc, void *client_data)
     unsigned            have_desc = 1;  /* Flag to indicate whether the error has a "real" description */
     herr_t              ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_walk1_cb)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments */
     HDassert(err_desc);
@@ -264,7 +264,10 @@ H5E_walk1_cb(int n, H5E_error1_t *err_desc, void *client_data)
         if(cls_ptr->lib_vers)
             eprint->cls.lib_vers = cls_ptr->lib_vers;
 
-        fprintf(stream, "%s-DIAG: Error detected in %s (%s) ", cls_ptr->cls_name, cls_ptr->lib_name, cls_ptr->lib_vers);
+        fprintf(stream, "%s-DIAG: Error detected in %s (%s) ",
+            (cls_ptr->cls_name ? cls_ptr->cls_name : "(null)"),
+            (cls_ptr->lib_name ? cls_ptr->lib_name : "(null)"),
+            (cls_ptr->lib_vers ? cls_ptr->lib_vers : "(null)"));
 
         /* try show the process or thread id in multiple processes cases*/
 #ifdef H5_HAVE_PARALLEL
@@ -349,7 +352,7 @@ H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
     unsigned            have_desc = 1;  /* Flag to indicate whether the error has a "real" description */
     herr_t              ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_walk2_cb)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments */
     HDassert(err_desc);
@@ -377,6 +380,10 @@ H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
      * they might be different. */
     cls_ptr = (H5E_cls_t *)H5I_object_verify(err_desc->cls_id, H5I_ERROR_CLASS);
 
+    /* Check for bad pointer(s), but can't issue error, just leave */
+    if(!cls_ptr)
+        HGOTO_DONE(FAIL)
+
     /* Print error class header if new class */
     if(eprint->cls.lib_name == NULL || HDstrcmp(cls_ptr->lib_name, eprint->cls.lib_name)) {
         /* update to the new class information */
@@ -387,7 +394,10 @@ H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
         if(cls_ptr->lib_vers)
             eprint->cls.lib_vers = cls_ptr->lib_vers;
 
-        fprintf(stream, "%s-DIAG: Error detected in %s (%s) ", cls_ptr->cls_name, cls_ptr->lib_name, cls_ptr->lib_vers);
+        fprintf(stream, "%s-DIAG: Error detected in %s (%s) ",
+            (cls_ptr->cls_name ? cls_ptr->cls_name : "(null)"),
+            (cls_ptr->lib_name ? cls_ptr->lib_name : "(null)"),
+            (cls_ptr->lib_vers ? cls_ptr->lib_vers : "(null)"));
 
         /* try show the process or thread id in multiple processes cases*/
 #ifdef H5_HAVE_PARALLEL
@@ -450,8 +460,7 @@ H5E_print(const H5E_t *estack, FILE *stream, hbool_t bk_compatible)
     H5E_walk_op_t walk_op;      /* Error stack walking callback */
     herr_t ret_value = SUCCEED;
 
-    /* Don't clear the error stack! :-) */
-    FUNC_ENTER_NOAPI_NOINIT(H5E_print)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(estack);
@@ -526,7 +535,7 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
     herr_t	status;         /* Status from callback function */
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5E_walk)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(estack);
@@ -620,7 +629,7 @@ done:
 herr_t
 H5E_get_auto(const H5E_t *estack, H5E_auto_op_t *op, void **client_data)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_get_auto)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(estack);
 
@@ -660,7 +669,7 @@ H5E_get_auto(const H5E_t *estack, H5E_auto_op_t *op, void **client_data)
 herr_t
 H5E_set_auto(H5E_t *estack, const H5E_auto_op_t *op, void *client_data)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_set_auto)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(estack);
 
@@ -694,6 +703,7 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
     int         desc_len;       /* Actual length of description when formatted */
 #endif /* H5_HAVE_VASPRINTF */
     char        *tmp = NULL;      /* Buffer to place formatted description in */
+    hbool_t     va_started = FALSE; /* Whether the variable argument list is open */
     herr_t	ret_value = SUCCEED;    /* Return value */
 
     /*
@@ -703,7 +713,7 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
      *		HERROR().  HERROR() is called by HRETURN_ERROR() which could
      *		be called by FUNC_ENTER().
      */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_printf_stack)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(cls_id > 0);
@@ -718,6 +728,7 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
 
     /* Start the variable-argument parsing */
     va_start(ap, fmt);
+    va_started = TRUE;
 
 #ifdef H5_HAVE_VASPRINTF
     /* Use the vasprintf() routine, since it does what we're trying to do below */
@@ -759,13 +770,13 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
     } /* end while */
 #endif /* H5_HAVE_VASPRINTF */
 
-    va_end(ap);
-
     /* Push the error on the stack */
     if(H5E_push_stack(estack, file, func, line, cls_id, maj_id, min_id, tmp) < 0)
         HGOTO_DONE(FAIL)
 
 done:
+    if(va_started)
+        va_end(ap);
     if(tmp)
         H5MM_xfree(tmp);
 
@@ -806,7 +817,7 @@ H5E_push_stack(H5E_t *estack, const char *file, const char *func, unsigned line,
      *		HERROR().  HERROR() is called by HRETURN_ERROR() which could
      *		be called by FUNC_ENTER().
      */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_push_stack)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(cls_id > 0);
@@ -880,7 +891,7 @@ H5E_clear_entries(H5E_t *estack, size_t nentries)
     unsigned u;                 /* Local index variable */
     herr_t ret_value=SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5E_clear_entries)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(estack);
@@ -892,11 +903,11 @@ H5E_clear_entries(H5E_t *estack, size_t nentries)
 
         /* Decrement the IDs to indicate that they are no longer used by this stack */
         /* (In reverse order that they were incremented, so that reference counts work well) */
-        if(H5I_dec_ref(error->min_num, FALSE) < 0)
+        if(H5I_dec_ref(error->min_num) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTDEC, FAIL, "unable to decrement ref count on error message")
-        if(H5I_dec_ref(error->maj_num, FALSE) < 0)
+        if(H5I_dec_ref(error->maj_num) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTDEC, FAIL, "unable to decrement ref count on error message")
-        if(H5I_dec_ref(error->cls_id, FALSE) < 0)
+        if(H5I_dec_ref(error->cls_id) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTDEC, FAIL, "unable to decrement ref count on error class")
 
         /* Release strings */
@@ -934,7 +945,7 @@ H5E_clear_stack(H5E_t *estack)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5E_clear_stack, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check for 'default' error stack */
     if(estack == NULL)
@@ -970,7 +981,7 @@ H5E_pop(H5E_t *estack, size_t count)
 {
     herr_t      ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5E_pop)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(estack);
@@ -1004,25 +1015,27 @@ H5E_dump_api_stack(int is_api)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5E_dump_api_stack, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Only dump the error stack during an API call */
     if(is_api) {
         H5E_t *estack = H5E_get_my_stack();
 
         HDassert(estack);
+
+#ifdef H5_NO_DEPRECATED_SYMBOLS
+            if(estack->auto_op.func2)
+                (void)((estack->auto_op.func2)(H5E_DEFAULT, estack->auto_data));
+#else /* H5_NO_DEPRECATED_SYMBOLS */ 
         if(estack->auto_op.vers == 1) {
-#ifndef H5_NO_DEPRECATED_SYMBOLS
-            if(estack->auto_op.u.func1)
-                (void)((estack->auto_op.u.func1)(estack->auto_data));
-#else /* H5_NO_DEPRECATED_SYMBOLS */
-            HDassert(0 && "version 1 error stack dump without deprecated symbols!");
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
+            if(estack->auto_op.func1)
+                (void)((estack->auto_op.func1)(estack->auto_data));
         } /* end if */
         else {
-            if(estack->auto_op.u.func2)
-                (void)((estack->auto_op.u.func2)(H5E_DEFAULT, estack->auto_data));
+            if(estack->auto_op.func2)
+                (void)((estack->auto_op.func2)(H5E_DEFAULT, estack->auto_data));
         } /* end else */
+#endif /* H5_NO_DEPRECATED_SYMBOLS */
     } /* end if */
 
 done:

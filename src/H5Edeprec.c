@@ -34,7 +34,7 @@
 #define H5E_PACKAGE		/*suppress error about including H5Epkg   */
 
 /* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5E_init_deprec_interface
+#define H5_INTERFACE_INIT_FUNC	H5E__init_deprec_interface
 
 
 /***********/
@@ -82,13 +82,12 @@
 /*******************/
 
 
-#ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /*--------------------------------------------------------------------------
 NAME
-   H5E_init_deprec_interface -- Initialize interface-specific information
+   H5E__init_deprec_interface -- Initialize interface-specific information
 USAGE
-    herr_t H5E_init_deprec_interface()
+    herr_t H5E__init_deprec_interface()
 RETURNS
     Non-negative on success/Negative on failure
 DESCRIPTION
@@ -97,13 +96,38 @@ DESCRIPTION
 
 --------------------------------------------------------------------------*/
 static herr_t
-H5E_init_deprec_interface(void)
+H5E__init_deprec_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5E_init_deprec_interface)
+    FUNC_ENTER_STATIC_NOERR
 
     FUNC_LEAVE_NOAPI(H5E_init())
-} /* H5E_init_deprec_interface() */
+} /* H5E__init_deprec_interface() */
 
+
+/*--------------------------------------------------------------------------
+NAME
+   H5E__term_deprec_interface -- Terminate interface
+USAGE
+    herr_t H5E__term_deprec_interface()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Terminates interface.  (Just resets H5_interface_initialize_g
+    currently).
+
+--------------------------------------------------------------------------*/
+herr_t
+H5E__term_deprec_interface(void)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Mark closed */
+    H5_interface_initialize_g = 0;
+
+    FUNC_LEAVE_NOAPI(0)
+} /* H5E__term_deprec_interface() */
+
+#ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_major
@@ -127,7 +151,7 @@ H5Eget_major(H5E_major_t maj)
     char        *msg_str = NULL;
     char        *ret_value;     /* Return value */
 
-    FUNC_ENTER_API_NOCLEAR(H5Eget_major, NULL)
+    FUNC_ENTER_API_NOCLEAR(NULL)
 
     /* Get the message object */
     if(NULL == (msg = (H5E_msg_t *)H5I_object_verify(maj, H5I_ERROR_MSG)))
@@ -179,7 +203,7 @@ H5Eget_minor(H5E_minor_t min)
     char        *msg_str = NULL;
     char        *ret_value;     /* Return value */
 
-    FUNC_ENTER_API_NOCLEAR(H5Eget_minor, NULL)
+    FUNC_ENTER_API_NOCLEAR(NULL)
 
     /* Get the message object */
     if(NULL == (msg = (H5E_msg_t *)H5I_object_verify(min, H5I_ERROR_MSG)))
@@ -236,7 +260,7 @@ H5Epush1(const char *file, const char *func, unsigned line,
     herr_t	ret_value = SUCCEED;    /* Return value */
 
     /* Don't clear the error stack! :-) */
-    FUNC_ENTER_API_NOCLEAR(H5Epush1, FAIL)
+    FUNC_ENTER_API_NOCLEAR(FAIL)
     H5TRACE6("e", "*s*sIuii*s", file, func, line, maj, min, str);
 
     /* Push the error on the default error stack */
@@ -267,7 +291,7 @@ H5Eclear1(void)
     herr_t ret_value = SUCCEED; /* Return value */
 
     /* Don't clear the error stack! :-) */
-    FUNC_ENTER_API_NOCLEAR(H5Eclear1, FAIL)
+    FUNC_ENTER_API_NOCLEAR(FAIL)
     H5TRACE0("e","");
 
     /* Clear the default error stack */
@@ -302,7 +326,7 @@ H5Eprint1(FILE *stream)
     herr_t ret_value = SUCCEED; /* Return value */
 
     /* Don't clear the error stack! :-) */
-    FUNC_ENTER_API_NOCLEAR(H5Eprint1, FAIL)
+    FUNC_ENTER_API_NOCLEAR(FAIL)
     /*NO TRACE*/
 
     if(NULL == (estack = H5E_get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in non-threaded case */
@@ -339,7 +363,7 @@ H5Ewalk1(H5E_direction_t direction, H5E_walk1_t func, void *client_data)
     herr_t ret_value = SUCCEED; /* Return value */
 
     /* Don't clear the error stack! :-) */
-    FUNC_ENTER_API_NOCLEAR(H5Ewalk1, FAIL)
+    FUNC_ENTER_API_NOCLEAR(FAIL)
     /*NO TRACE*/
 
     if(NULL == (estack = H5E_get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in non-threaded case */
@@ -370,6 +394,11 @@ done:
  * Programmer:	Raymond Lu
  *              Sep 16, 2003
  *
+ * Modification:Raymond Lu
+ *              4 October 2010
+ *              If the printing function isn't the default H5Eprint1 or 2, 
+ *              and H5Eset_auto2 has been called to set the new style 
+ *              printing function, a call to H5Eget_auto1 should fail.
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -379,7 +408,7 @@ H5Eget_auto1(H5E_auto1_t *func, void **client_data)
     H5E_auto_op_t auto_op;      /* Error stack operator */
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_API(H5Eget_auto1, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "*x**x", func, client_data);
 
     /* Retrieve default error stack */
@@ -389,8 +418,13 @@ H5Eget_auto1(H5E_auto1_t *func, void **client_data)
     /* Get the automatic error reporting information */
     if(H5E_get_auto(estack, &auto_op, client_data) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTGET, FAIL, "can't get automatic error info")
+
+    /* Fail if the printing function isn't the default(user-set) and set through H5Eset_auto2 */
+    if(!auto_op.is_default && auto_op.vers == 2)
+        HGOTO_ERROR(H5E_ERROR, H5E_CANTGET, FAIL, "wrong API function, H5Eset_auto2 has been called")
+
     if(func)
-        *func = auto_op.u.func1;
+        *func = auto_op.func1;
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -418,6 +452,9 @@ done:
  * Programmer:	Raymond Lu
  *              Sep 16, 2003
  *
+ * Modification:Raymond Lu
+ *              4 October 2010
+ *              If the FUNC is H5Eprint2, put the IS_DEFAULT flag on.
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -428,15 +465,24 @@ H5Eset_auto1(H5E_auto1_t func, void *client_data)
     herr_t ret_value = SUCCEED; /* Return value */
 
     /* Don't clear the error stack! :-) */
-    FUNC_ENTER_API_NOCLEAR(H5Eset_auto1, FAIL)
+    FUNC_ENTER_API_NOCLEAR(FAIL)
     H5TRACE2("e", "x*x", func, client_data);
 
     if(NULL == (estack = H5E_get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in non-threaded case */
         HGOTO_ERROR(H5E_ERROR, H5E_CANTGET, FAIL, "can't get current error stack")
 
+    /* Get the automatic error reporting information */
+    if(H5E_get_auto(estack, &auto_op, NULL) < 0)
+        HGOTO_ERROR(H5E_ERROR, H5E_CANTGET, FAIL, "can't get automatic error info")
+
     /* Set the automatic error reporting information */
     auto_op.vers = 1;
-    auto_op.u.func1 = func;
+    if(func != auto_op.func1_default)
+        auto_op.is_default = FALSE;
+    else
+        auto_op.is_default = TRUE;
+    auto_op.func1 = func;
+
     if(H5E_set_auto(estack, &auto_op, client_data) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTSET, FAIL, "can't set automatic error info")
 

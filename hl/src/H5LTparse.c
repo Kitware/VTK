@@ -58,12 +58,12 @@ static int yygrowstack();
 #define yystacksize H5LTyystacksize
 #define YYPREFIX "H5LTyy"
 #line 17 "H5LTparse.y"
-#include<stdio.h>
-#include<string.h>
-#include<hdf5.h>
+#include <stdio.h>
+#include <string.h>
+#include <hdf5.h>
 
 extern int yylex();
-extern int yyerror(char *);
+extern int yyerror(const char *);
 
 #define STACK_SIZE      16
 
@@ -95,7 +95,7 @@ int asindex = -1;               /*pointer to the top of array stack*/
 
 hbool_t     is_str_size = 0;        /*flag to lexer for string size*/
 hbool_t     is_str_pad = 0;         /*flag to lexer for string padding*/
-H5T_pad_t   str_pad;                /*variable for string padding*/
+H5T_str_t   str_pad;                /*variable for string padding*/
 H5T_cset_t  str_cset;               /*variable for string character set*/
 hbool_t     is_variable = 0;        /*variable for variable-length string*/
 size_t      str_size;               /*variable for string size*/
@@ -113,7 +113,7 @@ typedef union {
     int   ival;         /*for integer token*/
     char  *sval;        /*for name string*/
 } YYSTYPE;
-#line 99 "H5LTparse.c"
+#line 117 "H5LTparse.c"
 #define YYERRCODE 256
 #define H5T_STD_I8BE_TOKEN 257
 #define H5T_STD_I8LE_TOKEN 258
@@ -1042,11 +1042,15 @@ case 91:
 #line 330 "H5LTparse.y"
 {
                                                 is_enum_memb = 1; /*indicate member of enum*/
-                                                enum_memb_symbol = strdup(yylval.sval);
+#ifdef H5_HAVE_WIN32_API
+                                                enum_memb_symbol = _strdup(yylval.sval); 
+#else /* H5_HAVE_WIN32_API */
+                                                enum_memb_symbol = strdup(yylval.sval); 
+#endif  /* H5_HAVE_WIN32_API */
                                             }
 break;
 case 92:
-#line 335 "H5LTparse.y"
+#line 339 "H5LTparse.y"
 {
                                 char char_val=(char)yylval.ival;
                                 short short_val=(short)yylval.ival;
@@ -1090,7 +1094,7 @@ case 92:
                                 H5Tclose(native);
                             }
 break;
-#line 1076 "H5LTparse.c"
+#line 1098 "H5LTparse.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

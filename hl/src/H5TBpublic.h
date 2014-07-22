@@ -219,10 +219,10 @@ H5_HLDLL herr_t  H5TBdelete_field( hid_t loc_id,
 H5_HLDLL herr_t  H5TBAget_title( hid_t loc_id,
                        char *table_title );
 
-H5_HLDLL herr_t  H5TBAget_fill( hid_t loc_id,
+H5_HLDLL htri_t  H5TBAget_fill(hid_t loc_id,
                       const char *dset_name,
                       hid_t dset_id,
-                      unsigned char *dst_buf );
+                      unsigned char *dst_buf);
 
 #ifdef __cplusplus
 }

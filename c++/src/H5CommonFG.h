@@ -14,21 +14,24 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-// CommonFG is a protocol class.  Its existence is simply to provide the
-// common services that are provided by H5File and Group.  The file or
-// group in the context of this class is referred to as 'location'.
-
-#ifndef _CommonFG_H
-#define _CommonFG_H
+#ifndef __CommonFG_H
+#define __CommonFG_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+// Class forwarding
 class Group;
 class H5File;
 class ArrayType;
 class VarLenType;
+
+/*! \class CommonFG
+    \brief \a CommonFG is an abstract base class of H5File and H5Group.
+
+    It provides common operations of H5File and H5Group.
+*/
 class H5_DLLCPP CommonFG {
    public:
 	// Creates a new group at this location which can be a file
@@ -49,18 +52,6 @@ class H5_DLLCPP CommonFG {
 	DataSet openDataSet(const char* name) const;
 	DataSet openDataSet(const H5std_string& name) const;
 
-	// Retrieves comment for the HDF5 object specified by its name.
-	H5std_string getComment(const char* name, size_t bufsize=256) const;
-	H5std_string getComment(const H5std_string& name, size_t bufsize=256) const;
-
-	// Removes the comment for the HDF5 object specified by its name.
-	void removeComment(const char* name) const;
-	void removeComment(const H5std_string& name) const;
-
-	// Sets the comment for an HDF5 object specified by its name.
-	void setComment(const char* name, const char* comment) const;
-	void setComment(const H5std_string& name, const H5std_string& comment) const;
-
 	// Returns the value of a symbolic link.
 	H5std_string getLinkval(const char* link_name, size_t size=0) const;
 	H5std_string getLinkval(const H5std_string& link_name, size_t size=0) const;
@@ -73,6 +64,12 @@ class H5_DLLCPP CommonFG {
 	H5std_string getObjnameByIdx(hsize_t idx) const;
 	ssize_t getObjnameByIdx(hsize_t idx, char* name, size_t size) const;
 	ssize_t getObjnameByIdx(hsize_t idx, H5std_string& name, size_t size) const;
+
+	// Retrieves the type of an object in this file or group, given the
+	// object's name
+	H5O_type_t childObjType(const H5std_string& objname) const;
+	H5O_type_t childObjType(const char* objname) const;
+	H5O_type_t childObjType(hsize_t index, H5_index_t index_type=H5_INDEX_NAME, H5_iter_order_t order=H5_ITER_INC, const char* objname=".") const;
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 	// Returns the type of an object in this group, given the
@@ -104,8 +101,10 @@ class H5_DLLCPP CommonFG {
 	void unlink(const H5std_string& name) const;
 
 	// Mounts the file 'child' onto this location.
-	void mount(const char* name, H5File& child, PropList& plist) const;
-	void mount(const H5std_string& name, H5File& child, PropList& plist) const;
+	void mount(const char* name, const H5File& child, const PropList& plist) const;
+	void mount(const char* name, H5File& child, PropList& plist) const; // backward compatibility
+	void mount(const H5std_string& name, const H5File& child, const PropList& plist) const;
+	void mount(const H5std_string& name, H5File& child, PropList& plist) const; // backward compatibility
 
 	// Unmounts the file named 'name' from this parent location.
 	void unmount(const char* name) const;
@@ -152,7 +151,6 @@ class H5_DLLCPP CommonFG {
 	/// object id, i.e. file or group id.
 	virtual hid_t getLocId() const = 0;
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 	/// For subclasses, H5File and Group, to throw appropriate exception.
 	virtual void throwException(const H5std_string& func_name, const H5std_string& msg) const = 0;
@@ -162,11 +160,12 @@ class H5_DLLCPP CommonFG {
 
 	// Noop destructor.
 	virtual ~CommonFG();
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 }; // end of CommonFG declaration
 
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __CommonFG_H
 

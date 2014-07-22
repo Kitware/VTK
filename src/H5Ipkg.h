@@ -46,7 +46,7 @@
 #define TYPE_BITS	7
 #define TYPE_MASK	((1<<TYPE_BITS)-1)
 
-#define MAX_NUM_TYPES TYPE_MASK
+#define H5I_MAX_NUM_TYPES TYPE_MASK
 
 /*
  * Number of bits to use for the Atom index in each atom (assumes 8-bit
@@ -66,5 +66,11 @@
 /******************************/
 /* Package Private Prototypes */
 /******************************/
+
+/* Testing functions */
+#ifdef H5I_TESTING
+H5_DLL ssize_t H5I_get_name_test(hid_t id, char *name/*out*/, size_t size,
+    hbool_t *cached);
+#endif /* H5I_TESTING */
 
 #endif /*_H5Ipkg_H*/

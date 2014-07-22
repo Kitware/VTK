@@ -192,7 +192,7 @@ H5A_dense_create(H5F_t *f, hid_t dxpl_id, H5O_ainfo_t *ainfo)
     H5B2_t *bt2_corder = NULL;          /* v2 B-tree handle for creation order */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_create, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -292,7 +292,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_fnd_cb
+ * Function:	H5A__dense_fnd_cb
  *
  * Purpose:	Callback when an attribute is located in an index
  *
@@ -305,11 +305,11 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_fnd_cb(const H5A_t *attr, hbool_t *took_ownership, void *_user_attr)
+H5A__dense_fnd_cb(const H5A_t *attr, hbool_t *took_ownership, void *_user_attr)
 {
     H5A_t const **user_attr = (H5A_t const **)_user_attr; /* User data from v2 B-tree attribute lookup */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5A_dense_fnd_cb)
+    FUNC_ENTER_STATIC_NOERR
 
     /*
      * Check arguments.
@@ -322,7 +322,7 @@ H5A_dense_fnd_cb(const H5A_t *attr, hbool_t *took_ownership, void *_user_attr)
     *took_ownership = TRUE;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5A_dense_fnd_cb() */
+} /* end H5A__dense_fnd_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -349,7 +349,7 @@ H5A_dense_open(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, const char *na
     htri_t attr_exists;                 /* Attribute exists in v2 B-tree */
     H5A_t *ret_value = NULL;            /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_open, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /*
      * Check arguments.
@@ -395,7 +395,7 @@ H5A_dense_open(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, const char *na
     udata.name_hash = H5_checksum_lookup3(name, HDstrlen(name), 0);
     udata.flags = 0;
     udata.corder = 0;
-    udata.found_op = H5A_dense_fnd_cb;       /* v2 B-tree comparison callback */
+    udata.found_op = H5A__dense_fnd_cb;       /* v2 B-tree comparison callback */
     udata.found_op_data = &ret_value;
 
     /* Find & copy the attribute in the 'name' index */
@@ -444,7 +444,7 @@ H5A_dense_insert(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, H5A_t *attr)
     htri_t attr_sharable;               /* Flag indicating attributes are sharable */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_insert, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -470,7 +470,7 @@ H5A_dense_insert(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, H5A_t *attr)
             mesg_flags |= H5O_MSG_FLAG_SHARED;
         else {
             /* Should this attribute be written as a SOHM? */
-            if(H5SM_try_share(f, dxpl_id, NULL, H5O_ATTR_ID, attr, &mesg_flags) < 0)
+            if(H5SM_try_share(f, dxpl_id, NULL, 0, H5O_ATTR_ID, attr, &mesg_flags) < 0)
                 HGOTO_ERROR(H5E_ATTR, H5E_WRITEERROR, FAIL, "error determining if message should be shared")
 
             /* Attributes can't be "unique be shareable" yet */
@@ -578,7 +578,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_write_bt2_cb2
+ * Function:	H5A__dense_write_bt2_cb2
  *
  * Purpose:	v2 B-tree 'modify' callback to update the record for a creation
  *		order index
@@ -592,12 +592,12 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_write_bt2_cb2(void *_record, void *_op_data, hbool_t *changed)
+H5A__dense_write_bt2_cb2(void *_record, void *_op_data, hbool_t *changed)
 {
     H5A_dense_bt2_corder_rec_t *record = (H5A_dense_bt2_corder_rec_t *)_record; /* Record from B-tree */
     H5O_fheap_id_t *new_heap_id = (H5O_fheap_id_t *)_op_data;       /* "op data" from v2 B-tree modify */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5A_dense_write_bt2_cb2)
+    FUNC_ENTER_STATIC_NOERR
 
     /*
      * Check arguments.
@@ -612,11 +612,11 @@ H5A_dense_write_bt2_cb2(void *_record, void *_op_data, hbool_t *changed)
     *changed = TRUE;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5A_dense_write_bt2_cb2() */
+} /* end H5A__dense_write_bt2_cb2() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_write_bt2_cb
+ * Function:	H5A__dense_write_bt2_cb
  *
  * Purpose:	v2 B-tree 'modify' callback to update the data for an attribute
  *
@@ -629,7 +629,7 @@ H5A_dense_write_bt2_cb2(void *_record, void *_op_data, hbool_t *changed)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_write_bt2_cb(void *_record, void *_op_data, hbool_t *changed)
+H5A__dense_write_bt2_cb(void *_record, void *_op_data, hbool_t *changed)
 {
     H5A_dense_bt2_name_rec_t *record = (H5A_dense_bt2_name_rec_t *)_record; /* Record from B-tree */
     H5A_bt2_od_wrt_t *op_data = (H5A_bt2_od_wrt_t *)_op_data;       /* "op data" from v2 B-tree modify */
@@ -638,7 +638,7 @@ H5A_dense_write_bt2_cb(void *_record, void *_op_data, hbool_t *changed)
     uint8_t attr_buf[H5A_ATTR_BUF_SIZE]; /* Buffer for serializing attribute */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_dense_write_bt2_cb)
+    FUNC_ENTER_STATIC
 
     /*
      * Check arguments.
@@ -676,7 +676,7 @@ H5A_dense_write_bt2_cb(void *_record, void *_op_data, hbool_t *changed)
             udata.found_op_data = NULL;
 
             /* Modify record for creation order index */
-            if(H5B2_modify(bt2_corder, op_data->dxpl_id, &udata, H5A_dense_write_bt2_cb2, &op_data->attr->sh_loc.u.heap_id) < 0)
+            if(H5B2_modify(bt2_corder, op_data->dxpl_id, &udata, H5A__dense_write_bt2_cb2, &op_data->attr->sh_loc.u.heap_id) < 0)
                 HGOTO_ERROR(H5E_ATTR, H5E_CANTINSERT, FAIL, "unable to modify record in v2 B-tree")
         } /* end if */
 
@@ -727,7 +727,7 @@ done:
         HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close wrapped buffer")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_write_bt2_cb() */
+} /* end H5A__dense_write_bt2_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -754,7 +754,7 @@ H5A_dense_write(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, H5A_t *attr)
     htri_t attr_sharable;               /* Flag indicating attributes are sharable */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_write, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -814,7 +814,7 @@ H5A_dense_write(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, H5A_t *attr)
     op_data.corder_bt2_addr = ainfo->corder_bt2_addr;
 
     /* Modify attribute through 'name' tracking v2 B-tree */
-    if(H5B2_modify(bt2_name, dxpl_id, &udata, H5A_dense_write_bt2_cb, &op_data) < 0)
+    if(H5B2_modify(bt2_name, dxpl_id, &udata, H5A__dense_write_bt2_cb, &op_data) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTINSERT, FAIL, "unable to modify record in v2 B-tree")
 
 done:
@@ -831,7 +831,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_copy_fh_cb
+ * Function:	H5A__dense_copy_fh_cb
  *
  * Purpose:	Callback for fractal heap operator, to make copy of attribute
  *              for calling routine
@@ -845,12 +845,12 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_copy_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
+H5A__dense_copy_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
 {
     H5A_fh_ud_cp_t *udata = (H5A_fh_ud_cp_t *)_udata;       /* User data for fractal heap 'op' callback */
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_dense_copy_fh_cb)
+    FUNC_ENTER_STATIC
 
     /* Decode attribute information & keep a copy */
     /* (we make a copy instead of calling the user/library callback directly in
@@ -871,7 +871,7 @@ H5A_dense_copy_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_copy_fh_cb() */
+} /* end H5A__dense_copy_fh_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -901,7 +901,7 @@ H5A_dense_rename(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, const char *
     htri_t attr_exists;                 /* Attribute exists in v2 B-tree */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_rename, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -948,7 +948,7 @@ H5A_dense_rename(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, const char *
     udata.name_hash = H5_checksum_lookup3(old_name, HDstrlen(old_name), 0);
     udata.flags = 0;
     udata.corder = 0;
-    udata.found_op = H5A_dense_fnd_cb;       /* v2 B-tree comparison callback */
+    udata.found_op = H5A__dense_fnd_cb;       /* v2 B-tree comparison callback */
     udata.found_op_data = &attr_copy;
 
     /* Get copy of attribute through 'name' tracking v2 B-tree */
@@ -1030,7 +1030,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_iterate_bt2_cb
+ * Function:	H5A__dense_iterate_bt2_cb
  *
  * Purpose:	v2 B-tree callback for dense attribute storage iterator
  *
@@ -1043,13 +1043,13 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_iterate_bt2_cb(const void *_record, void *_bt2_udata)
+H5A__dense_iterate_bt2_cb(const void *_record, void *_bt2_udata)
 {
     const H5A_dense_bt2_name_rec_t *record = (const H5A_dense_bt2_name_rec_t *)_record; /* Record from B-tree */
     H5A_bt2_ud_it_t *bt2_udata = (H5A_bt2_ud_it_t *)_bt2_udata;         /* User data for callback */
     herr_t ret_value = H5_ITER_CONT;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_dense_iterate_bt2_cb)
+    FUNC_ENTER_STATIC
 
     /* Check for skipping attributes */
     if(bt2_udata->skip > 0)
@@ -1072,7 +1072,7 @@ H5A_dense_iterate_bt2_cb(const void *_record, void *_bt2_udata)
         fh_udata.attr = NULL;
 
         /* Call fractal heap 'op' routine, to copy the attribute information */
-        if(H5HF_op(fheap, bt2_udata->dxpl_id, &record->id, H5A_dense_copy_fh_cb, &fh_udata) < 0)
+        if(H5HF_op(fheap, bt2_udata->dxpl_id, &record->id, H5A__dense_copy_fh_cb, &fh_udata) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTOPERATE, H5_ITER_ERROR, "heap op callback failed")
 
         /* Check which type of callback to make */
@@ -1123,7 +1123,7 @@ H5A_dense_iterate_bt2_cb(const void *_record, void *_bt2_udata)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_iterate_bt2_cb() */
+} /* end H5A__dense_iterate_bt2_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -1151,7 +1151,7 @@ H5A_dense_iterate(H5F_t *f, hid_t dxpl_id, hid_t loc_id, const H5O_ainfo_t *ainf
     haddr_t bt2_addr;                   /* Address of v2 B-tree to use for lookup */
     herr_t ret_value;                   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_iterate, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -1231,7 +1231,7 @@ H5A_dense_iterate(H5F_t *f, hid_t dxpl_id, hid_t loc_id, const H5O_ainfo_t *ainf
 
         /* Iterate over the records in the v2 B-tree's "native" order */
         /* (by hash of name) */
-        if((ret_value = H5B2_iterate(bt2, dxpl_id, H5A_dense_iterate_bt2_cb, &udata)) < 0)
+        if((ret_value = H5B2_iterate(bt2, dxpl_id, H5A__dense_iterate_bt2_cb, &udata)) < 0)
             HERROR(H5E_ATTR, H5E_BADITER, "attribute iteration failed");
 
         /* Update the last attribute examined, if requested */
@@ -1265,7 +1265,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_remove_bt2_cb
+ * Function:	H5A__dense_remove_bt2_cb
  *
  * Purpose:	v2 B-tree callback for dense attribute storage record removal
  *
@@ -1278,7 +1278,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_remove_bt2_cb(const void *_record, void *_udata)
+H5A__dense_remove_bt2_cb(const void *_record, void *_udata)
 {
     const H5A_dense_bt2_name_rec_t *record = (const H5A_dense_bt2_name_rec_t *)_record;
     H5A_bt2_ud_rm_t *udata = (H5A_bt2_ud_rm_t *)_udata;         /* User data for callback */
@@ -1286,7 +1286,7 @@ H5A_dense_remove_bt2_cb(const void *_record, void *_udata)
     H5B2_t *bt2_corder = NULL;          /* v2 B-tree handle for creation order index */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_dense_remove_bt2_cb)
+    FUNC_ENTER_STATIC
 
     /* Check for removing the link from the creation order index */
     if(H5F_addr_defined(udata->corder_bt2_addr)) {
@@ -1325,7 +1325,7 @@ done:
         HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close v2 B-tree for creation order index")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_remove_bt2_cb() */
+} /* end H5A__dense_remove_bt2_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -1352,7 +1352,7 @@ H5A_dense_remove(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, const char *
     htri_t attr_sharable;               /* Flag indicating attributes are sharable */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_remove, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -1396,12 +1396,12 @@ H5A_dense_remove(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, const char *
     udata.common.shared_fheap = shared_fheap;
     udata.common.name = name;
     udata.common.name_hash = H5_checksum_lookup3(name, HDstrlen(name), 0);
-    udata.common.found_op = H5A_dense_fnd_cb;       /* v2 B-tree comparison callback */
+    udata.common.found_op = H5A__dense_fnd_cb;       /* v2 B-tree comparison callback */
     udata.common.found_op_data = &attr_copy;
     udata.corder_bt2_addr = ainfo->corder_bt2_addr;
 
     /* Remove the record from the name index v2 B-tree */
-    if(H5B2_remove(bt2_name, dxpl_id, &udata, H5A_dense_remove_bt2_cb, &udata) < 0)
+    if(H5B2_remove(bt2_name, dxpl_id, &udata, H5A__dense_remove_bt2_cb, &udata) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTREMOVE, FAIL, "unable to remove attribute from name index v2 B-tree")
 
 done:
@@ -1420,7 +1420,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_remove_by_idx_bt2_cb
+ * Function:	H5A__dense_remove_by_idx_bt2_cb
  *
  * Purpose:	v2 B-tree callback for dense attribute storage record removal by index
  *
@@ -1433,7 +1433,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_remove_by_idx_bt2_cb(const void *_record, void *_bt2_udata)
+H5A__dense_remove_by_idx_bt2_cb(const void *_record, void *_bt2_udata)
 {
     H5HF_t *fheap;                      /* Fractal heap handle */
     H5B2_t *bt2 = NULL;                 /* v2 B-tree handle for index */
@@ -1444,7 +1444,7 @@ H5A_dense_remove_by_idx_bt2_cb(const void *_record, void *_bt2_udata)
     hbool_t use_sh_loc;                 /* Whether to use the attribute's shared location or the separate one */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_dense_remove_by_idx_bt2_cb)
+    FUNC_ENTER_STATIC
 
     /* Set up the user data for fractal heap 'op' callback */
     fh_udata.f = bt2_udata->f;
@@ -1461,7 +1461,7 @@ H5A_dense_remove_by_idx_bt2_cb(const void *_record, void *_bt2_udata)
     /* Check whether to make a copy of the attribute or just need the shared location info */
     if(H5F_addr_defined(bt2_udata->other_bt2_addr) || !(record->flags & H5O_MSG_FLAG_SHARED)) {
         /* Call fractal heap 'op' routine, to make copy of attribute to remove */
-        if(H5HF_op(fheap, bt2_udata->dxpl_id, &record->id, H5A_dense_copy_fh_cb, &fh_udata) < 0)
+        if(H5HF_op(fheap, bt2_udata->dxpl_id, &record->id, H5A__dense_copy_fh_cb, &fh_udata) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTOPERATE, FAIL, "attribute removal callback failed")
         HDassert(fh_udata.attr);
 
@@ -1543,7 +1543,7 @@ done:
         H5O_msg_free(H5O_ATTR_ID, fh_udata.attr);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_remove_by_idx_bt2_cb() */
+} /* end H5A__dense_remove_by_idx_bt2_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -1571,7 +1571,7 @@ H5A_dense_remove_by_idx(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
     haddr_t bt2_addr;                   /* Address of v2 B-tree to use for operation */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_remove_by_idx, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -1644,7 +1644,7 @@ H5A_dense_remove_by_idx(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
         udata.other_bt2_addr = idx_type == H5_INDEX_NAME ? ainfo->corder_bt2_addr : ainfo->name_bt2_addr;
 
         /* Remove the record from the name index v2 B-tree */
-        if(H5B2_remove_by_idx(bt2, dxpl_id, order, n, H5A_dense_remove_by_idx_bt2_cb, &udata) < 0)
+        if(H5B2_remove_by_idx(bt2, dxpl_id, order, n, H5A__dense_remove_by_idx_bt2_cb, &udata) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTREMOVE, FAIL, "unable to remove attribute from v2 B-tree index")
     } /* end if */
     else {
@@ -1701,7 +1701,7 @@ H5A_dense_exists(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo, const char *
     htri_t attr_sharable;               /* Flag indicating attributes are sharable */
     htri_t ret_value = TRUE;            /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_exists, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /*
      * Check arguments.
@@ -1768,7 +1768,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_delete_bt2_cb
+ * Function:	H5A__dense_delete_bt2_cb
  *
  * Purpose:	v2 B-tree callback for dense attribute storage deletion
  *
@@ -1781,14 +1781,14 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5A_dense_delete_bt2_cb(const void *_record, void *_bt2_udata)
+H5A__dense_delete_bt2_cb(const void *_record, void *_bt2_udata)
 {
     const H5A_dense_bt2_name_rec_t *record = (const H5A_dense_bt2_name_rec_t *)_record; /* Record from B-tree */
     H5A_bt2_ud_common_t *bt2_udata = (H5A_bt2_ud_common_t *)_bt2_udata;         /* User data for callback */
     H5A_t *attr = NULL;                 /* Attribute being removed */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_dense_delete_bt2_cb)
+    FUNC_ENTER_STATIC
 
     /* Check for shared attribute */
     if(record->flags & H5O_MSG_FLAG_SHARED) {
@@ -1813,7 +1813,7 @@ H5A_dense_delete_bt2_cb(const void *_record, void *_bt2_udata)
         fh_udata.attr = NULL;
 
         /* Call fractal heap 'op' routine, to copy the attribute information */
-        if(H5HF_op(bt2_udata->fheap, bt2_udata->dxpl_id, &record->id, H5A_dense_copy_fh_cb, &fh_udata) < 0)
+        if(H5HF_op(bt2_udata->fheap, bt2_udata->dxpl_id, &record->id, H5A__dense_copy_fh_cb, &fh_udata) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTOPERATE, FAIL, "heap op callback failed")
         attr = fh_udata.attr;
 
@@ -1829,7 +1829,7 @@ done:
         H5O_msg_free_real(H5O_MSG_ATTR, attr);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_delete_bt2_cb() */
+} /* end H5A__dense_delete_bt2_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -1852,7 +1852,7 @@ H5A_dense_delete(H5F_t *f, hid_t dxpl_id, H5O_ainfo_t *ainfo)
     H5HF_t *fheap = NULL;               /* Fractal heap handle */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5A_dense_delete, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -1876,7 +1876,7 @@ H5A_dense_delete(H5F_t *f, hid_t dxpl_id, H5O_ainfo_t *ainfo)
     udata.found_op_data = NULL;
 
     /* Delete name index v2 B-tree */
-    if(H5B2_delete(f, dxpl_id, ainfo->name_bt2_addr, NULL, H5A_dense_delete_bt2_cb, &udata) < 0)
+    if(H5B2_delete(f, dxpl_id, ainfo->name_bt2_addr, NULL, H5A__dense_delete_bt2_cb, &udata) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTDELETE, FAIL, "unable to delete v2 B-tree for name index")
     ainfo->name_bt2_addr = HADDR_UNDEF;
 

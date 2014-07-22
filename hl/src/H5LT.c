@@ -17,20 +17,476 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
-#include "H5LTprivate.h"
 
+#include "H5LTprivate.h"
+#include "H5private.h"
 
 /* For Lex and Yacc */
 #define         COL             3
 #define         LIMIT           512
 #define         INCREMENT       1024
+#define         TMP_LEN         256
 #define         MAX(a,b)        (((a)>(b)) ? (a) : (b))
-int  input_len;
+size_t  input_len;
 char *myinput;
-int  indent = 0;
+size_t  indent = 0;
 
 
+/* File Image operations					
+	
+   A file image is a representation of an HDF5 file in a memory	 
+   buffer. In order to perform operations on an image in a similar way	
+   to a  file, the application buffer is copied to a FAPL buffer, which
+   in turn is copied to a VFD buffer. Buffer copying can decrease	
+   performance, especially when using large file images. A solution to	
+   this issue is to simulate the copying of the application buffer,	
+   when actually the same buffer is used for the FAPL and the VFD.	
+   This is implemented by using callbacks that simulate the standard	
+   functions for memory management (additional callbacks are used for	
+   the management of associated data structures). From the application	
+   standpoint, a file handle can be obtained from a file image by using	
+   the API routine H5LTopen_file_image(). This function takes a flag
+   argument that indicates the HDF5 library how to handle the given image;
+   several flag values can be combined by using the bitwise OR operator.
+   Valid flag values include:
 
+   H5LT_FILE_IMAGE_OPEN_RW indicates the HDF5 library to open the file
+   image in read/write mode. Default is read-only mode.
+
+   H5LT_FILE_IMAGE_DONT_COPY indicates the HDF5 library to not copy the
+   supplied user buffer; the same buffer will be handled by the FAPL and
+   the VFD driver. Default operation copies the user buffer to the FAPL and
+   VFD driver.
+
+   H5LT_FILE_IMAGE_DONT_RELEASE indicates the HDF5 library to not release
+   the buffer handled by the FAPL and the VFD upon closing. This flag value
+   is only applicable when the flag value H5LT_FILE_IMAGE_DONT_COPY is set as
+   well. The application is responsible to release the image buffer.
+*/
+
+/* Data structure to pass application data to callbacks. */ 
+typedef struct {
+    void *app_image_ptr;	/* Pointer to application buffer */ 
+    size_t app_image_size;	/* Size of application buffer */
+    void *fapl_image_ptr;	/* Pointer to FAPL buffer */
+    size_t fapl_image_size;	/* Size of FAPL buffer */
+    int fapl_ref_count;		/* Reference counter for FAPL buffer */
+    void *vfd_image_ptr;	/* Pointer to VFD buffer */
+    size_t vfd_image_size;	/* Size of VFD buffer */
+    int vfd_ref_count;		/* Reference counter for VFD buffer */
+    unsigned flags;		/* Flags indicate how the file image will */
+                                /* be open */
+    int ref_count;		/* Reference counter on udata struct */
+} H5LT_file_image_ud_t;
+
+/* callbacks prototypes for file image ops */
+static void *image_malloc(size_t size, H5FD_file_image_op_t file_image_op, void *udata);
+static void *image_memcpy(void *dest, const void *src, size_t size, H5FD_file_image_op_t file_image_op, void *udata);
+static void *image_realloc(void *ptr, size_t size, H5FD_file_image_op_t file_image_op, void *udata);
+static herr_t image_free(void *ptr, H5FD_file_image_op_t file_image_op, void *udata);
+static void *udata_copy(void *udata);
+static herr_t udata_free(void *udata);
+
+/* Definition of callbacks for file image operations. */
+
+
+/*-------------------------------------------------------------------------
+* Function: image_malloc 
+*
+* Purpose: Simulates malloc() function to avoid copying file images.
+*          The application buffer is set to the buffer on only one FAPL.
+*          Then the FAPL buffer can be copied to other FAPL buffers or
+*          to only one VFD buffer. 
+*
+* Return: Address of "allocated" buffer, if successful. Otherwise, it returns
+*         NULL.
+*
+* Programmer: Christian Chilan 
+*
+* Date: October 3, 2011
+*
+*-------------------------------------------------------------------------
+*/
+static void *
+image_malloc(size_t size, H5FD_file_image_op_t file_image_op, void *_udata)
+{
+    H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
+    void * return_value = NULL;
+    
+    /* callback is only used if the application buffer is not actually copied */
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+        goto out;
+
+    switch ( file_image_op ) {
+        /* the app buffer is "copied" to only one FAPL. Afterwards, FAPLs can be "copied" */
+        case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET:
+            if (udata->app_image_ptr == NULL) 
+                goto out;
+            if (udata->app_image_size != size) 
+                goto out;
+            if (udata->fapl_image_ptr != NULL) 
+                goto out;
+            if (udata->fapl_image_size != 0) 
+                goto out;
+            if (udata->fapl_ref_count != 0) 
+                goto out;
+
+            udata->fapl_image_ptr = udata->app_image_ptr;
+            udata->fapl_image_size = udata->app_image_size;
+            return_value = udata->fapl_image_ptr;
+            udata->fapl_ref_count++;
+	    break;
+
+	case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY:
+            if (udata->fapl_image_ptr == NULL) 
+                goto out;
+            if (udata->fapl_image_size != size) 
+                goto out;
+            if (udata->fapl_ref_count == 0) 
+                goto out;
+
+            return_value = udata->fapl_image_ptr;
+            udata->fapl_ref_count++;
+	    break;
+
+        case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET:
+            goto out;
+
+        case H5FD_FILE_IMAGE_OP_FILE_OPEN:
+            /* FAPL buffer is "copied" to only one VFD buffer */
+            if (udata->vfd_image_ptr != NULL) 
+                goto out;
+            if (udata->vfd_image_size != 0) 
+                goto out;
+            if (udata->vfd_ref_count != 0) 
+                goto out;
+            if (udata->fapl_image_ptr == NULL) 
+                goto out;
+            if (udata->fapl_image_size != size) 
+                goto out;
+            if (udata->fapl_ref_count == 0) 
+                goto out;
+
+            udata->vfd_image_ptr = udata->fapl_image_ptr;
+ 	    udata->vfd_image_size = size;
+            udata->vfd_ref_count++;
+            return_value = udata->vfd_image_ptr;
+            break;
+
+	/* added unused labels to shut the compiler up */
+	case H5FD_FILE_IMAGE_OP_NO_OP:
+	case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE:
+	case H5FD_FILE_IMAGE_OP_FILE_RESIZE:
+	case H5FD_FILE_IMAGE_OP_FILE_CLOSE:
+        default:
+            goto out;
+    } /* end switch */
+
+    return(return_value);
+
+out:
+    return NULL;
+} /* end image_malloc() */
+
+
+/*-------------------------------------------------------------------------
+* Function: image_memcpy
+*
+* Purpose:  Simulates memcpy() function to avoid copying file images. 
+*           The image buffer can be set to only one FAPL buffer, and
+*           "copied" to only one VFD buffer. The FAPL buffer can be
+*           "copied" to other FAPLs buffers. 
+*
+* Return: The address of the destination buffer, if successful. Otherwise, it
+*         returns NULL.
+*
+* Programmer: Christian Chilan 
+*
+* Date: October 3, 2011
+*
+*-------------------------------------------------------------------------
+*/
+static void *
+image_memcpy(void *dest, const void *src, size_t size, H5FD_file_image_op_t file_image_op,
+    void *_udata)
+{
+    H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
+
+    /* callback is only used if the application buffer is not actually copied */
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+        goto out;
+
+    switch(file_image_op) {
+        case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET:
+            if (dest != udata->fapl_image_ptr) 
+                goto out;
+            if (src != udata->app_image_ptr) 
+                goto out;
+            if (size != udata->fapl_image_size) 
+                goto out;
+            if (size != udata->app_image_size) 
+                goto out;
+            if (udata->fapl_ref_count == 0) 
+                goto out;
+            break;
+
+        case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY:
+            if (dest != udata->fapl_image_ptr) 
+                goto out;
+            if (src != udata->fapl_image_ptr) 
+                goto out;
+            if (size != udata->fapl_image_size) 
+                goto out;
+            if (udata->fapl_ref_count < 2) 
+                goto out;
+            break;
+
+        case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET:
+            goto out;
+
+        case H5FD_FILE_IMAGE_OP_FILE_OPEN:
+            if (dest != udata->vfd_image_ptr) 
+                goto out;
+            if (src != udata->fapl_image_ptr) 
+                goto out;
+            if (size != udata->vfd_image_size) 
+                goto out;
+            if (size != udata->fapl_image_size) 
+                goto out;
+            if (udata->fapl_ref_count == 0) 
+                goto out;
+            if (udata->vfd_ref_count != 1) 
+                goto out;
+            break;
+
+	/* added unused labels to shut the compiler up */
+	case H5FD_FILE_IMAGE_OP_NO_OP:
+	case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE:
+	case H5FD_FILE_IMAGE_OP_FILE_RESIZE:
+	case H5FD_FILE_IMAGE_OP_FILE_CLOSE:
+        default:
+            goto out;
+    } /* end switch */
+
+    return(dest);
+
+out:
+    return NULL;
+} /* end image_memcpy() */
+
+
+/*-------------------------------------------------------------------------
+* Function: image_realloc 
+*
+* Purpose: Reallocates the shared application image buffer and updates data
+*          structures that manage buffer "copying". 
+*           
+* Return: Address of reallocated buffer, if successful. Otherwise, it returns
+*         NULL.  
+*
+* Programmer: Christian Chilan 
+*
+* Date: October 3, 2011
+*
+*-------------------------------------------------------------------------
+*/
+static void *
+image_realloc(void *ptr, size_t size, H5FD_file_image_op_t file_image_op, void *_udata)
+{
+    H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
+    void * return_value = NULL;
+
+    /* callback is only used if the application buffer is not actually copied */
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+        goto out;
+
+    /* realloc() is not allowed when the HDF5 library won't release the image 
+       buffer because reallocation may change the address of the buffer. The
+       new address cannot be communicated to the application to release it. */
+    if (udata->flags & H5LT_FILE_IMAGE_DONT_RELEASE) 
+        goto out; 
+
+    /* realloc() is not allowed if the image is open in read-only mode */
+    if (!(udata->flags & H5LT_FILE_IMAGE_OPEN_RW)) 
+        goto out; 
+
+    if (file_image_op == H5FD_FILE_IMAGE_OP_FILE_RESIZE) {
+        if (udata->vfd_image_ptr != ptr) 
+            goto out; 
+
+        if (udata->vfd_ref_count != 1) 
+            goto out;
+
+        if (NULL == (udata->vfd_image_ptr = HDrealloc(ptr, size)))
+            goto out; 
+            
+        udata->vfd_image_size = size;
+        return_value = udata->vfd_image_ptr;
+    } /* end if */
+    else
+        goto out;
+
+    return(return_value);
+
+out:
+    return NULL;
+} /* end image_realloc() */
+
+
+/*-------------------------------------------------------------------------
+* Function: image_free
+*
+* Purpose: Simulates deallocation of FAPL and VFD buffers by decreasing
+*          reference counters. Shared application buffer is actually
+*          deallocated if there are no outstanding references.
+*
+* Return: SUCCEED or FAIL 
+*
+* Programmer: Christian Chilan 
+*
+* Date: October 3, 2011
+*
+*-------------------------------------------------------------------------
+*/
+static herr_t
+image_free(void *ptr, H5FD_file_image_op_t file_image_op, void *_udata)
+{
+    H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
+
+    /* callback is only used if the application buffer is not actually copied */
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+        goto out;
+
+    switch(file_image_op) {
+        case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE:
+	    if (udata->fapl_image_ptr != ptr) 
+                goto out;
+            if (udata->fapl_ref_count == 0) 
+                goto out;
+
+            udata->fapl_ref_count--;
+
+            /* release the shared buffer only if indicated by the respective flag and there are no outstanding references */ 
+            if (udata->fapl_ref_count == 0 && udata->vfd_ref_count == 0 &&
+                    !(udata->flags & H5LT_FILE_IMAGE_DONT_RELEASE)) {
+                HDfree(udata->fapl_image_ptr);
+                udata->app_image_ptr = NULL;
+                udata->fapl_image_ptr = NULL;
+                udata->vfd_image_ptr = NULL;
+            } /* end if */
+            break;
+
+        case H5FD_FILE_IMAGE_OP_FILE_CLOSE:
+            if (udata->vfd_image_ptr != ptr) 
+                goto out;
+            if (udata->vfd_ref_count != 1) 
+                goto out;
+
+            udata->vfd_ref_count--;
+
+            /* release the shared buffer only if indicated by the respective flag and there are no outstanding references */ 
+            if (udata->fapl_ref_count == 0 && udata->vfd_ref_count == 0 &&
+                    !(udata->flags & H5LT_FILE_IMAGE_DONT_RELEASE)) {
+                HDfree(udata->vfd_image_ptr);
+                udata->app_image_ptr = NULL;
+                udata->fapl_image_ptr = NULL;
+                udata->vfd_image_ptr = NULL;
+            } /* end if */
+            break;
+
+	/* added unused labels to keep the compiler quite */
+	case H5FD_FILE_IMAGE_OP_NO_OP:
+	case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET:
+	case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY:
+	case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET:
+	case H5FD_FILE_IMAGE_OP_FILE_OPEN:
+	case H5FD_FILE_IMAGE_OP_FILE_RESIZE:
+	default:
+            goto out;
+    } /* end switch */
+
+    return(SUCCEED);
+
+out:
+    return(FAIL);
+} /* end image_free() */
+
+
+/*-------------------------------------------------------------------------
+* Function: udata_copy 
+*
+* Purpose: Simulates the copying of the user data structure utilized in the
+*          management of the "copying" of file images.
+*
+* Return: Address of "newly allocated" structure, if successful. Otherwise, it
+*         returns NULL.
+*
+* Programmer: Christian Chilan 
+*
+* Date: October 3, 2011
+*
+*-------------------------------------------------------------------------
+*/
+static void *
+udata_copy(void *_udata)
+{
+    H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
+
+    /* callback is only used if the application buffer is not actually copied */
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+        goto out;
+    if (udata->ref_count == 0) 
+        goto out;
+
+    udata->ref_count++;
+
+    return(udata);
+
+out:
+    return NULL;
+} /* end udata_copy */
+
+
+/*-------------------------------------------------------------------------
+* Function: udata_free
+*
+* Purpose: Simulates deallocation of the user data structure utilized in the
+*          management of the "copying" of file images. The data structure is
+*          actually deallocated when there are no outstanding references. 
+*
+* Return: SUCCEED or FAIL 
+*
+* Programmer: Christian Chilan 
+*
+* Date: October 3, 2011
+*
+*-------------------------------------------------------------------------
+*/
+static herr_t
+udata_free(void *_udata)
+{
+    H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
+
+    /* callback is only used if the application buffer is not actually copied */
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+        goto out;
+    if (udata->ref_count == 0) 
+        goto out;
+
+    udata->ref_count--;
+
+    /* checks that there are no references outstanding before deallocating udata */
+    if (udata->ref_count == 0 && udata->fapl_ref_count == 0 &&
+            udata->vfd_ref_count == 0)
+        HDfree(udata);
+
+    return(SUCCEED);
+
+out:        
+    return(FAIL);
+} /* end udata_free */
+
+/* End of callbacks definitions for file image operations */
 
 /*-------------------------------------------------------------------------
 *
@@ -347,7 +803,7 @@ herr_t H5LTmake_dataset_string(hid_t loc_id,
     if((tid = H5Tcopy(H5T_C_S1)) < 0 )
         goto out;
 
-    size = strlen(buf) + 1; /* extra null term */
+    size = HDstrlen(buf) + 1; /* extra null term */
 
     if(H5Tset_size(tid, size) < 0)
         goto out;
@@ -386,6 +842,120 @@ out:
     } H5E_END_TRY;
     return -1;
 }
+
+
+/*-------------------------------------------------------------------------
+* Function: H5LTopen_file_image
+*
+* Purpose: Open a user supplied file image using the core file driver. 
+*
+* Return: File identifier, Failure: -1
+*
+* Programmer: Christian Chilan 
+*
+* Date: October 3, 2011
+*
+*-------------------------------------------------------------------------
+*/
+hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, unsigned flags)
+{
+    hid_t		fapl, file_id;	/* HDF5 identifiers */
+    unsigned            file_open_flags;/* Flags for image open */
+    char                file_name[64];	/* Filename buffer */
+    size_t              alloc_incr;     /* Buffer allocation increment */
+    size_t              min_incr = 65536; /* Minimum buffer increment */
+    double              buf_prcnt = 0.1f;  /* Percentage of buffer size to set
+                                             as increment */
+    static long         file_name_counter; 
+    H5FD_file_image_callbacks_t callbacks = {&image_malloc, &image_memcpy, 
+                                           &image_realloc, &image_free, 
+                                           &udata_copy, &udata_free, 
+                                           (void *)NULL};
+
+    /* check arguments */
+    if (buf_ptr == NULL) 
+        goto out;
+    if (buf_size == 0) 
+        goto out;
+    if (flags & (unsigned)~(H5LT_FILE_IMAGE_ALL))
+        goto out;
+
+    /* Create FAPL to transmit file image */
+    if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) < 0) 
+        goto out;
+
+    /* set allocation increment to a percentage of the supplied buffer size, or
+     * a pre-defined minimum increment value, whichever is larger
+     */
+    if ((buf_prcnt * buf_size) > min_incr)
+        alloc_incr = (size_t)(buf_prcnt * buf_size);
+    else
+        alloc_incr = min_incr;
+
+    /* Configure FAPL to use the core file driver */
+    if (H5Pset_fapl_core(fapl, alloc_incr, FALSE) < 0) 
+        goto out;
+
+    /* Set callbacks for file image ops ONLY if the file image is NOT copied */
+    if (flags & H5LT_FILE_IMAGE_DONT_COPY) {
+        H5LT_file_image_ud_t *udata;	/* Pointer to udata structure */
+
+        /* Allocate buffer to communicate user data to callbacks */
+        if (NULL == (udata = (H5LT_file_image_ud_t *)HDmalloc(sizeof(H5LT_file_image_ud_t))))
+            goto out;
+
+        /* Initialize udata with info about app buffer containing file image  and flags */
+        udata->app_image_ptr = buf_ptr;
+        udata->app_image_size = buf_size;
+        udata->fapl_image_ptr = NULL;
+        udata->fapl_image_size = 0;
+        udata->fapl_ref_count = 0;
+        udata->vfd_image_ptr = NULL;
+        udata->vfd_image_size = 0;
+        udata->vfd_ref_count = 0;
+        udata->flags = flags;
+        udata->ref_count = 1; /* corresponding to the first FAPL */
+
+        /* copy address of udata into callbacks */
+        callbacks.udata = (void *)udata;
+
+        /* Set file image callbacks */
+        if (H5Pset_file_image_callbacks(fapl, &callbacks) < 0)  {
+            HDfree(udata);
+            goto out;
+        } /* end if */
+    } /* end if */
+
+    /* Assign file image in user buffer to FAPL */
+    if (H5Pset_file_image(fapl, buf_ptr, buf_size) < 0) 
+        goto out;
+
+    /* set file open flags */  
+    if (flags & H5LT_FILE_IMAGE_OPEN_RW)
+        file_open_flags = H5F_ACC_RDWR;
+    else
+        file_open_flags = H5F_ACC_RDONLY;
+
+    /* define a unique file name */
+    HDsnprintf(file_name, (sizeof(file_name) - 1), "file_image_%ld", file_name_counter++);
+   
+    /* Assign file image in FAPL to the core file driver */ 
+    if ((file_id = H5Fopen(file_name, file_open_flags, fapl)) < 0) 
+        goto out;
+
+    /* Close FAPL */
+    if (H5Pclose(fapl) < 0) 
+        goto out;
+
+    /* Return file identifier */ 
+    return file_id; 
+
+out:
+    H5E_BEGIN_TRY {
+        H5Pclose(fapl);
+    } H5E_END_TRY;
+    return -1;
+} /* end H5LTopen_file_image() */
 
 
 /*-------------------------------------------------------------------------
@@ -784,7 +1354,7 @@ find_dataset(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *op_d
     * cause the iterator to immediately return that positive value,
     * indicating short-circuit success
     */
-    if(strcmp(name, (char *)op_data) == 0)
+    if(HDstrcmp(name, (char *)op_data) == 0)
         ret = 1;
 
     return ret;
@@ -867,7 +1437,7 @@ herr_t H5LTset_attribute_string( hid_t loc_id,
     if ( (attr_type = H5Tcopy( H5T_C_S1 )) < 0 )
         goto out;
 
-    attr_size = strlen( attr_data ) + 1; /* extra null term */
+    attr_size = HDstrlen( attr_data ) + 1; /* extra null term */
 
     if ( H5Tset_size( attr_type, (size_t)attr_size) < 0 )
         goto out;
@@ -1366,7 +1936,7 @@ find_attr(hid_t loc_id, const char *name, const H5A_info_t *ainfo,
     * cause the iterator to immediately return that positive value,
     * indicating short-circuit success
     */
-    if(strcmp(name, (char *)op_data) == 0)
+    if(HDstrcmp(name, (char *)op_data) == 0)
         ret = H5_ITER_STOP;
 
     return ret;
@@ -1572,9 +2142,6 @@ out:
 
 }
 
-
-
-
 /*-------------------------------------------------------------------------
 * Function: H5LTtext_to_dtype
 *
@@ -1594,30 +2161,72 @@ out:
 */
 hid_t H5LTtext_to_dtype(const char *text, H5LT_lang_t lang_type)
 {
-    extern int H5LTyyparse(void);
     hid_t   type_id;
 
     if(lang_type <= H5LT_LANG_ERR || lang_type >= H5LT_NO_LANG)
         goto out;
 
     if(lang_type != H5LT_DDL) {
-        fprintf(stderr, "only DDL is supported for now.\n");
+        HDfprintf(stderr, "only DDL is supported for now.\n");
         goto out;
     }
 
-    input_len = strlen(text);
-    myinput = strdup(text);
+    input_len = HDstrlen(text);
+    myinput = HDstrdup(text);
 
-    if((type_id = H5LTyyparse()) < 0)
+    if((type_id = H5LTyyparse()) < 0) {
+        HDfree(myinput);
         goto out;
+    }
 
-    free(myinput);
+    HDfree(myinput);
     input_len = 0;
 
     return type_id;
 
 out:
     return -1;
+}
+
+/*-------------------------------------------------------------------------
+* Function:    realloc_and_append
+*
+* Purpose:     Expand the buffer and append a string to it.
+*
+* Return:      void
+*
+* Programmer:  Raymond Lu, songyulu@hdfgroup.org
+*
+* Date:        29 September 2011
+*
+* Modifications:
+*
+*-------------------------------------------------------------------------
+*/
+static char* 
+realloc_and_append(hbool_t _no_user_buf, size_t *len, char *buf, char *str_to_add)
+{
+    if(_no_user_buf) {
+        /* If the buffer isn't big enough, reallocate it.  Otherwise, go to do strcat. */
+        if(str_to_add && ((ssize_t)(*len - (HDstrlen(buf) + HDstrlen(str_to_add) + 1)) < LIMIT)) {
+            *len += ((HDstrlen(buf) + HDstrlen(str_to_add) + 1) / INCREMENT + 1) * INCREMENT;
+            buf = (char*)HDrealloc(buf, *len);
+        } else if(!str_to_add && ((ssize_t)(*len - HDstrlen(buf) - 1) < LIMIT)) {
+            *len += INCREMENT;
+            buf = (char*)HDrealloc(buf, *len);
+        }
+    }
+
+    if(!buf)
+        goto out;
+
+    if(str_to_add)
+        HDstrcat(buf, str_to_add);
+
+    return buf;
+
+out:
+    return NULL;
 }
 
 /*-------------------------------------------------------------------------
@@ -1635,16 +2244,24 @@ out:
 *
 *-------------------------------------------------------------------------
 */
-static void
-indentation(int x, char* str)
+static char*
+indentation(size_t x, char* str, hbool_t no_u_buf, size_t *s_len)
 {
+    char        tmp_str[TMP_LEN];
+
     if (x < 80) {
-        while (x-- > 0)
-            strcat(str, " ");
-    } else {
-        strcat(str, "error: the indentation exceeds the number of cols.");
-        exit(1);
-    }
+        HDmemset(tmp_str, ' ', x);
+        tmp_str[x]='\0';
+    } else
+        HDsnprintf(tmp_str, TMP_LEN, "error: the indentation exceeds the number of cols.");
+
+    if(!(str = realloc_and_append(no_u_buf, s_len, str, tmp_str)))
+        goto out;
+
+    return str;
+
+out:
+    return NULL;
 }
 
 /*-------------------------------------------------------------------------
@@ -1659,25 +2276,24 @@ indentation(int x, char* str)
 * Modifications:
 *
 *-----------------------------------------------------------------------*/
-static herr_t
-print_enum(hid_t type, char* str, int indt)
+static char*
+print_enum(hid_t type, char* str, size_t *str_len, hbool_t no_ubuf, size_t indt)
 {
     char           **name = NULL;   /*member names                   */
     unsigned char   *value = NULL;  /*value array                    */
     unsigned char   *copy = NULL;   /*a pointer to value array       */
     int              nmembs;        /*number of members              */
-    char             tmp_str[256];
+    char             tmp_str[TMP_LEN];
     int              nchars;        /*number of output characters    */
     hid_t            super = -1;    /*enum base integer type         */
     hid_t            native = -1;   /*native integer data type       */
     size_t           super_size;    /*enum base type size            */
     size_t           dst_size;      /*destination value type size    */
     int              i;
-    herr_t           ret = SUCCEED;
 
-    if((nmembs = H5Tget_nmembers(type))==0)
+    if((nmembs = H5Tget_nmembers(type))<=0)
         goto out;
-    assert(nmembs>0);
+
     if((super = H5Tget_super(type)) < 0)
         goto out;
 
@@ -1695,8 +2311,8 @@ print_enum(hid_t type, char* str, int indt)
     dst_size = H5Tget_size(native);
 
     /* Get the names and raw values of all members */
-    name = (char**)calloc((size_t)nmembs, sizeof(char *));
-    value = (unsigned char*)calloc((size_t)nmembs, MAX(dst_size, super_size));
+    name = (char**)HDcalloc((size_t)nmembs, sizeof(char *));
+    value = (unsigned char*)HDcalloc((size_t)nmembs, MAX(dst_size, super_size));
 
     for (i = 0; i < nmembs; i++) {
         if((name[i] = H5Tget_member_name(type, (unsigned)i))==NULL)
@@ -1718,61 +2334,62 @@ print_enum(hid_t type, char* str, int indt)
 
     /* Print members */
     for (i = 0; i < nmembs; i++) {
-        indentation(indt + COL, str);
-        nchars = sprintf(tmp_str, "\"%s\"", name[i]);
-        strcat(str, tmp_str);
-        sprintf(tmp_str, "%*s   ", MAX(0, 16 - nchars), "");
-        strcat(str, tmp_str);
+        if(!(str = indentation(indt + COL, str, no_ubuf, str_len)))
+            goto out;
+        nchars = HDsnprintf(tmp_str, TMP_LEN, "\"%s\"", name[i]);
+        if(!(str = realloc_and_append(no_ubuf, str_len, str, tmp_str)))
+            goto out;
+        HDsnprintf(tmp_str, TMP_LEN, "%*s   ", MAX(0, 16 - nchars), "");
+        if(!(str = realloc_and_append(no_ubuf, str_len, str, tmp_str)))
+            goto out;
 
-        if (H5T_SGN_NONE == H5Tget_sign(native)) {
-            /*On SGI Altix(cobalt), wrong values were printed out with "value+i*dst_size"
-            *strangely, unless use another pointer "copy".*/
-            copy = value+i*dst_size;
-            sprintf(tmp_str,"%u", *((unsigned int*)((void *)copy)));
-            strcat(str, tmp_str);
-        } else {
-            /*On SGI Altix(cobalt), wrong values were printed out with "value+i*dst_size"
-            *strangely, unless use another pointer "copy".*/
-            copy = value+i*dst_size;
-            sprintf(tmp_str,"%d", *((int*)((void *)copy)));
-            strcat(str, tmp_str);
-        }
+        /*On SGI Altix(cobalt), wrong values were printed out with "value+i*dst_size"
+         *strangely, unless use another pointer "copy".*/
+        copy = value+i*dst_size;
+        if (H5T_SGN_NONE == H5Tget_sign(native))
+            HDsnprintf(tmp_str, TMP_LEN, "%u", *((unsigned int*)((void *)copy)));
+        else
+            HDsnprintf(tmp_str, TMP_LEN, "%d", *((int*)((void *)copy)));
+        if(!(str = realloc_and_append(no_ubuf, str_len, str, tmp_str)))
+            goto out;
 
-        strcat(str, ";\n");
+        HDsnprintf(tmp_str, TMP_LEN, ";\n");
+        if(!(str = realloc_and_append(no_ubuf, str_len, str, tmp_str)))
+            goto out;
     }
 
     /* Release resources */
     for(i = 0; i < nmembs; i++)
-        free(name[i]);
+        H5free_memory(name[i]);
 
-    free(name);
-    free(value);
+    HDfree(name);
+    HDfree(value);
     H5Tclose(super);
 
-    return ret;
+    return str;
 
 out:
 
     if(0 == nmembs) {
-        sprintf(tmp_str, "\n%*s <empty>", indt + 4, "");
-        strcat(str, tmp_str);
+        HDsnprintf(tmp_str, TMP_LEN, "\n%*s <empty>", (int)(indt + 4), "");
+        str = realloc_and_append(no_ubuf, str_len, str, tmp_str);
     } /* end if */
 
     /* Release resources */
     if(name) {
         for(i = 0; i < nmembs; i++)
             if(name[i])
-                free(name[i]);
-        free(name);
+                HDfree(name[i]);
+        HDfree(name);
     } /* end if */
 
     if(value)
-        free(value);
+        HDfree(value);
 
     if(super >= 0)
         H5Tclose(super);
 
-    return FAIL;
+    return NULL;
 }
 
 /*-------------------------------------------------------------------------
@@ -1796,20 +2413,22 @@ herr_t H5LTdtype_to_text(hid_t dtype, char *str, H5LT_lang_t lang_type, size_t *
 {
     size_t      str_len = INCREMENT;
     char        *text_str;
-    herr_t      ret = -1;
+    herr_t      ret = SUCCEED;
 
     if(lang_type <= H5LT_LANG_ERR || lang_type >= H5LT_NO_LANG)
         goto out;
 
     if(len && !str) {
-        text_str = (char*)calloc(str_len, sizeof(char));
+        text_str = (char*)HDcalloc(str_len, sizeof(char));
         text_str[0]='\0';
-        if((ret = H5LT_dtype_to_text(dtype, &text_str, lang_type, &str_len, 1)) < 0)
+        if(!(text_str = H5LT_dtype_to_text(dtype, text_str, lang_type, &str_len, 1)))
             goto out;
-        *len = strlen(text_str) + 1;
-        free(text_str);
+        *len = HDstrlen(text_str) + 1;
+        if(text_str)
+            HDfree(text_str);
+        text_str = NULL;
     } else if(len && str) {
-        if((ret = H5LT_dtype_to_text(dtype, &str, lang_type, len, 0)) < 0)
+        if(!(H5LT_dtype_to_text(dtype, str, lang_type, len, 0)))
             goto out;
         str[*len-1] = '\0';
     }
@@ -1837,26 +2456,18 @@ out:
 *
 *-------------------------------------------------------------------------
 */
-herr_t H5LT_dtype_to_text(hid_t dtype, char **dt_str, H5LT_lang_t lang, size_t *slen,
+char* H5LT_dtype_to_text(hid_t dtype, char *dt_str, H5LT_lang_t lang, size_t *slen,
                           hbool_t no_user_buf)
 {
     H5T_class_t tcls;
-    char        tmp_str[256];
-    char        *tmp;
+    char        tmp_str[TMP_LEN];
     int         i;
-    herr_t      ret = SUCCEED;
 
-    if(no_user_buf && ((*slen - strlen(*dt_str)) < LIMIT)) {
-        *slen += INCREMENT;
-        tmp = (char*)realloc(*dt_str, *slen);
-        if(tmp != *dt_str) {
-            free(*dt_str);
-            *dt_str = tmp;
-        }
-    }
-
+    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, NULL)))
+        goto out;
+    
     if(lang != H5LT_DDL) {
-        sprintf(*dt_str, "only DDL is supported for now");
+        HDsnprintf(dt_str, *slen, "only DDL is supported for now");
         goto out;
     }
 
@@ -1866,81 +2477,81 @@ herr_t H5LT_dtype_to_text(hid_t dtype, char **dt_str, H5LT_lang_t lang, size_t *
     switch (tcls) {
         case H5T_INTEGER:
             if (H5Tequal(dtype, H5T_STD_I8BE)) {
-                sprintf(*dt_str, "H5T_STD_I8BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I8BE");
             } else if (H5Tequal(dtype, H5T_STD_I8LE)) {
-                sprintf(*dt_str, "H5T_STD_I8LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I8LE");
             } else if (H5Tequal(dtype, H5T_STD_I16BE)) {
-                sprintf(*dt_str, "H5T_STD_I16BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I16BE");
             } else if (H5Tequal(dtype, H5T_STD_I16LE)) {
-                sprintf(*dt_str, "H5T_STD_I16LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I16LE");
             } else if (H5Tequal(dtype, H5T_STD_I32BE)) {
-                sprintf(*dt_str, "H5T_STD_I32BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I32BE");
             } else if (H5Tequal(dtype, H5T_STD_I32LE)) {
-                sprintf(*dt_str, "H5T_STD_I32LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I32LE");
             } else if (H5Tequal(dtype, H5T_STD_I64BE)) {
-                sprintf(*dt_str, "H5T_STD_I64BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I64BE");
             } else if (H5Tequal(dtype, H5T_STD_I64LE)) {
-                sprintf(*dt_str, "H5T_STD_I64LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_I64LE");
             } else if (H5Tequal(dtype, H5T_STD_U8BE)) {
-                sprintf(*dt_str, "H5T_STD_U8BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U8BE");
             } else if (H5Tequal(dtype, H5T_STD_U8LE)) {
-                sprintf(*dt_str, "H5T_STD_U8LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U8LE");
             } else if (H5Tequal(dtype, H5T_STD_U16BE)) {
-                sprintf(*dt_str, "H5T_STD_U16BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U16BE");
             } else if (H5Tequal(dtype, H5T_STD_U16LE)) {
-                sprintf(*dt_str, "H5T_STD_U16LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U16LE");
             } else if (H5Tequal(dtype, H5T_STD_U32BE)) {
-                sprintf(*dt_str, "H5T_STD_U32BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U32BE");
             } else if (H5Tequal(dtype, H5T_STD_U32LE)) {
-                sprintf(*dt_str, "H5T_STD_U32LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U32LE");
             } else if (H5Tequal(dtype, H5T_STD_U64BE)) {
-                sprintf(*dt_str, "H5T_STD_U64BE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U64BE");
             } else if (H5Tequal(dtype, H5T_STD_U64LE)) {
-                sprintf(*dt_str, "H5T_STD_U64LE");
+                HDsnprintf(dt_str, *slen, "H5T_STD_U64LE");
             } else if (H5Tequal(dtype, H5T_NATIVE_SCHAR)) {
-                sprintf(*dt_str, "H5T_NATIVE_SCHAR");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_SCHAR");
             } else if (H5Tequal(dtype, H5T_NATIVE_UCHAR)) {
-                sprintf(*dt_str, "H5T_NATIVE_UCHAR");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_UCHAR");
             } else if (H5Tequal(dtype, H5T_NATIVE_SHORT)) {
-                sprintf(*dt_str, "H5T_NATIVE_SHORT");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_SHORT");
             } else if (H5Tequal(dtype, H5T_NATIVE_USHORT)) {
-                sprintf(*dt_str, "H5T_NATIVE_USHORT");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_USHORT");
             } else if (H5Tequal(dtype, H5T_NATIVE_INT)) {
-                sprintf(*dt_str, "H5T_NATIVE_INT");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_INT");
             } else if (H5Tequal(dtype, H5T_NATIVE_UINT)) {
-                sprintf(*dt_str, "H5T_NATIVE_UINT");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_UINT");
             } else if (H5Tequal(dtype, H5T_NATIVE_LONG)) {
-                sprintf(*dt_str, "H5T_NATIVE_LONG");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_LONG");
             } else if (H5Tequal(dtype, H5T_NATIVE_ULONG)) {
-                sprintf(*dt_str, "H5T_NATIVE_ULONG");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_ULONG");
             } else if (H5Tequal(dtype, H5T_NATIVE_LLONG)) {
-                sprintf(*dt_str, "H5T_NATIVE_LLONG");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_LLONG");
             } else if (H5Tequal(dtype, H5T_NATIVE_ULLONG)) {
-                sprintf(*dt_str, "H5T_NATIVE_ULLONG");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_ULLONG");
             } else {
-                sprintf(*dt_str, "undefined integer");
+                HDsnprintf(dt_str, *slen, "undefined integer");
             }
 
             break;
         case H5T_FLOAT:
             if (H5Tequal(dtype, H5T_IEEE_F32BE)) {
-                sprintf(*dt_str, "H5T_IEEE_F32BE");
+                HDsnprintf(dt_str, *slen, "H5T_IEEE_F32BE");
             } else if (H5Tequal(dtype, H5T_IEEE_F32LE)) {
-                sprintf(*dt_str, "H5T_IEEE_F32LE");
+                HDsnprintf(dt_str, *slen, "H5T_IEEE_F32LE");
             } else if (H5Tequal(dtype, H5T_IEEE_F64BE)) {
-                sprintf(*dt_str, "H5T_IEEE_F64BE");
+                HDsnprintf(dt_str, *slen, "H5T_IEEE_F64BE");
             } else if (H5Tequal(dtype, H5T_IEEE_F64LE)) {
-                sprintf(*dt_str, "H5T_IEEE_F64LE");
+                HDsnprintf(dt_str, *slen, "H5T_IEEE_F64LE");
             } else if (H5Tequal(dtype, H5T_NATIVE_FLOAT)) {
-                sprintf(*dt_str, "H5T_NATIVE_FLOAT");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_FLOAT");
             } else if (H5Tequal(dtype, H5T_NATIVE_DOUBLE)) {
-                sprintf(*dt_str, "H5T_NATIVE_DOUBLE");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_DOUBLE");
 #if H5_SIZEOF_LONG_DOUBLE !=0
             } else if (H5Tequal(dtype, H5T_NATIVE_LDOUBLE)) {
-                sprintf(*dt_str, "H5T_NATIVE_LDOUBLE");
+                HDsnprintf(dt_str, *slen, "H5T_NATIVE_LDOUBLE");
 #endif
             } else {
-                sprintf(*dt_str, "undefined float");
+                HDsnprintf(dt_str, *slen, "undefined float");
             }
 
             break;
@@ -1969,38 +2580,47 @@ herr_t H5LT_dtype_to_text(hid_t dtype, char **dt_str, H5LT_lang_t lang, size_t *
                     goto out;
 
                 /* Print lead-in */
-                sprintf(*dt_str, "H5T_STRING {\n");
+                HDsnprintf(dt_str, *slen, "H5T_STRING {\n");
                 indent += COL;
 
-                indentation(indent + COL, *dt_str);
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
 
                 if(is_vlstr)
-                    strcat(*dt_str, "STRSIZE H5T_VARIABLE;\n");
-                else {
-                    sprintf(tmp_str, "STRSIZE %d;\n", (int)size);
-                    strcat(*dt_str, tmp_str);
-                }
+                    HDsnprintf(tmp_str, TMP_LEN, "STRSIZE H5T_VARIABLE;\n");
+                else
+                    HDsnprintf(tmp_str, TMP_LEN, "STRSIZE %d;\n", (int)size);
 
-                indentation(indent + COL, *dt_str);
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
+
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
 
                 if (str_pad == H5T_STR_NULLTERM)
-                    strcat(*dt_str, "STRPAD H5T_STR_NULLTERM;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "STRPAD H5T_STR_NULLTERM;\n");
                 else if (str_pad == H5T_STR_NULLPAD)
-                    strcat(*dt_str, "STRPAD H5T_STR_NULLPAD;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "STRPAD H5T_STR_NULLPAD;\n");
                 else if (str_pad == H5T_STR_SPACEPAD)
-                    strcat(*dt_str, "STRPAD H5T_STR_SPACEPAD;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "STRPAD H5T_STR_SPACEPAD;\n");
                 else
-                    strcat(*dt_str, "STRPAD H5T_STR_ERROR;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "STRPAD H5T_STR_ERROR;\n");
 
-                indentation(indent + COL, *dt_str);
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
+
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
 
                 if (cset == H5T_CSET_ASCII)
-                    strcat(*dt_str, "CSET H5T_CSET_ASCII;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "CSET H5T_CSET_ASCII;\n");
                 else if (cset == H5T_CSET_UTF8)
-                    strcat(*dt_str, "CSET H5T_CSET_UTF8;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "CSET H5T_CSET_UTF8;\n");
                 else
-                    strcat(*dt_str, "CSET unknown;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "CSET unknown;\n");
 
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
 
                 /* Reproduce a C type string */
                 if((str_type = H5Tcopy(H5T_C_S1)) < 0)
@@ -2017,11 +2637,14 @@ herr_t H5LT_dtype_to_text(hid_t dtype, char **dt_str, H5LT_lang_t lang, size_t *
                 if(H5Tset_strpad(str_type, str_pad) < 0)
                     goto out;
 
-                indentation(indent + COL, *dt_str);
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
 
                 /* Check C variable-length string first. Are the two types equal? */
                 if (H5Tequal(tmp_type, str_type)) {
-                    strcat(*dt_str, "CTYPE H5T_C_S1;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "CTYPE H5T_C_S1;\n");
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
                     goto next;
                 }
 
@@ -2037,7 +2660,9 @@ herr_t H5LT_dtype_to_text(hid_t dtype, char **dt_str, H5LT_lang_t lang, size_t *
                 }
 
                 if (H5Tequal(tmp_type, str_type)) {
-                    strcat(*dt_str, "H5T_C_S1;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "CTYPE H5T_C_S1;\n");
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
                     goto next;
                 }
 
@@ -2056,7 +2681,9 @@ herr_t H5LT_dtype_to_text(hid_t dtype, char **dt_str, H5LT_lang_t lang, size_t *
 
                 /* Are the two types equal? */
                 if (H5Tequal(tmp_type, str_type)) {
-                    strcat(*dt_str, "CTYPE H5T_FORTRAN_S1;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "CTYPE H5T_FORTRAN_S1;\n");
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
                     goto next;
                 }
 
@@ -2073,12 +2700,16 @@ herr_t H5LT_dtype_to_text(hid_t dtype, char **dt_str, H5LT_lang_t lang, size_t *
 
                 /* Are the two types equal? */
                 if (H5Tequal(tmp_type, str_type)) {
-                    strcat(*dt_str, "CTYPE H5T_FORTRAN_S1;\n");
+                    HDsnprintf(tmp_str, TMP_LEN, "CTYPE H5T_FORTRAN_S1;\n");
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
                     goto next;
                 }
 
                 /* Type doesn't match any of above. */
-                strcat(*dt_str, "CTYPE unknown_one_character_type;\n ");
+                HDsnprintf(tmp_str, TMP_LEN, "CTYPE unknown_one_character_type;\n");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
 
 next:
                 H5Tclose(str_type);
@@ -2086,36 +2717,48 @@ next:
 
                 /* Print closing */
                 indent -= COL;
-                indentation(indent + COL, *dt_str);
-                strcat(*dt_str, "}");
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
+                HDsnprintf(tmp_str, TMP_LEN, "}");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
 
                 break;
             }
         case H5T_OPAQUE:
             {
-            char *tag;
+            char *tag = NULL;
 
             /* Print lead-in */
-            sprintf(*dt_str, "H5T_OPAQUE {\n");
+            HDsnprintf(dt_str, *slen, "H5T_OPAQUE {\n");
             indent += COL;
 
-            indentation(indent + COL, *dt_str);
-            sprintf(tmp_str, "OPQ_SIZE %lu;\n", (unsigned long)H5Tget_size(dtype));
-            strcat(*dt_str, tmp_str);
+            if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                goto out;
+            HDsnprintf(tmp_str, TMP_LEN, "OPQ_SIZE %lu;\n", (unsigned long)H5Tget_size(dtype));
+            if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                goto out;
 
-            indentation(indent + COL, *dt_str);
+            if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                goto out;
             tag = H5Tget_tag(dtype);
             if(tag) {
-                sprintf(tmp_str, "OPQ_TAG \"%s\";\n", tag);
-                free(tag);
+                HDsnprintf(tmp_str, TMP_LEN, "OPQ_TAG \"%s\";\n", tag);
+                if(tag)
+                    H5free_memory(tag);
+                tag = NULL;
             } else
-                sprintf(tmp_str, "OPQ_TAG \"\";\n");
-            strcat(*dt_str, tmp_str);
+                HDsnprintf(tmp_str, TMP_LEN, "OPQ_TAG \"\";\n");
+            if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                goto out;
 
             /* Print closing */
             indent -= COL;
-            indentation(indent + COL, *dt_str);
-            strcat(*dt_str, "}");
+            if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                goto out;
+            HDsnprintf(tmp_str, TMP_LEN, "}");
+            if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                goto out;
 
             break;
             }
@@ -2123,32 +2766,43 @@ next:
             {
                 hid_t super;
                 size_t super_len;
-                char* stmp;
+                char* stmp = NULL;
 
                 /* Print lead-in */
-                sprintf(*dt_str, "H5T_ENUM {\n");
+                HDsnprintf(dt_str, *slen, "H5T_ENUM {\n");
                 indent += COL;
-                indentation(indent + COL, *dt_str);
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
 
                 if((super = H5Tget_super(dtype)) < 0)
                     goto out;
                 if(H5LTdtype_to_text(super, NULL, lang, &super_len) < 0)
                     goto out;
-                stmp = (char*)calloc(super_len, sizeof(char));
+                stmp = (char*)HDcalloc(super_len, sizeof(char));
                 if(H5LTdtype_to_text(super, stmp, lang, &super_len) < 0)
+                     goto out;
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, stmp)))
                     goto out;
-                strcat(*dt_str, stmp);
-                free(stmp);
-                strcat(*dt_str, ";\n");
+
+                if(stmp)
+                    HDfree(stmp);
+                stmp = NULL;
+
+                HDsnprintf(tmp_str, TMP_LEN, ";\n");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
                 H5Tclose(super);
 
-                if(print_enum(dtype, *dt_str, indent) < 0)
+                if(!(dt_str = print_enum(dtype, dt_str, slen, no_user_buf, indent)))
                     goto out;
 
                 /* Print closing */
                 indent -= COL;
-                indentation(indent + COL, *dt_str);
-                strcat(*dt_str, "}");
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
+                HDsnprintf(tmp_str, TMP_LEN, "}");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
 
                 break;
             }
@@ -2156,29 +2810,39 @@ next:
             {
                 hid_t super;
                 size_t super_len;
-                char* stmp;
+                char* stmp = NULL;
 
                 /* Print lead-in */
-                sprintf(*dt_str, "H5T_VLEN {\n");
+                HDsnprintf(dt_str, *slen, "H5T_VLEN {\n");
                 indent += COL;
-                indentation(indent + COL, *dt_str);
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
 
                 if((super = H5Tget_super(dtype)) < 0)
                     goto out;
                 if(H5LTdtype_to_text(super, NULL, lang, &super_len) < 0)
                     goto out;
-                stmp = (char*)calloc(super_len, sizeof(char));
+                stmp = (char*)HDcalloc(super_len, sizeof(char));
                 if(H5LTdtype_to_text(super, stmp, lang, &super_len) < 0)
                     goto out;
-                strcat(*dt_str, stmp);
-                free(stmp);
-                strcat(*dt_str, "\n");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, stmp)))
+                    goto out;
+
+                if(stmp)
+                    HDfree(stmp);
+                stmp = NULL;
+                HDsnprintf(tmp_str, TMP_LEN, "\n");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
                 H5Tclose(super);
 
                 /* Print closing */
                 indent -= COL;
-                indentation(indent + COL, *dt_str);
-                strcat(*dt_str, "}");
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
+                HDsnprintf(tmp_str, TMP_LEN, "}");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                    goto out;
 
                 break;
             }
@@ -2186,14 +2850,15 @@ next:
             {
                 hid_t       super;
                 size_t      super_len;
-                char*       stmp;
+                char*       stmp = NULL;
                 hsize_t     dims[H5S_MAX_RANK];
                 int         ndims;
 
                 /* Print lead-in */
-                sprintf(*dt_str, "H5T_ARRAY {\n");
+                HDsnprintf(dt_str, *slen, "H5T_ARRAY {\n");
                 indent += COL;
-                indentation(indent + COL, *dt_str);
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
 
                 /* Get array information */
                 if((ndims = H5Tget_array_ndims(dtype)) < 0)
@@ -2203,44 +2868,55 @@ next:
 
                 /* Print array dimensions */
                 for (i = 0; i < ndims; i++) {
-                    sprintf(tmp_str, "[%d]", (int) dims[i]);
-                    strcat(*dt_str, tmp_str);
+                    HDsnprintf(tmp_str, TMP_LEN, "[%d]", (int) dims[i]);
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
                 }
-                strcat(*dt_str, " ");
+                HDsnprintf(tmp_str, TMP_LEN, " ");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
 
                 if((super = H5Tget_super(dtype)) < 0)
                     goto out;
                 if(H5LTdtype_to_text(super, NULL, lang, &super_len) < 0)
                     goto out;
-                stmp = (char*)calloc(super_len, sizeof(char));
+                stmp = (char*)HDcalloc(super_len, sizeof(char));
                 if(H5LTdtype_to_text(super, stmp, lang, &super_len) < 0)
                     goto out;
-                strcat(*dt_str, stmp);
-                free(stmp);
-                strcat(*dt_str, "\n");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, stmp)))
+                        goto out;
+                if(stmp)
+                    HDfree(stmp);
+                stmp = NULL;
+                HDsnprintf(tmp_str, TMP_LEN, "\n");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
                 H5Tclose(super);
 
                 /* Print closing */
                 indent -= COL;
-                indentation(indent + COL, *dt_str);
-                strcat(*dt_str, "}");
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
+                HDsnprintf(tmp_str, TMP_LEN, "}");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
 
                 break;
             }
         case H5T_COMPOUND:
             {
-                char       *mname;
+                char       *mname = NULL;
                 hid_t       mtype;
                 size_t      moffset;
                 H5T_class_t mclass;
                 size_t      mlen;
-                char*       mtmp;
+                char*       mtmp = NULL;
                 int         nmembs;
 
                 if((nmembs = H5Tget_nmembers(dtype)) < 0)
                     goto out;
 
-                sprintf(*dt_str, "H5T_COMPOUND {\n");
+                HDsnprintf(dt_str, *slen, "H5T_COMPOUND {\n");
                 indent += COL;
 
                 for (i = 0; i < nmembs; i++) {
@@ -2249,7 +2925,8 @@ next:
                     if((mtype = H5Tget_member_type(dtype, (unsigned)i)) < 0)
                         goto out;
                     moffset = H5Tget_member_offset(dtype, (unsigned)i);
-                    indentation(indent + COL, *dt_str);
+                    if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                        goto out;
 
                     if((mclass = H5Tget_class(mtype)) < 0)
                         goto out;
@@ -2258,49 +2935,55 @@ next:
 
                     if(H5LTdtype_to_text(mtype, NULL, lang, &mlen) < 0)
                         goto out;
-                    mtmp = (char*)calloc(mlen, sizeof(char));
+                    mtmp = (char*)HDcalloc(mlen, sizeof(char));
                     if(H5LTdtype_to_text(mtype, mtmp, lang, &mlen) < 0)
                         goto out;
-                    strcat(*dt_str, mtmp);
-                    free(mtmp);
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, mtmp)))
+                        goto out;
+                    if(mtmp)
+                        HDfree(mtmp);
+                    mtmp = NULL;
 
                     if (H5T_COMPOUND == mclass)
                         indent -= COL;
 
-                    sprintf(tmp_str, " \"%s\"", mname);
-                    strcat(*dt_str, tmp_str);
-                    free(mname);
+                    HDsnprintf(tmp_str, TMP_LEN, " \"%s\"", mname);
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
+                    if(mname)
+                        H5free_memory(mname);
+                    mname = NULL;
 
-                    sprintf(tmp_str, " : %lu;\n", (unsigned long)moffset);
-                    strcat(*dt_str, tmp_str);
+                    HDsnprintf(tmp_str, TMP_LEN, " : %lu;\n", (unsigned long)moffset);
+                    if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
                 }
 
                 /* Print closing */
                 indent -= COL;
-                indentation(indent + COL, *dt_str);
-                strcat(*dt_str, "}");
+                if(!(dt_str = indentation(indent + COL, dt_str, no_user_buf, slen)))
+                    goto out;
+                HDsnprintf(tmp_str, TMP_LEN, "}");
+                if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, tmp_str)))
+                        goto out;
 
                 break;
             }
         case H5T_TIME:
-            sprintf(*dt_str, "H5T_TIME: not yet implemented");
+            HDsnprintf(dt_str, *slen, "H5T_TIME: not yet implemented");
             break;
         case H5T_BITFIELD:
-            sprintf(*dt_str, "H5T_BITFIELD: not yet implemented");
+            HDsnprintf(dt_str, *slen, "H5T_BITFIELD: not yet implemented");
             break;
         default:
-            sprintf(*dt_str, "unknown data type");
+            HDsnprintf(dt_str, *slen, "unknown data type");
     }
 
-    return ret;
+    return dt_str;
 
 out:
-    return FAIL;
+    return NULL;
 }
-
-
-
-
 
 /*-------------------------------------------------------------------------
 *
@@ -2342,8 +3025,11 @@ herr_t H5LTget_attribute_string( hid_t loc_id,
         return -1;
 
     /* Get the attribute */
-    if ( H5LT_get_attribute_disk( obj_id, attr_name, data ) < 0 )
-        return -1;
+    if ( H5LT_get_attribute_disk( obj_id, attr_name, data ) < 0 ) 
+    {
+      H5Oclose(obj_id); 
+      return -1;
+    }
 
     /* Close the object */
     if(H5Oclose(obj_id) < 0)
@@ -2776,6 +3462,8 @@ static herr_t H5LT_get_attribute_mem(hid_t loc_id,
     return 0;
 
 out:
+    if(obj_id > 0)
+        H5Oclose(obj_id);
     if(attr_id > 0)
         H5Aclose(attr_id);
     return -1;
@@ -2873,7 +3561,7 @@ herr_t H5LT_set_attribute_string(hid_t dset_id,
     if((tid = H5Tcopy(H5T_C_S1)) < 0)
         return FAIL;
 
-    size = strlen(buf) + 1; /* extra null term */
+    size = HDstrlen(buf) + 1; /* extra null term */
 
     if(H5Tset_size(tid,(size_t)size) < 0)
         goto out;
@@ -2917,4 +3605,110 @@ out:
 
 }
 
+htri_t
+H5LTpath_valid(hid_t loc_id, const char *path, hbool_t check_object_valid)
+ {
+     char *tmp_path = NULL; /* Temporary copy of the path */
+     char *curr_name;       /* Pointer to current component of path name */
+     char *delimit;         /* Pointer to path delimiter during traversal */
+     H5I_type_t obj_type;
+     htri_t link_exists, obj_exists;
+     size_t path_length;
+     htri_t ret_value;
 
+     /* Initialize */
+     ret_value = FALSE;
+
+     /* Find the type of loc_id */
+     if((obj_type = H5Iget_type(loc_id)) == H5I_BADID) {
+       ret_value = FAIL;
+       goto done;
+     }
+
+     /* Find the length of the path */
+     path_length = HDstrlen(path);
+
+     /* Check if the identifier is the object itself, i.e. path is '.' */
+     if(HDstrncmp(path, ".", path_length) == 0) {
+       if(check_object_valid) {
+         obj_exists = H5Oexists_by_name(loc_id, path, H5P_DEFAULT);
+	 ret_value = obj_exists;
+	 goto done;
+       } else {
+	 ret_value = TRUE; /* Since the object is the identifier itself,
+			    * we can only check if loc_id is a valid type */
+	 goto done;
+       }
+     }
+
+     /* Duplicate the path to use */
+     if(NULL == (tmp_path = HDstrdup(path))) {
+       ret_value = FAIL;
+       goto done;
+     }
+
+     curr_name = tmp_path;
+
+     /* check if absolute pathname */
+     if(HDstrncmp(path, "/", 1) == 0) curr_name++;
+
+     /* check if relative path name starts with "./" */
+     if(HDstrncmp(path, "./", 2) == 0) curr_name += 2;
+
+     while((delimit=HDstrchr(curr_name,'/'))!=NULL) {
+       /* Change the delimiter to terminate the string */
+       *delimit='\0';
+
+       obj_exists = FALSE;
+       if((link_exists = H5Lexists(loc_id, tmp_path, H5P_DEFAULT)) < 0) {
+	 ret_value = FAIL;
+	 goto done;
+       }
+
+       /* If target link does not exist then no reason to
+        *  continue checking the path */
+       if(link_exists != TRUE) {
+	 ret_value = FALSE;
+	 goto done;
+       }
+       
+       /* Determine if link resolves to an actual object */
+       if((obj_exists = H5Oexists_by_name(loc_id, tmp_path, H5P_DEFAULT)) < 0) {
+	 ret_value = FAIL;
+         goto done;
+       }
+
+       if(obj_exists != TRUE)
+         break;
+
+       /* Change the delimiter back to '/' */
+       *delimit='/';
+
+       /* Advance the pointer in the path to the start of the next component */
+       curr_name = delimit + 1;
+
+     } /* end while */
+
+     /* Should be pointing to the last component in the path name now... */
+
+     /* Check if link does not exist */
+     if((link_exists = H5Lexists(loc_id, tmp_path, H5P_DEFAULT)) < 0) {
+       ret_value = FAIL;
+     } else {
+       ret_value = link_exists;
+       /* Determine if link resolves to an actual object for check_object_valid TRUE */
+       if(check_object_valid == TRUE && link_exists == TRUE) {
+	 if((obj_exists = H5Oexists_by_name(loc_id, tmp_path, H5P_DEFAULT)) < 0) {
+	   ret_value = FAIL;
+	 } else {
+	   ret_value = obj_exists;
+	 }
+       }
+     }
+
+done:
+     if(tmp_path != NULL)
+       HDfree(tmp_path);
+
+     return ret_value;
+ }

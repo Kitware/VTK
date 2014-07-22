@@ -56,10 +56,10 @@
 void *
 H5MM_malloc(size_t size)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MM_malloc);
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    assert(size);
+    HDassert(size);
 
     FUNC_LEAVE_NOAPI(HDmalloc(size));
 } /* end H5MM_malloc() */
@@ -89,10 +89,10 @@ H5MM_malloc(size_t size)
 void *
 H5MM_calloc(size_t size)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MM_calloc);
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    assert(size);
+    HDassert(size);
 
     FUNC_LEAVE_NOAPI(HDcalloc(1,size));
 } /* end H5MM_calloc() */
@@ -110,7 +110,8 @@ H5MM_calloc(size_t size)
  *		H5MM_realloc (NULL, 0)	  <==> NULL
  *
  * Return:	Success:	Ptr to new memory or NULL if the memory
- *				was freed.
+ *				was freed or HDrealloc couldn't allocate
+ *				memory.
  *
  *		Failure:	NULL
  *
@@ -125,42 +126,37 @@ H5MM_realloc(void *mem, size_t size)
 {
     void *ret_value;
 
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MM_realloc)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     if(NULL == mem) {
 	if(0 == size)
-            mem = NULL;
+            ret_value = NULL;
         else
-            mem = H5MM_malloc(size);
+            ret_value = H5MM_malloc(size);
     } /* end if */
     else if(0 == size)
-	mem = H5MM_xfree(mem);
+	ret_value = H5MM_xfree(mem);
     else
-	mem = HDrealloc(mem, size);
-
-    /* Set return value */
-    ret_value = mem;
+	ret_value = HDrealloc(mem, size);
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MM_realloc() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5MM_xstrdup
+ * Function:    H5MM_xstrdup
  *
- * Purpose:	Duplicates a string.  If the string to be duplicated is the
- *		null pointer, then return null.	 If the string to be duplicated
- *		is the empty string then return a new empty string.
+ * Purpose:     Duplicates a string, including memory allocation.
+ *              NULL is an acceptable value for the input string.
  *
- * Return:	Success:	Ptr to a new string (or null if no string).
+ * Return:      Success:    Pointer to a new string (NULL if s is NULL).
  *
- *		Failure:	abort()
+ *              Failure:    abort()
  *
- * Programmer:	Robb Matzke
- *		matzke@llnl.gov
- *		Jul 10 1997
- *
+ * Programmer:  Robb Matzke
+ *              matzke@llnl.gov
+ *              Jul 10 1997
  *-------------------------------------------------------------------------
  */
 char *
@@ -168,36 +164,35 @@ H5MM_xstrdup(const char *s)
 {
     char	*ret_value = NULL;
 
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MM_xstrdup)
+    FUNC_ENTER_NOAPI(NULL)
 
     if(s) {
-        ret_value = (char *)H5MM_malloc(HDstrlen(s) + 1);
-        HDassert(ret_value);
+        if(NULL == (ret_value = (char *)H5MM_malloc(HDstrlen(s) + 1)))
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
         HDstrcpy(ret_value, s);
     } /* end if */
 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MM_xstrdup() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5MM_strdup
+ * Function:    H5MM_strdup
  *
- * Purpose:	Duplicates a string.  If the string to be duplicated is the
- *		null pointer, then return null.	 If the string to be duplicated
- *		is the empty string then return a new empty string.
+ * Purpose:     Duplicates a string, including memory allocation.
+ *              NULL is NOT an acceptable value for the input string.
  *
- * Return:	Success:	Ptr to a new string (or null if no string).
+ *              If the string to be duplicated is the NULL pointer, then
+ *              an error will be raised.
  *
- *		Failure:	abort()
+ * Return:      Success:    Pointer to a new string
  *
- * Programmer:	Robb Matzke
- *		matzke@llnl.gov
- *		Jul 10 1997
+ *              Failure:    abort()
  *
- * Modifications:
- *
+ * Programmer:  Robb Matzke
+ *              matzke@llnl.gov
+ *              Jul 10 1997
  *-------------------------------------------------------------------------
  */
 char *
@@ -205,7 +200,7 @@ H5MM_strdup(const char *s)
 {
     char	*ret_value;
 
-    FUNC_ENTER_NOAPI(H5MM_strdup, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     if(!s)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "null string")
@@ -240,8 +235,8 @@ done:
 void *
 H5MM_xfree(void *mem)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MM_xfree);
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     if(mem)
         HDfree(mem);

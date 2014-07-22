@@ -46,7 +46,7 @@ DESCRIPTION
 static herr_t
 H5T_init_float_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5T_init_float_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5T_init())
 } /* H5T_init_float_interface() */
@@ -79,7 +79,7 @@ size_t *esize/*out*/, size_t *mpos/*out*/, size_t *msize/*out*/)
     H5T_t	*dt;                    /* Datatype */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Tget_fields, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE6("e", "ixxxxx", type_id, spos, epos, esize, mpos, msize);
 
     /* Check args */
@@ -132,7 +132,7 @@ H5Tset_fields(hid_t type_id, size_t spos, size_t epos, size_t esize,
     H5T_t	*dt;                    /* Datatype */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Tset_fields, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE6("e", "izzzzz", type_id, spos, epos, esize, mpos, msize);
 
     /* Check args */
@@ -191,7 +191,7 @@ H5Tget_ebias(hid_t type_id)
     H5T_t	*dt;                    /* Datatype */
     size_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_API(H5Tget_ebias, 0)
+    FUNC_ENTER_API(0)
     H5TRACE1("z", "i", type_id);
 
     /* Check args */
@@ -232,7 +232,7 @@ H5Tset_ebias(hid_t type_id, size_t ebias)
     H5T_t	*dt;                    /* Datatype */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Tset_ebias, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "iz", type_id, ebias);
 
     /* Check args */
@@ -274,7 +274,7 @@ H5Tget_norm(hid_t type_id)
     H5T_t	*dt;            /* Datatype */
     H5T_norm_t	ret_value;      /* Return value */
 
-    FUNC_ENTER_API(H5Tget_norm, H5T_NORM_ERROR)
+    FUNC_ENTER_API(H5T_NORM_ERROR)
     H5TRACE1("Tn", "i", type_id);
 
     /* Check args */
@@ -312,7 +312,7 @@ H5Tset_norm(hid_t type_id, H5T_norm_t norm)
     H5T_t	*dt;                    /* Datatype */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Tset_norm, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "iTn", type_id, norm);
 
     /* Check args */
@@ -358,7 +358,7 @@ H5Tget_inpad(hid_t type_id)
     H5T_t	*dt;            /* Datatype */
     H5T_pad_t	ret_value;      /* Return value */
 
-    FUNC_ENTER_API(H5Tget_inpad, H5T_PAD_ERROR)
+    FUNC_ENTER_API(H5T_PAD_ERROR)
     H5TRACE1("Tp", "i", type_id);
 
     /* Check args */
@@ -398,7 +398,7 @@ H5Tset_inpad(hid_t type_id, H5T_pad_t pad)
     H5T_t	*dt;                    /* Datatype */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Tset_inpad, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "iTp", type_id, pad);
 
     /* Check args */

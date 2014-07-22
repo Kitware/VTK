@@ -34,7 +34,7 @@
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"             /* File access				*/
+#include "H5Fpkg.h"		/* File access				*/
 #include "H5MFpkg.h"		/* File memory management		*/
 
 
@@ -46,6 +46,7 @@
 /******************/
 /* Local Typedefs */
 /******************/
+#define EXTEND_THRESHOLD .10
 
 
 /********************/
@@ -56,6 +57,8 @@
 /********************/
 /* Local Prototypes */
 /********************/
+static herr_t H5MF_aggr_free(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type,
+    H5F_blk_aggr_t *aggr);
 
 
 /*********************/
@@ -96,7 +99,7 @@ H5MF_aggr_vfd_alloc(H5F_t *f, H5FD_mem_t alloc_type, hid_t dxpl_id, hsize_t size
 {
     haddr_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MF_aggr_vfd_alloc, HADDR_UNDEF)
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 #ifdef H5MF_ALLOC_DEBUG
 HDfprintf(stderr, "%s: alloc_type = %u, size = %Hu\n", FUNC, (unsigned)alloc_type, size);
 #endif /* H5MF_ALLOC_DEBUG */
@@ -108,14 +111,14 @@ HDfprintf(stderr, "%s: alloc_type = %u, size = %Hu\n", FUNC, (unsigned)alloc_typ
     HDassert(size > 0);
 
     /* Couldn't find anything from the free space manager, go allocate some */
-    if(alloc_type != H5FD_MEM_DRAW) {
+    if(alloc_type != H5FD_MEM_DRAW && alloc_type != H5FD_MEM_GHEAP) {
         /* Handle metadata differently from "raw" data */
         if(HADDR_UNDEF == (ret_value = H5MF_aggr_alloc(f, dxpl_id, &(f->shared->meta_aggr), &(f->shared->sdata_aggr), alloc_type, size)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, HADDR_UNDEF, "can't allocate metadata")
     } /* end if */
     else {
-        /* Allocate "raw" data */
-        if(HADDR_UNDEF == (ret_value = H5MF_aggr_alloc(f, dxpl_id, &(f->shared->sdata_aggr), &(f->shared->meta_aggr), alloc_type, size)))
+        /* Allocate "raw" data: H5FD_MEM_DRAW and H5FD_MEM_GHEAP */
+        if(HADDR_UNDEF == (ret_value = H5MF_aggr_alloc(f, dxpl_id, &(f->shared->sdata_aggr), &(f->shared->meta_aggr), H5FD_MEM_DRAW, size)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, HADDR_UNDEF, "can't allocate raw data")
     } /* end else */
 
@@ -157,7 +160,7 @@ H5MF_aggr_alloc(H5F_t *f, hid_t dxpl_id, H5F_blk_aggr_t *aggr,
     haddr_t	eoa = HADDR_UNDEF;      /* Initial EOA for the file */
     haddr_t 	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MF_aggr_alloc, HADDR_UNDEF)
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 #ifdef H5MF_AGGR_DEBUG
 HDfprintf(stderr, "%s: type = %u, size = %Hu\n", FUNC, (unsigned)type, size);
 #endif /* H5MF_AGGR_DEBUG */
@@ -230,19 +233,18 @@ HDfprintf(stderr, "%s: aggr = {%a, %Hu, %Hu}\n", FUNC, aggr->addr, aggr->tot_siz
                     if(H5F_addr_gt((eoa + size), f->shared->tmp_addr))
                         HGOTO_ERROR(H5E_RESOURCE, H5E_BADRANGE, HADDR_UNDEF, "'normal' file space allocation request will overlap into 'temporary' file space")
 
+                    /* Release "other" aggregator, if it exists, is at the end of the allocated space,
+                     * has allocated more than one block and the unallocated space is greater than its
+                     * allocation block size.
+                     */
 		    if ((other_aggr->size > 0) && (H5F_addr_eq((other_aggr->addr + other_aggr->size), eoa)) &&
-			((other_aggr->tot_size - other_aggr->size) >= other_aggr->alloc_size)) {
-
-                            if(H5FD_free(f->shared->lf, dxpl_id, other_alloc_type, f, other_aggr->addr, other_aggr->size) < 0)
+			(other_aggr->tot_size > other_aggr->size) && ((other_aggr->tot_size - other_aggr->size) >= other_aggr->alloc_size)) {
+                            if(H5MF_aggr_free(f, dxpl_id, other_alloc_type, other_aggr) < 0)
                                 HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, HADDR_UNDEF, "can't free aggregation block")
-
-                            other_aggr->addr = 0;
-                            other_aggr->tot_size = 0;
-                            other_aggr->size = 0;
 		    } /* end if */
 
                     /* Allocate space from the VFD (i.e. at the end of the file) */
-		    if(HADDR_UNDEF == (ret_value = H5FD_alloc(f->shared->lf, dxpl_id, type, f, size, &eoa_frag_addr, &eoa_frag_size)))
+		    if(HADDR_UNDEF == (ret_value = H5FD_alloc(f->shared->lf, dxpl_id, alloc_type, f, size, &eoa_frag_addr, &eoa_frag_size)))
 			HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, HADDR_UNDEF, "can't allocate aggregation block")
                 } /* end else */
             } /* end if */
@@ -274,14 +276,14 @@ HDfprintf(stderr, "%s: Allocating block\n", FUNC);
                     if(H5F_addr_gt((eoa + aggr->alloc_size), f->shared->tmp_addr))
                         HGOTO_ERROR(H5E_RESOURCE, H5E_BADRANGE, HADDR_UNDEF, "'normal' file space allocation request will overlap into 'temporary' file space")
 
+                    /* Release "other" aggregator, if it exists, is at the end of the allocated space,
+                     * has allocated more than one block and the unallocated space is greater than its
+                     * allocation block size.
+                     */
 		    if((other_aggr->size > 0) && (H5F_addr_eq((other_aggr->addr + other_aggr->size), eoa)) &&
-			((other_aggr->tot_size - other_aggr->size) >= other_aggr->alloc_size)) {
-
-                            if(H5FD_free(f->shared->lf, dxpl_id, other_alloc_type, f, other_aggr->addr, other_aggr->size) < 0)
+			(other_aggr->tot_size > other_aggr->size) && ((other_aggr->tot_size - other_aggr->size) >= other_aggr->alloc_size)) {
+                            if(H5MF_aggr_free(f, dxpl_id, other_alloc_type, other_aggr) < 0)
                                 HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, HADDR_UNDEF, "can't free aggregation block")
-                            other_aggr->addr = 0;
-                            other_aggr->tot_size = 0;
-                            other_aggr->size = 0;
 		    } /* end if */
 
                     /* Allocate space from the VFD (i.e. at the end of the file) */
@@ -307,12 +309,12 @@ HDfprintf(stderr, "%s: Allocating block\n", FUNC);
 
 	    /* Freeing any possible fragment due to file allocation */
 	    if(eoa_frag_size)
-		if(H5MF_xfree(f, type, dxpl_id, eoa_frag_addr, eoa_frag_size) < 0)
+		if(H5MF_xfree(f, alloc_type, dxpl_id, eoa_frag_addr, eoa_frag_size) < 0)
 		    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, HADDR_UNDEF, "can't free eoa fragment")
 
 	    /* Freeing any possible fragment due to alignment in the block after extension */
 	    if(extended && aggr_frag_size)
-		if(H5MF_xfree(f, type, dxpl_id, aggr_frag_addr, aggr_frag_size) < 0)
+		if(H5MF_xfree(f, alloc_type, dxpl_id, aggr_frag_addr, aggr_frag_size) < 0)
 		    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, HADDR_UNDEF, "can't free aggregation fragment")
         } /* end if */
         else {
@@ -323,7 +325,7 @@ HDfprintf(stderr, "%s: Allocating block\n", FUNC);
 
 	    /* free any possible fragment */
 	    if(aggr_frag_size)
-		if(H5MF_xfree(f, type, dxpl_id, aggr_frag_addr, aggr_frag_size) < 0)
+		if(H5MF_xfree(f, alloc_type, dxpl_id, aggr_frag_addr, aggr_frag_size) < 0)
 		    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, HADDR_UNDEF, "can't free aggregation fragment")
         } /* end else */
     } /* end if */
@@ -364,6 +366,16 @@ HDfprintf(stderr, "%s: ret_value = %a\n", FUNC, ret_value);
  * Purpose:	Check if a block is inside an aggregator block and extend it
  *              if possible.
  *
+ * Note:
+ *	        When the block to be extended adjoins the aggregator--
+ *		    1) When the aggregator is at end of file:
+ *		       A) If the request is below the threshold, extend the block into the aggregator
+ *		       B) If the request is above the threshold,
+ *			    a) extend the aggregator by aggr->alloc_size or the extended amount
+ *			    b) extend the block into the aggregator
+ *		    2) When the aggregator is not at end of file:
+ *		       Extended the block into the aggregator if it has enough space to satisfy the request
+ *
  * Return:	Success:	TRUE(1)  - Block was extended
  *                              FALSE(0) - Block could not be extended
  * 		Failure:	FAIL
@@ -379,7 +391,7 @@ H5MF_aggr_try_extend(H5F_t *f, H5F_blk_aggr_t *aggr, H5FD_mem_t type,
 {
     htri_t ret_value = FALSE;           /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MF_aggr_try_extend, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
     HDassert(f);
@@ -388,26 +400,56 @@ H5MF_aggr_try_extend(H5F_t *f, H5F_blk_aggr_t *aggr, H5FD_mem_t type,
 
     /* Check if this aggregator is active */
     if(f->shared->feature_flags & aggr->feature_flag) {
-        /* If the block being tested adjoins the beginning of the aggregator
+        /* 
+	 * If the block being tested adjoins the beginning of the aggregator
          *      block, check if the aggregator can accomodate the extension.
          */
         if(H5F_addr_eq(blk_end, aggr->addr)) {
-            /* If the aggregator block is at the end of the file, extend the
-             * file and "bubble" the aggregator up
-             */
-            if((ret_value = H5FD_try_extend(f->shared->lf, type, f, (aggr->addr + aggr->size), extra_requested)) < 0)
-                HGOTO_ERROR(H5E_RESOURCE, H5E_CANTEXTEND, FAIL, "error extending file")
-            else if(ret_value == TRUE) {
-                /* Shift the aggregator block by the extra requested */
-                aggr->addr += extra_requested;
+	    haddr_t eoa;      /* EOA for the file */
 
-                /* Add extra requested to the aggregator block's total amount allocated */
-                aggr->tot_size += extra_requested;
-            } /* end if */
-            else {
-                /* Check if the aggregator block has enough internal space to satisfy
-                 *      extending the block.
-                 */
+	    /* Get the EOA for the file */
+	    if(HADDR_UNDEF == (eoa = H5F_get_eoa(f, type)))
+		HGOTO_ERROR(H5E_RESOURCE, H5E_CANTGET, FAIL, "Unable to get eoa")
+
+	    /* If the aggregator is at the end of file: */
+	    if(H5F_addr_eq(eoa, aggr->addr + aggr->size)) {
+		/* If extra_requested is below percentage threshold, extend block into the aggregator. */
+		if(extra_requested <= (EXTEND_THRESHOLD * aggr->size)) {
+		    aggr->size -= extra_requested;
+		    aggr->addr += extra_requested;
+
+		    /* Indicate success */
+		    HGOTO_DONE(TRUE);
+		} 
+		/* 
+		 * If extra_requested is above percentage threshold:
+		 * 1) "bubble" up the aggregator by aggr->alloc_size or extra_requested
+		 * 2) extend the block into the aggregator 
+		 */
+		else {
+		    hsize_t extra = (extra_requested < aggr->alloc_size) ? aggr->alloc_size : extra_requested;
+
+		    if((ret_value = H5FD_try_extend(f->shared->lf, type, f, (aggr->addr + aggr->size), extra)) < 0)
+			HGOTO_ERROR(H5E_RESOURCE, H5E_CANTEXTEND, FAIL, "error extending file")
+		    else if(ret_value == TRUE) {
+			/* Shift the aggregator block by the extra requested */
+                        /* (allocates the space for the extra_requested) */
+			aggr->addr += extra_requested;
+
+			/* Add extra to the aggregator's total allocated amount */
+			aggr->tot_size += extra;
+
+                        /* Account for any space added to the aggregator */
+                        /* (either 0 (if extra_requested > aggr->alloc_size) or
+                         *      (aggr->alloc_size - extra_requested) -QAK
+                         */
+			aggr->size += extra;
+			aggr->size -= extra_requested;
+		    } /* end if */
+		} /* end if */
+	    } /* end if */
+            else { /* The aggreator is not at end of file */
+                /* Check if aggregator has enough internal space to satisfy the extension. */
                 if(aggr->size >= extra_requested) {
                     /* Extend block into aggregator */
                     aggr->size -= extra_requested;
@@ -416,8 +458,8 @@ H5MF_aggr_try_extend(H5F_t *f, H5F_blk_aggr_t *aggr, H5FD_mem_t type,
                     /* Indicate success */
                     HGOTO_DONE(TRUE);
                  } /* end if */
-            } /* end else */
-        } /* end if */
+	    } /* end else */
+	} /* end if */
     } /* end if */
 
 done:
@@ -446,7 +488,7 @@ H5MF_aggr_can_absorb(const H5F_t *f, const H5F_blk_aggr_t *aggr,
 {
     htri_t ret_value = FALSE;           /* Return value */
 
-    FUNC_ENTER_NOAPI_NOFUNC(H5MF_aggr_can_absorb)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check args */
     HDassert(f);
@@ -462,7 +504,7 @@ H5MF_aggr_can_absorb(const H5F_t *f, const H5F_blk_aggr_t *aggr,
                 || H5F_addr_eq((aggr->addr + aggr->size), sect->sect_info.addr)) {
 #ifdef H5MF_AGGR_DEBUG
 HDfprintf(stderr, "%s: section {%a, %Hu} adjoins aggr = {%a, %Hu}\n", "H5MF_aggr_can_absorb", sect->sect_info.addr, sect->sect_info.size, aggr->addr, aggr->size);
-#endif /* H5MF_AGGR_DBEUG */
+#endif /* H5MF_AGGR_DEBUG */
             /* Check if aggregator would get too large and should be absorbed into section */
             if((aggr->size + sect->sect_info.size) >= aggr->alloc_size)
                 *shrink = H5MF_SHRINK_SECT_ABSORB_AGGR;
@@ -497,7 +539,7 @@ herr_t
 H5MF_aggr_absorb(const H5F_t UNUSED *f, H5F_blk_aggr_t *aggr, H5MF_free_section_t *sect,
     hbool_t allow_sect_absorb)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5MF_aggr_absorb)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check args */
     HDassert(f);
@@ -510,9 +552,9 @@ H5MF_aggr_absorb(const H5F_t UNUSED *f, H5F_blk_aggr_t *aggr, H5MF_free_section_
     if((aggr->size + sect->sect_info.size) >= aggr->alloc_size && allow_sect_absorb) {
         /* Check if the section adjoins the beginning or end of the aggregator */
         if(H5F_addr_eq((sect->sect_info.addr + sect->sect_info.size), aggr->addr)) {
-#ifdef H5MF_AGGR_DBEUG
+#ifdef H5MF_AGGR_DEBUG
 HDfprintf(stderr, "%s: aggr {%a, %Hu} adjoins front of section = {%a, %Hu}\n", "H5MF_aggr_absorb", aggr->addr, aggr->size, sect->sect_info.addr, sect->sect_info.size);
-#endif /* H5MF_AGGR_DBEUG */
+#endif /* H5MF_AGGR_DEBUG */
             /* Absorb aggregator onto end of section */
             sect->sect_info.size += aggr->size;
         } /* end if */
@@ -520,9 +562,9 @@ HDfprintf(stderr, "%s: aggr {%a, %Hu} adjoins front of section = {%a, %Hu}\n", "
             /* Sanity check */
             HDassert(H5F_addr_eq((aggr->addr + aggr->size), sect->sect_info.addr));
 
-#ifdef H5MF_AGGR_DBEUG
+#ifdef H5MF_AGGR_DEBUG
 HDfprintf(stderr, "%s: aggr {%a, %Hu} adjoins end of section = {%a, %Hu}\n", "H5MF_aggr_absorb", aggr->addr, aggr->size, sect->sect_info.addr, sect->sect_info.size);
-#endif /* H5MF_AGGR_DBEUG */
+#endif /* H5MF_AGGR_DEBUG */
             /* Absorb aggregator onto beginning of section */
             sect->sect_info.addr -= aggr->size;
             sect->sect_info.size += aggr->size;
@@ -536,9 +578,9 @@ HDfprintf(stderr, "%s: aggr {%a, %Hu} adjoins end of section = {%a, %Hu}\n", "H5
     else {
         /* Check if the section adjoins the beginning or end of the aggregator */
         if(H5F_addr_eq((sect->sect_info.addr + sect->sect_info.size), aggr->addr)) {
-#ifdef H5MF_AGGR_DBEUG
+#ifdef H5MF_AGGR_DEBUG
 HDfprintf(stderr, "%s: section {%a, %Hu} adjoins front of aggr = {%a, %Hu}\n", "H5MF_aggr_absorb", sect->sect_info.addr, sect->sect_info.size, aggr->addr, aggr->size);
-#endif /* H5MF_AGGR_DBEUG */
+#endif /* H5MF_AGGR_DEBUG */
             /* Absorb section onto front of aggregator */
             aggr->addr -= sect->sect_info.size;
             aggr->size += sect->sect_info.size;
@@ -552,9 +594,9 @@ HDfprintf(stderr, "%s: section {%a, %Hu} adjoins front of aggr = {%a, %Hu}\n", "
             /* Sanity check */
             HDassert(H5F_addr_eq((aggr->addr + aggr->size), sect->sect_info.addr));
 
-#ifdef H5MF_AGGR_DBEUG
+#ifdef H5MF_AGGR_DEBUG
 HDfprintf(stderr, "%s: section {%a, %Hu} adjoins end of aggr = {%a, %Hu}\n", "H5MF_aggr_absorb", sect->sect_info.addr, sect->sect_info.size, aggr->addr, aggr->size);
-#endif /* H5MF_AGGR_DBEUG */
+#endif /* H5MF_AGGR_DEBUG */
             /* Absorb section onto end of aggregator */
             aggr->size += sect->sect_info.size;
         } /* end if */
@@ -583,7 +625,7 @@ herr_t
 H5MF_aggr_query(const H5F_t *f, const H5F_blk_aggr_t *aggr, haddr_t *addr,
     hsize_t *size)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MF_aggr_query)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check args */
     HDassert(f);
@@ -592,8 +634,10 @@ H5MF_aggr_query(const H5F_t *f, const H5F_blk_aggr_t *aggr, haddr_t *addr,
 
     /* Check if this aggregator is active */
     if(f->shared->feature_flags & aggr->feature_flag) {
-        *addr = aggr->addr;
-        *size = aggr->size;
+	if(addr)
+            *addr = aggr->addr;
+        if(size)
+            *size = aggr->size;
     } /* end if */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -619,7 +663,7 @@ H5MF_aggr_reset(H5F_t *f, hid_t dxpl_id, H5F_blk_aggr_t *aggr)
     H5FD_mem_t alloc_type;      /* Type of file memory to work with */
     herr_t ret_value = SUCCEED;	/* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5MF_aggr_reset)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check args */
     HDassert(f);
@@ -637,9 +681,9 @@ H5MF_aggr_reset(H5F_t *f, hid_t dxpl_id, H5F_blk_aggr_t *aggr)
         /* Retain aggregator info */
         tmp_addr = aggr->addr;
         tmp_size = aggr->size;
-#ifdef H5MF_AGGR_DBEUG
+#ifdef H5MF_AGGR_DEBUG
 HDfprintf(stderr, "%s: tmp_addr = %a, tmp_size = %Hu\n", FUNC, tmp_addr, tmp_size);
-#endif /* H5MF_AGGR_DBEUG */
+#endif /* H5MF_AGGR_DEBUG */
 
         /* Reset aggregator block information */
         aggr->tot_size = 0;
@@ -682,7 +726,7 @@ H5MF_free_aggrs(H5F_t *f, hid_t dxpl_id)
     hsize_t sda_size = 0;               /* Size of "small data aggregator" */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MF_free_aggrs, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
     HDassert(f);
@@ -724,4 +768,132 @@ H5MF_free_aggrs(H5F_t *f, hid_t dxpl_id)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5MF_free_aggrs() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5MF_aggr_can_shrink_eoa
+ *
+ * Purpose:     Check if the remaining space in the aggregator is at EOA
+ *
+ * Return:      Success:        non-negative (TRUE/FALSE)
+ *              Failure:        negative
+ *
+ * Programmer:  Vailin Choi
+ *
+ *-------------------------------------------------------------------------
+ */
+static htri_t
+H5MF_aggr_can_shrink_eoa(H5F_t *f, H5FD_mem_t type, H5F_blk_aggr_t *aggr)
+{
+    haddr_t eoa = HADDR_UNDEF;      	/* EOA for the file */
+    htri_t ret_value = FALSE;   	/* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(f);
+    HDassert(aggr);
+    HDassert(aggr->feature_flag == H5FD_FEAT_AGGREGATE_METADATA || aggr->feature_flag == H5FD_FEAT_AGGREGATE_SMALLDATA);
+
+    /* Get the EOA for the file */
+    if(HADDR_UNDEF == (eoa = H5F_get_eoa(f, type)))
+	HGOTO_ERROR(H5E_RESOURCE, H5E_CANTGET, FAIL, "Unable to get eoa")
+
+    /* Check if the aggregator is at EOA */
+    if(aggr->size > 0 && H5F_addr_defined(aggr->addr))
+	ret_value = H5F_addr_eq(eoa, aggr->addr + aggr->size);
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5MF_aggr_can_shrink_eoa() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5MF_aggr_free
+ *
+ * Purpose:     Free the aggregator's space in the file.
+ *
+ * Note:        Does _not_ put the space on a free list
+ *
+ * Return:      Success:        Non-negative
+ *              Failure:        Negative
+ *
+ * Programmer:  Vailin Choi
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5MF_aggr_free(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type, H5F_blk_aggr_t *aggr)
+{
+    herr_t ret_value = SUCCEED;   	/* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(f);
+    HDassert(f->shared->lf);
+    HDassert(aggr);
+    HDassert(H5F_addr_defined(aggr->addr));
+    HDassert(aggr->size > 0);
+    HDassert(H5F_INTENT(f) & H5F_ACC_RDWR);
+    HDassert(aggr->feature_flag == H5FD_FEAT_AGGREGATE_METADATA || aggr->feature_flag == H5FD_FEAT_AGGREGATE_SMALLDATA);
+    HDassert(f->shared->feature_flags & aggr->feature_flag);
+
+    /* Free the remaining space at EOA in the aggregator */
+    if(H5FD_free(f->shared->lf, dxpl_id, type, f, aggr->addr, aggr->size) < 0)
+        HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, FAIL, "can't free aggregation block")
+
+    /* Reset the aggregator */
+    aggr->tot_size = 0;
+    aggr->addr = HADDR_UNDEF;
+    aggr->size = 0;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5MF_aggr_free() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5MF_aggrs_try_shrink_eoa
+ *
+ * Purpose:     Check the metadata & small block aggregators to see if
+ *		EOA shrink is possible; if so, shrink each aggregator
+ *
+ * Return:      Success:        Non-negative
+ *              Failure:        Negative
+ *
+ * Programmer:  Vailin Choi
+ *
+ *-------------------------------------------------------------------------
+ */
+htri_t
+H5MF_aggrs_try_shrink_eoa(H5F_t *f, hid_t dxpl_id)
+{
+    htri_t ma_status;        /* Whether the metadata aggregator can shrink the EOA */
+    htri_t sda_status;       /* Whether the small data aggregator can shrink the EOA */
+    htri_t ret_value;        /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Check args */
+    HDassert(f);
+    HDassert(f->shared);
+
+    if((ma_status = H5MF_aggr_can_shrink_eoa(f, H5FD_MEM_DEFAULT, &(f->shared->meta_aggr))) < 0)
+        HGOTO_ERROR(H5E_RESOURCE, H5E_CANTGET, FAIL, "can't query metadata aggregator stats")
+    if(ma_status > 0)
+	if(H5MF_aggr_free(f, dxpl_id, H5FD_MEM_DEFAULT, &(f->shared->meta_aggr)) < 0)
+	    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTSHRINK, FAIL, "can't check for shrinking eoa")
+
+    if((sda_status = H5MF_aggr_can_shrink_eoa(f, H5FD_MEM_DRAW, &(f->shared->sdata_aggr))) < 0)
+        HGOTO_ERROR(H5E_RESOURCE, H5E_CANTGET, FAIL, "can't query small data aggregator stats")
+    if(sda_status > 0)
+	if(H5MF_aggr_free(f, dxpl_id, H5FD_MEM_DRAW, &(f->shared->sdata_aggr)) < 0)
+	    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTSHRINK, FAIL, "can't check for shrinking eoa")
+
+    ret_value = (ma_status || sda_status);
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5MF_aggrs_try_shrink_eoa() */
 
