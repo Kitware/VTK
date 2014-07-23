@@ -251,7 +251,8 @@ void vtkEGLRenderWindow::Start(void)
 // Specify the size of the rendering window.
 void vtkEGLRenderWindow::SetSize(int width,int height)
 {
-  // size is fixed
+  this->Size[0] = width;
+  this->Size[1] = height;
 }
 
 void vtkEGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
