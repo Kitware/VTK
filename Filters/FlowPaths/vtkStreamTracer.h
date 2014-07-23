@@ -114,7 +114,9 @@ public:
 
   // Description:
   // Specify the source object used to generate starting points (seeds).
-  // Old style. Do not use.
+  // Note that this method does not connect the pipeline. The algorithm will
+  // work on the input data as it is without updating the producer of the data.
+  // See SetSourceConnection for connecting the pipeline.
   void SetSourceData(vtkDataSet *source);
   vtkDataSet *GetSource();
 

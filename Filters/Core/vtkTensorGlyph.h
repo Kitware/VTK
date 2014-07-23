@@ -92,8 +92,10 @@ public:
   static vtkTensorGlyph *New();
 
   // Description:
-  // Specify the geometry to copy to each point. Old style. See
-  // SetSourceConnection.
+  // Specify the geometry to copy to each point.
+  // Note that this method does not connect the pipeline. The algorithm will
+  // work on the input data as it is without updating the producer of the data.
+  // See SetSourceConnection for connecting the pipeline.
   void SetSourceData(vtkPolyData *source);
   vtkPolyData *GetSource();
 

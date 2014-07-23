@@ -614,7 +614,7 @@ bool vtkChartBox::LocatePointInPlots(const vtkContextMouseEvent &mouse,
       5*(1.0/transform->GetMatrix()->GetElement(1, 1)));
 
     vtkPlot* plot = this->Storage->Plot.GetPointer();
-    vtkIdType segmentIndex;
+    vtkIdType segmentIndex = -1;
     int seriesIndex =
       LocatePointInPlot(position, tolerance, plotPos, plot, segmentIndex);
 
@@ -633,7 +633,7 @@ bool vtkChartBox::LocatePointInPlots(const vtkContextMouseEvent &mouse,
           this->GetVisibleColumns()->GetValue(seriesIndex);
         plotIndex.Position = plotPos;
         plotIndex.ScreenPosition = mouse.GetScreenPos();
-        plotIndex.Index = segmentIndex;;
+        plotIndex.Index = segmentIndex;
         // Invoke an event, with the client data supplied
         this->InvokeEvent(invokeEvent, static_cast<void*>(&plotIndex));
         }

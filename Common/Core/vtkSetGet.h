@@ -545,6 +545,19 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 //
 #define vtkNotUsed(x)
 
+//
+// This macro is used for functions which may not be used in a translation unit
+// due to different paths taken based on template types. Please give a reason
+// why the function may be considered unused (within a translation unit). For
+// example, a template specialization might not be used in compiles of sources
+// which use different template types.
+//
+#ifdef __GNUC__
+#define vtkMaybeUnused(reason) __attribute__((unused))
+#else
+#define vtkMaybeUnused(reason)
+#endif
+
 #define vtkWorldCoordinateMacro(name) \
 virtual vtkCoordinate *Get##name##Coordinate () \
 { \
