@@ -194,25 +194,33 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
       // generate a normal for lines, it will be perpendicular to the line
       // and maximally aligned with the camera view direction
       // no clue if this is the best way to do this.
+      // the code below has been optimized a bit so what follows is
+      // an explanation of the basic approach. Compute the gradient of the line
+      // with respect to x and y, the the larger of the two
+      // cross that with the camera view direction. That gives a vector
+      // orthogonal to the camera view and the line. Note that the line and the camera
+      // view are probably not orthogonal. Which is why when we cross result that with
+      // the line gradient again we get a reasonable normal. It will be othogonal to
+      // the line (which is a plane but maximally aligned with the camera view.
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                   "vec3 normalVC;\n"
-                                   "vec3 fdx = normalize(dFdx(vertexVC.xyz));\n"
-                                   "vec3 fdy = normalize(dFdy(vertexVC.xyz));\n"
-                                   "if (abs(dot(fdx,vec3(0.5,0.5,0.5))) > abs(dot(fdy,vec3(0.5,0.5,0.5))))\n"
-                                   " { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
-                                   "else { normalVC = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
-                                   );
+                         "vec3 normalVC;\n"
+                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),0.0,dFdx(vertexVC.z)));\n"
+                         "vec3 fdy = normalize(vec3(0.0,dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+                         "if (abs(fdx.x*0.5+fdx.z*0.5) > abs(fdy.y*0.5+fdy.z*0.5))\n"
+                         " { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
+                         "else { normalVC = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
+                         );
       }
     else
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                                  "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
-                                  "vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
-                                  "vec3 normalVC = normalize(cross(fdx,fdy));\n"
-                                  // the code below is faster, but does not work on some devices
-                                  // "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
-                                  "if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
-                                  );
+                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),0.0,dFdx(vertexVC.z)));\n"
+                         "vec3 fdy = normalize(vec3(0.0,dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+                         "vec3 normalVC = normalize(cross(fdx,fdy));\n"
+                         // the code below is faster, but does not work on some devices
+                         // "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
+                         "if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
+                         );
       }
     }
   if (this->Layout.TCoordComponents)
