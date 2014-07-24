@@ -58,7 +58,7 @@ public:
 //BTX
   // Description:
   // Enum of the available color schemes
-  enum {
+  enum ColorSchemes {
     /// 7 different hues.
     SPECTRUM = 0,
     /// 6 warm colors (red to yellow).
@@ -188,6 +188,19 @@ public:
     };
 //ETX
 
+//BTX
+// Description:
+// An enum defining how lookup tables should be used: either as a
+// list of discrete colors to choose from (categorical), or as an
+// ordered list of color set - points to interpolate among (ordinal).
+enum LUTMode {
+  /// indexed lookup is off
+  ORDINAL = 0,
+  /// indexed lookup is on
+  CATEGORICAL
+};
+//ETX
+
   // Description:
   // Set the color scheme that should be used.
   // The variant of this function that takes an integer should pass a
@@ -219,7 +232,8 @@ public:
 
   // Description:
   // Set the number of colors to be stored in a non-default color scheme.
-  // Calling this function on a predefined color scheme will cause the scheme to be duplicated to a new custom scheme.
+  // Calling this function on a predefined color scheme will cause the scheme
+  // to be duplicated to a new custom scheme.
   virtual void SetNumberOfColors(int numColors);
 
 //BTX
@@ -261,12 +275,21 @@ public:
 
   // Description:
   // Populate a lookup table with all the colors in the current scheme.
-  void BuildLookupTable(vtkLookupTable* lkup);
+  //
+  // The default behavior is to return categorical data. Set lutIndexing
+  // to ORDINAL to return ordinal data. Any other value for lutIndexing
+  // is treated as CATEGORICAL.
+  void BuildLookupTable(vtkLookupTable* lkup, int lutIndexing = CATEGORICAL);
 
   // Description:
   // Create a new lookup table with all the colors in the current scheme.
+  //
   // The caller is responsible for deleting the table after use.
-  vtkLookupTable* CreateLookupTable();
+  //
+  // The default behavior is to return categorical data. Set lutIndexing
+  // to ORDINAL to return ordinal data. Any other value for lutIndexing
+  // is treated as CATEGORICAL.
+  vtkLookupTable* CreateLookupTable(int lutIndexing = CATEGORICAL);
 
 //BTX
 protected:
