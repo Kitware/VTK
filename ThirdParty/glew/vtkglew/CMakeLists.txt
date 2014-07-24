@@ -14,3 +14,9 @@ set_source_files_properties(${common_SRCS}
 VTK_ADD_LIBRARY(vtkglew ${common_SRCS})
 target_link_libraries(vtkglew
   LINK_PUBLIC  ${OPENGL_LIBRARIES})
+
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL(DIRECTORY ${VTKGLEW_SOURCE_DIR}/include
+    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkglew
+    COMPONENT Development)
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
