@@ -310,7 +310,6 @@ set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 vtk_module_link_libraries(${vtk-module}
-  LINK_PRIVATE ${GLEW_LIBRARY}
   LINK_PUBLIC  ${OPENGL_LIBRARIES})
 if(VTK_USE_X)
   vtk_module_link_libraries(${vtk-module}

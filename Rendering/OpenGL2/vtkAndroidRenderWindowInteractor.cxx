@@ -285,7 +285,32 @@ void  vtkAndroidRenderWindowInteractor::Start()
     int events;
     struct android_poll_source* source;
 
-    if ((ident = ALooper_pollAll(-1, NULL, &events, (void**)&source)) >= 0)
+    ident = ALooper_pollAll(500, NULL, &events, (void**)&source);
+    if (ident == ALOOPER_POLL_TIMEOUT)
+      {
+      // just watch for resize events
+      if (this->AndroidApplication->window && this->Enabled)
+        {
+        // so it seems that andoid's configuration changes first
+        // then the size of the native window changes a bit later
+        // then after some rendering is done the egl surface gets resized
+        // we try to handle that mess by watching for when the native window
+        // changes size, then we update our size, render to push the change
+        // down to egl, then render again.  I suspect there may be a
+        // better way to get the change down to egl than doing a full render
+        int width = ANativeWindow_getWidth(this->AndroidApplication->window);
+        int height = ANativeWindow_getHeight(this->AndroidApplication->window);
+        if (width != this->Size[0] || height != this->Size[1])
+          {
+          this->UpdateSize(width,height);
+          this->RenderWindow->Render();
+          this->RenderWindow->Render();
+          vtkErrorMacro("Config Resized to " << width << " by " << height);
+          }
+        }
+      }
+
+    if (ident >= 0)
       {
       LOGW("Processing Event");
       // Process this event.
@@ -329,6 +354,17 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
         LOGW("Done first render");
         }
       break;
+//    case APP_CMD_CONFIG_CHANGED:
+//      {
+      // android seems to change window sizes at some random amount of time after this
+      // event so not much to do here as we do not really know the new size yet
+//      }
+//      break;
+    case APP_CMD_WINDOW_REDRAW_NEEDED:
+      {
+      this->RenderWindow->Render();
+      }
+      break;
     case APP_CMD_TERM_WINDOW:
       {
       LOGW("Terminating Window");
@@ -363,6 +399,8 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       {
       int action = AMotionEvent_getAction(event);
       int metaState = AMotionEvent_getMetaState(event);
+      int pointer = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+      action = action & AMOTION_EVENT_ACTION_MASK;
       switch(action)
         {
         case AMOTION_EVENT_ACTION_DOWN:
