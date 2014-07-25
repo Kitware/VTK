@@ -31,7 +31,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkInteractorStyleSwitch.h"
 
 #include "vtkAndroidRenderWindowInteractor.h"
 
@@ -58,7 +57,6 @@ void android_main(struct android_app* state)
 
   vtkNew<vtkAndroidRenderWindowInteractor> iren;
   iren->SetAndroidApplication(state);
-  vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle())->SetCurrentStyleToTrackballCamera();
   iren->SetRenderWindow(renWin.Get());
 
   vtkNew<vtkSphereSource> sphere;

@@ -105,6 +105,7 @@ public:
   virtual void OnMouseWheelBackward(HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnFocus(HWND wnd, UINT nFlags);
   virtual void OnKillFocus(HWND wnd, UINT nFlags);
+  virtual void OnTouch(HWND wnd, UINT wParam, UINT lParam);
   //ETX
 
   // Description:
@@ -145,6 +146,9 @@ protected:
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
+
+  int GetContactIndex(int id);
+  int IDLookup[VTKI_MAX_POINTERS];
 
 #ifdef VTK_USE_TDX
   vtkTDxWinDevice *Device;

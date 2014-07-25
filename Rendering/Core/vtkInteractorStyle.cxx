@@ -619,6 +619,27 @@ void vtkInteractorStyle::EndTimer()
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyle::StartTwoPointer()
+{
+  if (this->State != VTKIS_NONE)
+    {
+    return;
+    }
+  this->StartState(VTKIS_TWO_POINTER);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::EndTwoPointer()
+{
+  if (this->State != VTKIS_TWO_POINTER)
+    {
+    return;
+    }
+  this->StopState();
+}
+
+
+//----------------------------------------------------------------------------
 // By overriding the Rotate, Rotate members we can
 // use this timer routine for Joystick or Trackball - quite tidy
 //----------------------------------------------------------------------------
