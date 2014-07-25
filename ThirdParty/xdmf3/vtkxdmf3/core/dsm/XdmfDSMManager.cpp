@@ -57,7 +57,7 @@
 #include <XdmfError.hpp>
 #include <mpi.h>
 
-#ifdef _WIN32
+#ifndef _WIN32
   #include <unistd.h>
 #endif
 
@@ -90,7 +90,7 @@ XdmfDSMManager::Connect(bool persist)
     try {
       status = this->DsmBuffer->GetComm()->Connect();
     }
-    catch (XdmfError e) {
+    catch (XdmfError & e) {
       throw e;
     }
     if (status == MPI_SUCCESS) {
@@ -98,7 +98,7 @@ XdmfDSMManager::Connect(bool persist)
       try {
         this->DsmBuffer->ReceiveInfo();
       }
-      catch (XdmfError e) {
+      catch (XdmfError & e) {
         throw e;
       }
     }
@@ -131,7 +131,7 @@ XdmfDSMManager::Create(int startId, int endId)
       try {
         XdmfError::message(XdmfError::FATAL, "DSM communication type not supported");
       }
-      catch (XdmfError e) {
+      catch (XdmfError & e) {
         throw e;
       }
     }
@@ -160,7 +160,7 @@ XdmfDSMManager::Create(int startId, int endId)
       try {
         XdmfError(XdmfError::FATAL, "DSM configuration type not supported");
       }
-      catch (XdmfError e) {
+      catch (XdmfError & e) {
         throw e;
       }
     }
@@ -191,7 +191,7 @@ XdmfDSMManager::Disconnect()
   try {
     this->DsmBuffer->GetComm()->Disconnect();
   }
-  catch (XdmfError e) {
+  catch (XdmfError & e) {
     throw e;
   }
   dynamic_cast<XdmfDSMBuffer*> (this->DsmBuffer)->SetIsConnected(false);

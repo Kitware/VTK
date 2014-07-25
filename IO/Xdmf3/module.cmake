@@ -7,6 +7,7 @@ vtk_module(vtkIOXdmf3
     vtkCommonExecutionModel
     vtkIOLegacy
   PRIVATE_DEPENDS
+    vtkFiltersExtraction
     vtksys
     vtkxdmf3
   TEST_DEPENDS

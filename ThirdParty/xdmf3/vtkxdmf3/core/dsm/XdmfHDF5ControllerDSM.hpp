@@ -548,7 +548,7 @@ public:
    *
    * @return    If the DSM is in server mode or not
    */
-  bool getServerMode();
+  bool getServerMode() const;
 
   std::string getName() const;
 

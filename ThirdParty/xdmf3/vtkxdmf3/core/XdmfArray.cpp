@@ -21,7 +21,6 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <boost/assign.hpp>
 #include <boost/tokenizer.hpp>
 #include <limits>
 #include <sstream>
@@ -32,6 +31,7 @@
 #include "XdmfArrayType.hpp"
 #include "XdmfArrayReference.hpp"
 #include "XdmfBinaryController.hpp"
+#include "XdmfFunction.hpp"
 #include "XdmfHDF5Controller.hpp"
 #include "XdmfHeavyDataController.hpp"
 #include "XdmfVisitor.hpp"
@@ -725,7 +725,13 @@ XdmfArray::getSize() const
 shared_ptr<XdmfArrayReference>
 XdmfArray::getReference()
 {
-  return mReference;
+  if (mReference) {
+    return mReference;
+  }
+  else {
+    // Returning arbitrary Reference since one isn't defined
+    return shared_ptr<XdmfArrayReference>();
+  }
 }
 
 void *
@@ -998,186 +1004,241 @@ XdmfArray::populateItem(const std::map<std::string, std::string> & itemPropertie
   // This inserts any XdmfInformation in childItems into the object.
   XdmfItem::populateItem(itemProperties, childItems, reader);
 
-  const shared_ptr<const XdmfArrayType> arrayType = 
-    XdmfArrayType::New(itemProperties);
+  bool filled = false;
 
-  std::map<std::string, std::string>::const_iterator content =
-    itemProperties.find("Content");
-  if(content == itemProperties.end()) {
-    XdmfError::message(XdmfError::FATAL,
-                       "'Content' not found in itemProperties in "
-                       "XdmfArray::populateItem");
-  }
+  // Check for Function
+  std::map<std::string, std::string>::const_iterator itemType =
+    itemProperties.find("ItemType");
 
-  unsigned int contentIndex;
+  if (itemType !=  itemProperties.end()) {
+    if (itemType->second.compare("Function") == 0) {
+      std::map<std::string, std::string>::const_iterator expressionLocation =
+        itemProperties.find("Function");
+      if (expressionLocation ==  itemProperties.end()) {
+        XdmfError::message(XdmfError::FATAL,
+                           "'Function' not found in itemProperties for Function"
+                           " ItemType in XdmfArray::populateItem");
+      }
+      std::string expression = expressionLocation->second;
 
-  const std::string & contentVal = content->second;
+      // Convert from old format to new Variable format
+      // $X -> ValX
+      size_t loc = expression.find("$");
 
-  std::vector<std::string> contentVals;
+      while (loc != std::string::npos) {
+        expression.replace(loc, 1, "Val");
+        loc = expression.find("$", loc);
+     }
 
-  // Split the content based on "|" characters
-  size_t barSplit = 0;
-  std::string splitString(contentVal);
-  std::string subcontent;
-  while (barSplit != std::string::npos) {
-    barSplit = 0;
-    barSplit = splitString.find_first_of("|", barSplit);
-    if (barSplit == std::string::npos) {
-      subcontent = splitString;
+      // Create Variable list
+
+      std::map<std::string, shared_ptr<XdmfArray> > variableMap;
+
+      unsigned int variableIndex = 0;
+      for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter =
+            childItems.begin();
+          iter != childItems.end();
+          ++iter) {
+        if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
+          std::stringstream variableKey;
+          variableKey << "Val" << variableIndex;
+          variableMap[variableKey.str()] = array;
+          variableIndex++;
+        }
+      }
+
+      shared_ptr<XdmfFunction> function = XdmfFunction::New(expression, variableMap);
+
+      this->setReference(function);
+      this->setReadMode(XdmfArray::Reference);
+      filled = true;
     }
-    else {
-      subcontent = splitString.substr(0, barSplit);
-      splitString = splitString.substr(barSplit+1);
-      barSplit++;
-    }
-    contentVals.push_back(subcontent);
   }
 
-  std::map<std::string, std::string>::const_iterator dimensions =
-    itemProperties.find("Dimensions");
-  if(dimensions == itemProperties.end()) {
-    XdmfError::message(XdmfError::FATAL, 
-                       "'Dimensions' not found in itemProperties in "
-                       "XdmfArray::populateItem");
-  }
+  if (!filled) {
+
+    const shared_ptr<const XdmfArrayType> arrayType = 
+      XdmfArrayType::New(itemProperties);
+
+    std::map<std::string, std::string>::const_iterator content =
+      itemProperties.find("Content");
+    if(content == itemProperties.end()) {
+      XdmfError::message(XdmfError::FATAL,
+                         "'Content' not found in itemProperties in "
+                         "XdmfArray::populateItem");
+    }
+
+    unsigned int contentIndex;
+
+    const std::string & contentVal = content->second;
+
+    std::vector<std::string> contentVals;
+
+    // Split the content based on "|" characters
+    size_t barSplit = 0;
+    std::string splitString(contentVal);
+    std::string subcontent;
+    while (barSplit != std::string::npos) {
+      barSplit = 0;
+      barSplit = splitString.find_first_of("|", barSplit);
+      if (barSplit == std::string::npos) {
+        subcontent = splitString;
+      }
+      else {
+        subcontent = splitString.substr(0, barSplit);
+        splitString = splitString.substr(barSplit+1);
+        barSplit++;
+      }
+      contentVals.push_back(subcontent);
+    }
+
+    std::map<std::string, std::string>::const_iterator dimensions =
+      itemProperties.find("Dimensions");
+    if(dimensions == itemProperties.end()) {
+      XdmfError::message(XdmfError::FATAL, 
+                         "'Dimensions' not found in itemProperties in "
+                         "XdmfArray::populateItem");
+    }
    
-  boost::tokenizer<> tokens(dimensions->second);
-  for(boost::tokenizer<>::const_iterator iter = tokens.begin();
-      iter != tokens.end();
-      ++iter) {
-    mDimensions.push_back(atoi((*iter).c_str()));
-  }
+    boost::tokenizer<> tokens(dimensions->second);
+    for(boost::tokenizer<>::const_iterator iter = tokens.begin();
+        iter != tokens.end();
+        ++iter) {
+      mDimensions.push_back(atoi((*iter).c_str()));
+    }
 
-  std::map<std::string, std::string>::const_iterator format =
-    itemProperties.find("Format");
-  if(format == itemProperties.end()) {
-    XdmfError::message(XdmfError::FATAL, 
-                       "'Format' not found in itemProperties in "
-                       "XdmfArray::populateItem");
-  }
-  const std::string & formatVal = format->second;
+    std::map<std::string, std::string>::const_iterator format =
+      itemProperties.find("Format");
+    if(format == itemProperties.end()) {
+      XdmfError::message(XdmfError::FATAL, 
+                         "'Format' not found in itemProperties in "
+                         "XdmfArray::populateItem");
+    }
+    const std::string & formatVal = format->second;
 
-  if(formatVal.compare("HDF") == 0) {
-    contentIndex = 0;
-    int contentStep = 2;
-    while (contentIndex < contentVals.size()) {
-      size_t colonLocation = contentVals[contentIndex].find(":");
-      if(colonLocation == std::string::npos) {
-        XdmfError::message(XdmfError::FATAL, 
-                           "':' not found in content in "
-                           "XdmfArray::populateItem -- double check an HDF5 "
-                           "data set is specified for the file");
-      }
-
-      std::string hdf5Path = 
-        contentVals[contentIndex].substr(0, colonLocation);
-      std::string dataSetPath = 
-        contentVals[contentIndex].substr(colonLocation+1);
-
-      hdf5Path = getFullHeavyDataPath(hdf5Path,
-                                      itemProperties);
-
-      // Parse dimensions from the content
-      std::vector<unsigned int> contentDims;
-      if (contentVals.size() > contentIndex+1) {
-        // This is the string that contains the dimensions
-        boost::tokenizer<> dimtokens(contentVals[contentIndex+1]);
-        for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-            iter != dimtokens.end();
-            ++iter) {
-          contentDims.push_back(atoi((*iter).c_str()));
+    if(formatVal.compare("HDF") == 0) {
+      contentIndex = 0;
+      int contentStep = 2;
+      while (contentIndex < contentVals.size()) {
+        size_t colonLocation = contentVals[contentIndex].find(":");
+        if(colonLocation == std::string::npos) {
+          XdmfError::message(XdmfError::FATAL, 
+                             "':' not found in content in "
+                             "XdmfArray::populateItem -- double check an HDF5 "
+                             "data set is specified for the file");
         }
-	contentStep = 2;
-        // If this works then the dimension content should be skipped over
+
+        std::string hdf5Path = 
+          contentVals[contentIndex].substr(0, colonLocation);
+        std::string dataSetPath = 
+          contentVals[contentIndex].substr(colonLocation+1);
+
+        hdf5Path = getFullHeavyDataPath(hdf5Path,
+                                        itemProperties);
+
+        // Parse dimensions from the content
+        std::vector<unsigned int> contentDims;
+        if (contentVals.size() > contentIndex+1) {
+          // This is the string that contains the dimensions
+          boost::tokenizer<> dimtokens(contentVals[contentIndex+1]);
+          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
+              iter != dimtokens.end();
+              ++iter) {
+            contentDims.push_back(atoi((*iter).c_str()));
+          }
+          contentStep = 2;
+          // If this works then the dimension content should be skipped over
+        }
+        else {
+          // If it fails then it means that the next content is not a dimension string
+          // In this case it is assumed that the controller will have
+          // dimensions equal to the array
+          for (unsigned int j = 0; j < mDimensions.size(); ++j) {
+            contentDims.push_back(mDimensions[j]);
+          }
+          contentStep = 1;
+        }
+
+        mHeavyDataControllers.push_back(
+          XdmfHDF5Controller::New(hdf5Path,
+                                  dataSetPath,
+                                  arrayType,
+                                  std::vector<unsigned int>(contentDims.size(),
+                                                            0),
+                                  std::vector<unsigned int>(contentDims.size(),
+                                                            1),
+                                  contentDims,
+                                  contentDims)
+          );
+        contentIndex += contentStep;
+      }
+    }
+    else if(formatVal.compare("XML") == 0) {
+      this->initialize(arrayType,
+                       mDimensions);
+      unsigned int index = 0;
+      boost::char_separator<char> sep(" \t\n");
+      boost::tokenizer<boost::char_separator<char> > tokens(contentVals[0], sep);
+      if(arrayType == XdmfArrayType::String()) {
+        for(boost::tokenizer<boost::char_separator<char> >::const_iterator
+              iter = tokens.begin();
+            iter != tokens.end();
+            ++iter, ++index) {
+          this->insert(index, *iter);
+        }
       }
       else {
-        // If it fails then it means that the next content is not a dimension string
-        // In this case it is assumed that the controller will have
-        // dimensions equal to the array
-        for (unsigned int j = 0; j < mDimensions.size(); ++j) {
-          contentDims.push_back(mDimensions[j]);
+        for(boost::tokenizer<boost::char_separator<char> >::const_iterator
+              iter = tokens.begin();
+            iter != tokens.end();
+            ++iter, ++index) {
+          this->insert(index, atof((*iter).c_str()));
         }
-        contentStep = 1;
+      }
+    }
+    else if(formatVal.compare("Binary") == 0) {
+
+      XdmfBinaryController::Endian endian = XdmfBinaryController::NATIVE;
+      std::map<std::string, std::string>::const_iterator endianIter =
+        itemProperties.find("Endian");
+      if(endianIter != itemProperties.end()) {
+        if(endianIter->second.compare("Big") == 0) {
+          endian =  XdmfBinaryController::BIG;
+        }
+        else if(endianIter->second.compare("Little") == 0) {
+          endian =  XdmfBinaryController::LITTLE;
+        }
+        else if(endianIter->second.compare("Native") == 0) {
+          endian =  XdmfBinaryController::NATIVE;
+        }
+        else {
+          XdmfError(XdmfError::FATAL,
+                    "Invalid endianness type: " + endianIter->second);
+        }
       }
 
-      mHeavyDataControllers.push_back(
-        XdmfHDF5Controller::New(hdf5Path,
-                                dataSetPath,
-                                arrayType,
-                                std::vector<unsigned int>(contentDims.size(),
-                                                          0),
-                                std::vector<unsigned int>(contentDims.size(),
-                                                          1),
-                                contentDims,
-                                contentDims)
-        );
-      contentIndex += contentStep;
-    }
-  }
-  else if(formatVal.compare("XML") == 0) {
-    this->initialize(arrayType,
-                     mDimensions);
-    unsigned int index = 0;
-    boost::char_separator<char> sep(" \t\n");
-    boost::tokenizer<boost::char_separator<char> > tokens(contentVals[0], sep);
-    if(arrayType == XdmfArrayType::String()) {
-      for(boost::tokenizer<boost::char_separator<char> >::const_iterator
-            iter = tokens.begin();
-          iter != tokens.end();
-          ++iter, ++index) {
-        this->insert(index, *iter);
+      unsigned int seek = 0;
+      std::map<std::string, std::string>::const_iterator seekIter =
+        itemProperties.find("Seek");
+      if(seekIter != itemProperties.end()) {
+        seek = std::atoi(seekIter->second.c_str());
       }
+
+      const std::string binaryPath = getFullHeavyDataPath(contentVals[0],
+                                                          itemProperties);
+
+      mHeavyDataControllers.push_back(XdmfBinaryController::New(binaryPath,
+                                                                arrayType,
+                                                                endian,
+                                                                seek,
+                                                                mDimensions));
     }
     else {
-      for(boost::tokenizer<boost::char_separator<char> >::const_iterator
-            iter = tokens.begin();
-          iter != tokens.end();
-          ++iter, ++index) {
-        this->insert(index, atof((*iter).c_str()));
-      }
-    }
-  }
-  else if(formatVal.compare("Binary") == 0) {
-
-    XdmfBinaryController::Endian endian = XdmfBinaryController::NATIVE;
-    std::map<std::string, std::string>::const_iterator endianIter =
-      itemProperties.find("Endian");
-    if(endianIter != itemProperties.end()) {
-      if(endianIter->second.compare("Big") == 0) {
-        endian =  XdmfBinaryController::BIG;
-      }
-      else if(endianIter->second.compare("Little") == 0) {
-        endian =  XdmfBinaryController::LITTLE;
-      }
-      else if(endianIter->second.compare("Native") == 0) {
-        endian =  XdmfBinaryController::NATIVE;
-      }
-      else {
-        XdmfError(XdmfError::FATAL,
-                  "Invalid endianness type: " + endianIter->second);
-      }
+      XdmfError::message(XdmfError::FATAL, 
+                         "Neither 'HDF' nor 'XML' specified as 'Format' "
+                         "in XdmfArray::populateItem");
     }
 
-    unsigned int seek = 0;
-    std::map<std::string, std::string>::const_iterator seekIter =
-      itemProperties.find("Seek");
-    if(seekIter != itemProperties.end()) {
-      seek = std::atoi(seekIter->second.c_str());
-    }
-
-    const std::string binaryPath = getFullHeavyDataPath(contentVals[0],
-                                                        itemProperties);
-
-    mHeavyDataControllers.push_back(XdmfBinaryController::New(binaryPath,
-                                                              arrayType,
-                                                              endian,
-                                                              seek,
-                                                              mDimensions));
-  }
-  else {
-    XdmfError::message(XdmfError::FATAL, 
-                       "Neither 'HDF' nor 'XML' specified as 'Format' "
-                       "in XdmfArray::populateItem");
   }
 
   std::map<std::string, std::string>::const_iterator name =
@@ -1246,9 +1307,16 @@ XdmfArray::readController()
     returnDimensions.push_back(dimTotal/controllerDimensionSubtotal);
     mDimensions = returnDimensions;
   }
-  else if (mHeavyDataControllers.size() == 1) {
+  else if (mHeavyDataControllers.size() == 1 && mHeavyDataControllers[0]->getArrayOffset() == 0) {
     this->release();
     mHeavyDataControllers[0]->read(this);
+    mDimensions = mHeavyDataControllers[0]->getDimensions();
+  }
+  else if (mHeavyDataControllers.size() == 1 && mHeavyDataControllers[0]->getArrayOffset() > 0) {
+    this->release();
+    shared_ptr<XdmfArray> tempArray = XdmfArray::New();
+    mHeavyDataControllers[0]->read(tempArray.get());
+    this->insert(mHeavyDataControllers[0]->getArrayOffset(), tempArray, 0, mHeavyDataControllers[0]->getSize(), 1, 1);
     mDimensions = mHeavyDataControllers[0]->getDimensions();
   }
 }

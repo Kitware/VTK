@@ -71,6 +71,12 @@ public:
 
   friend class XdmfArray;
 
+  enum Format {
+    Unsigned,
+    Signed,
+    Float
+  };
+
   // Supported XdmfArrayTypes
   static shared_ptr<const XdmfArrayType> Uninitialized();
   static shared_ptr<const XdmfArrayType> Int8();
@@ -148,6 +154,48 @@ public:
    */
   std::string getName() const;
 
+  /**
+   * Gets whether the data type is floating point or not.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfArrayType.cpp
+   * @skipline //#getIsFloat
+   * @until //#getIsFloat
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleArrayType.py
+   * @skipline #//getIsFloat
+   * @until #//getIsFloat
+   *
+   * @return    Whether the data type is signed.
+   */
+  bool getIsFloat() const;
+
+  /**
+   * Gets whether the data type is signed or not.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfArrayType.cpp
+   * @skipline //#getIsSigned
+   * @until //#getIsSigned
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleArrayType.py
+   * @skipline #//getIsSigned
+   * @until #//getIsSigned
+   *
+   * @return    Whether the data type is signed.
+   */
+  bool getIsSigned() const;
+
   void
   getProperties(std::map<std::string, std::string> & collectedProperties) const;
 
@@ -164,7 +212,8 @@ protected:
    * construct.
    */
   XdmfArrayType(const std::string & name,
-                const unsigned int precision);
+                const unsigned int precision,
+                const Format typeFormat);
 
 private:
 
@@ -177,6 +226,7 @@ private:
   const std::string mName;
   const unsigned int mPrecision;
   std::string mPrecisionString;
+  Format mTypeFormat;
 };
 
 #endif /* XDMFARRAYTYPE_HPP_ */

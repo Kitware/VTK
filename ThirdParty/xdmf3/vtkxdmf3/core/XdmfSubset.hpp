@@ -77,7 +77,7 @@ public:
 
   virtual ~XdmfSubset();
 
-  LOKI_DEFINE_VISITABLE(XdmfSubset, XdmfItem);
+  LOKI_DEFINE_VISITABLE(XdmfSubset, XdmfItem)
   static const std::string ItemTag;
 
   /**
@@ -235,7 +235,7 @@ public:
    *
    * @return    An array filled with data based on the subset's parameters.
    */
-  virtual shared_ptr<XdmfArray> read();
+  virtual shared_ptr<XdmfArray> read() const;
 
   /**
    * Set the dimensions of the set referenced by this subset.
@@ -266,6 +266,36 @@ public:
    *                            of the set to be referenced by this subset.
    */
   void setDimensions(std::vector<unsigned int> newDimensions);
+
+  /**
+   * Set the Array that the subset is generated from.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfSubset.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#getReferenceArray
+   * @until //#getReferenceArray
+   * @skipline //#setReferenceArray
+   * @until //#setReferenceArray
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleSubset.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//getReferenceArray
+   * @until #//getReferenceArray
+   * @skipline #//setReferenceArray
+   * @until #//setReferenceArray
+   *
+   * @param     newReference    A shared pointer to the array that the subset
+   *                            will be generated from
+   */
+  void setReferenceArray(shared_ptr<XdmfArray> newReference);
 
   /**
    * Set the start index of the set referenced by this subset.

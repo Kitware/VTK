@@ -57,10 +57,10 @@ public:
 
   virtual ~XdmfGrid() = 0;
 
-  LOKI_DEFINE_VISITABLE(XdmfGrid, XdmfItem);
-  XDMF_CHILDREN(XdmfGrid, XdmfAttribute, Attribute, Name);
-  XDMF_CHILDREN(XdmfGrid, XdmfSet, Set, Name);
-  XDMF_CHILDREN(XdmfGrid, XdmfMap, Map, Name);
+  LOKI_DEFINE_VISITABLE(XdmfGrid, XdmfItem)
+  XDMF_CHILDREN(XdmfGrid, XdmfAttribute, Attribute, Name)
+  XDMF_CHILDREN(XdmfGrid, XdmfSet, Set, Name)
+  XDMF_CHILDREN(XdmfGrid, XdmfMap, Map, Name)
   static const std::string ItemTag;
 
   /**

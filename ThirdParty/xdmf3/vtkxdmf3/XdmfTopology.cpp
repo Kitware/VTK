@@ -24,6 +24,7 @@
 #include <sstream>
 #include <utility>
 #include "XdmfError.hpp"
+#include "XdmfFunction.hpp"
 #include "XdmfTopology.hpp"
 #include "XdmfTopologyType.hpp"
 
@@ -127,7 +128,28 @@ XdmfTopology::populateItem(const std::map<std::string, std::string> & itemProper
       ++iter) {
     if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
       this->swap(array);
+      if (array->getReference()) {
+        this->setReference(array->getReference());
+        this->setReadMode(XdmfArray::Reference);
+      }
+      break;
     }
+  }
+
+  std::map<std::string, std::string>::const_iterator type =
+    itemProperties.find("Offset");
+  if (type != itemProperties.end()) {
+    // Convert to double
+    double offset = atof(type->second.c_str());
+    std::stringstream expressionStream;
+    expressionStream << offset << "+X";
+    std::map<std::string, shared_ptr<XdmfArray> > offsetMap;
+    shared_ptr<XdmfArray> offsetBase = XdmfArray::New();
+    this->swap(offsetBase);
+    offsetMap["X"] = offsetBase;
+    shared_ptr<XdmfFunction> offsetFunction = XdmfFunction::New(expressionStream.str(), offsetMap);
+    this->setReference(offsetFunction);
+    this->setReadMode(XdmfArray::Reference);
   }
 }
 

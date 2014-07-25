@@ -65,6 +65,10 @@ MACRO(ADD_TEST_FORTRAN executable)
     IF(EXISTS ${fortran_source_dir}/${executable}.f90)
         ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.f90)
     ENDIF(EXISTS ${fortran_source_dir}/${executable}.f90)
+
+    IF(EXISTS ${fortran_source_dir}/${executable}.F90)
+        ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.F90)
+    ENDIF(EXISTS ${fortran_source_dir}/${executable}.F90)
     
     GET_PROPERTY(fortran_dependencies GLOBAL PROPERTY FORTRAN_TEST_DEPENDENCIES)
     GET_PROPERTY(fortran_ldpath GLOBAL PROPERTY FORTRAN_TEST_LDPATH)
@@ -127,6 +131,10 @@ MACRO(ADD_MPI_TEST_FORTRAN script files)
         IF(EXISTS ${fortran_source_dir}/${executable}.f90)
             ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.f90)
         ENDIF(EXISTS ${fortran_source_dir}/${executable}.f90)
+
+        IF(EXISTS ${fortran_source_dir}/${executable}.F90)
+            ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.F90)
+        ENDIF(EXISTS ${fortran_source_dir}/${executable}.F90)
 
         GET_PROPERTY(fortran_dependencies GLOBAL PROPERTY FORTRAN_TEST_DEPENDENCIES)
         GET_PROPERTY(fortran_ldpath GLOBAL PROPERTY FORTRAN_TEST_LDPATH)

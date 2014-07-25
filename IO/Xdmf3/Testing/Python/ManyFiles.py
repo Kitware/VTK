@@ -33,7 +33,8 @@ smallFiles = [
 "output.xmf",
 "quadrilateral.xmf",
 "rectTest.xmf",
-"tensor.xmf"
+"tensor.xmf",
+"set.xmf"
 ]
 
 largeFiles = [

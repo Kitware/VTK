@@ -79,23 +79,13 @@ XdmfDSMCommMPI::~XdmfDSMCommMPI()
   if (InterComm != MPI_COMM_NULL) {
     int status = MPI_Comm_free(&InterComm);
     if (status != MPI_SUCCESS) {
-      try {
-        XdmfError::message(XdmfError::FATAL, "Failed to free intercomm Comm");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Failed to free intercomm Comm");
     }
   }
   if (IntraComm != MPI_COMM_NULL) {
     int status = MPI_Comm_free(&IntraComm);
     if (status != MPI_SUCCESS) {
-      try {
-        XdmfError::message(XdmfError::FATAL, "Failed to free intercomm Comm");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Failed to free intercomm Comm");
     }
   }
 #endif
@@ -123,24 +113,14 @@ XdmfDSMCommMPI::Accept(unsigned int numConnections)
       }
       int status = MPI_Comm_accept(DsmPortName, MPI_INFO_NULL, index, IntraComm, &tempComm);
       if (status != MPI_SUCCESS) {
-        try {
-          std::string message = "Failed to accept port ";
-          message = message + DsmPortName;
-          XdmfError::message(XdmfError::FATAL, message);
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        std::string message = "Failed to accept port ";
+        message = message + DsmPortName;
+        XdmfError::message(XdmfError::FATAL, message);
       }
       // False is specified for high so that the index of the cores doesn't change
       status = MPI_Intercomm_merge(tempComm, false, &InterComm);
       if (status != MPI_SUCCESS) {
-        try {
-          XdmfError::message(XdmfError::FATAL, "Failed to merge intercomm");
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        XdmfError::message(XdmfError::FATAL, "Failed to merge intercomm");
       }
       else {
         MPI_Comm_rank(InterComm, &InterId);
@@ -165,24 +145,14 @@ XdmfDSMCommMPI::Accept(unsigned int numConnections)
       }
       int status = MPI_Comm_accept(DsmPortName, MPI_INFO_NULL, index, InterComm, &tempComm);
       if (status != MPI_SUCCESS) {
-        try {
-          std::string message = "Failed to accept port ";
-          message = message + DsmPortName;
-          XdmfError::message(XdmfError::FATAL, message);
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        std::string message = "Failed to accept port ";
+        message = message + DsmPortName;
+        XdmfError::message(XdmfError::FATAL, message);
       }
       // False is specified for high so that the index of the cores doesn't change
       status = MPI_Intercomm_merge(tempComm, false, &InterComm);
       if (status != MPI_SUCCESS) {
-        try {
-          XdmfError::message(XdmfError::FATAL, "Failed to merge InterComm");
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        XdmfError::message(XdmfError::FATAL, "Failed to merge InterComm");
       }
       else {
         MPI_Comm_rank(InterComm, &InterId);
@@ -201,14 +171,9 @@ XdmfDSMCommMPI::ClosePort()
     int status;
     status = MPI_Close_port(DsmPortName);
     if (status != MPI_SUCCESS) {
-      try {
-        std::string message = "Failed to close port ";
-        message = message + DsmPortName;
-        XdmfError::message(XdmfError::FATAL, message);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      std::string message = "Failed to close port ";
+      message = message + DsmPortName;
+      XdmfError::message(XdmfError::FATAL, message);
     }
   }
   HasOpenedPort = false;
@@ -223,23 +188,13 @@ XdmfDSMCommMPI::Connect()
     int status = MPI_Comm_connect(DsmPortName, MPI_INFO_NULL, 0, IntraComm, &tempComm);
     MPI_Errhandler_set(IntraComm, MPI_ERRORS_ARE_FATAL);
     if (status != MPI_SUCCESS) {
-      try {
-        std::string message = "Failed to connect to port ";
-        message = message + DsmPortName;
-        XdmfError::message(XdmfError::FATAL, message);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      std::string message = "Failed to connect to port ";
+      message = message + DsmPortName;
+      XdmfError::message(XdmfError::FATAL, message);
     }
     status = MPI_Intercomm_merge(tempComm, true, &InterComm);
     if (status != MPI_SUCCESS) {
-      try {
-        XdmfError::message(XdmfError::FATAL, "Failed to merge InterComm");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Failed to merge InterComm");
     }
     else {
       status = MPI_Comm_rank(InterComm, &InterId);
@@ -252,23 +207,13 @@ XdmfDSMCommMPI::Connect()
     int status = MPI_Comm_connect(DsmPortName, MPI_INFO_NULL, 0, InterComm, &tempComm);
     MPI_Errhandler_set(InterComm, MPI_ERRORS_ARE_FATAL);
     if (status != MPI_SUCCESS) {
-      try {
-        std::string message = "Failed to connect to port ";
-        message = message + DsmPortName;
-        XdmfError::message(XdmfError::FATAL, message);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      std::string message = "Failed to connect to port ";
+      message = message + DsmPortName;
+      XdmfError::message(XdmfError::FATAL, message);
     }
     status = MPI_Intercomm_merge(tempComm, true, &InterComm);
     if (status != MPI_SUCCESS) {
-      try {
-        XdmfError::message(XdmfError::FATAL, "Failed to merge InterComm");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Failed to merge InterComm");
     }
     else {
       status = MPI_Comm_rank(InterComm, &InterId);
@@ -288,12 +233,7 @@ XdmfDSMCommMPI::Disconnect()
   if (InterComm != MPI_COMM_NULL) {
     int status = MPI_Comm_free(&InterComm);
     if (status != MPI_SUCCESS) {
-      try {
-        XdmfError::message(XdmfError::FATAL, "Failed to disconnect Comm");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Failed to disconnect Comm");
     }
   }
 #endif
@@ -309,24 +249,14 @@ XdmfDSMCommMPI::DupComm(MPI_Comm comm)
     if (IntraComm != MPI_COMM_NULL) {
       status = MPI_Comm_free(&IntraComm);
       if (status != MPI_SUCCESS) {
-        try {
-          XdmfError::message(XdmfError::FATAL, "Failed to disconnect Comm");
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        XdmfError::message(XdmfError::FATAL, "Failed to disconnect Comm");
       }
     }
 #endif
     if (comm != MPI_COMM_NULL) {
       status = MPI_Comm_dup(comm, &IntraComm);
       if (status != MPI_SUCCESS) {
-        try {
-          XdmfError::message(XdmfError::FATAL, "Failed to duplicate Comm");
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        XdmfError::message(XdmfError::FATAL, "Failed to duplicate Comm");
       }
       else {
         status = MPI_Comm_size(IntraComm, &IntraSize);
@@ -345,24 +275,14 @@ XdmfDSMCommMPI::DupInterComm(MPI_Comm comm)
     if (InterComm != MPI_COMM_NULL) {
       status = MPI_Comm_free(&InterComm);
       if (status != MPI_SUCCESS) {
-        try {
-          XdmfError::message(XdmfError::FATAL, "Failed to disconnect Comm");
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        XdmfError::message(XdmfError::FATAL, "Failed to disconnect Comm");
       }
     }
 #endif
     if (comm != MPI_COMM_NULL) {
       status = MPI_Comm_dup(comm, &InterComm);
       if (status != MPI_SUCCESS) {
-        try {
-          XdmfError::message(XdmfError::FATAL, "Failed to duplicate Comm");
-        }
-        catch (XdmfError e) {
-          throw e;
-        }
+        XdmfError::message(XdmfError::FATAL, "Failed to duplicate Comm");
       }
       else {
         status = MPI_Comm_rank(InterComm, &InterId);
@@ -435,20 +355,10 @@ XdmfDSMCommMPI::Init()
 {
   int size, rank;
   if (MPI_Comm_size(this->IntraComm, &size) != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Failed to initialize size");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Failed to initialize size");
   }
   if (MPI_Comm_rank(this->IntraComm, &rank) != MPI_SUCCESS) {
-    try {
-      XdmfError::message(XdmfError::FATAL, "Failed to initialize rank");
-    }
-    catch (XdmfError e) {
-      throw e;
-    }
+    XdmfError::message(XdmfError::FATAL, "Failed to initialize rank");
   }
 
   this->Id = rank;
@@ -461,14 +371,9 @@ XdmfDSMCommMPI::OpenPort()
   if (Id == 0) {
     int status = MPI_Open_port(MPI_INFO_NULL, DsmPortName);
     if (status != MPI_SUCCESS) {
-      try {
-        std::string message = "Failed to open port ";
-        message = message + DsmPortName;
-        XdmfError::message(XdmfError::FATAL, message);
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      std::string message = "Failed to open port ";
+      message = message + DsmPortName;
+      XdmfError::message(XdmfError::FATAL, message);
     }
     std::ofstream connectFile (DsmFileName.c_str());
     if (connectFile.is_open()) {
@@ -476,12 +381,7 @@ XdmfDSMCommMPI::OpenPort()
       connectFile.close();
     }
     else {
-      try {
-        XdmfError::message(XdmfError::FATAL, "Failed to write port to file");
-      }
-      catch (XdmfError e) {
-        throw e;
-      }
+      XdmfError::message(XdmfError::FATAL, "Failed to write port to file");
     }
     HasOpenedPort = true;
   }

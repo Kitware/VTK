@@ -73,7 +73,7 @@ XdmfGrid::getItemTag() const
 std::string
 XdmfGrid::getName() const
 {
-  return mName;
+    return mName;
 }
 
 shared_ptr<XdmfTime>

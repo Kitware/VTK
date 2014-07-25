@@ -35,7 +35,8 @@ XdmfGraph::New(const unsigned int numberNodes)
 
 XdmfGraph::XdmfGraph(const unsigned int numberNodes) :
   XdmfSparseMatrix(numberNodes,
-                   numberNodes)
+                   numberNodes),
+  mTime(shared_ptr<XdmfTime>())
 {
 }
 
@@ -49,6 +50,19 @@ std::string
 XdmfGraph::getItemTag() const
 {
   return ItemTag;
+}
+
+shared_ptr<XdmfTime>
+XdmfGraph::getTime()
+{
+  return boost::const_pointer_cast<XdmfTime>
+    (static_cast<const XdmfGraph &>(*this).getTime());
+}
+
+shared_ptr<const XdmfTime>
+XdmfGraph::getTime() const
+{
+  return mTime;
 }
 
 unsigned int
@@ -75,6 +89,12 @@ XdmfGraph::populateItem(const std::map<std::string, std::string> & itemPropertie
       this->insert(attribute);
     }
   }
+}
+
+void
+XdmfGraph::setTime(const shared_ptr<XdmfTime> time)
+{
+  mTime = time;
 }
 
 void

@@ -223,7 +223,10 @@ XdmfCurvilinearGrid::XdmfCurvilinearGrid(const shared_ptr<XdmfArray> numPoints) 
 
 XdmfCurvilinearGrid::~XdmfCurvilinearGrid()
 {
-  delete mImpl;
+  if (mImpl) {
+    delete mImpl;
+  }
+  mImpl = NULL;
 }
 
 const std::string XdmfCurvilinearGrid::ItemTag = "Grid";

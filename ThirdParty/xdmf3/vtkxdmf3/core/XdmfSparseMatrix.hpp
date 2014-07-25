@@ -65,7 +65,7 @@ public:
 
   virtual ~XdmfSparseMatrix();
 
-  LOKI_DEFINE_VISITABLE(XdmfSparseMatrix, XdmfItem);
+  LOKI_DEFINE_VISITABLE(XdmfSparseMatrix, XdmfItem)
   static const std::string ItemTag;
 
   /**
