@@ -331,7 +331,8 @@ public:
    * @skipline #//addition
    * @until #//addition
    *
-   * @param     values  A vector containing the array to be used
+   * @param     val1    The first Array to be used
+   * @param     val2    The second Array to be used
    * @return            An XdmfArray containing the sums
    *                    of the values of the arrays
    */
@@ -521,7 +522,8 @@ public:
    * @skipline #//division
    * @until #//division
    *
-   * @param     values  A vector containing the array to be used
+   * @param     val1    The array to be divided
+   * @param     val2    The array to be divided by
    * @return            An XdmfArray containing the results
    *                    of the division of the arrays
    */
@@ -1072,7 +1074,8 @@ public:
    * @skipline #//multiplication
    * @until #//multiplication
    *
-   * @param     values  A vector containing the array to be used
+   * @param     val1    The first array to be used
+   * @param     val2    The second array to be used
    * @return            An XdmfArray containing the products
    *                    of the multiplication of the arrays
    */
@@ -1235,7 +1238,8 @@ public:
    * @skipline #//subtraction
    * @until #//subtraction
    *
-   * @param     values  A vector containing the array to be used
+   * @param     val1    The array to be subtracted from
+   * @param     val2    The array to be subtracted
    * @return            An XdmfArray containing the difference
    *                    of the arrays
    */

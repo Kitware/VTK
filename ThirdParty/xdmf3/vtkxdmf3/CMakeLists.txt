@@ -128,8 +128,8 @@ if(XDMF_WRAP_PYTHON)
     endif (XDMF_BUILD_DSM)
     set_source_files_properties(${python_name}.i PROPERTIES CPLUSPLUS ON)
     set(swig_extra_generated_files "")
-    swig_add_module(${python_name} python ${python_name}.i)
-    swig_link_libraries(${python_name} ${python_name} ${PYTHON_LIBRARIES})
+    swig_add_module(${python_name}Python python ${python_name}.i)
+    swig_link_libraries(${python_name}Python ${python_name} ${PYTHON_LIBRARIES})
     set_property(DIRECTORY APPEND PROPERTY
       ADDITIONAL_MAKE_CLEAN_FILES
       ${CMAKE_CURRENT_BINARY_DIR}/${python_name}.pyc
@@ -141,7 +141,7 @@ if(XDMF_WRAP_PYTHON)
 
     if(WIN32)
 	  if(NOT MSVC10)
-        set_target_properties(${SWIG_MODULE_${python_name}_REAL_NAME}
+        set_target_properties(${SWIG_MODULE_${python_name}Python_REAL_NAME}
           PROPERTIES
           PREFIX ../
           IMPORT_PREFIX ../
@@ -150,6 +150,11 @@ if(XDMF_WRAP_PYTHON)
           ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 	  endif(NOT MSVC10)
     endif(WIN32)
+
+    set_target_properties(${SWIG_MODULE_${python_name}Python_REAL_NAME}
+      PROPERTIES
+      OUTPUT_NAME "_${python_name}")
+
 
     string(TOUPPER ${python_name} python_name_upper)
     set(${python_name_upper}_PYTHON
@@ -162,7 +167,7 @@ if(XDMF_WRAP_PYTHON)
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${python_name}.py
       DESTINATION lib/python)
-    install(TARGETS ${SWIG_MODULE_${python_name}_REAL_NAME}
+    install(TARGETS ${SWIG_MODULE_${python_name}Python_REAL_NAME}
       DESTINATION lib/python)
   endmacro(XDMF_SWIG_PYTHON)
 endif(XDMF_WRAP_PYTHON)
