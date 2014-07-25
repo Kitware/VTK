@@ -399,29 +399,32 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       {
       int action = AMotionEvent_getAction(event);
       int metaState = AMotionEvent_getMetaState(event);
-      int pointer = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+      int numPtrs = AMotionEvent_getPointerCount(event);
+      int eventPointer = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
       action = action & AMOTION_EVENT_ACTION_MASK;
+      // update positions
+      for (int i = 0; i < numPtrs; ++i)
+        {
+        int pointer = AMotionEvent_getPointerId(event, i);
+        this->SetEventInformationFlipY(AMotionEvent_getX(event, i),
+                                       AMotionEvent_getY(event, i),
+                                       metaState & AMETA_CTRL_ON,
+                                       metaState & AMETA_SHIFT_ON,
+                                       0,0,0,
+                                       pointer);
+        }
       switch(action)
         {
+        this->SetPointerIndex(eventPointer);
         case AMOTION_EVENT_ACTION_DOWN:
-          this->SetEventInformationFlipY(AMotionEvent_getX(event, 0),
-                                         AMotionEvent_getY(event, 0),
-                                         metaState & AMETA_CTRL_ON,
-                                         metaState & AMETA_SHIFT_ON);
+        case AMOTION_EVENT_ACTION_POINTER_DOWN:
           this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
           return 1;
         case AMOTION_EVENT_ACTION_UP:
-          this->SetEventInformationFlipY(AMotionEvent_getX(event, 0),
-                                         AMotionEvent_getY(event, 0),
-                                         metaState & AMETA_CTRL_ON,
-                                         metaState & AMETA_SHIFT_ON);
+        case AMOTION_EVENT_ACTION_POINTER_UP:
           this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
           return 1;
         case AMOTION_EVENT_ACTION_MOVE:
-          this->SetEventInformationFlipY(AMotionEvent_getX(event, 0),
-                                         AMotionEvent_getY(event, 0),
-                                         metaState & AMETA_CTRL_ON,
-                                         metaState & AMETA_SHIFT_ON);
           this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
           return 1;
         } // end switch action

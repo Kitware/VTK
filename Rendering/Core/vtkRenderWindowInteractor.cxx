@@ -90,6 +90,13 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->EventPosition[0] = this->LastEventPosition[0] = 0;
   this->EventPosition[1] = this->LastEventPosition[1] = 0;
 
+  for (int i = 0; i < VTKI_MAX_POINTERS; ++i)
+    {
+    this->EventPositions[i][0] = this->LastEventPositions[i][0] = 0;
+    this->EventPositions[i][1] = this->LastEventPositions[i][1] = 0;
+    }
+  this->PointerIndex = 0;
+
   this->EventSize[0] = 0;
   this->EventSize[1] = 0;
 

@@ -20,6 +20,7 @@
 
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501  // for trackmouseevent support, 0x0501 means target Windows XP or later
+//#define _WIN32_WINNT 0x0601  // for touch support, 0x0601 means target Windows 7 or later
 #endif
 
 #include "vtkWin32OpenGLRenderWindow.h"
@@ -51,6 +52,34 @@ VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,L
 #include "vtkTDxWinDevice.h"
 #endif
 
+// we hard define the touch structures we use since we cannot take them
+// from the header without requiring windows 7 (stupid stupid stupid!)
+// so we define them and then do a runtime checks and function pointers
+// to avoid a link requirement on Windows 7
+#define MOUSEEVENTF_FROMTOUCH 0xFF515700
+#define WM_TOUCH              0x0240
+#define TOUCH_COORD_TO_PIXEL(l)  ((l) / 100)
+typedef struct _TOUCHINPUT {
+  LONG      x;
+  LONG      y;
+  HANDLE    hSource;
+  DWORD     dwID;
+  DWORD     dwFlags;
+  DWORD     dwMask;
+  DWORD     dwTime;
+  ULONG_PTR dwExtraInfo;
+  DWORD     cxContact;
+  DWORD     cyContact;
+} TOUCHINPUT, *PTOUCHINPUT;
+DECLARE_HANDLE(HTOUCHINPUT);
+//#define HTOUCHINPUT ULONG
+#define TOUCHEVENTF_MOVE  0x0001
+#define TOUCHEVENTF_DOWN  0x0002
+#define TOUCHEVENTF_UP  0x0004
+typedef bool (WINAPI *RegisterTouchWindowType)(HWND,ULONG);
+typedef bool (WINAPI *GetTouchInputInfoType)(HTOUCHINPUT,UINT,PTOUCHINPUT,int);
+typedef bool (WINAPI *CloseTouchInputHandleType)(HTOUCHINPUT);
+
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindowInteractor);
 
 void (*vtkWin32OpenGLRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
@@ -65,6 +94,11 @@ vtkWin32OpenGLRenderWindowInteractor::vtkWin32OpenGLRenderWindowInteractor()
   this->InstallMessageProc = 1;
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
+
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    this->IDLookup[i] = -1;
+    }
 
 #ifdef VTK_USE_TDX
   this->Device=vtkTDxWinDevice::New();
@@ -186,6 +220,14 @@ void vtkWin32OpenGLRenderWindowInteractor::Enable()
     else
       {
       vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)vtkHandleMessage);
+      }
+
+    // Check for windows multitouch support at runtime
+    RegisterTouchWindowType RTW =
+      (RegisterTouchWindowType)GetProcAddress(GetModuleHandle(TEXT("user32")), "RegisterTouchWindow");
+    if(RTW != NULL)
+      {
+      RTW(this->WindowId, 0);
       }
 
 #ifdef VTK_USE_TDX
@@ -348,6 +390,12 @@ void vtkWin32OpenGLRenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
     return;
     }
 
+  // touch events handled by WM_TOUCH
+  if ((GetMessageExtraInfo() & MOUSEEVENTF_FROMTOUCH) == MOUSEEVENTF_FROMTOUCH)
+    {
+    return;
+    }
+
   this->SetEventInformationFlipY(X,
                                  Y,
                                  nFlags & MK_CONTROL,
@@ -431,6 +479,13 @@ void vtkWin32OpenGLRenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
     {
     return;
     }
+
+  // touch events handled by WM_TOUCH
+  if ((GetMessageExtraInfo() & MOUSEEVENTF_FROMTOUCH) == MOUSEEVENTF_FROMTOUCH)
+    {
+    return;
+    }
+
   SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X,
@@ -447,6 +502,11 @@ void vtkWin32OpenGLRenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
                                                  int X, int Y)
 {
   if (!this->Enabled)
+    {
+    return;
+    }
+  // touch events handled by WM_TOUCH
+  if ((GetMessageExtraInfo() & MOUSEEVENTF_FROMTOUCH) == MOUSEEVENTF_FROMTOUCH)
     {
     return;
     }
@@ -685,6 +745,101 @@ void vtkWin32OpenGLRenderWindowInteractor::OnKillFocus(HWND,UINT)
 #endif
 }
 
+// This function is used to return an index given an ID
+int vtkWin32OpenGLRenderWindowInteractor::GetContactIndex(int dwID)
+{
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->IDLookup[i] == -1)
+      {
+      this->IDLookup[i] = dwID;
+      return i;
+      }
+    else
+      {
+      if (this->IDLookup[i] == dwID)
+        {
+        return i;
+        }
+      }
+    }
+  // Out of contacts
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkWin32OpenGLRenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+
+  UINT cInputs = LOWORD(wParam);
+  PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
+  if (pInputs)
+    {
+    int ctrl  = GetKeyState(VK_CONTROL) & (~1);
+    int shift = GetKeyState(VK_SHIFT) & (~1);
+    this->SetAltKey(GetKeyState(VK_MENU) & (~1));
+    GetTouchInputInfoType GTII =
+      (GetTouchInputInfoType)GetProcAddress(GetModuleHandle(TEXT("user32")), "GetTouchInputInfo");
+    if (GTII((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT)))
+      {
+      POINT ptInput;
+      for (UINT i=0; i < cInputs; i++)
+        {
+        TOUCHINPUT ti = pInputs[i];
+        int index = this->GetContactIndex(ti.dwID);
+        if (ti.dwID != 0 && index < VTKI_MAX_POINTERS)
+          {
+            // Do something with your touch input handle
+            ptInput.x = TOUCH_COORD_TO_PIXEL(ti.x);
+            ptInput.y = TOUCH_COORD_TO_PIXEL(ti.y);
+            ScreenToClient(hWnd, &ptInput);
+            this->SetEventInformationFlipY(ptInput.x,
+                                           ptInput.y,
+                                           ctrl,
+                                           shift,
+                                           0,0,0,
+                                           index);
+          }
+        }
+      bool didUpOrDown = false;
+      for (UINT i=0; i < cInputs; i++)
+        {
+        TOUCHINPUT ti = pInputs[i];
+        int index = this->GetContactIndex(ti.dwID);
+        if (ti.dwID != 0 && index < VTKI_MAX_POINTERS)
+          {
+          if (ti.dwFlags & TOUCHEVENTF_UP)
+            {
+            this->SetPointerIndex(index);
+            didUpOrDown = true;
+            this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+            this->IDLookup[index] = -1;
+            }
+          if (ti.dwFlags & TOUCHEVENTF_DOWN)
+            {
+            this->SetPointerIndex(index);
+            didUpOrDown = true;
+            this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+            }
+          this->SetPointerIndex(index);
+          }
+        }
+      if (!didUpOrDown)
+        {
+        this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+        }
+      }
+    CloseTouchInputHandleType CTIH =
+      (CloseTouchInputHandleType)GetProcAddress(GetModuleHandle(TEXT("user32")), "CloseTouchInputHandle");
+    CTIH((HTOUCHINPUT)lParam);
+    delete [] pInputs;
+    }
+}
+
 //----------------------------------------------------------------------------
 // This is only called when InstallMessageProc is true
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
@@ -845,6 +1000,10 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       // occurs when the focus was on the current window and SetFocus() is
       // called on another window.
       me->OnKillFocus(hWnd,wParam);
+      break;
+
+    case WM_TOUCH:
+      me->OnTouch(hWnd,wParam,lParam);
       break;
 
     default:
