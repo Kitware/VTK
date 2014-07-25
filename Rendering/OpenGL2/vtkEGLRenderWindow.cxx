@@ -323,6 +323,13 @@ int vtkEGLRenderWindow::SupportsOpenGL()
   return true;
 }
 
+// Set this RenderWindow to a pre-existing window.
+void vtkEGLRenderWindow::SetWindowInfo(char *info)
+{
+  this->OwnWindow = 0;
+}
+
+
 void vtkEGLRenderWindow::SetWindowName(const char * cname)
 {
 }
