@@ -328,8 +328,10 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
 {
   this->Build();
 
-  bool scalars_are_mapped = !(colorMode == VTK_COLOR_MODE_DEFAULT) &&
-                             vtkUnsignedCharArray::SafeDownCast(scalars);
+  // if direct scalar mapping is enabled (and possible), the LUT is not used for
+  // color and we won't use it for opacity either.
+  bool direct_scalar_mapping = (colorMode == VTK_COLOR_MODE_DEFAULT &&
+    vtkUnsignedCharArray::SafeDownCast(scalars) != NULL);
 
   vtkUnsignedCharArray *colors = (this->Discretize || this->IndexedLookup) ?
     this->LookupTable->MapScalars(scalars, colorMode, component):
@@ -337,11 +339,11 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
 
   // calculate alpha values
   if (colors &&
-     colors->GetNumberOfComponents() == 4 &&
-     !scalars_are_mapped &&
-     !this->IndexedLookup && //  we don't change alpha for IndexedLookup.
-     this->EnableOpacityMapping &&
-     this->ScalarOpacityFunction.GetPointer())
+     (colors->GetNumberOfComponents() == 4) &&
+     (direct_scalar_mapping == false) &&
+     (this->IndexedLookup == false) && //  we don't change alpha for IndexedLookup.
+     (this->EnableOpacityMapping == true) &&
+     (this->ScalarOpacityFunction.GetPointer() != NULL))
     {
     MapDataArrayToOpacity(scalars, component, colors);
     }
