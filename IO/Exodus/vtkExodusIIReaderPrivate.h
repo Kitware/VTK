@@ -570,6 +570,14 @@ protected:
     */
   int AssembleArraysOverTime(vtkMultiBlockDataSet* output);
 
+  /// Insert polyhedral cells (called from InsertBlockCells when a block is polyhedra)
+  void InsertBlockPolyhedra(
+    BlockInfoType* binfo,
+    vtkIntArray* facesPerCell,
+    vtkIntArray* pointsPerFace,
+    vtkIntArray* exoCellConn,
+    vtkIntArray* exoFaceConn);
+
   /// Insert cells from a specified block into a mesh
   void InsertBlockCells(
     int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfop );
