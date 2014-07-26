@@ -448,12 +448,12 @@ public:
   // Set all the event information in one call.
   void SetEventInformation(int x,
                            int y,
-                           int ctrl=0,
-                           int shift=0,
-                           char keycode=0,
-                           int repeatcount=0,
-                           const char* keysym=0,
-                           int pointerIndex=0)
+                           int ctrl,
+                           int shift,
+                           char keycode,
+                           int repeatcount,
+                           const char* keysym,
+                           int pointerIndex)
     {
       this->SetEventPosition(x,y,pointerIndex);
       this->ControlKey = ctrl;
@@ -467,18 +467,24 @@ public:
         }
       this->Modified();
     }
+  void SetEventInformation(int x, int y,
+                           int ctrl=0, int shift=0,
+                           char keycode=0,
+                           int repeatcount=0,
+                           const char* keysym=0)
+    {
+      this->SetEventInformation(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
+    }
 
   // Description:
   // Calls SetEventInformation, but flips the Y based on the current Size[1]
   // value (i.e. y = this->Size[1] - y - 1).
-  void SetEventInformationFlipY(int x,
-                                int y,
-                                int ctrl=0,
-                                int shift=0,
-                                char keycode=0,
-                                int repeatcount=0,
-                                const char* keysym=0,
-                                int pointerIndex=0)
+  void SetEventInformationFlipY(int x, int y,
+                                int ctrl, int shift,
+                                char keycode,
+                                int repeatcount,
+                                const char* keysym,
+                                int pointerIndex)
     {
       this->SetEventInformation(x,
                                 this->Size[1] - y - 1,
@@ -488,6 +494,14 @@ public:
                                 repeatcount,
                                 keysym,
                                 pointerIndex);
+    }
+  void SetEventInformationFlipY(int x, int y,
+                           int ctrl=0, int shift=0,
+                           char keycode=0,
+                           int repeatcount=0,
+                           const char* keysym=0)
+    {
+      this->SetEventInformationFlipY(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
     }
 
   // Description:
