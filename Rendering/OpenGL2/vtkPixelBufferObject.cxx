@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkPixelBufferObject.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -132,7 +132,7 @@ bool vtkPixelBufferObject::IsSupported(vtkRenderWindow*)
 }
 
 //----------------------------------------------------------------------------
-bool vtkPixelBufferObject::LoadRequiredExtensions(vtkRenderWindow *renWin)
+bool vtkPixelBufferObject::LoadRequiredExtensions(vtkRenderWindow *vtkNotUsed(renWin))
 {
   return true;
 }

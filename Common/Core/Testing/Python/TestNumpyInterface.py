@@ -203,6 +203,11 @@ assert mbw.GetBlock(0).GetPointData().GetNumberOfArrays() == 1
 assert mbw.GetBlock(1).GetPointData().GetNumberOfArrays() == 0
 assert mbw.GetBlock(0).GetPointData().GetArray(0).GetName() == 'foo'
 
+mbw.PointData.append(algs.max(na2), "maxfoo")
+assert mbw.GetBlock(0).GetPointData().GetNumberOfArrays() == 2
+assert mbw.GetBlock(1).GetPointData().GetNumberOfArrays() == 1
+assert mbw.GetBlock(0).GetPointData().GetArray(1).GetName() == 'maxfoo'
+
 # --------------------------------------
 
 mb = vtk.vtkMultiBlockDataSet()

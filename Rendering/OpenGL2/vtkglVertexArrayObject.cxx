@@ -15,7 +15,7 @@
 #include "vtkglVertexArrayObject.h"
 #include "vtkglBufferObject.h"
 #include "vtkglShaderProgram.h"
-#include "GL/glew.h"
+#include "vtk_glew.h"
 
 #include <map>
 #include <vector>
@@ -45,7 +45,12 @@ inline GLenum convertTypeToGL(int type)
     case VTK_FLOAT:
       return GL_FLOAT;
     case VTK_DOUBLE:
+#ifdef GL_DOUBLE
       return GL_DOUBLE;
+#else
+      assert("Attempt to use GL_DOUBLE when not supported" && 0);
+      return 0;
+#endif
     default:
       return 0;
     }
@@ -92,6 +97,17 @@ public:
     // We either probed and allocated a VAO, or are falling back as the current
     // hardware does not support VAOs.
     return (this->handleVAO != 0 || this->supported == false);
+  }
+
+  void ReleaseGraphicsResources()
+  {
+    if (this->handleVAO)
+      {
+      glDeleteVertexArrays(1, &this->handleVAO);
+      }
+    this->handleVAO = 0;
+    this->supported = true;
+    this->handleProgram = 0;
   }
 
   GLuint handleVAO;
@@ -164,7 +180,7 @@ void VertexArrayObject::Release()
     }
 }
 
-void VertexArrayObject::Initialize()
+void VertexArrayObject::ShaderProgramChanged()
 {
   this->Release();
 
@@ -177,6 +193,12 @@ void VertexArrayObject::Initialize()
   this->d->attributes.clear();
 
   this->d->handleProgram = 0;
+}
+
+void VertexArrayObject::ReleaseGraphicsResources()
+{
+  this->ShaderProgramChanged();
+  this->d->ReleaseGraphicsResources();
 }
 
 bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,

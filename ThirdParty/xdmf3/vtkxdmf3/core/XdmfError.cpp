@@ -17,7 +17,7 @@ XdmfError::~XdmfError() throw()
  ************************/
 
 XdmfError::Level
-XdmfError::getLevel()
+XdmfError::getLevel() const
 {
   return XdmfError::mLevel;
 }
@@ -89,8 +89,10 @@ XdmfError::setBuffer(std::streambuf* buf)
 void
 XdmfError::WriteToStream(std::string msg)
 {
-  if(msg[msg.length()-1] != '\n')
-    msg+='\n';
+  if(msg[msg.length()-1] != '\n') {
+    // using \r\n for windows compatiblity
+    msg+="\r\n";
+  }
   XdmfError::mBuf->sputn(msg.c_str(),msg.length());
 }
 

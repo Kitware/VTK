@@ -1632,7 +1632,7 @@ void vtkPolyhedron::GenerateFaces()
     return;
     }
 
-  // Basically we just ron through the faces and change the global ids to the
+  // Basically we just run through the faces and change the global ids to the
   // canonical ids using the PointIdMap.
   this->Faces->SetNumberOfTuples(this->GlobalFaces->GetNumberOfTuples());
   vtkIdType *gFaces = this->GlobalFaces->GetPointer(0);

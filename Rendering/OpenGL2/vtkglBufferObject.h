@@ -73,6 +73,11 @@ public:
    */
   bool Release();
 
+
+  // Description:
+  // Release any graphics resources that are being consumed by this class.
+  void ReleaseGraphicsResources();
+
   /**
    * Return a string describing errors.
    */

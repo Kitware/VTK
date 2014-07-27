@@ -20,8 +20,6 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
-#include "vtkOpenGL.h"
-
 #include <math.h>
 
 vtkStandardNewMacro(vtkOpenGLCamera);

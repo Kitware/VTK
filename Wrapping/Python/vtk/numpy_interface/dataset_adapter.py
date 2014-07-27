@@ -498,7 +498,7 @@ class DataSetAttributes(VTKObjectWrapper):
 
         # Fixup input array length:
         if not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0: # Scalar input
-            narray = narray * numpy.ones((arrLength, 1))
+            narray = narray * numpy.ones(arrLength)
         elif narray.shape[0] != arrLength: # Vector input
             components = reduce(operator.mul, narray.shape)
             narray = narray.flatten() * numpy.ones((arrLength, components))
@@ -582,13 +582,22 @@ class CompositeDataSetAttributes():
             return
 
         added = False
-        for ds, array in itertools.izip(self.DataSet, narray.Arrays):
-            if array != None:
-                ds.GetAttributes(self.Association).append(array, name)
+        if not isinstance(narray, VTKCompositeDataArray): # Scalar input
+            for ds in self.DataSet:
+                ds.GetAttributes(self.Association).append(narray, name)
                 added = True
-        if added:
-            self.ArrayNames.append(name)
-            self.Arrays[name] = weakref.ref(narray)
+            if added:
+                self.ArrayNames.append(name)
+                # don't add the narray since it's a scalar. GetArray() will create a
+                # VTKCompositeArray on-demand.
+        else:
+            for ds, array in itertools.izip(self.DataSet, narray.Arrays):
+                if array != None:
+                    ds.GetAttributes(self.Association).append(array, name)
+                    added = True
+            if added:
+                self.ArrayNames.append(name)
+                self.Arrays[name] = weakref.ref(narray)
 
     def GetArray(self, idx):
         """Given a name, returns a VTKCompositeArray."""

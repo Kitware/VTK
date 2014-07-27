@@ -71,7 +71,7 @@ public:
 
   virtual ~XdmfGridCollection();
 
-  LOKI_DEFINE_VISITABLE(XdmfGridCollection, XdmfGrid);
+  LOKI_DEFINE_VISITABLE(XdmfGridCollection, XdmfGrid)
   static const std::string ItemTag;
 
   std::map<std::string, std::string> getItemProperties() const;

@@ -23,17 +23,17 @@
 
 #include <functional>
 #include <numeric>
+#include "XdmfArrayType.hpp"
 #include "XdmfError.hpp"
 #include "XdmfHeavyDataController.hpp"
 #include "XdmfSystemUtils.hpp"
 
 XdmfHeavyDataController::XdmfHeavyDataController(const std::string & filePath,
-                                                 const std::string & dataSetPath,
                                                  const shared_ptr<const XdmfArrayType> & type,
                                                  const std::vector<unsigned int> & dimensions) :
-  mDataSetPath(dataSetPath),
   mDimensions(dimensions),
   mFilePath(filePath),
+  mArrayStartOffset(0),
   mType(type)
 {
 }
@@ -48,17 +48,10 @@ XdmfHeavyDataController::getArrayOffset() const
   return mArrayStartOffset;
 }
 
-
 std::vector<unsigned int> 
 XdmfHeavyDataController::getDimensions() const
 {
   return mDimensions;
-}
-
-std::string
-XdmfHeavyDataController::getDataSetPath() const
-{
-  return mDataSetPath;
 }
 
 std::string

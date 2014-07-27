@@ -51,6 +51,10 @@ class vtkTimerIdMap;
 #define VTKI_TIMER_FIRST  0
 #define VTKI_TIMER_UPDATE 1
 
+// maximum pointers active at once
+// for example in multitouch
+#define VTKI_MAX_POINTERS 5
+
 class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;
@@ -347,6 +351,60 @@ public:
     this->SetEventPositionFlipY(pos[0], pos[1]);
   }
 
+  virtual int *GetEventPositions(int pointerIndex)
+    {
+    if (pointerIndex >= VTKI_MAX_POINTERS)
+      {
+      return NULL;
+      }
+    return this->EventPositions[pointerIndex];
+    }
+  virtual int *GetLastEventPositions(int pointerIndex)
+    {
+    if (pointerIndex >= VTKI_MAX_POINTERS)
+      {
+      return NULL;
+      }
+    return this->LastEventPositions[pointerIndex];
+    }
+  virtual void SetEventPosition(int x, int y, int pointerIndex)
+  {
+    if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
+      {
+      return;
+      }
+    if (pointerIndex == 0)
+      {
+      this->LastEventPosition[0] = this->EventPosition[0];
+      this->LastEventPosition[1] = this->EventPosition[1];
+      this->EventPosition[0] = x;
+      this->EventPosition[1] = y;
+      }
+    vtkDebugMacro(<< this->GetClassName() << " (" << this
+                  << "): setting EventPosition to (" << x << "," << y << ") for pointerIndex number " << pointerIndex);
+    if (this->EventPositions[pointerIndex][0] != x || this->EventPositions[pointerIndex][1] != y ||
+        this->LastEventPositions[pointerIndex][0] != x || this->LastEventPositions[pointerIndex][1] != y)
+      {
+      this->LastEventPositions[pointerIndex][0] = this->EventPositions[pointerIndex][0];
+      this->LastEventPositions[pointerIndex][1] = this->EventPositions[pointerIndex][1];
+      this->EventPositions[pointerIndex][0] = x;
+      this->EventPositions[pointerIndex][1] = y;
+      this->Modified();
+      }
+  }
+  virtual void SetEventPosition(int pos[2], int pointerIndex)
+  {
+    this->SetEventPosition(pos[0], pos[1], pointerIndex);
+  }
+  virtual void SetEventPositionFlipY(int x, int y, int pointerIndex)
+  {
+    this->SetEventPosition(x, this->Size[1] - y - 1, pointerIndex);
+  }
+  virtual void SetEventPositionFlipY(int pos[2], int pointerIndex)
+  {
+    this->SetEventPositionFlipY(pos[0], pos[1], pointerIndex);
+  }
+
   // Description:
   // Set/get whether alt modifier key was pressed.
   vtkSetMacro(AltKey, int);
@@ -382,6 +440,11 @@ public:
   vtkGetStringMacro(KeySym);
 
   // Description:
+  // Set/get the index of the most recent pointer to have an event
+  vtkSetMacro(PointerIndex, int);
+  vtkGetMacro(PointerIndex, int);
+
+  // Description:
   // Set all the event information in one call.
   void SetEventInformation(int x,
                            int y,
@@ -389,16 +452,15 @@ public:
                            int shift=0,
                            char keycode=0,
                            int repeatcount=0,
-                           const char* keysym=0)
+                           const char* keysym=0,
+                           int pointerIndex=0)
     {
-      this->LastEventPosition[0] = this->EventPosition[0];
-      this->LastEventPosition[1] = this->EventPosition[1];
-      this->EventPosition[0] = x;
-      this->EventPosition[1] = y;
+      this->SetEventPosition(x,y,pointerIndex);
       this->ControlKey = ctrl;
       this->ShiftKey = shift;
       this->KeyCode = keycode;
       this->RepeatCount = repeatcount;
+      this->PointerIndex = pointerIndex;
       if(keysym)
         {
         this->SetKeySym(keysym);
@@ -415,7 +477,8 @@ public:
                                 int shift=0,
                                 char keycode=0,
                                 int repeatcount=0,
-                                const char* keysym=0)
+                                const char* keysym=0,
+                                int pointerIndex=0)
     {
       this->SetEventInformation(x,
                                 this->Size[1] - y - 1,
@@ -423,7 +486,8 @@ public:
                                 shift,
                                 keycode,
                                 repeatcount,
-                                keysym);
+                                keysym,
+                                pointerIndex);
     }
 
   // Description:
@@ -546,6 +610,10 @@ protected:
   int   TimerEventType;
   int   TimerEventDuration;
   int   TimerEventPlatformId;
+
+  int   EventPositions[VTKI_MAX_POINTERS][2];
+  int   LastEventPositions[VTKI_MAX_POINTERS][2];
+  int   PointerIndex;
 
   // control the fly to
   int NumberOfFlyFrames;

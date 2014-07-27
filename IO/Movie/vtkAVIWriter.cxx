@@ -172,11 +172,16 @@ void vtkAVIWriter::Start()
       }
     }
 
-  if (AVIMakeCompressedStream(&this->Internals->StreamCompressed,
+  int avierr = AVIMakeCompressedStream(&this->Internals->StreamCompressed,
                               this->Internals->Stream,
-                              &opts, NULL) != AVIERR_OK)
+                              &opts, NULL);
+  if (avierr != AVIERR_OK)
     {
-    vtkErrorMacro("Unable to compress " << this->FileName);
+    vtkErrorMacro("Unable to compress " << this->FileName << ": " <<
+        (avierr == AVIERR_NOCOMPRESSOR ? "unknown compressor" :
+        (avierr == AVIERR_MEMORY ? "not enough memory" :
+        (avierr == AVIERR_UNSUPPORTED ? "unsupported data type" :
+         "unknown error"))));
     this->SetErrorCode(vtkGenericMovieWriter::CanNotCompress);
     return;
     }

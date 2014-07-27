@@ -39,6 +39,7 @@ public:
     vtkgl::Shader FS;
     vtkgl::Shader GS;
     vtkgl::ShaderProgram Program;
+    vtkOpenGLShaderCache *ShaderCache;
     bool Compiled;
     std::string md5Hash;
   };
@@ -48,6 +49,10 @@ public:
                                            const char *fragmentCode,
                                            const char *geometryCode);
   virtual CachedShaderProgram *ReadyShader(CachedShaderProgram *shader);
+
+  // Description:
+  // Free up any resources being used by the provided shader
+  virtual void ReleaseGraphicsResources(CachedShaderProgram *shader);
 
 protected:
   vtkOpenGLShaderCache();

@@ -128,8 +128,8 @@ public:
 
   virtual ~XdmfArray();
 
-  LOKI_DEFINE_VISITABLE(XdmfArray, XdmfItem);
-  XDMF_CHILDREN(XdmfArray, XdmfHeavyDataController, HeavyDataController, Name);
+  LOKI_DEFINE_VISITABLE(XdmfArray, XdmfItem)
+  XDMF_CHILDREN(XdmfArray, XdmfHeavyDataController, HeavyDataController, Name)
   static const std::string ItemTag;
 
   /**
@@ -316,7 +316,7 @@ public:
    *
    * @return    A string containing the name of the array.
    */
-  std::string getName() const;
+  virtual std::string getName() const;
 
   /**
    * Gets the method this array will be written/read.
@@ -1218,7 +1218,7 @@ public:
    *
    * @param     name    Name of the array to set.
    */
-  void setName(const std::string & name);
+  virtual void setName(const std::string & name);
 
   /**
    * Sets the method this array will be written/read.

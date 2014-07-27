@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkXdmf3ArrayKeeper.cxx
   vtkXdmf3ArraySelection.cxx
   vtkXdmf3DataSet.cxx
   vtkXdmf3Reader.cxx
@@ -6,6 +7,7 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
+  vtkXdmf3ArrayKeeper
   vtkXdmf3ArraySelection
   vtkXdmf3DataSet
   WRAP_EXCLUDE

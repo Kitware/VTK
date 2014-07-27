@@ -48,7 +48,7 @@ namespace {
     char one_byte;
     char* data = static_cast<char*>(p);
     one_byte = data[0]; data[0] = data[1]; data[1] = one_byte;
-  };
+  }
 
   template<>
   void ByteSwaper<4>::swap(void * p){
@@ -57,7 +57,8 @@ namespace {
     one_byte = data[0]; data[0] = data[3]; data[3] = one_byte;
     one_byte = data[1]; data[1] = data[2]; data[2] = one_byte;
   
-  };
+  }
+
   template<>
   void ByteSwaper<8>::swap(void * p){
     char one_byte;
@@ -66,7 +67,7 @@ namespace {
     one_byte = data[1]; data[1] = data[6]; data[6] = one_byte;
     one_byte = data[2]; data[2] = data[5]; data[5] = one_byte;
     one_byte = data[3]; data[3] = data[4]; data[4] = one_byte;
-  };
+  }
 
 }
 
@@ -91,7 +92,6 @@ XdmfBinaryController::XdmfBinaryController(const std::string & filePath,
                                            const unsigned int seek,
                                            const std::vector<unsigned int> & dimensions) :
   XdmfHeavyDataController(filePath,
-                          "",
                           type,
                           dimensions),
   mEndian(endian),
@@ -101,6 +101,12 @@ XdmfBinaryController::XdmfBinaryController(const std::string & filePath,
 
 XdmfBinaryController::~XdmfBinaryController()
 {
+}
+
+std::string
+XdmfBinaryController::getDescriptor() const
+{
+  return "";
 }
 
 XdmfBinaryController::Endian

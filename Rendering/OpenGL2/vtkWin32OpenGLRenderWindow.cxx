@@ -29,11 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
-#include <GL\wglew.h>
-
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
-
-#define VTK_MAX_LIGHTS 8
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
@@ -83,16 +79,6 @@ void vtkWin32OpenGLRenderWindow::Clean()
   if (this->OwnContext && this->ContextId)
     {
     this->MakeCurrent();
-    vtkOpenGLClearErrorMacro();
-
-     /* first delete all the old lights */
-    for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+VTK_MAX_LIGHTS; cur_light++)
-      {
-      glDisable((GLenum)cur_light);
-      }
-
-    vtkOpenGLCheckErrorMacro("failed in Clean");
-
     this->CleanUpRenderers();
 
     // Note: wglMakeCurrent(NULL,NULL) is valid according to the documentation

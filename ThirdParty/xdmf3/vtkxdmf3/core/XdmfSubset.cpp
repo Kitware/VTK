@@ -139,7 +139,12 @@ XdmfSubset::getItemTag() const
 shared_ptr<XdmfArray>
 XdmfSubset::getReferenceArray()
 {
-  return mParent;
+  if (mParent) {
+    return mParent;
+  }
+  else {
+    return shared_ptr<XdmfArray>();
+  }
 }
 
 unsigned int
@@ -202,7 +207,7 @@ XdmfSubset::populateItem(const std::map<std::string, std::string> & itemProperti
 }
 
 shared_ptr<XdmfArray>
-XdmfSubset::read()
+XdmfSubset::read() const
 {
   if (mStart.size() < 1 ||
       mStride.size() < 1 ||
@@ -247,6 +252,12 @@ XdmfSubset::setDimensions(std::vector<unsigned int> newDimensions)
 }
 
 void
+XdmfSubset::setReferenceArray(shared_ptr<XdmfArray> newReference)
+{
+  mParent = newReference;
+}
+
+void
 XdmfSubset::setStart(std::vector<unsigned int> newStarts)
 {
   mStart = newStarts;
@@ -278,6 +289,10 @@ void
 XdmfSubset::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 {
   XdmfItem::traverse(visitor);
+
+  shared_ptr<XdmfArray> spacerarray = XdmfArray::New();
+  spacerarray->pushBack((int)0);
+  spacerarray->accept(visitor);
 
   mParent->accept(visitor);
 }

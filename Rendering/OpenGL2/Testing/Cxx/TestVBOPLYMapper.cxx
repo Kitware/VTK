@@ -12,6 +12,7 @@
 
 =========================================================================*/
 
+#include "vtkCamera.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -37,14 +38,15 @@ int TestVBOPLYMapper(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(300, 300);
+  renderWindow->SetSize(900, 900);
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
   vtkNew<vtkLightKit> lightKit;
   lightKit->AddLightsToRenderer(renderer.Get());
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                              "Data/dragon.ply");
+                                                               "Data/dragon.ply");
+  //const char* fileName = "C:\\Users\\ken.martin\\Documents\\vtk\\VTKData\\Data\\lucy.ply";
 
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
@@ -70,23 +72,40 @@ int TestVBOPLYMapper(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renderWindow.Get());
   renderWindow->SetMultiSamples(0);
-  interactor->Initialize();
 
   vtkNew<vtkTimerLog> timer;
-  double time(0.0);
-  for (int i = 0; i < 10; ++i)
+  timer->StartTimer();
+  renderWindow->Render();
+  timer->StopTimer();
+  double firstRender = timer->GetElapsedTime();
+  cerr << "first render time: " << firstRender << endl;
+
+  timer->StartTimer();
+  int numRenders = 85;
+  for (int i = 0; i < numRenders; ++i)
     {
-    timer->StartTimer();
+    renderer->GetActiveCamera()->Azimuth(1);
+    renderer->GetActiveCamera()->Elevation(1);
     renderWindow->Render();
-    timer->StopTimer();
-    cout << "Rendering frame " << i << ": " << timer->GetElapsedTime() << endl;
-    time += timer->GetElapsedTime();
     }
-  cout << "Average time: " << time / 10.0 << endl;
+  timer->StopTimer();
+  double elapsed = timer->GetElapsedTime();
+  cerr << "interactive render time: " << elapsed / numRenders << endl;
+  unsigned int numTris = reader->GetOutput()->GetPolys()->GetNumberOfCells();
+  cerr << "number of triangles: " <<  numTris << endl;
+  cerr << "triangles per second: " <<  numTris*(numRenders/elapsed) << endl;
+
+
+  renderer->GetActiveCamera()->SetPosition(0,0,1);
+  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
+  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->ResetCamera();
+
+  renderWindow->SetSize(300, 300);
 
   interactor->Start();
 
-  delete [] fileName;
+  //delete [] fileName;
 
   return EXIT_SUCCESS;
 }

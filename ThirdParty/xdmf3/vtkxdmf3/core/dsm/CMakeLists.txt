@@ -5,6 +5,7 @@ if (POLICY CMP0015)
 endif (POLICY CMP0015)
 
 set(XdmfDSMLinkLibraries XdmfCore)
+set(XdmfDSMLinkLibraryDir )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -14,10 +15,10 @@ mark_as_advanced(Boost_INCLUDE_DIR)
 include_directories(${Boost_INCLUDE_DIRS})
 mark_as_advanced(FORCE Boost_INCLUDE_DIR)
 
-mark_as_advanced(CLEAR HDF5_C_INCLUDE_DIR)
-mark_as_advanced(CLEAR HDF5_hdf5_LIBRARY_DEBUG)
-mark_as_advanced(CLEAR HDF5_hdf5_LIBRARY_RELEASE)
-find_package(HDF5 REQUIRED)
+#mark_as_advanced(CLEAR HDF5_C_INCLUDE_DIR)
+#mark_as_advanced(CLEAR HDF5_hdf5_LIBRARY_DEBUG)
+#mark_as_advanced(CLEAR HDF5_hdf5_LIBRARY_RELEASE)
+#find_package(HDF5 REQUIRED)
 if(HDF5_FOUND)
   mark_as_advanced(FORCE HDF5_C_INCLUDE_DIR)
   mark_as_advanced(FORCE HDF5_hdf5_LIBRARY_DEBUG)
@@ -25,6 +26,8 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIRS})
   include_directories(${HDF5_C_INCLUDE_DIR})
   set(HDF5_LIBRARIES ${HDF5_hdf5_LIBRARY_RELEASE})
+  get_filename_component(HDF5_LIBRARY_DIR "${HDF5_hdf5_LIBRARY_RELEASE}" PATH)
+  set(XdmfDSMLinkLibraryDir ${XdmfDSMLinkLibraryDir} ${HDF5_LIBRARY_DIR})
   # FIXME: Would like to get this info from HDF5 so we don't have conflicting
   # MPI versions
   if(HDF5_IS_PARALLEL)
@@ -74,7 +77,7 @@ if (XDMF_BUILD_DSM_THREADS)
 endif (XDMF_BUILD_DSM_THREADS)
 
 add_library(XdmfDSM ${XdmfDSMSources})
-link_directories(${XDMF_LIBRARY_DIRS})
+link_directories(${XDMF_LIBRARY_DIRS} ${XdmfDSMLinkLibraryDir})
 target_link_libraries(XdmfDSM ${XdmfDSMLinkLibraries})
 
 if(WIN32)

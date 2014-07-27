@@ -22,8 +22,8 @@
 // method of Mean Value Coordinates (MVC). See the VTK class
 // vtkMeanValueCoordinatesInterpolator for more information.
 //
-// The class assumes that the polyhedron is non-convex. However, the
-// polygonal faces should be planar. Non-planar polygonal faces will
+// The class does not require the polyhedron to be convex. However, the
+// polygonal faces must be planar. Non-planar polygonal faces will
 // definitely cause problems, especially in severely warped situations.
 
 // .SECTION See Also

@@ -22,9 +22,11 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
+#include <vector>
 
 class vtkRenderPass;
 class vtkOpenGLTexture;
+class vtkTextureObject;
 class vtkTexturedActor2D;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
@@ -65,13 +67,13 @@ public:
   vtkGetObjectMacro(Pass, vtkRenderPass);
 
   // Description:
-  // get the various textures used for Depth Peeling
+  // get the various texture units used for Depth Peeling
   // the Mappers make use of these
-  vtkGetObjectMacro(OpaqueZTexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(OpaqueRGBATexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(TranslucentZTexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(TranslucentRGBATexture,vtkOpenGLTexture);
-  vtkGetObjectMacro(CurrentRGBATexture,vtkOpenGLTexture);
+  int GetOpaqueRGBATextureUnit();
+  int GetOpaqueZTextureUnit();
+  int GetTranslucentRGBATextureUnit();
+  int GetTranslucentZTextureUnit();
+  int GetCurrentRGBATextureUnit();
 
 protected:
   vtkOpenGLRenderer();
@@ -125,12 +127,13 @@ protected:
   // technique have been checked.
   int DepthPeelingIsSupportedChecked;
   vtkTexturedActor2D *DepthPeelingActor;
+  std::vector<float> *DepthZData;
 
-  vtkOpenGLTexture *OpaqueZTexture;
-  vtkOpenGLTexture *OpaqueRGBATexture;
-  vtkOpenGLTexture *TranslucentRGBATexture;
-  vtkOpenGLTexture *TranslucentZTexture;
-  vtkOpenGLTexture *CurrentRGBATexture;
+  vtkTextureObject *OpaqueZTexture;
+  vtkTextureObject *OpaqueRGBATexture;
+  vtkTextureObject *TranslucentRGBATexture;
+  vtkTextureObject *TranslucentZTexture;
+  vtkTextureObject *CurrentRGBATexture;
 
 
   // Description:
@@ -139,11 +142,6 @@ protected:
   int ViewportY;
   int ViewportWidth;
   int ViewportHeight;
-
-  // Description:
-  // Actual depth format: vtkgl::DEPTH_COMPONENT16_ARB
-  // or vtkgl::DEPTH_COMPONENT24_ARB
-  unsigned int DepthFormat;
 
   // Is rendering at translucent geometry stage using depth peeling and
   // rendering a layer other than the first one? (Boolean value)

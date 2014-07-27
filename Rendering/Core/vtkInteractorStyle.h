@@ -107,6 +107,7 @@
 #define VTKIS_TIMER        7
 #define VTKIS_FORWARDFLY   8
 #define VTKIS_REVERSEFLY   9
+#define VTKIS_TWO_POINTER 10
 
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON  1
@@ -271,6 +272,8 @@ public:
   virtual void EndUniformScale();
   virtual void StartTimer();
   virtual void EndTimer();
+  virtual void StartTwoPointer();
+  virtual void EndTwoPointer();
 
   // Description:
   // When picking successfully selects an actor, this method highlights the

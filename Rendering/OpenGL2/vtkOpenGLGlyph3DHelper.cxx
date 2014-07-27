@@ -81,22 +81,22 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
   if (stage == 1)
     {
     this->RenderPieceStart(ren,actor);
-    this->UpdateShader(this->tris, ren, actor);
-    this->tris.ibo.Bind();
+    this->UpdateShader(this->Tris, ren, actor);
+    this->Tris.ibo.Bind();
     return;
     }
 
   // handle ending
   if (stage == 3)
     {
-    this->tris.ibo.Release();
+    this->Tris.ibo.Release();
     this->RenderPieceFinish(ren,actor);
     return;
     }
 
   // handle the middle
-  vtkgl::ShaderProgram &program = this->tris.CachedProgram->Program;
-  vtkgl::VBOLayout &layout = this->layout;
+  vtkgl::ShaderProgram &program = this->Tris.CachedProgram->Program;
+  vtkgl::VBOLayout &layout = this->Layout;
 
 
   // these next four lines could be cached and passed in to save time
@@ -160,7 +160,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
     {
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->tris.indexCount),
+                        static_cast<GLsizei>(this->Tris.indexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     }
@@ -170,16 +170,16 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
     // you either have to generate normals and send them down
     // or use a geometry shader.
     glMultiDrawElements(GL_LINE_LOOP,
-                      (GLsizei *)(&this->tris.elementsArray[0]),
+                      (GLsizei *)(&this->Tris.elementsArray[0]),
                       GL_UNSIGNED_INT,
-                      reinterpret_cast<const GLvoid **>(&(this->tris.offsetArray[0])),
-                      this->tris.offsetArray.size());
+                      reinterpret_cast<const GLvoid **>(&(this->Tris.offsetArray[0])),
+                      (GLsizei)this->Tris.offsetArray.size());
     }
   if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
     {
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->tris.indexCount),
+                        static_cast<GLsizei>(this->Tris.indexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     }

@@ -30,6 +30,7 @@ class XdmfItem;
 // Includes
 #include <map>
 #include <vector>
+#include <string>
 #include "XdmfCore.hpp"
 #include "XdmfSharedPtr.hpp"
 
