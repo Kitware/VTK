@@ -54,8 +54,8 @@ void vtkXdmf3ArrayKeeper::Release(bool force)
     vtkXdmf3ArrayKeeper::iterator current = it++;
     if (force || (current->second != this->generation))
       {
-      XdmfArray* at = current->first;
-      at->release();
+      XdmfArray* atCurrent = current->first;
+      atCurrent->release();
       this->erase(current);
       //cnt++;
       }
