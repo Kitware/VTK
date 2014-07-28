@@ -612,7 +612,7 @@ int TestBinomial()
   std::vector<int> nvalues;
 
   std::vector<vtkTypeInt64> expecteds;
-  vtkTypeInt64 expected;
+  double expected;
   for (m = 1; m < 31; ++m)
     {
     for (n = 1; n <= m; ++n)
@@ -624,7 +624,7 @@ int TestBinomial()
         {
         expected *= static_cast<double>(m - i + 1) / i;
         }
-      expecteds.push_back(expected);
+      expecteds.push_back(static_cast<vtkTypeInt64>(expected));
       }
     }
 
