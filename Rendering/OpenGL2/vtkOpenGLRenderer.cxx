@@ -326,8 +326,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     // has the size changed?
     if (this->OpaqueRGBATexture && (
-          this->OpaqueRGBATexture->GetWidth() != this->ViewportWidth ||
-          this->OpaqueRGBATexture->GetHeight() != this->ViewportHeight))
+          this->OpaqueRGBATexture->GetWidth() != static_cast<unsigned int>(this->ViewportWidth) ||
+          this->OpaqueRGBATexture->GetHeight() != static_cast<unsigned int>(this->ViewportHeight)))
       {
       delete this->DepthZData;
       this->DepthZData = 0;
