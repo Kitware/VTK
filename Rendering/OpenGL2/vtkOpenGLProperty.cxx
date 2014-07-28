@@ -26,24 +26,6 @@
 
 #include <cassert>
 
-namespace
-{
-  void ComputeMaterialColor(GLfloat result[4],
-    bool premultiply_colors_with_alpha,
-    double color_factor,
-    const double color[3],
-    double opacity)
-    {
-    double opacity_factor = premultiply_colors_with_alpha? opacity : 1.0;
-    for (int cc=0; cc < 3; cc++)
-      {
-      result[cc] = static_cast<GLfloat>(
-        opacity_factor * color_factor * color[cc]);
-      }
-    result[3] = opacity;
-    }
-}
-
 vtkStandardNewMacro(vtkOpenGLProperty);
 
 vtkOpenGLProperty::vtkOpenGLProperty()
