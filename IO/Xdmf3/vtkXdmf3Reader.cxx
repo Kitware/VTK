@@ -275,7 +275,7 @@ public:
             std::string sName = set->getName();
             std::string usName = this->UniqueName(sName, false);
             set->setName(usName);
-            this->AddNamedSet(parent, sName, usName);
+            this->AddNamedSet(usName);
             }
           }
         return;
@@ -526,7 +526,7 @@ private:
   }
 
   //helper for InspectXDMF
-  void AddNamedSet(vtkIdType parentVertex, std::string originalName, std::string uniqueName)
+  void AddNamedSet(std::string uniqueName)
   {
     this->SetsCache->AddArray(uniqueName.c_str());
   }
@@ -1048,7 +1048,6 @@ protected:
     if (dataSet && subSet && SetEnabled(set) && ForThisTime(grid))
       {
       vtkXdmf3DataSet::XdmfSubsetToVTK(
-        this->FieldArrays, this->CellArrays, this->PointArrays,
         grid.get(), setnum, dataSet, subSet, keeper);
       return subSet;
       }

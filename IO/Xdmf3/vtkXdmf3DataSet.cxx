@@ -1000,7 +1000,7 @@ void vtkXdmf3DataSet::XdmfToVTK(
 void vtkXdmf3DataSet::CopyShape(
   XdmfRegularGrid *grid,
   vtkImageData *dataSet,
-  vtkXdmf3ArrayKeeper *keeper)
+  vtkXdmf3ArrayKeeper *vtkNotUsed(keeper))
 {
   if (!dataSet)
     {
@@ -1990,9 +1990,6 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 
 //--------------------------------------------------------------------------
 void vtkXdmf3DataSet::XdmfSubsetToVTK(
-  vtkXdmf3ArraySelection *fselection,
-  vtkXdmf3ArraySelection *cselection,
-  vtkXdmf3ArraySelection *pselection,
   XdmfGrid *grid,
   unsigned int setnum,
   vtkDataSet *dataSet,
