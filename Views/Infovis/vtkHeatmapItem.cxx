@@ -965,7 +965,7 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D *painter)
     }
 
   // temporarily set text to default orientation
-  int orientation = painter->GetTextProp()->GetOrientation();
+  double orientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
 
   float bounds[4];

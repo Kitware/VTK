@@ -712,7 +712,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   double *sColor = actor->GetProperty()->GetSpecularColor();
   double sIntensity = actor->GetProperty()->GetSpecular();
   float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity), static_cast<float>(sColor[1] * sIntensity), static_cast<float>(sColor[2] * sIntensity)};
-  float specularPower = actor->GetProperty()->GetSpecularPower();
+  double specularPower = actor->GetProperty()->GetSpecularPower();
 
   program.SetUniformf("opacityUniform", opacity);
   program.SetUniform3f("ambientColorUniform", ambientColor);
