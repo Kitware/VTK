@@ -399,7 +399,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     bool done = false;
     GLuint nbPixels = 0;
-    GLuint previousNbPixels = 0;
     int peelCount = 0;
     while(!done)
       {
@@ -417,7 +416,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->TranslucentZTexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
           this->ViewportX, this->ViewportY,
           this->ViewportWidth, this->ViewportHeight);
-      previousNbPixels = nbPixels;
 
 #if GL_ES_VERSION_2_0 != 1
       glEndQuery(GL_SAMPLES_PASSED);
