@@ -356,7 +356,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   size_t n = 3*licDataSize;
   for (size_t i=0; i<n; ++i)
     {
-    pPng[i] = pData[i]*255.0f;
+    pPng[i] = static_cast<unsigned char>(pData[i]*255.0f);
     }
   licData = NULL;
 

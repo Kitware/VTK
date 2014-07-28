@@ -844,17 +844,17 @@ void vtkChartXYZ::DetermineWhichAxesToLabel()
             switch (axis)
               {
               case 0:
-                this->XAxisToLabel[0] = j;
-                this->XAxisToLabel[1] = k;
+                this->XAxisToLabel[0] = static_cast<int>(j);
+                this->XAxisToLabel[1] = static_cast<int>(k);
                 break;
               case 1:
-                this->YAxisToLabel[0] = i;
-                this->YAxisToLabel[1] = k;
+                this->YAxisToLabel[0] = static_cast<int>(i);
+                this->YAxisToLabel[1] = static_cast<int>(k);
                 break;
               case 2:
               default:
-                this->ZAxisToLabel[0] = i;
-                this->ZAxisToLabel[1] = j;
+                this->ZAxisToLabel[0] = static_cast<int>(i);
+                this->ZAxisToLabel[1] = static_cast<int>(j);
                 break;
               }
             }

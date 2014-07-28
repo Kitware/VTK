@@ -47,7 +47,7 @@ int TestSurfacePlot(int , char * [])
     vtkNew<vtkFloatArray> arr;
     table->AddColumn(arr.GetPointer());
     }
-  table->SetNumberOfRows(numPoints);
+  table->SetNumberOfRows(static_cast<vtkIdType>(numPoints));
   for (vtkIdType i = 0; i < numPoints; ++i)
     {
     float x = i * inc;

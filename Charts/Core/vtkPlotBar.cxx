@@ -63,8 +63,8 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a, B *b,
       {
       prev = prevData[2 * i + 1];
       }
-    A tmpA((a[i] + ss[0]) * ss[2]);
-    B tmpB((b[i] + ss[1]) * ss[3]);
+    A tmpA(static_cast<A>((a[i] + ss[0]) * ss[2]));
+    B tmpB(static_cast<B>((b[i] + ss[1]) * ss[3]));
     data[2 * i]     = static_cast<float>((logScale & 1) ?
                                          log10(static_cast<double>(tmpA))
                                          : tmpA);
@@ -93,7 +93,7 @@ void CopyToPoints(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a, int n,
       {
       prev = prevData[2 * i + 1];
       }
-    A tmpA((a[i] + ss[1]) * ss[3]);
+    A tmpA(static_cast<A>((a[i] + ss[1]) * ss[3]));
     data[2 * i]     = static_cast<float>((logScale & 1) ?
                                          log10(static_cast<double>(i + 1.0))
                                          : i);

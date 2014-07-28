@@ -835,9 +835,9 @@ void vtkScalarBarActor::ComputeScalarBarThickness()
     {
     nudge = this->TextPad;
     }
-  this->P->ScalarBarBox.Size[0] -= nudge;
-  this->P->ScalarBarBox.Posn[this->P->TL[0]] += nudge *
-    (this->TextPosition == PrecedeScalarBar ? -1 : +1);
+  this->P->ScalarBarBox.Size[0] = static_cast<int>(this->P->ScalarBarBox.Size[0] - nudge);
+  this->P->ScalarBarBox.Posn[this->P->TL[0]] = static_cast<int>(this->P->ScalarBarBox.Posn[this->P->TL[0]] +
+    (nudge * (this->TextPosition == PrecedeScalarBar ? -1 : +1)));
 }
 
 //----------------------------------------------------------------------------
@@ -865,17 +865,17 @@ void vtkScalarBarActor::LayoutNanSwatch()
     {
     this->P->NanBox.Posn[0] = this->P->ScalarBarBox.Posn[0];
     this->P->NanBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad;
-    this->P->ScalarBarBox.Posn[1] +=
-      this->P->NanSwatchSize + this->P->SwatchPad;
+    this->P->ScalarBarBox.Posn[1] = static_cast<int>(this->P->ScalarBarBox.Posn[1] +
+      (this->P->NanSwatchSize + this->P->SwatchPad));
     }
   else // HORIZONTAL
     {
     this->P->NanBox.Posn = this->P->ScalarBarBox.Posn;
-    this->P->NanBox.Posn[this->P->TL[1]] +=
-      this->P->Frame.Size[1] - this->P->NanSwatchSize;
+    this->P->NanBox.Posn[this->P->TL[1]] = static_cast<int>(this->P->NanBox.Posn[this->P->TL[1]] +
+      (this->P->Frame.Size[1] - this->P->NanSwatchSize));
     }
   this->P->NanBox.Size[0] = this->P->ScalarBarBox.Size[0];
-  this->P->NanBox.Size[1] = this->P->NanSwatchSize;
+  this->P->NanBox.Size[1] = static_cast<int>(this->P->NanSwatchSize);
   if (this->P->NanBox.Size[1] > 2 * this->TextPad)
     {
     this->P->NanBox.Size[1] -= this->TextPad;
@@ -961,7 +961,7 @@ void vtkScalarBarActor::LayoutTitle()
     this->P->Frame.Posn[0] +
     (this->P->Frame.Size[this->P->TL[0]] - titleSize[0]) / 2;
   this->P->TitleBox.Posn[1] =
-    this->P->Frame.Posn[1] + this->P->Frame.Size[this->P->TL[1]];
+    static_cast<int>(this->P->Frame.Posn[1] + this->P->Frame.Size[this->P->TL[1]]);
   if (
     this->Orientation == VTK_ORIENT_VERTICAL ||
     this->TextPosition == vtkScalarBarActor::SucceedScalarBar)
@@ -984,7 +984,8 @@ void vtkScalarBarActor::ComputeScalarBarLength()
       this->P->Frame.Size[1];
 
   // The scalar bar does not include the Nan Swatch.
-  this->P->ScalarBarBox.Size[1] -= this->P->NanSwatchSize + this->P->SwatchPad;
+  this->P->ScalarBarBox.Size[1] = static_cast<int>(this->P->ScalarBarBox.Size[1] -
+    (this->P->NanSwatchSize + this->P->SwatchPad));
 }
 
 //-----------------------------------------------------------------------------
@@ -1083,8 +1084,8 @@ void vtkScalarBarActor::LayoutTicks()
       // Tick box height also reduced by NaN swatch size, if present:
       if (this->DrawNanAnnotation)
         {
-        this->P->TickBox.Size[1] -=
-          this->P->NanBox.Size[1] + this->P->SwatchPad;
+        this->P->TickBox.Size[1] = static_cast<int>(this->P->TickBox.Size[1] -
+          (this->P->NanBox.Size[1] + this->P->SwatchPad));
         }
 
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
@@ -1137,10 +1138,11 @@ void vtkScalarBarActor::LayoutTicks()
       labelSize);
 
     // Now adjust scalar bar size by the half-size of the first and last ticks
-    this->P->ScalarBarBox.Posn[this->P->TL[1]]
-      += labelSize[this->P->TL[1]] / 2.;
+    this->P->ScalarBarBox.Posn[this->P->TL[1]] = static_cast<int>(this->P->ScalarBarBox.Posn[this->P->TL[1]] +
+      (labelSize[this->P->TL[1]] / 2.));
     this->P->ScalarBarBox.Size[1] -= labelSize[this->P->TL[1]];
-    this->P->TickBox.Posn[this->P->TL[1]] += labelSize[this->P->TL[1]] / 2.;
+    this->P->TickBox.Posn[this->P->TL[1]] = static_cast<int>(this->P->TickBox.Posn[this->P->TL[1]] +
+      (labelSize[this->P->TL[1]] / 2.));
     this->P->TickBox.Size[1] -= labelSize[this->P->TL[1]];
 
     if (this->Orientation == VTK_ORIENT_HORIZONTAL)
@@ -1294,12 +1296,12 @@ void vtkScalarBarActor::ConfigureScalarBar()
     rgba[3] = lut->GetOpacity(rgbval);
     //write into array directly
     rgb = this->P->SwatchColors->GetPointer(nComponents * i);
-    rgb[0] = rgba[0] * 255.;
-    rgb[1] = rgba[1] * 255.;
-    rgb[2] = rgba[2] * 255.;
+    rgb[0] = static_cast<unsigned char>(rgba[0] * 255.);
+    rgb[1] = static_cast<unsigned char>(rgba[1] * 255.);
+    rgb[2] = static_cast<unsigned char>(rgba[2] * 255.);
     if (this->P->SwatchColors->GetNumberOfComponents() > 3)
       {
-      rgb[3] = this->UseOpacity ? rgba[3] * 255. : 255;
+      rgb[3] = static_cast<unsigned char>(this->UseOpacity ? rgba[3] * 255. : 255.);
       }
     }
 
@@ -1428,10 +1430,10 @@ void vtkScalarBarActor::ConfigureNanSwatch()
   polys->InsertNextCell(4, ptIds);
   this->LookupTable->GetIndexedColor(-1,rgba);
   rgb = colors->GetPointer(0); //write into array directly
-  rgb[0] = rgba[0] * 255.;
-  rgb[1] = rgba[1] * 255.;
-  rgb[2] = rgba[2] * 255.;
-  rgb[3] = this->UseOpacity ? rgba[3] * 255. : 255;
+  rgb[0] = static_cast<unsigned char>(rgba[0] * 255.);
+  rgb[1] = static_cast<unsigned char>(rgba[1] * 255.);
+  rgb[2] = static_cast<unsigned char>(rgba[2] * 255.);
+  rgb[3] = static_cast<unsigned char>(this->UseOpacity ? rgba[3] * 255. : 255.);
 }
 
 //----------------------------------------------------------------------------
@@ -1578,13 +1580,13 @@ void vtkScalarBarActor::ConfigureAnnotations()
         /* numComponents */ 4 *
         /* numCells/swatch */ 2 *
         /* swatch */ i ); //write into array directly
-      rgb[0] = rgbaF[0] * 255.;
-      rgb[1] = rgbaF[1] * 255.;
-      rgb[2] = rgbaF[2] * 255.;
-      rgb[3] = rgbaF[3] * 255.;
-      rgb[4] = rgbaF[0] * 255.;
-      rgb[5] = rgbaF[1] * 255.;
-      rgb[6] = rgbaF[2] * 255.;
+      rgb[0] = static_cast<unsigned char>(rgbaF[0] * 255.);
+      rgb[1] = static_cast<unsigned char>(rgbaF[1] * 255.);
+      rgb[2] = static_cast<unsigned char>(rgbaF[2] * 255.);
+      rgb[3] = static_cast<unsigned char>(rgbaF[3] * 255.);
+      rgb[4] = static_cast<unsigned char>(rgbaF[0] * 255.);
+      rgb[5] = static_cast<unsigned char>(rgbaF[1] * 255.);
+      rgb[6] = static_cast<unsigned char>(rgbaF[2] * 255.);
       rgb[7] = 255; // second triangle is always opaque
       }
     }

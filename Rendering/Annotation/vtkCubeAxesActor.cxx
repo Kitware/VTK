@@ -88,14 +88,14 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     this->TitleTextProperty[i] = vtkTextProperty::New();
     this->TitleTextProperty[i]->SetColor(1.,1.,1.);
     this->TitleTextProperty[i]->SetFontFamilyToArial();
-    this->TitleTextProperty[i]->SetFontSize(18.);
+    this->TitleTextProperty[i]->SetFontSize(18);
     this->TitleTextProperty[i]->SetVerticalJustificationToCentered();
     this->TitleTextProperty[i]->SetJustificationToCentered();
 
     this->LabelTextProperty[i] = vtkTextProperty::New();
     this->LabelTextProperty[i]->SetColor(1.,1.,1.);
     this->LabelTextProperty[i]->SetFontFamilyToArial();
-    this->LabelTextProperty[i]->SetFontSize(14.);
+    this->LabelTextProperty[i]->SetFontSize(14);
     this->LabelTextProperty[i]->SetVerticalJustificationToBottom();
     this->LabelTextProperty[i]->SetJustificationToLeft();
     }
@@ -2310,7 +2310,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
       double delta = customizedLabels->GetNumberOfValues() / labelCount;
       for (int i = 0; i < labelCount; ++i)
         {
-        labels->SetValue(i, customizedLabels->GetValue(i * delta));
+        labels->SetValue(i, customizedLabels->GetValue(static_cast<vtkIdType>(i * delta)));
         }
       }
     }
