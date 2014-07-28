@@ -568,12 +568,12 @@ void vtkColorSeries::DeepCopy(vtkColorSeries* colors)
 }
 
 //-----------------------------------------------------------------------------
-void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup)
+void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup, int lutIndexing)
 {
   if (lkup)
     {
     lkup->SetNumberOfTableValues(this->GetNumberOfColors());
-    lkup->IndexedLookupOn();
+    lkup->SetIndexedLookup((lutIndexing == ORDINAL) ? 0 : 1);
     for (int i = 0; i < this->GetNumberOfColors(); ++i)
       {
       vtkColor3ub colr = this->GetColor(i);
@@ -584,10 +584,10 @@ void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup)
 }
 
 //-----------------------------------------------------------------------------
-vtkLookupTable* vtkColorSeries::CreateLookupTable()
+vtkLookupTable* vtkColorSeries::CreateLookupTable(int lutIndexing)
 {
   vtkLookupTable *lkup = vtkLookupTable::New();
-  this->BuildLookupTable(lkup);
+  this->BuildLookupTable(lkup, lutIndexing);
   return lkup;
 }
 
