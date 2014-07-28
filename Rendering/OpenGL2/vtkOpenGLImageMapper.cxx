@@ -675,8 +675,8 @@ void vtkOpenGLImageMapper::DrawPixels(vtkViewport *viewport, int width, int heig
     {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
-    float xscale = static_cast<float>(rectwidth)/width;
-    float yscale = static_cast<float>(rectheight)/height;
+    xscale = static_cast<float>(rectwidth)/width;
+    yscale = static_cast<float>(rectheight)/height;
     }
 
   vtkPolyData *pd = vtkPolyDataMapper2D::SafeDownCast(this->Actor->GetMapper())->GetInput();
