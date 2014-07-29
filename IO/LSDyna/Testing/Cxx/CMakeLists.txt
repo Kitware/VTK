@@ -8,7 +8,7 @@ if(VTK_USE_LARGE_DATA)
 
   vtk_add_test_cxx(${vtk-module}CxxTests tests
     TestLSDynaReader.cxx
-    TestLSDynaReaderNoDefl.cxx
+    #TestLSDynaReaderNoDefl.cxx
     TestLSDynaReaderSPH.cxx
     )
 endif()
