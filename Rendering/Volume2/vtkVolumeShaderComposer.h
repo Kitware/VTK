@@ -464,6 +464,10 @@ namespace vtkvolume
   std::string CroppingGlobalsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
                                   vtkVolume* vol)
   {
+    if (!mapper->GetCropping()) {
+      return std::string("");
+    }
+
     return std::string("\n\
       uniform float cropping_planes[6]; \n\
       uniform int cropping_flags; \n\
@@ -504,6 +508,10 @@ namespace vtkvolume
   std::string CroppingInit(vtkRenderer* ren, vtkVolumeMapper* mapper,
                            vtkVolume* vol)
   {
+    if (!mapper->GetCropping()) {
+      return std::string("");
+    }
+
     return std::string("\n\
       /// Convert cropping region to texture space \n\
       float cropping_planes_ts[6];\n\
@@ -521,6 +529,10 @@ namespace vtkvolume
   std::string CroppingIncrement(vtkRenderer* ren, vtkVolumeMapper* mapper,
                                 vtkVolume* vol)
   {
+    if (!mapper->GetCropping()) {
+      return std::string("");
+    }
+
     return std::string("\n\
       /// Determine region \n\
       int regionNo = computeRegion(cropping_planes_ts, l_data_pos); \n\
