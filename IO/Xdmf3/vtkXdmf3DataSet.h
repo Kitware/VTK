@@ -101,6 +101,7 @@ public:
   // Description:
   // Helper used in VTKToXdmf to set the time in a Xdmf grid
   static void SetTime(XdmfGrid *grid, double hasTime, double time);
+  static void SetTime(XdmfGraph *graph, double hasTime, double time);
 
   //vtkXdmf3RegularGrid
 

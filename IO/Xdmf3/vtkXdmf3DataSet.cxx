@@ -981,6 +981,14 @@ void vtkXdmf3DataSet::SetTime(XdmfGrid *grid, double hasTime, double time)
     grid->setTime(XdmfTime::New(time));
     }
 }
+//==========================================================================
+void vtkXdmf3DataSet::SetTime(XdmfGraph *graph, double hasTime, double time)
+{
+  if (hasTime)
+    {
+    graph->setTime(XdmfTime::New(time));
+    }
+}
 
 //==========================================================================
 
@@ -1724,7 +1732,7 @@ void vtkXdmf3DataSet::XdmfToVTK(
 void vtkXdmf3DataSet::VTKToXdmf(
   vtkDirectedGraph *dataSet,
   XdmfDomain *domain,
-  bool vtkNotUsed(hasTime), double vtkNotUsed(time))
+  bool hasTime, double time)
 {
   //get list of vertices
   vtkSmartPointer<vtkVertexListIterator> vit =
@@ -1821,8 +1829,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
       }
     }
 
-  //TODO: XdmfGraph has no time
-  //vtkXdmf3DataSet::SetTime(grid, hasTime, time);
+  vtkXdmf3DataSet::SetTime(grid.get(), hasTime, time);
 
   domain->insert(grid);
 }

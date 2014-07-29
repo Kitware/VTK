@@ -59,7 +59,6 @@
 #include <set>
 #include <fstream>
 
-//TODO: benchmark and optimize
 //TODO: implement fast and approximate CanReadFile
 //TODO: read from buffer, allowing for xincludes
 //TODO: strided access to structured data
@@ -579,12 +578,29 @@ private:
         shared_ptr<XdmfGrid> child = gc->getRegularGrid(i);
         this->GetSetTime(child, cnt);
         }
-      //xdmf graphs have no time
+      unsigned int nGraphs = gc->getNumberGraphs();
+      for (unsigned int i = 0; i < nGraphs; i++)
+        {
+        shared_ptr<XdmfGraph> child = gc->getGraph(i);
+        this->GetSetTime(child, cnt);
+        }
       }
   }
 
   //helper for InspectTime
   void GetSetTime(shared_ptr<XdmfGrid> child, unsigned int &cnt)
+  {
+    if (!child->getTime())
+      {
+      //grid collections without explicit times are implied to go 0...N
+      //so we add them here if not present
+      shared_ptr<XdmfTime> time = XdmfTime::New(cnt++);
+      child->setTime(time);
+      }
+    times.insert(child->getTime()->getValue());
+  }
+  //helper for InspectTime
+  void GetSetTime(shared_ptr<XdmfGraph> child, unsigned int &cnt)
   {
     if (!child->getTime())
       {
@@ -1145,6 +1161,10 @@ protected:
   {
     return this->GridsCache->ArrayIsEnabled(grid->getName().c_str());
   }
+  bool GridEnabled(shared_ptr<XdmfGraph> graph)
+  {
+    return this->GridsCache->ArrayIsEnabled(graph->getName().c_str());
+  }
 
   bool SetEnabled(shared_ptr<XdmfSet> set)
   {
@@ -1156,6 +1176,12 @@ protected:
     return (!this->doTime ||
             (grid->getTime() &&
              grid->getTime()->getValue() == this->time));
+  }
+  bool ForThisTime(shared_ptr<XdmfGraph> graph)
+  {
+    return (!this->doTime ||
+            (graph->getTime() &&
+             graph->getTime()->getValue() == this->time));
   }
 
   vtkDataObject *MakeUnsGrid(shared_ptr<XdmfUnstructuredGrid> grid, vtkUnstructuredGrid *dataSet, vtkXdmf3ArrayKeeper *keeper)
@@ -1208,8 +1234,7 @@ protected:
 
   vtkDataObject *MakeGraph(shared_ptr<XdmfGraph> grid, vtkMutableDirectedGraph *dataSet, vtkXdmf3ArrayKeeper *keeper)
   {
-    //TODO: XdmfGraph has no time yet
-    if (dataSet && this->GridsCache->ArrayIsEnabled(grid->getName().c_str()))
+    if (dataSet && GridEnabled(grid) && ForThisTime(grid))
       {
       vtkXdmf3DataSet::XdmfToVTK(
         this->FieldArrays, this->CellArrays, this->PointArrays,
@@ -1285,7 +1310,6 @@ public:
       return true;
       }
 
-    //TODO Implement read from buffer path
     if (!FileName )
       {
       vtkErrorWithObjectMacro(self, "File name not set");
@@ -1461,35 +1485,6 @@ private:
   void Init(const char *filename, bool AsTime)
   {
     vtkTimerLog::MarkStartEvent("X3R::Init");
-#if 0
-    vtkTimerLog::MarkStartEvent("X3R::SLURP XML FILE");
-    std::string contents;
-    std::ifstream in(filename, std::ios::in | std::ios::binary);
-    if (in)
-      {
-      in.seekg(0, std::ios::end);
-      contents.resize(in.tellg());
-      in.seekg(0, std::ios::beg);
-      in.read(&contents[0], contents.size());
-      in.close();
-      }
-    else
-      {
-      cerr << "Could not open " << filename << endl;
-      return;
-      }
-    vtkTimerLog::MarkEndEvent("X3R::SLURP FILE");
-
-    this->Reader = XdmfReader::New();
-    this->Reader->computeXMLDir(filename);
-
-    //TODO:
-    //Domains are no longer used in practice, and ParaView is not
-    //able to select from them dynamically anyway, so get rid of them
-    this->Domain = shared_dynamic_cast<XdmfDomain>(
-      this->Reader->parse(contents)
-      );
-#else
     unsigned int idx = this->FileNames.size();
     assert(idx > 0);
 
@@ -1527,8 +1522,6 @@ private:
         {
         if (AsTime || (i%updateNumPieces == updatePiece))
           {
-          cerr << updatePiece << "READING " << this->FileNames[i] << endl;
-
           shared_ptr<XdmfDomain> fdomain = shared_dynamic_cast<XdmfDomain>
             (this->Reader->read(this->FileNames[i]));
 
@@ -1559,7 +1552,6 @@ private:
           }
         }
       }
-#endif
 
     this->VTKType = -1;
     vtkTimerLog::MarkStartEvent("X3R::learn");
