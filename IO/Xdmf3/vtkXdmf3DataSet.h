@@ -52,10 +52,9 @@ class vtkPointSet;
 class XdmfGraph;
 class vtkMutableDirectedGraph;
 class vtkDirectedGraph;
-
 class XdmfDomain;
 
-//==============================================================================
+
 class VTKIOXDMF3_EXPORT vtkXdmf3DataSet
 {
 public:

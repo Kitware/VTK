@@ -18,6 +18,8 @@
 
 #include "vtkXdmf3ArrayKeeper.h"
 
+#include "XdmfArray.hpp"
+
 //------------------------------------------------------------------------------
 vtkXdmf3ArrayKeeper::vtkXdmf3ArrayKeeper()
 {

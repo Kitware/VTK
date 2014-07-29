@@ -63,8 +63,6 @@ public:
   // Determine if the file can be read with this reader.
   virtual int CanReadFile(const char* filename);
 
-  //////////////////////////////////////////////////////////
-
   // Description:
   // Get information about point-based arrays. As is typical with readers this
   // in only valid after the filename is set and UpdateInformation() has been
@@ -98,8 +96,6 @@ public:
   const char* GetFieldArrayName(int index);
   void SetFieldArrayStatus(const char* name, int status);
   int GetFieldArrayStatus(const char* name);
-
-  //////////////////////////////////////////////////////////
 
   // Description:
   // Get/Set information about grids. As is typical with readers this is valid
