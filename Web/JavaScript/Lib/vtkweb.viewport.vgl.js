@@ -119,6 +119,7 @@
     gl = m_canvas3D.getContext("webgl") || m_canvas3D.getContext("experimental-webgl"),
     m_rendererAttrs = $(m_divContainer).addClass(FACTORY_KEY).css(RENDERER_CSS).append($(m_canvas2D).css(RENDERER_CSS).css(RENDERER_CSS_2D)).append($(m_canvas3D).css(RENDERER_CSS).css(RENDERER_CSS_3D)),
     m_sceneJSON = null,
+    m_sceneData = null,
     m_objectHandler = create3DObjectHandler(),
     m_vglVtkReader = vgl.vtkReader(),
     m_viewer = null,
