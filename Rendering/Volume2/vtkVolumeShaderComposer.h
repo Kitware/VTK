@@ -553,6 +553,41 @@ namespace vtkvolume
   {
     return std::string("");
   }
+
+  //--------------------------------------------------------------------------
+  std::string ClippingGlobalsVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                  vtkVolume* vol)
+  {
+    return std::string("");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ClippingGlobalsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                  vtkVolume* vol)
+  {
+    return std::string("");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ClippingInit(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                           vtkVolume* vol)
+  {
+    return std::string("");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ClippingIncrement(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                vtkVolume* vol)
+  {
+    return std::string("");
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ClippingExit(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                           vtkVolume* vol)
+  {
+    return std::string("");
+  }
 }
 
 

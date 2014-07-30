@@ -102,9 +102,11 @@ int TestGPURayCastClip(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 1.0, 1.0);
 
   // Test cropping now
+
+  double* bounds = reader->GetOutput()->GetBounds();
   vtkNew<vtkPlane> clipPlane;
-  clipPlane->SetOrigin(0.0, 0.0, 0.0);
-  clipPlane->SetNormal(-1.0, 0.0, 0.0);
+  clipPlane->SetOrigin(0.5 * (bounds[0] + bounds[1]), 0.0, 0.0);
+  clipPlane->SetNormal(1.0, 0.0, 0.0);
 
   vtkNew<vtkPlaneCollection> clipPlaneCollection;
   clipPlaneCollection->AddItem(clipPlane.GetPointer());

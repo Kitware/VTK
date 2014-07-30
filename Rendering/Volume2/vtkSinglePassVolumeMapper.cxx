@@ -38,6 +38,7 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkPerlinNoise.h>
+#include <vtkPlaneCollection.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
@@ -192,9 +193,16 @@ public:
   void UpdateVolumeGeometry();
 
   ///
-  /// \brief
+  /// \brief Update cropping parameters to the shader
   ///
   void UpdateCropping(vtkRenderer* ren, vtkVolume* vol);
+
+  ///
+  /// \brief UpdateClipping Update clipping parameters to the shader
+  /// \param ren
+  /// \param vol
+  ///
+  void UpdateClipping(vtkRenderer* ren, vtkVolume* vol);
 
   ///
   /// \brief Load OpenGL extensiosn required to grab depth sampler buffer
@@ -855,6 +863,47 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
     }
 }
 
+///----------------------------------------------------------------------------
+/// \brief vtkSinglePassVolumeMapper::UpdateClipping
+void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
+                                                            vtkVolume* vol)
+{
+  if (this->Parent->GetClippingPlanes())
+    {
+    std::vector<float> clippingPlanes;
+
+    this->Parent->ClippingPlanes->InitTraversal();
+    vtkPlane* plane;
+    while ((plane = this->Parent->ClippingPlanes->GetNextItem()))
+      {
+      // Planes are in world coordinates, we need to
+      // convert them in local coordinates
+      double planeOrigin[4], planeNormal[4];//, planeP1[4];
+      plane->GetOrigin(planeOrigin);
+      planeOrigin[3] = 1.;
+      plane->GetNormal(planeNormal);
+      planeNormal[3] = 1.;
+
+      clippingPlanes.push_back(planeOrigin[0]);
+      clippingPlanes.push_back(planeOrigin[1]);
+      clippingPlanes.push_back(planeOrigin[2]);
+      clippingPlanes.push_back(planeNormal[0]);
+      clippingPlanes.push_back(planeNormal[1]);
+      clippingPlanes.push_back(planeNormal[2]);
+      }
+
+    double croppingRegionPlanes[6];
+    this->Parent->GetCroppingRegionPlanes(croppingRegionPlanes);
+
+    std::cerr << "clippingPlanes.size() " << clippingPlanes.size() << std::endl;
+
+    glUniform1f(this->Shader("m_clipping_planes_size"), clippingPlanes.size());
+    /// TODO Remove hard-coded value
+    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes.size(),
+                 &clippingPlanes[0]);
+    }
+}
+
 ///
 /// \brief vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper
 ///----------------------------------------------------------------------------
@@ -998,6 +1047,17 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_EXIT@",
     vtkvolume::CroppingExit(ren, this, vol), true);
 
+  vertexShader = vtkvolume::replace(vertexShader, "@CLIPPING_GLOBALS_VERT@",
+    vtkvolume::ClippingGlobalsVert(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_GLOBALS_FRAG@",
+    vtkvolume::ClippingGlobalsFrag(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_INIT@",
+    vtkvolume::ClippingInit(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_INCREMENT@",
+    vtkvolume::ClippingIncrement(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_EXIT@",
+    vtkvolume::ClippingExit(ren, this, vol), true);
+
   /// Compile and link it
   this->Implementation->CompileAndLinkShader(vertexShader, fragmentShader);
 
@@ -1035,6 +1095,12 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
     {
     this->Implementation->Shader.AddUniform("cropping_planes");
     this->Implementation->Shader.AddUniform("cropping_flags");
+    }
+
+  if (this->GetClippingPlanes())
+    {
+    this->Implementation->Shader.AddUniform("m_clipping_planes");
+    this->Implementation->Shader.AddUniform("m_clipping_planes_size");
     }
 
   std::cerr << "fragment shader " << fragmentShader << std::endl;
@@ -1497,6 +1563,9 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 
   /// Updating cropping if enabled
   this->Implementation->UpdateCropping(ren, vol);
+
+  /// Updating clipping if enabled
+  this->Implementation->UpdateClipping(ren, vol);
 
   glBindVertexArray(this->Implementation->CubeVAOId);
   glDrawElements(GL_TRIANGLES,
