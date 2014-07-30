@@ -17,24 +17,25 @@
 =========================================================================*/
 // .NAME vtkXdmf3ArrayKeeper - LRU cache of XDMF Arrays
 // .SECTION Description
-// vtkXdmf3ArrayKeeper maintain an in memory cache of recently used XdmfArrays.
+// vtkXdmf3ArrayKeeper maintains the in memory cache of recently used XdmfArrays.
 // Each array that is loaded from XDMF is put in the cache and/or marked with the
 // current timestep. A release method frees arrays that have not been recently
 // used.
 //
-// This file is a helper for the vtkXdmf3Reader and vtkXdmf3Writer and
-// not intended to be part of VTK public API
+// This file is a helper for the vtkXdmf3Reader and not intended to be
+// part of VTK public API
 // VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h
 
 #ifndef __vtkXdmf3ArrayKeeper_h
 #define __vtkXdmf3ArrayKeeper_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
-#include "XdmfArray.hpp"
 #include <map>
 
-//==============================================================================
-class VTKIOXDMF3_EXPORT vtkXdmf3ArrayKeeper : public std::map<XdmfArray *, int>
+class XdmfArray;
+
+class VTKIOXDMF3_EXPORT vtkXdmf3ArrayKeeper
+  : public std::map<XdmfArray *, unsigned int>
 {
 public:
   //Description:
@@ -59,7 +60,7 @@ public:
   void Release(bool force);
 
 private:
-  int generation;
+  unsigned int generation;
 };
 
 #endif //__vtkXdmf3ArrayKeeper_h

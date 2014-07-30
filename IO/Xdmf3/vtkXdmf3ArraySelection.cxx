@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXdmf3Common.cxx
+  Module:    vtkXdmf3ArraySelection.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
