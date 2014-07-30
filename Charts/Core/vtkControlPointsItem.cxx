@@ -358,6 +358,12 @@ void vtkControlPointsItem::ComputePoints()
 void vtkControlPointsItem::TransformScreenToData(const vtkVector2f& in, vtkVector2f& out)
 {
   out = in;
+
+  // inverse shift/scale from screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  out.SetX(static_cast<float>((out.GetX() / ss[2]) - ss[0]));
+  out.SetY(static_cast<float>((out.GetY() / ss[3]) - ss[1]));
+
   if (this->UsingLogScale())
     {
     // using log scale.
@@ -387,6 +393,11 @@ void vtkControlPointsItem::TransformDataToScreen(const vtkVector2f& in, vtkVecto
     posX = bounds[0] + lnormVal * (bounds[1] - bounds[0]);
     out.SetX(posX);
     }
+
+  // now, shift/scale to screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  out.SetX(static_cast<float>((out.GetX() + ss[0]) * ss[2]));
+  out.SetY(static_cast<float>((out.GetY() + ss[1]) * ss[3]));
 }
 
 //-----------------------------------------------------------------------------

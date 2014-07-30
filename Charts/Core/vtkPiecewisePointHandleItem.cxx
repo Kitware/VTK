@@ -136,6 +136,12 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   this->CurrentPointIndex = currentIdx;
   double point[4];
   parentControl->GetControlPoint(parentControl->GetCurrentPoint(), point);
+
+  // shift/scale to scale from data space to rendering space.
+  const vtkRectd& ss = parentControl->GetShiftScale();
+  point[0] = (point[0] + ss[0]) * ss[2];
+  point[1] = (point[1] + ss[1]) * ss[3];
+
   unsigned char brushOpacity = painter->GetBrush()->GetOpacity();
   unsigned char penColor[3];
   painter->GetPen()->GetColor(penColor);
@@ -180,6 +186,13 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
 
   double blPos[2]={prePoint[0],prePoint[1]};
   double trPos[2]={nxtPoint[0],nxtPoint[1]};
+
+  blPos[0] = (blPos[0] + ss[0]) * ss[2];
+  blPos[1] = (blPos[1] + ss[1]) * ss[3];
+
+  trPos[0] = (trPos[0] + ss[0]) * ss[2];
+  trPos[1] = (trPos[1] + ss[1]) * ss[3];
+
   double screenBLPos[2], screenTRPos[2];
   sceneTransform->TransformPoints(blPos, screenBLPos, 1);
   sceneTransform->TransformPoints(trPos, screenTRPos, 1);
