@@ -97,7 +97,7 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
 // Check for special triangle case. Saves extra work.
 //
   n[0] = n[1] = n[2] = 0.0;
-  if ( numPts == 2 || numPts == 1 )
+  if ( numPts < 3 )
     {
     return;
     }
@@ -148,7 +148,7 @@ void vtkPolygon::ComputeNormal(vtkIdTypeArray *ids, vtkPoints *p, double n[3])
 // Check for special triangle case. Saves extra work.
 //
   n[0] = n[1] = n[2] = 0.0;
-  if ( numPts == 2 || numPts == 1 )
+  if ( numPts < 3 )
     {
     return;
     }
@@ -198,10 +198,15 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, double *n)
   // Polygon is assumed non-convex -> need to accumulate cross products to
   // find correct normal.
   //
+  n[0] = n[1] = n[2] = 0.0;
   numPts = p->GetNumberOfPoints();
+  if ( numPts < 3 )
+    {
+    return;
+    }
+
   p->GetPoint(0, v1); //set things up for loop
   p->GetPoint(1, v2);
-  n[0] = n[1] = n[2] = 0.0;
 
   for (i=0; i < numPts; i++)
     {
