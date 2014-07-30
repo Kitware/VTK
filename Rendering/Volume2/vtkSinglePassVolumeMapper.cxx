@@ -871,6 +871,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
   if (this->Parent->GetClippingPlanes())
     {
     std::vector<float> clippingPlanes;
+    // Currently we don't have any clipping plane
+    clippingPlanes.push_back(0);
 
     this->Parent->ClippingPlanes->InitTraversal();
     vtkPlane* plane;
@@ -895,11 +897,9 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
     double croppingRegionPlanes[6];
     this->Parent->GetCroppingRegionPlanes(croppingRegionPlanes);
 
-    std::cerr << "clippingPlanes.size() " << clippingPlanes.size() << std::endl;
-
-    glUniform1f(this->Shader("m_clipping_planes_size"), clippingPlanes.size());
-    /// TODO Remove hard-coded value
-    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes.size(),
+    clippingPlanes[0] = clippingPlanes.size() > 0 ? (clippingPlanes.size() - 1) :
+                                                    0;
+    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes[0],
                  &clippingPlanes[0]);
     }
 }
