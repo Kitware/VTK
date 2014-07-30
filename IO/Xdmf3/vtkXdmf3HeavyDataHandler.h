@@ -53,6 +53,8 @@ class XdmfUnstructuredGrid;
 class VTKIOXDMF3_EXPORT vtkXdmf3HeavyDataHandler
 {
 public:
+  //Description:
+  //factory constructor
   static shared_ptr<vtkXdmf3HeavyDataHandler> New(
       vtkXdmf3ArraySelection *fs,
       vtkXdmf3ArraySelection *cs,
@@ -64,6 +66,8 @@ public:
       vtkXdmf3ArrayKeeper *keeper,
       bool asTime );
 
+  //Description:
+  //destructor
   ~vtkXdmf3HeavyDataHandler();
 
   //Description:
@@ -74,13 +78,18 @@ public:
 
 protected:
 
+  //Description:
+  //constructor
   vtkXdmf3HeavyDataHandler();
 
+  //Description:
+  //for parallel partitioning
   bool ShouldRead(unsigned int piece, unsigned int npieces);
 
   bool GridEnabled(shared_ptr<XdmfGrid> grid);
   bool GridEnabled(shared_ptr<XdmfGraph> graph);
   bool SetEnabled(shared_ptr<XdmfSet> set);
+
   bool ForThisTime(shared_ptr<XdmfGrid> grid);
   bool ForThisTime(shared_ptr<XdmfGraph> graph);
 

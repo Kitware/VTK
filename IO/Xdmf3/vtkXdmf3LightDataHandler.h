@@ -42,6 +42,8 @@ class XdmfGrid;
 class VTKIOXDMF3_EXPORT vtkXdmf3LightDataHandler
 {
 public:
+  //Description:
+  //factory constructor
   static shared_ptr<vtkXdmf3LightDataHandler> New(
       vtkXdmf3SILBuilder *sb,
       vtkXdmf3ArraySelection* f,
@@ -52,6 +54,8 @@ public:
       unsigned int processor,
       unsigned int nprocessors);
 
+  //Description:
+  //destructor
   ~vtkXdmf3LightDataHandler();
 
   //Description:
@@ -72,34 +76,41 @@ public:
   std::set<double> getTimes();
 
 private:
+  //Description:
+  //constructor
   vtkXdmf3LightDataHandler();
 
+  //Description:
+  //remembers array names from the item
   void InspectArrays(shared_ptr<XdmfItem> item);
 
-  //helper for InspectXDMF
+  //Description:
+  //Used in SIL creation.
   bool TooDeep(unsigned int depth);
 
-  //helper for InspectXDMF
+  //Description:
+  //Used in SIL creation.
   std::string UniqueName(std::string name, bool ForGrid);
 
-  //helper for InspectXDMF
+  //Description:
+  //Used in SIL creation.
   void AddNamedBlock(vtkIdType parentVertex,
                      std::string originalName, std::string uniqueName);
 
-  //helper for InspectXDMF
+  //Description:
+  //Used in SIL creation.
   void AddNamedSet(vtkIdType parentVertex,
                    std::string originalName, std::string uniqueName);
 
+  //Description:
   //records times that xdmf grids supply data at
   //if timespecs are only implied we add them to make things simpler later on
   void InspectTime(shared_ptr<XdmfItem> item);
-
-  //helper for InspectTime
   void GetSetTime(shared_ptr<XdmfGrid> child, unsigned int &cnt);
-
-  //helper for InspectTime
   void GetSetTime(shared_ptr<XdmfGraph> child, unsigned int &cnt);
 
+  //Description:
+  //for parallel partitioning
   bool ShouldRead(unsigned int piece, unsigned int npieces);
 
   vtkXdmf3SILBuilder *SILBuilder;

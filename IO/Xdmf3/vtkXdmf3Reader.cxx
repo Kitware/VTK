@@ -20,10 +20,12 @@
 
 #include "vtksys/SystemTools.hxx"
 #include "vtkDataObjectTypes.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
@@ -237,6 +239,9 @@ public:
   }
 
   //--------------------------------------------------------------------------
+  vtkMultiPieceDataSet *Flatten(vtkMultiBlockDataSet *mbds);
+
+  //--------------------------------------------------------------------------
   void ReleaseArrays(bool force=false)
   {
     if (!this->Keeper)
@@ -274,7 +279,6 @@ private:
   {
     vtkTimerLog::MarkStartEvent("X3R::Init");
     unsigned int idx = this->FileNames.size();
-    assert(idx > 0);
 
     this->Reader = XdmfReader::New();
 
@@ -311,6 +315,7 @@ private:
         {
         if (AsTime || (i%updateNumPieces == updatePiece))
           {
+          //cerr << updatePiece << " reading " << this->FileNames[i] << endl;
           shared_ptr<XdmfDomain> fdomain = shared_dynamic_cast<XdmfDomain>
             (this->Reader->read(this->FileNames[i]));
 
@@ -454,6 +459,10 @@ void vtkXdmf3Reader::AddFileName(const char* filename)
 void vtkXdmf3Reader::SetFileName(const char* filename)
 {
   this->RemoveAllFileNames();
+  if (filename)
+    {
+    this->Internal->FileNames.push_back(filename);
+    }
   this->Superclass::SetFileName(filename);
 }
 
@@ -723,19 +732,111 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
       doTime, time,
       mbds,
       this->FileSeriesAsTime);
+
   if (mbds->GetNumberOfBlocks()==1)
     {
-    output->ShallowCopy(mbds->GetBlock(0));
+    vtkMultiBlockDataSet *ibds = vtkMultiBlockDataSet::SafeDownCast(mbds->GetBlock(0));
+    vtkMultiBlockDataSet *obds = vtkMultiBlockDataSet::SafeDownCast(output);
+    if (!this->FileSeriesAsTime && ibds && obds)
+      {
+      vtkMultiPieceDataSet *mpds = this->Internal->Flatten(ibds);
+      obds->SetBlock(0, mpds);
+      mpds->Delete();
+      }
+    else
+      {
+      output->ShallowCopy(mbds->GetBlock(0));
+      }
     }
   else
     {
-    output->ShallowCopy(mbds);
+    vtkMultiBlockDataSet *obds = vtkMultiBlockDataSet::SafeDownCast(output);
+    if (!this->FileSeriesAsTime && obds)
+      {
+      vtkMultiPieceDataSet *mpds = this->Internal->Flatten(mbds);
+      obds->SetBlock(0, mpds);
+      mpds->Delete();
+      }
+    else
+      {
+      output->ShallowCopy(mbds);
+      }
     }
   mbds->Delete();
 
   vtkTimerLog::MarkEndEvent("X3R::RD");
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+vtkMultiPieceDataSet * vtkXdmf3Reader::Internals::Flatten
+  (vtkMultiBlockDataSet* ibds)
+{
+  vtkDataObjectTreeIterator *it = ibds->NewTreeIterator();
+  unsigned int i = 0;
+
+  //found out how many pieces we have locally
+  it->InitTraversal();
+  it->VisitOnlyLeavesOn();
+  while(!it->IsDoneWithTraversal())
+    {
+    it->GoToNextItem();
+    i++;
+    }
+
+  //communicate to find out where mine should go
+  int mylen = i;
+  int *allLens;
+  unsigned int procnum;
+  unsigned int numProcs ;
+  vtkMultiProcessController* ctrl =
+    vtkMultiProcessController::GetGlobalController();
+  if (ctrl != NULL)
+    {
+    procnum = ctrl->GetLocalProcessId();
+    numProcs = ctrl->GetNumberOfProcesses();
+    allLens = new int[numProcs];
+    ctrl->AllGather(&mylen, allLens, 1);
+    }
+  else
+    {
+    procnum = 0;
+    numProcs = 1;
+    allLens = new int[1];
+    allLens[0] = mylen;
+    }
+  unsigned int myStart = 0;
+  unsigned int total = 0;
+  for (i = 0; i < numProcs; i++)
+    {
+    if (i < procnum)
+      {
+      myStart += allLens[i];
+      }
+    total += allLens[i];
+    }
+  delete[] allLens;
+
+  //cerr << "PROC " << procnum << " starts at " << myStart << endl;
+  //zero out everyone else's
+  vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::New();
+  for (i = 0; i < total; i++)
+    {
+    mpds->SetPiece(i++, NULL);
+    }
+
+  //fill in my pieces
+  it->GoToFirstItem();
+  while(!it->IsDoneWithTraversal())
+    {
+    mpds->SetPiece(myStart++, it->GetCurrentDataObject());
+    it->GoToNextItem();
+    }
+
+  it->Delete();
+
+  return mpds; //caller must Delete
 }
 
 //----------------------------------------------------------------------------

@@ -37,6 +37,8 @@
 #include "XdmfUnstructuredGrid.hpp"
 #include "XdmfVisitor.hpp"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(
   vtkXdmf3SILBuilder *sb,
@@ -460,7 +462,7 @@ bool vtkXdmf3LightDataHandler::ShouldRead
     return false;
     }
 
-#if 0
+#if 1
   unsigned int mystart = this->Rank*npieces/this->NumProcs;
   unsigned int myend = (this->Rank+1)*npieces/this->NumProcs;
   if (piece >= mystart)

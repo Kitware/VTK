@@ -15,13 +15,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkXdmf3SILBuilder -
+// .NAME vtkXdmf3SILBuilder - helper to allow block selection
 // .SECTION Description
-//
+// vtkXdmf3Reader uses this to build up a datastructure that represents
+// block trees that correspond to the file. ParaView builds a GUI from
+// that to let the user select from the various block and types of blocks
+// that should or should not be loaded.
 //
 // This file is a helper for the vtkXdmf3Reader and vtkXdmf3Writer and
 // not intended to be part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h
+// VTK-HeaderTest-Exclude: vtkXdmf3SILBuilder.h
 
 #ifndef __vtkXdmf3SILBuilder_h
 #define __vtkXdmf3SILBuilder_h
