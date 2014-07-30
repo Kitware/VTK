@@ -3522,6 +3522,8 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "DisplayType: " << this->DisplayType << "\n";
   os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
+  os << indent << "ModeShapesRange:  [ "
+    << this->GetModeShapesRange()[0] << ", " << this->GetModeShapesRange()[1] << "]\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
   if ( this->Metadata )
     {
@@ -5042,6 +5044,9 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->TimeStep = 0;
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
+  this->ModeShapesRange[0] = 0;
+  this->ModeShapesRange[1] = 0;
+  this->DisplayType = 0;
   this->DisplayType = 0;
   this->SILUpdateStamp = -1;
 

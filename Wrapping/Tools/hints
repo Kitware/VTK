@@ -58,6 +58,7 @@ vtkDirectionEncoder                   GetDecodedGradient                301  3
 vtkDistanceRepresentation             GetPoint1WorldPosition            307  3
 vtkDistanceRepresentation             GetPoint2WorldPosition            307  3
 vtkDoubleArray                        GetValueRange                     307  2
+vtkExodusIIReader                     GetModeShapesRange                304  2
 vtkExtentSplitter                     GetSubExtent                      304  6
 vtkExtractUnstructuredGrid            GetExtent                         307  6
 vtkFloatArray                         GetValueRange                     301  2
