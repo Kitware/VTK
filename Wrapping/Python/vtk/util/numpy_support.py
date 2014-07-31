@@ -225,6 +225,13 @@ def vtk_to_numpy(vtk_array):
             raise
     if shape[1] == 1:
         shape = (shape[0], )
-    result.shape = shape
+    try:
+        result.shape = shape
+    except ValueError:
+        if shape[0] == 0:
+           # Refer to https://github.com/numpy/numpy/issues/2536 .
+           # For empty array, reshape fails. Create the empty array explicitly
+           # if that happens.
+	   result = numpy.empty(shape, dtype=dtype)
+        else: raise
     return result
-
