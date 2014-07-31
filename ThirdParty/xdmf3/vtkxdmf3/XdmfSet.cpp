@@ -88,6 +88,7 @@ XdmfSet::populateItem(const std::map<std::string, std::string> & itemProperties,
     mName = name->second;
   }
   mType = XdmfSetType::New(itemProperties);
+  bool filled = false;
   for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter =
         childItems.begin();
       iter != childItems.end();
@@ -98,13 +99,15 @@ XdmfSet::populateItem(const std::map<std::string, std::string> & itemProperties,
     }
     else if(shared_ptr<XdmfArray> array = 
             shared_dynamic_cast<XdmfArray>(*iter)) {
-      this->swap(array);
+      if (!filled) {
+        this->swap(array);
+        filled = true;
+      }
       if (array->getReference()) {
         this->setReference(array->getReference());
         this->setReadMode(XdmfArray::Reference);
       }
       // TODO: If multiple dataitems.
-      break;
     }
   }
 }

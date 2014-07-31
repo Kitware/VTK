@@ -240,9 +240,6 @@ public:
   // Extracts numbered subset out of grid (grid corresponds to dataSet),
   // and fills in subSet with it.
   static void XdmfSubsetToVTK(
-    vtkXdmf3ArraySelection *fselection,
-    vtkXdmf3ArraySelection *cselection,
-    vtkXdmf3ArraySelection *pselection,
     XdmfGrid *grid,
     unsigned int setnum,
     vtkDataSet *dataSet,
