@@ -15,7 +15,7 @@ if(NOT VTK_USE_SYSTEM_AUTOBAHN)
   build_python_package("AutobahnPython" ${AutobahnPython_SOURCE_DIR}
     ${AutobahnPython_BINARY_DIR})
 
-  install(DIRECTORY ${AutobahnPython_BINARY_DIR}
+  install(DIRECTORY ${AutobahnPython_BINARY_DIR}/
     DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}"
     COMPONENT Runtime)
 endif()

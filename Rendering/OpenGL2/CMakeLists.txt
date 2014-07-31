@@ -225,7 +225,7 @@ if(VTK_USE_X)
     vtkXOpenGLRenderWindow.cxx
     )
 elseif(VTK_USE_OSMESA)
-  message("VTK will be built with OSMesa support!")
+  message(STATUS "VTK will be built with OSMesa support!")
   find_package(OSMesa REQUIRED)
   if(NOT OSMESA_FOUND)
     message(FATAL_ERROR "The OSMesa library could not be found. REQUIRED for off screen rendering")

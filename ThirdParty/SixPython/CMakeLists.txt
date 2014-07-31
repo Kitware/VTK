@@ -15,7 +15,7 @@ if(NOT VTK_USE_SYSTEM_SIX)
   build_python_package("SixPython" ${SixPython_SOURCE_DIR}
     ${SixPython_BINARY_DIR})
 
-  install(DIRECTORY ${SixPython_BINARY_DIR}
+  install(DIRECTORY ${SixPython_BINARY_DIR}/
     DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}"
     COMPONENT Runtime)
 endif()
