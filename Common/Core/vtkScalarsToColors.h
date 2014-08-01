@@ -14,12 +14,12 @@
 =========================================================================*/
 // .NAME vtkScalarsToColors - Superclass for mapping scalar values to colors
 // .SECTION Description
-// vtkScalarsToColors is a general purpose superclass for objects that
+// vtkScalarsToColors is a general-purpose base class for objects that
 // convert scalars to colors. This include vtkLookupTable classes and
 // color transfer functions.  By itself, this class will simply rescale
 // the scalars.
 //
-// The scalars to color mapping can be augmented with an additional
+// The scalar-to-color mapping can be augmented with an additional
 // uniform alpha blend. This is used, for example, to blend a vtkActor's
 // opacity with the lookup table values.
 //
@@ -28,14 +28,14 @@
 // \a GetNumberOfAnnotatedValues, \a GetAnnotatedValue, \a GetAnnotation,
 // \a RemoveAnnotation, and \a ResetAnnotations.
 //
-// This class also has a method for indicating that the set of annotated values
-// form a categorical color map;
-// by setting \a IndexedLookup to true, you indicate that the annotated
-// values are the only valid values for which entries in the color table
-// should be returned.
-// In this mode, subclasses should then assign colors
-// to annotated values by taking the modulus of an annotated value's index in the list
-// of annotations with the number of colors in the table.
+// This class also has a method for indicating that the set of
+// annotated values form a categorical color map; by setting \a
+// IndexedLookup to true, you indicate that the annotated values are
+// the only valid values for which entries in the color table should
+// be returned. In this mode, subclasses should then assign colors to
+// annotated values by taking the modulus of an annotated value's
+// index in the list of annotations with the number of colors in the
+// table.
 //
 // .SECTION See Also
 // vtkLookupTable vtkColorTransferFunction
@@ -67,11 +67,11 @@ public:
 
   // Description:
   // Perform any processing required (if any) before processing
-  // scalars.
+  // scalars. Default implementation does nothing.
   virtual void Build() {}
 
   // Description:
-  // Sets/Gets the range of scalars which will be mapped.
+  // Sets/Gets the range of scalars that will be mapped.
   virtual double *GetRange();
   virtual void SetRange(double min, double max);
   void SetRange(double rng[2])
@@ -83,8 +83,8 @@ public:
   virtual unsigned char *MapValue(double v);
 
   // Description:
-  // Map one value through the lookup table and return the color as
-  // an RGB array of doubles between 0 and 1.
+  // Map one value through the lookup table and store the color as
+  // an RGB array of doubles between 0 and 1 in the \a rgb argument.
   virtual void GetColor(double v, double rgb[3]);
 
   // Description:
@@ -95,7 +95,8 @@ public:
 
   // Description:
   // Map one value through the lookup table and return the alpha value
-  // (the opacity) as a double between 0 and 1.
+  // (the opacity) as a double between 0 and 1. This implementation
+  // always returns 1.
   virtual double GetOpacity(double v);
 
   // Description:
@@ -115,17 +116,18 @@ public:
   vtkGetMacro(Alpha,double);
 
   // Description:
-  // An internal method maps a data array into a 4-component, unsigned char
-  // RGBA array. The color mode determines the behavior of mapping. If
-  // VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are
-  // treated as colors (and converted to RGBA if necessary); otherwise,
-  // the data is mapped through this instance of ScalarsToColors. The offset
-  // is used for data arrays with more than one component; it indicates
-  // which component to use to do the blending.
-  // When the component argument is -1, then the this object uses its
-  // own selected technique to change a vector into a scalar to map.
+  // An internal method that maps a data array into a 4-component,
+  // unsigned char RGBA array. The color mode determines the behavior
+  // of mapping. If VTK_COLOR_MODE_DEFAULT is set, then unsigned char
+  // data arrays are treated as colors (and converted to RGBA if
+  // necessary); otherwise, the data is mapped through this instance
+  // of ScalarsToColors. The component argument is used for data
+  // arrays with more than one component; it indicates which component
+  // to use to do the blending.  When the component argument is -1,
+  // then the this object uses its own selected technique to change a
+  // vector into a scalar to map.
   virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
-                                   int component);
+                                           int component);
 
   // Description:
   // Change mode that maps vectors by magnitude vs. component.
@@ -219,7 +221,7 @@ public:
 
   // Description:
   // This should return 1 is the subclass is using log scale for mapping scalars
-  // to colors. Default implementation returns 0.
+  // to colors. Default implementation always returns 0.
   virtual int UsingLogScale()
     { return 0; }
 
@@ -243,60 +245,71 @@ public:
   vtkGetObjectMacro(AnnotatedValues,vtkAbstractArray);
   vtkGetObjectMacro(Annotations,vtkStringArray);
 
-  /**\brief Add a new entry (or change an existing entry) to the list of annotated values.
-    *
-    * Returns the index of \a value in the list of annotations.
-    */
+  // Description:
+  // Add a new entry (or change an existing entry) to the list of annotated values.
+  // Returns the index of \a value in the list of annotations.
   virtual vtkIdType SetAnnotation(vtkVariant value, vtkStdString annotation);
 
-  /// This variant of \a SetAnnotation accepts the value as a string so ParaView can treat annotations as string vector arrays.
+  // Description:
+  // This variant of \a SetAnnotation accepts the value as a string so
+  // ParaView can treat annotations as string vector arrays.
   virtual vtkIdType SetAnnotation(vtkStdString value, vtkStdString annotation);
 
-  /// Return the annotated value at a particular index in the list of annotations.
+  // Description:
+  // Return the annotated value at a particular index in the list of annotations.
   vtkIdType GetNumberOfAnnotatedValues();
 
-  /// Return the annotated value at a particular index in the list of annotations.
+  // Description:
+  // Return the annotated value at a particular index in the list of annotations.
   vtkVariant GetAnnotatedValue(vtkIdType idx);
 
-  /// Return the annotation at a particular index in the list of annotations.
+  // Description:
+  // Return the annotation at a particular index in the list of annotations.
   vtkStdString GetAnnotation(vtkIdType idx);
 
-  /// Obtain the color associated with a particular annotated value (or NanColor if unmatched).
+  // Description:
+  // Obtain the color associated with a particular annotated value (or NanColor if unmatched).
   virtual void GetAnnotationColor(const vtkVariant& val, double rgba[4]);
 
-  /// Return the index of the given value in the list of annotated values (or -1 if not present).
+  // Description:
+  // Return the index of the given value in the list of annotated values (or -1 if not present).
   vtkIdType GetAnnotatedValueIndex( vtkVariant val );
 
-  /// Look up an index into the array of annotations given a value. Does no pointer checks. Returns -1 when \a val not present.
+  // Description:
+  // Look up an index into the array of annotations given a
+  // value. Does no pointer checks. Returns -1 when \p val not
+  // present.
   vtkIdType GetAnnotatedValueIndexInternal(vtkVariant& val);
 
-  /** Get the "indexed color" assigned to an index.
-   *
-   * The index is used in \a IndexedLookup mode to assign colors to annotations (in the order
-   * the annotations were set).
-   * Subclasses must implement this and interpret how to treat the index.
-   * vtkLookupTable simply returns GetTableValue(\a index % \a this->GetNumberOfTableValues()).
-   * vtkColorTransferFunction returns the color assocated with node \a index % \a this->GetSize().
-   *
-   * Note that implementations *must* set the opacity (alpha) component of the color, even if they
-   * do not provide opacity values in their colormaps. In that case, alpha = 1 should be used.
-   */
+  // Description:
+  // Get the "indexed color" assigned to an index.
+  //
+  // The index is used in \a IndexedLookup mode to assign colors to annotations (in the order
+  // the annotations were set).
+  // Subclasses must implement this and interpret how to treat the index.
+  // vtkLookupTable simply returns GetTableValue(\a index % \a this->GetNumberOfTableValues()).
+  // vtkColorTransferFunction returns the color assocated with node \a index % \a this->GetSize().
+  //
+  // Note that implementations *must* set the opacity (alpha) component of the color, even if they
+  // do not provide opacity values in their colormaps. In that case, alpha = 1 should be used.
   virtual void GetIndexedColor(vtkIdType i, double rgba[4]);
 
-  /**\brief Remove an existing entry from the list of annotated values.
-    *
-    * True is returned when the entry was actually removed (i.e., it existed before the call).
-    * Otherwise, false is returned.
-    */
+  // Description:
+  // Remove an existing entry from the list of annotated values.
+  //
+  // Returns true when the entry was actually removed (i.e., it existed before the call).
+  // Otherwise, returns false.
   virtual bool RemoveAnnotation(vtkVariant value);
 
-  /// Remove all existing values and their annotations.
+  // Description:
+  // Remove all existing values and their annotations.
   virtual void ResetAnnotations();
 
   // Description:
   // Set/get whether the lookup table is for categorical or ordinal data.
   // The default is ordinal data; values not present in the lookup table
   // will be assigned an interpolated color.
+  //
   // When categorical data is present, only values in the lookup table will be
   // considered valid; all other values will be assigned \a NanColor.
   vtkSetMacro(IndexedLookup,int);
@@ -311,7 +324,7 @@ protected:
   // An internal method that assumes that the input already has the right
   // colors, and only remaps the range to [0,255] and pads to the desired
   // output format.  If the input has 1 or 2 components, the first component
-  // will duplicated if the output format is RGB or RGBA.  If the input
+  // will be duplicated if the output format is RGB or RGBA.  If the input
   // has 2 or 4 components, the last component will be used for the alpha
   // if the output format is RGBA or LuminanceAlpha.  If the input has
   // 3 or 4 components but the output is Luminance or LuminanceAlpha,
@@ -329,16 +342,23 @@ protected:
                              int inputDataType, int numberOfValues,
                              int numberOfComponents, int vectorSize);
 
-  /// Allocate annotation arrays if needed, then return the index of the given \a value or -1 if not present.
+  // Description:
+  // Allocate annotation arrays if needed, then return the index of
+  // the given \a value or -1 if not present.
   virtual vtkIdType CheckForAnnotatedValue( vtkVariant value );
-  /// Update the map from annotated values to indices in the array of annotations.
+
+  // Description:
+  // Update the map from annotated values to indices in the array of
+  // annotations.
   virtual void UpdateAnnotatedValueMap();
 
   // Annotations of specific values.
-  class vtkInternalAnnotatedValueMap;
   vtkAbstractArray* AnnotatedValues;
-  vtkStringArray* Annotations;
+  vtkStringArray*   Annotations;
+
+  class vtkInternalAnnotatedValueMap;
   vtkInternalAnnotatedValueMap* AnnotatedValueMap;
+
   int IndexedLookup;
 
   double Alpha;
@@ -361,6 +381,3 @@ private:
 };
 
 #endif
-
-
-
