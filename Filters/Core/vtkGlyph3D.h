@@ -262,6 +262,14 @@ protected:
 
   vtkPolyData* GetSource(int idx, vtkInformationVector *sourceInfo);
 
+  // Description:
+  // Method called in RequestData() to do the actual data processing. This will
+  // glyph the \c input, filling up the \c output based on the filter
+  // parameters.
+  virtual bool Execute(vtkDataSet* input,
+    vtkInformationVector* sourceVector,
+    vtkPolyData* output, int requestedGhostLevel);
+
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude
