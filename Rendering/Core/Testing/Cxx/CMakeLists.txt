@@ -10,6 +10,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAssemblyBounds.cxx,NO_VALID
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
+  TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapperArrow.cxx

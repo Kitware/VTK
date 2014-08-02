@@ -149,7 +149,10 @@ public:
 
   // Description:
   // Returns the (x, r, g, b) values as an array.
-  double* GetRGBPoints();
+  // vtkColorTransferFunction::GetDataPointer(). Retained for
+  // backwards compatibility.
+  // \deprecated Use GetDataPointer() instead.
+  VTK_LEGACY(double* GetRGBPoints());
 
   // Description:
   // Specify an additional opacity (alpha) value to blend with. Values
@@ -226,10 +229,6 @@ private:
       int scalarType,
       void* scalarsPtr, int component,
       int numberOfComponents, vtkIdType numberOfTuples, unsigned char* colors);
-
-
-  // Pointer used by GetRGBPoints().
-  double* Data;
 
   class vtkInternals;
   vtkInternals* Internals;
