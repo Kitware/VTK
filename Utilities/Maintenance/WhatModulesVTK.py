@@ -144,7 +144,7 @@ def ParseModuleFile(fileName):
         for l in line.split(" "):
             lines.append(l)
     keywords = ['BACKEND', 'COMPILE_DEPENDS', 'DEPENDS', 'EXCLUDE_FROM_ALL',
-                'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS',
+                'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS', 'KIT',
                 'PRIVATE_DEPENDS', 'TEST_DEPENDS']
     moduleName = ""
     depends = []
