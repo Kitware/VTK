@@ -951,6 +951,22 @@ bool testCopies(vtkUnstructuredGridBase *test)
   return true;
 }
 
+void testSaveArrays()
+{
+  vtkIdType numPoints = 1000;
+  vtkNew<vtkCPExodusIIResultsArrayTemplate<double> > testScalars;
+  testScalars->SetName("test-scalars");
+  double *testScalarArray = new double[numPoints];
+  for(int i=0;i<numPoints;i++)
+    {
+    testScalarArray[i] = 1;
+    }
+  testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray),
+                                     numPoints, true);
+  testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray),
+                                     numPoints, true);
+}
+
 int TestInSituExodus(int argc, char *argv[])
 {
   vtkNew<vtkTimerLog> timer;
@@ -1001,6 +1017,8 @@ int TestInSituExodus(int argc, char *argv[])
     {
     FAIL("Pipeline test failed!")
     }
+
+  testSaveArrays();
 
   timer->StopTimer();
   double time = timer->GetElapsedTime();
