@@ -39,7 +39,7 @@ int vtkClientSocket::ConnectToServer(const char* hostName, int port)
     }
 
   this->SocketDescriptor = this->CreateSocket();
-  if (!this->SocketDescriptor)
+  if (this->SocketDescriptor == -1)
     {
     vtkErrorMacro("Failed to create socket.");
     return -1;
