@@ -95,6 +95,16 @@ public:
     }
 
   // Description:
+  // Since ModeShapes are expected to run from [1,N] rather than [0, N],
+  // this method will return the TimeStepRange offset by 1.
+  virtual int* GetModeShapesRange()
+    {
+    this->ModeShapesRange[0] = this->TimeStepRange[0] + 1;
+    this->ModeShapesRange[1] = this->TimeStepRange[1] + 1;
+    return this->ModeShapesRange;
+    }
+
+  // Description:
   // Returns the available range of valid integer time steps.
   vtkGetVector2Macro(TimeStepRange,int);
   vtkSetVector2Macro(TimeStepRange,int);
@@ -747,6 +757,7 @@ private:
   void operator=(const vtkExodusIIReader&); // Not implemented
 
   void AddDisplacements(vtkUnstructuredGrid* output);
+  int ModeShapesRange[2];
 };
 
 #endif
