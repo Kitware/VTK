@@ -414,7 +414,7 @@ int TestAppendFilter( int, char* [])
   // Now append these datasets and print the results
   std::cout << "===========================================================\n";
   std::cout << "Append result with no active scalars: " << std::endl;
-  std::vector<vtkPolyData*> inputs(2, NULL);
+  std::vector<vtkPolyData*> inputs(2, static_cast<vtkPolyData*>(NULL));
   inputs[0] = d1.GetPointer();
   inputs[1] = d2.GetPointer();
   if (!AppendDatasetsAndPrint(inputs))
