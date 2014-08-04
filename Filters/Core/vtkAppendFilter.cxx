@@ -342,6 +342,8 @@ int vtkAppendFilter::RequestData(
   output->SetPoints(newPts);
   output->Squeeze();
 
+  delete[] globalIndices;
+
   return 1;
 }
 
@@ -422,7 +424,8 @@ void vtkAppendFilter::AppendArrays(vtkDataSetAttributes* (*selector)(vtkDataSet*
       }
     else
       {
-      for (std::set<std::string>::iterator it = dataArrayNames.begin(); it != dataArrayNames.end(); ++it)
+      std::set<std::string>::iterator it = dataArrayNames.begin();
+      while (it != dataArrayNames.end())
         {
         const char* arrayName = it->c_str();
         vtkDataArray* array = inputData->GetArray(arrayName);
@@ -432,7 +435,11 @@ void vtkAppendFilter::AppendArrays(vtkDataSetAttributes* (*selector)(vtkDataSet*
             array->GetNumberOfComponents() != firstArray->GetNumberOfComponents())
           {
           // Incompatible array in this input. We can't append it.
-          dataArrayNames.erase(it);
+          dataArrayNames.erase(it++);
+          }
+        else
+          {
+          ++it;
           }
         }
       }
