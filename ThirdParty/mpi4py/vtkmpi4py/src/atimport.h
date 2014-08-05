@@ -345,9 +345,9 @@ PyMemoryView_FromBuffer(Py_buffer *view)
 #undef  PyGILState_Release
 #define PyGILState_Release(state) (state)=((PyGILState_STATE)0)
 #undef  Py_BLOCK_THREADS
-#define Py_BLOCK_THREADS (_save)=(PyThreadState*)0;
+#define Py_BLOCK_THREADS
 #undef  Py_UNBLOCK_THREADS
-#define Py_UNBLOCK_THREADS (_save)=(PyThreadState*)0;
+#define Py_UNBLOCK_THREADS
 #endif
 
 /* ------------------------------------------------------------------------- */
