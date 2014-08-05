@@ -59,6 +59,8 @@ macro(vtk_module _name)
   set(${vtk-module}_TEST_LABELS "")
   set(${vtk-module}_KIT "")
   foreach(arg ${ARGN})
+    # XXX: Adding a new keyword? Update Utilities/Maintenance/WhatModulesVTK.py
+    # and Utilities/Maintenance/VisualizeModuleDependencies.py as well.
     if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT)$")
       set(_doing "${arg}")
     elseif("${arg}" MATCHES "^EXCLUDE_FROM_ALL$")
