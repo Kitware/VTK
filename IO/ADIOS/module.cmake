@@ -9,4 +9,5 @@ vtk_module(vtkIOADIOS
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
+  EXCLUDE_FROM_ALL
   )
