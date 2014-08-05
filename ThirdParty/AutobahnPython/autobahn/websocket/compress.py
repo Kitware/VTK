@@ -18,51 +18,60 @@
 
 from __future__ import absolute_import
 
-
-__all__ = ["PerMessageCompressOffer",
-           "PerMessageCompressOfferAccept",
-           "PerMessageCompressResponse",
-           "PerMessageCompressResponseAccept",
-           "PerMessageCompress",
-
-           "PerMessageDeflateOffer",
-           "PerMessageDeflateOfferAccept",
-           "PerMessageDeflateResponse",
-           "PerMessageDeflateResponseAccept",
-           "PerMessageDeflate",
-
-           "PerMessageBzip2Offer",
-           "PerMessageBzip2OfferAccept",
-           "PerMessageBzip2Response",
-           "PerMessageBzip2ResponseAccept",
-           "PerMessageBzip2",
-
-           "PERMESSAGE_COMPRESSION_EXTENSION"
-           ]
+__all__ = [
+   "PerMessageCompressOffer",
+   "PerMessageCompressOfferAccept",
+   "PerMessageCompressResponse",
+   "PerMessageCompressResponseAccept",
+   "PerMessageCompress",
+   "PerMessageDeflateOffer",
+   "PerMessageDeflateOfferAccept",
+   "PerMessageDeflateResponse",
+   "PerMessageDeflateResponseAccept",
+   "PerMessageDeflate",
+   "PERMESSAGE_COMPRESSION_EXTENSION"
+]
 
 from autobahn.websocket.compress_base import *
 from autobahn.websocket.compress_deflate import *
-from autobahn.websocket.compress_bzip2 import *
 
 
-## class for "permessage-deflate" and "permessage-bzip2" are always available
+## class for "permessage-deflate" is always available
 ##
 PERMESSAGE_COMPRESSION_EXTENSION = {
-
    PerMessageDeflateMixin.EXTENSION_NAME: {
       'Offer': PerMessageDeflateOffer,
       'OfferAccept': PerMessageDeflateOfferAccept,
       'Response': PerMessageDeflateResponse,
       'ResponseAccept': PerMessageDeflateResponseAccept,
-      'PMCE': PerMessageDeflate},
+      'PMCE': PerMessageDeflate
+   }
+}
 
-   PerMessageBzip2Mixin.EXTENSION_NAME: {
+
+## include "permessage-bzip2" classes if bzip2 is available
+##
+try:
+   import bz2
+   from autobahn.websocket.compress_bzip2 import *
+
+   PMCE = {
       'Offer': PerMessageBzip2Offer,
       'OfferAccept': PerMessageBzip2OfferAccept,
       'Response': PerMessageBzip2Response,
       'ResponseAccept': PerMessageBzip2ResponseAccept,
-      'PMCE': PerMessageBzip2}
-}
+      'PMCE': PerMessageBzip2
+   }
+   PERMESSAGE_COMPRESSION_EXTENSION[PerMessageBzip2Mixin.EXTENSION_NAME] = PMCE
+
+   __all__.extend(["PerMessageBzip2Offer",
+                   "PerMessageBzip2OfferAccept",
+                   "PerMessageBzip2Response",
+                   "PerMessageBzip2ResponseAccept",
+                   "PerMessageBzip2"])
+
+except ImportError:
+   pass
 
 
 ## include "permessage-snappy" classes if Snappy is available
@@ -70,6 +79,7 @@ PERMESSAGE_COMPRESSION_EXTENSION = {
 try:
    import snappy
    from autobahn.websocket.compress_snappy import *
+
    PMCE = {
       'Offer': PerMessageSnappyOffer,
       'OfferAccept': PerMessageSnappyOfferAccept,

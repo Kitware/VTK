@@ -22,17 +22,29 @@ __all__ = ['ApplicationSession',
            'ApplicationSessionFactory',
            'ApplicationRunner',
            'RouterSession',
-           'RouterSessionFactory']
+           'RouterSessionFactory',
+           'Broker',
+           'Dealer',
+           'Router',
+           'RouterFactory',
+           'FutureMixin']
 
 import sys
 
-import asyncio
-from asyncio.tasks import iscoroutine
-from asyncio import Future
+try:
+   import asyncio
+   from asyncio.tasks import iscoroutine
+   from asyncio import Future
+except ImportError:
+   ## Trollius >= 0.3 was renamed
+   import trollius as asyncio
+   from trollius.tasks import iscoroutine
+   from trollius import Future
 
 from autobahn.wamp import protocol
-from autobahn.websocket.protocol import parseWsUrl
 from autobahn.wamp.types import ComponentConfig
+from autobahn.wamp import router, broker, dealer
+from autobahn.websocket.protocol import parseWsUrl
 from autobahn.asyncio.websocket import WampWebSocketClientFactory
 
 
@@ -42,10 +54,12 @@ class FutureMixin:
    Mixin for Asyncio style Futures.
    """
 
-   def _create_future(self):
+   @staticmethod
+   def _create_future():
       return Future()
 
-   def _as_future(self, fun, *args, **kwargs):
+   @staticmethod
+   def _as_future(fun, *args, **kwargs):
       try:
          res = fun(*args, **kwargs)
       except Exception as e:
@@ -62,13 +76,16 @@ class FutureMixin:
             f.set_result(res)
             return f
 
-   def _resolve_future(self, future, value):
+   @staticmethod
+   def _resolve_future(future, value):
       future.set_result(value)
 
-   def _reject_future(self, future, value):
+   @staticmethod
+   def _reject_future(future, value):
       future.set_exception(value)
 
-   def _add_future_callbacks(self, future, callback, errback):
+   @staticmethod
+   def _add_future_callbacks(future, callback, errback):
       def done(f):
          try:
             res = f.result()
@@ -77,8 +94,52 @@ class FutureMixin:
             errback(e)
       return future.add_done_callback(done)
 
-   def _gather_futures(self, futures, consume_exceptions = True):
+   @staticmethod
+   def _gather_futures(futures, consume_exceptions = True):
       return asyncio.gather(*futures, return_exceptions = consume_exceptions)
+
+
+
+class Broker(FutureMixin, broker.Broker):
+   """
+   Basic WAMP broker for asyncio-based applications.
+   """
+
+
+
+class Dealer(FutureMixin, dealer.Dealer):
+   """
+   Basic WAMP dealer for asyncio-based applications.
+   """
+
+
+
+class Router(FutureMixin, router.Router):
+   """
+   Basic WAMP router for asyncio-based applications.
+   """
+
+   broker = Broker
+   """
+   The broker class this router will use. Defaults to :class:`autobahn.asyncio.wamp.Broker`
+   """
+
+   dealer = Dealer
+   """
+   The dealer class this router will use. Defaults to :class:`autobahn.asyncio.wamp.Dealer`
+   """
+
+
+
+class RouterFactory(FutureMixin, router.RouterFactory):
+   """
+   Basic WAMP router factory for asyncio-based applications.
+   """
+
+   router = Router
+   """
+   The router class this router factory will use. Defaults to :class:`autobahn.asyncio.wamp.Router`
+   """
 
 
 
@@ -88,11 +149,16 @@ class ApplicationSession(FutureMixin, protocol.ApplicationSession):
    """
 
 
+
 class ApplicationSessionFactory(FutureMixin, protocol.ApplicationSessionFactory):
    """
    WAMP application session factory for asyncio-based applications.
    """
+
    session = ApplicationSession
+   """
+   The application session class this application session factory will use. Defaults to :class:`autobahn.asyncio.wamp.ApplicationSession`.
+   """
 
 
 
@@ -102,11 +168,16 @@ class RouterSession(FutureMixin, protocol.RouterSession):
    """
 
 
+
 class RouterSessionFactory(FutureMixin, protocol.RouterSessionFactory):
    """
    WAMP router session factory for asyncio-based applications.
    """
+
    session = RouterSession
+   """
+   The router session class this router session factory will use. Defaults to :class:`autobahn.asyncio.wamp.RouterSession`.
+   """
 
 
 
@@ -122,7 +193,6 @@ class ApplicationRunner:
    def __init__(self, url, realm, extra = None,
       debug = False, debug_wamp = False, debug_app = False):
       """
-      Constructor.
 
       :param url: The WebSocket URL of the WAMP router to connect to (e.g. `ws://somehost.com:8090/somepath`)
       :type url: str
@@ -159,13 +229,13 @@ class ApplicationRunner:
          cfg = ComponentConfig(self.realm, self.extra)
          try:
             session = make(cfg)
-         except Exception:
+         except Exception as e:
             ## the app component could not be created .. fatal
-            print(traceback.format_exc())
+            print(e)
             asyncio.get_event_loop().stop()
-
-         session.debug_app = self.debug_app
-         return session
+         else:
+            session.debug_app = self.debug_app
+            return session
 
       isSecure, host, port, resource, path, params = parseWsUrl(self.url)
 
@@ -175,7 +245,7 @@ class ApplicationRunner:
 
       ## 3) start the client
       loop = asyncio.get_event_loop()
-      coro = loop.create_connection(transport_factory, host, port)
+      coro = loop.create_connection(transport_factory, host, port, ssl = isSecure)
       loop.run_until_complete(coro)
 
       ## 4) now enter the asyncio event loop

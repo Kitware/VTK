@@ -21,6 +21,8 @@ __all__ = ("WebSocketResource",
            "WSGIRootResource",)
 
 
+from six.moves.urllib import parse
+
 from zope.interface import implementer
 
 from twisted.protocols.policies import ProtocolWrapper
@@ -117,6 +119,7 @@ class WebSocketResource(object):
       self._factory = factory
 
 
+   # noinspection PyUnusedLocal
    def getChildWithDefault(self, name, request):
       """
       This resource cannot have children, hence this will always fail.

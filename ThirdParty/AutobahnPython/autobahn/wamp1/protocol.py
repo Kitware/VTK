@@ -52,8 +52,8 @@ from twisted.internet.defer import Deferred, \
 
 from autobahn import __version__
 
-from autobahn.websocket.protocol import WebSocketProtocol, \
-                                        Timings
+from autobahn.websocket.protocol import WebSocketProtocol
+
 from autobahn.websocket import http
 from autobahn.twisted.websocket import WebSocketClientProtocol, \
                                        WebSocketClientFactory, \
@@ -61,7 +61,7 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, \
                                        WebSocketServerProtocol
 from autobahn.wamp1.pbkdf2 import pbkdf2_bin
 from autobahn.wamp1.prefixmap import PrefixMap
-from autobahn.util import utcnow, newid
+from autobahn.util import utcnow, newid, Tracker
 
 
 def exportRpc(arg = None):
@@ -457,6 +457,7 @@ class WampProtocol:
          raise Exception("invalid type for procedure URI")
 
       procuri = args[0]
+      callid = None
       while True:
          callid = newid()
          if not self.calls.has_key(callid):
@@ -721,6 +722,7 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
          log.msg("registered publication handler for topic %s" % uri)
 
 
+   # noinspection PyDefaultArgument
    def dispatch(self, topicUri, event, exclude = [], eligible = None):
       """
       Dispatch an event for a topic to all clients subscribed to
@@ -901,7 +903,7 @@ class WampServerProtocol(WebSocketServerProtocol, WampProtocol):
                   log.msg("unknown message type")
             else:
                log.msg("msg not a list")
-         except Exception as e:
+         except Exception:
             traceback.print_exc()
       else:
          log.msg("binary message")
@@ -1012,6 +1014,7 @@ class WampServerFactory(WebSocketServerFactory, WampFactory):
             log.msg("unsubscribed peer %s from all topics" % (proto.peer))
 
 
+   # noinspection PyDefaultArgument
    def dispatch(self, topicUri, event, exclude = [], eligible = None):
       """
       Dispatch an event to all peers subscribed to the event topic.
@@ -1339,6 +1342,7 @@ class WampClientProtocol(WebSocketClientProtocol, WampProtocol):
          ##
          if self.subscriptions.has_key(topicUri):
             event = obj[2]
+            # noinspection PyCallingNonCallable
             self.subscriptions[topicUri](topicUri, event)
          else:
             ## event received for non-subscribed topic (could be because we
@@ -1868,19 +1872,14 @@ class WampCraServerProtocol(WampServerProtocol, WampCraProtocol):
 
          ## create authentication challenge
          ##
-         info = {}
-         info['authid'] = authid
-         info['authkey'] = authKey
-         info['timestamp'] = utcnow()
-         info['sessionid'] = self.session_id
-         info['extra'] = extra
+         info = {'authid': authid, 'authkey': authKey, 'timestamp': utcnow(), 'sessionid': self.session_id,
+                 'extra': extra}
 
          pp = maybeDeferred(self.getAuthPermissions, authKey, extra)
 
          def onAuthPermissionsOk(res):
             if res is None:
-               res = {'permissions': {}}
-               res['permissions'] = {'pubsub': [], 'rpc': []}
+               res = {'permissions': {'pubsub': [], 'rpc': []}}
             info['permissions'] = res['permissions']
             if 'authextra' in res:
                 info['authextra'] = res['authextra']
@@ -1996,7 +1995,14 @@ class Call:
       self.uri = uri
       self.args = args
       self.extra = extra
-      self.timings = None
+      if self.proto.trackTimings:
+          self.timings = Tracker(tracker=None, tracked=None)
+      else:
+          self.timings = None
+
+   def track(self, key):
+       if self.timings:
+           self.timings.track(key)
 
 
 
@@ -2007,6 +2013,7 @@ class Handler(object):
 
 
    typeid = None
+   tracker = None
 
 
    def __init__(self, proto, prefixes):
@@ -2061,16 +2068,6 @@ class Handler(object):
       Has to be overridden in subclasses.
       """
       raise NotImplementedError
-
-
-   def maybeTrackTimings(self, call, msg):
-      """
-      Track timings, if desired.
-      """
-      if self.proto.trackTimings:
-         self.proto.doTrack(msg)
-         call.timings = self.proto.trackedTimings
-         self.proto.trackedTimings = Timings()
 
 
 
@@ -2131,7 +2128,7 @@ class CallHandler(Handler):
       uri, args = self.proto.onBeforeCall(self.callid, self.uri, self.args, bool(self.proto.procForUri(self.uri)))
 
       call = Call(self.proto, self.callid, uri, args)
-      self.maybeTrackTimings(call, "onBeforeCall")
+      call.track("onBeforeCall")
       return call
 
 
@@ -2181,7 +2178,7 @@ class CallHandler(Handler):
       Execute custom success handler and send call result.
       """
       ## track timing and fire user callback
-      self.maybeTrackTimings(call, "onAfterCallSuccess")
+      call.track("onAfterCallSuccess")
       call.result = self.proto.onAfterCallSuccess(result, call)
 
       ## send out WAMP message
@@ -2193,7 +2190,7 @@ class CallHandler(Handler):
       Execute custom error handler and send call error.
       """
       ## track timing and fire user callback
-      self.maybeTrackTimings(call, "onAfterCallError")
+      call.track("onAfterCallError")
       call.error = self.proto.onAfterCallError(error, call)
 
       ## send out WAMP message
@@ -2214,7 +2211,7 @@ class CallHandler(Handler):
          self.proto.sendMessage(rmsg)
 
          ## track timing and fire user callback
-         self.maybeTrackTimings(call, "onAfterSendCallSuccess")
+         call.track("onAfterSendCallSuccess")
          self.proto.onAfterSendCallSuccess(rmsg, call)
 
 
@@ -2235,7 +2232,7 @@ class CallHandler(Handler):
             self.proto.sendMessage(rmsg)
 
             ## track timing and fire user callback
-            self.maybeTrackTimings(call, "onAfterSendCallError")
+            call.track("onAfterSendCallError")
             self.proto.onAfterSendCallError(rmsg, call)
 
             if killsession:
@@ -2473,8 +2470,7 @@ class CallErrorHandler(Handler):
       ## Pop and process Call Deferred
       d = self.proto.calls.pop(self.callid, None)
       if d:
-         e = Exception()
-         e.args = (self.erroruri, self.errordesc, self.errordetails)
+         e = Exception(self.erroruri, self.errordesc, self.errordetails)
          d.errback(e)
       else:
          if self.proto.debugWamp:

@@ -100,15 +100,22 @@
             connectionInfo.secret = "vtkweb-secret"; // Default value
         }
 
-
         connectionInfo.connection = new autobahn.Connection({
             url: wsuri,
             realm: "vtkweb",
-            max_retries: 1,
-            initial_retry_delay: 2
+            authmethods: ["wampcra"],
+            authid: "vtkweb",
+            onchallenge: function(session, method, extra) {
+                if (method === "wampcra") {
+                    var secretKey = autobahn.auth_cra.derive_key(connectionInfo.secret, "salt123");
+                    return autobahn.auth_cra.sign(secretKey, extra.challenge);
+                } else {
+                    throw "don't know how to authenticate using '" + method + "'";
+                }
+            }
         });
 
-        connectionInfo.connection.onopen = function(session) {
+        connectionInfo.connection.onopen = function(session, details) {
             try {
                 connectionInfo.session = session;
                 connections[connectionInfo.sessionURL] = connectionInfo;
@@ -121,12 +128,10 @@
             }
         }
 
-        connectionInfo.connection.onclose = function(reason, details) {
-            console.log(reason);
-            console.log(details);
+        connectionInfo.connection.onclose = function() {
             delete connections[connectionInfo.sessionURL];
             if (onClose) {
-                onClose(reason, details);
+                onClose(arguments[0], arguments[1].reason);
             }
             return false;
         }

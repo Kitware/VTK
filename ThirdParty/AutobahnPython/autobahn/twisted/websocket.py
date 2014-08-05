@@ -18,18 +18,28 @@
 
 from __future__ import absolute_import
 
-__all__ = ['WebSocketServerProtocol',
-           'WebSocketServerFactory',
-           'WebSocketClientProtocol',
-           'WebSocketClientFactory',
-           'WrappingWebSocketServerFactory',
-           'WrappingWebSocketClientFactory',
-           'listenWS',
-           'connectWS',
-           'WampWebSocketServerProtocol',
-           'WampWebSocketServerFactory',
-           'WampWebSocketClientProtocol',
-           'WampWebSocketClientFactory']
+__all__ = [
+   'WebSocketAdapterProtocol',
+   'WebSocketServerProtocol',
+   'WebSocketClientProtocol',
+   'WebSocketAdapterFactory',
+   'WebSocketServerFactory',
+   'WebSocketClientFactory',
+
+   'WrappingWebSocketAdapter',
+   'WrappingWebSocketServerProtocol',
+   'WrappingWebSocketClientProtocol',
+   'WrappingWebSocketServerFactory',
+   'WrappingWebSocketClientFactory',
+
+   'listenWS',
+   'connectWS',
+
+   'WampWebSocketServerProtocol',
+   'WampWebSocketServerFactory',
+   'WampWebSocketClientProtocol',
+   'WampWebSocketClientFactory',
+]
 
 
 from base64 import b64encode, b64decode
@@ -324,11 +334,19 @@ class WrappingWebSocketAdapter:
    def writeSequence(self, data):
       ## part of ITransport
       for d in data:
-         self.write(data)
+         self.write(d)
 
    def loseConnection(self):
       ## part of ITransport
       self.sendClose()
+
+   def getPeer(self):
+      ## part of ITransport
+      return self.transport.getPeer()
+
+   def getHost(self):
+      ## part of ITransport
+      return self.transport.getHost()
 
 
 
@@ -580,6 +598,7 @@ class WampWebSocketServerFactory(websocket.WampWebSocketServerFactory, WebSocket
 
       kwargs['protocols'] = self._protocols
 
+      # noinspection PyCallByClass
       WebSocketServerFactory.__init__(self, *args, **kwargs)
 
 
