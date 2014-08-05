@@ -572,14 +572,73 @@ namespace vtkvolume
   std::string ClippingInit(vtkRenderer* ren, vtkVolumeMapper* mapper,
                            vtkVolume* vol)
   {
-    return std::string("");
+    if (!mapper->GetClippingPlanes())
+      {
+      return std::string("");
+      }
+   else
+      {
+      return std::string("\n\
+        float clipping_planes_ts[48];\n\
+        int clipping_planes_size = int(m_clipping_planes[0]);\n\
+        \n\
+        mat4 world_to_texture_mat = inverse(transpose(m_texture_dataset_matrix)) *\n\
+                                    l_ogl_scene_matrix;\n\
+        for (int i = 0; i < clipping_planes_size / 6; ++i)\n\
+          {\n\
+          vec4 origin = vec4(m_clipping_planes[i + 1],\n\
+                             m_clipping_planes[i + 2],\n\
+                             m_clipping_planes[i + 3], 1.0);\n\
+          vec4 normal = vec4(m_clipping_planes[i + 4],\n\
+                             m_clipping_planes[i + 5],\n\
+                             m_clipping_planes[i + 6], 0.0);\n\
+          \n\
+          origin = world_to_texture_mat * origin;\n\
+          normal = world_to_texture_mat * normal;\n\
+          \n\
+          if (origin[3] != 0.0)\n\
+            {\n\
+            origin[0] = origin[0]/origin[3];\n\
+            origin[1] = origin[1]/origin[3];\n\
+            origin[2] = origin[2]/origin[3];\n\
+            }\n\
+          \n\
+          clipping_planes_ts[i]     = origin[0];\n\
+          clipping_planes_ts[i + 1] = origin[1];\n\
+          clipping_planes_ts[i + 2] = origin[2];\n\
+          \n\
+          clipping_planes_ts[i + 3] = normal[0];\n\
+          clipping_planes_ts[i + 4] = normal[1];\n\
+          clipping_planes_ts[i + 5] = normal[2];\n\
+          }");
+      }
   }
 
   //--------------------------------------------------------------------------
-  std::string ClippingIncrement(vtkRenderer* ren, vtkVolumeMapper* mapper,
-                                vtkVolume* vol)
+  std::string ClippingIncrement(vtkRenderer* vtkNotUsed(ren),
+                                vtkVolumeMapper* mapper,
+                                vtkVolume* vtkNotUsed(vol))
   {
-    return std::string("");
+    if (!mapper->GetClippingPlanes())
+      {
+      return std::string("");
+      }
+    else
+      {
+      return std::string("\n\
+        for (int i = 0; i < clipping_planes_size / 6 && !l_skip; ++i)\n\
+         {\n\
+         if (dot(vec3(l_data_pos - vec3(clipping_planes_ts[i],\n\
+                                        clipping_planes_ts[i + 1],\n\
+                                        clipping_planes_ts[i + 2])),\n\
+             vec3(clipping_planes_ts[i + 3],\n\
+                  clipping_planes_ts[i + 4],\n\
+                  clipping_planes_ts[i + 5])) < 0)\n\
+           {\n\
+           l_skip = true;\n\
+           }\n\
+         }");
+      }
   }
 
   //--------------------------------------------------------------------------
