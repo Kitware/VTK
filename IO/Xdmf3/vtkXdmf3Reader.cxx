@@ -311,7 +311,7 @@ private:
         topc->setType(XdmfGridCollectionType::Temporal());
         }
       this->Domain->insert(topc);
-      for (int i = 0; i < idx; i++)
+      for (unsigned int i = 0; i < idx; i++)
         {
         if (AsTime || (i%updateNumPieces == updatePiece))
           {
@@ -319,30 +319,30 @@ private:
           shared_ptr<XdmfDomain> fdomain = shared_dynamic_cast<XdmfDomain>
             (this->Reader->read(this->FileNames[i]));
 
-          unsigned int i;
-          for (i = 0; i < fdomain->getNumberGridCollections(); i++)
+          unsigned int j;
+          for (j = 0; j < fdomain->getNumberGridCollections(); j++)
             {
-            topc->insert(fdomain->getGridCollection(i));
+            topc->insert(fdomain->getGridCollection(j));
             }
-          for (i = 0; i < fdomain->getNumberUnstructuredGrids(); i++)
+          for (j = 0; j < fdomain->getNumberUnstructuredGrids(); j++)
             {
-            topc->insert(fdomain->getUnstructuredGrid(i));
+            topc->insert(fdomain->getUnstructuredGrid(j));
             }
-          for (i = 0; i < fdomain->getNumberRectilinearGrids(); i++)
+          for (j = 0; j < fdomain->getNumberRectilinearGrids(); j++)
             {
-            topc->insert(fdomain->getRectilinearGrid(i));
+            topc->insert(fdomain->getRectilinearGrid(j));
             }
-          for (i = 0; i < fdomain->getNumberCurvilinearGrids(); i++)
+          for (j = 0; j < fdomain->getNumberCurvilinearGrids(); j++)
             {
-            topc->insert(fdomain->getCurvilinearGrid(i));
+            topc->insert(fdomain->getCurvilinearGrid(j));
             }
-          for (i = 0; i < fdomain->getNumberRegularGrids(); i++)
+          for (j = 0; j < fdomain->getNumberRegularGrids(); j++)
             {
-            topc->insert(fdomain->getRegularGrid(i));
+            topc->insert(fdomain->getRegularGrid(j));
             }
-          for (i = 0; i < fdomain->getNumberGraphs(); i++)
+          for (j = 0; j < fdomain->getNumberGraphs(); j++)
             {
-            topc->insert(fdomain->getGraph(i));
+            topc->insert(fdomain->getGraph(j));
             }
           }
         }
