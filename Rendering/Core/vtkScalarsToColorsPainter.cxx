@@ -697,17 +697,22 @@ void ScalarToTextureCoordinate(
     tex_coord_t = 0.49;
 
     double ranged_scalar = (scalar_value - range_min) * inv_range_width;
-    if (ranged_scalar <= 0.0)
+    tex_coord_s = static_cast<float>(ranged_scalar);
+
+    // Some implementations apparently don't handle relatively large
+    // numbers (compared to the range [0.0, 1.0]) very well. In fact,
+    // values above 1122.0f appear to cause texture wrap-around on
+    // some systems even when edge clamping is enabled. Why 1122.0f? I
+    // don't know. For safety, we'll clamp at +/- 1000. This will
+    // result in incorrect images when the texture value should be
+    // above or below 1000, but I don't have a better solution.
+    if (tex_coord_s > 1000.0f)
       {
-      tex_coord_s = 0.0;
+      tex_coord_s = 1000.0f;
       }
-    else if (ranged_scalar >= 1.0)
+    else if (tex_coord_s < -1000.0f)
       {
-      tex_coord_s = 1.0;
-      }
-    else
-      {
-      tex_coord_s = static_cast<float>(ranged_scalar);
+      tex_coord_s = -1000.0f;
       }
     }
 }
