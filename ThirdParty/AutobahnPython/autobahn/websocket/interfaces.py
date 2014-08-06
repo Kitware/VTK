@@ -37,13 +37,26 @@ class IWebSocketChannel(object):
    @abc.abstractmethod
    def onConnect(self, requestOrResponse):
       """
-      Callback fired during WebSocket opening handshake when a client connects (with
-      request from client) or when server connection established (with response from
+      Callback fired during WebSocket opening handshake when a client connects (to a server with
+      request from client) or when server connection established (by a client with response from
       server).
 
-      :param requestOrResponse: Connection request or response.
+      :param requestOrResponse: Connection request (for servers) or response (for clients).
       :type requestOrResponse: Instance of :class:`autobahn.websocket.protocol.ConnectionRequest`
-                               or :class:`autobahn.websocket.protocol.ConnectionResponse`.
+         or :class:`autobahn.websocket.protocol.ConnectionResponse`.
+
+      :returns:
+         When this callback is fired on a WebSocket server, you may return one of the
+         following:
+
+         1. ``None``: Connection accepted (no subprotocol)
+         2. ``str``: Connection accepted with given subprotocol
+         3. ``(subprotocol, headers)``: Connection accepted with given ``subprotocol`` (which
+            also may be ``None``) and set the given HTTP ``headers`` (e.g. cookies). ``headers``
+            must be a ``dict`` with ``str`` keys and values for the HTTP header values to set.
+
+         If the client announced one or multiple subprotocols, the server MUST select
+         one of the given list.
       """
 
 
@@ -58,26 +71,26 @@ class IWebSocketChannel(object):
    @abc.abstractmethod
    def sendMessage(self, payload, isBinary = False, fragmentSize = None, sync = False, doNotCompress = False):
       """
-      Send a WebSocket message.
-
-      You can send text or binary messages, and optionally specifiy a payload fragment size.
-      When the latter is given, the payload will be split up into WebSocket frames each with
-      payload length `<= fragmentSize`.
+      Send a WebSocket message over the connection to the peer.
 
       :param payload: The message payload.
       :type payload: bytes
-      :param isBinary: `True` iff payload is binary, else the payload must be UTF-8 encoded text.
+      :param isBinary: ``True`` when payload is binary, else the payload must be UTF-8 encoded text.
       :type isBinary: bool
-      :param fragmentSize: Fragment message into WebSocket fragments of this size.
+      :param fragmentSize: Fragment message into WebSocket fragments of this size (the last frame
+         potentially being shorter).
       :type fragmentSize: int
-      :param sync: Iff `True`, try to force data onto the wire immediately. Note: do NOT use
-                   this normally unless you know what you are doing. Performance likely will
-                   suffer significantly. This feature is mainly here for use by Autobahn|Testsuite.
+      :param sync: If ``True``, try to force data onto the wire immediately.
+
+         .. warning::
+            Do NOT use this feature for normal applications.
+            Performance likely will suffer significantly.
+            This feature is mainly here for use by Autobahn|Testsuite.
       :type sync: bool
-      :param doNotCompress: Iff `True`, never compress this message. This only applies to
+      :param doNotCompress: Iff ``True``, never compress this message. This only applies to
                             Hybi-Mode and only when WebSocket compression has been negotiated on
                             the WebSocket connection. Use when you know the payload
-                            uncompressible (e.g. encrypted or already compressed).
+                            incompressible (e.g. encrypted or already compressed).
       :type doNotCompress: bool
       """
 
@@ -88,9 +101,9 @@ class IWebSocketChannel(object):
       Callback fired when a complete WebSocket message was received.
 
       :param payload: Message payload (UTF-8 encoded text or binary). Can also be empty when
-                      the WebSocket message contained no payload.
+         the WebSocket message contained no payload.
       :type payload: bytes
-      :param isBinary: `True` iff payload is binary, else the payload is UTF-8 encoded text.
+      :param isBinary: ``True`` iff payload is binary, else the payload is UTF-8 encoded text.
       :type isBinary: bool
       """
 
@@ -100,11 +113,11 @@ class IWebSocketChannel(object):
       """
       Starts a WebSocket closing handshake tearing down the WebSocket connection.
 
-      :param code: An optional close status code (`1000` for normal close or `3000-4999` for
-                   application specific close).
+      :param code: An optional close status code (``1000`` for normal close or ``3000-4999`` for
+         application specific close).
       :type code: int
       :param reason: An optional close reason (a string that when present, a status
-                     code MUST also be present).
+         code MUST also be present).
       :type reason: str
       """
 
@@ -115,12 +128,12 @@ class IWebSocketChannel(object):
       Callback fired when the WebSocket connection has been closed (WebSocket closing
       handshake has been finished or the connection was closed uncleanly).
 
-      :param wasClean: True, iff the WebSocket connection was closed cleanly.
+      :param wasClean: ``True`` iff the WebSocket connection was closed cleanly.
       :type wasClean: bool
-      :param code: None or close status code (as sent by the WebSocket peer).
-      :type code: int
-      :param reason: None or close reason (as sent by the WebSocket peer).
-      :type reason: str
+      :param code: Close status code (as sent by the WebSocket peer).
+      :type code: int or None
+      :param reason: Close reason (as sent by the WebSocket peer).
+      :type reason: unicode or None
       """
 
 
@@ -129,7 +142,7 @@ class IWebSocketChannel(object):
       """
       Send a message that was previously prepared with :func:`autobahn.websocket.protocol.WebSocketFactory.prepareMessage`.
 
-      :param prepareMessage: A previsouly prepared message.
+      :param prepareMessage: A previously prepared message.
       :type prepareMessage: Instance of :class:`autobahn.websocket.protocol.PreparedMessage`.
       """
 
@@ -142,8 +155,8 @@ class IWebSocketChannel(object):
       A peer is expected to pong back the payload a soon as "practical". When more than
       one ping is outstanding at a peer, the peer may elect to respond only to the last ping.
 
-      :param payload: An (optional) arbitrary payload of length `<126` octets.
-      :type payload: bytes
+      :param payload: An (optional) arbitrary payload of length **less than 126** octets.
+      :type payload: bytes or None
       """
 
 
@@ -192,7 +205,7 @@ class IWebSocketChannelFrameApi(IWebSocketChannel):
       """
       Callback fired when receiving of a new WebSocket message has begun.
 
-      :param isBinary: `True` iff payload is binary, else the payload is UTF-8 encoded text.
+      :param isBinary: ``True`` if payload is binary, else the payload is UTF-8 encoded text.
       :type isBinary: bool
       """
 
@@ -221,12 +234,12 @@ class IWebSocketChannelFrameApi(IWebSocketChannel):
       """
       Begin sending a new WebSocket message.
 
-      :param isBinary: `True` iff payload is binary, else the payload must be UTF-8 encoded text.
+      :param isBinary: ``True`` if payload is binary, else the payload must be UTF-8 encoded text.
       :type isBinary: bool
-      :param doNotCompress: Iff `True`, never compress this message. This only applies to
-                            Hybi-Mode and only when WebSocket compression has been negotiated on
-                            the WebSocket connection. Use when you know the payload
-                            uncompressible (e.g. encrypted or already compressed).
+      :param doNotCompress: If ``True``, never compress this message. This only applies to
+         Hybi-Mode and only when WebSocket compression has been negotiated on the WebSocket
+         connection. Use when you know the payload incompressible (e.g. encrypted or
+         already compressed).
       :type doNotCompress: bool
       """
 
@@ -239,9 +252,12 @@ class IWebSocketChannelFrameApi(IWebSocketChannel):
       :param payload: The message frame payload. When sending a text message, the payload must
                       be UTF-8 encoded already.
       :type payload: bytes
-      :param sync: Iff `True`, try to force data onto the wire immediately. Note: do NOT use
-                   this normally unless you know what you are doing. Performance likely will
-                   suffer significantly. This feature is mainly here for use by Autobahn|Testsuite.
+      :param sync: If ``True``, try to force data onto the wire immediately.
+
+         .. warning::
+            Do NOT use this feature for normal applications.
+            Performance likely will suffer significantly.
+            This feature is mainly here for use by Autobahn|Testsuite.
       :type sync: bool
       """
 
@@ -296,7 +312,7 @@ class IWebSocketChannelStreamingApi(IWebSocketChannelFrameApi):
       """
       Begin sending a new message frame.
 
-      :param length: Length of the frame which is to be started. Must be `>= 0` and `<= 2^63`.
+      :param length: Length of the frame which is to be started. Must be less or equal **2^63**.
       :type length: int
       """
 
@@ -306,20 +322,23 @@ class IWebSocketChannelStreamingApi(IWebSocketChannelFrameApi):
       """
       Send out data when within a message frame (message was begun, frame was begun).
       Note that the frame is automatically ended when enough data has been sent.
-      In other words, there is no `endMessageFrame`, since you have begun the frame
+      In other words, there is no ``endMessageFrame``, since you have begun the frame
       specifying the frame length, which implicitly defined the frame end. This is different
       from messages, which you begin *and* end explicitly , since a message can contain
       an unlimited number of frames.
 
       :param payload: Frame payload to send.
       :type payload: bytes
-      :param sync: Iff `True`, try to force data onto the wire immediately. Note: do NOT use
-                   this normally unless you know what you are doing. Performance likely will
-                   suffer significantly. This feature is mainly here for use by Autobahn|Testsuite.
+      :param sync: If ``True``, try to force data onto the wire immediately.
+
+         .. warning::
+            Do NOT use this feature for normal applications.
+            Performance likely will suffer significantly.
+            This feature is mainly here for use by Autobahn|Testsuite.
       :type sync: bool
 
-      :returns: int -- When the currently sent message frame is still incomplete,
-                       returns octets remaining to be sent. When the frame is complete,
-                       returns `0`, when `< 0`, the amount of unconsumed data in payload
-                       argument.
+      :returns: When the currently sent message frame is still incomplete, returns octets
+         remaining to be sent. When the frame is complete, returns **0**. Otherwise the amount
+         of unconsumed data in payload argument is returned.
+      :rtype: int
       """

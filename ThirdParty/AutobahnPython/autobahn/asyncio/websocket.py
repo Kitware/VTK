@@ -1,6 +1,6 @@
 ###############################################################################
 ##
-##  Copyright (C) 2013 Tavendo GmbH
+##  Copyright (C) 2013-2014 Tavendo GmbH
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -16,16 +16,31 @@
 ##
 ###############################################################################
 
-__all__ = ['WebSocketServerProtocol',
-           'WebSocketServerFactory',
-           'WebSocketClientProtocol',
-           'WebSocketClientFactory']
+__all__ = [
+   'WebSocketAdapterProtocol',
+   'WebSocketServerProtocol',
+   'WebSocketClientProtocol',
+   'WebSocketAdapterFactory',
+   'WebSocketServerFactory',
+   'WebSocketClientFactory',
+
+   'WampWebSocketServerProtocol',
+   'WampWebSocketClientProtocol',
+   'WampWebSocketServerFactory',
+   'WampWebSocketClientFactory'
+]
 
 from collections import deque
 
-import asyncio
-from asyncio.tasks import iscoroutine
-from asyncio import Future
+try:
+   import asyncio
+   from asyncio.tasks import iscoroutine
+   from asyncio import Future
+except ImportError:
+   ## Trollius >= 0.3 was renamed
+   import trollius as asyncio
+   from trollius.tasks import iscoroutine
+   from trollius import Future
 
 from autobahn.wamp import websocket
 from autobahn.websocket import protocol
@@ -75,11 +90,7 @@ class WebSocketAdapterProtocol(asyncio.Protocol):
          while len(self.receive_queue):
             data = self.receive_queue.popleft()
             if self.transport:
-               try:
-                  self._dataReceived(data)
-               except Exception as e:
-                  raise e
-                  #print("WebSocketAdapterProtocol._consume: {}".format(e))
+               self._dataReceived(data)
             else:
                print("WebSocketAdapterProtocol._consume: no transport")
          self._consume()
@@ -93,6 +104,7 @@ class WebSocketAdapterProtocol(asyncio.Protocol):
          self.waiter.set_result(None)
 
 
+   # noinspection PyUnusedLocal
    def _closeConnection(self, abort = False):
       self.transport.close()
 
@@ -173,7 +185,7 @@ class WebSocketServerProtocol(WebSocketAdapterProtocol, protocol.WebSocketServer
          #  res = yield from res
       except http.HttpException as exc:
          self.failHandshake(exc.reason, exc.code)
-      except Exception as exc:
+      except Exception:
          self.failHandshake(http.INTERNAL_SERVER_ERROR[1], http.INTERNAL_SERVER_ERROR[0])
       else:
          self.succeedHandshake(res)
@@ -289,6 +301,7 @@ class WampWebSocketServerFactory(websocket.WampWebSocketServerFactory, WebSocket
 
       kwargs['protocols'] = self._protocols
 
+      # noinspection PyCallByClass
       WebSocketServerFactory.__init__(self, *args, **kwargs)
 
 

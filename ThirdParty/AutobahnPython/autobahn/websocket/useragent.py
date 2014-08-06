@@ -279,19 +279,19 @@ UA_DETECT_WS_SUPPORT_DB = {}
 def lookupWsSupport(ua, debug = True):
    """
    Lookup if browser supports WebSocket (Hixie76, Hybi10+, RFC6455) natively,
-   and if not, whether the `web-socket-js <https://github.com/gimite/web-socket-js>`_
+   and if not, whether the `web-socket-js <https://github.com/gimite/web-socket-js>`__
    Flash bridge works to polyfill that.
 
-   Returns a tuple of booleans `(ws_supported, needs_flash, detected)` where
+   Returns a tuple of booleans ``(ws_supported, needs_flash, detected)`` where
 
-      * `ws_supported`: WebSocket is supported
-      * `needs_flash`: Flash Bridge is needed for support
-      * `detected` the code has explicitly mapped the support/nosupport
+      * ``ws_supported``: WebSocket is supported
+      * ``needs_flash``: Flash Bridge is needed for support
+      * ``detected`` the code has explicitly mapped support
 
    :param ua: The browser user agent string as sent in the HTTP header, e.g. provided as `flask.request.user_agent.string` in Flask.
    :type ua: str
 
-   :returns: tuple -- A tuple `(ws_supported, needs_flash, detected)`.
+   :returns: tuple -- A tuple ``(ws_supported, needs_flash, detected)``.
    """
    ws = _lookupWsSupport(ua)
    if debug:

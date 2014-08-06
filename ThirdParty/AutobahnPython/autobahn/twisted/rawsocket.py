@@ -70,10 +70,10 @@ class WampRawSocketProtocol(Int32StringReceiver):
       if self.factory.debug:
          log.msg("RX octets: {}".format(binascii.hexlify(payload)))
       try:
-         msg = self.factory._serializer.unserialize(payload)
-         if self.factory.debug:
-            log.msg("RX WAMP message: {}".format(msg))
-         self._session.onMessage(msg)
+         for msg in self.factory._serializer.unserialize(payload):
+            if self.factory.debug:
+               log.msg("RX WAMP message: {}".format(msg))
+            self._session.onMessage(msg)
 
       except ProtocolError as e:
          if self.factory.debug:
@@ -159,12 +159,14 @@ class WampRawSocketFactory(Factory):
 
    def __init__(self, factory, serializer, debug = False):
       """
+      Ctor.
+
       :param factory: A callable that produces instances that implement
-                      :class:`autobahn.wamp.interfaces.ITransportHandler`
+          :class:`autobahn.wamp.interfaces.ITransportHandler`
       :type factory: callable
       :param serializer: A WAMP serializer to use. A serializer must implement
-                         :class:`autobahn.wamp.interfaces.ISerializer`.
-      type serializer: list
+          :class:`autobahn.wamp.interfaces.ISerializer`.
+      :type serializer: list
       """
       assert(callable(factory))
       self._factory = factory

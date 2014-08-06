@@ -36,7 +36,6 @@ class Router:
 
    def __init__(self, factory, realm, options = None):
       """
-      Ctor.
 
       :param factory: The router factory this router was created by.
       :type factory: Object that implements :class:`autobahn.wamp.interfaces.IRouterFactory`..
@@ -49,8 +48,8 @@ class Router:
       self.factory = factory
       self.realm = realm
       self._options = options or types.RouterOptions()
-      self._broker = Broker(realm, self._options)
-      self._dealer = Dealer(realm, self._options)
+      self._broker = self.broker(self, self._options)
+      self._dealer = self.dealer(self, self._options)
       self._attached = 0
 
 
@@ -118,6 +117,23 @@ class Router:
          raise ProtocolError("Unexpected message {}".format(msg.__class__))
 
 
+   def authorize(self, session, uri, action):
+      """
+      Implements :func:`autobahn.wamp.interfaces.IRouter.authorize`
+      """
+      if self.debug:
+         print("Router.authorize: {} {} {}".format(session, uri, action))
+      return True
+
+
+   def validate(self, payload_type, uri, args, kwargs):
+      """
+      Implements :func:`autobahn.wamp.interfaces.IRouter.validate`
+      """
+      if self.debug:
+         print("Router.validate: {} {} {} {}".format(payload_type, uri, args, kwargs))
+
+
 
 IRouter.register(Router)
 
@@ -130,9 +146,14 @@ class RouterFactory:
    This class implements :class:`autobahn.wamp.interfaces.IRouterFactory`.
    """
 
+   router = Router
+   """
+   The router class this factory will create router instances from.
+   """
+
+
    def __init__(self, options = None, debug = False):
       """
-      Ctor.
 
       :param options: Default router options.
       :type options: Instance of :class:`autobahn.wamp.types.RouterOptions`.
@@ -147,7 +168,7 @@ class RouterFactory:
       Implements :func:`autobahn.wamp.interfaces.IRouterFactory.get`
       """
       if not realm in self._routers:
-         self._routers[realm] = Router(self, realm, self._options)
+         self._routers[realm] = self.router(self, realm, self._options)
          if self.debug:
             print("Router created for realm '{}'".format(realm))
       return self._routers[realm]

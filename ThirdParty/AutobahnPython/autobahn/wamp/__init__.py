@@ -23,7 +23,7 @@ import six
 from autobahn.wamp.uri import Pattern
 
 
-def procedure(uri):
+def register(uri):
    """
    Decorator for WAMP procedure endpoints.
    """
@@ -36,7 +36,7 @@ def procedure(uri):
    return decorate
 
 
-def topic(uri):
+def subscribe(uri):
    """
    Decorator for WAMP event handlers.
    """

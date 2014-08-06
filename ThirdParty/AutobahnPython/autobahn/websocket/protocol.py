@@ -287,7 +287,7 @@ class ConnectionRequest:
       """
       Constructor.
 
-      :param peer: Descriptor of the connecting client (eg IP address/port in case of TCP transports).
+      :param peer: Descriptor of the connecting client (e.g. IP address/port in case of TCP transports).
       :type peer: str
       :param headers: HTTP headers from opening handshake request.
       :type headers: dict
@@ -471,7 +471,7 @@ class Timings:
       return self._timings.get(key, None)
 
    def __iter__(self):
-      return self._timings.__iter__(self)
+      return self._timings.__iter__()
 
    def __str__(self):
       return pformat(self._timings)
@@ -1960,8 +1960,8 @@ class WebSocketProtocol:
       When payload_len is given, it will always write that many octets to the stream.
       It'll wrap within payload, resending parts of that when more octets were requested
       The use case is again for fuzzing server which want to sent increasing amounts
-      of payload data to peers without having to construct potentially large messges
-      themselfes.
+      of payload data to peers without having to construct potentially large messages
+      themselves.
 
       Modes: Hybi
       """
@@ -1972,7 +1972,7 @@ class WebSocketProtocol:
          if len(payload) < 1:
             raise Exception("cannot construct repeated payload with length %d from payload of length %d" % (payload_len, len(payload)))
          l = payload_len
-         pl = b''.join([payload for k in range(payload_len / len(payload))]) + payload[:payload_len % len(payload)]
+         pl = b''.join([payload for _ in range(payload_len / len(payload))]) + payload[:payload_len % len(payload)]
       else:
          l = len(payload)
          pl = payload
@@ -2545,7 +2545,7 @@ class PreparedMessage:
       :param doNotCompress: Iff `True`, never compress this message. This only applies to
                             Hybi-Mode and only when WebSocket compression has been negotiated on
                             the WebSocket connection. Use when you know the payload
-                            uncompressible (e.g. encrypted or already compressed).
+                            incompressible (e.g. encrypted or already compressed).
       :type doNotCompress: bool
       """
       if not doNotCompress:
@@ -2641,7 +2641,7 @@ class WebSocketFactory:
       :param doNotCompress: Iff `True`, never compress this message. This only applies to
                             Hybi-Mode and only when WebSocket compression has been negotiated on
                             the WebSocket connection. Use when you know the payload
-                            uncompressible (e.g. encrypted or already compressed).
+                            incompressible (e.g. encrypted or already compressed).
       :type doNotCompress: bool
 
       :returns: obj -- An instance of :class:`autobahn.websocket.protocol.PreparedMessage`.
@@ -2964,7 +2964,7 @@ class WebSocketServerProtocol(WebSocketProtocol):
                return self.failHandshake("bad Sec-WebSocket-Key (invalid base64 encoding) '%s'" % key)
             for c in key[:-2]:
                if c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/":
-                  return self.failHandshake("bad character '%s' in Sec-WebSocket-Key (invalid base64 encoding) '%s'" (c, key))
+                  return self.failHandshake("bad character '%s' in Sec-WebSocket-Key (invalid base64 encoding) '%s'" % (c, key))
 
          ## Sec-WebSocket-Extensions
          ##
@@ -3219,7 +3219,7 @@ class WebSocketServerProtocol(WebSocketProtocol):
          self.consumeData()
 
 
-   def failHandshake(self, reason, code = http.BAD_REQUEST[0], responseHeaders = []):
+   def failHandshake(self, reason, code = http.BAD_REQUEST[0], responseHeaders = None):
       """
       During opening handshake the client request was invalid, we send a HTTP
       error response and then drop the connection.
@@ -3230,13 +3230,14 @@ class WebSocketServerProtocol(WebSocketProtocol):
       self.dropConnection(abort = False)
 
 
-   def sendHttpErrorResponse(self, code, reason, responseHeaders = []):
+   def sendHttpErrorResponse(self, code, reason, responseHeaders = None):
       """
       Send out HTTP error response.
       """
       response  = "HTTP/1.1 {0} {1}\x0d\x0a".format(code, reason)
-      for h in responseHeaders:
-         response += "{0}: {1}\x0d\x0a".format(h[0], h[1])
+      if responseHeaders:
+         for h in responseHeaders:
+            response += "{0}: {1}\x0d\x0a".format(h[0], h[1])
       response += "\x0d\x0a"
       self.sendData(response.encode('utf8'))
 
@@ -3298,11 +3299,16 @@ class WebSocketServerProtocol(WebSocketProtocol):
    <body>
       <h1>AutobahnPython %s</h1>
       <p>
-         I am not Web server, but a WebSocket endpoint.
-         You can talk to me using the WebSocket <a href="http://tools.ietf.org/html/rfc6455">protocol</a>.
+         I am not Web server, but a <b>WebSocket Endpoint</b>.
       </p>
       <p>
-         For more information, please visit <a href="http://autobahn.ws/python">my homepage</a>.
+         You can talk to me using the <a href="http://tools.ietf.org/html/rfc6455">WebSocket</a> protocol.
+      </p>
+      <p>
+         For more information, please see:
+         <ul>
+            <li><a href="http://autobahn.ws/python">AutobahnPython</a></li>
+         </ul>
       </p>
    </body>
 </html>
@@ -3329,9 +3335,9 @@ class WebSocketServerFactory(WebSocketFactory):
 
    def __init__(self,
                 url = None,
-                protocols = [],
+                protocols = None,
                 server = "AutobahnPython/%s" % __version__,
-                headers = {},
+                headers = None,
                 externalPort = None,
                 debug = False,
                 debugCodePaths = False):
@@ -3381,9 +3387,9 @@ class WebSocketServerFactory(WebSocketFactory):
 
    def setSessionParameters(self,
                             url = None,
-                            protocols = [],
+                            protocols = None,
                             server = None,
-                            headers = {},
+                            headers = None,
                             externalPort = None):
       """
       Set WebSocket session parameters.
@@ -3413,9 +3419,9 @@ class WebSocketServerFactory(WebSocketFactory):
       self.path = path
       self.params = params
 
-      self.protocols = protocols
+      self.protocols = protocols or []
       self.server = server
-      self.headers = headers
+      self.headers = headers or {}
 
       if externalPort:
          self.externalPort = externalPort
@@ -3490,7 +3496,7 @@ class WebSocketServerFactory(WebSocketFactory):
       :type maxMessagePayloadSize: int
       :param autoFragmentSize: Automatic fragmentation of outgoing data messages (when using the message-based API) into frames with payload length `<=` this size or `0` for no auto-fragmentation (default: `0`).
       :type autoFragmentSize: int
-      :param failByDrop: Fail connections by dropping the TCP connection without performaing closing handshake (default: `True`).
+      :param failByDrop: Fail connections by dropping the TCP connection without performing closing handshake (default: `True`).
       :type failbyDrop: bool
       :param echoCloseCodeReason: Iff true, when receiving a close, echo back close code/reason. Otherwise reply with `code == 1000, reason = ""` (default: `False`).
       :type echoCloseCodeReason: bool
@@ -3719,8 +3725,7 @@ class WebSocketClientProtocol(WebSocketProtocol):
 
    def createHixieKey(self):
       """
-      Supposed to implement the crack smoker algorithm below. Well, crack
-      probably wasn't the stuff they smoked - dog poo?
+      Implements this algorithm:
 
       http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76#page-21
       Items 16 - 22
@@ -4078,9 +4083,9 @@ class WebSocketClientFactory(WebSocketFactory):
    def __init__(self,
                 url = None,
                 origin = None,
-                protocols = [],
+                protocols = None,
                 useragent = "AutobahnPython/%s" % __version__,
-                headers = {},
+                headers = None,
                 proxy = None,
                 debug = False,
                 debugCodePaths = False):
@@ -4133,9 +4138,9 @@ class WebSocketClientFactory(WebSocketFactory):
    def setSessionParameters(self,
                             url = None,
                             origin = None,
-                            protocols = [],
+                            protocols = None,
                             useragent = None,
-                            headers = {},
+                            headers = None,
                             proxy = None):
       """
       Set WebSocket session parameters.
@@ -4164,9 +4169,9 @@ class WebSocketClientFactory(WebSocketFactory):
       self.params = params
 
       self.origin = origin
-      self.protocols = protocols
+      self.protocols = protocols or []
       self.useragent = useragent
-      self.headers = headers
+      self.headers = headers or {}
 
       self.proxy = proxy
 

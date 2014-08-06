@@ -18,10 +18,8 @@
 
 from __future__ import absolute_import
 
-try:
-   from twisted.trial import unittest
-except:
-   import unittest
+#from twisted.trial import unittest
+import unittest
 
 from autobahn.websocket.protocol import createWsUrl, parseWsUrl
 
@@ -57,7 +55,8 @@ class TestCreateWsUrl(unittest.TestCase):
       self.assertEqual(createWsUrl("localhost", isSecure = True, port = 9090, path = "ws", params = {'foo': 'bar'}), "wss://localhost:9090/ws?foo=bar")
 
    def test_create_url10(self):
-      self.assertEqual(createWsUrl("localhost", isSecure = True, port = 9090, path = "ws", params = {'foo': 'bar', 'moo': 23}), "wss://localhost:9090/ws?foo=bar&moo=23")
+      wsurl = createWsUrl("localhost", isSecure = True, port = 9090, path = "ws", params = {'foo': 'bar', 'moo': 23})
+      self.assertTrue(wsurl == "wss://localhost:9090/ws?foo=bar&moo=23" or wsurl == "wss://localhost:9090/ws?moo=23&foo=bar")
 
    def test_create_url11(self):
       self.assertEqual(createWsUrl("127.0.0.1", path = "ws"), "ws://127.0.0.1:80/ws")

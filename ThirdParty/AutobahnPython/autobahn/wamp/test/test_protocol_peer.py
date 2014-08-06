@@ -18,8 +18,13 @@
 
 from __future__ import absolute_import
 
-from twisted.trial import unittest
-#import unittest
+import sys
+
+if sys.version_info < (2,7):
+   import unittest2 as unittest
+else:
+   #from twisted.trial import unittest
+   import unittest
 
 from autobahn import wamp
 from autobahn.wamp import message

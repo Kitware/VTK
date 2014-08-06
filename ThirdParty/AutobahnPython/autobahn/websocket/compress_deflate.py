@@ -66,11 +66,11 @@ class PerMessageDeflateOffer(PerMessageCompressOffer, PerMessageDeflateMixin):
    """
 
    @classmethod
-   def parse(Klass, params):
+   def parse(cls, params):
       """
       Parses a WebSocket extension offer for `permessage-deflate` provided by a client to a server.
 
-      :param params: Output from :method:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
+      :param params: Output from :func:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
       :type params: list
 
       :returns: object -- A new instance of :class:`autobahn.compress.PerMessageDeflateOffer`.
@@ -90,19 +90,19 @@ class PerMessageDeflateOffer(PerMessageCompressOffer, PerMessageDeflateMixin):
       for p in params:
 
          if len(params[p]) > 1:
-            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
          val = params[p][0]
 
          if p == 'client_max_window_bits':
             if val != True:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                acceptMaxWindowBits = True
 
          elif p == 'client_no_context_takeover':
             if val != True:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                acceptNoContextTakeover = True
 
@@ -110,23 +110,23 @@ class PerMessageDeflateOffer(PerMessageCompressOffer, PerMessageDeflateMixin):
             try:
                val = int(val)
             except:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                if val not in PerMessageDeflateMixin.WINDOW_SIZE_PERMISSIBLE_VALUES:
-                  raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+                  raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
                else:
                   requestMaxWindowBits = val
 
          elif p == 'server_no_context_takeover':
             if val != True:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                requestNoContextTakeover = True
 
          else:
-            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
-      offer = Klass(acceptNoContextTakeover,
+      offer = cls(acceptNoContextTakeover,
                     acceptMaxWindowBits,
                     requestNoContextTakeover,
                     requestMaxWindowBits)
@@ -317,7 +317,7 @@ class PerMessageDeflateOfferAccept(PerMessageCompressOfferAccept, PerMessageDefl
               'requestMaxWindowBits': self.requestMaxWindowBits,
               'noContextTakeover': self.noContextTakeover,
               'windowBits': self.windowBits,
-              'memLevel': memLevel}
+              'memLevel': self.memLevel}
 
 
    def __repr__(self):
@@ -336,11 +336,11 @@ class PerMessageDeflateResponse(PerMessageCompressResponse, PerMessageDeflateMix
    """
 
    @classmethod
-   def parse(Klass, params):
+   def parse(cls, params):
       """
       Parses a WebSocket extension response for `permessage-deflate` provided by a server to a client.
 
-      :param params: Output from :method:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
+      :param params: Output from :func:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
       :type params: list
 
       :returns: object -- A new instance of :class:`autobahn.compress.PerMessageDeflateResponse`.
@@ -353,7 +353,7 @@ class PerMessageDeflateResponse(PerMessageCompressResponse, PerMessageDeflateMix
       for p in params:
 
          if len(params[p]) > 1:
-            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
          val = params[p][0]
 
@@ -361,16 +361,16 @@ class PerMessageDeflateResponse(PerMessageCompressResponse, PerMessageDeflateMix
             try:
                val = int(val)
             except:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                if val not in PerMessageDeflateMixin.WINDOW_SIZE_PERMISSIBLE_VALUES:
-                  raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+                  raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
                else:
                   client_max_window_bits = val
 
          elif p == 'client_no_context_takeover':
             if val != True:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                client_no_context_takeover = True
 
@@ -378,23 +378,23 @@ class PerMessageDeflateResponse(PerMessageCompressResponse, PerMessageDeflateMix
             try:
                val = int(val)
             except:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                if val not in PerMessageDeflateMixin.WINDOW_SIZE_PERMISSIBLE_VALUES:
-                  raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+                  raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
                else:
                   server_max_window_bits = val
 
          elif p == 'server_no_context_takeover':
             if val != True:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                server_no_context_takeover = True
 
          else:
-            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
-      response = Klass(client_max_window_bits,
+      response = cls(client_max_window_bits,
                        client_no_context_takeover,
                        server_max_window_bits,
                        server_no_context_takeover)
@@ -509,7 +509,7 @@ class PerMessageDeflateResponseAccept(PerMessageCompressResponseAccept, PerMessa
       return "PerMessageDeflateResponseAccept(response = %s, noContextTakeover = %s, windowBits = %s, memLevel = %s)" % (self.response.__repr__(), self.noContextTakeover, self.windowBits, self.memLevel)
 
 
-
+# noinspection PyArgumentList
 class PerMessageDeflate(PerMessageCompress, PerMessageDeflateMixin):
    """
    `permessage-deflate` WebSocket extension processor.
@@ -519,9 +519,9 @@ class PerMessageDeflate(PerMessageCompress, PerMessageDeflateMixin):
 
 
    @classmethod
-   def createFromResponseAccept(Klass, isServer, accept):
+   def createFromResponseAccept(cls, isServer, accept):
       ## accept: instance of PerMessageDeflateResponseAccept
-      pmce = Klass(isServer,
+      pmce = cls(isServer,
                    accept.response.server_no_context_takeover,
                    accept.noContextTakeover if accept.noContextTakeover is not None else accept.response.client_no_context_takeover,
                    accept.response.server_max_window_bits,
@@ -531,9 +531,9 @@ class PerMessageDeflate(PerMessageCompress, PerMessageDeflateMixin):
 
 
    @classmethod
-   def createFromOfferAccept(Klass, isServer, accept):
+   def createFromOfferAccept(cls, isServer, accept):
       ## accept: instance of PerMessageDeflateOfferAccept
-      pmce = Klass(isServer,
+      pmce = cls(isServer,
                    accept.noContextTakeover if accept.noContextTakeover is not None else accept.offer.requestNoContextTakeover,
                    accept.requestNoContextTakeover,
                    accept.windowBits if accept.windowBits is not None else accept.offer.requestMaxWindowBits,
