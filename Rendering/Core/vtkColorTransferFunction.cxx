@@ -1477,10 +1477,10 @@ void vtkColorTransferFunctionIndexedMapData(
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
 
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
-        output[3] = 255.; // * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
+        output[3] = static_cast<unsigned char>(255.); // * nodeVal[3];
         input += inIncr;
         output += 4;
         }
@@ -1496,9 +1496,9 @@ void vtkColorTransferFunctionIndexedMapData(
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
 
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
         input += inIncr;
         output += 3;
         }
@@ -1515,7 +1515,7 @@ void vtkColorTransferFunctionIndexedMapData(
           self->GetNodeValue( idx % numNodes, nodeVal );
         output[0] = static_cast<unsigned char>(255. * nodeVal[1]*0.30 + 255. * nodeVal[2]*0.59 +
                                                255. * nodeVal[3]*0.11 + 0.5);
-        output[1] = 255. * nodeVal[3];
+        output[1] = static_cast<unsigned char>(255. * nodeVal[3]);
         input += inIncr;
         output += 2;
         }
@@ -1549,9 +1549,9 @@ void vtkColorTransferFunctionIndexedMapData(
           self->GetNanColor( &nodeVal[1] );
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
         output[3] = static_cast<unsigned char>(255. * /*nodeVal[3]*/alpha + 0.5);
         input += inIncr;
         output += 4;
@@ -1567,9 +1567,9 @@ void vtkColorTransferFunctionIndexedMapData(
           self->GetNanColor( &nodeVal[1] );
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
         input += inIncr;
         output += 3;
         }

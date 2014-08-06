@@ -75,7 +75,7 @@ vtkAxisActor::vtkAxisActor()
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->SetColor(0.,0.,0.);
   this->TitleTextProperty->SetFontFamilyToArial();
-  this->TitleTextProperty->SetFontSize(18.);
+  this->TitleTextProperty->SetFontSize(18);
   this->TitleTextProperty->SetVerticalJustificationToCentered();
   this->TitleTextProperty->SetJustificationToCentered();
 
@@ -105,7 +105,7 @@ vtkAxisActor::vtkAxisActor()
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetColor(0.,0.,0.);
   this->LabelTextProperty->SetFontFamilyToArial();
-  this->LabelTextProperty->SetFontSize(14.);
+  this->LabelTextProperty->SetFontSize(14);
   this->LabelTextProperty->SetVerticalJustificationToBottom();
   this->LabelTextProperty->SetJustificationToLeft();
 

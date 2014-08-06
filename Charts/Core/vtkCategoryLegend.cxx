@@ -171,7 +171,7 @@ vtkRectf vtkCategoryLegend::GetBoundingRect(vtkContext2D *painter)
 
   // programmatically set Padding here.  This results in better
   // appearance when we zoom in or out on the legend.
-  this->Padding = height / 4.0;
+  this->Padding = static_cast<int>(height / 4.0);
   if (this->Padding < 1)
     {
     this->Padding = 1;

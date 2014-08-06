@@ -300,11 +300,11 @@ int vtkTextActor::SetMultipleConstrainedFontSize(
       actors[i]->GetSize(viewport, tempi);
       if (tempi[0] > maxResultingSize[0])
         {
-        maxResultingSize[0] = tempi[0];
+        maxResultingSize[0] = static_cast<int>(tempi[0]);
         }
       if (tempi[1] > maxResultingSize[1])
         {
-        maxResultingSize[1] = tempi[1];
+        maxResultingSize[1] = static_cast<int>(tempi[1]);
         }
       }
     }

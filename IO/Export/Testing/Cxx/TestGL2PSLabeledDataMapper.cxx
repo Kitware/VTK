@@ -88,7 +88,7 @@ int TestGL2PSLabeledDataMapper(int, char *[] )
   vtkNew<vtkSelectVisiblePoints> visPts;
   visPts->SetInputConnection(ids->GetOutputPort());
   visPts->SelectionWindowOn();
-  visPts->SetSelection(xmin, xmax, ymin, ymax);
+  visPts->SetSelection(static_cast<int>(xmin), static_cast<int>(xmax), static_cast<int>(ymin), static_cast<int>(ymax));
 
   vtkNew<vtkLabeledDataMapper> ldm;
   ldm->SetInputConnection(visPts->GetOutputPort());
@@ -104,7 +104,7 @@ int TestGL2PSLabeledDataMapper(int, char *[] )
   vtkNew<vtkSelectVisiblePoints> visCells;
   visCells->SetInputConnection(cc->GetOutputPort());
   visCells->SelectionWindowOn();
-  visCells->SetSelection(xmin, xmax, ymin, ymax);
+  visCells->SetSelection(static_cast<int>(xmin), static_cast<int>(xmax), static_cast<int>(ymin), static_cast<int>(ymax));
 
   vtkNew<vtkLabeledDataMapper> cellMapper;
   cellMapper->SetInputConnection(visCells->GetOutputPort());

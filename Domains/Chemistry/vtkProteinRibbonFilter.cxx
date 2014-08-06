@@ -363,8 +363,8 @@ void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly,
     p->InsertNextPoint((*points1)[i].GetData());
     p->InsertNextPoint((*points2)[i].GetData());
 
-    vtkColor3ub color = colors[floor(0.5f + i /
-                                     static_cast<float>(this->SubdivideFactor))];
+    vtkColor3ub color = colors[static_cast<int>(floor(0.5f + i /
+                                     static_cast<float>(this->SubdivideFactor)))];
     for (int k = 0; k < 2; ++k)
       {
       for (int ci = 0; ci < 3; ++ci)

@@ -40,18 +40,18 @@ int TestSurfacePlot(int , char * [])
 
   // Create a surface
   vtkNew<vtkTable> table;
-  float numPoints = 70;
+  vtkIdType numPoints = 70;
   float inc = 9.424778 / (numPoints - 1);
-  for (float i = 0; i < numPoints; ++i)
+  for (vtkIdType i = 0; i < numPoints; ++i)
     {
     vtkNew<vtkFloatArray> arr;
     table->AddColumn(arr.GetPointer());
     }
-  table->SetNumberOfRows(numPoints);
-  for (float i = 0; i < numPoints; ++i)
+  table->SetNumberOfRows(static_cast<vtkIdType>(numPoints));
+  for (vtkIdType i = 0; i < numPoints; ++i)
     {
     float x = i * inc;
-    for (float j = 0; j < numPoints; ++j)
+    for (vtkIdType j = 0; j < numPoints; ++j)
       {
       float y  = j * inc;
       table->SetValue(i, j, sin(sqrt(x*x + y*y)));

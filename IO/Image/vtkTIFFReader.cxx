@@ -1303,21 +1303,21 @@ int vtkTIFFReader::EvaluateImageAt(T* out, T* in)
         }
       return this->InternalImage->SamplesPerPixel;
     case vtkTIFFReader::PALETTE_RGB:
-      this->GetColor(*in, &red, &green, &blue);
+      this->GetColor(static_cast<int>(*in), &red, &green, &blue);
       *(out    ) = red << 8;
       *(out + 1) = green << 8;
       *(out + 2) = blue << 8;
       if (this->GetDataScalarType() == VTK_SHORT ||
           this->GetDataScalarType() == VTK_UNSIGNED_SHORT)
         {
-        this->GetColor(*in, &red, &green, &blue);
+        this->GetColor(static_cast<int>(*in), &red, &green, &blue);
         *(out    ) = red << 8;
         *(out + 1) = green << 8;
         *(out + 2) = blue << 8;
         }
       else
         {
-        this->GetColor(*in, &red, &green, &blue);
+        this->GetColor(static_cast<int>(*in), &red, &green, &blue);
         *(out    ) = red >> 8;
         *(out + 1) = green >> 8;
         *(out + 2) = blue >> 8;
