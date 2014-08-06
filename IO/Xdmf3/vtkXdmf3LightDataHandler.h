@@ -99,8 +99,7 @@ private:
 
   //Description:
   //Used in SIL creation.
-  void AddNamedSet(vtkIdType parentVertex,
-                   std::string originalName, std::string uniqueName);
+  void AddNamedSet(std::string uniqueName);
 
   //Description:
   //records times that xdmf grids supply data at

@@ -118,7 +118,7 @@ void vtkXdmf3LightDataHandler::InspectXDMF
           std::string sName = set->getName();
           std::string usName = this->UniqueName(sName, false);
           set->setName(usName);
-          this->AddNamedSet(parent, sName, usName);
+          this->AddNamedSet(usName);
           }
         }
       return;
@@ -365,7 +365,7 @@ void vtkXdmf3LightDataHandler::AddNamedBlock
 
 //------------------------------------------------------------------------------
 void vtkXdmf3LightDataHandler::AddNamedSet
-  (vtkIdType parentVertex, std::string originalName, std::string uniqueName)
+  (std::string uniqueName)
 {
   this->SetsCache->AddArray(uniqueName.c_str());
 }
