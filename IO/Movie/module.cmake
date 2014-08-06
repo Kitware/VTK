@@ -1,5 +1,7 @@
 if(NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
-  set(vtkIOMovie_vtkoggtheora vtkoggtheora)
+  if(NOT ${CMAKE_CROSS_COMPILING})
+    set(vtkIOMovie_vtkoggtheora vtkoggtheora)
+  endif()
 endif()
 vtk_module(vtkIOMovie
   GROUPS
