@@ -659,7 +659,7 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
 {
-  if (this->NoiseTextureData == 0)
+  if (!this->NoiseTextureId)
     {
     glActiveTexture(GL_TEXTURE3);
     glGenTextures(1, &this->NoiseTextureId);
