@@ -105,11 +105,11 @@ int TestGPURayCastClip(int argc, char *argv[])
 
   double* bounds = reader->GetOutput()->GetBounds();
   vtkNew<vtkPlane> clipPlane1;
-  clipPlane1->SetOrigin(0.5 * (bounds[0] + bounds[1]), 0.0, 0.0);
+  clipPlane1->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.0, 0.0);
   clipPlane1->SetNormal(1.0, 0.0, 0.0);
 
   vtkNew<vtkPlane> clipPlane2;
-  clipPlane2->SetOrigin(0.4 * (bounds[0] + bounds[1]), 0.0, 0.0);
+  clipPlane2->SetOrigin(0.55 * (bounds[0] + bounds[1]), 0.0, 0.0);
   clipPlane2->SetNormal(-1.0, 0.0, 0.0);
 
   vtkNew<vtkPlaneCollection> clipPlaneCollection;
