@@ -598,9 +598,15 @@ namespace vtkvolume
           \n\
           if (origin[3] != 0.0)\n\
             {\n\
-            origin[0] = origin[0]/origin[3];\n\
-            origin[1] = origin[1]/origin[3];\n\
-            origin[2] = origin[2]/origin[3];\n\
+            origin[0] = origin[0] / origin[3];\n\
+            origin[1] = origin[1] / origin[3];\n\
+            origin[2] = origin[2] / origin[3];\n\
+            }\n\
+          if (normal[3] != 0.0)\n\
+            {\n\
+            normal[0] = normal[0] / normal[3];\n\
+            normal[1] = normal[1] / normal[3];\n\
+            normal[2] = normal[2] / normal[3];\n\
             }\n\
           \n\
           clipping_planes_ts[i]     = origin[0];\n\
@@ -636,6 +642,7 @@ namespace vtkvolume
                   clipping_planes_ts[i + 5])) < 0)\n\
            {\n\
            l_skip = true;\n\
+           break;\n\
            }\n\
          }");
       }

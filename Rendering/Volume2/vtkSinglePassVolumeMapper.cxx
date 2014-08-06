@@ -878,13 +878,10 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
     vtkPlane* plane;
     while ((plane = this->Parent->ClippingPlanes->GetNextItem()))
       {
-      // Planes are in world coordinates, we need to
-      // convert them in local coordinates
-      double planeOrigin[4], planeNormal[4];//, planeP1[4];
+      // Planes are in world coordinates
+      double planeOrigin[3], planeNormal[3];
       plane->GetOrigin(planeOrigin);
-      planeOrigin[3] = 1.;
       plane->GetNormal(planeNormal);
-      planeNormal[3] = 1.;
 
       clippingPlanes.push_back(planeOrigin[0]);
       clippingPlanes.push_back(planeOrigin[1]);
@@ -900,7 +897,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
     clippingPlanes[0] = clippingPlanes.size() > 0 ? (clippingPlanes.size() - 1) :
                           0;
 
-    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes[0],
+    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes.size(),
                  &clippingPlanes[0]);
     }
 }
@@ -1497,7 +1494,8 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
     {
     for (int j = 0; j < 4; ++j)
       {
-      textureDataSetMat[i * 4 + j] = this->Implementation->TextureToDataSetMat->Element[i][j];
+      textureDataSetMat[i * 4 + j] =
+        this->Implementation->TextureToDataSetMat->Element[i][j];
       }
     }
 
