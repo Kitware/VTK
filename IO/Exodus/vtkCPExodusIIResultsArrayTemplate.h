@@ -39,7 +39,13 @@ public:
   static vtkCPExodusIIResultsArrayTemplate *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Set the arrays to be used and the number of tuples in each array.
+  // The save option can be set to true to indicate that this class
+  // should not delete the actual allocated memory. By default it will
+  // delete the array with the 'delete []' method.
   void SetExodusScalarArrays(std::vector<Scalar*> arrays, vtkIdType numTuples);
+  void SetExodusScalarArrays(std::vector<Scalar*> arrays, vtkIdType numTuples, bool save);
 
   // Reimplemented virtuals -- see superclasses for descriptions:
   void Initialize();
@@ -105,6 +111,9 @@ private:
 
   vtkIdType Lookup(const Scalar &val, vtkIdType startIndex);
   double *TempDoubleArray;
+  // Description: If Save is true then this class won't delete that memory.
+  // By default Save is false.
+  bool Save;
 };
 
 #include "vtkCPExodusIIResultsArrayTemplate.txx"
