@@ -749,12 +749,11 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateDepthTexture(
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
-                 this->WindowSize[0], this->WindowSize[1],
-                 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL );
-
     }
   glBindTexture(GL_TEXTURE_2D, this->DepthTextureId);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
+               this->WindowSize[0], this->WindowSize[1],
+               0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL );
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
                       this->WindowLowerLeft[0], this->WindowLowerLeft[1],
                       this->WindowSize[0], this->WindowSize[1]);
