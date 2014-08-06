@@ -898,7 +898,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
     this->Parent->GetCroppingRegionPlanes(croppingRegionPlanes);
 
     clippingPlanes[0] = clippingPlanes.size() > 0 ? (clippingPlanes.size() - 1) :
-                                                    0;
+                          0;
+
     glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes[0],
                  &clippingPlanes[0]);
     }

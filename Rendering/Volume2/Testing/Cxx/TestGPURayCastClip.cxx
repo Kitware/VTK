@@ -104,12 +104,17 @@ int TestGPURayCastClip(int argc, char *argv[])
   // Test cropping now
 
   double* bounds = reader->GetOutput()->GetBounds();
-  vtkNew<vtkPlane> clipPlane;
-  clipPlane->SetOrigin(0.5 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane->SetNormal(1.0, 0.0, 0.0);
+  vtkNew<vtkPlane> clipPlane1;
+  clipPlane1->SetOrigin(0.5 * (bounds[0] + bounds[1]), 0.0, 0.0);
+  clipPlane1->SetNormal(1.0, 0.0, 0.0);
+
+  vtkNew<vtkPlane> clipPlane2;
+  clipPlane2->SetOrigin(0.4 * (bounds[0] + bounds[1]), 0.0, 0.0);
+  clipPlane2->SetNormal(-1.0, 0.0, 0.0);
 
   vtkNew<vtkPlaneCollection> clipPlaneCollection;
-  clipPlaneCollection->AddItem(clipPlane.GetPointer());
+  clipPlaneCollection->AddItem(clipPlane1.GetPointer());
+  clipPlaneCollection->AddItem(clipPlane2.GetPointer());
   volumeMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
 
   // Setup volume actor

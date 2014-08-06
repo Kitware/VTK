@@ -584,7 +584,7 @@ namespace vtkvolume
         \n\
         mat4 world_to_texture_mat = inverse(transpose(m_texture_dataset_matrix)) *\n\
                                     l_ogl_scene_matrix;\n\
-        for (int i = 0; i < clipping_planes_size / 6; ++i)\n\
+        for (int i = 0; i < clipping_planes_size; i = i + 6)\n\
           {\n\
           vec4 origin = vec4(m_clipping_planes[i + 1],\n\
                              m_clipping_planes[i + 2],\n\
@@ -626,7 +626,7 @@ namespace vtkvolume
     else
       {
       return std::string("\n\
-        for (int i = 0; i < clipping_planes_size / 6 && !l_skip; ++i)\n\
+        for (int i = 0; i < (clipping_planes_size) && !l_skip; i = i + 6)\n\
          {\n\
          if (dot(vec3(l_data_pos - vec3(clipping_planes_ts[i],\n\
                                         clipping_planes_ts[i + 1],\n\
