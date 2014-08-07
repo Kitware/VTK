@@ -139,7 +139,7 @@ inline int vtkPadToFour(int n)
 template <class T>
 void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *data,
                                       T *dataPtr, double shift, double scale,
-                                      int *vtkUnused(actorPos), int *vtkUnused(actorPos2), int vtkUnused(front), int *vtkUnused(vsize),
+                                      int *vtkNotUsed(actorPos), int *vtkNotUsed(actorPos2), int vtkNotUsed(front), int *vtkNotUsed(vsize),
                                       vtkViewport *viewport)
 {
   vtkOpenGLClearErrorMacro();
@@ -253,8 +253,8 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
 template <class T>
 void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *data,
                                      T *dataPtr, double shift, double scale,
-                                     int *vtkUnused(actorPos), int *vtkUnused(actorPos2), int vtkUnused(front),
-                                     int *vtkUnused(vsize), vtkViewport *viewport)
+                                     int *vtkNotUsed(actorPos), int *vtkNotUsed(actorPos2), int vtkNotUsed(front),
+                                     int *vtkNotUsed(vsize), vtkViewport *viewport)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -384,8 +384,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
 
 template <class T>
 void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *data,
-                                    T *dataPtr, int *vtkUnused(actorPos), int *vtkUnused(actorPos2),
-                                    int vtkUnused(front), int *vtkUnused(vsize), vtkViewport *viewport)
+                                    T *dataPtr, int *vtkNotUsed(actorPos), int *vtkNotUsed(actorPos2),
+                                    int vtkNotUsed(front), int *vtkNotUsed(vsize), vtkViewport *viewport)
 {
   vtkOpenGLClearErrorMacro();
 
