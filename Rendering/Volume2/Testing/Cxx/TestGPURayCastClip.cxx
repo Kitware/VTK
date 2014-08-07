@@ -54,7 +54,6 @@ int TestGPURayCastClip(int argc, char *argv[])
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
   vtkNew<vtkSinglePassVolumeMapper> volumeMapper;
-  volumeMapper->SetSampleDistance(0.05);
 
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
