@@ -320,13 +320,6 @@ void vtkTransformInterpolator::InitializeInterpolation()
       this->RotationInterpolator = vtkQuaternionInterpolator::New();
       }
 
-    this->PositionInterpolator->Initialize();
-    this->ScaleInterpolator->Initialize();
-    this->RotationInterpolator->Initialize();
-
-    this->PositionInterpolator->SetNumberOfComponents(3);
-    this->ScaleInterpolator->SetNumberOfComponents(3);
-
     if ( this->InterpolationType == INTERPOLATION_TYPE_LINEAR )
       {
       this->PositionInterpolator->SetInterpolationTypeToLinear();
@@ -343,6 +336,13 @@ void vtkTransformInterpolator::InitializeInterpolation()
       {
       ; //manual override, user manipulates interpolators directly
       }
+
+    this->PositionInterpolator->Initialize();
+    this->ScaleInterpolator->Initialize();
+    this->RotationInterpolator->Initialize();
+
+    this->PositionInterpolator->SetNumberOfComponents(3);
+    this->ScaleInterpolator->SetNumberOfComponents(3);
 
     // Okay, now we can load the interpolators with data
     TransformListIterator iter = this->TransformList->begin();
