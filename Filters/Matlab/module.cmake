@@ -9,4 +9,5 @@ vtk_module(vtkFiltersMatlab
     vtksys
   EXCLUDE_FROM_WRAPPING
   EXCLUDE_FROM_WRAP_HIERARCHY
+  EXCLUDE_FROM_ALL
   )
