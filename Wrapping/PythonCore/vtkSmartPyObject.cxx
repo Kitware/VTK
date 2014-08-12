@@ -15,6 +15,12 @@
 =========================================================================*/
 #include "vtkSmartPyObject.h"
 
+#if defined(_MSC_VER) // Visual studio
+// Ignore "constant expression" warnings from MSVC due to the "while (0)" in
+// the Py_X{IN,DE}CREF macros.
+#pragma warning(disable: 4127)
+#endif
+
 //--------------------------------------------------------------------
 vtkSmartPyObject::vtkSmartPyObject(PyObject *obj) :
   Object(obj)
