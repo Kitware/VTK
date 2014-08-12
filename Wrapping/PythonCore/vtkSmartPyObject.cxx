@@ -15,21 +15,25 @@
 =========================================================================*/
 #include "vtkSmartPyObject.h"
 
+//--------------------------------------------------------------------
 vtkSmartPyObject::vtkSmartPyObject(PyObject *obj) :
   Object(obj)
 {}
 
+//--------------------------------------------------------------------
 vtkSmartPyObject::vtkSmartPyObject(const vtkSmartPyObject &other) :
   Object(other.Object)
 {
   Py_XINCREF(this->Object);
 }
 
+//--------------------------------------------------------------------
 vtkSmartPyObject::~vtkSmartPyObject()
 {
   Py_XDECREF(this->Object);
 }
 
+//--------------------------------------------------------------------
 vtkSmartPyObject &vtkSmartPyObject::operator=(const vtkSmartPyObject &other)
 {
   Py_XDECREF(this->Object);
@@ -38,6 +42,7 @@ vtkSmartPyObject &vtkSmartPyObject::operator=(const vtkSmartPyObject &other)
   return *this;
 }
 
+//--------------------------------------------------------------------
 vtkSmartPyObject &vtkSmartPyObject::operator=(PyObject *obj)
 {
   Py_XDECREF(this->Object);
@@ -46,27 +51,32 @@ vtkSmartPyObject &vtkSmartPyObject::operator=(PyObject *obj)
   return *this;
 }
 
+//--------------------------------------------------------------------
 void vtkSmartPyObject::TakeReference(PyObject *obj)
 {
   Py_XDECREF(this->Object);
   this->Object = obj;
 }
 
+//--------------------------------------------------------------------
 PyObject *vtkSmartPyObject::operator->() const
 {
   return this->Object;
 }
 
+//--------------------------------------------------------------------
 vtkSmartPyObject::operator PyObject*() const
 {
   return this->Object;
 }
 
+//--------------------------------------------------------------------
 vtkSmartPyObject::operator bool() const
 {
   return this->Object != NULL;
 }
 
+//--------------------------------------------------------------------
 PyObject *vtkSmartPyObject::ReleaseReference()
 {
   PyObject *tmp = this->Object;
@@ -74,11 +84,13 @@ PyObject *vtkSmartPyObject::ReleaseReference()
   return tmp;
 }
 
+//--------------------------------------------------------------------
 PyObject *vtkSmartPyObject::GetPointer() const
 {
   return this->Object;
 }
 
+//--------------------------------------------------------------------
 PyObject *vtkSmartPyObject::GetAndIncreaseReferenceCount()
 {
   Py_XINCREF(this->Object);
