@@ -64,7 +64,6 @@ add_custom_target(JavaVTK-ant-configure ALL
 
 add_dependencies(JavaVTK-ant-configure JavaVTK)
 
-if (FALSE)
 #find ant
 find_program(ANT_EXECUTABLE
   NAMES ant
@@ -73,26 +72,24 @@ if(NOT ANT_EXECUTABLE)
   message(FATAL_ERROR "Can not find ant build tool: ant")
 endif()
 
-add_custom_target(NativeVTK-apk-release ALL
+add_custom_target(JavaVTK-apk-release ALL
   COMMAND ${ANT_EXECUTABLE}
           -file "${CMAKE_CURRENT_BINARY_DIR}/build.xml"
           release)
-add_dependencies(NativeVTK-apk-release
-  NativeVTK-ant-configure
-  NativeVTK
-  NativevTK-apk-resource)
+add_dependencies(JavaVTK-apk-release
+  JavaVTK-ant-configure
+  JavaVTK)
 
-add_custom_target(NativeVTK-apk-debug ALL
+add_custom_target(JavaVTK-apk-debug ALL
   COMMAND ${ANT_EXECUTABLE}
           -file "${CMAKE_CURRENT_BINARY_DIR}/build.xml"
           debug)
-add_dependencies(NativeVTK-apk-debug
-  NativeVTK-apk-release
-  NativeVTK-ant-configure
-  NativeVTK
-  NativevTK-apk-resource)
-endif()
+add_dependencies(JavaVTK-apk-debug
+  JavaVTK-apk-release
+  JavaVTK-ant-configure
+  JavaVTK)
 
+if (0)
 # Remove existing resource directory if any in the binary dir
 add_custom_target(JavaVTK-apk-rm-resource ALL
   COMMAND ${CMAKE_COMMAND} -E remove_directory
@@ -110,3 +107,4 @@ add_dependencies(JavaVTK-apk-resource
   JavaVTK-apk-rm-resource
   JavaVTK-ant-configure
   JavaVTK)
+endif()

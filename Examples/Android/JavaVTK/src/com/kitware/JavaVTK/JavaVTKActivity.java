@@ -24,23 +24,26 @@ import android.view.WindowManager;
 import java.io.File;
 
 
-public class JavaVTKActivity extends Activity {
-
+public class JavaVTKActivity extends Activity
+{
     JavaVTKView mView;
 
-    @Override protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-        mView = new JavaVTKView(getApplication());
-	setContentView(mView);
+    @Override protected void onCreate(Bundle icicle)
+    {
+    super.onCreate(icicle);
+    mView = new JavaVTKView(getApplication());
+	this.setContentView(mView);
     }
 
-    @Override protected void onPause() {
-        super.onPause();
-        mView.onPause();
+    @Override protected void onPause()
+    {
+    super.onPause();
+    this.mView.onPause();
     }
 
-    @Override protected void onResume() {
-        super.onResume();
-        mView.onResume();
+    @Override protected void onResume()
+    {
+    super.onResume();
+    this.mView.onResume();
     }
 }

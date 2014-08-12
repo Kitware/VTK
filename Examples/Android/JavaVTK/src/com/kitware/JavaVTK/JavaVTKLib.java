@@ -15,19 +15,26 @@
  */
 
 package com.kitware.JavaVTK;
+import android.view.KeyEvent;
+
 
 // Wrapper for native library
 
-public class JavaVTKLib {
+public class JavaVTKLib
+{
 
-     static {
-         System.loadLibrary("JavaVTK");
-     }
+    static
+    {
+      System.loadLibrary("JavaVTK");
+    }
 
     /**
      * @param width the current view width
      * @param height the current view height
      */
-     public static native void init(int width, int height);
-     public static native void step();
+     public static native long init(int width, int height);
+     public static native void step(long udp);
+     public static native void onKeyEvent(long udp, boolean down, int keyCode,
+                                          int metaState,
+                                          int repeatCount);
 }

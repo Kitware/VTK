@@ -68,36 +68,22 @@ class JavaVTKView extends GLSurfaceView
 {
     private static String TAG = "JavaVTKView";
     private static final boolean DEBUG = false;
+    private Renderer myRenderer;
 
     public JavaVTKView(Context context)
     {
         super(context);
-        init(0, 0);
-    }
+        setFocusable(true);
+        setFocusableInTouchMode(true);
 
-    private void init(int depth, int stencil)
-    {
-        /* By default, GLSurfaceView() creates a RGB_565 opaque surface.
-         * If we want a translucent one, we should change the surface's
-         * format here, using PixelFormat.TRANSLUCENT for GL Surfaces
-         * is interpreted as any 32-bit surface with alpha by SurfaceFlinger.
-         */
         this.getHolder().setFormat(PixelFormat.TRANSLUCENT);
-
-        /* Setup the context factory for 2.0 rendering.
-         * See ContextFactory class definition below
-         */
         setEGLContextFactory(new ContextFactory());
-
-        /* We need to choose an EGLConfig that matches the format of
-         * our surface exactly. This is going to be done in our
-         * custom config chooser. See ConfigChooser class definition
-         * below.
-         */
-        setEGLConfigChooser(new ConfigChooser(8, 8, 8, 8, depth, stencil));
+        setEGLConfigChooser(new ConfigChooser(8, 8, 8, 0, 8, 0));
 
         /* Set the renderer responsible for frame rendering */
-        setRenderer(new Renderer());
+        this.myRenderer = new Renderer();
+        this.setRenderer(myRenderer);
+        this.setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
     private static class ContextFactory implements GLSurfaceView.EGLContextFactory
@@ -336,21 +322,86 @@ class JavaVTKView extends GLSurfaceView
 
     private static class Renderer implements GLSurfaceView.Renderer
     {
-        private long renWin;
+        private long userData;
 
         public void onDrawFrame(GL10 gl)
-            {
-            JavaVTKLib.step(renWin);
-            }
+        {
+            Log.w(TAG, String.format("got step\n"));
+            JavaVTKLib.step(userData);
+            Log.w(TAG, String.format("done step\n"));
+        }
+
+        public void onKeyEvent(boolean down, KeyEvent ke)
+        {
+            JavaVTKLib.onKeyEvent(userData, down, ke.getKeyCode(),
+                ke.getMetaState(),
+                ke.getRepeatCount());
+        }
+
+        public void onMotionEvent(MotionEvent me)
+        {
+            JavaVTKLib.onMotionEvent(userData,
+                me.getX(), me.getY(), me.getMetaState());
+        }
 
         public void onSurfaceChanged(GL10 gl, int width, int height)
-            {
-            renWin = JavaVTKLib.init(width, height);
-            }
+        {
+            Log.w(TAG, String.format("got surf changed\n"));
+            userData = JavaVTKLib.init(width, height);
+            Log.w(TAG, String.format("surf changed done\n"));
+        }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config)
-            {
+        {
             // Do nothing.
-            }
+        }
     }
+
+     public boolean onKeyUp(int keyCode, KeyEvent event)
+     {
+         final KeyEvent keyEvent = event;
+         queueEvent(new Runnable()
+            {
+            // This method will be called on the rendering
+            // thread:
+            public void run()
+                {
+                myRenderer.onKeyEvent(false, keyEvent);
+                requestRender();
+                }
+            });
+         return true;
+     }
+
+     public boolean onKeyDown(int keyCode, KeyEvent event)
+     {
+         final KeyEvent keyEvent = event;
+         queueEvent(new Runnable()
+            {
+            // This method will be called on the rendering
+            // thread:
+            public void run()
+                {
+                myRenderer.onKeyEvent(true, keyEvent);
+                requestRender();
+                }
+            });
+         return true;
+     }
+
+     public boolean onTouchEvent(MotionEvent event)
+     {
+         final MotionEvent motionEvent = event;
+         queueEvent(new Runnable()
+            {
+            // This method will be called on the rendering
+            // thread:
+            public void run()
+                {
+                myRenderer.onMotionEvent(motionEvent);
+                requestRender();
+                }
+            });
+         return true;
+     }
 }

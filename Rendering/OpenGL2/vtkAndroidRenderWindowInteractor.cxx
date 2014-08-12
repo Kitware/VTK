@@ -386,6 +386,46 @@ static int32_t android_handle_input(struct android_app* app, AInputEvent* event)
   return self->HandleInput(event);
 }
 
+const char *vtkAndroidRenderWindowInteractor::GetKeySym(int keyCode)
+{
+  const char *keysym = "None";
+  if (keyCode <= AKEYCODE_3D_MODE)
+    {
+    keysym = this->KeyCodeToKeySymTable[keyCode];
+    }
+  return keysym;
+}
+
+void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int metaState, int nRepCnt)
+{
+  const char *keysym = this->GetKeySym(nChar);
+  if (down)
+    {
+    this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
+                                 metaState & AMETA_SHIFT_ON,
+                                 nChar, nRepCnt,
+                                 keysym);
+    this->SetAltKey(metaState & AMETA_ALT_ON);
+    this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+    return;
+    }
+
+  this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
+                               metaState & AMETA_SHIFT_ON,
+                               nChar, nRepCnt,
+                               keysym);
+  this->SetAltKey(metaState & AMETA_ALT_ON);
+  this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+  if (keysym && strlen(keysym) == 1)
+    {
+    this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
+                                 metaState & AMETA_SHIFT_ON,
+                                 keysym[0],
+                                 nRepCnt);
+    this->InvokeEvent(vtkCommand::CharEvent, NULL);
+    }
+}
+
 int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
 {
   if (!this->Enabled)
@@ -436,40 +476,11 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       int nChar = AKeyEvent_getKeyCode(event);
       int metaState = AKeyEvent_getMetaState(event);
       int nRepCnt = AKeyEvent_getRepeatCount(event);
-      const char *keysym = "None";
-      if (nChar <= AKEYCODE_3D_MODE)
-        {
-        keysym = this->KeyCodeToKeySymTable[nChar];
-        }
-      switch(action)
-        {
-        case AKEY_EVENT_ACTION_DOWN:
-          this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                       metaState & AMETA_SHIFT_ON,
-                                       nChar,
-                                       nRepCnt,
-                                       keysym);
-          this->SetAltKey(metaState & AMETA_ALT_ON);
-          this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-          return 1;
-        case AKEY_EVENT_ACTION_UP:
-          this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                       metaState & AMETA_SHIFT_ON,
-                                       nChar,
-                                       nRepCnt,
-                                       keysym);
-          this->SetAltKey(metaState & AMETA_ALT_ON);
-          this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
-          if (keysym && strlen(keysym) == 1)
-            {
-            this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                         metaState & AMETA_SHIFT_ON,
-                                         keysym[0],
-                                         nRepCnt);
-            this->InvokeEvent(vtkCommand::CharEvent, NULL);
-            }
-          return 1;
-        }
+      this->HandleKeyEvent(action == AKEY_EVENT_ACTION_DOWN,
+        nChar,
+        metaState,
+        nRepCnt);
+      return 1;
       }
       break;
     } // end switch event type motion versus key

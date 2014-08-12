@@ -120,7 +120,7 @@ public:
   virtual void *GetGenericParentId() {};
   virtual void *GetGenericContext() { return this->Context; };
   virtual void *GetGenericDrawable() {};
-  virtual void SetWindowInfo(char *) {};
+  virtual void SetWindowInfo(char *);
   virtual void SetNextWindowInfo(char *) {};
   virtual void SetParentInfo(char *) {};
 
@@ -162,6 +162,7 @@ protected:
   EGLSurface Surface;
   EGLContext Context;
   int ScreenSize[2];
+  int OwnWindow;
 
   void CreateAWindow();
   void DestroyWindow();

@@ -15,7 +15,6 @@
  *
  */
 
-//BEGIN_INCLUDE(all)
 #include <jni.h>
 #include <errno.h>
 
@@ -33,6 +32,7 @@
 #include "vtkSphereSource.h"
 
 #include "vtkAndroidRenderWindowInteractor.h"
+#include "vtkCommand.h"
 
 #include <android/log.h>
 
@@ -42,12 +42,23 @@
 extern "C" {
     JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, jobject obj,  jint width, jint height);
     JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_step(JNIEnv * env, jobject obj, jlong renWinP);
+    JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
+      jboolean down, jint keyCode, jint metaState, jint repeatCount
+      );
+};
+
+struct userData
+{
+  vtkRenderWindow *renWin;
+  vtkRenderer *renderer;
+  vtkAndroidRenderWindowInteractor *Interactor;
 };
 
 JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, jobject obj,  jint width, jint height)
 {
   vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->SetWindowInfo("jni"); // tel the system that jni owns the window not us
+  renWin->SetWindowInfo("jni"); // tell the system that jni owns the window not us
+  renWin->SetSize(width,height);
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer.Get());
 
@@ -85,14 +96,23 @@ JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, j
   renderer->SetBackground(0.4,0.5,0.6);
 
   renWin->Render();
-  return (jlong)renWin;
+
+  struct userData *foo = new struct userData();
+  foo->renWin = renWin;
+  foo->renderer = renderer.Get();
+  foo->Interactor = iren.Get();
+  return (jlong)foo;
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_step(JNIEnv * env, jobject obj, jlong renWinP)
+JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_step(JNIEnv * env, jobject obj, jlong udp)
 {
-  vtkRenderWindow *renWin = (vtkRenderWindow *)(renWinP);
-  renWin->Render();
+  struct userData *foo = (userData *)(udp);
+  foo->renWin->Render();
 }
 
-
-//END_INCLUDE(all)
+JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
+  jboolean down, jint keyCode, jint metaState, jint repeatCount)
+{
+  struct userData *foo = (userData *)(udp);
+  foo->Interactor->HandleKeyEvent(down, keyCode, metaState, repeatCount);
+}
