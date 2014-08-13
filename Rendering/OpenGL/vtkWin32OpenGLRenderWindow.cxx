@@ -1184,14 +1184,29 @@ int *vtkWin32OpenGLRenderWindow::GetSize(void)
   return this->vtkOpenGLRenderWindow::GetSize();
 }
 
-// Get the current size of the window.
+// Get the size of the whole screen.
 int *vtkWin32OpenGLRenderWindow::GetScreenSize(void)
 {
-  RECT rect;
-  SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+  HDC hDC = ::GetDC(NULL);
+  if (hDC)
+    {
+    // This technique yields the screen size of the primary monitor
+    // only in a multi-monitor configuration...
+    this->Size[0] = ::GetDeviceCaps(hDC, HORZRES);
+    this->Size[1] = ::GetDeviceCaps(hDC, VERTRES);
+    ::ReleaseDC(NULL, hDC);
+    }
+  else
+    {
+    // This technique gets the "work area" (the whole screen except
+    // for the bit covered by the Windows task bar) -- use it as a
+    // fallback if there's an error calling GetDC.
+    RECT rect;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
 
-  this->Size[0] = rect.right - rect.left;
-  this->Size[1] = rect.bottom - rect.top;
+    this->Size[0] = rect.right - rect.left;
+    this->Size[1] = rect.bottom - rect.top;
+    }
 
   return this->Size;
 }
