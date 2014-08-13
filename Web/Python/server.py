@@ -18,6 +18,7 @@ from . import wamp as vtk_wamp
 
 from autobahn.twisted.resource  import WebSocketResource
 from autobahn.twisted.websocket import listenWS
+from autobahn.twisted.longpoll  import WampLongPollResource
 
 from twisted.internet           import reactor
 from twisted.internet.defer     import inlineCallbacks
@@ -62,7 +63,13 @@ def add_arguments(parser):
     parser.add_argument("-j", "--sslCert", type=str, default="",
         help="SSL certificate.  Use this and --sslKey to start the server on https.")
     parser.add_argument("-ws", "--ws-endpoint", type=str, default="ws", dest='ws',
-        help="Specify WebSocket endpoint. (Default: ws)")
+        help="Specify WebSocket endpoint. (e.g. foo/bar/ws, Default: ws)")
+    parser.add_argument("-lp", "--lp-endpoint", type=str, default="lp", dest='lp',
+        help="Specify LongPoll endpoint. (e.g. foo/bar/lp, Default: lp)")
+    parser.add_argument("--no-ws-endpoint", action="store_true", dest='nows',
+        help="If provided, disables the websocket endpoint")
+    parser.add_argument("--no-lp-endpoint", action="store_true", dest='nolp',
+        help="If provided, disables the longpoll endpoint")
 
     # Hook to extract any testing arguments we need
     testing.add_arguments(parser)
@@ -103,6 +110,21 @@ def start(argv=None,
 def stop_webserver() :
     reactor.callFromThread(reactor.stop)
 
+# =============================================================================
+# Convenience method to build a resource sub tree to reflect a desired path.
+# =============================================================================
+def handle_complex_resource_path(path, root, resource):
+    # Handle complex endpoint
+    fullpath = path.split('/')
+    parent_path_item_resource = root
+    for path_item in fullpath:
+        if path_item == fullpath[-1]:
+            parent_path_item_resource.putChild(path_item, resource)
+        else:
+            new_resource = Resource()
+            parent_path_item_resource.putChild(path_item, new_resource)
+            parent_path_item_resource = new_resource
+
 
 # =============================================================================
 # Start webserver
@@ -138,15 +160,20 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
       wsProtocol = "ws"
 
     # Create WAMP router factory
-    from autobahn.wamp.router import RouterFactory
+    from autobahn.twisted.wamp import RouterFactory
     router_factory = RouterFactory()
+
+    # create a user DB
+    authdb = vtk_wamp.AuthDb()
 
     # create a WAMP router session factory
     from autobahn.twisted.wamp import RouterSessionFactory
     session_factory = RouterSessionFactory(router_factory)
+    session_factory.session = vtk_wamp.CustomWampCraRouterSession
+    session_factory.authdb = authdb
 
     # Register protocol
-    session_factory.add(protocol())
+    session_factory.add(protocol(authdb=authdb))
 
     # create a WAMP-over-WebSocket transport server factory
     transport_factory = vtk_wamp.TimeoutWampWebSocketServerFactory(session_factory, \
@@ -155,38 +182,34 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
            debug_wamp = options.debug,                                              \
            timeout    = options.timeout )
 
-    # Do we serve static content or just websocket ?
-    if len(options.content) == 0:
-        # Only WebSocket
-        listenWS(transport_factory, contextFactory, options.timeout)
-    else:
-        # Static HTTP + WebSocket
-        wsResource = WebSocketResource(transport_factory)
+    root = Resource()
 
+    # Do we serve static content or just websocket ?
+    if len(options.content) > 0:
+        # Static HTTP + WebSocket
         root = File(options.content)
 
-        # Handle complex ws endpoint
-        ws_fullpath = options.ws.split('/')
-        parent_path_item_resource = root
-        for path_item in ws_fullpath:
-            if path_item == ws_fullpath[-1]:
-                parent_path_item_resource.putChild(path_item, wsResource)
-            else:
-                new_resource = Resource()
-                parent_path_item_resource.putChild(path_item, new_resource)
-                parent_path_item_resource = new_resource
+    # Handle possibly complex ws endpoint
+    if not options.nows:
+        wsResource = WebSocketResource(transport_factory)
+        handle_complex_resource_path(options.ws, root, wsResource)
 
-        if options.uploadPath != None :
-            from upload import UploadPage
-            uploadResource = UploadPage(options.uploadPath)
-            root.putChild("upload", uploadResource)
+    # Handle possibly complex lp endpoint
+    if not options.nolp:
+        lpResource = WampLongPollResource(session_factory)
+        handle_complex_resource_path(options.lp, root, lpResource)
 
-        site = Site(root)
+    if options.uploadPath != None :
+        from upload import UploadPage
+        uploadResource = UploadPage(options.uploadPath)
+        root.putChild("upload", uploadResource)
 
-        if use_SSL:
-          reactor.listenSSL(options.port, site, contextFactory)
-        else:
-          reactor.listenTCP(options.port, site)
+    site = Site(root)
+
+    if use_SSL:
+      reactor.listenSSL(options.port, site, contextFactory)
+    else:
+      reactor.listenTCP(options.port, site)
 
     # Work around to force the output buffer to be flushed
     # This allow the process launcher to parse the output and

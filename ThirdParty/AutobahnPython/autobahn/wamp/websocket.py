@@ -33,12 +33,13 @@ from autobahn.wamp.exception import ProtocolError, SerializationError, Transport
 import traceback
 
 
+
 class WampWebSocketProtocol:
    """
    Base class for WAMP-over-WebSocket transport mixins.
    """
 
-   def _bailout(self, code, reason):
+   def _bailout(self, code, reason = None):
       if self.factory.debug_wamp:
          print("Failing WAMP-over-WebSocket transport: code = {}, reason = '{}'".format(code, reason))
       self.failConnection(code, reason)
@@ -71,7 +72,7 @@ class WampWebSocketProtocol:
          if self.factory.debug_wamp:
             print("WAMP-over-WebSocket transport lost: wasClean = {}, code = {}, reason = '{}'".format(wasClean, code, reason))
          self._session.onClose(wasClean)
-      except Exception as e:
+      except Exception:
          ## silently ignore exceptions raised here ..
          if self.factory.debug_wamp:
             traceback.print_exc()
@@ -83,10 +84,10 @@ class WampWebSocketProtocol:
       Callback from :func:`autobahn.websocket.interfaces.IWebSocketChannel.onMessage`
       """
       try:
-         msg = self._serializer.unserialize(payload, isBinary)
-         if self.factory.debug_wamp:
-            print("RX {}".format(msg))
-         self._session.onMessage(msg)
+         for msg in self._serializer.unserialize(payload, isBinary):
+            if self.factory.debug_wamp:
+               print("RX {}".format(msg))
+            self._session.onMessage(msg)
 
       except ProtocolError as e:
          if self.factory.debug_wamp:
@@ -157,7 +158,7 @@ def parseSubprotocolIdentifier(subprotocol):
       if s[0] != "wamp":
          raise Exception("invalid protocol %s" % s[0])
       version = int(s[1])
-      serializerId = s[2]
+      serializerId = '.'.join(s[2:])
       return version, serializerId
    except:
       return None, None
@@ -222,13 +223,15 @@ class WampWebSocketFactory:
 
    def __init__(self, factory, serializers = None, debug_wamp = False):
       """
+      Ctor.
+
       :param factory: A callable that produces instances that implement
-                      :class:`autobahn.wamp.interfaces.ITransportHandler`
+         :class:`autobahn.wamp.interfaces.ITransportHandler`
       :type factory: callable
       :param serializers: A list of WAMP serializers to use (or None for default
-                          serializers). Serializers must implement
-                         :class:`autobahn.wamp.interfaces.ISerializer`.
-      type serializers: list
+         serializers). Serializers must implement
+         :class:`autobahn.wamp.interfaces.ISerializer`.
+      :type serializers: list
       """
       assert(callable(factory))
       self._factory = factory
@@ -241,6 +244,7 @@ class WampWebSocketFactory:
          ## try MsgPack WAMP serializer
          try:
             from autobahn.wamp.serializer import MsgPackSerializer
+            serializers.append(MsgPackSerializer(batched = True))
             serializers.append(MsgPackSerializer())
          except ImportError:
             pass
@@ -248,6 +252,7 @@ class WampWebSocketFactory:
          ## try JSON WAMP serializer
          try:
             from autobahn.wamp.serializer import JsonSerializer
+            serializers.append(JsonSerializer(batched = True))
             serializers.append(JsonSerializer())
          except ImportError:
             pass

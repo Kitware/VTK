@@ -60,11 +60,11 @@ class PerMessageBzip2Offer(PerMessageCompressOffer, PerMessageBzip2Mixin):
    """
 
    @classmethod
-   def parse(Klass, params):
+   def parse(cls, params):
       """
       Parses a WebSocket extension offer for `permessage-bzip2` provided by a client to a server.
 
-      :param params: Output from :method:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
+      :param params: Output from :func:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
       :type params: list
 
       :returns: object -- A new instance of :class:`autobahn.compress.PerMessageBzip2Offer`.
@@ -80,13 +80,13 @@ class PerMessageBzip2Offer(PerMessageCompressOffer, PerMessageBzip2Mixin):
       for p in params:
 
          if len(params[p]) > 1:
-            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
          val = params[p][0]
 
          if p == 'client_max_compress_level':
             if val != True:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                acceptMaxCompressLevel = True
 
@@ -94,16 +94,16 @@ class PerMessageBzip2Offer(PerMessageCompressOffer, PerMessageBzip2Mixin):
             try:
                val = int(val)
             except:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             if val not in PerMessageBzip2Mixin.COMPRESS_LEVEL_PERMISSIBLE_VALUES:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                requestMaxCompressLevel = val
 
          else:
-            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
-      offer = Klass(acceptMaxCompressLevel,
+      offer = cls(acceptMaxCompressLevel,
                     requestMaxCompressLevel)
       return offer
 
@@ -250,11 +250,11 @@ class PerMessageBzip2Response(PerMessageCompressResponse, PerMessageBzip2Mixin):
    """
 
    @classmethod
-   def parse(Klass, params):
+   def parse(cls, params):
       """
       Parses a WebSocket extension response for `permessage-bzip2` provided by a server to a client.
 
-      :param params: Output from :method:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
+      :param params: Output from :func:`autobahn.websocket.WebSocketProtocol._parseExtensionsHeader`.
       :type params: list
 
       :returns: object -- A new instance of :class:`autobahn.compress.PerMessageBzip2Response`.
@@ -265,7 +265,7 @@ class PerMessageBzip2Response(PerMessageCompressResponse, PerMessageBzip2Mixin):
       for p in params:
 
          if len(params[p]) > 1:
-            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("multiple occurence of extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
          val = params[p][0]
 
@@ -273,9 +273,9 @@ class PerMessageBzip2Response(PerMessageCompressResponse, PerMessageBzip2Mixin):
             try:
                val = int(val)
             except:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             if val not in PerMessageBzip2Mixin.COMPRESS_LEVEL_PERMISSIBLE_VALUES:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                client_max_compress_level = val
 
@@ -283,16 +283,16 @@ class PerMessageBzip2Response(PerMessageCompressResponse, PerMessageBzip2Mixin):
             try:
                val = int(val)
             except:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             if val not in PerMessageBzip2Mixin.COMPRESS_LEVEL_PERMISSIBLE_VALUES:
-               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, Klass.EXTENSION_NAME))
+               raise Exception("illegal extension parameter value '%s' for parameter '%s' of extension '%s'" % (val, p, cls.EXTENSION_NAME))
             else:
                server_max_compress_level = val
 
          else:
-            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, Klass.EXTENSION_NAME))
+            raise Exception("illegal extension parameter '%s' for extension '%s'" % (p, cls.EXTENSION_NAME))
 
-      response = Klass(client_max_compress_level,
+      response = cls(client_max_compress_level,
                        server_max_compress_level)
       return response
 
@@ -385,16 +385,16 @@ class PerMessageBzip2(PerMessageCompress, PerMessageBzip2Mixin):
    DEFAULT_COMPRESS_LEVEL = 9
 
    @classmethod
-   def createFromResponseAccept(Klass, isServer, accept):
-      pmce = Klass(isServer,
+   def createFromResponseAccept(cls, isServer, accept):
+      pmce = cls(isServer,
                    accept.response.server_max_compress_level,
                    accept.compressLevel if accept.compressLevel is not None else accept.response.client_max_compress_level)
       return pmce
 
 
    @classmethod
-   def createFromOfferAccept(Klass, isServer, accept):
-      pmce = Klass(isServer,
+   def createFromOfferAccept(cls, isServer, accept):
+      pmce = cls(isServer,
                    accept.compressLevel if accept.compressLevel is not None else accept.offer.requestMaxCompressLevel,
                    accept.requestMaxCompressLevel)
       return pmce

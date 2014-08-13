@@ -23,6 +23,7 @@ __all__ = ['Serializer',
            'JsonSerializer']
 
 import six
+import struct
 
 from autobahn.wamp.interfaces import IObjectSerializer, ISerializer
 from autobahn.wamp.exception import ProtocolError
@@ -98,30 +99,36 @@ class Serializer:
             raise ProtocolError("invalid serialization of WAMP message (binary {}, but expected {})".format(isBinary, self._serializer.BINARY))
 
       try:
-         raw_msg = self._serializer.unserialize(payload)
+         raw_msgs = self._serializer.unserialize(payload)
       except Exception as e:
          raise ProtocolError("invalid serialization of WAMP message ({})".format(e))
 
-      if type(raw_msg) != list:
-         raise ProtocolError("invalid type {} for WAMP message".format(type(raw_msg)))
+      msgs = []
 
-      if len(raw_msg) == 0:
-         raise ProtocolError("missing message type in WAMP message")
+      for raw_msg in raw_msgs:
 
-      message_type = raw_msg[0]
+         if type(raw_msg) != list:
+            raise ProtocolError("invalid type {} for WAMP message".format(type(raw_msg)))
 
-      if type(message_type) != int:
-         raise ProtocolError("invalid type {} for WAMP message type".format(type(message_type)))
+         if len(raw_msg) == 0:
+            raise ProtocolError("missing message type in WAMP message")
 
-      Klass = self.MESSAGE_TYPE_MAP.get(message_type)
+         message_type = raw_msg[0]
 
-      if Klass is None:
-         raise ProtocolError("invalid WAMP message type {}".format(message_type))
+         if type(message_type) != int:
+            raise ProtocolError("invalid type {} for WAMP message type".format(type(message_type)))
 
-      ## this might again raise `ProtocolError` ..
-      msg = Klass.parse(raw_msg)
+         Klass = self.MESSAGE_TYPE_MAP.get(message_type)
 
-      return msg
+         if Klass is None:
+            raise ProtocolError("invalid WAMP message type {}".format(message_type))
+
+         ## this might again raise `ProtocolError` ..
+         msg = Klass.parse(raw_msg)
+
+         msgs.append(msg)
+
+      return msgs
 
 
 ##
@@ -133,25 +140,48 @@ class JsonObjectSerializer:
 
    BINARY = False
 
+
+   def __init__(self, batched = False):
+      """
+      Ctor.
+
+      :param batched: Flag that controls whether serializer operates in batched mode.
+      :type batched: bool
+      """
+      self._batched = batched
+
+
    def serialize(self, obj):
       """
       Implements :func:`autobahn.wamp.interfaces.IObjectSerializer.serialize`
       """
       s = json.dumps(obj, separators = (',',':'))
       if six.PY3:
-         return s.encode('utf8')
+         if self._batched:
+            return s.encode('utf8') + b'\30'
+         else:
+            return s.encode('utf8')
       else:
-         return s
+         if self._batched:
+            return s + '\30'
+         else:
+            return s
 
 
    def unserialize(self, payload):
       """
       Implements :func:`autobahn.wamp.interfaces.IObjectSerializer.unserialize`
       """
-      if six.PY3:
-         return json.loads(payload.decode('utf8'))
+      if self._batched:
+         chunks = payload.split(b'\30')[:-1]
       else:
-         return json.loads(payload)
+         chunks = [payload]
+      if len(chunks) == 0:
+         raise Exception("batch format error")
+      if six.PY3:
+         return [json.loads(data.decode('utf8')) for data in chunks]
+      else:
+         return [json.loads(data) for data in chunks]
 
 
 
@@ -162,9 +192,18 @@ IObjectSerializer.register(JsonObjectSerializer)
 class JsonSerializer(Serializer):
 
    SERIALIZER_ID = "json"
+   MIME_TYPE = "application/json"
 
-   def __init__(self):
-      Serializer.__init__(self, JsonObjectSerializer())
+   def __init__(self, batched = False):
+      """
+      Ctor.
+
+      :param batched: Flag to control whether to put this serialized into batched mode.
+      :type batched: bool
+      """
+      Serializer.__init__(self, JsonObjectSerializer(batched = batched))
+      if batched:
+         self.SERIALIZER_ID = "json.batched"
 
 
 
@@ -195,18 +234,58 @@ else:
       between strings and binary).
       """
 
+      def __init__(self, batched = False):
+         """
+         Ctor.
+
+         :param batched: Flag that controls whether serializer operates in batched mode.
+         :type batched: bool
+         """
+         self._batched = batched
+
+
       def serialize(self, obj):
          """
          Implements :func:`autobahn.wamp.interfaces.IObjectSerializer.serialize`
          """
-         return msgpack.packb(obj, use_bin_type = self.ENABLE_V5)
+         data = msgpack.packb(obj, use_bin_type = self.ENABLE_V5)
+         if self._batched:
+            return struct.pack("!L", len(data)) + data
+         else:
+            return data
 
 
       def unserialize(self, payload):
          """
          Implements :func:`autobahn.wamp.interfaces.IObjectSerializer.unserialize`
          """
-         return msgpack.unpackb(payload, encoding = 'utf-8')
+         if self._batched:
+            msgs = []
+            N = len(payload)
+            i = 0
+            while i < N:
+               ## read message length prefix
+               if i + 4 > N:
+                  raise Exception("batch format error [1]")
+               l = struct.unpack("!L", payload[i:i+4])[0]
+
+               ## read message data
+               if i + 4 + l > N:
+                  raise Exception("batch format error [2]")
+               data = payload[i+4:i+4+l]
+
+               ## append parsed raw message
+               msgs.append(msgpack.unpackb(data, encoding = 'utf-8'))
+
+               ## advance until everything consumed
+               i = i+4+l
+
+            if i != N:
+               raise Exception("batch format error [3]")
+            return msgs
+
+         else:
+            return [msgpack.unpackb(payload, encoding = 'utf-8')]
 
 
    IObjectSerializer.register(MsgPackObjectSerializer)
@@ -219,9 +298,18 @@ else:
    class MsgPackSerializer(Serializer):
 
       SERIALIZER_ID = "msgpack"
+      MIME_TYPE = "application/x-msgpack"
 
-      def __init__(self):
-         Serializer.__init__(self, MsgPackObjectSerializer())
+      def __init__(self, batched = False):
+         """
+         Ctor.
+
+         :param batched: Flag to control whether to put this serialized into batched mode.
+         :type batched: bool
+         """
+         Serializer.__init__(self, MsgPackObjectSerializer(batched = batched))
+         if batched:
+            self.SERIALIZER_ID = "msgpack.batched"
 
 
    ISerializer.register(MsgPackSerializer)

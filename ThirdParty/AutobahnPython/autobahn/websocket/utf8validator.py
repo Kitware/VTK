@@ -89,10 +89,10 @@ except:
             """
             Eat one UTF-8 octet, and validate on the fly.
 
-            Returns UTF8_ACCEPT when enough octets have been consumed, in which case
-            self.codepoint contains the decoded Unicode code point.
+            Returns ``UTF8_ACCEPT`` when enough octets have been consumed, in which case
+            ``self.codepoint`` contains the decoded Unicode code point.
 
-            Returns UTF8_REJECT when invalid UTF-8 was encountered.
+            Returns ``UTF8_REJECT`` when invalid UTF-8 was encountered.
 
             Returns some other positive integer when more octets need to be eaten.
             """
@@ -116,13 +116,13 @@ except:
             """
             Incrementally validate a chunk of bytes provided as string.
 
-            Will return a quad (valid?, endsOnCodePoint?, currentIndex, totalIndex).
+            Will return a quad ``(valid?, endsOnCodePoint?, currentIndex, totalIndex)``.
 
             As soon as an octet is encountered which renders the octet sequence
-            invalid, a quad with valid? == False is returned. currentIndex returns
-            the index within the currently consumed chunk, and totalIndex the
+            invalid, a quad with ``valid? == False`` is returned. ``currentIndex`` returns
+            the index within the currently consumed chunk, and ``totalIndex`` the
             index within the total consumed sequence that was the point of bail out.
-            When valid? == True, currentIndex will be len(ba) and totalIndex the
+            When ``valid? == True``, currentIndex will be ``len(ba)`` and ``totalIndex`` the
             total amount of consumed bytes.
             """
             ##
@@ -164,10 +164,10 @@ except:
             """
             Eat one UTF-8 octet, and validate on the fly.
 
-            Returns UTF8_ACCEPT when enough octets have been consumed, in which case
-            self.codepoint contains the decoded Unicode code point.
+            Returns ``UTF8_ACCEPT`` when enough octets have been consumed, in which case
+            ``self.codepoint`` contains the decoded Unicode code point.
 
-            Returns UTF8_REJECT when invalid UTF-8 was encountered.
+            Returns ``UTF8_REJECT`` when invalid UTF-8 was encountered.
 
             Returns some other positive integer when more octets need to be eaten.
             """
@@ -191,13 +191,13 @@ except:
             """
             Incrementally validate a chunk of bytes provided as string.
 
-            Will return a quad (valid?, endsOnCodePoint?, currentIndex, totalIndex).
+            Will return a quad ``(valid?, endsOnCodePoint?, currentIndex, totalIndex)``.
 
             As soon as an octet is encountered which renders the octet sequence
-            invalid, a quad with valid? == False is returned. currentIndex returns
-            the index within the currently consumed chunk, and totalIndex the
+            invalid, a quad with ``valid? == False`` is returned. ``currentIndex`` returns
+            the index within the currently consumed chunk, and ``totalIndex`` the
             index within the total consumed sequence that was the point of bail out.
-            When valid? == True, currentIndex will be len(ba) and totalIndex the
+            When ``valid? == True``, currentIndex will be ``len(ba)`` and ``totalIndex`` the
             total amount of consumed bytes.
             """
             ##

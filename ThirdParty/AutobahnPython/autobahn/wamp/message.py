@@ -18,13 +18,14 @@
 
 from __future__ import absolute_import
 
-__all__ = ['Hello',
+__all__ = ('Message',
+           'Hello',
            'Welcome',
            'Abort',
            'Challenge',
            'Authenticate',
            'Goodbye',
-           'Heartbeat'
+           'Heartbeat',
            'Error',
            'Publish',
            'Published',
@@ -42,7 +43,7 @@ __all__ = ['Hello',
            'Unregistered',
            'Invocation',
            'Interrupt',
-           'Yield']
+           'Yield')
 
 
 import re
@@ -72,44 +73,41 @@ _URI_PAT_LOOSE_NON_EMPTY = re.compile(r"^([^\s\.#]+\.)*([^\s\.#]+)?$")
 
 def check_or_raise_uri(value, message):
    if type(value) != six.text_type:
-      raise ProtocolError("{}: invalid type {} for URI".format(message, type(value)))
+      raise ProtocolError("{0}: invalid type {1} for URI".format(message, type(value)))
    if not _URI_PAT_LOOSE.match(value):
-      raise ProtocolError("{}: invalid value '{}' for URI".format(message, value))
+      raise ProtocolError("{0}: invalid value '{1}' for URI".format(message, value))
    return value
 
 
 
 def check_or_raise_id(value, message):
    if type(value) not in six.integer_types:
-      raise ProtocolError("{}: invalid type {} for ID".format(message, type(value)))
+      raise ProtocolError("{0}: invalid type {1} for ID".format(message, type(value)))
    if value < 0 or value > 9007199254740992: # 2**53
-      raise ProtocolError("{}: invalid value {} for ID".format(message, value))
+      raise ProtocolError("{0}: invalid value {1} for ID".format(message, value))
    return value
 
 
 
 def check_or_raise_extra(value, message):
    if type(value) != dict:
-      raise ProtocolError("{}: invalid type {}".format(message, type(value)))
+      raise ProtocolError("{0}: invalid type {1}".format(message, type(value)))
    for k in value.keys():
       if type(k) != six.text_type:
-         raise ProtocolError("{}: invalid type {} for key '{}'".format(message, type(k), k))
+         raise ProtocolError("{0}: invalid type {1} for key '{2}'".format(message, type(k), k))
    return value
 
 
 
 class Message(util.EqualityMixin):
    """
-   WAMP message base class. This is not supposed to be instantiated.
+   WAMP message base class. Implements :class:`autobahn.wamp.interfaces.IMessage`.
+
+   .. note:: This is not supposed to be instantiated.
    """
 
    def __init__(self):
-      """
-      Base constructor.
-      """
-      ## serialization cache: mapping from ISerializer instances
-      ## to serialized bytes
-      ##
+      ## serialization cache: mapping from ISerializer instances to serialized bytes
       self._serialized = {}
 
 
@@ -137,9 +135,9 @@ IMessage.register(Message)
 
 class Hello(Message):
    """
-   A WAMP `HELLO` message.
+   A WAMP ``HELLO`` message.
 
-   Format: `[HELLO, Realm|uri, Details|dict]`
+   Format: ``[HELLO, Realm|uri, Details|dict]``
    """
 
    MESSAGE_TYPE = 1
@@ -148,14 +146,17 @@ class Hello(Message):
    """
 
 
-   def __init__(self, realm, roles, authmethods = None):
+   def __init__(self, realm, roles, authmethods = None, authid = None):
       """
-      Message constructor.
 
       :param realm: The URI of the WAMP realm to join.
-      :type realm: str
+      :type realm: unicode
       :param roles: The WAMP roles to announce.
       :type roles: list of :class:`autobahn.wamp.role.RoleFeatures`
+      :param authmethods: The authentication methods to announce.
+      :type authmethods: list of unicode or None
+      :param authid: The authentication ID to announce.
+      :type authid: unicode or None
       """
       assert(type(realm) == six.text_type)
       assert(type(roles) == list)
@@ -165,11 +166,13 @@ class Hello(Message):
          assert(type(authmethods) == list)
          for authmethod in authmethods:
             assert(type(authmethod) == six.text_type)
+      assert(authid is None or type(authid) == six.text_type)
 
       Message.__init__(self)
       self.realm = realm
       self.roles = roles
       self.authmethods = authmethods
+      self.authid = authid
 
 
    @staticmethod
@@ -180,14 +183,14 @@ class Hello(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Hello.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for HELLO".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for HELLO".format(len(wmsg)))
 
       realm = check_or_raise_uri(wmsg[1], "'realm' in HELLO")
       details = check_or_raise_extra(wmsg[2], "'details' in HELLO")
@@ -204,18 +207,20 @@ class Hello(Message):
 
       for role in details_roles:
          if role not in ROLE_NAME_TO_CLASS:
-            raise ProtocolError("invalid role '{}' in 'roles' in 'details' in HELLO".format(role))
+            raise ProtocolError("invalid role '{0}' in 'roles' in 'details' in HELLO".format(role))
 
-         details_role = check_or_raise_extra(details_roles[role], "role '{}' in 'roles' in 'details' in HELLO".format(role))
+         role_cls = ROLE_NAME_TO_CLASS[role]
+
+         details_role = check_or_raise_extra(details_roles[role], "role '{0}' in 'roles' in 'details' in HELLO".format(role))
 
          if u'features' in details_role:
-            details_role_features = check_or_raise_extra(details_role[u'features'], "'features' in role '{}' in 'roles' in 'details' in HELLO".format(role))
+            check_or_raise_extra(details_role[u'features'], "'features' in role '{0}' in 'roles' in 'details' in HELLO".format(role))
 
             ## FIXME: skip unknown attributes
-            role_features = ROLE_NAME_TO_CLASS[role](**details_role[u'features'])
+            role_features = role_cls(**details_role[u'features'])
 
          else:
-            role_features = ROLE_NAME_TO_CLASS[role]()
+            role_features = role_cls()
 
          roles.append(role_features)
 
@@ -223,15 +228,23 @@ class Hello(Message):
       if u'authmethods' in details:
          details_authmethods = details[u'authmethods']
          if type(details_authmethods) != list:
-            raise ProtocolError("invalid type {} for 'authmethods' detail in HELLO".format(type(details_authmethods)))
+            raise ProtocolError("invalid type {0} for 'authmethods' detail in HELLO".format(type(details_authmethods)))
 
          for auth_method in details_authmethods:
             if type(auth_method) != six.text_type:
-               raise ProtocolError("invalid type {} for item in 'authmethods' detail in HELLO".format(type(auth_method)))
+               raise ProtocolError("invalid type {0} for item in 'authmethods' detail in HELLO".format(type(auth_method)))
 
          authmethods = details_authmethods
 
-      obj = Hello(realm, roles, authmethods)
+      authid = None
+      if u'authid' in details:
+         details_authid = details[u'authid']
+         if type(details_authid) != six.text_type:
+            raise ProtocolError("invalid type {0} for 'authid' detail in HELLO".format(type(details_authid)))
+
+         authid = details_authid
+
+      obj = Hello(realm, roles, authmethods, authid)
 
       return obj
 
@@ -252,6 +265,9 @@ class Hello(Message):
       if self.authmethods:
          details[u'authmethods'] = self.authmethods
 
+      if self.authid:
+         details[u'authid'] = self.authid
+
       return [Hello.MESSAGE_TYPE, self.realm, details]
 
 
@@ -259,15 +275,15 @@ class Hello(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP HELLO Message (realm = {}, roles = {}, authmethods = {})".format(self.realm, self.roles, self.authmethods)
+      return "WAMP HELLO Message (realm = {0}, roles = {1}, authmethods = {2}, authid = {3})".format(self.realm, self.roles, self.authmethods, self.authid)
 
 
 
 class Welcome(Message):
    """
-   A WAMP `WELCOME` message.
+   A WAMP ``WELCOME`` message.
 
-   Format: `[WELCOME, Session|id, Details|dict]`
+   Format: ``[WELCOME, Session|id, Details|dict]``
    """
 
    MESSAGE_TYPE = 2
@@ -276,12 +292,21 @@ class Welcome(Message):
    """
 
 
-   def __init__(self, session, roles, authid = None, authrole = None, authmethod = None):
+   def __init__(self, session, roles, authid = None, authrole = None, authmethod = None, authprovider = None):
       """
-      Message constructor.
 
       :param session: The WAMP session ID the other peer is assigned.
       :type session: int
+      :param roles: The WAMP roles to announce.
+      :type roles: list of :class:`autobahn.wamp.role.RoleFeatures`
+      :param authid: The authentication ID assigned.
+      :type authid: unicode or None
+      :param authrole: The authentication role assigned.
+      :type authrole: unicode or None
+      :param authmethod: The authentication method in use.
+      :type authmethod: unicode or None
+      :param authprovider: The authentication method in use.
+      :type authprovider: unicode or None
       """
       assert(type(session) in six.integer_types)
       assert(type(roles) == list)
@@ -290,6 +315,7 @@ class Welcome(Message):
       assert(authid is None or type(authid) == six.text_type)
       assert(authrole is None or type(authrole) == six.text_type)
       assert(authmethod is None or type(authmethod) == six.text_type)
+      assert(authprovider is None or type(authprovider) == six.text_type)
 
       Message.__init__(self)
       self.session = session
@@ -297,6 +323,7 @@ class Welcome(Message):
       self.authid = authid
       self.authrole = authrole
       self.authmethod = authmethod
+      self.authprovider = authprovider
 
 
    @staticmethod
@@ -307,14 +334,14 @@ class Welcome(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Welcome.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for WELCOME".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for WELCOME".format(len(wmsg)))
 
       session = check_or_raise_id(wmsg[1], "'session' in WELCOME")
       details = check_or_raise_extra(wmsg[2], "'details' in WELCOME")
@@ -322,6 +349,7 @@ class Welcome(Message):
       authid = details.get(u'authid', None)
       authrole = details.get(u'authrole', None)
       authmethod = details.get(u'authmethod', None)
+      authprovider = details.get(u'authprovider', None)
 
       roles = []
 
@@ -335,20 +363,22 @@ class Welcome(Message):
 
       for role in details_roles:
          if role not in ROLE_NAME_TO_CLASS:
-            raise ProtocolError("invalid role '{}' in 'roles' in 'details' in WELCOME".format(role))
+            raise ProtocolError("invalid role '{0}' in 'roles' in 'details' in WELCOME".format(role))
+
+         role_cls = ROLE_NAME_TO_CLASS[role]
 
          if u'features' in details_roles[role]:
-            details_role_features = check_or_raise_extra(details_roles[role][u'features'], "'features' in role '{}' in 'roles' in 'details' in WELCOME".format(role))
+            check_or_raise_extra(details_roles[role][u'features'], "'features' in role '{0}' in 'roles' in 'details' in WELCOME".format(role))
 
             ## FIXME: skip unknown attributes
-            role_features = ROLE_NAME_TO_CLASS[role](**details_roles[role][u'features'])
+            role_features = role_cls(**details_roles[role][u'features'])
 
          else:
-            role_features = ROLE_NAME_TO_CLASS[role]()
+            role_features = role_cls()
 
          roles.append(role_features)
 
-      obj = Welcome(session, roles, authid, authrole, authmethod)
+      obj = Welcome(session, roles, authid, authrole, authmethod, authprovider)
 
       return obj
 
@@ -370,6 +400,9 @@ class Welcome(Message):
       if self.authrole:
          details[u'authmethod'] = self.authmethod
 
+      if self.authprovider:
+         details[u'authprovider'] = self.authprovider
+
       for role in self.roles:
          details[u'roles'][role.ROLE] = {}
          for feature in role.__dict__:
@@ -385,15 +418,15 @@ class Welcome(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP WELCOME Message (session = {}, roles = {}, authid = {}, authrole = {}, authmethod = {})".format(self.session, self.roles, self.authid, self.authrole, self.authmethod)
+      return "WAMP WELCOME Message (session = {0}, roles = {1}, authid = {2}, authrole = {3}, authmethod = {4}, authprovider = {5})".format(self.session, self.roles, self.authid, self.authrole, self.authmethod, self.authprovider)
 
 
 
 class Abort(Message):
    """
-   A WAMP `ABORT` message.
+   A WAMP ``ABORT`` message.
 
-   Format: `[ABORT, Details|dict, Reason|uri]`
+   Format: ``[ABORT, Details|dict, Reason|uri]``
    """
 
    MESSAGE_TYPE = 3
@@ -403,12 +436,11 @@ class Abort(Message):
 
    def __init__(self, reason, message = None):
       """
-      Message constructor.
 
       :param reason: WAMP or application error URI for aborting reason.
-      :type reason: str
+      :type reason: unicode
       :param message: Optional human-readable closing message, e.g. for logging purposes.
-      :type message: str
+      :type message: unicode or None
       """
       assert(type(reason) == six.text_type)
       assert(message is None or type(message) == six.text_type)
@@ -426,14 +458,14 @@ class Abort(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Abort.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for ABORT".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for ABORT".format(len(wmsg)))
 
       details = check_or_raise_extra(wmsg[1], "'details' in ABORT")
       reason = check_or_raise_uri(wmsg[2], "'reason' in ABORT")
@@ -444,7 +476,7 @@ class Abort(Message):
 
          details_message = details[u'message']
          if type(details_message) != six.text_type:
-            raise ProtocolError("invalid type {} for 'message' detail in ABORT".format(type(details_message)))
+            raise ProtocolError("invalid type {0} for 'message' detail in ABORT".format(type(details_message)))
 
          message = details_message
 
@@ -468,15 +500,15 @@ class Abort(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP ABORT Message (message = {}, reason = {})".format(self.message, self.reason)
+      return "WAMP ABORT Message (message = {0}, reason = {1})".format(self.message, self.reason)
 
 
 
 class Challenge(Message):
    """
-   A WAMP `CHALLENGE` message.
+   A WAMP ``CHALLENGE`` message.
 
-   Format: `[CHALLENGE, Method|string, Extra|dict]`
+   Format: ``[CHALLENGE, Method|string, Extra|dict]``
    """
 
    MESSAGE_TYPE = 4
@@ -485,21 +517,20 @@ class Challenge(Message):
    """
 
 
-   def __init__(self, method, extra = {}):
+   def __init__(self, method, extra = None):
       """
-      Message constructor.
 
       :param method: The authentication method.
-      :type method: str
+      :type method: unicode
       :param extra: Authentication method specific information.
-      :type extra: dict
+      :type extra: dict or None
       """
       assert(type(method) == six.text_type)
-      assert(type(extra) == dict)
+      assert(extra is None or type(extra) == dict)
 
       Message.__init__(self)
       self.method = method
-      self.extra = extra
+      self.extra = extra or {}
 
 
    @staticmethod
@@ -510,18 +541,18 @@ class Challenge(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Challenge.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for CHALLENGE".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for CHALLENGE".format(len(wmsg)))
 
       method = wmsg[1]
       if type(method) != str:
-         raise ProtocolError("invalid type {} for 'method' in CHALLENGE".format(type(method)))
+         raise ProtocolError("invalid type {0} for 'method' in CHALLENGE".format(type(method)))
 
       extra = check_or_raise_extra(wmsg[2], "'extra' in CHALLENGE")
 
@@ -541,15 +572,15 @@ class Challenge(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP CHALLENGE Message (method = {}, extra = {})".format(self.method, self.extra)
+      return "WAMP CHALLENGE Message (method = {0}, extra = {1})".format(self.method, self.extra)
 
 
 
 class Authenticate(Message):
    """
-   A WAMP `AUTHENTICATE` message.
+   A WAMP ``AUTHENTICATE`` message.
 
-   Format: `[AUTHENTICATE, Signature|string, Extra|dict]`
+   Format: ``[AUTHENTICATE, Signature|string, Extra|dict]``
    """
 
    MESSAGE_TYPE = 5
@@ -558,17 +589,20 @@ class Authenticate(Message):
    """
 
 
-   def __init__(self, signature):
+   def __init__(self, signature, extra = None):
       """
-      Message constructor.
 
       :param signature: The signature for the authentication challenge.
-      :type signature: str
+      :type signature: unicode
+      :param extra: Authentication method specific information.
+      :type extra: dict or None
       """
       assert(type(signature) == six.text_type)
+      assert(extra is None or type(extra) == dict)
 
       Message.__init__(self)
       self.signature = signature
+      self.extra = extra or {}
 
 
    @staticmethod
@@ -579,22 +613,22 @@ class Authenticate(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Authenticate.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for AUTHENTICATE".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for AUTHENTICATE".format(len(wmsg)))
 
       signature = wmsg[1]
       if type(signature) != six.text_type:
-         raise ProtocolError("invalid type {} for 'signature' in AUTHENTICATE".format(type(signature)))
+         raise ProtocolError("invalid type {0} for 'signature' in AUTHENTICATE".format(type(signature)))
 
       extra = check_or_raise_extra(wmsg[2], "'extra' in AUTHENTICATE")
 
-      obj = Authenticate(signature)
+      obj = Authenticate(signature, extra)
 
       return obj
 
@@ -603,23 +637,22 @@ class Authenticate(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.marshal`
       """
-      extra = {}
-      return [Authenticate.MESSAGE_TYPE, self.signature, extra]
+      return [Authenticate.MESSAGE_TYPE, self.signature, self.extra]
 
 
    def __str__(self):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP AUTHENTICATE Message (signature = {})".format(self.signature)
+      return "WAMP AUTHENTICATE Message (signature = {0}, extra = {1})".format(self.signature, self.extra)
 
 
 
 class Goodbye(Message):
    """
-   A WAMP `GOODBYE` message.
+   A WAMP ``GOODBYE`` message.
 
-   Format: `[GOODBYE, Details|dict, Reason|uri]`
+   Format: ``[GOODBYE, Details|dict, Reason|uri]``
    """
 
    MESSAGE_TYPE = 6
@@ -635,12 +668,11 @@ class Goodbye(Message):
 
    def __init__(self, reason = DEFAULT_REASON, message = None):
       """
-      Message constructor.
 
       :param reason: Optional WAMP or application error URI for closing reason.
-      :type reason: str
+      :type reason: unicode
       :param message: Optional human-readable closing message, e.g. for logging purposes.
-      :type message: str
+      :type message: unicode or None
       """
       assert(type(reason) == six.text_type)
       assert(message is None or type(message) == six.text_type)
@@ -658,14 +690,14 @@ class Goodbye(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Goodbye.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for GOODBYE".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for GOODBYE".format(len(wmsg)))
 
       details = check_or_raise_extra(wmsg[1], "'details' in GOODBYE")
       reason = check_or_raise_uri(wmsg[2], "'reason' in GOODBYE")
@@ -676,7 +708,7 @@ class Goodbye(Message):
 
          details_message = details[u'message']
          if type(details_message) != six.text_type:
-            raise ProtocolError("invalid type {} for 'message' detail in GOODBYE".format(type(details_message)))
+            raise ProtocolError("invalid type {0} for 'message' detail in GOODBYE".format(type(details_message)))
 
          message = details_message
 
@@ -700,18 +732,18 @@ class Goodbye(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP GOODBYE Message (message = {}, reason = {})".format(self.message, self.reason)
+      return "WAMP GOODBYE Message (message = {0}, reason = {1})".format(self.message, self.reason)
 
 
 
 class Heartbeat(Message):
    """
-   A WAMP `HEARTBEAT` message.
+   A WAMP ``HEARTBEAT`` message.
 
    Formats:
 
-     * `[HEARTBEAT, Incoming|integer, Outgoing|integer]`
-     * `[HEARTBEAT, Incoming|integer, Outgoing|integer, Discard|string]`
+   * ``[HEARTBEAT, Incoming|integer, Outgoing|integer]``
+   * ``[HEARTBEAT, Incoming|integer, Outgoing|integer, Discard|string]``
    """
 
    MESSAGE_TYPE = 7
@@ -722,14 +754,13 @@ class Heartbeat(Message):
 
    def __init__(self, incoming, outgoing, discard = None):
       """
-      Message constructor.
 
       :param incoming: Last incoming heartbeat processed from peer.
       :type incoming: int
       :param outgoing: Outgoing heartbeat.
       :type outgoing: int
-      :param discard: Optional data that is discared by peer.
-      :type discard: str
+      :param discard: Optional data that is discarded by peer.
+      :type discard: unicode or None
       """
       assert(type(incoming) in six.integer_types)
       assert(type(outgoing) in six.integer_types)
@@ -749,36 +780,36 @@ class Heartbeat(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Heartbeat.MESSAGE_TYPE)
 
       if len(wmsg) not in [3, 4]:
-         raise ProtocolError("invalid message length {} for HEARTBEAT".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for HEARTBEAT".format(len(wmsg)))
 
       incoming = wmsg[1]
 
       if type(incoming) not in six.integer_types:
-         raise ProtocolError("invalid type {} for 'incoming' in HEARTBEAT".format(type(incoming)))
+         raise ProtocolError("invalid type {0} for 'incoming' in HEARTBEAT".format(type(incoming)))
 
       if incoming < 0: # must be non-negative
-         raise ProtocolError("invalid value {} for 'incoming' in HEARTBEAT".format(incoming))
+         raise ProtocolError("invalid value {0} for 'incoming' in HEARTBEAT".format(incoming))
 
       outgoing = wmsg[2]
 
       if type(outgoing) not in six.integer_types:
-         raise ProtocolError("invalid type {} for 'outgoing' in HEARTBEAT".format(type(outgoing)))
+         raise ProtocolError("invalid type {0} for 'outgoing' in HEARTBEAT".format(type(outgoing)))
 
       if outgoing <= 0: # must be positive
-         raise ProtocolError("invalid value {} for 'outgoing' in HEARTBEAT".format(outgoing))
+         raise ProtocolError("invalid value {0} for 'outgoing' in HEARTBEAT".format(outgoing))
 
       discard = None
       if len(wmsg) > 3:
          discard = wmsg[3]
          if type(discard) != six.text_type:
-            raise ProtocolError("invalid type {} for 'discard' in HEARTBEAT".format(type(discard)))
+            raise ProtocolError("invalid type {0} for 'discard' in HEARTBEAT".format(type(discard)))
 
       obj = Heartbeat(incoming, outgoing, discard = discard)
 
@@ -799,18 +830,19 @@ class Heartbeat(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP HEARTBEAT Message (incoming {}, outgoing = {}, len(discard) = {})".format(self.incoming, self.outgoing, len(self.discard) if self.discard else None)
+      return "WAMP HEARTBEAT Message (incoming {0}, outgoing = {1}, len(discard) = {2})".format(self.incoming, self.outgoing, len(self.discard) if self.discard else None)
 
 
 
 class Error(Message):
    """
-   A WAMP `ERROR` message.
+   A WAMP ``ERROR`` message.
 
    Formats:
-     * `[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri]`
-     * `[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list]`
-     * `[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list, ArgumentsKw|dict]`
+
+   * ``[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri]``
+   * ``[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list]``
+   * ``[ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list, ArgumentsKw|dict]``
    """
 
    MESSAGE_TYPE = 8
@@ -821,20 +853,19 @@ class Error(Message):
 
    def __init__(self, request_type, request, error, args = None, kwargs = None):
       """
-      Message constructor.
 
       :param request_type: The WAMP message type code for the original request.
       :type request_type: int
-      :param request: The WAMP request ID of the original request (`Call`, `Subscribe`, ...) this error occured for.
+      :param request: The WAMP request ID of the original request (`Call`, `Subscribe`, ...) this error occurred for.
       :type request: int
-      :param error: The WAMP or application error URI for the error that occured.
-      :type error: str
+      :param error: The WAMP or application error URI for the error that occurred.
+      :type error: unicode
       :param args: Positional values for application-defined exception.
-                   Must be serializable using any serializers in use.
-      :type args: list
+         Must be serializable using any serializers in use.
+      :type args: list or None
       :param kwargs: Keyword values for application-defined exception.
-                     Must be serializable using any serializers in use.
-      :type kwargs: dict
+         Must be serializable using any serializers in use.
+      :type kwargs: dict or None
       """
       assert(type(request_type) in six.integer_types)
       assert(type(request) in six.integer_types)
@@ -858,18 +889,18 @@ class Error(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Error.MESSAGE_TYPE)
 
       if len(wmsg) not in (5, 6, 7):
-         raise ProtocolError("invalid message length {} for ERROR".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for ERROR".format(len(wmsg)))
 
       request_type = wmsg[1]
       if type(request_type) not in six.integer_types:
-         raise ProtocolError("invalid type {} for 'request_type' in ERROR".format(request_type))
+         raise ProtocolError("invalid type {0} for 'request_type' in ERROR".format(request_type))
 
       if request_type not in [Subscribe.MESSAGE_TYPE,
                               Unsubscribe.MESSAGE_TYPE,
@@ -878,23 +909,23 @@ class Error(Message):
                               Unregister.MESSAGE_TYPE,
                               Call.MESSAGE_TYPE,
                               Invocation.MESSAGE_TYPE]:
-         raise ProtocolError("invalid value {} for 'request_type' in ERROR".format(request_type))
+         raise ProtocolError("invalid value {0} for 'request_type' in ERROR".format(request_type))
 
       request = check_or_raise_id(wmsg[2], "'request' in ERROR")
-      details = check_or_raise_extra(wmsg[3], "'details' in ERROR")
+      _ = check_or_raise_extra(wmsg[3], "'details' in ERROR")
       error = check_or_raise_uri(wmsg[4], "'error' in ERROR")
 
       args = None
       if len(wmsg) > 5:
          args = wmsg[5]
          if type(args) != list:
-            raise ProtocolError("invalid type {} for 'args' in ERROR".format(type(args)))
+            raise ProtocolError("invalid type {0} for 'args' in ERROR".format(type(args)))
 
       kwargs = None
       if len(wmsg) > 6:
          kwargs = wmsg[6]
          if type(kwargs) != dict:
-            raise ProtocolError("invalid type {} for 'kwargs' in ERROR".format(type(kwargs)))
+            raise ProtocolError("invalid type {0} for 'kwargs' in ERROR".format(type(kwargs)))
 
       obj = Error(request_type, request, error, args = args, kwargs = kwargs)
 
@@ -919,18 +950,19 @@ class Error(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP Error Message (request_type = {}, request = {}, error = {}, args = {}, kwargs = {})".format(self.request_type, self.request, self.error, self.args, self.kwargs)
+      return "WAMP Error Message (request_type = {0}, request = {1}, error = {2}, args = {3}, kwargs = {4})".format(self.request_type, self.request, self.error, self.args, self.kwargs)
 
 
 
 class Publish(Message):
    """
-   A WAMP `PUBLISH` message.
+   A WAMP ``PUBLISH`` message.
 
    Formats:
-     * `[PUBLISH, Request|id, Options|dict, Topic|uri]`
-     * `[PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list]`
-     * `[PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list, ArgumentsKw|dict]`
+
+   * ``[PUBLISH, Request|id, Options|dict, Topic|uri]``
+   * ``[PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list]``
+   * ``[PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list, ArgumentsKw|dict]``
    """
 
    MESSAGE_TYPE = 16
@@ -949,32 +981,31 @@ class Publish(Message):
                 eligible = None,
                 discloseMe = None):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of this request.
       :type request: int
       :param topic: The WAMP or application URI of the PubSub topic the event should
-                    be published to.
-      :type topic: str
+         be published to.
+      :type topic: unicode
       :param args: Positional values for application-defined event payload.
-                   Must be serializable using any serializers in use.
-      :type args: list
+         Must be serializable using any serializers in use.
+      :type args: list or tuple or None
       :param kwargs: Keyword values for application-defined event payload.
-                     Must be serializable using any serializers in use.
-      :type kwargs: dict
+         Must be serializable using any serializers in use.
+      :type kwargs: dict or None
       :param acknowledge: If True, acknowledge the publication with a success or
-                          error response.
-      :type acknowledge: bool
-      :param excludeMe: If True, exclude the publisher from receiving the event, even
-                        if he is subscribed (and eligible).
-      :type excludeMe: bool
+         error response.
+      :type acknowledge: bool or None
+      :param excludeMe: If ``True``, exclude the publisher from receiving the event, even
+         if he is subscribed (and eligible).
+      :type excludeMe: bool or None
       :param exclude: List of WAMP session IDs to exclude from receiving this event.
-      :type exclude: list
+      :type exclude: list of int or None
       :param eligible: List of WAMP session IDs eligible to receive this event.
-      :type eligible: list
+      :type eligible: list of int or None
       :param discloseMe: If True, request to disclose the publisher of this event
-                         to subscribers.
-      :type discloseMe: bool
+         to subscribers.
+      :type discloseMe: bool or None
       """
       assert(type(request) in six.integer_types)
       assert(type(topic) == six.text_type)
@@ -1006,14 +1037,14 @@ class Publish(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Publish.MESSAGE_TYPE)
 
       if len(wmsg) not in (4, 5, 6):
-         raise ProtocolError("invalid message length {} for PUBLISH".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for PUBLISH".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in PUBLISH")
       options = check_or_raise_extra(wmsg[2], "'options' in PUBLISH")
@@ -1023,13 +1054,13 @@ class Publish(Message):
       if len(wmsg) > 4:
          args = wmsg[4]
          if type(args) != list:
-            raise ProtocolError("invalid type {} for 'args' in PUBLISH".format(type(args)))
+            raise ProtocolError("invalid type {0} for 'args' in PUBLISH".format(type(args)))
 
       kwargs = None
       if len(wmsg) > 5:
          kwargs = wmsg[5]
          if type(kwargs) != dict:
-            raise ProtocolError("invalid type {} for 'kwargs' in PUBLISH".format(type(kwargs)))
+            raise ProtocolError("invalid type {0} for 'kwargs' in PUBLISH".format(type(kwargs)))
 
       acknowledge = None
       excludeMe = None
@@ -1041,7 +1072,7 @@ class Publish(Message):
 
          option_acknowledge = options[u'acknowledge']
          if type(option_acknowledge) != bool:
-            raise ProtocolError("invalid type {} for 'acknowledge' option in PUBLISH".format(type(option_acknowledge)))
+            raise ProtocolError("invalid type {0} for 'acknowledge' option in PUBLISH".format(type(option_acknowledge)))
 
          acknowledge = option_acknowledge
 
@@ -1049,7 +1080,7 @@ class Publish(Message):
 
          option_excludeMe = options[u'exclude_me']
          if type(option_excludeMe) != bool:
-            raise ProtocolError("invalid type {} for 'exclude_me' option in PUBLISH".format(type(option_excludeMe)))
+            raise ProtocolError("invalid type {0} for 'exclude_me' option in PUBLISH".format(type(option_excludeMe)))
 
          excludeMe = option_excludeMe
 
@@ -1057,11 +1088,11 @@ class Publish(Message):
 
          option_exclude = options[u'exclude']
          if type(option_exclude) != list:
-            raise ProtocolError("invalid type {} for 'exclude' option in PUBLISH".format(type(option_exclude)))
+            raise ProtocolError("invalid type {0} for 'exclude' option in PUBLISH".format(type(option_exclude)))
 
          for sessionId in option_exclude:
             if type(sessionId) not in six.integer_types:
-               raise ProtocolError("invalid type {} for value in 'exclude' option in PUBLISH".format(type(sessionId)))
+               raise ProtocolError("invalid type {0} for value in 'exclude' option in PUBLISH".format(type(sessionId)))
 
          exclude = option_exclude
 
@@ -1069,11 +1100,11 @@ class Publish(Message):
 
          option_eligible = options[u'eligible']
          if type(option_eligible) != list:
-            raise ProtocolError("invalid type {} for 'eligible' option in PUBLISH".format(type(option_eligible)))
+            raise ProtocolError("invalid type {0} for 'eligible' option in PUBLISH".format(type(option_eligible)))
 
          for sessionId in option_eligible:
             if type(sessionId) not in six.integer_types:
-               raise ProtocolError("invalid type {} for value in 'eligible' option in PUBLISH".format(type(sessionId)))
+               raise ProtocolError("invalid type {0} for value in 'eligible' option in PUBLISH".format(type(sessionId)))
 
          eligible = option_eligible
 
@@ -1081,7 +1112,7 @@ class Publish(Message):
 
          option_discloseMe = options[u'disclose_me']
          if type(option_discloseMe) != bool:
-            raise ProtocolError("invalid type {} for 'disclose_me' option in PUBLISH".format(type(option_discloseMe)))
+            raise ProtocolError("invalid type {0} for 'disclose_me' option in PUBLISH".format(type(option_discloseMe)))
 
          discloseMe = option_discloseMe
 
@@ -1127,15 +1158,15 @@ class Publish(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP PUBLISH Message (request = {}, topic = {}, args = {}, kwargs = {}, acknowledge = {}, excludeMe = {}, exclude = {}, eligible = {}, discloseMe = {})".format(self.request, self.topic, self.args, self.kwargs, self.acknowledge, self.excludeMe, self.exclude, self.eligible, self.discloseMe)
+      return "WAMP PUBLISH Message (request = {0}, topic = {1}, args = {2}, kwargs = {3}, acknowledge = {4}, excludeMe = {5}, exclude = {6}, eligible = {7}, discloseMe = {8})".format(self.request, self.topic, self.args, self.kwargs, self.acknowledge, self.excludeMe, self.exclude, self.eligible, self.discloseMe)
 
 
 
 class Published(Message):
    """
-   A WAMP `PUBLISHED` message.
+   A WAMP ``PUBLISHED`` message.
 
-   Format: `[PUBLISHED, PUBLISH.Request|id, Publication|id]`
+   Format: ``[PUBLISHED, PUBLISH.Request|id, Publication|id]``
    """
 
    MESSAGE_TYPE = 17
@@ -1145,7 +1176,6 @@ class Published(Message):
 
    def __init__(self, request, publication):
       """
-      Message constructor.
 
       :param request: The request ID of the original `PUBLISH` request.
       :type request: int
@@ -1168,14 +1198,14 @@ class Published(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Published.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for PUBLISHED".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for PUBLISHED".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in PUBLISHED")
       publication = check_or_raise_id(wmsg[2], "'publication' in PUBLISHED")
@@ -1196,15 +1226,15 @@ class Published(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP PUBLISHED Message (request = {}, publication = {})".format(self.request, self.publication)
+      return "WAMP PUBLISHED Message (request = {0}, publication = {1})".format(self.request, self.publication)
 
 
 
 class Subscribe(Message):
    """
-   A WAMP `SUBSCRIBE` message.
+   A WAMP ``SUBSCRIBE`` message.
 
-   Format: `[SUBSCRIBE, Request|id, Options|dict, Topic|uri]`
+   Format: ``[SUBSCRIBE, Request|id, Options|dict, Topic|uri]``
    """
 
    MESSAGE_TYPE = 32
@@ -1218,14 +1248,13 @@ class Subscribe(Message):
 
    def __init__(self, request, topic, match = MATCH_EXACT):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of this request.
       :type request: int
       :param topic: The WAMP or application URI of the PubSub topic to subscribe to.
-      :type topic: str
+      :type topic: unicode
       :param match: The topic matching method to be used for the subscription.
-      :type match: str
+      :type match: unicode
       """
       assert(type(request) in six.integer_types)
       assert(type(topic) == six.text_type)
@@ -1246,14 +1275,14 @@ class Subscribe(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Subscribe.MESSAGE_TYPE)
 
       if len(wmsg) != 4:
-         raise ProtocolError("invalid message length {} for SUBSCRIBE".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for SUBSCRIBE".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in SUBSCRIBE")
       options = check_or_raise_extra(wmsg[2], "'options' in SUBSCRIBE")
@@ -1265,10 +1294,10 @@ class Subscribe(Message):
 
          option_match = options[u'match']
          if type(option_match) != six.text_type:
-            raise ProtocolError("invalid type {} for 'match' option in SUBSCRIBE".format(type(option_match)))
+            raise ProtocolError("invalid type {0} for 'match' option in SUBSCRIBE".format(type(option_match)))
 
          if option_match not in [Subscribe.MATCH_EXACT, Subscribe.MATCH_PREFIX, Subscribe.MATCH_WILDCARD]:
-            raise ProtocolError("invalid value {} for 'match' option in SUBSCRIBE".format(option_match))
+            raise ProtocolError("invalid value {0} for 'match' option in SUBSCRIBE".format(option_match))
 
          match = option_match
 
@@ -1293,15 +1322,15 @@ class Subscribe(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP SUBSCRIBE Message (request = {}, topic = {}, match = {})".format(self.request, self.topic, self.match)
+      return "WAMP SUBSCRIBE Message (request = {0}, topic = {1}, match = {2})".format(self.request, self.topic, self.match)
 
 
 
 class Subscribed(Message):
    """
-   A WAMP `SUBSCRIBED` message.
+   A WAMP ``SUBSCRIBED`` message.
 
-   Format: `[SUBSCRIBED, SUBSCRIBE.Request|id, Subscription|id]`
+   Format: ``[SUBSCRIBED, SUBSCRIBE.Request|id, Subscription|id]``
    """
 
    MESSAGE_TYPE = 33
@@ -1311,9 +1340,8 @@ class Subscribed(Message):
 
    def __init__(self, request, subscription):
       """
-      Message constructor.
 
-      :param request: The request ID of the original `SUBSCRIBE` request.
+      :param request: The request ID of the original ``SUBSCRIBE`` request.
       :type request: int
       :param subscription: The subscription ID for the subscribed topic (or topic pattern).
       :type subscription: int
@@ -1334,14 +1362,14 @@ class Subscribed(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Subscribed.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for SUBSCRIBED".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for SUBSCRIBED".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in SUBSCRIBED")
       subscription = check_or_raise_id(wmsg[2], "'subscription' in SUBSCRIBED")
@@ -1362,15 +1390,15 @@ class Subscribed(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP SUBSCRIBED Message (request = {}, subscription = {})".format(self.request, self.subscription)
+      return "WAMP SUBSCRIBED Message (request = {0}, subscription = {1})".format(self.request, self.subscription)
 
 
 
 class Unsubscribe(Message):
    """
-   A WAMP `UNSUBSCRIBE` message.
+   A WAMP ``UNSUBSCRIBE`` message.
 
-   Format: `[UNSUBSCRIBE, Request|id, SUBSCRIBED.Subscription|id]`
+   Format: ``[UNSUBSCRIBE, Request|id, SUBSCRIBED.Subscription|id]``
    """
 
    MESSAGE_TYPE = 34
@@ -1381,7 +1409,6 @@ class Unsubscribe(Message):
 
    def __init__(self, request, subscription):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of this request.
       :type request: int
@@ -1404,14 +1431,14 @@ class Unsubscribe(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Unsubscribe.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for WAMP UNSUBSCRIBE".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for WAMP UNSUBSCRIBE".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in UNSUBSCRIBE")
       subscription = check_or_raise_id(wmsg[2], "'subscription' in UNSUBSCRIBE")
@@ -1432,15 +1459,15 @@ class Unsubscribe(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP UNSUBSCRIBE Message (request = {}, subscription = {})".format(self.request, self.subscription)
+      return "WAMP UNSUBSCRIBE Message (request = {0}, subscription = {1})".format(self.request, self.subscription)
 
 
 
 class Unsubscribed(Message):
    """
-   A WAMP `UNSUBSCRIBED` message.
+   A WAMP ``UNSUBSCRIBED`` message.
 
-   Format: `[UNSUBSCRIBED, UNSUBSCRIBE.Request|id]`
+   Format: ``[UNSUBSCRIBED, UNSUBSCRIBE.Request|id]``
    """
 
    MESSAGE_TYPE = 35
@@ -1450,9 +1477,8 @@ class Unsubscribed(Message):
 
    def __init__(self, request):
       """
-      Message constructor.
 
-      :param request: The request ID of the original `UNSUBSCRIBE` request.
+      :param request: The request ID of the original ``UNSUBSCRIBE`` request.
       :type request: int
       """
       assert(type(request) in six.integer_types)
@@ -1469,14 +1495,14 @@ class Unsubscribed(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Unsubscribed.MESSAGE_TYPE)
 
       if len(wmsg) != 2:
-         raise ProtocolError("invalid message length {} for UNSUBSCRIBED".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for UNSUBSCRIBED".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in UNSUBSCRIBED")
 
@@ -1496,19 +1522,19 @@ class Unsubscribed(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP UNSUBSCRIBED Message (request = {})".format(self.request)
+      return "WAMP UNSUBSCRIBED Message (request = {0})".format(self.request)
 
 
 
 class Event(Message):
    """
-   A WAMP `EVENT` message.
+   A WAMP ``EVENT`` message.
 
    Formats:
 
-     * `[EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict]`
-     * `[EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict, PUBLISH.Arguments|list]`
-     * `[EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict, PUBLISH.Arguments|list, PUBLISH.ArgumentsKw|dict]`
+   * ``[EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict]``
+   * ``[EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict, PUBLISH.Arguments|list]``
+   * ``[EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict, PUBLISH.Arguments|list, PUBLISH.ArgumentsKw|dict]``
    """
 
    MESSAGE_TYPE = 36
@@ -1519,20 +1545,19 @@ class Event(Message):
 
    def __init__(self, subscription, publication, args = None, kwargs = None, publisher = None):
       """
-      Message constructor.
 
       :param subscription: The subscription ID this event is dispatched under.
       :type subscription: int
       :param publication: The publication ID of the dispatched event.
       :type publication: int
       :param args: Positional values for application-defined exception.
-                   Must be serializable using any serializers in use.
-      :type args: list
+         Must be serializable using any serializers in use.
+      :type args: list or tuple or None
       :param kwargs: Keyword values for application-defined exception.
-                     Must be serializable using any serializers in use.
-      :type kwargs: dict
+         Must be serializable using any serializers in use.
+      :type kwargs: dict or None
       :param publisher: If present, the WAMP session ID of the publisher of this event.
-      :type publisher: str
+      :type publisher: int or None
       """
       assert(type(subscription) in six.integer_types)
       assert(type(publication) in six.integer_types)
@@ -1556,14 +1581,14 @@ class Event(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Event.MESSAGE_TYPE)
 
       if len(wmsg) not in (4, 5, 6):
-         raise ProtocolError("invalid message length {} for EVENT".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for EVENT".format(len(wmsg)))
 
       subscription = check_or_raise_id(wmsg[1], "'subscription' in EVENT")
       publication = check_or_raise_id(wmsg[2], "'publication' in EVENT")
@@ -1573,20 +1598,20 @@ class Event(Message):
       if len(wmsg) > 4:
          args = wmsg[4]
          if type(args) != list:
-            raise ProtocolError("invalid type {} for 'args' in EVENT".format(type(args)))
+            raise ProtocolError("invalid type {0} for 'args' in EVENT".format(type(args)))
 
       kwargs = None
       if len(wmsg) > 5:
          kwargs = wmsg[5]
          if type(kwargs) != dict:
-            raise ProtocolError("invalid type {} for 'kwargs' in EVENT".format(type(kwargs)))
+            raise ProtocolError("invalid type {0} for 'kwargs' in EVENT".format(type(kwargs)))
 
       publisher = None
       if u'publisher' in details:
 
          detail_publisher = details[u'publisher']
          if type(detail_publisher) not in six.integer_types:
-            raise ProtocolError("invalid type {} for 'publisher' detail in EVENT".format(type(detail_publisher)))
+            raise ProtocolError("invalid type {0} for 'publisher' detail in EVENT".format(type(detail_publisher)))
 
          publisher = detail_publisher
 
@@ -1620,18 +1645,19 @@ class Event(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP EVENT Message (subscription = {}, publication = {}, args = {}, kwargs = {}, publisher = {})".format(self.subscription, self.publication, self.args, self.kwargs, self.publisher)
+      return "WAMP EVENT Message (subscription = {0}, publication = {1}, args = {2}, kwargs = {3}, publisher = {4})".format(self.subscription, self.publication, self.args, self.kwargs, self.publisher)
 
 
 
 class Call(Message):
    """
-   A WAMP `CALL` message.
+   A WAMP ``CALL`` message.
 
    Formats:
-     * `[CALL, Request|id, Options|dict, Procedure|uri]`
-     * `[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]`
-     * `[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]`
+
+   * ``[CALL, Request|id, Options|dict, Procedure|uri]``
+   * ``[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list]``
+   * ``[CALL, Request|id, Options|dict, Procedure|uri, Arguments|list, ArgumentsKw|dict]``
    """
 
    MESSAGE_TYPE = 48
@@ -1648,20 +1674,25 @@ class Call(Message):
                 receive_progress = None,
                 discloseMe = None):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of this request.
       :type request: int
       :param procedure: The WAMP or application URI of the procedure which should be called.
-      :type procedure: str
+      :type procedure: unicode
       :param args: Positional values for application-defined call arguments.
-                   Must be serializable using any serializers in use.
-      :type args: list
+         Must be serializable using any serializers in use.
+      :type args: list or tuple or None
       :param kwargs: Keyword values for application-defined call arguments.
-                     Must be serializable using any serializers in use.
+         Must be serializable using any serializers in use.
+      :type kwargs: dict or None
       :param timeout: If present, let the callee automatically cancel
-                      the call after this ms.
-      :type timeout: int
+         the call after this ms.
+      :type timeout: int or None
+      :param receive_progress: If ``True``, indicates that the caller wants to receive
+         progressive call results.
+      :type receive_progress: bool or None
+      :param discloseMe: If ``True``, the caller requests to disclose itself to the callee.
+      :type discloseMe: bool or None
       """
       assert(type(request) in six.integer_types)
       assert(type(procedure) == six.text_type)
@@ -1689,14 +1720,14 @@ class Call(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Call.MESSAGE_TYPE)
 
       if len(wmsg) not in (4, 5, 6):
-         raise ProtocolError("invalid message length {} for CALL".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for CALL".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in CALL")
       options = check_or_raise_extra(wmsg[2], "'options' in CALL")
@@ -1706,23 +1737,23 @@ class Call(Message):
       if len(wmsg) > 4:
          args = wmsg[4]
          if type(args) != list:
-            raise ProtocolError("invalid type {} for 'args' in CALL".format(type(args)))
+            raise ProtocolError("invalid type {0} for 'args' in CALL".format(type(args)))
 
       kwargs = None
       if len(wmsg) > 5:
          kwargs = wmsg[5]
          if type(kwargs) != dict:
-            raise ProtocolError("invalid type {} for 'kwargs' in CALL".format(type(kwargs)))
+            raise ProtocolError("invalid type {0} for 'kwargs' in CALL".format(type(kwargs)))
 
       timeout = None
       if u'timeout' in options:
 
          option_timeout = options[u'timeout']
          if type(option_timeout) not in six.integer_types:
-            raise ProtocolError("invalid type {} for 'timeout' option in CALL".format(type(option_timeout)))
+            raise ProtocolError("invalid type {0} for 'timeout' option in CALL".format(type(option_timeout)))
 
          if option_timeout < 0:
-            raise ProtocolError("invalid value {} for 'timeout' option in CALL".format(option_timeout))
+            raise ProtocolError("invalid value {0} for 'timeout' option in CALL".format(option_timeout))
 
          timeout = option_timeout
 
@@ -1731,7 +1762,7 @@ class Call(Message):
 
          option_receive_progress = options[u'receive_progress']
          if type(option_receive_progress) != bool:
-            raise ProtocolError("invalid type {} for 'receive_progress' option in CALL".format(type(option_receive_progress)))
+            raise ProtocolError("invalid type {0} for 'receive_progress' option in CALL".format(type(option_receive_progress)))
 
          receive_progress = option_receive_progress
 
@@ -1740,7 +1771,7 @@ class Call(Message):
 
          option_discloseMe = options[u'disclose_me']
          if type(option_discloseMe) != bool:
-            raise ProtocolError("invalid type {} for 'disclose_me' option in CALL".format(type(option_discloseMe)))
+            raise ProtocolError("invalid type {0} for 'disclose_me' option in CALL".format(type(option_discloseMe)))
 
          discloseMe = option_discloseMe
 
@@ -1782,15 +1813,15 @@ class Call(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP CALL Message (request = {}, procedure = {}, args = {}, kwargs = {}, timeout = {}, receive_progress = {}, discloseMe = {})".format(self.request, self.procedure, self.args, self.kwargs, self.timeout, self.receive_progress, self.discloseMe)
+      return "WAMP CALL Message (request = {0}, procedure = {1}, args = {2}, kwargs = {3}, timeout = {4}, receive_progress = {5}, discloseMe = {6})".format(self.request, self.procedure, self.args, self.kwargs, self.timeout, self.receive_progress, self.discloseMe)
 
 
 
 class Cancel(Message):
    """
-   A WAMP `CANCEL` message.
+   A WAMP ``CANCEL`` message.
 
-   Format: `[CANCEL, CALL.Request|id, Options|dict]`
+   Format: ``[CANCEL, CALL.Request|id, Options|dict]``
    """
 
    MESSAGE_TYPE = 49
@@ -1805,16 +1836,15 @@ class Cancel(Message):
 
    def __init__(self, request, mode = None):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of the original `CALL` to cancel.
       :type request: int
-      :param mode: Specifies how to cancel the call (`"skip"`, `"abort"` or `"kill"`).
-      :type mode: str
+      :param mode: Specifies how to cancel the call (``"skip"``, ``"abort"`` or ``"kill"``).
+      :type mode: unicode or None
       """
       assert(type(request) in six.integer_types)
       assert(mode is None or type(mode) == six.text_type)
-      assert(mode is None or mode in [self.SKIP, self.ABORT, self.KILL])
+      assert(mode in [None, self.SKIP, self.ABORT, self.KILL])
 
       Message.__init__(self)
       self.request = request
@@ -1829,14 +1859,14 @@ class Cancel(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Cancel.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for CANCEL".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for CANCEL".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in CANCEL")
       options = check_or_raise_extra(wmsg[2], "'options' in CANCEL")
@@ -1849,10 +1879,10 @@ class Cancel(Message):
 
          option_mode = options[u'mode']
          if type(option_mode) != six.text_type:
-            raise ProtocolError("invalid type {} for 'mode' option in CANCEL".format(type(option_mode)))
+            raise ProtocolError("invalid type {0} for 'mode' option in CANCEL".format(type(option_mode)))
 
          if option_mode not in [Cancel.SKIP, Cancel.ABORT, Cancel.KILL]:
-            raise ProtocolError("invalid value '{}' for 'mode' option in CANCEL".format(option_mode))
+            raise ProtocolError("invalid value '{0}' for 'mode' option in CANCEL".format(option_mode))
 
          mode = option_mode
 
@@ -1877,18 +1907,19 @@ class Cancel(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP CANCEL Message (request = {}, mode = '{}'')".format(self.request, self.mode)
+      return "WAMP CANCEL Message (request = {0}, mode = '{1}'')".format(self.request, self.mode)
 
 
 
 class Result(Message):
    """
-   A WAMP `RESULT` message.
+   A WAMP ``RESULT`` message.
 
    Formats:
-     * `[RESULT, CALL.Request|id, Details|dict]`
-     * `[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]`
-     * `[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]`
+
+   * ``[RESULT, CALL.Request|id, Details|dict]``
+   * ``[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]``
+   * ``[RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]``
    """
 
    MESSAGE_TYPE = 50
@@ -1898,19 +1929,18 @@ class Result(Message):
 
    def __init__(self, request, args = None, kwargs = None, progress = None):
       """
-      Message constructor.
 
       :param request: The request ID of the original `CALL` request.
       :type request: int
       :param args: Positional values for application-defined event payload.
-                   Must be serializable using any serializers in use.
-      :type args: list
+         Must be serializable using any serializers in use.
+      :type args: list or tuple or None
       :param kwargs: Keyword values for application-defined event payload.
-                     Must be serializable using any serializers in use.
-      :type kwargs: dict
-      :param progress: If `True`, this result is a progressive call result, and subsequent
-                       results (or a final error) will follow.
-      :type progress: bool
+         Must be serializable using any serializers in use.
+      :type kwargs: dict or None
+      :param progress: If ``True``, this result is a progressive call result, and subsequent
+         results (or a final error) will follow.
+      :type progress: bool or None
       """
       assert(type(request) in six.integer_types)
       assert(args is None or type(args) in [list, tuple])
@@ -1932,14 +1962,14 @@ class Result(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Result.MESSAGE_TYPE)
 
       if len(wmsg) not in (3, 4, 5):
-         raise ProtocolError("invalid message length {} for RESULT".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for RESULT".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in RESULT")
       details = check_or_raise_extra(wmsg[2], "'details' in RESULT")
@@ -1948,13 +1978,13 @@ class Result(Message):
       if len(wmsg) > 3:
          args = wmsg[3]
          if type(args) != list:
-            raise ProtocolError("invalid type {} for 'args' in RESULT".format(type(args)))
+            raise ProtocolError("invalid type {0} for 'args' in RESULT".format(type(args)))
 
       kwargs = None
       if len(wmsg) > 4:
          kwargs = wmsg[4]
          if type(kwargs) != dict:
-            raise ProtocolError("invalid type {} for 'kwargs' in RESULT".format(type(kwargs)))
+            raise ProtocolError("invalid type {0} for 'kwargs' in RESULT".format(type(kwargs)))
 
       progress = None
 
@@ -1962,7 +1992,7 @@ class Result(Message):
 
          detail_progress = details[u'progress']
          if type(detail_progress) != bool:
-            raise ProtocolError("invalid type {} for 'progress' option in RESULT".format(type(detail_progress)))
+            raise ProtocolError("invalid type {0} for 'progress' option in RESULT".format(type(detail_progress)))
 
          progress = detail_progress
 
@@ -1992,15 +2022,15 @@ class Result(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP RESULT Message (request = {}, args = {}, kwargs = {}, progress = {})".format(self.request, self.args, self.kwargs, self.progress)
+      return "WAMP RESULT Message (request = {0}, args = {1}, kwargs = {2}, progress = {3})".format(self.request, self.args, self.kwargs, self.progress)
 
 
 
 class Register(Message):
    """
-   A WAMP `REGISTER` message.
+   A WAMP ``REGISTER`` message.
 
-   Format: `[REGISTER, Request|id, Options|dict, Procedure|uri]`
+   Format: ``[REGISTER, Request|id, Options|dict, Procedure|uri]``
    """
 
    MESSAGE_TYPE = 64
@@ -2010,14 +2040,16 @@ class Register(Message):
 
    def __init__(self, request, procedure, pkeys = None, discloseCaller = None):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of this request.
       :type request: int
       :param procedure: The WAMP or application URI of the RPC endpoint provided.
-      :type procedure: str
+      :type procedure: unicode
       :param pkeys: The endpoint can work for this list of application partition keys.
-      :type pkeys: list
+      :type pkeys: list of int or None
+      :param discloseCaller: If ``True``, the (registering) callee requests to disclose
+         the identity of callers whenever called.
+      :type discloseCaller: bool or None
       """
       assert(type(request) in six.integer_types)
       assert(type(procedure) == six.text_type)
@@ -2042,14 +2074,14 @@ class Register(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Register.MESSAGE_TYPE)
 
       if len(wmsg) != 4:
-         raise ProtocolError("invalid message length {} for REGISTER".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for REGISTER".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in REGISTER")
       options = check_or_raise_extra(wmsg[2], "'options' in REGISTER")
@@ -2062,11 +2094,11 @@ class Register(Message):
 
          option_pkeys = options[u'pkeys']
          if type(option_pkeys) != list:
-            raise ProtocolError("invalid type {} for 'pkeys' option in REGISTER".format(type(option_pkeys)))
+            raise ProtocolError("invalid type {0} for 'pkeys' option in REGISTER".format(type(option_pkeys)))
 
          for pk in option_pkeys:
             if type(pk) not in six.integer_types:
-               raise ProtocolError("invalid type for value '{}' in 'pkeys' option in REGISTER".format(type(pk)))
+               raise ProtocolError("invalid type for value '{0}' in 'pkeys' option in REGISTER".format(type(pk)))
 
          pkeys = option_pkeys
 
@@ -2075,7 +2107,7 @@ class Register(Message):
 
          option_discloseCaller = options[u'disclose_caller']
          if type(option_discloseCaller) != bool:
-            raise ProtocolError("invalid type {} for 'disclose_caller' option in REGISTER".format(type(option_discloseCaller)))
+            raise ProtocolError("invalid type {0} for 'disclose_caller' option in REGISTER".format(type(option_discloseCaller)))
 
          discloseCaller = option_discloseCaller
 
@@ -2103,15 +2135,15 @@ class Register(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP REGISTER Message (request = {}, procedure = {}, pkeys = {}, discloseCaller = {})".format(self.request, self.procedure, self.pkeys, self.discloseCaller)
+      return "WAMP REGISTER Message (request = {0}, procedure = {1}, pkeys = {2}, discloseCaller = {3})".format(self.request, self.procedure, self.pkeys, self.discloseCaller)
 
 
 
 class Registered(Message):
    """
-   A WAMP `REGISTERED` message.
+   A WAMP ``REGISTERED`` message.
 
-   Format: `[REGISTERED, REGISTER.Request|id, Registration|id]`
+   Format: ``[REGISTERED, REGISTER.Request|id, Registration|id]``
    """
 
    MESSAGE_TYPE = 65
@@ -2121,9 +2153,8 @@ class Registered(Message):
 
    def __init__(self, request, registration):
       """
-      Message constructor.
 
-      :param request: The request ID of the original `REGISTER` request.
+      :param request: The request ID of the original ``REGISTER`` request.
       :type request: int
       :param registration: The registration ID for the registered procedure (or procedure pattern).
       :type registration: int
@@ -2144,14 +2175,14 @@ class Registered(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Registered.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for REGISTERED".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for REGISTERED".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in REGISTERED")
       registration = check_or_raise_id(wmsg[2], "'registration' in REGISTERED")
@@ -2172,15 +2203,15 @@ class Registered(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP REGISTERED Message (request = {}, registration = {})".format(self.request, self.registration)
+      return "WAMP REGISTERED Message (request = {0}, registration = {1})".format(self.request, self.registration)
 
 
 
 class Unregister(Message):
    """
-   A WAMP Unprovide message.
+   A WAMP `UNREGISTER` message.
 
-   Format: `[UNREGISTER, Request|id, REGISTERED.Registration|id]`
+   Format: ``[UNREGISTER, Request|id, REGISTERED.Registration|id]``
    """
 
    MESSAGE_TYPE = 66
@@ -2191,7 +2222,6 @@ class Unregister(Message):
 
    def __init__(self, request, registration):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of this request.
       :type request: int
@@ -2214,14 +2244,14 @@ class Unregister(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Unregister.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for WAMP UNREGISTER".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for WAMP UNREGISTER".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in UNREGISTER")
       registration = check_or_raise_id(wmsg[2], "'registration' in UNREGISTER")
@@ -2242,15 +2272,15 @@ class Unregister(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP UNREGISTER Message (request = {}, registration = {})".format(self.request, self.registration)
+      return "WAMP UNREGISTER Message (request = {0}, registration = {1})".format(self.request, self.registration)
 
 
 
 class Unregistered(Message):
    """
-   A WAMP `UNREGISTERED` message.
+   A WAMP ``UNREGISTERED`` message.
 
-   Format: `[UNREGISTERED, UNREGISTER.Request|id]`
+   Format: ``[UNREGISTERED, UNREGISTER.Request|id]``
    """
 
    MESSAGE_TYPE = 67
@@ -2260,9 +2290,8 @@ class Unregistered(Message):
 
    def __init__(self, request):
       """
-      Message constructor.
 
-      :param request: The request ID of the original `UNREGISTER` request.
+      :param request: The request ID of the original ``UNREGISTER`` request.
       :type request: int
       """
       assert(type(request) in six.integer_types)
@@ -2279,14 +2308,14 @@ class Unregistered(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Unregistered.MESSAGE_TYPE)
 
       if len(wmsg) != 2:
-         raise ProtocolError("invalid message length {} for UNREGISTER".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for UNREGISTER".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in UNREGISTER")
 
@@ -2306,18 +2335,19 @@ class Unregistered(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP UNREGISTER Message (request = {})".format(self.request)
+      return "WAMP UNREGISTER Message (request = {0})".format(self.request)
 
 
 
 class Invocation(Message):
    """
-   A WAMP `INVOCATION` message.
+   A WAMP ``INVOCATION`` message.
 
    Formats:
-     * `[INVOCATION, Request|id, REGISTERED.Registration|id, Details|dict]`
-     * `[INVOCATION, Request|id, REGISTERED.Registration|id, Details|dict, CALL.Arguments|list]`
-     * `[INVOCATION, Request|id, REGISTERED.Registration|id, Details|dict, CALL.Arguments|list, CALL.ArgumentsKw|dict]`
+
+   * ``[INVOCATION, Request|id, REGISTERED.Registration|id, Details|dict]``
+   * ``[INVOCATION, Request|id, REGISTERED.Registration|id, Details|dict, CALL.Arguments|list]``
+   * ``[INVOCATION, Request|id, REGISTERED.Registration|id, Details|dict, CALL.Arguments|list, CALL.ArgumentsKw|dict]``
    """
 
    MESSAGE_TYPE = 68
@@ -2338,21 +2368,30 @@ class Invocation(Message):
                 authrole = None,
                 authmethod = None):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of this request.
       :type request: int
       :param registration: The registration ID of the endpoint to be invoked.
       :type registration: int
       :param args: Positional values for application-defined event payload.
-                   Must be serializable using any serializers in use.
-      :type args: list
+         Must be serializable using any serializers in use.
+      :type args: list or tuple or None
       :param kwargs: Keyword values for application-defined event payload.
-                     Must be serializable using any serializers in use.
-      :type kwargs: dict
+         Must be serializable using any serializers in use.
+      :type kwargs: dict or None
       :param timeout: If present, let the callee automatically cancels
-                      the invocation after this ms.
-      :type timeout: int
+         the invocation after this ms.
+      :type timeout: int or None
+      :param receive_progress: Indicates if the callee should produce progressive results.
+      :type receive_progress: bool or None
+      :param caller: The WAMP session ID of the caller.
+      :type caller: int or None
+      :param authid: The authentication ID of the caller.
+      :type authid: unicode or None
+      :param authrole: The authentication role of the caller.
+      :type authrole: unicode or None
+      :param authmethod: The authentication method under which the caller was authenticated.
+      :type authmethod: unicode or None
       """
       assert(type(request) in six.integer_types)
       assert(type(registration) in six.integer_types)
@@ -2386,14 +2425,14 @@ class Invocation(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Invocation.MESSAGE_TYPE)
 
       if len(wmsg) not in (4, 5, 6):
-         raise ProtocolError("invalid message length {} for INVOCATION".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for INVOCATION".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in INVOCATION")
       registration = check_or_raise_id(wmsg[2], "'registration' in INVOCATION")
@@ -2403,23 +2442,23 @@ class Invocation(Message):
       if len(wmsg) > 4:
          args = wmsg[4]
          if type(args) != list:
-            raise ProtocolError("invalid type {} for 'args' in INVOCATION".format(type(args)))
+            raise ProtocolError("invalid type {0} for 'args' in INVOCATION".format(type(args)))
 
       kwargs = None
       if len(wmsg) > 5:
          kwargs = wmsg[5]
          if type(kwargs) != dict:
-            raise ProtocolError("invalid type {} for 'kwargs' in INVOCATION".format(type(kwargs)))
+            raise ProtocolError("invalid type {0} for 'kwargs' in INVOCATION".format(type(kwargs)))
 
       timeout = None
       if u'timeout' in details:
 
          detail_timeout = details[u'timeout']
          if type(detail_timeout) not in six.integer_types:
-            raise ProtocolError("invalid type {} for 'timeout' detail in INVOCATION".format(type(detail_timeout)))
+            raise ProtocolError("invalid type {0} for 'timeout' detail in INVOCATION".format(type(detail_timeout)))
 
          if detail_timeout < 0:
-            raise ProtocolError("invalid value {} for 'timeout' detail in INVOCATION".format(detail_timeout))
+            raise ProtocolError("invalid value {0} for 'timeout' detail in INVOCATION".format(detail_timeout))
 
          timeout = detail_timeout
 
@@ -2428,7 +2467,7 @@ class Invocation(Message):
 
          detail_receive_progress = details[u'receive_progress']
          if type(detail_receive_progress) != bool:
-            raise ProtocolError("invalid type {} for 'receive_progress' detail in INVOCATION".format(type(detail_receive_progress)))
+            raise ProtocolError("invalid type {0} for 'receive_progress' detail in INVOCATION".format(type(detail_receive_progress)))
 
          receive_progress = detail_receive_progress
 
@@ -2437,7 +2476,7 @@ class Invocation(Message):
 
          detail_caller = details[u'caller']
          if type(detail_caller) not in six.integer_types:
-            raise ProtocolError("invalid type {} for 'caller' detail in INVOCATION".format(type(detail_caller)))
+            raise ProtocolError("invalid type {0} for 'caller' detail in INVOCATION".format(type(detail_caller)))
 
          caller = detail_caller
 
@@ -2446,7 +2485,7 @@ class Invocation(Message):
 
          detail_authid = details[u'authid']
          if type(detail_authid) != six.text_type:
-            raise ProtocolError("invalid type {} for 'authid' detail in INVOCATION".format(type(detail_authid)))
+            raise ProtocolError("invalid type {0} for 'authid' detail in INVOCATION".format(type(detail_authid)))
 
          authid = detail_authid
 
@@ -2455,7 +2494,7 @@ class Invocation(Message):
 
          detail_authrole = details[u'authrole']
          if type(detail_authrole) != six.text_type:
-            raise ProtocolError("invalid type {} for 'authrole' detail in INVOCATION".format(type(detail_authrole)))
+            raise ProtocolError("invalid type {0} for 'authrole' detail in INVOCATION".format(type(detail_authrole)))
 
          authrole = detail_authrole
 
@@ -2463,8 +2502,8 @@ class Invocation(Message):
       if u'authmethod' in details:
 
          detail_authmethod = details[u'authmethod']
-         if type(detail_authrole) != six.text_type:
-            raise ProtocolError("invalid type {} for 'authmethod' detail in INVOCATION".format(type(detail_authrole)))
+         if type(detail_authmethod) != six.text_type:
+            raise ProtocolError("invalid type {0} for 'authmethod' detail in INVOCATION".format(type(detail_authmethod)))
 
          authmethod = detail_authmethod
 
@@ -2518,15 +2557,15 @@ class Invocation(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP INVOCATION Message (request = {}, registration = {}, args = {}, kwargs = {}, timeout = {}, receive_progress = {}, caller = {}, authid = {}, authrole = {}, authmethod = {})".format(self.request, self.registration, self.args, self.kwargs, self.timeout, self.receive_progress, self.caller, self.authid, self.authrole, self.authmethod)
+      return "WAMP INVOCATION Message (request = {0}, registration = {1}, args = {2}, kwargs = {3}, timeout = {4}, receive_progress = {5}, caller = {6}, authid = {7}, authrole = {8}, authmethod = {9})".format(self.request, self.registration, self.args, self.kwargs, self.timeout, self.receive_progress, self.caller, self.authid, self.authrole, self.authmethod)
 
 
 
 class Interrupt(Message):
    """
-   A WAMP `INTERRUPT` message.
+   A WAMP ``INTERRUPT`` message.
 
-   Format: `[INTERRUPT, INVOCATION.Request|id, Options|dict]`
+   Format: ``[INTERRUPT, INVOCATION.Request|id, Options|dict]``
    """
 
    MESSAGE_TYPE = 69
@@ -2540,12 +2579,11 @@ class Interrupt(Message):
 
    def __init__(self, request, mode = None):
       """
-      Message constructor.
 
-      :param request: The WAMP request ID of the original `INVOCATION` to interrupt.
+      :param request: The WAMP request ID of the original ``INVOCATION`` to interrupt.
       :type request: int
-      :param mode: Specifies how to interrupt the invocation (`"abort"` or `"kill"`).
-      :type mode: str
+      :param mode: Specifies how to interrupt the invocation (``"abort"`` or ``"kill"``).
+      :type mode: unicode or None
       """
       assert(type(request) in six.integer_types)
       assert(mode is None or type(mode) == six.text_type)
@@ -2564,14 +2602,14 @@ class Interrupt(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Interrupt.MESSAGE_TYPE)
 
       if len(wmsg) != 3:
-         raise ProtocolError("invalid message length {} for INTERRUPT".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for INTERRUPT".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in INTERRUPT")
       options = check_or_raise_extra(wmsg[2], "'options' in INTERRUPT")
@@ -2584,10 +2622,10 @@ class Interrupt(Message):
 
          option_mode = options[u'mode']
          if type(option_mode) != six.text_type:
-            raise ProtocolError("invalid type {} for 'mode' option in INTERRUPT".format(type(option_mode)))
+            raise ProtocolError("invalid type {0} for 'mode' option in INTERRUPT".format(type(option_mode)))
 
          if option_mode not in [Interrupt.ABORT, Interrupt.KILL]:
-            raise ProtocolError("invalid value '{}' for 'mode' option in INTERRUPT".format(option_mode))
+            raise ProtocolError("invalid value '{0}' for 'mode' option in INTERRUPT".format(option_mode))
 
          mode = option_mode
 
@@ -2612,18 +2650,19 @@ class Interrupt(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP INTERRUPT Message (request = {}, mode = '{}'')".format(self.request, self.mode)
+      return "WAMP INTERRUPT Message (request = {0}, mode = '{1}')".format(self.request, self.mode)
 
 
 
 class Yield(Message):
    """
-   A WAMP `YIELD` message.
+   A WAMP ``YIELD`` message.
 
    Formats:
-     * `[YIELD, INVOCATION.Request|id, Options|dict]`
-     * `[YIELD, INVOCATION.Request|id, Options|dict, Arguments|list]`
-     * `[YIELD, INVOCATION.Request|id, Options|dict, Arguments|list, ArgumentsKw|dict]`
+
+   * ``[YIELD, INVOCATION.Request|id, Options|dict]``
+   * ``[YIELD, INVOCATION.Request|id, Options|dict, Arguments|list]``
+   * ``[YIELD, INVOCATION.Request|id, Options|dict, Arguments|list, ArgumentsKw|dict]``
    """
 
    MESSAGE_TYPE = 70
@@ -2634,19 +2673,18 @@ class Yield(Message):
 
    def __init__(self, request, args = None, kwargs = None, progress = None):
       """
-      Message constructor.
 
       :param request: The WAMP request ID of the original call.
       :type request: int
       :param args: Positional values for application-defined event payload.
-                   Must be serializable using any serializers in use.
-      :type args: list
+         Must be serializable using any serializers in use.
+      :type args: list or tuple or None
       :param kwargs: Keyword values for application-defined event payload.
-                     Must be serializable using any serializers in use.
-      :type kwargs: dict
-      :param progress: If `True`, this result is a progressive invocation result, and subsequent
-                       results (or a final error) will follow.
-      :type progress: bool
+         Must be serializable using any serializers in use.
+      :type kwargs: dict or None
+      :param progress: If ``True``, this result is a progressive invocation result, and subsequent
+         results (or a final error) will follow.
+      :type progress: bool or None
       """
       assert(type(request) in six.integer_types)
       assert(args is None or type(args) in [list, tuple])
@@ -2668,14 +2706,14 @@ class Yield(Message):
       :param wmsg: The unserialized raw message.
       :type wmsg: list
 
-      :returns obj -- An instance of this class.
+      :returns: An instance of this class.
       """
       ## this should already be verified by WampSerializer.unserialize
       ##
       assert(len(wmsg) > 0 and wmsg[0] == Yield.MESSAGE_TYPE)
 
       if len(wmsg) not in (3, 4, 5):
-         raise ProtocolError("invalid message length {} for YIELD".format(len(wmsg)))
+         raise ProtocolError("invalid message length {0} for YIELD".format(len(wmsg)))
 
       request = check_or_raise_id(wmsg[1], "'request' in YIELD")
       options = check_or_raise_extra(wmsg[2], "'options' in YIELD")
@@ -2684,13 +2722,13 @@ class Yield(Message):
       if len(wmsg) > 3:
          args = wmsg[3]
          if type(args) != list:
-            raise ProtocolError("invalid type {} for 'args' in YIELD".format(type(args)))
+            raise ProtocolError("invalid type {0} for 'args' in YIELD".format(type(args)))
 
       kwargs = None
       if len(wmsg) > 4:
          kwargs = wmsg[4]
          if type(kwargs) != dict:
-            raise ProtocolError("invalid type {} for 'kwargs' in YIELD".format(type(kwargs)))
+            raise ProtocolError("invalid type {0} for 'kwargs' in YIELD".format(type(kwargs)))
 
       progress = None
 
@@ -2698,7 +2736,7 @@ class Yield(Message):
 
          option_progress = options[u'progress']
          if type(option_progress) != bool:
-            raise ProtocolError("invalid type {} for 'progress' option in YIELD".format(type(option_progress)))
+            raise ProtocolError("invalid type {0} for 'progress' option in YIELD".format(type(option_progress)))
 
          progress = option_progress
 
@@ -2728,4 +2766,4 @@ class Yield(Message):
       """
       Implements :func:`autobahn.wamp.interfaces.IMessage.__str__`
       """
-      return "WAMP YIELD Message (request = {}, args = {}, kwargs = {}, progress = {})".format(self.request, self.args, self.kwargs, self.progress)
+      return "WAMP YIELD Message (request = {0}, args = {1}, kwargs = {2}, progress = {3})".format(self.request, self.args, self.kwargs, self.progress)

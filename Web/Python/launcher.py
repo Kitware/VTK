@@ -475,7 +475,10 @@ class LauncherResource(resource.Resource, object):
     # ========================================================================
 
     def _delayedRenderReady(self, request, session):
-        request.write(json.dumps(filterResponse(session, self.field_filter)))
+        filterkeys = self.field_filter
+        if session['secret'] in session['cmd']:
+            filterkeys = self.field_filter + [ 'secret' ]
+        request.write(json.dumps(filterResponse(session, filterkeys)))
         request.setResponseCode(http.OK)
 
         request.finish()

@@ -3,19 +3,22 @@ WAMP related class for the purpose of vtkWeb.
 
 """
 
-import inspect, types, string, random, logging, six
+import inspect, types, string, random, logging, six, json
 
 from threading import Timer
 
 from twisted.python         import log
 from twisted.internet       import reactor
+from twisted.internet       import defer
 from twisted.internet.defer import Deferred, returnValue
 
-from autobahn      import wamp
-from autobahn.wamp import types
-from autobahn.wamp import procedure as exportRpc
+from autobahn               import wamp
+from autobahn               import util
+from autobahn.wamp          import types
+from autobahn.wamp          import auth
+from autobahn.wamp          import register as exportRpc
 
-from autobahn.twisted.wamp import ApplicationSession
+from autobahn.twisted.wamp import ApplicationSession, RouterSession
 from autobahn.twisted.websocket import WampWebSocketServerFactory
 from autobahn.twisted.websocket import WampWebSocketServerProtocol
 
@@ -45,9 +48,10 @@ class ServerProtocol(ApplicationSession):
     interactive visualizations. For that, use vtkWebServerProtocol.
     """
 
-    def __init__(self):
+    def __init__(self, authdb=None):
         ApplicationSession.__init__(self, types.ComponentConfig(realm = "vtkweb"))
         self.vtkWebProtocols = []
+        self.authdb = authdb
         self.Application = self.initApplication()
         self.initialize()
 
@@ -85,7 +89,8 @@ class ServerProtocol(ApplicationSession):
         return self.vtkWebProtocols
 
     def updateSecret(self, newSecret):
-        pass
+        if self.authdb:
+            self.authdb.updateKey('vtkweb', newSecret)
 
     @exportRpc("application.exit")
     def exit(self):
@@ -148,3 +153,120 @@ class TimeoutWampWebSocketServerProtocol(WampWebSocketServerProtocol):
     def connectionLost(self, reason):
         WampWebSocketServerProtocol.connectionLost(self, reason)
         self.factory.connectionLost(reason)
+
+# =============================================================================
+
+class AuthDb:
+    """
+    An in-memory-only user database of a single user.
+    """
+
+    AUTHEXTRA = {'salt': 'salt123', 'keylen': 32, 'iterations': 1000}
+
+    def __init__(self):
+        self._creds = {'vtkweb': auth.derive_key("vtkweb-secret", self.AUTHEXTRA['salt'])}
+
+    def get(self, authid):
+        ## we return a deferred to simulate an asynchronous lookup
+        return defer.succeed(self._creds.get(authid, None))
+
+    def updateKey(self, id, newKey):
+        self._creds[id] = auth.derive_key(newKey, self.AUTHEXTRA['salt'])
+
+# =============================================================================
+
+class PendingAuth:
+   """
+   Used for tracking pending authentications.
+   """
+
+   def __init__(self, key, session, authid, authrole, authmethod, authprovider):
+      self.authid = authid
+      self.authrole = authrole
+      self.authmethod = authmethod
+      self.authprovider = authprovider
+
+      self.session = session
+      self.timestamp = util.utcnow()
+      self.nonce = util.newid()
+
+      challenge_obj = {
+         'authid': self.authid,
+         'authrole': self.authrole,
+         'authmethod': self.authmethod,
+         'authprovider': self.authprovider,
+         'session': self.session,
+         'nonce': self.nonce,
+         'timestamp': self.timestamp
+      }
+      self.challenge = json.dumps(challenge_obj)
+      self.signature = auth.compute_wcs(key, self.challenge)
+
+# =============================================================================
+
+class CustomWampCraRouterSession(RouterSession):
+    """
+    A custom router session that authenticates via WAMP-CRA.
+    """
+
+    def __init__(self, routerFactory):
+      """
+      Constructor.
+      """
+      RouterSession.__init__(self, routerFactory)
+
+    @defer.inlineCallbacks
+    def onHello(self, realm, details):
+        """
+        Callback fired when client wants to attach session.
+        """
+
+        self._pending_auth = None
+
+        if details.authmethods:
+            for authmethod in details.authmethods:
+                if authmethod == u"wampcra":
+
+                    authdb = self.factory.authdb
+
+                    ## lookup user in user DB
+                    key = yield authdb.get(details.authid)
+
+                    ## if user found ..
+                    if key:
+
+                        ## setup pending auth
+                        self._pending_auth = PendingAuth(key, details.pending_session,
+                            details.authid, "user", authmethod, "authdb")
+
+                        ## send challenge to client
+                        extra = { 'challenge': self._pending_auth.challenge }
+
+                        ## when using salted passwords, provide the client with
+                        ## the salt and then PBKDF2 parameters used
+                        extra['salt'] = authdb.AUTHEXTRA['salt']
+                        extra['iterations'] = 1000
+                        extra['keylen'] = 32
+
+                        defer.returnValue(types.Challenge('wampcra', extra))
+
+        ## deny client
+        defer.returnValue(types.Deny())
+
+
+    def onAuthenticate(self, signature, extra):
+        """
+        Callback fired when a client responds to an authentication challenge.
+        """
+
+        ## if there is a pending auth, and the signature provided by client matches ..
+        if self._pending_auth and signature == self._pending_auth.signature:
+
+            ## accept the client
+            return types.Accept(authid = self._pending_auth.authid,
+                authrole = self._pending_auth.authrole,
+                authmethod = self._pending_auth.authmethod,
+                authprovider = self._pending_auth.authprovider)
+
+        ## deny client
+        return types.Deny()

@@ -38,6 +38,7 @@ except:
 
    class XorMaskerNull:
 
+      # noinspection PyUnusedLocal
       def __init__(self, mask = None):
          self.ptr = 0
 
