@@ -189,6 +189,30 @@ public:
   int IsArrayAnAttribute(int idx);
 
   // Description:
+  // Set an array to use as the given attribute type (i.e.,
+  // vtkDataSetAttributes::SCALAR, vtkDataSetAttributes::VECTOR,
+  // vtkDataSetAttributes::TENSOR, etc.). If this attribute was
+  // previously set to another array, that array is removed from the
+  // vtkDataSetAttributes object and the array aa is used as the
+  // attribute.
+  //
+  // Returns the index of aa within the vtkDataSetAttributes object
+  // (i.e., the index to pass to the method GetArray(int) to obtain
+  // aa) if the attribute was set to aa successfully. If aa was
+  // already set as the given attributeType, returns the index of
+  // aa.
+  //
+  // Returns -1 in the following cases:
+  //
+  // - aa is NULL (used to unset an attribute; not an error indicator)
+  // - aa is not a subclass of vtkDataArray, unless the attributeType
+  //     is vtkDataSetAttributes::PEDIGREEIDS (error indicator)
+  // - aa has a number of components incompatible with the attribute type
+  //     (error indicator)
+  //
+  int SetAttribute(vtkAbstractArray* aa, int attributeType);
+
+  // Description:
   // Return an attribute given the attribute type
   // (see vtkDataSetAttributes::AttributeTypes).
   // Some attributes (such as PEDIGREEIDS) may not be vtkDataArray subclass,
@@ -591,7 +615,6 @@ protected:
   static const char LongAttributeNames[NUM_ATTRIBUTES][35];
 
 private:
-  int SetAttribute(vtkAbstractArray* da, int attributeType);
   static int CheckNumberOfComponents(vtkAbstractArray* da, int attributeType);
 
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd, int ctype);
@@ -675,5 +698,3 @@ public:
 };
 
 #endif
-
-

@@ -1,19 +1,13 @@
-vtk_module(vtkIOXdmf3
-  TCL_NAME vtkIOXdmfIII
-  GROUPS
+vtk_module(vtkIOADIOS
   DEPENDS
     vtkCommonCore
     vtkCommonDataModel
     vtkCommonExecutionModel
-    vtkIOLegacy
     vtkParallelCore
   PRIVATE_DEPENDS
-    vtkFiltersExtraction
-    vtksys
-    vtkxdmf3
+    vtkParallelMPI
   TEST_DEPENDS
-    vtkFiltersGeneral
     vtkTestingCore
     vtkTestingRendering
-    vtkParallelMPI
+  EXCLUDE_FROM_ALL
   )

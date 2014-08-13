@@ -30,6 +30,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+class vtkDataSetAttributes;
 class vtkDataSetCollection;
 
 class VTKFILTERSCORE_EXPORT vtkAppendFilter : public vtkUnstructuredGridAlgorithm
@@ -87,15 +88,6 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  // Description:
-  // This function appends multiple blocks / pieces into a vtkUnstructuredGrid
-  // data by using a point locator to merge duplicate points (when ghost cell
-  // information is not available from the input data blocks / pieces).
-  // This function should be called by RequestData() only.
-  int     AppendBlocksWithPointLocator( vtkInformationVector ** inputVector,
-                                        vtkInformationVector  * outputVector );
-
-
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
   vtkDataSetCollection *InputList;
@@ -109,6 +101,15 @@ protected:
 private:
   vtkAppendFilter(const vtkAppendFilter&);  // Not implemented.
   void operator=(const vtkAppendFilter&);  // Not implemented.
+
+  // Get all input data sets that have points, cells, or both.
+  // Caller must delete the returned vtkDataSetCollection.
+  vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector ** inputVector);
+
+  void AppendArrays(vtkDataSetAttributes* (*selector)(vtkDataSet*),
+                    vtkInformationVector **inputVector,
+                    vtkIdType* globalIds,
+                    vtkUnstructuredGrid* output);
 };
 
 

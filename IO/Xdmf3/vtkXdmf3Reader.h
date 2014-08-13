@@ -42,10 +42,26 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set tells the reader the name of a single top level xml file to read.
+  virtual void SetFileName(const char* filename);
+
+  // Description:
+  // Add and remove give the reader a list of top level xml files to read.
+  // Whether the set is treated as a spatial or temporal collection depends
+  // on FileSeriestAsTime.
+  virtual void AddFileName(const char* filename);
+  virtual void RemoveAllFileNames();
+
+  // Description:
+  // When true (the default) the reader treats a series of files as a temporal
+  // collection. When false it treats it as a spatial partition and uses
+  // an optimized top level paritioning strategy.
+  vtkSetMacro(FileSeriesAsTime, bool);
+  vtkGetMacro(FileSeriesAsTime, bool);
+
+  // Description:
   // Determine if the file can be read with this reader.
   virtual int CanReadFile(const char* filename);
-
-  //////////////////////////////////////////////////////////
 
   // Description:
   // Get information about point-based arrays. As is typical with readers this
@@ -80,8 +96,6 @@ public:
   const char* GetFieldArrayName(int index);
   void SetFieldArrayStatus(const char* name, int status);
   int GetFieldArrayStatus(const char* name);
-
-  //////////////////////////////////////////////////////////
 
   // Description:
   // Get/Set information about grids. As is typical with readers this is valid
@@ -157,6 +171,8 @@ protected:
 private:
   vtkXdmf3Reader(const vtkXdmf3Reader&); // Not implemented
   void operator=(const vtkXdmf3Reader&); // Not implemented
+
+  bool FileSeriesAsTime;
 
   class Internals;
   Internals *Internal;
