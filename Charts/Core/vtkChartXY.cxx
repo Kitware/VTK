@@ -196,12 +196,12 @@ void vtkChartXY::Update()
     vtkSelection *selection =
       vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
     // Two major selection methods - row based or plot based.
-    if (this->SelectionMethod == vtkChart::SELECTION_ROWS &&
-        selection->GetNumberOfNodes())
+    if (this->SelectionMethod == vtkChart::SELECTION_ROWS)
       {
-      vtkSelectionNode *node = selection->GetNode(0);
-      vtkIdTypeArray *idArray =
-          vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      vtkSelectionNode *node = selection->GetNumberOfNodes() > 0?
+        selection->GetNode(0) : NULL;
+      vtkIdTypeArray *idArray = node?
+          vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : NULL;
       std::vector<vtkPlot*>::iterator it =
           this->ChartPrivate->plots.begin();
       for ( ; it != this->ChartPrivate->plots.end(); ++it)
