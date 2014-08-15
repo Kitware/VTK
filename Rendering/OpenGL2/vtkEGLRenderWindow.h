@@ -153,6 +153,8 @@ public:
   // a high-quality rate to a more interactive rate.
   virtual int GetEventPending() { return 0;};
 
+  int GetOwnWindow() { return this->OwnWindow; };
+
 protected:
   vtkEGLRenderWindow();
   ~vtkEGLRenderWindow();

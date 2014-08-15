@@ -88,23 +88,3 @@ add_dependencies(JavaVTK-apk-debug
   JavaVTK-apk-release
   JavaVTK-ant-configure
   JavaVTK)
-
-if (0)
-# Remove existing resource directory if any in the binary dir
-add_custom_target(JavaVTK-apk-rm-resource ALL
-  COMMAND ${CMAKE_COMMAND} -E remove_directory
-          "${CMAKE_CURRENT_BINARY_DIR}/res")
-add_dependencies(JavaVTK-apk-rm-resource
-  JavaVTK-ant-configure
-  JavaVTK)
-
-# Copy res from the source dir to binary dir
-add_custom_target(JavaVTK-apk-resource ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-          "${CMAKE_CURRENT_SOURCE_DIR}/res"
-          "${CMAKE_CURRENT_BINARY_DIR}/res")
-add_dependencies(JavaVTK-apk-resource
-  JavaVTK-apk-rm-resource
-  JavaVTK-ant-configure
-  JavaVTK)
-endif()

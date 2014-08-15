@@ -89,6 +89,11 @@ public:
   void HandleKeyEvent(bool down, int nChar, int metaState, int nRepCnt);
 
   // Description:
+  // Handle motion events
+  void HandleMotionEvent(int action, int eventPointer, int numPtrs,
+    int *xPtr, int *yPtr, int *idPtr, int metaState);
+
+  // Description:
   // used for converting keyCodes on Android
   const char *GetKeySym(int keyCode);
 

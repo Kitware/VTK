@@ -64,7 +64,6 @@ add_custom_target(NativeVTK-ant-configure ALL
 
 add_dependencies(NativeVTK-ant-configure NativeVTK)
 
-if (FALSE)
 #find ant
 find_program(ANT_EXECUTABLE
   NAMES ant
@@ -79,8 +78,7 @@ add_custom_target(NativeVTK-apk-release ALL
           release)
 add_dependencies(NativeVTK-apk-release
   NativeVTK-ant-configure
-  NativeVTK
-  NativevTK-apk-resource)
+  NativeVTK)
 
 add_custom_target(NativeVTK-apk-debug ALL
   COMMAND ${ANT_EXECUTABLE}
@@ -88,25 +86,5 @@ add_custom_target(NativeVTK-apk-debug ALL
           debug)
 add_dependencies(NativeVTK-apk-debug
   NativeVTK-apk-release
-  NativeVTK-ant-configure
-  NativeVTK
-  NativevTK-apk-resource)
-endif()
-
-# Remove existing resource directory if any in the binary dir
-add_custom_target(NativeVTK-apk-rm-resource ALL
-  COMMAND ${CMAKE_COMMAND} -E remove_directory
-          "${CMAKE_CURRENT_BINARY_DIR}/res")
-add_dependencies(NativeVTK-apk-rm-resource
-  NativeVTK-ant-configure
-  NativeVTK)
-
-# Copy res from the source dir to binary dir
-add_custom_target(NativeVTK-apk-resource ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-          "${CMAKE_CURRENT_SOURCE_DIR}/res"
-          "${CMAKE_CURRENT_BINARY_DIR}/res")
-add_dependencies(NativeVTK-apk-resource
-  NativeVTK-apk-rm-resource
   NativeVTK-ant-configure
   NativeVTK)

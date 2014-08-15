@@ -15,7 +15,6 @@
  *
  */
 
-//BEGIN_INCLUDE(all)
 #include <jni.h>
 #include <errno.h>
 
@@ -52,11 +51,13 @@ void android_main(struct android_app* state)
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkAndroidRenderWindowInteractor> iren;
+
+  // this line is key, it provides the android
+  // state to VTK
+  iren->SetAndroidApplication(state);
 
   renWin->AddRenderer(renderer.Get());
-
-  vtkNew<vtkAndroidRenderWindowInteractor> iren;
-  iren->SetAndroidApplication(state);
   iren->SetRenderWindow(renWin.Get());
 
   vtkNew<vtkSphereSource> sphere;
@@ -90,6 +91,4 @@ void android_main(struct android_app* state)
 
   renWin->Render();
   iren->Start();
-
 }
-//END_INCLUDE(all)

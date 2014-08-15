@@ -1,3 +1,16 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 /*
  * Copyright (C) 2010 The Android Open Source Project
  *
@@ -41,19 +54,28 @@
 
 extern "C" {
     JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, jobject obj,  jint width, jint height);
-    JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_step(JNIEnv * env, jobject obj, jlong renWinP);
+    JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_render(JNIEnv * env, jobject obj, jlong renWinP);
     JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
       jboolean down, jint keyCode, jint metaState, jint repeatCount
       );
+    JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
+      jint action,
+      jint eventPointer,
+      jint numPtrs,
+      jfloatArray xPos, jfloatArray yPos,
+      jintArray ids, jint metaState);
 };
 
 struct userData
 {
-  vtkRenderWindow *renWin;
-  vtkRenderer *renderer;
+  vtkRenderWindow *RenderWindow;
+  vtkRenderer *Renderer;
   vtkAndroidRenderWindowInteractor *Interactor;
 };
 
+/*
+ * Here is where you would setup your pipeline and other normal VTK logic
+ */
 JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, jobject obj,  jint width, jint height)
 {
   vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -63,7 +85,6 @@ JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, j
   renWin->AddRenderer(renderer.Get());
 
   vtkNew<vtkAndroidRenderWindowInteractor> iren;
-  //iren->SetAndroidApplication(state);
   iren->SetRenderWindow(renWin);
 
   vtkNew<vtkSphereSource> sphere;
@@ -95,19 +116,20 @@ JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, j
   renderer->AddActor(spikeActor.Get());
   renderer->SetBackground(0.4,0.5,0.6);
 
-  renWin->Render();
-
   struct userData *foo = new struct userData();
-  foo->renWin = renWin;
-  foo->renderer = renderer.Get();
+  foo->RenderWindow = renWin;
+  foo->Renderer = renderer.Get();
   foo->Interactor = iren.Get();
+
   return (jlong)foo;
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_step(JNIEnv * env, jobject obj, jlong udp)
+JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_render(JNIEnv * env, jobject obj, jlong udp)
 {
   struct userData *foo = (userData *)(udp);
-  foo->renWin->Render();
+  foo->RenderWindow->SwapBuffersOff(); // android does it
+  foo->RenderWindow->Render();
+  foo->RenderWindow->SwapBuffersOn(); // reset
 }
 
 JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
@@ -115,4 +137,40 @@ JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onKeyEvent(JNIEnv * e
 {
   struct userData *foo = (userData *)(udp);
   foo->Interactor->HandleKeyEvent(down, keyCode, metaState, repeatCount);
+}
+
+JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
+      jint action,
+      jint eventPointer,
+      jint numPtrs,
+      jfloatArray xPos, jfloatArray yPos,
+      jintArray ids, jint metaState)
+{
+  struct userData *foo = (userData *)(udp);
+
+  int xPtr[VTKI_MAX_POINTERS];
+  int yPtr[VTKI_MAX_POINTERS];
+  int idPtr[VTKI_MAX_POINTERS];
+
+  // only allow VTKI_MAX_POINTERS touches right now
+  if (numPtrs > VTKI_MAX_POINTERS)
+    {
+    numPtrs = VTKI_MAX_POINTERS;
+    }
+
+  // fill in the arrays
+  jfloat *xJPtr = env->GetFloatArrayElements(xPos, 0);
+  jfloat *yJPtr = env->GetFloatArrayElements(yPos, 0);
+  jint *idJPtr = env->GetIntArrayElements(ids, 0);
+  for (int i = 0; i < numPtrs; ++i)
+    {
+    xPtr[i] = (int)xJPtr[i];
+    yPtr[i] = (int)yJPtr[i];
+    idPtr[i] = idJPtr[i];
+    }
+  env->ReleaseIntArrayElements(ids, idJPtr, 0);
+  env->ReleaseFloatArrayElements(xPos, xJPtr, 0);
+  env->ReleaseFloatArrayElements(yPos, yJPtr, 0);
+
+  foo->Interactor->HandleMotionEvent(action, eventPointer, numPtrs, xPtr, yPtr, idPtr, metaState);
 }

@@ -39,6 +39,7 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   this->Display = EGL_NO_DISPLAY;
   this->Context = EGL_NO_CONTEXT;
   this->Surface = EGL_NO_SURFACE;
+  this->OwnWindow = 1;
 }
 
 // free up memory & close the window
@@ -60,15 +61,31 @@ vtkEGLRenderWindow::~vtkEGLRenderWindow()
 void vtkEGLRenderWindow::Frame()
 {
   this->MakeCurrent();
-  if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers
-      && this->Display != EGL_NO_DISPLAY)
+
+  if (this->OwnWindow)
     {
-    eglSwapBuffers(this->Display, this->Surface);
-    vtkDebugMacro(<< " eglSwapBuffers\n");
+    if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers
+        && this->Display != EGL_NO_DISPLAY)
+      {
+      eglSwapBuffers(this->Display, this->Surface);
+      vtkDebugMacro(<< " eglSwapBuffers\n");
+      }
+    else
+      {
+      glFlush();
+      }
     }
   else
     {
-    glFlush();
+    if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
+      {
+      eglSwapBuffers( eglGetCurrentDisplay(), eglGetCurrentSurface( EGL_DRAW ) );
+      vtkDebugMacro(<< " eglSwapBuffers\n");
+      }
+    else
+      {
+      glFlush();
+      }
     }
 }
 
