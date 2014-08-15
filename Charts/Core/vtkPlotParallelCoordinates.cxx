@@ -221,8 +221,10 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
 {
   if (!this->Selection)
     {
-    return false;
+    this->Storage->SelectionInitialized = false;
+    this->Selection = vtkIdTypeArray::New();
     }
+
   if (this->Storage->SelectionInitialized)
     {
     // Further refine the selection that has already been made
