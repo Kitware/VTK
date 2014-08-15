@@ -12,7 +12,9 @@ vtk_module(vtkVolume
     vtkIOLegacy
     vtkIOXML
     vtkInteractionStyle
+    vtkRenderingVolume
     vtkRenderingOpenGL
+    vtkRenderingVolumeOpenGL
     vtkTestingCore
     vtkTestingRendering
 )

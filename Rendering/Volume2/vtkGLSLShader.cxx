@@ -21,6 +21,7 @@
 ///---------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader(void)
 {
+  this->Program = 0;
   this->TotalShaders = 0;
   this->Shaders[VERTEX_SHADER] = 0;
   this->Shaders[FRAGMENT_SHADER] = 0;
@@ -43,7 +44,10 @@ vtkGLSLShader::~vtkGLSLShader(void)
 ///
 void vtkGLSLShader::DeleteShaderProgram()
 {
-    glDeleteProgram(this->Program);
+    if (this->Program)
+      {
+      glDeleteProgram(this->Program);
+      }
     this->AttributeList.clear();
     this->UniformLocationList.clear();
 }

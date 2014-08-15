@@ -307,6 +307,8 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
 bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
                                                         vtkDataArray* scalars)
 {
+  GL_CHECK_ERRORS
+
   /// Generate OpenGL texture
   glActiveTexture(GL_TEXTURE0);
   glGenTextures(1, &this->VolumeTextureId);
@@ -402,14 +404,25 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
       case VTK_UNSIGNED_LONG:
       case VTK_UNSIGNED_LONG_LONG:
         /// TODO Implement support for this
-        std::cerr << "Scalar type VTK_UNSIGNED_LONG_LONG not supported" << std::endl;
+        if (glewIsSupported("GL_ARB_texture_float"))
+          {
+          internalFormat=vtkgl::INTENSITY16F_ARB;
+          }
+        else
+          {
+          internalFormat=GL_INTENSITY16;
+          }
+        format = GL_RED;
+        type = GL_FLOAT;
+        shift = -this->ScalarsRange[0];
+        scale = 1 / (this->ScalarsRange[1] - this->ScalarsRange[0]);
         break;
       case VTK_SHORT:
         internalFormat = GL_INTENSITY16;
         format = GL_RED;
         type = GL_SHORT;
-        shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_SHORT_MAX;
-        scale = VTK_SHORT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        shift = -(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_SHORT_MAX;
+        scale = VTK_SHORT_MAX / (this->ScalarsRange[1] - this->ScalarsRange[0]);
         break;
       case VTK_STRING:
         // not supported
@@ -988,16 +1001,24 @@ void vtkSinglePassVolumeMapper::PrintSelf(ostream& vtkNotUsed(os),
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
 {
+  GL_CHECK_ERRORS
+
   this->Implementation->Shader.DeleteShaderProgram();
+
+  GL_CHECK_ERRORS
 
   /// Load the raycasting shader
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
+  GL_CHECK_ERRORS
+
   vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_CLIP_POS@",
     vtkvolume::ComputeClip(ren, this, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_TEXTURE_COORDS@",
     vtkvolume::ComputeTextureCoords(ren, this, vol), true);
+
+  GL_CHECK_ERRORS
 
   vertexShader = vtkvolume::replace(vertexShader, "@BASE_GLOBALS_VERT@",
     vtkvolume::BaseGlobalsVert(ren, this, vol), true);
@@ -1009,6 +1030,8 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
     vtkvolume::BaseIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_EXIT@",
     vtkvolume::BaseExit(ren, this, vol), true);
+
+  GL_CHECK_ERRORS
 
   vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_GLOBALS_VERT@",
     vtkvolume::TerminationGlobalsVert(ren, this, vol), true);
@@ -1031,6 +1054,8 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
     vtkvolume::ShadingIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
     vtkvolume::ShadingExit(ren, this, vol), true);
+
+  GL_CHECK_ERRORS
 
 
   vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_GLOBALS_VERT@",
@@ -1101,6 +1126,8 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
     }
 
   std::cerr << "fragment shader " << fragmentShader << std::endl;
+
+  GL_CHECK_ERRORS
 
   this->Implementation->ShaderBuildTime.Modified();
 }
