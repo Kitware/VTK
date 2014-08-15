@@ -42,6 +42,7 @@ namespace vtkpiston {
   int QueryVertsPer(vtkPistonDataObject *id);
   void CudaRegisterBuffer(struct cudaGraphicsResource **vboResource,
                           GLuint vboBuffer);
+  void CudaUnregisterResource(struct cudaGraphicsResource* vboResource);
   void CudaTransferToGL(vtkPistonDataObject *id, unsigned long dataObjectMTimeCache,
                         vtkPistonScalarsColors *psc,
                         struct cudaGraphicsResource **vboResources,
@@ -148,6 +149,9 @@ void vtkPistonMapper::PrepareDirectRenderBuffers(int nPoints)
   if (this->Internal->BufferSize != 0)
     {
     // Release old buffer
+    vtkpiston::CudaUnregisterResource(this->Internal->vboResources[0]);
+    vtkpiston::CudaUnregisterResource(this->Internal->vboResources[1]);
+    vtkpiston::CudaUnregisterResource(this->Internal->vboResources[2]);
     vtkgl::DeleteBuffers(3, this->Internal->vboBuffers);
     vtkOpenGLCheckErrorMacro("failed at glDeleteBuffers");
     }
