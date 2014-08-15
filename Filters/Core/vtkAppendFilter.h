@@ -106,7 +106,7 @@ private:
   // Caller must delete the returned vtkDataSetCollection.
   vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector ** inputVector);
 
-  void AppendArrays(vtkDataSetAttributes* (*selector)(vtkDataSet*),
+  void AppendArrays(int attributesType,
                     vtkInformationVector **inputVector,
                     vtkIdType* globalIds,
                     vtkUnstructuredGrid* output);
