@@ -371,8 +371,8 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
         internalFormat = GL_INTENSITY8;
         format = GL_RED;
         type = GL_BYTE;
-        shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_CHAR_MAX;
-        scale = VTK_SIGNED_CHAR_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        shift = -(2 * this->ScalarsRange[0] + 1)/VTK_UNSIGNED_CHAR_MAX;
+        scale = VTK_SIGNED_CHAR_MAX/(this->ScalarsRange[1] - this->ScalarsRange[0]);
         break;
       case VTK_CHAR:
         // not supported
@@ -461,11 +461,18 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
     ++i;
     }
 
+  glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
+  glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
                this->TextureSize[0],this->TextureSize[1],this->TextureSize[2], 0,
                format, type, dataPtr);
 
   GL_CHECK_ERRORS
+
+  /// Set scale and bias to their defaults
+  glPixelTransferf(GL_RED_SCALE,1.0);
+  glPixelTransferf(GL_RED_BIAS,0.0);
 
   /// Update m_volume build time
   this->VolumeBuildTime.Modified();

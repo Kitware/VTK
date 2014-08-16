@@ -189,7 +189,7 @@ int TestVolumeMinIP(int argc, char *argv[])
 
   renWin->Render();
 
-  const int rows = 2;
+  const int rows = 4;
   const int cols = 2;
 #if 1
   vtkSinglePassVolumeMapper *volumeMapper[rows][cols];

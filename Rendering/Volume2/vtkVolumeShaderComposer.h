@@ -241,8 +241,7 @@ namespace vtkvolume
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-      "float scalar = texture(m_volume, l_data_pos).r * m_scale + m_bias; \n\
-      scalar = min(max(scalar, 0.0), 1.0); \n\
+      "float scalar = texture(m_volume, l_data_pos).r ; \n\
       l_min_value = min(l_min_value, scalar);");
       }
     else
