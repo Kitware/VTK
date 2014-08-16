@@ -240,6 +240,7 @@ public:
   double StepSize[3];
   double CellScale[3];
   double Scale;
+  double Bias;
   double ElapsedDrawTime;
 
   float* NoiseTextureData;
@@ -320,11 +321,6 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  // TODO Make it configurable
-  // Set the mipmap levels (base and max)
-  //  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
-  //  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 4);
 
   GL_CHECK_ERRORS
 
@@ -450,8 +446,10 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
       }
     }
 
-  /// Update scale
+  /// Update scale and bias
   this->Scale = scale;
+  this->Bias = shift * this->Scale;
+
   imageData->GetExtent(this->Extents);
 
   void* dataPtr = scalars->GetVoidPointer(0);
@@ -467,11 +465,6 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
                format, type, dataPtr);
 
   GL_CHECK_ERRORS
-
-
-  /// TODO Enable mipmapping later
-  // Generate mipmaps
-  //glGenerateMipmap(GL_TEXTURE_3D);
 
   /// Update m_volume build time
   this->VolumeBuildTime.Modified();
@@ -1096,6 +1089,7 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   this->Implementation->Shader.AddUniform("m_step_size");
   this->Implementation->Shader.AddUniform("m_sample_distance");
   this->Implementation->Shader.AddUniform("m_scale");
+  this->Implementation->Shader.AddUniform("m_bias");
   this->Implementation->Shader.AddUniform("m_cell_scale");
   this->Implementation->Shader.AddUniform("m_color_transfer_func");
   this->Implementation->Shader.AddUniform("m_opacity_transfer_func");
@@ -1420,6 +1414,9 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 
   glUniform1f(this->Implementation->Shader("m_scale"),
               this->Implementation->Scale);
+
+  glUniform1f(this->Implementation->Shader("m_bias"),
+              this->Implementation->Bias);
 
   glUniform1i(this->Implementation->Shader("m_volume"), 0);
   glUniform1i(this->Implementation->Shader("m_color_transfer_func"), 1);

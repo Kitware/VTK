@@ -189,10 +189,13 @@ int TestVolumeMinIP(int argc, char *argv[])
 
   renWin->Render();
 
-  const int rows = 1;
-  const int cols = 1;
-
+  const int rows = 2;
+  const int cols = 2;
+#if 1
   vtkSinglePassVolumeMapper *volumeMapper[rows][cols];
+#else
+  vtkGPUVolumeRayCastMapper *volumeMapper[rows][cols];
+#endif
   vtkVolumeProperty *volumeProperty[rows][cols];
   vtkVolume *volume[rows][cols];
   vtkTransform *userMatrix[rows][cols];
@@ -203,7 +206,11 @@ int TestVolumeMinIP(int argc, char *argv[])
     int j = 0;
     while(j < cols)
       {
+#if 1
       volumeMapper[i][j] = vtkSinglePassVolumeMapper::New();
+#else
+      volumeMapper[i][j] = vtkGPUVolumeRayCastMapper::New();
+#endif
       volumeMapper[i][j]->SetBlendModeToMinimumIntensity();
       volumeMapper[i][j]->SetInputConnection(
         shiftScale[i][j]->GetOutputPort());
@@ -261,10 +268,10 @@ int TestVolumeMinIP(int argc, char *argv[])
   shiftScale_3_1_pre->Delete();
   shiftScale_3_0_pre->Delete();
   i=0;
-  while(i<4)
+  while( i < rows)
     {
     int j=0;
-    while(j<2)
+    while(j < cols)
       {
       volumeMapper[i][j]->Delete();
       volumeProperty[i][j]->Delete();

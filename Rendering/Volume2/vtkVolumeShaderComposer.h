@@ -123,6 +123,7 @@ namespace vtkvolume
       /// Scales \n\
       uniform vec3 m_cell_m_scale; \n\
       uniform float m_scale; \n\
+      uniform float m_bias; \n\
       uniform vec2 m_window_lower_left_corner; \n\
       uniform vec2 m_inv_original_window_size; \n\
       uniform vec2 m_inv_window_size; \n\
@@ -240,8 +241,8 @@ namespace vtkvolume
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-      "float scalar = texture(m_volume, l_data_pos).r; \n\
-      l_min_value = min(l_min_value, scalar * m_scale);");
+      "float scalar = texture(m_volume, l_data_pos).r * m_scale + m_bias; \n\
+      l_min_value = min(l_min_value, scalar);");
       }
     else
       {
