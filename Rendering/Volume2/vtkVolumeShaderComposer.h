@@ -242,6 +242,7 @@ namespace vtkvolume
       {
       shaderStr += std::string(
       "float scalar = texture(m_volume, l_data_pos).r * m_scale + m_bias; \n\
+      scalar = min(max(scalar, 0.0), 1.0); \n\
       l_min_value = min(l_min_value, scalar);");
       }
     else
@@ -336,8 +337,7 @@ namespace vtkvolume
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       return std::string(
-        "l_min_value *= m_scale; \n\
-        vec4 l_src_color = texture(m_color_transfer_func, l_min_value); \n\
+        "vec4 l_src_color = texture(m_color_transfer_func, l_min_value); \n\
         l_src_color.a = texture(m_opacity_transfer_func, l_min_value).w; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;");
