@@ -209,7 +209,7 @@ namespace vtkvolume
       {
       return std::string(
         "/// We get data between 0.0 - 1.0 range \n\
-        float l_min_value = 0.0;");
+        float l_min_value = 1.0;");
       }
     else if (vol->GetProperty()->GetShade())
       {
@@ -241,7 +241,7 @@ namespace vtkvolume
       {
       shaderStr += std::string(
       "float scalar = texture(m_volume, l_data_pos).r; \n\
-      l_min_value = min(l_min_value, scalar);");
+      l_min_value = min(l_min_value, scalar * m_scale);");
       }
     else
       {
