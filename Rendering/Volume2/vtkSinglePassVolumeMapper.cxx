@@ -93,6 +93,7 @@ public:
     Parent(parent),
     RGBTable(0)
     {
+    this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = -1;
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
@@ -227,6 +228,7 @@ public:
   vtkGLSLShader Shader;
 
   int CellFlag;
+  int Dimensions[3];
   int TextureSize[3];
   int TextureExtents[6];
   int WindowLowerLeft[2];
@@ -333,6 +335,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
 
   double shift = 0.0;
   double scale = 1.0;
+  bool handleLargeDataTypes = false;
 
   int scalarType = scalars->GetDataType();
   if (scalars->GetNumberOfComponents()==4)
@@ -400,7 +403,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
       case VTK_UNSIGNED___INT64:
       case VTK_UNSIGNED_LONG:
       case VTK_UNSIGNED_LONG_LONG:
-        /// TODO Implement support for this
+        handleLargeDataTypes = true;
         if (glewIsSupported("GL_ARB_texture_float"))
           {
           internalFormat=vtkgl::INTENSITY16F_ARB;
@@ -453,7 +456,6 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
 
   imageData->GetExtent(this->Extents);
 
-  void* dataPtr = scalars->GetVoidPointer(0);
   int i = 0;
   while(i < 3)
     {
@@ -461,18 +463,78 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
     ++i;
     }
 
-  glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
-  glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
-               this->TextureSize[0],this->TextureSize[1],this->TextureSize[2], 0,
-               format, type, dataPtr);
+  if (!handleLargeDataTypes)
+    {
+    void* dataPtr = scalars->GetVoidPointer(0);
 
-  GL_CHECK_ERRORS
+    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
+    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
+                 this->TextureSize[0],this->TextureSize[1],this->TextureSize[2], 0,
+                 format, type, dataPtr);
 
-  /// Set scale and bias to their defaults
-  glPixelTransferf(GL_RED_SCALE,1.0);
-  glPixelTransferf(GL_RED_BIAS,0.0);
+    GL_CHECK_ERRORS
+
+    /// Set scale and bias to their defaults
+    glPixelTransferf(GL_RED_SCALE,1.0);
+    glPixelTransferf(GL_RED_BIAS,0.0);
+    }
+  else
+    {
+    /// Convert and send to the GPU, z-slice by z-slice so that we won't allocate
+    /// memory at once.Allocate memory on the GPU (NULL data pointer with the
+    /// right dimensions). Here we are assuming that GL_ARB_texture_non_power_of_two is
+    /// available
+    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+
+    glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
+                 this->TextureSize[0], this->TextureSize[1],
+                 this->TextureSize[2], 0, format, type, 0);
+
+    /// Send the slices one by one to the GPU. We are not sending all of them
+    /// together so as to avoid allocating big data on the GPU which may not
+    /// work if the original dataset is big as well.
+    vtkFloatArray* sliceArray=vtkFloatArray::New();
+    sliceArray->SetNumberOfComponents(1);
+    sliceArray->SetNumberOfTuples(this->TextureSize[0] * this->TextureSize[1]);
+    void* slicePtr = sliceArray->GetVoidPointer(0);
+    int k = 0;
+    int kInc = (this->Dimensions[0] - this->CellFlag) *
+               (this->Dimensions[1] - this->CellFlag);
+    int kOffset = (this->TextureExtents[4] *  (this->Dimensions[1] - this->CellFlag) +
+                   this->TextureExtents[2]) * (this->Dimensions[0] - this->CellFlag) +
+                   this->TextureExtents[0];
+    while(k < this->TextureSize[2])
+      {
+      int j = 0;
+      int jOffset = 0;
+      int jDestOffset = 0;
+      while(j < this->TextureSize[1])
+        {
+        i = 0;
+        while(i < this->TextureSize[0])
+          {
+          sliceArray->SetTuple1(jDestOffset + i,
+                                (scalars->GetTuple1(kOffset + jOffset + i) +
+                                 shift)*scale);
+          ++i;
+          }
+        ++j;
+        jOffset += this->Dimensions[0] - this->CellFlag;
+        jDestOffset += this->TextureSize[0];
+        }
+
+      // Here we are assuming that GL_ARB_texture_non_power_of_two is
+      // available
+      glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, k,
+                      this->TextureSize[0], this->TextureSize[1], 1,
+                      format,type, slicePtr);
+      ++k;
+      kOffset += kInc;
+      }
+    sliceArray->Delete();
+    }
 
   /// Update m_volume build time
   this->VolumeBuildTime.Modified();
@@ -1368,7 +1430,9 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
   /// Load m_volume data if needed
   if (this->Implementation->IsDataDirty(input))
     {
-    /// Update bounds
+    input->GetDimensions(this->Implementation->Dimensions);
+
+    /// Update bounds, data, and geometry
     this->Implementation->ComputeBounds(input);
     this->Implementation->LoadVolume(input, scalars);
     this->Implementation->UpdateVolumeGeometry();
