@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(NativeVTK)
+project(JavaVTK)
 
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   message(FATAL_ERROR "VTK Android does not support in-source builds :) .")
@@ -36,10 +36,10 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/ant.properties"
   @ONLY)
 
-add_custom_target(NativeVTK-ant-configure ALL
+add_custom_target(JavaVTK-ant-configure ALL
   COMMAND "${ANDROID_EXECUTABLE}"
           update project
-          --name NativeVTK
+          --name JavaVTK
           --path "${CMAKE_CURRENT_SOURCE_DIR}"
           --target "${ANDROID_TARGET}"
   COMMAND "${CMAKE_COMMAND}" -E copy_if_different
@@ -62,7 +62,7 @@ add_custom_target(NativeVTK-ant-configure ALL
   WORKING_DIRECTORY
           "${CMAKE_CURRENT_BINARY_DIR}")
 
-add_dependencies(NativeVTK-ant-configure NativeVTK)
+add_dependencies(JavaVTK-ant-configure JavaVTK)
 
 #find ant
 find_program(ANT_EXECUTABLE
@@ -72,19 +72,19 @@ if(NOT ANT_EXECUTABLE)
   message(FATAL_ERROR "Can not find ant build tool: ant")
 endif()
 
-add_custom_target(NativeVTK-apk-release ALL
+add_custom_target(JavaVTK-apk-release ALL
   COMMAND ${ANT_EXECUTABLE}
           -file "${CMAKE_CURRENT_BINARY_DIR}/build.xml"
           release)
-add_dependencies(NativeVTK-apk-release
-  NativeVTK-ant-configure
-  NativeVTK)
+add_dependencies(JavaVTK-apk-release
+  JavaVTK-ant-configure
+  JavaVTK)
 
-add_custom_target(NativeVTK-apk-debug ALL
+add_custom_target(JavaVTK-apk-debug ALL
   COMMAND ${ANT_EXECUTABLE}
           -file "${CMAKE_CURRENT_BINARY_DIR}/build.xml"
           debug)
-add_dependencies(NativeVTK-apk-debug
-  NativeVTK-apk-release
-  NativeVTK-ant-configure
-  NativeVTK)
+add_dependencies(JavaVTK-apk-debug
+  JavaVTK-apk-release
+  JavaVTK-ant-configure
+  JavaVTK)

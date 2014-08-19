@@ -39,6 +39,7 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   this->Display = EGL_NO_DISPLAY;
   this->Context = EGL_NO_CONTEXT;
   this->Surface = EGL_NO_SURFACE;
+  this->OwnWindow = 1;
 }
 
 // free up memory & close the window
@@ -60,15 +61,31 @@ vtkEGLRenderWindow::~vtkEGLRenderWindow()
 void vtkEGLRenderWindow::Frame()
 {
   this->MakeCurrent();
-  if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers
-      && this->Display != EGL_NO_DISPLAY)
+
+  if (this->OwnWindow)
     {
-    eglSwapBuffers(this->Display, this->Surface);
-    vtkDebugMacro(<< " eglSwapBuffers\n");
+    if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers
+        && this->Display != EGL_NO_DISPLAY)
+      {
+      eglSwapBuffers(this->Display, this->Surface);
+      vtkDebugMacro(<< " eglSwapBuffers\n");
+      }
+    else
+      {
+      glFlush();
+      }
     }
   else
     {
-    glFlush();
+    if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
+      {
+      eglSwapBuffers( eglGetCurrentDisplay(), eglGetCurrentSurface( EGL_DRAW ) );
+      vtkDebugMacro(<< " eglSwapBuffers\n");
+      }
+    else
+      {
+      glFlush();
+      }
     }
 }
 
@@ -135,6 +152,7 @@ void vtkEGLRenderWindow::CreateAWindow()
   this->Context = eglCreateContext(this->Display, config, NULL, context_attribs);
 
   this->Mapped = 1;
+  this->OwnWindow = 1;
 
   this->MakeCurrent();
 
@@ -148,7 +166,7 @@ void vtkEGLRenderWindow::CreateAWindow()
 void vtkEGLRenderWindow::DestroyWindow()
 {
   this->ReleaseGraphicsResources();
-  if (this->Mapped && this->Display != EGL_NO_DISPLAY)
+  if (this->OwnWindow && this->Mapped && this->Display != EGL_NO_DISPLAY)
     {
     // make sure all other code knows we're not mapped anymore
     this->Mapped = 0;
@@ -184,7 +202,10 @@ void vtkEGLRenderWindow::ResizeOffScreenWindow(int width, int height)
 // Initialize the window for rendering.
 void vtkEGLRenderWindow::WindowInitialize (void)
 {
-  this->CreateAWindow();
+  if (this->OwnWindow)
+    {
+    this->CreateAWindow();
+    }
 
   this->MakeCurrent();
 
@@ -316,12 +337,20 @@ void vtkEGLRenderWindow::SetPosition(int x, int y)
 int vtkEGLRenderWindow::SupportsOpenGL()
 {
   this->MakeCurrent();
-  if(this->Display == EGL_NO_DISPLAY)
+  if(this->Display == EGL_NO_DISPLAY && this->OwnWindow)
     {
     return false;
     }
   return true;
 }
+
+// Set this RenderWindow to a pre-existing window.
+void vtkEGLRenderWindow::SetWindowInfo(char *info)
+{
+  this->OwnWindow = 0;
+  this->Mapped = 1;
+}
+
 
 void vtkEGLRenderWindow::SetWindowName(const char * cname)
 {

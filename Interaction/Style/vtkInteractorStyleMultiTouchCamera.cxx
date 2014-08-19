@@ -29,6 +29,10 @@ vtkInteractorStyleMultiTouchCamera::vtkInteractorStyleMultiTouchCamera()
 {
   this->MotionFactor   = 10.0;
   this->PointersDownCount = 0;
+  for (int i = 0; i < VTKI_MAX_POINTERS; ++i)
+    {
+    this->PointersDown[i] = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -58,6 +62,12 @@ void vtkInteractorStyleMultiTouchCamera::OnMouseMove()
 void vtkInteractorStyleMultiTouchCamera::OnLeftButtonDown()
 {
   int pointer = this->Interactor->GetPointerIndex();
+
+  // if it is already down ignore this event
+  if (this->PointersDown[pointer])
+    {
+    return;
+    }
 
   this->FindPokedRenderer(this->Interactor->GetEventPositions(pointer)[0],
                           this->Interactor->GetEventPositions(pointer)[1]);
@@ -114,6 +124,13 @@ void vtkInteractorStyleMultiTouchCamera::OnLeftButtonDown()
 void vtkInteractorStyleMultiTouchCamera::OnLeftButtonUp()
 {
   int pointer = this->Interactor->GetPointerIndex();
+
+  // if it is already up, ignore this event
+  if (!this->PointersDown[pointer])
+    {
+    return;
+    }
+
   this->PointersDownCount--;
   this->PointersDown[pointer] = 0;
 

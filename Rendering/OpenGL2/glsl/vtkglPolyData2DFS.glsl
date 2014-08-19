@@ -13,6 +13,16 @@
 
 =========================================================================*/
 
+//VTK:Precision
+
+#ifdef GL_ES
+#extension GL_OES_standard_derivatives : enable
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
 
 // Texture coordinates
 //VTK::TCoord::Dec
