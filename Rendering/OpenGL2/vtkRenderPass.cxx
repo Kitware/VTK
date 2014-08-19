@@ -62,8 +62,8 @@ void vtkRenderPass::UpdateCamera(vtkRenderer *renderer)
 void vtkRenderPass::ClearLights(vtkRenderer *renderer)
 {
   assert("pre: renderer_exists" && renderer != 0);
-  vtkOpenGLRenderer *oRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   /// FIXME: What to do if there is no clear lights? Remove this API?
+  //vtkOpenGLRenderer *oRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   //oRenderer->ClearLights();
 }
 

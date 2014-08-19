@@ -258,6 +258,7 @@ bool vtkXOpenGLRenderDevice::CreateNewWindow(const vtkRecti &geometry,
   // to create a GL 3/4 context. The error handler is global, so care must be
   // taken to nesure no other threads issue X commands while this is running.
   ctxErrorOccurred = false;
+  // FIXME: Restore old handler?
   int (*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctxErrorHandler);
 
   // Get the default screen's GLX extension list

@@ -336,7 +336,7 @@ void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *dColor = actor->GetProperty()->GetColor();
-  float diffuseColor[4] = {dColor[0], dColor[1], dColor[2], opacity};
+  float diffuseColor[4] = {static_cast<float>(dColor[0]), static_cast<float>(dColor[1]), static_cast<float>(dColor[2]), static_cast<float>(opacity)};
 
   program.SetUniform4f("diffuseColor", diffuseColor);
 }
@@ -614,7 +614,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
 
     this->Lines.ibo.Bind();
-    for (int eCount = 0; eCount < this->Lines.offsetArray.size(); ++eCount)
+    for (size_t eCount = 0; eCount < this->Lines.offsetArray.size(); ++eCount)
       {
       glDrawElements(GL_LINE_STRIP,
         this->Lines.elementsArray[eCount],
@@ -639,7 +639,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (this->TriStrips.indexCount)
     {
     this->TriStrips.ibo.Bind();
-    for (int eCount = 0; eCount < this->TriStrips.offsetArray.size(); ++eCount)
+    for (size_t eCount = 0; eCount < this->TriStrips.offsetArray.size(); ++eCount)
       {
       glDrawElements(GL_TRIANGLE_STRIP,
         this->TriStrips.elementsArray[eCount],

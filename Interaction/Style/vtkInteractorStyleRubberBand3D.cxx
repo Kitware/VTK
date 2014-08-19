@@ -37,10 +37,10 @@ vtkInteractorStyleRubberBand3D::vtkInteractorStyleRubberBand3D()
   this->PixelArray = vtkUnsignedCharArray::New();
   this->Interaction = NONE;
   this->RenderOnMouseMove = false;
-  this->StartPosition[0] = 0.0;
-  this->StartPosition[1] = 0.0;
-  this->EndPosition[0] = 0.0;
-  this->EndPosition[1] = 0.0;
+  this->StartPosition[0] = 0;
+  this->StartPosition[1] = 0;
+  this->EndPosition[0] = 0;
+  this->EndPosition[1] = 0;
 }
 
 //--------------------------------------------------------------------------

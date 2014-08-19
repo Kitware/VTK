@@ -735,7 +735,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
     }
   else
     {
-    numberOfSampleTuples = VTK_SAMPLE_FACTOR * logfac;
+    numberOfSampleTuples = static_cast<vtkIdType>(VTK_SAMPLE_FACTOR * logfac);
     }
   /*
   // Theoretically, we should discard values or tuples that recur fewer

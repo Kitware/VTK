@@ -105,7 +105,7 @@ int vtkMathTextUtilities::GetConstrainedFontSize(const char *str,
 
   // Use the current font size as a first guess
   int bbox[4];
-  int fontSize = tprop->GetFontSize();
+  double fontSize = tprop->GetFontSize();
   if (!this->GetBoundingBox(tprop, str, dpi, bbox))
     {
     return -1;
@@ -120,7 +120,7 @@ int vtkMathTextUtilities::GetConstrainedFontSize(const char *str,
     fontSize *= std::min(
           static_cast<double>(targetWidth)  / static_cast<double>(width),
           static_cast<double>(targetHeight) / static_cast<double>(height));
-    tprop->SetFontSize(fontSize);
+    tprop->SetFontSize(static_cast<int>(fontSize));
     if (!this->GetBoundingBox(tprop, str, dpi, bbox))
       {
       return -1;
@@ -132,7 +132,8 @@ int vtkMathTextUtilities::GetConstrainedFontSize(const char *str,
   // Now just step up/down until the bbox matches the target.
   while ((width < targetWidth || height < targetHeight) && fontSize < 200)
     {
-    tprop->SetFontSize(++fontSize);
+    fontSize += 1.;
+    tprop->SetFontSize(fontSize);
     if (!this->GetBoundingBox(tprop, str, dpi, bbox))
       {
       return -1;
@@ -143,7 +144,8 @@ int vtkMathTextUtilities::GetConstrainedFontSize(const char *str,
 
   while ((width > targetWidth || height > targetHeight) && fontSize > 0)
     {
-    tprop->SetFontSize(--fontSize);
+    fontSize -= 1.;
+    tprop->SetFontSize(fontSize);
     if (!this->GetBoundingBox(tprop, str, dpi, bbox))
       {
       return -1;

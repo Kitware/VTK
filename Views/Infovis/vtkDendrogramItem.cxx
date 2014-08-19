@@ -433,7 +433,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
 
   int orientation = this->GetOrientation();
 
-  int previousPenWidth = painter->GetPen()->GetWidth();
+  float previousPenWidth = painter->GetPen()->GetWidth();
   painter->GetPen()->SetWidth(this->LineWidth);
 
   // draw the tree
@@ -1477,7 +1477,7 @@ void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D *painter)
     }
 
   // temporarily set text to default orientation
-  int orientation = painter->GetTextProp()->GetOrientation();
+  double orientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
 
   // get array of node names from the tree

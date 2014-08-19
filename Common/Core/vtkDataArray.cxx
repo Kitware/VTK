@@ -106,7 +106,7 @@ void vtkDataArrayInterpolateTuple(Iterator from1, Iterator from2, Scalar* to,
   const double oneMinusT = 1.0 - t;
   while (numComp-- > 0)
     {
-    *(to++) = oneMinusT * (*(from1++)) + t * (*(from2++));
+    *(to++) = static_cast<Scalar>(oneMinusT * (*(from1++)) + t * (*(from2++)));
     }
 }
 

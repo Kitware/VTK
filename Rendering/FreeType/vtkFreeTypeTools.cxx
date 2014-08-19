@@ -1766,7 +1766,7 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
 
   // Use the current font size as a first guess
   int size[2];
-  int fontSize = metaData.textProperty->GetFontSize();
+  double fontSize = metaData.textProperty->GetFontSize();
   if (!this->CalculateBoundingBox(str, metaData))
     {
     return -1;
@@ -1781,7 +1781,7 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
     fontSize *= std::min(
           static_cast<double>(targetWidth)  / static_cast<double>(size[0]),
         static_cast<double>(targetHeight) / static_cast<double>(size[1]));
-    metaData.textProperty->SetFontSize(fontSize);
+    metaData.textProperty->SetFontSize(static_cast<int>(fontSize));
     if (!this->CalculateBoundingBox(str, metaData))
       {
       return -1;
@@ -1793,7 +1793,8 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
   // Now just step up/down until the bbox matches the target.
   while (size[0] < targetWidth && size[1] < targetHeight && fontSize < 200)
     {
-    metaData.textProperty->SetFontSize(++fontSize);
+    fontSize += 1.;
+    metaData.textProperty->SetFontSize(fontSize);
     if (!this->CalculateBoundingBox(str, metaData))
       {
       return -1;
@@ -1804,7 +1805,8 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
 
   while ((size[0] > targetWidth || size[1] > targetHeight) && fontSize > 0)
     {
-    metaData.textProperty->SetFontSize(--fontSize);
+    fontSize -= 1.;
+    metaData.textProperty->SetFontSize(fontSize);
     if (!this->CalculateBoundingBox(str, metaData))
       {
       return -1;

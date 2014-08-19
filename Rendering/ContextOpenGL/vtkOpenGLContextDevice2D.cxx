@@ -420,7 +420,7 @@ void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight,
                                            unsigned char *colors, int nc_comps)
 {
   // Get a point sprite for the shape
-  vtkImageData *sprite = this->GetMarker(shape, this->Pen->GetWidth(),
+  vtkImageData *sprite = this->GetMarker(shape, static_cast<int>(this->Pen->GetWidth()),
                                          highlight);
   this->DrawPointSprites(sprite, points, n, colors, nc_comps);
 }

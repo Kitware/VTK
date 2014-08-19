@@ -187,12 +187,12 @@ double vtkMath::Gaussian( double mean, double std )
 //
 vtkTypeInt64 vtkMath::Binomial( int m, int n )
 {
-  vtkTypeInt64 r = 1;
+  double r = 1;
   for (int i = 1; i <= n; ++i)
     {
     r *= static_cast<double>(m - i + 1) / i;
     }
-  return r;
+  return static_cast<vtkTypeInt64>(r);
 }
 
 //----------------------------------------------------------------------------

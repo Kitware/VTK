@@ -137,8 +137,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
     }
 
   // Query the actor for some of the properties that can be applied.
-  float diffuseColor[3] = {rgba[0]/255.0,rgba[1]/255.0,rgba[2]/255.0};
-  float opacity = rgba[3]/255.0;
+  float diffuseColor[3] = {rgba[0]/255.0f,rgba[1]/255.0f,rgba[2]/255.0f};
+  float opacity = rgba[3]/255.0f;
 
   program.SetUniformf("opacityUniform", opacity);
   program.SetUniform3f("diffuseColorUniform", diffuseColor);

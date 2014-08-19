@@ -1018,7 +1018,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
-  int     width, height;
 
   // set the current window
   this->MakeCurrent();
@@ -1065,9 +1064,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     x_low = x2;
     x_hi  = x1;
     }
-
-  width  = abs(x_hi-x_low) + 1;
-  height = abs(y_hi-y_low) + 1;
 
   if (!blend)
     {
@@ -1468,7 +1464,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 {
   int             y_low;
   int             x_low;
-  int             width, height;
+  //int             width, height;
 
   // set the current window
   this->MakeCurrent();
@@ -1491,8 +1487,8 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
     x_low = x2;
     }
 
-  width =  abs(x2 - x1)+1;
-  height = abs(y2 - y1)+1;
+  //width =  abs(x2 - x1)+1;
+  //height = abs(y2 - y1)+1;
 
   // Error checking
   // Must clear previous errors first.

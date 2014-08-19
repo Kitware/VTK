@@ -705,14 +705,14 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *aColor = actor->GetProperty()->GetAmbientColor();
   double aIntensity = actor->GetProperty()->GetAmbient();  // ignoring renderer ambient
-  float ambientColor[3] = {aColor[0] * aIntensity, aColor[1] * aIntensity, aColor[2] * aIntensity};
+  float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity), static_cast<float>(aColor[1] * aIntensity), static_cast<float>(aColor[2] * aIntensity)};
   double *dColor = actor->GetProperty()->GetDiffuseColor();
   double dIntensity = actor->GetProperty()->GetDiffuse();
-  float diffuseColor[3] = {dColor[0] * dIntensity, dColor[1] * dIntensity, dColor[2] * dIntensity};
+  float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity), static_cast<float>(dColor[1] * dIntensity), static_cast<float>(dColor[2] * dIntensity)};
   double *sColor = actor->GetProperty()->GetSpecularColor();
   double sIntensity = actor->GetProperty()->GetSpecular();
-  float specularColor[3] = {sColor[0] * sIntensity, sColor[1] * sIntensity, sColor[2] * sIntensity};
-  float specularPower = actor->GetProperty()->GetSpecularPower();
+  float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity), static_cast<float>(sColor[1] * sIntensity), static_cast<float>(sColor[2] * sIntensity)};
+  double specularPower = actor->GetProperty()->GetSpecularPower();
 
   program.SetUniformf("opacityUniform", opacity);
   program.SetUniform3f("ambientColorUniform", ambientColor);

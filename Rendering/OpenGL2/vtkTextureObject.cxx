@@ -1757,8 +1757,8 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
 // \pre is2D: GetNumberOfDimensions()==2
 void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
                                            int srcYmin,
-                                           int dstXmin,
-                                           int dstYmin,
+                                           int vtkNotUsed(dstXmin),
+                                           int vtkNotUsed(dstYmin),
                                            int width,
                                            int height)
 {

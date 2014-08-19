@@ -315,9 +315,9 @@ int vtkSurfaceLICComposite::AddGuardPixels(
     for (size_t b=0; b<nExts; ++b)
       {
       int ng
-        = vectorMax[b]*arc
+        = static_cast<int>(vectorMax[b]*arc
         + this->NumberOfEEGuardPixels
-        + this->NumberOfAAGuardPixels;
+        + this->NumberOfAAGuardPixels);
       ng = ng<2 ? 2 : ng;
       //cerr << " " << ng;
       tmpExts[b].Grow(ng);

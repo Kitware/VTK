@@ -112,7 +112,7 @@ void vtkCopySelectedRows(
     }
   for (vtkIdType j = 0; j < numTuples; ++j)
     {
-    vtkIdType val = rawPtr[j];
+    vtkIdType val = static_cast<vtkIdType>(rawPtr[j]);
     output->InsertNextRow(input->GetRow(val));
     if (addOriginalRowIdsArray)
       {

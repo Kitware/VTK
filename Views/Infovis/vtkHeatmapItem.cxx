@@ -839,13 +839,13 @@ std::string vtkHeatmapItem::GetTooltipText(float x, float y)
   if (orientation == vtkHeatmapItem::UP_TO_DOWN ||
       orientation == vtkHeatmapItem::DOWN_TO_UP)
     {
-    sceneRow = floor(fabs(x - this->Position[0]) / this->CellHeight);
-    sceneColumn = floor((y - this->MinY) / this->CellWidth);
+    sceneRow = static_cast<int>(floor(fabs(x - this->Position[0]) / this->CellHeight));
+    sceneColumn = static_cast<int>(floor((y - this->MinY) / this->CellWidth));
     }
   else
     {
-    sceneRow = floor(fabs(y - this->Position[1]) / this->CellHeight);
-    sceneColumn = floor((x - this->MinX) / this->CellWidth);
+    sceneRow = static_cast<int>(floor(fabs(y - this->Position[1]) / this->CellHeight));
+    sceneColumn = static_cast<int>(floor((x - this->MinX) / this->CellWidth));
     }
 
   vtkIdType row = -1;
@@ -965,7 +965,7 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D *painter)
     }
 
   // temporarily set text to default orientation
-  int orientation = painter->GetTextProp()->GetOrientation();
+  double orientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
 
   float bounds[4];
@@ -1146,11 +1146,11 @@ bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
     if (orientation == vtkHeatmapItem::UP_TO_DOWN ||
         orientation == vtkHeatmapItem::DOWN_TO_UP)
       {
-      column = floor((pos[1] - this->MinY) / this->CellWidth);
+      column = static_cast<vtkIdType>(floor((pos[1] - this->MinY) / this->CellWidth));
       }
     else
       {
-      column = floor((pos[0] - this->MinX) / this->CellWidth);
+      column = static_cast<vtkIdType>(floor((pos[0] - this->MinX) / this->CellWidth));
       }
     ++column;
 

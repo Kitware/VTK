@@ -39,8 +39,10 @@
 #include "QVTKWidget.xpm"
 
 // macro for debug printing
+#ifndef qDebug
 #define qDebug(a)
 //#define qDebug(a) printf(a)
+#endif
 
 QVTKWidgetPlugin::QVTKWidgetPlugin()
 {

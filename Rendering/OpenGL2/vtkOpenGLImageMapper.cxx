@@ -139,7 +139,7 @@ inline int vtkPadToFour(int n)
 template <class T>
 void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *data,
                                       T *dataPtr, double shift, double scale,
-                                      int *actorPos, int *actorPos2, int front, int *vsize,
+                                      int *vtkNotUsed(actorPos), int *vtkNotUsed(actorPos2), int vtkNotUsed(front), int *vtkNotUsed(vsize),
                                       vtkViewport *viewport)
 {
   vtkOpenGLClearErrorMacro();
@@ -253,8 +253,8 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
 template <class T>
 void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *data,
                                      T *dataPtr, double shift, double scale,
-                                     int *actorPos, int *actorPos2, int front,
-                                     int *vsize, vtkViewport *viewport)
+                                     int *vtkNotUsed(actorPos), int *vtkNotUsed(actorPos2), int vtkNotUsed(front),
+                                     int *vtkNotUsed(vsize), vtkViewport *viewport)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -384,8 +384,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
 
 template <class T>
 void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *data,
-                                    T *dataPtr, int *actorPos, int *actorPos2,
-                                    int front, int *vsize, vtkViewport *viewport)
+                                    T *dataPtr, int *vtkNotUsed(actorPos), int *vtkNotUsed(actorPos2),
+                                    int vtkNotUsed(front), int *vtkNotUsed(vsize), vtkViewport *viewport)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -675,8 +675,8 @@ void vtkOpenGLImageMapper::DrawPixels(vtkViewport *viewport, int width, int heig
     {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
-    float xscale = static_cast<float>(rectwidth)/width;
-    float yscale = static_cast<float>(rectheight)/height;
+    xscale = static_cast<float>(rectwidth)/width;
+    yscale = static_cast<float>(rectheight)/height;
     }
 
   vtkPolyData *pd = vtkPolyDataMapper2D::SafeDownCast(this->Actor->GetMapper())->GetInput();

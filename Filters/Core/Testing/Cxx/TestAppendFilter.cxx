@@ -43,6 +43,19 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
+// Fill a component of a data array with random values
+//////////////////////////////////////////////////////////////////////////////
+void FillComponentWithRandom(vtkIntArray* array, int component)
+{
+  int numberOfComponents = array->GetNumberOfComponents();
+  int* values = static_cast<int*>(array->GetVoidPointer(0));
+  for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
+    {
+    values[i*numberOfComponents + component] = vtkMath::Random()*100000;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
 // Create a dataset for testing
 //////////////////////////////////////////////////////////////////////////////
 void CreateDataset(vtkPolyData* dataset,
@@ -60,7 +73,7 @@ void CreateDataset(vtkPolyData* dataset,
     array->SetNumberOfTuples(numberOfPoints);
     for (size_t c = 0; c < pointArrayInfo[i].Value.size(); ++c)
       {
-      array->FillComponent(static_cast<int>(c), pointArrayInfo[i].Value[c]);
+      FillComponentWithRandom(array, static_cast<int>(c));
       }
     dataset->GetPointData()->AddArray(array);
     }
@@ -76,7 +89,7 @@ void CreateDataset(vtkPolyData* dataset,
     array->SetNumberOfTuples(numberOfCells);
     for (size_t c = 0; c < cellArrayInfo[i].Value.size(); ++c)
       {
-      array->FillComponent(static_cast<int>(c), cellArrayInfo[i].Value[c]);
+      FillComponentWithRandom(array, static_cast<int>(c));
       }
     dataset->GetCellData()->AddArray(array);
     }
@@ -84,12 +97,19 @@ void CreateDataset(vtkPolyData* dataset,
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkNew<vtkIdList> ids;
   dataset->Allocate(numberOfPoints);
-  for (int i = 0; i < numberOfPoints; ++i)
+  for (vtkIdType i = 0; i < numberOfPoints; ++i)
     {
     points->InsertNextPoint( vtkMath::Random(), vtkMath::Random(), vtkMath::Random() );
     ids->InsertId(0, i);
-    dataset->InsertNextCell(VTK_VERTEX, ids.GetPointer());
     }
+
+  for (vtkIdType i = 0; i < numberOfCells; ++i)
+    {
+    // Repeat references to points if needed.
+    vtkIdType pointId = i % numberOfPoints;
+    dataset->InsertNextCell(VTK_VERTEX, 1, &pointId);
+    }
+
   dataset->SetPoints( points );
 }
 
@@ -381,7 +401,7 @@ int TestAppendFilter( int, char* [])
 
   vtkNew<vtkPolyData> d1;
   int d1NumberOfPoints = 3;
-  int d1NumberOfCells = 3;
+  int d1NumberOfCells = 7;
   CreateDataset(d1.GetPointer(), d1NumberOfPoints, d1PointInfo, d1NumberOfCells, d1CellInfo);
 
   // Set up d2 data object
@@ -404,7 +424,7 @@ int TestAppendFilter( int, char* [])
 
   vtkNew<vtkPolyData> d2;
   int d2NumberOfPoints = 7;
-  int d2NumberOfCells = 7;
+  int d2NumberOfCells = 9;
   CreateDataset(d2.GetPointer(), d2NumberOfPoints, d2PointInfo, d2NumberOfCells, d2CellInfo);
 
   // This tests that the active attributes are ignored when appending data sets, but
@@ -500,7 +520,7 @@ int TestAppendFilter( int, char* [])
 
   vtkNew<vtkPolyData> d3;
   int d3NumberOfPoints = 4;
-  int d3NumberOfCells = 4;
+  int d3NumberOfCells = 8;
   CreateDataset(d3.GetPointer(), d3NumberOfPoints, d3PointInfo, d3NumberOfCells, d3CellInfo);
 
   // No common arrays
@@ -531,7 +551,7 @@ int TestAppendFilter( int, char* [])
 
   vtkNew<vtkPolyData> d4;
   int d4NumberOfPoints = 6;
-  int d4NumberOfCells = 6;
+  int d4NumberOfCells = 10;
   CreateDataset(d4.GetPointer(), d4NumberOfPoints, d4PointInfo, d4NumberOfCells, d4CellInfo);
 
   // Set scalars to array whose name is NULL
@@ -554,7 +574,7 @@ int TestAppendFilter( int, char* [])
 
   vtkNew<vtkPolyData> d5;
   int d5NumberOfPoints = 6;
-  int d5NumberOfCells = 6;
+  int d5NumberOfCells = 3;
   CreateDataset(d5.GetPointer(), d5NumberOfPoints, d5PointInfo, d5NumberOfCells, d5CellInfo);
 
   // Set scalars to array whose name is NULL
@@ -582,7 +602,7 @@ int TestAppendFilter( int, char* [])
   d6CellInfo[0].Value = std::vector<int>(2, 14);
 
   vtkNew<vtkPolyData> d6;
-  int d6NumberOfPoints = 4;
+  int d6NumberOfPoints = 9;
   int d6NumberOfCells = 4;
   CreateDataset(d6.GetPointer(), d6NumberOfPoints, d6PointInfo, d6NumberOfCells, d6CellInfo);
 
@@ -598,7 +618,7 @@ int TestAppendFilter( int, char* [])
 
   vtkNew<vtkPolyData> d7;
   int d7NumberOfPoints = 5;
-  int d7NumberOfCells = 5;
+  int d7NumberOfCells = 7;
   CreateDataset(d7.GetPointer(), d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
 
   std::cout << "===========================================================\n";
@@ -620,7 +640,7 @@ int TestAppendFilter( int, char* [])
   d8CellInfo[0].Value = std::vector<int>(1, 16);
 
   vtkNew<vtkPolyData> d8;
-  int d8NumberOfPoints = 8;
+  int d8NumberOfPoints = 11;
   int d8NumberOfCells = 8;
   CreateDataset(d8.GetPointer(), d8NumberOfPoints, d8PointInfo, d8NumberOfCells, d8CellInfo);
 
