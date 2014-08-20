@@ -46,7 +46,7 @@
 #include <vtksys/stl/stack>
 #include <vtksys/stl/vector>
 
-#if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0560)
+#if defined (__BORLANDC__)
 #include <ctype.h> // for isspace, isdigit
 #endif
 
