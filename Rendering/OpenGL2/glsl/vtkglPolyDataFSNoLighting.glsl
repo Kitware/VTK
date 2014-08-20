@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkglPolyDataFSNoLighting.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -11,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
 
 varying vec4 fcolor;
 

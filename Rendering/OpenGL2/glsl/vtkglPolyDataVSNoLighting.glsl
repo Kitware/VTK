@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
+
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are
 // MC - Model Coordinates
@@ -32,7 +36,9 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
 void main()
 {
-  gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
-  //VTK::TCoord::Impl
   //VTK::Color::Impl
+
+  //VTK::TCoord::Impl
+
+  gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
 }
