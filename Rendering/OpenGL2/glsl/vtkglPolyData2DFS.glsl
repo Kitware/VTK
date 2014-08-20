@@ -13,16 +13,9 @@
 
 =========================================================================*/
 
-//VTK:Precision
-
-#ifdef GL_ES
-#extension GL_OES_standard_derivatives : enable
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-#endif
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
 
 // Texture coordinates
 //VTK::TCoord::Dec

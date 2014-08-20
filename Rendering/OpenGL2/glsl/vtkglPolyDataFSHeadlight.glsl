@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkglPolyDataVSHeadight.glsl
+  Module:    vtkglPolyDataFSHeadight.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,23 +14,16 @@
 =========================================================================*/
 // the lighting model for this shader is the LightKit
 
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
+
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are
 // MC - Model Coordinates
 // WC - WC world coordinates
 // VC - View Coordinates
 // DC - Display Coordinates
-
-//VTK:Precision
-
-#ifdef GL_ES
-#extension GL_OES_standard_derivatives : enable
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-#endif
 
 // material property values
 uniform float opacityUniform; // the fragment opacity

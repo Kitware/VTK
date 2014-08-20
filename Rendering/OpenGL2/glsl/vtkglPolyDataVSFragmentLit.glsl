@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkglPolyDataVSFragmentLit.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -14,16 +15,16 @@
 // this shader is used to implement lighting in the fragment shader
 // it handles setting up the basic varying variables for the fragment shader
 
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
+
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are
 // MC - Model Coordinates
 // WC - WC world coordinates
 // VC - View Coordinates
 // DC - Display Coordinates
-
-#ifdef GL_ES
-precision highp float;
-#endif
 
 attribute vec4 vertexMC;
 

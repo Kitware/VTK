@@ -129,16 +129,12 @@ set_source_files_properties(
   )
 
 set(shader_files
-  # lighting in the VS
   glsl/vtkglPolyData2DVS.glsl
   glsl/vtkglPolyData2DFS.glsl
-  glsl/vtkglPolyDataVSLightKit.glsl
-  glsl/vtkglPolyDataVSHeadlight.glsl
-  glsl/vtkglPolyDataVSPositionalLights.glsl
-  glsl/vtkglPolyDataVSNoLighting.glsl
-  glsl/vtkglPolyDataFS.glsl
 
-  # lighting in the FS
+  glsl/vtkglPolyDataVSNoLighting.glsl
+  glsl/vtkglPolyDataFSNoLighting.glsl
+
   glsl/vtkglPolyDataVSFragmentLit.glsl
   glsl/vtkglPolyDataFSHeadlight.glsl
   glsl/vtkglPolyDataFSLightKit.glsl

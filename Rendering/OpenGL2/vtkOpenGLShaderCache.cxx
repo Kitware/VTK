@@ -94,23 +94,32 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   // desktops to not use percision statements
 #if GL_ES_VERSION_2_0 != 1
   std::string VSSource = vertexCode;
-  VSSource = replace(VSSource,"//VTK::System",
+  VSSource = replace(VSSource,"//VTK::System::Dec",
                               "#define highp\n"
                               "#define mediump\n"
                               "#define lowp");
   std::string FSSource = fragmentCode;
-  FSSource = replace(FSSource,"//VTK::System",
+  FSSource = replace(FSSource,"//VTK::System::Dec",
                               "#define highp\n"
                               "#define mediump\n"
                               "#define lowp");
   std::string GSSource = geometryCode;
-  GSSource = replace(GSSource,"//VTK::System",
+  GSSource = replace(GSSource,"//VTK::System::Dec",
                               "#define highp\n"
                               "#define mediump\n"
                               "#define lowp");
   CachedShaderProgram *shader = this->GetShader(VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
 #else
-  CachedShaderProgram *shader = this->GetShader(vertexCode, fragmentCode, geometryCode);
+  std::string FSSource = fragmentCode;
+  FSSource = replace(FSSource,"//VTK::System::Dec",
+                               "#ifdef GL_ES\n"
+                               "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+                               "precision highp float;\n"
+                               "#else\n"
+                               "precision mediump float;\n"
+                               "#endif\n"
+                               "#endif\n");
+  CachedShaderProgram *shader = this->GetShader(vertexCode, FSSource.c_str(), geometryCode);
 #endif
 
   if (!shader)
