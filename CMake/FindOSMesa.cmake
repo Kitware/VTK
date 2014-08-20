@@ -6,23 +6,23 @@
 # OSMESA_LIBRARY      - Link this to use OSMesa
 
 
-IF (NOT OSMESA_INCLUDE_DIR)
-  FIND_PATH(OSMESA_INCLUDE_DIR GL/osmesa.h
+if(NOT OSMESA_INCLUDE_DIR)
+  find_path(OSMESA_INCLUDE_DIR GL/osmesa.h
     /usr/openwin/share/include
     /opt/graphics/OpenGL/include
   )
-ENDIF (NOT OSMESA_INCLUDE_DIR)
+endif()
 
 # This may be left blank if OSMesa symbols are included
 # in the main Mesa library
-IF (NOT OSMESA_LIBRARY)
-  FIND_LIBRARY(OSMESA_LIBRARY OSMesa
+if(NOT OSMESA_LIBRARY)
+  find_library(OSMESA_LIBRARY OSMesa
     /opt/graphics/OpenGL/lib
     /usr/openwin/lib
   )
-ENDIF (NOT OSMESA_LIBRARY)
+endif()
 
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(OSMesa  DEFAULT_MSG  OSMESA_LIBRARY  OSMESA_INCLUDE_DIR)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(OSMesa  DEFAULT_MSG  OSMESA_LIBRARY  OSMESA_INCLUDE_DIR)
 
-MARK_AS_ADVANCED(OSMESA_INCLUDE_DIR OSMESA_LIBRARY)
+mark_as_advanced(OSMESA_INCLUDE_DIR OSMESA_LIBRARY)
