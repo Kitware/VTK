@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
 
 // Texture coordinates
 //VTK::TCoord::Dec

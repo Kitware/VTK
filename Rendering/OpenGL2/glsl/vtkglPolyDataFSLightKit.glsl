@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkglPolyDataFSHeadight.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,6 +13,10 @@
 
 =========================================================================*/
 // the lighting model for this shader is the LightKit
+
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
 
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are

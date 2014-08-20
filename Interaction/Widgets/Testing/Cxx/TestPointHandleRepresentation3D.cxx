@@ -36,6 +36,7 @@ int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char *vtkNotUsed(argv)
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(render);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =

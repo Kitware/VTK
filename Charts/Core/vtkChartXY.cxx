@@ -357,6 +357,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->GetBrush()->SetColor(255, 255, 255, 0);
     painter->GetPen()->SetColor(0, 0, 0, 255);
     painter->GetPen()->SetWidth(1.0);
+    painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
     painter->DrawRect(this->MouseBox.GetX(), this->MouseBox.GetY(),
                       this->MouseBox.GetWidth(), this->MouseBox.GetHeight());
     }
@@ -367,6 +368,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->GetBrush()->SetColor(255, 0, 0, 0);
     painter->GetPen()->SetColor(0, 255, 0, 255);
     painter->GetPen()->SetWidth(2.0);
+    painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
 
     const vtkContextPolygon &polygon = this->SelectionPolygon;
 

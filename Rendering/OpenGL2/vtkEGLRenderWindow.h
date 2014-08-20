@@ -120,7 +120,7 @@ public:
   virtual void *GetGenericParentId() {};
   virtual void *GetGenericContext() { return this->Context; };
   virtual void *GetGenericDrawable() {};
-  virtual void SetWindowInfo(char *) {};
+  virtual void SetWindowInfo(char *);
   virtual void SetNextWindowInfo(char *) {};
   virtual void SetParentInfo(char *) {};
 
@@ -153,6 +153,8 @@ public:
   // a high-quality rate to a more interactive rate.
   virtual int GetEventPending() { return 0;};
 
+  int GetOwnWindow() { return this->OwnWindow; };
+
 protected:
   vtkEGLRenderWindow();
   ~vtkEGLRenderWindow();
@@ -162,6 +164,7 @@ protected:
   EGLSurface Surface;
   EGLContext Context;
   int ScreenSize[2];
+  int OwnWindow;
 
   void CreateAWindow();
   void DestroyWindow();

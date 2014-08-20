@@ -609,6 +609,7 @@ int TestPointWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =

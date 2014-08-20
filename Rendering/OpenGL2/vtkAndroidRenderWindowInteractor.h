@@ -84,6 +84,19 @@ public:
   virtual void SetAndroidApplication(struct android_app *app)
     { this->AndroidApplication = app; };
 
+  // Description:
+  // Handle key up/down events
+  void HandleKeyEvent(bool down, int nChar, int metaState, int nRepCnt);
+
+  // Description:
+  // Handle motion events
+  void HandleMotionEvent(int action, int eventPointer, int numPtrs,
+    int *xPtr, int *yPtr, int *idPtr, int metaState);
+
+  // Description:
+  // used for converting keyCodes on Android
+  const char *GetKeySym(int keyCode);
+
   void HandleCommand(int32_t cmd);
   int32_t HandleInput(AInputEvent* event);
 

@@ -386,6 +386,78 @@ static int32_t android_handle_input(struct android_app* app, AInputEvent* event)
   return self->HandleInput(event);
 }
 
+const char *vtkAndroidRenderWindowInteractor::GetKeySym(int keyCode)
+{
+  const char *keysym = "None";
+  if (keyCode <= AKEYCODE_3D_MODE)
+    {
+    keysym = this->KeyCodeToKeySymTable[keyCode];
+    }
+  return keysym;
+}
+
+void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int metaState, int nRepCnt)
+{
+  const char *keysym = this->GetKeySym(nChar);
+  if (down)
+    {
+    this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
+                                 metaState & AMETA_SHIFT_ON,
+                                 nChar, nRepCnt,
+                                 keysym);
+    this->SetAltKey(metaState & AMETA_ALT_ON);
+    this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+    return;
+    }
+
+  this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
+                               metaState & AMETA_SHIFT_ON,
+                               nChar, nRepCnt,
+                               keysym);
+  this->SetAltKey(metaState & AMETA_ALT_ON);
+  this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+  if (keysym && strlen(keysym) == 1)
+    {
+    this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
+                                 metaState & AMETA_SHIFT_ON,
+                                 keysym[0],
+                                 nRepCnt);
+    this->InvokeEvent(vtkCommand::CharEvent, NULL);
+    }
+}
+
+void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
+  int action, int eventPointer, int numPtrs,
+  int *xPtr, int *yPtr, int *idPtr, int metaState)
+{
+  // update positions
+  //vtkWarningMacro(<< "handling motion event for action: " << action << " with num pointers: " << numPtrs);
+  for (int i = 0; i < numPtrs; ++i)
+    {
+    this->SetEventInformationFlipY(xPtr[i],
+                                   yPtr[i],
+                                   metaState & AMETA_CTRL_ON,
+                                   metaState & AMETA_SHIFT_ON,
+                                   0,0,0,
+                                   idPtr[i]);
+    }
+  this->SetPointerIndex(idPtr[eventPointer]);
+  switch(action)
+    {
+    case AMOTION_EVENT_ACTION_DOWN:
+    case AMOTION_EVENT_ACTION_POINTER_DOWN:
+      this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+      return;
+    case AMOTION_EVENT_ACTION_UP:
+    case AMOTION_EVENT_ACTION_POINTER_UP:
+      this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+      return;
+    case AMOTION_EVENT_ACTION_MOVE:
+      this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      return;
+    } // end switch action
+}
+
 int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
 {
   if (!this->Enabled)
@@ -402,32 +474,22 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       int numPtrs = AMotionEvent_getPointerCount(event);
       int eventPointer = action >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
       action = action & AMOTION_EVENT_ACTION_MASK;
-      // update positions
+
+      int *xPtr = (int *)malloc(numPtrs*sizeof(int));
+      int *yPtr = (int *)malloc(numPtrs*sizeof(int));
+      int *idPtr = (int *)malloc(numPtrs*sizeof(int));
       for (int i = 0; i < numPtrs; ++i)
         {
-        int pointer = AMotionEvent_getPointerId(event, i);
-        this->SetEventInformationFlipY(AMotionEvent_getX(event, i),
-                                       AMotionEvent_getY(event, i),
-                                       metaState & AMETA_CTRL_ON,
-                                       metaState & AMETA_SHIFT_ON,
-                                       0,0,0,
-                                       pointer);
+        idPtr[i] = AMotionEvent_getPointerId(event, i);
+        xPtr[i] = AMotionEvent_getX(event, i);
+        yPtr[i] = AMotionEvent_getY(event, i);
         }
-      switch(action)
-        {
-        this->SetPointerIndex(eventPointer);
-        case AMOTION_EVENT_ACTION_DOWN:
-        case AMOTION_EVENT_ACTION_POINTER_DOWN:
-          this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-          return 1;
-        case AMOTION_EVENT_ACTION_UP:
-        case AMOTION_EVENT_ACTION_POINTER_UP:
-          this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-          return 1;
-        case AMOTION_EVENT_ACTION_MOVE:
-          this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-          return 1;
-        } // end switch action
+      this->HandleMotionEvent(action, eventPointer, numPtrs,
+        xPtr, yPtr, idPtr, metaState);
+      free(xPtr);
+      free(yPtr);
+      free(idPtr);
+      return 1;
       }
       break;
     case AINPUT_EVENT_TYPE_KEY:
@@ -436,40 +498,11 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       int nChar = AKeyEvent_getKeyCode(event);
       int metaState = AKeyEvent_getMetaState(event);
       int nRepCnt = AKeyEvent_getRepeatCount(event);
-      const char *keysym = "None";
-      if (nChar <= AKEYCODE_3D_MODE)
-        {
-        keysym = this->KeyCodeToKeySymTable[nChar];
-        }
-      switch(action)
-        {
-        case AKEY_EVENT_ACTION_DOWN:
-          this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                       metaState & AMETA_SHIFT_ON,
-                                       nChar,
-                                       nRepCnt,
-                                       keysym);
-          this->SetAltKey(metaState & AMETA_ALT_ON);
-          this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-          return 1;
-        case AKEY_EVENT_ACTION_UP:
-          this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                       metaState & AMETA_SHIFT_ON,
-                                       nChar,
-                                       nRepCnt,
-                                       keysym);
-          this->SetAltKey(metaState & AMETA_ALT_ON);
-          this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
-          if (keysym && strlen(keysym) == 1)
-            {
-            this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
-                                         metaState & AMETA_SHIFT_ON,
-                                         keysym[0],
-                                         nRepCnt);
-            this->InvokeEvent(vtkCommand::CharEvent, NULL);
-            }
-          return 1;
-        }
+      this->HandleKeyEvent(action == AKEY_EVENT_ACTION_DOWN,
+        nChar,
+        metaState,
+        nRepCnt);
+      return 1;
       }
       break;
     } // end switch event type motion versus key
@@ -492,10 +525,6 @@ void vtkAndroidRenderWindowInteractor::Initialize()
     return;
     }
 
-  this->AndroidApplication->userData = this;
-  this->AndroidApplication->onAppCmd = android_handle_cmd;
-  this->AndroidApplication->onInputEvent = android_handle_input;
-
   vtkEGLRenderWindow *ren;
   int *size;
 
@@ -503,31 +532,38 @@ void vtkAndroidRenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   ren = (vtkEGLRenderWindow *)(this->RenderWindow);
 
-  // run event loop until window mapped
-  bool done = false;
-  while (!done && this->RenderWindow->GetMapped() == 0)
+  if (ren->GetOwnWindow())
     {
-    // Read all pending events.
-    int ident;
-    int events;
-    struct android_poll_source* source;
+    this->AndroidApplication->userData = this;
+    this->AndroidApplication->onAppCmd = android_handle_cmd;
+    this->AndroidApplication->onInputEvent = android_handle_input;
 
-    if ((ident = ALooper_pollAll(-1, NULL, &events, (void**)&source)) >= 0)
+    // run event loop until window mapped
+    bool done = false;
+    while (!done && this->RenderWindow->GetMapped() == 0)
       {
-      // Process this event.
-      if (source != NULL)
-        {
-        source->process(this->AndroidApplication, source);
-        }
+      // Read all pending events.
+      int ident;
+      int events;
+      struct android_poll_source* source;
 
-      // Check if we are exiting.
-      if (this->AndroidApplication->destroyRequested != 0)
+      if ((ident = ALooper_pollAll(-1, NULL, &events, (void**)&source)) >= 0)
         {
-        LOGW("Destroying Window in init");
-        this->RenderWindow->Finalize();
-        done = true;
-        LOGW("Destroyed window in init");
-        return;
+        // Process this event.
+        if (source != NULL)
+          {
+          source->process(this->AndroidApplication, source);
+          }
+
+        // Check if we are exiting.
+        if (this->AndroidApplication->destroyRequested != 0)
+          {
+          LOGW("Destroying Window in init");
+          this->RenderWindow->Finalize();
+          done = true;
+          LOGW("Destroyed window in init");
+          return;
+          }
         }
       }
     }
@@ -566,7 +602,10 @@ void vtkAndroidRenderWindowInteractor::Disable()
 //----------------------------------------------------------------------------
 void vtkAndroidRenderWindowInteractor::TerminateApp(void)
 {
-  ANativeActivity_finish(this->AndroidApplication->activity);
+  if (this->AndroidApplication)
+    {
+    ANativeActivity_finish(this->AndroidApplication->activity);
+    }
 
 //  this->AndroidApplication->destroyRequested = 1;
 }

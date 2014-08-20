@@ -56,7 +56,7 @@
 
 // bring in vertex lit shader symbols
 #include "vtkglPolyDataVSNoLighting.h"
-#include "vtkglPolyDataFS.h"
+#include "vtkglPolyDataFSNoLighting.h"
 
 using vtkgl::replace;
 
@@ -112,7 +112,7 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     {
     case 0:
         VSSource = vtkglPolyDataVSNoLighting;
-        FSSource = vtkglPolyDataFS;
+        FSSource = vtkglPolyDataFSNoLighting;
       break;
     case 1:
         VSSource = vtkglPolyDataVSFragmentLit;
@@ -189,6 +189,11 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     }
   else
     {
+    FSSource = replace(FSSource,
+                                 "//VTK::Normal::Dec",
+                                 "#ifdef GL_ES\n"
+                                 "#extension GL_OES_standard_derivatives : enable\n"
+                                 "#endif\n");
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       // generate a normal for lines, it will be perpendicular to the line
