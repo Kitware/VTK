@@ -178,7 +178,7 @@ PyMPI_Allocate(Py_ssize_t m, size_t b, void **pp)
                     "memory allocation with negative size");
     return NULL;
   }
-#if PY_VERSION_HEX >= 0x02060000
+#if PY_VERSION_HEX >= 0x02070000
   ob = PyByteArray_FromStringAndSize(NULL, (n==0) ? 1 : n);
   if (ob && n==0 && (PyByteArray_Resize(ob, 0) < 0)) {
     Py_DECREF(ob);
