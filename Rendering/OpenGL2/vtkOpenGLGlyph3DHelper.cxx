@@ -15,47 +15,20 @@
 
 #include "vtkglVBOHelper.h"
 
-#include "vtkCommand.h"
 #include "vtkCamera.h"
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
-#include "vtkPolyData.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkPointData.h"
-#include "vtkCellArray.h"
-#include "vtkVector.h"
 #include "vtkProperty.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
-#include "vtkLookupTable.h"
-#include "vtkCellData.h"
 #include "vtkNew.h"
-#include "vtkSmartPointer.h"
-
-#include "vtkLight.h"
-#include "vtkLightCollection.h"
 
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 
-#include "vtkFloatArray.h"
-#include "vtkImageData.h"
-#include "vtkOpenGLTexture.h"
-
 #include "vtkHardwareSelector.h"
-
-// Bring in our fragment lit shader symbols.
-#include "vtkglPolyDataVSFragmentLit.h"
-#include "vtkglPolyDataFSHeadlight.h"
-#include "vtkglPolyDataFSLightKit.h"
-#include "vtkglPolyDataFSPositionalLights.h"
-
-// bring in vertex lit shader symbols
-#include "vtkglPolyDataVSNoLighting.h"
-#include "vtkglPolyDataFS.h"
 
 using vtkgl::replace;
 
