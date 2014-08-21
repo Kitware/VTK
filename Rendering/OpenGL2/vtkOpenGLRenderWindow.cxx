@@ -1043,28 +1043,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     glDrawBuffer(this->GetBackBuffer());
     }
 
-  if (y1 < y2)
-    {
-    y_low = y1;
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2;
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1;
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2;
-    x_hi  = x1;
-    }
-
   if (!blend)
     {
     glDisable(GL_BLEND);

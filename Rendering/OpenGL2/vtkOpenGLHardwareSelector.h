@@ -38,7 +38,8 @@ public:
   // Called by the mapper before and after
   // rendering each prop.
   virtual void BeginRenderProp();
-  //virtual void EndRenderProp();
+  virtual void EndRenderProp()
+    { this->vtkHardwareSelector::EndRenderProp(); }
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render a composite-index.
