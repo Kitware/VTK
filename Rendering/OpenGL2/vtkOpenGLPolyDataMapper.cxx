@@ -183,8 +183,9 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     FSSource = replace(FSSource,
                                  "//VTK::Normal::Impl",
                                  "vec3 normalVC;\n"
-                                 "if (!gl_FrontFacing) { normalVC = -normalVCVarying; }\n"
+                                 "if (int(gl_FrontFacing) == 0) { normalVC = -normalVCVarying; }\n"
                                  "else { normalVC = normalVCVarying; }"
+                                 //"normalVC = normalVCVarying;"
                                  );
     }
   else
