@@ -31,6 +31,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStructuredGrid.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -157,6 +158,13 @@ int vtkAppendCompositeDataLeaves::RequestData(
       {
       vtkImageData* clone = img->NewInstance();
       clone->ShallowCopy(img);
+      output->SetDataSet(iter, clone);
+      clone->FastDelete();
+      }
+    else if (vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(obj))
+      {
+      vtkStructuredGrid* clone = sg->NewInstance();
+      clone->ShallowCopy(sg);
       output->SetDataSet(iter, clone);
       clone->FastDelete();
       }
