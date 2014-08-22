@@ -1016,9 +1016,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
                                             float *data, int front, int blend)
 {
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-
   // set the current window
   this->MakeCurrent();
 

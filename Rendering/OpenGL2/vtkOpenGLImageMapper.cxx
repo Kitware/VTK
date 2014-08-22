@@ -704,12 +704,14 @@ void vtkOpenGLImageMapper::DrawPixels(vtkViewport *viewport, int width, int heig
   uca->SetNumberOfComponents(numComponents);
   uca->SetArray((unsigned char *)data,width*height*numComponents,true);
   id->GetPointData()->SetScalars(uca);
+  uca->Delete();
 
   this->Actor->GetTexture()->SetInputData(id);
 
   glDisable(GL_DEPTH_TEST);
   this->Actor->RenderOverlay(viewport);
   glEnable(GL_DEPTH_TEST);
+  id->Delete();
 }
 
 
