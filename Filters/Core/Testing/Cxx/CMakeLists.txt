@@ -25,6 +25,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPolyDataConnectivityFilter.cxx,NO_VALID
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
+  TestStructuredGridAppend.cxx,NO_VALID
   TestThreshold.cxx,NO_VALID
   TestThresholdPoints.cxx,NO_VALID
   TestTransposeTable.cxx,NO_VALID
