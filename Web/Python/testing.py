@@ -46,7 +46,12 @@ except :
 
 # Image comparison imports
 try:
-    import Image
+    try:
+        from PIL import Image
+    except ImportError:
+        import Image
+    except:
+        raise
     import base64
     import itertools
 except:
