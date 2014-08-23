@@ -67,12 +67,28 @@ public:
   bool LastSelectingState;
 
   vtkOpenGLGlyph3DMapperEntry()  { this->LastSelectingState = false; };
+  ~vtkOpenGLGlyph3DMapperEntry()
+  {
+    std::vector<vtkMatrix4x4 * >::iterator miter = this->Matrices.begin();
+    for (;miter != this->Matrices.end(); miter++)
+      {
+      (*miter)->Delete();
+      }
+  };
 };
 
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray
 {
 public:
   std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>  Entries;
+  ~vtkOpenGLGlyph3DMapperArray()
+  {
+    std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter = this->Entries.begin();
+    for (;miter != this->Entries.end(); miter++)
+      {
+      delete miter->second;
+      }
+  };
 };
 
 vtkStandardNewMacro(vtkOpenGLGlyph3DMapper)
@@ -104,6 +120,7 @@ vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
     this->ReleaseGraphicsResources(this->LastWindow);
     this->LastWindow = 0;
     }
+
   this->Mapper->UnRegister(this);
 }
 

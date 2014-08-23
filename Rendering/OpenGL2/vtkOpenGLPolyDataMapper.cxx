@@ -183,6 +183,8 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     FSSource = replace(FSSource,
                                  "//VTK::Normal::Impl",
                                  "vec3 normalVC;\n"
+                                 //  if (!gl_Frontfacing) does not work in intel hd4000 mac hence
+                                 // the odd version below
                                  "if (int(gl_FrontFacing) == 0) { normalVC = -normalVCVarying; }\n"
                                  "else { normalVC = normalVCVarying; }"
                                  //"normalVC = normalVCVarying;"
