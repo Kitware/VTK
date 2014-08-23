@@ -121,6 +121,14 @@ public:
   void SetWriteModeToAlways()   { this->SetWriteMode(Always); }
   void SetWriteModeToOnChange() { this->SetWriteMode(OnChange); }
 
+  //Description:
+  //Controls whether writer automatically writes all input time steps, or
+  //just the timestep that is currently on the input.
+  //Default is OFF.
+  vtkSetMacro(WriteAllTimeSteps, bool);
+  vtkGetMacro(WriteAllTimeSteps, bool);
+  vtkBooleanMacro(WriteAllTimeSteps, bool);
+
   // Description:
   // Set the MPI controller.
   void SetController(vtkMultiProcessController*);
