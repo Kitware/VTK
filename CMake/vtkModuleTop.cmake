@@ -454,10 +454,12 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkModuleHeaders.cmake.in
                 CMake/vtkModuleInfo.cmake.in
                 CMake/vtkModuleMacros.cmake
+                CMake/vtkModuleMacrosPython.cmake
                 CMake/vtkMPI.cmake
                 CMake/vtkExternalModuleMacros.cmake
                 CMake/vtkObjectFactory.cxx.in
                 CMake/vtkObjectFactory.h.in
+                CMake/vtkPythonPackages.cmake
                 CMake/vtkPythonWrapping.cmake
                 CMake/vtkTclWrapping.cmake
                 CMake/vtkThirdParty.cmake
