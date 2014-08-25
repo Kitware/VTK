@@ -42,7 +42,6 @@ vtkDiscretizableColorTransferFunction::vtkDiscretizableColorTransferFunction()
   this->Discretize = 0;
   this->NumberOfValues = 256;
 
-  this->Data = 0;
   this->UseLogScale = 0;
 
   this->ScalarOpacityFunction = 0;
@@ -57,7 +56,6 @@ vtkDiscretizableColorTransferFunction::~vtkDiscretizableColorTransferFunction()
   // ScalarOpacityFunction.
   this->SetScalarOpacityFunction(NULL);
   this->LookupTable->Delete();
-  delete [] this->Data;
 
   delete this->Internals;
   this->Internals = NULL;
@@ -439,28 +437,18 @@ void vtkDiscretizableColorTransferFunction::MapDataArrayToOpacity(
 }
 
 
+#ifndef VTK_LEGACY_REMOVE
 //-----------------------------------------------------------------------------
 double* vtkDiscretizableColorTransferFunction::GetRGBPoints()
 {
-  delete [] this->Data;
-  this->Data = 0;
-
-  int num_points = this->GetSize();
-  if (num_points > 0)
-    {
-    this->Data = new double[num_points*4];
-    for (int cc=0; cc < num_points; cc++)
-      {
-      double values[6];
-      this->GetNodeValue(cc, values);
-      this->Data[4*cc] = values[0];
-      this->Data[4*cc+1] = values[0];
-      this->Data[4*cc+2] = values[1];
-      this->Data[4*cc+3] = values[2];
-      }
-    }
-  return this->Data;
+  // This method is redundant with
+  // vtkColorTransferFunction::GetDataPointer(), so we simply call
+  // that method here.
+  VTK_LEGACY_REPLACED_BODY(vtkDiscretizableColorTransferFunction::GetRGBPoints,
+    "VTK 6.2", "vtkDiscretizableColorTransferFunction::GetDataPointer()" );
+  return this->Superclass::GetDataPointer();
 }
+#endif
 
 //----------------------------------------------------------------------------
 vtkIdType vtkDiscretizableColorTransferFunction::GetNumberOfAvailableColors()
