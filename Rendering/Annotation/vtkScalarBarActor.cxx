@@ -249,7 +249,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
   this->TitleActor->ReleaseGraphicsResources(win);
   if (!this->P->TextActors.empty())
     {
-    vtkScalarBarActorInternal::ActorVec::iterator it;
+    vtkScalarBarActorInternal::ActorVector::iterator it;
     for (
       it = this->P->TextActors.begin();
       it != this->P->TextActors.end();
@@ -258,7 +258,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
       (*it)->ReleaseGraphicsResources(win);
       }
     }
-  for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+  for (vtkScalarBarActorInternal::ActorVector::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
     {
     this->P->AnnotationLabels[i]->ReleaseGraphicsResources(win);
     }
@@ -374,7 +374,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 
     if (this->DrawTickLabels)
       {
-      vtkScalarBarActorInternal::ActorVec::iterator it;
+      vtkScalarBarActorInternal::ActorVector::iterator it;
       for (
            it = this->P->TextActors.begin();
            it != this->P->TextActors.end();
@@ -412,7 +412,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
       {
       renderedSomething +=
         this->P->AnnotationLeadersActor->RenderOverlay( viewport );
-      for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+      for (vtkScalarBarActorInternal::ActorVector::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
         {
         renderedSomething +=
           this->P->AnnotationLabels[i]->RenderOverlay( viewport );
@@ -508,7 +508,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
       renderedSomething +=
         this->ScalarBarActor->RenderOpaqueGeometry(viewport);
       }
-    vtkScalarBarActorInternal::ActorVec::iterator ait;
+    vtkScalarBarActorInternal::ActorVector::iterator ait;
     for (
       ait = this->P->TextActors.begin();
       ait != this->P->TextActors.end();
@@ -539,7 +539,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
       {
       renderedSomething +=
         this->P->AnnotationLeadersActor->RenderOpaqueGeometry( viewport );
-      for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+      for (vtkScalarBarActorInternal::ActorVector::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
         {
         renderedSomething +=
           this->P->AnnotationLabels[i]->RenderOpaqueGeometry( viewport );

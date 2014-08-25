@@ -32,8 +32,8 @@
 #include "ADIOSUtilities.h"
 
 #ifndef _NDEBUG
-#define DebugMacro(x)  std::cerr << "DEBUG: Rank[" << Context::Rank << "] " << x << std::endl;
-//#define DebugMacro(x)
+//#define DebugMacro(x)  std::cerr << "DEBUG: Rank[" << Context::Rank << "] " << x << std::endl;
+#define DebugMacro(x)
 #endif
 
 // Define an output operator for std::pair for attributes

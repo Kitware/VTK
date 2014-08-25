@@ -46,7 +46,12 @@ except :
 
 # Image comparison imports
 try:
-    import Image
+    try:
+        from PIL import Image
+    except ImportError:
+        import Image
+    except:
+        raise
     import base64
     import itertools
 except:
@@ -667,9 +672,12 @@ def launch_web_test(*args, **kwargs) :
                 return
 
         except Exception as inst :
+            import sys, traceback
+            tb = sys.exc_info()[2]
             print 'Caught an exception while running test script:'
             print '  ' + str(type(inst))
             print '  ' + str(inst)
+            print '  ' + ''.join(traceback.format_tb(tb))
             test_fail(testName)
 
     # If we were passed a server handle, then use it to stop the service

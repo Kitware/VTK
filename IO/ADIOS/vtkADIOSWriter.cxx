@@ -55,7 +55,7 @@ vtkADIOSWriter::vtkADIOSWriter()
   WriteMode(vtkADIOSWriter::Always), CurrentStep(-1), Controller(NULL),
   Writer(NULL),
   NumberOfPieces(-1), RequestPiece(-1), NumberOfGhostLevels(-1),
-  WriteAllTimeSteps(true), TimeSteps(), CurrentTimeStepIndex(-1)
+  WriteAllTimeSteps(false), TimeSteps(), CurrentTimeStepIndex(-1)
 {
   std::memset(this->RequestExtent, 0, 6*sizeof(int));
   std::memset(this->WholeExtent, 0, 6*sizeof(int));
@@ -366,8 +366,8 @@ bool vtkADIOSWriter::RequestUpdateExtent(vtkInformation *vtkNotUsed(req),
     this->NumberOfPieces);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
     this->RequestPiece);
-  if(this->CurrentTimeStepIndex >= 0 &&
-    this->CurrentTimeStepIndex < static_cast<int>(this->TimeSteps.size()))
+  if(this->WriteAllTimeSteps && this->CurrentTimeStepIndex >= 0 &&
+     this->CurrentTimeStepIndex < static_cast<int>(this->TimeSteps.size()))
     {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
       this->TimeSteps[this->CurrentTimeStepIndex]);
@@ -381,6 +381,28 @@ bool vtkADIOSWriter::RequestData(vtkInformation *req,
   vtkInformationVector *vtkNotUsed(output))
 {
   int numSteps = static_cast<int>(this->TimeSteps.size());
+
+  // Make sure the time step is one we know about
+    {
+    vtkDataObject* input = this->GetInputDataObject(0, 0);
+    vtkInformation *inDataInfo = input->GetInformation();
+    if(inDataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
+      {
+      double ts = inDataInfo->Get(vtkDataObject::DATA_TIME_STEP());
+      std::vector<double>::iterator tsit =
+        std::lower_bound(this->TimeSteps.begin(), this->TimeSteps.end(), ts);
+      if(tsit != this->TimeSteps.end() && *tsit == ts)
+        {
+        this->CurrentTimeStepIndex =
+          std::distance(this->TimeSteps.begin(), tsit);
+        }
+      else
+        {
+        vtkWarningMacro(<< "Unknown timestamp " << ts << " requested.");
+        this->CurrentTimeStepIndex = -1;
+        }
+      }
+    }
 
   // Continue looping if we're not at the end
   if(this->CurrentTimeStepIndex >= 0 && // index of -1 means no steps

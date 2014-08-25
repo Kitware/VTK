@@ -259,7 +259,7 @@ bool vtkXOpenGLRenderDevice::CreateNewWindow(const vtkRecti &geometry,
   // taken to nesure no other threads issue X commands while this is running.
   ctxErrorOccurred = false;
   // FIXME: Restore old handler?
-  int (*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctxErrorHandler);
+  /* int (*oldHandler)(Display*, XErrorEvent*) = */ XSetErrorHandler(&ctxErrorHandler);
 
   // Get the default screen's GLX extension list
   const char *glxExts = glXQueryExtensionsString(this->DisplayId,
