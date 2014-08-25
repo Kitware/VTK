@@ -202,7 +202,7 @@ public:
 
   // Description:
   // Set/Get the maximum width and height in pixels. Specifying the size as
-  // a relative fraction of the viewport can sometimes undersirably strech
+  // a relative fraction of the viewport can sometimes undesirably stretch
   // the size of the actor too much. These methods allow the user to set
   // bounds on the maximum size of the scalar bar in pixels along any
   // direction. Defaults to unbounded.
