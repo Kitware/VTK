@@ -248,7 +248,7 @@ protected:
   // that VTK chooses
   void x11_setup_window();
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
   bool winEvent(MSG* msg, long* result);
 #endif
 
