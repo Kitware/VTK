@@ -4,8 +4,9 @@ vtk_add_test_cxx(
 
 # Tests with data
 vtk_add_test_cxx(
-  TestGPURayCastCrop.cxx
-  TestGPURayCastClip.cxx
+  TestVolumeAdditive.cxx
+  TestVolumeClip.cxx
+  TestVolumeCrop.cxx
   TestVolumeMinIP.cxx
   )
 

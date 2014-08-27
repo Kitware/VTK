@@ -204,7 +204,7 @@ namespace vtkvolume
       {
       return std::string(
         "/// We get data between 0.0 - 1.0 range \n\
-        float l_max_value = 0.0;");
+         float l_max_value = 0.0;");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
@@ -222,7 +222,7 @@ namespace vtkvolume
       {
       return std::string(
         "/// Light position in object space \n\
-        l_light_pos_obj = (l_ogl_scene_matrix *  vec4(m_light_pos, 1.0)).xyz;"
+         l_light_pos_obj = (l_ogl_scene_matrix *  vec4(m_light_pos, 1.0)).xyz;"
       );
       }
     else
@@ -241,35 +241,33 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-      "float scalar = texture(m_volume, l_data_pos).r; \n\
-       l_max_value = max(l_max_value, scalar);");
+        "float scalar = texture(m_volume, l_data_pos).r; \n\
+         l_max_value = max(l_max_value, scalar);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-      "float scalar = texture(m_volume, l_data_pos).r ; \n\
-      l_min_value = min(l_min_value, scalar);");
+        "float scalar = texture(m_volume, l_data_pos).r ; \n\
+         l_min_value = min(l_min_value, scalar);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
-      return std::string(
-        "float scalar = texture(m_volume, l_data_pos); \n\
-        vec4 opacity=texture1D(m_opacity_transfer_func, scalar); \n\
+      shaderStr += std::string(
+        "float scalar = texture(m_volume, l_data_pos).r ; \n\
+        vec4 opacity = texture(m_opacity_transfer_func, scalar); \n\
         l_sum_value = l_sum_value + opacity.a * scalar;");
       }
     else
       {
       shaderStr += std::string(
-      "/// Data fetching from the red channel of m_volume texture \n\
-      float scalar = texture(m_volume, l_data_pos).r * m_scale; \n\
-      vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz, \n\
-                           texture(m_opacity_transfer_func, scalar).w);"
-      );
+        "/// Data fetching from the red channel of m_volume texture \n\
+        float scalar = texture(m_volume, l_data_pos).r * m_scale; \n\
+        vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz, \n\
+                                texture(m_opacity_transfer_func, scalar).w);");
 
       if (vol->GetProperty()->GetShade())
         {
-        shaderStr += std::string
-            ("if (l_src_color.a > 0.01) \
+        shaderStr += std::string("if (l_src_color.a > 0.01) \n\
                 { \n\
                 vec3 g1; \n\
                 vec3 g2; \n\
@@ -287,33 +285,32 @@ namespace vtkvolume
                 g2.z = texture(m_volume, vec3(l_data_pos - zvec)).x; \n\
                 g2 = normalize(g1 - g2); \n\
                 float normalLength = length(g2); \n\
-                if (normalLength > 0.0) \
-                  { \
+                if (normalLength > 0.0) \n\
+                  { \n\
                   g2 = normalize(g2); \n\
-                  } \
-                else \
-                  { \
+                  } \n\
+                else \n\
+                  { \n\
                   g2 = vec3(0.0, 0.0, 0.0); \n\
-                  } \
+                  } \n\
                 vec3 final_color = vec3(0.0); \n\
                 float n_dot_l = dot(g2, ldir); \n\
                 float n_dot_h = dot(g2, h); \n\
-                if (n_dot_l < 0.0) \
-                  { \
+                if (n_dot_l < 0.0) \n\
+                  { \n\
                   n_dot_l =- n_dot_l; \n\
-                  } \
-                if (n_dot_h < 0.0) \
-                  { \
+                  } \n\
+                if (n_dot_h < 0.0) \n\
+                  { \n\
                   n_dot_h =- n_dot_h; \n\
-                  } \
+                  } \n\
                 final_color += m_ambient; \n\
                 final_color += m_diffuse * n_dot_l; \n\
                 float m_shine_factor = pow(n_dot_h, m_shininess); \n\
                 final_color += m_specular * m_shine_factor; \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
                 l_src_color.rgb += final_color.rgb; \n\
-               }"
-            );
+               }");
         }
 
       shaderStr += std::string(
@@ -358,7 +355,7 @@ namespace vtkvolume
       {
       return std::string(
         "l_sum_value = clamp(l_sum_value, 0.0, 1.0); \n\
-         m_frag_color = vec4(vec3(l_sum_value), 1.0);");
+        m_frag_color = vec4(vec3(l_sum_value), 1.0);");
       }
     else
       {
@@ -385,66 +382,65 @@ namespace vtkvolume
                               vtkVolume* vol)
     {
     return std::string(
-    "/// Minimum texture access coordinate \n\
-    const vec3 l_tex_min = vec3(0); \n\
-    \n\
-    /// Maximum texture access coordinate \n\
-    const vec3 l_tex_max = vec3(1); \n\
-    \n\
-    const vec3 l_clamp_min = vec3(0.0); \n\
-    const vec3 l_clamp_max = vec3(1.0); \n\
-    \n\
-    /// Flag to indicate if the raymarch loop should terminate \n\
-    bool stop = false; \n\
-    \n\
-    /// 2D Texture fragment coordinates [0,1] from fragment coordinates \n\
-    /// the frame buffer texture has the size of the plain buffer but \n\
-    /// we use a fraction of it. The texture coordinates is less than 1 if \n\
-    /// the reduction factor is less than 1. \n\
-    /// Device coordinates are between -1 and 1. We need texture coordinates \n\
-    /// between 0 and 1 the m_depth_sampler buffer has the original size buffer. \n\
-    vec2 m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
-                             m_inv_window_size; \n\
-    vec4 l_depth_value = texture2D(m_depth_sampler, m_frag_tex_coord); \n\
-    float m_terminate_point_max = 0.0; \n\
-    \n\
-    /// Depth test \n\
-    if(gl_FragCoord.z >= l_depth_value.x) \n\
-     { \n\
-     discard; \n\
-     } \n\
-    \n\
-    /// color buffer or max scalar buffer have a reduced size. \n\
-    m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
-                         m_inv_original_window_size; \n\
-    \n\
-    /// Compute max number of iterations it will take before we hit \n\
-    /// the termination point \n\
-    \n\
-    /// Abscissa of the point on the depth buffer along the ray. \n\
-    /// point in texture coordinates \n\
-    vec4 m_terminate_point; \n\
-    m_terminate_point.x = (gl_FragCoord.x - m_window_lower_left_corner.x) * 2.0 * \n\
-                          m_inv_window_size.x - 1.0; \n\
-    m_terminate_point.y = (gl_FragCoord.y - m_window_lower_left_corner.y) * 2.0 * \n\
-                          m_inv_window_size.y - 1.0; \n\
-    m_terminate_point.z = (2.0 * l_depth_value.x - (gl_DepthRange.near + \n\
-                          gl_DepthRange.far)) / gl_DepthRange.diff; \n\
-    m_terminate_point.w = 1.0; \n\
-    \n\
-    /// From normalized device coordinates to eye coordinates. m_projection_matrix \n\
-    /// is inversed because of way VT \n\
-    /// From eye coordinates to texture coordinates \n\
-    m_terminate_point = inverse(transpose(m_texture_dataset_matrix)) * \n\
-                        l_ogl_scene_matrix * inverse(transpose(m_modelview_matrix)) * \n\
-                        inverse(transpose(m_projection_matrix)) * \n\
-                        m_terminate_point; \n\
-    m_terminate_point /= m_terminate_point.w; \n\
-    \n\
-    m_terminate_point_max = length(m_terminate_point.xyz - l_data_pos.xyz) / \n\
-                            length(l_dir_step); \n\
-    float m_current_t = 0.0;"
-    );
+      "/// Minimum texture access coordinate \n\
+      const vec3 l_tex_min = vec3(0); \n\
+      \n\
+      /// Maximum texture access coordinate \n\
+      const vec3 l_tex_max = vec3(1); \n\
+      \n\
+      const vec3 l_clamp_min = vec3(0.0); \n\
+      const vec3 l_clamp_max = vec3(1.0); \n\
+      \n\
+      /// Flag to indicate if the raymarch loop should terminate \n\
+      bool stop = false; \n\
+      \n\
+      /// 2D Texture fragment coordinates [0,1] from fragment coordinates \n\
+      /// the frame buffer texture has the size of the plain buffer but \n\
+      /// we use a fraction of it. The texture coordinates is less than 1 if \n\
+      /// the reduction factor is less than 1. \n\
+      /// Device coordinates are between -1 and 1. We need texture coordinates \n\
+      /// between 0 and 1 the m_depth_sampler buffer has the original size buffer. \n\
+      vec2 m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
+                               m_inv_window_size; \n\
+      vec4 l_depth_value = texture2D(m_depth_sampler, m_frag_tex_coord); \n\
+      float m_terminate_point_max = 0.0; \n\
+      \n\
+      /// Depth test \n\
+      if(gl_FragCoord.z >= l_depth_value.x) \n\
+       { \n\
+       discard; \n\
+       } \n\
+      \n\
+      /// color buffer or max scalar buffer have a reduced size. \n\
+      m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
+                           m_inv_original_window_size; \n\
+      \n\
+      /// Compute max number of iterations it will take before we hit \n\
+      /// the termination point \n\
+      \n\
+      /// Abscissa of the point on the depth buffer along the ray. \n\
+      /// point in texture coordinates \n\
+      vec4 m_terminate_point; \n\
+      m_terminate_point.x = (gl_FragCoord.x - m_window_lower_left_corner.x) * 2.0 * \n\
+                            m_inv_window_size.x - 1.0; \n\
+      m_terminate_point.y = (gl_FragCoord.y - m_window_lower_left_corner.y) * 2.0 * \n\
+                            m_inv_window_size.y - 1.0; \n\
+      m_terminate_point.z = (2.0 * l_depth_value.x - (gl_DepthRange.near + \n\
+                            gl_DepthRange.far)) / gl_DepthRange.diff; \n\
+      m_terminate_point.w = 1.0; \n\
+      \n\
+      /// From normalized device coordinates to eye coordinates. m_projection_matrix \n\
+      /// is inversed because of way VT \n\
+      /// From eye coordinates to texture coordinates \n\
+      m_terminate_point = inverse(transpose(m_texture_dataset_matrix)) * \n\
+                          l_ogl_scene_matrix * inverse(transpose(m_modelview_matrix)) * \n\
+                          inverse(transpose(m_projection_matrix)) * \n\
+                          m_terminate_point; \n\
+      m_terminate_point /= m_terminate_point.w; \n\
+      \n\
+      m_terminate_point_max = length(m_terminate_point.xyz - l_data_pos.xyz) / \n\
+                              length(l_dir_step); \n\
+      float m_current_t = 0.0;");
     }
 
   //--------------------------------------------------------------------------

@@ -234,7 +234,6 @@ public:
   int WindowLowerLeft[2];
   int WindowSize[2];
   int TextureWidth;
-  int BlendMode;
 
   double ScalarsRange[2];
   double Bounds[6];
@@ -720,7 +719,7 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
     }
 
   this->OpacityTables->GetTable(level)->Update(
-    scalarOpacity,this->BlendMode,
+    scalarOpacity,this->Parent->BlendMode,
     this->Parent->SampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
@@ -1143,8 +1142,12 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_EXIT@",
     vtkvolume::ClippingExit(ren, this, vol), true);
 
+  GL_CHECK_ERRORS
+
   /// Compile and link it
   this->Implementation->CompileAndLinkShader(vertexShader, fragmentShader);
+
+  GL_CHECK_ERRORS
 
   /// Add attributes and uniforms
   this->Implementation->Shader.AddAttribute("m_in_vertex_pos");
@@ -1177,19 +1180,21 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   this->Implementation->Shader.AddUniform("m_inv_original_window_size");
   this->Implementation->Shader.AddUniform("m_inv_window_size");
 
+  GL_CHECK_ERRORS
+
   if (this->GetCropping())
     {
     this->Implementation->Shader.AddUniform("cropping_planes");
     this->Implementation->Shader.AddUniform("cropping_flags");
     }
 
+  GL_CHECK_ERRORS
+
   if (this->GetClippingPlanes())
     {
     this->Implementation->Shader.AddUniform("m_clipping_planes");
     this->Implementation->Shader.AddUniform("m_clipping_planes_size");
     }
-
-  std::cerr << "fragment shader " << fragmentShader << std::endl;
 
   GL_CHECK_ERRORS
 

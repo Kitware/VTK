@@ -61,7 +61,7 @@ void main()
 
     /// Advance ray by m_dir_step
     l_data_pos += l_dir_step;
-    };
+    }
 
   @BASE_EXIT@
   @TERMINATE_EXIT@

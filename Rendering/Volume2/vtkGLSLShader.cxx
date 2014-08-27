@@ -48,6 +48,7 @@ void vtkGLSLShader::DeleteShaderProgram()
       {
       glDeleteProgram(this->Program);
       }
+    this->Program = 0;
     this->AttributeList.clear();
     this->UniformLocationList.clear();
 }
@@ -75,10 +76,10 @@ void vtkGLSLShader::LoadFromString(GLenum type, const string& source)
     glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &infoLogLength);
     GLchar *infoLog= new GLchar[infoLogLength];
     glGetShaderInfoLog (shader, infoLogLength, NULL, infoLog);
-    cerr<<"Compile log: "<<infoLog<<endl;
+    cerr <<"Compile log: " << infoLog << endl;
     delete [] infoLog;
     }
-  this->Shaders[this->TotalShaders++]=shader;
+  this->Shaders[this->TotalShaders++] = shader;
 }
 
 ///---------------------------------------------------------------------------
@@ -110,15 +111,17 @@ void vtkGLSLShader::CreateAndLinkProgram()
     GLint infoLogLength;
 
     glGetProgramiv (this->Program, GL_INFO_LOG_LENGTH, &infoLogLength);
-    GLchar *infoLog= new GLchar[infoLogLength];
+    GLchar* infoLog = new GLchar[infoLogLength];
     glGetProgramInfoLog (this->Program, infoLogLength, NULL, infoLog);
-    cerr<<"Link log: "<<infoLog<<endl;
+    cerr << "Link log: " << infoLog <<endl;
     delete [] infoLog;
     }
 
   glDeleteShader(this->Shaders[VERTEX_SHADER]);
   glDeleteShader(this->Shaders[FRAGMENT_SHADER]);
   glDeleteShader(this->Shaders[GEOMETRY_SHADER]);
+
+  this->TotalShaders = 0;
 }
 
 ///---------------------------------------------------------------------------

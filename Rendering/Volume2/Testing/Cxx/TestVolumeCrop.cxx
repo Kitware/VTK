@@ -26,8 +26,6 @@
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
 #include <vtkOutlineFilter.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -47,13 +45,14 @@
 
 #include <cstdlib>
 
-int TestGPURayCastClip(int argc, char *argv[])
+int TestVolumeCrop(int argc, char *argv[])
 {
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
   vtkNew<vtkSinglePassVolumeMapper> volumeMapper;
+  volumeMapper->SetSampleDistance(0.05);
 
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
@@ -101,25 +100,18 @@ int TestGPURayCastClip(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 1.0, 1.0);
 
   // Test cropping now
-
-  double* bounds = reader->GetOutput()->GetBounds();
-  vtkNew<vtkPlane> clipPlane1;
-  clipPlane1->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane1->SetNormal(1.0, 0.0, 0.0);
-
-  vtkNew<vtkPlane> clipPlane2;
-  clipPlane2->SetOrigin(0.55 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane2->SetNormal(-1.0, 0.0, 0.0);
-
-  vtkNew<vtkPlaneCollection> clipPlaneCollection;
-  clipPlaneCollection->AddItem(clipPlane1.GetPointer());
-  clipPlaneCollection->AddItem(clipPlane2.GetPointer());
-  volumeMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
+  volumeMapper->SetCroppingRegionPlanes(10.0, 20.0, 10.0, 20.0, 10.0, 20.0);
+  volumeMapper->SetCroppingRegionFlagsToFence();
+  volumeMapper->CroppingOn();
 
   // Setup volume actor
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
+
+  // Rotate the volume for testing purposes
+  volume->RotateY(45.0);
+  outlineActor->RotateY(45.0);
 
   ren->AddViewProp(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
