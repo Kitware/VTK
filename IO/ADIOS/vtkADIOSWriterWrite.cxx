@@ -59,11 +59,13 @@ void vtkADIOSWriter::Write(const std::string& path, const vtkAbstractArray* v)
     return;
     }
 
-  // Forget about empty arrays
+  // Ignore empty arrays
   if(valueTmp->GetNumberOfTuples() == 0 ||
     valueTmp->GetNumberOfComponents() == 0)
     {
+    /*
     vtkWarningMacro("Skipping " << path << " because it is empty");
+    */
     return;
     }
 

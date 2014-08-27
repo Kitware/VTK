@@ -76,6 +76,7 @@ set(Module_SRCS
 
   vtkGhostArray.cxx
   vtkImageAppend.cxx
+  vtkStructuredGridAppend.cxx
   vtkAppendCompositeDataLeaves.cxx
   )
 

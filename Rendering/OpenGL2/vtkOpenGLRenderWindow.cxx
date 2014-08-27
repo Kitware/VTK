@@ -1016,9 +1016,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
                                             float *data, int front, int blend)
 {
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-
   // set the current window
   this->MakeCurrent();
 
@@ -1041,28 +1038,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   else
     {
     glDrawBuffer(this->GetBackBuffer());
-    }
-
-  if (y1 < y2)
-    {
-    y_low = y1;
-    y_hi  = y2;
-    }
-  else
-    {
-    y_low = y2;
-    y_hi  = y1;
-    }
-
-  if (x1 < x2)
-    {
-    x_low = x1;
-    x_hi  = x2;
-    }
-  else
-    {
-    x_low = x2;
-    x_hi  = x1;
     }
 
   if (!blend)
