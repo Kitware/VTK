@@ -16,6 +16,8 @@ from . import testing
 from . import upload
 from . import wamp as vtk_wamp
 
+from autobahn.wamp              import types
+
 from autobahn.twisted.resource  import WebSocketResource
 from autobahn.twisted.websocket import listenWS
 from autobahn.twisted.longpoll  import WampLongPollResource
@@ -172,8 +174,10 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
     session_factory.session = vtk_wamp.CustomWampCraRouterSession
     session_factory.authdb = authdb
 
-    # Register protocol
-    session_factory.add(protocol(authdb=authdb))
+    # Create ApplicationSession and register protocols
+    appSession = protocol(types.ComponentConfig(realm = "vtkweb"))
+    appSession.setAuthDB(authdb)
+    session_factory.add(appSession)
 
     # create a WAMP-over-WebSocket transport server factory
     transport_factory = vtk_wamp.TimeoutWampWebSocketServerFactory(session_factory, \
