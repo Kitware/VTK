@@ -1027,7 +1027,6 @@ namespace
     }
     friend class TaskManager;
     friend MessageStream& operator<<(MessageStream& stream, const Task& task);
-    friend MessageStream& operator>>(MessageStream& stream, Task& task);
   };
   vtkStandardNewMacro(Task);
 
