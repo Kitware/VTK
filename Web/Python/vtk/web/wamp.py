@@ -48,12 +48,18 @@ class ServerProtocol(ApplicationSession):
     interactive visualizations. For that, use vtkWebServerProtocol.
     """
 
-    def __init__(self, authdb=None):
-        ApplicationSession.__init__(self, types.ComponentConfig(realm = "vtkweb"))
+    def __init__(self, config):
+        ApplicationSession.__init__(self, config)
         self.vtkWebProtocols = []
-        self.authdb = authdb
+        self.authdb = None
+        self.secret = None
         self.Application = self.initApplication()
         self.initialize()
+
+    def setAuthDB(self, db):
+        self.authdb = db
+        if self.secret:
+            self.authdb.updateKey('vtkweb', self.secret)
 
     def initialize(self):
         """
@@ -89,8 +95,9 @@ class ServerProtocol(ApplicationSession):
         return self.vtkWebProtocols
 
     def updateSecret(self, newSecret):
+        self.secret = newSecret
         if self.authdb:
-            self.authdb.updateKey('vtkweb', newSecret)
+            self.authdb.updateKey('vtkweb', self.secret)
 
     @exportRpc("application.exit")
     def exit(self):
