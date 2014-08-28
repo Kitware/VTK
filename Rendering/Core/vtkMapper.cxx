@@ -513,14 +513,17 @@ const char *vtkMapper::GetScalarMaterialModeAsString(void)
     }
 }
 
+// anonymous namespace
+namespace {
+
 //-----------------------------------------------------------------------------
 template<class T>
-void vtkMapperScalarToTextureCoordinate(
-                                T scalar_value,         // Input scalar
-                                double range_min,       // range[0]
-                                double inv_range_width, // 1/(range[1]-range[0])
-                                float &tex_coord_s,     // 1st tex coord
-                                float &tex_coord_t)     // 2nd tex coord
+void ScalarToTextureCoordinate(
+                               T scalar_value,         // Input scalar
+                               double range_min,       // range[0]
+                               double inv_range_width, // 1/(range[1]-range[0])
+                               float &tex_coord_s,     // 1st tex coord
+                               float &tex_coord_t)     // 2nd tex coord
 {
   if (vtkMath::IsNan(scalar_value))
     {
@@ -539,28 +542,33 @@ void vtkMapperScalarToTextureCoordinate(
     tex_coord_t = 0.49;
 
     double ranged_scalar = (scalar_value - range_min) * inv_range_width;
-    if (ranged_scalar <= 0.0)
-      {
-      tex_coord_s = 0.0;
-      }
-    else if (ranged_scalar >= 1.0)
-      {
-      tex_coord_s = 1.0;
-      }
-    else
-      {
-      tex_coord_s = static_cast<float>(ranged_scalar);
-      }
+    tex_coord_s = static_cast<float>(ranged_scalar);
     }
+
+    // Some implementations apparently don't handle relatively large
+    // numbers (compared to the range [0.0, 1.0]) very well. In fact,
+    // values above 1122.0f appear to cause texture wrap-around on
+    // some systems even when edge clamping is enabled. Why 1122.0f? I
+    // don't know. For safety, we'll clamp at +/- 1000. This will
+    // result in incorrect images when the texture value should be
+    // above or below 1000, but I don't have a better solution.
+    if (tex_coord_s > 1000.0f)
+      {
+      tex_coord_s = 1000.0f;
+      }
+    else if (tex_coord_s < -1000.0f)
+      {
+      tex_coord_s = -1000.0f;
+      }
 }
 
 //-----------------------------------------------------------------------------
 template<class T>
-void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
-                                            vtkIdType numScalars, int numComps,
-                                            int component, double* range,
-                                            const double* table_range,
-                                            bool use_log_scale)
+void CreateColorTextureCoordinates(T* input, float* output,
+                                   vtkIdType numScalars, int numComps,
+                                   int component, double* range,
+                                   const double* table_range,
+                                   bool use_log_scale)
 {
   double inv_range_width = 1.0 / (range[1]-range[0]);
 
@@ -581,8 +589,8 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
         magnitude = vtkLookupTable::ApplyLogScale(
           magnitude, table_range, range);
         }
-      vtkMapperScalarToTextureCoordinate(magnitude, range[0], inv_range_width,
-                                         output[0], output[1]);
+      ScalarToTextureCoordinate(magnitude, range[0], inv_range_width,
+                                output[0], output[1]);
       output += 2;
       }
     }
@@ -597,14 +605,15 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
         input_value = vtkLookupTable::ApplyLogScale(
           input_value, table_range, range);
         }
-      vtkMapperScalarToTextureCoordinate(input_value, range[0], inv_range_width,
-                                         output[0], output[1]);
+      ScalarToTextureCoordinate(input_value, range[0], inv_range_width,
+                                output[0], output[1]);
       output += 2;
       input = input + numComps;
       }
     }
 }
 
+} // end anonymous namespace
 
 #define ColorTextureMapSize 256
 // a side effect of this is that this->ColorCoordinates and
@@ -715,11 +724,11 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
     switch (scalars->GetDataType())
       {
       vtkTemplateMacro(
-        vtkMapperCreateColorTextureCoordinates(static_cast<VTK_TT*>(input),
-                                               output, num, numComps,
-                                               scalarComponent, range,
-                                               this->LookupTable->GetRange(),
-                                               use_log_scale)
+        CreateColorTextureCoordinates(static_cast<VTK_TT*>(input),
+                                      output, num, numComps,
+                                      scalarComponent, range,
+                                      this->LookupTable->GetRange(),
+                                      use_log_scale)
         );
       case VTK_BIT:
         vtkErrorMacro("Cannot color by bit array.");
