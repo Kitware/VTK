@@ -159,7 +159,7 @@
     function fetchObject(sceneObject, part) {
       try {
         var viewId = Number(m_options.view),
-        newObject, renderer, actor, key;
+        newObject, renderer, actor, actors, key, i;
 
         m_container.trigger({
           type: 'stats',
@@ -191,21 +191,27 @@
             // Parse the new object if its not parsed already
             // if parsed already then check if exists in  current renderer
             if (key in m_vglActors) {
-                actor = m_vglActors[key];
+                actors = m_vglActors[key];
                 // if exists in current renderer do nothing
-                if (!renderer.hasActor(actor)) {
-                    renderer.addActor(actor);
+                for (i = 0; i < actors.length; i++) {
+                    actor = actors[i];
+                    if (!renderer.hasActor(actor)) {
+                        renderer.addActor(actor);
+                    }
                 }
             }
             // if not parsed then parse it, create actor and add it to the
             // renderer.
             else {
-                actor = m_vglVtkReader.parseObject(newObject);
-                m_vglActors[key] = actor;
-                renderer.addActor(actor);
+                actors = m_vglVtkReader.parseObject(newObject);
+                m_vglActors[key] = actors;
+
+                for (i = 0; i < actors.length; i++) {
+                    renderer.addActor(actors[i]);
+                }
             }
             // Mark the actor as valid
-            actor.invalid = false;
+            actors.invalid = false;
 
             // Redraw the scene
             drawScene();
