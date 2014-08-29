@@ -73,7 +73,8 @@ except :
 
 # Define some infrastructure to support different (or no) browsers
 test_module_browsers = ["firefox", "chrome", "internet_explorer", "safari", "nobrowser"]
-TestModuleBrowsers = type("Enum", (), {k: i for i, k in enumerate(test_module_browsers)})
+class TestModuleBrowsers:
+    firefox, chrome, internet_explorer, safari, nobrowser = range(5)
 
 
 # =============================================================================
