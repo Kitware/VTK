@@ -16,6 +16,7 @@
 
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkCommand.h"
 #include "vtkSmartPointer.h"
 
@@ -26,6 +27,34 @@ if (!(t)) \
   cerr << "In " << __FILE__ << ":"; \
   cerr << " Test assertion failed line " << __LINE__ << ": " << #t << "\n"; \
   rval |= 1; \
+}
+
+#define TestVector4d(t1, t2)                                        \
+  TestAssert(                                                       \
+    (vtkMathUtilities::FuzzyCompare<double>(t1[0], t2[0])           \
+     && vtkMathUtilities::FuzzyCompare<double>(t1[1], t2[1])        \
+     && vtkMathUtilities::FuzzyCompare<double>(t1[2], t2[2])        \
+     && vtkMathUtilities::FuzzyCompare<double>(t1[3], t2[3])))
+
+int TestColor4uc(unsigned char* expected, unsigned char* test)
+{
+  int failed = expected[0] != test[0] || expected[1] != test[1] ||
+    expected[2] != test[2] || expected[3] != test[3] ? 1 : 0;
+  if (failed)
+    {
+    std::cerr << "Expected color: " <<
+      static_cast<int>(expected[0]) << ", " <<
+      static_cast<int>(expected[1]) << ", " <<
+      static_cast<int>(expected[2]) << ", " <<
+      static_cast<int>(expected[3]) << std::endl;
+    std::cerr << "Test color: " <<
+      static_cast<int>(test[0]) << ", " <<
+      static_cast<int>(test[1]) << ", " <<
+      static_cast<int>(test[2]) << ", " <<
+      static_cast<int>(test[3]) << std::endl;
+    }
+
+  return !failed;
 }
 
 // a simple error observer
@@ -64,6 +93,7 @@ int TestLookupTable(int,char *[])
   double tol = 1e-6;
   double step = (hi - lo)/255.0;
   table->SetTableRange(lo,hi);
+  table->Build();
   TestAssert(table->GetIndex(lo) == 0);
   TestAssert(table->GetIndex(hi) == 255);
   TestAssert(table->GetIndex(lo+tol) == 0);
@@ -72,6 +102,58 @@ int TestLookupTable(int,char *[])
   TestAssert(table->GetIndex(hi+step) == 255);
   TestAssert(table->GetIndex(lo+step) == 1);
   TestAssert(table->GetIndex(hi-step) == 254);
+  TestAssert(table->GetIndex(vtkMath::Nan()) == -1);
+
+  double rgba[4];
+  rgba[0] = 0.0;  rgba[1] = 0.0;  rgba[2] = 0.0;  rgba[3] = 1.0;
+  TestVector4d(table->GetBelowRangeColor(), rgba);
+  rgba[0] = 1.0;  rgba[1] = 1.0;  rgba[2] = 1.0;  rgba[3] = 1.0;
+  TestVector4d(table->GetAboveRangeColor(), rgba);
+
+  TestAssert(table->GetUseBelowRangeColor() == 0);
+  TestAssert(table->GetUseAboveRangeColor() == 0);
+
+  unsigned char expected[4], *result;
+
+  // Test handling of below-range colors
+  vtkMath::HSVToRGB(table->GetHueRange()[0],
+                    table->GetSaturationRange()[0],
+                    table->GetValueRange()[0],
+                    &rgba[0], &rgba[1], &rgba[2]);
+  rgba[3] = table->GetAlphaRange()[0];
+
+  vtkLookupTable::GetColorAsUnsignedChars(rgba, expected);
+  table->UseBelowRangeColorOff();
+  table->Build();
+  result = table->MapValue(lo);
+  TestAssert(TestColor4uc(expected, result));
+
+  table->GetBelowRangeColor(rgba);
+  vtkLookupTable::GetColorAsUnsignedChars(rgba, expected);
+  table->UseBelowRangeColorOn();
+  table->Build();
+  result = table->MapValue(lo-tol);
+  TestAssert(TestColor4uc(expected, result));
+
+  // Test handling of above-range colors
+  vtkMath::HSVToRGB(table->GetHueRange()[1],
+                    table->GetSaturationRange()[1],
+                    table->GetValueRange()[1],
+                    &rgba[0], &rgba[1], &rgba[2]);
+  rgba[3] = table->GetAlphaRange()[1];
+
+  vtkLookupTable::GetColorAsUnsignedChars(rgba, expected);
+  table->UseAboveRangeColorOff();
+  table->Build();
+  result = table->MapValue(hi);
+  TestAssert(TestColor4uc(expected, result));
+
+  table->GetAboveRangeColor(rgba);
+  vtkLookupTable::GetColorAsUnsignedChars(rgba, expected);
+  table->UseAboveRangeColorOn();
+  table->Build();
+  result = table->MapValue(hi+tol);
+  TestAssert(TestColor4uc(expected, result));
 
   // log range test
   lo = pow(10.0,lo);
@@ -79,10 +161,13 @@ int TestLookupTable(int,char *[])
   step = pow(10.0,step);
   table->SetScaleToLog10();
   table->SetTableRange(lo,hi);
+  table->Build();
   TestAssert(table->GetIndex(lo) == 0);
   TestAssert(table->GetIndex(hi) == 255);
   TestAssert(table->GetIndex(lo+tol) == 0);
   TestAssert(table->GetIndex(hi-tol) == 255);
+
+  // Note - both below- and above-range colors are enabled at this point
   TestAssert(table->GetIndex(lo/step) == 0);
   TestAssert(table->GetIndex(hi*step) == 255);
   TestAssert(table->GetIndex(lo*step) == 1);
@@ -95,6 +180,7 @@ int TestLookupTable(int,char *[])
   step = 1.0/step;
   table->SetScaleToLog10();
   table->SetTableRange(lo,hi);
+  table->Build();
   TestAssert(table->GetIndex(lo) == 0);
   TestAssert(table->GetIndex(hi) == 255);
   TestAssert(table->GetIndex(lo+tol) == 0);

@@ -242,6 +242,18 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->NanColor[1] = 0.0;
   this->NanColor[2] = 0.0;
 
+  this->BelowRangeColor[0] = 0.0;
+  this->BelowRangeColor[1] = 0.0;
+  this->BelowRangeColor[2] = 0.0;
+
+  this->UseBelowRangeColor = 0;
+
+  this->AboveRangeColor[0] = 1.0;
+  this->AboveRangeColor[1] = 1.0;
+  this->AboveRangeColor[2] = 1.0;
+
+  this->UseAboveRangeColor = 0;
+
   this->Function = NULL;
 
   this->Table = NULL;
@@ -814,19 +826,58 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         }
       }
 
-    // Are we at the end? If so, just use the last value
-    if ( idx >= numNodes )
+    // Are we at or past the end? If so, just use the last value
+    if ( x > this->Range[1])
       {
-      tptr[0] = (this->Clamping)?(lastR):(0.0);
-      tptr[1] = (this->Clamping)?(lastG):(0.0);
-      tptr[2] = (this->Clamping)?(lastB):(0.0);
+      if (this->Clamping)
+        {
+        if (this->GetUseAboveRangeColor())
+          {
+          this->GetAboveRangeColor(tptr);
+          }
+        else
+          {
+          tptr[0] = lastR;
+          tptr[1] = lastG;
+          tptr[2] = lastB;
+          }
+        }
+      else
+        {
+        tptr[0] = 0.0;
+        tptr[1] = 0.0;
+        tptr[2] = 0.0;
+        }
       }
-    // Are we before the first node? If so, duplicate this nodes values
-    else if ( idx == 0 )
+    // Are we before the first node? If so, duplicate this node's values.
+    // We have to deal with -inf here
+    else if (x < this->Range[0] || (vtkMath::IsInf(x) && x < 0))
       {
-      tptr[0] = (this->Clamping)?(this->Internal->Nodes[0]->R):(0.0);
-      tptr[1] = (this->Clamping)?(this->Internal->Nodes[0]->G):(0.0);
-      tptr[2] = (this->Clamping)?(this->Internal->Nodes[0]->B):(0.0);
+      if (this->Clamping)
+        {
+        if (this->GetUseBelowRangeColor())
+          {
+          this->GetBelowRangeColor(tptr);
+          }
+        else
+          {
+          tptr[0] = this->Internal->Nodes[0]->R;
+          tptr[1] = this->Internal->Nodes[0]->G;
+          tptr[2] = this->Internal->Nodes[0]->B;
+          }
+        }
+      else
+        {
+        tptr[0] = 0.0;
+        tptr[1] = 0.0;
+        tptr[2] = 0.0;
+        }
+      }
+    else if (idx == 0 && std::fabs(x - xStart) < 1e-6)
+      {
+      tptr[0] = this->Internal->Nodes[0]->R;
+      tptr[1] = this->Internal->Nodes[0]->G;
+      tptr[2] = this->Internal->Nodes[0]->B;
       }
     // Otherwise, we are between two nodes - interpolate
     else
@@ -1394,10 +1445,10 @@ static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 //----------------------------------------------------------------------------
 // Special implementation for unsigned short input.
 static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
-                                     unsigned short* input,
-                                     unsigned char* output,
-                                     int length, int inIncr,
-                                     int outFormat, int)
+                                            unsigned short* input,
+                                            unsigned char* output,
+                                            int length, int inIncr,
+                                            int outFormat, int)
 {
   int            x;
   int            i = length;
@@ -1826,6 +1877,17 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NanColor: "
      << this->NanColor[0] << ", " << this->NanColor[1] << ", "
      << this->NanColor[2] << endl;
+
+  os << indent << "BelowRangeColor: (" << this->BelowRangeColor[0] << ", "
+     << this->BelowRangeColor[1] << ", " << this->BelowRangeColor[2] << ")\n";
+  os << indent << "UseBelowRangeColor: "
+     << (this->UseBelowRangeColor != 0 ? "ON" : "OFF") << "\n";
+
+  os << indent << "ABoveRangeColor: (" << this->AboveRangeColor[0] << ", "
+     << this->AboveRangeColor[1] << ", " << this->AboveRangeColor[2] << ")\n";
+  os << indent << "UseAboveRangeColor: "
+     << (this->UseAboveRangeColor != 0 ? "ON" : "OFF") << "\n";
+
 
   unsigned int i;
   for( i = 0; i < this->Internal->Nodes.size(); i++ )
