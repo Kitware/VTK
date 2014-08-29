@@ -35,7 +35,7 @@ vtkXMLPImageDataWriter::~vtkXMLPImageDataWriter()
 //----------------------------------------------------------------------------
 void vtkXMLPImageDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void vtkXMLPImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkInden
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter*
-vtkXMLPImageDataWriter::CreateStructuredPieceWriter()
+  vtkXMLPImageDataWriter::CreateStructuredPieceWriter()
 {
   // Create the writer for the piece.
   vtkXMLImageDataWriter* pWriter = vtkXMLImageDataWriter::New();

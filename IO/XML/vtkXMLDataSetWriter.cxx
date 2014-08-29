@@ -111,7 +111,7 @@ int vtkXMLDataSetWriter::WriteInternal()
     }
 
   // Make sure we got a valid writer for the data set.
-  if(!writer)
+  if (!writer)
     {
     vtkErrorMacro("Cannot write dataset type: "
                   << this->GetInput()->GetDataObjectType() << " which is a "
@@ -158,7 +158,7 @@ void vtkXMLDataSetWriter::ProgressCallbackFunction(vtkObject* caller,
                                                    void* clientdata, void*)
 {
   vtkAlgorithm* w = vtkAlgorithm::SafeDownCast(caller);
-  if(w)
+  if (w)
     {
     reinterpret_cast<vtkXMLDataSetWriter*>(clientdata)->ProgressCallback(w);
     }
@@ -167,11 +167,11 @@ void vtkXMLDataSetWriter::ProgressCallbackFunction(vtkObject* caller,
 //----------------------------------------------------------------------------
 void vtkXMLDataSetWriter::ProgressCallback(vtkAlgorithm* w)
 {
-  float width = this->ProgressRange[1]-this->ProgressRange[0];
+  float width = this->ProgressRange[1] - this->ProgressRange[0];
   float internalProgress = w->GetProgress();
   float progress = this->ProgressRange[0] + internalProgress*width;
   this->UpdateProgressDiscrete(progress);
-  if(this->AbortExecute)
+  if (this->AbortExecute)
     {
     w->SetAbortExecute(1);
     }
