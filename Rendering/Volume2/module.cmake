@@ -1,4 +1,4 @@
-vtk_module(vtkVolume
+vtk_module(vtkVolume2
   DEPENDS
     vtkCommonCore
     vtkCommonDataModel

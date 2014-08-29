@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkSinglePassVolumeMapper.h"
+#include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
 #include "vtkGLSLShader.h"
 #include "vtkOpenGLOpacityTable.h"
@@ -67,9 +67,6 @@ vtkStandardNewMacro(vtkSinglePassVolumeMapper);
   assert(glGetError()== GL_NO_ERROR); \
   }
 
-///
-/// \brief The vtkSinglePassVolumeMapper::vtkInternal class
-///
 ///----------------------------------------------------------------------------
 class vtkSinglePassVolumeMapper::vtkInternal
 {
@@ -540,19 +537,12 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
   return 1;
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::vtkInternal::IsInitialized
-/// \return
 ///----------------------------------------------------------------------------
 bool vtkSinglePassVolumeMapper::vtkInternal::IsInitialized()
 {
   return this->Initialized;
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty
-/// \param input
-/// \return
 ///----------------------------------------------------------------------------
 bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
 {
@@ -566,9 +556,6 @@ bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
   return false;
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::vtkInternal::CompileAndLinkShader
-///
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::CompileAndLinkShader(
   const std::string& vertexShader, const std::string& fragmentShader)
@@ -580,9 +567,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::CompileAndLinkShader(
   this->Shader.CreateAndLinkProgram();
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds
-/// \param bounds
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
 {
@@ -887,7 +871,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
 }
 
 ///----------------------------------------------------------------------------
-/// \brief vtkSinglePassVolumeMapper::UpdateCropping
 void vtkSinglePassVolumeMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
                                                             vtkVolume* vol)
 {
@@ -938,7 +921,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
 }
 
 ///----------------------------------------------------------------------------
-/// \brief vtkSinglePassVolumeMapper::UpdateClipping
 void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
                                                             vtkVolume* vol)
 {
@@ -977,7 +959,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
 }
 
 ///
-/// \brief vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::vtkInternal::LoadRequireDepthTextureExtensions(
   vtkRenderWindow* renWin)
@@ -1025,7 +1006,6 @@ void vtkSinglePassVolumeMapper::vtkInternal::LoadRequireDepthTextureExtensions(
 }
 
 ///
-/// \brief vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper
 ///----------------------------------------------------------------------------
 vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper() : vtkVolumeMapper()
 {
@@ -1035,7 +1015,6 @@ vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper() : vtkVolumeMapper()
 }
 
 ///
-/// \brief vtkSinglePassVolumeMapper::~vtkSinglePassVolumeMapper
 ///----------------------------------------------------------------------------
 vtkSinglePassVolumeMapper::~vtkSinglePassVolumeMapper()
 {
@@ -1043,23 +1022,12 @@ vtkSinglePassVolumeMapper::~vtkSinglePassVolumeMapper()
   this->Implementation = 0;
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::PrintSelf
-/// \param os
-/// \param indent
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::PrintSelf(ostream& vtkNotUsed(os),
-                                          vtkIndent indent)
+void vtkSinglePassVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  // TODO Implement this method
+  this->SuperClass->PrintSelf(os, indent);
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::BuildShader
-/// \param vertexShader
-/// \param fragmentShader
-/// \param ren
-/// \param vol
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
 {
@@ -1201,11 +1169,6 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
   this->Implementation->ShaderBuildTime.Modified();
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::ValidateRender
-/// \param ren
-/// \param vol
-/// \return
 ///----------------------------------------------------------------------------
 int vtkSinglePassVolumeMapper::ValidateRender(vtkRenderer* ren, vtkVolume* vol)
 {
@@ -1363,10 +1326,6 @@ int vtkSinglePassVolumeMapper::ValidateRender(vtkRenderer* ren, vtkVolume* vol)
   return goodSoFar;
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::Render
-/// \param ren
-/// \param vol
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 {
@@ -1393,10 +1352,6 @@ void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   this->InvokeEvent(vtkCommand::VolumeMapperRenderEndEvent,0);
 }
 
-///
-/// \brief vtkSinglePassVolumeMapper::GPURender
-/// \param ren
-/// \param vol
 ///----------------------------------------------------------------------------
 void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 {

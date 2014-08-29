@@ -1,11 +1,22 @@
 find_package(GLEW REQUIRED)
 
  # Source files
-set(Module_SRCS vtkSinglePassVolumeMapper.cxx vtkGLSLShader.cxx)
+set(Module_SRCS
+  vtkGPUVolumeRayCastMapper.cxx
+  vtkOpenGLGPUVolumeRayCastMapper
+  vtkGLSLShader.cxx)
+
 set_source_files_properties(
-  vtkSinglePassVolumeMapper
+  vtkGPUVolumeRayCastMapper
   vtkGLSLShader
   WRAP_EXCLUDE)
+
+set(opengl_overrides
+  GPUVolumeRayCastMapper
+  )
+foreach(_override ${opengl_overrides})
+  vtk_add_override(vtk${_override} vtkOpenGL${_override})
+endforeach()
 
 set(shader_files
     shaders/raycasterfs.glsl
@@ -28,6 +39,8 @@ foreach(file ${shader_files})
   list(APPEND Module_SRCS ${res})
   set_source_files_properties(${file_we} WRAP_EXCLUDE)
 endforeach()
+
+vtk_object_factory_configure("${vtk_module_overrides}")
 
 vtk_module_library(vtkVolume ${Module_SRCS})
 target_link_libraries(vtkVolume LINK_PRIVATE ${GLEW_LIBRARY})

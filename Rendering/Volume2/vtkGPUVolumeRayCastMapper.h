@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkSinglePassVolumeMapper_h
-#define __vtkSinglePassVolumeMapper_h
+#ifndef __vtkGPUVolumeRayCastMapper_h
+#define __vtkGPUVolumeRayCastMapper_h
 
 #include "vtkVolumeModule.h" // For export macro
 
@@ -23,19 +23,28 @@
 
 //----------------------------------------------------------------------------
 ///
-/// \brief The vtkSinglePassVolumeMapper class
+/// \brief The vtkGPUVolumeRayCastMapper class
 ///
-class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
+class VTKVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
 {
   public:
-    static vtkSinglePassVolumeMapper* New();
+    static vtkGPUVolumeRayCastMapper* New();
 
-    vtkTypeMacro(vtkSinglePassVolumeMapper, vtkVolumeMapper);
+    vtkTypeMacro(vtkGPUVolumeRayCastMapper, vtkVolumeMapper);
     void PrintSelf( ostream& os, vtkIndent indent );
 
     /// Description:
     /// Render volume
     virtual void Render(vtkRenderer* ren, vtkVolume* vol);
+
+    /// Description:
+    /// If AutoAdjustSampleDistances is on, the the ImageSampleDistance
+    /// will be varied to achieve the allocated render time of this
+    /// prop (controlled by the desired update rate and any culling in
+    /// use).
+    vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
+    vtkGetMacro( AutoAdjustSampleDistances, int );
+    vtkBooleanMacro( AutoAdjustSampleDistances, int );
 
     /// Description:
     /// Set/Get the distance between samples used for rendering
@@ -44,12 +53,12 @@ class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
     vtkGetMacro(SampleDistance, double);
 
   protected:
-    vtkSinglePassVolumeMapper();
-    ~vtkSinglePassVolumeMapper();
+    vtkGPUVolumeRayCastMapper();
+    ~vtkGPUVolumeRayCastMapper();
 
     /// Description:
     /// Build vertex and fragment shader for the volume rendering
-    void BuildShader(vtkRenderer* ren, vtkVolume* vol);
+    void BuildShader(vtkRenderer* ren, vtkVolume* vol) = 0;
 
     /// Description:
     /// Validate before performing volume rendering
@@ -57,16 +66,15 @@ class VTKVOLUME_EXPORT vtkSinglePassVolumeMapper : public vtkVolumeMapper
 
     /// Description:
     /// Rendering volume on GPU
-    void GPURender(vtkRenderer *ren, vtkVolume *vol);
+    void GPURender(vtkRenderer *ren, vtkVolume *vol) = 0;
 
+protected:
+    int AutoAdjustSampleDistances;
     double SampleDistance;
 
-    class vtkInternal;
-    vtkInternal* Implementation;
-
 private:
-    vtkSinglePassVolumeMapper(const vtkSinglePassVolumeMapper&);  // Not implemented.
-    void operator=(const vtkSinglePassVolumeMapper&);  // Not implemented.
+    vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
+    void operator=(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
 };
 
-#endif // __vtkSinglePassVolumeMapper_h
+#endif // __vtkGPUVolumeRayCastMapper_h
