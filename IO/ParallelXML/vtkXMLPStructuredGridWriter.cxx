@@ -35,9 +35,8 @@ vtkXMLPStructuredGridWriter::~vtkXMLPStructuredGridWriter()
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-
 
 //----------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLPStructuredGridWriter::GetInput()
@@ -59,7 +58,7 @@ const char* vtkXMLPStructuredGridWriter::GetDefaultFileExtension()
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter*
-vtkXMLPStructuredGridWriter::CreateStructuredPieceWriter()
+  vtkXMLPStructuredGridWriter::CreateStructuredPieceWriter()
 {
   // Create the writer for the piece.
   vtkXMLStructuredGridWriter* pWriter = vtkXMLStructuredGridWriter::New();
@@ -79,8 +78,9 @@ void vtkXMLPStructuredGridWriter::WritePData(vtkIndent indent)
   this->WritePPoints(input->GetPoints(), indent);
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLPStructuredGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+  int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;

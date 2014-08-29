@@ -35,7 +35,7 @@ vtkXMLPUnstructuredDataWriter::~vtkXMLPUnstructuredDataWriter()
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ int vtkXMLPUnstructuredDataWriter::ProcessRequest(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Set(
