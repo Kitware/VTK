@@ -13,6 +13,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
+#include "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 
@@ -264,24 +265,6 @@ void vtkCocoaRenderWindow::DestroyWindow()
   if (this->OwnContext && this->GetContextId())
     {
     this->MakeCurrent();
-
-    // now delete all textures
-    glDisable(GL_TEXTURE_2D);
-    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
-      {
-      txId = (GLuint) this->TextureResourceIds->GetId(i);
-#ifdef GL_VERSION_1_1
-      if (glIsTexture(txId))
-        {
-        glDeleteTextures(1, &txId);
-        }
-#else
-      if (glIsList(txId))
-        {
-        glDeleteLists(txId,1);
-        }
-#endif
-      }
 
     // tell each of the renderers that this render window/graphics context
     // is being removed (the RendererCollection is removed by vtkRenderWindow's
