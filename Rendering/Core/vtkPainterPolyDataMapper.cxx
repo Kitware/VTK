@@ -286,7 +286,7 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
     // FIXME: This is not supported currently for composite datasets.
     vtkInformationVector *inArrayVec =
       this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
-    int numArrays = inArrayVec->GetNumberOfInformationObjects();
+    int numArrays = (inArrayVec?inArrayVec->GetNumberOfInformationObjects():0);
 
     for(int i = 0; i < numArrays; i++)
       {

@@ -47,6 +47,7 @@ include(vtkObjectFactory)
 
 set(Module_SRCS
   vtkCameraPass.cxx
+  vtkClearRGBPass.cxx
   vtkClearZPass.cxx
   vtkColorMaterialHelper.cxx
   vtkDataTransferHelper.cxx
@@ -104,6 +105,9 @@ set(Module_SRCS
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
   vtkUniformVariables.cxx
+  vtkValuePainter.cxx
+  vtkValuePass.cxx
+  vtkValuePasses.cxx
   vtkVolumetricPass.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLObjectFactory.cxx
