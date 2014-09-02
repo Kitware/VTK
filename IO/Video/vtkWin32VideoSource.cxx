@@ -252,15 +252,25 @@ void vtkWin32VideoSource::Initialize()
     }
 
   // set up the parent window, but don't show it
+  RECT r;
+  r.left = 0;
+  r.top = 0;
+  r.right = this->FrameSize[0];
+  r.bottom = this->FrameSize[1];
+  BOOL result = AdjustWindowRect(&r, style, FALSE);
+  if (!result)
+    {
+    vtkWarningMacro("Initialize: AdjustWindowRect failed, error: "
+      << GetLastError());
+    }
+
   this->Internal->ParentWnd = CreateWindow(
                 this->WndClassName,
                 "VTK Video Window",
                 style,
                 0, 0,
-                this->FrameSize[0]+2*GetSystemMetrics(SM_CXFIXEDFRAME),
-                this->FrameSize[1]+2*GetSystemMetrics(SM_CYFIXEDFRAME)
-                                  +GetSystemMetrics(SM_CYBORDER)
-                                  +GetSystemMetrics(SM_CYSIZE),
+                r.right - r.left,
+                r.bottom - r.top,
                 NULL,
                 NULL,
                 hinstance,
