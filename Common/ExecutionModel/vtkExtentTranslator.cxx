@@ -14,9 +14,26 @@
 =========================================================================*/
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerRequestKey.h"
 #include "vtkLargeInteger.h"
 
 vtkStandardNewMacro(vtkExtentTranslator);
+
+vtkInformationKeyMacro(vtkExtentTranslator, DATA_SPLIT_MODE, Integer);
+
+// Subclass vtkInformationIntegerRequestKey to set the DataKey.
+class vtkInformationSplitModeRequestKey : public vtkInformationIntegerRequestKey
+{
+public:
+  vtkInformationSplitModeRequestKey(const char* name, const char* location) :
+    vtkInformationIntegerRequestKey(name, location)
+    {
+    this->DataKey = vtkExtentTranslator::DATA_SPLIT_MODE();
+    }
+};
+vtkInformationKeySubclassMacro(vtkExtentTranslator, UPDATE_SPLIT_MODE,
+                               SplitModeRequest, IntegerRequest);
 
 //----------------------------------------------------------------------------
 vtkExtentTranslator::vtkExtentTranslator()

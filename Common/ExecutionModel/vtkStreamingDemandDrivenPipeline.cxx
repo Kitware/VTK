@@ -26,6 +26,7 @@
 #include "vtkInformationIdTypeKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerRequestKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
@@ -910,11 +911,17 @@ vtkStreamingDemandDrivenPipeline
         int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
         int ghost = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
 
+        int splitMode = vtkExtentTranslator::BLOCK_MODE;
+        if (outInfo->Has(vtkExtentTranslator::UPDATE_SPLIT_MODE()))
+          {
+          splitMode = outInfo->Get(vtkExtentTranslator::UPDATE_SPLIT_MODE());
+          }
+
         vtkExtentTranslator* et = vtkExtentTranslator::New();
         int execExt[6];
         et->PieceToExtentThreadSafe(piece, numPieces, ghost,
                                     uExt, execExt,
-                                    vtkExtentTranslator::BLOCK_MODE, 0);
+                                    splitMode, 0);
         et->Delete();
         outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                      execExt, 6);
@@ -1251,7 +1258,7 @@ int vtkStreamingDemandDrivenPipeline
   // data and whether the filter should execute.
   vtkSmartPointer<vtkInformationIterator> infoIter =
     vtkSmartPointer<vtkInformationIterator>::New();
-  infoIter->SetInformation(outInfo);
+  infoIter->SetInformationWeak(outInfo);
 
   infoIter->InitTraversal();
   while(!infoIter->IsDoneWithTraversal())

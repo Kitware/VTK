@@ -26,6 +26,8 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkInformationIntegerRequestKey;
+class vtkInformationIntegerKey;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentTranslator : public vtkObject
 {
@@ -98,9 +100,18 @@ public:
     BLOCK_MODE= 3
   };
 
+  // Description:
+  // Key used to request a particular split mode.
+  // This is used by vtkStreamingDemandDrivenPipeline.
+  static vtkInformationIntegerRequestKey* UPDATE_SPLIT_MODE();
+
 protected:
   vtkExtentTranslator();
   ~vtkExtentTranslator();
+
+  static vtkInformationIntegerKey* DATA_SPLIT_MODE();
+
+  friend class vtkInformationSplitModeRequestKey;
 
   // Description:
   // Returns 0 if no data exist for a piece.
