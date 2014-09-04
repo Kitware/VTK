@@ -1813,24 +1813,32 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
     this->GenerateNormals(traceOut, point->GetNormal(), vecName);
     }
 
-  if(traceOut->GetNumberOfPoints()>0 && traceOut->GetLines()->GetNumberOfCells()==0)
+  if(traceOut->GetNumberOfPoints()>0)
     {
-    PRINT( "Fix Single Point Path")
-    AssertEq(traceOut->GetNumberOfPoints(),1); //fix it
-    vtkNew<vtkCellArray> newCells;
-    vtkIdType cell;
-    cell = 0;
-    newCells->InsertNextCell(1,&cell);
-    traceOut->SetLines(newCells.GetPointer());
+    if (traceOut->GetLines()->GetNumberOfCells()==0)
+      {
+      PRINT( "Fix Single Point Path")
+      AssertEq(traceOut->GetNumberOfPoints(),1); //fix it
+      vtkNew<vtkCellArray> newCells;
+      vtkIdType cell;
+      cell = 0;
+      newCells->InsertNextCell(1,&cell);
+      traceOut->SetLines(newCells.GetPointer());
 
-    // Don't forget to add the ReasonForTermination cell array.
-    vtkNew<vtkIntArray> retVals;
-    retVals->SetName("ReasonForTermination");
-    retVals->SetNumberOfTuples(1);
-    retVals->SetValue(0, vtkStreamTracer::OUT_OF_DOMAIN);
-    traceOut->GetCellData()->AddArray(retVals.GetPointer());
+      // Don't forget to add the ReasonForTermination cell array.
+      vtkNew<vtkIntArray> retVals;
+      retVals->SetName("ReasonForTermination");
+      retVals->SetNumberOfTuples(1);
+      retVals->SetValue(0, vtkStreamTracer::OUT_OF_DOMAIN);
+      traceOut->GetCellData()->AddArray(retVals.GetPointer());
+      }
+
+    vtkNew<vtkIntArray> ids;
+    ids->SetName("SeedIds");
+    ids->SetNumberOfTuples(1);
+    ids->SetValue(0, point->GetId());
+    traceOut->GetCellData()->AddArray(ids.GetPointer());
     }
-
   Assert(SameShape(traceOut->GetPointData(),this->Utils->GetProto()->GetTail()->GetPointData()),"trace data does not match prototype");
 
 }

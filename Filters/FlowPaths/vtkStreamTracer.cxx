@@ -717,6 +717,9 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
   vtkIntArray* retVals = vtkIntArray::New();
   retVals->SetName("ReasonForTermination");
 
+  vtkIntArray* sids = vtkIntArray::New();
+  sids->SetName("SeedIds");
+
   vtkSmartPointer<vtkDoubleArray> velocityVectors;
   if(vecType != vtkDataObject::POINT)
     {
@@ -1076,6 +1079,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         outputLines->InsertCellPoint(i);
         }
       retVals->InsertNextValue(retVal);
+      sids->InsertNextValue(seedIds->GetId(currentLine));
       }
 
     // Initialize these to 0 before starting the next line.
@@ -1115,6 +1119,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         }
 
       outputCD->AddArray(retVals);
+      outputCD->AddArray(sids);
       }
     }
 
@@ -1130,6 +1135,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
     cellVectors->Delete();
     }
   retVals->Delete();
+  sids->Delete();
 
   outputPoints->Delete();
   outputLines->Delete();
