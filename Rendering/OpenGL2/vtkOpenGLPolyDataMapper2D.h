@@ -26,7 +26,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper2D.h"
-#include "vtkglVBOHelper.h"
+#include "vtkglVBOHelper.h" // used for ivars
 
 class vtkRenderer;
 class vtkPoints;

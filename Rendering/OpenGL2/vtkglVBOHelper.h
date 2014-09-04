@@ -16,21 +16,18 @@
 #define __vtkGLVBOHelpher_h
 
 #include "vtkglBufferObject.h"
-#include "vtkglShader.h"
-#include "vtkglShaderProgram.h"
 #include "vtkglVertexArrayObject.h"
 
-#include "vtk_glew.h"
-
-#include <vector>
-
-#include "vtkOpenGLShaderCache.h"
+#include "vtk_glew.h" // used for struct ivars
+#include <vector> // used for struct ivars
+#include "vtkTimeStamp.h" // used for struct ivars
 
 class vtkCellArray;
 class vtkPoints;
 class vtkDataArray;
 class vtkPolyData;
 class vtkOpenGLShaderCache;
+class vtkWindow;
 
 namespace vtkgl
 {
@@ -56,7 +53,7 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
 class CellBO
 {
 public:
-  vtkOpenGLShaderCache::CachedShaderProgram *CachedProgram;
+  vtkShaderProgram *Program;
   BufferObject ibo;
   VertexArrayObject vao;
   vtkTimeStamp ShaderSourceTime;
@@ -68,8 +65,8 @@ public:
 
   vtkTimeStamp attributeUpdateTime;
 
-  CellBO() {this->CachedProgram = NULL; };
-  void ReleaseGraphicsResources();
+  CellBO() {this->Program = NULL; };
+  void ReleaseGraphicsResources(vtkWindow *win);
 };
 
 // Sizes/offsets are all in bytes as OpenGL API expects them.

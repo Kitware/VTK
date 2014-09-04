@@ -11,12 +11,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkglVBOHelper.h"
+
 #include "vtkCellArray.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkPolyData.h"
+#include "vtkShaderProgram.h"
 
-#include "vtkglVBOHelper.h"
 
 // we only instantiate some cases to avoid template explosion
 #define vtkFloatDoubleTemplateMacro(call)                                              \
@@ -121,7 +123,11 @@ VBOLayout TemplatedCreateVBO3(T* points, T2* normals, vtkIdType numPts,
         }
       else
         {
-        unsigned char c[4] = { *(colorPtr++), *(colorPtr++), *(colorPtr), 255 };
+        unsigned char c[4];
+        c[0] = *(colorPtr++);
+        c[1] = *(colorPtr++);
+        c[2] = *(colorPtr);
+        c[3] =  255;
         *(it++) = *reinterpret_cast<float *>(c);
         }
       }
@@ -468,12 +474,12 @@ void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
 
 
 
-void CellBO::ReleaseGraphicsResources()
+void CellBO::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->CachedProgram)
+  if (this->Program)
     {
-    this->CachedProgram->ShaderCache->ReleaseGraphicsResources(this->CachedProgram);
-    this->CachedProgram = 0;
+    this->Program->ReleaseGraphicsResources(win);
+    this->Program = 0;
     }
   this->ibo.ReleaseGraphicsResources();
   this->vao.ReleaseGraphicsResources();

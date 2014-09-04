@@ -15,38 +15,29 @@
 
 #include "vtkglVBOHelper.h"
 
-#include "vtkCommand.h"
 #include "vtkCamera.h"
-#include "vtkTransform.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkPolyData.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkPointData.h"
 #include "vtkCellArray.h"
-#include "vtkVector.h"
-#include "vtkProperty.h"
-#include "vtkMatrix3x3.h"
-#include "vtkMatrix4x4.h"
-#include "vtkLookupTable.h"
-#include "vtkCellData.h"
-#include "vtkNew.h"
-#include "vtkSmartPointer.h"
-
-
+#include "vtkCommand.h"
+#include "vtkFloatArray.h"
+#include "vtkHardwareSelector.h"
+#include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
-
+#include "vtkMath.h"
+#include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
-
-#include "vtkFloatArray.h"
-#include "vtkImageData.h"
 #include "vtkOpenGLTexture.h"
-
-#include "vtkHardwareSelector.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkShader.h"
+#include "vtkShaderProgram.h"
+#include "vtkTransform.h"
 
 // Bring in our fragment lit shader symbols.
 #include "vtkglPolyDataVSFragmentLit.h"
@@ -57,6 +48,9 @@
 // bring in vertex lit shader symbols
 #include "vtkglPolyDataVSNoLighting.h"
 #include "vtkglPolyDataFSNoLighting.h"
+
+
+
 
 using vtkgl::replace;
 
@@ -89,10 +83,10 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->VBO.ReleaseGraphicsResources();
-  this->Points.ReleaseGraphicsResources();
-  this->Lines.ReleaseGraphicsResources();
-  this->Tris.ReleaseGraphicsResources();
-  this->TriStrips.ReleaseGraphicsResources();
+  this->Points.ReleaseGraphicsResources(win);
+  this->Lines.ReleaseGraphicsResources(win);
+  this->Tris.ReleaseGraphicsResources(win);
+  this->TriStrips.ReleaseGraphicsResources(win);
 
   if (this->InternalColorTexture)
     {
@@ -392,7 +386,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkR
   // property modified (representation interpolation and lighting)
   // input modified
   // light complexity changed
-  if (cellBO.CachedProgram == 0 ||
+  if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
@@ -421,23 +415,23 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
     this->BuildShader(VSSource,FSSource,GSSource,this->LastLightComplexity,ren,actor);
 
     // compile and bind it if needed
-    vtkOpenGLShaderCache::CachedShaderProgram *newShader =
+    vtkShaderProgram *newShader =
       renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
                                             FSSource.c_str(),
                                             GSSource.c_str());
 
     // if the shader changed reinitialize the VAO
-    if (newShader != cellBO.CachedProgram)
+    if (newShader != cellBO.Program)
       {
-      cellBO.CachedProgram = newShader;
+      cellBO.Program = newShader;
       cellBO.vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
       }
 
     cellBO.ShaderSourceTime.Modified();
     }
-    else
+  else
     {
-    renWin->GetShaderCache()->ReadyShader(cellBO.CachedProgram);
+    renWin->GetShaderCache()->ReadyShader(cellBO.Program);
     }
 
   this->SetMapperShaderParameters(cellBO, ren, actor);
@@ -458,7 +452,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
   if (cellBO.indexCount && this->OpenGLUpdateTime > cellBO.attributeUpdateTime)
     {
     cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
+    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
@@ -466,7 +460,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     if (layout.NormalOffset && this->LastLightComplexity > 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
+      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                       "normalMC", layout.NormalOffset,
                                       layout.Stride, VTK_FLOAT, 3, false))
         {
@@ -475,7 +469,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     if (layout.TCoordComponents)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
+      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", layout.TCoordOffset,
                                       layout.Stride, VTK_FLOAT, layout.TCoordComponents, false))
         {
@@ -484,7 +478,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     if (layout.ColorComponents != 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
+      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                       "scalarColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
@@ -507,7 +501,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       texture = actor->GetProperty()->GetTexture(0);
       }
     int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
-    cellBO.CachedProgram->Program.SetUniformi("texture1", tunit);
+    cellBO.Program->SetUniformi("texture1", tunit);
     }
 
   // if depth peeling set the required uniforms
@@ -515,32 +509,32 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
     {
     vtkOpenGLRenderer *oglren = vtkOpenGLRenderer::SafeDownCast(ren);
     int otunit = oglren->GetOpaqueZTextureUnit();
-    cellBO.CachedProgram->Program.SetUniformi("opaqueZTexture", otunit);
+    cellBO.Program->SetUniformi("opaqueZTexture", otunit);
 
     int ttunit = oglren->GetTranslucentZTextureUnit();
-    cellBO.CachedProgram->Program.SetUniformi("translucentZTexture", ttunit);
+    cellBO.Program->SetUniformi("translucentZTexture", ttunit);
 
     int *renSize = ren->GetSize();
     float screenSize[2];
     screenSize[0] = renSize[0];
     screenSize[1] = renSize[1];
-    cellBO.CachedProgram->Program.SetUniform2f("screenSize", screenSize);
+    cellBO.Program->SetUniform2f("screenSize", screenSize);
     }
 
   if (this->LastSelectionState)
     {
-    cellBO.CachedProgram->Program.SetUniformi("pickingAttributeIDOffset", this->pickingAttributeIDOffset);
+    cellBO.Program->SetUniformi("pickingAttributeIDOffset", this->pickingAttributeIDOffset);
     vtkHardwareSelector* selector = ren->GetSelector();
     if (selector)
       {
       if (selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24)
         {
         float tmp[3] = {0,0,0};
-        cellBO.CachedProgram->Program.SetUniform3f("mapperIndex", tmp);
+        cellBO.Program->SetUniform3f("mapperIndex", tmp);
         }
       else
         {
-        cellBO.CachedProgram->Program.SetUniform3f("mapperIndex", selector->GetPropColorValue());
+        cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
         }
       }
     else
@@ -548,7 +542,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       unsigned int idx = ren->GetCurrentPickId();
       float color[3];
       vtkHardwareSelector::Convert(idx, color);
-      cellBO.CachedProgram->Program.SetUniform3f("mapperIndex", color);
+      cellBO.Program->SetUniform3f("mapperIndex", color);
       }
     }
 }
@@ -563,7 +557,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
     return;
     }
 
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+  vtkShaderProgram *program = cellBO.Program;
 
   // for lightkit case there are some parameters to set
   vtkCamera *cam = ren->GetActiveCamera();
@@ -602,9 +596,9 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
       }
     }
 
-  program.SetUniform3fv("lightColor", numberOfLights, lightColor);
-  program.SetUniform3fv("lightDirectionVC", numberOfLights, lightDirection);
-  program.SetUniformi("numberOfLights", numberOfLights);
+  program->SetUniform3fv("lightColor", numberOfLights, lightColor);
+  program->SetUniform3fv("lightDirectionVC", numberOfLights, lightDirection);
+  program->SetUniformi("numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights
   if (this->LastLightComplexity < 3)
@@ -639,23 +633,23 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
       numberOfLights++;
       }
     }
-  program.SetUniform3fv("lightAttenuation", numberOfLights, lightAttenuation);
-  program.SetUniform1iv("lightPositional", numberOfLights, lightPositional);
-  program.SetUniform3fv("lightPositionWC", numberOfLights, lightPosition);
-  program.SetUniform1fv("lightExponent", numberOfLights, lightExponent);
-  program.SetUniform1fv("lightConeAngle", numberOfLights, lightConeAngle);
+  program->SetUniform3fv("lightAttenuation", numberOfLights, lightAttenuation);
+  program->SetUniform1iv("lightPositional", numberOfLights, lightPositional);
+  program->SetUniform3fv("lightPositionWC", numberOfLights, lightPosition);
+  program->SetUniform1fv("lightExponent", numberOfLights, lightExponent);
+  program->SetUniform1fv("lightConeAngle", numberOfLights, lightConeAngle);
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+  vtkShaderProgram *program = cellBO.Program;
 
   // set the MCWC matrix for positional lighting
   if (this->LastLightComplexity > 2)
     {
-    program.SetUniformMatrix("MCWCMatrix", actor->GetMatrix());
+    program->SetUniformMatrix("MCWCMatrix", actor->GetMatrix());
     }
 
   vtkCamera *cam = ren->GetActiveCamera();
@@ -667,7 +661,7 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
 
   tmpMat->Transpose();
-  program.SetUniformMatrix("MCVCMatrix", tmpMat.Get());
+  program->SetUniformMatrix("MCVCMatrix", tmpMat.Get());
 
   // for lit shaders set normal matrix
   if (this->LastLightComplexity > 0)
@@ -694,12 +688,12 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
         }
       }
     tmpMat3d->Invert();
-    program.SetUniformMatrix("normalMatrix", tmpMat3d.Get());
+    program->SetUniformMatrix("normalMatrix", tmpMat3d.Get());
     }
 
   vtkMatrix4x4 *tmpProj;
   tmpProj = cam->GetProjectionTransformMatrix(ren); // allocates a matrix
-  program.SetUniformMatrix("VCDCMatrix", tmpProj);
+  program->SetUniformMatrix("VCDCMatrix", tmpProj);
   tmpProj->UnRegister(this);
 }
 
@@ -707,7 +701,7 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
                                                        vtkRenderer*, vtkActor *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+  vtkShaderProgram *program = cellBO.Program;
 
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
@@ -722,16 +716,16 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity), static_cast<float>(sColor[1] * sIntensity), static_cast<float>(sColor[2] * sIntensity)};
   double specularPower = actor->GetProperty()->GetSpecularPower();
 
-  program.SetUniformf("opacityUniform", opacity);
-  program.SetUniform3f("ambientColorUniform", ambientColor);
-  program.SetUniform3f("diffuseColorUniform", diffuseColor);
+  program->SetUniformf("opacityUniform", opacity);
+  program->SetUniform3f("ambientColorUniform", ambientColor);
+  program->SetUniform3f("diffuseColorUniform", diffuseColor);
   // we are done unless we have lighting
   if (this->LastLightComplexity < 1)
     {
     return;
     }
-  program.SetUniform3f("specularColor", specularColor);
-  program.SetUniformf("specularPower", specularPower);
+  program->SetUniform3f("specularColor", specularColor);
+  program->SetUniformf("specularPower", specularPower);
 }
 
 //-----------------------------------------------------------------------------

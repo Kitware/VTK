@@ -30,6 +30,10 @@
 
 #include "vtkHardwareSelector.h"
 
+#include "vtkShader.h"
+#include "vtkShaderProgram.h"
+
+
 using vtkgl::replace;
 
 //-----------------------------------------------------------------------------
@@ -68,7 +72,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
     }
 
   // handle the middle
-  vtkgl::ShaderProgram &program = this->Tris.CachedProgram->Program;
+  vtkShaderProgram *program = this->Tris.Program;
   vtkgl::VBOLayout &layout = this->Layout;
 
 
@@ -82,7 +86,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
   vtkMatrix4x4::Multiply4x4(tmpMat.Get(), gmat, tmpMat.Get());
 
   tmpMat->Transpose();
-  program.SetUniformMatrix("MCVCMatrix", tmpMat.Get());
+  program->SetUniformMatrix("MCVCMatrix", tmpMat.Get());
 
   // for lit shaders set normal matrix
   if (this->LastLightComplexity > 0)
@@ -106,20 +110,20 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, unsi
         }
       }
     tmpMat3d->Invert();
-    program.SetUniformMatrix("normalMatrix", tmpMat3d.Get());
+    program->SetUniformMatrix("normalMatrix", tmpMat3d.Get());
     }
 
   // Query the actor for some of the properties that can be applied.
   float diffuseColor[3] = {rgba[0]/255.0f,rgba[1]/255.0f,rgba[2]/255.0f};
   float opacity = rgba[3]/255.0f;
 
-  program.SetUniformf("opacityUniform", opacity);
-  program.SetUniform3f("diffuseColorUniform", diffuseColor);
+  program->SetUniformf("opacityUniform", opacity);
+  program->SetUniform3f("diffuseColorUniform", diffuseColor);
 
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector)
     {
-    program.SetUniform3f("mapperIndex", selector->GetPropColorValue());
+    program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
     float *fv = selector->GetPropColorValue();
     int iv = (int)(fv[0]*255) + (int)(fv[1]*255)*256;
     if (iv == 0)
@@ -165,12 +169,12 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   // do the superclass and then reset a couple values
   this->Superclass::SetCameraShaderParameters(cellBO,ren,actor);
 
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+  vtkShaderProgram *program = cellBO.Program;
 
   // set the MCWC matrix for positional lighting
   if (this->LastLightComplexity > 2)
     {
-    program.SetUniformMatrix("MCWCMatrix", actor->GetMatrix());
+    program->SetUniformMatrix("MCWCMatrix", actor->GetMatrix());
     }
 
   vtkCamera *cam = ren->GetActiveCamera();
@@ -189,7 +193,7 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
    }
 
   tmpMat->Transpose();
-  program.SetUniformMatrix("MCVCMatrix", tmpMat.Get());
+  program->SetUniformMatrix("MCVCMatrix", tmpMat.Get());
 
   // for lit shaders set normal matrix
   if (this->LastLightComplexity > 0)
@@ -216,7 +220,7 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
         }
       }
     tmpMat3d->Invert();
-    program.SetUniformMatrix("normalMatrix", tmpMat3d.Get());
+    program->SetUniformMatrix("normalMatrix", tmpMat3d.Get());
     }
 }
 
@@ -227,7 +231,7 @@ void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   // do the superclass and then reset a couple values
   this->Superclass::SetPropertyShaderParameters(cellBO,ren,actor);
 
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+  vtkShaderProgram *program = cellBO.Program;
 
   // Override the model color when the value was set directly on the mapper.
   float diffuseColor[3];
@@ -237,8 +241,8 @@ void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
     }
   float opacity = this->ModelColor[3]/255.0;
 
-  program.SetUniformf("opacityUniform", opacity);
-  program.SetUniform3f("diffuseColorUniform", diffuseColor);
+  program->SetUniformf("opacityUniform", opacity);
+  program->SetUniform3f("diffuseColorUniform", diffuseColor);
 }
 
 
