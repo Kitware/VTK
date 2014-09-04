@@ -23,6 +23,8 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkglVBOHelper.h"
+#include "vtkShader.h"
+#include "vtkShaderProgram.h"
 
 #include "vtksys/MD5.h"
 
@@ -34,7 +36,7 @@ public:
   vtksysMD5* md5;
 
   // map of hash to shader program structs
-  std::map<std::string, CachedShaderProgram *> ShaderPrograms;
+  std::map<std::string, vtkShaderProgram *> ShaderPrograms;
 
   Private()
   {
@@ -81,11 +83,18 @@ vtkOpenGLShaderCache::vtkOpenGLShaderCache() : Internal(new Private)
 // ----------------------------------------------------------------------------
 vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
 {
+  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
+  SMapIter iter = this->Internal->ShaderPrograms.begin();
+  for ( ; iter != this->Internal->ShaderPrograms.end(); iter++)
+    {
+    iter->second->Delete();
+    }
+
   delete this->Internal;
 }
 
 // return NULL if there is an issue
-vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
+vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   const char *vertexCode,
   const char *fragmentCode,
   const char *geometryCode)
@@ -108,7 +117,7 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
                               "#define highp\n"
                               "#define mediump\n"
                               "#define lowp");
-  CachedShaderProgram *shader = this->GetShader(VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+  vtkShaderProgram *shader = this->GetShader(VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
 #else
   std::string FSSource = fragmentCode;
   FSSource = replace(FSSource,"//VTK::System::Dec",
@@ -119,7 +128,7 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
                                "precision mediump float;\n"
                                "#endif\n"
                                "#endif\n");
-  CachedShaderProgram *shader = this->GetShader(vertexCode, FSSource.c_str(), geometryCode);
+  vtkShaderProgram *shader = this->GetShader(vertexCode, FSSource.c_str(), geometryCode);
 #endif
 
   if (!shader)
@@ -128,7 +137,7 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
     }
 
   // compile if needed
-  if (!shader->Compiled && !this->CompileShader(shader))
+  if (!shader->GetCompiled() && !shader->CompileShader())
     {
     return NULL;
     }
@@ -143,11 +152,11 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
 }
 
 // return NULL if there is an issue
-vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
-    vtkOpenGLShaderCache::CachedShaderProgram *shader)
+vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
+    vtkShaderProgram *shader)
 {
   // compile if needed
-  if (!shader->Compiled && !this->CompileShader(shader))
+  if (!shader->GetCompiled() && !shader->CompileShader())
     {
     return NULL;
     }
@@ -161,7 +170,7 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   return shader;
 }
 
-vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(
+vtkShaderProgram *vtkOpenGLShaderCache::GetShader(
   const char *vertexCode,
   const char *fragmentCode,
   const char *geometryCode)
@@ -171,24 +180,19 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(
   this->Internal->ComputeMD5(vertexCode, fragmentCode, geometryCode, result);
 
   // does it already exist?
-  typedef std::map<std::string,vtkOpenGLShaderCache::CachedShaderProgram*>::const_iterator SMapIter;
+  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter found = this->Internal->ShaderPrograms.find(result);
   if (found == this->Internal->ShaderPrograms.end())
     {
     // create one
-    vtkOpenGLShaderCache::CachedShaderProgram *sps = new vtkOpenGLShaderCache::CachedShaderProgram();
-    sps->VS.SetSource(vertexCode);
-    sps->VS.SetType(vtkgl::Shader::Vertex);
-    sps->FS.SetSource(fragmentCode);
-    sps->FS.SetType(vtkgl::Shader::Fragment);
+    vtkShaderProgram *sps = vtkShaderProgram::New();
+    sps->GetVertexShader()->SetSource(vertexCode);
+    sps->GetFragmentShader()->SetSource(fragmentCode);
     if (geometryCode != NULL)
       {
-      sps->GS.SetSource(geometryCode);
-      sps->GS.SetType(vtkgl::Shader::Geometry);
+      sps->GetGeometryShader()->SetSource(geometryCode);
       }
-    sps->Compiled = false;
-    sps->md5Hash = result;
-    sps->ShaderCache = this;
+    sps->SetMD5Hash(result); // needed?
     this->Internal->ShaderPrograms.insert(std::make_pair(result, sps));
     return sps;
     }
@@ -198,83 +202,13 @@ vtkOpenGLShaderCache::CachedShaderProgram *vtkOpenGLShaderCache::GetShader(
     }
 }
 
-// return 0 if there is an issue
-int vtkOpenGLShaderCache::CompileShader(vtkOpenGLShaderCache::CachedShaderProgram* shader)
+void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(win))
 {
-  if (!shader->VS.Compile())
-    {
-    vtkErrorMacro(<< shader->VS.GetError());
-
-    int lineNum = 1;
-    std::istringstream stream(shader->VS.GetSource());
-    std::stringstream sstm;
-    std::string aline;
-    while (std::getline(stream, aline))
-      {
-      sstm << lineNum << ": " << aline << "\n";
-      lineNum++;
-      }
-    vtkErrorMacro(<< sstm.str());
-    return 0;
-    }
-  if (!shader->FS.Compile())
-    {
-    vtkErrorMacro(<< shader->FS.GetError());
-    int lineNum = 1;
-    std::istringstream stream(shader->FS.GetSource());
-    std::stringstream sstm;
-    std::string aline;
-    while (std::getline(stream, aline))
-      {
-      sstm << lineNum << ": " << aline << "\n";
-      lineNum++;
-      }
-    vtkErrorMacro(<< sstm.str());
-    return 0;
-    }
-  if (!shader->Program.AttachShader(shader->VS))
-    {
-    vtkErrorMacro(<< shader->Program.GetError());
-    return 0;
-    }
-  if (!shader->Program.AttachShader(shader->FS))
-    {
-    vtkErrorMacro(<< shader->Program.GetError());
-    return 0;
-    }
-  if (!shader->Program.Link())
-    {
-    vtkErrorMacro(<< "Links failed: " << shader->Program.GetError());
-    return 0;
-    }
-
-  shader->Compiled = true;
-  return 1;
-}
-
-void vtkOpenGLShaderCache::ReleaseGraphicsResources(
-    vtkOpenGLShaderCache::CachedShaderProgram *shader)
-{
-  // release if we need to
-  if (this->LastShaderBound == shader)
-    {
-    this->LastShaderBound->Program.Release();
-    }
   this->LastShaderBound = NULL;
-
-  if (shader->Compiled)
-    {
-    shader->Program.DetachShader(shader->VS);
-    shader->Program.DetachShader(shader->FS);
-    shader->VS.Cleanup();
-    shader->FS.Cleanup();
-    shader->Program.ReleaseGraphicsResources();
-    shader->Compiled = false;
-    }
 }
 
 
-int vtkOpenGLShaderCache::BindShader(vtkOpenGLShaderCache::CachedShaderProgram* shader)
+int vtkOpenGLShaderCache::BindShader(vtkShaderProgram* shader)
 {
   if (this->LastShaderBound == shader)
     {
@@ -284,9 +218,9 @@ int vtkOpenGLShaderCache::BindShader(vtkOpenGLShaderCache::CachedShaderProgram* 
   // release prior shader
   if (this->LastShaderBound)
     {
-    this->LastShaderBound->Program.Release();
+    this->LastShaderBound->Release();
     }
-  shader->Program.Bind();
+  shader->Bind();
   this->LastShaderBound = shader;
   return 1;
 }

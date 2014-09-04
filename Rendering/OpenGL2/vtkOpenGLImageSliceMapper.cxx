@@ -320,10 +320,12 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     id->SetExtent(0,xsize-1,0,ysize-1,0,0);
     vtkUnsignedCharArray *uca = vtkUnsignedCharArray::New();
     uca->SetNumberOfComponents(bytesPerPixel);
-    uca->SetArray(data,xsize*ysize*bytesPerPixel,!reuseData);
+    uca->SetArray(data,xsize*ysize*bytesPerPixel,reuseData);
     id->GetPointData()->SetScalars(uca);
+    uca->Delete();
 
     this->PolyDataActor->GetTexture()->SetInputData(id);
+    id->Delete();
 
     if (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION &&
         !this->ExactPixelMatch)
@@ -664,8 +666,6 @@ bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
 // Set the modelview transform and load the texture
 void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-
   vtkOpenGLClearErrorMacro();
 
   vtkOpenGLRenderWindow *renWin =
@@ -688,7 +688,7 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                  this->DataWholeExtent);
 
-  matrix = this->GetDataToWorldMatrix();
+  vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
   this->PolyDataActor->SetUserMatrix(matrix);
   this->BackingPolyDataActor->SetUserMatrix(matrix);
   this->BackgroundPolyDataActor->SetUserMatrix(matrix);

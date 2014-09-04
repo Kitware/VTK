@@ -129,6 +129,8 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
     aren->SetRenderWindow(NULL);
     aren->SetRenderWindow(this);
     }
+  this->ShaderCache->ReleaseGraphicsResources(this);
+
   // if(this->DrawPixelsActor!=0)
   //   {
   //   this->DrawPixelsActor->ReleaseGraphicsResources(this);
@@ -664,7 +666,6 @@ void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numCo
 
   if (y1 < y2)
     {
-
     y_low = y1;
     y_hi  = y2;
     }
@@ -749,8 +750,9 @@ void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numCo
   da->SetNumberOfComponents(numComponents);
   da->SetVoidArray(data,(x_hi-x_low+1)*(y_hi-y_low+1)*numComponents,true);
   id->GetPointData()->SetScalars(da);
-
+  da->Delete();
   this->DrawPixelsActor->GetTexture()->SetInputData(id);
+  id->Delete();
 
   glDisable( GL_SCISSOR_TEST );
   glViewport(0, 0, this->Size[0], this->Size[1]);

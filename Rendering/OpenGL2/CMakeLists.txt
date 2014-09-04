@@ -51,8 +51,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
 set(Module_SRCS
   vtkglBufferObject.cxx
   vtkglVBOHelper.cxx
-  vtkglShader.cxx
-  vtkglShaderProgram.cxx
+  vtkShader.cxx
+  vtkShaderProgram.cxx
   vtkglVertexArrayObject.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
@@ -94,8 +94,8 @@ set(${vtk-module}_HDRS
 set_source_files_properties(
   vtkglBufferObject
   vtkglVBOHelper
-  vtkglShader
-  vtkglShaderProgram
+  vtkShader
+  vtkShaderProgram
   vtkglVertexArrayObject
   vtkFrameBufferObject
   vtkOpenGLActor

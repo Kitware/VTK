@@ -20,7 +20,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
-#include "vtkglVBOHelper.h"
+#include "vtkglVBOHelper.h" // used for ivars
 
 class vtkOpenGLTexture;
 

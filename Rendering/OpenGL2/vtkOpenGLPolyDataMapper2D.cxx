@@ -17,28 +17,23 @@
 #include "vtkglVBOHelper.h"
 
 #include "vtkActor2D.h"
-#include "vtkTexturedActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
-#include "vtkPlane.h"
-#include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty2D.h"
-#include "vtkScalarsToColors.h"
+#include "vtkShader.h"
+#include "vtkShaderProgram.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
-#include "vtkWindow.h"
-#include "vtkOpenGLError.h"
-
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLShaderCache.h"
-#include "vtkOpenGLRenderer.h"
-
-#include <cmath>
 
 // Bring in our shader symbols.
 #include "vtkglPolyData2DVS.h"
@@ -64,14 +59,13 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(win))
+void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->VBO.ReleaseGraphicsResources();
-  this->Points.ReleaseGraphicsResources();
-  this->Lines.ReleaseGraphicsResources();
-  this->Tris.ReleaseGraphicsResources();
-  this->TriStrips.ReleaseGraphicsResources();
-
+  this->Points.ReleaseGraphicsResources(win);
+  this->Lines.ReleaseGraphicsResources(win);
+  this->Tris.ReleaseGraphicsResources(win);
+  this->TriStrips.ReleaseGraphicsResources(win);
   this->Modified();
 }
 
@@ -92,7 +86,7 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vt
   // property modified (representation interpolation and lighting)
   // input modified
   // light complexity changed
-  if (cellBO.CachedProgram == 0 ||
+  if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
@@ -221,21 +215,21 @@ void vtkOpenGLPolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
     std::string FSSource;
     std::string GSSource;
     this->BuildShader(VSSource,FSSource,GSSource,viewport,actor);
-    vtkOpenGLShaderCache::CachedShaderProgram *newShader =
+    vtkShaderProgram *newShader =
       renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
                                             FSSource.c_str(),
                                             GSSource.c_str());
     cellBO.ShaderSourceTime.Modified();
     // if the shader changed reinitialize the VAO
-    if (newShader != cellBO.CachedProgram)
+    if (newShader != cellBO.Program)
       {
-      cellBO.CachedProgram = newShader;
+      cellBO.Program = newShader;
       cellBO.vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
       }
     }
     else
     {
-    renWin->GetShaderCache()->ReadyShader(cellBO.CachedProgram);
+    renWin->GetShaderCache()->ReadyShader(cellBO.Program);
     }
 
 
@@ -257,7 +251,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
   if (this->VBOUpdateTime > cellBO.attributeUpdateTime)
     {
     cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
+    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                     "vertexWC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
@@ -265,7 +259,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       }
     if (layout.TCoordComponents)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
+      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", layout.TCoordOffset,
                                       layout.Stride, VTK_FLOAT, layout.TCoordComponents, false))
         {
@@ -274,7 +268,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       }
     if (layout.ColorComponents != 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.CachedProgram->Program, this->VBO,
+      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                       "diffuseColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
@@ -294,36 +288,36 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       vtkOpenGLTexture *texture = vtkOpenGLTexture::SafeDownCast(ta->GetTexture());
       tunit = texture->GetTextureUnit();
       }
-    cellBO.CachedProgram->Program.SetUniformi("texture1", tunit);
+    cellBO.Program->SetUniformi("texture1", tunit);
     }
 
   // if depth peeling for trabslucetn compositing
   if (ren->GetLastRenderingUsedDepthPeeling() == 2)
     {
     int ttunit = ren->GetTranslucentRGBATextureUnit();
-    cellBO.CachedProgram->Program.SetUniformi("translucentRGBATexture", ttunit);
+    cellBO.Program->SetUniformi("translucentRGBATexture", ttunit);
     int ctunit = ren->GetCurrentRGBATextureUnit();
-    cellBO.CachedProgram->Program.SetUniformi("currentRGBATexture", ctunit);
+    cellBO.Program->SetUniformi("currentRGBATexture", ctunit);
 
     int *renSize = ren->GetSize();
     float screenSize[2];
     screenSize[0] = renSize[0];
     screenSize[1] = renSize[1];
-    cellBO.CachedProgram->Program.SetUniform2f("screenSize", screenSize);
+    cellBO.Program->SetUniform2f("screenSize", screenSize);
     }
   // if depth peeling final compositing
   if (ren->GetLastRenderingUsedDepthPeeling() == 3)
     {
     int ttunit = ren->GetTranslucentRGBATextureUnit();
-    cellBO.CachedProgram->Program.SetUniformi("translucentRGBATexture", ttunit);
+    cellBO.Program->SetUniformi("translucentRGBATexture", ttunit);
     int ctunit = ren->GetOpaqueRGBATextureUnit();
-    cellBO.CachedProgram->Program.SetUniformi("opaqueRGBATexture", ctunit);
+    cellBO.Program->SetUniformi("opaqueRGBATexture", ctunit);
 
     int *renSize = ren->GetSize();
     float screenSize[2];
     screenSize[0] = renSize[0];
     screenSize[1] = renSize[1];
-    cellBO.CachedProgram->Program.SetUniform2f("screenSize", screenSize);
+    cellBO.Program->SetUniform2f("screenSize", screenSize);
     }
 }
 
@@ -331,21 +325,21 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
 void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport*, vtkActor2D *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+  vtkShaderProgram *program = cellBO.Program;
 
   // Query the actor for some of the properties that can be applied.
   float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
   double *dColor = actor->GetProperty()->GetColor();
   float diffuseColor[4] = {static_cast<float>(dColor[0]), static_cast<float>(dColor[1]), static_cast<float>(dColor[2]), static_cast<float>(opacity)};
 
-  program.SetUniform4f("diffuseColor", diffuseColor);
+  program->SetUniform4f("diffuseColor", diffuseColor);
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport* viewport, vtkActor2D *actor)
 {
-  vtkgl::ShaderProgram &program = cellBO.CachedProgram->Program;
+  vtkShaderProgram *program = cellBO.Program;
 
   // Get the position of the actor
   int size[2];
@@ -419,7 +413,7 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
   tmpMat->SetElement(1,3,-1.0*(top+bottom)/(top-bottom));
   tmpMat->SetElement(2,3,-1.0*(farV+nearV)/(farV-nearV));
   tmpMat->Transpose();
-  program.SetUniformMatrix("WCVCMatrix", tmpMat);
+  program->SetUniformMatrix("WCVCMatrix", tmpMat);
 
   tmpMat->Delete();
 }

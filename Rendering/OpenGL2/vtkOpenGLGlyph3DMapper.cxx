@@ -312,6 +312,13 @@ void vtkOpenGLGlyph3DMapper::Render(
       entry->LastSelectingState != selecting_points)
     {
     entry->Colors.resize(numPts*4);
+    // delete any prior matrices
+    std::vector<vtkMatrix4x4 * >::iterator miter = entry->Matrices.begin();
+    for (;miter != entry->Matrices.end(); miter++)
+      {
+      (*miter)->Delete();
+      (*miter) = NULL;;
+      }
     entry->Matrices.resize(numPts);
     vtkTransform *trans = vtkTransform::New();
     vtkDataArray* scaleArray = this->GetScaleArray(dataset);
