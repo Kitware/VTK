@@ -11,9 +11,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLPolyDataMapper - PolyDataMapper using OpenGL to render.
+// .NAME vtkShader - encapsulate a glsl shader
 // .SECTION Description
-// PolyDataMapper that uses a OpenGL to do the actual rendering.
+// vtkShader represents a shader, vertex, fragment, geometry etc
 #ifndef __vtkShader_h
 #define __vtkShader_h
 
