@@ -4,7 +4,7 @@ find_package(GLEW REQUIRED)
 
  # Source files
 set(Module_SRCS
-  vtkGPUVolumeRayCastMapper.cxx
+  #vtkGPUVolumeRayCastMapper.cxx
   vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkGLSLShader.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)

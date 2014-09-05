@@ -18,7 +18,7 @@
 
 #include "vtkVolume2Module.h" // For export macro
 
-#include "vtkGPUVolumeRayCastMapper.h"
+#include <vtkGPUVolumeRayCastMapper.h>
 
 #include <vtkSetGet.h>
 
@@ -46,6 +46,24 @@ class VTKVOLUME2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
     /// Description:
     /// Rendering volume on GPU
     void GPURender(vtkRenderer *ren, vtkVolume *vol);
+
+    // Methods called by the AMR Volume Mapper.
+    virtual void PreRender(vtkRenderer *ren,
+                           vtkVolume *vol,
+                           double datasetBounds[6],
+                           double scalarRange[2],
+                           int numberOfScalarComponents,
+                           unsigned int numberOfLevels){};
+
+    // \pre input is up-to-date
+    virtual void RenderBlock(vtkRenderer *ren,
+                             vtkVolume *vol,
+                             unsigned int level){};
+
+    virtual void PostRender(vtkRenderer *ren,
+                            int numberOfScalarComponents){};
+
+    void GetReductionRatio(double ratio[3]){};
 
     class vtkInternal;
     vtkInternal* Implementation;
