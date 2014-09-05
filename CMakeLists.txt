@@ -84,7 +84,7 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
 
 # some specific defaults for Andriod to give folks
 # a reasonable starting point
-if (ANDROID)
+if (ANDROID OR APPLE_IOS)
   SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2
        CACHE STRING "Result from TRY_RUN" FORCE)
   SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
@@ -110,23 +110,36 @@ if (ANDROID)
   # set(Module_vtkFiltersGeometry ON)
   set(Module_vtkRenderingCore ON)
 
-  # find opengl es2 (maybe someday add an option for ES3)
-  find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h
-     ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
-     ${_OPENGL_INCLUDE_PATH}
-     )
-  find_library(OPENGL_gl_LIBRARY
-     NAMES GLESv2
-     PATHS
-       ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-       ${_OPENGL_LIB_PATH}
-     )
-  find_library(OPENGL_egl_LIBRARY
-     NAMES EGL
-     PATHS
-       ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
-       ${_OPENGL_LIB_PATH}
-     )
+  if (APPLE_IOS)
+    find_path(OPENGL_INCLUDE_DIR ES2/gl.h
+       ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
+       ${_OPENGL_INCLUDE_PATH}
+       )
+    find_library(OPENGL_gl_LIBRARY
+       NAMES OpenGLES
+       PATHS
+         ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks
+         ${_OPENGL_LIB_PATH}
+       )
+  else ()
+    # find opengl es2 (maybe someday add an option for ES3)
+    find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h
+       ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
+       ${_OPENGL_INCLUDE_PATH}
+       )
+    find_library(OPENGL_gl_LIBRARY
+       NAMES GLESv2
+       PATHS
+         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
+         ${_OPENGL_LIB_PATH}
+       )
+    find_library(OPENGL_egl_LIBRARY
+       NAMES EGL
+       PATHS
+         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
+         ${_OPENGL_LIB_PATH}
+       )
+  endif()
 endif()
 
 # Choose static or shared libraries.

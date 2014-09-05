@@ -195,8 +195,9 @@ void vtkOpenGLPolyDataMapper2D::BuildShader(
       "vec4 t1Color = texture2D(translucentRGBATexture, gl_FragCoord.xy/screenSize);\n"
       "vec4 t2Color = texture2D(opaqueRGBATexture, gl_FragCoord.xy/screenSize);\n"
       "gl_FragColor.a = 1.0;\n"
-      "gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a));\n"
-   //   "gl_FragColor.rgb = (t1Color.rgb*0.5 + t2Color.rgb*0.5);\n"
+   //   "gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a));\n"
+      "gl_FragColor.rgb = (t1Color.rgb*0.5 + t2Color.rgb*0.5);\n"
+      "gl_FragColor.r = 1.0;\n"
       );
     }
 
