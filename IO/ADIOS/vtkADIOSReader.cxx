@@ -243,7 +243,8 @@ bool vtkADIOSReader::RequestInformation(vtkInformation *vtkNotUsed(req),
     this->TimeSteps.resize(varTimeSteps->GetNumSteps());
     for(int t = 0; t < varTimeSteps->GetNumSteps(); ++t)
       {
-      this->TimeSteps[t] = varTimeSteps->GetValues<double>(t)[0];
+      const std::vector<double>& values = varTimeSteps->GetValues<double>(t);
+      this->TimeSteps[t] = values[0];
       }
     }
 
