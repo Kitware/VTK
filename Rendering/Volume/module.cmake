@@ -1,3 +1,7 @@
+if (Module_vtkVolumeOpenGL2)
+  set(VTK_RENDERING_VOLUME_BACKEND "vtkVolumeOpenGL2")
+endif()
+
 vtk_module(vtkRenderingVolume
   GROUPS
     Rendering
@@ -8,6 +12,7 @@ vtk_module(vtkRenderingVolume
     vtkTestingCore
     vtkTestingRendering
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    ${VTK_RENDERING_VOLUME_BACKEND}
     vtkRenderingFreeType
     vtkIOXML
     vtkImagingSources

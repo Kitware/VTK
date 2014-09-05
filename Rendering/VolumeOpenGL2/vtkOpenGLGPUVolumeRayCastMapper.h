@@ -16,7 +16,7 @@
 #ifndef __vtkOpenGLGPUVolumeRayCastMapper_h
 #define __vtkOpenGLGPUVolumeRayCastMapper_h
 
-#include "vtkVolume2Module.h" // For export macro
+#include "vtkVolumeOpenGL2Module.h" // For export macro
 
 #include <vtkGPUVolumeRayCastMapper.h>
 
@@ -26,7 +26,7 @@
 ///
 /// \brief The vtkOpenGLGPUVolumeRayCastMapper class
 ///
-class VTKVOLUME2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
+class VTKVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
 {
   public:
@@ -64,6 +64,12 @@ class VTKVOLUME2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
                             int numberOfScalarComponents){};
 
     void GetReductionRatio(double ratio[3]){};
+
+    virtual int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
+                                  vtkVolumeProperty *vtkNotUsed(property))
+      {
+        return 1;
+      }
 
     class vtkInternal;
     vtkInternal* Implementation;

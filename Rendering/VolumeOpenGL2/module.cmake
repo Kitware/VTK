@@ -1,23 +1,25 @@
-vtk_module(vtkRenderingVolumeOpenGL2
+vtk_module(vtkVolumeOpenGL2
   TCL_NAME
-    vtkRenderingVolumeOpenGLII
+    vtkVolumeOpenGLII
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkFiltersSources
+    vtkRenderingVolume
+    vtkRenderingOpenGL
   IMPLEMENTS
     vtkRenderingVolume
-  BACKEND
-    OpenGL2
-  DEPENDS
-    vtkRenderingOpenGL2
-  PRIVATE_DEPENDS
-    vtksys
-    vtkFiltersGeneral
-    vtkFiltersSources
   TEST_DEPENDS
+    vtkCommonCore
+    vtkFiltersModeling
+    vtkIOLegacy
+    vtkIOXML
+    vtkInteractionStyle
+    vtkVolumeOpenGL2
+    vtkRenderingOpenGL
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingFreeType
-    vtkImagingSources
-    vtkImagingGeneral
-    vtkInteractionStyle
   KIT
     vtkOpenGL
-  )
+)

@@ -1,3 +1,9 @@
+set(VTK_VOLUMEOPENGL2)
+
+if (Module_vtkVolumeOpenGL2)
+  set(VTK_VOLUMEOPENGL2 vtkVolumeOpenGL2)
+endif()
+
 vtk_module(vtkRenderingVolumeOpenGL
   IMPLEMENTS
     vtkRenderingVolume
@@ -5,6 +11,7 @@ vtk_module(vtkRenderingVolumeOpenGL
     OpenGL
   DEPENDS
     vtkRenderingOpenGL
+    ${VTK_VOLUMEOPENGL2}
   PRIVATE_DEPENDS
     vtksys
     vtkFiltersGeneral

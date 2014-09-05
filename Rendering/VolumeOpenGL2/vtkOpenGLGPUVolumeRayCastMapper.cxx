@@ -87,7 +87,8 @@ public:
     DepthTextureId(0),
     TextureWidth(1024),
     Parent(parent),
-    RGBTable(0)
+    RGBTable(0),
+    OpacityTables(0)
     {
     this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = -1;
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
