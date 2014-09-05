@@ -110,3 +110,5 @@ inline bool BufferObject::Upload(const T &array,
 }
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkglBufferObject.h

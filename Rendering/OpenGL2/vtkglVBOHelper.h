@@ -100,3 +100,5 @@ void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *[4],
 } // End namespace
 
 #endif // __vtkGLVBOHelpher_h
+
+// VTK-HeaderTest-Exclude: vtkglVBOHelper.h

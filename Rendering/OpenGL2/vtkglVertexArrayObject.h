@@ -62,3 +62,5 @@ private:
 } // End of vtkgl namespace
 
 #endif // __vtkglVertexArrayObject_h
+
+// VTK-HeaderTest-Exclude: vtkglVertexArrayObject.h
