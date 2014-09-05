@@ -59,7 +59,6 @@ vtkADIOSWriter::vtkADIOSWriter()
   WriteAllTimeSteps(false), TimeSteps(), CurrentTimeStepIndex(-1)
 {
   std::memset(this->RequestExtent, 0, 6*sizeof(int));
-  std::memset(this->WholeExtent, 0, 6*sizeof(int));
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(0);
   this->SetController(vtkMultiProcessController::GetGlobalController());
