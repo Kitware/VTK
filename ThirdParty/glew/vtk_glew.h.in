@@ -17,6 +17,14 @@
 
 #define GLEW_NO_GLU
 
+#cmakedefine VTK_BUILD_SHARED_LIBS
+
+#ifdef WIN32
+#  ifndef VTK_BUILD_SHARED_LIBS
+#    define GLEW_STATIC
+#  endif
+#endif
+
 #ifdef ANDROID
 #  include <GLES2/gl2.h>
 #else
