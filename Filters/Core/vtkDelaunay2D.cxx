@@ -1180,7 +1180,7 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
 
   // Fetch the left & right polygons edges
   nbPts = rightPoly->GetPointIds()->GetNumberOfIds();
-  for (int i = 0; i < nbPts; i++)
+  for (i = 0; i < nbPts; i++)
     {
     std::set<vtkIdType> e;
     e.insert(rightPoly->GetPointId(i));
@@ -1188,7 +1188,7 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
     polysEdges.insert(e);
     }
   nbPts = leftPoly->GetPointIds()->GetNumberOfIds();
-  for (int i = 0; i < nbPts; i++)
+  for (i = 0; i < nbPts; i++)
     {
     std::set<vtkIdType> e;
     e.insert(leftPoly->GetPointId(i));
@@ -1227,21 +1227,21 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
     this->Mesh->ReplaceLinkedCell(cellId, 3, leftTris);
 
     // Check if the added triangle contains edges which are not in the polygon edges set
-    for (int i = 0; i < 3; i++)
+    for (i = 0; i < 3; i++)
       {
       std::set<vtkIdType> e;
-      vtkIdType p1 = leftTris[i];
-      vtkIdType p2 = leftTris[(i + 1)%3];
-      e.insert(p1);
-      e.insert(p2);
+      vtkIdType vx1 = leftTris[i];
+      vtkIdType vx2 = leftTris[(i + 1)%3];
+      e.insert(vx1);
+      e.insert(vx2);
       if (polysEdges.find(e) == polysEdges.end())
         {
         // Add this new edge and remember current triangle and third point ids too
         std::vector<vtkIdType> v;
         v.resize(4);
         v[0] = cellId;
-        v[1] = p1;
-        v[2] = p2;
+        v[1] = vx1;
+        v[2] = vx2;
         v[3] = leftTris[(i + 2)%3];
         newEdges.push_back(v);
         }
@@ -1260,21 +1260,21 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
     this->Mesh->ReplaceLinkedCell(cellId, 3, rightTris);
 
     // Check if the added triangle contains edges which are not in the polygon edges set
-    for (int i = 0; i < 3; i++)
+    for (i = 0; i < 3; i++)
       {
       std::set<vtkIdType> e;
-      vtkIdType p1 = rightTris[i];
-      vtkIdType p2 = rightTris[(i + 1)%3];
-      e.insert(p1);
-      e.insert(p2);
+      vtkIdType vx1 = rightTris[i];
+      vtkIdType vx2 = rightTris[(i + 1)%3];
+      e.insert(vx1);
+      e.insert(vx2);
       if (polysEdges.find(e) == polysEdges.end())
         {
         // Add this new edge and remember current triangle and third point ids too
         std::vector<vtkIdType> v;
         v.resize(4);
         v[0] = cellId;
-        v[1] = p1;
-        v[2] = p2;
+        v[1] = vx1;
+        v[2] = vx2;
         v[3] = rightTris[(i + 2)%3];
         newEdges.push_back(v);
         }
