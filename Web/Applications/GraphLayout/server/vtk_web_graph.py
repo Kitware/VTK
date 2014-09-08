@@ -38,7 +38,7 @@ from vtk.web import protocols, server
 from vtk.web import wamp as vtk_wamp
 
 # import annotations
-from autobahn.wamp import procedure as exportRpc
+from autobahn.wamp import register as exportRpc
 
 try:
     import argparse
