@@ -81,6 +81,7 @@ class vtkPolyDataMapper;
 class vtkPoints;
 class vtkIdTypeArray;
 class vtkVRMLImporterInternal;
+class vtkVRMLYaccData;
 class vtkCellArray;
 
 class VTKIOIMPORT_EXPORT vtkVRMLImporter : public vtkImporter
@@ -119,7 +120,7 @@ public:
 
 //BTX
 
-  friend int yylex ( vtkVRMLImporter* );
+  friend class vtkVRMLYaccData;
 
 //ETX
 
@@ -161,6 +162,7 @@ private:
   void DeleteObject(vtkObject*);
 
   vtkVRMLImporterInternal* Internal;
+  vtkVRMLYaccData* Parser;
 
 private:
   vtkVRMLImporter(const vtkVRMLImporter&);  // Not implemented.
