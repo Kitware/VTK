@@ -59,7 +59,7 @@
 #include <cassert>
 #include <sstream>
 
-vtkStandardNewMacro(vtkSinglePassVolumeMapper);
+vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 
 /// TODO Remove this afterwards
 #define GL_CHECK_ERRORS \
@@ -68,14 +68,14 @@ vtkStandardNewMacro(vtkSinglePassVolumeMapper);
   }
 
 ///----------------------------------------------------------------------------
-class vtkSinglePassVolumeMapper::vtkInternal
+class vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
 {
 public:
   ///
   /// \brief vtkInternal
   /// \param parent
   ///
-  vtkInternal(vtkSinglePassVolumeMapper* parent) :
+  vtkInternal(vtkOpenGLGPUVolumeRayCastMapper* parent) :
     Initialized(false),
     ValidTransferFunction(false),
     LoadDepthTextureExtensionsSucceeded(false),
@@ -85,7 +85,6 @@ public:
     VolumeTextureId(0),
     NoiseTextureId(0),
     DepthTextureId(0),
-    CellFlag(0),
     TextureWidth(1024),
     Parent(parent),
     RGBTable(0)
@@ -121,7 +120,7 @@ public:
   void Initialize(vtkRenderer* ren, vtkVolume* vol);
 
   ///
-  /// \brief vtkSinglePassVolumeMapper::vtkInternal::LoadVolume
+  /// \brief vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume
   /// \param imageData
   /// \param scalars
   /// \return
@@ -224,7 +223,6 @@ public:
 
   vtkGLSLShader Shader;
 
-  int CellFlag;
   int Dimensions[3];
   int TextureSize[3];
   int TextureExtents[6];
@@ -239,21 +237,18 @@ public:
   double CellScale[3];
   double Scale;
   double Bias;
-  double ElapsedDrawTime;
 
   float* NoiseTextureData;
   GLint NoiseTextureSize;
 
   std::ostringstream ExtensionsStringStream;
 
-  vtkSinglePassVolumeMapper* Parent;
+  vtkOpenGLGPUVolumeRayCastMapper* Parent;
   vtkOpenGLRGBTable* RGBTable;
   vtkOpenGLOpacityTables* OpacityTables;
 
   vtkTimeStamp VolumeBuildTime;
   vtkTimeStamp ShaderBuildTime;
-
-  vtkNew<vtkTimerLog> Timer;
 
   vtkNew<vtkMatrix4x4> TextureToDataSetMat;
 
@@ -261,7 +256,7 @@ public:
 };
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(vtkRenderer* ren,
                                                         vtkVolume* vol)
 {
   GLenum err = glewInit();
@@ -303,7 +298,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::Initialize(vtkRenderer* ren,
 }
 
 ///----------------------------------------------------------------------------
-bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
                                                         vtkDataArray* scalars)
 {
   GL_CHECK_ERRORS
@@ -496,10 +491,10 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
     sliceArray->SetNumberOfTuples(this->TextureSize[0] * this->TextureSize[1]);
     void* slicePtr = sliceArray->GetVoidPointer(0);
     int k = 0;
-    int kInc = (this->Dimensions[0] - this->CellFlag) *
-               (this->Dimensions[1] - this->CellFlag);
-    int kOffset = (this->TextureExtents[4] *  (this->Dimensions[1] - this->CellFlag) +
-                   this->TextureExtents[2]) * (this->Dimensions[0] - this->CellFlag) +
+    int kInc = (this->Dimensions[0] - this->Parent->CellFlag) *
+               (this->Dimensions[1] - this->Parent->CellFlag);
+    int kOffset = (this->TextureExtents[4] *  (this->Dimensions[1] - this->Parent->CellFlag) +
+                   this->TextureExtents[2]) * (this->Dimensions[0] - this->Parent->CellFlag) +
                    this->TextureExtents[0];
     while(k < this->TextureSize[2])
       {
@@ -517,7 +512,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
           ++i;
           }
         ++j;
-        jOffset += this->Dimensions[0] - this->CellFlag;
+        jOffset += this->Dimensions[0] - this->Parent->CellFlag;
         jDestOffset += this->TextureSize[0];
         }
 
@@ -538,13 +533,13 @@ bool vtkSinglePassVolumeMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
 }
 
 ///----------------------------------------------------------------------------
-bool vtkSinglePassVolumeMapper::vtkInternal::IsInitialized()
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsInitialized()
 {
   return this->Initialized;
 }
 
 ///----------------------------------------------------------------------------
-bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsDataDirty(vtkImageData* input)
 {
   /// Check if the scalars modified time is higher than the last build time
   /// if yes, then mark the current referenced data as dirty.
@@ -557,7 +552,7 @@ bool vtkSinglePassVolumeMapper::vtkInternal::IsDataDirty(vtkImageData* input)
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::CompileAndLinkShader(
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CompileAndLinkShader(
   const std::string& vertexShader, const std::string& fragmentShader)
 {
   this->Shader.LoadFromString(GL_VERTEX_SHADER, vertexShader);
@@ -568,7 +563,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::CompileAndLinkShader(
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(vtkImageData* input)
 {
   double spacing[3];
   double origin[3];
@@ -583,7 +578,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
   swapBounds[2] = (spacing[2] < 0);
 
   /// Loaded data represents points
-  if (!this->CellFlag)
+  if (!this->Parent->CellFlag)
     {
     // If spacing is negative, we may have to rethink the equation
     // between real point and texture coordinate...
@@ -641,7 +636,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::ComputeBounds(vtkImageData* input)
 }
 
 ///----------------------------------------------------------------------------
-int vtkSinglePassVolumeMapper::vtkInternal::UpdateColorTransferFunction(
+int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
   vtkVolume* vol, int numberOfScalarComponents)
 {
   /// Build the colormap in a 1D texture.
@@ -676,7 +671,7 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateColorTransferFunction(
 }
 
 ///----------------------------------------------------------------------------
-int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
+int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
   vtkVolume* vol, int numberOfScalarComponents, unsigned int level)
 {
   if (!vol)
@@ -716,7 +711,7 @@ int vtkSinglePassVolumeMapper::vtkInternal::UpdateOpacityTransferFunction(
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture()
 {
   if (!this->NoiseTextureId)
     {
@@ -773,7 +768,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateNoiseTexture()
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::UpdateDepthTexture(
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
   vtkRenderer* ren, vtkVolume* vol)
 {
   /// Make sure our render window is the current OpenGL context
@@ -820,7 +815,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateDepthTexture(
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry()
 {
   vtkNew<vtkTessellatedBoxSource> boxSource;
   vtkNew<vtkDensifyPolyData> densityPolyData;
@@ -871,7 +866,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateVolumeGeometry()
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
                                                             vtkVolume* vol)
 {
   if (this->Parent->GetCropping())
@@ -921,7 +916,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
                                                             vtkVolume* vol)
 {
   if (this->Parent->GetClippingPlanes())
@@ -960,7 +955,7 @@ void vtkSinglePassVolumeMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
 
 ///
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::vtkInternal::LoadRequireDepthTextureExtensions(
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadRequireDepthTextureExtensions(
   vtkRenderWindow* renWin)
 {
   /// Reset the message stream for extensions
@@ -1007,29 +1002,28 @@ void vtkSinglePassVolumeMapper::vtkInternal::LoadRequireDepthTextureExtensions(
 
 ///
 ///----------------------------------------------------------------------------
-vtkSinglePassVolumeMapper::vtkSinglePassVolumeMapper() : vtkVolumeMapper()
+vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
+  vtkGPUVolumeRayCastMapper()
 {
-  this->SampleDistance = 1.0;
-
   this->Implementation = new vtkInternal(this);
 }
 
 ///
 ///----------------------------------------------------------------------------
-vtkSinglePassVolumeMapper::~vtkSinglePassVolumeMapper()
+vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
 {
   delete this->Implementation;
   this->Implementation = 0;
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->SuperClass->PrintSelf(os, indent);
+  //this->Superclass->PrintSelf(os, indent);
 }
 
 ///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
+void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
 {
   GL_CHECK_ERRORS
 
@@ -1170,190 +1164,7 @@ void vtkSinglePassVolumeMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
 }
 
 ///----------------------------------------------------------------------------
-int vtkSinglePassVolumeMapper::ValidateRender(vtkRenderer* ren, vtkVolume* vol)
-{
-  /// Check that we have everything we need to render.
-  int goodSoFar = 1;
-
-  /// Check for a renderer - we MUST have one
-  if (!ren)
-    {
-    goodSoFar = 0;
-    vtkErrorMacro("Renderer cannot be null.");
-    }
-
-  /// Check for the m_volume - we MUST have one
-  if (goodSoFar && !vol)
-    {
-    goodSoFar = 0;
-    vtkErrorMacro("Volume cannot be null.");
-    }
-
-  /// Don't need to check if we have a m_volume property
-  /// since the m_volume will create one if we don't. Also
-  /// don't need to check for the scalar opacity function
-  /// or the RGB transfer function since the property will
-  /// create them if they do not yet exist.
-
-  /// TODO: Enable cropping planes
-  /// \see vtkGPUVolumeRayCastMapper
-
-  /// Check that we have input data
-  vtkImageData* input = this->GetInput();
-  if (goodSoFar && input == 0)
-    {
-    vtkErrorMacro("Input is NULL but is required");
-    goodSoFar = 0;
-    }
-
-  if (goodSoFar)
-    {
-    this->GetInputAlgorithm()->Update();
-    }
-
-  /// TODO:
-  /// Check if we need to do workaround to handle extents starting from non-zero
-  /// values.
-  /// \see vtkGPUVolumeRayCastMapper
-
-  /// Update the date then make sure we have scalars. Note
-  /// that we must have point or cell scalars because field
-  /// scalars are not supported.
-  vtkDataArray* scalars = NULL;
-  if (goodSoFar)
-    {
-    /// Now make sure we can find scalars
-    scalars=this->GetScalars(input,this->ScalarMode,
-                             this->ArrayAccessMode,
-                             this->ArrayId,
-                             this->ArrayName,
-                             this->Implementation->CellFlag);
-
-    /// We couldn't find scalars
-    if (!scalars)
-      {
-      vtkErrorMacro("No scalars found on input.");
-      goodSoFar = 0;
-      }
-    /// Even if we found scalars, if they are field data scalars that isn't good
-    else if (this->Implementation->CellFlag == 2)
-      {
-      vtkErrorMacro("Only point or cell scalar support - found field scalars instead.");
-      goodSoFar = 0;
-      }
-    }
-
-  /// Make sure the scalar type is actually supported. This mappers supports
-  /// almost all standard scalar types.
-  if (goodSoFar)
-    {
-    switch(scalars->GetDataType())
-      {
-      case VTK_CHAR:
-        vtkErrorMacro(<< "scalar of type VTK_CHAR is not supported "
-                      << "because this type is platform dependent. "
-                      << "Use VTK_SIGNED_CHAR or VTK_UNSIGNED_CHAR instead.");
-        goodSoFar = 0;
-        break;
-      case VTK_BIT:
-        vtkErrorMacro("scalar of type VTK_BIT is not supported by this mapper.");
-        goodSoFar = 0;
-        break;
-      case VTK_ID_TYPE:
-        vtkErrorMacro("scalar of type VTK_ID_TYPE is not supported by this mapper.");
-        goodSoFar = 0;
-        break;
-      case VTK_STRING:
-        vtkErrorMacro("scalar of type VTK_STRING is not supported by this mapper.");
-        goodSoFar = 0;
-        break;
-      default:
-        /// Don't need to do anything here
-        break;
-      }
-    }
-
-  /// Check on the blending type - we support composite and min / max intensity
-  if (goodSoFar)
-    {
-    if (this->BlendMode != vtkVolumeMapper::COMPOSITE_BLEND &&
-        this->BlendMode != vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
-        this->BlendMode != vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
-        this->BlendMode != vtkVolumeMapper::ADDITIVE_BLEND)
-      {
-      goodSoFar = 0;
-      vtkErrorMacro(<< "Selected blend mode not supported. "
-                    << "Only Composite, MIP, MinIP and additive modes "
-                    << "are supported by the current implementation.");
-      }
-    }
-
-  /// This mapper supports 1 component data, or 4 component if it is not independent
-  /// component (i.e. the four components define RGBA)
-  int numberOfComponents = 0;
-  if (goodSoFar)
-    {
-    numberOfComponents=scalars->GetNumberOfComponents();
-    if (!(numberOfComponents==1 ||
-          (numberOfComponents==4 &&
-           vol->GetProperty()->GetIndependentComponents()==0)))
-      {
-      goodSoFar = 0;
-      vtkErrorMacro(<< "Only one component scalars, or four "
-                    << "component with non-independent components, "
-                    << "are supported by this mapper.");
-      }
-    }
-
-  /// If this is four component data, then it better be unsigned char (RGBA).
-  /// TODO: Check on this condition
-  if (goodSoFar &&
-      numberOfComponents == 4 &&
-      scalars->GetDataType() != VTK_UNSIGNED_CHAR)
-    {
-    goodSoFar = 0;
-    vtkErrorMacro("Only unsigned char is supported for 4-component scalars!");
-    }
-
-  if (goodSoFar && numberOfComponents!=1 &&
-     this->BlendMode==vtkVolumeMapper::ADDITIVE_BLEND)
-    {
-    goodSoFar=0;
-    vtkErrorMacro("Additive mode only works with 1-component scalars!");
-    }
-
-  /// return our status
-  return goodSoFar;
-}
-
-///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
-{
-  /// Invoke a VolumeMapperRenderStartEvent
-  this->InvokeEvent(vtkCommand::VolumeMapperRenderStartEvent,0);
-
-  /// Start the timer to time the length of this render
-  this->Implementation->Timer->StartTimer();
-
-  /// Make sure everything about this render is OK.
-  /// This is where the input is updated.
-  if (this->ValidateRender(ren, vol ))
-    {
-    /// Everything is OK - so go ahead and really do the render
-    this->GPURender(ren, vol);
-    }
-
-  /// Stop the timer
-  this->Implementation->Timer->StopTimer();
-  this->Implementation->ElapsedDrawTime =
-    this->Implementation->Timer->GetElapsedTime();
-
-  // Invoke a VolumeMapperRenderEndEvent
-  this->InvokeEvent(vtkCommand::VolumeMapperRenderEndEvent,0);
-}
-
-///----------------------------------------------------------------------------
-void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
+void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 {
   /// Make sure the context is current
   ren->GetRenderWindow()->MakeCurrent();
@@ -1383,7 +1194,7 @@ void vtkSinglePassVolumeMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
                           this->ArrayAccessMode,
                           this->ArrayId,
                           this->ArrayName,
-                          this->Implementation->CellFlag);
+                          this->CellFlag);
 
   scalars->GetRange(this->Implementation->ScalarsRange);
 

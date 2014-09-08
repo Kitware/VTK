@@ -15,11 +15,6 @@
 
 #include "vtkGPUVolumeRayCastMapper.h"
 
-#include "vtkOpenGLOpacityTable.h"
-#include "vtkOpenGLRGBTable.h"
-#include "vtkVolumeShaderComposer.h"
-#include "vtkVolumeStateRAII.h"
-
 /// Include compiled shader code
 #include <raycasterfs.h>
 #include <raycastervs.h>
@@ -58,35 +53,35 @@
 #include <cassert>
 #include <sstream>
 
-vtkStandardNewMacro(vtkGPUVolumeRayCastMapper);
+vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper);
 
 ///----------------------------------------------------------------------------
 vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper() : vtkVolumeMapper()
 {
+  this->CellFlag = 0;
+  this->AutoAdjustSampleDistancesOff();
   this->SampleDistance = 1.0;
+  this->Timer = vtkTimerLog::New();
 }
 
 ///----------------------------------------------------------------------------
 vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
 {
-  // Do nothing
+  if (this->Timer)
+    {
+    this->Timer->Delete();
+    this->Timer = NULL;
+    }
 }
 
 ///----------------------------------------------------------------------------
-void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& vtkNotUsed(os),
-                                          vtkIndent indent)
+void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "AutoAdjustSampleDistances: "
      << this->AutoAdjustSampleDistances << endl;
   os << indent << "SampleDistance: " << this->SampleDistance << endl;
-}
-
-///----------------------------------------------------------------------------
-void vtkGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
-{
-  // Do nothing
 }
 
 ///----------------------------------------------------------------------------
@@ -147,7 +142,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer* ren, vtkVolume* vol)
                              this->ArrayAccessMode,
                              this->ArrayId,
                              this->ArrayName,
-                             this->Implementation->CellFlag);
+                             this->CellFlag);
 
     /// We couldn't find scalars
     if (!scalars)
@@ -156,7 +151,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer* ren, vtkVolume* vol)
       goodSoFar = 0;
       }
     /// Even if we found scalars, if they are field data scalars that isn't good
-    else if (this->Implementation->CellFlag == 2)
+    else if (this->CellFlag == 2)
       {
       vtkErrorMacro("Only point or cell scalar support - found field scalars instead.");
       goodSoFar = 0;
@@ -253,7 +248,7 @@ void vtkGPUVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   this->InvokeEvent(vtkCommand::VolumeMapperRenderStartEvent,0);
 
   /// Start the timer to time the length of this render
-  this->Implementation->Timer->StartTimer();
+  this->Timer->StartTimer();
 
   /// Make sure everything about this render is OK.
   /// This is where the input is updated.
@@ -264,9 +259,8 @@ void vtkGPUVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume* vol)
     }
 
   /// Stop the timer
-  this->Implementation->Timer->StopTimer();
-  this->Implementation->ElapsedDrawTime =
-    this->Implementation->Timer->GetElapsedTime();
+  this->Timer->StopTimer();
+  this->ElapsedDrawTime = this->Timer->GetElapsedTime();
 
   // Invoke a VolumeMapperRenderEndEvent
   this->InvokeEvent(vtkCommand::VolumeMapperRenderEndEvent,0);

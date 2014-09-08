@@ -6,15 +6,18 @@ vtk_module(vtkVolume2
     vtkFiltersSources
     vtkRenderingVolume
     vtkRenderingOpenGL
+  BACKEND
+    OpenGL
+  IMPLEMENTS
+    vtkRenderingVolume
   TEST_DEPENDS
     vtkCommonCore
     vtkFiltersModeling
     vtkIOLegacy
     vtkIOXML
     vtkInteractionStyle
-    vtkRenderingVolume
+    vtkVolume2
     vtkRenderingOpenGL
-    vtkRenderingVolumeOpenGL
     vtkTestingCore
     vtkTestingRendering
 )

@@ -1,13 +1,11 @@
-# Tests without data
-vtk_add_test_cxx(
-  )
-
 # Tests with data
-vtk_add_test_cxx(
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVolumeAdditive.cxx
   TestVolumeClip.cxx
   TestVolumeCrop.cxx
   TestVolumeMinIP.cxx
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests)
+message("VTK_LIBRARIES " ${${vtk-module-test}-Cxx_LIBRARIES})
+
+vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY)

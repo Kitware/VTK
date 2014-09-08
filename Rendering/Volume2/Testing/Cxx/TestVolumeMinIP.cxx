@@ -19,7 +19,7 @@
 // the dataset are (0, 114, 0, 100, 0, 74).
 
 
-#include "vtkSinglePassVolumeMapper.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 
 #include "vtkTestUtilities.h"
@@ -192,7 +192,7 @@ int TestVolumeMinIP(int argc, char *argv[])
   const int rows = 4;
   const int cols = 2;
 #if 1
-  vtkSinglePassVolumeMapper *volumeMapper[rows][cols];
+  vtkGPUVolumeRayCastMapper *volumeMapper[rows][cols];
 #else
   vtkGPUVolumeRayCastMapper *volumeMapper[rows][cols];
 #endif
@@ -207,7 +207,7 @@ int TestVolumeMinIP(int argc, char *argv[])
     while(j < cols)
       {
 #if 1
-      volumeMapper[i][j] = vtkSinglePassVolumeMapper::New();
+      volumeMapper[i][j] = vtkGPUVolumeRayCastMapper::New();
 #else
       volumeMapper[i][j] = vtkGPUVolumeRayCastMapper::New();
 #endif

@@ -16,16 +16,18 @@
 #ifndef __vtkGPUVolumeRayCastMapper_h
 #define __vtkGPUVolumeRayCastMapper_h
 
-#include "vtkVolumeModule.h" // For export macro
+#include "vtkVolume2Module.h" // For export macro
 
 #include <vtkVolumeMapper.h>
 #include <vtkSetGet.h>
+
+class vtkTimerLog;
 
 //----------------------------------------------------------------------------
 ///
 /// \brief The vtkGPUVolumeRayCastMapper class
 ///
-class VTKVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
+class VTKVOLUME2_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
 {
   public:
     static vtkGPUVolumeRayCastMapper* New();
@@ -58,7 +60,7 @@ class VTKVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
 
     /// Description:
     /// Build vertex and fragment shader for the volume rendering
-    void BuildShader(vtkRenderer* ren, vtkVolume* vol) = 0;
+    virtual void BuildShader(vtkRenderer* ren, vtkVolume* vol) {};
 
     /// Description:
     /// Validate before performing volume rendering
@@ -66,11 +68,15 @@ class VTKVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
 
     /// Description:
     /// Rendering volume on GPU
-    void GPURender(vtkRenderer *ren, vtkVolume *vol) = 0;
+    virtual void GPURender(vtkRenderer *ren, vtkVolume *vol) {};
 
 protected:
+    int CellFlag;
     int AutoAdjustSampleDistances;
     double SampleDistance;
+    double ElapsedDrawTime;
+
+    vtkTimerLog* Timer;
 
 private:
     vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&);  // Not implemented.

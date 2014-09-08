@@ -33,7 +33,7 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkNew.h>
-#include <vtkSinglePassVolumeMapper.h>
+#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkSphereSource.h>
 #include <vtkSmartPointer.h>
 #include <vtkTimerLog.h>
@@ -51,7 +51,7 @@ int TestVolumeCrop(int argc, char *argv[])
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
-  vtkNew<vtkSinglePassVolumeMapper> volumeMapper;
+  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetSampleDistance(0.05);
 
   vtkNew<vtkXMLImageDataReader> reader;

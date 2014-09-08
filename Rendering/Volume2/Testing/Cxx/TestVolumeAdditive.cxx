@@ -19,7 +19,7 @@
 #include "vtkSphere.h"
 #include "vtkSampleFunction.h"
 
-#include "vtkSinglePassVolumeMapper.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkTestUtilities.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
@@ -88,11 +88,11 @@ int TestVolumeAdditive(int argc,
 
   renWin->Render(); // make sure we have an OpenGL context.
 
-  vtkSinglePassVolumeMapper *volumeMapper;
+  vtkGPUVolumeRayCastMapper *volumeMapper;
   vtkVolumeProperty *volumeProperty;
   vtkVolume *volume;
 
-  volumeMapper=vtkSinglePassVolumeMapper::New();
+  volumeMapper=vtkGPUVolumeRayCastMapper::New();
   volumeMapper->SetSampleDistance(0.01);
   volumeMapper->SetBlendModeToComposite(); // composite first
   volumeMapper->SetInputConnection(

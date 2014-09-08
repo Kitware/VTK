@@ -35,7 +35,7 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkNew.h>
-#include <vtkSinglePassVolumeMapper.h>
+#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkSphereSource.h>
 #include <vtkSmartPointer.h>
 #include <vtkTimerLog.h>
@@ -53,11 +53,13 @@ int TestVolumeClip(int argc, char *argv[])
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
-  vtkNew<vtkSinglePassVolumeMapper> volumeMapper;
+  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
+
+  std::cerr << "Filename " << volumeFile << std::endl;
   reader->SetFileName(volumeFile);
   reader->Update();
   volumeMapper->SetInputConnection(reader->GetOutputPort());

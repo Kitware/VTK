@@ -1,14 +1,18 @@
+include(vtkObjectFactory)
+
 find_package(GLEW REQUIRED)
 
  # Source files
 set(Module_SRCS
   vtkGPUVolumeRayCastMapper.cxx
-  vtkOpenGLGPUVolumeRayCastMapper
-  vtkGLSLShader.cxx)
+  vtkOpenGLGPUVolumeRayCastMapper.cxx
+  vtkGLSLShader.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
 
 set_source_files_properties(
   vtkGPUVolumeRayCastMapper
   vtkGLSLShader
+  ${vtk-module}ObjectFactory
   WRAP_EXCLUDE)
 
 set(opengl_overrides
@@ -34,19 +38,21 @@ foreach(file ${shader_files})
     DEPENDS ${src} vtkEncodeString
     COMMAND vtkEncodeString
     ARGS ${res} ${src} ${file_we}
-      --build-header VTKVOLUME_EXPORT vtkVolumeModule.h
+      --build-header VTKVOLUME2_EXPORT vtkVolume2Module.h
     )
   list(APPEND Module_SRCS ${res})
   set_source_files_properties(${file_we} WRAP_EXCLUDE)
 endforeach()
 
+message("###################################### ${vtk_module_overrides}")
+
 vtk_object_factory_configure("${vtk_module_overrides}")
 
-vtk_module_library(vtkVolume ${Module_SRCS})
-target_link_libraries(vtkVolume LINK_PRIVATE ${GLEW_LIBRARY})
+vtk_module_library(vtkVolume2 ${Module_SRCS})
+target_link_libraries(vtkVolume2 LINK_PRIVATE ${GLEW_LIBRARY})
 
-add_custom_command(OUTPUT "${vtkVolume_BINARY_DIR}/shaders"
+add_custom_command(OUTPUT "${vtkVolume2_BINARY_DIR}/shaders"
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   "${vtkVolume_SOURCE_DIR}/shaders" "${CMAKE_BINARY_DIR}/shaders")
-add_custom_target(copy_shaders ALL DEPENDS "${vtkVolume_BINARY_DIR}/shaders")
-add_dependencies(vtkVolume copy_shaders)
+                   "${vtkVolume2_SOURCE_DIR}/shaders" "${CMAKE_BINARY_DIR}/shaders")
+add_custom_target(copy_shaders ALL DEPENDS "${vtkVolume2_BINARY_DIR}/shaders")
+add_dependencies(vtkVolume2 copy_shaders)
