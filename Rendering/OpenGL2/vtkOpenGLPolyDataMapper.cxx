@@ -291,10 +291,10 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     FSSource = vtkgl::replace(FSSource,
       "//VTK::DepthPeeling::Impl",
       "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
-    //  "if (gl_FragCoord.z >= odepth) { discard; }\n"
+      "if (gl_FragCoord.z >= odepth) { discard; }\n"
       "float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
-    //  "if (gl_FragCoord.z <= tdepth) { discard; }\n"
-      "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
+      "if (gl_FragCoord.z <= tdepth) { discard; }\n"
+    //  "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
       );
     }
 
@@ -449,7 +449,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Layout;
 
-  if (cellBO.indexCount && this->OpenGLUpdateTime > cellBO.attributeUpdateTime)
+  if (cellBO.indexCount && (this->OpenGLUpdateTime > cellBO.attributeUpdateTime ||
+      cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
     {
     cellBO.vao.Bind();
     if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
