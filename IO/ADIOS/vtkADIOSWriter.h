@@ -211,7 +211,6 @@ protected:
   std::vector<double> TimeSteps;
   int CurrentTimeStepIndex;
   int RequestExtent[6];
-  int WholeExtent[6];
 
   // Used to determine whether or not the data getting written is stale
   bool UpdateMTimeTable(const std::string path, const vtkObject* value);

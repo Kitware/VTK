@@ -6,32 +6,20 @@
 #include <adios_read.h>
 
 template<typename T>
-void DecodeValues(const ADIOS_VARINFO *v, std::vector<void*> &values)
+void DecodeValues(ADIOS_FILE *f, const ADIOS_VARINFO *v,
+  std::vector<void*> &values)
 {
   for(int t = 0; t < v->nsteps; ++t)
     {
     std::vector<T> *data = new std::vector<T>(v->nblocks[t]);
     values[t] = data;
-    for(int b = 0; b < v->nblocks[t]; ++b)
-      {
-      (*data)[b] = *reinterpret_cast<T*>(v->statistics->blocks->mins[b]);
-      }
-    }
-}
 
-template<>
-void DecodeValues<std::string>(const ADIOS_VARINFO *v,
-  std::vector<void*> &values)
-{
-  for(int t = 0; t < v->nsteps; ++t)
-    {
-    std::vector<std::string> *data =
-      new std::vector<std::string>(v->nblocks[t]);
-    values[t] = data;
     for(int b = 0; b < v->nblocks[t]; ++b)
       {
-      (*data)[b] = reinterpret_cast<const char*>(
-        v->statistics->blocks->mins[b]);
+      ADIOS_SELECTION *s = adios_selection_writeblock(b);
+      adios_schedule_read_byid(f, s, v->varid, t, 1, &(*data)[b]);
+      adios_perform_reads(f, 1);
+      adios_selection_delete(s);
       }
     }
 }
@@ -51,25 +39,25 @@ ADIOSScalar::ADIOSScalar(ADIOS_FILE *f, ADIOS_VARINFO *v)
 
   switch(v->type)
     {
-    case adios_byte:             DecodeValues<int8_t>(v, this->Values);
+    case adios_byte:             DecodeValues<int8_t>(f, v, this->Values);
       break;
-    case adios_short:            DecodeValues<int16_t>(v, this->Values);
+    case adios_short:            DecodeValues<int16_t>(f, v, this->Values);
       break;
-    case adios_integer:          DecodeValues<int32_t>(v, this->Values);
+    case adios_integer:          DecodeValues<int32_t>(f, v, this->Values);
       break;
-    case adios_long:             DecodeValues<vtkIdType>(v, this->Values);
+    case adios_long:             DecodeValues<vtkIdType>(f, v, this->Values);
       break;
-    case adios_unsigned_byte:    DecodeValues<uint8_t>(v, this->Values);
+    case adios_unsigned_byte:    DecodeValues<uint8_t>(f, v, this->Values);
       break;
-    case adios_unsigned_short:   DecodeValues<uint16_t>(v, this->Values);
+    case adios_unsigned_short:   DecodeValues<uint16_t>(f, v, this->Values);
       break;
-    case adios_unsigned_integer: DecodeValues<uint32_t>(v, this->Values);
+    case adios_unsigned_integer: DecodeValues<uint32_t>(f, v, this->Values);
       break;
-    case adios_unsigned_long:    DecodeValues<uint64_t>(v, this->Values);
+    case adios_unsigned_long:    DecodeValues<uint64_t>(f, v, this->Values);
       break;
-    case adios_real:             DecodeValues<float>(v, this->Values);
+    case adios_real:             DecodeValues<float>(f, v, this->Values);
       break;
-    case adios_double:           DecodeValues<double>(v, this->Values);
+    case adios_double:           DecodeValues<double>(f, v, this->Values);
       break;
     default: break;
     }

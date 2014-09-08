@@ -224,7 +224,7 @@ bool vtkADIOSReader::RequestInformation(vtkInformation *vtkNotUsed(req),
     typedef std::vector<ADIOSAttribute*>::const_iterator AttrIt;
     for(AttrIt a = attrs.begin(); a != attrs.end(); ++a)
       {
-      if((*a)->GetName() == "/NumberOfPieces")
+      if((*a)->GetName() == "::NumberOfPieces")
         {
         this->NumberOfPieces = (*a)->GetValue<int>();
         }
@@ -243,7 +243,8 @@ bool vtkADIOSReader::RequestInformation(vtkInformation *vtkNotUsed(req),
     this->TimeSteps.resize(varTimeSteps->GetNumSteps());
     for(int t = 0; t < varTimeSteps->GetNumSteps(); ++t)
       {
-      this->TimeSteps[t] = varTimeSteps->GetValues<double>(t)[0];
+      const std::vector<double>& values = varTimeSteps->GetValues<double>(t);
+      this->TimeSteps[t] = values[0];
       }
     }
 
@@ -351,10 +352,10 @@ bool vtkADIOSReader::RequestData(vtkInformation *vtkNotUsed(req),
     blockEnd = blockStart + blocksPerProc-1;
     }
 
-  if(this->Controller->GetLocalProcessId() == 0)
-    {
-    vtkWarningMacro(<< "Reading data for time " << this->RequestStep);
-    }
+  //if(this->Controller->GetLocalProcessId() == 0)
+  //  {
+  //  vtkWarningMacro(<< "Reading data for time " << this->RequestStep);
+  //  }
 
   // Loop through the assigned blocks
   bool readSuccess = true;
@@ -641,12 +642,12 @@ void vtkADIOSReader::ReadObject(const vtkADIOSDirTree *subDir,
     subDir->GetScalar("SpacingY")->GetValues<double>(rsi)[blockId],
     subDir->GetScalar("SpacingZ")->GetValues<double>(rsi)[blockId]);
   data->SetExtent(
-    subDir->GetScalar("ExtentXMin")->GetValues<double>(rsi)[blockId],
-    subDir->GetScalar("ExtentXMax")->GetValues<double>(rsi)[blockId],
-    subDir->GetScalar("ExtentYMin")->GetValues<double>(rsi)[blockId],
-    subDir->GetScalar("ExtentYMax")->GetValues<double>(rsi)[blockId],
-    subDir->GetScalar("ExtentZMin")->GetValues<double>(rsi)[blockId],
-    subDir->GetScalar("ExtentZMax")->GetValues<double>(rsi)[blockId]);
+    subDir->GetScalar("ExtentXMin")->GetValues<int>(rsi)[blockId],
+    subDir->GetScalar("ExtentXMax")->GetValues<int>(rsi)[blockId],
+    subDir->GetScalar("ExtentYMin")->GetValues<int>(rsi)[blockId],
+    subDir->GetScalar("ExtentYMax")->GetValues<int>(rsi)[blockId],
+    subDir->GetScalar("ExtentZMin")->GetValues<int>(rsi)[blockId],
+    subDir->GetScalar("ExtentZMax")->GetValues<int>(rsi)[blockId]);
 
   this->ReadObject(subDir->GetDir("DataSet"), static_cast<vtkDataSet*>(data),
     blockId);
