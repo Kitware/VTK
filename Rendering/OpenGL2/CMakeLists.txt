@@ -14,14 +14,14 @@ include(vtkObjectFactory)
 # Copy of what is in vtkRenderingOpenGL for logic on X, Carbon, Cocoa, etc.
 set(VTK_USE_X_DEFAULT OFF)
 
-if(APPLE)
+if(APPLE AND NOT APPLE_IOS)
   option(VTK_USE_COCOA "Use Cocoa for VTK render windows" ON)
   option(VTK_USE_CARBON "Use Carbon for VTK render windows (deprecated)" OFF)
   mark_as_advanced(VTK_USE_COCOA VTK_USE_CARBON)
   if(VTK_USE_COCOA AND VTK_USE_CARBON)
     message(FATAL_ERROR "You can't enable Carbon and Cocoa - you must choose one.")
   endif()
-elseif(UNIX AND NOT ANDROID)
+elseif(UNIX AND NOT ANDROID AND NOT APPLE_IOS)
   set(VTK_USE_X_DEFAULT ON)
 endif()
 
@@ -37,7 +37,7 @@ if(VTK_OPENGL_HAS_OSMESA OR WIN32)
   set(VTK_CAN_DO_OFFSCREEN 1)
 endif()
 mark_as_advanced(VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN)
-if(VTK_USE_X OR VTK_USE_CARBON OR VTK_USE_COCOA OR WIN32 OR ANDROID)
+if(VTK_USE_X OR VTK_USE_CARBON OR VTK_USE_COCOA OR WIN32 OR ANDROID OR APPLE_IOS)
   set(VTK_USE_OSMESA FALSE)
 else()
   set(VTK_USE_OSMESA TRUE)
@@ -76,7 +76,7 @@ set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
-if (NOT ANDROID)
+if (NOT ANDROID AND NOT APPLE_IOS)
   set(Module_SRCS ${Module_SRCS}
   vtkPixelBufferObject.cxx
   vtkFrameBufferObject.cxx
@@ -286,7 +286,17 @@ elseif(ANDROID)
     "${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include"
     "${ANDROID_NDK}/sources/android/native_app_glue"
     )
-endif()
+elseif(APPLE_IOS)
+  # Add some custom overrides
+#  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+#  set(vtk_module_vtkRenderWindowInteractor_override "vtkAndroidRenderWindowInteractor")
+#  list(APPEND vtk_module_overrides "vtkRenderWindow")
+#  set(vtk_module_vtkRenderWindow_override "vtkEGLRenderWindow")
+#  list(APPEND Module_SRCS
+#    vtkAndroidRenderWindowInteractor.cxx
+#    vtkEGLRenderWindow.cxx
+#    )
+ endif()
 
 vtk_object_factory_configure("${vtk_module_overrides}")
 

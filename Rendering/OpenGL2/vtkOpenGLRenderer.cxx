@@ -369,7 +369,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       context, this->ViewportWidth, this->ViewportHeight, 1, true, &((*this->DepthZData)[0]));
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-//    glClearColor(0.0,0.0,0.0,0.0); // always clear to black
+ //  glClearColor(0.0,0.0,0.0,0.0); // always clear to black
    // glClearDepth(static_cast<GLclampf>(1.0));
 #ifdef GL_MULTISAMPLE
     glDisable(GL_MULTISAMPLE);
@@ -456,7 +456,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     this->TranslucentZTexture = 0;
 
     // blend in OpaqueRGBA
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->LastRenderingUsedDepthPeeling = 3;
     this->OpaqueRGBATexture->Activate();
     this->DepthPeelingActor->RenderOverlay(this);
