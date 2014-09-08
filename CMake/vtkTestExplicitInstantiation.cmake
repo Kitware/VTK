@@ -3,7 +3,7 @@
 # file and tries to use it from another.  This approach checks that
 # both the instantiation syntax and symbol linkage is handled
 # properly.
-IF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
+IF(NOT DEFINED VTK_EXPLICIT_TEMPLATES)
   MESSAGE(STATUS "Checking support for C++ explicit template instantiation")
 
   FILE(MAKE_DIRECTORY ${VTK_BINARY_DIR}/CMakeTmp/TestExplicitInstantiation)
@@ -54,4 +54,4 @@ IF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
       "failed with the following output:\n"
       "${OUTPUT}\n")
   ENDIF(VTK_EXPLICIT_TEMPLATES)
-ENDIF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
+ENDIF()
