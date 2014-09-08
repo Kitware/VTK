@@ -503,7 +503,7 @@ namespace vtkvolume
 
     return std::string("\n\
       uniform float cropping_planes[6]; \n\
-      uniform int cropping_flags; \n\
+      uniform int cropping_flags [32]; \n\
       /// X: axis = 0, Y: axis = 1, Z: axis = 2 \n\
       /// cp Cropping plane bounds (minX, maxX, minY, maxY, minZ, maxZ) \n\
       int computeRegionCoord(float cp[6], vec3 pos, int axis) \n\
@@ -511,8 +511,7 @@ namespace vtkvolume
         int cpmin = axis * 2; \n\
         int cpmax = cpmin + 1; \n\
         \n\
-        if (pos[axis] >= m_texture_extents_min[axis] && \n\
-            pos[axis] < cp[cpmin]) \n\
+        if (pos[axis] < cp[cpmin]) \n\
           { \n\
           return 1; \n\
           } \n\
@@ -521,8 +520,7 @@ namespace vtkvolume
           { \n\
           return 2; \n\
           } \n\
-        else if (pos[axis] >= cp[cpmax] && \n\
-                 pos[axis] <= m_texture_extents_max[axis]) \n\
+        else if (pos[axis] >= cp[cpmax]) \n\
           { \n\
           return 3; \n\
           } \n\
@@ -569,11 +567,11 @@ namespace vtkvolume
     return std::string("\n\
       /// Determine region \n\
       int regionNo = computeRegion(cropping_planes_ts, l_data_pos); \n\
-      regionNo = max(0, regionNo - 1); \n\
+      regionNo = regionNo - 1; \n\
       \n\
       /// Do & operation with cropping flags \n\
-      /// Pass the flag that its Ok to sample or not to do sample \n\
-      if (((1 << regionNo) & cropping_flags) == 0) \n\
+      /// Pass the flag that its Ok to sample or not to sample \n\
+      if (cropping_flags[regionNo] == 0) \n\
        { \n\
        /// Skip this voxel \n\
        l_skip = true; \n\
