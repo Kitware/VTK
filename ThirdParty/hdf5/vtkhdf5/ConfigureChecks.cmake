@@ -371,7 +371,7 @@ CHECK_FUNCTION_EXISTS (stat64            H5_HAVE_STAT64)
 #  usual places. On MSVC we are just going to use ::clock()
 #-----------------------------------------------------------------------------
 IF (NOT MSVC)
-  IF ("H5_HAVE_TIME_GETTIMEOFDAY" MATCHES "^H5_HAVE_TIME_GETTIMEOFDAY$")
+  IF (NOT DEFINED H5_HAVE_TIME_GETTIMEOFDAY)
     TRY_COMPILE (HAVE_TIME_GETTIMEOFDAY
         ${CMAKE_BINARY_DIR}
         ${HDF5_SOURCE_DIR}/Resources/GetTimeOfDayTest.cpp
@@ -381,9 +381,9 @@ IF (NOT MSVC)
     IF (HAVE_TIME_GETTIMEOFDAY STREQUAL "TRUE")
       SET (H5_HAVE_TIME_GETTIMEOFDAY "1" CACHE INTERNAL "H5_HAVE_TIME_GETTIMEOFDAY")
     ENDIF (HAVE_TIME_GETTIMEOFDAY STREQUAL "TRUE")
-  ENDIF ("H5_HAVE_TIME_GETTIMEOFDAY" MATCHES "^H5_HAVE_TIME_GETTIMEOFDAY$")
+  ENDIF ()
 
-  IF ("H5_HAVE_SYS_TIME_GETTIMEOFDAY" MATCHES "^H5_HAVE_SYS_TIME_GETTIMEOFDAY$")
+  IF (NOT DEFINED H5_HAVE_SYS_TIME_GETTIMEOFDAY)
     TRY_COMPILE (HAVE_SYS_TIME_GETTIMEOFDAY
         ${CMAKE_BINARY_DIR}
         ${HDF5_SOURCE_DIR}/Resources/GetTimeOfDayTest.cpp
@@ -393,7 +393,7 @@ IF (NOT MSVC)
     IF (HAVE_SYS_TIME_GETTIMEOFDAY STREQUAL "TRUE")
       SET (H5_HAVE_SYS_TIME_GETTIMEOFDAY "1" CACHE INTERNAL "H5_HAVE_SYS_TIME_GETTIMEOFDAY")
     ENDIF (HAVE_SYS_TIME_GETTIMEOFDAY STREQUAL "TRUE")
-  ENDIF ("H5_HAVE_SYS_TIME_GETTIMEOFDAY" MATCHES "^H5_HAVE_SYS_TIME_GETTIMEOFDAY$")
+  ENDIF ()
 ENDIF (NOT MSVC)
 
 IF (NOT HAVE_SYS_TIME_GETTIMEOFDAY AND NOT H5_HAVE_GETTIMEOFDAY AND NOT MSVC)
@@ -430,7 +430,7 @@ ENDIF (HDF5_STREAM_VFD)
 
 # For other other specific tests, use this MACRO.
 MACRO (HDF5_FUNCTION_TEST OTHER_TEST)
-  IF ("H5_${OTHER_TEST}" MATCHES "^H5_${OTHER_TEST}$")
+  IF (NOT DEFINED "H5_${OTHER_TEST}")
     SET (MACRO_CHECK_FUNCTION_DEFINITIONS "-D${OTHER_TEST} ${CMAKE_REQUIRED_FLAGS}")
     SET (OTHER_TEST_ADD_LIBRARIES)
     IF (CMAKE_REQUIRED_LIBRARIES)
@@ -477,7 +477,7 @@ MACRO (HDF5_FUNCTION_TEST OTHER_TEST)
           "${OUTPUT}\n"
       )
     ENDIF (${OTHER_TEST})
-  ENDIF ("H5_${OTHER_TEST}" MATCHES "^H5_${OTHER_TEST}$")
+  ENDIF ()
 ENDMACRO (HDF5_FUNCTION_TEST)
 
 #-----------------------------------------------------------------------------
@@ -550,7 +550,7 @@ ENDIF (INLINE_TEST___inline__)
 # Check how to print a Long Long integer
 #-----------------------------------------------------------------------------
 SET (H5_H5_PRINTF_LL_WIDTH "H5_PRINTF_LL_WIDTH")
-IF (H5_PRINTF_LL_WIDTH MATCHES "^H5_PRINTF_LL_WIDTH$")
+IF (NOT DEFINED H5_PRINTF_LL_WIDTH)
   SET (PRINT_LL_FOUND 0)
   MESSAGE (STATUS "Checking for appropriate format for 64 bit long:")
   FOREACH (HDF5_PRINTF_LL l64 l L q I64 ll)
@@ -586,7 +586,7 @@ IF (H5_PRINTF_LL_WIDTH MATCHES "^H5_PRINTF_LL_WIDTH$")
         "Width for printf for type `long long' or `__int64', us. `ll"
     )
   ENDIF (PRINT_LL_FOUND)
-ENDIF (H5_PRINTF_LL_WIDTH MATCHES "^H5_PRINTF_LL_WIDTH$")
+ENDIF ()
 
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine can handle converting
@@ -611,7 +611,7 @@ ENDIF (CYGWIN)
 # Macro to determine the various conversion capabilities
 #-----------------------------------------------------------------------------
 MACRO (H5ConversionTests TEST msg)
-  IF ("${TEST}" MATCHES "^${TEST}$")
+  IF (NOT DEFINED "${TEST}")
    # MESSAGE (STATUS "===> ${TEST}")
     TRY_RUN (${TEST}_RUN   ${TEST}_COMPILE
         ${HDF5_BINARY_DIR}/CMake
@@ -638,14 +638,14 @@ MACRO (H5ConversionTests TEST msg)
       )
     ENDIF (${TEST}_COMPILE)
 
-  ENDIF("${TEST}" MATCHES "^${TEST}$")
+  ENDIF()
 ENDMACRO (H5ConversionTests)
 
 #-----------------------------------------------------------------------------
 # Macro to make some of the conversion tests easier to write/read
 #-----------------------------------------------------------------------------
 MACRO (H5MiscConversionTest  VAR TEST msg)
-  IF ("${TEST}" MATCHES "^${TEST}$")
+  IF (NOT DEFINED "${TEST}")
     IF (${VAR})
       SET (${TEST} 1 CACHE INTERNAL ${msg})
       MESSAGE (STATUS "${msg}... yes")
@@ -653,7 +653,7 @@ MACRO (H5MiscConversionTest  VAR TEST msg)
       SET (${TEST} "" CACHE INTERNAL ${msg})
       MESSAGE (STATUS "${msg}... no")
     ENDIF (${VAR})
-  ENDIF ("${TEST}" MATCHES "^${TEST}$")
+  ENDIF ()
 ENDMACRO (H5MiscConversionTest)
 
 #-----------------------------------------------------------------------------
@@ -730,19 +730,19 @@ H5ConversionTests (H5_LDOUBLE_TO_UINT_ACCURATE "Checking IF correctly converting
 # 'unsigned long long' to 'float' and 'double' typecasts.
 # (This flag should be set for all machines.)
 #
-IF (H5_ULLONG_TO_FP_CAST_WORKS MATCHES ^H5_ULLONG_TO_FP_CAST_WORKS$)
+IF (NOT DEFINED H5_ULLONG_TO_FP_CAST_WORKS)
   SET (H5_ULLONG_TO_FP_CAST_WORKS 1 CACHE INTERNAL "Checking IF compiling unsigned long long to floating-point typecasts work")
   MESSAGE (STATUS "Checking IF compiling unsigned long long to floating-point typecasts work... yes")
-ENDIF (H5_ULLONG_TO_FP_CAST_WORKS MATCHES ^H5_ULLONG_TO_FP_CAST_WORKS$)
+ENDIF ()
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine can _compile_
 # 'long long' to 'float' and 'double' typecasts.
 # (This flag should be set for all machines.)
 #
-IF (H5_LLONG_TO_FP_CAST_WORKS MATCHES ^H5_LLONG_TO_FP_CAST_WORKS$)
+IF (NOT DEFINED H5_LLONG_TO_FP_CAST_WORKS)
   SET (H5_LLONG_TO_FP_CAST_WORKS 1 CACHE INTERNAL "Checking IF compiling long long to floating-point typecasts work")
   MESSAGE (STATUS "Checking IF compiling long long to floating-point typecasts work... yes")
-ENDIF (H5_LLONG_TO_FP_CAST_WORKS MATCHES ^H5_LLONG_TO_FP_CAST_WORKS$)
+ENDIF ()
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine can convert from
 # 'unsigned long long' to 'long double' without precision loss.

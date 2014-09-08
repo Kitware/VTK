@@ -1,5 +1,5 @@
 MACRO(LIBXML2_PLATFORM_TEST lang var description invert)
-  IF("${var}_COMPILED" MATCHES "^${var}_COMPILED$")
+  IF(NOT DEFINED "${var}_COMPILED")
     MESSAGE(STATUS "${description}")
     TRY_COMPILE(${var}_COMPILED
       ${CMAKE_CURRENT_BINARY_DIR}
@@ -28,7 +28,7 @@ MACRO(LIBXML2_PLATFORM_TEST lang var description invert)
         MESSAGE(STATUS "${description} - no")
       ENDIF(${var}_COMPILED)
     ENDIF(${invert} MATCHES INVERT)
-  ENDIF("${var}_COMPILED" MATCHES "^${var}_COMPILED$")
+  ENDIF()
   IF(${invert} MATCHES INVERT)
     IF(${var}_COMPILED)
       SET(${var} 0)
@@ -45,7 +45,7 @@ MACRO(LIBXML2_PLATFORM_TEST lang var description invert)
 ENDMACRO(LIBXML2_PLATFORM_TEST)
 
 MACRO(LIBXML2_PLATFORM_TEST_RUN lang var description invert)
-  IF("${var}" MATCHES "^${var}$")
+  IF(NOT DEFINED "${var}")
     MESSAGE(STATUS "${description}")
     TRY_RUN(${var} ${var}_COMPILED
       ${CMAKE_CURRENT_BINARY_DIR}
@@ -92,7 +92,7 @@ MACRO(LIBXML2_PLATFORM_TEST_RUN lang var description invert)
         MESSAGE(STATUS "${description} - failed to compile")
       ENDIF(${var}_COMPILED)
     ENDIF(${invert} MATCHES INVERT)
-  ENDIF("${var}" MATCHES "^${var}$")
+  ENDIF()
 
   IF(${invert} MATCHES INVERT)
     IF(${var}_COMPILED)
