@@ -25,6 +25,7 @@
 # to configure it:
 #
 #   dashboard_model           = Nightly | Experimental | Continuous
+#   dashboard_track           = Optional track to submit dashboard to
 #   dashboard_branch_type     = master (default) | release | 5.10
 #   dashboard_disable_loop    = For continuous dashboards, disable loop.
 #   dashboard_root_name       = Change name of "My Tests" directory
@@ -484,7 +485,11 @@ while(NOT dashboard_done)
   if(COMMAND dashboard_hook_start)
     dashboard_hook_start()
   endif()
-  ctest_start(${dashboard_model})
+  if(dashboard_track)
+    ctest_start(${dashboard_model} TRACK ${dashboard_track})
+  else()
+    ctest_start(${dashboard_model})
+  endif()
   if(COMMAND dashboard_hook_started)
     dashboard_hook_started()
   endif()
