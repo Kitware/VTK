@@ -140,6 +140,7 @@
       });
       m_session.call("viewport.webgl.metadata", [Number(m_options.view)]).then(function(data) {
         if (m_sceneData === data) {
+          updateScene();
           return;
         }
         m_sceneData = data;
@@ -258,6 +259,7 @@
       } catch(error) {
         console.log(error);
       }
+      m_container.trigger('done');
     }
 
     // ------------------------------------------------------------------

@@ -1157,6 +1157,7 @@
             } catch(error) {
                 console.log(error);
             }
+            container.trigger('done');
         }
 
         // ------------------------------------------------------------------
