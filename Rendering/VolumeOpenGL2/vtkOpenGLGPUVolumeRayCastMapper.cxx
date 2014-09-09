@@ -912,15 +912,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(vtkRenderer* r
                             static_cast<double>(croppingRegionPlanes[5]) };
 
     glUniform1fv(this->Shader("cropping_planes"), 6, cropPlanes);
-
     const int numberOfRegions = 32;
     int cropFlagsArray[numberOfRegions];
-    for (int i = 0; i < numberOfRegions; ++i)
+    cropFlagsArray[0] = 0;
+    int i = 1;
+    while(cropFlags && i < 32)
       {
       cropFlagsArray[i] = cropFlags & 1;
       cropFlags = cropFlags >> 1;
-      std::cerr << cropFlagsArray[i] << std::endl;
+      ++i;
       }
+    for (; i < 32; ++i)
+      {
+      cropFlagsArray[i] = 0;
+      }
+
     glUniform1iv(this->Shader("cropping_flags"), numberOfRegions, cropFlagsArray);
     }
 }

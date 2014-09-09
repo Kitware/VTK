@@ -529,9 +529,9 @@ namespace vtkvolume
       \n\
       int computeRegion(float cp[6], vec3 pos) \n\
       { \n\
-        return (computeRegionCoord(cp, pos, 0) * \n\
-                computeRegionCoord(cp, pos, 1) * \n\
-                computeRegionCoord(cp, pos, 2)); \n\
+        return ( computeRegionCoord(cp, pos, 0) +  \n\
+                (computeRegionCoord(cp, pos, 1) - 1) * 3 + \n\
+                (computeRegionCoord(cp, pos, 2) - 1) * 9); \n\
       }");
   }
 
@@ -546,14 +546,24 @@ namespace vtkvolume
     return std::string("\n\
       /// Convert cropping region to texture space \n\
       float cropping_planes_ts[6];\n\
-      cropping_planes_ts[0] = cropping_planes[0] * m_step_size[0];\n\
-      cropping_planes_ts[1] = cropping_planes[1] * m_step_size[0];\n\
+      mat4  datasetToTextureMat = inverse(m_texture_dataset_matrix); \n\
+      vec4 temp = vec4(cropping_planes[0], cropping_planes[1], 0.0, 1.0); \n\
+      temp = datasetToTextureMat * temp; \n\
+      if (temp[3] != 0.0) {temp[0] /= temp[3]; temp[1] /= temp[3];} \n\
+      cropping_planes_ts[0] = temp[0];\n\
+      cropping_planes_ts[1] = temp[1];\n\
       \n\
-      cropping_planes_ts[2] = cropping_planes[2] * m_step_size[1];\n\
-      cropping_planes_ts[3] = cropping_planes[3] * m_step_size[1];\n\
+      temp = vec4(cropping_planes[2], cropping_planes[3], 0.0, 1.0); \n\
+      temp = datasetToTextureMat * temp; \n\
+      if (temp[3] != 0.0) {temp[0] /= temp[3]; temp[1] /= temp[3];} \n\
+      cropping_planes_ts[2] = temp[0];\n\
+      cropping_planes_ts[3] = temp[1];\n\
       \n\
-      cropping_planes_ts[4] = cropping_planes[4] * m_step_size[2];\n\
-      cropping_planes_ts[5] = cropping_planes[5] * m_step_size[2];");
+      temp = vec4(cropping_planes[4], cropping_planes[5], 0.0, 1.0); \n\
+      temp = datasetToTextureMat * temp; \n\
+      if (temp[3] != 0.0) {temp[0] /= temp[3]; temp[1] /= temp[3];} \n\
+      cropping_planes_ts[4] = temp[0];\n\
+      cropping_planes_ts[5] = temp[1];");
   }
 
   //--------------------------------------------------------------------------
@@ -567,7 +577,6 @@ namespace vtkvolume
     return std::string("\n\
       /// Determine region \n\
       int regionNo = computeRegion(cropping_planes_ts, l_data_pos); \n\
-      regionNo = regionNo - 1; \n\
       \n\
       /// Do & operation with cropping flags \n\
       /// Pass the flag that its Ok to sample or not to sample \n\
