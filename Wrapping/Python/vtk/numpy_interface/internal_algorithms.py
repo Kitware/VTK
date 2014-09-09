@@ -529,6 +529,10 @@ def make_vector(ax, ay, az=None):
     v = numpy.vstack([ax, ay, az]).transpose().view(dsa.VTKArray)
     # Copy defaults from first array. The user can always
     # overwrite this
-    v.DataSet = ax.DataSet
-    v.Association = ax.Association
+    try:
+        v.DataSet = ax.DataSet
+    except AttributeError: pass
+    try:
+        v.Association = ax.Association
+    except AttributeError: pass
     return v
