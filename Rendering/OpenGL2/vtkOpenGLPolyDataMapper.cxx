@@ -216,11 +216,14 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     else
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),0.0,dFdx(vertexVC.z)));\n"
-                         "vec3 fdy = normalize(vec3(0.0,dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+                         "vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
                          "vec3 normalVC = normalize(cross(fdx,fdy));\n"
+                         //"vec3 fdx = normalize(vec3(dFdx(vertexVC.x),0.0,dFdx(vertexVC.z)));\n"
+                         //"vec3 fdy = normalize(vec3(0.0,dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+                         //"vec3 normalVC = normalize(cross(fdx,fdy));\n"
                          // the code below is faster, but does not work on some devices
-                         // "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
+                         //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
                          "if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
                          );
       }
