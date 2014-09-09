@@ -200,8 +200,6 @@ public:
 
   /** Set the @p name uniform array to @p f with @p count elements */
   bool SetUniform1iv(const std::string &name, const int count, const int *f);
-  bool SetUniform2iv(const std::string &name, const int count, const int *f);
-  bool SetUniform3uv(const std::string &name, const int count, const unsigned char *f);
   bool SetUniform1fv(const std::string &name, const int count, const float *f);
   bool SetUniform3fv(const std::string &name, const int count, const float (*f)[3]);
 
