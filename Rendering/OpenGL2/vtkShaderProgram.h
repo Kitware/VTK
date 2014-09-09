@@ -44,18 +44,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the vertex shader for this program
-  void SetVertexShader(vtkShader *VS);
+  // Get the vertex shader for this program
   vtkGetObjectMacro(VertexShader, vtkShader);
 
   // Description:
-  // Set/Get the fragment shader for this program
-  void SetFragmentShader(vtkShader *FS);
+  // Get the fragment shader for this program
   vtkGetObjectMacro(FragmentShader, vtkShader);
 
   // Description:
-  // Set/Get the geometry shader for this program
-  void SetGeometryShader(vtkShader *GS);
+  // Get the geometry shader for this program
   vtkGetObjectMacro(GeometryShader, vtkShader);
 
   // Description:

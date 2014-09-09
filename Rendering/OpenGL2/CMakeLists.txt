@@ -94,31 +94,21 @@ set(${vtk-module}_HDRS
 set_source_files_properties(
   vtkglBufferObject
   vtkglVBOHelper
-  vtkShader
-  vtkShaderProgram
   vtkglVertexArrayObject
   vtkFrameBufferObject
-  vtkOpenGLActor
-  vtkOpenGLCamera
   vtkOpenGLImageMapper
   vtkOpenGLImageSliceMapper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHardwareSelector
-  vtkOpenGLLight
-  vtkOpenGLPolyDataMapper
-  vtkOpenGLPolyDataMapper2D
-  vtkOpenGLProperty
-  vtkOpenGLRenderer
   vtkOpenGLShaderCache
-  vtkOpenGLTexture
   vtkOpenGLTextureUnitManager
   vtkPixelBufferObject
   vtkRenderbuffer
   vtkRenderPass
   vtkRenderState
   vtkTextureObject
-  ${vtk-module}ObjectFactory
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   WRAP_EXCLUDE)
 
 set_source_files_properties(
@@ -179,11 +169,6 @@ if(VTK_USE_X)
     vtkXOpenGLRenderDevice
     WRAP_EXCLUDE)
 endif()
-
-set_source_files_properties(
-  vtkRenderingOpenGL2ObjectFactory
-  WRAP_EXCLUDE
-  )
 
 # setup factory overrides
 set(opengl_overrides

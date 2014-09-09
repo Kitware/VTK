@@ -43,6 +43,7 @@ set_source_files_properties(
   fonts/face_times_bold_italic
   fonts/face_times
   fonts/face_times_italic
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   WRAP_EXCLUDE
   )
 
