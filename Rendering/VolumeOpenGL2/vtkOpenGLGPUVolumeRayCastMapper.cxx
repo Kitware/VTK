@@ -319,8 +319,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(vtkRenderer* ren,
 }
 
 ///----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkImageData* imageData,
-                                                        vtkDataArray* scalars)
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
+  vtkImageData* imageData, vtkDataArray* scalars)
 {
   GL_CHECK_ERRORS
 
@@ -387,7 +387,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkImageData* imag
         format = GL_RED;
         type = GL_BYTE;
         shift = -(2 * this->ScalarsRange[0] + 1)/VTK_UNSIGNED_CHAR_MAX;
-        scale = VTK_SIGNED_CHAR_MAX/(this->ScalarsRange[1] - this->ScalarsRange[0]);
+        scale = VTK_SIGNED_CHAR_MAX / (this->ScalarsRange[1] -
+                                       this->ScalarsRange[0]);
         break;
       case VTK_CHAR:
         // not supported
@@ -434,7 +435,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkImageData* imag
         format = GL_RED;
         type = GL_SHORT;
         shift = -(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_SHORT_MAX;
-        scale = VTK_SHORT_MAX / (this->ScalarsRange[1] - this->ScalarsRange[0]);
+        scale = VTK_SHORT_MAX / (this->ScalarsRange[1] -
+                                 this->ScalarsRange[0]);
         break;
       case VTK_STRING:
         // not supported
@@ -447,14 +449,16 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkImageData* imag
 
         shift=-this->ScalarsRange[0]/VTK_UNSIGNED_SHORT_MAX;
         scale=
-          VTK_UNSIGNED_SHORT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+          VTK_UNSIGNED_SHORT_MAX / (this->ScalarsRange[1] -
+                                    this->ScalarsRange[0]);
         break;
       case VTK_UNSIGNED_INT:
         internalFormat = GL_INTENSITY16;
         format = GL_RED;
         type = GL_UNSIGNED_INT;
         shift=-this->ScalarsRange[0]/VTK_UNSIGNED_INT_MAX;
-        scale = VTK_UNSIGNED_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        scale = VTK_UNSIGNED_INT_MAX / (this->ScalarsRange[1] -
+                                        this->ScalarsRange[0]);
         break;
       default:
         assert("check: impossible case" && 0);
@@ -483,7 +487,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkImageData* imag
     glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
-                 this->TextureSize[0],this->TextureSize[1],this->TextureSize[2], 0,
+                 this->TextureSize[0],this->TextureSize[1],
+                 this->TextureSize[2], 0,
                  format, type, dataPtr);
 
     GL_CHECK_ERRORS
@@ -514,8 +519,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkImageData* imag
     int k = 0;
     int kInc = (this->Dimensions[0] - this->Parent->CellFlag) *
                (this->Dimensions[1] - this->Parent->CellFlag);
-    int kOffset = (this->TextureExtents[4] *  (this->Dimensions[1] - this->Parent->CellFlag) +
-                   this->TextureExtents[2]) * (this->Dimensions[0] - this->Parent->CellFlag) +
+    int kOffset = (this->TextureExtents[4] *
+                  (this->Dimensions[1] - this->Parent->CellFlag) +
+                   this->TextureExtents[2]) *
+                  (this->Dimensions[0] - this->Parent->CellFlag) +
                    this->TextureExtents[0];
     while(k < this->TextureSize[2])
       {
@@ -560,7 +567,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsInitialized()
 }
 
 ///----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsDataDirty(vtkImageData* input)
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsDataDirty(
+  vtkImageData* input)
 {
   /// Check if the scalars modified time is higher than the last build time
   /// if yes, then mark the current referenced data as dirty.
@@ -584,7 +592,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CompileAndLinkShader(
 }
 
 ///----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(vtkImageData* input)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
+  vtkImageData* input)
 {
   double spacing[3];
   double origin[3];
@@ -684,7 +693,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
     }
   else
     {
-    std::cerr << "SinglePass m_volume mapper does not handle multi-component scalars";
+    std::cerr << "Volume mapper does not handle multi-component scalars";
     return 1;
     }
 
@@ -703,7 +712,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 
   if (numberOfScalarComponents != 1)
     {
-    std::cerr << "SinglePass m_volume mapper does not handle multi-component scalars";
+    std::cerr << "Volume mapper does not handle multi-component scalars";
     return 1;
     }
 
@@ -733,8 +742,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 
 ///----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
-UpdateGradientOpacityTransferFunction(
-  vtkVolume* vol, int numberOfScalarComponents, unsigned int level)
+  UpdateGradientOpacityTransferFunction(vtkVolume* vol,
+    int numberOfScalarComponents, unsigned int level)
 {
   if (!vol)
     {
@@ -744,7 +753,7 @@ UpdateGradientOpacityTransferFunction(
 
   if (numberOfScalarComponents != 1)
     {
-    std::cerr << "SinglePass m_volume mapper does not handle multi-component scalars";
+    std::cerr << "Volume mapper does not handle multi-component scalars";
     return 1;
     }
 
@@ -1280,6 +1289,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   /// Update opacity transfer function
   /// TODO Passing level 0 for now
   this->Implementation->UpdateOpacityTransferFunction(vol,
+    scalars->GetNumberOfComponents(), 0);
+
+  this->Implementation->UpdateGradientOpacityTransferFunction(vol,
     scalars->GetNumberOfComponents(), 0);
 
   /// Update transfer color functions

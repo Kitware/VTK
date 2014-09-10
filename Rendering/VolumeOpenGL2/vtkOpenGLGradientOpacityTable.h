@@ -54,8 +54,8 @@ public:
   //--------------------------------------------------------------------------
   void Bind()
     {
-    // Activate texture 2
-    glActiveTexture(GL_TEXTURE2);
+    // Activate texture 5
+    glActiveTexture(GL_TEXTURE5);
 
     glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
@@ -75,8 +75,8 @@ public:
               double unitDistance,
               bool linearInterpolation)
     {
-    // Activate texture 2
-    glActiveTexture(GL_TEXTURE2);
+    // Activate texture 5
+    glActiveTexture(GL_TEXTURE5);
 
 
     bool needUpdate=false;
