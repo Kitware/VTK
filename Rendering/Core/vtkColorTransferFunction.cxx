@@ -16,11 +16,12 @@
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include <vector>
-#include <set>
+
 #include <algorithm>
 #include <iterator>
 #include <math.h>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkColorTransferFunction);
 
@@ -397,6 +398,7 @@ int vtkColorTransferFunction::AddHSVPoint( double x, double h,
   return this->AddRGBPoint( x, r, g, b, midpoint, sharpness );
 }
 
+//----------------------------------------------------------------------------
 // Sort the vector in increasing order, then fill in
 // the Range
 void vtkColorTransferFunction::SortAndUpdateRange()
@@ -1084,7 +1086,8 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
 }
 
 //----------------------------------------------------------------------------
-const unsigned char *vtkColorTransferFunction::GetTable( double xStart, double xEnd,
+const unsigned char *vtkColorTransferFunction::GetTable( double xStart,
+                                                         double xEnd,
                                                          int size)
 {
   if (this->GetMTime() <= this->BuildTime &&
@@ -1285,12 +1288,12 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
                                      int length, int inIncr,
                                      int outFormat, long)
 {
-  double          x;
+  double         x;
   int            i = length;
-  double          rgb[3];
-  unsigned char  *optr = output;
-  T              *iptr = input;
-  unsigned char   alpha = static_cast<unsigned char>(self->GetAlpha()*255.0);
+  double         rgb[3];
+  unsigned char *optr = output;
+  T             *iptr = input;
+  unsigned char  alpha = static_cast<unsigned char>(self->GetAlpha()*255.0);
 
   if(self->GetSize() == 0)
     {

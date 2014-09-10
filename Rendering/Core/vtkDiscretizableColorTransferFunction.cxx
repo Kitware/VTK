@@ -45,7 +45,6 @@ vtkDiscretizableColorTransferFunction::vtkDiscretizableColorTransferFunction()
   this->UseLogScale = 0;
 
   this->ScalarOpacityFunction = 0;
-  this->ScalarOpacityFunctionObserverId = 0;
   this->EnableOpacityMapping = false;
 }
 
@@ -118,8 +117,8 @@ void vtkDiscretizableColorTransferFunction::SetIndexedColor(
     this->Modified();
     }
   else if (this->Internals->IndexedColors[index].GetData()[0] != r ||
-    this->Internals->IndexedColors[index].GetData()[1] != g ||
-    this->Internals->IndexedColors[index].GetData()[2] != b )
+           this->Internals->IndexedColors[index].GetData()[1] != g ||
+           this->Internals->IndexedColors[index].GetData()[2] != b )
     {
     // color has changed, change it.
     double *data = this->Internals->IndexedColors[index].GetData();
@@ -274,8 +273,7 @@ void vtkDiscretizableColorTransferFunction::SetAlpha(double alpha)
 }
 
 //-----------------------------------------------------------------------------
-void vtkDiscretizableColorTransferFunction::SetNanColor(
-                                                   double r, double g, double b)
+void vtkDiscretizableColorTransferFunction::SetNanColor(double r, double g, double b)
 {
   this->LookupTable->SetNanColor(r, g, b, 1.0);
   this->Superclass::SetNanColor(r, g, b);
@@ -377,6 +375,7 @@ struct VectorMagnitudeGetter
   }
 };
 
+//-----------------------------------------------------------------------------
 template<typename T, typename VectorGetter>
 void vtkDiscretizableColorTransferFunction::MapVectorToOpacity (
   VectorGetter getter, T* scalars, int component,
@@ -390,6 +389,7 @@ void vtkDiscretizableColorTransferFunction::MapVectorToOpacity (
     }
 }
 
+//-----------------------------------------------------------------------------
 template<template<class> class VectorGetter>
 void vtkDiscretizableColorTransferFunction::AllTypesMapVectorToOpacity (
   int scalarType,
@@ -406,6 +406,7 @@ void vtkDiscretizableColorTransferFunction::AllTypesMapVectorToOpacity (
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::MapDataArrayToOpacity(
   vtkDataArray *scalars, int component, vtkUnsignedCharArray* colors)
 {
@@ -435,7 +436,6 @@ void vtkDiscretizableColorTransferFunction::MapDataArrayToOpacity(
       component, numberOfComponents, numberOfTuples, colorPtr);
     }
 }
-
 
 #ifndef VTK_LEGACY_REMOVE
 //-----------------------------------------------------------------------------
