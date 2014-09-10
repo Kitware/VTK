@@ -1024,6 +1024,10 @@ int vtkPythonArgs::GetArgAsSIPEnum(
 bool vtkPythonArgs::GetValue(T &a) \
 { \
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
+  if (PyVTKMutableObject_Check(o)) \
+    { \
+    o = PyVTKMutableObject_GetValue(o); \
+    } \
   if (vtkPythonGetValue(o, a)) \
     { \
     return true; \
