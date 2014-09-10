@@ -241,12 +241,6 @@ private:
       void* scalarsPtr, int component,
       int numberOfComponents, vtkIdType numberOfTuples, unsigned char* colors);
 
-#if 0
-  // Description:
-  // Pointer used by GetRGBPoints().
-  double* Data;
-#endif
-
   class vtkInternals;
   vtkInternals* Internals;
 };
