@@ -177,10 +177,23 @@ public:
   /// \param vol
   /// \param numberOfScalarComponents (1 or 4)
   /// \param level
-  /// \return 0 or 1 (fail)
+  /// \return 0 (pass) or 1 (fail)
   ///
-  int UpdateOpacityTransferFunction(vtkVolume* vol, int numberOfScalarComponents,
+  int UpdateOpacityTransferFunction(vtkVolume* vol,
+                                    int numberOfScalarComponents,
                                     unsigned int level);
+
+  ///
+  /// \brief UpdateGradientOpacityTransferFunction
+  /// \param vol
+  /// \param numberOfScalarComponents
+  /// \param level
+  /// \return 0 (pass) or 1 (fail)
+  ///
+  int UpdateGradientOpacityTransferFunction(vtkVolume* vol,
+                                            int numberOfScalarComponents,
+                                            unsigned int level);
+
   ///
   /// \brief UpdateNoiseTexture
   ///
@@ -253,7 +266,7 @@ public:
   vtkOpenGLGPUVolumeRayCastMapper* Parent;
   vtkOpenGLRGBTable* RGBTable;
   vtkOpenGLOpacityTables* OpacityTables;
-  vtkOpenGLGradientOpacityTable* GradientOpacityTables;
+  vtkOpenGLGradientOpacityTables* GradientOpacityTables;
 
   vtkTimeStamp VolumeBuildTime;
   vtkTimeStamp ShaderBuildTime;
@@ -283,12 +296,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(vtkRenderer* ren,
   err = glGetError();
   GL_CHECK_ERRORS
 
-  //output hardware information
-  cout<<"\tUsing GLEW "<< glewGetString(GLEW_VERSION)<<endl;
-  cout<<"\tVendor: "<< glGetString (GL_VENDOR)<<endl;
-  cout<<"\tRenderer: "<< glGetString (GL_RENDERER)<<endl;
-  cout<<"\tVersion: "<< glGetString (GL_VERSION)<<endl;
-  cout<<"\tGLSL: "<< glGetString (GL_SHADING_LANGUAGE_VERSION)<<endl;
+  // Output hardware information
+  cout << "\tUsing GLEW "<< glewGetString(GLEW_VERSION) << endl;
+  cout << "\tVendor: "<< glGetString (GL_VENDOR) << endl;
+  cout << "\tRenderer: "<< glGetString (GL_RENDERER) << endl;
+  cout << "\tVersion: "<< glGetString (GL_VERSION) << endl;
+  cout << "\tGLSL: "<< glGetString (GL_SHADING_LANGUAGE_VERSION) << endl;
 
   /// Setup unit cube vertex array and vertex buffer objects
   glGenVertexArrays(1, &this->CubeVAOId);
@@ -707,6 +720,53 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 
   this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->Parent->BlendMode,
+    this->Parent->SampleDistance,
+    this->ScalarsRange,
+    volumeProperty->GetScalarOpacityUnitDistance(),
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
+
+  /// Restore default active texture
+  glActiveTexture(GL_TEXTURE0);
+
+  return 0;
+}
+
+///----------------------------------------------------------------------------
+int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
+UpdateGradientOpacityTransferFunction(
+  vtkVolume* vol, int numberOfScalarComponents, unsigned int level)
+{
+  if (!vol)
+    {
+    std::cerr << "Invalid m_volume" << std::endl;
+    return 1;
+    }
+
+  if (numberOfScalarComponents != 1)
+    {
+    std::cerr << "SinglePass m_volume mapper does not handle multi-component scalars";
+    return 1;
+    }
+
+  vtkVolumeProperty* volumeProperty = vol->GetProperty();
+  vtkPiecewiseFunction* gradientOpacity = volumeProperty->GetGradientOpacity();
+
+  if (!this->GradientOpacityTables && gradientOpacity)
+    {
+    // NOTE Handling only one component
+    this->GradientOpacityTables = new vtkOpenGLGradientOpacityTables(1);
+    }
+
+  /// TODO: Do a better job to create the default opacity map
+  /// Add points only if its not being added before
+  if (gradientOpacity->GetSize() < 1)
+    {
+    gradientOpacity->AddPoint(this->ScalarsRange[0], 0.0);
+    gradientOpacity->AddPoint(this->ScalarsRange[1], 0.5);
+    }
+
+  this->GradientOpacityTables->GetTable(level)->Update(
+    gradientOpacity,this->Parent->BlendMode,
     this->Parent->SampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
