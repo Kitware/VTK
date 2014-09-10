@@ -222,6 +222,14 @@ public:
   void UpdateClipping(vtkRenderer* ren, vtkVolume* vol);
 
   ///
+  /// \brief UpdateSamplingDistance Update sampling distance
+  /// \param ren
+  /// \param vol
+  ///
+  void UpdateSamplingDistance(vtkImageData *input,
+                              vtkRenderer* ren, vtkVolume* vol);
+
+  ///
   /// \brief Load OpenGL extensiosn required to grab depth sampler buffer
   ///
   void LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin);
@@ -243,23 +251,27 @@ public:
 
   vtkGLSLShader Shader;
 
+  int TextureWidth;
+
+  double Scale;
+  double Bias;
+
+  float* NoiseTextureData;
+  GLint NoiseTextureSize;
+
+  float ActualSampleDistance;
+
   int Dimensions[3];
   int TextureSize[3];
   int TextureExtents[6];
   int WindowLowerLeft[2];
   int WindowSize[2];
-  int TextureWidth;
 
   double ScalarsRange[2];
   double Bounds[6];
   int Extents[6];
   double StepSize[3];
   double CellScale[3];
-  double Scale;
-  double Bias;
-
-  float* NoiseTextureData;
-  GLint NoiseTextureSize;
 
   std::ostringstream ExtensionsStringStream;
 
@@ -729,7 +741,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 
   this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->Parent->BlendMode,
-    this->Parent->SampleDistance,
+    this->ActualSampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
@@ -776,7 +788,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 
   this->GradientOpacityTables->GetTable(level)->Update(
     gradientOpacity,this->Parent->BlendMode,
-    this->Parent->SampleDistance,
+    this->ActualSampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
@@ -993,8 +1005,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(vtkRenderer* r
 }
 
 ///----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(vtkRenderer* ren,
-                                                            vtkVolume* vol)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
+  vtkRenderer* ren, vtkVolume* vol)
 {
   if (this->Parent->GetClippingPlanes())
     {
@@ -1030,10 +1042,56 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(vtkRenderer* r
     }
 }
 
-///
 ///----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadRequireDepthTextureExtensions(
-  vtkRenderWindow* renWin)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
+  vtkImageData* input, vtkRenderer* vtkNotUsed(ren), vtkVolume* vol)
+{
+  if(!this->Parent->AutoAdjustSampleDistances)
+    {
+    this->ActualSampleDistance = this->Parent->SampleDistance;
+    }
+  else
+    {
+    double datasetSpacing[3];
+    input->GetSpacing(datasetSpacing);
+
+    vtkMatrix4x4* worldToDataset = vol->GetMatrix();
+    double minWorldSpacing = VTK_DOUBLE_MAX;
+    int i = 0;
+    while (i < 3)
+      {
+      double tmp = worldToDataset->GetElement(0,i);
+      double tmp2 = tmp*tmp;
+      tmp = worldToDataset->GetElement(1,i);
+      tmp2 += tmp * tmp;
+      tmp = worldToDataset->GetElement(2,i);
+
+      // We use fabs() in case the spacing is negative.
+      double worldSpacing = fabs(datasetSpacing[i]*sqrt(tmp2 + tmp * tmp));
+      if(worldSpacing < minWorldSpacing)
+        {
+        minWorldSpacing = worldSpacing;
+        }
+      ++i;
+      }
+
+    // minWorldSpacing is the optimal sample distance in world space.
+    // To go faster (reduceFactor<1.0), we multiply this distance
+    // by 1/reduceFactor.
+    this->ActualSampleDistance = static_cast<float>(minWorldSpacing);
+
+    // TODO: Support reduction factor
+//    if (this->ReductionFactor < 1.0)
+//      {
+//      this->ActualSampleDistance /= static_cast<GLfloat>(this->ReductionFactor*0.5);
+//      }
+//    }
+    }
+}
+
+///----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
+  LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin)
 {
   /// Reset the message stream for extensions
   this->ExtensionsStringStream.str("");
@@ -1077,7 +1135,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadRequireDepthTextureExtens
   this->LoadDepthTextureExtensionsSucceeded = true;
 }
 
-///
 ///----------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   vtkGPUVolumeRayCastMapper()
@@ -1266,6 +1323,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     this->BuildShader(ren, vol);
     }
 
+  this->Implementation->UpdateSamplingDistance(input, ren, vol);
+
   vtkDataArray* scalars = this->GetScalars(input,
                           this->ScalarMode,
                           this->ArrayAccessMode,
@@ -1328,7 +1387,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
               this->Implementation->StepSize[2]);
 
   glUniform1f(this->Implementation->Shader("m_sample_distance"),
-              this->SampleDistance);
+              this->Implementation->ActualSampleDistance);
 
   glUniform3f(this->Implementation->Shader("m_cell_scale"),
               this->Implementation->CellScale[0],
