@@ -309,7 +309,7 @@ namespace vtkvolume
                 float m_shine_factor = pow(n_dot_h, m_shininess); \n\
                 final_color += m_specular * m_shine_factor; \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
-                l_src_color.rgb += final_color.rgb; \n\
+                l_src_color.rgb *= final_color.rgb; \n\
                }");
         }
 

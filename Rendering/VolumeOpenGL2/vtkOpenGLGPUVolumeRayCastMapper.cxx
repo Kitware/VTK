@@ -1271,9 +1271,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   glUniform3f(this->Implementation->Shader("m_ambient"),
               0.0, 0.0, 0.0);
   glUniform3f(this->Implementation->Shader("m_diffuse"),
-              0.2, 0.2, 0.2);
+              0.8, 0.8, 0.8);
   glUniform3f(this->Implementation->Shader("m_specular"),
-              0.2, 0.2, 0.2);
+              0.0, 0.0, 0.0);
   glUniform1f(this->Implementation->Shader("m_shininess"), 10.0);
 
   /// Bind textures
