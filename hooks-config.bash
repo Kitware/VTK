@@ -59,7 +59,7 @@ hooks_child() {
 	*) prefix="./" ;;
 	esac
 	if test -x "$prefix$child" ; then
-		"$prefix$child" "$@"
+		echo "$stdin" | "$prefix$child" "$@"
 	fi
 }
 
