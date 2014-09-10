@@ -1061,13 +1061,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
     while (i < 3)
       {
       double tmp = worldToDataset->GetElement(0,i);
-      double tmp2 = tmp*tmp;
+      double tmp2 = tmp * tmp;
       tmp = worldToDataset->GetElement(1,i);
       tmp2 += tmp * tmp;
       tmp = worldToDataset->GetElement(2,i);
+      tmp2 += tmp * tmp;
 
       // We use fabs() in case the spacing is negative.
-      double worldSpacing = fabs(datasetSpacing[i]*sqrt(tmp2 + tmp * tmp));
+      double worldSpacing = fabs(datasetSpacing[i]*sqrt(tmp2));
       if(worldSpacing < minWorldSpacing)
         {
         minWorldSpacing = worldSpacing;
@@ -1081,11 +1082,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
     this->ActualSampleDistance = static_cast<float>(minWorldSpacing);
 
     // TODO: Support reduction factor
-//    if (this->ReductionFactor < 1.0)
-//      {
-//      this->ActualSampleDistance /= static_cast<GLfloat>(this->ReductionFactor*0.5);
-//      }
-//    }
+    //    if (this->ReductionFactor < 1.0)
+    //      {
+    //      this->ActualSampleDistance /= static_cast<GLfloat>(this->ReductionFactor*0.5);
+    //      }
+    //    }
     }
 }
 
