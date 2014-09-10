@@ -282,26 +282,31 @@ std::string replace(std::string source, const std::string &search,
 
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                                 vtkPoints *points)
+                                 vtkPoints *points, std::vector<unsigned int> &cellPointMap)
 {
   std::vector<unsigned int> indexArray;
   vtkIdType* indices(NULL);
   vtkIdType npts(0);
   indexArray.reserve(cells->GetNumberOfCells() * 3);
+
+  // the folowing are only used if we have to triangulate a polygon
+  // otherwise they just sit at NULL
   vtkPolygon *polygon = NULL;
   vtkIdList *tris = NULL;
+  vtkPoints *triPoints = NULL;
 
   for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
     {
+    // ignore degenerate triangles
     if (npts < 3)
       {
-      exit(-1); // assert(points >= 3);
+      continue;
       }
 
     // triangulate needed
     if (npts > 3)
       {
-      // special case for quads which VTK uses a lot
+      // special case for quads, penta, hex which are common
       if (npts == 4)
         {
         indexArray.push_back(static_cast<unsigned int>(indices[0]));
@@ -311,19 +316,61 @@ size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
         indexArray.push_back(static_cast<unsigned int>(indices[2]));
         indexArray.push_back(static_cast<unsigned int>(indices[3]));
         }
-      else
+      else if (npts == 5)
+        {
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[1]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[4]));
+        }
+      else if (npts == 6)
+        {
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[1]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[5]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[4]));
+        indexArray.push_back(static_cast<unsigned int>(indices[5]));
+        }
+      else // 7 sided polygon or higher, do a full smart triangulation
         {
         if (!polygon)
           {
           polygon = vtkPolygon::New();
           tris = vtkIdList::New();
+          triPoints = vtkPoints::New();
           }
-        polygon->Initialize(npts, indices, points);
+
+        vtkIdType *triIndices = new vtkIdType[npts];
+        triPoints->SetNumberOfPoints(npts);
+        for (int i = 0; i < npts; ++i)
+          {
+          int idx = indices[i];
+          if (cellPointMap.size() > 0 && cellPointMap[indices[i]] > 0)
+            {
+            idx = cellPointMap[indices[i]]-1;
+            }
+          triPoints->SetPoint(i,points->GetPoint(idx));
+          triIndices[i] = i;
+          }
+        polygon->Initialize(npts, triIndices, triPoints);
         polygon->Triangulate(tris);
         for (int j = 0; j < tris->GetNumberOfIds(); ++j)
           {
           indexArray.push_back(static_cast<unsigned int>(indices[tris->GetId(j)]));
           }
+        delete [] triIndices;
         }
       }
     else
@@ -337,6 +384,7 @@ size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
     {
     polygon->Delete();
     tris->Delete();
+    triPoints->Delete();
     }
   indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();

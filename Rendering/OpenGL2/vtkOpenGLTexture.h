@@ -22,9 +22,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTexture.h"
-//BTX
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
-//ETX
 
 class vtkRenderWindow;
 class vtkTextureObject;
@@ -77,7 +75,6 @@ public:
   int GetTextureUnit();
 
 protected:
-//BTX
   vtkOpenGLTexture();
   ~vtkOpenGLTexture();
 
@@ -98,8 +95,6 @@ protected:
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
   void operator=(const vtkOpenGLTexture&);  // Not implemented.
-
-//ETX
 };
 
 #endif

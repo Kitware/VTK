@@ -107,7 +107,6 @@ protected:
   void SetTimerDictionary(void *dictionary);    // Really an NSMutableDictionary*
   void *GetTimerDictionary();
 
-  //BTX
   // Description:
   // Class variables so an exit method can be defined for this class
   // (used to set different exit methods for various language bindings,
@@ -115,7 +114,6 @@ protected:
   static void (*ClassExitMethod)(void *);
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
-  //ETX
 
   // Description:
   // Cocoa-specific internal timer methods. See the superclass for detailed

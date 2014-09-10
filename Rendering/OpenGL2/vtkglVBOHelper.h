@@ -38,7 +38,7 @@ std::string replace(std::string source, const std::string &search,
 
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                                 vtkPoints *points);
+                                 vtkPoints *points, std::vector<unsigned int> &cellPointMap);
 
 // used to create an IBO for point primatives
 size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);

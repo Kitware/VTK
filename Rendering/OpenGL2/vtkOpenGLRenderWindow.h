@@ -188,12 +188,10 @@ public:
   // Returns an Shader Cache object
   vtkGetObjectMacro(ShaderCache,vtkOpenGLShaderCache);
 
-  //BTX
   // Description:
   // Returns its texture unit manager object. A new one will be created if one
   // hasn't already been set up.
   vtkOpenGLTextureUnitManager *GetTextureUnitManager();
-  //ETX
 
   // Description:
   // Block the thread until the actual rendering is finished().
@@ -208,9 +206,7 @@ protected:
 
   long OldMonitorSetting;
 
-  //BTX
   std::map<const vtkTextureObject *, int> TextureResourceIds;
-  //ETX
 
   int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
   int GetRGBAPixelData(int x, int y, int x2, int y2, int front, float* data);

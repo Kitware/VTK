@@ -35,7 +35,6 @@ class VTKRENDERINGOPENGL2_EXPORT vtkTextureObject : public vtkObject
 {
 public:
 
-  //BTX
   // DepthTextureCompareFunction values.
   enum
   {
@@ -89,8 +88,6 @@ public:
     Float32,
     NumberOfDepthFormats
   };
-
-  //ETX
 
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
@@ -505,7 +502,6 @@ public:
 
 
 
-//BTX
 protected:
   vtkTextureObject();
   ~vtkTextureObject();
@@ -569,7 +565,6 @@ protected:
 private:
   vtkTextureObject(const vtkTextureObject&); // Not implemented.
   void operator=(const vtkTextureObject&); // Not implemented.
-//ETX
 };
 
 #endif

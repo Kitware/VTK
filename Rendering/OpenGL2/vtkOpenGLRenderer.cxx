@@ -479,9 +479,9 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 // return false otherwise returns true. Also if layer==0 and no prop have
 // been rendered (there is no translucent geometry), it returns false.
 // \pre positive_layer: layer>=0
-int vtkOpenGLRenderer::RenderPeel(int layer)
+int vtkOpenGLRenderer::RenderPeel(int vtkNotUsed(layer))
 {
-  assert("pre: positive_layer" && layer>=0);
+  // assert("pre: positive_layer" && layer>=0);
   return 0;
 }
 

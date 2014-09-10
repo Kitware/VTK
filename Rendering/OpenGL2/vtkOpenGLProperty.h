@@ -38,7 +38,6 @@ public:
   // Implement base class method.
   void BackfaceRender(vtkActor *a, vtkRenderer *ren);
 
-  //BTX
   // Description:
   // This method is called after the actor has been rendered.
   // Don't call this directly. This method cleans up
