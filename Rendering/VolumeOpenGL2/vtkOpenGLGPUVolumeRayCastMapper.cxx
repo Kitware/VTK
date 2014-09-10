@@ -18,6 +18,7 @@
 #include "vtkGLSLShader.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
+#include "vtkOpenGLGradientOpacityTable.h"
 #include "vtkVolumeShaderComposer.h"
 #include "vtkVolumeStateRAII.h"
 
@@ -59,6 +60,7 @@
 #include <cassert>
 #include <sstream>
 
+
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 
 /// TODO Remove this afterwards
@@ -88,7 +90,8 @@ public:
     TextureWidth(1024),
     Parent(parent),
     RGBTable(0),
-    OpacityTables(0)
+    OpacityTables(0),
+    GradientOpacityTables(0)
     {
     this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = -1;
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
@@ -110,6 +113,9 @@ public:
 
     delete this->OpacityTables;
     this->OpacityTables = 0;
+
+    delete this->GradientOpacityTables;
+    this->GradientOpacityTables = 0;
 
     delete this->NoiseTextureData;
     this->NoiseTextureData = 0;
@@ -247,6 +253,7 @@ public:
   vtkOpenGLGPUVolumeRayCastMapper* Parent;
   vtkOpenGLRGBTable* RGBTable;
   vtkOpenGLOpacityTables* OpacityTables;
+  vtkOpenGLGradientOpacityTable* GradientOpacityTables;
 
   vtkTimeStamp VolumeBuildTime;
   vtkTimeStamp ShaderBuildTime;
@@ -258,7 +265,7 @@ public:
 
 ///----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(vtkRenderer* ren,
-                                                        vtkVolume* vol)
+                                                              vtkVolume* vol)
 {
   GLenum err = glewInit();
   if (GLEW_OK != err)
