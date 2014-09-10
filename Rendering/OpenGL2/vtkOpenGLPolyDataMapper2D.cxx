@@ -519,8 +519,9 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
                          this->Lines.offsetArray,
                          this->Lines.elementsArray, false);
   this->Tris.indexCount = CreateTriangleIndexBuffer(prims[2],
-                                                              this->Tris.ibo,
-                                                              poly->GetPoints());
+                                                    this->Tris.ibo,
+                                                    poly->GetPoints(),
+                                                    cellPointMap);
   this->TriStrips.indexCount = CreateMultiIndexBuffer(prims[3],
                          this->TriStrips.ibo,
                          this->TriStrips.offsetArray,

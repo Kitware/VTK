@@ -41,11 +41,9 @@
 class vtkCallbackCommand;
 class vtkXOpenGLRenderWindowInteractorInternals;
 
-//BTX
 // Forward declare internal friend functions.
 void VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
 void VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
-//ETX
 
 class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindowInteractor : public vtkRenderWindowInteractor
 {

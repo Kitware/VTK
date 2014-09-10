@@ -96,8 +96,6 @@ set_source_files_properties(
   vtkglVBOHelper
   vtkglVertexArrayObject
   vtkFrameBufferObject
-  vtkOpenGLImageMapper
-  vtkOpenGLImageSliceMapper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHardwareSelector

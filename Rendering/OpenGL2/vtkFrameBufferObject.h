@@ -29,9 +29,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
-//BTX
 #include <vector> // for the lists of logical buffers.
-//ETX
 
 class vtkRenderWindow;
 class vtkTextureObject;
@@ -165,7 +163,6 @@ public:
   // prints detected errors to vtkErrorMacro.
   int CheckFrameBufferStatus(unsigned int mode);
 
-//BTX
 protected:
   // Description:
   // Load all necessary extensions.
@@ -242,7 +239,6 @@ protected:
 private:
   vtkFrameBufferObject(const vtkFrameBufferObject&); // Not implemented.
   void operator=(const vtkFrameBufferObject&); // Not implemented.
-//ETX
 };
 
 #endif

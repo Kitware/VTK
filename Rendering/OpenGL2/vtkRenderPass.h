@@ -55,13 +55,11 @@ class VTKRENDERINGOPENGL2_EXPORT vtkRenderPass : public vtkObject
   vtkTypeMacro(vtkRenderPass,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // It modifies NumberOfRenderedProps.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s)=0;
-  //ETX
 
   // Description:
   // Number of props rendered at the last Render call.
