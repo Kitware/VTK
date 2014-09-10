@@ -239,12 +239,19 @@
                         // Create Control UI
                         session.call("catalyst.arguments.get").then(function(args){
                             createControlPanel(me, args);
-                            initializeListener(me);
                         });
 
                         // Update stop method to use the connection
                         stop = function() {
-                            connection.session.call('application.exit').then(function() {connection.session.close();});
+                            session.call('application.exit.later', [5]).then(function() {
+                                try {
+                                    connection.connection.close();
+                                } catch (closeError) {
+                                    console.log(closeError);
+                                }
+                            }, function(err) {
+                                console.log(err);
+                            });
                         }
 
                         $('.close',me.parent()).click(stop);
@@ -259,6 +266,87 @@
                     console.log("error");
                     console.log(error);
                 }
+            });
+        });
+    }
+
+    /**
+     * Alternate jQuery catalyst view constructor.
+     *
+     * @member fn.vtkCatalystPVWeb
+     * @param basePath
+     * Root directory for data to visualize
+     */
+
+     $.fn.vtkCatalystPVWebDirect = function(data) {
+        // FIXME: This function and the above function should be refactored
+        // FIXME: together to avoid duplicated code.
+        return this.each(function() {
+            var me = $(this).empty().addClass('vtk-catalyst-pvweb small'); //.unbind();
+
+            // Store metadata
+            me.data('info', data);
+            me.data('active-args', {});
+
+            var stop = vtkWeb.NoOp,
+            start = function(connection) {
+                // Create viewport
+                var viewport = vtkWeb.createViewport({session:connection.session}),
+                session = connection.session;
+                me.data('viewport', viewport);
+                me.data('session', session);
+
+                viewport.bind(me[0]);
+
+                // Init pipeline
+                if(data.hasOwnProperty('configuration')) {
+                    session.call("catalyst.pipeline.initialize", [data["configuration"]]).then(function(){
+                        viewport.render();
+                    },function(e){
+                        console.log("There was an error calling 'catalyst.pipeline.initialize':");
+                        console.log(e);
+                    });
+                }
+
+                // Load files
+                if(data.hasOwnProperty('files')) {
+                    session.call("catalyst.file.open", [data["files"]]).then(function(){
+                        viewport.render();
+                    },function(e){
+                        console.log("There was an error calling 'catalyst.file.open':");
+                        console.log(e);
+                    });
+                }
+
+                // Create Control UI
+                session.call("catalyst.arguments.get").then(function(args) {
+                    createControlPanel(me, args);
+                }, function(err) {
+                    console.log("There was an error calling 'catalyst.arguments.get':");
+                    console.log(err);
+                });
+
+                // Update stop method to use the connection
+                stop = function() {
+                    session.call('application.exit.later', [5]).then(function() {
+                        try {
+                            connection.connection.close();
+                        } catch (closeError) {
+                            console.log("Caught exception calling connection.close():");
+                            console.log(closeError);
+                        }
+                    }, function(err) {
+                        console.log("There was an error calling 'application.exit.later':");
+                        console.log(err);
+                    });
+                }
+
+                me.bind('stop-vtk-connection', stop);
+            };
+
+            // Try to launch the Viz process
+            vtkWeb.connect(data, start, function(code,reason){
+                console.log(reason);
             });
         });
     }
