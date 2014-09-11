@@ -205,8 +205,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   NSUInteger flags = [theEvent modifierFlags];
   int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & NSControlKeyMask) != 0);
-  int altDown = ((flags & (NSCommandKeyMask | NSAlternateKeyMask)) != 0);
+  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
+  int altDown = ((flags & NSAlternateKeyMask) != 0);
 
   unsigned char charCode = '\0';
   const char *keySym = 0;
@@ -301,8 +301,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   NSUInteger flags = [theEvent modifierFlags];
   int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & NSControlKeyMask) != 0);
-  int altDown = ((flags & (NSCommandKeyMask | NSAlternateKeyMask)) != 0);
+  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
+  int altDown = ((flags & NSAlternateKeyMask) != 0);
 
   interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
                                   static_cast<int>(round(mouseLoc.y)),
@@ -335,8 +335,8 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   NSUInteger flags = [theEvent modifierFlags];
   int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & NSControlKeyMask) != 0);
-  int altDown = ((flags & (NSCommandKeyMask | NSAlternateKeyMask)) != 0);
+  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
+  int altDown = ((flags & NSAlternateKeyMask) != 0);
 
   interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
                                   static_cast<int>(round(mouseLoc.y)),

@@ -105,14 +105,9 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
   UInt32 modifierKeys;
   GetEventParameter(event, kEventParamKeyModifiers,typeUInt32, NULL,
                     sizeof(modifierKeys), NULL, &modifierKeys);
-  int controlDown = ((modifierKeys & controlKey) != 0);
+  int controlDown = ((modifierKeys & (controlKey | cmdKey)) != 0);
   int shiftDown = ((modifierKeys & shiftKey) != 0);
-
-  // Even though the option key is the one with a small 'alt' label on top
-  // of it, VNC (as well as some Mac users) uses the command key as 'alt'.
-  // Let's use both then.
-  UInt32 altKey = cmdKey | optionKey;
-  int altDown = ((modifierKeys & altKey) != 0);
+  int altDown = ((modifierKeys & optionKey) != 0);
 
   // Capture mouse position for non-mouse events.  Carbon itself does
   // not provide mouse positions for these events, but VTK expects them.
