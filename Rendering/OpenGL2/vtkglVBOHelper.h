@@ -89,7 +89,8 @@ struct VBOLayout
 VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints, vtkDataArray *normals,
                     vtkDataArray *tcoords,
                     unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap);
+                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap,
+                    bool cellScalars, bool cellNormals);
 
 
 // used to create an IBO for stripped primatives such as lines and triangle strips

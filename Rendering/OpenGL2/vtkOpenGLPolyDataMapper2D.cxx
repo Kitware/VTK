@@ -509,7 +509,8 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
               this->VBO,
               cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
-              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL);
+              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL,
+              cellScalars, false);
 
 
   this->Points.indexCount = CreatePointIndexBuffer(prims[0],
