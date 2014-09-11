@@ -305,7 +305,7 @@ namespace vtkvolume
                 final_color += m_diffuse * n_dot_l; \n\
                 float m_shine_factor = pow(n_dot_h, m_shininess); \n\
                 final_color += m_specular * m_shine_factor; \n\
-                float grad_opacity = texture(m_gradient_transfer_func, grad_mag); \n\
+                float grad_opacity = texture(m_gradient_transfer_func, grad_mag).w; \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
                 l_src_color.rgb *= final_color.rgb; \n\
                 l_src_color.a *= grad_opacity; \n\
