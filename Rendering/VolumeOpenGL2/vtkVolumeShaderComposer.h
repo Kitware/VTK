@@ -115,15 +115,13 @@ namespace vtkvolume
       uniform mat4 m_texture_dataset_matrix; \n\
       \n\
       /// Ray step size \n\
-      uniform vec3 m_step_size; \n\
+      uniform vec3 m_cell_step; \n\
       \n\
       /// Sample distance \n\
       uniform float m_sample_distance; \n\
       \n\
       /// Scales \n\
-      uniform vec3 m_cell_m_scale; \n\
-      uniform float m_scale; \n\
-      uniform float m_bias; \n\
+      uniform vec3 m_cell_scale; \n\
       uniform vec2 m_window_lower_left_corner; \n\
       uniform vec2 m_inv_original_window_size; \n\
       uniform vec2 m_inv_window_size; \n\
@@ -159,7 +157,7 @@ namespace vtkvolume
       \n\
       /// Multiply the raymarching direction with the step size to get the \n\
       /// sub-step size we need to take at each raymarching step  \n\
-      vec3 l_dir_step = geom_dir * m_step_size * m_sample_distance; \n\
+      vec3 l_dir_step = geom_dir * m_cell_step * m_sample_distance; \n\
       \n\
       l_data_pos += l_dir_step * texture(m_noise_sampler, l_data_pos.xy).x;\n\
       \n\
@@ -260,8 +258,8 @@ namespace vtkvolume
     else
       {
       shaderStr += std::string(
-        "/// Data fetching from the red channel of m_volume texture \n\
-        float scalar = texture(m_volume, l_data_pos).r * m_scale; \n\
+        "/// Data fetching from the red channel of volume texture \n\
+        float scalar = texture(m_volume, l_data_pos).r; \n\
         vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz, \n\
                                 texture(m_opacity_transfer_func, scalar).w);");
 
@@ -271,25 +269,27 @@ namespace vtkvolume
                 { \n\
                 vec3 g1; \n\
                 vec3 g2; \n\
-                float gradMag; \n\
+                float grad_mag; \n\
                 vec3 ldir = normalize(l_light_pos_obj - m_vertex_pos); \n\
                 vec3 vdir = normalize(l_eye_pos_obj - m_vertex_pos); \n\
                 vec3 h = normalize(ldir + vdir); \n\
-                vec3 xvec = vec3(m_step_size[0], 0.0, 0.0); \n\
-                vec3 yvec = vec3(0.0, m_step_size[1], 0.0); \n\
-                vec3 zvec = vec3(0.0, 0.0, m_step_size[2]); \n\
+                vec3 xvec = vec3(m_cell_step[0], 0.0, 0.0); \n\
+                vec3 yvec = vec3(0.0, m_cell_step[1], 0.0); \n\
+                vec3 zvec = vec3(0.0, 0.0, m_cell_step[2]); \n\
                 g1.x = texture(m_volume, vec3(l_data_pos + xvec)).x; \n\
                 g1.y = texture(m_volume, vec3(l_data_pos + yvec)).x; \n\
                 g1.z = texture(m_volume, vec3(l_data_pos + zvec)).x; \n\
                 g2.x = texture(m_volume, vec3(l_data_pos - xvec)).x; \n\
                 g2.y = texture(m_volume, vec3(l_data_pos - yvec)).x; \n\
                 g2.z = texture(m_volume, vec3(l_data_pos - zvec)).x; \n\
-                gradMag = length(g1 - g2); \n\
-                if (gradMag <= 0.0) \n\
+                g2 = g1 - g2; \n\
+                g2 *= m_cell_scale; \n\
+                grad_mag = length(g2); \n\
+                if (grad_mag <= 0.0) \n\
                    { \n\
                    return; \n\
                    } \n\
-                g2 = normalize(g1 - g2); \n\
+                g2 = normalize(g2); \n\
                 vec3 final_color = vec3(0.0); \n\
                 float n_dot_l = dot(g2, ldir); \n\
                 float n_dot_h = dot(g2, h); \n\
@@ -305,10 +305,10 @@ namespace vtkvolume
                 final_color += m_diffuse * n_dot_l; \n\
                 float m_shine_factor = pow(n_dot_h, m_shininess); \n\
                 final_color += m_specular * m_shine_factor; \n\
-                float gradOpacity = texture(m_gradient_transfer_func, gradMag); \n\
+                float grad_opacity = texture(m_gradient_transfer_func, grad_mag); \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
                 l_src_color.rgb *= final_color.rgb; \n\
-                l_src_color.a *= gradOpacity; \n\
+                l_src_color.a *= grad_opacity; \n\
                }");
         }
 
@@ -336,8 +336,7 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       return std::string(
-        "l_max_value *= m_scale; \n\
-        vec4 l_src_color = texture(m_color_transfer_func, l_max_value); \n\
+       "vec4 l_src_color = texture(m_color_transfer_func, l_max_value); \n\
         l_src_color.a = texture(m_opacity_transfer_func, l_max_value).w; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;");

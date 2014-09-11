@@ -1256,10 +1256,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   this->Implementation->Shader.AddUniform("m_volume");
   this->Implementation->Shader.AddUniform("m_camera_pos");
   this->Implementation->Shader.AddUniform("m_light_pos");
-  this->Implementation->Shader.AddUniform("m_step_size");
+  this->Implementation->Shader.AddUniform("m_cell_step");
   this->Implementation->Shader.AddUniform("m_sample_distance");
-  this->Implementation->Shader.AddUniform("m_scale");
-  this->Implementation->Shader.AddUniform("m_bias");
   this->Implementation->Shader.AddUniform("m_cell_scale");
   this->Implementation->Shader.AddUniform("m_color_transfer_func");
   this->Implementation->Shader.AddUniform("m_opacity_transfer_func");
@@ -1383,7 +1381,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   /// Pass constant uniforms at initialization
   /// Step should be dependant on the bounds and not on the texture size
   /// since we can have non uniform voxel size / spacing / aspect ratio
-  glUniform3f(this->Implementation->Shader("m_step_size"),
+  glUniform3f(this->Implementation->Shader("m_cell_step"),
               this->Implementation->StepSize[0],
               this->Implementation->StepSize[1],
               this->Implementation->StepSize[2]);
@@ -1395,12 +1393,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
               this->Implementation->CellScale[0],
               this->Implementation->CellScale[1],
               this->Implementation->CellScale[2]);
-
-  glUniform1f(this->Implementation->Shader("m_scale"),
-              this->Implementation->Scale);
-
-  glUniform1f(this->Implementation->Shader("m_bias"),
-              this->Implementation->Bias);
 
   glUniform1i(this->Implementation->Shader("m_volume"), 0);
   glUniform1i(this->Implementation->Shader("m_color_transfer_func"), 1);

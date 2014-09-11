@@ -71,12 +71,11 @@ public:
   void Update(vtkPiecewiseFunction* gradientOpacity,
               double sampleDistance,
               double range[2],
-              double unitDistance,
+              double vtkNotUsed(unitDistance),
               bool linearInterpolation)
     {
     // Activate texture 5
     glActiveTexture(GL_TEXTURE5);
-
 
     bool needUpdate=false;
     if(this->TextureId == 0)
@@ -97,7 +96,7 @@ public:
     if(needUpdate)
       {
       glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
-                      vtkgl::CLAMP_TO_EDGE);
+                      GL_CLAMP_TO_EDGE);
       }
 
     if(gradientOpacity->GetMTime() > this->BuildTime ||
@@ -110,7 +109,8 @@ public:
         this->Table = new float[this->TextureWidth];
         }
 
-      gradientOpacity->GetTable(0, range[1] - range[0], this->TextureWidth, this->Table);
+      gradientOpacity->GetTable(0, (range[1] - range[0]),
+        this->TextureWidth, this->Table);
 
       glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
                    this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
