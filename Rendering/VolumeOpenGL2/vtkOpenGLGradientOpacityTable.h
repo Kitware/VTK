@@ -69,7 +69,6 @@ public:
   // \param linearInterpolation
   //--------------------------------------------------------------------------
   void Update(vtkPiecewiseFunction* scalarOpacity,
-              int blendMode,
               double sampleDistance,
               double range[2],
               double unitDistance,
@@ -102,9 +101,7 @@ public:
       }
 
     if(scalarOpacity->GetMTime() > this->BuildTime ||
-       (this->LastBlendMode != blendMode) ||
-       (blendMode == vtkVolumeMapper::COMPOSITE_BLEND &&
-        this->LastSampleDistance != sampleDistance) ||
+       this->LastSampleDistance != sampleDistance ||
        needUpdate || !this->Loaded)
       {
       this->Loaded = false;
@@ -114,44 +111,6 @@ public:
         }
 
       scalarOpacity->GetTable(range[0], range[1], this->TextureWidth, this->Table);
-      this->LastBlendMode = blendMode;
-
-      // Correct the opacity array for the spacing between the planes if we
-      // are using a composite blending operation
-      // TODO Fix this code for sample distance in three dimensions
-        if(blendMode == vtkVolumeMapper::COMPOSITE_BLEND)
-          {
-          float* ptr = this->Table;
-          double factor = sampleDistance/unitDistance;
-          int i=0;
-          while(i < this->TextureWidth)
-            {
-            if(*ptr > 0.0001f)
-              {
-              *ptr = static_cast<float>(1.0-pow(1.0-static_cast<double>(*ptr),
-                                        factor));
-              }
-            ++ptr;
-            ++i;
-            }
-          this->LastSampleDistance = sampleDistance;
-          }
-        else if (blendMode==vtkVolumeMapper::ADDITIVE_BLEND)
-          {
-          float* ptr = this->Table;
-          double factor = sampleDistance/unitDistance;
-          int i = 0;
-          while( i < this->TextureWidth)
-            {
-            if(*ptr > 0.0001f)
-              {
-              *ptr = static_cast<float>(static_cast<double>(*ptr)*factor);
-              }
-            ++ptr;
-            ++i;
-            }
-          this->LastSampleDistance = sampleDistance;
-          }
 
       glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
                    this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
@@ -172,13 +131,12 @@ public:
 
 protected:
   GLuint TextureId;
-  int LastBlendMode;
   int TextureWidth;
   int TextureHeight;
 
   double LastSampleDistance;
   vtkTimeStamp BuildTime;
-  float *Table;
+  float* Table;
   bool Loaded;
   bool LastLinearInterpolation;
   double LastRange[2];
@@ -223,14 +181,13 @@ public:
 
 private:
   unsigned int NumberOfTables;
-  vtkOpenGLGradientOpacityTable *Tables;
+  vtkOpenGLGradientOpacityTable* Tables;
 
   // vtkOpenGLGradientOpacityTables (Not implemented)
   vtkOpenGLGradientOpacityTables();
 
   // vtkOpenGLGradientOpacityTables (Not implemented)
   vtkOpenGLGradientOpacityTables(const vtkOpenGLGradientOpacityTables &other);
-
 
   // operator = (Not implemented)
   vtkOpenGLGradientOpacityTables &operator=(const vtkOpenGLGradientOpacityTables &other);

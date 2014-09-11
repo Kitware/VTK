@@ -787,7 +787,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     }
 
   this->GradientOpacityTables->GetTable(level)->Update(
-    gradientOpacity,this->Parent->BlendMode,
+    gradientOpacity,
     this->ActualSampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),

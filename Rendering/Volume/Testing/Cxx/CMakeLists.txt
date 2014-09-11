@@ -39,6 +39,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
   TestProp3DFollower.cxx
+  TestGPUCastGradientOpacity.cxx
   volProt.cxx
   )
 
