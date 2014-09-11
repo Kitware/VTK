@@ -62,7 +62,11 @@ int TestGPUCastGradientOpacity(int argc, char *argv[])
   reader->SetFileName(cfname);
   delete[] cfname;
 
+#if 0
   vtkFixedPointVolumeRayCastMapper* volumeMapper= vtkFixedPointVolumeRayCastMapper::New();
+#else
+  vtkGPUVolumeRayCastMapper* volumeMapper= vtkGPUVolumeRayCastMapper::New();
+#endif
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   vtkVolume *volume=vtkVolume::New();
