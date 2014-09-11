@@ -17,6 +17,7 @@
 
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
@@ -1105,6 +1106,16 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
       }
     }
 
+  bool cellNormals = false;
+  // Do we have cell normals?
+  vtkDataArray *n =
+    (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL;
+  if (n == NULL && poly->GetCellData()->GetNormals())
+    {
+    cellNormals = true;
+    n = poly->GetCellData()->GetNormals();
+    }
+
   // if we have cell scalars then we have to
   // explode the data
   vtkCellArray *prims[4];
@@ -1114,7 +1125,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
   prims[3] =  poly->GetStrips();
   std::vector<unsigned int> cellPointMap;
   std::vector<unsigned int> pointCellMap;
-  if (cellScalars)
+  if (cellScalars || cellNormals)
     {
     vtkgl::CreateCellSupportArrays(poly, prims, cellPointMap, pointCellMap);
     }
@@ -1143,13 +1154,13 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
   this->Layout =
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? (unsigned int)cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
-              (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL,
-              tcoords,
+              n, tcoords,
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
               this->VBO,
               cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
-              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL);
+              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL,
+              cellScalars, cellNormals);
 
   // create the IBOs
   this->Points.indexCount = CreatePointIndexBuffer(prims[0],
@@ -1197,7 +1208,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
     }
 
   // free up new cell arrays
-  if (cellScalars)
+  if (cellScalars || cellNormals)
     {
     for (int primType = 0; primType < 4; primType++)
       {
