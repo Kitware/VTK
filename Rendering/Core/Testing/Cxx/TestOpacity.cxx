@@ -64,10 +64,6 @@ int TestOpacity(int argc, char* argv[])
   sphere->SetCenter(0.0,0.0,0.0);
   sphere->SetThetaResolution(10);
   sphere->SetPhiResolution(10);
-  sphere->SetStartTheta(0.0);
-  sphere->SetEndTheta(360.0);
-  sphere->SetStartPhi(0.0);
-  sphere->SetEndPhi(360.0);
   sphere->SetLatLongTessellation(0);
 
   vtkCubeSource *cube=vtkCubeSource::New();
@@ -157,8 +153,11 @@ int TestOpacity(int argc, char* argv[])
   planeProperty->SetFrontfaceCulling(0);
 
   renderer->SetUseDepthPeeling(1);
-  renderer->SetMaximumNumberOfPeels(200);
-  renderer->SetOcclusionRatio(0.1);
+  // reasonable depth peeling settings
+  // no more than 50 layers of transluceny
+  renderer->SetMaximumNumberOfPeels(50);
+  // stop when less than 2 in 1000 pixels changes
+  renderer->SetOcclusionRatio(0.002);
 
   property->SetBackfaceCulling(1);
   property->SetFrontfaceCulling(0);
