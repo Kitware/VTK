@@ -264,8 +264,6 @@ int vtkShaderProgram::CompileShader()
 {
   if (!this->GetVertexShader()->Compile())
     {
-    vtkErrorMacro(<< this->GetVertexShader()->GetError());
-
     int lineNum = 1;
     std::istringstream stream(this->GetVertexShader()->GetSource());
     std::stringstream sstm;
@@ -276,11 +274,11 @@ int vtkShaderProgram::CompileShader()
       lineNum++;
       }
     vtkErrorMacro(<< sstm.str());
+    vtkErrorMacro(<< this->GetVertexShader()->GetError());
     return 0;
     }
   if (!this->GetFragmentShader()->Compile())
     {
-    vtkErrorMacro(<< this->GetFragmentShader()->GetError());
     int lineNum = 1;
     std::istringstream stream(this->GetFragmentShader()->GetSource());
     std::stringstream sstm;
@@ -291,6 +289,7 @@ int vtkShaderProgram::CompileShader()
       lineNum++;
       }
     vtkErrorMacro(<< sstm.str());
+    vtkErrorMacro(<< this->GetFragmentShader()->GetError());
     return 0;
     }
   if (!this->AttachShader(this->GetVertexShader()))

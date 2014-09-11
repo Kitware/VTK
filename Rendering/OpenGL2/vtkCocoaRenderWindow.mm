@@ -259,8 +259,6 @@ void vtkCocoaRenderWindow::Finalize()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::DestroyWindow()
 {
-  GLuint txId;
-
   // finish OpenGL rendering
   if (this->OwnContext && this->GetContextId())
     {
