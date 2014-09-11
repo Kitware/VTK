@@ -245,6 +245,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       renWin->GetContextCreationTime() > loadTime)
     {
     // force two initial loads for each new context
+    this->RenderWindow = renWin;
     this->LoadCount = 0;
     this->CheckOpenGLCapabilities(renWin);
     reuseTexture = false;
