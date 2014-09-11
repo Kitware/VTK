@@ -23,7 +23,8 @@
 // To provide the usual VTK mouse user interface, it overrides the
 // following methods from NSResponder: mouseMoved:, mouseEntered:,
 // mouseExited: scrollWheel:, mouseDown:, rightMouseDown:,
-// otherMouseDown:, and resetCursorRects.
+// otherMouseDown:, mouseDragged:, rightMouseDragged:, otherMouseDragged:,
+// and resetCursorRects.
 // To be able to render and draw onscreen, it overrides drawRect:
 // from NSView.
 

@@ -177,26 +177,21 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 };
 
 //----------------------------------------------------------------------------
-// Overridden (from NSResponder).
-- (void)keyDown:(NSEvent *)theEvent
+// Convert a Cocoa key event into a VTK key event
+- (void)invokeVTKKeyEvent:(unsigned long)theEventId
+               cocoaEvent:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-
-  if (!interactor)
-    {
-    return;
-    }
-
   vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
-  if (!renWin)
+  if (!interactor || !renWin)
     {
     return;
     }
 
   // Get the location of the mouse event relative to this NSView's bottom
-  // left corner.  Since this is a NOT mouseevent, we can not use
+  // left corner.  Since this is NOT a mouse event, we can not use
   // locationInWindow.  Instead we get the mouse location at this instant,
   // which may not be the exact location of the mouse at the time of the
   // keypress, but should be quite close.  There seems to be no better way.
@@ -208,192 +203,172 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   NSPoint mouseLoc = [[self window] mouseLocationOutsideOfEventStream];
   mouseLoc = [self convertPoint:mouseLoc fromView:nil];
 
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-  // Get the characters associated with the key event as a utf8 string.
-  // This pointer is only valid for the duration of the current autorelease
-  // context!
-  const char* keyedChars = [[theEvent characters] UTF8String];
-  // Since vtk only supports ASCII, we just blindly use the first element
-  // of the above string, hoping it's ASCII.
-  unsigned char charCode = (unsigned char)keyedChars[0];
-  // Get the virtual key code and convert it to a keysym as best we can.
-  unsigned short macKeyCode = [theEvent keyCode];
+  NSUInteger flags = [theEvent modifierFlags];
+  int shiftDown = ((flags & NSShiftKeyMask) != 0);
+  int controlDown = ((flags & NSControlKeyMask) != 0);
+  int altDown = ((flags & (NSCommandKeyMask | NSAlternateKeyMask)) != 0);
+
+  unsigned char charCode = '\0';
   const char *keySym = 0;
-  if (macKeyCode < 128)
+
+  NSEventType type = [theEvent type];
+  BOOL isPress = (type == NSKeyDown);
+
+  if (type == NSKeyUp || type == NSKeyDown)
     {
-    keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
+    // Get the characters associated with the key event as a utf8 string.
+    // This pointer is only valid for the duration of the current autorelease
+    // context!
+    const char* keyedChars = [[theEvent characters] UTF8String];
+    // Since vtk only supports ASCII, we just blindly use the first element
+    // of the above string, hoping it's ASCII.
+    charCode = (unsigned char)keyedChars[0];
+    // Get the virtual key code and convert it to a keysym as best we can.
+    unsigned short macKeyCode = [theEvent keyCode];
+    if (macKeyCode < 128)
+      {
+      keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
+      }
+    if (keySym == 0 && charCode < 128)
+      {
+      keySym = vtkMacCharCodeToKeySymTable[charCode];
+      }
     }
-  if (keySym == 0 && charCode < 128)
+  else
     {
-    keySym = vtkMacCharCodeToKeySymTable[charCode];
+    // NSFlagsChanged event: check to see what modifier changed
+    if (controlDown != interactor->GetControlKey())
+      {
+      keySym = "Control_L";
+      isPress = (controlDown != 0);
+      }
+    else if (shiftDown != interactor->GetShiftKey())
+      {
+      keySym = "Shift_L";
+      isPress = (shiftDown != 0);
+      }
+    else if (altDown != interactor->GetAltKey())
+      {
+      keySym = "Alt_L";
+      isPress = (altDown != 0);
+      }
+    else
+      {
+      return;
+      }
+
+    theEventId = (isPress ?
+                  vtkCommand::KeyPressEvent :
+                  vtkCommand::KeyReleaseEvent);
     }
+
   if (keySym == 0)
     {
     keySym = "None";
     }
 
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
+  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
+                                  static_cast<int>(round(mouseLoc.y)),
                                   controlDown, shiftDown,
                                   charCode, 1, keySym);
   interactor->SetAltKey(altDown);
 
-  interactor->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-  if (charCode != '\0')
+  interactor->InvokeEvent(theEventId, NULL);
+  if (isPress && charCode != '\0')
     {
     interactor->InvokeEvent(vtkCommand::CharEvent, NULL);
     }
 }
 
 //----------------------------------------------------------------------------
-// Overridden (from NSResponder).
-- (void)keyUp:(NSEvent *)theEvent
+// Convert a Cocoa motion event into a VTK button event
+- (void)invokeVTKMoveEvent:(unsigned long)theEventId
+                cocoaEvent:(NSEvent *)theEvent
 {
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-
-  if (!interactor)
-    {
-    return;
-    }
-
   vtkCocoaRenderWindow *renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
-  if (!renWin)
+  if (!interactor || !renWin)
     {
     return;
     }
 
   // Get the location of the mouse event relative to this NSView's bottom
-  // left corner.  Since this is a NOT mouseevent, we can not use
-  // locationInWindow.  Instead we get the mouse location at this instant,
-  // which may not be the exact location of the mouse at the time of the
-  // keypress, but should be quite close.  There seems to be no better way.
-  // And, yes, vtk does sometimes need the mouse location even for key
-  // events, example: pressing 'p' to pick the actor under the mouse.
-  // Also note that 'mouseLoc' may have nonsense values if a key is pressed
-  // while the mouse in not actually in the vtk view but the view is
-  // first responder.
-  NSPoint mouseLoc = [[self window] mouseLocationOutsideOfEventStream];
-  mouseLoc = [self convertPoint:mouseLoc fromView:nil];
+  // left corner. Since this is a mouse event, we can use locationInWindow.
+  NSPoint mouseLoc =
+    [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-  // Get the characters associated with the key event as a utf8 string.
-  // This pointer is only valid for the duration of the current autorelease
-  // context!
-  const char* keyedChars = [[theEvent characters] UTF8String];
-  // Since vtk only supports ASCII, we just blindly use the first element
-  // of the above string, hoping it's ASCII.
-  unsigned char charCode = (unsigned char)keyedChars[0];
-  // Get the virtual key code and convert it to a keysym as best we can.
-  unsigned short macKeyCode = [theEvent keyCode];
-  const char *keySym = 0;
-  if (macKeyCode < 128)
-    {
-    keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
-    }
-  if (keySym == 0 && charCode < 128)
-    {
-    keySym = vtkMacCharCodeToKeySymTable[charCode];
-    }
-  if (keySym == 0)
-    {
-    keySym = "None";
-    }
+  NSUInteger flags = [theEvent modifierFlags];
+  int shiftDown = ((flags & NSShiftKeyMask) != 0);
+  int controlDown = ((flags & NSControlKeyMask) != 0);
+  int altDown = ((flags & (NSCommandKeyMask | NSAlternateKeyMask)) != 0);
 
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown,
-                                  charCode, 1, keySym);
+  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
+                                  static_cast<int>(round(mouseLoc.y)),
+                                  controlDown, shiftDown);
   interactor->SetAltKey(altDown);
+  interactor->InvokeEvent(theEventId, NULL);
+}
 
-  interactor->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+//----------------------------------------------------------------------------
+// Convert a Cocoa motion event into a VTK button event
+- (void)invokeVTKButtonEvent:(unsigned long)theEventId
+                  cocoaEvent:(NSEvent *)theEvent
+{
+  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
+  vtkCocoaRenderWindow *renWin =
+    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
+
+  if (!interactor || !renWin)
+    {
+    return;
+    }
+
+  // Get the location of the mouse event relative to this NSView's bottom
+  // left corner. Since this is a mouseevent, we can use locationInWindow.
+  NSPoint mouseLoc =
+    [self convertPoint:[theEvent locationInWindow] fromView:nil];
+
+  int clickCount = static_cast<int>([theEvent clickCount]);
+  int repeatCount = ((clickCount > 1) ? clickCount - 1 : 0);
+
+  NSUInteger flags = [theEvent modifierFlags];
+  int shiftDown = ((flags & NSShiftKeyMask) != 0);
+  int controlDown = ((flags & NSControlKeyMask) != 0);
+  int altDown = ((flags & (NSCommandKeyMask | NSAlternateKeyMask)) != 0);
+
+  interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
+                                  static_cast<int>(round(mouseLoc.y)),
+                                  controlDown, shiftDown,
+                                  0, repeatCount);
+  interactor->SetAltKey(altDown);
+  interactor->InvokeEvent(theEventId, NULL);
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)keyDown:(NSEvent *)theEvent
+{
+  [self invokeVTKKeyEvent:vtkCommand::KeyPressEvent
+               cocoaEvent:theEvent];
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)keyUp:(NSEvent *)theEvent
+{
+  [self invokeVTKKeyEvent:vtkCommand::KeyReleaseEvent
+               cocoaEvent:theEvent];
 }
 
 //----------------------------------------------------------------------------
 // Overridden (from NSResponder).
 - (void)flagsChanged:(NSEvent *)theEvent
 {
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-
-  if (!interactor)
-    {
-    return;
-    }
-
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
-
-  if (!renWin)
-    {
-    return;
-    }
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner.  Since this is a NOT mouseevent, we can not use
-  // locationInWindow.  Instead we get the mouse location at this instant,
-  // which may not be the exact location of the mouse at the time of the
-  // keypress, but should be quite close.  There seems to be no better way.
-  // And, yes, vtk does sometimes need the mouse location even for key
-  // events, example: pressing 'p' to pick the actor under the mouse.
-  // Also note that 'mouseLoc' may have nonsense values if a key is pressed
-  // while the mouse in not actually in the vtk view but the view is
-  // first responder.
-  NSPoint mouseLoc = [[self window] mouseLocationOutsideOfEventStream];
-  mouseLoc = [self convertPoint:mouseLoc fromView:nil];
-
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-
-  int oldControlDown = interactor->GetControlKey();
-  int oldShiftDown = interactor->GetShiftKey();
-  int oldAltDown = interactor->GetAltKey();
-
-  int keyPress = 0;
-  char charCode = '\0';
-  const char *keySym = 0;
-  if (controlDown != oldControlDown)
-    {
-    keySym = "Control_L";
-    keyPress = oldControlDown = controlDown;
-    }
-  else if (shiftDown != oldShiftDown)
-    {
-    keySym = "Shift_L";
-    keyPress = oldShiftDown = shiftDown;
-    }
-  else if (altDown != oldAltDown)
-    {
-    keySym = "Alt_L";
-    keyPress = oldAltDown = altDown;
-    }
-  else
-    {
-    return;
-    }
-
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  oldControlDown, oldShiftDown,
-                                  charCode, 1, keySym);
-  interactor->SetAltKey(oldAltDown);
-
-  if (keyPress)
-    {
-    interactor->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-    }
-  else
-    {
-    interactor->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
-    }
+  // what kind of event it is will be decided by invokeVTKKeyEvent
+  [self invokeVTKKeyEvent:vtkCommand::AnyEvent
+               cocoaEvent:theEvent];
 }
 
 //----------------------------------------------------------------------------
@@ -404,41 +379,38 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // is set to receive mouse moved events.  See setAcceptsMouseMovedEvents:
   // An NSWindow created by vtk automatically does accept such events.
 
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-  if (!interactor)
-    {
-    return;
-    }
-
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
-
-  if (!renWin)
-    {
-    return;
-    }
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
+  // Ignore motion outside the view in order to mimic other interactors
   NSPoint mouseLoc =
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-  // Ignore motion outside the view in order to mimic other interactors
-  if (!NSPointInRect(mouseLoc, [self visibleRect]))
+  if (NSPointInRect(mouseLoc, [self visibleRect]))
     {
-    return;
+    [self invokeVTKMoveEvent:vtkCommand::MouseMoveEvent
+                  cocoaEvent:theEvent];
     }
+}
 
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)mouseDragged:(NSEvent *)theEvent
+{
+  [self invokeVTKMoveEvent:vtkCommand::MouseMoveEvent
+                cocoaEvent:theEvent];
+}
 
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown);
-  interactor->SetAltKey(altDown);
-  interactor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)rightMouseDragged:(NSEvent *)theEvent
+{
+  [self invokeVTKMoveEvent:vtkCommand::MouseMoveEvent
+                cocoaEvent:theEvent];
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)otherMouseDragged:(NSEvent *)theEvent
+{
+  [self invokeVTKMoveEvent:vtkCommand::MouseMoveEvent
+                cocoaEvent:theEvent];
 }
 
 //----------------------------------------------------------------------------
@@ -448,113 +420,32 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // Note: the mouseEntered/mouseExited events depend on the maintenance of
   // the Tracking Rect, which is handled by the resetTrackingRect,
   // clearTrackingRect and resetCursorRects methods above.
-
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-  if (!interactor)
-    {
-    return;
-    }
-
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
-
-  if (!renWin)
-    {
-    return;
-    }
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                 (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown);
-  interactor->SetAltKey(altDown);
-  interactor->InvokeEvent(vtkCommand::EnterEvent, NULL);
+  [self invokeVTKMoveEvent:vtkCommand::EnterEvent
+                cocoaEvent:theEvent];
 }
 
 //----------------------------------------------------------------------------
 // Overridden (from NSResponder).
 - (void)mouseExited:(NSEvent *)theEvent
 {
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-  if (!interactor)
-    {
-    return;
-    }
-
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
-
-  if (!renWin)
-    {
-    return;
-    }
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                 (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown);
-  interactor->SetAltKey(altDown);
-  interactor->InvokeEvent(vtkCommand::LeaveEvent, NULL);
+  [self invokeVTKMoveEvent:vtkCommand::LeaveEvent
+                cocoaEvent:theEvent];
 }
 
 //----------------------------------------------------------------------------
 // Overridden (from NSResponder).
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-  if (!interactor)
+  CGFloat dy = [theEvent deltaY];
+
+  if (dy != 0)
     {
-    return;
-    }
+    unsigned long eventId = (dy > 0 ?
+                             vtkCommand::MouseWheelForwardEvent :
+                             vtkCommand::MouseWheelBackwardEvent);
 
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
-
-  if (!renWin)
-    {
-    return;
-    }
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown);
-  interactor->SetAltKey(altDown);
-
-  if( [theEvent deltaY] > 0)
-    {
-    interactor->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
-    }
-  else if( [theEvent deltaY] < 0)
-    {
-    interactor->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
+    [self invokeVTKMoveEvent:eventId
+                  cocoaEvent:theEvent];
     }
 }
 
@@ -562,234 +453,48 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 // Overridden (from NSResponder).
 - (void)mouseDown:(NSEvent *)theEvent
 {
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-  if (!interactor)
-    {
-    return;
-    }
-
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
-
-  if (!renWin)
-    {
-    return;
-    }
-
-  BOOL keepOn = YES;
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-  int clickCount = static_cast<int>([theEvent clickCount]);
-  int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
-
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown,
-                                  0, repeatCount);
-  interactor->SetAltKey(altDown);
-
-  interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-
-  NSApplication *application = [NSApplication sharedApplication];
-  NSDate* infinity = [NSDate distantFuture];
-  do
-    {
-    theEvent = [application nextEventMatchingMask:NSLeftMouseUpMask |
-                                                  NSLeftMouseDraggedMask
-                                        untilDate:infinity
-                                           inMode:NSEventTrackingRunLoopMode
-                                          dequeue:YES];
-    if (theEvent)
-      {
-      mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-      interactor->SetEventInformation((int)round(mouseLoc.x),
-                                      (int)round(mouseLoc.y),
-                                      controlDown, shiftDown);
-      interactor->SetAltKey(altDown);
-
-      switch ([theEvent type])
-        {
-      case NSLeftMouseDragged:
-        interactor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-        break;
-      case NSLeftMouseUp:
-        interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
-        keepOn = NO;
-      default:
-        break;
-        }
-      }
-    else
-      {
-      keepOn = NO;
-      }
-    }
-  while (keepOn);
+  [self invokeVTKButtonEvent:vtkCommand::LeftButtonPressEvent
+                  cocoaEvent:theEvent];
 }
 
 //----------------------------------------------------------------------------
 // Overridden (from NSResponder).
 - (void)rightMouseDown:(NSEvent *)theEvent
 {
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-  if (!interactor)
-    {
-    return;
-    }
-
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
-
-  if (!renWin)
-    {
-    return;
-    }
-
-  BOOL keepOn = YES;
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-  int clickCount = [theEvent clickCount];
-  int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
-
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown,
-                                  0, repeatCount);
-  interactor->SetAltKey(altDown);
-
-  interactor->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
-
-  NSApplication *application = [NSApplication sharedApplication];
-  NSDate* infinity = [NSDate distantFuture];
-  do
-    {
-    theEvent = [application nextEventMatchingMask:NSRightMouseUpMask |
-                                                  NSRightMouseDraggedMask
-                                        untilDate:infinity
-                                           inMode:NSEventTrackingRunLoopMode
-                                          dequeue:YES];
-    if (theEvent)
-      {
-      mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-      interactor->SetEventInformation((int)round(mouseLoc.x),
-                                      (int)round(mouseLoc.y),
-                                      controlDown, shiftDown);
-      interactor->SetAltKey(altDown);
-
-      switch ([theEvent type])
-        {
-      case NSRightMouseDragged:
-        interactor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-        break;
-      case NSRightMouseUp:
-        interactor->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
-        keepOn = NO;
-      default:
-        break;
-        }
-      }
-    else
-      {
-      keepOn = NO;
-      }
-    }
-  while (keepOn);
+  [self invokeVTKButtonEvent:vtkCommand::RightButtonPressEvent
+                  cocoaEvent:theEvent];
 }
 
 //----------------------------------------------------------------------------
 // Overridden (from NSResponder).
 - (void)otherMouseDown:(NSEvent *)theEvent
 {
-  vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
-  if (!interactor)
-    {
-    return;
-    }
+  [self invokeVTKButtonEvent:vtkCommand::MiddleButtonPressEvent
+                  cocoaEvent:theEvent];
+}
 
-  vtkCocoaRenderWindow *renWin =
-    vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)mouseUp:(NSEvent *)theEvent
+{
+  [self invokeVTKButtonEvent:vtkCommand::LeftButtonReleaseEvent
+                  cocoaEvent:theEvent];
+}
 
-  if (!renWin)
-    {
-    return;
-    }
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)rightMouseUp:(NSEvent *)theEvent
+{
+  [self invokeVTKButtonEvent:vtkCommand::RightButtonReleaseEvent
+                  cocoaEvent:theEvent];
+}
 
-  BOOL keepOn = YES;
-
-  // Get the location of the mouse event relative to this NSView's bottom
-  // left corner. Since this is a mouseevent, we can use locationInWindow.
-  NSPoint mouseLoc =
-    [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-  int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
-  int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
-  int altDown = ([theEvent modifierFlags] &
-                  (NSCommandKeyMask | NSAlternateKeyMask)) ? 1 : 0;
-  int clickCount = [theEvent clickCount];
-  int repeatCount = clickCount > 1 ? clickCount - 1 : 0;
-
-  interactor->SetEventInformation((int)round(mouseLoc.x),
-                                  (int)round(mouseLoc.y),
-                                  controlDown, shiftDown,
-                                  0, repeatCount);
-  interactor->SetAltKey(altDown);
-
-  interactor->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
-
-  NSApplication *application = [NSApplication sharedApplication];
-  NSDate* infinity = [NSDate distantFuture];
-  do
-    {
-    theEvent = [application nextEventMatchingMask:NSOtherMouseUpMask |
-                                                  NSOtherMouseDraggedMask
-                                        untilDate:infinity
-                                           inMode:NSEventTrackingRunLoopMode
-                                          dequeue:YES];
-    if (theEvent)
-      {
-      mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-      interactor->SetEventInformation((int)round(mouseLoc.x),
-                                      (int)round(mouseLoc.y),
-                                      controlDown, shiftDown);
-      interactor->SetAltKey(altDown);
-
-      switch ([theEvent type])
-        {
-      case NSOtherMouseDragged:
-        interactor->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
-        break;
-      case NSOtherMouseUp:
-        interactor->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
-        keepOn = NO;
-      default:
-        break;
-        }
-      }
-    else
-      {
-      keepOn = NO;
-      }
-    }
-  while (keepOn);
+//----------------------------------------------------------------------------
+// Overridden (from NSResponder).
+- (void)otherMouseUp:(NSEvent *)theEvent
+{
+  [self invokeVTKButtonEvent:vtkCommand::MiddleButtonReleaseEvent
+                  cocoaEvent:theEvent];
 }
 
 @end
