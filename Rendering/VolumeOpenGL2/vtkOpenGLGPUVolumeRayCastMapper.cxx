@@ -1263,6 +1263,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   this->Implementation->Shader.AddUniform("m_cell_scale");
   this->Implementation->Shader.AddUniform("m_color_transfer_func");
   this->Implementation->Shader.AddUniform("m_opacity_transfer_func");
+  this->Implementation->Shader.AddUniform("m_gradient_transfer_func");
   this->Implementation->Shader.AddUniform("m_noise_sampler");
   this->Implementation->Shader.AddUniform("m_depth_sampler");
   this->Implementation->Shader.AddUniform("m_vol_extents_min");
@@ -1406,6 +1407,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   glUniform1i(this->Implementation->Shader("m_opacity_transfer_func"), 2);
   glUniform1i(this->Implementation->Shader("m_noise_sampler"), 3);
   glUniform1i(this->Implementation->Shader("m_depth_sampler"), 4);
+  glUniform1i(this->Implementation->Shader("m_gradient_transfer_func"), 5);
 
   glUniform3f(this->Implementation->Shader("m_ambient"),
               0.0, 0.0, 0.0);

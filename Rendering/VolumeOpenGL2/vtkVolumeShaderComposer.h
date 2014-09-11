@@ -271,6 +271,7 @@ namespace vtkvolume
                 { \n\
                 vec3 g1; \n\
                 vec3 g2; \n\
+                float gradMag; \n\
                 vec3 ldir = normalize(l_light_pos_obj - m_vertex_pos); \n\
                 vec3 vdir = normalize(l_eye_pos_obj - m_vertex_pos); \n\
                 vec3 h = normalize(ldir + vdir); \n\
@@ -283,16 +284,12 @@ namespace vtkvolume
                 g2.x = texture(m_volume, vec3(l_data_pos - xvec)).x; \n\
                 g2.y = texture(m_volume, vec3(l_data_pos - yvec)).x; \n\
                 g2.z = texture(m_volume, vec3(l_data_pos - zvec)).x; \n\
+                gradMag = length(g1 - g2); \n\
+                if (gradMag <= 0.0) \n\
+                   { \n\
+                   return; \n\
+                   } \n\
                 g2 = normalize(g1 - g2); \n\
-                float normalLength = length(g2); \n\
-                if (normalLength > 0.0) \n\
-                  { \n\
-                  g2 = normalize(g2); \n\
-                  } \n\
-                else \n\
-                  { \n\
-                  g2 = vec3(0.0, 0.0, 0.0); \n\
-                  } \n\
                 vec3 final_color = vec3(0.0); \n\
                 float n_dot_l = dot(g2, ldir); \n\
                 float n_dot_h = dot(g2, h); \n\
@@ -308,8 +305,10 @@ namespace vtkvolume
                 final_color += m_diffuse * n_dot_l; \n\
                 float m_shine_factor = pow(n_dot_h, m_shininess); \n\
                 final_color += m_specular * m_shine_factor; \n\
+                float gradOpacity = texture(m_gradient_transfer_func, gradMag); \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
                 l_src_color.rgb *= final_color.rgb; \n\
+                l_src_color.a *= gradOpacity; \n\
                }");
         }
 

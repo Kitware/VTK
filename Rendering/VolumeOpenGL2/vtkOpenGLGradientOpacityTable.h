@@ -61,14 +61,14 @@ public:
     }
 
   // Update opacity tranfer function texture.
-  // \param scalarOpacity
+  // \param gradientOpacity
   // \param blendMode
   // \param sampleDistance
   // \param range
   // \param unitDistance
   // \param linearInterpolation
   //--------------------------------------------------------------------------
-  void Update(vtkPiecewiseFunction* scalarOpacity,
+  void Update(vtkPiecewiseFunction* gradientOpacity,
               double sampleDistance,
               double range[2],
               double unitDistance,
@@ -100,7 +100,7 @@ public:
                       vtkgl::CLAMP_TO_EDGE);
       }
 
-    if(scalarOpacity->GetMTime() > this->BuildTime ||
+    if(gradientOpacity->GetMTime() > this->BuildTime ||
        this->LastSampleDistance != sampleDistance ||
        needUpdate || !this->Loaded)
       {
@@ -110,7 +110,7 @@ public:
         this->Table = new float[this->TextureWidth];
         }
 
-      scalarOpacity->GetTable(range[0], range[1], this->TextureWidth, this->Table);
+      gradientOpacity->GetTable(0, range[1] - range[0], this->TextureWidth, this->Table);
 
       glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
                    this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
