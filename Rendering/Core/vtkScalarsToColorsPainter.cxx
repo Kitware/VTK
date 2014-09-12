@@ -186,6 +186,12 @@ void vtkScalarsToColorsPainter::ProcessInformation(vtkInformation* info)
     this->SetArrayComponent(info->Get(ARRAY_COMPONENT()));
     }
 
+  if (info->Has(SCALAR_MATERIAL_MODE()))
+    {
+    this->SetScalarMaterialMode(info->Get(SCALAR_MATERIAL_MODE()));
+    }
+
+
   // when the iVars will be set, this->MTime will get updated.
   // This will eventually get caught by PrepareForRendering()
   // which will update the output. We need to discard old colors,

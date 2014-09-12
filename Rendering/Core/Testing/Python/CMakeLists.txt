@@ -42,6 +42,7 @@ vtk_add_test_python(
   TestTransformCoordinateSystems.py
   TestWindowToImageTransparency.py
   TexturedSphere.py
+  TestScalarMaterialMode.py
   cells.py,NO_RT
   ${glsl_tests}
   )
