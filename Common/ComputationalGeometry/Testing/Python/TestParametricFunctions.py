@@ -444,14 +444,9 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
 
         # ------------------------------------------------------------
         # Create a surface with random hills on it.
-        # Note that for testing, we will disable the
-        # random generation of the surfaces. This is
-        # because random number generators do not
-        # return the same result on different operating
-        # systems.
         # ------------------------------------------------------------
         randomHills = vtk.vtkParametricRandomHills()
-        randomHills.AllowRandomGenerationOff()
+        randomHills.AllowRandomGenerationOn()
         randomHillsSource = vtk.vtkParametricFunctionSource()
         randomHillsSource.SetParametricFunction(randomHills)
         randomHillsSource.GenerateTextureCoordinatesOn()

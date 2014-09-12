@@ -444,14 +444,9 @@ vtkActor2D ellipsoidTextActor
 
 # ------------------------------------------------------------
 # Create a surface with random hills on it.
-# Note that for testing, we will disable the
-# random generation of the surfaces. This is
-# because random number generators do not
-# return the same result on different operating
-# systems.
 # ------------------------------------------------------------
 vtkParametricRandomHills randomHills
-  randomHills AllowRandomGenerationOff
+  randomHills AllowRandomGenerationOn
 vtkParametricFunctionSource randomHillsSource
   randomHillsSource SetParametricFunction randomHills
   randomHillsSource GenerateTextureCoordinatesOn
