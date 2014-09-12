@@ -35,6 +35,7 @@
 #include "vtkParametricFunction.h"
 
 class vtkDoubleArray;
+class vtkMinimalStandardRandomSequence;
 
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills : public vtkParametricFunction
 {
@@ -58,7 +59,7 @@ public:
   // Number of hills = 30,
   // Variance of the hills 2.5 in both x- and y- directions,
   // Scaling factor for the variances 1/3 in both x- and y- directions,
-  // Amplitude of each hill = 1,
+  // Amplitude of each hill = 2,
   // Scaling factor for the amplitude = 1/3,
   // RandomSeed = 1,
   // AllowRandomGeneration = 1.
@@ -194,11 +195,15 @@ private:
 
   // Description:
   // Initialise the random number generator.
-  void InitSeed ( int RandomSeed );
+  void InitRNG ( int RandomSeed );
 
   // Description:
   // Return a random number between 0 and 1.
   double Rand ( void );
+
+  // Description:
+  // A random sequence generator.
+  vtkMinimalStandardRandomSequence *randomSequenceGenerator;
 
   // Description:
   // Generate the centers of the hills, their standard deviations and
