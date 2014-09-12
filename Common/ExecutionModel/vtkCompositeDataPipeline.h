@@ -96,16 +96,6 @@ public:
   // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
   static vtkInformationIntegerVectorKey* UPDATE_COMPOSITE_INDICES();
 
-  // Description:
-  // COMPOSITE_INDICES() is put in the output information by the executive if
-  // the request has UPDATE_COMPOSITE_INDICES() using the generated composite
-  // dataset's structure.
-  // Note that COMPOSITE_INDICES has to be sorted vector with increasing
-  // indices.
-  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
-  static vtkInformationIntegerVectorKey* COMPOSITE_INDICES();
-
-
 protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();
@@ -209,6 +199,15 @@ protected:
   // Because we sometimes have to swap between "simple" data types and composite
   // data types, we sometimes want to skip resetting the pipeline information.
   static vtkInformationIntegerKey* SUPPRESS_RESET_PI();
+
+  // Description:
+  // COMPOSITE_INDICES() is put in the output information by the executive if
+  // the request has UPDATE_COMPOSITE_INDICES() using the generated composite
+  // dataset's structure.
+  // Note that COMPOSITE_INDICES has to be sorted vector with increasing
+  // indices.
+  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+  static vtkInformationIntegerVectorKey* DATA_COMPOSITE_INDICES();
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.
