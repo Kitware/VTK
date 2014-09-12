@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef __vtkDaxMarchingCubesImpl_h
-#define __vtkDaxMarchingCubesImpl_h
+#ifndef __vtkDaxContourImpl_h
+#define __vtkDaxContourImpl_h
 
 // Common code
 #include "vtkDaxConfig.h"
@@ -135,5 +135,5 @@ int MarchingCubes(vtkDataSet* input, vtkPolyData *output,
 }
 
 } //end vtkDax namespace
-// VTK-HeaderTest-Exclude: vtkDaxMarchingCubesImpl.h
+// VTK-HeaderTest-Exclude: vtkDaxContourImpl.h
 #endif

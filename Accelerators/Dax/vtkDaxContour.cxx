@@ -13,7 +13,7 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-#include "vtkDaxMarchingCubes.h"
+#include "vtkDaxContour.h"
 
 #include "vtkDataSet.h"
 #include "vtkDispatcher.h"
@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkStandardNewMacro(vtkDaxMarchingCubes)
+vtkStandardNewMacro(vtkDaxContour)
 
 namespace vtkDax {
   int MarchingCubes(vtkDataSet* input,
@@ -36,23 +36,23 @@ namespace vtkDax {
 
 
 //------------------------------------------------------------------------------
-vtkDaxMarchingCubes::vtkDaxMarchingCubes()
+vtkDaxContour::vtkDaxContour()
   {
   }
 
 //------------------------------------------------------------------------------
-vtkDaxMarchingCubes::~vtkDaxMarchingCubes()
+vtkDaxContour::~vtkDaxContour()
   {
   }
 
 //------------------------------------------------------------------------------
-void vtkDaxMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDaxContour::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
 //------------------------------------------------------------------------------
-int vtkDaxMarchingCubes::RequestData(vtkInformation *request,
+int vtkDaxContour::RequestData(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector)
   {

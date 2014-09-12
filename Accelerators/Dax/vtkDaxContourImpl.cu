@@ -14,4 +14,4 @@
 //
 //=============================================================================
 
-#include "vtkDaxMarchingCubesImpl.h"
+#include "vtkDaxContourImpl.h"

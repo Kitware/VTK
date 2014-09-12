@@ -15,7 +15,7 @@
 //=============================================================================
 #include "vtkActor.h"
 #include "vtkCellData.h"
-#include "vtkDaxMarchingCubes.h"
+#include "vtkDaxContour.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkNew.h"
@@ -38,9 +38,11 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   renWin->AddRenderer(ren.GetPointer());
   iren->SetRenderWindow(renWin.GetPointer());
 
-  vtkNew<vtkMarchingCubes> cubes;
+  vtkNew<vtkDaxContour> cubes;
 
   cubes->SetInputConnection(t->GetOutputPort());
+  cubes->SetInputArrayToProcess(
+        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Iterations");
   cubes->SetNumberOfContours(1);
   cubes->SetValue(0,50.5f);
 
