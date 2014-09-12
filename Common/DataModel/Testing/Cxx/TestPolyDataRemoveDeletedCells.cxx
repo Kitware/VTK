@@ -20,7 +20,7 @@
 #include "vtkDataArray.h"
 #include "vtkIntArray.h"
 
-int TestPolyDataRemoveDeletedCells (int, char**)
+int TestPolyDataRemoveDeletedCells (int, char*[])
 {
   int numCells = 8;
 
@@ -179,28 +179,32 @@ int TestPolyDataRemoveDeletedCells (int, char**)
 
   vtkIntArray *newScalars = vtkIntArray::SafeDownCast(pd->GetCellData()->GetScalars());
 
+  int retVal = 0;
+
   if (pd->GetNumberOfCells() != numCells-4)
     {
     std::cout << "Number of cells does not match!" << std::endl;
-    return 1;
+    retVal = 1;
     }
 
   for (vtkIdType i = 0; i < pd->GetNumberOfCells(); i++)
     {
     if (pd->GetCellType(i) != newScalars->GetValue(i))
       {
-      std::cout << "Cell has wrong data." << std::endl;
-      return 1;
+      std::cout << "Cell " << i << " has wrong data. Value should be " << pd->GetCellType(i)
+                << " but is " << newScalars->GetValue(i) << std::endl;
+      retVal = 1;
       }
 
     if (pd->GetCellType(i) != types[i])
       {
-      std::cout << "Cell has a wrong type." << std::endl;
-      return 1;
+      std::cout << "Cell " << i << " has wrong type. Value should be " << pd->GetCellType(i)
+                << " but is " << newScalars->GetValue(i) << std::endl;
+      retVal = 1;
       }
     }
 
   pd->Delete();
 
-  return 0;
+  return retVal;
 }
