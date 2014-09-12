@@ -109,7 +109,7 @@ public:
         this->Table = new float[this->TextureWidth];
         }
 
-      gradientOpacity->GetTable(0, (range[1] - range[0]),
+      gradientOpacity->GetTable(0, (range[1] - range[0]) * 0.25,
         this->TextureWidth, this->Table);
 
       glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,

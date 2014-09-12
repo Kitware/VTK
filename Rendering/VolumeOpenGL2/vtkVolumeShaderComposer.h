@@ -282,14 +282,31 @@ namespace vtkvolume
                 g2.x = texture(m_volume, vec3(l_data_pos - xvec)).x; \n\
                 g2.y = texture(m_volume, vec3(l_data_pos - yvec)).x; \n\
                 g2.z = texture(m_volume, vec3(l_data_pos - zvec)).x; \n\
+                float foo = g1.x; \n\
+                g1.x = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.x; \n\
+                g1.y = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.y; \n\
+                g1.z = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.z; \n\
+                g2.x = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g2.x; \n\
+                g2.y = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g2.y; \n\
+                g2.z = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g2.z; \n\
                 g2 = g1 - g2; \n\
-                g2 *= m_cell_scale; \n\
-                grad_mag = length(g2); \n\
-                if (grad_mag <= 0.0) \n\
-                   { \n\
-                   return; \n\
-                   } \n\
+                vec3 m_spacing = vec3(m_cell_spacing[0], m_cell_spacing[1], m_cell_spacing[2]); \n\
+                vec3 aspect; \n\
+                float avg_spacing = (m_spacing[0] + m_spacing[1] + m_spacing[2])/3.0; \n\
+                // adjust the aspect \n\
+                aspect.x = m_spacing[0] * 2.0 / avg_spacing; \n\
+                aspect.y = m_spacing[1] * 2.0 / avg_spacing; \n\
+                aspect.z = m_spacing[2] * 2.0 / avg_spacing; \n\
+                g2.x /= aspect.x; \n\
+                g2.y /= aspect.y; \n\
+                g2.z /= aspect.z; \n\
+                float scale = 1.0 / (0.25*(m_scalars_range[1] - (m_scalars_range[0]))); \n\
+                grad_mag = sqrt(g2.x * g2.x  + g2.y * g2.y + g2.z * g2.z) * scale; \n\
                 g2 = normalize(g2); \n\
+                 if (grad_mag <= 0.0) \n\
+                    { \n\
+                    return; \n\
+                    } \n\
                 vec3 final_color = vec3(0.0); \n\
                 float n_dot_l = dot(g2, ldir); \n\
                 float n_dot_h = dot(g2, h); \n\
@@ -307,10 +324,12 @@ namespace vtkvolume
                 final_color += m_specular * m_shine_factor; \n\
                 float grad_opacity = texture(m_gradient_transfer_func, grad_mag).w; \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
-                l_src_color.rgb *= final_color.rgb; \n\
+                l_src_color.rgb *= final_color; \n\
                 l_src_color.a *= grad_opacity; \n\
+                if (foo > 1.0) { l_src_color.rgba = vec4(1.0, 0.0, 0.0, 1.0); } \n\
                }");
         }
+
 
       shaderStr += std::string(
       "/// Opacity calculation using compositing: \n\

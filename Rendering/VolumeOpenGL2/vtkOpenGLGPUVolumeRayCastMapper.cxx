@@ -272,6 +272,7 @@ public:
   int Extents[6];
   double StepSize[3];
   double CellScale[3];
+  double CellSpacing[3];
 
   std::ostringstream ExtensionsStringStream;
 
@@ -607,17 +608,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CompileAndLinkShader(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
   vtkImageData* input)
 {
-  double spacing[3];
   double origin[3];
 
-  input->GetSpacing(spacing);
+  input->GetSpacing(this->CellSpacing);
   input->GetOrigin(origin);
   input->GetExtent(this->Extents);
 
   int swapBounds[3];
-  swapBounds[0] = (spacing[0] < 0);
-  swapBounds[1] = (spacing[1] < 0);
-  swapBounds[2] = (spacing[2] < 0);
+  swapBounds[0] = (this->CellSpacing[0] < 0);
+  swapBounds[1] = (this->CellSpacing[1] < 0);
+  swapBounds[2] = (this->CellSpacing[2] < 0);
 
   /// Loaded data represents points
   if (!this->Parent->CellFlag)
@@ -625,17 +625,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
     // If spacing is negative, we may have to rethink the equation
     // between real point and texture coordinate...
     this->Bounds[0] = origin[0] +
-      static_cast<double>(this->Extents[0 + swapBounds[0]]) * spacing[0];
+      static_cast<double>(this->Extents[0 + swapBounds[0]]) * this->CellSpacing[0];
     this->Bounds[2] = origin[1] +
-      static_cast<double>(this->Extents[2 + swapBounds[1]]) * spacing[1];
+      static_cast<double>(this->Extents[2 + swapBounds[1]]) * this->CellSpacing[1];
     this->Bounds[4] = origin[2] +
-      static_cast<double>(this->Extents[4 + swapBounds[2]]) * spacing[2];
+      static_cast<double>(this->Extents[4 + swapBounds[2]]) * this->CellSpacing[2];
     this->Bounds[1] = origin[0] +
-      static_cast<double>(this->Extents[1 - swapBounds[0]]) * spacing[0];
+      static_cast<double>(this->Extents[1 - swapBounds[0]]) * this->CellSpacing[0];
     this->Bounds[3] = origin[1] +
-      static_cast<double>(this->Extents[3 - swapBounds[1]]) * spacing[1];
+      static_cast<double>(this->Extents[3 - swapBounds[1]]) * this->CellSpacing[1];
     this->Bounds[5] = origin[2] +
-      static_cast<double>(this->Extents[5 - swapBounds[2]]) * spacing[2];
+      static_cast<double>(this->Extents[5 - swapBounds[2]]) * this->CellSpacing[2];
     }
   /// Loaded extents represent cells
   else
@@ -659,18 +659,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
       else
         {
         this->Bounds[2 * i + swapBounds[i]] = origin[i] +
-          (static_cast<double>(this->Extents[2 * i]) + 0.5) * spacing[i];
+          (static_cast<double>(this->Extents[2 * i]) + 0.5) * this->CellSpacing[i];
         }
 
       if(this->Extents[2 * i + 1] == wholeTextureExtent[2 * i + 1])
         {
         this->Bounds[2 * i + 1 - swapBounds[i]] = origin[i] +
-          (static_cast<double>(this->Extents[2 * i + 1]) + 1.0) * spacing[i];
+          (static_cast<double>(this->Extents[2 * i + 1]) + 1.0) * this->CellSpacing[i];
         }
       else
         {
         this->Bounds[2 * i + 1-swapBounds[i]] = origin[i] +
-          (static_cast<double>(this->Extents[2 * i + 1]) + 0.5) * spacing[i];
+          (static_cast<double>(this->Extents[2 * i + 1]) + 0.5) * this->CellSpacing[i];
         }
       ++i;
       }
@@ -1052,8 +1052,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
     }
   else
     {
-    double datasetSpacing[3];
-    input->GetSpacing(datasetSpacing);
+    input->GetSpacing(this->CellSpacing);
 
     vtkMatrix4x4* worldToDataset = vol->GetMatrix();
     double minWorldSpacing = VTK_DOUBLE_MAX;
@@ -1068,7 +1067,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
       tmp2 += tmp * tmp;
 
       // We use fabs() in case the spacing is negative.
-      double worldSpacing = fabs(datasetSpacing[i]*sqrt(tmp2));
+      double worldSpacing = fabs(this->CellSpacing[i] * sqrt(tmp2));
       if(worldSpacing < minWorldSpacing)
         {
         minWorldSpacing = worldSpacing;
@@ -1257,8 +1256,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   this->Implementation->Shader.AddUniform("m_camera_pos");
   this->Implementation->Shader.AddUniform("m_light_pos");
   this->Implementation->Shader.AddUniform("m_cell_step");
-  this->Implementation->Shader.AddUniform("m_sample_distance");
   this->Implementation->Shader.AddUniform("m_cell_scale");
+  this->Implementation->Shader.AddUniform("m_cell_spacing");
+  this->Implementation->Shader.AddUniform("m_sample_distance");
+  this->Implementation->Shader.AddUniform("m_scalars_range");
   this->Implementation->Shader.AddUniform("m_color_transfer_func");
   this->Implementation->Shader.AddUniform("m_opacity_transfer_func");
   this->Implementation->Shader.AddUniform("m_gradient_transfer_func");
@@ -1386,13 +1387,37 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
               this->Implementation->StepSize[1],
               this->Implementation->StepSize[2]);
 
-  glUniform1f(this->Implementation->Shader("m_sample_distance"),
-              this->Implementation->ActualSampleDistance);
-
   glUniform3f(this->Implementation->Shader("m_cell_scale"),
               this->Implementation->CellScale[0],
               this->Implementation->CellScale[1],
               this->Implementation->CellScale[2]);
+
+  std::cerr << " CellSpacing "
+            << this->Implementation->CellSpacing[0] << " "
+            << this->Implementation->CellSpacing[1] << " "
+            << this->Implementation->CellSpacing[2] << " " << std::endl;
+
+  float fvalue3[3];
+  fvalue3[0] = static_cast<float>(this->Implementation->CellSpacing[0]);
+  fvalue3[1] = static_cast<float>(this->Implementation->CellSpacing[1]);
+  fvalue3[2] = static_cast<float>(this->Implementation->CellSpacing[2]);
+  glUniform3f(this->Implementation->Shader("m_cell_spacing"),
+              this->Implementation->CellSpacing[0],
+              this->Implementation->CellSpacing[1],
+              this->Implementation->CellSpacing[2]);
+
+  glUniform1f(this->Implementation->Shader("m_sample_distance"),
+              this->Implementation->ActualSampleDistance);
+
+  std::cerr << " ScalarsRange "
+            << this->Implementation->ScalarsRange[0] << " "
+            << this->Implementation->ScalarsRange[1] << " " << std::endl;
+
+  float fvalue2[2];
+  fvalue2[0] = static_cast<float>(this->Implementation->ScalarsRange[0]);
+  fvalue2[1] = static_cast<float>(this->Implementation->ScalarsRange[1]);
+  glUniform2f(this->Implementation->Shader("m_scalars_range"),
+              fvalue2[0], fvalue2[1]);
 
   glUniform1i(this->Implementation->Shader("m_volume"), 0);
   glUniform1i(this->Implementation->Shader("m_color_transfer_func"), 1);
@@ -1547,18 +1572,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
                &(textureExtentsMax[0]));
 
   /// TODO Take consideration of reduction factor
-  float fvalue[2];
-  fvalue[0] = static_cast<float>(this->Implementation->WindowLowerLeft[0]);
-  fvalue[1] = static_cast<float>(this->Implementation->WindowLowerLeft[1]);
-  glUniform2fv(this->Implementation->Shader("m_window_lower_left_corner"), 1, &fvalue[0]);
+  fvalue2[0] = static_cast<float>(this->Implementation->WindowLowerLeft[0]);
+  fvalue2[1] = static_cast<float>(this->Implementation->WindowLowerLeft[1]);
+  glUniform2fv(this->Implementation->Shader("m_window_lower_left_corner"), 1, &fvalue2[0]);
 
-  fvalue[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
-  fvalue[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
-  glUniform2fv(this->Implementation->Shader("m_inv_original_window_size"), 1, &fvalue[0]);
+  fvalue2[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
+  fvalue2[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
+  glUniform2fv(this->Implementation->Shader("m_inv_original_window_size"), 1, &fvalue2[0]);
 
-  fvalue[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
-  fvalue[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
-  glUniform2fv(this->Implementation->Shader("m_inv_window_size"), 1, &fvalue[0]);
+  fvalue2[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
+  fvalue2[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
+  glUniform2fv(this->Implementation->Shader("m_inv_window_size"), 1, &fvalue2[0]);
 
   /// Updating cropping if enabled
   this->Implementation->UpdateCropping(ren, vol);

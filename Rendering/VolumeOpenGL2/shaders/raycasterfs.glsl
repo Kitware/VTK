@@ -34,6 +34,8 @@ layout(location = 0) out vec4 m_frag_color;
 /// planes (origin, normal)
 uniform float m_clipping_planes[49];
 
+uniform vec2 m_scalars_range;
+uniform vec3 m_cell_spacing;
 uniform sampler1D m_gradient_transfer_func;
 
 //////////////////////////////////////////////////////////////////////////////
