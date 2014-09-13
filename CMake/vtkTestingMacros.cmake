@@ -425,7 +425,7 @@ endfunction()
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
 #   used only when required.
-function(vtk_add_test_tcl name)
+function(vtk_add_test_tcl)
   if(NOT VTK_TCL_EXE)
     message(FATAL_ERROR "VTK_TCL_EXE not set")
   endif()
