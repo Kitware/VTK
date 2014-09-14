@@ -1,4 +1,11 @@
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(extra_opengl2_tests
+    TestAreaSelections.cxx)
+endif()
+
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  ${extra_opengl2_tests}
   otherCoordinate.cxx,NO_DATA,NO_VALID
   FrustumClip.cxx
   Mace.cxx
@@ -6,7 +13,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestActor2DTextures.cxx
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx
-  TestAreaSelections.cxx
   TestAssemblyBounds.cxx,NO_VALID
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
@@ -56,5 +62,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   # TestViewDependentErrorMetric.cxx # Loads of extra deps - move?
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
+
+
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
