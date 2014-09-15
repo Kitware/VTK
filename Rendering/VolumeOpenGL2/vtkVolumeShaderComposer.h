@@ -116,6 +116,8 @@ namespace vtkvolume
       \n\
       /// Ray step size \n\
       uniform vec3 m_cell_step; \n\
+      uniform vec2 m_scalars_range; \n\
+      uniform vec3 m_cell_spacing; \n\
       \n\
       /// Sample distance \n\
       uniform float m_sample_distance; \n\
@@ -162,10 +164,7 @@ namespace vtkvolume
       l_data_pos += l_dir_step * texture2D(m_noise_sampler, l_data_pos.xy).x;\n\
       \n\
       /// Flag to deternmine if voxel should be considered for the rendering \n\
-      bool l_skip = false; \n\
-      uniform vec2 m_scalars_range; \n\
-      uniform vec3 m_cell_spacing;"
-    );
+      bool l_skip = false;");
     }
 
   //--------------------------------------------------------------------------
@@ -271,7 +270,6 @@ namespace vtkvolume
                 { \n\
                 vec3 g1; \n\
                 vec3 g2; \n\
-                float grad_mag; \n\
                 vec3 ldir = normalize(l_light_pos_obj - m_vertex_pos); \n\
                 vec3 vdir = normalize(l_eye_pos_obj - m_vertex_pos); \n\
                 vec3 h = normalize(ldir + vdir); \n\
@@ -284,7 +282,6 @@ namespace vtkvolume
                 g2.x = texture3D(m_volume, vec3(l_data_pos - xvec)).x; \n\
                 g2.y = texture3D(m_volume, vec3(l_data_pos - yvec)).x; \n\
                 g2.z = texture3D(m_volume, vec3(l_data_pos - zvec)).x; \n\
-                float foo = g1.x; \n\
                 g1.x = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.x; \n\
                 g1.y = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.y; \n\
                 g1.z = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.z; \n\
@@ -295,15 +292,15 @@ namespace vtkvolume
                 vec3 m_spacing = vec3(m_cell_spacing[0], m_cell_spacing[1], m_cell_spacing[2]); \n\
                 vec3 aspect; \n\
                 float avg_spacing = (m_spacing[0] + m_spacing[1] + m_spacing[2])/3.0; \n\
-                // adjust the aspect \n\
+                // Adjust the aspect \n\
                 aspect.x = m_spacing[0] * 2.0 / avg_spacing; \n\
                 aspect.y = m_spacing[1] * 2.0 / avg_spacing; \n\
                 aspect.z = m_spacing[2] * 2.0 / avg_spacing; \n\
                 g2.x /= aspect.x; \n\
                 g2.y /= aspect.y; \n\
                 g2.z /= aspect.z; \n\
-                float scale = 1.0 / (0.25*(m_scalars_range[1] - (m_scalars_range[0]))); \n\
-                grad_mag = sqrt(g2.x * g2.x  + g2.y * g2.y + g2.z * g2.z) * scale; \n\
+                float scale = 1.0 / (0.25 * (m_scalars_range[1] - (m_scalars_range[0]))); \n\
+                float grad_mag = sqrt(g2.x * g2.x  + g2.y * g2.y + g2.z * g2.z) * scale; \n\
                 g2 = normalize(g2); \n\
                  if (grad_mag <= 0.0) \n\
                     { \n\
@@ -324,10 +321,9 @@ namespace vtkvolume
                 final_color += m_diffuse * n_dot_l; \n\
                 float m_shine_factor = pow(n_dot_h, m_shininess); \n\
                 final_color += m_specular * m_shine_factor; \n\
-                float grad_opacity = texture1D(m_gradient_transfer_func, grad_mag).w; \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
                 l_src_color.rgb *= final_color; \n\
-                l_src_color.a *= grad_opacity; \n\
+                @GRADIENT_OPACITY_INCREMENT@ \n\
                }");
         }
 
@@ -347,6 +343,32 @@ namespace vtkvolume
 
     shaderStr += std::string("\n}");
     return shaderStr;
+    }
+
+  //--------------------------------------------------------------------------
+  std::string GradientOpacityGlobalsFrag(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
+                                         vtkVolume* vol)
+    {
+    if (vol->GetProperty()->GetGradientOpacity())
+      {
+      return std::string("uniform sampler1D m_gradient_transfer_func;");
+      }
+
+    return std::string("");
+    }
+
+
+  //--------------------------------------------------------------------------
+  std::string GradientOpacityIncrement(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
+                                       vtkVolume* vol)
+    {
+    if (vol->GetProperty()->GetGradientOpacity())
+      {
+      return std::string("l_src_color.a *= \n\
+                         texture1D(m_gradient_transfer_func, grad_mag).w;");
+      }
+
+    return std::string("");
     }
 
   //--------------------------------------------------------------------------

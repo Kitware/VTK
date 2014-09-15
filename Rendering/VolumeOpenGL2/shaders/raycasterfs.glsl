@@ -31,15 +31,12 @@ vec4 m_frag_color;
 @TERMINATION_GLOBALS_FRAG@
 @CROPPING_GLOBALS_FRAG@
 @SHADING_GLOBALS_FRAG@
+@GRADIENT_OPACITY_GLOBALS_FRAG@
 
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
 /// planes (origin, normal)
 uniform float m_clipping_planes[49];
-
-uniform vec2 m_scalars_range;
-uniform vec3 m_cell_spacing;
-uniform sampler1D m_gradient_transfer_func;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
