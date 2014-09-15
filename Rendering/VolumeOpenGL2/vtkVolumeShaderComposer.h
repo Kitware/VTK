@@ -52,9 +52,9 @@ namespace vtkvolume
                           vtkVolume* vol)
     {
     return std::string(
-      "mat4 ogl_projection_matrix = transpose(m_projection_matrix); \n\
-      mat4 ogl_modelview_matrix = transpose(m_modelview_matrix); \n\
-      vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * transpose(m_scene_matrix) * \n\
+      "mat4 ogl_projection_matrix = m_projection_matrix; \n\
+      mat4 ogl_modelview_matrix = m_modelview_matrix; \n\
+      vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * m_volume_matrix * \n\
                  vec4(m_in_vertex_pos.xyz, 1); \n\
       gl_Position = pos;"
     );
@@ -79,7 +79,7 @@ namespace vtkvolume
     { return std::string(
     "uniform mat4 m_modelview_matrix; \n\
     uniform mat4 m_projection_matrix; \n\
-    uniform mat4 m_scene_matrix; \n\
+    uniform mat4 m_volume_matrix; \n\
     \n\
     uniform vec3 m_vol_extents_min; \n\
     uniform vec3 m_vol_extents_max; \n\
@@ -109,7 +109,7 @@ namespace vtkvolume
       uniform vec3 m_light_pos; \n\
       \n\
       /// view and model matrices \n\
-      uniform mat4 m_scene_matrix; \n\
+      uniform mat4 m_volume_matrix; \n\
       uniform mat4 m_projection_matrix; \n\
       uniform mat4 m_modelview_matrix; \n\
       uniform mat4 m_texture_dataset_matrix; \n\
@@ -144,7 +144,7 @@ namespace vtkvolume
       "vec3 l_light_pos_obj; \n\
       \n\
       /// inverse is available only on 120 or above \n\
-      mat4 l_ogl_scene_matrix = inverse(transpose(m_scene_matrix)); \n\
+      mat4 l_ogl_scene_matrix = inverse(m_volume_matrix); \n\
       \n\
       /// Get the 3D texture coordinates for lookup into the m_volume dataset  \n\
       vec3 l_data_pos = m_texture_coords.xyz; \n\
@@ -159,10 +159,12 @@ namespace vtkvolume
       /// sub-step size we need to take at each raymarching step  \n\
       vec3 l_dir_step = geom_dir * m_cell_step * m_sample_distance; \n\
       \n\
-      l_data_pos += l_dir_step * texture(m_noise_sampler, l_data_pos.xy).x;\n\
+      l_data_pos += l_dir_step * texture2D(m_noise_sampler, l_data_pos.xy).x;\n\
       \n\
       /// Flag to deternmine if voxel should be considered for the rendering \n\
-      bool l_skip = false;"
+      bool l_skip = false; \n\
+      uniform vec2 m_scalars_range; \n\
+      uniform vec3 m_cell_spacing;"
     );
     }
 
@@ -239,29 +241,29 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-        "float scalar = texture(m_volume, l_data_pos).r; \n\
+        "float scalar = texture3D(m_volume, l_data_pos).r; \n\
          l_max_value = max(l_max_value, scalar);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-        "float scalar = texture(m_volume, l_data_pos).r ; \n\
+        "float scalar = texture3D(m_volume, l_data_pos).r ; \n\
          l_min_value = min(l_min_value, scalar);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
       shaderStr += std::string(
-        "float scalar = texture(m_volume, l_data_pos).r ; \n\
-        vec4 opacity = texture(m_opacity_transfer_func, scalar); \n\
+        "float scalar = texture3D(m_volume, l_data_pos).r ; \n\
+        vec4 opacity = texture1D(m_opacity_transfer_func, scalar); \n\
         l_sum_value = l_sum_value + opacity.a * scalar;");
       }
     else
       {
       shaderStr += std::string(
         "/// Data fetching from the red channel of volume texture \n\
-        float scalar = texture(m_volume, l_data_pos).r; \n\
-        vec4 l_src_color = vec4(texture(m_color_transfer_func, scalar).xyz, \n\
-                                texture(m_opacity_transfer_func, scalar).w);");
+        float scalar = texture3D(m_volume, l_data_pos).r; \n\
+        vec4 l_src_color = vec4(texture1D(m_color_transfer_func, scalar).xyz, \n\
+                                texture1D(m_opacity_transfer_func, scalar).w);");
 
       if (vol->GetProperty()->GetShade())
         {
@@ -276,12 +278,12 @@ namespace vtkvolume
                 vec3 xvec = vec3(m_cell_step[0], 0.0, 0.0); \n\
                 vec3 yvec = vec3(0.0, m_cell_step[1], 0.0); \n\
                 vec3 zvec = vec3(0.0, 0.0, m_cell_step[2]); \n\
-                g1.x = texture(m_volume, vec3(l_data_pos + xvec)).x; \n\
-                g1.y = texture(m_volume, vec3(l_data_pos + yvec)).x; \n\
-                g1.z = texture(m_volume, vec3(l_data_pos + zvec)).x; \n\
-                g2.x = texture(m_volume, vec3(l_data_pos - xvec)).x; \n\
-                g2.y = texture(m_volume, vec3(l_data_pos - yvec)).x; \n\
-                g2.z = texture(m_volume, vec3(l_data_pos - zvec)).x; \n\
+                g1.x = texture3D(m_volume, vec3(l_data_pos + xvec)).x; \n\
+                g1.y = texture3D(m_volume, vec3(l_data_pos + yvec)).x; \n\
+                g1.z = texture3D(m_volume, vec3(l_data_pos + zvec)).x; \n\
+                g2.x = texture3D(m_volume, vec3(l_data_pos - xvec)).x; \n\
+                g2.y = texture3D(m_volume, vec3(l_data_pos - yvec)).x; \n\
+                g2.z = texture3D(m_volume, vec3(l_data_pos - zvec)).x; \n\
                 float foo = g1.x; \n\
                 g1.x = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.x; \n\
                 g1.y = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.y; \n\
@@ -322,11 +324,10 @@ namespace vtkvolume
                 final_color += m_diffuse * n_dot_l; \n\
                 float m_shine_factor = pow(n_dot_h, m_shininess); \n\
                 final_color += m_specular * m_shine_factor; \n\
-                float grad_opacity = texture(m_gradient_transfer_func, grad_mag).w; \n\
+                float grad_opacity = texture1D(m_gradient_transfer_func, grad_mag).w; \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
                 l_src_color.rgb *= final_color; \n\
                 l_src_color.a *= grad_opacity; \n\
-                if (foo > 1.0) { l_src_color.rgba = vec4(1.0, 0.0, 0.0, 1.0); } \n\
                }");
         }
 
@@ -355,16 +356,16 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       return std::string(
-       "vec4 l_src_color = texture(m_color_transfer_func, l_max_value); \n\
-        l_src_color.a = texture(m_opacity_transfer_func, l_max_value).w; \n\
+       "vec4 l_src_color = texture1D(m_color_transfer_func, l_max_value); \n\
+        l_src_color.a = texture1D(m_opacity_transfer_func, l_max_value).w; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       return std::string(
-        "vec4 l_src_color = texture(m_color_transfer_func, l_min_value); \n\
-        l_src_color.a = texture(m_opacity_transfer_func, l_min_value).w; \n\
+        "vec4 l_src_color = texture1D(m_color_transfer_func, l_min_value); \n\
+        l_src_color.a = texture1D(m_opacity_transfer_func, l_min_value).w; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;");
       }
@@ -449,9 +450,9 @@ namespace vtkvolume
       /// From normalized device coordinates to eye coordinates. m_projection_matrix \n\
       /// is inversed because of way VT \n\
       /// From eye coordinates to texture coordinates \n\
-      m_terminate_point = inverse(transpose(m_texture_dataset_matrix)) * \n\
-                          l_ogl_scene_matrix * inverse(transpose(m_modelview_matrix)) * \n\
-                          inverse(transpose(m_projection_matrix)) * \n\
+      m_terminate_point = inverse(m_texture_dataset_matrix) * \n\
+                          l_ogl_scene_matrix * inverse(m_modelview_matrix) * \n\
+                          inverse(m_projection_matrix) * \n\
                           m_terminate_point; \n\
       m_terminate_point /= m_terminate_point.w; \n\
       \n\
@@ -639,7 +640,7 @@ namespace vtkvolume
         float clipping_planes_ts[48];\n\
         int clipping_planes_size = int(m_clipping_planes[0]);\n\
         \n\
-        mat4 world_to_texture_mat = inverse(transpose(m_texture_dataset_matrix)) *\n\
+        mat4 world_to_texture_mat = inverse(m_texture_dataset_matrix) *\n\
                                     l_ogl_scene_matrix;\n\
         for (int i = 0; i < clipping_planes_size; i = i + 6)\n\
           {\n\

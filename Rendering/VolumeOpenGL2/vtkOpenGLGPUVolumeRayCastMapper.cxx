@@ -1160,6 +1160,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
 {
   GL_CHECK_ERRORS
 
+  vtkVolumeProperty* volProperty = vol->GetProperty();
+
   this->Implementation->Shader.DeleteShaderProgram();
 
   GL_CHECK_ERRORS
@@ -1247,7 +1249,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   /// Add attributes and uniforms
   this->Implementation->Shader.AddAttribute("m_in_vertex_pos");
 
-  this->Implementation->Shader.AddUniform("m_scene_matrix");
+  this->Implementation->Shader.AddUniform("m_volume_matrix");
   this->Implementation->Shader.AddUniform("m_modelview_matrix");
   this->Implementation->Shader.AddUniform("m_projection_matrix");
   this->Implementation->Shader.AddUniform("m_texture_dataset_matrix");
@@ -1261,7 +1263,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   this->Implementation->Shader.AddUniform("m_scalars_range");
   this->Implementation->Shader.AddUniform("m_color_transfer_func");
   this->Implementation->Shader.AddUniform("m_opacity_transfer_func");
-  this->Implementation->Shader.AddUniform("m_gradient_transfer_func");
+
+  if (volProperty->GetGradientOpacity())
+    {
+    this->Implementation->Shader.AddUniform("m_gradient_transfer_func");
+    }
+
   this->Implementation->Shader.AddUniform("m_noise_sampler");
   this->Implementation->Shader.AddUniform("m_depth_sampler");
   this->Implementation->Shader.AddUniform("m_vol_extents_min");
@@ -1366,6 +1373,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
 
   GL_CHECK_ERRORS
 
+  // Temporary variables
+  float fvalue2[2];
+  float fvalue3[3];
+
   /// Update sampling distance
   this->Implementation->StepSize[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
   this->Implementation->StepSize[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
@@ -1391,12 +1402,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
               this->Implementation->CellScale[1],
               this->Implementation->CellScale[2]);
 
-  std::cerr << " CellSpacing "
-            << this->Implementation->CellSpacing[0] << " "
-            << this->Implementation->CellSpacing[1] << " "
-            << this->Implementation->CellSpacing[2] << " " << std::endl;
-
-  float fvalue3[3];
   fvalue3[0] = static_cast<float>(this->Implementation->CellSpacing[0]);
   fvalue3[1] = static_cast<float>(this->Implementation->CellSpacing[1]);
   fvalue3[2] = static_cast<float>(this->Implementation->CellSpacing[2]);
@@ -1408,11 +1413,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   glUniform1f(this->Implementation->Shader("m_sample_distance"),
               this->Implementation->ActualSampleDistance);
 
-  std::cerr << " ScalarsRange "
-            << this->Implementation->ScalarsRange[0] << " "
-            << this->Implementation->ScalarsRange[1] << " " << std::endl;
-
-  float fvalue2[2];
   fvalue2[0] = static_cast<float>(this->Implementation->ScalarsRange[0]);
   fvalue2[1] = static_cast<float>(this->Implementation->ScalarsRange[1]);
   glUniform2f(this->Implementation->Shader("m_scalars_range"),
@@ -1462,37 +1462,38 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   ren->GetActiveCamera()->GetClippingRange(clippingRange);
 
   /// Will require transpose of this matrix for OpenGL
-  vtkMatrix4x4* projMat = ren->GetActiveCamera()->
+  vtkMatrix4x4* projectionMat4x4 = ren->GetActiveCamera()->
     GetProjectionTransformMatrix(aspect[0]/aspect[1], -1, 1);
   float projectionMat[16];
   for (int i = 0; i < 4; ++i)
     {
     for (int j = 0; j < 4; ++j)
       {
-      projectionMat[i * 4 + j] = projMat->Element[i][j];
+      projectionMat[j * 4 + i] = projectionMat4x4->Element[i][j];
       }
     }
 
   /// Will require transpose of this matrix for OpenGL
-  vtkMatrix4x4* mvMat = ren->GetActiveCamera()->GetViewTransformMatrix();
+  vtkMatrix4x4* modelviewMat4x4 =
+    ren->GetActiveCamera()->GetViewTransformMatrix();
   float modelviewMat[16];
   for (int i = 0; i < 4; ++i)
     {
     for (int j = 0; j < 4; ++j)
       {
-      modelviewMat[i * 4 + j] = mvMat->Element[i][j];
+      modelviewMat[j * 4 + i] = modelviewMat4x4->Element[i][j];
       }
     }
 
   /// Will require transpose of this matrix for OpenGL
   /// Scene matrix
-  float sceneMat[16];
-  vtkMatrix4x4* scMat = vol->GetMatrix();
+  float volumeMat[16];
+  vtkMatrix4x4* volumeMatrix4x4 = vol->GetMatrix();
   for (int i = 0; i < 4; ++i)
     {
     for (int j = 0; j < 4; ++j)
       {
-      sceneMat[i * 4 + j] = scMat->Element[i][j];
+      volumeMat[j * 4 + i] = volumeMatrix4x4->Element[i][j];
       }
     }
 
@@ -1518,7 +1519,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     {
     for (int j = 0; j < 4; ++j)
       {
-      textureDataSetMat[i * 4 + j] =
+      textureDataSetMat[j * 4 + i] =
         this->Implementation->TextureToDataSetMat->Element[i][j];
       }
     }
@@ -1527,8 +1528,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
                      GL_FALSE, &(projectionMat[0]));
   glUniformMatrix4fv(this->Implementation->Shader("m_modelview_matrix"), 1,
                      GL_FALSE, &(modelviewMat[0]));
-  glUniformMatrix4fv(this->Implementation->Shader("m_scene_matrix"), 1,
-                     GL_FALSE, &(sceneMat[0]));
+  glUniformMatrix4fv(this->Implementation->Shader("m_volume_matrix"), 1,
+                     GL_FALSE, &(volumeMat[0]));
   glUniformMatrix4fv(this->Implementation->Shader("m_texture_dataset_matrix"), 1,
                      GL_FALSE, &(textureDataSetMat[0]));
 

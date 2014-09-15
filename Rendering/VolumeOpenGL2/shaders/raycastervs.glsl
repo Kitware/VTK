@@ -1,4 +1,7 @@
-#version 330 core
+#version 120
+
+/// Needed to enable inverse function
+#extension GL_ARB_gpu_shader5 : enable
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -15,7 +18,7 @@
 /// Inputs
 ///
 //////////////////////////////////////////////////////////////////////////////
-layout(location = 0) in vec3 m_in_vertex_pos;
+attribute vec3 m_in_vertex_pos;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -23,8 +26,8 @@ layout(location = 0) in vec3 m_in_vertex_pos;
 ///
 //////////////////////////////////////////////////////////////////////////////
 /// 3D texture coordinates for texture lookup in the fragment shader
-out vec3 m_texture_coords;
-out vec3 m_vertex_pos;
+varying vec3 m_texture_coords;
+varying vec3 m_vertex_pos;
 
 void main()
 {
