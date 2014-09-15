@@ -360,11 +360,11 @@ endfunction()
 #   (output directory), NO_VALID will suppress the -B argument (baseline for
 #   normal image comparisons (NO_RT)) and the -V and -A arguments (for RT-based
 #   image comparisons). Test-specific arguments may be set to _${name}_ARGS. By
-#   default, the test name will be the part of the source file before the '.cxx'.
+#   default, the test name will be the part of the source file before the '.py'.
 #   A custom test name can be specified by giving a name followed by a comma
 #   before the test file name, .e.g.,
 #
-#   CustomTestName,TestSource.cxx
+#   CustomTestName,TestSource.py
 #
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
@@ -472,10 +472,10 @@ endfunction()
 #   suppress -T, and NO_RT will suppress the -V and -T arguments
 #   unconditionally and pass -D to the empty string. Test-specific arguments may
 #   be set to _${name}_ARGS. By default, the test name will be the part of the
-#   source file before the '.cxx'. A custom test name can be specified by giving
+#   source file before the '.tcl'. A custom test name can be specified by giving
 #   a name followed by a comma before the test file name, .e.g.,
 #
-#   CustomTestName,TestSource.cxx
+#   CustomTestName,TestSource.tcl
 #
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
