@@ -68,6 +68,13 @@ vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
   {\
   }
 
+// Ref: http://stackoverflow.com/questions/22118518/use-of-undeclared-identifier-glgenvertexarrays-error-even-after-including-open
+#ifdef __APPLE__
+  #define glGenVertexArrays glGenVertexArraysAPPLE
+  #define glBindVertexArrays glBindVertexArraysAPPLE
+  #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#endif
+
 ///----------------------------------------------------------------------------
 class vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
 {
@@ -283,6 +290,11 @@ public:
   vtkTimeStamp ShaderBuildTime;
 
   vtkNew<vtkMatrix4x4> TextureToDataSetMat;
+  vtkNew<vtkMatrix4x4> InverseTextureToDataSetMat;
+
+  vtkNew<vtkMatrix4x4> InverseProjectionMat;
+  vtkNew<vtkMatrix4x4> InverseModelViewMat;
+  vtkNew<vtkMatrix4x4> InverseVolumeMat;
 
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
 };
@@ -1253,9 +1265,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   this->Implementation->Shader.AddAttribute("m_in_vertex_pos");
 
   this->Implementation->Shader.AddUniform("m_volume_matrix");
+  this->Implementation->Shader.AddUniform("m_inverse_volume_matrix");
   this->Implementation->Shader.AddUniform("m_modelview_matrix");
+  this->Implementation->Shader.AddUniform("m_inverse_modelview_matrix");
   this->Implementation->Shader.AddUniform("m_projection_matrix");
+  this->Implementation->Shader.AddUniform("m_inverse_projection_matrix");
   this->Implementation->Shader.AddUniform("m_texture_dataset_matrix");
+  this->Implementation->Shader.AddUniform("m_inverse_texture_dataset_matrix");
   this->Implementation->Shader.AddUniform("m_volume");
   this->Implementation->Shader.AddUniform("m_camera_pos");
   this->Implementation->Shader.AddUniform("m_light_pos");
@@ -1467,6 +1483,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   /// Will require transpose of this matrix for OpenGL
   vtkMatrix4x4* projectionMat4x4 = ren->GetActiveCamera()->
     GetProjectionTransformMatrix(aspect[0]/aspect[1], -1, 1);
+  this->Implementation->InverseProjectionMat->DeepCopy(projectionMat4x4);
+  this->Implementation->InverseProjectionMat->Invert();
   float projectionMat[16];
   for (int i = 0; i < 4; ++i)
     {
@@ -1475,10 +1493,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
       projectionMat[j * 4 + i] = projectionMat4x4->Element[i][j];
       }
     }
+  glUniformMatrix4fv(this->Implementation->Shader("m_projection_matrix"), 1,
+                     GL_FALSE, &(projectionMat[0]));
+  float invProjectionMat[16];
+  for (int i = 0; i < 4; ++i)
+    {
+    for (int j = 0; j < 4; ++j)
+      {
+      invProjectionMat[j * 4 + i] = this->Implementation->InverseProjectionMat->Element[i][j];
+      }
+    }
+  glUniformMatrix4fv(this->Implementation->Shader("m_inverse_projection_matrix"), 1,
+                     GL_FALSE, &(invProjectionMat[0]));
 
   /// Will require transpose of this matrix for OpenGL
   vtkMatrix4x4* modelviewMat4x4 =
     ren->GetActiveCamera()->GetViewTransformMatrix();
+  this->Implementation->InverseModelViewMat->DeepCopy(modelviewMat4x4);
+  this->Implementation->InverseModelViewMat->Invert();
   float modelviewMat[16];
   for (int i = 0; i < 4; ++i)
     {
@@ -1487,11 +1519,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
       modelviewMat[j * 4 + i] = modelviewMat4x4->Element[i][j];
       }
     }
+  glUniformMatrix4fv(this->Implementation->Shader("m_modelview_matrix"), 1,
+                     GL_FALSE, &(modelviewMat[0]));
+  float invModelviewMat[16];
+  for (int i = 0; i < 4; ++i)
+    {
+    for (int j = 0; j < 4; ++j)
+      {
+      invModelviewMat[j * 4 + i] = this->Implementation->InverseModelViewMat->Element[i][j];
+      }
+    }
+  glUniformMatrix4fv(this->Implementation->Shader("m_inverse_modelview_matrix"), 1,
+                     GL_FALSE, &(invModelviewMat[0]));
 
   /// Will require transpose of this matrix for OpenGL
   /// Scene matrix
   float volumeMat[16];
   vtkMatrix4x4* volumeMatrix4x4 = vol->GetMatrix();
+  this->Implementation->InverseVolumeMat->DeepCopy(volumeMatrix4x4);
   for (int i = 0; i < 4; ++i)
     {
     for (int j = 0; j < 4; ++j)
@@ -1499,6 +1544,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
       volumeMat[j * 4 + i] = volumeMatrix4x4->Element[i][j];
       }
     }
+  glUniformMatrix4fv(this->Implementation->Shader("m_volume_matrix"), 1,
+                     GL_FALSE, &(volumeMat[0]));
+  float invVolumeMat[16];
+  for (int i = 0; i < 4; ++i)
+    {
+    for (int j = 0; j < 4; ++j)
+      {
+      invVolumeMat[j * 4 + i] = this->Implementation->InverseVolumeMat->Element[i][j];
+      }
+    }
+  glUniformMatrix4fv(this->Implementation->Shader("m_inverse_volume_matrix"), 1,
+                     GL_FALSE, &(invVolumeMat[0]));
 
   /// Compute texture to dataset matrix
   this->Implementation->TextureToDataSetMat->Identity();
@@ -1518,6 +1575,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     this->Implementation->Bounds[4]);
 
   float textureDataSetMat[16];
+  this->Implementation->InverseTextureToDataSetMat->DeepCopy(
+    this->Implementation->TextureToDataSetMat.GetPointer());
+  this->Implementation->InverseTextureToDataSetMat->Invert();
   for (int i = 0; i < 4; ++i)
     {
     for (int j = 0; j < 4; ++j)
@@ -1526,15 +1586,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
         this->Implementation->TextureToDataSetMat->Element[i][j];
       }
     }
-
-  glUniformMatrix4fv(this->Implementation->Shader("m_projection_matrix"), 1,
-                     GL_FALSE, &(projectionMat[0]));
-  glUniformMatrix4fv(this->Implementation->Shader("m_modelview_matrix"), 1,
-                     GL_FALSE, &(modelviewMat[0]));
-  glUniformMatrix4fv(this->Implementation->Shader("m_volume_matrix"), 1,
-                     GL_FALSE, &(volumeMat[0]));
   glUniformMatrix4fv(this->Implementation->Shader("m_texture_dataset_matrix"), 1,
                      GL_FALSE, &(textureDataSetMat[0]));
+  float invTextureDataSetMat[16];
+  for (int i = 0; i < 4; ++i)
+    {
+    for (int j = 0; j < 4; ++j)
+      {
+      invTextureDataSetMat[j * 4 + i] =
+        this->Implementation->InverseTextureToDataSetMat->Element[i][j];
+      }
+    }
+  glUniformMatrix4fv(this->Implementation->Shader("m_inverse_texture_dataset_matrix"), 1,
+                     GL_FALSE, &(invTextureDataSetMat[0]));
+
 
   /// We are using float for now
   double* cameraPos = ren->GetActiveCamera()->GetPosition();

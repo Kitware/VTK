@@ -110,9 +110,13 @@ namespace vtkvolume
       \n\
       /// view and model matrices \n\
       uniform mat4 m_volume_matrix; \n\
+      uniform mat4 m_inverse_volume_matrix; \n\
       uniform mat4 m_projection_matrix; \n\
+      uniform mat4 m_inverse_projection_matrix; \n\
       uniform mat4 m_modelview_matrix; \n\
+      uniform mat4 m_inverse_modelview_matrix; \n\
       uniform mat4 m_texture_dataset_matrix; \n\
+      uniform mat4 m_inverse_texture_dataset_matrix; \n\
       \n\
       /// Ray step size \n\
       uniform vec3 m_cell_step; \n\
@@ -145,14 +149,11 @@ namespace vtkvolume
     return std::string(
       "vec3 l_light_pos_obj; \n\
       \n\
-      /// inverse is available only on 120 or above \n\
-      mat4 l_ogl_scene_matrix = inverse(m_volume_matrix); \n\
-      \n\
       /// Get the 3D texture coordinates for lookup into the m_volume dataset  \n\
       vec3 l_data_pos = m_texture_coords.xyz; \n\
       \n\
       /// Eye position in object space  \n\
-      vec3 l_eye_pos_obj = (l_ogl_scene_matrix * vec4(m_camera_pos, 1.0)).xyz; \n\
+      vec3 l_eye_pos_obj = (m_inverse_volume_matrix * vec4(m_camera_pos, 1.0)).xyz; \n\
       \n\
       /// Getting the ray marching direction (in object space); \n\
       vec3 geom_dir = normalize(m_vertex_pos.xyz - l_eye_pos_obj); \n\
@@ -221,7 +222,7 @@ namespace vtkvolume
       {
       return std::string(
         "/// Light position in object space \n\
-         l_light_pos_obj = (l_ogl_scene_matrix *  vec4(m_light_pos, 1.0)).xyz;"
+         l_light_pos_obj = (m_inverse_volume_matrix *  vec4(m_light_pos, 1.0)).xyz;"
       );
       }
     else
@@ -472,9 +473,9 @@ namespace vtkvolume
       /// From normalized device coordinates to eye coordinates. m_projection_matrix \n\
       /// is inversed because of way VT \n\
       /// From eye coordinates to texture coordinates \n\
-      m_terminate_point = inverse(m_texture_dataset_matrix) * \n\
-                          l_ogl_scene_matrix * inverse(m_modelview_matrix) * \n\
-                          inverse(m_projection_matrix) * \n\
+      m_terminate_point = m_inverse_texture_dataset_matrix * \n\
+                          m_inverse_volume_matrix * m_inverse_modelview_matrix * \n\
+                          m_inverse_projection_matrix * \n\
                           m_terminate_point; \n\
       m_terminate_point /= m_terminate_point.w; \n\
       \n\
@@ -586,7 +587,7 @@ namespace vtkvolume
     return std::string("\n\
       /// Convert cropping region to texture space \n\
       float cropping_planes_ts[6];\n\
-      mat4  datasetToTextureMat = inverse(m_texture_dataset_matrix); \n\
+      mat4  datasetToTextureMat = m_inverse_texture_dataset_matrix; \n\
       vec4 temp = vec4(cropping_planes[0], cropping_planes[1], 0.0, 1.0); \n\
       temp = datasetToTextureMat * temp; \n\
       if (temp[3] != 0.0) {temp[0] /= temp[3]; temp[1] /= temp[3];} \n\
@@ -662,8 +663,8 @@ namespace vtkvolume
         float clipping_planes_ts[48];\n\
         int clipping_planes_size = int(m_clipping_planes[0]);\n\
         \n\
-        mat4 world_to_texture_mat = inverse(m_texture_dataset_matrix) *\n\
-                                    l_ogl_scene_matrix;\n\
+        mat4 world_to_texture_mat = m_inverse_texture_dataset_matrix *\n\
+                                    m_inverse_volume_matrix;\n\
         for (int i = 0; i < clipping_planes_size; i = i + 6)\n\
           {\n\
           vec4 origin = vec4(m_clipping_planes[i + 1],\n\
