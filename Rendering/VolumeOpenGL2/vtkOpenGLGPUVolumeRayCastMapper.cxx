@@ -66,7 +66,6 @@ vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 /// TODO Remove this afterwards
 #define GL_CHECK_ERRORS \
   {\
-  assert(glGetError()== GL_NO_ERROR); \
   }
 
 ///----------------------------------------------------------------------------
