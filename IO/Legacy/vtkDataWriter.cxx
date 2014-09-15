@@ -72,6 +72,7 @@ vtkDataWriter::vtkDataWriter()
   this->TCoordsName = 0;
   this->GlobalIdsName = 0;
   this->PedigreeIdsName = 0;
+  this->EdgeFlagsName = 0;
 
   this->LookupTableName = new char[13];
   strcpy(this->LookupTableName,"lookup_table");
@@ -121,6 +122,10 @@ vtkDataWriter::~vtkDataWriter()
   if ( this->PedigreeIdsName )
     {
     delete [] this->PedigreeIdsName;
+    }
+  if ( this->EdgeFlagsName )
+    {
+    delete [] this->EdgeFlagsName;
     }
   if ( this->LookupTableName )
     {
@@ -390,6 +395,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   vtkDataArray *tensors;
   vtkDataArray *globalIds;
   vtkAbstractArray *pedigreeIds;
+  vtkDataArray *edgeFlags;
   vtkFieldData *field;
   vtkPointData *pd=ds->GetPointData();
 
@@ -430,11 +436,15 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   if(pedigreeIds && pedigreeIds->GetNumberOfTuples() <= 0)
     pedigreeIds = 0;
 
+  edgeFlags = pd->GetAttribute(vtkDataSetAttributes::EDGEFLAG);
+  if(edgeFlags && edgeFlags->GetNumberOfTuples() <= 0)
+    edgeFlags = 0;
+
   field = pd;
   if(field && field->GetNumberOfTuples() <= 0)
     field = 0;
 
-  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || pedigreeIds || field))
+  if(!(scalars || vectors || normals || tcoords || tensors || globalIds || pedigreeIds || edgeFlags || field))
     {
     vtkDebugMacro(<<"No point data to write!");
     return 1;
@@ -507,6 +517,16 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   if ( pedigreeIds )
     {
     if ( ! this->WritePedigreeIdData(fp, pedigreeIds, numPts) )
+      {
+      return 0;
+      }
+    }
+  //
+  // Write edge flags
+  //
+  if ( edgeFlags )
+    {
+    if ( ! this->WriteEdgeFlagsData(fp, edgeFlags, numPts) )
       {
       return 0;
       }
@@ -1747,6 +1767,41 @@ int vtkDataWriter::WritePedigreeIdData(ostream *fp, vtkAbstractArray *pedigreeId
   return this->WriteArray(fp, pedigreeIds->GetDataType(), pedigreeIds, format, num, 1);
 }
 
+int vtkDataWriter::WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num)
+{
+  char format[1024];
+
+  *fp << "EDGE_FLAGS ";
+
+  char* edgeFlagsName;
+  // Buffer size is size of array name times four because
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  if (!this->EdgeFlagsName)
+    {
+    if (edgeFlags->GetName() && strlen(edgeFlags->GetName()))
+      {
+      edgeFlagsName = new char[ strlen(edgeFlags->GetName()) * 4 + 1];
+      this->EncodeString(edgeFlagsName, edgeFlags->GetName(), true);
+      }
+    else
+      {
+      edgeFlagsName = new char[ strlen("edge_flags") + 1];
+      strcpy(edgeFlagsName, "edge_flags");
+      }
+    }
+  else
+    {
+    edgeFlagsName = new char[ strlen(this->EdgeFlagsName) * 4 + 1];
+    this->EncodeString(edgeFlagsName, this->EdgeFlagsName, true);
+    }
+
+  sprintf(format, "%s %s\n", edgeFlagsName, "%s");
+  delete[] edgeFlagsName;
+
+  return this->WriteArray(fp, edgeFlags->GetDataType(), edgeFlags, format, num, 1);
+}
+
 static int vtkIsInTheList(int index, int* list, int numElem)
 {
   for(int i=0; i<numElem; i++)
@@ -2033,6 +2088,15 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Pedigree Ids Name: (None)\n";
+    }
+
+  if ( this->EdgeFlagsName )
+    {
+    os << indent << "Edge Flags Name: " << this->EdgeFlagsName << "\n";
+    }
+  else
+    {
+    os << indent << "Edge Flags Name: (None)\n";
     }
 
   if ( this->LookupTableName )
