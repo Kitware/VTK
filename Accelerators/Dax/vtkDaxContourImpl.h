@@ -33,6 +33,7 @@
 #include "vtkCellTypes.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
+#include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkVoxel.h"
 
@@ -43,16 +44,16 @@
 #include "vtkPolyData.h"
 
 //helpers that convert vtk to dax
-#include "vtkToDax/Portals.h"
-#include "vtkToDax/Containers.h"
 #include "vtkToDax/CellTypeToType.h"
+#include "vtkToDax/Containers.h"
+#include "vtkToDax/Contour.h"
 #include "vtkToDax/DataSetTypeToType.h"
 #include "vtkToDax/FieldTypeToType.h"
-#include "vtkToDax/MarchingCubes.h"
+#include "vtkToDax/Portals.h"
 
 namespace vtkDax {
 namespace detail {
-  struct ValidMarchingCubesInput
+  struct ValidContourInput
   {
     typedef int ReturnType;
     vtkDataSet* Input;
@@ -62,9 +63,9 @@ namespace detail {
 
     vtkPolyData* Result;
 
-    ValidMarchingCubesInput(vtkDataSet* in, vtkPolyData* out,
-                            vtkCell* cell, double isoValue,
-                            bool computeScalars) :
+    ValidContourInput(vtkDataSet* in, vtkPolyData* out,
+                      vtkCell* cell, double isoValue,
+                      bool computeScalars) :
       Input(in),
       Cell(cell),
       IsoValue(isoValue),
@@ -97,24 +98,25 @@ namespace detail {
 
       FieldHandle field = FieldHandle( PortalType(&vtkField,
                                             vtkField.GetNumberOfTuples() ) );
-      vtkToDax::MarchingCubes<FieldHandle> marching(field,
-                                                    DaxValueType(this->IsoValue),
-                                                    this->ComputeScalars);
-      marching.setFieldName(vtkField.GetName());
-      marching.setOutputGrid(this->Result);
+      vtkToDax::Contour<FieldHandle> contour(field,
+                                             DaxValueType(this->IsoValue),
+                                             this->ComputeScalars);
+      contour.setFieldName(vtkField.GetName());
+      contour.setOutputGrid(this->Result);
 
       // see if we have a valid data set type if so will perform the
       // marchingcubes if possible
       vtkDoubleDispatcher<vtkDataSet,vtkCell,int> dataDispatcher;
-      dataDispatcher.Add<vtkImageData,vtkVoxel>(marching);
-      dataDispatcher.Add<vtkUniformGrid,vtkVoxel>(marching);
-      dataDispatcher.Add<vtkUnstructuredGrid,vtkHexahedron>(marching);
+      dataDispatcher.Add<vtkImageData,vtkVoxel>(contour);
+      dataDispatcher.Add<vtkUniformGrid,vtkVoxel>(contour);
+      dataDispatcher.Add<vtkUnstructuredGrid,vtkHexahedron>(contour);
+      dataDispatcher.Add<vtkUnstructuredGrid,vtkTetra>(contour);
 
       int validMC = dataDispatcher.Go(this->Input,this->Cell);
       return validMC;
       }
   private:
-    void operator=(const ValidMarchingCubesInput&);
+    void operator=(const ValidContourInput&);
   };
 } //namespace detail
 
@@ -130,8 +132,8 @@ int Contour(vtkDataSet* input, vtkPolyData *output,
   vtkDax::detail::CellTypeInDataSet cType = vtkDax::detail::cellType(input);
 
   //construct the object that holds all the state needed to do the MC
-  vtkDax::detail::ValidMarchingCubesInput validInput(input,output,cType.Cell,
-                                                     isoValue, computeScalars);
+  vtkDax::detail::ValidContourInput validInput(input,output,cType.Cell,
+                                               isoValue, computeScalars);
 
 
   //setup the dispatch to only allow float and int array to go to the next step

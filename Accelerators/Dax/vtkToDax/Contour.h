@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef vtkToDax_MarchingCubes_h
-#define vtkToDax_MarchingCubes_h
+#ifndef vtkToDax_Contour_h
+#define vtkToDax_Contour_h
 
 #include "vtkDispatcher.h"
 #include "vtkPolyData.h"
@@ -29,6 +29,7 @@
 #include <dax/cont/DispatcherGenerateInterpolatedCells.h>
 #include <dax/cont/DispatcherMapCell.h>
 #include <dax/worklet/MarchingCubes.h>
+#include <dax/worklet/MarchingTetrahedra.h>
 
 namespace
 {
@@ -96,7 +97,7 @@ struct InterpolateEdges
 };
 
 template<int B>
-struct DoMarchingCubes
+struct DoContour
 {
   template<class InGridType,
            class OutGridType,
@@ -115,7 +116,7 @@ struct DoMarchingCubes
   }
 };
 template<>
-struct DoMarchingCubes<1>
+struct DoContour<1>
 {
   template<class InGridType,
            class OutGridType,
@@ -131,30 +132,89 @@ struct DoMarchingCubes<1>
       const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &mcHandle,
       bool computeScalars)
   {
-    int result=1;
-
     dax::Scalar isoValueT(isoValue);
+
+    dax::worklet::MarchingCubesCount countWorklet(isoValueT);
+    dax::worklet::MarchingCubesGenerate generateWorklet(isoValueT);
+
+    return this->DispatchWork(inDaxGrid,
+                              inVTKGrid,
+                              outDaxGeom,
+                              outVTKGrid,
+                              countWorklet,
+                              generateWorklet,
+                              mcHandle,
+                              computeScalars);
+  }
+
+  template<class GridCellContainer,
+           class GridPointContainer,
+           class OutGridType,
+           typename ValueType,
+           class Container1,
+           class Adapter>
+  int operator()(
+      const dax::cont::UnstructuredGrid<
+        dax::CellTagTetrahedron,GridCellContainer,GridPointContainer,Adapter>
+        &inDaxGrid,
+      vtkDataSet *inVTKGrid,
+      OutGridType &outDaxGeom,
+      vtkPolyData *outVTKGrid,
+      ValueType isoValue,
+      const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &mcHandle,
+      bool computeScalars)
+  {
+    dax::Scalar isoValueT(isoValue);
+
+    dax::worklet::MarchingTetrahedraCount countWorklet(isoValueT);
+    dax::worklet::MarchingTetrahedraGenerate generateWorklet(isoValueT);
+
+    return this->DispatchWork(inDaxGrid,
+                              inVTKGrid,
+                              outDaxGeom,
+                              outVTKGrid,
+                              countWorklet,
+                              generateWorklet,
+                              mcHandle,
+                              computeScalars);
+  }
+
+  template<class InGridType,
+           class OutGridType,
+           typename ValueType,
+           class Container1,
+           class Adapter,
+           class CountWorkletType,
+           class GenerateWorkletType>
+  int DispatchWork(
+      const InGridType &inDaxGrid,
+      vtkDataSet *inVTKGrid,
+      OutGridType &outDaxGeom,
+      vtkPolyData *outVTKGrid,
+      CountWorkletType &countWorklet,
+      GenerateWorkletType &generateWorklet,
+      const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &mcHandle,
+      bool computeScalars)
+  {
+    int result=1;
 
     try
       {
 
       typedef dax::cont::DispatcherGenerateInterpolatedCells<
-                  dax::worklet::MarchingCubesGenerate,
+                  GenerateWorkletType,
                   dax::cont::ArrayHandle< dax::Id >,
                   Adapter >                             DispatchIC;
 
       typedef typename DispatchIC::CountHandleType CountHandleType;
 
-      dax::worklet::MarchingCubesCount countWorklet(isoValueT);
-      dax::cont::DispatcherMapCell<
-                            dax::worklet::MarchingCubesCount,
-                            Adapter>       dispatchCount( countWorklet );
+      dax::cont::DispatcherMapCell<CountWorkletType,Adapter>
+          dispatchCount( countWorklet );
 
       CountHandleType count;
       dispatchCount.Invoke(inDaxGrid, mcHandle, count);
 
 
-      dax::worklet::MarchingCubesGenerate generateWorklet(isoValueT);
       DispatchIC generateSurface(count, generateWorklet);
       generateSurface.SetRemoveDuplicatePoints(true);
       generateSurface.Invoke(inDaxGrid,outDaxGeom,mcHandle);
@@ -208,14 +268,14 @@ struct DoMarchingCubes<1>
 };
 
   template<typename FieldType_>
-  struct MarchingCubes
+  struct Contour
   {
     public:
     typedef FieldType_ FieldType;
     //we expect FieldType_ to be an dax::cont::ArrayHandle
     typedef typename FieldType::ValueType T;
 
-    MarchingCubes(const FieldType& f, T value, bool computeScalars):
+    Contour(const FieldType& f, T value, bool computeScalars):
       Result(NULL),
       Field(f),
       Value(value),
@@ -259,7 +319,7 @@ struct DoMarchingCubes<1>
       InputDataSetType inputDaxData = vtkToDax::dataSetConverter(&dataSet,
                                                      DataSetTypeToTypeStruct());
 
-      vtkToDax::DoMarchingCubes<DataSetTypeToTypeStruct::Valid> mc;
+      vtkToDax::DoContour<DataSetTypeToTypeStruct::Valid> mc;
       int result = mc(inputDaxData,
                       &dataSet,
                       resultGrid,
@@ -280,4 +340,4 @@ struct DoMarchingCubes<1>
   };
 }
 
-#endif //vtkToDax_MarchingCubes_h
+#endif //vtkToDax_Contour_h
