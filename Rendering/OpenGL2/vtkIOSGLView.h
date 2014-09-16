@@ -62,6 +62,10 @@
 
 - (vtkIOSRenderWindowInteractorRef)getInteractor;
 
+- (void)setupShaders;
+
+- (void)erase;
+
 @end
 
 #endif /* __vtkIOSGLView_h */
