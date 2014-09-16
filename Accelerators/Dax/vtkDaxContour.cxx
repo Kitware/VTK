@@ -28,10 +28,11 @@
 vtkStandardNewMacro(vtkDaxContour)
 
 namespace vtkDax {
-  int MarchingCubes(vtkDataSet* input,
-                    vtkPolyData *output,
-                    vtkDataArray* field,
-                    float isoValue);
+  int Contour(vtkDataSet* input,
+              vtkPolyData *output,
+              vtkDataArray* field,
+              float isoValue,
+              bool computeScalars);
 }
 
 
@@ -67,14 +68,25 @@ int vtkDaxContour::RequestData(vtkInformation *request,
   int result = 0;
   if(scalars)
     {
-    result = vtkDax::MarchingCubes(input,
-                                   output,
-                                   scalars,
-                                   this->GetValue(0));
+    if (this->GetNumberOfContours() == 1)
+      {
+      result = vtkDax::Contour(input,
+                               output,
+                               scalars,
+                               this->GetValue(0),
+                               this->GetComputeScalars());
+      }
+    else
+      {
+      vtkWarningMacro(
+            << "Dax implementation currently only supports one contour.");
+      }
     }
 
   if(!result)
     {
+    vtkWarningMacro(<< "Could not use Dax to make contour. "
+                    << "Falling back to serial implementation.");
     result = this->Superclass::RequestData(request,inputVector,outputVector);
     }
   return result;

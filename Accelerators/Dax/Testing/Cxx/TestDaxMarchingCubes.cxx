@@ -16,6 +16,7 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkDaxContour.h"
+#include "vtkElevationFilter.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkNew.h"
@@ -45,9 +46,14 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
         0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Iterations");
   cubes->SetNumberOfContours(1);
   cubes->SetValue(0,50.5f);
+  cubes->ComputeScalarsOn();
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(cubes->GetOutputPort());
+  mapper->ScalarVisibilityOn();
+  mapper->SetScalarModeToUsePointFieldData();
+  mapper->SelectColorArray("Elevation");
+  mapper->SetScalarRange(0.0, 1.0);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.GetPointer());
@@ -74,20 +80,14 @@ int TestDaxMarchingCubes(int argc, char* argv[])
   //create the sample grid
   vtkNew<vtkImageMandelbrotSource> src;
   src->SetWholeExtent(0,250,0,250,0,250);
-  src->Update(); //required so we can set the active scalars
 
-  //set Iterations as the active scalar, otherwise we don't have an array
-  //to contour on
-  vtkImageData* data = vtkImageData::SafeDownCast(src->GetOutputDataObject(0));
-  if(data->GetPointData()->HasArray("Iterations") == 0)
-    {
-    //vtkImageMandelbrotSource has changed and this test needs updating
-    return (!vtkRegressionTester::FAILED); //yeah it is weird, but the right way
-    }
-
-  //setting active scalars
-  data->GetPointData()->SetActiveScalars("Iterations");
+  //create a secondary field for interpolation
+  vtkNew<vtkElevationFilter> elevation;
+  elevation->SetInputConnection(src->GetOutputPort());
+  elevation->SetScalarRange(0.0, 1.0);
+  elevation->SetLowPoint(-1.75, 0.0, 1.0);
+  elevation->SetHighPoint(0.75, 0.0, 1.0);
 
   //run the pipeline
-  return RunVTKPipeline(src.GetPointer(),argc,argv);
+  return RunVTKPipeline(elevation.GetPointer(),argc,argv);
 }

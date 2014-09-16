@@ -58,12 +58,18 @@ namespace detail {
     vtkDataSet* Input;
     vtkCell* Cell;
     double IsoValue;
+    bool ComputeScalars;
 
     vtkPolyData* Result;
 
     ValidMarchingCubesInput(vtkDataSet* in, vtkPolyData* out,
-                        vtkCell* cell, double isoValue):
-      Input(in),Cell(cell),IsoValue(isoValue),Result(out){}
+                            vtkCell* cell, double isoValue,
+                            bool computeScalars) :
+      Input(in),
+      Cell(cell),
+      IsoValue(isoValue),
+      ComputeScalars(computeScalars),
+      Result(out) {  }
 
     template<typename LHS>
     int operator()(LHS &arrayField) const
@@ -92,7 +98,8 @@ namespace detail {
       FieldHandle field = FieldHandle( PortalType(&vtkField,
                                             vtkField.GetNumberOfTuples() ) );
       vtkToDax::MarchingCubes<FieldHandle> marching(field,
-                                                    DaxValueType(IsoValue));
+                                                    DaxValueType(this->IsoValue),
+                                                    this->ComputeScalars);
       marching.setFieldName(vtkField.GetName());
       marching.setOutputGrid(this->Result);
 
@@ -113,8 +120,8 @@ namespace detail {
 
 
 //------------------------------------------------------------------------------
-int MarchingCubes(vtkDataSet* input, vtkPolyData *output,
-              vtkDataArray* field, float isoValue)
+int Contour(vtkDataSet* input, vtkPolyData *output,
+            vtkDataArray* field, float isoValue, bool computeScalars)
 {
   //we are doing a point threshold now verify we have suitable cells
   //Dax currently supports: hexs,lines,quads,tets,triangles,vertex,voxel,wedge
@@ -124,7 +131,7 @@ int MarchingCubes(vtkDataSet* input, vtkPolyData *output,
 
   //construct the object that holds all the state needed to do the MC
   vtkDax::detail::ValidMarchingCubesInput validInput(input,output,cType.Cell,
-                                                     isoValue);
+                                                     isoValue, computeScalars);
 
 
   //setup the dispatch to only allow float and int array to go to the next step
