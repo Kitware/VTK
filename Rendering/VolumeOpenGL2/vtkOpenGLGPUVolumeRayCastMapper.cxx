@@ -1444,13 +1444,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   glUniform1i(this->Implementation->Shader("m_depth_sampler"), 4);
   glUniform1i(this->Implementation->Shader("m_gradient_transfer_func"), 5);
 
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetAmbient();
   glUniform3f(this->Implementation->Shader("m_ambient"),
-              0.0, 0.0, 0.0);
+              fvalue3[0], fvalue3[1], fvalue3[2]);
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetDiffuse();
   glUniform3f(this->Implementation->Shader("m_diffuse"),
-              0.8, 0.8, 0.8);
+              fvalue3[0], fvalue3[1], fvalue3[2]);
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetSpecular();
   glUniform3f(this->Implementation->Shader("m_specular"),
-              0.0, 0.0, 0.0);
-  glUniform1f(this->Implementation->Shader("m_shininess"), 10.0);
+              fvalue3[0], fvalue3[1], fvalue3[2]);
+  fvalue3[0] = vol->GetProperty()->GetSpecularPower();
+  glUniform1f(this->Implementation->Shader("m_shininess"), fvalue3[0]);
 
   /// Bind textures
   /// Volume texture is at unit 0

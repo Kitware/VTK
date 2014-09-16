@@ -92,6 +92,9 @@ int TestGPUCastGradientOpacity(int argc, char *argv[])
   volumeProperty->SetGradientOpacity(0, gradientOpacityFunction);
   volumeProperty->SetScalarOpacity(scalarFunction);
   volumeProperty->SetColor(0, colorFunction);
+  volumeProperty->SetAmbient(0, 0.0);
+  volumeProperty->SetDiffuse(0, 0.5);
+  volumeProperty->SetSpecular(0, 1.0);
   volumeProperty->ShadeOn();
 
   ren1->AddViewProp(volume);

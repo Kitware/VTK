@@ -267,8 +267,7 @@ namespace vtkvolume
 
       if (vol->GetProperty()->GetShade())
         {
-        shaderStr += std::string("if (l_src_color.a > 0.01) \n\
-                { \n\
+        shaderStr += std::string(" \n\
                 vec3 g1; \n\
                 vec3 g2; \n\
                 vec3 ldir = normalize(l_light_pos_obj - m_vertex_pos); \n\
@@ -324,8 +323,7 @@ namespace vtkvolume
                 final_color += m_specular * m_shine_factor; \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
                 l_src_color.rgb *= final_color; \n\
-                @GRADIENT_OPACITY_INCREMENT@ \n\
-               }");
+                @GRADIENT_OPACITY_INCREMENT@ ");
         }
 
 
