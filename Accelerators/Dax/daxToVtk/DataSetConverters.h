@@ -31,6 +31,7 @@ class vtkWedge;
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <dax/cont/UnstructuredGrid.h>
 #include <dax/cont/UniformGrid.h>

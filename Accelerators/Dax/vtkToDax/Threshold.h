@@ -17,9 +17,10 @@
 #ifndef vtkToDax_Threshold_h
 #define vtkToDax_Threshold_h
 
-#include "DataSetTypeToType.h"
-#include "CellTypeToType.h"
-#include "DataSetConverters.h"
+#include "vtkToDax/CellTypeToType.h"
+#include "vtkToDax/CompactPointField.h"
+#include "vtkToDax/DataSetConverters.h"
+#include "vtkToDax/DataSetTypeToType.h"
 
 #include "daxToVtk/CellTypeToType.h"
 #include "daxToVtk/DataSetConverters.h"
@@ -42,23 +43,25 @@ template <> struct ThresholdOuputType< dax::CellTagVoxel >
 
 namespace vtkToDax
 {
+
   template<int B>
   struct DoThreshold
   {
     template<class InGridType,
              class OutGridType,
              typename ValueType,
-             class Container1,
-             class Container2,
+             class Container,
              class Adapter>
     int operator()(const InGridType &,
+                   vtkDataSet *,
                    OutGridType &,
+                   vtkUnstructuredGrid *,
                    ValueType,
                    ValueType,
-                   const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &,
-                   dax::cont::ArrayHandle<ValueType,Container2,Adapter> &)
+                   const dax::cont::ArrayHandle<ValueType,Container,Adapter> &)
       {
-      std::cout << "Not calling DAX, GridType and CellType combination not supported" << std::endl;
+      vtkGenericWarningMacro(
+            << "Not calling Dax, GridType-CellType combination not supported");
       return 0;
       }
   };
@@ -68,16 +71,16 @@ namespace vtkToDax
     template<class InGridType,
              class OutGridType,
              typename ValueType,
-             class Container1,
-             class Container2,
+             class Container,
              class Adapter>
     int operator()(
-        const InGridType &inGrid,
-        OutGridType &outGeom,
+        const InGridType &inDaxGrid,
+        vtkDataSet *inVTKGrid,
+        OutGridType &outDaxGeom,
+        vtkUnstructuredGrid *outVTKGrid,
         ValueType thresholdMin,
         ValueType thresholdMax,
-        const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &thresholdHandle,
-        dax::cont::ArrayHandle<ValueType,Container2,Adapter> &thresholdResult)
+        const dax::cont::ArrayHandle<ValueType,Container,Adapter> &thresholdHandle)
       {
       int result=1;
       try
@@ -96,11 +99,45 @@ namespace vtkToDax
                                                   dispatchCount( countWorklet );
 
         CountHandleType count;
-        dispatchCount.Invoke(inGrid, thresholdHandle, count);
+        dispatchCount.Invoke(inDaxGrid, thresholdHandle, count);
 
         DispatchGT resolveTopology(count);
-        resolveTopology.Invoke(inGrid,outGeom);
-        resolveTopology.CompactPointField(thresholdHandle,thresholdResult);
+        resolveTopology.Invoke(inDaxGrid,outDaxGeom);
+
+        // Convert output geometry to VTK.
+        daxToVtk::dataSetConverter(outDaxGeom, outVTKGrid);
+
+        // Copy arrays where possible.
+        vtkToDax::CompactPointField<DispatchGT> compact(resolveTopology,
+                                                        outVTKGrid);
+
+        vtkDispatcher<vtkAbstractArray,int> compactDispatcher;
+        compactDispatcher.Add<vtkFloatArray>(compact);
+        compactDispatcher.Add<vtkDoubleArray>(compact);
+        compactDispatcher.Add<vtkUnsignedCharArray>(compact);
+        compactDispatcher.Add<vtkIntArray>(compact);
+
+        vtkPointData *pd = inVTKGrid->GetPointData();
+        for (int arrayIndex = 0;
+             arrayIndex < pd->GetNumberOfArrays();
+             arrayIndex++)
+          {
+          vtkDataArray *array = pd->GetArray(arrayIndex);
+          if (array == NULL) { continue; }
+
+          compactDispatcher.Go(array);
+          }
+
+        // Pass information about attributes.
+        for (int attributeType = 0;
+             attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES;
+             attributeType++)
+          {
+          vtkDataArray *attribute = pd->GetAttribute(attributeType);
+          if (attribute == NULL) { continue; }
+          outVTKGrid->GetPointData()->SetActiveAttribute(attribute->GetName(),
+                                                         attributeType);
+          }
       }
       catch(dax::cont::ErrorControlOutOfMemory error)
         {
@@ -167,28 +204,17 @@ namespace vtkToDax
                 vtkToDax::vtkTopologyContainerTag<VTKCellType>,
                 vtkToDax::vtkPointsContainerTag> resultGrid;
 
-      //get from the Field the proper handle type
-      FieldType outputHandle;
-
       InputDataSetType inputDaxData = vtkToDax::dataSetConverter(&dataSet,
                                                                  DataSetTypeToTypeStruct());
 
       vtkToDax::DoThreshold<DataSetTypeToTypeStruct::Valid> threshold;
       int result = threshold(inputDaxData,
-                       resultGrid,
-                       this->Min,
-                       this->Max,
-                       this->Field,
-                       outputHandle);
-
-      if(result==1 && resultGrid.GetNumberOfCells() > 0)
-        {
-        //if we converted correctly, copy the data back to VTK
-        //remembering to add back in the output array to the generated
-        //unstructured grid
-        daxToVtk::addPointData(this->Result,outputHandle,this->Name);
-        daxToVtk::dataSetConverter(resultGrid,this->Result);
-        }
+                             &dataSet,
+                             resultGrid,
+                             this->Result,
+                             this->Min,
+                             this->Max,
+                             this->Field);
 
       return result;
 

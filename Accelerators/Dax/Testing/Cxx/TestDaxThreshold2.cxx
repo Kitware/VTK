@@ -16,6 +16,7 @@
 #include "vtkActor.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkDaxThreshold.h"
+#include "vtkElevationFilter.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
@@ -41,8 +42,17 @@ int TestDaxThreshold2(int argc, char *argv[])
   // Test using different thresholding methods
   //---------------------------------------------------
   vtkNew<vtkRTAnalyticSource> source;
+
+  vtkNew<vtkElevationFilter> elevation;
+  elevation->SetInputConnection(source->GetOutputPort());
+  elevation->SetScalarRange(0.0, 1.0);
+  elevation->SetLowPoint(-10.0, -10.0, -10.0);
+  elevation->SetHighPoint(10.0, 10.0, 10.0);
+
   vtkNew<vtkDaxThreshold> threshold;
-  threshold->SetInputConnection(source->GetOutputPort());
+  threshold->SetInputConnection(elevation->GetOutputPort());
+  threshold->SetInputArrayToProcess(
+        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
 
   double L=100;
   double U=200;
@@ -58,6 +68,10 @@ int TestDaxThreshold2(int argc, char *argv[])
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(surface->GetOutputPort());
+  mapper->ScalarVisibilityOn();
+  mapper->SetScalarModeToUsePointFieldData();
+  mapper->SelectColorArray("Elevation");
+  mapper->SetScalarRange(0.0, 1.0);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.GetPointer());

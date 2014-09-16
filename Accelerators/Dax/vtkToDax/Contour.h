@@ -20,9 +20,11 @@
 #include "vtkDispatcher.h"
 #include "vtkPolyData.h"
 
-#include "DataSetTypeToType.h"
-#include "CellTypeToType.h"
-#include "DataSetConverters.h"
+#include "vtkToDax/CellTypeToType.h"
+#include "vtkToDax/CompactPointField.h"
+#include "vtkToDax/DataSetTypeToType.h"
+#include "vtkToDax/DataSetConverters.h"
+
 #include "daxToVtk/CellTypeToType.h"
 #include "daxToVtk/DataSetConverters.h"
 
@@ -42,59 +44,6 @@ template <typename T> struct MarchingCubesOuputType
 
 namespace vtkToDax
 {
-template<typename DispatcherType, int NumComponents>
-struct InterpolateEdges
-{
-  static int Try(DispatcherType &dispatcher,
-                 vtkDataArray *inputFieldVTKArray,
-                 vtkDataSet *output)
-  {
-    InterpolateEdges<DispatcherType,NumComponents> interpolator =
-        InterpolateEdges<DispatcherType,NumComponents>(dispatcher, output);
-
-    vtkDispatcher<vtkAbstractArray,int> fieldDispatcher;
-    fieldDispatcher.Add<vtkFloatArray>(interpolator);
-    fieldDispatcher.Add<vtkDoubleArray>(interpolator);
-    return fieldDispatcher.Go(inputFieldVTKArray);
-  }
-
-  DispatcherType *Dispatcher;
-  vtkDataSet *Output;
-
-  InterpolateEdges(DispatcherType &dispatcher,
-                   vtkDataSet *output)
-    : Dispatcher(&dispatcher), Output(output) {  }
-
-  template<typename InputVTKArrayType>
-  int operator()(InputVTKArrayType &inputFieldVTKArray)
-  {
-    typedef vtkToDax::vtkArrayContainerTag<InputVTKArrayType> ContainerTag;
-    typedef typename vtkToDax::FieldTypeToType<InputVTKArrayType,NumComponents>
-        ::DaxValueType DaxValueType;
-    typedef dax::cont::ArrayHandle<DaxValueType, ContainerTag>
-        FieldHandleType;
-    typedef typename FieldHandleType::PortalConstControl PortalType;
-
-    if (inputFieldVTKArray.GetNumberOfComponents() != NumComponents)
-      {
-      return 0;
-      }
-
-    FieldHandleType daxOriginalField =
-        FieldHandleType(PortalType(&inputFieldVTKArray,
-                                   inputFieldVTKArray.GetNumberOfTuples()));
-
-    FieldHandleType daxInterpolatedField;
-
-    this->Dispatcher->CompactPointField(daxOriginalField, daxInterpolatedField);
-
-    daxToVtk::addPointData(this->Output,
-                           daxInterpolatedField,
-                           inputFieldVTKArray.GetName());
-
-    return 1;
-  }
-};
 
 template<int B>
 struct DoContour
@@ -112,6 +61,8 @@ struct DoContour
                  const dax::cont::ArrayHandle<ValueType,Container1,Adapter> &,
                  bool)
   {
+    vtkGenericWarningMacro(
+          << "Not calling Dax, GridType-CellType combination not supported");
     return 0;
   }
 };
@@ -225,6 +176,12 @@ struct DoContour<1>
       // Interpolate arrays where possible.
       if (computeScalars)
         {
+        vtkToDax::CompactPointField<DispatchIC> compact(generateSurface,
+                                                        outVTKGrid);
+        vtkDispatcher<vtkAbstractArray,int> compactDispatcher;
+        compactDispatcher.Add<vtkFloatArray>(compact);
+        compactDispatcher.Add<vtkDoubleArray>(compact);
+
         vtkPointData *pd = inVTKGrid->GetPointData();
         for (int arrayIndex = 0;
              arrayIndex < pd->GetNumberOfArrays();
@@ -233,10 +190,7 @@ struct DoContour<1>
           vtkDataArray *array = pd->GetArray(arrayIndex);
           if (array == NULL) { continue; }
 
-          InterpolateEdges<DispatchIC,1>::Try(generateSurface, array, outVTKGrid);
-          InterpolateEdges<DispatchIC,2>::Try(generateSurface, array, outVTKGrid);
-          InterpolateEdges<DispatchIC,3>::Try(generateSurface, array, outVTKGrid);
-          InterpolateEdges<DispatchIC,4>::Try(generateSurface, array, outVTKGrid);
+          compactDispatcher.Go(array);
           }
 
         // Pass information about attributes.
