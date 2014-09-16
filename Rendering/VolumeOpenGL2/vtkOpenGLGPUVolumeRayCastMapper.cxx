@@ -263,7 +263,6 @@ public:
 
   int Dimensions[3];
   int TextureSize[3];
-  int TextureExtents[6];
   int WindowLowerLeft[2];
   int WindowSize[2];
 
@@ -508,7 +507,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
 
     /// Set scale and bias to their defaults
     glPixelTransferf(GL_RED_SCALE,1.0);
-    glPixelTransferf(GL_RED_BIAS,0.0);
+    glPixelTransferf(GL_RED_BIAS, 0.0);
     }
   else
     {
@@ -532,11 +531,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
     int k = 0;
     int kInc = (this->Dimensions[0] - this->Parent->CellFlag) *
                (this->Dimensions[1] - this->Parent->CellFlag);
-    int kOffset = (this->TextureExtents[4] *
+    int kOffset = (this->Extents[4] *
                   (this->Dimensions[1] - this->Parent->CellFlag) +
-                   this->TextureExtents[2]) *
+                   this->Extents[2]) *
                   (this->Dimensions[0] - this->Parent->CellFlag) +
-                   this->TextureExtents[0];
+                   this->Extents[0];
     while(k < this->TextureSize[2])
       {
       int j = 0;
