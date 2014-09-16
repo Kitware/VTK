@@ -271,14 +271,23 @@ elseif(ANDROID)
     )
 elseif(APPLE_IOS)
   # Add some custom overrides
-#  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
-#  set(vtk_module_vtkRenderWindowInteractor_override "vtkAndroidRenderWindowInteractor")
-#  list(APPEND vtk_module_overrides "vtkRenderWindow")
-#  set(vtk_module_vtkRenderWindow_override "vtkEGLRenderWindow")
-#  list(APPEND Module_SRCS
-#    vtkAndroidRenderWindowInteractor.cxx
-#    vtkEGLRenderWindow.cxx
-#    )
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkIOSRenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkIOSRenderWindow")
+  list(APPEND Module_SRCS
+    vtkIOSRenderWindowInteractor.mm
+    vtkIOSRenderWindow.mm
+    vtkIOSGLView.mm
+    )
+  # Set specified Objective-C++ flags, if any.
+  if(VTK_REQUIRED_OBJCXX_FLAGS)
+    set_source_files_properties(vtkIOSRenderWindowInteractor.mm
+                                vtkIOSRenderWindow.mm
+                                vtkIOSGLView.mm
+                                PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
+  endif(VTK_REQUIRED_OBJCXX_FLAGS)
+  set_source_files_properties(vtkIOSGLView WRAP_EXCLUDE)
  endif()
 
 vtk_object_factory_configure("${vtk_module_overrides}")
@@ -312,4 +321,8 @@ endif()
 if(ANDROID)
   target_link_libraries(${vtk-module}
     LINK_PUBLIC ${OPENGL_egl_LIBRARY})
+endif()
+
+if (APPLE_IOS)
+  vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework UIKit")
 endif()

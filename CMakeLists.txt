@@ -111,6 +111,7 @@ if (ANDROID OR APPLE_IOS)
   set(Module_vtkRenderingCore ON)
 
   if (APPLE_IOS)
+    set(Module_vtkInteractionStyle ON)
     find_path(OPENGL_INCLUDE_DIR ES2/gl.h
        ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
        ${_OPENGL_INCLUDE_PATH}
