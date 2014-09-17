@@ -15,7 +15,7 @@
 #define __vtkglBufferObject_h
 
 #include "vtkRenderingOpenGL2Module.h"
-#include <string> // For member variables.
+#include "vtkStdString.h" // for std::string
 
 namespace vtkgl {
 
@@ -110,3 +110,5 @@ inline bool BufferObject::Upload(const T &array,
 }
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkglBufferObject.h

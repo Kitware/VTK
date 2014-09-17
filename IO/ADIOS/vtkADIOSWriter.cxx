@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <algorithm>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
@@ -58,7 +59,6 @@ vtkADIOSWriter::vtkADIOSWriter()
   WriteAllTimeSteps(false), TimeSteps(), CurrentTimeStepIndex(-1)
 {
   std::memset(this->RequestExtent, 0, 6*sizeof(int));
-  std::memset(this->WholeExtent, 0, 6*sizeof(int));
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(0);
   this->SetController(vtkMultiProcessController::GetGlobalController());
@@ -184,10 +184,17 @@ bool vtkADIOSWriter::DefineAndWrite(vtkDataObject *input)
       }
 
     this->OpenFile();
-    if(localProc == 0 && this->CurrentTimeStepIndex >= 0)
+    if(localProc == 0)
       {
-      this->Writer->WriteScalar<double>("/TimeStamp",
-        this->TimeSteps[this->CurrentTimeStepIndex]);
+      if(this->CurrentTimeStepIndex >= 0)
+        {
+        this->Writer->WriteScalar<double>("/TimeStamp",
+          this->TimeSteps[this->CurrentTimeStepIndex]);
+        }
+      else
+        {
+        this->Writer->WriteScalar<double>("/TimeStamp", this->CurrentStep);
+        }
       }
 
     std::memset(&*this->BlockStepIndex.begin(), 0xFF,
@@ -384,8 +391,8 @@ bool vtkADIOSWriter::RequestData(vtkInformation *req,
 
   // Make sure the time step is one we know about
     {
-    vtkDataObject* input = this->GetInputDataObject(0, 0);
-    vtkInformation *inDataInfo = input->GetInformation();
+    vtkDataObject* inDataObject = this->GetInputDataObject(0, 0);
+    vtkInformation *inDataInfo = inDataObject->GetInformation();
     if(inDataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
       {
       double ts = inDataInfo->Get(vtkDataObject::DATA_TIME_STEP());

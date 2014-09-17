@@ -153,6 +153,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
       {
       this->InternalColorTexture = vtkOpenGLTexture::New();
       this->InternalColorTexture->RepeatOff();
+      this->InternalColorTexture->EdgeClampOn();
       }
     this->InternalColorTexture->SetInputData(this->ColorTextureMap);
 

@@ -29,6 +29,9 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
+#include <set>
+#include <vector>
+
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -208,7 +211,7 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3],
 // question; x is the coordinates of the inserted point; tri is the current
 // triangle id.
 void vtkDelaunay2D::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1,
-                              vtkIdType p2, vtkIdType tri)
+                              vtkIdType p2, vtkIdType tri, bool recursive)
 {
   int i;
   vtkIdType *pts, npts, numNei, nei, p3;
@@ -256,10 +259,12 @@ void vtkDelaunay2D::CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1,
       swapTri[0] = ptId; swapTri[1] = p1; swapTri[2] = p3;
       this->Mesh->ReplaceCell(nei,3,swapTri);
 
-      // two new edges become suspect
-      this->CheckEdge(ptId, x, p3, p2, tri);
-      this->CheckEdge(ptId, x, p1, p3, nei);
-
+      if (recursive)
+        {
+        // two new edges become suspect
+        this->CheckEdge(ptId, x, p3, p2, tri, true);
+        this->CheckEdge(ptId, x, p1, p3, nei, true);
+        }
       }//in circle
     }//interior edge
 
@@ -473,9 +478,9 @@ int vtkDelaunay2D::RequestData(
 
         // Check edge neighbors for Delaunay criterion. If not satisfied, flip
         // edge diagonal. (This is done recursively.)
-        this->CheckEdge(ptId, x, pts[0], pts[1], tri[0]);
-        this->CheckEdge(ptId, x, pts[1], pts[2], tri[1]);
-        this->CheckEdge(ptId, x, pts[2], pts[0], tri[2]);
+        this->CheckEdge(ptId, x, pts[0], pts[1], tri[0], true);
+        this->CheckEdge(ptId, x, pts[1], pts[2], tri[1], true);
+        this->CheckEdge(ptId, x, pts[2], pts[0], tri[2], true);
         }
 
       else // on triangle edge
@@ -519,7 +524,7 @@ int vtkDelaunay2D::RequestData(
         // Check edge neighbors for Delaunay criterion.
         for ( i=0; i<4; i++ )
           {
-          this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i]);
+          this->CheckEdge(ptId, x, nodes[i][1], nodes[i][2], tri[i], true);
           }
         }
       }//if triangle found
@@ -1029,7 +1034,7 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
   double x1[3], x2[3], sepNormal[3], v21[3];
   int ncells, v1=0, v2=0, signX1=0, signX2, signP1, signP2;
   vtkIdType *pts, *leftTris, *rightTris, npts, numRightTris, numLeftTris;
-  int success=0;
+  int success=0, nbPts;
 
   vtkIdList *cells=vtkIdList::New(); cells->Allocate(64);
   vtkIdList *tris=vtkIdList::New(); tris->Allocate(64);
@@ -1044,6 +1049,11 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
   vtkIdList *leftPtIds=vtkIdList::New(); leftPtIds->Allocate(64);
   vtkPoints *rightTriPts=vtkPoints::New(); rightTriPts->Allocate(64);
   vtkPoints *leftTriPts=vtkPoints::New(); leftTriPts->Allocate(64);
+
+  // Container for the edges (2 ids in a set, the order does not matter) we won't check
+  std::set<std::set<vtkIdType> > polysEdges;
+  // Container for the cells & point ids for the edge that need to be checked
+  std::vector<std::vector<vtkIdType> > newEdges;
 
   // Compute a split plane along (p1,p2) and parallel to the z-axis.
   //
@@ -1168,6 +1178,24 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
       }//for all points in triangle
     }//while walking
 
+  // Fetch the left & right polygons edges
+  nbPts = rightPoly->GetPointIds()->GetNumberOfIds();
+  for (i = 0; i < nbPts; i++)
+    {
+    std::set<vtkIdType> e;
+    e.insert(rightPoly->GetPointId(i));
+    e.insert(rightPoly->GetPointId((i + 1)%nbPts));
+    polysEdges.insert(e);
+    }
+  nbPts = leftPoly->GetPointIds()->GetNumberOfIds();
+  for (i = 0; i < nbPts; i++)
+    {
+    std::set<vtkIdType> e;
+    e.insert(leftPoly->GetPointId(i));
+    e.insert(leftPoly->GetPointId((i + 1)%nbPts));
+    polysEdges.insert(e);
+    }
+
   // Now that the to chains are formed, each chain forms a polygon (along with
   // the edge (p1,p2)) that requires triangulation. If we can successfully
   // triangulate the two polygons, we will delete the triangles contained within
@@ -1197,6 +1225,27 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
       this->Mesh->ResizeCellList(leftTris[k],1);
       }
     this->Mesh->ReplaceLinkedCell(cellId, 3, leftTris);
+
+    // Check if the added triangle contains edges which are not in the polygon edges set
+    for (i = 0; i < 3; i++)
+      {
+      std::set<vtkIdType> e;
+      vtkIdType vx1 = leftTris[i];
+      vtkIdType vx2 = leftTris[(i + 1)%3];
+      e.insert(vx1);
+      e.insert(vx2);
+      if (polysEdges.find(e) == polysEdges.end())
+        {
+        // Add this new edge and remember current triangle and third point ids too
+        std::vector<vtkIdType> v;
+        v.resize(4);
+        v[0] = cellId;
+        v[1] = vx1;
+        v[2] = vx2;
+        v[3] = leftTris[(i + 2)%3];
+        newEdges.push_back(v);
+        }
+      }
     }
 
   rightTris = rightPtIds->GetPointer(0);
@@ -1209,6 +1258,37 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
       this->Mesh->ResizeCellList(rightTris[k],1);
       }
     this->Mesh->ReplaceLinkedCell(cellId, 3, rightTris);
+
+    // Check if the added triangle contains edges which are not in the polygon edges set
+    for (i = 0; i < 3; i++)
+      {
+      std::set<vtkIdType> e;
+      vtkIdType vx1 = rightTris[i];
+      vtkIdType vx2 = rightTris[(i + 1)%3];
+      e.insert(vx1);
+      e.insert(vx2);
+      if (polysEdges.find(e) == polysEdges.end())
+        {
+        // Add this new edge and remember current triangle and third point ids too
+        std::vector<vtkIdType> v;
+        v.resize(4);
+        v[0] = cellId;
+        v[1] = vx1;
+        v[2] = vx2;
+        v[3] = rightTris[(i + 2)%3];
+        newEdges.push_back(v);
+        }
+      }
+    }
+
+  j = static_cast<int>(newEdges.size());
+  // Now check the new suspicious edges
+  for (i = 0; i < j; i++)
+    {
+    std::vector<vtkIdType> &v = newEdges[i];
+    double x[3];
+    this->GetPoint(v[3], x);
+    this->CheckEdge(v[3], x, v[1], v[2], v[0], false);
     }
 
   FAILURE:

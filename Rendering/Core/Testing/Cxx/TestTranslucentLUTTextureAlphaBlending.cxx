@@ -77,6 +77,7 @@ int TestTranslucentLUTTextureAlphaBlending(int argc, char* argv[])
 
   mapper->SetScalarVisibility(1);
   mapper->SetLookupTable(lut);
+  mapper->UseLookupTableScalarRangeOn();
   mapper->InterpolateScalarsBeforeMappingOn();
   lut->Delete();
 

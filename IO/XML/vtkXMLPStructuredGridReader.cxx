@@ -49,7 +49,7 @@ void vtkXMLPStructuredGridReader::SetupEmptyOutput()
 //----------------------------------------------------------------------------
 vtkStructuredGrid* vtkXMLPStructuredGridReader::GetOutput(int idx)
 {
-  return vtkStructuredGrid::SafeDownCast( this->GetOutputDataObject(idx) );
+  return vtkStructuredGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 //----------------------------------------------------------------------------
@@ -86,31 +86,34 @@ void vtkXMLPStructuredGridReader::GetPieceInputExtent(int index, int* extent)
 
 //----------------------------------------------------------------------------
 int
-vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
+  vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
-  if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
+  if (!this->Superclass::ReadPrimaryElement(ePrimary))
+    {
+    return 0;
+    }
 
   // Find the PPoints element.
   this->PPointsElement = 0;
-  int i;
   int numNested = ePrimary->GetNumberOfNestedElements();
-  for(i=0;i < numNested; ++i)
+  for (int i = 0; i < numNested; ++i)
     {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if((strcmp(eNested->GetName(), "PPoints") == 0) &&
-       (eNested->GetNumberOfNestedElements() == 1))
+    if ((strcmp(eNested->GetName(), "PPoints") == 0) &&
+      (eNested->GetNumberOfNestedElements() == 1))
       {
       this->PPointsElement = eNested;
       }
     }
 
-  if(!this->PPointsElement)
+  if (!this->PPointsElement)
     {
     int extent[6];
     this->GetCurrentOutputInformation()->Get(
         vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
-    if((extent[0] <= extent[1]) && (extent[2] <= extent[3]) &&
-       (extent[4] <= extent[5]))
+    if ((extent[0] <= extent[1]) &&
+      (extent[2] <= extent[3]) &&
+      (extent[4] <= extent[5]))
       {
       vtkErrorMacro("Could not find PPoints element with 1 array.");
       return 0;
@@ -120,7 +123,6 @@ vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredGridReader::SetupOutputData()
 {
@@ -128,10 +130,11 @@ void vtkXMLPStructuredGridReader::SetupOutputData()
 
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
-  if(this->PPointsElement)
+  if (this->PPointsElement)
     {
     // Non-zero volume.
-    vtkAbstractArray* aa = this->CreateArray(this->PPointsElement->GetNestedElement(0));
+    vtkAbstractArray* aa =
+      this->CreateArray(this->PPointsElement->GetNestedElement(0));
     vtkDataArray* a = vtkDataArray::SafeDownCast(aa);
     if(a)
       {
@@ -141,7 +144,10 @@ void vtkXMLPStructuredGridReader::SetupOutputData()
       }
     else
       {
-      if (aa) { aa->Delete(); }
+      if (aa)
+        {
+        aa->Delete();
+        }
       this->DataError = 1;
       }
     }
@@ -152,28 +158,32 @@ void vtkXMLPStructuredGridReader::SetupOutputData()
 //----------------------------------------------------------------------------
 int vtkXMLPStructuredGridReader::ReadPieceData()
 {
-  if(!this->Superclass::ReadPieceData()) { return 0; }
+  if (!this->Superclass::ReadPieceData())
+    {
+    return 0;
+    }
 
   // Copy the points.
   vtkStructuredGrid* input = this->GetPieceInput(this->Piece);
-  vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
-      this->GetCurrentOutput());
-  this->CopyArrayForPoints(input->GetPoints()->GetData(),
-                           output->GetPoints()->GetData());
+  vtkStructuredGrid* output =
+    vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput());
+
+  this->CopyArrayForPoints(
+    input->GetPoints()->GetData(), output->GetPoints()->GetData());
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkXMLDataReader* vtkXMLPStructuredGridReader::CreatePieceReader()
 {
   return vtkXMLStructuredGridReader::New();
 }
 
-
-int vtkXMLPStructuredGridReader::FillOutputPortInformation(int, vtkInformation *info)
-  {
+//---------------------------------------------------------------------------
+int vtkXMLPStructuredGridReader::FillOutputPortInformation(
+  int, vtkInformation *info)
+{
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
   return 1;
-  }
-
+}

@@ -45,7 +45,7 @@ reader = vtk.vtkPNGReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/alphachannel.png")
 reader.Update()
 
-sphere = vtk.vtkSphereSource()
+sphere = vtk.vtkTexturedSphereSource()
 
 texture = vtk.vtkTexture()
 texture.SetInputConnection(reader.GetOutputPort())
@@ -66,8 +66,10 @@ ren1.AddActor(coneActorLUT)
 ren1.AddActor(coneActorTexture)
 ren1.SetBackground(0.1, 0.2, 0.4)
 ren1.SetUseDepthPeeling(1)
-ren1.SetMaximumNumberOfPeels(200)
-ren1.SetOcclusionRatio(0.1)
+# 20 layers of translucency
+ren1.SetMaximumNumberOfPeels(20)
+# 2 out of 1000 pixels
+ren1.SetOcclusionRatio(0.002)
 
 renWin = vtk.vtkRenderWindow()
 renWin.SetMultiSamples(0)

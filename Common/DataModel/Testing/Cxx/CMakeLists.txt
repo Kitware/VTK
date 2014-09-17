@@ -44,6 +44,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPlane.cxx
   TestStructuredData.cxx
   TestDataObjectTypes.cxx
+  TestPolyDataRemoveDeletedCells.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestCellIterators.cxx,NO_VALID,NO_OUTPUT

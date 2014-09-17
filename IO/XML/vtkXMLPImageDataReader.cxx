@@ -88,10 +88,13 @@ void vtkXMLPImageDataReader::GetPieceInputExtent(int index, int* extent)
 //----------------------------------------------------------------------------
 int vtkXMLPImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
-  if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
+  if (!this->Superclass::ReadPrimaryElement(ePrimary))
+    {
+    return 0;
+    }
 
   // Get the image's origin.
-  if(ePrimary->GetVectorAttribute("Origin", 3, this->Origin) != 3)
+  if (ePrimary->GetVectorAttribute("Origin", 3, this->Origin) != 3)
     {
     this->Origin[0] = 0;
     this->Origin[1] = 0;
@@ -99,7 +102,7 @@ int vtkXMLPImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     }
 
   // Get the image's spacing.
-  if(ePrimary->GetVectorAttribute("Spacing", 3, this->Spacing) != 3)
+  if (ePrimary->GetVectorAttribute("Spacing", 3, this->Spacing) != 3)
     {
     this->Spacing[0] = 1;
     this->Spacing[1] = 1;
@@ -116,28 +119,27 @@ void vtkXMLPImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
 
-  outInfo->Set(vtkDataObject::ORIGIN(),  this->Origin, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
 }
 
-
 //----------------------------------------------------------------------------
-void vtkXMLPImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
+void vtkXMLPImageDataReader::CopyOutputInformation(
+  vtkInformation *outInfo, int port)
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
 
   vtkInformation *localInfo =
-    this->GetExecutive()->GetOutputInformation( port );
-  if ( localInfo->Has(vtkDataObject::ORIGIN()) )
+    this->GetExecutive()->GetOutputInformation(port);
+  if (localInfo->Has(vtkDataObject::ORIGIN()))
     {
-    outInfo->CopyEntry( localInfo, vtkDataObject::ORIGIN() );
+    outInfo->CopyEntry(localInfo, vtkDataObject::ORIGIN());
     }
-  if ( localInfo->Has(vtkDataObject::SPACING()) )
+  if (localInfo->Has(vtkDataObject::SPACING()))
     {
-    outInfo->CopyEntry( localInfo, vtkDataObject::SPACING() );
+    outInfo->CopyEntry(localInfo, vtkDataObject::SPACING());
     }
 }
-
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader* vtkXMLPImageDataReader::CreatePieceReader()
@@ -145,12 +147,9 @@ vtkXMLDataReader* vtkXMLPImageDataReader::CreatePieceReader()
   return vtkXMLImageDataReader::New();
 }
 
-
-
 //----------------------------------------------------------------------------
 int vtkXMLPImageDataReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
-

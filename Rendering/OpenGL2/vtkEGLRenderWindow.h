@@ -25,7 +25,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 
-#include <EGL/egl.h>
+#include <EGL/egl.h> // required for EGL members
 
 class vtkIdList;
 

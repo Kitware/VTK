@@ -16,6 +16,13 @@
 #
 #   SET(VTK_EXTRA_TCL_LIBRARIES ${VTK_EXTRA_TCL_LIBRARIES} vtkMySpecialTCL)
 
+# Deal with OpenGL or OpenGL2 and its translation to Roman numerals due to TCL
+# not allowing numbers in package names.
+unset(rendering_backend)
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(rendering_backend "ii")
+endif()
+
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h

@@ -67,12 +67,31 @@ public:
   bool LastSelectingState;
 
   vtkOpenGLGlyph3DMapperEntry()  { this->LastSelectingState = false; };
+  ~vtkOpenGLGlyph3DMapperEntry()
+  {
+    std::vector<vtkMatrix4x4 * >::iterator miter = this->Matrices.begin();
+    for (;miter != this->Matrices.end(); miter++)
+      {
+      if (*miter != NULL)
+        {
+        (*miter)->Delete();
+        }
+      }
+  };
 };
 
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray
 {
 public:
   std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>  Entries;
+  ~vtkOpenGLGlyph3DMapperArray()
+  {
+    std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter = this->Entries.begin();
+    for (;miter != this->Entries.end(); miter++)
+      {
+      delete miter->second;
+      }
+  };
 };
 
 vtkStandardNewMacro(vtkOpenGLGlyph3DMapper)
@@ -104,6 +123,7 @@ vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
     this->ReleaseGraphicsResources(this->LastWindow);
     this->LastWindow = 0;
     }
+
   this->Mapper->UnRegister(this);
 }
 
@@ -295,7 +315,17 @@ void vtkOpenGLGlyph3DMapper::Render(
       entry->LastSelectingState != selecting_points)
     {
     entry->Colors.resize(numPts*4);
-    entry->Matrices.resize(numPts);
+    // delete any prior matrices
+    std::vector<vtkMatrix4x4 * >::iterator miter = entry->Matrices.begin();
+    for (;miter != entry->Matrices.end(); miter++)
+      {
+      if ((*miter) != NULL)
+        {
+        (*miter)->Delete();
+        (*miter) = NULL;
+        }
+      }
+    entry->Matrices.resize(numPts,NULL);
     vtkTransform *trans = vtkTransform::New();
     vtkDataArray* scaleArray = this->GetScaleArray(dataset);
     vtkDataArray* orientArray = this->GetOrientationArray(dataset);

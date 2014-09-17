@@ -81,7 +81,6 @@ public:
   // ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
   void TerminateApp(void);
 
-  //BTX
   friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
   friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32OpenGLRenderWindowInteractor *me);
 
@@ -106,7 +105,6 @@ public:
   virtual void OnFocus(HWND wnd, UINT nFlags);
   virtual void OnKillFocus(HWND wnd, UINT nFlags);
   virtual void OnTouch(HWND wnd, UINT wParam, UINT lParam);
-  //ETX
 
   // Description:
   // Methods to set the default exit method for the class. This method is
@@ -131,7 +129,6 @@ protected:
   int     MouseInWindow;
   int     StartedMessageLoop;
 
-  //BTX
   // Description:
   // Class variables so an exit method can be defined for this class
   // (used to set different exit methods for various language bindings,
@@ -139,7 +136,6 @@ protected:
   static void (*ClassExitMethod)(void *);
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
-  //ETX
 
   // Description:
   // Win32-specific internal timer methods. See the superclass for detailed

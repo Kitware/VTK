@@ -945,6 +945,21 @@ int vtkMPICommunicator::NoBlockSend(const double* data, int length,
                                       tag, MPI_DOUBLE, req,
                                       this->MPIComm->Handle));
 }
+#ifdef VTK_USE_64BIT_IDS
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::NoBlockSend(const vtkIdType* data, int length,
+                                    int remoteProcessId, int tag, Request& req)
+{
+
+  return CheckForMPIError(
+    vtkMPICommunicatorNoBlockSendData(data,
+                                      length, remoteProcessId,
+                                      tag,
+                                      vtkMPICommunicatorGetMPIType(VTK_ID_TYPE),
+                                      req,
+                                      this->MPIComm->Handle));
+}
+#endif
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(int* data, int length,

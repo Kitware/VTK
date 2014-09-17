@@ -74,7 +74,7 @@ void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
     this->GetExecutive()->GetInputInformation(0, 0);
   vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo,
     piece, this->NumberOfPieces, this->GhostLevel);
-  if((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
+  if ((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
      (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
      (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
     {
@@ -97,7 +97,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
   vtkInformationVector* outputVector)
 {
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     if (this->WritePiece >= 0)
       {
@@ -106,7 +106,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     return 1;
     }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     this->SetInputUpdateExtent(this->CurrentPiece);
 
@@ -114,11 +114,11 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     }
 
   // generate the data
-  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  else if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     this->SetErrorCode(vtkErrorCode::NoError);
 
-    if(!this->Stream && !this->FileName)
+    if (!this->Stream && !this->FileName)
       {
       this->SetErrorCode(vtkErrorCode::NoFileNameError);
       vtkErrorMacro("The FileName or Stream must be set first.");
@@ -153,7 +153,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         }
 
       this->CurrentTimeIndex = 0;
-      if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
+      if (this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
         {
         // Write the field data arrays.
         this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
@@ -166,12 +166,12 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         }
       }
 
-    if( !(this->UserContinueExecuting == 0)) //if user ask to stop do not try to write a piece
+    if (!(this->UserContinueExecuting == 0)) //if user ask to stop do not try to write a piece
       {
       result = this->WriteAPiece();
       }
 
-    if(this->WritePiece < 0)
+    if (this->WritePiece < 0)
       {
       // Tell the pipeline to start looping.
       if (this->CurrentPiece == 0)
@@ -188,7 +188,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
        // We are done writing all the pieces, lets loop over time now:
       this->CurrentTimeIndex++;
 
-      if( this->UserContinueExecuting != 1)
+      if (this->UserContinueExecuting != 1)
         {
         if (!this->WriteFooter())
           {
@@ -238,14 +238,14 @@ int vtkXMLStructuredDataWriter::WriteHeader()
 
   ostream& os = *(this->Stream);
 
-  if(!this->WritePrimaryElement(os, indent))
+  if (!this->WritePrimaryElement(os, indent))
     {
     return 0;
     }
 
   this->WriteFieldData(indent.GetNextIndent());
 
-  if(this->DataMode == vtkXMLWriter::Appended)
+  if (this->DataMode == vtkXMLWriter::Appended)
     {
     int begin = this->WritePiece;
     int end = this->WritePiece + 1;
@@ -259,7 +259,7 @@ int vtkXMLStructuredDataWriter::WriteHeader()
     this->AllocatePositionArrays();
 
     // Loop over each piece and write its structure.
-    for(int i=begin; i < end; ++i)
+    for (int i=begin; i < end; ++i)
       {
       // Update the piece's extent.
 
@@ -307,7 +307,7 @@ int vtkXMLStructuredDataWriter::WriteHeader()
 
   // Split progress of the data write by the fraction contributed by
   // each piece.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   this->ProgressFractions = new float[this->NumberOfPieces+1];
   this->CalculatePieceFractions(this->ProgressFractions);
@@ -321,12 +321,12 @@ int vtkXMLStructuredDataWriter::WriteAPiece()
   vtkIndent indent = vtkIndent().GetNextIndent();
   int result = 1;
 
-  if(this->DataMode == vtkXMLWriter::Appended)
+  if (this->DataMode == vtkXMLWriter::Appended)
     {
     vtkDataSet* input = this->GetInputAsDataSet();
 
     // Make sure input is valid.
-    if(input->CheckAttributes() == 0)
+    if (input->CheckAttributes() == 0)
       {
       this->WriteAppendedPieceData(this->CurrentPiece);
 
@@ -359,7 +359,7 @@ int vtkXMLStructuredDataWriter::WriteFooter()
 
   ostream& os = *(this->Stream);
 
-  if(this->DataMode == vtkXMLWriter::Appended)
+  if (this->DataMode == vtkXMLWriter::Appended)
     {
     this->DeletePositionArrays();
     this->EndAppendedData();
@@ -392,7 +392,7 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
 
   // Split progress of the data write by the fraction contributed by
   // each piece.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
 
   // Write each piece's XML and data.
@@ -402,7 +402,7 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   this->SetProgressRange(progressRange, this->CurrentPiece, this->ProgressFractions);
 
   // Make sure input is valid.
-  if(input->CheckAttributes() == 0)
+  if (input->CheckAttributes() == 0)
     {
     os << indent << "<Piece";
     this->WriteVectorAttribute("Extent", 6, extent);
@@ -454,7 +454,7 @@ inline void vtkXMLStructuredDataWriterCopyTuples(
   vtkIdType destIndex = destTuple * destIter->GetNumberOfComponents();
   vtkIdType srcIndex = sourceTuple * srcIter->GetNumberOfComponents();
 
-  for (vtkIdType cc=0; cc < numValues; cc++)
+  for (vtkIdType cc = 0; cc < numValues; cc++)
     {
     destIter->GetValue(destIndex++) = srcIter->GetValue(srcIndex++);
     }
@@ -467,7 +467,7 @@ void vtkXMLStructuredDataWriter::WritePrimaryElementAttributes(ostream &os,
   this->Superclass::WritePrimaryElementAttributes(os, indent);
 
   int* ext = this->WriteExtent;
-  if((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
+  if ((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
      (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
      (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
     {
@@ -524,16 +524,16 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
   os.seekp(returnPosition);
 
   // Split progress between point data and cell data arrays.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   int pdArrays = input->GetPointData()->GetNumberOfArrays();
   int cdArrays = input->GetCellData()->GetNumberOfArrays();
   int total = (pdArrays+cdArrays)? (pdArrays+cdArrays):1;
   float fractions[3] =
     {
-      0,
-      float(pdArrays)/total,
-      1
+    0,
+    static_cast<float>(pdArrays) / total,
+    1
     };
 
   // Set the range of progress for the point data arrays.
@@ -558,7 +558,7 @@ void vtkXMLStructuredDataWriter::WriteInlinePiece(vtkIndent indent)
   vtkDataSet* input = this->GetInputAsDataSet();
 
   // Split progress between point data and cell data arrays.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   int pdArrays = input->GetPointData()->GetNumberOfArrays();
   int cdArrays = input->GetCellData()->GetNumberOfArrays();
@@ -596,13 +596,11 @@ vtkIdType vtkXMLStructuredDataWriter::GetStartTuple(int* extent,
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::CalculatePieceFractions(float* fractions)
 {
-  int i;
-  int extent[6];
-
   // Calculate the fraction of total data contributed by each piece.
   fractions[0] = 0;
-  for(i=0;i < this->NumberOfPieces;++i)
+  for (int i = 0; i < this->NumberOfPieces;++i)
     {
+    int extent[6];
     this->GetInputExtent(extent);
 
     // Add this piece's size to the cumulative fractions array.
@@ -610,11 +608,11 @@ void vtkXMLStructuredDataWriter::CalculatePieceFractions(float* fractions)
                                      (extent[3]-extent[2]+1)*
                                      (extent[5]-extent[4]+1));
     }
-  if(fractions[this->NumberOfPieces] == 0)
+  if (fractions[this->NumberOfPieces] == 0)
     {
     fractions[this->NumberOfPieces] = 1;
     }
-  for(i=0;i < this->NumberOfPieces;++i)
+  for (int i = 0; i < this->NumberOfPieces; ++i)
     {
     fractions[i+1] = fractions[i+1] / fractions[this->NumberOfPieces];
     }

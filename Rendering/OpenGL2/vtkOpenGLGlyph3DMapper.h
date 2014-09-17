@@ -55,7 +55,6 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
 protected:
-  //BTX
   vtkOpenGLGlyph3DMapper();
   ~vtkOpenGLGlyph3DMapper();
 
@@ -85,8 +84,6 @@ private:
   void operator=(const vtkOpenGLGlyph3DMapper&); // Not implemented.
 
   virtual void Render(vtkRenderer*, vtkActor*, vtkDataSet*);
-
-  //ETX
 };
 
 #endif

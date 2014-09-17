@@ -50,7 +50,7 @@ vtkImageData* vtkXMLImageDataReader::GetOutput()
 //----------------------------------------------------------------------------
 vtkImageData* vtkXMLImageDataReader::GetOutput(int idx)
 {
-  return vtkImageData::SafeDownCast( this->GetOutputDataObject(idx) );
+  return vtkImageData::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 
@@ -69,10 +69,13 @@ void vtkXMLImageDataReader::SetOutputExtent(int* extent)
 //----------------------------------------------------------------------------
 int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
-  if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
+  if (!this->Superclass::ReadPrimaryElement(ePrimary))
+    {
+    return 0;
+    }
 
   // Get the image's origin.
-  if(ePrimary->GetVectorAttribute("Origin", 3, this->Origin) != 3)
+  if (ePrimary->GetVectorAttribute("Origin", 3, this->Origin) != 3)
     {
     this->Origin[0] = 0;
     this->Origin[1] = 0;
@@ -80,7 +83,7 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     }
 
   // Get the image's spacing.
-  if(ePrimary->GetVectorAttribute("Spacing", 3, this->Spacing) != 3)
+  if (ePrimary->GetVectorAttribute("Spacing", 3, this->Spacing) != 3)
     {
     this->Spacing[0] = 1;
     this->Spacing[1] = 1;
@@ -107,14 +110,14 @@ void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int p
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
   vtkInformation *localInfo =
-    this->GetExecutive()->GetOutputInformation( port );
-  if ( localInfo->Has(vtkDataObject::ORIGIN()) )
+    this->GetExecutive()->GetOutputInformation(port);
+  if (localInfo->Has(vtkDataObject::ORIGIN()))
     {
-    outInfo->CopyEntry( localInfo, vtkDataObject::ORIGIN() );
+    outInfo->CopyEntry(localInfo, vtkDataObject::ORIGIN());
     }
-  if ( localInfo->Has(vtkDataObject::SPACING()) )
+  if (localInfo->Has(vtkDataObject::SPACING()))
     {
-    outInfo->CopyEntry( localInfo, vtkDataObject::SPACING() );
+    outInfo->CopyEntry(localInfo, vtkDataObject::SPACING());
     }
 }
 

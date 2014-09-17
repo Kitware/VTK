@@ -12,34 +12,37 @@
 
 =========================================================================*/
 
-#include "vtkglShader.h"
+#include "vtkShader.h"
+#include "vtkObjectFactory.h"
 
 #include "vtk_glew.h"
 
-namespace vtkgl {
+vtkStandardNewMacro(vtkShader)
 
-Shader::Shader(Type type, const std::string &source)
-  : ShaderType(type), Handle(0), Dirty(true), Source(source)
+vtkShader::vtkShader()
+{
+  this->Dirty = true;
+  this->Handle = 0;
+  this->ShaderType = vtkShader::Unknown;
+}
+
+vtkShader::~vtkShader()
 {
 }
 
-Shader::~Shader()
-{
-}
-
-void Shader::SetType(Type type)
+void vtkShader::SetType(Type type)
 {
   this->ShaderType = type;
   this->Dirty = true;
 }
 
-void Shader::SetSource(const std::string &source)
+void vtkShader::SetSource(const std::string &source)
 {
   this->Source = source;
   this->Dirty = true;
 }
 
-bool Shader::Compile()
+bool vtkShader::Compile()
 {
   if (this->Source.empty() || this->ShaderType == Unknown || !this->Dirty)
     {
@@ -86,7 +89,7 @@ bool Shader::Compile()
   return true;
 }
 
-void Shader::Cleanup()
+void vtkShader::Cleanup()
 {
   if (this->ShaderType == Unknown || this->Handle == 0)
     {
@@ -98,4 +101,8 @@ void Shader::Cleanup()
   this->Dirty = true;
 }
 
+// ----------------------------------------------------------------------------
+void vtkShader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

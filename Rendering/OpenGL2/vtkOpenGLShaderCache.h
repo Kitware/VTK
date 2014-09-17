@@ -22,8 +22,9 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkglShader.h"
-#include "vtkglShaderProgram.h"
+class vtkShader;
+class vtkShaderProgram;
+class vtkWindow;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 {
@@ -32,41 +33,34 @@ public:
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  // store the program and shaders in a simple struct
-  struct CachedShaderProgram
-  {
-    vtkgl::Shader VS;
-    vtkgl::Shader FS;
-    vtkgl::Shader GS;
-    vtkgl::ShaderProgram Program;
-    vtkOpenGLShaderCache *ShaderCache;
-    bool Compiled;
-    std::string md5Hash;
-  };
-
   // make sure the specified shader is compiled, linked, and bound
-  virtual CachedShaderProgram *ReadyShader(const char *vertexCode,
+  virtual vtkShaderProgram *ReadyShader(const char *vertexCode,
                                            const char *fragmentCode,
                                            const char *geometryCode);
-  virtual CachedShaderProgram *ReadyShader(CachedShaderProgram *shader);
+  virtual vtkShaderProgram *ReadyShader(vtkShaderProgram *shader);
 
   // Description:
   // Free up any resources being used by the provided shader
-  virtual void ReleaseGraphicsResources(CachedShaderProgram *shader);
+  virtual void ReleaseGraphicsResources(vtkWindow *win);
+
+  // Description:
+  // Get/Clear the last Shader bound, called by shaders as they release
+  // their graphics resources
+  virtual void ClearLastShaderBound() { this->LastShaderBound = NULL; }
+  vtkGetObjectMacro(LastShaderBound, vtkShaderProgram);
 
 protected:
   vtkOpenGLShaderCache();
   ~vtkOpenGLShaderCache();
 
-  virtual CachedShaderProgram* GetShader(const char *vertexCode,
-                                         const char *fragmentCode,
-                                         const char *geometryCode);
-  virtual int CompileShader(CachedShaderProgram* shader);
-  virtual int BindShader(CachedShaderProgram* shader);
+  virtual vtkShaderProgram* GetShader(const char *vertexCode,
+                                      const char *fragmentCode,
+                                      const char *geometryCode);
+  virtual int BindShader(vtkShaderProgram* shader);
 
   class Private;
   Private *Internal;
-  CachedShaderProgram *LastShaderBound;
+  vtkShaderProgram *LastShaderBound;
 
 private:
   vtkOpenGLShaderCache(const vtkOpenGLShaderCache&);  // Not implemented.

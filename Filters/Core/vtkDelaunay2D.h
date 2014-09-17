@@ -259,7 +259,7 @@ private:
   vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
                          double tol, vtkIdType nei[3], vtkIdList *neighbors);
   void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
-                 vtkIdType tri);
+                 vtkIdType tri, bool recursive);
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 

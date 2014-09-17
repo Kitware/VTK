@@ -18,6 +18,8 @@ endif()
 
 if (ANDROID)
   add_subdirectory(Android)
+elseif (APPLE_IOS)
+  add_subdirectory(iOS)
 else()
   if (NOT vtkRenderingCore_LOADED)
     message(STATUS "vtkRenderingCore not found. No examples will be built")

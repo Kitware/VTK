@@ -1,7 +1,7 @@
 # Tests whether the compiler is Intel icc and needs -i_dynamic
 
 MACRO(TESTNO_ICC_IDYNAMIC_NEEDED VARIABLE LOCAL_TEST_DIR)
-  IF("HAVE_${VARIABLE}" MATCHES "^HAVE_${VARIABLE}$")
+  IF(NOT DEFINED "HAVE_${VARIABLE}")
     TRY_RUN(${VARIABLE} HAVE_${VARIABLE}
       ${CMAKE_BINARY_DIR}
       ${LOCAL_TEST_DIR}/TestNO_ICC_IDYNAMIC_NEEDED.cxx
@@ -23,5 +23,5 @@ MACRO(TESTNO_ICC_IDYNAMIC_NEEDED VARIABLE LOCAL_TEST_DIR)
       MESSAGE("The -i_dynamic compiler flag is needed for the Intel icc compiler on this platform.")
     ENDIF(HAVE_${VARIABLE})
     FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log "TestNO_ICC_IDYNAMIC_NEEDED produced following output:\n${OUTPUT}\n\n")
-  ENDIF("HAVE_${VARIABLE}" MATCHES "^HAVE_${VARIABLE}$")
+  ENDIF()
 ENDMACRO(TESTNO_ICC_IDYNAMIC_NEEDED)

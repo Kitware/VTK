@@ -11,12 +11,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkglVBOHelper.h"
+
 #include "vtkCellArray.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkPolyData.h"
+#include "vtkShaderProgram.h"
 
-#include "vtkglVBOHelper.h"
 
 // we only instantiate some cases to avoid template explosion
 #define vtkFloatDoubleTemplateMacro(call)                                              \
@@ -32,7 +34,8 @@ VBOLayout TemplatedCreateVBO3(T* points, T2* normals, vtkIdType numPts,
                     T3* tcoords, int textureComponents,
                     unsigned char *colors, int colorComponents,
                     BufferObject &vertexBuffer, unsigned int *cellPointMap,
-                    unsigned int *pointCellMap)
+                    unsigned int *pointCellMap,
+                    bool cellScalars, bool cellNormals)
 {
   VBOLayout layout;
   // Figure out how big each block will be, currently 6 or 7 floats.
@@ -73,7 +76,7 @@ VBOLayout TemplatedCreateVBO3(T* points, T2* normals, vtkIdType numPts,
   unsigned char *colorPtr;
 
 
-  // TODO: optimize this somehow, lots of if statement in here
+  // TODO: optimize this somehow, lots of if statements in here
   for (vtkIdType i = 0; i < numPts; ++i)
     {
     if (cellPointMap && cellPointMap[i] > 0)
@@ -81,12 +84,14 @@ VBOLayout TemplatedCreateVBO3(T* points, T2* normals, vtkIdType numPts,
       pointPtr = points + (cellPointMap[i]-1)*3;
       normalPtr = normals + (cellPointMap[i]-1)*3;
       tcoordPtr = tcoords + (cellPointMap[i]-1)*textureComponents;
+      colorPtr = colors + (cellPointMap[i]-1)*colorComponents;
       }
     else
       {
       pointPtr = points + i*3;
       normalPtr = normals + i*3;
       tcoordPtr = tcoords + i*textureComponents;
+      colorPtr = colors + i*colorComponents;
       }
     // Vertices
     *(it++) = *(pointPtr++);
@@ -94,6 +99,10 @@ VBOLayout TemplatedCreateVBO3(T* points, T2* normals, vtkIdType numPts,
     *(it++) = *(pointPtr++);
     if (normals)
       {
+      if (cellNormals)
+        {
+        normalPtr = normals + pointCellMap[i]*3;
+        }
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
@@ -107,13 +116,9 @@ VBOLayout TemplatedCreateVBO3(T* points, T2* normals, vtkIdType numPts,
       }
     if (colors)
       {
-      if (pointCellMap)
+      if (cellScalars)
         {
         colorPtr = colors + pointCellMap[i]*colorComponents;
-        }
-      else
-        {
-        colorPtr = colors + i*colorComponents;
         }
       if (colorComponents == 4)
         {
@@ -121,7 +126,11 @@ VBOLayout TemplatedCreateVBO3(T* points, T2* normals, vtkIdType numPts,
         }
       else
         {
-        unsigned char c[4] = { *(colorPtr++), *(colorPtr++), *(colorPtr), 255 };
+        unsigned char c[4];
+        c[0] = *(colorPtr++);
+        c[1] = *(colorPtr++);
+        c[2] = *(colorPtr);
+        c[3] =  255;
         *(it++) = *reinterpret_cast<float *>(c);
         }
       }
@@ -137,7 +146,8 @@ VBOLayout TemplatedCreateVBO2(T* points, T2 *normals, vtkIdType numPts,
                     vtkDataArray *tcoords,
                     unsigned char *colors, int colorComponents,
                     BufferObject &vertexBuffer, unsigned int *cellPointMap,
-                    unsigned int *pointCellMap)
+                    unsigned int *pointCellMap,
+                    bool cellScalars, bool cellNormals)
 {
   if (tcoords)
     {
@@ -145,26 +155,23 @@ VBOLayout TemplatedCreateVBO2(T* points, T2 *normals, vtkIdType numPts,
       {
       vtkFloatDoubleTemplateMacro(
         return
-          TemplatedCreateVBO3(points,
-                    normals,
+          TemplatedCreateVBO3(points, normals,
                     numPts,
                     static_cast<VTK_TT*>(tcoords->GetVoidPointer(0)),
                     tcoords->GetNumberOfComponents(),
-                    colors,
-                    colorComponents,
-                    vertexBuffer, cellPointMap, pointCellMap));
+                    colors, colorComponents,
+                    vertexBuffer, cellPointMap, pointCellMap,
+                    cellScalars, cellNormals));
       }
     }
   else
     {
     return
-      TemplatedCreateVBO3(points,
-                          normals,
-                          numPts,
-                          (float *)NULL, 0,
-                          colors,
-                          colorComponents,
-                          vertexBuffer, cellPointMap, pointCellMap);
+      TemplatedCreateVBO3(points, normals,
+                          numPts, (float *)NULL, 0,
+                          colors, colorComponents,
+                          vertexBuffer, cellPointMap, pointCellMap,
+                          cellScalars, cellNormals);
     }
   return VBOLayout();
 }
@@ -176,7 +183,8 @@ VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
                     vtkDataArray *tcoords,
                     unsigned char *colors, int colorComponents,
                     BufferObject &vertexBuffer, unsigned int *cellPointMap,
-                    unsigned int *pointCellMap)
+                    unsigned int *pointCellMap,
+                    bool cellScalars, bool cellNormals)
 {
   if (normals)
     {
@@ -186,11 +194,9 @@ VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
         return
           TemplatedCreateVBO2(points,
                     static_cast<VTK_TT*>(normals->GetVoidPointer(0)),
-                    numPts,
-                    tcoords,
-                    colors,
-                    colorComponents,
-                    vertexBuffer, cellPointMap, pointCellMap));
+                    numPts, tcoords, colors, colorComponents,
+                    vertexBuffer, cellPointMap, pointCellMap,
+                    cellScalars, cellNormals));
       }
     }
   else
@@ -198,11 +204,9 @@ VBOLayout TemplatedCreateVBO(T* points, vtkDataArray *normals, vtkIdType numPts,
     return
       TemplatedCreateVBO2(points,
                           (float *)NULL,
-                          numPts,
-                          tcoords,
-                          colors,
-                          colorComponents,
-                          vertexBuffer, cellPointMap, pointCellMap);
+                          numPts, tcoords, colors, colorComponents,
+                          vertexBuffer, cellPointMap, pointCellMap,
+                          cellScalars, cellNormals);
     }
   return VBOLayout();
 }
@@ -216,7 +220,8 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPts,
                     vtkDataArray *normals,
                     vtkDataArray *tcoords,
                     unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap)
+                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap,
+                    bool cellScalars, bool cellNormals)
 {
   // fast path
   if (!tcoords && !normals && !colors && points->GetDataType() == VTK_FLOAT)
@@ -241,12 +246,9 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPts,
     vtkTemplateMacro(
       return
         TemplatedCreateVBO(static_cast<VTK_TT*>(points->GetVoidPointer(0)),
-                  normals,
-                  numPts,
-                  tcoords,
-                  colors,
-                  colorComponents,
-                  vertexBuffer, cellPointMap, pointCellMap));
+                  normals, numPts, tcoords, colors, colorComponents,
+                  vertexBuffer, cellPointMap, pointCellMap,
+                  cellScalars, cellNormals));
     }
   return VBOLayout();
 }
@@ -276,26 +278,31 @@ std::string replace(std::string source, const std::string &search,
 
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                                 vtkPoints *points)
+                                 vtkPoints *points, std::vector<unsigned int> &cellPointMap)
 {
   std::vector<unsigned int> indexArray;
   vtkIdType* indices(NULL);
   vtkIdType npts(0);
   indexArray.reserve(cells->GetNumberOfCells() * 3);
+
+  // the folowing are only used if we have to triangulate a polygon
+  // otherwise they just sit at NULL
   vtkPolygon *polygon = NULL;
   vtkIdList *tris = NULL;
+  vtkPoints *triPoints = NULL;
 
   for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
     {
+    // ignore degenerate triangles
     if (npts < 3)
       {
-      exit(-1); // assert(points >= 3);
+      continue;
       }
 
     // triangulate needed
     if (npts > 3)
       {
-      // special case for quads which VTK uses a lot
+      // special case for quads, penta, hex which are common
       if (npts == 4)
         {
         indexArray.push_back(static_cast<unsigned int>(indices[0]));
@@ -305,19 +312,61 @@ size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
         indexArray.push_back(static_cast<unsigned int>(indices[2]));
         indexArray.push_back(static_cast<unsigned int>(indices[3]));
         }
-      else
+      else if (npts == 5)
+        {
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[1]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[4]));
+        }
+      else if (npts == 6)
+        {
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[1]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[2]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[0]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[5]));
+        indexArray.push_back(static_cast<unsigned int>(indices[3]));
+        indexArray.push_back(static_cast<unsigned int>(indices[4]));
+        indexArray.push_back(static_cast<unsigned int>(indices[5]));
+        }
+      else // 7 sided polygon or higher, do a full smart triangulation
         {
         if (!polygon)
           {
           polygon = vtkPolygon::New();
           tris = vtkIdList::New();
+          triPoints = vtkPoints::New();
           }
-        polygon->Initialize(npts, indices, points);
+
+        vtkIdType *triIndices = new vtkIdType[npts];
+        triPoints->SetNumberOfPoints(npts);
+        for (int i = 0; i < npts; ++i)
+          {
+          int idx = indices[i];
+          if (cellPointMap.size() > 0 && cellPointMap[indices[i]] > 0)
+            {
+            idx = cellPointMap[indices[i]]-1;
+            }
+          triPoints->SetPoint(i,points->GetPoint(idx));
+          triIndices[i] = i;
+          }
+        polygon->Initialize(npts, triIndices, triPoints);
         polygon->Triangulate(tris);
         for (int j = 0; j < tris->GetNumberOfIds(); ++j)
           {
           indexArray.push_back(static_cast<unsigned int>(indices[tris->GetId(j)]));
           }
+        delete [] triIndices;
         }
       }
     else
@@ -331,6 +380,7 @@ size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
     {
     polygon->Delete();
     tris->Delete();
+    triPoints->Delete();
     }
   indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();
@@ -468,12 +518,12 @@ void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
 
 
 
-void CellBO::ReleaseGraphicsResources()
+void CellBO::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->CachedProgram)
+  if (this->Program)
     {
-    this->CachedProgram->ShaderCache->ReleaseGraphicsResources(this->CachedProgram);
-    this->CachedProgram = 0;
+    this->Program->ReleaseGraphicsResources(win);
+    this->Program = 0;
     }
   this->ibo.ReleaseGraphicsResources();
   this->vao.ReleaseGraphicsResources();

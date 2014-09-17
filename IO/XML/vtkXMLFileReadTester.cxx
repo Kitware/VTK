@@ -48,13 +48,13 @@ void vtkXMLFileReadTester::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkXMLFileReadTester::TestReadFile()
 {
-  if(!this->FileName)
+  if (!this->FileName)
     {
     return 0;
     }
 
   ifstream inFile(this->FileName);
-  if(!inFile)
+  if (!inFile)
     {
     return 0;
     }
@@ -64,27 +64,22 @@ int vtkXMLFileReadTester::TestReadFile()
 
   this->Parse();
 
-  if(this->Done)
-    {
-    return 1;
-    }
-  return 0;
+  return this->Done ? 1 : 0;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLFileReadTester::StartElement(const char* name, const char** atts)
 {
   this->Done = 1;
-  if(strcmp(name, "VTKFile") == 0)
+  if (strcmp(name, "VTKFile") == 0)
     {
-    unsigned int i;
-    for(i=0; atts[i] && atts[i+1]; i+=2)
+    for(unsigned int i = 0; atts[i] && atts[i+1]; i += 2)
       {
-      if(strcmp(atts[i], "type") == 0)
+      if (strcmp(atts[i], "type") == 0)
         {
         this->SetFileDataType(atts[i+1]);
         }
-      else if(strcmp(atts[i], "version") == 0)
+      else if (strcmp(atts[i], "version") == 0)
         {
         this->SetFileVersion(atts[i+1]);
         }
@@ -95,5 +90,5 @@ void vtkXMLFileReadTester::StartElement(const char* name, const char** atts)
 //----------------------------------------------------------------------------
 int vtkXMLFileReadTester::ParsingComplete()
 {
-  return (this->Done? 1:0);
+  return this->Done ? 1 : 0;
 }

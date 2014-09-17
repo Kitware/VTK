@@ -116,6 +116,17 @@ if (catch.catch(globals(),"""channel = open("test.tmp", "w")""") == 0):
     # Add the actors to the renderer, set the background and size
     #
     ren1.AddActor(actor3)
+
+    # do some extra checking to make sure we have the proper number of cells
+    if surface.GetOutput().GetNumberOfCells() != 4016:
+        print "surface output should have 4016 cells but has ", surface.GetOutput().GetNumberOfCells()
+        sys.exit(1)
+    if iso.GetOutput().GetNumberOfCells() != 89:
+        print "iso output should have 89 cells but has ", iso.GetOutput().GetNumberOfCells()
+        sys.exit(1)
+    if pReader3.GetOutput().GetNumberOfCells() != 48:
+        print "pReader3 output should have 48 cells but has ", pReader3.GetOutput().GetNumberOfCells()
+        sys.exit(1)
     pass
 ren1.SetBackground(0.1,0.2,0.4)
 renWin.SetSize(300,300)

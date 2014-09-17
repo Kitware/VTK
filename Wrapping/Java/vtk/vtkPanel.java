@@ -36,10 +36,6 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
   protected int InteractionMode = 1;
   protected boolean rendering = false;
 
-  static {
-    vtkNativeLibrary.LoadAllNativeLibraries();
-  }
-
   // Allow access to display lock() and unlock().
   // Call these whenever you call something that causes
   // a Render().

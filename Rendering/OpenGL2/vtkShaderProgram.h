@@ -11,24 +11,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkglShaderProgram_h
-#define __vtkglShaderProgram_h
+// .NAME vtkShaderProgram - a glsl shader program
+// .SECTION Description
+// This class contains the vertex, fragment, geometry shaders that combine to make a shader program
+#ifndef __vtkShaderProgram_h
+#define __vtkShaderProgram_h
 
-#include "vtkRenderingOpenGL2Module.h"
-#include "vtkVector.h" // For API
-#include "vtkColor.h" // For API
-#include "vtkTypeTraits.h" // For type traits inline template
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtkObject.h"
+
 #include <string> // For member variables.
-#include <vector> // For member variables.
 #include <map>    // For member variables.
 
 class vtkMatrix3x3;
 class vtkMatrix4x4;
-
-namespace vtkgl {
-
-class Shader;
+class vtkShader;
 class VertexArrayObject;
+class vtkWindow;
 
 /**
  * @brief The ShaderProgram uses one or more Shader objects.
@@ -37,9 +36,41 @@ class VertexArrayObject;
  * ShaderProgram in order to render geometry etc.
  */
 
-class VTKRENDERINGOPENGL2_EXPORT ShaderProgram
+class VTKRENDERINGOPENGL2_EXPORT vtkShaderProgram : public vtkObject
 {
 public:
+  static vtkShaderProgram *New();
+  vtkTypeMacro(vtkShaderProgram, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Get the vertex shader for this program
+  vtkGetObjectMacro(VertexShader, vtkShader);
+
+  // Description:
+  // Get the fragment shader for this program
+  vtkGetObjectMacro(FragmentShader, vtkShader);
+
+  // Description:
+  // Get the geometry shader for this program
+  vtkGetObjectMacro(GeometryShader, vtkShader);
+
+  // Description:
+  // Set/Get flag for if this program is compiled
+  vtkGetMacro(Compiled, bool);
+  vtkSetMacro(Compiled, bool);
+  vtkBooleanMacro(Compiled, bool);
+
+  // Description:
+  // Compile this shader program and attached shaders
+  virtual int CompileShader();
+
+  // Description:
+  // Set/Get the md5 hash of this program
+  std::string GetMD5Hash() const { return this->MD5Hash; }
+  void SetMD5Hash(const std::string &hash) { this->MD5Hash = hash; }
+
+
   /** Options for attribute normalization. */
   enum NormalizeOption {
     /// The values range across the limits of the numeric type.
@@ -55,23 +86,21 @@ public:
     NoNormalize
   };
 
-  ShaderProgram();
-  ~ShaderProgram();
 
   /**
    * Attach the supplied shader to this program.
    * @note A maximum of one Vertex shader and one Fragment shader can be
-   * attached to a shader prorgram.
+   * attached to a shader program.
    * @return true on success.
    */
-  bool AttachShader(const Shader &shader);
+  bool AttachShader(const vtkShader *shader);
 
   /** Detach the supplied shader from this program.
    * @note A maximum of one Vertex shader and one Fragment shader can be
-   * attached to a shader prorgram.
+   * attached to a shader program.
    * @return true on success.
    */
-  bool DetachShader(const Shader &shader);
+  bool DetachShader(const vtkShader *shader);
 
   /**
    * Attempt to link the shader program.
@@ -97,7 +126,7 @@ public:
 
   // Description:
   // release any graphics resources this class is using.
-  void ReleaseGraphicsResources();
+  void ReleaseGraphicsResources(vtkWindow *win);
 
   /** Get the handle of the shader program. */
   int GetHandle() const { return Handle; }
@@ -171,12 +200,20 @@ public:
 
   /** Set the @p name uniform array to @p f with @p count elements */
   bool SetUniform1iv(const std::string &name, const int count, const int *f);
-  bool SetUniform2iv(const std::string &name, const int count, const int *f);
-  bool SetUniform3uv(const std::string &name, const int count, const unsigned char *f);
   bool SetUniform1fv(const std::string &name, const int count, const float *f);
   bool SetUniform3fv(const std::string &name, const int count, const float (*f)[3]);
 
 protected:
+  vtkShaderProgram();
+  ~vtkShaderProgram();
+
+  vtkShader *VertexShader;
+  vtkShader *FragmentShader;
+  vtkShader *GeometryShader;
+
+  // hash of the shader program
+  std::string MD5Hash;
+
   bool SetAttributeArrayInternal(const std::string &name, void *buffer,
                                  int type, int tupleSize,
                                  NormalizeOption normalize);
@@ -186,6 +223,7 @@ protected:
 
   bool Linked;
   bool Bound;
+  bool Compiled;
 
   std::string Error;
 
@@ -196,23 +234,10 @@ protected:
 private:
   int FindAttributeArray(const std::string &name);
   int FindUniform(const std::string &name);
+
+  vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
+  void operator=(const vtkShaderProgram&);  // Not implemented.
 };
 
-template <class T>
-inline bool ShaderProgram::SetAttributeArray(const std::string &name,
-                                             const T &array, int tupleSize,
-                                             NormalizeOption normalize)
-{
-  if (array.empty())
-    {
-    this->Error = "Refusing to upload empty array for attribute " + name + ".";
-    return false;
-    }
-  int type = vtkTypeTraits<typename T::value_type>::VTKTypeID();
-  return this->SetAttributeArrayInternal(name, &array[0], type, tupleSize,
-                                         normalize);
-}
-
-}
 
 #endif

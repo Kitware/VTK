@@ -34,7 +34,7 @@ vtkXMLPPolyDataWriter::~vtkXMLPPolyDataWriter()
 //----------------------------------------------------------------------------
 void vtkXMLPPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
 
 //----------------------------------------------------------------------------
 int vtkXMLPPolyDataWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+  int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

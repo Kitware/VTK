@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkColorTransferFunction - Defines a transfer function for mapping a property to an RGB color value.
+// .NAME vtkColorTransferFunction - Defines a transfer function for mapping a
+// property to an RGB color value.
 
 // .SECTION Description
 // vtkColorTransferFunction is a color mapping in RGB or HSV space that
@@ -58,7 +59,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // How many points are there defining this function?
+  // How many nodes define this function?
   int GetSize();
 
   // Description:
@@ -116,26 +117,35 @@ public:
   // Description:
   // Remove all points out of the new range, and make sure there is a point
   // at each end of that range.
-  // Return 1 on success, 0 otherwise.
+  // Returns 1 on success, 0 otherwise.
   int AdjustRange(double range[2]);
 
   // Description:
-  // Fills in a table of n function values between x1 and x2.
+  // Fills in a table of \a n colors mapped from \a values mapped with
+  // even spacing between x1 and x2, inclusive.
   //
   // Note that \a GetTable ignores \a IndexedLookup
   void GetTable( double x1, double x2, int n, double* table );
   void GetTable( double x1, double x2, int n, float* table );
-  const unsigned char *GetTable( double x1, double x2, int n);
+  const unsigned char *GetTable( double x1, double x2, int n );
 
   // Description:
-  // Construct a color transfer function from a table. Function range is
-  // is set to [x1, x2], each function size is set to size, and function
-  // points are regularly spaced between x1 and x2. Parameter "table" is
-  // assumed to be a block of memory of size [3*size]
-  void BuildFunctionFromTable( double x1, double x2, int size, double *table);
+  // Construct a color transfer function from a table. Unlike
+  // FillFromDataPointer(), the \p table parameter's layout is assumed
+  // to be [R1, G1, B1, R2, G2, B2, ..., Rn, Gn, Bn], and it is
+  // assumed to be a block of memory of size [3*size]. After calling
+  // this method, the function range will be [x1, x2], the function
+  // will have \p size nodes, and function values will be regularly spaced
+  // between x1 and x2.
+  void BuildFunctionFromTable( double x1, double x2, int size, double *table );
 
   // Description:
-  // Sets and gets the clamping value for this transfer function.
+  // Sets/gets whether clamping is used. If on, scalar values below
+  // the lower range value set for the transfer function will be
+  // mapped to the first node color, and scalar values above the upper
+  // range value set for the transfer function will be mapped to the
+  // last node color. If off, values outside the range are mapped to
+  // black.
   vtkSetClampMacro( Clamping, int, 0, 1 );
   vtkGetMacro( Clamping, int );
   vtkBooleanMacro( Clamping, int );
@@ -174,16 +184,24 @@ public:
   vtkGetVector3Macro(NanColor, double);
 
   // Description:
-  // Returns a list of all nodes
-  // Fills from a pointer to data stored in a similar list of nodes.
-  double *GetDataPointer();
-  void FillFromDataPointer(int, double*);
+  // Returns a pointer to an array of all node values in an
+  // interleaved array with the layout [X1, R1, G1, B1, X2, R2, G2,
+  // B2, ..., Xn, Rn, Gn, Bn] where n is the number of nodes defining
+  // the transfer function. The returned pointer points to an array
+  // that is managed by this class, so callers should not free it.
+  double* GetDataPointer();
 
   // Description:
-  // map a set of scalars through the lookup table
+  // Defines the nodes from an array \a ptr with the layout [X1, R1,
+  // G1, B1, X2, R2, G2, B2, ..., Xn, Rn, Gn, Bn] where n is the
+  // number of nodes.
+  void FillFromDataPointer(int n, double* ptr);
+
+  // Description:
+  // Map a set of scalars through the lookup table.
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
-                                     int inputDataType, int numberOfValues,
-                                     int inputIncrement, int outputIncrement);
+                                       int inputDataType, int numberOfValues,
+                                       int inputIncrement, int outputIncrement);
 
   // Description:
   // Toggle whether to allow duplicate scalar values in the color transfer
@@ -209,54 +227,73 @@ protected:
 
   vtkColorTransferFunctionInternals *Internal;
 
+  // Description:
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
   //        highest value above defined points
   int Clamping;
 
-  // The color space in which interpolation is performed
+  // Description:
+  // The color space in which interpolation is performed.
   int ColorSpace;
 
-  // Specify if HSW is warp or not
+  // Description:
+  // Specify if HSV is wrap or not
   int HSVWrap;
 
+  // Description:
   // The color interpolation scale (linear or logarithmic).
   int Scale;
 
+  // Description:
   // The color to use for not-a-number.
   double NanColor[3];
 
-  double     *Function;
+  // Description:
+  // Temporary array to store data from the nodes.
+  double* Function;
 
+  // Description:
   // The min and max node locations
   double Range[2];
 
-  // An evaluated color (0 to 255 RGBA A=255)
+  // Description:
+  // Temporary storage for an evaluated color (0 to 255 RGBA A=255)
   unsigned char UnsignedCharRGBAValue[4];
 
+  // Description:
+  // If on, the same scalar value may have more than one node assigned to it.
   int AllowDuplicateScalars;
 
   vtkTimeStamp BuildTime;
   unsigned char *Table;
+
+  // Description:
+  // Temporary storage for the size of the table. Set in the method GetTable()
+  // and queried in GetNumberOfAvailableColors().
   int TableSize;
 
   // Description:
-  // Set the range of scalars being mapped. The set has no functionality
+  // Set the range of scalars being mapped. This method has no functionality
   // in this subclass of vtkScalarsToColors.
   virtual void SetRange(double, double) {}
   void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
 
+  // Description:
   // Internal method to sort the vector and update the
   // Range whenever a node is added, edited or removed
   // It always calls Modified().
   void SortAndUpdateRange();
-  // Returns true if the range has been updated and Modified() has been called
+
+  // Description:
+  // Returns true if the range has been changed. If the ranged has
+  // been modified, calls Modified().
   bool UpdateRange();
 
   // Description:
-  // Moves point from oldX to newX. It removed the point from oldX. If any point
-  // existed at newX, it will also be removed.
+  // Moves point from oldX to newX. It removed the point from oldX. If
+  // any point existed at newX, it will also be removed.
   void MovePoint(double oldX, double newX);
 
 private:
@@ -265,4 +302,3 @@ private:
 };
 
 #endif
-

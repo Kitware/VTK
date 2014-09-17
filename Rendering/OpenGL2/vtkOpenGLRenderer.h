@@ -22,7 +22,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
-#include <vector>
+#include <vector>  // STL Header
 
 class vtkRenderPass;
 class vtkOpenGLTexture;
@@ -86,7 +86,6 @@ protected:
   // Internal method to release graphics resources in any derived renderers.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
 
-  //BTX
   // Picking functions to be implemented by sub-classes
   virtual void DevicePickRender();
   virtual void StartPick(unsigned int pickFromSize);
@@ -99,7 +98,6 @@ protected:
 
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
-  //ETX
 
   double PickedZ;
 
@@ -110,12 +108,10 @@ protected:
   // \pre positive_layer: layer>=0
   int RenderPeel(int layer);
 
-  //BTX
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
   friend class vtkOpenGLImageResliceMapper;
-  //ETX
 
   // Description:
   // This flag is on if the current OpenGL context supports extensions

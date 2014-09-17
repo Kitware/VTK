@@ -14,7 +14,7 @@
 
 #include "vtkglVertexArrayObject.h"
 #include "vtkglBufferObject.h"
-#include "vtkglShaderProgram.h"
+#include "vtkShaderProgram.h"
 #include "vtk_glew.h"
 
 #include <map>
@@ -201,7 +201,7 @@ void VertexArrayObject::ReleaseGraphicsResources()
   this->d->ReleaseGraphicsResources();
 }
 
-bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,
+bool VertexArrayObject::AddAttributeArray(vtkShaderProgram *program,
                                           BufferObject &buffer,
                                           const std::string &name,
                                           int offset, size_t stride,
@@ -209,7 +209,7 @@ bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,
                                           bool normalize)
 {
   // Check the program is bound, and the buffer is valid.
-  if (!program.isBound() || buffer.GetHandle() == 0 ||
+  if (!program->isBound() || buffer.GetHandle() == 0 ||
       buffer.GetType() != BufferObject::ArrayBuffer)
     {
     return false;
@@ -218,10 +218,10 @@ bool VertexArrayObject::AddAttributeArray(ShaderProgram &program,
   // Perform initalization if necessary, ensure program matches VAOs.
   if (this->d->handleProgram == 0)
     {
-    this->d->handleProgram = static_cast<GLuint>(program.GetHandle());
+    this->d->handleProgram = static_cast<GLuint>(program->GetHandle());
     }
   if (!this->d->IsReady() ||
-      this->d->handleProgram != static_cast<GLuint>(program.GetHandle()))
+      this->d->handleProgram != static_cast<GLuint>(program->GetHandle()))
     {
     return false;
     }

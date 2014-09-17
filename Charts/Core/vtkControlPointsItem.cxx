@@ -215,7 +215,7 @@ bool vtkControlPointsItem::Paint(vtkContext2D* painter)
   painter->ApplyBrush(this->SelectedPointBrush);
   this->InvertShadow = true;
   float oldScreenPointRadius = this->ScreenPointRadius;
-  if (this->Selection->GetNumberOfTuples())
+  if (this->Selection && this->Selection->GetNumberOfTuples())
     {
     //painter->GetPen()->SetWidth(oldPenWidth * 1.4);
     //this->ScreenPointRadius = oldScreenPointRadius * 1.1;
@@ -327,12 +327,13 @@ void vtkControlPointsItem::ComputePoints()
     return;
     }
 
-  if (this->GetNumberOfPoints() == 0)
+  if (this->Selection && this->GetNumberOfPoints() == 0)
     {
     this->Selection->SetNumberOfTuples(0);
     }
 
-  const int selectedPointCount = this->Selection->GetNumberOfTuples();
+  const int selectedPointCount = this->Selection ?
+        this->Selection->GetNumberOfTuples() : 0;
   if (selectedPointCount)
     {
     vtkIdTypeArray* oldSelection = this->Selection;
@@ -653,7 +654,7 @@ void vtkControlPointsItem::SelectPoint(double* currentPoint)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::SelectPoint(vtkIdType pointId)
 {
-  if (this->Selection->LookupValue(pointId) != -1)
+  if (!this->Selection || this->Selection->LookupValue(pointId) != -1)
     {
     return;
     }
@@ -688,7 +689,8 @@ void vtkControlPointsItem::DeselectPoint(double* point)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::DeselectPoint(vtkIdType pointId)
 {
-  vtkIdType selectionPointId = this->Selection->LookupValue(pointId);
+  vtkIdType selectionPointId = this->Selection
+      ? this->Selection->LookupValue(pointId) : -1;
   if (selectionPointId == -1)
     {
     //vtkErrorMacro(<< "Point:" << pointId << " was not selected");
@@ -725,7 +727,8 @@ void vtkControlPointsItem::ToggleSelectPoint(double* currentPoint)
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::ToggleSelectPoint(vtkIdType pointId)
 {
-  vtkIdType selectionId = this->Selection->LookupValue(pointId);
+  vtkIdType selectionId = this->Selection
+      ? this->Selection->LookupValue(pointId) : -1;
   if (selectionId != -1)
     {
     this->DeselectPoint(pointId);
@@ -760,7 +763,7 @@ bool vtkControlPointsItem::SelectPoints(const vtkVector2f& min, const vtkVector2
 //-----------------------------------------------------------------------------
 vtkIdType vtkControlPointsItem::GetNumberOfSelectedPoints()const
 {
-  return this->Selection->GetNumberOfTuples();
+  return this->Selection ? this->Selection->GetNumberOfTuples() : 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -923,7 +926,7 @@ void vtkControlPointsItem::AddPointId(vtkIdType addedPointId)
 {
   assert(addedPointId != -1);
   // offset all the point ids
-  const int selectionCount = this->Selection->GetNumberOfTuples();
+  const int selectionCount = this->GetNumberOfSelectedPoints();
   for (vtkIdType i = 0; i < selectionCount; ++i)
     {
     vtkIdType pointId = this->Selection->GetValue(i);
@@ -966,7 +969,7 @@ vtkIdType vtkControlPointsItem::RemovePointId(vtkIdType pointId)
   // Useless to remove the point here as it will be removed anyway in ComputePoints
   this->DeselectPoint(pointId);
 
-  const vtkIdType selectionCount = this->Selection->GetNumberOfTuples();
+  const vtkIdType selectionCount = this->GetNumberOfSelectedPoints();
   for (vtkIdType i = 0; i < selectionCount; ++i)
     {
     vtkIdType selectedPointId = this->Selection->GetValue(i);
@@ -1021,7 +1024,7 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
       return true;
       }
     else if (pointUnderMouse == -1
-             && this->Selection->GetNumberOfTuples() <= 1
+             && this->GetNumberOfSelectedPoints() <= 1
              && !this->StrokeMode)
       {
       this->ClampValidPos(pos);
@@ -1098,7 +1101,7 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
       this->Interaction();
       }
-    else if (this->CurrentPoint == -1 && this->Selection->GetNumberOfTuples() > 1)
+    else if (this->CurrentPoint == -1 && this->GetNumberOfSelectedPoints() > 1)
       {
       vtkVector2f deltaPos = mouse.GetPos() - mouse.GetLastPos();
       if(this->IsEndPointPicked())
@@ -1119,10 +1122,13 @@ bool vtkControlPointsItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
       this->StartInteractionIfNotStarted();
 
-      vtkIdTypeArray* points = this->GetSelection();
-      points->Register(this);// must stay valid after each individual point move
-      this->MovePoints(deltaPos, points);
-      points->UnRegister(this);
+      if (vtkIdTypeArray* points = this->GetSelection())
+        {
+        // must stay valid after each individual point move
+        points->Register(this);
+        this->MovePoints(deltaPos, points);
+        points->UnRegister(this);
+        }
 
       this->Interaction();
       }
@@ -1705,10 +1711,12 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent &key)
         {
         this->StartInteractionIfNotStarted();
 
-        vtkIdTypeArray* points = this->GetSelection();
-        points->Register(this); // must stay valid after each individual move
-        this->MovePoints(translate, points);
-        points->UnRegister(this);
+        if (vtkIdTypeArray* points = this->GetSelection())
+          {
+          points->Register(this); // must stay valid after each individual move
+          this->MovePoints(translate, points);
+          points->UnRegister(this);
+          }
 
         this->Interaction();
         }
@@ -1725,10 +1733,12 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent &key)
       {
       this->StartInteractionIfNotStarted();
 
-      vtkIdTypeArray* pointIds = this->GetSelection();
-      pointIds->Register(this); // must stay valid after each individual move
-      this->SpreadPoints(1., pointIds);
-      pointIds->UnRegister(this);
+      if (vtkIdTypeArray* pointIds = this->GetSelection())
+        {
+        pointIds->Register(this); // must stay valid after each individual move
+        this->SpreadPoints(1., pointIds);
+        pointIds->UnRegister(this);
+        }
 
       this->Interaction();
       }
@@ -1736,10 +1746,12 @@ bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent &key)
       {
       this->StartInteractionIfNotStarted();
 
-      vtkIdTypeArray* pointIds = this->GetSelection();
-      pointIds->Register(this); // must stay valid after each individual move
-      this->SpreadPoints(-1., pointIds);
-      pointIds->UnRegister(this);
+      if (vtkIdTypeArray* pointIds = this->GetSelection())
+        {
+        pointIds->Register(this); // must stay valid after each individual move
+        this->SpreadPoints(-1., pointIds);
+        pointIds->UnRegister(this);
+        }
 
       this->Interaction();
       }

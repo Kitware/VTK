@@ -218,7 +218,7 @@ void Glob::RecurseDirectory(kwsys_stl::string::size_type start,
   const kwsys_stl::string& dir)
 {
   kwsys::Directory d;
-  if ( !d.Load(dir.c_str()) )
+  if ( !d.Load(dir) )
     {
     return;
     }
@@ -229,8 +229,7 @@ void Glob::RecurseDirectory(kwsys_stl::string::size_type start,
   for ( cc = 0; cc < d.GetNumberOfFiles(); cc ++ )
     {
     fname = d.GetFile(cc);
-    if ( strcmp(fname.c_str(), ".") == 0 ||
-      strcmp(fname.c_str(), "..") == 0  )
+    if ( fname == "." || fname == ".." )
       {
       continue;
       }
@@ -258,8 +257,8 @@ void Glob::RecurseDirectory(kwsys_stl::string::size_type start,
       fullname = dir + "/" + fname;
       }
 
-    bool isDir = kwsys::SystemTools::FileIsDirectory(realname.c_str());
-    bool isSymLink = kwsys::SystemTools::FileIsSymlink(realname.c_str());
+    bool isDir = kwsys::SystemTools::FileIsDirectory(realname);
+    bool isSymLink = kwsys::SystemTools::FileIsSymlink(realname);
 
     if ( isDir && (!isSymLink || this->RecurseThroughSymlinks) )
       {
@@ -271,11 +270,10 @@ void Glob::RecurseDirectory(kwsys_stl::string::size_type start,
       }
     else
       {
-      if ( (this->Internals->Expressions.size() > 0) &&
-           this->Internals->Expressions[
-             this->Internals->Expressions.size()-1].find(fname.c_str()) )
+      if ( !this->Internals->Expressions.empty() &&
+           this->Internals->Expressions.rbegin()->find(fname) )
         {
-        this->AddFile(this->Internals->Files, realname.c_str());
+        this->AddFile(this->Internals->Files, realname);
         }
       }
     }
@@ -299,7 +297,7 @@ void Glob::ProcessDirectory(kwsys_stl::string::size_type start,
     }
 
   kwsys::Directory d;
-  if ( !d.Load(dir.c_str()) )
+  if ( !d.Load(dir) )
     {
     return;
     }
@@ -310,8 +308,7 @@ void Glob::ProcessDirectory(kwsys_stl::string::size_type start,
   for ( cc = 0; cc < d.GetNumberOfFiles(); cc ++ )
     {
     fname = d.GetFile(cc);
-    if ( strcmp(fname.c_str(), ".") == 0 ||
-      strcmp(fname.c_str(), "..") == 0  )
+    if ( fname == "." || fname == ".." )
       {
       continue;
       }
@@ -345,16 +342,16 @@ void Glob::ProcessDirectory(kwsys_stl::string::size_type start,
     //kwsys_ios::cout << "Full name: " << fullname << kwsys_ios::endl;
 
     if ( !last &&
-      !kwsys::SystemTools::FileIsDirectory(realname.c_str()) )
+      !kwsys::SystemTools::FileIsDirectory(realname) )
       {
       continue;
       }
 
-    if ( this->Internals->Expressions[start].find(fname.c_str()) )
+    if ( this->Internals->Expressions[start].find(fname) )
       {
       if ( last )
         {
-        this->AddFile(this->Internals->Files, realname.c_str());
+        this->AddFile(this->Internals->Files, realname);
         }
       else
         {
@@ -374,7 +371,7 @@ bool Glob::FindFiles(const kwsys_stl::string& inexpr)
   this->Internals->Expressions.clear();
   this->Internals->Files.clear();
 
-  if ( !kwsys::SystemTools::FileIsFullPath(expr.c_str()) )
+  if ( !kwsys::SystemTools::FileIsFullPath(expr) )
     {
     expr = kwsys::SystemTools::GetCurrentWorkingDirectory();
     expr += "/" + inexpr;
@@ -442,9 +439,9 @@ bool Glob::FindFiles(const kwsys_stl::string& inexpr)
     int ch = expr[cc];
     if ( ch == '/' )
       {
-      if ( cexpr.size() > 0 )
+      if ( !cexpr.empty() )
         {
-        this->AddExpression(cexpr.c_str());
+        this->AddExpression(cexpr);
         }
       cexpr = "";
       }
@@ -453,9 +450,9 @@ bool Glob::FindFiles(const kwsys_stl::string& inexpr)
       cexpr.append(1, static_cast<char>(ch));
       }
     }
-  if ( cexpr.size() > 0 )
+  if ( !cexpr.empty() )
     {
-    this->AddExpression(cexpr.c_str());
+    this->AddExpression(cexpr);
     }
 
   // Handle network paths
@@ -471,11 +468,11 @@ bool Glob::FindFiles(const kwsys_stl::string& inexpr)
 }
 
 //----------------------------------------------------------------------------
-void Glob::AddExpression(const char* expr)
+void Glob::AddExpression(const kwsys_stl::string& expr)
 {
   this->Internals->Expressions.push_back(
     kwsys::RegularExpression(
-      this->PatternToRegex(expr).c_str()));
+      this->PatternToRegex(expr)));
 }
 
 //----------------------------------------------------------------------------
@@ -500,11 +497,11 @@ const char* Glob::GetRelative()
 }
 
 //----------------------------------------------------------------------------
-void Glob::AddFile(kwsys_stl::vector<kwsys_stl::string>& files, const char* file)
+void Glob::AddFile(kwsys_stl::vector<kwsys_stl::string>& files, const kwsys_stl::string& file)
 {
   if ( !this->Relative.empty() )
     {
-    files.push_back(kwsys::SystemTools::RelativePath(this->Relative.c_str(), file));
+    files.push_back(kwsys::SystemTools::RelativePath(this->Relative.c_str(), file.c_str()));
     }
   else
     {

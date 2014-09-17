@@ -50,17 +50,22 @@ vtkPointSet* vtkXMLPUnstructuredDataReader::GetOutputAsPointSet()
 vtkPointSet* vtkXMLPUnstructuredDataReader::GetPieceInputAsPointSet(int piece)
 {
   vtkXMLDataReader* reader = this->PieceReaders[piece];
-  if(!reader) { return 0; }
-  if(reader->GetNumberOfOutputPorts() < 1) { return 0; }
+  if (!reader)
+    {
+    return 0;
+    }
+  if (reader->GetNumberOfOutputPorts() < 1)
+    {
+    return 0;
+    }
   return static_cast<vtkPointSet*>(reader->GetExecutive()->GetOutputData(0));
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataReader::SetupOutputTotals()
 {
-  int i;
   this->TotalNumberOfPoints = 0;
-  for(i=this->StartPiece; i < this->EndPiece; ++i)
+  for (int i = this->StartPiece; i < this->EndPiece; ++i)
     {
     if(this->PieceReaders[i])
       {
@@ -73,7 +78,7 @@ void vtkXMLPUnstructuredDataReader::SetupOutputTotals()
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataReader::SetupNextPiece()
 {
-  if(this->PieceReaders[this->Piece])
+  if (this->PieceReaders[this->Piece])
     {
     this->StartPoint += this->PieceReaders[this->Piece]->GetNumberOfPoints();
     }
@@ -94,7 +99,7 @@ vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfCells()
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfPointsInPiece(int piece)
 {
-  if(this->PieceReaders[piece])
+  if (this->PieceReaders[piece])
     {
     return this->PieceReaders[piece]->GetNumberOfPoints();
     }
@@ -107,7 +112,7 @@ vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfPointsInPiece(int piece)
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPUnstructuredDataReader::GetNumberOfCellsInPiece(int piece)
 {
-  if(this->PieceReaders[piece])
+  if (this->PieceReaders[piece])
     {
     return this->PieceReaders[piece]->GetNumberOfCells();
     }
@@ -126,7 +131,8 @@ void vtkXMLPUnstructuredDataReader::SetupEmptyOutput()
 //----------------------------------------------------------------------------
 // Note that any changes (add or removing information) made to this method
 // should be replicated in CopyOutputInformation
-void vtkXMLPUnstructuredDataReader::SetupOutputInformation(vtkInformation *outInfo)
+void vtkXMLPUnstructuredDataReader::SetupOutputInformation(
+  vtkInformation *outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
 
@@ -134,7 +140,8 @@ void vtkXMLPUnstructuredDataReader::SetupOutputInformation(vtkInformation *outIn
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPUnstructuredDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
+void vtkXMLPUnstructuredDataReader::CopyOutputInformation(
+  vtkInformation *outInfo, int port)
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
 }
@@ -146,12 +153,12 @@ void vtkXMLPUnstructuredDataReader::SetupOutputData()
 
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
-  if(this->PPointsElement)
+  if (this->PPointsElement)
     {
     vtkAbstractArray* aa = this->CreateArray(
       this->PPointsElement->GetNestedElement(0));
     vtkDataArray* a = vtkDataArray::SafeDownCast(aa);
-    if(a)
+    if (a)
       {
       a->SetNumberOfTuples(this->GetNumberOfPoints());
       points->SetData(a);
@@ -159,7 +166,10 @@ void vtkXMLPUnstructuredDataReader::SetupOutputData()
       }
     else
       {
-      if (aa) { aa->Delete(); }
+      if (aa)
+        {
+        aa->Delete();
+        }
       this->DataError = 1;
       }
     }
@@ -168,9 +178,8 @@ void vtkXMLPUnstructuredDataReader::SetupOutputData()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPUnstructuredDataReader::SetupUpdateExtent(int piece,
-                                                      int numberOfPieces,
-                                                      int ghostLevel)
+void vtkXMLPUnstructuredDataReader::SetupUpdateExtent(
+  int piece, int numberOfPieces, int ghostLevel)
 {
   this->UpdatePiece = piece;
   this->UpdateNumberOfPieces = numberOfPieces;
@@ -178,13 +187,13 @@ void vtkXMLPUnstructuredDataReader::SetupUpdateExtent(int piece,
 
   // If more pieces are requested than available, just return empty
   // pieces for the extra ones.
-  if(this->UpdateNumberOfPieces > this->NumberOfPieces)
+  if (this->UpdateNumberOfPieces > this->NumberOfPieces)
     {
     this->UpdateNumberOfPieces = this->NumberOfPieces;
     }
 
   // Find the range of pieces to read.
-  if(this->UpdatePiece < this->UpdateNumberOfPieces)
+  if (this->UpdatePiece < this->UpdateNumberOfPieces)
     {
     this->StartPiece = ((this->UpdatePiece*this->NumberOfPieces) /
                         this->UpdateNumberOfPieces);
@@ -198,8 +207,7 @@ void vtkXMLPUnstructuredDataReader::SetupUpdateExtent(int piece,
     }
 
   // Update the information of the pieces we need.
-  int i;
-  for(i=this->StartPiece; i < this->EndPiece; ++i)
+  for (int i = this->StartPiece; i < this->EndPiece; ++i)
     {
     if(this->CanReadPiece(i))
       {
@@ -215,20 +223,18 @@ void vtkXMLPUnstructuredDataReader::SetupUpdateExtent(int piece,
 }
 
 //----------------------------------------------------------------------------
-int
-vtkXMLPUnstructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
+int vtkXMLPUnstructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePri)
 {
-  if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
+  if(!this->Superclass::ReadPrimaryElement(ePri)) { return 0; }
 
   // Find the PPoints element.
   this->PPointsElement = 0;
-  int i;
-  int numNested = ePrimary->GetNumberOfNestedElements();
-  for(i=0;i < numNested; ++i)
+  int numNested = ePri->GetNumberOfNestedElements();
+  for (int i = 0;i < numNested; ++i)
     {
-    vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if((strcmp(eNested->GetName(), "PPoints") == 0) &&
-       (eNested->GetNumberOfNestedElements() == 1))
+    vtkXMLDataElement* eNested = ePri->GetNestedElement(i);
+    if ((strcmp(eNested->GetName(), "PPoints") == 0) &&
+      (eNested->GetNumberOfNestedElements() == 1))
       {
       this->PPointsElement = eNested;
       }
@@ -245,16 +251,13 @@ vtkXMLPUnstructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 void vtkXMLPUnstructuredDataReader::ReadXMLData()
 {
   // Get the update request.
-  int piece;
-  int numberOfPieces;
-  int ghostLevel;
   vtkInformation* outInfo = this->GetCurrentOutputInformation();
-  piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numberOfPieces = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevel = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int piece = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numberOfPieces = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int ghostLevel = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   vtkDebugMacro("Updating piece " << piece << " of " << numberOfPieces
                 << " with ghost level " << ghostLevel);
@@ -263,7 +266,7 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
   this->SetupUpdateExtent(piece, numberOfPieces, ghostLevel);
 
   // If there are no data to read, stop now.
-  if(this->StartPiece == this->EndPiece)
+  if (this->StartPiece == this->EndPiece)
     {
     return;
     }
@@ -276,39 +279,39 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
 
   // Split current progress range based on fraction contributed by
   // each piece.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
 
   // Calculate the cumulative fraction of data contributed by each
   // piece (for progress).
   float* fractions = new float[this->EndPiece-this->StartPiece+1];
-  int i;
   fractions[0] = 0;
-  for(i=this->StartPiece; i < this->EndPiece; ++i)
+  for (int i = this->StartPiece; i < this->EndPiece; ++i)
     {
-    int index = i-this->StartPiece;
+    int index = i - this->StartPiece;
     fractions[index+1] = (fractions[index] +
                           this->GetNumberOfPointsInPiece(i) +
                           this->GetNumberOfCellsInPiece(i));
     }
-  if(fractions[this->EndPiece-this->StartPiece] == 0)
+  if (fractions[this->EndPiece-this->StartPiece] == 0)
     {
     fractions[this->EndPiece-this->StartPiece] = 1;
     }
-  for(i=this->StartPiece; i < this->EndPiece; ++i)
+  for (int i = this->StartPiece; i < this->EndPiece; ++i)
     {
     int index = i-this->StartPiece;
-    fractions[index+1] = fractions[index+1] / fractions[this->EndPiece-this->StartPiece];
+    fractions[index+1] = fractions[index+1] /
+      fractions[this->EndPiece-this->StartPiece];
     }
 
   // Read the data needed from each piece.
-  for(i=this->StartPiece; (i < this->EndPiece && !this->AbortExecute &&
-                           !this->DataError); ++i)
+  for(int i = this->StartPiece;
+    (i < this->EndPiece && !this->AbortExecute && !this->DataError); ++i)
     {
     // Set the range of progress for this piece.
-    this->SetProgressRange(progressRange, i-this->StartPiece, fractions);
+    this->SetProgressRange(progressRange, i - this->StartPiece, fractions);
 
-    if(!this->Superclass::ReadPieceData(i))
+    if (!this->Superclass::ReadPieceData(i))
       {
       // An error occurred while reading the piece.
       this->DataError = 1;
@@ -329,12 +332,11 @@ int vtkXMLPUnstructuredDataReader::ReadPieceData()
   this->PieceReaders[this->Piece]->Update();
 
   vtkPointSet* input = this->GetPieceInputAsPointSet(this->Piece);
-
   vtkPointSet* output = vtkPointSet::SafeDownCast(this->GetCurrentOutput());
 
   // If there are some points, but no PPoints element, report the
   // error.
-  if(!this->PPointsElement && (this->GetNumberOfPoints() > 0))
+  if (!this->PPointsElement && (this->GetNumberOfPoints() > 0))
     {
     vtkErrorMacro("Could not find PPoints element with 1 array.");
     return 0;
@@ -346,22 +348,22 @@ int vtkXMLPUnstructuredDataReader::ReadPieceData()
     }
 
   // Copy the points array.
-  this->CopyArrayForPoints(input->GetPoints()->GetData(),
-                           output->GetPoints()->GetData());
+  this->CopyArrayForPoints(
+    input->GetPoints()->GetData(), output->GetPoints()->GetData());
 
   // Let the superclass read the data it wants.
   return this->Superclass::ReadPieceData();
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPUnstructuredDataReader::CopyArrayForPoints(vtkDataArray* inArray,
-                                                       vtkDataArray* outArray)
+void vtkXMLPUnstructuredDataReader::CopyArrayForPoints(
+  vtkDataArray* inArray, vtkDataArray* outArray)
 {
-  if(!this->PieceReaders[this->Piece])
+  if (!this->PieceReaders[this->Piece])
     {
     return;
     }
-  if (inArray == NULL || outArray == NULL)
+  if (!inArray || !outArray)
     {
     return;
     }
@@ -370,17 +372,16 @@ void vtkXMLPUnstructuredDataReader::CopyArrayForPoints(vtkDataArray* inArray,
   vtkIdType components = outArray->GetNumberOfComponents();
   vtkIdType tupleSize = inArray->GetDataTypeSize()*components;
   memcpy(outArray->GetVoidPointer(this->StartPoint*components),
-         inArray->GetVoidPointer(0), numPoints*tupleSize);
+    inArray->GetVoidPointer(0), numPoints*tupleSize);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPUnstructuredDataReader::CopyCellArray(vtkIdType totalNumberOfCells,
-                                                  vtkCellArray* inCells,
-                                                  vtkCellArray* outCells)
+void vtkXMLPUnstructuredDataReader::CopyCellArray(
+  vtkIdType totalNumberOfCells, vtkCellArray* inCells, vtkCellArray* outCells)
 {
   // Allocate memory in the output connectivity array.
   vtkIdType curSize = 0;
-  if(outCells->GetData())
+  if (outCells->GetData())
     {
     curSize = outCells->GetData()->GetNumberOfTuples();
     }
@@ -392,16 +393,15 @@ void vtkXMLPUnstructuredDataReader::CopyCellArray(vtkIdType totalNumberOfCells,
   out += curSize;
 
   // Copy the connectivity data.
-  while(in < end)
+  while (in < end)
     {
     vtkIdType length = *in++;
     *out++ = length;
     // Copy the point indices, but increment them for the appended
     // version's index.
-    vtkIdType j;
-    for(j=0;j < length; ++j)
+    for (vtkIdType j = 0; j < length; ++j)
       {
-      out[j] = in[j]+this->StartPoint;
+      out[j] = in[j] + this->StartPoint;
       }
     in += length;
     out += length;

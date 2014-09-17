@@ -41,7 +41,6 @@ class VTKRENDERINGOPENGL2_EXPORT vtkPixelBufferObject : public vtkObject
 {
 public:
 
-  //BTX
   // Usage values.
   enum
   {
@@ -56,7 +55,6 @@ public:
     DynamicCopy,
     NumberOfUsages
   };
-  //ETX
 
   static vtkPixelBufferObject* New();
   vtkTypeMacro(vtkPixelBufferObject, vtkObject);
@@ -259,7 +257,6 @@ public:
   void UnmapPackedBuffer()
     { this->UnmapBuffer(PACKED_BUFFER); }
 
-//BTX
   // PACKED_BUFFER for download APP<-PBO
   // UNPACKED_BUFFER for upload APP->PBO
   enum BufferType{
@@ -308,8 +305,6 @@ public:
   // Extension will be loaded when the conetxt is set.
   static bool IsSupported(vtkRenderWindow* renWin);
 
-//ETX
-//BTX
 protected:
   vtkPixelBufferObject();
   ~vtkPixelBufferObject();
@@ -337,7 +332,6 @@ protected:
 private:
   vtkPixelBufferObject(const vtkPixelBufferObject&); // Not implemented.
   void operator=(const vtkPixelBufferObject&); // Not implemented.
-  //ETX
 };
 
 #endif

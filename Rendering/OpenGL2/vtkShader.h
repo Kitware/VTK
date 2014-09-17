@@ -11,14 +11,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkglShader_h
-#define __vtkglShader_h
+// .NAME vtkShader - encapsulate a glsl shader
+// .SECTION Description
+// vtkShader represents a shader, vertex, fragment, geometry etc
+#ifndef __vtkShader_h
+#define __vtkShader_h
 
-#include "vtkRenderingOpenGL2Module.h"
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtkObject.h"
 
 #include <string> // For member variables.
-
-namespace vtkgl {
 
 /**
  * @brief Vertex or Fragment shader, combined into a ShaderProgram.
@@ -27,9 +29,14 @@ namespace vtkgl {
  * ShaderProgram in order to render geometry etc.
  */
 
-class VTKRENDERINGOPENGL2_EXPORT Shader
+class VTKRENDERINGOPENGL2_EXPORT vtkShader : public vtkObject
 {
 public:
+  static vtkShader *New();
+  vtkTypeMacro(vtkShader, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+
   /** Available shader types. */
   enum Type {
     Vertex,    /**< Vertex shader */
@@ -37,9 +44,6 @@ public:
     Geometry,  /**< Geometry shader */
     Unknown    /**< Unknown (default) */
   };
-
-  explicit Shader(Type type = Unknown, const std::string &source = "");
-  ~Shader();
 
   /** Set the shader type. */
   void SetType(Type type);
@@ -71,14 +75,20 @@ public:
   void Cleanup();
 
 protected:
+  vtkShader();
+  ~vtkShader();
+
   Type ShaderType;
   int  Handle;
   bool Dirty;
 
   std::string Source;
   std::string Error;
+
+private:
+  vtkShader(const vtkShader&);  // Not implemented.
+  void operator=(const vtkShader&);  // Not implemented.
 };
 
-}
 
 #endif
