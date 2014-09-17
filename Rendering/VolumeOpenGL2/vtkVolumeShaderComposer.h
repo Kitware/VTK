@@ -147,16 +147,23 @@ namespace vtkvolume
                        vtkVolume* vol)
     {
     return std::string(
-      "vec3 l_light_pos_obj; \n\
+      "vec4 l_light_pos_obj; \n\
       \n\
       /// Get the 3D texture coordinates for lookup into the m_volume dataset  \n\
       vec3 l_data_pos = m_texture_coords.xyz; \n\
       \n\
       /// Eye position in object space  \n\
-      vec3 l_eye_pos_obj = (m_inverse_volume_matrix * vec4(m_camera_pos, 1.0)).xyz; \n\
+      vec4 l_eye_pos_obj = (m_inverse_volume_matrix * vec4(m_camera_pos, 1.0)); \n\
+      if (l_eye_pos_obj.w != 0.0) \n\
+        { \n\
+        l_eye_pos_obj.x /= l_eye_pos_obj.w; \n\
+        l_eye_pos_obj.y /= l_eye_pos_obj.w; \n\
+        l_eye_pos_obj.z /= l_eye_pos_obj.w; \n\
+        l_eye_pos_obj.w = 1.0; \n\
+        } \n\
       \n\
       /// Getting the ray marching direction (in object space); \n\
-      vec3 geom_dir = normalize(m_vertex_pos.xyz - l_eye_pos_obj); \n\
+      vec3 geom_dir = normalize(m_vertex_pos.xyz - l_eye_pos_obj.xyz); \n\
       \n\
       /// Multiply the raymarching direction with the step size to get the \n\
       /// sub-step size we need to take at each raymarching step  \n\
@@ -222,8 +229,14 @@ namespace vtkvolume
       {
       return std::string(
         "/// Light position in object space \n\
-         l_light_pos_obj = (m_inverse_volume_matrix *  vec4(m_light_pos, 1.0)).xyz;"
-      );
+         l_light_pos_obj = (m_inverse_volume_matrix *  vec4(m_light_pos, 1.0)); \n\
+         if (l_light_pos_obj.w != 0.0) \n\
+          { \n\
+          l_light_pos_obj.x /= l_light_pos_obj.w; \n\
+          l_light_pos_obj.y /= l_light_pos_obj.w; \n\
+          l_light_pos_obj.z /= l_light_pos_obj.w; \n\
+          l_light_pos_obj.w = 1.0; \n\
+          };");
       }
     else
       {
@@ -270,8 +283,8 @@ namespace vtkvolume
         shaderStr += std::string(" \n\
                 vec3 g1; \n\
                 vec3 g2; \n\
-                vec3 ldir = normalize(l_light_pos_obj - m_vertex_pos); \n\
-                vec3 vdir = normalize(l_eye_pos_obj - m_vertex_pos); \n\
+                vec3 ldir = normalize(l_light_pos_obj.xyz - m_vertex_pos); \n\
+                vec3 vdir = normalize(l_eye_pos_obj.xyz - m_vertex_pos); \n\
                 vec3 h = normalize(ldir + vdir); \n\
                 vec3 xvec = vec3(m_cell_step[0], 0.0, 0.0); \n\
                 vec3 yvec = vec3(0.0, m_cell_step[1], 0.0); \n\
@@ -299,30 +312,35 @@ namespace vtkvolume
                 g2.x /= aspect.x; \n\
                 g2.y /= aspect.y; \n\
                 g2.z /= aspect.z; \n\
-                float scale = 1.0 / (0.25 * (m_scalars_range[1] - (m_scalars_range[0]))); \n\
-                float grad_mag = sqrt(g2.x * g2.x  + g2.y * g2.y + g2.z * g2.z) * scale; \n\
-                g2 = normalize(g2); \n\
-                 if (grad_mag <= 0.0) \n\
-                    { \n\
-                    return; \n\
-                    } \n\
+                float grad_mag = sqrt(g2.x * g2.x  + g2.y * g2.y + g2.z * g2.z); \n\
+                if (grad_mag > 0.0) \n\
+                   { \n\
+                   g2.x /= grad_mag; \n\
+                   g2.y /= grad_mag; \n\
+                   g2.z /= grad_mag; \n\
+                   } \n\
+                 else \n\
+                   { \n\
+                   g2 = vec3(0.0, 0.0, 0.0); \n\
+                   } \n\
+                grad_mag = grad_mag * 1.0 / (0.25 * (m_scalars_range[1] - (m_scalars_range[0]))); \n\
+                grad_mag = clamp(grad_mag, 0.0, 1.0); \n\
                 vec3 final_color = vec3(0.0); \n\
                 float n_dot_l = dot(g2, ldir); \n\
                 float n_dot_h = dot(g2, h); \n\
                 if (n_dot_l < 0.0) \n\
                   { \n\
-                  n_dot_l =- n_dot_l; \n\
+                  n_dot_l = -n_dot_l; \n\
                   } \n\
                 if (n_dot_h < 0.0) \n\
                   { \n\
-                  n_dot_h =- n_dot_h; \n\
+                  n_dot_h = -n_dot_h; \n\
                   } \n\
                 final_color += m_ambient; \n\
-                final_color += m_diffuse * n_dot_l; \n\
-                float m_shine_factor = pow(n_dot_h, m_shininess); \n\
-                final_color += m_specular * m_shine_factor; \n\
+                final_color += m_diffuse * n_dot_l * l_src_color.rgb; \n\
+                final_color += m_specular * pow(n_dot_h, m_shininess); \n\
                 final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
-                l_src_color.rgb *= final_color; \n\
+                l_src_color.rgb = final_color; \n\
                 @GRADIENT_OPACITY_INCREMENT@ ");
         }
 

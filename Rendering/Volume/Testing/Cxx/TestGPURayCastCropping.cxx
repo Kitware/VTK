@@ -102,6 +102,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
       volumeMapper[i][j]->SetInputConnection(reader->GetOutputPort());
       volumeMapper[i][j]->SetSampleDistance(0.25);
       volumeMapper[i][j]->CroppingOn();
+      volumeMapper[i][j]->SetAutoAdjustSampleDistances(0);
       volumeMapper[i][j]->SetCroppingRegionPlanes(17,33,17,33,17,33);
 
       vtkVolume *volume=vtkVolume::New();
