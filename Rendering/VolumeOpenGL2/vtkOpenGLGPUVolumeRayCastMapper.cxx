@@ -1541,6 +1541,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   float volumeMat[16];
   vtkMatrix4x4* volumeMatrix4x4 = vol->GetMatrix();
   this->Implementation->InverseVolumeMat->DeepCopy(volumeMatrix4x4);
+  this->Implementation->InverseVolumeMat->Invert();
   for (int i = 0; i < 4; ++i)
     {
     for (int j = 0; j < 4; ++j)
