@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+
 #include "vtkOpenGLRenderWindow.h"
 
 #import "vtkIOSGLView.h"
@@ -109,6 +110,8 @@
 
     // Set the view's scale factor as you wish
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
+
+    self.multipleTouchEnabled = YES;
   }
 
   return self;
@@ -159,8 +162,8 @@
     return NO;
     }
 
-  // Load shaders
-  [self setupShaders];
+  // setup the vis pipeline
+  [self setupPipeline];
 
   [self getVTKRenderWindow]->SetSize(backingWidth, backingHeight);
 
@@ -171,7 +174,7 @@
   return YES;
 }
 
-- (void)setupShaders
+- (void)setupPipeline
 {
   vtkRenderingOpenGL2ObjectFactory *of = vtkRenderingOpenGL2ObjectFactory::New();
   vtkObjectFactory::RegisterFactory(of);
@@ -241,22 +244,6 @@
   [super dealloc];
 }
 
-// Erases the screen
-- (void)erase
-{
-  // [EAGLContext setCurrentContext:context];
-
-  // // Clear the buffer
-  // glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
-  // glClearColor(0.0, 0.0, 0.0, 0.0);
-  // glClear(GL_COLOR_BUFFER_BIT);
-
-  // // Display the buffer
-  // glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
-  // [context presentRenderbuffer:GL_RENDERBUFFER];
-   NSLog(@"Someone called ERASE");
-}
-
 // Handles the start of a touch
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -272,21 +259,36 @@
     return;
     }
 
-  CGRect        bounds = [self bounds];
-  UITouch*            touch = [[event touchesForView:self] anyObject];
-  // Convert touch point from UIView referential to OpenGL one (upside-down flip)
-  CGPoint location = [touch locationInView:self];
-  location.y = bounds.size.height - location.y;
+  CGRect bounds = [self bounds];
 
-  interactor->SetEventInformation((int)round(location.x),
+  // set the position for all contacts
+  NSSet *myTouches = [event touchesForView:self];
+  for (UITouch *touch in myTouches)
+    {
+    // Convert touch point from UIView referential to OpenGL one (upside-down flip)
+    CGPoint location = [touch locationInView:self];
+    location.y = bounds.size.height - location.y;
+
+    int index = interactor->GetContactIndex((void *)touch);
+    if (index < VTKI_MAX_POINTERS)
+      {
+      interactor->SetEventInformation((int)round(location.x),
                                   (int)round(location.y),
                                   0, 0,
-                                  0, 0);
-  interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-//    NSLog(@"Starting left mouse");
+                                  0, 0, 0, index);
+      }
+    }
+
+  // handle begin events
+  for (UITouch *touch in touches)
+    {
+    int index = interactor->GetContactIndex((void *)touch);
+    interactor->SetPointerIndex(index);
+    interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    NSLog(@"Starting left mouse");
+    }
 
   // Display the buffer
-  //[self getVTKRenderWindow]->Render();
   glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
   [context presentRenderbuffer:GL_RENDERBUFFER];
 }
@@ -307,20 +309,32 @@
     }
 
   CGRect        bounds = [self bounds];
-  UITouch*      touch = [[event touchesForView:self] anyObject];
-  // Convert touch point from UIView referential to OpenGL one (upside-down flip)
-  CGPoint location = [touch locationInView:self];
-  location.y = bounds.size.height - location.y;
 
-  interactor->SetEventInformation((int)round(location.x),
+  // set the position for all contacts
+  int index;
+  NSSet *myTouches = [event touchesForView:self];
+  for (UITouch *touch in myTouches)
+    {
+    // Convert touch point from UIView referential to OpenGL one (upside-down flip)
+    CGPoint location = [touch locationInView:self];
+    location.y = bounds.size.height - location.y;
+
+    index = interactor->GetContactIndex((void *)touch);
+    if (index < VTKI_MAX_POINTERS)
+      {
+      interactor->SetEventInformation((int)round(location.x),
                                   (int)round(location.y),
                                   0, 0,
-                                  0, 0);
+                                  0, 0, 0, index);
+      }
+    }
+
+  // fire move event on last index
+  interactor->SetPointerIndex(index);
   interactor->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
   //  NSLog(@"Moved left mouse");
 
   // Display the buffer
-  //[self getVTKRenderWindow]->Render();
   glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
   [context presentRenderbuffer:GL_RENDERBUFFER];
 }
@@ -341,20 +355,35 @@
     }
 
   CGRect        bounds = [self bounds];
-  UITouch*            touch = [[event touchesForView:self] anyObject];
-  // Convert touch point from UIView referential to OpenGL one (upside-down flip)
-  CGPoint location = [touch locationInView:self];
-  location.y = bounds.size.height - location.y;
+  // set the position for all contacts
+  NSSet *myTouches = [event touchesForView:self];
+  for (UITouch *touch in myTouches)
+    {
+    // Convert touch point from UIView referential to OpenGL one (upside-down flip)
+    CGPoint location = [touch locationInView:self];
+    location.y = bounds.size.height - location.y;
 
-  interactor->SetEventInformation((int)round(location.x),
+    int index = interactor->GetContactIndex((void *)touch);
+    if (index < VTKI_MAX_POINTERS)
+      {
+      interactor->SetEventInformation((int)round(location.x),
                                   (int)round(location.y),
                                   0, 0,
-                                  0, 0);
-  interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-  //  NSLog(@"Tapped left mouse");
+                                  0, 0, 0, index);
+      }
+    }
+
+  // handle begin events
+  for (UITouch *touch in touches)
+    {
+    int index = interactor->GetContactIndex((void *)touch);
+    interactor->SetPointerIndex(index);
+    interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+    interactor->ClearContactIndex((void *)touch);
+    NSLog(@"lifting left mouse");
+    }
 
   // Display the buffer
-  //[self getVTKRenderWindow]->Render();
   glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
   [context presentRenderbuffer:GL_RENDERBUFFER];
 }

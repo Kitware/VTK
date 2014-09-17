@@ -62,9 +62,7 @@
 
 - (vtkIOSRenderWindowInteractorRef)getInteractor;
 
-- (void)setupShaders;
-
-- (void)erase;
+- (void)setupPipeline;
 
 @end
 

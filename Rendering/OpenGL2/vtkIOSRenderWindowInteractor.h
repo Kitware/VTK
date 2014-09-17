@@ -88,6 +88,12 @@ public:
   // callbacks. They allow for the Style to invoke them.
   virtual void ExitCallback();
 
+  // Description:
+  // For multitouch events translate a UITouch ref into a constant index
+  // for tracking across multiple calls
+  int GetContactIndex(void *ptr);
+  void ClearContactIndex(void *ptr);
+
 //  int GetButtonDown();
 //  void SetButtonDown(int button);
 
@@ -110,6 +116,8 @@ protected:
   static void (*ClassExitMethod)(void *);
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
+
+  void *IDLookup[VTKI_MAX_POINTERS];
 
   // Description:
   // IOS-specific internal timer methods. See the superclass for detailed

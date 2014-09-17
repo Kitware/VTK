@@ -43,9 +43,9 @@ PURPOSE.  See the above copyright notice for more information.
 @implementation PaintingView
 
 
-- (void)setupShaders
+- (void)setupPipeline
 {
-  [super setupShaders];
+  [super setupPipeline];
 
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
