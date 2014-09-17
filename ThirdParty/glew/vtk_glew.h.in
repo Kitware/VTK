@@ -33,7 +33,7 @@
 #ifdef ANDROID
 #  include <GLES2/gl2.h>
 #else
-# if defined(TARGET_OS_PHONE) || defined(TARGET_IPHONE_SIMULATOR)
+# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 #  include <OpenGLES/ES2/gl.h>
 # else
 /* Use the glew library configured for VTK.  */
