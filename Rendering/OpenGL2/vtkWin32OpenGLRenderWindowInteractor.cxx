@@ -750,19 +750,21 @@ int vtkWin32OpenGLRenderWindowInteractor::GetContactIndex(int dwID)
 {
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
+    if (this->IDLookup[i] == dwID)
+      {
+      return i;
+      }
+    }
+
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
     if (this->IDLookup[i] == -1)
       {
       this->IDLookup[i] = dwID;
       return i;
       }
-    else
-      {
-      if (this->IDLookup[i] == dwID)
-        {
-        return i;
-        }
-      }
     }
+
   // Out of contacts
   return -1;
 }
