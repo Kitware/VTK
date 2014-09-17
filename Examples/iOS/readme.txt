@@ -5,18 +5,24 @@ The iOS build of VTK is in an alpha state. Please do try it out but understand i
 
 To build a VTK application for iOS you will need a Mac/Macbook that has Xcode on it and the iOS dev kit. What follows are the basic steps:
 
-* make a directory for the binaries to go into (your binary tree).  I usually create a directory next to VTK caled vtkiphone for example.
+* make a directory for the host binaries (e.g. vtkbin) I typically create this next to the VTK source tree
 
-* Build VTK using CMake and select the Unix Makefiles (or Ninja) and select a toolchain when prompted to (or specify it on the cmake command line if you are not using the GUI. The toolchain files are kept in VTK/CMake and are named
+* build vtk the normal way into that directory, no cross compiling, nothing fancy, you just need a build of vtk on the host system for a few executables VTK uses as part of its build process.
+
+* make a directory for the iOS binaries to go into (your binary tree).  I usually create a directory next to VTK caled vtkiphone for example.
+
+* cross compile VTK into theis new directory using CMake and select the Unix Makefiles (or Ninja) generator and select a toolchain when prompted to (or specify it on the cmake command line if you are not using the GUI. This is a second build of VTK, this time cross compiled. The toolchain files are kept in VTK/CMake and are named
 
   ios.device.toolchain.cmake -- for an ipan or iphone
   ios.simulator.toolchain.cmake -- for the simulator that run on the mac
 
 * Make sure the CMAKE_INSTALL_PREFIX is set to somethign you are OK with installing to. Part of this build process required you do a make install so make sure it is a good place.
 
-* Build VTK
+* as part of the Cmake configure process it will ask you to set VTKCompileTools_DIR, set this to the binary tree from your first build, e.g. vtkbin
 
-* do a make install (or ninja instal) to install VTK
+* Build the iphone version of VTK
+
+* do a make install (or ninja instal) to install VTK on your iphone binary tree
 
 * DANGER: look at the following shell script before running it to make sure it will not do a rm -r * or anything like that.  It should be fine, but there are configured values and it does delete file, so I get nervous.
 
