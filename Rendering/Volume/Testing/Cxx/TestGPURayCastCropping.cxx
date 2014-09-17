@@ -81,6 +81,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
   volumeProperty->SetScalarOpacity(opacityTransferFunction);
   opacityTransferFunction->Delete();
   volumeProperty->ShadeOn(); //
+  volumeProperty->SetDisableGradientOpacity(1);
   volumeProperty->SetInterpolationTypeToLinear();
 
 

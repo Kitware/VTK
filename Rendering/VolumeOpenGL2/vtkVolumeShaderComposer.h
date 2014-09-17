@@ -361,7 +361,7 @@ namespace vtkvolume
   std::string GradientOpacityIncrement(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
                                        vtkVolume* vol)
     {
-    if (vol->GetProperty()->GetGradientOpacity())
+    if (!vol->GetProperty()->GetDisableGradientOpacity())
       {
       return std::string("l_src_color.a *= \n\
                          texture1D(m_gradient_transfer_func, grad_mag).w;");
