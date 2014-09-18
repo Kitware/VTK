@@ -10,38 +10,7 @@ set(${vtk-module}_SYSTEM_INCLUDE_DIRS
   ${OPENGL_INCLUDE_DIR})
 
 include(vtkObjectFactory)
-
-# Copy of what is in vtkRenderingOpenGL for logic on X, Carbon, Cocoa, etc.
-set(VTK_USE_X_DEFAULT OFF)
-
-if(APPLE)
-  option(VTK_USE_COCOA "Use Cocoa for VTK render windows" ON)
-  option(VTK_USE_CARBON "Use Carbon for VTK render windows (deprecated)" OFF)
-  mark_as_advanced(VTK_USE_COCOA VTK_USE_CARBON)
-  if(VTK_USE_COCOA AND VTK_USE_CARBON)
-    message(FATAL_ERROR "You can't enable Carbon and Cocoa - you must choose one.")
-  endif()
-elseif(UNIX AND NOT ANDROID)
-  set(VTK_USE_X_DEFAULT ON)
-endif()
-
-option(VTK_USE_X "Use X for VTK render windows" ${VTK_USE_X_DEFAULT})
-mark_as_advanced(VTK_USE_X)
-
-# OSMesa logic for offscreen mesa rendering.
-option(VTK_OPENGL_HAS_OSMESA
-  "The OpenGL library being used supports off screen Mesa calls" OFF)
-option(VTK_USE_OFFSCREEN "Use off screen calls by default" OFF)
-unset(VTK_CAN_DO_OFFSCREEN)
-if(VTK_OPENGL_HAS_OSMESA OR WIN32)
-  set(VTK_CAN_DO_OFFSCREEN 1)
-endif()
-mark_as_advanced(VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN)
-if(VTK_USE_X OR VTK_USE_CARBON OR VTK_USE_COCOA OR WIN32 OR ANDROID)
-  set(VTK_USE_OSMESA FALSE)
-else()
-  set(VTK_USE_OSMESA TRUE)
-endif()
+include(vtkOpenGLMesaLogic)
 
 # The TDx support has not been moved, this header is here to define nothing,
 # and so allow classes in other modules to safely include it and keep going.
@@ -228,8 +197,8 @@ elseif(VTK_USE_OSMESA)
   endif()
   include_directories(${OSMESA_INCLUDE_DIR})
   list(APPEND vtk_module_overrides "vtkRenderWindow")
-  set(vtk_module_vtkRenderWindow_override "vtkOSOpenGL2RenderWindow")
-  list(APPEND Module_SRCS vtkOSOpenGL2RenderWindow.cxx)
+  set(vtk_module_vtkRenderWindow_override "vtkOSOpenGLRenderWindow")
+  list(APPEND Module_SRCS vtkOSOpenGLRenderWindow.cxx)
 elseif(WIN32)
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
@@ -310,6 +279,8 @@ vtk_module_link_libraries(${vtk-module}
 if(VTK_USE_X)
   vtk_module_link_libraries(${vtk-module}
     LINK_PUBLIC ${X11_LIBRARIES} ${X11_Xt_LIB})
+elseif(VTK_USE_OSMESA)
+  vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${OSMESA_LIBRARY})
 elseif(VTK_USE_COCOA)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework Cocoa")
 elseif(VTK_USE_CARBON)
