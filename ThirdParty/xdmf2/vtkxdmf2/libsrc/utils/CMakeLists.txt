@@ -12,9 +12,9 @@ SET(XdmfUtilSource
 
 IF(XDMF_BUILD_MPI)
   SET(XDMF_UTILS_PYTHON_FILE ${CMAKE_CURRENT_SOURCE_DIR}/XdmfUtils.py)
-ELSE(XDMF_BUILD_MPI)
+ELSE()
   SET(XDMF_UTILS_PYTHON_FILE ${CMAKE_CURRENT_SOURCE_DIR}/XdmfUtilsNoMpi.py)
-ENDIF(XDMF_BUILD_MPI)
+ENDIF()
 
 IF(XDMF_REGENERATE_WRAPPERS)
   IF(SWIG_EXECUTABLE)
@@ -29,30 +29,30 @@ IF(XDMF_REGENERATE_WRAPPERS)
           DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/XdmfUtils.i
           COMMAND ${SWIG_EXECUTABLE}
           ARGS -v -c++ -make_default -includeall "-${lang}" ${swig_extra_args} ${XDMF_SWIG_INCLUDES} -o "${swigtarget}" XdmfUtils.i)
-      ELSE(XDMF_BUILD_MPI)
+      ELSE()
         SET(swigtarget ${Xdmf_BINARY_DIR}/libsrc/utils/XdmfUtils${LANGUAGE}NoMpi.cxx)
         ADD_CUSTOM_COMMAND(
          OUTPUT ${swigtarget}
          DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/XdmfUtils.i
          COMMAND ${SWIG_EXECUTABLE}
          ARGS -v -c++ -DXDMF_NO_MPI -make_default -includeall "-${lang}" ${swig_extra_args} ${XDMF_SWIG_INCLUDES} -o "${swigtarget}" XdmfUtils.i)
-      ENDIF(XDMF_BUILD_MPI)
-    ENDFOREACH(LANGUAGE)
+      ENDIF()
+    ENDFOREACH()
     # ADD_CUSTOM_TARGET(RerunSwig DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/XdmfUtilsPython.cxx)
-  ENDIF(SWIG_EXECUTABLE)
+  ENDIF()
   SET(XDMF_UTILS_PYTHON_FILE ${CMAKE_CURRENT_BINARY_DIR}/XdmfUtils.py)
-ENDIF(XDMF_REGENERATE_WRAPPERS)
+ENDIF()
 
 IF(XDMF_WRAP_PYTHON)
   IF(XDMF_BUILD_MPI)
     ADD_LIBRARY(_XdmfUtils MODULE XdmfUtilsPython.cxx)
-  ELSE(XDMF_BUILD_MPI)
+  ELSE()
     ADD_LIBRARY(_XdmfUtils MODULE XdmfUtilsPythonNoMpi.cxx)
-  ENDIF(XDMF_BUILD_MPI)
+  ENDIF()
   TARGET_LINK_LIBRARIES(_XdmfUtils XdmfUtils)
   IF(WIN32 OR APPLE)
     TARGET_LINK_LIBRARIES(_XdmfUtils ${PYTHON_LIBRARY})
-  ENDIF(WIN32 OR APPLE)
+  ENDIF()
   SET_TARGET_PROPERTIES(_XdmfUtils PROPERTIES PREFIX "")
   ADD_DEPENDENCIES(_XdmfUtils XdmfUtils)
 
@@ -63,7 +63,7 @@ IF(XDMF_WRAP_PYTHON)
       COMPONENT Runtime
       RENAME XdmfUtils.py # Always named the same regardless of build with or without mpi
   )
-ENDIF(XDMF_WRAP_PYTHON)
+ENDIF()
 
 ADD_LIBRARY(XdmfUtils ${LIBTYPE} ${XdmfUtilSource})
 TARGET_LINK_LIBRARIES(XdmfUtils Xdmf ${XDMF_EXODUSII_LIBRARIES}
@@ -82,7 +82,7 @@ IF(NOT XDMF_INSTALL_NO_DEVELOPMENT)
   INSTALL(
       FILES ${devFiles}
       DESTINATION ${XDMF_INSTALL_INCLUDE_DIR_CM24}/utils)
-ENDIF(NOT XDMF_INSTALL_NO_DEVELOPMENT)
+ENDIF()
 
 IF(NOT XDMF_INSTALL_NO_LIBRARIES)
   INSTALL(TARGETS XdmfExodusConverter XdmfDiff XdmfPartitioner XdmfUtils
@@ -97,5 +97,5 @@ IF(NOT XDMF_INSTALL_NO_LIBRARIES)
         TARGETS _XdmfUtils
         DESTINATION
         ${XDMF_WRAP_PYTHON_INSTALL_DIR})
-  ENDIF(XDMF_WRAP_PYTHON)
-ENDIF(NOT XDMF_INSTALL_NO_LIBRARIES)
+  ENDIF()
+ENDIF()
