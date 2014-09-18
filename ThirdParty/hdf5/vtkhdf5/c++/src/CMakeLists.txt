@@ -5,7 +5,7 @@ PROJECT (HDF5_CPP_SRC)
 #-----------------------------------------------------------------------------
 IF (BUILD_SHARED_LIBS)
   SET (CPP_BUILT_AS_DYNAMIC_LIB 1)
-ENDIF (BUILD_SHARED_LIBS)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Generate configure file
@@ -95,7 +95,7 @@ INSTALL (
     DESTINATION
         ${VTK_INSTALL_INCLUDE_DIR}/vtkhdf5/cpp
 )
-ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
@@ -110,5 +110,5 @@ IF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)
       LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
       ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
   )
-ENDIF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)
+ENDIF ()
 

@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 MACRO (SET_GLOBAL_VARIABLE name value)
   SET (${name} ${value} CACHE INTERNAL "Used to pass variables between directories" FORCE)
-ENDMACRO (SET_GLOBAL_VARIABLE)
+ENDMACRO ()
 
 #-------------------------------------------------------------------------------
 MACRO (IDE_GENERATED_PROPERTIES SOURCE_PATH HEADERS SOURCES)
@@ -14,7 +14,7 @@ MACRO (IDE_GENERATED_PROPERTIES SOURCE_PATH HEADERS SOURCES)
   #SET_PROPERTY (SOURCE ${HEADERS}
   #       PROPERTY MACOSX_PACKAGE_LOCATION Headers/${NAME}
   #)
-ENDMACRO (IDE_GENERATED_PROPERTIES)
+ENDMACRO ()
 
 #-------------------------------------------------------------------------------
 MACRO (IDE_SOURCE_PROPERTIES SOURCE_PATH HEADERS SOURCES)
@@ -31,7 +31,7 @@ MACRO (IDE_SOURCE_PROPERTIES SOURCE_PATH HEADERS SOURCES)
   #SET_PROPERTY (SOURCE ${HEADERS}
   #       PROPERTY MACOSX_PACKAGE_LOCATION Headers/${NAME}
   #)
-ENDMACRO (IDE_SOURCE_PROPERTIES)
+ENDMACRO ()
 
 #-------------------------------------------------------------------------------
 MACRO (H5_NAMING target)
@@ -40,12 +40,12 @@ MACRO (H5_NAMING target)
       IF (H5_LEGACY_NAMING)
         SET_TARGET_PROPERTIES (${target} PROPERTIES OUTPUT_NAME "dll")
         SET_TARGET_PROPERTIES (${target} PROPERTIES PREFIX "${target}")
-      ELSE (H5_LEGACY_NAMING)
+      ELSE ()
         SET_TARGET_PROPERTIES (${target} PROPERTIES OUTPUT_NAME "${target}dll")
-      ENDIF (H5_LEGACY_NAMING)
-    ENDIF (BUILD_SHARED_LIBS)
-  ENDIF (WIN32 AND NOT MINGW)
-ENDMACRO (H5_NAMING)
+      ENDIF ()
+    ENDIF ()
+  ENDIF ()
+ENDMACRO ()
 
 #-------------------------------------------------------------------------------
 MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
@@ -55,28 +55,28 @@ MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
       IF (H5_LEGACY_NAMING)
         SET (LIB_RELEASE_NAME "${libname}dll")
         SET (LIB_DEBUG_NAME "${libname}ddll")
-      ELSE (H5_LEGACY_NAMING)
+      ELSE ()
         SET (LIB_RELEASE_NAME "${libname}")
         SET (LIB_DEBUG_NAME "${libname}_D")
-      ENDIF (H5_LEGACY_NAMING)
-    ELSE (WIN32 AND NOT MINGW)
+      ENDIF ()
+    ELSE ()
       SET (LIB_RELEASE_NAME "${libname}")
       SET (LIB_DEBUG_NAME "${libname}_debug")
-    ENDIF (WIN32 AND NOT MINGW)
-  ELSE (${libtype} MATCHES "SHARED")
+    ENDIF ()
+  ELSE ()
     IF (WIN32 AND NOT MINGW)
       IF (H5_LEGACY_NAMING)
         SET (LIB_RELEASE_NAME "${libname}")
         SET (LIB_DEBUG_NAME "${libname}d")
-      ELSE (H5_LEGACY_NAMING)
+      ELSE ()
         SET (LIB_RELEASE_NAME "lib${libname}")
         SET (LIB_DEBUG_NAME "lib${libname}_D")
-      ENDIF (H5_LEGACY_NAMING)
-    ELSE (WIN32 AND NOT MINGW)
+      ENDIF ()
+    ELSE ()
       SET (LIB_RELEASE_NAME "lib${libname}")
       SET (LIB_DEBUG_NAME "lib${libname}_debug")
-    ENDIF (WIN32 AND NOT MINGW)
-  ENDIF (${libtype} MATCHES "SHARED")
+    ENDIF ()
+  ENDIF ()
   
   # library names not mangled in this reduced distribution
   
@@ -88,17 +88,17 @@ MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
         IMPORT_PREFIX ""
         PREFIX ""
     )
-  ENDIF (MINGW AND BUILD_SHARED_LIBS)
+  ENDIF ()
 
   IF (BUILD_SHARED_LIBS)
     IF (WIN32)
       SET (LIBHDF_VERSION HDF5_PACKAGE_VERSION_MAJOR)
-    ELSE (WIN32)
+    ELSE ()
       SET (LIBHDF_VERSION ${HDF5_PACKAGE_VERSION})
-    ENDIF (WIN32)
+    ENDIF ()
     SET_TARGET_PROPERTIES (${libtarget} PROPERTIES VERSION ${LIBHDF_VERSION})
     SET_TARGET_PROPERTIES (${libtarget} PROPERTIES SOVERSION ${LIBHDF_VERSION})
-  ENDIF (BUILD_SHARED_LIBS)
+  ENDIF ()
 
   #-- Apple Specific install_name for libraries
   IF (APPLE)
@@ -109,8 +109,8 @@ MACRO (H5_SET_LIB_OPTIONS libtarget libname libtype)
           INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
           BUILD_WITH_INSTALL_RPATH ${HDF5_BUILD_WITH_INSTALL_NAME}
       )
-    ENDIF (HDF5_BUILD_WITH_INSTALL_NAME)
-  ENDIF (APPLE)
+    ENDIF ()
+  ENDIF ()
 
-ENDMACRO (H5_SET_LIB_OPTIONS)
+ENDMACRO ()
 
