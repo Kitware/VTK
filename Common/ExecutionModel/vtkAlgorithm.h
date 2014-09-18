@@ -210,12 +210,25 @@ public:
 
   // Description:
   // Keys used to specify input port requirements.
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* INPUT_IS_OPTIONAL();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* INPUT_IS_REPEATABLE();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationStringVectorKey* INPUT_REQUIRED_DATA_TYPE();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationInformationVectorKey* INPUT_ARRAYS_TO_PROCESS();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* INPUT_PORT();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* INPUT_CONNECTION();
 
   // Description:
@@ -224,6 +237,7 @@ public:
   // extent. Many image sources and readers fall into this category
   // but some such as the legacy structured data readers cannot
   // support this feature.
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* CAN_PRODUCE_SUB_EXTENT();
 
   // Description:
@@ -236,6 +250,7 @@ public:
   // into pieces. Otherwise, if a source cannot handle piece requests,
   // the executive will ask for the whole data for piece 0 and not
   // execute the source for other pieces.
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* CAN_HANDLE_PIECE_REQUEST();
 
 

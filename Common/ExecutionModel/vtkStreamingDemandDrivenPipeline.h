@@ -128,72 +128,96 @@ public:
 
   // Description:
   // Key defining a request to propagate the update extent upstream.
+  // \ingroup InformationKeys
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
+  // Description:
   // Key defining a request to propagate the update extent upstream.
+  // \ingroup InformationKeys
   static vtkInformationRequestKey* REQUEST_UPDATE_TIME();
   // Description:
   // Key defining a request to make sure the meta information is up to date.
+  // \ingroup InformationKeys
   static vtkInformationRequestKey* REQUEST_TIME_DEPENDENT_INFORMATION();
 
   // Description:
   // Key for an algorithm to store in a request to tell this executive
   // to keep executing it.
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
 
   // Description:
   // Keys to store an update request in pipeline information.
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* UPDATE_EXTENT_INITIALIZED();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* UPDATE_PIECE_NUMBER();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_PIECES();
+  // Description:
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
 
   // Description:
   // Key for combining the update extents requested by all consumers,
   // so that the final extent that is produced satisfies all consumers.
+  // \ingroup InformationKeys
   static vtkInformationIntegerVectorKey* COMBINED_UPDATE_EXTENT();
 
   // Description:
   // Key to store the whole extent provided in pipeline information.
+  // \ingroup InformationKeys
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
 
   // Description:
   // This is set if the update extent is not restricted to the
   // whole extent, for sources that can generate an extent of
   // any requested size.
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* UNRESTRICTED_UPDATE_EXTENT();
 
   // Description:
   // Key to specify the request for exact extent in pipeline information.
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* EXACT_EXTENT();
 
   // Description:
   // Key to store available time steps.
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* TIME_STEPS();
 
   // Description:
   // Key to store available time range for continuous sources.
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* TIME_RANGE();
 
   // Description:
   // Update time steps requested by the pipeline.
+  // \ingroup InformationKeys
   static vtkInformationDoubleKey* UPDATE_TIME_STEP();
 
   // Description:
   // Whether there are time dependent meta information
   // if there is, the pipeline will perform two extra passes
   // to gather the time dependent information
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* TIME_DEPENDENT_INFORMATION();
 
   // Description:
   // key to record the bounds of a dataset.
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey *BOUNDS();
 
 protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
 
+  // Description:
   // Keep track of the update time request corresponding to the
   // previous executing. If the previous update request did not
   // correspond to an existing time step and the reader chose
@@ -201,6 +225,7 @@ protected:
   // be different than the request. If the same time step is
   // requested again, there is no need to re-execute the algorithm.
   // We know that it does not have this time step.
+  // \ingroup InformationKeys
   static vtkInformationDoubleKey* PREVIOUS_UPDATE_TIME_STEP();
 
   // Does the time request correspond to what is in the data?
