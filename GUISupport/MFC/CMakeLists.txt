@@ -21,7 +21,7 @@ vtk_module_library(${vtk-module} ${VTK_MFC_LIB_TYPE} ${MFC_SRCS})
 
 if(VTK_MFC_EXTRA_LIBS)
   vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${VTK_MFC_EXTRA_LIBS})
-endif(VTK_MFC_EXTRA_LIBS)
+endif()
 
 if(WIN32)
   if(NOT VTK_INSTALL_NO_DEVELOPMENT)

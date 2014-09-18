@@ -9,10 +9,10 @@ IF(NOT DEFINED VTK_ANSI_STREAM_EOF_RESULT)
     ${VTK_BINARY_DIR}/CMake/vtkTestStreamEOF.cxx)
   IF(VTK_ANSI_STREAM_EOF_COMPILED)
     MESSAGE(STATUS "Checking ANSI streams end-of-file bug level - ${VTK_ANSI_STREAM_EOF_RESULT}")
-  ELSE(VTK_ANSI_STREAM_EOF_COMPILED)
+  ELSE()
     SET(VTK_ANSI_STREAM_EOF_RESULT 0)
     MESSAGE(STATUS "Checking ANSI streams end-of-file bug level - failed to compile test")
-  ENDIF(VTK_ANSI_STREAM_EOF_COMPILED)
+  ENDIF()
 ENDIF()
 SET(VTK_STREAM_EOF_SEVERITY ${VTK_ANSI_STREAM_EOF_RESULT})
 
@@ -33,14 +33,14 @@ IF(VTK_SIZEOF_LONG_LONG)
         "Determining if ostream supports long long "
         "passed with the following output:\n"
         "${OUTPUT}\n")
-    ELSE(VTK_OSTREAM_SUPPORTS_LONG_LONG)
+    ELSE()
       MESSAGE(STATUS "Checking if ostream supports long long -- no")
       SET(VTK_OSTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether ostream supports long long")
       FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining if ostream supports long long "
         "failed with the following output:\n"
         "${OUTPUT}\n")
-    ENDIF(VTK_OSTREAM_SUPPORTS_LONG_LONG)
+    ENDIF()
   ENDIF()
   IF(NOT DEFINED VTK_ISTREAM_SUPPORTS_LONG_LONG)
     MESSAGE(STATUS "Checking if istream supports long long")
@@ -56,13 +56,13 @@ IF(VTK_SIZEOF_LONG_LONG)
         "Determining if istream supports long long "
         "passed with the following output:\n"
         "${OUTPUT}\n")
-    ELSE(VTK_ISTREAM_SUPPORTS_LONG_LONG)
+    ELSE()
       MESSAGE(STATUS "Checking if istream supports long long -- no")
       SET(VTK_ISTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether istream supports long long")
       FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining if istream supports long long "
         "failed with the following output:\n"
         "${OUTPUT}\n")
-    ENDIF(VTK_ISTREAM_SUPPORTS_LONG_LONG)
+    ENDIF()
   ENDIF()
-ENDIF(VTK_SIZEOF_LONG_LONG)
+ENDIF()

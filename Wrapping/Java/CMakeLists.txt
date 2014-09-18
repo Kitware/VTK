@@ -436,4 +436,4 @@ if(VTK_JAVA_INSTALL)
   configure_file(Maven/README.txt.in
                ${VTK_BINARY_DIR}/MAVEN-README.txt @ONLY)
   install(SCRIPT ${VTK_BINARY_DIR}/JavaInstall.cmake)
-endif(VTK_JAVA_INSTALL)
+endif()

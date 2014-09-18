@@ -428,7 +428,7 @@ function(vtk_target_install _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
     if(APPLE AND VTK_JAVA_INSTALL)
        set_target_properties(${_name} PROPERTIES SUFFIX ".jnilib")
-    endif(APPLE AND VTK_JAVA_INSTALL)
+    endif()
     if(VTK_INSTALL_NO_DEVELOPMENT)
       # Installation for deployment does not need static libraries.
       get_property(_type TARGET ${_name} PROPERTY TYPE)

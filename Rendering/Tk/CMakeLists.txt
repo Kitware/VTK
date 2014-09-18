@@ -71,7 +71,7 @@ if(TK_FOUND AND VTK_USE_TK)
       if(VTK_REQUIRED_OBJCXX_FLAGS)
         set_source_files_properties(vtkCocoaTkUtilities.mm
           PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-      endif(VTK_REQUIRED_OBJCXX_FLAGS)
+      endif()
     endif()
 
     set(Module_TCL_LIBS ${VTK_TK_LIBRARIES})
@@ -115,7 +115,7 @@ if(TK_FOUND AND VTK_USE_TK)
       if(VTK_REQUIRED_OBJCXX_FLAGS)
         set_source_files_properties(vtkCocoaTkUtilities.mm
           PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-      endif(VTK_REQUIRED_OBJCXX_FLAGS)
+      endif()
     endif()
 
     add_library(vtkRenderingPythonTkWidgets SHARED ${Module_PYTHON_SRCS})

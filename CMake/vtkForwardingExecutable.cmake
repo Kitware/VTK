@@ -91,4 +91,4 @@ function(vtk_add_executable_with_forwarding2
   add_executable(${exe_name} ${ARGN})
 
   set(${out_real_exe_suffix} "${VTK_EXE_SUFFIX}" PARENT_SCOPE)
-endfunction(vtk_add_executable_with_forwarding2)
+endfunction()

@@ -123,10 +123,10 @@ find_file(ADIOS_CONFIG
 
 if(ADIOS_CONFIG)
     message(STATUS "Found 'adios_config': ${ADIOS_CONFIG}")
-else(ADIOS_CONFIG)
+else()
     set(ADIOS_FOUND FALSE)
     message(STATUS "Can NOT find 'adios_config' - set ADIOS_ROOT, ADIOS_DIR or INSTALL_PREFIX, or check your PATH")
-endif(ADIOS_CONFIG)
+endif()
 
 # check `adios_config` program ################################################
 if(ADIOS_FOUND)
@@ -147,7 +147,7 @@ if(ADIOS_FOUND)
         set(ADIOS_FOUND FALSE)
         message(STATUS "The directory provided by 'adios_config -d' does not exist: ${ADIOS_ROOT_DIR}")
     endif()
-endif(ADIOS_FOUND)
+endif()
 
 # option: use only static libs ################################################
 if(ADIOS_USE_STATIC_LIBS)
@@ -192,10 +192,10 @@ if(ADIOS_FOUND)
         if(_LIB_DIR)
             message(STATUS "Found ${_LIB} in ${_LIB_DIR}")
             list(APPEND ADIOS_LIBRARIES "${_LIB_DIR}")
-        else(_LIB_DIR)
+        else()
             set(ADIOS_FOUND FALSE)
             message(STATUS "ADIOS: Could NOT find library '${_LIB}'")
-        endif(_LIB_DIR)
+        endif()
 
         # clean cached var
         unset(_LIB_DIR CACHE)
@@ -211,13 +211,13 @@ if(ADIOS_FOUND)
                     OUTPUT_VARIABLE ADIOS_VERSION
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-endif(ADIOS_FOUND)
+endif()
 
 # unset checked variables if not found
 if(NOT ADIOS_FOUND)
     unset(ADIOS_INCLUDE_DIRS)
     unset(ADIOS_LIBRARIES)
-endif(NOT ADIOS_FOUND)
+endif()
 
 
 # restore CMAKE_FIND_LIBRARY_SUFFIXES if manipulated by this module ###########

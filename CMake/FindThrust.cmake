@@ -37,7 +37,7 @@ find_path( THRUST_INCLUDE_DIR
 if( THRUST_INCLUDE_DIR )
   list( REMOVE_DUPLICATES THRUST_INCLUDE_DIR )
   include_directories( ${THRUST_INCLUDE_DIR} )
-endif( THRUST_INCLUDE_DIR )
+endif()
 
 # Find thrust version
 file( STRINGS ${THRUST_INCLUDE_DIR}/thrust/version.h

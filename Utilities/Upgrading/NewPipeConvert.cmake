@@ -4,7 +4,7 @@
 
 IF (NOT DEFINED CLASS)
   MESSAGE ("You did not specify the class to process. Usage: cmake -DCLASS=vtkMyClass -P NewPipeConvert" FATAL_ERROR)
-ENDIF (NOT DEFINED CLASS)
+ENDIF ()
 
 FILE (GLOB H_FILE ${CLASS}.h)
 FILE (GLOB CXX_FILE ${CLASS}.cxx)
@@ -28,7 +28,7 @@ IF ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
     "vtkImageTwoInputFilter"
     "vtkThreadedImageAlgorithm"
     H_CONTENTS "${H_CONTENTS}")
-ELSE ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
+ELSE ()
   STRING (REGEX REPLACE
     "vtkImageToImageFilter"
     "vtkImageAlgorithm"
@@ -45,7 +45,7 @@ ELSE ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
     "vtkDataSetToImageFilter"
     "vtkImageAlgorithm"
     H_CONTENTS "${H_CONTENTS}")
-ENDIF ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
+ENDIF ()
 
 
 # polyDataAlgorithm
@@ -92,7 +92,7 @@ IF (NOT "${CXX_CONTENTS}" MATCHES ".*::ExecuteInformation[^{]*{\n  // get the in
     "::ExecuteInformation[ \t]*\\([^{]*{"
     "::ExecuteInformation (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n"
     CXX_CONTENTS "${CXX_CONTENTS}")
-ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::ExecuteInformation[^{]*{\n  // get the info objects.*")
+ENDIF ()
 
 
 STRING (REGEX REPLACE
@@ -106,7 +106,7 @@ IF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the i
     "::RequestUpdateExtent[ \t]*\\([^{]*{"
     "::RequestUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation* outInfo = outputVector->GetInformationObject(0);\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n"
     CXX_CONTENTS "${CXX_CONTENTS}")
-ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*::RequestUpdateExtent[^{]*{\n  // get the info objects.*")
+ENDIF ()
 
 STRING (REGEX REPLACE
   "this->GetInput\\(\\)->GetWholeExtent\\("
@@ -184,7 +184,7 @@ IF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
       "vtkObjectFactory.h"
       "vtkInformation.h\"\n#include \"vtkInformationVector.h\"\n#include \"vtkObjectFactory.h\"\n#include \"vtkStreamingDemandDrivenPipeline.h"
       CXX_CONTENTS "${CXX_CONTENTS}")
-  ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*vtkInformation.h.*")
-ENDIF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
+  ENDIF ()
+ENDIF ()
 
 FILE (WRITE ${CXX_FILE} "${CXX_CONTENTS}")

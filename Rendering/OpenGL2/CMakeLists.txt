@@ -221,7 +221,7 @@ elseif(VTK_USE_COCOA)
                                 vtkCocoaRenderWindow.mm
                                 vtkCocoaGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-  endif(VTK_REQUIRED_OBJCXX_FLAGS)
+  endif()
   set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
 elseif(VTK_USE_CARBON)
   # Add some custom overrides
@@ -262,7 +262,7 @@ elseif(APPLE_IOS)
     set_source_files_properties(vtkIOSRenderWindowInteractor.mm
                                 vtkIOSRenderWindow.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-  endif(VTK_REQUIRED_OBJCXX_FLAGS)
+  endif()
  endif()
 
 vtk_object_factory_configure("${vtk_module_overrides}")
