@@ -95,6 +95,7 @@ void vtkImageCastExecute(vtkImageCast *self,
       while (outSI != outSIEnd)
         {
         // now process the components
+        // NB: without clamping, this cast may result in undefined behavior!
         *outSI = static_cast<OT>(*inSI);
         ++outSI;
         ++inSI;
