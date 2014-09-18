@@ -34,7 +34,7 @@
 
 #if defined(_WIN32)
 #  include <GL/wglew.h>
-#elif !defined(__ANDROID__) && !defined(__native_client__) && !defined(__HAIKU__) && (!defined(__APPLE__) || defined(GLEW_APPLE_GLX))
+#elif !defined(GLEW_OSMESA) && !defined(__ANDROID__) && !defined(__native_client__) && !defined(__HAIKU__) && (!defined(__APPLE__) || defined(GLEW_APPLE_GLX))
 #  include <GL/glxew.h>
 #endif
 
@@ -107,6 +107,30 @@ void* dlGetProcAddress (const GLubyte* name)
     return dlsym(h, (const char*)name);
 }
 #endif /* __sgi || __sun || GLEW_APPLE_GLX */
+
+#if defined(GLEW_OSMESA)
+#include <dlfcn.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+void* dlGetProcAddressMesa (const GLubyte* name)
+{
+  static void* h = NULL;
+  static void* gpa;
+
+  if (h == NULL)
+  {
+    if ((h = dlopen(NULL, RTLD_LAZY | RTLD_LOCAL)) == NULL)
+      return NULL;
+    gpa = dlsym(h, "OSMesaGetProcAddress");
+  }
+
+  if (gpa != NULL)
+    return ((void*(*)(const GLubyte*))gpa)(name);
+  else
+    return dlsym(h, (const char*)name);
+}
+#endif /* GLEW_OSMESA */
 
 #if defined(__APPLE__)
 #include <stdlib.h>
@@ -181,6 +205,8 @@ void* NSGLGetProcAddress (const GLubyte *name)
 #  define glewGetProcAddress(name) NULL /* TODO */
 #elif defined(__native_client__)
 #  define glewGetProcAddress(name) NULL /* TODO */
+#elif defined(GLEW_OSMESA)
+#  define glewGetProcAddress(name) dlGetProcAddressMesa(name)
 #else /* __linux */
 #  define glewGetProcAddress(name) (*glXGetProcAddressARB)(name)
 #endif
@@ -14294,7 +14320,9 @@ GLenum GLEWAPIENTRY glewInit (void)
   GLenum r;
   r = glewContextInit();
   if ( r != 0 ) return r;
-#if defined(_WIN32)
+#if defined(GLEW_OSMESA)
+  return r;
+#elif defined(_WIN32)
   return wglewContextInit();
 #elif !defined(__ANDROID__) && !defined(__native_client__) && !defined(__HAIKU__) && (!defined(__APPLE__) || defined(GLEW_APPLE_GLX)) /* _UNIX */
   return glxewContextInit();
