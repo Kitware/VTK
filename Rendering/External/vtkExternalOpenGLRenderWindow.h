@@ -23,14 +23,14 @@
 #define __vtkExternalOpenGLRenderWindow_h
 
 #include "vtkRenderingExternalModule.h" // For export macro
-#include "vtkXOpenGLRenderWindow.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow :
-  public vtkXOpenGLRenderWindow
+  public vtkGenericOpenGLRenderWindow
 {
 public:
   static vtkExternalOpenGLRenderWindow *New();
-  vtkTypeMacro(vtkExternalOpenGLRenderWindow, vtkXOpenGLRenderWindow);
+  vtkTypeMacro(vtkExternalOpenGLRenderWindow, vtkGenericOpenGLRenderWindow);
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -45,6 +45,8 @@ public:
 protected:
   vtkExternalOpenGLRenderWindow();
   ~vtkExternalOpenGLRenderWindow();
+
+  bool Initialized;
 
 private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&); // Not implemented

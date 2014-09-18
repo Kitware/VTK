@@ -24,6 +24,7 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 {
+  this->Initialized = false;
 }
 
 //----------------------------------------------------------------------------
@@ -34,18 +35,23 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
-  if (!this->DisplayId || !this->WindowId)
+  if (!this->Initialized)
     {
     this->InitializeFromCurrentContext();
-    XWindowAttributes attribs;
-    // To avoid the expensive XGetWindowAttributes call,
-    // compute window size at the start of a render and use
-    // the ivar other times.
-    XGetWindowAttributes(this->DisplayId,
-                         this->WindowId, &attribs);
-    this->SetSize(attribs.width, attribs.height);
+    this->Initialized = true;
     }
-
+//  if (!this->DisplayId || !this->WindowId)
+//    {
+//    this->InitializeFromCurrentContext();
+//    XWindowAttributes attribs;
+//    // To avoid the expensive XGetWindowAttributes call,
+//    // compute window size at the start of a render and use
+//    // the ivar other times.
+//    XGetWindowAttributes(this->DisplayId,
+//                         this->WindowId, &attribs);
+//    this->SetSize(attribs.width, attribs.height);
+//    }
+//
   this->MakeCurrent();
 
   // For stereo, render the correct eye based on the OpenGL buffer mode
