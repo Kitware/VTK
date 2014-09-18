@@ -102,8 +102,14 @@ if (ANDROID OR APPLE_IOS)
 
   set(BUILD_SHARED_LIBS OFF)
   set(VTK_RENDERING_BACKEND OpenGL2)
-  set(VTK_Group_StandAlone OFF)
-  set(VTK_Group_Rendering OFF)
+  option(VTK_Group_StandAlone "off for embedded" OFF)
+  option(VTK_Group_Rendering "required for opengl" ON)
+  option(VTK_Group_Imaging "off for embedded" OFF)
+  option(VTK_Group_MPI "off for embedded" OFF)
+  option(VTK_Group_Views "off for embedded" OFF)
+  option(VTK_Group_Qt "off for embedded" OFF)
+  option(VTK_Group_Tk "off for embedded" OFF)
+  option(VTK_Group_Web "off for embedded" OFF)
   # set(Module_vtkFiltersCore ON)
   # set(Module_vtkFiltersModeling ON)
   # set(Module_vtkFiltersSources ON)
@@ -111,7 +117,7 @@ if (ANDROID OR APPLE_IOS)
   set(Module_vtkRenderingCore ON)
 
   if (APPLE_IOS)
-    set(Module_vtkInteractionStyle ON)
+    option(Module_vtkInteractionStyle "needed for multitouch" ON)
     find_path(OPENGL_INCLUDE_DIR ES2/gl.h
        ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
        ${_OPENGL_INCLUDE_PATH}
