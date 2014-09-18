@@ -103,13 +103,13 @@ FOREACH(file
     COMMENT "copy: ${file}"
     )
   SET(mpi4py_OUTPUT_FILES ${mpi4py_OUTPUT_FILES} ${tgt})
-ENDFOREACH(file)
+ENDFOREACH()
 
 FOREACH(file ${mpi4py_PYTHON_FILES})
   SET(mpi4py_py  ${mpi4py_py}  "${mpi4py_BINARY_DIR}/${file}")
   SET(mpi4py_pyc ${mpi4py_pyc} "${mpi4py_BINARY_DIR}/${file}c")
   SET(mpi4py_pyo ${mpi4py_pyo} "${mpi4py_BINARY_DIR}/${file}o")
-ENDFOREACH(file)
+ENDFOREACH()
 SET(CMAKE_CONFIGURABLE_FILE_CONTENT
     "from compileall import compile_dir\ncompile_dir(\"${mpi4py_BINARY_DIR}\")")
 configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
@@ -144,7 +144,7 @@ mpif90 = ${mpif90}")
                  "${tgt}" @ONLY)
   UNSET(CMAKE_CONFIGURABLE_FILE_CONTENT)
   SET(mpi4py_OUTPUT_FILES ${mpi4py_OUTPUT_FILES} ${tgt})
-ENDFOREACH(file)
+ENDFOREACH()
 
 ADD_CUSTOM_TARGET(mpi4py ALL DEPENDS ${mpi4py_OUTPUT_FILES})
 
