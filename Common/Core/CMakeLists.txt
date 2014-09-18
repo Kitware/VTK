@@ -124,7 +124,6 @@ SET(Module_SRCS
   vtkIdTypeArray.cxx
   vtkIndent.cxx
   vtkInformation.cxx
-  vtkInformationDataObjectKey.cxx
   vtkInformationDoubleKey.cxx
   vtkInformationDoubleVectorKey.cxx
   vtkInformationIdTypeKey.cxx
@@ -247,12 +246,6 @@ set(${vtk-module}_HDRS
   vtkWindows.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
   )
-
-if(vtkCommonDataModel_ENABLED)
-  include_directories(${VTK_BINARY_DIR}/Common/DataModel)
-  set_property(SOURCE vtkInformationDataObjectKey.cxx
-    PROPERTY COMPILE_DEFINITIONS vtkCommonDataModel_ENABLED)
-endif()
 
 # __int64 seems to be platform specific, turning on if
 if(HAVE_VTK_SIZEOF__INT64)
@@ -448,7 +441,6 @@ set_source_files_properties(
   vtkFloatingPointExceptions
   vtkFunctionSet
   vtkGaussianRandomSequence
-  vtkInformationDataObjectKey
   vtkInformationDoubleKey
   vtkInformationDoubleVectorKey
   vtkInformationIdTypeKey
