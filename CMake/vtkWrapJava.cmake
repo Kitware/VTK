@@ -169,7 +169,7 @@ endmacro()
 # is a hack to work-around the limitation.  The test to enable it is
 # done here since it does not need to be done for every macro
 # invocation.
-IF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
+IF(CMAKE_GENERATOR STREQUAL "Visual Studio 6")
   SET(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS 1)
   SET(VTK_WRAP_JAVA_CUSTOM_LIMIT x)
   # Limit the number of custom commands in each target
@@ -178,4 +178,4 @@ IF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
     SET(VTK_WRAP_JAVA_CUSTOM_LIMIT
       ${VTK_WRAP_JAVA_CUSTOM_LIMIT}${VTK_WRAP_JAVA_CUSTOM_LIMIT})
   ENDFOREACH(t)
-ENDIF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
+ENDIF()

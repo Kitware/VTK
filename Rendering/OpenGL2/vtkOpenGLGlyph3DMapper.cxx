@@ -72,7 +72,10 @@ public:
     std::vector<vtkMatrix4x4 * >::iterator miter = this->Matrices.begin();
     for (;miter != this->Matrices.end(); miter++)
       {
-      (*miter)->Delete();
+      if (*miter != NULL)
+        {
+        (*miter)->Delete();
+        }
       }
   };
 };
@@ -316,10 +319,13 @@ void vtkOpenGLGlyph3DMapper::Render(
     std::vector<vtkMatrix4x4 * >::iterator miter = entry->Matrices.begin();
     for (;miter != entry->Matrices.end(); miter++)
       {
-      (*miter)->Delete();
-      (*miter) = NULL;;
+      if ((*miter) != NULL)
+        {
+        (*miter)->Delete();
+        (*miter) = NULL;
+        }
       }
-    entry->Matrices.resize(numPts);
+    entry->Matrices.resize(numPts,NULL);
     vtkTransform *trans = vtkTransform::New();
     vtkDataArray* scaleArray = this->GetScaleArray(dataset);
     vtkDataArray* orientArray = this->GetOrientationArray(dataset);

@@ -300,7 +300,6 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
 
     // Don't go below epsilon for a double
     tol2 = (tol2 < VTK_DBL_EPSILON) ? VTK_DBL_EPSILON : tol2;
-    this->Tolerance = sqrt(tol2);
     }
   else
     {

@@ -45,7 +45,7 @@ set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
-if (NOT ANDROID)
+if (NOT ANDROID AND NOT APPLE_IOS)
   set(Module_SRCS ${Module_SRCS}
   vtkPixelBufferObject.cxx
   vtkFrameBufferObject.cxx
@@ -63,31 +63,19 @@ set(${vtk-module}_HDRS
 set_source_files_properties(
   vtkglBufferObject
   vtkglVBOHelper
-  vtkShader
-  vtkShaderProgram
   vtkglVertexArrayObject
   vtkFrameBufferObject
-  vtkOpenGLActor
-  vtkOpenGLCamera
-  vtkOpenGLImageMapper
-  vtkOpenGLImageSliceMapper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHardwareSelector
-  vtkOpenGLLight
-  vtkOpenGLPolyDataMapper
-  vtkOpenGLPolyDataMapper2D
-  vtkOpenGLProperty
-  vtkOpenGLRenderer
   vtkOpenGLShaderCache
-  vtkOpenGLTexture
   vtkOpenGLTextureUnitManager
   vtkPixelBufferObject
   vtkRenderbuffer
   vtkRenderPass
   vtkRenderState
   vtkTextureObject
-  ${vtk-module}ObjectFactory
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   WRAP_EXCLUDE)
 
 set_source_files_properties(
@@ -148,11 +136,6 @@ if(VTK_USE_X)
     vtkXOpenGLRenderDevice
     WRAP_EXCLUDE)
 endif()
-
-set_source_files_properties(
-  vtkRenderingOpenGL2ObjectFactory
-  WRAP_EXCLUDE
-  )
 
 # setup factory overrides
 set(opengl_overrides
@@ -255,7 +238,26 @@ elseif(ANDROID)
     "${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include"
     "${ANDROID_NDK}/sources/android/native_app_glue"
     )
-endif()
+elseif(APPLE_IOS)
+  # Add some custom overrides
+  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkIOSRenderWindowInteractor")
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkIOSRenderWindow")
+  list(APPEND Module_SRCS
+    vtkIOSRenderWindowInteractor.mm
+    vtkIOSRenderWindow.mm
+    vtkIOSGLView.mm
+    )
+  # Set specified Objective-C++ flags, if any.
+  if(VTK_REQUIRED_OBJCXX_FLAGS)
+    set_source_files_properties(vtkIOSRenderWindowInteractor.mm
+                                vtkIOSRenderWindow.mm
+                                vtkIOSGLView.mm
+                                PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
+  endif(VTK_REQUIRED_OBJCXX_FLAGS)
+  set_source_files_properties(vtkIOSGLView WRAP_EXCLUDE)
+ endif()
 
 vtk_object_factory_configure("${vtk_module_overrides}")
 
@@ -290,4 +292,8 @@ endif()
 if(ANDROID)
   target_link_libraries(${vtk-module}
     LINK_PUBLIC ${OPENGL_egl_LIBRARY})
+endif()
+
+if (APPLE_IOS)
+  vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework UIKit")
 endif()

@@ -17,6 +17,7 @@
 
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
@@ -206,9 +207,9 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
       // the line (which is a plane but maximally aligned with the camera view.
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
                          "vec3 normalVC;\n"
-                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),0.0,dFdx(vertexVC.z)));\n"
-                         "vec3 fdy = normalize(vec3(0.0,dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
-                         "if (abs(fdx.x*0.5+fdx.z*0.5) > abs(fdy.y*0.5+fdy.z*0.5))\n"
+                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+                         "vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+                         "if (abs(fdx.x) > 0.0)\n"
                          " { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
                          "else { normalVC = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
                          );
@@ -216,11 +217,11 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
     else
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),0.0,dFdx(vertexVC.z)));\n"
-                         "vec3 fdy = normalize(vec3(0.0,dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+                         "vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
                          "vec3 normalVC = normalize(cross(fdx,fdy));\n"
                          // the code below is faster, but does not work on some devices
-                         // "vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
+                         //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
                          "if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
                          );
       }
@@ -294,7 +295,7 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
       "if (gl_FragCoord.z >= odepth) { discard; }\n"
       "float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
       "if (gl_FragCoord.z <= tdepth) { discard; }\n"
-//      "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
+    //  "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
       );
     }
 
@@ -449,7 +450,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Layout;
 
-  if (cellBO.indexCount && this->OpenGLUpdateTime > cellBO.attributeUpdateTime)
+  if (cellBO.indexCount && (this->OpenGLUpdateTime > cellBO.attributeUpdateTime ||
+      cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
     {
     cellBO.vao.Bind();
     if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
@@ -1101,6 +1103,16 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
       }
     }
 
+  bool cellNormals = false;
+  // Do we have cell normals?
+  vtkDataArray *n =
+    (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL;
+  if (n == NULL && poly->GetCellData()->GetNormals())
+    {
+    cellNormals = true;
+    n = poly->GetCellData()->GetNormals();
+    }
+
   // if we have cell scalars then we have to
   // explode the data
   vtkCellArray *prims[4];
@@ -1110,7 +1122,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
   prims[3] =  poly->GetStrips();
   std::vector<unsigned int> cellPointMap;
   std::vector<unsigned int> pointCellMap;
-  if (cellScalars)
+  if (cellScalars || cellNormals)
     {
     vtkgl::CreateCellSupportArrays(poly, prims, cellPointMap, pointCellMap);
     }
@@ -1139,13 +1151,13 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
   this->Layout =
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? (unsigned int)cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
-              (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL,
-              tcoords,
+              n, tcoords,
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
               this->VBO,
               cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
-              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL);
+              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL,
+              cellScalars, cellNormals);
 
   // create the IBOs
   this->Points.indexCount = CreatePointIndexBuffer(prims[0],
@@ -1183,7 +1195,8 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
       {
       this->Tris.indexCount = CreateTriangleIndexBuffer(prims[2],
                                                 this->Tris.ibo,
-                                                poly->GetPoints());
+                                                poly->GetPoints(),
+                                                cellPointMap);
       this->TriStrips.indexCount = CreateMultiIndexBuffer(prims[3],
                            this->TriStrips.ibo,
                            this->TriStrips.offsetArray,
@@ -1192,7 +1205,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
     }
 
   // free up new cell arrays
-  if (cellScalars)
+  if (cellScalars || cellNormals)
     {
     for (int primType = 0; primType < 4; primType++)
       {

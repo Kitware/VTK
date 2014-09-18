@@ -1,6 +1,6 @@
 # check for gcc/clang atomic builtins like __sync_add_and_fetch
 IF(NOT WIN32)
-  IF("VTK_HAVE_SYNC_BUILTINS" MATCHES "^VTK_HAVE_SYNC_BUILTINS$")
+  IF(NOT DEFINED VTK_HAVE_SYNC_BUILTINS)
   MESSAGE(STATUS "Checking for builtin __sync_add_and_fetch")
   TRY_COMPILE(VTK_TEST_SYNC_BUILTINS_COMPILED
     ${VTK_BINARY_DIR}/CMakeTmp/Sync
@@ -21,5 +21,5 @@ IF(NOT WIN32)
       "failed with the following output:\n"
       "${OUTPUT}\n")
   ENDIF(VTK_TEST_SYNC_BUILTINS_COMPILED)
-  ENDIF("VTK_HAVE_SYNC_BUILTINS" MATCHES "^VTK_HAVE_SYNC_BUILTINS$")
+  ENDIF()
 ENDIF(NOT WIN32)

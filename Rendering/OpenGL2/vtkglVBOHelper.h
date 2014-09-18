@@ -38,7 +38,7 @@ std::string replace(std::string source, const std::string &search,
 
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                                 vtkPoints *points);
+                                 vtkPoints *points, std::vector<unsigned int> &cellPointMap);
 
 // used to create an IBO for point primatives
 size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
@@ -89,7 +89,8 @@ struct VBOLayout
 VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints, vtkDataArray *normals,
                     vtkDataArray *tcoords,
                     unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap);
+                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap,
+                    bool cellScalars, bool cellNormals);
 
 
 // used to create an IBO for stripped primatives such as lines and triangle strips
@@ -100,3 +101,5 @@ void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *[4],
 } // End namespace
 
 #endif // __vtkGLVBOHelpher_h
+
+// VTK-HeaderTest-Exclude: vtkglVBOHelper.h

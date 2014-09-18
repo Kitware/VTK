@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkDoubleArray.h"
+#include "vtkMinimalStandardRandomSequence.h"
 
 #include <time.h>
 
@@ -57,28 +58,33 @@ vtkParametricRandomHills::vtkParametricRandomHills() :
   this->previousYVarianceScaleFactor = 0;
   this->previousAmplitudeScaleFactor = 0;
   this->previousAllowRandomGeneration = 0;
+
+  this->randomSequenceGenerator = vtkMinimalStandardRandomSequence::New();
+  // Initialise the sequence.
+  this->randomSequenceGenerator->SetSeed(this->RandomSeed);
 }
 
 //----------------------------------------------------------------------------
 vtkParametricRandomHills::~vtkParametricRandomHills()
 {
   this->hillData->Delete();
+  this->randomSequenceGenerator->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkParametricRandomHills::InitSeed ( int randomSeed )
+void vtkParametricRandomHills::InitRNG ( int randomSeed )
 {
-  if ( randomSeed < 0 )
-    {
-    randomSeed = static_cast<int>(time( NULL ));
-    }
-  srand( static_cast<unsigned int>(randomSeed) );
+  (randomSeed < 0) ?
+    this->randomSequenceGenerator->SetSeed(static_cast<int>(time(NULL))):
+    this->randomSequenceGenerator->SetSeed(randomSeed);
 }
 
 //----------------------------------------------------------------------------
 double vtkParametricRandomHills::Rand ( void )
 {
-  return double(rand())/double(RAND_MAX);
+  double x = this->randomSequenceGenerator->GetValue();
+  this->randomSequenceGenerator->Next();
+  return x;
 }
 
 //----------------------------------------------------------------------------
@@ -134,25 +140,24 @@ void vtkParametricRandomHills::MakeTheHillData( void )
   // Generate the centers of the Hills, standard deviations and amplitudes.
   if ( AllowRandomGeneration != 0 )
     {
-      InitSeed(this->RandomSeed);
-      for ( int i = 0; i < this->NumberOfHills; ++ i )
-        {
-        hillTuple[0] = MinimumU + Rand() * dU;
-        hillTuple[1] = MinimumV + Rand() * dV;
-        hillTuple[2] = this->HillXVariance * Rand() +
-                        this->HillXVariance * this->XVarianceScaleFactor;
-        hillTuple[3] = this->HillYVariance * Rand() +
-                        this->HillYVariance * this->YVarianceScaleFactor;
-        hillTuple[4] = this->HillAmplitude * Rand() +
-                        this->HillAmplitude * this->AmplitudeScaleFactor;
-        this->hillData->SetTuple(i,hillTuple);
-        }
+    InitRNG(this->RandomSeed);
+    for (int i = 0; i < this->NumberOfHills; ++i)
+      {
+      hillTuple[0] = MinimumU + Rand() * dU;
+      hillTuple[1] = MinimumV + Rand() * dV;
+      hillTuple[2] = this->HillXVariance *
+                    (Rand() + this->XVarianceScaleFactor);
+      hillTuple[3] = this->HillYVariance *
+                    (Rand() + this->YVarianceScaleFactor);
+      hillTuple[4] = this->HillAmplitude *
+                    (Rand() + this->AmplitudeScaleFactor);
+      this->hillData->SetTuple(i, hillTuple);
+      }
     }
   else
     {
     // Here the generation is nonrandom.
     // We put hills in a regular grid over the whole surface.
-    double randVal = 0.1;
     double gridMax = sqrt(static_cast<double>(this->NumberOfHills));
     int counter = 0;
 
@@ -161,14 +166,10 @@ void vtkParametricRandomHills::MakeTheHillData( void )
     double midV = dV/2.0;
     double shiftV = midV / gridMax;
 
-    hillTuple[2] = this->HillXVariance * randVal +
-                    this->HillXVariance * this->XVarianceScaleFactor;
-    hillTuple[3] = this->HillYVariance * randVal +
-                    this->HillYVariance * this->YVarianceScaleFactor;
-    hillTuple[4] = this->HillAmplitude * randVal +
-                    this->HillAmplitude * this->AmplitudeScaleFactor;
-
-    for ( int i = 0; i < static_cast<int>(gridMax); ++i )
+    hillTuple[2] = this->HillXVariance * this->XVarianceScaleFactor;
+    hillTuple[3] = this->HillYVariance * this->YVarianceScaleFactor;
+    hillTuple[4] = this->HillAmplitude * this->AmplitudeScaleFactor;
+    for (int i = 0; i < static_cast<int>(gridMax); ++i)
       {
       hillTuple[0] = MinimumU + shiftU + (i / gridMax) * dU;
       for ( int j = 0; j < static_cast<int>(gridMax); ++j )
@@ -176,12 +177,13 @@ void vtkParametricRandomHills::MakeTheHillData( void )
         hillTuple[1] = MinimumV + shiftV + (j / gridMax) * dV;
         this->hillData->SetTuple(counter,hillTuple);
         ++counter;
-       }
+        }
       }
-    // Set the amplitude contribution
-    // from the remaining hills to zero.
+    // Zero out the variance and amplitude for the remaining hills.
+    hillTuple[2] = 0;
+    hillTuple[3] = 0;
     hillTuple[4] = 0;
-    for ( int k = counter; k < this->NumberOfHills; ++ k )
+    for (int k = counter; k < this->NumberOfHills; ++k)
       {
       hillTuple[0] = MinimumU + midU;
       hillTuple[1] = MinimumV + midV;
@@ -199,45 +201,45 @@ bool vtkParametricRandomHills::ParametersChanged()
     return true;
     }
   if (this->previousHillXVariance != this->HillXVariance)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   if (this->previousHillYVariance != this->HillYVariance)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   if (this->previousHillAmplitude != this->HillAmplitude)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   if (this->previousRandomSeed != this->RandomSeed)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   if (this->previousXVarianceScaleFactor != this->XVarianceScaleFactor)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   if (this->previousYVarianceScaleFactor != this->YVarianceScaleFactor)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   if (this->previousAmplitudeScaleFactor != this->AmplitudeScaleFactor)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   if (this->previousAllowRandomGeneration != this->AllowRandomGeneration)
-  {
+    {
     this->CopyParameters();
     return true;
-  }
+    }
   return false;
 }
 

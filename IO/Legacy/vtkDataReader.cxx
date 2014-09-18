@@ -708,7 +708,7 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numCells) )
         {
@@ -857,9 +857,19 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numPts) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the edge flags data
+    //
+    else if ( ! strncmp(line, "edge_flags", 10) )
+      {
+      if ( ! this->ReadEdgeFlags(a, numPts) )
         {
         return 0;
         }
@@ -1004,7 +1014,7 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, int numVertices)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numVertices) )
         {
@@ -1151,7 +1161,7 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, int numEdges)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numEdges) )
         {
@@ -1296,7 +1306,7 @@ int vtkDataReader::ReadRowData(vtkTable *t, int numEdges)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numEdges) )
         {
@@ -2504,6 +2514,50 @@ int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes *a, int numPts)
     if ( ! skipPedigreeIds )
       {
       a->SetPedigreeIds(data);
+      }
+    data->Delete();
+    }
+  else
+    {
+    return 0;
+    }
+
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+
+  return 1;
+}
+
+// Read edge flags. Return 0 if error.
+int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, int numPts)
+{
+  int skipEdgeFlags = 0;
+  char line[256], name[256];
+  vtkAbstractArray *data;
+  char buffer[1024];
+
+  if (!(this->ReadString(buffer) && this->ReadString(line)))
+    {
+    vtkErrorMacro(<<"Cannot read edge flags data" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    return 0;
+    }
+  this->DecodeString(name, buffer);
+
+  //
+  // See whether edge flags have been already read
+  //
+  if ( a->GetAttribute(vtkDataSetAttributes::EDGEFLAG) != NULL )
+    {
+    skipEdgeFlags = 1;
+    }
+
+  data = this->ReadArray(line, numPts, 1);
+  if ( data != NULL )
+    {
+    data->SetName(name);
+    if ( ! skipEdgeFlags )
+      {
+      a->SetAttribute(data, vtkDataSetAttributes::EDGEFLAG);
       }
     data->Delete();
     }

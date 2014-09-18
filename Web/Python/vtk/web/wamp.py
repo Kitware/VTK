@@ -104,6 +104,11 @@ class ServerProtocol(ApplicationSession):
         """RPC callback to exit"""
         reactor.stop()
 
+    @exportRpc("application.exit.later")
+    def exitLater(self, secondsLater=60):
+        """RPC callback to exit after a short delay"""
+        reactor.callLater(secondsLater, reactor.stop)
+
 # =============================================================================
 #
 # Base class for vtkWeb WampServerFactory

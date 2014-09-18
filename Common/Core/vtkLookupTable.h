@@ -15,9 +15,9 @@
 // .NAME vtkLookupTable - map scalar values into colors via a lookup table
 // .SECTION Description
 // vtkLookupTable is an object that is used by mapper objects to map scalar
-// values into rgba (red-green-blue-alpha transparency) color specification,
-// or rgba into scalar values. The color table can be created by direct
-// insertion of color values, or by specifying  hue, saturation, value, and
+// values into RGBA (red-green-blue-alpha transparency) color specification,
+// or RGBA into scalar values. The color table can be created by direct
+// insertion of color values, or by specifying a hue, saturation, value, and
 // alpha range and generating a table.
 //
 // This class behaves differently depending on how \a IndexedLookup is set.
@@ -57,7 +57,7 @@ class VTKCOMMONCORE_EXPORT vtkLookupTable : public vtkScalarsToColors
 {
 public:
   // Description:
-  // Construct with range=[0,1]; and hsv ranges set up for rainbow color table
+  // Construct with range=[0,1]; and HSV ranges set up for rainbow color table
   // (from red to blue).
   static vtkLookupTable *New();
 
@@ -66,7 +66,7 @@ public:
 
   // Description:
   // Return true if all of the values defining the mapping have an opacity
-  // equal to 1. Default implementation return true.
+  // equal to 1.
   virtual int IsOpaque();
 
   // Description:

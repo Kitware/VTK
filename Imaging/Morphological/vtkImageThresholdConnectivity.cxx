@@ -442,10 +442,22 @@ void vtkImageThresholdConnectivityExecute(
 
   unsigned char *maskPtr =
     static_cast<unsigned char *>(maskData->GetScalarPointerForExtent(extent));
+  vtkIdType maskInc[3];
+  maskInc[0] = 1;
+  maskInc[1] = (extent[1] - extent[0] + 1);
+  maskInc[2] = maskInc[1]*(extent[3] - extent[2] + 1);
 
-  // Get pointers for the new extent (the one used for the seeds)
+  // Get input pointer for the extent used by the maskData
   inPtr = static_cast<IT *>(inData->GetScalarPointerForExtent(extent));
-  outPtr = static_cast<OT *>(outData->GetScalarPointerForExtent(extent));
+  vtkIdType inInc[3];
+  inData->GetIncrements(inInc);
+
+  // Get output pointer for the whole output extent
+  outPtr = static_cast<OT *>(outData->GetScalarPointerForExtent(outExt));
+  vtkIdType outInc[3];
+  outData->GetIncrements(outInc);
+  // Adjust it so that it corresponds to the maskData extent
+  outPtr -= minOutIdX*outInc[0] + minOutIdY*outInc[1] + minOutIdZ*outInc[2];
 
   // Adjust pointers to active component
   inPtr += activeComponent;
@@ -478,15 +490,6 @@ void vtkImageThresholdConnectivityExecute(
     }
 
   // Perform the flood fill within the extent
-  vtkIdType inInc[3];
-  vtkIdType outInc[3];
-  vtkIdType maskInc[3];
-  inData->GetIncrements(inInc);
-  outData->GetIncrements(outInc);
-  maskInc[0] = 1;
-  maskInc[1] = (extent[1] - extent[0] + 1);
-  maskInc[2] = maskInc[1]*(extent[3] - extent[2] + 1);
-
   double spacing[3];
   double origin[3];
   outData->GetSpacing(spacing);

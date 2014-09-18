@@ -221,7 +221,7 @@ unsigned char *vtkScalarsToColors::MapValue(double v)
 
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
-                                                     int colorMode, int comp)
+                                                     int colorMode, int component)
 {
   int numberOfComponents = scalars->GetNumberOfComponents();
   vtkUnsignedCharArray *newColors;
@@ -242,7 +242,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
     newColors->SetNumberOfTuples(scalars->GetNumberOfTuples());
 
     // If mapper did not specify a component, use the VectorMode
-    if (comp < 0 && numberOfComponents > 1)
+    if (component < 0 && numberOfComponents > 1)
       {
       this->MapVectorsThroughTable(scalars->GetVoidPointer(0),
                                    newColors->GetPointer(0),
@@ -253,17 +253,17 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
       }
     else
       {
-      if (comp < 0)
+      if (component < 0)
         {
-        comp = 0;
+        component = 0;
         }
-      if (comp >= numberOfComponents)
+      if (component >= numberOfComponents)
         {
-        comp = numberOfComponents - 1;
+        component = numberOfComponents - 1;
         }
 
       // Map the scalars to colors
-      this->MapScalarsThroughTable(scalars->GetVoidPointer(comp),
+      this->MapScalarsThroughTable(scalars->GetVoidPointer(component),
                                    newColors->GetPointer(0),
                                    scalars->GetDataType(),
                                    scalars->GetNumberOfTuples(),
