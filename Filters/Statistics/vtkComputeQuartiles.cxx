@@ -97,22 +97,21 @@ vtkFieldData* vtkComputeQuartiles::GetInputFieldData(vtkDataObject* input)
     case vtkDataObject::FIELD_ASSOCIATION_POINTS:
     case vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS:
       return vtkDataSet::SafeDownCast(input)->GetPointData();
-      break;
+
     case vtkDataObject::FIELD_ASSOCIATION_CELLS:
       return vtkDataSet::SafeDownCast(input)->GetCellData();
-      break;
+
     case vtkDataObject::FIELD_ASSOCIATION_NONE:
       return input->GetFieldData();
-      break;
+
     case vtkDataObject::FIELD_ASSOCIATION_VERTICES:
       return vtkGraph::SafeDownCast(input)->GetVertexData();
-      break;
+
     case vtkDataObject::FIELD_ASSOCIATION_EDGES:
       return vtkGraph::SafeDownCast(input)->GetEdgeData();
-      break;
+
     case vtkDataObject::FIELD_ASSOCIATION_ROWS:
       return vtkTable::SafeDownCast(input)->GetRowData();
-      break;
     }
   return 0;
 }

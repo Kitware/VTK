@@ -678,7 +678,6 @@ vtkFieldData* vtkDataObject::GetAttributesAsFieldData(int type)
     {
     case FIELD:
       return this->FieldData;
-      break;
     }
   return 0;
 }
@@ -710,7 +709,6 @@ vtkIdType vtkDataObject::GetNumberOfElements(int type)
     {
     case FIELD:
       return this->FieldData->GetNumberOfTuples();
-      break;
     }
   return 0;
 }

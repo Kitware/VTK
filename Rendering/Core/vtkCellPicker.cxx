@@ -1289,7 +1289,6 @@ int vtkCellPicker::HasSubCells(int cellType)
     case VTK_POLY_LINE:
     case VTK_POLY_VERTEX:
       return 1;
-      break;
     }
 
   return 0;
@@ -1303,15 +1302,12 @@ int vtkCellPicker::GetNumberOfSubCells(vtkIdList *pointIds, int cellType)
     {
     case VTK_TRIANGLE_STRIP:
       return pointIds->GetNumberOfIds() - 2;
-      break;
 
     case VTK_POLY_LINE:
       return pointIds->GetNumberOfIds() - 1;
-      break;
 
     case VTK_POLY_VERTEX:
       return pointIds->GetNumberOfIds();
-      break;
     }
 
   return 0;

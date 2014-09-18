@@ -62,32 +62,23 @@ const char *vtkOpenGLStrError(unsigned int code)
     {
     case GL_NO_ERROR:
       return "No error";
-      break;
     case GL_INVALID_ENUM:
       return "Invalid enum";
-      break;
     case GL_INVALID_VALUE:
       return "Invalid value";
-      break;
     case GL_INVALID_OPERATION:
       return "Invalid operation";
-      break;
     case GL_OUT_OF_MEMORY:
       return "Out of memory";
-      break;
 #if GL_ES_VERSION_2_0 != 1
     case GL_STACK_OVERFLOW:
       return "Stack overflow";
-      break;
     case GL_STACK_UNDERFLOW:
       return "Stack underflow";
-      break;
     case GL_TABLE_TOO_LARGE:
       return "Table too large";
-      break;
     case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
       return "Invalid framebuffer operation";
-      break;
 #endif
     }
   return "Unknown error";

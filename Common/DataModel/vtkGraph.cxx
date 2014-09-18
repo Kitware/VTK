@@ -1792,10 +1792,8 @@ vtkFieldData* vtkGraph::GetAttributesAsFieldData(int type)
     {
     case VERTEX:
       return this->GetVertexData();
-      break;
     case EDGE:
       return this->GetEdgeData();
-      break;
     }
   return this->Superclass::GetAttributesAsFieldData(type);
 }
@@ -1807,10 +1805,8 @@ vtkIdType vtkGraph::GetNumberOfElements(int type)
     {
     case VERTEX:
       return this->GetNumberOfVertices();
-      break;
     case EDGE:
       return this->GetNumberOfEdges();
-      break;
     }
   return this->Superclass::GetNumberOfElements(type);;
 }

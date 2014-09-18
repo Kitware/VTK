@@ -293,13 +293,10 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
       {
       case 1:
         return QVariant(numItems);
-        break;
       case 2:
         return QVariant(a->GetInformation()->Get(vtkAnnotation::LABEL()));
-        break;
       default:
         return QVariant();
-        break;
       }
     }
   else if (role == Qt::DecorationRole)
@@ -308,10 +305,8 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
       {
       case 0:
         return QColor(annColor[0], annColor[1], annColor[2]);
-        break;
       default:
         return QVariant();
-        break;
       }
     }
 
@@ -360,16 +355,12 @@ QVariant vtkQtAnnotationLayersModelAdapter::headerData(int section, Qt::Orientat
       {
       case 0:
         return QVariant("C");
-        break;
       case 1:
         return QVariant("# Items");
-        break;
       case 2:
         return QVariant("Label");
-        break;
       default:
         return QVariant();
-        break;
       }
     }
 

@@ -889,12 +889,10 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_PAINT:
       me->Render();
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
-      break;
 
     case WM_SIZE:
       me->OnSize(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
-      break;
 
     case WM_LBUTTONDBLCLK:
       me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);

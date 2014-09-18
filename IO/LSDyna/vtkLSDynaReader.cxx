@@ -1511,7 +1511,6 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     vtkErrorMacro("Unknown Dimensionality " << p->Dimensionality << " encountered" );
     p->FileIsValid = 0;
     return 0;
-    break;
     }
 
   // FIXME Are these marks valid since we are marking the word past the end of the chunk?

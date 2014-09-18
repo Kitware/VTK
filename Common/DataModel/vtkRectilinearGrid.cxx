@@ -217,7 +217,6 @@ vtkCell *vtkRectilinearGrid::GetCell(vtkIdType cellId)
     default:
       vtkErrorMacro(<<"Invalid DataDescription.");
       return NULL;
-      break;
     }
 
 
