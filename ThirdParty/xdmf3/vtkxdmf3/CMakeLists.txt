@@ -4,13 +4,13 @@ cmake_minimum_required(VERSION 2.6)
 #Needed to build DSM because relative paths are used to add its libraries
 if (POLICY CMP0015)
 	cmake_policy(SET CMP0015 NEW)
-endif (POLICY CMP0015)
+endif ()
 
 if(MSVC10)
 	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
-endif(MSVC10)
+endif()
 
 if(BUILD_SHARED_LIBS)
   set(LIBTYPE SHARED)
@@ -44,14 +44,14 @@ get_filename_component(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 #option(XDMF_BUILD_DOCUMENTATION OFF)
 #if(XDMF_BUILD_DOCUMENTATION)
 #  add_subdirectory(doc)
-#endif(XDMF_BUILD_DOCUMENTATION)
+#endif()
 
 # Enable CMake testing
 #option(BUILD_TESTING "Build Tests" OFF)
 #if(BUILD_TESTING)
 #  enable_testing()
 #  include(CTest)
-#endif(BUILD_TESTING)
+#endif()
 
 # Wrapper Setup
 #option(XDMF_WRAP_PYTHON OFF)
@@ -72,14 +72,14 @@ if(XDMF_BUILD_DSM)
     STRING(REGEX MATCH "icpc" IS_INTEL "${CMAKE_CXX_COMPILER}")
     if (NOT "${IS_INTEL}" STREQUAL "")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_IGNORE_CXX_SEEK")
-    endif (NOT "${IS_INTEL}" STREQUAL "")
-  endif(MPI_FOUND)
+    endif ()
+  endif()
   option(XDMF_BUILD_DSM_THREADS ON)
   if (XDMF_WRAP_PYTHON)
     mark_as_advanced(FORCE PYTHON_INCLUDE_MPI4PY_DIR)
     set(PYTHON_INCLUDE_MPI4PY_DIR "" CACHE STRING "Directory containing mpi4py/mpi4py.i")
-  endif (XDMF_WRAP_PYTHON)
-endif(XDMF_BUILD_DSM)
+  endif ()
+endif()
 
 # If we are wrapping either, we need swig
 if(XDMF_WRAP_PYTHON OR XDMF_WRAP_JAVA)
@@ -87,8 +87,8 @@ if(XDMF_WRAP_PYTHON OR XDMF_WRAP_JAVA)
   include(${SWIG_USE_FILE})
   if(${SWIG_VERSION} LESS 2.0.0)
     message(SEND_ERROR "Swig must be version 2.0.0 or greater")
-  endif(${SWIG_VERSION} LESS 2.0.0)
-endif(XDMF_WRAP_PYTHON OR XDMF_WRAP_JAVA)
+  endif()
+endif()
 
 # If we are wrapping python, let's include it in the top level
 if(XDMF_WRAP_PYTHON)
@@ -102,9 +102,9 @@ if(XDMF_WRAP_PYTHON)
       endif ()
     endif ()
     include_directories(${PYTHON_INCLUDE_DIRS} ${MPI_CXX_INCLUDE_PATH} ${PYTHON_INCLUDE_MPI4PY_DIR})
-  else (XDMF_BUILD_DSM)
+  else ()
     include_directories(${PYTHON_INCLUDE_DIRS})
-  endif (XDMF_BUILD_DSM)
+  endif ()
 
   # A macro to swig and create the python files
   # Since we essentually do the same thing inside and outside core, it
@@ -124,8 +124,8 @@ if(XDMF_WRAP_PYTHON)
       set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DXDMF_BUILD_DSM)
       if (XDMF_BUILD_DSM_THREADS)
         set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DXDMF_BUILD_DSM_THREADS)
-      endif (XDMF_BUILD_DSM_THREADS)
-    endif (XDMF_BUILD_DSM)
+      endif ()
+    endif ()
     set_source_files_properties(${python_name}.i PROPERTIES CPLUSPLUS ON)
     set(swig_extra_generated_files "")
     swig_add_module(${python_name}Python python ${python_name}.i)
@@ -137,7 +137,7 @@ if(XDMF_WRAP_PYTHON)
 
     if("${ARGN}" STRGREATER "")
       add_dependencies(${python_name} "${ARGN}")
-    endif("${ARGN}" STRGREATER "")
+    endif()
 
     if(WIN32)
 	  if(NOT MSVC10)
@@ -148,8 +148,8 @@ if(XDMF_WRAP_PYTHON)
           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-	  endif(NOT MSVC10)
-    endif(WIN32)
+	  endif()
+    endif()
 
     set_target_properties(${SWIG_MODULE_${python_name}Python_REAL_NAME}
       PROPERTIES
@@ -163,14 +163,14 @@ if(XDMF_WRAP_PYTHON)
     if(NOT "${${python_name}Parent}" STREQUAL "")
       set(${python_name_upper}_PYTHON ${${python_name_upper}_PYTHON}
         PARENT_SCOPE)
-    endif(NOT "${${python_name}Parent}" STREQUAL "")
+    endif()
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${python_name}.py
       DESTINATION lib/python)
     install(TARGETS ${SWIG_MODULE_${python_name}Python_REAL_NAME}
       DESTINATION lib/python)
-  endmacro(XDMF_SWIG_PYTHON)
-endif(XDMF_WRAP_PYTHON)
+  endmacro()
+endif()
 
 # If we are wrapping java, let's include it in the top level
 if(XDMF_WRAP_JAVA)
@@ -209,15 +209,15 @@ if(XDMF_WRAP_JAVA)
           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-	  endif(NOT MSVC10)
+	  endif()
       set(java_files *.java)
       set(java_dest "bin")
       set(separator "\;")
-    else(WIN32)
+    else()
       set(java_files ${XDMF_JAVA_DIR}/*.java)
       set(java_dest "lib/java")
       set(separator ":")
-    endif(WIN32)
+    endif()
 
     add_custom_target(${java_name}_Java_Dir ALL DEPENDS ${XDMF_JAVA_DIR})
     add_custom_command(OUTPUT ${XDMF_JAVA_DIR}
@@ -234,7 +234,7 @@ if(XDMF_WRAP_JAVA)
 
     if(NOT ${ARGN} EQUAL "")
       add_dependencies(Compiled_${java_name}_Jar "${ARGN}")
-    endif(NOT ${ARGN} EQUAL "")
+    endif()
 
     set_property(DIRECTORY APPEND PROPERTY
       ADDITIONAL_MAKE_CLEAN_FILES
@@ -250,14 +250,14 @@ if(XDMF_WRAP_JAVA)
       set(${java_name_upper}_JAVA_JAR ${${java_name_upper}_JAVA_JAR}
         PARENT_SCOPE)
       set(java_cp_jars "${java_cp_jars}" PARENT_SCOPE)
-    endif(NOT "${${java_name}Parent}" STREQUAL "")
+    endif()
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${java_name}.jar
       DESTINATION lib/java)
     install(TARGETS ${SWIG_MODULE_${java_name}Java_REAL_NAME}
       DESTINATION ${java_dest})
-  endmacro(XDMF_SWIG_JAVA)
-endif(XDMF_WRAP_JAVA)
+  endmacro()
+endif()
 
 add_subdirectory(core)
 include_directories(${XdmfCore_INCLUDE_DIRS} ${XdmfDSM_INCLUDE_DIRS})
@@ -293,9 +293,9 @@ if(NOT XDMF_BUILD_CORE_ONLY)
   add_library(vtkxdmf3 ${LIBTYPE} ${XdmfSources})
   if(XDMF_BUILD_DSM)
     target_link_libraries(vtkxdmf3 XdmfCore XdmfDSM)
-  else(XDMF_BUILD_DSM)
+  else()
     target_link_libraries(vtkxdmf3 XdmfCore)
-  endif(XDMF_BUILD_DSM)
+  endif()
   vtk_target_install(vtkxdmf3)
 
   if(WIN32)
@@ -311,38 +311,38 @@ if(NOT XDMF_BUILD_CORE_ONLY)
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-	endif(NOT MSVC10)
-   endif(WIN32)
+	endif()
+   endif()
 
   if(XDMF_WRAP_JAVA)
     XDMF_SWIG_JAVA(Xdmf Compiled_XdmfCore_Jar)
-  endif(XDMF_WRAP_JAVA)
+  endif()
 
   if(XDMF_WRAP_PYTHON)
     XDMF_SWIG_PYTHON(Xdmf XdmfCore XdmfDSM)
     set(XDMF_PYTHON_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib/python/)
-  endif(XDMF_WRAP_PYTHON)
+  endif()
 
 #  if(BUILD_TESTING)
 #    add_subdirectory(tests)
-#  endif(BUILD_TESTING)
+#  endif()
 
   #option(XDMF_BUILD_UTILS OFF)
   #if(XDMF_BUILD_UTILS)
   #  add_subdirectory(utils)
-  #endif(XDMF_BUILD_UTILS)
+  #endif()
 
   if(WIN32)
     set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/vtkxdmf3.lib)
-  endif(WIN32)
+  endif()
   
   if(UNIX)
     set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libvtkxdmf3.so)
-  endif(UNIX)
+  endif()
 
   if(APPLE)
     set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libvtkxdmf3.dylib)
-  endif(APPLE)
+  endif()
   
   file(GLOB XdmfHeaders 
     "*.hpp" 
@@ -356,7 +356,7 @@ if(NOT XDMF_BUILD_CORE_ONLY)
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
-endif(NOT XDMF_BUILD_CORE_ONLY)
+endif()
 
 xdmf_create_config_file(${PROJECT_NAME})
 install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"

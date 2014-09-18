@@ -22,11 +22,11 @@ MESSAGE("| Call Output: End")
 IF(python_error)
         MESSAGE("Call Error: Begin\n${python_error}")
         MESSAGE("Call Error: End")
-ENDIF(python_error)
+ENDIF()
 MESSAGE("| Call Ended")
 MESSAGE("----------------------------------------------------------")
 
 # Let's make sure that if the test failed, it failed with CTest too
 IF(python_result)
         MESSAGE(SEND_ERROR "${python_result}")
-ENDIF(python_result)
+ENDIF()
