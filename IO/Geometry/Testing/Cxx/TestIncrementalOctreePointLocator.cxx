@@ -1025,24 +1025,28 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   if (n != 1)
     {
     cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    fclose(pntsFile);
     return 1;
     }
   n = fwrite( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
   if (n != static_cast<size_t>(nLocPnts) * 3)
     {
     cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    fclose(pntsFile);
     return 1;
     }
   n = fwrite( minDist2, sizeof( double ), nLocPnts,     pntsFile );
   if (n != static_cast<size_t>(nLocPnts))
     {
     cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    fclose(pntsFile);
     return 1;
     }
   n = fwrite( maxDist2, sizeof( double ), nLocPnts,     pntsFile );
   if (n != static_cast<size_t>(nLocPnts))
     {
     cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    fclose(pntsFile);
     return 1;
     }
   fclose( pntsFile );                 pntsFile = NULL;
