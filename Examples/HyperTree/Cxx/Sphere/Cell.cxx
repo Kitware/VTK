@@ -124,8 +124,8 @@ void Cell::replaceNode (Node* oldNode, Node* newNode)
   vector<Node*>::iterator it = std::find (_nodes.begin(), _nodes.end(), oldNode);
   if (it != _nodes.end())
     {
-    _nodes.erase (it);
     _nodes.insert (it, newNode);
+    _nodes.erase (it);
     oldNode->unregisterCell (this);
     newNode->registerCell (this);
     }
