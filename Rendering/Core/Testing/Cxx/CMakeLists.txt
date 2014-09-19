@@ -17,6 +17,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
+  TestEdgeFlags.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapperArrow.cxx
