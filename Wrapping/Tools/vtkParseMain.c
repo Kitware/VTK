@@ -217,6 +217,7 @@ static int read_option_file(
       }
     }
 
+  fclose(fp);
   return 1;
 }
 
