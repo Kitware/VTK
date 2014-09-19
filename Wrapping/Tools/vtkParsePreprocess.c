@@ -1402,7 +1402,7 @@ static int preproc_evaluate_define(
         {
         if (tokens->tok != TOK_ID && tokens->tok != TOK_ELLIPSIS)
           {
-          if (params) { free((char **)params); }
+          free((char **)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1439,7 +1439,7 @@ static int preproc_evaluate_define(
           }
         else if (tokens->tok != ')')
           {
-          if (params) { free((char **)params); }
+          free((char **)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1457,11 +1457,11 @@ static int preproc_evaluate_define(
     macro = *macro_p;
     if (macro)
       {
+      free((char **)params);
       if (preproc_identical(macro->Definition, definition))
         {
         return VTK_PARSE_OK;
         }
-      if (params) { free((char **)params); }
 #if PREPROC_DEBUG
       fprintf(stderr, "macro redefined %d\n", __LINE__);
 #endif
