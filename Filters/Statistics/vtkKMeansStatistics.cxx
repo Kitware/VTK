@@ -723,13 +723,13 @@ void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
     return;
     }
 
-  vtkKMeansAssessFunctor* kmfunc = vtkKMeansAssessFunctor::New();
-
   if ( ! this->DistanceFunctor )
     {
     vtkErrorMacro( "Distance functor is NULL" );
     return;
     }
+
+  vtkKMeansAssessFunctor* kmfunc = vtkKMeansAssessFunctor::New();
 
   if ( ! kmfunc->Initialize( inData, reqModel, this->DistanceFunctor ) )
     {
