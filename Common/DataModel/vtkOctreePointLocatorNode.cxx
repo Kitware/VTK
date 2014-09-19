@@ -366,43 +366,49 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       int first = 1;
       minDistance = VTK_FLOAT_MAX; // Suppresses warning message.
 
+      dist = x - xmin;
       if ((xmin != outerBoundaryMin[0]) &&
-          (((dist = x - xmin) < minDistance) || first))
+          ((dist < minDistance) || first))
         {
         mindim = 0;
         minDistance = dist;
         first = 0;
         }
+      dist = xmax - x;
       if ((xmax != outerBoundaryMax[0]) &&
-          (((dist = xmax - x) < minDistance) || first))
+          ((dist < minDistance) || first))
         {
         mindim = 1;
         minDistance = dist;
         first = 0;
         }
+      dist = y - ymin;
       if ((ymin != outerBoundaryMin[1]) &&
-          (((dist = y - ymin) < minDistance) || first))
+          ((dist < minDistance) || first))
         {
         mindim = 2;
         minDistance = dist;
         first = 0;
         }
+      dist = ymax - y;
       if ((ymax != outerBoundaryMax[1]) &&
-          (((dist = ymax - y) < minDistance) || first))
+          ((dist < minDistance) || first))
         {
         mindim = 3;
         minDistance = dist;
         first = 0;
         }
+      dist = z - zmin;
       if ((zmin != outerBoundaryMin[2]) &&
-          (((dist = z - zmin) < minDistance) || first))
+          ((dist < minDistance) || first))
         {
         mindim = 4;
         minDistance = dist;
         first = 0;
         }
+      dist = zmax - z;
       if ((zmax != outerBoundaryMax[2]) &&
-          (((dist = zmax - z) < minDistance) || first))
+          ((dist < minDistance) || first))
         {
         mindim = 5;
         minDistance = dist;
