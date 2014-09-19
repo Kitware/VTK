@@ -533,8 +533,8 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
       }
     }
 
-  double outputSpacingX = (planeSizeX == 0) ? 1.0 : planeSizeX/extentX;
-  double outputSpacingY = (planeSizeY == 0) ? 1.0 : planeSizeY/extentY;
+  double outputSpacingX = (extentX == 0) ? 1.0 : planeSizeX/extentX;
+  double outputSpacingY = (extentY == 0) ? 1.0 : planeSizeY/extentY;
 
   bool modify = false;
   for (int i = 0; i < 4; i++)
