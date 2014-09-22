@@ -644,29 +644,29 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     this->SetupPalette(hDC);
 
     // create a context
-    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
-      reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
-    if (wglCreateContextAttribsARB)
-      {
-      int iContextAttribs[] =
-        {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-        WGL_CONTEXT_FLAGS_ARB, 0,
-        // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-        0 // End of attributes list
-        };
+    // PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
+    //   reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+    // if (wglCreateContextAttribsARB)
+    //   {
+    //   int iContextAttribs[] =
+    //     {
+    //     WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+    //     WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+    //     WGL_CONTEXT_FLAGS_ARB, 0,
+    //     // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+    //     0 // End of attributes list
+    //     };
 
-      this->ContextId = wglCreateContextAttribsARB(hDC, 0, iContextAttribs);
-      }
-    if (this->ContextId)
-      {
-      this->SetContextSupportsOpenGL32(true);
-      }
-    else
-      {
+    //   this->ContextId = wglCreateContextAttribsARB(hDC, 0, iContextAttribs);
+    //   }
+    // if (this->ContextId)
+    //   {
+    //   this->SetContextSupportsOpenGL32(true);
+    //   }
+//    else
+//      {
       this->ContextId = wglCreateContext(hDC);
-      }
+ //     }
     if (this->ContextId == NULL)
       {
       vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());

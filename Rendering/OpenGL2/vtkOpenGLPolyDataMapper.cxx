@@ -105,6 +105,16 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
                                           std::string &GSSource,
                                           int lightComplexity, vtkRenderer* ren, vtkActor *actor)
 {
+  this->GetShaderTemplate(VSSource,FSSource,GSSource,lightComplexity, ren, actor);
+  this->ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity, ren, actor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::GetShaderTemplate(std::string &VSSource,
+                                          std::string &FSSource,
+                                          std::string &GSSource,
+                                          int lightComplexity, vtkRenderer*, vtkActor *)
+{
   switch (lightComplexity)
     {
     case 0:
@@ -125,7 +135,13 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
       break;
     }
   GSSource.clear();
+}
 
+void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
+                                                  std::string &FSSource,
+                                                  std::string &vtkNotUsed(GSSource),
+                                                  int vtkNotUsed(lightComplexity), vtkRenderer* ren, vtkActor *actor)
+{
   if (this->Layout.ColorComponents != 0)
     {
     VSSource = replace(VSSource,"//VTK::Color::Dec",
@@ -462,14 +478,12 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
     {
     cellBO.vao.Bind();
-  vtkOpenGLCheckErrorMacro("failed after Render");
     if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
       vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
       }
-  vtkOpenGLCheckErrorMacro("failed after Render");
     if (layout.NormalOffset && this->LastLightComplexity > 0)
       {
       if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
@@ -479,7 +493,6 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
         vtkErrorMacro(<< "Error setting 'normalMC' in shader VAO.");
         }
       }
-  vtkOpenGLCheckErrorMacro("failed after Render");
     if (layout.TCoordComponents)
       {
       if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
@@ -501,8 +514,6 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     cellBO.attributeUpdateTime.Modified();
     }
-
-  vtkOpenGLCheckErrorMacro("failed after Render");
 
   if (layout.TCoordComponents)
     {

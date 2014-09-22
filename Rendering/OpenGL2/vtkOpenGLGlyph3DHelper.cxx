@@ -36,6 +36,7 @@
 #include "vtkBitArray.h"
 #include "vtkDataObject.h"
 
+#include "vtkglGlyph3DVSFragmentLit.h"
 
 using vtkgl::replace;
 
@@ -44,10 +45,42 @@ vtkStandardNewMacro(vtkOpenGLGlyph3DHelper)
 
 //-----------------------------------------------------------------------------
 vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
-  : ModelTransformMatrix(NULL)
 {
+  this->ModelTransformMatrix = NULL;
+  this->ModelNormalMatrix = NULL;
 }
 
+//-----------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::GetShaderTemplate(std::string &VSSource,
+                                          std::string &FSSource,
+                                          std::string &GSSource,
+                                          int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+{
+  this->Superclass::GetShaderTemplate(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
+
+  VSSource = vtkglGlyph3DVSFragmentLit;
+}
+
+void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
+                                                 std::string &FSSource,
+                                                 std::string &GSSource,
+                                                 int lightComplexity,
+                                                 vtkRenderer* ren,
+                                                 vtkActor *actor)
+{
+  // new code for normal matrix if we have normals
+  if (this->Layout.NormalOffset)
+    {
+    VSSource = replace(VSSource,
+                                 "//VTK::Normal::Dec",
+                                 "attribute vec3 normalMC; varying vec3 normalVCVarying;");
+    VSSource = replace(VSSource,
+                                 "//VTK::Normal::Impl",
+                                 "normalVCVarying = normalMatrix * glyphNormalMatrix * normalMC;");
+    }
+
+  this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
+}
 
 //-----------------------------------------------------------------------------
 vtkOpenGLGlyph3DHelper::~vtkOpenGLGlyph3DHelper()
@@ -55,7 +88,8 @@ vtkOpenGLGlyph3DHelper::~vtkOpenGLGlyph3DHelper()
 }
 
 void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<unsigned char> &colors, std::vector<float> &matrices)
+      std::vector<unsigned char> &colors, std::vector<float> &matrices,
+      std::vector<float> &normalMatrices)
 {
   bool primed = false;
   unsigned char rgba[4];
@@ -63,14 +97,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
   vtkHardwareSelector* selector = ren->GetSelector();
   bool selecting_points = selector && (selector->GetFieldAssociation() ==
     vtkDataObject::FIELD_ASSOCIATION_POINTS);
-
-  vtkCamera *cam = ren->GetActiveCamera();
-  vtkNew<vtkMatrix4x4> tmpMat;
-  double arrayVals[16];
-  vtkNew<vtkTransform> aTF;
-  vtkNew<vtkMatrix3x3> tmpMat3d;
-  vtkNew<vtkMatrix4x4> actCamMatrix;
-  vtkMatrix4x4::Multiply4x4(cam->GetModelViewTransformMatrix(), actor->GetMatrix(), actCamMatrix.Get());
 
   for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
     {
@@ -96,35 +122,12 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
     vtkgl::VBOLayout &layout = this->Layout;
 
     // Apply the extra transform
-    for (int i = 0; i < 16; i++)
-      {
-      arrayVals[i] = matrices[inPtId*16+i];
-      }
-    vtkMatrix4x4::Multiply4x4((double *)actCamMatrix.Get()->Element, arrayVals, (double *)tmpMat.Get()->Element);
-    tmpMat->Transpose();
-    program->SetUniformMatrix("MCVCMatrix", tmpMat.Get());
+    program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
 
     // for lit shaders set normal matrix
     if (this->LastLightComplexity > 0)
       {
-      tmpMat->Transpose();
-
-      // set the normal matrix and send it down
-      // (make this a function in camera at some point returning a 3x3)
-      // Reuse the matrix we already have (and possibly multiplied with model mat.
-      aTF->SetMatrix(tmpMat.Get());
-      double *scale = aTF->GetScale();
-      aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
-      tmpMat->DeepCopy(aTF->GetMatrix());
-      for(int i = 0; i < 3; ++i)
-        {
-        for (int j = 0; j < 3; ++j)
-          {
-          tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
-          }
-        }
-      tmpMat3d->Invert();
-      program->SetUniformMatrix("normalMatrix", tmpMat3d.Get());
+      program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId*9]));
       }
 
     // Query the actor for some of the properties that can be applied.
@@ -179,7 +182,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
     this->Tris.ibo.Release();
     this->RenderPieceFinish(ren,actor);
     }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -191,62 +193,16 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 
   vtkShaderProgram *program = cellBO.Program;
 
-  // set the MCWC matrix for positional lighting
-  if (this->LastLightComplexity > 2)
-    {
-    program->SetUniformMatrix("MCWCMatrix", actor->GetMatrix());
-    }
-
-  vtkCamera *cam = ren->GetActiveCamera();
-
-  vtkNew<vtkMatrix4x4> tmpMat;
-  tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
-
-  // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
-
-  // Apply this extra transform from the glyph mapper.
+  // Apply the extra transform
   if (this->ModelTransformMatrix)
     {
-    double arrayVals[16];
-
-    for (int i = 0; i < 16; i++)
-      {
-      arrayVals[i] = this->ModelTransformMatrix[i];
-      }
-    vtkMatrix4x4::Multiply4x4((double *)tmpMat.Get()->Element, arrayVals,
-                              (double *)tmpMat.Get()->Element);
-   }
-
-  tmpMat->Transpose();
-  program->SetUniformMatrix("MCVCMatrix", tmpMat.Get());
+    program->SetUniformMatrix4x4("GCMCMatrix", this->ModelTransformMatrix);
+    }
 
   // for lit shaders set normal matrix
-  if (this->LastLightComplexity > 0)
+  if (this->LastLightComplexity > 0 && this->ModelNormalMatrix)
     {
-    tmpMat->Transpose();
-
-    // set the normal matrix and send it down
-    // (make this a function in camera at some point returning a 3x3)
-    // Reuse the matrix we already got (and possibly multiplied with model mat.
-    if (!actor->GetIsIdentity() || this->ModelTransformMatrix)
-      {
-      vtkNew<vtkTransform> aTF;
-      aTF->SetMatrix(tmpMat.Get());
-      double *scale = aTF->GetScale();
-      aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
-      tmpMat->DeepCopy(aTF->GetMatrix());
-      }
-    vtkNew<vtkMatrix3x3> tmpMat3d;
-    for(int i = 0; i < 3; ++i)
-      {
-      for (int j = 0; j < 3; ++j)
-        {
-        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
-        }
-      }
-    tmpMat3d->Invert();
-    program->SetUniformMatrix("normalMatrix", tmpMat3d.Get());
+    program->SetUniformMatrix3x3("glyphNormalMatrix", this->ModelNormalMatrix);
     }
 }
 

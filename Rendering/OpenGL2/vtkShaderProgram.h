@@ -197,6 +197,8 @@ public:
   bool SetUniform4uc(const std::string &name, const unsigned char v[4]); // maybe remove
   bool SetUniformMatrix(const std::string &name, vtkMatrix3x3 *v);
   bool SetUniformMatrix(const std::string &name, vtkMatrix4x4 *v);
+  bool SetUniformMatrix3x3(const std::string &name, float *v);
+  bool SetUniformMatrix4x4(const std::string &name, float *v);
 
   /** Set the @p name uniform array to @p f with @p count elements */
   bool SetUniform1iv(const std::string &name, const int count, const int *f);

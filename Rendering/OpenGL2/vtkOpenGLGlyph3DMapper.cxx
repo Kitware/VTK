@@ -52,7 +52,8 @@ class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry
 {
 public:
   std::vector<unsigned char> Colors;
-  std::vector<float> Matrices;
+  std::vector<float> Matrices;  // transposed
+  std::vector<float> NormalMatrices; // transposed
   vtkTimeStamp BuildTime;
   vtkOpenGLGlyph3DHelper *Mapper;
   int NumberOfPoints;
@@ -366,7 +367,7 @@ void vtkOpenGLGlyph3DMapper::Render(
     // use fast path
     if (fastPath)
       {
-      gh->GlyphRender(ren, actor, entry->NumberOfPoints, entry->Colors, entry->Matrices);
+      gh->GlyphRender(ren, actor, entry->NumberOfPoints, entry->Colors, entry->Matrices, entry->NormalMatrices);
       }
     else
       {
@@ -390,6 +391,7 @@ void vtkOpenGLGlyph3DMapper::Render(
           }
         gh->SetModelColor(rgba);
         gh->SetModelTransform(&(entry->Matrices[inPtId*16]));
+        gh->SetModelNormalTransform(&(entry->NormalMatrices[inPtId*9]));
         gh->RenderPieceDraw(ren, actor);
         }
       if (primed)
@@ -419,18 +421,20 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     den = 1.0;
     }
 
-  double arrayVals[16];
-  vtkTransform *trans = vtkTransform::New();
-  vtkDataArray* indexArray = this->GetSourceIndexArray(dataset);
-  vtkDataArray* scaleArray = this->GetScaleArray(dataset);
   vtkDataArray* orientArray = this->GetOrientationArray(dataset);
-  vtkDataArray* selectionArray = this->GetSelectionIdArray(dataset);
   if (orientArray !=0 && orientArray->GetNumberOfComponents() != 3)
     {
     vtkErrorMacro(" expecting an orientation array with 3 component, getting "
       << orientArray->GetNumberOfComponents() << " components.");
     return;
     }
+
+  double arrayVals[16];
+  vtkTransform *trans = vtkTransform::New();
+  vtkTransform *normalTrans = vtkTransform::New();
+  vtkDataArray* indexArray = this->GetSourceIndexArray(dataset);
+  vtkDataArray* scaleArray = this->GetScaleArray(dataset);
+  vtkDataArray* selectionArray = this->GetSelectionIdArray(dataset);
 
   /// FIXME: Didn't handle the premultiplycolorswithalpha aspect...
   vtkUnsignedCharArray* colors = NULL;
@@ -483,6 +487,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       subarray->Entries[cc];
     entry->Colors.resize(numPointsPerSource[cc]*4);
     entry->Matrices.resize(numPointsPerSource[cc]*16);
+    entry->NormalMatrices.resize(numPointsPerSource[cc]*9);
     entry->NumberOfPoints = 0;
     entry->BuildTime.Modified();
     }
@@ -524,11 +529,6 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       {
       vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
         subarray->Entries[index];
-
-      // expand arrays if needed
-      if (entry->NumberOfPoints >= entry->Colors.size())
-        {
-        }
 
       entry->Colors[entry->NumberOfPoints*4] = 255;
       entry->Colors[entry->NumberOfPoints*4+1] = 255;
@@ -586,6 +586,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
       // Now begin copying/transforming glyph
       trans->Identity();
+      normalTrans->Identity();
 
       // translate Source to Input point
       double x[3];
@@ -602,6 +603,9 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
           trans->RotateZ(orientation[2]);
           trans->RotateX(orientation[0]);
           trans->RotateY(orientation[1]);
+          normalTrans->RotateZ(orientation[2]);
+          normalTrans->RotateX(orientation[0]);
+          normalTrans->RotateY(orientation[1]);
           break;
 
         case DIRECTION:
@@ -610,6 +614,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
             if (orientation[0] < 0) //just flip x if we need to
               {
               trans->RotateWXYZ(180.0, 0, 1, 0);
+              normalTrans->RotateWXYZ(180.0, 0, 1, 0);
               }
             }
           else
@@ -620,6 +625,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
             vNew[1] = orientation[1] / 2.0;
             vNew[2] = orientation[2] / 2.0;
             trans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
+            normalTrans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
             }
           break;
           }
@@ -678,9 +684,21 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         }
 
       vtkMatrix4x4::DeepCopy(arrayVals, trans->GetMatrix());
-      for (int i = 0; i < 16; i++)
+      for (int i = 0; i < 4; i++)
         {
-        entry->Matrices[entry->NumberOfPoints*16+i] = arrayVals[i];
+        for (int j = 0; j < 4; j++)
+          {
+          entry->Matrices[entry->NumberOfPoints*16+i*4+j] = arrayVals[j*4+i];
+          }
+        }
+      normalTrans->Inverse();
+      vtkMatrix4x4::DeepCopy(arrayVals, normalTrans->GetMatrix());
+      for (int i = 0; i < 3; i++)
+        {
+        for (int j = 0; j < 3; j++)
+          {
+          entry->NormalMatrices[entry->NumberOfPoints*9+i*3+j] = arrayVals[j*4+i];
+          }
         }
       entry->NumberOfPoints++;
       }
@@ -689,6 +707,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   subarray->LastSelectingState = selecting_points;
   subarray->BuildTime.Modified();
   trans->Delete();
+  normalTrans->Delete();
 }
 
 
@@ -697,10 +716,15 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 // Release any graphics resources that are being consumed by this mapper.
 void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 {
-  // if (this->Mapper)
-  //   {
-  //   this->Mapper->ReleaseGraphicsResources(window);
-  //   }
+  std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->GlyphValues->Entries.begin();
+  for (;miter != this->GlyphValues->Entries.end(); miter++)
+    {
+    std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
+    for (;miter2 != miter->second->Entries.end(); miter2++)
+      {
+      miter2->second->Mapper->ReleaseGraphicsResources(window);
+      }
+    }
 }
 
 // ----------------------------------------------------------------------------

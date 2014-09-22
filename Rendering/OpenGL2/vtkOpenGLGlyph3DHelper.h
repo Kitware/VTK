@@ -35,6 +35,11 @@ public:
     this->ModelTransformMatrix = matrix;
   }
 
+  void SetModelNormalTransform(float *matrix)
+  {
+    this->ModelNormalMatrix = matrix;
+  }
+
   void SetModelColor(unsigned char *color)
   {
     this->ModelColor[0] = color[0];
@@ -46,11 +51,28 @@ public:
   // Description
   // Fast path for rendering glyphs comprised of only one type of primative
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<unsigned char> &colors, std::vector<float> &matrices);
+      std::vector<unsigned char> &colors, std::vector<float> &matrices,
+      std::vector<float> &normalMatrices);
 
 protected:
   vtkOpenGLGlyph3DHelper();
   ~vtkOpenGLGlyph3DHelper();
+
+  // Description:
+  // Create the basic shaders before replacement
+  virtual void GetShaderTemplate(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Perform string replacments on the shader templates
+  virtual void ReplaceShaderValues(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the Camera
@@ -61,6 +83,7 @@ protected:
   virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   float* ModelTransformMatrix;
+  float* ModelNormalMatrix;
   unsigned char ModelColor[4];
 
 private:

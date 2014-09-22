@@ -96,6 +96,8 @@ set(shader_files
   glsl/vtkglPolyDataFSHeadlight.glsl
   glsl/vtkglPolyDataFSLightKit.glsl
   glsl/vtkglPolyDataFSPositionalLights.glsl
+
+  glsl/vtkglGlyph3DVSFragmentLit.glsl
   )
 
 unset(shader_h_files)
