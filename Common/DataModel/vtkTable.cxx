@@ -663,7 +663,6 @@ vtkFieldData* vtkTable::GetAttributesAsFieldData(int type)
     {
     case ROW:
       return this->GetRowData();
-      break;
     }
   return this->Superclass::GetAttributesAsFieldData(type);
 }
@@ -675,7 +674,6 @@ vtkIdType vtkTable::GetNumberOfElements(int type)
     {
     case ROW:
       return this->GetNumberOfRows();
-      break;
     }
   return this->Superclass::GetNumberOfElements(type);;
 }

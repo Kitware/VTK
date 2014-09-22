@@ -253,25 +253,27 @@ int vtkRInterface::EvalRscript(const char *string, bool showRoutput)
           }
         }
       break;
+
     case PARSE_INCOMPLETE:
       vtkErrorMacro(<<"R parse status is PARSE_INCOMPLETE");
       /* need to read another line */
       break;
+
     case PARSE_NULL:
       vtkErrorMacro(<<"R parse status is PARSE_NULL");
       return 1;
-      break;
+
     case PARSE_ERROR:
       vtkErrorMacro(<<"R parse status is PARSE_ERROR");
       return 1;
-      break;
+
     case PARSE_EOF:
       vtkErrorMacro(<<"R parse status is PARSE_EOF");
       break;
+
     default:
       vtkErrorMacro(<<"R parse status is NOT DOCUMENTED");
       return 1;
-      break;
     }
   UNPROTECT(2);
   this->FillOutputBuffer();

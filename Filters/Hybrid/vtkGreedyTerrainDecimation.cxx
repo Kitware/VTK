@@ -165,22 +165,18 @@ int vtkGreedyTerrainDecimation::SatisfiesErrorMeasure(double error)
     {
     case VTK_ERROR_NUMBER_OF_TRIANGLES:
       if ( this->Mesh->GetNumberOfPolys() >= this->NumberOfTriangles ) return 1;
-      break;
 
     case VTK_ERROR_SPECIFIED_REDUCTION:
       {
       double reduction = (double)this->Mesh->GetNumberOfPolys()/this->MaximumNumberOfTriangles;
       if ( (1.0 - reduction) <= this->Reduction ) return 1;
       }
-      break;
 
     case VTK_ERROR_ABSOLUTE:
       if ( error <= this->AbsoluteError ) return 1;
-      break;
 
     case VTK_ERROR_RELATIVE:
       if ( (error/this->Length) <= this->RelativeError ) return 1;
-      break;
     }
 
   return 0;

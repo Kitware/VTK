@@ -312,7 +312,6 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
   default :
     XdmfErrorMessage("Can't handle number type");
     return(0);
-    break;
   }
   array->Reset();
   }

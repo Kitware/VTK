@@ -651,10 +651,8 @@ vtkFieldData* vtkDataSet::GetAttributesAsFieldData(int type)
     {
     case POINT:
       return this->GetPointData();
-      break;
     case CELL:
       return this->GetCellData();
-      break;
     }
   return this->Superclass::GetAttributesAsFieldData(type);
 }
@@ -666,10 +664,8 @@ vtkIdType vtkDataSet::GetNumberOfElements(int type)
     {
     case POINT:
       return this->GetNumberOfPoints();
-      break;
     case CELL:
       return this->GetNumberOfCells();
-      break;
     }
   return this->Superclass::GetNumberOfElements(type);;
 }

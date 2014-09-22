@@ -311,7 +311,6 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       default:
         assert("check: impossible case" && 0);
         return;
-        break;
       }
     int currComp=attributes->GetActiveComponent();
 
@@ -413,7 +412,6 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     default:
       assert("TODO: dimension 1 and 0" && 0);
       return;
-      break;
     }
 
   vtkIdType npts, *pts = 0;
@@ -557,7 +555,6 @@ void vtkGenericAdaptorCell::Clip(double value,
       default:
         assert("check: impossible case" && 0);
         return;
-        break;
       }
     int currComp=attributes->GetActiveComponent();
 
@@ -640,7 +637,6 @@ void vtkGenericAdaptorCell::Clip(double value,
     default:
       assert("TODO: dimension 1 and 0" && 0);
       return;
-      break;
     }
 
   vtkIdType npts, *pts = 0;
@@ -785,7 +781,6 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       default:
         assert("check: impossible case" && 0);
         return;
-        break;
       }
     double *locals=this->GetParametricCoords();
     this->InternalIds->Reset();

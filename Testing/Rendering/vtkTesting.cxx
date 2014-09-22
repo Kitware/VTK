@@ -779,7 +779,6 @@ int vtkTesting::CompareAverageOfL2Norm(vtkDataArray *daA,
         cout << "Skipping:" << daA->GetName() << endl;
         }
       return true;
-      break;
     }
   //
   if (N <= 0)

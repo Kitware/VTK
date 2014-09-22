@@ -322,7 +322,6 @@ GetPoleValues
         default:
             NbPoles = 0L;
             return(1);
-            break;
     }
 
     return(0);
