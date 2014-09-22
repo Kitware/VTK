@@ -117,7 +117,13 @@ if (a->ArcDwId1) this->GetArc(a->ArcDwId1)->ArcUpId1=a->ArcUpId1;\
 if (nstack==mstack)\
 {\
   mstack=vtkReebGraphMax(128,mstack*2);\
+  int *oldstack = stack;\
   stack=(int*)realloc(stack,sizeof(int)*mstack);\
+  if (!stack)\
+  {\
+    free(oldstack);\
+    assert(0 && "Ran out of memory");\
+  }\
 } \
 stack[nstack++]=(N);\
 }
