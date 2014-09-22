@@ -604,6 +604,7 @@ const char *get_macro_arguments()
   if (c1 != '(')
     {
     unput(c1);
+    free(cp);
     return NULL;
     }
 
@@ -657,7 +658,13 @@ const char *get_macro_arguments()
       cp[i++] = ' ';
       if (i >= 4 && (i & (i-1)) == 0)
         {
+        char *oldcp = cp;
         cp = (char *)realloc(cp, 2*i);
+        if (!cp)
+          {
+          free(oldcp);
+          return NULL;
+          }
         }
       }
     if (sl)
@@ -666,7 +673,13 @@ const char *get_macro_arguments()
       cp[i++] = '/';
       if (i >= 4 && (i & (i-1)) == 0)
         {
+        char *oldcp = cp;
         cp = (char *)realloc(cp, 2*i);
+        if (!cp)
+          {
+          free(oldcp);
+          return NULL;
+          }
         }
       }
     if (c1 == '\"' || c1 == '\'')
@@ -696,7 +709,13 @@ const char *get_macro_arguments()
         cp[i++] = (char)c1;
         if (i >= 4 && (i & (i-1)) == 0)
           {
+          char *oldcp = cp;
           cp = (char *)realloc(cp, 2*i);
+          if (!cp)
+            {
+            free(oldcp);
+            return NULL;
+            }
           }
         }
       while (c1 != c2 || escaped);
@@ -706,7 +725,13 @@ const char *get_macro_arguments()
       cp[i++] = (char)c1;
       if (i >= 4 && (i & (i-1)) == 0)
         {
+        char *oldcp = cp;
         cp = (char *)realloc(cp, 2*i);
+        if (!cp)
+          {
+          free(oldcp);
+          return NULL;
+          }
         }
       cp[i] = '\0';
       if (c1 == '(')
@@ -929,7 +954,13 @@ int skip_conditional_block()
       if (i >= linemaxlen-5)
         {
         linemaxlen += i+5;
+        char *oldlinebuf = linebuf;
         linebuf = (char *)realloc(linebuf, linemaxlen);
+        if (!linebuf)
+          {
+          free(oldlinebuf);
+          return 0;
+          }
         }
       linebuf[i++] = c;
       /* be sure to skip escaped newlines */
@@ -1078,6 +1109,11 @@ const char *raw_string(const char *begin)
       {
       m += 1024;
       result = (char *)realloc(result, m);
+      if (!result)
+        {
+        print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+        exit(1);
+        }
       dp = result + j;
       }
 
@@ -1164,6 +1200,11 @@ void push_buffer()
     {
     buffer_stack = (YY_BUFFER_STATE *)realloc(
       buffer_stack, 2*n*sizeof(YY_BUFFER_STATE));
+    if (!buffer_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     }
   buffer_stack[buffer_stack_size++] = YY_CURRENT_BUFFER;
 }
@@ -1217,8 +1258,18 @@ void push_include(const char *filename)
     {
     include_stack = (FileInfo **)realloc(
       include_stack, 2*n*sizeof(FileInfo *));
+    if (!include_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     lineno_stack = (int *)realloc(
       lineno_stack, 2*n*sizeof(int));
+    if (!lineno_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     }
 
   lineno_stack[include_stack_size] = yyget_lineno();
@@ -1290,6 +1341,11 @@ void push_macro(MacroInfo *macro)
     {
     macro_stack = (MacroInfo **)realloc(
       macro_stack, 2*n*sizeof(MacroInfo *));
+    if (!macro_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     }
   macro_stack[macro_stack_size++] = macro;
   if (macro)
@@ -1371,6 +1427,9 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
       break;
     case VTK_PARSE_SYNTAX_ERROR:
       text = "syntax error";
+      break;
+    case VTK_PARSE_OUT_OF_MEMORY:
+      text = "out of memory";
       break;
     }
 
