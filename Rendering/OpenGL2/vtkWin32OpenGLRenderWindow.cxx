@@ -566,6 +566,9 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   HGLRC tempContext = wglCreateContext(tempDC);
   wglMakeCurrent(tempDC, tempContext);
 
+  // make sure glew is initialized with fake window
+  this->OpenGLInit();
+
   // First we try to use the newer wglChoosePixelFormatARB which enables
   // features like multisamples.
   int pixelFormat = 0;
@@ -649,13 +652,18 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         {
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
         WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-//        WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        WGL_CONTEXT_FLAGS_ARB, 0,
+        // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
         0 // End of attributes list
         };
 
       this->ContextId = wglCreateContextAttribsARB(hDC, 0, iContextAttribs);
       }
-    if (this->ContextId == NULL)
+    if (this->ContextId)
+      {
+      this->SetContextSupportsOpenGL32(true);
+      }
+    else
       {
       this->ContextId = wglCreateContext(hDC);
       }

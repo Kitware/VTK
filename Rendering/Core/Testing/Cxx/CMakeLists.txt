@@ -10,6 +10,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   FrustumClip.cxx
   Mace.cxx
   RGrid.cxx
+  vtkCmbGlyphMappingTest3.cxx,NO_VALID
   TestActor2DTextures.cxx
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx

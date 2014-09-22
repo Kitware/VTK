@@ -17,10 +17,6 @@
 #include "vtkShaderProgram.h"
 #include "vtk_glew.h"
 
-#include "vtkOpenGLError.h"
-
-
-
 #include <map>
 #include <vector>
 
@@ -85,7 +81,7 @@ public:
 
   void Initialize()
   {
-    if (GLEW_ARB_vertex_array_object || GLEW_VERSION_3_2)
+    if (GLEW_ARB_vertex_array_object)
       {
       this->supported = true;
       glGenVertexArrays(1, &this->handleVAO);
@@ -244,17 +240,12 @@ bool VertexArrayObject::AddAttributeArray(vtkShaderProgram *program,
     return false;
     }
 
-  vtkOpenGLStaticCheckErrorMacro("failed after Render");
-
-
   // Always make the call as even the first use wants the attrib pointer setting
   // up when we are emulating.
   glEnableVertexAttribArray(attribs.index);
-  vtkOpenGLStaticCheckErrorMacro("failed after Render");
   glVertexAttribPointer(attribs.index, attribs.size, attribs.type,
                         attribs.normalize, attribs.stride,
                         BUFFER_OFFSET(attribs.offset));
-  vtkOpenGLStaticCheckErrorMacro("failed after Render");
 
   // If vertex array objects are not supported then build up our list.
   if (!this->d->supported)
@@ -284,7 +275,6 @@ bool VertexArrayObject::AddAttributeArray(vtkShaderProgram *program,
       }
     }
 
-  vtkOpenGLStaticCheckErrorMacro("failed after Render");
   return true;
 }
 

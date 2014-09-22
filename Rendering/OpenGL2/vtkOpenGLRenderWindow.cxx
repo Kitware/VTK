@@ -66,6 +66,22 @@ int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
   return vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
 }
 
+// used for OpenGL32 Support
+static bool vtkOpenGLRenderWindowContextSupportsOpenGL32 = false;
+
+bool vtkOpenGLRenderWindow::GetContextSupportsOpenGL32()
+{
+  return vtkOpenGLRenderWindowContextSupportsOpenGL32;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::SetContextSupportsOpenGL32(bool val)
+{
+  if (val == vtkOpenGLRenderWindowContextSupportsOpenGL32) return;
+  vtkOpenGLRenderWindowContextSupportsOpenGL32 = val;
+}
+
+
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
