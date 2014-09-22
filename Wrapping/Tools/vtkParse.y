@@ -18,14 +18,15 @@
 
 This file must be translated to C and modified to build everywhere.
 
-Run yacc like this:
+Run bison like this:
 
-  yacc -b vtkParse vtkParse.y
+  bison -b vtkParse vtkParse.y
 
 Modify vtkParse.tab.c:
   - convert TABs to spaces (eight per tab)
   - remove spaces from ends of lines, s/ *$//g
   - replace all instances of "static inline" with "static".
+  - replace "#line" lines with blank lines
 */
 
 /*

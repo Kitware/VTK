@@ -13,8 +13,11 @@ Modify lex.yy.c:
   - convert tabs to spaces (8 spaces per tab)
   - remove extra space from end of lines
   - remove blank lines from end of file
-  - replace "int yyl" with "yy_size_t yyl"
+  - replace "int yyl;" with "yy_size_t yyl;"
   - compile with gcc and "-Wsign-compare", there should be no warnings
+  - replace "#line" lines with blank lines
+  - remove usage of the "register" keyword
+  - add a prototype for isatty
 
 */
 
