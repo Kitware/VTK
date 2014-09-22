@@ -457,9 +457,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   SwapForBigEndian
     (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
   #endif
-  pLocPnts = ( double * ) realloc( pLocPnts, sizeof( double ) * nLocPnts * 3 );
-  minDist2 = ( double * ) realloc( minDist2, sizeof( double ) * nLocPnts     );
-  maxDist2 = ( double * ) realloc( maxDist2, sizeof( double ) * nLocPnts     );
+  pLocPnts = ( double * ) malloc( sizeof( double ) * nLocPnts * 3 );
+  minDist2 = ( double * ) malloc( sizeof( double ) * nLocPnts     );
+  maxDist2 = ( double * ) malloc( sizeof( double ) * nLocPnts     );
   n = fread( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
   if (n != static_cast<size_t>(nLocPnts * 3))
     {
