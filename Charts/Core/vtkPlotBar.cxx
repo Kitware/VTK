@@ -33,6 +33,7 @@
 #include "vtkColorSeries.h"
 #include "vtkStringArray.h"
 #include "vtkNew.h"
+#include "vtkLookupTable.h"
 
 #include "vtkObjectFactory.h"
 
@@ -171,6 +172,7 @@ class vtkPlotBarSegment : public vtkObject {
       this->Points = NULL;
       this->Sorted = NULL;
       this->Previous = NULL;
+      this->Colors = NULL;
       }
 
     ~vtkPlotBarSegment()
@@ -233,6 +235,10 @@ class vtkPlotBarSegment : public vtkObject {
 
       for (int i = 0; i < n; ++i)
         {
+        if (this->Colors)
+          {
+          painter->GetBrush()->SetColor(vtkColor4ub(this->Colors->GetPointer(i * 4)));
+          }
         if (orientation == vtkPlotBar::VERTICAL)
           {
           if (p)
@@ -452,6 +458,7 @@ class vtkPlotBarSegment : public vtkObject {
     vtkPlotBar *Bar;
     VectorPIMPL* Sorted;
     vtkVector2d ScalingFactor;
+    vtkUnsignedCharArray *Colors;
     };
 
 vtkStandardNewMacro(vtkPlotBarSegment);
@@ -552,6 +559,9 @@ vtkPlotBar::vtkPlotBar()
   this->Offset = 1.0;
   this->ColorSeries = NULL;
   this->Orientation = vtkPlotBar::VERTICAL;
+  this->ScalarVisibility = false;
+  this->LogX = false;
+  this->LogY = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -566,6 +576,41 @@ vtkPlotBar::~vtkPlotBar()
 }
 
 //-----------------------------------------------------------------------------
+void vtkPlotBar::Update()
+{
+  if (!this->Visible)
+    {
+    return;
+    }
+  // First check if we have an input
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkDebugMacro(<< "Update event called with no input table set.");
+    return;
+    }
+  else if(this->Data->GetMTime() > this->BuildTime ||
+          table->GetMTime() > this->BuildTime ||
+          (this->LookupTable && this->LookupTable->GetMTime() > this->BuildTime) ||
+          this->MTime > this->BuildTime)
+    {
+    vtkDebugMacro(<< "Updating cached values.");
+    this->UpdateTableCache(table);
+    }
+  else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
+           (this->YAxis && this->YAxis->GetMaximum() > this->BuildTime))
+    {
+    if (this->LogX != this->XAxis->GetLogScale() ||
+        this->LogY != this->YAxis->GetLogScale())
+      {
+      this->LogX = this->XAxis->GetLogScale();
+      this->LogY = this->YAxis->GetLogScale();
+      this->UpdateTableCache(table);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 bool vtkPlotBar::Paint(vtkContext2D *painter)
 {
   // This is where everything should be drawn, or dispatched to other methods.
@@ -574,33 +619,6 @@ bool vtkPlotBar::Paint(vtkContext2D *painter)
   if (!this->Visible)
     {
     return false;
-    }
-
-  // First check if we have an input
-  vtkTable *table = this->Data->GetInput();
-  if (!table)
-    {
-    vtkDebugMacro(<< "Paint event called with no input table set.");
-    return false;
-    }
-  else if(this->Data->GetMTime() > this->BuildTime ||
-          this->GetXAxis()->GetMTime() > this->BuildTime ||
-          this->GetYAxis()->GetMTime() > this->BuildTime ||
-          table->GetMTime() > this->BuildTime ||
-          this->MTime > this->BuildTime)
-    {
-    vtkDebugMacro(<< "Paint event called with outdated table cache. Updating.");
-    this->UpdateTableCache(table);
-    }
-
-  // Now add some decorations for our selected points...
-  if (this->Selection)
-    {
-    vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
-    }
-  else
-    {
-    vtkDebugMacro("No selection set.");
     }
 
   this->Private->PaintSegments(painter,this->ColorSeries, this->Pen,this->Brush,
@@ -852,6 +870,31 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
   vtkPlotBarSegment *prev = this->Private->AddSegment(x, y, this->GetXAxis(),
                                                       this->GetYAxis());
 
+  // Additions for color mapping
+  if (this->ScalarVisibility && !this->ColorArrayName.empty())
+    {
+    vtkDataArray* c =
+      vtkDataArray::SafeDownCast(table->GetColumnByName(this->ColorArrayName));
+    // TODO: Should add support for categorical coloring & try enum lookup
+    if (c)
+      {
+      if (!this->LookupTable)
+        {
+        this->CreateDefaultLookupTable();
+        }
+      this->Colors = this->LookupTable->MapScalars(c,
+                                                   VTK_COLOR_MODE_MAP_SCALARS,
+                                                   -1);
+      prev->Colors = this->Colors;
+      this->Colors->Delete();
+      }
+    else
+      {
+      this->Colors = NULL;
+      prev->Colors = NULL;
+      }
+    }
+
   std::map< int, std::string >::iterator it;
 
   for ( it = this->Private->AdditionalSeries.begin();
@@ -914,6 +957,97 @@ void vtkPlotBar::SetColorSeries(vtkColorSeries *colorSeries)
 vtkColorSeries *vtkPlotBar::GetColorSeries()
 {
   return this->ColorSeries;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::SetLookupTable(vtkScalarsToColors *lut)
+{
+  if (this->LookupTable != lut)
+    {
+    this->LookupTable = lut;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkScalarsToColors *vtkPlotBar::GetLookupTable()
+{
+  if (!this->LookupTable)
+    {
+    this->CreateDefaultLookupTable();
+    }
+  return this->LookupTable.Get();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::CreateDefaultLookupTable()
+{
+  this->LookupTable = vtkSmartPointer<vtkLookupTable>::New();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::SelectColorArray(const vtkStdString& arrayName)
+{
+  if (this->ColorArrayName == arrayName)
+    {
+    return;
+    }
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkWarningMacro(<< "SelectColorArray called with no input table set.");
+    return;
+    }
+  for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
+    {
+    if (arrayName == table->GetColumnName(i))
+      {
+      this->ColorArrayName = arrayName;
+      this->Modified();
+      return;
+      }
+    }
+  vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
+  this->ColorArrayName = "";
+  this->Modified();
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::SelectColorArray(vtkIdType arrayNum)
+{
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkWarningMacro(<< "SelectColorArray called with no input table set.");
+    return;
+    }
+  vtkDataArray *col = vtkDataArray::SafeDownCast(table->GetColumn(arrayNum));
+  // TODO: Should add support for categorical coloring & try enum lookup
+  if (!col)
+    {
+    vtkDebugMacro(<< "SelectColorArray called with invalid column index");
+    return;
+    }
+  else
+    {
+    const char *arrayName = table->GetColumnName(arrayNum);
+    if (this->ColorArrayName == arrayName || arrayName == 0)
+      {
+      return;
+      }
+    else
+      {
+      this->ColorArrayName = arrayName;
+      this->Modified();
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkPlotBar::GetColorArrayName()
+{
+  return this->ColorArrayName;
 }
 
 //-----------------------------------------------------------------------------
