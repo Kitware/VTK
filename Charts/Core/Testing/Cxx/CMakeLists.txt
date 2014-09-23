@@ -49,6 +49,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCategoryLegend.cxx
   TestColorTransferFunction.cxx
   TestChartDouble.cxx
+  TestChartDoubleColors.cxx
   TestChartMatrix.cxx
   TestChartUnicode.cxx
   TestChartsOn3D.cxx
