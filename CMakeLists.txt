@@ -100,7 +100,7 @@ if (ANDROID OR APPLE_IOS)
   SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
      CACHE STRING "Output from TRY_RUN" FORCE)
 
-  set(BUILD_SHARED_LIBS OFF)
+  option(BUILD_SHARED_LIBS "should be off for embedded" OFF)
   set(VTK_RENDERING_BACKEND OpenGL2)
   set(Module_vtkRenderingCore ON)
   option(VTK_Group_Rendering "off for embedded" OFF)
@@ -143,10 +143,11 @@ if (ANDROID OR APPLE_IOS)
          ${_OPENGL_LIB_PATH}
        )
   endif()
+else()
+  # Choose static or shared libraries.
+  option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 endif()
 
-# Choose static or shared libraries.
-option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
