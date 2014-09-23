@@ -21,6 +21,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLPolyDataMapper.h"
 
+class vtkBitArray;
+
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DHelper : public vtkOpenGLPolyDataMapper
 {
 public:
@@ -28,9 +30,14 @@ public:
   vtkTypeMacro(vtkOpenGLGlyph3DHelper, vtkOpenGLPolyDataMapper)
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetModelTransform(vtkMatrix4x4* matrix)
+  void SetModelTransform(float *matrix)
   {
     this->ModelTransformMatrix = matrix;
+  }
+
+  void SetModelNormalTransform(float *matrix)
+  {
+    this->ModelNormalMatrix = matrix;
   }
 
   void SetModelColor(unsigned char *color)
@@ -43,11 +50,29 @@ public:
 
   // Description
   // Fast path for rendering glyphs comprised of only one type of primative
-  void GlyphRender(vtkRenderer* ren, vtkActor* actor, unsigned char rgba[4], vtkMatrix4x4 *gmat, int stage);
+  void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
+      std::vector<unsigned char> &colors, std::vector<float> &matrices,
+      std::vector<float> &normalMatrices);
 
 protected:
   vtkOpenGLGlyph3DHelper();
   ~vtkOpenGLGlyph3DHelper();
+
+  // Description:
+  // Create the basic shaders before replacement
+  virtual void GetShaderTemplate(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Perform string replacments on the shader templates
+  virtual void ReplaceShaderValues(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the Camera
@@ -57,7 +82,8 @@ protected:
   // Set the shader parameteres related to the property
   virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
-  vtkMatrix4x4* ModelTransformMatrix;
+  float* ModelTransformMatrix;
+  float* ModelNormalMatrix;
   unsigned char ModelColor[4];
 
 private:

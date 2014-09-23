@@ -543,9 +543,10 @@ bool WGLisExtensionSupported(const char *extension)
     }
 }
 
-void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
-                                                  int debug, int bpp,
-                                                  int zbpp)
+void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
+  HDC hDC, DWORD dwFlags,
+  int debug, int bpp,
+  int zbpp)
 {
   // Create a dummy window, needed for calling wglGetProcAddress.
 #ifdef UNICODE
@@ -564,6 +565,9 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
   SetPixelFormat(tempDC, tempPixelFormat, &tempPfd);
   HGLRC tempContext = wglCreateContext(tempDC);
   wglMakeCurrent(tempDC, tempContext);
+
+  // make sure glew is initialized with fake window
+  this->OpenGLInit();
 
   // First we try to use the newer wglChoosePixelFormatARB which enables
   // features like multisamples.
@@ -630,6 +634,42 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     if (!SetPixelFormat(hDC, pixelFormat, &pfd))
       {
       pixelFormat = 0;
+      }
+    }
+
+  // If we got a valid pixel format in the process, we are done.
+  // Otherwise, we use the old approach of using ChoosePixelFormat.
+  if (pixelFormat)
+    {
+    this->SetupPalette(hDC);
+
+    // create a context
+    // PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
+    //   reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+    // if (wglCreateContextAttribsARB)
+    //   {
+    //   int iContextAttribs[] =
+    //     {
+    //     WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+    //     WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+    //     WGL_CONTEXT_FLAGS_ARB, 0,
+    //     // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+    //     0 // End of attributes list
+    //     };
+
+    //   this->ContextId = wglCreateContextAttribsARB(hDC, 0, iContextAttribs);
+    //   }
+    // if (this->ContextId)
+    //   {
+    //   this->SetContextSupportsOpenGL32(true);
+    //   }
+//    else
+//      {
+      this->ContextId = wglCreateContext(hDC);
+ //     }
+    if (this->ContextId == NULL)
+      {
+      vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());
       }
     }
 
@@ -745,6 +785,15 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     vtkGenericWarningMacro("No Stereo Available!");
     this->StereoCapableWindow = 0;
     }
+
+  this->SetupPalette(hDC);
+
+  // create a context
+  this->ContextId = wglCreateContext(hDC);
+  if (this->ContextId == NULL)
+    {
+    vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());
+    }
 }
 
 void vtkWin32OpenGLRenderWindow::SetupPalette(HDC hDC)
@@ -756,11 +805,14 @@ void vtkWin32OpenGLRenderWindow::SetupPalette(HDC hDC)
 
   DescribePixelFormat(hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
-  if (pfd.dwFlags & PFD_NEED_PALETTE) {
-  paletteSize = 1 << pfd.cColorBits;
-  } else {
-  return;
-  }
+  if (pfd.dwFlags & PFD_NEED_PALETTE)
+    {
+    paletteSize = 1 << pfd.cColorBits;
+    }
+  else
+    {
+    return;
+    }
 
   pPal = (LOGPALETTE*)
     malloc(sizeof(LOGPALETTE) + paletteSize * sizeof(PALETTEENTRY));
@@ -774,24 +826,26 @@ void vtkWin32OpenGLRenderWindow::SetupPalette(HDC hDC)
   int blueMask = (1 << pfd.cBlueBits) - 1;
   int i;
 
-  for (i=0; i<paletteSize; ++i) {
-  pPal->palPalEntry[i].peRed =
-    (((i >> pfd.cRedShift) & redMask) * 255) / redMask;
-  pPal->palPalEntry[i].peGreen =
-    (((i >> pfd.cGreenShift) & greenMask) * 255) / greenMask;
-  pPal->palPalEntry[i].peBlue =
-    (((i >> pfd.cBlueShift) & blueMask) * 255) / blueMask;
-  pPal->palPalEntry[i].peFlags = 0;
-  }
+  for (i=0; i<paletteSize; ++i)
+    {
+    pPal->palPalEntry[i].peRed =
+      (((i >> pfd.cRedShift) & redMask) * 255) / redMask;
+    pPal->palPalEntry[i].peGreen =
+      (((i >> pfd.cGreenShift) & greenMask) * 255) / greenMask;
+    pPal->palPalEntry[i].peBlue =
+      (((i >> pfd.cBlueShift) & blueMask) * 255) / blueMask;
+    pPal->palPalEntry[i].peFlags = 0;
+    }
   }
 
   this->Palette = CreatePalette(pPal);
   free(pPal);
 
-  if (this->Palette) {
-  this->OldPalette = SelectPalette(hDC, this->Palette, FALSE);
-  RealizePalette(hDC);
-  }
+  if (this->Palette)
+    {
+    this->OldPalette = SelectPalette(hDC, this->Palette, FALSE);
+    RealizePalette(hDC);
+    }
 }
 
 
@@ -1018,21 +1072,15 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       }
     if (this->StereoCapableWindow)
       {
-      this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
+      this->SetupPixelFormatPaletteAndContext(this->DeviceContext, PFD_SUPPORT_OPENGL |
                              PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER |
                              PFD_STEREO, this->GetDebug(), 32, 32);
       }
     else
       {
-      this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
+      this->SetupPixelFormatPaletteAndContext(this->DeviceContext, PFD_SUPPORT_OPENGL |
                              PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
                              this->GetDebug(), 32, 32);
-      }
-    this->SetupPalette(this->DeviceContext);
-    this->ContextId = wglCreateContext(this->DeviceContext);
-    if (this->ContextId == NULL)
-      {
-      vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());
       }
     this->MakeCurrent();
 
@@ -1536,15 +1584,9 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
 
   this->DeviceContext = this->MemoryHdc;
   this->DoubleBuffer = 0;
-  this->SetupPixelFormat(this->DeviceContext,
+  this->SetupPixelFormatPaletteAndContext(this->DeviceContext,
                          PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI |
                          PFD_DRAW_TO_BITMAP, this->GetDebug(), 24, 32);
-  this->SetupPalette(this->DeviceContext);
-  this->ContextId = wglCreateContext(this->DeviceContext);
-  if (this->ContextId == NULL)
-    {
-    vtkErrorMacro("wglCreateContext failed in CreateOffScreenDC(), error: " << GetLastError());
-    }
   this->MakeCurrent();
   this->OpenGLInit();
 }

@@ -40,6 +40,8 @@
 #include "vtkShaderProgram.h"
 #include "vtkTransform.h"
 
+#include "vtkOpenGLError.h"
+
 // Bring in our fragment lit shader symbols.
 #include "vtkglPolyDataVSFragmentLit.h"
 #include "vtkglPolyDataFSHeadlight.h"
@@ -103,6 +105,16 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
                                           std::string &GSSource,
                                           int lightComplexity, vtkRenderer* ren, vtkActor *actor)
 {
+  this->GetShaderTemplate(VSSource,FSSource,GSSource,lightComplexity, ren, actor);
+  this->ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity, ren, actor);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::GetShaderTemplate(std::string &VSSource,
+                                          std::string &FSSource,
+                                          std::string &GSSource,
+                                          int lightComplexity, vtkRenderer*, vtkActor *)
+{
   switch (lightComplexity)
     {
     case 0:
@@ -123,7 +135,13 @@ void vtkOpenGLPolyDataMapper::BuildShader(std::string &VSSource,
       break;
     }
   GSSource.clear();
+}
 
+void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
+                                                  std::string &FSSource,
+                                                  std::string &vtkNotUsed(GSSource),
+                                                  int vtkNotUsed(lightComplexity), vtkRenderer* ren, vtkActor *actor)
+{
   if (this->Layout.ColorComponents != 0)
     {
     VSSource = replace(VSSource,"//VTK::Color::Dec",
@@ -435,10 +453,16 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
     renWin->GetShaderCache()->ReadyShader(cellBO.Program);
     }
 
+  vtkOpenGLCheckErrorMacro("failed after Render");
+
   this->SetMapperShaderParameters(cellBO, ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetPropertyShaderParameters(cellBO, ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetCameraShaderParameters(cellBO, ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetLightingShaderParameters(cellBO, ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
   cellBO.vao.Bind();
 
   this->LastBoundBO = &cellBO;
@@ -851,8 +875,11 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   if (this->Tris.indexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
+  vtkOpenGLCheckErrorMacro("failed after Render");
     this->UpdateShader(this->Tris, ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
     this->Tris.ibo.Bind();
+  vtkOpenGLCheckErrorMacro("failed after Render");
     if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
       {
       glDrawRangeElements(GL_POINTS, 0,
@@ -877,7 +904,9 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
+  vtkOpenGLCheckErrorMacro("failed after Render");
     this->Tris.ibo.Release();
+  vtkOpenGLCheckErrorMacro("failed after Render");
     this->pickingAttributeIDOffset += (int)this->Tris.indexCount;
     }
 
@@ -982,9 +1011,13 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     return;
     }
 
+  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceStart(ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceDraw(ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceFinish(ren, actor);
+  vtkOpenGLCheckErrorMacro("failed after Render");
 
   // if EdgeVisibility is on then draw the wireframe also
   this->RenderEdges(ren,actor);

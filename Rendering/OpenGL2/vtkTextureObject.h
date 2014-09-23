@@ -49,14 +49,6 @@ public:
     NumberOfDepthTextureCompareFunctions
   };
 
-  // DepthTextureMode values.
-  enum
-  {
-    Luminance=0, // (R,G,B,A)=(r,r,r,1)
-    Alpha, // (R.G.B.A)=(0,0,0,r)
-    NumberOfDepthTextureModes
-  };
-
   // Wrap values.
   enum
   {
@@ -357,13 +349,6 @@ public:
   { return this->MagnificationFilter==Linear; }
 
   // Description:
-  // Priority of the texture object to be resident on the card for higher
-  // performance in the range [0.0f,1.0f].
-  // Initial value is 1.0f, as in OpenGL spec.
-  vtkSetMacro(Priority,float);
-  vtkGetMacro(Priority,float);
-
-  // Description:
   // Lower-clamp the computed LOD against this value. Any float value is valid.
   // Initial value is -1000.0f, as in OpenGL spec.
   vtkSetMacro(MinLOD,float);
@@ -422,17 +407,6 @@ public:
   // Ignored if the texture object is not a depth texture.
   vtkGetMacro(DepthTextureCompareFunction,int);
   vtkSetMacro(DepthTextureCompareFunction,int);
-
-  // Description:
-  // Defines the mapping from depth component `r' to RGBA components.
-  // Ignored if the texture object is not a depth texture.
-  // Valid modes are:
-  // - Luminance: (R,G,B,A)=(r,r,r,1)
-  // - Intensity: (R,G,B,A)=(r,r,r,r)
-  // - Alpha: (R.G.B.A)=(0,0,0,r)
-  // Initial value is Luminance, as in OpenGL spec.
-  vtkGetMacro(DepthTextureMode,int);
-  vtkSetMacro(DepthTextureMode,int);
 
   // Description:
   // Tells the hardware to generate mipmap textures from the first texture
@@ -544,7 +518,6 @@ protected:
   int MagnificationFilter;
   bool LinearMagnification;
 
-  float Priority;
   float MinLOD;
   float MaxLOD;
   int BaseLevel;
@@ -553,7 +526,6 @@ protected:
 
   bool DepthTextureCompare;
   int DepthTextureCompareFunction;
-  int DepthTextureMode;
 
   bool GenerateMipmap;
 
