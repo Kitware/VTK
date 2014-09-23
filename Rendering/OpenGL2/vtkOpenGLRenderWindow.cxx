@@ -56,7 +56,10 @@ static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
 {
-  if (val == vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples) return;
+  if (val == vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples)
+    {
+    return;
+    }
   vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = val;
 }
 
@@ -77,7 +80,10 @@ bool vtkOpenGLRenderWindow::GetContextSupportsOpenGL32()
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetContextSupportsOpenGL32(bool val)
 {
-  if (val == vtkOpenGLRenderWindowContextSupportsOpenGL32) return;
+  if (val == vtkOpenGLRenderWindowContextSupportsOpenGL32)
+    {
+    return;
+    }
   vtkOpenGLRenderWindowContextSupportsOpenGL32 = val;
 }
 
