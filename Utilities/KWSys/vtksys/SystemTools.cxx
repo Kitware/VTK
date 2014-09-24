@@ -3536,6 +3536,16 @@ static int GetCasePathName(const kwsys_stl::string & pathIn,
     kwsys_stl::string test_str = casePath;
     test_str += path_components[idx];
 
+    // If path component contains wildcards, we skip matching
+    // because these filenames are not allowed on windows,
+    // and we do not want to match a different file.
+    if(path_components[idx].find('*') != kwsys_stl::string::npos ||
+       path_components[idx].find('?') != kwsys_stl::string::npos)
+      {
+      casePath = "";
+      return 0;
+      }
+
     WIN32_FIND_DATAW findData;
     HANDLE hFind = ::FindFirstFileW(Encoding::ToWide(test_str).c_str(),
       &findData);

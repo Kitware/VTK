@@ -3786,7 +3786,7 @@ bool SystemInformationImplementation::QueryLinuxMemory()
     return false;
     }
 
-  if( unameInfo.release!=0 && strlen(unameInfo.release)>=3 )
+  if( strlen(unameInfo.release)>=3 )
     {
     // release looks like "2.6.3-15mdk-i686-up-4GB"
     char majorChar=unameInfo.release[0];
