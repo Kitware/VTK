@@ -713,11 +713,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
 
     glActiveTexture(GL_TEXTURE0);
     }
-  else
-    {
-    std::cerr << "Volume mapper does not handle multi-component scalars";
-    return 1;
-    }
 
   return 0;
 }
@@ -729,12 +724,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
   if (!vol)
     {
     std::cerr << "Invalid m_volume" << std::endl;
-    return 1;
-    }
-
-  if (numberOfScalarComponents != 1)
-    {
-    std::cerr << "Volume mapper does not handle multi-component scalars";
     return 1;
     }
 
@@ -770,12 +759,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   if (!vol)
     {
     std::cerr << "Invalid m_volume" << std::endl;
-    return 1;
-    }
-
-  if (numberOfScalarComponents != 1)
-    {
-    std::cerr << "Volume mapper does not handle multi-component scalars";
     return 1;
     }
 
@@ -1182,7 +1165,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 ///----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* vol)
+void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
+                                                  vtkVolume* vol,
+                                                  int noOfComponents)
 {
   GL_CHECK_ERRORS
 
@@ -1216,6 +1201,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_EXIT@",
     vtkvolume::BaseExit(ren, this, vol), true);
 
+  fragmentShader = vtkvolume::replace(fragmentShader, "@COLOR_TRANSFER_FUNC@",
+     vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents), true);
+
   GL_CHECK_ERRORS
 
   vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_GLOBALS_VERT@",
@@ -1245,7 +1233,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
     vtkvolume::ShadingExit(ren, this, vol), true);
 
   GL_CHECK_ERRORS
-
 
   vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_GLOBALS_VERT@",
     vtkvolume::CroppingGlobalsVert(ren, this, vol), true);
@@ -1295,7 +1282,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren, vtkVolume* v
   this->Implementation->Shader.AddUniform("m_cell_spacing");
   this->Implementation->Shader.AddUniform("m_sample_distance");
   this->Implementation->Shader.AddUniform("m_scalars_range");
-  this->Implementation->Shader.AddUniform("m_color_transfer_func");
+
+  if (noOfComponents == 1)
+    {
+    this->Implementation->Shader.AddUniform("m_color_transfer_func");
+    }
+
   this->Implementation->Shader.AddUniform("m_opacity_transfer_func");
 
   if (volProperty->GetGradientOpacity())
@@ -1357,15 +1349,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     this->Implementation->Initialize(ren, vol);
     }
 
-  if (vol->GetProperty()->GetMTime() >
-      this->Implementation->ShaderBuildTime.GetMTime() ||
-      this->GetMTime() > this->Implementation->ShaderBuildTime)
-    {
-    this->BuildShader(ren, vol);
-    }
-
-  this->Implementation->UpdateSamplingDistance(input, ren, vol);
-
   vtkDataArray* scalars = this->GetScalars(input,
                           this->ScalarMode,
                           this->ArrayAccessMode,
@@ -1373,7 +1356,33 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
                           this->ArrayName,
                           this->CellFlag);
 
-  scalars->GetRange(this->Implementation->ScalarsRange);
+  // How many components are there?
+  int numberOfScalarComponents = scalars->GetNumberOfComponents();
+
+  // If it is just one, then get the range from the scalars
+  if(numberOfScalarComponents == 1)
+    {
+    // NOTE: here, we ignore the blank cells.
+    scalars->GetRange(this->Implementation->ScalarsRange);
+    }
+  // If it is 3, then use the 4th component's range since that is
+  // the component that will be passed through the scalar opacity
+  // transfer function to look up opacity
+  else
+    {
+    // Note that we've already checked data type and we know this is
+    // unsigned char
+    scalars->GetRange(this->Implementation->ScalarsRange, 3);
+    }
+
+  if (vol->GetProperty()->GetMTime() >
+      this->Implementation->ShaderBuildTime.GetMTime() ||
+      this->GetMTime() > this->Implementation->ShaderBuildTime)
+    {
+    this->BuildShader(ren, vol, numberOfScalarComponents);
+    }
+
+  this->Implementation->UpdateSamplingDistance(input, ren, vol);
 
   /// Load m_volume data if needed
   if (this->Implementation->IsDataDirty(input))
@@ -1524,7 +1533,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     }
   glUniformMatrix4fv(this->Implementation->Shader("m_inverse_projection_matrix"), 1,
                      GL_FALSE, &(invProjectionMat[0]));
-
   /// Will require transpose of this matrix for OpenGL
   vtkMatrix4x4* modelviewMat4x4 =
     ren->GetActiveCamera()->GetViewTransformMatrix();

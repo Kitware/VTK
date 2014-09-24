@@ -98,7 +98,7 @@ namespace vtkvolume
       uniform sampler3D m_volume; \n\
       \n\
       /// Transfer functions \n\
-      uniform sampler1D m_color_transfer_func; \n\
+      @COLOR_TRANSFER_FUNC@; \n\
       uniform sampler1D m_opacity_transfer_func; \n\
       \n\
       uniform sampler2D m_noise_sampler; \n\
@@ -190,6 +190,25 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
+  std::string ColorTransferFunc(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                vtkVolume* vol, int numberOfComponents)
+    {
+    if (numberOfComponents == 1)
+      {
+      return std::string("uniform sampler1D m_color_transfer_func; \n\
+                          vec3 computeColor(vec4 scalar) \n\
+                            { \n\
+                            return texture1D(m_color_transfer_func, scalar.w).xyz; \n\
+                            }");
+      }
+
+      return std::string("vec3 computeColor(vec4 scalar) \n\
+                         { \n\
+                         return scalar.xyz; \n\
+                         }");
+    }
+
+  //--------------------------------------------------------------------------
   std::string ShadingGlobalsVert(vtkRenderer* ren, vtkVolumeMapper* mapper,
                                  vtkVolume* vol)
     {
@@ -211,13 +230,13 @@ namespace vtkvolume
       {
       return std::string(
         "/// We get data between 0.0 - 1.0 range \n\
-         float l_max_value = 0.0;");
+         vec4 l_max_value = vec4(0.0);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       return std::string(
         "/// We get data between 0.0 - 1.0 range \n\
-        float l_min_value = 1.0;");
+        vec4 l_min_value = vec4(1.0);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
@@ -254,29 +273,35 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-        "float scalar = texture3D(m_volume, l_data_pos).r; \n\
-         l_max_value = max(l_max_value, scalar);");
+        "vec4 scalar = texture3D(m_volume, l_data_pos); \n\
+         if (l_max_value.w < scalar.w) \n\
+           { \n\
+           l_max_value = scalar; \n\
+           }");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       shaderStr += std::string(
-        "float scalar = texture3D(m_volume, l_data_pos).r ; \n\
-         l_min_value = min(l_min_value, scalar);");
+        "vec4 scalar = texture3D(m_volume, l_data_pos) ; \n\
+          if (l_min_value.w > scalar.w) \n\
+            { \n\
+            l_min_value = scalar; \n\
+            }");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
       shaderStr += std::string(
-        "float scalar = texture3D(m_volume, l_data_pos).r ; \n\
-        vec4 opacity = texture1D(m_opacity_transfer_func, scalar); \n\
-        l_sum_value = l_sum_value + opacity.a * scalar;");
+        "vec4 scalar = texture3D(m_volume, l_data_pos) ; \n\
+        vec4 opacity = texture1D(m_opacity_transfer_func, scalar.w); \n\
+        l_sum_value = l_sum_value + opacity.a * scalar.w;");
       }
     else
       {
       shaderStr += std::string(
         "/// Data fetching from the red channel of volume texture \n\
-        float scalar = texture3D(m_volume, l_data_pos).r; \n\
-        vec4 l_src_color = vec4(texture1D(m_color_transfer_func, scalar).xyz, \n\
-                                texture1D(m_opacity_transfer_func, scalar).w);");
+        vec4 scalar = texture3D(m_volume, l_data_pos); \n\
+        vec4 l_src_color = vec4(computeColor(scalar), \n\
+                                texture1D(m_opacity_transfer_func, scalar.w).w);");
 
       if (vol->GetProperty()->GetShade())
         {
@@ -395,16 +420,16 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       return std::string(
-       "vec4 l_src_color = texture1D(m_color_transfer_func, l_max_value); \n\
-        l_src_color.a = texture1D(m_opacity_transfer_func, l_max_value).w; \n\
+       "vec4 l_src_color = vec4(computeColor(l_max_value), 0.0); \n\
+        l_src_color.a = texture1D(m_opacity_transfer_func, l_max_value.w).w; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       return std::string(
-        "vec4 l_src_color = texture1D(m_color_transfer_func, l_min_value); \n\
-        l_src_color.a = texture1D(m_opacity_transfer_func, l_min_value).w; \n\
+        "vec4 l_src_color = vec4(computeColor(l_min_value), 0.0); \n\
+        l_src_color.a = texture1D(m_opacity_transfer_func, l_min_value.w).w; \n\
         m_frag_color.rgb = l_src_color.rgb * l_src_color.a; \n\
         m_frag_color.a = l_src_color.a;");
       }

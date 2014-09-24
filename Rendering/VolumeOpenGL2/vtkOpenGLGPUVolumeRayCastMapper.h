@@ -41,7 +41,7 @@ class VTKVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
 
     /// Description:
     /// Build vertex and fragment shader for the volume rendering
-    void BuildShader(vtkRenderer* ren, vtkVolume* vol);
+    void BuildShader(vtkRenderer* ren, vtkVolume* vol, int noOfComponents);
 
     /// Description:
     /// Rendering volume on GPU
