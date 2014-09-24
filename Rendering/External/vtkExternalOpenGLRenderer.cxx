@@ -198,6 +198,9 @@ void vtkExternalOpenGLRenderer::Render(void)
   matrix->MultiplyPoint(focalPoint, newFocalPoint);
   camera->SetFocalPoint(newFocalPoint);
 
+  matrix->DeepCopy(mv);
+  matrix->Invert();
+
   vtkCollectionSimpleIterator sit;
   vtkLight* light;
   for (this->Lights->InitTraversal(sit);
