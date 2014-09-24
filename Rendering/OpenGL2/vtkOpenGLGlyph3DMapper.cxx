@@ -51,7 +51,8 @@ public:
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry
 {
 public:
-  std::vector<unsigned char> Colors;
+  std::vector<vtkIdType> PickIds;
+  std::vector<float> Colors;
   std::vector<float> Matrices;  // transposed
   std::vector<float> NormalMatrices; // transposed
   vtkTimeStamp BuildTime;
@@ -282,7 +283,7 @@ void vtkOpenGLGlyph3DMapper::Render(
     }
 
   // make sure we have a subentry for each source
-  int numberOfSources = this->GetNumberOfInputConnections(1);
+  unsigned int numberOfSources = this->GetNumberOfInputConnections(1);
   bool numberOfSourcesChanged = false;
   if (numberOfSources != subarray->Entries.size())
     {
@@ -315,8 +316,8 @@ void vtkOpenGLGlyph3DMapper::Render(
 
   // rebuild all entries for this DataSet if it
   // has been modified
-  if (subarray->BuildTime < dataset->GetMTime() ||
-      subarray->LastSelectingState != selecting_points)
+  if (subarray->BuildTime < dataset->GetMTime() /* ||
+      subarray->LastSelectingState != selecting_points */)
     {
     rebuild = true;
     }
@@ -367,29 +368,25 @@ void vtkOpenGLGlyph3DMapper::Render(
     // use fast path
     if (fastPath)
       {
-      gh->GlyphRender(ren, actor, entry->NumberOfPoints, entry->Colors, entry->Matrices, entry->NormalMatrices);
+      gh->GlyphRender(ren, actor, entry->NumberOfPoints,
+        entry->Colors, entry->Matrices, entry->NormalMatrices,
+        entry->PickIds, subarray->BuildTime);
       }
     else
       {
       bool primed = false;
-      unsigned char rgba[4];
       for (vtkIdType inPtId = 0; inPtId < entry->NumberOfPoints; inPtId++)
         {
-        rgba[0] = entry->Colors[inPtId*4];
-        rgba[1] = entry->Colors[inPtId*4+1];
-        rgba[2] = entry->Colors[inPtId*4+2];
-        rgba[3] = entry->Colors[inPtId*4+3];
-
         if (selecting_points)
           {
-          selector->RenderAttributeId(rgba[0] + (rgba[1] << 8) + (rgba[2] << 16));
+          selector->RenderAttributeId(entry->PickIds[inPtId]);
           }
         if (!primed)
           {
           gh->RenderPieceStart(ren, actor);
           primed = true;
           }
-        gh->SetModelColor(rgba);
+        gh->SetModelColor(&(entry->Colors[inPtId*4]));
         gh->SetModelTransform(&(entry->Matrices[inPtId*16]));
         gh->SetModelNormalTransform(&(entry->NormalMatrices[inPtId*9]));
         gh->RenderPieceDraw(ren, actor);
@@ -485,6 +482,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     {
     vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
       subarray->Entries[cc];
+    entry->PickIds.resize(numPointsPerSource[cc]);
     entry->Colors.resize(numPointsPerSource[cc]*4);
     entry->Matrices.resize(numPointsPerSource[cc]*16);
     entry->NormalMatrices.resize(numPointsPerSource[cc]*9);
@@ -530,10 +528,10 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
         subarray->Entries[index];
 
-      entry->Colors[entry->NumberOfPoints*4] = 255;
-      entry->Colors[entry->NumberOfPoints*4+1] = 255;
-      entry->Colors[entry->NumberOfPoints*4+2] = 255;
-      entry->Colors[entry->NumberOfPoints*4+3] = 255;
+      entry->Colors[entry->NumberOfPoints*4] = 1.0;
+      entry->Colors[entry->NumberOfPoints*4+1] = 1.0;
+      entry->Colors[entry->NumberOfPoints*4+2] = 1.0;
+      entry->Colors[entry->NumberOfPoints*4+3] = 1.0;
 
       double scalex = 1.0;
       double scaley = 1.0;
@@ -631,38 +629,33 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
           }
         }
 
-      // Set color
-      if (selecting_points)
+      // Set pickid
+      // Use selectionArray value or glyph point ID.
+      vtkIdType selectionId = inPtId;
+      if (this->UseSelectionIds)
         {
-        // Use selectionArray value or glyph point ID.
-        vtkIdType selectionId = inPtId;
-        if (this->UseSelectionIds)
+        if (selectionArray == NULL ||
+            selectionArray->GetNumberOfTuples() == 0)
           {
-          if (selectionArray == NULL ||
-              selectionArray->GetNumberOfTuples() == 0)
-            {
-            vtkWarningMacro(<<"UseSelectionIds is true, but selection array"
-                            " is invalid. Ignoring selection array.");
-            }
-          else
-            {
-            selectionId = static_cast<vtkIdType>(
-                *selectionArray->GetTuple(inPtId));
-            }
+          vtkWarningMacro(<<"UseSelectionIds is true, but selection array"
+                          " is invalid. Ignoring selection array.");
           }
-        entry->Colors[entry->NumberOfPoints*4] = selectionId & 0xff;
-        entry->Colors[entry->NumberOfPoints*4+1] = (selectionId & 0xff00) >> 8;
-        entry->Colors[entry->NumberOfPoints*4+2] = (selectionId & 0xff0000) >> 16;
-        entry->Colors[entry->NumberOfPoints*4+3] = 255;
+        else
+          {
+          selectionId = static_cast<vtkIdType>(
+              *selectionArray->GetTuple(inPtId));
+          }
         }
-      else if (colors)
+      entry->PickIds[entry->NumberOfPoints] = selectionId;
+
+      if (colors)
         {
         unsigned char rgba[4];
         colors->GetTupleValue(inPtId, rgba);
-        entry->Colors[entry->NumberOfPoints*4] = rgba[0];
-        entry->Colors[entry->NumberOfPoints*4+1] = rgba[1];
-        entry->Colors[entry->NumberOfPoints*4+2] = rgba[2];
-        entry->Colors[entry->NumberOfPoints*4+3] = rgba[3];
+        entry->Colors[entry->NumberOfPoints*4] = rgba[0]/255.0f;
+        entry->Colors[entry->NumberOfPoints*4+1] = rgba[1]/255.0f;
+        entry->Colors[entry->NumberOfPoints*4+2] = rgba[2]/255.0f;
+        entry->Colors[entry->NumberOfPoints*4+3] = rgba[3]/255.0f;
         }
 
       // scale data if appropriate

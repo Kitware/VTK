@@ -201,12 +201,13 @@ void VertexArrayObject::ReleaseGraphicsResources()
   this->d->ReleaseGraphicsResources();
 }
 
-bool VertexArrayObject::AddAttributeArray(vtkShaderProgram *program,
+bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
                                           BufferObject &buffer,
                                           const std::string &name,
                                           int offset, size_t stride,
                                           int elementType, int elementTupleSize,
-                                          bool normalize)
+                                          bool normalize,
+                                          int divisor)
 {
   // Check the program is bound, and the buffer is valid.
   if (!program->isBound() || buffer.GetHandle() == 0 ||
@@ -246,6 +247,10 @@ bool VertexArrayObject::AddAttributeArray(vtkShaderProgram *program,
   glVertexAttribPointer(attribs.index, attribs.size, attribs.type,
                         attribs.normalize, attribs.stride,
                         BUFFER_OFFSET(attribs.offset));
+  if (divisor > 0)
+    {
+    glVertexAttribDivisor(attribs.index, 1);
+    }
 
   // If vertex array objects are not supported then build up our list.
   if (!this->d->supported)
@@ -269,9 +274,47 @@ bool VertexArrayObject::AddAttributeArray(vtkShaderProgram *program,
       }
     else
       {
+      // this looks wrong, a single handle can have multiple attribs
       std::vector<VertexAttributes> attribsVector;
       attribsVector.push_back(attribs);
       this->d->attributes[handleBuffer] = attribsVector;
+      }
+    }
+
+  return true;
+}
+
+bool VertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram *program,
+                                          BufferObject &buffer,
+                                          const std::string &name,
+                                          int offset, size_t stride,
+                                          int elementType, int elementTupleSize,
+                                          bool normalize,
+                                          int divisor)
+{
+  // bind the first row of values
+  bool result =
+    this->AddAttributeArrayWithDivisor(program, buffer, name,
+      offset, stride, elementType, elementTupleSize, normalize, divisor);
+
+  if (!result)
+    {
+    return result;
+    }
+
+  const GLchar *namePtr = static_cast<const GLchar *>(name.c_str());
+  VertexAttributes attribs;
+  attribs.index = glGetAttribLocation(this->d->handleProgram, namePtr);
+
+  for (int i = 1; i < elementTupleSize; i++)
+    {
+    glEnableVertexAttribArray(attribs.index+i);
+    glVertexAttribPointer(attribs.index + i, elementTupleSize, convertTypeToGL(elementType),
+                          normalize, static_cast<GLsizei>(stride),
+                          BUFFER_OFFSET(offset + stride*i/elementTupleSize));
+    if (divisor > 0)
+      {
+      glVertexAttribDivisor(attribs.index+i, 1);
       }
     }
 

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// the lighting model for this shader is the LightKit
+// the lighting model for this shader is a Headlight
 
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null

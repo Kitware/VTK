@@ -40,23 +40,27 @@ public:
     this->ModelNormalMatrix = matrix;
   }
 
-  void SetModelColor(unsigned char *color)
+  void SetModelColor(float *color)
   {
-    this->ModelColor[0] = color[0];
-    this->ModelColor[1] = color[1];
-    this->ModelColor[2] = color[2];
-    this->ModelColor[3] = color[3];
+    this->ModelColor = color;
   }
 
   // Description
   // Fast path for rendering glyphs comprised of only one type of primative
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<unsigned char> &colors, std::vector<float> &matrices,
-      std::vector<float> &normalMatrices);
+      std::vector<float> &colors, std::vector<float> &matrices,
+      std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
+      unsigned long pointMTime);
 
 protected:
   vtkOpenGLGlyph3DHelper();
   ~vtkOpenGLGlyph3DHelper();
+
+  // special opengl 32 version that uses instances
+  void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
+      std::vector<float> &colors, std::vector<float> &matrices,
+      std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
+      unsigned long pointMTime);
 
   // Description:
   // Create the basic shaders before replacement
@@ -84,7 +88,13 @@ protected:
 
   float* ModelTransformMatrix;
   float* ModelNormalMatrix;
-  unsigned char ModelColor[4];
+  float* ModelColor;
+
+  vtkgl::BufferObject NormalMatrixBuffer;
+  vtkgl::BufferObject MatrixBuffer;
+  vtkgl::BufferObject ColorBuffer;
+  vtkTimeStamp InstanceBuffersLoadTime;
+
 
 private:
   vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&); // Not implemented.
