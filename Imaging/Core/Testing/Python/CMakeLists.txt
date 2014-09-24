@@ -79,15 +79,15 @@ vtk_add_test_python(
   TestExtractVOI.py
   TestImageWeightedSum.py
   # WindowLevelInterface.py  # TCL test not being made as well !!!
-  imageMCAll,NO_RT
-  TestAllBlends,NO_RT
-  TestAllBlendsFloat,NO_RT
-  TestAllLogic,NO_RT
-  TestAllMaskBits,NO_RT
-  TestAllMathematics,NO_RT
-  TestAllShrinks,NO_RT
-  TestImageThresholdConnectivity,NO_RT
-  TestThreshold,NO_RT
-  TestWipe,NO_RT
-  reconstructSurface,NO_RT
+  imageMCAll.py,NO_RT
+  TestAllBlends.py,NO_RT
+  TestAllBlendsFloat.py,NO_RT
+  TestAllLogic.py,NO_RT
+  TestAllMaskBits.py,NO_RT
+  TestAllMathematics.py,NO_RT
+  TestAllShrinks.py,NO_RT
+  TestImageThresholdConnectivity.py,NO_RT
+  TestThreshold.py,NO_RT
+  TestWipe.py,NO_RT
+  reconstructSurface.py,NO_RT
   )
