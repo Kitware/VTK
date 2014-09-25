@@ -1618,9 +1618,7 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
                                          int srcXmax,
                                          int srcYmax,
                                          int dstXmin,
-                                         int dstYmin,
-                                         int width,
-                                         int height)
+                                         int dstYmin)
 {
   assert("pre: positive_srcXmin" && srcXmin>=0);
   assert("pre: max_srcXmax" &&
@@ -1632,10 +1630,6 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
   assert("pre: increasing_y" && srcYmin<=srcYmax);
   assert("pre: positive_dstXmin" && dstXmin>=0);
   assert("pre: positive_dstYmin" && dstYmin>=0);
-  assert("pre: positive_width" && width>0);
-  assert("pre: positive_height" && height>0);
-  assert("pre: x_fit" && dstXmin+(srcXmax-srcXmin)<width);
-  assert("pre: y_fit" && dstYmin+(srcYmax-srcYmin)<height);
 
   vtkOpenGLClearErrorMacro();
 
