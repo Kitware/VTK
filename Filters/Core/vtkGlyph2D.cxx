@@ -116,6 +116,37 @@ int vtkGlyph2D::RequestData(
     haveVectors = 0;
     }
 
+
+  if (inNormals && numPts != inNormals->GetNumberOfTuples())
+    {
+    vtkErrorMacro(<< "Number of points (" << numPts << ") does not match "
+                  << "number of normals (" << inNormals->GetNumberOfTuples()
+                  << ").");
+    pts->Delete();
+    trans->Delete();
+    return 1;
+    }
+
+  if (inVectors && numPts != inVectors->GetNumberOfTuples())
+    {
+    vtkErrorMacro(<< "Number of points (" << numPts << ") does not match "
+                  << "number of vectors (" << inVectors->GetNumberOfTuples()
+                  << ").");
+    pts->Delete();
+    trans->Delete();
+    return 1;
+    }
+
+  if (inScalars && numPts != inScalars->GetNumberOfTuples())
+    {
+    vtkErrorMacro(<< "Number of points (" << numPts << ") does not match "
+                  << "number of scalars (" << inScalars->GetNumberOfTuples()
+                  << ").");
+    pts->Delete();
+    trans->Delete();
+    return 1;
+    }
+
   if ( (this->IndexMode == VTK_INDEXING_BY_SCALAR && !inScalars) ||
        (this->IndexMode == VTK_INDEXING_BY_VECTOR &&
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
