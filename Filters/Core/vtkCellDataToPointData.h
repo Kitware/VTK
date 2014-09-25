@@ -65,6 +65,12 @@ protected:
   int RequestDataForUnstructuredGrid
     (vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
+  void interpolatePointData(vtkDataSet *input, vtkDataSet *output);
+
+  // Same as above, but with special handling for masked cells in input.
+  void interpolatePointDataWithMask(vtkStructuredGrid *input,
+                                    vtkDataSet *output);
+
   int PassCellData;
 private:
   vtkCellDataToPointData(const vtkCellDataToPointData&);  // Not implemented.
