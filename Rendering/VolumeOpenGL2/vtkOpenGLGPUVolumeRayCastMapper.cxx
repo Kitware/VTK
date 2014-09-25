@@ -32,6 +32,7 @@
 #include <vtkCellArray.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCommand.h>
+#include <vtkDataArray.h>
 #include <vtkDensifyPolyData.h>
 #include <vtkFloatArray.h>
 #include <vtkImageData.h>
@@ -50,6 +51,7 @@
 #include <vtkTimerLog.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>
+#include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 
 /// GL includes
@@ -58,6 +60,7 @@
 
 /// C/C++ includes
 #include <cassert>
+#include <string>
 #include <sstream>
 
 
@@ -110,6 +113,8 @@ public:
     this->Extents[3]=VTK_INT_MIN;
     this->Extents[4]=VTK_INT_MAX;
     this->Extents[5]=VTK_INT_MIN;
+
+    this->MaskTextures = new vtkMapMaskTextureId;
     }
 
   ~vtkInternal()
@@ -125,6 +130,22 @@ public:
 
     delete this->NoiseTextureData;
     this->NoiseTextureData = 0;
+
+    if (this->MaskTextures != 0)
+      {
+      if (!this->MaskTextures->Map.empty())
+        {
+        std::map<vtkImageData*,vtkVolumeMask*>::iterator it =
+          this->MaskTextures->Map.begin();
+        while(it != this->MaskTextures->Map.end())
+          {
+          vtkVolumeMask* texture = (*it).second;
+          delete texture;
+          ++it;
+          }
+        this->MaskTextures->Map.clear();
+        }
+      }
     }
 
   ///
@@ -139,6 +160,19 @@ public:
   /// \return
   ///
   bool LoadVolume(vtkImageData* imageData, vtkDataArray* scalars);
+
+  ///
+  /// \brief LoadMask
+  /// \param input
+  /// \param maskInput
+  /// \param textureExtent
+  /// \param volume
+  /// \return
+  ///
+  bool LoadMask(vtkImageData* input,
+                vtkImageData* maskInput,
+                int textureExtent[6],
+                vtkVolume* volume);
 
   ///
   /// \brief IsDataDirty
@@ -297,6 +331,10 @@ public:
   vtkNew<vtkMatrix4x4> InverseVolumeMat;
 
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
+
+  // Meed a list for AMR mode.
+  vtkMapMaskTextureId* MaskTextures;
+  vtkVolumeMask* CurrentMask;
 };
 
 ///----------------------------------------------------------------------------
@@ -581,6 +619,53 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   /// Update m_volume build time
   this->VolumeBuildTime.Modified();
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkImageData* input,
+                                                           vtkImageData* maskInput,
+                                                           int textureExtent[6],
+                                                           vtkVolume* volume)
+{
+  int result = 1;
+
+  // Mask
+  if(maskInput != 0)
+    {
+    glActiveTexture(GL_TEXTURE7);
+
+    // Find the texture.
+    std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
+      this->MaskTextures->Map.find(maskInput);
+
+    vtkVolumeMask* mask;
+    if(it2 == this->MaskTextures->Map.end())
+      {
+      mask = new vtkVolumeMask();
+      this->MaskTextures->Map[maskInput] = mask;
+      }
+    else
+      {
+      mask = (*it2).second;
+      }
+
+    mask->Update(maskInput,
+                 this->Parent->CellFlag,
+                 textureExtent,
+                 this->Parent->ScalarMode,
+                 this->Parent->ArrayAccessMode,
+                 this->Parent->ArrayId,
+                 this->Parent->ArrayName,
+                 static_cast<vtkIdType>(static_cast<float>(
+                   this->Parent->MaxMemoryInBytes) *
+                   this->Parent->MaxMemoryFraction));
+
+    result = result && mask->IsLoaded();
+    this->CurrentMask = mask;
+    glActiveTexture(GL_TEXTURE0);
+    }
+
+  return result;
 }
 
 ///----------------------------------------------------------------------------
@@ -1256,6 +1341,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_EXIT@",
     vtkvolume::ClippingExit(ren, this, vol), true);
 
+  fragmentShader = vtkvolume::replace(fragmentShader, "@BINARY_MASK_GLOBALS_FRAG@",
+    vtkvolume::BinaryMaskGlobalsFrag(ren, this, vol, this->MaskInput,
+                                     this->Implementation->CurrentMask), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@BINARY_MASK_INCREMENT@",
+    vtkvolume::BinaryMaskIncrement(ren, this, vol, this->MaskInput,
+                                   this->Implementation->CurrentMask), true);
+
   GL_CHECK_ERRORS
 
   /// Compile and link it
@@ -1325,6 +1417,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     this->Implementation->Shader.AddUniform("m_clipping_planes_size");
     }
 
+  if (this->Implementation->CurrentMask)
+    {
+    this->Implementation->Shader.AddUniform("m_mask");
+    }
+
   GL_CHECK_ERRORS
 
   this->Implementation->ShaderBuildTime.Modified();
@@ -1375,16 +1472,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     scalars->GetRange(this->Implementation->ScalarsRange, 3);
     }
 
-  if (vol->GetProperty()->GetMTime() >
-      this->Implementation->ShaderBuildTime.GetMTime() ||
-      this->GetMTime() > this->Implementation->ShaderBuildTime)
-    {
-    this->BuildShader(ren, vol, numberOfScalarComponents);
-    }
-
-  this->Implementation->UpdateSamplingDistance(input, ren, vol);
-
-  /// Load m_volume data if needed
+  /// Load volume if needed
   if (this->Implementation->IsDataDirty(input))
     {
     input->GetDimensions(this->Implementation->Dimensions);
@@ -1392,7 +1480,40 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     /// Update bounds, data, and geometry
     this->Implementation->ComputeBounds(input);
     this->Implementation->LoadVolume(input, scalars);
+    this->Implementation->LoadMask(input, this->MaskInput,
+                                   this->Implementation->Extents, vol);
     this->Implementation->UpdateVolumeGeometry();
+    }
+
+  /// Mask
+  vtkVolumeMask* mask = 0;
+  if(this->MaskInput != 0)
+    {
+    std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
+      this->Implementation->MaskTextures->Map.find(this->MaskInput);
+    if(it2 == this->Implementation->MaskTextures->Map.end())
+      {
+      mask=0;
+      }
+    else
+      {
+      mask=(*it2).second;
+      }
+    }
+  this->Implementation->CurrentMask = mask;
+  if (this->Implementation->CurrentMask != 0)
+   {
+   this->Implementation->CurrentMask->Bind();
+   }
+
+  this->Implementation->UpdateSamplingDistance(input, ren, vol);
+
+  /// Build shader
+  if (vol->GetProperty()->GetMTime() >
+      this->Implementation->ShaderBuildTime.GetMTime() ||
+      this->GetMTime() > this->Implementation->ShaderBuildTime)
+    {
+    this->BuildShader(ren, vol, numberOfScalarComponents);
     }
 
   /// Update opacity transfer function
@@ -1467,6 +1588,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   glUniform1i(this->Implementation->Shader("m_noise_sampler"), 3);
   glUniform1i(this->Implementation->Shader("m_depth_sampler"), 4);
   glUniform1i(this->Implementation->Shader("m_gradient_transfer_func"), 5);
+
+  if (this->Implementation->CurrentMask)
+    {
+    glUniform1i(this->Implementation->Shader("m_mask"), 6);
+    }
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetAmbient();
   glUniform3f(this->Implementation->Shader("m_ambient"),

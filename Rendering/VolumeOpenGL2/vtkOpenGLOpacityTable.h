@@ -86,7 +86,6 @@ public:
     /// Activate texture 2
     glActiveTexture(GL_TEXTURE2);
 
-
     bool needUpdate=false;
     if(this->TextureId == 0)
       {

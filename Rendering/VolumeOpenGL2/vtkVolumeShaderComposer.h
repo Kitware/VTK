@@ -16,6 +16,8 @@
 #ifndef ___vtkVolumeShaderComposer_h
 #define ___vtkVolumeShaderComposer_h
 
+#include "vtkVolumeMask.h"
+
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
 #include <vtkVolumeMapper.h>
@@ -776,7 +778,41 @@ namespace vtkvolume
   {
     return std::string("");
   }
-}
 
+  //--------------------------------------------------------------------------
+  std::string BinaryMaskGlobalsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                    vtkVolume* vol, vtkImageData* maskInput,
+                                    vtkVolumeMask* mask)
+  {
+    if (!mask || !maskInput)
+      {
+      return std::string("");
+      }
+    else
+      {
+      return std::string("uniform sampler3D m_mask;");
+      }
+  }
+
+  //--------------------------------------------------------------------------
+  std::string BinaryMaskIncrement(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                  vtkVolume* vol, vtkImageData* maskInput,
+                                  vtkVolumeMask* mask)
+  {
+    if (!mask || !maskInput)
+      {
+      return std::string("");
+      }
+    else
+      {
+      return std::string("\n\
+        vec4 maskValue = texture3D(m_mask, l_data_pos);\n\
+        if(maskValue.a <= 0.0)\n\
+          {\n\
+          l_skip = true;\n\
+          }");
+      }
+  }
+}
 
 #endif // ___vtkVolumeShaderComposer_h

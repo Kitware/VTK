@@ -29,6 +29,7 @@ vec4 m_frag_color;
 @TERMINATION_GLOBALS_FRAG@
 @CROPPING_GLOBALS_FRAG@
 @SHADING_GLOBALS_FRAG@
+@BINARY_MASK_GLOBALS_FRAG@
 @GRADIENT_OPACITY_GLOBALS_FRAG@
 
 /// We support only 8 clipping planes for now
@@ -59,6 +60,7 @@ void main()
     @TERMINATE_INCREMENT@
     @CROPPING_INCREMENT@
     @CLIPPING_INCREMENT@
+    @BINARY_MASK_INCREMENT@
     @SHADING_INCREMENT@
 
     /// Advance ray by m_dir_step
