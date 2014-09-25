@@ -1542,6 +1542,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   float fvalue3[3];
 
   /// Update sampling distance
+  int *loadedExtent = input->GetExtent();
+  float cellScale[3];
+  float cellStep[3];
+  cellScale[0]=static_cast<float>(static_cast<double>(
+                                    loadedExtent[1]-loadedExtent[0])*0.5);
+  cellScale[1]=static_cast<float>(static_cast<double>(
+                                    loadedExtent[3]-loadedExtent[2])*0.5);
+  cellScale[2]=static_cast<float>(static_cast<double>(
+                                    loadedExtent[5]-loadedExtent[4])*0.5);
+  cellStep[0]=static_cast<float>(1.0/static_cast<double>(
+                                   loadedExtent[1]-loadedExtent[0]));
+  cellStep[1]=static_cast<float>(1.0/static_cast<double>(
+                                   loadedExtent[3]-loadedExtent[2]));
+  cellStep[2]=static_cast<float>(1.0/static_cast<double>(
+                                   loadedExtent[5]-loadedExtent[4]));
+
   this->Implementation->StepSize[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
   this->Implementation->StepSize[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
   this->Implementation->StepSize[2] = 1.0 / (this->Bounds[5] - this->Bounds[4]);
@@ -1553,26 +1569,33 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   /// Now use the shader
   this->Implementation->Shader.Use();
 
+  std::cerr << "Cell scale "
+            << cellScale[0] << " "
+            << cellScale[1] << " "
+            << cellScale[2] << " "  << std::endl;
+
+
+  std::cerr << "Cell step "
+            << cellStep[0] << " "
+            << cellStep[1] << " "
+            << cellStep[2] << " "  << std::endl;
+
   /// Pass constant uniforms at initialization
   /// Step should be dependant on the bounds and not on the texture size
   /// since we can have non uniform voxel size / spacing / aspect ratio
   glUniform3f(this->Implementation->Shader("m_cell_step"),
-              this->Implementation->StepSize[0],
-              this->Implementation->StepSize[1],
-              this->Implementation->StepSize[2]);
+              cellStep[0], cellStep[1], cellStep[2]);
 
   glUniform3f(this->Implementation->Shader("m_cell_scale"),
-              this->Implementation->CellScale[0],
-              this->Implementation->CellScale[1],
-              this->Implementation->CellScale[2]);
+              cellScale[0], cellScale[1], cellScale[2]);
 
   fvalue3[0] = static_cast<float>(this->Implementation->CellSpacing[0]);
   fvalue3[1] = static_cast<float>(this->Implementation->CellSpacing[1]);
   fvalue3[2] = static_cast<float>(this->Implementation->CellSpacing[2]);
   glUniform3f(this->Implementation->Shader("m_cell_spacing"),
-              this->Implementation->CellSpacing[0],
-              this->Implementation->CellSpacing[1],
-              this->Implementation->CellSpacing[2]);
+              this->Implementation->StepSize[0],
+              this->Implementation->StepSize[1],
+              this->Implementation->StepSize[2]);
 
   glUniform1f(this->Implementation->Shader("m_sample_distance"),
               this->Implementation->ActualSampleDistance);
