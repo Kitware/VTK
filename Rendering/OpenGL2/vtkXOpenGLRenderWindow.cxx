@@ -16,7 +16,7 @@
 #include "vtkXOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 
 // define GLX_GLXEXT_LEGACY to prevent glx.h to include glxext.h provided by
 // the system

@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRect.h"
 
-#include <GL/glew.h>
+#include "vtk_glew.h"
 #include <GL/glx.h>
 
 #include "vtksys/SystemTools.hxx"
