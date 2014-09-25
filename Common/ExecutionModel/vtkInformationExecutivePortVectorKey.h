@@ -38,6 +38,15 @@ public:
   ~vtkInformationExecutivePortVectorKey();
 
   // Description:
+  // This method simply returns a new vtkInformationExecutivePortVectorKey,
+  // given a name and a location. This method is provided for wrappers. Use
+  // the constructor directly from C++ instead.
+  static vtkInformationExecutivePortVectorKey* MakeKey(const char* name, const char* location)
+    {
+    return new vtkInformationExecutivePortVectorKey(name, location);
+    }
+
+  // Description:
   // Get/Set the value associated with this key in the given
   // information object.
   void Append(vtkInformation* info, vtkExecutive* executive, int port);

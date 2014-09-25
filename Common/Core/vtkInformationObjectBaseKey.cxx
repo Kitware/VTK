@@ -21,9 +21,12 @@
 vtkInformationObjectBaseKey
 ::vtkInformationObjectBaseKey(const char* name, const char* location,
                               const char* requiredClass):
-  vtkInformationKey(name, location), RequiredClass(requiredClass)
+  vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
+
+  this->RequiredClass = 0;
+  this->SetRequiredClass(requiredClass);
 }
 
 //----------------------------------------------------------------------------
