@@ -257,7 +257,7 @@ int TestValuePainter(int argc, char* argv[])
   unsigned char *ptr = static_cast<unsigned char*>(ar->GetVoidPointer(0));
   std::set<double> found;
   double value;
-  for (unsigned int i = 0; i < id->GetNumberOfPoints(); i++)
+  for (int i = 0; i < id->GetNumberOfPoints(); i++)
     {
     vtkValuePainter::ColorToValue(ptr, minmax[0], scale, value);
     if (found.find(value)==found.end())
@@ -270,8 +270,8 @@ int TestValuePainter(int argc, char* argv[])
            << value << endl;
       }
     ptr+=3;
-
     }
+
   std::set<double>::iterator it;
   double min = VTK_DOUBLE_MAX;
   double max = VTK_DOUBLE_MIN;
