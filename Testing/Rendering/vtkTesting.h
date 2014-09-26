@@ -156,9 +156,21 @@ public:
   vtkGetMacro(FrontBuffer, int);
 
   // Description:
-  // Perform the test and return result. At the same time the output will be
-  // written cout
+  // Perform the test and return the result. Delegates to
+  // RegressionTestAndCaptureOutput, sending the output to cout.
   virtual int RegressionTest(double thresh);
+
+  // Description:
+  // Perform the test and return the result. At the same time, write
+  // the output to the output stream os. Includes timing information
+  // in the output.
+  virtual int RegressionTestAndCaptureOutput(double thresh, ostream &os);
+
+  // Description:
+  // Perform the test and return the result. At the same time, write
+  // the output to the output stream os. This method is nearly the
+  // same as RegressionTestAndCaptureOutput, but does not include
+  // timing information in the output.
   virtual int RegressionTest(double thresh,ostream &os);
 
   // Description:

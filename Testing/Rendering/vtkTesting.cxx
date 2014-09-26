@@ -338,17 +338,23 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
   return result;
 }
 //-----------------------------------------------------------------------------
+int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream &os)
+{
+  int result = this->RegressionTest(thresh, os);
+
+  os << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  os << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  os << "</DartMeasurement>\n";
+  os << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  os << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  os << "</DartMeasurement>\n";
+
+  return result;
+}
+//-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
-  int result = this->RegressionTest(thresh, cout);
-
-  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
-  cout << "</DartMeasurement>\n";
-  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  cout << "</DartMeasurement>\n";
-
+  int result = this->RegressionTestAndCaptureOutput(thresh, cout);
   return result;
 }
 //-----------------------------------------------------------------------------
@@ -711,7 +717,7 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
   if (testing->IsValidImageSpecified())
     {
     testing->SetRenderWindow(rw);
-    int res = testing->RegressionTest(thresh);
+    int res = testing->RegressionTestAndCaptureOutput(thresh, cout);
     return res;
     }
 
