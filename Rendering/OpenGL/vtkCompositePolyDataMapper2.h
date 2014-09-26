@@ -22,13 +22,13 @@
 #ifndef __vtkCompositePolyDataMapper2_h
 #define __vtkCompositePolyDataMapper2_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
 class vtkCompositeDataDisplayAttributes;
 
-class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper2 : public vtkPainterPolyDataMapper
+class VTKRENDERINGOPENGL_EXPORT vtkCompositePolyDataMapper2 : public vtkPainterPolyDataMapper
 {
 public:
   static vtkCompositePolyDataMapper2* New();
@@ -122,5 +122,3 @@ private:
 };
 
 #endif
-
-

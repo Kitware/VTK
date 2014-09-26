@@ -26,10 +26,10 @@
 #ifndef __vtkChooserPainter_h
 #define __vtkChooserPainter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"
 
-class VTKRENDERINGCORE_EXPORT vtkChooserPainter : public vtkPolyDataPainter
+class VTKRENDERINGOPENGL_EXPORT vtkChooserPainter : public vtkPolyDataPainter
 {
 public:
   static vtkChooserPainter *New();
@@ -118,4 +118,3 @@ private:
 };
 
 #endif //_vtkChooserPainter_h
-

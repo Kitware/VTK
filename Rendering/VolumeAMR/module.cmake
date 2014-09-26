@@ -1,6 +1,6 @@
 vtk_module(vtkRenderingVolumeAMR
-  GROUPS
-    Rendering
+  BACKEND
+    OpenGL
   DEPENDS
     vtkParallelCore
     vtkRenderingVolume

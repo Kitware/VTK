@@ -22,13 +22,13 @@
 #ifndef __vtkPainterPolyDataMapper_h
 #define __vtkPainterPolyDataMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataMapper.h"
 
 class vtkPainterPolyDataMapperObserver;
 class vtkPainter;
 
-class VTKRENDERINGCORE_EXPORT vtkPainterPolyDataMapper : public vtkPolyDataMapper
+class VTKRENDERINGOPENGL_EXPORT vtkPainterPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkPainterPolyDataMapper* New();
@@ -135,4 +135,3 @@ private:
 };
 
 #endif
-

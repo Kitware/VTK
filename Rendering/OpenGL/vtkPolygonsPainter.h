@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPointsPainter.h
+  Module:    vtkPolygonsPainter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,39 +12,39 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointsPainter - this painter paints verts.
+// .NAME vtkPolygonsPainter - this painter paints polygons.
 // .SECTION Description
-// This painter tries to paint points efficiently. Request to Render
-// any other primitive are ignored and not passed to the delegate painter,
-// if any. This painter cannot handle cell colors/normals. If they are
-// present the request is passed on to the Delegate painter. If this
-// class is able to render the primitive, the render request is not
-// propagated to the delegate painter.
-#ifndef __vtkPointsPainter_h
-#define __vtkPointsPainter_h
+// This painter renders Polys in vtkPolyData. It can render the polys
+// in any representation (VTK_POINTS, VTK_WIREFRAME, VTK_SURFACE).
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#ifndef __vtkPolygonsPainter_h
+#define __vtkPolygonsPainter_h
+
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPrimitivePainter.h"
 
-class VTKRENDERINGCORE_EXPORT vtkPointsPainter : public vtkPrimitivePainter
+class VTKRENDERINGOPENGL_EXPORT vtkPolygonsPainter : public vtkPrimitivePainter
 {
 public:
-  static vtkPointsPainter* New();
-  vtkTypeMacro(vtkPointsPainter, vtkPrimitivePainter);
+  static vtkPolygonsPainter* New();
+  vtkTypeMacro(vtkPolygonsPainter, vtkPrimitivePainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkPointsPainter();
-  ~vtkPointsPainter();
+  vtkPolygonsPainter();
+  ~vtkPolygonsPainter();
 
   // Description:
   // The actual rendering happens here. This method is called only when
   // SupportedPrimitive is present in typeflags when Render() is invoked.
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
+
 private:
-  vtkPointsPainter(const vtkPointsPainter&); // Not implemented.
-  void operator=(const vtkPointsPainter&); // Not implemented.
+  vtkPolygonsPainter(const vtkPolygonsPainter&); // Not implemented.
+  void operator=(const vtkPolygonsPainter&); // Not implemented.
+
 };
+
 
 #endif

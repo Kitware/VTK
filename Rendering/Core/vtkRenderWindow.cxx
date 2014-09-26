@@ -19,7 +19,6 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkPainterDeviceAdapter.h"
 #include "vtkPropCollection.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
@@ -29,6 +28,12 @@
 #include "vtkObjectFactory.h"
 
 #include <cmath>
+
+#ifdef VTK_OPENGL2
+class vtkPainterDeviceAdapter : public vtkObject {};
+#else
+#include "vtkPainterDeviceAdapter.h"
+#endif
 
 //----------------------------------------------------------------------------
 // Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.

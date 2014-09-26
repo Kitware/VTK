@@ -25,10 +25,10 @@
 #ifndef __vtkLinesPainter_h
 #define __vtkLinesPainter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPrimitivePainter.h"
 
-class VTKRENDERINGCORE_EXPORT vtkLinesPainter : public vtkPrimitivePainter
+class VTKRENDERINGOPENGL_EXPORT vtkLinesPainter : public vtkPrimitivePainter
 {
 public:
   static vtkLinesPainter* New();
@@ -60,4 +60,3 @@ private:
 
 
 #endif
-

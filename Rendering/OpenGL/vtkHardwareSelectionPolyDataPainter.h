@@ -23,10 +23,10 @@
 #ifndef __vtkHardwareSelectionPolyDataPainter_h
 #define __vtkHardwareSelectionPolyDataPainter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkStandardPolyDataPainter.h"
 
-class VTKRENDERINGCORE_EXPORT vtkHardwareSelectionPolyDataPainter :
+class VTKRENDERINGOPENGL_EXPORT vtkHardwareSelectionPolyDataPainter :
   public vtkStandardPolyDataPainter
 {
 public:
@@ -97,5 +97,3 @@ private:
 };
 
 #endif
-
-

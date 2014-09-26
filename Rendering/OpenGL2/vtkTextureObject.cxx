@@ -363,7 +363,11 @@ void vtkTextureObject::CreateTexture()
 
 int vtkTextureObject::GetTextureUnit()
 {
-  return this->Context->GetTextureUnitForTexture(this);
+  if (this->Context)
+    {
+    return this->Context->GetTextureUnitForTexture(this);
+    }
+  return -1;
 }
 
 //---------------------------------------------------------------------------

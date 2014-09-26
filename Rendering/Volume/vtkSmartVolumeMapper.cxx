@@ -20,7 +20,6 @@
 #include "vtkDataArray.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkEventForwarderCommand.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkImageResample.h"
 #include "vtkPiecewiseFunction.h"
@@ -30,6 +29,8 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTextureMapper3D.h"
 #include <cassert>
+
+#include "vtkGPUVolumeRayCastMapper.h"
 
 vtkStandardNewMacro( vtkSmartVolumeMapper );
 
@@ -55,12 +56,20 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   // Create all the mappers we might need
   this->RayCastMapper   = vtkFixedPointVolumeRayCastMapper::New();
+
+// opengl2 back end only has fixed point mapper right now
+#ifdef  VTK_OPENGL2
+  this->GPUMapper       = NULL;
+  this->TextureMapper   = NULL;
+  this->GPULowResMapper = NULL;
+#else
   this->GPUMapper       = vtkGPUVolumeRayCastMapper::New();
   this->MaxMemoryInBytes=this->GPUMapper->GetMaxMemoryInBytes();
   this->MaxMemoryFraction=this->GPUMapper->GetMaxMemoryFraction();
 
   this->TextureMapper   = vtkVolumeTextureMapper3D::New();
   this->GPULowResMapper = vtkGPUVolumeRayCastMapper::New();
+#endif
 
   // If the render window has a desired update rate of at least 1 frame
   // per second or more, we'll consider this interactive
@@ -97,6 +106,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
 
   // And the texture mapper's events
+#ifndef  VTK_OPENGL2
   this->TextureMapper->AddObserver(vtkCommand::StartEvent, cb);
   this->TextureMapper->AddObserver(vtkCommand::EndEvent, cb);
   this->TextureMapper->AddObserver(vtkCommand::ProgressEvent, cb);
@@ -106,6 +116,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsStartEvent, cb);
   this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsEndEvent, cb);
   this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
+#endif
 
   // And the GPU mapper's events
   // Commented out because too many events are being forwwarded
@@ -133,11 +144,31 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 // ----------------------------------------------------------------------------
 vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
 {
-  this->RayCastMapper->Delete();
-  this->GPUMapper->Delete();
-  this->GPULowResMapper->Delete();
-  this->TextureMapper->Delete();
-  this->GPUResampleFilter->Delete();
+  if (this->RayCastMapper)
+    {
+    this->RayCastMapper->Delete();
+    this->RayCastMapper = 0;
+    }
+  if (this->GPUMapper)
+    {
+    this->GPUMapper->Delete();
+    this->GPUMapper = 0;
+    }
+  if (this->GPULowResMapper)
+    {
+    this->GPULowResMapper->Delete();
+    this->GPULowResMapper = 0;
+    }
+  if (this->TextureMapper)
+    {
+    this->TextureMapper->Delete();
+    this->TextureMapper = 0;
+    }
+  if (this->GPUResampleFilter)
+    {
+    this->GPUResampleFilter->Delete();
+    this->GPUResampleFilter = 0;
+    }
 }
 
 

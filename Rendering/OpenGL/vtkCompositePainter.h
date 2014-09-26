@@ -22,7 +22,7 @@
 #ifndef __vtkCompositePainter_h
 #define __vtkCompositePainter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"
 #include "vtkColor.h" // needed for vtkColor3d
 #include <stack> //  needed for RenderBlockState.
@@ -32,7 +32,7 @@ class vtkInformationObjectBaseKey;
 class vtkProperty;
 class vtkRenderWindow;
 
-class VTKRENDERINGCORE_EXPORT vtkCompositePainter : public vtkPainter
+class VTKRENDERINGOPENGL_EXPORT vtkCompositePainter : public vtkPainter
 {
 public:
   static vtkCompositePainter* New();
@@ -116,5 +116,3 @@ private:
 };
 
 #endif
-
-

@@ -78,7 +78,11 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *win)
 
 int vtkOpenGLTexture::GetTextureUnit()
 {
-  return this->TextureObject->GetTextureUnit();
+  if (this->TextureObject)
+    {
+    return this->TextureObject->GetTextureUnit();
+    }
+  return -1;
 }
 
 void vtkOpenGLTexture::CopyTexImage(int x, int y, int width, int height)

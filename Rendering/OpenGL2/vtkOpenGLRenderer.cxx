@@ -233,23 +233,43 @@ vtkTextureObject *vtkOpenGLRendererCreateDepthPeelingTextureObject(
 // get the texture units for depth peeling
 int vtkOpenGLRenderer::GetOpaqueRGBATextureUnit()
 {
-  return this->OpaqueRGBATexture->GetTextureUnit();
+  if (this->OpaqueRGBATexture)
+    {
+    return this->OpaqueRGBATexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetOpaqueZTextureUnit()
 {
-  return this->OpaqueZTexture->GetTextureUnit();
+  if (this->OpaqueZTexture)
+    {
+    return this->OpaqueZTexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetTranslucentRGBATextureUnit()
 {
-  return this->TranslucentRGBATexture->GetTextureUnit();
+  if (this->TranslucentRGBATexture)
+    {
+    return this->TranslucentRGBATexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetTranslucentZTextureUnit()
 {
-  return this->TranslucentZTexture->GetTextureUnit();
+  if (this->TranslucentZTexture)
+    {
+    return this->TranslucentZTexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetCurrentRGBATextureUnit()
 {
-  return this->CurrentRGBATexture->GetTextureUnit();
+  if (this->CurrentRGBATexture)
+    {
+    return this->CurrentRGBATexture->GetTextureUnit();
+    }
+  return -1;
 }
 
 // ----------------------------------------------------------------------------

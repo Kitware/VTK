@@ -88,4 +88,3 @@ void vtkPolyDataPainter::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "BuildNormals: " << this->BuildNormals << endl;
 }
-

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTStripsPainter.h
+  Module:    vtkPointsPainter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,24 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTStripsPainter - painter for triangle strips.
+// .NAME vtkPointsPainter - this painter paints verts.
+// .SECTION Description
+// This painter tries to paint points efficiently. Request to Render
+// any other primitive are ignored and not passed to the delegate painter,
+// if any. This painter cannot handle cell colors/normals. If they are
+// present the request is passed on to the Delegate painter. If this
+// class is able to render the primitive, the render request is not
+// propagated to the delegate painter.
+#ifndef __vtkPointsPainter_h
+#define __vtkPointsPainter_h
 
-#ifndef __vtkTStripsPainter_h
-#define __vtkTStripsPainter_h
-
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPrimitivePainter.h"
 
-class VTKRENDERINGCORE_EXPORT vtkTStripsPainter : public vtkPrimitivePainter
+class VTKRENDERINGOPENGL_EXPORT vtkPointsPainter : public vtkPrimitivePainter
 {
 public:
-  static vtkTStripsPainter* New();
-  vtkTypeMacro(vtkTStripsPainter, vtkPrimitivePainter);
+  static vtkPointsPainter* New();
+  vtkTypeMacro(vtkPointsPainter, vtkPrimitivePainter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkTStripsPainter();
-  ~vtkTStripsPainter();
+  vtkPointsPainter();
+  ~vtkPointsPainter();
 
   // Description:
   // The actual rendering happens here. This method is called only when
@@ -37,11 +43,8 @@ protected:
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
 private:
-  vtkTStripsPainter(const vtkTStripsPainter&); // Not implemented.
-  void operator=(const vtkTStripsPainter&); // Not implemented.
+  vtkPointsPainter(const vtkPointsPainter&); // Not implemented.
+  void operator=(const vtkPointsPainter&); // Not implemented.
 };
 
-
-
 #endif
-
