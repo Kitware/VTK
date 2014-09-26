@@ -43,7 +43,7 @@
 #include "vtk_exodusII.h"
 #include <ctype.h>
 #include <map>
-#include <time.h>
+#include <ctime>
 
 using std::map;
 

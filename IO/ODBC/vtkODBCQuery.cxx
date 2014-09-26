@@ -29,11 +29,11 @@
 #include "vtkODBCDatabase.h"
 #include "vtkODBCInternals.h"
 
-#include <vtkBitArray.h>
-#include <vtkObjectFactory.h>
-#include <vtkStringArray.h>
-#include <vtkVariant.h>
-#include <vtkVariantArray.h>
+#include "vtkBitArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
+#include "vtkVariant.h"
+#include "vtkVariantArray.h"
 
 #include <cassert>
 

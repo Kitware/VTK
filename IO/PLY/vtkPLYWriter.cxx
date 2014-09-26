@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
 
-#include <stddef.h>
+#include <cstddef>
 
 vtkStandardNewMacro(vtkPLYWriter);
 

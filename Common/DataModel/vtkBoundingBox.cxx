@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkBoundingBox.h"
-#include <vtkMath.h>
-#include <vtkPlane.h>
+#include "vtkMath.h"
+#include "vtkPlane.h"
 #include <cassert>
 #include <math.h>
 

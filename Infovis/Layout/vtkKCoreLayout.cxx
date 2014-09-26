@@ -18,19 +18,19 @@
 ----------------------------------------------------------------------------*/
 #include "vtkKCoreLayout.h"
 
-#include <vtkAdjacentVertexIterator.h>
-#include <vtkDataSetAttributes.h>
-#include <vtkDoubleArray.h>
-#include <vtkGraph.h>
-#include <vtkIdTypeArray.h>
-#include <vtkInEdgeIterator.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkIntArray.h>
-#include <vtkMath.h>
-#include <vtkObjectFactory.h>
-#include <vtkSelection.h>
-#include <vtkSmartPointer.h>
+#include "vtkAdjacentVertexIterator.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
+#include "vtkGraph.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInEdgeIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkSelection.h"
+#include "vtkSmartPointer.h"
 
 #include <iostream>
 

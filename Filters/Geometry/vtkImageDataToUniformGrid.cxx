@@ -15,17 +15,17 @@
 
 #include "vtkImageDataToUniformGrid.h"
 
-#include <vtkCellData.h>
-#include <vtkDataObjectTree.h>
-#include <vtkDataObjectTreeIterator.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkUniformGrid.h>
-#include <vtkUnsignedCharArray.h>
+#include "vtkCellData.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkImageDataToUniformGrid);
 

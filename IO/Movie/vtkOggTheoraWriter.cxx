@@ -21,7 +21,7 @@
 
 #include "vtk_oggtheora.h"
 
-#include <time.h>
+#include <ctime>
 
 //---------------------------------------------------------------------------
 class vtkOggTheoraWriterInternal

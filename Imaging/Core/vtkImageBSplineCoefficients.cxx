@@ -25,7 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
 
-#include <stddef.h>
+#include <cstddef>
 
 vtkStandardNewMacro(vtkImageBSplineCoefficients);
 

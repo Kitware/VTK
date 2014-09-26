@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkLinearContourLineInterpolator.h"
-#include <vtkObjectFactory.h>
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkLinearContourLineInterpolator);
 

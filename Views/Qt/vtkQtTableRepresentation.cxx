@@ -20,14 +20,14 @@
 #include "vtkQtTableRepresentation.h"
 #include "vtkQtTableModelAdapter.h"
 
-#include <vtkAlgorithm.h>
-#include <vtkAlgorithmOutput.h>
-#include <vtkDataSetAttributes.h>
-#include <vtkDoubleArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkLookupTable.h>
-#include <vtkObjectFactory.h>
-#include <vtkTable.h>
+#include "vtkAlgorithm.h"
+#include "vtkAlgorithmOutput.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
+#include "vtkTable.h"
 
 #include <QModelIndex>
 #include <QColor>

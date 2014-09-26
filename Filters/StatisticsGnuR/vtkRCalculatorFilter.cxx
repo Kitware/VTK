@@ -41,7 +41,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkStringArray.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <vtksys/ios/sstream>

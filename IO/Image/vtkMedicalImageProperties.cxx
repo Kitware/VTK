@@ -19,7 +19,7 @@
 #include <vtksys/stl/map>
 #include <vtksys/stl/vector>
 #include <vtksys/stl/set>
-#include <time.h> // for strftime
+#include <ctime> // for strftime
 #include <ctype.h> // for isdigit
 #include <cassert>
 

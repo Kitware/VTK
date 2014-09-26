@@ -36,7 +36,7 @@
 #include "vtkDataArray.h"
 #include "vtkMergePoints.h"
 #include "vtkKdTree.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <map>
 #include <algorithm>
 

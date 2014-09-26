@@ -30,7 +30,7 @@
 #include "vtkIdList.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
-#include <time.h>
+#include <ctime>
 
 vtkStandardNewMacro(vtkModelMetadata);
 

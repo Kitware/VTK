@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
 
 // We have to define XTSTRINGDEFINES (used in X11/StringDefs.h and X11/Shell.h)

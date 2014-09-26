@@ -26,7 +26,7 @@
 #include "vtkArray.h"
 #include "engine.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>

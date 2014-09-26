@@ -38,7 +38,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkTable.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <vtksys/ios/sstream>
