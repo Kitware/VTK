@@ -142,6 +142,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
                                                   std::string &vtkNotUsed(GSSource),
                                                   int vtkNotUsed(lightComplexity), vtkRenderer* ren, vtkActor *actor)
 {
+  // Note that the color section will always define vec3 ambientColor, vec3 diffuseColor and float opacity
   if (this->Layout.ColorComponents != 0)
     {
     VSSource = replace(VSSource,"//VTK::Color::Dec",
@@ -176,10 +177,48 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     }
   else
     {
-    FSSource = replace(FSSource,"//VTK::Color::Impl",
+    // are we doing scalar coloring by texture?
+    if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
+      {
+      if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
+          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
+            actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
+        {
+        FSSource = vtkgl::replace(FSSource,
+                              "//VTK::Color::Impl",
+                              "vec4 texColor = texture2D(texture1, tcoordVC.st);\n"
+                              "vec3 ambientColor = texColor.rgb;\n"
+                              "vec3 diffuseColor = diffuseColorUniform;\n"
+                              "float opacity = texColor.a;");
+        }
+      else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
+          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
+           actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
+        {
+        FSSource = vtkgl::replace(FSSource,
+                              "//VTK::Color::Impl",
+                              "vec4 texColor = texture2D(texture1, tcoordVC.st);\n"
+                              "vec3 ambientColor = ambientColorUniform;\n"
+                              "vec3 diffuseColor = texColor.rgb;\n"
+                              "float opacity = texColor.a;");
+        }
+      else
+        {
+        FSSource = vtkgl::replace(FSSource,
+                              "//VTK::Color::Impl",
+                              "vec4 texColor = texture2D(texture1, tcoordVC.st);\n"
+                              "vec3 ambientColor = texColor.rgb;\n"
+                              "vec3 diffuseColor = texColor,rgb;\n"
+                              "float opacity = texColor.a;");
+        }
+      }
+    else
+      {
+      FSSource = replace(FSSource,"//VTK::Color::Impl",
                                 "vec3 ambientColor = ambientColorUniform;\n"
                                 "vec3 diffuseColor = diffuseColorUniform;\n"
                                 "float opacity = opacityUniform;");
+      }
     }
   // normals?
   if (this->Layout.NormalOffset)
@@ -272,10 +311,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Dec",
                                    "varying vec2 tcoordVC; uniform sampler2D texture1;");
-      FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
+      // do texture mapping except for scalat coloring case which is handled above
+      if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
+        {
+        FSSource = vtkgl::replace(FSSource,
+                                     "//VTK::TCoord::Impl",
+                                     "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
+        }
       }
+
+    // handle color mapping by texture
+
     }
 
 
