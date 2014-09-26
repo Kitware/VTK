@@ -366,7 +366,8 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string ShadingIncrement(vtkRenderer* ren, vtkVolumeMapper* mapper,
-                               vtkVolume* vol)
+                               vtkVolume* vol, vtkImageData* maskInput,
+                               vtkVolumeMask* mask, int maskType)
     {
     std::string shaderStr = std::string(
       "if (!l_skip) \n\
@@ -393,33 +394,38 @@ namespace vtkvolume
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
       shaderStr += std::string(
-        "vec4 scalar = texture3D(m_volume, g_data_pos) ; \n\
+        "vec4 scalar = texture3D(m_volume, g_data_pos); \n\
         float opacity = computeOpacity(scalar); \n\
         l_sum_value = l_sum_value + opacity * scalar.w;");
       }
-    else
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
       {
-      shaderStr += std::string(
-        "/// Data fetching from the red channel of volume texture \n\
-        vec4 scalar = texture3D(m_volume, g_data_pos); \n\
-        vec4 g_src_color = computeColor(scalar);");
+      if (!mask || !maskInput || maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+        {
+        shaderStr += std::string(
+          "/// Data fetching from the red channel of volume texture \n\
+          vec4 scalar = texture3D(m_volume, g_data_pos); \n\
+          vec4 g_src_color = computeColor(scalar);");
+        }
 
       shaderStr += std::string(
         "/// Opacity calculation using compositing: \n\
-        /// here we use front to back compositing scheme whereby the current sample \n\
-        /// value is multiplied to the currently accumulated alpha and then this product \n\
-        /// is subtracted from the sample value to get the alpha from the previous steps. \n\
-        /// Next, this alpha is multiplied with the current sample colour and accumulated \n\
-        /// to the composited colour. The alpha value from the previous steps is then \n\
-        /// accumulated to the composited colour alpha. \n\
-        g_src_color.rgb *= g_src_color.a; \n\
-        g_frag_color = (1.0f - g_frag_color.a) * g_src_color + g_frag_color;");
+         /// here we use front to back compositing scheme whereby the current sample \n\
+         /// value is multiplied to the currently accumulated alpha and then this product \n\
+         /// is subtracted from the sample value to get the alpha from the previous steps. \n\
+         /// Next, this alpha is multiplied with the current sample colour and accumulated \n\
+         /// to the composited colour. The alpha value from the previous steps is then \n\
+         /// accumulated to the composited colour alpha. \n\
+         g_src_color.rgb *= g_src_color.a; \n\
+         g_frag_color = (1.0f - g_frag_color.a) * g_src_color + g_frag_color;");
       }
-
-    shaderStr += std::string("}");
-    return shaderStr;
+     else
+       {
+       shaderStr += std::string("");
+       }
+      shaderStr += std::string("}");
+      return shaderStr;
     }
-
   //--------------------------------------------------------------------------
   std::string GradientOpacityGlobalsFrag(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mapper,
                                          vtkVolume* vol)
@@ -866,16 +872,18 @@ namespace vtkvolume
                                      vtkVolume* vol, vtkImageData* maskInput,
                                      vtkVolumeMask* mask, int maskType)
   {
-    if (!mask || !maskInput)
+    if (!mask || !maskInput ||
+        maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
       {
       return std::string("");
       }
     else
       {
       return std::string("\n\
+        vec4 scalar = texture3D(m_volume, g_data_pos); \n\
         if (m_mask_blendfactor == 0.0)\n\
           {\n\
-          g_src_color.rgb = computeColor(scalar).rgb;\n\
+          g_src_color = computeColor(scalar);\n\
           }\n\
         else\n\
          {\n\
@@ -883,25 +891,27 @@ namespace vtkvolume
          vec4 maskValue = texture3D(m_mask, g_data_pos);\n\
          if(maskValue.a == 0.0)\n\
            {\n\
-           g_src_color.rgb = computeColor(scalar).xyz;\n\
+           g_src_color = computeColor(scalar);\n\
            }\n\
          else\n\
            {\n\
            if (maskValue.a == 1.0/255.0)\n\
              {\n\
-             g_src_color.rgb = texture1D(m_mask_1, scalar.w).xyz;\n\
+             g_src_color = texture1D(m_mask_1, scalar.w);\n\
              }\n\
            else\n\
              {\n\
              // maskValue.a == 2.0/255.0\n\
-             g_src_color.rgb = texture1D(m_mask_2, scalar.w).xyz;\n\
+             g_src_color = texture1D(m_mask_2, scalar.w);\n\
              }\n\
-           if(m_mask_blendfactor < 1.0)\n\
+           g_src_color.a = 1.0; \n\
+           if(m_mask_blendfactor < 1.0) \n\
              {\n\
-             g_src_color.rgb = (1.0 - m_mask_blendfactor) * computeColor(scalar)\n\
-               + m_mask_blendfactor * g_src_color.rgb;\n\
+             g_src_color = (1.0 - m_mask_blendfactor) * computeColor(scalar)\n\
+               + m_mask_blendfactor * g_src_color;\n\
              }\n\
            }\n\
+          g_src_color.a = computeOpacity(scalar); \n\
          }");
       }
   }

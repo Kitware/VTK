@@ -70,6 +70,7 @@ void main()
     @CROPPING_INCREMENT@
     @CLIPPING_INCREMENT@
     @BINARY_MASK_INCREMENT@
+    @COMPOSITE_MASK_INCREMENT@
     @SHADING_INCREMENT@
 
     /// Advance ray by m_dir_step

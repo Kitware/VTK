@@ -1355,7 +1355,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
     vtkvolume::ShadingInit(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INCREMENT@",
-    vtkvolume::ShadingIncrement(ren, this, vol), true);
+    vtkvolume::ShadingIncrement(ren, this, vol, this->MaskInput,
+                                this->Implementation->CurrentMask,
+                                this->MaskType), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@GRADIENT_OPACITY_INCREMENT@",
     vtkvolume::GradientOpacityIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
