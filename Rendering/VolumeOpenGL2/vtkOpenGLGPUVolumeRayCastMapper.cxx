@@ -1361,6 +1361,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
     vtkvolume::ShadingExit(ren, this, vol), true);
 
+  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_OPACITY_FRAG@",
+    vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_GRADIENT_FRAG@",
+    vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_LIGHTING_FRAG@",
+    vtkvolume::LightComputeFunc(ren, this, vol,noOfComponents), true);
+
   GL_CHECK_ERRORS
 
   vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_GLOBALS_VERT@",
