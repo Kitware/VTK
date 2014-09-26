@@ -652,16 +652,17 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
       lightExponent[numberOfLights] = light->GetExponent();
       lightConeAngle[numberOfLights] = light->GetConeAngle();
       double *lp = light->GetTransformedPosition();
-      lightPosition[numberOfLights][0] = lp[0];
-      lightPosition[numberOfLights][1] = lp[1];
-      lightPosition[numberOfLights][2] = lp[2];
+      double *tlp = viewTF->TransformPoint(lp);
+      lightPosition[numberOfLights][0] = tlp[0];
+      lightPosition[numberOfLights][1] = tlp[1];
+      lightPosition[numberOfLights][2] = tlp[2];
       lightPositional[numberOfLights] = light->GetPositional();
       numberOfLights++;
       }
     }
   program->SetUniform3fv("lightAttenuation", numberOfLights, lightAttenuation);
   program->SetUniform1iv("lightPositional", numberOfLights, lightPositional);
-  program->SetUniform3fv("lightPositionWC", numberOfLights, lightPosition);
+  program->SetUniform3fv("lightPositionVC", numberOfLights, lightPosition);
   program->SetUniform1fv("lightExponent", numberOfLights, lightExponent);
   program->SetUniform1fv("lightConeAngle", numberOfLights, lightConeAngle);
 }
@@ -671,12 +672,6 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
   vtkShaderProgram *program = cellBO.Program;
-
-  // set the MCWC matrix for positional lighting
-  if (this->LastLightComplexity > 2)
-    {
-    program->SetUniformMatrix("MCWCMatrix", actor->GetMatrix());
-    }
 
   vtkCamera *cam = ren->GetActiveCamera();
 
