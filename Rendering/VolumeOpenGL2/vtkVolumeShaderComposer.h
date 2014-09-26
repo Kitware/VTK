@@ -303,7 +303,8 @@ namespace vtkvolume
         "/// Data fetching from the red channel of volume texture \n\
         vec4 scalar = texture3D(m_volume, l_data_pos); \n\
         vec4 l_src_color = vec4(computeColor(scalar), \n\
-                                texture1D(m_opacity_transfer_func, scalar.w).w);");
+                                texture1D(m_opacity_transfer_func, scalar.w).w);\n\
+        @COMPOSITE_MASK_INCREMENT@");
 
       if (vol->GetProperty()->GetShade())
         {
@@ -765,7 +766,7 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string BinaryMaskGlobalsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
                                     vtkVolume* vol, vtkImageData* maskInput,
-                                    vtkVolumeMask* mask)
+                                    vtkVolumeMask* mask, int maskType)
   {
     if (!mask || !maskInput)
       {
@@ -780,9 +781,9 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string BinaryMaskIncrement(vtkRenderer* ren, vtkVolumeMapper* mapper,
                                   vtkVolume* vol, vtkImageData* maskInput,
-                                  vtkVolumeMask* mask)
+                                  vtkVolumeMask* mask, int maskType)
   {
-    if (!mask || !maskInput)
+    if (!mask || !maskInput || maskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
       {
       return std::string("");
       }
@@ -794,6 +795,70 @@ namespace vtkvolume
           {\n\
           l_skip = true;\n\
           }");
+      }
+  }
+
+  //--------------------------------------------------------------------------
+  std::string CompositeMaskGlobalsFrag(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                       vtkVolume* vol, vtkImageData* maskInput,
+                                       vtkVolumeMask* mask, int maskType)
+  {
+    if (!mask || !maskInput ||
+        maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+      {
+      return std::string("");
+      }
+    else
+      {
+      return std::string("\n\
+        uniform float m_mask_blendfactor;\n\
+        uniform sampler1D m_mask_1;\n\
+        uniform sampler1D m_mask_2;");
+      }
+  }
+
+  //--------------------------------------------------------------------------
+  std::string CompositeMaskIncrement(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                                     vtkVolume* vol, vtkImageData* maskInput,
+                                     vtkVolumeMask* mask, int maskType)
+  {
+    if (!mask || !maskInput)
+      {
+      return std::string("");
+      }
+    else
+      {
+      return std::string("\n\
+        if (m_mask_blendfactor == 0.0)\n\
+          {\n\
+          l_src_color.rgb = computeColor(scalar).rgb;\n\
+          }\n\
+        else\n\
+         {\n\
+         // Get the mask value at this same location\n\
+         vec4 maskValue = texture3D(m_mask, l_data_pos);\n\
+         if(maskValue.a == 0.0)\n\
+           {\n\
+           l_src_color.rgb = computeColor(scalar).xyz;\n\
+           }\n\
+         else\n\
+           {\n\
+           if (maskValue.a == 1.0/255.0)\n\
+             {\n\
+             l_src_color.rgb = texture1D(m_mask_1, scalar.w).xyz;\n\
+             }\n\
+           else\n\
+             {\n\
+             // maskValue.a == 2.0/255.0\n\
+             l_src_color.rgb = texture1D(m_mask_2, scalar.w).xyz;\n\
+             }\n\
+           if(m_mask_blendfactor < 1.0)\n\
+             {\n\
+             l_src_color.rgb = (1.0 - m_mask_blendfactor) * computeColor(scalar)\n\
+               + m_mask_blendfactor * l_src_color.rgb;\n\
+             }\n\
+           }\n\
+         }");
       }
   }
 }

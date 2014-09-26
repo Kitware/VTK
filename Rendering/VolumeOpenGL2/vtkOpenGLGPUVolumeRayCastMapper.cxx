@@ -99,6 +99,8 @@ public:
     TextureWidth(1024),
     Parent(parent),
     RGBTable(0),
+    Mask1RGBTable(0),
+    Mask2RGBTable(0),
     OpacityTables(0),
     GradientOpacityTables(0)
     {
@@ -107,12 +109,12 @@ public:
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
 
-    this->Extents[0]=VTK_INT_MAX;
-    this->Extents[1]=VTK_INT_MIN;
-    this->Extents[2]=VTK_INT_MAX;
-    this->Extents[3]=VTK_INT_MIN;
-    this->Extents[4]=VTK_INT_MAX;
-    this->Extents[5]=VTK_INT_MIN;
+    this->Extents[0] = VTK_INT_MAX;
+    this->Extents[1] = VTK_INT_MIN;
+    this->Extents[2] = VTK_INT_MAX;
+    this->Extents[3] = VTK_INT_MIN;
+    this->Extents[4] = VTK_INT_MAX;
+    this->Extents[5] = VTK_INT_MIN;
 
     this->MaskTextures = new vtkMapMaskTextureId;
     }
@@ -121,6 +123,18 @@ public:
     {
     delete this->RGBTable;
     this->RGBTable = 0;
+
+    if(this->Mask1RGBTable!=0)
+      {
+      delete this->Mask1RGBTable;
+      this->Mask1RGBTable=0;
+      }
+
+    if(this->Mask2RGBTable!=0)
+      {
+      delete this->Mask2RGBTable;
+      this->Mask2RGBTable=0;
+      }
 
     delete this->OpacityTables;
     this->OpacityTables = 0;
@@ -318,6 +332,8 @@ public:
   vtkOpenGLGPUVolumeRayCastMapper* Parent;
   vtkOpenGLRGBTable* RGBTable;
   vtkOpenGLOpacityTables* OpacityTables;
+  vtkOpenGLRGBTable* Mask1RGBTable;
+  vtkOpenGLRGBTable* Mask2RGBTable;
   vtkOpenGLGradientOpacityTables* GradientOpacityTables;
 
   vtkTimeStamp VolumeBuildTime;
@@ -371,6 +387,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(vtkRenderer* ren,
 
   /// Create RGB lookup table
   this->RGBTable = new vtkOpenGLRGBTable();
+
+  if (this->Parent->MaskInput != 0 &&
+      this->Parent->MaskType == LabelMapMaskType)
+    {
+    if(this->Mask1RGBTable == 0)
+      {
+      this->Mask1RGBTable = new vtkOpenGLRGBTable();
+      }
+    if(this->Mask2RGBTable == 0)
+      {
+      this->Mask2RGBTable = new vtkOpenGLRGBTable();
+      }
+    }
 
   /// TODO Currently we are supporting only one level
   /// Create opacity lookup table
@@ -795,6 +824,21 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
     this->RGBTable->Update(
       colorTransferFunction, this->ScalarsRange,
       volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
+
+    glActiveTexture(GL_TEXTURE0);
+    }
+
+  if (this->Parent->MaskInput != 0 &&
+      this->Parent->MaskType == LabelMapMaskType)
+    {
+    vtkVolumeProperty* volumeProperty = vol->GetProperty();
+
+    vtkColorTransferFunction* colorTransferFunc =
+      volumeProperty->GetRGBTransferFunction(1);
+    this->Mask1RGBTable->Update(colorTransferFunc, this->ScalarsRange, false, 7);
+
+    colorTransferFunc = volumeProperty->GetRGBTransferFunction(2);
+    this->Mask2RGBTable->Update(colorTransferFunc, this->ScalarsRange, false, 8);
 
     glActiveTexture(GL_TEXTURE0);
     }
@@ -1343,10 +1387,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
   fragmentShader = vtkvolume::replace(fragmentShader, "@BINARY_MASK_GLOBALS_FRAG@",
     vtkvolume::BinaryMaskGlobalsFrag(ren, this, vol, this->MaskInput,
-                                     this->Implementation->CurrentMask), true);
+                                     this->Implementation->CurrentMask,
+                                     this->MaskType), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@BINARY_MASK_INCREMENT@",
     vtkvolume::BinaryMaskIncrement(ren, this, vol, this->MaskInput,
-                                   this->Implementation->CurrentMask), true);
+                                   this->Implementation->CurrentMask,
+                                   this->MaskType), true);
+
+  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPOSITE_MASK_GLOBALS_FRAG@",
+    vtkvolume::CompositeMaskGlobalsFrag(ren, this, vol, this->MaskInput,
+                                        this->Implementation->CurrentMask,
+                                        this->MaskType), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPOSITE_MASK_INCREMENT@",
+    vtkvolume::CompositeMaskIncrement(ren, this, vol, this->MaskInput,
+                                      this->Implementation->CurrentMask,
+                                      this->MaskType), true);
 
   GL_CHECK_ERRORS
 
@@ -1375,7 +1430,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   this->Implementation->Shader.AddUniform("m_sample_distance");
   this->Implementation->Shader.AddUniform("m_scalars_range");
 
-  if (noOfComponents == 1)
+  if (noOfComponents == 1 &&
+      this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
     this->Implementation->Shader.AddUniform("m_color_transfer_func");
     }
@@ -1422,7 +1478,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     this->Implementation->Shader.AddUniform("m_mask");
     }
 
+  if (this->MaskInput && this->MaskType == LabelMapMaskType)
+    {
+      this->Implementation->Shader.AddUniform("m_mask_1");
+      this->Implementation->Shader.AddUniform("m_mask_2");
+      this->Implementation->Shader.AddUniform("m_mask_blendfactor");
+    }
+
   GL_CHECK_ERRORS
+
+  std::cerr << "shader " << fragmentShader << std::endl;
 
   this->Implementation->ShaderBuildTime.Modified();
 }
@@ -1472,7 +1537,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     scalars->GetRange(this->Implementation->ScalarsRange, 3);
     }
 
-  /// Load volume if needed
+  ///  volume if needed
   if (this->Implementation->IsDataDirty(input))
     {
     input->GetDimensions(this->Implementation->Dimensions);
@@ -1606,7 +1671,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
               fvalue2[0], fvalue2[1]);
 
   glUniform1i(this->Implementation->Shader("m_volume"), 0);
-  glUniform1i(this->Implementation->Shader("m_color_transfer_func"), 1);
   glUniform1i(this->Implementation->Shader("m_opacity_transfer_func"), 2);
   glUniform1i(this->Implementation->Shader("m_noise_sampler"), 3);
   glUniform1i(this->Implementation->Shader("m_depth_sampler"), 4);
@@ -1615,6 +1679,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   if (this->Implementation->CurrentMask)
     {
     glUniform1i(this->Implementation->Shader("m_mask"), 6);
+    }
+
+  if(numberOfScalarComponents == 1 &&
+     this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+    {
+    glUniform1i(this->Implementation->Shader("m_color_transfer_func"), 1);
+
+    if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
+      {
+      glUniform1i(this->Implementation->Shader("m_mask_1"), 7);
+      glUniform1i(this->Implementation->Shader("m_mask_2"), 8);
+
+      fvalue2[0] = static_cast<float>(this->MaskBlendFactor);
+      glUniform1f(this->Implementation->Shader("m_mask_blendfactor"),
+                  fvalue2[0]);
+      }
     }
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetAmbient();
@@ -1635,7 +1715,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   glBindTexture(GL_TEXTURE_3D, this->Implementation->VolumeTextureId);
 
   /// Color texture is at unit 1
-  this->Implementation->RGBTable->Bind();
+  if (numberOfScalarComponents == 1)
+    {
+    this->Implementation->RGBTable->Bind();
+
+    if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
+      {
+      this->Implementation->Mask1RGBTable->Bind(7);
+      this->Implementation->Mask2RGBTable->Bind(8);
+      }
+    }
 
   /// Opacity texture is at unit 2
   /// TODO Supports only one table for now

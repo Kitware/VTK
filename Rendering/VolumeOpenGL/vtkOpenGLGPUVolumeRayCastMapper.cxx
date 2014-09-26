@@ -104,9 +104,11 @@ public:
     }
 private:
   // undefined copy constructor.
-  vtkUnsupportedRequiredExtensionsStringStream(const vtkUnsupportedRequiredExtensionsStringStream &other);
+  vtkUnsupportedRequiredExtensionsStringStream(const
+    vtkUnsupportedRequiredExtensionsStringStream &other);
   // undefined assignment operator.
-  vtkUnsupportedRequiredExtensionsStringStream &operator=(const vtkUnsupportedRequiredExtensionsStringStream &other);
+  vtkUnsupportedRequiredExtensionsStringStream &operator=(const
+    vtkUnsupportedRequiredExtensionsStringStream &other);
 };
 
 class vtkMapDataArrayTextureId
@@ -138,8 +140,6 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-
-
 extern const char *vtkGPUVolumeRayCastMapper_CompositeFS;
 extern const char *vtkGPUVolumeRayCastMapper_CompositeCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_CompositeNoCroppingFS;

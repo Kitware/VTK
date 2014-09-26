@@ -54,11 +54,10 @@ public:
   ///
   /// \brief Bind texture.
   ///--------------------------------------------------------------------------
-  void Bind()
+  void Bind(int textureUnit = 1)
     {
     /// Activate texture 1
-    glActiveTexture(GL_TEXTURE1);
-
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
 
@@ -70,10 +69,10 @@ public:
   ///--------------------------------------------------------------------------
   void Update(vtkColorTransferFunction* scalarRGB,
               double range[2],
-              bool linearInterpolation)
+              bool linearInterpolation, int textureUnit = 1)
     {
     /// Activate texture 1
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
 
     bool needUpdate = false;
 
