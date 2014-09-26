@@ -154,7 +154,7 @@ namespace vtkvolume
       g_data_pos = m_texture_coords.xyz; \n\
       \n\
       /// Eye position in object space  \n\
-      vec4 g_eye_pos_obj = (m_inverse_volume_matrix * vec4(m_camera_pos, 1.0)); \n\
+      g_eye_pos_obj = (m_inverse_volume_matrix * vec4(m_camera_pos, 1.0)); \n\
       if (g_eye_pos_obj.w != 0.0) \n\
         { \n\
         g_eye_pos_obj.x /= g_eye_pos_obj.w; \n\
@@ -231,7 +231,7 @@ namespace vtkvolume
     if (volProperty->GetDisableGradientOpacity())
       {
       return std::string(" \n\
-        vec4 computeLighting(color) \n\
+        vec4 computeLighting(vec4 color) \n\
           {\n\
           vec3 ldir = normalize(g_light_pos_obj.xyz - m_vertex_pos); \n\
           vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
@@ -258,14 +258,13 @@ namespace vtkvolume
             { \n\
             n_dot_h = -n_dot_h; \n\
             } \n\
-          final_color += 0.1 * color.rgb; \n\
+          final_color += m_ambient * color.rgb; \n\
           if (n_dot_l > 0) { \n\
             final_color += m_diffuse * n_dot_l * color.rgb; \n\
            } \n\
           final_color += m_specular * pow(n_dot_h, m_shininess); \n\
-          final_color = clamp(final_color, l_clamp_min, l_clamp_max); \n\
-          color.rgb = final_color; \n\
-          return color; \n\
+          final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+          return vec4(final_color, color.a); \n\
           }");
       }
 
@@ -503,9 +502,6 @@ namespace vtkvolume
       \n\
       /// Maximum texture access coordinate \n\
       const vec3 l_tex_max = vec3(1); \n\
-      \n\
-      const vec3 l_clamp_min = vec3(0.0); \n\
-      const vec3 l_clamp_max = vec3(1.0); \n\
       \n\
       /// Flag to indicate if the raymarch loop should terminate \n\
       bool stop = false; \n\
