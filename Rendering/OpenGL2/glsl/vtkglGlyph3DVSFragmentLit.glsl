@@ -42,13 +42,11 @@ uniform mat3 glyphNormalMatrix; // glyphs normal matrix
 
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
-uniform mat4 MCWCMatrix;  // model to world matrix
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
 uniform mat4 GCMCMatrix;  // glyphs matrix
 
 varying vec4 vertexVC;
-varying vec4 vertexWC;
 
 void main()
 {
@@ -60,7 +58,6 @@ void main()
 
   // compute the projected vertex position
   vec4 vertex = GCMCMatrix * vertexMC;
-  vertexWC = MCWCMatrix * vertex;
   vertexVC = MCVCMatrix * vertex;
   gl_Position = VCDCMatrix * vertexVC;
 }
