@@ -411,7 +411,8 @@ void vtkValuePainter::DrawCells(
       this->ValueToColor(value, minmax[0], scale, color);
 
       renderer->GetRenderWindow()->GetPainterDeviceAdapter()
-        ->SendAttribute(vtkDataSetAttributes::SCALARS, 3, GL_UNSIGNED_BYTE, color);
+        ->SendAttribute(
+        vtkDataSetAttributes::SCALARS, 3, VTK_UNSIGNED_CHAR, color);
       }
 
     for (vtkIdType cellpointi = 0; cellpointi < npts; cellpointi++)
