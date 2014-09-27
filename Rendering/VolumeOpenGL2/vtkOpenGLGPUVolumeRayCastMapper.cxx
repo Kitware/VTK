@@ -1667,9 +1667,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   fvalue3[1] = static_cast<float>(this->Implementation->CellSpacing[1]);
   fvalue3[2] = static_cast<float>(this->Implementation->CellSpacing[2]);
   glUniform3f(this->Implementation->Shader("m_cell_spacing"),
-              this->Implementation->StepSize[0],
-              this->Implementation->StepSize[1],
-              this->Implementation->StepSize[2]);
+              fvalue3[0],
+              fvalue3[1],
+              fvalue3[2]);
+
+  std::cerr << "Cell spacing "
+            << fvalue3[0] << " "
+            << fvalue3[1] << " "
+            << fvalue3[2] << " "  << std::endl;
 
   glUniform1f(this->Implementation->Shader("m_sample_distance"),
               this->Implementation->ActualSampleDistance);

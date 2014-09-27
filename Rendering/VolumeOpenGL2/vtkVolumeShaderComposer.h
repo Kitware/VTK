@@ -168,7 +168,7 @@ namespace vtkvolume
       \n\
       /// Multiply the raymarching direction with the step size to get the \n\
       /// sub-step size we need to take at each raymarching step  \n\
-      g_dir_step = geom_dir * m_cell_spacing * m_sample_distance; \n\
+      g_dir_step = (m_inverse_texture_dataset_matrix * vec4(geom_dir, 0.0)).xyz * m_sample_distance; \n\
       \n\
       g_data_pos += g_dir_step * texture2D(m_noise_sampler, g_data_pos.xy).x;\n\
       \n\
@@ -237,11 +237,11 @@ namespace vtkvolume
           vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
           vec3 h = normalize(ldir + vdir); \n\
           vec3 g2 = computeGradient(); \n\
-          g2 = m_cell_scale * g2; \n\
+          g2 = (1.0/m_cell_spacing)                                                                                                                                                                                                                                                                                                                                                                                                                                                    * g2; \n\
           float normalLength = length(g2);\n\
           if (normalLength > 0.0) \n\
              { \n\
-             g2 = normalize((m_texture_dataset_matrix * vec4(g2, 0.0)).xyz); \n\
+             g2 = normalize(g2); \n\
              } \n\
            else \n\
              { \n\
