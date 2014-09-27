@@ -16,8 +16,8 @@
 #ifndef __vtkVolumeStateRAII_h
 #define __vtkVolumeStateRAII_h
 
-/// Only these states can be queries via glIsEnabled:
-/// http://www.khronos.org/opengles/sdk/docs/man/
+// Only these states can be queries via glIsEnabled:
+// http://www.khronos.org/opengles/sdk/docs/man/
 
 class vtkVolumeStateRAII
   {
@@ -30,22 +30,22 @@ class vtkVolumeStateRAII
 
       this->CullFaceEnabled = glIsEnabled(GL_CULL_FACE);
 
-      /// Enable texture 1D and 3D as we are using it
-      /// for transfer functions and m_volume data
+      // Enable texture 1D and 3D as we are using it
+      // for transfer functions and m_volume data
       glEnable(GL_TEXTURE_1D);
       glEnable(GL_TEXTURE_2D);
       glEnable(GL_TEXTURE_3D);
 
-      /// Enable depth_sampler test
+      // Enable depth_sampler test
       if (!this->DepthTestEnabled)
         {
         std::cerr << "enabling depth test" << std::endl;
         glEnable(GL_DEPTH_TEST);
         }
 
-      /// Set the over blending function
-      /// NOTE: It is important to choose GL_ONE vs GL_SRC_ALPHA as our colors
-      /// will be premultiplied by the alpha value (doing front to back blending)
+      // Set the over blending function
+      // NOTE: It is important to choose GL_ONE vs GL_SRC_ALPHA as our colors
+      // will be premultiplied by the alpha value (doing front to back blending)
       glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
       if (!this->BlendEnabled)
@@ -53,7 +53,7 @@ class vtkVolumeStateRAII
         glEnable(GL_BLEND);
         }
 
-      /// Enable cull face
+      // Enable cull face
       if (!this->CullFaceEnabled)
         {
         glEnable(GL_CULL_FACE);

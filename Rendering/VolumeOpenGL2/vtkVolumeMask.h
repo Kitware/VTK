@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkOpenGLProjectedTetrahedraMapper.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #ifndef __vtkVolumeMask_h_
 #define __vtkVolumeMask_h_
 
@@ -6,7 +21,7 @@
 
 #include <map> // STL required
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class vtkVolumeMask
 {
 public:
@@ -38,7 +53,7 @@ public:
 
   void Bind()
     {
-      /// Activate texture 6
+      // Activate texture 6
       glActiveTexture(GL_TEXTURE6);
       glBindTexture(GL_TEXTURE_3D, this->TextureId);
     }
@@ -314,7 +329,7 @@ protected:
   bool Loaded;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class vtkMapMaskTextureId
 {
 public:

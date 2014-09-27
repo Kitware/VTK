@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkOpenGLProjectedTetrahedraMapper.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #ifndef __vtkOpenGLVolumeOpacityTable_h_
 #define __vtkOpenGLVolumeOpacityTable_h_
 
@@ -7,15 +22,11 @@
 #include <GL/glew.h>
 #include <vtkgl.h>
 
-///
-/// \brief The vtkOpenGLOpacityTable class
-///----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class vtkOpenGLOpacityTable
 {
 public:
-  ///
-  /// \brief Constructor.
-  ///--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   vtkOpenGLOpacityTable(int width = 1024)
     {
       this->TextureId = 0;
@@ -29,9 +40,7 @@ public:
       this->LastRange[0] = this->LastRange[1] = 0.0;
     }
 
-  ///
-  /// \brief Destructor.
-  ///--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   ~vtkOpenGLOpacityTable()
     {
       if (this->TextureId != 0)
@@ -47,35 +56,25 @@ public:
         }
     }
 
-  ///
-  /// \brief Check if opacity transfer function texture is loaded.
-  /// \return
-  ///--------------------------------------------------------------------------
+  // Check if opacity transfer function texture is loaded.
+  //--------------------------------------------------------------------------
   bool IsLoaded()
     {
     return this->Loaded;
     }
 
-  ///
-  /// \brief Bind texture.
-  ///--------------------------------------------------------------------------
+  // Bind texture.
+  //--------------------------------------------------------------------------
   void Bind()
     {
-    /// Activate texture 2
+    // Activate texture 2
     glActiveTexture(GL_TEXTURE2);
 
     glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
 
-  ///
-  /// \brief Update opacity tranfer function texture.
-  /// \param scalarOpacity
-  /// \param blendMode
-  /// \param sampleDistance
-  /// \param range
-  /// \param unitDistance
-  /// \param linearInterpolation
-  ///--------------------------------------------------------------------------
+  // Update opacity tranfer function texture.
+  //--------------------------------------------------------------------------
   void Update(vtkPiecewiseFunction* scalarOpacity,
               int blendMode,
               double sampleDistance,
@@ -83,7 +82,7 @@ public:
               double unitDistance,
               bool linearInterpolation)
     {
-    /// Activate texture 2
+    // Activate texture 2
     glActiveTexture(GL_TEXTURE2);
 
     bool needUpdate=false;
@@ -123,9 +122,9 @@ public:
       scalarOpacity->GetTable(range[0], range[1], this->TextureWidth, this->Table);
       this->LastBlendMode = blendMode;
 
-      /// Correct the opacity array for the spacing between the planes if we
-      /// are using a composite blending operation
-      /// TODO Fix this code for sample distance in three dimensions
+      // Correct the opacity array for the spacing between the planes if we
+      // are using a composite blending operation
+      // TODO Fix this code for sample distance in three dimensions
         if(blendMode == vtkVolumeMapper::COMPOSITE_BLEND)
           {
           float* ptr = this->Table;
@@ -194,45 +193,32 @@ private:
   vtkOpenGLOpacityTable& operator=(const vtkOpenGLOpacityTable&);
 };
 
-//-----------------------------------------------------------------------------
-///
-/// \brief The vtkOpenGLOpacityTables class
-///
+//----------------------------------------------------------------------------
 class vtkOpenGLOpacityTables
 {
 public:
-  ///
-  /// \brief Constructor.
-  /// \param numberOfTables
-  ///--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   vtkOpenGLOpacityTables(unsigned int numberOfTables)
     {
     this->Tables = new vtkOpenGLOpacityTable[numberOfTables];
     this->NumberOfTables = numberOfTables;
     }
 
-  ///
-  /// \brief Destructor.
-  ///--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   ~vtkOpenGLOpacityTables()
     {
     delete [] this->Tables;
     }
 
-  ///
-  /// \brief Get opacity table at a given index.
-  /// \param i
-  /// \return
-  ///--------------------------------------------------------------------------
+  // brief Get opacity table at a given index.
+  //--------------------------------------------------------------------------
   vtkOpenGLOpacityTable* GetTable(unsigned int i)
     {
     return &this->Tables[i];
     }
 
-  ///
-  /// \brief Get number of tables.
-  /// \return
-  ///--------------------------------------------------------------------------
+  // Get number of opacity tables.
+  //--------------------------------------------------------------------------
   unsigned int GetNumberOfTables()
     {
     return this->NumberOfTables;
@@ -242,22 +228,13 @@ private:
   unsigned int NumberOfTables;
   vtkOpenGLOpacityTable *Tables;
 
-  ///
-  /// \brief vtkOpenGLOpacityTables (Not implemented)
-  ///
+  // vtkOpenGLOpacityTables (Not implemented)
   vtkOpenGLOpacityTables();
 
-  ///
-  /// \brief vtkOpenGLOpacityTables (Not implemented)
-  /// \param other
-  ///
+  // vtkOpenGLOpacityTables (Not implemented)
   vtkOpenGLOpacityTables(const vtkOpenGLOpacityTables &other);
 
-  ///
-  /// \brief operator = (Not implemented)
-  /// \param other
-  /// \return
-  ///
+  // operator = (Not implemented)
   vtkOpenGLOpacityTables &operator=(const vtkOpenGLOpacityTables &other);
 };
 

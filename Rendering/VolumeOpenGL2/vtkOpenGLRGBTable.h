@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkOpenGLProjectedTetrahedraMapper.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #ifndef __vtkOpenGLRGBTable_h_
 #define __vtkOpenGLRGBTable_h_
 
@@ -5,15 +20,11 @@
 
 #include <GL/glew.h>
 
-///
-/// \brief The vtkOpenGLRGBTable class
-///----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class vtkOpenGLRGBTable
 {
 public:
-  ///
-  /// \brief Constructor.
-  ///--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   vtkOpenGLRGBTable()
     {
     this->Loaded = false;
@@ -25,9 +36,7 @@ public:
     this->Table = 0;
     }
 
-  ///
-  /// \brief Destructor.
-  ///--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   ~vtkOpenGLRGBTable()
     {
     if(this->TextureId!=0)
@@ -42,36 +51,29 @@ public:
       }
     }
 
-  ///
-  /// \brief Check if color transfer function texture is loaded.
-  /// \return
-  ///--------------------------------------------------------------------------
+  // Check if color transfer function texture is loaded.
+  //--------------------------------------------------------------------------
   bool IsLoaded()
     {
     return this->Loaded;
     }
 
-  ///
-  /// \brief Bind texture.
-  ///--------------------------------------------------------------------------
+  // Bind texture.
+  //--------------------------------------------------------------------------
   void Bind(int textureUnit = 1)
     {
-    /// Activate texture 1
+    // Activate texture 1
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
 
-  ///
-  /// \brief Update color transfer function texture.
-  /// \param scalarRGB
-  /// \param range
-  /// \param linearInterpolation
-  ///--------------------------------------------------------------------------
+  // Update color transfer function texture.
+  //--------------------------------------------------------------------------
   void Update(vtkColorTransferFunction* scalarRGB,
               double range[2],
               bool linearInterpolation, int textureUnit = 1)
     {
-    /// Activate texture 1
+    // Activate texture 1
     glActiveTexture(GL_TEXTURE0 + textureUnit);
 
     bool needUpdate = false;
@@ -97,7 +99,7 @@ public:
       {
       this->Loaded = false;
 
-      /// Create table if not created already
+      // Create table if not created already
       if(this->Table==0)
         {
         this->Table = new float[this->TexutureWidth * this->NumberOfColorComponents];

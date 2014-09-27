@@ -67,8 +67,8 @@ namespace vtkvolume
                                    vtkVolume* vol)
     {
     return std::string(
-      "/// Assuming point data only. Also, we offset the texture coordinate to account \n\
-       /// for OpenGL treating voxel at the center of the cell. \n\
+      "// Assuming point data only. Also, we offset the texture coordinate to account \n\
+       // for OpenGL treating voxel at the center of the cell. \n\
        vec3 uvx = (m_in_vertex_pos - m_vol_extents_min) / (m_vol_extents_max - m_vol_extents_min); \n\
        vec3 delta = m_texture_extents_max - m_texture_extents_min; \n\
        m_texture_coords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;"
@@ -96,17 +96,17 @@ namespace vtkvolume
                                vtkVolume* vol)
     {
     return std::string(
-      "/// Volume dataset \n\
+      "// Volume dataset \n\
       uniform sampler3D m_volume; \n\
       \n\
       uniform sampler2D m_noise_sampler; \n\
       uniform sampler2D m_depth_sampler; \n\
       \n\
-      /// Camera position \n\
+      // Camera position \n\
       uniform vec3 m_camera_pos; \n\
       uniform vec3 m_light_pos; \n\
       \n\
-      /// view and model matrices \n\
+      // view and model matrices \n\
       uniform mat4 m_volume_matrix; \n\
       uniform mat4 m_inverse_volume_matrix; \n\
       uniform mat4 m_projection_matrix; \n\
@@ -116,15 +116,15 @@ namespace vtkvolume
       uniform mat4 m_texture_dataset_matrix; \n\
       uniform mat4 m_inverse_texture_dataset_matrix; \n\
       \n\
-      /// Ray step size \n\
+      // Ray step size \n\
       uniform vec3 m_cell_step; \n\
       uniform vec2 m_scalars_range; \n\
       uniform vec3 m_cell_spacing; \n\
       \n\
-      /// Sample distance \n\
+      // Sample distance \n\
       uniform float m_sample_distance; \n\
       \n\
-      /// Scales \n\
+      // Scales \n\
       uniform vec3 m_cell_scale; \n\
       uniform vec2 m_window_lower_left_corner; \n\
       uniform vec2 m_inv_original_window_size; \n\
@@ -132,12 +132,12 @@ namespace vtkvolume
       uniform vec3 m_texture_extents_max; \n\
       uniform vec3 m_texture_extents_min; \n\
       \n\
-      /// Material and lighting \n\
+      // Material and lighting \n\
       uniform vec3 m_diffuse; \n\
       uniform vec3 m_ambient; \n\
       uniform vec3 m_specular; \n\
       uniform float m_shininess; \n\
-      /// Other useful variales; \n\
+      // Other useful variales; \n\
       vec4 g_src_color; \n\
       vec4 g_light_pos_obj; \n\
       vec4 g_eye_pos_obj; ");
@@ -150,10 +150,10 @@ namespace vtkvolume
     return std::string(
       "g_light_pos_obj; \n\
       \n\
-      /// Get the 3D texture coordinates for lookup into the m_volume dataset  \n\
+      // Get the 3D texture coordinates for lookup into the m_volume dataset  \n\
       g_data_pos = m_texture_coords.xyz; \n\
       \n\
-      /// Eye position in object space  \n\
+      // Eye position in object space  \n\
       g_eye_pos_obj = (m_inverse_volume_matrix * vec4(m_camera_pos, 1.0)); \n\
       if (g_eye_pos_obj.w != 0.0) \n\
         { \n\
@@ -163,16 +163,16 @@ namespace vtkvolume
         g_eye_pos_obj.w = 1.0; \n\
         } \n\
       \n\
-      /// Getting the ray marching direction (in object space); \n\
+      // Getting the ray marching direction (in object space); \n\
       vec3 geom_dir = normalize(m_vertex_pos.xyz - g_eye_pos_obj.xyz); \n\
       \n\
-      /// Multiply the raymarching direction with the step size to get the \n\
-      /// sub-step size we need to take at each raymarching step  \n\
+      // Multiply the raymarching direction with the step size to get the \n\
+      // sub-step size we need to take at each raymarching step  \n\
       g_dir_step = (m_inverse_texture_dataset_matrix * vec4(geom_dir, 0.0)).xyz * m_sample_distance; \n\
       \n\
       g_data_pos += g_dir_step * texture2D(m_noise_sampler, g_data_pos.xy).x;\n\
       \n\
-      /// Flag to deternmine if voxel should be considered for the rendering \n\
+      // Flag to deternmine if voxel should be considered for the rendering \n\
       bool l_skip = false;");
     }
 
@@ -330,25 +330,25 @@ namespace vtkvolume
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       return std::string(
-        "/// We get data between 0.0 - 1.0 range \n\
+        "// We get data between 0.0 - 1.0 range \n\
          vec4 l_max_value = vec4(0.0);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       return std::string(
-        "/// We get data between 0.0 - 1.0 range \n\
+        "// We get data between 0.0 - 1.0 range \n\
         vec4 l_min_value = vec4(1.0);");
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
       return std::string(
-        "/// We get data between 0.0 - 1.0 range \n\
+        "// We get data between 0.0 - 1.0 range \n\
         float l_sum_value = 0.0;");
       }
     else if (vol->GetProperty()->GetShade())
       {
       return std::string(
-        "/// Light position in object space \n\
+        "// Light position in object space \n\
          g_light_pos_obj = (m_inverse_volume_matrix *  vec4(m_light_pos, 1.0)); \n\
          if (g_light_pos_obj.w != 0.0) \n\
           { \n\
@@ -403,19 +403,19 @@ namespace vtkvolume
       if (!mask || !maskInput || maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
         {
         shaderStr += std::string(
-          "/// Data fetching from the red channel of volume texture \n\
+          "// Data fetching from the red channel of volume texture \n\
           vec4 scalar = texture3D(m_volume, g_data_pos); \n\
           vec4 g_src_color = computeColor(scalar);");
         }
 
       shaderStr += std::string(
-        "/// Opacity calculation using compositing: \n\
-         /// here we use front to back compositing scheme whereby the current sample \n\
-         /// value is multiplied to the currently accumulated alpha and then this product \n\
-         /// is subtracted from the sample value to get the alpha from the previous steps. \n\
-         /// Next, this alpha is multiplied with the current sample colour and accumulated \n\
-         /// to the composited colour. The alpha value from the previous steps is then \n\
-         /// accumulated to the composited colour alpha. \n\
+        "// Opacity calculation using compositing: \n\
+         // here we use front to back compositing scheme whereby the current sample \n\
+         // value is multiplied to the currently accumulated alpha and then this product \n\
+         // is subtracted from the sample value to get the alpha from the previous steps. \n\
+         // Next, this alpha is multiplied with the current sample colour and accumulated \n\
+         // to the composited colour. The alpha value from the previous steps is then \n\
+         // accumulated to the composited colour alpha. \n\
          g_src_color.rgb *= g_src_color.a; \n\
          g_frag_color = (1.0f - g_frag_color.a) * g_src_color + g_frag_color;");
       }
@@ -503,41 +503,41 @@ namespace vtkvolume
                               vtkVolume* vol)
     {
     return std::string(
-      "/// Minimum texture access coordinate \n\
+      "// Minimum texture access coordinate \n\
       const vec3 l_tex_min = vec3(0); \n\
       \n\
-      /// Maximum texture access coordinate \n\
+      // Maximum texture access coordinate \n\
       const vec3 l_tex_max = vec3(1); \n\
       \n\
-      /// Flag to indicate if the raymarch loop should terminate \n\
+      // Flag to indicate if the raymarch loop should terminate \n\
       bool stop = false; \n\
       \n\
-      /// 2D Texture fragment coordinates [0,1] from fragment coordinates \n\
-      /// the frame buffer texture has the size of the plain buffer but \n\
-      /// we use a fraction of it. The texture coordinates is less than 1 if \n\
-      /// the reduction factor is less than 1. \n\
-      /// Device coordinates are between -1 and 1. We need texture coordinates \n\
-      /// between 0 and 1 the m_depth_sampler buffer has the original size buffer. \n\
+      // 2D Texture fragment coordinates [0,1] from fragment coordinates \n\
+      // the frame buffer texture has the size of the plain buffer but \n\
+      // we use a fraction of it. The texture coordinates is less than 1 if \n\
+      // the reduction factor is less than 1. \n\
+      // Device coordinates are between -1 and 1. We need texture coordinates \n\
+      // between 0 and 1 the m_depth_sampler buffer has the original size buffer. \n\
       vec2 m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
                                m_inv_window_size; \n\
       vec4 l_depth_value = texture2D(m_depth_sampler, m_frag_tex_coord); \n\
       float m_terminate_point_max = 0.0; \n\
       \n\
-      /// Depth test \n\
+      // Depth test \n\
       if(gl_FragCoord.z >= l_depth_value.x) \n\
        { \n\
        discard; \n\
        } \n\
       \n\
-      /// color buffer or max scalar buffer have a reduced size. \n\
+      // color buffer or max scalar buffer have a reduced size. \n\
       m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
                            m_inv_original_window_size; \n\
       \n\
-      /// Compute max number of iterations it will take before we hit \n\
-      /// the termination point \n\
+      // Compute max number of iterations it will take before we hit \n\
+      // the termination point \n\
       \n\
-      /// Abscissa of the point on the depth buffer along the ray. \n\
-      /// point in texture coordinates \n\
+      // Abscissa of the point on the depth buffer along the ray. \n\
+      // point in texture coordinates \n\
       vec4 m_terminate_point; \n\
       m_terminate_point.x = (gl_FragCoord.x - m_window_lower_left_corner.x) * 2.0 * \n\
                             m_inv_window_size.x - 1.0; \n\
@@ -547,9 +547,9 @@ namespace vtkvolume
                             gl_DepthRange.far)) / gl_DepthRange.diff; \n\
       m_terminate_point.w = 1.0; \n\
       \n\
-      /// From normalized device coordinates to eye coordinates. m_projection_matrix \n\
-      /// is inversed because of way VT \n\
-      /// From eye coordinates to texture coordinates \n\
+      // From normalized device coordinates to eye coordinates. m_projection_matrix \n\
+      // is inversed because of way VT \n\
+      // From eye coordinates to texture coordinates \n\
       m_terminate_point = m_inverse_texture_dataset_matrix * \n\
                           m_inverse_volume_matrix * m_inverse_modelview_matrix * \n\
                           m_inverse_projection_matrix * \n\
@@ -566,28 +566,28 @@ namespace vtkvolume
                                    vtkVolume* vol)
     {
     return std::string(
-      "/// The two constants l_tex_min and l_tex_max have a value of vec3(-1,-1,-1) \n\
-      /// and vec3(1,1,1) respectively. To determine if the data value is \n\
-      /// outside the m_volume data, we use the sign function. The sign function \n\
-      /// return -1 if the value is less than 0, 0 if the value is equal to 0 \n\
-      /// and 1 if value is greater than 0. Hence, the sign function for the \n\
-      /// calculation (sign(g_data_pos-l_tex_min) and sign (l_tex_max-g_data_pos)) will \n\
-      /// give us vec3(1,1,1) at the possible minimum and maximum position. \n\
-      /// When we do a dot product between two vec3(1,1,1) we get the answer 3. \n\
-      /// So to be within the dataset limits, the dot product will return a \n\
-      /// value less than 3. If it is greater than 3, we are already out of \n\
-      /// the m_volume dataset \n\
+      "// The two constants l_tex_min and l_tex_max have a value of vec3(-1,-1,-1) \n\
+      // and vec3(1,1,1) respectively. To determine if the data value is \n\
+      // outside the m_volume data, we use the sign function. The sign function \n\
+      // return -1 if the value is less than 0, 0 if the value is equal to 0 \n\
+      // and 1 if value is greater than 0. Hence, the sign function for the \n\
+      // calculation (sign(g_data_pos-l_tex_min) and sign (l_tex_max-g_data_pos)) will \n\
+      // give us vec3(1,1,1) at the possible minimum and maximum position. \n\
+      // When we do a dot product between two vec3(1,1,1) we get the answer 3. \n\
+      // So to be within the dataset limits, the dot product will return a \n\
+      // value less than 3. If it is greater than 3, we are already out of \n\
+      // the m_volume dataset \n\
       stop = dot(sign(g_data_pos - l_tex_min), sign(l_tex_max - g_data_pos)) < 3.0; \n\
       \n\
-      /// If the stopping condition is true we brek out of the ray marching loop \n\
+      // If the stopping condition is true we brek out of the ray marching loop \n\
       if (stop) \n\
        { \n\
        break; \n\
        } \n\
-      /// Early ray termination \n\
-      /// if the currently composited colour alpha is already fully saturated \n\
-      /// we terminated the loop or if we have hit an obstacle in the direction of \n\
-      /// they ray (using depth buffer) we terminate as well. \n\
+      // Early ray termination \n\
+      // if the currently composited colour alpha is already fully saturated \n\
+      // we terminated the loop or if we have hit an obstacle in the direction of \n\
+      // they ray (using depth buffer) we terminate as well. \n\
       if((g_frag_color.a > (1 - 1/255.0)) ||  \n\
           m_current_t >= m_terminate_point_max) \n\
         { \n\
@@ -622,8 +622,8 @@ namespace vtkvolume
     return std::string("\n\
       uniform float cropping_planes[6]; \n\
       uniform int cropping_flags [32]; \n\
-      /// X: axis = 0, Y: axis = 1, Z: axis = 2 \n\
-      /// cp Cropping plane bounds (minX, maxX, minY, maxY, minZ, maxZ) \n\
+      // X: axis = 0, Y: axis = 1, Z: axis = 2 \n\
+      // cp Cropping plane bounds (minX, maxX, minY, maxY, minZ, maxZ) \n\
       int computeRegionCoord(float cp[6], vec3 pos, int axis) \n\
       { \n\
         int cpmin = axis * 2; \n\
@@ -662,7 +662,7 @@ namespace vtkvolume
     }
 
     return std::string("\n\
-      /// Convert cropping region to texture space \n\
+      // Convert cropping region to texture space \n\
       float cropping_planes_ts[6];\n\
       mat4  datasetToTextureMat = m_inverse_texture_dataset_matrix; \n\
       vec4 temp = vec4(cropping_planes[0], cropping_planes[1], 0.0, 1.0); \n\
@@ -693,14 +693,14 @@ namespace vtkvolume
     }
 
     return std::string("\n\
-      /// Determine region \n\
+      // Determine region \n\
       int regionNo = computeRegion(cropping_planes_ts, g_data_pos); \n\
       \n\
-      /// Do & operation with cropping flags \n\
-      /// Pass the flag that its Ok to sample or not to sample \n\
+      // Do & operation with cropping flags \n\
+      // Pass the flag that its Ok to sample or not to sample \n\
       if (cropping_flags[regionNo] == 0) \n\
        { \n\
-       /// Skip this voxel \n\
+       // Skip this voxel \n\
        l_skip = true; \n\
        }");
   }

@@ -23,9 +23,6 @@
 #include <vtkSetGet.h>
 
 //----------------------------------------------------------------------------
-///
-/// \brief The vtkOpenGLGPUVolumeRayCastMapper class
-///
 class VTKVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
 {
@@ -39,44 +36,54 @@ class VTKVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
     vtkOpenGLGPUVolumeRayCastMapper();
     ~vtkOpenGLGPUVolumeRayCastMapper();
 
-    /// Description:
-    /// Build vertex and fragment shader for the volume rendering
+    // Description:
+    // Build vertex and fragment shader for the volume rendering
     void BuildShader(vtkRenderer* ren, vtkVolume* vol, int noOfComponents);
 
-    /// Description:
-    /// Rendering volume on GPU
+    // Description:
+    // Rendering volume on GPU
     void GPURender(vtkRenderer *ren, vtkVolume *vol);
 
-    // Methods called by the AMR Volume Mapper.
+    // Description:
+    // Not implemented
     virtual void PreRender(vtkRenderer *ren,
                            vtkVolume *vol,
                            double datasetBounds[6],
                            double scalarRange[2],
                            int numberOfScalarComponents,
-                           unsigned int numberOfLevels){};
+                           unsigned int numberOfLevels) {};
 
-    // \pre input is up-to-date
+    // Description:
+    // Empty implementation.
     virtual void RenderBlock(vtkRenderer *ren,
                              vtkVolume *vol,
-                             unsigned int level){};
+                             unsigned int level) {};
 
+    // Description:
+    // Empty implementation.
     virtual void PostRender(vtkRenderer *ren,
-                            int numberOfScalarComponents){};
+                            int numberOfScalarComponents) {};
 
-    void GetReductionRatio(double ratio[3]){};
+    // Description:
+    // Empty implementation.
+    void GetReductionRatio(double ratio[3]) {};
 
+    // Description:
+    // Empty implementation.
     virtual int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
                                   vtkVolumeProperty *vtkNotUsed(property))
       {
-        return 1;
+      return 1;
       }
 
     class vtkInternal;
     vtkInternal* Impl;
-
 private:
-    vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&);  // Not implemented.
-    void operator=(const vtkOpenGLGPUVolumeRayCastMapper&);  // Not implemented.
+    // Not implemented.
+    vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&);
+
+    // Not implemented.
+    void operator=(const vtkOpenGLGPUVolumeRayCastMapper&);
 };
 
 #endif // __vtkOpenGLGPUVolumeRayCastMapper_h

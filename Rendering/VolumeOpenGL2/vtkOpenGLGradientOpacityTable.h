@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkOpenGLProjectedTetrahedraMapper.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #ifndef __vtkOpenGLGradientOpacityTable_h_
 #define __vtkOpenGLGradientOpacityTable_h_
 
@@ -7,8 +22,6 @@
 #include <GL/glew.h>
 #include <vtkgl.h>
 
-//
-// The vtkOpenGLGradientOpacityTable class
 //----------------------------------------------------------------------------
 class vtkOpenGLGradientOpacityTable
 {
@@ -61,12 +74,6 @@ public:
     }
 
   // Update opacity tranfer function texture.
-  // \param gradientOpacity
-  // \param blendMode
-  // \param sampleDistance
-  // \param range
-  // \param unitDistance
-  // \param linearInterpolation
   //--------------------------------------------------------------------------
   void Update(vtkPiecewiseFunction* gradientOpacity,
               double sampleDistance,
@@ -145,12 +152,10 @@ private:
   vtkOpenGLGradientOpacityTable& operator=(const vtkOpenGLGradientOpacityTable&);
 };
 
-// The vtkOpenGLGradientOpacityTables class
 //-----------------------------------------------------------------------------
 class vtkOpenGLGradientOpacityTables
 {
 public:
-  // Constructor
   //--------------------------------------------------------------------------
   vtkOpenGLGradientOpacityTables(unsigned int numberOfTables)
     {
@@ -158,7 +163,6 @@ public:
     this->NumberOfTables = numberOfTables;
     }
 
-  // Destructor
   //--------------------------------------------------------------------------
   ~vtkOpenGLGradientOpacityTables()
     {
