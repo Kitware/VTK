@@ -162,6 +162,21 @@ public:
       }
     }
 
+  template<typename T>
+  static void ToFloat(const T& in1, const T& in2, float (&out)[2]);
+  template<typename T>
+  static void ToFloat(const T& in1, const T& in2, const T& in3,
+                      float (&out)[3]);
+  template<typename T>
+  static void ToFloat(T* in, float* out, int numberOfComponents);
+  template<typename T>
+  static void ToFloat(T (&in)[3], float (&out)[3]);
+  template<typename T>
+  static void ToFloat(T (&in)[2], float (&out)[2]);
+  template<typename T>
+  static void ToFloat(T& in, float& out);
+  static void VtkToGlMatrix(vtkMatrix4x4* in, float (&out)[16]);
+
   ///
   /// \brief Initialize
   ///
@@ -323,8 +338,9 @@ public:
   double ScalarsRange[2];
   double Bounds[6];
   int Extents[6];
-  double StepSize[3];
+  double DatasetStepSize[3];
   double CellScale[3];
+  double CellStep[3];
   double CellSpacing[3];
 
   std::ostringstream ExtensionsStringStream;
@@ -352,6 +368,75 @@ public:
   vtkMapMaskTextureId* MaskTextures;
   vtkVolumeMask* CurrentMask;
 };
+
+///----------------------------------------------------------------------------
+template<typename T>
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
+  const T& in1, const T& in2, float (&out)[2])
+{
+  out[0] = static_cast<float>(in1);
+  out[1] = static_cast<float>(in2);
+}
+
+template<typename T>
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
+  const T& in1, const T& in2, const T& in3, float (&out)[3])
+{
+  out[0] = static_cast<float>(in1);
+  out[1] = static_cast<float>(in2);
+  out[2] = static_cast<float>(in3);
+}
+
+///----------------------------------------------------------------------------
+template<typename T>
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
+  T* in, float* out, int numberOfComponents)
+{
+  for (int i = 0; i < numberOfComponents; ++i)
+    {
+    out[i] = static_cast<float>(in[i]);
+    }
+}
+
+///----------------------------------------------------------------------------
+template<typename T>
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
+  T (&in)[3], float (&out)[3])
+{
+  out[0] = static_cast<float>(in[0]);
+  out[1] = static_cast<float>(in[1]);
+  out[2] = static_cast<float>(in[2]);
+}
+
+///----------------------------------------------------------------------------
+template<typename T>
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
+  T (&in)[2], float (&out)[2])
+{
+  out[0] = static_cast<float>(in[0]);
+  out[1] = static_cast<float>(in[1]);
+}
+
+///----------------------------------------------------------------------------
+template<typename T>
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
+  T& in, float& out)
+{
+  out = static_cast<float>(in);
+}
+
+///----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::VtkToGlMatrix(
+  vtkMatrix4x4* in, float (&out)[16])
+{
+  for (int i = 0; i < 4; ++i)
+    {
+    for (int j = 0; j < 4; ++j)
+      {
+      out[j * 4 + i] = in->Element[i][j];
+      }
+    }
+}
 
 ///----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(vtkRenderer* ren,
@@ -1077,8 +1162,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry()
 }
 
 ///----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(vtkRenderer* ren,
-                                                            vtkVolume* vol)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
+  vtkRenderer* ren, vtkVolume* vol)
 {
   if (this->Parent->GetCropping())
     {
@@ -1612,75 +1697,59 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   GL_CHECK_ERRORS
 
   // Temporary variables
+  float fvalue;
   float fvalue2[2];
   float fvalue3[3];
+  float fvalue16[16];
 
   /// Update sampling distance
-  int *loadedExtent = input->GetExtent();
-  float cellScale[3];
-  float cellStep[3];
-  cellScale[0]=static_cast<float>(static_cast<double>(
-                                    loadedExtent[1]-loadedExtent[0])*0.5);
-  cellScale[1]=static_cast<float>(static_cast<double>(
-                                    loadedExtent[3]-loadedExtent[2])*0.5);
-  cellScale[2]=static_cast<float>(static_cast<double>(
-                                    loadedExtent[5]-loadedExtent[4])*0.5);
-  cellStep[0]=static_cast<float>(1.0/static_cast<double>(
-                                   loadedExtent[1]-loadedExtent[0]));
-  cellStep[1]=static_cast<float>(1.0/static_cast<double>(
-                                   loadedExtent[3]-loadedExtent[2]));
-  cellStep[2]=static_cast<float>(1.0/static_cast<double>(
-                                   loadedExtent[5]-loadedExtent[4]));
+  int* loadedExtent = input->GetExtent();
 
-  this->Implementation->StepSize[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
-  this->Implementation->StepSize[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
-  this->Implementation->StepSize[2] = 1.0 / (this->Bounds[5] - this->Bounds[4]);
+  this->Implementation->CellScale[0] =
+    (static_cast<double>(loadedExtent[1] - loadedExtent[0]) * 0.5);
+  this->Implementation->CellScale[1] =
+    (static_cast<double>(loadedExtent[3] - loadedExtent[2])* 0.5);
+  this->Implementation->CellScale[2] =
+    (static_cast<double>(loadedExtent[5] - loadedExtent[4]) * 0.5);
+
+  this->Implementation->CellStep[0] =
+    (1.0/static_cast<double>(loadedExtent[1]-loadedExtent[0]));
+  this->Implementation->CellStep[1] =
+    (1.0/static_cast<double>(loadedExtent[3]-loadedExtent[2]));
+  this->Implementation->CellStep[2] =
+    (1.0/static_cast<double>(loadedExtent[5]-loadedExtent[4]));
+
+  this->Implementation->DatasetStepSize[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
+  this->Implementation->DatasetStepSize[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
+  this->Implementation->DatasetStepSize[2] = 1.0 / (this->Bounds[5] - this->Bounds[4]);
 
   this->Implementation->CellScale[0] = (this->Bounds[1] - this->Bounds[0]) * 0.5;
   this->Implementation->CellScale[1] = (this->Bounds[3] - this->Bounds[2]) * 0.5;
   this->Implementation->CellScale[2] = (this->Bounds[5] - this->Bounds[4]) * 0.5;
 
   /// Now use the shader
+  ///
   this->Implementation->Shader.Use();
-
-  std::cerr << "Cell scale "
-            << cellScale[0] << " "
-            << cellScale[1] << " "
-            << cellScale[2] << " "  << std::endl;
-
-
-  std::cerr << "Cell step "
-            << cellStep[0] << " "
-            << cellStep[1] << " "
-            << cellStep[2] << " "  << std::endl;
 
   /// Pass constant uniforms at initialization
   /// Step should be dependant on the bounds and not on the texture size
   /// since we can have non uniform voxel size / spacing / aspect ratio
+  vtkInternal::ToFloat(this->Implementation->CellStep, fvalue3);
   glUniform3f(this->Implementation->Shader("m_cell_step"),
-              cellStep[0], cellStep[1], cellStep[2]);
+              fvalue3[0], fvalue3[1], fvalue3[2]);
 
+  vtkInternal::ToFloat(this->Implementation->CellScale, fvalue3);
   glUniform3f(this->Implementation->Shader("m_cell_scale"),
-              cellScale[0], cellScale[1], cellScale[2]);
+              fvalue3[0], fvalue3[1], fvalue3[2]);
 
-  fvalue3[0] = static_cast<float>(this->Implementation->CellSpacing[0]);
-  fvalue3[1] = static_cast<float>(this->Implementation->CellSpacing[1]);
-  fvalue3[2] = static_cast<float>(this->Implementation->CellSpacing[2]);
+  vtkInternal::ToFloat(this->Implementation->CellSpacing, fvalue3);
   glUniform3f(this->Implementation->Shader("m_cell_spacing"),
-              fvalue3[0],
-              fvalue3[1],
-              fvalue3[2]);
-
-  std::cerr << "Cell spacing "
-            << fvalue3[0] << " "
-            << fvalue3[1] << " "
-            << fvalue3[2] << " "  << std::endl;
+              fvalue3[0], fvalue3[1], fvalue3[2]);
 
   glUniform1f(this->Implementation->Shader("m_sample_distance"),
               this->Implementation->ActualSampleDistance);
 
-  fvalue2[0] = static_cast<float>(this->Implementation->ScalarsRange[0]);
-  fvalue2[1] = static_cast<float>(this->Implementation->ScalarsRange[1]);
+  vtkInternal::ToFloat(this->Implementation->ScalarsRange, fvalue2);
   glUniform2f(this->Implementation->Shader("m_scalars_range"),
               fvalue2[0], fvalue2[1]);
 
@@ -1704,22 +1773,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
       {
       glUniform1i(this->Implementation->Shader("m_mask_1"), 7);
       glUniform1i(this->Implementation->Shader("m_mask_2"), 8);
-
-      fvalue2[0] = static_cast<float>(this->MaskBlendFactor);
       glUniform1f(this->Implementation->Shader("m_mask_blendfactor"),
-                  fvalue2[0]);
+                  this->MaskBlendFactor);
       }
     }
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetAmbient();
   glUniform3f(this->Implementation->Shader("m_ambient"),
               fvalue3[0], fvalue3[1], fvalue3[2]);
+
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetDiffuse();
   glUniform3f(this->Implementation->Shader("m_diffuse"),
               fvalue3[0], fvalue3[1], fvalue3[2]);
+
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetSpecular();
   glUniform3f(this->Implementation->Shader("m_specular"),
               fvalue3[0], fvalue3[1], fvalue3[2]);
+
   fvalue3[0] = vol->GetProperty()->GetSpecularPower();
   glUniform1f(this->Implementation->Shader("m_shininess"), fvalue3[0]);
 
@@ -1765,51 +1835,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
     GetProjectionTransformMatrix(aspect[0]/aspect[1], -1, 1);
   this->Implementation->InverseProjectionMat->DeepCopy(projectionMat4x4);
   this->Implementation->InverseProjectionMat->Invert();
-  float projectionMat[16];
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      projectionMat[j * 4 + i] = projectionMat4x4->Element[i][j];
-      }
-    }
+  vtkInternal::VtkToGlMatrix(projectionMat4x4, fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_projection_matrix"), 1,
-                     GL_FALSE, &(projectionMat[0]));
-  float invProjectionMat[16];
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      invProjectionMat[j * 4 + i] = this->Implementation->InverseProjectionMat->Element[i][j];
-      }
-    }
+                     GL_FALSE, &(fvalue16[0]));
+
+  vtkInternal::VtkToGlMatrix(this->Implementation->InverseProjectionMat.GetPointer(), fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_inverse_projection_matrix"), 1,
-                     GL_FALSE, &(invProjectionMat[0]));
+                     GL_FALSE, &(fvalue16[0]));
+
   /// Will require transpose of this matrix for OpenGL
-  vtkMatrix4x4* modelviewMat4x4 =
-    ren->GetActiveCamera()->GetViewTransformMatrix();
+  vtkMatrix4x4* modelviewMat4x4 = ren->GetActiveCamera()->GetViewTransformMatrix();
   this->Implementation->InverseModelViewMat->DeepCopy(modelviewMat4x4);
   this->Implementation->InverseModelViewMat->Invert();
-  float modelviewMat[16];
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      modelviewMat[j * 4 + i] = modelviewMat4x4->Element[i][j];
-      }
-    }
+
+  vtkInternal::VtkToGlMatrix(modelviewMat4x4, fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_modelview_matrix"), 1,
-                     GL_FALSE, &(modelviewMat[0]));
-  float invModelviewMat[16];
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      invModelviewMat[j * 4 + i] = this->Implementation->InverseModelViewMat->Element[i][j];
-      }
-    }
+                     GL_FALSE, &(fvalue16[0]));
+
+  vtkInternal::VtkToGlMatrix(this->Implementation->InverseModelViewMat.GetPointer(), fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_inverse_modelview_matrix"), 1,
-                     GL_FALSE, &(invModelviewMat[0]));
+                     GL_FALSE, &(fvalue16[0]));
 
   /// Will require transpose of this matrix for OpenGL
   /// Scene matrix
@@ -1817,34 +1862,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   vtkMatrix4x4* volumeMatrix4x4 = vol->GetMatrix();
   this->Implementation->InverseVolumeMat->DeepCopy(volumeMatrix4x4);
   this->Implementation->InverseVolumeMat->Invert();
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      volumeMat[j * 4 + i] = volumeMatrix4x4->Element[i][j];
-      }
-    }
+
+  vtkInternal::VtkToGlMatrix(volumeMatrix4x4, fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_volume_matrix"), 1,
-                     GL_FALSE, &(volumeMat[0]));
-  float invVolumeMat[16];
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      invVolumeMat[j * 4 + i] = this->Implementation->InverseVolumeMat->Element[i][j];
-      }
-    }
+                     GL_FALSE, &(fvalue16[0]));
+
+  vtkInternal::VtkToGlMatrix(this->Implementation->InverseVolumeMat.GetPointer(), fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_inverse_volume_matrix"), 1,
-                     GL_FALSE, &(invVolumeMat[0]));
+                     GL_FALSE, &(fvalue16[0]));
 
   /// Compute texture to dataset matrix
   this->Implementation->TextureToDataSetMat->Identity();
   this->Implementation->TextureToDataSetMat->SetElement(0, 0,
-    (1.0 / this->Implementation->StepSize[0]));
+    (1.0 / this->Implementation->DatasetStepSize[0]));
   this->Implementation->TextureToDataSetMat->SetElement(1, 1,
-    (1.0 / this->Implementation->StepSize[1]));
+    (1.0 / this->Implementation->DatasetStepSize[1]));
   this->Implementation->TextureToDataSetMat->SetElement(2, 2,
-    (1.0 / this->Implementation->StepSize[2]));
+    (1.0 / this->Implementation->DatasetStepSize[2]));
   this->Implementation->TextureToDataSetMat->SetElement(3, 3,
     1.0);
   this->Implementation->TextureToDataSetMat->SetElement(0, 3,
@@ -1854,82 +1888,52 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   this->Implementation->TextureToDataSetMat->SetElement(2, 3,
     this->Implementation->Bounds[4]);
 
-  float textureDataSetMat[16];
   this->Implementation->InverseTextureToDataSetMat->DeepCopy(
     this->Implementation->TextureToDataSetMat.GetPointer());
   this->Implementation->InverseTextureToDataSetMat->Invert();
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      textureDataSetMat[j * 4 + i] =
-        this->Implementation->TextureToDataSetMat->Element[i][j];
-      }
-    }
+  vtkInternal::VtkToGlMatrix(this->Implementation->TextureToDataSetMat.GetPointer(), fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_texture_dataset_matrix"), 1,
-                     GL_FALSE, &(textureDataSetMat[0]));
-  float invTextureDataSetMat[16];
-  for (int i = 0; i < 4; ++i)
-    {
-    for (int j = 0; j < 4; ++j)
-      {
-      invTextureDataSetMat[j * 4 + i] =
-        this->Implementation->InverseTextureToDataSetMat->Element[i][j];
-      }
-    }
+                     GL_FALSE, &(fvalue16[0]));
+  vtkInternal::VtkToGlMatrix(this->Implementation->InverseTextureToDataSetMat.GetPointer(), fvalue16);
   glUniformMatrix4fv(this->Implementation->Shader("m_inverse_texture_dataset_matrix"), 1,
-                     GL_FALSE, &(invTextureDataSetMat[0]));
+                     GL_FALSE, &(fvalue16[0]));
 
-
-  /// We are using float for now
-  double* cameraPos = ren->GetActiveCamera()->GetPosition();
-  float pos[3] = {static_cast<float>(cameraPos[0]),
-                  static_cast<float>(cameraPos[1]),
-                  static_cast<float>(cameraPos[2])};
-
-  glUniform3fv(this->Implementation->Shader("m_camera_pos"), 1, &(pos[0]));
+  vtkInternal::ToFloat(ren->GetActiveCamera()->GetPosition(), fvalue3, 3);
+  glUniform3fv(this->Implementation->Shader("m_camera_pos"), 1, &(fvalue3[0]));
 
   /// NOTE Assuming that light is located on the camera
-  glUniform3fv(this->Implementation->Shader("m_light_pos"), 1, &(pos[0]));
+  glUniform3fv(this->Implementation->Shader("m_light_pos"), 1, &(fvalue3[0]));
 
   float volExtentsMin[3] = {this->Bounds[0], this->Bounds[2], this->Bounds[4]};
   float volExtentsMax[3] = {this->Bounds[1], this->Bounds[3], this->Bounds[5]};
-
   glUniform3fv(this->Implementation->Shader("m_vol_extents_min"), 1,
                &(volExtentsMin[0]));
   glUniform3fv(this->Implementation->Shader("m_vol_extents_max"), 1,
                &(volExtentsMax[0]));
 
-  float textureExtentsMin[3] =
-    {
-    static_cast<float>(this->Implementation->Extents[0]),
-    static_cast<float>(this->Implementation->Extents[2]),
-    static_cast<float>(this->Implementation->Extents[4])
-    };
-
-  float textureExtentsMax[3] =
-    {
-    static_cast<float>(this->Implementation->Extents[1]),
-    static_cast<float>(this->Implementation->Extents[3]),
-    static_cast<float>(this->Implementation->Extents[5])
-    };
-
+  vtkInternal::ToFloat(this->Implementation->Extents[0],
+                       this->Implementation->Extents[2],
+                       this->Implementation->Extents[4], fvalue3);
   glUniform3fv(this->Implementation->Shader("m_texture_extents_min"), 1,
-               &(textureExtentsMin[0]));
+               &(fvalue3[0]));
+  vtkInternal::ToFloat(this->Implementation->Extents[1],
+                       this->Implementation->Extents[3],
+                       this->Implementation->Extents[5], fvalue3);
   glUniform3fv(this->Implementation->Shader("m_texture_extents_max"), 1,
-               &(textureExtentsMax[0]));
+               &(fvalue3[0]));
 
   /// TODO Take consideration of reduction factor
-  fvalue2[0] = static_cast<float>(this->Implementation->WindowLowerLeft[0]);
-  fvalue2[1] = static_cast<float>(this->Implementation->WindowLowerLeft[1]);
-  glUniform2fv(this->Implementation->Shader("m_window_lower_left_corner"), 1, &fvalue2[0]);
+  vtkInternal::ToFloat(this->Implementation->WindowLowerLeft, fvalue2);
+  glUniform2fv(this->Implementation->Shader("m_window_lower_left_corner"),
+               1, &fvalue2[0]);
 
-  fvalue2[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
-  fvalue2[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
-  glUniform2fv(this->Implementation->Shader("m_inv_original_window_size"), 1, &fvalue2[0]);
+  vtkInternal::ToFloat(1.0 / this->Implementation->WindowSize[0],
+                       1.0 / this->Implementation->WindowSize[1], fvalue2);
+  glUniform2fv(this->Implementation->Shader("m_inv_original_window_size"),
+               1, &fvalue2[0]);
 
-  fvalue2[0] = static_cast<float>(1.0 / this->Implementation->WindowSize[0]);
-  fvalue2[1] = static_cast<float>(1.0 / this->Implementation->WindowSize[1]);
+  vtkInternal::ToFloat(1.0 / this->Implementation->WindowSize[0],
+                       1.0 / this->Implementation->WindowSize[1], fvalue2);
   glUniform2fv(this->Implementation->Shader("m_inv_window_size"), 1, &fvalue2[0]);
 
   /// Updating cropping if enabled
