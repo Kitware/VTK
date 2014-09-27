@@ -72,7 +72,7 @@ class VTKVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
       }
 
     class vtkInternal;
-    vtkInternal* Implementation;
+    vtkInternal* Impl;
 
 private:
     vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&);  // Not implemented.
