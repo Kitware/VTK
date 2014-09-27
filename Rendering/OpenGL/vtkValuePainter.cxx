@@ -400,12 +400,6 @@ void vtkValuePainter::DrawCells(
     internalColorTexture->Load(renderer);
     }
 
-#if VTK_SIZEOF_CHAR == 1
-  GLenum vtkChar2GLenum = GL_UNSIGNED_BYTE;
-#elif VTK_SIZE_OF_CHAR == 2
-  GLenum vtkChar2GLenum = GL_UNSIGNED_SHORT;
-#endif
-
   unsigned char color[3];
   for (connectivity->InitTraversal(); connectivity->GetNextCell(npts, pts); count++)
     {
@@ -418,7 +412,7 @@ void vtkValuePainter::DrawCells(
 
       renderer->GetRenderWindow()->GetPainterDeviceAdapter()
         ->SendAttribute(
-        vtkDataSetAttributes::SCALARS, 3, vtkChar2GLenum, color);
+        vtkDataSetAttributes::SCALARS, 3, VTK_UNSIGNED_CHAR, color);
       }
 
     for (vtkIdType cellpointi = 0; cellpointi < npts; cellpointi++)
