@@ -376,4 +376,3 @@ void vtkChooserPainter::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "UseLinesPainterForWireframes: "
     << this->UseLinesPainterForWireframes << endl;
 }
-

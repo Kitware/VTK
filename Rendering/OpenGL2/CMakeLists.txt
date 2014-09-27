@@ -154,6 +154,12 @@ set(opengl_overrides
   Renderer
   Texture
   )
+
+# Now to see about the GPU info list.
+list(APPEND vtk_module_overrides "vtkGPUInfoList")
+list(APPEND Module_SRCS "vtkDummyGPUInfoList.cxx")
+set(vtk_module_vtkGPUInfoList_override "vtkDummyGPUInfoList")
+
 foreach(_override ${opengl_overrides})
   vtk_add_override(vtk${_override} vtkOpenGL${_override})
 endforeach()

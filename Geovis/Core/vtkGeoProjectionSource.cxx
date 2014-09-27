@@ -32,8 +32,6 @@
 #include "vtkMath.h"
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
-#include "vtkPainter.h"
-#include "vtkPainterPolyDataMapper.h"
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
 #include "vtkPointData.h"

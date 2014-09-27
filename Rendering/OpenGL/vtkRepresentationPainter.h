@@ -21,10 +21,10 @@
 #ifndef __vtkRepresentationPainter_h
 #define __vtkRepresentationPainter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"
 
-class VTKRENDERINGCORE_EXPORT vtkRepresentationPainter : public vtkPolyDataPainter
+class VTKRENDERINGOPENGL_EXPORT vtkRepresentationPainter : public vtkPolyDataPainter
 {
 public:
   static vtkRepresentationPainter* New();

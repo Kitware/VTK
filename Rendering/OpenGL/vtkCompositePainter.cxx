@@ -282,4 +282,3 @@ void vtkCompositePainter::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
     }
 }
-

@@ -20,7 +20,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkPainterDeviceAdapter.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -34,6 +33,10 @@
 #include <map>
 
 #define ID_OFFSET 1
+
+#ifndef VTK_OPENGL2
+#include "vtkPainterDeviceAdapter.h"
+#endif
 
 //----------------------------------------------------------------------------
 namespace
@@ -375,6 +378,7 @@ void vtkHardwareSelector::BeginRenderProp()
 
   //cout << "In BeginRenderProp" << endl;
   //glFinish();
+#ifndef VTK_OPENGL2
   if (this->CurrentPass == ACTOR_PASS)
     {
     int propid = this->PropID;
@@ -405,6 +409,7 @@ void vtkHardwareSelector::BeginRenderProp()
     renWin->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -435,8 +440,10 @@ void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
     return;
     }
 
+#ifndef VTK_OPENGL2
   index += ID_OFFSET;
 
+  //glFinish();
   if (this->CurrentPass == COMPOSITE_INDEX_PASS)
     {
     float color[3];
@@ -444,6 +451,7 @@ void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
     this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -464,6 +472,7 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
     return;
     }
 
+#ifndef VTK_OPENGL2
   // 0 is reserved.
   attribid += ID_OFFSET;
 
@@ -480,6 +489,7 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
       break;
       }
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -493,11 +503,13 @@ void vtkHardwareSelector::RenderProcessId(unsigned int processid)
       return;
       }
 
+#ifndef VTK_OPENGL2
     float color[3];
     vtkHardwareSelector::Convert(
       static_cast<int>(processid + 1), color);
     this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
+#endif
     }
 }
 

@@ -30,7 +30,7 @@
 #ifndef __vtkDefaultPainter_h
 #define __vtkDefaultPainter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"
 
 class vtkClipPlanesPainter;
@@ -41,7 +41,7 @@ class vtkLightingPainter;
 class vtkRepresentationPainter;
 class vtkScalarsToColorsPainter;
 
-class VTKRENDERINGCORE_EXPORT vtkDefaultPainter : public vtkPainter
+class VTKRENDERINGOPENGL_EXPORT vtkDefaultPainter : public vtkPainter
 {
 public:
   static vtkDefaultPainter *New();
@@ -145,4 +145,3 @@ private:
 };
 
 #endif //_vtkDefaultPainter_h
-

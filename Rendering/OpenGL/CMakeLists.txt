@@ -47,20 +47,30 @@ include(vtkObjectFactory)
 
 set(Module_SRCS
   vtkCameraPass.cxx
+  vtkChooserPainter.cxx
   vtkClearRGBPass.cxx
   vtkClearZPass.cxx
+  vtkClipPlanesPainter.cxx
+  vtkCoincidentTopologyResolutionPainter.cxx
   vtkColorMaterialHelper.cxx
+  vtkCompositePainter.cxx
+  vtkCompositePolyDataMapper2.cxx
   vtkDataTransferHelper.cxx
+  vtkDefaultPainter.cxx
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
+  vtkDisplayListPainter.cxx
   vtkFrameBufferObject.cxx
   vtkFrameBufferObject2.cxx
   vtkGLSLShaderDeviceAdapter2.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
+  vtkHardwareSelectionPolyDataPainter.cxx # Needed by vtkPainterPolyDataMapper
   vtkImageProcessingPass.cxx
   vtkLightingHelper.cxx
+  vtkLightingPainter.cxx
   vtkLightsPass.cxx
+  vtkLinesPainter.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
@@ -89,11 +99,19 @@ set(Module_SRCS
   vtkOpenGLState.cxx
   vtkOpenGLTexture.cxx
   vtkOverlayPass.cxx
+  vtkPainter.cxx
+  vtkPainterPolyDataMapper.cxx
   vtkPixelBufferObject.cxx
+  vtkPointsPainter.cxx
+  vtkPolyDataPainter.cxx
+  vtkPolygonsPainter.cxx
+  vtkPrimitivePainter.cxx
   vtkRenderPass.cxx
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
   vtkRenderbuffer.cxx
+  vtkRepresentationPainter.cxx
+  vtkScalarsToColorsPainter.cxx
   vtkSequencePass.cxx
   vtkShader2.cxx
   vtkShader2Collection.cxx
@@ -101,6 +119,8 @@ set(Module_SRCS
   vtkShadowMapBakerPass.cxx
   vtkShadowMapPass.cxx
   vtkSobelGradientMagnitudePass.cxx
+  vtkStandardPolyDataPainter.cxx
+  vtkTStripsPainter.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
@@ -133,6 +153,9 @@ set_source_files_properties(
   vtkOpenGLRenderWindow
   vtkRenderPass
   vtkRenderState
+  vtkPainter
+  vtkPolyDataPainter
+  vtkPrimitivePainter
   ABSTRACT
   )
 

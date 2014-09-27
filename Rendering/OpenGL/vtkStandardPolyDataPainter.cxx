@@ -546,5 +546,3 @@ void vtkStandardPolyDataPainter::DrawCells(
       }
     }
 }
-
-
