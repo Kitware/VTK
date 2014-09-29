@@ -430,7 +430,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     // systems that do not provide gl_PrimitiveId otherwise.
     FSSource = vtkgl::replace(FSSource,
                                  "//VTK::Picking::Dec",
-//                                 "#extension GL_EXT_gpu_shader4 : enable\n"
+                                 "#extension GL_EXT_gpu_shader4 : enable\n"
                                  "uniform vec3 mapperIndex;\n"
                                  "uniform int pickingAttributeIDOffset;");
     FSSource = vtkgl::replace(FSSource,
