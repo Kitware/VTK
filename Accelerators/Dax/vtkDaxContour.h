@@ -14,30 +14,30 @@
 //
 //=============================================================================
 
-#ifndef __vtkDaxMarchingCubes_h
-#define __vtkDaxMarchingCubes_h
+#ifndef __vtkDaxContour_h
+#define __vtkDaxContour_h
 
-#include "vtkMarchingCubes.h"
+#include "vtkContourFilter.h"
 #include "vtkAcceleratorsDaxModule.h" //required for correct implementation
 
-class VTKACCELERATORSDAX_EXPORT vtkDaxMarchingCubes : public vtkMarchingCubes
+class VTKACCELERATORSDAX_EXPORT vtkDaxContour : public vtkContourFilter
 {
 public:
-  vtkTypeMacro(vtkDaxMarchingCubes,vtkMarchingCubes)
+  vtkTypeMacro(vtkDaxContour,vtkContourFilter)
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkDaxMarchingCubes* New();
+  static vtkDaxContour* New();
 
 protected:
-  vtkDaxMarchingCubes();
-  ~vtkDaxMarchingCubes();
+  vtkDaxContour();
+  ~vtkDaxContour();
 
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *);
 
 private:
-  vtkDaxMarchingCubes(const vtkDaxMarchingCubes&); //Not implemented
-  void operator=(const vtkDaxMarchingCubes&); // Not implemented
+  vtkDaxContour(const vtkDaxContour&); //Not implemented
+  void operator=(const vtkDaxContour&); // Not implemented
 };
 
-#endif // vtkDaxMarchingCubes_H
+#endif // vtkDaxContour_H
