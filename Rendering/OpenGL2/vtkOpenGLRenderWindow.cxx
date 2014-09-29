@@ -36,14 +36,14 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkOpenGLShaderCache.h"
-#include "vtkOpenGLTextureUnitManager.h"
 #include "vtkStdString.h"
 #include "vtkTrivialProducer.h"
+#include "vtkTextureUnitManager.h"
 #include "vtkRendererCollection.h"
 #include <sstream>
 using std::ostringstream;
 
-vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkOpenGLTextureUnitManager);
+vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitManager);
 
 // Initialize static member that controls global maximum number of multisamples
 // (off by default on Apple because it causes problems on some Mac models).
@@ -1551,11 +1551,11 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
 // Description:
 // Returns its texture unit manager object. A new one will be created if one
 // hasn't already been set up.
-vtkOpenGLTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
+vtkTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
 {
   if(this->TextureUnitManager==0)
     {
-    vtkOpenGLTextureUnitManager *manager=vtkOpenGLTextureUnitManager::New();
+    vtkTextureUnitManager *manager=vtkTextureUnitManager::New();
 
     // This does not form a reference loop since vtkOpenGLHardwareSupport does
     // not keep a reference to the render window.
