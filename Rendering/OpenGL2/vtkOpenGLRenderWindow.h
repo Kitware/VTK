@@ -30,7 +30,7 @@
 
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
-class vtkOpenGLTextureUnitManager;
+class vtkTextureUnitManager;
 class vtkOpenGLShaderCache;
 class vtkStdString;
 class vtkTexture;
@@ -196,7 +196,7 @@ public:
   // Description:
   // Returns its texture unit manager object. A new one will be created if one
   // hasn't already been set up.
-  vtkOpenGLTextureUnitManager *GetTextureUnitManager();
+  vtkTextureUnitManager *GetTextureUnitManager();
 
   // Description:
   // Block the thread until the actual rendering is finished().
@@ -252,7 +252,7 @@ protected:
 
   // Description:
   // Set the texture unit manager.
-  void SetTextureUnitManager(vtkOpenGLTextureUnitManager *textureUnitManager);
+  void SetTextureUnitManager(vtkTextureUnitManager *textureUnitManager);
 
   unsigned int BackLeftBuffer;
   unsigned int BackRightBuffer;
@@ -274,7 +274,7 @@ protected:
 
   vtkTimeStamp ContextCreationTime;
 
-  vtkOpenGLTextureUnitManager *TextureUnitManager;
+  vtkTextureUnitManager *TextureUnitManager;
 
   vtkTexturedActor2D *DrawPixelsActor;
 

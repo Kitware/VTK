@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLTextureUnitManager.h
+  Module:    vtkTextureUnitManager.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,34 +12,34 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLTextureUnitManager - allocate/free texture units.
+// .NAME vtkTextureUnitManager - allocate/free texture units.
 // .SECTION Description
 //
-// vtkOpenGLTextureUnitManager is a central place used by shaders to reserve a
+// vtkTextureUnitManager is a central place used by shaders to reserve a
 // texture unit ( Allocate() ) or release it ( Free() ).
 //
-// Don't create a vtkOpenGLTextureUnitManager, query it from the
+// Don't create a vtkTextureUnitManager, query it from the
 // vtkOpenGLRenderWindow
 //
 // .SECTION See Also
 // vtkOpenGLRenderWindow
 
-#ifndef __vtkOpenGLTextureUnitManager_h
-#define __vtkOpenGLTextureUnitManager_h
+#ifndef __vtkTextureUnitManager_h
+#define __vtkTextureUnitManager_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
 
 class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextureUnitManager : public vtkObject
+class VTKRENDERINGOPENGL2_EXPORT vtkTextureUnitManager : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkOpenGLTextureUnitManager,vtkObject);
+  vtkTypeMacro(vtkTextureUnitManager,vtkObject);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkOpenGLTextureUnitManager *New();
+  static vtkTextureUnitManager *New();
 
   // Description:
   // Get/Set the context. This does not increase the reference count of the
@@ -75,11 +75,11 @@ public:
 protected:
   // Description:
   // Default constructor.
-  vtkOpenGLTextureUnitManager();
+  vtkTextureUnitManager();
 
   // Description:
   // Destructor.
-  ~vtkOpenGLTextureUnitManager();
+  ~vtkTextureUnitManager();
 
   // Description:
   // Delete the allocation table and check if it is not called before
@@ -92,8 +92,8 @@ protected:
   bool *TextureUnits;
 
 private:
-  vtkOpenGLTextureUnitManager(const vtkOpenGLTextureUnitManager&);  // Not implemented.
-  void operator=(const vtkOpenGLTextureUnitManager&);  // Not implemented.
+  vtkTextureUnitManager(const vtkTextureUnitManager&);  // Not implemented.
+  void operator=(const vtkTextureUnitManager&);  // Not implemented.
 };
 
 #endif

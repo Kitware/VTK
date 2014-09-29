@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLTextureUnitManager.cxx
+  Module:    vtkTextureUnitManager.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,17 +13,17 @@
 
 =========================================================================*/
 #include "vtk_glew.h"
-#include "vtkOpenGLTextureUnitManager.h"
+#include "vtkTextureUnitManager.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 
 #include <cassert>
 
-vtkStandardNewMacro(vtkOpenGLTextureUnitManager);
+vtkStandardNewMacro(vtkTextureUnitManager);
 
 // ----------------------------------------------------------------------------
-vtkOpenGLTextureUnitManager::vtkOpenGLTextureUnitManager()
+vtkTextureUnitManager::vtkTextureUnitManager()
 {
   this->Context=0;
   this->NumberOfTextureUnits=0;
@@ -31,7 +31,7 @@ vtkOpenGLTextureUnitManager::vtkOpenGLTextureUnitManager()
 }
 
 // ----------------------------------------------------------------------------
-vtkOpenGLTextureUnitManager::~vtkOpenGLTextureUnitManager()
+vtkTextureUnitManager::~vtkTextureUnitManager()
 {
   this->DeleteTable();
   this->Context=0;
@@ -41,7 +41,7 @@ vtkOpenGLTextureUnitManager::~vtkOpenGLTextureUnitManager()
 // Description:
 // Delete the allocation table and check if it is not called before
 // all the texture units have been released.
-void vtkOpenGLTextureUnitManager::DeleteTable()
+void vtkTextureUnitManager::DeleteTable()
 {
   if(this->TextureUnits!=0)
     {
@@ -64,7 +64,7 @@ void vtkOpenGLTextureUnitManager::DeleteTable()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
+void vtkTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
 {
   if(this->Context!=context)
     {
@@ -95,7 +95,7 @@ void vtkOpenGLTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
 // ----------------------------------------------------------------------------
 // Description:
 // Number of texture units supported by the OpenGL context.
-int vtkOpenGLTextureUnitManager::GetNumberOfTextureUnits()
+int vtkTextureUnitManager::GetNumberOfTextureUnits()
 {
   return this->NumberOfTextureUnits;
 }
@@ -107,7 +107,7 @@ int vtkOpenGLTextureUnitManager::GetNumberOfTextureUnits()
 // texture unit left).
 // \post valid_result: result==-1 || result>=0 && result<this->GetNumberOfTextureUnits())
 // \post allocated: result==-1 || this->IsAllocated(result)
-int vtkOpenGLTextureUnitManager::Allocate()
+int vtkTextureUnitManager::Allocate()
 {
   bool found=false;
   size_t i=0;
@@ -138,7 +138,7 @@ int vtkOpenGLTextureUnitManager::Allocate()
 // Description:
 // Tell if texture unit `textureUnitId' is already allocated.
 // \pre valid_id_range : textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
-bool vtkOpenGLTextureUnitManager::IsAllocated(int textureUnitId)
+bool vtkTextureUnitManager::IsAllocated(int textureUnitId)
 {
   assert("pre: valid_textureUnitId_range" && textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits());
   return this->TextureUnits[textureUnitId];
@@ -149,7 +149,7 @@ bool vtkOpenGLTextureUnitManager::IsAllocated(int textureUnitId)
 // Release a texture unit.
 // \pre valid_id: textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
 // \pre allocated_id: this->IsAllocated(textureUnitId)
-void vtkOpenGLTextureUnitManager::Free(int textureUnitId)
+void vtkTextureUnitManager::Free(int textureUnitId)
 {
   assert("pre: valid_textureUnitId" && (textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()));
   assert("pre: allocated_textureUnitId" && this->IsAllocated(textureUnitId));
@@ -158,7 +158,7 @@ void vtkOpenGLTextureUnitManager::Free(int textureUnitId)
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
+void vtkTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 

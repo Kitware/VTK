@@ -38,10 +38,10 @@ set(Module_SRCS
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx
-  vtkOpenGLTextureUnitManager.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
   vtkTextureObject.cxx
+  vtkTextureUnitManager.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
@@ -69,12 +69,12 @@ set_source_files_properties(
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHardwareSelector
   vtkOpenGLShaderCache
-  vtkOpenGLTextureUnitManager
   vtkPixelBufferObject
   vtkRenderbuffer
   vtkRenderPass
   vtkRenderState
   vtkTextureObject
+  vtkTextureUnitManager
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   WRAP_EXCLUDE)
 
