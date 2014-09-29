@@ -22,11 +22,6 @@ varying vec4 fcolor;
 // Texture coordinates
 //VTK::TCoord::Dec
 
-// material property values
-uniform float opacityUniform; // the fragment opacity
-uniform vec3 ambientColorUniform; // intensity weighted color
-uniform vec3 diffuseColorUniform; // intensity weighted color
-
 //VTK::Color::Dec
 
 // picking support

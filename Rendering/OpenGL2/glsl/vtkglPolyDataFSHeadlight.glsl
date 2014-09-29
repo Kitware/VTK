@@ -25,13 +25,6 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
-// material property values
-uniform float opacityUniform; // the fragment opacity
-uniform vec3 ambientColorUniform; // intensity weighted color
-uniform vec3 diffuseColorUniform; // intensity weighted color
-uniform vec3 specularColor; // intensity weighted color
-uniform float specularPower;
-
 // passed from the vertex shader
 varying vec4 vertexVC;
 
@@ -53,7 +46,6 @@ varying vec4 vertexVC;
 void main()
 {
   //VTK::Color::Impl
-  // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
 
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl
