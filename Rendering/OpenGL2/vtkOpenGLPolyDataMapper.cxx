@@ -425,8 +425,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
   if (picking)
     {
+    // technically with OpenGL 2.1 you need an extension to make use of gl_PrimitiveId
+    // so we request the shader4 extension.  This is particularly useful for apple
+    // systems that do not provide gl_PrimitiveId otherwise.
     FSSource = vtkgl::replace(FSSource,
                                  "//VTK::Picking::Dec",
+//                                 "#extension GL_EXT_gpu_shader4 : enable\n"
                                  "uniform vec3 mapperIndex;\n"
                                  "uniform int pickingAttributeIDOffset;");
     FSSource = vtkgl::replace(FSSource,
@@ -434,7 +438,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
                               "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
                               "    {\n"
                               "    int idx = gl_PrimitiveID + 1 + pickingAttributeIDOffset;\n"
-                              "    gl_FragColor = vec4((idx%256)/255.0, ((idx/256)%256)/255.0, (idx/65536)/255.0, 1.0);\n"
+                              "    gl_FragColor = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n"
                               "    }\n"
                               "  else\n"
                               "    {\n"
