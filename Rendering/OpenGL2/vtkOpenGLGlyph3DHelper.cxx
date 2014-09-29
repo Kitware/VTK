@@ -84,31 +84,116 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
   VSSource = replace(VSSource,"//VTK::Color::Impl",
                             "vertexColor =  glyphColor;");
 
-  // fragment shaders always think they have scalar colors with this implementation
-  FSSource = replace(FSSource,"//VTK::Color::Dec",
-                              "varying vec4 vertexColor;");
+
+  // crate the material/color property declarations, and VS implementation
+  // these are always defined
+  std::string colorDec =
+    "uniform float opacityUniform; // the fragment opacity\n"
+    "uniform vec3 ambientColorUniform; // intensity weighted color\n"
+    "uniform vec3 diffuseColorUniform; // intensity weighted color\n";
+  // add some if we have a backface property
+  if (actor->GetBackfaceProperty())
+    {
+    colorDec +=
+      "uniform float opacityUniformBF; // the fragment opacity\n"
+      "uniform vec3 ambientColorUniformBF; // intensity weighted color\n"
+      "uniform vec3 diffuseColorUniformBF; // intensity weighted color\n";
+    }
+  // add more for specular
+  if (lightComplexity)
+    {
+    colorDec +=
+      "uniform vec3 specularColorUniform; // intensity weighted color\n"
+      "uniform float specularPowerUniform;\n";
+    if (actor->GetBackfaceProperty())
+      {
+      colorDec +=
+        "uniform vec3 specularColorUniformBF; // intensity weighted color\n"
+        "uniform float specularPowerUniformBF;\n";
+      }
+    }
+  colorDec += "varying vec4 vertexColor;\n";
+  FSSource = replace(FSSource,"//VTK::Color::Dec", colorDec);
+
+  // now handle the more complex fragment shader implementation
+  // the following are always defined variables.  We start
+  // by assiging a default value from the uniform
+  std::string colorImpl =
+    "vec3 ambientColor;\n"
+    "  vec3 diffuseColor;\n"
+    "  float opacity;\n";
+  if (lightComplexity)
+    {
+    colorImpl +=
+      "  vec3 specularColor;\n"
+      "  float specularPower;\n";
+    }
+  if (actor->GetBackfaceProperty())
+    {
+    if (lightComplexity)
+      {
+      colorImpl +=
+        "  if (int(gl_FrontFacing) == 0) {\n"
+        "    ambientColor = ambientColorUniformBF;\n"
+        "    diffuseColor = diffuseColorUniformBF;\n"
+        "    specularColor = specularColorUniformBF;\n"
+        "    specularPower = specularPowerUniformBF;\n"
+        "    opacity = opacityUniformBF; }\n"
+        "  else {\n"
+        "    ambientColor = ambientColorUniform;\n"
+        "    diffuseColor = diffuseColorUniform;\n"
+        "    specularColor = specularColorUniform;\n"
+        "    specularPower = specularPowerUniform;\n"
+        "    opacity = opacityUniform; }\n";
+      }
+    else
+      {
+      colorImpl +=
+        "  if (int(gl_FrontFacing) == 0) {\n"
+        "    ambientColor = ambientColorUniformBF;\n"
+        "    diffuseColor = diffuseColorUniformBF;\n"
+        "    opacity = opacityUniformBF; }\n"
+        "  else {\n"
+        "    ambientColor = ambientColorUniform;\n"
+        "    diffuseColor = diffuseColorUniform;\n"
+        "    opacity = opacityUniform; }\n";
+      }
+    }
+  else
+    {
+    colorImpl +=
+      "    ambientColor = ambientColorUniform;\n"
+      "    diffuseColor = diffuseColorUniform;\n"
+      "    opacity = opacityUniform;\n";
+    if (lightComplexity)
+      {
+      colorImpl +=
+        "    specularColor = specularColorUniform;\n"
+        "    specularPower = specularPowerUniform;\n";
+      }
+    }
+
+  // now handle scalar coloring
   if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
     {
-    FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                "vec3 ambientColor = vertexColor.rgb;\n"
-                                "  vec3 diffuseColor = diffuseColorUniform.rgb;\n"
-                                "  float opacity = vertexColor.a;");
+    FSSource = replace(FSSource,"//VTK::Color::Impl", colorImpl +
+                                "  ambientColor = vertexColor.rgb;\n"
+                                "  opacity = vertexColor.a;");
     }
   else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
     {
-    FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                "vec3 diffuseColor = vertexColor.rgb;\n"
-                                "  vec3 ambientColor = ambientColorUniform;\n"
-                                "  float opacity = vertexColor.a;");
+    FSSource = replace(FSSource,"//VTK::Color::Impl", colorImpl +
+                                "  diffuseColor = vertexColor.rgb;\n"
+                                "  opacity = vertexColor.a;");
     }
   else
     {
-    FSSource = replace(FSSource,"//VTK::Color::Impl",
-                                "vec3 diffuseColor = vertexColor.rgb;\n"
-                                "  vec3 ambientColor = vertexColor.rgb;\n"
-                                "  float opacity = vertexColor.a;");
+    FSSource = replace(FSSource,"//VTK::Color::Impl", colorImpl +
+                                "  diffuseColor = vertexColor.rgb;\n"
+                                "  ambientColor = vertexColor.rgb;\n"
+                                "  opacity = vertexColor.a;");
     }
 
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
