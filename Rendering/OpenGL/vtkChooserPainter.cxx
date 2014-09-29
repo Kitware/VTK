@@ -50,7 +50,7 @@ vtkChooserPainter::vtkChooserPainter()
    * On some Macs, glPolygonMode(*,GL_LINE) does not render anything
    * for polys. To fix this, we use the GL_LINE_LOOP to render the polygons.
    */
-  this->UseLinesPainterForWireframes = 1;
+//  this->UseLinesPainterForWireframes = 1;
 #endif
 }
 
