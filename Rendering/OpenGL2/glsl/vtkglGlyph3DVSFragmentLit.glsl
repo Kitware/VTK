@@ -35,7 +35,6 @@ attribute vec4 vertexMC;
 //VTK::TCoord::Dec
 
 uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
-uniform mat3 glyphNormalMatrix; // glyphs normal matrix
 
 // material property values
 //VTK::Color::Dec
@@ -44,12 +43,14 @@ uniform mat3 glyphNormalMatrix; // glyphs normal matrix
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
-uniform mat4 GCMCMatrix;  // glyphs matrix
+//VTK::Glyph::Dec
 
 varying vec4 vertexVC;
 
 void main()
 {
+  //VTK::Glyph::Impl
+
   //VTK::Color::Impl
 
   //VTK::Normal::Impl
@@ -57,7 +58,6 @@ void main()
   //VTK::TCoord::Impl
 
   // compute the projected vertex position
-  vec4 vertex = GCMCMatrix * vertexMC;
   vertexVC = MCVCMatrix * vertex;
   gl_Position = VCDCMatrix * vertexVC;
 }

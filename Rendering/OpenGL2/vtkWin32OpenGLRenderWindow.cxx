@@ -663,10 +663,10 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     //   {
     //   this->SetContextSupportsOpenGL32(true);
     //   }
-//    else
-//      {
+    // else
+    //   {
       this->ContextId = wglCreateContext(hDC);
- //     }
+//      }
     if (this->ContextId == NULL)
       {
       vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());

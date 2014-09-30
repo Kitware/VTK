@@ -50,7 +50,21 @@ public:
 
   bool AddAttributeArray(vtkShaderProgram *program, BufferObject &buffer,
                          const std::string &name, int offset, size_t stride,
-                         int elementType, int elementTupleSize, bool normalize);
+                         int elementType, int elementTupleSize, bool normalize)
+    {
+    return this->AddAttributeArrayWithDivisor(program, buffer, name,
+      offset,stride,elementType, elementTupleSize, normalize, 0);
+    }
+
+  bool AddAttributeArrayWithDivisor(vtkShaderProgram *program, BufferObject &buffer,
+                         const std::string &name, int offset, size_t stride,
+                         int elementType, int elementTupleSize, bool normalize,
+                         int divisor);
+
+  bool AddAttributeMatrixWithDivisor(vtkShaderProgram *program, BufferObject &buffer,
+                         const std::string &name, int offset, size_t stride,
+                         int elementType, int elementTupleSize, bool normalize,
+                         int divisor);
 
   bool RemoveAttributeArray(const std::string &name);
 

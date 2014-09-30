@@ -175,7 +175,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(std::string &VSSo
     {
     colorDec += "varying vec4 vertexColor;\n";
     VSSource = replace(VSSource,"//VTK::Color::Dec",
-                                "attribute vec4 scalarColor; varying vec4 vertexColor;");
+                                "attribute vec4 scalarColor;\n"
+                                "varying vec4 vertexColor;");
     VSSource = replace(VSSource,"//VTK::Color::Impl",
                                 "vertexColor =  scalarColor;");
     }
@@ -363,7 +364,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
                          "  vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
                          "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
                          "  if (abs(fdx.x) > 0.0)\n"
-                         "   { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
+                         "    { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
                          "  else { normalVC = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
                          );
       }
