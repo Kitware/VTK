@@ -83,9 +83,9 @@ public:
     TextureWidth(1024),
     ActualSampleDistance(1.0),
     RGBTable(0),
+    OpacityTables(0),
     Mask1RGBTable(0),
     Mask2RGBTable(0),
-    OpacityTables(0),
     GradientOpacityTables(0)
     {
     this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = -1;
@@ -1111,12 +1111,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
     croppingRegionPlanes[5] = croppingRegionPlanes[5] > this->Bounds[5] ?
                               this->Bounds[5] : croppingRegionPlanes[5];
 
-    float cropPlanes[6] = { static_cast<double>(croppingRegionPlanes[0]),
-                            static_cast<double>(croppingRegionPlanes[1]),
-                            static_cast<double>(croppingRegionPlanes[2]),
-                            static_cast<double>(croppingRegionPlanes[3]),
-                            static_cast<double>(croppingRegionPlanes[4]),
-                            static_cast<double>(croppingRegionPlanes[5]) };
+    float cropPlanes[6] = { static_cast<float>(croppingRegionPlanes[0]),
+                            static_cast<float>(croppingRegionPlanes[1]),
+                            static_cast<float>(croppingRegionPlanes[2]),
+                            static_cast<float>(croppingRegionPlanes[3]),
+                            static_cast<float>(croppingRegionPlanes[4]),
+                            static_cast<float>(croppingRegionPlanes[5]) };
 
     glUniform1fv(this->Shader("cropping_planes"), 6, cropPlanes);
     const int numberOfRegions = 32;
@@ -1806,12 +1806,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   // NOTE Assuming that light is located on the camera
   glUniform3fv(this->Impl->Shader("m_light_pos"), 1, &(fvalue3[0]));
 
-  float volExtentsMin[3] = {this->Bounds[0], this->Bounds[2], this->Bounds[4]};
-  float volExtentsMax[3] = {this->Bounds[1], this->Bounds[3], this->Bounds[5]};
+  vtkInternal::ToFloat(this->Bounds[0], this->Bounds[2], this->Bounds[4], fvalue3);
   glUniform3fv(this->Impl->Shader("m_vol_extents_min"), 1,
-               &(volExtentsMin[0]));
+               &(fvalue3[0]));
+
+  vtkInternal::ToFloat(this->Bounds[1], this->Bounds[3], this->Bounds[5], fvalue3);
   glUniform3fv(this->Impl->Shader("m_vol_extents_max"), 1,
-               &(volExtentsMax[0]));
+               &(fvalue3[0]));
 
   vtkInternal::ToFloat(this->Impl->Extents[0],
                        this->Impl->Extents[2],
