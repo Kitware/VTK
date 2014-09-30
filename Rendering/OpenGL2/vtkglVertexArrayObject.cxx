@@ -247,9 +247,13 @@ bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
   glVertexAttribPointer(attribs.index, attribs.size, attribs.type,
                         attribs.normalize, attribs.stride,
                         BUFFER_OFFSET(attribs.offset));
+
+
   if (divisor > 0)
     {
+#if GL_ES_VERSION_2_0 != 1
     glVertexAttribDivisor(attribs.index, 1);
+#endif
     }
 
   // If vertex array objects are not supported then build up our list.
@@ -314,7 +318,9 @@ bool VertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram *program,
                           BUFFER_OFFSET(offset + stride*i/elementTupleSize));
     if (divisor > 0)
       {
+#if GL_ES_VERSION_2_0 != 1
       glVertexAttribDivisor(attribs.index+i, 1);
+#endif
       }
     }
 
