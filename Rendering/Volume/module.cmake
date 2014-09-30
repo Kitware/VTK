@@ -7,7 +7,7 @@ vtk_module(vtkRenderingVolume
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingVolumeOpenGL
+    vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkRenderingFreeType
     vtkIOXML
     vtkImagingSources

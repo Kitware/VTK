@@ -14,7 +14,7 @@ vtk_module(vtkGeovisCore
     vtkViewsInfovis
     vtkRenderingCore
     vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingFreeTypeOpenGL
+    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
   )

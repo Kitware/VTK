@@ -1,3 +1,9 @@
+# Some tests need to move, others need to be modified to remove the OpenGL
+# dependence, for now skip building the tests if OpenGL2 is being built.
+if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+  return()
+endif()
+
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx

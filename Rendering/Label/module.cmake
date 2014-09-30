@@ -9,7 +9,7 @@ vtk_module(vtkRenderingLabel
     vtkIOXML
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingFreeTypeOpenGL
+    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkInteractionStyle
   KIT
