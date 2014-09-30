@@ -358,8 +358,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::VtkToGlMatrix(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(vtkRenderer* ren,
-                                                              vtkVolume* vol)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol))
 {
   GLenum err = glewInit();
   if (GLEW_OK != err)
@@ -648,10 +648,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkImageData* input,
-                                                           vtkImageData* maskInput,
-                                                           int textureExtent[6],
-                                                           vtkVolume* volume)
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
+  vtkImageData* vtkNotUsed(input), vtkImageData* maskInput, int textureExtent[6],
+  vtkVolume* vtkNotUsed(volume))
 {
   int result = 1;
 
@@ -845,7 +844,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
-  vtkVolume* vol, int numberOfScalarComponents, unsigned int level)
+  vtkVolume* vol, int vtkNotUsed(numberOfScalarComponents), unsigned int level)
 {
   if (!vol)
     {
@@ -880,7 +879,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   UpdateGradientOpacityTransferFunction(vtkVolume* vol,
-    int numberOfScalarComponents, unsigned int level)
+    int vtkNotUsed(numberOfScalarComponents), unsigned int level)
 {
   if (!vol)
     {
@@ -977,7 +976,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture()
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
-  vtkRenderer* ren, vtkVolume* vol)
+  vtkRenderer* ren, vtkVolume* vtkNotUsed(vol))
 {
   // Make sure our render window is the current OpenGL context
   ren->GetRenderWindow()->MakeCurrent();
@@ -1075,7 +1074,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry()
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
-  vtkRenderer* ren, vtkVolume* vol)
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol))
 {
   if (this->Parent->GetCropping())
     {
@@ -1140,7 +1139,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
-  vtkRenderer* ren, vtkVolume* vol)
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol))
 {
   if (this->Parent->GetClippingPlanes())
     {
@@ -1225,7 +1224,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
-  LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin)
+  LoadRequireDepthTextureExtensions(vtkRenderWindow* vtkNotUsed(renWin))
 {
   // Reset the message stream for extensions
   this->ExtensionsStringStream.str("");
@@ -1285,7 +1284,8 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& vtkNotUsed(os),
+                                                vtkIndent vtkNotUsed(indent))
 {
   //this->Superclass->PrintSelf(os, indent);
 }
