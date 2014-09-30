@@ -16,7 +16,12 @@ def vtkLoadPythonTkWidgets(interp):
 
     # find out if the file is already loaded
     loaded = interp.call('info', 'loaded')
-    if string.find(loaded, pkgname) >= 0:
+    # Tcl 8.5 returns a unicode string.
+    if type(loaded) == type(u''):
+        if string.find(loaded, pkgname) >= 0:
+            return
+    # Tcl 8.6 returns a tuple.
+    elif pkgname in loaded:
         return
 
     # create the platform-dependent file name
