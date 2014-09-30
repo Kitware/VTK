@@ -19,7 +19,7 @@
 #include <vtkPiecewiseFunction.h>
 #include <vtkVolumeMapper.h>
 
-#include <GL/glew.h>
+#include <vtk_glew.h>
 #include <vtkgl.h>
 
 //----------------------------------------------------------------------------

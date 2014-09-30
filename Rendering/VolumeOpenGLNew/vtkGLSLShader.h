@@ -16,7 +16,7 @@
 #ifndef __vtkGLSLShader_h
 #define __vtkGLSLShader_h
 
-#include <GL/glew.h>
+#include <vtk_glew.h>
 
 #include <string>
 #include <map>

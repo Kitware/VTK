@@ -35,6 +35,7 @@
 #include <vtkDataArray.h>
 #include <vtkDensifyPolyData.h>
 #include <vtkFloatArray.h>
+#include <vtk_glew.h>
 #include <vtkImageData.h>
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
@@ -55,7 +56,6 @@
 #include <vtkVolumeProperty.h>
 
 // GL includes
-#include <GL/glew.h>
 #include <vtkgl.h>
 
 // C/C++ includes

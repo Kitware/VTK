@@ -1,7 +1,5 @@
 include(vtkObjectFactory)
 
-find_package(GLEW REQUIRED)
-
  # Source files
 set(Module_SRCS
   #vtkGPUVolumeRayCastMapper.cxx
@@ -48,7 +46,6 @@ endforeach()
 vtk_object_factory_configure("${vtk_module_overrides}")
 
 vtk_module_library(vtkRenderingVolumeOpenGLNew ${Module_SRCS})
-target_link_libraries(vtkRenderingVolumeOpenGLNew LINK_PRIVATE ${GLEW_LIBRARY})
 
 add_custom_command(OUTPUT "${vtkRenderingVolumeOpenGLNew_BINARY_DIR}/shaders"
                    COMMAND ${CMAKE_COMMAND} -E copy_directory

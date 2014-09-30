@@ -17,8 +17,7 @@
 #define __vtkOpenGLRGBTable_h_
 
 #include <vtkColorTransferFunction.h>
-
-#include <GL/glew.h>
+#include <vtk_glew.h>
 
 //----------------------------------------------------------------------------
 class vtkOpenGLRGBTable

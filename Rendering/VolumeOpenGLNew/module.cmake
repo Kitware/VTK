@@ -4,18 +4,19 @@ vtk_module(vtkRenderingVolumeOpenGLNew
     vtkCommonDataModel
     vtkCommonExecutionModel
     vtkFiltersSources
-    vtkRenderingVolume
+    vtkglew
     vtkRenderingOpenGL
+    vtkRenderingVolume
   IMPLEMENTS
     vtkRenderingVolume
   TEST_DEPENDS
     vtkCommonCore
     vtkFiltersModeling
+    vtkglew
+    vtkInteractionStyle
     vtkIOLegacy
     vtkIOXML
-    vtkInteractionStyle
     vtkRenderingOpenGL
-    vtkRenderingVolumeOpenGLNew
     vtkTestingCore
     vtkTestingRendering
   KIT
