@@ -47,6 +47,8 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
   this->ModelTransformMatrix = NULL;
   this->ModelNormalMatrix = NULL;
   this->ModelColor = NULL;
+  this->UseFastPath = false;
+  this->UsingInstancing = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -68,7 +70,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
                                                  vtkActor *actor)
 {
   // deal with color
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+  if (this->UsingInstancing)
     {
     VSSource = replace(VSSource,"//VTK::Color::Dec",
                               "attribute vec4 glyphColor;\n"
@@ -196,7 +198,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
                                 "  opacity = vertexColor.a;");
     }
 
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+  if (this->UsingInstancing)
     {
     VSSource = replace(VSSource,
                        "//VTK::Glyph::Dec",
@@ -215,7 +217,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
   // new code for normal matrix if we have normals
   if (this->Layout.NormalOffset)
     {
-    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    if (this->UsingInstancing)
       {
       VSSource = replace(VSSource,
                                    "//VTK::Normal::Dec",
@@ -245,12 +247,21 @@ vtkOpenGLGlyph3DHelper::~vtkOpenGLGlyph3DHelper()
 }
 
 void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<float> &colors, std::vector<float> &matrices,
+      std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
       unsigned long pointMTime)
 {
+  this->UsingInstancing = false;
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool selecting_points = selector && (selector->GetFieldAssociation() ==
+    vtkDataObject::FIELD_ASSOCIATION_POINTS);
+
 #if GL_ES_VERSION_2_0 != 1
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+  if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE &&
+      !selector &&
+      (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
+        GLEW_ARB_instanced_arrays))
     {
     this->GlyphRenderInstances(ren, actor, numPts,
       colors, matrices, normalMatrices, pickIds, pointMTime);
@@ -259,10 +270,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
 #endif
 
   bool primed = false;
-
-  vtkHardwareSelector* selector = ren->GetSelector();
-  bool selecting_points = selector && (selector->GetFieldAssociation() ==
-    vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
   for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
     {
@@ -286,12 +293,12 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
     program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
 
     // for lit shaders set normal matrix
-    if (this->LastLightComplexity > 0)
+    if (this->LastLightComplexity > 0 && this->Layout.NormalOffset)
       {
       program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId*9]));
       }
 
-    program->SetUniform4f("glyphColor", &(colors[inPtId*4]));
+    program->SetUniform4uc("glyphColor", &(colors[inPtId*4]));
 
     if (selector)
       {
@@ -350,7 +357,7 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
     }
 
   // for lit shaders set normal matrix
-  if (this->LastLightComplexity > 0 && this->ModelNormalMatrix)
+  if (this->LastLightComplexity > 0 && this->ModelNormalMatrix && this->Layout.NormalOffset)
     {
     program->SetUniformMatrix3x3("glyphNormalMatrix", this->ModelNormalMatrix);
     }
@@ -367,26 +374,18 @@ void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
 
   if (this->ModelColor)
     {
-    program->SetUniform4f("glyphColor", this->ModelColor);
+    program->SetUniform4uc("glyphColor", this->ModelColor);
     }
 }
 
 #if GL_ES_VERSION_2_0 != 1
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-    std::vector<float> &colors, std::vector<float> &matrices,
+    std::vector<unsigned char> &colors, std::vector<float> &matrices,
     std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
     unsigned long pointMTime)
 {
-  vtkHardwareSelector* selector = ren->GetSelector();
-  bool selecting_points = selector && (selector->GetFieldAssociation() ==
-    vtkDataObject::FIELD_ASSOCIATION_POINTS);
-
-  if (selecting_points)
-    {
-//    selector->RenderAttributeId(rgba[0] + (rgba[1] << 8) + (rgba[2] << 16));
-    }
-
+  this->UsingInstancing = true;
   this->RenderPieceStart(ren,actor);
   this->UpdateShader(this->Tris, ren, actor);
 
@@ -404,19 +403,22 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
       }
     this->MatrixBuffer.Release();
 
-    this->NormalMatrixBuffer.Bind();
-    this->NormalMatrixBuffer.Upload(normalMatrices, vtkgl::BufferObject::ArrayBuffer);
-    if (!this->Tris.vao.AddAttributeMatrixWithDivisor(this->Tris.Program, this->NormalMatrixBuffer,
-          "glyphNormalMatrix", 0, 9*sizeof(float), VTK_FLOAT, 3, false, 1))
+    if (this->Layout.NormalOffset)
       {
-      vtkErrorMacro(<< "Error setting 'glyphNormalMatrix' in shader VAO.");
+      this->NormalMatrixBuffer.Bind();
+      this->NormalMatrixBuffer.Upload(normalMatrices, vtkgl::BufferObject::ArrayBuffer);
+      if (!this->Tris.vao.AddAttributeMatrixWithDivisor(this->Tris.Program, this->NormalMatrixBuffer,
+            "glyphNormalMatrix", 0, 9*sizeof(float), VTK_FLOAT, 3, false, 1))
+        {
+        vtkErrorMacro(<< "Error setting 'glyphNormalMatrix' in shader VAO.");
+        }
+      this->NormalMatrixBuffer.Release();
       }
-    this->NormalMatrixBuffer.Release();
 
     this->ColorBuffer.Bind();
     this->ColorBuffer.Upload(colors, vtkgl::BufferObject::ArrayBuffer);
     if (!this->Tris.vao.AddAttributeArrayWithDivisor(this->Tris.Program, this->ColorBuffer,
-          "glyphColor", 0, 4*sizeof(float), VTK_FLOAT, 4, false, 1))
+          "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1))
       {
       vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
       }
@@ -428,11 +430,36 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   vtkOpenGLCheckErrorMacro("failed after Render");
 
   this->Tris.ibo.Bind();
-  glDrawElementsInstanced(GL_TRIANGLES,
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    glDrawElementsInstanced(GL_TRIANGLES,
                           static_cast<GLsizei>(this->Tris.indexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL),
                           numPts);
+    }
+  else if (GLEW_ARB_instanced_arrays)
+    {
+    GLint index = glGetAttribLocation(this->Tris.Program->GetHandle(), "GCMCMatrix");
+    glVertexAttribDivisorARB(index, 1);
+    glVertexAttribDivisorARB(index+1, 1);
+    glVertexAttribDivisorARB(index+2, 1);
+    glVertexAttribDivisorARB(index+3, 1);
+    if (this->Layout.NormalOffset)
+      {
+      index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphNormalMatrix");
+      glVertexAttribDivisorARB(index, 1);
+      glVertexAttribDivisorARB(index+1, 1);
+      glVertexAttribDivisorARB(index+2, 1);
+      }
+    index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphColor");
+    glVertexAttribDivisorARB(index, 1);
+    glDrawElementsInstancedARB(GL_TRIANGLES,
+                          static_cast<GLsizei>(this->Tris.indexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL),
+                          numPts);
+    }
   vtkOpenGLCheckErrorMacro("failed after Render");
 
   this->Tris.ibo.Release();
