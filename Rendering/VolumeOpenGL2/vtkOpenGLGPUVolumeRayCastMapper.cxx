@@ -70,6 +70,7 @@ class vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
 {
 public:
   vtkInternal(vtkOpenGLGPUVolumeRayCastMapper* parent) :
+    Parent(parent),
     Initialized(false),
     ValidTransferFunction(false),
     LoadDepthTextureExtensionsSucceeded(false),
@@ -80,7 +81,7 @@ public:
     NoiseTextureId(0),
     DepthTextureId(0),
     TextureWidth(1024),
-    Parent(parent),
+    ActualSampleDistance(1.0),
     RGBTable(0),
     Mask1RGBTable(0),
     Mask2RGBTable(0),
@@ -222,6 +223,9 @@ public:
   // Private member variables
   //
   ////////////////////////////////////////////////////////////////////////////
+
+  vtkOpenGLGPUVolumeRayCastMapper* Parent;
+
   bool Initialized;
   bool ValidTransferFunction;
   bool LoadDepthTextureExtensionsSucceeded;
@@ -246,6 +250,7 @@ public:
 
   float ActualSampleDistance;
 
+  int LastProjectionParallel;
   int Dimensions[3];
   int TextureSize[3];
   int WindowLowerLeft[2];
@@ -261,7 +266,6 @@ public:
 
   std::ostringstream ExtensionsStringStream;
 
-  vtkOpenGLGPUVolumeRayCastMapper* Parent;
   vtkOpenGLRGBTable* RGBTable;
   vtkOpenGLOpacityTables* OpacityTables;
   vtkOpenGLRGBTable* Mask1RGBTable;
@@ -1466,6 +1470,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
       this->Impl->Shader.AddUniform("m_mask_blendfactor");
     }
 
+  if (ren->GetActiveCamera()->GetParallelProjection())
+    {
+    this->Impl->Shader.AddUniform("m_projection_direction");
+    }
+
   std::cerr << "shader " << fragmentShader << std::endl;
 
   this->Impl->ShaderBuildTime.Modified();
@@ -1555,8 +1564,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   // Build shader
   if (vol->GetProperty()->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
-      this->GetMTime() > this->Impl->ShaderBuildTime)
+      this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
+      ren->GetActiveCamera()->GetParallelProjection() != this->Impl->LastProjectionParallel
+      )
     {
+    this->Impl->LastProjectionParallel = ren->GetActiveCamera()->GetParallelProjection();
     this->BuildShader(ren, vol, numberOfScalarComponents);
     }
 
