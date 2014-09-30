@@ -87,4 +87,3 @@ void main()
 
   gl_FragColor = g_frag_color;
 }
-

@@ -9,7 +9,7 @@ set(Module_SRCS
   vtkOpenGLVolumeTextureMapper3D.cxx
   )
 
-if (NOT Module_vtkVolumeOpenGL2)
+if (NOT Module_vtkRenderingVolumeOpenGLNew)
   list(APPEND Module_SRCS vtkOpenGLGPUVolumeRayCastMapper.cxx)
 endif()
 
@@ -90,7 +90,7 @@ set(opengl_overrides
   VolumeTextureMapper3D
   )
 
-if(NOT Module_vtkVolumeOpenGL2)
+if(NOT Module_vtkRenderingVolumeOpenGLNew)
   list(APPEND opengl_overrides GPUVolumeRayCastMapper)
 endif()
 

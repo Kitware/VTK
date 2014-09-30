@@ -153,4 +153,3 @@ int TestVolumeScale(int argc, char *argv[])
   iren->Initialize();
   iren->Start();
 }
-

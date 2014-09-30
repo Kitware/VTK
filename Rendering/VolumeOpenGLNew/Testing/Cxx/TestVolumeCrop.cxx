@@ -127,4 +127,3 @@ int TestVolumeCrop(int argc, char *argv[])
     }
   return !retVal;
 }
-

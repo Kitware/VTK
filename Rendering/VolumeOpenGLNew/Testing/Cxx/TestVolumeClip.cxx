@@ -137,4 +137,3 @@ int TestVolumeClip(int argc, char *argv[])
     }
   return !retVal;
 }
-

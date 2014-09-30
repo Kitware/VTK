@@ -1,7 +1,7 @@
-set(VTK_VOLUMEOPENGL2)
+set(VTK_RENDERINGVOLUMEOPENGLNEW)
 
-if (Module_vtkVolumeOpenGL2)
-  set(VTK_VOLUMEOPENGL2 vtkVolumeOpenGL2)
+if (Module_vtkRenderingVolumeOpenGLNew)
+  set(VTK_RENDERINGVOLUMEOPENGLNEW vtkRenderingVolumeOpenGLNew)
 endif()
 
 vtk_module(vtkRenderingVolumeOpenGL
@@ -11,7 +11,7 @@ vtk_module(vtkRenderingVolumeOpenGL
     OpenGL
   DEPENDS
     vtkRenderingOpenGL
-    ${VTK_VOLUMEOPENGL2}
+    ${VTK_RENDERINGVOLUMEOPENGLNEW}
   PRIVATE_DEPENDS
     vtksys
     vtkFiltersGeneral

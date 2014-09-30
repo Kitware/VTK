@@ -1,6 +1,4 @@
-vtk_module(vtkVolumeOpenGL2
-  TCL_NAME
-    vtkVolumeOpenGLII
+vtk_module(vtkRenderingVolumeOpenGLNew
   DEPENDS
     vtkCommonCore
     vtkCommonDataModel
@@ -16,8 +14,8 @@ vtk_module(vtkVolumeOpenGL2
     vtkIOLegacy
     vtkIOXML
     vtkInteractionStyle
-    vtkVolumeOpenGL2
     vtkRenderingOpenGL
+    vtkRenderingVolumeOpenGLNew
     vtkTestingCore
     vtkTestingRendering
   KIT
