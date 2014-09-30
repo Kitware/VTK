@@ -249,12 +249,14 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
       unsigned long pointMTime)
 {
+#if GL_ES_VERSION_2_0 != 1
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
     this->GlyphRenderInstances(ren, actor, numPts,
       colors, matrices, normalMatrices, pickIds, pointMTime);
     return;
     }
+#endif
 
   bool primed = false;
 
@@ -369,6 +371,7 @@ void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
     }
 }
 
+#if GL_ES_VERSION_2_0 != 1
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
     std::vector<float> &colors, std::vector<float> &matrices,
@@ -435,6 +438,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   this->Tris.ibo.Release();
   this->RenderPieceFinish(ren, actor);
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::PrintSelf(ostream& os, vtkIndent indent)
