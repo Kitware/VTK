@@ -40,6 +40,8 @@ vec3 g_dir_step;
 @COMPUTE_LIGHTING_FRAG@
 @COLOR_TRANSFER_FUNC@
 
+@RAY_DIRECTION_FUNC_FRAG@
+
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
 /// planes (origin, normal)

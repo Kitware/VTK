@@ -18,6 +18,7 @@
 
 #include "vtkVolumeMask.h"
 
+#include <vtkCamera.h>
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
 #include <vtkVolumeMapper.h>
@@ -164,7 +165,7 @@ namespace vtkvolume
         } \n\
       \n\
       // Getting the ray marching direction (in object space); \n\
-      vec3 geom_dir = normalize(m_vertex_pos.xyz - g_eye_pos_obj.xyz); \n\
+      vec3 geom_dir = computeRayDirection(); \n\
       \n\
       // Multiply the raymarching direction with the step size to get the \n\
       // sub-step size we need to take at each raymarching step  \n\
@@ -273,6 +274,29 @@ namespace vtkvolume
            { \n\
            return color; \n\
            }");
+    }
+
+  //--------------------------------------------------------------------------
+  std::string RayDirectionFunc(vtkRenderer* ren, vtkVolumeMapper* mapper,
+                               vtkVolume* vol, int numberOfComponents)
+    {
+    if (!ren->GetActiveCamera()->GetParallelProjection())
+      {
+      return std::string(
+        "vec3 computeRayDirection() \n\
+           { \n\
+           return normalize(m_vertex_pos.xyz - g_eye_pos_obj.xyz); \n\
+           }");
+      }
+    else
+      {
+      return std::string(
+        "uniform vec3 m_projection_direction; \n\
+         vec3 computeRayDirection() \n\
+           { \n\
+           return normalize((m_inverse_volume_matrix * vec4(m_projection_direction, 0.0)).xyz); \n\
+           }");
+      }
     }
 
   //--------------------------------------------------------------------------

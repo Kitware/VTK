@@ -1291,26 +1291,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                                   vtkVolume* vol,
                                                   int noOfComponents)
 {
-
-
   vtkVolumeProperty* volProperty = vol->GetProperty();
-
   this->Impl->Shader.DeleteShaderProgram();
 
-
-
-  // Load the raycasting shader
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
-
-
 
   vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_CLIP_POS@",
     vtkvolume::ComputeClip(ren, this, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_TEXTURE_COORDS@",
     vtkvolume::ComputeTextureCoords(ren, this, vol), true);
-
-
 
   vertexShader = vtkvolume::replace(vertexShader, "@BASE_GLOBALS_VERT@",
     vtkvolume::BaseGlobalsVert(ren, this, vol), true);
@@ -1322,11 +1312,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkvolume::BaseIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_EXIT@",
     vtkvolume::BaseExit(ren, this, vol), true);
-
-  fragmentShader = vtkvolume::replace(fragmentShader, "@COLOR_TRANSFER_FUNC@",
-     vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents), true);
-
-
 
   vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_GLOBALS_VERT@",
     vtkvolume::TerminationGlobalsVert(ren, this, vol), true);
@@ -1360,10 +1345,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_GRADIENT_FRAG@",
     vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents), true);
+  fragmentShader = vtkvolume::replace(fragmentShader, "@COLOR_TRANSFER_FUNC@",
+     vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_LIGHTING_FRAG@",
     vtkvolume::LightComputeFunc(ren, this, vol,noOfComponents), true);
-
-
+  fragmentShader = vtkvolume::replace(fragmentShader, "@RAY_DIRECTION_FUNC_FRAG@",
+    vtkvolume::RayDirectionFunc(ren, this, vol,noOfComponents), true);
 
   vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_GLOBALS_VERT@",
     vtkvolume::CroppingGlobalsVert(ren, this, vol), true);
@@ -1405,12 +1392,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                       this->Impl->CurrentMask,
                                       this->MaskType), true);
 
-
-
   // Compile and link it
   this->Impl->CompileAndLinkShader(vertexShader, fragmentShader);
-
-
 
   // Add attributes and uniforms
   this->Impl->Shader.AddAttribute("m_in_vertex_pos");
@@ -1629,6 +1612,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   // Now use the shader
   ///
   this->Impl->Shader.Use();
+
+  if (ren->GetActiveCamera()->GetParallelProjection())
+    {
+    double dir[4];
+    ren->GetActiveCamera()->GetDirectionOfProjection(dir);
+    vtkInternal::ToFloat(dir[0], dir[1], dir[2], fvalue3);
+    glUniform3f(this->Impl->Shader("m_projection_direction"),
+                fvalue3[0], fvalue3[1], fvalue3[2]);
+    }
 
   // Pass constant uniforms at initialization
   // Step should be dependant on the bounds and not on the texture size
