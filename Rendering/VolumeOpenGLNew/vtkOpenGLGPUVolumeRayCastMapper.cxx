@@ -1273,10 +1273,20 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& vtkNotUsed(os),
-                                                vtkIndent vtkNotUsed(indent))
+void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  //this->Superclass->PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Dimensions: " << this->Impl->Dimensions[0] << ", " <<
+                                    this->Impl->Dimensions[1] << ", " <<
+                                    this->Impl->Dimensions[2] << ", " << "\n";
+  os << indent << "Bounds: " << this->Impl->LoadedBounds[0] << ", " <<
+                                this->Impl->LoadedBounds[1] << ", " <<
+                                this->Impl->LoadedBounds[2] << "\n";
+  os << indent << "ActualSampleDistance: " <<
+    this->Impl->ActualSampleDistance << "\n";
+  os << indent << "LastProjectionParallel: " <<
+    this->Impl->LastProjectionParallel << "\n";
 }
 
 //----------------------------------------------------------------------------
