@@ -495,7 +495,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkR
     {
     // consider the lighting complexity to determine which case applies
     // simple headlight, Light Kit, the whole feature set of VTK
-    lightComplexity = 1;
+    lightComplexity = 0;
     int numberOfLights = 0;
     vtkLightCollection *lc = ren->GetLights();
     vtkLight *light;
@@ -508,6 +508,10 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkR
       if (status > 0.0)
         {
         numberOfLights++;
+        if (lightComplexity == 0)
+          {
+          lightComplexity = 1;
+          }
         }
 
       if (lightComplexity == 1
