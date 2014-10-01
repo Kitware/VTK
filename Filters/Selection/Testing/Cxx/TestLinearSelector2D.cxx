@@ -37,6 +37,7 @@
 const vtkIdType cardSelectionLinearSelector2D  = 20;
 
 // ------------------------------------------------------------------------------------------------
+#if 0
 static int CheckExtractedUGrid( vtkExtractSelection* extract,
                                 const char* tag,
                                 int testIdx,
@@ -110,6 +111,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 
   return testStatus;
 }
+#endif
 
 //----------------------------------------------------------------------------
 int TestLinearSelector2D( int argc, char * argv [] )
@@ -148,10 +150,9 @@ int TestLinearSelector2D( int argc, char * argv [] )
   es->SetInputConnection( 1, ls->GetOutputPort() );
   es->Update();
 
-  if ( 0 )
-    {
-    testIntValue += CheckExtractedUGrid( es, "Selection (35.84,0,0)-(36.9,0.03,0)", 0, true );
-    }
+#if 0
+  testIntValue += CheckExtractedUGrid( es, "Selection (35.84,0,0)-(36.9,0.03,0)", 0, true );
+#endif
 
   return testIntValue;
 }
