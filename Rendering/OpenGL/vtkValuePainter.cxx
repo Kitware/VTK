@@ -25,6 +25,7 @@
 #include "vtkInformationStringKey.h"
 #include "vtkNew.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -59,6 +60,8 @@ public:
   int Component;
   double ScalarRange[2];
   bool ScalarRangeSet;
+  bool MultisampleSupport;
+  bool CheckedMSS;
 
   vtkNew<vtkImageData> Texture;
 
@@ -87,6 +90,8 @@ public:
       chars->SetTuple3(i, color[0],color[1],color[2]);
       }
     this->Texture->GetPointData()->SetScalars(chars);
+    this->MultisampleSupport = false;
+    this->CheckedMSS = false;
     }
 
   // Description:
@@ -277,11 +282,31 @@ void vtkValuePainter::RenderInternal(
 
   vtkOpenGLClearErrorMacro();
 
+  if (!this->Internals->CheckedMSS)
+    {
+    this->Internals->CheckedMSS = true;
+    vtkOpenGLRenderWindow * context = vtkOpenGLRenderWindow::SafeDownCast
+      (renderer->GetRenderWindow());
+    if (context)
+      {
+      vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
+        // don't need any of the functions so don't bother
+        // to load the extension, but do make sure enums are
+        // defined.
+      this->Internals->MultisampleSupport
+        = manager->ExtensionSupported("GL_ARB_multisample")==1;
+      }
+    }
+
   //set render state so that colors we draw are not altered at all
-  int oldSampling = glIsEnabled(vtkgl::MULTISAMPLE);
+  int oldSampling = 0;
+  if (this->Internals->MultisampleSupport)
+    {
+    oldSampling = glIsEnabled(vtkgl::MULTISAMPLE);
+    glDisable(vtkgl::MULTISAMPLE);
+    }
   int oldLight = glIsEnabled(GL_LIGHTING);
   int oldBlend = glIsEnabled(GL_BLEND);
-  glDisable(vtkgl::MULTISAMPLE);
   glDisable(GL_LIGHTING);
   glDisable(GL_BLEND);
 
