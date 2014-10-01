@@ -432,7 +432,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     this->ColorBuffer.Bind();
     this->ColorBuffer.Upload(colors, vtkgl::BufferObject::ArrayBuffer);
     if (!this->Tris.vao.AddAttributeArrayWithDivisor(this->Tris.Program, this->ColorBuffer,
-          "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1))
+          "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
       {
       vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
       }
@@ -454,25 +454,41 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     }
   else if (GLEW_ARB_instanced_arrays)
     {
-    GLint index = glGetAttribLocation(this->Tris.Program->GetHandle(), "GCMCMatrix");
-    glVertexAttribDivisorARB(index, 1);
-    glVertexAttribDivisorARB(index+1, 1);
-    glVertexAttribDivisorARB(index+2, 1);
-    glVertexAttribDivisorARB(index+3, 1);
-    if (this->Layout.NormalOffset)
-      {
-      index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphNormalMatrix");
-      glVertexAttribDivisorARB(index, 1);
-      glVertexAttribDivisorARB(index+1, 1);
-      glVertexAttribDivisorARB(index+2, 1);
-      }
-    index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphColor");
-    glVertexAttribDivisorARB(index, 1);
+    // GLint index = glGetAttribLocation(this->Tris.Program->GetHandle(), "GCMCMatrix");
+    // glVertexAttribDivisorARB(index, 1);
+    // glVertexAttribDivisorARB(index+1, 1);
+    // glVertexAttribDivisorARB(index+2, 1);
+    // glVertexAttribDivisorARB(index+3, 1);
+
+    // if (this->Layout.NormalOffset)
+    //   {
+      // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphNormalMatrix");
+      // glVertexAttribDivisorARB(index, 1);
+      // glVertexAttribDivisorARB(index+1, 1);
+      // glVertexAttribDivisorARB(index+2, 1);
+      // }
+
+    // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphColor");
+    // glVertexAttribDivisorARB(index, 1);
     glDrawElementsInstancedARB(GL_TRIANGLES,
                           static_cast<GLsizei>(this->Tris.indexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL),
                           numPts);
+    // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "GCMCMatrix");
+    // glVertexAttribDivisorARB(index, 0);
+    // glVertexAttribDivisorARB(index+1, 0);
+    // glVertexAttribDivisorARB(index+2, 0);
+    // glVertexAttribDivisorARB(index+3, 0);
+    // if (this->Layout.NormalOffset)
+    //   {
+    //   index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphNormalMatrix");
+    //   glVertexAttribDivisorARB(index, 0);
+    //   glVertexAttribDivisorARB(index+1, 0);
+    //   glVertexAttribDivisorARB(index+2, 0);
+    //   }
+    // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphColor");
+    // glVertexAttribDivisorARB(index, 0);
     }
   vtkOpenGLCheckErrorMacro("failed after Render");
 

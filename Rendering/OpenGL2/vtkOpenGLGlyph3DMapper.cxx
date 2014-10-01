@@ -317,8 +317,8 @@ void vtkOpenGLGlyph3DMapper::Render(
 
   // rebuild all entries for this DataSet if it
   // has been modified
-  if (subarray->BuildTime < dataset->GetMTime() /* ||
-      subarray->LastSelectingState != selecting_points */)
+  if (subarray->BuildTime < dataset->GetMTime() ||
+      subarray->LastSelectingState != selecting_points )
     {
     rebuild = true;
     }
@@ -367,8 +367,8 @@ void vtkOpenGLGlyph3DMapper::Render(
       }
 
     // use fast path
-    gh->SetUseFastPath(fastPath);
-    if (fastPath)
+//    gh->SetUseFastPath(fastPath);
+    if (0 && fastPath)
       {
       gh->GlyphRender(ren, actor, entry->NumberOfPoints,
         entry->Colors, entry->Matrices, entry->NormalMatrices,
