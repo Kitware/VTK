@@ -174,8 +174,8 @@ extern "C"
 #if PNG_LIBPNG_VER >= 10400
     vtkPNGWriteWarningFunction(png_ptr, error_msg);
 #else
-    longjmp(png_ptr->jmpbuf, 1);
     (void)error_msg;
+    longjmp(png_ptr->jmpbuf, 1);
 #endif
   }
 }
