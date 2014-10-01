@@ -69,25 +69,27 @@ vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 class vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
 {
 public:
+  // Constructor
+  //--------------------------------------------------------------------------
   vtkInternal(vtkOpenGLGPUVolumeRayCastMapper* parent) :
-    Parent(parent),
-    Initialized(false),
-    ValidTransferFunction(false),
-    LoadDepthTextureExtensionsSucceeded(false),
-    CubeVBOId(0),
-    CubeVAOId(0),
-    CubeIndicesId(0),
-    VolumeTextureId(0),
-    NoiseTextureId(0),
-    DepthTextureId(0),
-    TextureWidth(1024),
-    ActualSampleDistance(1.0),
-    RGBTable(0),
-    OpacityTables(0),
-    Mask1RGBTable(0),
-    Mask2RGBTable(0),
-    GradientOpacityTables(0)
     {
+    this->Parent = parent;
+    this->Initialized = false;
+    this->ValidTransferFunction = false;
+    this->LoadDepthTextureExtensionsSucceeded = false;
+    this->CubeVBOId = 0;
+    this->CubeVAOId = 0;
+    this->CubeIndicesId = 0;
+    this->VolumeTextureId = 0;
+    this->NoiseTextureId = 0;
+    this->DepthTextureId = 0;
+    this->TextureWidth = 1024;
+    this->ActualSampleDistance = 1.0;
+    this->RGBTable = 0;
+    this->OpacityTables = 0;
+    this->Mask1RGBTable = 0;
+    this->Mask2RGBTable =  0;
+    this->GradientOpacityTables = 0;
     this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = -1;
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
@@ -103,6 +105,8 @@ public:
     this->MaskTextures = new vtkMapMaskTextureId;
     }
 
+  // Destructor
+  //--------------------------------------------------------------------------
   ~vtkInternal()
     {
     delete this->RGBTable;
@@ -146,6 +150,8 @@ public:
       }
     }
 
+  // Helper methods
+  //--------------------------------------------------------------------------
   template<typename T>
   static void ToFloat(const T& in1, const T& in2, float (&out)[2]);
   template<typename T>
@@ -218,12 +224,8 @@ public:
   // Load OpenGL extensiosn required to grab depth sampler buffer
   void LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin);
 
-
-  //
   // Private member variables
-  //
-  ////////////////////////////////////////////////////////////////////////////
-
+  //--------------------------------------------------------------------------
   vtkOpenGLGPUVolumeRayCastMapper* Parent;
 
   bool Initialized;
@@ -1756,7 +1758,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
       this->Impl->Mask2RGBTable->Bind(8);
       }
     }
-
 
   // Opacity texture is at unit 2
   // TODO Supports only one table for now
