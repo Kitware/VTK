@@ -257,7 +257,7 @@ public:
   int WindowSize[2];
 
   double ScalarsRange[2];
-  double Bounds[6];
+  double LoadedBounds[6];
   int Extents[6];
   double DatasetStepSize[3];
   double CellScale[3];
@@ -366,16 +366,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
     {
     cerr <<"Error: "<< glewGetErrorString(err)<<endl;
     }
-  else
-    {
-      if (GLEW_VERSION_3_3)
-        {
-        cout<<"Driver supports OpenGL 3.3\nDetails:"<<endl;
-        }
-    }
+
   // This is to ignore INVALID ENUM error 1282
   err = glGetError();
-
 
   // Setup unit cube vertex array and vertex buffer objects
   glGenVertexArrays(1, &this->CubeVAOId);
@@ -737,17 +730,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
     {
     // If spacing is negative, we may have to rethink the equation
     // between real point and texture coordinate...
-    this->Bounds[0] = origin[0] +
+    this->LoadedBounds[0] = origin[0] +
       static_cast<double>(this->Extents[0 + swapBounds[0]]) * this->CellSpacing[0];
-    this->Bounds[2] = origin[1] +
+    this->LoadedBounds[2] = origin[1] +
       static_cast<double>(this->Extents[2 + swapBounds[1]]) * this->CellSpacing[1];
-    this->Bounds[4] = origin[2] +
+    this->LoadedBounds[4] = origin[2] +
       static_cast<double>(this->Extents[4 + swapBounds[2]]) * this->CellSpacing[2];
-    this->Bounds[1] = origin[0] +
+    this->LoadedBounds[1] = origin[0] +
       static_cast<double>(this->Extents[1 - swapBounds[0]]) * this->CellSpacing[0];
-    this->Bounds[3] = origin[1] +
+    this->LoadedBounds[3] = origin[1] +
       static_cast<double>(this->Extents[3 - swapBounds[1]]) * this->CellSpacing[1];
-    this->Bounds[5] = origin[2] +
+    this->LoadedBounds[5] = origin[2] +
       static_cast<double>(this->Extents[5 - swapBounds[2]]) * this->CellSpacing[2];
     }
   // Loaded extents represent cells
@@ -767,22 +760,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
       {
       if(this->Extents[2 * i] == wholeTextureExtent[2 * i])
         {
-        this->Bounds[2 * i + swapBounds[i]] = origin[i];
+        this->LoadedBounds[2 * i + swapBounds[i]] = origin[i];
         }
       else
         {
-        this->Bounds[2 * i + swapBounds[i]] = origin[i] +
+        this->LoadedBounds[2 * i + swapBounds[i]] = origin[i] +
           (static_cast<double>(this->Extents[2 * i]) + 0.5) * this->CellSpacing[i];
         }
 
       if(this->Extents[2 * i + 1] == wholeTextureExtent[2 * i + 1])
         {
-        this->Bounds[2 * i + 1 - swapBounds[i]] = origin[i] +
+        this->LoadedBounds[2 * i + 1 - swapBounds[i]] = origin[i] +
           (static_cast<double>(this->Extents[2 * i + 1]) + 1.0) * this->CellSpacing[i];
         }
       else
         {
-        this->Bounds[2 * i + 1-swapBounds[i]] = origin[i] +
+        this->LoadedBounds[2 * i + 1-swapBounds[i]] = origin[i] +
           (static_cast<double>(this->Extents[2 * i + 1]) + 0.5) * this->CellSpacing[i];
         }
       ++i;
@@ -1008,7 +1001,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry()
 {
   vtkNew<vtkTessellatedBoxSource> boxSource;
   vtkNew<vtkDensifyPolyData> densityPolyData;
-  boxSource->SetBounds(this->Bounds);
+  boxSource->SetBounds(this->LoadedBounds);
   boxSource->QuadsOn();
   boxSource->SetLevel(0);
 
@@ -1042,14 +1035,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry()
   // Enable vertex attributre array for position
   // and pass indices to element array  buffer
   glEnableVertexAttribArray(this->Shader["m_in_vertex_pos"]);
-  glVertexAttribPointer(this->Shader["m_in_vertex_pos"], 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glVertexAttribPointer(this->Shader["m_in_vertex_pos"],
+                        3, GL_FLOAT, GL_FALSE, 0, 0);
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
   glBufferData (GL_ELEMENT_ARRAY_BUFFER, polys->GetDataSize() *
                 polys->GetDataTypeSize(), polys->GetVoidPointer(0),
                 GL_STATIC_DRAW);
-
-
 
   glBindVertexArray(0);
 }
@@ -1065,32 +1057,32 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
     this->Parent->GetCroppingRegionPlanes(croppingRegionPlanes);
 
     // Clamp it
-    croppingRegionPlanes[0] = croppingRegionPlanes[0] < this->Bounds[0] ?
-                              this->Bounds[0] : croppingRegionPlanes[0];
-    croppingRegionPlanes[0] = croppingRegionPlanes[0] > this->Bounds[1] ?
-                              this->Bounds[1] : croppingRegionPlanes[0];
-    croppingRegionPlanes[1] = croppingRegionPlanes[1] < this->Bounds[0] ?
-                              this->Bounds[0] : croppingRegionPlanes[1];
-    croppingRegionPlanes[1] = croppingRegionPlanes[1] > this->Bounds[1] ?
-                              this->Bounds[1] : croppingRegionPlanes[1];
+    croppingRegionPlanes[0] = croppingRegionPlanes[0] < this->LoadedBounds[0] ?
+                              this->LoadedBounds[0] : croppingRegionPlanes[0];
+    croppingRegionPlanes[0] = croppingRegionPlanes[0] > this->LoadedBounds[1] ?
+                              this->LoadedBounds[1] : croppingRegionPlanes[0];
+    croppingRegionPlanes[1] = croppingRegionPlanes[1] < this->LoadedBounds[0] ?
+                              this->LoadedBounds[0] : croppingRegionPlanes[1];
+    croppingRegionPlanes[1] = croppingRegionPlanes[1] > this->LoadedBounds[1] ?
+                              this->LoadedBounds[1] : croppingRegionPlanes[1];
 
-    croppingRegionPlanes[2] = croppingRegionPlanes[2] < this->Bounds[2] ?
-                              this->Bounds[2] : croppingRegionPlanes[2];
-    croppingRegionPlanes[2] = croppingRegionPlanes[2] > this->Bounds[3] ?
-                              this->Bounds[3] : croppingRegionPlanes[2];
-    croppingRegionPlanes[3] = croppingRegionPlanes[3] < this->Bounds[2] ?
-                              this->Bounds[2] : croppingRegionPlanes[3];
-    croppingRegionPlanes[3] = croppingRegionPlanes[3] > this->Bounds[3] ?
-                              this->Bounds[3] : croppingRegionPlanes[3];
+    croppingRegionPlanes[2] = croppingRegionPlanes[2] < this->LoadedBounds[2] ?
+                              this->LoadedBounds[2] : croppingRegionPlanes[2];
+    croppingRegionPlanes[2] = croppingRegionPlanes[2] > this->LoadedBounds[3] ?
+                              this->LoadedBounds[3] : croppingRegionPlanes[2];
+    croppingRegionPlanes[3] = croppingRegionPlanes[3] < this->LoadedBounds[2] ?
+                              this->LoadedBounds[2] : croppingRegionPlanes[3];
+    croppingRegionPlanes[3] = croppingRegionPlanes[3] > this->LoadedBounds[3] ?
+                              this->LoadedBounds[3] : croppingRegionPlanes[3];
 
-    croppingRegionPlanes[4] = croppingRegionPlanes[4] < this->Bounds[4] ?
-                              this->Bounds[4] : croppingRegionPlanes[4];
-    croppingRegionPlanes[4] = croppingRegionPlanes[4] > this->Bounds[5] ?
-                              this->Bounds[5] : croppingRegionPlanes[4];
-    croppingRegionPlanes[5] = croppingRegionPlanes[5] < this->Bounds[4] ?
-                              this->Bounds[4] : croppingRegionPlanes[5];
-    croppingRegionPlanes[5] = croppingRegionPlanes[5] > this->Bounds[5] ?
-                              this->Bounds[5] : croppingRegionPlanes[5];
+    croppingRegionPlanes[4] = croppingRegionPlanes[4] < this->LoadedBounds[4] ?
+                              this->LoadedBounds[4] : croppingRegionPlanes[4];
+    croppingRegionPlanes[4] = croppingRegionPlanes[4] > this->LoadedBounds[5] ?
+                              this->LoadedBounds[5] : croppingRegionPlanes[4];
+    croppingRegionPlanes[5] = croppingRegionPlanes[5] < this->LoadedBounds[4] ?
+                              this->LoadedBounds[4] : croppingRegionPlanes[5];
+    croppingRegionPlanes[5] = croppingRegionPlanes[5] > this->LoadedBounds[5] ?
+                              this->LoadedBounds[5] : croppingRegionPlanes[5];
 
     float cropPlanes[6] = { static_cast<float>(croppingRegionPlanes[0]),
                             static_cast<float>(croppingRegionPlanes[1]),
@@ -1529,8 +1521,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     this->Impl->Shader.AddUniform("m_projection_direction");
     }
 
-  std::cerr << "shader " << fragmentShader << std::endl;
-
   this->Impl->ShaderBuildTime.Modified();
 }
 
@@ -1655,30 +1645,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   // Update sampling distance
   int* loadedExtent = input->GetExtent();
 
-  this->Impl->CellScale[0] =
-    (static_cast<double>(loadedExtent[1] - loadedExtent[0]) * 0.5);
-  this->Impl->CellScale[1] =
-    (static_cast<double>(loadedExtent[3] - loadedExtent[2])* 0.5);
-  this->Impl->CellScale[2] =
-    (static_cast<double>(loadedExtent[5] - loadedExtent[4]) * 0.5);
-
   this->Impl->CellStep[0] =
-    (1.0/static_cast<double>(loadedExtent[1]-loadedExtent[0]));
+    (1.0/static_cast<double>(loadedExtent[1] - loadedExtent[0]));
   this->Impl->CellStep[1] =
-    (1.0/static_cast<double>(loadedExtent[3]-loadedExtent[2]));
+    (1.0/static_cast<double>(loadedExtent[3] - loadedExtent[2]));
   this->Impl->CellStep[2] =
-    (1.0/static_cast<double>(loadedExtent[5]-loadedExtent[4]));
+    (1.0/static_cast<double>(loadedExtent[5] -loadedExtent[4]));
 
-  this->Impl->DatasetStepSize[0] = 1.0 / (this->Bounds[1] - this->Bounds[0]);
-  this->Impl->DatasetStepSize[1] = 1.0 / (this->Bounds[3] - this->Bounds[2]);
-  this->Impl->DatasetStepSize[2] = 1.0 / (this->Bounds[5] - this->Bounds[4]);
+  this->Impl->CellScale[0] = (this->Impl->LoadedBounds[1] -
+                              this->Impl->LoadedBounds[0]) * 0.5;
+  this->Impl->CellScale[1] = (this->Impl->LoadedBounds[3] -
+                              this->Impl->LoadedBounds[2]) * 0.5;
+  this->Impl->CellScale[2] = (this->Impl->LoadedBounds[5] -
+                              this->Impl->LoadedBounds[4]) * 0.5;
 
-  this->Impl->CellScale[0] = (this->Bounds[1] - this->Bounds[0]) * 0.5;
-  this->Impl->CellScale[1] = (this->Bounds[3] - this->Bounds[2]) * 0.5;
-  this->Impl->CellScale[2] = (this->Bounds[5] - this->Bounds[4]) * 0.5;
+  this->Impl->DatasetStepSize[0] = 1.0 / (this->Impl->LoadedBounds[1] -
+                                          this->Impl->LoadedBounds[0]);
+  this->Impl->DatasetStepSize[1] = 1.0 / (this->Impl->LoadedBounds[3] -
+                                          this->Impl->LoadedBounds[2]);
+  this->Impl->DatasetStepSize[2] = 1.0 / (this->Impl->LoadedBounds[5] -
+                                          this->Impl->LoadedBounds[4]);
 
   // Now use the shader
-  ///
   this->Impl->Shader.Use();
 
   if (ren->GetActiveCamera()->GetParallelProjection())
@@ -1841,11 +1829,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   this->Impl->TextureToDataSetMat->SetElement(3, 3,
     1.0);
   this->Impl->TextureToDataSetMat->SetElement(0, 3,
-    this->Impl->Bounds[0]);
+    this->Impl->LoadedBounds[0]);
   this->Impl->TextureToDataSetMat->SetElement(1, 3,
-    this->Impl->Bounds[2]);
+    this->Impl->LoadedBounds[2]);
   this->Impl->TextureToDataSetMat->SetElement(2, 3,
-    this->Impl->Bounds[4]);
+    this->Impl->LoadedBounds[4]);
 
   this->Impl->InverseTextureToDataSetMat->DeepCopy(
     this->Impl->TextureToDataSetMat.GetPointer());
@@ -1863,11 +1851,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   // NOTE Assuming that light is located on the camera
   glUniform3fv(this->Impl->Shader("m_light_pos"), 1, &(fvalue3[0]));
 
-  vtkInternal::ToFloat(this->Bounds[0], this->Bounds[2], this->Bounds[4], fvalue3);
+  vtkInternal::ToFloat(this->Impl->LoadedBounds[0],
+                       this->Impl->LoadedBounds[2],
+                       this->Impl->LoadedBounds[4], fvalue3);
   glUniform3fv(this->Impl->Shader("m_vol_extents_min"), 1,
                &(fvalue3[0]));
 
-  vtkInternal::ToFloat(this->Bounds[1], this->Bounds[3], this->Bounds[5], fvalue3);
+  vtkInternal::ToFloat(this->Impl->LoadedBounds[1],
+                       this->Impl->LoadedBounds[3],
+                       this->Impl->LoadedBounds[5], fvalue3);
   glUniform3fv(this->Impl->Shader("m_vol_extents_max"), 1,
                &(fvalue3[0]));
 

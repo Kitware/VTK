@@ -149,9 +149,8 @@ void vtkGLSLShader::UnUse()
 ///
 void vtkGLSLShader::AddAttribute(const string& attribute)
 {
-  this->AttributeList[attribute] = glGetAttribLocation(this->Program, attribute.c_str());
-  std::cerr << "this->AttributeList[attribute] " << attribute << std::endl;
-  std::cerr << "this->AttributeList[attribute] value " <<  this->AttributeList[attribute] << std::endl;
+  this->AttributeList[attribute] = glGetAttribLocation(
+                                     this->Program, attribute.c_str());
 }
 
 ///---------------------------------------------------------------------------
