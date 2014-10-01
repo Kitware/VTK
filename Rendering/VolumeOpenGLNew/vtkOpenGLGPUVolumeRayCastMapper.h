@@ -71,7 +71,10 @@ class VTKRENDERINGVOLUMEOPENGLNEW_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
 
     // Description:
     // Empty implementation.
-    void GetReductionRatio(double vtkNotUsed(ratio)[3]) {};
+    void GetReductionRatio(double* ratio)
+      {
+      ratio[0] = ratio[1] = ratio[2] = 1.0;
+      }
 
     // Description:
     // Empty implementation.
