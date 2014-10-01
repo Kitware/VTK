@@ -982,7 +982,14 @@ vtkScalarsToColors *vtkPlotBar::GetLookupTable()
 //-----------------------------------------------------------------------------
 void vtkPlotBar::CreateDefaultLookupTable()
 {
-  this->LookupTable = vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
+  // rainbow - blue to red
+  lut->SetHueRange(0.6667, 0.0);
+  lut->Build();
+  double bounds[4];
+  this->GetBounds(bounds);
+  lut->SetRange(bounds[0], bounds[1]);
+  this->LookupTable = lut;
 }
 
 //-----------------------------------------------------------------------------
