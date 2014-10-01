@@ -243,7 +243,7 @@ void vtkValuePainter::ValueToColor(double value, double min, double scale,
   double valueS = (value - min)/scale;
   valueS = (valueS<0.0?0.0:valueS); //prevent underflow
   valueS = (valueS>1.0?1.0:valueS); //prevent overflow
-  int valueI = valueS * 0xffffff;
+  int valueI = valueS * 0xfffffe + 0x1; //0 is reserved as "nothing"
 
   color[0] = (unsigned char)((valueI & 0xff0000)>>16);
   color[1] = (unsigned char)((valueI & 0x00ff00)>>8);
@@ -256,7 +256,7 @@ void vtkValuePainter::ColorToValue(unsigned char *color, double min, double scal
 {
   //TODO: make this configurable
   int valueI = ((int)(*(color+0)))<<16 | ((int)(*(color+1)))<<8 | ((int)(*(color+2)));
-  double valueS = valueI/(double)0xffffff;
+  double valueS = (valueI-0x1)/(double)0xfffffe; //0 is reserved as "nothing"
   value = valueS*scale + min;
 }
 
