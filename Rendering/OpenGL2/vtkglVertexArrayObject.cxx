@@ -253,7 +253,6 @@ bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
 
   if (divisor > 0)
     {
-    glVertexAttribDivisor(attribs.index, 1);
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
       {
 #if GL_ES_VERSION_2_0 != 1
