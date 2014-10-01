@@ -37,6 +37,11 @@ class VTKRENDERINGVOLUMEOPENGLNEW_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
     ~vtkOpenGLGPUVolumeRayCastMapper();
 
     // Description:
+    // Delete OpenGL objects.
+    // \post done: this->OpenGLObjectsCreated==0
+    virtual void ReleaseGraphicsResources(vtkWindow *window);
+
+    // Description:
     // Build vertex and fragment shader for the volume rendering
     void BuildShader(vtkRenderer* ren, vtkVolume* vol, int noOfComponents);
 

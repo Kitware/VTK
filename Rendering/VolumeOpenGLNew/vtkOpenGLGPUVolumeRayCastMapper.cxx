@@ -1291,6 +1291,78 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& vtkNotUsed(os),
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
+  vtkWindow *window)
+{
+  if(this->Impl->VolumeTextureId)
+    {
+    window->MakeCurrent();
+    GLuint volumeTextureObject = static_cast<GLuint>(
+                                   this->Impl->VolumeTextureId);
+    glDeleteTextures(1, &volumeTextureObject);
+    this->Impl->VolumeTextureId = 0;
+    }
+
+  if(this->Impl->NoiseTextureId)
+    {
+    window->MakeCurrent();
+    GLuint noiseTextureObject = static_cast<GLuint>(
+                                  this->Impl->NoiseTextureId);
+    glDeleteTextures(1, &noiseTextureObject);
+    this->Impl->NoiseTextureId = 0;
+    }
+
+  if(this->Impl->DepthTextureId)
+    {
+    window->MakeCurrent();
+    GLuint depthTextureObject = static_cast<GLuint>(
+                                  this->Impl->DepthTextureId);
+    glDeleteTextures(1, &depthTextureObject);
+    this->Impl->DepthTextureId = 0;
+    }
+
+  if(this->Impl->MaskTextures != 0)
+    {
+    if(!this->Impl->MaskTextures->Map.empty())
+      {
+      std::map<vtkImageData*, vtkVolumeMask*>::iterator it =
+        this->Impl->MaskTextures->Map.begin();
+      while(it != this->Impl->MaskTextures->Map.end())
+        {
+        vtkVolumeMask* texture = (*it).second;
+        delete texture;
+        ++it;
+        }
+      this->Impl->MaskTextures->Map.clear();
+      }
+    }
+
+  if(this->Impl->RGBTable != 0)
+    {
+    delete this->Impl->RGBTable;
+    this->Impl->RGBTable = 0;
+    }
+
+  if(this->Impl->Mask1RGBTable != 0)
+    {
+    delete this->Impl->Mask1RGBTable;
+    this->Impl->Mask1RGBTable = 0;
+    }
+
+  if(this->Impl->Mask2RGBTable != 0)
+    {
+    delete this->Impl->Mask2RGBTable;
+    this->Impl->Mask2RGBTable = 0;
+    }
+
+  if(this->Impl->OpacityTables != 0)
+    {
+    delete this->Impl->OpacityTables;
+    this->Impl->OpacityTables = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                                   vtkVolume* vol,
                                                   int noOfComponents)
