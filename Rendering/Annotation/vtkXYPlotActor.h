@@ -99,7 +99,7 @@
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
-#include <vtkSmartPointer.h> // For SP
+#include "vtkSmartPointer.h" // For SP
 
 class vtkXYPlotActorConnections;
 class vtkAlgorithmOutput;

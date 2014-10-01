@@ -20,8 +20,8 @@
 #ifndef __vtkGeoJSONWriter_h
 #define __vtkGeoJSONWriter_h
 
-#include <vtkIOGeoJSONModule.h> // For export macro
-#include <vtkWriter.h>
+#include "vtkIOGeoJSONModule.h" // For export macro
+#include "vtkWriter.h"
 
 class vtkLookupTable;
 

@@ -67,7 +67,7 @@
 #ifndef __vtkSMPThreadLocalObject_h
 #define __vtkSMPThreadLocalObject_h
 
-#include <vtkSMPThreadLocal.h>
+#include "vtkSMPThreadLocal.h"
 
 template <typename T>
 class vtkSMPThreadLocalObject

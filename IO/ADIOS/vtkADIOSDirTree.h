@@ -21,7 +21,7 @@
 #include <vector>
 #include <map>
 
-#include <vtkIndent.h>
+#include "vtkIndent.h"
 
 #include "ADIOSScalar.h"
 #include "ADIOSVarInfo.h"

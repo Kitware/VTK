@@ -34,7 +34,7 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkNetCDFReader.h"
 
-#include <vtkStdString.h> // Used for ivars.
+#include "vtkStdString.h" // Used for ivars.
 
 class vtkImageData;
 class vtkPoints;

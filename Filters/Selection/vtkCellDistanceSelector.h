@@ -33,8 +33,8 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_CELL_DISTANCE_SELECTOR_H
 
 #include "vtkFiltersSelectionModule.h" // For export macro
-#include <vtkSelectionAlgorithm.h>
-#include <vtkSmartPointer.h> // For smart pointers
+#include "vtkSelectionAlgorithm.h"
+#include "vtkSmartPointer.h" // For smart pointers
 
 class vtkDataSet;
 class vtkSelection;

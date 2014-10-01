@@ -24,7 +24,7 @@
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
-#include <vtkAbstractInterpolatedVelocityField.h>
+#include "vtkAbstractInterpolatedVelocityField.h"
 
 class vtkOverlappingAMR;
 

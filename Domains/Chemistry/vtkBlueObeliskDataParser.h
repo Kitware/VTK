@@ -36,7 +36,7 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkXMLParser.h"
 
-#include <vtkSmartPointer.h> // For vtkSmartPointer
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 class vtkAbstractArray;
 class vtkBlueObeliskData;

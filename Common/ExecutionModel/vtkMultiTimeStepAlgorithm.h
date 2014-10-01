@@ -30,7 +30,7 @@
 #include "vtkSmartPointer.h" //needed for a private variable
 
 #include <vector> //needed for a private variable
-#include <vtkDataObject.h> // needed for the smart pointer
+#include "vtkDataObject.h" // needed for the smart pointer
 
 class vtkInformationDoubleVectorKey;
 class vtkMultiBlockDataSet;
