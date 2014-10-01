@@ -114,18 +114,21 @@ vtkRenderWindow::~vtkRenderWindow()
     this->ConstantFDOffsets[i] = NULL;
     }
 
-  vtkCollectionSimpleIterator rsit;
-  this->Renderers->InitTraversal(rsit);
-  vtkRenderer *aren;
-  while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
+  if (this->Renderers)
     {
-    if (aren->GetRenderWindow() == this)
+    vtkCollectionSimpleIterator rsit;
+    this->Renderers->InitTraversal(rsit);
+    vtkRenderer *aren;
+    while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
       {
-      vtkErrorMacro("Window destructed with renderer still associated with it!");
+      if (aren->GetRenderWindow() == this)
+        {
+        vtkErrorMacro("Window destructed with renderer still associated with it!");
+        }
       }
-    }
 
-  this->Renderers->Delete();
+    this->Renderers->Delete();
+    }
 
   if (this->PainterDeviceAdapter)
     {
