@@ -150,7 +150,9 @@ public:
 //ETX
 
   // Description:
-  // Use front buffer for tests. By default use back buffer.
+  // Use the front buffer first for regression test comparisons. By
+  // default use back buffer first, then try the front buffer if the
+  // test fails when comparing to the back buffer.
   vtkSetClampMacro(FrontBuffer, int, 0, 1);
   vtkBooleanMacro(FrontBuffer, int);
   vtkGetMacro(FrontBuffer, int);
