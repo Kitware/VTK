@@ -13,9 +13,11 @@
 =========================================================================*/
 
 #include "vtkglVertexArrayObject.h"
+#include "vtk_glew.h"
+
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkglBufferObject.h"
 #include "vtkShaderProgram.h"
-#include "vtk_glew.h"
 
 #include <map>
 #include <vector>
@@ -251,9 +253,13 @@ bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
 
   if (divisor > 0)
     {
-#if GL_ES_VERSION_2_0 != 1
     glVertexAttribDivisor(attribs.index, 1);
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+#if GL_ES_VERSION_2_0 != 1
+      glVertexAttribDivisor(attribs.index, 1);
 #endif
+      }
     }
 
   // If vertex array objects are not supported then build up our list.
@@ -318,9 +324,12 @@ bool VertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram *program,
                           BUFFER_OFFSET(offset + stride*i/elementTupleSize));
     if (divisor > 0)
       {
+      if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+        {
 #if GL_ES_VERSION_2_0 != 1
-      glVertexAttribDivisor(attribs.index+i, 1);
+        glVertexAttribDivisor(attribs.index+i, 1);
 #endif
+        }
       }
     }
 

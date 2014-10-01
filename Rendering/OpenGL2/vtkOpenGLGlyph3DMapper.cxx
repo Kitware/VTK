@@ -52,7 +52,7 @@ class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry
 {
 public:
   std::vector<vtkIdType> PickIds;
-  std::vector<float> Colors;
+  std::vector<unsigned char> Colors;
   std::vector<float> Matrices;  // transposed
   std::vector<float> NormalMatrices; // transposed
   vtkTimeStamp BuildTime;
@@ -366,6 +366,7 @@ void vtkOpenGLGlyph3DMapper::Render(
       }
 
     // use fast path
+    gh->SetUseFastPath(fastPath);
     if (fastPath)
       {
       gh->GlyphRender(ren, actor, entry->NumberOfPoints,
@@ -528,10 +529,10 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
         subarray->Entries[index];
 
-      entry->Colors[entry->NumberOfPoints*4] = 1.0;
-      entry->Colors[entry->NumberOfPoints*4+1] = 1.0;
-      entry->Colors[entry->NumberOfPoints*4+2] = 1.0;
-      entry->Colors[entry->NumberOfPoints*4+3] = 1.0;
+      entry->Colors[entry->NumberOfPoints*4] = 255;
+      entry->Colors[entry->NumberOfPoints*4+1] = 255;
+      entry->Colors[entry->NumberOfPoints*4+2] = 255;
+      entry->Colors[entry->NumberOfPoints*4+3] = 255;
 
       double scalex = 1.0;
       double scaley = 1.0;
@@ -650,12 +651,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
       if (colors)
         {
-        unsigned char rgba[4];
-        colors->GetTupleValue(inPtId, rgba);
-        entry->Colors[entry->NumberOfPoints*4] = rgba[0]/255.0f;
-        entry->Colors[entry->NumberOfPoints*4+1] = rgba[1]/255.0f;
-        entry->Colors[entry->NumberOfPoints*4+2] = rgba[2]/255.0f;
-        entry->Colors[entry->NumberOfPoints*4+3] = rgba[3]/255.0f;
+        colors->GetTupleValue(inPtId, &(entry->Colors[entry->NumberOfPoints*4]));
         }
 
       // scale data if appropriate

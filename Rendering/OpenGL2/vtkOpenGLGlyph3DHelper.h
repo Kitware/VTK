@@ -40,15 +40,21 @@ public:
     this->ModelNormalMatrix = matrix;
   }
 
-  void SetModelColor(float *color)
+  void SetModelColor(unsigned char *color)
   {
     this->ModelColor = color;
+  }
+
+  void SetUseFastPath(bool fastpath)
+  {
+    this->UseFastPath = fastpath;
+    this->UsingInstancing = false;
   }
 
   // Description
   // Fast path for rendering glyphs comprised of only one type of primative
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<float> &colors, std::vector<float> &matrices,
+      std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
       unsigned long pointMTime);
 
@@ -59,7 +65,7 @@ protected:
   // special opengl 32 version that uses instances
 #if GL_ES_VERSION_2_0 != 1
   void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
-      std::vector<float> &colors, std::vector<float> &matrices,
+      std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
       unsigned long pointMTime);
 #endif
@@ -88,9 +94,12 @@ protected:
   // Set the shader parameteres related to the property
   virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
+  bool UseFastPath;
+  bool UsingInstancing;
+
   float* ModelTransformMatrix;
   float* ModelNormalMatrix;
-  float* ModelColor;
+  unsigned char* ModelColor;
 
   vtkgl::BufferObject NormalMatrixBuffer;
   vtkgl::BufferObject MatrixBuffer;
