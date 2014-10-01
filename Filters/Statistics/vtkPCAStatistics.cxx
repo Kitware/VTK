@@ -266,7 +266,6 @@ bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
       vtkGenericWarningMacro( "The normalization scheme specified (" << normScheme << ") is invalid." );
       return false;
       }
-      break;
     }
 
   // Allow derived classes to add rows, but never allow fewer than required.

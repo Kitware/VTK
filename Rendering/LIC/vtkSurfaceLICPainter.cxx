@@ -452,7 +452,7 @@ float *RandomNoise2D::Generate(
             impulseProb,
             impulseBgNoiseVal,
             seed);
-      break;
+
     case UNIFORM:
       return this->GenerateUniform(
             sideLen,
@@ -463,7 +463,7 @@ float *RandomNoise2D::Generate(
             impulseProb,
             impulseBgNoiseVal,
             seed);
-      break;
+
     case PERLIN:
       return this->GeneratePerlin(
             sideLen,
@@ -474,7 +474,6 @@ float *RandomNoise2D::Generate(
             impulseProb,
             impulseBgNoiseVal,
             seed);
-      break;
     }
   return NULL;
 }
