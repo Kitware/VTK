@@ -743,16 +743,30 @@ int  ExtractContourConnectivities(
 //----------------------------------------------------------------------------
 // Use eigenvalues to determine the dimension of the input contour points.
 // This chunk of code is mostly copied from vtkOBBTree::ComputeOBB()
-// Function return 0 if input is a single point, 1 if co-linear,
+// Function returns 0 if input is a single point, 1 if co-linear,
 // 2 if co-planar, 3 if 3D. It also returns the center as well as the normal
 // (the eigenvector with the smallest eigenvalue) of the input contour pointset.
-int CheckContourDimensions(vtkPoints* points, vtkIdType npts, vtkIdType * ptIds,
-                           double * normal, double * center)
+static int CheckContourDimensions(vtkPoints* points, vtkIdType npts,
+                                  const vtkIdType * ptIds,
+                                  double * normal, double * center)
 {
   static const double eigenvalueRatioThresh = 0.001;
 
   if (npts < 3)
     {
+    // Defensively return zeros here for normal and center.
+    if (normal)
+      {
+      normal[0] = 0.0;
+      normal[1] = 0.0;
+      normal[2] = 0.0;
+      }
+    if (center)
+      {
+      center[0] = 0.0;
+      center[1] = 0.0;
+      center[2] = 0.0;
+      }
     return npts - 1;
     }
 
@@ -873,12 +887,12 @@ int CheckContourDimensions(vtkPoints* points, vtkIdType npts, vtkIdType * ptIds,
 // compute normal once and reuse it for all other contour points.
 // TODO: for non-planar cut, need to compute normal for each contour point. We
 // then project edges onto a tangent plane and sort them.
-void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
-                                     vtkIdToIdVectorMapType & cpBackupMap,
-                                     vtkIdSetType & cpSet,
-                                     vtkPoints * points)
+static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
+                                             vtkIdToIdVectorMapType & cpBackupMap,
+                                             vtkIdSetType & cpSet,
+                                             vtkPoints * points)
 {
-  double o[3], p[3], x0[3], x1[3], e0[3], e1[3], n[3], nn[3];
+  double p[3], x0[3], x1[3], e0[3], e1[3], nn[3];
   vtkIdSetType::iterator setIt;
   vtkIdVectorType pids;
   for (setIt = cpSet.begin(); setIt != cpSet.end(); ++setIt)
@@ -887,7 +901,8 @@ void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
     }
 
   // return if the input contour points are 1D. Note: the function also
-  // compute normal n and center c.
+  // computes normal n and center o.
+  double o[3], n[3];
   if (CheckContourDimensions(
         points, static_cast<vtkIdType>(pids.size()), &(pids[0]), n, o) < 2)
     {
@@ -1159,10 +1174,10 @@ void OrderTwoConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
 // (typically caused by a non-watertight cell). In this case, we will ignore
 // the existing edges between contours. Instead, simply order them as a polygon
 // around the center point.
-int OrderDisconnectedContourPoints(vtkIdSetType & cpSet,
-                                   vtkPoints * points,
-                                   vtkIdVectorType & pointLabelVector,
-                                   vtkIdVectorType & polygon)
+static int OrderDisconnectedContourPoints(vtkIdSetType & cpSet,
+                                          vtkPoints * points,
+                                          vtkIdVectorType & pointLabelVector,
+                                          vtkIdVectorType & polygon)
 {
   polygon.clear();
   if (cpSet.empty())
@@ -1170,7 +1185,7 @@ int OrderDisconnectedContourPoints(vtkIdSetType & cpSet,
     return 0;
     }
 
-  double o[3], x[3], e0[3], e[3], n[3], nn[3];
+  double x[3], e0[3], e[3], nn[3];
   vtkIdSetType::iterator setIt;
   for (setIt = cpSet.begin(); setIt != cpSet.end(); ++setIt)
     {
@@ -1178,7 +1193,8 @@ int OrderDisconnectedContourPoints(vtkIdSetType & cpSet,
     }
 
   // return if the input contour points are 1D. Note: the function also
-  // compute normal n and center c.
+  // computes normal n and center o.
+  double o[3], n[3];
   if (CheckContourDimensions(
         points, static_cast<vtkIdType>(polygon.size()), &(polygon[0]), n, o) < 2)
     {
