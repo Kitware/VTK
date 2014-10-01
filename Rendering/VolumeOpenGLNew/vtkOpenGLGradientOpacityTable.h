@@ -134,6 +134,8 @@ public:
       glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, value);
       glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, value);
       }
+
+    glActiveTexture(GL_TEXTURE0);
     }
 
 protected:

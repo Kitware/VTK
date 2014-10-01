@@ -409,8 +409,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   vtkImageData* imageData, vtkDataArray* scalars)
 {
-
-
   // Generate OpenGL texture
   glActiveTexture(GL_TEXTURE0);
   glGenTextures(1, &this->VolumeTextureId);
@@ -424,8 +422,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   glTexParameterfv(vtkgl::TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-
 
   // Allocate data with internal format and foramt as (GL_RED)
   GLint internalFormat = 0;
@@ -657,8 +653,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
   // Mask
   if(maskInput != 0)
     {
-    glActiveTexture(GL_TEXTURE7);
-
     // Find the texture.
     std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
       this->MaskTextures->Map.find(maskInput);
@@ -687,7 +681,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
 
     result = result && mask->IsLoaded();
     this->CurrentMask = mask;
-    glActiveTexture(GL_TEXTURE0);
     }
 
   return result;
@@ -820,8 +813,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
     this->RGBTable->Update(
       colorTransferFunction, this->ScalarsRange,
       volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
-
-    glActiveTexture(GL_TEXTURE0);
     }
 
   if (this->Parent->MaskInput != 0 &&
@@ -835,8 +826,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
 
     colorTransferFunc = volumeProperty->GetRGBTransferFunction(2);
     this->Mask2RGBTable->Update(colorTransferFunc, this->ScalarsRange, false, 8);
-
-    glActiveTexture(GL_TEXTURE0);
     }
 
   return 0;
@@ -869,10 +858,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
-
-  // Restore default active texture
-  glActiveTexture(GL_TEXTURE0);
-
   return 0;
 }
 
@@ -910,9 +895,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
-
-  // Restore default active texture
-  glActiveTexture(GL_TEXTURE0);
 
   return 0;
 }
@@ -1018,7 +1000,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
                       this->WindowLowerLeft[0], this->WindowLowerLeft[1],
                       this->WindowSize[0], this->WindowSize[1]);
-
+  glActiveTexture(GL_TEXTURE0);
 }
 
 //----------------------------------------------------------------------------
@@ -1637,10 +1619,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   if (vol->GetProperty()->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
-      ren->GetActiveCamera()->GetParallelProjection() != this->Impl->LastProjectionParallel
+      ren->GetActiveCamera()->GetParallelProjection() !=
+      this->Impl->LastProjectionParallel
       )
     {
-    this->Impl->LastProjectionParallel = ren->GetActiveCamera()->GetParallelProjection();
+    this->Impl->LastProjectionParallel =
+      ren->GetActiveCamera()->GetParallelProjection();
     this->BuildShader(ren, vol, numberOfScalarComponents);
     }
 
@@ -1784,6 +1768,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
       this->Impl->Mask2RGBTable->Bind(8);
       }
     }
+
 
   // Opacity texture is at unit 2
   // TODO Supports only one table for now

@@ -67,6 +67,8 @@ public:
               const char* arrayName,
               vtkIdType maxMemoryInBytes)
     {
+      glActiveTexture(GL_TEXTURE6);
+
       bool needUpdate = false;
       bool modified = false;
       if(this->TextureId == 0)
@@ -105,7 +107,7 @@ public:
         // DONT USE GetScalarType() or GetNumberOfScalarComponents() on
         // ImageData as it deals only with point data...
         int scalarType = scalars->GetDataType();
-        if(scalarType!=VTK_UNSIGNED_CHAR)
+        if(scalarType != VTK_UNSIGNED_CHAR)
           {
           cout <<"Mask should be VTK_UNSIGNED_CHAR." << endl;
           }
@@ -296,6 +298,7 @@ public:
         {
         this->BuildTime.Modified();
         }
+      glActiveTexture(GL_TEXTURE0);
     }
 
   double* GetLoadedBounds()
