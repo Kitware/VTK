@@ -22,7 +22,10 @@
 // vtkTriangleFilter to triangulate non-triangular polygons prior to running
 // this filter if you need to strip all the data.) The filter will pass
 // through (to the output) vertices if they are present in the input
-// polydata.
+// polydata. Also note that if triangle strips or polylines are defined in
+// the input they are passed through and not joined nor extended. (If you wish
+// to strip these use vtkTriangleFilter to fragment the input into triangles
+// and lines prior to running vtkStripper.)
 //
 // The ivar MaximumLength can be used to control the maximum
 // allowable triangle strip and poly-line length.
