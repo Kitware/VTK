@@ -62,6 +62,7 @@ void vtkBMPReader::ExecuteInformation()
   int xsize, ysize;
   FILE *fp;
   vtkTypeInt32 tmp;
+  vtkTypeInt32 offset;
   vtkTypeInt32 infoSize;
   vtkTypeInt16 stmp1, stmp2;
 
@@ -119,11 +120,10 @@ void vtkBMPReader::ExecuteInformation()
     errorOccurred = true;
     }
   // read the offset
-  else if (fread(&tmp,4,1,fp) != 1)
+  else if (fread(&offset,4,1,fp) != 1)
     {
     errorOccurred = true;
     }
-
   // get size of header
   else if (fread(&infoSize,4,1,fp) != 1)
     {
@@ -281,6 +281,11 @@ void vtkBMPReader::ExecuteInformation()
     vtkWarningMacro("File close failed on " << this->InternalFileName);
     }
 
+  // Offset is the true header size. See bug 14397
+  vtkByteSwap::Swap4LE(&offset);
+  this->ManualHeaderSize = 1;
+  this->HeaderSize = offset;
+
   // if the user has set the VOI, just make sure its valid
   if (this->DataVOI[0] || this->DataVOI[1] ||
       this->DataVOI[2] || this->DataVOI[3] ||
@@ -313,6 +318,7 @@ void vtkBMPReader::ExecuteInformation()
     {
     this->SetNumberOfScalarComponents(3);
     }
+
   this->vtkImageReader::ExecuteInformation();
 }
 
