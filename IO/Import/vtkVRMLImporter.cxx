@@ -294,64 +294,79 @@ void vtkVRMLImporter::ImportEnd ()
     fclose (this->FileFD);
     }
   this->FileFD = NULL;
+
+  if (this->CurrentActor)
+    {
+    this->CurrentActor->Delete();
+    this->CurrentActor = NULL;
+    }
+  if (this->CurrentLight)
+    {
+    this->CurrentLight->Delete();
+    this->CurrentLight = NULL;
+    }
+  if (this->CurrentProperty)
+    {
+    this->CurrentProperty->Delete();
+    this->CurrentProperty = NULL;
+    }
+  if (this->CurrentCamera)
+    {
+    this->CurrentCamera->Delete();
+    this->CurrentCamera = NULL;
+    }
+  if (this->CurrentSource)
+    {
+    this->CurrentSource->Delete();
+    this->CurrentSource = NULL;
+    }
+  if (this->CurrentPoints)
+    {
+    this->CurrentPoints->Delete();
+    this->CurrentPoints = NULL;
+    }
+  if (this->CurrentNormals)
+    {
+    this->CurrentNormals->Delete();
+    this->CurrentNormals = NULL;
+    }
+  if (this->CurrentTCoords)
+    {
+    this->CurrentTCoords->Delete();
+    this->CurrentTCoords = NULL;
+    }
+  if (this->CurrentTCoordCells)
+    {
+    this->CurrentTCoordCells->Delete();
+    this->CurrentTCoordCells = NULL;
+    }
+  if (this->CurrentNormalCells)
+    {
+    this->CurrentNormalCells->Delete();
+    this->CurrentNormalCells = NULL;
+    }
+  if (this->CurrentScalars)
+    {
+    this->CurrentScalars->Delete();
+    this->CurrentScalars = NULL;
+    }
+  if (this->CurrentMapper)
+    {
+    this->CurrentMapper->Delete();
+    this->CurrentMapper = NULL;
+    }
+  if (this->CurrentLut)
+    {
+    this->CurrentLut->Delete();
+    this->CurrentLut = NULL;
+    }
+  this->CurrentTransform->Delete();
+  this->CurrentTransform = NULL;
 }
 
 
 vtkVRMLImporter::~vtkVRMLImporter()
 {
-  if (this->CurrentActor)
-    {
-    this->CurrentActor->Delete();
-    }
-  if (this->CurrentLight)
-    {
-    this->CurrentLight->Delete();
-    }
-  if (this->CurrentProperty)
-    {
-    this->CurrentProperty->Delete();
-    }
-  if (this->CurrentCamera)
-    {
-    this->CurrentCamera->Delete();
-    }
-  if (this->CurrentSource)
-    {
-    this->CurrentSource->Delete();
-    }
-  if (this->CurrentPoints)
-    {
-    this->CurrentPoints->Delete();
-    }
-  if (this->CurrentNormals)
-    {
-    this->CurrentNormals->Delete();
-    }
-  if (this->CurrentTCoords)
-    {
-    this->CurrentTCoords->Delete();
-    }
-  if (this->CurrentTCoordCells)
-    {
-    this->CurrentTCoordCells->Delete();
-    }
-  if (this->CurrentNormalCells)
-    {
-    this->CurrentNormalCells->Delete();
-    }
-  if (this->CurrentScalars)
-    {
-    this->CurrentScalars->Delete();
-    }
-  if (this->CurrentMapper)
-    {
-    this->CurrentMapper->Delete();
-    }
-  if (this->CurrentLut)
-    {
-    this->CurrentLut->Delete();
-    }
-  this->CurrentTransform->Delete();
   if (this->FileName)
     {
     delete [] this->FileName;
@@ -1069,6 +1084,7 @@ vtkVRMLImporter::exitField()
         this->CurrentPoints->Delete();
         }
       this->CurrentPoints = this->Parser->yylval.vec3f;
+      this->CurrentPoints->Register(this);
       // Seed the scalars with default values.
       this->CurrentScalars->Reset();
       for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++)
@@ -1094,6 +1110,10 @@ vtkVRMLImporter::exitField()
   // Handle coord field, simply set the CurrentPoints
   else if (strcmp(fr->fieldName, "coord") == 0)
     {
+    if (this->CurrentPoints)
+      {
+      this->CurrentPoints->Delete();
+      }
     this->CurrentPoints = this->Parser->yylval.vec3f;
     this->CurrentPoints->Register(this);
     if (this->Parser->creatingDEF)
@@ -1271,19 +1291,27 @@ vtkVRMLImporter::exitField()
       {
       this->CurrentNormals->InsertTuple(i, this->Parser->yylval.vec3f->GetPoint(i));
       }
-    this->Parser->yylval.vec3f->Reset();this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f->Reset();
+    this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f = NULL;
     }
   else if (strcmp(fr->fieldName, "location") == 0)
     {
-    this->Parser->yylval.vec3f->Reset();this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f->Reset();
+    this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f = NULL;
     }
   else if (strcmp(fr->fieldName, "position") == 0)
     {
-    this->Parser->yylval.vec3f->Reset();this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f->Reset();
+    this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f = NULL;
     }
   else if (strcmp(fr->fieldName, "center") == 0)
     {
-    this->Parser->yylval.vec3f->Reset();this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f->Reset();
+    this->DeleteObject(this->Parser->yylval.vec3f);
+    this->Parser->yylval.vec3f = NULL;
     }
   else if (strcmp(fr->fieldName, "texCoordIndex") == 0)
     {
@@ -1385,20 +1413,24 @@ vtkVRMLImporter::useNode(const char *name) {
       }
     else if (strcmp(useO->GetClassName(), "vtkPoints") == 0)
       {
-      this->Parser->yylval.vec3f = (vtkPoints *) useO;
+      vtkPoints *points = (vtkPoints *) useO;
+      this->Parser->yylval.vec3f = points;
+      points->Register(this);
       if (this->CurrentPoints)
         {
         this->CurrentPoints->Delete();
         }
-      this->CurrentPoints = (vtkPoints *) useO;
+      this->CurrentPoints = points;
       }
     else if (strcmp(useO->GetClassName(), "vtkLookupTable") == 0)
       {
+      vtkLookupTable *lut = (vtkLookupTable *) useO;
+      lut->Register(this);
       if (this->CurrentLut)
         {
         this->CurrentLut->Delete();
         }
-      this->CurrentLut = (vtkLookupTable *) useO;
+      this->CurrentLut = lut;
       // Seed the scalars with default values.
       this->CurrentScalars->Reset();
       for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++)
