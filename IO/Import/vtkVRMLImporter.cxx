@@ -717,6 +717,13 @@ vtkVRMLImporter::exitNode()
 
     if (tcoords_correspond) // no rejigging necessary
       {
+      vtkPolyData *pd = this->CurrentMapper->GetInput();
+      if (pd == NULL)
+        {
+        pd = vtkPolyData::New();
+        this->CurrentMapper->SetInputData(pd);
+        pd->Delete();
+        }
       ((vtkPolyData *)this->CurrentMapper->GetInput())->SetPoints(this->CurrentPoints);
       // We always create a scalar object in the enternode method.
       ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetScalars(CurrentScalars);
@@ -1192,6 +1199,12 @@ vtkVRMLImporter::exitField()
     vtkIdType *pts=0;
     vtkIdType npts;
     vtkPolyData *pd = (vtkPolyData *)this->CurrentMapper->GetInput();
+    if (pd == NULL)
+      {
+      pd = vtkPolyData::New();
+      this->CurrentMapper->SetInputData(pd);
+      pd->Delete();
+      }
     if (pd->GetNumberOfPolys() > 0)
       cells = pd->GetPolys();
     else
