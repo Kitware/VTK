@@ -58,8 +58,8 @@ namespace vtkvolume
     return std::string(
       "mat4 ogl_projection_matrix = m_projection_matrix; \n\
       mat4 ogl_modelview_matrix = m_modelview_matrix; \n\
-      vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * m_volume_matrix * \n\
-                 vec4(m_in_vertex_pos.xyz, 1); \n\
+      vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * \n\
+                 m_volume_matrix * vec4(m_in_vertex_pos.xyz, 1); \n\
       gl_Position = pos;"
     );
     }
@@ -70,9 +70,10 @@ namespace vtkvolume
                                    vtkVolume* vtkNotUsed(vol))
     {
     return std::string(
-      "// Assuming point data only. Also, we offset the texture coordinate to account \n\
-       // for OpenGL treating voxel at the center of the cell. \n\
-       vec3 uvx = (m_in_vertex_pos - m_vol_extents_min) / (m_vol_extents_max - m_vol_extents_min); \n\
+      "// Assuming point data only. Also, we offset the texture coordinate \n\
+       // to account for OpenGL treating voxel at the center of the cell. \n\
+       vec3 uvx = (m_in_vertex_pos - m_vol_extents_min) / \n\
+                  (m_vol_extents_max - m_vol_extents_min); \n\
        vec3 delta = m_texture_extents_max - m_texture_extents_min; \n\
        m_texture_coords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;"
     );
@@ -156,7 +157,7 @@ namespace vtkvolume
     return std::string(
       "g_light_pos_obj; \n\
       \n\
-      // Get the 3D texture coordinates for lookup into the m_volume dataset  \n\
+      // Get the 3D texture coordinates for lookup into the m_volume dataset \n\
       g_data_pos = m_texture_coords.xyz; \n\
       \n\
       // Eye position in object space  \n\
@@ -174,7 +175,8 @@ namespace vtkvolume
       \n\
       // Multiply the raymarching direction with the step size to get the \n\
       // sub-step size we need to take at each raymarching step  \n\
-      g_dir_step = (m_inverse_texture_dataset_matrix * vec4(geom_dir, 0.0)).xyz * m_sample_distance; \n\
+      g_dir_step = (m_inverse_texture_dataset_matrix * \n\
+                    vec4(geom_dir, 0.0)).xyz * m_sample_distance; \n\
       \n\
       g_data_pos += g_dir_step * texture2D(m_noise_sampler, g_data_pos.xy).x;\n\
       \n\
@@ -250,7 +252,7 @@ namespace vtkvolume
           vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
           vec3 h = normalize(ldir + vdir); \n\
           vec3 g2 = computeGradient(); \n\
-          g2 = (1.0/m_cell_spacing)                                                                                                                                                                                                                                                                                                                                                                                                                                                    * g2; \n\
+          g2 = (1.0/m_cell_spacing) * g2; \n\
           float normalLength = length(g2);\n\
           if (normalLength > 0.0) \n\
              { \n\
@@ -308,7 +310,8 @@ namespace vtkvolume
         "uniform vec3 m_projection_direction; \n\
          vec3 computeRayDirection() \n\
            { \n\
-           return normalize((m_inverse_volume_matrix * vec4(m_projection_direction, 0.0)).xyz); \n\
+           return normalize((m_inverse_volume_matrix * \n\
+                             vec4(m_projection_direction, 0.0)).xyz); \n\
            }");
       }
     }
@@ -325,7 +328,8 @@ namespace vtkvolume
           uniform sampler1D m_color_transfer_func; \n\
           vec4 computeColor(vec4 scalar) \n\
             { \n\
-            return computeLighting(vec4(texture1D(m_color_transfer_func, scalar.w).xyz, \n\
+            return computeLighting(vec4(texture1D(m_color_transfer_func, \n\
+                                                  scalar.w).xyz, \n\
                                         computeOpacity(scalar))); \n\
             }");
         }
@@ -394,7 +398,8 @@ namespace vtkvolume
       {
       return std::string(
         "// Light position in object space \n\
-         g_light_pos_obj = (m_inverse_volume_matrix *  vec4(m_light_pos, 1.0)); \n\
+         g_light_pos_obj = (m_inverse_volume_matrix * \n\
+                            vec4(m_light_pos, 1.0)); \n\
          if (g_light_pos_obj.w != 0.0) \n\
           { \n\
           g_light_pos_obj.x /= g_light_pos_obj.w; \n\
@@ -447,7 +452,8 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
       {
-      if (!mask || !maskInput || maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+      if (!mask || !maskInput ||
+          maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
         {
         shaderStr += std::string(
           "// Data fetching from the red channel of volume texture \n\
@@ -457,12 +463,14 @@ namespace vtkvolume
 
       shaderStr += std::string(
         "// Opacity calculation using compositing: \n\
-         // here we use front to back compositing scheme whereby the current sample \n\
-         // value is multiplied to the currently accumulated alpha and then this product \n\
-         // is subtracted from the sample value to get the alpha from the previous steps. \n\
-         // Next, this alpha is multiplied with the current sample colour and accumulated \n\
-         // to the composited colour. The alpha value from the previous steps is then \n\
-         // accumulated to the composited colour alpha. \n\
+         // here we use front to back compositing scheme whereby the current \n\
+         // sample value is multiplied to the currently accumulated alpha \n\
+         // and then this product is subtracted from the sample value to \n\
+         // get the alpha from the previous steps. \n\
+         // Next, this alpha is multiplied with the current sample colour \n\
+         // and accumulated to the composited colour. The alpha value from \n\
+         // the previous steps is then accumulated to the composited colour \n\
+         // alpha. \n\
          g_src_color.rgb *= g_src_color.a; \n\
          g_frag_color = (1.0f - g_frag_color.a) * g_src_color + g_frag_color;");
       }
@@ -569,9 +577,11 @@ namespace vtkvolume
       // the frame buffer texture has the size of the plain buffer but \n\
       // we use a fraction of it. The texture coordinates is less than 1 if \n\
       // the reduction factor is less than 1. \n\
-      // Device coordinates are between -1 and 1. We need texture coordinates \n\
-      // between 0 and 1 the m_depth_sampler buffer has the original size buffer. \n\
-      vec2 m_frag_tex_coord = (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
+      // Device coordinates are between -1 and 1. We need texture \n\
+      // coordinates between 0 and 1 the m_depth_sampler buffer has the \n\
+      // original size buffer. \n\
+      vec2 m_frag_tex_coord = \n\
+        (gl_FragCoord.xy - m_window_lower_left_corner) * \n\
                                m_inv_window_size; \n\
       vec4 l_depth_value = texture2D(m_depth_sampler, m_frag_tex_coord); \n\
       float m_terminate_point_max = 0.0; \n\
@@ -592,24 +602,28 @@ namespace vtkvolume
       // Abscissa of the point on the depth buffer along the ray. \n\
       // point in texture coordinates \n\
       vec4 m_terminate_point; \n\
-      m_terminate_point.x = (gl_FragCoord.x - m_window_lower_left_corner.x) * 2.0 * \n\
+      m_terminate_point.x = \n\
+        (gl_FragCoord.x - m_window_lower_left_corner.x) * 2.0 * \n\
                             m_inv_window_size.x - 1.0; \n\
-      m_terminate_point.y = (gl_FragCoord.y - m_window_lower_left_corner.y) * 2.0 * \n\
+      m_terminate_point.y = \n\
+        (gl_FragCoord.y - m_window_lower_left_corner.y) * 2.0 * \n\
                             m_inv_window_size.y - 1.0; \n\
       m_terminate_point.z = (2.0 * l_depth_value.x - (gl_DepthRange.near + \n\
                             gl_DepthRange.far)) / gl_DepthRange.diff; \n\
       m_terminate_point.w = 1.0; \n\
       \n\
-      // From normalized device coordinates to eye coordinates. m_projection_matrix \n\
-      // is inversed because of way VT \n\
+      // From normalized device coordinates to eye coordinates. \n\
+      // m_projection_matrix is inversed because of way VT \n\
       // From eye coordinates to texture coordinates \n\
       m_terminate_point = m_inverse_texture_dataset_matrix * \n\
-                          m_inverse_volume_matrix * m_inverse_modelview_matrix * \n\
+                          m_inverse_volume_matrix * \n\
+                          m_inverse_modelview_matrix * \n\
                           m_inverse_projection_matrix * \n\
                           m_terminate_point; \n\
       m_terminate_point /= m_terminate_point.w; \n\
       \n\
-      m_terminate_point_max = length(m_terminate_point.xyz - g_data_pos.xyz) / \n\
+      m_terminate_point_max = \n\
+        length(m_terminate_point.xyz - g_data_pos.xyz) / \n\
                               length(g_dir_step); \n\
       float m_current_t = 0.0;");
     }
@@ -620,28 +634,31 @@ namespace vtkvolume
                                    vtkVolume* vtkNotUsed(vol))
     {
     return std::string(
-      "// The two constants l_tex_min and l_tex_max have a value of vec3(-1,-1,-1) \n\
-      // and vec3(1,1,1) respectively. To determine if the data value is \n\
-      // outside the m_volume data, we use the sign function. The sign function \n\
-      // return -1 if the value is less than 0, 0 if the value is equal to 0 \n\
-      // and 1 if value is greater than 0. Hence, the sign function for the \n\
-      // calculation (sign(g_data_pos-l_tex_min) and sign (l_tex_max-g_data_pos)) will \n\
-      // give us vec3(1,1,1) at the possible minimum and maximum position. \n\
-      // When we do a dot product between two vec3(1,1,1) we get the answer 3. \n\
+      "// The two constants l_tex_min and l_tex_max have a value of \n\
+      // vec3(-1,-1,-1) and vec3(1,1,1) respectively. To determine if the \n\
+      // data value is outside the m_volume data, we use the sign function. \n\
+      // The sign function return -1 if the value is less than 0, 0 if the \n\
+      // value is equal to 0 and 1 if value is greater than 0. Hence, the \n\
+      // sign function for the calculation (sign(g_data_pos-l_tex_min) and \n\
+      // sign (l_tex_max-g_data_pos)) will give us vec3(1,1,1) at the \n\
+      // possible minimum and maximum position. \n\
+      // When we do a dot product between two vec3(1,1,1) we get answer 3. \n\
       // So to be within the dataset limits, the dot product will return a \n\
       // value less than 3. If it is greater than 3, we are already out of \n\
       // the m_volume dataset \n\
-      stop = dot(sign(g_data_pos - l_tex_min), sign(l_tex_max - g_data_pos)) < 3.0; \n\
+      stop = dot(sign(g_data_pos - l_tex_min), sign(l_tex_max - g_data_pos)) \n\
+             < 3.0; \n\
       \n\
-      // If the stopping condition is true we brek out of the ray marching loop \n\
+      // If the stopping condition is true we brek out of the ray marching \n\
+      // loop \n\
       if (stop) \n\
        { \n\
        break; \n\
        } \n\
       // Early ray termination \n\
       // if the currently composited colour alpha is already fully saturated \n\
-      // we terminated the loop or if we have hit an obstacle in the direction of \n\
-      // they ray (using depth buffer) we terminate as well. \n\
+      // we terminated the loop or if we have hit an obstacle in the \n\
+      // direction of they ray (using depth buffer) we terminate as well. \n\
       if((g_frag_color.a > (1 - 1/255.0)) ||  \n\
           m_current_t >= m_terminate_point_max) \n\
         { \n\
@@ -903,7 +920,8 @@ namespace vtkvolume
                                   vtkVolumeMask* mask,
                                   int maskType)
   {
-    if (!mask || !maskInput || maskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+    if (!mask || !maskInput ||
+        maskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
       {
       return std::string("");
       }
