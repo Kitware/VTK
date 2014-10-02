@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkModifiedBSPTree.cxx
+  Module:    vtkCellTreeLocator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -639,16 +639,15 @@ void vtkCellTreeLocator::BuildLocator()
 }
 
 //----------------------------------------------------------------------------
-
-vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *cell,  double pcoords[3],
-  double* weights )
+vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *cell, double pcoords[3],
+                                        double* weights )
 {
   if( this->Tree == 0 )
     {
     return -1;
     }
 
-  double closestPoint[3], dist2;
+  double dist2;
   int subId;
 
   const float _pos[3] = { static_cast<float>(pos[0]), static_cast<float>(pos[1]),
@@ -660,12 +659,12 @@ vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *
   while( const vtkCellTreeNode* n = pt.Next() )
     {
     const unsigned int* begin = &(this->Tree->Leaves[n->Start()]);
-    const unsigned int* end   = begin + n->Size();
+    const unsigned int* end = begin + n->Size();
 
     for( ; begin!=end; ++begin )
       {
       this->DataSet->GetCell(*begin, cell);
-      if( cell->EvaluatePosition(pos, closestPoint, subId, pcoords, dist2, weights)==1 )
+      if( cell->EvaluatePosition(pos, NULL, subId, pcoords, dist2, weights)==1 )
         {
         return *begin;
         }
@@ -673,7 +672,7 @@ vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *
     }
 
   return -1;
-  }
+}
 
 //----------------------------------------------------------------------------
 
