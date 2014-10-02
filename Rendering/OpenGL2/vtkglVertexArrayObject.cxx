@@ -67,6 +67,8 @@ struct VertexAttributes
   GLboolean normalize;
   GLsizei stride;
   GLuint offset;
+  int divisor;
+  bool isMatrix;
 };
 
 class VertexArrayObject::Private
@@ -83,7 +85,7 @@ public:
 
   void Initialize()
   {
-    if (GLEW_ARB_vertex_array_object)
+    if (!this->ForceEmulation && GLEW_ARB_vertex_array_object)
       {
       this->supported = true;
       glGenVertexArrays(1, &this->handleVAO);
@@ -115,6 +117,7 @@ public:
   GLuint handleVAO;
   GLuint handleProgram;
   bool supported;
+  bool ForceEmulation;
 
   typedef std::map< GLuint, std::vector<VertexAttributes> > AttributeMap;
   AttributeMap attributes;
@@ -129,6 +132,11 @@ VertexArrayObject::VertexArrayObject() : d(new Private)
 VertexArrayObject::~VertexArrayObject()
 {
   delete d;
+}
+
+void VertexArrayObject::SetForceEmulation(bool val)
+{
+  this->d->ForceEmulation = val;
 }
 
 void VertexArrayObject::Bind()
@@ -152,11 +160,29 @@ void VertexArrayObject::Bind()
       glBindBuffer(GL_ARRAY_BUFFER, it->first);
       for (attrIt = it->second.begin(); attrIt != it->second.end(); ++attrIt)
         {
-        glEnableVertexAttribArray(attrIt->index);
-        glVertexAttribPointer(attrIt->index, attrIt->size, attrIt->type,
-                              attrIt->normalize, attrIt->stride,
-                              BUFFER_OFFSET(attrIt->offset));
+        int matrixCount = attrIt->isMatrix ? attrIt->size : 1;
+        for (int i = 0; i < matrixCount; ++i)
+          {
+          glEnableVertexAttribArray(attrIt->index+i);
+          glVertexAttribPointer(attrIt->index+i, attrIt->size, attrIt->type,
+                                attrIt->normalize, attrIt->stride,
+                                BUFFER_OFFSET(attrIt->offset + attrIt->stride*i/attrIt->size));
+          if (attrIt->divisor > 0)
+            {
+    #if GL_ES_VERSION_2_0 != 1
+            if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+              {
+              glVertexAttribDivisor(attrIt->index+i, 1);
+              }
+            else if (GLEW_ARB_instanced_arrays)
+              {
+              glVertexAttribDivisorARB(attrIt->index+i, 1);
+              }
+    #endif
+            }
+          }
         }
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
       }
     }
 }
@@ -176,7 +202,24 @@ void VertexArrayObject::Release()
       std::vector<VertexAttributes>::const_iterator attrIt;
       for (attrIt = it->second.begin(); attrIt != it->second.end(); ++attrIt)
         {
-        glDisableVertexAttribArray(attrIt->index);
+        int matrixCount = attrIt->isMatrix ? attrIt->size : 1;
+        for (int i = 0; i < matrixCount; ++i)
+          {
+          if (attrIt->divisor > 0)
+            {
+    #if GL_ES_VERSION_2_0 != 1
+            if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+              {
+              glVertexAttribDivisor(attrIt->index+i, 0);
+              }
+            else if (GLEW_ARB_instanced_arrays)
+              {
+              glVertexAttribDivisorARB(attrIt->index+i, 0);
+              }
+    #endif
+            }
+          glDisableVertexAttribArray(attrIt->index+i);
+          }
         }
       }
     }
@@ -209,7 +252,7 @@ bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
                                           int offset, size_t stride,
                                           int elementType, int elementTupleSize,
                                           bool normalize,
-                                          int divisor)
+                                          int divisor, bool isMatrix)
 {
   // Check the program is bound, and the buffer is valid.
   if (!program->isBound() || buffer.GetHandle() == 0 ||
@@ -237,6 +280,8 @@ bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
   attribs.type = convertTypeToGL(elementType);
   attribs.size = elementTupleSize;
   attribs.normalize = normalize;
+  attribs.isMatrix = isMatrix;
+  attribs.divisor = divisor;
 
   if (attribs.index == -1)
     {
@@ -283,7 +328,7 @@ bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
       }
     else
       {
-      // this looks wrong, a single handle can have multiple attribs
+      // a single handle can have multiple attribs
       std::vector<VertexAttributes> attribsVector;
       attribsVector.push_back(attribs);
       this->d->attributes[handleBuffer] = attribsVector;
@@ -304,7 +349,7 @@ bool VertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram *program,
   // bind the first row of values
   bool result =
     this->AddAttributeArrayWithDivisor(program, buffer, name,
-      offset, stride, elementType, elementTupleSize, normalize, divisor);
+      offset, stride, elementType, elementTupleSize, normalize, divisor, true);
 
   if (!result)
     {
