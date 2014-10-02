@@ -687,6 +687,12 @@ size_t vtkXMLDataParser::ReadCompressedData(unsigned char* data,
     totalSize += this->PartialLastBlockUncompressedSize;
     }
 
+  // Make sure there's even data to be read
+  if(totalSize == 0)
+    {
+    return 0;
+    }
+
   // Adjust the size to be a multiple of the wordSize by taking
   // advantage of integer division.  This will only change the value
   // when the input file is invalid.
