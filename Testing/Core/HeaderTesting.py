@@ -440,6 +440,9 @@ for a in os.listdir(dirname):
     ## Skip non-header files
     if not StringEndsWith(a, ".h"):
         continue
+    ## Skip non-vtk files
+    if not a.startswith('vtk'):
+        continue
     ## Skip exceptions
     if a in exceptions:
         continue
