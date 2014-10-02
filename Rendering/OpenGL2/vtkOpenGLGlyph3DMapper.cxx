@@ -65,6 +65,7 @@ public:
     vtkPolyData *ss = vtkPolyData::New();
     this->Mapper->SetInputData(ss);
     ss->Delete();
+    this->Mapper->SetPopulateSelectionSettings(0);
   };
   ~vtkOpenGLGlyph3DMapperEntry()
   {
