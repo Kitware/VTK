@@ -27,8 +27,8 @@
 #ifndef __vtkGDALVectorReader_h
 #define __vtkGDALVectorReader_h
 
-#include <vtkMultiBlockDataSetAlgorithm.h>
-#include <vtkIOGDALModule.h> // For export macro
+#include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkIOGDALModule.h" // For export macro
 
 #include <map> // STL required.
 

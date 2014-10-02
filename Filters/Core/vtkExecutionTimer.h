@@ -29,7 +29,7 @@
 #ifndef __vtkExecutionTimer_h
 #define __vtkExecutionTimer_h
 
-#include <vtkObject.h>
+#include "vtkObject.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkAlgorithm;

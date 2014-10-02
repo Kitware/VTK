@@ -24,11 +24,11 @@
 #include <map>    // For independently time stepped array indexing
 #include <queue>  // For post read operations
 
-#include <vtkAlgorithm.h>
-#include <vtkMultiProcessController.h> // For the MPI controller member
-#include <vtkSetGet.h>                 // For property get/set macros
-#include <vtkSmartPointer.h>           // For the object cache
-#include <vtkIOADIOSModule.h>          // For export macro
+#include "vtkAlgorithm.h"
+#include "vtkMultiProcessController.h" // For the MPI controller member
+#include "vtkSetGet.h"                 // For property get/set macros
+#include "vtkSmartPointer.h"           // For the object cache
+#include "vtkIOADIOSModule.h"          // For export macro
 
 class ADIOSVarInfo;
 class ADIOSReader;

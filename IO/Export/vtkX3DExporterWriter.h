@@ -22,7 +22,7 @@
 #define __vtkX3DExporterWriter_h
 
 #include "vtkIOExportModule.h" // For export macro
-#include <vtkObject.h>
+#include "vtkObject.h"
 
 // Forward declarations
 class vtkDataArray;
