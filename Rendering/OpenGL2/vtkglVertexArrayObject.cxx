@@ -298,12 +298,16 @@ bool VertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *program,
 
   if (divisor > 0)
     {
+#if GL_ES_VERSION_2_0 != 1
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
       {
-#if GL_ES_VERSION_2_0 != 1
       glVertexAttribDivisor(attribs.index, 1);
-#endif
       }
+    else if (GLEW_ARB_instanced_arrays)
+      {
+      glVertexAttribDivisorARB(attribs.index, 1);
+      }
+#endif
     }
 
   // If vertex array objects are not supported then build up our list.
@@ -368,12 +372,16 @@ bool VertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram *program,
                           BUFFER_OFFSET(offset + stride*i/elementTupleSize));
     if (divisor > 0)
       {
+#if GL_ES_VERSION_2_0 != 1
       if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
         {
-#if GL_ES_VERSION_2_0 != 1
         glVertexAttribDivisor(attribs.index+i, 1);
-#endif
         }
+      else if (GLEW_ARB_instanced_arrays)
+        {
+        glVertexAttribDivisorARB(attribs.index+i, 1);
+       }
+#endif
       }
     }
 
