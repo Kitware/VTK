@@ -709,7 +709,7 @@ VTK_AUTOINIT(${vtk-module})
       PROPERTY COMPILE_FLAGS "${my_abi_flags}")
   endif()
 
-  if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest)
+  if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest AND VTK_SOURCE_DIR)
     string(TOUPPER "${vtk-module}" MOD)
     add_test(NAME ${vtk-module}-HeaderTest
       COMMAND ${PYTHON_EXECUTABLE} ${VTK_SOURCE_DIR}/Testing/Core/HeaderTesting.py
