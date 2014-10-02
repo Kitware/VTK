@@ -2153,7 +2153,7 @@ void vtkEnSightReader::RemoveLeadingBlanks(char *line)
     {
     count++;
     }
-  memcpy(line, line+count, strlen(line+count));
+  memmove(line, line+count, strlen(line+count));
 }
 
 //----------------------------------------------------------------------------
