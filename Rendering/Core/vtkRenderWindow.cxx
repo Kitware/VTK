@@ -90,6 +90,7 @@ vtkRenderWindow::vtkRenderWindow()
 #endif
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
+  this->MultiSamples = 0;
 
 #ifdef VTK_USE_OFFSCREEN
   this->OffScreenRendering = 1;
