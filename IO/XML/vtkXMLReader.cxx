@@ -137,6 +137,7 @@ vtkXMLReader::~vtkXMLReader()
     {
     this->DestroyXMLParser();
     }
+  this->CloseStream();
   this->CellDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->PointDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
