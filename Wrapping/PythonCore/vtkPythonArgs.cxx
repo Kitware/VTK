@@ -232,8 +232,9 @@ static bool vtkPythonGetValue(PyObject *o, const void *&a)
       if (sz >= 0 && sz <= VTK_INT_MAX)
         {
         // check for pointer mangled as string
-        int s = (int)sz;
-        a = vtkPythonUtil::UnmanglePointer((char *)p, &s, "void_p");
+        int s = static_cast<int>(sz);
+        a = vtkPythonUtil::UnmanglePointer(
+          reinterpret_cast<char *>(p), &s, "p_void");
         if (s >= 0)
           {
           return true;
@@ -241,7 +242,8 @@ static bool vtkPythonGetValue(PyObject *o, const void *&a)
         if (s == -1)
           {
           char buf[128];
-          sprintf(buf, "value is %.80s, required type is void_p", (char *)p);
+          sprintf(buf, "value is %.80s, required type is p_void",
+            reinterpret_cast<char *>(p));
           PyErr_SetString(PyExc_TypeError, buf);
           }
         else
