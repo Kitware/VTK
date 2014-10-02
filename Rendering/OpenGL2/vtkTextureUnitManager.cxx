@@ -55,7 +55,7 @@ void vtkTextureUnitManager::DeleteTable()
       }
     if(!valid)
       {
-      vtkErrorMacro(<<"the texture unit is deleted but not some texture unit has not been released: Id="<<i);
+      vtkErrorMacro(<<"the texture unit is deleted but some texture units have not been released: Id="<<i);
       }
     delete[] this->TextureUnits;
     this->TextureUnits=0;
