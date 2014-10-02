@@ -39,6 +39,7 @@
 
 #include <sys/stat.h>
 
+#include <vtksys/ios/sstream>
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkTesting);
@@ -338,17 +339,23 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
   return result;
 }
 //-----------------------------------------------------------------------------
+int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream &os)
+{
+  int result = this->RegressionTest(thresh, os);
+
+  os << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  os << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  os << "</DartMeasurement>\n";
+  os << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  os << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  os << "</DartMeasurement>\n";
+
+  return result;
+}
+//-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
-  int result = this->RegressionTest(thresh, cout);
-
-  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
-  cout << "</DartMeasurement>\n";
-  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  cout << "</DartMeasurement>\n";
-
+  int result = this->RegressionTestAndCaptureOutput(thresh, cout);
   return result;
 }
 //-----------------------------------------------------------------------------
@@ -583,6 +590,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     delete[] newFileName;
     }
 
+  this->ImageDifference = minError;
+
   // output some information
   os << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
   os << minError;
@@ -711,7 +720,43 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
   if (testing->IsValidImageSpecified())
     {
     testing->SetRenderWindow(rw);
-    int res = testing->RegressionTest(thresh);
+
+    std::ostringstream out1;
+    int res = testing->RegressionTestAndCaptureOutput(thresh, out1);
+    double diff1 = testing->GetImageDifference();
+    bool write_out1 = true;
+
+    // Typically, the image testing is done using the back buffer
+    // to avoid accidentally capturing overlapping window artifacts
+    // in the image when using the front buffer. However, some graphics
+    // drivers do not have up to date contents in the back buffer,
+    // causing "failed" tests even though, upon visual inspection, the
+    // front buffer looks perfectly valid... So:
+    //
+    // If the test failed using the back buffer, re-test using the
+    // front buffer. This way, more tests pass on dashboards run with
+    // the Intel HD built-in graphics drivers.
+    //
+    if (res == vtkTesting::FAILED && testing->GetFrontBuffer() == 0)
+      {
+      testing->FrontBufferOn();
+
+      std::ostringstream out2;
+      res = testing->RegressionTestAndCaptureOutput(thresh, out2);
+      double diff2 = testing->GetImageDifference();
+
+      if (diff2 < diff1)
+        {
+        cout << out2.str();
+        write_out1 = false;
+        }
+      }
+
+    if (write_out1)
+      {
+      cout << out1.str();
+      }
+
     return res;
     }
 

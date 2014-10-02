@@ -150,15 +150,29 @@ public:
 //ETX
 
   // Description:
-  // Use front buffer for tests. By default use back buffer.
+  // Use the front buffer first for regression test comparisons. By
+  // default use back buffer first, then try the front buffer if the
+  // test fails when comparing to the back buffer.
   vtkSetClampMacro(FrontBuffer, int, 0, 1);
   vtkBooleanMacro(FrontBuffer, int);
   vtkGetMacro(FrontBuffer, int);
 
   // Description:
-  // Perform the test and return result. At the same time the output will be
-  // written cout
+  // Perform the test and return the result. Delegates to
+  // RegressionTestAndCaptureOutput, sending the output to cout.
   virtual int RegressionTest(double thresh);
+
+  // Description:
+  // Perform the test and return the result. At the same time, write
+  // the output to the output stream os. Includes timing information
+  // in the output.
+  virtual int RegressionTestAndCaptureOutput(double thresh, ostream &os);
+
+  // Description:
+  // Perform the test and return the result. At the same time, write
+  // the output to the output stream os. This method is nearly the
+  // same as RegressionTestAndCaptureOutput, but does not include
+  // timing information in the output.
   virtual int RegressionTest(double thresh,ostream &os);
 
   // Description:
