@@ -2,5 +2,5 @@
 # Add the executable
 #
 
-ADD_EXECUTABLE(vtkmyEx2 vtkmyEx2.cxx)
-TARGET_LINK_LIBRARIES(vtkmyEx2 vtkmyUnsorted)
+add_executable(vtkmyEx2 vtkmyEx2.cxx)
+target_link_libraries(vtkmyEx2 vtkmyUnsorted)

@@ -55,7 +55,7 @@ else()
     endif()
   endif()
 
-#  add_subdirectory(Build/vtkMy)
+   add_subdirectory(Build/vtkMy)
 #  add_subdirectory(GUI/Motif)
 #  IF(VTK_USE_PARALLEL)
 #   add_subdirectory(ParallelProcessing)
