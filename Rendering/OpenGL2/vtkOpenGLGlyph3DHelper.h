@@ -94,6 +94,10 @@ protected:
   // Set the shader parameteres related to the property
   virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
+  // Description:
+  // Set the shader parameteres related to the actor/mapper
+  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+
   bool UseFastPath;
   bool UsingInstancing;
 

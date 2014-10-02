@@ -378,6 +378,20 @@ void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
     }
 }
 
+//-----------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
+                                                         vtkRenderer *ren, vtkActor *actor)
+{
+  // do the superclass and then reset a couple values
+  this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24)
+    {
+    cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
+    }
+}
+
 #if GL_ES_VERSION_2_0 != 1
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
