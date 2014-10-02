@@ -49,6 +49,11 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
   this->ModelColor = NULL;
   this->UseFastPath = false;
   this->UsingInstancing = false;
+
+  // we always tell our triangle VAO to emulate to be safe
+  // this is because it seems that GLEW_ARB_vertex_array_object
+  // does not always handle the attributes for GLEW_ARB_instanced_arrays
+  this->Tris.vao.SetForceEmulation(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -382,7 +387,6 @@ void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
 void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
-  // do the superclass and then reset a couple values
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
 
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -403,10 +407,13 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   this->RenderPieceStart(ren,actor);
   this->UpdateShader(this->Tris, ren, actor);
 
-  // update the data buffers ?
-  this->Tris.vao.Bind();
-  if (pointMTime > this->InstanceBuffersLoadTime.GetMTime())
+  // do the superclass and then reset a couple values
+  if (this->Tris.indexCount &&   // we have points and one of
+      (this->OpenGLUpdateTime > this->InstanceBuffersLoadTime ||
+      this->Tris.ShaderSourceTime > this->InstanceBuffersLoadTime ||
+      pointMTime > this->InstanceBuffersLoadTime.GetMTime()))
     {
+    this->Tris.vao.Bind();
     // add 3 new BOs?
     this->MatrixBuffer.Bind();
     this->MatrixBuffer.Upload(matrices, vtkgl::BufferObject::ArrayBuffer);
@@ -441,8 +448,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     this->InstanceBuffersLoadTime.Modified();
     }
 
-  vtkOpenGLCheckErrorMacro("failed after Render");
-
   this->Tris.ibo.Bind();
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
@@ -454,41 +459,11 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     }
   else if (GLEW_ARB_instanced_arrays)
     {
-    // GLint index = glGetAttribLocation(this->Tris.Program->GetHandle(), "GCMCMatrix");
-    // glVertexAttribDivisorARB(index, 1);
-    // glVertexAttribDivisorARB(index+1, 1);
-    // glVertexAttribDivisorARB(index+2, 1);
-    // glVertexAttribDivisorARB(index+3, 1);
-
-    // if (this->Layout.NormalOffset)
-    //   {
-      // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphNormalMatrix");
-      // glVertexAttribDivisorARB(index, 1);
-      // glVertexAttribDivisorARB(index+1, 1);
-      // glVertexAttribDivisorARB(index+2, 1);
-      // }
-
-    // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphColor");
-    // glVertexAttribDivisorARB(index, 1);
     glDrawElementsInstancedARB(GL_TRIANGLES,
                           static_cast<GLsizei>(this->Tris.indexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL),
                           numPts);
-    // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "GCMCMatrix");
-    // glVertexAttribDivisorARB(index, 0);
-    // glVertexAttribDivisorARB(index+1, 0);
-    // glVertexAttribDivisorARB(index+2, 0);
-    // glVertexAttribDivisorARB(index+3, 0);
-    // if (this->Layout.NormalOffset)
-    //   {
-    //   index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphNormalMatrix");
-    //   glVertexAttribDivisorARB(index, 0);
-    //   glVertexAttribDivisorARB(index+1, 0);
-    //   glVertexAttribDivisorARB(index+2, 0);
-    //   }
-    // index = glGetAttribLocation(this->Tris.Program->GetHandle(), "glyphColor");
-    // glVertexAttribDivisorARB(index, 0);
     }
   vtkOpenGLCheckErrorMacro("failed after Render");
 

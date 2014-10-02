@@ -85,7 +85,7 @@ public:
 
   void Initialize()
   {
-    if (GLEW_ARB_vertex_array_object)
+    if (!this->ForceEmulation && GLEW_ARB_vertex_array_object)
       {
       this->supported = true;
       glGenVertexArrays(1, &this->handleVAO);
@@ -117,6 +117,7 @@ public:
   GLuint handleVAO;
   GLuint handleProgram;
   bool supported;
+  bool ForceEmulation;
 
   typedef std::map< GLuint, std::vector<VertexAttributes> > AttributeMap;
   AttributeMap attributes;
@@ -131,6 +132,11 @@ VertexArrayObject::VertexArrayObject() : d(new Private)
 VertexArrayObject::~VertexArrayObject()
 {
   delete d;
+}
+
+void VertexArrayObject::SetForceEmulation(bool val)
+{
+  this->d->ForceEmulation = val;
 }
 
 void VertexArrayObject::Bind()
