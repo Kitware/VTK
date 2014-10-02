@@ -25,6 +25,7 @@
 #include "vtkInformationStringKey.h"
 #include "vtkNew.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -59,6 +60,8 @@ public:
   int Component;
   double ScalarRange[2];
   bool ScalarRangeSet;
+  bool MultisampleSupport;
+  bool CheckedMSS;
 
   vtkNew<vtkImageData> Texture;
 
@@ -87,6 +90,8 @@ public:
       chars->SetTuple3(i, color[0],color[1],color[2]);
       }
     this->Texture->GetPointData()->SetScalars(chars);
+    this->MultisampleSupport = false;
+    this->CheckedMSS = false;
     }
 
   // Description:
@@ -243,7 +248,7 @@ void vtkValuePainter::ValueToColor(double value, double min, double scale,
   double valueS = (value - min)/scale;
   valueS = (valueS<0.0?0.0:valueS); //prevent underflow
   valueS = (valueS>1.0?1.0:valueS); //prevent overflow
-  int valueI = valueS * 0xffffff;
+  int valueI = valueS * 0xfffffe + 0x1; //0 is reserved as "nothing"
 
   color[0] = (unsigned char)((valueI & 0xff0000)>>16);
   color[1] = (unsigned char)((valueI & 0x00ff00)>>8);
@@ -256,7 +261,7 @@ void vtkValuePainter::ColorToValue(unsigned char *color, double min, double scal
 {
   //TODO: make this configurable
   int valueI = ((int)(*(color+0)))<<16 | ((int)(*(color+1)))<<8 | ((int)(*(color+2)));
-  double valueS = valueI/(double)0xffffff;
+  double valueS = (valueI-0x1)/(double)0xfffffe; //0 is reserved as "nothing"
   value = valueS*scale + min;
 }
 
@@ -277,11 +282,31 @@ void vtkValuePainter::RenderInternal(
 
   vtkOpenGLClearErrorMacro();
 
+  if (!this->Internals->CheckedMSS)
+    {
+    this->Internals->CheckedMSS = true;
+    vtkOpenGLRenderWindow * context = vtkOpenGLRenderWindow::SafeDownCast
+      (renderer->GetRenderWindow());
+    if (context)
+      {
+      vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
+        // don't need any of the functions so don't bother
+        // to load the extension, but do make sure enums are
+        // defined.
+      this->Internals->MultisampleSupport
+        = manager->ExtensionSupported("GL_ARB_multisample")==1;
+      }
+    }
+
   //set render state so that colors we draw are not altered at all
-  int oldSampling = glIsEnabled(vtkgl::MULTISAMPLE);
+  int oldSampling = 0;
+  if (this->Internals->MultisampleSupport)
+    {
+    oldSampling = glIsEnabled(vtkgl::MULTISAMPLE);
+    glDisable(vtkgl::MULTISAMPLE);
+    }
   int oldLight = glIsEnabled(GL_LIGHTING);
   int oldBlend = glIsEnabled(GL_BLEND);
-  glDisable(vtkgl::MULTISAMPLE);
   glDisable(GL_LIGHTING);
   glDisable(GL_BLEND);
 
