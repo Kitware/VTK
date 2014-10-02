@@ -62,17 +62,17 @@ void vtkXMLPStructuredDataReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPStructuredDataReader::GetNumberOfPoints()
 {
-  return (this->PointDimensions[0]*
-          this->PointDimensions[1]*
-          this->PointDimensions[2]);
+  return (static_cast<vtkIdType>(this->PointDimensions[0])*
+          static_cast<vtkIdType>(this->PointDimensions[1])*
+          static_cast<vtkIdType>(this->PointDimensions[2]));
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPStructuredDataReader::GetNumberOfCells()
 {
-  return (this->CellDimensions[0]*
-          this->CellDimensions[1]*
-          this->CellDimensions[2]);
+  return (static_cast<vtkIdType>(this->CellDimensions[0])*
+          static_cast<vtkIdType>(this->CellDimensions[1])*
+          static_cast<vtkIdType>(this->CellDimensions[2]));
 }
 
 //----------------------------------------------------------------------------
@@ -354,16 +354,19 @@ vtkXMLPStructuredDataReader
     if(inDimensions[2] == outDimensions[2])
       {
       // Copy the whole volume at once.
-      unsigned int volumeTuples = (inDimensions[0]*
-                                   inDimensions[1]*
-                                   inDimensions[2]);
+      vtkIdType volumeTuples =
+        (static_cast<vtkIdType>(inDimensions[0])*
+         static_cast<vtkIdType>(inDimensions[1])*
+         static_cast<vtkIdType>(inDimensions[2]));
       memcpy(outArray->GetVoidPointer(0), inArray->GetVoidPointer(0),
              volumeTuples*tupleSize);
       }
     else
       {
       // Copy an entire slice at a time.
-      vtkIdType sliceTuples = inDimensions[0]*inDimensions[1];
+      vtkIdType sliceTuples =
+        static_cast<vtkIdType>(inDimensions[0])*
+        static_cast<vtkIdType>(inDimensions[1]);
       int k;
       for(k=0;k < subDimensions[2];++k)
         {
