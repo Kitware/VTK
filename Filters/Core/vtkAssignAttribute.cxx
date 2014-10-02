@@ -25,6 +25,20 @@
 #include "vtkPointData.h"
 #include <ctype.h>
 
+#include <cassert>
+
+static int vtkGetArrayIndex(vtkDataSetAttributes* dsa, vtkAbstractArray* array)
+{
+  for (int cc=0; cc < dsa->GetNumberOfArrays(); cc++)
+    {
+    if (dsa->GetAbstractArray(cc) == array)
+      {
+      return cc;
+      }
+    }
+  return -1;
+}
+
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12]
@@ -315,7 +329,11 @@ int vtkAssignAttribute::RequestData(
       vtkAbstractArray *oaa = ods->GetAbstractAttribute(this->InputAttributeType);
       if (oaa)
         {
-        ods->SetActiveAttribute(oaa->GetName(),this->AttributeType);
+        // Use array index to mark this array active and not its name since VTK
+        // arrays not necessarily have names.
+        int arrIndex = vtkGetArrayIndex(ods, oaa);
+        assert (arrIndex >= 0); // arrIndex cannot be -1. Doesn't make sense.
+        ods->SetActiveAttribute(arrIndex,this->AttributeType);
         }
       }
     }
