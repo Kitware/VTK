@@ -17,6 +17,7 @@ vtkAnnotatedCubeActor                 GetBounds                         307  6
 vtkAssembly                           GetBounds                         307  6
 vtkAxesActor                          GetBounds                         307  6
 vtkAxisActor                          GetBounds                         307  6
+vtkBox                                GetBounds                         307  6
 vtkBoxRepresentation                  GetBounds                         307  6
 vtkCamera                             GetOrientation                    307  3
 vtkCamera                             GetOrientationWXYZ                307  4
