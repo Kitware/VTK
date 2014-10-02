@@ -105,8 +105,6 @@ protected:
   // Check various OpenGL capabilities
   void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
 
-  long TextureIndex; // OpenGL ID for texture or display list
-  long BackgroundTextureIndex; // OpenGL ID for texture or display list
   long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
   int TextureSize[2];

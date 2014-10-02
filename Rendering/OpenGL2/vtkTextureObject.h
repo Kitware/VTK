@@ -24,6 +24,7 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // for render context
 
+class vtkWindow;
 class vtkOpenGLRenderWindow;
 class vtkTexturedActor2D;
 
@@ -132,6 +133,9 @@ public:
   // Deactivate and UnBind the texture
   void Deactivate();
 
+  // Description:
+  // Deactivate and UnBind the texture
+  void ReleaseGraphicsResources(vtkWindow *win);
 
   // Description:
   // Tells if the texture object is bound to the active texture image unit.

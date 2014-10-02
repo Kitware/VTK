@@ -389,6 +389,16 @@ void vtkTextureObject::Deactivate()
     }
 }
 
+//---------------------------------------------------------------------------
+void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
+{
+  vtkOpenGLRenderWindow *rwin =
+   vtkOpenGLRenderWindow::SafeDownCast(win);
+  rwin->ActivateTexture(this);
+  this->UnBind();
+  rwin->DeactivateTexture(this);
+}
+
 //----------------------------------------------------------------------------
 void vtkTextureObject::Bind()
 {

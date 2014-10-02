@@ -68,7 +68,7 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->TextureObject && win && win->GetMapped())
     {
-    this->TextureObject->Deactivate();
+    this->TextureObject->ReleaseGraphicsResources(win);
     vtkOpenGLCheckErrorMacro("failed after ReleaseGraphicsResources");
     }
 
