@@ -39,14 +39,16 @@ static T vtkClamp(T val, T min, T max)
   return val;
 }
 
-class vtkOpenGLGlyph3DMapper::vtkColorMapper : public vtkMapper
+class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 {
 public:
-  vtkTypeMacro(vtkColorMapper, vtkMapper);
-  static vtkColorMapper* New() { return new vtkColorMapper; }
+  vtkTypeMacro(vtkOpenGLGlyph3DMappervtkColorMapper, vtkMapper);
+  static vtkOpenGLGlyph3DMappervtkColorMapper* New();
   void Render(vtkRenderer *, vtkActor *) {}
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
+
+vtkStandardNewMacro(vtkOpenGLGlyph3DMappervtkColorMapper)
 
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry
 {
@@ -119,11 +121,13 @@ vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 {
   this->GlyphValues = new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray();
   this->LastWindow = 0;
+  this->ColorMapper = vtkOpenGLGlyph3DMappervtkColorMapper::New();
 }
 
 // ---------------------------------------------------------------------------
 vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 {
+  this->ColorMapper->Delete();
   if (this->GlyphValues)
     {
     delete this->GlyphValues;
@@ -439,7 +443,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   vtkUnsignedCharArray* colors = NULL;
   this->ColorMapper->SetInputDataObject(dataset);
   this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
-  colors = this->ColorMapper->GetColors();
+  colors = ((vtkOpenGLGlyph3DMappervtkColorMapper *)this->ColorMapper)->GetColors();
   //  bool multiplyWithAlpha =
   //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   // Traverse all Input points, transforming Source points
