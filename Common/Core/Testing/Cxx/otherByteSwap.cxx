@@ -54,19 +54,19 @@ int TestByteSwap(ostream& strm)
 
 
   memcpy (cword, "abcdefgh", 8);
-  vtkByteSwap::Swap2BERange(cword,8);
+  vtkByteSwap::Swap2BERange(cword,4);
   memcpy (check, cword, 8);
-  strm << "Swap2BERange(char *\"abcdefgh\",8) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
+  strm << "Swap2BERange(char *\"abcdefgh\",4) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
 
   memcpy (cword, "abcdefgh", 8);
-  vtkByteSwap::Swap4BERange(cword,8);
+  vtkByteSwap::Swap4BERange(cword,2);
   memcpy (check, cword, 8);
-  strm << "Swap4BERange(char *\"abcdefgh\",8) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
+  strm << "Swap4BERange(char *\"abcdefgh\",2) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
 
   memcpy (cword, "abcdefgh", 8);
-  vtkByteSwap::Swap8BERange(cword,8);
+  vtkByteSwap::Swap8BERange(cword,1);
   memcpy (check, cword, 8);
-  strm << "Swap8BERange(char *\"abcdefgh\",8) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
+  strm << "Swap8BERange(char *\"abcdefgh\",1) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
 
   memcpy (cword, "abcdefghijklmnop", 16);
   strm << "SwapWrite2BERange(char *\"abcdefghijklmnop\",8,stdout) -> ";
@@ -120,19 +120,19 @@ int TestByteSwap(ostream& strm)
 
 
   memcpy (cword, "abcdefgh", 8);
-  vtkByteSwap::Swap2LERange(cword,8);
+  vtkByteSwap::Swap2LERange(cword,4);
   memcpy (check, cword, 8);
-  strm << "Swap2LERange(char *\"abcdefgh\",8) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
+  strm << "Swap2LERange(char *\"abcdefgh\",4) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
 
   memcpy (cword, "abcdefgh", 8);
-  vtkByteSwap::Swap4LERange(cword,8);
+  vtkByteSwap::Swap4LERange(cword,2);
   memcpy (check, cword, 8);
-  strm << "Swap4LERange(char *\"abcdefgh\",8) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
+  strm << "Swap4LERange(char *\"abcdefgh\",2) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
 
   memcpy (cword, "abcdefgh", 8);
-  vtkByteSwap::Swap8LERange(cword,8);
+  vtkByteSwap::Swap8LERange(cword,1);
   memcpy (check, cword, 8);
-  strm << "Swap8LERange(char *\"abcdefgh\",8) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
+  strm << "Swap8LERange(char *\"abcdefgh\",1) -> " << check[0] << check[1]  << check[2] << check[3] << check[4] << check[5]  << check[6] << check[7] << endl;
 
   memcpy (cword, "abcdefgh", 8);
   vtkByteSwap::SwapVoidRange(cword,4,2);
