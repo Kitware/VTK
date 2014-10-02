@@ -57,6 +57,10 @@ public:
   virtual int GetNumberOfNodes()=0;
 
   // Description:
+  // Deep copy.
+  virtual void DeepCopy(vtkHyperOctreeInternal *src) = 0;
+
+  // Description:
   // Return the number of levels.
   // \post result_greater_or_equal_to_one: result>=1
   virtual vtkIdType GetNumberOfLevels()=0;
@@ -683,16 +687,17 @@ public:
         ++i;
         }
       this->LeafParent.resize(1);
-      this->LeafParent[0]=0;
-      this->NumberOfLevels=1;
+      this->LeafParent[0] = 0;
+      this->NumberOfLevels = 1;
       this->NumberOfLeavesPerLevel.resize(1);
-      this->NumberOfLeavesPerLevel[0]=1;
+      this->NumberOfLeavesPerLevel[0] = 1;
     }
 
   //---------------------------------------------------------------------------
   virtual vtkHyperOctreeCursor *NewCursor()
     {
-      vtkCompactHyperOctreeCursor<D> *result=vtkCompactHyperOctreeCursor<D>::New();
+      vtkCompactHyperOctreeCursor<D> *result =
+        vtkCompactHyperOctreeCursor<D>::New();
       result->Init(this);
       return result;
     }
@@ -700,11 +705,24 @@ public:
   //---------------------------------------------------------------------------
   virtual ~vtkCompactHyperOctree()
     {
-      if(this->Attributes!=0)
+      if (this->Attributes != 0)
         {
         this->Attributes->UnRegister(this);
         }
     }
+
+  //--------------------------------------------------------------------------
+  virtual void DeepCopy(vtkHyperOctreeInternal *src)
+  {
+    vtkCompactHyperOctree<D>* octree =
+      vtkCompactHyperOctree<D>::SafeDownCast(src);
+    assert(octree);
+    this->NumberOfLeavesPerLevel = octree->NumberOfLeavesPerLevel;
+    this->NumberOfLevels = octree->NumberOfLevels;
+    this->Nodes = octree->Nodes;
+    this->LeafParent = octree->LeafParent;
+    this->Attributes->DeepCopy(octree->Attributes);
+  }
 
   //---------------------------------------------------------------------------
   virtual vtkIdType GetNumberOfLeaves()
@@ -1025,34 +1043,29 @@ void vtkHyperOctree::CopyStructure(vtkDataSet *ds)
   assert("pre: ds_exists" && ds!=0);
   assert("pre: same_type" && vtkHyperOctree::SafeDownCast(ds)!=0);
 
-  vtkHyperOctree *ho=vtkHyperOctree::SafeDownCast(ds);
-  assert(ho);
-
-//  this->Superclass::CopyStructure(ho);
-
+  vtkHyperOctree *ho = vtkHyperOctree::SafeDownCast(ds);
 
   // What about copying celldata???
-//  this->CellTree->SetAttributes(this->CellData);
-  if(this->CellTree!=0)
+  //  this->CellTree->SetAttributes(this->CellData);
+  if(this->CellTree != 0)
     {
     this->CellTree->UnRegister(this);
     }
-  this->CellTree=ho->CellTree;
-  if(this->CellTree!=0)
+  this->CellTree = ho->CellTree;
+  if(this->CellTree != 0)
     {
     this->CellTree->Register(this);
     }
 
-  this->Dimension=ho->Dimension;
+  this->Dimension = ho->Dimension;
 
-  int i=0;
-  while(i<3)
+  int i = 0;
+  while(i < 3)
     {
-    this->Size[i]=ho->Size[i];
-    this->Origin[i]=ho->Origin[i];
+    this->Size[i] = ho->Size[i];
+    this->Origin[i] = ho->Origin[i];
     ++i;
     }
-
 
   this->Modified();
 }
@@ -1381,6 +1394,7 @@ void vtkHyperOctree::ShallowCopy(vtkDataObject *src)
   assert("src_same_type" && vtkHyperOctree::SafeDownCast(src)!=0);
   this->Superclass::ShallowCopy(src);
   this->CopyStructure(vtkHyperOctree::SafeDownCast(src));
+  this->CellTree->SetAttributes(this->CellData);
 }
 
 //-----------------------------------------------------------------------------
@@ -1388,7 +1402,20 @@ void vtkHyperOctree::DeepCopy(vtkDataObject *src)
 {
   assert("src_same_type" && vtkHyperOctree::SafeDownCast(src)!=0);
   this->Superclass::DeepCopy(src);
-  this->CopyStructure(vtkHyperOctree::SafeDownCast(src));
+
+  vtkHyperOctree *ho = vtkHyperOctree::SafeDownCast(src);
+  this->SetDimension(ho->GetDimension());
+  this->CellTree->DeepCopy(ho->CellTree);
+
+  int i=0;
+  while(i<3)
+    {
+    this->Size[i] = ho->Size[i];
+    this->Origin[i] = ho->Origin[i];
+    ++i;
+    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
