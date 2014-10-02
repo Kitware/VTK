@@ -165,6 +165,16 @@ void vtkTesting::AddArguments(int argc, const char **argv)
     this->Args.push_back(argv[i]);
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkTesting::AddArguments(int argc, char **argv)
+{
+  for (int i = 0; i < argc; ++i)
+    {
+    this->Args.push_back(argv[i]);
+    }
+}
+
 //-----------------------------------------------------------------------------
 char *vtkTesting::GetArgument(const char *argName)
 {

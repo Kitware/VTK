@@ -221,6 +221,7 @@ public:
   // AddArgument for each argument that was passed into the command line
   void AddArgument(const char *argv);
   void AddArguments(int argc,const char **argv);
+  void AddArguments(int argc, char **argv);
 
   //BTX
   // Description:
