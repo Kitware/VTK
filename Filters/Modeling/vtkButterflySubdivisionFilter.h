@@ -62,8 +62,8 @@ protected:
   ~vtkButterflySubdivisionFilter () {}
 
 private:
-  void GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,
-                                 vtkPoints *outputPts, vtkPointData *outputPD);
+  int GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,
+                                vtkPoints *outputPts, vtkPointData *outputPD);
   void GenerateButterflyStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
                                 vtkIdList *stencilIds, double *weights);
   void GenerateLoopStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,

@@ -50,7 +50,7 @@ protected:
   ~vtkApproximatingSubdivisionFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS,
+  virtual int GenerateSubdivisionPoints (vtkPolyData *inputDS,
                                           vtkIntArray *edgeData,
                                           vtkPoints *outputPts,
                                           vtkPointData *outputPD) = 0;

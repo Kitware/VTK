@@ -48,10 +48,10 @@ protected:
   vtkLinearSubdivisionFilter () {}
   ~vtkLinearSubdivisionFilter () {}
 
-  void GenerateSubdivisionPoints (vtkPolyData *inputDS,
-                                  vtkIntArray *edgeData,
-                                  vtkPoints *outputPts,
-                                  vtkPointData *outputPD);
+  int GenerateSubdivisionPoints (vtkPolyData *inputDS,
+                                 vtkIntArray *edgeData,
+                                 vtkPoints *outputPts,
+                                 vtkPointData *outputPD);
 
 private:
   vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&);  // Not implemented.
