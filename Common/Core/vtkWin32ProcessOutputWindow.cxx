@@ -160,7 +160,7 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
   if(data && length)
     {
     // Initialize the output pipe the first time.
-    if(this->Broken || !this->OutputPipe && !this->Initialize())
+    if(this->Broken || (!this->OutputPipe && !this->Initialize()))
       {
       this->Broken = 1;
       return;
