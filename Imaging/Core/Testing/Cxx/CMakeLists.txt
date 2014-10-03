@@ -11,6 +11,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ImageWeightedSum.cxx,NO_VALID
   ImportExport.cxx,NO_VALID
   TestBSplineWarp.cxx
+  TestImageStencilDataMethods.cxx,NO_VALID
   TestUpdateExtentReset.cxx,NO_VALID
   )
 list(APPEND tests
