@@ -269,7 +269,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
         GLEW_ARB_instanced_arrays))
     {
     this->GlyphRenderInstances(ren, actor, numPts,
-      colors, matrices, normalMatrices, pickIds, pointMTime);
+      colors, matrices, normalMatrices, pointMTime);
     return;
     }
 #endif
