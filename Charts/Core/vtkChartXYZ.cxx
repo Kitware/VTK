@@ -169,15 +169,14 @@ void vtkChartXYZ::RecalculateBounds()
     return;
     }
 
-  vtkVector3f firstPoint = this->Plots[0]->GetPoints()[0];
-  double bounds[] = { firstPoint.GetX(), firstPoint.GetX(),
-                      firstPoint.GetY(), firstPoint.GetY(),
-                      firstPoint.GetZ(), firstPoint.GetZ()};
+  double bounds[] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
+                      VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
+                      VTK_DOUBLE_MAX, VTK_DOUBLE_MIN};
 
   // Need to calculate the bounds in three dimensions and set up the axes.
   for (unsigned int i = 0; i < this->Plots.size(); ++i)
     {
-    std::vector<vtkVector3f> points = this->Plots[i]->GetPoints();
+    std::vector<vtkVector3f> const& points = this->Plots[i]->GetPoints();
     for (unsigned int j = 0; j < points.size(); ++j)
       {
       const vtkVector3f &v = points[j];
@@ -187,7 +186,7 @@ void vtkChartXYZ::RecalculateBounds()
           {
           bounds[2 * k] = v[k];
           }
-        else if (v[k] > bounds[2 * k + 1])
+        if (v[k] > bounds[2 * k + 1])
           {
           bounds[2 * k + 1] = v[k];
           }
