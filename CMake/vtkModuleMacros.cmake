@@ -810,7 +810,7 @@ macro(vtk_module_third_party _pkg)
     message(FATAL_ERROR "Cannot specify both LIBRARIES and NO_LIBRARIES")
   endif()
 
-  option(VTK_USE_SYSTEM_${_upper} "Use system-installed ${_pkg}" OFF)
+  option(VTK_USE_SYSTEM_${_upper} "Use system-installed ${_pkg}" ${VTK_USE_SYSTEM_LIBRARIES})
   mark_as_advanced(VTK_USE_SYSTEM_${_upper})
 
   if(VTK_USE_SYSTEM_${_upper})
