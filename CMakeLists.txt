@@ -356,6 +356,8 @@ include(VTKParallelCMakeTests)
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
+set(VTK_PYTHON_VERSION 2 CACHE STRING
+    "Python version to use: 2, 2.x, or empty")
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
@@ -376,7 +378,7 @@ mark_as_advanced(VTK_WRAP_HINTS)
 
 if(BUILD_TESTING OR VTK_WRAP_PYTHON)
   # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
-  find_package(PythonInterp QUIET)
+  find_package(PythonInterp ${VTK_PYTHON_VERSION} QUIET)
   mark_as_advanced(PYTHON_EXECUTABLE)
 endif()
 

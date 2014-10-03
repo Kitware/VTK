@@ -92,8 +92,8 @@ endif(XDMF_WRAP_PYTHON OR XDMF_WRAP_JAVA)
 
 # If we are wrapping python, let's include it in the top level
 if(XDMF_WRAP_PYTHON)
-  find_package(PythonInterp REQUIRED)
-  find_package(PythonLibs REQUIRED)
+  find_package(PythonInterp ${VTK_PYTHON_VERSION} REQUIRED)
+  find_package(PythonLibs ${VTK_PYTHON_VERSION} REQUIRED)
   if (XDMF_BUILD_DSM)
     find_package (MPI4PY REQUIRED)
     if (MPI4PY_FOUND)
