@@ -436,14 +436,7 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
         {
         indexArray.push_back(static_cast<unsigned int>(pts[j]));
         count++;
-        if (ucef && ucef[pts[j]])
-          {
-          drawing = true;
-          }
-        else
-          {
-          drawing = false;
-          }
+        drawing = (ucef && ucef[pts[j]]);
         }
       }
     if (wireframeTriStrips)
