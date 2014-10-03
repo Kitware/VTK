@@ -429,8 +429,10 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
     bool drawing = false;
     for (int j = 0; j < npts; ++j)
       {
-      // screw edge flags, yuck
-      if (!ucef || drawing || ucef[pts[j]])
+      // screw edge flags, yuck, we add the vertex if
+      if (!ucef // we have no edge flags
+          || drawing // or we are already drawing a segment
+          || (ucef[pts[j]] && j != npts-1)) // or we are starting a segment (not the last point)
         {
         indexArray.push_back(static_cast<unsigned int>(pts[j]));
         count++;
