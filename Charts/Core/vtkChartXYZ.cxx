@@ -176,7 +176,7 @@ void vtkChartXYZ::RecalculateBounds()
   // Need to calculate the bounds in three dimensions and set up the axes.
   for (unsigned int i = 0; i < this->Plots.size(); ++i)
     {
-    std::vector<vtkVector3f> points = this->Plots[i]->GetPoints();
+    std::vector<vtkVector3f> const& points = this->Plots[i]->GetPoints();
     for (unsigned int j = 0; j < points.size(); ++j)
       {
       const vtkVector3f &v = points[j];
