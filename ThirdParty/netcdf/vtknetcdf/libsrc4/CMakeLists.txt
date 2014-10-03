@@ -42,4 +42,4 @@ foreach(file ${SOURCES})
   set(path_SOURCES ${path_SOURCES} ${PROJECT_SOURCE_DIR}/${file})
 endforeach(file ${SOURCES})
 
-set(netcdf_src4_SOURCES ${path_SOURCES} CACHE INTERNAL "" FORCE)
+set(netcdf_src4_SOURCES ${path_SOURCES} PARENT_SCOPE)
