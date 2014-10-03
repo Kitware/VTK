@@ -66,7 +66,7 @@ protected:
 #if GL_ES_VERSION_2_0 != 1
   void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
       std::vector<unsigned char> &colors, std::vector<float> &matrices,
-      std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
+      std::vector<float> &normalMatrices,
       unsigned long pointMTime);
 #endif
 

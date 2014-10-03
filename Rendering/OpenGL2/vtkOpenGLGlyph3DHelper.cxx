@@ -400,7 +400,7 @@ void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
     std::vector<unsigned char> &colors, std::vector<float> &matrices,
-    std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
+    std::vector<float> &normalMatrices,
     unsigned long pointMTime)
 {
   this->UsingInstancing = true;
