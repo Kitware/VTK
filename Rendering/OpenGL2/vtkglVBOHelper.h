@@ -47,7 +47,7 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
 size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               std::vector<GLintptr> &memoryOffsetArray,
                               std::vector<unsigned int> &elementCountArray,
-                              bool wireframeTriStrips);
+                              bool wireframeTriStrips, vtkDataArray *edgeflags = NULL);
 
 // Store the shaders, program, and ibo in a common struct.
 class CellBO

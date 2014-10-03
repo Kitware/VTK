@@ -409,7 +409,7 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
 size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               std::vector<GLintptr> &memoryOffsetArray,
                               std::vector<unsigned int> &elementCountArray,
-                              bool wireframeTriStrips)
+                              bool wireframeTriStrips, vtkDataArray *ef)
 {
   vtkIdType      *pts = 0;
   vtkIdType      npts = 0;
@@ -417,14 +417,32 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   memoryOffsetArray.clear();
   elementCountArray.clear();
   unsigned int count = 0;
+  unsigned char *ucef = NULL;
+  if (ef)
+    {
+    ucef = vtkUnsignedCharArray::SafeDownCast(ef)->GetPointer(0);
+    }
   indexArray.reserve(cells->GetData()->GetSize());
   for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
     {
     memoryOffsetArray.push_back(count*sizeof(unsigned int));
+    bool drawing = false;
     for (int j = 0; j < npts; ++j)
       {
-      indexArray.push_back(static_cast<unsigned int>(pts[j]));
-      count++;
+      // screw edge flags, yuck
+      if (!ucef || drawing || ucef[pts[j]])
+        {
+        indexArray.push_back(static_cast<unsigned int>(pts[j]));
+        count++;
+        if (ucef && ucef[pts[j]])
+          {
+          drawing = true;
+          }
+        else
+          {
+          drawing = false;
+          }
+        }
       }
     if (wireframeTriStrips)
       {

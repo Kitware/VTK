@@ -1395,10 +1395,25 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
 
     if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
+      vtkDataArray *ef = poly->GetPointData()->GetAttribute(
+                        vtkDataSetAttributes::EDGEFLAG);
+      if (ef)
+        {
+        if (ef->GetNumberOfComponents() != 1)
+          {
+          vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
+          ef = NULL;
+          }
+        if (!ef->IsA("vtkUnsignedCharArray"))
+          {
+          vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+          ef = NULL;
+          }
+        }
       this->Tris.indexCount = CreateMultiIndexBuffer(prims[2],
                                              this->Tris.ibo,
                                              this->Tris.offsetArray,
-                                             this->Tris.elementsArray, false);
+                                             this->Tris.elementsArray, false, ef);
       this->TriStrips.indexCount = CreateMultiIndexBuffer(prims[3],
                            this->TriStrips.ibo,
                            this->TriStrips.offsetArray,

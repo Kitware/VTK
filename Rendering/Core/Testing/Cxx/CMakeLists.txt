@@ -2,13 +2,9 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
     TestAreaSelections.cxx) # incorrect results in OpenGL
-else()
-  set(extra_opengl_tests
-    TestEdgeFlags.cxx) # not supported in OpenGL2
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  ${extra_opengl_tests}
   ${extra_opengl2_tests}
   otherCoordinate.cxx,NO_DATA,NO_VALID
   FrustumClip.cxx
@@ -21,6 +17,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
+  TestEdgeFlags.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapperArrow.cxx
