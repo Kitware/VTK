@@ -20,6 +20,8 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkNew.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -31,6 +33,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
+
+bool IsDriverMesa(vtkRenderWindow *renwin)
+{
+  vtkOpenGLRenderWindow *context
+    = vtkOpenGLRenderWindow::SafeDownCast(renwin);
+  return context->GetExtensionManager()->DriverIsMesa();
+}
 
 int TestEdgeFlags(int argc, char *argv[])
 {
@@ -118,6 +127,12 @@ int TestEdgeFlags(int argc, char *argv[])
 
   renWin->Render();
 
+  if (IsDriverMesa(renWin.Get()))
+    {
+    // Mesa support for edge flags is buggy.
+    std::cout << "Mesa detected. Skip the test." << std::endl;
+    return !vtkRegressionTester::PASSED;
+    }
   // Compare image
   int retVal = vtkRegressionTestImage(renWin.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
