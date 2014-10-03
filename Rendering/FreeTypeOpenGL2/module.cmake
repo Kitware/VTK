@@ -1,10 +1,13 @@
+if (NOT ANDROID AND NOT APPLE_IOS)
+  set(include_in_backend BACKEND OpenGL2)
+endif()
+
 vtk_module(vtkRenderingFreeTypeOpenGL2
   IMPLEMENTS
     vtkRenderingCore
   TCL_NAME
     vtkRenderingFreeTypeOpenGLII
-  BACKEND
-    OpenGL2
+  ${include_in_backend}
   DEPENDS
     vtkRenderingFreeType
     vtkRenderingOpenGL2
