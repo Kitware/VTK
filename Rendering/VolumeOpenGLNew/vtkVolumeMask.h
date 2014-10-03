@@ -346,3 +346,4 @@ private:
 };
 
 #endif // __vtkVolumeMask_h_
+// VTK-HeaderTest-Exclude: vtkVolumeMask.h

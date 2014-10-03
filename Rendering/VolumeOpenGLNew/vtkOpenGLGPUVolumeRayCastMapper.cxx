@@ -15,7 +15,7 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
-#include "vtkGLSLShader.h"
+#include "vtkVolumeShader.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
 #include "vtkOpenGLGradientOpacityTable.h"
@@ -240,7 +240,7 @@ public:
   GLuint NoiseTextureId;
   GLuint DepthTextureId;
 
-  vtkGLSLShader Shader;
+  vtkVolumeShader Shader;
 
   int TextureWidth;
 

@@ -95,3 +95,4 @@ private:
 };
 
 #endif // __vtkVolumeStateRAII_h
+// VTK-HeaderTest-Exclude: vtkVolumeStateRAII.h

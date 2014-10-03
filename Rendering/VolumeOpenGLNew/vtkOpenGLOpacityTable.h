@@ -240,3 +240,4 @@ private:
 };
 
 #endif // __vtkOpenGLVolumeOpacityTable_h_
+// VTK-HeaderTest-Exclude: vtkOpenGLOpacityTable.h

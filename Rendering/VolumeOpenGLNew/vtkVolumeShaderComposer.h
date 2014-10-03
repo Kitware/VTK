@@ -1012,3 +1012,4 @@ namespace vtkvolume
 }
 
 #endif // ___vtkVolumeShaderComposer_h
+// VTK-HeaderTest-Exclude: vtkVolumeShaderComposer.h

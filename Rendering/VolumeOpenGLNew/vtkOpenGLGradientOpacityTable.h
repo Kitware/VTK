@@ -200,3 +200,4 @@ private:
 };
 
 #endif // __vtkOpenGLGradientOpacityTable_h_
+// VTK-HeaderTest-Exclude: vtkOpenGLGradientOpacityTable.h

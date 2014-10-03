@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkGLSLShader_h
-#define __vtkGLSLShader_h
+#ifndef __vtkVolumeShader_h
+#define __vtkVolumeShader_h
 
 #include <vtk_glew.h>
 
@@ -23,11 +23,11 @@
 
 using namespace std;
 
-class vtkGLSLShader
+class vtkVolumeShader
 {
 public:
-    vtkGLSLShader(void);
-    ~vtkGLSLShader(void);
+    vtkVolumeShader(void);
+    ~vtkVolumeShader(void);
     void LoadFromString(GLenum whichShader, const string& source);
     void LoadFromFile(GLenum whichShader, const string& filename);
     void CreateAndLinkProgram();
@@ -54,4 +54,5 @@ private:
     map<string,GLuint> UniformLocationList;
 };
 
-#endif // __vtkGLSLShader_h
+#endif // __vtkVolumeShader_h
+// VTK-HeaderTest-Exclude: vtkVolumeShader.h

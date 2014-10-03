@@ -101,7 +101,8 @@ public:
       // Create table if not created already
       if(this->Table==0)
         {
-        this->Table = new float[this->TexutureWidth * this->NumberOfColorComponents];
+        this->Table = new float[this->TexutureWidth *
+          this->NumberOfColorComponents];
         }
 
       scalarRGB->GetTable(range[0],range[1], this->TexutureWidth, this->Table);
@@ -115,7 +116,8 @@ public:
       this->LastRange[1] = range[1];
       }
 
-    needUpdate = needUpdate || this->LastLinearInterpolation!=linearInterpolation;
+    needUpdate = needUpdate ||
+      this->LastLinearInterpolation!=linearInterpolation;
     if (needUpdate)
       {
       this->LastLinearInterpolation = linearInterpolation;
@@ -151,3 +153,4 @@ protected:
 };
 
 #endif // __vtkOpenGLRGBTable_h_
+// VTK-HeaderTest-Exclude: vtkOpenGLRGBTable.h

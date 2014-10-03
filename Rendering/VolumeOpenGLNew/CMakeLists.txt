@@ -4,12 +4,12 @@ include(vtkObjectFactory)
 set(Module_SRCS
   #vtkGPUVolumeRayCastMapper.cxx
   vtkOpenGLGPUVolumeRayCastMapper.cxx
-  vtkGLSLShader.cxx
+  vtkVolumeShader.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
 
 set_source_files_properties(
 #  vtkGPUVolumeRayCastMapper
-  vtkGLSLShader
+  vtkVolumeShader
   ${vtk-module}ObjectFactory
   WRAP_EXCLUDE)
 

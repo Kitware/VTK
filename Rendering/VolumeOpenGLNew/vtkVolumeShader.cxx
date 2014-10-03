@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkGLSLShader.h"
+#include "vtkVolumeShader.h"
 
 #include <iostream>
 #include <fstream>
 
 ///---------------------------------------------------------------------------
-vtkGLSLShader::vtkGLSLShader(void)
+vtkVolumeShader::vtkVolumeShader(void)
 {
   this->Program = 0;
   this->TotalShaders = 0;
@@ -32,7 +32,7 @@ vtkGLSLShader::vtkGLSLShader(void)
 
 ///---------------------------------------------------------------------------
 ///
-vtkGLSLShader::~vtkGLSLShader(void)
+vtkVolumeShader::~vtkVolumeShader(void)
 {
     this->AttributeList.clear();
     this->UniformLocationList.clear();
@@ -40,9 +40,9 @@ vtkGLSLShader::~vtkGLSLShader(void)
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::DeleteShaderProgram
+/// \brief vtkVolumeShader::DeleteShaderProgram
 ///
-void vtkGLSLShader::DeleteShaderProgram()
+void vtkVolumeShader::DeleteShaderProgram()
 {
     if (this->Program)
       {
@@ -55,11 +55,11 @@ void vtkGLSLShader::DeleteShaderProgram()
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::LoadFromString
+/// \brief vtkVolumeShader::LoadFromString
 /// \param type
 /// \param source
 ///
-void vtkGLSLShader::LoadFromString(GLenum type, const string& source)
+void vtkVolumeShader::LoadFromString(GLenum type, const string& source)
 {
   GLuint shader = glCreateShader(type);
 
@@ -84,9 +84,9 @@ void vtkGLSLShader::LoadFromString(GLenum type, const string& source)
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::CreateAndLinkProgram
+/// \brief vtkVolumeShader::CreateAndLinkProgram
 ///
-void vtkGLSLShader::CreateAndLinkProgram()
+void vtkVolumeShader::CreateAndLinkProgram()
 {
   this->Program = glCreateProgram ();
   if (this->Shaders[VERTEX_SHADER] != 0)
@@ -126,28 +126,28 @@ void vtkGLSLShader::CreateAndLinkProgram()
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::Use
+/// \brief vtkVolumeShader::Use
 ///
-void vtkGLSLShader::Use()
+void vtkVolumeShader::Use()
 {
     glUseProgram(this->Program);
 }
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::UnUse
+/// \brief vtkVolumeShader::UnUse
 ///
-void vtkGLSLShader::UnUse()
+void vtkVolumeShader::UnUse()
 {
     glUseProgram(0);
 }
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::AddAttribute
+/// \brief vtkVolumeShader::AddAttribute
 /// \param attribute
 ///
-void vtkGLSLShader::AddAttribute(const string& attribute)
+void vtkVolumeShader::AddAttribute(const string& attribute)
 {
   this->AttributeList[attribute] = glGetAttribLocation(
                                      this->Program, attribute.c_str());
@@ -156,21 +156,21 @@ void vtkGLSLShader::AddAttribute(const string& attribute)
 ///---------------------------------------------------------------------------
 /// An indexer that returns the location of the attribute
 ////
-/// \brief vtkGLSLShader::operator []
+/// \brief vtkVolumeShader::operator []
 /// \param attribute
 /// \return
 ///
-GLuint vtkGLSLShader::operator [](const string& attribute)
+GLuint vtkVolumeShader::operator [](const string& attribute)
 {
   return this->AttributeList[attribute];
 }
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::AddUniform
+/// \brief vtkVolumeShader::AddUniform
 /// \param uniform
 ///
-void vtkGLSLShader::AddUniform(const string& uniform)
+void vtkVolumeShader::AddUniform(const string& uniform)
 {
   this->UniformLocationList[uniform] =
     glGetUniformLocation(this->Program, uniform.c_str());
@@ -178,22 +178,22 @@ void vtkGLSLShader::AddUniform(const string& uniform)
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::operator ()
+/// \brief vtkVolumeShader::operator ()
 /// \param uniform
 /// \return
 ///
-GLuint vtkGLSLShader::operator()(const string& uniform)
+GLuint vtkVolumeShader::operator()(const string& uniform)
 {
   return this->UniformLocationList[uniform];
 }
 
 ///---------------------------------------------------------------------------
 ///
-/// \brief vtkGLSLShader::LoadFromFile
+/// \brief vtkVolumeShader::LoadFromFile
 /// \param whichShader
 /// \param filename
 ///
-void vtkGLSLShader::LoadFromFile(GLenum whichShader, const string& filename)
+void vtkVolumeShader::LoadFromFile(GLenum whichShader, const string& filename)
 {
   ifstream fp;
   fp.open(filename.c_str(), ios_base::in);
