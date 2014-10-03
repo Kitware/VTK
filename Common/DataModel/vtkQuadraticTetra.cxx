@@ -55,8 +55,12 @@ vtkQuadraticTetra::~vtkQuadraticTetra()
 //----------------------------------------------------------------------------
 //clip each of the four vertices; the remaining octahedron is
 //divided into four tetrahedron.
-static int LinearTetras[8][4] = { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, {7,8,9,3},
-                                  {6,4,5,8}, {6,5,9,8}, {6,9,7,8}, {6,7,4,8}};
+static int LinearTetras[3][8][4] = { { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, {7,8,9,3},
+                                       {6,4,5,8}, {6,5,9,8}, {6,9,7,8}, {6,7,4,8}},
+                                     { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, {7,8,9,3},
+                                       {4,8,5,9}, {4,5,6,9}, {4,6,7,9}, {4,7,8,9}},
+                                     { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, {7,8,9,3},
+                                       {5,9,6,7}, {5,6,4,7}, {5,4,8,7}, {5,8,9,7}} };
 
 static int TetraFaces[4][6] = { {0,1,3,4,8,7}, {1,2,3,5,9,8},
                                 {2,0,3,6,7,9}, {0,2,1,6,5,4} };
@@ -64,7 +68,7 @@ static int TetraFaces[4][6] = { {0,1,3,4,8,7}, {1,2,3,5,9,8},
 static int TetraEdges[6][3] = { {0,1,4}, {1,2,5}, {2,0,6},
                                 {0,3,7}, {1,3,8}, {2,3,9} };
 
-//----------------------------------------------------------------------------
+//------------------------Tuple1----------------------------------------------------
 int *vtkQuadraticTetra::GetEdgeArray(int edgeId)
 {
   return TetraEdges[edgeId];
@@ -286,13 +290,20 @@ void vtkQuadraticTetra::Contour(double value, vtkDataArray* cellScalars,
                                 vtkCellData* inCd, vtkIdType cellId,
                                 vtkCellData* outCd)
 {
+  // Determine how to tessellate. This will depend on the scalars (to try and minimize
+  // artifacts).
+  double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
+  double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
+  double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  int dir = ( (sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)) );
+
   for ( int i=0; i < 8; i++) //for each subdivided tetra
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
-      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[i][j]));
-      this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearTetras[i][j]));
+      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[dir][i][j]));
+      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[dir][i][j]));
+      this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearTetras[dir][i][j]));
       }
     this->Tetra->Contour(value, this->Scalars, locator, verts,
                          lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -362,8 +373,8 @@ int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     {
     for ( int j=0; j < 4; j++)
       {
-      ptIds->InsertId(4*i+j,this->PointIds->GetId(LinearTetras[i][j]));
-      pts->InsertPoint(4*i+j,this->Points->GetPoint(LinearTetras[i][j]));
+      ptIds->InsertId(4*i+j,this->PointIds->GetId(LinearTetras[0][i][j]));
+      pts->InsertPoint(4*i+j,this->Points->GetPoint(LinearTetras[0][i][j]));
       }
     }
 
@@ -449,13 +460,20 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
                              vtkCellData* inCd, vtkIdType cellId,
                              vtkCellData* outCd, int insideOut)
 {
+    // Determine how to tessellate. This will depend on the scalars (to try and minimize
+  // artifacts).
+  double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
+  double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
+  double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  int dir = ( (sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)) );
+
   for ( int i=0; i < 8; i++) //for each subdivided tetra
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
-      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[i][j]));
-      this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearTetras[i][j]));
+      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[dir][i][j]));
+      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[dir][i][j]));
+      this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearTetras[dir][i][j]));
       }
     this->Tetra->Clip(value, this->Scalars, locator, tetras, inPd, outPd,
                       inCd, cellId, outCd, insideOut);
