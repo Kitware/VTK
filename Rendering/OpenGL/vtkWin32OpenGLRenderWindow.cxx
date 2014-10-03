@@ -1532,7 +1532,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rsit;
   this->Renderers->InitTraversal(rsit);
-  while (ren = this->Renderers->GetNextRenderer(rsit))
+  while ((ren = this->Renderers->GetNextRenderer(rsit)))
     {
     ren->SetRenderWindow(NULL);
     ren->SetRenderWindow(this);
@@ -1635,7 +1635,7 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
       vtkRenderer *ren;
       vtkCollectionSimpleIterator rsit;
       this->Renderers->InitTraversal(rsit);
-      while (ren = this->Renderers->GetNextRenderer(rsit))
+      while ((ren = this->Renderers->GetNextRenderer(rsit)))
         {
         ren->SetRenderWindow(NULL);
         ren->SetRenderWindow(this);
