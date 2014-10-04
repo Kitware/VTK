@@ -44,11 +44,9 @@ vtkBMPReader::vtkBMPReader()
 vtkBMPReader::~vtkBMPReader()
 {
   // free any old memory
-  if (this->Colors)
-    {
-    delete [] this->Colors;
-    this->Colors = NULL;
-    }
+  delete [] this->Colors;
+  this->Colors = NULL;
+
   if (this->LookupTable)
     {
     this->LookupTable->Delete();
@@ -67,11 +65,8 @@ void vtkBMPReader::ExecuteInformation()
   vtkTypeInt16 stmp1, stmp2;
 
   // free any old memory
-  if (this->Colors)
-    {
-    delete [] this->Colors;
-    this->Colors = NULL;
-    }
+  delete [] this->Colors;
+  this->Colors = NULL;
 
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis

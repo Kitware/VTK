@@ -540,10 +540,7 @@ vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
       {
       newPointerAttributeArray[i] = NULL;
       }
-    if ( this->PointerAttributes )
-      {
-      delete [] this->PointerAttributes;
-      }
+    delete [] this->PointerAttributes;
     this->PointerAttributes = newPointerAttributeArray;
     }
 

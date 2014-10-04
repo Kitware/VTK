@@ -528,10 +528,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
     }
   delete [] isect1;
 
-  if (scalars)
-    {
-    delete [] scalars;
-    }
+  delete [] scalars;
 }
 
 //----------------------------------------------------------------------------

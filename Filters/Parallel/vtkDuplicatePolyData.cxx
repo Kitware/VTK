@@ -90,11 +90,8 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
     delete [] this->Schedule[i];
     this->Schedule[i] = NULL;
     }
-  if (this->Schedule)
-    {
-    delete [] this->Schedule;
-    this->Schedule = NULL;
-    }
+  delete [] this->Schedule;
+  this->Schedule = NULL;
 
   this->NumberOfProcesses = numProcs;
   if (numProcs == 0)

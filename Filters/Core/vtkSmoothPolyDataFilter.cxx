@@ -43,10 +43,7 @@ public:
   vtkSmoothPoints();
   ~vtkSmoothPoints()
     {
-    if (this->Array)
-      {
-      delete [] this->Array;
-      }
+    delete [] this->Array;
     };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkSmoothPoint *GetSmoothPoint(vtkIdType i) {return this->Array + i;};

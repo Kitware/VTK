@@ -113,8 +113,7 @@ vtkVPICReader::~vtkVPICReader()
   delete [] this->TimeSteps;
   delete [] this->dataLoaded;
 
-  if (this->exchanger)
-    delete this->exchanger;
+  delete this->exchanger;
 
   if (this->data)
     {

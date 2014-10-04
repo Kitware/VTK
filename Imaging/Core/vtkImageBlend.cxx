@@ -43,10 +43,7 @@ vtkImageBlend::vtkImageBlend()
 //----------------------------------------------------------------------------
 vtkImageBlend::~vtkImageBlend()
 {
-  if (this->Opacity)
-    {
-    delete [] this->Opacity;
-    }
+  delete [] this->Opacity;
   this->OpacityArrayLength = 0;
 }
 
@@ -145,10 +142,7 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
       {
       newArray[i] = 1.0;
       }
-    if (this->Opacity)
-      {
-      delete [] this->Opacity;
-      }
+    delete [] this->Opacity;
     this->Opacity = newArray;
     this->OpacityArrayLength = newLength;
     }

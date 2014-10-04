@@ -267,8 +267,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
       if (setjmp(png_jmpbuf((png_ptr))))
         {
         fclose(this->TempFP);
-        if (row_pointers)
-           delete [] row_pointers;
+        delete [] row_pointers;
         png_destroy_write_struct(&png_ptr, &info_ptr);
         this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
         return;

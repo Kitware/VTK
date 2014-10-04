@@ -305,11 +305,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
 
   delete [] image;
   delete [] outImage;
-  if ( kernel )
-    {
-    delete [] kernel;
-    }
-
+  delete [] kernel;
 }
 
 

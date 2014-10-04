@@ -241,10 +241,7 @@ void CvtkDLGDlg::OnDestroy()
   if (this->pvtkActor2D)      this->pvtkActor2D->Delete();
   if (this->pvtkTextMapper)    this->pvtkTextMapper->Delete();
 
-  if (this->pvtkMFCWindow)
-    {
-    delete this->pvtkMFCWindow;
-    }
+  delete this->pvtkMFCWindow;
 
   CDialog::OnDestroy();
 }

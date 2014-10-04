@@ -1262,11 +1262,8 @@ int vtkCellTreeLocator::IntersectCellInternal(
 //----------------------------------------------------------------------------
 void vtkCellTreeLocator::FreeSearchStructure(void)
 {
-  if( this->Tree )
-    {
-    delete this->Tree;
-    this->Tree = NULL;
-    }
+  delete this->Tree;
+  this->Tree = NULL;
   this->Superclass::FreeCellBounds();
 }
 //---------------------------------------------------------------------------

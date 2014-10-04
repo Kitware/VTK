@@ -77,10 +77,7 @@ vtkGlyph3D::vtkGlyph3D()
 //----------------------------------------------------------------------------
 vtkGlyph3D::~vtkGlyph3D()
 {
-  if (this->PointIdsName)
-    {
-    delete []PointIdsName;
-    }
+  delete [] PointIdsName;
   this->SetSourceTransform(NULL);
 }
 

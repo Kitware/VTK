@@ -861,9 +861,6 @@ void vtkImageBSplineInterpolator::FreeKernelLookupTable()
 {
 #ifdef VTK_BSPLINE_USE_KERNEL_TABLE
   float *kernel = this->KernelLookupTable;
-  if (kernel)
-    {
-    delete [] kernel;
-    }
+  delete [] kernel;
 #endif
 }

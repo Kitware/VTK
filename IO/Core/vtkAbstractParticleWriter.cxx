@@ -26,11 +26,8 @@ vtkAbstractParticleWriter::vtkAbstractParticleWriter()
 //----------------------------------------------------------------------------
 vtkAbstractParticleWriter::~vtkAbstractParticleWriter()
 {
-  if (this->FileName)
-    {
-    delete []this->FileName;
-    this->FileName = NULL;
-    }
+  delete []this->FileName;
+  this->FileName = NULL;
 }
 //----------------------------------------------------------------------------
 void vtkAbstractParticleWriter::SetWriteModeToCollective()

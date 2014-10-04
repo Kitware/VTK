@@ -88,14 +88,8 @@ vtkMNITagPointReader::vtkMNITagPointReader()
 //-------------------------------------------------------------------------
 vtkMNITagPointReader::~vtkMNITagPointReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->Comments)
-    {
-    delete [] this->Comments;
-    }
+  delete [] this->FileName;
+  delete [] this->Comments;
 }
 
 //-------------------------------------------------------------------------
@@ -193,10 +187,7 @@ int vtkMNITagPointReader::ReadLineAfterComments(
       }
     else if (linetext.length() != 0 && pos != linetext.end())
       {
-      if (this->Comments)
-        {
-        delete [] this->Comments;
-        }
+      delete [] this->Comments;
       this->Comments = new char[comments.length() + 1];
       strcpy(this->Comments, comments.c_str());
 

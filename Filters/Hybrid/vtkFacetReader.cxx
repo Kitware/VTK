@@ -89,10 +89,7 @@ vtkFacetReader::vtkFacetReader()
 //----------------------------------------------------------------------------
 vtkFacetReader::~vtkFacetReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 }
 
 //-----------------------------------------------------------------------------

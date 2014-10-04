@@ -171,10 +171,7 @@ bool vtkMySQLDatabase::Open( const char* password )
 
     if ( this->Password != password )
       {
-      if ( this->Password )
-        {
-        delete [] this->Password;
-        }
+      delete [] this->Password;
       this->Password = password ? vtksys::SystemTools::DuplicateString( password ) : 0;
       }
 

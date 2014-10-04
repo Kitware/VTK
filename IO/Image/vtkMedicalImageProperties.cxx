@@ -292,11 +292,8 @@ vtkMedicalImageProperties::~vtkMedicalImageProperties()
 {
   this->Clear();
 
-  if (this->Internals)
-    {
-    delete this->Internals;
-    this->Internals = NULL;
-    }
+  delete this->Internals;
+  this->Internals = NULL;
 }
 
 //----------------------------------------------------------------------------

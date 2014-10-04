@@ -27,11 +27,8 @@ vtkX3DExporterWriter::vtkX3DExporterWriter()
 //----------------------------------------------------------------------------
 vtkX3DExporterWriter::~vtkX3DExporterWriter()
 {
-  if(this->OutputString)
-    {
-    delete[] this->OutputString;
-    this->OutputString = NULL;
-    }
+  delete[] this->OutputString;
+  this->OutputString = NULL;
 }
 
 //----------------------------------------------------------------------------

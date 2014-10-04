@@ -56,10 +56,7 @@ vtkOBBNode::vtkOBBNode()
 
 vtkOBBNode::~vtkOBBNode()
 {
-  if (this->Kids)
-    {
-    delete [] this->Kids;
-    }
+  delete [] this->Kids;
   if (this->Cells)
     {
     this->Cells->Delete();

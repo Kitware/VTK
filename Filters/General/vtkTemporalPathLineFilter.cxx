@@ -124,11 +124,8 @@ vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 //----------------------------------------------------------------------------
 vtkTemporalPathLineFilter::~vtkTemporalPathLineFilter()
 {
-  if (this->IdChannelArray)
-    {
-    delete [] this->IdChannelArray;
-    this->IdChannelArray = NULL;
-    }
+  delete [] this->IdChannelArray;
+  this->IdChannelArray = NULL;
 }
 //----------------------------------------------------------------------------
 int vtkTemporalPathLineFilter::FillInputPortInformation(int port, vtkInformation* info)

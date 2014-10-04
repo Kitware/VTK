@@ -147,10 +147,8 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
 
 vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
+
   if(this->AtomType)
     {
     this->AtomType->Delete();

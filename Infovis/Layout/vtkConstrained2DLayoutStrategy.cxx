@@ -206,12 +206,8 @@ void vtkConstrained2DLayoutStrategy::Initialize()
     }
 
   // Put the edge data into compact, fast access edge data structure
-  if (this->EdgeArray)
-    {
-    delete [] this->EdgeArray;
-    this->EdgeArray = NULL;
-    }
-  this->EdgeArray =  new vtkLayoutEdge[numEdges];
+  delete [] this->EdgeArray;
+  this->EdgeArray = new vtkLayoutEdge[numEdges];
 
   // Jitter x and y, skip z
   for (vtkIdType i=0; i<numVertices*3; i+=3)

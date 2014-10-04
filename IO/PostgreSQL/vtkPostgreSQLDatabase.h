@@ -228,7 +228,7 @@ private:
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
     if ( this->name == NULL && _arg == NULL) { return;} \
     if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
-    if (this->name) { delete [] this->name; } \
+    delete [] this->name; \
     if (_arg) \
       { \
           size_t n = strlen(_arg) + 1; \
@@ -236,11 +236,11 @@ private:
           const char *cp2 = (_arg); \
           this->name = cp1; \
           do { *cp1++ = *cp2++; } while ( --n ); \
-          } \
+      } \
      else \
       { \
           this->name = NULL; \
-          } \
+      } \
     this->Modified(); \
     this->timeStamp.Modified(); \
     this->Close(); /* Force a re-open on next query */ \

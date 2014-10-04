@@ -97,11 +97,8 @@ private:
 //----------------------------------------------------------------------------
 vtkX3DExporterFIByteWriter::~vtkX3DExporterFIByteWriter()
 {
-  if(this->Stream != NULL)
-    {
-    delete this->Stream;
-    this->Stream = NULL;
-    }
+  delete this->Stream;
+  this->Stream = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -297,11 +294,7 @@ void vtkX3DExporterFIWriter::CloseFile()
     {
     if(this->WriteToOutputString)
       {
-      if(this->OutputString)
-        {
-        delete [] this->OutputString;
-        this->OutputString = NULL;
-        }
+      delete [] this->OutputString;
       const char* tmp = this->Writer->GetStringStream(this->OutputStringLength);
       this->OutputString = new char[this->OutputStringLength];
       memcpy(this->OutputString, tmp, this->OutputStringLength);

@@ -90,22 +90,16 @@ vtkExodusIIWriter::~vtkExodusIIWriter ()
 {
   this->SetModelMetadata(0); // kill the reference if its there
 
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->BlockIdArrayName)
-    {
-    delete [] this->BlockIdArrayName;
-    }
+  delete [] this->FileName;
+  delete [] this->BlockIdArrayName;
+
   if (this->TimeValues)
     {
     this->TimeValues->Delete ();
     }
-  if (this->BlockElementVariableTruthTable)
-    {
-    delete [] this->BlockElementVariableTruthTable;
-    }
+
+  delete [] this->BlockElementVariableTruthTable;
+
   for (size_t i = 0; i < this->BlockIdList.size (); i ++)
     {
     this->BlockIdList[i]->UnRegister (this);
@@ -1766,10 +1760,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
   for (size_t n = 0; n < nblocks; n ++)
     {
-    if (connectivity[n])
-      {
-      delete [] connectivity[n];
-      }
+    delete [] connectivity[n];
     if (this->PassDoubles && attributesD[n])
       {
       delete [] attributesD[n];

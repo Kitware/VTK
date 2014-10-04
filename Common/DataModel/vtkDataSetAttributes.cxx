@@ -2181,11 +2181,8 @@ void vtkDataSetAttributes::FieldList::SetField(
 
   //we unallocate the names before we update the field components
   //so we unallocate correctly
-  if ( this->FieldComponentsNames[index] )
-    {
-    delete this->FieldComponentsNames[index];
-    this->FieldComponentsNames[index] = NULL;
-    }
+  delete this->FieldComponentsNames[index];
+  this->FieldComponentsNames[index] = NULL;
 
   //store the components names
   int numberOfComponents = aa->GetNumberOfComponents();

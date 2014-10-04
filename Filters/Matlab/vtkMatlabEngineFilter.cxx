@@ -102,20 +102,9 @@ vtkMatlabEngineFilter::~vtkMatlabEngineFilter()
     this->mengi->Delete();
     }
 
-  if(this->MatlabScript)
-    {
-    delete [] this->MatlabScript;
-    }
-
-  if(this->MatlabFileScript)
-    {
-    delete [] this->MatlabFileScript;
-    }
-
-  if(this->ScriptFname)
-    {
-    delete [] this->ScriptFname;
-    }
+  delete [] this->MatlabScript;
+  delete [] this->MatlabFileScript;
+  delete [] this->ScriptFname;
 
   if(this->CurrentTime)
     {
@@ -143,7 +132,6 @@ vtkMatlabEngineFilter::~vtkMatlabEngineFilter()
     }
 
   delete [] this->OutputBuffer;
-
 }
 
 void vtkMatlabEngineFilter::PrintSelf(ostream& os, vtkIndent indent)

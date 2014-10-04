@@ -708,20 +708,14 @@ void CommunicationManager::Clear()
   std::map<int,unsigned char*>::iterator it;
   for(it=this->Send.begin(); it != this->Send.end(); ++it)
     {
-    if( it->second != NULL )
-      {
-      delete [] it->second;
-      } // END if
-    } // END for
+    delete [] it->second;
+    }
   this->Send.clear();
 
   for(it=this->Rcv.begin(); it != this->Rcv.end(); ++it)
     {
-    if( it->second != NULL)
-      {
-      delete [] it->second;
-      } // END if
-    } // END for
+    delete [] it->second;
+    }
   this->Rcv.clear();
 }
 
@@ -874,11 +868,8 @@ vtkStructuredImplicitConnectivity::vtkStructuredImplicitConnectivity()
 //------------------------------------------------------------------------------
 vtkStructuredImplicitConnectivity::~vtkStructuredImplicitConnectivity()
 {
-  if( this->DomainInfo != NULL )
-    {
-    delete this->DomainInfo;
-    this->DomainInfo = NULL;
-    }
+  delete this->DomainInfo;
+  this->DomainInfo = NULL;
 
   if( this->InputGrid != NULL )
     {
@@ -945,10 +936,7 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os,vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkStructuredImplicitConnectivity::SetWholeExtent(int wholeExt[6])
 {
-  if( this->DomainInfo != NULL )
-    {
-    delete this->DomainInfo;
-    }
+  delete this->DomainInfo;
 
   this->DomainInfo = new vtk::detail::DomainMetaData();
   this->DomainInfo->Initialize(wholeExt);
