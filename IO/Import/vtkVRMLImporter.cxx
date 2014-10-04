@@ -360,13 +360,22 @@ void vtkVRMLImporter::ImportEnd ()
     this->CurrentLut->Delete();
     this->CurrentLut = NULL;
     }
-  this->CurrentTransform->Delete();
-  this->CurrentTransform = NULL;
+  if (this->CurrentTransform)
+    {
+    this->CurrentTransform->Delete();
+    this->CurrentTransform = NULL;
+    }
 }
 
 
 vtkVRMLImporter::~vtkVRMLImporter()
 {
+  if (this->CurrentTransform)
+    {
+    this->CurrentTransform->Delete();
+    this->CurrentTransform = NULL;
+    }
+
   if (this->FileName)
     {
     delete [] this->FileName;
