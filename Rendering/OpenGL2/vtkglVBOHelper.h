@@ -47,7 +47,11 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
 size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               std::vector<GLintptr> &memoryOffsetArray,
                               std::vector<unsigned int> &elementCountArray,
-                              bool wireframeTriStrips, vtkDataArray *edgeflags = NULL);
+                              bool wireframeTriStrips);
+
+// special index buffer for polys wireframe with edge visibilityflags
+size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
+                                 vtkDataArray *edgeflags);
 
 // Store the shaders, program, and ibo in a common struct.
 class CellBO

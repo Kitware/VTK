@@ -409,7 +409,7 @@ size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
 size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               std::vector<GLintptr> &memoryOffsetArray,
                               std::vector<unsigned int> &elementCountArray,
-                              bool wireframeTriStrips, vtkDataArray *ef)
+                              bool wireframeTriStrips)
 {
   vtkIdType      *pts = 0;
   vtkIdType      npts = 0;
@@ -417,27 +417,14 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   memoryOffsetArray.clear();
   elementCountArray.clear();
   unsigned int count = 0;
-  unsigned char *ucef = NULL;
-  if (ef)
-    {
-    ucef = vtkUnsignedCharArray::SafeDownCast(ef)->GetPointer(0);
-    }
   indexArray.reserve(cells->GetData()->GetSize());
   for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
     {
     memoryOffsetArray.push_back(count*sizeof(unsigned int));
-    bool drawing = false;
     for (int j = 0; j < npts; ++j)
       {
-      // screw edge flags, yuck, we add the vertex if
-      if (!ucef // we have no edge flags
-          || drawing // or we are already drawing a segment
-          || (ucef[pts[j]] && j != npts-1)) // or we are starting a segment (not the last point)
-        {
-        indexArray.push_back(static_cast<unsigned int>(pts[j]));
-        count++;
-        drawing = (ucef && ucef[pts[j]]);
-        }
+      indexArray.push_back(static_cast<unsigned int>(pts[j]));
+      count++;
       }
     if (wireframeTriStrips)
       {
@@ -459,6 +446,32 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   return indexArray.size();
 }
 
+// used to create an IBO for polys in wireframe with edge flags
+size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
+                                 vtkDataArray *ef)
+{
+  vtkIdType      *pts = 0;
+  vtkIdType      npts = 0;
+  std::vector<unsigned int> indexArray;
+  unsigned char *ucef = NULL;
+  ucef = vtkUnsignedCharArray::SafeDownCast(ef)->GetPointer(0);
+  indexArray.reserve(cells->GetData()->GetSize()*2);
+  for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
+    {
+    for (int j = 0; j < npts; ++j)
+      {
+      if (ucef[pts[j]] && npts > 1) // draw this edge and poly is not degenerate
+        {
+        // determine the ending vertex
+        vtkIdType nextVert = (j == npts-1) ? pts[0] : pts[j+1];
+        indexArray.push_back(static_cast<unsigned int>(pts[j]));
+        indexArray.push_back(static_cast<unsigned int>(nextVert));
+        }
+      }
+    }
+  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  return indexArray.size();
+}
 
 // used to create an IBO for stripped primatives such as lines and triangle strips
 void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
