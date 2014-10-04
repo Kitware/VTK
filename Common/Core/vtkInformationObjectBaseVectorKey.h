@@ -47,6 +47,17 @@ public:
   ~vtkInformationObjectBaseVectorKey();
 
   // Description:
+  // This method simply returns a new vtkInformationObjectBaseVectorKey, given a
+  // name, location and optionally a required class (a classname to restrict
+  // which class types can be set with this key). This method is provided
+  // for wrappers. Use the constructor directly from C++ instead.
+  static vtkInformationObjectBaseVectorKey* MakeKey(const char* name, const char* location,
+                                             const char* requiredClass=0)
+    {
+    return new vtkInformationObjectBaseVectorKey(name, location, requiredClass);
+    }
+
+  // Description:
   // Clear the vector.
   void Clear(vtkInformation* info);
   // Description:
