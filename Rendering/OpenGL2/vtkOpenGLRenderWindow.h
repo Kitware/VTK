@@ -125,6 +125,11 @@ public:
   // Initialize VTK for rendering in a new OpenGL context
   virtual void OpenGLInitContext();
 
+  // Description::
+  // Get if the copntext includes opengl core profile 3.2 support
+  static bool GetContextSupportsOpenGL32();
+  void SetContextSupportsOpenGL32(bool val);
+
   // Description:
   // Return the OpenGL name of the back left buffer.
   // It is GL_BACK_LEFT if GL is bound to the window-system-provided

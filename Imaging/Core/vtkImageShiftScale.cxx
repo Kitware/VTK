@@ -118,8 +118,10 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
       while (outSI != outSIEnd)
         {
         // Pixel operation
-        *outSI = static_cast<OT>(
-          (static_cast<double>(*inSI) + shift) * scale);
+        double val = (static_cast<double>(*inSI) + shift) * scale;
+
+        // NB: without clamping, this cast may result in undefined behavior!
+        *outSI = static_cast<OT>(val);
         ++outSI;
         ++inSI;
         }

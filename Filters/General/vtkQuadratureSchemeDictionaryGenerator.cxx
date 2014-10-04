@@ -266,7 +266,6 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(
             << "with no definition provided. Add a definition " << " in "
             << __FILE__ << ". Aborting." << endl;
         return 0;
-        break;
       }
 
     // The definition must apear in the dictionary associated

@@ -104,15 +104,47 @@ static std::string GetPythonErrorString()
     return "No error from Python?!";
     }
 
-  vtkSmartPyObject pyexc_string(PyObject_Str(sValue));
   std::string exc_string;
-  if (pyexc_string)
+
+  vtkSmartPyObject tbModule(PyImport_ImportModule("traceback"));
+  if (tbModule)
     {
-    exc_string = PyString_AsString(pyexc_string);
+    vtkSmartPyObject formatFunction(PyObject_GetAttrString(tbModule.GetPointer(), "format_exception"));
+
+    vtkSmartPyObject args(PyTuple_New(3));
+
+    Py_INCREF(sType.GetPointer()); // PyTuple steals a reference.
+    PyTuple_SET_ITEM(args.GetPointer(), 0, sType.GetPointer());
+
+    Py_INCREF(sValue.GetPointer()); // PyTuple steals a reference.
+    PyTuple_SET_ITEM(args.GetPointer(), 1, sValue.GetPointer());
+
+    Py_INCREF(sTraceback.GetPointer()); // PyTuple steals a reference.
+    PyTuple_SET_ITEM(args.GetPointer(), 2, sTraceback.GetPointer());
+
+    vtkSmartPyObject formatList(PyObject_Call(formatFunction.GetPointer(), args, NULL));
+    vtkSmartPyObject fastFormatList(PySequence_Fast(formatList.GetPointer(), "format_exception didn't return a list..."));
+
+    Py_ssize_t sz = PySequence_Size(formatList.GetPointer());
+    PyObject** lst = PySequence_Fast_ITEMS(fastFormatList.GetPointer());
+    exc_string = "\n";
+    for (Py_ssize_t i = 0; i < sz; ++i)
+      {
+      PyObject* str = lst[i];
+      exc_string += PyString_AsString(str);
+      }
     }
   else
     {
-    exc_string = "<Unable to convert Python error to string>";
+    vtkSmartPyObject pyexc_string(PyObject_Str(sValue));
+    if (pyexc_string)
+      {
+      exc_string = PyString_AsString(pyexc_string);
+      }
+    else
+      {
+      exc_string = "<Unable to convert Python error to string>";
+      }
     }
 
   PyErr_Clear();

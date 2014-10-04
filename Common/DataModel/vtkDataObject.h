@@ -294,34 +294,61 @@ public:
   // for the attribute (i.e. type = 0: returns "Points").
   static int GetAssociationTypeFromString(const char* associationType);
 
+  // \ingroup InformationKeys
   static vtkInformationStringKey* DATA_TYPE_NAME();
+  // \ingroup InformationKeys
   static vtkInformationDataObjectKey* DATA_OBJECT();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* DATA_EXTENT_TYPE();
+  // \ingroup InformationKeys
   static vtkInformationIntegerPointerKey* DATA_EXTENT();
+  // \ingroup InformationKeys
   static vtkInformationIntegerVectorKey* ALL_PIECES_EXTENT();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
+  // \ingroup InformationKeys
   static vtkInformationDoubleKey* DATA_TIME_STEP();
+  // \ingroup InformationKeys
   static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
+  // \ingroup InformationKeys
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
+  // \ingroup InformationKeys
   static vtkInformationInformationVectorKey* VERTEX_DATA_VECTOR();
+  // \ingroup InformationKeys
   static vtkInformationInformationVectorKey* EDGE_DATA_VECTOR();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* FIELD_ACTIVE_ATTRIBUTE();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_COMPONENTS();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
+  // \ingroup InformationKeys
   static vtkInformationIntegerKey* FIELD_OPERATION();
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* FIELD_RANGE();
+  // \ingroup InformationKeys
   static vtkInformationIntegerVectorKey* PIECE_EXTENT();
+  // \ingroup InformationKeys
   static vtkInformationStringKey* FIELD_NAME();
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* ORIGIN();
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* SPACING();
+  // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey* BOUNDING_BOX();
 
   // Key used to put SIL information in the output information by readers.
+  // \ingroup InformationKeys
   static vtkInformationDataObjectKey* SIL();
 
   //BTX

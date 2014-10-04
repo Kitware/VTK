@@ -122,7 +122,6 @@ int vtkExtractSelectedIds::RequestData(
     {
     case vtkSelectionNode::CELL:
       return this->ExtractCells(node, input, output);
-      break;
     case vtkSelectionNode::POINT:
       return this->ExtractPoints(node, input, output);
     }

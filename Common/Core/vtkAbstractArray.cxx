@@ -321,16 +321,9 @@ int vtkAbstractArray::GetDataTypeSize(int type)
       );
 
     case VTK_BIT:
-      return 0;
-      break;
-
     case VTK_STRING:
-      return 0;
-      break;
-
     case VTK_UNICODE_STRING:
       return 0;
-      break;
 
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
@@ -385,12 +378,10 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 #if defined(VTK_TYPE_USE___INT64)
     case VTK___INT64:
       return vtk__Int64Array::New();
-      break;
 
 # if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
     case VTK_UNSIGNED___INT64:
       return vtkUnsigned__Int64Array::New();
-      break;
 # endif
 #endif
 

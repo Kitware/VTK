@@ -196,8 +196,9 @@ public:
   // Description:
   // Initialize OpenGL for this window.
   virtual void SetupPalette(HDC hDC);
-  virtual void SetupPixelFormat(HDC hDC, DWORD dwFlags, int debug,
-                                int bpp=16, int zbpp=16);
+  virtual void SetupPixelFormatPaletteAndContext(
+    HDC hDC, DWORD dwFlags, int debug,
+    int bpp=16, int zbpp=16);
 
   // Description:
   // Clean up device contexts, rendering contexts, etc.

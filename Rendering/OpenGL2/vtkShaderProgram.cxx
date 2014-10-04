@@ -48,7 +48,7 @@ inline GLenum convertTypeToGL(int type)
 #ifdef GL_DOUBLE
       return GL_DOUBLE;
 #else
-      assert("Attempt to use GL_DOUBLE when not supported" && 0);
+      vtkGenericWarningMacro(<< "Attempt to use GL_DOUBLE when not supported");
       return 0;
 #endif
     default:
@@ -430,6 +430,32 @@ bool vtkShaderProgram::SetUniformMatrix(const std::string &name,
     data[i] = matrix->Element[i / 4][i % 4];
     }
   glUniformMatrix4fv(location, 1, GL_FALSE, data);
+  return true;
+}
+
+bool vtkShaderProgram::SetUniformMatrix3x3(const std::string &name,
+                                           float *matrix)
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+    }
+  glUniformMatrix3fv(location, 1, GL_FALSE, matrix);
+  return true;
+}
+
+bool vtkShaderProgram::SetUniformMatrix4x4(const std::string &name,
+                                           float *matrix)
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    return false;
+    }
+  glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
   return true;
 }
 

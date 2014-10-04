@@ -275,7 +275,6 @@ vtkCell *vtkStructuredGrid::GetCell(vtkIdType cellId)
     default:
       vtkErrorMacro(<<"Invalid DataDescription.");
       return NULL;
-      break;
     }
 
   // Extract point coordinates and point ids. NOTE: the ordering of the vtkQuad

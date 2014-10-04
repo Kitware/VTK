@@ -76,8 +76,8 @@ int TestPDBBallAndStick(int argc, char *argv[])
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
 
-/*
-  int numRenders = 15;
+  /*
+  int numRenders = 85;
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
     {
@@ -97,6 +97,7 @@ int TestPDBBallAndStick(int argc, char *argv[])
 
   win->Render();
 */
+
   // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();

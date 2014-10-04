@@ -2169,7 +2169,6 @@ vtkCell *vtkHyperOctree::GetCell(vtkIdType cellId)
 
     default:
       return NULL;
-      break;
     }
 
   if (this->DualGridFlag)

@@ -1378,20 +1378,16 @@ double vtkDendrogramItem::GetAngleForOrientation(int orientation)
     {
     case vtkDendrogramItem::DOWN_TO_UP:
       return 180.0;
-      break;
 
     case vtkDendrogramItem::RIGHT_TO_LEFT:
       return 270.0;
-      break;
 
     case vtkDendrogramItem::UP_TO_DOWN:
       return 0.0;
-      break;
 
     case vtkDendrogramItem::LEFT_TO_RIGHT:
     default:
       return 90.0;
-      break;
     }
 }
 
@@ -1402,20 +1398,16 @@ double vtkDendrogramItem::GetTextAngleForOrientation(int orientation)
     {
     case vtkDendrogramItem::DOWN_TO_UP:
       return 90.0;
-      break;
 
     case vtkDendrogramItem::RIGHT_TO_LEFT:
       return 0.0;
-      break;
 
     case vtkDendrogramItem::UP_TO_DOWN:
       return 270.0;
-      break;
 
     case vtkDendrogramItem::LEFT_TO_RIGHT:
     default:
       return 0.0;
-      break;
     }
 }
 

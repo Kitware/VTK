@@ -28,7 +28,7 @@ set_source_files_properties(${vtk-module}ObjectFactory WRAP_EXCLUDE)
 
 # Now to generate our object factory.
 set(vtk_module_overrides "vtkInteractorStyleSwitchBase")
-if (ANDROID)
+if (ANDROID OR APPLIE_IOS)
   set(vtk_module_vtkInteractorStyleSwitchBase_override "vtkInteractorStyleMultiTouchCamera")
 else()
   set(vtk_module_vtkInteractorStyleSwitchBase_override "vtkInteractorStyleSwitch")

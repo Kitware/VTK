@@ -14,10 +14,15 @@ if(VTK_REQUIRE_LARGE_FILE_SUPPORT)
 endif()
 
 set(JSONCPP_SOURCES
-  jsoncpp.cpp
+  json_tool.h
+  json_reader.cpp
+  json_batchallocator.h
+  json_valueiterator.inl
+  json_value.cpp
+  json_writer.cpp
 )
 
-include_directories(${JSONCPP_SOURCE_DIR} ${JSONCPP_BINARY_DIR})
+include_directories(${JsonCpp_SOURCE_DIR})
 
 if(BUILD_SHARED_LIBS AND WIN32)
   add_definitions(-DJSON_DLL_BUILD)

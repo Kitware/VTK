@@ -359,7 +359,7 @@ int vtkPlot3DMetaReader::RequestInformation(
     {
     // report to the user the failure and their locations in the document.
     vtkErrorMacro("Failed to parse configuration\n"
-                  << reader.getFormatedErrorMessages().c_str());
+                  << reader.getFormattedErrorMessages().c_str());
     return 0;
     }
 

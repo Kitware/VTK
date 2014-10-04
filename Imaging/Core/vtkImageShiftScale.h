@@ -73,6 +73,9 @@ public:
   // Description:
   // When the ClampOverflow flag is on, the data is thresholded so that
   // the output value does not exceed the max or min of the data type.
+  // Clamping is safer because otherwise you might invoke undefined
+  // behavior (and may crash) if the type conversion is out of range
+  // of the data type.  On the other hand, clamping is slower.
   // By default, ClampOverflow is off.
   vtkSetMacro(ClampOverflow, int);
   vtkGetMacro(ClampOverflow, int);

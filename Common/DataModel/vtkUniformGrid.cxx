@@ -301,8 +301,7 @@ vtkCell *vtkUniformGrid::GetCell(vtkIdType cellId)
     default:
       vtkErrorMacro(<<"Invalid DataDescription.");
       return NULL;
-      break;
-}
+    }
 
   // Extract point coordinates and point ids
   // Ids are relative to extent min.
@@ -602,8 +601,7 @@ vtkCell *vtkUniformGrid::FindAndGetCell(double x[3],
     default:
       vtkErrorMacro(<<"Invalid DataDescription.");
       return NULL;
-      break;
-}
+    }
   cell->InterpolateFunctions(pcoords,weights);
 
   npts = 0;

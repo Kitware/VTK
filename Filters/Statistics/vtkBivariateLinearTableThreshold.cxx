@@ -242,15 +242,7 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
     default:
       vtkErrorMacro(<<"Threshold type not defined: "<<this->LinearThresholdType);
       return 0;
-      break;
     }
-
-  if (!thresholdFunc)
-    {
-    vtkErrorMacro(<<"No threshold function specified.");
-    return 0;
-    }
-
 
   acceptedIds->Initialize();
   int numTuples = a1->GetNumberOfTuples();

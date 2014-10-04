@@ -10676,7 +10676,6 @@ yyresolveValue (yyGLRState* yys, yyGLRStack* yystackp)
             case 0:
               yyresolveLocations (yys, 1, yystackp);
               return yyreportAmbiguity (yybest, yyp);
-              break;
             case 1:
               yymerge = yytrue;
               break;

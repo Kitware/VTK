@@ -750,19 +750,21 @@ int vtkWin32OpenGLRenderWindowInteractor::GetContactIndex(int dwID)
 {
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
+    if (this->IDLookup[i] == dwID)
+      {
+      return i;
+      }
+    }
+
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
     if (this->IDLookup[i] == -1)
       {
       this->IDLookup[i] = dwID;
       return i;
       }
-    else
-      {
-      if (this->IDLookup[i] == dwID)
-        {
-        return i;
-        }
-      }
     }
+
   // Out of contacts
   return -1;
 }
@@ -887,12 +889,10 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_PAINT:
       me->Render();
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
-      break;
 
     case WM_SIZE:
       me->OnSize(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
-      break;
 
     case WM_LBUTTONDBLCLK:
       me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);

@@ -1,22 +1,31 @@
-PROJECT(VTKGLEW)
+project(VTKGLEW)
 
 find_package(OpenGL REQUIRED)
+include(vtkOpenGLMesaLogic)
 
-INCLUDE_DIRECTORIES(${VTKGLEW_SOURCE_DIR} ${VTKGLEW_SOURCE_DIR}/include)
+include_directories(${VTKGLEW_SOURCE_DIR} ${VTKGLEW_SOURCE_DIR}/include)
 
 # library object files common to compression and decompression
-SET(common_SRCS src/glew.c)
+set(common_SRCS src/glew.c)
 
 set_source_files_properties(${common_SRCS}
     PROPERTIES
       COMPILE_DEFINITIONS "GLEW_NO_GLU")
 
-VTK_ADD_LIBRARY(vtkglew ${common_SRCS})
-target_link_libraries(vtkglew
-  LINK_PUBLIC  ${OPENGL_LIBRARIES})
+# GLEW with OSMesa only works on Linux systems right now.
+if(VTK_USE_OSMESA AND UNIX AND NOT APPLE)
+  add_definitions(-DGLEW_OSMESA)
+endif()
 
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(DIRECTORY ${VTKGLEW_SOURCE_DIR}/include
+vtk_add_library(vtkglew ${common_SRCS})
+target_link_libraries(vtkglew
+  LINK_PUBLIC ${OPENGL_LIBRARIES})
+if(VTK_USE_OSMESA AND UNIX AND NOT APPLE)
+  target_link_libraries(vtkglew LINK_PRIVATE ${CMAKE_DL_LIBS})
+endif()
+
+if(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(DIRECTORY ${VTKGLEW_SOURCE_DIR}/include
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkglew
     COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+endif()

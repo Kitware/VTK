@@ -48,7 +48,7 @@ inline GLenum convertTypeToGL(int type)
 #ifdef GL_DOUBLE
       return GL_DOUBLE;
 #else
-      assert("Attempt to use GL_DOUBLE when not supported" && 0);
+      vtkGenericWarningMacro(<< "Attempt to use GL_DOUBLE when not supported");
       return 0;
 #endif
     default:

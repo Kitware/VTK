@@ -79,20 +79,6 @@ static const char *DepthTextureCompareFunctionAsString[8]=
   "Never"
 };
 
-// Mapping from DepthTextureMode values to OpenGL values.
-
-static GLint OpenGLDepthTextureMode[2]=
-{
-  GL_LUMINANCE,
-  GL_ALPHA
-};
-
-static const char *DepthTextureModeAsString[2]=
-{
-  "Luminance",
-  "Alpha"
-};
-
 // Mapping from Wrap values to OpenGL values.
 static GLint OpenGLWrap[3]=
 {
@@ -210,14 +196,12 @@ vtkTextureObject::vtkTextureObject()
   this->MinificationFilter = Nearest;
   this->MagnificationFilter = Nearest;
   this->LinearMagnification = false;
-  this->Priority = 1.0f;
   this->MinLOD = -1000.0f;
   this->MaxLOD = 1000.0f;
   this->BaseLevel = 0;
   this->MaxLevel = 0;
   this->DepthTextureCompare = false;
   this->DepthTextureCompareFunction = Lequal;
-  this->DepthTextureMode = Luminance;
   this->GenerateMipmap = false;
 
   this->DrawPixelsActor = NULL;
@@ -481,18 +465,11 @@ void vtkTextureObject::SendParameters()
         GL_TEXTURE_MAG_FILTER,
         OpenGLMagFilter[this->MagnificationFilter]);
 
-
 #if GL_ES_VERSION_2_0 != 1
-  glTexParameterf(this->Target,GL_TEXTURE_PRIORITY,this->Priority);
   glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
   glTexParameterf(this->Target,GL_TEXTURE_MAX_LOD,this->MaxLOD);
   glTexParameteri(this->Target,GL_TEXTURE_BASE_LEVEL,this->BaseLevel);
   glTexParameteri(this->Target,GL_TEXTURE_MAX_LEVEL,this->MaxLevel);
-
-  glTexParameteri(
-        this->Target,
-        GL_DEPTH_TEXTURE_MODE,
-        OpenGLDepthTextureMode[this->DepthTextureMode]);
 
   if(DepthTextureCompare)
     {
@@ -1826,7 +1803,6 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "LinearMagnification: " << this->LinearMagnification << endl;
 
-  os << indent << "Priority: " << this->Priority <<  endl;
   os << indent << "MinLOD: " << this->MinLOD << endl;
   os << indent << "MaxLOD: " << this->MaxLOD << endl;
   os << indent << "BaseLevel: " << this->BaseLevel << endl;
@@ -1836,7 +1812,5 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DepthTextureCompareFunction: "
      << DepthTextureCompareFunctionAsString[this->DepthTextureCompareFunction]
      << endl;
-  os << indent << "DepthTextureMode: "
-     << DepthTextureModeAsString[this->DepthTextureMode] << endl;
   os << indent << "GenerateMipmap: " << this->GenerateMipmap << endl;
 }

@@ -934,20 +934,16 @@ double vtkHeatmapItem::GetTextAngleForOrientation(int orientation)
     {
     case vtkHeatmapItem::DOWN_TO_UP:
       return 90.0;
-      break;
 
     case vtkHeatmapItem::RIGHT_TO_LEFT:
       return 0.0;
-      break;
 
     case vtkHeatmapItem::UP_TO_DOWN:
       return 270.0;
-      break;
 
     case vtkHeatmapItem::LEFT_TO_RIGHT:
     default:
       return 0.0;
-      break;
     }
 }
 

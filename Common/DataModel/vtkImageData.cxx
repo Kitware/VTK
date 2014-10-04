@@ -238,7 +238,6 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
     default:
       vtkErrorMacro("Invalid DataDescription.");
       return NULL;
-      break;
     }
 
   // Extract point coordinates and point ids

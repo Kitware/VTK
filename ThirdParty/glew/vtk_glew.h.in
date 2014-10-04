@@ -25,9 +25,17 @@
 #  endif
 #endif
 
+
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
 #ifdef ANDROID
 #  include <GLES2/gl2.h>
 #else
+# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#  include <OpenGLES/ES2/gl.h>
+# else
 /* Use the glew library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_GLEW
 #  ifdef VTK_USE_SYSTEM_GLEW
@@ -41,8 +49,8 @@
 #      include <vtkglew/include/GL/wglew.h>
 #    endif
 #  endif
+# endif
 #endif
-
 
 /*** deal with some GLES 2.0 issues ***/
 #if GL_ES_VERSION_2_0 == 1
@@ -78,6 +86,5 @@
         }
 
 #endif
-
 
 #endif

@@ -181,9 +181,9 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
     // This table has been empirically defined. It specifies a quadric
     // clustering bin size go along with a desired frame rate.
-    static int NumTableEntries = 7;
-    static double FPSTable[] = {  0.0,  5.0, 10.0, 17.5, 25.0, 50.0, 75.0 };
-    static double DIMTable[] = { 75.0, 60.0, 50.0, 35.0, 25.0, 20.0, 15.0 };
+    static const int NumTableEntries = 7;
+    static const double FPSTable[] = {  0.0,  5.0, 10.0, 17.5, 25.0, 50.0, 75.0 };
+    static const double DIMTable[] = { 75.0, 60.0, 50.0, 35.0, 25.0, 20.0, 15.0 };
     int dim = 15;
     for (int i=0; i < (NumTableEntries-1); i++)
       {
@@ -194,6 +194,10 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
         break;
         }
       }
+
+    // TODO: When the 'TestQuadricLODActor' test gets here frameRate=15.0
+    // and dim=40.  This causes vtkQuadricClustering::AddTriangle()'s computations
+    // to overflow.  If you set dim=35 there's no overflow, if you set it to 36 there is.
 
     // Construct the LOD
     vtkPolyData *pd = vtkPolyData::SafeDownCast(this->Mapper->GetInput());

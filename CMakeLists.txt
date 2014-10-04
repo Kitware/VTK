@@ -100,17 +100,20 @@ if (ANDROID OR APPLE_IOS)
   SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
      CACHE STRING "Output from TRY_RUN" FORCE)
 
-  set(BUILD_SHARED_LIBS OFF)
+  option(BUILD_SHARED_LIBS "should be off for embedded" OFF)
   set(VTK_RENDERING_BACKEND OpenGL2)
-  set(VTK_Group_StandAlone OFF)
-  set(VTK_Group_Rendering OFF)
-  # set(Module_vtkFiltersCore ON)
-  # set(Module_vtkFiltersModeling ON)
-  # set(Module_vtkFiltersSources ON)
-  # set(Module_vtkFiltersGeometry ON)
   set(Module_vtkRenderingCore ON)
+  option(VTK_Group_Rendering "off for embedded" OFF)
+  option(VTK_Group_StandAlone "off for embedded" OFF)
+  option(VTK_Group_Imaging "off for embedded" OFF)
+  option(VTK_Group_MPI "off for embedded" OFF)
+  option(VTK_Group_Views "off for embedded" OFF)
+  option(VTK_Group_Qt "off for embedded" OFF)
+  option(VTK_Group_Tk "off for embedded" OFF)
+  option(VTK_Group_Web "off for embedded" OFF)
 
   if (APPLE_IOS)
+    option(Module_vtkInteractionStyle "needed for multitouch" ON)
     find_path(OPENGL_INCLUDE_DIR ES2/gl.h
        ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
        ${_OPENGL_INCLUDE_PATH}
@@ -140,10 +143,11 @@ if (ANDROID OR APPLE_IOS)
          ${_OPENGL_LIB_PATH}
        )
   endif()
+else()
+  # Choose static or shared libraries.
+  option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 endif()
 
-# Choose static or shared libraries.
-option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------

@@ -8,7 +8,7 @@ from vtk.test import Testing
 renWin = vtk.vtkRenderWindow()
 iRen = vtk.vtkRenderWindowInteractor()
 iRen.SetRenderWindow(renWin)
-renWin.SetSize(600, 900)
+renWin.SetSize(500, 600)
 
 sphere = vtk.vtkSphereSource()
 

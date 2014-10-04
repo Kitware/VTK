@@ -5,6 +5,11 @@ vtk_module(vtkImagingMorphological
   DEPENDS
     vtkImagingCore
     vtkImagingGeneral
+  TEST_DEPENDS
+    vtkInteractionStyle
+    vtkInteractionImage
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkTestingRendering
   KIT
     vtkImaging
   )
