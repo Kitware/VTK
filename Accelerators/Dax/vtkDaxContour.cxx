@@ -13,7 +13,7 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-#include "vtkDaxMarchingCubes.h"
+#include "vtkDaxContour.h"
 
 #include "vtkDataSet.h"
 #include "vtkDispatcher.h"
@@ -25,34 +25,35 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkStandardNewMacro(vtkDaxMarchingCubes)
+vtkStandardNewMacro(vtkDaxContour)
 
 namespace vtkDax {
-  int MarchingCubes(vtkDataSet* input,
-                    vtkPolyData *output,
-                    vtkDataArray* field,
-                    float isoValue);
+  int Contour(vtkDataSet* input,
+              vtkPolyData *output,
+              vtkDataArray* field,
+              float isoValue,
+              bool computeScalars);
 }
 
 
 //------------------------------------------------------------------------------
-vtkDaxMarchingCubes::vtkDaxMarchingCubes()
+vtkDaxContour::vtkDaxContour()
   {
   }
 
 //------------------------------------------------------------------------------
-vtkDaxMarchingCubes::~vtkDaxMarchingCubes()
+vtkDaxContour::~vtkDaxContour()
   {
   }
 
 //------------------------------------------------------------------------------
-void vtkDaxMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDaxContour::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
 //------------------------------------------------------------------------------
-int vtkDaxMarchingCubes::RequestData(vtkInformation *request,
+int vtkDaxContour::RequestData(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector)
   {
@@ -67,14 +68,25 @@ int vtkDaxMarchingCubes::RequestData(vtkInformation *request,
   int result = 0;
   if(scalars)
     {
-    result = vtkDax::MarchingCubes(input,
-                                   output,
-                                   scalars,
-                                   this->GetValue(0));
+    if (this->GetNumberOfContours() == 1)
+      {
+      result = vtkDax::Contour(input,
+                               output,
+                               scalars,
+                               this->GetValue(0),
+                               this->GetComputeScalars());
+      }
+    else
+      {
+      vtkWarningMacro(
+            << "Dax implementation currently only supports one contour.");
+      }
     }
 
   if(!result)
     {
+    vtkWarningMacro(<< "Could not use Dax to make contour. "
+                    << "Falling back to serial implementation.");
     result = this->Superclass::RequestData(request,inputVector,outputVector);
     }
   return result;
