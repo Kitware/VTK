@@ -45,11 +45,16 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
 //VTK::Glyph::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 varying vec4 vertexVC;
 
 void main()
 {
   //VTK::Glyph::Impl
+
+  //VTK::Clip::Impl
 
   //VTK::Color::Impl
 

@@ -204,6 +204,7 @@ public:
   bool SetUniform1iv(const std::string &name, const int count, const int *f);
   bool SetUniform1fv(const std::string &name, const int count, const float *f);
   bool SetUniform3fv(const std::string &name, const int count, const float (*f)[3]);
+  bool SetUniform4fv(const std::string &name, const int count, const float (*f)[4]);
 
 protected:
   vtkShaderProgram();

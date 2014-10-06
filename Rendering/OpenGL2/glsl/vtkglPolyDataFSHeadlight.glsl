@@ -43,8 +43,13 @@ varying vec4 vertexVC;
 // Depth Peeling Support
 //VTK::DepthPeeling::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 void main()
 {
+  //VTK::Clip::Impl
+
   //VTK::Color::Impl
 
   // Generate the normal if we are not passed in one

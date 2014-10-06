@@ -464,6 +464,39 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       );
     }
 
+  if (this->GetNumberOfClippingPlanes())
+    {
+    // add all the clipping planes
+    int numClipPlanes = this->GetNumberOfClippingPlanes();
+    if (numClipPlanes > 6)
+      {
+      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      numClipPlanes = 6;
+      }
+
+    VSSource = vtkgl::replace(VSSource,
+                         "//VTK::Clip::Dec",
+                         "uniform int numClipPlanes;\n"
+                         "uniform vec4 clipPlanes[6];\n"
+                         "varying float clipDistances[6];");
+    VSSource = vtkgl::replace(VSSource,
+                         "//VTK::Clip::Impl",
+                         "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+                         "    {\n"
+                         "    clipDistances[planeNum] = dot(clipPlanes[planeNum], vertexMC);\n"
+                         "    }\n");
+    FSSource = vtkgl::replace(FSSource,
+                         "//VTK::Clip::Dec",
+                         "uniform int numClipPlanes;\n"
+                         "varying float clipDistances[6];");
+    FSSource = vtkgl::replace(FSSource,
+                         "//VTK::Clip::Impl",
+                         "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+                         "    {\n"
+                         "    if (clipDistances[planeNum] < 0) discard;\n"
+                         "    }\n");
+    }
+
   //cout << "VS: " << VSSource << endl;
   //cout << "FS: " << FSSource << endl;
 }
@@ -721,6 +754,30 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       vtkHardwareSelector::Convert(idx, color);
       cellBO.Program->SetUniform3f("mapperIndex", color);
       }
+    }
+
+  if (this->GetNumberOfClippingPlanes())
+    {
+    // add all the clipping planes
+    int numClipPlanes = this->GetNumberOfClippingPlanes();
+    if (numClipPlanes > 6)
+      {
+      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      numClipPlanes = 6;
+      }
+
+    float planeEquations[6][4];
+    for (int i = 0; i < numClipPlanes; i++)
+      {
+      double planeEquation[4];
+      this->GetClippingPlaneInDataCoords(actor->GetMatrix(), i, planeEquation);
+      planeEquations[i][0] = planeEquation[0];
+      planeEquations[i][1] = planeEquation[1];
+      planeEquations[i][2] = planeEquation[2];
+      planeEquations[i][3] = planeEquation[3];
+      }
+    cellBO.Program->SetUniformi("numClipPlanes", numClipPlanes);
+    cellBO.Program->SetUniform4fv("clipPlanes", 6, planeEquations);
     }
 }
 
