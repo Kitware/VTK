@@ -496,6 +496,16 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
     return 0;
     }
 
+  if(group->GetNumberOfProcessIds() == 0)
+    {
+    // Based on interpreting the MPI documentation it doesn't seem like a
+    // requirement but in practical terms it doesn't seem to make sense
+    // to create an MPI communicator with 0 processes. Also, some
+    // implementations of MPI crash if this is the case.
+    vtkWarningMacro("The group doesn't contain any process ids!");
+    return 0;
+    }
+
   this->KeepHandleOff();
 
   // Select the new processes
