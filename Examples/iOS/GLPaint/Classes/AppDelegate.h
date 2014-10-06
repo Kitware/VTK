@@ -11,15 +11,10 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #import <UIKit/UIKit.h>
 
-#import "AppDelegate.h"
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-int main(int argc, char *argv[])
-{
-    @autoreleasepool {
-        int retVal = UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
-        return retVal;
-    }
-}
+@property (strong, nonatomic) UIWindow *window;
+
+@end

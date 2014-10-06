@@ -12,7 +12,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
-@interface AppController : NSObject <UIApplicationDelegate>
+#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
+
+@interface MyGLKViewController : GLKViewController
 
 @property (nonatomic, strong) UIWindow *window;
 

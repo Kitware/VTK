@@ -11,20 +11,10 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#import <UIKit/UIKit.h>
 
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-#import "AppController.h"
-#import "PaintingViewController.h"
-
-@implementation AppController
-
-- (void)applicationDidFinishLaunching:(UIApplication*)application
-{
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-
-    PaintingViewController *controller = [[PaintingViewController alloc] initWithNibName:@"PaintingViewController" bundle:nil];
-    self.window.rootViewController = controller;
-    [self.window makeKeyAndVisible];
-}
+@property (strong, nonatomic) UIWindow *window;
 
 @end
