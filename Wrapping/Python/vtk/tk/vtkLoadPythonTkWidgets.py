@@ -14,14 +14,17 @@ def vtkLoadPythonTkWidgets(interp):
     name = '%s-%d.%d' % (modname,X,Y)
     pkgname = string.capitalize(string.lower(modname))
 
-    # find out if the file is already loaded
-    loaded = interp.call('info', 'loaded')
-    # Tcl 8.5 returns a unicode string.
-    if type(loaded) == type(u''):
-        if string.find(loaded, pkgname) >= 0:
-            return
-    # Tcl 8.6 returns a tuple.
-    elif pkgname in loaded:
+    # find out if the module is already loaded
+    loadedpkgs = interp.call('info', 'loaded')
+    found = False
+    try:
+        # check for result returned as a string
+        found = (loadedpkgs.find(pkgname) >= 0)
+    except AttributeError:
+        # check for result returned as nested tuples
+        for pkgtuple in loadedpkgs:
+            found |= (pkgname in pkgtuple)
+    if found:
         return
 
     # create the platform-dependent file name
