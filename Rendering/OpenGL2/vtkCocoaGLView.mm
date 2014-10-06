@@ -235,9 +235,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
       keySym = vtkMacCharCodeToKeySymTable[charCode];
       }
     }
-  else
+  else if (type == NSFlagsChanged)
     {
-    // NSFlagsChanged event: check to see what modifier changed
+    // Check to see what modifier flag changed.
     if (controlDown != interactor->GetControlKey())
       {
       keySym = "Control_L";
@@ -261,6 +261,10 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     theEventId = (isPress ?
                   vtkCommand::KeyPressEvent :
                   vtkCommand::KeyReleaseEvent);
+    }
+  else // No info from which to generate a VTK key event!
+    {
+    return;
     }
 
   if (keySym == 0)
@@ -439,12 +443,19 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 {
   CGFloat dy = [theEvent deltaY];
 
-  if (dy != 0)
-    {
-    unsigned long eventId = (dy > 0 ?
-                             vtkCommand::MouseWheelForwardEvent :
-                             vtkCommand::MouseWheelBackwardEvent);
+  unsigned long eventId = 0;
 
+  if (dy > 0)
+    {
+    eventId = vtkCommand::MouseWheelForwardEvent;
+    }
+  else if (dy < 0)
+    {
+    eventId = vtkCommand::MouseWheelBackwardEvent;
+    }
+
+  if (eventId != 0)
+    {
     [self invokeVTKMoveEvent:eventId
                   cocoaEvent:theEvent];
     }
