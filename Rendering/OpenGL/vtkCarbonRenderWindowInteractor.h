@@ -16,9 +16,13 @@
 // required by vtkRenderWindowInteractor.
 //
 // .SECTION Description
-// The interactor interfaces with vtkCarbonWindow
-// to trap messages from the Carbon window manager and send them to vtk.
-//
+// The interactor interfaces with vtkCarbonWindow to trap messages from the
+// Carbon window manager and send them to vtk.  Since OS X applications
+// typically use the Command key where UNIX and Windows applications would use
+// the Ctrl key, this interactor maps the Command key to Ctrl.  In versions of
+// VTK prior to VTK 6.2, it was mapped to Alt.  On OS X, the Option key can be
+// used as Alt.
+
 #ifndef __vtkCarbonRenderWindowInteractor_h
 #define __vtkCarbonRenderWindowInteractor_h
 

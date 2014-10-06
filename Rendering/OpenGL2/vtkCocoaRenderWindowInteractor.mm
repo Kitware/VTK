@@ -245,6 +245,16 @@ void vtkCocoaRenderWindowInteractor::Start()
     return;
     }
 
+  if (!this->Initialized)
+    {
+    this->Initialize();
+
+    if (!this->Initialized)
+      {
+      return;
+      }
+    }
+
   // No need to do anything if this is a 'mapped' interactor
   if (!this->Enabled || !this->InstallMessageProc)
     {

@@ -18,10 +18,14 @@
 // .SECTION Description
 // The interactor interfaces with vtkCocoaRenderWindow and vtkCocoaGLView
 // to trap messages from the Cocoa window manager and send them to vtk.
+// Since OS X applications typically use the Command key where UNIX and
+// Windows applications would use the Ctrl key, this interactor maps the
+// Command key to Ctrl.  In versions of VTK prior to VTK 6.2, it was
+// mapped to Alt.  On OS X, the Option key can be used as Alt.
 
-// IMPORTANT: This header must be in C++ only because it is included by .cxx files.
-// That means no Objective C may be used. That's why some instance variables are
-// void* instead of what they really should be.
+// IMPORTANT: This header must be in C++ only because it is included by .cxx
+// files.  That means no Objective C may be used. That's why some instance
+// variables are void* instead of what they really should be.
 
 #ifndef __vtkCocoaRenderWindowInteractor_h
 #define __vtkCocoaRenderWindowInteractor_h
