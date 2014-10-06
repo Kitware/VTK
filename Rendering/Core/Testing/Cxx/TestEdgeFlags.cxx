@@ -103,6 +103,7 @@ int TestEdgeFlags(int argc, char *argv[])
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.Get());
+  actor->SetPosition(-0.75,0,0);
   actor->RotateZ(45.0);
 
   vtkProperty* property = actor->GetProperty();
@@ -110,16 +111,42 @@ int TestEdgeFlags(int argc, char *argv[])
   property->SetRepresentationToWireframe();
   property->SetLineWidth(4.0);
 
+
+  // Define the 4 triangles
+  vtkNew<vtkCellArray> cells2;
+  const vtkIdType polys [] = { 0,1,6,8,3 };
+  cells2->InsertNextCell(5, polys);
+
+  vtkNew<vtkPolyData> pd2;
+  pd2->SetPoints(pts.Get());
+  pd2->SetPolys(cells2.Get());
+  pointData = pd2->GetPointData();
+  pointData->AddArray(edgeflags.Get());
+  pointData->SetActiveAttribute(
+    edgeflags->GetName(), vtkDataSetAttributes::EDGEFLAG);
+
+  vtkNew<vtkPolyDataMapper> mapper2;
+  mapper2->SetInputData(pd2.Get());
+
+  vtkNew<vtkActor> actor2;
+  actor2->SetMapper(mapper2.Get());
+  actor2->SetPosition(0.75,0,0);
+  vtkProperty* property2 = actor2->GetProperty();
+  property2->SetColor(0.0, 1.0, 0.0);
+  property2->SetRepresentationToWireframe();
+  property2->SetLineWidth(2.0);
+
   // Render image
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(actor.Get());
+  renderer->AddActor(actor2.Get());
   renderer->SetBackground(1.0, 1.0, 1.0);
   renderer->SetBackground2(0.0, 0.0, 0.0);
   renderer->GradientBackgroundOn();
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(1);
-  renWin->SetSize(300, 300);
+  renWin->SetSize(600, 300);
   renWin->AddRenderer(renderer.Get());
 
   vtkNew<vtkRenderWindowInteractor> iren;

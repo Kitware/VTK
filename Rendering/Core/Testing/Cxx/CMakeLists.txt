@@ -1,7 +1,7 @@
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
-    TestAreaSelections.cxx)
+    TestAreaSelections.cxx) # incorrect results in OpenGL
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests

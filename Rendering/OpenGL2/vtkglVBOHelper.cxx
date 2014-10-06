@@ -446,6 +446,32 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   return indexArray.size();
 }
 
+// used to create an IBO for polys in wireframe with edge flags
+size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
+                                 vtkDataArray *ef)
+{
+  vtkIdType      *pts = 0;
+  vtkIdType      npts = 0;
+  std::vector<unsigned int> indexArray;
+  unsigned char *ucef = NULL;
+  ucef = vtkUnsignedCharArray::SafeDownCast(ef)->GetPointer(0);
+  indexArray.reserve(cells->GetData()->GetSize()*2);
+  for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
+    {
+    for (int j = 0; j < npts; ++j)
+      {
+      if (ucef[pts[j]] && npts > 1) // draw this edge and poly is not degenerate
+        {
+        // determine the ending vertex
+        vtkIdType nextVert = (j == npts-1) ? pts[0] : pts[j+1];
+        indexArray.push_back(static_cast<unsigned int>(pts[j]));
+        indexArray.push_back(static_cast<unsigned int>(nextVert));
+        }
+      }
+    }
+  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  return indexArray.size();
+}
 
 // used to create an IBO for stripped primatives such as lines and triangle strips
 void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
