@@ -13,7 +13,7 @@ PROJECT(mpi4py)
 # Set locations where to install the binaries.
 
 # MPI4PY_INSTALL_PACKAGE_DIR is the location where all mpi4py package is
-# installed. 
+# installed.
 # are to be installed.
 if (NOT MPI4PY_INSTALL_PACKAGE_DIR)
   set (MPI4PY_INSTALL_PACKAGE_DIR "lib/site-packages")
@@ -23,8 +23,8 @@ if (NOT MPI4PY_PACKAGE_BINARY_DIR)
   set (MPI4PY_PACKAGE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
-FIND_PACKAGE(PythonInterp)
-FIND_PACKAGE(PythonLibs)
+FIND_PACKAGE(PythonInterp ${VTK_PYTHON_VERSION})
+FIND_PACKAGE(PythonLibs ${VTK_PYTHON_VERSION})
 FIND_PACKAGE(MPI)
 
 # -------------------------------------------------------------------------

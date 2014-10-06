@@ -33,10 +33,15 @@ INCLUDE(CMakeFindFrameworks)
 # Search for the python framework on Apple.
 CMAKE_FIND_FRAMEWORKS(Python)
 
+set(_PythonInterp_VERSION)
+if(PYTHONINTERP_FOUND)
+  set(_PythonInterp_VERSION ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+endif()
+
 # Set up the versions we know about, in the order we will search. Always add
 # the user supplied additional versions to the front.
 set(_Python_VERSIONS
-  ${Python_ADDITIONAL_VERSIONS}
+  ${Python_ADDITIONAL_VERSIONS} ${_PythonInterp_VERSION}
   2.7 2.6 2.5 2.4 2.3 2.2 2.1 2.0 1.6 1.5)
 
 FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
