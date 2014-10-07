@@ -33,11 +33,11 @@
 
 #include <vtksys/ios/sstream>
 
+#if 0
 // Reference value
 const vtkIdType cardSelectionLinearSelector2D  = 20;
 
 // ------------------------------------------------------------------------------------------------
-#if 0
 static int CheckExtractedUGrid( vtkExtractSelection* extract,
                                 const char* tag,
                                 int testIdx,
