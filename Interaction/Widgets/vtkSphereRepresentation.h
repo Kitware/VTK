@@ -148,8 +148,8 @@ public:
 
   // Description:
   // Set/Get the direction vector of the handle relative to the center of
-  // the sphere. This may affect the position of the handle and the radius
-  // of the sphere.
+  // the sphere. Setting the direction may affect the position of the handle
+  // but will not affect the radius or position of the sphere.
   void SetHandleDirection(double dir[3]);
   void SetHandleDirection(double dx, double dy, double dz)
     {double d[3]; d[0]=dx; d[1]=dy; d[2]=dz; this->SetHandleDirection(d);}
