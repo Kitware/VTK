@@ -1,6 +1,7 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   FastSplatter.cxx
   ImageAccumulate.cxx,NO_VALID
+  ImageAccumulateLarge.cxx,NO_VALID,NO_DATA,NO_OUTPUT 32
   ImageAutoRange.cxx
   ImageBSplineCoefficients.cxx
   ImageHistogram.cxx
