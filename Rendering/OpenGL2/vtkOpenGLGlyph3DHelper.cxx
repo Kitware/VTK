@@ -243,6 +243,26 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
                        "normalVCVarying = normalMatrix * glyphNormalMatrix * normalMC;");
     }
 
+  // override one part of the clipping code
+  if (this->GetNumberOfClippingPlanes())
+    {
+    // add all the clipping planes
+    int numClipPlanes = this->GetNumberOfClippingPlanes();
+    if (numClipPlanes > 6)
+      {
+      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      numClipPlanes = 6;
+      }
+
+    VSSource = vtkgl::replace(VSSource,
+                         "//VTK::Clip::Impl",
+                         "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+                         "    {\n"
+                         "    clipDistances[planeNum] = dot(clipPlanes[planeNum], vertex);\n"
+                         "    }\n");
+    }
+
+
   this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
 }
 

@@ -39,6 +39,9 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 // material property values
 //VTK::Color::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
@@ -52,6 +55,8 @@ void main()
   //VTK::Normal::Impl
 
   //VTK::TCoord::Impl
+
+  //VTK::Clip::Impl
 
   // compute the projected vertex position
   vertexVC = MCVCMatrix * vertexMC;
