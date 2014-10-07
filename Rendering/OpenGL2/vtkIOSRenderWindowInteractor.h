@@ -61,15 +61,6 @@ public:
   virtual void Start();
 
   // Description:
-  // By default the interactor installs a MessageProc callback which
-  // intercepts windows messages to the window and controls interactions.
-  // MFC or BCB programs can prevent this and instead directly route any mouse/key
-  // messages into the event bindings by setting InstallMessgeProc to false.
-  vtkSetMacro(InstallMessageProc,int);
-  vtkGetMacro(InstallMessageProc,int);
-  vtkBooleanMacro(InstallMessageProc,int);
-
-  // Description:
   // IOS specific application terminate, calls ClassExitMethod then
   // calls PostQuitMessage(0) to terminate app. An application can Specify
   // ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
@@ -100,8 +91,6 @@ public:
 protected:
   vtkIOSRenderWindowInteractor();
   ~vtkIOSRenderWindowInteractor();
-
-  int     InstallMessageProc;
 
   // Description:
   // Accessors for the IOS member variables. These should be used at all time, even

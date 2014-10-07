@@ -414,7 +414,6 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
 // Construct object so that light follows camera motion.
 vtkCarbonRenderWindowInteractor::vtkCarbonRenderWindowInteractor()
 {
-  this->InstallMessageProc = 1;
   this->ViewProcUPP        = NULL;
   this->WindowProcUPP      = NULL;
   this->MouseInsideWindow  = 0;
@@ -447,11 +446,6 @@ void  vtkCarbonRenderWindowInteractor::Start()
     return;
     }
 
-  // No need to do anything if this is a 'mapped' interactor
-  if (!this->Enabled || !this->InstallMessageProc)
-    {
-    return;
-    }
   RunApplicationEventLoop();
 }
 
@@ -527,63 +521,60 @@ void vtkCarbonRenderWindowInteractor::Enable()
     return;
     }
 
-  if (this->InstallMessageProc)
+  // set up the event handling
+  // specify which events we want to hear about
+  OSStatus   err = noErr;
+  EventTypeSpec viewEventList[] = {
+    { kEventClassControl, kEventControlDraw },
+    { kEventClassControl, kEventControlBoundsChanged },
+  };
+
+  EventTypeSpec windowEventList[] = {
+    { kEventClassMouse, kEventMouseDown },
+    { kEventClassMouse, kEventMouseUp },
+    { kEventClassMouse, kEventMouseMoved },
+    { kEventClassMouse, kEventMouseDragged },
+    { kEventClassMouse, kEventMouseWheelMoved },
+    { kEventClassKeyboard, kEventRawKeyDown },
+    { kEventClassKeyboard, kEventRawKeyRepeat },
+    { kEventClassKeyboard, kEventRawKeyUp },
+    { kEventClassKeyboard, kEventRawKeyModifiersChanged },
+  };
+
+  this->WindowProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
+  this->ViewProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
+  if (!this->WindowProcUPP || !ViewProcUPP)
     {
-    // set up the event handling
-    // specify which events we want to hear about
-    OSStatus   err = noErr;
-    EventTypeSpec viewEventList[] = {
-      { kEventClassControl, kEventControlDraw },
-      { kEventClassControl, kEventControlBoundsChanged },
-    };
-
-    EventTypeSpec windowEventList[] = {
-      { kEventClassMouse, kEventMouseDown },
-      { kEventClassMouse, kEventMouseUp },
-      { kEventClassMouse, kEventMouseMoved },
-      { kEventClassMouse, kEventMouseDragged },
-      { kEventClassMouse, kEventMouseWheelMoved },
-      { kEventClassKeyboard, kEventRawKeyDown },
-      { kEventClassKeyboard, kEventRawKeyRepeat },
-      { kEventClassKeyboard, kEventRawKeyUp },
-      { kEventClassKeyboard, kEventRawKeyModifiersChanged },
-    };
-
-    this->WindowProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
-    this->ViewProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
-    if (!this->WindowProcUPP || !ViewProcUPP)
-      {
-      err = memFullErr;
-      }
-
-    if (!err)
-      {
-      vtkCarbonRenderWindow* renWin =
-        static_cast<vtkCarbonRenderWindow*>(this->RenderWindow);
-
-      err = InstallControlEventHandler(
-        renWin->GetWindowId(), this->ViewProcUPP,
-        GetEventTypeCount(viewEventList), viewEventList, renWin, NULL);
-
-      err = InstallWindowEventHandler(
-        renWin->GetRootWindow(), this->WindowProcUPP,
-        GetEventTypeCount(windowEventList), windowEventList, renWin, NULL);
-      }
-
-    // Create a timer for checking when mouse is outside window
-    this->LastMouseDelta[0] = 0;
-    this->LastMouseDelta[1] = 0;
-    this->MouseInsideWindow = 0;
-    this->MouseButtonDown    = 0;
-    EventLoopRef       mainLoop = GetMainEventLoop();
-    EventLoopTimerUPP  timerUPP = NewEventLoopTimerUPP(vtkCarbonLeaveCheck);
-    InstallEventLoopTimer(mainLoop,
-                          100*kEventDurationMillisecond,
-                          100*kEventDurationMillisecond,
-                          timerUPP,
-                          this,
-                          (EventLoopTimerRef *)&this->LeaveCheckId);
+    err = memFullErr;
     }
+
+  if (!err)
+    {
+    vtkCarbonRenderWindow* renWin =
+      static_cast<vtkCarbonRenderWindow*>(this->RenderWindow);
+
+    err = InstallControlEventHandler(
+      renWin->GetWindowId(), this->ViewProcUPP,
+      GetEventTypeCount(viewEventList), viewEventList, renWin, NULL);
+
+    err = InstallWindowEventHandler(
+      renWin->GetRootWindow(), this->WindowProcUPP,
+      GetEventTypeCount(windowEventList), windowEventList, renWin, NULL);
+    }
+
+  // Create a timer for checking when mouse is outside window
+  this->LastMouseDelta[0] = 0;
+  this->LastMouseDelta[1] = 0;
+  this->MouseInsideWindow = 0;
+  this->MouseButtonDown    = 0;
+  EventLoopRef       mainLoop = GetMainEventLoop();
+  EventLoopTimerUPP  timerUPP = NewEventLoopTimerUPP(vtkCarbonLeaveCheck);
+  InstallEventLoopTimer(mainLoop,
+                        100*kEventDurationMillisecond,
+                        100*kEventDurationMillisecond,
+                        timerUPP,
+                        this,
+                        (EventLoopTimerRef *)&this->LeaveCheckId);
 
 #ifdef VTK_USE_TDX
   if(this->UseTDx)
@@ -714,7 +705,6 @@ vtkCarbonRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 void vtkCarbonRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkRenderWindowInteractor::PrintSelf(os,indent);
-  os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 
 //--------------------------------------------------------------------------

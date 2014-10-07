@@ -203,8 +203,6 @@ static void VTKStopNSApplicationEventLoop(void)
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
 {
-  this->InstallMessageProc = 1;
-
   // First, create the cocoa objects manager. The dictionary is empty so
   // essentially all objects are initialized to NULL.
   NSMutableDictionary *cocoaManager = [NSMutableDictionary dictionary];
@@ -253,12 +251,6 @@ void vtkCocoaRenderWindowInteractor::Start()
       {
       return;
       }
-    }
-
-  // No need to do anything if this is a 'mapped' interactor
-  if (!this->Enabled || !this->InstallMessageProc)
-    {
-    return;
     }
 
   VTKStartNSApplicationEventLoop();
@@ -433,7 +425,6 @@ void vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void 
 void vtkCocoaRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 
 //----------------------------------------------------------------------------
