@@ -78,7 +78,9 @@ public:
     this->ValidTransferFunction = false;
     this->LoadDepthTextureExtensionsSucceeded = false;
     this->CubeVBOId = 0;
+#ifndef __APPLE__
     this->CubeVAOId = 0;
+#endif
     this->CubeIndicesId = 0;
     this->VolumeTextureId = 0;
     this->NoiseTextureId = 0;
@@ -233,7 +235,9 @@ public:
   bool LoadDepthTextureExtensionsSucceeded;
 
   GLuint CubeVBOId;
+#ifndef __APPLE__
   GLuint CubeVAOId;
+#endif
   GLuint CubeIndicesId;
 
   GLuint VolumeTextureId;
@@ -373,7 +377,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
   err = glGetError();
 
   // Setup unit cube vertex array and vertex buffer objects
+#ifndef __APPLE__
   glGenVertexArrays(1, &this->CubeVAOId);
+#endif
   glGenBuffers(1, &this->CubeVBOId);
   glGenBuffers(1, &this->CubeIndicesId);
 
@@ -1035,7 +1041,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry()
     polys->InsertNextTuple3(pts[0], pts[1], pts[2]);
     }
 
+#ifndef __APPLE__
   glBindVertexArray(this->CubeVAOId);
+#endif
 
   // Pass cube vertices to buffer object memory
   glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
@@ -1056,7 +1064,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry()
                 polys->GetDataTypeSize(), polys->GetVoidPointer(0),
                 GL_STATIC_DRAW);
 
+#ifndef __APPLE__
   glBindVertexArray(0);
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1931,7 +1941,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Updating clipping if enabled
   this->Impl->UpdateClipping(ren, vol);
 
+#ifndef __APPLE__
   glBindVertexArray(this->Impl->CubeVAOId);
+#endif
   glDrawElements(GL_TRIANGLES,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);

@@ -62,7 +62,9 @@ class vtkVolumeStateRAII
 
     ~vtkVolumeStateRAII()
       {
+#ifndef __APPLE__
       glBindVertexArray(0);
+#endif
 
       if (!this->CullFaceEnabled)
         {
