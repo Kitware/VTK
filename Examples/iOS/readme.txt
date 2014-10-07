@@ -16,19 +16,29 @@ To build a VTK application for iOS you will need a Mac/Macbook that has Xcode on
   ios.device.toolchain.cmake -- for an ipan or iphone
   ios.simulator.toolchain.cmake -- for the simulator that run on the mac
 
+e.g.
+
+cd vtk-ios-device-bin
+ccmake -DCMAKE_TOOLCHAIN_FILE=../VTK/CMake/ios.device.toolchain.cmake -DVTKCompileTools_DIR=../vtk-bin -DBUILD_EXAMPLES=ON -DBUILD_TESTING=OFF ../VTK
+
 * Make sure the CMAKE_INSTALL_PREFIX is set to somethign you are OK with installing to. Part of this build process required you do a make install so make sure it is a good place.
 
 * as part of the Cmake configure process it will ask you to set VTKCompileTools_DIR, set this to the binary tree from your first build, e.g. vtkbin
 
 * Build the iphone version of VTK
 
-* do a make install (or ninja instal) to install VTK on your iphone binary tree
+* do a make install (or ninja instal) to install VTK on your iphone binary tree.  Use either the device or simulator build.
 
 * DANGER: look at the following shell script before running it to make sure it will not do a rm -r * or anything like that.  It should be fine, but there are configured values and it does delete file, so I get nervous.
 
 * make a framework out of vtk by running the shell script make_vtk_framework.sh which can be found in your binary tree under Examples/iOS
 
 * load the GLPaint xcode project from your binary tree into XCode
+
+* Modify the framework search path and header search path to include the location you installed the frameworks.  If for example you used /usr/local as the install root then add
+
+Framework search paths : /usr/local/frameworks
+Header search paths    : /usr/local/frameworks/vtk.framework/Headers
 
 * make sure you have any provisiong certificates, devices setiup properly, Apple requires iOS developers to have apple issued certificates and their devices have to be registered before they can be used to test apps. So do all that stuff. Have fun, it is a bit hellish but there are guides out on the internet. If you are already doing iOS app developent and testing then you shoudl be good.
 

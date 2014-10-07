@@ -255,16 +255,13 @@ elseif(APPLE_IOS)
   list(APPEND Module_SRCS
     vtkIOSRenderWindowInteractor.mm
     vtkIOSRenderWindow.mm
-    vtkIOSGLView.mm
     )
   # Set specified Objective-C++ flags, if any.
   if(VTK_REQUIRED_OBJCXX_FLAGS)
     set_source_files_properties(vtkIOSRenderWindowInteractor.mm
                                 vtkIOSRenderWindow.mm
-                                vtkIOSGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif(VTK_REQUIRED_OBJCXX_FLAGS)
-  set_source_files_properties(vtkIOSGLView WRAP_EXCLUDE)
  endif()
 
 vtk_object_factory_configure("${vtk_module_overrides}")
