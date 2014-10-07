@@ -1,7 +1,6 @@
 include(vtkObjectFactory)
 
 set(Module_SRCS
-  vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLHAVSVolumeMapper.cxx
   vtkOpenGLProjectedAAHexahedraMapper.cxx
   vtkOpenGLProjectedTetrahedraMapper.cxx
@@ -9,6 +8,10 @@ set(Module_SRCS
   vtkOpenGLVolumeTextureMapper2D.cxx
   vtkOpenGLVolumeTextureMapper3D.cxx
   )
+
+if (NOT Module_vtkRenderingVolumeOpenGLNew)
+  list(APPEND Module_SRCS vtkOpenGLGPUVolumeRayCastMapper.cxx)
+endif()
 
 set(shader_files
   vtkGPUVolumeRayCastMapper_AdditiveFS.glsl
@@ -79,7 +82,6 @@ endforeach()
 
 # Nwo for the object factory.
 set(opengl_overrides
-  GPUVolumeRayCastMapper
   HAVSVolumeMapper
   ProjectedAAHexahedraMapper
   ProjectedTetrahedraMapper
@@ -87,6 +89,10 @@ set(opengl_overrides
   VolumeTextureMapper2D
   VolumeTextureMapper3D
   )
+
+if(NOT Module_vtkRenderingVolumeOpenGLNew)
+  list(APPEND opengl_overrides GPUVolumeRayCastMapper)
+endif()
 
 foreach(_override ${opengl_overrides})
   vtk_add_override(vtk${_override} vtkOpenGL${_override})

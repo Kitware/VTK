@@ -2058,7 +2058,6 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
                        GL_POLYGON, input->GetPolys(), ren);
     }
 
-
   // do tstrips
   if ( zResolve )
     {
