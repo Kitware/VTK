@@ -44,6 +44,11 @@ float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
 void vtkGL2PSUtilities::DrawString(const char *str,
                                    vtkTextProperty *tprop, double pos[])
 {
+  if (!str)
+    {
+    return;
+    }
+
   vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
   if (tren == NULL)
     {
