@@ -597,6 +597,12 @@ protected:
   virtual void DoFDRender();
   virtual void DoAARender();
 
+  // Description:
+  // Trigger exit event if an observer is attached for such an
+  // event. And if triggered an exit event, return true,
+  // false otherwise.
+  bool TriggerExitEvent();
+
   vtkPainterDeviceAdapter* PainterDeviceAdapter;
   vtkRendererCollection *Renderers;
   int Borders;

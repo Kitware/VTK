@@ -726,9 +726,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
                  "Error",
                  MB_ICONERROR | MB_OK);
 #endif
-      if (this->HasObserver(vtkCommand::ExitEvent))
+      if (this->TriggerExitEvent())
         {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
         return;
         }
       else
@@ -750,9 +749,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
                  MB_ICONERROR | MB_OK);
 #endif
-      if (this->HasObserver(vtkCommand::ExitEvent))
+      if (this->TriggerExitEvent())
         {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
         return;
         }
       else
@@ -771,9 +769,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
                  MB_ICONERROR | MB_OK);
 #endif
-      if (this->HasObserver(vtkCommand::ExitEvent))
+      if (this->TriggerExitEvent())
         {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
         return;
         }
       else
@@ -1148,6 +1145,8 @@ void vtkWin32OpenGLRenderWindow::Initialize (void)
 
 void vtkWin32OpenGLRenderWindow::Finalize (void)
 {
+  this->TriggerExitEvent();
+
   if (this->CursorHidden)
     {
     this->ShowCursor();

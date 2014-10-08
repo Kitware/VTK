@@ -621,6 +621,18 @@ void vtkRenderWindow::DoAARender()
 }
 
 //----------------------------------------------------------------------------
+bool vtkRenderWindow::TriggerExitEvent()
+{
+  if (this->HasObserver(vtkCommand::ExitEvent))
+    {
+    this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+    return true;
+    }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
 // Handle rendering any focal depth frames.
 void vtkRenderWindow::DoFDRender()
 {
