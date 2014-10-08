@@ -14,54 +14,40 @@
 =========================================================================*/
 // This test covers cropping on volume datasets.
 
-#include <vtkSphere.h>
-#include <vtkSampleFunction.h>
-
-#include <vtkTestUtilities.h>
-
 #include <vtkActor.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCommand.h>
-#include <vtkFixedPointVolumeRayCastMapper.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
+#include <vtkNew.h>
 #include <vtkOutlineFilter.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
 #include <vtkPiecewiseFunction.h>
-#include <vtkRenderer.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRegressionTestImage.h>
-#include <vtkRTAnalyticSource.h>
-#include <vtkNew.h>
-#include <vtkGPUVolumeRayCastMapper.h>
-#include <vtkSphereSource.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
+#include <vtkTestUtilities.h>
 #include <vtkTimerLog.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include <vtksys/SystemTools.hxx>
-
-#include <cstdlib>
-
-int TestVolumeClip(int argc, char *argv[])
+int TestGPURayCastCropping1(int argc, char *argv[])
 {
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  volumeMapper->AutoAdjustSampleDistancesOff();
+  volumeMapper->SetSampleDistance(0.05);
 
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
-
-  std::cerr << "Filename " << volumeFile << std::endl;
   reader->SetFileName(volumeFile);
-  reader->Update();
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter
@@ -103,25 +89,18 @@ int TestVolumeClip(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 1.0, 1.0);
 
   // Test cropping now
-
-  double* bounds = reader->GetOutput()->GetBounds();
-  vtkNew<vtkPlane> clipPlane1;
-  clipPlane1->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane1->SetNormal(1.0, 0.0, 0.0);
-
-  vtkNew<vtkPlane> clipPlane2;
-  clipPlane2->SetOrigin(0.55 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane2->SetNormal(-1.0, 0.0, 0.0);
-
-  vtkNew<vtkPlaneCollection> clipPlaneCollection;
-  clipPlaneCollection->AddItem(clipPlane1.GetPointer());
-  clipPlaneCollection->AddItem(clipPlane2.GetPointer());
-  volumeMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
+  volumeMapper->SetCroppingRegionPlanes(10.0, 20.0, 10.0, 20.0, 10.0, 20.0);
+  volumeMapper->SetCroppingRegionFlagsToFence();
+  volumeMapper->CroppingOn();
 
   // Setup volume actor
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
+
+  /// Rotate the volume for testing purposes
+  volume->RotateY(45.0);
+  outlineActor->RotateY(45.0);
 
   ren->AddViewProp(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
@@ -130,10 +109,5 @@ int TestVolumeClip(int argc, char *argv[])
   renWin->Render();
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-  return !retVal;
+  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer());
 }

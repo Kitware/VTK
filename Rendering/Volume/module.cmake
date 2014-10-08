@@ -10,6 +10,7 @@ vtk_module(vtkRenderingVolume
     vtkImagingCore
     vtkRenderingCore
   TEST_DEPENDS
+    vtkFiltersModeling
     vtkTestingCore
     vtkTestingRendering
     vtkRenderingVolume${VTK_RENDERING_BACKEND}

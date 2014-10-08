@@ -5,41 +5,48 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  #TestGPUCastGradientOpacity.cxx
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx
   PartialPreIntegration.cxx
   PreIntegrationIncremental.cxx
   PreIntegrationNonIncremental.cxx
+  ProjectedTetrahedraZoomIn.cxx,NO_VALID
+  TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
+  #TestGPURayCastAdditive1.cxx
+  TestGPURayCastClipping.cxx
   TestGPURayCastCompositeBinaryMask.cxx
   TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeMaskBlend.cxx
   TestGPURayCastCompositeShadeMask.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
+  TestGPURayCastCropping1.cxx
   TestGPURayCastDataTypesMIP.cxx
+  TestGPURayCastDataTypesMinIP.cxx
+  #TestGPURayCastDataTypesMinIP1.cxx
   TestGPURayCastFourComponentsComposite.cxx
   TestGPURayCastFourComponentsCompositeStreaming.cxx
   TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastFourComponentsMinIP.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
+  TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
+  TestGPURayCastVolumePolyData.cxx
+  TestGPURayCastVolumeRotation.cxx
+  TestGPURayCastVolumeScale.cxx
+  TestHAVSVolumeMapper.cxx
+  TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx
+  TestProjectedTetrahedra.cxx
+  TestProp3DFollower.cxx
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   TestTM3DLightComponents.cxx
   ZsweepConcavities.cxx
-  ProjectedTetrahedraZoomIn.cxx,NO_VALID
-  TestFinalColorWindowLevel.cxx
-  TestGPURayCastNearestDataTypesMIP.cxx
-  TestGPURayCastDataTypesMinIP.cxx
-  TestHAVSVolumeMapper.cxx
-  TestMinIntensityRendering.cxx
-  TestProjectedTetrahedra.cxx
-  TestProp3DFollower.cxx
-  #TestGPUCastGradientOpacity.cxx
   volProt.cxx
   )
 
