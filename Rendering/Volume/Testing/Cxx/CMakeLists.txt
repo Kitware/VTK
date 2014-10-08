@@ -23,7 +23,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGPURayCastCompositeShadeMask.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
-  TestGPURayCastCropping1.cxx
+  #TestGPURayCastCropping1.cxx
   TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
   #TestGPURayCastDataTypesMinIP1.cxx

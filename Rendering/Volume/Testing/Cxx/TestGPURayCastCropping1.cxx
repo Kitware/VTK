@@ -81,6 +81,7 @@ int TestGPURayCastCropping1(int argc, char *argv[])
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetDisableGradientOpacity(1);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
@@ -97,10 +98,6 @@ int TestGPURayCastCropping1(int argc, char *argv[])
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
-
-  /// Rotate the volume for testing purposes
-  volume->RotateY(45.0);
-  outlineActor->RotateY(45.0);
 
   ren->AddViewProp(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
