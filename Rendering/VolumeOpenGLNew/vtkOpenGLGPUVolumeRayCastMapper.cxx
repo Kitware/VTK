@@ -62,6 +62,7 @@
 
 // C/C++ includes
 #include <cassert>
+#include <limits>
 #include <string>
 #include <sstream>
 
@@ -1176,12 +1177,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
       // camPlaneNormal is a unit vector, if the offset is larger than the
       // distance between near and far point, it will not work, in this case we
       // pick a fraction of the near-far distance.
-      double distNearFar =
-      sqrt(vtkMath::Distance2BetweenPoints(camNearPoint,camFarPoint));
-      double offset = distNearFar/1000.0;
+      // 100.0 and 1000.0 are chosen based on the typical epsilon values on
+      // x86 systems.
+      double offset =  static_cast<double>(
+                         std::numeric_limits<float>::epsilon()) * 100.0;
       if(offset > 0.001)
         {
-        offset = 0.001;
+        double newOffset = sqrt(vtkMath::Distance2BetweenPoints(
+                             camNearPoint, camFarPoint)) / 1000.0;
+        offset = offset > newOffset ? newOffset : offset;
         }
 
       camNearPoint[0] += camPlaneNormal[0]*offset;
