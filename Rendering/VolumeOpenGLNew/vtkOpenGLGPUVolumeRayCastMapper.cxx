@@ -233,6 +233,12 @@ public:
   // Load OpenGL extensiosn required to grab depth sampler buffer
   void LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin);
 
+  // Create GL buffers
+  void CreateBufferObjects();
+
+  // Dispose / free GL buffers
+  void DeleteBufferObjects();
+
   // Private member variables
   //--------------------------------------------------------------------------
   vtkOpenGLGPUVolumeRayCastMapper* Parent;
@@ -383,13 +389,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 
   // This is to ignore INVALID ENUM error 1282
   err = glGetError();
-
-  // Setup unit cube vertex array and vertex buffer objects
-#ifndef __APPLE__
-  glGenVertexArrays(1, &this->CubeVAOId);
-#endif
-  glGenBuffers(1, &this->CubeVBOId);
-  glGenBuffers(1, &this->CubeIndicesId);
 
   // Create RGB lookup table
   this->RGBTable = new vtkOpenGLRGBTable();
@@ -1227,6 +1226,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
       {
       polys->InsertNextTuple3(pts[0], pts[1], pts[2]);
       }
+
+    // Dispose any previously created buffers
+    this->DeleteBufferObjects();
+
+    // Now create new ones
+    this->CreateBufferObjects();
+
 #ifndef __APPLE__
     glBindVertexArray(this->CubeVAOId);
 #endif
@@ -1460,6 +1466,37 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateBufferObjects()
+{
+#ifndef __APPLE__
+  glGenVertexArrays(1, &this->CubeVAOId);
+#endif
+  glGenBuffers(1, &this->CubeVBOId);
+  glGenBuffers(1, &this->CubeIndicesId);
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteBufferObjects()
+{
+#ifndef __APPLE__
+  if (this->CubeVAOId)
+    {
+    glDeleteVertexArrays(1, &this->CubeVAOId);
+    }
+#endif
+
+  if (this->CubeVBOId)
+    {
+    glDeleteBuffers(1, &this->CubeVBOId);
+    }
+
+  if (this->CubeIndicesId)
+   {
+   glDeleteBuffers(1, &this->CubeIndicesId);
+   }
+}
+
+//----------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   vtkGPUVolumeRayCastMapper()
 {
@@ -1495,6 +1532,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   vtkWindow *window)
 {
+  this->Impl->DeleteBufferObjects();
+
   if(this->Impl->VolumeTextureId)
     {
     window->MakeCurrent();
