@@ -243,24 +243,8 @@ void vtkXOpenGLRenderWindowInteractor::BreakLoopFlagOn()
 // This will start up the X event loop. If you
 // call this method it will loop processing X events until the
 // loop is exited.
-void vtkXOpenGLRenderWindowInteractor::Start()
+void vtkXOpenGLRenderWindowInteractor::StartEventLoop()
 {
-  // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
-    {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    return;
-    }
-
-  if (!this->Initialized)
-    {
-    this->Initialize();
-    }
-  if (!this->Initialized)
-    {
-    return;
-    }
-
   this->BreakLoopFlag = 0;
   do
     {
@@ -269,7 +253,6 @@ void vtkXOpenGLRenderWindowInteractor::Start()
     XtDispatchEvent(&event);
     }
   while (this->BreakLoopFlag == 0);
-
 }
 
 //-------------------------------------------------------------------------

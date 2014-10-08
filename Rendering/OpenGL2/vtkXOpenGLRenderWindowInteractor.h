@@ -90,12 +90,6 @@ public:
   virtual void Disable();
 
   // Description:
-  // This will start up the X event loop and never return. If you
-  // call this method it will loop processing X events until the
-  // application is exited.
-  virtual void Start();
-
-  // Description:
   // Update the Size data member and set the associated RenderWindow's
   // size.
   virtual void UpdateSize(int,int);
@@ -190,6 +184,12 @@ protected:
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
 
   static int BreakLoopFlag;
+
+  // Description:
+  // This will start up the X event loop and never return. If you
+  // call this method it will loop processing X events until the
+  // application is exited.
+  virtual void StartEventLoop();
 
 private:
   vtkXOpenGLRenderWindowInteractor(const vtkXOpenGLRenderWindowInteractor&);  // Not implemented.

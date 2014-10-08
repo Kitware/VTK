@@ -44,7 +44,7 @@ vtkIOSRenderWindowInteractor::~vtkIOSRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindowInteractor::Start()
+void vtkIOSRenderWindowInteractor::StartEventLoop()
 {
 }
 

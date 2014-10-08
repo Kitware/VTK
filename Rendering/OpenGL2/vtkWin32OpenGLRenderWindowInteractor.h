@@ -61,12 +61,6 @@ public:
   virtual void Disable();
 
   // Description:
-  // This will start up the event loop and never return. If you
-  // call this method it will loop processing events until the
-  // application is exited.
-  virtual void Start();
-
-  // Description:
   // By default the interactor installs a MessageProc callback which
   // intercepts windows messages to the window and controls interactions.
   // MFC or BCB programs can prevent this and instead directly route any mouse/key
@@ -142,6 +136,12 @@ protected:
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
+
+  // Description:
+  // This will start up the event loop and never return. If you
+  // call this method it will loop processing events until the
+  // application is exited.
+  virtual void StartEventLoop();
 
   int GetContactIndex(int id);
   int IDLookup[VTKI_MAX_POINTERS];

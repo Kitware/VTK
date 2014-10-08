@@ -104,15 +104,8 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void  vtkWin32RenderWindowInteractor::Start()
+void  vtkWin32RenderWindowInteractor::StartEventLoop()
 {
-  // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
-    {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    return;
-    }
-
   // No need to do anything if this is a 'mapped' interactor
   if (!this->Enabled || !this->InstallMessageProc)
     {

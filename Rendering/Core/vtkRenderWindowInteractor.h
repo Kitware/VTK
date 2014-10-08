@@ -91,7 +91,7 @@ public:
   // Start the event loop. This is provided so that you do not have to
   // implement your own event loop. You still can use your own
   // event loop if you want. Initialize should be called before Start.
-  virtual void Start() {}
+  virtual void Start();
 
   // Description:
   // Enable/Disable interactions.  By default interactors are enabled when
@@ -671,6 +671,10 @@ protected:
   // overrides. (Overrides are registered by observing StartEvent on the
   // interactor.)
   int HandleEventLoop;
+
+  // Description:
+  // Run the event loop (does not return until TerminateApp is called).
+  virtual void StartEventLoop() {}
 
   bool UseTDx; // 3DConnexion device.
 
