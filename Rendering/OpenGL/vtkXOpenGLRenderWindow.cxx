@@ -611,9 +611,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   if(!glXQueryExtension(this->DisplayId, NULL, NULL))
     {
     vtkErrorMacro("GLX not found.  Aborting.");
-    if (this->HasObserver(vtkCommand::ExitEvent))
+    if (this->TriggerExitEvent())
       {
-      this->InvokeEvent(vtkCommand::ExitEvent, NULL);
       return;
       }
     else
@@ -631,9 +630,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   if(!this->Internal->ContextId)
     {
     vtkErrorMacro("Cannot create GLX context.  Aborting.");
-    if (this->HasObserver(vtkCommand::ExitEvent))
+    if (this->TriggerExitEvent())
       {
-      this->InvokeEvent(vtkCommand::ExitEvent, NULL);
       return;
       }
     else
@@ -1079,13 +1077,13 @@ void vtkXOpenGLRenderWindow::Initialize (void)
 
 void vtkXOpenGLRenderWindow::Finalize (void)
 {
+  this->TriggerExitEvent();
 
   // clean up offscreen stuff
   this->SetOffScreenRendering(0);
 
   // clean and destroy window
   this->DestroyWindow();
-
 }
 
 // Change the window to fill the entire screen.

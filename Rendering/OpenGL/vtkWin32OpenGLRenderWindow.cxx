@@ -1122,6 +1122,8 @@ void vtkWin32OpenGLRenderWindow::Initialize (void)
 
 void vtkWin32OpenGLRenderWindow::Finalize(void)
 {
+  this->TriggerExitEvent();
+
   if (this->CursorHidden)
     {
     this->ShowCursor();

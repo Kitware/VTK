@@ -828,6 +828,8 @@ void vtkCarbonRenderWindow::Initialize ()
 //-----------------------------------------------------------------------------
 void vtkCarbonRenderWindow::Finalize(void)
 {
+  this->TriggerExitEvent();
+
   if (this->CursorHidden)
     {
     this->ShowCursor();
