@@ -14,51 +14,40 @@
 =========================================================================*/
 // This test covers cropping on volume datasets.
 
-#include <vtkSphere.h>
-#include <vtkSampleFunction.h>
-
-#include <vtkTestUtilities.h>
-
 #include <vtkActor.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCommand.h>
-#include <vtkFixedPointVolumeRayCastMapper.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
+#include <vtkNew.h>
 #include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
-#include <vtkRenderer.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRegressionTestImage.h>
-#include <vtkRTAnalyticSource.h>
-#include <vtkNew.h>
-#include <vtkGPUVolumeRayCastMapper.h>
-#include <vtkSphereSource.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
+#include <vtkTestUtilities.h>
 #include <vtkTimerLog.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include <vtksys/SystemTools.hxx>
-
-#include <cstdlib>
-
-int TestVolumeCrop(int argc, char *argv[])
+int TestGPURayCastCropping1(int argc, char *argv[])
 {
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  volumeMapper->AutoAdjustSampleDistancesOff();
   volumeMapper->SetSampleDistance(0.05);
 
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
-  reader->Update();
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter
@@ -92,6 +81,7 @@ int TestVolumeCrop(int argc, char *argv[])
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetDisableGradientOpacity(1);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
@@ -109,10 +99,6 @@ int TestVolumeCrop(int argc, char *argv[])
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  // Rotate the volume for testing purposes
-  volume->RotateY(45.0);
-  outlineActor->RotateY(45.0);
-
   ren->AddViewProp(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
   ren->ResetCamera();
@@ -120,10 +106,5 @@ int TestVolumeCrop(int argc, char *argv[])
   renWin->Render();
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-  return !retVal;
+  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer());
 }

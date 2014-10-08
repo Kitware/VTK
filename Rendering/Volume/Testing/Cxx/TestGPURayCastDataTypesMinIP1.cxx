@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastDataTypesMinIP.cxx
+  Module:    TestGPURayCastDataTypesMinIP1.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,28 +18,24 @@
 // int, float, and double). It uses compositing and no shading. The extents of
 // the dataset are (0, 114, 0, 100, 0, 74).
 
-
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkGPUVolumeRayCastMapper.h"
-
-#include "vtkTestUtilities.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkImageShiftScale.h"
+#include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDataArray.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageData.h"
+#include "vtkImageShiftScale.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkTransform.h"
-#include "vtkRenderer.h"
+#include "vtkPointData.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
-#include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkXMLImageDataReader.h"
 
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkDataArray.h"
-
-int TestVolumeMinIP(int argc, char *argv[])
+int TestGPURayCastDataTypesMinIP1(int argc, char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   char *cfname=

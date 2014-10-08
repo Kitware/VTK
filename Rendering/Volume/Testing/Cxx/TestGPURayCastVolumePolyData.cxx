@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastAdditive.cxx
+  Module:    TestGPURayCastVolumePolyData.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,42 +12,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test covers cropping on volume datasets.
+// This test covers additive method.
+// This test volume renders a synthetic dataset with unsigned char values,
+// with the additive method.
 
-#include <vtkSphere.h>
-#include <vtkSampleFunction.h>
-
-#include <vtkTestUtilities.h>
-
-#include <vtkActor.h>
+#include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
-#include <vtkCommand.h>
+#include <vtkDataArray.h>
 #include <vtkFixedPointVolumeRayCastMapper.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
+#include <vtkImageReader.h>
+#include <vtkImageShiftScale.h>
+#include <vtkNew.h>
 #include <vtkOutlineFilter.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
 #include <vtkPiecewiseFunction.h>
-#include <vtkRenderer.h>
+#include <vtkPointData.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRegressionTestImage.h>
-#include <vtkRTAnalyticSource.h>
-#include <vtkNew.h>
-#include <vtkGPUVolumeRayCastMapper.h>
-#include <vtkSphereSource.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
+#include <vtkTestUtilities.h>
+#include <vtkTesting.h>
 #include <vtkTimerLog.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include <vtksys/SystemTools.hxx>
-
-#include <cstdlib>
-
-int TestVolumeClip(int argc, char *argv[])
+int TestGPURayCastVolumePolyData(int argc, char *argv[])
 {
   double scalarRange[2];
 
@@ -58,10 +51,7 @@ int TestVolumeClip(int argc, char *argv[])
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
-
-  std::cerr << "Filename " << volumeFile << std::endl;
   reader->SetFileName(volumeFile);
-  reader->Update();
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter
@@ -73,19 +63,14 @@ int TestVolumeClip(int argc, char *argv[])
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
 
-  // Testing prefers image comparison with small images
   vtkNew<vtkRenderWindow> renWin;
-  renWin->SetSize(400, 400);
-
-  // Intentional odd and NPOT  width/height
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren.GetPointer());
+  renWin->SetSize(400, 400);
+  ren->SetBackground(0.2, 0.2, 0.5);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
-
-  // Make sure we have an OpenGL context.
-  renWin->Render();
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(scalarRange[0], 0.0);
@@ -94,6 +79,7 @@ int TestVolumeClip(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
+
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
@@ -102,38 +88,39 @@ int TestVolumeClip(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.0, 0.0, 0.0);
   colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 1.0, 1.0);
 
-  // Test cropping now
-
-  double* bounds = reader->GetOutput()->GetBounds();
-  vtkNew<vtkPlane> clipPlane1;
-  clipPlane1->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane1->SetNormal(1.0, 0.0, 0.0);
-
-  vtkNew<vtkPlane> clipPlane2;
-  clipPlane2->SetOrigin(0.55 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane2->SetNormal(-1.0, 0.0, 0.0);
-
-  vtkNew<vtkPlaneCollection> clipPlaneCollection;
-  clipPlaneCollection->AddItem(clipPlane1.GetPointer());
-  clipPlaneCollection->AddItem(clipPlane2.GetPointer());
-  volumeMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
-
-  // Setup volume actor
-  vtkNew<vtkVolume> volume;
+  vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
+  /// Add sphere in the center of volume
+  int dims[3];
+  double spacing[3], center[3], origin[3];
+  reader->Update();
+  vtkSmartPointer<vtkImageData> im = reader->GetOutput();
+  im->GetDimensions(dims);
+  im->GetOrigin(origin);
+  im->GetSpacing(spacing);
+
+  center[0] = origin[0] + spacing[0]*dims[0]/2.0;
+  center[1] = origin[1] + spacing[1]*dims[1]/2.0;
+  center[2] = origin[2] + spacing[2]*dims[2]/2.0;
+
+  vtkNew<vtkSphereSource> sphereSource;
+  sphereSource->SetCenter(center);
+  sphereSource->SetRadius(dims[1]/3.0);
+  vtkNew<vtkPolyDataMapper> sphereMapper;
+  vtkNew<vtkActor> sphereActor;
+  sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
+  sphereActor->SetMapper(sphereMapper.GetPointer());
+
   ren->AddViewProp(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
-  ren->ResetCamera();
+  ren->AddActor(sphereActor.GetPointer());
 
   renWin->Render();
+  ren->ResetCamera();
+
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-  return !retVal;
+  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer());
 }
