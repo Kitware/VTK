@@ -54,7 +54,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
                                         vtkAbstractMapper3D *m)
 {
   vtkIdType numPts;
-  vtkIdType ptId, ptIndex, minPtId, cellId;
+  vtkIdType ptId, ptIndex, minPtId;
   int i;
   double ray[3], rayFactor, tMin, x[3], t, projXYZ[3], minXYZ[3];
   vtkDataSet *input;
