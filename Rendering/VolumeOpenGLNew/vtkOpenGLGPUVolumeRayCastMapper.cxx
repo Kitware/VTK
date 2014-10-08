@@ -182,8 +182,6 @@ public:
                 int textureExtent[6],
                 vtkVolume* volume);
 
-  bool IsDataDirty(vtkImageData* imageData);
-
   bool IsInitialized();
 
   void CompileAndLinkShader(const string& vertexShader,
@@ -286,7 +284,6 @@ public:
   vtkOpenGLRGBTable* Mask2RGBTable;
   vtkOpenGLGradientOpacityTables* GradientOpacityTables;
 
-  vtkTimeStamp VolumeBuildTime;
   vtkTimeStamp ShaderBuildTime;
 
   vtkNew<vtkMatrix4x4> TextureToDataSetMat;
@@ -649,8 +646,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
     sliceArray->Delete();
     }
 
-  // Update m_volume build time
-  this->VolumeBuildTime.Modified();
   return 1;
 }
 
@@ -701,20 +696,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsInitialized()
 {
   return this->Initialized;
-}
-
-//----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsDataDirty(
-  vtkImageData* input)
-{
-  // Check if the scalars modified time is higher than the last build time
-  // if yes, then mark the current referenced data as dirty.
-  if (input->GetMTime() > this->VolumeBuildTime.GetMTime())
-    {
-    return true;
-    }
-
-  return false;
 }
 
 //----------------------------------------------------------------------------
@@ -1782,7 +1763,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Update m_volume first to make sure states are current
   vol->Update();
 
-  vtkImageData* input = this->GetInput();
+  vtkImageData* input = this->GetTransformedInput();
 
   // Set OpenGL states
   vtkVolumeStateRAII glState;
@@ -2165,4 +2146,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Undo binds and state changes
   // TODO Provide a stack Impl
   this->Impl->Shader.UnUse();
+
+  this->Impl->PrevInput = input;
 }
