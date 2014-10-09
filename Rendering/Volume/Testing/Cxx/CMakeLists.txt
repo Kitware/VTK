@@ -4,6 +4,18 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   return()
 endif()
 
+if (Module_vtkRenderingVolumeOpenGLNew)
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
+    #TestGPURayCastAdditive1.cxx
+    TestGPURayCastClipping.cxx
+    #TestGPURayCastCropping1.cxx
+    #TestGPURayCastDataTypesMinIP1.cxx
+    TestGPURayCastVolumePolyData.cxx
+    TestGPURayCastVolumeRotation.cxx
+    TestGPURayCastVolumeScale.cxx
+    )
+endif()
+
 vtk_add_test_cxx(${vtk-module}CxxTests tests
 #  TestGPUCastGradientOpacity.cxx
   HomogeneousRayIntegration.cxx
@@ -15,18 +27,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
-  #TestGPURayCastAdditive1.cxx
-  TestGPURayCastClipping.cxx
   TestGPURayCastCompositeBinaryMask.cxx
   TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeMaskBlend.cxx
   TestGPURayCastCompositeShadeMask.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
-  #TestGPURayCastCropping1.cxx
   TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
-  #TestGPURayCastDataTypesMinIP1.cxx
   TestGPURayCastFourComponentsComposite.cxx
   TestGPURayCastFourComponentsCompositeStreaming.cxx
   TestGPURayCastFourComponentsMIP.cxx
@@ -35,9 +43,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
-  TestGPURayCastVolumePolyData.cxx
-  TestGPURayCastVolumeRotation.cxx
-  TestGPURayCastVolumeScale.cxx
   TestHAVSVolumeMapper.cxx
   TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx

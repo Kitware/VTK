@@ -1,4 +1,4 @@
-if (Module_vtkRenderingVolumeOpenGLNEW)
+if (Module_vtkRenderingVolumeOpenGLNew)
   set(VTK_RENDERING_VOLUME_BACKEND
     "vtkRenderingVolumeOpenGLNew")
 endif()
