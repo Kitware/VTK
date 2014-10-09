@@ -1653,9 +1653,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkvolume::ShadingIncrement(ren, this, vol, this->MaskInput,
                                 this->Impl->CurrentMask,
                                 this->MaskType), true);
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@GRADIENT_OPACITY_INCREMENT@",
-    vtkvolume::GradientOpacityIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
     vtkvolume::ShadingExit(ren, this, vol), true);
 
@@ -1792,6 +1789,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     {
     this->Impl->Shader.AddUniform("m_projection_direction");
     }
+
+  std::cerr << "Shader is " << fragmentShader << std::endl;
 
   this->Impl->ShaderBuildTime.Modified();
 }

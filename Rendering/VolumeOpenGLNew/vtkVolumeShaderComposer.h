@@ -282,6 +282,74 @@ namespace vtkvolume
           return vec4(final_color, color.a); \n\
           }");
       }
+    else
+      {
+      return std::string(" \n\
+        vec4 computeLighting(vec4 color) \n\
+          { \n\
+          vec3 g1; \n\
+          vec3 g2; \n\
+          vec3 xvec = vec3(m_cell_step[0], 0.0, 0.0); \n\
+          vec3 yvec = vec3(0.0, m_cell_step[1], 0.0); \n\
+          vec3 zvec = vec3(0.0, 0.0, m_cell_step[2]); \n\
+          g1.x = texture3D(m_volume, vec3(g_data_pos + xvec)).x; \n\
+          g1.y = texture3D(m_volume, vec3(g_data_pos + yvec)).x; \n\
+          g1.z = texture3D(m_volume, vec3(g_data_pos + zvec)).x; \n\
+          g2.x = texture3D(m_volume, vec3(g_data_pos - xvec)).x; \n\
+          g2.y = texture3D(m_volume, vec3(g_data_pos - yvec)).x; \n\
+          g2.z = texture3D(m_volume, vec3(g_data_pos - zvec)).x; \n\
+          g1.x = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.x; \n\
+          g1.y = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.y; \n\
+          g1.z = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g1.z; \n\
+          g2.x = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g2.x; \n\
+          g2.y = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g2.y; \n\
+          g2.z = m_scalars_range[0] + (m_scalars_range[1] - m_scalars_range[0]) * g2.z; \n\
+          g2 = g1 - g2; \n\
+          vec3 m_spacing = vec3(m_cell_spacing[0], m_cell_spacing[1], m_cell_spacing[2]); \n\
+          vec3 aspect; \n\
+          float avg_spacing = (m_spacing[0] + m_spacing[1] + m_spacing[2])/3.0; \n\
+          // Adjust the aspect \n\
+          aspect.x = m_spacing[0] * 2.0 / avg_spacing; \n\
+          aspect.y = m_spacing[1] * 2.0 / avg_spacing; \n\
+          aspect.z = m_spacing[2] * 2.0 / avg_spacing; \n\
+          g2.x /= aspect.x; \n\
+          g2.y /= aspect.y; \n\
+          g2.z /= aspect.z; \n\
+          float grad_mag = sqrt(g2.x * g2.x  + g2.y * g2.y + g2.z * g2.z); \n\
+          if (grad_mag > 0.0) \n\
+             { \n\
+             g2.x /= grad_mag; \n\
+             g2.y /= grad_mag; \n\
+             g2.z /= grad_mag; \n\
+             } \n\
+           else \n\
+             { \n\
+             g2 = vec3(0.0, 0.0, 0.0); \n\
+             } \n\
+          grad_mag = grad_mag * 1.0 / (0.25 * (m_scalars_range[1] - (m_scalars_range[0]))); \n\
+          grad_mag = clamp(grad_mag, 0.0, 1.0); \n\
+          vec4 final_color = vec4(0.0); \n\
+          vec3 ldir = normalize(g_light_pos_obj.xyz - m_vertex_pos); \n\
+          vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
+          vec3 h = normalize(ldir + vdir); \n\
+          float n_dot_l = dot(g2, ldir); \n\
+          float n_dot_h = dot(g2, h); \n\
+          if (n_dot_l < 0.0) \n\
+            { \n\
+            n_dot_l = -n_dot_l; \n\
+            } \n\
+          if (n_dot_h < 0.0) \n\
+            { \n\
+            n_dot_h = -n_dot_h; \n\
+            } \n\
+          final_color.rgb += m_ambient; \n\
+          final_color.rgb += m_diffuse * n_dot_l * color.rgb; \n\
+          final_color.rgb += m_specular * pow(n_dot_h, m_shininess); \n\
+          final_color.rgb = clamp(final_color.rgb, vec3(0.0), vec3(1.0)); \n\
+          final_color.a = color.a * texture1D(m_gradient_transfer_func, grad_mag).w; \n\
+          return final_color; \n\
+          }");
+      }
 
       return std::string(
         "vec4 computeLighting(vec4 color) \n\
@@ -494,20 +562,6 @@ namespace vtkvolume
     return std::string("");
     }
 
-
-  //--------------------------------------------------------------------------
-  std::string GradientOpacityIncrement(vtkRenderer* vtkNotUsed(ren),
-                                       vtkVolumeMapper* vtkNotUsed(mapper),
-                                       vtkVolume* vol)
-    {
-    if (!vol->GetProperty()->GetDisableGradientOpacity())
-      {
-      return std::string("g_src_color.a *= \n\
-                         texture1D(m_gradient_transfer_func, grad_mag).w;");
-      }
-
-    return std::string("");
-    }
 
   //--------------------------------------------------------------------------
   std::string ShadingExit(vtkRenderer* vtkNotUsed(ren),

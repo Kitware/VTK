@@ -5,7 +5,7 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  #TestGPUCastGradientOpacity.cxx
+  TestGPUCastGradientOpacity.cxx
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx
   PartialPreIntegration.cxx

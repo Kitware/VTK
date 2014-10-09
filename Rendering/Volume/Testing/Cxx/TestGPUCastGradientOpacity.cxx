@@ -90,6 +90,7 @@ int TestGPUCastGradientOpacity(int argc, char *argv[])
 
   vtkVolumeProperty* volumeProperty = volume->GetProperty();
   volumeProperty->SetGradientOpacity(0, gradientOpacityFunction);
+  volumeProperty->SetDisableGradientOpacity(0);
   volumeProperty->SetScalarOpacity(scalarFunction);
   volumeProperty->SetColor(0, colorFunction);
   volumeProperty->SetAmbient(0, 0.0);
