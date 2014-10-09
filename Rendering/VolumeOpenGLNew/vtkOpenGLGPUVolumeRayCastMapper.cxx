@@ -1787,8 +1787,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     this->Impl->Shader.AddUniform("m_projection_direction");
     }
 
-  std::cerr << "Shader is " << fragmentShader << std::endl;
-
   this->Impl->ShaderBuildTime.Modified();
 }
 
