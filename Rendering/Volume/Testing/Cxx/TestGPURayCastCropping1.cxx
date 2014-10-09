@@ -106,5 +106,11 @@ int TestGPURayCastCropping1(int argc, char *argv[])
   renWin->Render();
   iren->Initialize();
 
-  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer());
+  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+
+  return !retVal;
 }

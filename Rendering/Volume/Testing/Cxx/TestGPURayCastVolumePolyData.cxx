@@ -29,13 +29,13 @@
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkTestUtilities.h>
-#include <vtkTesting.h>
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
@@ -122,5 +122,11 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
 
   iren->Initialize();
 
-  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer());
+  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+
+  return !retVal;
 }
