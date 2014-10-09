@@ -69,7 +69,6 @@ public:
     {
     // Activate texture 5
     glActiveTexture(GL_TEXTURE5);
-
     glBindTexture(GL_TEXTURE_1D, this->TextureId);
     }
 
@@ -99,7 +98,7 @@ public:
       this->LastRange[1] = range[1];
       }
 
-    glBindTexture(GL_TEXTURE_1D,this->TextureId);
+    glBindTexture(GL_TEXTURE_1D, this->TextureId);
     if(needUpdate)
       {
       glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
