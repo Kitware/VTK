@@ -76,8 +76,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Prepare for handling events. This must be called before the
-  // interactor will work.
+  // Prepare for handling events and set the Enabled flag to true.
+  // This will be called automatically by Start() if the interactor
+  // is not initialized, but it can be called manually if you need
+  // to perform any operations between initialization and the start
+  // of the event loop.
   virtual void Initialize();
   void ReInitialize() {  this->Initialized = 0; this->Enabled = 0;
                         this->Initialize(); }
@@ -90,7 +93,7 @@ public:
   // Description:
   // Start the event loop. This is provided so that you do not have to
   // implement your own event loop. You still can use your own
-  // event loop if you want. Initialize should be called before Start.
+  // event loop if you want.
   virtual void Start();
 
   // Description:
