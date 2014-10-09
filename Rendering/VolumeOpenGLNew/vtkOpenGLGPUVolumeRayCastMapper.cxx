@@ -1644,9 +1644,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkvolume::ShadingGlobalsVert(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_GLOBALS_FRAG@",
     vtkvolume::ShadingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@GRADIENT_OPACITY_GLOBALS_FRAG@",
-    vtkvolume::GradientOpacityGlobalsFrag(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
     vtkvolume::ShadingInit(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INCREMENT@",

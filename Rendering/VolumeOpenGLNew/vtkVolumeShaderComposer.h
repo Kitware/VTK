@@ -319,6 +319,7 @@ namespace vtkvolume
     else
       {
       return std::string(" \n\
+        uniform sampler1D m_gradient_transfer_func; \n\
         vec4 computeLighting(vec4 color) \n\
           { \n\
           vec3 grad = computeGradient(); \n\
@@ -574,19 +575,6 @@ namespace vtkvolume
       shaderStr += std::string("}");
       return shaderStr;
     }
-  //--------------------------------------------------------------------------
-  std::string GradientOpacityGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                                         vtkVolumeMapper* vtkNotUsed(mapper),
-                                         vtkVolume* vol)
-    {
-    if (vol->GetProperty()->GetGradientOpacity())
-      {
-      return std::string("uniform sampler1D m_gradient_transfer_func;");
-      }
-
-    return std::string("");
-    }
-
 
   //--------------------------------------------------------------------------
   std::string ShadingExit(vtkRenderer* vtkNotUsed(ren),
