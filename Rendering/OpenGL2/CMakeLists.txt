@@ -18,18 +18,15 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h)
 
 set(Module_SRCS
-  vtkglBufferObject.cxx
-  vtkglVBOHelper.cxx
-  vtkShader.cxx
-  vtkShaderProgram.cxx
-  vtkglVertexArrayObject.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkCompositePolyDataMapper2.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
-  vtkOpenGLImageMapper.cxx
-  vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
+  vtkOpenGLImageMapper.cxx
+  vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
@@ -40,9 +37,13 @@ set(Module_SRCS
   vtkOpenGLTexture.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
+  vtkShader.cxx
+  vtkShaderProgram.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkglBufferObject.cxx
+  vtkglVBOHelper.cxx
+  vtkglVertexArrayObject.cxx
   )
 
 if (NOT ANDROID AND NOT APPLE_IOS)

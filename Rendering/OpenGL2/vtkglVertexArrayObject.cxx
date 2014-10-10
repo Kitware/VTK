@@ -74,7 +74,10 @@ struct VertexAttributes
 class VertexArrayObject::Private
 {
 public:
-  Private() : handleVAO(0), handleProgram(0), supported(true) {}
+  Private() : handleVAO(0), handleProgram(0), supported(true)
+  {
+    this->ForceEmulation = false;
+  }
   ~Private()
   {
     if (this->handleVAO)

@@ -755,10 +755,10 @@ void vtkOpenGLRenderer::DonePick()
   //    (this->GetRenderWindow()->GetSwapBuffers() == 1) ? 0 : 1);
 
     // for debugging save out the image
-    FILE * pFile;
-    pFile = fopen ("myfile.ppm", "wb");
-    fwrite (pixBuffer , sizeof(unsigned char), 3*((int)this->PickY2-(int)this->PickY1+1)*((int)this->PickX2-(int)this->PickX1+1), pFile);
-    fclose (pFile);
+    // FILE * pFile;
+    // pFile = fopen ("myfile.ppm", "wb");
+    // fwrite (pixBuffer , sizeof(unsigned char), 3*((int)this->PickY2-(int)this->PickY1+1)*((int)this->PickX2-(int)this->PickX1+1), pFile);
+    // fclose (pFile);
 
     float *depthBuffer = this->GetRenderWindow()->GetZbufferData(
       this->PickX1, this->PickY1, this->PickX2, this->PickY2);

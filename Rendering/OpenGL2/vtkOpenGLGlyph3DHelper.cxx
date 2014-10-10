@@ -276,6 +276,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
       unsigned long pointMTime)
 {
+  this->CurrentInput = this->GetInput();
   this->UsingInstancing = false;
 
   vtkHardwareSelector* selector = ren->GetSelector();

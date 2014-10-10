@@ -69,6 +69,11 @@ public:
   // opaque geometry.
   virtual bool GetIsOpaque();
 
+  // used by RenderPiece and functions it calls to reduce
+  // calls to get the input and allow for rendering of
+  // other polydata (not the input)
+  vtkPolyData *CurrentInput;
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();

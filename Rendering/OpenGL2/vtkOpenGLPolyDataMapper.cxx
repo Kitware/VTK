@@ -69,6 +69,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->LastLightComplexity = -1;
   this->LastSelectionState = false;
   this->LastDepthPeeling = 0;
+  this->CurrentInput = 0;
 }
 
 
@@ -511,7 +512,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkR
   // three that mix in a complex way are representation POINT, Interpolation FLAT
   // and having normals or not.
   bool needLighting = false;
-  bool haveNormals = (this->GetInput()->GetPointData()->GetNormals() != NULL);
+  bool haveNormals = (this->CurrentInput->GetPointData()->GetNormals() != NULL);
   if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
     {
     needLighting = (actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals);
@@ -592,7 +593,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkR
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
-      cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
+      cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
       cellBO.ShaderSourceTime < this->LightComplexityChanged)
@@ -637,16 +638,10 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
     renWin->GetShaderCache()->ReadyShader(cellBO.Program);
     }
 
-  vtkOpenGLCheckErrorMacro("failed after Render");
-
   this->SetMapperShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetPropertyShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetCameraShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetLightingShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   cellBO.vao.Bind();
 
   this->LastBoundBO = &cellBO;
@@ -994,8 +989,6 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
-  vtkDataObject *input= this->GetInputDataObject(0, 0);
-
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->PopulateSelectionSettings)
     {
@@ -1018,7 +1011,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   // Update the OpenGL if needed.
   if (this->OpenGLUpdateTime < this->GetMTime() ||
       this->OpenGLUpdateTime < actor->GetMTime() ||
-      this->OpenGLUpdateTime < input->GetMTime() )
+      this->OpenGLUpdateTime < this->CurrentInput->GetMTime() )
     {
     this->UpdateVBO(actor);
     this->OpenGLUpdateTime.Modified();
@@ -1124,7 +1117,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
-      vtkDataArray *ef =  this->GetInput()->GetPointData()->GetAttribute(
+      vtkDataArray *ef =  this->CurrentInput->GetPointData()->GetAttribute(
                           vtkDataSetAttributes::EDGEFLAG);
       if (ef)
         {
@@ -1248,9 +1241,9 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     return;
     }
 
-  vtkDataObject *input= this->GetInputDataObject(0, 0);
+  this->CurrentInput = this->GetInput();
 
-  if (input == NULL)
+  if (this->CurrentInput == NULL)
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -1264,18 +1257,14 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
   // if there are no points then we are done
-  if (!this->GetInput()->GetPoints())
+  if (!this->CurrentInput->GetPoints())
     {
     return;
     }
 
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceStart(ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceDraw(ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceFinish(ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
 
   // if EdgeVisibility is on then draw the wireframe also
   this->RenderEdges(ren,actor);
@@ -1354,7 +1343,8 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 //-------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
 {
-  vtkPolyData *poly = this->GetInput();
+  vtkPolyData *poly = this->CurrentInput;
+
   if (poly == NULL)// || !poly->GetPointData()->GetNormals())
     {
     return;
