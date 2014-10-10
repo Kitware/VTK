@@ -4,9 +4,10 @@
 # the library is. This code sets the following variables:
 #
 #  PYTHONLIBS_FOUND           - have the Python libs been found
-#  PYTHON_LIBRARY             - path to the python library
-#  PYTHON_INCLUDE_DIR         - path to where Python.h is found
-#  PYTHON_DEBUG_LIBRARY       - path to the debug library
+#  PYTHON_LIBRARIES           - path to the python library
+#  PYTHON_INCLUDE_PATH        - path to where Python.h is found (deprecated)
+#  PYTHON_INCLUDE_DIRS        - path to where Python.h is found
+#  PYTHON_DEBUG_LIBRARIES     - path to the debug library
 #  PYTHON_VERSION             - python version string e.g. 2.7.1
 #  PYTHON_MAJOR_VERSION       - python major version number
 #  PYTHON_MINOR_VERSION       - python minor version number
@@ -69,6 +70,13 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
     PATH_SUFFIXES python${_CURRENT_VERSION}/config
   )
 
+  # For backward compatibility, honour value of PYTHON_INCLUDE_PATH, if
+  # PYTHON_INCLUDE_DIR is not set.
+  IF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
+    SET(PYTHON_INCLUDE_DIR "${PYTHON_INCLUDE_PATH}" CACHE PATH
+      "Path to where Python.h is found" FORCE)
+  ENDIF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
+
   # Only look for include directory if library was found, this ensures
   # that version will be matched between include dir and library
   IF(PYTHON_LIBRARY)
@@ -96,6 +104,10 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
         python${_CURRENT_VERSION}
     )
   ENDIF(PYTHON_LIBRARY)
+
+  # For backward compatibility, set PYTHON_INCLUDE_PATH, but make it internal.
+  SET(PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}" CACHE INTERNAL
+    "Path to where Python.h is found (deprecated)")
 
 ENDFOREACH(_CURRENT_VERSION)
 
