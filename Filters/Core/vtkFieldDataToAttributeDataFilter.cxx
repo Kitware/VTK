@@ -1067,14 +1067,14 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
 {
   vtkDataArray *da = NULL;
   int numComp;
-  int found=0;
+  bool found = false;
 
   if ( name != NULL )
     {
     vtkDataSetAttributes* dsa;
     if ((dsa=vtkDataSetAttributes::SafeDownCast(fd)))
       {
-      found=1;
+      found = true;
       if(!strcmp("PointScalars", name) || !strcmp("CellScalars", name))
         {
         da = dsa->GetScalars();
@@ -1097,7 +1097,7 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
         }
       else
         {
-        found=0;
+        found = false;
         }
       }
     if (!found || !da)

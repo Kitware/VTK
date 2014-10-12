@@ -113,16 +113,14 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
             // to the first line segment. If we have three points
             // we use special logic to select a normal orthogonal
             // to the first two line segments
-            int foundNormal=0;
+            bool foundNormal = false;
             if (npts > 2)
               {
-              int ipt;
-
               // Look at the line segments (0,1), (ipt-1, ipt)
               // until a pair which meets the following criteria
               // is found: ||(0,1)x(ipt-1,ipt)|| > 1.0E-3.
               // This is used to eliminate nearly parallel cases.
-              for(ipt=2; ipt < npts; ipt++)
+              for (int ipt=2; ipt < npts; ipt++)
                 {
                 double ftmp[3], ftmp2[3];
 
@@ -145,13 +143,13 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                 vtkMath::Cross(sNext,ftmp,normal);
                 if ( vtkMath::Norm(normal) > 1.0E-3 )
                   {
-                  foundNormal = 1;
+                  foundNormal = true;
                   break;
                   }
                 }
               }
 
-            if ((npts <= 2)|| !foundNormal)
+            if ((npts <= 2) || !foundNormal)
               {
               for (i=0; i<3; i++)
                 {
