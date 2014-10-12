@@ -384,14 +384,12 @@ public:
     {
       float* fIoMem = static_cast<float*>(pboPtr);
 
-      int numComp;
       int *permutation=0;
       if(components==0)
         {
-        numComp=numComponents;
         permutation=new int[numComponents];
         int i=0;
-        while(i<numComp)
+        while(i<numComponents)
           {
           permutation[i]=i;
           ++i;
@@ -399,7 +397,6 @@ public:
         }
       else
         {
-        numComp=components;
         permutation=componentList;
         }
 
