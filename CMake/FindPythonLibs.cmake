@@ -70,13 +70,6 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
     PATH_SUFFIXES python${_CURRENT_VERSION}/config
   )
 
-  # For backward compatibility, honour value of PYTHON_INCLUDE_PATH, if
-  # PYTHON_INCLUDE_DIR is not set.
-  IF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
-    SET(PYTHON_INCLUDE_DIR "${PYTHON_INCLUDE_PATH}" CACHE PATH
-      "Path to where Python.h is found" FORCE)
-  ENDIF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
-
   # Only look for include directory if library was found, this ensures
   # that version will be matched between include dir and library
   IF(PYTHON_LIBRARY)
@@ -105,9 +98,8 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
     )
   ENDIF(PYTHON_LIBRARY)
 
-  # For backward compatibility, set PYTHON_INCLUDE_PATH, but make it internal.
-  SET(PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}" CACHE INTERNAL
-    "Path to where Python.h is found (deprecated)")
+  # For backward compatibility, set PYTHON_INCLUDE_PATH
+  SET(PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}")
 
 ENDFOREACH(_CURRENT_VERSION)
 
