@@ -80,6 +80,7 @@ public:
     this->Initialized = false;
     this->ValidTransferFunction = false;
     this->LoadDepthTextureExtensionsSucceeded = false;
+    this->CameraWasInsideInLastUpdate = false;
     this->CubeVBOId = 0;
 #ifndef __APPLE__
     this->CubeVAOId = 0;
@@ -246,6 +247,7 @@ public:
   bool Initialized;
   bool ValidTransferFunction;
   bool LoadDepthTextureExtensionsSucceeded;
+  bool CameraWasInsideInLastUpdate;
 
   GLuint CubeVBOId;
 #ifndef __APPLE__
@@ -1086,7 +1088,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
   vtkRenderer* ren, vtkVolume* vol, vtkImageData* input)
 {
-  if (input != this->PrevInput || this->IsCameraInside(ren, vol))
+  if (input != this->PrevInput || this->IsCameraInside(ren, vol) ||
+      this->CameraWasInsideInLastUpdate)
     {
     vtkNew<vtkTessellatedBoxSource> boxSource;
     boxSource->SetBounds(this->LoadedBounds);
@@ -1203,10 +1206,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
       clip->SetPlanes(planes.GetPointer());
 
       densityPolyData->SetInputConnection(clip->GetOutputPort());
+
+      this->CameraWasInsideInLastUpdate = true;
       }
     else
       {
       densityPolyData->SetInputConnection(boxSource->GetOutputPort());
+      this->CameraWasInsideInLastUpdate = false;
       }
 
     densityPolyData->SetNumberOfSubdivisions(2);
