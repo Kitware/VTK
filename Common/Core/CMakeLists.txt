@@ -600,4 +600,4 @@ endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
-vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
+vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
