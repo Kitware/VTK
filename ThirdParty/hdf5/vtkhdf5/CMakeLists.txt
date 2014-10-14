@@ -287,7 +287,7 @@ ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
 #-----------------------------------------------------------------------------
 # Compiler specific flags : Shouldn't there be compiler tests for these
 #-----------------------------------------------------------------------------
-IF (NOT WIN32 AND NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
+IF (NOT WIN32 AND NOT CMAKE_C_COMPILER_ID STREQUAL "XL")
   include(CheckCCompilerFlag)
   
   check_c_compiler_flag(-std=c99 HAVE_STD_C99)

@@ -75,7 +75,7 @@ ENDIF()
 SET(_MAY_BE_INTEL_COMPILER FALSE)
 IF(UNIX)
   IF(CMAKE_CXX_COMPILER_ID)
-    IF(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+    IF(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
       SET(_MAY_BE_INTEL_COMPILER TRUE)
     ENDIF()
   ELSE()
@@ -96,7 +96,7 @@ IF(_MAY_BE_INTEL_COMPILER)
   ENDIF()
 ENDIF()
 
-IF(CMAKE_CXX_COMPILER_ID STREQUAL PGI)
+IF(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
   # --diag_suppress=236 is for constant value asserts used for error handling
   # This can be restricted to the implementation and doesn't need to propogate
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --diag_suppress=236")

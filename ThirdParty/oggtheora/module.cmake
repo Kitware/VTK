@@ -1,4 +1,4 @@
-if("${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
+if(CMAKE_C_COMPILER_ID STREQUAL "XL")
   # This module does not compile with XL.
   return()
 endif()
