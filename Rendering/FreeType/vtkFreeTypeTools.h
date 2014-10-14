@@ -193,64 +193,13 @@ protected:
                             ImageMetaData &metaData);
 
   // Description:
-  // Internal helper called by RenderString methods
-  template <typename StringType>
-  bool RenderStringInternal(vtkTextProperty *tprop, const StringType &str,
-                            vtkImageData *data, int textDims[2]);
-
-  // Description:
-  // Internal helper method called by StringToPath methods
-  template <typename StringType>
-  bool StringToPathInternal(vtkTextProperty *tprop, const StringType &str,
-                            vtkPath *path);
-
-  // Description:
-  // This function initializes calculates the size of the required bounding box
-  // and stores it in the MetaData provided. Both the rotated and unrotated
-  // bounding boxes are set, along with the lineWidths.
-  template <typename T>
-  bool CalculateBoundingBox(const T& str, MetaData &metaData);
-
-  // Description:
   // This function initializes the extent of the ImageData to eventually
   // receive the text stored in str
   void PrepareImageData(vtkImageData *data, int bbox[4]);
 
   // Description:
-  // Internal helper method called by RenderString.
-  // metaData is passed through the the character renderer and caches properties
-  // about data (e.g. range, dimensions, increments, etc).
-  template <typename StringType, typename DataType>
-  bool PopulateData(const StringType& str, DataType data, MetaData &metaData);
-
-  // Description:
-  // Renders a single line of text (between begin and end) to the image data.
-  template <typename IteratorType, typename DataType>
-  bool RenderLine(IteratorType begin, IteratorType end, int lineIndex,
-                  DataType data, MetaData &metaData);
-
-  // Description:
-  // Implementations for rendering a single character to a specific target.
-  template <typename CharType>
-  bool RenderCharacter(CharType character, int &x, int &y,
-                       FT_UInt &previousGlyphIndex, vtkImageData *image,
-                       MetaData &metaData);
-  template <typename CharType>
-  bool RenderCharacter(CharType character, int &x, int &y,
-                       FT_UInt &previousGlyphIndex, vtkPath *path,
-                       MetaData &metaData);
-
-  // Description:
   // Internal helper method called by StringToPath
   void JustifyPath(vtkPath *path, MetaData &metaData);
-
-  // Description:
-  // Internal helper method called by GetConstrainedFontSize. Returns the
-  // fontsize (in points) that will fit the return string @a str into the @a
-  // targetWidth and @a targetHeight.
-  template <typename T>
-  int FitStringToBBox(const T &str, MetaData &metaData, int targetWidth,
-                      int targetHeight);
 
   // Description:
   // Given a text property, get the corresponding FreeType size object
@@ -329,16 +278,6 @@ protected:
                          FT_OutlineGlyph &outline_glyph);
 
   // Description:
-  // Get the width of the rendered string between iterators
-  // begin and end. Width is calculated as the sum of advances and kernings
-  // along the baseline (i.e. rotations are ignored), while bbox is the
-  // is a tight fitting bbox around the rendering string, assuming (0, 0)
-  // is the pen origin.
-  template<typename T>
-  void GetLineMetrics(T begin, T end, MetaData &metaData, int &width,
-                      int bbox[4]);
-
-  // Description:
   // The singleton instance and the singleton cleanup instance
   static vtkFreeTypeTools* Instance;
   static vtkFreeTypeToolsCleanup Cleanup;
@@ -372,6 +311,66 @@ protected:
 private:
   vtkFreeTypeTools(const vtkFreeTypeTools&);  // Not implemented.
   void operator=(const vtkFreeTypeTools&);  // Not implemented.
+
+  // Description:
+  // Internal helper called by RenderString methods
+  template <typename StringType>
+  bool RenderStringInternal(vtkTextProperty *tprop, const StringType &str,
+                            vtkImageData *data, int textDims[2]);
+
+  // Description:
+  // Internal helper method called by StringToPath methods
+  template <typename StringType>
+  bool StringToPathInternal(vtkTextProperty *tprop, const StringType &str,
+                            vtkPath *path);
+
+  // Description:
+  // This function initializes calculates the size of the required bounding box
+  // and stores it in the MetaData provided.
+  template <typename T>
+  bool CalculateBoundingBox(const T& str, MetaData &metaData);
+
+  // Description:
+  // Internal helper method called by RenderString.
+  // metaData is passed through the the character renderer and caches properties
+  // about data (e.g. range, dimensions, increments, etc).
+  template <typename StringType, typename DataType>
+  bool PopulateData(const StringType& str, DataType data, MetaData &metaData);
+
+  // Description:
+  // Renders a single line of text (between begin and end) to the image data.
+  template <typename IteratorType, typename DataType>
+  bool RenderLine(IteratorType begin, IteratorType end, int lineIndex,
+                  DataType data, MetaData &metaData);
+
+  // Description:
+  // Implementations for rendering a single character to a specific target.
+  template <typename CharType>
+  bool RenderCharacter(CharType character, int &x, int &y,
+                       FT_UInt &previousGlyphIndex, vtkImageData *image,
+                       MetaData &metaData);
+  template <typename CharType>
+  bool RenderCharacter(CharType character, int &x, int &y,
+                       FT_UInt &previousGlyphIndex, vtkPath *path,
+                       MetaData &metaData);
+
+  // Description:
+  // Internal helper method called by GetConstrainedFontSize. Returns the
+  // fontsize (in points) that will fit the return string @a str into the @a
+  // targetWidth and @a targetHeight.
+  template <typename T>
+  int FitStringToBBox(const T &str, MetaData &metaData, int targetWidth,
+                      int targetHeight);
+
+  // Description:
+  // Get the width of the rendered string between iterators
+  // begin and end. Width is calculated as the sum of advances and kernings
+  // along the baseline (i.e. rotations are ignored), while bbox is the
+  // is a tight fitting bbox around the rendering string, assuming (0, 0)
+  // is the pen origin.
+  template<typename T>
+  void GetLineMetrics(T begin, T end, MetaData &metaData, int &width,
+                      int bbox[4]);
 };
 
 #endif
