@@ -16,12 +16,12 @@
 #ifndef __vtkOpenGLGPUVolumeRayCastMapper_h
 #define __vtkOpenGLGPUVolumeRayCastMapper_h
 
-#include "vtkRenderingVolumeOpenGLNewModule.h" // For export macro
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 #include <vtkGPUVolumeRayCastMapper.h>
 
 //----------------------------------------------------------------------------
-class VTKRENDERINGVOLUMEOPENGLNEW_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
 {
 public:

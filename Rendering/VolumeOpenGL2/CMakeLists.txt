@@ -1,10 +1,19 @@
 include(vtkObjectFactory)
 
 set(Module_SRCS
+  vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLRayCastImageDisplayHelper.cxx
+  vtkVolumeShader.cxx
+  )
+
+set_source_files_properties(
+  vtkVolumeShader
+  WRAP_EXCLUDE
   )
 
 set(shader_files
+  shaders/raycasterfs.glsl
+  shaders/raycastervs.glsl
   )
 
 unset(shader_h_files)
@@ -19,7 +28,8 @@ foreach(file ${shader_files})
     DEPENDS ${src} vtkEncodeString
     COMMAND vtkEncodeString
     ARGS ${res} ${src} ${file_we}
-      --build-header VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkRenderingVolumeOpenGL2Module.h
+      --build-header VTKRENDERINGVOLUMEOPENGL2_EXPORT
+      vtkRenderingVolumeOpenGL2Module.h
     )
   list(APPEND Module_SRCS ${res})
   set_source_files_properties(${file_we} WRAP_EXCLUDE)
@@ -27,6 +37,7 @@ endforeach()
 
 # Now for the object factory.
 set(opengl_overrides
+  GPUVolumeRayCastMapper
   RayCastImageDisplayHelper
   )
 
@@ -40,3 +51,11 @@ list(APPEND Module_SRCS
 set_source_files_properties(${vtk-module}ObjectFactory.cxx WRAP_EXCLUDE)
 
 vtk_module_library(vtkRenderingVolumeOpenGL2 ${Module_SRCS})
+
+add_custom_command(OUTPUT "${vtkRenderingVolumeOpenGL2_BINARY_DIR}/shaders"
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   "${vtkRenderingVolumeOpenGL2_SOURCE_DIR}/shaders"
+                   "${CMAKE_BINARY_DIR}/shaders")
+add_custom_target(copy_shaders ALL DEPENDS
+  "${vtkRenderingVolumeOpenGL2_BINARY_DIR}/shaders")
+add_dependencies(vtkRenderingVolumeOpenGL2 copy_shaders)

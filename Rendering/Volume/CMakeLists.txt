@@ -51,8 +51,11 @@ set_source_files_properties(
 
 # only some volume mappers are supported for the OpenGL2 backend
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-set_source_files_properties(vtkSmartVolumeMapper.cxx
- PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+  set_source_files_properties(vtkSmartVolumeMapper.cxx
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+  set(Module_SRCS ${Module_SRCS}
+    vtkGPUVolumeRayCastMapper.cxx
+    )
 else()
 set(Module_SRCS ${Module_SRCS}
   vtkHAVSVolumeMapper.cxx

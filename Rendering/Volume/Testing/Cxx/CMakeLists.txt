@@ -1,11 +1,24 @@
-# Some tests need to move, others need to be modified to remove the OpenGL
-# dependence, for now skip building the tests if OpenGL2 is being built.
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  return()
-endif()
+if (("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2") OR
+  (Module_vtkRenderingVolumeOpenGLNew))
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
+    #TestGPURayCastAdditive1.cxx
+    TestGPURayCastClipping.cxx
+    #TestGPURayCastCropping1.cxx
+    #TestGPURayCastDataTypesMinIP1.cxx
+    TestGPURayCastVolumePolyData.cxx
+    TestGPURayCastVolumeRotation.cxx
+    TestGPURayCastVolumeScale.cxx
+    )
+  if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+    vtk_test_cxx_executable(${vtk-module}CxxTests tests
+      RENDERING_FACTORY
+      )
+    return()
+  endif ()
+endif ()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  #TestGPUCastGradientOpacity.cxx
+  #  TestGPUCastGradientOpacity.cxx
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx
   PartialPreIntegration.cxx
@@ -15,18 +28,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
-  #TestGPURayCastAdditive1.cxx
-  TestGPURayCastClipping.cxx
   TestGPURayCastCompositeBinaryMask.cxx
   TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeMaskBlend.cxx
   TestGPURayCastCompositeShadeMask.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
-  #TestGPURayCastCropping1.cxx
   TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
-  #TestGPURayCastDataTypesMinIP1.cxx
   TestGPURayCastFourComponentsComposite.cxx
   TestGPURayCastFourComponentsCompositeStreaming.cxx
   TestGPURayCastFourComponentsMIP.cxx
@@ -35,9 +44,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
-  TestGPURayCastVolumePolyData.cxx
-  TestGPURayCastVolumeRotation.cxx
-  TestGPURayCastVolumeScale.cxx
   TestHAVSVolumeMapper.cxx
   TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx
