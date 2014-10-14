@@ -1054,7 +1054,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   double camNearWorldPoint[4];
   double camFarWorldPoint[4];
   double camNearPoint[4];
-  double camFarPoint[4];
 
   cam->GetClippingRange(camWorldRange);
   camNearWorldPoint[0] = camWorldPos[0] + camWorldRange[0]*camWorldDirection[0];
