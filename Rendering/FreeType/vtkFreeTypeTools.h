@@ -70,6 +70,13 @@ public:
   static void SetInstance(vtkFreeTypeTools *instance);
 
   // Description:
+  // If true, images produced by RenderString will have a transparent grey
+  // background.
+  vtkSetMacro(DebugTextures, bool)
+  vtkGetMacro(DebugTextures, bool)
+  vtkBooleanMacro(DebugTextures, bool)
+
+  // Description:
   // Get the FreeType library singleton.
   FT_Library* GetLibrary();
 
@@ -357,6 +364,7 @@ protected:
   unsigned long MaximumNumberOfBytes;
 
   bool ForceCompiledFonts;
+  bool DebugTextures;
 
   void InitializeCacheManager();
   void ReleaseCacheManager();

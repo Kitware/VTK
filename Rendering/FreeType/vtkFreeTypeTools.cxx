@@ -190,6 +190,7 @@ vtkFreeTypeTools::vtkFreeTypeTools()
 #endif
   // Force use of compiled fonts by default.
   this->ForceCompiledFonts = true;
+  this->DebugTextures = false;
   this->MaximumNumberOfFaces = 30; // combinations of family+bold+italic
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
@@ -1327,7 +1328,7 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
     }
 
   // Clear the image buffer
-  memset(data->GetScalarPointer(), 0,
+  memset(data->GetScalarPointer(), this->DebugTextures ? 64 : 0,
          (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
 }
 
