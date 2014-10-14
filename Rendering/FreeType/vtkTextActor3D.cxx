@@ -107,28 +107,29 @@ double* vtkTextActor3D::GetBounds()
 int vtkTextActor3D::GetBoundingBox(int bbox[4])
 {
   if (!this->TextProperty)
-  {
+    {
     vtkErrorMacro(<<"Need valid vtkTextProperty.");
     return 0;
-  }
+    }
 
   if (!bbox)
-  {
+    {
     vtkErrorMacro(<<"Need 4-element int array for bounding box.");
-  }
+    return 0;
+    }
 
   vtkTextRenderer *tRend = vtkTextRenderer::GetInstance();
   if (!tRend)
-  {
+    {
     vtkErrorMacro(<<"Failed getting the TextRenderer instance.");
     return 0;
-  }
+    }
 
   if (!tRend->GetBoundingBox(this->TextProperty, this->Input, bbox))
-  {
+    {
     vtkErrorMacro(<<"No text in input.");
     return 0;
-  }
+    }
 
   return 1;
 }
