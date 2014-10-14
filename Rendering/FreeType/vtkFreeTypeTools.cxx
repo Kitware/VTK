@@ -18,6 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPath.h"
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
@@ -61,6 +62,7 @@ public:
   // Set by PrepareMetaData
   vtkTextProperty *textProperty;
   unsigned long textPropertyCacheId;
+  unsigned long unrotatedTextPropertyCacheId;
   FT_Face face;
   bool faceHasKerning;
 
@@ -1003,6 +1005,27 @@ inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty *tprop,
     return false;
     }
 
+  // Store an unrotated version of this font, as we'll need this to get accurate
+  // ascenders/descenders (see CalculateBoundingBox).
+  if (tprop->GetOrientation() != 0.0)
+    {
+    vtkNew<vtkTextProperty> unrotatedTProp;
+    unrotatedTProp->ShallowCopy(tprop);
+    unrotatedTProp->SetOrientation(0);
+    FT_Face unusedFace;
+    bool unusedBool;
+    if (!this->GetFace(unrotatedTProp.GetPointer(),
+                       metaData.unrotatedTextPropertyCacheId,
+                       unusedFace, unusedBool))
+      {
+      return false;
+      }
+    }
+  else
+    {
+    metaData.unrotatedTextPropertyCacheId = metaData.textPropertyCacheId;
+    }
+
   return true;
 }
 
@@ -1178,9 +1201,10 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     {
     FT_BitmapGlyph bitmapGlyph;
     FT_UInt glyphIndex;
+    // Use the unrotated face to get correct metrics:
     FT_Bitmap *bitmap = this->GetBitmap(
-          *heightString, metaData.textPropertyCacheId, fontSize, glyphIndex,
-          bitmapGlyph);
+          *heightString, metaData.unrotatedTextPropertyCacheId, fontSize,
+          glyphIndex, bitmapGlyph);
     if (bitmap)
       {
       metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
