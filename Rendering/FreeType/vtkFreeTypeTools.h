@@ -92,22 +92,15 @@ public:
   vtkGetMacro(MaximumNumberOfBytes, unsigned long);
 
   // Description:
-  // Given a text property and a string, get the bounding box [xmin, xmax] x
-  // [ymin, ymax]. Note that this is the bounding box of the area
-  // where actual pixels will be written, given a text/pen/baseline location
-  // of (0,0).
-  // For example, if the string starts with a 'space', or depending on the
-  // orientation, you can end up with a [-20, -10] x [5, 10] bbox (the math
-  // to get the real bbox is straightforward).
-  // Return 1 on success, 0 otherwise.
-  // You can use IsBoundingBoxValid() to test if the computed bbox
-  // is valid (it may not if GetBoundingBox() failed or if the string
-  // was empty).
+  // Given a text property and a string, get the bounding box {xmin, xmax,
+  // ymin, ymax} of the rendered string in pixels. The origin of the bounding
+  // box is the anchor point described by the horizontal and vertical
+  // justification text property variables.
+  // Returns true on success, false otherwise.
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkStdString& str,
                       int bbox[4]);
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkUnicodeString& str,
                       int bbox[4]);
-  bool IsBoundingBoxValid(int bbox[4]);
 
   // Description:
   // Given a text property and a string, this function initializes the
@@ -115,6 +108,9 @@ public:
   // will be overwritten by the pixel width and height of the rendered string.
   // This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
   // not match the dimensions of the rendered text.
+  // The origin of the image's extents is aligned with the anchor point
+  // described by the text property's vertical and horizontal justification
+  // options.
   bool RenderString(vtkTextProperty *tprop, const vtkStdString& str,
                     vtkImageData *data, int textDims[2] = NULL);
   bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString& str,
@@ -122,7 +118,9 @@ public:
 
   // Description:
   // Given a text property and a string, this function populates the vtkPath
-  // path with the outline of the rendered string.
+  // path with the outline of the rendered string. The origin of the path
+  // coordinates is aligned with the anchor point described by the text
+  // property's horizontal and vertical justification options.
   bool StringToPath(vtkTextProperty *tprop, const vtkStdString& str,
                     vtkPath *path);
   bool StringToPath(vtkTextProperty *tprop, const vtkUnicodeString& str,
@@ -196,10 +194,6 @@ protected:
   // This function initializes the extent of the ImageData to eventually
   // receive the text stored in str
   void PrepareImageData(vtkImageData *data, int bbox[4]);
-
-  // Description:
-  // Internal helper method called by StringToPath
-  void JustifyPath(vtkPath *path, MetaData &metaData);
 
   // Description:
   // Given a text property, get the corresponding FreeType size object
