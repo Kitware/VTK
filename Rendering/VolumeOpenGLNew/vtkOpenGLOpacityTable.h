@@ -20,7 +20,6 @@
 #include <vtkVolumeMapper.h>
 
 #include <vtk_glew.h>
-#include <vtkgl.h>
 
 //----------------------------------------------------------------------------
 class vtkOpenGLOpacityTable
@@ -103,7 +102,7 @@ public:
     if(needUpdate)
       {
       glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
-                      vtkgl::CLAMP_TO_EDGE);
+                      GL_CLAMP_TO_EDGE);
       }
 
     if(scalarOpacity->GetMTime() > this->BuildTime ||
