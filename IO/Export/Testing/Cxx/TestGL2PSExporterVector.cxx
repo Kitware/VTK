@@ -118,5 +118,9 @@ int TestGL2PSExporterVector( int, char *[] )
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
 
+  renWin->SetMultiSamples(0);
+  renWin->GetInteractor()->Initialize();
+  renWin->GetInteractor()->Start();
+
   return EXIT_SUCCESS;
 }
