@@ -29,6 +29,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -69,6 +71,9 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->LastLightComplexity = -1;
   this->LastSelectionState = false;
   this->LastDepthPeeling = 0;
+  this->CurrentInput = 0;
+  this->TempMatrix4 = vtkMatrix4x4::New();
+  this->TempMatrix3 = vtkMatrix3x3::New();
 }
 
 
@@ -80,6 +85,8 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     this->InternalColorTexture->Delete();
     this->InternalColorTexture = 0;
     }
+  this->TempMatrix3->Delete();
+  this->TempMatrix4->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -511,7 +518,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkR
   // three that mix in a complex way are representation POINT, Interpolation FLAT
   // and having normals or not.
   bool needLighting = false;
-  bool haveNormals = (this->GetInput()->GetPointData()->GetNormals() != NULL);
+  bool haveNormals = (this->CurrentInput->GetPointData()->GetNormals() != NULL);
   if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
     {
     needLighting = (actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals);
@@ -592,7 +599,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkR
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
-      cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
+      cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
       cellBO.ShaderSourceTime < this->LightComplexityChanged)
@@ -637,16 +644,10 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
     renWin->GetShaderCache()->ReadyShader(cellBO.Program);
     }
 
-  vtkOpenGLCheckErrorMacro("failed after Render");
-
   this->SetMapperShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetPropertyShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetCameraShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->SetLightingShaderParameters(cellBO, ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   cellBO.vao.Bind();
 
   this->LastBoundBO = &cellBO;
@@ -881,49 +882,30 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 {
   vtkShaderProgram *program = cellBO.Program;
 
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
 
-  vtkNew<vtkMatrix4x4> tmpMat;
-  tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
+  vtkMatrix4x4 *wcvc;
+  vtkMatrix3x3 *norms;
+  vtkMatrix4x4 *vcdc;
+  cam->GetKeyMatrices(ren,wcvc,norms,vcdc);
+  program->SetUniformMatrix("VCDCMatrix", vcdc);
 
-  // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
-
-  tmpMat->Transpose();
-  program->SetUniformMatrix("MCVCMatrix", tmpMat.Get());
-
-  // for lit shaders set normal matrix
-  if (this->LastLightComplexity > 0)
+  if (!actor->GetIsIdentity())
     {
-    tmpMat->Transpose();
-
-    // set the normal matrix and send it down
-    // (make this a function in camera at some point returning a 3x3)
-    // Reuse the matrix we already got (and possibly multiplied with model mat.
-    if (!actor->GetIsIdentity())
-      {
-      vtkNew<vtkTransform> aTF;
-      aTF->SetMatrix(tmpMat.Get());
-      double *scale = aTF->GetScale();
-      aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
-      tmpMat->DeepCopy(aTF->GetMatrix());
-      }
-    vtkNew<vtkMatrix3x3> tmpMat3d;
-    for(int i = 0; i < 3; ++i)
-      {
-      for (int j = 0; j < 3; ++j)
-        {
-        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
-        }
-      }
-    tmpMat3d->Invert();
-    program->SetUniformMatrix("normalMatrix", tmpMat3d.Get());
+    vtkMatrix4x4 *mcwc;
+    vtkMatrix3x3 *anorms;
+    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+    vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+    program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+    }
+  else
+    {
+    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    program->SetUniformMatrix("normalMatrix", norms);
     }
 
-  vtkMatrix4x4 *tmpProj;
-  tmpProj = cam->GetProjectionTransformMatrix(ren); // allocates a matrix
-  program->SetUniformMatrix("VCDCMatrix", tmpProj);
-  tmpProj->UnRegister(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -994,8 +976,6 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
-  vtkDataObject *input= this->GetInputDataObject(0, 0);
-
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->PopulateSelectionSettings)
     {
@@ -1018,7 +998,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   // Update the OpenGL if needed.
   if (this->OpenGLUpdateTime < this->GetMTime() ||
       this->OpenGLUpdateTime < actor->GetMTime() ||
-      this->OpenGLUpdateTime < input->GetMTime() )
+      this->OpenGLUpdateTime < this->CurrentInput->GetMTime() )
     {
     this->UpdateVBO(actor);
     this->OpenGLUpdateTime.Modified();
@@ -1124,7 +1104,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
-      vtkDataArray *ef =  this->GetInput()->GetPointData()->GetAttribute(
+      vtkDataArray *ef =  this->CurrentInput->GetPointData()->GetAttribute(
                           vtkDataSetAttributes::EDGEFLAG);
       if (ef)
         {
@@ -1248,9 +1228,9 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     return;
     }
 
-  vtkDataObject *input= this->GetInputDataObject(0, 0);
+  this->CurrentInput = this->GetInput();
 
-  if (input == NULL)
+  if (this->CurrentInput == NULL)
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -1264,18 +1244,14 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
   // if there are no points then we are done
-  if (!this->GetInput()->GetPoints())
+  if (!this->CurrentInput->GetPoints())
     {
     return;
     }
 
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceStart(ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceDraw(ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceFinish(ren, actor);
-  vtkOpenGLCheckErrorMacro("failed after Render");
 
   // if EdgeVisibility is on then draw the wireframe also
   this->RenderEdges(ren,actor);
@@ -1354,7 +1330,8 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 //-------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
 {
-  vtkPolyData *poly = this->GetInput();
+  vtkPolyData *poly = this->CurrentInput;
+
   if (poly == NULL)// || !poly->GetPointData()->GetNormals())
     {
     return;
