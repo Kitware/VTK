@@ -7,6 +7,7 @@ endif()
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${extra_opengl2_tests}
   otherCoordinate.cxx,NO_DATA,NO_VALID
+  TestCompositePolyDataMapper2.cxx
   FrustumClip.cxx
   Mace.cxx
   RGrid.cxx
