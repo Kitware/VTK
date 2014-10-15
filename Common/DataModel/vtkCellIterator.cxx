@@ -53,7 +53,6 @@ void vtkCellIterator::PrintSelf(ostream &os, vtkIndent indent)
       if (this->CheckCache(FacesFlag))
         {
         os << (addSplit ? " | " : "") << "FacesFlag";
-        addSplit = true;
         }
       os << endl;
       }

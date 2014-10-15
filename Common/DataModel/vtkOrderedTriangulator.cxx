@@ -1399,7 +1399,6 @@ int vtkOrderedTriangulator::GetNextTetra(int classification, vtkTetra *tet,
                                          vtkDoubleArray *tetScalars)
 {
   OTTetra *tetra;
-  int i;
 
   // Find the next tetra with the right classification
   while ( this->Mesh->CurrentTetra != this->Mesh->Tetras.end() &&
@@ -1413,7 +1412,7 @@ int vtkOrderedTriangulator::GetNextTetra(int classification, vtkTetra *tet,
   if ( this->Mesh->CurrentTetra != this->Mesh->Tetras.end() )
     {
     tetra = *(this->Mesh->CurrentTetra);
-    for (i=0; i<4; i++)
+    for (int i=0; i<4; i++)
       {
       tet->PointIds->SetId(i,tetra->Points[i]->Id);
       tet->Points->SetPoint(i,tetra->Points[i]->X);

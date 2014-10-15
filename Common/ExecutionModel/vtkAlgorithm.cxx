@@ -1645,11 +1645,9 @@ void vtkAlgorithm::SetProgressText(const char* ptext)
     {
     return;
     }
-  if (this->ProgressText)
-    {
-    delete[] this->ProgressText;
-    this->ProgressText = 0;
-    }
+  delete[] this->ProgressText;
+  this->ProgressText = 0;
+
   if (ptext)
     {
     size_t n = strlen(ptext) + 1;

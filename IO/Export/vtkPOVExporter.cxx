@@ -147,10 +147,7 @@ vtkPOVExporter::vtkPOVExporter()
 
 vtkPOVExporter::~vtkPOVExporter()
 {
-  if(this->FileName!=0)
-    {
-    delete[] this->FileName;
-    }
+  delete[] this->FileName;
   delete this->Internals;
 }
 

@@ -70,33 +70,36 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
     PATH_SUFFIXES python${_CURRENT_VERSION}/config
   )
 
-  # For backward compatibility, honour value of PYTHON_INCLUDE_PATH, if
-  # PYTHON_INCLUDE_DIR is not set.
-  IF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
-    SET(PYTHON_INCLUDE_DIR "${PYTHON_INCLUDE_PATH}" CACHE PATH
-      "Path to where Python.h is found" FORCE)
-  ENDIF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
+  # Only look for include directory if library was found, this ensures
+  # that version will be matched between include dir and library
+  IF(PYTHON_LIBRARY)
+    SET(PYTHON_FRAMEWORK_INCLUDES)
+    IF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
+      FOREACH(dir ${Python_FRAMEWORKS})
+        SET(PYTHON_FRAMEWORK_INCLUDES ${PYTHON_FRAMEWORK_INCLUDES}
+          ${dir}/Versions/${_CURRENT_VERSION}/include/python${_CURRENT_VERSION})
+      ENDFOREACH(dir)
+    ENDIF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
 
-  SET(PYTHON_FRAMEWORK_INCLUDES)
-  IF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
-    FOREACH(dir ${Python_FRAMEWORKS})
-      SET(PYTHON_FRAMEWORK_INCLUDES ${PYTHON_FRAMEWORK_INCLUDES}
-        ${dir}/Versions/${_CURRENT_VERSION}/include/python${_CURRENT_VERSION})
-    ENDFOREACH(dir)
-  ENDIF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
+    # Search frameworks and registry locations first
+    FIND_PATH(PYTHON_INCLUDE_DIR
+      NAMES Python.h
+      PATHS
+        ${PYTHON_FRAMEWORK_INCLUDES}
+        [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/include
+      NO_DEFAULT_PATH
+    )
 
-  FIND_PATH(PYTHON_INCLUDE_DIR
-    NAMES Python.h
-    PATHS
-      ${PYTHON_FRAMEWORK_INCLUDES}
-      [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/include
-    PATH_SUFFIXES
-      python${_CURRENT_VERSION}
-  )
+    # Broaden to default paths as a second step (mainly for UNIX)
+    FIND_PATH(PYTHON_INCLUDE_DIR
+      NAMES Python.h
+      PATH_SUFFIXES
+        python${_CURRENT_VERSION}
+    )
+  ENDIF(PYTHON_LIBRARY)
 
-  # For backward compatibility, set PYTHON_INCLUDE_PATH, but make it internal.
-  SET(PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}" CACHE INTERNAL
-    "Path to where Python.h is found (deprecated)")
+  # For backward compatibility, set PYTHON_INCLUDE_PATH
+  SET(PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}")
 
 ENDFOREACH(_CURRENT_VERSION)
 

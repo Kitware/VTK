@@ -1061,10 +1061,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
 
   cellIds->Delete();
   faceIds->Delete();
-  if ( cellVis )
-    {
-    delete [] cellVis;
-    }
+  delete [] cellVis;
 }
 
 //----------------------------------------------------------------------------
@@ -1257,10 +1254,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
   output->Squeeze();
   cellIds->Delete();
   pts->Delete();
-  if ( cellVis )
-    {
-    delete [] cellVis;
-    }
+  delete [] cellVis;
 }
 
 //----------------------------------------------------------------------------

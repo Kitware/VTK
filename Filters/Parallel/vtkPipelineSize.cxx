@@ -218,10 +218,7 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
   size[2] = maxSize;
 
   // Delete the space we may have created
-  if ( inputSize )
-    {
-    delete [] inputSize;
-    }
+  delete [] inputSize;
 }
 
 void vtkPipelineSize::

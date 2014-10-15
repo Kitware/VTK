@@ -338,10 +338,7 @@ vtkGDALVectorReader::vtkGDALVectorReader()
 vtkGDALVectorReader::~vtkGDALVectorReader()
 {
   this->SetFileName( 0 );
-  if ( this->Implementation )
-    {
-    delete this->Implementation;
-    }
+  delete this->Implementation;
 }
 
 // -----------------------------------------------------------------------------

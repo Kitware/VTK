@@ -67,17 +67,11 @@ vtkArrayCalculator::~vtkArrayCalculator()
   this->FunctionParser->Delete();
   this->FunctionParser = NULL;
 
-  if (this->Function)
-    {
-    delete [] this->Function;
-    this->Function = NULL;
-    }
+  delete [] this->Function;
+  this->Function = NULL;
 
-  if (this->ResultArrayName)
-    {
-    delete [] this->ResultArrayName;
-    this->ResultArrayName = NULL;
-    }
+  delete [] this->ResultArrayName;
+  this->ResultArrayName = NULL;
 
   if (this->ScalarArrayNames)
     {
@@ -123,11 +117,8 @@ vtkArrayCalculator::~vtkArrayCalculator()
     this->VectorVariableNames = NULL;
     }
 
-  if (this->SelectedScalarComponents)
-    {
-    delete [] this->SelectedScalarComponents;
-    this->SelectedScalarComponents = NULL;
-    }
+  delete [] this->SelectedScalarComponents;
+  this->SelectedScalarComponents = NULL;
 
   if (this->SelectedVectorComponents)
     {
@@ -162,11 +153,8 @@ vtkArrayCalculator::~vtkArrayCalculator()
     this->CoordinateVectorVariableNames = NULL;
     }
 
-  if (this->SelectedCoordinateScalarComponents)
-    {
-    delete [] this->SelectedCoordinateScalarComponents;
-    this->SelectedCoordinateScalarComponents = NULL;
-    }
+  delete [] this->SelectedCoordinateScalarComponents;
+  this->SelectedCoordinateScalarComponents = NULL;
 
   if (this->SelectedCoordinateVectorComponents)
     {
@@ -193,11 +181,7 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
     }
   this->Modified();
 
-  if (this->ResultArrayName)
-    {
-    delete [] this->ResultArrayName;
-    this->ResultArrayName = NULL;
-    }
+  delete [] this->ResultArrayName;
   this->ResultArrayName = new char [strlen(name)+1];
   strcpy(this->ResultArrayName, name);
 }
@@ -613,11 +597,8 @@ void vtkArrayCalculator::SetFunction(const char* function)
 
   this->Modified();
 
-  if (this->Function)
-    {
-    delete [] this->Function;
-    this->Function = NULL;
-    }
+  delete [] this->Function;
+  this->Function = NULL;
 
   if (function)
     {
@@ -652,21 +633,14 @@ void vtkArrayCalculator::AddScalarArrayName(const char* arrayName,
     this->ScalarVariableNames[i] = NULL;
     tempComponents[i] = this->SelectedScalarComponents[i];
     }
-  if (this->ScalarArrayNames)
-    {
-    delete [] this->ScalarArrayNames;
-    this->ScalarArrayNames = NULL;
-    }
-  if (this->ScalarVariableNames)
-    {
-    delete [] this->ScalarVariableNames;
-    this->ScalarVariableNames = NULL;
-    }
-  if (this->SelectedScalarComponents)
-    {
-    delete [] this->SelectedScalarComponents;
-    this->SelectedScalarComponents = NULL;
-    }
+  delete [] this->ScalarArrayNames;
+  this->ScalarArrayNames = NULL;
+
+  delete [] this->ScalarVariableNames;
+  this->ScalarVariableNames = NULL;
+
+  delete [] this->SelectedScalarComponents;
+  this->SelectedScalarComponents = NULL;
 
   this->ScalarArrayNames = new char *[this->NumberOfScalarArrays + 1];
   this->ScalarVariableNames = new char *[this->NumberOfScalarArrays + 1];
@@ -729,21 +703,14 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
     this->SelectedVectorComponents[i] = NULL;
     }
 
-  if (this->VectorArrayNames)
-    {
-    delete [] this->VectorArrayNames;
-    this->VectorArrayNames = NULL;
-    }
-  if (this->VectorVariableNames)
-    {
-    delete [] this->VectorVariableNames;
-    this->VectorVariableNames = NULL;
-    }
-  if (this->SelectedVectorComponents)
-    {
-    delete [] this->SelectedVectorComponents;
-    this->SelectedVectorComponents = NULL;
-    }
+  delete [] this->VectorArrayNames;
+  this->VectorArrayNames = NULL;
+
+  delete [] this->VectorVariableNames;
+  this->VectorVariableNames = NULL;
+
+  delete [] this->SelectedVectorComponents;
+  this->SelectedVectorComponents = NULL;
 
   this->VectorArrayNames = new char *[this->NumberOfVectorArrays + 1];
   this->VectorVariableNames = new char *[this->NumberOfVectorArrays + 1];
@@ -808,21 +775,14 @@ void vtkArrayCalculator::AddScalarVariable(const char* variableName,
     this->ScalarVariableNames[i] = NULL;
     tempComponents[i] = this->SelectedScalarComponents[i];
     }
-  if (this->ScalarArrayNames)
-    {
-    delete [] this->ScalarArrayNames;
-    this->ScalarArrayNames = NULL;
-    }
-  if (this->ScalarVariableNames)
-    {
-    delete [] this->ScalarVariableNames;
-    this->ScalarVariableNames = NULL;
-    }
-  if (this->SelectedScalarComponents)
-    {
-    delete [] this->SelectedScalarComponents;
-    this->SelectedScalarComponents = NULL;
-    }
+  delete [] this->ScalarArrayNames;
+  this->ScalarArrayNames = NULL;
+
+  delete [] this->ScalarVariableNames;
+  this->ScalarVariableNames = NULL;
+
+  delete [] this->SelectedScalarComponents;
+  this->SelectedScalarComponents = NULL;
 
   this->ScalarArrayNames = new char *[this->NumberOfScalarArrays + 1];
   this->ScalarVariableNames = new char *[this->NumberOfScalarArrays + 1];
@@ -886,21 +846,14 @@ void vtkArrayCalculator::AddVectorVariable(const char* variableName,
     this->SelectedVectorComponents[i] = NULL;
     }
 
-  if (this->VectorArrayNames)
-    {
-    delete [] this->VectorArrayNames;
-    this->VectorArrayNames = NULL;
-    }
-  if (this->VectorVariableNames)
-    {
-    delete [] this->VectorVariableNames;
-    this->VectorVariableNames = NULL;
-    }
-  if (this->SelectedVectorComponents)
-    {
-    delete [] this->SelectedVectorComponents;
-    this->SelectedVectorComponents = NULL;
-    }
+  delete [] this->VectorArrayNames;
+  this->VectorArrayNames = NULL;
+
+  delete [] this->VectorVariableNames;
+  this->VectorVariableNames = NULL;
+
+  delete [] this->SelectedVectorComponents;
+  this->SelectedVectorComponents = NULL;
 
   this->VectorArrayNames = new char *[this->NumberOfVectorArrays + 1];
   this->VectorVariableNames = new char *[this->NumberOfVectorArrays + 1];
@@ -954,16 +907,12 @@ void vtkArrayCalculator::AddCoordinateScalarVariable(const char* variableName,
     this->CoordinateScalarVariableNames[i] = NULL;
     tempComponents[i] = this->SelectedCoordinateScalarComponents[i];
     }
-  if (this->CoordinateScalarVariableNames)
-    {
-    delete [] this->CoordinateScalarVariableNames;
-    this->CoordinateScalarVariableNames = NULL;
-    }
-  if (this->SelectedCoordinateScalarComponents)
-    {
-    delete [] this->SelectedCoordinateScalarComponents;
-    this->SelectedCoordinateScalarComponents = NULL;
-    }
+
+  delete [] this->CoordinateScalarVariableNames;
+  this->CoordinateScalarVariableNames = NULL;
+
+  delete [] this->SelectedCoordinateScalarComponents;
+  this->SelectedCoordinateScalarComponents = NULL;
 
   this->CoordinateScalarVariableNames =
     new char *[this->NumberOfCoordinateScalarArrays + 1];
@@ -1011,16 +960,11 @@ void vtkArrayCalculator::AddCoordinateVectorVariable(const char* variableName,
     this->SelectedCoordinateVectorComponents[i] = NULL;
     }
 
-  if (this->CoordinateVectorVariableNames)
-    {
-    delete [] this->CoordinateVectorVariableNames;
-    this->CoordinateVectorVariableNames = NULL;
-    }
-  if (this->SelectedCoordinateVectorComponents)
-    {
-    delete [] this->SelectedCoordinateVectorComponents;
-    this->SelectedCoordinateVectorComponents = NULL;
-    }
+  delete [] this->CoordinateVectorVariableNames;
+  this->CoordinateVectorVariableNames = NULL;
+
+  delete [] this->SelectedCoordinateVectorComponents;
+  this->SelectedCoordinateVectorComponents = NULL;
 
   this->CoordinateVectorVariableNames =
     new char *[this->NumberOfCoordinateVectorArrays + 1];

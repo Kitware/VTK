@@ -49,14 +49,8 @@ vtkSliceCubes::vtkSliceCubes()
 
 vtkSliceCubes::~vtkSliceCubes()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->LimitsFileName)
-    {
-    delete [] this->LimitsFileName;
-    }
+  delete [] this->FileName;
+  delete [] this->LimitsFileName;
   this->SetReader(NULL);
 }
 

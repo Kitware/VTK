@@ -108,9 +108,7 @@ int TestOggTheoraWriter(int argc, char* argv[])
 
   // err == 0 means test passes...
   //
-  if (tempDir)
-    {
-    delete [] tempDir;
-    }
+  delete [] tempDir;
+
   return err;
 }

@@ -181,10 +181,7 @@ LSDynaFamily::~LSDynaFamily()
       VTK_LSDYNA_CLOSEFILE(this->FD);
       }
 
-    if ( this->Chunk )
-      {
-      delete [] this->Chunk;
-      }
+    delete [] this->Chunk;
 
     delete this->BufferInfo;
     }
@@ -415,10 +412,7 @@ int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
 
   if ( this->ChunkAlloc < chunkSizeInWords )
     {
-    if ( this->Chunk )
-      {
-      delete [] this->Chunk;
-      }
+    delete [] this->Chunk;
     this->ChunkAlloc = chunkSizeInWords;
     this->Chunk = new unsigned char[ this->ChunkAlloc*this->WordSize ];
     }

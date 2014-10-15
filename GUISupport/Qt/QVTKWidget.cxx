@@ -122,10 +122,7 @@ QVTKWidget::~QVTKWidget()
 
   this->mCachedImage->Delete();
 
-  if(mPaintEngine)
-    {
-    delete mPaintEngine;
-    }
+  delete mPaintEngine;
 }
 
 // ----------------------------------------------------------------------------

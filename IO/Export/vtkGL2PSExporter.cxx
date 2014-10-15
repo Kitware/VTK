@@ -89,14 +89,8 @@ vtkGL2PSExporter::vtkGL2PSExporter()
 vtkGL2PSExporter::~vtkGL2PSExporter()
 {
   this->SetRasterExclusions(NULL);
-  if ( this->FilePrefix )
-    {
-    delete [] this->FilePrefix;
-    }
-  if ( this->Title )
-    {
-    delete [] this->Title;
-    }
+  delete [] this->FilePrefix;
+  delete [] this->Title;
 }
 
 void vtkGL2PSExporter::WriteData()

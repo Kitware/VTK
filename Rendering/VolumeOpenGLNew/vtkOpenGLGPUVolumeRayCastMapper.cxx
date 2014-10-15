@@ -57,9 +57,6 @@
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 
-// GL includes
-#include <vtkgl.h>
-
 // C/C++ includes
 #include <cassert>
 #include <limits>
@@ -80,6 +77,7 @@ public:
     this->Initialized = false;
     this->ValidTransferFunction = false;
     this->LoadDepthTextureExtensionsSucceeded = false;
+    this->CameraWasInsideInLastUpdate = false;
     this->CubeVBOId = 0;
 #ifndef __APPLE__
     this->CubeVAOId = 0;
@@ -246,6 +244,7 @@ public:
   bool Initialized;
   bool ValidTransferFunction;
   bool LoadDepthTextureExtensionsSucceeded;
+  bool CameraWasInsideInLastUpdate;
 
   GLuint CubeVBOId;
 #ifndef __APPLE__
@@ -427,7 +426,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
   GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
-  glTexParameterfv(vtkgl::TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
+  glTexParameterfv(GL_TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -454,7 +453,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
       case VTK_FLOAT:
       if (glewIsSupported("GL_ARB_texture_float"))
         {
-        internalFormat = vtkgl::INTENSITY16F_ARB;
+        internalFormat = GL_INTENSITY16F_ARB;
         }
       else
         {
@@ -510,7 +509,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
         handleLargeDataTypes = true;
         if (glewIsSupported("GL_ARB_texture_float"))
           {
-          internalFormat=vtkgl::INTENSITY16F_ARB;
+          internalFormat=GL_INTENSITY16F_ARB;
           }
         else
           {
@@ -990,8 +989,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     // TODO Use framebuffer objects for best performance
     glGenTextures(1, &this->DepthTextureId);
     glBindTexture(GL_TEXTURE_2D, this->DepthTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
@@ -1086,7 +1085,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
   vtkRenderer* ren, vtkVolume* vol, vtkImageData* input)
 {
-  if (input != this->PrevInput || this->IsCameraInside(ren, vol))
+  if (input != this->PrevInput || this->IsCameraInside(ren, vol) ||
+      this->CameraWasInsideInLastUpdate)
     {
     vtkNew<vtkTessellatedBoxSource> boxSource;
     boxSource->SetBounds(this->LoadedBounds);
@@ -1203,10 +1203,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
       clip->SetPlanes(planes.GetPointer());
 
       densityPolyData->SetInputConnection(clip->GetOutputPort());
+
+      this->CameraWasInsideInLastUpdate = true;
       }
     else
       {
       densityPolyData->SetInputConnection(boxSource->GetOutputPort());
+      this->CameraWasInsideInLastUpdate = false;
       }
 
     densityPolyData->SetNumberOfSubdivisions(2);
@@ -1644,18 +1647,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkvolume::ShadingGlobalsVert(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_GLOBALS_FRAG@",
     vtkvolume::ShadingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@GRADIENT_OPACITY_GLOBALS_FRAG@",
-    vtkvolume::GradientOpacityGlobalsFrag(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
     vtkvolume::ShadingInit(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INCREMENT@",
     vtkvolume::ShadingIncrement(ren, this, vol, this->MaskInput,
                                 this->Impl->CurrentMask,
                                 this->MaskType), true);
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@GRADIENT_OPACITY_INCREMENT@",
-    vtkvolume::GradientOpacityIncrement(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
     vtkvolume::ShadingExit(ren, this, vol), true);
 

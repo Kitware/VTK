@@ -30,11 +30,7 @@ vtkVolumeReader::vtkVolumeReader()
 
 vtkVolumeReader::~vtkVolumeReader ()
 {
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    }
-
+  delete [] this->FilePrefix;
   delete [] this->FilePattern;
 }
 

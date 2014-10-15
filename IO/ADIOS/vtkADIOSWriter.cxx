@@ -67,10 +67,7 @@ vtkADIOSWriter::vtkADIOSWriter()
 //----------------------------------------------------------------------------
 vtkADIOSWriter::~vtkADIOSWriter()
 {
-  if(this->Writer)
-    {
-    delete this->Writer;
-    }
+  delete this->Writer;
   this->SetFileName(NULL);
   this->SetTransportMethodArguments(NULL);
   this->SetController(NULL);

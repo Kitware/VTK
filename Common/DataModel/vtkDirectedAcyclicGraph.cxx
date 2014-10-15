@@ -86,6 +86,10 @@ static bool vtkDirectedAcyclicGraphDFSVisit(
 //----------------------------------------------------------------------------
 bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph *g)
 {
+  if (!g)
+    {
+    return false;
+    }
   if (vtkDirectedAcyclicGraph::SafeDownCast(g))
     {
     return true;

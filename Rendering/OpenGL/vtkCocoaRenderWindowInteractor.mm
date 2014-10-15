@@ -234,25 +234,8 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindowInteractor::Start()
+void vtkCocoaRenderWindowInteractor::StartEventLoop()
 {
-  // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
-    {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    return;
-    }
-
-  if (!this->Initialized)
-    {
-    this->Initialize();
-
-    if (!this->Initialized)
-      {
-      return;
-      }
-    }
-
   VTKStartNSApplicationEventLoop();
 }
 

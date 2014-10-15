@@ -159,10 +159,7 @@ vtkTextSource::vtkTextSource()
 
 vtkTextSource::~vtkTextSource()
 {
-  if (this->Text)
-    {
-    delete [] this->Text;
-    }
+  delete [] this->Text;
 }
 
 int vtkTextSource::RequestData(

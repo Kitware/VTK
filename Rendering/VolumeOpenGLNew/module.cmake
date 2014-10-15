@@ -31,6 +31,5 @@ vtk_module(vtkRenderingVolumeOpenGLNew
     vtkRenderingOpenGL
     vtkTestingCore
     vtkTestingRendering
-  KIT
-    vtkOpenGL
+  EXCLUDE_FROM_ALL
 )

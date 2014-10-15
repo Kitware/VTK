@@ -741,10 +741,7 @@ void vtkMultiBlockPLOT3DReader::SetXYZFileName( const char* name )
     return;
     }
 
-  if ( this->XYZFileName )
-    {
-    delete [] this->XYZFileName;
-    }
+  delete [] this->XYZFileName;
 
   if ( name )
     {

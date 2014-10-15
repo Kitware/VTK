@@ -204,11 +204,7 @@ void vtkClustering2DLayoutStrategy::Initialize()
     }
 
   // Put the edge data into compact, fast access edge data structure
-  if (this->EdgeArray)
-    {
-    delete [] this->EdgeArray;
-    this->EdgeArray = NULL;
-    }
+  delete [] this->EdgeArray;
   this->EdgeArray =  new vtkLayoutEdge[numEdges];
 
 

@@ -87,54 +87,18 @@ vtkDataWriter::vtkDataWriter()
 
 vtkDataWriter::~vtkDataWriter()
 {
-  if ( this->FileName )
-    {
-    delete [] this->FileName;
-    }
-  if ( this->Header )
-    {
-    delete [] this->Header;
-    }
-  if ( this->ScalarsName )
-    {
-    delete [] this->ScalarsName;
-    }
-  if ( this->VectorsName )
-    {
-    delete [] this->VectorsName;
-    }
-  if ( this->TensorsName )
-    {
-    delete [] this->TensorsName;
-    }
-  if ( this->NormalsName )
-    {
-    delete [] this->NormalsName;
-    }
-  if ( this->TCoordsName )
-    {
-    delete [] this->TCoordsName;
-    }
-  if ( this->GlobalIdsName )
-    {
-    delete [] this->GlobalIdsName;
-    }
-  if ( this->PedigreeIdsName )
-    {
-    delete [] this->PedigreeIdsName;
-    }
-  if ( this->EdgeFlagsName )
-    {
-    delete [] this->EdgeFlagsName;
-    }
-  if ( this->LookupTableName )
-    {
-    delete [] this->LookupTableName;
-    }
-  if ( this->FieldDataName )
-    {
-    delete [] this->FieldDataName;
-    }
+  delete [] this->FileName;
+  delete [] this->Header;
+  delete [] this->ScalarsName;
+  delete [] this->VectorsName;
+  delete [] this->TensorsName;
+  delete [] this->NormalsName;
+  delete [] this->TCoordsName;
+  delete [] this->GlobalIdsName;
+  delete [] this->PedigreeIdsName;
+  delete [] this->EdgeFlagsName;
+  delete [] this->LookupTableName;
+  delete [] this->FieldDataName;
 
   if (this->OutputString)
     {

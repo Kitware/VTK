@@ -80,15 +80,9 @@ vtkADIOSReader::vtkADIOSReader()
 //----------------------------------------------------------------------------
 vtkADIOSReader::~vtkADIOSReader()
 {
-  if(this->Tree)
-    {
-    delete this->Tree;
-    }
+  delete this->Tree;
 
-  if(this->Reader)
-    {
-    delete this->Reader;
-    }
+  delete this->Reader;
 
   while(!this->PostReadOperations.empty())
     {

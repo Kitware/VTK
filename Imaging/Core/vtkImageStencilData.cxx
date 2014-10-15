@@ -105,10 +105,7 @@ void vtkImageStencilData::Initialize()
   this->ExtentLists = NULL;
   this->NumberOfExtentEntries = 0;
 
-  if (this->ExtentListLengths)
-    {
-    delete [] this->ExtentListLengths;
-    }
+  delete [] this->ExtentListLengths;
   this->ExtentListLengths = NULL;
 
   if(this->Information)
@@ -213,10 +210,7 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
   this->ExtentLists = NULL;
   this->NumberOfExtentEntries = 0;
 
-  if (this->ExtentListLengths)
-    {
-    delete [] this->ExtentListLengths;
-    }
+  delete [] this->ExtentListLengths;
   this->ExtentListLengths = NULL;
 
   // copy new data
@@ -1105,10 +1099,7 @@ vtkImageStencilRaster::~vtkImageStencilRaster()
 
     do
       {
-      if (this->Raster[i])
-        {
-        delete [] this->Raster[i];
-        }
+      delete [] this->Raster[i];
       i += 2;
       }
     while (i <= imax);
