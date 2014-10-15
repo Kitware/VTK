@@ -83,44 +83,28 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
 
   for (i=0; i<4; i++)
     {
-    if ( this->ScalarArrays[i] != NULL )
-      {
-      delete [] this->ScalarArrays[i];
-      }
+    delete [] this->ScalarArrays[i];
     }
 
   for (i=0; i<3; i++)
     {
-    if ( this->VectorArrays[i] != NULL )
-      {
-      delete [] this->VectorArrays[i];
-      }
+    delete [] this->VectorArrays[i];
     }
 
   for (i=0; i<3; i++)
     {
-    if ( this->NormalArrays[i] != NULL )
-      {
-      delete [] this->NormalArrays[i];
-      }
+    delete [] this->NormalArrays[i];
     }
 
   for (i=0; i<3; i++)
     {
-    if ( this->TCoordArrays[i] != NULL )
-      {
-      delete [] this->TCoordArrays[i];
-      }
+    delete [] this->TCoordArrays[i];
     }
 
   for (i=0; i<9; i++)
     {
-    if ( this->TensorArrays[i] != NULL )
-      {
-      delete [] this->TensorArrays[i];
-      }
+    delete [] this->TensorArrays[i];
     }
-
 }
 
 // Stuff related to filter interface------------------------------------------
@@ -1129,10 +1113,7 @@ void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &nam
     {
     return;
     }
-  if (name)
-    {
-    delete [] name;
-    }
+  delete [] name;
   if (newName)
     {
     name = new char[strlen(newName)+1];

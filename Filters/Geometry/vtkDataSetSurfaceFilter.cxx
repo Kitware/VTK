@@ -2310,21 +2310,13 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(vtkIdType numberOfCells
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::DeleteAllFastGeomQuads()
 {
-  int idx;
-
-  for (idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
+  for (int idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
     {
-    if (this->FastGeomQuadArrays[idx])
-      {
-      delete [] this->FastGeomQuadArrays[idx];
-      this->FastGeomQuadArrays[idx] = NULL;
-      }
+    delete [] this->FastGeomQuadArrays[idx];
+    this->FastGeomQuadArrays[idx] = NULL;
     }
-  if (this->FastGeomQuadArrays)
-    {
-    delete [] this->FastGeomQuadArrays;
-    this->FastGeomQuadArrays = NULL;
-    }
+  delete [] this->FastGeomQuadArrays;
+  this->FastGeomQuadArrays = NULL;
   this->FastGeomQuadArrayLength = 0;
   this->NumberOfFastGeomQuadArrays = 0;
   this->NextArrayIndex = 0;

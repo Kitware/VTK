@@ -36,11 +36,7 @@ void vtkInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
   if ( size > this->WeightsSize )
     {
     this->WeightsSize = size;
-    if ( this->Weights )
-      {
-      delete[] this->Weights;
-      this->Weights = NULL;
-      }
+    delete[] this->Weights;
     this->Weights = new double[size];
     }
 }

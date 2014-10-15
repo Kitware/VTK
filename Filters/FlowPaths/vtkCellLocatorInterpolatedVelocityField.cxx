@@ -45,11 +45,8 @@ vtkCellLocatorInterpolatedVelocityField::~vtkCellLocatorInterpolatedVelocityFiel
   this->LastCellLocator = 0;
   this->SetCellLocatorPrototype( 0 );
 
-  if ( this->CellLocators )
-    {
-    delete this->CellLocators;
-    this->CellLocators = 0;
-    }
+  delete this->CellLocators;
+  this->CellLocators = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -262,11 +259,7 @@ void vtkCellLocatorInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
   if ( size > this->WeightsSize )
     {
     this->WeightsSize = size;
-    if ( this->Weights )
-      {
-      delete[] this->Weights;
-      this->Weights = NULL;
-      }
+    delete[] this->Weights;
     this->Weights = new double[size];
     }
 }

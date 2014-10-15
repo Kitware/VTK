@@ -23,11 +23,9 @@ vtkStandardNewMacro(vtkX3DExporterJavaHelper);
 //----------------------------------------------------------------------------
 void vtkX3DExporterJavaHelper::SetFastInfosetJarLocation(const char* location)
 {
-  if ( vtkX3DExporterJavaHelper::FastInfosetJarLocation != 0 )
-    {
-    delete [] vtkX3DExporterJavaHelper::FastInfosetJarLocation;
-    vtkX3DExporterJavaHelper::FastInfosetJarLocation = 0;
-    }
+  delete [] vtkX3DExporterJavaHelper::FastInfosetJarLocation;
+  vtkX3DExporterJavaHelper::FastInfosetJarLocation = 0;
+
   if ( location )
     {
     vtkX3DExporterJavaHelper::FastInfosetJarLocation = new char[ strlen(location) + 1 ];

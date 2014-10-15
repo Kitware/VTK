@@ -38,10 +38,7 @@ vtkImageAppend::vtkImageAppend()
 //----------------------------------------------------------------------------
 vtkImageAppend::~vtkImageAppend()
 {
-  if (this->Shifts != NULL)
-    {
-    delete [] this->Shifts;
-    }
+  delete [] this->Shifts;
 }
 
 //----------------------------------------------------------------------------
@@ -109,10 +106,7 @@ int vtkImageAppend::RequestInformation (
   unionExt[1] = unionExt[3] = unionExt[5] = -VTK_INT_MAX;
 
   // Initialize the shifts.
-  if (this->Shifts)
-    {
-    delete [] this->Shifts;
-    }
+  delete [] this->Shifts;
   this->Shifts = new int [this->GetNumberOfInputConnections(0)];
 
   // Find the outMin/max of the appended axis for this input.

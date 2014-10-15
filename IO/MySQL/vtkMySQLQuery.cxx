@@ -372,11 +372,8 @@ void vtkMySQLQueryInternals::FreeUserParameterList()
 {
   for (unsigned int i = 0; i < this->UserParameterList.size(); ++i)
     {
-    if (this->UserParameterList[i] != NULL)
-      {
-      delete this->UserParameterList[i];
-      this->UserParameterList[i] = NULL;
-      }
+    delete this->UserParameterList[i];
+    this->UserParameterList[i] = NULL;
     }
   this->UserParameterList.clear();
 }
@@ -400,10 +397,7 @@ bool vtkMySQLQueryInternals::SetBoundParameter(int index, vtkMySQLBoundParameter
     }
   else
     {
-    if (this->UserParameterList[index] != NULL)
-      {
-      delete this->UserParameterList[index];
-      }
+    delete this->UserParameterList[index];
     this->UserParameterList[index] = param;
     return true;
     }
@@ -987,10 +981,7 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
     return true; // we've already got that query
     }
 
-  if (this->Query)
-    {
-    delete [] this->Query;
-    }
+  delete [] this->Query;
 
   if (newQuery)
     {

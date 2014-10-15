@@ -78,11 +78,8 @@ vtkSimple2DLayoutStrategy::~vtkSimple2DLayoutStrategy()
   this->SetEdgeWeightField(0);
   this->RepulsionArray->Delete();
   this->AttractionArray->Delete();
-  if (this->EdgeArray)
-    {
-    delete [] this->EdgeArray;
-    this->EdgeArray = NULL;
-    }
+  delete [] this->EdgeArray;
+  this->EdgeArray = NULL;
 }
 
 // ----------------------------------------------------------------------
@@ -139,12 +136,8 @@ void vtkSimple2DLayoutStrategy::Initialize()
     }
 
   // Put the edge data into compact, fast access edge data structure
-  if (this->EdgeArray)
-    {
-    delete [] this->EdgeArray;
-    this->EdgeArray = NULL;
-    }
-  this->EdgeArray =  new vtkLayoutEdge[numEdges];
+  delete [] this->EdgeArray;
+  this->EdgeArray = new vtkLayoutEdge[numEdges];
 
   // If jitter then do it now at initialization
   if (Jitter)

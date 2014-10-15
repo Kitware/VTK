@@ -376,10 +376,8 @@ vtkVRMLImporter::~vtkVRMLImporter()
     this->CurrentTransform = NULL;
     }
 
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
+
   while(this->Internal->Heap.Count() > 0)
     {
     vtkObject* obj = this->Internal->Heap.Pop();

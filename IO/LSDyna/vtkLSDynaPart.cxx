@@ -98,22 +98,13 @@ public:
   std::vector<CellProperty*>::iterator it;
   for(it=Properties.begin();it!=Properties.end();++it)
     {
-    if(*it)
-      {
-      delete (*it);
-      (*it)=NULL;
-      }
+    delete (*it);
+    (*it)=NULL;
     }
   this->Properties.clear();
 
-  if(this->DeadCells)
-    {
-    delete[] this->DeadCells;
-    }
-  if(this->UserIds)
-    {
-    delete[] this->UserIds;
-    }
+  delete[] this->DeadCells;
+  delete[] this->UserIds;
   }
 
   bool NoDeadCells() const { return DeadCells == NULL; }
@@ -353,10 +344,7 @@ vtkLSDynaPart::~vtkLSDynaPart()
     Points->Delete();
     Points=NULL;
     }
-  if(this->GlobalPointsUsed)
-    {
-    delete this->GlobalPointsUsed;
-    }
+  delete this->GlobalPointsUsed;
   if(this->ThresholdGrid)
     {
     this->ThresholdGrid->Delete();

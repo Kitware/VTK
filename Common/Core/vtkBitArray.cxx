@@ -699,9 +699,6 @@ void vtkBitArray::DataChanged()
 //----------------------------------------------------------------------------
 void vtkBitArray::ClearLookup()
 {
-  if (this->Lookup)
-    {
-    delete this->Lookup;
-    this->Lookup = NULL;
-    }
+  delete this->Lookup;
+  this->Lookup = NULL;
 }

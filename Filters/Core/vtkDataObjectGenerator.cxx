@@ -303,10 +303,7 @@ vtkDataObjectGenerator::vtkDataObjectGenerator()
 vtkDataObjectGenerator::~vtkDataObjectGenerator()
 {
   this->SetProgram(NULL);
-  if (this->Structure != NULL)
-    {
-    delete this->Structure;
-    }
+  delete this->Structure;
 }
 
 //----------------------------------------------------------------------------
@@ -331,10 +328,7 @@ int vtkDataObjectGenerator::RequestDataObject(vtkInformation *,
      return VTK_OK;
      }
 
-  if (this->Structure != NULL)
-    {
-    delete this->Structure;
-    }
+  delete this->Structure;
   this->Structure = vtkDataObjectGeneratorParseStructure(this->Program);
   outData = this->CreateOutputDataObjects(this->Structure);
   if (outData)

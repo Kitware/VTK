@@ -488,10 +488,7 @@ void vtkDelimitedTextReader::SetInputString(const char *in, int len)
     return;
     }
 
-  if (this->InputString)
-    {
-    delete [] this->InputString;
-    }
+  delete [] this->InputString;
 
   if (in && len>0)
     {

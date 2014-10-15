@@ -1327,16 +1327,11 @@ vtkSimpleCellTessellator::~vtkSimpleCellTessellator()
     {
     this->CellIterator->Delete();
     }
-  if(this->Scalars)
-    {
-    delete[] this->Scalars;
-    }
+  delete[] this->Scalars;
 
   this->Triangulator->Delete();
-  if(this->PointIds!=0)
-    {
-    delete[] this->PointIds;
-    }
+  delete[] this->PointIds;
+
   this->Connectivity->Delete();
   this->Polygon->Delete();
   this->TriangleIds->Delete();
@@ -2714,10 +2709,7 @@ void vtkSimpleCellTessellator::AllocatePointIds(int size)
 
   if(this->PointIdsCapacity<size)
     {
-    if(this->PointIds!=0)
-      {
-      delete[] this->PointIds;
-      }
+    delete[] this->PointIds;
     this->PointIds=new vtkIdType[size];
     this->PointIdsCapacity=size;
     }

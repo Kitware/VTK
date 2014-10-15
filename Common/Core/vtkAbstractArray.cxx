@@ -92,10 +92,7 @@ vtkAbstractArray::~vtkAbstractArray()
     {
     for ( unsigned int i=0; i < this->ComponentNames->size(); ++i)
       {
-      if ( this->ComponentNames->at(i) )
-        {
-        delete this->ComponentNames->at(i);
-        }
+      delete this->ComponentNames->at(i);
       }
     this->ComponentNames->clear();
     delete this->ComponentNames;
@@ -179,10 +176,7 @@ int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
     //copy the passed in components
     for ( unsigned int i=0; i < this->ComponentNames->size(); ++i)
       {
-      if ( this->ComponentNames->at(i) )
-        {
-        delete this->ComponentNames->at(i);
-        }
+      delete this->ComponentNames->at(i);
       }
     this->ComponentNames->clear();
     this->ComponentNames->reserve( da->ComponentNames->size() );

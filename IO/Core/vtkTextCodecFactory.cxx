@@ -116,11 +116,8 @@ void vtkTextCodecFactory::UnRegisterCreateCallback(
 
 void vtkTextCodecFactory::UnRegisterAllCreateCallbacks()
 {
-  if (vtkTextCodecFactory::Callbacks)
-    {
-    delete vtkTextCodecFactory::Callbacks;
-    vtkTextCodecFactory::Callbacks = NULL;
-    }
+  delete vtkTextCodecFactory::Callbacks;
+  vtkTextCodecFactory::Callbacks = NULL;
 }
 
 

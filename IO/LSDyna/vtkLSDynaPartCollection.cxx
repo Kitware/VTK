@@ -474,19 +474,9 @@ vtkLSDynaPartCollection::vtkLSDynaPartCollection()
 //-----------------------------------------------------------------------------
 vtkLSDynaPartCollection::~vtkLSDynaPartCollection()
 {
-  if(this->Storage)
-    {
-    delete this->Storage;
-    }
-
-  if(this->MinIds)
-    {
-    delete[] this->MinIds;
-    }
-  if(this->MaxIds)
-    {
-    delete[] this->MaxIds;
-    }
+  delete this->Storage;
+  delete[] this->MinIds;
+  delete[] this->MaxIds;
   this->MetaData = NULL;
 }
 
@@ -507,19 +497,9 @@ void vtkLSDynaPartCollection::PrintSelf(ostream &os, vtkIndent indent)
 void vtkLSDynaPartCollection::InitCollection(LSDynaMetaData *metaData,
                                              vtkIdType* mins, vtkIdType* maxs)
 {
-  if(this->Storage)
-    {
-    delete this->Storage;
-    }
-
-  if(this->MinIds)
-    {
-    delete[] this->MinIds;
-    }
-  if(this->MaxIds)
-    {
-    delete[] this->MaxIds;
-    }
+  delete this->Storage;
+  delete[] this->MinIds;
+  delete[] this->MaxIds;
 
   //reserve enough space for the grids. Each node
   //will have a part allocated, since we don't know yet

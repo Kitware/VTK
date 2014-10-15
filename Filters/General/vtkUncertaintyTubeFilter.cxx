@@ -51,10 +51,7 @@ public:
   vtkTubeArray();
   ~vtkTubeArray()
     {
-      if (this->Array)
-        {
-        delete [] this->Array;
-        }
+      delete [] this->Array;
     };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkTubePoint *GetTubePoint(vtkIdType i) {return this->Array + i;};
@@ -153,10 +150,7 @@ vtkUncertaintyTubeFilter::vtkUncertaintyTubeFilter()
 //-----------------------------------------------------------------------------
 vtkUncertaintyTubeFilter::~vtkUncertaintyTubeFilter()
 {
-  if ( this->Tubes )
-    {
-    delete [] this->Tubes;
-    }
+  delete [] this->Tubes;
 }
 
 //-----------------------------------------------------------------------------

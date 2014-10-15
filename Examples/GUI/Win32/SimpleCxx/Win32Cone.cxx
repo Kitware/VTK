@@ -114,22 +114,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case 2:
           PostQuitMessage (0);
-          if (theVTKApp)
-            {
-            delete theVTKApp;
-            theVTKApp = NULL;
-            }
+          delete theVTKApp;
+          theVTKApp = NULL;
           break;
         }
       return 0;
 
     case WM_DESTROY:
       PostQuitMessage (0);
-      if (theVTKApp)
-        {
-        delete theVTKApp;
-        theVTKApp = NULL;
-        }
+      delete theVTKApp;
+      theVTKApp = NULL;
       return 0;
     }
   return DefWindowProc (hwnd, message, wParam, lParam);

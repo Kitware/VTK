@@ -38,10 +38,7 @@ vtkIdFilter::vtkIdFilter()
 
 vtkIdFilter::~vtkIdFilter()
 {
-  if (this->IdsArrayName)
-    {
-    delete []IdsArrayName;
-    }
+  delete [] IdsArrayName;
 }
 
 //

@@ -1014,10 +1014,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
     if ( ! pcafunc )
       {
       vtkWarningMacro( "Request " << req - 1 << " could not be accommodated. Skipping." );
-      if ( dfunc )
-        {
-        delete dfunc;
-        }
+      delete dfunc;
       continue;
       }
 

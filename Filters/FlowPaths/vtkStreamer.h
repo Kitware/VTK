@@ -234,10 +234,7 @@ protected:
     StreamArray();
     ~StreamArray()
       {
-        if (this->Array)
-          {
-          delete [] this->Array;
-          }
+        delete [] this->Array;
       };
     vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
     StreamPoint *GetStreamPoint(vtkIdType i) {return this->Array + i;};

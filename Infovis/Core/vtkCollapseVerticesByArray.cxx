@@ -65,25 +65,10 @@ vtkCollapseVerticesByArray::vtkCollapseVerticesByArray() :
 // ----------------------------------------------------------------------------
 vtkCollapseVerticesByArray::~vtkCollapseVerticesByArray()
 {
-  if(this->Internal)
-    {
-    delete this->Internal;
-    }
-
-  if(this->VertexArray)
-    {
-    delete [] this->VertexArray;
-    }
-
-  if(this->VerticesCollapsedArray!=0)
-    {
-    delete[] this->VerticesCollapsedArray;
-    }
-
-  if(this->EdgesCollapsedArray!=0)
-    {
-    delete[] this->EdgesCollapsedArray;
-    }
+  delete this->Internal;
+  delete [] this->VertexArray;
+  delete [] this->VerticesCollapsedArray;
+  delete [] this->EdgesCollapsedArray;
 }
 
 // ----------------------------------------------------------------------------

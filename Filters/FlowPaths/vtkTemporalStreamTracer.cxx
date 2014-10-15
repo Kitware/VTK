@@ -150,11 +150,8 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
 vtkTemporalStreamTracer::~vtkTemporalStreamTracer()
 {
   this->SetParticleWriter(NULL);
-  if (this->ParticleFileName)
-  {
-    delete []this->ParticleFileName;
-    this->ParticleFileName = NULL;
-  }
+  delete [] this->ParticleFileName;
+  this->ParticleFileName = NULL;
 }
 //----------------------------------------------------------------------------
 int vtkTemporalStreamTracer::FillInputPortInformation(
