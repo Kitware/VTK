@@ -96,6 +96,14 @@ public:
   // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
   static vtkInformationIntegerVectorKey* UPDATE_COMPOSITE_INDICES();
 
+  // Description:
+  // BLOCK_AMOUNT_OF_DETAIL is a key placed in the information about a multi-block
+  // dataset that indicates how complex the block is.  It is intended to work with
+  // multi-resolution streaming code.  For example in a multi-resolution dataset of
+  // points, this key might store the number of points.
+  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+  static vtkInformationDoubleKey* BLOCK_AMOUNT_OF_DETAIL();
+
 protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();
