@@ -29,6 +29,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -70,6 +72,8 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->LastSelectionState = false;
   this->LastDepthPeeling = 0;
   this->CurrentInput = 0;
+  this->TempMatrix4 = vtkMatrix4x4::New();
+  this->TempMatrix3 = vtkMatrix3x3::New();
 }
 
 
@@ -81,6 +85,8 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     this->InternalColorTexture->Delete();
     this->InternalColorTexture = 0;
     }
+  this->TempMatrix3->Delete();
+  this->TempMatrix4->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -876,49 +882,30 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 {
   vtkShaderProgram *program = cellBO.Program;
 
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
 
-  vtkNew<vtkMatrix4x4> tmpMat;
-  tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
+  vtkMatrix4x4 *wcvc;
+  vtkMatrix3x3 *norms;
+  vtkMatrix4x4 *vcdc;
+  cam->GetKeyMatrices(ren,wcvc,norms,vcdc);
+  program->SetUniformMatrix("VCDCMatrix", vcdc);
 
-  // compute the combined ModelView matrix and send it down to save time in the shader
-  vtkMatrix4x4::Multiply4x4(tmpMat.Get(), actor->GetMatrix(), tmpMat.Get());
-
-  tmpMat->Transpose();
-  program->SetUniformMatrix("MCVCMatrix", tmpMat.Get());
-
-  // for lit shaders set normal matrix
-  if (this->LastLightComplexity > 0)
+  if (!actor->GetIsIdentity())
     {
-    tmpMat->Transpose();
-
-    // set the normal matrix and send it down
-    // (make this a function in camera at some point returning a 3x3)
-    // Reuse the matrix we already got (and possibly multiplied with model mat.
-    if (!actor->GetIsIdentity())
-      {
-      vtkNew<vtkTransform> aTF;
-      aTF->SetMatrix(tmpMat.Get());
-      double *scale = aTF->GetScale();
-      aTF->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
-      tmpMat->DeepCopy(aTF->GetMatrix());
-      }
-    vtkNew<vtkMatrix3x3> tmpMat3d;
-    for(int i = 0; i < 3; ++i)
-      {
-      for (int j = 0; j < 3; ++j)
-        {
-        tmpMat3d->SetElement(i, j, tmpMat->GetElement(i, j));
-        }
-      }
-    tmpMat3d->Invert();
-    program->SetUniformMatrix("normalMatrix", tmpMat3d.Get());
+    vtkMatrix4x4 *mcwc;
+    vtkMatrix3x3 *anorms;
+    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+    vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+    program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+    }
+  else
+    {
+    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    program->SetUniformMatrix("normalMatrix", norms);
     }
 
-  vtkMatrix4x4 *tmpProj;
-  tmpProj = cam->GetProjectionTransformMatrix(ren); // allocates a matrix
-  program->SetUniformMatrix("VCDCMatrix", tmpProj);
-  tmpProj->UnRegister(this);
 }
 
 //-----------------------------------------------------------------------------

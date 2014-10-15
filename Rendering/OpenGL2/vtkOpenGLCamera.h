@@ -23,6 +23,8 @@
 #include "vtkCamera.h"
 
 class vtkOpenGLRenderer;
+class vtkMatrix3x3;
+class vtkMatrix4x4;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLCamera : public vtkCamera
 {
@@ -37,9 +39,18 @@ public:
 
   void UpdateViewport(vtkRenderer *ren);
 
+  void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
+    vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix);
+
 protected:
-  vtkOpenGLCamera() {}
-  ~vtkOpenGLCamera() {}
+  vtkOpenGLCamera();
+  ~vtkOpenGLCamera();
+
+  vtkMatrix4x4 *WCVCMatrix;
+  vtkMatrix3x3 *NormalMatrix;
+  vtkMatrix4x4 *VCDCMatrix;
+  vtkTimeStamp KeyMatrixTime;
+
 private:
   vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
   void operator=(const vtkOpenGLCamera&);  // Not implemented.

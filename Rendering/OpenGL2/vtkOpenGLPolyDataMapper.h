@@ -23,6 +23,8 @@
 #include "vtkglVBOHelper.h" // used for ivars
 
 class vtkOpenGLTexture;
+class vtkMatrix4x4;
+class vtkMatrix3x3;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -173,6 +175,10 @@ protected:
 
   int PopulateSelectionSettings;
   int pickingAttributeIDOffset;
+
+  vtkMatrix4x4 *TempMatrix4;
+  vtkMatrix3x3 *TempMatrix3;
+
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.

@@ -24,6 +24,8 @@
 #include "vtkActor.h"
 
 class vtkOpenGLRenderer;
+class vtkMatrix4x4;
+class vtkMatrix3x3;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLActor : public vtkActor
 {
@@ -36,9 +38,16 @@ public:
   // Actual actor render method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 
+  void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
+
 protected:
-  vtkOpenGLActor() {}
-  ~vtkOpenGLActor() {}
+  vtkOpenGLActor();
+  ~vtkOpenGLActor();
+
+  vtkMatrix4x4 *MCWCMatrix;
+  vtkMatrix3x3 *NormalMatrix;
+  vtkTransform *NormalTransform;
+  vtkTimeStamp KeyMatrixTime;
 
 private:
   vtkOpenGLActor(const vtkOpenGLActor&);  // Not implemented.

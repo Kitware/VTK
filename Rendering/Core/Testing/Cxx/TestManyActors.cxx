@@ -1,6 +1,7 @@
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
+#include "vtkCullerCollection.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMath.h"
 #include "vtkPolyDataMapper.h"
@@ -47,6 +48,7 @@ int TestManyActors(int argc, char* argv[])
     }
   vtkSmartPointer<vtkSphereSource> source =
     vtkSmartPointer<vtkSphereSource>::New();
+  source->Update();
   vtkSmartPointer<vtkRenderer> ren =
     vtkSmartPointer<vtkRenderer>::New();
   int side1 = static_cast<int>(
@@ -64,9 +66,11 @@ int TestManyActors(int argc, char* argv[])
         {
         vtkSmartPointer<vtkPolyDataMapper> mapper =
           vtkSmartPointer<vtkPolyDataMapper>::New();
+        mapper->StaticOn();
         vtkSmartPointer<vtkActor> actor =
           vtkSmartPointer<vtkActor>::New();
         mapper->SetInputConnection(source->GetOutputPort());
+        mapper->StaticOn();
         actor->SetMapper(mapper);
         actor->SetPosition(i, j, k);
         ren->AddActor(actor);
@@ -93,6 +97,7 @@ int TestManyActors(int argc, char* argv[])
   vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
     vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
   ren->ResetCamera();
+  ren->RemoveCuller(ren->GetCullers()->GetLastItem());
   win->AddRenderer(ren);
   win->SetInteractor(iren);
   iren->SetInteractorStyle(style);
