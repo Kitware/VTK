@@ -57,9 +57,6 @@
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 
-// GL includes
-#include <vtkgl.h>
-
 // C/C++ includes
 #include <cassert>
 #include <limits>
@@ -429,7 +426,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
   GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
-  glTexParameterfv(vtkgl::TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
+  glTexParameterfv(GL_TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -456,7 +453,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
       case VTK_FLOAT:
       if (glewIsSupported("GL_ARB_texture_float"))
         {
-        internalFormat = vtkgl::INTENSITY16F_ARB;
+        internalFormat = GL_INTENSITY16F_ARB;
         }
       else
         {
@@ -512,7 +509,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
         handleLargeDataTypes = true;
         if (glewIsSupported("GL_ARB_texture_float"))
           {
-          internalFormat=vtkgl::INTENSITY16F_ARB;
+          internalFormat=GL_INTENSITY16F_ARB;
           }
         else
           {
@@ -992,8 +989,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     // TODO Use framebuffer objects for best performance
     glGenTextures(1, &this->DepthTextureId);
     glBindTexture(GL_TEXTURE_2D, this->DepthTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);

@@ -20,7 +20,6 @@
 #include <vtkVolumeMapper.h>
 
 #include <vtk_glew.h>
-#include <vtkgl.h>
 
 //----------------------------------------------------------------------------
 class vtkOpenGLGradientOpacityTable
