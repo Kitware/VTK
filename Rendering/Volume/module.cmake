@@ -1,5 +1,5 @@
 if (Module_vtkRenderingVolumeOpenGLNEW AND
-    "{VTK_RENDERING_BACKEND}" STREQUAL "OpenGL")
+    NOT (VTK_RENDERING_BACKEND STREQUAL "OpenGL2"))
   set(VTK_RENDERING_VOLUME_BACKEND
     "vtkRenderingVolumeOpenGLNew")
 else ()
