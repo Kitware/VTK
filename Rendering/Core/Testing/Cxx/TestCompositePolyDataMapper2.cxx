@@ -22,25 +22,6 @@
 
 int TestCompositePolyDataMapper2(int argc, char* argv[])
 {
-  bool interact = false;
-  for (int i = 1; i < argc; ++i)
-    {
-    if (!strcmp(argv[i], "-I"))
-      {
-      interact = true;
-      continue;
-      }
-    if (!strcmp(argv[i], "-T") ||
-        !strcmp(argv[i], "-V") ||
-        !strcmp(argv[i], "-D"))
-      {
-      ++i;
-      continue;
-      }
-    cerr << argv[0] << " options:" << endl;
-    cerr << " -N: Number of actors" << endl;
-    }
-
   vtkSmartPointer<vtkRenderWindow> win =
     vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -152,7 +133,7 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
   double t =  timer->GetElapsedTime();
   cout << "Avg Frame time: " << t/numFrames << " Frame Rate: " << numFrames / t << "\n";
 
-  int retVal = vtkRegressionTestImage( win.GetPointer() );
+  int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
