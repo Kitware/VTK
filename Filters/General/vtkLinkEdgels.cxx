@@ -277,7 +277,6 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
   vec[2] = z;
   for (y = 0; y < ydim; y++)
     {
-    ypos = y*xdim;
     for (x = 0; x < xdim; x++)
       {
       // do we have part of an edgel chain ?

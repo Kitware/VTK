@@ -413,7 +413,7 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
 {
   int idxY, idxZ;
   int maxY, maxZ;
-  vtkIdType outIncX, outIncY, outIncZ;
+  vtkIdType outIncY, outIncZ;
   int rowLength;
   int typeSize;
   unsigned char *outPtrZ, *outPtrY;
@@ -436,11 +436,9 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
     // Get increments to march through data
     vtkIdType increments[3];
     outData->GetArrayIncrements(array, increments);
-    outIncX = increments[0];
     outIncY = increments[1];
     outIncZ = increments[2];
 
-    outIncX *= typeSize;
     outIncY *= typeSize;
     outIncZ *= typeSize;
 

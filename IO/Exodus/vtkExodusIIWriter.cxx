@@ -2297,8 +2297,8 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
   delete [] nsIdIdx;
   delete [] nsDFIdx;
   delete [] idBuf;
-  if (dfBuf) delete [] dfBuf;
-  else if (dfBufD) delete [] dfBufD;
+  delete [] dfBuf;
+  delete [] dfBufD;
 
   return (rc >= 0);
 }
@@ -2481,8 +2481,8 @@ int vtkExodusIIWriter::WriteSideSetInformation()
   delete [] ssDFIdx;
   delete [] idBuf;
   delete [] sideBuf;
-  if (dfBuf) delete [] dfBuf;
-  else if (dfBufD) delete [] dfBufD;
+  delete [] dfBuf;
+  delete [] dfBufD;
 
   return rc >= 0;
 }
