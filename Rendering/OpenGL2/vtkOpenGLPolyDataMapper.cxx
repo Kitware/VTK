@@ -29,6 +29,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -70,6 +72,8 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->LastSelectionState = false;
   this->LastDepthPeeling = 0;
   this->CurrentInput = 0;
+  this->TempMatrix4 = vtkMatrix4x4::New();
+  this->TempMatrix3 = vtkMatrix3x3::New();
 }
 
 
@@ -81,6 +85,8 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     this->InternalColorTexture->Delete();
     this->InternalColorTexture = 0;
     }
+  this->TempMatrix3->Delete();
+  this->TempMatrix4->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -876,8 +882,34 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 {
   vtkShaderProgram *program = cellBO.Program;
 
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
 
+#if 1
+
+  vtkMatrix4x4 *wcvc;
+  vtkMatrix3x3 *norms;
+  vtkMatrix4x4 *vcdc;
+  cam->GetKeyMatrices(ren,wcvc,norms,vcdc);
+  program->SetUniformMatrix("VCDCMatrix", vcdc);
+
+  if (!actor->GetIsIdentity())
+    {
+    vtkMatrix4x4 *mcwc;
+    vtkMatrix3x3 *anorms;
+    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+    vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+    program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+    }
+  else
+    {
+    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    program->SetUniformMatrix("normalMatrix", norms);
+    }
+
+
+#else
   vtkNew<vtkMatrix4x4> tmpMat;
   tmpMat->DeepCopy(cam->GetModelViewTransformMatrix());
 
@@ -919,6 +951,7 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   tmpProj = cam->GetProjectionTransformMatrix(ren); // allocates a matrix
   program->SetUniformMatrix("VCDCMatrix", tmpProj);
   tmpProj->UnRegister(this);
+#endif
 }
 
 //-----------------------------------------------------------------------------
