@@ -1,4 +1,3 @@
-
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
     TestAreaSelections.cxx) # incorrect results in OpenGL
@@ -67,6 +66,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
 
-
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set_source_files_properties(
+   TestEdgeFlags.cxx # fails on OpenGL Mesa
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
