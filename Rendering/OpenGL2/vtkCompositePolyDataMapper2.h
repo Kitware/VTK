@@ -25,10 +25,10 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 #include "vtkOpenGLPolyDataMapper.h"
- #include "vtkColor.h"
 
-#include <map>
-#include <stack>
+#include "vtkColor.h" // used for ivars
+#include <map> // use for ivars
+#include <stack> // used for ivars
 
 class vtkCompositeDataDisplayAttributes;
 class vtkCompositeMapperHelper;
