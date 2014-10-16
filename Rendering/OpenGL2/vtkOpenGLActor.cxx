@@ -95,7 +95,7 @@ void vtkOpenGLActor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOpenGLActor::GetKeyMatrices(vtkMatrix4x4 *&mcwc, vtkMatrix3x3 *&normMat)
 {
   // has the actor changed?
-  if (this->MTime > this->KeyMatrixTime)
+  if (this->GetMTime() > this->KeyMatrixTime)
     {
     this->ComputeMatrix();
     this->MCWCMatrix->DeepCopy(this->Matrix);
