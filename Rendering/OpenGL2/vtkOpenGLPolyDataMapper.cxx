@@ -327,32 +327,32 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
   if (this->Layout.NormalOffset)
     {
     VSSource = replace(VSSource,
-                                 "//VTK::Normal::Dec",
-                                 "attribute vec3 normalMC;\n"
-                                 "varying vec3 normalVCVarying;");
+      "//VTK::Normal::Dec",
+      "attribute vec3 normalMC;\n"
+      "varying vec3 normalVCVarying;");
     VSSource = replace(VSSource,
-                                 "//VTK::Normal::Impl",
-                                 "normalVCVarying = normalMatrix * normalMC;");
+      "//VTK::Normal::Impl",
+      "normalVCVarying = normalMatrix * normalMC;");
     FSSource = replace(FSSource,
-                                 "//VTK::Normal::Dec",
-                                 "varying vec3 normalVCVarying;");
+      "//VTK::Normal::Dec",
+      "varying vec3 normalVCVarying;");
     FSSource = replace(FSSource,
-                                 "//VTK::Normal::Impl",
-                                 "vec3 normalVC;\n"
-                                 //  if (!gl_Frontfacing) does not work in intel hd4000 mac hence
-                                 // the odd version below
-                                 "  if (int(gl_FrontFacing) == 0) { normalVC = -normalVCVarying; }\n"
-                                 "  else { normalVC = normalVCVarying; }"
-                                 //"normalVC = normalVCVarying;"
-                                 );
-    }
+      "//VTK::Normal::Impl",
+      "vec3 normalVC;\n"
+      //  if (!gl_FrontFacing) does not work in intel hd4000 mac
+      //  if (int(gl_FrontFacing) == 0) does not work on mesa
+      "  if (gl_FrontFacing == false) { normalVC = -normalVCVarying; }\n"
+      "  else { normalVC = normalVCVarying; }"
+      //"normalVC = normalVCVarying;"
+      );
+  }
   else
     {
     FSSource = replace(FSSource,
-                                 "//VTK::Normal::Dec",
-                                 "#ifdef GL_ES\n"
-                                 "#extension GL_OES_standard_derivatives : enable\n"
-                                 "#endif\n");
+      "//VTK::Normal::Dec",
+      "#ifdef GL_ES\n"
+      "#extension GL_OES_standard_derivatives : enable\n"
+      "#endif\n");
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       // generate a normal for lines, it will be perpendicular to the line
@@ -367,24 +367,24 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       // the line gradient again we get a reasonable normal. It will be othogonal to
       // the line (which is a plane but maximally aligned with the camera view.
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                         "vec3 normalVC;\n"
-                         "  vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
-                         "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
-                         "  if (abs(fdx.x) > 0.0)\n"
-                         "    { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
-                         "  else { normalVC = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
-                         );
+        "vec3 normalVC;\n"
+        "  vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+        "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+        "  if (abs(fdx.x) > 0.0)\n"
+        "    { normalVC = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
+        "  else { normalVC = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
+        );
       }
     else
       {
       FSSource = replace(FSSource,"//VTK::Normal::Impl",
-                         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
-                         "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
-                         "  vec3 normalVC = normalize(cross(fdx,fdy));\n"
-                         // the code below is faster, but does not work on some devices
-                         //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
-                         "  if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
-                         );
+        "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+        "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+        "  vec3 normalVC = normalize(cross(fdx,fdy));\n"
+        // the code below is faster, but does not work on some devices
+        //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
+        "  if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
+        );
       }
     }
   if (this->Layout.TCoordComponents)
@@ -392,40 +392,37 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     if (this->Layout.TCoordComponents == 1)
       {
       VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "attribute float tcoordMC; varying float tcoordVC;");
+        "//VTK::TCoord::Dec",
+        "attribute float tcoordMC; varying float tcoordVC;");
       VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "tcoordVC = tcoordMC;");
+        "//VTK::TCoord::Impl",
+        "tcoordVC = tcoordMC;");
       FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "varying float tcoordVC; uniform sampler2D texture1;");
+        "//VTK::TCoord::Dec",
+        "varying float tcoordVC; uniform sampler2D texture1;");
       FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0.0));");
-      }
+        "//VTK::TCoord::Impl",
+        "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0.0));");
+    }
     else
       {
       VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "attribute vec2 tcoordMC; varying vec2 tcoordVC;");
+        "//VTK::TCoord::Dec",
+        "attribute vec2 tcoordMC; varying vec2 tcoordVC;");
       VSSource = vtkgl::replace(VSSource,
-                                   "//VTK::TCoord::Impl",
-                                   "tcoordVC = tcoordMC;");
-      FSSource = vtkgl::replace(FSSource,
-                                   "//VTK::TCoord::Dec",
-                                   "varying vec2 tcoordVC; uniform sampler2D texture1;");
-      // do texture mapping except for scalat coloring case which is handled above
+        "//VTK::TCoord::Impl",
+        "tcoordVC = tcoordMC;");
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::TCoord::Dec",
+      "varying vec2 tcoordVC; uniform sampler2D texture1;");
+    // do texture mapping except for scalat coloring case which is handled above
       if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
         {
         FSSource = vtkgl::replace(FSSource,
-                                     "//VTK::TCoord::Impl",
-                                     "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
+          "//VTK::TCoord::Impl",
+          "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
         }
       }
-
-    // handle color mapping by texture
-
     }
 
 
@@ -437,21 +434,21 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     // so we request the shader4 extension.  This is particularly useful for apple
     // systems that do not provide gl_PrimitiveId otherwise.
     FSSource = vtkgl::replace(FSSource,
-                                 "//VTK::Picking::Dec",
-                                 "#extension GL_EXT_gpu_shader4 : enable\n"
-                                 "uniform vec3 mapperIndex;\n"
-                                 "uniform int pickingAttributeIDOffset;");
+      "//VTK::Picking::Dec",
+      "#extension GL_EXT_gpu_shader4 : enable\n"
+      "uniform vec3 mapperIndex;\n"
+      "uniform int pickingAttributeIDOffset;");
     FSSource = vtkgl::replace(FSSource,
-                              "//VTK::Picking::Impl",
-                              "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
-                              "    {\n"
-                              "    int idx = gl_PrimitiveID + 1 + pickingAttributeIDOffset;\n"
-                              "    gl_FragColor = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n"
-                              "    }\n"
-                              "  else\n"
-                              "    {\n"
-                              "    gl_FragColor = vec4(mapperIndex,1.0);\n"
-                              "    }");
+      "//VTK::Picking::Impl",
+      "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
+      "    {\n"
+      "    int idx = gl_PrimitiveID + 1 + pickingAttributeIDOffset;\n"
+      "    gl_FragColor = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n"
+      "    }\n"
+      "  else\n"
+      "    {\n"
+      "    gl_FragColor = vec4(mapperIndex,1.0);\n"
+      "    }");
     }
 
   if (ren->GetLastRenderingUsedDepthPeeling())
@@ -467,7 +464,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "  if (gl_FragCoord.z >= odepth) { discard; }\n"
       "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
       "  if (gl_FragCoord.z <= tdepth) { discard; }\n"
-    //  "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
+      //  "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
       );
     }
 
@@ -482,26 +479,26 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       }
 
     VSSource = vtkgl::replace(VSSource,
-                         "//VTK::Clip::Dec",
-                         "uniform int numClipPlanes;\n"
-                         "uniform vec4 clipPlanes[6];\n"
-                         "varying float clipDistances[6];");
+      "//VTK::Clip::Dec",
+      "uniform int numClipPlanes;\n"
+      "uniform vec4 clipPlanes[6];\n"
+      "varying float clipDistances[6];");
     VSSource = vtkgl::replace(VSSource,
-                         "//VTK::Clip::Impl",
-                         "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
-                         "    {\n"
-                         "    clipDistances[planeNum] = dot(clipPlanes[planeNum], vertexMC);\n"
-                         "    }\n");
+      "//VTK::Clip::Impl",
+      "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+      "    {\n"
+      "    clipDistances[planeNum] = dot(clipPlanes[planeNum], vertexMC);\n"
+      "    }\n");
     FSSource = vtkgl::replace(FSSource,
-                         "//VTK::Clip::Dec",
-                         "uniform int numClipPlanes;\n"
-                         "varying float clipDistances[6];");
+      "//VTK::Clip::Dec",
+      "uniform int numClipPlanes;\n"
+      "varying float clipDistances[6];");
     FSSource = vtkgl::replace(FSSource,
-                         "//VTK::Clip::Impl",
-                         "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
-                         "    {\n"
-                         "    if (clipDistances[planeNum] < 0) discard;\n"
-                         "    }\n");
+      "//VTK::Clip::Impl",
+      "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+      "    {\n"
+      "    if (clipDistances[planeNum] < 0) discard;\n"
+      "    }\n");
     }
 
   //cout << "VS: " << VSSource << endl;
