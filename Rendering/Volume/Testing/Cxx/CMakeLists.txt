@@ -1,36 +1,9 @@
-# Some tests need to move, others need to be modified to remove the OpenGL
-# dependence, for now skip building the tests if OpenGL2 is being built.
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  return()
-endif()
-
-if (Module_vtkRenderingVolumeOpenGLNew)
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
-    #TestGPURayCastAdditive1.cxx
-    TestGPURayCastClipping.cxx
-    #TestGPURayCastCropping1.cxx
-    #TestGPURayCastDataTypesMinIP1.cxx
-    TestGPURayCastVolumePolyData.cxx
-    TestGPURayCastVolumeRotation.cxx
-    TestGPURayCastVolumeScale.cxx
-    )
-endif()
-
-vtk_add_test_cxx(${vtk-module}CxxTests tests
-#  TestGPUCastGradientOpacity.cxx
-  HomogeneousRayIntegration.cxx
-  LinearRayIntegration.cxx
-  PartialPreIntegration.cxx
-  PreIntegrationIncremental.cxx
-  PreIntegrationNonIncremental.cxx
-  ProjectedTetrahedraZoomIn.cxx,NO_VALID
-  TestFinalColorWindowLevel.cxx
-  TestFixedPointRayCastLightComponents.cxx
+set (GPURayCastTests
   TestGPURayCastAdditive.cxx
   TestGPURayCastCompositeBinaryMask.cxx
   TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeMaskBlend.cxx
-  TestGPURayCastCompositeShadeMask.cxx
+  #  TestGPURayCastCompositeShadeMask.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
   TestGPURayCastDataTypesMIP.cxx
@@ -43,6 +16,48 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
+  )
+
+set (VolumeOpenGLNew_GPURayCastTests
+  #TestGPURayCastAdditive1.cxx
+  TestGPURayCastClipping.cxx
+  #TestGPURayCastCropping1.cxx
+  #TestGPURayCastDataTypesMinIP1.cxx
+  TestGPURayCastVolumePolyData.cxx
+  TestGPURayCastVolumeRotation.cxx
+  TestGPURayCastVolumeScale.cxx
+  )
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  ${GPURayCastTests}
+  )
+
+# If OpenGL2 backend, add all GPURayCastTests
+if (("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2") OR
+  (Module_vtkRenderingVolumeOpenGLNew))
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
+    ${VolumeOpenGLNew_GPURayCastTests}
+    )
+endif ()
+
+if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+  vtk_test_cxx_executable(${vtk-module}CxxTests tests
+    RENDERING_FACTORY
+    )
+  return()
+endif ()
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  #  TestGPUCastGradientOpacity.cxx
+  HomogeneousRayIntegration.cxx
+  LinearRayIntegration.cxx
+  PartialPreIntegration.cxx
+  PreIntegrationIncremental.cxx
+  PreIntegrationNonIncremental.cxx
+  ProjectedTetrahedraZoomIn.cxx,NO_VALID
+  TestFinalColorWindowLevel.cxx
+  TestFixedPointRayCastLightComponents.cxx
+  TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
   TestHAVSVolumeMapper.cxx
   TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx

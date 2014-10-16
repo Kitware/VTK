@@ -1,7 +1,10 @@
 set(VTK_RENDERINGVOLUMEOPENGLNEW)
 
-if (Module_vtkRenderingVolumeOpenGLNew)
-  set(VTK_RENDERINGVOLUMEOPENGLNEW vtkRenderingVolumeOpenGLNew)
+if (Module_vtkRenderingVolumeOpenGLNew AND
+    NOT (VTK_RENDERING_BACKEND STREQUAL "OpenGL2"))
+  set (VTK_RENDERINGVOLUMEOPENGLNEW vtkRenderingVolumeOpenGLNew)
+else ()
+  set (VTK_RENDERINGVOLUMEOPENGLNEW "")
 endif()
 
 vtk_module(vtkRenderingVolumeOpenGL
