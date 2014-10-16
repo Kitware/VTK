@@ -98,7 +98,7 @@ template <class T> bool vtkShaderProgram::SetAttributeArray(const char *name,
 {
   if (array.empty())
     {
-    this->Error = "Refusing to upload empty array for attribute " + name + ".";
+    this->Error = "Refusing to upload empty array for attribute " + std::string(name) + ".";
     return false;
     }
   int type = vtkTypeTraits<typename T::value_type>::VTKTypeID();
