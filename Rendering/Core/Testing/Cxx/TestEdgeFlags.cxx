@@ -20,8 +20,6 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkNew.h"
-//#include "vtkOpenGLRenderWindow.h"
-//#include "vtkOpenGLExtensionManager.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -34,12 +32,19 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
 
-// bool IsDriverMesa(vtkRenderWindow *renwin)
-// {
-//   vtkOpenGLRenderWindow *context
-//     = vtkOpenGLRenderWindow::SafeDownCast(renwin);
-//   return context->GetExtensionManager()->DriverIsMesa();
-// }
+
+// on the old OpenGL this test fails on Mesa
+// so we just return true in that case
+#ifndef VTK_OPENGL2
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLExtensionManager.h"
+bool IsDriverMesa(vtkRenderWindow *renwin)
+{
+  vtkOpenGLRenderWindow *context
+    = vtkOpenGLRenderWindow::SafeDownCast(renwin);
+  return context->GetExtensionManager()->DriverIsMesa();
+}
+#endif
 
 int TestEdgeFlags(int argc, char *argv[])
 {
@@ -154,12 +159,17 @@ int TestEdgeFlags(int argc, char *argv[])
 
   renWin->Render();
 
-  // if (IsDriverMesa(renWin.Get()))
-  //   {
-  //   // Mesa support for edge flags is buggy.
-  //   std::cout << "Mesa detected. Skip the test." << std::endl;
-  //   return !vtkRegressionTester::PASSED;
-  //   }
+// on the old OpenGL this test fails on Mesa
+// so we just return true in that case
+#ifndef VTK_OPENGL2
+  if (IsDriverMesa(renWin.Get()))
+    {
+    // Mesa support for edge flags is buggy.
+    std::cout << "Mesa detected. Skip the test." << std::endl;
+    return !vtkRegressionTester::PASSED;
+    }
+#endif
+
   // Compare image
   int retVal = vtkRegressionTestImage(renWin.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
