@@ -365,6 +365,7 @@ void vtkOpenGLGlyph3DMapper::Render(
     // only triangles
     bool fastPath = false;
     vtkPolyData* pd = gh->GetInput();
+    gh->CurrentInput = pd;
     if (pd && pd->GetNumberOfVerts() == 0 && pd->GetNumberOfLines() == 0 && pd->GetNumberOfStrips() == 0)
       {
       fastPath = true;
