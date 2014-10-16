@@ -121,14 +121,14 @@ int vtkExtractSelectedThresholds::RequestData(
       return this->ExtractPoints(node, input, output);
       }
     }
-  else if (vtkTable* input = vtkTable::SafeDownCast(inputDO))
+  else if (vtkTable* inputTable = vtkTable::SafeDownCast(inputDO))
     {
-    if (input->GetNumberOfRows() == 0)
+    if (inputTable->GetNumberOfRows() == 0)
       {
       return 1;
       }
     vtkTable* output = vtkTable::GetData(outInfo);
-    return this->ExtractRows(node, input, output);
+    return this->ExtractRows(node, inputTable, output);
     }
 
   return 0;
