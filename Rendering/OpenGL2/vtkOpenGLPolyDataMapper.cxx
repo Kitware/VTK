@@ -236,14 +236,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(std::string &VSSo
   else
     {
     colorImpl +=
-      "    ambientColor = ambientColorUniform;\n"
-      "    diffuseColor = diffuseColorUniform;\n"
-      "    opacity = opacityUniform;\n";
+      "  ambientColor = ambientColorUniform;\n"
+      "  diffuseColor = diffuseColorUniform;\n"
+      "  opacity = opacityUniform;\n";
     if (lightComplexity)
       {
       colorImpl +=
-        "    specularColor = specularColorUniform;\n"
-        "    specularPower = specularPowerUniform;\n";
+        "  specularColor = specularColorUniform;\n"
+        "  specularPower = specularPowerUniform;\n";
       }
     }
 
