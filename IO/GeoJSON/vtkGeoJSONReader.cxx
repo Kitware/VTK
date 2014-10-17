@@ -35,6 +35,8 @@ vtkStandardNewMacro(vtkGeoJSONReader);
 vtkGeoJSONReader::vtkGeoJSONReader()
 {
   this->FileName = NULL;
+  this->StringInput = NULL;
+  this->StringInputMode = false;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -46,8 +48,14 @@ vtkGeoJSONReader::~vtkGeoJSONReader()
 }
 
 //----------------------------------------------------------------------------
-int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
+int vtkGeoJSONReader::CanParseFile(const char *filename, Json::Value &root)
 {
+  if (!filename)
+    {
+    vtkErrorMacro(<< "Input filename not specified");
+    return VTK_ERROR;
+    }
+
   ifstream file;
   file.open( filename );
 
@@ -73,6 +81,30 @@ int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
 }
 
 //----------------------------------------------------------------------------
+int vtkGeoJSONReader::CanParseString(char *input, Json::Value &root)
+{
+  if (!input)
+    {
+    vtkErrorMacro(<< "Input string is empty");
+    return VTK_ERROR;
+    }
+
+  Json::Reader reader;
+
+  //parse the entire geoJSON data into the Json::Value root
+  bool parsedSuccess = reader.parse(input, root, false);
+
+  if ( ! parsedSuccess )
+    {
+    // Report failures and their locations in the document
+    vtkErrorMacro(<<"Failed to parse JSON" << endl << reader.getFormatedErrorMessages());
+    return VTK_ERROR;
+    }
+
+  return VTK_OK;
+}
+
+//----------------------------------------------------------------------------
 int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
                                    vtkInformationVector** vtkNotUsed(request),
                                    vtkInformationVector* outputVector)
@@ -83,8 +115,19 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Get the ouptut
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  // Parse either string input of file, depeding on mode
   Json::Value root;
-  if ( CanParse(this->FileName, root) == VTK_ERROR )
+  int parseResult = 0;
+  if (this->StringInputMode)
+    {
+    parseResult = this->CanParseString(this->StringInput, root);
+    }
+  else
+    {
+    parseResult = this->CanParseFile(this->FileName, root);
+    }
+
+  if (parseResult != VTK_OK)
     {
     return VTK_ERROR;
     }

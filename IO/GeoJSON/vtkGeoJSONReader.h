@@ -38,6 +38,18 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Description:
+  // String used as data input (instead of file) when StringInputMode is enabled
+  vtkSetStringMacro(StringInput);
+  vtkGetStringMacro(StringInput);
+
+  // Description:
+  // Set/get whether to use StringInput instead of reading input from file
+  // The default is off
+  vtkSetMacro(StringInputMode, bool);
+  vtkGetMacro(StringInputMode, bool);
+  vtkBooleanMacro(StringInputMode, bool);
+
 protected:
   vtkGeoJSONReader();
   virtual ~vtkGeoJSONReader();
@@ -54,9 +66,16 @@ protected:
   // Decription:
   // Verify if file exists and can be read by the parser
   // If exists, parse into Jsoncpp data structure
-  int CanParse(const char *filename, Json::Value &root);
+  int CanParseFile(const char *filename, Json::Value &root);
+
+  // Decription:
+  // Verify if string can be read by the parser
+  // If exists, parse into Jsoncpp data structure
+  int CanParseString(char *input, Json::Value &root);
 
   char *FileName;
+  char *StringInput;
+  bool StringInputMode;
 
 private:
   vtkGeoJSONReader(const vtkGeoJSONReader&);  // Not implemented
