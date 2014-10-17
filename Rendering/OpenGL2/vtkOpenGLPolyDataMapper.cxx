@@ -497,7 +497,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "//VTK::Clip::Impl",
       "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
       "    {\n"
-      "    if (clipDistances[planeNum] < 0) discard;\n"
+      "    if (clipDistances[planeNum] < 0.0) discard;\n"
       "    }\n");
     }
 
