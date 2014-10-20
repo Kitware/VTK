@@ -11,6 +11,8 @@ set(Module_SRCS
   vtkFixedPointVolumeRayCastHelper.cxx
   vtkFixedPointVolumeRayCastMIPHelper.cxx
   vtkFixedPointVolumeRayCastMapper.cxx
+  vtkGPUVolumeRayCastMapper.cxx
+  vtkProjectedTetrahedraMapper.cxx
   vtkRayCastImageDisplayHelper.cxx
   vtkRecursiveSphereDirectionEncoder.cxx
   vtkSphericalDirectionEncoder.cxx
@@ -53,16 +55,11 @@ set_source_files_properties(
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set_source_files_properties(vtkSmartVolumeMapper.cxx
     PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-  set(Module_SRCS ${Module_SRCS}
-    vtkGPUVolumeRayCastMapper.cxx
-    )
 else()
 set(Module_SRCS ${Module_SRCS}
   vtkHAVSVolumeMapper.cxx
   vtkProjectedAAHexahedraMapper.cxx
-  vtkProjectedTetrahedraMapper.cxx
   vtkSmartVolumeMapper.cxx
-  vtkGPUVolumeRayCastMapper.cxx
   vtkVolumeTextureMapper2D.cxx
   vtkVolumeTextureMapper3D.cxx
   vtkVolumeTextureMapper.cxx

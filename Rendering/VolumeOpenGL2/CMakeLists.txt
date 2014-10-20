@@ -2,6 +2,7 @@ include(vtkObjectFactory)
 
 set(Module_SRCS
   vtkOpenGLGPUVolumeRayCastMapper.cxx
+  vtkOpenGLProjectedTetrahedraMapper.cxx
   vtkOpenGLRayCastImageDisplayHelper.cxx
   )
 
@@ -13,6 +14,8 @@ set_source_files_properties(
 set(shader_files
   shaders/raycasterfs.glsl
   shaders/raycastervs.glsl
+  shaders/vtkglProjectedTetrahedraVS.glsl
+  shaders/vtkglProjectedTetrahedraFS.glsl
   )
 
 unset(shader_h_files)
@@ -37,6 +40,7 @@ endforeach()
 # Now for the object factory.
 set(opengl_overrides
   GPUVolumeRayCastMapper
+  ProjectedTetrahedraMapper
   RayCastImageDisplayHelper
   )
 
