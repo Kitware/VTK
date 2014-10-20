@@ -541,6 +541,19 @@ bool vtkShaderProgram::SetUniform2f(const char *name, const float v[2])
   return true;
 }
 
+bool vtkShaderProgram::SetUniform2fv(const char *name, const int count,
+                                    const float (*f)[2])
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    return false;
+    }
+  glUniform2fv(location, count, (const GLfloat *)f);
+  return true;
+}
+
 bool vtkShaderProgram::SetUniform3f(const char *name, const float v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
