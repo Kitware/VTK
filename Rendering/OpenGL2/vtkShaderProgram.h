@@ -203,6 +203,7 @@ public:
   /** Set the @p name uniform array to @p f with @p count elements */
   bool SetUniform1iv(const char *name, const int count, const int *f);
   bool SetUniform1fv(const char *name, const int count, const float *f);
+  bool SetUniform2fv(const char *name, const int count, const float (*f)[2]);
   bool SetUniform3fv(const char *name, const int count, const float (*f)[3]);
   bool SetUniform4fv(const char *name, const int count, const float (*f)[4]);
 

@@ -3,7 +3,6 @@ include(vtkObjectFactory)
 set(Module_SRCS
   vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLRayCastImageDisplayHelper.cxx
-  vtkVolumeShader.cxx
   )
 
 set_source_files_properties(

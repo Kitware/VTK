@@ -1,7 +1,7 @@
 ﻿/*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLProjectedTetrahedraMapper.cxx
+  Module:    vtkOpenGLGPUVolumeRayCastMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,7 +15,6 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
-#include "vtkVolumeShader.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
 #include "vtkOpenGLGradientOpacityTable.h"
@@ -49,6 +48,8 @@
 #include <vtkPolyData.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
+#include <vtkShader.h>
+#include <vtkShaderProgram.h>
 #include <vtkSmartPointer.h>
 #include <vtkTessellatedBoxSource.h>
 #include <vtkTimerLog.h>
@@ -183,9 +184,6 @@ public:
 
   bool IsInitialized();
 
-  void CompileAndLinkShader(const string& vertexShader,
-                            const string& fragmentShader);
-
   void ComputeBounds(vtkImageData* input);
 
 
@@ -256,8 +254,6 @@ public:
   GLuint NoiseTextureId;
   GLuint DepthTextureId;
 
-  vtkVolumeShader Shader;
-
   int TextureWidth;
 
   double Scale;
@@ -305,6 +301,8 @@ public:
   vtkVolumeMask* CurrentMask;
 
   vtkImageData* PrevInput;
+
+  vtkNew<vtkShaderProgram> ShaderProgram;
 };
 
 //----------------------------------------------------------------------------
@@ -695,17 +693,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsInitialized()
 {
   return this->Initialized;
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CompileAndLinkShader(
-  const std::string& vertexShader, const std::string& fragmentShader)
-{
-  this->Shader.LoadFromString(GL_VERTEX_SHADER, vertexShader);
-  this->Shader.LoadFromString(GL_FRAGMENT_SHADER, fragmentShader);
-
-  // Compile and link the shader
-  this->Shader.CreateAndLinkProgram();
 }
 
 //----------------------------------------------------------------------------
@@ -1244,11 +1231,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
                   points->GetData()->GetDataTypeSize(),
                   points->GetData()->GetVoidPointer(0), GL_STATIC_DRAW);
 
-    // Enable vertex attributre array for position
-    // and pass indices to element array  buffer
-    glEnableVertexAttribArray(this->Shader["m_in_vertex_pos"]);
-    glVertexAttribPointer(this->Shader["m_in_vertex_pos"],
-                          3, GL_FLOAT, GL_FALSE, 0, 0);
+    this->ShaderProgram->EnableAttributeArray("m_in_vertex_pos");
+    this->ShaderProgram->UseAttributeArray("m_in_vertex_pos", 0, 0, VTK_FLOAT,
+                                           3, vtkShaderProgram::NoNormalize);
 
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, polys->GetDataSize() *
@@ -1261,9 +1246,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
     glBindVertexArray(this->CubeVAOId);
 #else
     glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
-    glEnableVertexAttribArray(this->Shader["m_in_vertex_pos"]);
-    glVertexAttribPointer(this->Shader["m_in_vertex_pos"],
-                          3, GL_FLOAT, GL_FALSE, 0, 0);
+    this->ShaderProgram->EnableAttributeArray("m_in_vertex_pos");
+    this->ShaderProgram->UseAttributeArray("m_in_vertex_pos", 0, 0, VTK_FLOAT,
+                                           3, vtkShaderProgram::NoNormalize);
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
 #endif
     }
@@ -1314,7 +1299,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
                             static_cast<float>(croppingRegionPlanes[4]),
                             static_cast<float>(croppingRegionPlanes[5]) };
 
-    glUniform1fv(this->Shader("cropping_planes"), 6, cropPlanes);
+    this->ShaderProgram->SetUniform1fv("cropping_planes", 6, cropPlanes);
     const int numberOfRegions = 32;
     int cropFlagsArray[numberOfRegions];
     cropFlagsArray[0] = 0;
@@ -1330,8 +1315,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
       cropFlagsArray[i] = 0;
       }
 
-    glUniform1iv(this->Shader("cropping_flags"), numberOfRegions,
-                 cropFlagsArray);
+    this->ShaderProgram->SetUniform1iv("cropping_flags",
+                                       numberOfRegions,
+                                       cropFlagsArray);
     }
 }
 
@@ -1368,8 +1354,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
     clippingPlanes[0] = clippingPlanes.size() > 0 ?
       (clippingPlanes.size() - 1) : 0;
 
-    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes.size(),
-                 &clippingPlanes[0]);
+    this->ShaderProgram->SetUniform1fv("m_clipping_planes",
+                                       clippingPlanes.size(),
+                                       &clippingPlanes[0]);
     }
 }
 
@@ -1610,7 +1597,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                                   int noOfComponents)
 {
   vtkVolumeProperty* volProperty = vol->GetProperty();
-  this->Impl->Shader.DeleteShaderProgram();
 
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
@@ -1710,83 +1696,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                       this->Impl->CurrentMask,
                                       this->MaskType), true);
 
-  // Compile and link it
-  this->Impl->CompileAndLinkShader(vertexShader, fragmentShader);
+  this->Impl->ShaderProgram->GetVertexShader()->SetSource(vertexShader);
+  this->Impl->ShaderProgram->GetFragmentShader()->SetSource(fragmentShader);
+  this->Impl->ShaderProgram->CompileShader();
 
-  // Add attributes and uniforms
-  this->Impl->Shader.AddAttribute("m_in_vertex_pos");
-
-  this->Impl->Shader.AddUniform("m_volume_matrix");
-  this->Impl->Shader.AddUniform("m_inverse_volume_matrix");
-  this->Impl->Shader.AddUniform("m_modelview_matrix");
-  this->Impl->Shader.AddUniform("m_inverse_modelview_matrix");
-  this->Impl->Shader.AddUniform("m_projection_matrix");
-  this->Impl->Shader.AddUniform("m_inverse_projection_matrix");
-  this->Impl->Shader.AddUniform("m_texture_dataset_matrix");
-  this->Impl->Shader.AddUniform("m_inverse_texture_dataset_matrix");
-  this->Impl->Shader.AddUniform("m_volume");
-  this->Impl->Shader.AddUniform("m_camera_pos");
-  this->Impl->Shader.AddUniform("m_light_pos");
-  this->Impl->Shader.AddUniform("m_cell_step");
-  this->Impl->Shader.AddUniform("m_cell_scale");
-  this->Impl->Shader.AddUniform("m_cell_spacing");
-  this->Impl->Shader.AddUniform("m_sample_distance");
-  this->Impl->Shader.AddUniform("m_scalars_range");
-
-  if (noOfComponents == 1 &&
-      this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+  if (!this->Impl->ShaderProgram->GetCompiled())
     {
-    this->Impl->Shader.AddUniform("m_color_transfer_func");
-    }
-
-  this->Impl->Shader.AddUniform("m_opacity_transfer_func");
-
-  if (volProperty->GetGradientOpacity())
-    {
-    this->Impl->Shader.AddUniform("m_gradient_transfer_func");
-    }
-
-  this->Impl->Shader.AddUniform("m_noise_sampler");
-  this->Impl->Shader.AddUniform("m_depth_sampler");
-  this->Impl->Shader.AddUniform("m_vol_extents_min");
-  this->Impl->Shader.AddUniform("m_vol_extents_max");
-  this->Impl->Shader.AddUniform("m_texture_extents_min");
-  this->Impl->Shader.AddUniform("m_texture_extents_max");
-  this->Impl->Shader.AddUniform("m_ambient");
-  this->Impl->Shader.AddUniform("m_diffuse");
-  this->Impl->Shader.AddUniform("m_specular");
-  this->Impl->Shader.AddUniform("m_shininess");
-  this->Impl->Shader.AddUniform("m_window_lower_left_corner");
-  this->Impl->Shader.AddUniform("m_inv_original_window_size");
-  this->Impl->Shader.AddUniform("m_inv_window_size");
-
-  if (this->GetCropping())
-    {
-    this->Impl->Shader.AddUniform("cropping_planes");
-    this->Impl->Shader.AddUniform("cropping_flags");
-    }
-
-  if (this->GetClippingPlanes())
-    {
-    this->Impl->Shader.AddUniform("m_clipping_planes");
-    this->Impl->Shader.AddUniform("m_clipping_planes_size");
-    }
-
-  if (this->Impl->CurrentMask)
-    {
-    this->Impl->Shader.AddUniform("m_mask");
-    }
-
-  if (this->MaskInput && this->MaskType == LabelMapMaskType)
-    {
-      this->Impl->Shader.AddUniform("m_mask_1");
-      this->Impl->Shader.AddUniform("m_mask_2");
-      this->Impl->Shader.AddUniform("m_mask_blendfactor");
-    }
-
-  if (ren->GetActiveCamera()->GetParallelProjection())
-    {
-    this->Impl->Shader.AddUniform("m_projection_direction");
+    vtkErrorMacro("Shader failed to compile");
     }
 
   this->Impl->ShaderBuildTime.Modified();
@@ -1856,8 +1772,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                          this->Impl->Extents, vol);
     }
 
-  this->Impl->UpdateVolumeGeometry(ren, vol, input);
-
   // Mask
   vtkVolumeMask* mask = 0;
   if(this->MaskInput != 0)
@@ -1893,6 +1807,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       ren->GetActiveCamera()->GetParallelProjection();
     this->BuildShader(ren, vol, numberOfScalarComponents);
     }
+
+  // Now use the shader
+  this->Impl->ShaderProgram->Bind();
+
+  this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
   // Update opacity transfer function
   // TODO Passing level 0 for now
@@ -1942,79 +1861,70 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->DatasetStepSize[2] = 1.0 / (this->Impl->LoadedBounds[5] -
                                           this->Impl->LoadedBounds[4]);
 
-  // Now use the shader
-  this->Impl->Shader.Use();
-
   if (ren->GetActiveCamera()->GetParallelProjection())
     {
     double dir[4];
     ren->GetActiveCamera()->GetDirectionOfProjection(dir);
     vtkInternal::ToFloat(dir[0], dir[1], dir[2], fvalue3);
-    glUniform3f(this->Impl->Shader("m_projection_direction"),
-                fvalue3[0], fvalue3[1], fvalue3[2]);
+    this->Impl->ShaderProgram->SetUniform3fv(
+      "m_projection_direction", 1, &fvalue3);
     }
 
   // Pass constant uniforms at initialization
   // Step should be dependant on the bounds and not on the texture size
   // since we can have non uniform voxel size / spacing / aspect ratio
   vtkInternal::ToFloat(this->Impl->CellStep, fvalue3);
-  glUniform3f(this->Impl->Shader("m_cell_step"),
-              fvalue3[0], fvalue3[1], fvalue3[2]);
+  this->Impl->ShaderProgram->SetUniform3fv("m_cell_step", 1, &fvalue3);
 
   vtkInternal::ToFloat(this->Impl->CellScale, fvalue3);
-  glUniform3f(this->Impl->Shader("m_cell_scale"),
-              fvalue3[0], fvalue3[1], fvalue3[2]);
+  this->Impl->ShaderProgram->SetUniform3fv("m_cell_scale", 1, &fvalue3);
 
   vtkInternal::ToFloat(this->Impl->CellSpacing, fvalue3);
-  glUniform3f(this->Impl->Shader("m_cell_spacing"),
-              fvalue3[0], fvalue3[1], fvalue3[2]);
+  this->Impl->ShaderProgram->SetUniform3fv("m_cell_spacing", 1, &fvalue3);
 
-  glUniform1f(this->Impl->Shader("m_sample_distance"),
-              this->Impl->ActualSampleDistance);
+  this->Impl->ShaderProgram->SetUniformf("m_sample_distance",
+                                         this->Impl->ActualSampleDistance);
+
 
   vtkInternal::ToFloat(this->Impl->ScalarsRange, fvalue2);
-  glUniform2f(this->Impl->Shader("m_scalars_range"),
-              fvalue2[0], fvalue2[1]);
+  this->Impl->ShaderProgram->SetUniform2fv("m_scalars_range", 1, &fvalue2);
 
-  glUniform1i(this->Impl->Shader("m_volume"), 0);
-  glUniform1i(this->Impl->Shader("m_opacity_transfer_func"), 2);
-  glUniform1i(this->Impl->Shader("m_noise_sampler"), 3);
-  glUniform1i(this->Impl->Shader("m_depth_sampler"), 4);
-  glUniform1i(this->Impl->Shader("m_gradient_transfer_func"), 5);
+  this->Impl->ShaderProgram->SetUniformi("m_volume", 0);
+  this->Impl->ShaderProgram->SetUniformi("m_opacity_transfer_func", 2);
+  this->Impl->ShaderProgram->SetUniformi("m_noise_sampler", 3);
+  this->Impl->ShaderProgram->SetUniformi("m_depth_sampler", 4);
+  this->Impl->ShaderProgram->SetUniformi("m_gradient_transfer_func", 5);
 
   if (this->Impl->CurrentMask)
     {
-    glUniform1i(this->Impl->Shader("m_mask"), 6);
+    this->Impl->ShaderProgram->SetUniformi("m_mask", 6);
     }
 
   if(numberOfScalarComponents == 1 &&
      this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
-    glUniform1i(this->Impl->Shader("m_color_transfer_func"), 1);
+    this->Impl->ShaderProgram->SetUniformi("m_color_transfer_func", 1);
 
     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
       {
-      glUniform1i(this->Impl->Shader("m_mask_1"), 7);
-      glUniform1i(this->Impl->Shader("m_mask_2"), 8);
-      glUniform1f(this->Impl->Shader("m_mask_blendfactor"),
-                  this->MaskBlendFactor);
+      this->Impl->ShaderProgram->SetUniformi("m_mask_1", 7);
+      this->Impl->ShaderProgram->SetUniformi("m_mask_2", 8);
+      this->Impl->ShaderProgram->SetUniformf("m_mask_blendfactor",
+                                             this->MaskBlendFactor);
       }
     }
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetAmbient();
-  glUniform3f(this->Impl->Shader("m_ambient"),
-              fvalue3[0], fvalue3[1], fvalue3[2]);
+  this->Impl->ShaderProgram->SetUniform3f("m_ambient", fvalue3);
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetDiffuse();
-  glUniform3f(this->Impl->Shader("m_diffuse"),
-              fvalue3[0], fvalue3[1], fvalue3[2]);
+  this->Impl->ShaderProgram->SetUniform3f("m_diffuse", fvalue3);
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetSpecular();
-  glUniform3f(this->Impl->Shader("m_specular"),
-              fvalue3[0], fvalue3[1], fvalue3[2]);
+  this->Impl->ShaderProgram->SetUniform3f("m_specular", fvalue3);
 
   fvalue3[0] = vol->GetProperty()->GetSpecularPower();
-  glUniform1f(this->Impl->Shader("m_shininess"), fvalue3[0]);
+  this->Impl->ShaderProgram->SetUniformf("m_shininess", fvalue3[0]);
 
   // Bind textures
   // Volume texture is at unit 0
@@ -2059,13 +1969,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseProjectionMat->DeepCopy(projectionMat4x4);
   this->Impl->InverseProjectionMat->Invert();
   vtkInternal::VtkToGlMatrix(projectionMat4x4, fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_projection_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_projection_matrix", &(fvalue16[0]));
 
   vtkInternal::VtkToGlMatrix(this->Impl->InverseProjectionMat.GetPointer(),
                              fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_inverse_projection_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_projection_matrix", &(fvalue16[0]));
 
   // Will require transpose of this matrix for OpenGL
   vtkMatrix4x4* modelviewMat4x4 =
@@ -2074,13 +1984,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseModelViewMat->Invert();
 
   vtkInternal::VtkToGlMatrix(modelviewMat4x4, fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_modelview_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_modelview_matrix", &(fvalue16[0]));
 
   vtkInternal::VtkToGlMatrix(this->Impl->InverseModelViewMat.GetPointer(),
                              fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_inverse_modelview_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_modelview_matrix", &(fvalue16[0]));
 
   // Will require transpose of this matrix for OpenGL
   // Scene matrix
@@ -2089,13 +1999,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseVolumeMat->Invert();
 
   vtkInternal::VtkToGlMatrix(volumeMatrix4x4, fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_volume_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_volume_matrix", &(fvalue16[0]));
 
   vtkInternal::VtkToGlMatrix(this->Impl->InverseVolumeMat.GetPointer(),
                              fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_inverse_volume_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_volume_matrix", &(fvalue16[0]));
 
   // Compute texture to dataset matrix
   this->Impl->TextureToDataSetMat->Identity();
@@ -2119,55 +2029,51 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseTextureToDataSetMat->Invert();
   vtkInternal::VtkToGlMatrix(this->Impl->TextureToDataSetMat.GetPointer(),
                              fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_texture_dataset_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+  "m_texture_dataset_matrix", &(fvalue16[0]));
+
   vtkInternal::VtkToGlMatrix(
     this->Impl->InverseTextureToDataSetMat.GetPointer(), fvalue16);
-  glUniformMatrix4fv(this->Impl->Shader("m_inverse_texture_dataset_matrix"), 1,
-                     GL_FALSE, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_texture_dataset_matrix", &(fvalue16[0]));
 
   vtkInternal::ToFloat(ren->GetActiveCamera()->GetPosition(), fvalue3, 3);
-  glUniform3fv(this->Impl->Shader("m_camera_pos"), 1, &(fvalue3[0]));
+  this->Impl->ShaderProgram->SetUniform3fv("m_camera_pos", 1, &fvalue3);
 
   // NOTE Assuming that light is located on the camera
-  glUniform3fv(this->Impl->Shader("m_light_pos"), 1, &(fvalue3[0]));
+  this->Impl->ShaderProgram->SetUniform3fv("m_light_pos", 1, &fvalue3);
 
   vtkInternal::ToFloat(this->Impl->LoadedBounds[0],
                        this->Impl->LoadedBounds[2],
                        this->Impl->LoadedBounds[4], fvalue3);
-  glUniform3fv(this->Impl->Shader("m_vol_extents_min"), 1,
-               &(fvalue3[0]));
+  this->Impl->ShaderProgram->SetUniform3fv("m_vol_extents_min", 1, &fvalue3);
 
   vtkInternal::ToFloat(this->Impl->LoadedBounds[1],
                        this->Impl->LoadedBounds[3],
                        this->Impl->LoadedBounds[5], fvalue3);
-  glUniform3fv(this->Impl->Shader("m_vol_extents_max"), 1,
-               &(fvalue3[0]));
+  this->Impl->ShaderProgram->SetUniform3fv("m_vol_extents_max", 1, &fvalue3);
 
   vtkInternal::ToFloat(this->Impl->Extents[0],
                        this->Impl->Extents[2],
                        this->Impl->Extents[4], fvalue3);
-  glUniform3fv(this->Impl->Shader("m_texture_extents_min"), 1,
-               &(fvalue3[0]));
+  this->Impl->ShaderProgram->SetUniform3fv("m_texture_extents_min", 1, &fvalue3);
+
   vtkInternal::ToFloat(this->Impl->Extents[1],
                        this->Impl->Extents[3],
                        this->Impl->Extents[5], fvalue3);
-  glUniform3fv(this->Impl->Shader("m_texture_extents_max"), 1,
-               &(fvalue3[0]));
+  this->Impl->ShaderProgram->SetUniform3fv("m_texture_extents_max", 1, &fvalue3);
 
   // TODO Take consideration of reduction factor
   vtkInternal::ToFloat(this->Impl->WindowLowerLeft, fvalue2);
-  glUniform2fv(this->Impl->Shader("m_window_lower_left_corner"),
-               1, &fvalue2[0]);
+  this->Impl->ShaderProgram->SetUniform2fv("m_window_lower_left_corner", 1, &fvalue2);
 
   vtkInternal::ToFloat(1.0 / this->Impl->WindowSize[0],
                        1.0 / this->Impl->WindowSize[1], fvalue2);
-  glUniform2fv(this->Impl->Shader("m_inv_original_window_size"),
-               1, &fvalue2[0]);
+  this->Impl->ShaderProgram->SetUniform2fv("m_inv_original_window_size", 1, &fvalue2);
 
   vtkInternal::ToFloat(1.0 / this->Impl->WindowSize[0],
                        1.0 / this->Impl->WindowSize[1], fvalue2);
-  glUniform2fv(this->Impl->Shader("m_inv_window_size"), 1, &fvalue2[0]);
+  this->Impl->ShaderProgram->SetUniform2fv("m_inv_window_size", 1, &fvalue2);
 
   // Updating cropping if enabled
   this->Impl->UpdateCropping(ren, vol);
@@ -2182,9 +2088,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);
 
-  // Undo binds and state changes
-  // TODO Provide a stack Impl
-  this->Impl->Shader.UnUse();
+  this->Impl->ShaderProgram->Release();
 
   this->Impl->PrevInput = input;
 }
