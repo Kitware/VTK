@@ -47,7 +47,6 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 
   int lowerLeft[2];
   int usize, vsize;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
@@ -129,8 +128,6 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     {
     ren->Clear();
     }
-
-  matrix->Delete();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

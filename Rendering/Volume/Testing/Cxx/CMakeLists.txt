@@ -28,8 +28,11 @@ set (VolumeOpenGLNew_GPURayCastTests
   TestGPURayCastVolumeScale.cxx
   )
 
+# everyone gets these tests
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${GPURayCastTests}
+  TestProjectedTetrahedra.cxx
+  ProjectedTetrahedraZoomIn.cxx,NO_VALID
   )
 
 # If OpenGL2 backend, add all GPURayCastTests
@@ -54,14 +57,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   PartialPreIntegration.cxx
   PreIntegrationIncremental.cxx
   PreIntegrationNonIncremental.cxx
-  ProjectedTetrahedraZoomIn.cxx,NO_VALID
   TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
   TestHAVSVolumeMapper.cxx
   TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx
-  TestProjectedTetrahedra.cxx
   TestProp3DFollower.cxx
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
