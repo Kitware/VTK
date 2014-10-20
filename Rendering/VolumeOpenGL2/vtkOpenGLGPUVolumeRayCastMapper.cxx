@@ -15,7 +15,6 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
-#include "vtkVolumeShader.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
 #include "vtkOpenGLGradientOpacityTable.h"
@@ -185,9 +184,6 @@ public:
 
   bool IsInitialized();
 
-  void CompileAndLinkShader(const string& vertexShader,
-                            const string& fragmentShader);
-
   void ComputeBounds(vtkImageData* input);
 
 
@@ -257,8 +253,6 @@ public:
   GLuint VolumeTextureId;
   GLuint NoiseTextureId;
   GLuint DepthTextureId;
-
-  vtkVolumeShader Shader;
 
   int TextureWidth;
 
@@ -699,17 +693,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsInitialized()
 {
   return this->Initialized;
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CompileAndLinkShader(
-  const std::string& vertexShader, const std::string& fragmentShader)
-{
-  this->Shader.LoadFromString(GL_VERTEX_SHADER, vertexShader);
-  this->Shader.LoadFromString(GL_FRAGMENT_SHADER, fragmentShader);
-
-  // Compile and link the shader
-  this->Shader.CreateAndLinkProgram();
 }
 
 //----------------------------------------------------------------------------
@@ -1248,6 +1231,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
                   points->GetData()->GetDataTypeSize(),
                   points->GetData()->GetVoidPointer(0), GL_STATIC_DRAW);
 
+    this->ShaderProgram->EnableAttributeArray("m_in_vertex_pos");
     this->ShaderProgram->UseAttributeArray("m_in_vertex_pos", 0, 0, VTK_FLOAT,
                                            3, vtkShaderProgram::NoNormalize);
 
@@ -1262,9 +1246,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
     glBindVertexArray(this->CubeVAOId);
 #else
     glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
-    glEnableVertexAttribArray(this->Shader["m_in_vertex_pos"]);
-    glVertexAttribPointer(this->Shader["m_in_vertex_pos"],
-                          3, GL_FLOAT, GL_FALSE, 0, 0);
+    this->ShaderProgram->EnableAttributeArray("m_in_vertex_pos");
+    this->ShaderProgram->UseAttributeArray("m_in_vertex_pos", 0, 0, VTK_FLOAT,
+                                           3, vtkShaderProgram::NoNormalize);
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
 #endif
     }
@@ -1370,8 +1354,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
     clippingPlanes[0] = clippingPlanes.size() > 0 ?
       (clippingPlanes.size() - 1) : 0;
 
-    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes.size(),
-                 &clippingPlanes[0]);
+    this->ShaderProgram->SetUniform1fv("m_clipping_planes",
+                                       clippingPlanes.size(),
+                                       &clippingPlanes[0]);
     }
 }
 
@@ -1612,7 +1597,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                                   int noOfComponents)
 {
   vtkVolumeProperty* volProperty = vol->GetProperty();
-  this->Impl->Shader.DeleteShaderProgram();
 
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
@@ -1788,8 +1772,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                          this->Impl->Extents, vol);
     }
 
-  this->Impl->UpdateVolumeGeometry(ren, vol, input);
-
   // Mask
   vtkVolumeMask* mask = 0;
   if(this->MaskInput != 0)
@@ -1828,6 +1810,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Now use the shader
   this->Impl->ShaderProgram->Bind();
+
+  this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
   // Update opacity transfer function
   // TODO Passing level 0 for now
@@ -1877,16 +1861,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->DatasetStepSize[2] = 1.0 / (this->Impl->LoadedBounds[5] -
                                           this->Impl->LoadedBounds[4]);
 
-  // Now use the shader
-  this->Impl->Shader.Use();
-
   if (ren->GetActiveCamera()->GetParallelProjection())
     {
     double dir[4];
     ren->GetActiveCamera()->GetDirectionOfProjection(dir);
     vtkInternal::ToFloat(dir[0], dir[1], dir[2], fvalue3);
-    glUniform3f(this->Impl->Shader("m_projection_direction"),
-                fvalue3[0], fvalue3[1], fvalue3[2]);
+    this->Impl->ShaderProgram->SetUniform3fv(
+      "m_projection_direction", 1, &fvalue3);
     }
 
   // Pass constant uniforms at initialization
@@ -1988,12 +1969,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseProjectionMat->DeepCopy(projectionMat4x4);
   this->Impl->InverseProjectionMat->Invert();
   vtkInternal::VtkToGlMatrix(projectionMat4x4, fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_projection_matrix", 16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_projection_matrix", &(fvalue16[0]));
 
   vtkInternal::VtkToGlMatrix(this->Impl->InverseProjectionMat.GetPointer(),
                              fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_inverse_projection_matrix",
-                                           16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_projection_matrix", &(fvalue16[0]));
 
   // Will require transpose of this matrix for OpenGL
   vtkMatrix4x4* modelviewMat4x4 =
@@ -2002,13 +1984,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseModelViewMat->Invert();
 
   vtkInternal::VtkToGlMatrix(modelviewMat4x4, fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_modelview_matrix",
-                                           16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_modelview_matrix", &(fvalue16[0]));
 
   vtkInternal::VtkToGlMatrix(this->Impl->InverseModelViewMat.GetPointer(),
                              fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_inverse_modelview_matrix",
-                                           16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_modelview_matrix", &(fvalue16[0]));
 
   // Will require transpose of this matrix for OpenGL
   // Scene matrix
@@ -2017,13 +1999,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseVolumeMat->Invert();
 
   vtkInternal::VtkToGlMatrix(volumeMatrix4x4, fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_volume_matrix",
-                                           16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_volume_matrix", &(fvalue16[0]));
 
   vtkInternal::VtkToGlMatrix(this->Impl->InverseVolumeMat.GetPointer(),
                              fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_inverse_volume_matrix",
-                                           16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_volume_matrix", &(fvalue16[0]));
 
   // Compute texture to dataset matrix
   this->Impl->TextureToDataSetMat->Identity();
@@ -2047,13 +2029,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseTextureToDataSetMat->Invert();
   vtkInternal::VtkToGlMatrix(this->Impl->TextureToDataSetMat.GetPointer(),
                              fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_texture_dataset_matrix",
-                                           16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+  "m_texture_dataset_matrix", &(fvalue16[0]));
 
   vtkInternal::VtkToGlMatrix(
     this->Impl->InverseTextureToDataSetMat.GetPointer(), fvalue16);
-  this->Impl->ShaderProgram->SetUniform1fv("m_inverse_texture_dataset_matrix",
-                                           16, &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_inverse_texture_dataset_matrix", &(fvalue16[0]));
 
   vtkInternal::ToFloat(ren->GetActiveCamera()->GetPosition(), fvalue3, 3);
   this->Impl->ShaderProgram->SetUniform3fv("m_camera_pos", 1, &fvalue3);
