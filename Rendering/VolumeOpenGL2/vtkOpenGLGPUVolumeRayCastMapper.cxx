@@ -110,12 +110,6 @@ public:
     this->MaskTextures = new vtkMapMaskTextureId;
 
     this->PrevInput = NULL;
-
-    this->VertexShader->SetType(vtkShader::Vertex);
-    this->FragmentShader->SetType(vtkShader::Fragment);
-
-    this->ShaderProgram->AttachShader(this->VertexShader.GetPointer());
-    this->ShaderProgram->AttachShader(this->FragmentShader.GetPointer());
     }
 
   // Destructor
@@ -314,8 +308,6 @@ public:
 
   vtkImageData* PrevInput;
 
-  vtkNew<vtkShader> VertexShader;
-  vtkNew<vtkShader> FragmentShader;
   vtkNew<vtkShaderProgram> ShaderProgram;
 };
 
@@ -1720,89 +1712,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                       this->Impl->CurrentMask,
                                       this->MaskType), true);
 
-  this->Impl->VertexShader->SetSource(vertexShader);
-  this->Impl->FragmentShader->SetSource(fragmentShader);
-
-  // Compile and link it
-  this->Impl->CompileAndLinkShader(vertexShader, fragmentShader);
-
-  // Add attributes and uniforms
-//  this->Impl->Shader.AddAttribute("m_in_vertex_pos");
-
-//  this->Impl->Shader.AddUniform("m_volume_matrix");
-//  this->Impl->Shader.AddUniform("m_inverse_volume_matrix");
-//  this->Impl->Shader.AddUniform("m_modelview_matrix");
-//  this->Impl->Shader.AddUniform("m_inverse_modelview_matrix");
-//  this->Impl->Shader.AddUniform("m_projection_matrix");
-//  this->Impl->Shader.AddUniform("m_inverse_projection_matrix");
-//  this->Impl->Shader.AddUniform("m_texture_dataset_matrix");
-//  this->Impl->Shader.AddUniform("m_inverse_texture_dataset_matrix");
-//  this->Impl->Shader.AddUniform("m_volume");
-//  this->Impl->Shader.AddUniform("m_camera_pos");
-//  this->Impl->Shader.AddUniform("m_light_pos");
-//  this->Impl->Shader.AddUniform("m_cell_step");
-//  this->Impl->Shader.AddUniform("m_cell_scale");
-//  this->Impl->Shader.AddUniform("m_cell_spacing");
-//  this->Impl->Shader.AddUniform("m_sample_distance");
-//  this->Impl->Shader.AddUniform("m_scalars_range");
-
-//  if (noOfComponents == 1 &&
-//      this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-//    {
-//    this->Impl->Shader.AddUniform("m_color_transfer_func");
-//    }
-
-//  this->Impl->Shader.AddUniform("m_opacity_transfer_func");
-
-//  if (volProperty->GetGradientOpacity())
-//    {
-//    this->Impl->Shader.AddUniform("m_gradient_transfer_func");
-//    }
-
-//  this->Impl->Shader.AddUniform("m_noise_sampler");
-//  this->Impl->Shader.AddUniform("m_depth_sampler");
-//  this->Impl->Shader.AddUniform("m_vol_extents_min");
-//  this->Impl->Shader.AddUniform("m_vol_extents_max");
-//  this->Impl->Shader.AddUniform("m_texture_extents_min");
-//  this->Impl->Shader.AddUniform("m_texture_extents_max");
-//  this->Impl->Shader.AddUniform("m_ambient");
-//  this->Impl->Shader.AddUniform("m_diffuse");
-//  this->Impl->Shader.AddUniform("m_specular");
-//  this->Impl->Shader.AddUniform("m_shininess");
-//  this->Impl->Shader.AddUniform("m_window_lower_left_corner");
-//  this->Impl->Shader.AddUniform("m_inv_original_window_size");
-//  this->Impl->Shader.AddUniform("m_inv_window_size");
-
-//  if (this->GetCropping())
-//    {
-//    this->Impl->Shader.AddUniform("cropping_planes");
-//    this->Impl->Shader.AddUniform("cropping_flags");
-//    }
-
-//  if (this->GetClippingPlanes())
-//    {
-//    this->Impl->Shader.AddUniform("m_clipping_planes");
-//    this->Impl->Shader.AddUniform("m_clipping_planes_size");
-//    }
-
-//  if (this->Impl->CurrentMask)
-//    {
-//    this->Impl->Shader.AddUniform("m_mask");
-//    }
-
-//  if (this->MaskInput && this->MaskType == LabelMapMaskType)
-//    {
-//      this->Impl->Shader.AddUniform("m_mask_1");
-//      this->Impl->Shader.AddUniform("m_mask_2");
-//      this->Impl->Shader.AddUniform("m_mask_blendfactor");
-//    }
-
-//  if (ren->GetActiveCamera()->GetParallelProjection())
-//    {
-//    this->Impl->Shader.AddUniform("m_projection_direction");
-//    }
-
-
+  this->Impl->ShaderProgram->GetVertexShader()->SetSource(vertexShader);
+  this->Impl->ShaderProgram->GetFragmentShader()->SetSource(fragmentShader);
   this->Impl->ShaderProgram->CompileShader();
 
   if (!this->Impl->ShaderProgram->GetCompiled())
@@ -1914,6 +1825,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       ren->GetActiveCamera()->GetParallelProjection();
     this->BuildShader(ren, vol, numberOfScalarComponents);
     }
+
+  // Now use the shader
+  this->Impl->ShaderProgram->Bind();
 
   // Update opacity transfer function
   // TODO Passing level 0 for now
