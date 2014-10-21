@@ -18,6 +18,7 @@
 #include "vtkAMRInformation.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
+#include "vtkFieldData.h"
 #include "vtkGenericDataObjectReader.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
@@ -244,6 +245,7 @@ int vtkCompositeDataReader::RequestData(vtkInformation *, vtkInformationVector *
 bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
 {
   char line[256];
+
   if (!this->ReadString(line))
     {
     vtkErrorMacro("Failed to read block-count");
@@ -304,6 +306,12 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
       // eat up the ENDCHILD marker.
       this->ReadString(line);
       }
+    }
+
+  if (this->ReadString(line) && strncmp(this->LowerCase(line),"field",5) == 0)
+    {
+    vtkSmartPointer< vtkFieldData > fd = vtkSmartPointer< vtkFieldData >::Take(this->ReadFieldData());
+    mb->SetFieldData(fd);
     }
 
   return true;
