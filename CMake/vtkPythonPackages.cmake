@@ -17,7 +17,7 @@ function(copy_files_recursive source-dir)
   set (label "Copying files")
 
   set (doing "")
-  foreach (arg ${ARGN})
+  foreach (arg IN LISTS ARGN)
     if (arg MATCHES "^(DESTINATION|REGEX|OUTPUT|LABEL)$")
       set (doing "${arg}")
     elseif ("${doing}" STREQUAL "DESTINATION")
