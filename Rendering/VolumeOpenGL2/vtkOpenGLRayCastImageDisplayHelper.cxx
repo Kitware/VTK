@@ -71,8 +71,10 @@ vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
   vtkNew<vtkOpenGLTexture> texture;
   texture->RepeatOff();
 
-  vtkNew<vtkTextureObject> textureObject;
-  texture->SetTextureObject(textureObject.Get());
+  this->TextureObject = vtkTextureObject::New();
+  texture->SetTextureObject(this->TextureObject);
+
+  this->TextureActor->SetTexture(texture.GetPointer());
 
   vtkNew<vtkFloatArray> tcoords;
   tcoords->SetNumberOfComponents(2);
@@ -246,14 +248,15 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   viewToWorldMatrix->Delete();
 
   // Save state
-  glPushAttrib(GL_ENABLE_BIT         |
-               GL_COLOR_BUFFER_BIT   |
-               GL_STENCIL_BUFFER_BIT |
-               GL_DEPTH_BUFFER_BIT   |
-               GL_POLYGON_BIT        |
-               GL_PIXEL_MODE_BIT     |
-               GL_TEXTURE_BIT);
+//  glPushAttrib(GL_ENABLE_BIT         |
+//               GL_COLOR_BUFFER_BIT   |
+//               GL_STENCIL_BUFFER_BIT |
+//               GL_DEPTH_BUFFER_BIT   |
+//               GL_POLYGON_BIT        |
+//               GL_PIXEL_MODE_BIT     |
+//               GL_TEXTURE_BIT);
 
+  // We still need these
   glPixelTransferf( GL_RED_SCALE,    this->PixelScale );
   glPixelTransferf( GL_GREEN_SCALE,  this->PixelScale );
   glPixelTransferf( GL_BLUE_SCALE,   this->PixelScale );
@@ -275,8 +278,11 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   // Don't write into the Zbuffer - just use it for comparisons
   glDepthMask( 0 );
 
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+  this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+  this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
+
+//  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
   // Specify the texture
   glColor3f(1.0,1.0,1.0);
@@ -285,24 +291,34 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
     {
     // Test the texture to see if it fits in memory
-    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_BYTE,
-                  static_cast<unsigned char *>(image) );
+//    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
+//                  imageMemorySize[0], imageMemorySize[1],
+//                  0, GL_RGBA, GL_UNSIGNED_BYTE,
+//                  static_cast<unsigned char *>(image) );
+    this->TextureObject->Create2DFromRaw(
+      imageMemorySize[0], imageMemorySize[1], 4,
+      VTK_UNSIGNED_CHAR, static_cast<unsigned char *>(image));
     }
   else
     {
     // Test the texture to see if it fits in memory
-    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_SHORT,
-                  static_cast<unsigned short *>(image) );
+//    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
+//                  imageMemorySize[0], imageMemorySize[1],
+//                  0, GL_RGBA, GL_UNSIGNED_SHORT,
+//                  static_cast<unsigned short *>(image) );
+
+    this->TextureObject->Create2DFromRaw(
+      imageMemorySize[0], imageMemorySize[1], 4,
+      VTK_UNSIGNED_SHORT, static_cast<unsigned char *>(image));
     }
 
-  GLint params[1];
-  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,
-                             GL_TEXTURE_WIDTH, params );
+//  GLint params[1];
+//  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,
+//                             GL_TEXTURE_WIDTH, params );
 
+
+#if 0
+  // NOTE: For now assume that we can fit the entire texture in memory
   // if it does, we will render it later. define the texture here
   if ( params[0] != 0 )
     {
@@ -523,6 +539,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
     return;
     }
+#endif
 
   offsetX = .5 / static_cast<float>(imageMemorySize[0]);
   offsetY = .5 / static_cast<float>(imageMemorySize[1]);
@@ -545,7 +562,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
 
   // Restore state
-  glPopAttrib();
+//  glPopAttrib();
 
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
 }
