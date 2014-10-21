@@ -140,6 +140,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                VTK_UNSIGNED_SHORT, static_cast<void *>(image) );
 }
 
+#include <vtkOpenGLRenderWindow.h>
 void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                                                                 vtkRenderer *ren,
                                                                 int imageMemorySize[2],
@@ -151,6 +152,10 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                                                                 void *image )
 {
   vtkOpenGLClearErrorMacro();
+
+  // Set the context
+  this->TextureObject->SetContext(
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   float offsetX, offsetY;
   float xMinOffset, xMaxOffset, yMinOffset, yMaxOffset;
@@ -559,11 +564,13 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   // Render the polygon
   polydata->Modified();
-  this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
+  this->TextureObject->Bind();
+  this->TextureActor->RenderOpaqueGeometry(ren);
 
   // Restore state
 //  glPopAttrib();
 
+  this->TextureObject->UnBind();
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
 }
 
