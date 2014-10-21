@@ -138,6 +138,23 @@ if (NOT VTK_LEGACY_REMOVE)
     vtkOpenGLPolyDataMapper.cxx)
 endif()
 
+if(VTK_USE_TDX)
+  list(APPEND Module_SRCS
+    vtkTDxDevice.cxx
+    vtkTDxInteractorStyleGeo.cxx)
+
+  if(WIN32)
+   list(APPEND Module_SRCS vtkTDxWinDevice.cxx)
+  endif()
+  if(UNIX)
+    list(APPEND Module_SRCS vtkTDxUnixDevice.cxx)
+  endif()
+  if(APPLE)
+    list(APPEND Module_SRCS vtkTDxMacDevice.cxx)
+  endif()
+endif()
+
+
 set(${vtk-module}_HDRS
   vtkgluPickMatrix.h
   vtkOpenGL.h

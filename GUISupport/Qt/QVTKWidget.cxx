@@ -44,11 +44,11 @@
 #include "qsignalmapper.h"
 #include "qtimer.h"
 #include "vtkRenderingOpenGLConfigure.h"
-#if defined(Q_WS_X11)
+#if defined(Q_OS_X11)
 #include "qx11info_x11.h"
 #endif
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
 # include <windows.h>
 # include <QSysInfo>
 #endif
@@ -131,6 +131,7 @@ void QVTKWidget::SetUseTDx(bool useTDx)
   if(useTDx!=this->UseTDx)
     {
     this->UseTDx=useTDx;
+
     if(this->UseTDx)
       {
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
@@ -809,7 +810,7 @@ void QVTKWidget::x11_setup_window()
 #endif
 }
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
 bool QVTKWidget::winEvent(MSG* msg, long*)
 {
   // Starting with Windows Vista, Microsoft introduced WDDM.
@@ -818,7 +819,7 @@ bool QVTKWidget::winEvent(MSG* msg, long*)
   if(msg->message == WM_PAINT &&
     QSysInfo::windowsVersion() >= QSysInfo::WV_VISTA)
     {
-    InvalidateRect(this->winId(), NULL, FALSE);
+    InvalidateRect((HWND)this->winId(), NULL, FALSE);
     }
   return false;
 }
