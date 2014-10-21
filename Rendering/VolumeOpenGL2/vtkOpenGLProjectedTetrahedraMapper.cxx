@@ -933,11 +933,11 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         indices[4] = segment2[1];
         indices[5] = segment1[0];
         // add the cells to the IBO
-        for (int i = 0; i < 4; i++)
+        for (int cellIdx = 0; cellIdx < 4; cellIdx++)
           {
           indexArray.push_back(indices[0]+numPts);
-          indexArray.push_back(indices[i+1]+numPts);
-          indexArray.push_back(indices[i+2]+numPts);
+          indexArray.push_back(indices[cellIdx+1]+numPts);
+          indexArray.push_back(indices[cellIdx+2]+numPts);
           }
         }
       else
@@ -1007,28 +1007,28 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         indices[4] = segment1[0];
 
         // add the cells to the IBO
-        for (int i = 0; i < 3; i++)
+        for (int cellIdx = 0; cellIdx < 3; cellIdx++)
           {
           indexArray.push_back(indices[0]+numPts);
-          indexArray.push_back(indices[i+1]+numPts);
-          indexArray.push_back(indices[i+2]+numPts);
+          indexArray.push_back(indices[cellIdx+1]+numPts);
+          indexArray.push_back(indices[cellIdx+2]+numPts);
           }
         }
 
       // add the points to the VBO
       unsigned char c[4];
       c[3] =  255;
-      for (int i = 0; i < 5; i++)
+      for (int ptIdx = 0; ptIdx < 5; ptIdx++)
         {
-        *(it++) = tet_points[i*3];
-        *(it++) = tet_points[i*3+1];
-        *(it++) = tet_points[i*3+2];
-        c[0] = tet_colors[i*3];
-        c[1] = tet_colors[i*3+1];
-        c[2] = tet_colors[i*3+2];
+        *(it++) = tet_points[ptIdx*3];
+        *(it++) = tet_points[ptIdx*3+1];
+        *(it++) = tet_points[ptIdx*3+2];
+        c[0] = tet_colors[ptIdx*3];
+        c[1] = tet_colors[ptIdx*3+1];
+        c[2] = tet_colors[ptIdx*3+2];
         *(it++) = *reinterpret_cast<float *>(c);
-        *(it++) = tet_texcoords[i*2]; // attenuation
-        *(it++) = tet_texcoords[i*2+1]; // depth
+        *(it++) = tet_texcoords[ptIdx*2]; // attenuation
+        *(it++) = tet_texcoords[ptIdx*2+1]; // depth
         }
       numPts += 5;
       }
