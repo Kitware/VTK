@@ -7,6 +7,7 @@ set(Module_SRCS
   vtkOpenGLRayCastImageDisplayHelper.cxx
   vtkOpenGLVolumeTextureMapper2D.cxx
   vtkOpenGLVolumeTextureMapper3D.cxx
+  vtkSmartVolumeMapper.cxx
   )
 
 if (NOT Module_vtkRenderingVolumeOpenGLNew)

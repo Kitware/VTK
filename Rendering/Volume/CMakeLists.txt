@@ -52,18 +52,14 @@ set_source_files_properties(
   )
 
 # only some volume mappers are supported for the OpenGL2 backend
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set_source_files_properties(vtkSmartVolumeMapper.cxx
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-else()
-set(Module_SRCS ${Module_SRCS}
-  vtkHAVSVolumeMapper.cxx
-  vtkProjectedAAHexahedraMapper.cxx
-  vtkSmartVolumeMapper.cxx
-  vtkVolumeTextureMapper2D.cxx
-  vtkVolumeTextureMapper3D.cxx
-  vtkVolumeTextureMapper.cxx
-  )
+if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(Module_SRCS ${Module_SRCS}
+    vtkHAVSVolumeMapper.cxx
+    vtkProjectedAAHexahedraMapper.cxx
+    vtkVolumeTextureMapper2D.cxx
+    vtkVolumeTextureMapper3D.cxx
+    vtkVolumeTextureMapper.cxx
+    )
 endif()
 
 
