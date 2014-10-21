@@ -557,9 +557,15 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   polydata->Modified();
   this->TextureObject->Bind();
   this->TextureActor->RenderOpaqueGeometry(ren);
-
   this->TextureObject->UnBind();
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
+
+  glDisable(GL_BLEND );
+
+  glPixelTransferf( GL_RED_SCALE,    1);
+  glPixelTransferf( GL_GREEN_SCALE,  1);
+  glPixelTransferf( GL_BLUE_SCALE,   1);
+  glPixelTransferf( GL_ALPHA_SCALE,  1);
 }
 
 void vtkOpenGLRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
