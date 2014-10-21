@@ -18,9 +18,19 @@
 #include "vtkObjectFactory.h"
 #include "vtkVolume.h"
 #include "vtkRenderer.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 #include "vtkFixedPointRayCastImage.h"
+#include "vtkNew.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkCellArray.h"
+#include "vtkPointData.h"
+#include "vtkTrivialProducer.h"
+#include "vtkFloatArray.h"
+#include "vtkTextureObject.h"
+     #include "vtkOpenGLTexture.h"
 
 #include "vtk_glew.h"
 
@@ -33,11 +43,51 @@ vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 // Construct a new vtkOpenGLRayCastImageDisplayHelper with default values
 vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
 {
+  this->TextureActor = vtkActor::New();
+  vtkNew<vtkPolyDataMapper> mapper;
+  vtkNew<vtkPolyData> polydata;
+  vtkNew<vtkPoints> points;
+  points->SetNumberOfPoints(4);
+  polydata->SetPoints(points.Get());
+
+  vtkNew<vtkCellArray> tris;
+  tris->InsertNextCell(3);
+  tris->InsertCellPoint(0);
+  tris->InsertCellPoint(1);
+  tris->InsertCellPoint(2);
+  tris->InsertNextCell(3);
+  tris->InsertCellPoint(0);
+  tris->InsertCellPoint(2);
+  tris->InsertCellPoint(3);
+  polydata->SetPolys(tris.Get());
+
+  vtkNew<vtkTrivialProducer> prod;
+  prod->SetOutput(polydata.Get());
+
+  // Set some properties.
+  mapper->SetInputConnection(prod->GetOutputPort());
+  this->TextureActor->SetMapper(mapper.Get());
+
+  vtkNew<vtkOpenGLTexture> texture;
+  texture->RepeatOff();
+
+  vtkNew<vtkTextureObject> textureObject;
+  texture->SetTextureObject(textureObject.Get());
+
+  vtkNew<vtkFloatArray> tcoords;
+  tcoords->SetNumberOfComponents(2);
+  tcoords->SetNumberOfTuples(4);
+  polydata->GetPointData()->SetTCoords(tcoords.Get());
 }
 
 // Destruct a vtkOpenGLRayCastImageDisplayHelper - clean up any memory used
 vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
 {
+  if (this->TextureActor)
+    {
+    this->TextureActor->Delete();
+    this->TextureActor = 0;
+    }
 }
 
 // imageMemorySize   is how big the texture is - this is always a power of two
@@ -100,10 +150,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 {
   vtkOpenGLClearErrorMacro();
 
-  int i;
   float offsetX, offsetY;
   float xMinOffset, xMaxOffset, yMinOffset, yMaxOffset;
-  float tcoords[8];
 
   float depth;
   if ( requestedDepth > 0.0 && requestedDepth <= 1.0 )
@@ -124,8 +172,12 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     depth = ren->GetViewPoint()[2];
     }
 
-    // Convert the four corners of the image into world coordinates
-  float verts[12];
+  // Convert the four corners of the image into world coordinates
+  // hard casts should be good here as we created all these objects
+  // in our constructor.
+  vtkPolyData *polydata = (vtkPolyData *)(this->TextureActor->GetMapper()->GetInput());
+  float *verts = (float *)(polydata->GetPoints()->GetVoidPointer(0));
+  float *tcoords = (float *)(polydata->GetPointData()->GetTCoords()->GetVoidPointer(0));
   vtkMatrix4x4 *viewToWorldMatrix = vtkMatrix4x4::New();
   float in[4], out[4];
 
@@ -220,18 +272,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     }
 
-  // Turn lighting off - the texture already has illumination in it
-  glDisable( GL_LIGHTING );
-
-  // Turn texturing on so that we can draw the textured hexagon
-  glEnable( GL_TEXTURE_2D );
-
-#ifdef GL_VERSION_1_1
-  GLuint tempIndex;
-  glGenTextures(1, &tempIndex);
-  glBindTexture(GL_TEXTURE_2D, tempIndex);
-#endif
-
   // Don't write into the Zbuffer - just use it for comparisons
   glDepthMask( 0 );
 
@@ -242,7 +282,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   glColor3f(1.0,1.0,1.0);
   int newTextureSize[2];
 
-#ifdef GL_VERSION_1_1
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
     {
     // Test the texture to see if it fits in memory
@@ -283,8 +322,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
       }
     }
   // if it doesn't, we are going to break it up now and render it.
-  // That's because we want this in the ifdef because this only works in
-  // 1.1 and later.
   else
     {
     // Figure out our new texture size. Keep dividing the big one in half until
@@ -470,16 +507,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                           0, GL_RGBA, GL_UNSIGNED_SHORT, newTextureShort );
             }
 
-          // Render the polygon
-          glBegin( GL_POLYGON );
-
-          for ( i = 0; i < 4; i++ )
-            {
-            glTexCoord2fv( tcoords+i*2 );
-            glVertex3fv( newVerts+i*3 );
-            }
-
-          glEnd();
+          polydata->Modified();
+          this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
           }
         }
 
@@ -488,10 +517,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
       delete [] newTextureShort;
       }
 
-    glFlush();
-    glFinish();
-    glDeleteTextures(1, &tempIndex);
-
     // Restore state
     glPopAttrib();
 
@@ -499,23 +524,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     return;
     }
 
-#else
-  if ( imageScalarType == VTK_UNSIGNED_CHAR )
-    {
-    glTexImage2D( GL_TEXTURE_2D, 0, 4,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_BYTE,
-                  static_cast<unsigned char *>(image) );
-    }
-  else
-    {
-    glTexImage2D( GL_TEXTURE_2D, 0, 4,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_SHORT,
-                  static_cast<unsigned short *>(image) );
-    }
-
-#endif
   offsetX = .5 / static_cast<float>(imageMemorySize[0]);
   offsetY = .5 / static_cast<float>(imageMemorySize[1]);
 
@@ -533,21 +541,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     (float)imageInUseSize[1]/(float)imageMemorySize[1] - offsetY;
 
   // Render the polygon
-  glBegin( GL_POLYGON );
-
-  for ( i = 0; i < 4; i++ )
-    {
-    glTexCoord2fv( tcoords+i*2 );
-    glVertex3fv( verts+i*3 );
-    }
-  glEnd();
-
-
-#ifdef GL_VERSION_1_1
-  glFlush();
-  glFinish();
-  glDeleteTextures(1, &tempIndex);
-#endif
+  polydata->Modified();
+  this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
 
   // Restore state
   glPopAttrib();
