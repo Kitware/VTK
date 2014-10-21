@@ -307,7 +307,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
     this->TextureObject->Create2DFromRaw(
       imageMemorySize[0], imageMemorySize[1], 4,
-      VTK_UNSIGNED_SHORT, static_cast<unsigned char *>(image));
+      VTK_UNSIGNED_SHORT, static_cast<unsigned short *>(image));
     }
 
 
