@@ -25,12 +25,14 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkProperty.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkTrivialProducer.h"
 #include "vtkFloatArray.h"
 #include "vtkTextureObject.h"
-     #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLTexture.h"
 
 #include "vtk_glew.h"
 
@@ -140,7 +142,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                VTK_UNSIGNED_SHORT, static_cast<void *>(image) );
 }
 
-#include <vtkOpenGLRenderWindow.h>
+
 void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                                                                 vtkRenderer *ren,
                                                                 int imageMemorySize[2],
