@@ -27,7 +27,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeTextureMapper3D.h"
 #include <cassert>
 
 #include "vtkGPUVolumeRayCastMapper.h"
@@ -48,7 +47,6 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   // Nothing is initialized and we assume nothing is supported
   this->Initialized        = 0;
-  this->TextureSupported   = 0;
   this->GPUSupported       = 0;
   this->RayCastSupported   = 0;
   this->LowResGPUNecessary = 0;
@@ -57,19 +55,11 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   // Create all the mappers we might need
   this->RayCastMapper   = vtkFixedPointVolumeRayCastMapper::New();
 
-// opengl2 back end only has fixed point mapper right now
-#ifdef  VTK_OPENGL2
-  this->GPUMapper       = NULL;
-  this->TextureMapper   = NULL;
-  this->GPULowResMapper = NULL;
-#else
   this->GPUMapper       = vtkGPUVolumeRayCastMapper::New();
   this->MaxMemoryInBytes=this->GPUMapper->GetMaxMemoryInBytes();
   this->MaxMemoryFraction=this->GPUMapper->GetMaxMemoryFraction();
 
-  this->TextureMapper   = vtkVolumeTextureMapper3D::New();
   this->GPULowResMapper = vtkGPUVolumeRayCastMapper::New();
-#endif
 
   // If the render window has a desired update rate of at least 1 frame
   // per second or more, we'll consider this interactive
@@ -104,19 +94,6 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsStartEvent, cb);
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsEndEvent, cb);
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
-
-  // And the texture mapper's events
-#ifndef  VTK_OPENGL2
-  this->TextureMapper->AddObserver(vtkCommand::StartEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::EndEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::ProgressEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperRenderStartEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperRenderEndEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperRenderProgressEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsStartEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsEndEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
-#endif
 
   // And the GPU mapper's events
   // Commented out because too many events are being forwwarded
@@ -159,11 +136,6 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     this->GPULowResMapper->Delete();
     this->GPULowResMapper = 0;
     }
-  if (this->TextureMapper)
-    {
-    this->TextureMapper->Delete();
-    this->TextureMapper = 0;
-    }
   if (this->GPUResampleFilter)
     {
     this->GPUResampleFilter->Delete();
@@ -191,9 +163,6 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     case vtkSmartVolumeMapper::RayCastRenderMode:
       this->RayCastMapper->Render(ren,vol);
       break;
-    case vtkSmartVolumeMapper::TextureRenderMode:
-      this->TextureMapper->Render(ren,vol);
-      break;
     case vtkSmartVolumeMapper::GPURenderMode:
       if(this->LowResGPUNecessary)
         {
@@ -220,11 +189,11 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 
 
 // ----------------------------------------------------------------------------
-// Initialize the rende
-// We need to determine whether the texture mapper or GPU mapper are supported
+// Initialize the render
+// We need to determine whether the GPU or CPU mapper are supported
 // First we need to know what input scalar field we are working with to find
 // out how many components it has. If it has more than one, and we are considering
-// them to be independent components, then we know that neither the texture mapper
+// them to be independent components, then we know that neither the RayCast mapper
 // nor the GPU mapper will work.
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
@@ -252,7 +221,6 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
     {
     if ( vol->GetProperty()->GetIndependentComponents() )
       {
-      this->TextureSupported = 0;
       this->GPUSupported     = 0;
       if ( usingCellColors )
         {
@@ -280,19 +248,6 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
   // Make the window current because we need the OpenGL context
   vtkRenderWindow *win=ren->GetRenderWindow();
   win->MakeCurrent();
-
-  // Have to give the texture mapper its input or else it won't report that
-  // it is supported. Texture mapper only supported for composite blend
-  if ( this->GetBlendMode() !=  vtkVolumeMapper::COMPOSITE_BLEND )
-    {
-    this->TextureSupported = 0;
-    }
-  else
-    {
-    this->ConnectMapperInput(this->TextureMapper);
-    this->TextureSupported = this->TextureMapper->IsRenderSupported(
-      vol->GetProperty(),ren);
-    }
 
   this->GPUSupported = this->GPUMapper->IsRenderSupported(win,
                                                           vol->GetProperty());
@@ -347,14 +302,6 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         }
       break;
 
-    // Requested 3D texture - OK as long as it is supported
-    case vtkSmartVolumeMapper::TextureRenderMode:
-      if ( this->TextureSupported )
-        {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
-        }
-      break;
-
     // Requested GPU - OK as long as it is supported
     case vtkSmartVolumeMapper::GPURenderMode:
       if ( this->GPUSupported )
@@ -363,37 +310,12 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         }
       break;
 
-      // Requested default mode - select GPU if supported, otherwise
-      // select texture mapping for interactive rendering (if supported)
-      // and ray casting for still rendering. Make determination of
-      // still vs. interactive based on whether the desired update rate
-      // is at or above this->InteractiveUpdateRate
+      // Requested default mode - select GPU if supported, otherwise RayCast
     case vtkSmartVolumeMapper::DefaultRenderMode:
       // Go with GPU rendering if it is supported
       if ( this->GPUSupported )
         {
         this->CurrentRenderMode = vtkSmartVolumeMapper::GPURenderMode;
-        }
-      // If this is interactive, try for texture mapping
-      else if ( win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate &&
-                this->TextureSupported )
-        {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
-        }
-      else if ( this->RayCastSupported )
-        {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::RayCastRenderMode;
-        }
-      break;
-
-      // Requested the texture mapping / ray cast combo. If texture
-      // mapping is supported and this is an interactive render, then
-      // use it. Otherwise use ray casting.
-    case vtkSmartVolumeMapper::RayCastAndTextureRenderMode:
-      if (this->TextureSupported &&
-          (win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate))
-        {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
         }
       else if ( this->RayCastSupported )
         {
@@ -433,37 +355,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->RayCastMapper->SetFinalColorLevel(this->FinalColorLevel);
       break;
 
-      // We are rendering with the vtkVolumeTextureMapper3D
-    case vtkSmartVolumeMapper::TextureRenderMode:
-      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
-        {
-        this->TextureMapper->SelectScalarArray(this->ArrayName);
-        }
-      else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-        {
-        this->TextureMapper->SelectScalarArray(this->ArrayId);
-        }
-      this->TextureMapper->SetScalarMode(this->GetScalarMode());
-      this->ConnectMapperInput(this->TextureMapper);
-      if ( this->RequestedRenderMode == vtkSmartVolumeMapper::DefaultRenderMode ||
-           this->RequestedRenderMode == vtkSmartVolumeMapper::RayCastAndTextureRenderMode )
-        {
-        this->TextureMapper->SetSampleDistance( static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 2.0) );
-        }
-      else
-        {
-        this->TextureMapper->SetSampleDistance( static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
-        }
-      this->TextureMapper->SetClippingPlanes(this->GetClippingPlanes());
-      this->TextureMapper->SetCropping(this->GetCropping());
-      this->TextureMapper->SetCroppingRegionPlanes(
-        this->GetCroppingRegionPlanes());
-      this->TextureMapper->SetCroppingRegionFlags(
-        this->GetCroppingRegionFlags());
-      // TextureMapper does not support FinalColor Window/Level.
-      break;
-
-      // We are rendering with the vtkGPUVolumeRayCastMapper
+    // We are rendering with the vtkGPUVolumeRayCastMapper
     case vtkSmartVolumeMapper::GPURenderMode:
       if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
         {
@@ -627,13 +519,6 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToDefault()
 }
 
 // ----------------------------------------------------------------------------
-void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCastAndTexture()
-{
-  this->SetRequestedRenderMode(
-    vtkSmartVolumeMapper::RayCastAndTextureRenderMode );
-}
-
-// ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::RayCastRenderMode);
@@ -643,12 +528,10 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->RayCastMapper->ReleaseGraphicsResources(w);
-  this->TextureMapper->ReleaseGraphicsResources(w);
   this->GPUMapper->ReleaseGraphicsResources(w);
   this->GPULowResMapper->ReleaseGraphicsResources(w);
 
   this->Initialized      = 0;
-  this->TextureSupported = 0;
   this->GPUSupported     = 0;
   this->RayCastSupported = 0;
 }

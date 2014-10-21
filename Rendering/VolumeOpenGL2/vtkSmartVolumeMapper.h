@@ -23,46 +23,16 @@
 //          Allow the vtkSmartVolumeMapper to select the best mapper based on
 //          rendering parameters and hardware support. If GPU ray casting is
 //          supported, this mapper will be used for all rendering. If not,
-//          then if 3D texture mapping is supported, it will be used for
-//          interactive rendering and the vtkFixedPointRayCastMapper will be
-//          used for still rendering. If 3D texture mapping is not supported,
 //          then the vtkFixedPointRayCastMapper will be used exclusively.
 //          This is the default requested render mode, and is generally the
 //          best option. When you use this option, your volume will always
 //          be rendered, but the method used to render it may vary based
 //          on parameters and platform.
 //
-// .SECTION vtkSmartVolumeMapper::RayCastAndTextureRenderMode
-//          Use the vtkVolumeTextureMapper3D for interactive rendering,
-//          and the vtkFixedPointVolumeRayCastMapper for still renders.
-//          If 3D texture mapping is not supported, then the ray
-//          caster will be used exclusively. When you use this option your
-//          volume will always be rendered, but the method used for
-//          interactive rendering will vary based on parameters and
-//          platform. The decision on whether a particular render is
-//          interactive or still is based on the adjustable parameter
-//          InteractiveUpdateRate. If the DesiredUpdateRate found in the
-//          vtkRenderWindow that initiated the Render is at or above
-//          the InteractiveUpdateRate value, then the render is considered
-//          interactive, otherwise it is considered a still render.
-//
 // .SECTION vtkSmartVolumeMapper::RayCastRenderMode
 //          Use the vtkFixedPointVolumeRayCastMapper for both interactive and
 //          still rendering. When you use this option your volume will always
 //          be rendered with the vtkFixedPointVolumeRayCastMapper.
-//
-// .SECTION vtkSmartVolumeMapper::TextureRenderMode
-//          Use the vtkVolumeTextureMapper3D, if supported, for both
-//          interactive and still rendering. If 3D texture mapping is not
-//          supported (either by the hardware, or due to the rendering
-//          parameters) then no image will be rendered. Use this option only
-//          if you have already checked for support based on the current
-//          hardware, number of scalar components, and rendering parameters
-//          in the vtkVolumeProperty. Also note that the
-//          vtkVolumeTextureMapper3D does not support window / level
-//          operations on the final image, so FinalColorWindow must be at
-//          the default value of 1.0 and FinalColorLevel must be at the
-//          default value of 0.5.
 //
 // .SECTION vtkSmartVolumeMapper::GPURenderMode
 //          Use the vtkGPUVolumeRayCastMapper, if supported, for both
@@ -109,7 +79,6 @@ class vtkImageResample;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkVolumeProperty;
-class vtkVolumeTextureMapper3D;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
 {
@@ -150,9 +119,7 @@ public:
   enum
   {
     DefaultRenderMode=0,
-    RayCastAndTextureRenderMode,
     RayCastRenderMode,
-    TextureRenderMode,
     GPURenderMode,
     UndefinedRenderMode,
     InvalidRenderMode
@@ -169,14 +136,6 @@ public:
   // This is the best option for an application that must adapt to different
   // data types, hardware, and rendering parameters.
   void SetRequestedRenderModeToDefault();
-
-  // Description:
-  // Set the requested render mode to
-  // vtkSmartVolumeMapper::RayCastAndTextureRenderMode.
-  // This is a good option if you want to avoid using advanced OpenGL
-  // functionality, but would still like to used 3D texture mapping, if
-  // available, for interactive rendering.
-  void SetRequestedRenderModeToRayCastAndTexture();
 
   // Description:
   // Set the requested render mode to vtkSmartVolumeMapper::RayCastRenderMode.
@@ -297,7 +256,6 @@ protected:
   // Initialization variables.
   int          Initialized;
   vtkTimeStamp SupportStatusCheckTime;
-  int          TextureSupported;
   int          GPUSupported;
   int          RayCastSupported;
   int          LowResGPUNecessary;
@@ -325,7 +283,6 @@ protected:
   vtkGPUVolumeRayCastMapper      *GPULowResMapper;
   vtkGPUVolumeRayCastMapper      *GPUMapper;
   vtkFixedPointVolumeRayCastMapper  *RayCastMapper;
-  vtkVolumeTextureMapper3D          *TextureMapper;
 
 
   // We need to keep track of the blend mode we had when we initialized
