@@ -286,13 +286,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
   this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
 
-//  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-  // Specify the texture
-  glColor3f(1.0,1.0,1.0);
-  int newTextureSize[2];
-
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
     {
     // Test the texture to see if it fits in memory
@@ -316,10 +309,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
       imageMemorySize[0], imageMemorySize[1], 4,
       VTK_UNSIGNED_SHORT, static_cast<unsigned char *>(image));
     }
-
-//  GLint params[1];
-//  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,
-//                             GL_TEXTURE_WIDTH, params );
 
 
 #if 0
@@ -566,9 +555,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   polydata->Modified();
   this->TextureObject->Bind();
   this->TextureActor->RenderOpaqueGeometry(ren);
-
-  // Restore state
-//  glPopAttrib();
 
   this->TextureObject->UnBind();
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
