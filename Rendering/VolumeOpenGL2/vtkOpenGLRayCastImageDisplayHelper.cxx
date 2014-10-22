@@ -42,6 +42,7 @@
 
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 
+//----------------------------------------------------------------------------
 struct vtkOpenGLRayCastImageDisplayHelperRAII
 {
   vtkOpenGLRayCastImageDisplayHelperRAII(float pixelScale)
@@ -72,6 +73,7 @@ struct vtkOpenGLRayCastImageDisplayHelperRAII
   bool BlendWasEnabled;
 };
 
+//----------------------------------------------------------------------------
 // Construct a new vtkOpenGLRayCastImageDisplayHelper with default values
 vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
 {
@@ -114,6 +116,7 @@ vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
   polydata->GetPointData()->SetTCoords(tcoords.Get());
 }
 
+//----------------------------------------------------------------------------
 // Destruct a vtkOpenGLRayCastImageDisplayHelper - clean up any memory used
 vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
 {
@@ -136,6 +139,7 @@ vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
     }
 }
 
+//----------------------------------------------------------------------------
 // imageMemorySize   is how big the texture is - this is always a power of two
 //
 // imageViewportSize is how big the renderer viewport is in pixels
@@ -156,6 +160,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                        requestedDepth, VTK_UNSIGNED_SHORT, image->GetImage() );
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                                         vtkRenderer *ren,
                                                         int imageMemorySize[2],
@@ -170,6 +175,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                VTK_UNSIGNED_CHAR, static_cast<void *>(image) );
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                                         vtkRenderer *ren,
                                                         int imageMemorySize[2],
@@ -184,7 +190,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                VTK_UNSIGNED_SHORT, static_cast<void *>(image) );
 }
 
-
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                                                                 vtkRenderer *ren,
                                                                 int imageMemorySize[2],
@@ -328,7 +334,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
       imageMemorySize[0], imageMemorySize[1], 4,
       VTK_UNSIGNED_SHORT, static_cast<unsigned short *>(image));
     }
-
 
 #if 0
   // NOTE: For now assume that we can fit the entire texture in memory
@@ -576,9 +581,11 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   this->TextureObject->Bind();
   this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
   this->TextureObject->UnBind();
+
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
