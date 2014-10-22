@@ -47,7 +47,7 @@ struct vtkOpenGLRayCastImageDisplayHelperRAII
 {
   vtkOpenGLRayCastImageDisplayHelperRAII(float pixelScale)
     {
-    this->BlendWasEnabled = glIsEnabled(GL_BLEND);
+    this->BlendWasEnabled = (glIsEnabled(GL_BLEND) != 0);
     glEnable( GL_BLEND );
 
     glPixelTransferf(GL_RED_SCALE,    pixelScale);
