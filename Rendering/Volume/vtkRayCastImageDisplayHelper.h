@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Derived class should implemen this if needed
-  virtual void ReleaseGraphicsResources(vtkWindow *win) { }
+  virtual void ReleaseGraphicsResources(vtkWindow *) { }
 
 protected:
   vtkRayCastImageDisplayHelper();

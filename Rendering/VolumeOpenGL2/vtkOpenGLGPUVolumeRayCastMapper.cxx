@@ -651,7 +651,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
   vtkImageData* vtkNotUsed(input), vtkImageData* maskInput,
   int textureExtent[6], vtkVolume* vtkNotUsed(volume))
 {
-  int result = 1;
+  bool result = true;
 
   // Mask
   if(maskInput != 0)
@@ -1355,7 +1355,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
       (clippingPlanes.size() - 1) : 0;
 
     this->ShaderProgram->SetUniform1fv("m_clipping_planes",
-                                       clippingPlanes.size(),
+                                       (int)(clippingPlanes.size()),
                                        &clippingPlanes[0]);
     }
 }
@@ -1596,8 +1596,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                                   vtkVolume* vol,
                                                   int noOfComponents)
 {
-  vtkVolumeProperty* volProperty = vol->GetProperty();
-
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
