@@ -32,22 +32,20 @@
 #include <math.h>
 
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLTexture);
 
-vtkCxxSetObjectMacro(vtkOpenGLTexture,TextureObject,vtkTextureObject)
-
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 vtkOpenGLTexture::vtkOpenGLTexture()
 {
   this->RenderWindow = 0;
   this->IsDepthTexture = 0;
   this->TextureType = GL_TEXTURE_2D;
-
+  this->ExternalTextureObject = false;
   this->TextureObject = 0;
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 vtkOpenGLTexture::~vtkOpenGLTexture()
 {
   if (this->RenderWindow)
@@ -62,7 +60,7 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
     }
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *win)
 {
@@ -76,6 +74,29 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *win)
   this->Modified();
 }
 
+// ---------------------------------------------------------------------------
+void vtkOpenGLTexture::SetTextureObject(vtkTextureObject *textureObject)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting TextureObject to " << textureObject );
+  if (this->TextureObject != textureObject)
+    {
+    vtkTextureObject* temp = this->TextureObject;
+    this->TextureObject = textureObject;
+    if (this->TextureObject != NULL)
+      {
+      this->TextureObject->Register(this);
+      }
+    if (temp != NULL)
+      {
+      temp->UnRegister(this);
+      }
+    this->ExternalTextureObject = true;
+    this->Modified();
+    }
+}
+
+// ---------------------------------------------------------------------------
 int vtkOpenGLTexture::GetTextureUnit()
 {
   if (this->TextureObject)
@@ -85,6 +106,7 @@ int vtkOpenGLTexture::GetTextureUnit()
   return -1;
 }
 
+// ---------------------------------------------------------------------------
 void vtkOpenGLTexture::CopyTexImage(int x, int y, int width, int height)
 {
   this->TextureObject->CopyFromFrameBuffer(x, y, x, y, width, height);
@@ -94,7 +116,7 @@ void vtkOpenGLTexture::CopyTexImage(int x, int y, int width, int height)
 // Implement base class method.
 void vtkOpenGLTexture::Render(vtkRenderer *ren)
 {
-  if (this->TextureObject)
+  if (this->ExternalTextureObject)
     {
     this->Load(ren);
     return;
@@ -107,7 +129,7 @@ void vtkOpenGLTexture::Render(vtkRenderer *ren)
 // Implement base class method.
 void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
-  if (!this->TextureObject)
+  if (!this->ExternalTextureObject)
     {
     vtkImageData *input = this->GetInput();
 
@@ -424,7 +446,6 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
   return tptr;
 }
 
-
 // ----------------------------------------------------------------------------
 void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -435,7 +456,7 @@ void vtkOpenGLTexture::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 int vtkOpenGLTexture::IsTranslucent()
 {
-  if (this->TextureObject)
+  if (this->ExternalTextureObject)
     {
     // If number of components are 1 or 4 then mostly
     // we can assume that the data can be used as alpha values.

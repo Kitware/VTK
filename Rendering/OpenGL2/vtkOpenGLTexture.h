@@ -95,6 +95,7 @@ protected:
   unsigned int Index; // actually GLuint
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
 
+  bool ExternalTextureObject;
   vtkTextureObject *TextureObject;
 
   int IsDepthTexture;
