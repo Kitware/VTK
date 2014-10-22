@@ -31,6 +31,9 @@ set (VolumeOpenGLNew_GPURayCastTests
 # everyone gets these tests
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${GPURayCastTests}
+  TestFinalColorWindowLevel.cxx
+  TestFixedPointRayCastLightComponents.cxx
+  TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
   ProjectedTetrahedraZoomIn.cxx,NO_VALID
   )
@@ -50,18 +53,15 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   return()
 endif ()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(${vtkmodule}CxxTests tests
   #  TestGPUCastGradientOpacity.cxx
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx
   PartialPreIntegration.cxx
   PreIntegrationIncremental.cxx
   PreIntegrationNonIncremental.cxx
-  TestFinalColorWindowLevel.cxx
-  TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
   TestHAVSVolumeMapper.cxx
-  TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx
   TestProp3DFollower.cxx
   TestSmartVolumeMapper.cxx
