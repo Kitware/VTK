@@ -300,6 +300,20 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         }
       }
     }
+  else
+    {
+    vtkOpenGLRenderWindow* renWin =
+      static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+
+      // has something changed so that we need to rebuild the texture?
+      if (this->GetMTime() > this->LoadTime.GetMTime() ||
+         renWin != this->RenderWindow.GetPointer() ||
+         renWin->GetContextCreationTime() > this->LoadTime)
+        {
+        this->RenderWindow = renWin;
+        this->TextureObject->SetContext(renWin);
+        }
+    }
 
   // activate a free texture unit for this texture
   this->TextureObject->Activate();
