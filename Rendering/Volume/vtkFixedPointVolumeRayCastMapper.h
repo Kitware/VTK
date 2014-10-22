@@ -315,6 +315,13 @@ public:
   // minimum intensity blending
   vtkGetMacro( FlipMIPComparison, int );
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkFixedPointVolumeRayCastMapper();
   ~vtkFixedPointVolumeRayCastMapper();
