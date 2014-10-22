@@ -72,6 +72,8 @@ set(Module_SRCS
   vtkRenderWindowInteractor.cxx
   vtkSelectVisiblePoints.cxx
   vtkShaderDeviceAdapter2.cxx
+  vtkTextActor.cxx
+  vtkTextActor3D.cxx
   vtkTexture.cxx
   vtkTexturedActor2D.cxx
   vtkTransformCoordinateSystems.cxx
