@@ -24,11 +24,11 @@ class vtkVolumeStateRAII
   public:
     vtkVolumeStateRAII()
       {
-      this->DepthTestEnabled = (glIsEnabled(GL_DEPTH_TEST) == 0);
+      this->DepthTestEnabled = (glIsEnabled(GL_DEPTH_TEST) != 0);
 
-      this->BlendEnabled = (glIsEnabled(GL_BLEND) == 0);
+      this->BlendEnabled = (glIsEnabled(GL_BLEND) != 0);
 
-      this->CullFaceEnabled = (glIsEnabled(GL_CULL_FACE) == 0);
+      this->CullFaceEnabled = (glIsEnabled(GL_CULL_FACE) != 0);
 
       // Enable texture 1D and 3D as we are using it
       // for transfer functions and m_volume data

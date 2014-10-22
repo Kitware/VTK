@@ -1355,7 +1355,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
       (clippingPlanes.size() - 1) : 0;
 
     this->ShaderProgram->SetUniform1fv("m_clipping_planes",
-                                       (int)(clippingPlanes.size()),
+                                       static_cast<int>(clippingPlanes.size()),
                                        &clippingPlanes[0]);
     }
 }
