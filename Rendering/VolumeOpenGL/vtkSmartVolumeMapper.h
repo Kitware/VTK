@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFixedPointRayCastImage.h
+  Module:    vtkSmartVolumeMapper.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -99,7 +99,7 @@
 #ifndef __vtkSmartVolumeMapper_h
 #define __vtkSmartVolumeMapper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkRenderingVolumeOpenGLModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 #include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
@@ -111,7 +111,7 @@ class vtkVolume;
 class vtkVolumeProperty;
 class vtkVolumeTextureMapper3D;
 
-class VTKRENDERINGVOLUME_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
 {
 public:
   static vtkSmartVolumeMapper *New();

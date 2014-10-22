@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLProjectedTetrahedraMapper.cxx
   vtkOpenGLRayCastImageDisplayHelper.cxx
+  vtkSmartVolumeMapper.cxx
   )
 
 set_source_files_properties(

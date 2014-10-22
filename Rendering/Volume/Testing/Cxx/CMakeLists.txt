@@ -33,6 +33,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${GPURayCastTests}
   TestProjectedTetrahedra.cxx
   ProjectedTetrahedraZoomIn.cxx,NO_VALID
+  TestSmartVolumeMapper.cxx
+  TestSmartVolumeMapperWindowLevel.cxx
   )
 
 # If OpenGL2 backend, add all GPURayCastTests
@@ -46,6 +48,9 @@ endif ()
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_test_cxx_executable(${vtk-module}CxxTests tests
     RENDERING_FACTORY
+    )
+  set_target_properties (${vtk-module}CxxTests
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2
     )
   return()
 endif ()
@@ -64,8 +69,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestMinIntensityRendering.cxx
   TestProjectedHexahedra.cxx
   TestProp3DFollower.cxx
-  TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperWindowLevel.cxx
   TestTM3DLightComponents.cxx
   ZsweepConcavities.cxx
   volProt.cxx
