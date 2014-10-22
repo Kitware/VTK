@@ -208,7 +208,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   float offsetX, offsetY;
-  float xMinOffset, xMaxOffset, yMinOffset, yMaxOffset;
 
   float depth;
   if ( requestedDepth > 0.0 && requestedDepth <= 1.0 )
