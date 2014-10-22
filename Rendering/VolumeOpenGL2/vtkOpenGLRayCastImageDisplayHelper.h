@@ -29,6 +29,7 @@
 
 class vtkActor;
 class vtkFixedPointRayCastImage;
+class vtkOpenGLTexture;
 class vtkRenderer;
 class vtkVolume;
 class vtkTextureObject;
@@ -75,6 +76,7 @@ protected:
                               void *image );
 
   vtkActor *TextureActor;
+  vtkOpenGLTexture* Texture;
   vtkTextureObject *TextureObject;
 
 private:

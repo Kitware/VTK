@@ -42,6 +42,36 @@
 
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 
+struct vtkOpenGLRayCastImageDisplayHelperRAII
+{
+  vtkOpenGLRayCastImageDisplayHelperRAII(float pixelScale)
+    {
+    this->BlendWasEnabled = glIsEnabled(GL_BLEND);
+    glEnable( GL_BLEND );
+
+    glPixelTransferf(GL_RED_SCALE,    pixelScale);
+    glPixelTransferf(GL_GREEN_SCALE,  pixelScale);
+    glPixelTransferf(GL_BLUE_SCALE,   pixelScale);
+    glPixelTransferf(GL_ALPHA_SCALE,  pixelScale);
+    }
+
+  ~vtkOpenGLRayCastImageDisplayHelperRAII()
+    {
+    // Restore to defaults
+    if (!this->BlendWasEnabled)
+      {
+      glDisable(GL_BLEND );
+      }
+
+    glPixelTransferf(GL_RED_SCALE,    1);
+    glPixelTransferf(GL_GREEN_SCALE,  1);
+    glPixelTransferf(GL_BLUE_SCALE,   1);
+    glPixelTransferf(GL_ALPHA_SCALE,  1);
+    }
+
+  bool BlendWasEnabled;
+};
+
 // Construct a new vtkOpenGLRayCastImageDisplayHelper with default values
 vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
 {
@@ -70,13 +100,13 @@ vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
   mapper->SetInputConnection(prod->GetOutputPort());
   this->TextureActor->SetMapper(mapper.Get());
 
-  vtkNew<vtkOpenGLTexture> texture;
-  texture->RepeatOff();
+  this->Texture = vtkOpenGLTexture::New();
+  this->Texture->RepeatOff();
 
   this->TextureObject = vtkTextureObject::New();
-  texture->SetTextureObject(this->TextureObject);
+  this->Texture->SetTextureObject(this->TextureObject);
 
-  this->TextureActor->SetTexture(texture.GetPointer());
+  this->TextureActor->SetTexture(this->Texture);
 
   vtkNew<vtkFloatArray> tcoords;
   tcoords->SetNumberOfComponents(2);
@@ -91,6 +121,18 @@ vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
     {
     this->TextureActor->Delete();
     this->TextureActor = 0;
+    }
+
+  if (this->TextureObject)
+    {
+    this->TextureObject->Delete();
+    this->TextureObject = 0;
+    }
+
+  if (this->Texture)
+    {
+    this->Texture->Delete();
+    this->Texture = 0;
     }
 }
 
@@ -254,32 +296,18 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   viewToWorldMatrix->Delete();
 
-  // Save state
-//  glPushAttrib(GL_ENABLE_BIT         |
-//               GL_COLOR_BUFFER_BIT   |
-//               GL_STENCIL_BUFFER_BIT |
-//               GL_DEPTH_BUFFER_BIT   |
-//               GL_POLYGON_BIT        |
-//               GL_PIXEL_MODE_BIT     |
-//               GL_TEXTURE_BIT);
-
   // We still need these
-  glPixelTransferf( GL_RED_SCALE,    this->PixelScale );
-  glPixelTransferf( GL_GREEN_SCALE,  this->PixelScale );
-  glPixelTransferf( GL_BLUE_SCALE,   this->PixelScale );
-  glPixelTransferf( GL_ALPHA_SCALE,  this->PixelScale );
-
-  glEnable( GL_BLEND );
+  vtkOpenGLRayCastImageDisplayHelperRAII glState(this->PixelScale);
 
   if ( this->PreMultipliedColors )
     {
     // Values in the texture map have already been pre-multiplied by alpha
-    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+    this->Texture->SetPremultipliedAlpha(true);
     }
   else
     {
     // Values in the texture map have not been pre-multiplied by alpha
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    this->Texture->SetPremultipliedAlpha(false);
     }
 
   // Don't write into the Zbuffer - just use it for comparisons
@@ -290,23 +318,12 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
     {
-    // Test the texture to see if it fits in memory
-//    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
-//                  imageMemorySize[0], imageMemorySize[1],
-//                  0, GL_RGBA, GL_UNSIGNED_BYTE,
-//                  static_cast<unsigned char *>(image) );
     this->TextureObject->Create2DFromRaw(
       imageMemorySize[0], imageMemorySize[1], 4,
       VTK_UNSIGNED_CHAR, static_cast<unsigned char *>(image));
     }
   else
     {
-    // Test the texture to see if it fits in memory
-//    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
-//                  imageMemorySize[0], imageMemorySize[1],
-//                  0, GL_RGBA, GL_UNSIGNED_SHORT,
-//                  static_cast<unsigned short *>(image) );
-
     this->TextureObject->Create2DFromRaw(
       imageMemorySize[0], imageMemorySize[1], 4,
       VTK_UNSIGNED_SHORT, static_cast<unsigned short *>(image));
@@ -315,6 +332,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
 #if 0
   // NOTE: For now assume that we can fit the entire texture in memory
+
   // if it does, we will render it later. define the texture here
   if ( params[0] != 0 )
     {
@@ -559,13 +577,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
   this->TextureObject->UnBind();
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
-
-  glDisable(GL_BLEND );
-
-  glPixelTransferf( GL_RED_SCALE,    1);
-  glPixelTransferf( GL_GREEN_SCALE,  1);
-  glPixelTransferf( GL_BLUE_SCALE,   1);
-  glPixelTransferf( GL_ALPHA_SCALE,  1);
 }
 
 void vtkOpenGLRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
