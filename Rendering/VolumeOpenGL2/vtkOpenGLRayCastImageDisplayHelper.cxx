@@ -594,6 +594,9 @@ void vtkOpenGLRayCastImageDisplayHelper::ReleaseGraphicsResources(vtkWindow *win
 {
   if (win && this->TextureActor)
     {
+    // We only need to free up resources on the texture actor
+    // as it will release the resources on the texture and ultimately
+    // the texture object.
     this->TextureActor->ReleaseGraphicsResources(win);
     }
 }

@@ -394,6 +394,10 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
 {
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
+
+  // It is almost guarenteed that in case of valid handle, we will have
+  // value other than zero. A check like this may be required at other
+  // places as well.
   if (this->Handle)
     {
     rwin->ActivateTexture(this);
