@@ -556,7 +556,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   // Render the polygon
   polydata->Modified();
   this->TextureObject->Bind();
-  this->TextureActor->RenderOpaqueGeometry(ren);
+  this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
   this->TextureObject->UnBind();
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
 
