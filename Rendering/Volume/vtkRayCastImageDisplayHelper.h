@@ -28,9 +28,10 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
-class vtkVolume;
-class vtkRenderer;
 class vtkFixedPointRayCastImage;
+class vtkRenderer;
+class vtkVolume;
+class vtkWindow;
 
 class VTKRENDERINGVOLUME_EXPORT vtkRayCastImageDisplayHelper : public vtkObject
 {
@@ -71,6 +72,10 @@ public:
   // values so needs a scale of 2.0.
   vtkSetMacro( PixelScale, float );
   vtkGetMacro( PixelScale, float );
+
+  // Description:
+  // Derived class should implemen this if needed
+  virtual void ReleaseGraphicsResources(vtkWindow *win) { }
 
 protected:
   vtkRayCastImageDisplayHelper();

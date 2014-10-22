@@ -18,9 +18,21 @@
 #include "vtkObjectFactory.h"
 #include "vtkVolume.h"
 #include "vtkRenderer.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 #include "vtkFixedPointRayCastImage.h"
+#include "vtkNew.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkCellArray.h"
+#include "vtkPointData.h"
+#include "vtkTrivialProducer.h"
+#include "vtkFloatArray.h"
+#include "vtkTextureObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLTexture.h"
 
 #include "vtk_glew.h"
 
@@ -30,16 +42,104 @@
 
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 
+//----------------------------------------------------------------------------
+struct vtkOpenGLRayCastImageDisplayHelperRAII
+{
+  vtkOpenGLRayCastImageDisplayHelperRAII(float pixelScale)
+    {
+    this->BlendWasEnabled = glIsEnabled(GL_BLEND);
+    glEnable( GL_BLEND );
+
+    glPixelTransferf(GL_RED_SCALE,    pixelScale);
+    glPixelTransferf(GL_GREEN_SCALE,  pixelScale);
+    glPixelTransferf(GL_BLUE_SCALE,   pixelScale);
+    glPixelTransferf(GL_ALPHA_SCALE,  pixelScale);
+    }
+
+  ~vtkOpenGLRayCastImageDisplayHelperRAII()
+    {
+    // Restore to defaults
+    if (!this->BlendWasEnabled)
+      {
+      glDisable(GL_BLEND );
+      }
+
+    glPixelTransferf(GL_RED_SCALE,    1);
+    glPixelTransferf(GL_GREEN_SCALE,  1);
+    glPixelTransferf(GL_BLUE_SCALE,   1);
+    glPixelTransferf(GL_ALPHA_SCALE,  1);
+    }
+
+  bool BlendWasEnabled;
+};
+
+//----------------------------------------------------------------------------
 // Construct a new vtkOpenGLRayCastImageDisplayHelper with default values
 vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
 {
+  this->TextureActor = vtkActor::New();
+  vtkNew<vtkPolyDataMapper> mapper;
+  vtkNew<vtkPolyData> polydata;
+  vtkNew<vtkPoints> points;
+  points->SetNumberOfPoints(4);
+  polydata->SetPoints(points.Get());
+
+  vtkNew<vtkCellArray> tris;
+  tris->InsertNextCell(3);
+  tris->InsertCellPoint(0);
+  tris->InsertCellPoint(1);
+  tris->InsertCellPoint(2);
+  tris->InsertNextCell(3);
+  tris->InsertCellPoint(0);
+  tris->InsertCellPoint(2);
+  tris->InsertCellPoint(3);
+  polydata->SetPolys(tris.Get());
+
+  vtkNew<vtkTrivialProducer> prod;
+  prod->SetOutput(polydata.Get());
+
+  // Set some properties.
+  mapper->SetInputConnection(prod->GetOutputPort());
+  this->TextureActor->SetMapper(mapper.Get());
+
+  this->Texture = vtkOpenGLTexture::New();
+  this->Texture->RepeatOff();
+
+  this->TextureObject = vtkTextureObject::New();
+  this->Texture->SetTextureObject(this->TextureObject);
+
+  this->TextureActor->SetTexture(this->Texture);
+
+  vtkNew<vtkFloatArray> tcoords;
+  tcoords->SetNumberOfComponents(2);
+  tcoords->SetNumberOfTuples(4);
+  polydata->GetPointData()->SetTCoords(tcoords.Get());
 }
 
+//----------------------------------------------------------------------------
 // Destruct a vtkOpenGLRayCastImageDisplayHelper - clean up any memory used
 vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
 {
+  if (this->TextureActor)
+    {
+    this->TextureActor->Delete();
+    this->TextureActor = 0;
+    }
+
+  if (this->TextureObject)
+    {
+    this->TextureObject->Delete();
+    this->TextureObject = 0;
+    }
+
+  if (this->Texture)
+    {
+    this->Texture->Delete();
+    this->Texture = 0;
+    }
 }
 
+//----------------------------------------------------------------------------
 // imageMemorySize   is how big the texture is - this is always a power of two
 //
 // imageViewportSize is how big the renderer viewport is in pixels
@@ -60,6 +160,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                        requestedDepth, VTK_UNSIGNED_SHORT, image->GetImage() );
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                                         vtkRenderer *ren,
                                                         int imageMemorySize[2],
@@ -74,6 +175,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                VTK_UNSIGNED_CHAR, static_cast<void *>(image) );
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                                         vtkRenderer *ren,
                                                         int imageMemorySize[2],
@@ -88,6 +190,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                                VTK_UNSIGNED_SHORT, static_cast<void *>(image) );
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                                                                 vtkRenderer *ren,
                                                                 int imageMemorySize[2],
@@ -100,10 +203,12 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 {
   vtkOpenGLClearErrorMacro();
 
-  int i;
+  // Set the context
+  this->TextureObject->SetContext(
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+
   float offsetX, offsetY;
   float xMinOffset, xMaxOffset, yMinOffset, yMaxOffset;
-  float tcoords[8];
 
   float depth;
   if ( requestedDepth > 0.0 && requestedDepth <= 1.0 )
@@ -124,8 +229,12 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     depth = ren->GetViewPoint()[2];
     }
 
-    // Convert the four corners of the image into world coordinates
-  float verts[12];
+  // Convert the four corners of the image into world coordinates
+  // hard casts should be good here as we created all these objects
+  // in our constructor.
+  vtkPolyData *polydata = (vtkPolyData *)(this->TextureActor->GetMapper()->GetInput());
+  float *verts = (float *)(polydata->GetPoints()->GetVoidPointer(0));
+  float *tcoords = (float *)(polydata->GetPointData()->GetTCoords()->GetVoidPointer(0));
   vtkMatrix4x4 *viewToWorldMatrix = vtkMatrix4x4::New();
   float in[4], out[4];
 
@@ -193,76 +302,41 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   viewToWorldMatrix->Delete();
 
-  // Save state
-  glPushAttrib(GL_ENABLE_BIT         |
-               GL_COLOR_BUFFER_BIT   |
-               GL_STENCIL_BUFFER_BIT |
-               GL_DEPTH_BUFFER_BIT   |
-               GL_POLYGON_BIT        |
-               GL_PIXEL_MODE_BIT     |
-               GL_TEXTURE_BIT);
-
-  glPixelTransferf( GL_RED_SCALE,    this->PixelScale );
-  glPixelTransferf( GL_GREEN_SCALE,  this->PixelScale );
-  glPixelTransferf( GL_BLUE_SCALE,   this->PixelScale );
-  glPixelTransferf( GL_ALPHA_SCALE,  this->PixelScale );
-
-  glEnable( GL_BLEND );
+  // We still need these
+  vtkOpenGLRayCastImageDisplayHelperRAII glState(this->PixelScale);
 
   if ( this->PreMultipliedColors )
     {
     // Values in the texture map have already been pre-multiplied by alpha
-    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+    this->Texture->SetPremultipliedAlpha(true);
     }
   else
     {
     // Values in the texture map have not been pre-multiplied by alpha
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    this->Texture->SetPremultipliedAlpha(false);
     }
-
-  // Turn lighting off - the texture already has illumination in it
-  glDisable( GL_LIGHTING );
-
-  // Turn texturing on so that we can draw the textured hexagon
-  glEnable( GL_TEXTURE_2D );
-
-#ifdef GL_VERSION_1_1
-  GLuint tempIndex;
-  glGenTextures(1, &tempIndex);
-  glBindTexture(GL_TEXTURE_2D, tempIndex);
-#endif
 
   // Don't write into the Zbuffer - just use it for comparisons
   glDepthMask( 0 );
 
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+  this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+  this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
 
-  // Specify the texture
-  glColor3f(1.0,1.0,1.0);
-  int newTextureSize[2];
-
-#ifdef GL_VERSION_1_1
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
     {
-    // Test the texture to see if it fits in memory
-    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_BYTE,
-                  static_cast<unsigned char *>(image) );
+    this->TextureObject->Create2DFromRaw(
+      imageMemorySize[0], imageMemorySize[1], 4,
+      VTK_UNSIGNED_CHAR, static_cast<unsigned char *>(image));
     }
   else
     {
-    // Test the texture to see if it fits in memory
-    glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_SHORT,
-                  static_cast<unsigned short *>(image) );
+    this->TextureObject->Create2DFromRaw(
+      imageMemorySize[0], imageMemorySize[1], 4,
+      VTK_UNSIGNED_SHORT, static_cast<unsigned short *>(image));
     }
 
-  GLint params[1];
-  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,
-                             GL_TEXTURE_WIDTH, params );
+#if 0
+  // NOTE: For now assume that we can fit the entire texture in memory
 
   // if it does, we will render it later. define the texture here
   if ( params[0] != 0 )
@@ -283,8 +357,6 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
       }
     }
   // if it doesn't, we are going to break it up now and render it.
-  // That's because we want this in the ifdef because this only works in
-  // 1.1 and later.
   else
     {
     // Figure out our new texture size. Keep dividing the big one in half until
@@ -470,16 +542,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                           0, GL_RGBA, GL_UNSIGNED_SHORT, newTextureShort );
             }
 
-          // Render the polygon
-          glBegin( GL_POLYGON );
-
-          for ( i = 0; i < 4; i++ )
-            {
-            glTexCoord2fv( tcoords+i*2 );
-            glVertex3fv( newVerts+i*3 );
-            }
-
-          glEnd();
+          polydata->Modified();
+          this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
           }
         }
 
@@ -488,34 +552,14 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
       delete [] newTextureShort;
       }
 
-    glFlush();
-    glFinish();
-    glDeleteTextures(1, &tempIndex);
-
     // Restore state
     glPopAttrib();
 
     vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
     return;
     }
-
-#else
-  if ( imageScalarType == VTK_UNSIGNED_CHAR )
-    {
-    glTexImage2D( GL_TEXTURE_2D, 0, 4,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_BYTE,
-                  static_cast<unsigned char *>(image) );
-    }
-  else
-    {
-    glTexImage2D( GL_TEXTURE_2D, 0, 4,
-                  imageMemorySize[0], imageMemorySize[1],
-                  0, GL_RGBA, GL_UNSIGNED_SHORT,
-                  static_cast<unsigned short *>(image) );
-    }
-
 #endif
+
   offsetX = .5 / static_cast<float>(imageMemorySize[0]);
   offsetY = .5 / static_cast<float>(imageMemorySize[1]);
 
@@ -533,29 +577,26 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     (float)imageInUseSize[1]/(float)imageMemorySize[1] - offsetY;
 
   // Render the polygon
-  glBegin( GL_POLYGON );
-
-  for ( i = 0; i < 4; i++ )
-    {
-    glTexCoord2fv( tcoords+i*2 );
-    glVertex3fv( verts+i*3 );
-    }
-  glEnd();
-
-
-#ifdef GL_VERSION_1_1
-  glFlush();
-  glFinish();
-  glDeleteTextures(1, &tempIndex);
-#endif
-
-  // Restore state
-  glPopAttrib();
+  polydata->Modified();
+  this->TextureActor->RenderTranslucentPolygonalGeometry(ren);
 
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
 }
 
+//----------------------------------------------------------------------------
 void vtkOpenGLRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLRayCastImageDisplayHelper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (win && this->TextureActor)
+    {
+    // We only need to free up resources on the texture actor
+    // as it will release the resources on the texture and ultimately
+    // the texture object.
+    this->TextureActor->ReleaseGraphicsResources(win);
+    }
 }

@@ -3465,3 +3465,12 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   // os << indent << "Flip Mip Comparison" << this->FlipMIPComparison << end;"
 }
+
+
+void vtkFixedPointVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (win && this->ImageDisplayHelper)
+    {
+    this->ImageDisplayHelper->ReleaseGraphicsResources(win);
+    }
+}
