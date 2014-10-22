@@ -437,8 +437,15 @@ int vtkOpenGLTexture::IsTranslucent()
 {
   if (this->TextureObject)
     {
-    // TODO fix this
-    return 0;
+    // If number of components are 1 or 4 then mostly
+    // we can assume that the data can be used as alpha values.
+    if (this->TextureObject->GetComponents() == 1 ||
+        this->TextureObject->GetComponents() == 4)
+      {
+      return 1;
+      }
+
+      return 0;
     }
 
   return this->Superclass::IsTranslucent();
