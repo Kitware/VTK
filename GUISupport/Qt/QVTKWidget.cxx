@@ -44,7 +44,7 @@
 #include "qsignalmapper.h"
 #include "qtimer.h"
 #include "vtkRenderingOpenGLConfigure.h"
-#if defined(Q_OS_X11)
+#if defined(Q_WS_X11)
 #include "qx11info_x11.h"
 #endif
 

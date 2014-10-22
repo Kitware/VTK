@@ -49,7 +49,7 @@ class vtkTDxWinDevice;
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
 class vtkTDxMacDevice;
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_X11)
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
 class vtkTDxDevice;
 class vtkTDxUnixDevice;
 #endif
@@ -102,7 +102,7 @@ public:
   // timer event slot
   virtual void TimerEvent(int timerId);
 
-#if defined(VTK_USE_TDX) && defined(Q_OS_X11)
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   virtual vtkTDxUnixDevice *GetDevice();
   virtual void SetDevice(vtkTDxDevice *device);
 #endif
@@ -123,7 +123,7 @@ protected:
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
   vtkTDxMacDevice *Device;
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_X11)
+#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   vtkTDxUnixDevice *Device;
 #endif
 
