@@ -1,7 +1,7 @@
 ﻿/*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLProjectedTetrahedraMapper.cxx
+  Module:    vtkOpenGLGPUVolumeRayCastMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,11 +15,11 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
-#include "vtkVolumeShader.h"
+#include "vtkOpenGLGradientOpacityTable.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
-#include "vtkOpenGLGradientOpacityTable.h"
 #include "vtkVolumeShaderComposer.h"
+#include "vtkVolumeShader.h"
 #include "vtkVolumeStateRAII.h"
 
 // Include compiled shader code
@@ -60,8 +60,8 @@
 // C/C++ includes
 #include <cassert>
 #include <limits>
-#include <string>
 #include <sstream>
+#include <string>
 
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 
@@ -653,7 +653,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
   vtkImageData* vtkNotUsed(input), vtkImageData* maskInput,
   int textureExtent[6], vtkVolume* vtkNotUsed(volume))
 {
-  int result = 1;
+  bool result = true;
 
   // Mask
   if(maskInput != 0)
@@ -1049,7 +1049,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   vtkMath::Normalize(camPlaneNormal);
 
   double camNearWorldPoint[4];
-  double camFarWorldPoint[4];
   double camNearPoint[4];
 
   cam->GetClippingRange(camWorldRange);
@@ -1057,11 +1056,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   camNearWorldPoint[1] = camWorldPos[1] + camWorldRange[0]*camWorldDirection[1];
   camNearWorldPoint[2] = camWorldPos[2] + camWorldRange[0]*camWorldDirection[2];
   camNearWorldPoint[3] = 1.;
-
-  camFarWorldPoint[0] = camWorldPos[0] + camWorldRange[1]*camWorldDirection[0];
-  camFarWorldPoint[1] = camWorldPos[1] + camWorldRange[1]*camWorldDirection[1];
-  camFarWorldPoint[2] = camWorldPos[2] + camWorldRange[1]*camWorldDirection[2];
-  camFarWorldPoint[3] = 1.;
 
   this->InverseVolumeMat->MultiplyPoint( camNearWorldPoint, camNearPoint );
   if (camNearPoint[3]!=0.0)
@@ -1368,7 +1362,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
     clippingPlanes[0] = clippingPlanes.size() > 0 ?
       (clippingPlanes.size() - 1) : 0;
 
-    glUniform1fv(this->Shader("m_clipping_planes"), clippingPlanes.size(),
+    glUniform1fv(this->Shader("m_clipping_planes"),
+                 static_cast<int>(clippingPlanes.size()),
                  &clippingPlanes[0]);
     }
 }
@@ -1615,97 +1610,97 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
-  vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_CLIP_POS@",
+  vertexShader = vtkvolume::replace(vertexShader, "//VTK::ComputeClipPos::Impl",
     vtkvolume::ComputeClip(ren, this, vol), true);
-  vertexShader = vtkvolume::replace(vertexShader, "@COMPUTE_TEXTURE_COORDS@",
+  vertexShader = vtkvolume::replace(vertexShader, "//VTK::ComputeTextureCoords::Impl",
     vtkvolume::ComputeTextureCoords(ren, this, vol), true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "@BASE_GLOBALS_VERT@",
+  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Base::Dec",
     vtkvolume::BaseGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_GLOBALS_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Dec",
     vtkvolume::BaseGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_INIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Init",
     vtkvolume::BaseInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_INCREMENT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Impl",
     vtkvolume::BaseIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BASE_EXIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Exit",
     vtkvolume::BaseExit(ren, this, vol), true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "@TERMINATION_GLOBALS_VERT@",
+  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Termination::Dec",
     vtkvolume::TerminationGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATION_GLOBALS_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Termination::Dec",
     vtkvolume::TerminationGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_INIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Terminate::Init",
     vtkvolume::TerminationInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_INCREMENT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Terminate::Impl",
     vtkvolume::TerminationIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@TERMINATE_EXIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Terminate::Exit",
     vtkvolume::TerminationExit(ren, this, vol), true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "@SHADING_GLOBALS_VERT@",
+  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Shading::Dec",
     vtkvolume::ShadingGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_GLOBALS_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Dec",
     vtkvolume::ShadingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Init",
     vtkvolume::ShadingInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_INCREMENT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Impl",
     vtkvolume::ShadingIncrement(ren, this, vol, this->MaskInput,
                                 this->Impl->CurrentMask,
                                 this->MaskType), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@SHADING_EXIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Exit",
     vtkvolume::ShadingExit(ren, this, vol), true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_OPACITY_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeOpacity::Dec",
     vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_GRADIENT_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeGradient::Dec",
     vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@COLOR_TRANSFER_FUNC@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ColorTransferFunc::Dec",
      vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@COMPUTE_LIGHTING_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeLighting::Dec",
     vtkvolume::LightComputeFunc(ren, this, vol,noOfComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@RAY_DIRECTION_FUNC_FRAG@",
+                                      "//VTK::RayDirectionFunc::Dec",
     vtkvolume::RayDirectionFunc(ren, this, vol,noOfComponents), true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "@CROPPING_GLOBALS_VERT@",
+  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Cropping::Dec",
     vtkvolume::CroppingGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_GLOBALS_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Dec",
     vtkvolume::CroppingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_INIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Init",
     vtkvolume::CroppingInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_INCREMENT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Impl",
     vtkvolume::CroppingIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CROPPING_EXIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Exit",
     vtkvolume::CroppingExit(ren, this, vol), true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "@CLIPPING_GLOBALS_VERT@",
+  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Clipping::Dec",
     vtkvolume::ClippingGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_GLOBALS_FRAG@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Dec",
     vtkvolume::ClippingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_INIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Init",
     vtkvolume::ClippingInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_INCREMENT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Impl",
     vtkvolume::ClippingIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@CLIPPING_EXIT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Exit",
     vtkvolume::ClippingExit(ren, this, vol), true);
 
   fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@BINARY_MASK_GLOBALS_FRAG@",
+                                      "//VTK::BinaryMask::Dec",
     vtkvolume::BinaryMaskGlobalsFrag(ren, this, vol, this->MaskInput,
                                      this->Impl->CurrentMask,
                                      this->MaskType), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "@BINARY_MASK_INCREMENT@",
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::BinaryMask::Impl",
     vtkvolume::BinaryMaskIncrement(ren, this, vol, this->MaskInput,
                                    this->Impl->CurrentMask,
                                    this->MaskType), true);
 
   fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@COMPOSITE_MASK_GLOBALS_FRAG@",
+                                      "//VTK::CompositeMask::Dec",
     vtkvolume::CompositeMaskGlobalsFrag(ren, this, vol, this->MaskInput,
                                         this->Impl->CurrentMask,
                                         this->MaskType), true);
   fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "@COMPOSITE_MASK_INCREMENT@",
+                                      "//VTK::CompositeMask::Impl",
     vtkvolume::CompositeMaskIncrement(ren, this, vol, this->MaskInput,
                                       this->Impl->CurrentMask,
                                       this->MaskType), true);

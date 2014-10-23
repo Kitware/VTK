@@ -15,9 +15,9 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
+#include "vtkOpenGLGradientOpacityTable.h"
 #include "vtkOpenGLOpacityTable.h"
 #include "vtkOpenGLRGBTable.h"
-#include "vtkOpenGLGradientOpacityTable.h"
 #include "vtkVolumeShaderComposer.h"
 #include "vtkVolumeStateRAII.h"
 
@@ -61,8 +61,8 @@
 // C/C++ includes
 #include <cassert>
 #include <limits>
-#include <string>
 #include <sstream>
+#include <string>
 
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 
@@ -1036,7 +1036,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   vtkMath::Normalize(camPlaneNormal);
 
   double camNearWorldPoint[4];
-  double camFarWorldPoint[4];
   double camNearPoint[4];
 
   cam->GetClippingRange(camWorldRange);
@@ -1044,11 +1043,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   camNearWorldPoint[1] = camWorldPos[1] + camWorldRange[0]*camWorldDirection[1];
   camNearWorldPoint[2] = camWorldPos[2] + camWorldRange[0]*camWorldDirection[2];
   camNearWorldPoint[3] = 1.;
-
-  camFarWorldPoint[0] = camWorldPos[0] + camWorldRange[1]*camWorldDirection[0];
-  camFarWorldPoint[1] = camWorldPos[1] + camWorldRange[1]*camWorldDirection[1];
-  camFarWorldPoint[2] = camWorldPos[2] + camWorldRange[1]*camWorldDirection[2];
-  camFarWorldPoint[3] = 1.;
 
   this->InverseVolumeMat->MultiplyPoint( camNearWorldPoint, camNearPoint );
   if (camNearPoint[3]!=0.0)
