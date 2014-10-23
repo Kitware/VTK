@@ -3,7 +3,7 @@
 # batch tests but it will only work on dashboards using 2.8. This check can be removed when
 # ParaView officially requires CMake 2.8."
 SET(GENERATOR_EXPRESSIONS_SUPPORTED)
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.8)
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_LESS 2.8)
   SET(GENERATOR_EXPRESSIONS_SUPPORTED OFF)
 ELSE()
   SET(GENERATOR_EXPRESSIONS_SUPPORTED ON)
