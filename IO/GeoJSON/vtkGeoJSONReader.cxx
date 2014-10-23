@@ -151,12 +151,10 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 {
-  Json::Value rootType = root.get( "type", -1 );
-  Json::Value rootFeatures = root.get( "features", -1 );
-
-  if ( rootFeatures == -1 )
+  Json::Value rootType = root["type"];
+  if (rootType.isNull())
     {
-    vtkErrorMacro (<<"Parse Root :: Features :: -1");
+    vtkErrorMacro(<<"ParseRoot: Missing type node");
     return;
     }
 
@@ -165,9 +163,24 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
   output->SetLines( vtkCellArray::New() );//Lines and
   output->SetPolys( vtkCellArray::New() );//Polygons
 
-  if ( rootFeatures.isArray() )
+  Json::Value rootFeatures;
+  std::string strRootType = rootType.asString();
+  if ("FeatureCollection" == strRootType)
     {
-    // If it is a collection of features
+    rootFeatures = root["features"];
+    if (rootFeatures.isNull())
+      {
+      vtkErrorMacro(<<"ParseRoot: Missing \"features\" node");
+      return;
+      }
+
+    if (!rootFeatures.isArray())
+      {
+      vtkErrorMacro(<< "ParseRoot: features node is not an array");
+      return;
+      }
+
+    // Process features
     for (int i = 0; i < rootFeatures.size(); i++)
       {
       // Append extracted geometry to existing outputData
@@ -176,11 +189,16 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
       feature->ExtractGeoJSONFeature(child, output);
       }
     }
+  else if ("Feature" == strRootType)
+    {
+    // Process single feature
+    vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
+    feature->ExtractGeoJSONFeature(root, output);
+    }
   else
     {
-    // Single feature in the geoJSON data
-    vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
-    feature->ExtractGeoJSONFeature(rootFeatures, output);
+    vtkErrorMacro(<< "ParseRoot: do not support root type \""
+                  << strRootType << "\"");
     }
 }
 
