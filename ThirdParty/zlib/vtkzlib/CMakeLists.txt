@@ -14,12 +14,6 @@ SET(ZLIB_SRCS
 IF(WIN32)
   IF(BUILD_SHARED_LIBS)
     SET(ZLIB_DLL 1)
-    IF(NOT UNIX)
-      IF(NOT BORLAND)
-        IF(NOT MINGW)
-        ENDIF()
-      ENDIF() 
-    ENDIF()   
   ENDIF()
 ENDIF()
 
