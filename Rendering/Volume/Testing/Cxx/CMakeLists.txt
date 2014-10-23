@@ -1,24 +1,34 @@
-set (GPURayCastTests
+# These tests are built under all conditions
+set (GenericVolumeCxxTests
+  ProjectedTetrahedraZoomIn.cxx,NO_VALID
+  TestFinalColorWindowLevel.cxx
+  TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastCompositeBinaryMask.cxx
-  TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeMaskBlend.cxx
+  TestGPURayCastCompositeMask.cxx
   #  TestGPURayCastCompositeShadeMask.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
-  TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
+  TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastFourComponentsComposite.cxx
   TestGPURayCastFourComponentsCompositeStreaming.cxx
-  TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastFourComponentsMinIP.cxx
+  TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
+  TestMinIntensityRendering.cxx
+  TestProjectedTetrahedra.cxx
+  TestSmartVolumeMapper.cxx
+  TestSmartVolumeMapperWindowLevel.cxx
   )
 
-set (VolumeOpenGLNew_GPURayCastTests
+# These tests are built only if either Module_vtkRenderingVolumeOpenGLNew is ON
+# or if the rendering backend is OpenGL2
+set (OpenGLNew_OR_OpenGL2_CxxTests
   #TestGPURayCastAdditive1.cxx
   TestGPURayCastClipping.cxx
   #TestGPURayCastCropping1.cxx
@@ -28,23 +38,33 @@ set (VolumeOpenGLNew_GPURayCastTests
   TestGPURayCastVolumeScale.cxx
   )
 
-# everyone gets these tests
-vtk_add_test_cxx(${vtk-module}CxxTests tests
-  ${GPURayCastTests}
-  TestFinalColorWindowLevel.cxx
-  TestFixedPointRayCastLightComponents.cxx
-  TestMinIntensityRendering.cxx
-  TestProjectedTetrahedra.cxx
-  ProjectedTetrahedraZoomIn.cxx,NO_VALID
-  TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperWindowLevel.cxx
+# These tests are built for the OpenGL backend
+set (VolumeOpenGLCxxTests
+  #  TestGPUCastGradientOpacity.cxx
+  HomogeneousRayIntegration.cxx
+  LinearRayIntegration.cxx
+  PartialPreIntegration.cxx
+  PreIntegrationIncremental.cxx
+  PreIntegrationNonIncremental.cxx
+  TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
+  TestHAVSVolumeMapper.cxx
+  TestProjectedHexahedra.cxx
+  TestProp3DFollower.cxx
+  TestTM3DLightComponents.cxx
+  ZsweepConcavities.cxx
+  volProt.cxx
   )
 
-# If OpenGL2 backend, add all GPURayCastTests
+# everyone gets these tests
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  ${GenericVolumeCxxTests}
+  )
+
+# If OpenGL2 backend, add all GenericVolumeCxxTests
 if (("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2") OR
   (Module_vtkRenderingVolumeOpenGLNew))
   vtk_add_test_cxx(${vtk-module}CxxTests tests
-    ${VolumeOpenGLNew_GPURayCastTests}
+    ${OpenGLNew_OR_OpenGL2_CxxTests}
     )
 endif ()
 
@@ -59,19 +79,7 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
 endif ()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  #  TestGPUCastGradientOpacity.cxx
-  HomogeneousRayIntegration.cxx
-  LinearRayIntegration.cxx
-  PartialPreIntegration.cxx
-  PreIntegrationIncremental.cxx
-  PreIntegrationNonIncremental.cxx
-  TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
-  TestHAVSVolumeMapper.cxx
-  TestProjectedHexahedra.cxx
-  TestProp3DFollower.cxx
-  TestTM3DLightComponents.cxx
-  ZsweepConcavities.cxx
-  volProt.cxx
+  ${VolumeOpenGLCxxTests}
   )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests
