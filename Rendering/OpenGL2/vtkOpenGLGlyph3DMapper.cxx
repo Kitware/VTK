@@ -692,7 +692,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         {
         for (int j = 0; j < 3; j++)
           {
-          entry->NormalMatrices[entry->NumberOfPoints*9+i*3+j] = arrayVals[j*4+i];
+          entry->NormalMatrices[entry->NumberOfPoints*9+i*3+j] = arrayVals[i*4+j];
           }
         }
       entry->NumberOfPoints++;
