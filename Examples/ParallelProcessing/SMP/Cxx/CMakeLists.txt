@@ -22,6 +22,6 @@ find_package(VTK COMPONENTS
 include(${VTK_USE_FILE})
 
 if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
-  add_executable(ParallelContourTree vtkSMPContourFilterManyPieces vtkSMPMinMaxTree main.cxx)
+  add_executable(ParallelContourTree vtkSMPContourFilterManyPieces vtkSMPMinMaxTree vtkAMRDataInternals2 vtkOverlappingAMR2 vtkUniformGridAMR2 vtkUniformGridAMRDataIterator2 vtkStreamedCompositeDataPipeline vtkStreamedCompositeSources main.cxx)
   target_link_libraries(ParallelContourTree ${VTK_LIBRARIES})
 endif()
