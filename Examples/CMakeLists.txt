@@ -43,6 +43,10 @@ else()
     add_subdirectory(VisualizationAlgorithms/Cxx)
     add_subdirectory(VolumeRendering/Cxx)
     add_subdirectory(Widgets/Cxx)
+    add_subdirectory(ParallelProcessing/SMP)
+# if(vtkParallelCore_LOADED)
+#  add_subdirectory(ParallelProcessing/Generic)
+# endif()
     # This may have been already built as part of the VTK build.
     # If so we cannot create the target "vtkLocalExample" because
     # an imported target of the same name already exists in the
@@ -55,11 +59,9 @@ else()
     endif()
   endif()
 
+
    add_subdirectory(Build/vtkMy)
 #  add_subdirectory(GUI/Motif)
-#  IF(VTK_USE_PARALLEL)
-#   add_subdirectory(ParallelProcessing)
-#  ENDIF(VTK_USE_PARALLEL)
 #
 #  IF(VTK_USE_INFOVIS)
 #    IF(VTK_USE_CHARTS)
