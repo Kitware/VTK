@@ -1,5 +1,22 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    raycasterfs.glsl
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #version 120
 
+// The following line handle system declarations such a
+// default precisions, or defining precisions to null
+//VTK::System::Dec
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -27,19 +44,19 @@ vec4 g_frag_color;
 vec3 g_data_pos;
 vec3 g_dir_step;
 
-@BASE_GLOBALS_FRAG@
-@TERMINATION_GLOBALS_FRAG@
-@CROPPING_GLOBALS_FRAG@
-@SHADING_GLOBALS_FRAG@
-@BINARY_MASK_GLOBALS_FRAG@
-@COMPOSITE_MASK_GLOBALS_FRAG@
+//VTK::Base::Dec
+//VTK::Termination::Dec
+//VTK::Cropping::Dec
+//VTK::Shading::Dec
+//VTK::BinaryMask::Dec
+//VTK::CompositeMask::Dec
 
-@COMPUTE_OPACITY_FRAG@
-@COMPUTE_GRADIENT_FRAG@
-@COMPUTE_LIGHTING_FRAG@
-@COLOR_TRANSFER_FUNC@
+//VTK::ComputeOpacity::Dec
+//VTK::ComputeGradient::Dec
+//VTK::ComputeLighting::Dec
+//VTK::ColorTransferFunc::Dec
 
-@RAY_DIRECTION_FUNC_FRAG@
+//VTK::RayDirectionFunc::Dec
 
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
@@ -57,32 +74,32 @@ void main()
   g_frag_color = vec4(0.0);
   g_dir_step = vec3(0.0);
 
-  @BASE_INIT@
-  @TERMINATE_INIT@
-  @SHADING_INIT@
-  @CROPPING_INIT@
-  @CLIPPING_INIT@
+  //VTK::Base::Init
+  //VTK::Terminate::Init
+  //VTK::Shading::Init
+  //VTK::Cropping::Init
+  //VTK::Clipping::Init
 
   /// For all samples along the ray
   while (true)
     {
-    @BASE_INCREMENT@
-    @TERMINATE_INCREMENT@
-    @CROPPING_INCREMENT@
-    @CLIPPING_INCREMENT@
-    @BINARY_MASK_INCREMENT@
-    @COMPOSITE_MASK_INCREMENT@
-    @SHADING_INCREMENT@
+    //VTK::Base::Impl
+    //VTK::Terminate::Impl
+    //VTK::Cropping::Impl
+    //VTK::Clipping::Impl
+    //VTK::BinaryMask::Impl
+    //VTK::CompositeMask::Impl
+    //VTK::Shading::Impl
 
     /// Advance ray by m_dir_step
     g_data_pos += g_dir_step;
     }
 
-  @BASE_EXIT@
-  @TERMINATE_EXIT@
-  @CROPPING_EXIT@
-  @CLIPPING_EXIT@
-  @SHADING_EXIT@
+  //VTK::Base::Exit
+  //VTK::Terminate::Exit
+  //VTK::Cropping::Exit
+  //VTK::Clipping::Exit
+  //VTK::Shading::Exit
 
   gl_FragColor = g_frag_color;
 }
