@@ -14,40 +14,33 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenGLRenderer.h"
 
-#include "vtkNew.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkCellArray.h"
-#include "vtkTrivialProducer.h"
-#include "vtkTexturedActor2D.h"
-
 #include "vtkglVBOHelper.h"
 
-#include "vtkCuller.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
-#include "vtkLight.h"
-#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkTimerLog.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
-
+#include "vtkTexture.h"
 #include "vtkTextureObject.h"
-
-#include "vtkOpenGLError.h"
+#include "vtkTexturedActor2D.h"
+#include "vtkTimerLog.h"
+#include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <math.h>
 #include <cassert>
 #include <list>
-
-#include "vtkImageData.h"
 
 class vtkGLPickInfo
 {
@@ -172,31 +165,6 @@ void vtkOpenGLRenderer::DeviceRender(void)
     }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
-}
-
-vtkOpenGLTexture *vtkOpenGLRendererCreateDepthPeelingTexture(
-  int width, int height, int numComponents, bool isDepth)
-{
-  vtkOpenGLTexture *result = vtkOpenGLTexture::New();
-
-  vtkImageData *id = vtkImageData::New();
-  id->SetExtent(0,width-1, 0,height-1, 0,0);
-
-  if (isDepth == true)
-    {
-    id->AllocateScalars(VTK_FLOAT, numComponents);
-    result->SetIsDepthTexture(1);
-    }
-  else
-    {
-    id->AllocateScalars(VTK_UNSIGNED_CHAR, numComponents);
-    }
-
-  result->SetTextureType(GL_TEXTURE_RECTANGLE);
-  result->InterpolateOff();
-  result->RepeatOff();
-  result->SetInputData(id);
-  return result;
 }
 
 vtkTextureObject *vtkOpenGLRendererCreateDepthPeelingTextureObject(
