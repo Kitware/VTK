@@ -15,11 +15,10 @@
 #include "vtk_glew.h"
 #include "vtkOpenGLRenderWindow.h"
 
+#include "vtkglVBOHelper.h"
+
 #include <cassert>
-#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
-#include "vtkIdList.h"
-#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
@@ -28,18 +27,13 @@
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLError.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkTexturedActor2D.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkStdString.h"
-#include "vtkTrivialProducer.h"
+#include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkRendererCollection.h"
+
 #include <sstream>
 using std::ostringstream;
 
@@ -115,7 +109,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
   #endif
 
-  this->DrawPixelsActor = NULL;
+  this->DrawPixelsTextureObject = NULL;
 
   this->OwnContext=1;
 }
@@ -124,10 +118,10 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
-  if(this->DrawPixelsActor!=0)
+  if(this->DrawPixelsTextureObject != 0)
     {
-    this->DrawPixelsActor->UnRegister(this);
-    this->DrawPixelsActor = NULL;
+    this->DrawPixelsTextureObject->UnRegister(this);
+    this->DrawPixelsTextureObject = NULL;
     }
   this->TextureResourceIds.clear();
   if(this->TextureUnitManager!=0)
@@ -153,10 +147,11 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
     }
   this->ShaderCache->ReleaseGraphicsResources(this);
 
-  // if(this->DrawPixelsActor!=0)
-  //   {
-  //   this->DrawPixelsActor->ReleaseGraphicsResources(this);
-  //   }
+  if(this->DrawPixelsTextureObject != 0)
+     {
+     this->DrawPixelsTextureObject->ReleaseGraphicsResources(this);
+     }
+
   // if(this->TextureUnitManager!=0)
   //   {
   //   this->TextureUnitManager->ReleaseGraphicsResources(this);
@@ -681,6 +676,55 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 }
 
+
+// ---------------------------------------------------------------------------
+// a program must be bound
+// a VAO must be bound
+void vtkOpenGLRenderWindow::RenderQuad(
+  float *verts,
+  float *tcoords,
+  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+{
+  if (!program || !vao || !verts)
+    {
+    vtkGenericWarningMacro(<< "Error must have verts, program and vao");
+    }
+
+  vtkgl::BufferObject vbo;
+  vbo.Upload(verts, 12, vtkgl::BufferObject::ArrayBuffer);
+  vao->Bind();
+  if (!vao->AddAttributeArray(program, vbo, "vertexMC", 0, sizeof(float)*3, VTK_FLOAT, 3, false))
+    {
+    vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
+    }
+
+  vtkgl::BufferObject tvbo;
+  if (tcoords)
+    {
+    tvbo.Upload(tcoords, 8, vtkgl::BufferObject::ArrayBuffer);
+    if (!vao->AddAttributeArray(program, tvbo, "tcoordMC", 0, sizeof(float)*2, VTK_FLOAT, 2, false))
+      {
+      vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");
+      }
+    }
+
+  GLuint iboData[] = {0, 1, 2, 0, 2, 3};
+  vtkgl::BufferObject ibo;
+  vao->Bind();
+  ibo.Upload(iboData, 6, vtkgl::BufferObject::ElementArrayBuffer);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT,
+    reinterpret_cast<const GLvoid *>(NULL));
+  ibo.Release();
+  vao->Release();
+  vao->RemoveAttributeArray("vertexMC");
+  vao->RemoveAttributeArray("tcoordMC");
+  vbo.Release();
+  if (tcoords)
+    {
+    tvbo.Release();
+    }
+}
+
 void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numComponents, int dataType, void *data)
 {
   int     y_low, y_hi;
@@ -708,86 +752,20 @@ void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numCo
     x_hi  = x1;
     }
 
+  int width = x_hi-x_low+1;
+  int height = y_hi-y_low+1;
 
-  if (this->DrawPixelsActor == NULL)
+  if (!this->DrawPixelsTextureObject)
     {
-    this->DrawPixelsActor = vtkTexturedActor2D::New();
-    vtkNew<vtkPolyDataMapper2D> mapper;
-    vtkNew<vtkPolyData> polydata;
-    vtkNew<vtkPoints> points;
-    points->SetNumberOfPoints(4);
-    polydata->SetPoints(points.Get());
-
-    vtkNew<vtkCellArray> tris;
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(1);
-    tris->InsertCellPoint(2);
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(2);
-    tris->InsertCellPoint(3);
-    polydata->SetPolys(tris.Get());
-
-    vtkNew<vtkTrivialProducer> prod;
-    prod->SetOutput(polydata.Get());
-
-    // Set some properties.
-    mapper->SetInputConnection(prod->GetOutputPort());
-    this->DrawPixelsActor->SetMapper(mapper.Get());
-
-    vtkNew<vtkTexture> texture;
-    texture->RepeatOff();
-    this->DrawPixelsActor->SetTexture(texture.Get());
-
-    vtkNew<vtkFloatArray> tcoords;
-    tcoords->SetNumberOfComponents(2);
-    tcoords->SetNumberOfTuples(4);
-    polydata->GetPointData()->SetTCoords(tcoords.Get());
+    this->DrawPixelsTextureObject = vtkTextureObject::New();
     }
-
-  vtkPolyData *pd = vtkPolyDataMapper2D::SafeDownCast(this->DrawPixelsActor->GetMapper())->GetInput();
-  vtkPoints *points = pd->GetPoints();
-  points->SetPoint(0, x_low, y_low, 0);
-  points->SetPoint(1, x_hi, y_low, 0);
-  points->SetPoint(2, x_hi, y_hi, 0);
-  points->SetPoint(3, x_low, y_hi, 0);
-
-  vtkDataArray *tcoords = pd->GetPointData()->GetTCoords();
-  float tmp[2];
-  tmp[0] = 0;
-  tmp[1] = 0;
-  tcoords->SetTuple(0,tmp);
-  tmp[0] = 1.0;
-  tcoords->SetTuple(1,tmp);
-  tmp[1] = 1.0;
-  tcoords->SetTuple(2,tmp);
-  tmp[0] = 0.0;
-  tcoords->SetTuple(3,tmp);
-
-  vtkImageData *id = vtkImageData::New();
-  id->SetExtent(0,x_hi-x_low, 0,y_hi-y_low, 0,0);
-
-  vtkDataArray* da = vtkDataArray::CreateDataArray(dataType);
-  da->SetNumberOfComponents(numComponents);
-  da->SetVoidArray(data,(x_hi-x_low+1)*(y_hi-y_low+1)*numComponents,true);
-  id->GetPointData()->SetScalars(da);
-  da->Delete();
-  this->DrawPixelsActor->GetTexture()->SetInputData(id);
-  id->Delete();
-
-  glDisable( GL_SCISSOR_TEST );
-  glViewport(0, 0, this->Size[0], this->Size[1]);
-
-  glDisable(GL_DEPTH_TEST);
-
-  vtkRenderer *vp = vtkRenderer::New();
-  this->AddRenderer(vp);
-  this->DrawPixelsActor->RenderOverlay(vp);
-  this->RemoveRenderer(vp);
-  vp->Delete();
-
-  glEnable(GL_DEPTH_TEST);
+  this->DrawPixelsTextureObject->SetContext(this);
+  this->DrawPixelsTextureObject->Create2DFromRaw(width, height,
+        numComponents, dataType, data);
+  this->DrawPixelsTextureObject->CopyToFrameBuffer(
+      0, 0, width-1, height-1,
+      x_low, y_low, this,
+      NULL, NULL);
 
   // This seems to be necessary for the image to show up
   glFlush();

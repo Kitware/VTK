@@ -34,8 +34,13 @@ class vtkTextureUnitManager;
 class vtkOpenGLShaderCache;
 class vtkStdString;
 class vtkTexture;
-class vtkTexturedActor2D;
 class vtkTextureObject;
+class vtkShaderProgram;
+
+namespace vtkgl
+{
+class VertexArrayObject;
+}
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -203,6 +208,15 @@ public:
   // Useful for measurement only.
   virtual void WaitForCompletion();
 
+  // Description:
+  // Helper function that draws a quad on the screen
+  // at the specified vertex coordinates and if
+  // tcoords are not NULL with the specified
+  // texture coordinates.
+  static void vtkOpenGLRenderWindow::RenderQuad(
+    float *verts, float *tcoords,
+    vtkShaderProgram *program, vtkgl::VertexArrayObject *vao);
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -276,7 +290,7 @@ protected:
 
   vtkTextureUnitManager *TextureUnitManager;
 
-  vtkTexturedActor2D *DrawPixelsActor;
+  vtkTextureObject *DrawPixelsTextureObject;
 
   // Description:
   // Replacement for the old glDrawPixels function

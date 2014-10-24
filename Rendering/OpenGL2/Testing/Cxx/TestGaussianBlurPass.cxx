@@ -42,7 +42,7 @@
 #include "vtkLightsPass.h"
 #include "vtkSequencePass.h"
 #include "vtkOpaquePass.h"
-#include "vtkDepthPeelingPass.h"
+//#include "vtkDepthPeelingPass.h"
 #include "vtkTranslucentPass.h"
 #include "vtkVolumetricPass.h"
 #include "vtkOverlayPass.h"
@@ -75,14 +75,18 @@ int TestGaussianBlurPass(int argc, char* argv[])
     vtkSmartPointer<vtkSequencePass>::New();
   vtkSmartPointer<vtkOpaquePass> opaque=
     vtkSmartPointer<vtkOpaquePass>::New();
-//  vtkSmartPointer<vtkDepthPeelingPass> peeling=
-//    vtkSmartPointer<vtkDepthPeelingPass>::New();
-//  peeling->SetMaximumNumberOfPeels(200);
-//  peeling->SetOcclusionRatio(0.1);
+
+
+  /*
+  vtkSmartPointer<vtkDepthPeelingPass> peeling=
+    vtkSmartPointer<vtkDepthPeelingPass>::New();
+  peeling->SetMaximumNumberOfPeels(200); // these settings make no sense 200, 0.1?
+  peeling->SetOcclusionRatio(0.1); // far more reasonable values would be 50, 0.01
+*/
 
   vtkSmartPointer<vtkTranslucentPass> translucent=
     vtkSmartPointer<vtkTranslucentPass>::New();
-//  peeling->SetTranslucentPass(translucent);
+  //peeling->SetTranslucentPass(translucent);
 
   vtkSmartPointer<vtkVolumetricPass> volume=
     vtkSmartPointer<vtkVolumetricPass>::New();
@@ -180,14 +184,14 @@ int TestGaussianBlurPass(int argc, char* argv[])
   camera->Elevation(20.0);
   renWin->Render();
 
-  if(peeling->GetLastRenderingUsedDepthPeeling())
-    {
-    cout<<"depth peeling was used"<<endl;
-    }
-  else
-    {
-    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  // if(peeling->GetLastRenderingUsedDepthPeeling())
+  //   {
+  //   cout<<"depth peeling was used"<<endl;
+  //   }
+  // else
+  //   {
+  //   cout<<"depth peeling was not used (alpha blending instead)"<<endl;
+  //   }
 
   retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

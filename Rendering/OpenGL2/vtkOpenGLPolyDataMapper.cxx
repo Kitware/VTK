@@ -55,8 +55,6 @@
 #include "vtkglPolyDataFSNoLighting.h"
 
 
-
-
 using vtkgl::replace;
 
 //-----------------------------------------------------------------------------
@@ -412,9 +410,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       VSSource = vtkgl::replace(VSSource,
         "//VTK::TCoord::Impl",
         "tcoordVC = tcoordMC;");
-    FSSource = vtkgl::replace(FSSource,
-      "//VTK::TCoord::Dec",
-      "varying vec2 tcoordVC; uniform sampler2D texture1;");
+      FSSource = vtkgl::replace(FSSource,
+        "//VTK::TCoord::Dec",
+        "varying vec2 tcoordVC; uniform sampler2D texture1;");
     // do texture mapping except for scalat coloring case which is handled above
       if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
         {
