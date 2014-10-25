@@ -306,8 +306,7 @@ public:
 
   vtkImageData* PrevInput;
 
-  vtkNew<vtkShaderProgram> ShaderProgram;
-
+  vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
 };
 
@@ -1694,10 +1693,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                       this->Impl->CurrentMask,
                                       this->MaskType), true);
 
-  this->Impl->ShaderProgram->GetVertexShader()->SetSource(vertexShader);
-  this->Impl->ShaderProgram->GetFragmentShader()->SetSource(fragmentShader);
-  this->Impl->ShaderCache->ReadyShader(this->Impl->ShaderProgram.GetPointer());
-
+  this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShader(
+    vertexShader.c_str(), fragmentShader.c_str(), "");
   if (!this->Impl->ShaderProgram->GetCompiled())
     {
     vtkErrorMacro("Shader failed to compile");
@@ -1806,7 +1803,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Use the shader program now. Clear the last one
   // if it is not the same as ours.
   if (this->Impl->ShaderCache->GetLastShaderBound() !=
-      this->Impl->ShaderProgram.GetPointer())
+      this->Impl->ShaderProgram)
     {
     this->Impl->ShaderCache->ClearLastShaderBound();
     }
@@ -1825,7 +1822,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Bind the shader
   this->Impl->ShaderCache->ReadyShader(
-    this->Impl->ShaderProgram.GetPointer());
+    this->Impl->ShaderProgram);
 
   // And now update the geometry that will be used
   // to render the 3D texture
