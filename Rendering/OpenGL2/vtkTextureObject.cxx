@@ -74,20 +74,38 @@ static const char *DepthTextureCompareFunctionAsString[8]=
   "Never"
 };
 
-// Mapping from Wrap values to OpenGL values.
-static GLint OpenGLWrap[3]=
-{
-  GL_CLAMP_TO_EDGE,
-  GL_REPEAT,
-  GL_MIRRORED_REPEAT
-};
+// Mapping from Wrap values to OpenGL values
+#if GL_ES_VERSION_2_0 != 1
+  static GLint OpenGLWrap[4]=
+  {
+    GL_CLAMP_TO_EDGE,
+    GL_REPEAT,
+    GL_MIRRORED_REPEAT,
+    GL_CLAMP_TO_BORDER
+  };
 
-static const char *WrapAsString[3]=
-{
-  "ClampToEdge",
-  "Repeat",
-  "MirroredRepeat"
-};
+  static const char *WrapAsString[4]=
+  {
+    "ClampToEdge",
+    "Repeat",
+    "MirroredRepeat",
+    "ClampToBorder"
+  };
+#else
+  static GLint OpenGLWrap[3]=
+  {
+    GL_CLAMP_TO_EDGE,
+    GL_REPEAT,
+    GL_MIRRORED_REPEAT
+  };
+
+  static const char *WrapAsString[3]=
+  {
+    "ClampToEdge",
+    "Repeat",
+    "MirroredRepeat"
+  };
+#endif
 
 // Mapping MinificationFilter values to OpenGL values.
 static GLint OpenGLMinFilter[6]=
@@ -199,6 +217,11 @@ vtkTextureObject::vtkTextureObject()
   this->DepthTextureCompareFunction = Lequal;
   this->GenerateMipmap = false;
   this->ShaderProgram = NULL;
+  this->BorderColor[0] = 0.0f;
+  this->BorderColor[1] = 0.0f;
+  this->BorderColor[2] = 0.0f;
+  this->BorderColor[3] = 0.0f;
+  this->DrawPixelsActor = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -480,6 +503,8 @@ void vtkTextureObject::SendParameters()
         this->Target,
         GL_TEXTURE_MAG_FILTER,
         OpenGLMagFilter[this->MagnificationFilter]);
+
+  glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
 
 #if GL_ES_VERSION_2_0 != 1
   glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
