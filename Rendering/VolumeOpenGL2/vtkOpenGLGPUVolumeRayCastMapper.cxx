@@ -41,6 +41,7 @@
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkOpenGLShaderCache.h>
 #include <vtkPerlinNoise.h>
 #include <vtkPlaneCollection.h>
 #include <vtkPointData.h>
@@ -57,6 +58,7 @@
 #include <vtkUnsignedIntArray.h>
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
+#include <vtkWeakPointer.h>
 
 // C/C++ includes
 #include <cassert>
@@ -303,6 +305,7 @@ public:
   vtkImageData* PrevInput;
 
   vtkNew<vtkShaderProgram> ShaderProgram;
+  vtkNew<vtkOpenGLShaderCache> ShaderCache;
 };
 
 //----------------------------------------------------------------------------
@@ -1690,7 +1693,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
   this->Impl->ShaderProgram->GetVertexShader()->SetSource(vertexShader);
   this->Impl->ShaderProgram->GetFragmentShader()->SetSource(fragmentShader);
-  this->Impl->ShaderProgram->CompileShader();
+
+  this->Impl->ShaderCache->ClearLastShaderBound();
+  this->Impl->ShaderCache->ReadyShader(this->Impl->ShaderProgram.GetPointer());
 
   if (!this->Impl->ShaderProgram->GetCompiled())
     {
@@ -1800,8 +1805,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->BuildShader(ren, vol, numberOfScalarComponents);
     }
 
-  // Now use the shader
-  this->Impl->ShaderProgram->Bind();
+  // Use the shader program now
+  this->Impl->ShaderCache->ReadyShader(this->Impl->ShaderProgram.GetPointer());
 
   this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
@@ -2080,7 +2085,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);
 
-  this->Impl->ShaderProgram->Release();
+  this->Impl->ShaderCache->ClearLastShaderBound();
 
   this->Impl->PrevInput = input;
 }
