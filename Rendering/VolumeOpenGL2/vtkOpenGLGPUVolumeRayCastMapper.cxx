@@ -41,6 +41,7 @@
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkOpenGLError.h>
 #include <vtkOpenGLShaderCache.h>
 #include <vtkPerlinNoise.h>
 #include <vtkPlaneCollection.h>
@@ -1709,6 +1710,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                                                 vtkVolume* vol)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Make sure the context is current
   ren->GetRenderWindow()->MakeCurrent();
 
@@ -2088,4 +2091,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderCache->ClearLastShaderBound();
 
   this->Impl->PrevInput = input;
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
