@@ -202,9 +202,16 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShader(
     }
 }
 
-void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(win))
+void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->LastShaderBound = NULL;
+
+  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
+  SMapIter iter = this->Internal->ShaderPrograms.begin();
+  for ( ; iter != this->Internal->ShaderPrograms.end(); iter++)
+    {
+    iter->second->ReleaseGraphicsResources(win);
+    }
 }
 
 
