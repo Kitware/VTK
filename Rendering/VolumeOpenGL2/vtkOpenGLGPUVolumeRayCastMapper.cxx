@@ -2102,8 +2102,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);
 
-  this->Impl->ShaderCache->ClearLastShaderBound();
-
   this->Impl->PrevInput = input;
 
   vtkOpenGLCheckErrorMacro("failed after Render");
