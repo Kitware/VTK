@@ -29,8 +29,25 @@
 // C++ includes
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 vtkStandardNewMacro(vtkGeoJSONReader);
+
+//----------------------------------------------------------------------------
+class GeoJSONPropertySpec
+{
+public:
+  std::string name;
+  vtkIdType dataType;
+  vtkVariant defaultValue;
+};
+
+//----------------------------------------------------------------------------
+class vtkGeoJSONReader::GeoJSONReaderInternals
+{
+public:
+  std::vector<GeoJSONPropertySpec> PropertySpecs;
+};
 
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::vtkGeoJSONReader()
@@ -40,12 +57,48 @@ vtkGeoJSONReader::vtkGeoJSONReader()
   this->StringInputMode = false;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+  this->Internals = new GeoJSONReaderInternals;
 }
 
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::~vtkGeoJSONReader()
 {
   delete[] FileName;
+  delete[] StringInput;
+  delete Internals;
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoJSONReader::
+AddFeatureProperty(char *name,
+                   vtkIdType dataType,
+                   vtkVariant& defaultValue)
+{
+  GeoJSONPropertySpec spec;
+  spec.name = name;
+  spec.dataType = dataType;
+  spec.defaultValue = defaultValue;
+
+  // Traverse internal list checking if name already used
+  std::vector<GeoJSONPropertySpec>::iterator iter =
+    this->Internals->PropertySpecs.begin();
+  for (; iter != this->Internals->PropertySpecs.end(); iter++)
+    {
+    if (iter->name == spec.name)
+      {
+      vtkWarningMacro(<< "Overwriting property spec for name " << name);
+      *iter = spec;
+      break;
+      }
+    }
+
+  // If not found, add to list
+  if (iter == this->Internals->PropertySpecs.end())
+    {
+    this->Internals->PropertySpecs.push_back(spec);
+    }
+
+  vtkDebugMacro(<< "Added feature property " << name);
 }
 
 //----------------------------------------------------------------------------

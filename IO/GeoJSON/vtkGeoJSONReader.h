@@ -22,6 +22,7 @@
 
 // VTK Includes
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkVariant.h"
 #include "vtk_jsoncpp.h" // For json parser
 
 class vtkPolyData;
@@ -49,6 +50,11 @@ public:
   vtkSetMacro(StringInputMode, bool);
   vtkGetMacro(StringInputMode, bool);
   vtkBooleanMacro(StringInputMode, bool);
+
+  // Description:
+  // Specify feature property to read in with geometry objects
+  void AddFeatureProperty(char *name, vtkIdType dataType,
+                          vtkVariant& defaultValue);
 
 protected:
   vtkGeoJSONReader();
@@ -78,6 +84,9 @@ protected:
   bool StringInputMode;
 
 private:
+  class GeoJSONReaderInternals;
+  GeoJSONReaderInternals *Internals;
+
   vtkGeoJSONReader(const vtkGeoJSONReader&);  // Not implemented
   void operator=(const vtkGeoJSONReader&);    // Not implemented
 };
