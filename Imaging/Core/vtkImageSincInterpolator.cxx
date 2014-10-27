@@ -1398,7 +1398,7 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
         vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, harris3);
         break;
       case VTK_BLACKMAN_HARRIS4:
-        vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, harris4);
+        vtkSincKernel::Hamming<float, 4>(kernel[i], size, n, p, harris4);
         break;
       case VTK_NUTTALL_WINDOW:
         vtkSincKernel::Hamming<float, 4>(kernel[i], size, n, p, nuttall);
