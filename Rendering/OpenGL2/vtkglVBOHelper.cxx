@@ -544,11 +544,12 @@ void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
 
 
 
-void CellBO::ReleaseGraphicsResources(vtkWindow *win)
+void CellBO::ReleaseGraphicsResources(vtkWindow * vtkNotUsed(win))
 {
   if (this->Program)
     {
-    this->Program->ReleaseGraphicsResources(win);
+    // Let ShaderCache release the graphics resources as it is
+    // responsible for creation and deletion.
     this->Program = 0;
     }
   this->ibo.ReleaseGraphicsResources();

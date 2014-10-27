@@ -41,6 +41,9 @@
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkOpenGLError.h>
+#include <vtkOpenGLShaderCache.h>
+#include <vtkOpenGLRenderWindow.h>
 #include <vtkPerlinNoise.h>
 #include <vtkPlaneCollection.h>
 #include <vtkPointData.h>
@@ -57,6 +60,7 @@
 #include <vtkUnsignedIntArray.h>
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
+#include <vtkWeakPointer.h>
 
 // C/C++ includes
 #include <cassert>
@@ -302,7 +306,8 @@ public:
 
   vtkImageData* PrevInput;
 
-  vtkNew<vtkShaderProgram> ShaderProgram;
+  vtkShaderProgram* ShaderProgram;
+  vtkOpenGLShaderCache* ShaderCache;
 };
 
 //----------------------------------------------------------------------------
@@ -1688,10 +1693,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                       this->Impl->CurrentMask,
                                       this->MaskType), true);
 
-  this->Impl->ShaderProgram->GetVertexShader()->SetSource(vertexShader);
-  this->Impl->ShaderProgram->GetFragmentShader()->SetSource(fragmentShader);
-  this->Impl->ShaderProgram->CompileShader();
-
+  this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShader(
+    vertexShader.c_str(), fragmentShader.c_str(), "");
   if (!this->Impl->ShaderProgram->GetCompiled())
     {
     vtkErrorMacro("Shader failed to compile");
@@ -1704,6 +1707,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                                                 vtkVolume* vol)
 {
+  vtkOpenGLClearErrorMacro();
+
   // Make sure the context is current
   ren->GetRenderWindow()->MakeCurrent();
 
@@ -1787,7 +1792,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   this->Impl->UpdateSamplingDistance(input, ren, vol);
 
-  // Build shader
+  // Build shader now
+  // First get the shader cache from the render window. This is important
+  // to make sure that shader cache knows the state of various shader programs
+  // in use.
+  vtkOpenGLRenderWindow* renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  this->Impl->ShaderCache = renWin->GetShaderCache();
+
+  // Use the shader program now. Clear the last one
+  // if it is not the same as ours.
+  if (this->Impl->ShaderCache->GetLastShaderBound() !=
+      this->Impl->ShaderProgram)
+    {
+    this->Impl->ShaderCache->ClearLastShaderBound();
+    }
+
   if (vol->GetProperty()->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
@@ -1800,9 +1820,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->BuildShader(ren, vol, numberOfScalarComponents);
     }
 
-  // Now use the shader
-  this->Impl->ShaderProgram->Bind();
+  // Bind the shader
+  this->Impl->ShaderCache->ReadyShader(
+    this->Impl->ShaderProgram);
 
+  // And now update the geometry that will be used
+  // to render the 3D texture
   this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
   // Update opacity transfer function
@@ -1876,7 +1899,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   this->Impl->ShaderProgram->SetUniformf("m_sample_distance",
                                          this->Impl->ActualSampleDistance);
-
 
   vtkInternal::ToFloat(this->Impl->ScalarsRange, fvalue2);
   this->Impl->ShaderProgram->SetUniform2fv("m_scalars_range", 1, &fvalue2);
@@ -2080,7 +2102,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);
 
-  this->Impl->ShaderProgram->Release();
-
   this->Impl->PrevInput = input;
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
 }
