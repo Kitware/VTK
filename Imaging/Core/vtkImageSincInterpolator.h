@@ -107,11 +107,12 @@ public:
   int GetUseWindowParameter() { return this->UseWindowParameter; }
 
   // Description:
-  // Set a window function parameter.  The way this parameter is used
-  // will depend on the window function, for now it is only used by
-  // the Kaiser window (which by default uses the value 3*n where n is
-  // the window half-width).  This parameter will be ignored unless
-  // UseWindowParameter is On.
+  // Set the alpha parameter for the Kaiser window function.
+  // This parameter will be ignored unless UseWindowParameter is On.
+  // If UseWindowParameter is Off, then alpha is set to be the same as n
+  // where n is the window half-width.  Using an alpha less than n
+  // increases the sharpness and ringing, while using an alpha greater
+  // than n increases the blurring.
   void SetWindowParameter(double parm);
   double GetWindowParameter() { return this->WindowParameter; }
 
