@@ -1257,8 +1257,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   pen[1] -= metaData.ascent + 1 + metaData.textProperty->GetLineOffset();
 
   // 5) Now rotate:
-  int tmpX = vtkMath::Floor(c * pen[0] - s * pen[1] + 0.5);
-  int tmpY = vtkMath::Floor(s * pen[0] + c * pen[1] + 0.5);
+  int tmpX = vtkMath::Round(c * pen[0] - s * pen[1]);
+  int tmpY = vtkMath::Round(s * pen[0] + c * pen[1]);
   pen[0] = tmpX;
   pen[1] = tmpY;
 
@@ -1269,8 +1269,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   // Calculate line offset:
   double offset[2] = {
     0., -(metaData.height * metaData.textProperty->GetLineSpacing())};
-  int rotOffset[2] = {vtkMath::Floor(c * offset[0] - s * offset[1] + 0.5),
-                      vtkMath::Floor(s * offset[0] + c * offset[1] + 0.5)};
+  int rotOffset[2] = {vtkMath::Round(c * offset[0] - s * offset[1]),
+                      vtkMath::Round(s * offset[0] + c * offset[1])};
 
   // Compile the metrics data to determine the final bounding box. Set line
   // origins here, too.
@@ -1290,8 +1290,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
         {
         xShift /= 2;
         }
-      origin[0] += vtkMath::Floor(c * xShift + 0.5);
-      origin[1] += vtkMath::Floor(s * xShift + 0.5);
+      origin[0] += vtkMath::Round(c * xShift);
+      origin[1] += vtkMath::Round(s * xShift);
       }
 
     // Set line origin
