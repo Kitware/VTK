@@ -1800,14 +1800,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   this->Impl->ShaderCache = renWin->GetShaderCache();
 
-  // Use the shader program now. Clear the last one
-  // if it is not the same as ours.
-  if (this->Impl->ShaderCache->GetLastShaderBound() !=
-      this->Impl->ShaderProgram)
-    {
-    this->Impl->ShaderCache->ClearLastShaderBound();
-    }
-
   if (vol->GetProperty()->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
