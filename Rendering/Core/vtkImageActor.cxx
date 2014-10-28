@@ -49,6 +49,8 @@ vtkImageActor::vtkImageActor()
   mapper->SliceAtFocalPointOff();
   mapper->SliceFacesCameraOff();
   mapper->SetOrientationToZ();
+  // For backwards compabilitity, make Streaming the default behavior
+  mapper->StreamingOn();
 }
 
 //----------------------------------------------------------------------------
