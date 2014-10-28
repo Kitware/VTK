@@ -17,10 +17,14 @@
 #include "vtkGeoJSONFeature.h"
 
 // VTK Includes
+#include "vtkAbstractArray.h"
+#include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
@@ -29,7 +33,6 @@
 // C++ includes
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 vtkStandardNewMacro(vtkGeoJSONReader);
 
@@ -217,6 +220,48 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
   output->GetCellData()->AddArray(featureIdArray);
   featureIdArray->Delete();
 
+  // Initialize properties arrays
+  vtkAbstractArray *array;
+  std::vector<GeoJSONPropertySpec>::iterator iter =
+    this->Internals->PropertySpecs.begin();
+  for (; iter != this->Internals->PropertySpecs.end(); iter++)
+    {
+    array = NULL;
+    switch (iter->dataType)
+      {
+      case VTK_BIT:
+        array = vtkBitArray::New();
+        break;
+
+      case VTK_INT:
+        array = vtkIntArray::New();
+        break;
+
+      case VTK_DOUBLE:
+        array = vtkDoubleArray::New();
+        break;
+
+      case VTK_STRING:
+        array = vtkStringArray::New();
+        break;
+
+      default:
+        vtkWarningMacro("unexpected data type " << iter->dataType);
+        break;
+      }
+
+    // Skip if array not created for some reason
+    if (!array)
+      {
+      continue;
+      }
+
+    array->SetName(iter->name.c_str());
+    output->GetCellData()->AddArray(array);
+    array->Delete();
+    }
+
+  // Check type
   Json::Value rootType = root["type"];
   if (rootType.isNull())
     {
@@ -224,8 +269,10 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
     return;
     }
 
+  // Parse features
   Json::Value rootFeatures;
   std::string strRootType = rootType.asString();
+  std::vector<FeatureProperty>properties;
   if ("FeatureCollection" == strRootType)
     {
     rootFeatures = root["features"];
@@ -245,21 +292,75 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
     for (int i = 0; i < rootFeatures.size(); i++)
       {
       // Append extracted geometry to existing outputData
-      Json::Value child = rootFeatures[i];
+      Json::Value featureNode = rootFeatures[i];
+      Json::Value propertiesNode = featureNode["properties"];
+      this->ParseFeatureProperties(propertiesNode, properties);
       vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
-      feature->ExtractGeoJSONFeature(child, output);
+      feature->SetFeatureProperties(properties);
+      feature->ExtractGeoJSONFeature(featureNode, output);
       }
     }
   else if ("Feature" == strRootType)
     {
     // Process single feature
+    this->ParseFeatureProperties(root, properties);
     vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
+      feature->SetFeatureProperties(properties);
     feature->ExtractGeoJSONFeature(root, output);
     }
   else
     {
     vtkErrorMacro(<< "ParseRoot: do not support root type \""
                   << strRootType << "\"");
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoJSONReader::ParseFeatureProperties(Json::Value& propertiesNode,
+     std::vector<FeatureProperty>& featureProperties)
+{
+  featureProperties.clear();
+  vtkVariant propertyValue;
+  FeatureProperty propertyPair;
+
+  GeoJSONPropertySpec spec;
+  std::vector<GeoJSONPropertySpec>::iterator iter =
+    this->Internals->PropertySpecs.begin();
+  for (; iter != this->Internals->PropertySpecs.end(); iter++)
+    {
+    spec = *iter;
+    propertyPair.first = spec.name;
+
+    Json::Value propertyNode = propertiesNode[spec.name];
+
+    if (propertyNode.isNull())
+      {
+      propertyPair.second = spec.defaultValue;
+      featureProperties.push_back(propertyPair);
+      continue;
+      }
+
+    // (else)
+    switch (spec.dataType)
+      {
+      case VTK_BIT:
+        propertyPair.second = vtkVariant(propertyNode.asBool());
+        break;
+
+      case VTK_DOUBLE:
+        propertyPair.second = vtkVariant(propertyNode.asDouble());
+        break;
+
+      case VTK_INT:
+        propertyPair.second = vtkVariant(propertyNode.asInt());
+        break;
+
+      case VTK_STRING:
+        propertyPair.second = vtkVariant(propertyNode.asString());
+        break;
+      }
+
+    featureProperties.push_back(propertyPair);
     }
 }
 

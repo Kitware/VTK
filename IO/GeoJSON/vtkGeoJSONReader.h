@@ -24,6 +24,9 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkVariant.h"
 #include "vtk_jsoncpp.h" // For json parser
+#include <string>
+#include <utility>
+#include <vector>
 
 class vtkPolyData;
 
@@ -78,6 +81,11 @@ protected:
   // Verify if string can be read by the parser
   // If exists, parse into Jsoncpp data structure
   int CanParseString(char *input, Json::Value &root);
+
+  // Description:
+  // Extract property values from current json node
+  void ParseFeatureProperties(Json::Value& propertiesNode,
+    std::vector<std::pair<std::string, vtkVariant> >& properties);
 
   char *FileName;
   char *StringInput;

@@ -16,8 +16,12 @@
 #include "vtkGeoJSONFeature.h"
 
 // VTK Includes
+#include "vtkAbstractArray.h"
+#include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
@@ -32,20 +36,11 @@ vtkStandardNewMacro(vtkGeoJSONFeature);
 //----------------------------------------------------------------------------
 vtkGeoJSONFeature::vtkGeoJSONFeature()
 {
-  this->outputData = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkGeoJSONFeature::~vtkGeoJSONFeature()
 {
-  outputData->Delete();
-}
-
-//----------------------------------------------------------------------------
-vtkPolyData *vtkGeoJSONFeature::GetOutput()
-{
-  //Check if output data contains appropriate data and return values accordingly
-  return outputData;
 }
 
 //----------------------------------------------------------------------------
@@ -117,7 +112,8 @@ ExtractPoint(Json::Value coordinates, vtkPolyData *outputData)
   pid[0] = points->InsertNextPoint( point );
 
   vtkCellArray *verts = outputData->GetVerts();
-  verts->InsertNextCell( PID_SIZE, pid);
+  verts->InsertNextCell(PID_SIZE, pid);
+  this->InsertFeatureProperties(outputData);
 
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
@@ -160,6 +156,7 @@ ExtractMultiPoint(Json::Value coordinates, vtkPolyData *outputData)
     //Update polyData vertices to store multiple points
     verts->InsertNextCell(PID_SIZE, pid);
     ids->InsertNextValue(this->FeatureId);
+    this->InsertFeatureProperties(outputData);
     }
 
   return outputData;
@@ -202,6 +199,7 @@ ExtractLineString(Json::Value coordinates, vtkPolyData *outputData)
 
     lines->InsertNextCell(line);
     ids->InsertNextValue(this->FeatureId);
+    this->InsertFeatureProperties(outputData);
 
     start = end;
     lineId[0] = lineId[1];
@@ -267,6 +265,7 @@ ExtractPolygon(Json::Value coordinate, vtkPolyData *outputData)
 
   polys->InsertNextCell(exteriorPoly);
   ids->InsertNextValue(this->FeatureId);
+  this->InsertFeatureProperties(outputData);
 
   if ( ! POLYGON_WITH_HOLES )
     return outputData;
@@ -299,7 +298,22 @@ ExtractMultiPolygon(Json::Value coordinateArray, vtkPolyData *outputData)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONFeature::ExtractGeoJSONFeature(Json::Value root, vtkPolyData *outputData)
+void vtkGeoJSONFeature::
+SetFeatureProperties(std::vector<FeatureProperty>& properties)
+{
+  this->FeatureProperties = properties;
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoJSONFeature::
+GetFeatureProperties(std::vector<FeatureProperty>& properties)
+{
+  properties = this->FeatureProperties;
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoJSONFeature::
+ExtractGeoJSONFeature(Json::Value root, vtkPolyData *outputData)
 {
   this->featureRoot = root;
 
@@ -585,6 +599,39 @@ bool vtkGeoJSONFeature::IsMultiPolygon(Json::Value root)
     }
 
   return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkGeoJSONFeature::InsertFeatureProperties(vtkPolyData *outputData)
+{
+  std::vector<FeatureProperty>::iterator iter =
+    this->FeatureProperties.begin();
+  for(; iter != this->FeatureProperties.end(); iter++)
+    {
+    std::string name = iter->first;
+    vtkVariant value = iter->second;
+
+    vtkAbstractArray *array =
+      outputData->GetCellData()->GetAbstractArray(name.c_str());
+    switch (array->GetDataType())
+      {
+      case VTK_BIT:
+        vtkBitArray::SafeDownCast(array)->InsertNextValue(value.ToChar());
+        break;
+
+      case VTK_DOUBLE:
+        vtkDoubleArray::SafeDownCast(array)->InsertNextValue(value.ToDouble());
+        break;
+
+      case VTK_INT:
+        vtkIntArray::SafeDownCast(array)->InsertNextValue(value.ToInt());
+        break;
+
+      case VTK_STRING:
+        vtkStringArray::SafeDownCast(array)->InsertNextValue(value.ToString());
+        break;
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

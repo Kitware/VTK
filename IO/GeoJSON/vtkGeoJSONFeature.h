@@ -22,8 +22,13 @@
 
 // VTK Includes
 #include "vtkDataObject.h"
+#include "vtkVariant.h"
 #include "vtk_jsoncpp.h" // For json parser
 #include <string>
+#include <utility>
+#include <vector>
+
+typedef std::pair<std::string, vtkVariant> FeatureProperty;
 
 class vtkPolyData;
 
@@ -44,20 +49,16 @@ public:
   vtkTypeMacro(vtkGeoJSONFeature,vtkDataObject);
 
   // Description:
-  //Extract the geometry and properties corresponding to the geoJSON feature stored at root
+  // Extract the geometry corresponding to the geoJSON feature stored at root
+  // Assign any feature properties passed as cell data
   void ExtractGeoJSONFeature(Json::Value root, vtkPolyData *outputData);
 
-  // Description:
-  //Return the vtkPolyData corresponding to the geoJSON feature stord in featureRoot
-  vtkPolyData *GetOutput();
+  void SetFeatureProperties(std::vector<FeatureProperty>& properties);
+  void GetFeatureProperties(std::vector<FeatureProperty>& properties);
 
 protected:
   vtkGeoJSONFeature();
   ~vtkGeoJSONFeature();
-
-  // Description:
-  // vtkPolyData containing the polydata generated from the geoJSON feature
-  vtkPolyData *outputData;
 
   // Description:
   // Json::Value featureRoot corresponds to the root of the geoJSON feature
@@ -67,6 +68,10 @@ protected:
   // Description:
   // Id of current GeoJSON feature being parsed
   std::string FeatureId;
+
+  // Description:
+  // Properties of current GeoJSON feature being parsed
+  std::vector<FeatureProperty> FeatureProperties;
 
   // Description:
   // Extract geoJSON geometry into vtkPolyData *
@@ -97,6 +102,9 @@ protected:
   // Description:
   // Point[] from its JSON equivalent
   double *CreatePoint(Json::Value coordinates);
+
+  // Description:
+  void InsertFeatureProperties(vtkPolyData *outputData);
 
 private:
   vtkGeoJSONFeature(const vtkGeoJSONFeature&);  //Not implemented
