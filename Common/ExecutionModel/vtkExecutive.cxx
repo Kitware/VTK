@@ -715,6 +715,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
     if(request->Has(FROM_OUTPUT_PORT()))
       {
       outputPort = request->Get(FROM_OUTPUT_PORT());
+      outputPort = outputPort == -1 ? 0 : outputPort;
       }
 
     // Copy information from the requesting output to all inputs.
