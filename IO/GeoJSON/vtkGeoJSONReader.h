@@ -56,7 +56,7 @@ public:
   // Description:
   // Specify feature property to read in with geometry objects
   // Note that defaultValue specifies both type & value
-  void AddFeatureProperty(char *name, vtkVariant& defaultValue);
+  void AddFeatureProperty(char *name, vtkVariant& typeAndDefaultValue);
 
 protected:
   vtkGeoJSONReader();

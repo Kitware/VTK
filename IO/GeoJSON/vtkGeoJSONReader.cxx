@@ -65,7 +65,7 @@ vtkGeoJSONReader::~vtkGeoJSONReader()
 
 //----------------------------------------------------------------------------
 void vtkGeoJSONReader::
-AddFeatureProperty(char *name, vtkVariant& defaultValue)
+AddFeatureProperty(char *name, vtkVariant& typeAndDefaultValue)
 {
   vtkGeoJSONProperty property;
 
@@ -78,7 +78,7 @@ AddFeatureProperty(char *name, vtkVariant& defaultValue)
       {
       vtkWarningMacro(<< "Overwriting property spec for name " << name);
       property.Name = name;
-      property.Value = defaultValue;
+      property.Value = typeAndDefaultValue;
       *iter = property;
       break;
       }
@@ -88,7 +88,7 @@ AddFeatureProperty(char *name, vtkVariant& defaultValue)
   if (iter == this->Internals->PropertySpecs.end())
     {
     property.Name = name;
-    property.Value = defaultValue;
+    property.Value = typeAndDefaultValue;
     this->Internals->PropertySpecs.push_back(property);
     vtkDebugMacro(<< "Added feature property " << property.Name);
     }
