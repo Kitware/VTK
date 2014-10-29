@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGL2PSTextActor3D.cxx
+  Module:    TestTextActor3D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,7 +19,6 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkGL2PSExporter.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -33,7 +32,7 @@
 
 #include <sstream>
 
-namespace vtkTestGL2PSTextActor3D {
+namespace vtkTestTextActor3D {
 void setupTextActor3D(vtkTextActor3D *actor, vtkPolyData *anchor)
 {
   vtkTextProperty *p = actor->GetTextProperty();
@@ -52,12 +51,12 @@ void setupTextActor3D(vtkTextActor3D *actor, vtkPolyData *anchor)
                                                         col[1] * 255,
                                                         col[2] * 255, 255);
 }
-} // end namespace vtkTestGL2PSTextActor3D
+} // end namespace vtkTestTextActor3D
 
 //----------------------------------------------------------------------------
-int TestGL2PSTextActor3D(int, char *[])
+int TestTextActor3D(int, char *[])
 {
-  using namespace vtkTestGL2PSTextActor3D;
+  using namespace vtkTestTextActor3D;
   vtkNew<vtkRenderer> ren;
 
   int width = 600;
@@ -131,20 +130,6 @@ int TestGL2PSTextActor3D(int, char *[])
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->ResetCameraClippingRange();
   win->SetSize(width, height);
-  win->Render();
-
-  vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(win.GetPointer());
-  exp->SetFileFormatToPS();
-  exp->CompressOff();
-  exp->SetSortToSimple();
-  exp->DrawBackgroundOn();
-
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSTextActor3D");
-
-  exp->SetFilePrefix(fileprefix.c_str());
-  exp->Write();
 
   // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);

@@ -3,12 +3,13 @@ include(vtkGhostscript)
 # Only run GL2PS tests if GhostScript is available
 if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTests
-    TestContextGL2PS.cxx,NO_VALID
+    TestContextGL2PS.cxx
     TestGL2PSExporterMultipleRenderers.cxx
-    TestGL2PSExporterRaster.cxx,NO_VALID
+    TestGL2PSExporterRaster.cxx
     TestGL2PSExporterRasterExclusion.cxx
-    TestGL2PSExporterVector.cxx,NO_VALID
-    TestGL2PSExporterVolumeRaster.cxx,NO_VALID
+    TestGL2PSExporterVector.cxx
+    TestGL2PSExporterVolumeRaster.cxx
+    TestGL2PSTextActor.cxx
     TestGL2PSTextActor3D.cxx
     TestGL2PSLabeledDataMapper.cxx
     TestLinePlotGL2PS.cxx

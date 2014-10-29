@@ -443,12 +443,25 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   else // there was no valid image, so write one to the temp dir
     {
     string vImage = tmpDir + "/" + validName;
-    vtkNew<vtkPNGWriter> rtPngw;
-    rtPngw->SetFileName(vImage.c_str());
-    rtPngw->SetInputConnection(imageSource->GetOutputPort());
-    rtPngw->Write();
-    os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">"
-       << this->ValidImageFileName << "</DartMeasurement>" << endl;
+    rtFin = fopen(vImage.c_str(), "wb");
+    if (rtFin)
+      {
+      fclose(rtFin);
+      vtkNew<vtkPNGWriter> rtPngw;
+      rtPngw->SetFileName(vImage.c_str());
+      rtPngw->SetInputConnection(imageSource->GetOutputPort());
+      rtPngw->Write();
+      os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">"
+         << this->ValidImageFileName << "</DartMeasurement>" << endl;
+      // Write out the image upload tag for the test image.
+      os <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
+      os << vImage;
+      os << "</DartMeasurementFile>";
+      }
+    else
+      {
+      vtkErrorMacro("Could not open file '" << vImage << "' for writing.");
+      }
     return FAILED;
     }
 
@@ -622,6 +635,29 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     return PASSED;
     }
 
+  // write out the image that was generated
+  string testImageFileName = tmpDir + "/" + validName;
+  FILE *testImageFile = fopen(testImageFileName.c_str(), "wb");
+  if (testImageFile)
+    {
+    fclose(testImageFile);
+    vtkNew<vtkPNGWriter> rtPngw;
+    rtPngw->SetFileName(testImageFileName.c_str());
+    rtPngw->SetInputConnection(imageSource->GetOutputPort());
+    rtPngw->Write();
+
+    // Write out the image upload tag for the test image.
+    os << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
+    os << testImageFileName;
+    os << "</DartMeasurementFile>\n";
+    }
+  else
+    {
+    vtkErrorMacro("Could not open file '" << testImageFileName << "' for "
+                  "writing.");
+    }
+
+
   os << "Failed Image Test : " << minError << endl;
   if (errIndex >= 0)
     {
@@ -639,10 +675,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   // If no image differences produced an image, do not write a
   // difference image.
-  if (minError <= 0)
+  bool hasDiff = minError > 0;
+  if (!hasDiff)
     {
     os << "Image differencing failed to produce an image." << endl;
-    return FAILED;
     }
   if (!(
        (ext2[1] - ext2[0]) == (ext1[1] - ext1[0]) &&
@@ -661,45 +697,45 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   rtId->Update();
 
   // test the directory for writing
-  string diffFilename = tmpDir + "/" + validName;
-  string::size_type dotPos = diffFilename.rfind(".");
-  if (dotPos != string::npos)
+  if (hasDiff)
     {
-    diffFilename = diffFilename.substr(0, dotPos);
+    string diffFilename = tmpDir + "/" + validName;
+    string::size_type dotPos = diffFilename.rfind(".");
+    if (dotPos != string::npos)
+      {
+      diffFilename = diffFilename.substr(0, dotPos);
+      }
+    diffFilename += ".diff.png";
+    FILE *rtDout = fopen(diffFilename.c_str(), "wb");
+    if (rtDout)
+      {
+      fclose(rtDout);
+
+      // write out the difference image gamma adjusted for the dashboard
+      vtkNew<vtkImageShiftScale> rtGamma;
+      rtGamma->SetInputConnection(rtId->GetOutputPort());
+      rtGamma->SetShift(0);
+      rtGamma->SetScale(10);
+
+      vtkNew<vtkPNGWriter> rtPngw;
+      rtPngw->SetFileName(diffFilename.c_str());
+      rtPngw->SetInputConnection(rtGamma->GetOutputPort());
+      rtPngw->Write();
+
+      os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
+      os << diffFilename;
+      os << "</DartMeasurementFile>";
+      }
+    else
+      {
+      vtkErrorMacro("Could not open file '" << diffFilename
+                    << "' for writing.");
+      }
     }
-  diffFilename += ".diff.png";
-  FILE *rtDout = fopen(diffFilename.c_str(), "wb");
-  if (rtDout)
-    {
-    fclose(rtDout);
 
-    // write out the difference image gamma adjusted for the dashboard
-    vtkNew<vtkImageShiftScale> rtGamma;
-    rtGamma->SetInputConnection(rtId->GetOutputPort());
-    rtGamma->SetShift(0);
-    rtGamma->SetScale(10);
-
-    vtkNew<vtkPNGWriter> rtPngw;
-    rtPngw->SetFileName(diffFilename.c_str());
-    rtPngw->SetInputConnection(rtGamma->GetOutputPort());
-    rtPngw->Write();
-
-    // write out the image that was generated
-    string vImage = tmpDir + "/" + validName;
-    rtPngw->SetFileName(vImage.c_str());
-    rtPngw->SetInputConnection(imageSource->GetOutputPort());
-    rtPngw->Write();
-
-    os <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
-    os << vImage;
-    os << "</DartMeasurementFile>";
-    os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
-    os << diffFilename;
-    os << "</DartMeasurementFile>";
-    os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">";
-    os << this->ValidImageFileName;
-    os <<  "</DartMeasurementFile>";
-    }
+  os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">";
+  os << this->ValidImageFileName;
+  os <<  "</DartMeasurementFile>";
 
   return FAILED;
 }

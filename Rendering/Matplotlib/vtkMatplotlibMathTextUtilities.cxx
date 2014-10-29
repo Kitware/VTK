@@ -369,6 +369,50 @@ vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
 }
 
 //----------------------------------------------------------------------------
+void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(int rows, int cols,
+                                                      vtkTextProperty *tprop,
+                                                      int bbox[])
+{
+  bbox[0] = 0;
+  bbox[1] = cols - 1;
+  bbox[2] = 0;
+  bbox[3] = rows - 1;
+
+  int justifyOffset[2];
+  switch (tprop->GetJustification())
+    {
+    default:
+    case VTK_TEXT_LEFT:
+      justifyOffset[0] = 0;
+      break;
+    case VTK_TEXT_CENTERED:
+      justifyOffset[0] = bbox[1] / 2;
+      break;
+    case VTK_TEXT_RIGHT:
+      justifyOffset[0] = bbox[1];
+      break;
+    }
+  switch (tprop->GetVerticalJustification())
+    {
+    default:
+    case VTK_TEXT_BOTTOM:
+      justifyOffset[1] = 0;
+      break;
+    case VTK_TEXT_CENTERED:
+      justifyOffset[1] = bbox[3] / 2;
+      break;
+    case VTK_TEXT_TOP:
+      justifyOffset[1] = bbox[3];
+      break;
+    }
+
+  bbox[0] -= justifyOffset[0];
+  bbox[1] -= justifyOffset[0];
+  bbox[2] -= justifyOffset[1];
+  bbox[3] -= justifyOffset[1];
+}
+
+//----------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::RotateCorners(double angleDeg,
                                                    double corners[4][2],
                                                    double bbox[4])
@@ -414,52 +458,56 @@ void vtkMatplotlibMathTextUtilities::RotateCorners(double angleDeg,
 //----------------------------------------------------------------------------
 // This is more or less ported from vtkFreeTypeTools.
 bool vtkMatplotlibMathTextUtilities::PrepareImageData(vtkImageData *data,
-                                                      int bbox[4])
+                                                      int textBbox[4])
 {
-  int width = bbox[1] - bbox[0] + 1;
-  int height = bbox[3] - bbox[2] + 1;
-  // If the current image data is too small to render the text,
-  // or more than twice as big (too hungry), then resize
-  int imgDims[3], newImgDims[3];
-  data->GetDimensions(imgDims);
+  // Calculate the bbox's dimensions
+  int textDims[2];
+  textDims[0] = (textBbox[1] - textBbox[0] + 1);
+  textDims[1] = (textBbox[3] - textBbox[2] + 1);
 
+  // Calculate the size the image needs to be.
+  int targetDims[3];
+  targetDims[0] = textDims[0];
+  targetDims[1] = textDims[1];
+  targetDims[2] = 1;
+  // Scale to the next highest power of 2 if required.
+  if (this->ScaleToPowerOfTwo)
+    {
+    targetDims[0] = vtkMath::NearestPowerOfTwo(targetDims[0]);
+    targetDims[1] = vtkMath::NearestPowerOfTwo(targetDims[1]);
+    }
+
+  // Calculate the target extent of the image.
+  int targetExtent[6];
+  targetExtent[0] = textBbox[0];
+  targetExtent[1] = textBbox[0] + targetDims[0] - 1;
+  targetExtent[2] = textBbox[2];
+  targetExtent[3] = textBbox[2] + targetDims[1] - 1;
+  targetExtent[4] = 0;
+  targetExtent[5] = 0;
+
+  // Get the actual image extents and increments
+  int imageExtent[6];
+  double imageSpacing[3];
+  data->GetExtent(imageExtent);
+  data->GetSpacing(imageSpacing);
+
+  // Do we need to reallocate the image memory?
   if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
       data->GetNumberOfScalarComponents() != 4 ||
-      imgDims[0] < width || imgDims[1] < height ||
-      width * 2 < imgDims[0] || height * 2 < imgDims[1])
+      imageExtent[0] != targetExtent[0] ||
+      imageExtent[1] != targetExtent[1] ||
+      imageExtent[2] != targetExtent[2] ||
+      imageExtent[3] != targetExtent[3] ||
+      imageExtent[4] != targetExtent[4] ||
+      imageExtent[5] != targetExtent[5] ||
+      fabs(imageSpacing[0] - 1.0) > 1e-10 ||
+      fabs(imageSpacing[1] - 1.0) > 1e-10 ||
+      fabs(imageSpacing[2] - 1.0) > 1e-10 )
     {
-    // Scale to the next highest power of 2 if required.
-    if (this->ScaleToPowerOfTwo)
-      {
-      newImgDims[0] = newImgDims[1] = 1;
-      while (newImgDims[0] < width)
-        {
-        newImgDims[0] *= 2;
-        }
-      while (newImgDims[1] < height)
-        {
-        newImgDims[1] *= 2;
-        }
-      }
-    else
-      {
-      newImgDims[0] = width;
-      newImgDims[1] = height;
-      }
-    newImgDims[2] = 1;
-
-    // Allocate the new image if needed
-    if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
-        data->GetNumberOfScalarComponents() != 4 ||
-        newImgDims[0] != imgDims[0] ||
-        newImgDims[1] != imgDims[1] ||
-        newImgDims[2] != imgDims[2])
-      {
-      data->SetExtent(bbox[0], bbox[0] + newImgDims[0] - 1,
-                      bbox[2], bbox[2] + newImgDims[1] - 1,
-                      0, 0);
-      data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-      }
+    data->SetSpacing(1.0, 1.0, 1.0);
+    data->SetExtent(targetExtent);
+    data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
     }
 
   // Clear the image
@@ -521,20 +569,23 @@ bool vtkMatplotlibMathTextUtilities::GetBoundingBox(
     return false;
     }
 
+  int extent[4];
+  this->GetJustifiedBBox(rows, cols, tprop, extent);
 
   // Determine the dimensions of the rotated image
   double angleDeg = tprop->GetOrientation();
   // Corners of original image
-  double corners[4][2] = { {0, 0},
-                           {static_cast<double>(cols), 0},
-                           {0, static_cast<double>(rows)},
-                           {static_cast<double>(cols), static_cast<double>(rows)} };
+  double corners[4][2] = {
+    {static_cast<double>(extent[0]), static_cast<double>(extent[2])},
+    {static_cast<double>(extent[1]), static_cast<double>(extent[2])},
+    {static_cast<double>(extent[0]), static_cast<double>(extent[3])},
+    {static_cast<double>(extent[1]), static_cast<double>(extent[3])} };
 
   double bboxd[4];
   this->RotateCorners(angleDeg, corners, bboxd);
-  bbox[0] = vtkMath::Ceil(bboxd[0]);
+  bbox[0] = vtkMath::Floor(bboxd[0]);
   bbox[1] = vtkMath::Ceil(bboxd[1]);
-  bbox[2] = vtkMath::Ceil(bboxd[2]);
+  bbox[2] = vtkMath::Floor(bboxd[2]);
   bbox[3] = vtkMath::Ceil(bboxd[3]);
 
   return true;
@@ -630,13 +681,15 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
     textDims[1] = rows;
     }
 
-  int bbox[4] = {0, static_cast<int>(cols - 1),
-                 0, static_cast<int>(rows - 1)};
+  // Create justified bounding box.
+  int bbox[4];
+  this->GetJustifiedBBox(rows, cols, tprop, bbox);
+
   this->PrepareImageData(image, bbox);
 
-  for (long int row = rows-1; row >= 0; --row)
+  for (long int row = bbox[3]; row >= bbox[2]; --row)
     {
-    for (long int col = 0; col < cols; ++col)
+    for (long int col = bbox[0]; col <= bbox[1]; ++col)
       {
       // item is borrowed, no need for a smart wrapper
       PyObject *item = PyList_GetItem(list.GetPointer(), ind++);
@@ -676,10 +729,10 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
                             static_cast<double>(bbox[3])},
                            {static_cast<double>(bbox[1]),
                             static_cast<double>(bbox[3])} };
-  double bbox2[4];
+  double bboxd[4];
 
   // Rotate the corners of the image and determine the bounding box
-  this->RotateCorners(angleDeg, corners, bbox2);
+  this->RotateCorners(angleDeg, corners, bboxd);
 
   // Also rotate the text dimensions.
   if (textDims)
@@ -698,10 +751,10 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
     textDims[1] = std::ceil(text_bbox[3] - text_bbox[2]);
     }
 
-  bbox[0] = static_cast<int>(bbox2[0]);
-  bbox[1] = static_cast<int>(bbox2[1]);
-  bbox[2] = static_cast<int>(bbox2[2]);
-  bbox[3] = static_cast<int>(bbox2[3]);
+  bbox[0] = vtkMath::Floor(bboxd[0]);
+  bbox[1] = vtkMath::Ceil(bboxd[1]);
+  bbox[2] = vtkMath::Floor(bboxd[2]);
+  bbox[3] = vtkMath::Ceil(bboxd[3]);
 
   // Rotate the temporary image into the returned image:
   vtkNew<vtkTransform> rotation;
