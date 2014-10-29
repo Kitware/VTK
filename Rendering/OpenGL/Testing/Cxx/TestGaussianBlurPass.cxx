@@ -50,6 +50,10 @@
 #include "vtkGaussianBlurPass.h"
 #include "vtkConeSource.h"
 
+// Make sure to have a valid OpenGL context current on the calling thread
+// before calling it. Defined in TestGenericVertexAttributesGLSLAlphaBlending.
+bool MesaHasVTKBug8135(vtkRenderWindow *);
+
 int TestGaussianBlurPass(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren=
@@ -75,14 +79,14 @@ int TestGaussianBlurPass(int argc, char* argv[])
     vtkSmartPointer<vtkSequencePass>::New();
   vtkSmartPointer<vtkOpaquePass> opaque=
     vtkSmartPointer<vtkOpaquePass>::New();
-//  vtkSmartPointer<vtkDepthPeelingPass> peeling=
-//    vtkSmartPointer<vtkDepthPeelingPass>::New();
-//  peeling->SetMaximumNumberOfPeels(200);
-//  peeling->SetOcclusionRatio(0.1);
+  vtkSmartPointer<vtkDepthPeelingPass> peeling=
+    vtkSmartPointer<vtkDepthPeelingPass>::New();
+  peeling->SetMaximumNumberOfPeels(200);
+  peeling->SetOcclusionRatio(0.1);
 
   vtkSmartPointer<vtkTranslucentPass> translucent=
     vtkSmartPointer<vtkTranslucentPass>::New();
-//  peeling->SetTranslucentPass(translucent);
+  peeling->SetTranslucentPass(translucent);
 
   vtkSmartPointer<vtkVolumetricPass> volume=
     vtkSmartPointer<vtkVolumetricPass>::New();
@@ -97,8 +101,8 @@ int TestGaussianBlurPass(int argc, char* argv[])
   passes->AddItem(lights);
   passes->AddItem(opaque);
 
-//  passes->AddItem(peeling);
-  passes->AddItem(translucent);
+  passes->AddItem(peeling);
+//  passes->AddItem(translucent);
 
   passes->AddItem(volume);
   passes->AddItem(overlay);
@@ -172,27 +176,36 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renWin->Render();
 
   int retVal;
-  actor->SetVisibility(1);
-  coneActor->SetVisibility(1);
-  renderer->ResetCamera();
-  vtkCamera *camera=renderer->GetActiveCamera();
-  camera->Azimuth(-40.0);
-  camera->Elevation(20.0);
-  renWin->Render();
-
-  if(peeling->GetLastRenderingUsedDepthPeeling())
+  if(MesaHasVTKBug8135(renWin))
     {
-    cout<<"depth peeling was used"<<endl;
+    // Mesa will crash if version<7.3
+    cout<<"This version of Mesa would crash. Skip the test."<<endl;
+    retVal=vtkRegressionTester::PASSED;
     }
   else
     {
-    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+    actor->SetVisibility(1);
+    coneActor->SetVisibility(1);
+    renderer->ResetCamera();
+    vtkCamera *camera=renderer->GetActiveCamera();
+    camera->Azimuth(-40.0);
+    camera->Elevation(20.0);
+    renWin->Render();
 
-  retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
+    if(peeling->GetLastRenderingUsedDepthPeeling())
+      {
+      cout<<"depth peeling was used"<<endl;
+      }
+    else
+      {
+      cout<<"depth peeling was not used (alpha blending instead)"<<endl;
+      }
+
+    retVal = vtkRegressionTestImage( renWin );
+    if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
     }
   return !retVal;
 }
