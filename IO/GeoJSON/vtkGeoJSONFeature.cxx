@@ -299,14 +299,14 @@ ExtractMultiPolygon(Json::Value coordinateArray, vtkPolyData *outputData)
 
 //----------------------------------------------------------------------------
 void vtkGeoJSONFeature::
-SetFeatureProperties(std::vector<FeatureProperty>& properties)
+SetFeatureProperties(std::vector<vtkGeoJSONProperty>& properties)
 {
   this->FeatureProperties = properties;
 }
 
 //----------------------------------------------------------------------------
 void vtkGeoJSONFeature::
-GetFeatureProperties(std::vector<FeatureProperty>& properties)
+GetFeatureProperties(std::vector<vtkGeoJSONProperty>& properties)
 {
   properties = this->FeatureProperties;
 }
@@ -604,12 +604,12 @@ bool vtkGeoJSONFeature::IsMultiPolygon(Json::Value root)
 //----------------------------------------------------------------------------
 void vtkGeoJSONFeature::InsertFeatureProperties(vtkPolyData *outputData)
 {
-  std::vector<FeatureProperty>::iterator iter =
+  std::vector<vtkGeoJSONProperty>::iterator iter =
     this->FeatureProperties.begin();
   for(; iter != this->FeatureProperties.end(); iter++)
     {
-    std::string name = iter->first;
-    vtkVariant value = iter->second;
+    std::string name = iter->Name;
+    vtkVariant value = iter->Value;
 
     vtkAbstractArray *array =
       outputData->GetCellData()->GetAbstractArray(name.c_str());

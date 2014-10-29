@@ -22,10 +22,9 @@
 
 // VTK Includes
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkVariant.h"
+#include "vtkGeoJSONProperty.h"
 #include "vtk_jsoncpp.h" // For json parser
 #include <string>
-#include <utility>
 #include <vector>
 
 class vtkPolyData;
@@ -56,8 +55,8 @@ public:
 
   // Description:
   // Specify feature property to read in with geometry objects
-  void AddFeatureProperty(char *name, vtkIdType dataType,
-                          vtkVariant& defaultValue);
+  // Note that defaultValue specifies both type & value
+  void AddFeatureProperty(char *name, vtkVariant& defaultValue);
 
 protected:
   vtkGeoJSONReader();
@@ -85,7 +84,7 @@ protected:
   // Description:
   // Extract property values from current json node
   void ParseFeatureProperties(Json::Value& propertiesNode,
-    std::vector<std::pair<std::string, vtkVariant> >& properties);
+    std::vector<vtkGeoJSONProperty>& properties);
 
   char *FileName;
   char *StringInput;
