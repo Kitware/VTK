@@ -299,15 +299,18 @@ int vtkXMLReader::OpenVTKString()
 //----------------------------------------------------------------------------
 void vtkXMLReader::CloseStream()
 {
-  if (this->ReadFromInputString)
+  if (this->Stream)
     {
-    this->CloseVTKString();
+    if (this->ReadFromInputString)
+      {
+      this->CloseVTKString();
+      }
+    else
+      {
+      this->CloseVTKFile();
+      }
+    this->Stream = 0;
     }
-  else
-    {
-    this->CloseVTKFile();
-    }
-  this->Stream = 0;
 }
 
 //----------------------------------------------------------------------------
