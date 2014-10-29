@@ -159,7 +159,7 @@ public:
   // on the offset.  This results in small ripple artifacts in the output.
   // By default, the vtkImageSincInterpolator will renormalize these kernels.
   // This method allows the renormalization to be turned off.
-  void SetRenormalization(int antialiasing);
+  void SetRenormalization(int renormalization);
   void RenormalizationOn() { this->SetRenormalization(1); }
   void RenormalizationOff() { this->SetRenormalization(0); }
   int GetRenormalization() { return this->Renormalization; }
