@@ -60,15 +60,14 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  vtkNew<vtkRenderer> renderer;
-  renderer->AddVolume(volume.GetPointer());
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(900, 900);
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindow->Render(); // make sure we have an OpenGL context.
 
+  vtkNew<vtkRenderer> renderer;
+  renderer->AddVolume(volume.GetPointer());
   renderer->ResetCamera();
-
-  renderWindow->SetMultiSamples(0);
+  renderWindow->AddRenderer(renderer.GetPointer());
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
