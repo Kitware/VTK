@@ -4,7 +4,7 @@
 
 IF (NOT DEFINED CLASS)
   MESSAGE ("You did not specify the class to process. Usage: cmake -DCLASS=vtkMyClass -P NewPipeConvertDataSet" FATAL_ERROR)
-ENDIF (NOT DEFINED CLASS)
+ENDIF ()
 
 FILE (GLOB H_FILE ${CLASS}.h)
 FILE (GLOB CXX_FILE ${CLASS}.cxx)
@@ -71,7 +71,7 @@ IF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
       "vtkObjectFactory.h"
       "vtkInformation.h\"\n#include \"vtkInformationVector.h\"\n#include \"vtkObjectFactory.h"
       CXX_CONTENTS "${CXX_CONTENTS}")
-  ENDIF (NOT "${CXX_CONTENTS}" MATCHES ".*vtkInformation.h.*")
-ENDIF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
+  ENDIF ()
+ENDIF ()
 
 FILE (WRITE ${CXX_FILE} "${CXX_CONTENTS}")

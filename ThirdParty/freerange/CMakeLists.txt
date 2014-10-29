@@ -19,5 +19,5 @@ LIST(REMOVE_ITEM TestsToRun freerangeTests.cxx )
 FOREACH (test ${TestsToRun})
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
   ADD_TEST(NAME ${TName} COMMAND freerangeTests ${TName})
-ENDFOREACH (test)
+ENDFOREACH ()
 

@@ -21,7 +21,7 @@ IF(Boost_INCLUDE_DIR AND EXISTS "${Boost_INCLUDE_DIR}/boost/version.hpp")
       STRING(REGEX REPLACE
         "^#define BOOST_VERSION ([0-9]+).*EOL$" "\\1"
         BOOST_VERSION "${line}")
-    ENDIF("${line}" MATCHES "^#define BOOST_VERSION ([0-9]+).*EOL$")
+    ENDIF()
 
     # And BOOST_LIB_VERSION:
     #
@@ -29,8 +29,8 @@ IF(Boost_INCLUDE_DIR AND EXISTS "${Boost_INCLUDE_DIR}/boost/version.hpp")
       STRING(REGEX REPLACE
         "^#define BOOST_LIB_VERSION \"([0-9_]+)\".*EOL$" "\\1"
         BOOST_LIB_VERSION "${line}")
-    ENDIF("${line}" MATCHES "^#define BOOST_LIB_VERSION \"([0-9_]+)\".*EOL$")
-  ENDFOREACH(line)
+    ENDIF()
+  ENDFOREACH()
 
   # Compute major, minor and subminor versions according to comments in
   # boost/version.hpp:
@@ -39,8 +39,8 @@ IF(Boost_INCLUDE_DIR AND EXISTS "${Boost_INCLUDE_DIR}/boost/version.hpp")
     MATH(EXPR BOOST_MAJOR_VERSION "${BOOST_VERSION} / 100000")
     MATH(EXPR BOOST_MINOR_VERSION "${BOOST_VERSION} / 100 % 1000")
     MATH(EXPR BOOST_SUBMINOR_VERSION "${BOOST_VERSION} % 100")
-  ENDIF(NOT "${BOOST_VERSION}" STREQUAL "0")
-ENDIF(Boost_INCLUDE_DIR AND EXISTS "${Boost_INCLUDE_DIR}/boost/version.hpp")
+  ENDIF()
+ENDIF()
 
 #MESSAGE("BOOST_VERSION='${BOOST_VERSION}'")
 #MESSAGE("BOOST_MAJOR_VERSION='${BOOST_MAJOR_VERSION}'")

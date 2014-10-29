@@ -13,9 +13,9 @@ if(NOT VTK_BINARY_DIR)
   find_package(VTK)
   if(NOT VTK_DIR)
     message(FATAL_ERROR "Please set VTK_DIR.")
-  endif(NOT VTK_DIR)
+  endif()
   include(${VTK_USE_FILE})
-endif(NOT VTK_BINARY_DIR)
+endif()
 
 # This is needed in case we are building this project separate from the VTK build
 if (NOT EXECUTABLE_OUTPUT_PATH)

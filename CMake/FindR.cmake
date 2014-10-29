@@ -37,10 +37,10 @@ if(R_COMMAND)
   # deprecated
   if(VTK_R_HOME)
     set(R_HOME ${VTK_R_HOME} CACHE PATH "R home directory obtained from R RHOME")
-  else(VTK_R_HOME)
+  else()
     set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
     set(VTK_R_HOME ${R_HOME})
-  endif(VTK_R_HOME)
+  endif()
   # /deprecated
   # the following command does nothing currently, but will be used when deprecated code is removed
   set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
@@ -66,12 +66,12 @@ if(R_COMMAND)
   find_library(R_LIBRARY_READLINE readline
             DOC "(Optional) system readline library. Only required if the R libraries were built with readline support.")
 
-else(R_COMMAND)
+else()
   message(SEND_ERROR "FindR.cmake requires the following variables to be set: R_COMMAND")
-endif(R_COMMAND)
+endif()
 
 # Note: R_LIBRARY_BASE is added to R_LIBRARIES twice; this may be due to circular linking dependencies; needs further investigation
 set(R_LIBRARIES ${R_LIBRARY_BASE} ${R_LIBRARY_BLAS} ${R_LIBRARY_LAPACK} ${R_LIBRARY_BASE})
 if(R_LIBRARY_READLINE)
   set(R_LIBRARIES ${R_LIBRARIES} ${R_LIBRARY_READLINE})
-endif(R_LIBRARY_READLINE)
+endif()

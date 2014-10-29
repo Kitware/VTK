@@ -13,7 +13,7 @@ mark_as_advanced(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
 if(NOT VTK_BINARY_DIR)
   find_package(VTK REQUIRED)
   include(${VTK_USE_FILE})
-endif(NOT VTK_BINARY_DIR)
+endif()
 
 #
 # Build shared libs ?
@@ -39,8 +39,8 @@ if (EXISTS ${VTK_DIR}/bin)
   if (USE_VTK_OUTPUT_PATHS)
     set (LIBRARY_OUTPUT_PATH ${VTK_DIR}/bin)
     set (EXECUTABLE_OUTPUT_PATH ${VTK_DIR}/bin)
-  endif (USE_VTK_OUTPUT_PATHS)
-endif (EXISTS ${VTK_DIR}/bin)
+  endif ()
+endif ()
 
 
 #
@@ -64,18 +64,18 @@ if (VTK_WRAP_TCL)
 
   if(VTKMY_WRAP_TCL)
     INCLUDE(${VTK_CMAKE_DIR}/vtkWrapTcl.cmake)
-  endif(VTKMY_WRAP_TCL)
+  endif()
 
-else (VTK_WRAP_TCL)
+else ()
 
   if (VTKMY_WRAP_TCL)
     message("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have "
             "chosen has not support for Tcl (VTK_WRAP_TCL is OFF).  "
             "Please set VTKMY_WRAP_TCL to OFF.")
     set (VTKMY_WRAP_TCL OFF)
-  endif (VTKMY_WRAP_TCL)
+  endif ()
 
-endif (VTK_WRAP_TCL)
+endif ()
 
 #
 # Python
@@ -94,20 +94,20 @@ if (VTK_WRAP_PYTHON)
       if (NOT BUILD_SHARED_LIBS)
         message(FATAL_ERROR "Python support requires BUILD_SHARED_LIBS to be ON.")
         set (VTKMY_CAN_BUILD 0)
-      endif (NOT BUILD_SHARED_LIBS)
-    endif (WIN32)
-  endif (VTKMY_WRAP_PYTHON)
+      endif ()
+    endif ()
+  endif ()
 
-else (VTK_WRAP_PYTHON)
+else ()
 
   if (VTKMY_WRAP_PYTHON)
     message("Warning. VTKMY_WRAP_PYTHON is ON but the VTK version you have "
             "chosen has not support for Python (VTK_WRAP_PYTHON is OFF).  "
             "Please set VTKMY_WRAP_PYTHON to OFF.")
     set (VTKMY_WRAP_PYTHON OFF)
-  endif (VTKMY_WRAP_PYTHON)
+  endif ()
 
-endif (VTK_WRAP_PYTHON)
+endif ()
 
 #
 # Java
@@ -126,24 +126,24 @@ if (VTK_WRAP_JAVA)
       if (NOT BUILD_SHARED_LIBS)
         message(FATAL_ERROR "Java support requires BUILD_SHARED_LIBS to be ON.")
         set (VTKMY_CAN_BUILD 0)
-      endif (NOT BUILD_SHARED_LIBS)
-    endif (WIN32)
+      endif ()
+    endif ()
 
     # Tell the java wrappers where to go.
     set(VTK_JAVA_HOME ${VTKMY_BINARY_DIR}/java/vtkmy)
     file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
-  endif (VTKMY_WRAP_JAVA)
+  endif ()
 
-else (VTK_WRAP_JAVA)
+else ()
 
   if (VTKMY_WRAP_JAVA)
     message("Warning. VTKMY_WRAP_JAVA is ON but the VTK version you have "
             "chosen has not support for Java (VTK_WRAP_JAVA is OFF).  "
             "Please set VTKMY_WRAP_JAVA to OFF.")
     set (VTKMY_WRAP_JAVA OFF)
-  endif (VTKMY_WRAP_JAVA)
+  endif ()
 
-endif (VTK_WRAP_JAVA)
+endif ()
 
 # Setup our local hints file in case wrappers need them.
 set(VTK_WRAP_HINTS ${VTKMY_SOURCE_DIR}/Wrapping/hints)

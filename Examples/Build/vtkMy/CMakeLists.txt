@@ -35,7 +35,7 @@ include_directories(${VTKMY_SOURCE_DIR}/Unsorted)
 option(BUILD_EXAMPLES "Build examples." ON)
 if (BUILD_EXAMPLES)
   add_subdirectory(Examples)
-endif (BUILD_EXAMPLES)
+endif ()
 
 #
 # Common configuration settings

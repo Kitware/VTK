@@ -158,7 +158,7 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
   # Create the Init File
   set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}InitImpl.cxx)
 
-endmacro(VTK_WRAP_PYTHON3)
+endmacro()
 
 if(VTK_WRAP_PYTHON_FIND_LIBS)
   get_filename_component(_CURRENT_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)

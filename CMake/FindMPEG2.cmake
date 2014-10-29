@@ -30,9 +30,9 @@ SET(vtkMPEG2Encode_LIBRARIES "vtkMPEG2Encode_LIBRARIES-NOTFOUND" CACHE STRING "S
 IF(VTK_USE_MPEG2_ENCODER)
   IF(NOT vtkMPEG2Encode_INCLUDE_PATH)
     MESSAGE(SEND_ERROR "Could not determine value for vtkMPEG2Encode_INCLUDE_PATH. Provide value or turn off VTK_USE_MPEG2_ENCODER. Value should be a semi-colon delimited list of paths to vtkmpeg2encode header files.")
-  ENDIF(NOT vtkMPEG2Encode_INCLUDE_PATH)
+  ENDIF()
 
   IF(NOT vtkMPEG2Encode_LIBRARIES)
     MESSAGE(SEND_ERROR "Could not determine value for vtkMPEG2Encode_LIBRARIES. Provide value or turn off VTK_USE_MPEG2_ENCODER. Value should be a semi-colon delimited list of vtkMPEG2Encode library full path names.")
-  ENDIF(NOT vtkMPEG2Encode_LIBRARIES)
-ENDIF(VTK_USE_MPEG2_ENCODER)
+  ENDIF()
+ENDIF()

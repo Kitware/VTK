@@ -25,7 +25,7 @@ if ( VERDICT_MANGLE )
     ${verdict_SOURCE_DIR}/verdict_mangle.h.in
     ${verdict_BINARY_DIR}/verdict_mangle.h
   )
-endif ( VERDICT_MANGLE )
+endif ()
 mark_as_advanced( VERDICT_MANGLE )
 
 option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" OFF )
@@ -57,9 +57,9 @@ configure_file(
 
 if ( VERDICT_MANGLE )
   set( verdict_LIBRARY "${VERDICT_MANGLE_PREFIX}verdict" )
-else ( VERDICT_MANGLE )
+else ()
   set( verdict_LIBRARY "verdict" )
-endif ( VERDICT_MANGLE )
+endif ()
 
 # Setting the VERSION and SOVERSION of a library will include
 # version information either in the library, or in the library
@@ -71,7 +71,7 @@ if ( NOT VERDICT_NO_LIBRARY_VERSION )
     VERSION "${verdict_VERSION}"
     SOVERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}"
   )
-endif ( NOT VERDICT_NO_LIBRARY_VERSION )
+endif ()
 
 add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
 set_target_properties( ${verdict_LIBRARY} PROPERTIES DEFINE_SYMBOL verdict_EXPORTS)
@@ -81,7 +81,7 @@ if ( VERDICT_LIBRARY_PROPERTIES )
   set_target_properties( ${verdict_LIBRARY}
     PROPERTIES ${VERDICT_LIBRARY_PROPERTIES}
   )
-endif ( VERDICT_LIBRARY_PROPERTIES )
+endif ()
 
 if ( VERDICT_ENABLE_TESTING )
   enable_testing()
@@ -95,7 +95,7 @@ if ( VERDICT_ENABLE_TESTING )
 
   add_test( verdict_test verdict_test )
   set_tests_properties( verdict_test PROPERTIES FAIL_REGULAR_EXPRESSION "FAILED" )
-endif ( VERDICT_ENABLE_TESTING )
+endif ()
 
 if ( NOT verdict_INSTALL_EXPORT_NAME)
   set (verdict_INSTALL_EXPORT_NAME verdict)
@@ -118,7 +118,7 @@ endif ()
 
 if ( VERDICT_BUILD_DOC )
   add_subdirectory( docs/VerdictUserManual2007 )
-endif ( VERDICT_BUILD_DOC )
+endif ()
 
 #
 # Installation stuff
@@ -145,9 +145,9 @@ IF(NOT verdict_INSTALL_NO_DEVELOPMENT)
       DESTINATION ${verdict_INSTALL_INCLUDE_DIR}
       COMPONENT Development
     )
-  endif ( VERDICT_MANGLE )
+  endif ()
 
-ENDIF(NOT verdict_INSTALL_NO_DEVELOPMENT)
+ENDIF()
 
 install(TARGETS ${verdict_LIBRARY}
       EXPORT ${verdict_INSTALL_EXPORT_NAME}
@@ -163,7 +163,7 @@ if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
   if (EXISTS "${CMAKE_ROOT}/Modules/InstallRequiredSystemLibraries.cmake")
     set (CMAKE_INSTALL_MFC_LIBRARIES 1)
 #      include (InstallRequiredSystemLibraries)
-  endif (EXISTS "${CMAKE_ROOT}/Modules/InstallRequiredSystemLibraries.cmake")
+  endif ()
   set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "VERDICT - a geometric quality functions library")
   set (CPACK_PACKAGE_VENDOR "Sandia National Laboratories")
   set (CPACK_PACKAGE_INSTALL_DIRECTORY "Verdict ${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}")
@@ -176,10 +176,10 @@ if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
   if (${CMAKE_SYSTEM_NAME} MATCHES Windows)
     if (CMAKE_CL_64)
       set (CPACK_SYSTEM_NAME win64)
-    else (CMAKE_CL_64)
+    else ()
       set (CPACK_SYSTEM_NAME win32)
-    endif (CMAKE_CL_64)
-  endif (${CMAKE_SYSTEM_NAME} MATCHES Windows)
+    endif ()
+  endif ()
 
   set (CPACK_PACKAGE_FILE_NAME "${CPACK_SOURCE_PACKAGE_FILE_NAME}-${CPACK_SYSTEM_NAME}")
   if (WIN32 AND NOT UNIX)
@@ -193,9 +193,9 @@ if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
     set (CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.sandia.gov")
     set (CPACK_NSIS_CONTACT "cubit@sandia.gov")
     set (CPACK_NSIS_MODIFY_PATH ON)
-  else (WIN32 AND NOT UNIX)
+  else ()
     #set (CPACK_STRIP_FILES "bin/ccmake;bin/cmake;bin/cpack;bin/ctest")
     #set (CPACK_PACKAGE_EXECUTABLES "")
-  endif (WIN32 AND NOT UNIX)
+  endif ()
   include(CPack)
-endif ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+endif ()

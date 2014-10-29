@@ -10,7 +10,7 @@ set(XKAAPI_HOME $ENV{XKAAPI_HOME} CACHE PATH "Path to the (x)Kaapi install dir")
 find_package(PkgConfig)
 if(PKG_CONFIG_FOUND)
   pkg_check_modules(PC_KAAPI QUIET kaapi++)
-endif(PKG_CONFIG_FOUND)
+endif()
 
 find_path(XKAAPI_INCLUDE_DIR kaapi++
   HINTS

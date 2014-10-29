@@ -5,7 +5,7 @@ PROJECT (HDF5_CPP)
 #-----------------------------------------------------------------------------
 IF (BUILD_SHARED_LIBS)
   SET (CPP_BUILT_AS_DYNAMIC_LIB 1)
-ENDIF (BUILD_SHARED_LIBS)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Generate configure file
@@ -26,7 +26,7 @@ INCLUDE_DIRECTORIES (${HDF5_BINARY_DIR})
 IF (H5_HAVE_PARALLEL)
   ADD_DEFINITIONS ("-DMPICH_SKIP_MPICXX")
   ADD_DEFINITIONS ("-DMPICH_IGNORE_CXX_SEEK")
-ENDIF (H5_HAVE_PARALLEL)
+ENDIF ()
 
 ADD_SUBDIRECTORY (${HDF5_CPP_SOURCE_DIR}/src ${HDF5_CPP_BINARY_DIR}/src)
 
@@ -35,11 +35,11 @@ ADD_SUBDIRECTORY (${HDF5_CPP_SOURCE_DIR}/src ${HDF5_CPP_BINARY_DIR}/src)
 #-----------------------------------------------------------------------------
 IF (HDF5_BUILD_EXAMPLES)
   ADD_SUBDIRECTORY (${HDF5_CPP_SOURCE_DIR}/examples ${HDF5_CPP_BINARY_DIR}/examples)
-ENDIF (HDF5_BUILD_EXAMPLES)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Build the CPP unit tests
 #-----------------------------------------------------------------------------
 IF (BUILD_TESTING)
   ADD_SUBDIRECTORY (${HDF5_CPP_SOURCE_DIR}/test ${HDF5_CPP_BINARY_DIR}/test)
-ENDIF (BUILD_TESTING)
+ENDIF ()

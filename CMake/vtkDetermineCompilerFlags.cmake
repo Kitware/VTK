@@ -131,7 +131,7 @@ IF(MSVC_VERSION GREATER 1400)
   IF (CMAKE_CXX_MP_FLAG)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP${CMAKE_CXX_MP_NUM_PROCESSORS}")
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP${CMAKE_CXX_MP_NUM_PROCESSORS}")
-  ENDIF (CMAKE_CXX_MP_FLAG)
+  ENDIF ()
 ENDIF()
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be
