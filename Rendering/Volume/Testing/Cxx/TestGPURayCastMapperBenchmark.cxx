@@ -34,6 +34,8 @@
 //----------------------------------------------------------------------------
 int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 {
+  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-127, 128,
                           -127, 128,
@@ -69,51 +71,64 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   renderer->ResetCamera();
   renderWindow->AddRenderer(renderer.GetPointer());
 
-  vtkNew<vtkTimerLog> timer;
-  timer->StartTimer();
-  renderWindow->Render();
-  timer->StopTimer();
-  double firstRender = timer->GetElapsedTime();
-  cerr << "First Render Time: " << firstRender << endl;
-
-  int numRenders = 20;
-  for (int i = 0; i < numRenders; ++i)
-    {
-    renderer->GetActiveCamera()->Azimuth(1);
-    renderer->GetActiveCamera()->Elevation(1);
-    renderWindow->Render();
-    }
-
-  timer->StartTimer();
-  numRenders = 200;
-  for (int i = 0; i < numRenders; ++i)
-    {
-    renderer->GetActiveCamera()->Azimuth(1);
-    renderer->GetActiveCamera()->Elevation(1);
-    renderWindow->Render();
-    }
-  timer->StopTimer();
-  double elapsed = timer->GetElapsedTime();
-  cerr << "Interactive Render Time: " << elapsed / numRenders << endl;
-
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
-  renderer->ResetCamera();
-
-  renderWindow->SetSize(300, 300);
-  renderWindow->Render();
-
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.GetPointer());
 
-  iren->Initialize();
-
-  int retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int valid = volumeMapper->IsRenderSupported(renderWindow.GetPointer(),
+                                              volumeProperty.GetPointer());
+  int retVal;
+  if (valid)
     {
-    iren->Start();
+
+    vtkNew<vtkTimerLog> timer;
+    timer->StartTimer();
+    renderWindow->Render();
+    timer->StopTimer();
+    double firstRender = timer->GetElapsedTime();
+    cerr << "First Render Time: " << firstRender << endl;
+
+    int numRenders = 20;
+    for (int i = 0; i < numRenders; ++i)
+      {
+      renderer->GetActiveCamera()->Azimuth(1);
+      renderer->GetActiveCamera()->Elevation(1);
+      renderWindow->Render();
+      }
+
+    timer->StartTimer();
+    numRenders = 200;
+    for (int i = 0; i < numRenders; ++i)
+      {
+      renderer->GetActiveCamera()->Azimuth(1);
+      renderer->GetActiveCamera()->Elevation(1);
+      renderWindow->Render();
+      }
+    timer->StopTimer();
+    double elapsed = timer->GetElapsedTime();
+    cerr << "Interactive Render Time: " << elapsed / numRenders << endl;
+
+    renderer->GetActiveCamera()->SetPosition(0,0,1);
+    renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
+    renderer->GetActiveCamera()->SetViewUp(0,1,0);
+    renderer->ResetCamera();
+
+    renderWindow->SetSize(300, 300);
+    renderWindow->Render();
+
+    iren->Initialize();
+
+    retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
+    if( retVal == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
+    }
+  else
+    {
+    retVal = vtkTesting::PASSED;
+    cout << "Required extensions not supported." << endl;
     }
 
-  return !retVal;
+  return !((retVal == vtkTesting::PASSED) ||
+           (retVal == vtkTesting::DO_INTERACTOR));
 }
