@@ -23,24 +23,15 @@
 #include "vtkPixelBufferObject.h"
 #endif
 
-#include "vtkOpenGLRenderWindow.h"
-
-#include "vtkTexturedActor2D.h"
 #include "vtkNew.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkTexture.h"
-#include "vtkDataArray.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkTrivialProducer.h"
-#include "vtkFloatArray.h"
-#include "vtkRenderer.h"
-#include "vtkPointData.h"
-#include "vtkOpenGLTexture.h"
-
-
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkRenderer.h"
+#include "vtkShaderProgram.h"
+
+#include "vtkglVBOHelper.h"
 
 #include <cassert>
 
@@ -50,6 +41,10 @@
 #ifdef VTK_TO_TIMING
 #include "vtkTimerLog.h"
 #endif
+
+#include "vtkTextureObjectFS.h"
+#include "vtkTextureObjectVS.h"  // a pass through shader
+
 
 #define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
 
@@ -203,18 +198,12 @@ vtkTextureObject::vtkTextureObject()
   this->DepthTextureCompare = false;
   this->DepthTextureCompareFunction = Lequal;
   this->GenerateMipmap = false;
-
-  this->DrawPixelsActor = NULL;
+  this->ShaderProgram = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkTextureObject::~vtkTextureObject()
 {
-  if(this->DrawPixelsActor!=0)
-    {
-    this->DrawPixelsActor->UnRegister(this);
-    this->DrawPixelsActor = NULL;
-    }
   this->DestroyTexture();
 }
 
@@ -403,6 +392,12 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
     rwin->ActivateTexture(this);
     this->UnBind();
     rwin->DeactivateTexture(this);
+    }
+  if (this->ShaderProgram)
+    {
+    this->ShaderProgram->ReleaseGraphicsResources(win);
+    delete this->ShaderProgram;
+    this->ShaderProgram = NULL;
     }
 }
 
@@ -1634,12 +1629,12 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 }
 
 // ----------------------------------------------------------------------------
-void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
-                                         int srcYmin,
-                                         int srcXmax,
-                                         int srcYmax,
-                                         int dstXmin,
-                                         int dstYmin)
+void vtkTextureObject::CopyToFrameBuffer(
+  int srcXmin, int srcYmin,
+  int srcXmax, int srcYmax,
+  int dstXmin, int dstYmin,
+  vtkWindow *win,
+  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
   assert("pre: positive_srcXmin" && srcXmin>=0);
   assert("pre: max_srcXmax" &&
@@ -1654,84 +1649,81 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
 
   vtkOpenGLClearErrorMacro();
 
-  if (this->DrawPixelsActor == NULL)
-    {
-    this->DrawPixelsActor = vtkTexturedActor2D::New();
-    vtkNew<vtkPolyDataMapper2D> mapper;
-    vtkNew<vtkPolyData> polydata;
-    vtkNew<vtkPoints> points;
-    points->SetNumberOfPoints(4);
-    polydata->SetPoints(points.Get());
-
-    vtkNew<vtkCellArray> tris;
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(1);
-    tris->InsertCellPoint(2);
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(2);
-    tris->InsertCellPoint(3);
-    polydata->SetPolys(tris.Get());
-
-    vtkNew<vtkTrivialProducer> prod;
-    prod->SetOutput(polydata.Get());
-
-    // Set some properties.
-    mapper->SetInputConnection(prod->GetOutputPort());
-    this->DrawPixelsActor->SetMapper(mapper.Get());
-
-    vtkNew<vtkTexture> texture;
-    texture->RepeatOff();
-    this->DrawPixelsActor->SetTexture(texture.Get());
-
-    vtkNew<vtkFloatArray> tcoords;
-    tcoords->SetNumberOfComponents(2);
-    tcoords->SetNumberOfTuples(4);
-    polydata->GetPointData()->SetTCoords(tcoords.Get());
-    }
-
-  GLfloat minXTexCoord=static_cast<GLfloat>(
+  float minXTexCoord=static_cast<float>(
     static_cast<double>(srcXmin)/this->Width);
-  GLfloat minYTexCoord=static_cast<GLfloat>(
+  float minYTexCoord=static_cast<float>(
     static_cast<double>(srcYmin)/this->Height);
 
-  GLfloat maxXTexCoord=static_cast<GLfloat>(
+  float maxXTexCoord=static_cast<float>(
     static_cast<double>(srcXmax+1)/this->Width);
-  GLfloat maxYTexCoord=static_cast<GLfloat>(
+  float maxYTexCoord=static_cast<float>(
     static_cast<double>(srcYmax+1)/this->Height);
 
-  GLfloat dstXmax=static_cast<GLfloat>(dstXmin+srcXmax-srcXmin);
-  GLfloat dstYmax=static_cast<GLfloat>(dstYmin+srcYmax-srcYmin);
+  float dstXmax = static_cast<float>(dstXmin+srcXmax-srcXmin);
+  float dstYmax = static_cast<float>(dstYmin+srcYmax-srcYmin);
 
-  vtkPolyData *pd = vtkPolyDataMapper2D::SafeDownCast(this->DrawPixelsActor->GetMapper())->GetInput();
-  vtkPoints *points = pd->GetPoints();
-  points->SetPoint(0, dstXmin, dstYmin, 0);
-  points->SetPoint(1, dstXmax, dstYmin, 0);
-  points->SetPoint(2, dstXmax, dstYmax, 0);
-  points->SetPoint(3, dstXmin, dstYmax, 0);
+  int *size = win->GetSize();
+  glViewport(0,0,size[0],size[1]);
 
-  vtkDataArray *tcoords = pd->GetPointData()->GetTCoords();
-  float tmp[2];
-  tmp[0] = minXTexCoord;
-  tmp[1] = minYTexCoord;
-  tcoords->SetTuple(0,tmp);
-  tmp[0] = maxXTexCoord;
-  tcoords->SetTuple(1,tmp);
-  tmp[1] = maxYTexCoord;
-  tcoords->SetTuple(2,tmp);
-  tmp[0] = minXTexCoord;
-  tcoords->SetTuple(3,tmp);
+  float tcoords[] = {
+    minXTexCoord, minYTexCoord,
+    maxXTexCoord, minYTexCoord,
+    maxXTexCoord, maxYTexCoord,
+    minXTexCoord, maxYTexCoord};
 
-  vtkOpenGLTexture::SafeDownCast(this->DrawPixelsActor->GetTexture())->SetTextureObject(this);
+  float verts[] = {
+    2.0*dstXmin/size[0]-1.0, 2.0*dstYmin/size[1]-1.0, 0,
+    2.0*dstXmax/size[0]-1.0, 2.0*dstYmin/size[1]-1.0, 0,
+    2.0*dstXmax/size[0]-1.0, 2.0*dstYmax/size[1]-1.0, 0,
+    2.0*dstXmin/size[0]-1.0, 2.0*dstYmax/size[1]-1.0, 0};
 
-  glDisable( GL_SCISSOR_TEST );
+  // if no program or VAO was provided, then use
+  // a simple pass through program and bind this
+  // texture to it
+  if (!program || !vao)
+    {
+    vtkOpenGLRenderWindow * context = static_cast<vtkOpenGLRenderWindow *>(win);
+    if (!this->ShaderProgram)
+      {
+      this->ShaderProgram = new vtkgl::CellBO;
 
-  vtkRenderer *vp = vtkRenderer::New();
-  this->Context->AddRenderer(vp);
-  this->DrawPixelsActor->RenderOverlay(vp);
-  this->Context->RemoveRenderer(vp);
-  vp->Delete();
+      // build the shader source code
+      std::string VSSource = vtkTextureObjectVS;
+      std::string FSSource = vtkTextureObjectFS;
+      std::string GSSource;
+
+      // compile and bind it if needed
+      vtkShaderProgram *newShader =
+        context->GetShaderCache()->ReadyShader(VSSource.c_str(),
+                                           FSSource.c_str(),
+                                           GSSource.c_str());
+
+      // if the shader changed reinitialize the VAO
+      if (newShader != this->ShaderProgram->Program)
+        {
+        this->ShaderProgram->Program = newShader;
+        this->ShaderProgram->vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
+        }
+
+      this->ShaderProgram->ShaderSourceTime.Modified();
+      }
+    else
+      {
+      context->GetShaderCache()->ReadyShader(this->ShaderProgram->Program);
+      }
+
+    // bind and activate this texture
+    this->Activate();
+    int sourceId = this->GetTextureUnit();
+    this->ShaderProgram->Program->SetUniformi("source",sourceId);
+    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
+      &this->ShaderProgram->vao);
+    this->Deactivate();
+    }
+  else
+    {
+    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, program, vao);
+    }
 
   vtkOpenGLCheckErrorMacro("failed after CopyToFrameBuffer")
 }

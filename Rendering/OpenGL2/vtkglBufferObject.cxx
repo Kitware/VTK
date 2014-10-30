@@ -109,15 +109,6 @@ bool BufferObject::Release()
   return true;
 }
 
-bool BufferObject::Upload(const float *array,
-                          int numElements,
-                          BufferObject::ObjectType objectType)
-{
-  return this->UploadInternal(array,
-                              numElements * sizeof(float),
-                              objectType);
-}
-
 bool BufferObject::UploadInternal(const void *buffer, size_t size,
                                   ObjectType objectType)
 {

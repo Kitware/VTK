@@ -19,7 +19,13 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
 
 set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkCameraPass.cxx
   vtkCompositePolyDataMapper2.cxx
+  vtkDefaultPass.cxx
+  vtkGaussianBlurPass.cxx
+  vtkImageProcessingPass.cxx
+  vtkLightsPass.cxx
+  vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
   vtkOpenGLGlyph3DHelper.cxx
@@ -35,12 +41,18 @@ set(Module_SRCS
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx
+  vtkOverlayPass.cxx
   vtkRenderPass.cxx
+  vtkRenderPassCollection.cxx
   vtkRenderState.cxx
+  vtkSequencePass.cxx
   vtkShader.cxx
   vtkShaderProgram.cxx
+  vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
+  vtkTranslucentPass.cxx
+  vtkVolumetricPass.cxx
   vtkglBufferObject.cxx
   vtkglVBOHelper.cxx
   vtkglVertexArrayObject.cxx
@@ -99,6 +111,15 @@ set(shader_files
   glsl/vtkglPolyDataFSPositionalLights.glsl
 
   glsl/vtkglGlyph3DVSFragmentLit.glsl
+
+  glsl/vtkTextureObjectVS.glsl
+  glsl/vtkTextureObjectFS.glsl
+
+  glsl/vtkGaussianBlurPassVS.glsl
+  glsl/vtkGaussianBlurPassFS.glsl
+
+  glsl/vtkSobelGradientMagnitudePass1FS.glsl
+  glsl/vtkSobelGradientMagnitudePass2FS.glsl
   )
 
 unset(shader_h_files)

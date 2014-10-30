@@ -18,13 +18,8 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkgl.h"
 #include "vtkFrameBufferObject.h"
 #include "vtkTextureObject.h"
-#include "vtkShaderProgram2.h"
-#include "vtkShader2.h"
-#include "vtkShader2Collection.h"
-#include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureUnitManager.h"
 
@@ -32,8 +27,6 @@
 // only for vtkImageProcessingPass developers.
 //#define VTK_IMAGE_PROCESSING_PASS_DEBUG
 
-#include "vtkPNGWriter.h"
-#include "vtkImageImport.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
@@ -145,7 +138,7 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
     cout << "old angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;
 #endif
 
-    angle=2.0*atan(tan(angle/2.0)*large/static_cast<double>(small));
+    angle = 2.0*atan(tan(angle/2.0)*large/static_cast<double>(small));
 
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
     cout << "new angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;

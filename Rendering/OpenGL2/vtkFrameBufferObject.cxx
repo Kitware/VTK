@@ -22,6 +22,8 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkOpenGLError.h"
 
+#include "vtkglBufferObject.h"
+
 #include <cassert>
 #include <vector>
 using std::vector;
@@ -199,18 +201,8 @@ bool vtkFrameBufferObject::Start(int width,
   glDisable(GL_ALPHA_TEST);
   glDisable(GL_BLEND);
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_LIGHTING);
   glDisable(GL_SCISSOR_TEST);
 
-  // Viewport transformation for 1:1 'pixel=texel=data' mapping.
-  // Note this note enough for 1:1 mapping, because depending on the
-  // primitive displayed (point,line,polygon), the rasterization rules
-  // are different.
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0.0, width, 0.0, height, -1, 1);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
   glViewport(0, 0, width, height);
 
   return true;
@@ -824,7 +816,10 @@ void vtkFrameBufferObject::DisplayBuffer(int value)
 }
 
 // ---------------------------------------------------------------------------
-void vtkFrameBufferObject::RenderQuad(int minX, int maxX, int minY, int maxY)
+// a program must be bound
+// a VAO must be bound
+void vtkFrameBufferObject::RenderQuad(int minX, int maxX, int minY, int maxY,
+        vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
   assert("pre positive_minX" && minX>=0);
   assert("pre increasing_x" && minX<=maxX);
@@ -842,25 +837,37 @@ void vtkFrameBufferObject::RenderQuad(int minX, int maxX, int minY, int maxY)
   glGenQueries(1,&queryId);
   glBeginQuery(GL_SAMPLES_PASSED,queryId);
 #endif
+
   float maxYTexCoord;
   if(minY==maxY)
     {
-      maxYTexCoord=0.0;
+    maxYTexCoord=0.0;
     }
   else
     {
-      maxYTexCoord=1.0;
+    maxYTexCoord=1.0;
     }
-  glBegin(GL_QUADS);
-  glTexCoord2f(0, 0);
-  glVertex2f(minX, minY);
-  glTexCoord2f(1.0, 0);
-  glVertex2f(maxX+1, minY);
-  glTexCoord2f(1.0, maxYTexCoord);
-  glVertex2f(maxX+1, maxY+1);
-  glTexCoord2f(0, maxYTexCoord);
-  glVertex2f(minX, maxY+1);
-  glEnd();
+
+  float fminX = 2.0*minX/(this->LastSize[0]-1.0) - 1.0;
+  float fminY = 2.0*minY/(this->LastSize[1]-1.0) - 1.0;
+  float fmaxX = 2.0*maxX/(this->LastSize[0]-1.0) - 1.0;
+  float fmaxY = 2.0*maxY/(this->LastSize[1]-1.0) - 1.0;
+
+  float verts[] =  {
+    fminX, fminY, 0,
+    fmaxX, fminY, 0,
+    fmaxX, fmaxY, 0,
+    fminX, fmaxY, 0};
+
+  float tcoords[] = {
+    0, 0,
+    1.0, 0,
+    1.0, maxYTexCoord,
+    0, maxYTexCoord};
+  vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, program, vao);
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
+
 #ifdef VTK_FBO_DEBUG
   glEndQuery(GL_SAMPLES_PASSED);
   glGetQueryObjectuiv(queryId,GL_QUERY_RESULT,&nbPixels);

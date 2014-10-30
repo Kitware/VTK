@@ -25,8 +25,13 @@
 #include "vtkWeakPointer.h" // for render context
 
 class vtkWindow;
+class vtkShaderProgram;
 class vtkOpenGLRenderWindow;
-class vtkTexturedActor2D;
+namespace vtkgl
+{
+class VertexArrayObject;
+class CellBO;
+}
 
 #if GL_ES_VERSION_2_0 != 1
 class vtkPixelBufferObject;
@@ -446,12 +451,13 @@ public:
   // \pre increasing_y: srcYmin<=srcYmax
   // \pre positive_dstXmin: dstXmin>=0
   // \pre positive_dstYmin: dstYmin>=0
-  void CopyToFrameBuffer(int srcXmin,
-                         int srcYmin,
-                         int srcXmax,
-                         int srcYmax,
-                         int dstXmin,
-                         int dstYmin);
+  void CopyToFrameBuffer(int srcXmin, int srcYmin,
+                         int srcXmax, int srcYmax,
+                         int dstXmin, int dstYmin,
+                         vtkWindow *,
+                         vtkShaderProgram *program,
+                         vtkgl::VertexArrayObject *vao
+                         );
 
 
   // Description:
@@ -529,7 +535,8 @@ protected:
   int AutoParameters;
   vtkTimeStamp SendParametersTime;
 
-  vtkTexturedActor2D *DrawPixelsActor;
+  // used for copying to framebuffer
+  vtkgl::CellBO *ShaderProgram;
 
 private:
   vtkTextureObject(const vtkTextureObject&); // Not implemented.
