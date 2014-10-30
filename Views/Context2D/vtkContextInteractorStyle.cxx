@@ -48,6 +48,11 @@ vtkContextInteractorStyle::~vtkContextInteractorStyle()
 {
   // to remove observers.
   this->SetScene(0);
+  if (this->TimerCallbackInitialized && this->Interactor)
+    {
+    this->Interactor->RemoveObserver(this->InteractorCallbackCommand.Get());
+    this->TimerCallbackInitialized = false;
+    }
 }
 
 //--------------------------------------------------------------------------

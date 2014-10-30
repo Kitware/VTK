@@ -336,29 +336,17 @@ void vtkMPASReader::DestroyData()
 
   // delete old geometry and create new
 
-  if (this->PointVarData)
-    {
-    delete []this->PointVarData;
-    this->PointVarData = NULL;
-    }
+  delete []this->PointVarData;
+  this->PointVarData = NULL;
 
-  if (this->CellMap)
-    {
-    free(this->CellMap);
-    this->CellMap = NULL;
-    }
+  free(this->CellMap);
+  this->CellMap = NULL;
 
-  if (this->PointMap)
-    {
-    free(this->PointMap);
-    this->PointMap = NULL;
-    }
+  free(this->PointMap);
+  this->PointMap = NULL;
 
-  if (this->MaximumLevelPoint)
-    {
-    free(this->MaximumLevelPoint);
-    this->MaximumLevelPoint = NULL;
-    }
+  free(this->MaximumLevelPoint);
+  this->MaximumLevelPoint = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -371,25 +359,16 @@ vtkMPASReader::~vtkMPASReader()
 
   this->SetFileName(NULL);
 
-  if (this->Internals->ncFile)
-    {
-    delete this->Internals->ncFile;
-    this->Internals->ncFile = NULL;
-    }
+  delete this->Internals->ncFile;
+  this->Internals->ncFile = NULL;
 
   this->DestroyData();
 
-  if (this->CellVarDataArray)
-    {
-    delete [] this->CellVarDataArray;
-    this->CellVarDataArray = NULL;
-    }
+  delete [] this->CellVarDataArray;
+  this->CellVarDataArray = NULL;
 
-  if (this->PointVarDataArray)
-    {
-    delete [] this->PointVarDataArray;
-    this->PointVarDataArray = NULL;
-    }
+  delete [] this->PointVarDataArray;
+  this->PointVarDataArray = NULL;
 
   vtkDebugMacro(<< "Destructing other stuff..." << endl);
   if (this->PointDataArraySelection)
@@ -407,11 +386,8 @@ vtkMPASReader::~vtkMPASReader()
     this->SelectionObserver->Delete();
     this->SelectionObserver = NULL;
     }
-  if(this->TimeSteps)
-    {
-    delete []this->TimeSteps;
-    this->TimeSteps = NULL;
-    }
+  delete []this->TimeSteps;
+  this->TimeSteps = NULL;
 
   delete this->Internals;
 
@@ -454,10 +430,7 @@ int vtkMPASReader::RequestInformation(
     this->InfoRequested = true;
 
     vtkDebugMacro(<< "FileName: " << this->FileName << endl);
-    if(this->Internals->ncFile)
-      {
-      delete this->Internals->ncFile;
-      }
+    delete this->Internals->ncFile;
     this->Internals->ncFile = new NcFile(this->FileName);
 
     if (!this->Internals->ncFile->is_valid())
@@ -490,19 +463,13 @@ int vtkMPASReader::RequestInformation(
 
 
     // Allocate the ParaView data arrays which will hold the variables
-    if(this->PointVarDataArray)
-      {
-      delete []this->PointVarDataArray;
-      }
+    delete []this->PointVarDataArray;
     this->PointVarDataArray = new vtkDoubleArray*[this->NumberOfPointVars];
     for (int i = 0; i < this->NumberOfPointVars; i++)
       {
       this->PointVarDataArray[i] = NULL;
       }
-    if(this->CellVarDataArray)
-      {
-      delete []this->CellVarDataArray;
-      }
+    delete []this->CellVarDataArray;
     this->CellVarDataArray = new vtkDoubleArray*[this->NumberOfCellVars];
     for (int i = 0; i < this->NumberOfCellVars; i++)
       {
@@ -513,11 +480,7 @@ int vtkMPASReader::RequestInformation(
 
     // At this time, MPAS doesn't have fine-grained time value, just
     // the number of the step, so that is what I store here for TimeSteps.
-    if (this->TimeSteps != NULL)
-      {
-      delete []this->TimeSteps;
-      this->TimeSteps = NULL;
-      }
+    delete []this->TimeSteps;
     this->TimeSteps = new double[this->NumberOfTimeSteps];
     for (int step = 0; step < this->NumberOfTimeSteps; step++)
       {
@@ -952,10 +915,7 @@ int vtkMPASReader::ReadAndOutputGrid(bool init)
 
   // Allocate the data arrays which will hold the NetCDF var data
   vtkDebugMacro(<<"pointVarData: Alloc " << this->MaximumPoints << " doubles" << endl);
-  if(this->PointVarData)
-    {
-    delete []this->PointVarData;
-    }
+  delete []this->PointVarData;
   this->PointVarData = new double[this->MaximumPoints];
 
   vtkDebugMacro(<< "Leaving vtkMPASReader::ReadAndOutputGrid" << endl);

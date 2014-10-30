@@ -1,8 +1,8 @@
 
 #include "vtkPistonScalarsColors.h"
 
-#include <vtkObjectFactory.h>
-#include <vtkScalarsToColors.h>
+#include "vtkObjectFactory.h"
+#include "vtkScalarsToColors.h"
 
 #include <vector>
 

@@ -27,14 +27,14 @@
 #include <stdarg.h>  // Needed for ...
 
 #ifndef _WIN32
-#include <limits.h>     // for CLK_TCK
+#include <climits>     // for CLK_TCK
 #include <sys/time.h>
 #include <unistd.h>
 #endif
 
 #ifndef _WIN32_WCE
 #include <sys/types.h>
-#include <time.h>
+#include <ctime>
 #endif
 #include "vtkObjectFactory.h"
 

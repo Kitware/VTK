@@ -16,9 +16,13 @@
 // required by vtkRenderWindowInteractor.
 //
 // .SECTION Description
-// The interactor interfaces with vtkCarbonWindow
-// to trap messages from the Carbon window manager and send them to vtk.
-//
+// The interactor interfaces with vtkCarbonWindow to trap messages from the
+// Carbon window manager and send them to vtk.  Since OS X applications
+// typically use the Command key where UNIX and Windows applications would use
+// the Ctrl key, this interactor maps the Command key to Ctrl.  In versions of
+// VTK prior to VTK 6.2, it was mapped to Alt.  On OS X, the Option key can be
+// used as Alt.
+
 #ifndef __vtkCarbonRenderWindowInteractor_h
 #define __vtkCarbonRenderWindowInteractor_h
 
@@ -56,21 +60,6 @@ public:
   // when their data is not displayed.
   virtual void Enable();
   virtual void Disable();
-
-  // Description:
-  // This will start up the event loop and never return. If you
-  // call this method it will loop processing events until the
-  // application is exited.
-  virtual void Start();
-
-  // Description:
-  // By default the interactor installs a MessageProc callback which
-  // intercepts windows messages to the window and controls interactions.
-  // MFC or BCB programs can prevent this and instead directly route any mouse/key
-  // messages into the event bindings by setting InstallMessgeProc to false.
-  vtkSetMacro(InstallMessageProc,int);
-  vtkGetMacro(InstallMessageProc,int);
-  vtkBooleanMacro(InstallMessageProc,int);
 
   // Description:
   // Carbon specific application terminate, calls ClassExitMethod then
@@ -123,7 +112,6 @@ protected:
 
   EventHandlerUPP   ViewProcUPP;
   EventHandlerUPP   WindowProcUPP;
-  int               InstallMessageProc;
 
   // For generating event info that Carbon doesn't
   int   LastMouseDelta[2];
@@ -146,6 +134,12 @@ protected:
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
+
+  // Description:
+  // This will start up the event loop and never return. If you
+  // call this method it will loop processing events until the
+  // application is exited.
+  virtual void StartEventLoop();
 
 #ifdef VTK_USE_TDX
   vtkTDxMacDevice *Device;

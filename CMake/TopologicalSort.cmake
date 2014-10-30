@@ -121,10 +121,10 @@ function(topological_sort LIST PREFIX SUFFIX)
             set(SOURCE ${TARGET})
             set(OUT_EDGES
               ${${PREFIX}${SOURCE}${SUFFIX}})
-          endif(NOT FOUND_${TARGET})
+          endif()
 
           list(LENGTH OUT_EDGES OUT_DEGREE)
-        endwhile (OUT_DEGREE GREATER 0)
+        endwhile ()
 
         # We have finished all of the outgoing edges for
         # SOURCE; add it to the resulting list.
@@ -132,9 +132,9 @@ function(topological_sort LIST PREFIX SUFFIX)
 
         # Check the length of the stack
         list(LENGTH STACK STACK_LENGTH)
-      endwhile(STACK_LENGTH GREATER 0)
-    endif (NOT FOUND_${VERTEX})
-  endforeach(VERTEX)
+      endwhile()
+    endif ()
+  endforeach()
 
   set(${LIST} ${${LIST}} PARENT_SCOPE)
-endfunction(topological_sort)
+endfunction()

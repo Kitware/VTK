@@ -35,6 +35,15 @@ public:
   ~vtkInformationRequestKey();
 
   // Description:
+  // This method simply returns a new vtkInformationRequestKey, given a
+  // name and a location. This method is provided for wrappers. Use the
+  // constructor directly from C++ instead.
+  static vtkInformationRequestKey* MakeKey(const char* name, const char* location)
+    {
+    return new vtkInformationRequestKey(name, location);
+    }
+
+  // Description:
   // Get/Set the value associated with this key in the given
   // information object.
   void Set(vtkInformation* info);

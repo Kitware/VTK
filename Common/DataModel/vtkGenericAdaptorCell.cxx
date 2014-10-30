@@ -91,10 +91,7 @@ vtkGenericAdaptorCell::~vtkGenericAdaptorCell()
   this->InternalCellArray->Delete();
   this->InternalIds->Delete();
 
-  if(this->Tuples!=0)
-    {
-    delete[] this->Tuples;
-    }
+  delete[] this->Tuples;
 }
 
 //----------------------------------------------------------------------------
@@ -1113,10 +1110,7 @@ void vtkGenericAdaptorCell::AllocateTuples(int size)
 
   if(this->TuplesCapacity<size)
     {
-    if(this->Tuples!=0)
-      {
-      delete[] this->Tuples;
-        }
+    delete [] this->Tuples;
     this->Tuples=new double[size];
     this->TuplesCapacity=size;
     }

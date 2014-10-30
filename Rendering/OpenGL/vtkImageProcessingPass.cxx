@@ -145,7 +145,7 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
     cout << "old angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;
 #endif
 
-    angle=atan(tan(angle)*large/static_cast<double>(small));
+    angle=2.0*atan(tan(angle/2.0)*large/static_cast<double>(small));
 
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
     cout << "new angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;

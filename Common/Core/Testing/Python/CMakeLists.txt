@@ -12,6 +12,7 @@ vtk_add_test_python(
   TestPointers.py
   TestStrings.py
   TestSubClass.py
+  TestSwigPointer.py
   TestTerminationCrash.py
   TestVariant.py
   TestWeakref.py

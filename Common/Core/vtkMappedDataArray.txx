@@ -32,12 +32,9 @@ vtkMappedDataArray<Scalar>::vtkMappedDataArray()
 template<class Scalar>
 vtkMappedDataArray<Scalar>::~vtkMappedDataArray()
 {
-  if (this->TemporaryScalarPointer)
-  {
-    delete [] this->TemporaryScalarPointer;
-    this->TemporaryScalarPointer = NULL;
-    this->TemporaryScalarPointerSize = 0;
-  }
+  delete [] this->TemporaryScalarPointer;
+  this->TemporaryScalarPointer = NULL;
+  this->TemporaryScalarPointerSize = 0;
 }
 
 //------------------------------------------------------------------------------

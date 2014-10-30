@@ -166,17 +166,17 @@ void vtkXMLStructuredDataReader::DestroyPieces()
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLStructuredDataReader::GetNumberOfPoints()
 {
-  return (this->PointDimensions[0] *
-          this->PointDimensions[1] *
-          this->PointDimensions[2]);
+  return (static_cast<vtkIdType>(this->PointDimensions[0]) *
+          static_cast<vtkIdType>(this->PointDimensions[1]) *
+          static_cast<vtkIdType>(this->PointDimensions[2]));
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLStructuredDataReader::GetNumberOfCells()
 {
-  return (this->CellDimensions[0] *
-          this->CellDimensions[1] *
-          this->CellDimensions[2]);
+  return (static_cast<vtkIdType>(this->CellDimensions[0]) *
+          static_cast<vtkIdType>(this->CellDimensions[1]) *
+          static_cast<vtkIdType>(this->CellDimensions[2]));
 }
 
 //----------------------------------------------------------------------------
@@ -435,7 +435,9 @@ int vtkXMLStructuredDataReader::ReadSubExtent(
       // Read the whole volume at once.  This fills the array's entire
       // progress range.
       vtkIdType volumeTuples =
-        (inDimensions[0]*inDimensions[1]*inDimensions[2]);
+        (static_cast<vtkIdType>(inDimensions[0])*
+         static_cast<vtkIdType>(inDimensions[1])*
+         static_cast<vtkIdType>(inDimensions[2]));
 
       vtkIdType sourceTuple =
         this->GetStartTuple(inExtent, inIncrements,
@@ -456,7 +458,10 @@ int vtkXMLStructuredDataReader::ReadSubExtent(
       // slice.
       float progressRange[2] = { 0.f, 0.f };
       this->GetProgressRange(progressRange);
-      vtkIdType sliceTuples = inDimensions[0] * inDimensions[1];
+      vtkIdType sliceTuples =
+        static_cast<vtkIdType>(inDimensions[0])*
+        static_cast<vtkIdType>(inDimensions[1]);
+
       for (int k = 0; k < subDimensions[2] && !this->AbortExecute; ++k)
         {
         // Calculate the starting tuples for source and destination.
@@ -520,7 +525,9 @@ int vtkXMLStructuredDataReader::ReadSubExtent(
       float progressRange[2] = { 0.f, 0.f };
       this->GetProgressRange(progressRange);
       vtkIdType rowTuples = subDimensions[0];
-      vtkIdType partialSliceTuples = inDimensions[0] * subDimensions[1];
+      vtkIdType partialSliceTuples =
+        static_cast<vtkIdType>(inDimensions[0]) *
+        static_cast<vtkIdType>(subDimensions[1]);
       int tupleSize = components*array->GetDataTypeSize();
       vtkAbstractArray* temp = array->NewInstance();
       temp->SetNumberOfComponents(array->GetNumberOfComponents());

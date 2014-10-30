@@ -281,10 +281,7 @@ vtkTransposeTable::vtkTransposeTable()
 //----------------------------------------------------------------------------
 vtkTransposeTable::~vtkTransposeTable()
 {
-  if (this->IdColumnName)
-    {
-    delete [] IdColumnName;
-    }
+  delete [] IdColumnName;
 }
 
 //----------------------------------------------------------------------------

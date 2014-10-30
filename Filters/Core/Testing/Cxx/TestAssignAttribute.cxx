@@ -38,14 +38,21 @@ int TestAssignAttribute(int, char *[])
   VTK_CREATE(vtkPolyData, poly);
   VTK_CREATE(vtkPoints, pts);
   VTK_CREATE(vtkCellArray, verts);
+
+
   VTK_CREATE(vtkDoubleArray, scalars);
   scalars->SetName("scalars");
+
+  VTK_CREATE(vtkDoubleArray, tensors);
+  tensors->SetName(NULL); // no name.
+  tensors->SetNumberOfComponents(9);
   for (vtkIdType i = 0; i < 10; ++i)
     {
     pts->InsertNextPoint(i, 0, 0);
     verts->InsertNextCell(1, &i);
     graph->AddVertex();
     scalars->InsertNextValue(i);
+    tensors->InsertNextTuple9(1.,0.,0.,0.,1.,0.,0.,0.,1.);
     }
   for (vtkIdType i = 0; i < 10; ++i)
     {
@@ -53,10 +60,16 @@ int TestAssignAttribute(int, char *[])
     }
   graph->GetVertexData()->AddArray(scalars);
   graph->GetEdgeData()->AddArray(scalars);
+  graph->GetVertexData()->SetTensors(tensors);
+  graph->GetEdgeData()->SetTensors(tensors);
+
   poly->SetPoints(pts);
   poly->SetVerts(verts);
   poly->GetPointData()->AddArray(scalars);
   poly->GetCellData()->AddArray(scalars);
+  poly->GetPointData()->SetTensors(tensors);
+  poly->GetCellData()->SetTensors(tensors);
+
   VTK_CREATE(vtkAssignAttribute, assign);
 
   assign->SetInputData(graph);
@@ -83,7 +96,7 @@ int TestAssignAttribute(int, char *[])
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetPointData()->GetScalars() != scalars.GetPointer())
     {
-    cerr << "Vertex scalars not set properly" << endl;
+    cerr << "Point scalars not set properly" << endl;
     ++errors;
     }
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::CELL_DATA);
@@ -91,9 +104,27 @@ int TestAssignAttribute(int, char *[])
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetCellData()->GetScalars() != scalars.GetPointer())
     {
-    cerr << "Edge scalars not set properly" << endl;
+    cerr << "Cell scalars not set properly" << endl;
     ++errors;
     }
 
+  assign->Assign(vtkDataSetAttributes::TENSORS,
+    vtkDataSetAttributes::SCALARS, vtkAssignAttribute::POINT_DATA);
+  assign->Update();
+  outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
+  if (outputPoly->GetPointData()->GetTensors() != tensors.GetPointer())
+    {
+    cerr << "Point scalar not set when name is empty" << endl;
+    ++errors;
+    }
+  assign->Assign(vtkDataSetAttributes::TENSORS,
+    vtkDataSetAttributes::SCALARS, vtkAssignAttribute::CELL_DATA);
+  assign->Update();
+  outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
+  if (outputPoly->GetCellData()->GetTensors() != tensors.GetPointer())
+    {
+    cerr << "Cell scalar not set when name is empty" << endl;
+    ++errors;
+    }
   return 0;
 }

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// the lighting model for this shader is the LightKit
+// the lighting model for this shader is a Headlight
 
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
@@ -24,13 +24,6 @@
 // WC - WC world coordinates
 // VC - View Coordinates
 // DC - Display Coordinates
-
-// material property values
-uniform float opacityUniform; // the fragment opacity
-uniform vec3 ambientColorUniform; // intensity weighted color
-uniform vec3 diffuseColorUniform; // intensity weighted color
-uniform vec3 specularColor; // intensity weighted color
-uniform float specularPower;
 
 // passed from the vertex shader
 varying vec4 vertexVC;
@@ -50,10 +43,14 @@ varying vec4 vertexVC;
 // Depth Peeling Support
 //VTK::DepthPeeling::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 void main()
 {
+  //VTK::Clip::Impl
+
   //VTK::Color::Impl
-  // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
 
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl

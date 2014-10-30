@@ -520,11 +520,12 @@ int vtkIOSRenderWindow::GetDepthBufferSize()
 // Returns the UIWindow* associated with this vtkRenderWindow.
 void *vtkIOSRenderWindow::GetRootWindow()
 {
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the UIWindow* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetRootWindow(void *arg)
+void vtkIOSRenderWindow::SetRootWindow(void *vtkNotUsed(arg))
 {
 }
 
@@ -532,11 +533,12 @@ void vtkIOSRenderWindow::SetRootWindow(void *arg)
 // Returns the UIView* associated with this vtkRenderWindow.
 void *vtkIOSRenderWindow::GetWindowId()
 {
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the UIView* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetWindowId(void *arg)
+void vtkIOSRenderWindow::SetWindowId(void *vtkNotUsed(arg))
 {
 }
 
@@ -544,17 +546,18 @@ void vtkIOSRenderWindow::SetWindowId(void *arg)
 // Returns the UIView* that is the parent of this vtkRenderWindow.
 void *vtkIOSRenderWindow::GetParentId()
 {
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the UIView* that this vtkRenderWindow should use as a parent.
-void vtkIOSRenderWindow::SetParentId(void *arg)
+void vtkIOSRenderWindow::SetParentId(void *vtkNotUsed(arg))
 {
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSOpenGLContext* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetContextId(void *contextId)
+void vtkIOSRenderWindow::SetContextId(void *vtkNotUsed(contextId))
 {
 }
 
@@ -562,11 +565,12 @@ void vtkIOSRenderWindow::SetContextId(void *contextId)
 // Returns the NSOpenGLContext* associated with this vtkRenderWindow.
 void *vtkIOSRenderWindow::GetContextId()
 {
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetPixelFormat(void *pixelFormat)
+void vtkIOSRenderWindow::SetPixelFormat(void *vtkNotUsed(pixelFormat))
 {
 }
 
@@ -574,6 +578,7 @@ void vtkIOSRenderWindow::SetPixelFormat(void *pixelFormat)
 // Returns the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
 void *vtkIOSRenderWindow::GetPixelFormat()
 {
+  return NULL;
 }
 
 

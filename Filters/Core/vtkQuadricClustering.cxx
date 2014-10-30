@@ -97,16 +97,10 @@ vtkQuadricClustering::~vtkQuadricClustering()
   this->FeatureEdges = NULL;
   this->FeaturePoints->Delete();
   this->FeaturePoints = NULL;
-  if (this->CellSet)
-    {
-    delete this->CellSet;
-    this->CellSet = NULL;
-    }
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete this->CellSet;
+  this->CellSet = NULL;
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
   if (this->OutputTriangleArray)
     {
     this->OutputTriangleArray->Delete();
@@ -210,11 +204,8 @@ int vtkQuadricClustering::RequestData(
     }
 
   // Free up some memory.
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 
   if ( this->Debug )
     {
@@ -300,11 +291,7 @@ void vtkQuadricClustering::StartAppend(double *bounds)
   this->ZBinStep = (this->ZBinSize > 0.0) ? (1.0/this->ZBinSize) : 0.0;
 
   this->NumberOfBinsUsed = 0;
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
   this->QuadricArray =
     new vtkQuadricClustering::PointQuadric[this->NumberOfDivisions[0] *
                                           this->NumberOfDivisions[1] *
@@ -1004,11 +991,8 @@ void vtkQuadricClustering::EndAppend()
   output->DataHasBeenGenerated();
 
   // Free the quadric array.
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 }
 
 
@@ -1342,11 +1326,8 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input,
 
   this->EndAppendVertexGeometry(input, output);
 
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 
   delete [] minError;
 }
@@ -1374,10 +1355,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input,
     {
     if (tmpLength < numPts)
       {
-      if (tmp)
-        {
-        delete[] tmp;
-        }
+      delete [] tmp;
       tmp = new vtkIdType[numPts];
       tmpLength = numPts;
       }
@@ -1404,10 +1382,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input,
       }
     }
 
-  if (tmp)
-    {
-    delete [] tmp;
-    }
+  delete [] tmp;
 
   if (outVerts->GetNumberOfCells() > 0)
     {

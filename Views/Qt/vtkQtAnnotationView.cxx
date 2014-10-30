@@ -37,8 +37,8 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkEventQtSlotConnect.h"
-#include <vtkInformation.h>
-#include <vtkInformationIntegerKey.h>
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkQtAnnotationLayersModelAdapter.h"

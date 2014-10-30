@@ -770,10 +770,7 @@ int vtkWeightedTransformFilter::RequestData(
   // ----- cleanup ------
   for(c = 0; c < this->NumberOfTransforms; c++)
     {
-    if(linearNormMtx[c])
-      {
-      delete [] linearNormMtx[c];
-      }
+    delete [] linearNormMtx[c];
     }
   delete [] linearNormMtx;
   delete [] linearPtMtx;

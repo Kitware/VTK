@@ -14,15 +14,15 @@
 =========================================================================*/
 
 #include "vtkArrayWriter.h"
-#include <vtkArrayData.h>
-#include <vtkArrayPrint.h>
-#include <vtkDenseArray.h>
-#include <vtkExecutive.h>
-#include <vtkInformation.h>
-#include <vtkObjectFactory.h>
-#include <vtkSmartPointer.h>
-#include <vtkSparseArray.h>
-#include <vtkUnicodeString.h>
+#include "vtkArrayData.h"
+#include "vtkArrayPrint.h"
+#include "vtkDenseArray.h"
+#include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
+#include "vtkSparseArray.h"
+#include "vtkUnicodeString.h"
 
 #include <cmath>
 #include <limits>

@@ -36,7 +36,7 @@ IF(APPLE)
   SET(VTK_OBJCXX_FLAGS_DEFAULT "")
   SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
-ENDIF(APPLE)
+ENDIF()
 
 set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
@@ -210,6 +210,11 @@ if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
 endif()
 
 #-----------------------------------------------------------------------------
+# Do we try to use system libraries by default?
+option(VTK_USE_SYSTEM_LIBRARIES "Use the system's libraries by default." OFF)
+mark_as_advanced(VTK_USE_SYSTEM_LIBRARIES)
+
+#-----------------------------------------------------------------------------
 # The third party macros are still used in one or two third party builds.
 include(vtkThirdParty)
 
@@ -293,6 +298,31 @@ set(VTK_USE_WIN32_THREADS 0)
 set(VTK_USE_PTHREADS 0)
 set(VTK_HP_PTHREADS 0)
 set(VTK_USE_SPROC 0)
+# if win32 threads and pthreads are available figure out which
+# one the compiler is setup to use.  If you can not figure it
+# out default to pthreads.
+if(CMAKE_USE_PTHREADS_INIT AND CMAKE_USE_WIN32_THREADS_INIT)
+  if(DEFINED VTK_THREAD_MODEL)
+    set(output "${VTK_THREAD_MODEL}")
+  else()
+    execute_process(COMMAND "${CMAKE_C_COMPILER}" -v OUTPUT_VARIABLE output
+      ERROR_VARIABLE output RESULT_VARIABLE result TIMEOUT 10)
+  endif()
+  if(output MATCHES "Thread model: posix")
+    set(VTK_THREAD_MODEL "Thread model: posix" CACHE STRING
+      "Thread model used by gcc.")
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+  elseif(output MATCHES "Thread model: win32")
+    set(VTK_THREAD_MODEL "Thread model: win32" CACHE STRING
+      "Thread model used by gcc.")
+    set(CMAKE_USE_PTHREADS_INIT 0)
+  else()
+    set(VTK_THREAD_MODEL "Thread model: posix" CACHE STRING
+      "Thread model used by gcc.")
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+  endif()
+endif()
+mark_as_advanced(VTK_THREAD_MODEL)
 if(CMAKE_USE_WIN32_THREADS_INIT)
   set(VTK_USE_WIN32_THREADS 1)
   set(CMAKE_THREAD_LIBS_INIT "")
@@ -356,6 +386,8 @@ include(VTKParallelCMakeTests)
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
+set(VTK_PYTHON_VERSION 2 CACHE STRING
+    "Python version to use: 2, 2.x, or empty")
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
@@ -376,7 +408,7 @@ mark_as_advanced(VTK_WRAP_HINTS)
 
 if(BUILD_TESTING OR VTK_WRAP_PYTHON)
   # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
-  find_package(PythonInterp QUIET)
+  find_package(PythonInterp ${VTK_PYTHON_VERSION} QUIET)
   mark_as_advanced(PYTHON_EXECUTABLE)
 endif()
 

@@ -197,7 +197,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   glPushMatrix();
   glLoadIdentity();
 
-  if (!t)
+  if (!t || !this->ScalarVisibility)
     {
     glDisable(GL_TEXTURE_2D);
     }

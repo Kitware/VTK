@@ -1132,12 +1132,15 @@ int ExerciseMultiProcessController(vtkMultiProcessController *controller)
   if (args.retval) return args.retval;
 
   // Run the same tests, except this time on a subgroup of processes.
+  // We make sure that each subgroup has at least one process in it.
   VTK_CREATE(vtkProcessGroup, group1);
   VTK_CREATE(vtkProcessGroup, group2);
   group1->Initialize(controller);
+  group1->RemoveProcessId(controller->GetNumberOfProcesses()-1);
   group2->Initialize(controller);
   group2->RemoveAllProcessIds();
-  for (int i = controller->GetNumberOfProcesses() - 1; i >= 0; i--)
+  group2->AddProcessId(controller->GetNumberOfProcesses()-1);
+  for (int i = controller->GetNumberOfProcesses() - 2; i >= 1; i--)
     {
     if (vtkMath::Random() < 0.5)
       {

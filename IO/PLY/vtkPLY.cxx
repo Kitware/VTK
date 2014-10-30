@@ -50,7 +50,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "vtkHeap.h"
 #include "vtkByteSwap.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <string.h>
 #include <cassert>
 

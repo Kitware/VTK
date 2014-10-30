@@ -68,8 +68,7 @@ protected:
 
   void SetupColorMapper();
 
-  class vtkColorMapper;
-  vtkNew<vtkColorMapper> ColorMapper;
+  vtkMapper *ColorMapper;
 
   class vtkOpenGLGlyph3DMapperEntry;
   class vtkOpenGLGlyph3DMapperSubArray;

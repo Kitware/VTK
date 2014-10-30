@@ -44,6 +44,11 @@ float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
 void vtkGL2PSUtilities::DrawString(const char *str,
                                    vtkTextProperty *tprop, double pos[])
 {
+  if (!str)
+    {
+    return;
+    }
+
   vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
   if (tren == NULL)
     {
@@ -254,20 +259,29 @@ void vtkGL2PSUtilities::DrawPath(vtkPath *path, double rasterPos[3],
                                  double scale[2], double rotateAngle,
                                  float strokeWidth, const char *label)
 {
+  // Replace newlines in label -- these will throw off the comments.
+
+  std::string l(label ? label : "");
+  size_t idx = 0;
+  while ((idx = l.find('\n', idx)) != std::string::npos)
+    {
+    l.replace(idx, 1, "\\n");
+    }
+
   switch (gl2psGetFileFormat())
     {
     case GL2PS_PS:
     case GL2PS_EPS:
       vtkGL2PSUtilities::DrawPathPS(path, rasterPos, windowPos, rgba, scale,
-                                    rotateAngle, strokeWidth, label);
+                                    rotateAngle, strokeWidth, l.c_str());
       break;
     case GL2PS_SVG:
       vtkGL2PSUtilities::DrawPathSVG(path, rasterPos, windowPos, rgba, scale,
-                                     rotateAngle, strokeWidth, label);
+                                     rotateAngle, strokeWidth, l.c_str());
       break;
     case GL2PS_PDF:
       vtkGL2PSUtilities::DrawPathPDF(path, rasterPos, windowPos, rgba, scale,
-                                     rotateAngle, strokeWidth, label);
+                                     rotateAngle, strokeWidth, l.c_str());
       break;
     default:
       break;

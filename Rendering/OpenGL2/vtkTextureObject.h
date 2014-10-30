@@ -24,8 +24,14 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // for render context
 
+class vtkWindow;
+class vtkShaderProgram;
 class vtkOpenGLRenderWindow;
-class vtkTexturedActor2D;
+namespace vtkgl
+{
+class VertexArrayObject;
+class CellBO;
+}
 
 #if GL_ES_VERSION_2_0 != 1
 class vtkPixelBufferObject;
@@ -132,6 +138,9 @@ public:
   // Deactivate and UnBind the texture
   void Deactivate();
 
+  // Description:
+  // Deactivate and UnBind the texture
+  void ReleaseGraphicsResources(vtkWindow *win);
 
   // Description:
   // Tells if the texture object is bound to the active texture image unit.
@@ -433,8 +442,7 @@ public:
   // Description:
   // Copy a sub-part of the texture (src) in the current framebuffer
   // at location (dstXmin,dstYmin). (dstXmin,dstYmin) is the location of the
-  // lower left corner of the rectangle. width and height are the dimensions
-  // of the framebuffer.
+  // lower left corner of the rectangle.
   // \pre positive_srcXmin: srcXmin>=0
   // \pre max_srcXmax: srcXmax<this->GetWidth()
   // \pre increasing_x: srcXmin<=srcXmax
@@ -443,18 +451,13 @@ public:
   // \pre increasing_y: srcYmin<=srcYmax
   // \pre positive_dstXmin: dstXmin>=0
   // \pre positive_dstYmin: dstYmin>=0
-  // \pre positive_width: width>0
-  // \pre positive_height: height>0
-  // \pre x_fit: destXmin+(srcXmax-srcXmin)<width
-  // \pre y_fit: destYmin+(srcYmax-srcYmin)<height
-  void CopyToFrameBuffer(int srcXmin,
-                         int srcYmin,
-                         int srcXmax,
-                         int srcYmax,
-                         int dstXmin,
-                         int dstYmin,
-                         int width,
-                         int height);
+  void CopyToFrameBuffer(int srcXmin, int srcYmin,
+                         int srcXmax, int srcYmax,
+                         int dstXmin, int dstYmin,
+                         vtkWindow *,
+                         vtkShaderProgram *program,
+                         vtkgl::VertexArrayObject *vao
+                         );
 
 
   // Description:
@@ -532,7 +535,8 @@ protected:
   int AutoParameters;
   vtkTimeStamp SendParametersTime;
 
-  vtkTexturedActor2D *DrawPixelsActor;
+  // used for copying to framebuffer
+  vtkgl::CellBO *ShaderProgram;
 
 private:
   vtkTextureObject(const vtkTextureObject&); // Not implemented.

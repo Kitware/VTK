@@ -49,10 +49,7 @@ vtkGenericCellTessellator::vtkGenericCellTessellator()
 vtkGenericCellTessellator::~vtkGenericCellTessellator()
 {
   this->SetErrorMetrics( 0 );
-  if(this->MaxErrors)
-    {
-    delete[] this->MaxErrors;
-    }
+  delete[] this->MaxErrors;
 }
 
 
@@ -191,10 +188,7 @@ void vtkGenericCellTessellator::ResetMaxErrors()
   if(c>this->MaxErrorsCapacity)
     {
     this->MaxErrorsCapacity = c;
-    if(this->MaxErrors)
-      {
-      delete[] this->MaxErrors;
-      }
+    delete [] this->MaxErrors;
     this->MaxErrors = new double[this->MaxErrorsCapacity];
     }
 

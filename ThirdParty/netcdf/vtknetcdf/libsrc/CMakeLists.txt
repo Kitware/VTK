@@ -27,12 +27,12 @@ SET(SOURCES
   
 if(USE_FFIO)
   SET(SOURCES ${SOURCES} ffio.c)
-else(USE_FFIO)
+else()
   SET(SOURCES ${SOURCES} posixio.c)
-endif(USE_FFIO)
+endif()
 
 foreach(file ${SOURCES})
   set(path_SOURCES ${path_SOURCES} ${PROJECT_SOURCE_DIR}/${file})
-endforeach(file ${SOURCES})
+endforeach()
 
-set(netcdf_src_SOURCES ${path_SOURCES} CACHE INTERNAL "" FORCE)
+set(netcdf_src_SOURCES ${path_SOURCES} PARENT_SCOPE)

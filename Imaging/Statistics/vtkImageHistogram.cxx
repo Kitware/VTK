@@ -751,10 +751,7 @@ int vtkImageHistogram::RequestData(
   // delete the temporary memory
   for (int j = 0; j < n; j++)
     {
-    if (this->ThreadOutput[j])
-      {
-      delete [] this->ThreadOutput[j];
-      }
+    delete [] this->ThreadOutput[j];
     }
 
   // generate the output image

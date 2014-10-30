@@ -23,10 +23,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
 #include "vtkPolyData.h"
-#include <vtkSmartPointer.h>
+#include "vtkSmartPointer.h"
 
 #include <ctype.h>
-#include <stddef.h>
+#include <cstddef>
 
 vtkStandardNewMacro(vtkPLYReader);
 

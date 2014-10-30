@@ -69,6 +69,8 @@ int TestImageResliceMapperOrient3D(int argc, char* argv[])
     imageMapper->SetInputConnection(reader->GetOutputPort());
     imageMapper->SliceAtFocalPointOn();
     imageMapper->SliceFacesCameraOn();
+    // exercise the Streaming options, for better coverage
+    imageMapper->StreamingOn();
 
     double *bounds = imageMapper->GetBounds();
     double point[3];

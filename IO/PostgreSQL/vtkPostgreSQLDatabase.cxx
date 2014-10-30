@@ -29,7 +29,7 @@
 #include <vtksys/ios/sstream>
 #include <vtksys/SystemTools.hxx>
 
-#include <vtkSmartPointer.h>
+#include "vtkSmartPointer.h"
 #define VTK_CREATE(classname, varname) vtkSmartPointer<classname> varname = vtkSmartPointer<classname>::New()
 
 #include <libpq-fe.h>

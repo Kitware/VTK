@@ -110,10 +110,7 @@ vtkStreamer::vtkStreamer()
 
 vtkStreamer::~vtkStreamer()
 {
-  if( this->Streamers )
-    {
-    delete [] this->Streamers;
-    }
+  delete [] this->Streamers;
 
   if (this->Threader)
     {
@@ -490,10 +487,7 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
   this->NumberOfStreamers = 0;
 
   // reexecuting - delete old stuff
-  if( this->Streamers )
-    {
-    delete [] this->Streamers;
-    }
+  delete [] this->Streamers;
   this->Streamers = NULL;
 
   if ( ! (inVectors=pd->GetVectors()) )

@@ -160,10 +160,7 @@ void vtkGenericDataObjectWriter::WriteData()
     }
   if (this->WriteToOutputString)
     {
-    if (this->OutputString)
-      {
-      delete [] this->OutputString;
-      }
+    delete [] this->OutputString;
     this->OutputStringLength = writer->GetOutputStringLength();
     this->OutputString = writer->RegisterAndGetOutputString();
     }

@@ -455,11 +455,8 @@ void vtkNetCDFReader::SetFileName(const char *filename)
     return;
     }
 
-  if (this->FileName)
-    {
-    delete[] this->FileName;
-    this->FileName = NULL;
-    }
+  delete[] this->FileName;
+  this->FileName = NULL;
 
   if (filename)
     {

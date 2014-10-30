@@ -20,8 +20,8 @@ IF(VTK_SIZEOF___INT64)
   FOREACH(def HAVE_SYS_TYPES_H HAVE_STDINT_H HAVE_STDDEF_H)
     IF(${def})
       LIST(APPEND _HAVE_DEFS -D${def})
-    ENDIF(${def})
-  ENDFOREACH(def)
+    ENDIF()
+  ENDFOREACH()
 
   IF(NOT DEFINED VTK_TYPE_SAME_LONG_AND___INT64)
     MESSAGE(STATUS "Checking whether long and __int64 are the same type")
@@ -40,14 +40,14 @@ IF(VTK_SIZEOF___INT64)
         "Determining whether long and __int64 are the same type "
         "passed with the following output:\n"
         "${OUTPUT}\n")
-    ELSE(VTK_TYPE_SAME_LONG_AND___INT64)
+    ELSE()
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- no")
       SET(VTK_TYPE_SAME_LONG_AND___INT64 0 CACHE INTERNAL "Whether long and __int64 are the same type")
       FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining whether long and __int64 are the same type "
         "failed with the following output:\n"
         "${OUTPUT}\n")
-    ENDIF(VTK_TYPE_SAME_LONG_AND___INT64)
+    ENDIF()
   ENDIF()
   IF(VTK_SIZEOF_LONG_LONG)
     IF(NOT DEFINED VTK_TYPE_SAME_LONG_LONG_AND___INT64)
@@ -67,16 +67,16 @@ IF(VTK_SIZEOF___INT64)
           "Determining whether long long and __int64 are the same type "
           "passed with the following output:\n"
           "${OUTPUT}\n")
-      ELSE(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+      ELSE()
         MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- no")
         SET(VTK_TYPE_SAME_LONG_LONG_AND___INT64 0 CACHE INTERNAL "Whether long long and __int64 are the same type")
         FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Determining whether long long and __int64 are the same type "
           "failed with the following output:\n"
           "${OUTPUT}\n")
-      ENDIF(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+      ENDIF()
     ENDIF()
-  ENDIF(VTK_SIZEOF_LONG_LONG)
+  ENDIF()
   IF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
     IF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
 #  VS 6 cannot convert unsigned __int64 to double unless the
@@ -98,25 +98,25 @@ IF(VTK_SIZEOF___INT64)
             "Determining whether unsigned __int64 can convert to double "
             "passed with the following output:\n"
             "${OUTPUT}\n")
-        ELSE(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+        ELSE()
           MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- no")
           SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 0 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
           FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
             "Determining whether unsigned __int64 can convert to double "
             "failed with the following output:\n"
             "${OUTPUT}\n")
-        ENDIF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+        ENDIF()
       ENDIF()
-    ENDIF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
-  ENDIF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
-ENDIF(VTK_SIZEOF___INT64)
+    ENDIF()
+  ENDIF()
+ENDIF()
 
 # Enable the "long long" type if it is available.  It is standard in
 # C99 and C++03 but not in earlier standards.
 SET(VTK_TYPE_USE_LONG_LONG)
 IF(VTK_SIZEOF_LONG_LONG)
   SET(VTK_TYPE_USE_LONG_LONG 1)
-ENDIF(VTK_SIZEOF_LONG_LONG)
+ENDIF()
 
 # Enable the "__int64" type if it is available and unique.  It is not
 # standard.
@@ -125,9 +125,9 @@ IF(VTK_SIZEOF___INT64)
   IF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
     IF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
       SET(VTK_TYPE_USE___INT64 1)
-    ENDIF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
-  ENDIF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
-ENDIF(VTK_SIZEOF___INT64)
+    ENDIF()
+  ENDIF()
+ENDIF()
 
 IF(NOT DEFINED VTK_TYPE_CHAR_IS_SIGNED)
   MESSAGE(STATUS "Checking signedness of char")
@@ -138,11 +138,11 @@ IF(NOT DEFINED VTK_TYPE_CHAR_IS_SIGNED)
     IF(VTK_TYPE_CHAR_IS_SIGNED)
       MESSAGE(STATUS "Checking signedness of char -- signed")
       SET(VTK_TYPE_CHAR_IS_SIGNED 1 CACHE INTERNAL "Whether char is signed.")
-    ELSE(VTK_TYPE_CHAR_IS_SIGNED)
+    ELSE()
       MESSAGE(STATUS "Checking signedness of char -- unsigned")
       SET(VTK_TYPE_CHAR_IS_SIGNED 0 CACHE INTERNAL "Whether char is signed.")
-    ENDIF(VTK_TYPE_CHAR_IS_SIGNED)
-  ELSE(VTK_TYPE_CHAR_IS_SIGNED_COMPILED)
+    ENDIF()
+  ELSE()
     MESSAGE(STATUS "Checking signedness of char -- failed")
-  ENDIF(VTK_TYPE_CHAR_IS_SIGNED_COMPILED)
+  ENDIF()
 ENDIF()

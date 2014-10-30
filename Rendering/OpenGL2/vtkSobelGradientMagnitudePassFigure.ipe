@@ -1,0 +1,49 @@
+<ipe version="60030" creator="Ipe 6.0 preview 30">
+<info created="D:20090302175459" modified="D:20090302175459" bbox="cropbox"/>
+<page gridsize="16">
+<layer name="alpha"/>
+<view layers="alpha" active="alpha"/>
+<path layer="alpha" stroke="black" matrix="1 0 0 0.6 16 198.4" pen="normal">
+160 336 m
+272 336 l
+272 416 l
+160 416 l
+h
+</path>
+<text stroke="black" matrix="1 0 0 1 16 32" pos="176 400" type="minipage" width="80" height="5.958" depth="0.96" valign="top" size="normal" style="center">Shader 1</text>
+<text stroke="black" matrix="0.54584 0 0 0.972973 14.4652 70.4865" pos="208 240" type="minipage" width="208" height="45.959" depth="41.06" valign="top" size="normal" style="center">Shader 2\\
+\ \\
+\ \\
+$G_x=\left(\begin{array}{c}1\\2\\1\end{array}\right)G_{x_1}$, $G_y=\left(\begin{array}{c}1\\0\\-1\end{array}\right)G_{y_1}$,
+
+$|G|=\sqrt{G_x^2+G_y^2}$</text>
+<path stroke="black" matrix="1.5 0 0 1.4 -176 -38.4" pen="normal">
+192 176 m
+352 176 l
+352 256 l
+192 256 l
+h
+</path>
+<text stroke="black" matrix="1 0 0 1 -64 64" pos="192 320" type="minipage" width="96" height="25.884" depth="20.94" valign="top" size="normal" style="center">$\left(\begin{array}{ccc}-1 &amp; 0 &amp; 1\end{array}\right)$\\
+\ \\
+\ \\
+$G_{x_1}$</text>
+<text stroke="black" matrix="1 0 0 1 -48 64" pos="320 320" type="minipage" width="80" height="26.064" depth="21.12" valign="top" size="normal">$\left(\begin{array}{ccc}1 &amp; 2 &amp; 1\end{array}\right)$\\
+\ \\
+\ \\
+$G_{y_1}$</text>
+<text stroke="black" matrix="1 0 0 1 0 16" pos="192 480" type="minipage" width="80" height="5.898" depth="0.91" valign="top" size="normal" style="center">Pass 1</text>
+<path stroke="black" pen="normal" arrow="normal">
+256 400 m
+256 320 l
+</path>
+<path stroke="black" pen="normal" arrow="normal">
+208 400 m
+208 320 l
+</path>
+<path stroke="black" pen="normal" backarrow="normal">
+232 448 m
+232 480 l
+</path>
+</page>
+</ipe>

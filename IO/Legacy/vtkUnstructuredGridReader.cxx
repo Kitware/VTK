@@ -375,10 +375,7 @@ int vtkUnstructuredGridReader::RequestData(
 
   // Clean-up and get out
   //
-  if (types)
-    {
-    delete [] types;
-    }
+  delete [] types;
   if (cells)
     {
     cells->Delete();

@@ -667,7 +667,6 @@ aMapper.SetInputConnection(shrink.GetOutputPort())
 aActor = vtk.vtkActor()
 aActor.SetMapper(aMapper)
 aActor.GetProperty().SetRepresentationToWireframe()
-aActor.GetProperty().SetAmbient(1.0)
 # Create the rendering related stuff.
 ren1 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()

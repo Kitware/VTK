@@ -4,9 +4,9 @@ IF(NOT VTK_BINARY_DIR)
 FIND_PACKAGE(VTK)
 IF(NOT VTK_DIR)
   MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-ENDIF(NOT VTK_DIR)
+ENDIF()
 INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+ENDIF()
 
 # use what QVTK built with
 SET(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
@@ -56,10 +56,10 @@ SET_SOURCE_FILES_PROPERTIES(${StatsViewSrcs} PROPERTIES
 # and designer comes up on that ui file :)
 IF (${CMAKE_BUILD_TOOL} MATCHES "msdev")
   SET (StatsViewSrcs ${StatsViewSrcs} ${StatsViewUI})
-ENDIF (${CMAKE_BUILD_TOOL} MATCHES "msdev")
+ENDIF ()
 IF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
   SET (StatsViewSrcs ${StatsViewSrcs} ${StatsViewUI})
-ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
+ENDIF ()
 
 ADD_EXECUTABLE( StatsView MACOSX_BUNDLE ${StatsViewSrcs} ${UISrcs} ${MOCSrcs} ${ResourceSrcs})
 

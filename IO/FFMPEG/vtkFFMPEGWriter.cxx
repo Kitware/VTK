@@ -279,7 +279,7 @@ int vtkFFMPEGWriterInternal::Start()
     return 0;
     }
   int RGBsize = avpicture_get_size(PIX_FMT_RGB24, c->width, c->height);
-  unsigned char *rgb = new unsigned char[RGBsize];
+  unsigned char *rgb = (unsigned char *)av_malloc(sizeof(unsigned char) * RGBsize);
   if (!rgb)
     {
     vtkGenericWarningMacro (<< "Could not make rgbInput's buffer." );
@@ -296,7 +296,7 @@ int vtkFFMPEGWriterInternal::Start()
     return 0;
     }
   int YUVsize = avpicture_get_size(c->pix_fmt, c->width, c->height);
-  unsigned char *yuv = new unsigned char[YUVsize];
+  unsigned char *yuv = (unsigned char *)av_malloc(sizeof(unsigned char) * YUVsize);
   if (!yuv)
     {
     vtkGenericWarningMacro (<< "Could not make yuvOutput's buffer." );

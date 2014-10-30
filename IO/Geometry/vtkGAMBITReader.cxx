@@ -47,10 +47,7 @@ vtkGAMBITReader::vtkGAMBITReader()
 //----------------------------------------------------------------------------
 vtkGAMBITReader::~vtkGAMBITReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 }
 
 //----------------------------------------------------------------------------

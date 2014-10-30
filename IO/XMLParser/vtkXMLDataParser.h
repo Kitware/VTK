@@ -162,7 +162,7 @@ protected:
   void PerformByteSwap(void* data, size_t numWords, size_t wordSize);
 
   // Data reading methods.
-  void ReadCompressionHeader();
+  int ReadCompressionHeader();
   size_t FindBlockSize(vtkTypeUInt64 block);
   int ReadBlock(vtkTypeUInt64 block, unsigned char* buffer);
   unsigned char* ReadBlock(vtkTypeUInt64 block);

@@ -653,19 +653,22 @@ if {[info commands rtTester] == "rtTester"}  {
    set dir [rtTester GetTempDirectory]
 }
 
+vtkTexture atext
+vtkBMPReader pnmReader
+  pnmReader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
+atext SetInputConnection [pnmReader GetOutputPort]
+atext InterpolateOff
+aTriangleActor SetTexture atext
+
 if { [info command vtkRIBExporter] != "" } {
-  vtkTexture atext
-  vtkBMPReader pnmReader
-    pnmReader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
-  atext SetInputConnection [pnmReader GetOutputPort]
-  atext InterpolateOff
-  aTriangleActor SetTexture atext
   vtkRIBExporter rib
     rib SetInput renWin
     rib SetFilePrefix $dir/cells
     rib SetTexturePrefix $dir/cells
 }
 
+# if we do not have IO?Export then skip all these
+if { [info command vtkIVExporter] != "" } {
 vtkIVExporter iv
   iv SetInput renWin
   iv SetFileName $dir/cells.iv
@@ -708,6 +711,7 @@ if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
       file delete -force $dir/cells.rib
       catch {eval file delete -force [glob -nocomplain $dir/cells_*_*.tif]}
    }
+}
 }
 
 # render the image

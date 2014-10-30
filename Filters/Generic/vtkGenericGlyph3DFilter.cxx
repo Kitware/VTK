@@ -67,10 +67,7 @@ vtkGenericGlyph3DFilter::vtkGenericGlyph3DFilter()
 //-----------------------------------------------------------------------------
 vtkGenericGlyph3DFilter::~vtkGenericGlyph3DFilter()
 {
-  if (this->PointIdsName)
-    {
-    delete[] this->PointIdsName;
-    }
+  delete[] this->PointIdsName;
   this->SetInputScalarsSelection(NULL);
   this->SetInputVectorsSelection(NULL);
   this->SetInputNormalsSelection(NULL);

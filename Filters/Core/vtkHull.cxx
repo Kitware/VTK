@@ -35,21 +35,15 @@ vtkHull::vtkHull()
 // Destructor for a hull object - remove the planes if necessary
 vtkHull::~vtkHull()
 {
-  if ( this->Planes )
-    {
-    delete [] this->Planes;
-    this->Planes = NULL;
-    }
+  delete [] this->Planes;
+  this->Planes = NULL;
 }
 
 // Remove all planes.
 void vtkHull::RemoveAllPlanes()
 {
-  if ( this->Planes )
-    {
-    delete [] this->Planes;
-    this->Planes = NULL;
-    }
+  delete [] this->Planes;
+  this->Planes = NULL;
 
   this->PlanesStorageSize  = 0;
   this->NumberOfPlanes     = 0;
@@ -125,10 +119,7 @@ int vtkHull::AddPlane( double A, double B, double C )
       {
       this->Planes[i] = tmpPointer[i];
       }
-    if ( tmpPointer )
-      {
-      delete [] tmpPointer;
-      }
+    delete [] tmpPointer;
     }
 
   // Add the plane at the end of the array.

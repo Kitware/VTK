@@ -35,6 +35,12 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Renders a texture map. It first checks the object's modified time
+  // to make sure the texture maps Input is valid, then it invokes the
+  // Load() method.
+  virtual void Render(vtkRenderer* ren);
+
+  // Description:
   // Implement base class method.
   void Load(vtkRenderer*);
 
@@ -74,6 +80,13 @@ public:
   // Return the texture unit used for this texture
   int GetTextureUnit();
 
+  // Description:
+  // Is this Texture Translucent?
+  // returns false (0) if the texture is either fully opaque or has
+  // only fully transparent pixels and fully opaque pixels and the
+  // Interpolate flag is turn off.
+  virtual int IsTranslucent();
+
 protected:
   vtkOpenGLTexture();
   ~vtkOpenGLTexture();
@@ -82,6 +95,7 @@ protected:
   unsigned int Index; // actually GLuint
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
 
+  bool ExternalTextureObject;
   vtkTextureObject *TextureObject;
 
   int IsDepthTexture;

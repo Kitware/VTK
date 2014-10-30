@@ -13,14 +13,14 @@ IF(NOT DEFINED VTK_USE_VIDEO_FOR_WINDOWS)
       "Checking if vfw32 is available "
       "passed with the following output:\n"
       "${OUTPUT}\n")
-  ELSE(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT)
+  ELSE()
     MESSAGE(STATUS "Checking if vfw32 is available -- no")
     OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Enable using Video for Windows (vfw32) for video input and output." OFF)
     FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
       "Checking if vfw32 is available "
       "failed with the following output:\n"
       "${OUTPUT}\n")
-  ENDIF(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT)
+  ENDIF()
   MARK_AS_ADVANCED(VTK_USE_VIDEO_FOR_WINDOWS)
 ENDIF()
 
@@ -40,15 +40,15 @@ IF(VTK_USE_VIDEO_FOR_WINDOWS)
         "Checking if vfw32 supports video capture "
         "passed with the following output:\n"
         "${OUTPUT}\n")
-    ELSE(VTK_VFW_SUPPORTS_CAPTURE)
+    ELSE()
       MESSAGE(STATUS "Checking if vfw32 supports video capture -- no")
       SET(VTK_VFW_SUPPORTS_CAPTURE 0 CACHE INTERNAL "Enable using Video for Windows (vfw32) for video capture.")
       FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Checking if vfw32 supports video capture "
         "failed with the following output:\n"
         "${OUTPUT}\n")
-    ENDIF(VTK_VFW_SUPPORTS_CAPTURE)
+    ENDIF()
   ENDIF()
-ELSE(VTK_USE_VIDEO_FOR_WINDOWS)
+ELSE()
   SET(VTK_VFW_SUPPORTS_CAPTURE 0)
-ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
+ENDIF()

@@ -67,7 +67,7 @@
 #ifndef __vtkSMPThreadLocalObject_h
 #define __vtkSMPThreadLocalObject_h
 
-#include <vtkSMPThreadLocal.h>
+#include "vtkSMPThreadLocal.h"
 
 template <typename T>
 class vtkSMPThreadLocalObject
@@ -83,36 +83,47 @@ class vtkSMPThreadLocalObject
 public:
   // Description:
   // Default constructor.
-  vtkSMPThreadLocalObject() : Internal(0)
-    {
-    }
+  vtkSMPThreadLocalObject() : Internal(0), Exemplar(0)
+  {
+  }
+
+  vtkSMPThreadLocalObject(T* const& exemplar) : Internal(0), Exemplar(exemplar)
+  {
+  }
 
   virtual ~vtkSMPThreadLocalObject()
-    {
-      iterator iter = this->begin();
-      while (iter != this->end())
+  {
+    iterator iter = this->begin();
+    while (iter != this->end())
+      {
+      if (*iter)
         {
-        if (*iter)
-          {
-          (*iter)->Delete();
-          }
-        ++iter;
+        (*iter)->Delete();
         }
-    }
+      ++iter;
+      }
+  }
 
   // Description:
   // Returns an object local to the current thread.
   // This object is allocated with ::New() and will
   // be deleted in the destructor of vtkSMPThreadLocalObject.
   T*& Local()
-    {
-      T*& vtkobject = this->Internal.Local();
-      if (!vtkobject)
+  {
+    T*& vtkobject = this->Internal.Local();
+    if (!vtkobject)
+      {
+      if (this->Exemplar)
         {
-        vtkobject = T::New();
+        vtkobject = this->Exemplar->NewInstance();
         }
-      return vtkobject;
-    }
+      else
+        {
+        vtkobject = T::SafeDownCast(T::New());
+        }
+      }
+    return vtkobject;
+  }
 
   // Description:
   // Subset of the standard iterator API.
@@ -123,20 +134,20 @@ public:
   {
   public:
     iterator& operator++()
-      {
-        ++this->Iter;
-        return *this;
-      }
+    {
+      ++this->Iter;
+      return *this;
+    }
 
     bool operator!=(const iterator& other)
-      {
-        return this->Iter != other.Iter;
-      }
+    {
+      return this->Iter != other.Iter;
+    }
 
     T*& operator*()
-      {
-        return *this->Iter;
-      }
+    {
+      return *this->Iter;
+    }
 
   private:
     TLSIter Iter;
@@ -160,6 +171,7 @@ public:
 
 private:
   TLS Internal;
+  T* Exemplar;
 };
 
 #endif

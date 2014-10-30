@@ -38,7 +38,7 @@ int TestContourTriangulatorCutter(int argc, char* argv[])
 {
   vtkSmartPointer<vtkTesting> testHelper =
     vtkSmartPointer<vtkTesting>::New();
-  testHelper->AddArguments(argc, const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, argv);
 
   std::string tempDir = testHelper->GetTempDirectory();
   std::string tempBaseline=tempDir+"/TestContourTriangulatorCutter.png";

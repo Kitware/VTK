@@ -858,11 +858,8 @@ void vtkTIFFReader::ReadVolume(T* buffer)
           ++ssimage;
           }
         }
-      if (tempImage)
-        {
-        delete [] tempImage;
-        tempImage = 0;
-        }
+      delete [] tempImage;
+      tempImage = 0;
       }
     else
       {

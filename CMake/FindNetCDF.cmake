@@ -88,7 +88,7 @@ macro (NetCDF_check_interface lang header libs)
       message (STATUS "Failed to find NetCDF interface for ${lang}")
     endif ()
   endif ()
-endmacro (NetCDF_check_interface)
+endmacro ()
 
 list (FIND NetCDF_FIND_COMPONENTS "CXX" _nextcomp)
 if (_nextcomp GREATER -1)

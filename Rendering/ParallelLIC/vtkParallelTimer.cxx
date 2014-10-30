@@ -35,7 +35,7 @@ using std::ostringstream;
 #else
 #include <process.h>
 #include <Winsock2.h>
-#include <time.h>
+#include <ctime>
 static
 int gettimeofday(struct timeval *tv, void *)
 {

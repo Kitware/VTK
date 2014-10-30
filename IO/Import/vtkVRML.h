@@ -32,154 +32,177 @@
 #ifndef _VTKVRML_H_
 #define _VTKVRML_H_
 
-#define DEFAULTINCREMENT        100
+#define DEFAULTINCREMENT 100
 
-#include "vtkIOImportModule.h" // For export macro
 #include "vtkHeap.h"
 
 #include <new>
 
 // Use a user-managed heap to remove memory leaks
-// This code must come before "#include vtkVRML.h" because
-// it uses the functions below.
 struct vtkVRMLAllocator
 {
-  static void Initialize();
-  static void *AllocateMemory(size_t n);
-  static void CleanUp();
-  static char* StrDup(const char *str);
+  static void Initialize()
+  {
+    if (Heap == NULL)
+      {
+      Heap = vtkHeap::New();
+      }
+  }
+
+  static void* AllocateMemory(size_t n)
+  {
+    return Heap->AllocateMemory(n);
+  }
+
+  static void CleanUp()
+  {
+    if (Heap)
+      {
+      Heap->Delete();
+      Heap = NULL;
+      }
+  }
+
+  static char* StrDup(const char *str)
+  {
+    return Heap->StringDup(str);
+  }
+
   static vtkHeap *Heap;
 };
 
-
-
 template <class T>
-class VTKIOIMPORT_EXPORT vtkVRMLVectorType
+class vtkVRMLVectorType
 {
-protected:
-  T *Data;
-  int Allocated;
-  int Used;
 public:
+  vtkVRMLVectorType(int usenew = 0) : UseNew(usenew)
+  {
+    this->Init();
+  }
+
+  ~vtkVRMLVectorType(void)
+  {
+    if (this->UseNew)
+      {
+      delete[] this->Data;
+      }
+  }
+
   void Init()
     {
-      Allocated=DEFAULTINCREMENT;
+    this->Allocated = DEFAULTINCREMENT;
+    if (!this->UseNew)
+      {
+      vtkVRMLAllocator::Initialize();
+      void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
+      this->Data = new(mem) T[this->Allocated];
+      }
+    else
+      {
+      this->Data = new T[this->Allocated];
+      }
+    Used = 0;
+    }
+
+  void Reserve(int newSize)
+  {
+    if (newSize >= this->Allocated)
+      {
+      int oldSize = this->Allocated;
+      this->Allocated = newSize + DEFAULTINCREMENT;
+      T* temp = this->Data;
       if (!this->UseNew)
         {
-        vtkVRMLAllocator::Initialize();
-        void* mem = vtkVRMLAllocator::AllocateMemory(Allocated*sizeof(T));
-        Data=new(mem) T[Allocated];
+        void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
+        this->Data = new(mem) T[this->Allocated];
         }
       else
         {
-        Data = new T[Allocated];
+        this->Data = new T[this->Allocated];
         }
-      Used=0;
-    }
-  vtkVRMLVectorType()
-    {
-      this->UseNew = 0;
-      this->Init();
-    }
-  vtkVRMLVectorType(int usenew) : UseNew(usenew)
-    {
-      this->Init();
-    }
-  ~vtkVRMLVectorType(void)
-    {
+      if (this->Data == (T*)'\0')
+        {
+        return;
+        }
+      memcpy((void*)this->Data, (void*)temp, oldSize * sizeof(T));
       if (this->UseNew)
         {
-        delete[] Data;
+        delete[] temp;
         }
-    }
-  void Reserve(int newSize)
-    {
-      T *temp;
-      int oldSize;
-      if(newSize >= Allocated)
-        {
-        oldSize=Allocated;
-        Allocated=newSize+DEFAULTINCREMENT;
-        temp=Data;
-        if (!this->UseNew)
-          {
-          void* mem = vtkVRMLAllocator::AllocateMemory(Allocated*sizeof(T));
-          Data=new(mem) T[Allocated];
-          }
-        else
-          {
-          Data=new T[Allocated];
-          }
-        if(Data==(T *)'\0')
-          {
-          return;
-          }
-        memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
-        if (this->UseNew)
-          {
-          delete[] temp;
-          }
-        }
-    }
+      }
+  }
 
   void Demand(int newSize)
-    {
-      Reserve(newSize);
-      Used=newSize;
-    }
+  {
+    this->Reserve(newSize);
+    this->Used = newSize;
+  }
+
   int Count(void) const
-    {
-      return Used;
-    }
+  {
+    return this->Used;
+  }
+
   T& Get(int index) const
     {
-      if (index > Used)
-        return Data[Used-1];
-      return Data[index];
+    return (index > this->Used) ?
+      this->Data[this->Used - 1] : this->Data[index];
     }
+
   T& operator[](int index)
+  {
+    if (index > Used)
     {
-      if (index > Used)
-        Demand(index);
-      return Data[index];
+      this->Demand(index);
     }
+    return this->Data[index];
+  }
+
   operator T*() const
-    {
-      return Data;
-    }
+  {
+    return this->Data;
+  }
+
   vtkVRMLVectorType<T>& operator+=(T datum)
-    {
-      Reserve(Used+1);
-      Data[Used]=datum;
-      Used++;
-      return *this;
-    }
+  {
+    this->Reserve(this->Used + 1);
+    this->Data[this->Used] = datum;
+    this->Used++;
+    return *this;
+  }
+
   void Push(T datum)
-    {
-      Reserve(Used+1);
-      Data[Used]=datum;
-      Used++;
-    }
+  {
+    this->Reserve(this->Used + 1);
+    this->Data[this->Used] = datum;
+    this->Used++;
+  }
+
   T& Pop()
-    {
-      Used--;
-      return Data[Used];
-    }
+  {
+    this->Used--;
+    return this->Data[this->Used];
+  }
+
   T& Top()
-    {
-      return Data[Used-1];
-    }
+  {
+    return this->Data[this->Used - 1];
+  }
 
   void* operator new(size_t n)
-    {
-      return vtkVRMLAllocator::AllocateMemory(n);
-    }
+  {
+    return vtkVRMLAllocator::AllocateMemory(n);
+  }
 
   void operator delete(void *)
-    {
-    }
+  {
+  }
 
+protected:
+  T *Data;
   int UseNew;
+  int Allocated;
+  int Used;
 };
 
 static const char standardNodes[][2042] = {
@@ -661,5 +684,6 @@ PROTO WorldInfo [ \n\
   field SFString title \"\" \n\
 ] { }",""
 };
+
 #endif
 // VTK-HeaderTest-Exclude: vtkVRML.h

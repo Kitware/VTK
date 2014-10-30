@@ -427,10 +427,7 @@ inline void vtkPStructuredGridConnectivity::ClearRawBuffers()
     {
     for( unsigned int j=0; j < this->SendBuffers[i].size(); ++j )
       {
-      if( this->SendBuffers[i][j] != NULL )
-        {
-        delete [] this->SendBuffers[i][j];
-        }
+      delete [] this->SendBuffers[i][j];
       } // END for all neighbors
     this->SendBuffers[i].clear();
     } // END for all grids
@@ -441,10 +438,7 @@ inline void vtkPStructuredGridConnectivity::ClearRawBuffers()
     {
     for( unsigned int j=0; j < this->RcvBuffers[i].size(); ++j )
       {
-      if( this->RcvBuffers[i][j] != NULL )
-        {
-        delete [] this->RcvBuffers[i][j];
-        }
+      delete [] this->RcvBuffers[i][j];
       } // END for all neighbors
     this->RcvBuffers[i].clear();
     } // END for all grids

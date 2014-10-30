@@ -31,10 +31,7 @@ vtkEvent::vtkEvent()
 
 vtkEvent::~vtkEvent()
 {
-  if ( this->KeySym )
-    {
-    delete [] this->KeySym;
-    }
+  delete [] this->KeySym;
 }
 
 // Comparison against event with no modifiers

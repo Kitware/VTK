@@ -32,7 +32,7 @@
 #endif
 #endif
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #define VTK_ALL_EVENTS_MASK \
     KeyPressMask|KeyReleaseMask|ButtonPressMask|ButtonReleaseMask|      \

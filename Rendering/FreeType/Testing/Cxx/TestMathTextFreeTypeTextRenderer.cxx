@@ -119,7 +119,7 @@ int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
   actor7->GetTextProperty()->SetVerticalJustificationToCentered();
   actor7->GetTextProperty()->SetOrientation(45);
   actor7->SetInput(str.c_str());
-  actor7->SetPosition(100, 200);
+  actor7->SetPosition(100, 156);
 
   vtkNew<vtkTextActor> actor8;
   actor8->GetTextProperty()->SetFontSize(16);
@@ -128,7 +128,7 @@ int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
   actor8->GetTextProperty()->SetVerticalJustificationToCentered();
   actor8->GetTextProperty()->SetOrientation(45);
   actor8->SetInput(str.c_str());
-  actor8->SetPosition(500, 200);
+  actor8->SetPosition(500, 249);
 
   // Mathtext tests
 
@@ -146,7 +146,7 @@ int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
   actor10->GetTextProperty()->SetOrientation(45);
   actor10->SetInput("Test MathText $\\int_0^\\infty\\frac{2\\pi}"
                     "{x - \\frac{z}{4}}\\,dx$");
-  actor10->SetPosition(590, 300);
+  actor10->SetPosition(588, 433);
 
   // Invalid latex markup -- should fallback to freetype.
   vtkNew<vtkTextActor> actor11;

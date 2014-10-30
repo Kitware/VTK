@@ -39,18 +39,21 @@ static T vtkClamp(T val, T min, T max)
   return val;
 }
 
-class vtkOpenGLGlyph3DMapper::vtkColorMapper : public vtkMapper
+class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 {
 public:
-  vtkTypeMacro(vtkColorMapper, vtkMapper);
-  static vtkColorMapper* New() { return new vtkColorMapper; }
+  vtkTypeMacro(vtkOpenGLGlyph3DMappervtkColorMapper, vtkMapper);
+  static vtkOpenGLGlyph3DMappervtkColorMapper* New();
   void Render(vtkRenderer *, vtkActor *) {}
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 
+vtkStandardNewMacro(vtkOpenGLGlyph3DMappervtkColorMapper)
+
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry
 {
 public:
+  std::vector<vtkIdType> PickIds;
   std::vector<unsigned char> Colors;
   std::vector<float> Matrices;  // transposed
   std::vector<float> NormalMatrices; // transposed
@@ -64,6 +67,7 @@ public:
     vtkPolyData *ss = vtkPolyData::New();
     this->Mapper->SetInputData(ss);
     ss->Delete();
+    this->Mapper->SetPopulateSelectionSettings(0);
   };
   ~vtkOpenGLGlyph3DMapperEntry()
   {
@@ -117,11 +121,13 @@ vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 {
   this->GlyphValues = new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray();
   this->LastWindow = 0;
+  this->ColorMapper = vtkOpenGLGlyph3DMappervtkColorMapper::New();
 }
 
 // ---------------------------------------------------------------------------
 vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 {
+  this->ColorMapper->Delete();
   if (this->GlyphValues)
     {
     delete this->GlyphValues;
@@ -282,7 +288,7 @@ void vtkOpenGLGlyph3DMapper::Render(
     }
 
   // make sure we have a subentry for each source
-  int numberOfSources = this->GetNumberOfInputConnections(1);
+  unsigned int numberOfSources = this->GetNumberOfInputConnections(1);
   bool numberOfSourcesChanged = false;
   if (numberOfSources != subarray->Entries.size())
     {
@@ -316,7 +322,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   // rebuild all entries for this DataSet if it
   // has been modified
   if (subarray->BuildTime < dataset->GetMTime() ||
-      subarray->LastSelectingState != selecting_points)
+      subarray->LastSelectingState != selecting_points )
     {
     rebuild = true;
     }
@@ -359,37 +365,35 @@ void vtkOpenGLGlyph3DMapper::Render(
     // only triangles
     bool fastPath = false;
     vtkPolyData* pd = gh->GetInput();
+    gh->CurrentInput = pd;
     if (pd && pd->GetNumberOfVerts() == 0 && pd->GetNumberOfLines() == 0 && pd->GetNumberOfStrips() == 0)
       {
       fastPath = true;
       }
 
     // use fast path
+    gh->SetUseFastPath(fastPath);
     if (fastPath)
       {
-      gh->GlyphRender(ren, actor, entry->NumberOfPoints, entry->Colors, entry->Matrices, entry->NormalMatrices);
+      gh->GlyphRender(ren, actor, entry->NumberOfPoints,
+        entry->Colors, entry->Matrices, entry->NormalMatrices,
+        entry->PickIds, subarray->BuildTime);
       }
     else
       {
       bool primed = false;
-      unsigned char rgba[4];
       for (vtkIdType inPtId = 0; inPtId < entry->NumberOfPoints; inPtId++)
         {
-        rgba[0] = entry->Colors[inPtId*4];
-        rgba[1] = entry->Colors[inPtId*4+1];
-        rgba[2] = entry->Colors[inPtId*4+2];
-        rgba[3] = entry->Colors[inPtId*4+3];
-
         if (selecting_points)
           {
-          selector->RenderAttributeId(rgba[0] + (rgba[1] << 8) + (rgba[2] << 16));
+          selector->RenderAttributeId(entry->PickIds[inPtId]);
           }
         if (!primed)
           {
           gh->RenderPieceStart(ren, actor);
           primed = true;
           }
-        gh->SetModelColor(rgba);
+        gh->SetModelColor(&(entry->Colors[inPtId*4]));
         gh->SetModelTransform(&(entry->Matrices[inPtId*16]));
         gh->SetModelNormalTransform(&(entry->NormalMatrices[inPtId*9]));
         gh->RenderPieceDraw(ren, actor);
@@ -440,7 +444,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   vtkUnsignedCharArray* colors = NULL;
   this->ColorMapper->SetInputDataObject(dataset);
   this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
-  colors = this->ColorMapper->GetColors();
+  colors = ((vtkOpenGLGlyph3DMappervtkColorMapper *)this->ColorMapper)->GetColors();
   //  bool multiplyWithAlpha =
   //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   // Traverse all Input points, transforming Source points
@@ -485,6 +489,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     {
     vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
       subarray->Entries[cc];
+    entry->PickIds.resize(numPointsPerSource[cc]);
     entry->Colors.resize(numPointsPerSource[cc]*4);
     entry->Matrices.resize(numPointsPerSource[cc]*16);
     entry->NormalMatrices.resize(numPointsPerSource[cc]*9);
@@ -631,38 +636,28 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
           }
         }
 
-      // Set color
-      if (selecting_points)
+      // Set pickid
+      // Use selectionArray value or glyph point ID.
+      vtkIdType selectionId = inPtId;
+      if (this->UseSelectionIds)
         {
-        // Use selectionArray value or glyph point ID.
-        vtkIdType selectionId = inPtId;
-        if (this->UseSelectionIds)
+        if (selectionArray == NULL ||
+            selectionArray->GetNumberOfTuples() == 0)
           {
-          if (selectionArray == NULL ||
-              selectionArray->GetNumberOfTuples() == 0)
-            {
-            vtkWarningMacro(<<"UseSelectionIds is true, but selection array"
-                            " is invalid. Ignoring selection array.");
-            }
-          else
-            {
-            selectionId = static_cast<vtkIdType>(
-                *selectionArray->GetTuple(inPtId));
-            }
+          vtkWarningMacro(<<"UseSelectionIds is true, but selection array"
+                          " is invalid. Ignoring selection array.");
           }
-        entry->Colors[entry->NumberOfPoints*4] = selectionId & 0xff;
-        entry->Colors[entry->NumberOfPoints*4+1] = (selectionId & 0xff00) >> 8;
-        entry->Colors[entry->NumberOfPoints*4+2] = (selectionId & 0xff0000) >> 16;
-        entry->Colors[entry->NumberOfPoints*4+3] = 255;
+        else
+          {
+          selectionId = static_cast<vtkIdType>(
+              *selectionArray->GetTuple(inPtId));
+          }
         }
-      else if (colors)
+      entry->PickIds[entry->NumberOfPoints] = selectionId;
+
+      if (colors)
         {
-        unsigned char rgba[4];
-        colors->GetTupleValue(inPtId, rgba);
-        entry->Colors[entry->NumberOfPoints*4] = rgba[0];
-        entry->Colors[entry->NumberOfPoints*4+1] = rgba[1];
-        entry->Colors[entry->NumberOfPoints*4+2] = rgba[2];
-        entry->Colors[entry->NumberOfPoints*4+3] = rgba[3];
+        colors->GetTupleValue(inPtId, &(entry->Colors[entry->NumberOfPoints*4]));
         }
 
       // scale data if appropriate
@@ -697,7 +692,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         {
         for (int j = 0; j < 3; j++)
           {
-          entry->NormalMatrices[entry->NumberOfPoints*9+i*3+j] = arrayVals[j*4+i];
+          entry->NormalMatrices[entry->NumberOfPoints*9+i*3+j] = arrayVals[i*4+j];
           }
         }
       entry->NumberOfPoints++;

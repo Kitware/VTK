@@ -1064,8 +1064,5 @@ void vtkMNIObjectWriter::CloseFile(ostream *fp)
 {
   vtkDebugMacro(<<"Closing file\n");
 
-  if ( fp != NULL )
-    {
-    delete fp;
-    }
+  delete fp;
 }

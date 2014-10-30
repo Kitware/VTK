@@ -721,11 +721,8 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
   this->CalculateLogSeries();
   this->FindBadPoints();
   this->Points->Modified();
-  if (this->Sorted)
-    {
-    delete this->Sorted;
-    this->Sorted = 0;
-    }
+  delete this->Sorted;
+  this->Sorted = 0;
 
   // Additions for color mapping
   if (this->ScalarVisibility && !this->ColorArrayName.empty())

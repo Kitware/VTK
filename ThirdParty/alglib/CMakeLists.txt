@@ -59,4 +59,4 @@ if ( NOT VTK_INSTALL_NO_DEVELOPMENT )
     DESTINATION ${alglib_install_inc_dir}/alglib
     COMPONENT Development
   )
-endif ( NOT VTK_INSTALL_NO_DEVELOPMENT )
+endif ()

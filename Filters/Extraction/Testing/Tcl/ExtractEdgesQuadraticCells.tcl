@@ -689,7 +689,6 @@ vtkDataSetMapper aMapper
 vtkActor aActor
   aActor SetMapper aMapper
   [aActor GetProperty] SetRepresentationToWireframe
-  [aActor GetProperty] SetAmbient 1.0
 
 # Create the rendering related stuff.
 vtkRenderer ren1

@@ -64,19 +64,19 @@ if (WIN32)
     set(_TBB_LIB_MALLOC_DEBUG_NAME "${_TBB_LIB_MALLOC_NAME}_debug")
     if (MSVC71)
         set (_TBB_COMPILER "vc7.1")
-    endif(MSVC71)
+    endif()
     if (MSVC80)
         set(_TBB_COMPILER "vc8")
-    endif(MSVC80)
+    endif()
     if (MSVC90)
         set(_TBB_COMPILER "vc9")
-    endif(MSVC90)
+    endif()
     if(MSVC10)
         set(_TBB_COMPILER "vc10")
-    endif(MSVC10)
+    endif()
     # Todo: add other Windows compilers such as ICL.
     set(_TBB_ARCHITECTURE ${TBB_ARCHITECTURE})
-endif (WIN32)
+endif ()
 
 if (UNIX)
     if (APPLE)
@@ -92,15 +92,15 @@ if (UNIX)
         #       that user's setting of variables should be ignored.
         if(NOT TBB_COMPILER)
             set(_TBB_COMPILER "cc4.0.1_os10.4.9")
-        elseif (NOT TBB_COMPILER)
+        else ()
             set(_TBB_COMPILER ${TBB_COMPILER})
-        endif(NOT TBB_COMPILER)
+        endif()
         if(NOT TBB_ARCHITECTURE)
             set(_TBB_ARCHITECTURE "ia32")
-        elseif(NOT TBB_ARCHITECTURE)
+        else()
             set(_TBB_ARCHITECTURE ${TBB_ARCHITECTURE})
-        endif(NOT TBB_ARCHITECTURE)
-    else (APPLE)
+        endif()
+    else ()
         # LINUX
         set(_TBB_DEFAULT_INSTALL_DIR "/opt/intel/tbb" "/usr/local/include" "/usr/include")
         set(_TBB_LIB_NAME "tbb")
@@ -112,15 +112,15 @@ if (UNIX)
         # has itanium/*
         set(_TBB_COMPILER ${TBB_COMPILER})
         set(_TBB_ARCHITECTURE ${TBB_ARCHITECTURE})
-    endif (APPLE)
-endif (UNIX)
+    endif ()
+endif ()
 
 if (CMAKE_SYSTEM MATCHES "SunOS.*")
 # SUN
 # not yet supported
 # has em64t/cc3.4.3_kernel5.10
 # has ia32/*
-endif (CMAKE_SYSTEM MATCHES "SunOS.*")
+endif ()
 
 
 #-- Clear the public variables
@@ -131,38 +131,38 @@ set (TBB_FOUND "NO")
 # first: use CMake variable TBB_INSTALL_DIR
 if (TBB_INSTALL_DIR)
     set (_TBB_INSTALL_DIR ${TBB_INSTALL_DIR})
-endif (TBB_INSTALL_DIR)
+endif ()
 # second: use environment variable
 if (NOT _TBB_INSTALL_DIR)
     if (NOT "$ENV{TBB_INSTALL_DIR}" STREQUAL "")
         set (_TBB_INSTALL_DIR $ENV{TBB_INSTALL_DIR})
-    endif (NOT "$ENV{TBB_INSTALL_DIR}" STREQUAL "")
+    endif ()
     # Intel recommends setting TBB21_INSTALL_DIR
     if (NOT "$ENV{TBB21_INSTALL_DIR}" STREQUAL "")
         set (_TBB_INSTALL_DIR $ENV{TBB21_INSTALL_DIR})
-    endif (NOT "$ENV{TBB21_INSTALL_DIR}" STREQUAL "")
+    endif ()
     if (NOT "$ENV{TBB22_INSTALL_DIR}" STREQUAL "")
         set (_TBB_INSTALL_DIR $ENV{TBB22_INSTALL_DIR})
-    endif (NOT "$ENV{TBB22_INSTALL_DIR}" STREQUAL "")
+    endif ()
     if (NOT "$ENV{TBB30_INSTALL_DIR}" STREQUAL "")
         set (_TBB_INSTALL_DIR $ENV{TBB30_INSTALL_DIR})
-    endif (NOT "$ENV{TBB30_INSTALL_DIR}" STREQUAL "")
-endif (NOT _TBB_INSTALL_DIR)
+    endif ()
+endif ()
 # third: try to find path automatically
 if (NOT _TBB_INSTALL_DIR)
     if (_TBB_DEFAULT_INSTALL_DIR)
         set (_TBB_INSTALL_DIR ${_TBB_DEFAULT_INSTALL_DIR})
-    endif (_TBB_DEFAULT_INSTALL_DIR)
-endif (NOT _TBB_INSTALL_DIR)
+    endif ()
+endif ()
 # sanity check
 if (NOT _TBB_INSTALL_DIR)
     message ("ERROR: Unable to find Intel TBB install directory. ${_TBB_INSTALL_DIR}")
-else (NOT _TBB_INSTALL_DIR)
+else ()
 # finally: set the cached CMake variable TBB_INSTALL_DIR
 if (NOT TBB_INSTALL_DIR)
     set (TBB_INSTALL_DIR ${_TBB_INSTALL_DIR} CACHE PATH "Intel TBB install directory")
     mark_as_advanced(TBB_INSTALL_DIR)
-endif (NOT TBB_INSTALL_DIR)
+endif ()
 
 
 #-- A macro to rewrite the paths of the library. This is necessary, because
@@ -170,13 +170,13 @@ endif (NOT TBB_INSTALL_DIR)
 macro(TBB_CORRECT_LIB_DIR var_name)
 #    if (NOT "${_TBB_ARCHITECTURE}" STREQUAL "em64t")
         string(REPLACE em64t "${_TBB_ARCHITECTURE}" ${var_name} ${${var_name}})
-#    endif (NOT "${_TBB_ARCHITECTURE}" STREQUAL "em64t")
+#    endif ()
     string(REPLACE ia32 "${_TBB_ARCHITECTURE}" ${var_name} ${${var_name}})
     string(REPLACE vc7.1 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
     string(REPLACE vc8 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
     string(REPLACE vc9 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
     string(REPLACE vc10 "${_TBB_COMPILER}" ${var_name} ${${var_name}})
-endmacro(TBB_CORRECT_LIB_DIR var_content)
+endmacro()
 
 
 #-- Look for include directory and set ${TBB_INCLUDE_DIR}
@@ -197,7 +197,7 @@ if (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
          ${_TBB_INSTALL_DIR}/lib/$ENV{TBB_ARCH_PLATFORM}
          ${_TBB_INSTALL_DIR}/$ENV{TBB_ARCH_PLATFORM}/lib
         )
-endif (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
+endif ()
 # Jiri: This block isn't mutually exclusive with the previous one
 #       (hence no else), instead I test if the user really specified
 #       the variables in question.
@@ -208,7 +208,7 @@ if ((NOT ${TBB_ARCHITECTURE} STREQUAL "") AND (NOT ${TBB_COMPILER} STREQUAL ""))
     #       ENV{TBB_ARCH_PLATFORM} and the TBB_ARCHITECTURE and TBB_COMPILER
     #       variables and search them both.
     set (_TBB_LIBRARY_DIR "${_TBB_INSTALL_DIR}/${_TBB_ARCHITECTURE}/${_TBB_COMPILER}/lib" ${_TBB_LIBRARY_DIR})
-endif ((NOT ${TBB_ARCHITECTURE} STREQUAL "") AND (NOT ${TBB_COMPILER} STREQUAL ""))
+endif ()
 
 # GvdB: Mac OS X distribution places libraries directly in lib directory.
 list(APPEND _TBB_LIBRARY_DIR ${_TBB_INSTALL_DIR}/lib)
@@ -261,8 +261,8 @@ if (TBB_INCLUDE_DIR)
         set (TBB_DEBUG_LIBRARY_DIRS ${TBB_LIBRARY_DEBUG_DIR} CACHE PATH "TBB debug library directory" FORCE)
         mark_as_advanced(TBB_INCLUDE_DIRS TBB_LIBRARY_DIRS TBB_DEBUG_LIBRARY_DIRS TBB_LIBRARIES TBB_DEBUG_LIBRARIES)
         message(STATUS "Found Intel TBB")
-    endif (TBB_LIBRARY)
-endif (TBB_INCLUDE_DIR)
+    endif ()
+endif ()
 
 if (NOT TBB_FOUND)
     message("ERROR: Intel TBB NOT found!")
@@ -270,14 +270,14 @@ if (NOT TBB_FOUND)
     # do only throw fatal, if this pkg is REQUIRED
     if (TBB_FIND_REQUIRED)
         message(FATAL_ERROR "Could NOT find TBB library.")
-    endif (TBB_FIND_REQUIRED)
-endif (NOT TBB_FOUND)
+    endif ()
+endif ()
 
-endif (NOT _TBB_INSTALL_DIR)
+endif ()
 
 if (TBB_FOUND)
         set(TBB_INTERFACE_VERSION 0)
         FILE(READ "${TBB_INCLUDE_DIRS}/tbb/tbb_stddef.h" _TBB_VERSION_CONTENTS)
         STRING(REGEX REPLACE ".*#define TBB_INTERFACE_VERSION ([0-9]+).*" "\\1" TBB_INTERFACE_VERSION "${_TBB_VERSION_CONTENTS}")
         set(TBB_INTERFACE_VERSION "${TBB_INTERFACE_VERSION}")
-endif (TBB_FOUND)
+endif ()

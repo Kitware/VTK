@@ -62,10 +62,6 @@ public:
   vtkBooleanMacro(Compiled, bool);
 
   // Description:
-  // Compile this shader program and attached shaders
-  virtual int CompileShader();
-
-  // Description:
   // Set/Get the md5 hash of this program
   std::string GetMD5Hash() const { return this->MD5Hash; }
   void SetMD5Hash(const std::string &hash) { this->MD5Hash = hash; }
@@ -88,41 +84,10 @@ public:
 
 
   /**
-   * Attach the supplied shader to this program.
-   * @note A maximum of one Vertex shader and one Fragment shader can be
-   * attached to a shader program.
-   * @return true on success.
-   */
-  bool AttachShader(const vtkShader *shader);
-
-  /** Detach the supplied shader from this program.
-   * @note A maximum of one Vertex shader and one Fragment shader can be
-   * attached to a shader program.
-   * @return true on success.
-   */
-  bool DetachShader(const vtkShader *shader);
-
-  /**
-   * Attempt to link the shader program.
-   * @return false on failure. Query error to get the reason.
-   * @note The shaders attached to the program must have been compiled.
-   */
-  bool Link();
-
-  /**
-   * Bind the program in order to use it. If the program has not been linked
-   * then link() will be called.
-   */
-  bool Bind();
-
-  /**
    * Check if the program is currently bound, or not.
    * @return True if the program is bound, false otherwise.
    */
   bool isBound() const { return this->Bound; }
-
-  /** Releases the shader program from the current context. */
-  void Release();
 
   // Description:
   // release any graphics resources this class is using.
@@ -138,13 +103,13 @@ public:
    * Enable the named attribute array. Return false if the attribute array is
    * not contained in the linked shader program.
    */
-  bool EnableAttributeArray(const std::string &name);
+  bool EnableAttributeArray(const char *name);
 
   /**
    * Disable the named attribute array. Return false if the attribute array is
    * not contained in the linked shader program.
    */
-  bool DisableAttributeArray(const std::string &name);
+  bool DisableAttributeArray(const char *name);
 
   /**
    * Use the named attribute array with the bound BufferObject.
@@ -161,7 +126,7 @@ public:
    * See NormalizeOption for more information.
    * @return false if the attribute array does not exist.
    */
-  bool UseAttributeArray(const std::string &name, int offset, size_t stride,
+  bool UseAttributeArray(const char *name, int offset, size_t stride,
                          int elementType, int elementTupleSize,
                          NormalizeOption normalize);
 
@@ -183,31 +148,78 @@ public:
    * The std::vector classes is an example of such a container.
    */
   template <class T>
-  bool SetAttributeArray(const std::string &name, const T &array,
+  bool SetAttributeArray(const char *name, const T &array,
                          int tupleSize, NormalizeOption normalize);
 
   /** Set the @p name uniform value to int @p v. */
-  bool SetUniformi(const std::string &name, int v);
-  bool SetUniformf(const std::string &name, float v);
-  bool SetUniform2i(const std::string &name, const int v[2]);
-  bool SetUniform2f(const std::string &name, const float v[2]);
-  bool SetUniform3f(const std::string &name, const float v[3]);
-  bool SetUniform4f(const std::string &name, const float v[4]);
-  bool SetUniform3uc(const std::string &name, const unsigned char v[3]); // maybe remove
-  bool SetUniform4uc(const std::string &name, const unsigned char v[4]); // maybe remove
-  bool SetUniformMatrix(const std::string &name, vtkMatrix3x3 *v);
-  bool SetUniformMatrix(const std::string &name, vtkMatrix4x4 *v);
-  bool SetUniformMatrix3x3(const std::string &name, float *v);
-  bool SetUniformMatrix4x4(const std::string &name, float *v);
+  bool SetUniformi(const char *name, int v);
+  bool SetUniformf(const char *name, float v);
+  bool SetUniform2i(const char *name, const int v[2]);
+  bool SetUniform2f(const char *name, const float v[2]);
+  bool SetUniform3f(const char *name, const float v[3]);
+  bool SetUniform4f(const char *name, const float v[4]);
+  bool SetUniform3uc(const char *name, const unsigned char v[3]); // maybe remove
+  bool SetUniform4uc(const char *name, const unsigned char v[4]); // maybe remove
+  bool SetUniformMatrix(const char *name, vtkMatrix3x3 *v);
+  bool SetUniformMatrix(const char *name, vtkMatrix4x4 *v);
+  bool SetUniformMatrix3x3(const char *name, float *v);
+  bool SetUniformMatrix4x4(const char *name, float *v);
 
   /** Set the @p name uniform array to @p f with @p count elements */
-  bool SetUniform1iv(const std::string &name, const int count, const int *f);
-  bool SetUniform1fv(const std::string &name, const int count, const float *f);
-  bool SetUniform3fv(const std::string &name, const int count, const float (*f)[3]);
+  bool SetUniform1iv(const char *name, const int count, const int *f);
+  bool SetUniform1fv(const char *name, const int count, const float *f);
+  bool SetUniform2fv(const char *name, const int count, const float (*f)[2]);
+  bool SetUniform3fv(const char *name, const int count, const float (*f)[3]);
+  bool SetUniform4fv(const char *name, const int count, const float (*f)[4]);
 
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();
+
+  /***************************************************************
+   * The following functions are only for use by the shader cache
+   * which is why they are protected and that class is a friend
+   * you need to use the shader cache to compile/link/bind your shader
+   * do not try to do it yourself as it will screw up the cache
+   ***************************************************************/
+   friend class vtkOpenGLShaderCache;
+
+    /**
+   * Attach the supplied shader to this program.
+   * @note A maximum of one Vertex shader and one Fragment shader can be
+   * attached to a shader program.
+   * @return true on success.
+   */
+  bool AttachShader(const vtkShader *shader);
+
+  /** Detach the supplied shader from this program.
+   * @note A maximum of one Vertex shader and one Fragment shader can be
+   * attached to a shader program.
+   * @return true on success.
+   */
+  bool DetachShader(const vtkShader *shader);
+
+  // Description:
+  // Compile this shader program and attached shaders
+  virtual int CompileShader();
+
+  /**
+   * Attempt to link the shader program.
+   * @return false on failure. Query error to get the reason.
+   * @note The shaders attached to the program must have been compiled.
+   */
+  bool Link();
+
+  /**
+   * Bind the program in order to use it. If the program has not been linked
+   * then link() will be called.
+   */
+  bool Bind();
+
+  /** Releases the shader program from the current context. */
+  void Release();
+
+  /************* end **************************************/
 
   vtkShader *VertexShader;
   vtkShader *FragmentShader;
@@ -216,7 +228,7 @@ protected:
   // hash of the shader program
   std::string MD5Hash;
 
-  bool SetAttributeArrayInternal(const std::string &name, void *buffer,
+  bool SetAttributeArrayInternal(const char *name, void *buffer,
                                  int type, int tupleSize,
                                  NormalizeOption normalize);
   int Handle;
@@ -234,8 +246,8 @@ protected:
   friend class VertexArrayObject;
 
 private:
-  int FindAttributeArray(const std::string &name);
-  int FindUniform(const std::string &name);
+  int FindAttributeArray(const char *name);
+  int FindUniform(const char *name);
 
   vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
   void operator=(const vtkShaderProgram&);  // Not implemented.

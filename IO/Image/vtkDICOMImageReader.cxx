@@ -56,26 +56,11 @@ vtkDICOMImageReader::~vtkDICOMImageReader()
   delete this->AppHelper;
   delete this->DICOMFileNames;
 
-  if (this->DirectoryName)
-    {
-    delete [] this->DirectoryName;
-    }
-  if (this->PatientName)
-    {
-    delete [] this->PatientName;
-    }
-  if (this->StudyUID)
-    {
-    delete [] this->StudyUID;
-    }
-  if (this->StudyID)
-    {
-    delete [] this->StudyID;
-    }
-  if (this->TransferSyntaxUID)
-    {
-    delete [] this->TransferSyntaxUID;
-    }
+  delete [] this->DirectoryName;
+  delete [] this->PatientName;
+  delete [] this->StudyUID;
+  delete [] this->StudyID;
+  delete [] this->TransferSyntaxUID;
 }
 
 //----------------------------------------------------------------------------
@@ -429,19 +414,13 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
     {
     return;
     }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
+  delete [] this->FileName;
+  this->FileName = NULL;
   if ( this->DirectoryName && dn && (!strcmp(this->DirectoryName,dn)))
     {
     return;
     }
-  if (this->DirectoryName)
-    {
-    delete [] this->DirectoryName;
-    }
+  delete [] this->DirectoryName;
   if (dn)
     {
     this->DirectoryName = new char[strlen(dn)+1];

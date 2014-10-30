@@ -35,10 +35,6 @@ vtkDistancePolyDataFilter::vtkDistancePolyDataFilter() : vtkPolyDataAlgorithm()
 
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
-
-  vtkPolyData* output1 = vtkPolyData::New();
-  this->GetExecutive()->SetOutputData(1, output1);
-  output1->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -52,23 +48,11 @@ int vtkDistancePolyDataFilter::RequestData(vtkInformation*        vtkNotUsed(req
                                            vtkInformationVector** inputVector,
                                            vtkInformationVector*  outputVector)
 {
-  vtkInformation* inInfo0 = inputVector[0]->GetInformationObject(0);
-  vtkInformation* inInfo1 = inputVector[1]->GetInformationObject(0);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkPolyData *input0 = vtkPolyData::GetData(inputVector[0], 0);
+  vtkPolyData *input1 = vtkPolyData::GetData(inputVector[1], 0);
+  vtkPolyData* output0 = vtkPolyData::GetData(outputVector, 0);
+  vtkPolyData* output1 = vtkPolyData::GetData(outputVector, 1);
 
-  if (!inInfo0 || !inInfo1 || !outInfo)
-    {
-    return 0;
-    }
-  vtkPolyData *input0 = vtkPolyData::SafeDownCast(inInfo0->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *input1 = vtkPolyData::SafeDownCast(inInfo1->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData* output0 = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData* output1 = this->GetSecondDistanceOutput();
-
-  if (!input0 || !input1 || !output0 || !output1)
-    {
-    return 0;
-    }
   output0->CopyStructure(input0);
   output0->GetPointData()->PassData(input0->GetPointData());
   output0->GetCellData()->PassData(input0->GetCellData());
@@ -83,7 +67,6 @@ int vtkDistancePolyDataFilter::RequestData(vtkInformation*        vtkNotUsed(req
     output1->BuildCells();
     this->GetPolyDataDistance(output1, input0);
     }
-
   return 1;
 }
 
@@ -166,26 +149,7 @@ vtkPolyData* vtkDistancePolyDataFilter::GetSecondDistanceOutput()
     {
     return 0;
     }
-  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetOutputData(1));
-}
-
-//-----------------------------------------------------------------------------
-int vtkDistancePolyDataFilter::FillInputPortInformation(int port, vtkInformation *info)
-{
-  if (!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
-  if (port == 0)
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-    }
-  else if (port == 1)
-    {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 0);
-    }
-  return 1;
+  return vtkPolyData::SafeDownCast(this->GetOutputDataObject(1));
 }
 
 //-----------------------------------------------------------------------------

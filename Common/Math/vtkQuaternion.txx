@@ -18,7 +18,7 @@
 #ifndef __vtkQuaternion_txx
 #define __vtkQuaternion_txx
 
-#include <vtkMath.h>
+#include "vtkMath.h"
 
 #include <cmath>
 

@@ -39,6 +39,7 @@
 
 #include <sys/stat.h>
 
+#include <vtksys/ios/sstream>
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkTesting);
@@ -164,6 +165,16 @@ void vtkTesting::AddArguments(int argc, const char **argv)
     this->Args.push_back(argv[i]);
     }
 }
+
+//-----------------------------------------------------------------------------
+void vtkTesting::AddArguments(int argc, char **argv)
+{
+  for (int i = 0; i < argc; ++i)
+    {
+    this->Args.push_back(argv[i]);
+    }
+}
+
 //-----------------------------------------------------------------------------
 char *vtkTesting::GetArgument(const char *argName)
 {
@@ -338,17 +349,23 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
   return result;
 }
 //-----------------------------------------------------------------------------
+int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream &os)
+{
+  int result = this->RegressionTest(thresh, os);
+
+  os << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  os << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  os << "</DartMeasurement>\n";
+  os << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  os << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  os << "</DartMeasurement>\n";
+
+  return result;
+}
+//-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
-  int result = this->RegressionTest(thresh, cout);
-
-  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
-  cout << "</DartMeasurement>\n";
-  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  cout << "</DartMeasurement>\n";
-
+  int result = this->RegressionTestAndCaptureOutput(thresh, cout);
   return result;
 }
 //-----------------------------------------------------------------------------
@@ -426,12 +443,25 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   else // there was no valid image, so write one to the temp dir
     {
     string vImage = tmpDir + "/" + validName;
-    vtkNew<vtkPNGWriter> rtPngw;
-    rtPngw->SetFileName(vImage.c_str());
-    rtPngw->SetInputConnection(imageSource->GetOutputPort());
-    rtPngw->Write();
-    os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">"
-       << this->ValidImageFileName << "</DartMeasurement>" << endl;
+    rtFin = fopen(vImage.c_str(), "wb");
+    if (rtFin)
+      {
+      fclose(rtFin);
+      vtkNew<vtkPNGWriter> rtPngw;
+      rtPngw->SetFileName(vImage.c_str());
+      rtPngw->SetInputConnection(imageSource->GetOutputPort());
+      rtPngw->Write();
+      os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">"
+         << this->ValidImageFileName << "</DartMeasurement>" << endl;
+      // Write out the image upload tag for the test image.
+      os <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
+      os << vImage;
+      os << "</DartMeasurementFile>";
+      }
+    else
+      {
+      vtkErrorMacro("Could not open file '" << vImage << "' for writing.");
+      }
     return FAILED;
     }
 
@@ -583,6 +613,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     delete[] newFileName;
     }
 
+  this->ImageDifference = minError;
+
   // output some information
   os << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
   os << minError;
@@ -603,6 +635,29 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     return PASSED;
     }
 
+  // write out the image that was generated
+  string testImageFileName = tmpDir + "/" + validName;
+  FILE *testImageFile = fopen(testImageFileName.c_str(), "wb");
+  if (testImageFile)
+    {
+    fclose(testImageFile);
+    vtkNew<vtkPNGWriter> rtPngw;
+    rtPngw->SetFileName(testImageFileName.c_str());
+    rtPngw->SetInputConnection(imageSource->GetOutputPort());
+    rtPngw->Write();
+
+    // Write out the image upload tag for the test image.
+    os << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
+    os << testImageFileName;
+    os << "</DartMeasurementFile>\n";
+    }
+  else
+    {
+    vtkErrorMacro("Could not open file '" << testImageFileName << "' for "
+                  "writing.");
+    }
+
+
   os << "Failed Image Test : " << minError << endl;
   if (errIndex >= 0)
     {
@@ -620,10 +675,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   // If no image differences produced an image, do not write a
   // difference image.
-  if (minError <= 0)
+  bool hasDiff = minError > 0;
+  if (!hasDiff)
     {
     os << "Image differencing failed to produce an image." << endl;
-    return FAILED;
     }
   if (!(
        (ext2[1] - ext2[0]) == (ext1[1] - ext1[0]) &&
@@ -642,45 +697,45 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   rtId->Update();
 
   // test the directory for writing
-  string diffFilename = tmpDir + "/" + validName;
-  string::size_type dotPos = diffFilename.rfind(".");
-  if (dotPos != string::npos)
+  if (hasDiff)
     {
-    diffFilename = diffFilename.substr(0, dotPos);
+    string diffFilename = tmpDir + "/" + validName;
+    string::size_type dotPos = diffFilename.rfind(".");
+    if (dotPos != string::npos)
+      {
+      diffFilename = diffFilename.substr(0, dotPos);
+      }
+    diffFilename += ".diff.png";
+    FILE *rtDout = fopen(diffFilename.c_str(), "wb");
+    if (rtDout)
+      {
+      fclose(rtDout);
+
+      // write out the difference image gamma adjusted for the dashboard
+      vtkNew<vtkImageShiftScale> rtGamma;
+      rtGamma->SetInputConnection(rtId->GetOutputPort());
+      rtGamma->SetShift(0);
+      rtGamma->SetScale(10);
+
+      vtkNew<vtkPNGWriter> rtPngw;
+      rtPngw->SetFileName(diffFilename.c_str());
+      rtPngw->SetInputConnection(rtGamma->GetOutputPort());
+      rtPngw->Write();
+
+      os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
+      os << diffFilename;
+      os << "</DartMeasurementFile>";
+      }
+    else
+      {
+      vtkErrorMacro("Could not open file '" << diffFilename
+                    << "' for writing.");
+      }
     }
-  diffFilename += ".diff.png";
-  FILE *rtDout = fopen(diffFilename.c_str(), "wb");
-  if (rtDout)
-    {
-    fclose(rtDout);
 
-    // write out the difference image gamma adjusted for the dashboard
-    vtkNew<vtkImageShiftScale> rtGamma;
-    rtGamma->SetInputConnection(rtId->GetOutputPort());
-    rtGamma->SetShift(0);
-    rtGamma->SetScale(10);
-
-    vtkNew<vtkPNGWriter> rtPngw;
-    rtPngw->SetFileName(diffFilename.c_str());
-    rtPngw->SetInputConnection(rtGamma->GetOutputPort());
-    rtPngw->Write();
-
-    // write out the image that was generated
-    string vImage = tmpDir + "/" + validName;
-    rtPngw->SetFileName(vImage.c_str());
-    rtPngw->SetInputConnection(imageSource->GetOutputPort());
-    rtPngw->Write();
-
-    os <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
-    os << vImage;
-    os << "</DartMeasurementFile>";
-    os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
-    os << diffFilename;
-    os << "</DartMeasurementFile>";
-    os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">";
-    os << this->ValidImageFileName;
-    os <<  "</DartMeasurementFile>";
-    }
+  os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">";
+  os << this->ValidImageFileName;
+  os <<  "</DartMeasurementFile>";
 
   return FAILED;
 }
@@ -711,7 +766,43 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
   if (testing->IsValidImageSpecified())
     {
     testing->SetRenderWindow(rw);
-    int res = testing->RegressionTest(thresh);
+
+    std::ostringstream out1;
+    int res = testing->RegressionTestAndCaptureOutput(thresh, out1);
+    double diff1 = testing->GetImageDifference();
+    bool write_out1 = true;
+
+    // Typically, the image testing is done using the back buffer
+    // to avoid accidentally capturing overlapping window artifacts
+    // in the image when using the front buffer. However, some graphics
+    // drivers do not have up to date contents in the back buffer,
+    // causing "failed" tests even though, upon visual inspection, the
+    // front buffer looks perfectly valid... So:
+    //
+    // If the test failed using the back buffer, re-test using the
+    // front buffer. This way, more tests pass on dashboards run with
+    // the Intel HD built-in graphics drivers.
+    //
+    if (res == vtkTesting::FAILED && testing->GetFrontBuffer() == 0)
+      {
+      testing->FrontBufferOn();
+
+      std::ostringstream out2;
+      res = testing->RegressionTestAndCaptureOutput(thresh, out2);
+      double diff2 = testing->GetImageDifference();
+
+      if (diff2 < diff1)
+        {
+        cout << out2.str();
+        write_out1 = false;
+        }
+      }
+
+    if (write_out1)
+      {
+      cout << out1.str();
+      }
+
     return res;
     }
 

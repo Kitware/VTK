@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestStringToPath.cxx
+  Module:    TestGL2PSTextActor3D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,75 +15,122 @@
 
 #include "vtkTextActor3D.h"
 
+#include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkGL2PSExporter.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
+#include "vtkUnsignedCharArray.h"
+
+#include <sstream>
+
+namespace vtkTestGL2PSTextActor3D {
+void setupTextActor3D(vtkTextActor3D *actor, vtkPolyData *anchor)
+{
+  vtkTextProperty *p = actor->GetTextProperty();
+  std::ostringstream label;
+  label << "TProp Angle: " << p->GetOrientation() << "\n"
+        << "HAlign: " << p->GetJustificationAsString() << "\n"
+        << "VAlign: " << p->GetVerticalJustificationAsString();
+  actor->SetInput(label.str().c_str());
+
+  // Add the anchor point:
+  double *pos = actor->GetPosition();
+  double *col = p->GetColor();
+  vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], pos[2]);
+  anchor->GetVerts()->InsertNextCell(1, &ptId);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
+                                                        col[1] * 255,
+                                                        col[2] * 255, 255);
+}
+} // end namespace vtkTestGL2PSTextActor3D
 
 //----------------------------------------------------------------------------
 int TestGL2PSTextActor3D(int, char *[])
 {
-  vtkNew<vtkTextActor3D> actor1;
-  actor1->SetInput("Some text!");
-  actor1->GetTextProperty()->SetFontSize(36);
-  actor1->GetTextProperty()->SetOrientation(45);
-  // These should be ignored by both the actor and exporter:
-  actor1->GetTextProperty()->SetVerticalJustificationToCentered();
-  actor1->GetTextProperty()->SetJustificationToCentered();
-  actor1->SetPosition(-100, 25, -100);
-  actor1->RotateWXYZ(50, 1, .5, -.2);
-  actor1->GetTextProperty()->SetColor(0.6, 0.5, 0.8);
-
-  vtkNew<vtkTextActor3D> actor2;
-  actor2->SetInput("Some more text!");
-  actor2->GetTextProperty()->SetFontSize(40);
-  actor2->SetPosition(-50, 0, -200);
-  actor2->RotateWXYZ(-70, 0, 1, 0);
-  actor2->GetTextProperty()->SetColor(0.7, 0.3, 0.2);
-
-  vtkNew<vtkTextActor3D> actor3;
-  actor3->SetInput("More text!");
-  actor3->GetTextProperty()->SetFontSize(36);
-  actor3->GetTextProperty()->SetColor(0.8, 0.8, 0.6);
-  actor3->SetPosition(-100, -25, 0);
-  actor3->RotateWXYZ(70, 0, 1, 0);
-
-  vtkNew<vtkTextActor3D> actor4;
-  actor4->SetInput("Testing...");
-  actor4->GetTextProperty()->SetFontSize(22);
-  actor4->SetPosition(-75, -75, 25);
-  actor4->RotateWXYZ(40, -.2, 1, .3);
-  actor4->GetTextProperty()->SetColor(0.2, 0.6, 0.4);
-
-  vtkNew<vtkTextActor3D> actor5;
-  actor5->SetInput("A somewhat longer string of text!");
-  actor5->GetTextProperty()->SetFontSize(26);
-  actor5->GetTextProperty()->SetColor(1, 1, 1);
-  actor5->SetPosition(-240, -110, -500);
-  actor5->RotateWXYZ(-25, 1, 0, 1);
-
+  using namespace vtkTestGL2PSTextActor3D;
   vtkNew<vtkRenderer> ren;
+
+  int width = 600;
+  int height = 600;
+  int x[3] = {100, 300, 500};
+  int y[3] = {100, 300, 500};
+
+  // Render the anchor points to check alignment:
+  vtkNew<vtkPolyData> anchors;
+  vtkNew<vtkPoints> points;
+  anchors->SetPoints(points.GetPointer());
+  vtkNew<vtkCellArray> verts;
+  anchors->SetVerts(verts.GetPointer());
+  vtkNew<vtkUnsignedCharArray> colors;
+  colors->SetNumberOfComponents(4);
+  anchors->GetCellData()->SetScalars(colors.GetPointer());
+
+  for (size_t row = 0; row < 3; ++row)
+    {
+    for (size_t col = 0; col < 3; ++col)
+      {
+      vtkNew<vtkTextActor3D> actor;
+      switch (row)
+        {
+        case 0:
+          actor->GetTextProperty()->SetJustificationToRight();
+          break;
+        case 1:
+          actor->GetTextProperty()->SetJustificationToCentered();
+          break;
+        case 2:
+          actor->GetTextProperty()->SetJustificationToLeft();
+          break;
+        }
+      switch (col)
+        {
+        case 0:
+          actor->GetTextProperty()->SetVerticalJustificationToBottom();
+          break;
+        case 1:
+          actor->GetTextProperty()->SetVerticalJustificationToCentered();
+          break;
+        case 2:
+          actor->GetTextProperty()->SetVerticalJustificationToTop();
+          break;
+        }
+      actor->GetTextProperty()->SetFontSize(20);
+      actor->GetTextProperty()->SetOrientation(45.0 * (3 * row + col));
+      actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .26);
+      actor->SetPosition(x[col], y[row], 0.);
+      setupTextActor3D(actor.GetPointer(), anchors.GetPointer());
+      ren->AddActor(actor.GetPointer());
+      }
+    }
+
+  vtkNew<vtkPolyDataMapper> anchorMapper;
+  anchorMapper->SetInputData(anchors.GetPointer());
+  vtkNew<vtkActor> anchorActor;
+  anchorActor->SetMapper(anchorMapper.GetPointer());
+  anchorActor->GetProperty()->SetPointSize(5);
+  ren->AddActor(anchorActor.GetPointer());
+
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren.GetPointer());
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win.GetPointer());
 
-  ren->AddActor(actor1.GetPointer());
-  ren->AddActor(actor2.GetPointer());
-  ren->AddActor(actor3.GetPointer());
-  ren->AddActor(actor4.GetPointer());
-  ren->AddActor(actor5.GetPointer());
-
   ren->SetBackground(0.0, 0.0, 0.0);
-  ren->GetActiveCamera()->SetPosition(0, 0, 400);
-  ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  ren->GetActiveCamera()->SetPosition(width/2, height/2, 1400);
+  ren->GetActiveCamera()->SetFocalPoint(width/2, height/2, 0);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->ResetCameraClippingRange();
-  win->SetSize(600, 600);
+  win->SetSize(width, height);
   win->Render();
 
   vtkNew<vtkGL2PSExporter> exp;

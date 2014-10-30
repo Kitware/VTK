@@ -202,9 +202,24 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShader(
     }
 }
 
-void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(win))
+void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
 {
+  // NOTE:
+  // In the current implementation as of October 26th, if a shader
+  // program is created by ShaderCache then it should make sure
+  // that it releases the graphics resouces used by these programs.
+  // It is not wisely for callers to do that since then they would
+  // have to loop over all the programs were in use and invoke
+  // release graphics resources individually.
+
   this->LastShaderBound = NULL;
+
+  typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
+  SMapIter iter = this->Internal->ShaderPrograms.begin();
+  for ( ; iter != this->Internal->ShaderPrograms.end(); iter++)
+    {
+    iter->second->ReleaseGraphicsResources(win);
+    }
 }
 
 
