@@ -682,7 +682,7 @@ PyObject *vtkPythonArgs::BuildValue(const void *a)
 {
   if (a)
     {
-    const char *s = vtkPythonUtil::ManglePointer(a, "void_p");
+    const char *s = vtkPythonUtil::ManglePointer(a, "p_void");
     return PyString_FromString(s);
     }
   Py_INCREF(Py_None);

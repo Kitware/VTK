@@ -156,10 +156,7 @@ vtkWindBladeReader::~vtkWindBladeReader()
   this->YSpacing->Delete();
   this->ZSpacing->Delete();
 
-  if (this->ZTopographicValues)
-    {
-    delete [] this->ZTopographicValues;
-    }
+  delete [] this->ZTopographicValues;
 
   this->Points->Delete();
   this->GPoints->Delete();
@@ -181,11 +178,9 @@ vtkWindBladeReader::~vtkWindBladeReader()
 
   delete this->Internal;
 
-  if(this->TimeSteps)
-    {
-    delete [] this->TimeSteps;
-    this->TimeSteps = NULL;
-    }
+  delete [] this->TimeSteps;
+  this->TimeSteps = NULL;
+
   if (this->VariableName)
     {
     delete[] this->VariableName;
@@ -348,11 +343,8 @@ int vtkWindBladeReader::RequestInformation(vtkInformation* reqInfo,
     this->CreateCoordinates();
 
     // Collect temporal information and attach to both output ports
-    if(this->TimeSteps)
-      {
-      delete [] this->TimeSteps;
-      this->TimeSteps = NULL;
-      }
+    delete [] this->TimeSteps;
+    this->TimeSteps = NULL;
 
     if (this->NumberOfTimeSteps > 0)
       {
@@ -662,31 +654,13 @@ void vtkWindBladeReader::ReadDataVariables(istream& inStr)
   int totalVariables = this->NumberOfFileVariables +
                        this->NumberOfDerivedVariables;
 
-  if (this->VariableName)
-    {
-    delete[] this->VariableName;
-    }
+  delete[] this->VariableName;
   this->VariableName = new vtkStdString[totalVariables];
-  if (this->VariableStruct)
-    {
-    delete[] this->VariableStruct;
-    }
-  if (this->VariableCompSize)
-    {
-    delete[] this->VariableCompSize;
-    }
-  if (this->VariableBasicType)
-    {
-    delete[] this->VariableBasicType;
-    }
-  if (this->VariableByteCount)
-    {
-    delete[] this->VariableByteCount;
-    }
-  if (this->VariableOffset)
-    {
-    delete[] this->VariableOffset;
-    }
+  delete[] this->VariableStruct;
+  delete[] this->VariableCompSize;
+  delete[] this->VariableBasicType;
+  delete[] this->VariableByteCount;
+  delete[] this->VariableOffset;
   this->VariableStruct = new int[totalVariables];
   this->VariableCompSize = new int[totalVariables];
   this->VariableBasicType = new int[totalVariables];

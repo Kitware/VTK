@@ -15,10 +15,10 @@
 
 #include "vtkExecutionTimer.h"
 
-#include <vtkAlgorithm.h>
-#include <vtkCallbackCommand.h>
-#include <vtkObjectFactory.h>
-#include <vtkTimerLog.h>
+#include "vtkAlgorithm.h"
+#include "vtkCallbackCommand.h"
+#include "vtkObjectFactory.h"
+#include "vtkTimerLog.h"
 #include <iostream>
 
 vtkStandardNewMacro(vtkExecutionTimer);

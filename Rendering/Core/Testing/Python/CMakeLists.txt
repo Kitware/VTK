@@ -60,3 +60,11 @@ vtk_add_test_python(
   TestTriangleStripCellColor.py
 )
 endif()
+
+vtk_add_test_python(
+  TestOutOfRangeDiscretizableColorTransferFunction.py --useBelowRangeColor --useAboveRangeColor
+)
+
+vtk_add_test_python(
+  TestOutOfRangeColorTransferFunction.py --useBelowRangeColor --useAboveRangeColor
+)

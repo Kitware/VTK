@@ -657,10 +657,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
   if ( ! kmfunc )
     {
     vtkWarningMacro( "Assessment could not be accommodated. Skipping." );
-    if ( dfunc )
-      {
-      delete dfunc;
-      }
+    delete dfunc;
     return;
     }
 

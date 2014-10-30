@@ -125,11 +125,14 @@ int TestSmartVolumeMapper(int argc,
   ren1->ResetCamera();
 
   // Render composite. In default mode. For coverage.
+  volumeMapper->SetRequestedRenderMode(2);
   renWin->Render();
 
   // 3D texture mode. For coverage.
+#ifndef VTK_OPENGL2
   volumeMapper->SetRequestedRenderModeToRayCastAndTexture();
   renWin->Render();
+#endif
 
   // Software mode, for coverage. It also makes sure we will get the same
   // regression image on all platforms.

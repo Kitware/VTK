@@ -12,4 +12,4 @@ EXECUTE_PROCESS(
 MESSAGE("${import_output}")
 IF(import_res)
   MESSAGE(SEND_ERROR "${import_res}")
-ENDIF(import_res)
+ENDIF()

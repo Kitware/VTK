@@ -27,14 +27,8 @@ vtkFileOutputWindow::vtkFileOutputWindow()
 
 vtkFileOutputWindow::~vtkFileOutputWindow()
 {
-  if (this->FileName)
-    {
-    delete[] this->FileName;
-    }
-  if (this->OStream)
-    {
-    delete this->OStream;
-    }
+  delete[] this->FileName;
+  delete this->OStream;
 }
 
 void vtkFileOutputWindow::Initialize()

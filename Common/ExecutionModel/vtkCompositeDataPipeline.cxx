@@ -45,6 +45,8 @@ vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_DATA_META_DATA, Objec
 vtkInformationKeyMacro(vtkCompositeDataPipeline, UPDATE_COMPOSITE_INDICES, IntegerVector);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, DATA_COMPOSITE_INDICES, IntegerVector);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, SUPPRESS_RESET_PI, Integer);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, BLOCK_AMOUNT_OF_DETAIL,Double);
+
 
 //----------------------------------------------------------------------------
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()

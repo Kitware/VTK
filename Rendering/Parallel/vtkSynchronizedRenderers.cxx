@@ -30,9 +30,11 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLError.h"
 
-#include "vtkgl.h"
-#include <cassert>
+#ifndef VTKGL2
+# include "vtkgl.h"
+#endif
 
+#include <cassert>
 
 //----------------------------------------------------------------------------
 class vtkSynchronizedRenderers::vtkObserver : public vtkCommand

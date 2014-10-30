@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkMaskPoints);
 

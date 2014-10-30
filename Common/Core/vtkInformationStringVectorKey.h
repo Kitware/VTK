@@ -36,6 +36,16 @@ public:
   ~vtkInformationStringVectorKey();
 
   // Description:
+  // This method simply returns a new vtkInformationStringVectorKey, given a
+  // name, a location and a required length. This method is provided for
+  // wrappers. Use the constructor directly from C++ instead.
+  static vtkInformationStringVectorKey* MakeKey(const char* name, const char* location,
+    int length=-1)
+    {
+    return new vtkInformationStringVectorKey(name, location, length);
+    }
+
+  // Description:
   // Get/Set the value associated with this key in the given
   // information object.
   void Append(vtkInformation* info, const char* value);

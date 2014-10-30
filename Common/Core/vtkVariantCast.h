@@ -34,7 +34,7 @@
 #ifndef __vtkVariantCast_h
 #define __vtkVariantCast_h
 
-#include <vtkUnicodeString.h>
+#include "vtkUnicodeString.h"
 #include <typeinfo> // for warnings
 
 template<typename T>

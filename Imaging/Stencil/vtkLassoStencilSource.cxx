@@ -65,11 +65,8 @@ vtkLassoStencilSource::~vtkLassoStencilSource()
     this->SplineY->Delete();
     this->SplineY = NULL;
     }
-  if (this->PointMap)
-    {
-    delete this->PointMap;
-    this->PointMap = NULL;
-    }
+  delete this->PointMap;
+  this->PointMap = NULL;
 }
 
 //----------------------------------------------------------------------------

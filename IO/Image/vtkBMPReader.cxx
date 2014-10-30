@@ -44,11 +44,9 @@ vtkBMPReader::vtkBMPReader()
 vtkBMPReader::~vtkBMPReader()
 {
   // free any old memory
-  if (this->Colors)
-    {
-    delete [] this->Colors;
-    this->Colors = NULL;
-    }
+  delete [] this->Colors;
+  this->Colors = NULL;
+
   if (this->LookupTable)
     {
     this->LookupTable->Delete();
@@ -62,15 +60,13 @@ void vtkBMPReader::ExecuteInformation()
   int xsize, ysize;
   FILE *fp;
   vtkTypeInt32 tmp;
+  vtkTypeInt32 offset;
   vtkTypeInt32 infoSize;
   vtkTypeInt16 stmp1, stmp2;
 
   // free any old memory
-  if (this->Colors)
-    {
-    delete [] this->Colors;
-    this->Colors = NULL;
-    }
+  delete [] this->Colors;
+  this->Colors = NULL;
 
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
@@ -119,11 +115,10 @@ void vtkBMPReader::ExecuteInformation()
     errorOccurred = true;
     }
   // read the offset
-  else if (fread(&tmp,4,1,fp) != 1)
+  else if (fread(&offset,4,1,fp) != 1)
     {
     errorOccurred = true;
     }
-
   // get size of header
   else if (fread(&infoSize,4,1,fp) != 1)
     {
@@ -281,6 +276,11 @@ void vtkBMPReader::ExecuteInformation()
     vtkWarningMacro("File close failed on " << this->InternalFileName);
     }
 
+  // Offset is the true header size. See bug 14397
+  vtkByteSwap::Swap4LE(&offset);
+  this->ManualHeaderSize = 1;
+  this->HeaderSize = offset;
+
   // if the user has set the VOI, just make sure its valid
   if (this->DataVOI[0] || this->DataVOI[1] ||
       this->DataVOI[2] || this->DataVOI[3] ||
@@ -313,6 +313,7 @@ void vtkBMPReader::ExecuteInformation()
     {
     this->SetNumberOfScalarComponents(3);
     }
+
   this->vtkImageReader::ExecuteInformation();
 }
 

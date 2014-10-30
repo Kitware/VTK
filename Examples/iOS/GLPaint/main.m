@@ -14,10 +14,12 @@ PURPOSE.  See the above copyright notice for more information.
 
 #import <UIKit/UIKit.h>
 
+#import "AppDelegate.h"
+
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
-        int retVal = UIApplicationMain(argc, argv, nil, nil);
+        int retVal = UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
         return retVal;
     }
 }

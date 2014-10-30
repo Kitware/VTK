@@ -1671,7 +1671,7 @@ vtkIdType vtkCellLocator::FindCell(
   vtkIdList *cellIds;
   int ijk[3];
   int subId;
-  double closestPoint[3], dist2;
+  double dist2;
   double cellBounds[6];
 
   this->BuildLocatorIfNeeded();
@@ -1713,7 +1713,7 @@ vtkIdType vtkCellLocator::FindCell(
         if (this->InsideCellBounds(x, cellId))
           {
           this->DataSet->GetCell(cellId, cell);
-          if (cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights)==1)
+          if (cell->EvaluatePosition(x, NULL, subId, pcoords, dist2, weights)==1)
             {
             return cellId;
             }
@@ -1725,7 +1725,7 @@ vtkIdType vtkCellLocator::FindCell(
         if (vtkCellLocator_Inside(cellBounds, x))
           {
           this->DataSet->GetCell(cellId, cell);
-          if (cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights)==1)
+          if (cell->EvaluatePosition(x, NULL, subId, pcoords, dist2, weights)==1)
             {
             return cellId;
             }

@@ -34,11 +34,16 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 // Texture coordinates
 //VTK::TCoord::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 void main()
 {
   //VTK::Color::Impl
 
   //VTK::TCoord::Impl
+
+  //VTK::Clip::Impl
 
   gl_Position = VCDCMatrix * MCVCMatrix * vertexMC;
 }

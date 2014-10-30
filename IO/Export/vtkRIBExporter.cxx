@@ -62,14 +62,8 @@ vtkRIBExporter::vtkRIBExporter()
 
 vtkRIBExporter::~vtkRIBExporter()
 {
-  if ( this->FilePrefix )
-    {
-    delete [] this->FilePrefix;
-    }
-  if ( this->TexturePrefix )
-    {
-    delete [] this->TexturePrefix;
-    }
+  delete [] this->FilePrefix;
+  delete [] this->TexturePrefix;
 }
 
 void vtkRIBExporter::WriteData()

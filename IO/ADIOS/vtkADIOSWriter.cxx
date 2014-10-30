@@ -23,27 +23,27 @@
 #include "ADIOSWriter.h"
 
 #include "vtkADIOSWriter.h"
-#include <vtkObjectFactory.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkDemandDrivenPipeline.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkMPIController.h>
-#include <vtkMPI.h>
+#include "vtkObjectFactory.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkDemandDrivenPipeline.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkMPIController.h"
+#include "vtkMPI.h"
 
-#include <vtkDataObject.h>
-#include <vtkAbstractArray.h>
-#include <vtkLookupTable.h>
-#include <vtkDataArray.h>
-#include <vtkCellArray.h>
-#include <vtkPoints.h>
-#include <vtkFieldData.h>
-#include <vtkCellData.h>
-#include <vtkPointData.h>
-#include <vtkDataSet.h>
-#include <vtkImageData.h>
-#include <vtkPolyData.h>
-#include <vtkUnstructuredGrid.h>
+#include "vtkDataObject.h"
+#include "vtkAbstractArray.h"
+#include "vtkLookupTable.h"
+#include "vtkDataArray.h"
+#include "vtkCellArray.h"
+#include "vtkPoints.h"
+#include "vtkFieldData.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
+#include "vtkDataSet.h"
+#include "vtkImageData.h"
+#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 
 
 //----------------------------------------------------------------------------
@@ -67,10 +67,7 @@ vtkADIOSWriter::vtkADIOSWriter()
 //----------------------------------------------------------------------------
 vtkADIOSWriter::~vtkADIOSWriter()
 {
-  if(this->Writer)
-    {
-    delete this->Writer;
-    }
+  delete this->Writer;
   this->SetFileName(NULL);
   this->SetTransportMethodArguments(NULL);
   this->SetController(NULL);

@@ -60,7 +60,7 @@ int GenerateThresholdScalar(vtkUnstructuredGrid *usg);
 int TestQuadraturePoints(int argc,char *argv[])
 {
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();
-  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, argv);
   if (!testHelper->IsFlagSpecified("-D"))
     {
     std::cerr << "Error: -D /path/to/data was not specified.";

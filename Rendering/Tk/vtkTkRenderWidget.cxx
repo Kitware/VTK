@@ -42,7 +42,7 @@
 #endif
 #endif
 
-#include <stdlib.h>
+#include <cstdlib>
 
 // for uintptr_t
 #ifdef _MSC_VER

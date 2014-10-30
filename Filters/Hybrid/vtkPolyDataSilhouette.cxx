@@ -106,10 +106,7 @@ vtkPolyDataSilhouette::~vtkPolyDataSilhouette()
     this->Camera->Delete();
     }
 
-  if (this->PreComp->edgeFlag)
-    {
-    delete [] this->PreComp->edgeFlag;
-    }
+  delete [] this->PreComp->edgeFlag;
   if (this->PreComp->lines)
     {
     this->PreComp->lines->Delete();

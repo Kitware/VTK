@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define VTK_LINEAR_SELECTOR_H
 
 #include "vtkFiltersSelectionModule.h" // For export macro
-#include <vtkSelectionAlgorithm.h>
+#include "vtkSelectionAlgorithm.h"
 
 class vtkAlgorithmOutput;
 class vtkDataSet;

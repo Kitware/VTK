@@ -250,7 +250,11 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
         {
         if ( mapper )
           {
-          mapper->GetBounds(bounds);
+          double *bds = propCandidate->GetBounds();
+          for (int i = 0; i < 6; i++)
+            {
+            bounds[i] = bds[i];
+            }
           double dist;
           //cerr << "mapper ABFISECT" << endl;
           if (this->ABoxFrustumIsect(bounds, dist))

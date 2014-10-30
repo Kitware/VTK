@@ -14,8 +14,8 @@ MACRO(ADD_TEST_JAVA_DEPENDENCIES dependencies)
 		SET_PROPERTY(GLOBAL APPEND PROPERTY JAVA_TEST_DEPENDENCIES 
         		"${dependencies}"
 		)
-	ENDIF(NOT ("${dependencies}" STREQUAL ""))
-ENDMACRO(ADD_TEST_JAVA_DEPENDENCIES dependencies)
+	ENDIF()
+ENDMACRO()
 
 # Java Add File Dependencies Macro
 # Author: Brian Panneton
@@ -28,8 +28,8 @@ MACRO(ADD_TEST_JAVA_FILE_DEPENDENCIES dependencies)
 		SET_PROPERTY(GLOBAL APPEND PROPERTY JAVA_TEST_FILE_DEPENDENCIES 
         		"${dependencies}"
 		)
-	ENDIF(NOT ("${dependencies}" STREQUAL ""))
-ENDMACRO(ADD_TEST_JAVA_FILE_DEPENDENCIES dependencies)
+	ENDIF()
+ENDMACRO()
 
 # Java Add Classpath Macro
 # Author: Brian Panneton
@@ -42,8 +42,8 @@ MACRO(ADD_TEST_JAVA_CLASSPATH cp)
                 SET_PROPERTY(GLOBAL PROPERTY JAVA_TEST_CLASSPATH 
                         "${classpath}${sep}${cp}" 
                 )
-        ENDIF(NOT ("${cp}" STREQUAL "")) 
-ENDMACRO(ADD_TEST_JAVA_CLASSPATH cp)
+        ENDIF() 
+ENDMACRO()
 
 # Java Add LDPath  Macro
 # Author: Brian Panneton
@@ -56,8 +56,8 @@ MACRO(ADD_TEST_JAVA_LDPATH ld)
 		SET_PROPERTY(GLOBAL PROPERTY JAVA_TEST_LDPATH 
         		"${ldpath}${sep}${ld}" 
 		)
-	ENDIF("${ld}" STRGREATER "")  
-ENDMACRO(ADD_TEST_JAVA_LDPATH ld)
+	ENDIF()  
+ENDMACRO()
 
 # Java Add Path Macro
 # Author: Brian Panneton
@@ -70,8 +70,8 @@ MACRO(ADD_TEST_JAVA_PATH p)
         SET_PROPERTY(GLOBAL PROPERTY JAVA_TEST_PATH 
                 "${path}${sep}${p}" 
         )
-    ENDIF("${p}" STRGREATER "")
-ENDMACRO(ADD_TEST_JAVA_PATH p)
+    ENDIF()
+ENDMACRO()
 
 # Add Java Test Macro
 # Author: Brian Panneton
@@ -109,8 +109,8 @@ MACRO(ADD_TEST_JAVA executable)
     IF(WIN32)
         IF("${java_path}" STREQUAL "")
             SET(java_path ${java_ldpath})
-        ENDIF("${java_path}" STREQUAL "")
-    ENDIF(WIN32)    
+        ENDIF()
+    ENDIF()    
 
 	SET_CORE("${java_binary_dir}")
     ADD_TEST(Java${is_core}_${executable}${dup} ${CMAKE_COMMAND}
@@ -125,8 +125,8 @@ MACRO(ADD_TEST_JAVA executable)
     IF(NOT "${tdep}" STREQUAL "")
         SET_TESTS_PROPERTIES(Java${is_core}_${executable}${dup}
             PROPERTIES DEPENDS ${tdep})
-    ENDIF(NOT "${tdep}" STREQUAL "")
-ENDMACRO(ADD_TEST_JAVA executable)
+    ENDIF()
+ENDMACRO()
 
 # Java Clean Macro
 # Author: Brian Panneton
@@ -138,7 +138,7 @@ MACRO(CLEAN_TEST_JAVA executable)
        set_property(DIRECTORY APPEND PROPERTY 
                 ADDITIONAL_MAKE_CLEAN_FILES ${ARGN}
        )
-ENDMACRO(CLEAN_TEST_JAVA executable)
+ENDMACRO()
 
 # Java Create Target Macro
 # Author: Brian Panneton
@@ -147,7 +147,7 @@ ENDMACRO(CLEAN_TEST_JAVA executable)
 MACRO(CREATE_TARGET_TEST_JAVA)
     IF(EXISTS JavaCore_ALLTEST)
         SET(JavaCore_ALLTEST JavaCore_ALLTEST)
-    ENDIF(EXISTS JavaCore_ALLTEST)
+    ENDIF()
 
     GET_PROPERTY(java_dependencies GLOBAL PROPERTY JAVA_TEST_DEPENDENCIES)
 
@@ -158,13 +158,13 @@ MACRO(CREATE_TARGET_TEST_JAVA)
    
     IF(NOT ("${java_dependencies}" STREQUAL ""))
         ADD_DEPENDENCIES(Java${is_core}_ALLTEST ${java_dependencies})
-    ENDIF(NOT ("${java_dependencies}" STREQUAL ""))
+    ENDIF()
 
 	IF(NOT ("${is_core}" STREQUAL ""))
         SET_PROPERTY(GLOBAL PROPERTY JAVA_TEST_TARGETS "")
-    ENDIF(NOT ("${is_core}" STREQUAL ""))
+    ENDIF()
 
-ENDMACRO(CREATE_TARGET_TEST_JAVA)
+ENDMACRO()
 
 
 # Configure the java 'driver' file

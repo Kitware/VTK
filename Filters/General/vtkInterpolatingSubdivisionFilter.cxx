@@ -125,7 +125,17 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
     edgeData->SetNumberOfComponents(3);
     edgeData->SetNumberOfTuples(numCells);
 
-    this->GenerateSubdivisionPoints (inputDS, edgeData, outputPts, outputPD);
+    if (this->GenerateSubdivisionPoints (inputDS, edgeData, outputPts, outputPD) == 0)
+      {
+      outputPts->Delete();
+      outputPD->Delete();
+      outputCD->Delete();
+      outputPolys->Delete();
+      inputDS->Delete();
+      edgeData->Delete();
+      vtkErrorMacro("Subdivision failed.");
+      return 0;
+      }
     this->GenerateSubdivisionCells (inputDS, edgeData, outputPolys, outputCD);
 
     // start the next iteration with the input set to the output we just created

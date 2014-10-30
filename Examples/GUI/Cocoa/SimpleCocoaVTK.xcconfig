@@ -3,7 +3,7 @@ INFOPLIST_FILE = Info-Xcode.plist
 PRODUCT_NAME = SimpleCocoaVTK
 
 // Link to system zlib (if VTK_USE_SYSTEM_ZLIB was ON).
-OTHER_LDFLAGS = -lz
+// OTHER_LDFLAGS = -lz
 
 // OS X architectures (match to CMAKE_OSX_ARCHITECTURES used to built VTK itself).
 // ARCHS = x86_64

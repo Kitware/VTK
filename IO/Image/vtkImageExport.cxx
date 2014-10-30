@@ -143,7 +143,8 @@ int vtkImageExport::RequestData(
 // Exports all the data from the input.
 void vtkImageExport::Export(void *output)
 {
-  if (!this->GetPointerToData())
+  void *ptr = this->GetPointerToData();
+  if (!ptr)
     {
     // GetPointerToData() outputs an error message.
     return;
@@ -151,11 +152,10 @@ void vtkImageExport::Export(void *output)
 
   if (this->ImageLowerLeft)
     {
-    memcpy(output,this->GetPointerToData(),this->GetDataMemorySize());
+    memcpy(output,ptr,this->GetDataMemorySize());
     }
   else
     { // flip the image when it is output
-    void *ptr = this->GetPointerToData();
     int *extent =
       this->GetInputInformation()->Get(
         vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());

@@ -95,14 +95,8 @@ vtkMNITransformReader::~vtkMNITransformReader()
     {
     this->Transform->Delete();
     }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->Comments)
-    {
-    delete [] this->Comments;
-    }
+  delete [] this->FileName;
+  delete [] this->Comments;
 }
 
 //-------------------------------------------------------------------------

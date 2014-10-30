@@ -47,10 +47,7 @@ public:
   vtkTetraArray(vtkIdType sz, vtkIdType extend);
   ~vtkTetraArray()
     {
-      if (this->Array)
-        {
-        delete [] this->Array;
-        }
+      delete [] this->Array;
     };
   vtkDelaunayTetra *GetTetra(vtkIdType tetraId)
     { return this->Array + tetraId;};
@@ -166,10 +163,8 @@ vtkDelaunay3D::~vtkDelaunay3D()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
-  if ( this->TetraArray )
-    {
-    delete this->TetraArray;
-    }
+  delete this->TetraArray;
+
   this->Tetras->Delete();
   this->Faces->Delete();
   this->CheckedTetras->Delete();
@@ -829,10 +824,7 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(double center[3],
 
   Mesh->Allocate(5*numPtsToInsert);
 
-  if (this->TetraArray)
-    {
-    delete this->TetraArray;
-    }
+  delete this->TetraArray;
 
   this->TetraArray = new vtkTetraArray(5*numPtsToInsert,numPtsToInsert);
 
@@ -1061,11 +1053,8 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
 //--------------------------------------------------------------------------
 void vtkDelaunay3D::EndPointInsertion()
 {
-  if (this->References)
-    {
-    delete [] this->References;
-    this->References = NULL;
-    }
+  delete [] this->References;
+  this->References = NULL;
 }
 
 //--------------------------------------------------------------------------

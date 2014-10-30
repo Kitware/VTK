@@ -9,14 +9,14 @@ project( libproj4 )
 # Shared or static library?
 if ( NOT DEFINED BUILD_SHARED_LIBS )
   option( BUILD_SHARED_LIBS "Should libproj4 be built as a shared library (or static)?" OFF )
-endif ( NOT DEFINED BUILD_SHARED_LIBS )
+endif ()
 
 # Only experts should turn this on:
 option( PROJ_LIST_EXTERNAL "Does an external project define proj_list or should libproj4 define it?" OFF )
 mark_as_advanced( PROJ_LIST_EXTERNAL )
 if ( PROJ_LIST_EXTERNAL AND BUILD_SHARED_LIBS )
   message( FATAL_ERROR "You may not define both PROJ_LIST_EXTERNAL and BUILD_SHARED_LIBS. Turn one off and re-run CMake." )
-endif ( PROJ_LIST_EXTERNAL AND BUILD_SHARED_LIBS )
+endif ()
 
 # Make libproj4 thread-safe?
 option( PROJ_USE_PTHREADS "Should libproj4 be built as a thread-friendly library?" ${VTK_USE_PTHREADS} )
@@ -24,8 +24,8 @@ mark_as_advanced( PROJ_USE_PTHREADS )
 if ( PROJ_USE_PTHREADS )
   if ( NOT VTK_USE_PTHREADS )
     message( FATAL_ERROR "Your platform does not appear to support pthreads. Please turn PROJ_USE_PTHREADS off and retry." )
-  endif ( NOT VTK_USE_PTHREADS )
-endif ( PROJ_USE_PTHREADS )
+  endif ()
+endif ()
 
 # Include code that requires GSL
 option( PROJ_USE_GSL "Should libproj4 include projection code that relies on GSL?" OFF )
@@ -34,16 +34,16 @@ if ( PROJ_USE_GSL )
   find_package( PkgConfig )
   if ( PKG_CONFIG_FOUND )
     pkg_check_modules( GSL REQUIRED gsl )
-  endif ( PKG_CONFIG_FOUND )
+  endif ()
   if ( NOT GSL_FOUND )
     message( FATAL_ERROR "You must install GSL and its pkg-config file OR turn PROJ_USE_GSL off" )
-  endif ( NOT GSL_FOUND )
-endif ( PROJ_USE_GSL )
+  endif ()
+endif ()
 
 # Test for "double complex" type and "atanh()" support.
 if ( UNIX )
   set( LINK_LIBRARIES m )
-endif ( UNIX )
+endif ()
 
 include(CheckSymbolExists)
 set(CMAKE_REQUIRED_LIBRARIES m)
@@ -85,7 +85,7 @@ if ( PROJ_HAVE_COMPLEX )
     ${CYLIND_SRCS}
     proj_ftmerc.c
   )
-endif ( PROJ_HAVE_COMPLEX )
+endif ()
 
 if ( PROJ_HAVE_ATANH )
   set( CYLIND_SRCS
@@ -93,7 +93,7 @@ if ( PROJ_HAVE_ATANH )
     proj_gstmerc.c
     proj_ktmerc.c
   )
-endif ( PROJ_HAVE_ATANH )
+endif ()
 
 set( MISC_SRCS
   proj_airy.c proj_apian2.c proj_armadillo.c
@@ -131,7 +131,7 @@ if ( PROJ_HAVE_ATANH )
     ${PSEUDO_SRCS}
     proj_nell_h.c
   )
-endif ( PROJ_HAVE_ATANH )
+endif ()
 
 set( SUPPORT_SRCS
   proj_adjlon.c proj_auth.c proj_deriv.c
@@ -159,7 +159,7 @@ if ( NOT PROJ_LIST_EXTERNAL )
 #    PROPERTIES
 #      OBJECT_DEPENDS ${libproj4_SOURCE_DIR}/proj_list.h
 #  )
-endif ( NOT PROJ_LIST_EXTERNAL )
+endif ()
 
 set( LP4_SRCS
   ${AZIM_SRCS} ${CONIC_SRCS} ${CYLIND_SRCS}
@@ -183,14 +183,14 @@ if ( UNIX )
     LINK_PUBLIC
       m
   )
-endif ( UNIX )
+endif ()
 
 if ( PROJ_LIBRARY_PROPERTIES )
   set_target_properties( vtkproj4
     PROPERTIES
       ${PROJ_LIBRARY_PROPERTIES}
   )
-endif ( PROJ_LIBRARY_PROPERTIES )
+endif ()
 
 add_executable( lproj
   lproj.c
@@ -205,7 +205,7 @@ if ( GSL_FOUND )
   target_link_libraries( proj4
     ${GSL_LIBRARIES}
   )
-endif ( GSL_FOUND )
+endif ()
 
 configure_file(
   ${libproj4_SOURCE_DIR}/proj_config.h.cmake
@@ -222,4 +222,4 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${libproj4_BINARY_DIR}/proj_config.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtklibproj4
     COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF()

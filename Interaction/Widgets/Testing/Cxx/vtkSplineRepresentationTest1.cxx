@@ -1,6 +1,6 @@
 #include "vtkSplineRepresentation.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 #include "WidgetTestingMacros.h"

@@ -19,9 +19,9 @@
 
 =========================================================================*/
 
-#include <vtkDenseArray.h>
-#include <vtkSmartPointer.h>
-#include <vtkSparseArray.h>
+#include "vtkDenseArray.h"
+#include "vtkSmartPointer.h"
+#include "vtkSparseArray.h"
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/joint_view.hpp>

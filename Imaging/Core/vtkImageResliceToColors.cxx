@@ -30,7 +30,7 @@
 # undef VTK_USE_UINT64
 # define VTK_USE_UINT64 0
 
-#include <limits.h>
+#include <climits>
 #include <float.h>
 #include <math.h>
 

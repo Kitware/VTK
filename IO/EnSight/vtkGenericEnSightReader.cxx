@@ -124,26 +124,18 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
     this->Reader->Delete();
     this->Reader = NULL;
     }
-  if (this->IS)
-    {
-    delete this->IS;
-    this->IS = NULL;
-    }
-  if (this->CaseFileName)
-    {
-    delete [] this->CaseFileName;
-    this->CaseFileName = NULL;
-    }
-  if (this->GeometryFileName)
-    {
-    delete [] this->GeometryFileName;
-    this->GeometryFileName = NULL;
-    }
-  if (this->FilePath)
-    {
-    delete [] this->FilePath;
-    this->FilePath = NULL;
-    }
+  delete this->IS;
+  this->IS = NULL;
+
+  delete [] this->CaseFileName;
+  this->CaseFileName = NULL;
+
+  delete [] this->GeometryFileName;
+  this->GeometryFileName = NULL;
+
+  delete [] this->FilePath;
+  this->FilePath = NULL;
+
   if (this->NumberOfVariables > 0)
     {
     for (i = 0; i < this->NumberOfVariables; i++)

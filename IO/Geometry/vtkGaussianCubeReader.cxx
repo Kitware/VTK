@@ -49,10 +49,8 @@ vtkGaussianCubeReader::vtkGaussianCubeReader()
 //----------------------------------------------------------------------------
 vtkGaussianCubeReader::~vtkGaussianCubeReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
+
   this->Transform->Delete();
   // must delete the second output added
 }

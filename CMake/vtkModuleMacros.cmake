@@ -428,7 +428,7 @@ function(vtk_target_install _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
     if(APPLE AND VTK_JAVA_INSTALL)
        set_target_properties(${_name} PROPERTIES SUFFIX ".jnilib")
-    endif(APPLE AND VTK_JAVA_INSTALL)
+    endif()
     if(VTK_INSTALL_NO_DEVELOPMENT)
       # Installation for deployment does not need static libraries.
       get_property(_type TARGET ${_name} PROPERTY TYPE)
@@ -709,7 +709,7 @@ VTK_AUTOINIT(${vtk-module})
       PROPERTY COMPILE_FLAGS "${my_abi_flags}")
   endif()
 
-  if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest)
+  if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest AND VTK_SOURCE_DIR)
     string(TOUPPER "${vtk-module}" MOD)
     add_test(NAME ${vtk-module}-HeaderTest
       COMMAND ${PYTHON_EXECUTABLE} ${VTK_SOURCE_DIR}/Testing/Core/HeaderTesting.py
@@ -810,7 +810,7 @@ macro(vtk_module_third_party _pkg)
     message(FATAL_ERROR "Cannot specify both LIBRARIES and NO_LIBRARIES")
   endif()
 
-  option(VTK_USE_SYSTEM_${_upper} "Use system-installed ${_pkg}" OFF)
+  option(VTK_USE_SYSTEM_${_upper} "Use system-installed ${_pkg}" ${VTK_USE_SYSTEM_LIBRARIES})
   mark_as_advanced(VTK_USE_SYSTEM_${_upper})
 
   if(VTK_USE_SYSTEM_${_upper})

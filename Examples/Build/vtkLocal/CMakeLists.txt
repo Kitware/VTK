@@ -9,8 +9,7 @@ project(vtkLocalExample)
 
 # Find and load VTK settings.
 if(NOT VTK_BINARY_DIR)
-#  find_package(VTK 6.1 REQUIRED NO_MODULE)
-  find_package(VTK vtkCommonCore)
+  find_package(VTK REQUIRED vtkCommonCore)
   include(${VTK_USE_FILE})
 endif()
 

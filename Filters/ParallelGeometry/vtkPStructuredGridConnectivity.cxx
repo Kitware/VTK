@@ -40,10 +40,7 @@ vtkPStructuredGridConnectivity::vtkPStructuredGridConnectivity()
 vtkPStructuredGridConnectivity::~vtkPStructuredGridConnectivity()
 {
   // STEP 0: Delete MPI requests list
-  if( this->MPIRequests == NULL )
-    {
-    delete [] this->MPIRequests;
-    }
+  delete [] this->MPIRequests;
 
   // STEP 1: Clear all remote data
   this->ClearRemoteData();

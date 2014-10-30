@@ -3,18 +3,18 @@
 # batch tests but it will only work on dashboards using 2.8. This check can be removed when
 # ParaView officially requires CMake 2.8."
 SET(GENERATOR_EXPRESSIONS_SUPPORTED)
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.8)
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_LESS 2.8)
   SET(GENERATOR_EXPRESSIONS_SUPPORTED OFF)
-ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.8)
+ELSE()
   SET(GENERATOR_EXPRESSIONS_SUPPORTED ON)
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.8)
+ENDIF()
 
 SET(TEST_EXECUTABLE_PATH ${EXECUTABLE_OUTPUT_PATH})
 
 # We don't want the <CONFIGURATION> as part of the path on non windows systems.
 IF(WIN32 AND GENERATOR_EXPRESSIONS_SUPPORTED)
   SET(TEST_EXECUTABLE_PATH ${EXECUTABLE_OUTPUT_PATH}/\$<CONFIGURATION>)
-ENDIF(WIN32 AND GENERATOR_EXPRESSIONS_SUPPORTED)
+ENDIF()
 
 macro( XdmfSerialTest testname )
     add_executable( ${testname} ${ARGN} )
@@ -33,8 +33,8 @@ macro( XdmfMPITest testname num_procs )
             ${MPIEXEC_PREFLAGS}
             ${TEST_EXECUTABLE_PATH}/${testname}
             ${MPI_EXEC_POSTFLAGS} )
-    endif( MPI_FOUND AND GENERATOR_EXPRESSIONS_SUPPORTED)
-endmacro( XdmfMPITest )
+    endif()
+endmacro()
 
 macro( XdmfUtilsTest testname )
     add_executable (${testname} ${ARGN} )
@@ -47,7 +47,7 @@ XdmfSerialTest( XdmfTestHDFRoundtrip TestXdmfHDF.cxx )
 
 if(XDMF_BUILD_MPI)
     XdmfMPITest( XdmfTestHDFMPI 4 XdmfHDFMPI.cxx )
-endif(XDMF_BUILD_MPI)
+endif()
 
 if(XDMF_WRAP_PYTHON)
   if(PYTHON_EXECUTABLE)
@@ -63,6 +63,6 @@ if(XDMF_WRAP_PYTHON)
       # are set in ARGV and passed to the cmake script
       SET(ARGV ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_TEST}.py)
       ADD_TEST("${PYTHON_TEST}" ${CMAKE_COMMAND} "-D" ARGV=${ARGV} "-P" ${CMAKE_CURRENT_BINARY_DIR}/PythonTestDriver.cmake) 
-    ENDFOREACH(PYTHON_TEST)
-  endif(PYTHON_EXECUTABLE)
-endif(XDMF_WRAP_PYTHON)
+    ENDFOREACH()
+  endif()
+endif()

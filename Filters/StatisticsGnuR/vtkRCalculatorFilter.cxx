@@ -41,7 +41,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkStringArray.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <vtksys/ios/sstream>
@@ -170,20 +170,9 @@ vtkRCalculatorFilter::~vtkRCalculatorFilter()
     this->ri->Delete();
     }
 
-  if(this->Rscript)
-    {
-    delete [] this->Rscript;
-    }
-
-  if(this->RfileScript)
-    {
-    delete [] this->RfileScript;
-    }
-
-  if(this->ScriptFname)
-    {
-    delete [] this->ScriptFname;
-    }
+  delete [] this->Rscript;
+  delete [] this->RfileScript;
+  delete [] this->ScriptFname;
 
   if(this->CurrentTime)
     {
@@ -996,12 +985,7 @@ int vtkRCalculatorFilter::SetRscriptFromFile(const char* fname)
     len = ftell(fp);
     fseek(fp,0,SEEK_SET);
 
-    if(this->RfileScript)
-      {
-      delete [] this->RfileScript;
-      this->RfileScript = 0;
-      }
-
+    delete [] this->RfileScript;
     this->RfileScript = new char[len+1];
     rlen = static_cast<long>(fread(this->RfileScript,1,len,fp));
     this->RfileScript[len] = '\0';

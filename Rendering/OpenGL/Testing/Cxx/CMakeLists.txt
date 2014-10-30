@@ -13,6 +13,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   TestScalarsToColorsPainter.cxx
   TestSetImageOrientation.cxx
   TestTDx.cxx
+  TestValuePainter.cxx,NO_VALID
+  TestValuePasses.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   TestBlurAndSobelPasses.cxx

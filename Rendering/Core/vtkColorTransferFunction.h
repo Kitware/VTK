@@ -178,10 +178,35 @@ public:
   vtkGetMacro(Scale,int);
 
   // Description:
-  // Set the color to use when a NaN (not a number) is encountered.  This is an
-  // RGB 3-tuple color of doubles in the range [0,1].
+  // Set the RGB color to use when a NaN (not a number) is
+  // encountered.  This is an RGB 3-tuple color of doubles in the
+  // range [0,1].
   vtkSetVector3Macro(NanColor, double);
   vtkGetVector3Macro(NanColor, double);
+
+  // Description:
+  // Set the color to use when a value below the range is
+  // encountered. This is an RGB 3-tuple of doubles in the range [0, 1].
+  vtkSetVector3Macro(BelowRangeColor, double);
+  vtkGetVector3Macro(BelowRangeColor, double);
+
+  // Description:
+  // Set whether the below range color should be used.
+  vtkSetMacro(UseBelowRangeColor, int);
+  vtkGetMacro(UseBelowRangeColor, int);
+  vtkBooleanMacro(UseBelowRangeColor, int);
+
+  // Description:
+  // Set the color to use when a value above the range is
+  // encountered. This is an RGB 3-tuple of doubles in the range [0, 1].
+  vtkSetVector3Macro(AboveRangeColor, double);
+  vtkGetVector3Macro(AboveRangeColor, double);
+
+  // Description:
+  // Set whether the below range color should be used.
+  vtkSetMacro(UseAboveRangeColor, int);
+  vtkGetMacro(UseAboveRangeColor, int);
+  vtkBooleanMacro(UseAboveRangeColor, int);
 
   // Description:
   // Returns a pointer to an array of all node values in an
@@ -249,6 +274,22 @@ protected:
   // Description:
   // The color to use for not-a-number.
   double NanColor[3];
+
+  // Description:
+  // The below-range color.
+  double BelowRangeColor[3];
+
+  // Description:
+  // Flag indicating whether below-range color should be used.
+  int UseBelowRangeColor;
+
+  // Description:
+  // The above-range color.
+  double AboveRangeColor[3];
+
+  // Description:
+  // Flag indicating whether below-range color should be used.
+  int UseAboveRangeColor;
 
   // Description:
   // Temporary array to store data from the nodes.

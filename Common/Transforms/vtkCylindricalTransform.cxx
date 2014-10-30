@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkCylindricalTransform);
 

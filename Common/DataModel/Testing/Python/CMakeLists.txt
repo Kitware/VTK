@@ -13,5 +13,6 @@ vtk_add_test_python(
   TestConvexPointSet.py
   otherDataSetAttributes.py,NO_DATA,NO_VALID,NO_RT
   quadricCut.py,NO_RT
+  quadraticQuadDeriv.py,NO_VALID,NO_RT
   TestICPTransform.py,NO_RT
   )

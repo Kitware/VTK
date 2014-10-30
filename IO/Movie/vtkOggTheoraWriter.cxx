@@ -21,7 +21,7 @@
 
 #include "vtk_oggtheora.h"
 
-#include <time.h>
+#include <ctime>
 
 //---------------------------------------------------------------------------
 class vtkOggTheoraWriterInternal
@@ -329,11 +329,8 @@ void vtkOggTheoraWriterInternal::End()
   // clean up
   for (size_t i = 0; i < 3; ++i)
     {
-    if (this->thImage[i].data)
-      {
-      delete[] this->thImage[i].data;
-      this->thImage[i].data = NULL;
-      }
+    delete[] this->thImage[i].data;
+    this->thImage[i].data = NULL;
     }
 
   if (this->thEncContext)

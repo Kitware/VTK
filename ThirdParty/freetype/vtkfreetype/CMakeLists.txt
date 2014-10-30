@@ -50,18 +50,18 @@ SET (FREETYPE_SRCS
 #
 IF (BUILD_SHARED_LIBS)
   SET (VTKFREETYPE_DLL 1)
-ELSE (BUILD_SHARED_LIBS)
+ELSE ()
   SET (VTKFREETYPE_STATIC 1)
-ENDIF (BUILD_SHARED_LIBS)
+ENDIF ()
 
 #
 # Win32 flags and specific drivers
 #
 IF (WIN32)
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} builds/win32/ftdebug.c)
-ELSE (WIN32)
+ELSE ()
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftdebug.c)
-ENDIF (WIN32)
+ENDIF ()
 
 #
 # Unix flags and specific drivers
@@ -69,7 +69,7 @@ ENDIF (WIN32)
 IF (UNIX)
   IF (CMAKE_SYSTEM MATCHES "HP-UX.*")
     SET (VTKFREETYPE_HPUX_SOURCE 1)
-  ENDIF (CMAKE_SYSTEM MATCHES "HP-UX.*")
+  ENDIF ()
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} builds/unix/ftsystem.c)
   INCLUDE (${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
   CHECK_INCLUDE_FILE_CXX("fcntl.h" HAVE_FCNTL_H)
@@ -80,9 +80,9 @@ IF (UNIX)
     ${VTKFREETYPE_SOURCE_DIR}/include/freetype/config/ftconfig.h)
   SET(freetype_config_headers_include
     ${VTKFREETYPE_BINARY_DIR}/include/freetype/config/ftconfig.h)
-ELSE (UNIX)
+ELSE ()
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftsystem.c)
-ENDIF (UNIX)
+ENDIF ()
 
 #
 # freetype can be optionally built with support for resource
@@ -91,7 +91,7 @@ ENDIF (UNIX)
 #
 IF (APPLE AND NOT VTK_USE_X)
   SET (VTKFREETYPE_MAC_FONT_SUPPORT 1)
-ENDIF (APPLE AND NOT VTK_USE_X)
+ENDIF ()
 
 #
 # Define the library (and install it)
@@ -109,7 +109,7 @@ TARGET_LINK_LIBRARIES(vtkfreetype ${vtkzlib_LIBRARIES})
 #
 IF (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
     TARGET_LINK_LIBRARIES (vtkfreetype "-framework ApplicationServices -framework CoreServices")
-ENDIF (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
+ENDIF ()
 
 #
 # Create the configuration file
@@ -147,4 +147,4 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
                 ${freetype_config_headers_include}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkfreetype/include/freetype/config
     COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF()

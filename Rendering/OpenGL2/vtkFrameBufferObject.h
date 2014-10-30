@@ -31,10 +31,17 @@
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 #include <vector> // for the lists of logical buffers.
 
+
 class vtkRenderWindow;
 class vtkTextureObject;
 class vtkPixelBufferObject;
 class vtkOpenGLRenderWindow;
+class vtkShaderProgram;
+namespace vtkgl
+{
+class VertexArrayObject;
+}
+
 
 class VTKRENDERINGOPENGL2_EXPORT vtkFrameBufferObject : public vtkObject
 {
@@ -72,7 +79,8 @@ public:
   // \pre positive_minY: minY>=0
   // \pre increasing_y: minY<=maxY
   // \pre valid_maxY: maxY<LastSize[1]
-  void RenderQuad(int minX, int maxX, int minY, int maxY);
+  void RenderQuad(int minX, int maxX, int minY, int maxY,
+    vtkShaderProgram *program, vtkgl::VertexArrayObject *vao);
 
   // Description:
   // Make the draw frame buffer active (uses FRAMEBUFFER).

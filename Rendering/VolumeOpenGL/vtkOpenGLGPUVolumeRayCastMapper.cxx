@@ -67,7 +67,7 @@
 #include "vtkImageResample.h"
 
 #include <sstream>
-#include <stdlib.h> // qsort()
+#include <cstdlib> // qsort()
 
 #include "vtkDataSetTriangleFilter.h"
 
@@ -104,9 +104,11 @@ public:
     }
 private:
   // undefined copy constructor.
-  vtkUnsupportedRequiredExtensionsStringStream(const vtkUnsupportedRequiredExtensionsStringStream &other);
+  vtkUnsupportedRequiredExtensionsStringStream(const
+    vtkUnsupportedRequiredExtensionsStringStream &other);
   // undefined assignment operator.
-  vtkUnsupportedRequiredExtensionsStringStream &operator=(const vtkUnsupportedRequiredExtensionsStringStream &other);
+  vtkUnsupportedRequiredExtensionsStringStream &operator=(const
+    vtkUnsupportedRequiredExtensionsStringStream &other);
 };
 
 class vtkMapDataArrayTextureId
@@ -138,8 +140,6 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-
-
 extern const char *vtkGPUVolumeRayCastMapper_CompositeFS;
 extern const char *vtkGPUVolumeRayCastMapper_CompositeCroppingFS;
 extern const char *vtkGPUVolumeRayCastMapper_CompositeNoCroppingFS;
@@ -4694,17 +4694,17 @@ double vtkOpenGLGPUVolumeRayCastMapper::ComputeMinimalSampleDistancePerPixel(
   this->IgnoreSampleDistancePerPixel=true;
   double result=0.0;
 
-  vtkMatrix4x4 *worldToDataset=volume->GetMatrix();
-  vtkCamera *camera=renderer->GetActiveCamera();
-  vtkMatrix4x4 *eyeToWorld=camera->GetViewTransformMatrix();
-  vtkMatrix4x4 *eyeToDataset=vtkMatrix4x4::New();
+  vtkMatrix4x4* worldToDataset=volume->GetMatrix();
+  vtkCamera* camera=renderer->GetActiveCamera();
+  vtkMatrix4x4* eyeToWorld=camera->GetViewTransformMatrix();
+  vtkMatrix4x4* eyeToDataset=vtkMatrix4x4::New();
   vtkMatrix4x4::Multiply4x4(eyeToWorld,worldToDataset,eyeToDataset);
 
   int usize;
   int vsize;
   renderer->GetTiledSize(&usize,&vsize);
-  vtkMatrix4x4 *viewportToEye=camera->GetProjectionTransformMatrix(
-    usize/static_cast<double>(vsize),0.0,1.0);
+  vtkMatrix4x4* viewportToEye = camera->GetProjectionTransformMatrix(
+                                  usize/static_cast<double>(vsize),0.0,1.0);
 
   double volBounds[6];
   this->GetInput()->GetBounds(volBounds);
@@ -4721,14 +4721,13 @@ double vtkOpenGLGPUVolumeRayCastMapper::ComputeMinimalSampleDistancePerPixel(
   eyeToDataset->MultiplyPoint(v0,w0);
 
   double z0;
-
-  if(w0[3]!=0.0)
+  if(w0[3] != 0.0)
     {
-    z0=w0[2]/w0[3];
+    z0 = w0[2] / w0[3];
     }
   else
     {
-    z0=0.0;
+    z0 = 0.0;
     vtkGenericWarningMacro( "eyeToWorld transformation has some projective component." );
     }
 

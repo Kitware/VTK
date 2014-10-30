@@ -14,40 +14,33 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenGLRenderer.h"
 
-#include "vtkNew.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkCellArray.h"
-#include "vtkTrivialProducer.h"
-#include "vtkTexturedActor2D.h"
-
 #include "vtkglVBOHelper.h"
 
-#include "vtkCuller.h"
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
-#include "vtkLight.h"
-#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkTimerLog.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
-
+#include "vtkTexture.h"
 #include "vtkTextureObject.h"
-
-#include "vtkOpenGLError.h"
+#include "vtkTexturedActor2D.h"
+#include "vtkTimerLog.h"
+#include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <math.h>
 #include <cassert>
 #include <list>
-
-#include "vtkImageData.h"
 
 class vtkGLPickInfo
 {
@@ -174,31 +167,6 @@ void vtkOpenGLRenderer::DeviceRender(void)
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
 }
 
-vtkOpenGLTexture *vtkOpenGLRendererCreateDepthPeelingTexture(
-  int width, int height, int numComponents, bool isDepth)
-{
-  vtkOpenGLTexture *result = vtkOpenGLTexture::New();
-
-  vtkImageData *id = vtkImageData::New();
-  id->SetExtent(0,width-1, 0,height-1, 0,0);
-
-  if (isDepth == true)
-    {
-    id->AllocateScalars(VTK_FLOAT, numComponents);
-    result->SetIsDepthTexture(1);
-    }
-  else
-    {
-    id->AllocateScalars(VTK_UNSIGNED_CHAR, numComponents);
-    }
-
-  result->SetTextureType(GL_TEXTURE_RECTANGLE);
-  result->InterpolateOff();
-  result->RepeatOff();
-  result->SetInputData(id);
-  return result;
-}
-
 vtkTextureObject *vtkOpenGLRendererCreateDepthPeelingTextureObject(
   vtkOpenGLRenderWindow *context, int width, int height, int numComponents, bool isDepth, void *initialData)
 {
@@ -233,23 +201,43 @@ vtkTextureObject *vtkOpenGLRendererCreateDepthPeelingTextureObject(
 // get the texture units for depth peeling
 int vtkOpenGLRenderer::GetOpaqueRGBATextureUnit()
 {
-  return this->OpaqueRGBATexture->GetTextureUnit();
+  if (this->OpaqueRGBATexture)
+    {
+    return this->OpaqueRGBATexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetOpaqueZTextureUnit()
 {
-  return this->OpaqueZTexture->GetTextureUnit();
+  if (this->OpaqueZTexture)
+    {
+    return this->OpaqueZTexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetTranslucentRGBATextureUnit()
 {
-  return this->TranslucentRGBATexture->GetTextureUnit();
+  if (this->TranslucentRGBATexture)
+    {
+    return this->TranslucentRGBATexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetTranslucentZTextureUnit()
 {
-  return this->TranslucentZTexture->GetTextureUnit();
+  if (this->TranslucentZTexture)
+    {
+    return this->TranslucentZTexture->GetTextureUnit();
+    }
+  return -1;
 }
 int vtkOpenGLRenderer::GetCurrentRGBATextureUnit()
 {
-  return this->CurrentRGBATexture->GetTextureUnit();
+  if (this->CurrentRGBATexture)
+    {
+    return this->CurrentRGBATexture->GetTextureUnit();
+    }
+  return -1;
 }
 
 // ----------------------------------------------------------------------------
@@ -735,10 +723,10 @@ void vtkOpenGLRenderer::DonePick()
   //    (this->GetRenderWindow()->GetSwapBuffers() == 1) ? 0 : 1);
 
     // for debugging save out the image
-    FILE * pFile;
-    pFile = fopen ("myfile.ppm", "wb");
-    fwrite (pixBuffer , sizeof(unsigned char), 3*((int)this->PickY2-(int)this->PickY1+1)*((int)this->PickX2-(int)this->PickX1+1), pFile);
-    fclose (pFile);
+    // FILE * pFile;
+    // pFile = fopen ("myfile.ppm", "wb");
+    // fwrite (pixBuffer , sizeof(unsigned char), 3*((int)this->PickY2-(int)this->PickY1+1)*((int)this->PickX2-(int)this->PickX1+1), pFile);
+    // fclose (pFile);
 
     float *depthBuffer = this->GetRenderWindow()->GetZbufferData(
       this->PickX1, this->PickY1, this->PickX2, this->PickY2);

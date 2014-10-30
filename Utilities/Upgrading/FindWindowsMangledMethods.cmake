@@ -32,7 +32,7 @@
 
 IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.0)
   MESSAGE(FATAL_ERROR "CMake 2.0 or higher is required for this script.")
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.0)
+ENDIF()
 
 # List of symbols that might be mangled.
 SET(SYMBOLS
@@ -871,9 +871,9 @@ FOREACH(s ${SYMBOLS})
     IF(IVAR)
       SET(MACRO_REGEX "${MACRO_REGEX}${SEP2}${IVAR}")
       SET(SEP2 "|")
-    ENDIF(IVAR)
-  ENDIF("${s}" MATCHES "^(Get|Set)")
-ENDFOREACH(s)
+    ENDIF()
+  ENDIF()
+ENDFOREACH()
 SET(DIRECT_REGEX "${DIRECT_REGEX})\\([^)]*\\)")
 SET(MACRO_REGEX "${MACRO_REGEX})[^A-Za-z0-9_][^)]*\\)")
 
@@ -889,11 +889,11 @@ FOREACH(h ${VTK_CLASS_HEADERS})
   STRING(REGEX MATCH "${MACRO_REGEX}" OUTPUT "${CONTENTS}")
   IF(OUTPUT)
     MESSAGE("${h}: ${OUTPUT}")
-  ENDIF(OUTPUT)
+  ENDIF()
 
   # Look for methods with potentially mangled names.
   STRING(REGEX MATCH "${DIRECT_REGEX}" OUTPUT "${CONTENTS}")
   IF(OUTPUT)
     MESSAGE("${h}: ${OUTPUT}")
-  ENDIF(OUTPUT)
-ENDFOREACH(h)
+  ENDIF()
+ENDFOREACH()

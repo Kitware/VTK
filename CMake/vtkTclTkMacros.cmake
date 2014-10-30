@@ -17,28 +17,28 @@ MACRO (VTK_GET_TCL_TK_VERSION tcl_tk_major_version tcl_tk_minor_version)
   SET (${tcl_tk_minor_version} "")
   IF (TK_INTERNAL_PATH)
     SET (try_tk_internal_path ${TK_INTERNAL_PATH})
-  ELSE (TK_INTERNAL_PATH)
+  ELSE ()
     SET (try_tk_internal_path ${VTK_TK_INTERNAL_DIR})
-  ENDIF (TK_INTERNAL_PATH)
+  ENDIF ()
   FOREACH (tcl_tk_minor_version_try "2" "3" "4" "5" "6")
     IF ("${try_tk_internal_path}" MATCHES "tk8\\.?${tcl_tk_minor_version_try}")
       SET (${tcl_tk_major_version} "8")
       SET (${tcl_tk_minor_version} ${tcl_tk_minor_version_try})
-    ENDIF ("${try_tk_internal_path}" MATCHES "tk8\\.?${tcl_tk_minor_version_try}")
+    ENDIF ()
     IF ("${TCL_LIBRARY}" MATCHES "tcl8\\.?${tcl_tk_minor_version_try}")
       SET (${tcl_tk_major_version} "8")
       SET (${tcl_tk_minor_version} ${tcl_tk_minor_version_try})
-    ENDIF ("${TCL_LIBRARY}" MATCHES "tcl8\\.?${tcl_tk_minor_version_try}")
+    ENDIF ()
     IF ("${TCL_INCLUDE_PATH}" MATCHES "tcl8\\.?${tcl_tk_minor_version_try}")
       SET (${tcl_tk_major_version} "8")
       SET (${tcl_tk_minor_version} ${tcl_tk_minor_version_try})
-    ENDIF ("${TCL_INCLUDE_PATH}" MATCHES "tcl8\\.?${tcl_tk_minor_version_try}")
+    ENDIF ()
     # Mac
     IF ("${TCL_INCLUDE_PATH}" MATCHES "Tcl.*8\\.${tcl_tk_minor_version_try}")
       SET (${tcl_tk_major_version} "8")
       SET (${tcl_tk_minor_version} ${tcl_tk_minor_version_try})
-    ENDIF ("${TCL_INCLUDE_PATH}" MATCHES "Tcl.*8\\.${tcl_tk_minor_version_try}")
-  ENDFOREACH (tcl_tk_minor_version_try)
+    ENDIF ()
+  ENDFOREACH ()
 
   FOREACH(dir ${TCL_INCLUDE_PATH})
     IF(EXISTS "${dir}/tcl.h")
@@ -51,11 +51,11 @@ MACRO (VTK_GET_TCL_TK_VERSION tcl_tk_major_version tcl_tk_minor_version)
           "${tcl_include_file}")
         STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\2" ${tcl_tk_minor_version}
           "${tcl_include_file}")
-      ENDIF(${tcl_include_file} MATCHES "^[0-9]*\\.[0-9]*$")
-    ENDIF(EXISTS "${dir}/tcl.h")
-  ENDFOREACH(dir)
+      ENDIF()
+    ENDIF()
+  ENDFOREACH()
 
-ENDMACRO (VTK_GET_TCL_TK_VERSION)
+ENDMACRO ()
 
 # ----------------------------------------------------------------------------
 # VTK_GET_TCL_SUPPORT_FILES, VTK_GET_TK_SUPPORT_FILES
@@ -95,7 +95,7 @@ MACRO (VTK_GET_TCL_SUPPORT_FILES tcl_support_lib_dir list)
     ${TCL_SUPPORT_FILES_MSGS}
     )
 
-ENDMACRO (VTK_GET_TCL_SUPPORT_FILES)
+ENDMACRO ()
 
 MACRO (VTK_GET_TK_SUPPORT_FILES tk_support_lib_dir list)
 
@@ -111,7 +111,7 @@ MACRO (VTK_GET_TK_SUPPORT_FILES tk_support_lib_dir list)
     ${TK_SUPPORT_FILES_TTK}
     )
 
-ENDMACRO (VTK_GET_TK_SUPPORT_FILES)
+ENDMACRO ()
 
 # ----------------------------------------------------------------------------
 # VTK_COPY_TCL_TK_SUPPORT_FILES
@@ -157,11 +157,11 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES tcl_support_lib_dir tcl_support_lib_dest tk
         INSTALL(FILES "${file}"
           DESTINATION "${tcl_support_lib_dest_cm24}/${dir}"
           COMPONENT RuntimeLibraries)
-      ELSE ("${ARGV4}" STREQUAL "INSTALL")
+      ELSE ()
         CONFIGURE_FILE (${file} "${tcl_support_lib_dest}/${filebase}" COPYONLY)
-      ENDIF ("${ARGV4}" STREQUAL "INSTALL")
-    ENDIF (EXISTS ${file})
-  ENDFOREACH (file)
+      ENDIF ()
+    ENDIF ()
+  ENDFOREACH ()
 
   VTK_GET_TK_SUPPORT_FILES(${tk_support_lib_dir} "TK_SUPPORT_FILES")
   FOREACH (file ${TK_SUPPORT_FILES})
@@ -172,13 +172,13 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES tcl_support_lib_dir tcl_support_lib_dest tk
         INSTALL(FILES "${file}"
           DESTINATION "${tk_support_lib_dest_cm24}/${dir}"
           COMPONENT RuntimeLibraries)
-      ELSE ("${ARGV4}" STREQUAL "INSTALL")
+      ELSE ()
         CONFIGURE_FILE (${file} "${tk_support_lib_dest}/${filebase}" COPYONLY)
-      ENDIF ("${ARGV4}" STREQUAL "INSTALL")
-    ENDIF (EXISTS ${file})
-  ENDFOREACH (file)
+      ENDIF ()
+    ENDIF ()
+  ENDFOREACH ()
 
-ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES)
+ENDMACRO ()
 
 # ----------------------------------------------------------------------------
 # VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR
@@ -216,9 +216,9 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR tcl_support_lib_dir tk_support_lib_d
       "${target_dir}/tk${TCL_TK_VERSION}"
       "${ARGV3}"
       )
-  ENDIF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
+  ENDIF ()
 
-ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR)
+ENDMACRO ()
 
 # ----------------------------------------------------------------------------
 # VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR
@@ -259,15 +259,15 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR tcl_support_lib_dir tk_support
 
   IF (CMAKE_CONFIGURATION_TYPES)
     SET (CONFIG_TYPES ${CMAKE_CONFIGURATION_TYPES})
-  ELSE (CMAKE_CONFIGURATION_TYPES)
+  ELSE ()
     SET (CONFIG_TYPES .)
-  ENDIF (CMAKE_CONFIGURATION_TYPES)
+  ENDIF ()
   FOREACH (config ${CONFIG_TYPES})
     VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR (
       "${tcl_support_lib_dir}"
       "${tk_support_lib_dir}"
       "${build_dir}/${config}/${dir}"
       )
-  ENDFOREACH (config)
+  ENDFOREACH ()
 
-ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR)
+ENDMACRO ()

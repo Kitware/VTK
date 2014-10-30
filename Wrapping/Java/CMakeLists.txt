@@ -5,6 +5,9 @@ include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 
 # Add the option to package VTK for custom Java packaging
 option(VTK_JAVA_INSTALL "Use the Java rules to build the native libraries." OFF)
+option(VTK_JAVA_CLEANUP_INSTALL "Should java packaging cleanup install directory." OFF)
+mark_as_advanced(VTK_JAVA_CLEANUP_INSTALL)
+
 if(VTK_JAVA_INSTALL)
 
   # Make sure we embed the runtime libraries when packaging the Java binaries
@@ -433,4 +436,4 @@ if(VTK_JAVA_INSTALL)
   configure_file(Maven/README.txt.in
                ${VTK_BINARY_DIR}/MAVEN-README.txt @ONLY)
   install(SCRIPT ${VTK_BINARY_DIR}/JavaInstall.cmake)
-endif(VTK_JAVA_INSTALL)
+endif()

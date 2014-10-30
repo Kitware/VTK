@@ -19,7 +19,6 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkPainterDeviceAdapter.h"
 #include "vtkPropCollection.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
@@ -29,6 +28,12 @@
 #include "vtkObjectFactory.h"
 
 #include <cmath>
+
+#ifdef VTK_OPENGL2
+class vtkPainterDeviceAdapter : public vtkObject {};
+#else
+#include "vtkPainterDeviceAdapter.h"
+#endif
 
 //----------------------------------------------------------------------------
 // Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
@@ -85,6 +90,7 @@ vtkRenderWindow::vtkRenderWindow()
 #endif
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
+  this->MultiSamples = 0;
 
 #ifdef VTK_USE_OFFSCREEN
   this->OffScreenRendering = 1;
@@ -109,18 +115,21 @@ vtkRenderWindow::~vtkRenderWindow()
     this->ConstantFDOffsets[i] = NULL;
     }
 
-  vtkCollectionSimpleIterator rsit;
-  this->Renderers->InitTraversal(rsit);
-  vtkRenderer *aren;
-  while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
+  if (this->Renderers)
     {
-    if (aren->GetRenderWindow() == this)
+    vtkCollectionSimpleIterator rsit;
+    this->Renderers->InitTraversal(rsit);
+    vtkRenderer *aren;
+    while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
       {
-      vtkErrorMacro("Window destructed with renderer still associated with it!");
+      if (aren->GetRenderWindow() == this)
+        {
+        vtkErrorMacro("Window destructed with renderer still associated with it!");
+        }
       }
-    }
 
-  this->Renderers->Delete();
+    this->Renderers->Delete();
+    }
 
   if (this->PainterDeviceAdapter)
     {

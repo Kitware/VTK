@@ -92,13 +92,13 @@ vtkShaderProgram::~vtkShaderProgram()
     }
 }
 
-template <class T> bool vtkShaderProgram::SetAttributeArray(const std::string &name,
+template <class T> bool vtkShaderProgram::SetAttributeArray(const char *name,
                                                 const T &array, int tupleSize,
                                                 NormalizeOption normalize)
 {
   if (array.empty())
     {
-    this->Error = "Refusing to upload empty array for attribute " + name + ".";
+    this->Error = "Refusing to upload empty array for attribute " + std::string(name) + ".";
     return false;
     }
   int type = vtkTypeTraits<typename T::value_type>::VTKTypeID();
@@ -348,24 +348,24 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *win)
 
 }
 
-bool vtkShaderProgram::EnableAttributeArray(const std::string &name)
+bool vtkShaderProgram::EnableAttributeArray(const char *name)
 {
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
     {
-    this->Error = "Could not enable attribute " + name + ". No such attribute.";
+    this->Error = "Could not enable attribute " + std::string(name) + ". No such attribute.";
     return false;
     }
   glEnableVertexAttribArray(location);
   return true;
 }
 
-bool vtkShaderProgram::DisableAttributeArray(const std::string &name)
+bool vtkShaderProgram::DisableAttributeArray(const char *name)
 {
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
     {
-    this->Error = "Could not disable attribute " + name + ". No such attribute.";
+    this->Error = "Could not disable attribute " + std::string(name) + ". No such attribute.";
     return false;
     }
   glDisableVertexAttribArray(location);
@@ -374,7 +374,7 @@ bool vtkShaderProgram::DisableAttributeArray(const std::string &name)
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-bool vtkShaderProgram::UseAttributeArray(const std::string &name, int offset,
+bool vtkShaderProgram::UseAttributeArray(const char *name, int offset,
                                       size_t stride, int elementType,
                                       int elementTupleSize,
                                       NormalizeOption normalize)
@@ -382,7 +382,7 @@ bool vtkShaderProgram::UseAttributeArray(const std::string &name, int offset,
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
     {
-    this->Error = "Could not use attribute " + name + ". No such attribute.";
+    this->Error = "Could not use attribute " + std::string(name) + ". No such attribute.";
     return false;
     }
   glVertexAttribPointer(location, elementTupleSize, convertTypeToGL(elementType),
@@ -391,37 +391,37 @@ bool vtkShaderProgram::UseAttributeArray(const std::string &name, int offset,
   return true;
 }
 
-bool vtkShaderProgram::SetUniformi(const std::string &name, int i)
+bool vtkShaderProgram::SetUniformi(const char *name, int i)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform1i(location, static_cast<GLint>(i));
   return true;
 }
 
-bool vtkShaderProgram::SetUniformf(const std::string &name, float f)
+bool vtkShaderProgram::SetUniformf(const char *name, float f)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform1f(location, static_cast<GLfloat>(f));
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix(const std::string &name,
+bool vtkShaderProgram::SetUniformMatrix(const char *name,
                                     vtkMatrix4x4 *matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   float data[16];
@@ -433,39 +433,39 @@ bool vtkShaderProgram::SetUniformMatrix(const std::string &name,
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix3x3(const std::string &name,
+bool vtkShaderProgram::SetUniformMatrix3x3(const char *name,
                                            float *matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniformMatrix3fv(location, 1, GL_FALSE, matrix);
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix4x4(const std::string &name,
+bool vtkShaderProgram::SetUniformMatrix4x4(const char *name,
                                            float *matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
   return true;
 }
 
-bool vtkShaderProgram::SetUniformMatrix(const std::string &name,
+bool vtkShaderProgram::SetUniformMatrix(const char *name,
                                     vtkMatrix3x3 *matrix)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   float data[9];
@@ -477,100 +477,126 @@ bool vtkShaderProgram::SetUniformMatrix(const std::string &name,
   return true;
 }
 
-bool vtkShaderProgram::SetUniform1fv(const std::string &name, const int count,
+bool vtkShaderProgram::SetUniform1fv(const char *name, const int count,
                                     const float *v)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform1fv(location, count, static_cast<const GLfloat *>(v));
   return true;
 }
 
-bool vtkShaderProgram::SetUniform1iv(const std::string &name, const int count,
+bool vtkShaderProgram::SetUniform1iv(const char *name, const int count,
                                     const int *v)
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform1iv(location, count, static_cast<const GLint *>(v));
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3fv(const std::string &name, const int count,
+bool vtkShaderProgram::SetUniform3fv(const char *name, const int count,
                                     const float (*v)[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    Error = "Could not set uniform " + name + ". No such uniform.";
+    Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform3fv(location, count, (const GLfloat *)v);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform2f(const std::string &name, const float v[2])
+bool vtkShaderProgram::SetUniform4fv(const char *name, const int count,
+                                    const float (*v)[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    return false;
+    }
+  glUniform4fv(location, count, (const GLfloat *)v);
+  return true;
+}
+
+bool vtkShaderProgram::SetUniform2f(const char *name, const float v[2])
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform2fv(location, 1, v);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3f(const std::string &name, const float v[3])
+bool vtkShaderProgram::SetUniform2fv(const char *name, const int count,
+                                    const float (*f)[2])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    return false;
+    }
+  glUniform2fv(location, count, (const GLfloat *)f);
+  return true;
+}
+
+bool vtkShaderProgram::SetUniform3f(const char *name, const float v[3])
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+    {
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform3fv(location, 1, v);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform4f(const std::string &name, const float v[4])
+bool vtkShaderProgram::SetUniform4f(const char *name, const float v[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform4fv(location, 1, v);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform2i(const std::string &name, const int v[2])
+bool vtkShaderProgram::SetUniform2i(const char *name, const int v[2])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   glUniform2iv(location, 1, v);
   return true;
 }
 
-bool vtkShaderProgram::SetUniform3uc(const std::string &name,
+bool vtkShaderProgram::SetUniform3uc(const char *name,
                                     const unsigned char v[3])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   float colorf[3] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f};
@@ -578,13 +604,13 @@ bool vtkShaderProgram::SetUniform3uc(const std::string &name,
   return true;
 }
 
-bool vtkShaderProgram::SetUniform4uc(const std::string &name,
+bool vtkShaderProgram::SetUniform4uc(const char *name,
                                     const unsigned char v[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + name + ". No such uniform.";
+    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
   float colorf[4] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, v[3] / 255.0f};
@@ -593,18 +619,18 @@ bool vtkShaderProgram::SetUniform4uc(const std::string &name,
 }
 
 bool vtkShaderProgram::SetAttributeArrayInternal(
-    const std::string &name, void *buffer, int type, int tupleSize,
+    const char *name, void *buffer, int type, int tupleSize,
     vtkShaderProgram::NormalizeOption normalize)
 {
   if (type == -1)
     {
-    this->Error = "Unrecognized data type for attribute " + name + ".";
+    this->Error = "Unrecognized data type for attribute " + std::string(name) + ".";
     return false;
     }
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
     {
-    this->Error = "Could not set attribute " + name + ". No such attribute.";
+    this->Error = "Could not set attribute " + std::string(name) + ". No such attribute.";
     return false;
     }
   const GLvoid *data = static_cast<const GLvoid *>(buffer);
@@ -613,16 +639,15 @@ bool vtkShaderProgram::SetAttributeArrayInternal(
   return true;
 }
 
-inline int vtkShaderProgram::FindAttributeArray(const std::string &name)
+inline int vtkShaderProgram::FindAttributeArray(const char *name)
 {
-  if (name.empty() || !this->Linked)
+  if (name == NULL || !this->Linked)
     {
     return -1;
     }
-  const GLchar *namePtr = static_cast<const GLchar *>(name.c_str());
   GLint location =
       static_cast<int>(glGetAttribLocation(static_cast<GLuint>(Handle),
-                                           namePtr));
+                                           (const GLchar *)name));
   if (location == -1)
     {
     this->Error = "Specified attribute not found in current shader program: ";
@@ -632,17 +657,18 @@ inline int vtkShaderProgram::FindAttributeArray(const std::string &name)
   return location;
 }
 
-inline int vtkShaderProgram::FindUniform(const std::string &name)
+inline int vtkShaderProgram::FindUniform(const char *name)
 {
-  if (name.empty() || !this->Linked)
+  if (name == NULL || !this->Linked)
+    {
     return -1;
-  const GLchar *namePtr = static_cast<const GLchar *>(name.c_str());
+    }
   GLint location =
       static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle),
-                                            namePtr));
+                                            (const GLchar *)name));
   if (location == -1)
     {
-    this->Error = "Uniform " + name + " not found in current shader program.";
+    this->Error = "Uniform " + std::string(name) + " not found in current shader program.";
     }
 
   return location;

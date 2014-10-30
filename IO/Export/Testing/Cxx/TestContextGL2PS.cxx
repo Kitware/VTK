@@ -75,6 +75,12 @@ int TestContextGL2PS( int, char *[] )
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
 
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(view->GetRenderWindow());
+  view->GetRenderWindow()->SetMultiSamples(0);
+  view->GetRenderWindow()->GetInteractor()->Initialize();
+  view->GetRenderWindow()->GetInteractor()->Start();
+
   return EXIT_SUCCESS;
 }
 

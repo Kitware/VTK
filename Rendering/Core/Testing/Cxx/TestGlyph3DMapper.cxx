@@ -36,6 +36,8 @@
 # include "vtkGlyph3DMapper.h"
 #endif
 
+#include "vtkPlane.h"
+
 int TestGlyph3DMapper(int argc, char *argv[])
 {
   int res=6;
@@ -66,6 +68,14 @@ int TestGlyph3DMapper(int argc, char *argv[])
   glypher->SetInputConnection(colors->GetOutputPort());
   glypher->SetSourceConnection(squad->GetOutputPort());
   squad->Delete();
+
+  // Useful code should you want to test clipping planes
+  // with a glyph mapper, might shoudl just uncomment
+  // this and add a new valid image
+  // vtkPlane *cplane = vtkPlane::New();
+  // cplane->SetNormal(-0.5,0.5,0);
+  // cplane->SetOrigin(0.2,0,0);
+  // glypher->AddClippingPlane(cplane);
 
 #ifdef USE_FILTER
   vtkPolyDataMapper *glyphMapper=vtkPolyDataMapper::New();

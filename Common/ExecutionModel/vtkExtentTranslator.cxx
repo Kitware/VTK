@@ -64,12 +64,9 @@ vtkExtentTranslator::~vtkExtentTranslator()
 //----------------------------------------------------------------------------
 void vtkExtentTranslator::SetSplitPath(int len, int *sp)
 {
-  if (this->SplitPath)
-    {
-    delete[] this->SplitPath;
-    }
-  this->SplitLen = len;
+  delete[] this->SplitPath;
   this->SplitPath = NULL;
+  this->SplitLen = len;
   if (len && sp)
     {
     this->SplitPath = new int[len];

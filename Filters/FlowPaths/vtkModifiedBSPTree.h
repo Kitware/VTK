@@ -304,8 +304,8 @@ class BSPNode {
     }
     // Destructor
     ~BSPNode(void) {
-      for (int i=0; i<3; i++) if (mChild[i]) delete mChild[i];
-      for (int i=0; i<6; i++) if (sorted_cell_lists[i]) delete []sorted_cell_lists[i];
+      for (int i=0; i<3; i++) delete mChild[i];
+      for (int i=0; i<6; i++) delete []sorted_cell_lists[i];
     }
     // Set min box limits
     void setMin(double minx, double miny, double minz) {

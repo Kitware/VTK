@@ -33,10 +33,15 @@ INCLUDE(CMakeFindFrameworks)
 # Search for the python framework on Apple.
 CMAKE_FIND_FRAMEWORKS(Python)
 
+set(_PythonInterp_VERSION)
+if(PYTHONINTERP_FOUND)
+  set(_PythonInterp_VERSION ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+endif()
+
 # Set up the versions we know about, in the order we will search. Always add
 # the user supplied additional versions to the front.
 set(_Python_VERSIONS
-  ${Python_ADDITIONAL_VERSIONS}
+  ${Python_ADDITIONAL_VERSIONS} ${_PythonInterp_VERSION}
   2.7 2.6 2.5 2.4 2.3 2.2 2.1 2.0 1.6 1.5)
 
 FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
@@ -47,7 +52,7 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
       PATHS
       [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs/Debug
       [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs )
-  ENDIF(WIN32)
+  ENDIF()
 
   FIND_LIBRARY(PYTHON_LIBRARY
     NAMES python${_CURRENT_VERSION_NO_DOTS} python${_CURRENT_VERSION}
@@ -65,35 +70,38 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
     PATH_SUFFIXES python${_CURRENT_VERSION}/config
   )
 
-  # For backward compatibility, honour value of PYTHON_INCLUDE_PATH, if
-  # PYTHON_INCLUDE_DIR is not set.
-  IF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
-    SET(PYTHON_INCLUDE_DIR "${PYTHON_INCLUDE_PATH}" CACHE PATH
-      "Path to where Python.h is found" FORCE)
-  ENDIF(DEFINED PYTHON_INCLUDE_PATH AND NOT DEFINED PYTHON_INCLUDE_DIR)
+  # Only look for include directory if library was found, this ensures
+  # that version will be matched between include dir and library
+  IF(PYTHON_LIBRARY)
+    SET(PYTHON_FRAMEWORK_INCLUDES)
+    IF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
+      FOREACH(dir ${Python_FRAMEWORKS})
+        SET(PYTHON_FRAMEWORK_INCLUDES ${PYTHON_FRAMEWORK_INCLUDES}
+          ${dir}/Versions/${_CURRENT_VERSION}/include/python${_CURRENT_VERSION})
+      ENDFOREACH()
+    ENDIF()
 
-  SET(PYTHON_FRAMEWORK_INCLUDES)
-  IF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
-    FOREACH(dir ${Python_FRAMEWORKS})
-      SET(PYTHON_FRAMEWORK_INCLUDES ${PYTHON_FRAMEWORK_INCLUDES}
-        ${dir}/Versions/${_CURRENT_VERSION}/include/python${_CURRENT_VERSION})
-    ENDFOREACH(dir)
-  ENDIF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
+    # Search frameworks and registry locations first
+    FIND_PATH(PYTHON_INCLUDE_DIR
+      NAMES Python.h
+      PATHS
+        ${PYTHON_FRAMEWORK_INCLUDES}
+        [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/include
+      NO_DEFAULT_PATH
+    )
 
-  FIND_PATH(PYTHON_INCLUDE_DIR
-    NAMES Python.h
-    PATHS
-      ${PYTHON_FRAMEWORK_INCLUDES}
-      [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/include
-    PATH_SUFFIXES
-      python${_CURRENT_VERSION}
-  )
+    # Broaden to default paths as a second step (mainly for UNIX)
+    FIND_PATH(PYTHON_INCLUDE_DIR
+      NAMES Python.h
+      PATH_SUFFIXES
+        python${_CURRENT_VERSION}
+    )
+  ENDIF()
 
-  # For backward compatibility, set PYTHON_INCLUDE_PATH, but make it internal.
-  SET(PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}" CACHE INTERNAL
-    "Path to where Python.h is found (deprecated)")
+  # For backward compatibility, set PYTHON_INCLUDE_PATH
+  SET(PYTHON_INCLUDE_PATH "${PYTHON_INCLUDE_DIR}")
 
-ENDFOREACH(_CURRENT_VERSION)
+ENDFOREACH()
 
 MARK_AS_ADVANCED(
   PYTHON_DEBUG_LIBRARY
@@ -117,8 +125,8 @@ IF(PYTHON_INCLUDE_DIR)
     STRING(REGEX REPLACE ${_VERSION_REGEX} "\\2"
            _VERSION_NUMBER "${_VERSION_STRING}")
     SET(${_VERSION_VARIABLE} ${_VERSION_NUMBER})
-  ENDFOREACH(_VERSION_STRING ${_VERSION_STRINGS})
-ENDIF(PYTHON_INCLUDE_DIR)
+  ENDFOREACH()
+ENDIF()
 
 
 # We use PYTHON_INCLUDE_DIR, PYTHON_LIBRARY and PYTHON_DEBUG_LIBRARY for the

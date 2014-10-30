@@ -29,7 +29,7 @@
 #include "vtkVariant.h"
 
 
-#include <limits.h> // CHAR_BIT
+#include <climits> // CHAR_BIT
 #include <cassert> // assert()
 
 

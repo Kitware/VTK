@@ -13,7 +13,7 @@ PROJECT(mpi4py)
 # Set locations where to install the binaries.
 
 # MPI4PY_INSTALL_PACKAGE_DIR is the location where all mpi4py package is
-# installed. 
+# installed.
 # are to be installed.
 if (NOT MPI4PY_INSTALL_PACKAGE_DIR)
   set (MPI4PY_INSTALL_PACKAGE_DIR "lib/site-packages")
@@ -23,8 +23,8 @@ if (NOT MPI4PY_PACKAGE_BINARY_DIR)
   set (MPI4PY_PACKAGE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
-FIND_PACKAGE(PythonInterp)
-FIND_PACKAGE(PythonLibs)
+FIND_PACKAGE(PythonInterp ${VTK_PYTHON_VERSION})
+FIND_PACKAGE(PythonLibs ${VTK_PYTHON_VERSION})
 FIND_PACKAGE(MPI)
 
 # -------------------------------------------------------------------------
@@ -103,13 +103,13 @@ FOREACH(file
     COMMENT "copy: ${file}"
     )
   SET(mpi4py_OUTPUT_FILES ${mpi4py_OUTPUT_FILES} ${tgt})
-ENDFOREACH(file)
+ENDFOREACH()
 
 FOREACH(file ${mpi4py_PYTHON_FILES})
   SET(mpi4py_py  ${mpi4py_py}  "${mpi4py_BINARY_DIR}/${file}")
   SET(mpi4py_pyc ${mpi4py_pyc} "${mpi4py_BINARY_DIR}/${file}c")
   SET(mpi4py_pyo ${mpi4py_pyo} "${mpi4py_BINARY_DIR}/${file}o")
-ENDFOREACH(file)
+ENDFOREACH()
 SET(CMAKE_CONFIGURABLE_FILE_CONTENT
     "from compileall import compile_dir\ncompile_dir(\"${mpi4py_BINARY_DIR}\")")
 configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
@@ -144,13 +144,13 @@ mpif90 = ${mpif90}")
                  "${tgt}" @ONLY)
   UNSET(CMAKE_CONFIGURABLE_FILE_CONTENT)
   SET(mpi4py_OUTPUT_FILES ${mpi4py_OUTPUT_FILES} ${tgt})
-ENDFOREACH(file)
+ENDFOREACH()
 
 ADD_CUSTOM_TARGET(mpi4py ALL DEPENDS ${mpi4py_OUTPUT_FILES})
 
 INCLUDE_DIRECTORIES(
   ${MPI_C_INCLUDE_PATH}
-  ${PYTHON_INCLUDE_PATH}
+  ${PYTHON_INCLUDE_DIRS}
   "${mpi4py_SOURCE_DIR}"
   )
 

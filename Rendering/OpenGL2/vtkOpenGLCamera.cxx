@@ -14,6 +14,7 @@
 #include "vtkOpenGLCamera.h"
 
 #include "vtkMatrix4x4.h"
+#include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkOutputWindow.h"
@@ -24,14 +25,28 @@
 
 vtkStandardNewMacro(vtkOpenGLCamera);
 
+
+vtkOpenGLCamera::vtkOpenGLCamera()
+{
+  this->WCVCMatrix = vtkMatrix4x4::New();
+  this->NormalMatrix = vtkMatrix3x3::New();
+  this->VCDCMatrix = vtkMatrix4x4::New();
+}
+
+vtkOpenGLCamera::~vtkOpenGLCamera()
+{
+  this->WCVCMatrix->Delete();
+  this->NormalMatrix->Delete();
+  this->VCDCMatrix->Delete();
+}
+
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {
   vtkOpenGLClearErrorMacro();
 
-  int  lowerLeft[2];
+  int lowerLeft[2];
   int usize, vsize;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
@@ -114,8 +129,6 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     ren->Clear();
     }
 
-  matrix->Delete();
-
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
 
@@ -139,4 +152,51 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 void vtkOpenGLCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+void vtkOpenGLCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
+        vtkMatrix3x3 *&normMat, vtkMatrix4x4 *&vcdc)
+{
+  // has the camera changed?
+  if (this->MTime > this->KeyMatrixTime ||
+      ren->GetMTime() > this->KeyMatrixTime)
+    {
+    this->WCVCMatrix->DeepCopy(this->GetModelViewTransformMatrix());
+
+    for(int i = 0; i < 3; ++i)
+      {
+      for (int j = 0; j < 3; ++j)
+        {
+        this->NormalMatrix->SetElement(i, j, this->WCVCMatrix->GetElement(i, j));
+        }
+      }
+    this->NormalMatrix->Invert();
+
+    this->WCVCMatrix->Transpose();
+
+    double aspect[2];
+    int  lowerLeft[2];
+    int usize, vsize;
+    ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+
+    ren->ComputeAspect();
+    ren->GetAspect(aspect);
+    double aspect2[2];
+    ren->vtkViewport::ComputeAspect();
+    ren->vtkViewport::GetAspect(aspect2);
+    double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
+
+    if (usize && vsize)
+      {
+      this->VCDCMatrix->DeepCopy(this->GetProjectionTransformMatrix(
+                         aspectModification * usize / vsize, -1, 1));
+      this->VCDCMatrix->Transpose();
+      }
+
+    this->KeyMatrixTime.Modified();
+    }
+
+  wcvc = this->WCVCMatrix;
+  normMat = this->NormalMatrix;
+  vcdc = this->VCDCMatrix;
 }

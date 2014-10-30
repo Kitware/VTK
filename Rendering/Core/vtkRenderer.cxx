@@ -29,7 +29,6 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOutputWindow.h"
-#include "vtkPainterPolyDataMapper.h"
 #include "vtkPicker.h"
 #include "vtkProp3DCollection.h"
 #include "vtkPropCollection.h"

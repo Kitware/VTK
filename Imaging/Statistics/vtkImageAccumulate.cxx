@@ -128,7 +128,7 @@ vtkImageStencilData *vtkImageAccumulate::GetStencil()
 template <class T>
 void vtkImageAccumulateExecute(vtkImageAccumulate *self,
                                vtkImageData *inData, T *,
-                               vtkImageData *outData, int *outPtr,
+                               vtkImageData *outData, vtkIdType *outPtr,
                                double min[3], double max[3],
                                double mean[3],
                                double standardDeviation[3],
@@ -185,7 +185,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
         {
         // find the bin for this pixel.
         bool outOfBounds = false;
-        int *outPtrC = outPtr;
+        vtkIdType *outPtrC = outPtr;
         for (int idxC = 0; idxC < numC; ++idxC)
           {
           double v = static_cast<double>(*inPtr++);
@@ -301,10 +301,10 @@ int vtkImageAccumulate::RequestData(
     }
 
   // this filter expects that output is type int.
-  if (outData->GetScalarType() != VTK_INT)
+  if (outData->GetScalarType() != VTK_ID_TYPE)
     {
     vtkErrorMacro(<< "Execute: out ScalarType " << outData->GetScalarType()
-                  << " must be int\n");
+                  << " must be vtkIdType\n");
     return 1;
     }
 
@@ -314,7 +314,7 @@ int vtkImageAccumulate::RequestData(
                                                 inData,
                                                 static_cast<VTK_TT *>(inPtr),
                                                 outData,
-                                                static_cast<int *>(outPtr),
+                                                static_cast<vtkIdType *>(outPtr),
                                                 this->Min, this->Max,
                                                 this->Mean,
                                                 this->StandardDeviation,
@@ -343,7 +343,7 @@ int vtkImageAccumulate::RequestInformation (
   outInfo->Set(vtkDataObject::ORIGIN(),this->ComponentOrigin,3);
   outInfo->Set(vtkDataObject::SPACING(),this->ComponentSpacing,3);
 
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_INT, 1);
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_ID_TYPE, 1);
   return 1;
 }
 

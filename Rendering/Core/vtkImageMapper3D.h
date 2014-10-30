@@ -119,6 +119,18 @@ public:
   vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
   vtkGetMacro(NumberOfThreads, int);
 
+  // Description:
+  // Turn on streaming, to pull the minimum amount of data from the input.
+  // Streaming decreases the memory required to display large images, since
+  // only one slice will be pulled through the input pipeline if only
+  // one slice is mapped to the screen.  The default behavior is to pull
+  // the full 3D input extent through the input pipeline, but to do this
+  // only when the input data changes.  The default behavior results in
+  // much faster follow-up renders when the input data is static.
+  vtkSetMacro(Streaming, int);
+  vtkGetMacro(Streaming, int);
+  vtkBooleanMacro(Streaming, int);
+
 protected:
   vtkImageMapper3D();
   ~vtkImageMapper3D();
@@ -190,6 +202,7 @@ protected:
   vtkScalarsToColors *DefaultLookupTable;
   vtkMultiThreader *Threader;
   int NumberOfThreads;
+  int Streaming;
 
   // The slice.
   vtkPlane *SlicePlane;

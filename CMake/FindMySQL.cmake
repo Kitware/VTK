@@ -55,15 +55,15 @@ IF (NOT WIN32)
                 NAMES z zlib
                 PATHS /usr/lib /usr/local/lib
                 DOC "If more libraries are necessary to link in a MySQL client (typically zlib), specify them here.")
-ELSE (NOT WIN32)
+ELSE ()
   SET( MYSQL_EXTRA_LIBRARIES "" )
-ENDIF (NOT WIN32)
+ENDIF ()
 
 
 IF (MYSQL_LIBRARY)
   IF (MYSQL_INCLUDE_DIRECTORIES)
     SET( MYSQL_FOUND 1 )
-  ENDIF (MYSQL_INCLUDE_DIRECTORIES)
-ENDIF (MYSQL_LIBRARY)
+  ENDIF ()
+ENDIF ()
 
 MARK_AS_ADVANCED( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIRECTORIES )

@@ -10,7 +10,7 @@ set(XKAAPI_HOME $ENV{XKAAPI_HOME} CACHE PATH "Path to the (x)Kaapi install dir")
 find_package(PkgConfig)
 if(PKG_CONFIG_FOUND)
   pkg_check_modules(PC_KAAPI QUIET kaapi++)
-endif(PKG_CONFIG_FOUND)
+endif()
 
 find_path(XKAAPI_INCLUDE_DIR kaapi++
   HINTS
@@ -31,20 +31,8 @@ find_library(XKAAPI_LIBRARY kaapi++
   ${PC_KAAPI_LIBDIR}
   ${PC_KAAPI_LIBRARY_DIRS}
 )
-#find_library(KAAPI_FORTRAN_LIBRARY kaapif
-#  HINTS
-#  ${XKAAPI_HOME}/lib
-#  ${PC_KAAPI_LIBDIR}
-#  ${PC_KAAPI_LIBRARY_DIRS}
-#)
-find_library(KAAPI_C_LIBRARY kaapic
-  HINTS
-  ${XKAAPI_HOME}/lib
-  ${PC_KAAPI_LIBDIR}
-  ${PC_KAAPI_LIBRARY_DIRS}
-)
 
-set(XKAAPI_LIBRARIES ${XKAAPI_LIBRARY} ${KAAPI_LIBRARY} ${KAAPI_C_LIBRARY})
+set(XKAAPI_LIBRARIES ${XKAAPI_LIBRARY} ${KAAPI_LIBRARY})
 set(XKAAPI_INCLUDE_DIRS ${XKAAPI_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)

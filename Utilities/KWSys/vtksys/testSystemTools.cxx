@@ -589,6 +589,28 @@ static bool CheckRelativePaths()
   return res;
 }
 
+static bool CheckCollapsePath(
+  const kwsys_stl::string& path,
+  const kwsys_stl::string& expected)
+{
+  kwsys_stl::string result = kwsys::SystemTools::CollapseFullPath(path);
+  if(expected != result)
+    {
+    kwsys_ios::cerr << "CollapseFullPath(" << path
+      << ")  yielded " << result << " instead of " << expected << kwsys_ios::endl;
+    return false;
+    }
+  return true;
+}
+
+static bool CheckCollapsePath()
+{
+  bool res = true;
+  res &= CheckCollapsePath("/usr/share/*", "/usr/share/*");
+  res &= CheckCollapsePath("C:/Windows/*", "C:/Windows/*");
+  return res;
+}
+
 //----------------------------------------------------------------------------
 int testSystemTools(int, char*[])
 {
@@ -621,6 +643,8 @@ int testSystemTools(int, char*[])
   res &= CheckEnvironmentOperations();
 
   res &= CheckRelativePaths();
+
+  res &= CheckCollapsePath();
 
   return res ? 0 : 1;
 }

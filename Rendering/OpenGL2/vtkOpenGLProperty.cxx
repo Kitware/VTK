@@ -21,7 +21,6 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkTexture.h"
 
-#include "vtkOpenGLTextureUnitManager.h"
 #include "vtkOpenGLError.h"
 
 #include <cassert>

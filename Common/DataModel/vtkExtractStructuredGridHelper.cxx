@@ -64,10 +64,7 @@ vtkExtractStructuredGridHelper::vtkExtractStructuredGridHelper()
 //-----------------------------------------------------------------------------
 vtkExtractStructuredGridHelper::~vtkExtractStructuredGridHelper()
 {
-  if( this->IndexMap != NULL )
-    {
-    delete this->IndexMap;
-    }
+  delete this->IndexMap;
 }
 
 //-----------------------------------------------------------------------------

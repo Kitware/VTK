@@ -110,14 +110,8 @@ vtkMNIObjectReader::~vtkMNIObjectReader()
     {
     this->Property->Delete();
     }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->LineText)
-    {
-    delete [] this->LineText;
-    }
+  delete [] this->FileName;
+  delete [] this->LineText;
 }
 
 //-------------------------------------------------------------------------

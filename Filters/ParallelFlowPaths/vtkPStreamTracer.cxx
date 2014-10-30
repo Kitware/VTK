@@ -17,7 +17,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
-#include <vtkFloatArray.h>
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

@@ -35,23 +35,27 @@ attribute vec4 vertexMC;
 //VTK::TCoord::Dec
 
 uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
-uniform mat3 glyphNormalMatrix; // glyphs normal matrix
 
 // material property values
 //VTK::Color::Dec
 
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
-uniform mat4 MCWCMatrix;  // model to world matrix
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
-uniform mat4 GCMCMatrix;  // glyphs matrix
+//VTK::Glyph::Dec
+
+// clipping plane vars
+//VTK::Clip::Dec
 
 varying vec4 vertexVC;
-varying vec4 vertexWC;
 
 void main()
 {
+  //VTK::Glyph::Impl
+
+  //VTK::Clip::Impl
+
   //VTK::Color::Impl
 
   //VTK::Normal::Impl
@@ -59,8 +63,6 @@ void main()
   //VTK::TCoord::Impl
 
   // compute the projected vertex position
-  vec4 vertex = GCMCMatrix * vertexMC;
-  vertexWC = MCWCMatrix * vertex;
   vertexVC = MCVCMatrix * vertex;
   gl_Position = VCDCMatrix * vertexVC;
 }

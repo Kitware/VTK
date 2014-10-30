@@ -27,8 +27,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkQtSQLQuery.h"
 
-#include <vtkStringArray.h>
-#include <vtkVariant.h>
+#include "vtkStringArray.h"
+#include "vtkVariant.h"
 
 #include <QtSql/QtSql>
 #include <QtSql/QSqlError>

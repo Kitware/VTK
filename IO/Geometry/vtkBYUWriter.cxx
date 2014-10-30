@@ -47,22 +47,10 @@ vtkBYUWriter::vtkBYUWriter()
 
 vtkBYUWriter::~vtkBYUWriter()
 {
-  if ( this->GeometryFileName )
-    {
-    delete [] this->GeometryFileName;
-    }
-  if ( this->DisplacementFileName )
-    {
-    delete [] this->DisplacementFileName;
-    }
-  if ( this->ScalarFileName )
-    {
-    delete [] this->ScalarFileName;
-    }
-  if ( this->TextureFileName )
-    {
-    delete [] this->TextureFileName;
-    }
+  delete [] this->GeometryFileName;
+  delete [] this->DisplacementFileName;
+  delete [] this->ScalarFileName;
+  delete [] this->TextureFileName;
 }
 
 // Write out data in MOVIE.BYU format.

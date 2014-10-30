@@ -36,7 +36,7 @@ if ( NOT PQXX_INCLUDE_DIRECTORIES OR NOT PQXX_LIBRARIES )
       DOC "Path to pqxx/pqxx header file. Do not include the 'pqxx' directory in this value."
       NO_DEFAULT_PATH
     )
-  endif ( POSTGRES_FOUND )
+  endif ()
 
   if ( PQXX_HEADER_PATH AND PQXX_LIBRARY )
 
@@ -47,9 +47,9 @@ if ( NOT PQXX_INCLUDE_DIRECTORIES OR NOT PQXX_LIBRARIES )
     mark_as_advanced( FORCE PQXX_INCLUDE_DIRECTORIES )
     mark_as_advanced( FORCE PQXX_LIBRARIES )
 
-  else ( PQXX_HEADER_PATH AND PQXX_LIBRARY )
+  else ()
     message( "PQXX NOT FOUND" )
-  endif ( PQXX_HEADER_PATH AND PQXX_LIBRARY )
+  endif ()
 
-endif ( NOT PQXX_INCLUDE_DIRECTORIES OR NOT PQXX_LIBRARIES )
+endif ()
 

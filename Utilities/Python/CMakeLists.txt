@@ -4,7 +4,7 @@ set(VTK_WRAP_PYTHON_FIND_LIBS ON)
 include(vtkWrapPython)
 
 set(${vtk-module}_LIBRARIES ${PYTHON_LIBRARIES})
-set(${vtk-module}_SYSTEM_INCLUDE_DIRS "${PYTHON_INCLUDE_PATH}")
+set(${vtk-module}_SYSTEM_INCLUDE_DIRS "${PYTHON_INCLUDE_DIRS}")
 set(${vtk-module}_NO_Header_Test 1)
 vtk_module_impl()
 vtk_module_export_info()

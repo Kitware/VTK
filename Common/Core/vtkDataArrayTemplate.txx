@@ -90,14 +90,8 @@ template <class T>
 vtkDataArrayTemplate<T>::~vtkDataArrayTemplate()
 {
   this->DeleteArray();
-  if(this->Tuple)
-    {
-    free(this->Tuple);
-    }
-  if(this->Lookup)
-    {
-    delete this->Lookup;
-    }
+  free(this->Tuple);
+  delete this->Lookup;
 }
 
 //----------------------------------------------------------------------------
@@ -1236,11 +1230,8 @@ void vtkDataArrayTemplate<T>::DataElementChanged(vtkIdType id)
 template <class T>
 void vtkDataArrayTemplate<T>::ClearLookup()
 {
-  if (this->Lookup)
-    {
-    delete this->Lookup;
-    this->Lookup = NULL;
-    }
+  delete this->Lookup;
+  this->Lookup = NULL;
 }
 
 #endif

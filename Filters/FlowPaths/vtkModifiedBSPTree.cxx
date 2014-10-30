@@ -24,8 +24,8 @@
 #include <algorithm>
 #include <functional>
 
-#include <vtkAppendPolyData.h>
-#include <vtkCubeSource.h>
+#include "vtkAppendPolyData.h"
+#include "vtkCubeSource.h"
 //
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkModifiedBSPTree);
@@ -57,12 +57,9 @@ vtkModifiedBSPTree::~vtkModifiedBSPTree(void)
 //---------------------------------------------------------------------------
 void vtkModifiedBSPTree::FreeSearchStructure(void)
 {
-  if (this->mRoot)
-    {
-    delete this->mRoot;
-    }
-  this->mRoot                     = NULL;
-  this->Level        = 0;
+  delete this->mRoot;
+  this->mRoot = NULL;
+  this->Level = 0;
   this->npn = this->nln = this->tot_depth = 0;
 }
 //---------------------------------------------------------------------------
