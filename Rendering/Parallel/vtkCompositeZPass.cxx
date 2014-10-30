@@ -465,7 +465,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 #ifdef VTKGL2
       this->Program->SetUniformi("depth", sourceId);
       this->ZTexture->Activate();
-      this->Program->Bind();
+      context->GetShaderCache()->ReadyShader(this->Program);
 #else
       this->Program->GetUniformVariables()->SetUniformi("depth",1,&sourceId);
       vtkgl::ActiveTexture(vtkgl::TEXTURE0+static_cast<GLenum>(sourceId));
@@ -511,7 +511,8 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
       this->ZTexture->UnBind();
 #ifdef VTKGL2
-      this->Program->Release();
+      // Do nothing, next shader cache call will replace the program.
+      // this->Program->Release();
 #else
       this->Program->Restore();
 #endif
@@ -761,12 +762,11 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 #ifdef VTKGL2
     this->Program->SetUniformi("depth", sourceId);
     this->ZTexture->Activate();
-    this->Program->Bind();
+    context->GetShaderCache()->ReadyShader(this->Program);
     this->ZTexture->CopyToFrameBuffer(0,     0,
                                      w - 1, h - 1,
                                      0,     0);
     this->ZTexture->Deactivate();
-    this->Program->Release();
 #else
     this->Program->GetUniformVariables()->SetUniformi("depth",1,&sourceId);
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+static_cast<GLenum>(sourceId));
