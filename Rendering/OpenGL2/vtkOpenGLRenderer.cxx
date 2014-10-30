@@ -17,6 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkglVBOHelper.h"
 
 #include "vtkCellArray.h"
+#include "vtkDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
@@ -35,6 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextureObject.h"
 #include "vtkTexturedActor2D.h"
 #include "vtkTimerLog.h"
+#include "vtkTranslucentPass.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -62,17 +64,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->PickInfo->NumPicked = 0;
   this->PickedZ = 0;
 
-  this->DepthPeelingIsSupported=0;
-  this->DepthPeelingIsSupportedChecked=0;
-
-  this->DepthZData = 0;
-  this->OpaqueZTexture = NULL;
-  this->TranslucentZTexture = NULL;
-  this->OpaqueRGBATexture = NULL;
-  this->TranslucentRGBATexture = NULL;
-  this->CurrentRGBATexture = NULL;
-  this->DepthPeelingActor = NULL;
-
+  this->DepthPeelingPass = 0;
   this->DepthPeelingHigherLayer=0;
 
   this->BackgroundTexture = 0;
@@ -148,11 +140,11 @@ void vtkOpenGLRenderer::DeviceRender(void)
     }
   else
     {
+    this->LastRenderingUsedDepthPeeling=0;
     // Do not remove this MakeCurrent! Due to Start / End methods on
     // some objects which get executed during a pipeline update,
     // other windows might get rendered since the last time
     // a MakeCurrent was called.
-    this->LastRenderingUsedDepthPeeling=0;
     this->RenderWindow->MakeCurrent();
     vtkOpenGLClearErrorMacro();
 
@@ -167,79 +159,6 @@ void vtkOpenGLRenderer::DeviceRender(void)
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
 }
 
-vtkTextureObject *vtkOpenGLRendererCreateDepthPeelingTextureObject(
-  vtkOpenGLRenderWindow *context, int width, int height, int numComponents, bool isDepth, void *initialData)
-{
-  vtkTextureObject *result = vtkTextureObject::New();
-  result->SetContext(context);
-
-  if (isDepth == true)
-    {
-    if (initialData)
-      {
-      result->CreateDepthFromRaw(
-          width, height, vtkTextureObject::Float32, VTK_FLOAT, initialData);
-      }
-    else
-      {
-      result->AllocateDepth(width, height, vtkTextureObject::Float32);
-      }
-    }
-  else
-    {
-    result->Allocate2D(width, height, numComponents, VTK_UNSIGNED_CHAR);
-    }
-
-  result->SetMinificationFilter(vtkTextureObject::Nearest);
-  result->SetMagnificationFilter(vtkTextureObject::Nearest);
-  result->SetWrapS(vtkTextureObject::ClampToEdge);
-  result->SetWrapT(vtkTextureObject::ClampToEdge);
-  result->SetWrapR(vtkTextureObject::ClampToEdge);
-  return result;
-}
-
-// get the texture units for depth peeling
-int vtkOpenGLRenderer::GetOpaqueRGBATextureUnit()
-{
-  if (this->OpaqueRGBATexture)
-    {
-    return this->OpaqueRGBATexture->GetTextureUnit();
-    }
-  return -1;
-}
-int vtkOpenGLRenderer::GetOpaqueZTextureUnit()
-{
-  if (this->OpaqueZTexture)
-    {
-    return this->OpaqueZTexture->GetTextureUnit();
-    }
-  return -1;
-}
-int vtkOpenGLRenderer::GetTranslucentRGBATextureUnit()
-{
-  if (this->TranslucentRGBATexture)
-    {
-    return this->TranslucentRGBATexture->GetTextureUnit();
-    }
-  return -1;
-}
-int vtkOpenGLRenderer::GetTranslucentZTextureUnit()
-{
-  if (this->TranslucentZTexture)
-    {
-    return this->TranslucentZTexture->GetTextureUnit();
-    }
-  return -1;
-}
-int vtkOpenGLRenderer::GetCurrentRGBATextureUnit()
-{
-  if (this->CurrentRGBATexture)
-    {
-    return this->CurrentRGBATexture->GetTextureUnit();
-    }
-  return -1;
-}
-
 // ----------------------------------------------------------------------------
 // Description:
 // Render translucent polygonal geometry. Default implementation just call
@@ -252,22 +171,14 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
   vtkOpenGLRenderWindow *context
     = vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow);
-  if(this->UseDepthPeeling)
-    {
-    if (!context)
-      {
-      vtkErrorMacro("OpenGL render window is required.")
-      return;
-      }
 
-    if(!this->DepthPeelingIsSupportedChecked)
-      {
-      this->DepthPeelingIsSupportedChecked=1;
-      this->DepthPeelingIsSupported = true;
-      }
+  if(this->UseDepthPeeling && !context)
+    {
+    vtkErrorMacro("OpenGL render window is required.")
+    return;
     }
 
-  if(!this->UseDepthPeeling || !this->DepthPeelingIsSupported)
+  if(!this->UseDepthPeeling)
     {
     // just alpha blending
     this->LastRenderingUsedDepthPeeling=0;
@@ -275,204 +186,23 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     }
   else   // depth peeling.
     {
-    // get the viewport dimensions
-    this->GetTiledSizeAndOrigin(&this->ViewportWidth, &this->ViewportHeight,
-                                &this->ViewportX, &this->ViewportY);
-
-    // create textures we need if not done already
-    if (this->DepthPeelingActor == NULL)
+    if (!this->DepthPeelingPass)
       {
-      this->DepthPeelingActor = vtkTexturedActor2D::New();
-      vtkNew<vtkPolyDataMapper2D> mapper;
-      vtkNew<vtkPolyData> polydata;
-      vtkNew<vtkPoints> points;
-      points->SetNumberOfPoints(4);
-      points->SetPoint(0, 0, 0, 0);
-      points->SetPoint(1, this->ViewportWidth-1, 0, 0);
-      points->SetPoint(2, this->ViewportWidth-1, this->ViewportHeight-1, 0);
-      points->SetPoint(3, 0, this->ViewportHeight-1, 0);
-      polydata->SetPoints(points.Get());
-
-      vtkNew<vtkCellArray> tris;
-      tris->InsertNextCell(3);
-      tris->InsertCellPoint(0);
-      tris->InsertCellPoint(1);
-      tris->InsertCellPoint(2);
-      tris->InsertNextCell(3);
-      tris->InsertCellPoint(0);
-      tris->InsertCellPoint(2);
-      tris->InsertCellPoint(3);
-      polydata->SetPolys(tris.Get());
-
-      vtkNew<vtkTrivialProducer> prod;
-      prod->SetOutput(polydata.Get());
-
-      // Set some properties.
-      mapper->SetInputConnection(prod->GetOutputPort());
-      this->DepthPeelingActor->SetMapper(mapper.Get());
+      this->DepthPeelingPass = vtkDepthPeelingPass::New();
+      vtkTranslucentPass *tp = vtkTranslucentPass::New();
+      this->DepthPeelingPass->SetTranslucentPass(tp);
+      tp->Delete();
       }
-
-    // has the size changed?
-    if (this->OpaqueRGBATexture && (
-          this->OpaqueRGBATexture->GetWidth() != static_cast<unsigned int>(this->ViewportWidth) ||
-          this->OpaqueRGBATexture->GetHeight() != static_cast<unsigned int>(this->ViewportHeight)))
-      {
-      delete this->DepthZData;
-      this->DepthZData = 0;
-
-      this->OpaqueZTexture->UnRegister(this);
-      this->OpaqueZTexture = 0;
-
-      this->OpaqueRGBATexture->UnRegister(this);
-      this->OpaqueRGBATexture = 0;
-
-      this->TranslucentRGBATexture->UnRegister(this);
-      this->TranslucentRGBATexture = 0;
-
-      this->CurrentRGBATexture->UnRegister(this);
-      this->CurrentRGBATexture = 0;
-
-      vtkPolyData *polydata = vtkPolyDataMapper2D::SafeDownCast(this->DepthPeelingActor->GetMapper())->GetInput();
-      polydata->GetPoints()->SetPoint(1, this->ViewportWidth-1, 0, 0);
-      polydata->GetPoints()->SetPoint(2, this->ViewportWidth-1, this->ViewportHeight-1, 0);
-      polydata->GetPoints()->SetPoint(3, 0, this->ViewportHeight-1, 0);
-      polydata->GetPoints()->Modified();
-      }
-
-    // create textures we need if not done already
-    if (this->OpaqueZTexture == NULL)
-      {
-      this->OpaqueZTexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 1, true, NULL);
-      this->OpaqueRGBATexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 4, false, NULL);
-      this->TranslucentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 4, false, NULL);
-      this->CurrentRGBATexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-        context, this->ViewportWidth, this->ViewportHeight, 4, false, NULL);
-      this->DepthZData = new std::vector<float>(this->ViewportWidth * this->ViewportHeight, 0.0);
-      }
-
-    this->TranslucentZTexture = vtkOpenGLRendererCreateDepthPeelingTextureObject(
-      context, this->ViewportWidth, this->ViewportHeight, 1, true, &((*this->DepthZData)[0]));
-
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
- //  glClearColor(0.0,0.0,0.0,0.0); // always clear to black
-   // glClearDepth(static_cast<GLclampf>(1.0));
-#ifdef GL_MULTISAMPLE
-    glDisable(GL_MULTISAMPLE);
-#endif
-    glDisable(GL_BLEND);
-
-    // Get opaqueRGBA and opaqueZ
-    this->OpaqueRGBATexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
-      this->ViewportX, this->ViewportY,
-      this->ViewportWidth, this->ViewportHeight);
-    this->OpaqueRGBATexture->Deactivate(); // deactivate & unbind to save texture resources
-    this->OpaqueZTexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
-      this->ViewportX, this->ViewportY,
-      this->ViewportWidth, this->ViewportHeight);
-
-    this->TranslucentZTexture->Activate();
-    this->OpaqueZTexture->Activate();
-
-    // Do render loop until complete
-    unsigned int threshold=
-      static_cast<unsigned int>(this->ViewportWidth*this->ViewportHeight*OcclusionRatio);
-
-#if GL_ES_VERSION_2_0 != 1
-    GLuint queryId;
-    glGenQueries(1,&queryId);
-#endif
-
-    bool done = false;
-    GLuint nbPixels = 0;
-    int peelCount = 0;
-    while(!done)
-      {
-      // clear the zbuffer and color buffers
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-      // render the translucent geometry
-      this->LastRenderingUsedDepthPeeling=1;
-#if GL_ES_VERSION_2_0 != 1
-      glBeginQuery(GL_SAMPLES_PASSED,queryId);
-#endif
-      this->UpdateTranslucentPolygonalGeometry();
-
-      // update translucentZ
-      this->TranslucentZTexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
-          this->ViewportX, this->ViewportY,
-          this->ViewportWidth, this->ViewportHeight);
-
-#if GL_ES_VERSION_2_0 != 1
-      glEndQuery(GL_SAMPLES_PASSED);
-      glGetQueryObjectuiv(queryId,GL_QUERY_RESULT,&nbPixels);
-      if (nbPixels <= threshold)
-        {
-        done = true;
-        }
-#endif
-      peelCount++;
-      if(this->MaximumNumberOfPeels && peelCount >= this->MaximumNumberOfPeels)
-        {
-        done = true;
-        }
-      //cerr << "Pass " << peelCount << " pixels Drawn " << nbPixels << "\n";
-
-      // blend the last two peels together
-      if (peelCount > 1)
-        {
-        this->CurrentRGBATexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
-          this->ViewportX, this->ViewportY,
-          this->ViewportWidth, this->ViewportHeight);
-        this->LastRenderingUsedDepthPeeling = 2;
-        // take the TranslucentRGBA texture and blend it with the current frame buffer
-        this->DepthPeelingActor->RenderOverlay(this);
-        }
-
-      // update translucent RGBA
-      this->TranslucentRGBATexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
-        this->ViewportX, this->ViewportY,
-        this->ViewportWidth, this->ViewportHeight);
-      }
-
-    // unload the textures we are done with
-    this->CurrentRGBATexture->Deactivate();
-    this->OpaqueZTexture->Deactivate();
-    this->TranslucentZTexture->UnRegister(this);
-    this->TranslucentZTexture = 0;
-
-    // blend in OpaqueRGBA
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    this->LastRenderingUsedDepthPeeling = 3;
-    this->OpaqueRGBATexture->Activate();
-    this->DepthPeelingActor->RenderOverlay(this);
-
-    // unload the last two textures
-    this->TranslucentRGBATexture->Deactivate();
-    this->OpaqueRGBATexture->Deactivate();
-
-    // done
-    this->LastRenderingUsedDepthPeeling=1;
+    this->DepthPeelingPass->SetMaximumNumberOfPeels(this->MaximumNumberOfPeels);
+    this->DepthPeelingPass->SetOcclusionRatio(this->OcclusionRatio);
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetFrameBuffer(0);
+    this->DepthPeelingPass->Render(&s);
     }
 
   vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
 }
-
-
-// ----------------------------------------------------------------------------
-// Description:
-// Render a peel layer. If there is no more GPU RAM to save the texture,
-// return false otherwise returns true. Also if layer==0 and no prop have
-// been rendered (there is no translucent geometry), it returns false.
-// \pre positive_layer: layer>=0
-int vtkOpenGLRenderer::RenderPeel(int vtkNotUsed(layer))
-{
-  // assert("pre: positive_layer" && layer>=0);
-  return 0;
-}
-
 
 
 // ----------------------------------------------------------------------------
@@ -804,40 +534,10 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     this->Pass = NULL;
     }
 
-  if (this->DepthZData)
+  if (this->DepthPeelingPass)
     {
-    delete this->DepthZData;
-    this->DepthZData = 0;
-    }
-  if (this->OpaqueZTexture)
-    {
-    this->OpaqueZTexture->UnRegister(this);
-    this->OpaqueZTexture = NULL;
-    }
-  if (this->TranslucentZTexture)
-    {
-    this->TranslucentZTexture->UnRegister(this);
-    this->TranslucentZTexture = NULL;
-    }
-  if (this->OpaqueRGBATexture)
-    {
-    this->OpaqueRGBATexture->UnRegister(this);
-    this->OpaqueRGBATexture = NULL;
-    }
-  if (this->TranslucentRGBATexture)
-    {
-    this->TranslucentRGBATexture->UnRegister(this);
-    this->TranslucentRGBATexture = NULL;
-    }
-  if (this->CurrentRGBATexture)
-    {
-    this->CurrentRGBATexture->UnRegister(this);
-    this->CurrentRGBATexture = NULL;
-    }
-  if (this->DepthPeelingActor)
-    {
-    this->DepthPeelingActor->UnRegister(this);
-    this->DepthPeelingActor = NULL;
+    this->DepthPeelingPass->Delete();
+    this->DepthPeelingPass = 0;
     }
 }
 

@@ -198,7 +198,6 @@ bool vtkFrameBufferObject::Start(int width,
     return false;
     }
 
-  glDisable(GL_ALPHA_TEST);
   glDisable(GL_BLEND);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_SCISSOR_TEST);

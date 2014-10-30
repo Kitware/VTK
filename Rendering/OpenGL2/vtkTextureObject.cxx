@@ -1633,7 +1633,7 @@ void vtkTextureObject::CopyToFrameBuffer(
   int srcXmin, int srcYmin,
   int srcXmax, int srcYmax,
   int dstXmin, int dstYmin,
-  vtkWindow *win,
+  int dstSizeX, int dstSizeY,
   vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
   assert("pre: positive_srcXmin" && srcXmin>=0);
@@ -1650,20 +1650,19 @@ void vtkTextureObject::CopyToFrameBuffer(
   vtkOpenGLClearErrorMacro();
 
   float minXTexCoord=static_cast<float>(
-    static_cast<double>(srcXmin)/this->Width);
+    static_cast<double>(srcXmin+0.5)/this->Width);
   float minYTexCoord=static_cast<float>(
-    static_cast<double>(srcYmin)/this->Height);
+    static_cast<double>(srcYmin+0.5)/this->Height);
 
   float maxXTexCoord=static_cast<float>(
-    static_cast<double>(srcXmax+1)/this->Width);
+    static_cast<double>(srcXmax+0.5)/this->Width);
   float maxYTexCoord=static_cast<float>(
-    static_cast<double>(srcYmax+1)/this->Height);
+    static_cast<double>(srcYmax+0.5)/this->Height);
 
   float dstXmax = static_cast<float>(dstXmin+srcXmax-srcXmin);
   float dstYmax = static_cast<float>(dstYmin+srcYmax-srcYmin);
 
-  int *size = win->GetSize();
-  glViewport(0,0,size[0],size[1]);
+  glViewport(0,0,dstSizeX,dstSizeY);
 
   float tcoords[] = {
     minXTexCoord, minYTexCoord,
@@ -1672,17 +1671,16 @@ void vtkTextureObject::CopyToFrameBuffer(
     minXTexCoord, maxYTexCoord};
 
   float verts[] = {
-    2.0*dstXmin/size[0]-1.0, 2.0*dstYmin/size[1]-1.0, 0,
-    2.0*dstXmax/size[0]-1.0, 2.0*dstYmin/size[1]-1.0, 0,
-    2.0*dstXmax/size[0]-1.0, 2.0*dstYmax/size[1]-1.0, 0,
-    2.0*dstXmin/size[0]-1.0, 2.0*dstYmax/size[1]-1.0, 0};
+    2.0*dstXmin/dstSizeX-1.0, 2.0*dstYmin/dstSizeY-1.0, 0,
+    2.0*dstXmax/dstSizeX-1.0, 2.0*dstYmin/dstSizeY-1.0, 0,
+    2.0*dstXmax/dstSizeX-1.0, 2.0*dstYmax/dstSizeY-1.0, 0,
+    2.0*dstXmin/dstSizeX-1.0, 2.0*dstYmax/dstSizeY-1.0, 0};
 
   // if no program or VAO was provided, then use
   // a simple pass through program and bind this
   // texture to it
   if (!program || !vao)
     {
-    vtkOpenGLRenderWindow * context = static_cast<vtkOpenGLRenderWindow *>(win);
     if (!this->ShaderProgram)
       {
       this->ShaderProgram = new vtkgl::CellBO;
@@ -1694,7 +1692,7 @@ void vtkTextureObject::CopyToFrameBuffer(
 
       // compile and bind it if needed
       vtkShaderProgram *newShader =
-        context->GetShaderCache()->ReadyShader(VSSource.c_str(),
+        this->Context->GetShaderCache()->ReadyShader(VSSource.c_str(),
                                            FSSource.c_str(),
                                            GSSource.c_str());
 
@@ -1709,7 +1707,7 @@ void vtkTextureObject::CopyToFrameBuffer(
       }
     else
       {
-      context->GetShaderCache()->ReadyShader(this->ShaderProgram->Program);
+      this->Context->GetShaderCache()->ReadyShader(this->ShaderProgram->Program);
       }
 
     // bind and activate this texture

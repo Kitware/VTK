@@ -448,16 +448,14 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 #endif
 
     // Prepare blitting
-    glDisable(GL_ALPHA_TEST);
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
     glDisable(GL_SCISSOR_TEST);
 
     // Trigger a draw on Gy1 (could be called on Gx1).
     this->Gy1->CopyToFrameBuffer(extraPixels, extraPixels,
                                   w-1-extraPixels,h-1-extraPixels,
-                                  0,0, context,
+                                  0, 0, width, height,
                                   this->Program2->Program, &this->Program2->vao);
 
     this->Gy1->Deactivate();

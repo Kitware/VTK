@@ -96,9 +96,6 @@ protected:
   vtkgl::CellBO Tris;
   vtkgl::CellBO TriStrips;
 
-  int LastDepthPeeling;
-  vtkTimeStamp DepthPeelingChanged;
-
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   vtkPoints *TransformedPoints;
 

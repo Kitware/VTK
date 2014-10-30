@@ -19,9 +19,11 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkMath.h"
@@ -713,18 +715,22 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
   // if depth peeling set the required uniforms
   if (ren->GetLastRenderingUsedDepthPeeling())
     {
-    vtkOpenGLRenderer *oglren = vtkOpenGLRenderer::SafeDownCast(ren);
-    int otunit = oglren->GetOpaqueZTextureUnit();
-    cellBO.Program->SetUniformi("opaqueZTexture", otunit);
+    // check for prop keys
+    vtkInformation *info = actor->GetPropertyKeys();
+    if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()) &&
+        info->Has(vtkDepthPeelingPass::TranslucentZTextureUnit()))
+      {
+      int otunit = info->Get(vtkDepthPeelingPass::OpaqueZTextureUnit());
+      int ttunit = info->Get(vtkDepthPeelingPass::TranslucentZTextureUnit());
+      cellBO.Program->SetUniformi("opaqueZTexture", otunit);
+      cellBO.Program->SetUniformi("translucentZTexture", ttunit);
 
-    int ttunit = oglren->GetTranslucentZTextureUnit();
-    cellBO.Program->SetUniformi("translucentZTexture", ttunit);
-
-    int *renSize = ren->GetSize();
-    float screenSize[2];
-    screenSize[0] = renSize[0];
-    screenSize[1] = renSize[1];
-    cellBO.Program->SetUniform2f("screenSize", screenSize);
+      int *renSize = info->Get(vtkDepthPeelingPass::DestinationSize());
+      float screenSize[2];
+      screenSize[0] = renSize[0];
+      screenSize[1] = renSize[1];
+      cellBO.Program->SetUniform2f("screenSize", screenSize);
+      }
     }
 
   if (this->LastSelectionState)
