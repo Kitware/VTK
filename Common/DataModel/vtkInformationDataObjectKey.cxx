@@ -14,10 +14,7 @@
 =========================================================================*/
 #include "vtkInformationDataObjectKey.h"
 
-#if defined(vtkCommonDataModel_ENABLED)
-# include "../DataModel/vtkDataObject.h"
-#endif
-
+#include "vtkDataObject.h"
 
 //----------------------------------------------------------------------------
 vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location):
@@ -41,19 +38,13 @@ void vtkInformationDataObjectKey::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInformationDataObjectKey::Set(vtkInformation* info,
                                       vtkDataObject* value)
 {
-#if defined(vtkCommonDataModel_ENABLED)
   this->SetAsObjectBase(info, value);
-#endif
 }
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkInformationDataObjectKey::Get(vtkInformation* info)
 {
-#if defined(vtkCommonDataModel_ENABLED)
   return static_cast<vtkDataObject *>(this->GetAsObjectBase(info));
-#else
-  return 0;
-#endif
 }
 
 //----------------------------------------------------------------------------

@@ -88,6 +88,8 @@ set(Module_SRCS
   vtkIncrementalOctreePointLocator.cxx
   vtkIncrementalPointLocator.cxx
   vtkInEdgeIterator.cxx
+  vtkInformation.cxx
+  vtkInformationDataObjectKey.cxx
   vtkInformationQuadratureSchemeDefinitionVectorKey.cxx
   vtkIterativeClosestPointTransform.cxx
   vtkKdNode.cxx
@@ -243,6 +245,7 @@ set_source_files_properties(
   vtkHyperTreeCursor
   vtkImplicitFunction
   vtkIncrementalPointLocator
+  vtkInformationDataObjectKey
   vtkInformationQuadratureSchemeDefinitionVectorKey
   vtkLocator
   vtkNonLinearCell
@@ -270,6 +273,7 @@ set_source_files_properties(
   vtkMarchingCubesTriangleCases
   vtkImageIterator
   vtkImageProgressIterator
+  vtkInformation
   vtkPixelExtent.cxx
   vtkVector
   vtkColor
