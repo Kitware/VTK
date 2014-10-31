@@ -116,21 +116,21 @@ void vtkWebGLWidget::GetDataFromColorMap(vtkActor2D *actor)
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
   this->numberOfLabels = scalarbar->GetNumberOfLabels();
 
-  std::stringstream title;
+  std::stringstream theTitle;
   char* componentTitle = scalarbar->GetComponentTitle();
 
-  title << scalarbar->GetTitle();
+  theTitle << scalarbar->GetTitle();
   if (componentTitle && strlen(componentTitle) > 0)
     {
-    title << " ";
-    title << componentTitle;
+    theTitle << " ";
+    theTitle << componentTitle;
     }
 
   if (this->title)
     {
     delete[] this->title;
     }
-  std::string tmp = title.str();
+  std::string tmp = theTitle.str();
   this->title = new char[tmp.length()+1];
   strcpy(this->title, tmp.c_str());
   this->hasTransparency = (scalarbar->GetUseOpacity() != 0);
