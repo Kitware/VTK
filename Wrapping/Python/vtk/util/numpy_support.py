@@ -67,6 +67,8 @@ def get_vtk_array_type(numpy_array_type):
         for key in _np_vtk:
             if numpy.issubdtype(numpy_array_type, key):
                 return _np_vtk[key]
+    raise TypeError, \
+        'Could not find a suitable VTK type for %s' % (str(numpy_array_type))
 
 def get_vtk_to_numpy_typemap():
     """Returns the VTK array type to numpy array type mapping."""
