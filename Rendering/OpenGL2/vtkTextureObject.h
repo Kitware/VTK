@@ -454,7 +454,7 @@ public:
   void CopyToFrameBuffer(int srcXmin, int srcYmin,
                          int srcXmax, int srcYmax,
                          int dstXmin, int dstYmin,
-                         vtkWindow *,
+                         int dstSizeX, int dstSizeY,
                          vtkShaderProgram *program,
                          vtkgl::VertexArrayObject *vao
                          );

@@ -30,6 +30,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 
+#include "vtkConeSource.h"
 #include "vtkImageSinusoidSource.h"
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
@@ -38,17 +39,10 @@
 #include "vtkLookupTable.h"
 #include "vtkCamera.h"
 
-#include "vtkCameraPass.h"
-#include "vtkLightsPass.h"
-#include "vtkSequencePass.h"
-#include "vtkOpaquePass.h"
-//#include "vtkDepthPeelingPass.h"
-#include "vtkTranslucentPass.h"
-#include "vtkVolumetricPass.h"
-#include "vtkOverlayPass.h"
-#include "vtkRenderPassCollection.h"
+#include "vtkDepthPeelingPass.h"
 #include "vtkGaussianBlurPass.h"
-#include "vtkConeSource.h"
+#include "vtkRenderStepsPass.h"
+
 
 int TestGaussianBlurPass(int argc, char* argv[])
 {
@@ -68,54 +62,29 @@ int TestGaussianBlurPass(int argc, char* argv[])
   vtkOpenGLRenderer *glrenderer =
       vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
 
-  vtkSmartPointer<vtkCameraPass> cameraP=
-    vtkSmartPointer<vtkCameraPass>::New();
+  // create the basic VTK render steps
+  vtkSmartPointer<vtkRenderStepsPass> basicPasses =
+    vtkSmartPointer<vtkRenderStepsPass>::New();
 
-  vtkSmartPointer<vtkSequencePass> seq=
-    vtkSmartPointer<vtkSequencePass>::New();
-  vtkSmartPointer<vtkOpaquePass> opaque=
-    vtkSmartPointer<vtkOpaquePass>::New();
-
-
-  /*
+  // replace the default translucent pass with
+  // a more advanced depth peeling pass
   vtkSmartPointer<vtkDepthPeelingPass> peeling=
     vtkSmartPointer<vtkDepthPeelingPass>::New();
-  peeling->SetMaximumNumberOfPeels(200); // these settings make no sense 200, 0.1?
-  peeling->SetOcclusionRatio(0.1); // far more reasonable values would be 50, 0.01
-*/
+  peeling->SetMaximumNumberOfPeels(20);
+  peeling->SetOcclusionRatio(0.001);
+  peeling->SetTranslucentPass(basicPasses->GetTranslucentPass());
+  basicPasses->SetTranslucentPass(peeling);
 
-  vtkSmartPointer<vtkTranslucentPass> translucent=
-    vtkSmartPointer<vtkTranslucentPass>::New();
-  //peeling->SetTranslucentPass(translucent);
-
-  vtkSmartPointer<vtkVolumetricPass> volume=
-    vtkSmartPointer<vtkVolumetricPass>::New();
-  vtkSmartPointer<vtkOverlayPass> overlay=
-    vtkSmartPointer<vtkOverlayPass>::New();
-
-  vtkSmartPointer<vtkLightsPass> lights=
-    vtkSmartPointer<vtkLightsPass>::New();
-
-  vtkSmartPointer<vtkRenderPassCollection> passes=
-    vtkSmartPointer<vtkRenderPassCollection>::New();
-  passes->AddItem(lights);
-  passes->AddItem(opaque);
-
-//  passes->AddItem(peeling);
-  passes->AddItem(translucent);
-
-  passes->AddItem(volume);
-  passes->AddItem(overlay);
-  seq->SetPasses(passes);
-  cameraP->SetDelegatePass(seq);
-
+  // finally blur the resulting image
+  // The blur delegates rendering the unblured image
+  // to the basicPasses
   vtkSmartPointer<vtkGaussianBlurPass> blurP=
     vtkSmartPointer<vtkGaussianBlurPass>::New();
-  blurP->SetDelegatePass(cameraP);
+  blurP->SetDelegatePass(basicPasses);
 
+  // tell the renderer to use our render pass pipeline
   glrenderer->SetPass(blurP);
-
-//  renderer->SetPass(cameraP);
+  // glrenderer->SetPass(basicPasses);
 
   vtkSmartPointer<vtkImageSinusoidSource> imageSource=
     vtkSmartPointer<vtkImageSinusoidSource>::New();
@@ -170,28 +139,22 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renderer->SetBackground(0.1,0.3,0.0);
   renWin->SetSize(400,400);
 
-  // empty scene during OpenGL detection.
-  actor->SetVisibility(0);
-  coneActor->SetVisibility(0);
-  renWin->Render();
-
   int retVal;
-  actor->SetVisibility(1);
-  coneActor->SetVisibility(1);
   renderer->ResetCamera();
   vtkCamera *camera=renderer->GetActiveCamera();
   camera->Azimuth(-40.0);
   camera->Elevation(20.0);
+  renderer->ResetCamera();
   renWin->Render();
 
-  // if(peeling->GetLastRenderingUsedDepthPeeling())
-  //   {
-  //   cout<<"depth peeling was used"<<endl;
-  //   }
-  // else
-  //   {
-  //   cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-  //   }
+  if(peeling->GetLastRenderingUsedDepthPeeling())
+    {
+    cout<<"depth peeling was used"<<endl;
+    }
+  else
+    {
+    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
+    }
 
   retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -764,7 +764,8 @@ void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numCo
         numComponents, dataType, data);
   this->DrawPixelsTextureObject->CopyToFrameBuffer(
       0, 0, width-1, height-1,
-      x_low, y_low, this,
+      x_low, y_low,
+      this->GetSize()[0], this->GetSize()[1],
       NULL, NULL);
 
   // This seems to be necessary for the image to show up

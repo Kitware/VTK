@@ -27,7 +27,7 @@
 class vtkRenderPass;
 class vtkOpenGLTexture;
 class vtkTextureObject;
-class vtkTexturedActor2D;
+class vtkDepthPeelingPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
@@ -66,15 +66,6 @@ public:
   void SetPass(vtkRenderPass *p);
   vtkGetObjectMacro(Pass, vtkRenderPass);
 
-  // Description:
-  // get the various texture units used for Depth Peeling
-  // the Mappers make use of these
-  int GetOpaqueRGBATextureUnit();
-  int GetOpaqueZTextureUnit();
-  int GetTranslucentRGBATextureUnit();
-  int GetTranslucentZTextureUnit();
-  int GetCurrentRGBATextureUnit();
-
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer();
@@ -101,43 +92,14 @@ protected:
 
   double PickedZ;
 
-  // Description:
-  // Render a peel layer. If there is no more GPU RAM to save the texture,
-  // return false otherwise returns true. Also if layer==0 and no prop have
-  // been rendered (there is no translucent geometry), it returns false.
-  // \pre positive_layer: layer>=0
-  int RenderPeel(int layer);
-
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
   friend class vtkOpenGLImageResliceMapper;
 
   // Description:
-  // This flag is on if the current OpenGL context supports extensions
-  // required by the depth peeling technique.
-  int DepthPeelingIsSupported;
-
-  // Description:
-  // This flag is on once the OpenGL extensions required by the depth peeling
-  // technique have been checked.
-  int DepthPeelingIsSupportedChecked;
-  vtkTexturedActor2D *DepthPeelingActor;
-  std::vector<float> *DepthZData;
-
-  vtkTextureObject *OpaqueZTexture;
-  vtkTextureObject *OpaqueRGBATexture;
-  vtkTextureObject *TranslucentRGBATexture;
-  vtkTextureObject *TranslucentZTexture;
-  vtkTextureObject *CurrentRGBATexture;
-
-
-  // Description:
-  // Cache viewport values for depth peeling.
-  int ViewportX;
-  int ViewportY;
-  int ViewportWidth;
-  int ViewportHeight;
+  // Deepth peeling is delegated to an instance of vtkDepthPeelingPass
+  vtkDepthPeelingPass *DepthPeelingPass;
 
   // Is rendering at translucent geometry stage using depth peeling and
   // rendering a layer other than the first one? (Boolean value)
