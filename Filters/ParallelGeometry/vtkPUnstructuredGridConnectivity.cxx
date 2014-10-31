@@ -1118,6 +1118,10 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
       assert("pre: ncomp must be at lease 1" && (ncomp >= 1) );
 
       vtkIdType ntuples = this->GhostedGrid->GetNumberOfPoints();
+      // ghosted may have more points than input so we can
+      // only safely copy the number of input point values
+      vtkIdType intuples = this->InputGrid->GetNumberOfPoints();
+
       vtkDataArray* ghostedField = NULL;
       if( !targetPD->HasArray(field->GetName()))
         {
@@ -1131,7 +1135,7 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
       ghostedField = targetPD->GetArray(field->GetName());
       assert("pre: ghosted field is NULL!" && (ghostedField != NULL) );
       memcpy(ghostedField->GetVoidPointer(0),field->GetVoidPointer(0),
-             ntuples*ncomp*field->GetDataTypeSize());
+             intuples*ncomp*field->GetDataTypeSize());
       } // END if the array is not a global ID field
     } // END for all point data arrays
 
@@ -1142,6 +1146,9 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
     int ncomp         = field->GetNumberOfComponents();
     assert("pre: ncomp must be at lease 1" && (ncomp >= 1) );
     vtkIdType ntuples = this->GhostedGrid->GetNumberOfCells();
+    // ghosted may have more points than input so we can
+    // only safely copy the number of input point values
+    vtkIdType intuples = this->InputGrid->GetNumberOfCells();
 
     vtkDataArray* ghostedField = NULL;
     if(!targetCD->HasArray(field->GetName()))
@@ -1157,7 +1164,7 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
     ghostedField = targetCD->GetArray(field->GetName());
     assert("pre: ghosted field is NULL!" && (ghostedField != NULL) );
     memcpy(ghostedField->GetVoidPointer(0),field->GetVoidPointer(0),
-           ntuples*ncomp*field->GetDataTypeSize());
+           intuples*ncomp*field->GetDataTypeSize());
     } // END for all cell data arrays
 
   // STEP 4: Finally, mark ghost cells. The ghost cells are marked only
