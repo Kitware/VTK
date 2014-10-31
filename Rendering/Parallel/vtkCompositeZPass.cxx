@@ -49,6 +49,8 @@
 #ifdef VTKGL2
 # include "vtkOpenGLShaderCache.h"
 # include "vtkShaderProgram.h"
+# include "vtkglVBOHelper.h"
+# include "vtkTextureObjectVS.h"
 #else
 # include "vtkgl.h"
 # include "vtkShaderProgram2.h"
@@ -90,7 +92,12 @@ vtkCompositeZPass::~vtkCompositeZPass()
     }
    if(this->Program!=0)
      {
+#ifdef VTKGL2
+     delete this->Program;
+#else
      this->Program->Delete();
+#endif
+     this->Program = 0;
      }
    if(this->RawZBuffer!=0)
      {
@@ -118,7 +125,7 @@ void vtkCompositeZPass::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkCompositeZPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
 #ifdef VTKGL2
-  return true;
+  return context != 0;
 #else
   return vtkFrameBufferObject::IsSupported(context)
     && vtkTextureObject::IsSupported(context)
@@ -156,10 +163,10 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
 
+#ifndef VTKGL2
    // Test for Hardware support. If not supported, return.
   bool supported=vtkFrameBufferObject::IsSupported(context);
 
-#ifndef VTKGL2
   if(!supported)
     {
     vtkErrorMacro("FBOs are not supported by the context. Cannot perform z-compositing.");
@@ -463,9 +470,9 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 #endif
 
 #ifdef VTKGL2
-      this->Program->SetUniformi("depth", sourceId);
+      context->GetShaderCache()->ReadyShader(this->Program->Program);
       this->ZTexture->Activate();
-      context->GetShaderCache()->ReadyShader(this->Program);
+      this->Program->Program->SetUniformi("depth", sourceId);
 #else
       this->Program->GetUniformVariables()->SetUniformi("depth",1,&sourceId);
       vtkgl::ActiveTexture(vtkgl::TEXTURE0+static_cast<GLenum>(sourceId));
@@ -489,9 +496,10 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
       this->ZTexture->Bind();
 #ifdef VTKGL2
-      this->ZTexture->CopyToFrameBuffer(0,     0,
-                                        w - 1, h - 1,
-                                        0,     0);
+      this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
+                                        0, 0, w, h,
+                                        this->Program->Program,
+                                        &this->Program->vao);
 #else
       this->ZTexture->CopyToFrameBuffer(0,0,
                                         w-1,h-1,
@@ -512,7 +520,6 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       this->ZTexture->UnBind();
 #ifdef VTKGL2
       // Do nothing, next shader cache call will replace the program.
-      // this->Program->Release();
 #else
       this->Program->Restore();
 #endif
@@ -760,12 +767,13 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     int sourceId=tu->Allocate();
 
 #ifdef VTKGL2
-    this->Program->SetUniformi("depth", sourceId);
+    context->GetShaderCache()->ReadyShader(this->Program->Program);
+    this->Program->Program->SetUniformi("depth", sourceId);
     this->ZTexture->Activate();
-    context->GetShaderCache()->ReadyShader(this->Program);
-    this->ZTexture->CopyToFrameBuffer(0,     0,
-                                     w - 1, h - 1,
-                                     0,     0);
+    this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
+                                      0, 0, w, h,
+                                      this->Program->Program,
+                                      &this->Program->vao);
     this->ZTexture->Deactivate();
 #else
     this->Program->GetUniformVariables()->SetUniformi("depth",1,&sourceId);
@@ -797,10 +805,12 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
   assert("pre: Program_void" && this->Program==0);
 
 #ifdef VTKGL2
-  this->Program = context->GetShaderCache()->ReadyShader("",
-                                                         vtkCompositeZPassShader_fs,
-                                                         "");
-  if (!this->Program)
+  this->Program = new vtkgl::CellBO;
+  this->Program->Program =
+    context->GetShaderCache()->ReadyShader(vtkTextureObjectVS,
+                                           vtkCompositeZPassShader_fs,
+                                           "");
+  if (!this->Program->Program)
     {
     vtkErrorMacro("Shader program failed to build.");
     }
@@ -848,7 +858,9 @@ void vtkCompositeZPass::ReleaseGraphicsResources(vtkWindow *w)
     }
   if(this->Program!=0)
     {
-#ifndef VTKGL2
+#ifdef VTKGL2
+    this->Program->ReleaseGraphicsResources(w);
+#else
     this->Program->ReleaseGraphicsResources();
 #endif
     }
