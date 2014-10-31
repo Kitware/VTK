@@ -42,6 +42,7 @@ set(Module_SRCS
   vtkImageSliceMapper.cxx
   vtkInteractorEventRecorder.cxx
   vtkInteractorObserver.cxx
+  vtkLabeledContourMapper.cxx
   vtkLightActor.cxx
   vtkLightCollection.cxx
   vtkLight.cxx
