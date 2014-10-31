@@ -52,11 +52,11 @@ def get_vtk_array_type(numpy_array_type):
                 numpy.uint8:vtk.VTK_UNSIGNED_CHAR,
                 numpy.uint16:vtk.VTK_UNSIGNED_SHORT,
                 numpy.uint32:vtk.VTK_UNSIGNED_INT,
-                ULONG_TYPE_CODE:vtk.VTK_UNSIGNED_LONG,
+                numpy.uint64:vtk.VTK_UNSIGNED_LONG_LONG,
                 numpy.int8:vtk.VTK_CHAR,
                 numpy.int16:vtk.VTK_SHORT,
                 numpy.int32:vtk.VTK_INT,
-                LONG_TYPE_CODE:vtk.VTK_LONG,
+                numpy.int64:vtk.VTK_LONG_LONG,
                 numpy.float32:vtk.VTK_FLOAT,
                 numpy.float64:vtk.VTK_DOUBLE,
                 numpy.complex64:vtk.VTK_FLOAT,
@@ -67,6 +67,8 @@ def get_vtk_array_type(numpy_array_type):
         for key in _np_vtk:
             if numpy.issubdtype(numpy_array_type, key):
                 return _np_vtk[key]
+    raise TypeError, \
+        'Could not find a suitable VTK type for %s' % (str(numpy_array_type))
 
 def get_vtk_to_numpy_typemap():
     """Returns the VTK array type to numpy array type mapping."""
@@ -78,7 +80,9 @@ def get_vtk_to_numpy_typemap():
                 vtk.VTK_INT:numpy.int32,
                 vtk.VTK_UNSIGNED_INT:numpy.uint32,
                 vtk.VTK_LONG:LONG_TYPE_CODE,
+                vtk.VTK_LONG_LONG:numpy.int64,
                 vtk.VTK_UNSIGNED_LONG:ULONG_TYPE_CODE,
+                vtk.VTK_UNSIGNED_LONG_LONG:numpy.uint64,
                 vtk.VTK_ID_TYPE:ID_TYPE_CODE,
                 vtk.VTK_FLOAT:numpy.float32,
                 vtk.VTK_DOUBLE:numpy.float64}
