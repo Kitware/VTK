@@ -213,7 +213,7 @@ public:
   // at the specified vertex coordinates and if
   // tcoords are not NULL with the specified
   // texture coordinates.
-  static void vtkOpenGLRenderWindow::RenderQuad(
+  static void RenderQuad(
     float *verts, float *tcoords,
     vtkShaderProgram *program, vtkgl::VertexArrayObject *vao);
 
