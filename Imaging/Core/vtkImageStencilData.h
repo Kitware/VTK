@@ -213,10 +213,9 @@ public:
 
   // Description:
   // Insert a line into the raster, given the two end points.
-  // The "inflect1" and "inflect2" should be set if you want
-  // to add a small vertical tolerance to either endpoints.
+  void InsertLine(const double p1[2], const double p2[2]);
   void InsertLine(const double p1[2], const double p2[2],
-                  bool inflect1, bool inflect2);
+                  bool inflection1, bool inflection2);
 
   // Description:
   // Fill the specified extent of a vtkImageStencilData with the raster,
@@ -236,9 +235,10 @@ protected:
   void PrepareExtent(int ymin, int ymax);
 
   // Description:
-  // Insert an x point into the raster.  If the y value is larger
-  // than the y extent, the extent will grow automatically.
-  void InsertPoint(int y, double x);
+  // Insert an x point into the raster.  If the y value is larger than
+  // the y extent, the extent will grow automatically.  The parameter i
+  // indicates which of the two internal rasters is to be used.
+  void InsertPoint(int y, double x, int i);
 
   int Extent[2];
   int UsedExtent[2];

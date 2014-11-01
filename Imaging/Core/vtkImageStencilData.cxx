@@ -1062,7 +1062,8 @@ int vtkImageStencilData::Clip( int extent[6] )
 }
 
 //----------------------------------------------------------------------------
-// tolerance for float-to-int conversion in stencil operations
+// tolerance for float-to-int conversion in stencil operations, this value
+// is exactly 0.5*2^-16 (in voxel units, not physical units)
 
 #define VTK_STENCIL_TOL 7.62939453125e-06
 
@@ -1074,8 +1075,10 @@ vtkImageStencilRaster::vtkImageStencilRaster(const int extent[2])
   // the "raster" is a sequence of pointer-pairs, where the first pointer
   // points to the first value in the raster line, and the second pointer
   // points to one location past the last vale in the raster line.  The
-  // difference is the number of x values stored in the raster line.
-  this->Raster = new double*[2*static_cast<size_t>(rsize)];
+  // difference is the number of x values stored in the raster line.  To
+  // allow for tolerance, we actually raster twice at slightly different
+  // vertical positions, hence we need two sets of begin/end pointers.
+  this->Raster = new double*[4*static_cast<size_t>(rsize)];
 
   // the extent is the range of y values (one line per y)
   this->Extent[0] = extent[0];
@@ -1094,15 +1097,13 @@ vtkImageStencilRaster::~vtkImageStencilRaster()
 {
   if (this->UsedExtent[1] >= this->UsedExtent[0])
     {
-    size_t i = 2*static_cast<size_t>(this->UsedExtent[0] - this->Extent[0]);
-    size_t imax = 2*static_cast<size_t>(this->UsedExtent[1] - this->Extent[0]);
-
-    do
+    size_t imin = static_cast<size_t>(this->UsedExtent[0] - this->Extent[0]);
+    size_t imax = static_cast<size_t>(this->UsedExtent[1] - this->Extent[0]);
+    for (size_t i = imin; i <= imax; i++)
       {
-      delete [] this->Raster[i];
-      i += 2;
+      delete [] this->Raster[4*i];
+      delete [] this->Raster[4*i + 2];
       }
-    while (i <= imax);
     }
   delete [] this->Raster;
 }
@@ -1113,14 +1114,13 @@ void vtkImageStencilRaster::PrepareForNewData(const int allocateExtent[2])
   if (this->UsedExtent[1] >= this->UsedExtent[0])
     {
     // reset and re-use the allocated raster lines
-    size_t i = 2*static_cast<size_t>(this->UsedExtent[0]-this->Extent[0]);
-    size_t imax=2*static_cast<size_t>(this->UsedExtent[1]-this->Extent[0]);
-    do
+    size_t imin = static_cast<size_t>(this->UsedExtent[0]-this->Extent[0]);
+    size_t imax = static_cast<size_t>(this->UsedExtent[1]-this->Extent[0]);
+    for (size_t i = imin; i <= imax; i++)
       {
-      this->Raster[i+1] = this->Raster[i];
-      i += 2;
+      this->Raster[4*i + 1] = this->Raster[4*i];
+      this->Raster[4*i + 3] = this->Raster[4*i + 2];
       }
-    while (i <= imax);
     }
 
   if (allocateExtent && allocateExtent[1] >= allocateExtent[0])
@@ -1138,14 +1138,15 @@ void vtkImageStencilRaster::PrepareExtent(int ymin, int ymax)
 
   if (this->UsedExtent[1] < this->UsedExtent[0])
     {
-    size_t i = 2*static_cast<size_t>(ymin - this->Extent[0]);
-    size_t imax = 2*static_cast<size_t>(ymax - this->Extent[0]);
-
-    do
+    size_t imin = static_cast<size_t>(ymin - this->Extent[0]);
+    size_t imax = static_cast<size_t>(ymax - this->Extent[0]);
+    for (size_t i = imin; i <= imax; i++)
       {
-      this->Raster[i] = 0;
+      this->Raster[4*i] = 0;
+      this->Raster[4*i + 1] = 0;
+      this->Raster[4*i + 2] = 0;
+      this->Raster[4*i + 3] = 0;
       }
-    while (++i <= imax);
 
     this->UsedExtent[0] = ymin;
     this->UsedExtent[1] = ymax;
@@ -1155,39 +1156,41 @@ void vtkImageStencilRaster::PrepareExtent(int ymin, int ymax)
 
   if (ymin < this->UsedExtent[0])
     {
-    size_t i = 2*static_cast<size_t>(ymin - this->Extent[0]);
-    size_t imax = 2*static_cast<size_t>(this->UsedExtent[0]-this->Extent[0]-1);
-
-    do
+    size_t imin = static_cast<size_t>(ymin - this->Extent[0]);
+    size_t imax = static_cast<size_t>(this->UsedExtent[0]-this->Extent[0]-1);
+    for (size_t i = imin; i <= imax; i++)
       {
-      this->Raster[i] = 0;
+      this->Raster[4*i] = 0;
+      this->Raster[4*i + 1] = 0;
+      this->Raster[4*i + 2] = 0;
+      this->Raster[4*i + 3] = 0;
       }
-    while (++i <= imax);
 
     this->UsedExtent[0] = ymin;
     }
 
   if (ymax > this->UsedExtent[1])
     {
-    size_t i = 2*static_cast<size_t>(this->UsedExtent[1]+1 - this->Extent[0]);
-    size_t imax = 2*static_cast<size_t>(ymax - this->Extent[0]);
-
-    do
+    size_t imin = static_cast<size_t>(this->UsedExtent[1]+1 - this->Extent[0]);
+    size_t imax = static_cast<size_t>(ymax - this->Extent[0]);
+    for (size_t i = imin; i <= imax; i++)
       {
-      this->Raster[i] = 0;
+      this->Raster[4*i] = 0;
+      this->Raster[4*i + 1] = 0;
+      this->Raster[4*i + 2] = 0;
+      this->Raster[4*i + 3] = 0;
       }
-    while (++i <= imax);
 
     this->UsedExtent[1] = ymax;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilRaster::InsertPoint(int y, double x)
+void vtkImageStencilRaster::InsertPoint(int y, double x, int i)
 {
-  size_t pos = 2*static_cast<size_t>(y - this->Extent[0]);
-  double* &rhead = this->Raster[pos];
-  double* &rtail = this->Raster[pos+1];
+  size_t pos = static_cast<size_t>(y - this->Extent[0]);
+  double* &rhead = this->Raster[4*pos + 2*i];
+  double* &rtail = this->Raster[4*pos + 2*i + 1];
 
   // current size is the diff between the tail and the head
   size_t n = rtail - rhead;
@@ -1202,9 +1205,9 @@ void vtkImageStencilRaster::InsertPoint(int y, double x)
   else if (n > 1 && (n & (n-1)) == 0)
     {
     double *ptr = new double[2*n];
-    for (size_t i = 0; i < n; i++)
+    for (size_t j = 0; j < n; j++)
       {
-      ptr[i] = rhead[i];
+      ptr[j] = rhead[j];
       }
     delete [] rhead;
     rhead = ptr;
@@ -1217,8 +1220,7 @@ void vtkImageStencilRaster::InsertPoint(int y, double x)
 
 //----------------------------------------------------------------------------
 void vtkImageStencilRaster::InsertLine(
-  const double pt1[2], const double pt2[2],
-  bool inflection1, bool inflection2)
+  const double pt1[2], const double pt2[2])
 {
   double x1 = pt1[0];
   double x2 = pt2[0];
@@ -1232,9 +1234,6 @@ void vtkImageStencilRaster::InsertLine(
     x2 = pt1[0];
     y1 = pt2[1];
     y2 = pt1[1];
-    bool tmp = inflection1;
-    inflection1 = inflection2;
-    inflection2 = tmp;
     }
 
   // find min and max of x values
@@ -1252,59 +1251,73 @@ void vtkImageStencilRaster::InsertLine(
     return;
     }
 
-  double ymin = y1;
-  double ymax = y2;
-
-  // if an end is an inflection point, include a tolerance
-  ymin -= inflection1*this->Tolerance;
-  ymax += inflection2*this->Tolerance;
-
-  // Integer y values for start and end of line
-  int iy1, iy2;
-  iy1 = this->Extent[0];
-  iy2 = this->Extent[1];
-
-  // Check for out of bounds
-  if (ymax < iy1 || ymin >= iy2)
-    {
-    return;
-    }
-
-  // Guard against extentY
-  if (ymin >= iy1)
-    {
-    iy1 = vtkMath::Floor(ymin) + 1;
-    }
-  if (ymax < iy2)
-    {
-    iy2 = vtkMath::Floor(ymax);
-    }
-
-  // Expand allocated extent if necessary
-  if (iy1 < this->UsedExtent[0] ||
-      iy2 > this->UsedExtent[1])
-    {
-    this->PrepareExtent(iy1, iy2);
-    }
-
-  // Precompute values for a Bresenham-like line algorithm
+  // compute dx/dy
   double grad = (x2 - x1)/(y2 - y1);
-  double delta = (iy1 - y1)*grad;
 
-  // Go along y and place each x in the proper raster line
-  for (int y = iy1; y <= iy2; y++)
+  // include tolerance for y endpoints
+  double ymin[2] = { y1 - this->Tolerance, y1 + this->Tolerance };
+  double ymax[2] = { y2 - this->Tolerance, y2 + this->Tolerance };
+
+  // if tolerance is nonzero, then use a "double pattern" where the
+  // raster is drawn into twice, once with the y values increased by the
+  // tolerance, and again with the y values decreased by the tolerance
+  int patternCount = (this->Tolerance > 0 ? 2 : 1);
+
+  // consider both y+tol and y-tol
+  for (int i = 0; i < patternCount; i++)
     {
-    double x = x1 + delta;
-    // incrementing delta has less roundoff error than incrementing x,
-    // since delta will typically be smaller than x
-    delta += grad;
+    // Integer y values for start and end of line
+    int iy1 = this->Extent[0];
+    int iy2 = this->Extent[1];
 
-    // clamp x (because of tolerance, it might not be in range)
-    x = ((x < xmax) ? x : xmax);
-    x = ((x > xmin) ? x : xmin);
+    // Check for out of bounds
+    if (ymax[i] < iy1 || ymin[i] >= iy2)
+      {
+      continue;
+      }
 
-    this->InsertPoint(y, x);
+    // Guard against extentY
+    if (ymin[i] >= iy1)
+      {
+      iy1 = vtkMath::Floor(ymin[i]) + 1;
+      }
+    if (ymax[i] < iy2)
+      {
+      iy2 = vtkMath::Floor(ymax[i]);
+      }
+
+    // Expand allocated extent if necessary
+    if (iy1 < this->UsedExtent[0] ||
+        iy2 > this->UsedExtent[1])
+      {
+      this->PrepareExtent(iy1, iy2);
+      }
+
+    // Compute initial offset for a Bresenham-like line algorithm
+    double delta = (iy1 - y1)*grad;
+
+    // Go along y and place each x in the proper raster line
+    for (int y = iy1; y <= iy2; y++)
+      {
+      double x = x1 + delta;
+      // incrementing delta has less roundoff error than incrementing x,
+      // since delta will typically be smaller than x
+      delta += grad;
+
+      // clamp x (because of tolerance, it might not be in range)
+      x = ((x < xmax) ? x : xmax);
+      x = ((x > xmin) ? x : xmin);
+
+      this->InsertPoint(y, x, i);
+      }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencilRaster::InsertLine(
+  const double pt1[2], const double pt2[2], bool, bool)
+{
+  this->InsertLine(pt1, pt2);
 }
 
 //----------------------------------------------------------------------------
@@ -1323,28 +1336,55 @@ void vtkImageStencilRaster::FillStencilData(
 
     for (int idY = ymin; idY <= ymax; idY++)
       {
-      size_t pos = 2*static_cast<size_t>(idY - this->Extent[0]);
-      double *rline = this->Raster[pos];
-      double *rlineEnd = this->Raster[pos+1];
+      size_t pos = static_cast<size_t>(idY - this->Extent[0]);
+      double *rline[2] = { this->Raster[4*pos], this->Raster[4*pos + 2] };
+      double *rlineEnd[2] = { this->Raster[4*pos+1], this->Raster[4*pos+3] };
 
-      if (rline == 0)
+      for (int i = 0; i < 2; i++)
         {
-        continue;
+        if (rline[i])
+          {
+          // process in order from lowest to highest
+          std::sort(rline[i], rlineEnd[i]);
+          // force size to be divisible by two
+          rlineEnd[i] -= (rlineEnd[i] - rline[i]) % 2;
+          }
         }
-
-      std::sort(rline, rlineEnd);
 
       int xy[2];
       xy[2-xj] = idY;
 
       int lastr = VTK_INT_MIN;
-
-      size_t l = rlineEnd - rline;
-      l = l - (l & 1); // force l to be an even number
-      for (size_t k = 0; k < l; k += 2)
+      for (;;)
         {
-        double x1 = rline[k] - this->Tolerance;
-        double x2 = rline[k+1] + this->Tolerance;
+        // find the span with the lowest lower bound
+        double x1 = VTK_DOUBLE_MAX;
+        int j = -1;
+        for (int i = 0; i < 2; i++)
+          {
+          if (rline[i] != rlineEnd[i])
+            {
+            if (rline[i][0] < x1)
+              {
+              x1 = rline[i][0];
+              j = i;
+              }
+            }
+          }
+
+        // done if no spans remain
+        if (j < 0)
+          {
+          break;
+          }
+
+        // get upper bound for the span, then increment to next span
+        double x2 = rline[j][1];
+        rline[j] += 2;
+
+        // increase the span by the tolerance
+        x1 -= this->Tolerance;
+        x2 += this->Tolerance;
 
         // make sure one of the ends is in bounds
         if (x2 < xmin || x1 >= xmax)
@@ -1394,37 +1434,65 @@ void vtkImageStencilRaster::FillStencilData(
     // convert each raster line into extents for the stencil
     for (int idY = ymin; idY <= ymax; idY++)
       {
-      size_t pos = 2*static_cast<size_t>(idY - this->Extent[0]);
-      double *rline = this->Raster[pos];
-      double *rlineEnd = this->Raster[pos+1];
+      size_t pos = static_cast<size_t>(idY - this->Extent[0]);
+      double *rline[2] = { this->Raster[4*pos], this->Raster[4*pos + 2] };
+      double *rlineEnd[2] = { this->Raster[4*pos+1], this->Raster[4*pos+3] };
 
-      if (rline == 0)
+      for (int i = 0; i < 2; i++)
         {
-        continue;
+        if (rline[i])
+          {
+          // process in order from lowest to highest
+          std::sort(rline[i], rlineEnd[i]);
+          // force the size to be divisible by two
+          rlineEnd[i] -= (rlineEnd[i] - rline[i]) % 2;
+          }
         }
 
-      std::sort(rline, rlineEnd);
-
-      int lastr = VTK_INT_MIN;
+      int yz[2];
+      yz[yj-1] = idY;
+      yz[2-yj] = zmin;
 
       // go through each raster line and fill the stencil
-      size_t l = rlineEnd - rline;
-      l = l - (l & 1); // force l to be an even number
-      for (size_t k = 0; k < l; k += 2)
+      int lastr = VTK_INT_MIN;
+      for (;;)
         {
-        int yz[2];
+        // find the span with the lowest lower bound
+        double x1 = VTK_DOUBLE_MAX;
+        int j = -1;
+        for (int i = 0; i < 2; i++)
+          {
+          if (rline[i] != rlineEnd[i])
+            {
+            if (rline[i][0] < x1)
+              {
+              x1 = rline[i][0];
+              j = i;
+              }
+            }
+          }
 
-        yz[yj-1] = idY;
-        yz[2-yj] = zmin;
+        // done if no spans remain
+        if (j < 0)
+          {
+          break;
+          }
 
-        double x1 = rline[k] - this->Tolerance;
-        double x2 = rline[k+1] + this->Tolerance;
+        // get upper bound for the span, then increment to next span
+        double x2 = rline[j][1];
+        rline[j] += 2;
 
+        // increase the span by the tolerance
+        x1 -= this->Tolerance;
+        x2 += this->Tolerance;
+
+        // verify that it lies at least partially within the bounds
         if (x2 < xmin || x1 >= xmax)
           {
           continue;
           }
 
+        // convert from floating-point to integers
         int r1 = xmin;
         int r2 = xmax;
 
