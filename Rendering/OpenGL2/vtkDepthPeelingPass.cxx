@@ -393,7 +393,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   destSize[1] = this->ViewportHeight;
 
   int c = s->GetPropArrayCount();
-  for (int i = 0; i < c; i++)
+  for (i = 0; i < c; i++)
     {
     vtkProp *p=s->GetPropArray()[i];
     vtkInformation *info = p->GetPropertyKeys();
