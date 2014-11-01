@@ -790,7 +790,10 @@ void CommunicationManager::AllocateRcvBuffers(vtkMPIController* comm)
     }
 
   // STEP 3: WaitAll
-  comm->WaitAll(this->NumMsgs(),&this->Requests[0]);
+  if (!this->Requests.empty())
+    {
+    comm->WaitAll(this->NumMsgs(),&this->Requests[0]);
+    }
   this->Requests.clear();
 
   // STEP 4: Allocate rcv buffers
@@ -842,7 +845,10 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
     }
 
   // STEP 4: WaitAll
-  comm->WaitAll(this->NumMsgs(),&this->Requests[0]);
+  if (!this->Requests.empty())
+    {
+    comm->WaitAll(this->NumMsgs(),&this->Requests[0]);
+    }
   this->Requests.clear();
 }
 
