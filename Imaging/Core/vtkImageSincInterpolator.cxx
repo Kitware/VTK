@@ -546,13 +546,13 @@ void vtkSincKernel::Kaiser(F *kernel, int size, int n, double p, double a)
 {
   // The Kaiser window has a tunable parameter "alpha", where
   // a smaller alpha increases sharpness (and ringing) while a
-  // larger alpha can cause blurring.  I set the alpha to 3*n,
-  // which closely approximates the optimal alpha values shown in
+  // larger alpha increases blurring.  Setting alpha equal to n
+  // closely approximates the optimal alpha values shown in
   // Helwig Hauser, Eduard Groller, Thomas Theussl,
   // "Mastering Windows: Improving Reconstruction,"
   // IEEE Symposium on Volume Visualization and Graphics (VV 2000),
   // pp. 101-108, 2000
-  a = ((a >= 0) ? a : 3*n); // 3*n is default value
+  a = ((a >= 0) ? a : n);
   double q = n*p;
   double x = p;
   double y = q;
@@ -1398,7 +1398,7 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
         vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, harris3);
         break;
       case VTK_BLACKMAN_HARRIS4:
-        vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, harris4);
+        vtkSincKernel::Hamming<float, 4>(kernel[i], size, n, p, harris4);
         break;
       case VTK_NUTTALL_WINDOW:
         vtkSincKernel::Hamming<float, 4>(kernel[i], size, n, p, nuttall);
