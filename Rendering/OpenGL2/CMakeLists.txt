@@ -88,7 +88,6 @@ set_source_files_properties(
   vtkOpenGLShaderCache
   vtkPixelBufferObject
   vtkRenderbuffer
-  vtkRenderPass
   vtkRenderState
   vtkTextureObject
   vtkTextureUnitManager
