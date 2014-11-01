@@ -1313,12 +1313,18 @@ void vtkImageStencilRaster::InsertLine(
     }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 void vtkImageStencilRaster::InsertLine(
   const double pt1[2], const double pt2[2], bool, bool)
 {
+  VTK_LEGACY_REPLACED_BODY(
+    vtkImageStencilRaster::InsertLine(double[2], double[2], bool, bool),
+    "VTK 6.2", vtkImageStencilRaster::InsertLine(double[2], double[2]));
+
   this->InsertLine(pt1, pt2);
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkImageStencilRaster::FillStencilData(

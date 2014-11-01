@@ -745,7 +745,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
           if (pointNeighborCounts[pointId0] > 0 &&
               pointNeighborCounts[pointId1] > 0)
             {
-            raster.InsertLine(point0, point1, false, false);
+            raster.InsertLine(point0, point1);
             }
 
           pointId0 = pointId1;

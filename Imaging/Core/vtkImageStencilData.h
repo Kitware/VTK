@@ -214,8 +214,7 @@ public:
   // Description:
   // Insert a line into the raster, given the two end points.
   void InsertLine(const double p1[2], const double p2[2]);
-  void InsertLine(const double p1[2], const double p2[2],
-                  bool inflection1, bool inflection2);
+  VTK_LEGACY(void InsertLine(const double[2], const double[2], bool, bool));
 
   // Description:
   // Fill the specified extent of a vtkImageStencilData with the raster,
