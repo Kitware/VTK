@@ -80,10 +80,11 @@ public:
   vtkPolyData *GetInput();
 
   // Description:
-  // The tolerance to apply during the internal mesh operations.
-  // The default tolerance is 0.001.  This should always be a small
-  // value (much less than 1), and it has no impact on the speed
-  // of the filter.
+  // The tolerance for including a voxel inside the stencil.
+  // This is in fractions of a voxel, and must be between 0 and 1.
+  // Tolerance is only applied in the x and y directions, not in z.
+  // Setting the tolerance to zero disables all tolerance checks and
+  // might result in faster performance.
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
 
