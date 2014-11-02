@@ -52,6 +52,10 @@ void vtkClearZPass::Render(const vtkRenderState *s)
   this->NumberOfRenderedProps=0;
 
   glDepthMask(GL_TRUE);
+#if GL_ES_VERSION_2_0 != 1
   glClearDepth(this->Depth);
+#else
+  glClearDepthf(static_cast<GLclampf>(this->Depth));
+#endif
   glClear(GL_DEPTH_BUFFER_BIT);
 }
