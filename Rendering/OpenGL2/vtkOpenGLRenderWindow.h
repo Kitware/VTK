@@ -253,6 +253,13 @@ protected:
   int OffScreenUseFrameBuffer;
 
   // Description:
+  // Variables used by the framebuffer-based offscreen method.
+  int NumberOfFrameBuffers;
+  unsigned int TextureObjects[4]; // really GLuint
+  unsigned int FrameBufferObject; // really GLuint
+  unsigned int DepthRenderBufferObject; // really GLuint
+
+  // Description:
   // Create a not-off-screen window.
   virtual void CreateAWindow() = 0;
 

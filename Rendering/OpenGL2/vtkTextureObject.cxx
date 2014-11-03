@@ -267,6 +267,15 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
 //----------------------------------------------------------------------------
 bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
 {
+  this->SupportsTextureInteger =
+    (glewIsSupported("GL_EXT_texture_integer") != 0);
+
+  this->SupportsTextureFloat =
+    (glewIsSupported("GL_ARB_texture_float") != 0);
+
+  this->SupportsDepthBufferFloat =
+    (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+
   return this->IsSupported(renWin,
     this->RequireTextureFloat,
     this->RequireDepthBufferFloat,
