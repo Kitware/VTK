@@ -84,7 +84,6 @@ set_source_files_properties(
   vtkFrameBufferObject
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
-  vtkOpenGLHardwareSelector
   vtkOpenGLShaderCache
   vtkPixelBufferObject
   vtkRenderbuffer
