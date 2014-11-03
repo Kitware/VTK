@@ -127,7 +127,7 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
 #ifdef VTKGL2
-  return true;
+  return (context != 0);
 #else
   vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
 
