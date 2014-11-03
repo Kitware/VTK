@@ -221,7 +221,6 @@ vtkTextureObject::vtkTextureObject()
   this->BorderColor[1] = 0.0f;
   this->BorderColor[2] = 0.0f;
   this->BorderColor[3] = 0.0f;
-  this->DrawPixelsActor = NULL;
 }
 
 //----------------------------------------------------------------------------
