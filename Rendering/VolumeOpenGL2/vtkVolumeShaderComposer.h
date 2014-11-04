@@ -271,51 +271,115 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string LightComputeFunc(vtkRenderer*vtkNotUsed(ren),
+  std::string LightComputeFunc(vtkRenderer* ren,
                                vtkVolumeMapper* vtkNotUsed(mapper),
                                vtkVolume* vol,
                                int vtkNotUsed(numberOfComponents))
     {
+    std::string shaderStr;
     vtkVolumeProperty* volProperty = vol->GetProperty();
+
+    int lightComplexity = 0;
+    int numberOfLights = 0;
+    vtkLightCollection *lc = ren->GetLights();
+    vtkLight *light;
+
+    // Compute light complexity.
+    vtkCollectionSimpleIterator sit;
+    for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
+      {
+      float status = light->GetSwitch();
+      if (status > 0.0)
+        {
+        numberOfLights++;
+        if (lightComplexity == 0)
+          {
+          lightComplexity = 1;
+          }
+        }
+
+      if (lightComplexity == 1
+          && (numberOfLights > 1
+            || light->GetIntensity() != 1.0
+            || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
+        {
+          lightComplexity = 2;
+        }
+
+      if (lightComplexity < 3
+          && (light->GetPositional()))
+        {
+          lightComplexity = 3;
+          break;
+        }
+      }
+
+    if (lightComplexity == 3)
+      {
+      shaderStr = "\n\
+        vec3 diffuse = vec3(0,0,0);\n\
+        vec3 specular = vec3(0,0,0);\n\
+        for (int lightNum = 0; lightNum < numberOfLights; lightNum++)\n\
+        {\n\
+        // diffuse and specular lighting\n\
+        float df = max(0.0, dot(normalVC, -lightDirectionVC[lightNum]));\n\
+        diffuse += (df * lightColor[lightNum]);\n\
+        if (dot(normalVC, -lightDirectionVC[lightNum]) > 0.0)\n\
+          {\n\
+          float sf = pow( max(0.0, dot(\n\
+            reflect(lightDirectionVC[lightNum], normalVC), viewDirectionVC)), specularPower);\n\
+          specular += (sf * lightColor[lightNum]);\n\
+          }\n\
+        }\n\
+      }";
+
     if (volProperty->GetShade() &&
         volProperty->GetDisableGradientOpacity())
       {
-      return std::string(" \n\
-        vec4 computeLighting(vec4 color) \n\
-          {\n\
-          vec3 ldir = normalize(g_light_pos_obj.xyz - m_vertex_pos); \n\
-          vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
-          vec3 h = normalize(ldir + vdir); \n\
-          vec3 g2 = computeGradient(); \n\
-          g2 = (1.0/m_cell_spacing) * g2; \n\
-          float normalLength = length(g2);\n\
-          if (normalLength > 0.0) \n\
-             { \n\
-             g2 = normalize(g2); \n\
-             } \n\
-           else \n\
-             { \n\
-             g2 = vec3(0.0, 0.0, 0.0); \n\
-             } \n\
-          vec3 final_color = vec3(0.0); \n\
-          float n_dot_l = dot(g2, ldir); \n\
-          float n_dot_h = dot(g2, h); \n\
-          if (n_dot_l < 0.0) \n\
-            { \n\
-            n_dot_l = -n_dot_l; \n\
-            } \n\
-          if (n_dot_h < 0.0) \n\
-            { \n\
-            n_dot_h = -n_dot_h; \n\
-            } \n\
-          final_color += m_ambient * color.rgb; \n\
-          if (n_dot_l > 0) { \n\
-            final_color += m_diffuse * n_dot_l * color.rgb; \n\
-           } \n\
-          final_color += m_specular * pow(n_dot_h, m_shininess); \n\
-          final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
-          return vec4(final_color, color.a); \n\
-          }");
+      if (lightComplexity == 3)
+        {
+        return std::string(" \n\
+          vec4 computeLighting(vec4 color) \n\
+            {\n\
+            vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
+            vec3 g2 = computeGradient(); \n\
+            vec3 diffuse = vec3(0.0); \n\
+            vec3 specular = vec3(0.0); \n\
+            g2 = (1.0/m_cell_spacing) * g2; \n\
+            float normalLength = length(g2);\n\
+            float n_dot_h = dot(g2, h); \n\
+            if (n_dot_h < 0.0) \n\
+              { \n\
+              n_dot_h = -n_dot_h; \n\
+              } \n\
+            if (normalLength > 0.0) \n\
+               { \n\
+               g2 = normalize(g2); \n\
+               } \n\
+             else \n\
+               { \n\
+               g2 = vec3(0.0, 0.0, 0.0); \n\
+               } \n\
+            vec3 final_color = vec3(0.0); \n\
+            for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
+              {\n\
+              vec3 ldir = normalize(m_lightDirection[lightNum].xyz - m_vertex_pos); \n\
+              vec3 h = normalize(ldir + vdir); \n\
+              float n_dot_l = dot(g2, ldir); \n\
+              if (n_dot_l < 0.0) \n\
+                { \n\
+                n_dot_l = -n_dot_l; \n\
+                } \n\
+              if (n_dot_l > 0) { \n\
+                diffuse += m_lightColor[lightNum] * n_dot_l; \n\
+               } \n\
+              specular = m_lightColor[lightNum] * pow(n_dot_h, m_shininess); \n\
+              }\n\
+            final_color += (m_ambient + diffuse + specuflar) * color.rgb \n\
+            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            return vec4(final_color, color.a); \n\
+            }");
+        }
       }
     else if (volProperty->GetShade() &&
         !volProperty->GetDisableGradientOpacity())
