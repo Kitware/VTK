@@ -20,14 +20,14 @@
 #ifndef __vtkInformationDataObjectKey_h
 #define __vtkInformationDataObjectKey_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
 class vtkDataObject;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkInformationDataObjectKey : public vtkInformationKey
+class VTKCOMMONCORE_EXPORT vtkInformationDataObjectKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationDataObjectKey,vtkInformationKey);
