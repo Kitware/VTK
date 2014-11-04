@@ -426,7 +426,7 @@ string(REGEX REPLACE "/" ";" _count "${VTK_INSTALL_PACKAGE_DIR}")
 foreach(p ${_count})
   set(VTK_CONFIG_CODE "${VTK_CONFIG_CODE}
 get_filename_component(VTK_INSTALL_PREFIX \"\${VTK_INSTALL_PREFIX}\" PATH)")
-endforeach(p)
+endforeach()
 set(VTK_CONFIG_CODE "${VTK_CONFIG_CODE}
 set(VTK_MODULES_DIR \"\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/Modules\")")
 set(VTK_CONFIG_CMAKE_DIR "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}")

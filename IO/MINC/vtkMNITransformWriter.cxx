@@ -68,7 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformationVector.h"
 #include "vtkPoints.h"
 
-#include <time.h>
+#include <ctime>
 #include <ctype.h>
 #include <stdio.h>
 
@@ -98,14 +98,8 @@ vtkMNITransformWriter::~vtkMNITransformWriter()
     {
     this->Transform->Delete();
     }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->Comments)
-    {
-    delete [] this->Comments;
-    }
+  delete [] this->FileName;
+  delete [] this->Comments;
 }
 
 //-------------------------------------------------------------------------

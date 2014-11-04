@@ -93,11 +93,8 @@ struct CommunicationLinks {
       int rank = *rankIter;
       if( this->RcvBuffers.find(rank) != this->RcvBuffers.end() )
         {
-        if(this->RcvBuffers[rank] != NULL)
-          {
-          delete [] this->RcvBuffers[rank];
-          this->RcvBuffers[rank] = NULL;
-          } // END if buffer not null
+        delete [] this->RcvBuffers[rank];
+        this->RcvBuffers[rank] = NULL;
         } // END if buffer entry for rank exists
       } // END for all neighboring ranks
 
@@ -605,21 +602,10 @@ vtkPUnstructuredGridConnectivity::~vtkPUnstructuredGridConnectivity()
     this->GhostedGrid->Delete();
     }
 
-  if( this->AuxiliaryData != NULL )
-    {
-    delete this->AuxiliaryData;
-    }
-
-  if( this->CommLists != NULL )
-    {
-    delete this->CommLists;
-    }
-
-  if( this->GlobalIDFieldName != NULL )
-    {
-    delete [] this->GlobalIDFieldName;
-    this->GlobalIDFieldName = NULL;
-    }
+  delete this->AuxiliaryData;
+  delete this->CommLists;
+  delete [] this->GlobalIDFieldName;
+  this->GlobalIDFieldName = NULL;
 }
 
 //------------------------------------------------------------------------------

@@ -22,11 +22,6 @@ varying vec4 fcolor;
 // Texture coordinates
 //VTK::TCoord::Dec
 
-// material property values
-uniform float opacityUniform; // the fragment opacity
-uniform vec3 ambientColorUniform; // intensity weighted color
-uniform vec3 diffuseColorUniform; // intensity weighted color
-
 //VTK::Color::Dec
 
 // picking support
@@ -35,8 +30,13 @@ uniform vec3 diffuseColorUniform; // intensity weighted color
 // Depth Peeling Support
 //VTK::DepthPeeling::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 void main()
 {
+  //VTK::Clip::Impl
+
   //VTK::Color::Impl
   // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
 

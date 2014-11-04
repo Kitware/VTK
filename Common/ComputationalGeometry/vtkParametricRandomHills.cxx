@@ -18,7 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
-#include <time.h>
+#include <ctime>
 
 vtkStandardNewMacro(vtkParametricRandomHills);
 

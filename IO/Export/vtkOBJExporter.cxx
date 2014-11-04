@@ -39,10 +39,7 @@ vtkOBJExporter::vtkOBJExporter()
 
 vtkOBJExporter::~vtkOBJExporter()
 {
-  if ( this->FilePrefix )
-    {
-    delete [] this->FilePrefix;
-    }
+  delete [] this->FilePrefix;
 }
 
 void vtkOBJExporter::WriteData()

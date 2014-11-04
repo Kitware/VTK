@@ -507,11 +507,9 @@ VOID CALLBACK vtkTDxWinDeviceTimerProc(HWND hwnd,
 {
   std::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObject.find(hwnd);
 
-  //  cout << "proc for hwnd=" << hwnd << endl;
-
   if(it==vtkWindowHandleToDeviceObject.end())
     {
-    vtkGenericWarningMacro(<< "No matching vtkTDxWinDevice object for window hwnd=" << hwnd);
+    //vtkGenericWarningMacro(<< "No matching vtkTDxWinDevice object for window hwnd=" << hwnd);
     return;
     }
   vtkTDxWinDevice *device=(*it).second;

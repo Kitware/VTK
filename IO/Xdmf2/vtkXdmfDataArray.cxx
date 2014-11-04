@@ -22,20 +22,20 @@
 /*     for more information.                                       */
 /*                                                                 */
 /*******************************************************************/
-#include <vtkXdmfDataArray.h>
+#include "vtkXdmfDataArray.h"
 
-#include <vtkObjectFactory.h>
-#include <vtkCommand.h>
+#include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
-#include <vtkUnsignedCharArray.h>
-#include <vtkCharArray.h>
-#include <vtkIntArray.h>
-#include <vtkLongArray.h>
-#include <vtkFloatArray.h>
-#include <vtkDoubleArray.h>
-#include <vtkUnsignedIntArray.h>
-#include <vtkShortArray.h>
-#include <vtkUnsignedShortArray.h>
+#include "vtkUnsignedCharArray.h"
+#include "vtkCharArray.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedShortArray.h"
 
 #include <XdmfArray.h>
 

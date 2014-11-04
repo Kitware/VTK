@@ -15,7 +15,6 @@
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
@@ -46,8 +45,6 @@ int TestVBOPLYMapper(int argc, char *argv[])
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                                "Data/dragon.ply");
-  //const char* fileName = "C:\\Users\\ken.martin\\Documents\\vtk\\VTKData\\Data\\lucy.ply";
-
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
@@ -69,8 +66,6 @@ int TestVBOPLYMapper(int argc, char *argv[])
   actor->GetProperty()->SetOpacity(1.0);
   //actor->GetProperty()->SetRepresentationToWireframe();
 
-  vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetRenderWindow(renderWindow.Get());
   renderWindow->SetMultiSamples(0);
 
   vtkNew<vtkTimerLog> timer;
@@ -102,10 +97,7 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderer->ResetCamera();
 
   renderWindow->SetSize(300, 300);
-
-  interactor->Start();
-
-  //delete [] fileName;
+  renderWindow->Render();
 
   return EXIT_SUCCESS;
 }

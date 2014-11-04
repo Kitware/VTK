@@ -60,7 +60,7 @@
 
 #include "vtk_exodusII.h"
 #include <stdio.h>
-#include <stdlib.h> /* for free() */
+#include <cstdlib> /* for free() */
 #include <string.h> /* for memset() */
 #include <ctype.h> /* for toupper(), isgraph() */
 #include <math.h> /* for cos() */

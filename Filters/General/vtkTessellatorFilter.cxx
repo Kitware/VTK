@@ -487,14 +487,8 @@ void vtkTessellatorFilter::Teardown()
 {
   this->OutputMesh = 0;
   this->OutputPoints = 0;
-  if ( this->OutputAttributes )
-    {
-    delete [] this->OutputAttributes;
-    }
-  if ( this->OutputAttributeIndices )
-    {
-    delete [] this->OutputAttributeIndices;
-    }
+  delete [] this->OutputAttributes;
+  delete [] this->OutputAttributeIndices;
   this->Subdivider->ResetFieldList();
   this->Subdivider->SetMesh(0);
 }

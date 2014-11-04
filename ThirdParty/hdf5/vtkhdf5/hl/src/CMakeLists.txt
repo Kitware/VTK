@@ -5,7 +5,7 @@ PROJECT (HDF5_HL_SRC)
 #-----------------------------------------------------------------------------
 IF (BUILD_SHARED_LIBS)
   SET (HL_BUILT_AS_DYNAMIC_LIB 1)
-ENDIF (BUILD_SHARED_LIBS)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # List Source files
@@ -63,4 +63,4 @@ IF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)
       RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
       LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
       ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development  )
-ENDIF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)
+ENDIF ()

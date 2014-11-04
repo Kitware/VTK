@@ -31,7 +31,7 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
           -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
           -A "${VTK_LIBRARY_DIR}"
           )
-      ELSE (${VTK_DATA_ROOT})
+      ELSE ()
         ADD_TEST(${test}Python ${VTK_PYTHON_EXE}
           ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
           ${output}
@@ -40,8 +40,8 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
           -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
           -A "${VTK_LIBRARY_DIR}"
           )
-      ENDIF (${VTK_DATA_ROOT})
-    ENDFOREACH(test)
+      ENDIF ()
+    ENDFOREACH()
 
     CONFIGURE_FILE(
       ${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/vtkTestsToConvert.in
@@ -70,5 +70,5 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
 
     # TODO: add explicit dependency between the vtk{Name}Kit.cmake files and the
     # the test conversion.
-  ENDIF(NOT "${${tcl_tests}}" STREQUAL "")
-ENDMACRO (CONVERT_TCL_TEST_TO_PY)
+  ENDIF()
+ENDMACRO ()

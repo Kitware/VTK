@@ -68,11 +68,8 @@ Quad::~Quad()
 {
   for (int i = 0; i < 4; ++i)
     {
-    if (this->Nodes[i])
-      {
-      delete this->Nodes[i];
-      this->Nodes[i] = 0;
-      }
+    delete this->Nodes[i];
+    this->Nodes[i] = 0;
     }
 }
 

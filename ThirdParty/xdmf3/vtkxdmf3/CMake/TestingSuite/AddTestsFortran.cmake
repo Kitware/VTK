@@ -16,8 +16,8 @@ MACRO(ADD_TEST_FORTRAN_DEPENDENCIES dependencies)
         SET_PROPERTY(GLOBAL APPEND PROPERTY FORTRAN_TEST_DEPENDENCIES
             "${dependencies}"
  	)
-    ENDIF(NOT ("${dependencies}" STREQUAL ""))
-ENDMACRO(ADD_TEST_FORTRAN_DEPENDENCIES dependencies)
+    ENDIF()
+ENDMACRO()
 
 # Fortran Add LDPath  Macro
 # Author: Brian Panneton
@@ -30,8 +30,8 @@ MACRO(ADD_TEST_FORTRAN_LDPATH ld)
         SET_PROPERTY(GLOBAL PROPERTY FORTRAN_TEST_LDPATH 
                 "${ldpath}${sep}${ld}" 
         )
-    ENDIF("${ld}" STRGREATER "")
-ENDMACRO(ADD_TEST_FORTRAN_LDPATH ld)
+    ENDIF()
+ENDMACRO()
 
 # Fortran Add Path  Macro
 # Author: Brian Panneton
@@ -44,8 +44,8 @@ MACRO(ADD_TEST_FORTRAN_PATH p)
         SET_PROPERTY(GLOBAL PROPERTY FORTRAN_TEST_PATH 
                 "${path}${sep}${p}" 
         )
-    ENDIF("${p}" STRGREATER "")
-ENDMACRO(ADD_TEST_FORTRAN_PATH p)
+    ENDIF()
+ENDMACRO()
 
 # Fortran Test Macro
 # Author: Brian Panneton
@@ -60,15 +60,15 @@ MACRO(ADD_TEST_FORTRAN executable)
 
     IF(EXISTS ${fortran_source_dir}/${executable}.f)
         ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.f)
-    ENDIF(EXISTS ${fortran_source_dir}/${executable}.f)
+    ENDIF()
 
     IF(EXISTS ${fortran_source_dir}/${executable}.f90)
         ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.f90)
-    ENDIF(EXISTS ${fortran_source_dir}/${executable}.f90)
+    ENDIF()
 
     IF(EXISTS ${fortran_source_dir}/${executable}.F90)
         ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.F90)
-    ENDIF(EXISTS ${fortran_source_dir}/${executable}.F90)
+    ENDIF()
     
     GET_PROPERTY(fortran_dependencies GLOBAL PROPERTY FORTRAN_TEST_DEPENDENCIES)
     GET_PROPERTY(fortran_ldpath GLOBAL PROPERTY FORTRAN_TEST_LDPATH)
@@ -85,8 +85,8 @@ MACRO(ADD_TEST_FORTRAN executable)
 
         IF("${fortran_path}" STREQUAL "")
             SET(fortran_path ${fortran_ldpath})
-        ENDIF("${fortran_path}" STREQUAL "")
-    ENDIF(WIN32)
+        ENDIF()
+    ENDIF()
 
     SET_CORE("${fortran_binary_dir}")
     ADD_TEST(FORTRAN${is_core}_${executable}${dup} ${CMAKE_COMMAND}
@@ -100,8 +100,8 @@ MACRO(ADD_TEST_FORTRAN executable)
     IF(NOT "${tdep}" STREQUAL "")
 	    SET_TESTS_PROPERTIES(FORTRAN${is_core}_${executable}${dup}
             PROPERTIES DEPENDS ${tdep})
-    ENDIF(NOT "${tdep}" STREQUAL "")
-ENDMACRO(ADD_TEST_FORTRAN executable)
+    ENDIF()
+ENDMACRO()
 
 # Fortran MPI Test Macro
 # Author: Andrew Burns
@@ -126,15 +126,15 @@ MACRO(ADD_MPI_TEST_FORTRAN script files)
 
         IF(EXISTS ${fortran_source_dir}/${executable}.f)
             ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.f)
-        ENDIF(EXISTS ${fortran_source_dir}/${executable}.f)
+        ENDIF()
 
         IF(EXISTS ${fortran_source_dir}/${executable}.f90)
             ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.f90)
-        ENDIF(EXISTS ${fortran_source_dir}/${executable}.f90)
+        ENDIF()
 
         IF(EXISTS ${fortran_source_dir}/${executable}.F90)
             ADD_EXECUTABLE(${executable} ${fortran_source_dir}/${executable}.F90)
-        ENDIF(EXISTS ${fortran_source_dir}/${executable}.F90)
+        ENDIF()
 
         GET_PROPERTY(fortran_dependencies GLOBAL PROPERTY FORTRAN_TEST_DEPENDENCIES)
         GET_PROPERTY(fortran_ldpath GLOBAL PROPERTY FORTRAN_TEST_LDPATH)
@@ -151,9 +151,9 @@ MACRO(ADD_MPI_TEST_FORTRAN script files)
 
             IF("${fortran_path}" STREQUAL "")
                 SET(fortran_path ${fortran_ldpath})
-            ENDIF("${fortran_path}" STREQUAL "")
-        ENDIF(WIN32)
-    ENDWHILE(NOT "${tempfiles}" STREQUAL "")
+            ENDIF()
+        ENDIF()
+    ENDWHILE()
 
     SET_CORE("${fortran_binary_dir}")
     ADD_TEST(FORTRAN${is_core}_${script} ${CMAKE_COMMAND}
@@ -167,12 +167,12 @@ MACRO(ADD_MPI_TEST_FORTRAN script files)
     IF(NOT "${tdep}" STREQUAL "")
             SET_TESTS_PROPERTIES(FORTRAN${is_core}_${script}
             PROPERTIES DEPENDS ${tdep} ${script})
-    ENDIF(NOT "${tdep}" STREQUAL "")
+    ENDIF()
     file(COPY
         ${fortran_source_dir}/${script}
         DESTINATION ${fortran_binary_dir}/
     )
-ENDMACRO(ADD_MPI_TEST_FORTRAN script files)
+ENDMACRO()
 
 # Fortran Clean Macro
 # Author: Brian Panneton
@@ -184,7 +184,7 @@ MACRO(CLEAN_TEST_FORTRAN executable)
     set_property(DIRECTORY APPEND PROPERTY 
         ADDITIONAL_MAKE_CLEAN_FILES ${ARGN} 
     )
-ENDMACRO(CLEAN_TEST_FORTRAN executable)
+ENDMACRO()
 
  # Configure the Fortran 'driver' file
 CONFIGURE_FILE(${TESTING_SUITE_DIR}/TestingSuite/TestDriverFortran.cmake.in ${fortran_binary_dir}/TestDriverFortran.cmake @ONLY)

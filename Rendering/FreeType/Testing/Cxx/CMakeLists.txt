@@ -15,6 +15,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestFTStringToPath.cxx
   TestFreeTypeTextMapperNoMath.cxx
   TestMathTextFreeTypeTextRendererNoMath.cxx
+  TestTextActor.cxx
+  TestTextActor3D.cxx
   TestTextActorAlphaBlending.cxx
   TestTextActorDepthPeeling.cxx
   TestTextActor3DAlphaBlending.cxx

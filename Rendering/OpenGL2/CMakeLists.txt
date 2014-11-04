@@ -18,18 +18,21 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h)
 
 set(Module_SRCS
-  vtkglBufferObject.cxx
-  vtkglVBOHelper.cxx
-  vtkShader.cxx
-  vtkShaderProgram.cxx
-  vtkglVertexArrayObject.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkCameraPass.cxx
+  vtkCompositePolyDataMapper2.cxx
+  vtkDefaultPass.cxx
+  vtkGaussianBlurPass.cxx
+  vtkImageProcessingPass.cxx
+  vtkLightsPass.cxx
+  vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
-  vtkOpenGLImageMapper.cxx
-  vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
+  vtkOpenGLImageMapper.cxx
+  vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
@@ -38,11 +41,21 @@ set(Module_SRCS
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx
-  vtkOpenGLTextureUnitManager.cxx
+  vtkOverlayPass.cxx
   vtkRenderPass.cxx
+  vtkRenderPassCollection.cxx
   vtkRenderState.cxx
+  vtkSequencePass.cxx
+  vtkShader.cxx
+  vtkShaderProgram.cxx
+  vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkTextureUnitManager.cxx
+  vtkTranslucentPass.cxx
+  vtkVolumetricPass.cxx
+  vtkglBufferObject.cxx
+  vtkglVBOHelper.cxx
+  vtkglVertexArrayObject.cxx
   )
 
 if (NOT ANDROID AND NOT APPLE_IOS)
@@ -69,12 +82,12 @@ set_source_files_properties(
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHardwareSelector
   vtkOpenGLShaderCache
-  vtkOpenGLTextureUnitManager
   vtkPixelBufferObject
   vtkRenderbuffer
   vtkRenderPass
   vtkRenderState
   vtkTextureObject
+  vtkTextureUnitManager
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   WRAP_EXCLUDE)
 
@@ -98,6 +111,15 @@ set(shader_files
   glsl/vtkglPolyDataFSPositionalLights.glsl
 
   glsl/vtkglGlyph3DVSFragmentLit.glsl
+
+  glsl/vtkTextureObjectVS.glsl
+  glsl/vtkTextureObjectFS.glsl
+
+  glsl/vtkGaussianBlurPassVS.glsl
+  glsl/vtkGaussianBlurPassFS.glsl
+
+  glsl/vtkSobelGradientMagnitudePass1FS.glsl
+  glsl/vtkSobelGradientMagnitudePass2FS.glsl
   )
 
 unset(shader_h_files)
@@ -154,6 +176,12 @@ set(opengl_overrides
   Renderer
   Texture
   )
+
+# Now to see about the GPU info list.
+list(APPEND vtk_module_overrides "vtkGPUInfoList")
+list(APPEND Module_SRCS "vtkDummyGPUInfoList.cxx")
+set(vtk_module_vtkGPUInfoList_override "vtkDummyGPUInfoList")
+
 foreach(_override ${opengl_overrides})
   vtk_add_override(vtk${_override} vtkOpenGL${_override})
 endforeach()
@@ -214,7 +242,7 @@ elseif(VTK_USE_COCOA)
                                 vtkCocoaRenderWindow.mm
                                 vtkCocoaGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-  endif(VTK_REQUIRED_OBJCXX_FLAGS)
+  endif()
   set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
 elseif(VTK_USE_CARBON)
   # Add some custom overrides
@@ -249,16 +277,13 @@ elseif(APPLE_IOS)
   list(APPEND Module_SRCS
     vtkIOSRenderWindowInteractor.mm
     vtkIOSRenderWindow.mm
-    vtkIOSGLView.mm
     )
   # Set specified Objective-C++ flags, if any.
   if(VTK_REQUIRED_OBJCXX_FLAGS)
     set_source_files_properties(vtkIOSRenderWindowInteractor.mm
                                 vtkIOSRenderWindow.mm
-                                vtkIOSGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-  endif(VTK_REQUIRED_OBJCXX_FLAGS)
-  set_source_files_properties(vtkIOSGLView WRAP_EXCLUDE)
+  endif()
  endif()
 
 vtk_object_factory_configure("${vtk_module_overrides}")

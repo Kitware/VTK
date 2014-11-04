@@ -1,19 +1,19 @@
 #
 # Configure output paths for libraries and executables.
 #
-SET(LIBRARY_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin CACHE PATH
+set(LIBRARY_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin CACHE PATH
     "Single output directory for building all libraries.")
-SET(EXECUTABLE_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin CACHE PATH
+set(EXECUTABLE_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin CACHE PATH
     "Single output directory for building all executables.")
-MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+mark_as_advanced(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
 
 #
 # Try to find VTK and include its settings (otherwise complain)
 #
-IF(NOT VTK_BINARY_DIR)
-  FIND_PACKAGE(VTK REQUIRED)
-  INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+if(NOT VTK_BINARY_DIR)
+  find_package(VTK REQUIRED)
+  include(${VTK_USE_FILE})
+endif()
 
 #
 # Build shared libs ?
@@ -22,25 +22,25 @@ ENDIF(NOT VTK_BINARY_DIR)
 #
 
 # Standard CMake option for building libraries shared or static by default.
-OPTION(BUILD_SHARED_LIBS
+option(BUILD_SHARED_LIBS
        "Build with shared libraries."
        ${VTK_BUILD_SHARED_LIBS})
 # Copy the CMake option to a setting with VTKMY_ prefix for use in
 # our project.  This name is used in vtkmyConfigure.h.in.
-SET(VTKMY_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(VTKMY_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 # If this is a build tree, provide an option for putting
 # this project's executables and libraries in with VTK's.
-IF (EXISTS ${VTK_DIR}/bin)
-  OPTION(USE_VTK_OUTPUT_PATHS
+if (EXISTS ${VTK_DIR}/bin)
+  option(USE_VTK_OUTPUT_PATHS
          "Use VTK's output directory for this project's executables and libraries."
          OFF)
   MARK_AS_ADVANCED (USE_VTK_OUTPUT_PATHS)
-  IF (USE_VTK_OUTPUT_PATHS)
-    SET (LIBRARY_OUTPUT_PATH ${VTK_DIR}/bin)
-    SET (EXECUTABLE_OUTPUT_PATH ${VTK_DIR}/bin)
-  ENDIF (USE_VTK_OUTPUT_PATHS)
-ENDIF (EXISTS ${VTK_DIR}/bin)
+  if (USE_VTK_OUTPUT_PATHS)
+    set (LIBRARY_OUTPUT_PATH ${VTK_DIR}/bin)
+    set (EXECUTABLE_OUTPUT_PATH ${VTK_DIR}/bin)
+  endif ()
+endif ()
 
 
 #
@@ -56,94 +56,94 @@ ENDIF (EXISTS ${VTK_DIR}/bin)
 # Tcl
 #
 
-IF (VTK_WRAP_TCL)
+if (VTK_WRAP_TCL)
 
-  OPTION(VTKMY_WRAP_TCL
+  option(VTKMY_WRAP_TCL
          "Wrap classes into the TCL interpreted language."
          ON)
 
-  IF(VTKMY_WRAP_TCL)
+  if(VTKMY_WRAP_TCL)
     INCLUDE(${VTK_CMAKE_DIR}/vtkWrapTcl.cmake)
-  ENDIF(VTKMY_WRAP_TCL)
+  endif()
 
-ELSE (VTK_WRAP_TCL)
+else ()
 
-  IF (VTKMY_WRAP_TCL)
-    MESSAGE("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have "
+  if (VTKMY_WRAP_TCL)
+    message("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have "
             "chosen has not support for Tcl (VTK_WRAP_TCL is OFF).  "
             "Please set VTKMY_WRAP_TCL to OFF.")
-    SET (VTKMY_WRAP_TCL OFF)
-  ENDIF (VTKMY_WRAP_TCL)
+    set (VTKMY_WRAP_TCL OFF)
+  endif ()
 
-ENDIF (VTK_WRAP_TCL)
+endif ()
 
 #
 # Python
 #
 
-IF (VTK_WRAP_PYTHON)
+if (VTK_WRAP_PYTHON)
 
-  OPTION(VTKMY_WRAP_PYTHON
+  option(VTKMY_WRAP_PYTHON
          "Wrap classes into the Python interpreted language."
          ON)
 
-  IF (VTKMY_WRAP_PYTHON)
-    SET(VTK_WRAP_PYTHON_FIND_LIBS ON)
-    INCLUDE(${VTK_CMAKE_DIR}/vtkWrapPython.cmake)
-    IF (WIN32)
-      IF (NOT BUILD_SHARED_LIBS)
-        MESSAGE(FATAL_ERROR "Python support requires BUILD_SHARED_LIBS to be ON.")
-        SET (VTKMY_CAN_BUILD 0)
-      ENDIF (NOT BUILD_SHARED_LIBS)
-    ENDIF (WIN32)
-  ENDIF (VTKMY_WRAP_PYTHON)
+  if (VTKMY_WRAP_PYTHON)
+    set(VTK_WRAP_PYTHON_FIND_LIBS ON)
+    include(${VTK_CMAKE_DIR}/vtkWrapPython.cmake)
+    if (WIN32)
+      if (NOT BUILD_SHARED_LIBS)
+        message(FATAL_ERROR "Python support requires BUILD_SHARED_LIBS to be ON.")
+        set (VTKMY_CAN_BUILD 0)
+      endif ()
+    endif ()
+  endif ()
 
-ELSE (VTK_WRAP_PYTHON)
+else ()
 
-  IF (VTKMY_WRAP_PYTHON)
-    MESSAGE("Warning. VTKMY_WRAP_PYTHON is ON but the VTK version you have "
+  if (VTKMY_WRAP_PYTHON)
+    message("Warning. VTKMY_WRAP_PYTHON is ON but the VTK version you have "
             "chosen has not support for Python (VTK_WRAP_PYTHON is OFF).  "
             "Please set VTKMY_WRAP_PYTHON to OFF.")
-    SET (VTKMY_WRAP_PYTHON OFF)
-  ENDIF (VTKMY_WRAP_PYTHON)
+    set (VTKMY_WRAP_PYTHON OFF)
+  endif ()
 
-ENDIF (VTK_WRAP_PYTHON)
+endif ()
 
 #
 # Java
 #
 
-IF (VTK_WRAP_JAVA)
+if (VTK_WRAP_JAVA)
 
-  OPTION(VTKMY_WRAP_JAVA
+  option(VTKMY_WRAP_JAVA
          "Wrap classes into the Java interpreted language."
          ON)
 
-  IF (VTKMY_WRAP_JAVA)
-    SET(VTK_WRAP_JAVA3_INIT_DIR "${VTKMY_SOURCE_DIR}/Wrapping")
-    INCLUDE(${VTK_CMAKE_DIR}/vtkWrapJava.cmake)
-    IF (WIN32)
-      IF (NOT BUILD_SHARED_LIBS)
-        MESSAGE(FATAL_ERROR "Java support requires BUILD_SHARED_LIBS to be ON.")
-        SET (VTKMY_CAN_BUILD 0)
-      ENDIF (NOT BUILD_SHARED_LIBS)
-    ENDIF (WIN32)
+  if (VTKMY_WRAP_JAVA)
+    set(VTK_WRAP_JAVA3_INIT_DIR "${VTKMY_SOURCE_DIR}/Wrapping")
+    include(${VTK_CMAKE_DIR}/vtkWrapJava.cmake)
+    if (WIN32)
+      if (NOT BUILD_SHARED_LIBS)
+        message(FATAL_ERROR "Java support requires BUILD_SHARED_LIBS to be ON.")
+        set (VTKMY_CAN_BUILD 0)
+      endif ()
+    endif ()
 
     # Tell the java wrappers where to go.
-    SET(VTK_JAVA_HOME ${VTKMY_BINARY_DIR}/java/vtkmy)
-    FILE(MAKE_DIRECTORY ${VTK_JAVA_HOME})
-  ENDIF (VTKMY_WRAP_JAVA)
+    set(VTK_JAVA_HOME ${VTKMY_BINARY_DIR}/java/vtkmy)
+    file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
+  endif ()
 
-ELSE (VTK_WRAP_JAVA)
+else ()
 
-  IF (VTKMY_WRAP_JAVA)
-    MESSAGE("Warning. VTKMY_WRAP_JAVA is ON but the VTK version you have "
+  if (VTKMY_WRAP_JAVA)
+    message("Warning. VTKMY_WRAP_JAVA is ON but the VTK version you have "
             "chosen has not support for Java (VTK_WRAP_JAVA is OFF).  "
             "Please set VTKMY_WRAP_JAVA to OFF.")
-    SET (VTKMY_WRAP_JAVA OFF)
-  ENDIF (VTKMY_WRAP_JAVA)
+    set (VTKMY_WRAP_JAVA OFF)
+  endif ()
 
-ENDIF (VTK_WRAP_JAVA)
+endif ()
 
 # Setup our local hints file in case wrappers need them.
-SET(VTK_WRAP_HINTS ${VTKMY_SOURCE_DIR}/Wrapping/hints)
+set(VTK_WRAP_HINTS ${VTKMY_SOURCE_DIR}/Wrapping/hints)

@@ -1,21 +1,23 @@
-
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
-    TestAreaSelections.cxx)
+    TestAreaSelections.cxx) # incorrect results in OpenGL
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${extra_opengl2_tests}
   otherCoordinate.cxx,NO_DATA,NO_VALID
+  TestCompositePolyDataMapper2.cxx
   FrustumClip.cxx
   Mace.cxx
   RGrid.cxx
+  TestActor2D.cxx
   TestActor2DTextures.cxx
   TestActorLightingFlag.cxx
   TestAnimationScene.cxx
   TestAssemblyBounds.cxx,NO_VALID
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
+  TestBlockOpacity.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestEdgeFlags.cxx
   TestFollowerPicking.cxx
@@ -64,6 +66,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
 
-
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set_source_files_properties(
+   TestEdgeFlags.cxx # fails on OpenGL Mesa
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)

@@ -17,27 +17,27 @@
 #include <stdexcept>
 #include <limits>
 
-#include <vtkObjectFactory.h>
-#include <vtkType.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkDemandDrivenPipeline.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkMPIController.h>
-#include <vtkMPI.h>
-#include <vtkNew.h>
+#include "vtkObjectFactory.h"
+#include "vtkType.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkDemandDrivenPipeline.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkMPIController.h"
+#include "vtkMPI.h"
+#include "vtkNew.h"
 
-#include <vtkMultiBlockDataSet.h>
-#include <vtkMultiPieceDataSet.h>
-#include <vtkDataArray.h>
-#include <vtkCellArray.h>
-#include <vtkPoints.h>
-#include <vtkFieldData.h>
-#include <vtkCellData.h>
-#include <vtkPointData.h>
-#include <vtkImageData.h>
-#include <vtkPolyData.h>
-#include <vtkUnstructuredGrid.h>
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
+#include "vtkDataArray.h"
+#include "vtkCellArray.h"
+#include "vtkPoints.h"
+#include "vtkFieldData.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
+#include "vtkImageData.h"
+#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 
 #include "vtkADIOSReader.h"
 #include "vtkADIOSDirTree.h"
@@ -80,15 +80,9 @@ vtkADIOSReader::vtkADIOSReader()
 //----------------------------------------------------------------------------
 vtkADIOSReader::~vtkADIOSReader()
 {
-  if(this->Tree)
-    {
-    delete this->Tree;
-    }
+  delete this->Tree;
 
-  if(this->Reader)
-    {
-    delete this->Reader;
-    }
+  delete this->Reader;
 
   while(!this->PostReadOperations.empty())
     {

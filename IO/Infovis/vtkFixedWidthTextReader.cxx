@@ -27,7 +27,7 @@
 #include "vtkInformation.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
-#include <vtkIOStream.h>
+#include "vtkIOStream.h"
 
 #include <vtksys/stl/algorithm>
 #include <vtksys/stl/vector>

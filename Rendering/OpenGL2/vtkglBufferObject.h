@@ -58,8 +58,9 @@ public:
   template <class T>
   bool Upload(const T &array, ObjectType type);
 
-  // non vector version for float
-  bool Upload(const float *array, int numElements, ObjectType type);
+  // non vector version
+  template <class T>
+  bool Upload(const T *array, size_t numElements, ObjectType type);
 
   /**
    * Bind the buffer object ready for rendering.
@@ -104,6 +105,20 @@ inline bool BufferObject::Upload(const T &array,
     }
   return this->UploadInternal(&array[0],
                               array.size() * sizeof(typename T::value_type),
+                              objectType);
+}
+
+template <class T>
+inline bool BufferObject::Upload(const T *array, size_t numElements,
+                                 BufferObject::ObjectType objectType)
+{
+  if (!array)
+    {
+    this->Error = "Refusing to upload empty array.";
+    return false;
+    }
+  return this->UploadInternal(array,
+                              numElements * sizeof(typename T),
                               objectType);
 }
 

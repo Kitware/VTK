@@ -23,11 +23,11 @@
 #include <vector> // For independently stepped array indexing
 #include <map>    // For independently stepped array indexing
 
-#include <vtkAlgorithm.h>
-#include <vtkMultiProcessController.h> // For the MPI controller member
-#include <vtkSetGet.h>                 // For property get/set macros
+#include "vtkAlgorithm.h"
+#include "vtkMultiProcessController.h" // For the MPI controller member
+#include "vtkSetGet.h"                 // For property get/set macros
 
-#include <vtkIOADIOSModule.h>          // For export macro
+#include "vtkIOADIOSModule.h"          // For export macro
 
 class ADIOSWriter;
 

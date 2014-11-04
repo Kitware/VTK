@@ -43,7 +43,7 @@
 #include "vtkSMPProgressObserver.h"
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkThreadedCompositeDataPipeline);

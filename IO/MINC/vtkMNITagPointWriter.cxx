@@ -117,10 +117,7 @@ vtkMNITagPointWriter::~vtkMNITagPointWriter()
       }
     }
 
-  if (this->Comments)
-    {
-    delete [] this->Comments;
-    }
+  delete [] this->Comments;
 
   delete[] this->FileName;
 }

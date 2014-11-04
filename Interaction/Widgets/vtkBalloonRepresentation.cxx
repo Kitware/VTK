@@ -131,10 +131,8 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
 //----------------------------------------------------------------------
 vtkBalloonRepresentation::~vtkBalloonRepresentation()
 {
-  if ( this->BalloonText )
-    {
-    delete [] this->BalloonText;
-    }
+  delete [] this->BalloonText;
+
   if ( this->BalloonImage )
     {
     this->BalloonImage->Delete();

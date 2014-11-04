@@ -92,12 +92,6 @@ public:
   virtual void Disable();
 
   // Description:
-  // This will start up the X event loop and never return. If you
-  // call this method it will loop processing X events until the
-  // application is exited.
-  virtual void Start();
-
-  // Description:
   // Update the Size data member and set the associated RenderWindow's
   // size.
   virtual void UpdateSize(int,int);
@@ -179,6 +173,12 @@ protected:
   Widget TopLevelShell;
   int TimerId;
   vtkXRenderWindowInteractorInternals* Internal;
+
+  // Description:
+  // This will start up the X event loop and never return. If you
+  // call this method it will loop processing X events until the
+  // application is exited.
+  virtual void StartEventLoop();
 
   // Description:
   // X-specific internal timer methods. See the superclass for detailed

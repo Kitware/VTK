@@ -50,7 +50,7 @@ int Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
 int TestLegacyCompositeDataReaderWriter(int argc, char *argv[])
 {
   vtkNew<vtkTesting> testing;
-  testing->AddArguments(argc, (const char**)(argv));
+  testing->AddArguments(argc, argv);
 
   vtkNew<vtkAMRGaussianPulseSource> source;
 

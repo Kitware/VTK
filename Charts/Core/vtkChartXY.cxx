@@ -1109,8 +1109,11 @@ bool vtkChartXY::RemovePlot(vtkIdType index)
 
     // Ensure that the bounds are recalculated
     this->PlotTransformValid = false;
-    // Mark the scene as dirty
-    this->Scene->SetDirty(true);
+    if (this->Scene)
+      {
+      // Mark the scene as dirty
+      this->Scene->SetDirty(true);
+      }
     return true;
     }
   else
@@ -1140,8 +1143,11 @@ void vtkChartXY::ClearPlots()
 
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
-  // Mark the scene as dirty
-  this->Scene->SetDirty(true);
+  if (this->Scene)
+    {
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1231,8 +1237,11 @@ void vtkChartXY::RecalculateBounds()
 {
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
-  // Mark the scene as dirty
-  this->Scene->SetDirty(true);
+  if (this->Scene)
+    {
+    // Mark the scene as dirty
+    this->Scene->SetDirty(true);
+    }
 }
 
 //-----------------------------------------------------------------------------

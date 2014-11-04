@@ -21,7 +21,7 @@
 
 #include "vtkUnicodeString.h"
 
-#include <vtkObject.h>
+#include "vtkObject.h"
 #include <utf8.h>
 
 #include <map>
@@ -372,7 +372,7 @@ vtkUnicodeString vtkUnicodeString::fold_case() const
   static map_t map;
   if(map.empty())
     {
-    #include <vtkUnicodeCaseFoldData.h>
+    #include "vtkUnicodeCaseFoldData.h"
 
     for(value_type* i = &vtkUnicodeCaseFoldData[0]; *i; ++i)
       {

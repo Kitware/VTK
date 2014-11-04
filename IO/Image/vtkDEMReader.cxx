@@ -81,10 +81,7 @@ vtkDEMReader::vtkDEMReader()
 
 vtkDEMReader::~vtkDEMReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 }
 
 //----------------------------------------------------------------------------

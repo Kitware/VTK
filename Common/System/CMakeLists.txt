@@ -24,3 +24,5 @@ if(WIN32 AND NOT BORLAND)
 endif()
 
 vtk_module_library(vtkCommonSystem ${Module_SRCS})
+
+vtk_module_link_libraries(vtkCommonSystem LINK_PRIVATE ${CMAKE_THREAD_LIBS})

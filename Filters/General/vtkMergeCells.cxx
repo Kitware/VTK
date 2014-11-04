@@ -36,7 +36,7 @@
 #include "vtkDataArray.h"
 #include "vtkMergePoints.h"
 #include "vtkKdTree.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <map>
 #include <algorithm>
 
@@ -91,17 +91,11 @@ vtkMergeCells::~vtkMergeCells()
 
 void vtkMergeCells::FreeLists()
 {
-  if (this->ptList)
-    {
-    delete this->ptList;
-    this->ptList = NULL;
-    }
+  delete this->ptList;
+  this->ptList = NULL;
 
-  if (this->cellList)
-    {
-    delete this->cellList;
-    this->cellList = NULL;
-    }
+  delete this->cellList;
+  this->cellList = NULL;
 }
 
 
@@ -226,11 +220,8 @@ int vtkMergeCells::MergeDataSet(vtkDataSet *set)
     newCellId = this->AddNewCellsDataSet(set, idMap);
     }
 
-  if (idMap)
-    {
-    delete [] idMap;
-    idMap = 0;
-    }
+  delete [] idMap;
+  idMap = 0;
 
   this->NumberOfPoints = nextPt;
   this->NumberOfCells = newCellId;

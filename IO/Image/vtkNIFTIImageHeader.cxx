@@ -16,7 +16,7 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 #include "vtkNIFTIImageHeader.h"
 #include "vtkNIFTIImagePrivate.h"
 
-#include <vtkObjectFactory.h>
+#include "vtkObjectFactory.h"
 
 #include <string.h>
 #include <float.h>

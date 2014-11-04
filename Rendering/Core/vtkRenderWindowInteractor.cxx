@@ -194,6 +194,32 @@ void vtkRenderWindowInteractor::UnRegister(vtkObjectBase *o)
 }
 
 //----------------------------------------------------------------------
+void vtkRenderWindowInteractor::Start()
+{
+  // Let the compositing handle the event loop if it wants to.
+  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
+    {
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
+    return;
+    }
+
+  // As a convenience, initialize if we aren't initialized yet.
+  if (!this->Initialized)
+    {
+    this->Initialize();
+
+    if (!this->Initialized)
+      {
+      return;
+      }
+    }
+
+  // Pass execution to the subclass which will run the event loop,
+  // this will not return until TerminateApp is called.
+  this->StartEventLoop();
+}
+
+//----------------------------------------------------------------------
 void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow *aren)
 {
   if (this->RenderWindow != aren)

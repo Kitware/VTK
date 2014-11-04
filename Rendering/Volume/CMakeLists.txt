@@ -9,15 +9,12 @@ set(Module_SRCS
   vtkFixedPointVolumeRayCastCompositeHelper.cxx
   vtkFixedPointVolumeRayCastCompositeShadeHelper.cxx
   vtkFixedPointVolumeRayCastHelper.cxx
-  vtkFixedPointVolumeRayCastMapper.cxx
   vtkFixedPointVolumeRayCastMIPHelper.cxx
+  vtkFixedPointVolumeRayCastMapper.cxx
   vtkGPUVolumeRayCastMapper.cxx
-  vtkHAVSVolumeMapper.cxx
-  vtkProjectedAAHexahedraMapper.cxx
   vtkProjectedTetrahedraMapper.cxx
   vtkRayCastImageDisplayHelper.cxx
   vtkRecursiveSphereDirectionEncoder.cxx
-  vtkSmartVolumeMapper.cxx
   vtkSphericalDirectionEncoder.cxx
   vtkUnstructuredGridBunykRayCastFunction.cxx
   vtkUnstructuredGridHomogeneousRayIntegrator.cxx
@@ -36,13 +33,10 @@ set(Module_SRCS
   vtkVolumeRayCastCompositeFunction.cxx
   vtkVolumeRayCastFunction.cxx
   vtkVolumeRayCastIsosurfaceFunction.cxx
-  vtkVolumeRayCastMapper.cxx
   vtkVolumeRayCastMIPFunction.cxx
+  vtkVolumeRayCastMapper.cxx
   vtkVolumeRayCastSpaceLeapingImageFilter.cxx
-  vtkVolumeTextureMapper2D.cxx
-  vtkVolumeTextureMapper3D.cxx
-  vtkVolumeTextureMapper.cxx
-  )
+)
 
 set_source_files_properties(
   vtkDirectionEncoder
@@ -56,5 +50,17 @@ set_source_files_properties(
   vtkUnstructuredGridVolumeRayIntegrator
   ABSTRACT
   )
+
+# only some volume mappers are supported for the OpenGL2 backend
+if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(Module_SRCS ${Module_SRCS}
+    vtkHAVSVolumeMapper.cxx
+    vtkProjectedAAHexahedraMapper.cxx
+    vtkVolumeTextureMapper2D.cxx
+    vtkVolumeTextureMapper3D.cxx
+    vtkVolumeTextureMapper.cxx
+    )
+endif()
+
 
 vtk_module_library(vtkRenderingVolume ${Module_SRCS})

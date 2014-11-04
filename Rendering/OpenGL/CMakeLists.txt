@@ -47,19 +47,30 @@ include(vtkObjectFactory)
 
 set(Module_SRCS
   vtkCameraPass.cxx
+  vtkChooserPainter.cxx
+  vtkClearRGBPass.cxx
   vtkClearZPass.cxx
+  vtkClipPlanesPainter.cxx
+  vtkCoincidentTopologyResolutionPainter.cxx
   vtkColorMaterialHelper.cxx
+  vtkCompositePainter.cxx
+  vtkCompositePolyDataMapper2.cxx
   vtkDataTransferHelper.cxx
+  vtkDefaultPainter.cxx
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
+  vtkDisplayListPainter.cxx
   vtkFrameBufferObject.cxx
   vtkFrameBufferObject2.cxx
   vtkGLSLShaderDeviceAdapter2.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
+  vtkHardwareSelectionPolyDataPainter.cxx # Needed by vtkPainterPolyDataMapper
   vtkImageProcessingPass.cxx
   vtkLightingHelper.cxx
+  vtkLightingPainter.cxx
   vtkLightsPass.cxx
+  vtkLinesPainter.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
   vtkOpenGLCamera.cxx
@@ -88,11 +99,19 @@ set(Module_SRCS
   vtkOpenGLState.cxx
   vtkOpenGLTexture.cxx
   vtkOverlayPass.cxx
+  vtkPainter.cxx
+  vtkPainterPolyDataMapper.cxx
   vtkPixelBufferObject.cxx
+  vtkPointsPainter.cxx
+  vtkPolyDataPainter.cxx
+  vtkPolygonsPainter.cxx
+  vtkPrimitivePainter.cxx
   vtkRenderPass.cxx
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
   vtkRenderbuffer.cxx
+  vtkRepresentationPainter.cxx
+  vtkScalarsToColorsPainter.cxx
   vtkSequencePass.cxx
   vtkShader2.cxx
   vtkShader2Collection.cxx
@@ -100,10 +119,15 @@ set(Module_SRCS
   vtkShadowMapBakerPass.cxx
   vtkShadowMapPass.cxx
   vtkSobelGradientMagnitudePass.cxx
+  vtkStandardPolyDataPainter.cxx
+  vtkTStripsPainter.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
   vtkUniformVariables.cxx
+  vtkValuePainter.cxx
+  vtkValuePass.cxx
+  vtkValuePasses.cxx
   vtkVolumetricPass.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLObjectFactory.cxx
@@ -114,10 +138,26 @@ if (NOT VTK_LEGACY_REMOVE)
     vtkOpenGLPolyDataMapper.cxx)
 endif()
 
+if(VTK_USE_TDX)
+  list(APPEND Module_SRCS
+    vtkTDxDevice.cxx
+    vtkTDxInteractorStyleGeo.cxx)
+
+  if(WIN32)
+   list(APPEND Module_SRCS vtkTDxWinDevice.cxx)
+  endif()
+  if(UNIX)
+    list(APPEND Module_SRCS vtkTDxUnixDevice.cxx)
+  endif()
+  if(APPLE)
+    list(APPEND Module_SRCS vtkTDxMacDevice.cxx)
+  endif()
+endif()
+
+
 set(${vtk-module}_HDRS
   vtkgluPickMatrix.h
   vtkOpenGL.h
-  vtkOpenGLProjectedPolyDataRayBounder.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.h
@@ -129,6 +169,9 @@ set_source_files_properties(
   vtkOpenGLRenderWindow
   vtkRenderPass
   vtkRenderState
+  vtkPainter
+  vtkPolyDataPainter
+  vtkPrimitivePainter
   ABSTRACT
   )
 
@@ -350,7 +393,7 @@ elseif(VTK_USE_COCOA)
                                 vtkCocoaRenderWindow.mm
                                 vtkCocoaGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-  endif(VTK_REQUIRED_OBJCXX_FLAGS)
+  endif()
   set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
 elseif(VTK_USE_CARBON)
   # Add some custom overrides

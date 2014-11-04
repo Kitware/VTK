@@ -54,21 +54,12 @@ vtkImageWriter::vtkImageWriter()
 vtkImageWriter::~vtkImageWriter()
 {
   // get rid of memory allocated for file names
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
-    }
-  if (this->FilePattern)
-    {
-    delete [] this->FilePattern;
-    this->FilePattern = NULL;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
+  delete [] this->FilePrefix;
+  this->FilePrefix = NULL;
+  delete [] this->FilePattern;
+  this->FilePattern = NULL;
+  delete [] this->FileName;
+  this->FileName = NULL;
 }
 
 

@@ -29,11 +29,11 @@
 #include "vtkODBCDatabase.h"
 #include "vtkODBCInternals.h"
 
-#include <vtkBitArray.h>
-#include <vtkObjectFactory.h>
-#include <vtkStringArray.h>
-#include <vtkVariant.h>
-#include <vtkVariantArray.h>
+#include "vtkBitArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
+#include "vtkVariant.h"
+#include "vtkVariantArray.h"
 
 #include <cassert>
 
@@ -135,10 +135,7 @@ public:
       this->ColumnNames->Delete();
       this->ColumnIsSigned->Delete();
       this->NullPermitted->Delete();
-      if (this->ColumnTypes)
-        {
-        delete [] this->ColumnTypes;
-        }
+      delete [] this->ColumnTypes;
     }
 
   void FreeStatement();
@@ -383,11 +380,8 @@ void vtkODBCQueryInternals::FreeUserParameterList()
 {
   for (unsigned int i = 0; i < this->UserParameterList.size(); ++i)
     {
-    if (this->UserParameterList[i] != NULL)
-      {
-      delete this->UserParameterList[i];
-      this->UserParameterList[i] = NULL;
-      }
+    delete this->UserParameterList[i];
+    this->UserParameterList[i] = NULL;
     }
   this->UserParameterList.clear();
 }
@@ -404,10 +398,7 @@ bool vtkODBCQueryInternals::SetBoundParameter(int index, vtkODBCBoundParameter *
     }
   else
     {
-    if (this->UserParameterList[index] != NULL)
-      {
-      delete this->UserParameterList[index];
-      }
+    delete this->UserParameterList[index];
     this->UserParameterList[index] = param;
     return true;
     }
@@ -613,11 +604,8 @@ vtkODBCQuery::Execute()
     this->Internals->CurrentRow->Reset();
     this->Internals->ColumnIsSigned->Reset();
     this->Internals->NullPermitted->Reset();
-    if (this->Internals->ColumnTypes)
-      {
-      delete [] this->Internals->ColumnTypes;
-      this->Internals->ColumnTypes = NULL;
-      }
+    delete [] this->Internals->ColumnTypes;
+    this->Internals->ColumnTypes = NULL;
 
     // Populate the result information now, all at once, rather than
     // making a whole bunch of calls later and duplicating

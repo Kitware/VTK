@@ -29,7 +29,7 @@
 #endif
 
 
-#include <vtkSQLDatabaseSchema.h>
+#include "vtkSQLDatabaseSchema.h"
 
 #include "vtkODBCDatabase.h"
 #include "vtkODBCQuery.h"

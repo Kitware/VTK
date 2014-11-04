@@ -10,7 +10,7 @@ fi
 #------------------------------------------------------------------------------
 make_vtk_framework ()
 {
-  libs=`ls $install/lib/*.a`
+  libs=`ls $install/lib/libvtk*.a`
   headers=$install/${VTK_INSTALL_INCLUDE_DIR}
 
   libname=vtk

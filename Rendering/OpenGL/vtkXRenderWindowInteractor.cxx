@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
 
 // We have to define XTSTRINGDEFINES (used in X11/StringDefs.h and X11/Shell.h)
@@ -274,24 +274,8 @@ void vtkXRenderWindowInteractor::BreakLoopFlagOn()
 // This will start up the X event loop. If you
 // call this method it will loop processing X events until the
 // loop is exited.
-void vtkXRenderWindowInteractor::Start()
+void vtkXRenderWindowInteractor::StartEventLoop()
 {
-  // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
-    {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    return;
-    }
-
-  if (!this->Initialized)
-    {
-    this->Initialize();
-    }
-  if (!this->Initialized)
-    {
-    return;
-    }
-
   this->BreakLoopFlag = 0;
   do
     {
@@ -300,7 +284,6 @@ void vtkXRenderWindowInteractor::Start()
     XtDispatchEvent(&event);
     }
   while (this->BreakLoopFlag == 0);
-
 }
 
 //-------------------------------------------------------------------------

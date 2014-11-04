@@ -22,7 +22,7 @@
 #define __vtkPistonScalarsColors_h
 
 #include "vtkAcceleratorsPistonModule.h" // For export macro
-#include <vtkObject.h>
+#include "vtkObject.h"
 
 #include <vector> // vector is required
 

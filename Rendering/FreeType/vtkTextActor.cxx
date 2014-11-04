@@ -608,6 +608,10 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
     this->ScaledTextProperty->ShallowCopy(this->TextProperty);
     }
 
+  // Combine this actor's orientation with the set text property's rotation
+  double rotAngle = this->TextProperty->GetOrientation() + this->Orientation;
+  this->ScaledTextProperty->SetOrientation(rotAngle);
+
   if (this->TextScaleMode == TEXT_SCALE_MODE_NONE)
     {
     if (this->TextProperty)
@@ -675,11 +679,9 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
 
       // If the orientation has changed then we'll probably need to change our
       // constrained font size as well
-      if(this->FormerOrientation != this->Orientation)
+      if(this->FormerOrientation != rotAngle)
         {
-        this->Transform->Identity();
-        this->Transform->RotateZ(this->Orientation);
-        this->FormerOrientation = this->Orientation;
+        this->FormerOrientation = rotAngle;
         orientationHasChanged = 1;
         }
       }
@@ -722,7 +724,7 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
         int max_height = static_cast<int>(this->MaximumLineHeight * size[1]);
 
         int fsize = this->TextRenderer->GetConstrainedFontSize(
-          this->Input, this->TextProperty, size[0],
+          this->Input, this->ScaledTextProperty, size[0],
           (size[1] < max_height ? size[1] : max_height));
 
         if (fsize == -1)
@@ -751,7 +753,9 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
 // ----------------------------------------------------------------------------
 void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 {
-  int dims[3];
+  int dims[2] = {0, 0};
+  int anchorOffset[2] = {0, 0};
+
   this->RectanglePoints->Reset();
   if ( this->ImageData )
     {
@@ -765,6 +769,8 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
       }
     dims[0] = ( text_bbox[1] - text_bbox[0] + 1 );
     dims[1] = ( text_bbox[3] - text_bbox[2] + 1 );
+    anchorOffset[0] = text_bbox[0];
+    anchorOffset[1] = text_bbox[2];
 
     // compute TCoords.
     vtkFloatArray* tc = vtkFloatArray::SafeDownCast
@@ -786,19 +792,9 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     tc->InsertComponent(3, 0, tcXMax);
     tc->InsertComponent(3, 1, 0.0);
     }
-  else
-    {
-    dims[0] = dims[1] = 0;
-    }
 
-
-  // I could do this with a transform, but it is simple enough
-  // to rotate the four corners in 2D ...
-  double radians = vtkMath::RadiansFromDegrees( this->Orientation );
-  double c = cos( radians );
-  double s = sin( radians );
   double xo = 0.0, yo = 0.0;
-  double x, y;
+
   // When TextScaleMode is PROP, we justify text based on the rectangle
   // formed by Position & Position2 coordinates
   if( ( this->TextScaleMode == TEXT_SCALE_MODE_PROP ) || this->UseBorderAlign )
@@ -848,76 +844,17 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
       default:
         vtkErrorMacro( << "Bad alignment point value." );
       }
-    //handle line offset.  make sure we stay within the bounds defined by
-    //position1 & position2
-    double offset = this->TextProperty->GetLineOffset();
-    if( ( yo + offset + dims[1] ) > maxHeight )
-      {
-      yo = maxHeight - dims[1];
-      }
-    else if( ( yo + offset ) < 0 )
-      {
-      yo = 0;
-      }
-    else
-      {
-      yo += offset;
-      }
     }
   else
     {
-    // I could get rid of "GetAlignmentPoint" and use justification directly.
-    switch ( this->GetAlignmentPoint() )
-      {
-      case 0:
-        break;
-      case 1:
-        xo = -dims[0] * 0.5;
-        break;
-      case 2:
-        xo = -dims[0];
-        break;
-      case 3:
-        yo = -dims[1] * 0.5;
-        break;
-      case 4:
-        yo = -dims[1] * 0.5;
-        xo = -dims[0] * 0.5;
-        break;
-      case 5:
-        yo = -dims[1] * 0.5;
-        xo = -dims[0];
-        break;
-      case 6:
-        yo = -dims[1];
-        break;
-      case 7:
-        yo = -dims[1];
-        xo = -dims[0] * 0.5;
-        break;
-      case 8:
-        yo = -dims[1];
-        xo = -dims[0];
-        break;
-      default:
-        vtkErrorMacro( << "Bad alignment point value." );
-      }
-    // handle line offset
-    yo += this->TextProperty->GetLineOffset();
+    xo = anchorOffset[0];
+    yo = anchorOffset[1];
     } //end unscaled text case
 
-  x = xo;
-  y = yo;
-  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
-  x = xo;
-  y = yo + dims[1];
-  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
-  x = xo + dims[0];
-  y = yo + dims[1];
-  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
-  x = xo + dims[0];
-  y = yo;
-  this->RectanglePoints->InsertNextPoint( c*x-s*y,s*x+c*y,0.0 );
+  this->RectanglePoints->InsertNextPoint(xo,           yo,           0.0 );
+  this->RectanglePoints->InsertNextPoint(xo,           yo + dims[1], 0.0 );
+  this->RectanglePoints->InsertNextPoint(xo + dims[0], yo + dims[1], 0.0 );
+  this->RectanglePoints->InsertNextPoint(xo + dims[0], yo,           0.0 );
 }
 
 // ----------------------------------------------------------------------------

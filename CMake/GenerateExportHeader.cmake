@@ -180,14 +180,14 @@ macro(_test_compiler_hidden_visibility)
     endif()
   endif()
 
-  if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} ARGS -V
       OUTPUT_VARIABLE _intel_version_info
       ERROR_VARIABLE _intel_version_info)
     string(REGEX REPLACE ".*Version ([0-9]+(\\.[0-9]+)+).*" "\\1"
       _intel_version "${_intel_version_info}")
 
-    if(${_intel_version} VERSION_LESS "12.0")
+    if(_intel_version VERSION_LESS "12.0")
       set(_INTEL_TOO_OLD TRUE)
     endif()
   endif()
@@ -200,9 +200,9 @@ macro(_test_compiler_hidden_visibility)
       AND NOT _INTEL_TOO_OLD
       AND NOT WIN32
       AND NOT CYGWIN
-      AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES XL
-      AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES PGI
-      AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES Watcom)
+      AND NOT CMAKE_CXX_COMPILER_ID MATCHES "XL"
+      AND NOT CMAKE_CXX_COMPILER_ID MATCHES "PGI"
+      AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Watcom")
     check_cxx_compiler_flag(-fvisibility=hidden COMPILER_HAS_HIDDEN_VISIBILITY)
     check_cxx_compiler_flag(-fvisibility-inlines-hidden
       COMPILER_HAS_HIDDEN_INLINE_VISIBILITY)
@@ -213,11 +213,11 @@ macro(_test_compiler_hidden_visibility)
 endmacro()
 
 macro(_test_compiler_has_deprecated)
-  if("${CMAKE_CXX_COMPILER_ID}" MATCHES Borland
-      OR "${CMAKE_CXX_COMPILER_ID}" MATCHES HP
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Borland"
+      OR CMAKE_CXX_COMPILER_ID MATCHES "HP"
       OR GCC_TOO_OLD
-      OR "${CMAKE_CXX_COMPILER_ID}" MATCHES PGI
-      OR "${CMAKE_CXX_COMPILER_ID}" MATCHES Watcom)
+      OR CMAKE_CXX_COMPILER_ID MATCHES "PGI"
+      OR CMAKE_CXX_COMPILER_ID MATCHES "Watcom")
     set(COMPILER_HAS_DEPRECATED "" CACHE INTERNAL
       "Compiler support for a deprecated attribute")
   else()
@@ -250,7 +250,7 @@ macro(_DO_SET_MACRO_VALUES TARGET_LIBRARY)
 
   get_property(type TARGET ${TARGET_LIBRARY} PROPERTY TYPE)
 
-  if(NOT ${type} STREQUAL "STATIC_LIBRARY")
+  if(NOT type STREQUAL "STATIC_LIBRARY")
     if(WIN32)
       set(DEFINE_EXPORT "__declspec(dllexport)")
       set(DEFINE_IMPORT "__declspec(dllimport)")
@@ -343,11 +343,11 @@ endmacro()
 
 function(GENERATE_EXPORT_HEADER TARGET_LIBRARY)
   get_property(type TARGET ${TARGET_LIBRARY} PROPERTY TYPE)
-  if(${type} STREQUAL "MODULE")
+  if(type STREQUAL "MODULE")
     message(WARNING "This macro should not be used with libraries of type MODULE")
     return()
   endif()
-  if(NOT ${type} STREQUAL "STATIC_LIBRARY" AND NOT ${type} STREQUAL "SHARED_LIBRARY" AND NOT ${type} STREQUAL "OBJECT_LIBRARY")
+  if(NOT type STREQUAL "STATIC_LIBRARY" AND NOT type STREQUAL "SHARED_LIBRARY" AND NOT type STREQUAL "OBJECT_LIBRARY")
     message(WARNING "This macro can only be used with libraries")
     return()
   endif()

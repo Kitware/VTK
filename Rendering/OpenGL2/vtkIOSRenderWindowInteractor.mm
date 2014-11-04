@@ -31,8 +31,6 @@ void (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (
 //----------------------------------------------------------------------------
 vtkIOSRenderWindowInteractor::vtkIOSRenderWindowInteractor()
 {
-  this->InstallMessageProc = 1;
-
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
     this->IDLookup[i] = NULL;
@@ -46,7 +44,7 @@ vtkIOSRenderWindowInteractor::~vtkIOSRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindowInteractor::Start()
+void vtkIOSRenderWindowInteractor::StartEventLoop()
 {
 }
 
@@ -216,7 +214,6 @@ void vtkIOSRenderWindowInteractor::ClearContactIndex(void *dwID)
 void vtkIOSRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 
 //----------------------------------------------------------------------------

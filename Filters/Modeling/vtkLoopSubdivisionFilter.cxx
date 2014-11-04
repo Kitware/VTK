@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkLoopSubdivisionFilter.h"
 
+#include "vtkSmartPointer.h"
 #include "vtkMath.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
@@ -31,7 +32,7 @@ vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 static double LoopWeights[4] =
   {.375, .375, .125, .125};
 
-void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
+int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
   double *weights;
   vtkIdType *pts = 0;
@@ -40,16 +41,16 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,v
   vtkIdType npts;
   vtkIdType p1, p2;
   vtkCellArray *inputPolys=inputDS->GetPolys();
-  vtkEdgeTable *edgeTable;
-  vtkIdList *cellIds = vtkIdList::New();
-  vtkIdList *stencil = vtkIdList::New();
+  vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> stencil = vtkSmartPointer<vtkIdList>::New();
   vtkPoints *inputPts=inputDS->GetPoints();
   vtkPointData *inputPD=inputDS->GetPointData();
 
   weights = new double[256];
 
   // Create an edge table to keep track of which edges we've processed
-  edgeTable = vtkEdgeTable::New();
+  vtkSmartPointer<vtkEdgeTable> edgeTable =
+    vtkSmartPointer<vtkEdgeTable>::New();
   edgeTable->InitEdgeInsertion(inputDS->GetNumberOfPoints());
 
   // Generate even points. these are derived from the old points
@@ -89,10 +90,16 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,v
           stencil->SetId(1,p2);
           weights[0] = .5; weights[1] = .5;
           } // boundary edge
+        else if (cellIds->GetNumberOfIds() == 2)
+          {
+          this->GenerateOddStencil (p1, p2,
+                                    inputDS, stencil, weights);
+          }
         else
           {
-            this->GenerateOddStencil (p1, p2,
-                                      inputDS, stencil, weights);
+          delete [] weights;
+          vtkErrorMacro ("Dataset is non-manifold and cannot be subdivided.");
+          return 0;
           }
         newId = this->InterpolatePosition (inputPts, outputPts,
                                            stencil, weights);
@@ -113,9 +120,7 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,v
 
   // cleanup
   delete [] weights;
-  edgeTable->Delete();
-  stencil->Delete ();
-  cellIds->Delete();
+  return 1;
 }
 
 void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,

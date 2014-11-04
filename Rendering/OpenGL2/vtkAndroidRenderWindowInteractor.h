@@ -57,12 +57,6 @@ public:
   virtual void Disable();
 
   // Description:
-  // This will start up the event loop and never return. If you
-  // call this method it will loop processing events until the
-  // application is exited.
-  virtual void Start();
-
-  // Description:
   // Android specific application terminate, calls ClassExitMethod then
   // calls PostQuitMessage(0) to terminate the application. An application can Specify
   // ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
@@ -126,6 +120,12 @@ protected:
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
+
+  // Description:
+  // This will start up the event loop and never return. If you
+  // call this method it will loop processing events until the
+  // application is exited.
+  virtual void StartEventLoop();
 
 private:
   vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&);  // Not implemented.

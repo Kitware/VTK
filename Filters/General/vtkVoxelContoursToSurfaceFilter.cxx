@@ -44,26 +44,11 @@ vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
 
 vtkVoxelContoursToSurfaceFilter::~vtkVoxelContoursToSurfaceFilter()
 {
-  if ( this->LineList )
-    {
-    delete [] this->LineList;
-    }
-  if ( this->SortedXList )
-    {
-    delete [] this->SortedXList;
-    }
-  if ( this->SortedYList )
-    {
-    delete [] this->SortedYList;
-    }
-  if ( this->WorkingList )
-    {
-    delete [] this->WorkingList;
-    }
-  if ( this->IntersectionList )
-    {
-    delete [] this->IntersectionList;
-    }
+  delete [] this->LineList;
+  delete [] this->SortedXList;
+  delete [] this->SortedYList;
+  delete [] this->WorkingList;
+  delete [] this->IntersectionList;
 }
 
 void vtkVoxelContoursToSurfaceFilter::AddLineToLineList( double x1, double y1,
@@ -98,22 +83,10 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
   // Make sure we have enough space in our sorted list
   if ( this->SortedListSize < this->LineListLength )
     {
-    if ( this->SortedXList )
-      {
-      delete [] this->SortedXList;
-      }
-    if ( this->SortedYList )
-      {
-      delete [] this->SortedYList;
-      }
-    if ( this->WorkingList )
-      {
-      delete [] this->WorkingList;
-      }
-    if ( this->IntersectionList )
-      {
-      delete [] this->IntersectionList;
-      }
+    delete [] this->SortedXList;
+    delete [] this->SortedYList;
+    delete [] this->WorkingList;
+    delete [] this->IntersectionList;
 
     this->SortedXList = new double[4*this->LineListLength];
     this->SortedYList = new double[4*this->LineListLength];

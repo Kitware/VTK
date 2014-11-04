@@ -102,6 +102,10 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
   aspect[1] = spacing[1] * 2.0 / avgSpacing;
   aspect[2] = spacing[2] * 2.0 / avgSpacing;
 
+  std::cerr << "spacing is " << spacing[0] << " " << spacing[1] << " " << spacing[2] << std::endl;
+  std::cerr << "aspect is " << aspect[0] << " " << aspect[1] << " " << aspect[2] << std::endl;
+
+
   // compute the increments
   yinc = static_cast<vtkIdType>(dim[0]);
   zinc = yinc*static_cast<vtkIdType>(dim[1]);
@@ -409,6 +413,9 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   aspect[0] = spacing[0] * 2.0 / avgSpacing;
   aspect[1] = spacing[1] * 2.0 / avgSpacing;
   aspect[2] = spacing[2] * 2.0 / avgSpacing;
+
+  std::cerr << "spacing is " << spacing[0] << " " << spacing[1] << " " << spacing[2] << std::endl;
+  std::cerr << "aspect is " << aspect[0] << " " << aspect[1] << " " << aspect[2] << std::endl;
 
   // compute the increments
   yinc = static_cast<vtkIdType>(dim[0]);
@@ -1493,13 +1500,13 @@ void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer( vtkRenderer *ren )
 
 void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
-  if (this->Threader->GetNumberOfThreads() > 1 && this->ThreadWarning)
-    {
-    vtkWarningMacro("Number of threads "
-                    << this->Threader->GetNumberOfThreads()
-                    << " is  > 1. This class does not produce repeatable results when the number of threads exceeds 1.");
-    this->ThreadWarning = false;
-    }
+//  if (this->Threader->GetNumberOfThreads() > 1 && this->ThreadWarning)
+//    {
+//    vtkWarningMacro("Number of threads "
+//                    << this->Threader->GetNumberOfThreads()
+//                    << " is  > 1. This class does not produce repeatable results when the number of threads exceeds 1.");
+//    this->ThreadWarning = false;
+//    }
   this->Timer->StartTimer();
 
   // Since we are passing in a value of 0 for the multiRender flag
@@ -3457,4 +3464,13 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   //   << this->TableScale[3] << endl;
 
   // os << indent << "Flip Mip Comparison" << this->FlipMIPComparison << end;"
+}
+
+
+void vtkFixedPointVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (win && this->ImageDisplayHelper)
+    {
+    this->ImageDisplayHelper->ReleaseGraphicsResources(win);
+    }
 }

@@ -17,6 +17,7 @@ vtkAnnotatedCubeActor                 GetBounds                         307  6
 vtkAssembly                           GetBounds                         307  6
 vtkAxesActor                          GetBounds                         307  6
 vtkAxisActor                          GetBounds                         307  6
+vtkBox                                GetBounds                         307  6
 vtkBoxRepresentation                  GetBounds                         307  6
 vtkCamera                             GetOrientation                    307  3
 vtkCamera                             GetOrientationWXYZ                307  4
@@ -267,6 +268,7 @@ vtkWin32OpenGLRenderWindow            GetScreenSize                     304  2
 vtkWin32OpenGLRenderWindow            GetSize                           304  2
 vtkWindow                             GetPosition                       304  2
 vtkWindow                             GetSize                           304  2
+vtkWindow                             GetScreenSize                     304  2
 vtkWindowLevelLookupTable             GetMaximumTableValue              307  4
 vtkWindowLevelLookupTable             GetMinimumTableValue              307  4
 vtkXImageWindow                       GetPosition                       304  2

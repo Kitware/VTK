@@ -110,6 +110,7 @@ int TestFixedPointRayCastLightComponents(int argc,
 
   vtkFixedPointVolumeRayCastMapper *volumeMapper=vtkFixedPointVolumeRayCastMapper::New();
   volumeMapper->SetSampleDistance(1.0);
+  volumeMapper->SetNumberOfThreads(1);
 
   volumeMapper->SetInputConnection(
     t->GetOutputPort());

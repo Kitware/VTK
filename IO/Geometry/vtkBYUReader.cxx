@@ -45,22 +45,10 @@ vtkBYUReader::vtkBYUReader()
 
 vtkBYUReader::~vtkBYUReader()
 {
-  if ( this->GeometryFileName )
-    {
-    delete [] this->GeometryFileName;
-    }
-  if ( this->DisplacementFileName )
-    {
-    delete [] this->DisplacementFileName;
-    }
-  if ( this->ScalarFileName )
-    {
-    delete [] this->ScalarFileName;
-    }
-  if ( this->TextureFileName )
-    {
-    delete [] this->TextureFileName;
-    }
+  delete [] this->GeometryFileName;
+  delete [] this->DisplacementFileName;
+  delete [] this->ScalarFileName;
+  delete [] this->TextureFileName;
 }
 
 int vtkBYUReader::CanReadFile(const char *filename)

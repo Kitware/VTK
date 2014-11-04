@@ -1,5 +1,12 @@
 find_package(PythonLibs REQUIRED)
 include(vtkWrapPython)
+if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
+  set(_interp_version "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+  set(_libs_version "${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}")
+  if(NOT ${_interp_version} STREQUAL ${_libs_version})
+    message(WARNING "Python library ${_libs_version} mismatches python ${_interp_version}.")
+   endif()
+endif()
 
 function(vtk_add_python_wrapping module_name)
   if(NOT VTK_WRAP_PYTHON_INIT_EXE)

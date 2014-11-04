@@ -137,7 +137,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 {
   (void)aNotification;
 
-  //
+  // remove notification observers
   [self stop];
 
   if (_renWin)
@@ -147,6 +147,13 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
       {
       // The NSWindow is closing, so prevent anyone from accidentally using it.
       _renWin->SetRootWindow(NULL);
+
+      // Ask interactor to stop the NSApplication's run loop
+      vtkRenderWindowInteractor *interactor = _renWin->GetInteractor();
+      if (interactor)
+        {
+        interactor->TerminateApp();
+        }
       }
     }
 }

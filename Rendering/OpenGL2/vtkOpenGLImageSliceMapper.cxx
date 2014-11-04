@@ -119,8 +119,6 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   this->BackgroundPolyDataActor->SetMapper(polyDataMapper.Get());
   }
 
-  this->TextureIndex = 0;
-  this->BackgroundTextureIndex = 0;
   this->FragmentShaderIndex = 0;
   this->RenderWindow = 0;
   this->TextureSize[0] = 0;
@@ -160,8 +158,6 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
   this->BackingPolyDataActor->ReleaseGraphicsResources(renWin);
   this->PolyDataActor->ReleaseGraphicsResources(renWin);
 
-  this->TextureIndex = 0;
-  this->BackgroundTextureIndex = 0;
   this->FragmentShaderIndex = 0;
   this->RenderWindow = NULL;
   this->Modified();

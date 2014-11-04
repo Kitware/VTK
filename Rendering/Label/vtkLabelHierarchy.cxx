@@ -48,7 +48,7 @@
 #include <vector>
 #include <map>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 // WORKAROUND:
 //

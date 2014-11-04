@@ -87,7 +87,6 @@ void vtkOpenGLCompositePainter::UpdateRenderingState(
       // disable state
       glDisable(GL_ALPHA_TEST);
       glDisable(GL_COLOR_MATERIAL);
-      glDisable(GL_TEXTURE_2D);
 
       // The following seems to overcome the color bleed when scalar coloring
       // with point-data with InterpolateScalarsBeforeMapping ON. The real cause
@@ -95,7 +94,15 @@ void vtkOpenGLCompositePainter::UpdateRenderingState(
       // That needs to tracked down, rather than just hacking the logic here.
       // glBindTexture(GL_TEXTURE_2D, 0);
 
-      this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
+      if (state.AmbientColor.size() > 1 || state.DiffuseColor.size() > 1 || state.SpecularColor.size() > 1)
+        {
+        glDisable(GL_TEXTURE_2D);
+        this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
+        }
+      else
+        {
+        this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
+        }
       }
 
     vtkOpenGLRenderWindow* windowGL = vtkOpenGLRenderWindow::SafeDownCast(window);

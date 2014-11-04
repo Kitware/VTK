@@ -29,7 +29,7 @@
 #include "vtkCommonMiscModule.h" // For export macro
 #include <vector> //for private data members
 #include "vtkType.h" //for basic types
-#include <stddef.h> //for size_t
+#include <cstddef> //for size_t
 #include "vtkObject.h"
 class vtkIdList;
 

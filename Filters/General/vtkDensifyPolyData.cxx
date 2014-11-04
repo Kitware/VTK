@@ -116,21 +116,12 @@ public:
 
     void Clear()
       {
-      if (this->Verts)
-        {
-        delete [] this->Verts;
-        this->Verts=0;
-        }
-      if (this->VertIds)
-        {
-        delete [] this->VertIds;
-        this->VertIds=0;
-        }
-      if (this->ParentVertIds)
-        {
-        delete [] this->ParentVertIds;
-        this->ParentVertIds=0;
-        }
+      delete [] this->Verts;
+      this->Verts=0;
+      delete [] this->VertIds;
+      this->VertIds=0;
+      delete [] this->ParentVertIds;
+      this->ParentVertIds=0;
       }
 
     void DeepCopy( const Polygon & p )

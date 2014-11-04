@@ -9,38 +9,30 @@
 /* Begin PBXBuildFile section */
 		13328B8419C77700006A473C /* vtk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13328B8319C77700006A473C /* vtk.framework */; };
 		13328B8619C77938006A473C /* libstdc++.6.0.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 13328B8519C77938006A473C /* libstdc++.6.0.9.dylib */; };
-		1B8CA3120DC8E3A4002C657A /* AppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1B8CA30B0DC8E3A4002C657A /* AppController.mm */; };
-		1B8CA3130DC8E3A4002C657A /* PaintingView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1B8CA30D0DC8E3A4002C657A /* PaintingView.mm */; };
-		1BD0B6AB0DDCA9B800E538F8 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 1BD0B6AA0DDCA9B800E538F8 /* Default.png */; };
+		13B73C8D19DEE9B800A42447 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B73C8A19DEE9B800A42447 /* AppDelegate.mm */; };
+		13B73C8E19DEE9B800A42447 /* MyGLKViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B73C8C19DEE9B800A42447 /* MyGLKViewController.mm */; };
+		13B73C9319E2D5C000A42447 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 13B73C8F19E2D5C000A42447 /* MainStoryboard_iPad.storyboard */; };
+		13B73C9419E2D5C000A42447 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 13B73C9119E2D5C000A42447 /* MainStoryboard_iPhone.storyboard */; };
 		1D3623EC0D0F72F000981E51 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		2D500B940D5A79C200DBA0E3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D500B920D5A79C200DBA0E3 /* OpenGLES.framework */; };
 		2D500B9A0D5A79CF00DBA0E3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D500B990D5A79CF00DBA0E3 /* QuartzCore.framework */; };
-		AF7492AB1728A9E50013253B /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF7492A91728A9E50013253B /* MainWindow.xib */; };
-		AF7E20421728A2C600728423 /* PaintingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF7E203F1728A2C600728423 /* PaintingViewController.xib */; };
-		AF7E20451728A54000728423 /* PaintingViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AF7E20441728A53F00728423 /* PaintingViewController.mm */; };
-		AF877F8617271F57002D08B8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AF877F8517271F57002D08B8 /* Default-568h@2x.png */; };
 		AF877F9417272C2F002D08B8 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF877F9317272C2F002D08B8 /* GLKit.framework */; };
-		AFCEBA2111D96215001AA22A /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1A11D96215001AA22A /* Icon-72.png */; };
-		AFCEBA2211D96215001AA22A /* Icon-Small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1B11D96215001AA22A /* Icon-Small-50.png */; };
-		AFCEBA2311D96215001AA22A /* Icon-Small.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1C11D96215001AA22A /* Icon-Small.png */; };
-		AFCEBA2411D96215001AA22A /* Icon-Small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1D11D96215001AA22A /* Icon-Small@2x.png */; };
 		AFCEBA2511D96215001AA22A /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1E11D96215001AA22A /* Icon.png */; };
-		AFCEBA2611D96215001AA22A /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1F11D96215001AA22A /* Icon@2x.png */; };
 		AFCEBA2711D96215001AA22A /* iTunesArtwork in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA2011D96215001AA22A /* iTunesArtwork */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13328B8319C77700006A473C /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = ../../../vtkinstall/frameworks/vtk.framework; sourceTree = "<group>"; };
 		13328B8519C77938006A473C /* libstdc++.6.0.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.6.0.9.dylib"; path = "usr/lib/libstdc++.6.0.9.dylib"; sourceTree = SDKROOT; };
-		1B8CA30A0DC8E3A4002C657A /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppController.h; path = Classes/AppController.h; sourceTree = "<group>"; };
-		1B8CA30B0DC8E3A4002C657A /* AppController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppController.mm; path = Classes/AppController.mm; sourceTree = "<group>"; };
-		1B8CA30C0DC8E3A4002C657A /* PaintingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PaintingView.h; path = Classes/PaintingView.h; sourceTree = "<group>"; };
-		1B8CA30D0DC8E3A4002C657A /* PaintingView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PaintingView.mm; path = Classes/PaintingView.mm; sourceTree = "<group>"; };
-		1BD0B6AA0DDCA9B800E538F8 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
-		1BEB7DB40DA5967E00271C96 /* ReadMe.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		13B73C8919DEE9B800A42447 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
+		13B73C8A19DEE9B800A42447 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Classes/AppDelegate.mm; sourceTree = "<group>"; };
+		13B73C8B19DEE9B800A42447 /* MyGLKViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyGLKViewController.h; path = Classes/MyGLKViewController.h; sourceTree = "<group>"; };
+		13B73C8C19DEE9B800A42447 /* MyGLKViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MyGLKViewController.mm; path = Classes/MyGLKViewController.mm; sourceTree = "<group>"; };
+		13B73C9019E2D5C000A42447 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
+		13B73C9219E2D5C000A42447 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* GLPaint.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GLPaint.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -50,18 +42,8 @@
 		2D500B990D5A79CF00DBA0E3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32CA4F630368D1EE00C91783 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* GLPaint-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GLPaint-Info.plist"; sourceTree = "<group>"; };
-		AF7492AA1728A9E50013253B /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
-		AF7E20401728A2C600728423 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/PaintingViewController.xib; sourceTree = "<group>"; };
-		AF7E20431728A53F00728423 /* PaintingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PaintingViewController.h; path = Classes/PaintingViewController.h; sourceTree = "<group>"; };
-		AF7E20441728A53F00728423 /* PaintingViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PaintingViewController.mm; path = Classes/PaintingViewController.mm; sourceTree = "<group>"; };
-		AF877F8517271F57002D08B8 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		AF877F9317272C2F002D08B8 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
-		AFCEBA1A11D96215001AA22A /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-72.png"; path = "Images/Icon-72.png"; sourceTree = "<group>"; };
-		AFCEBA1B11D96215001AA22A /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small-50.png"; path = "Images/Icon-Small-50.png"; sourceTree = "<group>"; };
-		AFCEBA1C11D96215001AA22A /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small.png"; path = "Images/Icon-Small.png"; sourceTree = "<group>"; };
-		AFCEBA1D11D96215001AA22A /* Icon-Small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small@2x.png"; path = "Images/Icon-Small@2x.png"; sourceTree = "<group>"; };
 		AFCEBA1E11D96215001AA22A /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = Images/Icon.png; sourceTree = "<group>"; };
-		AFCEBA1F11D96215001AA22A /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "Images/Icon@2x.png"; sourceTree = "<group>"; };
 		AFCEBA2011D96215001AA22A /* iTunesArtwork */ = {isa = PBXFileReference; lastKnownFileType = file; name = iTunesArtwork; path = Images/iTunesArtwork; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -95,7 +77,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				1BEB7DB40DA5967E00271C96 /* ReadMe.txt */,
 				2D500B1D0D5A766B00DBA0E3 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -117,17 +98,10 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				AF7492A91728A9E50013253B /* MainWindow.xib */,
-				AF7E203F1728A2C600728423 /* PaintingViewController.xib */,
-				AFCEBA1D11D96215001AA22A /* Icon-Small@2x.png */,
-				AFCEBA1A11D96215001AA22A /* Icon-72.png */,
-				AFCEBA1B11D96215001AA22A /* Icon-Small-50.png */,
-				AFCEBA1C11D96215001AA22A /* Icon-Small.png */,
+				13B73C8F19E2D5C000A42447 /* MainStoryboard_iPad.storyboard */,
+				13B73C9119E2D5C000A42447 /* MainStoryboard_iPhone.storyboard */,
 				AFCEBA1E11D96215001AA22A /* Icon.png */,
-				AFCEBA1F11D96215001AA22A /* Icon@2x.png */,
 				AFCEBA2011D96215001AA22A /* iTunesArtwork */,
-				1BD0B6AA0DDCA9B800E538F8 /* Default.png */,
-				AF877F8517271F57002D08B8 /* Default-568h@2x.png */,
 				8D1107310486CEB800E47090 /* GLPaint-Info.plist */,
 			);
 			name = Resources;
@@ -151,12 +125,10 @@
 		2D500B1D0D5A766B00DBA0E3 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				1B8CA30A0DC8E3A4002C657A /* AppController.h */,
-				1B8CA30B0DC8E3A4002C657A /* AppController.mm */,
-				AF7E20431728A53F00728423 /* PaintingViewController.h */,
-				AF7E20441728A53F00728423 /* PaintingViewController.mm */,
-				1B8CA30C0DC8E3A4002C657A /* PaintingView.h */,
-				1B8CA30D0DC8E3A4002C657A /* PaintingView.mm */,
+				13B73C8919DEE9B800A42447 /* AppDelegate.h */,
+				13B73C8A19DEE9B800A42447 /* AppDelegate.mm */,
+				13B73C8B19DEE9B800A42447 /* MyGLKViewController.h */,
+				13B73C8C19DEE9B800A42447 /* MyGLKViewController.mm */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -210,17 +182,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1BD0B6AB0DDCA9B800E538F8 /* Default.png in Resources */,
-				AFCEBA2111D96215001AA22A /* Icon-72.png in Resources */,
-				AFCEBA2211D96215001AA22A /* Icon-Small-50.png in Resources */,
-				AFCEBA2311D96215001AA22A /* Icon-Small.png in Resources */,
-				AFCEBA2411D96215001AA22A /* Icon-Small@2x.png in Resources */,
+				13B73C9319E2D5C000A42447 /* MainStoryboard_iPad.storyboard in Resources */,
 				AFCEBA2511D96215001AA22A /* Icon.png in Resources */,
-				AFCEBA2611D96215001AA22A /* Icon@2x.png in Resources */,
+				13B73C9419E2D5C000A42447 /* MainStoryboard_iPhone.storyboard in Resources */,
 				AFCEBA2711D96215001AA22A /* iTunesArtwork in Resources */,
-				AF877F8617271F57002D08B8 /* Default-568h@2x.png in Resources */,
-				AF7E20421728A2C600728423 /* PaintingViewController.xib in Resources */,
-				AF7492AB1728A9E50013253B /* MainWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,29 +197,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
-				1B8CA3120DC8E3A4002C657A /* AppController.mm in Sources */,
-				1B8CA3130DC8E3A4002C657A /* PaintingView.mm in Sources */,
-				AF7E20451728A54000728423 /* PaintingViewController.mm in Sources */,
+				13B73C8E19DEE9B800A42447 /* MyGLKViewController.mm in Sources */,
+				13B73C8D19DEE9B800A42447 /* AppDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		AF7492A91728A9E50013253B /* MainWindow.xib */ = {
+		13B73C8F19E2D5C000A42447 /* MainStoryboard_iPad.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				AF7492AA1728A9E50013253B /* en */,
+				13B73C9019E2D5C000A42447 /* en */,
 			);
-			name = MainWindow.xib;
+			name = MainStoryboard_iPad.storyboard;
 			sourceTree = "<group>";
 		};
-		AF7E203F1728A2C600728423 /* PaintingViewController.xib */ = {
+		13B73C9119E2D5C000A42447 /* MainStoryboard_iPhone.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				AF7E20401728A2C600728423 /* en */,
+				13B73C9219E2D5C000A42447 /* en */,
 			);
-			name = PaintingViewController.xib;
+			name = MainStoryboard_iPhone.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -285,7 +249,7 @@
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = GLPaint;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = 2;
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -314,7 +278,7 @@
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = GLPaint;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = 2;
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WARNING_CFLAGS = "-Wall";
 			};

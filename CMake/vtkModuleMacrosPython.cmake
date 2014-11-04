@@ -59,7 +59,7 @@ function (vtk_module_python_package name)
     endif()
   endforeach()
 
-  find_package(PythonInterp REQUIRED)
+  find_package(PythonInterp ${VTK_PYTHON_VERSION} REQUIRED)
 
   set (_depencies)
   foreach(pkg ${_packages})

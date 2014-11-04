@@ -2324,11 +2324,8 @@ int vtkPKdTree::AllocateSelectBuffer()
 }
 void vtkPKdTree::FreeSelectBuffer()
 {
-  if (this->SelectBuffer)
-    {
-    delete [] this->SelectBuffer;
-    this->SelectBuffer = NULL;
-    }
+  delete [] this->SelectBuffer;
+  this->SelectBuffer = NULL;
 }
 
 #define FreeListOfLists(list, len) \

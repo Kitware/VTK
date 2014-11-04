@@ -38,11 +38,9 @@ vtkTreeBFSIterator::vtkTreeBFSIterator()
 
 vtkTreeBFSIterator::~vtkTreeBFSIterator()
 {
-  if (this->Internals)
-    {
-    delete this->Internals;
-    this->Internals = NULL;
-    }
+  delete this->Internals;
+  this->Internals = NULL;
+
   if (this->Color)
     {
     this->Color->Delete();

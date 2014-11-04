@@ -26,13 +26,6 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
-// material property values
-uniform float opacityUniform; // the fragment opacity
-uniform vec3 ambientColorUniform; // intensity weighted color
-uniform vec3 diffuseColorUniform; // intensity weighted color
-uniform vec3 specularColor; // intensity weighted color
-uniform float specularPower;
-
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
@@ -42,7 +35,7 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 uniform int numberOfLights; // only allow for up to 6 active lights
 uniform vec3 lightColor[6]; // intensity weighted color
 uniform vec3 lightDirectionVC[6]; // normalized
-uniform vec3 lightPositionWC[6];
+uniform vec3 lightPositionVC[6];
 uniform vec3 lightAttenuation[6];
 uniform float lightConeAngle[6];
 uniform float lightExponent[6];
@@ -50,7 +43,6 @@ uniform int lightPositional[6];
 
 // passed from the vertex shader
 varying vec4 vertexVC;
-varying vec4 vertexWC;
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec
@@ -67,8 +59,13 @@ varying vec4 vertexWC;
 // Depth Peeling Support
 //VTK::DepthPeeling::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 void main()
 {
+  //VTK::Clip::Impl
+
   //VTK::Color::Impl
   // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
 
@@ -92,14 +89,13 @@ void main()
       }
     else
       {
-      vec3 lightDirectionWC = vec3(vertexWC.xyz - lightPositionWC[lightNum]);
-      float distanceWC = length(lightDirectionWC);
-      vertLightDirectionVC = normalize(normalMatrix * lightDirectionWC);
+      vertLightDirectionVC = vertexVC.xyz - lightPositionVC[lightNum];
+      float distanceVC = length(vertLightDirectionVC);
+      vertLightDirectionVC = normalize(vertLightDirectionVC);
       attenuation = 1.0 /
         (lightAttenuation[lightNum].x
-         + lightAttenuation[lightNum].y * distanceWC
-         + lightAttenuation[lightNum].z * distanceWC * distanceWC);
-
+         + lightAttenuation[lightNum].y * distanceVC
+         + lightAttenuation[lightNum].z * distanceVC * distanceVC);
       // per OpenGL standard cone angle is 90 or less for a spot light
       if (lightConeAngle[lightNum] <= 90.0)
         {

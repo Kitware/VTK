@@ -793,11 +793,8 @@ vtkCirclePackFrontChainLayoutStrategy::vtkCirclePackFrontChainLayoutStrategy()
 
 vtkCirclePackFrontChainLayoutStrategy::~vtkCirclePackFrontChainLayoutStrategy()
 {
-  if(this->pimpl)
-    {
-    delete this->pimpl;
-    this->pimpl = 0;
-    }
+  delete this->pimpl;
+  this->pimpl=0;
 }
 
 void vtkCirclePackFrontChainLayoutStrategy::Layout(vtkTree *inputTree,

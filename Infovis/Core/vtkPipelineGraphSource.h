@@ -21,7 +21,7 @@
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
-#include <vtkStdString.h>
+#include "vtkStdString.h"
 
 class vtkCollection;
 

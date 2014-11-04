@@ -1298,10 +1298,7 @@ vtk3DSImporter::~vtk3DSImporter()
   // then delete the list structure
   VTK_LIST_KILL (this->MatPropList);
 
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 }
 
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)

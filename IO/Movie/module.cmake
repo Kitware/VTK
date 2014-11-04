@@ -1,4 +1,4 @@
-if(NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
+if(NOT CMAKE_C_COMPILER_ID STREQUAL "XL")
   if(NOT ${CMAKE_CROSS_COMPILING})
     set(vtkIOMovie_vtkoggtheora vtkoggtheora)
   endif()

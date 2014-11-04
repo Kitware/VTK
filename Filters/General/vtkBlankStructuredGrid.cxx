@@ -36,11 +36,8 @@ vtkBlankStructuredGrid::vtkBlankStructuredGrid()
 
 vtkBlankStructuredGrid::~vtkBlankStructuredGrid()
 {
-  if ( this->ArrayName )
-    {
-    delete [] this->ArrayName;
-    this->ArrayName = NULL;
-    }
+  delete [] this->ArrayName;
+  this->ArrayName = NULL;
 }
 
 

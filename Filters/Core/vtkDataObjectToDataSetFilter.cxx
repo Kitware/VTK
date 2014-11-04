@@ -100,51 +100,19 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
 //----------------------------------------------------------------------------
 vtkDataObjectToDataSetFilter::~vtkDataObjectToDataSetFilter()
 {
-  int i;
-
-  for (i=0; i<3; i++)
+  for (int i=0; i<3; i++)
     {
-    if ( this->PointArrays[i] != NULL )
-      {
-      delete [] this->PointArrays[i];
-      }
+    delete [] this->PointArrays[i];
     }
-  if ( this->VertsArray != NULL )
-    {
-    delete [] this->VertsArray;
-    }
-  if ( this->LinesArray != NULL )
-    {
-    delete [] this->LinesArray;
-    }
-  if ( this->PolysArray != NULL )
-    {
-    delete [] this->PolysArray;
-    }
-  if ( this->StripsArray != NULL )
-    {
-    delete [] this->StripsArray;
-    }
-  if ( this->CellTypeArray != NULL )
-    {
-    delete [] this->CellTypeArray;
-    }
-  if ( this->CellConnectivityArray != NULL )
-    {
-    delete [] this->CellConnectivityArray;
-    }
-  if ( this->DimensionsArray != NULL )
-    {
-    delete [] this->DimensionsArray;
-    }
-  if ( this->SpacingArray != NULL )
-    {
-    delete [] this->SpacingArray;
-    }
-  if ( this->OriginArray != NULL )
-    {
-    delete [] this->OriginArray;
-    }
+  delete [] this->VertsArray;
+  delete [] this->LinesArray;
+  delete [] this->PolysArray;
+  delete [] this->StripsArray;
+  delete [] this->CellTypeArray;
+  delete [] this->CellConnectivityArray;
+  delete [] this->DimensionsArray;
+  delete [] this->SpacingArray;
+  delete [] this->OriginArray;
 }
 
 void vtkDataObjectToDataSetFilter::SetDataSetType(int dt)

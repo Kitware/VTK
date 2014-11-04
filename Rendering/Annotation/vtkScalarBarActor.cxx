@@ -966,11 +966,13 @@ void vtkScalarBarActor::LayoutTitle()
     this->Orientation == VTK_ORIENT_VERTICAL ||
     this->TextPosition == vtkScalarBarActor::SucceedScalarBar)
     {
-    this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]] + this->TextPad;
+    this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]] +
+        this->TextPad + static_cast<int>(this->FrameProperty->GetLineWidth());
     }
   else
     {
-    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad;
+    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad -
+        static_cast<int>(this->FrameProperty->GetLineWidth());
     }
 }
 

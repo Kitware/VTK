@@ -142,9 +142,12 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   volumeMapper2->SetBlendModeToComposite();
   volumeMapper2->SetInputConnection(
     t->GetOutputPort());
+#ifndef VTK_OPENGL2
   // 3D texture mode.
   volumeMapper2->SetRequestedRenderModeToRayCastAndTexture();
-
+#else
+  volumeMapper2->SetRequestedRenderModeToDefault();
+#endif
   volume2=vtkVolume::New();
   volume2->SetMapper(volumeMapper2);
   volume2->SetProperty(volumeProperty);

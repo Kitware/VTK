@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkPerspectiveTransform);
 

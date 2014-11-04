@@ -8,6 +8,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   )
 vtk_add_test_cxx(${vtk-module}CxxTests no_data_tests
   NO_DATA NO_VALID NO_OUTPUT
+  TestGeometryFilterCellData.cxx
   TestStructuredAMRGridConnectivity.cxx
   TestStructuredGridConnectivity.cxx
   TestStructuredGridGhostDataGenerator.cxx

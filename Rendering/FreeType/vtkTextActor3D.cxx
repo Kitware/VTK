@@ -54,11 +54,8 @@ vtkTextActor3D::~vtkTextActor3D()
   this->SetTextProperty(NULL);
   this->SetInput(NULL);
 
-  if (this->ImageActor)
-    {
-    this->ImageActor->Delete();
-    this->ImageActor = NULL;
-    }
+  this->ImageActor->Delete();
+  this->ImageActor = NULL;
 
   if (this->ImageData)
     {
@@ -81,54 +78,49 @@ void vtkTextActor3D::ShallowCopy(vtkProp *prop)
 }
 
 // --------------------------------------------------------------------------
-
 double* vtkTextActor3D::GetBounds()
 {
-  if (this->ImageActor)
-    {
-    // the culler could be asking our bounds, in which case it's possible
-    // that we haven't rendered yet, so we have to make sure our bounds
-    // are up to date so that we don't get culled.
-    this->UpdateImageActor();
-    double* bounds = this->ImageActor->GetBounds();
-    this->Bounds[0] = bounds[0];
-    this->Bounds[1] = bounds[1];
-    this->Bounds[2] = bounds[2];
-    this->Bounds[3] = bounds[3];
-    this->Bounds[4] = bounds[4];
-    this->Bounds[5] = bounds[5];
-    return bounds;
-    }
-
-  return NULL;
+  // the culler could be asking our bounds, in which case it's possible
+  // that we haven't rendered yet, so we have to make sure our bounds
+  // are up to date so that we don't get culled.
+  this->UpdateImageActor();
+  double* bounds = this->ImageActor->GetBounds();
+  this->Bounds[0] = bounds[0];
+  this->Bounds[1] = bounds[1];
+  this->Bounds[2] = bounds[2];
+  this->Bounds[3] = bounds[3];
+  this->Bounds[4] = bounds[4];
+  this->Bounds[5] = bounds[5];
+  return bounds;
 }
 
 // --------------------------------------------------------------------------
 int vtkTextActor3D::GetBoundingBox(int bbox[4])
 {
   if (!this->TextProperty)
-  {
+    {
     vtkErrorMacro(<<"Need valid vtkTextProperty.");
     return 0;
-  }
+    }
 
   if (!bbox)
-  {
+    {
     vtkErrorMacro(<<"Need 4-element int array for bounding box.");
-  }
+    return 0;
+    }
 
   vtkTextRenderer *tRend = vtkTextRenderer::GetInstance();
   if (!tRend)
-  {
+    {
     vtkErrorMacro(<<"Failed getting the TextRenderer instance.");
     return 0;
-  }
+    }
 
   if (!tRend->GetBoundingBox(this->TextProperty, this->Input, bbox))
-  {
+    {
     vtkErrorMacro(<<"No text in input.");
     return 0;
-  }
+    }
 
   return 1;
 }
@@ -136,11 +128,7 @@ int vtkTextActor3D::GetBoundingBox(int bbox[4])
 // --------------------------------------------------------------------------
 void vtkTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->ImageActor)
-    {
-    this->ImageActor->ReleaseGraphicsResources(win);
-    }
-
+  this->ImageActor->ReleaseGraphicsResources(win);
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
@@ -161,7 +149,7 @@ int vtkTextActor3D::RenderOverlay(vtkViewport *viewport)
       }
     }
 
-  if (this->UpdateImageActor() && this->ImageActor)
+  if (this->UpdateImageActor())
     {
     rendered_something += this->ImageActor->RenderOverlay(viewport);
     }
@@ -174,7 +162,7 @@ int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
   int rendered_something = 0;
 
-  if (this->UpdateImageActor() && this->ImageActor)
+  if (this->UpdateImageActor())
     {
     rendered_something +=
       this->ImageActor->RenderTranslucentPolygonalGeometry(viewport);
@@ -190,7 +178,7 @@ int vtkTextActor3D::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
 
-  if (this->UpdateImageActor() && this->ImageActor)
+  if (this->UpdateImageActor())
     {
     result=this->ImageActor->HasTranslucentPolygonalGeometry();
     }
@@ -203,10 +191,9 @@ int vtkTextActor3D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int rendered_something = 0;
 
-  if (this->UpdateImageActor() && this->ImageActor)
+  if (this->UpdateImageActor())
     {
-    rendered_something +=
-      this->ImageActor->RenderOpaqueGeometry(viewport);
+    rendered_something += this->ImageActor->RenderOpaqueGeometry(viewport);
     }
 
   return rendered_something;
@@ -225,10 +212,7 @@ int vtkTextActor3D::UpdateImageActor()
   // No input, the assign the image actor a zilch input
   if (!this->Input || !*this->Input)
     {
-    if (this->ImageActor)
-      {
-      this->ImageActor->SetInputData(0);
-      }
+    this->ImageActor->SetInputData(0);
     return 1;
     }
 
@@ -264,31 +248,25 @@ int vtkTextActor3D::UpdateImageActor()
       return 0;
       }
 
-    int bbox[4];
-    this->GetBoundingBox(bbox);
-
     // Associate the image data (should be up to date now) to the image actor
-    if (this->ImageActor)
-      {
-      this->ImageActor->SetInputData(this->ImageData);
-      this->ImageActor->SetDisplayExtent(
-        bbox[0], bbox[1], bbox[2], bbox[3], 0, 0);
-      }
+    this->ImageActor->SetInputData(this->ImageData);
+
+    // Only render the visible portions of the texture.
+    int bbox[6] = {0, 0, 0, 0, 0, 0};
+    this->GetBoundingBox(bbox);
+    this->ImageActor->SetDisplayExtent(bbox);
 
     } // if (this->GetMTime() ...
 
   // Position the actor
-  if (this->ImageActor)
+  vtkMatrix4x4 *matrix = this->ImageActor->GetUserMatrix();
+  if (!matrix)
     {
-    vtkMatrix4x4 *matrix = this->ImageActor->GetUserMatrix();
-    if (!matrix)
-      {
-      matrix = vtkMatrix4x4::New();
-      this->ImageActor->SetUserMatrix(matrix);
-      matrix->Delete();
-      }
-    this->GetMatrix(matrix);
+    matrix = vtkMatrix4x4::New();
+    this->ImageActor->SetUserMatrix(matrix);
+    matrix->Delete();
     }
+  this->GetMatrix(matrix);
 
   return 1;
 }

@@ -25,13 +25,6 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
-// material property values
-uniform float opacityUniform; // the fragment opacity
-uniform vec3 ambientColorUniform; // intensity weighted color
-uniform vec3 diffuseColorUniform; // intensity weighted color
-uniform vec3 specularColor; // intensity weighted color
-uniform float specularPower;
-
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
@@ -60,8 +53,13 @@ varying vec4 vertexVC;
 // Depth Peeling Support
 //VTK::DepthPeeling::Dec
 
+// clipping plane vars
+//VTK::Clip::Dec
+
 void main()
 {
+  //VTK::Clip::Impl
+
   //VTK::Color::Impl
   // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
 

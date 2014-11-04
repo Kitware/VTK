@@ -75,10 +75,7 @@ vtkSelectionSource::vtkSelectionSource()
 vtkSelectionSource::~vtkSelectionSource()
 {
   delete this->Internal;
-  if (this->ArrayName)
-    {
-    delete[] this->ArrayName;
-    }
+  delete[] this->ArrayName;
   delete[] this->QueryString;
 }
 

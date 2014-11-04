@@ -398,10 +398,21 @@ int vtkImageResliceMapper::ProcessRequest(
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    // delegate request to vtkImageReslice (generally not a good thing to
-    // do, but I'm familiar with the vtkImageReslice code that gets called).
-    return this->ImageReslice->ProcessRequest(
-      request, inputVector, outputVector);
+    if (this->Streaming)
+      {
+      // delegate request to vtkImageReslice (generally not a good thing to
+      // do, but I'm familiar with the vtkImageReslice code that gets called).
+      return this->ImageReslice->ProcessRequest(
+        request, inputVector, outputVector);
+      }
+    else
+      {
+      vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+      int ext[6];
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+      }
+    return 1;
     }
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))

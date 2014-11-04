@@ -21,7 +21,7 @@
 #include "vtkDSPFilterDefinition.h"
 #include "vtkObjectFactory.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <map>
 #include <algorithm>
 #include <vector>

@@ -45,6 +45,15 @@ public:
   ~vtkInformationIntegerRequestKey();
 
   // Description:
+  // This method simply returns a new vtkInformationIntegerRequestKey,
+  // given a name and a location. This method is provided for wrappers. Use
+  // the constructor directly from C++ instead.
+  static vtkInformationIntegerRequestKey* MakeKey(const char* name, const char* location)
+    {
+    return new vtkInformationIntegerRequestKey(name, location);
+    }
+
+  // Description:
   // Returns true if a value of type DataKey does not exist in dobjInfo
   // or if it is different that the value stored in pipelineInfo using
   // this key.

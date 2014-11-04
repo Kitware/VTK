@@ -11,12 +11,12 @@ vtk_module(vtkRenderingMatplotlib
     vtkCommonColor
     vtkInteractionImage
     vtkInteractionWidgets
-    vtkIOExport
     vtkIOGeometry
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingGL2PS
     vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingFreeTypeOpenGL
+    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
+    vtkIOExport
+    vtkRenderingGL2PS
   )

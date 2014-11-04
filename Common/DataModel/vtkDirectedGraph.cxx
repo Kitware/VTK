@@ -58,6 +58,10 @@ vtkDirectedGraph *vtkDirectedGraph::GetData(vtkInformationVector *v, int i)
 //----------------------------------------------------------------------------
 bool vtkDirectedGraph::IsStructureValid(vtkGraph *g)
 {
+  if (!g)
+    {
+    return false;
+    }
   if (vtkDirectedGraph::SafeDownCast(g))
     {
     return true;

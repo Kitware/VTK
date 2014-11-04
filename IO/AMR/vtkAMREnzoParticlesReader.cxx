@@ -132,10 +132,7 @@ vtkAMREnzoParticlesReader::vtkAMREnzoParticlesReader()
 //------------------------------------------------------------------------------
 vtkAMREnzoParticlesReader::~vtkAMREnzoParticlesReader()
 {
-  if( this->Internal != NULL )
-    {
-    delete this->Internal;
-    }
+  delete this->Internal;
   this->Internal = NULL;
 }
 

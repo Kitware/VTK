@@ -29,7 +29,7 @@ include_directories(${VTK_SOURCE_DIR}/Common/Core
 IF(NOT CMAKE_CROSSCOMPILING)
   ADD_EXECUTABLE(vtkParseOGLExt Tokenizer.cxx ParseOGLExt.cxx)
   vtk_compile_tools_target(vtkParseOGLExt)
-ENDIF(NOT CMAKE_CROSSCOMPILING)
+ENDIF()
 
 SET(PARSEOGLEXT_EXE vtkParseOGLExt)
 

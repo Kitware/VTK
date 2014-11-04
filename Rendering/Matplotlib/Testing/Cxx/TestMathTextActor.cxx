@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestStringToPath.cxx
+  Module:    TestMathTextActor.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,70 +15,116 @@
 
 #include "vtkTextActor.h"
 
+#include "vtkActor2D.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
 
+#include <sstream>
+
+namespace vtkTestMathTextActor {
+void setupTextActor(vtkTextActor *actor, vtkPolyData *anchor)
+{
+  vtkTextProperty *p = actor->GetTextProperty();
+  std::ostringstream label;
+  label << p->GetVerticalJustificationAsString()[0]
+        << p->GetJustificationAsString()[0] << " "
+        << "$\\theta = " << p->GetOrientation() << "$";
+  actor->SetInput(label.str().c_str());
+
+  // Add the anchor point:
+  double *pos = actor->GetPosition();
+  double *col = p->GetColor();
+  vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], 0.);
+  anchor->GetVerts()->InsertNextCell(1, &ptId);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
+                                                        col[1] * 255,
+                                                        col[2] * 255, 255);
+}
+} // end namespace vtkTestMathTextActor3D
+
 //----------------------------------------------------------------------------
 int TestMathTextActor(int, char *[])
 {
-  vtkNew<vtkTextActor> actor1;
-  actor1->SetInput("$\\langle\\psi_i\\mid\\psi_j\\rangle = \\delta_{ij}$");
-  actor1->GetTextProperty()->SetFontSize(36);
-  actor1->GetTextProperty()->SetOrientation(0.0);
-  actor1->GetTextProperty()->SetColor(0.8, 0.8, 0.6);
-  actor1->SetPosition(0, 0);
-  actor1->GetTextProperty()->SetVerticalJustificationToBottom();
-  actor1->GetTextProperty()->SetJustificationToLeft();
-
-  vtkNew<vtkTextActor> actor2;
-  actor2->SetInput("$\\langle\\psi_i\\mid\\psi_j\\rangle = \\delta_{ij}$");
-  actor2->GetTextProperty()->SetFontSize(36);
-  actor2->SetPosition(300, 300);
-  actor2->GetTextProperty()->SetColor(0.7, 0.3, 0.2);
-  actor2->GetTextProperty()->SetVerticalJustificationToCentered();
-  actor2->GetTextProperty()->SetJustificationToCentered();
-  actor2->GetTextProperty()->SetOrientation(90.0);
-
-  vtkNew<vtkTextActor> actor3;
-  actor3->SetInput("$\\langle\\psi_i\\mid\\psi_j\\rangle = \\delta_{ij}$");
-  actor3->GetTextProperty()->SetFontSize(36);
-  actor3->SetPosition(600, 600);
-  actor3->GetTextProperty()->SetColor(0.6, 0.5, 0.8);
-  actor3->GetTextProperty()->SetVerticalJustificationToTop();
-  actor3->GetTextProperty()->SetJustificationToRight();
-
-  vtkNew<vtkTextActor> actor4;
-  actor4->SetInput("$\\langle\\psi_i\\mid\\psi_j\\rangle = \\delta_{ij}$");
-  actor4->GetTextProperty()->SetFontSize(22);
-  actor4->SetPosition(150, 300);
-  actor4->GetTextProperty()->SetColor(0.2, 0.6, 0.4);
-  actor4->GetTextProperty()->SetVerticalJustificationToCentered();
-  actor4->GetTextProperty()->SetJustificationToCentered();
-  actor4->GetTextProperty()->SetOrientation(45.0);
-
-  vtkNew<vtkTextActor> actor5;
-  actor5->ShallowCopy(actor4.GetPointer());
-  actor5->SetPosition(450, 300);
-
+  using namespace vtkTestMathTextActor;
   vtkNew<vtkRenderer> ren;
+
+  int width = 600;
+  int height = 600;
+  int x[3] = {100, 300, 500};
+  int y[3] = {100, 300, 500};
+
+  // Render the anchor points to check alignment:
+  vtkNew<vtkPolyData> anchors;
+  vtkNew<vtkPoints> points;
+  anchors->SetPoints(points.GetPointer());
+  vtkNew<vtkCellArray> verts;
+  anchors->SetVerts(verts.GetPointer());
+  vtkNew<vtkUnsignedCharArray> colors;
+  colors->SetNumberOfComponents(4);
+  anchors->GetCellData()->SetScalars(colors.GetPointer());
+
+  for (size_t row = 0; row < 3; ++row)
+    {
+    for (size_t col = 0; col < 3; ++col)
+      {
+      vtkNew<vtkTextActor> actor;
+      switch (row)
+        {
+        case 0:
+          actor->GetTextProperty()->SetJustificationToRight();
+          break;
+        case 1:
+          actor->GetTextProperty()->SetJustificationToCentered();
+          break;
+        case 2:
+          actor->GetTextProperty()->SetJustificationToLeft();
+          break;
+        }
+      switch (col)
+        {
+        case 0:
+          actor->GetTextProperty()->SetVerticalJustificationToBottom();
+          break;
+        case 1:
+          actor->GetTextProperty()->SetVerticalJustificationToCentered();
+          break;
+        case 2:
+          actor->GetTextProperty()->SetVerticalJustificationToTop();
+          break;
+        }
+      actor->GetTextProperty()->SetFontSize(22);
+      actor->GetTextProperty()->SetOrientation(45.0 * (3 * row + col));
+      actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .26);
+      actor->SetPosition(x[col], y[row]);
+      setupTextActor(actor.GetPointer(), anchors.GetPointer());
+      ren->AddActor(actor.GetPointer());
+      }
+    }
+
+  vtkNew<vtkPolyDataMapper2D> anchorMapper;
+  anchorMapper->SetInputData(anchors.GetPointer());
+  vtkNew<vtkActor2D> anchorActor;
+  anchorActor->SetMapper(anchorMapper.GetPointer());
+  anchorActor->GetProperty()->SetPointSize(5);
+  ren->AddActor(anchorActor.GetPointer());
+
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren.GetPointer());
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win.GetPointer());
 
-  ren->AddActor(actor1.GetPointer());
-  ren->AddActor(actor2.GetPointer());
-  ren->AddActor(actor3.GetPointer());
-  ren->AddActor(actor4.GetPointer());
-  ren->AddActor(actor5.GetPointer());
-
   ren->SetBackground(0.0, 0.0, 0.0);
-  win->SetSize(600, 600);
+  win->SetSize(width, height);
 
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();

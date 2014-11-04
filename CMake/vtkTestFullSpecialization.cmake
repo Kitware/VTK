@@ -11,13 +11,13 @@ IF(NOT DEFINED VTK_COMPILER_HAS_FULL_SPECIALIZATION)
       "Determining if the C++ compiler supports full template specialization syntax "
       "passed with the following output:\n"
       "${OUTPUT}\n")
-  ELSE(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
+  ELSE()
     MESSAGE(STATUS "Checking support for full template specialization syntax -- no")
     SET(VTK_COMPILER_HAS_FULL_SPECIALIZATION 0 CACHE INTERNAL "Support for full template specialization syntax")
     FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
       "Determining if the C++ compiler supports full template specialization syntax "
       "failed with the following output:\n"
       "${OUTPUT}\n")
-  ENDIF(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
+  ENDIF()
 ENDIF()
 

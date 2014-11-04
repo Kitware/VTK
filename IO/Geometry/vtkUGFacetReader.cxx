@@ -44,10 +44,8 @@ vtkUGFacetReader::vtkUGFacetReader()
 
 vtkUGFacetReader::~vtkUGFacetReader()
 {
-  if ( this->FileName )
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
+
   if ( this->PartColors )
     {
     this->PartColors->Delete();

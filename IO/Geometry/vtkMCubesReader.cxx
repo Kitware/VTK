@@ -52,14 +52,9 @@ vtkMCubesReader::vtkMCubesReader()
 
 vtkMCubesReader::~vtkMCubesReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->LimitsFileName)
-    {
-    delete [] this->LimitsFileName;
-    }
+  delete [] this->FileName;
+  delete [] this->LimitsFileName;
+
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);

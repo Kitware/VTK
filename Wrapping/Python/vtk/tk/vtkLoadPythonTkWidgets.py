@@ -14,9 +14,17 @@ def vtkLoadPythonTkWidgets(interp):
     name = '%s-%d.%d' % (modname,X,Y)
     pkgname = string.capitalize(string.lower(modname))
 
-    # find out if the file is already loaded
-    loaded = interp.call('info', 'loaded')
-    if string.find(loaded, pkgname) >= 0:
+    # find out if the module is already loaded
+    loadedpkgs = interp.call('info', 'loaded')
+    found = False
+    try:
+        # check for result returned as a string
+        found = (loadedpkgs.find(pkgname) >= 0)
+    except AttributeError:
+        # check for result returned as nested tuples
+        for pkgtuple in loadedpkgs:
+            found |= (pkgname in pkgtuple)
+    if found:
         return
 
     # create the platform-dependent file name

@@ -653,6 +653,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     //     WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
     //     WGL_CONTEXT_MINOR_VERSION_ARB, 2,
     //     WGL_CONTEXT_FLAGS_ARB, 0,
+    //     WGL_CONTEXT_PROFILE_MASK_ARB,
+    //       WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
     //     // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
     //     0 // End of attributes list
     //     };
@@ -663,10 +665,10 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     //   {
     //   this->SetContextSupportsOpenGL32(true);
     //   }
-//    else
-//      {
+    // else
+    //   {
       this->ContextId = wglCreateContext(hDC);
- //     }
+//     }
     if (this->ContextId == NULL)
       {
       vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());

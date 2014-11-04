@@ -94,26 +94,14 @@ vtkImageReader2::~vtkImageReader2()
     this->FileNames->Delete();
     this->FileNames = NULL;
     }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
-    }
-  if (this->FilePattern)
-    {
-    delete [] this->FilePattern;
-    this->FilePattern = NULL;
-    }
-  if (this->InternalFileName)
-    {
-    delete [] this->InternalFileName;
-    this->InternalFileName = NULL;
-    }
+  delete [] this->FileName;
+  this->FileName = NULL;
+  delete [] this->FilePrefix;
+  this->FilePrefix = NULL;
+  delete [] this->FilePattern;
+  this->FilePattern = NULL;
+  delete [] this->InternalFileName;
+  this->InternalFileName = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -121,11 +109,8 @@ vtkImageReader2::~vtkImageReader2()
 void vtkImageReader2::ComputeInternalFileName(int slice)
 {
   // delete any old filename
-  if (this->InternalFileName)
-    {
-    delete [] this->InternalFileName;
-    this->InternalFileName = NULL;
-    }
+  delete [] this->InternalFileName;
+  this->InternalFileName = NULL;
 
   if (!this->FileName && !this->FilePattern && !this->FileNames)
     {
@@ -201,21 +186,15 @@ void vtkImageReader2::SetFileName(const char *name)
     {
     return;
     }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
+  delete [] this->FileName;
+  this->FileName = NULL;
   if (name)
     {
     this->FileName = new char[strlen(name) + 1];
     strcpy(this->FileName, name);
 
-    if (this->FilePrefix)
-      {
-      delete [] this->FilePrefix;
-      this->FilePrefix = NULL;
-      }
+    delete [] this->FilePrefix;
+    this->FilePrefix = NULL;
     if (this->FileNames)
       {
       this->FileNames->Delete();
@@ -248,16 +227,10 @@ void vtkImageReader2::SetFileNames(vtkStringArray *filenames)
       this->DataExtent[4] = 0;
       this->DataExtent[5] = this->FileNames->GetNumberOfValues() - 1;
       }
-    if (this->FilePrefix)
-      {
-      delete [] this->FilePrefix;
-      this->FilePrefix = NULL;
-      }
-    if (this->FileName)
-      {
-      delete [] this->FileName;
-      this->FileName = NULL;
-      }
+    delete [] this->FilePrefix;
+    this->FilePrefix = NULL;
+    delete [] this->FileName;
+    this->FileName = NULL;
     }
 
   this->Modified();
@@ -276,21 +249,15 @@ void vtkImageReader2::SetFilePrefix(const char *prefix)
     {
     return;
     }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
-    }
+  delete [] this->FilePrefix;
+  this->FilePrefix = NULL;
   if (prefix)
     {
     this->FilePrefix = new char[strlen(prefix) + 1];
     strcpy(this->FilePrefix, prefix);
 
-    if (this->FileName)
-      {
-      delete [] this->FileName;
-      this->FileName = NULL;
-      }
+    delete [] this->FileName;
+    this->FileName = NULL;
     if (this->FileNames)
       {
       this->FileNames->Delete();

@@ -1,7 +1,7 @@
 #include "vtkLineWidget2.h"
 #include "vtkLineRepresentation.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 #include "WidgetTestingMacros.h"
