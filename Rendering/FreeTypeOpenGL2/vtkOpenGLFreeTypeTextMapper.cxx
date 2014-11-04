@@ -27,6 +27,9 @@
 
 #include "FTFont.h"
 
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLRenderWindow.h"
+
 #ifdef FTGL_USE_NAMESPACE
 using namespace ftgl;
 #endif
@@ -378,7 +381,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     }
 
   glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
   glLoadIdentity();
 
   if (viewport->GetIsPicking())
@@ -390,15 +392,26 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 */    }
 
   glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
   glLoadIdentity();
 
   // Store the state of the attributes we are about to change
-  GLboolean lightingEnabled = glIsEnabled(GL_LIGHTING);
   GLint depthFunc;
   glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
-  glDisable(GL_LIGHTING);
   glDepthFunc(GL_ALWAYS);
+
+  glDepthMask(GL_FALSE);
+  // glDisable(GL_DEPTH_TEST);
+  glDisable(GL_TEXTURE_2D);
+  glEnable (GL_ALPHA_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+  // glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
+  // glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+
+  //- Make sure no shaders are loaded as freetype uses glDrawPixels which
+  // will use a fragment shader if one is loaded.
+  vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow*>(viewport->GetVTKWindow());
+  renWin->GetShaderCache()->ReleaseCurrentShader();
 
   if (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION)
     {
@@ -428,14 +441,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
     // Clean up and return after drawing the rectangle
     // Restore the original state
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    if (lightingEnabled)
-      {
-      glEnable(GL_LIGHTING);
-      }
     glDepthFunc(depthFunc);
 
     return;
@@ -528,14 +533,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   glFlush();
 
   // Restore the original GL state
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  if (lightingEnabled)
-    {
-    glEnable(GL_LIGHTING);
-    }
   glDepthFunc(depthFunc);
 
   vtkOpenGLCheckErrorMacro("failed after RenderOverlay");

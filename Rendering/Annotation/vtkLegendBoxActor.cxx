@@ -788,6 +788,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       pts->SetPoint(1, p2[0], p1[1], 0. );
       pts->SetPoint(2, p2[0], p2[1], 0. );
       pts->SetPoint(3, p1[0], p2[1], 0. );
+      pts->Modified();
       }
 
     if ( this->UseBackground )
