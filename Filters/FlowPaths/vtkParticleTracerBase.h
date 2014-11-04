@@ -392,7 +392,7 @@ public:
   void GetPointDataArrayNames(vtkDataSet* input, std::vector<std::string>& names);
 
   vtkGetMacro(ReinjectionCounter, int);
-  vtkGetMacro(CurrentTime, double);
+  vtkGetMacro(CurrentTimeValue, double);
 
   // Description:
   // Methods to append values to existing point data arrays that may
@@ -437,7 +437,7 @@ private:
   std::vector<double>  InputTimeValues;
   double StartTime;
   double TerminationTime;
-  double CurrentTime;
+  double CurrentTimeValue;
 
   int  StartTimeStep; //InputTimeValues[StartTimeStep] <= StartTime <= InputTimeValues[StartTimeStep+1]
   int  CurrentTimeStep;

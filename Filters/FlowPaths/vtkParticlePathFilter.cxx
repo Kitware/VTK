@@ -173,7 +173,7 @@ void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputP
 
 void vtkParticlePathFilter::AppendToExtraPointDataArrays()
 {
-  this->SimulationTime->InsertNextValue(this->GetCurrentTime());
+  this->SimulationTime->InsertNextValue(this->GetCurrentTimeValue());
 }
 
 void vtkParticlePathFilter::Finalize()
