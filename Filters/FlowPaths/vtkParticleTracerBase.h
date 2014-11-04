@@ -224,8 +224,6 @@ public:
   vtkParticleTracerBaseNamespace::ParticleDataList  ParticleHistories;
   vtkSmartPointer<vtkPointData>     ParticlePointData; //the current particle point data consistent
                                                        //with particle history
-  int           ReinjectionCounter;
-
   //Everything related to time
   int IgnorePipelineTime; //whether to use the pipeline time for termination
   int DisableResetCache; //whether to enable ResetCache() method
@@ -370,11 +368,8 @@ public:
   vtkFloatArray*    GetParticleRotation(vtkPointData*);
   vtkFloatArray*    GetParticleAngularVel(vtkPointData*);
 
-
   // utility function we use to test if a point is inside any of our local datasets
   bool InsideBounds(double point[]);
-
-
 
   void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
                            vtkDoubleArray* cellVectors, double vorticity[3] );
@@ -396,6 +391,15 @@ public:
   bool IsPointDataValid(vtkCompositeDataSet* input, std::vector<std::string>& arrayNames);
   void GetPointDataArrayNames(vtkDataSet* input, std::vector<std::string>& names);
 
+  vtkGetMacro(ReinjectionCounter, int);
+  vtkGetMacro(CurrentTime, double);
+
+  // Description:
+  // Methods to append values to existing point data arrays that may
+  // only be desired on specific concrete derived classes.
+  virtual void InitializeExtraPointDataArrays(vtkPointData* vtkNotUsed(outputPD)) {}
+
+  virtual void AppendToExtraPointDataArrays() {}
 private:
   // Description:
   // Hide this because we require a new interpolator type
@@ -421,6 +425,9 @@ private:
   bool ComputeVorticity;
   double RotationScale;
   double TerminalSpeed;
+
+  // A counter to keep track of how many times we reinjected
+  int ReinjectionCounter;
 
   // Important for Caching of Cells/Ids/Weights etc
   int           AllFixedGeometry;

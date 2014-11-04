@@ -793,12 +793,11 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     this->ParticleRotation->SetName("Rotation");
     this->ParticleAngularVel->SetName("AngularVelocity");
     }
-
+  this->InitializeExtraPointDataArrays(output->GetPointData());
 
   output->SetPoints(this->OutputCoordinates);
   output->SetVerts(this->ParticleCells);
   vtkDebugMacro(<< "Finished allocating point arrays ");
-
 
 ///
   // How many Seed point sources are connected?
@@ -848,7 +847,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     // Now update our main list with the ones we are keeping
     vtkDebugMacro(<< "Reinjection about to update candidates (" << this->LocalSeeds.size() << " particles)");
     this->UpdateParticleList(this->LocalSeeds);
-    this->ReinjectionCounter += 1;
+    //this->ReinjectionCounter += this->ForceReinjectionEveryNSteps;
     }
 
   if(this->CurrentTimeStep==this->StartTimeStep) //just add all the particles
@@ -931,7 +930,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   if(injectionFlag) //reinject again in the last step
     {
-    this->ReinjectionCounter += 1;
+    this->ReinjectionCounter += this->ForceReinjectionEveryNSteps;
 
     ParticleListIterator lastParticle = this->ParticleHistories.end();
     if (!this->ParticleHistories.empty())
@@ -1529,6 +1528,7 @@ void vtkParticleTracerBase::AddParticle(
   this->InjectedStepIds->InsertNextValue(info.InjectedStepId);
   this->ErrorCode->InsertNextValue(info.ErrorCode);
   this->ParticleAge->InsertNextValue(info.age);
+  this->AppendToExtraPointDataArrays();
   info.PointId = tempId;
 
   //
