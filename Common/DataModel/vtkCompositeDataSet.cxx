@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
+vtkInformationKeyMacro(vtkCompositeDataSet, CURRENT_PROCESS_CAN_LOAD_BLOCK, Integer);
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
