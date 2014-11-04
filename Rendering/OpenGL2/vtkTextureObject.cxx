@@ -266,6 +266,7 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
 //----------------------------------------------------------------------------
 bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
 {
+#if GL_ES_VERSION_2_0 != 1
   this->SupportsTextureInteger =
     (glewIsSupported("GL_EXT_texture_integer") != 0);
 
@@ -274,6 +275,13 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
 
   this->SupportsDepthBufferFloat =
     (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+#else
+  // some of these may have extensions etc for ES 2.0
+  // setting to false right now as I do not know
+  this->SupportsTextureInteger = false;
+  this->SupportsTextureFloat = false;
+  this->SupportsDepthBufferFloat = false;
+#endif
 
   return this->IsSupported(renWin,
     this->RequireTextureFloat,
@@ -512,9 +520,9 @@ void vtkTextureObject::SendParameters()
         GL_TEXTURE_MAG_FILTER,
         OpenGLMagFilter[this->MagnificationFilter]);
 
+#if GL_ES_VERSION_2_0 != 1
   glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
 
-#if GL_ES_VERSION_2_0 != 1
   glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
   glTexParameterf(this->Target,GL_TEXTURE_MAX_LOD,this->MaxLOD);
   glTexParameteri(this->Target,GL_TEXTURE_BASE_LEVEL,this->BaseLevel);
