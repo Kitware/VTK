@@ -251,6 +251,7 @@ void vtkOpenGLRenderer::Clear(void)
     {
     //glClearDepth(static_cast<GLclampf>(1.0));
     clear_mask |= GL_DEPTH_BUFFER_BIT;
+    glDepthMask(GL_TRUE);
     }
 
   vtkDebugMacro(<< "glClear\n");
