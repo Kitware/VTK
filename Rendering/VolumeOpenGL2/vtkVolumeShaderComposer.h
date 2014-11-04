@@ -149,7 +149,20 @@ namespace vtkvolume
       vec4 g_light_pos_obj; \n\
       vec4 g_eye_pos_obj; ");
 
-    if (lightingComplexity == 3)
+    if (lightingComplexity == 2)
+      {
+      shaderStr += std::string("\n\
+        uniform int m_numberOfLights; // only allow for up to 6 active lights\n\
+        uniform vec3 m_lightColor[6]; // intensity weighted color\n\
+        uniform vec3 m_lightDirection[6]; // normalized\n\
+        uniform vec3 m_lightPosition[6];\n\
+        uniform vec3 m_lightAttenuation[6];\n\
+        uniform float m_lightConeAngle[6];\n\
+        uniform float m_lightExponent[6];\n\
+        uniform int m_lightPositional[6];\n\
+      ");
+      }
+    else if (lightingComplexity == 3)
       {
       shaderStr += std::string("\n\
         uniform int m_numberOfLights; // only allow for up to 6 active lights\n\
@@ -391,7 +404,61 @@ namespace vtkvolume
         }
       else if (lightingComplexity == 2)
         {
-        shaderStr = std::string("");
+        shaderStr = std::string("\n\
+          vec3 viewDirection = normalize(g_eye_pos_obj.xyz - m_vertex_pos.xyz);\n\
+          vec3 diffuse = vec3(0,0,0);\n\
+          vec3 specular = vec3(0,0,0);\n\
+          vec3 vertLightDirection;\n\
+          vec4 grad = computeGradient(); \n\
+          for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
+            {\n\
+            float attenuation = 1.0;\n\
+            // directional\n\
+            if (m_lightPositional[lightNum] == 0)\n\
+              {\n\
+              vertLightDirection = m_lightDirection[lightNum];\n\
+              }\n\
+            else\n\
+              {\n\
+              vertLightDirection = m_vertex_pos.xyz - m_lightPosition[lightNum];\n\
+              float distance = length(vertLightDirection);\n\
+              vertLightDirection = normalize(vertLightDirection);\n\
+              attenuation = 1.0 /\n\
+                (m_lightAttenuation[lightNum].x\n\
+                 + m_lightAttenuation[lightNum].y * distance\n\
+                 + m_lightAttenuation[lightNum].z * distance * distance);\n\
+              // per OpenGL standard cone angle is 90 or less for a spot light\n\
+              if (m_lightConeAngle[lightNum] <= 90.0)\n\
+                {\n\
+                float coneDot = dot(vertLightDirection, m_lightDirection[lightNum]);\n\
+                // if inside the cone\n\
+                if (coneDot >= cos(radians(m_lightConeAngle[lightNum])))\n\
+                  {\n\
+                  attenuation = attenuation * pow(coneDot, m_lightExponent[lightNum]);\n\
+                  }\n\
+                else\n\
+                  {\n\
+                  attenuation = 0.0;\n\
+                  }\n\
+                }\n\
+              }\n\
+            // diffuse and specular lighting\n\
+            float df = max(0.0, attenuation*dot(grad.xyz, -vertLightDirection));\n\
+            diffuse += (df * m_lightColor[lightNum]);\n\
+            if (dot(grad.xyz, -vertLightDirection) > 0.0)\n\
+              {\n\
+              float sf = attenuation*pow( max(0.0, dot(\n\
+                reflect(vertLightDirection, grad.xyz), viewDirection)), m_shininess);\n\
+              specular += (sf * m_lightColor[lightNum]);\n\
+              }\n\
+            }\n\
+            final_color += (m_ambient + m_diffuse * diffuse + m_specular * specular) * color.rgb; \n\
+            if (grad.w >= 0.0)\n\
+              {\n\
+              color.a = color.a * computeGradientOpacity(grad); \n\
+              }\n\
+            return vec4(final_color, color.a); \n\
+        ");
         }
       else if (lightingComplexity == 1)
         {

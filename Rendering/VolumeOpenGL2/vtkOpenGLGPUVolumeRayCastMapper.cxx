@@ -219,6 +219,7 @@ public:
   // Update depth texture (used for early termination of the ray)
   void UpdateDepthTexture(vtkRenderer* ren, vtkVolume* vol);
 
+  // Update parameters for lighting that will be used in the shader.
   void UpdateLightingParameters(vtkRenderer* ren, vtkVolume* vol);
 
   // Test if camera is inside the volume geometry
@@ -1057,9 +1058,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
       }
     }
 
-  program->SetUniform3fv("lightColor", numberOfLights, lightColor);
-  program->SetUniform3fv("lightDirectionVC", numberOfLights, lightDirection);
-  program->SetUniformi("numberOfLights", numberOfLights);
+  program->SetUniform3fv("m_lightColor", numberOfLights, lightColor);
+  program->SetUniform3fv("m_lightDirectionVC", numberOfLights, lightDirection);
+  program->SetUniformi("m_numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights
   if (this->LightComplexity < 3)
@@ -1095,11 +1096,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
       numberOfLights++;
       }
     }
-  program->SetUniform3fv("lightAttenuation", numberOfLights, lightAttenuation);
-  program->SetUniform1iv("lightPositional", numberOfLights, lightPositional);
-  program->SetUniform3fv("lightPositionVC", numberOfLights, lightPosition);
-  program->SetUniform1fv("lightExponent", numberOfLights, lightExponent);
-  program->SetUniform1fv("lightConeAngle", numberOfLights, lightConeAngle);
+  program->SetUniform3fv("m_lightAttenuation", numberOfLights, lightAttenuation);
+  program->SetUniform1iv("m_lightPositional", numberOfLights, lightPositional);
+  program->SetUniform3fv("m_lightPosition", numberOfLights, lightPosition);
+  program->SetUniform1fv("m_lightExponent", numberOfLights, lightExponent);
+  program->SetUniform1fv("m_lightConeAngle", numberOfLights, lightConeAngle);
 }
 
 //----------------------------------------------------------------------------
