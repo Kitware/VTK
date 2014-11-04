@@ -70,36 +70,25 @@ public:
   // Description:
   // Given the grid extent, this method returns the total number of points
   // within the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription field is not used.
   static vtkIdType GetNumberOfPoints(int ext[6], int dataDescription=VTK_EMPTY);
 
   // Description:
   // Given the grid extent, this method returns the total number of cells
   // within the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription field is not used.
   static vtkIdType GetNumberOfCells(int ext[6], int dataDescription=VTK_EMPTY);
 
   // Description:
   // Given the point extent of a grid, this method computes the corresponding
   // cell extent for the grid.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription field is not used.
   static void GetCellExtentFromPointExtent(
       int pntExtent[6], int cellExtent[6], int dataDescription=VTK_EMPTY );
 
   // Description:
   // Computes the structured grid dimensions based on the given extent.
+  // The dataDescription field is not used.
   static void GetDimensionsFromExtent(
       int ext[6], int dims[3], int dataDescription=VTK_EMPTY );
 
@@ -107,12 +96,14 @@ public:
   // Returns the cell dimensions, i.e., the number of cells along the i,j,k
   // for the grid with the given grid extent. Note, the grid extent is the
   // number of points.
+  // The dataDescription field is not used.
   static void GetCellDimensionsFromExtent(
       int ext[6], int celldims[3], int dataDescription=VTK_EMPTY );
 
   // Description:
   // Given the dimensions of the grid, in pntdims, this method returns
   // the corresponding cell dimensions for the given grid.
+  // The dataDescription field is not used.
   static void GetCellDimensionsFromPointDimensions(
       int pntdims[3],int cellDims[3] );
 
@@ -120,22 +111,14 @@ public:
   // Given the global structured coordinates for a point or cell, ijk, w.r.t.
   // as well as, the global sub-grid cell or point extent, this method computes
   // the corresponding local structured coordinates, lijk, starting from 0.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription argument is not used.
   static void GetLocalStructuredCoordinates(
       int ijk[3], int ext[6], int lijk[3], int dataDescription=VTK_EMPTY );
 
   // Description:
   // Given local structured coordinates, and the corresponding global sub-grid
   // extent, this method computes the global ijk coordinates.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription parameter is not used.
   static void GetGlobalStructuredCoordinates(
       int lijk[3], int ext[6], int ijk[3], int dataDescription=VTK_EMPTY );
 
@@ -157,17 +140,14 @@ public:
   // Description:
   // Given a location in structured coordinates (i-j-k), and the extent
   // of the structured dataset, return the point id.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
-  static vtkIdType ComputePointIdForExtent(
-      int extent[6], int ijk[3], int dataDescription=VTK_EMPTY );
+  // The dataDescription argument is not used.
+  static vtkIdType ComputePointIdForExtent(int extent[6], int ijk[3],
+                                           int dataDescription=VTK_EMPTY );
 
   // Description:
   // Given a location in structured coordinates (i-j-k), and the extent
   // of the structured dataset, return the point id.
+  // The dataDescription argument is not used.
   static vtkIdType ComputeCellIdForExtent(
       int extent[6], int ijk[3], int dataDescription=VTK_EMPTY );
 
@@ -175,11 +155,7 @@ public:
   // Given a location in structured coordinates (i-j-k), and the dimensions
   // of the structured dataset, return the point id.  This method does not
   // adjust for the beginning of the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription argument is not used.
   static vtkIdType ComputePointId(
       int dim[3], int ijk[3], int dataDescription=VTK_EMPTY );
 
@@ -187,11 +163,7 @@ public:
   // Given a location in structured coordinates (i-j-k), and the dimensions
   // of the structured dataset, return the cell id.  This method does not
   // adjust for the beginning of the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription argument is not used.
   static vtkIdType ComputeCellId(
       int dim[3], int ijk[3], int dataDescription=VTK_EMPTY );
 
@@ -199,11 +171,7 @@ public:
   // Given the global grid extent and the linear index of a cell within the
   // grid extent, this method computes the corresponding structured coordinates
   // of the given cell. This method adjusts for the beginning of the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription argument is not used.
   static void ComputeCellStructuredCoordsForExtent(
       const vtkIdType cellIdx, int ext[6], int ijk[3],
       int dataDescription=VTK_EMPTY );
@@ -211,11 +179,7 @@ public:
   // Description:
   // Given a cellId and grid dimensions 'dim', get the structured coordinates
   // (i-j-k). This method does not adjust for the beginning of the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription argument is not used.
   static void ComputeCellStructuredCoords(
       const vtkIdType cellId, int dim[3], int ijk[3],
       int dataDescription=VTK_EMPTY );
@@ -223,11 +187,7 @@ public:
   // Description:
   // Given a pointId and the grid extent ext, get the structured coordinates
   // (i-j-k). This method adjusts for the beginning of the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription argument is not used.
   static void ComputePointStructuredCoordsForExtent(
       const vtkIdType ptId, int ext[6], int ijk[3],
       int dataDescription=VTK_EMPTY );
@@ -235,11 +195,7 @@ public:
   // Description:
   // Given a pointId and grid dimensions 'dim', get the structured coordinates
   // (i-j-k). This method does not adjust for the beginning of the extent.
-  // The method accepts as an optional parameter the data description of the
-  // grid. If a data description is not provided, it will be computed internally.
-  // If the method is used within a tight loop it is advised to pre-acquire and
-  // pass the data description to the method to avoid any latency associated
-  // with computing the data description internally multiple times.
+  // The dataDescription argument is not used.
   static void ComputePointStructuredCoords(
       const vtkIdType ptId, int dim[3], int ijk[3],
       int dataDescription=VTK_EMPTY );
@@ -274,11 +230,186 @@ protected:
       i = idx-k*N12-j*N1;
     }
 
+  // Want to avoid importing <algorithm> in the header...
+  template <typename T>
+  static T Max(const T &a, const T &b)
+  {
+    return (a > b) ? a : b;
+  }
+
 private:
   vtkStructuredData(const vtkStructuredData&);  // Not implemented.
   void operator=(const vtkStructuredData&);  // Not implemented.
 };
 
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::GetNumberOfPoints(int ext[6], int)
+{
+  return static_cast<vtkIdType>(ext[1] - ext[0] + 1) *
+         static_cast<vtkIdType>(ext[3] - ext[2] + 1) *
+         static_cast<vtkIdType>(ext[5] - ext[4] + 1);
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::GetNumberOfCells(int ext[6], int)
+{
+  int cellDims[3];
+  vtkStructuredData::GetCellDimensionsFromExtent(ext,cellDims);
+
+  // Replace 0's with 1's so we can just multiply them regardless of cell type.
+  cellDims[0] = vtkStructuredData::Max(cellDims[0], 1);
+  cellDims[1] = vtkStructuredData::Max(cellDims[1], 1);
+  cellDims[2] = vtkStructuredData::Max(cellDims[2], 1);
+
+  // Note, when we compute the result below, we statically cast to vtkIdType to
+  // ensure the compiler will generate a 32x32=64 instruction.
+  return static_cast<vtkIdType>(cellDims[0]) *
+         static_cast<vtkIdType>(cellDims[1]) *
+         static_cast<vtkIdType>(cellDims[2]);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::GetCellExtentFromPointExtent(
+    int nodeExtent[6], int cellExtent[6], int)
+{
+  cellExtent[0] = nodeExtent[0];
+  cellExtent[2] = nodeExtent[2];
+  cellExtent[4] = nodeExtent[4];
+
+  cellExtent[1] = vtkStructuredData::Max(nodeExtent[0], nodeExtent[1] - 1);
+  cellExtent[3] = vtkStructuredData::Max(nodeExtent[2], nodeExtent[3] - 1);
+  cellExtent[5] = vtkStructuredData::Max(nodeExtent[4], nodeExtent[5] - 1);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::GetDimensionsFromExtent(int ext[6], int dims[3],
+                                                       int)
+{
+  dims[0] = ext[1] - ext[0] + 1;
+  dims[1] = ext[3] - ext[2] + 1;
+  dims[2] = ext[5] - ext[4] + 1;
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::GetCellDimensionsFromExtent(
+    int ext[6], int celldims[3], int)
+{
+  celldims[0] = vtkStructuredData::Max(ext[1] - ext[0], 0);
+  celldims[1] = vtkStructuredData::Max(ext[3] - ext[2], 0);
+  celldims[2] = vtkStructuredData::Max(ext[5] - ext[4], 0);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::GetCellDimensionsFromPointDimensions(
+    int nodeDims[3], int cellDims[3])
+{
+  cellDims[0] = vtkStructuredData::Max(nodeDims[0] - 1, 0);
+  cellDims[1] = vtkStructuredData::Max(nodeDims[1] - 1, 0);
+  cellDims[2] = vtkStructuredData::Max(nodeDims[2] - 1, 0);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::GetLocalStructuredCoordinates(
+    int ijk[3], int ext[6], int lijk[3], int)
+{
+  lijk[0] = ijk[0] - ext[0];
+  lijk[1] = ijk[1] - ext[2];
+  lijk[2] = ijk[2] - ext[4];
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::GetGlobalStructuredCoordinates(
+    int lijk[3], int ext[6], int ijk[3], int)
+{
+  ijk[0] = ext[0] + lijk[0];
+  ijk[1] = ext[2] + lijk[1];
+  ijk[2] = ext[4] + lijk[2];
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::ComputePointIdForExtent(
+    int extent[6], int ijk[3], int)
+{
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent(extent, dims);
+
+  int lijk[3];
+  vtkStructuredData::GetLocalStructuredCoordinates(ijk, extent, lijk);
+
+  return vtkStructuredData::ComputePointId(dims, lijk);
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::ComputeCellIdForExtent(
+    int extent[6], int ijk[3], int)
+{
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent(extent, nodeDims);
+
+  int lijk[3];
+  vtkStructuredData::GetLocalStructuredCoordinates(ijk, extent, lijk);
+
+  return vtkStructuredData::ComputeCellId(nodeDims, lijk);
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::ComputePointId(int dims[3], int ijk[3], int)
+{
+  return vtkStructuredData::GetLinearIndex(ijk[0], ijk[1], ijk[2],
+                                           dims[0], dims[1]);
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::ComputeCellId(int dims[3], int ijk[3], int)
+{
+  return vtkStructuredData::GetLinearIndex(
+        ijk[0], ijk[1], ijk[2],
+        vtkStructuredData::Max(dims[0] - 1, 1),
+        vtkStructuredData::Max(dims[1] - 1, 1));
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::ComputeCellStructuredCoordsForExtent(
+    const vtkIdType cellIdx, int ext[6], int ijk[3], int)
+{
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent(ext, nodeDims);
+
+  int lijk[3];
+  vtkStructuredData::ComputeCellStructuredCoords(cellIdx, nodeDims, lijk);
+
+  vtkStructuredData::GetGlobalStructuredCoordinates(lijk, ext, ijk);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::ComputeCellStructuredCoords(
+    const vtkIdType cellId, int dims[3], int ijk[3], int)
+{
+  vtkStructuredData::GetStructuredCoordinates(cellId,
+                                              dims[0] - 1, dims[1] - 1,
+                                              ijk[0], ijk[1], ijk[2]);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::ComputePointStructuredCoordsForExtent(
+    const vtkIdType ptId, int ext[6], int ijk[3], int)
+{
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent(ext, nodeDims);
+
+  int lijk[3];
+  vtkStructuredData::ComputePointStructuredCoords(ptId, nodeDims, lijk);
+
+  vtkStructuredData::GetGlobalStructuredCoordinates(lijk, ext, ijk);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkStructuredData::ComputePointStructuredCoords(
+    const vtkIdType ptId, int dim[3], int ijk[3], int)
+{
+  vtkStructuredData::GetStructuredCoordinates(ptId, dim[0], dim[1],
+                                              ijk[0], ijk[1], ijk[2]);
+}
 
 #endif
 
