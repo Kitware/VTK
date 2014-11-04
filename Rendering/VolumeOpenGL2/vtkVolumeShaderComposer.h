@@ -99,9 +99,11 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string BaseGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
                               vtkVolumeMapper* vtkNotUsed(mapper),
-                              vtkVolume* vtkNotUsed(vol))
+                              vtkVolume* vtkNotUsed(vol),
+                              int vtkNotUsed(numberOfLights),
+                              int lightingComplexity)
     {
-    return std::string(
+    std::string shaderStr = std::string(
       "// Volume dataset \n\
       uniform sampler3D m_volume; \n\
       \n\
@@ -147,6 +149,17 @@ namespace vtkvolume
       vec4 g_src_color; \n\
       vec4 g_light_pos_obj; \n\
       vec4 g_eye_pos_obj; ");
+
+    if (lightingComplexity == 3)
+      {
+      shaderStr += std::string("\n\
+        uniform int m_numberOfLights; // only allow for up to 6 active lights\n\
+        uniform vec3 m_lightColor[6]; // intensity weighted color\n\
+        uniform vec3 m_lightDirection[6]; // normalized\n\
+      ");
+      }
+
+    return shaderStr;
     }
 
   //--------------------------------------------------------------------------
@@ -274,69 +287,15 @@ namespace vtkvolume
   std::string LightComputeFunc(vtkRenderer* ren,
                                vtkVolumeMapper* vtkNotUsed(mapper),
                                vtkVolume* vol,
-                               int vtkNotUsed(numberOfComponents))
+                               int vtkNotUsed(numberOfComponents),
+                               int numberOfLights, int lightingComplexity)
     {
-    std::string shaderStr;
     vtkVolumeProperty* volProperty = vol->GetProperty();
-
-    int lightComplexity = 0;
-    int numberOfLights = 0;
-    vtkLightCollection *lc = ren->GetLights();
-    vtkLight *light;
-
-    // Compute light complexity.
-    vtkCollectionSimpleIterator sit;
-    for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
-      {
-      float status = light->GetSwitch();
-      if (status > 0.0)
-        {
-        numberOfLights++;
-        if (lightComplexity == 0)
-          {
-          lightComplexity = 1;
-          }
-        }
-
-      if (lightComplexity == 1
-          && (numberOfLights > 1
-            || light->GetIntensity() != 1.0
-            || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
-        {
-          lightComplexity = 2;
-        }
-
-      if (lightComplexity < 3
-          && (light->GetPositional()))
-        {
-          lightComplexity = 3;
-          break;
-        }
-      }
-
-    if (lightComplexity == 3)
-      {
-      shaderStr = "\n\
-        vec3 diffuse = vec3(0,0,0);\n\
-        vec3 specular = vec3(0,0,0);\n\
-        for (int lightNum = 0; lightNum < numberOfLights; lightNum++)\n\
-        {\n\
-        // diffuse and specular lighting\n\
-        float df = max(0.0, dot(normalVC, -lightDirectionVC[lightNum]));\n\
-        diffuse += (df * lightColor[lightNum]);\n\
-        if (dot(normalVC, -lightDirectionVC[lightNum]) > 0.0)\n\
-          {\n\
-          float sf = pow( max(0.0, dot(\n\
-            reflect(lightDirectionVC[lightNum], normalVC), viewDirectionVC)), specularPower);\n\
-          specular += (sf * lightColor[lightNum]);\n\
-          }\n\
-        }\n\
-      }";
 
     if (volProperty->GetShade() &&
         volProperty->GetDisableGradientOpacity())
       {
-      if (lightComplexity == 3)
+      if (lightingComplexity == 3)
         {
         return std::string(" \n\
           vec4 computeLighting(vec4 color) \n\
@@ -375,10 +334,14 @@ namespace vtkvolume
                } \n\
               specular = m_lightColor[lightNum] * pow(n_dot_h, m_shininess); \n\
               }\n\
-            final_color += (m_ambient + diffuse + specuflar) * color.rgb \n\
+            final_color += (m_ambient + m_diffuse * diffuse + m_specular * specular) * color.rgb \n\
             final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
             return vec4(final_color, color.a); \n\
             }");
+        }
+      else
+        {
+        return std::string("");
         }
       }
     else if (volProperty->GetShade() &&
