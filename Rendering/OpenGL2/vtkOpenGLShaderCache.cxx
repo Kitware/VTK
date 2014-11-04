@@ -222,6 +222,15 @@ void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
     }
 }
 
+void vtkOpenGLShaderCache::ReleaseCurrentShader()
+{
+  // release prior shader
+  if (this->LastShaderBound)
+    {
+    this->LastShaderBound->Release();
+    this->LastShaderBound = NULL;
+    }
+}
 
 int vtkOpenGLShaderCache::BindShader(vtkShaderProgram* shader)
 {
