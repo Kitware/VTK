@@ -284,11 +284,12 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string LightComputeFunc(vtkRenderer* ren,
+  std::string LightComputeFunc(vtkRenderer* vtkNotUsed(ren),
                                vtkVolumeMapper* vtkNotUsed(mapper),
                                vtkVolume* vol,
                                int vtkNotUsed(numberOfComponents),
-                               int numberOfLights, int lightingComplexity)
+                               int vtkNotUsed(numberOfLights),
+                               int lightingComplexity)
     {
     vtkVolumeProperty* volProperty = vol->GetProperty();
 
@@ -334,7 +335,43 @@ namespace vtkvolume
                } \n\
               specular = m_lightColor[lightNum] * pow(n_dot_h, m_shininess); \n\
               }\n\
-            final_color += (m_ambient + m_diffuse * diffuse + m_specular * specular) * color.rgb \n\
+            final_color += (m_ambient + m_diffuse * diffuse + m_specular * specular) * color.rgb; \n\
+            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            return vec4(final_color, color.a); \n\
+            }");
+        }
+      else if (lightingComplexity == 2)
+        {
+        return std::string("");
+        }
+      else if (lightingComplexity == 1)
+        {
+        return std::string(" \n\
+          vec4 computeLighting(vec4 color) \n\
+            {\n\
+            vec3 g2 = computeGradient(); \n\
+            vec3 diffuse = vec3(0.0); \n\
+            vec3 specular = vec3(0.0); \n\
+            g2 = (1.0/m_cell_spacing) * g2; \n\
+            float normalLength = length(g2);\n\
+            if (normalLength > 0.0) \n\
+               { \n\
+               g2 = normalize(g2); \n\
+               } \n\
+             else \n\
+               { \n\
+               g2 = vec3(0.0, 0.0, 0.0); \n\
+               } \n\
+            vec3 final_color = vec3(0.0); \n\
+            float n_dot_l = max(0.0,dot(g2, vec3(0.0, 0.0, 1.0)));\n\
+            if (n_dot_l < 0.0) \n\
+              { \n\
+              n_dot_l = -n_dot_l; \n\
+              } \n\
+            float n_dot_h = n_dot_l;\n\
+            diffuse = n_dot_l * m_diffuse;\n\
+            specular = pow(n_dot_h, m_shininess) * m_specular;\n\
+            final_color += (m_ambient + diffuse + specular) * color.rgb; \n\
             final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
             return vec4(final_color, color.a); \n\
             }");
