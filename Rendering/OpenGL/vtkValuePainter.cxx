@@ -432,7 +432,7 @@ void vtkValuePainter::DrawCells(
 
     if (doingCells)
       {
-      double value = values->GetComponent(count, comp);
+      double value = values->GetComponent(cellId, comp);
       this->ValueToColor(value, minmax[0], scale, color);
 
       renderer->GetRenderWindow()->GetPainterDeviceAdapter()
