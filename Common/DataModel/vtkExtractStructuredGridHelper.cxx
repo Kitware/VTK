@@ -229,7 +229,13 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
   int inputDesc = vtkStructuredData::GetDataDescriptionFromExtent(inExt);
   int outDesc   = vtkStructuredData::GetDataDescriptionFromExtent(outExt);
 
-  // Get the size of the output
+  // Get the size of the input and output
+  vtkIdType inSize = vtkStructuredData::GetNumberOfPoints(inExt);
+  vtkIdType outSize = vtkStructuredData::GetNumberOfPoints(outExt);
+  (void)inSize; // Prevent warnings, this is only used in debug builds.
+
+  // Get the size of the input and output
+  vtkIdType inSize = vtkStructuredData::GetNumberOfPoints(inExt,inputDesc);
   vtkIdType outSize = vtkStructuredData::GetNumberOfPoints(outExt,outDesc);
 
   if( inpnts != NULL )
@@ -261,9 +267,9 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
 
         // Sanity checks
         assert( "pre: srcIdx out of bounds" && (srcIdx >= 0) &&
-            (srcIdx < vtkStructuredData::GetNumberOfPoints(inExt,inputDesc)));
+                (srcIdx < inSize) );
         assert( "pre: targetIdx out of bounds" && (targetIdx >= 0) &&
-            (targetIdx < vtkStructuredData::GetNumberOfPoints(outExt,outDesc)));
+                (targetIdx < outSize) );
 
         if( inpnts != NULL )
           {
@@ -297,7 +303,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(
   int outDesc   = vtkStructuredData::GetDataDescriptionFromExtent(outExt);
 
   // Get the size of the output & allocate output
-  vtkIdType outSize = vtkStructuredData::GetNumberOfCells(outExt,outDesc);
+  vtkIdType inSize = vtkStructuredData::GetNumberOfCells(inExt);
+  (void)inSize; // Prevent warnings, this is only used in debug builds.
   outCD->CopyAllocate(cd,outSize,outSize);
 
   int inpCellExt[6];
