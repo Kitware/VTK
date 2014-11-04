@@ -76,7 +76,8 @@ vtkStandardNewMacro(vtkPolyDataToImageStencil);
 //----------------------------------------------------------------------------
 vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 {
-  this->Tolerance = 1e-3;
+  // The default tolerance is 0.5*2^(-16)
+  this->Tolerance = 7.62939453125e-06;
 }
 
 //----------------------------------------------------------------------------
@@ -490,6 +491,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   // This raster stores all line segments by recording all "x"
   // positions on the surface for each y integer position.
   vtkImageStencilRaster raster(&extent[2]);
+  raster.SetTolerance(this->Tolerance);
 
   // The extent for one slice of the image
   int sliceExtent[6];
@@ -745,7 +747,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
           if (pointNeighborCounts[pointId0] > 0 &&
               pointNeighborCounts[pointId1] > 0)
             {
-            raster.InsertLine(point0, point1, false, false);
+            raster.InsertLine(point0, point1);
             }
 
           pointId0 = pointId1;
