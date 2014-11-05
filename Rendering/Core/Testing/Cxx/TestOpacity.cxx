@@ -142,7 +142,6 @@ int TestOpacity(int argc, char* argv[])
   planeActor->SetMapper(planeMapper);
   planeMapper->Delete();
   renderer->AddActor(planeActor);
-  planeActor->Delete();
 
   vtkProperty *planeProperty=vtkProperty::New();
   planeProperty->SetOpacity(1.0);
@@ -151,6 +150,7 @@ int TestOpacity(int argc, char* argv[])
   planeProperty->Delete();
   planeProperty->SetBackfaceCulling(0);
   planeProperty->SetFrontfaceCulling(0);
+  planeActor->Delete();
 
   renderer->SetUseDepthPeeling(1);
   // reasonable depth peeling settings

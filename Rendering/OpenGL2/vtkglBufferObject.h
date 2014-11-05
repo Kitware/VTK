@@ -118,7 +118,7 @@ inline bool BufferObject::Upload(const T *array, size_t numElements,
     return false;
     }
   return this->UploadInternal(array,
-                              numElements * sizeof(typename T),
+                              numElements * sizeof(T),
                               objectType);
 }
 

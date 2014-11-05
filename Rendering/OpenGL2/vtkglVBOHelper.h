@@ -15,6 +15,8 @@
 #ifndef __vtkGLVBOHelpher_h
 #define __vtkGLVBOHelpher_h
 
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+
 #include "vtkglBufferObject.h"
 #include "vtkglVertexArrayObject.h"
 
@@ -54,7 +56,7 @@ size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                                  vtkDataArray *edgeflags);
 
 // Store the shaders, program, and ibo in a common struct.
-class CellBO
+class VTKRENDERINGOPENGL2_EXPORT CellBO
 {
 public:
   vtkShaderProgram *Program;

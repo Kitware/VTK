@@ -55,6 +55,10 @@ public:
     this->SetDrawColor(a, b, c, 0.0);}
 
   // Description:
+  // Initialize the canvas with a given volume
+  void InitializeCanvasVolume(vtkImageData *volume);
+
+  // Description:
   // Set the pixels inside the box (min0, max0, min1, max1) to the current
   // DrawColor
   void FillBox(int min0, int max0, int min1, int max1);

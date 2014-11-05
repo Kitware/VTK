@@ -46,7 +46,6 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
 {
   this->TransformedPoints = NULL;
-  this->LastDepthPeeling = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -70,17 +69,9 @@ void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkViewport* viewport, vtkActor2D *actor)
+bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShader(vtkgl::CellBO &cellBO,
+      vtkViewport* vtkNotUsed(viewport), vtkActor2D *actor)
 {
-  vtkOpenGLRenderer *ren = vtkOpenGLRenderer::SafeDownCast(viewport);
-
-  if (ren != NULL && this->LastDepthPeeling !=
-      ren->GetLastRenderingUsedDepthPeeling())
-    {
-    this->DepthPeelingChanged.Modified();
-    this->LastDepthPeeling = ren->GetLastRenderingUsedDepthPeeling();
-    }
-
   // has something changed that would require us to recreate the shader?
   // candidates are
   // property modified (representation interpolation and lighting)
@@ -89,7 +80,6 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vt
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
-      cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
       cellBO.ShaderSourceTime < this->GetInput()->GetMTime())
     {
     return true;
@@ -101,13 +91,11 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vt
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::BuildShader(
   std::string &VSSource, std::string &FSSource, std::string &GSSource,
-  vtkViewport* viewport, vtkActor2D *vtkNotUsed(actor))
+  vtkViewport* vtkNotUsed(viewport), vtkActor2D *vtkNotUsed(actor))
 {
   VSSource = vtkglPolyData2DVS;
   FSSource = vtkglPolyData2DFS;
   GSSource.clear();
-
-  vtkOpenGLRenderer *ren = vtkOpenGLRenderer::SafeDownCast(viewport);
 
   // Build our shader if necessary.
   if (this->Colors && this->Colors->GetNumberOfComponents())
@@ -155,51 +143,6 @@ void vtkOpenGLPolyDataMapper2D::BuildShader(
                                    "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
       }
     }
-  else
-    {
-    VSSource = vtkgl::replace(VSSource,
-                                 "//VTK::TCoord::Dec","");
-    VSSource = vtkgl::replace(VSSource,
-                                 "//VTK::TCoord::Impl","");
-    FSSource = vtkgl::replace(FSSource,
-                                 "//VTK::TCoord::Dec","");
-    FSSource = vtkgl::replace(FSSource,
-                                 "//VTK::TCoord::Impl","");
-    }
-
-  if (ren && ren->GetLastRenderingUsedDepthPeeling() == 2)
-    {
-    FSSource = vtkgl::replace(FSSource,
-      "//VTK::DepthPeeling::Dec",
-      "uniform vec2 screenSize;\n"
-      "uniform sampler2D translucentRGBATexture;\n"
-      "uniform sampler2D currentRGBATexture;\n");
-    FSSource = vtkgl::replace(FSSource,
-      "//VTK::DepthPeeling::Impl",
-      "vec4 t1Color = texture2D(translucentRGBATexture, gl_FragCoord.xy/screenSize);\n"
-      "vec4 t2Color = texture2D(currentRGBATexture, gl_FragCoord.xy/screenSize);\n"
-      "gl_FragColor.a = t1Color.a + t2Color.a * (1.0-t1Color.a);\n"
-      "if (gl_FragColor.a > 0.0) { gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*t2Color.a*(1.0-t1Color.a))/gl_FragColor.a; }\n"
-      "else { gl_FragColor.rgb = vec3(0.0,0.0,0.0); }\n"
-      );
-    }
-  if (ren && ren->GetLastRenderingUsedDepthPeeling() == 3)
-    {
-    FSSource = vtkgl::replace(FSSource,
-      "//VTK::DepthPeeling::Dec",
-      "uniform vec2 screenSize;\n"
-      "uniform sampler2D translucentRGBATexture;\n"
-      "uniform sampler2D opaqueRGBATexture;\n");
-    FSSource = vtkgl::replace(FSSource,
-      "//VTK::DepthPeeling::Impl",
-      "vec4 t1Color = texture2D(translucentRGBATexture, gl_FragCoord.xy/screenSize);\n"
-      "vec4 t2Color = texture2D(opaqueRGBATexture, gl_FragCoord.xy/screenSize);\n"
-      "gl_FragColor.a = 1.0;\n"
-      "gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a));\n"
-    //  "gl_FragColor.rgb = (t1Color.rgb*0.5 + t2Color.rgb*0.5);\n"
-      );
-    }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -241,10 +184,8 @@ void vtkOpenGLPolyDataMapper2D::UpdateShader(vtkgl::CellBO &cellBO,
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
-  vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *actor)
+  vtkgl::CellBO &cellBO, vtkViewport *vtkNotUsed(viewport), vtkActor2D *actor)
 {
-  vtkOpenGLRenderer *ren = vtkOpenGLRenderer::SafeDownCast(viewport);
-
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Layout;
   if (this->VBOUpdateTime > cellBO.attributeUpdateTime ||
@@ -289,35 +230,6 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       tunit = texture->GetTextureUnit();
       }
     cellBO.Program->SetUniformi("texture1", tunit);
-    }
-
-  // if depth peeling for trabslucetn compositing
-  if (ren->GetLastRenderingUsedDepthPeeling() == 2)
-    {
-    int ttunit = ren->GetTranslucentRGBATextureUnit();
-    cellBO.Program->SetUniformi("translucentRGBATexture", ttunit);
-    int ctunit = ren->GetCurrentRGBATextureUnit();
-    cellBO.Program->SetUniformi("currentRGBATexture", ctunit);
-
-    int *renSize = ren->GetSize();
-    float screenSize[2];
-    screenSize[0] = renSize[0];
-    screenSize[1] = renSize[1];
-    cellBO.Program->SetUniform2f("screenSize", screenSize);
-    }
-  // if depth peeling final compositing
-  if (ren->GetLastRenderingUsedDepthPeeling() == 3)
-    {
-    int ttunit = ren->GetTranslucentRGBATextureUnit();
-    cellBO.Program->SetUniformi("translucentRGBATexture", ttunit);
-    int ctunit = ren->GetOpaqueRGBATextureUnit();
-    cellBO.Program->SetUniformi("opaqueRGBATexture", ctunit);
-
-    int *renSize = ren->GetSize();
-    float screenSize[2];
-    screenSize[0] = renSize[0];
-    screenSize[1] = renSize[1];
-    cellBO.Program->SetUniform2f("screenSize", screenSize);
     }
 }
 

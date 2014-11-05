@@ -20,8 +20,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
 set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   vtkCameraPass.cxx
+  vtkClearRGBPass.cxx
+  vtkClearZPass.cxx
   vtkCompositePolyDataMapper2.cxx
   vtkDefaultPass.cxx
+  vtkDepthPeelingPass.cxx
   vtkGaussianBlurPass.cxx
   vtkImageProcessingPass.cxx
   vtkLightsPass.cxx
@@ -43,6 +46,7 @@ set(Module_SRCS
   vtkOpenGLTexture.cxx
   vtkOverlayPass.cxx
   vtkRenderPass.cxx
+  vtkRenderStepsPass.cxx
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
   vtkSequencePass.cxx
@@ -80,11 +84,9 @@ set_source_files_properties(
   vtkFrameBufferObject
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
-  vtkOpenGLHardwareSelector
   vtkOpenGLShaderCache
   vtkPixelBufferObject
   vtkRenderbuffer
-  vtkRenderPass
   vtkRenderState
   vtkTextureObject
   vtkTextureUnitManager
@@ -99,29 +101,24 @@ set_source_files_properties(
   )
 
 set(shader_files
-  glsl/vtkglPolyData2DVS.glsl
-  glsl/vtkglPolyData2DFS.glsl
-
-  glsl/vtkglPolyDataVSNoLighting.glsl
-  glsl/vtkglPolyDataFSNoLighting.glsl
-
-  glsl/vtkglPolyDataVSFragmentLit.glsl
-  glsl/vtkglPolyDataFSHeadlight.glsl
-  glsl/vtkglPolyDataFSLightKit.glsl
-  glsl/vtkglPolyDataFSPositionalLights.glsl
-
-  glsl/vtkglGlyph3DVSFragmentLit.glsl
-
-  glsl/vtkTextureObjectVS.glsl
-  glsl/vtkTextureObjectFS.glsl
-
-  glsl/vtkGaussianBlurPassVS.glsl
+  glsl/vtkDepthPeelingPassFinalFS.glsl
+  glsl/vtkDepthPeelingPassIntermediateFS.glsl
   glsl/vtkGaussianBlurPassFS.glsl
-
+  glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
+  glsl/vtkTextureObjectFS.glsl
+  glsl/vtkTextureObjectVS.glsl
+  glsl/vtkglGlyph3DVSFragmentLit.glsl
+  glsl/vtkglPolyData2DFS.glsl
+  glsl/vtkglPolyData2DVS.glsl
+  glsl/vtkglPolyDataFSHeadlight.glsl
+  glsl/vtkglPolyDataFSLightKit.glsl
+  glsl/vtkglPolyDataFSNoLighting.glsl
+  glsl/vtkglPolyDataFSPositionalLights.glsl
+  glsl/vtkglPolyDataVSFragmentLit.glsl
+  glsl/vtkglPolyDataVSNoLighting.glsl
   )
-
 unset(shader_h_files)
 foreach(file ${shader_files})
   get_filename_component(file_we ${file} NAME_WE)

@@ -127,7 +127,7 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
 #ifdef VTKGL2
-  return true;
+  return (context != 0);
 #else
   vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
 
@@ -441,7 +441,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
       // fixed-pipeline for vertex and fragment shaders.
       to->Bind();
 #ifdef VTKGL2
-      to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0);
+      to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, NULL, NULL);
       to->Deactivate();
 #else
       to->CopyToFrameBuffer(0,0,w-1,h-1,0,0,w,h);

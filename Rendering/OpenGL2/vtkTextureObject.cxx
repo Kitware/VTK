@@ -74,20 +74,38 @@ static const char *DepthTextureCompareFunctionAsString[8]=
   "Never"
 };
 
-// Mapping from Wrap values to OpenGL values.
-static GLint OpenGLWrap[3]=
-{
-  GL_CLAMP_TO_EDGE,
-  GL_REPEAT,
-  GL_MIRRORED_REPEAT
-};
+// Mapping from Wrap values to OpenGL values
+#if GL_ES_VERSION_2_0 != 1
+  static GLint OpenGLWrap[4]=
+  {
+    GL_CLAMP_TO_EDGE,
+    GL_REPEAT,
+    GL_MIRRORED_REPEAT,
+    GL_CLAMP_TO_BORDER
+  };
 
-static const char *WrapAsString[3]=
-{
-  "ClampToEdge",
-  "Repeat",
-  "MirroredRepeat"
-};
+  static const char *WrapAsString[4]=
+  {
+    "ClampToEdge",
+    "Repeat",
+    "MirroredRepeat",
+    "ClampToBorder"
+  };
+#else
+  static GLint OpenGLWrap[3]=
+  {
+    GL_CLAMP_TO_EDGE,
+    GL_REPEAT,
+    GL_MIRRORED_REPEAT
+  };
+
+  static const char *WrapAsString[3]=
+  {
+    "ClampToEdge",
+    "Repeat",
+    "MirroredRepeat"
+  };
+#endif
 
 // Mapping MinificationFilter values to OpenGL values.
 static GLint OpenGLMinFilter[6]=
@@ -199,6 +217,10 @@ vtkTextureObject::vtkTextureObject()
   this->DepthTextureCompareFunction = Lequal;
   this->GenerateMipmap = false;
   this->ShaderProgram = NULL;
+  this->BorderColor[0] = 0.0f;
+  this->BorderColor[1] = 0.0f;
+  this->BorderColor[2] = 0.0f;
+  this->BorderColor[3] = 0.0f;
 }
 
 //----------------------------------------------------------------------------
@@ -244,6 +266,15 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
 //----------------------------------------------------------------------------
 bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
 {
+  this->SupportsTextureInteger =
+    (glewIsSupported("GL_EXT_texture_integer") != 0);
+
+  this->SupportsTextureFloat =
+    (glewIsSupported("GL_ARB_texture_float") != 0);
+
+  this->SupportsDepthBufferFloat =
+    (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+
   return this->IsSupported(renWin,
     this->RequireTextureFloat,
     this->RequireDepthBufferFloat,
@@ -480,6 +511,8 @@ void vtkTextureObject::SendParameters()
         this->Target,
         GL_TEXTURE_MAG_FILTER,
         OpenGLMagFilter[this->MagnificationFilter]);
+
+  glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
 
 #if GL_ES_VERSION_2_0 != 1
   glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
@@ -1633,7 +1666,7 @@ void vtkTextureObject::CopyToFrameBuffer(
   int srcXmin, int srcYmin,
   int srcXmax, int srcYmax,
   int dstXmin, int dstYmin,
-  vtkWindow *win,
+  int dstSizeX, int dstSizeY,
   vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
   assert("pre: positive_srcXmin" && srcXmin>=0);
@@ -1650,20 +1683,19 @@ void vtkTextureObject::CopyToFrameBuffer(
   vtkOpenGLClearErrorMacro();
 
   float minXTexCoord=static_cast<float>(
-    static_cast<double>(srcXmin)/this->Width);
+    static_cast<double>(srcXmin+0.5)/this->Width);
   float minYTexCoord=static_cast<float>(
-    static_cast<double>(srcYmin)/this->Height);
+    static_cast<double>(srcYmin+0.5)/this->Height);
 
   float maxXTexCoord=static_cast<float>(
-    static_cast<double>(srcXmax+1)/this->Width);
+    static_cast<double>(srcXmax+0.5)/this->Width);
   float maxYTexCoord=static_cast<float>(
-    static_cast<double>(srcYmax+1)/this->Height);
+    static_cast<double>(srcYmax+0.5)/this->Height);
 
   float dstXmax = static_cast<float>(dstXmin+srcXmax-srcXmin);
   float dstYmax = static_cast<float>(dstYmin+srcYmax-srcYmin);
 
-  int *size = win->GetSize();
-  glViewport(0,0,size[0],size[1]);
+  glViewport(0,0,dstSizeX,dstSizeY);
 
   float tcoords[] = {
     minXTexCoord, minYTexCoord,
@@ -1672,17 +1704,16 @@ void vtkTextureObject::CopyToFrameBuffer(
     minXTexCoord, maxYTexCoord};
 
   float verts[] = {
-    2.0*dstXmin/size[0]-1.0, 2.0*dstYmin/size[1]-1.0, 0,
-    2.0*dstXmax/size[0]-1.0, 2.0*dstYmin/size[1]-1.0, 0,
-    2.0*dstXmax/size[0]-1.0, 2.0*dstYmax/size[1]-1.0, 0,
-    2.0*dstXmin/size[0]-1.0, 2.0*dstYmax/size[1]-1.0, 0};
+    2.0f*dstXmin/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
+    2.0f*dstXmax/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
+    2.0f*dstXmax/dstSizeX-1.0f, 2.0f*dstYmax/dstSizeY-1.0f, 0.0f,
+    2.0f*dstXmin/dstSizeX-1.0f, 2.0f*dstYmax/dstSizeY-1.0f, 0.0f};
 
   // if no program or VAO was provided, then use
   // a simple pass through program and bind this
   // texture to it
   if (!program || !vao)
     {
-    vtkOpenGLRenderWindow * context = static_cast<vtkOpenGLRenderWindow *>(win);
     if (!this->ShaderProgram)
       {
       this->ShaderProgram = new vtkgl::CellBO;
@@ -1694,7 +1725,7 @@ void vtkTextureObject::CopyToFrameBuffer(
 
       // compile and bind it if needed
       vtkShaderProgram *newShader =
-        context->GetShaderCache()->ReadyShader(VSSource.c_str(),
+        this->Context->GetShaderCache()->ReadyShader(VSSource.c_str(),
                                            FSSource.c_str(),
                                            GSSource.c_str());
 
@@ -1709,7 +1740,7 @@ void vtkTextureObject::CopyToFrameBuffer(
       }
     else
       {
-      context->GetShaderCache()->ReadyShader(this->ShaderProgram->Program);
+      this->Context->GetShaderCache()->ReadyShader(this->ShaderProgram->Program);
       }
 
     // bind and activate this texture

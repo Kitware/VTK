@@ -55,7 +55,18 @@ public:
     NumberOfDepthTextureCompareFunctions
   };
 
-  // Wrap values.
+// ClampToBorder is not supported in ES 2.0
+// Wrap values.
+#if GL_ES_VERSION_2_0 != 1
+  enum
+  {
+    ClampToEdge=0,
+    Repeat,
+    MirroredRepeat,
+    ClampToBorder,
+    NumberOfWrapModes
+  };
+#else
   enum
   {
     ClampToEdge=0,
@@ -63,6 +74,7 @@ public:
     MirroredRepeat,
     NumberOfWrapModes
   };
+#endif
 
   // MinificationFilter values.
   enum
@@ -358,6 +370,13 @@ public:
   { return this->MagnificationFilter==Linear; }
 
   // Description:
+  // Border Color (RGBA). The values can be any valid float value,
+  // if the gpu supports it. Initial value is (0.0f,0.0f,0.0f,0.0f)
+  // , as in OpenGL spec.
+  vtkSetVector4Macro(BorderColor,float);
+  vtkGetVector4Macro(BorderColor,float);
+
+  // Description:
   // Lower-clamp the computed LOD against this value. Any float value is valid.
   // Initial value is -1000.0f, as in OpenGL spec.
   vtkSetMacro(MinLOD,float);
@@ -454,7 +473,7 @@ public:
   void CopyToFrameBuffer(int srcXmin, int srcYmin,
                          int srcXmax, int srcYmax,
                          int dstXmin, int dstYmin,
-                         vtkWindow *,
+                         int dstSizeX, int dstSizeY,
                          vtkShaderProgram *program,
                          vtkgl::VertexArrayObject *vao
                          );
@@ -525,7 +544,7 @@ protected:
   float MaxLOD;
   int BaseLevel;
   int MaxLevel;
-
+  float BorderColor[4];
 
   bool DepthTextureCompare;
   int DepthTextureCompareFunction;

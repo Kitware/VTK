@@ -470,6 +470,11 @@ void vtkCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
   vtkHardwareSelector *selector = renderer->GetSelector();
   vtkCompositeDataDisplayAttributes* cda = this->GetCompositeDataDisplayAttributes();
 
+  vtkProperty *prop = actor->GetProperty();
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+  vtkColor3d ecolor(prop->GetEdgeColor());
+
   bool overrides_visibility = (cda && cda->HasBlockVisibility(flat_index));
   if (overrides_visibility)
     {
@@ -550,7 +555,12 @@ void vtkCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
       helper->RenderPieceStart(renderer,actor);
       helper->RenderPieceDraw(renderer,actor);
       helper->RenderPieceFinish(renderer,actor);
-      helper->RenderEdges(renderer,actor);
+      if (draw_surface_with_edges)
+        {
+        this->BlockState.AmbientColor.push(ecolor);
+        helper->RenderEdges(renderer,actor);
+        this->BlockState.AmbientColor.pop();
+        }
       }
 
     if (selector)

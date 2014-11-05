@@ -121,11 +121,12 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
     vtkOpenGLClearErrorMacro();
 
+#if GL_ES_VERSION_2_0 != 1
     GLint savedDrawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
+#endif
 
     // 1. Create a new render state with an FBO.
-
     int width=0;
     int height=0;
     int size[2];
@@ -281,8 +282,9 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
       // restore some state.
       this->FrameBufferObject->UnBind();
+#if GL_ES_VERSION_2_0 != 1
       glDrawBuffer(savedDrawBuffer);
-
+#endif
       return;
       }
 
@@ -411,7 +413,9 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     if(this->Program2->Program->GetCompiled() != true)
       {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
+#if GL_ES_VERSION_2_0 != 1
       glDrawBuffer(savedDrawBuffer);
+#endif
       return;
       }
 
@@ -448,16 +452,14 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 #endif
 
     // Prepare blitting
-    glDisable(GL_ALPHA_TEST);
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
     glDisable(GL_SCISSOR_TEST);
 
     // Trigger a draw on Gy1 (could be called on Gx1).
     this->Gy1->CopyToFrameBuffer(extraPixels, extraPixels,
                                   w-1-extraPixels,h-1-extraPixels,
-                                  0,0, context,
+                                  0, 0, width, height,
                                   this->Program2->Program, &this->Program2->vao);
 
     this->Gy1->Deactivate();
