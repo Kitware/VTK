@@ -78,8 +78,7 @@ struct ADIOSWriter::Context
       err = adios_init_noxml(Context::Comm);
       ADIOSUtilities::TestWriteErrorEq(0, err);
 
-      err = adios_allocate_buffer(ADIOS_BUFFER_ALLOC_LATER, 100);
-      ADIOSUtilities::TestWriteErrorEq(0, err);
+      ADIOSWriter::ResizeBuffer(100*1024*1024);
       }
     ++this->RefCount;
   }
@@ -192,6 +191,23 @@ bool ADIOSWriter::SetCommunicator(MPI_Comm comm)
     Context::Comm = comm;
     }
   else if(Context::Comm != comm) // Already initialized, can't change state
+    {
+    return false;
+    }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool ADIOSWriter::ResizeBuffer(size_t bufSize)
+{
+  int err;
+  err = adios_allocate_buffer(ADIOS_BUFFER_ALLOC_LATER,
+                              (bufSize >> 20) + 1); // Convert B to MB
+  try
+    {
+    ADIOSUtilities::TestWriteErrorEq(0, err);
+    }
+  catch(...)
     {
     return false;
     }
@@ -354,6 +370,7 @@ void ADIOSWriter::Open(const std::string &fileName, bool append)
 {
   int err;
 
+  ADIOSWriter::ResizeBuffer(this->Impl->TotalSize);
   err = adios_open(&this->Impl->File, "VTK", fileName.c_str(), append?"a":"w",
     Context::Comm);
   ADIOSUtilities::TestWriteErrorEq(0, err);
