@@ -132,7 +132,8 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
 
   vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
   bool texSupport
-    = (extensions->ExtensionSupported("GL_VERSION_1_3") != 0);
+    = (extensions->ExtensionSupported("GL_VERSION_1_3") != 0) ||
+      (extensions->ExtensionSupported("GL_ARB_multitexture") != 0);
 
   // use render to FBO when it's supported
   this->CanDoFloatingPointFrameBuffer = false;
@@ -142,11 +143,13 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
       = (extensions->ExtensionSupported("GL_ARB_framebuffer_object") != 0)
       && (extensions->ExtensionSupported("GL_ARB_draw_buffers") != 0)
       && (extensions->ExtensionSupported("GL_ARB_texture_float") != 0);
+#ifdef NDEBUG
     if (!this->CanDoFloatingPointFrameBuffer)
       {
       vtkWarningMacro(
         "Missing FBO support. The algorithm may produce visual artifacts.");
       }
+#endif
     }
 
   // exclude ATI Radeon HD, except on Apple, because there seems to
@@ -187,7 +190,10 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
 
   // load required extensions
   vtkOpenGLExtensionManager *extensions = renwin->GetExtensionManager();
-  extensions->LoadExtension("GL_VERSION_1_3"); // for multitexture
+  if (extensions->LoadSupportedExtension("GL_VERSION_1_3") == 0) // for multitexture
+    {
+    extensions->LoadCorePromotedExtension("GL_ARB_multitexture");
+    }
   // used GL_ARB_texture_float but nothing to load for it
   if ( this->UseFloatingPointFrameBuffer
      && this->CanDoFloatingPointFrameBuffer)
