@@ -127,7 +127,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
     info.CachedDataSetId[1]   = 0;
     info.SourceID             = sourceID;
     info.InjectedPointId      = i+ptId;
-    info.InjectedStepId       = this->ReinjectionCounter;
+    info.InjectedStepId       = this->GetReinjectionCounter();
     info.TimeStepAge          = 0;
     info.UniqueParticleId     =-1;
     info.rotation             = 0.0;
