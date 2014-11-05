@@ -21,7 +21,9 @@
 #include "vtkVariant.h"
 #include <string>
 
-class vtkGeoJSONProperty
+#include "vtkdatasetreaders_export.h"
+
+class VTKDATASETREADERS_EXPORT vtkGeoJSONProperty
 {
 public:
   std::string Name;
