@@ -20,6 +20,8 @@
 #include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
 
+#include "vtksys/SystemTools.hxx"
+
 #include <sys/stat.h>
 #include <string>
 
@@ -389,7 +391,10 @@ void vtkTIFFReader::ExecuteInformation()
 
   if (!this->InternalImage->Open(this->InternalFileName))
     {
-    vtkErrorMacro("Unable to open file " << this->InternalFileName);
+    vtkErrorMacro("Unable to open file "
+                  << this->InternalFileName
+                  << " Reason: "
+                  << vtksys::SystemTools::GetLastSystemError());
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     this->DataExtent[0] = 0;
     this->DataExtent[1] = 0;
@@ -599,8 +604,6 @@ void vtkTIFFReader::Process2(OT *outPtr, int *)
   this->Initialize();
   this->ReadImageInternal(outPtr);
 
-  // Close the file
-  this->InternalImage->Clean();
 }
 
 //----------------------------------------------------------------------------
@@ -613,6 +616,8 @@ void vtkTIFFReader::Process(OT *outPtr, int outExtent[6], vtkIdType outIncr[3])
   if (this->InternalImage->NumberOfPages > 1)
     {
     this->ReadVolume(outPtr);
+    // close the TIFF file
+    this->InternalImage->Clean();
     return;
     }
 
@@ -620,6 +625,8 @@ void vtkTIFFReader::Process(OT *outPtr, int outExtent[6], vtkIdType outIncr[3])
   if (this->InternalImage->NumberOfTiles > 0)
     {
     this->ReadTiles(outPtr);
+    // close the TIFF file
+    this->InternalImage->Clean();
     return;
     }
 
@@ -634,6 +641,9 @@ void vtkTIFFReader::Process(OT *outPtr, int outExtent[6], vtkIdType outIncr[3])
     this->ComputeInternalFileName(idx2);
     // read in a TIFF file
     this->Process2(outPtr2, outExtent);
+    // close the TIFF file
+    this->InternalImage->Clean();
+
     this->UpdateProgress((idx2 - outExtent[4])/
                          (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];

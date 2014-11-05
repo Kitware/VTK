@@ -13,6 +13,15 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImportExport.cxx
   )
 
+# Each of these most be added in a separate vtk_add_test_cxx
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestTIFFReaderMultipleMulti,TestTIFFReaderMultiple.cxx,NO_VALID,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/libtiff/multipage_tiff_example.tif}")
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestTIFFReaderMultipleNormal,TestTIFFReaderMultiple.cxx,NO_VALID,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/libtiff/test.tif}")
+
 set(all_tests
   ${data_tests}
   ${tests}
