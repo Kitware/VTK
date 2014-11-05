@@ -99,18 +99,19 @@ vtkChartXY::vtkChartXY()
   this->AutoAxes = true;
   this->HiddenAxisBorder = 20;
 
-  // The grid is drawn first.
+  // The plots are drawn in a clipped, transformed area.
+  this->AddItem(this->ChartPrivate->Clip);
+
+  // The grid is drawn first in this clipped, transformed area.
   vtkPlotGrid *grid1 = vtkPlotGrid::New();
-  this->AddItem(grid1);
+  this->ChartPrivate->Clip->AddItem(grid1);
   grid1->Delete();
 
   // The second grid for the far side/top axis
   vtkPlotGrid *grid2 = vtkPlotGrid::New();
-  this->AddItem(grid2);
+  this->ChartPrivate->Clip->AddItem(grid2);
   grid2->Delete();
 
-  // The plots are drawn on top of the grid, in a clipped, transformed area.
-  this->AddItem(this->ChartPrivate->Clip);
   // Set up the bottom-left transform, the rest are often not required (set up
   // on demand if used later). Add it as a child item, rendered automatically.
   vtkSmartPointer<vtkContextTransform> corner =
