@@ -50,7 +50,7 @@ void PrepArray(bool byName, bool drawCell, int arrayIndex, int arrayComponent,
       {
       arrayComponent = 0;
       }
-    cerr << "Drawing " << values->GetName() << " [" << arrayComponent << "]" << endl;
+    cerr << "Drawing CELL " << values->GetName() << " [" << arrayComponent << "]" << endl;
     if (!byName)
       {
       painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, arrayIndex);
@@ -72,7 +72,7 @@ void PrepArray(bool byName, bool drawCell, int arrayIndex, int arrayComponent,
       {
       arrayComponent = 0;
       }
-    cerr << "Drawing " << values->GetName() << " [" << arrayComponent << "]" << endl;
+    cerr << "Drawing POINT " << values->GetName() << " [" << arrayComponent << "]" << endl;
     if (!byName)
       {
       painter->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, arrayIndex);
@@ -83,6 +83,8 @@ void PrepArray(bool byName, bool drawCell, int arrayIndex, int arrayComponent,
       }
     minmax = values->GetRange(arrayComponent);
     }
+  painter->SetInputComponentToProcess(arrayComponent);
+  painter->SetScalarRange(minmax[0], minmax[1]);
 }
 
 int TestValuePainter(int argc, char* argv[])
@@ -117,11 +119,7 @@ int TestValuePainter(int argc, char* argv[])
       interactive = true;
       }
     }
-/*
-  vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
-  reader->SetFileName("/Source/CINEMA/value-painter/vtkexample/data/test.vtp");
-  reader->Update();
-*/
+
   vtkSmartPointer<vtkPolyData> dataset = vtkSmartPointer<vtkPolyData>::New();
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   dataset->SetPoints(points);
@@ -238,6 +236,9 @@ int TestValuePainter(int argc, char* argv[])
         {
         PrepArray(_byName, _drawCell, j, k, dataset, values, painter, minmax);
         renderWindow->Render();
+
+        //std::string v;
+        //cin >> v;
         }
       }
     }
