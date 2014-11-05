@@ -196,7 +196,7 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
+void vtkGeoJSONReader::ParseRoot(const Json::Value& root, vtkPolyData *output)
 {
   // Initialize geometry containers
   output->SetPoints(vtkPoints::New());
@@ -306,7 +306,7 @@ void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONReader::ParseFeatureProperties(Json::Value& propertiesNode,
+void vtkGeoJSONReader::ParseFeatureProperties(const Json::Value& propertiesNode,
      std::vector<vtkGeoJSONProperty>& featureProperties)
 {
   featureProperties.clear();

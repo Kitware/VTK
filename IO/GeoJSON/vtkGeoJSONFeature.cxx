@@ -44,7 +44,7 @@ vtkGeoJSONFeature::~vtkGeoJSONFeature()
 }
 
 //----------------------------------------------------------------------------
-double *vtkGeoJSONFeature::CreatePoint(Json::Value coordinates)
+double *vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates)
 {
   //Check if Coordinates corresponds to Point
   if ( ! IsPoint( coordinates ) )
@@ -93,7 +93,7 @@ double *vtkGeoJSONFeature::CreatePoint(Json::Value coordinates)
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkGeoJSONFeature::
-ExtractPoint(Json::Value coordinates, vtkPolyData *outputData)
+ExtractPoint(const Json::Value& coordinates, vtkPolyData *outputData)
 {
   //Check if Coordinates corresponds to Single Point
   if ( ! IsPoint( coordinates ) )
@@ -125,7 +125,7 @@ ExtractPoint(Json::Value coordinates, vtkPolyData *outputData)
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkGeoJSONFeature::
-ExtractMultiPoint(Json::Value coordinates, vtkPolyData *outputData)
+ExtractMultiPoint(const Json::Value& coordinates, vtkPolyData *outputData)
 {
   //Check if Coordinates corresponds to Multi Points
   if ( ! IsMultiPoint( coordinates ) )
@@ -164,7 +164,7 @@ ExtractMultiPoint(Json::Value coordinates, vtkPolyData *outputData)
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkGeoJSONFeature::
-ExtractLineString(Json::Value coordinates, vtkPolyData *outputData)
+ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
 {
   //Check if Coordinates corresponds to Line String
   if ( ! IsLineString( coordinates ) )
@@ -210,7 +210,8 @@ ExtractLineString(Json::Value coordinates, vtkPolyData *outputData)
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkGeoJSONFeature::
-ExtractMultiLineString(Json::Value coordinateArray, vtkPolyData *outputData)
+ExtractMultiLineString(const Json::Value& coordinateArray,
+                       vtkPolyData *outputData)
 {
   //Check if Coordinate Array corresponds to Multi Line String
   if ( ! IsMultiLineString( coordinateArray ) )
@@ -231,7 +232,7 @@ ExtractMultiLineString(Json::Value coordinateArray, vtkPolyData *outputData)
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkGeoJSONFeature::
-ExtractPolygon(Json::Value coordinate, vtkPolyData *outputData)
+ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
 {
   //Check if Coordinate Array corresponds to Polygon
   if ( ! IsPolygon( coordinate ) )
@@ -277,7 +278,7 @@ ExtractPolygon(Json::Value coordinate, vtkPolyData *outputData)
 
 //----------------------------------------------------------------------------
 vtkPolyData *vtkGeoJSONFeature::
-ExtractMultiPolygon(Json::Value coordinateArray, vtkPolyData *outputData)
+ExtractMultiPolygon(const Json::Value& coordinateArray, vtkPolyData *outputData)
 {
   //Check if Coordinate Array corresponds to Multi Polygon
   if ( ! IsMultiPolygon( coordinateArray ) )
@@ -313,7 +314,7 @@ GetFeatureProperties(std::vector<vtkGeoJSONProperty>& properties)
 
 //----------------------------------------------------------------------------
 void vtkGeoJSONFeature::
-ExtractGeoJSONFeature(Json::Value root, vtkPolyData *outputData)
+ExtractGeoJSONFeature(const Json::Value& root, vtkPolyData *outputData)
 {
   this->featureRoot = root;
 
@@ -375,8 +376,9 @@ ExtractGeoJSONFeature(Json::Value root, vtkPolyData *outputData)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeoJSONFeature::ExtractGeoJSONFeatureGeometry(Json::Value geometryRoot,
-                                                      vtkPolyData *outputData)
+void vtkGeoJSONFeature::
+ExtractGeoJSONFeatureGeometry(const Json::Value& geometryRoot,
+                              vtkPolyData *outputData)
 {
   // Check for geometry-type node
   Json::Value geometryTypeNode = geometryRoot["type"];
@@ -437,7 +439,7 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeatureGeometry(Json::Value geometryRoot,
 }
 
 //----------------------------------------------------------------------------
-bool vtkGeoJSONFeature::IsLineString(Json::Value root)
+bool vtkGeoJSONFeature::IsLineString(const Json::Value& root)
 {
   if ( ! root.isArray() )
     {
@@ -464,7 +466,7 @@ bool vtkGeoJSONFeature::IsLineString(Json::Value root)
 }
 
 //----------------------------------------------------------------------------
-bool vtkGeoJSONFeature::IsMultiLineString(Json::Value root)
+bool vtkGeoJSONFeature::IsMultiLineString(const Json::Value& root)
 {
   if ( ! root.isArray() )
     {
@@ -491,7 +493,7 @@ bool vtkGeoJSONFeature::IsMultiLineString(Json::Value root)
 }
 
 //----------------------------------------------------------------------------
-bool vtkGeoJSONFeature::IsPoint(Json::Value root)
+bool vtkGeoJSONFeature::IsPoint(const Json::Value& root)
 {
   if ( ! root.isArray() )
     {
@@ -519,7 +521,7 @@ bool vtkGeoJSONFeature::IsPoint(Json::Value root)
 }
 
 //----------------------------------------------------------------------------
-bool vtkGeoJSONFeature::IsMultiPoint(Json::Value root)
+bool vtkGeoJSONFeature::IsMultiPoint(const Json::Value& root)
 {
   if( ! root.isArray() )
     {
@@ -546,7 +548,7 @@ bool vtkGeoJSONFeature::IsMultiPoint(Json::Value root)
 }
 
 //----------------------------------------------------------------------------
-bool vtkGeoJSONFeature::IsPolygon(Json::Value root)
+bool vtkGeoJSONFeature::IsPolygon(const Json::Value& root)
 {
   if ( ! root.isArray() )
     {
@@ -575,7 +577,7 @@ bool vtkGeoJSONFeature::IsPolygon(Json::Value root)
 }
 
 //----------------------------------------------------------------------------
-bool vtkGeoJSONFeature::IsMultiPolygon(Json::Value root)
+bool vtkGeoJSONFeature::IsMultiPolygon(const Json::Value& root)
 {
   if ( ! root.isArray() )
     {

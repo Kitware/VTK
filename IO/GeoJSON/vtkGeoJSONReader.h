@@ -69,7 +69,7 @@ protected:
 
   // Decription:
   // Parse the Json Value corresponding to the root of the geoJSON data from the file
-  void ParseRoot(Json::Value root, vtkPolyData *output);
+  void ParseRoot(const Json::Value& root, vtkPolyData *output);
 
   // Decription:
   // Verify if file exists and can be read by the parser
@@ -83,7 +83,7 @@ protected:
 
   // Description:
   // Extract property values from current json node
-  void ParseFeatureProperties(Json::Value& propertiesNode,
+  void ParseFeatureProperties(const Json::Value& propertiesNode,
     std::vector<vtkGeoJSONProperty>& properties);
 
   char *FileName;
