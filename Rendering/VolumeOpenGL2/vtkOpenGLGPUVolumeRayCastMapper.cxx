@@ -1059,7 +1059,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
     }
 
   program->SetUniform3fv("m_lightColor", numberOfLights, lightColor);
-  program->SetUniform3fv("m_lightDirectionVC", numberOfLights, lightDirection);
+  program->SetUniform3fv("m_lightDirection", numberOfLights, lightDirection);
   program->SetUniformi("m_numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights
@@ -1843,8 +1843,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     {
     vtkErrorMacro("Shader failed to compile");
     }
-
-  std::cerr << "Fragment shader " << fragmentShader << std::endl;
 
   this->Impl->ShaderBuildTime.Modified();
 }
