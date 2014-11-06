@@ -44,29 +44,26 @@ vtkGeoJSONFeature::~vtkGeoJSONFeature()
 }
 
 //----------------------------------------------------------------------------
-double *vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates)
+bool vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates,
+                                    double point[3])
 {
   //Check if Coordinates corresponds to Point
   if ( ! IsPoint( coordinates ) )
     {
     vtkErrorMacro(<< "Wrong data format for a point!");
-    return NULL;
+    return false;
     }
 
   //Do isDouble before asDouble to prevent inconsistency
   //Probably check for float/int too
-
-  //Initialise the 3D coordinates to 0
-  double *point = new double[3];
-  point[0] = 0;
-  point[1] = 0;
-  point[2] = 0;
 
   if ( coordinates.size() == 1 )
     {
     //Update the 3D Coordinates using the 1 Value in the array and rest of the 2 as 0
     Json::Value x = coordinates[0];
     point[0] = x.asDouble();
+    point[1] = 0;
+    point[2] = 0;
     }
   else if ( coordinates.size() == 2 )
     {
@@ -75,6 +72,7 @@ double *vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates)
     Json::Value y = coordinates[1];
     point[0] = x.asDouble();
     point[1] = y.asDouble();
+    point[2] = 0;
     }
   else if ( coordinates.size() == 3 )
     {
@@ -87,8 +85,8 @@ double *vtkGeoJSONFeature::CreatePoint(const Json::Value& coordinates)
     point[2] = z.asDouble();
     }
 
-  //Return the 3D point as generated above
-  return point;
+  //Return that we properly created the point
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -103,7 +101,7 @@ ExtractPoint(const Json::Value& coordinates, vtkPolyData *outputData)
     }
 
   //Obtain point data from Json structure and add to outputData
-  double *point = CreatePoint(coordinates);
+  double point[3]; CreatePoint(coordinates, point);
 
   const int PID_SIZE = 1;
   vtkIdType pid[ PID_SIZE ];
@@ -145,11 +143,12 @@ ExtractMultiPoint(const Json::Value& coordinates, vtkPolyData *outputData)
 
     const int PID_SIZE = coordinates.size();
     vtkIdType pid[ PID_SIZE ];
+    double point[3];
 
     for (int i = 0; i < PID_SIZE; i++)
       {
       //Parse point from Json object to double array and add it to the points array
-      double *point = CreatePoint(coordinates[i]);
+      CreatePoint(coordinates, point);
       pid[i] = points->InsertNextPoint(point);
       }
 
@@ -181,14 +180,15 @@ ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
 
   int LINE_COUNT = coordinates.size();
 
-  double *start = CreatePoint(coordinates[0]);
+  double start[3], end[3];
+  CreatePoint(coordinates[0], start);
 
   vtkIdType lineId[2];
   lineId[0] = points->InsertNextPoint(start);
 
   for (int i = 1; i < LINE_COUNT; i++)
     {
-    double *end = CreatePoint(coordinates[i]);
+    CreatePoint(coordinates[i], end);
 
     lineId[1] = points->InsertNextPoint(end);
 
@@ -201,7 +201,6 @@ ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
     ids->InsertNextValue(this->FeatureId);
     this->InsertFeatureProperties(outputData);
 
-    start = end;
     lineId[0] = lineId[1];
     }
 
@@ -257,9 +256,10 @@ ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
   int EXTERIOR_POLYGON_VERTEX_COUNT = exteriorPolygon.size() - 1;
   exteriorPoly->GetPointIds()->SetNumberOfIds(EXTERIOR_POLYGON_VERTEX_COUNT);
 
+  double point[3];
   for (int i = 0; i < EXTERIOR_POLYGON_VERTEX_COUNT; i++)
     {
-    double *point = CreatePoint(exteriorPolygon[i]);
+    CreatePoint(exteriorPolygon[i], point);
     vtkIdType id = points->InsertNextPoint(point);
     exteriorPoly->GetPointIds()->SetId(i, id);
     }
