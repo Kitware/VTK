@@ -33,6 +33,16 @@
 
 vtkStandardNewMacro(vtkGeoJSONFeature);
 
+namespace
+{
+  vtkOStreamWrapper& operator<<(vtkOStreamWrapper& os, const Json::Value& root)
+  {
+    Json::StyledStreamWriter writer;
+    writer.write(os,root);
+    return os;
+  }
+}
+
 //----------------------------------------------------------------------------
 vtkGeoJSONFeature::vtkGeoJSONFeature()
 {
@@ -434,7 +444,7 @@ ExtractGeoJSONFeatureGeometry(const Json::Value& geometryRoot,
     }
   else
     {
-    vtkErrorMacro (<< "Unknown or unsupported geometry type " << typeString);
+    vtkErrorMacro (<< "Unknown or unsupported geometry type " << geometryTypeNode);
     }
 }
 
@@ -641,5 +651,7 @@ void vtkGeoJSONFeature::PrintSelf(ostream &os, vtkIndent indent)
 {
     Superclass::PrintSelf(os, indent);
     os << indent << "vtkGeoJSONFeature" << std::endl;
-    os << indent << "Root: " << this->featureRoot << std::endl;
+    os << indent << "Root: ";
+    Json::StyledStreamWriter writer;
+    writer.write(os,this->featureRoot);
 }
