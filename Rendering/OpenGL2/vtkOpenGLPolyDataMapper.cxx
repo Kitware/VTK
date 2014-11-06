@@ -1001,7 +1001,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       this->OpenGLUpdateTime < actor->GetMTime() ||
       this->OpenGLUpdateTime < this->CurrentInput->GetMTime() )
     {
-    this->UpdateVBO(actor);
+    this->UpdateVBO(ren, actor);
     this->OpenGLUpdateTime.Modified();
     }
 
@@ -1329,7 +1329,7 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
+void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 

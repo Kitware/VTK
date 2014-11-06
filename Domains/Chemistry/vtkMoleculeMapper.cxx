@@ -43,7 +43,11 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-vtkStandardNewMacro( vtkMoleculeMapper );
+
+// Note this class may have an accelerated subclass ala
+// vtkOpenGLMoleculeMapper. If you change this class please
+// also check that class for impacts.
+vtkObjectFactoryNewMacro( vtkMoleculeMapper );
 
 //----------------------------------------------------------------------------
 vtkMoleculeMapper::vtkMoleculeMapper()
@@ -70,6 +74,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   cylinder->SetRadius(1.0);
   cylinder->SetResolution(20);
   cylinder->SetHeight(1.0);
+  cylinder->CappingOff();
   cylinder->Update();
   // Rotate the glyph so that the cylinder is aligned with the x-axis,
   // rather than the y-axis. This makes glyph orientation much easier.

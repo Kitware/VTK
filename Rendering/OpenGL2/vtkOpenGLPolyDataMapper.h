@@ -146,7 +146,7 @@ protected:
 
   // Description:
   // Update the VBO to contain point based values
-  virtual void UpdateVBO(vtkActor *act);
+  virtual void UpdateVBO(vtkRenderer *ren, vtkActor *act);
 
   // The VBO and its layout.
   vtkgl::BufferObject VBO;
