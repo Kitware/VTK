@@ -114,13 +114,13 @@ ExtractPoint(const Json::Value& coordinates, vtkPolyData *outputData)
   double point[3]; CreatePoint(coordinates, point);
 
   const int PID_SIZE = 1;
-  vtkIdType pid[ PID_SIZE ];
+  vtkIdType pid;
 
   vtkPoints *points = outputData->GetPoints();
-  pid[0] = points->InsertNextPoint( point );
+  pid = points->InsertNextPoint( point );
 
   vtkCellArray *verts = outputData->GetVerts();
-  verts->InsertNextCell(PID_SIZE, pid);
+  verts->InsertNextCell(PID_SIZE, &pid);
   this->InsertFeatureProperties(outputData);
 
   vtkAbstractArray *array =
@@ -152,21 +152,24 @@ ExtractMultiPoint(const Json::Value& coordinates, vtkPolyData *outputData)
     vtkStringArray *ids = vtkStringArray::SafeDownCast(array);
 
     const int PID_SIZE = coordinates.size();
-    vtkIdType pid[ PID_SIZE ];
+    vtkIdType* pids = new vtkIdType[ PID_SIZE ];
     double point[3];
-
     for (int i = 0; i < PID_SIZE; i++)
       {
       //Parse point from Json object to double array and add it to the points array
       CreatePoint(coordinates, point);
-      pid[i] = points->InsertNextPoint(point);
+      pids[i] = points->InsertNextPoint(point);
       }
 
     //Update polyData vertices to store multiple points
-    verts->InsertNextCell(PID_SIZE, pid);
+    verts->InsertNextCell(PID_SIZE, pids);
     ids->InsertNextValue(this->FeatureId);
     this->InsertFeatureProperties(outputData);
+
+    delete[] pids;
     }
+
+
 
   return outputData;
 }
