@@ -28,7 +28,7 @@ void FTPixmapGlyph::RenderFunctionName(const FT_Vector& pen,
 {
   // Move the glyph origin
   glBitmap( 0, 0, 0.0, 0.0, (float)(pen.x + pos.x), (float)(pen.y - pos.y), (const GLubyte *)0);
-  
+
   glDrawPixels( destWidth, destHeight, GL_RGBA, GL_UNSIGNED_BYTE, (const GLvoid*)data);
 
   // Restore the glyph origin

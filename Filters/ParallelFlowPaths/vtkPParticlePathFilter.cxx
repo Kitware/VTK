@@ -16,8 +16,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
-#include "vtkDataArray.h"
 #include "vtkCharArray.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include <cassert>
@@ -27,6 +28,16 @@ vtkStandardNewMacro(vtkPParticlePathFilter);
 vtkPParticlePathFilter::vtkPParticlePathFilter()
 {
   this->It.Initialize(this);
+  this->SimulationTime = NULL;
+}
+
+vtkPParticlePathFilter::~vtkPParticlePathFilter()
+{
+  if(this->SimulationTime)
+    {
+    this->SimulationTime->Delete();
+    this->SimulationTime = NULL;
+    }
 }
 
 void vtkPParticlePathFilter::ResetCache()
@@ -70,6 +81,7 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
     this->GetInjectedStepIds(tailPD)->InsertValue(tempId, info.InjectedStepId);
     this->GetErrorCodeArr(tailPD)->InsertValue(tempId, info.ErrorCode);
     this->GetParticleAge(tailPD)->InsertValue(tempId, info.age);
+    this->SimulationTime->InsertValue(tempId, this->GetCurrentTimeValue());
 
     if(this->GetComputeVorticity())
       {
@@ -81,6 +93,26 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
 
   this->It.OutputParticles(tailPoly.GetPointer());
   return this->It.OutputParticles(particles);
+}
+
+void vtkPParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
+{
+  if(this->SimulationTime == NULL)
+    {
+    this->SimulationTime = vtkDoubleArray::New();
+    this->SimulationTime->SetName("SimulationTime");
+    }
+  if(outputPD->GetArray("SimulationTime"))
+    {
+    outputPD->RemoveArray("SimulationTime");
+    }
+  this->SimulationTime->SetNumberOfTuples(0);
+  outputPD->AddArray(this->SimulationTime);
+}
+
+void vtkPParticlePathFilter::AppendToExtraPointDataArrays()
+{
+  this->SimulationTime->InsertNextValue(this->GetCurrentTimeValue());
 }
 
 void vtkPParticlePathFilter::Finalize()

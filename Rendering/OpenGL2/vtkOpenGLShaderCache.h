@@ -40,6 +40,12 @@ public:
   virtual vtkShaderProgram *ReadyShader(vtkShaderProgram *shader);
 
   // Description:
+  // Release the current shader.  Basically go back to
+  // having no shaders loaded.  This is useful for old
+  // legacy code that relies on no shaders being loaded.
+  void ReleaseCurrentShader();
+
+  // Description:
   // Free up any resources being used by the provided shader
   virtual void ReleaseGraphicsResources(vtkWindow *win);
 

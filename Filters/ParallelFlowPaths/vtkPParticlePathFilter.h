@@ -25,31 +25,34 @@
 #define __vtkPParticlePathFilter_h
 
 
-#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPParticleTracerBase.h"
 #include "vtkParticlePathFilter.h" //for utility
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticlePathFilter: public vtkPParticleTracerBase
 {
- public:
+public:
   vtkTypeMacro(vtkPParticlePathFilter,vtkPParticleTracerBase)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkPParticlePathFilter *New();
 
- protected:
+protected:
   vtkPParticlePathFilter();
-  ~vtkPParticlePathFilter(){}
+  ~vtkPParticlePathFilter();
 
   virtual void ResetCache();
   virtual int OutputParticles(vtkPolyData* poly);
+  virtual void InitializeExtraPointDataArrays(vtkPointData* outputPD);
+  virtual void AppendToExtraPointDataArrays();
   void Finalize();
 
   ParticlePathFilterInternal It;
 private:
   vtkPParticlePathFilter(const vtkPParticlePathFilter&);  // Not implemented.
   void operator=(const vtkPParticlePathFilter&); // Not implemented
+
+  vtkDoubleArray* SimulationTime;
 };
 
 
