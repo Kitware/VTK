@@ -61,12 +61,11 @@ def get_vtk_array_type(numpy_array_type):
                 numpy.float64:vtk.VTK_DOUBLE,
                 numpy.complex64:vtk.VTK_FLOAT,
                 numpy.complex128:vtk.VTK_DOUBLE}
-    try:
-        return _np_vtk[numpy_array_type]
-    except KeyError:
-        for key in _np_vtk:
-            if numpy.issubdtype(numpy_array_type, key):
-                return _np_vtk[key]
+    for key, vtk_type in _np_vtk.items():
+        if numpy_array_type == key or \
+           numpy.issubdtype(numpy_array_type, key) or \
+           numpy_array_type == numpy.dtype(key):
+            return vtk_type
     raise TypeError, \
         'Could not find a suitable VTK type for %s' % (str(numpy_array_type))
 
