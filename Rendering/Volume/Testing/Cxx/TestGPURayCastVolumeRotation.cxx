@@ -61,6 +61,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
+  volumeMapper->SetAutoAdjustSampleDistances(1);
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
@@ -73,7 +74,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(scalarRange[0], 0.0);
-  scalarOpacity->AddPoint(scalarRange[1], 1.0);
+  scalarOpacity->AddPoint(scalarRange[1], 0.1);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOff();
@@ -105,6 +106,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   ren->ResetCamera();
 
   iren->Initialize();
+  iren->SetDesiredUpdateRate(30.0);
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)

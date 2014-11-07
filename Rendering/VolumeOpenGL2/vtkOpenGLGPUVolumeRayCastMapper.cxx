@@ -1469,7 +1469,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
   vtkImageData* input, vtkRenderer* vtkNotUsed(ren), vtkVolume* vol)
 {
-  if(!this->Parent->AutoAdjustSampleDistances)
+  if (!this->Parent->AutoAdjustSampleDistances)
     {
     this->ActualSampleDistance = this->Parent->SampleDistance;
     }
@@ -1506,10 +1506,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
     // TODO: Support reduction factor
     if (this->Parent->ReductionFactor < 1.0)
       {
+      // 0.5 is done to increase the impact factor
       this->ActualSampleDistance /=
         static_cast<GLfloat>(this->Parent->ReductionFactor * 0.5);
       }
     }
+
+  std::cerr << "Time to draw........... " << this->Parent->TimeToDraw  << std::endl;
+  std::cerr << "Sample distance........... " << this->Parent->ReductionFactor << std::endl;
 }
 
 //----------------------------------------------------------------------------
@@ -1929,8 +1933,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
     this->ReductionFactor = 1.0;
     }
 
-  assert("post: valid_new_reduction_range" && this->ReductionFactor>0.0
-         && this->ReductionFactor<=1.0);
+  std::cerr << "Reduction factor " << this->ReductionFactor << std::endl;
 }
 
 //----------------------------------------------------------------------------
@@ -2326,6 +2329,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                  GL_UNSIGNED_INT, 0);
 
   this->Impl->PrevInput = input;
+
+  glFinish();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
