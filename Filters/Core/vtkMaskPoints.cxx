@@ -348,6 +348,11 @@ int vtkMaskPoints::RequestData(
     numNewPts = localMaxPts;
     }
 
+  if (numNewPts == 0)
+    {
+    return 1;
+    }
+
   // Allocate space
   newPts = vtkPoints::New();
 
