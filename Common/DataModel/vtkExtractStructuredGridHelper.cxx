@@ -17,6 +17,8 @@
 // VTK includes
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkIdList.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -238,6 +240,13 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
     }
   outPD->CopyAllocate(pd,outSize,outSize);
 
+  // Lists for batching copy operations:
+  vtkNew<vtkIdList> srcIds;
+  vtkNew<vtkIdList> dstIds;
+  vtkIdType bufferSize = IMAX(outExt) - IMIN(outExt) + 1;
+  srcIds->Allocate(bufferSize);
+  dstIds->Allocate(bufferSize);
+
   int ijk[3];
   int src_ijk[3];
   for( K(ijk)=KMIN(outExt); K(ijk) <= KMAX(outExt); ++K(ijk) )
@@ -263,13 +272,21 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
         assert( "pre: targetIdx out of bounds" && (targetIdx >= 0) &&
                 (targetIdx < outSize) );
 
-        if( inpnts != NULL )
-          {
-          outpnts->SetPoint(targetIdx,inpnts->GetPoint(srcIdx));
-          } // END if
-        outPD->CopyData(pd,srcIdx,targetIdx);
+        srcIds->InsertNextId(srcIdx);
+        dstIds->InsertNextId(targetIdx);
+
         } // END for all i
+
+      if( inpnts != NULL )
+        {
+        outpnts->InsertPoints(dstIds.GetPointer(), srcIds.GetPointer(), inpnts);
+        } // END if
+      outPD->CopyData(pd, srcIds.GetPointer(), dstIds.GetPointer());
+      srcIds->Reset();
+      dstIds->Reset();
+
       } // END for all j
+
     } // END for all k
 
 }
@@ -302,6 +319,13 @@ void vtkExtractStructuredGridHelper::CopyCellData(
   int outCellExt[6];
   vtkStructuredData::GetCellExtentFromPointExtent(outExt,outCellExt);
 
+  // Lists for batching copy operations:
+  vtkNew<vtkIdList> srcIds;
+  vtkNew<vtkIdList> dstIds;
+  vtkIdType bufferSize = IMAX(outCellExt) - IMIN(outCellExt) + 1;
+  srcIds->Allocate(bufferSize);
+  dstIds->Allocate(bufferSize);
+
   int ijk[3];
   int src_ijk[3];
   for( K(ijk)=KMIN(outCellExt); K(ijk) <= KMAX(outCellExt); ++K(ijk) )
@@ -323,8 +347,16 @@ void vtkExtractStructuredGridHelper::CopyCellData(
 
         vtkIdType targetIdx =
           vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
-        outCD->CopyData(cd,srcIdx,targetIdx);
+
+        srcIds->InsertNextId(srcIdx);
+        dstIds->InsertNextId(targetIdx);
+
         } // END for all i
+
+      outCD->CopyData(cd, srcIds.GetPointer(), dstIds.GetPointer());
+      srcIds->Reset();
+      dstIds->Reset();
+
       } // END for all j
     } // END for all k
 }
