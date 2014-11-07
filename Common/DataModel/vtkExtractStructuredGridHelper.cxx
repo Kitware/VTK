@@ -225,18 +225,10 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
     return;
     }
 
-  // Get input and output data description
-  int inputDesc = vtkStructuredData::GetDataDescriptionFromExtent(inExt);
-  int outDesc   = vtkStructuredData::GetDataDescriptionFromExtent(outExt);
-
   // Get the size of the input and output
   vtkIdType inSize = vtkStructuredData::GetNumberOfPoints(inExt);
   vtkIdType outSize = vtkStructuredData::GetNumberOfPoints(outExt);
   (void)inSize; // Prevent warnings, this is only used in debug builds.
-
-  // Get the size of the input and output
-  vtkIdType inSize = vtkStructuredData::GetNumberOfPoints(inExt,inputDesc);
-  vtkIdType outSize = vtkStructuredData::GetNumberOfPoints(outExt,outDesc);
 
   if( inpnts != NULL )
     {
@@ -261,9 +253,9 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
         I(src_ijk) = (useMapping)? this->GetMapping(0,I(ijk)) : I(ijk);
 
         vtkIdType srcIdx =
-            vtkStructuredData::ComputePointIdForExtent(inExt,src_ijk,inputDesc);
+            vtkStructuredData::ComputePointIdForExtent(inExt,src_ijk);
         vtkIdType targetIdx =
-            vtkStructuredData::ComputePointIdForExtent(outExt,ijk,outDesc);
+            vtkStructuredData::ComputePointIdForExtent(outExt,ijk);
 
         // Sanity checks
         assert( "pre: srcIdx out of bounds" && (srcIdx >= 0) &&
@@ -298,20 +290,17 @@ void vtkExtractStructuredGridHelper::CopyCellData(
     return;
     }
 
-  // Get input and output data description
-  int inputDesc = vtkStructuredData::GetDataDescriptionFromExtent(inExt);
-  int outDesc   = vtkStructuredData::GetDataDescriptionFromExtent(outExt);
-
   // Get the size of the output & allocate output
   vtkIdType inSize = vtkStructuredData::GetNumberOfCells(inExt);
+  vtkIdType outSize = vtkStructuredData::GetNumberOfCells(outExt);
   (void)inSize; // Prevent warnings, this is only used in debug builds.
   outCD->CopyAllocate(cd,outSize,outSize);
 
   int inpCellExt[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt,inputDesc);
+  vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt);
 
   int outCellExt[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(outExt,outCellExt,outDesc);
+  vtkStructuredData::GetCellExtentFromPointExtent(outExt,outCellExt);
 
   int ijk[3];
   int src_ijk[3];
@@ -330,11 +319,10 @@ void vtkExtractStructuredGridHelper::CopyCellData(
         // NOTE: since we are operating on cell extents, ComputePointID below
         // really returns the cell ID
         vtkIdType srcIdx =
-          vtkStructuredData::ComputePointIdForExtent(
-              inpCellExt,src_ijk,inputDesc);
+          vtkStructuredData::ComputePointIdForExtent(inpCellExt, src_ijk);
 
         vtkIdType targetIdx =
-          vtkStructuredData::ComputePointIdForExtent(outCellExt,ijk,outDesc);
+          vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
         outCD->CopyData(cd,srcIdx,targetIdx);
         } // END for all i
       } // END for all j
