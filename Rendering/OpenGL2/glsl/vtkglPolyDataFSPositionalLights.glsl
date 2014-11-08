@@ -41,8 +41,8 @@ uniform float lightConeAngle[6];
 uniform float lightExponent[6];
 uniform int lightPositional[6];
 
-// passed from the vertex shader
-varying vec4 vertexVC;
+// VC positon of this fragment
+//VTK::PositionVC::Dec
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec

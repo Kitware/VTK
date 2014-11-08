@@ -323,6 +323,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
   // handle colors / materials
   this->ReplaceShaderColorMaterialValues(VSSource, FSSource, GSSource, lightComplexity, ren, actor);
 
+  VSSource = replace(VSSource,
+    "//VTK::PositionVC::Dec",
+    "varying vec4 vertexVC;");
+  VSSource = replace(VSSource,
+    "//VTK::PositionVC::Impl",
+    "vertexVC = MCVCMatrix * vertexMC;\n"
+    "  gl_Position = VCDCMatrix * vertexVC;\n");
+  FSSource = replace(FSSource,
+    "//VTK::PositionVC::Dec",
+    "varying vec4 vertexVC;");
+
   // normals?
   if (this->Layout.NormalOffset)
     {
@@ -345,7 +356,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "  else { normalVC = normalVCVarying; }"
       //"normalVC = normalVCVarying;"
       );
-  }
+    }
   else
     {
     FSSource = replace(FSSource,

@@ -28,6 +28,9 @@
 
 attribute vec4 vertexMC;
 
+// frag position in VC
+//VTK::PositionVC::Dec
+
 // optional normal declaration
 //VTK::Normal::Dec
 
@@ -46,8 +49,6 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
-varying vec4 vertexVC;
-
 void main()
 {
   //VTK::Color::Impl
@@ -58,9 +59,7 @@ void main()
 
   //VTK::Clip::Impl
 
-  // compute the projected vertex position
-  vertexVC = MCVCMatrix * vertexMC;
-  gl_Position = VCDCMatrix * vertexVC;
+  //VTK::PositionVC::Impl
 }
 
 

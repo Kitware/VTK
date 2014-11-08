@@ -50,7 +50,7 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
-varying vec4 vertexVC;
+varying vec4 vertexVCClose;
 varying float radiusVC;
 varying float lengthVC;
 varying vec3 centerVC;
@@ -71,14 +71,14 @@ void main()
 
   //VTK::Clip::Impl
 
-  vertexVC = MCVCMatrix * vertexMC;
-  centerVC = vertexVC.xyz;
+  vertexVCClose = MCVCMatrix * vertexMC;
+  centerVC = vertexVCClose.xyz;
   radiusVC = radiusMC;
   lengthVC = length(orientMC);
   orientVC = normalMatrix * normalize(orientMC);
 
   // make sure it is pointing out of the screen
-  if (orientVC.z < 0)
+  if (orientVC.z < 0.0)
     {
     orientVC = -orientVC;
     }
@@ -89,11 +89,11 @@ void main()
   vec3 dir = vec3(0.0,0.0,1.0);
   if (cameraParallel == 0)
     {
-    dir = normalize(vec3(0,0,cameraDistance) - vertexVC.xyz);
+    dir = normalize(vec3(0.0,0.0,cameraDistance) - vertexVCClose.xyz);
     }
   if (abs(dot(dir,orientVC)) == 1.0)
     {
-    xbase = normalize(cross(vec3(0,1,0),orientVC));
+    xbase = normalize(cross(vec3(0.0,1.0,0.0),orientVC));
     ybase = cross(xbase,orientVC);
     }
   else
@@ -102,11 +102,11 @@ void main()
     ybase = cross(orientVC,xbase);
     }
 
-  vec3 offsets = offsetMC*2.0-1.0;
-  vertexVC.xyz = vertexVC.xyz +
+  vec3 offsets = offsetMC.xyz*2.0-1.0;
+  vertexVCClose.xyz = vertexVCClose.xyz +
     radiusVC*offsets.x*xbase +
     radiusVC*offsets.y*ybase +
     0.5*lengthVC*offsets.z*orientVC;
 
-  gl_Position = VCDCMatrix * vertexVC;
+  gl_Position = VCDCMatrix * vertexVCClose;
 }

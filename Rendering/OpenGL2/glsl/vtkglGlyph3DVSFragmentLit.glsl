@@ -28,6 +28,9 @@
 
 attribute vec4 vertexMC;
 
+// frag position in VC
+//VTK::PositionVC::Dec
+
 // optional normal declaration
 //VTK::Normal::Dec
 
@@ -48,8 +51,6 @@ uniform mat4 VCDCMatrix;  // the camera's projection matrix
 // clipping plane vars
 //VTK::Clip::Dec
 
-varying vec4 vertexVC;
-
 void main()
 {
   //VTK::Glyph::Impl
@@ -62,7 +63,6 @@ void main()
 
   //VTK::TCoord::Impl
 
-  // compute the projected vertex position
-  vertexVC = MCVCMatrix * vertex;
-  gl_Position = VCDCMatrix * vertexVC;
+  // frag position in VC
+  //VTK::PositionVC::Impl
 }

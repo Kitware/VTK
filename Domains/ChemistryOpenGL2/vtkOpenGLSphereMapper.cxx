@@ -57,6 +57,10 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
                                                  vtkRenderer* ren,
                                                  vtkActor *actor)
 {
+  FSSource = replace(FSSource,
+    "//VTK::PositionVC::Dec",
+    "varying vec4 vertexVCClose;");
+
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
   std::string replacement =
@@ -74,7 +78,8 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
 
   FSSource = replace(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
-    "vec3 EyePos = vec3(0.0,0.0,cameraDistance);\n"
+    "vec4 vertexVC = vertexVCClose;\n"
+    "  vec3 EyePos = vec3(0.0,0.0,cameraDistance);\n"
     "  if (cameraParallel != 0) { EyePos = EyePos + vertexVC.xyz;}\n"
     "  vec3 EyeDir = vertexVC.xyz - EyePos;\n"
     // we adjust the EyePos to be closer if it is too far away

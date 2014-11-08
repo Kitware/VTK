@@ -35,8 +35,8 @@ uniform int numberOfLights; // only allow for up to 6 active lights
 uniform vec3 lightColor[6]; // intensity weighted color
 uniform vec3 lightDirectionVC[6]; // normalized
 
-// passed from the vertex shader
-varying vec4 vertexVC;
+// VC positon of this fragment
+//VTK::PositionVC::Dec
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec

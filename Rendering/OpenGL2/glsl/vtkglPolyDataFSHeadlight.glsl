@@ -25,8 +25,8 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
-// passed from the vertex shader
-varying vec4 vertexVC;
+// VC positon of this fragment
+//VTK::PositionVC::Dec
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec

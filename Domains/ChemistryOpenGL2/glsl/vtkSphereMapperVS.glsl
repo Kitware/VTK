@@ -47,7 +47,7 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
-varying vec4 vertexVC;
+varying vec4 vertexVCClose;
 varying float radiusVC;
 varying vec3 centerVC;
 
@@ -65,23 +65,23 @@ void main()
   //VTK::Clip::Impl
 
   // compute the projected vertex position
-  vertexVC = MCVCMatrix * vertexMC;
-  centerVC = vertexVC.xyz;
+  vertexVCClose = MCVCMatrix * vertexMC;
+  centerVC = vertexVCClose.xyz;
   radiusVC = radiusMC;
 
   // make the triangle face the camera
   if (cameraParallel == 0)
     {
-    vec3 dir = normalize(vec3(0,0,cameraDistance) - vertexVC.xyz);
-    vec3 base2 = normalize(cross(dir,vec3(1,0,0)));
+    vec3 dir = normalize(vec3(0.0,0.0,cameraDistance) - vertexVCClose.xyz);
+    vec3 base2 = normalize(cross(dir,vec3(1.0,0.0,0.0)));
     vec3 base1 = cross(base2,dir);
-    vertexVC.xyz = vertexVC.xyz + offsetMC.x*base1 + offsetMC.y*base2;
+    vertexVCClose.xyz = vertexVCClose.xyz + offsetMC.x*base1 + offsetMC.y*base2;
     }
   else
     {
     // add in the offset
-    vertexVC.xy = vertexVC.xy + offsetMC;
+    vertexVCClose.xy = vertexVCClose.xy + offsetMC;
     }
 
-  gl_Position = VCDCMatrix * vertexVC;
+  gl_Position = VCDCMatrix * vertexVCClose;
 }
