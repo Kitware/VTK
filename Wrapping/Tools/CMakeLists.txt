@@ -71,7 +71,16 @@ if(NOT CMAKE_CROSSCOMPILING)
   vtk_compile_tools_target(vtkWrapTcl)
   vtk_compile_tools_target(vtkWrapTclInit)
 
-  add_executable(vtkWrapPython vtkWrapPython.c)
+  add_executable(vtkWrapPython
+    vtkWrapPython.c
+    vtkWrapPythonClass.c
+    vtkWrapPythonConstant.c
+    vtkWrapPythonMethod.c
+    vtkWrapPythonMethodDef.c
+    vtkWrapPythonOverload.c
+    vtkWrapPythonTemplate.c
+    vtkWrapPythonType.c
+  )
   target_link_libraries(vtkWrapPython vtkWrappingTools)
   add_executable(vtkWrapPythonInit vtkWrapPythonInit.c)
   vtk_compile_tools_target(vtkWrapPython)
