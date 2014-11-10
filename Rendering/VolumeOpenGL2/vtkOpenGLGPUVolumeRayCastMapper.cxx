@@ -1862,17 +1862,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
   double allocatedTime)
 {
-//  assert("pre: valid_current_reduction_range" && this->ReductionFactor>0.0
-//         && this->ReductionFactor<=1.0);
-//  assert("pre: positive_TimeToDraw" && this->TimeToDraw>=0.0);
-//  assert("pre: positive_time" && allocatedTime>0.0);
-
-//  if ( this->GeneratingCanonicalView )
-//    {
-//    this->ReductionFactor = 1.0;
-//    return;
-//    }
-
   if ( !this->AutoAdjustSampleDistances )
     {
     this->ReductionFactor = 1.0 / this->ImageSampleDistance;
