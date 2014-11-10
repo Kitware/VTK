@@ -28,14 +28,14 @@ void vtkWrapPython_GenerateOneMethod(
 
 /* declare all variables needed by the wrapper method */
 void vtkWrapPython_DeclareVariables(
-  FILE *fp, FunctionInfo *theFunc);
+  FILE *fp, ClassInfo *data, FunctionInfo *theFunc);
 
 /* Write the code to convert an argument with vtkPythonArgs */
 void vtkWrapPython_GetSingleArgument(
-  FILE *fp, int i, ValueInfo *arg, int call_static);
+  FILE *fp, ClassInfo *data, int i, ValueInfo *arg, int call_static);
 
 /* print the code to build python return value from a method */
 void vtkWrapPython_ReturnValue(
-  FILE *fp, ValueInfo *val, int static_call);
+  FILE *fp, ClassInfo *data, ValueInfo *val, int static_call);
 
 #endif /* VTK_WRAP_PYTHON_METHOD_H */

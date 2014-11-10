@@ -16,6 +16,7 @@
 #include "vtkWrapPythonType.h"
 #include "vtkWrapPythonClass.h"
 #include "vtkWrapPythonConstant.h"
+#include "vtkWrapPythonEnum.h"
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonMethodDef.h"
 #include "vtkWrapPythonTemplate.h"
@@ -365,7 +366,7 @@ static void vtkWrapPython_SequenceProtocol(
 
     if (func->Name && func->IsOperator &&
         strcmp(func->Name, "operator[]") == 0  &&
-        vtkWrapPython_MethodCheck(func, hinfo))
+        vtkWrapPython_MethodCheck(data, func, hinfo))
       {
       if (func->NumberOfParameters == 1 && func->ReturnValue &&
           vtkWrap_IsInteger(func->Parameters[0]))
@@ -404,7 +405,7 @@ static void vtkWrapPython_SequenceProtocol(
       "\n",
       classname, data->Name, data->Name);
 
-    vtkWrapPython_DeclareVariables(fp, getItemFunc);
+    vtkWrapPython_DeclareVariables(fp, data, getItemFunc);
 
     fprintf(fp,
             "  temp0 = static_cast<%s>(i);\n"
@@ -419,14 +420,14 @@ static void vtkWrapPython_SequenceProtocol(
             getItemFunc->SizeHint);
 
     fprintf(fp, "  ");
-    vtkWrap_DeclareVariable(fp, getItemFunc->ReturnValue,
+    vtkWrap_DeclareVariable(fp, data, getItemFunc->ReturnValue,
       "tempr", -1, VTK_WRAP_RETURN | VTK_WRAP_NOSEMI);
 
     fprintf(fp, " = %s(*op)[temp0];\n"
             "\n",
             (vtkWrap_IsRef(getItemFunc->ReturnValue) ? "&" : ""));
 
-    vtkWrapPython_ReturnValue(fp, getItemFunc->ReturnValue, 1);
+    vtkWrapPython_ReturnValue(fp, data, getItemFunc->ReturnValue, 1);
 
     fprintf(fp,
             "    }\n"
@@ -445,10 +446,10 @@ static void vtkWrapPython_SequenceProtocol(
         "\n",
         classname, data->Name, data->Name);
 
-      vtkWrap_DeclareVariable(fp, setItemFunc->Parameters[0], "temp", 0,
-                              VTK_WRAP_ARG);
-      vtkWrap_DeclareVariable(fp, setItemFunc->ReturnValue, "temp", 1,
-                              VTK_WRAP_ARG);
+      vtkWrap_DeclareVariable(fp, data, setItemFunc->Parameters[0],
+                              "temp", 0, VTK_WRAP_ARG);
+      vtkWrap_DeclareVariable(fp, data, setItemFunc->ReturnValue,
+                              "temp", 1, VTK_WRAP_ARG);
 
       fprintf(fp,
               "  int result = -1;\n"
@@ -463,7 +464,8 @@ static void vtkWrapPython_SequenceProtocol(
               vtkWrap_GetTypeName(setItemFunc->Parameters[0]),
               getItemFunc->SizeHint);
 
-      vtkWrapPython_GetSingleArgument(fp, 1, setItemFunc->ReturnValue, 1);
+      vtkWrapPython_GetSingleArgument(
+        fp, data, 1, setItemFunc->ReturnValue, 1);
 
       fprintf(fp,")\n"
               "    {\n"
@@ -892,13 +894,24 @@ void vtkWrapPython_GenerateSpecialType(
             "\n",
             classname);
 
+    /* add any enum types defined in the class to its dict */
+    for (i = 0; i < data->NumberOfEnums; i++)
+      {
+      if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+        {
+        vtkWrapPython_AddEnumType(
+          fp, "  ", "d", "o", data->Name, data->Enums[i]);
+        fprintf(fp, "\n");
+        }
+      }
+
     /* add any constants defined in the class to its dict */
     for (i = 0; i < data->NumberOfConstants; i++)
       {
       if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
         {
         vtkWrapPython_AddConstant(
-          fp, "  ", "d", "o", data->Constants[i]);
+          fp, "  ", "d", "o", data->Name, data->Constants[i]);
         fprintf(fp, "\n");
         }
       }

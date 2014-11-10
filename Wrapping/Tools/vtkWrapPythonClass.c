@@ -15,6 +15,7 @@
 
 #include "vtkWrapPythonClass.h"
 #include "vtkWrapPythonConstant.h"
+#include "vtkWrapPythonEnum.h"
 #include "vtkWrapPythonMethodDef.h"
 #include "vtkWrapPythonTemplate.h"
 #include "vtkWrapPythonType.h"
@@ -286,7 +287,7 @@ void vtkWrapPython_ClassDoc(
     {
     for (j = 0; j < data->NumberOfFunctions; j++)
       {
-      if (vtkWrapPython_MethodCheck(data->Functions[j], hinfo) &&
+      if (vtkWrapPython_MethodCheck(data, data->Functions[j], hinfo) &&
           vtkWrap_IsConstructor(data, data->Functions[j]))
         {
         fprintf(fp,"    \"%s\\n\",\n",
@@ -421,13 +422,24 @@ static void vtkWrapPython_GenerateObjectNew(
             "    PyObject *o;\n"
             "\n");
 
+    /* add any enum types defined in the class to its dict */
+    for (i = 0; i < data->NumberOfEnums; i++)
+      {
+      if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+        {
+        vtkWrapPython_AddEnumType(
+          fp, "    ", "d", "o", data->Name, data->Enums[i]);
+        fprintf(fp, "\n");
+        }
+      }
+
     /* add any constants defined in the class to its dict */
     for (i = 0; i < data->NumberOfConstants; i++)
       {
       if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
         {
         vtkWrapPython_AddConstant(
-          fp, "    ", "d", "o", data->Constants[i]);
+          fp, "    ", "d", "o", data->Name, data->Constants[i]);
         fprintf(fp, "\n");
         }
       }
@@ -486,6 +498,16 @@ int vtkWrapPython_WrapOneClass(
         data->Functions[i]->NumberOfParameters == 0)
       {
       class_has_new = 1;
+      }
+    }
+
+  /* create any enum types defined in the class */
+  for (i = 0; i < data->NumberOfEnums; i++)
+    {
+    if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+      {
+      vtkWrapPython_GenerateEnumType(
+        fp, classname, data->Enums[i]);
       }
     }
 

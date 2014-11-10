@@ -46,7 +46,7 @@ static void vtkWrapPython_CustomMethods(
 
 /* check for wrappability, flags may be VTK_WRAP_ARG or VTK_WRAP_RETURN */
 static int vtkWrapPython_IsValueWrappable(
-  ValueInfo *val, HierarchyInfo *hinfo, int flags);
+  ClassInfo *data, ValueInfo *val, HierarchyInfo *hinfo, int flags);
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePrecededMethods(
@@ -305,7 +305,7 @@ void vtkWrapPython_GenerateMethods(
     theFunc = data->Functions[i];
 
     /* check for wrappability */
-    if (vtkWrapPython_MethodCheck(theFunc, hinfo) &&
+    if (vtkWrapPython_MethodCheck(data, theFunc, hinfo) &&
         !theFunc->IsOperator &&
         !theFunc->Template &&
         !vtkWrap_IsDestructor(data, theFunc) &&
@@ -443,7 +443,7 @@ static void vtkWrapPython_ClassMethodDef(
 /* Check an arg to see if it is wrappable */
 
 static int vtkWrapPython_IsValueWrappable(
-  ValueInfo *val, HierarchyInfo *hinfo, int flags)
+  ClassInfo *data, ValueInfo *val, HierarchyInfo *hinfo, int flags)
 {
   static unsigned int wrappableTypes[] = {
     VTK_PARSE_VOID, VTK_PARSE_BOOL, VTK_PARSE_FLOAT, VTK_PARSE_DOUBLE,
@@ -505,6 +505,7 @@ static int vtkWrapPython_IsValueWrappable(
   if (vtkWrap_IsScalar(val))
     {
     if (vtkWrap_IsNumeric(val) ||
+        vtkWrap_IsEnumMember(data, val) ||
         vtkWrap_IsString(val))
       {
       return 1;
@@ -556,7 +557,7 @@ static int vtkWrapPython_IsValueWrappable(
 /* Check a method to see if it is wrappable in python */
 
 int vtkWrapPython_MethodCheck(
-  FunctionInfo *currentFunction, HierarchyInfo *hinfo)
+  ClassInfo *data, FunctionInfo *currentFunction, HierarchyInfo *hinfo)
 {
   int i, n;
 
@@ -592,7 +593,7 @@ int vtkWrapPython_MethodCheck(
   for (i = 0; i < n; i++)
     {
     if (!vtkWrapPython_IsValueWrappable(
-          currentFunction->Parameters[i], hinfo, VTK_WRAP_ARG))
+          data, currentFunction->Parameters[i], hinfo, VTK_WRAP_ARG))
       {
       return 0;
       }
@@ -600,7 +601,7 @@ int vtkWrapPython_MethodCheck(
 
   /* check the return value */
   if (!vtkWrapPython_IsValueWrappable(
-        currentFunction->ReturnValue, hinfo, VTK_WRAP_RETURN))
+        data, currentFunction->ReturnValue, hinfo, VTK_WRAP_RETURN))
     {
     return 0;
     }

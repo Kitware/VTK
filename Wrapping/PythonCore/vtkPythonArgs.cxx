@@ -957,10 +957,10 @@ void *vtkPythonArgs::GetArgAsSpecialObject(
   return r;
 }
 
-int vtkPythonArgs::GetArgAsEnum(const char *s, bool &valid)
+int vtkPythonArgs::GetArgAsEnum(PyTypeObject *enumtype, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
-  int i = vtkPythonArgs::GetArgAsEnum(o, s, valid);
+  int i = vtkPythonArgs::GetArgAsEnum(o, enumtype, valid);
   if (!valid)
     {
     this->RefineArgTypeError(this->I - this->M - 1);
@@ -968,12 +968,25 @@ int vtkPythonArgs::GetArgAsEnum(const char *s, bool &valid)
   return i;
 }
 
-int vtkPythonArgs::GetArgAsEnum(PyObject *o, const char *, bool &valid)
+int vtkPythonArgs::GetArgAsEnum(
+  PyObject *o, PyTypeObject *enumtype, bool &valid)
 {
-  // should check enum type for validity
-  int i = 0;
-  valid = (vtkPythonGetValue(o, i) != 0);
-  return (valid ? i : 0);
+  long i = 0;
+  if (o->ob_type == enumtype)
+    {
+    i = PyInt_AsLong(o);
+    valid = true;
+    }
+  else
+    {
+    std::string errstring = "expected enum ";
+    errstring += enumtype->tp_name;
+    errstring += ", got ";
+    errstring += o->ob_type->tp_name;
+    PyErr_SetString(PyExc_TypeError, errstring.c_str());
+    valid = false;
+    }
+  return i;
 }
 
 

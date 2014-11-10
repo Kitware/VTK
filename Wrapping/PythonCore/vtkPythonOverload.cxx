@@ -612,6 +612,25 @@ int vtkPythonOverload::CheckArg(
           }
         }
 
+      // Enum type
+      else if (isalpha(classname[0]) ||
+               (classname[0] == '&' && isalpha(classname[1])))
+        {
+        if (classname[0] == '&')
+          {
+          classname++;
+          }
+        if (PyInt_Check(arg) &&
+            strcmp(arg->ob_type->tp_name, classname) == 0)
+          {
+          penalty = VTK_PYTHON_EXACT_MATCH;
+          }
+        else
+          {
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
+        }
+
       // An array
       else if (classname[0] == '*')
         {

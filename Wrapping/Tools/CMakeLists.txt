@@ -75,6 +75,7 @@ if(NOT CMAKE_CROSSCOMPILING)
     vtkWrapPython.c
     vtkWrapPythonClass.c
     vtkWrapPythonConstant.c
+    vtkWrapPythonEnum.c
     vtkWrapPythonMethod.c
     vtkWrapPythonMethodDef.c
     vtkWrapPythonOverload.c

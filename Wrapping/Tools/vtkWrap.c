@@ -286,6 +286,28 @@ int vtkWrap_IsConst(ValueInfo *val)
 }
 
 /* -------------------------------------------------------------------- */
+/* Check if the arg type is an enum that is a member of the class */
+int vtkWrap_IsEnumMember(ClassInfo *data, ValueInfo *arg)
+{
+  int i;
+
+  if (arg->Class)
+    {
+    /* check if the enum is a member of the class */
+    for (i = 0; i < data->NumberOfEnums; i++)
+      {
+      EnumInfo *info = data->Enums[i];
+      if (info->Name && strcmp(arg->Class, info->Name) == 0)
+        {
+        return 1;
+        }
+      }
+    }
+
+  return 0;
+}
+
+/* -------------------------------------------------------------------- */
 /* Hints */
 
 int vtkWrap_IsNewInstance(ValueInfo *val)
@@ -864,10 +886,13 @@ const char *vtkWrap_GetTypeName(ValueInfo *val)
 /* variable declarations */
 
 void vtkWrap_DeclareVariable(
-  FILE *fp, ValueInfo *val, const char *name, int i, int flags)
+  FILE *fp, ClassInfo *data, ValueInfo *val, const char *name,
+  int i, int flags)
 {
   unsigned int aType;
   int j;
+  const char *typeName;
+  char *newTypeName = NULL;
 
   if (val == NULL)
     {
@@ -883,7 +908,27 @@ void vtkWrap_DeclareVariable(
     return;
     }
 
-  /* add a couple spaces */
+  typeName = vtkWrap_GetTypeName(val);
+
+  if (vtkWrap_IsEnumMember(data, val))
+    {
+    /* use a typedef to work around compiler issues when someone used
+       the same name for the enum type as for a variable or method */
+    newTypeName = (char *)malloc(strlen(name) + 16);
+    if (i >= 0)
+      {
+      sprintf(newTypeName, "%s%i_type", name, i);
+      }
+    else
+      {
+      sprintf(newTypeName, "%s_type", name);
+      }
+    fprintf(fp, "  typedef %s::%s %s;\n",
+            data->Name, typeName, newTypeName);
+    typeName = newTypeName;
+    }
+
+  /* add a couple spaces for indentation*/
   fprintf(fp,"  ");
 
   /* for const * return types, prepend with const */
@@ -909,7 +954,7 @@ void vtkWrap_DeclareVariable(
     }
 
   /* print the type name */
-  fprintf(fp, "%s ", vtkWrap_GetTypeName(val));
+  fprintf(fp, "%s ", typeName);
 
   /* indirection */
   if ((flags & VTK_WRAP_RETURN) != 0)
@@ -1004,6 +1049,8 @@ void vtkWrap_DeclareVariable(
     {
     fprintf(fp, ";\n");
     }
+
+  free(newTypeName);
 }
 
 void vtkWrap_DeclareVariableSize(

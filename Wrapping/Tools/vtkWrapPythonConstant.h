@@ -20,9 +20,9 @@
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
 
-/* Generate code that add a constant value to a python dict */
+/* generate code that adds a constant value to a python dict */
 void vtkWrapPython_AddConstant(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
-  ValueInfo *val);
+  const char *scope, ValueInfo *val);
 
 #endif /* VTK_WRAP_PYTHON_CONSTANT_H */

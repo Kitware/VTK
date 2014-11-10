@@ -33,7 +33,7 @@ static void vtkWrapPython_GetSizesForArrays(
 
 /* Write the code to convert the arguments with vtkPythonArgs */
 static void vtkWrapPython_GetAllParameters(
-  FILE *fp, FunctionInfo *currentFunction);
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
 
 /* save the contents of all arrays prior to calling the function */
 static void vtkWrapPython_SaveArrayArgs(
@@ -69,7 +69,7 @@ static int vtkWrapPython_CountAllOccurrences(
 /* -------------------------------------------------------------------- */
 /* Declare all local variables used by the wrapper method */
 void vtkWrapPython_DeclareVariables(
-  FILE *fp, FunctionInfo *theFunc)
+  FILE *fp, ClassInfo *data, FunctionInfo *theFunc)
 {
   ValueInfo *arg;
   int i, n;
@@ -93,7 +93,7 @@ void vtkWrapPython_DeclareVariables(
       }
 
     /* make a "temp" variable for the argument */
-    vtkWrap_DeclareVariable(fp, arg, "temp", i, VTK_WRAP_ARG);
+    vtkWrap_DeclareVariable(fp, data, arg, "temp", i, VTK_WRAP_ARG);
 
     /* temps for conversion constructed objects, which only occur
      * for special objects */
@@ -114,7 +114,7 @@ void vtkWrapPython_DeclareVariables(
           !vtkWrap_IsSetVectorMethod(theFunc))
         {
         /* for saving a copy of the array */
-        vtkWrap_DeclareVariable(fp, arg, "save", i, VTK_WRAP_ARG);
+        vtkWrap_DeclareVariable(fp, data, arg, "save", i, VTK_WRAP_ARG);
         storageSize *= 2;
         }
       if (arg->CountHint || vtkWrap_IsPODPointer(arg))
@@ -228,7 +228,7 @@ static void vtkWrapPython_GetSizesForArrays(
 /* -------------------------------------------------------------------- */
 /* Write the code to convert one argument with vtkPythonArgs */
 void vtkWrapPython_GetSingleArgument(
-  FILE *fp, int i, ValueInfo *arg, int static_call)
+  FILE *fp, ClassInfo *data, int i, ValueInfo *arg, int static_call)
 {
   const char *prefix = "ap.";
   char argname[32];
@@ -241,7 +241,12 @@ void vtkWrapPython_GetSingleArgument(
     sprintf(argname, "arg%d, ", i);
     }
 
-  if (vtkWrap_IsPythonObject(arg))
+  if (vtkWrap_IsEnumMember(data, arg))
+    {
+    fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%s_%s_Type)",
+            prefix, argname, i, data->Name, arg->Class);
+    }
+  else if (vtkWrap_IsPythonObject(arg))
     {
     fprintf(fp, "%s%sGetPythonObject(temp%d)",
             prefix, argname, i);
@@ -328,7 +333,7 @@ void vtkWrapPython_GetSingleArgument(
 /* -------------------------------------------------------------------- */
 /* Write the code to convert the arguments with vtkPythonArgs */
 static void vtkWrapPython_GetAllParameters(
-  FILE *fp, FunctionInfo *currentFunction)
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction)
 {
   ValueInfo *arg;
   int requiredArgs, totalArgs;
@@ -362,7 +367,7 @@ static void vtkWrapPython_GetAllParameters(
       fprintf(fp, "(ap.NoArgsLeft() || ");
       }
 
-    vtkWrapPython_GetSingleArgument(fp, i, arg, 0);
+    vtkWrapPython_GetSingleArgument(fp, data, i, arg, 0);
 
     if (i >= requiredArgs)
       {
@@ -380,7 +385,7 @@ static void vtkWrapPython_GetAllParameters(
 /* -------------------------------------------------------------------- */
 /* Convert values into python object and return them within python */
 void vtkWrapPython_ReturnValue(
-  FILE *fp, ValueInfo *val, int static_call)
+  FILE *fp, ClassInfo *data, ValueInfo *val, int static_call)
 {
   char pythonname[1024];
   const char *deref = "";
@@ -411,6 +416,12 @@ void vtkWrapPython_ReturnValue(
     fprintf(fp,
             "      result = %sBuildNone();\n",
             prefix);
+    }
+  else if (vtkWrap_IsEnumMember(data, val))
+    {
+    fprintf(fp,
+            "      result = Py%s_%s_FromEnum(tempr);\n",
+            data->Name, val->Class);
     }
   else if (vtkWrap_IsPythonObject(val))
     {
@@ -641,7 +652,7 @@ static void vtkWrapPython_GenerateMethodCall(
     {
     /* temp variable for C++-type return value */
     fprintf(fp, "  ");
-    vtkWrap_DeclareVariable(fp, currentFunction->ReturnValue,
+    vtkWrap_DeclareVariable(fp, data, currentFunction->ReturnValue,
       "tempr", -1, VTK_WRAP_RETURN | VTK_WRAP_NOSEMI);
     fprintf(fp, " =");
     }
@@ -1045,7 +1056,7 @@ void vtkWrapPython_GenerateOneMethod(
         }
 
       /* declare all argument variables */
-      vtkWrapPython_DeclareVariables(fp, theOccurrence);
+      vtkWrapPython_DeclareVariables(fp, data, theOccurrence);
 
       /* get size for variable-size arrays */
       vtkWrapPython_GetSizesForArrays(fp, theOccurrence, is_vtkobject);
@@ -1065,7 +1076,7 @@ void vtkWrapPython_GenerateOneMethod(
         }
 
       /* get all the arguments */
-      vtkWrapPython_GetAllParameters(fp, theOccurrence);
+      vtkWrapPython_GetAllParameters(fp, data, theOccurrence);
 
       /* finished getting all the arguments */
       fprintf(fp, ")\n"
@@ -1098,7 +1109,7 @@ void vtkWrapPython_GenerateOneMethod(
         }
       else
         {
-        vtkWrapPython_ReturnValue(fp, theOccurrence->ReturnValue, 0);
+        vtkWrapPython_ReturnValue(fp, data, theOccurrence->ReturnValue, 0);
         }
 
       /* close off the big "if" */

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkWrapPythonMethodDef.h
+  Module:    vtkWrapPythonEnum.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,21 +13,20 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_METHODDEF_H
-#define VTK_WRAP_PYTHON_METHODDEF_H
+#ifndef VTK_WRAP_PYTHON_ENUM_H
+#define VTK_WRAP_PYTHON_ENUM_H
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
 
-/* check whether a method is wrappable */
-int vtkWrapPython_MethodCheck(
-  ClassInfo *data, FunctionInfo *currentFunction, HierarchyInfo *hinfo);
+/* write out an enum type wrapped in python */
+void vtkWrapPython_GenerateEnumType(
+  FILE *fp, const char *classname, EnumInfo *data);
 
-/* print out all methods and the method table */
-void vtkWrapPython_GenerateMethods(
-  FILE *fp, const char *classname, ClassInfo *data,
-  FileInfo *finfo, HierarchyInfo *hinfo,
-  int is_vtkobject, int do_constructors);
+/* generate code that adds an enum type to a python dict */
+void vtkWrapPython_AddEnumType(
+  FILE *fp, const char *indent, const char *dictvar, const char *objvar,
+  const char *scope, EnumInfo *cls);
 
-#endif /* VTK_WRAP_PYTHON_METHODDEF_H */
+#endif /* VTK_WRAP_PYTHON_ENUM_H */

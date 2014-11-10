@@ -29,14 +29,16 @@
 
 void vtkWrapPython_AddConstant(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
-  ValueInfo *val)
+  const char *scope, ValueInfo *val)
 {
   unsigned int valtype;
   const char *valstring;
+  const char *valname;
   int objcreated = 0;
 
   valtype = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
   valstring = val->Value;
+  valname = val->Name;
 
   if (valtype == 0 && (valstring == NULL || valstring[0] == '\0'))
     {
@@ -52,7 +54,28 @@ void vtkWrapPython_AddConstant(
     return;
     }
 
-  switch (valtype)
+  if (val->IsEnum)
+    {
+    if (val->Class && val->Class[0] != '\0' &&
+        strcmp(val->Class, "int") != 0)
+      {
+      fprintf(fp,
+              "%s%s = Py%s%s%s_FromEnum(%s%s%s);\n",
+              indent, objvar,
+              (scope ? scope : ""), (scope ? "_" : ""), val->Class,
+              (scope ? scope : ""), (scope ? "::" : ""), valname);
+      objcreated = 1;
+      }
+    else
+      {
+      fprintf(fp,
+              "%s%s = PyInt_FromLong(%s%s%s);\n",
+              indent, objvar,
+              (scope ? scope : ""), (scope ? "::" : ""), valname);
+      objcreated = 1;
+      }
+    }
+  else switch (valtype)
     {
     case VTK_PARSE_VOID:
       fprintf(fp,

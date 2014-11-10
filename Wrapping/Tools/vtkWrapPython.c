@@ -15,6 +15,7 @@
 
 #include "vtkWrapPythonClass.h"
 #include "vtkWrapPythonConstant.h"
+#include "vtkWrapPythonEnum.h"
 #include "vtkWrapPythonMethodDef.h"
 
 #include "vtkWrap.h"
@@ -147,7 +148,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     for (i = 0; i < n; i++)
       {
       currentFunction = data->Functions[i];
-      if (vtkWrapPython_MethodCheck(currentFunction, hinfo))
+      if (vtkWrapPython_MethodCheck(data, currentFunction, hinfo))
         {
         classname = "void";
         aType = VTK_PARSE_VOID;
@@ -365,6 +366,12 @@ int main(int argc, char *argv[])
           "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
           "VTK_ABI_EXPORT", name);
 
+  /* Wrap any enum types defined in the global namespace */
+  for (i = 0; i < contents->NumberOfEnums; i++)
+    {
+    vtkWrapPython_GenerateEnumType(fp, NULL, contents->Enums[i]);
+    }
+
   /* Check for all special classes before any classes are wrapped */
   for (i = 0; i < contents->NumberOfClasses; i++)
     {
@@ -498,10 +505,19 @@ int main(int argc, char *argv[])
             data->Name);
     }
 
+  /* add any enum types defined in the file */
+  for (j = 0; j < contents->NumberOfEnums; j++)
+    {
+    vtkWrapPython_AddEnumType(
+      fp, "  ", "dict", "o", NULL, contents->Enums[j]);
+    fprintf(fp, "\n");
+    }
+
   /* add any constants defined in the file */
   for (j = 0; j < contents->NumberOfConstants; j++)
     {
-    vtkWrapPython_AddConstant(fp, "  ", "dict", "o", contents->Constants[j]);
+    vtkWrapPython_AddConstant(fp, "  ", "dict", "o", NULL,
+      contents->Constants[j]);
     fprintf(fp, "\n");
     }
 
