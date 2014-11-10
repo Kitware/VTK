@@ -74,6 +74,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->CurrentInput = 0;
   this->TempMatrix4 = vtkMatrix4x4::New();
   this->TempMatrix3 = vtkMatrix3x3::New();
+  this->DrawingEdges = false;
 }
 
 
@@ -157,7 +158,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(std::string &VSSo
     "uniform vec3 ambientColorUniform; // intensity weighted color\n"
     "uniform vec3 diffuseColorUniform; // intensity weighted color\n";
   // add some if we have a backface property
-  if (actor->GetBackfaceProperty())
+  if (actor->GetBackfaceProperty() && !this->DrawingEdges)
     {
     colorDec +=
       "uniform float opacityUniformBF; // the fragment opacity\n"
@@ -788,7 +789,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
                                                       vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
 {
   // for unlit and headlight there are no lighting parameters
-  if (this->LastLightComplexity < 2)
+  if (this->LastLightComplexity < 2 || this->DrawingEdges)
     {
     return;
     }
@@ -920,14 +921,14 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   {
   // Query the property for some of the properties that can be applied.
   float opacity = static_cast<float>(ppty->GetOpacity());
-  double *aColor = ppty->GetAmbientColor();
-  double aIntensity = ppty->GetAmbient();  // ignoring renderer ambient
+  double *aColor = this->DrawingEdges ? ppty->GetEdgeColor() : ppty->GetAmbientColor();
+  double aIntensity = this->DrawingEdges ? 1.0 : ppty->GetAmbient();  // ignoring renderer ambient
   float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity), static_cast<float>(aColor[1] * aIntensity), static_cast<float>(aColor[2] * aIntensity)};
   double *dColor = ppty->GetDiffuseColor();
-  double dIntensity = ppty->GetDiffuse();
+  double dIntensity = this->DrawingEdges ? 0.0 : ppty->GetDiffuse();
   float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity), static_cast<float>(dColor[1] * dIntensity), static_cast<float>(dColor[2] * dIntensity)};
   double *sColor = ppty->GetSpecularColor();
-  double sIntensity = ppty->GetSpecular();
+  double sIntensity = this->DrawingEdges ? 0.0 : ppty->GetSpecular();
   float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity), static_cast<float>(sColor[1] * sIntensity), static_cast<float>(sColor[2] * sIntensity)};
   double specularPower = ppty->GetSpecularPower();
 
@@ -944,7 +945,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   }
 
   // now set the backface properties if we have them
-  if (actor->GetBackfaceProperty())
+  if (actor->GetBackfaceProperty() && !this->DrawingEdges)
     {
     ppty = actor->GetBackfaceProperty();
 
@@ -1095,56 +1096,13 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
     this->Tris.ibo.Bind();
-    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
-      {
-      glDrawRangeElements(GL_POINTS, 0,
-                          static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.indexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-      }
-    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-      {
-      vtkDataArray *ef =  this->CurrentInput->GetPointData()->GetAttribute(
-                          vtkDataSetAttributes::EDGEFLAG);
-      if (ef)
-        {
-        if (ef->GetNumberOfComponents() != 1)
-          {
-          vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-          ef = NULL;
-          }
-        if (!ef->IsA("vtkUnsignedCharArray"))
-          {
-          vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
-          ef = NULL;
-          }
-        }
-      if (ef)
-        {
-        glDrawRangeElements(GL_LINES, 0,
-                          static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.indexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-        }
-      else
-        {
-        glMultiDrawElements(GL_LINE_LOOP,
-                        (GLsizei *)(&this->Tris.elementsArray[0]),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid **>(&(this->Tris.offsetArray[0])),
-                        (GLsizei)this->Tris.offsetArray.size());
-        }
-      }
-    if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
-      {
-      glDrawRangeElements(GL_TRIANGLES, 0,
-                          static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.indexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-      }
+    GLenum mode = (actor->GetProperty()->GetRepresentation() == VTK_POINTS) ? GL_POINTS :
+      (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
+    glDrawRangeElements(mode, 0,
+                      static_cast<GLuint>(layout.VertexCount - 1),
+                      static_cast<GLsizei>(this->Tris.indexCount),
+                      GL_UNSIGNED_INT,
+                      reinterpret_cast<const GLvoid *>(NULL));
     this->Tris.ibo.Release();
     this->pickingAttributeIDOffset += (int)this->Tris.indexCount;
     }
@@ -1252,10 +1210,8 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   this->RenderPieceStart(ren, actor);
   this->RenderPieceDraw(ren, actor);
-  this->RenderPieceFinish(ren, actor);
-
-  // if EdgeVisibility is on then draw the wireframe also
   this->RenderEdges(ren,actor);
+  this->RenderPieceFinish(ren, actor);
 }
 
 void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
@@ -1263,47 +1219,63 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
   vtkProperty *prop = actor->GetProperty();
   bool draw_surface_with_edges =
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
-  if (draw_surface_with_edges)
+
+  if (!draw_surface_with_edges)
     {
-    // store old values
-    double f, u;
-    this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-    double zRes = this->GetResolveCoincidentTopologyZShift();
-    int oldRCT = this->GetResolveCoincidentTopology();
-    vtkProperty *oldProp = vtkProperty::New();
-    oldProp->DeepCopy(prop);
+    return;
+    }
 
-    // setup new values and render
-    if (oldRCT == VTK_RESOLVE_SHIFT_ZBUFFER)
-      {
-      this->SetResolveCoincidentTopologyZShift(zRes*2.0);
-      }
-    else
-      {
-      this->SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);
-      this->SetResolveCoincidentTopologyPolygonOffsetParameters(f+0.5,u*1.5);
-      }
-    prop->LightingOff();
-    prop->SetAmbientColor(prop->GetEdgeColor());
-    prop->SetAmbient(1.0);
-    prop->SetDiffuse(0.0);
-    prop->SetSpecular(0.0);
-    prop->SetRepresentationToWireframe();
-    this->RenderPieceStart(ren, actor);
-    this->RenderPieceDraw(ren, actor);
-    this->RenderPieceFinish(ren, actor);
+  vtkgl::VBOLayout &layout = this->Layout;
 
-    // restore old values
-    prop->SetRepresentationToSurface();
-    prop->SetLighting(oldProp->GetLighting());
-    prop->SetAmbientColor(oldProp->GetAmbientColor());
-    prop->SetAmbient(oldProp->GetAmbient());
-    prop->SetDiffuse(oldProp->GetDiffuse());
-    prop->SetSpecular(oldProp->GetSpecular());
-    this->SetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-    this->SetResolveCoincidentTopologyZShift(zRes);
-    this->SetResolveCoincidentTopology(oldRCT);
-    oldProp->UnRegister(this);
+  // store old values
+  double f, u;
+  this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+  double zRes = this->GetResolveCoincidentTopologyZShift();
+  int oldRCT = this->GetResolveCoincidentTopology();
+
+  // setup new values and render
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  if (oldRCT == VTK_RESOLVE_SHIFT_ZBUFFER)
+    {
+    double f = zRes*8.0;
+    glPolygonOffset(f,0.0);  // supported on ES2/3/etc
+    }
+  else
+    {
+    glPolygonOffset(f+0.5,u*1.5);  // supported on ES2/3/etc
+    }
+  this->DrawingEdges = true;
+
+  // draw polygons
+  if (this->TrisEdges.indexCount)
+    {
+    // First we do the triangles, update the shader, set uniforms, etc.
+    this->UpdateShader(this->TrisEdges, ren, actor);
+    this->TrisEdges.ibo.Bind();
+    glDrawRangeElements(GL_LINES, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->TrisEdges.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
+    this->TrisEdges.ibo.Release();
+    }
+
+  // draw strips
+  if (this->TriStripsEdges.indexCount)
+    {
+    // Use the tris shader program/VAO, but triStrips ibo.
+    this->UpdateShader(this->TriStripsEdges, ren, actor);
+    this->TriStripsEdges.ibo.Bind();
+    glMultiDrawElements(GL_LINE_STRIP,
+                      (GLsizei *)(&this->TriStripsEdges.elementsArray[0]),
+                      GL_UNSIGNED_INT,
+                      reinterpret_cast<const GLvoid **>(&(this->TriStripsEdges.offsetArray[0])),
+                      (GLsizei)this->TriStripsEdges.offsetArray.size());
+    this->TriStripsEdges.ibo.Release();
+    }
+
+  // restore old values
+  this->DrawingEdges = false;
 
 /*
     // Disable textures when rendering the surface edges.
@@ -1313,7 +1285,6 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
     this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
     this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
     */
-   }
 }
 
 
@@ -1473,10 +1444,8 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
         }
       else
         {
-        this->Tris.indexCount = CreateMultiIndexBuffer(prims[2],
-                                             this->Tris.ibo,
-                                             this->Tris.offsetArray,
-                                             this->Tris.elementsArray, false);
+        this->Tris.indexCount = CreateTriangleLineIndexBuffer(prims[2],
+                                           this->Tris.ibo);
         }
       this->TriStrips.indexCount = CreateMultiIndexBuffer(prims[3],
                            this->TriStrips.ibo,
@@ -1494,6 +1463,43 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
                            this->TriStrips.offsetArray,
                            this->TriStrips.elementsArray, false);
       }
+    }
+
+  // when drawing edges also build the edge IBOs
+  vtkProperty *prop = act->GetProperty();
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+  if (draw_surface_with_edges)
+    {
+    vtkDataArray *ef = poly->GetPointData()->GetAttribute(
+                        vtkDataSetAttributes::EDGEFLAG);
+    if (ef)
+      {
+      if (ef->GetNumberOfComponents() != 1)
+        {
+        vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
+        ef = NULL;
+        }
+      if (!ef->IsA("vtkUnsignedCharArray"))
+        {
+        vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+        ef = NULL;
+        }
+      }
+    if (ef)
+      {
+      this->TrisEdges.indexCount = CreateEdgeFlagIndexBuffer(prims[2],
+                                           this->TrisEdges.ibo, ef);
+      }
+    else
+      {
+      this->TrisEdges.indexCount = CreateTriangleLineIndexBuffer(prims[2],
+                                           this->TrisEdges.ibo);
+      }
+    this->TriStripsEdges.indexCount = CreateMultiIndexBuffer(prims[3],
+                         this->TriStripsEdges.ibo,
+                         this->TriStripsEdges.offsetArray,
+                         this->TriStripsEdges.elementsArray, true);
     }
 
   // free up new cell arrays
