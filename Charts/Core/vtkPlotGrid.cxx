@@ -61,7 +61,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
   this->YAxis->GetPoint2(y2.GetData());
 
   // in x
-  if (this->XAxis->GetGridVisible())
+  if (this->XAxis->GetVisible() && this->XAxis->GetGridVisible())
     {
     vtkFloatArray *xLines = this->XAxis->GetTickScenePositions();
     painter->ApplyPen(this->XAxis->GetGridPen());
@@ -73,7 +73,7 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
     }
 
   // in y
-  if (this->YAxis->GetGridVisible())
+  if (this->YAxis->GetVisible() && this->YAxis->GetGridVisible())
     {
     vtkFloatArray *yLines = this->YAxis->GetTickScenePositions();
     painter->ApplyPen(this->YAxis->GetGridPen());
