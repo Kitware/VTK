@@ -15,6 +15,7 @@
 
 #include "vtkWrapPythonType.h"
 #include "vtkWrapPythonClass.h"
+#include "vtkWrapPythonConstant.h"
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonMethodDef.h"
 #include "vtkWrapPythonTemplate.h"
@@ -638,6 +639,8 @@ void vtkWrapPython_GenerateSpecialType(
   SpecialTypeInfo info;
   const char *constructor;
   size_t n, m;
+  int i;
+  int has_constants = 0;
   int has_superclass = 0;
   int is_external = 0;
 
@@ -861,15 +864,48 @@ void vtkWrapPython_GenerateSpecialType(
   fprintf(fp,
     "static PyObject *Py%s_TypeNew(const char *)\n"
     "{\n"
-    "  return PyVTKSpecialType_New(\n"
+    "  PyObject *cls = PyVTKSpecialType_New(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
     "    &Py%s_NewMethod,\n"
     "    Py%s_Doc(), &Py%s_CCopy);\n"
-    "}\n"
     "\n",
     classname, classname, classname,
     classname, (int)n, (int)n, constructor, classname,
     classname, classname);
+
+  /* check whether the class has any constants as members */
+  for (i = 0; i < data->NumberOfConstants; i++)
+    {
+    if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
+      {
+      has_constants = 1;
+      }
+    }
+
+  if (has_constants)
+    {
+    fprintf(fp,
+            "  PyObject *d = Py%s_Type.tp_dict;\n"
+            "  PyObject *o;\n"
+            "\n",
+            classname);
+
+    /* add any constants defined in the class to its dict */
+    for (i = 0; i < data->NumberOfConstants; i++)
+      {
+      if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
+        {
+        vtkWrapPython_AddConstant(
+          fp, "  ", "d", "o", data->Constants[i]);
+        fprintf(fp, "\n");
+        }
+      }
+    }
+
+  fprintf(fp,
+    "  return cls;\n"
+    "}\n"
+    "\n");
 }
