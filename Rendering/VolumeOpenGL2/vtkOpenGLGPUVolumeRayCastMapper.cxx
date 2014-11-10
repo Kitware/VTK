@@ -1504,12 +1504,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
     this->ActualSampleDistance = static_cast<float>(minWorldSpacing);
 
     // TODO: Support reduction factor
-    //    if (this->ReductionFactor < 1.0)
-    //      {
-    //      this->ActualSampleDistance /=
-    //      static_cast<GLfloat>(this->ReductionFactor*0.5);
-    //      }
-    //    }
+    if (this->Parent->ReductionFactor < 1.0)
+      {
+      this->ActualSampleDistance /=
+        static_cast<GLfloat>(this->Parent->ReductionFactor * 0.5);
+      }
     }
 }
 
@@ -1847,6 +1846,93 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   this->Impl->ShaderBuildTime.Modified();
 }
 
+
+//-----------------------------------------------------------------------------
+// Update the reduction factor of the render viewport (this->ReductionFactor)
+// according to the time spent in seconds to render the previous frame
+// (this->TimeToDraw) and a time in seconds allocated to render the next
+// frame (allocatedTime).
+// \pre valid_current_reduction_range: this->ReductionFactor>0.0 && this->ReductionFactor<=1.0
+// \pre positive_TimeToDraw: this->TimeToDraw>=0.0
+// \pre positive_time: allocatedTime>0.0
+// \post valid_new_reduction_range: this->ReductionFactor>0.0 && this->ReductionFactor<=1.0
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
+  double allocatedTime)
+{
+//  assert("pre: valid_current_reduction_range" && this->ReductionFactor>0.0
+//         && this->ReductionFactor<=1.0);
+//  assert("pre: positive_TimeToDraw" && this->TimeToDraw>=0.0);
+//  assert("pre: positive_time" && allocatedTime>0.0);
+
+//  if ( this->GeneratingCanonicalView )
+//    {
+//    this->ReductionFactor = 1.0;
+//    return;
+//    }
+
+  if ( !this->AutoAdjustSampleDistances )
+    {
+    this->ReductionFactor = 1.0 / this->ImageSampleDistance;
+    return;
+    }
+
+  if ( this->TimeToDraw )
+    {
+    double oldFactor = this->ReductionFactor;
+
+    double timeToDraw;
+    if (allocatedTime < 1.0)
+      {
+      timeToDraw = this->SmallTimeToDraw;
+      if ( timeToDraw == 0.0 )
+        {
+        timeToDraw = this->BigTimeToDraw/3.0;
+        }
+      }
+    else
+      {
+      timeToDraw = this->BigTimeToDraw;
+      }
+
+    if ( timeToDraw == 0.0 )
+      {
+      timeToDraw = 10.0;
+      }
+
+    double fullTime = timeToDraw / this->ReductionFactor;
+    double newFactor = allocatedTime / fullTime;
+
+    if ( oldFactor == 1.0 ||
+         newFactor / oldFactor > 1.3 ||
+         newFactor / oldFactor < .95 )
+      {
+
+      this->ReductionFactor = (newFactor+oldFactor)/2.0;
+
+      this->ReductionFactor = (this->ReductionFactor > 5.0)?(1.00):(this->ReductionFactor);
+      this->ReductionFactor = (this->ReductionFactor > 1.0)?(0.99):(this->ReductionFactor);
+      this->ReductionFactor = (this->ReductionFactor < 0.1)?(0.10):(this->ReductionFactor);
+
+      if ( 1.0/this->ReductionFactor > this->MaximumImageSampleDistance )
+        {
+        this->ReductionFactor = 1.0 / this->MaximumImageSampleDistance;
+        }
+      if ( 1.0/this->ReductionFactor < this->MinimumImageSampleDistance )
+        {
+        this->ReductionFactor = 1.0 / this->MinimumImageSampleDistance;
+        }
+      }
+    }
+  else
+    {
+    this->ReductionFactor = 1.0;
+    }
+
+  assert("post: valid_new_reduction_range" && this->ReductionFactor>0.0
+         && this->ReductionFactor<=1.0);
+}
+
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                                                 vtkVolume* vol)
@@ -1934,6 +2020,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
    this->Impl->CurrentMask->Bind();
    }
 
+  this->ComputeReductionFactor(vol->GetAllocatedRenderTime());
   this->Impl->UpdateSamplingDistance(input, ren, vol);
 
   // Build shader now
