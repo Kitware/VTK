@@ -99,9 +99,11 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string BaseGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
                               vtkVolumeMapper* vtkNotUsed(mapper),
-                              vtkVolume* vtkNotUsed(vol))
+                              vtkVolume* vtkNotUsed(vol),
+                              int vtkNotUsed(numberOfLights),
+                              int lightingComplexity)
     {
-    return std::string(
+    std::string shaderStr = std::string(
       "// Volume dataset \n\
       uniform sampler3D m_volume; \n\
       \n\
@@ -110,7 +112,6 @@ namespace vtkvolume
       \n\
       // Camera position \n\
       uniform vec3 m_camera_pos; \n\
-      uniform vec3 m_light_pos; \n\
       \n\
       // view and model matrices \n\
       uniform mat4 m_volume_matrix; \n\
@@ -147,6 +148,30 @@ namespace vtkvolume
       vec4 g_src_color; \n\
       vec4 g_light_pos_obj; \n\
       vec4 g_eye_pos_obj; ");
+
+    if (lightingComplexity == 2)
+      {
+      shaderStr += std::string("\n\
+        uniform int m_numberOfLights; // only allow for up to 6 active lights\n\
+        uniform vec3 m_lightColor[6]; // intensity weighted color\n\
+        uniform vec3 m_lightDirection[6]; // normalized\n\
+        uniform vec3 m_lightPosition[6];\n\
+        uniform vec3 m_lightAttenuation[6];\n\
+        uniform float m_lightConeAngle[6];\n\
+        uniform float m_lightExponent[6];\n\
+        uniform int m_lightPositional[6];\n\
+      ");
+      }
+    else if (lightingComplexity == 3)
+      {
+      shaderStr += std::string("\n\
+        uniform int m_numberOfLights; // only allow for up to 6 active lights\n\
+        uniform vec3 m_lightColor[6]; // intensity weighted color\n\
+        uniform vec3 m_lightDirection[6]; // normalized\n\
+      ");
+      }
+
+    return shaderStr;
     }
 
   //--------------------------------------------------------------------------
@@ -211,7 +236,12 @@ namespace vtkvolume
         vol->GetProperty()->GetDisableGradientOpacity())
       {
       return std::string(" \n\
-        vec3 computeGradient() \n\
+        float computeGradientOpacity(vec4 grad) \n\
+          { \n\
+          return 1.0;\n\
+          }\n\
+        \n\
+        vec4 computeGradient() \n\
           { \n\
           vec3 g1; \n\
           vec3 g2; \n\
@@ -224,17 +254,22 @@ namespace vtkvolume
           g2.x = texture3D(m_volume, vec3(g_data_pos - xvec)).x; \n\
           g2.y = texture3D(m_volume, vec3(g_data_pos - yvec)).x; \n\
           g2.z = texture3D(m_volume, vec3(g_data_pos - zvec)).x; \n\
-          return (g1 - g2); \n\
+          return vec4((g1 - g2), -1.0); \n\
          }");
     }
     else if (vol->GetProperty()->GetShade() &&
-             !vol->GetProperty()->GetDisableGradientOpacity())
+            !vol->GetProperty()->GetDisableGradientOpacity())
       {
       return std::string(" \n\
-        vec3 computeGradient() \n\
+        uniform sampler1D m_gradient_transfer_func;\n\
+        float computeGradientOpacity(vec4 grad) \n\
+          { \n\
+          return texture1D(m_gradient_transfer_func, grad.w).w;\n\
+          }\n\
+        vec4 computeGradient() \n\
           { \n\
           vec3 g1; \n\
-          vec3 g2; \n\
+          vec4 g2; \n\
           vec3 xvec = vec3(m_cell_step[0], 0.0, 0.0); \n\
           vec3 yvec = vec3(0.0, m_cell_step[1], 0.0); \n\
           vec3 zvec = vec3(0.0, 0.0, m_cell_step[2]); \n\
@@ -256,7 +291,38 @@ namespace vtkvolume
                  m_scalars_range[1] - m_scalars_range[0]) * g2.y; \n\
           g2.z = m_scalars_range[0] + ( \n\
                  m_scalars_range[1] - m_scalars_range[0]) * g2.z; \n\
-          g2 = g1 - g2; \n\
+          g2.xyz = g1 - g2.xyz; \n\
+          vec3 m_spacing = vec3(m_cell_spacing[0], \n\
+                               m_cell_spacing[1],  \n\
+                               m_cell_spacing[2]); \n\
+          vec3 aspect; \n\
+          float avg_spacing = (m_spacing[0] + \n\
+                              m_spacing[1] + \n\
+                              m_spacing[2])/3.0; \n\
+          // Adjust the aspect \n\
+          aspect.x = m_spacing[0] * 2.0 / avg_spacing; \n\
+          aspect.y = m_spacing[1] * 2.0 / avg_spacing; \n\
+          aspect.z = m_spacing[2] * 2.0 / avg_spacing; \n\
+          g2.x /= aspect.x; \n\
+          g2.y /= aspect.y; \n\
+          g2.z /= aspect.z; \n\
+          float grad_mag = sqrt(g2.x * g2.x  + \n\
+                                g2.y * g2.y + \n\
+                                g2.z * g2.z); \n\
+          if (grad_mag > 0.0) \n\
+            { \n\
+            g2.x /= grad_mag; \n\
+            g2.y /= grad_mag; \n\
+            g2.z /= grad_mag; \n\
+            } \n\
+          else \n\
+            { \n\
+            g2.xyz = vec3(0.0, 0.0, 0.0); \n\
+            } \n\
+          grad_mag = grad_mag * 1.0 / (0.25 * (m_scalars_range[1] - \n\
+                                              (m_scalars_range[0]))); \n\
+          grad_mag = clamp(grad_mag, 0.0, 1.0); \n\
+          g2.w = grad_mag;\n\
           return g2; \n\
           }");
       }
@@ -271,121 +337,194 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string LightComputeFunc(vtkRenderer*vtkNotUsed(ren),
+  std::string LightComputeFunc(vtkRenderer* vtkNotUsed(ren),
                                vtkVolumeMapper* vtkNotUsed(mapper),
                                vtkVolume* vol,
-                               int vtkNotUsed(numberOfComponents))
+                               int vtkNotUsed(numberOfComponents),
+                               int vtkNotUsed(numberOfLights),
+                               int lightingComplexity)
     {
     vtkVolumeProperty* volProperty = vol->GetProperty();
-    if (volProperty->GetShade() &&
-        volProperty->GetDisableGradientOpacity())
+    std::string shaderStr = std::string(
+      "vec4 computeLighting(vec4 color) \n\
+         { \n\
+         return color; \n\
+      }");
+
+    if (volProperty->GetShade())
       {
-      return std::string(" \n\
-        vec4 computeLighting(vec4 color) \n\
-          {\n\
-          vec3 ldir = normalize(g_light_pos_obj.xyz - m_vertex_pos); \n\
-          vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
-          vec3 h = normalize(ldir + vdir); \n\
-          vec3 g2 = computeGradient(); \n\
-          g2 = (1.0/m_cell_spacing) * g2; \n\
-          float normalLength = length(g2);\n\
-          if (normalLength > 0.0) \n\
-             { \n\
-             g2 = normalize(g2); \n\
-             } \n\
-           else \n\
-             { \n\
-             g2 = vec3(0.0, 0.0, 0.0); \n\
-             } \n\
-          vec3 final_color = vec3(0.0); \n\
-          float n_dot_l = dot(g2, ldir); \n\
-          float n_dot_h = dot(g2, h); \n\
-          if (n_dot_l < 0.0) \n\
-            { \n\
-            n_dot_l = -n_dot_l; \n\
-            } \n\
-          if (n_dot_h < 0.0) \n\
-            { \n\
-            n_dot_h = -n_dot_h; \n\
-            } \n\
-          final_color += m_ambient * color.rgb; \n\
-          if (n_dot_l > 0) { \n\
-            final_color += m_diffuse * n_dot_l * color.rgb; \n\
-           } \n\
-          final_color += m_specular * pow(n_dot_h, m_shininess); \n\
-          final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
-          return vec4(final_color, color.a); \n\
+      if (lightingComplexity == 2)
+        {
+        shaderStr = std::string(" \n\
+          vec4 computeLighting(vec4 color) \n\
+            {\n\
+            vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
+            vec4 grad = computeGradient(); \n\
+            vec3 g2 = grad.xyz; \n\
+            vec3 diffuse = vec3(0.0); \n\
+            vec3 specular = vec3(0.0); \n\
+            g2 = (1.0/m_cell_spacing) * g2; \n\
+            float normalLength = length(g2);\n\
+            if (normalLength > 0.0) \n\
+               { \n\
+               g2 = normalize(g2); \n\
+               } \n\
+             else \n\
+               { \n\
+               g2 = vec3(0.0, 0.0, 0.0); \n\
+               } \n\
+            vec3 final_color = vec3(0.0); \n\
+            for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
+              {\n\
+              vec3 ldir = m_lightDirection[lightNum].xyz; \n\
+              vec3 h = normalize(ldir + vdir); \n\
+              float n_dot_h = dot(g2, h); \n\
+              if (n_dot_h < 0.0) \n\
+                { \n\
+                n_dot_h = -n_dot_h; \n\
+                } \n\
+              float n_dot_l = dot(g2, ldir); \n\
+              if (n_dot_l < 0.0) \n\
+                { \n\
+                n_dot_l = -n_dot_l; \n\
+                } \n\
+              if (n_dot_l > 0) { \n\
+                diffuse += m_lightColor[lightNum] * n_dot_l; \n\
+               } \n\
+              specular = m_lightColor[lightNum] * pow(n_dot_h, m_shininess); \n\
+              }\n\
+            final_color += (m_ambient + m_diffuse * diffuse + m_specular * specular) * color.rgb; \n\
+            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            if (grad.w >= 0.0)\n\
+              {\n\
+              color.a = color.a * computeGradientOpacity(grad); \n\
+              }\n\
+            return vec4(final_color, color.a); \n\
+            }");
+        }
+      else if (lightingComplexity == 3)
+        {
+        shaderStr = std::string("\n\
+          vec4 computeLighting(vec4 color)\n\
+            {\n\
+            vec3 viewDirection = normalize(g_eye_pos_obj.xyz - m_vertex_pos.xyz);\n\
+            vec3 diffuse = vec3(0,0,0);\n\
+            vec3 specular = vec3(0,0,0);\n\
+            vec3 vertLightDirection;\n\
+            vec4 grad = computeGradient(); \n\
+            for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
+              {\n\
+              float attenuation = 1.0;\n\
+              // directional\n\
+              if (m_lightPositional[lightNum] == 0)\n\
+                {\n\
+                vertLightDirection = m_lightDirection[lightNum];\n\
+                }\n\
+              else\n\
+                {\n\
+                vertLightDirection = m_vertex_pos.xyz - m_lightPosition[lightNum];\n\
+                float distance = length(vertLightDirection);\n\
+                vertLightDirection = normalize(vertLightDirection);\n\
+                attenuation = 1.0 /\n\
+                  (m_lightAttenuation[lightNum].x\n\
+                   + m_lightAttenuation[lightNum].y * distance\n\
+                   + m_lightAttenuation[lightNum].z * distance * distance);\n\
+                // per OpenGL standard cone angle is 90 or less for a spot light\n\
+                if (m_lightConeAngle[lightNum] <= 90.0)\n\
+                  {\n\
+                  float coneDot = dot(vertLightDirection, m_lightDirection[lightNum]);\n\
+                  // if inside the cone\n\
+                  if (coneDot >= cos(radians(m_lightConeAngle[lightNum])))\n\
+                    {\n\
+                    attenuation = attenuation * pow(coneDot, m_lightExponent[lightNum]);\n\
+                    }\n\
+                  else\n\
+                    {\n\
+                    attenuation = 0.0;\n\
+                    }\n\
+                  }\n\
+                }\n\
+            // diffuse and specular lighting\n\
+            float df = max(0.0, attenuation*dot(grad.xyz, -vertLightDirection));\n\
+            diffuse += (df * m_lightColor[lightNum]);\n\
+            if (dot(grad.xyz, -vertLightDirection) > 0.0)\n\
+              {\n\
+              float sf = attenuation*pow( max(0.0, dot(\n\
+                reflect(vertLightDirection, grad.xyz), viewDirection)), m_shininess);\n\
+              specular += (sf * m_lightColor[lightNum]);\n\
+              }\n\
+            }\n\
+            vec3 final_color = vec3(0.0); \n\
+            final_color += (m_ambient + m_diffuse * diffuse + m_specular * specular) * color.rgb; \n\
+            if (grad.w >= 0.0)\n\
+              {\n\
+              color.a = color.a * computeGradientOpacity(grad); \n\
+              }\n\
+            return vec4(final_color, color.a); \n\
+          } \n\
+        ");
+        }
+      else if (lightingComplexity == 1)
+        {
+        shaderStr = std::string(" \n\
+          vec4 computeLighting(vec4 color) \n\
+            {\n\
+            vec3 ldir = normalize(g_light_pos_obj.xyz - m_vertex_pos); \n\
+            vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
+            vec3 h = normalize(ldir + vdir); \n\
+            vec4 grad = computeGradient(); \n\
+            vec3 g2 = grad.xyz; \n\
+            g2 = (1.0/m_cell_spacing) * g2; \n\
+            float normalLength = length(g2);\n\
+            if (normalLength > 0.0) \n\
+              { \n\
+              g2 = normalize(g2); \n\
+              } \n\
+            else \n\
+              { \n\
+              g2 = vec3(0.0, 0.0, 0.0); \n\
+              } \n\
+            vec3 final_color = vec3(0.0); \n\
+            float n_dot_l = dot(g2, ldir); \n\
+            float n_dot_h = dot(g2, h); \n\
+            if (n_dot_l < 0.0) \n\
+              { \n\
+              n_dot_l = -n_dot_l; \n\
+              } \n\
+            if (n_dot_h < 0.0) \n\
+              { \n\
+              n_dot_h = -n_dot_h; \n\
+              } \n\
+            final_color += m_ambient * color.rgb; \n\
+            if (n_dot_l > 0) \n\
+              { \n\
+              final_color += m_diffuse * n_dot_l * color.rgb; \n\
+              } \n\
+            final_color += m_specular * pow(n_dot_h, m_shininess); \n\
+            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            if (grad.w >= 0.0)\n\
+              {\n\
+              color.a = color.a * computeGradientOpacity(grad); \n\
+              }\n\
+            return vec4(final_color, color.a); \n\
           }");
+        }
       }
-    else if (volProperty->GetShade() &&
-        !volProperty->GetDisableGradientOpacity())
-      {
-      return std::string(" \n\
-        uniform sampler1D m_gradient_transfer_func; \n\
-        vec4 computeLighting(vec4 color) \n\
-          { \n\
-          vec3 grad = computeGradient(); \n\
-          vec3 m_spacing = vec3(m_cell_spacing[0], \n\
-                                m_cell_spacing[1], \n\
-                                m_cell_spacing[2]); \n\
-          vec3 aspect; \n\
-          float avg_spacing = (m_spacing[0] + \n\
-                               m_spacing[1] + \n\
-                               m_spacing[2])/3.0; \n\
-          // Adjust the aspect \n\
-          aspect.x = m_spacing[0] * 2.0 / avg_spacing; \n\
-          aspect.y = m_spacing[1] * 2.0 / avg_spacing; \n\
-          aspect.z = m_spacing[2] * 2.0 / avg_spacing; \n\
-          grad.x /= aspect.x; \n\
-          grad.y /= aspect.y; \n\
-          grad.z /= aspect.z; \n\
-          float grad_mag = sqrt(grad.x * grad.x  + \n\
-                                grad.y * grad.y + \n\
-                                grad.z * grad.z); \n\
-          if (grad_mag > 0.0) \n\
+      else if (!vol->GetProperty()->GetDisableGradientOpacity())
+        {
+        std::string(
+          "vec4 computeLighting(vec4 color) \n\
              { \n\
-             grad.x /= grad_mag; \n\
-             grad.y /= grad_mag; \n\
-             grad.z /= grad_mag; \n\
-             } \n\
-           else \n\
-             { \n\
-             grad = vec3(0.0, 0.0, 0.0); \n\
-             } \n\
-          grad_mag = grad_mag * 1.0 / (0.25 * (m_scalars_range[1] - \n\
-                                              (m_scalars_range[0]))); \n\
-          grad_mag = clamp(grad_mag, 0.0, 1.0); \n\
-          vec4 final_color = vec4(0.0); \n\
-          vec3 ldir = normalize(g_light_pos_obj.xyz - m_vertex_pos); \n\
-          vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
-          vec3 h = normalize(ldir + vdir); \n\
-          float n_dot_l = dot(grad, ldir); \n\
-          float n_dot_h = dot(grad, h); \n\
-          if (n_dot_l < 0.0) \n\
-            { \n\
-            n_dot_l = -n_dot_l; \n\
-            } \n\
-          if (n_dot_h < 0.0) \n\
-            { \n\
-            n_dot_h = -n_dot_h; \n\
-            } \n\
-          final_color.rgb += m_ambient; \n\
-          final_color.rgb += m_diffuse * n_dot_l * color.rgb; \n\
-          final_color.rgb += m_specular * pow(n_dot_h, m_shininess); \n\
-          final_color.rgb = clamp(final_color.rgb, vec3(0.0), vec3(1.0)); \n\
-          final_color.a = color.a * \n\
-                          texture1D(m_gradient_transfer_func, grad_mag).w; \n\
-          return final_color; \n\
+              vec4 grad = computeGradient(); \n\
+              if (grad.w >= 0.0)\n\
+                {\n\
+                color.a = color.a * \n\
+                  texture1D(m_gradient_transfer_func, grad.w).w; \n\
+                }\n\
+             return color; \n\
           }");
-      }
-    else
-      {
-      return std::string(
-        "vec4 computeLighting(vec4 color) \n\
-           { \n\
-           return color; \n\
-           }");
-      }
+        }
+      return shaderStr;
     }
 
   //--------------------------------------------------------------------------
@@ -497,7 +636,7 @@ namespace vtkvolume
       return std::string(
         "// Light position in object space \n\
          g_light_pos_obj = (m_inverse_volume_matrix * \n\
-                            vec4(m_light_pos, 1.0)); \n\
+                            vec4(m_camera_pos, 1.0)); \n\
          if (g_light_pos_obj.w != 0.0) \n\
           { \n\
           g_light_pos_obj.x /= g_light_pos_obj.w; \n\
