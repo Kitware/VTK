@@ -520,15 +520,12 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     {
     // Set the LineWidth
     glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
-
     this->Lines.ibo.Bind();
-    for (size_t eCount = 0; eCount < this->Lines.offsetArray.size(); ++eCount)
-      {
-      glDrawElements(GL_LINE_STRIP,
-        this->Lines.elementsArray[eCount],
-        GL_UNSIGNED_INT,
-        (GLvoid *)(this->Lines.offsetArray[eCount]));
-      }
+    glMultiDrawElements(GL_LINE_STRIP,
+                      (GLsizei *)(&this->Lines.elementsArray[0]),
+                      GL_UNSIGNED_INT,
+                      reinterpret_cast<const GLvoid **>(&(this->Lines.offsetArray[0])),
+                      (GLsizei)this->Lines.offsetArray.size());
     this->Lines.ibo.Release();
     }
 
@@ -547,13 +544,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (this->TriStrips.indexCount)
     {
     this->TriStrips.ibo.Bind();
-    for (size_t eCount = 0; eCount < this->TriStrips.offsetArray.size(); ++eCount)
-      {
-      glDrawElements(GL_TRIANGLE_STRIP,
-        this->TriStrips.elementsArray[eCount],
-        GL_UNSIGNED_INT,
-        (GLvoid *)(this->TriStrips.offsetArray[eCount]));
-      }
+    glMultiDrawElements(GL_TRIANGLE_STRIP,
+                      (GLsizei *)(&this->TriStrips.elementsArray[0]),
+                      GL_UNSIGNED_INT,
+                      reinterpret_cast<const GLvoid **>(&(this->TriStrips.offsetArray[0])),
+                      (GLsizei)this->TriStrips.offsetArray.size());
     this->TriStrips.ibo.Release();
     }
 
