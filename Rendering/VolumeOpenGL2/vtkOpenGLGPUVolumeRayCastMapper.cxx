@@ -1511,9 +1511,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
         static_cast<GLfloat>(this->Parent->ReductionFactor * 0.5);
       }
     }
-
-  std::cerr << "Time to draw........... " << this->Parent->TimeToDraw  << std::endl;
-  std::cerr << "Sample distance........... " << this->Parent->ReductionFactor << std::endl;
 }
 
 //----------------------------------------------------------------------------
@@ -1847,7 +1844,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkErrorMacro("Shader failed to compile");
     }
 
-  std::cerr << fragmentShader << std::endl;
 
   this->Impl->ShaderBuildTime.Modified();
 }
@@ -1934,8 +1930,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
     {
     this->ReductionFactor = 1.0;
     }
-
-  std::cerr << "Reduction factor " << this->ReductionFactor << std::endl;
 }
 
 //----------------------------------------------------------------------------
@@ -2284,7 +2278,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   vtkInternal::ToFloat(ren->GetActiveCamera()->GetPosition(), fvalue3, 3);
   this->Impl->ShaderProgram->SetUniform3fv("m_camera_pos", 1, &fvalue3);
-  std::cerr << "camera pos " << fvalue3[0] << " " << fvalue3[1] << "  " << fvalue3[2] << std::endl;
 
   vtkInternal::ToFloat(this->Impl->LoadedBounds[0],
                        this->Impl->LoadedBounds[2],
