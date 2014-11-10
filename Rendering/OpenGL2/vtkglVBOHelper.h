@@ -42,7 +42,10 @@ std::string replace(std::string source, const std::string &search,
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                                  vtkPoints *points, std::vector<unsigned int> &cellPointMap);
 
-// used to create an IBO for point primatives
+// create a IBO for wireframe polys/tris
+size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
+
+// used to create an IBO for primatives as points
 size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
 
 // used to create an IBO for line strips and triangle strips
