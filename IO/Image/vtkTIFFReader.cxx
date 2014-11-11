@@ -217,7 +217,6 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
 
     // Check the number of pages. First by looking at the number of directories.
     this->NumberOfPages = TIFFNumberOfDirectories(this->Image);
-
     if (this->NumberOfPages == 0)
       {
       if (!TIFFGetField(this->Image, TIFFTAG_PAGENUMBER, &this->CurrentPage,
@@ -241,15 +240,14 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
       }
 
     // If the number of pages is still zero we look if the image is tiled.
-    if (this->NumberOfPages == 0 && TIFFIsTiled(this->Image))
+    if (this->NumberOfPages <= 1 && TIFFIsTiled(this->Image))
       {
       this->NumberOfTiles = TIFFNumberOfTiles(this->Image);
 
       if (!TIFFGetField(this->Image, TIFFTAG_TILEWIDTH, &this->TileWidth) ||
-          !TIFFGetField(this->Image, TIFFTAG_TILELENGTH, &this->TileHeight)
-        )
+          !TIFFGetField(this->Image, TIFFTAG_TILELENGTH, &this->TileHeight))
         {
-        cerr << "Cannot read tile width and tile length from file" << endl;
+        cerr << "Cannot read tile width and height from file" << endl;
         }
       else
         {
@@ -334,7 +332,8 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::CanRead()
            ( this->SamplesPerPixel > 0 ) &&
            ( this->Compression == COMPRESSION_NONE ||
              this->Compression == COMPRESSION_PACKBITS ||
-             this->Compression == COMPRESSION_LZW
+             this->Compression == COMPRESSION_LZW ||
+             this->Compression == COMPRESSION_ADOBE_DEFLATE
              ) &&
            ( this->HasValidPhotometricInterpretation ) &&
            ( this->Photometrics == PHOTOMETRIC_RGB ||
@@ -532,11 +531,11 @@ void vtkTIFFReader::ExecuteInformation()
    if (this->InternalImage->NumberOfTiles > 1)
      {
      this->DataExtent[0] = 0;
-     this->DataExtent[1]  = this->InternalImage->TileWidth - 1;
+     this->DataExtent[1]  = this->InternalImage->Width - 1;
      this->DataExtent[2] = 0;
-     this->DataExtent[3]  = this->InternalImage->TileHeight - 1;
+     this->DataExtent[3]  = this->InternalImage->Height - 1;
      this->DataExtent[4] = 0;
-     this->DataExtent[5]  = this->InternalImage->NumberOfTiles - 1;
+     this->DataExtent[5]  = 0;
      if (!SpacingSpecifiedFlag)
        {
        this->DataSpacing[2] = 1.0;
@@ -853,11 +852,20 @@ void vtkTIFFReader::ReadVolume(T* buffer)
         return;
         }
 
+      const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
       T* fimage = buffer;
       fimage += width * height * 4 * page;
       for (int yy = 0; yy < height; ++yy)
         {
-        uint32* ssimage = tempImage + (height - yy - 1) * width;
+        uint32* ssimage;
+        if (flip)
+          {
+          ssimage = tempImage + yy * width;
+          }
+        else
+          {
+          ssimage = tempImage + (height - yy - 1) * width;
+          }
         for (int xx = 0; xx < width; ++xx)
           {
           *(fimage    ) = static_cast<T>(TIFFGetR(*ssimage)); // Red
@@ -897,40 +905,133 @@ void vtkTIFFReader::ReadVolume(T* buffer)
 /** Read a tiled tiff */
 void vtkTIFFReader::ReadTiles(void* buffer)
 {
-  unsigned char* volume = reinterpret_cast<unsigned char*>(buffer);
+  unsigned char* volume =
+    reinterpret_cast<unsigned char*>(buffer);
+  unsigned char *tile
+    = new unsigned char[TIFFTileSize(this->InternalImage->Image)];
 
-  for (unsigned int col = 0; col < this->InternalImage->Width;
-       col += this->InternalImage->TileWidth)
+  const unsigned int width = this->InternalImage->Width;
+  const unsigned int height = this->InternalImage->Height;
+  const unsigned int tileWidth = this->InternalImage->TileWidth;
+  const unsigned int tileHeight = this->InternalImage->TileHeight;
+  const unsigned int pixelSize = this->InternalImage->SamplesPerPixel;
+  const bool rowMultiple = (height % tileHeight == 0 ) ? true : false;
+  const bool colMultiple = (width % tileWidth == 0 ) ? true : false;
+  const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
+
+  for (unsigned int slice = 0; slice < this->InternalImage->NumberOfPages;
+       ++slice)
     {
-    for (unsigned int row = 0; row < this->InternalImage->Height;
-         row += this->InternalImage->TileHeight)
+    for (unsigned int row = 0;
+         row < (rowMultiple ? height : height - tileHeight);
+         row += tileHeight)
       {
-      unsigned char *tempImage
-              = new unsigned char[this->InternalImage->TileWidth *
-                                  this->InternalImage->TileHeight *
-                                  this->InternalImage->SamplesPerPixel];
-
-      if (TIFFReadTile(this->InternalImage->Image, tempImage, col, row, 0, 0) < 0)
+      const unsigned int r = flip ? height - row - tileHeight : row;
+      for (unsigned int col = 0;
+           col < (colMultiple ? width : width - tileWidth);
+           col += tileWidth)
         {
-        vtkErrorMacro(<< "Cannot read tile : "<< row << "," << col << " from file");
-        delete [] tempImage;
-        return;
-        }
-
-      for (unsigned int yy = 0; yy < this->InternalImage->TileHeight; ++yy)
-        {
-        for (unsigned int xx = 0; xx <  this->InternalImage->TileWidth; ++xx)
+        if (TIFFReadTile(this->InternalImage->Image, tile, col, r, slice, 0) < 0)
           {
-          for (unsigned int i = 0; i < this->InternalImage->SamplesPerPixel; ++i)
-            {
-            *volume = *(tempImage++);
-            ++volume;
-            }
+          vtkErrorMacro(<< "Cannot read tile : "<< r << "," << col << " from file");
+          delete [] tile;
+          return;
+          }
+        // Currently not using tile depth
+        unsigned int zz = 0;
+        for (unsigned int yy = 0; yy < tileHeight; ++yy)
+          {
+          const unsigned int y = flip ? tileHeight + height % tileHeight - yy - 1 : yy;
+          memcpy (
+            volume + (((slice + zz) * height + row + y) * width + col) * pixelSize,
+            tile + (zz * tileHeight + yy) * tileWidth * pixelSize,
+            tileWidth * pixelSize);
           }
         }
-      delete [] tempImage;
       }
     }
+    // Fill the boundaries
+    if (!colMultiple)
+      {
+      const unsigned int lenx = width % tileWidth;
+      const unsigned int col = width - lenx;
+      const unsigned int tilexWidth = lenx;
+      for (unsigned int row = 0;
+           row < (rowMultiple ? height : height - tileHeight);
+           row += tileHeight)
+        {
+        const unsigned int r = flip ? height - row - tileHeight - 1 : row;
+        if (TIFFReadTile(this->InternalImage->Image, tile, col, r, 0, 0) < 0)
+          {
+          vtkErrorMacro(<< "Cannot read tile : "<< r << "," << col << " from file");
+          delete [] tile;
+          return;
+          }
+        const unsigned int zz = 0;
+        for (unsigned int yy = 0; yy < tileHeight; ++yy)
+          {
+          const unsigned int y = flip ? tileHeight + height % tileHeight - yy - 1 : yy;
+          memcpy (
+            volume + (((0 + zz) * height + row + y) * width + col) * pixelSize,
+            tile + (zz * tileHeight + yy) * tileWidth * pixelSize,
+            tilexWidth * pixelSize);
+          }
+        }
+      }
+    if (!rowMultiple)
+      {
+      const unsigned int leny = height % tileHeight;
+      const unsigned int row = height - leny;
+      const unsigned int r = flip ? 0 : row;
+      for (unsigned int col = 0;
+           col < (colMultiple ? width : width - tileWidth);
+           col += tileWidth)
+        {
+        if (TIFFReadTile(this->InternalImage->Image, tile, col, row, 0, 0) < 0)
+          {
+          vtkErrorMacro(<< "Cannot read tile : "<< r << "," << col << " from file");
+          delete [] tile;
+          return;
+          }
+        const unsigned int zz = 0;
+        for (unsigned int yy = 0; yy < leny; ++yy)
+          {
+          const unsigned int y = flip ? leny - yy - 1 : yy;
+          memcpy (
+            volume + (((0 + zz) * height + r + y) * width + col) * pixelSize,
+            tile + (zz * tileHeight + yy) * tileWidth * pixelSize,
+            tileWidth * pixelSize);
+          }
+        }
+      }
+    if (!colMultiple && !rowMultiple)
+      {
+      const unsigned int lenx = width % tileWidth;
+      const unsigned int col = width - lenx;
+
+      const unsigned int leny = height % tileHeight;
+      const unsigned int row = height - leny;
+      const unsigned int tilexWidth = lenx;
+
+      const unsigned int r = flip ? 0 : row;
+      if (TIFFReadTile(this->InternalImage->Image, tile, col, row, 0, 0) < 0)
+        {
+        vtkErrorMacro(<< "Cannot read tile : "<< r << "," << col << " from file");
+        delete [] tile;
+        return;
+        }
+      const unsigned int zz = 0;
+      unsigned int y;
+      for (unsigned int yy = 0; yy < leny; ++yy)
+        {
+        y = flip ? leny - yy - 1 : yy;
+        memcpy (
+          volume + (((0 + zz) * height + r + y) * width + col) * pixelSize,
+          tile + (zz * tileHeight + yy) * tileWidth * pixelSize,
+          tilexWidth * pixelSize);
+        }
+      }
+  delete [] tile;
 }
 
 /** To Support Zeiss images that contains only 2 samples per pixel but are actually
