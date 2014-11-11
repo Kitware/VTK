@@ -146,7 +146,7 @@ namespace vtkvolume
       uniform float m_shininess; \n\
       // Other useful variales; \n\
       vec4 g_src_color; \n\
-      vec4 g_light_pos_obj; \n\
+      vec4 light_pos_obj; \n\
       vec4 g_eye_pos_obj; ");
 
     if (lightingComplexity == 2)
@@ -180,8 +180,7 @@ namespace vtkvolume
                        vtkVolume* vtkNotUsed(vol))
     {
     return std::string(
-      "g_light_pos_obj; \n\
-      \n\
+      "\n\
       // Get the 3D texture coordinates for lookup into the m_volume dataset \n\
       g_data_pos = m_texture_coords.xyz; \n\
       \n\
@@ -353,7 +352,62 @@ namespace vtkvolume
 
     if (volProperty->GetShade())
       {
-      if (lightingComplexity == 2)
+      if (lightingComplexity == 1)
+        {
+        shaderStr = std::string(" \n\
+          vec4 computeLighting(vec4 color) \n\
+            {\n\
+            // Light position in object space \n\
+            vec4 light_pos_obj = (m_inverse_volume_matrix * \n\
+                                    vec4(m_camera_pos, 1.0)); \n\
+            if (light_pos_obj.w != 0.0) \n\
+              { \n\
+              light_pos_obj.x /= light_pos_obj.w; \n\
+              light_pos_obj.y /= light_pos_obj.w; \n\
+              light_pos_obj.z /= light_pos_obj.w; \n\
+              light_pos_obj.w = 1.0; \n\
+            } \n\
+            vec3 ldir = normalize(light_pos_obj.xyz - m_vertex_pos); \n\
+            vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
+            vec3 h = normalize(ldir + vdir); \n\
+            vec4 grad = computeGradient(); \n\
+            vec3 g2 = grad.xyz; \n\
+            g2 = (1.0/m_cell_spacing) * g2; \n\
+            float normalLength = length(g2);\n\
+            if (normalLength > 0.0) \n\
+              { \n\
+              g2 = normalize(g2); \n\
+              } \n\
+            else \n\
+              { \n\
+              g2 = vec3(0.0, 0.0, 0.0); \n\
+              } \n\
+            vec3 final_color = vec3(0.0); \n\
+            float n_dot_l = dot(g2, ldir); \n\
+            float n_dot_h = dot(g2, h); \n\
+            if (n_dot_l < 0.0) \n\
+              { \n\
+              n_dot_l = -n_dot_l; \n\
+              } \n\
+            if (n_dot_h < 0.0) \n\
+              { \n\
+              n_dot_h = -n_dot_h; \n\
+              } \n\
+            final_color += m_ambient * color.rgb; \n\
+            if (n_dot_l > 0) \n\
+              { \n\
+              final_color += m_diffuse * n_dot_l * color.rgb; \n\
+              } \n\
+            final_color += m_specular * pow(n_dot_h, m_shininess); \n\
+            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            if (grad.w >= 0.0)\n\
+              {\n\
+              color.a = color.a * computeGradientOpacity(grad); \n\
+              }\n\
+            return vec4(final_color, color.a); \n\
+          }");
+        }
+      else if (lightingComplexity == 2)
         {
         shaderStr = std::string(" \n\
           vec4 computeLighting(vec4 color) \n\
@@ -465,51 +519,6 @@ namespace vtkvolume
             return vec4(final_color, color.a); \n\
           } \n\
         ");
-        }
-      else if (lightingComplexity == 1)
-        {
-        shaderStr = std::string(" \n\
-          vec4 computeLighting(vec4 color) \n\
-            {\n\
-            vec3 ldir = normalize(g_light_pos_obj.xyz - m_vertex_pos); \n\
-            vec3 vdir = normalize(g_eye_pos_obj.xyz - m_vertex_pos); \n\
-            vec3 h = normalize(ldir + vdir); \n\
-            vec4 grad = computeGradient(); \n\
-            vec3 g2 = grad.xyz; \n\
-            g2 = (1.0/m_cell_spacing) * g2; \n\
-            float normalLength = length(g2);\n\
-            if (normalLength > 0.0) \n\
-              { \n\
-              g2 = normalize(g2); \n\
-              } \n\
-            else \n\
-              { \n\
-              g2 = vec3(0.0, 0.0, 0.0); \n\
-              } \n\
-            vec3 final_color = vec3(0.0); \n\
-            float n_dot_l = dot(g2, ldir); \n\
-            float n_dot_h = dot(g2, h); \n\
-            if (n_dot_l < 0.0) \n\
-              { \n\
-              n_dot_l = -n_dot_l; \n\
-              } \n\
-            if (n_dot_h < 0.0) \n\
-              { \n\
-              n_dot_h = -n_dot_h; \n\
-              } \n\
-            final_color += m_ambient * color.rgb; \n\
-            if (n_dot_l > 0) \n\
-              { \n\
-              final_color += m_diffuse * n_dot_l * color.rgb; \n\
-              } \n\
-            final_color += m_specular * pow(n_dot_h, m_shininess); \n\
-            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
-            if (grad.w >= 0.0)\n\
-              {\n\
-              color.a = color.a * computeGradientOpacity(grad); \n\
-              }\n\
-            return vec4(final_color, color.a); \n\
-          }");
         }
       }
       else if (vol->GetProperty()->HasGradientOpacity())
@@ -632,20 +641,6 @@ namespace vtkvolume
       return std::string(
         "// We get data between 0.0 - 1.0 range \n\
         float l_sum_value = 0.0;");
-      }
-    else if (vol->GetProperty()->GetShade())
-      {
-      return std::string(
-        "// Light position in object space \n\
-         g_light_pos_obj = (m_inverse_volume_matrix * \n\
-                            vec4(m_camera_pos, 1.0)); \n\
-         if (g_light_pos_obj.w != 0.0) \n\
-          { \n\
-          g_light_pos_obj.x /= g_light_pos_obj.w; \n\
-          g_light_pos_obj.y /= g_light_pos_obj.w; \n\
-          g_light_pos_obj.z /= g_light_pos_obj.w; \n\
-          g_light_pos_obj.w = 1.0; \n\
-          };");
       }
     else
       {
