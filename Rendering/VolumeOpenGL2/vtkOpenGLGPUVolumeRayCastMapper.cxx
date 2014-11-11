@@ -874,11 +874,17 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 {
   if (!vol)
     {
-    std::cerr << "Invalid m_volume" << std::endl;
     return 1;
     }
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
+
+  // TODO Currently checking on index 0 only
+  if (!volumeProperty->HasGradientOpacity())
+    {
+    return 1;
+    }
+
   vtkPiecewiseFunction* gradientOpacity = volumeProperty->GetGradientOpacity();
 
   if (!this->GradientOpacityTables && gradientOpacity)

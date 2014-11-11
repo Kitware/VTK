@@ -233,7 +233,7 @@ namespace vtkvolume
                                    int vtkNotUsed(numberOfComponents))
   {
     if (vol->GetProperty()->GetShade() &&
-        vol->GetProperty()->GetDisableGradientOpacity())
+        !vol->GetProperty()->HasGradientOpacity())
       {
       return std::string(" \n\
         float computeGradientOpacity(vec4 grad) \n\
@@ -258,8 +258,7 @@ namespace vtkvolume
          }");
     }
     else if (vol->GetProperty()->GetShade() &&
-            !vol->GetProperty()->GetDisableGradientOpacity() &&
-             vol->GetProperty()->GetGradientOpacity())
+             vol->GetProperty()->HasGradientOpacity())
       {
       return std::string(" \n\
         uniform sampler1D m_gradient_transfer_func;\n\
@@ -513,7 +512,7 @@ namespace vtkvolume
           }");
         }
       }
-      else if (!vol->GetProperty()->GetDisableGradientOpacity())
+      else if (vol->GetProperty()->HasGradientOpacity())
         {
         std::string(
           "vec4 computeLighting(vec4 color) \n\

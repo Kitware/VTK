@@ -95,7 +95,6 @@ int TestGPURayCastCompositeBinaryMask(int argc, char *argv[])
   property->SetColor(colorFun);
   property->SetScalarOpacity(opacityFun);
   property->SetInterpolationTypeToLinear();
-  property->SetDisableGradientOpacity(1);
 
   // connect up the volume to the property and the mapper
   volume->SetProperty(property);
