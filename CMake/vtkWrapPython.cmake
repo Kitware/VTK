@@ -340,7 +340,7 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
   configure_file(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
-    COPYONLY
+    @ONLY
     )
 
   add_custom_command(
