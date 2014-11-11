@@ -146,8 +146,14 @@ namespace vtkvolume
       uniform float m_shininess; \n\
       // Other useful variales; \n\
       vec4 g_src_color; \n\
-      vec4 light_pos_obj; \n\
       vec4 g_eye_pos_obj; ");
+
+    if (lightingComplexity > 0)
+      {
+      shaderStr += std::string("\n\
+        uniform bool m_twoSidedLighting; \n\
+      ");
+      }
 
     if (lightingComplexity == 2)
       {
@@ -385,11 +391,11 @@ namespace vtkvolume
             vec3 final_color = vec3(0.0); \n\
             float n_dot_l = dot(g2, ldir); \n\
             float n_dot_h = dot(g2, h); \n\
-            if (n_dot_l < 0.0) \n\
+            if (n_dot_l < 0.0 && m_twoSidedLighting) \n\
               { \n\
               n_dot_l = -n_dot_l; \n\
               } \n\
-            if (n_dot_h < 0.0) \n\
+            if (n_dot_h < 0.0 && m_twoSidedLighting) \n\
               { \n\
               n_dot_h = -n_dot_h; \n\
               } \n\
@@ -398,7 +404,10 @@ namespace vtkvolume
               { \n\
               final_color += m_diffuse * n_dot_l * color.rgb; \n\
               } \n\
-            final_color += m_specular * pow(n_dot_h, m_shininess); \n\
+            if (n_dot_h > 0) \n\
+              { \n\
+              final_color += m_specular * pow(n_dot_h, m_shininess); \n\
+              } \n\
             final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
             if (grad.w >= 0.0)\n\
               {\n\
@@ -435,19 +444,23 @@ namespace vtkvolume
                                     vec4(m_lightDirection[lightNum].xyz, 0.0)).xyz); \n\
               vec3 h = normalize(ldir + vdir); \n\
               float n_dot_h = dot(g2, h); \n\
-              if (n_dot_h < 0.0) \n\
+              if (n_dot_h < 0.0 && m_twoSidedLighting) \n\
                 { \n\
                 n_dot_h = -n_dot_h; \n\
                 } \n\
               float n_dot_l = dot(g2, ldir); \n\
-              if (n_dot_l < 0.0) \n\
+              if (n_dot_l < 0.0 && m_twoSidedLighting) \n\
                 { \n\
                 n_dot_l = -n_dot_l; \n\
                 } \n\
-              if (n_dot_l > 0) { \n\
+              if (n_dot_l > 0) \n\
+                { \n\
                 diffuse += m_lightColor[lightNum] * n_dot_l; \n\
-               } \n\
-              specular = m_lightColor[lightNum] * pow(n_dot_h, m_shininess); \n\
+                } \n\
+              if (n_dot_h > 0) \n\
+                { \n\
+                specular = m_lightColor[lightNum] * pow(n_dot_h, m_shininess); \n\
+                } \n\
               }\n\
             final_color += (m_ambient + m_diffuse * diffuse + m_specular * specular) * color.rgb; \n\
             final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
@@ -622,7 +635,7 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string ShadingInit(vtkRenderer* vtkNotUsed(ren),
                           vtkVolumeMapper* mapper,
-                          vtkVolume* vol)
+                          vtkVolume* vtkNotUsed(vol))
     {
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {

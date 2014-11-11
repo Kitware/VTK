@@ -62,6 +62,7 @@ int TestGPURayCastLightKit(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(0.0, 0.0, 0.0);
+  ren->SetTwoSidedLighting(0);
 
   lightKit->SetKeyLightWarmth(1.0);
   lightKit->SetFillLightWarmth(0.0);
