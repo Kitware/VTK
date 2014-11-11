@@ -52,6 +52,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
+  volumeMapper->SetSampleDistance(0.01);
 
   // Add outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
@@ -61,6 +62,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
+  volumeMapper->SetAutoAdjustSampleDistances(1);
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
@@ -72,8 +74,8 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
-  scalarOpacity->AddPoint(scalarRange[0], 0.0);
-  scalarOpacity->AddPoint(scalarRange[1], 1.0);
+  scalarOpacity->AddPoint(50, 0.0);
+  scalarOpacity->AddPoint(75, 0.1);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOff();
@@ -84,8 +86,8 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.0, 0.0, 1.0);
-  colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 0.0, 0.0);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.0, 0.8, 0.1);
+  colorTransferFunction->AddRGBPoint(scalarRange[1], 0.0, 0.8, 0.1);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
@@ -105,6 +107,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   ren->ResetCamera();
 
   iren->Initialize();
+  iren->SetDesiredUpdateRate(30.0);
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)

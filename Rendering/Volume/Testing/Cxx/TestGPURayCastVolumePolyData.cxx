@@ -60,6 +60,8 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   outlineActor->SetMapper(outlineMapper.GetPointer());
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
+  volumeMapper->SetSampleDistance(0.1);
+  volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetBlendModeToComposite();
 
   vtkNew<vtkRenderWindow> renWin;
@@ -72,20 +74,19 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
-  scalarOpacity->AddPoint(scalarRange[0], 0.0);
-  scalarOpacity->AddPoint(scalarRange[1], 1.0);
+  scalarOpacity->AddPoint(50, 0.0);
+  scalarOpacity->AddPoint(75, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->ShadeOff();
+  volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetDisableGradientOpacity(1);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.0, 0.0, 0.0);
-  colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 1.0, 1.0);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
 
   vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
   volume->SetMapper(volumeMapper.GetPointer());
