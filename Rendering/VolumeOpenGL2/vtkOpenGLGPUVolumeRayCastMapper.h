@@ -50,15 +50,15 @@ protected:
                          double vtkNotUsed(datasetBounds)[6],
                          double vtkNotUsed(scalarRange)[2],
                          int vtkNotUsed(numberOfScalarComponents),
-                         unsigned int vtkNotUsed(numberOfLevels)) {;}
+                         unsigned int vtkNotUsed(numberOfLevels)) {}
 
   // \pre input is up-to-date
   virtual void RenderBlock(vtkRenderer *vtkNotUsed(ren),
                            vtkVolume *vtkNotUsed(vol),
-                           unsigned int vtkNotUsed(level)) {;}
+                           unsigned int vtkNotUsed(level)) {}
 
   virtual void PostRender(vtkRenderer *vtkNotUsed(ren),
-                          int vtkNotUsed(numberOfScalarComponents)) {;}
+                          int vtkNotUsed(numberOfScalarComponents)) {}
 
   // Description:
   // Rendering volume on GPU
@@ -90,11 +90,11 @@ protected:
     return 1;
     }
 
+  double ReductionFactor;
+
 private:
   class vtkInternal;
   vtkInternal* Impl;
-
-  double ReductionFactor;
 
   vtkOpenGLGPUVolumeRayCastMapper(
     const vtkOpenGLGPUVolumeRayCastMapper&); // Not implemented.

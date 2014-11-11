@@ -1503,7 +1503,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
     // by 1/reduceFactor.
     this->ActualSampleDistance = static_cast<float>(minWorldSpacing);
 
-    // TODO: Support reduction factor
     if (this->Parent->ReductionFactor < 1.0)
       {
       // 0.5 is done to increase the impact factor
@@ -1901,9 +1900,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
 
       this->ReductionFactor = (newFactor+oldFactor)/2.0;
 
-      this->ReductionFactor = (this->ReductionFactor > 5.0)?(1.00):(this->ReductionFactor);
-      this->ReductionFactor = (this->ReductionFactor > 1.0)?(0.99):(this->ReductionFactor);
-      this->ReductionFactor = (this->ReductionFactor < 0.1)?(0.10):(this->ReductionFactor);
+      this->ReductionFactor = (this->ReductionFactor > 5.0) ? (1.00) :
+                                (this->ReductionFactor);
+      this->ReductionFactor = (this->ReductionFactor > 1.0) ? (0.99) :
+                                (this->ReductionFactor);
+      this->ReductionFactor = (this->ReductionFactor < 0.1) ? (0.10) :
+                                (this->ReductionFactor);
 
       if ( 1.0/this->ReductionFactor > this->MaximumImageSampleDistance )
         {
