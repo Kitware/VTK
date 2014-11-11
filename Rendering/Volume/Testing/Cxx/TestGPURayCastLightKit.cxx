@@ -40,6 +40,8 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <vtkContourFilter.h>
+
 int TestGPURayCastLightKit(int argc, char *argv[])
 {
   double scalarRange[2];
@@ -61,9 +63,9 @@ int TestGPURayCastLightKit(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(0.0, 0.0, 0.0);
 
-  lightKit->SetKeyLightWarmth(0.0);
-  lightKit->SetFillLightWarmth(1.0);
-  lightKit->SetBackLightWarmth(1.0);
+  lightKit->SetKeyLightWarmth(1.0);
+  lightKit->SetFillLightWarmth(0.0);
+  lightKit->SetBackLightWarmth(0.0);
   lightKit->AddLightsToRenderer(ren.GetPointer());
 
   renWin->AddRenderer(ren.GetPointer());
@@ -73,25 +75,38 @@ int TestGPURayCastLightKit(int argc, char *argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
-  scalarOpacity->AddPoint(50, 0.0);
-  scalarOpacity->AddPoint(75, 0.8);
+  scalarOpacity->AddPoint(55, 0.0);
+  scalarOpacity->AddPoint(65, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
+  volumeProperty->SetAmbient(0.0);
+  volumeProperty->SetDiffuse(1.0);
+  volumeProperty->SetSpecular(0.0);
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.8, 0.8, 0.8);
-  colorTransferFunction->AddRGBPoint(scalarRange[1], 0.8, 0.8, 0.8);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 1.0, 1.0, 1.0);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
+  vtkNew<vtkPolyDataMapper> pm;
+  vtkNew<vtkActor> ac;
+  vtkNew<vtkContourFilter> cf;
+  ac->SetMapper(pm.GetPointer());
+  pm->SetInputConnection(cf->GetOutputPort());
+  pm->SetScalarVisibility(0);
+  cf->SetValue(0, 60.0);
+  cf->SetInputConnection(reader->GetOutputPort());
+  ac->SetPosition(-50.0, 0.0, 0.0);
+
   ren->AddViewProp(volume.GetPointer());
+  ren->AddActor(ac.GetPointer());
   renWin->Render();
   ren->ResetCamera();
 

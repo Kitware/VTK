@@ -377,7 +377,9 @@ namespace vtkvolume
             vec3 final_color = vec3(0.0); \n\
             for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
               {\n\
-              vec3 ldir = m_lightDirection[lightNum].xyz; \n\
+              vec3 ldir = normalize((m_inverse_volume_matrix * \n\
+                                     m_inverse_modelview_matrix * \n\
+                                    vec4(m_lightDirection[lightNum].xyz, 0.0)).xyz); \n\
               vec3 h = normalize(ldir + vdir); \n\
               float n_dot_h = dot(g2, h); \n\
               if (n_dot_h < 0.0) \n\
