@@ -56,7 +56,7 @@ void main()
   //VTK::Normal::Impl
 
   // diffuse and specular lighting
-  float df = max(0.0,dot(normalVC, vec3(0.0, 0.0, 1.0)));
+  float df = max(0.0, normalVC.z);
   float sf = pow(df, specularPower);
 
   vec3 diffuse = df * diffuseColor;

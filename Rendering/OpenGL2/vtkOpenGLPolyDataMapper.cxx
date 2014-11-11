@@ -339,11 +339,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "varying vec3 normalVCVarying;");
     FSSource = replace(FSSource,
       "//VTK::Normal::Impl",
-      "vec3 normalVC;\n"
+      "vec3 normalVC = normalize(normalVCVarying);\n"
       //  if (!gl_FrontFacing) does not work in intel hd4000 mac
       //  if (int(gl_FrontFacing) == 0) does not work on mesa
-      "  if (gl_FrontFacing == false) { normalVC = -normalVCVarying; }\n"
-      "  else { normalVC = normalVCVarying; }"
+      "  if (gl_FrontFacing == false) { normalVC = -normalVC; }\n"
       //"normalVC = normalVCVarying;"
       );
   }
