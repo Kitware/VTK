@@ -666,6 +666,7 @@ void vtkParticleTracerBase::AssignSeedsToProcessors(
     info.age                  = 0.0;
     info.speed                = 0.0;
     info.ErrorCode            = 0;
+    info.SimulationTime       = this->GetCurrentTimeValue();
     info.PointId = -1;
     }
   //
@@ -1166,6 +1167,7 @@ void vtkParticleTracerBase::IntegrateParticle(
         // increment the particle time
         point2[3] = point1[3] + stepTaken;
         info.age += stepTaken;
+        info.SimulationTime += stepTaken;
 
         // Point is valid. Insert it.
         memcpy(&info.CurrentPosition, point2, sizeof(Position));
@@ -1503,6 +1505,7 @@ bool vtkParticleTracerBase::RetryWithPush(
   info.CurrentPosition.x[3] += delT;
   info.LocationState = this->Interpolator->TestPoint(info.CurrentPosition.x);
   info.age += delT;
+  info.SimulationTime += delT; // = this->GetCurrentTimeValue();
 
   if (info.LocationState!=ID_OUTSIDE_ALL)
     {
@@ -1528,7 +1531,7 @@ void vtkParticleTracerBase::AddParticle(
   this->InjectedStepIds->InsertNextValue(info.InjectedStepId);
   this->ErrorCode->InsertNextValue(info.ErrorCode);
   this->ParticleAge->InsertNextValue(info.age);
-  this->AppendToExtraPointDataArrays();
+  this->AppendToExtraPointDataArrays(info);
   info.PointId = tempId;
 
   //
