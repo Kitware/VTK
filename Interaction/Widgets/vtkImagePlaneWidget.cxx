@@ -1378,6 +1378,7 @@ void vtkImagePlaneWidget::CreateDefaultProperties()
     {
     this->TexturePlaneProperty = vtkProperty::New();
     this->TexturePlaneProperty->SetAmbient(1);
+    this->TexturePlaneProperty->SetDiffuse(0);
     this->TexturePlaneProperty->SetInterpolationToFlat();
     }
 }
