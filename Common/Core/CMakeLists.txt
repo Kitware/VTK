@@ -68,13 +68,13 @@ else()
 endif()
 
 configure_file(${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h COPY_ONLY)
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h COPYONLY)
 
 configure_file(SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPThreadLocal.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h COPY_ONLY)
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h COPYONLY)
 
 configure_file(SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPToolsInternal.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h COPY_ONLY)
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h COPYONLY)
 
 #-----------------------------------------------------------------------------
 
