@@ -50,6 +50,7 @@ protected:
   vtkMatrix3x3 *NormalMatrix;
   vtkMatrix4x4 *VCDCMatrix;
   vtkTimeStamp KeyMatrixTime;
+  vtkRenderer *LastRenderer;
 
 private:
   vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
