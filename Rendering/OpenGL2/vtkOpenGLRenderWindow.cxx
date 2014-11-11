@@ -1512,10 +1512,10 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   // 1. create a regular OpenGLcontext (ie create a window)
   this->CreateAWindow();
   this->MakeCurrent();
+  int result = 0;
 
-  // 2. check for OpenGL extensions GL_ARB_framebuffer_object and
-  int result=0;
-
+  // test for FBO support
+#if GL_ES_VERSION_2_0 != 1
   if(!glewIsSupported("GL_EXT_framebuffer_object"))
     {
     vtkDebugMacro( << " extension GL_EXT_framebuffer_object is not supported. "
@@ -1523,23 +1523,26 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     this->DestroyWindow();
     }
   else
+#endif
     {
-    // 3. regular framebuffer code
+    // 2. regular framebuffer code
     this->NumberOfFrameBuffers=1;
+#ifdef GL_STEREO
     GLboolean flag;
     glGetBooleanv(GL_STEREO,&flag);
     if(flag)
       {
       this->NumberOfFrameBuffers<<=1;
       }
+#endif
 
     // Up to 2: stereo
     GLuint textureObjects[2];
 
     GLuint frameBufferObject;
     GLuint depthRenderBufferObject;
-    glGenFramebuffersEXT(1, &frameBufferObject); // color
-    glGenRenderbuffersEXT(1, &depthRenderBufferObject); // depth
+    glGenFramebuffers(1, &frameBufferObject); // color
+    glGenRenderbuffers(1, &depthRenderBufferObject); // depth
     int i=0;
     while(i<this->NumberOfFrameBuffers)
       {
@@ -1548,7 +1551,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       }
     glGenTextures(this->NumberOfFrameBuffers,textureObjects);
     // Color buffers
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,frameBufferObject);
+    glBindFramebuffer(GL_FRAMEBUFFER,frameBufferObject);
 
     GLenum target;
     target=GL_TEXTURE_2D;
@@ -1561,61 +1564,73 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#ifdef GL_RGBA8
       glTexImage2D(target,0,GL_RGBA8,width,height,
                    0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                     GL_COLOR_ATTACHMENT0_EXT+i,
-                                     target, textureObjects[i], 0);
+#else
+      glTexImage2D(target,0,GL_RGBA,width,height,
+                   0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+#endif
+      glFramebufferTexture2D(GL_FRAMEBUFFER,
+                             GL_COLOR_ATTACHMENT0+i,
+                             target, textureObjects[i], 0);
       ++i;
       }
     GLenum status;
-    status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
+    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(status != GL_FRAMEBUFFER_COMPLETE)
       {
       vtkDebugMacro(<<"Hardware does not support GPU Offscreen rendering.");
       glBindTexture(target,0);
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-      glDeleteFramebuffersEXT(1,&frameBufferObject);
-      glDeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+      glBindFramebuffer(GL_FRAMEBUFFER,0);
+      glDeleteFramebuffers(1,&frameBufferObject);
+      glDeleteRenderbuffers(1,&depthRenderBufferObject);
       glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
       this->DestroyWindow();
       }
     else
       {
       // Set up the depth (and stencil), render buffer
-      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT,
-                                 depthRenderBufferObject);
+      glBindRenderbuffer(GL_RENDERBUFFER,
+                         depthRenderBufferObject);
+#ifdef GL_DEPTH_STENCIL
       if(this->StencilCapable)
         {
-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
-                                GL_DEPTH_STENCIL_EXT, width,height);
+        glRenderbufferStorage(GL_RENDERBUFFER,
+                              GL_DEPTH_STENCIL, width,height);
         }
       else
+#endif
         {
-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
-                                  GL_DEPTH_COMPONENT24,width,height);
+#ifdef GL_DEPTH_COMPONENT24
+        glRenderbufferStorage(GL_RENDERBUFFER,
+                              GL_DEPTH_COMPONENT24,width,height);
+#else
+        glRenderbufferStorage(GL_RENDERBUFFER,
+                              GL_DEPTH_COMPONENT16,width,height);
+#endif
         }
-      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_DEPTH_ATTACHMENT_EXT,
-                                  GL_RENDERBUFFER_EXT,
-                                  depthRenderBufferObject);
+      glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                GL_DEPTH_ATTACHMENT,
+                                GL_RENDERBUFFER,
+                                depthRenderBufferObject);
       if(this->StencilCapable)
         {
-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
-                                    GL_STENCIL_ATTACHMENT_EXT,
-                                    GL_RENDERBUFFER_EXT,
-                                    depthRenderBufferObject);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                  GL_STENCIL_ATTACHMENT,
+                                  GL_RENDERBUFFER,
+                                  depthRenderBufferObject);
         }
 
       // Last check to see if the FBO is supported or not.
-      status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-      if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
+      status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+      if(status != GL_FRAMEBUFFER_COMPLETE)
         {
         vtkDebugMacro(<<"Hardware does not support GPU Offscreen rendering withthis depth/stencil configuration.");
         glBindTexture(target,0);
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-        glDeleteFramebuffersEXT(1,&frameBufferObject);
-        glDeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
+        glDeleteFramebuffers(1,&frameBufferObject);
+        glDeleteRenderbuffers(1,&depthRenderBufferObject);
         glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
         this->DestroyWindow();
         }
@@ -1623,21 +1638,21 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
         {
         result=1;
         this->BackLeftBuffer=
-          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0_EXT);
+          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
         this->FrontLeftBuffer=
-          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0_EXT);
+          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
 
         this->BackBuffer=static_cast<unsigned int>(
-          GL_COLOR_ATTACHMENT0_EXT);
+          GL_COLOR_ATTACHMENT0);
         this->FrontBuffer=
-          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0_EXT);
+          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
 
         if(this->NumberOfFrameBuffers==2)
           {
           this->BackRightBuffer=
-            static_cast<unsigned int>(GL_COLOR_ATTACHMENT1_EXT);
+            static_cast<unsigned int>(GL_COLOR_ATTACHMENT0+1);
           this->FrontRightBuffer=
-            static_cast<unsigned int>(GL_COLOR_ATTACHMENT1_EXT);
+            static_cast<unsigned int>(GL_COLOR_ATTACHMENT0+1);
           }
 
         // Save GL objects by static casting to standard C types. GL* types
@@ -1655,7 +1670,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
         }
       }
     }
-
   // A=>B = !A || B
   assert("post: valid_result" && (result==0 || result==1)
          && (!result || OffScreenUseFrameBuffer));
@@ -1672,7 +1686,7 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
   assert("pre: initialized" && this->OffScreenUseFrameBuffer);
 
   this->MakeCurrent();
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0 );
+  glBindFramebuffer(GL_FRAMEBUFFER, 0 );
 
   // Restore framebuffer names.
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
@@ -1683,10 +1697,10 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
 
   GLuint frameBufferObject=static_cast<GLuint>(this->FrameBufferObject);
-  glDeleteFramebuffersEXT(1,&frameBufferObject);
+  glDeleteFramebuffers(1,&frameBufferObject);
 
   GLuint depthRenderBufferObject=static_cast<GLuint>(this->DepthRenderBufferObject);
-  glDeleteRenderbuffersEXT(1,&depthRenderBufferObject);
+  glDeleteRenderbuffers(1,&depthRenderBufferObject);
 
   GLuint textureObjects[4];
   int i=0;
