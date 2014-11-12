@@ -218,7 +218,6 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
                 test_failed = 0
                 min_err = alt_err
                 img_err = alt_err
-                best_img = new_fname
                 break
             else:
                 if alt_err < min_err:
@@ -226,7 +225,6 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
                     err_index = count
                     min_err = alt_err
                     img_err = alt_err
-                    best_img = new_fname
 
             count = count + 1
         # closes while loop.
