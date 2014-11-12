@@ -159,7 +159,8 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
 
     # Ravel the array appropriately.
     arr_dtype = get_numpy_array_type(vtk_typecode)
-    if numpy.issubdtype(z.dtype, arr_dtype):
+    if numpy.issubdtype(z.dtype, arr_dtype) or \
+       z.dtype == numpy.dtype(arr_dtype):
         z_flat = numpy.ravel(z)
     else:
         z_flat = numpy.ravel(z).astype(arr_dtype)
