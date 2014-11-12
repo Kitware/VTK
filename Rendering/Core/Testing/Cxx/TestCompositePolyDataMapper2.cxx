@@ -24,6 +24,7 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -112,6 +113,8 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
     vtkSmartPointer<vtkActor>::New();
   mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
   actor->SetMapper(mapper);
+  //actor->GetProperty()->SetEdgeColor(1,0,0);
+  //actor->GetProperty()->EdgeVisibilityOn();
   ren->AddActor(actor);
   win->SetSize(400,400);
 
