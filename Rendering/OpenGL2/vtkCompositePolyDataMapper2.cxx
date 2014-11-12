@@ -33,6 +33,8 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 
+#include <algorithm>
+
 //===================================================================
 // We define a helper class that is a subclass of vtkOpenGLPolyDataMapper
 // We use this to get some performance improvements over the generic
