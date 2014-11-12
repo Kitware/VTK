@@ -265,7 +265,7 @@ STRING(COMPARE EQUAL "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}"
   KWSYS_IN_SOURCE_BUILD)
 IF(NOT KWSYS_IN_SOURCE_BUILD)
   CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/kwsysPrivate.h
-    ${PROJECT_BINARY_DIR}/kwsysPrivate.h COPY_ONLY IMMEDIATE)
+    ${PROJECT_BINARY_DIR}/kwsysPrivate.h COPYONLY IMMEDIATE)
 ENDIF()
 
 # Select plugin module file name convention.
@@ -1232,7 +1232,7 @@ IF(KWSYS_STANDALONE OR CMake_SOURCE_DIR)
     ENDFOREACH()
 
     # Some Apple compilers produce bad optimizations in this source.
-    IF(APPLE AND "${CMAKE_C_COMPILER_ID}" MATCHES "^(GNU|LLVM)$")
+    IF(APPLE AND CMAKE_C_COMPILER_ID MATCHES "^(GNU|LLVM)$")
       SET_SOURCE_FILES_PROPERTIES(testProcess.c PROPERTIES COMPILE_FLAGS -O0)
     ELSEIF(CMAKE_C_COMPILER_ID STREQUAL "XL")
       # Tell IBM XL not to warn about our test infinite loop

@@ -39,6 +39,10 @@ set (OpenGLNew_OR_OpenGL2_CxxTests
   TestGPURayCastVolumeScale.cxx
   )
 
+if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+  list(APPEND OpenGLNew_OR_OpenGL2_CxxTests TestGPURayCastLightKit.cxx)
+endif()
+
 # These tests are built for the OpenGL backend
 set (VolumeOpenGLCxxTests
   #  TestGPUCastGradientOpacity.cxx

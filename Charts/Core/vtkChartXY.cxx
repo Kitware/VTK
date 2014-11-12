@@ -394,8 +394,15 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
 
   if (this->Title)
     {
+    int offset = 0; // title margin.
+    vtkAxis* topAxis = this->ChartPrivate->axes[vtkAxis::TOP];
+    if (topAxis->GetVisible())
+      {
+      vtkRectf bounds = topAxis->GetBoundingRect(painter);
+      offset += static_cast<int>(bounds.GetHeight());
+      }
     vtkPoints2D *rect = vtkPoints2D::New();
-    rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
+    rect->InsertNextPoint(this->Point1[0], this->Point2[1] + offset);
     rect->InsertNextPoint(this->Point2[0]-this->Point1[0], 10);
     painter->ApplyTextProp(this->TitleProperties);
     painter->DrawStringRect(rect, this->Title);
@@ -763,7 +770,7 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
       if (axis->GetVisible())
         {
         vtkRectf bounds = axis->GetBoundingRect(painter);
-        if (i == 1 || i == 3)
+        if (i == vtkAxis::TOP || i == vtkAxis::BOTTOM)
           {// Horizontal axes
           border = int(bounds.GetHeight());
           }
@@ -773,6 +780,18 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
           }
         }
       border += this->GetLegendBorder(painter, i);
+      if (i == vtkAxis::TOP && this->Title)
+        {
+        painter->ApplyTextProp(this->TitleProperties);
+        float bounds[4];
+        painter->ComputeStringBounds(this->Title, bounds);
+        if (bounds[3] > 0)
+          {
+          border += 5 /* title margin */
+                    + bounds[3]; // add the title text height to the border.
+          }
+        }
+
       border = border < this->HiddenAxisBorder ? this->HiddenAxisBorder :
                                                  border;
       if (this->ChartPrivate->Borders[i] != border)

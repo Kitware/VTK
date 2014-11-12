@@ -16,8 +16,8 @@
 #include <vtkSmartPointer.h>
 #include "vtkTestErrorObserver.h"
 
-#ifndef _WIN32
-#include <sys/resource.h>
+#ifndef WIN32
+#include <fcntl.h>
 #endif
 
 int TestTIFFReaderMultiple(int argc, char *argv[])
@@ -28,12 +28,17 @@ int TestTIFFReaderMultiple(int argc, char *argv[])
     return EXIT_FAILURE;
     }
 
-#ifndef _WIN32
-  // Set the limit on the number of open files
-  struct rlimit rl;
-  rl.rlim_cur = 9;
-  rl.rlim_max = 10;
-  setrlimit(RLIMIT_NOFILE, &rl);
+#ifndef WIN32
+  // See how many file descriptors are in use
+  int fdUsedBefore = 1;
+  for (int i = 0; i < 1024; ++i)
+    {
+    if (fcntl(i, F_GETFD) == -1)
+      {
+      break;
+      }
+      ++fdUsedBefore;
+    }
 #endif
 
   vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
@@ -56,5 +61,27 @@ int TestTIFFReaderMultiple(int argc, char *argv[])
       }
     errorObserver->Clear();
     }
+
+#ifndef WIN32
+  // See how many file descriptors are in use
+  int fdUsedAfter = 1;
+  for (int i = 0; i < 1024; ++i)
+    {
+    if (fcntl(i, F_GETFD) == -1)
+      {
+      break;
+      }
+      ++fdUsedAfter;
+    }
+  if (fdUsedBefore != fdUsedAfter)
+    {
+    std::cout << "ERROR: the number of file descriptors used after the I/O ("
+              << fdUsedAfter
+              << ") does not equal the number used before the I/O ("
+              << fdUsedBefore
+              << ")" << std::endl;
+    return EXIT_FAILURE;
+    }
+#endif
   return EXIT_SUCCESS;
 }

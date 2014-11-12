@@ -37,6 +37,8 @@
 #include <vtkFloatArray.h>
 #include <vtk_glew.h>
 #include <vtkImageData.h>
+#include <vtkLight.h>
+#include <vtkLightCollection.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
@@ -56,6 +58,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkTessellatedBoxSource.h>
 #include <vtkTimerLog.h>
+#include <vtkTransform.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>
 #include <vtkVolumeMask.h>
@@ -102,6 +105,9 @@ public:
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
+
+    this->NumberOfLights = 0;
+    this->LightComplexity = 0;
 
     this->Extents[0] = VTK_INT_MAX;
     this->Extents[1] = VTK_INT_MIN;
@@ -213,6 +219,9 @@ public:
   // Update depth texture (used for early termination of the ray)
   void UpdateDepthTexture(vtkRenderer* ren, vtkVolume* vol);
 
+  // Update parameters for lighting that will be used in the shader.
+  void UpdateLightingParameters(vtkRenderer* ren, vtkVolume* vol);
+
   // Test if camera is inside the volume geometry
   bool IsCameraInside(vtkRenderer* ren, vtkVolume* vol);
 
@@ -281,6 +290,9 @@ public:
   double CellScale[3];
   double CellStep[3];
   double CellSpacing[3];
+
+  int NumberOfLights;
+  int LightComplexity;
 
   std::ostringstream ExtensionsStringStream;
 
@@ -998,6 +1010,100 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
+  vtkRenderer* ren, vtkVolume* vtkNotUsed(vol))
+{
+  // For unlit and headlight there are no lighting parameters
+  if (this->LightComplexity < 2)
+    {
+    return;
+    }
+
+  vtkShaderProgram* program = this->ShaderProgram;
+
+  // for lightkit case there are some parameters to set
+  vtkCamera* cam = ren->GetActiveCamera();
+  vtkTransform* viewTF = cam->GetModelViewTransformObject();
+
+  // Bind some light settings
+  int numberOfLights = 0;
+  vtkLightCollection *lc = ren->GetLights();
+  vtkLight *light;
+
+  vtkCollectionSimpleIterator sit;
+  float lightColor[6][3];
+  float lightDirection[6][3];
+  for(lc->InitTraversal(sit);
+      (light = lc->GetNextLight(sit)); )
+    {
+    float status = light->GetSwitch();
+    if (status > 0.0)
+      {
+      double* dColor = light->GetDiffuseColor();
+      double intensity = light->GetIntensity();
+      lightColor[numberOfLights][0] = dColor[0] * intensity;
+      lightColor[numberOfLights][1] = dColor[1] * intensity;
+      lightColor[numberOfLights][2] = dColor[2] * intensity;
+      // Get required info from light
+      double* lfp = light->GetTransformedFocalPoint();
+      double* lp = light->GetTransformedPosition();
+      double lightDir[3];
+      vtkMath::Subtract(lfp, lp, lightDir);
+      vtkMath::Normalize(lightDir);
+      double *tDir = viewTF->TransformNormal(lightDir);
+      lightDirection[numberOfLights][0] = tDir[0];
+      lightDirection[numberOfLights][1] = tDir[1];
+      lightDirection[numberOfLights][2] = tDir[2];
+      numberOfLights++;
+      }
+    }
+
+  program->SetUniform3fv("m_lightColor", numberOfLights, lightColor);
+  program->SetUniform3fv("m_lightDirection", numberOfLights, lightDirection);
+  program->SetUniformi("m_numberOfLights", numberOfLights);
+
+  // we are done unless we have positional lights
+  if (this->LightComplexity < 3)
+    {
+    return;
+    }
+
+  // if positional lights pass down more parameters
+  float lightAttenuation[6][3];
+  float lightPosition[6][3];
+  float lightConeAngle[6];
+  float lightExponent[6];
+  int lightPositional[6];
+  numberOfLights = 0;
+  for(lc->InitTraversal(sit);
+      (light = lc->GetNextLight(sit)); )
+    {
+    float status = light->GetSwitch();
+    if (status > 0.0)
+      {
+      double* attn = light->GetAttenuationValues();
+      lightAttenuation[numberOfLights][0] = attn[0];
+      lightAttenuation[numberOfLights][1] = attn[1];
+      lightAttenuation[numberOfLights][2] = attn[2];
+      lightExponent[numberOfLights] = light->GetExponent();
+      lightConeAngle[numberOfLights] = light->GetConeAngle();
+      double* lp = light->GetTransformedPosition();
+      double* tlp = viewTF->TransformPoint(lp);
+      lightPosition[numberOfLights][0] = tlp[0];
+      lightPosition[numberOfLights][1] = tlp[1];
+      lightPosition[numberOfLights][2] = tlp[2];
+      lightPositional[numberOfLights] = light->GetPositional();
+      numberOfLights++;
+      }
+    }
+  program->SetUniform3fv("m_lightAttenuation", numberOfLights, lightAttenuation);
+  program->SetUniform1iv("m_lightPositional", numberOfLights, lightPositional);
+  program->SetUniform3fv("m_lightPosition", numberOfLights, lightPosition);
+  program->SetUniform1fv("m_lightExponent", numberOfLights, lightExponent);
+  program->SetUniform1fv("m_lightConeAngle", numberOfLights, lightConeAngle);
+}
+
+//----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   vtkRenderer* ren, vtkVolume* vtkNotUsed(vol))
 {
@@ -1598,6 +1704,41 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
+  if (vol->GetProperty()->GetShade())
+    {
+    vtkLightCollection* lc = ren->GetLights();
+    vtkLight* light;
+    // Compute light complexity.
+    vtkCollectionSimpleIterator sit;
+    for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
+      {
+      float status = light->GetSwitch();
+      if (status > 0.0)
+        {
+        this->Impl->NumberOfLights++;
+        if (this->Impl->LightComplexity == 0)
+          {
+          this->Impl->LightComplexity = 1;
+          }
+        }
+
+      if (this->Impl->LightComplexity == 1
+          && (this->Impl->NumberOfLights > 1
+            || light->GetIntensity() != 1.0
+            || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
+        {
+        this->Impl->LightComplexity = 2;
+        }
+
+      if (this->Impl->LightComplexity < 3
+          && (light->GetPositional()))
+        {
+        this->Impl->LightComplexity = 3;
+        break;
+        }
+      }
+    }
+
   vertexShader = vtkvolume::replace(vertexShader, "//VTK::ComputeClipPos::Impl",
     vtkvolume::ComputeClip(ren, this, vol), true);
   vertexShader = vtkvolume::replace(vertexShader, "//VTK::ComputeTextureCoords::Impl",
@@ -1606,7 +1747,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   vertexShader = vtkvolume::replace(vertexShader, "//VTK::Base::Dec",
     vtkvolume::BaseGlobalsVert(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Dec",
-    vtkvolume::BaseGlobalsFrag(ren, this, vol), true);
+    vtkvolume::BaseGlobalsFrag(ren, this, vol, this->Impl->NumberOfLights,
+                               this->Impl->LightComplexity), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Init",
     vtkvolume::BaseInit(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Impl",
@@ -1645,7 +1787,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ColorTransferFunc::Dec",
      vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeLighting::Dec",
-    vtkvolume::LightComputeFunc(ren, this, vol,noOfComponents), true);
+    vtkvolume::LightComputeFunc(ren, this, vol, noOfComponents,
+                                this->Impl->NumberOfLights,
+                                this->Impl->LightComplexity), true);
   fragmentShader = vtkvolume::replace(fragmentShader,
                                       "//VTK::RayDirectionFunc::Dec",
     vtkvolume::RayDirectionFunc(ren, this, vol,noOfComponents), true);
@@ -1838,6 +1982,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Grab depth sampler buffer (to handle cases when we are rendering geometry
   // and m_volume together
   this->Impl->UpdateDepthTexture(ren, vol);
+
+  // Update lighting parameters
+  this->Impl->UpdateLightingParameters(ren, vol);
 
   // Temporary variables
   float fvalue2[2];
@@ -2045,9 +2192,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   vtkInternal::ToFloat(ren->GetActiveCamera()->GetPosition(), fvalue3, 3);
   this->Impl->ShaderProgram->SetUniform3fv("m_camera_pos", 1, &fvalue3);
-
-  // NOTE Assuming that light is located on the camera
-  this->Impl->ShaderProgram->SetUniform3fv("m_light_pos", 1, &fvalue3);
 
   vtkInternal::ToFloat(this->Impl->LoadedBounds[0],
                        this->Impl->LoadedBounds[2],

@@ -157,7 +157,10 @@ protected:
   vtkgl::CellBO Lines;
   vtkgl::CellBO Tris;
   vtkgl::CellBO TriStrips;
+  vtkgl::CellBO TrisEdges;
+  vtkgl::CellBO TriStripsEdges;
   vtkgl::CellBO *LastBoundBO;
+  bool DrawingEdges;
 
   // values we use to determine if we need to rebuild
   int LastLightComplexity;
