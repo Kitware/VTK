@@ -68,6 +68,7 @@ namespace vtkParticleTracerBaseNamespace
     int           InjectedPointId;
     int           InjectedStepId;
     int           UniqueParticleId;
+    double        SimulationTime;
     // These are useful to track for debugging etc
     int           ErrorCode;
     float         age;
@@ -399,7 +400,7 @@ public:
   // only be desired on specific concrete derived classes.
   virtual void InitializeExtraPointDataArrays(vtkPointData* vtkNotUsed(outputPD)) {}
 
-  virtual void AppendToExtraPointDataArrays() {}
+  virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) {}
 private:
   // Description:
   // Hide this because we require a new interpolator type
@@ -501,5 +502,16 @@ private:
   static const double Epsilon;
 
 };
+namespace
+{
 
+inline bool acbwithintol(double d, float f)
+{
+  double diff = d-f;
+  if(diff*diff < .000001)
+    return true;
+  else
+    return false;
+}
+}
 #endif

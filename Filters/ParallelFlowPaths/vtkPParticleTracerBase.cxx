@@ -67,6 +67,7 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(
   RemoteParticleInfo remoteInfo;
 
   remoteInfo.Current = info;
+
   remoteInfo.Previous = previousInfo;
   remoteInfo.PreviousPD = vtkSmartPointer<vtkPointData>::New();
   remoteInfo.PreviousPD->CopyAllocate(this->ProtoPD);
@@ -95,7 +96,7 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(
     this->MPISendList.reserve(static_cast<int>(this->MPISendList.size()*1.5));
     }
   this->MPISendList.push_back(remoteInfo);
-  return 1;
+  return true;
 }
 
 //---------------------------------------------------------------------------
@@ -135,6 +136,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
     info.time                 = 0.0;
     info.age                  = 0.0;
     info.speed                = 0.0;
+    info.SimulationTime       = this->GetCurrentTimeValue();
     info.ErrorCode            = 0;
   }
   //
@@ -284,7 +286,7 @@ void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
   std::vector<RemoteParticleInfo>::iterator last =
     first + messageLength[this->Controller->GetLocalProcessId()]/typeSize;
   rParticles.erase(first, last);
-  // // don't want the ones that we sent away
+  // don't want the ones that we sent away
   this->MPISendList.clear();
 }
 
