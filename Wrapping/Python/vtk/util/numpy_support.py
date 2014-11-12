@@ -164,6 +164,10 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
         z_flat = numpy.ravel(z)
     else:
         z_flat = numpy.ravel(z).astype(arr_dtype)
+        # z_flat is now a standalone object with no references from the caller.
+        # As such, it will drop out of this scope and cause memory issues if we
+        # do not deep copy its data.
+        deep = 1
 
     # Point the VTK array to the numpy data.  The last argument (1)
     # tells the array not to deallocate.
