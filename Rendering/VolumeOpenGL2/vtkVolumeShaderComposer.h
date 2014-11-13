@@ -155,7 +155,7 @@ namespace vtkvolume
       ");
       }
 
-    if (lightingComplexity == 2)
+    if (lightingComplexity == 3)
       {
       shaderStr += std::string("\n\
         uniform int m_numberOfLights; // only allow for up to 6 active lights\n\
@@ -168,7 +168,7 @@ namespace vtkvolume
         uniform int m_lightPositional[6];\n\
       ");
       }
-    else if (lightingComplexity == 3)
+    else if (lightingComplexity == 2)
       {
       shaderStr += std::string("\n\
         uniform int m_numberOfLights; // only allow for up to 6 active lights\n\
@@ -481,6 +481,8 @@ namespace vtkvolume
             vec3 specular = vec3(0,0,0);\n\
             vec3 vertLightDirection;\n\
             vec4 grad = computeGradient(); \n\
+            vec3 normal = (m_volume_matrix*vec4(grad.xyz, 0.0)).xyz; \n\
+            normal = normalize(normal); \n\
             for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
               {\n\
               float attenuation = 1.0;\n\
@@ -514,12 +516,12 @@ namespace vtkvolume
                   }\n\
                 }\n\
             // diffuse and specular lighting\n\
-            float df = max(0.0, attenuation*dot(grad.xyz, -vertLightDirection));\n\
+            float df = max(0.0, attenuation*dot(normal, -vertLightDirection));\n\
             diffuse += (df * m_lightColor[lightNum]);\n\
-            if (dot(grad.xyz, -vertLightDirection) > 0.0)\n\
+            if (dot(normal, -vertLightDirection) > 0.0)\n\
               {\n\
               float sf = attenuation*pow( max(0.0, dot(\n\
-                reflect(vertLightDirection, grad.xyz), viewDirection)), m_shininess);\n\
+                reflect(vertLightDirection, normal), viewDirection)), m_shininess);\n\
               specular += (sf * m_lightColor[lightNum]);\n\
               }\n\
             }\n\

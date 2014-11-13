@@ -1988,9 +1988,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseVolumeMat->DeepCopy(vol->GetMatrix());
   this->Impl->InverseVolumeMat->Invert();
 
+    if (this->Impl->PrevInput)
+      std::cerr << " : " << this->Impl->PrevInput->GetMTime() << std::endl;
+    std::cerr << "Data changed " << input->GetMTime() << std::endl;
+
   // Update the volume if needed
-  if (input != this->Impl->PrevInput)
-    {
+//  if (input != this->Impl->PrevInput)
+//    {
     input->GetDimensions(this->Impl->Dimensions);
 
     // Update bounds, data, and geometry
@@ -1998,7 +2002,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->LoadVolume(input, scalars);
     this->Impl->LoadMask(input, this->MaskInput,
                          this->Impl->Extents, vol);
-    }
+//    }
 
   // Mask
   vtkVolumeMask* mask = 0;
@@ -2036,7 +2040,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
       ren->GetActiveCamera()->GetParallelProjection() !=
-      this->Impl->LastProjectionParallel
+      this->Impl->LastProjectionParallel ||
+      ren->GetMTime() > this->Impl->ShaderBuildTime.GetMTime()
       )
     {
     this->Impl->LastProjectionParallel =
