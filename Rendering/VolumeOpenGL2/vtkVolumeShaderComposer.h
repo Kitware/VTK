@@ -408,7 +408,7 @@ namespace vtkvolume
               { \n\
               final_color += m_specular * pow(n_dot_h, m_shininess); \n\
               } \n\
-            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            final_color = clamp(final_colvtkOpenGLGPUVolumeRayCastMapperor, vec3(0.0), vec3(1.0)); \n\
             if (grad.w >= 0.0)\n\
               {\n\
               color.a = color.a * computeGradientOpacity(grad); \n\
@@ -481,19 +481,21 @@ namespace vtkvolume
             vec3 specular = vec3(0,0,0);\n\
             vec3 vertLightDirection;\n\
             vec4 grad = computeGradient(); \n\
-            vec3 normal = (m_volume_matrix*vec4(grad.xyz, 0.0)).xyz; \n\
+            vec3 normal = grad.xyz; \n\
             normal = normalize(normal); \n\
+            vec3 lightDir; \n\
             for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
               {\n\
               float attenuation = 1.0;\n\
               // directional\n\
+              lightDir = (m_inverse_volume_matrix * m_inverse_modelview_matrix * vec4(m_lightDirection[lightNum], 0.0)).xyz; \n\
               if (m_lightPositional[lightNum] == 0)\n\
                 {\n\
-                vertLightDirection = m_lightDirection[lightNum];\n\
+                vertLightDirection = lightDir;\n\
                 }\n\
               else\n\
                 {\n\
-                vertLightDirection = m_vertex_pos.xyz - m_lightPosition[lightNum];\n\
+                vertLightDirection = m_vertex_pos.xyz - lightDir;\n\
                 float distance = length(vertLightDirection);\n\
                 vertLightDirection = normalize(vertLightDirection);\n\
                 attenuation = 1.0 /\n\
@@ -503,7 +505,7 @@ namespace vtkvolume
                 // per OpenGL standard cone angle is 90 or less for a spot light\n\
                 if (m_lightConeAngle[lightNum] <= 90.0)\n\
                   {\n\
-                  float coneDot = dot(vertLightDirection, m_lightDirection[lightNum]);\n\
+                  float coneDot = dot(vertLightDirection, lightDir);\n\
                   // if inside the cone\n\
                   if (coneDot >= cos(radians(m_lightConeAngle[lightNum])))\n\
                     {\n\
@@ -516,7 +518,7 @@ namespace vtkvolume
                   }\n\
                 }\n\
             // diffuse and specular lighting\n\
-            float df = max(0.0, attenuation*dot(normal, -vertLightDirection));\n\
+            float df = max(0.0, attenuation*dot(normal, vertLightDirection));\n\
             diffuse += (df * m_lightColor[lightNum]);\n\
             if (dot(normal, -vertLightDirection) > 0.0)\n\
               {\n\

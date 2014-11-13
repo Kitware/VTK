@@ -65,7 +65,7 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   light1->SetAmbientColor(0,1,0);
   light1->SetSpecularColor(1,1,1);
   light1->SetConeAngle(40);
-  light1->SetPosition(0.0,-0.4,-1);
+  light1->SetPosition(0.0,-0.4, 1);
   light1->SetFocalPoint(4, 3, 1);
 //  light1->SetColor(1,0,0);
 //  light1->SetPosition(40,40,301);
@@ -86,7 +86,7 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
-  scalarOpacity->AddPoint(75, 0.8);
+  scalarOpacity->AddPoint(75, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
@@ -96,8 +96,8 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.8, 0.8, 0.8);
-  colorTransferFunction->AddRGBPoint(scalarRange[1], 0.8, 0.8, 0.8);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 1.0, 1.0, 1.0);
+  colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 1.0, 1.0);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
