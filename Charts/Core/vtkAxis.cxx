@@ -1408,8 +1408,17 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     tickPixelSpacing = 45;
     }
 
-  double niceTickSpacing =
-    vtkAxis::NiceMinMax(min, max, pixelRange, tickPixelSpacing);
+  double niceTickSpacing = 0.0;
+  if (max < min)
+    {
+    niceTickSpacing =
+      vtkAxis::NiceMinMax(max, min, pixelRange, tickPixelSpacing);
+    }
+  else
+    {
+    niceTickSpacing =
+      vtkAxis::NiceMinMax(min, max, pixelRange, tickPixelSpacing);
+    }
 
   if (this->NumberOfTicks > 0)
     {
