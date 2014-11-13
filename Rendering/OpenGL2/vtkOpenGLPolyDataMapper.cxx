@@ -1236,7 +1236,7 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
   glEnable(GL_POLYGON_OFFSET_FILL);
   if (oldRCT == VTK_RESOLVE_SHIFT_ZBUFFER)
     {
-    double f = zRes*8.0;
+    f = zRes*8.0;
     glPolygonOffset(f,0.0);  // supported on ES2/3/etc
     }
   else
