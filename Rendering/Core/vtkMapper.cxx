@@ -60,6 +60,8 @@ vtkMapper::vtkMapper()
   this->ArrayComponent = 0;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 
+  this->FieldDataTupleId = -1;
+
   this->InterpolateScalarsBeforeMapping = 0;
   this->ColorCoordinates = 0;
   this->ColorTextureMap = 0;
@@ -487,6 +489,10 @@ const char *vtkMapper::GetScalarModeAsString(void)
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
     {
     return "UseCellFieldData";
+    }
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA )
+    {
+    return "UseFieldData";
     }
   else
     {

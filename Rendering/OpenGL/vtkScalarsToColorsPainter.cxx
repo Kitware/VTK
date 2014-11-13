@@ -17,6 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkCellTypes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDoubleArray.h"
@@ -80,6 +81,7 @@ vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_ACCESS_MODE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_ID, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_COMPONENT, Integer);
+vtkInformationKeyMacro(vtkScalarsToColorsPainter, FIELD_DATA_TUPLE_ID, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MATERIAL_MODE, Integer);
 
 //-----------------------------------------------------------------------------
@@ -89,6 +91,7 @@ vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
   this->ArrayId = -1;
   this->ArrayComponent = 0;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
+  this->FieldDataTupleId = -1;
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->InterpolateScalarsBeforeMapping = 0;
@@ -184,6 +187,11 @@ void vtkScalarsToColorsPainter::ProcessInformation(vtkInformation* info)
   if (info->Has(ARRAY_COMPONENT()))
     {
     this->SetArrayComponent(info->Get(ARRAY_COMPONENT()));
+    }
+
+  if (info->Has(FIELD_DATA_TUPLE_ID()))
+    {
+    this->SetFieldDataTupleId(info->Get(FIELD_DATA_TUPLE_ID()));
     }
 
   if (info->Has(SCALAR_MATERIAL_MODE()))
@@ -647,15 +655,58 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
     }
   else
     {
-    // Typically, when a name is assigned of the scalars array in PointData or CellData
-    // it implies 3 component colors. This implication does not hold for FieldData.
-    // For colors in field data, we use the component count of the color array
-    // to decide if the colors are opaque colors.
-    // These colors are nothing but cell colors,
-    // except when rendering TStrips, in which case they represent
-    // the triange colors.
-    colors->SetName("Color");
-    opfd->AddArray(colors);
+    if (this->FieldDataTupleId <= -1)
+      {
+      // Treat field data as cell-associated data
+      // Typically, when a name is assigned of the scalars array in PointData or CellData
+      // it implies 3 component colors. This implication does not hold for FieldData.
+      // For colors in field data, we use the component count of the color array
+      // to decide if the colors are opaque colors.
+      // These colors are nothing but cell colors,
+      // except when rendering TStrips, in which case they represent
+      // the triange colors.
+      colors->SetName("Color");
+      opfd->AddArray(colors);
+      }
+    else
+      {
+      vtkUnsignedCharArray* scalarColors =
+        lut->MapScalars(scalars, this->ColorMode, arraycomponent);
+
+      if (this->FieldDataTupleId < scalarColors->GetNumberOfTuples())
+        {
+        // Use only the requested tuple's color
+        unsigned char color[4];
+        scalarColors->GetTupleValue(this->FieldDataTupleId, color);
+
+        vtkUnsignedCharArray* newColors = vtkUnsignedCharArray::New();
+        newColors->SetNumberOfComponents(4);
+        newColors->SetNumberOfTuples(input->GetNumberOfCells());
+        newColors->SetName("Color");
+        for (vtkIdType i = 0; i < input->GetNumberOfCells(); ++i)
+          {
+          newColors->SetTupleValue(i, color);
+          }
+        opfd->AddArray(newColors);
+
+        if (multiply_with_alpha)
+          {
+          vtkMultiplyColorsWithAlpha(newColors);
+          }
+        newColors->Delete();
+        }
+      else
+        {
+        vtkErrorMacro(<< "FieldDataTupleId " << this->FieldDataTupleId << " is greater than "
+                      << "the number of tuples in the scalarColors array ("
+                      << scalarColors->GetNumberOfTuples() << ")");
+        }
+
+      if (scalarColors)
+        {
+        scalarColors->Delete();
+        }
+      }
     }
   colors->Delete();
 }
