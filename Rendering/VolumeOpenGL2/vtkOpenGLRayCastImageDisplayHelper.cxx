@@ -109,6 +109,7 @@ vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
   this->Texture->SetTextureObject(this->TextureObject);
 
   this->TextureActor->SetTexture(this->Texture);
+  this->TextureActor->GetProperty()->SetOpacity(0.999);
 
   vtkNew<vtkFloatArray> tcoords;
   tcoords->SetNumberOfComponents(2);
