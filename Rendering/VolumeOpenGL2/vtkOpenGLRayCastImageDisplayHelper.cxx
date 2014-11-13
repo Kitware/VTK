@@ -109,6 +109,13 @@ vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
   this->Texture->SetTextureObject(this->TextureObject);
 
   this->TextureActor->SetTexture(this->Texture);
+
+  // FIXME: Sine we switched to vtkActor/Mapper,
+  // this fix is requied as of November 13, 2014 because
+  // for our mapper to work correctly, we need depth write off
+  // but even if we do it in our mapper, the vtkActor/Mapper turn it back
+  // on as it looks for opacity on the property only even though early
+  // on we check for opacity correctly.
   this->TextureActor->GetProperty()->SetOpacity(0.999);
 
   vtkNew<vtkFloatArray> tcoords;
