@@ -16,18 +16,19 @@
 #include "vtkGeoJSONFeature.h"
 
 // VTK Includes
-#include "vtkAbstractArray.h"
-#include "vtkBitArray.h"
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
-#include "vtkDoubleArray.h"
-#include "vtkIntArray.h"
-#include "vtkLine.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkPolygon.h"
-#include "vtkStringArray.h"
+#include <vtkAbstractArray.h>
+#include <vtkBitArray.h>
+#include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkDoubleArray.h>
+#include <vtkIntArray.h>
+#include <vtkLine.h>
+#include <vtkObjectFactory.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkPolygon.h>
+#include <vtkPolyLine.h>
+#include <vtkStringArray.h>
 
 #include <sstream>
 
@@ -46,6 +47,7 @@ namespace
 //----------------------------------------------------------------------------
 vtkGeoJSONFeature::vtkGeoJSONFeature()
 {
+  this->OutlinePolygons = false;
 }
 
 //----------------------------------------------------------------------------
@@ -256,12 +258,24 @@ ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
   bool POLYGON_WITH_HOLES = coordinate.size() > 1 ? true : false;
 
   vtkPoints *points = outputData->GetPoints();
-  vtkCellArray *polys = outputData->GetPolys();
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
   vtkStringArray *ids = vtkStringArray::SafeDownCast(array);
 
-  vtkPolygon *exteriorPoly = vtkPolygon::New();
+  // Output is either vtkPolygon or vtkPolyLine,
+  // depending on OutputPolygons option.
+  vtkCellArray *polys = NULL;
+  vtkCell *exteriorPoly = NULL;
+  if (this->OutlinePolygons)
+    {
+    polys = outputData->GetLines();
+    exteriorPoly = vtkPolyLine::New();
+    }
+  else
+    {
+    polys = outputData->GetPolys();
+    exteriorPoly = vtkPolygon::New();
+    }
 
   //For exterior Polygon
   Json::Value exteriorPolygon = coordinate[0];
@@ -270,11 +284,23 @@ ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
   exteriorPoly->GetPointIds()->SetNumberOfIds(EXTERIOR_POLYGON_VERTEX_COUNT);
 
   double point[3];
-  for (int i = 0; i < EXTERIOR_POLYGON_VERTEX_COUNT; i++)
+  // Remember first point, if needed for polyline
+  this->CreatePoint(exteriorPolygon[0], point);
+  vtkIdType idPoint0 = points->InsertNextPoint(point);
+  exteriorPoly->GetPointIds()->SetId(0, idPoint0);
+
+  // Add points for rest of polygon
+  for (int i = 1; i < EXTERIOR_POLYGON_VERTEX_COUNT; i++)
     {
-    CreatePoint(exteriorPolygon[i], point);
+    this->CreatePoint(exteriorPolygon[i], point);
     vtkIdType id = points->InsertNextPoint(point);
     exteriorPoly->GetPointIds()->SetId(i, id);
+    }
+
+  // For outline mode, add first point to the end
+  if (this->OutlinePolygons)
+    {
+    exteriorPoly->GetPointIds()->InsertNextId(idPoint0);
     }
 
   polys->InsertNextCell(exteriorPoly);
@@ -284,7 +310,7 @@ ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
   if ( ! POLYGON_WITH_HOLES )
     return outputData;
 
-  //Modify polydata to support polygon with holes
+  // Todo Modify polydata to support polygon with holes
 
   return outputData;
 }

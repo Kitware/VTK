@@ -53,6 +53,23 @@ public:
   vtkGetMacro(StringInputMode, bool);
   vtkBooleanMacro(StringInputMode, bool);
 
+  // Description
+  // Set/get whether to convert all output polygons to triangles.
+  // Note that if OutinePolygons mode is on, then no output polygons
+  // are generated, and in that case, this option is not relevant.
+  // The default is off.
+  vtkSetMacro(TriangulatePolygons, bool);
+  vtkGetMacro(TriangulatePolygons, bool);
+  vtkBooleanMacro(TriangulatePolygons, bool);
+
+  // Description
+  // Set/get option to generate the border outlining each polygon,
+  // so that the output cells for polygons are vtkPolyLine instances.
+  // The default is off.
+  vtkSetMacro(OutlinePolygons, bool);
+  vtkGetMacro(OutlinePolygons, bool);
+  vtkBooleanMacro(OutlinePolygons, bool);
+
   // Description:
   // Specify feature property to read in with geometry objects
   // Note that defaultValue specifies both type & value
@@ -89,6 +106,8 @@ protected:
   char *FileName;
   char *StringInput;
   bool StringInputMode;
+  bool TriangulatePolygons;
+  bool OutlinePolygons;
 
 private:
   class GeoJSONReaderInternals;

@@ -50,6 +50,8 @@ vtkGeoJSONReader::vtkGeoJSONReader()
   this->FileName = NULL;
   this->StringInput = NULL;
   this->StringInputMode = false;
+  this->TriangulatePolygons = false;
+  this->OutlinePolygons = false;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->Internals = new GeoJSONReaderInternals;
@@ -179,18 +181,21 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
     return VTK_ERROR;
     }
 
-  // If parsed successfully into Json parser Values and Arrays, then convert it
+  // If parsed successfully into Json, then convert it
   // into appropriate vtkPolyData
-  if ( root.isObject() )
+  if (root.isObject())
     {
-    ParseRoot(root, output);
+    this->ParseRoot(root, output);
 
-    //Convert Concave Polygons to convex polygons using triangulation
-    vtkTriangleFilter *filter = vtkTriangleFilter::New();
-    filter->SetInputData(output);
-    filter->Update();
+    // Convert Concave Polygons to convex polygons using triangulation
+    if (output->GetNumberOfPolys() && this->TriangulatePolygons)
+      {
+      vtkTriangleFilter *filter = vtkTriangleFilter::New();
+      filter->SetInputData(output);
+      filter->Update();
 
-    output->ShallowCopy(filter->GetOutput());
+      output->ShallowCopy(filter->GetOutput());
+      }
     }
   return VTK_OK;
 }
@@ -286,6 +291,7 @@ void vtkGeoJSONReader::ParseRoot(const Json::Value& root, vtkPolyData *output)
       Json::Value propertiesNode = featureNode["properties"];
       this->ParseFeatureProperties(propertiesNode, properties);
       vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
+      feature->SetOutlinePolygons(this->OutlinePolygons);
       feature->SetFeatureProperties(properties);
       feature->ExtractGeoJSONFeature(featureNode, output);
       }
@@ -295,7 +301,8 @@ void vtkGeoJSONReader::ParseRoot(const Json::Value& root, vtkPolyData *output)
     // Process single feature
     this->ParseFeatureProperties(root, properties);
     vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
-      feature->SetFeatureProperties(properties);
+    feature->SetOutlinePolygons(this->OutlinePolygons);
+    feature->SetFeatureProperties(properties);
     feature->ExtractGeoJSONFeature(root, output);
     }
   else

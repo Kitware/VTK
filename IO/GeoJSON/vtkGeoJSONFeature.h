@@ -45,6 +45,14 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   vtkTypeMacro(vtkGeoJSONFeature,vtkDataObject);
 
+  // Description
+  // Set/get option to generate the border outlining each polygon,
+  // so that resulting cells are vtkPolyLine instead of vtkPolygon.
+  // The default is off
+  vtkSetMacro(OutlinePolygons, bool);
+  vtkGetMacro(OutlinePolygons, bool);
+  vtkBooleanMacro(OutlinePolygons, bool);
+
   // Description:
   // Extract the geometry corresponding to the geoJSON feature stored at root
   // Assign any feature properties passed as cell data
@@ -65,6 +73,11 @@ protected:
   // Description:
   // Id of current GeoJSON feature being parsed
   std::string FeatureId;
+
+  // Description
+  // Set/get option to generate the border outlining each polygon,
+  // so that the output cells are polyine data.
+  bool OutlinePolygons;
 
   // Description:
   // Properties of current GeoJSON feature being parsed
