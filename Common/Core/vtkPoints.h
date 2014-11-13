@@ -146,6 +146,14 @@ public:
     { this->Data->InsertTuples(dstIds, srcIds, source->Data); }
 
   // Description:
+  // Copy n consecutive points starting at srcStart from the source array to
+  // this array, starting at the dstStart location.
+  // Note that memory allocation is performed as necessary to hold the data.
+  void InsertPoints(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                    vtkPoints* source)
+    { this->Data->InsertTuples(dstStart, n, srcStart, source->Data); }
+
+  // Description:
   // Insert point into next available slot. Returns id of slot.
   vtkIdType InsertNextPoint(const float x[3])
     { return this->Data->InsertNextTuple(x); }

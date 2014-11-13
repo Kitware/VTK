@@ -109,6 +109,13 @@ public:
                             vtkAbstractArray *source);
 
   // Description:
+  // Copy n consecutive tuples starting at srcStart from the source array to
+  // this array, starting at the dstStart location.
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
+
+  // Description:
   // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.

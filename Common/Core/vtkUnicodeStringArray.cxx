@@ -149,6 +149,47 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
   this->DataChanged();
 }
 
+//------------------------------------------------------------------------------
+void vtkUnicodeStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
+                                         vtkIdType srcStart,
+                                         vtkAbstractArray *source)
+{
+  vtkUnicodeStringArray* sa = vtkUnicodeStringArray::SafeDownCast(source);
+  if (!sa)
+    {
+    vtkWarningMacro("Input and outputs array data types do not match.");
+    return ;
+    }
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkIdType srcEnd = srcStart + n;
+  if (srcEnd > source->GetNumberOfTuples())
+    {
+    vtkWarningMacro("Source range exceeds array size (srcStart=" << srcStart
+                    << ", n=" << n << ", numTuples="
+                    << source->GetNumberOfTuples() << ").");
+    return;
+    }
+
+  for (vtkIdType i = 0; i < n; ++i)
+    {
+    vtkIdType numComp = this->NumberOfComponents;
+    vtkIdType srcLoc = (srcStart + i) * this->NumberOfComponents;
+    vtkIdType dstLoc = (dstStart + i) * this->NumberOfComponents;
+    while (numComp-- > 0)
+      {
+      this->InsertValue(dstLoc++, sa->GetValue(srcLoc++));
+      }
+    }
+
+  this->DataChanged();
+}
+
 vtkIdType vtkUnicodeStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 {
   vtkUnicodeStringArray* const array = vtkUnicodeStringArray::SafeDownCast(source);

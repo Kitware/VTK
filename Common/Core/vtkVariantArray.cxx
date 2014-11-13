@@ -330,6 +330,39 @@ void vtkVariantArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
   this->DataChanged();
 }
 
+//------------------------------------------------------------------------------
+void vtkVariantArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
+                                   vtkIdType srcStart, vtkAbstractArray *source)
+{
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkIdType srcEnd = srcStart + n;
+  if (srcEnd > source->GetNumberOfTuples())
+    {
+    vtkWarningMacro("Source range exceeds array size (srcStart=" << srcStart
+                    << ", n=" << n << ", numTuples="
+                    << source->GetNumberOfTuples() << ").");
+    return;
+    }
+
+  for (vtkIdType i = 0; i < n; ++i)
+    {
+    vtkIdType numComp = this->NumberOfComponents;
+    vtkIdType srcLoc = (srcStart + i) * this->NumberOfComponents;
+    vtkIdType dstLoc = (dstStart + i) * this->NumberOfComponents;
+    while (numComp-- > 0)
+      {
+      this->InsertValue(dstLoc++, source->GetVariantValue(srcLoc++));
+      }
+    }
+
+  this->DataChanged();
+}
+
 //----------------------------------------------------------------------------
 vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 {

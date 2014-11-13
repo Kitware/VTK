@@ -19,6 +19,7 @@
 #include "vtkDataArrayPrivate.txx"
 
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkDataArrayIteratorMacro.h"
 #include "vtkTypedDataArrayIterator.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -501,6 +502,85 @@ void vtkDataArrayTemplate<T>::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
       {
       this->SetTuple(dstIds->GetId(idIndex),
                      dataSource->GetTuple(srcIds->GetId(idIndex)));
+      }
+    }
+  else
+    {
+    vtkWarningMacro("Input array is not a vtkDataArray subclass!");
+    return;
+    }
+
+  vtkIdType maxId = maxSize - 1;
+  if (maxId > this->MaxId)
+    {
+    this->MaxId = maxId;
+    }
+
+  this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+template<class T>
+void vtkDataArrayTemplate<T>::InsertTuples(vtkIdType dstStart, vtkIdType n,
+                                           vtkIdType srcStart,
+                                           vtkAbstractArray *source)
+{
+  if (n == 0)
+    {
+    return;
+    }
+
+  if (source->GetDataType() != this->GetDataType())
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+    }
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkIdType srcEnd = srcStart + n;
+  if (srcEnd > source->GetNumberOfTuples())
+    {
+    vtkWarningMacro("Source range exceeds array size (srcStart=" << srcStart
+                    << ", n=" << n << ", numTuples="
+                    << source->GetNumberOfTuples() << ").");
+    return;
+    }
+
+  // Find maximum destination id and resize if needed
+  vtkIdType dstEnd = dstStart + n;
+  vtkIdType maxSize = dstEnd * this->NumberOfComponents;
+  if (maxSize > this->Size)
+    {
+    if (this->ResizeAndExtend(maxSize) == 0)
+      {
+      vtkWarningMacro("Failed to allocate memory.");
+      return;
+      }
+    }
+
+  // Use iterators if possible:
+  if (vtkTypedDataArray<T> *typedSource =
+      vtkTypedDataArray<T>::FastDownCast(source))
+    {
+    switch (typedSource->GetDataType())
+      {
+      vtkDataArrayIteratorMacro(typedSource,
+                                std::copy(vtkDABegin + srcStart,
+                                          vtkDABegin + srcEnd,
+                                          this->Begin() + dstStart));
+      }
+    }
+  else if (vtkDataArray *dataSource = vtkDataArray::FastDownCast(source))
+    {
+    // Otherwise use the double interface
+    for (vtkIdType i = 0; i < n; ++i)
+      {
+      this->SetTuple(dstStart + i, dataSource->GetTuple(srcStart + i));
       }
     }
   else
