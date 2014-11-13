@@ -194,7 +194,6 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
 
     min_err = idiff.GetThresholdedError()
     img_err = min_err
-    best_img = img_fname
 
     err_index = 0
     count = 0
@@ -218,7 +217,6 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
                 test_failed = 0
                 min_err = alt_err
                 img_err = alt_err
-                best_img = new_fname
                 break
             else:
                 if alt_err < min_err:
@@ -226,13 +224,12 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
                     err_index = count
                     min_err = alt_err
                     img_err = alt_err
-                    best_img = new_fname
 
             count = count + 1
         # closes while loop.
 
         if test_failed:
-            _handleFailedImage(idiff, pngr, best_img)
+            _handleFailedImage(idiff, pngr, img_fname)
             # Print for CDash.
             _printCDashImageError(img_err, err_index, f_base)
             msg = "Failed image test: %f\n"%idiff.GetThresholdedError()
