@@ -95,13 +95,14 @@ public:
   // \param inpnts pointer to the input points, or NULL if uniform grid.
   // \param outPD point to the output point data.
   // \param outpnts pointer to the output points, or NULL if uniform grid.
-  // \param useMapping indicates whether to use the index mapping or not.
+  // \param sampleRate The sample rate in each dimension. Optional, used to
+  // optimizing copy operations if present.
   // \pre pd != NULL.
   // \pre outPD != NULL.
   void CopyPointsAndPointData( int inExt[6], int outExt[6],
                     vtkPointData* pd, vtkPoints* inpnts,
                     vtkPointData* outPD, vtkPoints* outpnts,
-                    bool useMapping=true);
+                    int sampleRate[3] = NULL);
 
   // Description:
   // \brief Copies the cell data to the output.
@@ -109,12 +110,13 @@ public:
   // \param outExt the output grid extent.
   // \param cd the input cell data.
   // \param outCD the output cell data.
-  // \param useMapping indicates whether to use the index mapping or not.
+  // \param sampleRate The sample rate in each dimension. Optional, used to
+  // optimizing copy operations if present.
   // \pre cd != NULL.
   // \pre outCD != NULL.
-  void CopyCellData( int inExt[6], int outExt[6],
-               vtkCellData* cd, vtkCellData* outCD,
-               bool useMapping=true);
+  void CopyCellData(int inExt[6], int outExt[6],
+                    vtkCellData* cd, vtkCellData* outCD,
+                    int sampleRate[3] = NULL);
 
 protected:
   vtkExtractStructuredGridHelper();
