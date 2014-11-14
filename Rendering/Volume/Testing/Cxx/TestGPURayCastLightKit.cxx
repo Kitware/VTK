@@ -40,7 +40,8 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include <vtkContourFilter.h>
+// For debugging purposes only
+//#include <vtkContourFilter.h>
 
 int TestGPURayCastLightKit(int argc, char *argv[])
 {
@@ -96,18 +97,20 @@ int TestGPURayCastLightKit(int argc, char *argv[])
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  vtkNew<vtkPolyDataMapper> pm;
-  vtkNew<vtkActor> ac;
-  vtkNew<vtkContourFilter> cf;
-  ac->SetMapper(pm.GetPointer());
-  pm->SetInputConnection(cf->GetOutputPort());
-  pm->SetScalarVisibility(0);
-  cf->SetValue(0, 60.0);
-  cf->SetInputConnection(reader->GetOutputPort());
-  ac->SetPosition(-50.0, 0.0, 0.0);
+  // For debugging purposes only
+//  vtkNew<vtkPolyDataMapper> pm;
+//  vtkNew<vtkActor> ac;
+//  vtkNew<vtkContourFilter> cf;
+//  ac->SetMapper(pm.GetPointer());
+//  pm->SetInputConnection(cf->GetOutputPort());
+//  pm->SetScalarVisibility(0);
+//  cf->SetValue(0, 60.0);
+//  cf->SetInputConnection(reader->GetOutputPort());
+//  ac->SetPosition(-50.0, 0.0, 0.0);
+//  ren->AddActor(ac.GetPointer());
 
   ren->AddViewProp(volume.GetPointer());
-  ren->AddActor(ac.GetPointer());
+
   renWin->Render();
   ren->ResetCamera();
 
