@@ -69,6 +69,7 @@ protected:
 
 private:
   vtkDoubleArray* SimulationTime;
+  vtkIntArray* SimulationTimeStep;
 };
 
 
