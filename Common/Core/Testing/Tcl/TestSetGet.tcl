@@ -34,6 +34,7 @@ vtkMesaScalarsToColorsPainter-GetTextureSizeLimit
 vtkDataObjectTreeIterator-GetCurrentDataObject
 vtkDataObjectTreeIterator-GetCurrentMetaData
 vtkDataObjectTreeIterator-GetCurrentFlatIndex
+vtkGeoJSONWriter-GetOutputStdString
 }
 
 proc TestOne {cname} {
