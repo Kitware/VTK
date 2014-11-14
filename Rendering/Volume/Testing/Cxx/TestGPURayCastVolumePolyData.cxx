@@ -65,6 +65,7 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   volumeMapper->SetBlendModeToComposite();
 
   vtkNew<vtkRenderWindow> renWin;
+  renWin->SetMultiSamples(0);
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren.GetPointer());
   renWin->SetSize(400, 400);
