@@ -300,6 +300,16 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     return; // nothing to render.
     }
 
+  // we need alpha planes
+  GLint alphaBits;
+  glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+  if (alphaBits < 8)
+    {
+    // just use alpha blending
+    this->TranslucentPass->Render(s);
+    return;
+    }
+
   // check driver support
   vtkOpenGLRenderWindow *renWin
     = vtkOpenGLRenderWindow::SafeDownCast(s->GetRenderer()->GetRenderWindow());
