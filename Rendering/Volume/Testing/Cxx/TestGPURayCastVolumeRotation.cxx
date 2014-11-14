@@ -65,6 +65,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   volumeMapper->SetAutoAdjustSampleDistances(1);
 
   vtkNew<vtkRenderWindow> renWin;
+  renWin->SetMultiSamples(0);
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren.GetPointer());
   ren->SetBackground(0.2, 0.2, 0.5);
