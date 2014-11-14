@@ -64,7 +64,7 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
 // Release the graphics resources used by this texture.
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->TextureObject && win && win->GetMapped())
+  if (this->TextureObject && win)
     {
     this->TextureObject->ReleaseGraphicsResources(win);
     vtkOpenGLCheckErrorMacro("failed after ReleaseGraphicsResources");
