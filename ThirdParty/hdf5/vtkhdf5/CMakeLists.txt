@@ -1,4 +1,10 @@
-cmake_minimum_required (VERSION 2.8.11)
+if(POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW) # CMake 3.0
+endif()
+if(POLICY CMP0053)
+  cmake_policy(SET CMP0053 NEW) # CMake 3.1
+endif()
+
 PROJECT (HDF5 C CXX)
 
 #-----------------------------------------------------------------------------
@@ -29,7 +35,7 @@ PROJECT (HDF5 C CXX)
 #   dependencies to this variable so that external projects pick them up
 #
 # HDF5_EXTERNAL_LIB_PREFIX :
-#   If the parent project needs to install hdf libraries, but avoid 
+#   If the parent project needs to install hdf libraries, but avoid
 #   name conflicts with system versions, then a prefix may be added
 #   to ensure that the correct versions configured are used.
 #
@@ -44,28 +50,28 @@ PROJECT (HDF5 C CXX)
 # any project making use of this build of HDF5 will use the correct zlib
 #
 #   # Tell hdf5 that we are manually overriding certain settings
-#   set (HDF5_EXTERNALLY_CONFIGURED 1)
+set (HDF5_EXTERNALLY_CONFIGURED 1)
 #   # Avoid duplicating names of installed libraries
-#   set (HDF5_EXTERNAL_LIB_PREFIX "vtk")
+set (HDF5_EXTERNAL_LIB_PREFIX "vtk")
 #   # Export configuration to this export variable
-#   set (HDF5_EXPORTED_TARGETS "paraview-targets")
+set (HDF5_EXPORTED_TARGETS ${VTK_INSTALL_EXPORT_NAME})
 #
 #   # Setup all necessary overrides for zlib so that HDF5 uses our
 #   # internally compiled zlib rather than any other version
-#   if (HDF5_ENABLE_Z_LIB_SUPPORT)
-#     # We must tell the main HDF5 library that it depends on our zlib 
-#     set (HDF5_LIB_DEPENDENCIES vtkzlib)    
-#     # Override the zlib header file
-#     if (VTK_USE_SYSTEM_ZLIB)
-#       set (H5_ZLIB_HEADER "zlib.h")
-#     else (VTK_USE_SYSTEM_ZLIB)
-#       set (H5_ZLIB_HEADER "vtk_zlib.h")
-#       # Set vars that FindZlib would have set if used in sub project
-#       set (ZLIB_INCLUDE_DIRS "${VTK_ZLIB_INCLUDE_DIRS}")
-#       set (ZLIB_LIBRARIES vtkzlib)
-#     endif (VTK_USE_SYSTEM_ZLIB)
-#   endif (HDF5_ENABLE_Z_LIB_SUPPORT)
-# 
+if (HDF5_ENABLE_Z_LIB_SUPPORT)
+# We must tell the main HDF5 library that it depends on our zlib
+set (HDF5_LIB_DEPENDENCIES vtkzlib)
+# Override the zlib header file
+if (VTK_USE_SYSTEM_ZLIB)
+  set (H5_ZLIB_HEADER "zlib.h")
+else (VTK_USE_SYSTEM_ZLIB)
+  set (H5_ZLIB_HEADER "vtk_zlib.h")
+  # Set vars that FindZlib would have set if used in sub project
+  set (ZLIB_INCLUDE_DIRS "${VTK_ZLIB_INCLUDE_DIRS}")
+  set (ZLIB_LIBRARIES vtkzlib)
+endif (VTK_USE_SYSTEM_ZLIB)
+endif (HDF5_ENABLE_Z_LIB_SUPPORT)
+
 #   # Add the sub project
 #   add_subdirectory (Utilities/hdf5-1.8)
 #-----------------------------------------------------------------------------
@@ -120,18 +126,18 @@ set (HDF5_HL_F90_C_LIB_NAME     "${HDF5_EXTERNAL_LIB_PREFIX}${HDF5_HL_F90_C_LIB_
 #-----------------------------------------------------------------------------
 # Set the target names of all the libraries
 #-----------------------------------------------------------------------------
-set (HDF5_LIB_TARGET              ${HDF5_LIB_CORENAME})
-set (HDF5_TEST_LIB_TARGET         ${HDF5_TEST_LIB_CORENAME})
-set (HDF5_CPP_LIB_TARGET          ${HDF5_CPP_LIB_CORENAME})
-set (HDF5_HL_LIB_TARGET           ${HDF5_HL_LIB_CORENAME})
-set (HDF5_HL_CPP_LIB_TARGET       ${HDF5_HL_CPP_LIB_CORENAME})
-set (HDF5_TOOLS_LIB_TARGET        ${HDF5_TOOLS_LIB_CORENAME})
-set (HDF5_F90_LIB_TARGET          ${HDF5_F90_LIB_CORENAME})
-set (HDF5_F90_C_LIB_TARGET        ${HDF5_F90_C_LIB_CORENAME})
-set (HDF5_F90_TEST_LIB_TARGET     ${HDF5_F90_TEST_LIB_CORENAME})
-set (HDF5_F90_C_TEST_LIB_TARGET   ${HDF5_F90_C_TEST_LIB_CORENAME})
-set (HDF5_HL_F90_LIB_TARGET       ${HDF5_HL_F90_LIB_CORENAME})
-set (HDF5_HL_F90_C_LIB_TARGET     ${HDF5_HL_F90_C_LIB_CORENAME})
+set (HDF5_LIB_TARGET              ${HDF5_LIB_NAME})
+set (HDF5_TEST_LIB_TARGET         ${HDF5_TEST_LIB_NAME})
+set (HDF5_CPP_LIB_TARGET          ${HDF5_CPP_LIB_NAME})
+set (HDF5_HL_LIB_TARGET           ${HDF5_HL_LIB_NAME})
+set (HDF5_HL_CPP_LIB_TARGET       ${HDF5_HL_CPP_LIB_NAME})
+set (HDF5_TOOLS_LIB_TARGET        ${HDF5_TOOLS_LIB_NAME})
+set (HDF5_F90_LIB_TARGET          ${HDF5_F90_LIB_NAME})
+set (HDF5_F90_C_LIB_TARGET        ${HDF5_F90_C_LIB_NAME})
+set (HDF5_F90_TEST_LIB_TARGET     ${HDF5_F90_TEST_LIB_NAME})
+set (HDF5_F90_C_TEST_LIB_TARGET   ${HDF5_F90_C_TEST_LIB_NAME})
+set (HDF5_HL_F90_LIB_TARGET       ${HDF5_HL_F90_LIB_NAME})
+set (HDF5_HL_F90_C_LIB_TARGET     ${HDF5_HL_F90_C_LIB_NAME})
 
 #-----------------------------------------------------------------------------
 # Define some CMake variables for use later in the project
@@ -245,7 +251,7 @@ endif (NOT HDF5_EXTERNALLY_CONFIGURED)
 
 #-----------------------------------------------------------------------------
 # Targets built within this project are exported at Install time for use
-# by other projects using FindHDF5. 
+# by other projects using FindHDF5.
 #-----------------------------------------------------------------------------
 if (NOT HDF5_EXPORTED_TARGETS)
   set (HDF5_EXPORTED_TARGETS "hdf5-targets")
@@ -303,7 +309,7 @@ option (HDF5_ENABLE_COVERAGE "Enable code coverage for Libraries and Programs" O
 if (HDF5_ENABLE_COVERAGE)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
-  set (LDFLAGS "${LDFLAGS} -fprofile-arcs -ftest-coverage")   
+  set (LDFLAGS "${LDFLAGS} -fprofile-arcs -ftest-coverage")
 endif (HDF5_ENABLE_COVERAGE)
 
 #-----------------------------------------------------------------------------
@@ -312,7 +318,7 @@ endif (HDF5_ENABLE_COVERAGE)
 # option (HDF5_ENABLE_USING_DMALLOC "Indicate that dmalloc is used" OFF)
 # if (HDF5_ENABLE_USING_DMALLOC)
 #   find_package (DMALLOC)
-#   set (H5_HAVE_DMALLOC DMALLOC_FOUND)   
+#   set (H5_HAVE_DMALLOC DMALLOC_FOUND)
 # endif (HDF5_ENABLE_USING_DMALLOC)
 
 #-----------------------------------------------------------------------------
@@ -320,7 +326,7 @@ endif (HDF5_ENABLE_COVERAGE)
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_USING_MEMCHECKER "Indicate that a memory checker is used" OFF)
 if (HDF5_ENABLE_USING_MEMCHECKER)
-  set (H5_USING_MEMCHECKER 1)   
+  set (H5_USING_MEMCHECKER 1)
 endif (HDF5_ENABLE_USING_MEMCHECKER)
 
 #-----------------------------------------------------------------------------
@@ -328,9 +334,9 @@ endif (HDF5_ENABLE_USING_MEMCHECKER)
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_DEPRECATED_SYMBOLS "Enable deprecated public API symbols" ON)
 if (HDF5_ENABLE_DEPRECATED_SYMBOLS)
-  set (H5_NO_DEPRECATED_SYMBOLS 0)   
+  set (H5_NO_DEPRECATED_SYMBOLS 0)
 else (HDF5_ENABLE_DEPRECATED_SYMBOLS)
-  set (H5_NO_DEPRECATED_SYMBOLS 1)   
+  set (H5_NO_DEPRECATED_SYMBOLS 1)
 endif (HDF5_ENABLE_DEPRECATED_SYMBOLS)
 
 #-----------------------------------------------------------------------------
@@ -517,7 +523,7 @@ if (NOT MSVC)
     # Append more extra warning flags that only gcc 4.7+ know about
     set (H5_CFLAGS5 "${H5_CFLAGS5} -Wstack-usage=8192 -Wvector-operation-performance -Wsuggest-attribute=pure -Wsuggest-attribute=noreturn")
 endif (NOT MSVC)
-  
+
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable all warnings
 #-----------------------------------------------------------------------------
@@ -642,7 +648,7 @@ if (HDF5_ENABLE_PARALLEL)
     # MPI checks, only do these if MPI_C_FOUND is true, otherwise they always fail
     # and once set, they are cached as false and not regenerated
     set (CMAKE_REQUIRED_LIBRARIES "${MPI_C_LIBRARIES}" )
-    CHECK_FUNCTION_EXISTS (MPI_File_get_size H5_HAVE_MPI_GET_SIZE) 
+    CHECK_FUNCTION_EXISTS (MPI_File_get_size H5_HAVE_MPI_GET_SIZE)
     set (H5_MPI_FILE_SET_SIZE_BIG 1)
     # Used by Fortran + MPI
     CHECK_SYMBOL_EXISTS (MPI_Comm_c2f "${MPI_C_INCLUDE_PATH}/mpi.h"  H5_HAVE_MPI_MULTI_LANG_Comm)
@@ -688,7 +694,7 @@ if (NOT HDF5_EXTERNALLY_CONFIGURED)
     if (HDF5_ENABLE_Z_LIB_SUPPORT AND ZLIB_FOUND)
       PACKAGE_ZLIB_LIBRARY (${HDF5_ALLOW_EXTERNAL_SUPPORT})
     endif (HDF5_ENABLE_Z_LIB_SUPPORT AND ZLIB_FOUND)
-    
+
     if (HDF5_ENABLE_SZIP_SUPPORT AND SZIP_FOUND)
       PACKAGE_SZIP_LIBRARY (${HDF5_ALLOW_EXTERNAL_SUPPORT})
     endif (HDF5_ENABLE_SZIP_SUPPORT AND SZIP_FOUND)
@@ -697,7 +703,7 @@ endif (NOT HDF5_EXTERNALLY_CONFIGURED)
 
 #-----------------------------------------------------------------------------
 # Option to use threadsafe
-# Note: Currently CMake only allows configuring of threadsafe on 
+# Note: Currently CMake only allows configuring of threadsafe on
 # non-Cygwin WINDOWS.
 #-----------------------------------------------------------------------------
 if (WIN32)
@@ -775,7 +781,7 @@ if (BUILD_TESTING)
     option (HDF5_TEST_FHEAP_VFD "Execute tests with different VFDs" ON)
     mark_as_advanced (HDF5_TEST_FHEAP_VFD)
   endif (HDF5_TEST_VFD)
-  
+
   include (${HDF5_SOURCE_DIR}/CTestConfig.cmake)
   configure_file (${HDF5_RESOURCES_DIR}/CTestCustom.cmake ${HDF5_BINARY_DIR}/CTestCustom.ctest @ONLY)
 endif (BUILD_TESTING)

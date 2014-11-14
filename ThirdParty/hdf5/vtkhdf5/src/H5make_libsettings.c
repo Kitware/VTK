@@ -44,10 +44,15 @@ static const char *FileHeader = "\n\
 #include <stdio.h>
 #include <time.h>
 #include "H5private.h"
+#include "vtk_libhdf5_mangle.h"
 
 #define LIBSETTINGSFNAME "libhdf5.settings"
 
-
+#define xstr(s) str(s)
+#define str(s) #s
+
+
+
 /*-------------------------------------------------------------------------
  * Function:	insert_libhdf5_settings
  *
@@ -78,7 +83,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 
     /* print variable definition and the string */
     /* Do not use const else AIX strings does not show it. */
-    fprintf(flibinfo, "char H5libhdf5_settings[]=\n");
+    fprintf(flibinfo, "char " xstr(H5libhdf5_settings) "[]=\n");
     bol++;
     while(EOF != (inchar = HDgetc(fsettings))) {
 	if(bol) {
@@ -112,7 +117,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 #else
     /* print variable definition and an empty string */
     /* Do not use const else AIX strings does not show it. */
-    fprintf(flibinfo, "char H5libhdf5_settings[]=\"\";\n");
+    fprintf(flibinfo, "char " xstr(H5libhdf5_settings) "[]=\"\";\n");
 #endif
 } /* insert_libhdf5_settings() */
 
