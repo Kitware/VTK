@@ -311,6 +311,8 @@ public:
   vtkNew<vtkMatrix4x4> InverseModelViewMat;
   vtkNew<vtkMatrix4x4> InverseVolumeMat;
 
+  vtkNew<vtkMatrix4x4> TextureToWorldTransposeInverse;
+
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
 
   vtkMapMaskTextureId* MaskTextures;
