@@ -208,6 +208,15 @@ public:
     { return this->GetStoredGradientOpacity(0); }
 
   // Description:
+  // Check whether or not we have the gradient opacity. Checking
+  // gradient opacity via GetDisableGradientOpacity or GetGradientOpacity
+  // will not work as in the former case,  GetDisableGradientOpacity returns
+  // false by default and in the later case, a default gradient opacity will be created.
+  bool HasGradientOpacity(int index=0) {
+    return (this->GradientOpacity[index] != NULL);
+  }
+
+  // Description:
   // Set/Get the shading of a volume. If shading is turned off, then
   // the mapper for the volume will not perform shading calculations.
   // If shading is turned on, the mapper may perform shading

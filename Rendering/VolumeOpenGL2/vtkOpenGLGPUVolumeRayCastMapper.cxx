@@ -874,11 +874,17 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 {
   if (!vol)
     {
-    std::cerr << "Invalid m_volume" << std::endl;
     return 1;
     }
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
+
+  // TODO Currently checking on index 0 only
+  if (!volumeProperty->HasGradientOpacity())
+    {
+    return 1;
+    }
+
   vtkPiecewiseFunction* gradientOpacity = volumeProperty->GetGradientOpacity();
 
   if (!this->GradientOpacityTables && gradientOpacity)
@@ -1013,13 +1019,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
   vtkRenderer* ren, vtkVolume* vtkNotUsed(vol))
 {
-  // For unlit and headlight there are no lighting parameters
-  if (this->LightComplexity < 2)
+  if (!this->ShaderProgram)
     {
     return;
     }
 
-  vtkShaderProgram* program = this->ShaderProgram;
+  this->ShaderProgram->SetUniformi("m_twoSidedLighting",
+                                   ren->GetTwoSidedLighting());
+
+  if (this->LightComplexity < 2)
+    {
+    return;
+    }
 
   // for lightkit case there are some parameters to set
   vtkCamera* cam = ren->GetActiveCamera();
@@ -1058,9 +1069,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
       }
     }
 
-  program->SetUniform3fv("m_lightColor", numberOfLights, lightColor);
-  program->SetUniform3fv("m_lightDirection", numberOfLights, lightDirection);
-  program->SetUniformi("m_numberOfLights", numberOfLights);
+  this->ShaderProgram->SetUniform3fv("m_lightColor", numberOfLights, lightColor);
+  this->ShaderProgram->SetUniform3fv("m_lightDirection", numberOfLights, lightDirection);
+  this->ShaderProgram->SetUniformi("m_numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights
   if (this->LightComplexity < 3)
@@ -1096,11 +1107,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
       numberOfLights++;
       }
     }
-  program->SetUniform3fv("m_lightAttenuation", numberOfLights, lightAttenuation);
-  program->SetUniform1iv("m_lightPositional", numberOfLights, lightPositional);
-  program->SetUniform3fv("m_lightPosition", numberOfLights, lightPosition);
-  program->SetUniform1fv("m_lightExponent", numberOfLights, lightExponent);
-  program->SetUniform1fv("m_lightConeAngle", numberOfLights, lightConeAngle);
+  this->ShaderProgram->SetUniform3fv("m_lightAttenuation", numberOfLights, lightAttenuation);
+  this->ShaderProgram->SetUniform1iv("m_lightPositional", numberOfLights, lightPositional);
+  this->ShaderProgram->SetUniform3fv("m_lightPosition", numberOfLights, lightPosition);
+  this->ShaderProgram->SetUniform1fv("m_lightExponent", numberOfLights, lightExponent);
+  this->ShaderProgram->SetUniform1fv("m_lightConeAngle", numberOfLights, lightConeAngle);
 }
 
 //----------------------------------------------------------------------------
