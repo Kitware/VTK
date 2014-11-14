@@ -180,8 +180,31 @@ if(ADIOS_FOUND)
 
     #message(STATUS "ADIOS DIRS to look for libs: ${ADIOS_LIBRARY_DIRS}")
 
-    # parse all -lname libraries and find an absolute path for them
-    string(REGEX MATCHALL "-l([A-Za-z_0-9\\.-]+)" _ADIOS_LIBS "${ADIOS_LINKFLAGS}")
+    # parse all -lname libraries and find an absolute path for them. we can't just
+    # look for "-l" because the following library /usr/lib/x86_64-linux-gnu/libm.a
+    # matches that but isn't what is looked for. First we look for " -l" and later
+    # look for "-l" at the beginning of a line.
+    string(REGEX MATCHALL " -l([A-Za-z_0-9\\.-]+)" _ADIOS_LIBS "${ADIOS_LINKFLAGS}")
+    foreach(_LIB ${_ADIOS_LIBS})
+        string(REPLACE " -l" "" _LIB ${_LIB})
+
+        # find static lib: absolute path in -L then default
+        find_library(_LIB_DIR NAMES ${_LIB} PATHS ${ADIOS_LIBRARY_DIRS})
+
+        # found?
+        if(_LIB_DIR)
+            message(STATUS "Found ${_LIB} in ${_LIB_DIR}")
+            list(APPEND ADIOS_LIBRARIES "${_LIB_DIR}")
+        else(_LIB_DIR)
+            set(ADIOS_FOUND FALSE)
+            message(STATUS "ADIOS: Could NOT find library '${_LIB}'")
+        endif(_LIB_DIR)
+
+        # clean cached var
+        unset(_LIB_DIR CACHE)
+        unset(_LIB_DIR)
+    endforeach()
+    string(REGEX MATCHALL "^-l([A-Za-z_0-9\\.-]+)" _ADIOS_LIBS "${ADIOS_LINKFLAGS}")
     foreach(_LIB ${_ADIOS_LIBS})
         string(REPLACE "-l" "" _LIB ${_LIB})
 
