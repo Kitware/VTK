@@ -31,7 +31,7 @@ class vtkVolumeStateRAII
       this->CullFaceEnabled = (glIsEnabled(GL_CULL_FACE) != 0);
 
       // Enable texture 1D and 3D as we are using it
-      // for transfer functions and m_volume data
+      // for transfer functions and in_volume data
       glEnable(GL_TEXTURE_1D);
       glEnable(GL_TEXTURE_2D);
       glEnable(GL_TEXTURE_3D);
