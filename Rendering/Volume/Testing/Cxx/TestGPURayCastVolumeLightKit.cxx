@@ -43,7 +43,7 @@
 // For debugging purposes only
 //#include <vtkContourFilter.h>
 
-int TestGPURayCastLightKit(int argc, char *argv[])
+int TestGPURayCastVolumeLightKit(int argc, char *argv[])
 {
   double scalarRange[2];
 
