@@ -311,7 +311,7 @@ public:
   vtkNew<vtkMatrix4x4> InverseModelViewMat;
   vtkNew<vtkMatrix4x4> InverseVolumeMat;
 
-  vtkNew<vtkMatrix4x4> TextureToWorldTransposeInverse;
+  vtkNew<vtkMatrix4x4> TextureToEyeTransposeInverse;
 
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
 
@@ -2284,6 +2284,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->InverseTextureToDataSetMat.GetPointer(), fvalue16);
   this->Impl->ShaderProgram->SetUniformMatrix4x4(
     "m_inverse_texture_dataset_matrix", &(fvalue16[0]));
+
+  vtkMatrix4x4::Multiply4x4(modelviewMat4x4, volumeMatrix4x4,
+                            this->Impl->TextureToEyeTransposeInverse.GetPointer());
+  vtkMatrix4x4::Multiply4x4(this->Impl->TextureToEyeTransposeInverse.GetPointer(),
+                            this->Impl->TextureToDataSetMat.GetPointer(),
+                            this->Impl->TextureToEyeTransposeInverse.GetPointer());
+  this->Impl->TextureToEyeTransposeInverse->Invert();
+  this->Impl->TextureToEyeTransposeInverse->Transpose();
+  vtkInternal::VtkToGlMatrix(
+    this->Impl->TextureToEyeTransposeInverse.GetPointer(), fvalue16);
+  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    "m_texture_to_eye_it", &(fvalue16[0]));
 
   vtkInternal::ToFloat(ren->GetActiveCamera()->GetPosition(), fvalue3, 3);
   this->Impl->ShaderProgram->SetUniform3fv("m_camera_pos", 1, &fvalue3);
