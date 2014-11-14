@@ -61,12 +61,11 @@ def get_vtk_array_type(numpy_array_type):
                 numpy.float64:vtk.VTK_DOUBLE,
                 numpy.complex64:vtk.VTK_FLOAT,
                 numpy.complex128:vtk.VTK_DOUBLE}
-    try:
-        return _np_vtk[numpy_array_type]
-    except KeyError:
-        for key in _np_vtk:
-            if numpy.issubdtype(numpy_array_type, key):
-                return _np_vtk[key]
+    for key, vtk_type in _np_vtk.items():
+        if numpy_array_type == key or \
+           numpy.issubdtype(numpy_array_type, key) or \
+           numpy_array_type == numpy.dtype(key):
+            return vtk_type
     raise TypeError, \
         'Could not find a suitable VTK type for %s' % (str(numpy_array_type))
 
@@ -160,10 +159,15 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
 
     # Ravel the array appropriately.
     arr_dtype = get_numpy_array_type(vtk_typecode)
-    if numpy.issubdtype(z.dtype, arr_dtype):
+    if numpy.issubdtype(z.dtype, arr_dtype) or \
+       z.dtype == numpy.dtype(arr_dtype):
         z_flat = numpy.ravel(z)
     else:
         z_flat = numpy.ravel(z).astype(arr_dtype)
+        # z_flat is now a standalone object with no references from the caller.
+        # As such, it will drop out of this scope and cause memory issues if we
+        # do not deep copy its data.
+        deep = 1
 
     # Point the VTK array to the numpy data.  The last argument (1)
     # tells the array not to deallocate.
