@@ -476,26 +476,28 @@ namespace vtkvolume
         shaderStr = std::string("\n\
           vec4 computeLighting(vec4 color)\n\
             {\n\
-            vec3 viewDirection = normalize(g_eye_pos_obj.xyz - m_vertex_pos.xyz);\n\
+            vec4 frag_world_pos = m_modelview_matrix * m_volume_matrix * m_texture_dataset_matrix * vec4(g_data_pos, 1.0); \n\
+            if (frag_world_pos.w != 0.0) { frag_world_pos /= frag_world_pos.w; } \n\
+            vec3 viewDirection = normalize(-frag_world_pos.xyz);\n\
             vec3 diffuse = vec3(0,0,0);\n\
             vec3 specular = vec3(0,0,0);\n\
             vec3 vertLightDirection;\n\
             vec4 grad = computeGradient(); \n\
-            vec3 normal = grad.xyz; \n\
+            vec3 normal = (m_modelview_matrix * m_volume_matrix * m_texture_dataset_matrix * vec4(grad.xyz, 0.0)).xyz; \n\
             normal = normalize(normal); \n\
             vec3 lightDir; \n\
             for (int lightNum = 0; lightNum < m_numberOfLights; lightNum++)\n\
               {\n\
               float attenuation = 1.0;\n\
               // directional\n\
-              lightDir = (m_inverse_volume_matrix * m_inverse_modelview_matrix * vec4(m_lightDirection[lightNum], 0.0)).xyz; \n\
+              lightDir = m_lightDirection[lightNum]; \n\
               if (m_lightPositional[lightNum] == 0)\n\
                 {\n\
                 vertLightDirection = lightDir;\n\
                 }\n\
               else\n\
                 {\n\
-                vertLightDirection = m_vertex_pos.xyz - lightDir;\n\
+                vertLightDirection = (frag_world_pos.xyz - m_lightPosition[lightNum]);\n\
                 float distance = length(vertLightDirection);\n\
                 vertLightDirection = normalize(vertLightDirection);\n\
                 attenuation = 1.0 /\n\
@@ -518,7 +520,7 @@ namespace vtkvolume
                   }\n\
                 }\n\
             // diffuse and specular lighting\n\
-            float df = max(0.0, attenuation*dot(normal, vertLightDirection));\n\
+            float df = max(0.0, attenuation * dot(normal, vertLightDirection));\n\
             diffuse += (df * m_lightColor[lightNum]);\n\
             if (dot(normal, -vertLightDirection) > 0.0)\n\
               {\n\

@@ -65,8 +65,8 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   light1->SetAmbientColor(0,1,0);
   light1->SetSpecularColor(1,1,1);
   light1->SetConeAngle(40);
-  light1->SetPosition(0.0,-0.4, 1);
-  light1->SetFocalPoint(4, 3, 1);
+  light1->SetPosition(25.0, 0.0, 100.0);
+  light1->SetFocalPoint(25.0, 0.0, 0.0);
 //  light1->SetColor(1,0,0);
 //  light1->SetPosition(40,40,301);
 //  light1->SetPosition(-57, -50, -360);
