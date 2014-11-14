@@ -14,7 +14,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
- *              Thusdayr, May 27, 2004
+ *              Thursday, May 27, 2004
  *
  * Purpose:	Dataset testing functions.
  */
@@ -64,11 +64,11 @@
 
 /*--------------------------------------------------------------------------
  NAME
-    H5D_layout_version_test
+    H5D__layout_version_test
  PURPOSE
     Determine the storage layout version for a dataset's layout information
  USAGE
-    herr_t H5D_layout_version_test(did, version)
+    herr_t H5D__layout_version_test(did, version)
         hid_t did;              IN: Dataset to query
         unsigned *version;      OUT: Pointer to location to place version info
  RETURNS
@@ -82,12 +82,12 @@
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5D_layout_version_test(hid_t did, unsigned *version)
+H5D__layout_version_test(hid_t did, unsigned *version)
 {
     H5D_t	*dset;          /* Pointer to dataset to query */
     herr_t ret_value = SUCCEED; /* return value */
 
-    FUNC_ENTER_NOAPI(H5D_layout_version_test, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check args */
     if(NULL == (dset = (H5D_t *)H5I_object_verify(did, H5I_DATASET)))
@@ -98,16 +98,16 @@ H5D_layout_version_test(hid_t did, unsigned *version)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5D_layout_version_test() */
+}   /* H5D__layout_version_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5D_layout_contig_size_test
+    H5D__layout_contig_size_test
  PURPOSE
     Determine the size of a contiguous layout for a dataset's layout information
  USAGE
-    herr_t H5D_layout_contig_size_test(did, size)
+    herr_t H5D__layout_contig_size_test(did, size)
         hid_t did;              IN: Dataset to query
         hsize_t *size;          OUT: Pointer to location to place size info
  RETURNS
@@ -121,12 +121,12 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5D_layout_contig_size_test(hid_t did, hsize_t *size)
+H5D__layout_contig_size_test(hid_t did, hsize_t *size)
 {
     H5D_t	*dset;          /* Pointer to dataset to query */
     herr_t ret_value = SUCCEED; /* return value */
 
-    FUNC_ENTER_NOAPI(H5D_layout_contig_size_test, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check args */
     if(NULL == (dset = (H5D_t *)H5I_object_verify(did, H5I_DATASET)))
@@ -139,16 +139,16 @@ H5D_layout_contig_size_test(hid_t did, hsize_t *size)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5D_layout_contig_size_test() */
+}   /* H5D__layout_contig_size_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5D_current_cache_size_test
+    H5D__current_cache_size_test
  PURPOSE
     Determine current the size of the dataset's chunk cache
  USAGE
-    herr_t H5D_current_cache_size_test(did, size)
+    herr_t H5D__current_cache_size_test(did, size)
         hid_t did;              IN: Dataset to query
         hsize_t *size;          OUT: Pointer to location to place size info
  RETURNS
@@ -162,12 +162,12 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5D_current_cache_size_test(hid_t did, size_t *nbytes_used, int *nused)
+H5D__current_cache_size_test(hid_t did, size_t *nbytes_used, int *nused)
 {
     H5D_t	*dset;          /* Pointer to dataset to query */
     herr_t ret_value = SUCCEED;   /* return value */
 
-    FUNC_ENTER_NOAPI(H5D_current_cache_size_test, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check args */
     if(NULL == (dset = (H5D_t *)H5I_object_verify(did, H5I_DATASET)))
@@ -185,5 +185,5 @@ H5D_current_cache_size_test(hid_t did, size_t *nbytes_used, int *nused)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5D_current_cache_size_test() */
+}   /* H5D__current_cache_size_test() */
 

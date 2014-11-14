@@ -1,4 +1,4 @@
-/* src/H5config.h.in.  Generated from configure.in by autoheader.  */
+/* src/H5config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
@@ -17,9 +17,8 @@
 /* Define if C++ compiler recognizes offsetof */
 #undef CXX_HAVE_OFFSETOF
 
-/* Define a macro for Cygwin (on XP only) where the compiler has rounding
-   problem converting from unsigned long long to long double */
-#undef CYGWIN_ULLONG_TO_LDOUBLE_ROUND_PROBLEM
+/* Define the default plugins path to compile */
+#undef DEFAULT_PLUGINDIR
 
 /* Define the default virtual file driver to compile */
 #undef DEFAULT_VFD
@@ -72,8 +71,14 @@
 /* Define if the compiler understands the __func__ keyword */
 #undef HAVE_C99_FUNC
 
+/* Define to 1 if you have the `clock_gettime' function. */
+#undef HAVE_CLOCK_GETTIME
+
 /* Define if the function stack tracing code is to be compiled in */
 #undef HAVE_CODESTACK
+
+/* Define if Darwin or Mac OS X */
+#undef HAVE_DARWIN
 
 /* Define to 1 if you have the declaration of `tzname', and to 0 if you don't.
    */
@@ -84,6 +89,9 @@
 
 /* Define if the direct I/O virtual file driver should be compiled */
 #undef HAVE_DIRECT
+
+/* Define to 1 if you have the <dirent.h> header file. */
+#undef HAVE_DIRENT_H
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -124,17 +132,20 @@
 /* Define to 1 if you have the `frexpl' function. */
 #undef HAVE_FREXPL
 
-/* Define to 1 if you have the `fseek64' function. */
-#undef HAVE_FSEEK64
-
 /* Define to 1 if you have the `fseeko' function. */
 #undef HAVE_FSEEKO
+
+/* Define to 1 if you have the `fseeko64' function. */
+#undef HAVE_FSEEKO64
 
 /* Define to 1 if you have the `fstat64' function. */
 #undef HAVE_FSTAT64
 
 /* Define to 1 if you have the `ftello' function. */
 #undef HAVE_FTELLO
+
+/* Define to 1 if you have the `ftello64' function. */
+#undef HAVE_FTELLO64
 
 /* Define to 1 if you have the `ftruncate64' function. */
 #undef HAVE_FTRUNCATE64
@@ -163,15 +174,6 @@
 /* Define to 1 if you have the `get_fpc_csr' function. */
 #undef HAVE_GET_FPC_CSR
 
-/* Define if we have GPFS support */
-#undef HAVE_GPFS
-
-/* Define to 1 if you have the <gpfs.h> header file. */
-#undef HAVE_GPFS_H
-
-/* Define if h5dump packed bits feature is enabled */
-#undef HAVE_H5DUMP_PACKED_BITS
-
 /* Define if library will contain instrumentation to detect correct
    optimization operation */
 #undef HAVE_INSTRUMENTED_LIBRARY
@@ -184,6 +186,9 @@
 
 /* Define to 1 if you have the <io.h> header file. */
 #undef HAVE_IO_H
+
+/* Define to 1 if you have the `dl' library (-ldl). */
+#undef HAVE_LIBDL
 
 /* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
 #undef HAVE_LIBDMALLOC
@@ -218,6 +223,9 @@
 /* Define to 1 if you have the `sz' library (-lsz). */
 #undef HAVE_LIBSZ
 
+/* Define to 1 if you have the `ws2_32' library (-lws2_32). */
+#undef HAVE_LIBWS2_32
+
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
 
@@ -229,6 +237,9 @@
 
 /* Define to 1 if you have the `lstat' function. */
 #undef HAVE_LSTAT
+
+/* Define to 1 if you have the <mach/mach_time.h> header file. */
+#undef HAVE_MACH_MACH_TIME_H
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -403,8 +414,8 @@
 /* Define if your system has window style path name. */
 #undef HAVE_WINDOW_PATH
 
-/* Define to 1 if you have the <winsock.h> header file. */
-#undef HAVE_WINSOCK_H
+/* Define to 1 if you have the <winsock2.h> header file. */
+#undef HAVE_WINSOCK2_H
 
 /* Define to 1 if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
@@ -439,6 +450,10 @@
    values correctly. */
 #undef LDOUBLE_TO_LLONG_ACCURATE
 
+/* Define if your system converts long double to (unsigned) long values with
+   special algorithm. */
+#undef LDOUBLE_TO_LONG_SPECIAL
+
 /* Define if your system can convert long double to unsigned int values
    correctly. */
 #undef LDOUBLE_TO_UINT_ACCURATE
@@ -450,6 +465,10 @@
    values correctly. */
 #undef LLONG_TO_LDOUBLE_CORRECT
 
+/* Define if your system can convert (unsigned) long to long double values
+   with special algorithm. */
+#undef LONG_TO_LDOUBLE_SPECIAL
+
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR
@@ -457,16 +476,9 @@
 /* Define if the metadata trace file code is to be compiled in */
 #undef METADATA_TRACE_FILE
 
-/* Define if your system can handle complicated MPI derived datatype
-   correctly. */
-#undef MPI_COMPLEX_DERIVED_DATATYPE_WORKS
-
 /* Define if your system's `MPI_File_set_size' function works for files over
    2GB. */
 #undef MPI_FILE_SET_SIZE_BIG
-
-/* Define if your system can handle special collective IO properly. */
-#undef MPI_SPECIAL_COLLECTIVE_IO_WORKS
 
 /* Define if we can violate pointer alignment restrictions */
 #undef NO_ALIGNMENT_RESTRICTIONS

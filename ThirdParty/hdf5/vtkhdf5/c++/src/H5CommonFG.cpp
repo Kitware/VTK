@@ -68,25 +68,29 @@ namespace H5 {
 //--------------------------------------------------------------------------
 Group CommonFG::createGroup( const char* name, size_t size_hint ) const
 {
-   // Create group creation property list for size_hint
-   hid_t gcpl_id = H5Pcreate(H5P_GROUP_CREATE);
-
-   // If the creation of the property list failed, throw an exception
-   if( gcpl_id < 0 )
-      throwException("createGroup", "H5Pcreate failed");
+   // Group creation property list for size_hint
+   hid_t gcpl_id = 0;
 
    // Set the local heap size hint
-   if( H5Pset_local_heap_size_hint(gcpl_id, size_hint) < 0) {
-      H5Pclose(gcpl_id);
-      throwException("createGroup", "H5Pset_local_heap_size failed");
-   }
+   if(!(size_hint == (size_t)-1 || size_hint == 0)) {
+
+       // If the creation of the property list failed, throw an exception
+       if((gcpl_id = H5Pcreate(H5P_GROUP_CREATE)) < 0)
+          throwException("createGroup", "H5Pcreate failed");
+
+       if( H5Pset_local_heap_size_hint(gcpl_id, size_hint) < 0) {
+          H5Pclose(gcpl_id);
+          throwException("createGroup", "H5Pset_local_heap_size failed");
+       }
+    }
 
    // Call C routine H5Gcreate2 to create the named group, giving the
    // location id which can be a file id or a group id
    hid_t group_id = H5Gcreate2( getLocId(), name, H5P_DEFAULT, gcpl_id, H5P_DEFAULT );
 
-   // Close the group creation property list
-   H5Pclose(gcpl_id);
+   // Close the group creation property list, if necessary
+   if(gcpl_id > 0)
+       H5Pclose(gcpl_id);
 
    // If the creation of the group failed, throw an exception
    if( group_id < 0 )
@@ -126,9 +130,7 @@ Group CommonFG::openGroup( const char* name ) const
 
    // If the opening of the group failed, throw an exception
    if( group_id < 0 )
-   {
       throwException("openGroup", "H5Gopen2 failed");
-   }
 
    // No failure, create and return the Group object
    Group group( group_id );
@@ -170,9 +172,7 @@ DataSet CommonFG::createDataSet( const char* name, const DataType& data_type, co
 
    // If the creation of the dataset failed, throw an exception
    if( dataset_id < 0 )
-   {
       throwException("createDataSet", "H5Dcreate2 failed");
-   }
 
    // No failure, create and return the DataSet object
    DataSet dataset( dataset_id );
@@ -266,9 +266,8 @@ void CommonFG::link( H5L_type_t link_type, const char* curr_name, const char* ne
             break;
     } /* end switch */
 
-   if( ret_value < 0 ) {
+   if( ret_value < 0 )
       throwException("link", "creating link failed");
-   }
 }
 
 //--------------------------------------------------------------------------
@@ -296,9 +295,7 @@ void CommonFG::unlink( const char* name ) const
 {
    herr_t ret_value = H5Ldelete( getLocId(), name, H5P_DEFAULT );
    if( ret_value < 0 )
-   {
       throwException("unlink", "H5Ldelete failed");
-   }
 }
 
 //--------------------------------------------------------------------------
@@ -322,7 +319,7 @@ void CommonFG::unlink( const H5std_string& name ) const
 ///\note
 ///		Exercise care in moving groups as it is possible to render
 ///		data in a file inaccessible with Group::move. Please refer
-///		to the Group Interface in the HDF5 User's Guide at:
+///		to the Group Interface in the HDF5 User's Guide for details at:
 /// http://www.hdfgroup.org/HDF5/doc/UG/UG_frame09Groups.html
 // Programmer	Binh-Minh Ribler - 2000
 // Modification
@@ -332,9 +329,7 @@ void CommonFG::move( const char* src, const char* dst ) const
 {
    herr_t ret_value = H5Lmove( getLocId(), src, H5L_SAME_LOC, dst, H5P_DEFAULT, H5P_DEFAULT );
    if( ret_value < 0 )
-   {
       throwException("move", "H5Lmove failed");
-   }
 }
 
 //--------------------------------------------------------------------------
@@ -367,9 +362,7 @@ void CommonFG::getObjinfo( const char* name, hbool_t follow_link, H5G_stat_t& st
 {
    herr_t ret_value = H5Gget_objinfo( getLocId(), name, follow_link, &statbuf );
    if( ret_value < 0 )
-   {
       throwException("getObjinfo", "H5Gget_objinfo failed");
-   }
 }
 
 //--------------------------------------------------------------------------
@@ -396,9 +389,7 @@ void CommonFG::getObjinfo( const char* name, H5G_stat_t& statbuf ) const
 {
    herr_t ret_value = H5Gget_objinfo( getLocId(), name, 0, &statbuf );
    if( ret_value < 0 )
-   {
       throwException("getObjinfo", "H5Gget_objinfo failed");
-   }
 }
 
 //--------------------------------------------------------------------------
@@ -436,9 +427,8 @@ H5std_string CommonFG::getLinkval( const char* name, size_t size ) const
     {
 	ret_value = H5Lget_info(getLocId(), name, &linkinfo, H5P_DEFAULT);
 	if( ret_value < 0 )
-	{
 	    throwException("getLinkval", "H5Lget_info to find buffer size failed");
-	}
+
 	val_size = linkinfo.u.val_size;
     }
 
@@ -446,12 +436,12 @@ H5std_string CommonFG::getLinkval( const char* name, size_t size ) const
     if (val_size > 0)
     {
 	value_C = new char[val_size+1];  // temporary C-string for C API
+	HDmemset(value_C, 0, val_size+1); // clear buffer
 
 	ret_value = H5Lget_val(getLocId(), name, value_C, val_size, H5P_DEFAULT);
 	if( ret_value < 0 )
-	{
 	    throwException("getLinkval", "H5Lget_val failed");
-	}
+
 	value = H5std_string(value_C);
 	delete []value_C;
     }
@@ -471,149 +461,15 @@ H5std_string CommonFG::getLinkval( const H5std_string& name, size_t size ) const
 }
 
 //--------------------------------------------------------------------------
-// Function:	CommonFG::setComment
-///\brief	Sets or resets the comment for an object specified by its name.
-///\param	name  - IN: Name of the object
-///\param	comment - IN: New comment
-///\exception	H5::FileIException or H5::GroupIException
-///\par	Description
-///		If \a comment is an empty string or a null pointer, the comment
-///		message is removed from the object.
-///		Comments should be relatively short, null-terminated, ASCII
-///		strings.  They can be attached to any object that has an
-///		object header, e.g., data sets, groups, named data types,
-///		and data spaces, but not symbolic links.
-// Programmer	Binh-Minh Ribler - 2000
-// Modification
-//	2007: QAK modified to use H5O APIs; however the first parameter is
-//		no longer just file or group, this function should be moved
-//		to another class to accommodate attribute, dataset, and named
-//		datatype. - BMR
-//--------------------------------------------------------------------------
-void CommonFG::setComment( const char* name, const char* comment ) const
-{
-   herr_t ret_value = H5Oset_comment_by_name( getLocId(), name, comment, H5P_DEFAULT );
-   if( ret_value < 0 )
-   {
-      throwException("setComment", "H5Oset_comment_by_name failed");
-   }
-}
-
-//--------------------------------------------------------------------------
-// Function:	CommonFG::setComment
-///\brief	This is an overloaded member function, provided for convenience.
-///		It differs from the above function in that it takes an
-///		\c H5std_string for \a name and \a comment.
-// Programmer	Binh-Minh Ribler - 2000
-//--------------------------------------------------------------------------
-void CommonFG::setComment( const H5std_string& name, const H5std_string& comment ) const
-{
-   setComment( name.c_str(), comment.c_str() );
-}
-
-//--------------------------------------------------------------------------
-// Function:	CommonFG::removeComment
-///\brief	Removes the comment from an object specified by its name.
-///\param	name  - IN: Name of the object
-///\exception	H5::FileIException or H5::GroupIException
-// Programmer	Binh-Minh Ribler - May 2005
-//	2007: QAK modified to use H5O APIs; however the first parameter is
-//		no longer just file or group, this function should be moved
-//		to another class to accommodate attribute, dataset, and named
-//		datatype. - BMR
-//--------------------------------------------------------------------------
-void CommonFG::removeComment(const char* name) const
-{
-   herr_t ret_value = H5Oset_comment_by_name(getLocId(), name, NULL, H5P_DEFAULT);
-   if( ret_value < 0 )
-   {
-      throwException("removeComment", "H5Oset_comment_by_name failed");
-   }
-}
-
-//--------------------------------------------------------------------------
-// Function:	CommonFG::removeComment
-///\brief	This is an overloaded member function, provided for convenience.
-///		It differs from the above function in that it takes an
-///		\c H5std_string for \a name.
-// Programmer	Binh-Minh Ribler - May 2005
-//--------------------------------------------------------------------------
-void CommonFG::removeComment(const H5std_string& name) const
-{
-   removeComment (name.c_str());
-}
-
-//--------------------------------------------------------------------------
-// Function:	CommonFG::getComment
-///\brief	Retrieves comment for the specified object and its comment's
-///		length.
-///\param	name  - IN: Name of the object
-///\param	bufsize - IN: Length of the comment to retrieve
-///\return	Comment string
-///\exception	H5::FileIException or H5::GroupIException
-// Programmer	Binh-Minh Ribler - 2000
-//	2007: QAK modified to use H5O APIs; however the first parameter is
-//		no longer just file or group, this function should be moved
-//		to another class to accommodate attribute, dataset, and named
-//		datatype. - BMR
-//--------------------------------------------------------------------------
-H5std_string CommonFG::getComment( const char* name, size_t bufsize ) const
-{
-   // bufsize is default to 256
-   // temporary variable
-   hid_t loc_id = getLocId();   // temporary variable
-
-   // temporary C-string for the object's comment; bufsize already including
-   // null character
-   char* comment_C = new char[bufsize];
-   ssize_t ret_value = H5Oget_comment_by_name(loc_id, name, comment_C, bufsize, H5P_DEFAULT);
-
-   // if the actual length of the comment is longer than bufsize and bufsize
-   // was the default value, i.e., not given by the user, then call
-   // H5Oget_comment_by_name again with the correct value.
-   // If the call to H5Oget_comment_by_name returned an error, skip this block
-   // and throw an exception below.
-   if (ret_value >= 0 && (size_t)ret_value > bufsize && bufsize == 256)
-   {
-	size_t new_size = ret_value;
-	delete []comment_C;
-	comment_C = new char[new_size];	// new_size including null terminator
-	ret_value = H5Oget_comment_by_name(loc_id, name, comment_C, new_size, H5P_DEFAULT);
-   }
-
-   // if H5Oget_comment_by_name returns SUCCEED, return the string comment,
-   // otherwise, throw an exception
-   if( ret_value < 0 )
-   {
-      throwException("getComment", "H5Oget_comment_by_name failed");
-   }
-   H5std_string comment = H5std_string(comment_C);
-   delete []comment_C;
-   return (comment);
-}
-
-//--------------------------------------------------------------------------
-// Function:	CommonFG::getComment
-///\brief	This is an overloaded member function, provided for convenience.
-///		It differs from the above function in that it takes an
-///		\c H5std_string for \a name.
-// Programmer	Binh-Minh Ribler - 2000
-//--------------------------------------------------------------------------
-H5std_string CommonFG::getComment( const H5std_string& name, size_t bufsize ) const
-{
-   return( getComment( name.c_str(), bufsize ));
-}
-
-//--------------------------------------------------------------------------
 // Function:	CommonFG::mount
 ///\brief	Mounts the file \a child onto this group.
 ///\param	name  - IN: Name of the group
 ///\param	child - IN: File to mount
 ///\param	plist - IN: Property list to use
 ///\exception	H5::FileIException or H5::GroupIException
-// Programmer	Binh-Minh Ribler - 2000
+// Programmer	Binh-Minh Ribler - 2014 (original 2000)
 //--------------------------------------------------------------------------
-void CommonFG::mount( const char* name, H5File& child, PropList& plist ) const
+void CommonFG::mount(const char* name, const H5File& child, const PropList& plist ) const
 {
    // Obtain identifiers for C API
    hid_t plist_id = plist.getId();
@@ -624,21 +480,46 @@ void CommonFG::mount( const char* name, H5File& child, PropList& plist ) const
 
    // Raise exception if H5Fmount returns negative value
    if( ret_value < 0 )
-   {
       throwException("mount", "H5Fmount failed");
-   }
+}
+
+//--------------------------------------------------------------------------
+// Function:	CommonFG::mount
+///\brief	This is an overloaded member function, kept for backward
+///		compatibility.  It differs from the above function in that it
+///		misses const's.  This wrapper will be removed in future release.
+///\param	name  - IN: Name of the group
+///\param	child - IN: File to mount
+///\param	plist - IN: Property list to use
+///\exception	H5::FileIException or H5::GroupIException
+// Programmer	Binh-Minh Ribler - 2000
+//--------------------------------------------------------------------------
+void CommonFG::mount(const char* name, H5File& child, PropList& plist) const
+{
+   mount(name, (const H5File)child, (const PropList)plist);
 }
 
 //--------------------------------------------------------------------------
 // Function:	CommonFG::mount
 ///\brief	This is an overloaded member function, provided for convenience.
-///		It differs from the above function in that it takes an
-///		\c H5std_string for \a name.
+///		It takes an \c H5std_string for \a name.
 // Programmer	Binh-Minh Ribler - 2000
 //--------------------------------------------------------------------------
-void CommonFG::mount( const H5std_string& name, H5File& child, PropList& plist ) const
+void CommonFG::mount(const H5std_string& name, const H5File& child, const PropList& plist) const
 {
-   mount( name.c_str(), child, plist );
+   mount(name.c_str(), child, plist);
+}
+
+//--------------------------------------------------------------------------
+// Function:	CommonFG::mount
+///\brief	This is an overloaded member function, kept for backward
+///		compatibility.  It differs from the above function in that it
+///		misses const's.  This wrapper will be removed in future release.
+// Programmer	Binh-Minh Ribler - 2014
+//--------------------------------------------------------------------------
+void CommonFG::mount(const H5std_string& name, H5File& child, PropList& plist) const
+{
+   mount(name.c_str(), (const H5File)child, (const PropList)plist);
 }
 
 //--------------------------------------------------------------------------
@@ -655,9 +536,7 @@ void CommonFG::unmount( const char* name ) const
 
    // Raise exception if H5Funmount returns negative value
    if( ret_value < 0 )
-   {
       throwException("unmount", "H5Funmount failed");
-   }
 }
 
 //--------------------------------------------------------------------------
@@ -1002,9 +881,7 @@ hsize_t CommonFG::getNumObjs() const
 
    herr_t ret_value = H5Gget_info(getLocId(), &ginfo);
    if(ret_value < 0)
-   {
       throwException("getNumObjs", "H5Gget_info failed");
-   }
    return (ginfo.nlinks);
 }
 
@@ -1028,12 +905,12 @@ H5std_string CommonFG::getObjnameByIdx(hsize_t idx) const
     // call H5Lget_name_by_idx with name as NULL to get its length
     ssize_t name_len = H5Lget_name_by_idx(getLocId(), ".", H5_INDEX_NAME, H5_ITER_INC, idx, NULL, 0, H5P_DEFAULT);
     if(name_len < 0)
-    {
       throwException("getObjnameByIdx", "H5Lget_name_by_idx failed");
-    }
 
     // now, allocate C buffer to get the name
     char* name_C = new char[name_len+1];
+    HDmemset(name_C, 0, name_len+1); // clear buffer
+
     name_len = H5Lget_name_by_idx(getLocId(), ".", H5_INDEX_NAME, H5_ITER_INC, idx, name_C, name_len+1, H5P_DEFAULT);
 
     // clean up and return the string
@@ -1063,9 +940,8 @@ ssize_t CommonFG::getObjnameByIdx(hsize_t idx, char* name, size_t size) const
 {
    ssize_t name_len = H5Lget_name_by_idx(getLocId(), ".", H5_INDEX_NAME, H5_ITER_INC, idx, name, size, H5P_DEFAULT);
    if(name_len < 0)
-   {
       throwException("getObjnameByIdx", "H5Lget_name_by_idx failed");
-   }
+
    return (name_len);
 }
 
@@ -1073,23 +949,142 @@ ssize_t CommonFG::getObjnameByIdx(hsize_t idx, char* name, size_t size) const
 // Function:	CommonFG::getObjnameByIdx
 ///\brief	This is an overloaded member function, provided for convenience.
 ///		It differs from the above function in that it takes an
-///		\c std::string for \a name.
+///		\c H5std_string for \a name.
 // Programmer	Binh-Minh Ribler - January, 2003
 //--------------------------------------------------------------------------
 ssize_t CommonFG::getObjnameByIdx(hsize_t idx, H5std_string& name, size_t size) const
 {
-   char* name_C = new char[size];
-   ssize_t name_len = getObjnameByIdx(idx, name_C, size);
+   char* name_C = new char[size+1]; // temporary C-string for object name
+   HDmemset(name_C, 0, size+1); // clear buffer
+
+   ssize_t name_len = getObjnameByIdx(idx, name_C, size+1);
    if(name_len < 0)
-   {
       throwException("getObjnameByIdx", "H5Lget_name_by_idx failed");
-   }
+
    name = H5std_string(name_C);
    delete []name_C;
    return (name_len);
 }
 
+//--------------------------------------------------------------------------
+// Function:	CommonFG::childObjType
+///\brief	Returns the type of an object in this file/group, given the
+///		object's name.
+///\param	objname - IN: Name of the object
+///\return	Object type, which can have the following values for group,
+///		dataset, and named datatype
+///		\li \c H5O_TYPE_GROUP
+///		\li \c H5O_TYPE_DATASET
+///		\li \c H5O_TYPE_NAMED_DATATYPE
+///		Refer to the C API documentation for more details:
+///		http://www.hdfgroup.org/HDF5/doc/RM/RM_H5O.html#Object-GetInfo
+///\exception	H5::FileIException or H5::GroupIException
+///		Exception will be thrown when:
+///		- an error returned by the C API
+///		- object type is not one of the valid values above
+// Programmer	Binh-Minh Ribler - April, 2014
+//--------------------------------------------------------------------------
+H5O_type_t CommonFG::childObjType(const char* objname) const
+{
+    H5O_info_t objinfo;
+    H5O_type_t objtype = H5O_TYPE_UNKNOWN;
+
+    // Use C API to get information of the object
+    herr_t ret_value = H5Oget_info_by_name(getLocId(), objname, &objinfo, H5P_DEFAULT);
+
+    // Throw exception if C API returns failure
+    if (ret_value < 0)
+	throwException("childObjType", "H5Oget_info_by_name failed");
+    // Return a valid type or throw an exception for unknown type
+    else
+      switch (objinfo.type)
+      {
+	case H5O_TYPE_GROUP:
+	case H5O_TYPE_DATASET:
+	case H5O_TYPE_NAMED_DATATYPE:
+	    objtype = objinfo.type;
+	    break;
+	default:
+	    throwException("childObjType", "Unknown type of object");
+      }
+    return(objtype);
+}
+
+//--------------------------------------------------------------------------
+// Function:	CommonFG::childObjType
+///\brief	This is an overloaded member function, provided for convenience.
+///		It takes an \a H5std_string for the object's name.
+///\brief	Returns the type of an object in this group, given the
+///		object's name.
+///\param	objname - IN: Name of the object (H5std_string&)
+///\exception	H5::FileIException or H5::GroupIException
+// Programmer	Binh-Minh Ribler - April, 2014
+//--------------------------------------------------------------------------
+H5O_type_t CommonFG::childObjType(const H5std_string& objname) const
+{
+    // Use overloaded function
+    H5O_type_t objtype = childObjType(objname.c_str());
+    return(objtype);
+}
+
+//--------------------------------------------------------------------------
+// Function:	CommonFG::childObjType
+///\brief	Returns the type of an object in this file/group, given the
+///		object's index and its type and order.
+///\param	index - IN: Position of the object
+///\param	index_type - IN: Type of the index, default to H5_INDEX_NAME
+///\param	order - IN: Traversing order, default to H5_ITER_INC
+///\param	objname - IN: Name of the object, default to "."
+///\return	Object type, which can have the following values for group,
+///		dataset, and named datatype
+///		\li \c H5O_TYPE_GROUP
+///		\li \c H5O_TYPE_DATASET
+///		\li \c H5O_TYPE_NAMED_DATATYPE
+///		Refer to the C API documentation for more details:
+///		http://www.hdfgroup.org/HDF5/doc/RM/RM_H5O.html#Object-GetInfo
+///\exception	H5::FileIException or H5::GroupIException
+///		Exception will be thrown when:
+///		- an error returned by the C API
+///		- object type is not one of the valid values above
+// Developer's Notes:
+//	- this overload uses H5Oget_info_by_idx instead of H5Oget_info_by_name
+//	  like the previous childObjType()
+//	- index is the required argument so, first
+//	- objname is last because it's more likely the location is already
+//	  fully specified
+//	- Leave property list out for now because C API is not using it, it
+//	  can be added later when needed.
+// Programmer	Binh-Minh Ribler - April, 2014
+//--------------------------------------------------------------------------
+H5O_type_t CommonFG::childObjType(hsize_t index, H5_index_t index_type, H5_iter_order_t order, const char* objname) const
+{
+    herr_t ret_value;
+    H5O_info_t objinfo;
+    H5O_type_t objtype = H5O_TYPE_UNKNOWN;
+
+    // Use C API to get information of the object
+    ret_value = H5Oget_info_by_idx(getLocId(), objname, index_type, order, index, &objinfo, H5P_DEFAULT);
+
+    // Throw exception if C API returns failure
+    if (ret_value < 0)
+	throwException("childObjType", "H5Oget_info_by_idx failed");
+    // Return a valid type or throw an exception for unknown type
+    else
+      switch (objinfo.type)
+      {
+	case H5O_TYPE_GROUP:
+	case H5O_TYPE_DATASET:
+	case H5O_TYPE_NAMED_DATATYPE:
+	    objtype = objinfo.type;
+	    break;
+	default:
+	    throwException("childObjType", "Unknown type of object");
+      }
+    return(objtype);
+}
+
 #ifndef H5_NO_DEPRECATED_SYMBOLS
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 //--------------------------------------------------------------------------
 // Function:	CommonFG::getObjTypeByIdx
 ///\brief	Returns the type of an object in this group, given the
@@ -1103,9 +1098,8 @@ H5G_obj_t CommonFG::getObjTypeByIdx(hsize_t idx) const
 {
    H5G_obj_t obj_type = H5Gget_objtype_by_idx(getLocId(), idx);
    if (obj_type == H5G_UNKNOWN)
-   {
       throwException("getObjTypeByIdx", "H5Gget_objtype_by_idx failed");
-   }
+
    return (obj_type);
 }
 
@@ -1115,7 +1109,7 @@ H5G_obj_t CommonFG::getObjTypeByIdx(hsize_t idx) const
 ///		It differs from the above function because it also provides
 ///		the returned object type in text (char*)
 ///\param	idx       - IN: Transient index of the object
-///\param	type_name - IN: Object type in text
+///\param	type_name - OUT: Object type in text
 ///\return	Object type
 ///\exception	H5::FileIException or H5::GroupIException
 // Programmer	Binh-Minh Ribler - May, 2010
@@ -1131,9 +1125,7 @@ H5G_obj_t CommonFG::getObjTypeByIdx(hsize_t idx, char* type_name) const
 	case H5G_TYPE: HDstrcpy(type_name, "datatype"); break;
 	case H5G_UNKNOWN:
 	default:
-   	{
 	   throwException("getObjTypeByIdx", "H5Gget_objtype_by_idx failed");
-	}
    }
    return (obj_type);
 }
@@ -1143,7 +1135,7 @@ H5G_obj_t CommonFG::getObjTypeByIdx(hsize_t idx, char* type_name) const
 ///		It differs from the above function because it also provides
 ///		the returned object type in text (H5std_string&)
 ///\param	idx       - IN: Transient index of the object
-///\param	type_name - IN: Object type in text
+///\param	type_name - OUT: Object type in text
 ///\return	Object type
 ///\exception	H5::FileIException or H5::GroupIException
 // Programmer	Binh-Minh Ribler - January, 2003
@@ -1159,14 +1151,14 @@ H5G_obj_t CommonFG::getObjTypeByIdx(hsize_t idx, H5std_string& type_name) const
 	case H5G_TYPE: type_name = H5std_string("datatype"); break;
 	case H5G_UNKNOWN:
 	default:
-   	{
 	   throwException("getObjTypeByIdx", "H5Gget_objtype_by_idx failed");
-	}
    }
    return (obj_type);
 }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 //--------------------------------------------------------------------------
 // Function:	CommonFG default constructor
 ///\brief	Default constructor.
@@ -1180,6 +1172,7 @@ CommonFG::CommonFG() {}
 // Programmer	Binh-Minh Ribler - 2000
 //--------------------------------------------------------------------------
 CommonFG::~CommonFG() {}
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #ifndef H5_NO_NAMESPACE
 }

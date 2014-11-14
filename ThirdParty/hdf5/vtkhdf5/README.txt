@@ -1,4 +1,4 @@
-HDF5 version 1.8.5-post2 currently under development
+HDF5 version 1.8.13 released on 2014-05-05
 Please refer to the release_docs/INSTALL file for installation instructions.
 ------------------------------------------------------------------------------
 
@@ -21,15 +21,12 @@ The following  mailing lists are currently set up for HDF5 Library users:
     hdf-forum   - For general discussion of the HDF5 library with
                   other users.
 
-    hdf5dev     - For discussion of the HDF5 library development
-                  with developers and other interested parties.
-
-To subscribe to a list, send mail to "<list>-subscribe@hdfgroup.org".
+To subscribe to a list, send mail to "<list>-subscribe@lists.hdfgroup.org".
 where <list> is the name of the list.  For example, send a request 
 to subscribe to the 'news' mail list to the following address:
-    news-subscribe@hdfgroup.org
+    news-subscribe@lists.hdfgroup.org
 
-Messages sent to the list should be addressed to "<list>@hdfgroup.org".
+Messages sent to the list should be addressed to "<list>@lists.hdfgroup.org".
 
 Periodic code snapshots are provided at the following URL:
     ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/hdf5/snapshots

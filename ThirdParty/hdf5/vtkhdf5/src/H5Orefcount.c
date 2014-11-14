@@ -96,7 +96,7 @@ H5O_refcount_decode(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, H5O_t UNUSED *open_oh
     H5O_refcount_t *refcount = NULL;  /* Reference count */
     void        *ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_refcount_decode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -142,7 +142,7 @@ H5O_refcount_encode(H5F_t UNUSED *f, hbool_t UNUSED disable_shared, uint8_t *p, 
 {
     const H5O_refcount_t   *refcount = (const H5O_refcount_t *)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_refcount_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);
@@ -181,7 +181,7 @@ H5O_refcount_copy(const void *_mesg, void *_dest)
     H5O_refcount_t         *dest = (H5O_refcount_t *) _dest;
     void                *ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_refcount_copy)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(refcount);
@@ -221,7 +221,7 @@ H5O_refcount_size(const H5F_t UNUSED *f, hbool_t UNUSED disable_shared,
 {
     size_t ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_refcount_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Set return value */
     ret_value = 1                       /* Version */
@@ -246,7 +246,7 @@ H5O_refcount_size(const H5F_t UNUSED *f, hbool_t UNUSED disable_shared,
 static herr_t
 H5O_refcount_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_refcount_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(mesg);
 
@@ -274,7 +274,7 @@ static herr_t
 H5O_refcount_pre_copy_file(H5F_t UNUSED *file_src, const void UNUSED *native_src,
     hbool_t *deleted, const H5O_copy_t UNUSED *cpy_info, void UNUSED *udata)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_refcount_pre_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(deleted);
@@ -308,7 +308,7 @@ H5O_refcount_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *_mesg, FIL
 {
     const H5O_refcount_t       *refcount = (const H5O_refcount_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_refcount_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);

@@ -13,44 +13,30 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/*
- * Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
- *              Thursday, July 11, 2002
- *
- * Purpose:	The public header file for the mpiposix driver.
- */
+#ifndef _H5DOpublic_H
+#define _H5DOpublic_H
 
-#ifndef __H5FDmpiposix_H
-#define __H5FDmpiposix_H
-
-#ifdef H5_HAVE_PARALLEL
-#   define H5FD_MPIPOSIX	(H5FD_mpiposix_init())
-#else
-#   define H5FD_MPIPOSIX	(-1)
-#endif
-
-/* Macros */
-
-#define IS_H5FD_MPIPOSIX(f)	/* (H5F_t *f) */				    \
-    (H5FD_MPIPOSIX==H5F_DRIVER_ID(f))
-
-#ifdef H5_HAVE_PARALLEL
-
-/* Function prototypes */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-H5_DLL hid_t H5FD_mpiposix_init(void);
-H5_DLL void H5FD_mpiposix_term(void);
-H5_DLL herr_t H5Pset_fapl_mpiposix(hid_t fapl_id, MPI_Comm comm, hbool_t use_gpfs);
-H5_DLL herr_t H5Pget_fapl_mpiposix(hid_t fapl_id, MPI_Comm *comm/*out*/, hbool_t *use_gpfs/*out*/);
+/*-------------------------------------------------------------------------
+ *
+ * Direct chunk write function
+ *
+ *-------------------------------------------------------------------------
+ */
+
+H5_HLDLL herr_t H5DOwrite_chunk(hid_t dset_id, 
+			hid_t dxpl_id, 
+			uint32_t filters, 
+			const hsize_t *offset, 
+         		size_t data_size, 
+			const void *buf);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*H5_HAVE_PARALLEL*/
-
-#endif /* __H5FDmpiposix_H */
+#endif
 

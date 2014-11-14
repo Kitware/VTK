@@ -14,13 +14,14 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5PropList_H
-#define _H5PropList_H
+#ifndef __H5PropList_H
+#define __H5PropList_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+//! Class PropList provides operations for generic property lists.
 class H5_DLLCPP PropList : public IdComponent {
    public:
 	// Default property list
@@ -94,7 +95,7 @@ class H5_DLLCPP PropList : public IdComponent {
 	void removeProp(const char *name) const;
 	void removeProp(const H5std_string& name) const;
 
-	///\brief Returns this class name
+	///\brief Returns this class name.
 	virtual H5std_string fromClass () const { return("PropList"); }
 
 	// Default constructor: creates a stub PropList object.
@@ -110,13 +111,15 @@ class H5_DLLCPP PropList : public IdComponent {
 	virtual ~PropList();
 
    protected:
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 	hid_t id;	// HDF5 property list id
 
 	// Sets the property list id.
 	virtual void p_setId(const hid_t new_id);
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
 
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif  // _H5PropList_H
+#endif  // __H5PropList_H

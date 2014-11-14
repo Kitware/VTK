@@ -99,7 +99,7 @@ H5FL_DEFINE_STATIC(H5HF_t);
 herr_t
 H5HF_op_read(const void *obj, size_t obj_len, void *op_data)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_op_read)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Perform "read", using memcpy() */
     HDmemcpy(op_data, obj, obj_len);
@@ -124,7 +124,7 @@ H5HF_op_read(const void *obj, size_t obj_len, void *op_data)
 herr_t
 H5HF_op_write(const void *obj, size_t obj_len, void *op_data)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_op_write)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Perform "write", using memcpy() */
     HDmemcpy((void *)obj, op_data, obj_len);    /* Casting away const OK -QAK */
@@ -155,10 +155,7 @@ H5HF_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
     haddr_t fh_addr;            /* Heap header address */
     H5HF_t *ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_create, NULL)
-#ifdef QAK
-HDfprintf(stderr, "%s: Called\n", FUNC);
-#endif /* QAK */
+    FUNC_ENTER_NOAPI(NULL)
 
     /*
      * Check arguments.
@@ -225,7 +222,7 @@ H5HF_open(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     H5HF_hdr_t *hdr = NULL;     /* The fractal heap header information */
     H5HF_t *ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_open, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /*
      * Check arguments.
@@ -234,14 +231,8 @@ H5HF_open(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     HDassert(H5F_addr_defined(fh_addr));
 
     /* Load the heap header into memory */
-#ifdef QAK
-HDfprintf(stderr, "%s: fh_addr = %a\n", FUNC, fh_addr);
-#endif /* QAK */
     if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC_READ)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, NULL, "unable to protect fractal heap header")
-#ifdef QAK
-HDfprintf(stderr, "%s: hdr->rc = %u, hdr->fspace = %p\n", FUNC, hdr->rc, hdr->fspace);
-#endif /* QAK */
 
     /* Check for pending heap deletion */
     if(hdr->pending_delete)
@@ -293,7 +284,7 @@ done:
 herr_t
 H5HF_get_id_len(H5HF_t *fh, size_t *id_len_p)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5HF_get_id_len)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -324,7 +315,7 @@ H5HF_get_id_len(H5HF_t *fh, size_t *id_len_p)
 herr_t
 H5HF_get_heap_addr(const H5HF_t *fh, haddr_t *heap_addr_p)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5HF_get_heap_addr)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -360,10 +351,7 @@ H5HF_insert(H5HF_t *fh, hid_t dxpl_id, size_t size, const void *obj,
     H5HF_hdr_t *hdr = NULL;                  /* The fractal heap header information */
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI(H5HF_insert, FAIL)
-#ifdef QAK
-HDfprintf(stderr, "%s: size = %Zu\n", FUNC, size);
-#endif /* QAK */
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(fh);
@@ -406,9 +394,6 @@ HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "'write once' managed blocks not su
     } /* end else */
 
 done:
-#ifdef QAK
-HDfprintf(stderr, "%s: Leaving, ret_value = %d\n", FUNC, ret_value);
-#endif /* QAK */
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF_insert() */
 
@@ -433,7 +418,7 @@ H5HF_get_obj_len(H5HF_t *fh, hid_t dxpl_id, const void *_id, size_t *obj_len_p)
     uint8_t id_flags;                   /* Heap ID flag bits */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_get_obj_len, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -501,7 +486,7 @@ H5HF_read(H5HF_t *fh, hid_t dxpl_id, const void *_id, void *obj/*out*/)
     uint8_t id_flags;                   /* Heap ID flag bits */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_read, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -579,10 +564,7 @@ H5HF_write(H5HF_t *fh, hid_t dxpl_id, void *_id, hbool_t UNUSED *id_changed,
     uint8_t id_flags;                   /* Heap ID flag bits */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_write, FAIL)
-#ifdef QAK
-HDfprintf(stderr, "%s: Called\n", FUNC);
-#endif /* QAK */
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -654,7 +636,7 @@ H5HF_op(H5HF_t *fh, hid_t dxpl_id, const void *_id, H5HF_operator_t op,
     uint8_t id_flags;                   /* Heap ID flag bits */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_op, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -719,10 +701,7 @@ H5HF_remove(H5HF_t *fh, hid_t dxpl_id, const void *_id)
     uint8_t id_flags;                   /* Heap ID flag bits */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_remove, FAIL)
-#ifdef QAK
-HDfprintf(stderr, "%s: Called\n", FUNC);
-#endif /* QAK */
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -787,7 +766,7 @@ H5HF_close(H5HF_t *fh, hid_t dxpl_id)
     haddr_t heap_addr = HADDR_UNDEF;    /* Address of heap (for deletion) */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_close, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -814,17 +793,9 @@ H5HF_close(H5HF_t *fh, hid_t dxpl_id)
          *      a reference loop and the objects couldn't be removed from
          *      the metadata cache - QAK)
          */
-#ifdef QAK
-HDfprintf(stderr, "%s; fh->hdr->man_iter_off = %Hu\n", FUNC, fh->hdr->man_iter_off);
-HDfprintf(stderr, "%s; fh->hdr->man_size = %Hu\n", FUNC, fh->hdr->man_size);
-HDfprintf(stderr, "%s; fh->hdr->rc = %Zu\n", FUNC, fh->hdr->rc);
-#endif /* QAK */
         if(H5HF_man_iter_ready(&fh->hdr->next_block))
             if(H5HF_man_iter_reset(&fh->hdr->next_block) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTRELEASE, FAIL, "can't reset block iterator")
-#ifdef QAK
-HDfprintf(stderr, "%s; After iterator reset fh->hdr->rc = %Zu\n", FUNC, fh->hdr->rc);
-#endif /* QAK */
 
         /* Shut down the huge object information */
         /* (Can't put this in header "destroy" routine, because it has
@@ -855,9 +826,6 @@ HDfprintf(stderr, "%s; After iterator reset fh->hdr->rc = %Zu\n", FUNC, fh->hdr-
         /* Lock the heap header into memory */
         if(NULL == (hdr = H5HF_hdr_protect(fh->f, dxpl_id, heap_addr, H5AC_WRITE)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
-
-        /* Set the shared heap header's file context for this operation */
-        hdr->f = fh->f;
 
         /* Delete heap, starting with header (unprotects header) */
         if(H5HF_hdr_delete(hdr, dxpl_id) < 0)
@@ -891,7 +859,7 @@ H5HF_delete(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     H5HF_hdr_t *hdr = NULL;             /* The fractal heap header information */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_delete, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -900,9 +868,6 @@ H5HF_delete(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     HDassert(H5F_addr_defined(fh_addr));
 
     /* Lock the heap header into memory */
-#ifdef QAK
-HDfprintf(stderr, "%s: fh_addr = %a\n", FUNC, fh_addr);
-#endif /* QAK */
     if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC_WRITE)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 

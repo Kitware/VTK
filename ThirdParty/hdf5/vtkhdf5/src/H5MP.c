@@ -92,7 +92,7 @@ H5MP_create(size_t page_size, unsigned flags)
     H5MP_pool_t *mp = NULL;             /* New memory pool header */
     H5MP_pool_t *ret_value;             /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MP_create, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Allocate space for the pool header */
     if(NULL == (mp = H5FL_MALLOC(H5MP_pool_t)))
@@ -143,7 +143,7 @@ H5MP_new_page(H5MP_pool_t *mp, size_t page_size)
     H5MP_page_blk_t *first_blk;         /* Pointer to first block in page */
     H5MP_page_t *ret_value;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5MP_new_page)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(mp);
@@ -214,7 +214,7 @@ H5MP_malloc (H5MP_pool_t *mp, size_t request)
     size_t needed;                  /* Size requested, plus block header and alignment */
     void *ret_value;                /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MP_malloc, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Sanity check */
     HDassert(mp);
@@ -353,7 +353,7 @@ H5MP_free(H5MP_pool_t *mp, void *spc)
     H5MP_page_t *spc_page;              /* Page containing block to free */
     void *ret_value = NULL;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOFUNC(H5MP_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(mp);
@@ -438,7 +438,7 @@ H5MP_close(H5MP_pool_t *mp)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MP_close, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Release memory for pool pages */
     if(mp->first != NULL) {

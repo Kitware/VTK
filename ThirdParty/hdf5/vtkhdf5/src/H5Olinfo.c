@@ -25,12 +25,14 @@
  */
 
 #define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
+#define H5L_PACKAGE		/*suppress error about including H5Lpkg	  */
 #define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
 
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FLprivate.h"	/* Free lists                           */
 #include "H5Gpkg.h"		/* Groups		  		*/
+#include "H5Lpkg.h"             /* Links                                */
 #include "H5Opkg.h"             /* Object headers			*/
 
 
@@ -44,10 +46,11 @@ static herr_t H5O_linfo_free(void *_mesg);
 static herr_t H5O_linfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
     void *_mesg);
 static void *H5O_linfo_copy_file(H5F_t *file_src, void *native_src,
-    H5F_t *file_dst, hbool_t *recompute_size, H5O_copy_t *cpy_info,
-    void *udata, hid_t dxpl_id);
-static herr_t H5O_linfo_post_copy_file(const H5O_loc_t *parent_src_oloc, const void *mesg_src, H5O_loc_t *dst_oloc,
-    void *mesg_dst, hid_t dxpl_id, H5O_copy_t *cpy_info);
+    H5F_t *file_dst, hbool_t *recompute_size, unsigned *mesg_flags,
+    H5O_copy_t *cpy_info, void *udata, hid_t dxpl_id);
+static herr_t H5O_linfo_post_copy_file(const H5O_loc_t *parent_src_oloc,
+    const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst,
+    unsigned *mesg_flags, hid_t dxpl_id, H5O_copy_t *cpy_info);
 static herr_t H5O_linfo_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
 			     FILE * stream, int indent, int fwidth);
 
@@ -118,7 +121,7 @@ H5O_linfo_decode(H5F_t *f, hid_t UNUSED dxpl_id, H5O_t UNUSED *open_oh,
     unsigned char index_flags;  /* Flags for encoding link index info */
     void        *ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_linfo_decode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -191,7 +194,7 @@ H5O_linfo_encode(H5F_t *f, hbool_t UNUSED disable_shared, uint8_t *p, const void
     const H5O_linfo_t   *linfo = (const H5O_linfo_t *)_mesg;
     unsigned char       index_flags;          /* Flags for encoding link index info */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_linfo_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);
@@ -203,7 +206,7 @@ H5O_linfo_encode(H5F_t *f, hbool_t UNUSED disable_shared, uint8_t *p, const void
 
     /* The flags for the link indices */
     index_flags = linfo->track_corder ? H5O_LINFO_TRACK_CORDER : 0;
-    index_flags |= linfo->index_corder ? H5O_LINFO_INDEX_CORDER : 0;
+    index_flags = (uint8_t)(index_flags | (linfo->index_corder ? H5O_LINFO_INDEX_CORDER : 0));
     *p++ = index_flags;
 
     /* Max. link creation order value for the group, if tracked */
@@ -248,7 +251,7 @@ H5O_linfo_copy(const void *_mesg, void *_dest)
     H5O_linfo_t         *dest = (H5O_linfo_t *) _dest;
     void                *ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_linfo_copy)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(linfo);
@@ -288,15 +291,15 @@ H5O_linfo_size(const H5F_t *f, hbool_t UNUSED disable_shared, const void *_mesg)
     const H5O_linfo_t   *linfo = (const H5O_linfo_t *)_mesg;
     size_t ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_linfo_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Set return value */
     ret_value = 1                       /* Version */
                 + 1                     /* Index flags */
-                + (linfo->track_corder ? 8 : 0) /* Curr. max. creation order value */
-                + H5F_SIZEOF_ADDR(f)    /* Address of fractal heap to store "dense" links */
-                + H5F_SIZEOF_ADDR(f)    /* Address of v2 B-tree for indexing names of links */
-                + (linfo->index_corder ? H5F_SIZEOF_ADDR(f) : 0);   /* Address of v2 B-tree for indexing creation order values of links */
+                + (linfo->track_corder ? (size_t)8 : 0) /* Curr. max. creation order value */
+                + (size_t)H5F_SIZEOF_ADDR(f)    /* Address of fractal heap to store "dense" links */
+                + (size_t)H5F_SIZEOF_ADDR(f)    /* Address of v2 B-tree for indexing names of links */
+                + (linfo->index_corder ? (size_t)H5F_SIZEOF_ADDR(f) : 0);   /* Address of v2 B-tree for indexing creation order values of links */
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_linfo_size() */
@@ -317,7 +320,7 @@ H5O_linfo_size(const H5F_t *f, hbool_t UNUSED disable_shared, const void *_mesg)
 static herr_t
 H5O_linfo_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_linfo_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(mesg);
 
@@ -345,7 +348,7 @@ H5O_linfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t UNUSED *open_oh, void *_mesg)
     H5O_linfo_t *linfo = (H5O_linfo_t *)_mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_linfo_delete)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -353,7 +356,7 @@ H5O_linfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t UNUSED *open_oh, void *_mesg)
 
     /* If the group is using "dense" link storage, delete it */
     if(H5F_addr_defined(linfo->fheap_addr))
-        if(H5G_dense_delete(f, dxpl_id, linfo, TRUE) < 0)
+        if(H5G__dense_delete(f, dxpl_id, linfo, TRUE) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to free dense link storage")
 
 done:
@@ -377,15 +380,15 @@ done:
  */
 static void *
 H5O_linfo_copy_file(H5F_t UNUSED *file_src, void *native_src, H5F_t *file_dst,
-    hbool_t UNUSED *recompute_size, H5O_copy_t *cpy_info, void *_udata,
-    hid_t dxpl_id)
+    hbool_t UNUSED *recompute_size, unsigned UNUSED *mesg_flags,
+    H5O_copy_t *cpy_info, void *_udata, hid_t dxpl_id)
 {
     H5O_linfo_t          *linfo_src = (H5O_linfo_t *) native_src;
     H5O_linfo_t          *linfo_dst = NULL;
     H5G_copy_file_ud_t *udata = (H5G_copy_file_ud_t *) _udata;
     void                 *ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_linfo_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(linfo_src);
@@ -413,7 +416,7 @@ H5O_linfo_copy_file(H5F_t UNUSED *file_src, void *native_src, H5F_t *file_dst,
          */
         if(H5F_addr_defined(linfo_src->fheap_addr)) {
             /* Create the dense link storage */
-            if(H5G_dense_create(file_dst, dxpl_id, linfo_dst, udata->common.src_pline) < 0)
+            if(H5G__dense_create(file_dst, dxpl_id, linfo_dst, udata->common.src_pline) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, NULL, "unable to create 'dense' form of new format group")
         } /* end if */
     } /* end else */
@@ -453,21 +456,21 @@ H5O_linfo_post_copy_file_cb(const H5O_link_t *src_lnk, void *_udata)
     hbool_t dst_lnk_init = FALSE;       /* Whether the destination link is initialized */
     herr_t ret_value = H5_ITER_CONT;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_linfo_post_copy_file_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     HDassert(src_lnk);
     HDassert(udata);
 
     /* Copy the link (and the object it points to) */
-    if(H5G_link_copy_file(udata->dst_oloc->file, udata->dxpl_id, src_lnk,
+    if(H5L_link_copy_file(udata->dst_oloc->file, udata->dxpl_id, src_lnk,
             udata->src_oloc, &dst_lnk, udata->cpy_info) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, H5_ITER_ERROR, "unable to copy link")
     dst_lnk_init = TRUE;
 
     /* Insert the new object in the destination file's group */
     /* (Doesn't increment the link count - that's already been taken care of for hard links) */
-    if(H5G_dense_insert(udata->dst_oloc->file, udata->dxpl_id, udata->dst_linfo, &dst_lnk) < 0)
+    if(H5G__dense_insert(udata->dst_oloc->file, udata->dxpl_id, udata->dst_linfo, &dst_lnk) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINSERT, H5_ITER_ERROR, "unable to insert destination link")
 
 done:
@@ -493,13 +496,14 @@ done:
  */
 static herr_t
 H5O_linfo_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
-    H5O_loc_t *dst_oloc, void *mesg_dst, hid_t dxpl_id, H5O_copy_t *cpy_info)
+    H5O_loc_t *dst_oloc, void *mesg_dst, unsigned UNUSED *mesg_flags,
+    hid_t dxpl_id, H5O_copy_t *cpy_info)
 {
     const H5O_linfo_t   *linfo_src = (const H5O_linfo_t *)mesg_src;
     H5O_linfo_t         *linfo_dst = (H5O_linfo_t *)mesg_dst;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_linfo_post_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(src_oloc && src_oloc->file);
@@ -525,7 +529,7 @@ H5O_linfo_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
         udata.cpy_info = cpy_info;
 
         /* Iterate over the links in the group, building a table of the link messages */
-        if(H5G_dense_iterate(src_oloc->file, dxpl_id, linfo_src, H5_INDEX_NAME, H5_ITER_NATIVE, (hsize_t)0, NULL, H5O_linfo_post_copy_file_cb, &udata) < 0)
+        if(H5G__dense_iterate(src_oloc->file, dxpl_id, linfo_src, H5_INDEX_NAME, H5_ITER_NATIVE, (hsize_t)0, NULL, H5O_linfo_post_copy_file_cb, &udata) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTNEXT, FAIL, "error iterating over links")
     } /* end if */
 
@@ -553,7 +557,7 @@ H5O_linfo_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *_mesg, FILE *
 {
     const H5O_linfo_t       *linfo = (const H5O_linfo_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_linfo_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);

@@ -20,7 +20,7 @@
 #define H5D_PACKAGE		/*suppress error about including H5Dpkg	  */
 
 /* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5D_init_dbg_interface
+#define H5_INTERFACE_INIT_FUNC	H5D__init_dbg_interface
 
 
 /***********/
@@ -64,9 +64,9 @@
 
 /*--------------------------------------------------------------------------
 NAME
-   H5D_init_dbg_interface -- Initialize interface-specific information
+   H5D__init_dbg_interface -- Initialize interface-specific information
 USAGE
-    herr_t H5D_init_dbg_interface()
+    herr_t H5D__init_dbg_interface()
 RETURNS
     Non-negative on success/Negative on failure
 DESCRIPTION
@@ -75,12 +75,12 @@ DESCRIPTION
 
 --------------------------------------------------------------------------*/
 static herr_t
-H5D_init_dbg_interface(void)
+H5D__init_dbg_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5D_init_dbg_interface)
+    FUNC_ENTER_STATIC_NOERR
 
     FUNC_LEAVE_NOAPI(H5D_init())
-} /* H5D_init_dbg_interface() */
+} /* H5D__init_dbg_interface() */
 
 
 /*-------------------------------------------------------------------------
@@ -104,7 +104,7 @@ H5Ddebug(hid_t dset_id)
     H5D_t	*dset;                  /* Dataset to debug */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Ddebug, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", dset_id);
 
     /* Check args */
@@ -113,7 +113,7 @@ H5Ddebug(hid_t dset_id)
 
     /* Print B-tree information */
     if(H5D_CHUNKED == dset->shared->layout.type)
-	(void)H5D_chunk_dump_index(dset, H5AC_dxpl_id, stdout);
+	(void)H5D__chunk_dump_index(dset, H5AC_dxpl_id, stdout);
     else if(H5D_CONTIGUOUS == dset->shared->layout.type)
 	HDfprintf(stdout, "    %-10s %a\n", "Address:", dset->shared->layout.storage.u.contig.addr);
 

@@ -74,7 +74,6 @@ struct H5O_pline_t; /*forward decl*/
 /* Internal API routines */
 H5_DLL herr_t H5Z_init(void);
 H5_DLL herr_t H5Z_register(const H5Z_class2_t *cls);
-H5_DLL herr_t H5Z_unregister(H5Z_filter_t id);
 H5_DLL herr_t H5Z_append(struct H5O_pline_t *pline, H5Z_filter_t filter,
         unsigned flags, size_t cd_nelmts, const unsigned int cd_values[]);
 H5_DLL herr_t H5Z_modify(const struct H5O_pline_t *pline, H5Z_filter_t filter,
@@ -91,8 +90,12 @@ H5_DLL herr_t H5Z_can_apply_direct(const struct H5O_pline_t *pline);
 H5_DLL herr_t H5Z_set_local_direct(const struct H5O_pline_t *pline);
 H5_DLL H5Z_filter_info_t *H5Z_filter_info(const struct H5O_pline_t *pline,
         H5Z_filter_t filter);
+H5_DLL htri_t H5Z_filter_in_pline(const struct H5O_pline_t *pline, H5Z_filter_t filter);
 H5_DLL htri_t H5Z_all_filters_avail(const struct H5O_pline_t *pline);
+H5_DLL herr_t H5Z_unregister(H5Z_filter_t filter_id);
+H5_DLL htri_t H5Z_filter_avail(H5Z_filter_t id);
 H5_DLL herr_t H5Z_delete(struct H5O_pline_t *pline, H5Z_filter_t filter);
+H5_DLL herr_t H5Z_get_filter_info(H5Z_filter_t filter, unsigned int *filter_config_flags);
 
 /* Data Transform Functions */
 typedef struct H5Z_data_xform_t H5Z_data_xform_t; /* Defined in H5Ztrans.c */
@@ -103,6 +106,6 @@ H5_DLL herr_t H5Z_xform_destroy(H5Z_data_xform_t *data_xform_prop);
 H5_DLL herr_t H5Z_xform_eval(H5Z_data_xform_t *data_xform_prop, void *array,
     size_t array_size, const H5T_t *buf_type);
 H5_DLL hbool_t H5Z_xform_noop(const H5Z_data_xform_t *data_xform_prop);
-H5_DLL char* H5Z_xform_extract_xform_str(const H5Z_data_xform_t *data_xform_prop);
+H5_DLL const char *H5Z_xform_extract_xform_str(const H5Z_data_xform_t *data_xform_prop);
 
 #endif

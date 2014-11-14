@@ -14,8 +14,8 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5Exception_H
-#define _H5Exception_H
+#ifndef __H5Exception_H
+#define __H5Exception_H
 
 #include <string>
 
@@ -28,6 +28,11 @@ namespace H5 {
 #endif
 #endif
 
+/*! \class Exception
+    \brief Exception provides wrappers of HDF5 error handling functions.
+
+    Many classes are derived from Exception for specific HDF5 C interfaces.
+*/
 class H5_DLLCPP Exception {
    public:
 	// Creates an exception with a function name where the failure occurs
@@ -67,7 +72,9 @@ class H5_DLLCPP Exception {
 				H5E_walk2_t func, void* client_data);
 
 	// Prints the error stack in a default manner.
-	virtual void printError( FILE* stream = NULL ) const;
+	static void printErrorStack(FILE* stream = stderr,
+				    hid_t err_stack = H5E_DEFAULT); // Static
+	virtual void printError(FILE* stream = NULL) const;
 
 	// Default constructor
 	Exception();
@@ -76,7 +83,7 @@ class H5_DLLCPP Exception {
 	Exception( const Exception& orig);
 
 	// virtual Destructor
-	virtual ~Exception();
+	virtual ~Exception() throw();
 
    private:
 	H5std_string detail_message;
@@ -84,81 +91,88 @@ class H5_DLLCPP Exception {
 
    protected:
         // Default value for detail_message
-        static const H5std_string DEFAULT_MSG;
+        static const char DEFAULT_MSG[];
 };
 
 class H5_DLLCPP FileIException : public Exception {
    public:
 	FileIException( const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	FileIException();
-	virtual ~FileIException();
+	virtual ~FileIException() throw();
 };
 
 class H5_DLLCPP GroupIException : public Exception {
    public:
 	GroupIException( const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	GroupIException();
-	virtual ~GroupIException();
+	virtual ~GroupIException() throw();
 };
 
 class H5_DLLCPP DataSpaceIException : public Exception {
    public:
 	DataSpaceIException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	DataSpaceIException();
-	virtual ~DataSpaceIException();
+	virtual ~DataSpaceIException() throw();
 };
 
 class H5_DLLCPP DataTypeIException : public Exception {
    public:
 	DataTypeIException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	DataTypeIException();
-	virtual ~DataTypeIException();
+	virtual ~DataTypeIException() throw();
 };
 
 class H5_DLLCPP PropListIException : public Exception {
    public:
 	PropListIException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	PropListIException();
-	virtual ~PropListIException();
+	virtual ~PropListIException() throw();
 };
 
 class H5_DLLCPP DataSetIException : public Exception {
    public:
 	DataSetIException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	DataSetIException();
-	virtual ~DataSetIException();
+	virtual ~DataSetIException() throw();
 };
 
 class H5_DLLCPP AttributeIException : public Exception {
    public:
 	AttributeIException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	AttributeIException();
-	virtual ~AttributeIException();
+	virtual ~AttributeIException() throw();
 };
 
 class H5_DLLCPP ReferenceException : public Exception {
    public:
 	ReferenceException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	ReferenceException();
-	virtual ~ReferenceException();
+	virtual ~ReferenceException() throw();
 };
 
 class H5_DLLCPP LibraryIException : public Exception {
    public:
 	LibraryIException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	LibraryIException();
-	virtual ~LibraryIException();
+	virtual ~LibraryIException() throw();
+};
+
+class H5_DLLCPP LocationException : public Exception {
+   public:
+	LocationException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
+	LocationException();
+	virtual ~LocationException() throw();
 };
 
 class H5_DLLCPP IdComponentException : public Exception {
    public:
 	IdComponentException(const H5std_string& func_name, const H5std_string& message = DEFAULT_MSG);
 	IdComponentException();
-	virtual ~IdComponentException();
+	virtual ~IdComponentException() throw();
 };
 
 #ifndef H5_NO_NAMESPACE
 }
 #endif
 
-#endif // _H5Exception_H
+#endif // __H5Exception_H

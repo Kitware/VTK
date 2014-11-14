@@ -34,6 +34,12 @@
 #define H5D_CHUNK_CACHE_NBYTES_DEFAULT      ((size_t) -1)
 #define H5D_CHUNK_CACHE_W0_DEFAULT          -1.
 
+/* Property names for H5LTDdirect_chunk_write */   
+#define H5D_XFER_DIRECT_CHUNK_WRITE_FLAG_NAME	        "direct_chunk_flag"
+#define H5D_XFER_DIRECT_CHUNK_WRITE_FILTERS_NAME	"direct_chunk_filters"
+#define H5D_XFER_DIRECT_CHUNK_WRITE_OFFSET_NAME		"direct_chunk_offset"
+#define H5D_XFER_DIRECT_CHUNK_WRITE_DATASIZE_NAME	"direct_chunk_datasize"
+ 
 /*******************/
 /* Public Typedefs */
 /*******************/
@@ -101,6 +107,15 @@ extern "C" {
 typedef herr_t (*H5D_operator_t)(void *elem, hid_t type_id, unsigned ndim,
 				 const hsize_t *point, void *operator_data);
 
+/* Define the operator function pointer for H5Dscatter() */
+typedef herr_t (*H5D_scatter_func_t)(const void **src_buf/*out*/,
+                                     size_t *src_buf_bytes_used/*out*/,
+                                     void *op_data);
+
+/* Define the operator function pointer for H5Dgather() */
+typedef herr_t (*H5D_gather_func_t)(const void *dst_buf,
+                                    size_t dst_buf_bytes_used, void *op_data);
+
 H5_DLL hid_t H5Dcreate2(hid_t loc_id, const char *name, hid_t type_id,
     hid_t space_id, hid_t lcpl_id, hid_t dcpl_id, hid_t dapl_id);
 H5_DLL hid_t H5Dcreate_anon(hid_t file_id, hid_t type_id, hid_t space_id,
@@ -125,6 +140,10 @@ H5_DLL herr_t H5Dvlen_get_buf_size(hid_t dataset_id, hid_t type_id, hid_t space_
 H5_DLL herr_t H5Dfill(const void *fill, hid_t fill_type, void *buf,
         hid_t buf_type, hid_t space);
 H5_DLL herr_t H5Dset_extent(hid_t dset_id, const hsize_t size[]);
+H5_DLL herr_t H5Dscatter(H5D_scatter_func_t op, void *op_data, hid_t type_id,
+    hid_t dst_space_id, void *dst_buf);
+H5_DLL herr_t H5Dgather(hid_t src_space_id, const void *src_buf, hid_t type_id,
+    size_t dst_buf_size, void *dst_buf, H5D_gather_func_t op, void *op_data);
 H5_DLL herr_t H5Ddebug(hid_t dset_id);
 
 /* Symbols defined for compatibility with previous versions of the HDF5 API.

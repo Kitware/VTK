@@ -93,7 +93,7 @@ H5S_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE *stream, int indent,
 {
     const H5S_t	*mesg = (const H5S_t*)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5S_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     switch(H5S_GET_EXTENT_TYPE(mesg)) {
         case H5S_NULL:

@@ -99,7 +99,9 @@ typedef struct H5O_t H5O_t;
 #endif /* H5O_ENABLE_BAD_MESG_COUNT */
 
 /* ========= Object Copy properties ============ */
-#define H5O_CPY_OPTION_NAME 		"copy object"           /* Copy options */
+#define H5O_CPY_OPTION_NAME 		 "copy object"           /* Copy options */
+#define H5O_CPY_MERGE_COMM_DT_LIST_NAME "merge committed dtype list"   /* List of datatype paths to search in the dest file for merging */
+#define H5O_CPY_MCDT_SEARCH_CB_NAME 	 "committed dtype list search" /* Callback function when the search for a matching committed datatype is complete */
 
 /* If the module using this macro is allowed access to the private variables, access them directly */
 #ifdef H5O_PACKAGE
@@ -110,11 +112,13 @@ typedef struct H5O_t H5O_t;
 
 /* Set the fields in a shared message structure */
 #define H5O_UPDATE_SHARED(SH_MESG, SH_TYPE, F, MSG_TYPE, CRT_IDX, OH_ADDR)    \
-    (SH_MESG)->type = (SH_TYPE);                                              \
-    (SH_MESG)->file = (F);                                                    \
-    (SH_MESG)->msg_type_id = (MSG_TYPE);                                      \
-    (SH_MESG)->u.loc.index = (CRT_IDX);                                       \
-    (SH_MESG)->u.loc.oh_addr = (OH_ADDR);
+    {                                                                         \
+        (SH_MESG)->type = (SH_TYPE);                                          \
+        (SH_MESG)->file = (F);                                                \
+        (SH_MESG)->msg_type_id = (MSG_TYPE);                                  \
+        (SH_MESG)->u.loc.index = (CRT_IDX);                                   \
+        (SH_MESG)->u.loc.oh_addr = (OH_ADDR);                                 \
+    } /* end block */
 
 
 /* Fractal heap ID type for shared message & attribute heap IDs. */
@@ -131,6 +135,18 @@ typedef struct H5O_loc_t {
                                  * its file's count of open objects. */
 } H5O_loc_t;
 
+/* Typedef for linked list of datatype merge suggestions */
+typedef struct H5O_copy_dtype_merge_list_t {
+    char *path; /* Path to datatype in destination file */
+    struct H5O_copy_dtype_merge_list_t *next; /* Next object in list */
+} H5O_copy_dtype_merge_list_t;
+
+/* Structure for callback property before searching the global list of committed datatypes at destination */
+typedef struct H5O_mcdt_cb_info_t {
+    H5O_mcdt_search_cb_t 	func;
+    void  			*user_data;
+} H5O_mcdt_cb_info_t;
+
 /* Settings/flags for copying an object */
 typedef struct H5O_copy_t {
     hbool_t copy_shallow;               /* Flag to perform shallow hierarchy copy */
@@ -139,10 +155,16 @@ typedef struct H5O_copy_t {
     hbool_t expand_ref;                 /* Flag to expand object references */
     hbool_t copy_without_attr;          /* Flag to not copy attributes */
     hbool_t preserve_null;              /* Flag to not delete NULL messages */
+    hbool_t merge_comm_dt;             /* Flag to merge committed datatypes in dest file */
+    H5O_copy_dtype_merge_list_t *dst_dt_suggestion_list; /* Suggestions for merging committed datatypes */
     int     curr_depth;                 /* Current depth in hierarchy copied */
     int     max_depth;                  /* Maximum depth in hierarchy to copy */
     H5SL_t  *map_list;                  /* Skip list to hold address mappings */
+    H5SL_t  *dst_dt_list;               /* Skip list to hold committed datatypes in dest file */
+    hbool_t dst_dt_list_complete;       /* Whether the destination datatype list is complete (i.e. not only populated with "suggestions" from H5Padd_merge_committed_dtype_path) */
     H5O_t   *oh_dst;                    /* The destination object header */
+    H5O_mcdt_search_cb_t mcdt_cb;	/* The callback to invoke before searching the global list of committed datatypes at destination */
+    void *mcdt_ud;			/* User data passed to callback */
 } H5O_copy_t;
 
 /* Header message IDs */
@@ -356,6 +378,7 @@ typedef struct H5O_storage_contig_t {
 } H5O_storage_contig_t;
 
 typedef struct H5O_storage_chunk_btree_t {
+    haddr_t     dset_ohdr_addr;         /* File address dataset's object header */
     H5RC_t     *shared;			/* Ref-counted shared info for B-tree nodes */
 } H5O_storage_chunk_btree_t;
 
@@ -569,13 +592,18 @@ typedef herr_t (*H5O_operator_t)(const void *mesg/*in*/, unsigned idx,
 
 /* Typedef for "internal library" iteration operations */
 typedef herr_t (*H5O_lib_operator_t)(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
-    unsigned sequence, hbool_t *oh_modified/*out*/, void *operator_data/*in,out*/);
+    unsigned sequence, unsigned *oh_modified/*out*/, void *operator_data/*in,out*/);
 
 /* Some syntactic sugar to make the compiler happy with two different kinds of iterator callbacks */
 typedef enum H5O_mesg_operator_type_t {
     H5O_MESG_OP_APP,            /* Application callback */
     H5O_MESG_OP_LIB             /* Library internal callback */
 } H5O_mesg_operator_type_t;
+
+/* To indicate that the object header is just modified */
+#define H5O_MODIFY		0x01
+/* To indicate that the object header is modified and might possibly need to condense messages */
+#define H5O_MODIFY_CONDENSE	0x02
 
 typedef struct {
     H5O_mesg_operator_type_t op_type;
@@ -599,13 +627,14 @@ struct H5P_genplist_t;
 /* Object header routines */
 H5_DLL herr_t H5O_init(void);
 H5_DLL herr_t H5O_create(H5F_t *f, hid_t dxpl_id, size_t size_hint,
-    hid_t ocpl_id, H5O_loc_t *loc/*out*/);
+    size_t initial_rc, hid_t ocpl_id, H5O_loc_t *loc/*out*/);
 H5_DLL herr_t H5O_open(H5O_loc_t *loc);
 H5_DLL herr_t H5O_close(H5O_loc_t *loc);
 H5_DLL int H5O_link(const H5O_loc_t *loc, int adjust, hid_t dxpl_id);
 H5_DLL H5O_t *H5O_protect(const H5O_loc_t *loc, hid_t dxpl_id, H5AC_protect_t prot);
 H5_DLL H5O_t *H5O_pin(const H5O_loc_t *loc, hid_t dxpl_id);
 H5_DLL herr_t H5O_unpin(H5O_t *oh);
+H5_DLL herr_t H5O_dec_rc_by_loc(const H5O_loc_t *loc, hid_t dxpl_id);
 H5_DLL herr_t H5O_unprotect(const H5O_loc_t *loc, hid_t dxpl_id, H5O_t *oh,
     unsigned oh_flags);
 H5_DLL herr_t H5O_touch(const H5O_loc_t *loc, hbool_t force, hid_t dxpl_id);
@@ -677,7 +706,8 @@ H5_DLL herr_t H5O_msg_unlock(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_
 
 /* Object copying routines */
 H5_DLL herr_t H5O_copy_header_map(const H5O_loc_t *oloc_src, H5O_loc_t *oloc_dst /*out */,
-    hid_t dxpl_id, H5O_copy_t *cpy_info, hbool_t inc_depth);
+    hid_t dxpl_id, H5O_copy_t *cpy_info, hbool_t inc_depth,
+    H5O_type_t *obj_type, void **udata);
 H5_DLL herr_t H5O_copy_expand_ref(H5F_t *file_src, void *_src_ref, hid_t dxpl_id,
     H5F_t *file_dst, void *_dst_ref, size_t ref_count, H5R_type_t ref_type,
     H5O_copy_t *cpy_info);
@@ -689,7 +719,7 @@ H5_DLL herr_t H5O_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream, in
 
 /* These functions operate on object locations */
 H5_DLL herr_t H5O_loc_reset(H5O_loc_t *loc);
-H5_DLL herr_t H5O_loc_copy(H5O_loc_t *dst, const H5O_loc_t *src, H5_copy_depth_t depth);
+H5_DLL herr_t H5O_loc_copy(H5O_loc_t *dst, H5O_loc_t *src, H5_copy_depth_t depth);
 H5_DLL herr_t H5O_loc_hold_file(H5O_loc_t *loc);
 H5_DLL herr_t H5O_loc_free(H5O_loc_t *loc);
 

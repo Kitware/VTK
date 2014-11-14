@@ -1,8 +1,11 @@
-Acknowledgments - June 2010
----------------------------
+Acknowledgments - November 2010
+-------------------------------
 
 We would like to thank the following people who have contributed directly
 or indirectly to HDF5:
+
+Werner Benger, for contributing code used to add support for the Windows 
+Threading library included in the 1.8.6 release.
 
 John A. Biddiscombe, Mike Jackson, and Sean McBride for contributing and
 testing CMake code included in the HDF5 1.8.5 distribution.

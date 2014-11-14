@@ -23,22 +23,36 @@
  *
  *-------------------------------------------------------------------------
  */
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
+
+/****************/
+/* Module Setup */
+/****************/
+
 #define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
 
 
-/* Packages needed by this file... */
+/***********/
+/* Headers */
+/***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Dprivate.h"		/* Datasets				*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"		/* File access				*/
+#include "H5Fprivate.h"		/* File access				*/
 #include "H5FLprivate.h"	/* Free Lists                           */
 #include "H5Gpkg.h"		/* Groups		  		*/
 #include "H5Iprivate.h"		/* IDs			  		*/
 #include "H5Lprivate.h"		/* Links                                */
 #include "H5MMprivate.h"	/* Memory wrappers			*/
 
-/* Private typedefs */
+
+/****************/
+/* Local Macros */
+/****************/
+
+
+/******************/
+/* Local Typedefs */
+/******************/
 
 /* Struct used by change name callback function */
 typedef struct H5G_names_t {
@@ -60,14 +74,15 @@ typedef struct H5G_gnba_iter_t {
     char *path;                 /* Name of the object */
 } H5G_gnba_iter_t;
 
-/* Private macros */
+/********************/
+/* Package Typedefs */
+/********************/
 
-/* Local variables */
 
-/* Declare extern the PQ free list for the wrapped strings */
-H5FL_BLK_EXTERN(str_buf);
+/********************/
+/* Local Prototypes */
+/********************/
 
-/* PRIVATE PROTOTYPES */
 static htri_t H5G_common_path(const H5RS_str_t *fullpath_r, const H5RS_str_t *prefix_r);
 static H5RS_str_t *H5G_build_fullpath(const char *prefix, const char *name);
 #ifdef NOT_YET
@@ -76,6 +91,123 @@ static H5RS_str_t *H5G_build_fullpath_refstr_refstr(const H5RS_str_t *prefix_r, 
 static herr_t H5G_name_move_path(H5RS_str_t **path_r_ptr,
     const char *full_suffix, const char *src_path, const char *dst_path);
 static int H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key);
+
+
+/*********************/
+/* Package Variables */
+/*********************/
+
+/* Declare extern the PQ free list for the wrapped strings */
+H5FL_BLK_EXTERN(str_buf);
+
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+
+/*******************/
+/* Local Variables */
+/*******************/
+
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5G__component
+ *
+ * Purpose:	Returns the pointer to the first component of the
+ *		specified name by skipping leading slashes.  Returns
+ *		the size in characters of the component through SIZE_P not
+ *		counting leading slashes or the null terminator.
+ *
+ * Return:	Success:	Ptr into NAME.
+ *
+ *		Failure:	Ptr to the null terminator of NAME.
+ *
+ * Programmer:	Robb Matzke
+ *		matzke@llnl.gov
+ *		Aug 11 1997
+ *
+ *-------------------------------------------------------------------------
+ */
+const char *
+H5G__component(const char *name, size_t *size_p)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    HDassert(name);
+
+    while ('/' == *name)
+        name++;
+    if (size_p)
+        *size_p = HDstrcspn(name, "/");
+
+    FUNC_LEAVE_NOAPI(name)
+} /* end H5G__component() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5G_normalize
+ *
+ * Purpose:	Returns a pointer to a new string which has duplicate and
+ *              trailing slashes removed from it.
+ *
+ * Return:	Success:	Ptr to normalized name.
+ *		Failure:	NULL
+ *
+ * Programmer:	Quincey Koziol
+ *              Saturday, August 16, 2003
+ *
+ *-------------------------------------------------------------------------
+ */
+char *
+H5G_normalize(const char *name)
+{
+    char *norm;         /* Pointer to the normalized string */
+    size_t	s,d;    /* Positions within the strings */
+    unsigned    last_slash;     /* Flag to indicate last character was a slash */
+    char *ret_value;    /* Return value */
+
+    FUNC_ENTER_NOAPI_NOINIT
+
+    /* Sanity check */
+    HDassert(name);
+
+    /* Duplicate the name, to return */
+    if(NULL == (norm = H5MM_strdup(name)))
+	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed for normalized string")
+
+    /* Walk through the characters, omitting duplicated '/'s */
+    s = d = 0;
+    last_slash = 0;
+    while(name[s] != '\0') {
+        if(name[s] == '/')
+            if(last_slash)
+                ;
+            else {
+                norm[d++] = name[s];
+                last_slash = 1;
+            } /* end else */
+        else {
+            norm[d++] = name[s];
+            last_slash = 0;
+        } /* end else */
+        s++;
+    } /* end while */
+
+    /* Terminate normalized string */
+    norm[d] = '\0';
+
+    /* Check for final '/' on normalized name & eliminate it */
+    if(d > 1 && last_slash)
+        norm[d - 1] = '\0';
+
+    /* Set return value */
+    ret_value = norm;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5G_normalize() */
 
 
 /*-------------------------------------------------------------------------
@@ -100,17 +232,17 @@ H5G_common_path(const H5RS_str_t *fullpath_r, const H5RS_str_t *prefix_r)
     size_t  nchars1,nchars2;    /* Number of characters in components */
     htri_t ret_value=FALSE;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_common_path)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Get component of each name */
     fullpath=H5RS_get_str(fullpath_r);
-    assert(fullpath);
-    fullpath=H5G_component(fullpath,&nchars1);
-    assert(fullpath);
+    HDassert(fullpath);
+    fullpath=H5G__component(fullpath,&nchars1);
+    HDassert(fullpath);
     prefix=H5RS_get_str(prefix_r);
-    assert(prefix);
-    prefix=H5G_component(prefix,&nchars2);
-    assert(prefix);
+    HDassert(prefix);
+    prefix=H5G__component(prefix,&nchars2);
+    HDassert(prefix);
 
     /* Check if we have a real string for each component */
     while(*fullpath && *prefix) {
@@ -123,10 +255,10 @@ H5G_common_path(const H5RS_str_t *fullpath_r, const H5RS_str_t *prefix_r)
                 prefix+=nchars2;
 
                 /* Get next component of each name */
-                fullpath=H5G_component(fullpath,&nchars1);
-                assert(fullpath);
-                prefix=H5G_component(prefix,&nchars2);
-                assert(prefix);
+                fullpath=H5G__component(fullpath,&nchars1);
+                HDassert(fullpath);
+                prefix=H5G__component(prefix,&nchars2);
+                HDassert(prefix);
             } /* end if */
             else
                 HGOTO_DONE(FALSE)
@@ -161,18 +293,20 @@ static H5RS_str_t *
 H5G_build_fullpath(const char *prefix, const char *name)
 {
     char *full_path;            /* Full user path built */
+    size_t orig_path_len;       /* Original length of the path */
     size_t path_len;            /* Length of the path */
+    size_t name_len;            /* Length of the name */
     unsigned need_sep;          /* Flag to indicate if separator is needed */
     H5RS_str_t *ret_value;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_build_fullpath)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(prefix);
     HDassert(name);
 
     /* Get the length of the prefix */
-    path_len = HDstrlen(prefix);
+    orig_path_len = path_len = HDstrlen(prefix);
 
     /* Determine if there is a trailing separator in the name */
     if(prefix[path_len - 1] == '/')
@@ -181,20 +315,21 @@ H5G_build_fullpath(const char *prefix, const char *name)
         need_sep = 1;
 
     /* Add in the length needed for the '/' separator and the relative path */
-    path_len += HDstrlen(name) + need_sep;
+    name_len = HDstrlen(name);
+    path_len += name_len + need_sep;
 
     /* Allocate space for the path */
     if(NULL == (full_path = (char *)H5FL_BLK_MALLOC(str_buf, path_len + 1)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Build full path */
-    HDstrcpy(full_path, prefix);
+    HDstrncpy(full_path, prefix, orig_path_len + 1);
     if(need_sep)
-        HDstrcat(full_path, "/");
-    HDstrcat(full_path, name);
+        HDstrncat(full_path, "/", 1);
+    HDstrncat(full_path, name, name_len);
 
     /* Create reference counted string for path */
-    if((ret_value = H5RS_own(full_path)) == NULL)
+    if(NULL == (ret_value = H5RS_own(full_path)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
 done:
@@ -221,7 +356,7 @@ H5G_build_fullpath_refstr_str(H5RS_str_t *prefix_r, const char *name)
     const char *prefix;         /* Pointer to raw string for path */
     H5RS_str_t *ret_value;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_build_fullpath_refstr_str)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(prefix_r);
     HDassert(name);
@@ -259,7 +394,7 @@ H5G_build_fullpath_refstr_refstr(const H5RS_str_t *prefix_r, const H5RS_str_t *n
     const char *name;           /* Pointer to raw string of name */
     H5RS_str_t *ret_value;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_build_fullpath_refstr_refstr)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Get the pointer to the prefix */
     prefix = H5RS_get_str(prefix_r);
@@ -276,7 +411,7 @@ H5G_build_fullpath_refstr_refstr(const H5RS_str_t *prefix_r, const H5RS_str_t *n
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5G_name_init
+ * Function:    H5G__name_init
  *
  * Purpose:     Set the initial path for a group hierarchy name
  *
@@ -289,9 +424,9 @@ H5G_build_fullpath_refstr_refstr(const H5RS_str_t *prefix_r, const H5RS_str_t *n
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_name_init(H5G_name_t *name, const char *path)
+H5G__name_init(H5G_name_t *name, const char *path)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5G_name_init)
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Check arguments */
     HDassert(name);
@@ -304,7 +439,7 @@ H5G_name_init(H5G_name_t *name, const char *path)
     name->obj_hidden = 0;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5G_name_init() */
+} /* end H5G__name_init() */
 
 
 /*-------------------------------------------------------------------------
@@ -321,11 +456,11 @@ H5G_name_init(H5G_name_t *name, const char *path)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_name_set(H5G_name_t *loc, H5G_name_t *obj, const char *name)
+H5G_name_set(const H5G_name_t *loc, H5G_name_t *obj, const char *name)
 {
     herr_t  ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI(H5G_name_set, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(loc);
     HDassert(obj);
@@ -379,7 +514,7 @@ done:
 herr_t
 H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5G_name_copy)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments */
     HDassert(src);
@@ -426,49 +561,57 @@ H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth)
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5G_get_name(hid_t id, char *name/*out*/, size_t size, hid_t lapl_id,
-    hid_t dxpl_id)
+H5G_get_name(const H5G_loc_t *loc, char *name/*out*/, size_t size,
+    hbool_t *cached, hid_t lapl_id, hid_t dxpl_id)
 {
-    H5G_loc_t     loc;          /* Object location */
-    ssize_t       ret_value = FAIL;
+    ssize_t len = 0;            /* Length of object's name */
+    ssize_t ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_get_name, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
-    /* get object location */
-    if(H5G_loc(id, &loc) >= 0) {
-        ssize_t len = 0;
+    /* Sanity check */
+    HDassert(loc);
 
-        /* If the user path is available and it's not "hidden", use it */
-        if(loc.path->user_path_r != NULL && loc.path->obj_hidden == 0) {
-            len = H5RS_len(loc.path->user_path_r);
+    /* If the user path is available and it's not "hidden", use it */
+    if(loc->path->user_path_r != NULL && loc->path->obj_hidden == 0) {
+        len = H5RS_len(loc->path->user_path_r);
 
-            if(name) {
-                HDstrncpy(name, H5RS_get_str(loc.path->user_path_r), MIN((size_t)(len + 1), size));
-                if((size_t)len >= size)
-                    name[size - 1] = '\0';
-            } /* end if */
+        if(name) {
+            HDstrncpy(name, H5RS_get_str(loc->path->user_path_r), MIN((size_t)(len + 1), size));
+            if((size_t)len >= size)
+                name[size - 1] = '\0';
         } /* end if */
-	else if(!loc.path->obj_hidden) {
-	    hid_t	  file;
 
-            /* Retrieve file ID for name search */
-	    if((file = H5I_get_file_id(id, FALSE)) < 0)
-		HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve file ID")
-
-            /* Search for name of object */
-	    if((len = H5G_get_name_by_addr(file, lapl_id, dxpl_id, loc.oloc, name, size)) < 0) {
-                H5I_dec_ref(file, FALSE);
-		HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't determine name")
-            } /* end if */
-
-            /* Close file ID used for search */
-	    if(H5I_dec_ref(file, FALSE) < 0)
-		HGOTO_ERROR(H5E_SYM, H5E_CANTCLOSEFILE, FAIL, "can't determine name")
-	} /* end else */
-
-        /* Set return value */
-        ret_value = len;
+        /* Indicate that the name is cached, if requested */
+        /* (Currently only used for testing - QAK, 2010/07/26) */
+        if(cached)
+            *cached = TRUE;
     } /* end if */
+    else if(!loc->path->obj_hidden) {
+        hid_t	  file;
+
+        /* Retrieve file ID for name search */
+        if((file = H5F_get_id(loc->oloc->file, FALSE)) < 0)
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get file ID")
+
+        /* Search for name of object */
+        if((len = H5G_get_name_by_addr(file, lapl_id, dxpl_id, loc->oloc, name, size)) < 0) {
+            H5I_dec_ref(file);
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't determine name")
+        } /* end if */
+
+        /* Close file ID used for search */
+        if(H5I_dec_ref(file) < 0)
+            HGOTO_ERROR(H5E_SYM, H5E_CANTCLOSEFILE, FAIL, "can't determine name")
+
+        /* Indicate that the name is _not_ cached, if requested */
+        /* (Currently only used for testing - QAK, 2010/07/26) */
+        if(cached)
+            *cached = FALSE;
+    } /* end else */
+
+    /* Set return value */
+    ret_value = len;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -491,7 +634,7 @@ done:
 herr_t
 H5G_name_reset(H5G_name_t *name)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5G_name_reset)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments */
     HDassert(name);
@@ -519,7 +662,7 @@ H5G_name_reset(H5G_name_t *name)
 herr_t
 H5G_name_free(H5G_name_t *name)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5G_name_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check args */
     HDassert(name);
@@ -560,7 +703,7 @@ H5G_name_move_path(H5RS_str_t **path_r_ptr, const char *full_suffix, const char 
     size_t full_suffix_len;             /* Length of full suffix */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_name_move_path)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     HDassert(path_r_ptr && *path_r_ptr);
@@ -577,6 +720,7 @@ H5G_name_move_path(H5RS_str_t **path_r_ptr, const char *full_suffix, const char 
     path_len = HDstrlen(path);
     if(full_suffix_len < path_len) {
         const char *dst_suffix;         /* Destination suffix that changes */
+        size_t dst_suffix_len;          /* Length of destination suffix */
         const char *src_suffix;         /* Source suffix that changes */
         size_t path_prefix_len;         /* Length of path prefix */
         const char *path_prefix2;       /* 2nd prefix for path */
@@ -607,25 +751,26 @@ H5G_name_move_path(H5RS_str_t **path_r_ptr, const char *full_suffix, const char 
 
         /* Determine destination suffix */
         dst_suffix = dst_path + (common_prefix_len - 1);
+        dst_suffix_len = HDstrlen(dst_suffix);
 
         /* Compute path prefix before src suffix*/
         path_prefix2 = path;
         path_prefix2_len = path_prefix_len - HDstrlen(src_suffix);
 
         /* Allocate space for the new path */
-        new_path_len = path_prefix2_len + HDstrlen(dst_suffix) + full_suffix_len;
+        new_path_len = path_prefix2_len + dst_suffix_len + full_suffix_len;
         if(NULL == (new_path = (char *)H5FL_BLK_MALLOC(str_buf, new_path_len + 1)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
 
         /* Create the new path */
         if(path_prefix2_len > 0) {
-            HDstrncpy(new_path, path_prefix2, path_prefix2_len);
-            HDstrcpy(new_path + path_prefix2_len, dst_suffix);
+            HDstrncpy(new_path, path_prefix2, path_prefix2_len + 1);
+            HDstrncpy(new_path + path_prefix2_len, dst_suffix, dst_suffix_len + 1);
         } /* end if */
         else
-            HDstrcpy(new_path, dst_suffix);
+            HDstrncpy(new_path, dst_suffix, dst_suffix_len + 1);
         if(full_suffix_len > 0)
-            HDstrcat(new_path, full_suffix);
+            HDstrncat(new_path, full_suffix, full_suffix_len);
 
         /* Release previous path */
         H5RS_decr(*path_r_ptr);
@@ -642,7 +787,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function: H5G_name_replace_cb
  *
- * Purpose: H5I_search callback function to replace group entry names
+ * Purpose: H5I_iterate callback function to replace group entry names
  *
  * Return: Success: 0, Failure: -1
  *
@@ -662,7 +807,7 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
     hbool_t obj_in_child = FALSE;   /* Flag to indicate that the object is in the child mount hier. */
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_name_replace_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(obj_ptr);
 
@@ -711,30 +856,30 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
         HGOTO_DONE(SUCCEED)     /* No need to look at object, it's path is already invalid */
 
     /* Find the top file in object's mount hier. */
-    if(oloc->file->parent) {
+    if(H5F_PARENT(oloc->file)) {
         /* Check if object is in child file (for mount & unmount operations) */
-        if(names->dst_file && oloc->file->shared == names->dst_file->shared)
+        if(names->dst_file && H5F_SAME_SHARED(oloc->file, names->dst_file))
             obj_in_child = TRUE;
 
         /* Find the "top" file in the chain of mounted files */
-        top_obj_file = oloc->file->parent;
-        while(top_obj_file->parent != NULL) {
+        top_obj_file = H5F_PARENT(oloc->file);
+        while(H5F_PARENT(top_obj_file) != NULL) {
             /* Check if object is in child mount hier. (for mount & unmount operations) */
-            if(names->dst_file && top_obj_file->shared == names->dst_file->shared)
+            if(names->dst_file && H5F_SAME_SHARED(top_obj_file, names->dst_file))
                 obj_in_child = TRUE;
 
-            top_obj_file = top_obj_file->parent;
+            top_obj_file = H5F_PARENT(top_obj_file);
         } /* end while */
     } /* end if */
     else
         top_obj_file = oloc->file;
 
     /* Check if object is in top of child mount hier. (for mount & unmount operations) */
-    if(names->dst_file && top_obj_file->shared == names->dst_file->shared)
+    if(names->dst_file && H5F_SAME_SHARED(top_obj_file, names->dst_file))
         obj_in_child = TRUE;
 
     /* Check if the object is in same file mount hier. */
-    if(top_obj_file->shared != names->src_file->shared)
+    if(!H5F_SAME_SHARED(top_obj_file, names->src_file))
         HGOTO_DONE(SUCCEED)     /* No need to look at object, it's path is already invalid */
 
     switch(names->op) {
@@ -747,23 +892,25 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
             if(obj_in_child) {
                 const char *full_path;      /* Full path of current object */
                 const char *src_path;       /* Full path of source object */
+                size_t src_path_len;        /* Length of source full path */
                 char *new_full_path;        /* New full path of object */
                 size_t new_full_len;        /* Length of new full path */
 
                 /* Get pointers to paths of interest */
                 full_path = H5RS_get_str(obj_path->full_path_r);
                 src_path = H5RS_get_str(names->src_full_path_r);
+                src_path_len = HDstrlen(src_path);
 
                 /* Build new full path */
 
                 /* Allocate space for the new full path */
-                new_full_len = HDstrlen(src_path) + HDstrlen(full_path);
+                new_full_len = src_path_len + HDstrlen(full_path);
                 if(NULL == (new_full_path = (char *)H5FL_BLK_MALLOC(str_buf, new_full_len + 1)))
                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
 
                 /* Create the new full path */
-                HDstrcpy(new_full_path, src_path);
-                HDstrcat(new_full_path, full_path);
+                HDstrncpy(new_full_path, src_path, src_path_len + 1);
+                HDstrncat(new_full_path, full_path, new_full_len);
 
                 /* Release previous full path */
                 H5RS_decr(obj_path->full_path_r);
@@ -791,6 +938,7 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
             if(obj_in_child) {
                 const char *full_path;      /* Full path of current object */
                 const char *full_suffix;    /* Full path after source path */
+                size_t full_suffix_len;     /* Length of full path after source path */
                 const char *src_path;       /* Full path of source object */
                 char *new_full_path;        /* New full path of object */
 
@@ -800,13 +948,14 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
 
                 /* Construct full path suffix */
                 full_suffix = full_path + HDstrlen(src_path);
+                full_suffix_len = HDstrlen(full_suffix);
 
                 /* Build new full path */
 
                 /* Create the new full path */
-                if(NULL == (new_full_path = (char *)H5FL_BLK_MALLOC(str_buf, HDstrlen(full_suffix) + 1)))
+                if(NULL == (new_full_path = (char *)H5FL_BLK_MALLOC(str_buf, full_suffix_len + 1)))
                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
-                HDstrcpy(new_full_path, full_suffix);
+                HDstrncpy(new_full_path, full_suffix, full_suffix_len + 1);
 
                 /* Release previous full path */
                 H5RS_decr(obj_path->full_path_r);
@@ -852,10 +1001,12 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
             if(H5G_common_path(obj_path->full_path_r, names->src_full_path_r)) {
                 const char *full_path;      /* Full path of current object */
                 const char *full_suffix;    /* Suffix of full path, after src_path */
+                size_t full_suffix_len;     /* Length of suffix of full path after src_path*/
                 char *new_full_path;        /* New full path of object */
                 size_t new_full_len;        /* Length of new full path */
                 const char *src_path;       /* Full path of source object */
                 const char *dst_path;       /* Full path of destination object */
+                size_t dst_path_len;        /* Length of destination's full path */
 
                 /* Sanity check */
                 HDassert(names->dst_full_path_r);
@@ -864,6 +1015,7 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
                 full_path = H5RS_get_str(obj_path->full_path_r);
                 src_path = H5RS_get_str(names->src_full_path_r);
                 dst_path = H5RS_get_str(names->dst_full_path_r);
+                dst_path_len = HDstrlen(dst_path);
 
                 /* Make certain that the source and destination names are full (not relative) paths */
                 HDassert(*src_path == '/');
@@ -871,6 +1023,7 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
 
                 /* Get pointer to "full suffix" */
                 full_suffix = full_path + HDstrlen(src_path);
+                full_suffix_len = HDstrlen(full_suffix);
 
                 /* Update the user path, if one exists */
                 if(obj_path->user_path_r)
@@ -880,13 +1033,13 @@ H5G_name_replace_cb(void *obj_ptr, hid_t obj_id, void *key)
                 /* Build new full path */
 
                 /* Allocate space for the new full path */
-                new_full_len = HDstrlen(dst_path) + HDstrlen(full_suffix);
+                new_full_len = dst_path_len + full_suffix_len;
                 if(NULL == (new_full_path = (char *)H5FL_BLK_MALLOC(str_buf, new_full_len + 1)))
                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
 
                 /* Create the new full path */
-                HDstrcpy(new_full_path, dst_path);
-                HDstrcat(new_full_path, full_suffix);
+                HDstrncpy(new_full_path, dst_path, dst_path_len + 1);
+                HDstrncat(new_full_path, full_suffix, full_suffix_len);
 
                 /* Release previous full path */
                 H5RS_decr(obj_path->full_path_r);
@@ -930,7 +1083,7 @@ H5G_name_replace(const H5O_link_t *lnk, H5G_names_op_t op, H5F_t *src_file,
 {
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI(H5G_name_replace, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check arguments */
     HDassert(src_file);
@@ -1014,8 +1167,8 @@ H5G_name_replace(const H5O_link_t *lnk, H5G_names_op_t op, H5F_t *src_file,
             H5G_names_t names;          /* Structure to hold operation information for callback */
 
             /* Find top file in src location's mount hierarchy */
-            while(src_file->parent)
-                src_file = src_file->parent;
+            while(H5F_PARENT(src_file))
+                src_file = H5F_PARENT(src_file);
 
             /* Set up common information for callback */
             names.src_file = src_file;
@@ -1026,15 +1179,18 @@ H5G_name_replace(const H5O_link_t *lnk, H5G_names_op_t op, H5F_t *src_file,
 
             /* Search through group IDs */
             if(search_group)
-                H5I_search(H5I_GROUP, H5G_name_replace_cb, &names, FALSE);
+                if(H5I_iterate(H5I_GROUP, H5G_name_replace_cb, &names, FALSE) < 0)
+		    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over groups")
 
             /* Search through dataset IDs */
             if(search_dataset)
-                H5I_search(H5I_DATASET, H5G_name_replace_cb, &names, FALSE);
+                if(H5I_iterate(H5I_DATASET, H5G_name_replace_cb, &names, FALSE) < 0)
+		    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over datasets")
 
             /* Search through datatype IDs */
             if(search_datatype)
-                H5I_search(H5I_DATATYPE, H5G_name_replace_cb, &names, FALSE);
+                if(H5I_iterate(H5I_DATATYPE, H5G_name_replace_cb, &names, FALSE) < 0)
+		    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over datatypes")
         } /* end if */
     } /* end if */
 
@@ -1068,7 +1224,7 @@ H5G_get_name_by_addr_cb(hid_t gid, const char *path, const H5L_info_t *linfo,
     hbool_t     obj_found = FALSE;      /* Object at 'path' found */
     herr_t ret_value = H5_ITER_CONT;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_get_name_by_addr_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(path);
@@ -1097,7 +1253,8 @@ H5G_get_name_by_addr_cb(hid_t gid, const char *path, const H5L_info_t *linfo,
         /* Check for object in same file (handles mounted files) */
         /* (re-verify address, in case we traversed a file mount) */
         if(udata->loc->addr == obj_loc.oloc->addr && udata->loc->file == obj_loc.oloc->file) {
-            udata->path = H5MM_strdup(path);
+            if(NULL == (udata->path = H5MM_strdup(path)))
+                HGOTO_ERROR(H5E_SYM, H5E_CANTALLOC, H5_ITER_ERROR, "can't duplicate path string")
 
             /* We found a match so we return immediately */
             HGOTO_DONE(H5_ITER_STOP)
@@ -1137,7 +1294,10 @@ H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *
     herr_t status;              /* Status from iteration */
     ssize_t ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_get_name_by_addr, FAIL)
+    /* Portably clear udata struct (before FUNC_ENTER) */
+    HDmemset(&udata, 0, sizeof(udata));
+
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Construct the link info for the file's root group */
     if(H5G_loc(file, &root_loc) < 0)
@@ -1145,7 +1305,8 @@ H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *
 
     /* Check for root group being the object looked for */
     if(root_loc.oloc->addr == loc->addr && root_loc.oloc->file == loc->file) {
-        udata.path = H5MM_strdup("");
+        if(NULL == (udata.path = H5MM_strdup("")))
+            HGOTO_ERROR(H5E_SYM, H5E_CANTALLOC, FAIL, "can't duplicate path string")
         found_obj = TRUE;
     } /* end if */
     else {
@@ -1170,7 +1331,7 @@ H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *
         /* If there's a buffer provided, copy into it, up to the limit of its size */
         if(name) {
             /* Copy the initial path separator */
-            HDstrcpy(name, "/");
+            HDstrncpy(name, "/", 2);
 
             /* Append the rest of the path */
             /* (less one character, for the initial path separator) */

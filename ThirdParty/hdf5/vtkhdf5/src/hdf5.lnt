@@ -1,9 +1,9 @@
 // Lint options shared by both PC-Lint for Windows and Flexelint for Linux
 
 // Turn off warnings about not using the inlined H5V* functions:
--esym(528, H5V_vector_reduce_product, H5V_vector_inc)
--esym(528, H5V_vector_cmp, H5V_vector_cmp_s, H5V_vector_cmp_u)
--esym(528, H5V_vector_zerop_s, H5V_vector_zerop_u)
+-esym(528, H5VM_vector_reduce_product, H5VM_vector_inc)
+-esym(528, H5VM_vector_cmp, H5VM_vector_cmp_s, H5VM_vector_cmp_u)
+-esym(528, H5VM_vector_zerop_s, H5VM_vector_zerop_u)
 
 // Suppress message about using 'goto' in a few functions
 -efunc(801,H5_term_library,H5_trace)
@@ -34,7 +34,7 @@
 -esym(534, H5I_clear_type, H5I_dec_type_ref)
 -esym(534, H5MM_xfree)
 -esym(534, H5RC_decr)
--esym(534, H5V_array_fill)
+-esym(534, H5VM_array_fill)
 
 
 // Turn off warnings about "Expression-like macro not parenthesized" for
@@ -92,6 +92,5 @@
     macros cleaned up, but have not been linted
     due to their dependencies on features that we don't support on Windows:
         H5FDmpio.c
-        H5FDmpiposix.c
         H5FDstream.c
 */

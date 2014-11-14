@@ -832,25 +832,6 @@
  *
  * Fields supporting testing:
  *
- * For test purposes, it is useful to turn off some asserts and sanity
- * checks.  The following flags support this.
- *
- * skip_file_checks:  Boolean flag used to skip sanity checks on file
- *		parameters passed to the cache.  In the test bed, there
- *		is no reason to have a file open, as the cache proper
- *		just passes these parameters through without using them.
- *
- *		When this flag is set, all sanity checks on the file
- *		parameters are skipped.  The field defaults to FALSE.
- *
- * skip_dxpl_id_checks:  Boolean flag used to skip sanity checks on the
- *		dxpl_id parameters passed to the cache.  These are not
- *		used directly by the cache, so skipping the checks
- *		simplifies the test bed.
- *
- *		When this flag is set, all sanity checks on the dxpl_id
- *		parameters are skipped.  The field defaults to FALSE.
- *
  * prefix	Array of char used to prefix debugging output.  The
  *		field is intended to allow marking of output of with
  *		the processes mpi rank.
@@ -1013,8 +994,6 @@ struct H5C_t
 
 #endif /* H5C_COLLECT_CACHE_STATS */
 
-    hbool_t			skip_file_checks;
-    hbool_t			skip_dxpl_id_checks;
     char			prefix[H5C__PREFIX_LEN];
 };
 
@@ -1874,7 +1853,7 @@ if ( ( (cache_ptr) == NULL ) ||                                         \
      ( ( !( was_clean ) ||                                              \
 	    ( (cache_ptr)->clean_index_size < (old_size) ) ) &&         \
 	  ( ( (was_clean) ) ||                                          \
-	    ( (cache_ptr)->dirty_index_size < (old_size) ) ) )          \
+	    ( (cache_ptr)->dirty_index_size < (old_size) ) ) ) ||       \
      ( (entry_ptr) == NULL ) ) {                                        \
     HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL,                            \
                 "Pre HT entry size change SC failed")                   \
@@ -1892,7 +1871,7 @@ if ( ( (cache_ptr) == NULL ) ||                                           \
      ( ( !((entry_ptr)->is_dirty ) ||                                     \
 	    ( (cache_ptr)->dirty_index_size < (new_size) ) ) &&           \
 	  ( ( ((entry_ptr)->is_dirty)  ) ||                               \
-	    ( (cache_ptr)->clean_index_size < (new_size) ) ) )            \
+	    ( (cache_ptr)->clean_index_size < (new_size) ) ) ) ||         \
      ( ( (cache_ptr)->index_len == 1 ) &&                                 \
        ( (cache_ptr)->index_size != (new_size) ) ) ) {                    \
     HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL,                              \
@@ -2097,24 +2076,25 @@ if ( (cache_ptr)->index_size !=                                             \
     H5C__POST_HT_UPDATE_FOR_ENTRY_DIRTY_SC(cache_ptr, entry_ptr); \
 }
 
-#define H5C__UPDATE_INDEX_FOR_SIZE_CHANGE(cache_ptr, old_size, new_size,      \
-		                          entry_ptr, was_clean)               \
-{                                                                             \
-    H5C__PRE_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size,           \
-		                     entry_ptr, was_clean)                    \
-    (cache_ptr)->index_size -= (old_size);                                    \
-    (cache_ptr)->index_size += (new_size);                                    \
-    if ( was_clean ) {                                                        \
-        (cache_ptr)->clean_index_size -= (old_size);                          \
-    } else {                                                                  \
-	(cache_ptr)->dirty_index_size -= (old_size);                          \
-    }                                                                         \
-    if ( (entry_ptr)->is_dirty ) {                                            \
-        (cache_ptr)->dirty_index_size += (new_size);                          \
-    } else {                                                                  \
-	(cache_ptr)->clean_index_size += (new_size);                          \
-    }                                                                         \
-    H5C__POST_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size, entry_ptr) \
+#define H5C__UPDATE_INDEX_FOR_SIZE_CHANGE(cache_ptr, old_size, new_size, \
+		                          entry_ptr, was_clean)          \
+{                                                                        \
+    H5C__PRE_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size,      \
+		                     entry_ptr, was_clean)               \
+    (cache_ptr)->index_size -= (old_size);                               \
+    (cache_ptr)->index_size += (new_size);                               \
+    if ( was_clean ) {                                                   \
+        (cache_ptr)->clean_index_size -= (old_size);                     \
+    } else {                                                             \
+	(cache_ptr)->dirty_index_size -= (old_size);                     \
+    }                                                                    \
+    if ( (entry_ptr)->is_dirty ) {                                       \
+        (cache_ptr)->dirty_index_size += (new_size);                     \
+    } else {                                                             \
+	(cache_ptr)->clean_index_size += (new_size);                     \
+    }                                                                    \
+    H5C__POST_HT_ENTRY_SIZE_CHANGE_SC(cache_ptr, old_size, new_size,     \
+                                      entry_ptr)                         \
 }
 
 
@@ -3069,43 +3049,6 @@ if ( (cache_ptr)->index_size !=                                             \
  * Return:      N/A
  *
  * Programmer:  John Mainzer, 5/17/04
- *
- * Modifications:
- *
- *		JRM - 7/27/04
- *		Converted the function H5C_update_rp_for_move() to the
- *		macro H5C__UPDATE_RP_FOR_MOVE in an effort to squeeze
- *		a bit more performance out of the cache.
- *
- *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause dificulties with
- *		pre-processor, I'll have to remove them.
- *
- *		JRM - 7/28/04
- *		Split macro into two version, one supporting the clean and
- *		dirty LRU lists, and the other not.  Yet another attempt
- *		at optimization.
- *
- *		JRM - 6/23/05
- *		Added the was_dirty parameter.  It is possible that
- *		the entry was clean when it was moved -- if so it
- *		it is in the clean LRU regardless of the current
- *		value of the is_dirty field.
- *
- *		At present, all moved entries are forced to be
- *		dirty.  This macro is a bit more general that that,
- *		to allow it to function correctly should that policy
- *		be relaxed in the future.
- *
- *		JRM - 3/17/06
- *		Modified macro to do nothing if the entry is pinned.
- *		In this case, the entry is on the pinned entry list, not
- *		in the replacement policy data structures, so there is
- *		nothing to be done.
- *
- *		JRM - 3/28/07
- *		Added sanity checks using the new is_read_only and
- *		ro_ref_count fields of struct H5C_cache_entry_t.
  *
  *-------------------------------------------------------------------------
  */

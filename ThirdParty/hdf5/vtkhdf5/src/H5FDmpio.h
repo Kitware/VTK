@@ -22,16 +22,13 @@
 #ifndef H5FDmpio_H
 #define H5FDmpio_H
 
+/* Macros */
+
 #ifdef H5_HAVE_PARALLEL
 #   define H5FD_MPIO	(H5FD_mpio_init())
 #else
 #   define H5FD_MPIO	(-1)
 #endif /* H5_HAVE_PARALLEL */
-
-/* Macros */
-
-#define IS_H5FD_MPIO(f)	/* (H5F_t *f) */				    \
-    (H5FD_MPIO==H5F_DRIVER_ID(f))
 
 #ifdef H5_HAVE_PARALLEL
 /*Turn on H5FDmpio_debug if H5F_DEBUG is on */
@@ -40,6 +37,10 @@
 #define H5FDmpio_DEBUG
 #endif
 #endif
+
+/* Global var whose value comes from environment variable */
+/* (Defined in H5FDmpio.c) */
+H5_DLLVAR hbool_t H5FD_mpi_opt_types_g;
 
 /* Function prototypes */
 #ifdef __cplusplus

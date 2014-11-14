@@ -88,13 +88,13 @@ struct H5B2_class_t {
     /* Extensible array client callback methods */
     void *(*crt_context)(void *udata);          /* Create context for other client callbacks */
     herr_t (*dst_context)(void *ctx);           /* Destroy client callback context */
-    herr_t (*store)(void *nrecord, const void *udata);              /*  Store application record in native record table */
-    herr_t (*compare)(const void *rec1, const void *rec2);          /*  Compare two native records */
-    herr_t (*encode)(uint8_t *raw, const void *record, void *ctx);  /*  Encode record from native form to disk storage form */
-    herr_t (*decode)(const uint8_t *raw, void *record, void *ctx);  /*  Decode record from disk storage form to native form */
-    herr_t (*debug)(FILE *stream, const H5F_t *f, hid_t dxpl_id,    /* Print a record for debugging */
-        int indent, int fwidth, const void *record, const void *udata);
-    void *(*crt_dbg_ctx)(H5F_t *f, hid_t dxpl_id, haddr_t obj_addr); /* Create debugging context */
+    herr_t (*store)(void *nrecord, const void *udata);              	/* Store application record in native record table */
+    herr_t (*compare)(const void *rec1, const void *rec2); 		/* Compare two native records */
+    herr_t (*encode)(uint8_t *raw, const void *record, void *ctx);  	/* Encode record from native form to disk storage form */
+    herr_t (*decode)(const uint8_t *raw, void *record, void *ctx);  	/* Decode record from disk storage form to native form */
+    herr_t (*debug)(FILE *stream, const H5F_t *f, hid_t dxpl_id,    	/* Print a record for debugging */
+        int indent, int fwidth, const void *record, const void *ctx);
+    void *(*crt_dbg_ctx)(H5F_t *f, hid_t dxpl_id, haddr_t obj_addr); 	/* Create debugging context */
     herr_t (*dst_dbg_ctx)(void *dbg_ctx);       /* Destroy debugging context */
 };
 

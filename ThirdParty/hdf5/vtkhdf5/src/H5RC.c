@@ -57,7 +57,7 @@ H5RC_create(void *o, H5RC_free_func_t free_func)
 {
     H5RC_t *ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5RC_create, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Sanity check */
     HDassert(o);
@@ -101,7 +101,7 @@ H5RC_decr(H5RC_t *rc)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5RC_decr, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(rc);

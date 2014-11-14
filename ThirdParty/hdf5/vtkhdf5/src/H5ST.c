@@ -52,7 +52,7 @@ H5ST_create(void)
 {
     H5ST_tree_t *ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_create, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Allocate wrapper for TST */
     if(NULL == (ret_value = H5FL_MALLOC(H5ST_tree_t)))
@@ -87,7 +87,7 @@ done:
 static herr_t
 H5ST_close_internal(H5ST_ptr_t p)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5ST_close_internal)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Recursively free TST */
     if(p) {
@@ -125,7 +125,7 @@ H5ST_close(H5ST_tree_t *tree)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_close, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check arguments */
     if(NULL == tree)
@@ -172,7 +172,7 @@ H5ST_insert(H5ST_tree_t *tree, const char *s, void *obj)
     H5ST_ptr_t up=NULL;         /* Pointer to up node */
     herr_t ret_value=SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_insert,FAIL);
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Find the correct location to insert object */
     p = &tree->root;
@@ -247,7 +247,7 @@ H5ST_search(H5ST_tree_t *tree, const char *s)
     H5ST_ptr_t p;               /* Temporary pointer to TST node */
     htri_t ret_value=FALSE;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOFUNC(H5ST_search)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     p = tree->root;
     while (p) {
@@ -291,7 +291,7 @@ H5ST_find_internal(H5ST_ptr_t p, const char *s)
 {
     H5ST_ptr_t ret_value = NULL;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5ST_find_internal)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     while (p) {
         if (*s < p->splitchar)
@@ -334,7 +334,7 @@ H5ST_find(H5ST_tree_t *tree, const char *s)
 {
     H5ST_ptr_t ret_value;  /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_find, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     if(NULL == (ret_value = H5ST_find_internal(tree->root, s)))
         HGOTO_ERROR(H5E_TST, H5E_NOTFOUND, NULL, "key not found in TST")
@@ -369,7 +369,7 @@ H5ST_locate(H5ST_tree_t *tree, const char *s)
     H5ST_ptr_t node;    /* Pointer to node located */
     void *ret_value;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_locate, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Locate the node to remove */
     if(NULL == (node = H5ST_find_internal(tree->root, s)))
@@ -406,7 +406,7 @@ H5ST_findfirst_internal(H5ST_ptr_t p)
 {
     H5ST_ptr_t ret_value = NULL;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5ST_findfirst_internal)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     while(p) {
         /* Find least node in current tree */
@@ -452,7 +452,7 @@ H5ST_findfirst(H5ST_tree_t *tree)
 {
     H5ST_ptr_t ret_value;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_findfirst, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     if(NULL == (ret_value = H5ST_findfirst_internal(tree->root)))
         HGOTO_ERROR(H5E_TST,H5E_NOTFOUND,NULL,"no nodes in TST");
@@ -485,7 +485,7 @@ H5ST_getnext(H5ST_ptr_t p)
 {
     H5ST_ptr_t ret_value = NULL;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5ST_getnext)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* If the node to continue from has higher-valued nodes attached */
     if(p->hikid) {
@@ -544,7 +544,7 @@ H5ST_findnext(H5ST_ptr_t p)
     H5ST_ptr_t q;               /* Temporary pointer to TST node */
     H5ST_ptr_t ret_value = NULL;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOFUNC(H5ST_findnext)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Find the next node at the current level, or go back up the tree */
     do {
@@ -587,7 +587,7 @@ H5ST_delete_internal(H5ST_ptr_t *root, H5ST_ptr_t p)
     H5ST_ptr_t q,               /* Temporary pointer to TST node */
         newp;                   /* Pointer to node which will replace deleted node in tree */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5ST_delete_internal)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Find node to replace one being deleted */
     if(p->lokid) {
@@ -663,7 +663,7 @@ H5ST_delete(H5ST_tree_t *tree, H5ST_ptr_t p)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_delete, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     if(H5ST_delete_internal(&tree->root, p) < 0)
         HGOTO_ERROR(H5E_TST, H5E_CANTDELETE, FAIL, "can't delete node from TST")
@@ -698,7 +698,7 @@ H5ST_remove(H5ST_tree_t *tree, const char *s)
     H5ST_ptr_t node;    /* Pointer to node to remove */
     void *ret_value;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5ST_remove, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Locate the node to remove */
     if(NULL == (node = H5ST_find_internal(tree->root, s)))
@@ -738,7 +738,7 @@ done:
 herr_t
 H5ST_dump_internal(H5ST_ptr_t p)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5ST_dump_internal)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     if(p) {
         printf("p=%p\n", p);
@@ -782,7 +782,7 @@ H5ST_dump_internal(H5ST_ptr_t p)
 herr_t
 H5ST_dump(H5ST_tree_t *tree)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5ST_dump, NULL)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Dump the tree */
     H5ST_dump_internal(tree->root);

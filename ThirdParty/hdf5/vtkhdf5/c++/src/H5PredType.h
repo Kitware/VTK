@@ -14,21 +14,33 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-// PredType holds the definition of all the HDF5 predefined datatypes.
-// These types can only be made copy of, not created by H5Tcreate or
-// closed by H5Tclose.  They are treated as constants.
-/////////////////////////////////////////////////////////////////////
-
-#ifndef _H5PredType_H
-#define _H5PredType_H
+#ifndef __H5PredType_H
+#define __H5PredType_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+/* This constant is defined for a workaround to eliminate memory leaks due to
+   the library being re-initiated when PredType destructors are invoked.  A
+   PredType instant with H5CPP_EXITED as the value of its "id" is constructed
+   before the other PredType objects are created.  At exit, when this special
+   PredType object is to be destructed, no HDF5 library function will be called
+   and the library will be terminated.  -BMR, Mar 30, 2012 */
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#define H5CPP_EXITED	-3  // -3 is less likely to be used elsewhere
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
+/*! \class PredType
+    \brief Class PredType holds the definition of all the HDF5 predefined
+    datatypes.
+
+    These types can only be made copy of, not created by H5Tcreate or
+    closed by H5Tclose.  They are treated as constants.
+*/
 class H5_DLLCPP PredType : public AtomType {
    public:
-	///\brief Returns this class name
+	///\brief Returns this class name.
 	virtual H5std_string fromClass () const { return("PredType"); }
 
 	// Makes a copy of the predefined type and stores the new
@@ -218,23 +230,27 @@ class H5_DLLCPP PredType : public AtomType {
 	static const PredType NATIVE_UINT_FAST64;
 #endif /* H5_SIZEOF_UINT_FAST64_T */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-	// These dummy functions do not inherit from DataType - they'll
-	// throw a DataTypeIException if invoked.
-	void commit( H5File& loc, const H5std_string& name );
-	void commit( H5File& loc, const char* name );
-	void commit( H5Object& loc, const H5std_string& name );
-	void commit( H5Object& loc, const char* name );
+	/*! \brief This dummy function do not inherit from DataType - it will
+	    throw a DataTypeIException if invoked.
+	*/
+	void commit(H5Location& loc, const H5std_string& name );
+	/*! \brief This dummy function do not inherit from DataType - it will
+	    throw a DataTypeIException if invoked.
+	*/
+	void commit(H5Location& loc, const char* name );
+	/*! \brief This dummy function do not inherit from DataType - it will
+	    throw a DataTypeIException if invoked.
+	*/
 	bool committed();
-#endif // DOXYGEN_SHOULD_SKIP_THIS
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
    private:
-	// added this to work around the atexit/global destructor problem
-	// temporarily - it'll prevent the use of atexit to clean up
-	static const PredType NotAtexit;	// not working yet
+	// Added this to work around the atexit/global destructor problem.
+	// It'll help to terminate the library after other PredType instances
+	// are closed.  -BMR, Mar 30, 2012
+	static const PredType AtExit;
 
    protected:
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 	// Default constructor
 	PredType();
 
@@ -247,4 +263,4 @@ class H5_DLLCPP PredType : public AtomType {
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __H5PredType_H

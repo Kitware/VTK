@@ -24,6 +24,7 @@
 #define H5FDwindows_H
 
 #include "H5Ipublic.h"
+#include "H5FDsec2.h"
 
 #define H5FD_WINDOWS	(H5FD_windows_init())
 
@@ -31,8 +32,14 @@
 extern "C" {
 #endif
 
-H5_DLL hid_t H5FD_windows_init(void);
-H5_DLL void H5FD_windows_term(void);
+/* The code behind the windows VFD has been removed and the windows
+ * VFD initialization has been redirected to the SEC2 driver.  The
+ * "Windows" VFD was actually identical to the SEC2 driver code
+ * (a planned Win32 API driver never happened) so this change
+ * should be transparent to users.
+ */
+#define H5FD_windows_init H5FD_sec2_init
+#define H5FD_windows_term H5FD_sec2_term
 H5_DLL herr_t H5Pset_fapl_windows(hid_t fapl_id);
 
 #ifdef __cplusplus

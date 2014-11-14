@@ -46,7 +46,7 @@ DESCRIPTION
 static herr_t
 H5T_init_strpad_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5T_init_strpad_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5T_init())
 } /* H5T_init_strpad_interface() */
@@ -79,7 +79,7 @@ H5Tget_strpad(hid_t type_id)
     H5T_t	*dt = NULL;
     H5T_str_t	ret_value;
 
-    FUNC_ENTER_API(H5Tget_strpad, H5T_STR_ERROR)
+    FUNC_ENTER_API(H5T_STR_ERROR)
     H5TRACE1("Tz", "i", type_id);
 
     /* Check args */
@@ -136,7 +136,7 @@ H5Tset_strpad(hid_t type_id, H5T_str_t strpad)
     H5T_t	*dt = NULL;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Tset_strpad, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "iTz", type_id, strpad);
 
     /* Check args */

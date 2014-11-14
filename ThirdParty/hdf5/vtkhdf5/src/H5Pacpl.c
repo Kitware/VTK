@@ -64,6 +64,7 @@
 /* Attribute creation property list class library initialization object */
 const H5P_libclass_t H5P_CLS_ACRT[1] = {{
     "attribute create",		/* Class name for debugging     */
+    H5P_TYPE_ATTRIBUTE_CREATE,  /* Class type                   */
     &H5P_CLS_STRING_CREATE_g,	/* Parent class ID              */
     &H5P_CLS_ATTRIBUTE_CREATE_g, /* Pointer to class ID          */
     &H5P_LST_ATTRIBUTE_CREATE_g, /* Pointer to default property list ID */

@@ -167,7 +167,7 @@ H5G_dense_fh_name_cmp(const void *obj, size_t UNUSED obj_len, void *_udata)
     H5O_link_t *lnk;    /* Pointer to link created from heap object */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_dense_fh_name_cmp)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Decode link information */
     if(NULL == (lnk = (H5O_link_t *)H5O_msg_decode(udata->f, udata->dxpl_id, NULL, H5O_LINK_ID, (const unsigned char *)obj)))
@@ -209,7 +209,7 @@ H5G_dense_btree2_name_store(void *_nrecord, const void *_udata)
     const H5G_bt2_ud_ins_t *udata = (const H5G_bt2_ud_ins_t *)_udata;
     H5G_dense_bt2_name_rec_t *nrecord = (H5G_dense_bt2_name_rec_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_name_store)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Copy user information info native record */
     nrecord->hash = udata->common.name_hash;
@@ -240,7 +240,7 @@ H5G_dense_btree2_name_compare(const void *_bt2_udata, const void *_bt2_rec)
     const H5G_dense_bt2_name_rec_t *bt2_rec = (const H5G_dense_bt2_name_rec_t *)_bt2_rec;
     herr_t ret_value;           /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_name_compare)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(bt2_udata);
@@ -310,7 +310,7 @@ H5G_dense_btree2_name_encode(uint8_t *raw, const void *_nrecord, void UNUSED *ct
 {
     const H5G_dense_bt2_name_rec_t *nrecord = (const H5G_dense_bt2_name_rec_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_name_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Encode the record's fields */
     UINT32ENCODE(raw, nrecord->hash)
@@ -338,7 +338,7 @@ H5G_dense_btree2_name_decode(const uint8_t *raw, void *_nrecord, void UNUSED *ct
 {
     H5G_dense_bt2_name_rec_t *nrecord = (H5G_dense_bt2_name_rec_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_name_decode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Decode the record's fields */
     UINT32DECODE(raw, nrecord->hash)
@@ -369,7 +369,7 @@ H5G_dense_btree2_name_debug(FILE *stream, const H5F_t UNUSED *f, hid_t UNUSED dx
     const H5G_dense_bt2_name_rec_t *nrecord = (const H5G_dense_bt2_name_rec_t *)_nrecord;
     unsigned u;                 /* Local index variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_name_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDfprintf(stream, "%*s%-*s {%lx, ", indent, "", fwidth, "Record:",
         nrecord->hash);
@@ -399,7 +399,7 @@ H5G_dense_btree2_corder_store(void *_nrecord, const void *_udata)
     const H5G_bt2_ud_ins_t *udata = (const H5G_bt2_ud_ins_t *)_udata;
     H5G_dense_bt2_corder_rec_t *nrecord = (H5G_dense_bt2_corder_rec_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_corder_store)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Copy user information info native record */
     nrecord->corder = udata->common.corder;
@@ -430,7 +430,7 @@ H5G_dense_btree2_corder_compare(const void *_bt2_udata, const void *_bt2_rec)
     const H5G_dense_bt2_corder_rec_t *bt2_rec = (const H5G_dense_bt2_corder_rec_t *)_bt2_rec;
     herr_t ret_value;           /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_corder_compare)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(bt2_udata);
@@ -476,7 +476,7 @@ H5G_dense_btree2_corder_encode(uint8_t *raw, const void *_nrecord, void UNUSED *
 {
     const H5G_dense_bt2_corder_rec_t *nrecord = (const H5G_dense_bt2_corder_rec_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_corder_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Encode the record's fields */
     INT64ENCODE(raw, nrecord->corder)
@@ -504,7 +504,7 @@ H5G_dense_btree2_corder_decode(const uint8_t *raw, void *_nrecord, void UNUSED *
 {
     H5G_dense_bt2_corder_rec_t *nrecord = (H5G_dense_bt2_corder_rec_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_corder_decode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Decode the record's fields */
     INT64DECODE(raw, nrecord->corder)
@@ -535,7 +535,7 @@ H5G_dense_btree2_corder_debug(FILE *stream, const H5F_t UNUSED *f, hid_t UNUSED 
     const H5G_dense_bt2_corder_rec_t *nrecord = (const H5G_dense_bt2_corder_rec_t *)_nrecord;
     unsigned u;                 /* Local index variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_dense_btree2_corder_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDfprintf(stream, "%*s%-*s {%Hu, ", indent, "", fwidth, "Record:",
         nrecord->corder);

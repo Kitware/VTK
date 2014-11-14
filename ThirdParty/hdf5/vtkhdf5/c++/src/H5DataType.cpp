@@ -49,17 +49,24 @@ namespace H5 {
 #endif
 
 //--------------------------------------------------------------------------
+// Function:	DataType default constructor
+///\brief	Default constructor: Creates a stub datatype
+// Programmer	Binh-Minh Ribler - 2000
+//--------------------------------------------------------------------------
+DataType::DataType() : H5Object(), id(0) {}
+
+//--------------------------------------------------------------------------
 // Function:	DataType overloaded constructor
 ///\brief	Creates a datatype using an existing datatype's id
 ///\param	existing_id - IN: Id of the existing datatype
 // Description
 //		Constructor creates a copy of an existing DataType using
-//		its id.  The argument "predefined" is default to false;
-//		when a default datatype is created, this argument is set
-//		to true so H5Tclose will not be called on it later. - need
-//		a reassessment after changing to the new ref counting mech.
-//		- BMR 5/2004
+//		its id.
 // Programmer	Binh-Minh Ribler - 2000
+// Modification
+//	Dec, 2005
+//		Removed second argument, "predefined", after changing to the
+//		new ref counting mechanism that relies on C's ref counting.
 //--------------------------------------------------------------------------
 DataType::DataType(const hid_t existing_id) : H5Object()
 {
@@ -88,49 +95,19 @@ DataType::DataType( const H5T_class_t type_class, size_t size ) : H5Object()
 // Function:	DataType overload constructor - dereference
 ///\brief	Given a reference, ref, to an hdf5 group, creates a
 ///		DataType object
-///\param       obj - IN: Specifying location referenced object is in
+///\param       loc - IN: Location referenced object is in
 ///\param	ref - IN: Reference pointer
 ///\param	ref_type - IN: Reference type - default to H5R_OBJECT
-///\exception	H5::ReferenceException
-///\par Description
-///		\c obj can be DataSet, Group, or named DataType, that
-///		is a datatype that has been named by DataType::commit.
-// Programmer	Binh-Minh Ribler - Oct, 2006
-// Modification
-//	Jul, 2008
-//		Added for application convenience.
-//--------------------------------------------------------------------------
-DataType::DataType(H5Object& obj, const void* ref, H5R_type_t ref_type) : H5Object()
-{
-    try {
-	id = p_dereference(obj.getId(), ref, ref_type);
-    } catch (ReferenceException deref_error) {
-	throw ReferenceException("DataType constructor - located by an H5Object",
-		deref_error.getDetailMsg());
-    }
-}
-
-//--------------------------------------------------------------------------
-// Function:	DataType overload constructor - dereference
-///\brief	Given a reference, ref, to an hdf5 group, creates a
-///		DataType object
-///\param       h5file - IN: Location referenced object is in
-///\param	ref - IN: Reference pointer
-///\param	ref_type - IN: Reference type - default to H5R_OBJECT
+///\param	plist - IN: Property list - default to PropList::DEFAULT
 ///\exception	H5::ReferenceException
 // Programmer	Binh-Minh Ribler - Oct, 2006
 // Modification
 //	Jul, 2008
 //		Added for application convenience.
 //--------------------------------------------------------------------------
-DataType::DataType(H5File& h5file, const void* ref, H5R_type_t ref_type) : H5Object()
+DataType::DataType(const H5Location& loc, const void* ref, H5R_type_t ref_type) : H5Object(), id(0)
 {
-    try {
-	id = p_dereference(h5file.getId(), ref, ref_type);
-    } catch (ReferenceException deref_error) {
-	throw ReferenceException("DataType constructor - located by an H5File",
-		deref_error.getDetailMsg());
-    }
+    id = H5Location::p_dereference(loc.getId(), ref, ref_type, "constructor - by dereference");
 }
 
 //--------------------------------------------------------------------------
@@ -140,28 +117,17 @@ DataType::DataType(H5File& h5file, const void* ref, H5R_type_t ref_type) : H5Obj
 ///\param       attr - IN: Specifying location where the referenced object is in
 ///\param	ref - IN: Reference pointer
 ///\param	ref_type - IN: Reference type - default to H5R_OBJECT
+///\param	plist - IN: Property list - default to PropList::DEFAULT
 ///\exception	H5::ReferenceException
 // Programmer	Binh-Minh Ribler - Oct, 2006
 // Modification
 //	Jul, 2008
 //		Added for application convenience.
 //--------------------------------------------------------------------------
-DataType::DataType(Attribute& attr, const void* ref, H5R_type_t ref_type) : H5Object()
+DataType::DataType(const Attribute& attr, const void* ref, H5R_type_t ref_type) : H5Object(), id(0)
 {
-    try {
-	id = p_dereference(attr.getId(), ref, ref_type);
-    } catch (ReferenceException deref_error) {
-	throw ReferenceException("DataType constructor - located by an Attribute",
-		deref_error.getDetailMsg());
-    }
+    id = H5Location::p_dereference(attr.getId(), ref, ref_type, "constructor - by dereference");
 }
-
-//--------------------------------------------------------------------------
-// Function:	DataType default constructor
-///\brief	Default constructor: Creates a stub datatype
-// Programmer	Binh-Minh Ribler - 2000
-//--------------------------------------------------------------------------
-DataType::DataType() : H5Object(), id(0) {}
 
 //--------------------------------------------------------------------------
 // Function:	DataType copy constructor
@@ -295,38 +261,27 @@ void DataType::p_commit(hid_t loc_id, const char* name)
 // Function:	DataType::commit
 ///\brief	Commits a transient datatype to a file, creating a new
 ///		named datatype
-///\param	loc - IN: A file
+///\param	loc - IN: A location (file, dataset, datatype, or group)
 ///\param	name - IN: Name of the datatype
 ///\exception	H5::DataTypeIException
 // Programmer	Binh-Minh Ribler - 2000
 //--------------------------------------------------------------------------
-void DataType::commit(H5File& loc, const char* name)
+void DataType::commit(const H5Location& loc, const char* name)
 {
-   p_commit(loc.getLocId(), name);
+   p_commit(loc.getId(), name);
 }
 
 //--------------------------------------------------------------------------
 // Function:	DataType::commit
-///\brief	This is an overloaded member function, provided for convenience.
-///		It differs from the above function only in the type of the
-///		argument \a name.
-// Programmer	Binh-Minh Ribler - 2000
-//--------------------------------------------------------------------------
-void DataType::commit(H5File& loc, const H5std_string& name)
-{
-   p_commit(loc.getLocId(), name.c_str());
-}
-
-//--------------------------------------------------------------------------
-// Function:	DataType::commit
-///\brief	Commits a transient datatype to a file, creating a new
-///		named datatype
-///\param	loc - IN: Either a group, dataset, named datatype, or attribute.
+///\brief	This is an overloaded member function, kept for backward
+///		compatibility.  It differs from the above function in that it
+///		misses const's.  This wrapper will be removed in future release.
+///\param	loc - IN: A location (file, dataset, datatype, or group)
 ///\param	name - IN: Name of the datatype
 ///\exception	H5::DataTypeIException
 // Programmer	Binh-Minh Ribler - Jan, 2007
 //--------------------------------------------------------------------------
-void DataType::commit(H5Object& loc, const char* name)
+void DataType::commit(H5Location& loc, const char* name)
 {
    p_commit(loc.getId(), name);
 }
@@ -338,7 +293,22 @@ void DataType::commit(H5Object& loc, const char* name)
 ///		argument \a name.
 // Programmer	Binh-Minh Ribler - 2000
 //--------------------------------------------------------------------------
-void DataType::commit(H5Object& loc, const H5std_string& name)
+void DataType::commit(const H5Location& loc, const H5std_string& name)
+{
+   p_commit(loc.getId(), name.c_str());
+}
+
+//--------------------------------------------------------------------------
+// Function:	DataType::commit
+///\brief	This is an overloaded member function, kept for backward
+///		compatibility.  It differs from the above function in that it
+///		misses const's.  This wrapper will be removed in future release.
+///\param	loc - IN: A location (file, dataset, datatype, or group)
+///\param	name - IN: Name of the datatype
+///\exception	H5::DataTypeIException
+// Programmer	Binh-Minh Ribler - Jan, 2007
+//--------------------------------------------------------------------------
+void DataType::commit(H5Location& loc, const H5std_string& name)
 {
    p_commit(loc.getId(), name.c_str());
 }
@@ -395,7 +365,7 @@ H5T_conv_t DataType::find( const DataType& dest, H5T_cdata_t **pcdata ) const
 ///\param	buf        - IN/OUT: Array containing pre- and post-conversion
 ///				values
 ///\param	background - IN: Optional backgroud buffer
-///\param	plist      - IN: Dataset transfer property list
+///\param	plist - IN: Property list - default to PropList::DEFAULT
 ///\return	Pointer to a suitable conversion function
 ///\exception	H5::DataTypeIException
 // Programmer	Binh-Minh Ribler - 2000
@@ -625,7 +595,7 @@ H5std_string DataType::getTag() const
     if( tag_Cstr != NULL )
     {
 	H5std_string tag = H5std_string(tag_Cstr); // C string to string object
-	HDfree(tag_Cstr); // free the C string
+	H5free_memory(tag_Cstr); // free the C string
 	return (tag); // return the tag
     }
     else
@@ -679,54 +649,10 @@ bool DataType::isVariableStr() const
    }
 }
 
-#ifndef H5_NO_DEPRECATED_SYMBOLS
-//--------------------------------------------------------------------------
-// Function:	DataType::getObjType
-///\brief	Retrieves the type of object that an object reference points to.
-///\param		ref      - IN: Reference to query
-///\param		ref_type - IN: Type of reference to query
-///\return	Object type, which can be one of the following:
-///			\li \c H5G_LINK Object is a symbolic link.
-///			\li \c H5G_GROUP Object is a group.
-///			\li \c H5G_DATASET   Object is a dataset.
-///			\li \c H5G_TYPE Object is a named datatype
-///\exception	H5::DataTypeIException
-// Programmer	Binh-Minh Ribler - May, 2004
-//--------------------------------------------------------------------------
-H5G_obj_t DataType::getObjType(void *ref, H5R_type_t ref_type) const
-{
-   try {
-      return(p_get_obj_type(ref, ref_type));
-   }
-   catch (IdComponentException E) {
-      throw DataTypeIException(inMemFunc("getObjType"), E.getDetailMsg());
-   }
-}
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-
-//--------------------------------------------------------------------------
-// Function:	DataType::getRegion
-///\brief	Retrieves a dataspace with the region pointed to selected.
-///\param	ref      - IN: Reference to get region of
-///\param	ref_type - IN: Type of reference to get region of - default
-///\return	DataSpace instance
-///\exception	H5::DataTypeIException
-// Programmer	Binh-Minh Ribler - May, 2004
-//--------------------------------------------------------------------------
-DataSpace DataType::getRegion(void *ref, H5R_type_t ref_type) const
-{
-   try {
-      DataSpace dataspace(p_get_region(ref, ref_type));
-      return(dataspace);
-   }
-   catch (IdComponentException E) {
-      throw DataTypeIException(inMemFunc("getRegion"), E.getDetailMsg());
-   }
-}
-
 //--------------------------------------------------------------------------
 // Function:    DataType::getId
-// Purpose:     Get the id of this attribute
+///\brief       Get the id of this datatype
+///\return      Datatype identifier
 // Modification:
 //      May 2008 - BMR
 //              Class hierarchy is revised to address bugzilla 1068.  Class
@@ -740,6 +666,7 @@ hid_t DataType::getId() const
    return(id);
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 //--------------------------------------------------------------------------
 // Function:    DataType::p_setId
 ///\brief       Sets the identifier of this object to a new value.
@@ -764,6 +691,7 @@ void DataType::p_setId(const hid_t new_id)
    // reset object's id to the given id
    id = new_id;
 }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 //--------------------------------------------------------------------------
 // Function:	DataType::close
@@ -781,10 +709,8 @@ void DataType::close()
 	{
 	    throw DataTypeIException(inMemFunc("close"), "H5Tclose failed");
 	}
-	// reset the id when the datatype that it represents is no longer
-	// referenced
-	if (getCounter() == 0)
-	    id = 0;
+	// reset the id
+	id = 0;
     }
 }
 
@@ -794,17 +720,33 @@ void DataType::close()
 // Programmer	Binh-Minh Ribler - 2000
 // Modification
 //		- Replaced resetIdComponent() with decRefCount() to use C
-//		library ID reference counting mechanism - BMR, Jun 1, 2004
+//		  library ID reference counting mechanism - BMR, Jun 1, 2004
 //		- Replaced decRefCount with close() to let the C library
-//		handle the reference counting - BMR, Jun 1, 2006
+//		  handle the reference counting - BMR, Jun 1, 2006
+//		- Added the use of H5CPP_EXITED to terminate the HDF5 library
+//		  and elimiate previous memory leaks.  See comments in the
+//		  header file "H5PredType.h" for details. - BMR, Mar 30, 2012
 //--------------------------------------------------------------------------
 DataType::~DataType()
 {
-	try {
-	    close();
-	} catch (Exception close_error) {
-	    cerr << inMemFunc("~DataType - ") << close_error.getDetailMsg() << endl;
+    try
+    {
+	/* If this is the object AtExit, terminate the HDF5 library.  This is
+	   to eliminate memory leaks due to the library being re-initiated
+	   (after the program has ended) and not re-terminated. */
+	if (id == H5CPP_EXITED)
+	{
+	    herr_t ret_value = H5close();
+	    if (ret_value == FAIL)
+		throw DataTypeIException(inMemFunc("~DataType - "), "H5close failed");
 	}
+	// Close the HDF5 datatype
+	else
+	    close();
+    }
+    catch (Exception close_error) {
+	cerr << inMemFunc("~DataType - ") << close_error.getDetailMsg() << endl;
+    }
 }
 #ifndef H5_NO_NAMESPACE
 } // end namespace

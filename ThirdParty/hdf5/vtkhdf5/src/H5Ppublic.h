@@ -24,12 +24,13 @@
 
 /* Public headers needed by this file */
 #include "H5public.h"
-#include "H5Cpublic.h"
+#include "H5ACpublic.h"
 #include "H5Dpublic.h"
 #include "H5Fpublic.h"
 #include "H5FDpublic.h"
 #include "H5Ipublic.h"
 #include "H5Lpublic.h"
+#include "H5Opublic.h"
 #include "H5MMpublic.h"
 #include "H5Tpublic.h"
 #include "H5Zpublic.h"
@@ -119,6 +120,49 @@ typedef H5P_prp_cb1_t H5P_prp_close_func_t;
 
 /* Define property list iteration function type */
 typedef herr_t (*H5P_iterate_t)(hid_t id, const char *name, void *iter_data);
+
+/* Actual IO mode property */
+typedef enum H5D_mpio_actual_chunk_opt_mode_t {
+    /* The default value, H5D_MPIO_NO_CHUNK_OPTIMIZATION, is used for all I/O
+     * operations that do not use chunk optimizations, including non-collective
+     * I/O and contiguous collective I/O.
+     */
+    H5D_MPIO_NO_CHUNK_OPTIMIZATION = 0,
+    H5D_MPIO_LINK_CHUNK,
+    H5D_MPIO_MULTI_CHUNK
+}  H5D_mpio_actual_chunk_opt_mode_t;
+
+typedef enum H5D_mpio_actual_io_mode_t {
+    /* The following four values are conveniently defined as a bit field so that
+     * we can switch from the default to indpendent or collective and then to
+     * mixed without having to check the original value. 
+     * 
+     * NO_COLLECTIVE means that either collective I/O wasn't requested or that 
+     * no I/O took place.
+     *
+     * CHUNK_INDEPENDENT means that collective I/O was requested, but the
+     * chunk optimization scheme chose independent I/O for each chunk.
+     */
+    H5D_MPIO_NO_COLLECTIVE = 0x0,
+    H5D_MPIO_CHUNK_INDEPENDENT = 0x1,
+    H5D_MPIO_CHUNK_COLLECTIVE = 0x2,
+    H5D_MPIO_CHUNK_MIXED = 0x1 | 0x2,
+
+    /* The contiguous case is separate from the bit field. */
+    H5D_MPIO_CONTIGUOUS_COLLECTIVE = 0x4
+} H5D_mpio_actual_io_mode_t; 
+
+/* Broken collective IO property */
+typedef enum H5D_mpio_no_collective_cause_t {
+    H5D_MPIO_COLLECTIVE = 0x00,
+    H5D_MPIO_SET_INDEPENDENT = 0x01,
+    H5D_MPIO_DATATYPE_CONVERSION = 0x02,
+    H5D_MPIO_DATA_TRANSFORMS = 0x04,
+    H5D_MPIO_MPI_OPT_TYPES_ENV_VAR_DISABLED = 0x08,
+    H5D_MPIO_NOT_SIMPLE_OR_SCALAR_DATASPACES = 0x10,
+    H5D_MPIO_NOT_CONTIGUOUS_OR_CHUNKED_DATASET = 0x20,
+    H5D_MPIO_FILTERS = 0x40
+} H5D_mpio_no_collective_cause_t;
 
 /********************/
 /* Public Variables */
@@ -249,7 +293,6 @@ H5_DLL herr_t H5Pget_shared_mesg_index(hid_t plist_id, unsigned index_num, unsig
 H5_DLL herr_t H5Pset_shared_mesg_phase_change(hid_t plist_id, unsigned max_list, unsigned min_btree);
 H5_DLL herr_t H5Pget_shared_mesg_phase_change(hid_t plist_id, unsigned *max_list, unsigned *min_btree);
 
-
 /* File access property list (FAPL) routines */
 H5_DLL herr_t H5Pset_alignment(hid_t fapl_id, hsize_t threshold,
     hsize_t alignment);
@@ -288,6 +331,17 @@ H5_DLL herr_t H5Pset_libver_bounds(hid_t plist_id, H5F_libver_t low,
     H5F_libver_t high);
 H5_DLL herr_t H5Pget_libver_bounds(hid_t plist_id, H5F_libver_t *low,
     H5F_libver_t *high);
+H5_DLL herr_t H5Pset_elink_file_cache_size(hid_t plist_id, unsigned efc_size);
+H5_DLL herr_t H5Pget_elink_file_cache_size(hid_t plist_id, unsigned *efc_size);
+H5_DLL herr_t H5Pset_file_image(hid_t fapl_id, void *buf_ptr, size_t buf_len);
+H5_DLL herr_t H5Pget_file_image(hid_t fapl_id, void **buf_ptr_ptr, size_t *buf_len_ptr);
+H5_DLL herr_t H5Pset_file_image_callbacks(hid_t fapl_id,
+       H5FD_file_image_callbacks_t *callbacks_ptr);
+H5_DLL herr_t H5Pget_file_image_callbacks(hid_t fapl_id,
+       H5FD_file_image_callbacks_t *callbacks_ptr);
+
+H5_DLL herr_t H5Pset_core_write_tracking(hid_t fapl_id, hbool_t is_enabled, size_t page_size);
+H5_DLL herr_t H5Pget_core_write_tracking(hid_t fapl_id, hbool_t *is_enabled, size_t *page_size);
 
 /* Dataset creation property list (DCPL) routines */
 H5_DLL herr_t H5Pset_layout(hid_t plist_id, H5D_layout_t layout);
@@ -356,6 +410,11 @@ H5_DLL herr_t H5Pset_hyper_vector_size(hid_t fapl_id, size_t size);
 H5_DLL herr_t H5Pget_hyper_vector_size(hid_t fapl_id, size_t *size/*out*/);
 H5_DLL herr_t H5Pset_type_conv_cb(hid_t dxpl_id, H5T_conv_except_func_t op, void* operate_data);
 H5_DLL herr_t H5Pget_type_conv_cb(hid_t dxpl_id, H5T_conv_except_func_t *op, void** operate_data);
+#ifdef H5_HAVE_PARALLEL
+H5_DLL herr_t H5Pget_mpio_actual_chunk_opt_mode(hid_t plist_id, H5D_mpio_actual_chunk_opt_mode_t *actual_chunk_opt_mode);
+H5_DLL herr_t H5Pget_mpio_actual_io_mode(hid_t plist_id, H5D_mpio_actual_io_mode_t *actual_io_mode);
+H5_DLL herr_t H5Pget_mpio_no_collective_cause(hid_t plist_id, uint32_t *local_no_collective_cause, uint32_t *global_no_collective_cause);
+#endif /* H5_HAVE_PARALLEL */
 
 /* Link creation property list (LCPL) routines */
 H5_DLL herr_t H5Pset_create_intermediate_group(hid_t plist_id, unsigned crt_intmd);
@@ -390,6 +449,10 @@ H5_DLL herr_t H5Pget_elink_cb(hid_t lapl_id, H5L_elink_traverse_t *func, void **
 /* Object copy property list (OCPYPL) routines */
 H5_DLL herr_t H5Pset_copy_object(hid_t plist_id, unsigned crt_intmd);
 H5_DLL herr_t H5Pget_copy_object(hid_t plist_id, unsigned *crt_intmd /*out*/);
+H5_DLL herr_t H5Padd_merge_committed_dtype_path(hid_t plist_id, const char *path);
+H5_DLL herr_t H5Pfree_merge_committed_dtype_paths(hid_t plist_id);
+H5_DLL herr_t H5Pset_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t func, void *op_data);
+H5_DLL herr_t H5Pget_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t *func, void **op_data);
 
 /* Symbols defined for compatibility with previous versions of the HDF5 API.
  *
