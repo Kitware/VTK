@@ -55,11 +55,9 @@ namespace vtkvolume
                           vtkVolumeMapper* vtkNotUsed(mapper),
                           vtkVolume* vtkNotUsed(vol))
     {
-    return std::string(
-      "mat4 ogl_projection_matrix = in_projectionMatrix; \n\
-      mat4 ogl_modelview_matrix = in_modelViewMatrix; \n\
-      vec4 pos = ogl_projection_matrix * ogl_modelview_matrix * \n\
-                 in_volumeMatrix * vec4(in_vertexPos.xyz, 1); \n\
+    return std::string(" \n\
+      vec4 pos = in_projectionMatrix * in_modelViewMatrix * \n\
+                 in_volumeMatrix * vec4(in_vertexPos.xyz, 1.0); \n\
       gl_Position = pos;"
     );
     }
@@ -141,7 +139,7 @@ namespace vtkvolume
       uniform vec3 in_textureExtentsMin; \n\
       \n\
       // Material and lighting \n\
-      uniform vec3 in_diffuce; \n\
+      uniform vec3 in_diffuse; \n\
       uniform vec3 in_ambient; \n\
       uniform vec3 in_specular; \n\
       uniform float in_shininess; \n\
@@ -363,16 +361,16 @@ namespace vtkvolume
           vec4 computeLighting(vec4 color) \n\
             {\n\
             // Light position in object space \n\
-            vec4 light_pos_obj = (in_inverseVolumeMatrix * \n\
-                                    vec4(in_cameraPos, 1.0)); \n\
-            if (light_pos_obj.w != 0.0) \n\
+            vec4 lightPosObj = (in_inverseVolumeMatrix * \n\
+                                vec4(in_cameraPos, 1.0)); \n\
+            if (lightPosObj.w != 0.0) \n\
               { \n\
-              light_pos_obj.x /= light_pos_obj.w; \n\
-              light_pos_obj.y /= light_pos_obj.w; \n\
-              light_pos_obj.z /= light_pos_obj.w; \n\
-              light_pos_obj.w = 1.0; \n\
+              lightPosObj.x /= lightPosObj.w; \n\
+              lightPosObj.y /= lightPosObj.w; \n\
+              lightPosObj.z /= lightPosObj.w; \n\
+              lightPosObj.w = 1.0; \n\
             } \n\
-            vec3 ldir = normalize(light_pos_obj.xyz - ip_vertexPos); \n\
+            vec3 ldir = normalize(lightPosObj.xyz - ip_vertexPos); \n\
             vec3 vdir = normalize(g_eyePosObj.xyz - ip_vertexPos); \n\
             vec3 h = normalize(ldir + vdir); \n\
             vec4 grad = computeGradient(); \n\
@@ -387,32 +385,32 @@ namespace vtkvolume
               { \n\
               g2 = vec3(0.0, 0.0, 0.0); \n\
               } \n\
-            vec3 final_color = vec3(0.0); \n\
-            float n_dot_l = dot(g2, ldir); \n\
-            float n_dot_h = dot(g2, h); \n\
-            if (n_dot_l < 0.0 && in_twoSidedLighting) \n\
+            vec3 finalColor = vec3(0.0); \n\
+            float nDotL = dot(g2, ldir); \n\
+            float nDotH = dot(g2, h); \n\
+            if (nDotL < 0.0 && in_twoSidedLighting) \n\
               { \n\
-              n_dot_l = -n_dot_l; \n\
+              nDotL = -nDotL; \n\
               } \n\
-            if (n_dot_h < 0.0 && in_twoSidedLighting) \n\
+            if (nDotH < 0.0 && in_twoSidedLighting) \n\
               { \n\
-              n_dot_h = -n_dot_h; \n\
+              nDotH = -nDotH; \n\
               } \n\
-            final_color += in_ambient * color.rgb; \n\
-            if (n_dot_l > 0) \n\
+            finalColor += in_ambient * color.rgb; \n\
+            if (nDotL > 0) \n\
               { \n\
-              final_color += in_diffuce * n_dot_l * color.rgb; \n\
+              finalColor += in_diffuse * nDotL * color.rgb; \n\
               } \n\
-            if (n_dot_h > 0) \n\
+            if (nDotH > 0) \n\
               { \n\
-              final_color += in_specular * pow(n_dot_h, in_shininess); \n\
+              finalColor += in_specular * pow(nDotH, in_shininess); \n\
               } \n\
-            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            finalColor = clamp(finalColor, vec3(0.0), vec3(1.0)); \n\
             if (grad.w >= 0.0)\n\
               {\n\
               color.a = color.a * computeGradientOpacity(grad); \n\
               }\n\
-            return vec4(final_color, color.a); \n\
+            return vec4(finalColor, color.a); \n\
           }");
         }
       else if (lightingComplexity == 2)
@@ -435,39 +433,39 @@ namespace vtkvolume
                { \n\
                g2 = vec3(0.0, 0.0, 0.0); \n\
                } \n\
-            vec3 final_color = vec3(0.0); \n\
+            vec3 finalColor = vec3(0.0); \n\
             for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\n\
               {\n\
               vec3 ldir = normalize((in_inverseVolumeMatrix * \n\
                                      in_inverseModelViewMatrix * \n\
                                     vec4(in_lightDirection[lightNum].xyz, 0.0)).xyz); \n\
               vec3 h = normalize(ldir + vdir); \n\
-              float n_dot_h = dot(g2, h); \n\
-              if (n_dot_h < 0.0 && in_twoSidedLighting) \n\
+              float nDotH = dot(g2, h); \n\
+              if (nDotH < 0.0 && in_twoSidedLighting) \n\
                 { \n\
-                n_dot_h = -n_dot_h; \n\
+                nDotH = -nDotH; \n\
                 } \n\
-              float n_dot_l = dot(g2, ldir); \n\
-              if (n_dot_l < 0.0 && in_twoSidedLighting) \n\
+              float nDotL = dot(g2, ldir); \n\
+              if (nDotL < 0.0 && in_twoSidedLighting) \n\
                 { \n\
-                n_dot_l = -n_dot_l; \n\
+                nDotL = -nDotL; \n\
                 } \n\
-              if (n_dot_l > 0) \n\
+              if (nDotL > 0) \n\
                 { \n\
-                diffuse += in_lightColor[lightNum] * n_dot_l; \n\
+                diffuse += in_lightColor[lightNum] * nDotL; \n\
                 } \n\
-              if (n_dot_h > 0) \n\
+              if (nDotH > 0) \n\
                 { \n\
-                specular = in_lightColor[lightNum] * pow(n_dot_h, in_shininess); \n\
+                specular = in_lightColor[lightNum] * pow(nDotH, in_shininess); \n\
                 } \n\
               }\n\
-            final_color += (in_ambient + in_diffuce * diffuse + in_specular * specular) * color.rgb; \n\
-            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
+            finalColor += (in_ambient + in_diffuse * diffuse + in_specular * specular) * color.rgb; \n\
+            finalColor = clamp(finalColor, vec3(0.0), vec3(1.0)); \n\
             if (grad.w >= 0.0)\n\
               {\n\
               color.a = color.a * computeGradientOpacity(grad); \n\
               }\n\
-            return vec4(final_color, color.a); \n\
+            return vec4(finalColor, color.a); \n\
             }");
         }
       else if (lightingComplexity == 3)
@@ -532,13 +530,13 @@ namespace vtkvolume
               specular += (sf * in_lightColor[lightNum]);\n\
               }\n\
             }\n\
-            vec3 final_color = vec3(0.0); \n\
-            final_color += (in_ambient + in_diffuce * diffuse + in_specular * specular) * color.rgb; \n\
+            vec3 finalColor = vec3(0.0); \n\
+            finalColor += (in_ambient + in_diffuse * diffuse + in_specular * specular) * color.rgb; \n\
             if (grad.w >= 0.0)\n\
               {\n\
               color.a = color.a * computeGradientOpacity(grad); \n\
               }\n\
-            return vec4(final_color, color.a); \n\
+            return vec4(finalColor, color.a); \n\
           } \n\
         ");
         }

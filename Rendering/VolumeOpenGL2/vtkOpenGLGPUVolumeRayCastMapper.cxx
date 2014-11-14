@@ -1990,10 +1990,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseVolumeMat->DeepCopy(vol->GetMatrix());
   this->Impl->InverseVolumeMat->Invert();
 
-    if (this->Impl->PrevInput)
-      std::cerr << " : " << this->Impl->PrevInput->GetMTime() << std::endl;
-    std::cerr << "Data changed " << input->GetMTime() << std::endl;
-
   // Update the volume if needed
   if (input != this->Impl->PrevInput)
     {
@@ -2164,7 +2160,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniform3f("in_ambient", fvalue3);
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetDiffuse();
-  this->Impl->ShaderProgram->SetUniform3f("in_diffuce", fvalue3);
+  this->Impl->ShaderProgram->SetUniform3f("in_diffuse", fvalue3);
 
   fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetSpecular();
   this->Impl->ShaderProgram->SetUniform3f("in_specular", fvalue3);
