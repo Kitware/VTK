@@ -122,6 +122,7 @@ namespace vtkvolume
       uniform mat4 m_inverse_modelview_matrix; \n\
       uniform mat4 m_texture_dataset_matrix; \n\
       uniform mat4 m_inverse_texture_dataset_matrix; \n\
+      uniform mat4 m_texture_to_eye_it; \n\
       \n\
       // Ray step size \n\
       uniform vec3 m_cell_step; \n\
@@ -408,7 +409,7 @@ namespace vtkvolume
               { \n\
               final_color += m_specular * pow(n_dot_h, m_shininess); \n\
               } \n\
-            final_color = clamp(final_colvtkOpenGLGPUVolumeRayCastMapperor, vec3(0.0), vec3(1.0)); \n\
+            final_color = clamp(final_color, vec3(0.0), vec3(1.0)); \n\
             if (grad.w >= 0.0)\n\
               {\n\
               color.a = color.a * computeGradientOpacity(grad); \n\
