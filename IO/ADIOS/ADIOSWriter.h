@@ -29,6 +29,7 @@ class ADIOSWriter
 public:
   static bool SetCommunicator(MPI_Comm);
   static MPI_Comm GetCommunicator();
+  static bool ResizeBuffer(size_t bufSize);
 
 protected:
   struct Context;
