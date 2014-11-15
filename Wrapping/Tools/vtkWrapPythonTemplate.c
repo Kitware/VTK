@@ -34,7 +34,8 @@
 /* convert C++ templated types to valid python ids by mangling */
 void vtkWrapPython_PythonicName(const char *name, char *pname)
 {
-  size_t i, j;
+  size_t j = 0;
+  size_t i;
   char *cp;
 
   /* look for first char that is not alphanumeric or underscore */
@@ -45,14 +46,31 @@ void vtkWrapPython_PythonicName(const char *name, char *pname)
     /* get the mangled name */
     vtkParse_MangledTypeName(name, pname);
 
-    /* remove mangling from first identifier and add an underscore */
+    /* put dots after namespaces */
     i = 0;
     cp = pname;
+    while (*cp == 'N')
+      {
+      cp++;
+      while (*cp >= '0' && *cp <= '9')
+        {
+        i = i*10 + (*cp++ - '0');
+        }
+      i += j;
+      while (j < i)
+        {
+        pname[j++] = *cp++;
+        }
+      pname[j++] = '.';
+      }
+
+    /* remove mangling from first identifier and add an underscore */
+    i = 0;
     while (*cp >= '0' && *cp <= '9')
       {
       i = i*10 + (*cp++ - '0');
       }
-    j = 0;
+    i += j;
     while (j < i)
       {
       pname[j++] = *cp++;

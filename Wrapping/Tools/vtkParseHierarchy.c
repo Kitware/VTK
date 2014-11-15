@@ -326,8 +326,8 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
       i += skip_space(&line[i]);
       n = vtkParse_NameLength(&line[i]);
       /* check for enum indicators */
-      if ((n == 3 && strncmp(&line[i], "int", n)) ||
-          (n == 4 && strncmp(&line[i], "enum", n)))
+      if ((n == 3 && strncmp(&line[i], "int", n) == 0) ||
+          (n == 4 && strncmp(&line[i], "enum", n) == 0))
         {
         entry->IsEnum = 1;
         i += n;
