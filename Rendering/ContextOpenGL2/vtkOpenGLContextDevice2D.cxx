@@ -46,6 +46,8 @@
 #include "vtkOpenGLContextDevice2DPrivate.h"
 #include "vtkAbstractContextBufferId.h"
 
+#include "vtkOpenGLShaderCache.h"
+
 #include <algorithm>
 
 //-----------------------------------------------------------------------------
@@ -108,6 +110,9 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   glEnable(GL_BLEND);
 
   this->Renderer = vtkRenderer::SafeDownCast(viewport);
+
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetRenderWindow());
+  renWin->GetShaderCache()->ReleaseCurrentShader();
 
   // Enable simple line, point and polygon antialiasing if multisampling is on.
   if (this->Renderer->GetRenderWindow()->GetMultiSamples())

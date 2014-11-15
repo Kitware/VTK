@@ -31,6 +31,7 @@ vtkOpenGLCamera::vtkOpenGLCamera()
   this->WCVCMatrix = vtkMatrix4x4::New();
   this->NormalMatrix = vtkMatrix3x3::New();
   this->VCDCMatrix = vtkMatrix4x4::New();
+  this->LastRenderer = 0;
 }
 
 vtkOpenGLCamera::~vtkOpenGLCamera()
@@ -158,7 +159,8 @@ void vtkOpenGLCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
         vtkMatrix3x3 *&normMat, vtkMatrix4x4 *&vcdc)
 {
   // has the camera changed?
-  if (this->MTime > this->KeyMatrixTime ||
+  if (ren != this->LastRenderer ||
+      this->MTime > this->KeyMatrixTime ||
       ren->GetMTime() > this->KeyMatrixTime)
     {
     this->WCVCMatrix->DeepCopy(this->GetModelViewTransformMatrix());
@@ -194,6 +196,7 @@ void vtkOpenGLCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
       }
 
     this->KeyMatrixTime.Modified();
+    this->LastRenderer = ren;
     }
 
   wcvc = this->WCVCMatrix;

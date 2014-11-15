@@ -1118,10 +1118,13 @@ vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
   this->Internal->FrequencyScalesArray->SetNumberOfTuples(
     static_cast<vtkIdType>(this->Internal->FrequencyScales.size()));
 
-  std::copy(this->Internal->FrequencyScales.begin(),
-            this->Internal->FrequencyScales.end(),
-            this->Internal->FrequencyScalesArray->GetPointer(0));
-
+  // don't copy to NULL pointer
+  if (this->Internal->FrequencyScalesArray->GetPointer(0) != NULL)
+    {
+    std::copy(this->Internal->FrequencyScales.begin(),
+          this->Internal->FrequencyScales.end(),
+          this->Internal->FrequencyScalesArray->GetPointer(0));
+    }
   return this->Internal->FrequencyScalesArray.GetPointer();
 }
 
@@ -1151,10 +1154,13 @@ vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
   this->Internal->PhaseShiftsArray->SetNumberOfTuples(
     static_cast<vtkIdType>(this->Internal->PhaseShifts.size()));
 
-  std::copy(this->Internal->PhaseShifts.begin(),
-            this->Internal->PhaseShifts.end(),
-            this->Internal->PhaseShiftsArray->GetPointer(0));
-
+  // don't copy to NULL pointer
+  if (this->Internal->PhaseShiftsArray->GetPointer(0) != NULL)
+    {
+    std::copy(this->Internal->PhaseShifts.begin(),
+              this->Internal->PhaseShifts.end(),
+              this->Internal->PhaseShiftsArray->GetPointer(0));
+    }
   return this->Internal->PhaseShiftsArray.GetPointer();
 }
 

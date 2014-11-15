@@ -32,6 +32,8 @@
 #include "vtkViewport.h"
 
 #include <algorithm>
+#include <sstream>
+#include <string>
 
 vtkStandardNewMacro(vtkCubeAxesActor);
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
@@ -1099,8 +1101,6 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
                                     const double yRange[2],
                                     const double zRange[2])
 {
-  char xTitle[64];
-
   int xPow, yPow, zPow;
 
   if (AutoLabelScaling)
@@ -1137,6 +1137,7 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
     zPow = UserZPow;
     }
 
+  std::string xTitle;
   if (xPow != 0)
     {
     if (!this->MustAdjustXValue || this->LastXPow != xPow)
@@ -1149,14 +1150,16 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
       }
     this->MustAdjustXValue = true;
 
+    std::ostringstream sstream;
     if (XUnits == NULL || XUnits[0] == '\0')
       {
-      sprintf(xTitle, "%s (x10^%d)", this->XTitle, xPow);
+      sstream << this->XTitle << " (x10^" << xPow << ")";
       }
     else
       {
-      sprintf(xTitle, "%s (x10^%d %s)", this->XTitle, xPow, XUnits);
+      sstream << this->XTitle << " (x10^" << xPow << " " << XUnits << ")";
       }
+    xTitle = sstream.str();
     }
   else
     {
@@ -1173,15 +1176,15 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
 
     if (XUnits == NULL || XUnits[0] == '\0')
       {
-      sprintf(xTitle,"%s",this->XTitle);
+      xTitle = this->XTitle;
       }
     else
       {
-      sprintf(xTitle, "%s (%s)", this->XTitle, XUnits);
+      xTitle = std::string(this->XTitle) + " (" + XUnits + ")";
       }
     }
 
-  char yTitle[64];
+  std::string yTitle;
   if (yPow != 0)
     {
     if (!this->MustAdjustYValue || this->LastYPow != yPow)
@@ -1193,14 +1196,17 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
       this->ForceYLabelReset = false;
       }
     this->MustAdjustYValue = true;
+
+    std::ostringstream sstream;
     if (YUnits == NULL || YUnits[0] == '\0')
       {
-      sprintf(yTitle, "%s (x10^%d)", this->YTitle, yPow);
+      sstream << this->YTitle << " (x10^" << yPow << ")";
       }
     else
       {
-      sprintf(yTitle, "%s (x10^%d %s)", this->YTitle, yPow, YUnits);
+      sstream << this->YTitle << " (x10^" << yPow << " " << YUnits << ")";
       }
+    yTitle = sstream.str();
     }
   else
     {
@@ -1216,15 +1222,15 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
     this->MustAdjustYValue = false;
     if (YUnits == NULL || YUnits[0] == '\0')
       {
-      sprintf(yTitle,"%s",this->YTitle);
+      yTitle = this->YTitle;
       }
     else
       {
-      sprintf(yTitle, "%s (%s)", this->YTitle, YUnits);
+      yTitle = std::string(this->YTitle) + " (" + YUnits + ")";
       }
     }
 
-  char zTitle[64];
+  std::string zTitle;
   if (zPow != 0)
     {
     if (!this->MustAdjustZValue || this->LastZPow != zPow)
@@ -1237,14 +1243,16 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
       }
     this->MustAdjustZValue = true;
 
+    std::ostringstream sstream;
     if (ZUnits == NULL || ZUnits[0] == '\0')
       {
-      sprintf(zTitle, "%s (x10^%d)", this->ZTitle, zPow);
+      sstream << this->ZTitle << " (x10^" << zPow << ")";
       }
     else
       {
-      sprintf(zTitle, "%s (x10^%d %s)", this->ZTitle, zPow, ZUnits);
+      sstream << this->ZTitle << " (x10^" << zPow << " " << ZUnits << ")";
       }
+    zTitle = sstream.str();
     }
   else
     {
@@ -1261,11 +1269,11 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
 
     if (ZUnits == NULL || ZUnits[0] == '\0')
       {
-      sprintf(zTitle,"%s",this->ZTitle);
+      zTitle = this->ZTitle;
       }
     else
       {
-      sprintf(zTitle, "%s (%s)", this->ZTitle, ZUnits);
+      zTitle = std::string(this->ZTitle) + " (" + ZUnits + ")";
       }
     }
 
@@ -1273,9 +1281,9 @@ void vtkCubeAxesActor::AdjustValues(const double xRange[2],
   this->LastYPow = yPow;
   this->LastZPow = zPow;
 
-  this->SetActualXLabel(xTitle);
-  this->SetActualYLabel(yTitle);
-  this->SetActualZLabel(zTitle);
+  this->SetActualXLabel(xTitle.c_str());
+  this->SetActualYLabel(yTitle.c_str());
+  this->SetActualZLabel(zTitle.c_str());
 }
 
 // ****************************************************************************

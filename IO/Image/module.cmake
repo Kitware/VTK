@@ -21,6 +21,7 @@ vtk_module(vtkIOImage
     vtkTestingCore
     vtkImagingSources
     vtkImagingMath
+    vtkInteractionImage
     vtkInteractionStyle
     vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkTestingCore

@@ -73,8 +73,8 @@ int TestGPURayCastLightKit(int argc, char *argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
-  scalarOpacity->AddPoint(scalarRange[0], 0.0);
-  scalarOpacity->AddPoint(scalarRange[1], 1.0);
+  scalarOpacity->AddPoint(50, 0.0);
+  scalarOpacity->AddPoint(75, 0.8);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
@@ -84,7 +84,7 @@ int TestGPURayCastLightKit(int argc, char *argv[])
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.0, 0.0, 0.0);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.8, 0.8, 0.8);
   colorTransferFunction->AddRGBPoint(scalarRange[1], 0.8, 0.8, 0.8);
 
   vtkNew<vtkVolume> volume;

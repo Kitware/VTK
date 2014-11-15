@@ -61,7 +61,7 @@ protected:
   virtual void ResetCache();
   virtual int OutputParticles(vtkPolyData* poly);
   virtual void InitializeExtraPointDataArrays(vtkPointData* outputPD);
-  virtual void AppendToExtraPointDataArrays();
+  virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &);
 
   void Finalize();
 

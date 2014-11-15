@@ -41,31 +41,39 @@ protected:
 
   // Description:
   // Build vertex and fragment shader for the volume rendering
-  void BuildShader(vtkRenderer* ren, vtkVolume* vol, int noOfComponents);
+  void BuildShader(vtkRenderer* ren, vtkVolume* vol, int noOfCmponents);
+
+  // TODO Take these out as these are no longer needed
+  // Methods called by the AMR Volume Mapper.
+  virtual void PreRender(vtkRenderer * vtkNotUsed(ren),
+                         vtkVolume *vtkNotUsed(vol),
+                         double vtkNotUsed(datasetBounds)[6],
+                         double vtkNotUsed(scalarRange)[2],
+                         int vtkNotUsed(numberOfScalarComponents),
+                         unsigned int vtkNotUsed(numberOfLevels)) {}
+
+  // \pre input is up-to-date
+  virtual void RenderBlock(vtkRenderer *vtkNotUsed(ren),
+                           vtkVolume *vtkNotUsed(vol),
+                           unsigned int vtkNotUsed(level)) {}
+
+  virtual void PostRender(vtkRenderer *vtkNotUsed(ren),
+                          int vtkNotUsed(numberOfScalarComponents)) {}
 
   // Description:
   // Rendering volume on GPU
   void GPURender(vtkRenderer *ren, vtkVolume *vol);
 
   // Description:
-  // Not implemented
-  virtual void PreRender(vtkRenderer* vtkNotUsed(ren),
-                         vtkVolume* vtkNotUsed(vol),
-                         double vtkNotUsed(datasetBounds)[6],
-                         double vtkNotUsed(scalarRange)[2],
-                         int vtkNotUsed(numberOfScalarComponents),
-                         unsigned int vtkNotUsed(numberOfLevels)) {};
-
-  // Description:
-  // Empty implementation.
-  virtual void RenderBlock(vtkRenderer* vtkNotUsed(ren),
-                           vtkVolume* vtkNotUsed(vol),
-                           unsigned int vtkNotUsed(level)) {};
-
-  // Description:
-  // Empty implementation.
-  virtual void PostRender(vtkRenderer* vtkNotUsed(ren),
-                          int vtkNotUsed(umberOfScalarComponents)) {};
+  // Update the reduction factor of the render viewport (this->ReductionFactor)
+  // according to the time spent in seconds to render the previous frame
+  // (this->TimeToDraw) and a time in seconds allocated to render the next
+  // frame (allocatedTime).
+  // \pre valid_current_reduction_range: this->ReductionFactor>0.0 && this->ReductionFactor<=1.0
+  // \pre positive_TimeToDraw: this->TimeToDraw>=0.0
+  // \pre positive_time: allocatedTime>0
+  // \post valid_new_reduction_range: this->ReductionFactor>0.0 && this->ReductionFactor<=1.0
+  void ComputeReductionFactor(double allocatedTime);
 
   // Description:
   // Empty implementation.
@@ -81,6 +89,8 @@ protected:
     {
     return 1;
     }
+
+  double ReductionFactor;
 
 private:
   class vtkInternal;

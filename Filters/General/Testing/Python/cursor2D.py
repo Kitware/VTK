@@ -71,7 +71,7 @@ ren1.AddActor(cursor3Actor)
 ren1.AddActor(cursor4Actor)
 ren1.SetBackground(0, 0, 0)
 
-renWin.SetSize(120, 120)
+renWin.SetSize(150, 150)
 renWin.SetMultiSamples(0)
 renWin.Render()
 

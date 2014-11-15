@@ -258,7 +258,8 @@ namespace vtkvolume
          }");
     }
     else if (vol->GetProperty()->GetShade() &&
-            !vol->GetProperty()->GetDisableGradientOpacity())
+            !vol->GetProperty()->GetDisableGradientOpacity() &&
+             vol->GetProperty()->GetGradientOpacity())
       {
       return std::string(" \n\
         uniform sampler1D m_gradient_transfer_func;\n\
