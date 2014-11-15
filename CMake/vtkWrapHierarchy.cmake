@@ -101,7 +101,7 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   configure_file(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${vtk-module}Hierarchy.data
-    COPY_ONLY
+    @ONLY
     )
 
   # search through the deps to find modules we depend on

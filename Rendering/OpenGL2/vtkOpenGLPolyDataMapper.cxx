@@ -339,11 +339,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "varying vec3 normalVCVarying;");
     FSSource = replace(FSSource,
       "//VTK::Normal::Impl",
-      "vec3 normalVC;\n"
+      "vec3 normalVC = normalize(normalVCVarying);\n"
       //  if (!gl_FrontFacing) does not work in intel hd4000 mac
       //  if (int(gl_FrontFacing) == 0) does not work on mesa
-      "  if (gl_FrontFacing == false) { normalVC = -normalVCVarying; }\n"
-      "  else { normalVC = normalVCVarying; }"
+      "  if (gl_FrontFacing == false) { normalVC = -normalVC; }\n"
       //"normalVC = normalVCVarying;"
       );
   }
@@ -1237,7 +1236,7 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
   glEnable(GL_POLYGON_OFFSET_FILL);
   if (oldRCT == VTK_RESOLVE_SHIFT_ZBUFFER)
     {
-    double f = zRes*8.0;
+    f = zRes*8.0;
     glPolygonOffset(f,0.0);  // supported on ES2/3/etc
     }
   else

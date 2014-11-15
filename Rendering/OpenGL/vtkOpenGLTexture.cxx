@@ -70,7 +70,7 @@ void vtkOpenGLTexture::Initialize(vtkRenderer* vtkNotUsed(ren))
 // Release the graphics resources used by this texture.
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->Index && win && win->GetMapped())
+  if (this->Index && win)
     {
     vtkRenderWindow *renWin = dynamic_cast<vtkRenderWindow *>(win);
     renWin->MakeCurrent();

@@ -112,8 +112,8 @@ void vtkCompositeMapperHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO
 
   // override the opacity
   cellBO.Program->SetUniformf("opacityUniform", this->Parent->BlockState.Opacity.top());
-  double aIntensity = ppty->GetAmbient();
-  double dIntensity = ppty->GetDiffuse();
+  double aIntensity = this->DrawingEdges ? 1.0 : ppty->GetAmbient();  // ignoring renderer ambient
+  double dIntensity = this->DrawingEdges ? 0.0 : ppty->GetDiffuse();
 
   vtkColor3d &aColor = this->Parent->BlockState.AmbientColor.top();
   float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity), static_cast<float>(aColor[1] * aIntensity), static_cast<float>(aColor[2] * aIntensity)};
@@ -121,7 +121,6 @@ void vtkCompositeMapperHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO
   float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity), static_cast<float>(dColor[1] * dIntensity), static_cast<float>(dColor[2] * dIntensity)};
   cellBO.Program->SetUniform3f("ambientColorUniform", ambientColor);
   cellBO.Program->SetUniform3f("diffuseColorUniform", diffuseColor);
-
 }
 
 //-----------------------------------------------------------------------------
@@ -556,13 +555,13 @@ void vtkCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
       helper->CurrentInput = ds;
       helper->RenderPieceStart(renderer,actor);
       helper->RenderPieceDraw(renderer,actor);
-      helper->RenderPieceFinish(renderer,actor);
       if (draw_surface_with_edges)
         {
         this->BlockState.AmbientColor.push(ecolor);
         helper->RenderEdges(renderer,actor);
         this->BlockState.AmbientColor.pop();
         }
+      helper->RenderPieceFinish(renderer,actor);
       }
 
     if (selector)

@@ -81,7 +81,6 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
-  volumeProperty->SetDisableGradientOpacity(1);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
