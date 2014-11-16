@@ -38,6 +38,7 @@ class VTKIOGDAL_EXPORT vtkGDALRasterReader : public vtkImageReader2
 public:
   static vtkGDALRasterReader* New();
   vtkTypeMacro(vtkGDALRasterReader, vtkImageReader2);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkGDALRasterReader();
   virtual ~vtkGDALRasterReader();
@@ -101,10 +102,6 @@ protected:
                                         vtkInformation* info);
 
 protected:
-  char* FileName;
-  double DataSpacing[3];
-  double DataOrigin[3];
-  int DataExtents[6];
   int TargetDimensions[2];
   int RasterDimensions[2];
   std::string Projection;
@@ -119,7 +116,7 @@ protected:
 
 private:
   vtkGDALRasterReader(const vtkGDALRasterReader&); // Not implemented.
-  vtkGDALRasterReader& operator=(const vtkGDALRasterReader&); // Not implemented.
+  void operator=(const vtkGDALRasterReader&); // Not implemented
 };
 
 #endif // __vtkGDALRasterReader_h

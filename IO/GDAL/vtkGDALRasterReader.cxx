@@ -596,8 +596,39 @@ const double* vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoin
 }
 
 //-----------------------------------------------------------------------------
-vtkGDALRasterReader::vtkGDALRasterReader() :
-  FileName(0),
+void vtkGDALRasterReader::PrintSelf(std::ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "TargetDimensions: " <<
+    this->TargetDimensions[0] << indent << this->TargetDimensions[1] << "\n";
+  os << indent << "TargetDimensions: " <<
+    this->RasterDimensions[0] << indent << this->RasterDimensions[1] << "\n";
+  os << indent << "DomainMetaData: " << this->DomainMetaData << "\n";
+  os << indent << "DriverShortName: " << this->DriverShortName << "\n";
+  os << indent << "DriverLongName: " << this->DriverLongName << "\n";
+
+  if (!this->Domains.empty())
+    {
+    os << indent << "Domain" << "\n";
+    for (std::size_t i = 0; i < this->Domains.size(); ++i)
+      {
+      os << indent << this->Domains[i] << "\n";
+      }
+    }
+
+  if (!this->MetaData.empty())
+    {
+    os << indent << "MetaData" << "\n";
+    for (std::size_t i = 0; i < this->MetaData.size(); ++i)
+      {
+      os << indent << this->MetaData[i] << "\n";
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2(),
   Implementation(0)
 {
   this->Implementation = new vtkGDALRasterReaderInternal(this);
