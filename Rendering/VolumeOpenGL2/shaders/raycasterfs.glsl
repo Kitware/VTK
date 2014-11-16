@@ -71,7 +71,7 @@ uniform float in_clippingPlanes[49];
 ///
 //////////////////////////////////////////////////////////////////////////////
 void main()
-{
+  {
   /// Initialize g_fragColor (output) to 0
   g_fragColor = vec4(0.0);
   g_dirStep = vec3(0.0);
@@ -104,4 +104,4 @@ void main()
   //VTK::Shading::Exit
 
   gl_FragColor = g_fragColor;
-}
+  }

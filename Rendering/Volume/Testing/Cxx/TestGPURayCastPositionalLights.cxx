@@ -62,11 +62,11 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   light1->SetLightTypeToSceneLight();
   light1->SetPositional(true);
   light1->SetDiffuseColor(1,0,0);
-  light1->SetAmbientColor(0,1,0);
+  light1->SetAmbientColor(0,0,0);
   light1->SetSpecularColor(1,1,1);
-  light1->SetConeAngle(40);
-  light1->SetPosition(25.0, 0.0, 100.0);
-  light1->SetFocalPoint(25.0, 0.0, 0.0);
+  light1->SetConeAngle(60);
+  light1->SetPosition(0.0, 0.0, 100.0);
+  light1->SetFocalPoint(0.0, 0.0, 0.0);
 //  light1->SetColor(1,0,0);
 //  light1->SetPosition(40,40,301);
 //  light1->SetPosition(-57, -50, -360);
@@ -104,7 +104,6 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   volume->SetProperty(volumeProperty.GetPointer());
 
   ren->AddViewProp(volume.GetPointer());
-//  renWin->Render();
 
   vtkNew<vtkPolyDataMapper> pm;
   vtkNew<vtkActor> ac;
@@ -114,20 +113,18 @@ int TestGPURayCastPositionalLights(int argc, char *argv[])
   pm->SetScalarVisibility(0);
   cf->SetValue(0, 60.0);
   cf->SetInputConnection(reader->GetOutputPort());
-  ac->SetPosition(-50.0, 0.0, 0.0);
+  ac->SetPosition(-89.0, 0.0, 0.0);
+  volume->SetPosition(-30.0, 0.0, 0.0);
   ren->AddActor(ac.GetPointer());
   vtkNew<vtkActor> ac1;
   ac1->SetMapper(pm.GetPointer());
   ac1->SetPosition(0,0,0);
-//  ren->AddActor(ac1.GetPointer());
-//  renWin->Render();
+  ren->SetTwoSidedLighting(0);
 
   ren->AddLight(light1.GetPointer());
   renWin->Render();
 
   ren->ResetCamera();
-  std::cout << light1->GetPosition()[0] << " " <<
- light1->GetPosition()[1] << " " << light1->GetPosition()[2] << std::endl;
   iren->Initialize();
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );

@@ -181,7 +181,8 @@ public:
   static void ToFloat(T (&in)[2], float (&out)[2]);
   template<typename T>
   static void ToFloat(T& in, float& out);
-  static void VtkToGlMatrix(vtkMatrix4x4* in, float (&out)[16]);
+  static void VtkToGlMatrix(vtkMatrix4x4* in, float (&out)[16],
+                            int row = 4, int col = 4);
 
   void Initialize(vtkRenderer* ren, vtkVolume* vol);
 
@@ -382,13 +383,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::VtkToGlMatrix(
-  vtkMatrix4x4* in, float (&out)[16])
+  vtkMatrix4x4* in, float (&out)[16], int row, int col)
 {
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < row; ++i)
     {
-    for (int j = 0; j < 4; ++j)
+    for (int j = 0; j < col; ++j)
       {
-      out[j * 4 + i] = in->Element[i][j];
+      out[j * row + i] = in->Element[i][j];
       }
     }
 }
@@ -1029,11 +1030,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
   this->ShaderProgram->SetUniformi("in_twoSidedLighting",
                                    ren->GetTwoSidedLighting());
 
-  if (this->LightComplexity < 2)
-    {
-    return;
-    }
-
   // for lightkit case there are some parameters to set
   vtkCamera* cam = ren->GetActiveCamera();
   vtkTransform* viewTF = cam->GetModelViewTransformObject();
@@ -1044,7 +1040,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
   vtkLight *light;
 
   vtkCollectionSimpleIterator sit;
-  float lightColor[6][3];
+  float lightAmbientColor[6][3];
+  float lightDiffuseColor[6][3];
+  float lightSpecularColor[6][3];
   float lightDirection[6][3];
   for(lc->InitTraversal(sit);
       (light = lc->GetNextLight(sit)); )
@@ -1052,11 +1050,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
     float status = light->GetSwitch();
     if (status > 0.0)
       {
+      double* aColor = light->GetAmbientColor();
       double* dColor = light->GetDiffuseColor();
+      double* sColor = light->GetDiffuseColor();
       double intensity = light->GetIntensity();
-      lightColor[numberOfLights][0] = dColor[0] * intensity;
-      lightColor[numberOfLights][1] = dColor[1] * intensity;
-      lightColor[numberOfLights][2] = dColor[2] * intensity;
+      lightAmbientColor[numberOfLights][0] = aColor[0] * intensity;
+      lightAmbientColor[numberOfLights][1] = aColor[1] * intensity;
+      lightAmbientColor[numberOfLights][2] = aColor[2] * intensity;
+      lightDiffuseColor[numberOfLights][0] = dColor[0] * intensity;
+      lightDiffuseColor[numberOfLights][1] = dColor[1] * intensity;
+      lightDiffuseColor[numberOfLights][2] = dColor[2] * intensity;
+      lightSpecularColor[numberOfLights][0] = sColor[0] * intensity;
+      lightSpecularColor[numberOfLights][1] = sColor[1] * intensity;
+      lightSpecularColor[numberOfLights][2] = sColor[2] * intensity;
       // Get required info from light
       double* lfp = light->GetTransformedFocalPoint();
       double* lp = light->GetTransformedPosition();
@@ -1071,9 +1077,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
       }
     }
 
-  this->ShaderProgram->SetUniform3fv("in_lightColor", numberOfLights, lightColor);
-  this->ShaderProgram->SetUniform3fv("in_lightDirection", numberOfLights, lightDirection);
-  this->ShaderProgram->SetUniformi("in_numberOfLights", numberOfLights);
+  this->ShaderProgram->SetUniform3fv("in_lightAmbientColor",
+                                     numberOfLights, lightAmbientColor);
+  this->ShaderProgram->SetUniform3fv("in_lightDiffuseColor",
+                                     numberOfLights, lightDiffuseColor);
+  this->ShaderProgram->SetUniform3fv("in_lightSpecularColor",
+                                     numberOfLights, lightSpecularColor);
+  this->ShaderProgram->SetUniform3fv("in_lightDirection",
+                                     numberOfLights, lightDirection);
+  this->ShaderProgram->SetUniformi("in_numberOfLights",
+                                   numberOfLights);
 
   // we are done unless we have positional lights
   if (this->LightComplexity < 3)
@@ -1856,7 +1869,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkErrorMacro("Shader failed to compile");
     }
 
-
   this->Impl->ShaderBuildTime.Modified();
 }
 
@@ -2221,7 +2233,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Will require transpose of this matrix for OpenGL
   vtkMatrix4x4* modelviewMat4x4 =
-    ren->GetActiveCamera()->GetViewTransformMatrix();
+    ren->GetActiveCamera()->GetModelViewTransformMatrix();
   this->Impl->InverseModelViewMat->DeepCopy(modelviewMat4x4);
   this->Impl->InverseModelViewMat->Invert();
 
@@ -2274,21 +2286,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformMatrix4x4(
   "in_textureDatasetMatrix", &(fvalue16[0]));
 
+  // NOTE : VTK martices are row-major, and hence do pre-multiplication
+  // of matrices
   vtkInternal::VtkToGlMatrix(
     this->Impl->InverseTextureToDataSetMat.GetPointer(), fvalue16);
   this->Impl->ShaderProgram->SetUniformMatrix4x4(
     "in_inverseTextureDatasetMatrix", &(fvalue16[0]));
-
-  vtkMatrix4x4::Multiply4x4(modelviewMat4x4, volumeMatrix4x4,
+  vtkMatrix4x4::Multiply4x4(volumeMatrix4x4,
+                            modelviewMat4x4,
                             this->Impl->TextureToEyeTransposeInverse.GetPointer());
-  vtkMatrix4x4::Multiply4x4(this->Impl->TextureToEyeTransposeInverse.GetPointer(),
-                            this->Impl->TextureToDataSetMat.GetPointer(),
+  vtkMatrix4x4::Multiply4x4(this->Impl->TextureToDataSetMat.GetPointer(),
+                            this->Impl->TextureToEyeTransposeInverse.GetPointer(),
                             this->Impl->TextureToEyeTransposeInverse.GetPointer());
   this->Impl->TextureToEyeTransposeInverse->Invert();
   this->Impl->TextureToEyeTransposeInverse->Transpose();
   vtkInternal::VtkToGlMatrix(
-    this->Impl->TextureToEyeTransposeInverse.GetPointer(), fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
+    this->Impl->TextureToEyeTransposeInverse.GetPointer(), fvalue16, 3, 3);
+  this->Impl->ShaderProgram->SetUniformMatrix3x3(
     "in_texureToEyeIt", &(fvalue16[0]));
 
   vtkInternal::ToFloat(ren->GetActiveCamera()->GetPosition(), fvalue3, 3);
