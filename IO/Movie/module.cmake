@@ -1,5 +1,5 @@
 if(NOT CMAKE_C_COMPILER_ID STREQUAL "XL")
-  if(NOT ${CMAKE_CROSS_COMPILING})
+  if(NOT ${CMAKE_CROSSCOMPILING})
     set(vtkIOMovie_vtkoggtheora vtkoggtheora)
   endif()
 endif()
