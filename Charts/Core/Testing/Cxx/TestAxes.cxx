@@ -134,7 +134,7 @@ int TestAxes(int , char * [])
   axesHorizontal[0]->AutoScale();
   axesHorizontal[0]->SetRange(20, 60); // restore range so rest of test can proceed
 
-  axesHorizontal[1]->SetRange(10, -5);
+  axesHorizontal[1]->SetRange(10, -10);
   axesHorizontal[1]->AutoScale();
 
   axesHorizontal[2]->SetRange(10, -5);
