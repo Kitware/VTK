@@ -138,7 +138,7 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
   configure_file(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
-    COPYONLY
+    @ONLY
     )
 
   add_custom_command(
