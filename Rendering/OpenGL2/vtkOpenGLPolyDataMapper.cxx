@@ -324,6 +324,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
   // handle colors / materials
   this->ReplaceShaderColorMaterialValues(VSSource, FSSource, GSSource, lightComplexity, ren, actor);
 
+  VSSource = replace(VSSource,
+    "//VTK::PositionVC::Dec",
+    "varying vec4 vertexVC;");
+  VSSource = replace(VSSource,
+    "//VTK::PositionVC::Impl",
+    "vertexVC = MCVCMatrix * vertexMC;\n"
+    "  gl_Position = VCDCMatrix * vertexVC;\n");
+  FSSource = replace(FSSource,
+    "//VTK::PositionVC::Dec",
+    "varying vec4 vertexVC;");
+
   // normals?
   if (this->Layout.NormalOffset)
     {
@@ -345,7 +356,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "  if (gl_FrontFacing == false) { normalVC = -normalVC; }\n"
       //"normalVC = normalVCVarying;"
       );
-  }
+    }
   else
     {
     FSSource = replace(FSSource,
@@ -1001,7 +1012,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       this->OpenGLUpdateTime < actor->GetMTime() ||
       this->OpenGLUpdateTime < this->CurrentInput->GetMTime() )
     {
-    this->UpdateVBO(actor);
+    this->UpdateVBO(ren, actor);
     this->OpenGLUpdateTime.Modified();
     }
 
@@ -1299,7 +1310,7 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
+void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 

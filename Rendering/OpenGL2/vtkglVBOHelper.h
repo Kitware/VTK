@@ -35,7 +35,7 @@ namespace vtkgl
 {
 
 // Process the string, and return a version with replacements.
-std::string replace(std::string source, const std::string &search,
+std::string VTKRENDERINGOPENGL2_EXPORT replace(std::string source, const std::string &search,
                     const std::string replace, bool all = true);
 
 // used to create an IBO for triangle primatives

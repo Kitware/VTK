@@ -1,0 +1,14 @@
+vtk_module(vtkDomainsChemistryOpenGL2
+  TCL_NAME
+    vtkRenderingChemistryOpenGLII
+  DEPENDS
+    vtkRenderingOpenGL2
+  IMPLEMENTS
+    vtkDomainsChemistry
+  BACKEND
+    OpenGL2
+  PRIVATE_DEPENDS
+    vtkglew
+  KIT
+    vtkOpenGL
+  )
