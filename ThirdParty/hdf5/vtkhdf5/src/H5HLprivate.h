@@ -44,7 +44,7 @@
 #  undef H5HL_DEBUG
 #endif
 
-#define H5HL_ALIGN(X)	(((X)+7)&(unsigned)(~0x07)) /*align on 8-byte boundary	*/
+#define H5HL_ALIGN(X)	((((unsigned)X)+7)&(unsigned)(~0x07)) /*align on 8-byte boundary	*/
 
 #define H5HL_SIZEOF_FREE(F)						      \
     H5HL_ALIGN(H5F_SIZEOF_SIZE (F) +	/*ptr to next free block	*/    \

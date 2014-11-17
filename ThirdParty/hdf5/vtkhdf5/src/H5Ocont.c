@@ -96,7 +96,7 @@ H5O_cont_decode(H5F_t *f, hid_t UNUSED dxpl_id, H5O_t UNUSED *open_oh,
     H5O_cont_t             *cont = NULL;
     void                   *ret_value;
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_cont_decode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -137,7 +137,7 @@ H5O_cont_encode(H5F_t *f, hbool_t UNUSED disable_shared, uint8_t *p, const void 
 {
     const H5O_cont_t       *cont = (const H5O_cont_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_cont_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);
@@ -176,11 +176,11 @@ H5O_cont_size(const H5F_t *f, hbool_t UNUSED disable_shared, const void UNUSED *
 {
     size_t ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_cont_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Set return value */
-    ret_value = H5F_SIZEOF_ADDR(f) +    /* Continuation header address */
-                H5F_SIZEOF_SIZE(f);     /* Continuation header length */
+    ret_value = (size_t)(H5F_SIZEOF_ADDR(f) +    /* Continuation header address */
+                H5F_SIZEOF_SIZE(f));     /* Continuation header length */
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_cont_size() */
@@ -201,7 +201,7 @@ H5O_cont_size(const H5F_t *f, hbool_t UNUSED disable_shared, const void UNUSED *
 static herr_t
 H5O_cont_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_cont_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(mesg);
 
@@ -229,7 +229,7 @@ H5O_cont_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg)
     H5O_cont_t *mesg = (H5O_cont_t *) _mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_cont_delete)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -266,7 +266,7 @@ H5O_cont_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *_mesg, FILE * 
 {
     const H5O_cont_t       *cont = (const H5O_cont_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_cont_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);

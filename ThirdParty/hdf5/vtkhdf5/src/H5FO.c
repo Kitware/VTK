@@ -75,14 +75,14 @@ H5FO_create(const H5F_t *f)
 {
     herr_t ret_value=SUCCEED;          /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_create,FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
-    assert(f);
-    assert(f->shared);
+    HDassert(f);
+    HDassert(f->shared);
 
     /* Create container used to store open object info */
-    if((f->shared->open_objs = H5SL_create(H5SL_TYPE_HADDR)) == NULL)
+    if((f->shared->open_objs = H5SL_create(H5SL_TYPE_HADDR, NULL)) == NULL)
         HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "unable to create open object container")
 
 done:
@@ -116,7 +116,7 @@ H5FO_opened(const H5F_t *f, haddr_t addr)
     H5FO_open_obj_t *open_obj;  /* Information about open object */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOFUNC(H5FO_opened)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Sanity check */
     HDassert(f);
@@ -163,14 +163,14 @@ H5FO_insert(const H5F_t *f, haddr_t addr, void *obj, hbool_t delete_flag)
     H5FO_open_obj_t *open_obj;  /* Information about open object */
     herr_t ret_value=SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_insert,FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
-    assert(f);
-    assert(f->shared);
-    assert(f->shared->open_objs);
-    assert(H5F_addr_defined(addr));
-    assert(obj);
+    HDassert(f);
+    HDassert(f->shared);
+    HDassert(f->shared->open_objs);
+    HDassert(H5F_addr_defined(addr));
+    HDassert(obj);
 
     /* Allocate new opened object information structure */
     if((open_obj=H5FL_MALLOC(H5FO_open_obj_t))==NULL)
@@ -215,7 +215,7 @@ H5FO_delete(H5F_t *f, hid_t dxpl_id, haddr_t addr)
     H5FO_open_obj_t *open_obj;  /* Information about open object */
     herr_t ret_value=SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_delete,FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(f);
@@ -266,13 +266,13 @@ H5FO_mark(const H5F_t *f, haddr_t addr, hbool_t deleted)
     H5FO_open_obj_t *open_obj;  /* Information about open object */
     herr_t ret_value=SUCCEED;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOFUNC(H5FO_mark)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Sanity check */
-    assert(f);
-    assert(f->shared);
-    assert(f->shared->open_objs);
-    assert(H5F_addr_defined(addr));
+    HDassert(f);
+    HDassert(f->shared);
+    HDassert(f->shared->open_objs);
+    HDassert(H5F_addr_defined(addr));
 
     /* Get the object node from the container */
     if(NULL != (open_obj = (H5FO_open_obj_t *)H5SL_search(f->shared->open_objs, &addr)))
@@ -310,7 +310,7 @@ H5FO_marked(const H5F_t *f, haddr_t addr)
     H5FO_open_obj_t *open_obj;  /* Information about open object */
     hbool_t ret_value = FALSE;  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOFUNC(H5FO_marked)
+    FUNC_ENTER_NOAPI_NOERR
 
     /* Sanity check */
     HDassert(f);
@@ -349,12 +349,12 @@ H5FO_dest(const H5F_t *f)
 {
     herr_t ret_value=SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_dest,FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
-    assert(f);
-    assert(f->shared);
-    assert(f->shared->open_objs);
+    HDassert(f);
+    HDassert(f->shared);
+    HDassert(f->shared->open_objs);
 
     /* Check if the object info set is empty */
     if(H5SL_count(f->shared->open_objs)!=0)
@@ -394,13 +394,13 @@ H5FO_top_create(H5F_t *f)
 {
     herr_t ret_value = SUCCEED;          /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_top_create, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(f);
 
     /* Create container used to store open object info */
-    if((f->obj_count = H5SL_create(H5SL_TYPE_HADDR)) == NULL)
+    if((f->obj_count = H5SL_create(H5SL_TYPE_HADDR, NULL)) == NULL)
         HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "unable to create open object container")
 
 done:
@@ -433,7 +433,7 @@ H5FO_top_incr(const H5F_t *f, haddr_t addr)
     H5FO_obj_count_t *obj_count;  /* Ref. count for object */
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_top_incr, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(f);
@@ -488,7 +488,7 @@ H5FO_top_decr(const H5F_t *f, haddr_t addr)
     H5FO_obj_count_t *obj_count;  /* Ref. count for object */
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_top_decr, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(f);
@@ -542,7 +542,7 @@ H5FO_top_count(const H5F_t *f, haddr_t addr)
     H5FO_obj_count_t *obj_count;        /* Ref. count for object */
     hsize_t ret_value;                  /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5FO_top_count)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(f);
@@ -582,7 +582,7 @@ H5FO_top_dest(H5F_t *f)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FO_top_dest, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(f);

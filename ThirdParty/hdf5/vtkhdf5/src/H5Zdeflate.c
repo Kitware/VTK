@@ -28,8 +28,11 @@
 
 #ifdef H5_HAVE_FILTER_DEFLATE
 
-#ifdef H5_HAVE_ZLIB_H
-#   include "hdf5_zlib.h"
+#if defined(H5_HAVE_ZLIB_H) && !defined(H5_ZLIB_HEADER) 
+# define H5_ZLIB_HEADER "zlib.h"
+#endif
+#if defined(H5_ZLIB_HEADER)
+# include H5_ZLIB_HEADER /* "zlib.h" */
 #endif
 
 /* Local function prototypes */
@@ -48,7 +51,7 @@ const H5Z_class2_t H5Z_DEFLATE[1] = {{
     H5Z_filter_deflate,         /* The actual filter function	*/
 }};
 
-#define H5Z_DEFLATE_SIZE_ADJUST(s) (HDceil(((double)(s))*1.001)+12)
+#define H5Z_DEFLATE_SIZE_ADJUST(s) (HDceil(((double)(s)) * (double)1.001f) + 12)
 
 
 /*-------------------------------------------------------------------------
@@ -76,7 +79,7 @@ H5Z_filter_deflate (unsigned flags, size_t cd_nelmts,
     int		status;                 /* Status from zlib operation */
     size_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5Z_filter_deflate, 0)
+    FUNC_ENTER_NOAPI(0)
 
     /* Sanity check */
     HDassert(*buf_size > 0);

@@ -264,7 +264,7 @@ FileAccPropList FileAccPropList::getFamily(hsize_t& memb_size) const
 /// http://www.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetFaplSplit
 // Programmer:  Binh-Minh Ribler - April, 2004
 //--------------------------------------------------------------------------
-void FileAccPropList::setSplit( FileAccPropList& meta_plist, FileAccPropList& raw_plist, const char* meta_ext, const char* raw_ext ) const
+void FileAccPropList::setSplit(const FileAccPropList& meta_plist, const FileAccPropList& raw_plist, const char* meta_ext, const char* raw_ext ) const
 {
    hid_t meta_pid = meta_plist.getId();
    hid_t raw_pid = raw_plist.getId();
@@ -277,65 +277,59 @@ void FileAccPropList::setSplit( FileAccPropList& meta_plist, FileAccPropList& ra
 
 //--------------------------------------------------------------------------
 // Function:	FileAccPropList::setSplit
+///\brief	This is an overloaded member function, kept for backward
+///		compatibility.  It differs from the above function in that it
+///		misses const's.  This wrapper will be removed in future release.
+///\param	meta_plist  - IN: File access plist for the metadata file
+///\param	raw_plist   - IN: File access plist for the raw data file
+///\param	meta_ext    - IN: Metadata filename extension as \c char*
+///\param	raw_ext     - IN: Raw data filename extension as \c char*
+///\exception	H5::PropListIException
+// Programmer:  Binh-Minh Ribler - April, 2004
+// Note:	Retiring April, 2014
+//--------------------------------------------------------------------------
+void FileAccPropList::setSplit(FileAccPropList& meta_plist, FileAccPropList& raw_plist, const char* meta_ext, const char* raw_ext ) const
+{
+    setSplit((const FileAccPropList)meta_plist, (const FileAccPropList)raw_plist, meta_ext, raw_ext);
+}
+
+//--------------------------------------------------------------------------
+// Function:	FileAccPropList::setSplit
 ///\brief	This is an overloaded member function, provided for convenience.
-///		It differs from the above function only in what arguments it
-///		accepts.
+///		It takes character arguments as \c H5std_string.
+///\param	meta_plist  - IN: File access plist for the metadata file
+///\param	raw_plist   - IN: File access plist for the raw data file
+///\param	meta_ext    - IN: Metadata filename extension as \c H5std_string
+///\param	raw_ext     - IN: Raw data filename extension as \c H5std_string
+///\exception	H5::PropListIException
+// Programmer:  Binh-Minh Ribler - April, 2004
+//--------------------------------------------------------------------------
+void FileAccPropList::setSplit(const FileAccPropList& meta_plist, const FileAccPropList& raw_plist, const H5std_string& meta_ext, const H5std_string& raw_ext ) const
+{
+   setSplit( meta_plist, raw_plist, meta_ext.c_str(), raw_ext.c_str() );
+}
+
+//--------------------------------------------------------------------------
+// Function:	FileAccPropList::setSplit
+///\brief	This is an overloaded member function, kept for backward
+///		compatibility.  It differs from the above function in that it
+///		misses const's.  This wrapper will be removed in future release.
 ///\param	meta_plist  - IN: File access plist for the metadata file
 ///\param	raw_plist   - IN: File access plist for the raw data file
 ///\param	meta_ext    - IN: Metadata filename extension as \c string
 ///\param	raw_ext     - IN: Raw data filename extension as \c string
 ///\exception	H5::PropListIException
 // Programmer:  Binh-Minh Ribler - April, 2004
+// Note:	Retiring April, 2014
 //--------------------------------------------------------------------------
-void FileAccPropList::setSplit( FileAccPropList& meta_plist, FileAccPropList& raw_plist, const H5std_string& meta_ext, const H5std_string& raw_ext ) const
+void FileAccPropList::setSplit(FileAccPropList& meta_plist, FileAccPropList& raw_plist, const H5std_string& meta_ext, const H5std_string& raw_ext ) const
 {
-   setSplit( meta_plist, raw_plist, meta_ext.c_str(), raw_ext.c_str() );
+   setSplit((const FileAccPropList)meta_plist, (const FileAccPropList)raw_plist, meta_ext.c_str(), raw_ext.c_str() );
 }
 
-#ifdef H5_HAVE_STREAM // for Stream Virtual File Driver
-//--------------------------------------------------------------------------
-// Function:	FileAccPropList::getStream
-// Purpose:	Retrieves the streaming I/O driver settings
-// Return:	The streaming I/O file access property list structure
-// Exception:	H5::PropListIException
-// Description:
-//		This C API seems to be removed from the library; will remove
-//		this wrapper next time, only removed it from the RM in this
-//		release - Oct, 2008
-// Programmer:  Binh-Minh Ribler - April, 2004
-//--------------------------------------------------------------------------
-H5FD_stream_fapl_t FileAccPropList::getStream() const
-{
-   H5FD_stream_fapl_t fapl;
-   herr_t ret_value = H5Pget_fapl_stream(id, &fapl);
-   if( ret_value < 0 )
-   {
-      throw PropListIException("FileAccPropList::getStream", "H5Pget_fapl_stream failed");
-   }
-   return(fapl);
-}
-
-//--------------------------------------------------------------------------
-// Function:	FileAccPropList::setStream
-// Purpose:	Modifies this file access property list to use the Stream
-//		driver.
-// Param:	fapl - IN: The streaming I/O file access property list
-// Exception:	H5::PropListIException
-// Description:
-//		This C API seems to be removed from the library; will remove
-//		this wrapper next time, only removed it from the RM in this
-//		release - Oct, 2008
-// Programmer:  Binh-Minh Ribler - April, 2004
-//--------------------------------------------------------------------------
-void FileAccPropList::setStream(H5FD_stream_fapl_t &fapl) const
-{
-   herr_t ret_value = H5Pset_fapl_stream (id, &fapl);
-   if( ret_value < 0 )
-   {
-      throw PropListIException("FileAccPropList::setStream", "H5Pset_fapl_stream failed");
-   }
-}
-#endif // Stream Virtual File Driver
+// Stream Virtual File Driver had been removed from the main library.
+// FileAccPropList::[s,g]etStream are now removed from the C++ API.
+// -BMR, March, 2012
 
 //--------------------------------------------------------------------------
 // Function:	FileAccPropList::getSieveBufSize

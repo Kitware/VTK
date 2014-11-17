@@ -126,7 +126,7 @@ H5B2_test_crt_context(void *_f)
     H5B2_test_ctx_t *ctx;       /* Callback context structure */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5B2_test_crt_context)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(f);
@@ -164,7 +164,7 @@ H5B2_test_dst_context(void *_ctx)
 {
     H5B2_test_ctx_t *ctx = (H5B2_test_ctx_t *)_ctx;       /* Callback context structure */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B2_test_dst_context)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(ctx);
@@ -192,7 +192,7 @@ H5B2_test_dst_context(void *_ctx)
 static herr_t
 H5B2_test_store(void *nrecord, const void *udata)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B2_test_store)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     *(hsize_t *)nrecord = *(const hsize_t *)udata;
 
@@ -217,7 +217,7 @@ H5B2_test_store(void *nrecord, const void *udata)
 static herr_t
 H5B2_test_compare(const void *rec1, const void *rec2)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B2_test_compare)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI((herr_t)(*(const hssize_t *)rec1 - *(const hssize_t *)rec2))
 } /* H5B2_test_compare() */
@@ -241,7 +241,7 @@ H5B2_test_encode(uint8_t *raw, const void *nrecord, void *_ctx)
 {
     H5B2_test_ctx_t *ctx = (H5B2_test_ctx_t *)_ctx;       /* Callback context structure */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B2_test_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(ctx);
@@ -270,7 +270,7 @@ H5B2_test_decode(const uint8_t *raw, void *nrecord, void *_ctx)
 {
     H5B2_test_ctx_t *ctx = (H5B2_test_ctx_t *)_ctx;       /* Callback context structure */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B2_test_decode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(ctx);
@@ -299,7 +299,7 @@ H5B2_test_debug(FILE *stream, const H5F_t UNUSED *f, hid_t UNUSED dxpl_id,
     int indent, int fwidth, const void *record,
     const void UNUSED *_udata)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B2_test_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert (record);
 
@@ -329,11 +329,10 @@ H5B2_test_crt_dbg_context(H5F_t *f, hid_t UNUSED dxpl_id, haddr_t UNUSED addr)
     H5B2_test_ctx_t *ctx;       /* Callback context structure */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5B2_test_crt_dbg_context)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(f);
-    HDassert(H5F_addr_defined(addr));
 
     /* Allocate callback context */
     if(NULL == (ctx = H5FL_MALLOC(H5B2_test_ctx_t)))
@@ -366,7 +365,7 @@ done:
 herr_t
 H5B2_get_root_addr_test(H5B2_t *bt2, haddr_t *root_addr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B2_get_root_addr_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(bt2);
@@ -403,7 +402,7 @@ H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
     unsigned    idx;                    /* Location of record which matches key */
     herr_t	ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5B2_get_node_info_test, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check arguments. */
     HDassert(bt2);
@@ -517,7 +516,7 @@ H5B2_get_node_depth_test(H5B2_t *bt2, hid_t dxpl_id, void *udata)
     H5B2_node_info_test_t ninfo;        /* Node information */
     int		ret_value;              /* Return information */
 
-    FUNC_ENTER_NOAPI(H5B2_get_node_depth_test, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check arguments. */
     HDassert(bt2);

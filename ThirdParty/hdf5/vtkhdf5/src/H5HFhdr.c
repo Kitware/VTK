@@ -37,7 +37,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5HFpkg.h"		/* Fractal heaps			*/
 #include "H5MFprivate.h"	/* File memory management		*/
-#include "H5Vprivate.h"		/* Vectors and arrays 			*/
+#include "H5VMprivate.h"		/* Vectors and arrays 			*/
 
 /****************/
 /* Local Macros */
@@ -46,7 +46,7 @@
 #ifndef NDEBUG
 /* Limit on the size of the max. direct block size */
 /* (This is limited to 32-bits currently, because I think it's unlikely to
- *      need to be larger, the 32-bit limit for H5V_log2_of2(n), and
+ *      need to be larger, the 32-bit limit for H5VM_log2_of2(n), and
  *      some offsets/sizes are encoded with a maxiumum of 32-bits  - QAK)
  */
 #define H5HF_MAX_DIRECT_SIZE_LIMIT ((hsize_t)2 * 1024 * 1024 * 1024)
@@ -112,7 +112,7 @@ H5HF_hdr_alloc(H5F_t *f)
     H5HF_hdr_t *hdr = NULL;          /* Shared fractal heap header */
     H5HF_hdr_t *ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_alloc)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -160,7 +160,7 @@ H5HF_hdr_compute_free_space(H5HF_hdr_t *hdr, unsigned iblock_row)
     unsigned curr_row;          /* Current row in block */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_hdr_compute_free_space)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -210,7 +210,7 @@ H5HF_hdr_finish_init_phase1(H5HF_hdr_t *hdr)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_finish_init_phase1)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -224,7 +224,7 @@ H5HF_hdr_finish_init_phase1(H5HF_hdr_t *hdr)
 
     /* Set the size of heap IDs */
     hdr->heap_len_size = MIN(hdr->man_dtable.max_dir_blk_off_size,
-            H5V_limit_enc_size((uint64_t)hdr->max_man_size));
+            H5VM_limit_enc_size((uint64_t)hdr->max_man_size));
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -250,7 +250,7 @@ H5HF_hdr_finish_init_phase2(H5HF_hdr_t *hdr)
     unsigned u;                         /* Local index variable */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_finish_init_phase2)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -304,7 +304,7 @@ H5HF_hdr_finish_init(H5HF_hdr_t *hdr)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_finish_init)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -344,7 +344,7 @@ H5HF_hdr_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
     size_t dblock_overhead;     /* Direct block's overhead */
     haddr_t ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_create)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -500,7 +500,7 @@ H5HF_hdr_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, HADDR_UNDEF, "file allocation failed for fractal heap header")
 
     /* Cache the new fractal heap header */
-    if(H5AC_set(f, dxpl_id, H5AC_FHEAP_HDR, hdr->heap_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_insert_entry(f, dxpl_id, H5AC_FHEAP_HDR, hdr->heap_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_HEAP, H5E_CANTINSERT, HADDR_UNDEF, "can't add fractal heap header to cache")
 
     /* Set address of heap header to return */
@@ -535,7 +535,7 @@ H5HF_hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t addr, H5AC_protect_t rw)
     H5HF_hdr_t *hdr;                    /* Fractal heap header */
     H5HF_hdr_t *ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_protect)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     HDassert(f);
@@ -551,6 +551,9 @@ H5HF_hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t addr, H5AC_protect_t rw)
 
     /* Set the header's address */
     hdr->heap_addr = addr;
+
+    /* Update header's file pointer */
+    hdr->f = f;
 
     /* Set the return value */
     ret_value = hdr;
@@ -578,7 +581,7 @@ H5HF_hdr_incr(H5HF_hdr_t *hdr)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_incr)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(hdr);
@@ -614,7 +617,7 @@ H5HF_hdr_decr(H5HF_hdr_t *hdr)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_decr)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(hdr);
@@ -651,7 +654,7 @@ done:
 herr_t
 H5HF_hdr_fuse_incr(H5HF_hdr_t *hdr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_hdr_fuse_incr)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(hdr);
@@ -679,7 +682,7 @@ H5HF_hdr_fuse_incr(H5HF_hdr_t *hdr)
 size_t
 H5HF_hdr_fuse_decr(H5HF_hdr_t *hdr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_hdr_fuse_decr)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(hdr);
@@ -710,7 +713,7 @@ H5HF_hdr_dirty(H5HF_hdr_t *hdr)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_dirty)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(hdr);
@@ -748,7 +751,7 @@ H5HF_hdr_adj_free(H5HF_hdr_t *hdr, ssize_t amt)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_adj_free)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -786,7 +789,7 @@ H5HF_hdr_adjust_heap(H5HF_hdr_t *hdr, hsize_t new_size, hssize_t extra_free)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_adjust_heap)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -824,7 +827,7 @@ done:
 herr_t
 H5HF_hdr_inc_alloc(H5HF_hdr_t *hdr, size_t alloc_size)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_hdr_inc_alloc)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -857,7 +860,7 @@ H5HF_hdr_start_iter(H5HF_hdr_t *hdr, H5HF_indirect_t *iblock, hsize_t curr_off, 
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_start_iter)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -895,7 +898,7 @@ H5HF_hdr_reset_iter(H5HF_hdr_t *hdr, hsize_t curr_off)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_reset_iter)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -935,7 +938,7 @@ H5HF_hdr_skip_blocks(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_indirect_t *iblock,
     hsize_t sect_size;                  /* Size of section in heap space */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_skip_blocks)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -984,7 +987,7 @@ H5HF_hdr_update_iter(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_size)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_update_iter)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -1086,7 +1089,7 @@ H5HF_hdr_update_iter(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_size)
                     unsigned child_entry;           /* Entry of child indirect block */
 
                     /* Compute # of rows needed in child indirect block */
-                    child_rows_needed = (H5V_log2_of2((uint32_t)min_dblock_size) - H5V_log2_of2((uint32_t)hdr->man_dtable.cparam.start_block_size)) + 2;
+                    child_rows_needed = (H5VM_log2_of2((uint32_t)min_dblock_size) - H5VM_log2_of2((uint32_t)hdr->man_dtable.cparam.start_block_size)) + 2;
                     HDassert(child_rows_needed > child_nrows);
                     child_entry = (next_row + (child_rows_needed - child_nrows)) * hdr->man_dtable.cparam.width;
                     if(child_entry > (iblock->nrows * hdr->man_dtable.cparam.width))
@@ -1163,7 +1166,7 @@ H5HF_hdr_inc_iter(H5HF_hdr_t *hdr, hsize_t adv_size, unsigned nentries)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_inc_iter)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -1207,7 +1210,7 @@ H5HF_hdr_reverse_iter(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t dblock_addr)
     hbool_t walked_up;                  /* Loop flag */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_reverse_iter)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -1348,7 +1351,7 @@ H5HF_hdr_empty(H5HF_hdr_t *hdr)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_empty)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(hdr);
@@ -1396,7 +1399,7 @@ H5HF_hdr_free(H5HF_hdr_t *hdr)
 {
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_hdr_free)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -1439,7 +1442,7 @@ H5HF_hdr_delete(H5HF_hdr_t *hdr, hid_t dxpl_id)
     unsigned cache_flags = H5AC__NO_FLAGS_SET;  /* Flags for unprotecting heap header */
     herr_t ret_value = SUCCEED;                 /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_hdr_delete, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.

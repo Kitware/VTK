@@ -13,16 +13,19 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifdef H5_VMS
+#ifdef OLD_HEADER_FILENAME
+#include <iostream.h>
+#else
 #include <iostream>
-#endif /*H5_VMS*/
-
+#endif
 #include <string>
+
 #include "H5Include.h"
 #include "H5Exception.h"
 #include "H5Library.h"
 #include "H5IdComponent.h"
 #include "H5DataSpace.h"
+#include "H5private.h"			// for HDmemset
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
@@ -127,7 +130,7 @@ int IdComponent::getCounter() const
 }
 
 //--------------------------------------------------------------------------
-// Function:	hdfObjectType
+// Function:	getHDFObjType (static)
 ///\brief	Given an id, returns the type of the object.
 ///\return	a valid HDF object type, which may be one of the following:
 ///		\li \c H5I_FILE
@@ -142,11 +145,33 @@ int IdComponent::getCounter() const
 //--------------------------------------------------------------------------
 H5I_type_t IdComponent::getHDFObjType(const hid_t obj_id)
 {
+    if (obj_id == 0)
+	return H5I_BADID; // invalid
     H5I_type_t id_type = H5Iget_type(obj_id);
     if (id_type <= H5I_BADID || id_type >= H5I_NTYPES)
 	return H5I_BADID; // invalid
     else
 	return id_type; // valid type
+}
+
+//--------------------------------------------------------------------------
+// Function:	getHDFObjType
+///\brief	Returns the type of the object.  It is an overloaded function
+///		of the above function.
+///\return	a valid HDF object type, which may be one of the following:
+///		\li \c H5I_FILE
+///		\li \c H5I_GROUP
+///		\li \c H5I_DATATYPE
+///		\li \c H5I_DATASPACE
+///		\li \c H5I_DATASET
+///		\li \c H5I_ATTR
+///		\li or \c H5I_BADID, if no valid type can be determined or the
+///				input object id is invalid.
+// Programmer   Binh-Minh Ribler - Mar, 2014
+//--------------------------------------------------------------------------
+H5I_type_t IdComponent::getHDFObjType() const
+{
+    return(getHDFObjType(getId()));
 }
 
 //--------------------------------------------------------------------------
@@ -267,7 +292,7 @@ IdComponent::IdComponent() {}
 // Description:
 // 		This function is protected so that the user applications can
 // 		only have access to its code via allowable classes, namely,
-// 		H5File and H5Object subclasses.
+// 		Attribute and H5Location subclasses.
 // Programmer	Binh-Minh Ribler - Jul, 2004
 //--------------------------------------------------------------------------
 H5std_string IdComponent::p_get_file_name() const
@@ -285,6 +310,8 @@ H5std_string IdComponent::p_get_file_name() const
 
    // Call H5Fget_name again to get the actual file name
    char* name_C = new char[name_size+1];  // temporary C-string for C API
+   HDmemset(name_C, 0, name_size+1); // clear buffer
+
    name_size = H5Fget_name(temp_id, name_C, name_size+1);
 
    // Check for failure again
@@ -312,12 +339,23 @@ H5std_string IdComponent::p_get_file_name() const
 //--------------------------------------------------------------------------
 bool IdComponent::p_valid_id(const hid_t obj_id)
 {
+    if (obj_id == 0)
+	return false;
+
     H5I_type_t id_type = H5Iget_type(obj_id);
     if (id_type <= H5I_BADID || id_type >= H5I_NTYPES)
 	return false;
     else
 	return true;
 }
+
+// Notes about IdComponent::id
+//      May 2008 - BMR
+//              Class hierarchy is revised to address bugzilla 1068...
+//              ...member IdComponent::id is moved into subclasses, and
+//              IdComponent::getId now becomes pure virtual function.
+//              (reasons: 1. encountered problems when adding H5Location;
+//                        2. Scott Meyers, item 33)
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

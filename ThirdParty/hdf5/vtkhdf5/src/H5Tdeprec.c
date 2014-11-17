@@ -34,7 +34,7 @@
 #define H5T_PACKAGE		/*suppress error about including H5Tpkg   */
 
 /* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_deprec_interface
+#define H5_INTERFACE_INIT_FUNC	H5T__init_deprec_interface
 
 
 /***********/
@@ -49,7 +49,6 @@
 #include "H5Tpkg.h"		/* Datatypes				*/
 
 
-#ifndef H5_NO_DEPRECATED_SYMBOLS
 /****************/
 /* Local Macros */
 /****************/
@@ -88,9 +87,9 @@
 
 /*--------------------------------------------------------------------------
 NAME
-   H5T_init_deprec_interface -- Initialize interface-specific information
+   H5T__init_deprec_interface -- Initialize interface-specific information
 USAGE
-    herr_t H5T_init_deprec_interface()
+    herr_t H5T__init_deprec_interface()
 RETURNS
     Non-negative on success/Negative on failure
 DESCRIPTION
@@ -99,13 +98,38 @@ DESCRIPTION
 
 --------------------------------------------------------------------------*/
 static herr_t
-H5T_init_deprec_interface(void)
+H5T__init_deprec_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5T_init_deprec_interface)
+    FUNC_ENTER_STATIC_NOERR
 
     FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_deprec_interface() */
+} /* H5T__init_deprec_interface() */
 
+
+/*--------------------------------------------------------------------------
+NAME
+   H5T__term_deprec_interface -- Terminate interface
+USAGE
+    herr_t H5T__term_deprec_interface()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Terminates interface.  (Just resets H5_interface_initialize_g
+    currently).
+
+--------------------------------------------------------------------------*/
+herr_t
+H5T__term_deprec_interface(void)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Mark closed */
+    H5_interface_initialize_g = 0;
+
+    FUNC_LEAVE_NOAPI(0)
+} /* H5T__term_deprec_interface() */
+
+#ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /*-------------------------------------------------------------------------
  * Function:	H5Tcommit1
@@ -129,7 +153,7 @@ H5Tcommit1(hid_t loc_id, const char *name, hid_t type_id)
     H5T_t	*type;                  /* Datatype for ID */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_API(H5Tcommit1, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE3("e", "i*si", loc_id, name, type_id);
 
     /* Check arguments */
@@ -141,7 +165,7 @@ H5Tcommit1(hid_t loc_id, const char *name, hid_t type_id)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
 
     /* Commit the datatype to the file, using default property list values */
-    if(H5T_commit_named(&loc, name, type, H5P_LINK_CREATE_DEFAULT,
+    if(H5T__commit_named(&loc, name, type, H5P_LINK_CREATE_DEFAULT,
             H5P_DATATYPE_CREATE_DEFAULT, H5P_DATATYPE_ACCESS_DEFAULT, H5AC_dxpl_id) < 0)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to commit datatype")
 
@@ -179,7 +203,7 @@ H5Topen1(hid_t loc_id, const char *name)
     hid_t        dxpl_id = H5AC_dxpl_id; /* dxpl to use to open datatype */
     hid_t        ret_value = FAIL;
 
-    FUNC_ENTER_API(H5Topen1, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("i", "i*s", loc_id, name);
 
     /* Check args */

@@ -44,10 +44,11 @@ static size_t H5O_stab_size(const H5F_t *f, hbool_t disable_shared, const void *
 static herr_t H5O_stab_free(void *_mesg);
 static herr_t H5O_stab_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg);
 static void *H5O_stab_copy_file(H5F_t *file_src, void *native_src,
-    H5F_t *file_dst, hbool_t *recompute_size, H5O_copy_t *cpy_info, void *udata,
-    hid_t dxpl_id);
-static herr_t H5O_stab_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src, H5O_loc_t *dst_oloc,
-    void *mesg_dst, hid_t dxpl_id, H5O_copy_t *cpy_info);
+    H5F_t *file_dst, hbool_t *recompute_size, unsigned *mesg_flags,
+    H5O_copy_t *cpy_info, void *_udata, hid_t dxpl_id);
+static herr_t H5O_stab_post_copy_file(const H5O_loc_t *src_oloc,
+    const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst,
+    unsigned *mesg_flags, hid_t dxpl_id, H5O_copy_t *cpy_info);
 static herr_t H5O_stab_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
     FILE * stream, int indent, int fwidth);
 
@@ -102,7 +103,7 @@ H5O_stab_decode(H5F_t *f, hid_t UNUSED dxpl_id, H5O_t UNUSED *open_oh,
     H5O_stab_t          *stab = NULL;
     void                *ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_stab_decode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -145,18 +146,18 @@ H5O_stab_encode(H5F_t *f, hbool_t UNUSED disable_shared, uint8_t *p, const void 
 {
     const H5O_stab_t       *stab = (const H5O_stab_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_stab_encode);
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
-    assert(f);
-    assert(p);
-    assert(stab);
+    HDassert(f);
+    HDassert(p);
+    HDassert(stab);
 
     /* encode */
     H5F_addr_encode(f, &p, stab->btree_addr);
     H5F_addr_encode(f, &p, stab->heap_addr);
 
-    FUNC_LEAVE_NOAPI(SUCCEED);
+    FUNC_LEAVE_NOAPI(SUCCEED)
 }
 
 
@@ -183,7 +184,7 @@ H5O_stab_copy(const void *_mesg, void *_dest)
     H5O_stab_t             *dest = (H5O_stab_t *) _dest;
     void                *ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_stab_copy)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(stab);
@@ -223,12 +224,12 @@ H5O_stab_size(const H5F_t *f, hbool_t UNUSED disable_shared, const void UNUSED *
 {
     size_t ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_stab_size);
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Set return value */
-    ret_value=2 * H5F_SIZEOF_ADDR(f);
+    ret_value = (size_t)(2 * H5F_SIZEOF_ADDR(f));
 
-    FUNC_LEAVE_NOAPI(ret_value);
+    FUNC_LEAVE_NOAPI(ret_value)
 }
 
 
@@ -249,7 +250,7 @@ H5O_stab_size(const H5F_t *f, hbool_t UNUSED disable_shared, const void UNUSED *
 static herr_t
 H5O_stab_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_stab_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(mesg);
 
@@ -276,14 +277,14 @@ H5O_stab_delete(H5F_t *f, hid_t dxpl_id, H5O_t UNUSED *open_oh, void *mesg)
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_stab_delete)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
     HDassert(mesg);
 
     /* Free the file space for the symbol table */
-    if(H5G_stab_delete(f, dxpl_id, (const H5O_stab_t *)mesg) < 0)
+    if(H5G__stab_delete(f, dxpl_id, (const H5O_stab_t *)mesg) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to free symbol table")
 
 done:
@@ -307,15 +308,16 @@ done:
  */
 static void *
 H5O_stab_copy_file(H5F_t *file_src, void *native_src, H5F_t *file_dst,
-    hbool_t UNUSED *recompute_size, H5O_copy_t UNUSED *cpy_info, void UNUSED *udata,
-    hid_t dxpl_id)
+    hbool_t UNUSED *recompute_size, unsigned UNUSED *mesg_flags,
+    H5O_copy_t UNUSED *cpy_info, void *_udata, hid_t dxpl_id)
 {
     H5O_stab_t          *stab_src = (H5O_stab_t *) native_src;
     H5O_stab_t          *stab_dst = NULL;
+    H5G_copy_file_ud_t  *udata = (H5G_copy_file_ud_t *)_udata;
     size_t              size_hint;              /* Local heap initial size */
     void                *ret_value;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_stab_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(stab_src);
@@ -330,8 +332,13 @@ H5O_stab_copy_file(H5F_t *file_src, void *native_src, H5F_t *file_dst,
 	HGOTO_ERROR(H5E_SYM, H5E_CANTGETSIZE, NULL, "can't query local heap size")
 
     /* Create components of symbol table message */
-    if(H5G_stab_create_components(file_dst, stab_dst, size_hint, dxpl_id) < 0)
+    if(H5G__stab_create_components(file_dst, stab_dst, size_hint, dxpl_id) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, NULL, "can't create symbol table components")
+
+    /* Cache stab in udata */
+    udata->cache_type = H5G_CACHED_STAB;
+    udata->cache.stab.btree_addr = stab_dst->btree_addr;
+    udata->cache.stab.heap_addr = stab_dst->heap_addr;
 
     /* Set return value */
     ret_value = stab_dst;
@@ -358,15 +365,16 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_stab_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src, H5O_loc_t *dst_oloc,
-    void *mesg_dst, hid_t dxpl_id, H5O_copy_t *cpy_info)
+H5O_stab_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
+    H5O_loc_t *dst_oloc, void *mesg_dst, unsigned UNUSED *mesg_flags,
+    hid_t dxpl_id, H5O_copy_t *cpy_info)
 {
     const H5O_stab_t    *stab_src = (const H5O_stab_t *)mesg_src;
     H5O_stab_t          *stab_dst = (H5O_stab_t *)mesg_dst;
     H5G_bt_it_cpy_t     udata;      /* B-tree user data */
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_stab_post_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(stab_src);
@@ -387,7 +395,7 @@ H5O_stab_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src, H5O_loc
     udata.cpy_info = cpy_info;
 
     /* Iterate over objects in group, copying them */
-    if((H5B_iterate(src_oloc->file, dxpl_id, H5B_SNODE, stab_src->btree_addr, H5G_node_copy, &udata)) < 0)
+    if((H5B_iterate(src_oloc->file, dxpl_id, H5B_SNODE, stab_src->btree_addr, H5G__node_copy, &udata)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "iteration operator failed")
 
 done:
@@ -416,14 +424,14 @@ H5O_stab_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *_mesg, FILE * 
 {
     const H5O_stab_t       *stab = (const H5O_stab_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_stab_debug);
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
-    assert(f);
-    assert(stab);
-    assert(stream);
-    assert(indent >= 0);
-    assert(fwidth >= 0);
+    HDassert(f);
+    HDassert(stab);
+    HDassert(stream);
+    HDassert(indent >= 0);
+    HDassert(fwidth >= 0);
 
     HDfprintf(stream, "%*s%-*s %a\n", indent, "", fwidth,
 	      "B-tree address:", stab->btree_addr);
@@ -431,5 +439,6 @@ H5O_stab_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *_mesg, FILE * 
     HDfprintf(stream, "%*s%-*s %a\n", indent, "", fwidth,
 	      "Name heap address:", stab->heap_addr);
 
-    FUNC_LEAVE_NOAPI(SUCCEED);
+    FUNC_LEAVE_NOAPI(SUCCEED)
 }
+

@@ -87,7 +87,7 @@
 herr_t
 H5HF_get_cparam_test(const H5HF_t *fh, H5HF_create_t *cparam)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_cparam_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -126,7 +126,7 @@ H5HF_cmp_cparam_test(const H5HF_create_t *cparam1, const H5HF_create_t *cparam2)
 {
     int ret_value = 0;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_cmp_cparam_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(cparam1);
@@ -246,7 +246,7 @@ H5HF_get_max_root_rows(const H5HF_t *fh)
 {
     unsigned	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_max_root_rows)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -277,7 +277,7 @@ H5HF_get_dtable_width_test(const H5HF_t *fh)
 {
     unsigned	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_dtable_width_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -308,7 +308,7 @@ H5HF_get_dtable_max_drows_test(const H5HF_t *fh)
 {
     unsigned	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_dtable_max_drows_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -343,7 +343,7 @@ H5HF_get_iblock_max_drows_test(const H5HF_t *fh, unsigned pos)
 {
     unsigned	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_iblock_max_drows_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -376,7 +376,7 @@ H5HF_get_dblock_size_test(const H5HF_t *fh, unsigned row)
 {
     hsize_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_dblock_size_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -408,7 +408,7 @@ H5HF_get_dblock_free_test(const H5HF_t *fh, unsigned row)
 {
     hsize_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_dblock_free_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -439,7 +439,7 @@ H5HF_get_id_off_test(const H5HF_t *fh, const void *_id, hsize_t *obj_off)
 {
     const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_id_off_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -473,7 +473,7 @@ H5HF_get_id_type_test(const void *_id, unsigned char *obj_type)
 {
     const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_id_type_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(id);
@@ -503,7 +503,7 @@ herr_t
 H5HF_get_tiny_info_test(const H5HF_t *fh, size_t *max_len,
     hbool_t *len_extended)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_tiny_info_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -535,7 +535,7 @@ H5HF_get_tiny_info_test(const H5HF_t *fh, size_t *max_len,
 herr_t
 H5HF_get_huge_info_test(const H5HF_t *fh, hsize_t *next_id, hbool_t *ids_direct)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_get_huge_info_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);

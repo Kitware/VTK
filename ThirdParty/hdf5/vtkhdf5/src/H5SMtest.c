@@ -17,7 +17,6 @@
 /* Module Setup */
 /****************/
 
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg 	  */
 #define H5SM_PACKAGE		/*suppress error about including H5SMpkg	  */
 #define H5SM_TESTING		/*suppress warning about H5SM testing funcs*/
 
@@ -28,7 +27,8 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5ACprivate.h"	/* Metadata cache			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"		/* File access                          */
+#include "H5Fprivate.h"		/* File access                          */
+#include "H5FLprivate.h"	/* Free Lists                           */
 #include "H5SMpkg.h"            /* Shared object header messages        */
 
 
@@ -82,19 +82,23 @@ H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
     H5SM_master_table_t *table = NULL;  /* SOHM master table */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_get_mesg_count_test)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(f);
     HDassert(mesg_count);
 
     /* Check for shared messages being enabled */
-    if(H5F_addr_defined(f->shared->sohm_addr)) {
+    if(H5F_addr_defined(H5F_SOHM_ADDR(f))) {
         H5SM_index_header_t *header;        /* Index header for message type */
+        H5SM_table_cache_ud_t cache_udata;  /* User-data for callback */
         ssize_t index_num;                  /* Table index for message type */
 
+        /* Set up user data for callback */
+        cache_udata.f = f;
+
         /* Look up the master SOHM table */
-        if(NULL == (table = (H5SM_master_table_t *)H5AC_protect(f, dxpl_id, H5AC_SOHM_TABLE, f->shared->sohm_addr, f, H5AC_READ)))
+        if(NULL == (table = (H5SM_master_table_t *)H5AC_protect(f, dxpl_id, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), &cache_udata, H5AC_READ)))
             HGOTO_ERROR(H5E_SOHM, H5E_CANTPROTECT, FAIL, "unable to load SOHM master table")
 
         /* Find the correct index for this message type */
@@ -111,7 +115,7 @@ H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
 
 done:
     /* Release resources */
-    if(table && H5AC_unprotect(f, dxpl_id, H5AC_SOHM_TABLE, f->shared->sohm_addr, table, H5AC__NO_FLAGS_SET) < 0)
+    if(table && H5AC_unprotect(f, dxpl_id, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), table, H5AC__NO_FLAGS_SET) < 0)
 	HDONE_ERROR(H5E_SOHM, H5E_CANTUNPROTECT, FAIL, "unable to close SOHM master table")
 
     FUNC_LEAVE_NOAPI(ret_value)

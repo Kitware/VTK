@@ -279,7 +279,7 @@ H5S_class_t DataSpace::getSimpleExtentType () const
 ///\exception	H5::DataSpaceIException
 // Programmer	Binh-Minh Ribler - 2000
 //--------------------------------------------------------------------------
-void DataSpace::extentCopy ( DataSpace& dest_space ) const
+void DataSpace::extentCopy (const DataSpace& dest_space) const
 {
    hid_t dest_space_id = dest_space.getId();
    herr_t ret_value = H5Sextent_copy( dest_space_id, id );
@@ -287,6 +287,20 @@ void DataSpace::extentCopy ( DataSpace& dest_space ) const
    {
       throw DataSpaceIException("DataSpace::extentCopy", "H5Sextent_copy failed");
    }
+}
+
+//--------------------------------------------------------------------------
+// Function:	DataSpace::extentCopy
+///\brief	This is an overloaded member function, kept for backward
+///		compatibility.  It differs from the above function in that it
+///		misses const.  This wrapper will be removed in future release.
+///\param	dest_space  - IN: Dataspace to copy from
+///\exception	H5::DataSpaceIException
+// Programmer	Binh-Minh Ribler - 2000
+//--------------------------------------------------------------------------
+void DataSpace::extentCopy( DataSpace& dest_space ) const
+{
+    extentCopy((const DataSpace)dest_space);
 }
 
 //--------------------------------------------------------------------------
@@ -446,7 +460,7 @@ void DataSpace::getSelectBounds ( hsize_t* start, hsize_t* end ) const
 }
 
 //--------------------------------------------------------------------------
-// Function:	DataSpace::H5Sselect_elements
+// Function:	DataSpace::selectElements
 ///\brief	Selects array elements to be included in the selection for
 ///		this dataspace.
 ///\param	op  - IN: Operator specifying how the new selection is to be
@@ -556,7 +570,8 @@ void DataSpace::selectHyperslab( H5S_seloper_t op, const hsize_t *count, const h
 
 //--------------------------------------------------------------------------
 // Function:    DataSpace::getId
-// Purpose:     Get the id of this attribute
+///\brief	Get the id of this dataspace
+///\return	Dataspace identifier
 // Modification:
 //	May 2008 - BMR
 //              Class hierarchy is revised to address bugzilla 1068.  Class
@@ -570,6 +585,7 @@ hid_t DataSpace::getId() const
    return(id);
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 //--------------------------------------------------------------------------
 // Function:    DataSpace::p_setId
 ///\brief       Sets the identifier of this object to a new value.
@@ -594,6 +610,7 @@ void DataSpace::p_setId(const hid_t new_id)
    // reset object's id to the given id
    id = new_id;
 }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 //--------------------------------------------------------------------------
 // Function:	DataSpace::close
@@ -612,10 +629,8 @@ void DataSpace::close()
 	{
 	    throw DataSpaceIException("DataSpace::close", "H5Sclose failed");
 	}
-	// reset the id when the dataspace that it represents is no longer
-	// referenced
-	if (getCounter() == 0)
-	    id = 0;
+	// reset the id
+	id = 0;
     }
 }
 

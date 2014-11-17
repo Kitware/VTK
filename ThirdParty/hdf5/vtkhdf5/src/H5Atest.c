@@ -97,7 +97,7 @@ H5A_is_shared_test(hid_t attr_id)
     H5A_t	*attr;                  /* Attribute object for ID */
     htri_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_is_shared_test)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     if(NULL == (attr = (H5A_t *)H5I_object_verify(attr_id, H5I_ATTR)))
@@ -130,7 +130,7 @@ H5A_get_shared_rc_test(hid_t attr_id, hsize_t *ref_count)
     H5A_t	*attr;                  /* Attribute object for ID */
     herr_t	ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5A_get_shared_rc_test)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     if(NULL == (attr = (H5A_t *)H5I_object_verify(attr_id, H5I_ATTR)))

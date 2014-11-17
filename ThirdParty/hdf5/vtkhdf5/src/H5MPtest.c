@@ -51,7 +51,7 @@
 herr_t
 H5MP_get_pool_free_size(const H5MP_pool_t *mp, size_t *free_size)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MP_get_pool_free_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(mp);
@@ -83,7 +83,7 @@ H5MP_get_pool_free_size(const H5MP_pool_t *mp, size_t *free_size)
 herr_t
 H5MP_get_pool_first_page(const H5MP_pool_t *mp, H5MP_page_t **page)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MP_get_pool_first_page)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(mp);
@@ -122,7 +122,7 @@ H5MP_pool_is_free_size_correct(const H5MP_pool_t *mp)
     size_t pool_free;           /* Size of pages' free space */
     htri_t ret_value = TRUE;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MP_pool_is_free_size_correct)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(mp);
@@ -191,7 +191,7 @@ done:
 herr_t
 H5MP_get_page_free_size(const H5MP_page_t *page, size_t *free_size)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MP_get_page_free_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(page);
@@ -223,7 +223,7 @@ H5MP_get_page_free_size(const H5MP_page_t *page, size_t *free_size)
 herr_t
 H5MP_get_page_next_page(const H5MP_page_t *page, H5MP_page_t **next_page)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5MP_get_page_next_page)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(page);

@@ -349,13 +349,16 @@ int DSetCreatPropList::getNfilters() const
 ///\param	cd_nelmts  - IN/OUT: Number of elements in \a cd_values /Number
 ///				     of values defined by the filter
 ///\param	cd_values     - OUT: Array to hold the data; allocated by the user
-///\param	namelen       - OUT: Length of \a name
+///\param	namelen       - IN: Length of \a name
 ///\param	name          - OUT: Name of the filter
 ///\param	filter_config - OUT: Flags indicating whether filter can encode/decode
 ///\return	Filter id
 ///\exception	H5::PropListIException
 ///\par Description
 ///		Failure occurs when \a filter_number is out of range.
+//		Note: the first argument was mistakenly typed as int instead
+//		of unsigned int, but for backward compatibility, it cannot be
+//		changed. -BMR (2014/04/15)
 //--------------------------------------------------------------------------
 H5Z_filter_t DSetCreatPropList::getFilter(int filter_number,
 	unsigned int &flags, size_t &cd_nelmts, unsigned int* cd_values,
@@ -635,8 +638,8 @@ int DSetCreatPropList::getExternalCount() const
 ///\param	idx    - IN: Index of the external file, ranges [0-(N-1)] and
 ///		                returned by getExternalCount()
 ///\param	name_size - IN: Maximum length of \a name
-///\param	name   - IN: Name of the external file
-///\param	offset - IN: Location to return an offset value
+///\param	name   - OUT: Name of the external file
+///\param	offset - OUT: Location to return an offset value
 ///\param	size   - OUT: Location to return the size of the external file data
 ///\exception	H5::PropListIException
 ///\par Description

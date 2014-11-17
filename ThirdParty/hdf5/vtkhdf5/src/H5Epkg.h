@@ -68,15 +68,20 @@
 /****************************/
 
 /* Some syntactic sugar to make the compiler happy with two different kinds of callbacks */
-typedef struct {
-    unsigned vers;              /* Which version callback to use */
-    union {
 #ifndef H5_NO_DEPRECATED_SYMBOLS
-        H5E_auto1_t func1;      /* Old-style callback, NO error stack param. */
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-        H5E_auto2_t func2;      /* New-style callback, with error stack param. */
-    }u;
+typedef struct {
+    unsigned    vers;       /* Which version callback to use */
+    hbool_t     is_default; /* If the printing function is the library's own. */
+    H5E_auto1_t func1;      /* Old-style callback, NO error stack param. */
+    H5E_auto2_t func2;      /* New-style callback, with error stack param. */
+    H5E_auto1_t func1_default;      /* The saved library's default function - old style. */
+    H5E_auto2_t func2_default;      /* The saved library's default function - new style. */
 } H5E_auto_op_t;
+#else /* H5_NO_DEPRECATED_SYMBOLS */
+typedef struct {
+    H5E_auto_t  func2;      /* Only the new style callback function is available. */
+} H5E_auto_op_t;
+#endif /* H5_NO_DEPRECATED_SYMBOLS */ 
 
 /* Some syntactic sugar to make the compiler happy with two different kinds of callbacks */
 typedef struct {
@@ -127,6 +132,7 @@ H5_DLLVAR H5E_t	H5E_stack_g[1];
 /******************************/
 /* Package Private Prototypes */
 /******************************/
+H5_DLL herr_t H5E__term_deprec_interface(void);
 #ifdef H5_HAVE_THREADSAFE
 H5_DLL H5E_t *H5E_get_stack(void);
 #endif /* H5_HAVE_THREADSAFE */
@@ -141,5 +147,5 @@ H5_DLL herr_t H5E_set_auto(H5E_t *estack, const H5E_auto_op_t *op,
     void *client_data);
 H5_DLL herr_t H5E_pop(H5E_t *err_stack, size_t count);
 
-#endif /* _H5HFpkg_H */
+#endif /* _H5Epkg_H */
 

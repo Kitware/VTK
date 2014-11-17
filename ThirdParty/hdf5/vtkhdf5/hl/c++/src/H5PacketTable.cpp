@@ -190,7 +190,7 @@
         if (startIndex > endIndex)
             return -1;
 
-        return  H5PTread_packets(table_id, startIndex, endIndex-startIndex+1, data);
+        return  H5PTread_packets(table_id, startIndex, (size_t)(endIndex-startIndex+1), data);
     }
 
     /* GetNextPacket (single packet)

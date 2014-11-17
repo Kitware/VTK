@@ -77,7 +77,8 @@ const H5O_obj_class_t H5O_OBJ_DATATYPE[1] = {{
     H5O_dtype_open, 		/* open an object of this class */
     H5O_dtype_create, 		/* create an object of this class */
     H5O_dtype_get_oloc,		/* get an object header location for an object */
-    NULL 			/* get the index & heap info for an object */
+    NULL,			/* get the index & heap info for an object */
+    NULL 			/* flush an opened object of this class */
 }};
 
 
@@ -98,12 +99,12 @@ const H5O_obj_class_t H5O_OBJ_DATATYPE[1] = {{
  *
  *-------------------------------------------------------------------------
  */
-htri_t
+static htri_t
 H5O_dtype_isa(struct H5O_t *oh)
 {
     htri_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5O_dtype_isa, FAIL)
+    FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(oh);
 
@@ -134,7 +135,7 @@ H5O_dtype_open(const H5G_loc_t *obj_loc, hid_t UNUSED lapl_id, hid_t dxpl_id, hb
     H5T_t       *type = NULL;           /* Datatype opened */
     hid_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dtype_open)
+    FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(obj_loc);
 
@@ -174,7 +175,7 @@ H5O_dtype_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
     H5T_obj_create_t *crt_info = (H5T_obj_create_t *)_crt_info; /* Named datatype creation parameters */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dtype_create)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity checks */
     HDassert(f);
@@ -182,7 +183,7 @@ H5O_dtype_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
     HDassert(obj_loc);
 
     /* Commit the type to the file */
-    if(H5T_commit(f, crt_info->dt, crt_info->tcpl_id, dxpl_id) < 0)
+    if(H5T__commit(f, crt_info->dt, crt_info->tcpl_id, dxpl_id) < 0)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "unable to commit datatype")
 
     /* Set up the new named datatype's location */
@@ -218,7 +219,7 @@ H5O_dtype_get_oloc(hid_t obj_id)
     H5T_t       *type;                  /* Datatype opened */
     H5O_loc_t	*ret_value;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dtype_get_oloc)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Get the datatype */
     if(NULL == (type = (H5T_t *)H5I_object(obj_id)))

@@ -83,7 +83,7 @@ H5_buffer_dump(FILE *stream, int indent, const uint8_t *buf,
 {
     size_t	u, v;                   /* Local index variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_buffer_dump)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.

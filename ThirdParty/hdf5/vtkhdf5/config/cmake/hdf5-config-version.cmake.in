@@ -1,0 +1,27 @@
+#-----------------------------------------------------------------------------
+# HDF5 Version file for install directory
+#-----------------------------------------------------------------------------
+
+set (PACKAGE_VERSION @HDF5_VERSION_STRING@)
+
+if ("${PACKAGE_FIND_VERSION_MAJOR}" EQUAL @H5_VERS_MAJOR@)
+
+  # exact match for version @H5_VERS_MAJOR@.@H5_VERS_MINOR@
+  if ("${PACKAGE_FIND_VERSION_MINOR}" EQUAL @H5_VERS_MINOR@)
+
+    # compatible with any version @H5_VERS_MAJOR@.@H5_VERS_MINOR@.x
+    set (PACKAGE_VERSION_COMPATIBLE 1) 
+    
+    if ("${PACKAGE_FIND_VERSION_PATCH}" EQUAL @H5_VERS_RELEASE@)
+      set (PACKAGE_VERSION_EXACT 1)    
+
+      if ("${PACKAGE_FIND_VERSION_TWEAK}" EQUAL @H5_VERS_SUBRELEASE@)
+        # not using this yet
+      endif ("${PACKAGE_FIND_VERSION_TWEAK}" EQUAL @H5_VERS_SUBRELEASE@)
+      
+    endif ("${PACKAGE_FIND_VERSION_PATCH}" EQUAL @H5_VERS_RELEASE@)
+    
+  endif ("${PACKAGE_FIND_VERSION_MINOR}" EQUAL @H5_VERS_MINOR@)
+endif ("${PACKAGE_FIND_VERSION_MAJOR}" EQUAL @H5_VERS_MAJOR@)
+
+

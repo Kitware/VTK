@@ -43,7 +43,8 @@
 #define H5O_COPY_EXPAND_REFERENCE_FLAG	(0x0008u)   /* Copy objects that are pointed by references */
 #define H5O_COPY_WITHOUT_ATTR_FLAG      (0x0010u)   /* Copy object without copying attributes */
 #define H5O_COPY_PRESERVE_NULL_FLAG     (0x0020u)   /* Copy NULL messages (empty space) */
-#define H5O_COPY_ALL                    (0x003Fu)   /* All object copying flags (for internal checking) */
+#define H5O_COPY_MERGE_COMMITTED_DTYPE_FLAG (0x0040u)   /* Merge committed datatypes in dest file */
+#define H5O_COPY_ALL                    (0x007Fu)   /* All object copying flags (for internal checking) */
 
 /* Flags for shared message indexes.
  * Pass these flags in using the mesg_type_flags parameter in
@@ -131,6 +132,14 @@ typedef uint32_t H5O_msg_crt_idx_t;
 typedef herr_t (*H5O_iterate_t)(hid_t obj, const char *name, const H5O_info_t *info,
     void *op_data);
 
+typedef enum H5O_mcdt_search_ret_t {
+    H5O_MCDT_SEARCH_ERROR = -1,	/* Abort H5Ocopy */
+    H5O_MCDT_SEARCH_CONT,	/* Continue the global search of all committed datatypes in the destination file */
+    H5O_MCDT_SEARCH_STOP	/* Stop the search, but continue copying.  The committed datatype will be copied but not merged. */
+} H5O_mcdt_search_ret_t;
+
+/* Callback to invoke when completing the search for a matching committed datatype from the committed dtype list */
+typedef H5O_mcdt_search_ret_t (*H5O_mcdt_search_cb_t)(void *op_data);
 
 /********************/
 /* Public Variables */

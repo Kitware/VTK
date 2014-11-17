@@ -14,13 +14,23 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5DataType_H
-#define _H5DataType_H
+// Class DataType inherits from H5Object and has several subclasses for
+// specific HDF5 data types.
+
+#ifndef __H5DataType_H
+#define __H5DataType_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+/*! \class DataType
+    \brief Class DataType provides generic operations on HDF5 datatypes.
+
+    DataType inherits from H5Object because a named datatype is an HDF5
+    object and is a base class of ArrayType, AtomType, CompType, EnumType,
+    and VarLenType.
+*/
 class H5_DLLCPP DataType : public H5Object {
    public:
 	// Creates a datatype given its class and size
@@ -30,9 +40,8 @@ class H5_DLLCPP DataType : public H5Object {
 	DataType( const DataType& original );
 
 	// Creates a datatype by way of dereference.
-	DataType(H5Object& obj, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
-	DataType(H5File& h5file, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
-	DataType(Attribute& attr, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
+	DataType(const H5Location& loc, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
+	DataType(const Attribute& attr, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
 
 	// Closes this datatype.
 	virtual void close();
@@ -48,10 +57,12 @@ class H5_DLLCPP DataType : public H5Object {
 
 	// Commits a transient datatype to a file; this datatype becomes
 	// a named datatype which can be accessed from the location.
-	void commit( H5File& loc, const char* name);
-	void commit( H5File& loc, const H5std_string& name);
-	void commit( H5Object& loc, const char* name);
-	void commit( H5Object& loc, const H5std_string& name);
+	void commit(const H5Location& loc, const char* name);
+	void commit(const H5Location& loc, const H5std_string& name);
+	// These two overloaded functions are kept for backward compatibility
+	// only; they missed the const.
+	void commit(H5Location& loc, const char* name);
+	void commit(H5Location& loc, const H5std_string& name);
 
 	// Determines whether this datatype is a named datatype or
 	// a transient datatype.
@@ -101,15 +112,7 @@ class H5_DLLCPP DataType : public H5Object {
 	// Checks whether this datatype is a variable-length string.
 	bool isVariableStr() const;
 
-#ifndef H5_NO_DEPRECATED_SYMBOLS
-	// Retrieves the type of object that an object reference points to.
-	H5G_obj_t getObjType(void *ref, H5R_type_t ref_type = H5R_OBJECT) const;
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-
-	// Retrieves a dataspace with the region pointed to selected.
-	DataSpace getRegion(void *ref, H5R_type_t ref_type = H5R_DATASET_REGION) const;
-
-	///\brief Returns this class name
+	///\brief Returns this class name.
 	virtual H5std_string fromClass () const { return("DataType"); }
 
 	// Creates a copy of an existing DataType using its id
@@ -125,10 +128,12 @@ class H5_DLLCPP DataType : public H5Object {
 	virtual ~DataType();
 
    protected:
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 	hid_t id;	// HDF5 datatype id
 
 	// Sets the datatype id.
 	virtual void p_setId(const hid_t new_id);
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
    private:
 	void p_commit(hid_t loc_id, const char* name);
@@ -136,4 +141,4 @@ class H5_DLLCPP DataType : public H5Object {
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __H5DataType_H

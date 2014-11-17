@@ -85,7 +85,7 @@
 herr_t
 H5FS_get_cparam_test(const H5FS_t *frsp, H5FS_create_t *cparam)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5FS_get_cparam_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(frsp);
@@ -100,6 +100,7 @@ H5FS_get_cparam_test(const H5FS_t *frsp, H5FS_create_t *cparam)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5FS_get_cparam_test() */
 
+
 /*-------------------------------------------------------------------------
  * Function:    H5FS_cmp_cparam_test
  *
@@ -118,7 +119,7 @@ H5FS_cmp_cparam_test(const H5FS_create_t *cparam1, const H5FS_create_t *cparam2)
 {
     int ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5FS_cmp_cparam_test)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(cparam1);
@@ -152,3 +153,4 @@ H5FS_cmp_cparam_test(const H5FS_create_t *cparam1, const H5FS_create_t *cparam2)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5FS_cmp_cparam_test */
+

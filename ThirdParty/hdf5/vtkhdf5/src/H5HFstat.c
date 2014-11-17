@@ -86,7 +86,7 @@
 herr_t
 H5HF_stat_info(const H5HF_t *fh, H5HF_stat_t *stats)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_stat_info)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
     HDassert(fh);
@@ -131,7 +131,7 @@ H5HF_size(const H5HF_t *fh, hid_t dxpl_id, hsize_t *heap_size)
     hsize_t	meta_size = 0;		/* free space storage size */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HF_size, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
