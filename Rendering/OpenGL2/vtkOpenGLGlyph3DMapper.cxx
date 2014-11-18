@@ -676,6 +676,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
           scalez = 1.0e-10;
           }
         trans->Scale(scalex, scaley, scalez);
+        normalTrans->Scale(scalex, scaley, scalez);
         }
 
       vtkMatrix4x4::DeepCopy(arrayVals, trans->GetMatrix());
