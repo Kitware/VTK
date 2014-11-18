@@ -359,11 +359,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     }
   else
     {
-    FSSource = replace(FSSource,
-      "//VTK::Normal::Dec",
+    FSSource = replace(FSSource,"//VTK::System::Dec",
       "#ifdef GL_ES\n"
       "#extension GL_OES_standard_derivatives : enable\n"
-      "#endif\n");
+      "#endif\n"
+      "//VTK::System::Dec\n",
+      false);
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       // generate a normal for lines, it will be perpendicular to the line
@@ -444,9 +445,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     // technically with OpenGL 2.1 you need an extension to make use of gl_PrimitiveId
     // so we request the shader4 extension.  This is particularly useful for apple
     // systems that do not provide gl_PrimitiveId otherwise.
+    // we put this before the System Declarations
+    FSSource = replace(FSSource,"//VTK::System::Dec",
+      "#extension GL_EXT_gpu_shader4 : enable\n"
+      "//VTK::System::Dec\n",
+      false);
     FSSource = vtkgl::replace(FSSource,
       "//VTK::Picking::Dec",
-      "#extension GL_EXT_gpu_shader4 : enable\n"
       "uniform vec3 mapperIndex;\n"
       "uniform int pickingAttributeIDOffset;");
     FSSource = vtkgl::replace(FSSource,
