@@ -492,6 +492,9 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   this->TranslucentRGBATexture->Deactivate();
   this->OpaqueRGBATexture->Deactivate();
 
+  // restore blending
+  glEnable(GL_BLEND);
+
   this->NumberOfRenderedProps = this->TranslucentPass->GetNumberOfRenderedProps();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
