@@ -17,6 +17,7 @@
 #include "vtkWrapPythonConstant.h"
 #include "vtkWrapPythonEnum.h"
 #include "vtkWrapPythonMethodDef.h"
+#include "vtkWrapPythonNamespace.h"
 
 #include "vtkWrap.h"
 #include "vtkParseMain.h"
@@ -372,6 +373,12 @@ int main(int argc, char *argv[])
     vtkWrapPython_GenerateEnumType(fp, NULL, contents->Enums[i]);
     }
 
+  /* Wrap any namespaces */
+  for (i = 0; i < contents->NumberOfNamespaces; i++)
+    {
+    vtkWrapPython_WrapNamespace(fp, contents->Namespaces[i]);
+    }
+
   /* Check for all special classes before any classes are wrapped */
   for (i = 0; i < contents->NumberOfClasses; i++)
     {
@@ -423,7 +430,9 @@ int main(int argc, char *argv[])
     }
 
   /* The function for adding everything to the module dict */
-  wrapped_anything = (numberOfWrappedClasses || contents->NumberOfConstants);
+  wrapped_anything = (numberOfWrappedClasses ||
+                      contents->NumberOfConstants ||
+                      contents->NumberOfNamespaces);
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
           "  PyObject *%s, const char *%s)\n"
@@ -433,6 +442,20 @@ int main(int argc, char *argv[])
           (wrapped_anything ? "dict" : ""),
           (numberOfWrappedClasses ? "modulename" : ""),
           (wrapped_anything ? "  PyObject *o;\n" : ""));
+
+  /* Add all of the namespaces */
+  for (j = 0; j < contents->NumberOfNamespaces; j++)
+    {
+    fprintf(fp,
+            "  o = PyVTKNamespace_%s();\n"
+            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+            "    {\n"
+            "    Py_DECREF(o);\n"
+            "    }\n"
+            "\n",
+            contents->Namespaces[j]->Name,
+            contents->Namespaces[j]->Name);
+    }
 
   /* Add all of the classes that have been wrapped */
   for (i = 0; i < numberOfWrappedClasses; i++)
