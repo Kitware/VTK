@@ -853,6 +853,10 @@ H5free_memory(void *mem)
  *
  *-------------------------------------------------------------------------
  */
+/* Visual Studio 2003 7.1 does not define _In_ */
+#if (_MSC_VER <= 1310)
+#define _In_
+#endif
 BOOL WINAPI
 DllMain(_In_ HINSTANCE hinstDLL, _In_ DWORD fdwReason, _In_ LPVOID lpvReserved)
 {
