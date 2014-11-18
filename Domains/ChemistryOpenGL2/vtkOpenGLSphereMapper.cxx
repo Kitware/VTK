@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPolydata.h"
+#include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
