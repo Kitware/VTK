@@ -119,6 +119,10 @@ protected:
   bool GetShaderInitialized(vtkShaderProgram *);
   void SetShaderInitialized(vtkShaderProgram *, bool);
 
+  // copy values to the helpers
+  void CopyMapperValuesToHelper(vtkCompositeMapperHelper *helper);
+
+
   class RenderBlockState
     {
   public:

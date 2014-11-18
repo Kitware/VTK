@@ -75,12 +75,20 @@ protected:
   // orchistrates the process, much of the work is done in other methods
   virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
+  // override to use the block opacity
+  virtual vtkUnsignedCharArray *MapScalars(double alpha);
+
 private:
   vtkCompositeMapperHelper(const vtkCompositeMapperHelper&); // Not implemented.
   void operator=(const vtkCompositeMapperHelper&); // Not implemented.
 };
 
 vtkStandardNewMacro(vtkCompositeMapperHelper);
+
+vtkUnsignedCharArray *vtkCompositeMapperHelper::MapScalars(double alpha)
+{
+  return this->Superclass::MapScalars(this->Parent->BlockState.Opacity.top());
+}
 
 void vtkCompositeMapperHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                        vtkRenderer *ren, vtkActor *actor)
@@ -545,8 +553,9 @@ void vtkCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
         {
         helper = vtkCompositeMapperHelper::New();
         helper->Parent = this;
-        helper->SetStatic(1);
+        this->CopyMapperValuesToHelper(helper);
         this->Helpers.insert(std::make_pair(ds, helper));
+        helper->SetInputData(ds);
         }
       else
         {
@@ -587,6 +596,12 @@ void vtkCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
 }
 
 
+void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHelper *helper)
+{
+  helper->vtkMapper::ShallowCopy(this);
+  helper->SetStatic(1);
+}
+
 // ---------------------------------------------------------------------------
 // Description:
 // Method initiates the mapping process. Generally sent by the actor
@@ -617,6 +632,15 @@ void vtkCompositePolyDataMapper2::Render(vtkRenderer *ren, vtkActor *actor)
     }
   else // otherwise just reinitialize the shaders
     {
+    // if we have changed recopy our mapper settings to the helpers
+    if (this->GetMTime() > this->HelperMTime)
+      {
+      std::map<const vtkDataSet*, vtkCompositeMapperHelper *>::iterator miter = this->Helpers.begin();
+      for (;miter != this->Helpers.end(); miter++)
+        {
+        this->CopyMapperValuesToHelper(miter->second);
+        }
+      }
     // reset initialized flag on the shaders we use
     std::map<const vtkShaderProgram *, bool>::iterator miter = this->ShadersInitialized.begin();
     for (;miter != this->ShadersInitialized.end(); miter++)
