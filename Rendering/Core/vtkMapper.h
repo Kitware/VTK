@@ -346,7 +346,7 @@ public:
   // typically done as part of the rendering process. The alpha parameter
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
-  vtkUnsignedCharArray *MapScalars(double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(double alpha);
 
   // Description:
   // Set/Get the light-model color mode.
