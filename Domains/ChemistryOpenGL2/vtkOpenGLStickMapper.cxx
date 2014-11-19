@@ -173,6 +173,19 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
       );
     }
 
+  if (ren->GetLastRenderingUsedDepthPeeling())
+    {
+    FSSource = vtkgl::replace(FSSource,
+      "//VTK::DepthPeeling::Impl",
+      "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
+      "  if (gl_FragDepth >= odepth) { discard; }\n"
+      "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
+      "  if (gl_FragDepth <= tdepth) { discard; }\n"
+      );
+    }
+
+
+
   this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
 }
 
