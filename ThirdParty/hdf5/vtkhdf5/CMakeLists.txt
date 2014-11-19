@@ -3,6 +3,7 @@ if(POLICY CMP0025)
 endif()
 if(POLICY CMP0053)
   cmake_policy(SET CMP0053 NEW) # CMake 3.1
+  cmake_policy(SET CMP0054 NEW) # CMake 3.1
 endif()
 
 PROJECT (HDF5 C CXX)
@@ -404,7 +405,12 @@ endif (CMAKE_BUILD_TYPE MATCHES Debug)
 #-----------------------------------------------------------------------------
 if (CMAKE_COMPILER_IS_GNUCC)
   if (CMAKE_BUILD_TYPE MATCHES Debug)
-    set (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} -std=c99 -finline-functions -fno-common")
+    if (WIN32)
+      # timezone is not included in time.h on mingw if -std=c99
+      set (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} -finline-functions -fno-common")
+    else ()
+      set (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} -std=c99 -finline-functions -fno-common")
+    endif()
   else (CMAKE_BUILD_TYPE MATCHES Debug)
     set (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} -std=c99 -fomit-frame-pointer -finline-functions -fno-common")
   endif (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -865,6 +871,15 @@ if (EXISTS "${HDF5_SOURCE_DIR}/hl" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/hl")
     add_subdirectory (${HDF5_SOURCE_DIR}/hl ${PROJECT_BINARY_DIR}/hl)
   endif (HDF5_BUILD_HL_LIB)
 endif (EXISTS "${HDF5_SOURCE_DIR}/hl" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/hl")
+
+
+IF (CMAKE_SYSTEM_NAME MATCHES Linux AND BUILD_STATIC_EXECS)
+  # fix a link error caused by
+  # warning: Using 'getpwuid' in statically linked applications
+  # requires at runtime the shared libraries from the glibc version
+  # used for linking
+  SET (H5_HAVE_GETPWUID "OFF")
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Generate the H5pubconf.h file containing user settings needed by compilation

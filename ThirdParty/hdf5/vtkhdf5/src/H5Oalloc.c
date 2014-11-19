@@ -515,7 +515,7 @@ H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno,
     uint8_t     *old_image;     /* Old address of chunk's image in memory */
     size_t      old_size;       /* Old size of chunk */
     htri_t      extended;       /* If chunk can be extended */
-    size_t      extend_msg;     /* Index of null message to extend */
+    size_t      extend_msg = 0;     /* Index of null message to extend */
     hbool_t     extended_msg = FALSE;   /* Whether an existing message was extended */
     uint8_t     new_size_flags = 0;     /* New chunk #0 size flags */
     hbool_t     adjust_size_flags = FALSE;      /* Whether to adjust the chunk #0 size flags */

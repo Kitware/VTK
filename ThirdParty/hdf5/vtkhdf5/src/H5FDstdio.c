@@ -128,10 +128,15 @@ typedef struct H5FD_stdio_t {
 /* Use similar structure as in H5private.h by defining Windows stuff first. */
 #ifdef H5_HAVE_WIN32_API
 #ifndef H5_HAVE_MINGW
-    #define file_fseek      _fseeki64
     #define file_offset_t   __int64
     #define file_ftruncate  _chsize_s   /* Supported in VS 2005 or newer */
+#if (_MSC_VER > 1310)
+    #define file_fseek      _fseeki64
     #define file_ftell      _ftelli64
+#else
+    #define file_fseek      fseek
+    #define file_ftell      ftell
+#endif
 #endif /* H5_HAVE_MINGW */
 #endif /* H5_HAVE_WIN32_API */
 
