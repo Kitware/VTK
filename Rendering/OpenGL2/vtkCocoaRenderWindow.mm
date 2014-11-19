@@ -177,16 +177,18 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
     return;
     }
 
-  // Get the frame size, send ConfigureEvent from the Interactor.
+  // Get the new frame size.
   NSRect frameRect = [view frame];
   int width = (int)round(NSWidth(frameRect));
   int height = (int)round(NSHeight(frameRect));
 
+  // Get the interactor's current cache of the size.
   int size[2];
   interactor->GetSize(size);
 
   if (width != size[0] || height != size[1])
     {
+    // Send ConfigureEvent from the Interactor.
     interactor->UpdateSize(width, height);
     interactor->InvokeEvent(vtkCommand::ConfigureEvent, NULL);
     }
@@ -770,12 +772,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
     this->SetRootWindow(theWindow);
     this->WindowCreated = 1;
 
-    // Start a vtkCocoaServer.
-    vtkCocoaServer *server = [[vtkCocoaServer alloc] initWithRenderWindow:this];
-    this->SetCocoaServer(reinterpret_cast<void *>(server));
-    [server start];
-    [server release];
-
     // makeKeyAndOrderFront: will show the window
     // we don't want this if offscreen was requested
     if(!this->OffScreenRendering)
@@ -863,6 +859,12 @@ void vtkCocoaRenderWindow::CreateAWindow()
     }
   this->OpenGLInit();
   this->Mapped = 1;
+
+  // Now that the NSView and NSWindow exist, start a vtkCocoaServer.
+  vtkCocoaServer *server = [[vtkCocoaServer alloc] initWithRenderWindow:this];
+  this->SetCocoaServer(reinterpret_cast<void *>(server));
+  [server start];
+  [server release];
 }
 
 //----------------------------------------------------------------------------
