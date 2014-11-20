@@ -145,6 +145,7 @@ public:
   double* GetTuple2(vtkIdType i);
   double* GetTuple3(vtkIdType i);
   double* GetTuple4(vtkIdType i);
+  double* GetTuple6(vtkIdType i);
   double* GetTuple9(vtkIdType i);
 
   // Description:
@@ -163,6 +164,8 @@ public:
   void SetTuple3(vtkIdType i, double val0, double val1, double val2);
   void SetTuple4(vtkIdType i, double val0, double val1, double val2,
                  double val3);
+  void SetTuple6(vtkIdType i, double val0, double val1, double val2,
+                 double val3, double val4, double val5);
   void SetTuple9(vtkIdType i, double val0, double val1, double val2,
                  double val3, double val4, double val5, double val6,
                  double val7, double val8);

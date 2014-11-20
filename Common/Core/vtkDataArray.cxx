@@ -596,6 +596,11 @@ double* vtkDataArray::GetTuple4(vtkIdType i)
   return this->GetTupleN(i, 4);
 }
 //----------------------------------------------------------------------------
+double* vtkDataArray::GetTuple6(vtkIdType i)
+{
+  return this->GetTupleN(i, 6);
+}
+//----------------------------------------------------------------------------
 double* vtkDataArray::GetTuple9(vtkIdType i)
 {
   return this->GetTupleN(i, 9);
@@ -657,6 +662,26 @@ void vtkDataArray::SetTuple4(vtkIdType i, double val0, double val1,
   tuple[1] = val1;
   tuple[2] = val2;
   tuple[3] = val3;
+  this->SetTuple(i, tuple);
+}
+//----------------------------------------------------------------------------
+void vtkDataArray::SetTuple6(vtkIdType i, double val0, double val1,
+                             double val2, double val3,
+                             double val4, double val5)
+{
+  double tuple[6];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 6)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+                  << numComp << " != 6");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  tuple[4] = val4;
+  tuple[5] = val5;
   this->SetTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
