@@ -36,12 +36,14 @@ void vtkWrapPython_PythonicName(const char *name, char *pname)
 {
   size_t j = 0;
   size_t i;
+  size_t l;
   char *cp;
+  int scoped = 0;
 
   /* look for first char that is not alphanumeric or underscore */
-  i = vtkParse_IdentifierLength(name);
+  l = vtkParse_IdentifierLength(name);
 
-  if (name[i] != '\0')
+  if (name[l] != '\0')
     {
     /* get the mangled name */
     vtkParse_MangledTypeName(name, pname);
@@ -51,6 +53,7 @@ void vtkWrapPython_PythonicName(const char *name, char *pname)
     cp = pname;
     while (*cp == 'N')
       {
+      scoped++;
       cp++;
       while (*cp >= '0' && *cp <= '9')
         {
@@ -85,6 +88,16 @@ void vtkWrapPython_PythonicName(const char *name, char *pname)
   else
     {
     strcpy(pname, name);
+    }
+
+  /* remove the "_E" that is added to mangled scoped names */
+  if (scoped)
+    {
+    j = strlen(pname);
+    if (j > 2 && pname[j-2] == '_' && pname[j-1] == 'E')
+      {
+      pname[j-2] = '\0';
+      }
     }
 }
 

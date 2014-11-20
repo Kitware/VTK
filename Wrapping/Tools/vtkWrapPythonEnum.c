@@ -20,6 +20,28 @@
 #include <string.h>
 #include <ctype.h>
 
+/* -------------------------------------------------------------------- */
+/* check whether an enum type will be wrapped */
+int vtkWrapPython_IsEnumWrapped(
+  HierarchyInfo *hinfo, const char *enumname)
+{
+  int rval = 0;
+  HierarchyEntry *entry;
+
+  if (hinfo && enumname)
+    {
+    entry = vtkParseHierarchy_FindEntry(hinfo, enumname);
+    if (entry && entry->IsEnum)
+      {
+      rval = 1;
+      }
+    }
+
+  return rval;
+}
+
+/* -------------------------------------------------------------------- */
+/* generate a wrapped enum type */
 void vtkWrapPython_AddEnumType(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   const char *scope, EnumInfo *cls)

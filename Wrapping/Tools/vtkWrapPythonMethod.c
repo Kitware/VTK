@@ -231,8 +231,10 @@ void vtkWrapPython_GetSingleArgument(
   FILE *fp, ClassInfo *data, int i, ValueInfo *arg, int static_call)
 {
   const char *prefix = "ap.";
+  const char *cp;
   char argname[32];
   char pythonname[1024];
+  size_t l;
   argname[0] = '\0';
 
   if (static_call)
@@ -245,6 +247,24 @@ void vtkWrapPython_GetSingleArgument(
     {
     fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%s_%s_Type)",
             prefix, argname, i, data->Name, arg->Class);
+    }
+  else if (arg->IsEnum)
+    {
+    cp = arg->Class;
+    for (l = 0; cp[l] != '\0'; l++)
+      {
+      if (cp[l] == ':') { break; }
+      }
+    if (cp[l] == ':' && cp[l+1] == ':')
+      {
+      fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%*.*s_%s_Type)",
+              prefix, argname, i, (int)l, (int)l, cp, &cp[l+2]);
+      }
+    else
+      {
+      fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%s_Type)",
+              prefix, argname, i, cp);
+      }
     }
   else if (vtkWrap_IsPythonObject(arg))
     {

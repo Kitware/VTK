@@ -20,6 +20,10 @@
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
 
+/* check whether an enum type will be wrapped */
+int vtkWrapPython_IsEnumWrapped(
+  HierarchyInfo *hinfo, const char *enumname);
+
 /* write out an enum type wrapped in python */
 void vtkWrapPython_GenerateEnumType(
   FILE *fp, const char *classname, EnumInfo *data);

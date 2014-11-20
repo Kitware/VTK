@@ -505,6 +505,7 @@ static int vtkWrapPython_IsValueWrappable(
   if (vtkWrap_IsScalar(val))
     {
     if (vtkWrap_IsNumeric(val) ||
+        val->IsEnum || /* marked as enum in ImportExportEnumTypes */
         vtkWrap_IsEnumMember(data, val) ||
         vtkWrap_IsString(val))
       {
