@@ -823,6 +823,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
   vtkCollectionSimpleIterator sit;
   float lightColor[6][3];
   float lightDirection[6][3];
+  float lightHalfAngle[6][3];
   for(lc->InitTraversal(sit);
       (light = lc->GetNextLight(sit)); )
     {
@@ -844,12 +845,20 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
       lightDirection[numberOfLights][0] = tDir[0];
       lightDirection[numberOfLights][1] = tDir[1];
       lightDirection[numberOfLights][2] = tDir[2];
+      lightDir[0] = -tDir[0];
+      lightDir[1] = -tDir[1];
+      lightDir[2] = -tDir[2]+1.0;
+      vtkMath::Normalize(lightDir);
+      lightHalfAngle[numberOfLights][0] = lightDir[0];
+      lightHalfAngle[numberOfLights][1] = lightDir[1];
+      lightHalfAngle[numberOfLights][2] = lightDir[2];
       numberOfLights++;
       }
     }
 
   program->SetUniform3fv("lightColor", numberOfLights, lightColor);
   program->SetUniform3fv("lightDirectionVC", numberOfLights, lightDirection);
+  program->SetUniform3fv("lightHalfAngleVC", numberOfLights, lightHalfAngle);
   program->SetUniformi("numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights

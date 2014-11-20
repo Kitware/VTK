@@ -85,7 +85,7 @@ private:
 
 vtkStandardNewMacro(vtkCompositeMapperHelper);
 
-vtkUnsignedCharArray *vtkCompositeMapperHelper::MapScalars(double alpha)
+vtkUnsignedCharArray *vtkCompositeMapperHelper::MapScalars(double vtkNotUsed(alpha))
 {
   return this->Superclass::MapScalars(this->Parent->BlockState.Opacity.top());
 }

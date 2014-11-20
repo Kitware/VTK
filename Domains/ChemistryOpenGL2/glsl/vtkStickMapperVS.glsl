@@ -57,7 +57,6 @@ varying vec3 centerVC;
 varying vec3 orientVC;
 
 uniform int cameraParallel;
-uniform float cameraDistance;
 
 void main()
 {
@@ -89,7 +88,7 @@ void main()
   vec3 dir = vec3(0.0,0.0,1.0);
   if (cameraParallel == 0)
     {
-    dir = normalize(vec3(0.0,0.0,cameraDistance) - vertexVCClose.xyz);
+    dir = normalize(-vertexVCClose.xyz);
     }
   if (abs(dot(dir,orientVC)) == 1.0)
     {

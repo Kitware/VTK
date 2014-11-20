@@ -52,7 +52,6 @@ varying float radiusVC;
 varying vec3 centerVC;
 
 uniform int cameraParallel;
-uniform float cameraDistance;
 
 void main()
 {
@@ -72,7 +71,7 @@ void main()
   // make the triangle face the camera
   if (cameraParallel == 0)
     {
-    vec3 dir = normalize(vec3(0.0,0.0,cameraDistance) - vertexVCClose.xyz);
+    vec3 dir = normalize(-vertexVCClose.xyz);
     vec3 base2 = normalize(cross(dir,vec3(1.0,0.0,0.0)));
     vec3 base1 = cross(base2,dir);
     vertexVCClose.xyz = vertexVCClose.xyz + offsetMC.x*base1 + offsetMC.y*base2;
