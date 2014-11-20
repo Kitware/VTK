@@ -29,6 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
+#include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangleFilter.h"
 #include "vtkWebGLDataSet.h"
@@ -701,7 +702,10 @@ void vtkWebGLPolyData::GetColorsFromPointData(unsigned char* color, vtkPointData
     array = vtkAbstractMapper::GetScalars(polydata, actor->GetMapper()->GetScalarMode(),
                                           actor->GetMapper()->GetArrayAccessMode(), actor->GetMapper()->GetArrayId(),
                                           actor->GetMapper()->GetArrayName(), celldata);
-    if (actor->GetMapper()->GetScalarVisibility() && actor->GetMapper()->GetColorMode() == VTK_COLOR_MODE_DEFAULT && array)
+    if (actor->GetMapper()->GetScalarVisibility() &&
+        (actor->GetMapper()->GetColorMode() == VTK_COLOR_MODE_DEFAULT ||
+         actor->GetMapper()->GetColorMode() == VTK_COLOR_MODE_DIRECT_SCALARS) &&
+        array)
       {
       vtkScalarsToColors* table = actor->GetMapper()->GetLookupTable();
       vtkUnsignedCharArray* cor = table->MapScalars(array, table->GetVectorMode(), table->GetVectorComponent());

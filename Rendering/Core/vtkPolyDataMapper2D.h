@@ -69,8 +69,12 @@ public:
 
   // Description:
   // Control how the scalar data is mapped to colors.  By default
-  // (ColorModeToDefault), unsigned char scalars are treated as colors, and
-  // NOT mapped through the lookup table, while everything else is. Setting
+  // (ColorModeToDefault), unsigned char scalars are treated as
+  // colors, and NOT mapped through the lookup table, while everything
+  // else is. ColorModeToDirectScalar extends ColorModeToDefault such
+  // that all integer types are treated as colors with values in the
+  // range 0-255 and floating types are treated as colors with values
+  // in the range 0.0-1.0. Setting
   // ColorModeToMapScalars means that all scalar data will be mapped through
   // the lookup table.  (Note that for multi-component scalars, the
   // particular component to use for mapping can be specified using the
@@ -79,6 +83,7 @@ public:
   vtkGetMacro(ColorMode, int);
   void SetColorModeToDefault();
   void SetColorModeToMapScalars();
+  void SetColorModeToDirectScalars();
 
   // Description:
   // Return the method of coloring scalar data.

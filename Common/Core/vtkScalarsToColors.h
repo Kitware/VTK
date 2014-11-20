@@ -120,7 +120,10 @@ public:
   // unsigned char RGBA array. The color mode determines the behavior
   // of mapping. If VTK_COLOR_MODE_DEFAULT is set, then unsigned char
   // data arrays are treated as colors (and converted to RGBA if
-  // necessary); otherwise, the data is mapped through this instance
+  // necessary); If VTK_COLOR_MODE_DIRECT_SCALARS is set, then all arrays
+  // are treated as colors (integer types are clamped in the range 0-255,
+  // floating point arrays are clamped in the range 0.0-1.0);
+  // otherwise, the data is mapped through this instance
   // of ScalarsToColors. The component argument is used for data
   // arrays with more than one component; it indicates which component
   // to use to do the blending.  When the component argument is -1,
@@ -207,13 +210,6 @@ public:
                                        int inputDataType, int numberOfValues,
                                        int inputIncrement,
                                        int outputFormat);
-
-  // Description:
-  // An internal method used to convert a color array to RGBA. The
-  // method instantiates a vtkUnsignedCharArray and returns it. The user is
-  // responsible for managing the memory.
-  virtual vtkUnsignedCharArray *ConvertUnsignedCharToRGBA(
-    vtkUnsignedCharArray *colors, int numComp, int numTuples);
 
   // Description:
   // Copy the contents from another object.
@@ -316,6 +312,24 @@ public:
   vtkGetMacro(IndexedLookup,int);
   vtkBooleanMacro(IndexedLookup,int);
 
+
+  // Description:
+  // Converts a color from numeric type T to uchar. We assume the integral type
+  // is already in the range 0-255. If it is not, it is going to be truncated.
+  // Floating point types are assumed to be in interval 0.0-1.0
+  template<typename T> static
+    unsigned char ColorToUChar(T t)
+  {
+    return t;
+  }
+  template<typename T> static
+    void ColorToUChar(T t, unsigned char* dest)
+  {
+    *dest = ColorToUChar(t);
+  }
+
+
+
 protected:
   vtkScalarsToColors();
   ~vtkScalarsToColors();
@@ -334,6 +348,14 @@ protected:
                          int inputDataType, int numberOfValues,
                          int numberOfComponents, int vectorSize,
                          int outputFormat);
+
+  // Description:
+  // An internal method used to convert a color array to RGBA. The
+  // method instantiates a vtkUnsignedCharArray and returns it. The user is
+  // responsible for managing the memory.
+  vtkUnsignedCharArray *ConvertToRGBA(
+    vtkDataArray *colors, int numComp, int numTuples);
+
 
   // Description:
   // An internal method for converting vectors to magnitudes, used as
@@ -380,5 +402,21 @@ private:
   vtkScalarsToColors(const vtkScalarsToColors&);  // Not implemented.
   void operator=(const vtkScalarsToColors&);  // Not implemented.
 };
+
+// Description:
+// Specializations of vtkScalarsToColors::ColorToUChar
+// Converts from a color in a floating point type in range 0.0-1.0 to a uchar
+// in range 0-255.
+template<> inline
+unsigned char vtkScalarsToColors::ColorToUChar(double t)
+{
+  return static_cast<unsigned char>(t*255 + 0.5);
+}
+template<> inline
+unsigned char vtkScalarsToColors::ColorToUChar(float t)
+{
+  return static_cast<unsigned char>(t*255 + 0.5);
+}
+
 
 #endif
