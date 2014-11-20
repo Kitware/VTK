@@ -25,8 +25,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 /// 3D texture coordinates form vertex shader
-varying vec3 m_texture_coords;
-varying vec3 m_vertex_pos;
+varying vec3 ip_textureCoords;
+varying vec3 ip_vertexPos;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -34,15 +34,17 @@ varying vec3 m_vertex_pos;
 ///
 //////////////////////////////////////////////////////////////////////////////
 
-vec4 g_frag_color;
+vec4 g_fragColor;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
 /// Uniforms, attributes, and globals
 ///
 //////////////////////////////////////////////////////////////////////////////
-vec3 g_data_pos;
-vec3 g_dir_step;
+vec3 g_dataPos;
+vec3 g_dirStep;
+vec4 g_srcColor;
+vec4 g_eyePosObj;
 
 //VTK::Base::Dec
 //VTK::Termination::Dec
@@ -61,7 +63,7 @@ vec3 g_dir_step;
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
 /// planes (origin, normal)
-uniform float m_clipping_planes[49];
+uniform float in_clippingPlanes[49];
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -69,10 +71,10 @@ uniform float m_clipping_planes[49];
 ///
 //////////////////////////////////////////////////////////////////////////////
 void main()
-{
-  /// Initialize g_frag_color (output) to 0
-  g_frag_color = vec4(0.0);
-  g_dir_step = vec3(0.0);
+  {
+  /// Initialize g_fragColor (output) to 0
+  g_fragColor = vec4(0.0);
+  g_dirStep = vec3(0.0);
 
   //VTK::Base::Init
   //VTK::Terminate::Init
@@ -91,8 +93,8 @@ void main()
     //VTK::CompositeMask::Impl
     //VTK::Shading::Impl
 
-    /// Advance ray by m_dir_step
-    g_data_pos += g_dir_step;
+    /// Advance ray
+    g_dataPos += g_dirStep;
     }
 
   //VTK::Base::Exit
@@ -101,5 +103,5 @@ void main()
   //VTK::Clipping::Exit
   //VTK::Shading::Exit
 
-  gl_FragColor = g_frag_color;
-}
+  gl_FragColor = g_fragColor;
+  }
