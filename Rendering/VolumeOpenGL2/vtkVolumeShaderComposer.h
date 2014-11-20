@@ -69,7 +69,7 @@ namespace vtkvolume
     {
     return std::string(
       "\n  // Assuming point data only. Also, we offset the texture coordinate\
-       \n  // to account for OpenGL treating voxel at the center of the cell. \n\
+       \n  // to account for OpenGL treating voxel at the center of the cell.\
        \n  vec3 uvx = (in_vertexPos - in_volumeExtentsMin) /\
        \n             (in_volumeExtentsMax - in_volumeExtentsMin);\
        \n  vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
@@ -238,7 +238,7 @@ namespace vtkvolume
                        vtkVolumeMapper* vtkNotUsed(mapper),
                        vtkVolume* vtkNotUsed(vol))
     {
-    return std::string("");
+    return std::string();
     }
 
   //--------------------------------------------------------------------------
@@ -277,10 +277,10 @@ namespace vtkvolume
       {
       return std::string("\
         \nuniform sampler1D in_gradientTransferFunc;\
-        \nfloat computeGradientOpacity(vec4 grad) \n\
-        \n  { \n\
+        \nfloat computeGradientOpacity(vec4 grad)\
+        \n  {\
         \n  return texture1D(in_gradientTransferFunc, grad.w).w;\
-        \n  }\n\
+        \n  }\
         \nvec4 computeGradient()\
         \n  {\
         \n  vec3 g1;\
@@ -388,7 +388,7 @@ namespace vtkvolume
           \n  vec4 grad = computeGradient();\
           \n  vec3 g2 = grad.xyz;\
           \n  g2 = (1.0/in_cellSpacing) * g2;\
-          \n  float normalLength = length(g2);\n\
+          \n  float normalLength = length(g2);\
           \n  if (normalLength > 0.0)\
           \n    {\
           \n    g2 = normalize(g2);\
@@ -655,7 +655,7 @@ namespace vtkvolume
                                  vtkVolumeMapper* vtkNotUsed(mapper),
                                  vtkVolume* vtkNotUsed(vol))
     {
-    return std::string("");
+    return std::string();
     }
 
   //--------------------------------------------------------------------------
@@ -663,7 +663,7 @@ namespace vtkvolume
                                  vtkVolumeMapper* vtkNotUsed(mapper),
                                  vtkVolume* vtkNotUsed(vol))
     {
-    return std::string("");
+    return std::string();
     }
 
   //--------------------------------------------------------------------------
@@ -694,7 +694,7 @@ namespace vtkvolume
       }
     else
       {
-      return std::string("");
+      return std::string();
       }
     }
 
@@ -766,7 +766,7 @@ namespace vtkvolume
       }
      else
         {
-        shaderStr += std::string("");
+        shaderStr += std::string();
         }
 
       shaderStr += std::string("\
@@ -807,7 +807,7 @@ namespace vtkvolume
       }
     else
       {
-      return std::string("");
+      return std::string();
       }
   }
 
@@ -816,7 +816,7 @@ namespace vtkvolume
                                      vtkVolumeMapper* vtkNotUsed(mapper),
                                      vtkVolume* vtkNotUsed(vol))
     {
-    return std::string("");
+    return std::string();
     }
 
   //--------------------------------------------------------------------------
@@ -824,7 +824,7 @@ namespace vtkvolume
                                      vtkVolumeMapper* vtkNotUsed(mapper),
                                      vtkVolume* vtkNotUsed(vol))
     {
-    return std::string("");
+    return std::string();
     }
 
   //--------------------------------------------------------------------------
@@ -938,7 +938,7 @@ namespace vtkvolume
                               vtkVolumeMapper* vtkNotUsed(mapper),
                               vtkVolume* vtkNotUsed(vol))
    {
-    return std::string("");
+    return std::string();
    }
 
   //--------------------------------------------------------------------------
@@ -946,7 +946,7 @@ namespace vtkvolume
                                   vtkVolumeMapper* vtkNotUsed(mapper),
                                   vtkVolume* vtkNotUsed(vol))
   {
-    return std::string("");
+    return std::string();
   }
 
   //--------------------------------------------------------------------------
@@ -955,7 +955,7 @@ namespace vtkvolume
                                   vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetCropping()) {
-      return std::string("");
+      return std::string();
     }
 
     return std::string("\
@@ -999,7 +999,7 @@ namespace vtkvolume
                            vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetCropping()) {
-      return std::string("");
+      return std::string();
     }
 
     return std::string("\
@@ -1041,7 +1041,7 @@ namespace vtkvolume
                                 vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetCropping()) {
-      return std::string("");
+      return std::string();
     }
 
     return std::string("\
@@ -1063,7 +1063,7 @@ namespace vtkvolume
                            vtkVolumeMapper* vtkNotUsed(mapper),
                            vtkVolume* vtkNotUsed(vol))
   {
-    return std::string("");
+    return std::string();
   }
 
   //--------------------------------------------------------------------------
@@ -1071,7 +1071,7 @@ namespace vtkvolume
                                   vtkVolumeMapper* vtkNotUsed(mapper),
                                   vtkVolume* vtkNotUsed(vol))
   {
-    return std::string("");
+    return std::string();
   }
 
   //--------------------------------------------------------------------------
@@ -1079,7 +1079,7 @@ namespace vtkvolume
                                   vtkVolumeMapper* vtkNotUsed(mapper),
                                   vtkVolume* vtkNotUsed(vol))
   {
-    return std::string("");
+    return std::string();
   }
 
   //--------------------------------------------------------------------------
@@ -1089,7 +1089,7 @@ namespace vtkvolume
   {
     if (!mapper->GetClippingPlanes())
       {
-      return std::string("");
+      return std::string();
       }
    else
       {
@@ -1098,7 +1098,7 @@ namespace vtkvolume
         \nint clippingPlanesSize = int(in_clippingPlanes[0]);\
         \n\
         \nmat4 world_to_texture_mat = in_inverseTextureDatasetMatrix *\
-        \n\                            in_inverseVolumeMatrix;\
+        \n                            in_inverseVolumeMatrix;\
         \nfor (int i = 0; i < clippingPlanesSize; i = i + 6)\
         \n  {\
         \n  vec4 origin = vec4(in_clippingPlanes[i + 1],\
@@ -1109,7 +1109,7 @@ namespace vtkvolume
         \n                     in_clippingPlanes[i + 6], 0.0);\
         \n\
         \n  origin = world_to_texture_mat * origin;\
-        \n normal = world_to_texture_mat * normal;\
+        \n  normal = world_to_texture_mat * normal;\
         \n\
         \n  if (origin[3] != 0.0)\
         \n    {\
@@ -1143,7 +1143,7 @@ namespace vtkvolume
   {
     if (!mapper->GetClippingPlanes())
       {
-      return std::string("");
+      return std::string();
       }
     else
       {
@@ -1170,7 +1170,7 @@ namespace vtkvolume
                            vtkVolumeMapper* vtkNotUsed(mapper),
                            vtkVolume* vtkNotUsed(vol))
   {
-    return std::string("");
+    return std::string();
   }
 
   //--------------------------------------------------------------------------
@@ -1183,7 +1183,7 @@ namespace vtkvolume
   {
     if (!mask || !maskInput)
       {
-      return std::string("");
+      return std::string();
       }
     else
       {
@@ -1202,7 +1202,7 @@ namespace vtkvolume
     if (!mask || !maskInput ||
         maskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
       {
-      return std::string("");
+      return std::string();
       }
     else
       {
@@ -1227,7 +1227,7 @@ namespace vtkvolume
     if (!mask || !maskInput ||
         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
       {
-      return std::string("");
+      return std::string();
       }
     else
       {
@@ -1250,7 +1250,7 @@ namespace vtkvolume
     if (!mask || !maskInput ||
         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
       {
-      return std::string("");
+      return std::string();
       }
     else
       {
