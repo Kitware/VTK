@@ -23,6 +23,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkIntArray.h>
 #include <vtkLine.h>
+#include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
@@ -207,12 +208,11 @@ ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
 
     lineId[1] = points->InsertNextPoint(end);
 
-    vtkLine *line = vtkLine::New();
-
+    vtkNew<vtkLine> line;
     line->GetPointIds()->SetId(0, lineId[0]);
     line->GetPointIds()->SetId(1, lineId[1]);
 
-    lines->InsertNextCell(line);
+    lines->InsertNextCell(line.GetPointer());
     ids->InsertNextValue(this->FeatureId);
     this->InsertFeatureProperties(outputData);
 
@@ -306,6 +306,7 @@ ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
   polys->InsertNextCell(exteriorPoly);
   ids->InsertNextValue(this->FeatureId);
   this->InsertFeatureProperties(outputData);
+  exteriorPoly->Delete();
 
   if ( ! POLYGON_WITH_HOLES )
     return outputData;

@@ -25,6 +25,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
@@ -190,7 +191,7 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Convert Concave Polygons to convex polygons using triangulation
     if (output->GetNumberOfPolys() && this->TriangulatePolygons)
       {
-      vtkTriangleFilter *filter = vtkTriangleFilter::New();
+      vtkNew<vtkTriangleFilter> filter;
       filter->SetInputData(output);
       filter->Update();
 
@@ -204,10 +205,14 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkGeoJSONReader::ParseRoot(const Json::Value& root, vtkPolyData *output)
 {
   // Initialize geometry containers
-  output->SetPoints(vtkPoints::New());
-  output->SetVerts(vtkCellArray::New());
-  output->SetLines(vtkCellArray::New());
-  output->SetPolys(vtkCellArray::New());
+  vtkNew<vtkPoints> points;
+  output->SetPoints(points.GetPointer());
+  vtkNew<vtkCellArray> verts;
+  output->SetVerts(verts.GetPointer());
+  vtkNew<vtkCellArray> lines;
+  output->SetLines(lines.GetPointer());
+  vtkNew<vtkCellArray> polys;
+  output->SetPolys(polys.GetPointer());
 
   // Initialize feature-id array
   vtkStringArray *featureIdArray = vtkStringArray::New();
@@ -290,7 +295,7 @@ void vtkGeoJSONReader::ParseRoot(const Json::Value& root, vtkPolyData *output)
       Json::Value featureNode = rootFeatures[i];
       Json::Value propertiesNode = featureNode["properties"];
       this->ParseFeatureProperties(propertiesNode, properties);
-      vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
+      vtkNew<vtkGeoJSONFeature> feature;
       feature->SetOutlinePolygons(this->OutlinePolygons);
       feature->SetFeatureProperties(properties);
       feature->ExtractGeoJSONFeature(featureNode, output);
@@ -300,7 +305,7 @@ void vtkGeoJSONReader::ParseRoot(const Json::Value& root, vtkPolyData *output)
     {
     // Process single feature
     this->ParseFeatureProperties(root, properties);
-    vtkGeoJSONFeature *feature = vtkGeoJSONFeature::New();
+    vtkNew<vtkGeoJSONFeature> feature;
     feature->SetOutlinePolygons(this->OutlinePolygons);
     feature->SetFeatureProperties(properties);
     feature->ExtractGeoJSONFeature(root, output);
