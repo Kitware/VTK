@@ -460,6 +460,10 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     actor->GetTexture()->Render(ren);
     }
   actor->GetMapper()->Render(ren, actor);
+  if (textured)
+    {
+    actor->GetTexture()->PostRender(ren);
+    }
 
   vtkOpenGLCheckErrorMacro("failed after RenderPolygon");
 }
