@@ -2346,6 +2346,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Updating clipping if enabled
   this->Impl->UpdateClipping(ren, vol);
 
+  // Finally set the scale and bias for color correction
+  this->Impl->ShaderProgram->SetUniformf("in_scale",
+    1.0 / this->FinalColorWindow);
+  this->Impl->ShaderProgram->SetUniformf("in_bias",
+    (0.5 - (this->FinalColorLevel/this->FinalColorWindow)));
+
 #ifndef __APPLE__
   glBindVertexArray(this->Impl->CubeVAOId);
 #endif
