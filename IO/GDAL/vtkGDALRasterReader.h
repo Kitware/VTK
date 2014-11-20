@@ -21,7 +21,7 @@
 //
 //
 // .SECTION See Also
-// vtkUniformGrid
+// vtkUniformGrid, vtkImageData
 
 #ifndef __vtkGDALRasterReader_h
 #define __vtkGDALRasterReader_h

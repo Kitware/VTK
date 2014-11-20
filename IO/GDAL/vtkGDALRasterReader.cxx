@@ -20,7 +20,6 @@
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
-#include <vtkUniformGrid.h>
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkIntArray.h>
@@ -30,6 +29,7 @@
 #include <vtkShortArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkUniformGrid.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>
 #include <vtkUnsignedShortArray.h>
@@ -45,6 +45,7 @@
 
 vtkStandardNewMacro(vtkGDALRasterReader);
 
+//-----------------------------------------------------------------------------
 namespace
 {
   double Min(double val1, double val2)
@@ -58,12 +59,11 @@ namespace
     }
 }
 
+//-----------------------------------------------------------------------------
 class vtkGDALRasterReader::vtkGDALRasterReaderInternal
 {
 public:
-  typedef void *OGRCoordinateTransformationH;
-
-  vtkGDALRasterReaderInternal(vtkGDALRasterReader* reader);
+   vtkGDALRasterReaderInternal(vtkGDALRasterReader* reader);
   ~vtkGDALRasterReaderInternal();
 
   void ReadMetaData(const std::string& fileName);
@@ -77,7 +77,6 @@ public:
                int targetWidth, int targetHeight);
 
   bool GetGeoCornerPoint(GDALDataset* dataset,
-                         OGRCoordinateTransformationH htransform,
                          double x, double y, double* out) const;
 
   const double* GetGeoCornerPoints();
@@ -148,7 +147,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(
   // Free up the last read data, if any.
   this->ReleaseData();
 
-  this->GDALData = static_cast<GDALDataset*>( GDALOpen(fileName.c_str(), GA_ReadOnly));
+  this->GDALData = static_cast<GDALDataset*>(
+                     GDALOpen(fileName.c_str(), GA_ReadOnly));
 
   if (this->GDALData == NULL)
     {
@@ -430,22 +430,14 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
                          (d[5]-d[1])/this->Reader->RasterDimensions[1],
                          1};
-  //THIS IS WRONG BUT THE COUNTOUR Does not like negative spacing.
+  // TODO: This may not be right but negative spacign is not desired.
   if(geoSpacing[0] < 0) geoSpacing[0] = -geoSpacing[0];
   if(geoSpacing[1] < 0) geoSpacing[1] = -geoSpacing[1];
 
-  // SEt meta data on the image
+  // Set meta data on the image
   this->UniformGridData->SetExtent(0, (destWidth - 1), 0, (destHeight - 1), 0, 0);
   this->UniformGridData->SetSpacing(geoSpacing[0], geoSpacing[1], geoSpacing[2]);
   this->UniformGridData->SetOrigin(d[0], d[1], 0);
-  /*
-  this->UniformGridData->SetSpacing(this->Reader->DataSpacing[0],
-                              this->Reader->DataSpacing[1],
-                              this->Reader->DataSpacing[2]);
-  this->UniformGridData->SetOrigin(this->Reader->DataOrigin[0],
-                             this->Reader->DataOrigin[1],
-                             this->Reader->DataOrigin[2]);*/
-
   this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight);
 }
 
@@ -503,8 +495,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoint(GDALDataset* dataset,
-  OGRCoordinateTransformationH /*htransform*/, double x, double y, double* out) const
+bool vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoint(
+  GDALDataset* dataset, double x, double y, double* out) const
 {
   bool retVal = false;
 
@@ -577,17 +569,15 @@ const double* vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoin
 {
   this->GetGeoCornerPoint(this->GDALData, 0,
                           0,
-                          0,
                           &this->CornerPoints[0]);
   this->GetGeoCornerPoint(this->GDALData, 0,
-                          0,
                           this->Reader->RasterDimensions[1],
                           &this->CornerPoints[2]);
-  this->GetGeoCornerPoint(this->GDALData, 0,
+  this->GetGeoCornerPoint(this->GDALData,
                           this->Reader->RasterDimensions[0],
                           this->Reader->RasterDimensions[1],
                           &this->CornerPoints[4]);
-  this->GetGeoCornerPoint(this->GDALData, 0,
+  this->GetGeoCornerPoint(this->GDALData,
                           this->Reader->RasterDimensions[0],
                           0,
                           &this->CornerPoints[6]);
@@ -768,15 +758,8 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
 
-  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(this->Implementation->UniformGridData);
-
-  //vtkImageData::SafeDownCast(dataObj)->ShallowCopy(this->Implementation->UniformGridData);
-  /*vtkXMLDataSetWriter* const writer =
-  vtkXMLDataSetWriter::New();
-  writer->SetInputData(vtkUniformGrid::SafeDownCast(dataObj));
-  writer->SetFileName("TEST_UniformGridXmlDataSetWriter.vti");
-  writer->Write();
-  writer->Delete();*/
+  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(
+    this->Implementation->UniformGridData);
   return 1;
 }
 
