@@ -11,9 +11,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLStickMapper - PolyDataMapper using OpenGL to render.
+// .NAME vtkOpenGLStickMapper - use imposters to draw cylinders
 // .SECTION Description
-// PolyDataMapper that uses a OpenGL to do the actual rendering.
+// PolyDataMapper that uses imposters to draw cylinders/sticks
+// for ball/stick style molecular rendering. Supports picking.
 
 #ifndef __vtkOpenGLStickMapper_h
 #define __vtkOpenGLStickMapper_h
@@ -61,15 +62,11 @@ protected:
                            vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to the Camera
+  // Set the shader parameters related to the Camera
   virtual void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to the property
-  virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
-
-  // Description:
-  // Set the shader parameteres related to the actor/mapper
+  // Set the shader parameters related to the actor/mapper
   virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   const char *ScaleArray;

@@ -65,7 +65,6 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
   // so don't redefine it
   std::string replacement =
     "uniform int cameraParallel;\n"
-    "uniform float cameraDistance;\n"
     "varying float radiusVC;\n"
     "varying vec3 orientVC;\n"
     "varying float lengthVC;\n"
@@ -82,8 +81,8 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
   FSSource = replace(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
     "  vec4 vertexVC = vertexVCClose;\n"
-    "  vec3 EyePos = vec3(0.0,0.0,cameraDistance);\n"
-    "  if (cameraParallel != 0) { EyePos = EyePos + vertexVC.xyz;}\n"
+    "  vec3 EyePos = vec3(0.0,0.0,0.0);\n"
+    "  if (cameraParallel != 0) { EyePos = vertexVC.xyz;}\n"
     // we adjust the EyePos to be closer if it is too far away
     // to prevent floating point precision noise
     "  vec3 EyeDir = vertexVC.xyz - EyePos;\n"
@@ -208,15 +207,6 @@ void vtkOpenGLStickMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   // add in uniforms for parallel and distance
   vtkCamera *cam = ren->GetActiveCamera();
   cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
-  cellBO.Program->SetUniformf("cameraDistanceVC", cam->GetDistance());
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLStickMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
-                                                         vtkRenderer *ren, vtkActor *actor)
-{
-  // do the superclass and then reset a couple values
-  this->Superclass::SetPropertyShaderParameters(cellBO,ren,actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -274,8 +264,10 @@ void vtkOpenGLStickMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+namespace
+{
 // internal function called by CreateVBO
-static vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
+vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
               unsigned char *colors, int colorComponents,
               float *orients,
               float *sizes,
@@ -432,6 +424,7 @@ static vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType 
   vertexBuffer.Upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);
   layout.VertexCount = numPts*6;
   return layout;
+}
 }
 
 size_t vtkOpenGLStickMapperCreateTriangleIndexBuffer(

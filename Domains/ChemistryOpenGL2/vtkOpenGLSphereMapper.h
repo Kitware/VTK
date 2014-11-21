@@ -58,15 +58,11 @@ protected:
                            vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to the Camera
+  // Set the shader parameters related to the Camera
   virtual void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to the property
-  virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
-
-  // Description:
-  // Set the shader parameteres related to the actor/mapper
+  // Set the shader parameters related to the actor/mapper
   virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   const char *ScaleArray;

@@ -29,6 +29,8 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
+#include "vtkRenderWindowInteractor.h"
+
 //----------------------------------------------------------------------------
 int TestVBOPLYMapper(int argc, char *argv[])
 {
@@ -40,6 +42,8 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderWindow->SetSize(900, 900);
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
+  vtkNew<vtkRenderWindowInteractor>  iren;
+  iren->SetRenderWindow(renderWindow.Get());
   vtkNew<vtkLightKit> lightKit;
   lightKit->AddLightsToRenderer(renderer.Get());
 
@@ -98,6 +102,12 @@ int TestVBOPLYMapper(int argc, char *argv[])
 
   renderWindow->SetSize(300, 300);
   renderWindow->Render();
+
+  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
 
   return EXIT_SUCCESS;
 }

@@ -35,6 +35,7 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 uniform int numberOfLights; // only allow for up to 6 active lights
 uniform vec3 lightColor[6]; // intensity weighted color
 uniform vec3 lightDirectionVC[6]; // normalized
+uniform vec3 lightHalfAngleVC[6]; // normalized
 uniform vec3 lightPositionVC[6];
 uniform vec3 lightAttenuation[6];
 uniform float lightConeAngle[6];
@@ -71,8 +72,6 @@ void main()
 
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl
-
-  vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC.xyz);
 
   vec3 diffuse = vec3(0,0,0);
   vec3 specular = vec3(0,0,0);
@@ -116,10 +115,9 @@ void main()
     float df = max(0.0, attenuation*dot(normalVC, -vertLightDirectionVC));
     diffuse += (df * lightColor[lightNum]);
 
-    if (dot(normalVC, -vertLightDirectionVC) > 0.0)
+    if (dot(normalVC, vertLightDirectionVC) < 0.0)
       {
-      float sf = attenuation*pow( max(0.0, dot(
-        reflect(vertLightDirectionVC, normalVC), viewDirectionVC)), specularPower);
+      float sf = attenuation*pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVC)), specularPower);
       specular += (sf * lightColor[lightNum]);
       }
     }
