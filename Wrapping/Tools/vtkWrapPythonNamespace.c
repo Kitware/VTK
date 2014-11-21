@@ -54,20 +54,10 @@ int vtkWrapPython_WrapNamespace(FILE *fp, NamespaceInfo *data)
             "\n");
 
     /* add any enum types defined in the namespace */
-    for (i = 0; i < data->NumberOfEnums; i++)
-      {
-      vtkWrapPython_AddEnumType(
-        fp, "  ", "d", "o", data->Name, data->Enums[i]);
-      fprintf(fp, "\n");
-      }
+    vtkWrapPython_AddPublicEnumTypes(fp, "  ", "d", "o", data);
 
     /* add any constants defined in the namespace */
-    for (i = 0; i < data->NumberOfConstants; i++)
-      {
-      vtkWrapPython_AddConstant(
-        fp, "  ", "d", "o", data->Name, data->Constants[i]);
-      fprintf(fp, "\n");
-      }
+    vtkWrapPython_AddPublicConstants(fp, "  ", "d", "o", data);
     }
 
   fprintf(fp,

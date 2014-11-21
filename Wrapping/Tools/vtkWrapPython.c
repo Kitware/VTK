@@ -692,20 +692,10 @@ int main(int argc, char *argv[])
     }
 
   /* add any enum types defined in the file */
-  for (j = 0; j < contents->NumberOfEnums; j++)
-    {
-    vtkWrapPython_AddEnumType(
-      fp, "  ", "dict", "o", NULL, contents->Enums[j]);
-    fprintf(fp, "\n");
-    }
+  vtkWrapPython_AddPublicEnumTypes(fp, "  ", "dict", "o", contents);
 
   /* add any constants defined in the file */
-  for (j = 0; j < contents->NumberOfConstants; j++)
-    {
-    vtkWrapPython_AddConstant(fp, "  ", "dict", "o", NULL,
-      contents->Constants[j]);
-    fprintf(fp, "\n");
-    }
+  vtkWrapPython_AddPublicConstants(fp, "  ", "dict", "o", contents);
 
   /* close the AddFile function */
   fprintf(fp,

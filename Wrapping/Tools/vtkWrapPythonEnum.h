@@ -33,4 +33,9 @@ void vtkWrapPython_AddEnumType(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   const char *scope, EnumInfo *cls);
 
+/* generate code that adds all public enum types to a python dict */
+void vtkWrapPython_AddPublicEnumTypes(
+  FILE *fp, const char *indent, const char *dictvar, const char *objvar,
+  NamespaceInfo *data);
+
 #endif /* VTK_WRAP_PYTHON_ENUM_H */

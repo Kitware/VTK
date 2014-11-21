@@ -175,3 +175,21 @@ void vtkWrapPython_GenerateEnumType(
     enumname,
     enumname);
 }
+
+/* generate code that adds all public enum types to a python dict */
+void vtkWrapPython_AddPublicEnumTypes(
+  FILE *fp, const char *indent, const char *dictvar, const char *objvar,
+  NamespaceInfo *data)
+{
+  int i;
+
+  for (i = 0; i < data->NumberOfEnums; i++)
+    {
+    if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+      {
+      vtkWrapPython_AddEnumType(
+        fp, indent, dictvar, objvar, data->Name, data->Enums[i]);
+      fprintf(fp, "\n");
+      }
+    }
+}
