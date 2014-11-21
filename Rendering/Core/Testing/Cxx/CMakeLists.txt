@@ -38,6 +38,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOrderedTriangulator.cxx
   TestOpacity.cxx
   TestOSConeCxx.cxx
+  TestPointSelection.cxx,NO_VALID
   TestPolygonSelection.cxx
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
