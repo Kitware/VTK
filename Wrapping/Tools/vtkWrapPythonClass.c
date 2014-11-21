@@ -314,7 +314,7 @@ static void vtkWrapPython_ExportVTKClass(
   fprintf(fp,
           "extern \"C\" { %s PyObject *PyVTKClass_%sNew(const char *); }\n"
           "\n",
-          "VTK_ABI_EXPORT", classname);
+          "VTK_PYTHON_EXPORT", classname);
 
   /* declare the New methods for all the superclasses */
   supername = vtkWrapPython_GetSuperClass(data, hinfo);

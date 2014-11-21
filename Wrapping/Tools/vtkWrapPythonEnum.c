@@ -94,7 +94,7 @@ void vtkWrapPython_GenerateEnumType(
     "#define DECLARED_Py%s_Type\n"
     "#endif\n"
     "\n",
-    enumname, "VTK_ABI_EXPORT", enumname, enumname);
+    enumname, "VTK_PYTHON_EXPORT", enumname, enumname);
 
   /* generate all functions and protocols needed for the type */
 

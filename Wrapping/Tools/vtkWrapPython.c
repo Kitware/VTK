@@ -23,9 +23,6 @@
 #include "vtkParseMain.h"
 #include "vtkParseExtras.h"
 
-/* required for VTK_BUILD_SHARED_LIBS */
-#include "vtkConfigure.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -395,11 +392,7 @@ static void vtkWrapPython_ImportExportEnumTypes(
       "#define DECLARED_Py%s_Type\n"
       "#endif\n",
       enumname,
-#if defined(VTK_BUILD_SHARED_LIBS)
-      (is_external ? "VTK_ABI_IMPORT" : "VTK_ABI_EXPORT"),
-#else
-      "VTK_ABI_EXPORT",
-#endif
+      (is_external ? "VTK_PYTHON_IMPORT" : "VTK_PYTHON_EXPORT"),
       enumname, enumname);
     }
 
@@ -501,6 +494,7 @@ int main(int argc, char *argv[])
   fprintf(fp,
           "#include \"vtkPythonArgs.h\"\n"
           "#include \"vtkPythonOverload.h\"\n"
+          "#include \"vtkConfigure.h\"\n"
           "#include <vtksys/ios/sstream>\n");
 
   /* vtkPythonCommand is needed to wrap vtkObject.h */
@@ -518,10 +512,20 @@ int main(int argc, char *argv[])
           "#include \"%s.h\"\n\n",
           name);
 
+  /* define import/export macros for use in wrapper code */
+  fprintf(fp,
+          "#if defined(VTK_BUILD_SHARED_LIBS)\n"
+          "# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT\n"
+          "# define VTK_PYTHON_IMPORT VTK_ABI_IMPORT\n"
+          "#else\n"
+          "# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT\n"
+          "# define VTK_PYTHON_IMPORT VTK_ABI_EXPORT\n"
+          "#endif\n\n");
+
   /* do the export of the main entry point */
   fprintf(fp,
           "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
-          "VTK_ABI_EXPORT", name);
+          "VTK_PYTHON_EXPORT", name);
 
   /* do the imports of any enum types that are used by methods */
   vtkWrapPython_ImportExportEnumTypes(fp, file_info, hinfo);

@@ -24,9 +24,6 @@
 #include "vtkWrap.h"
 #include "vtkParseExtras.h"
 
-/* required for VTK_BUILD_SHARED_LIBS */
-#include "vtkConfigure.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -670,7 +667,7 @@ void vtkWrapPython_GenerateSpecialType(
     "#define DECLARED_Py%s_Type\n"
     "#endif\n"
     "\n",
-    classname, "VTK_ABI_EXPORT", classname, classname);
+    classname, "VTK_PYTHON_EXPORT", classname, classname);
 
   /* and the superclass */
   has_superclass = vtkWrapPython_HasWrappedSuperClass(
@@ -685,11 +682,7 @@ void vtkWrapPython_GenerateSpecialType(
       "#define DECLARED_Py%s_Type\n"
       "#endif\n"
       "\n",
-#if defined(VTK_BUILD_SHARED_LIBS)
-      supername, (is_external ? "VTK_ABI_IMPORT" : "VTK_ABI_EXPORT"),
-#else
-      supername, "VTK_ABI_EXPORT",
-#endif
+      supername, (is_external ? "VTK_PYTHON_IMPORT" : "VTK_PYTHON_EXPORT"),
       supername, supername);
     }
 
