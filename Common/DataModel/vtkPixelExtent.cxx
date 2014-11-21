@@ -257,7 +257,7 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
       // if a merger occurs the merged extent is added
       // as a new target with the constituents marked empty
       // and the current pass is terminated early
-      int nextPass = 0;
+      bool nextPass = false;
 
       // current target
       vtkPixelExtent &ext0 = tmpExts[t];
@@ -303,8 +303,7 @@ void vtkPixelExtent::Merge(deque<vtkPixelExtent> &exts)
             ext1.Clear();
 
             // move to next target
-            nextPass = 1;
-            break;
+            nextPass = true;
             }
           }
         if (nextPass)
