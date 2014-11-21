@@ -31,6 +31,7 @@
 #include "XdmfDomain.hpp"
 #include "XdmfGridCollection.hpp"
 #include "XdmfGridCollectionType.hpp"
+#include "XdmfHeavyDataWriter.hpp"
 #include "XdmfWriter.hpp"
 #include <stack>
 
@@ -46,6 +47,7 @@ public:
     this->Domain = XdmfDomain::New();
     this->Writer = XdmfWriter::New(filename);
     this->Writer->setLightDataLimit(0);
+    this->Writer->getHeavyDataWriter()->setReleaseData(true);
     this->NumberOfTimeSteps = 1;
     this->CurrentTimeIndex = 0;
     this->DestinationGroups.push(this->Domain);
