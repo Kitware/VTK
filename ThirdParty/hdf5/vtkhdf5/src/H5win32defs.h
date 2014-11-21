@@ -75,16 +75,15 @@ struct timezone {
 #endif /* __cplusplus */
         H5_DLL int Wgettimeofday(struct timeval *tv, struct timezone *tz);
         H5_DLL char* Wgetlogin(void);
-        H5_DLL int c99_snprintf(char* str, size_t size, const char* format, ...);
-        H5_DLL int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap);
+        H5_DLL int HDsnprintf(char* str, size_t size, const char* format, ...);
+        H5_DLL int HDvsnprintf(char* str, size_t size, const char* format, va_list ap);
 #ifdef __cplusplus
         }
 #endif /* __cplusplus */
 #define HDgettimeofday(V,Z) Wgettimeofday(V,Z)
 #define HDgetlogin()        Wgetlogin()
-#define HDsnprintf          c99_snprintf /*varargs*/
-#define HDvsnprintf         c99_vsnprintf
-        
+#define HDsnprintf          HDsnprintf
+#define HDvsnprintf         HDvsnprintf
 #endif /* H5_HAVE_VISUAL_STUDIO */
 
 /* Non-POSIX functions */
