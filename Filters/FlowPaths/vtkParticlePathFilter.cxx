@@ -129,6 +129,7 @@ vtkParticlePathFilter::vtkParticlePathFilter()
 {
   this->It.Initialize(this);
   this->SimulationTime = NULL;
+  this->SimulationTimeStep = NULL;
 }
 
 vtkParticlePathFilter::~vtkParticlePathFilter()
@@ -137,6 +138,11 @@ vtkParticlePathFilter::~vtkParticlePathFilter()
     {
     this->SimulationTime->Delete();
     this->SimulationTime = NULL;
+    }
+  if(this->SimulationTimeStep)
+    {
+    this->SimulationTimeStep->Delete();
+    this->SimulationTimeStep = NULL;
     }
 }
 
@@ -169,12 +175,25 @@ void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputP
     }
   this->SimulationTime->SetNumberOfTuples(0);
   outputPD->AddArray(this->SimulationTime);
+
+  if(this->SimulationTimeStep == NULL)
+    {
+    this->SimulationTimeStep = vtkIntArray::New();
+    this->SimulationTimeStep->SetName("SimulationTimeStep");
+    }
+  if(outputPD->GetArray("SimulationTimeStep"))
+    {
+    outputPD->RemoveArray("SimulationTimeStep");
+    }
+  this->SimulationTimeStep->SetNumberOfTuples(0);
+  outputPD->AddArray(this->SimulationTimeStep);
 }
 
 void vtkParticlePathFilter::AppendToExtraPointDataArrays(
   vtkParticleTracerBaseNamespace::ParticleInformation &info)
 {
   this->SimulationTime->InsertNextValue(info.SimulationTime);
+  this->SimulationTimeStep->InsertNextValue(info.InjectedStepId+info.TimeStepAge);
 }
 
 void vtkParticlePathFilter::Finalize()
