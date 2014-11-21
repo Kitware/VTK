@@ -64,6 +64,8 @@ vec4 g_eyePosObj;
 /// The first value is the size of the data array for clipping
 /// planes (origin, normal)
 uniform float in_clippingPlanes[49];
+uniform float in_scale;
+uniform float in_bias;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -103,5 +105,8 @@ void main()
   //VTK::Clipping::Exit
   //VTK::Shading::Exit
 
+  g_fragColor.r = g_fragColor.r * in_scale + in_bias * g_fragColor.a;
+  g_fragColor.g = g_fragColor.g * in_scale + in_bias * g_fragColor.a;
+  g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
   gl_FragColor = g_fragColor;
   }

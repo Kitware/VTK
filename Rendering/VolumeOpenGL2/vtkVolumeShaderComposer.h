@@ -247,15 +247,22 @@ namespace vtkvolume
                                    vtkVolume* vol,
                                    int vtkNotUsed(numberOfComponents))
   {
+    std::string shaderStr;
+    if (vol->GetProperty()->HasGradientOpacity())
+      {
+      shaderStr += std::string("\
+        \nuniform sampler1D in_gradientTransferFunc;\
+        \nfloat computeGradientOpacity(vec4 grad)\
+        \n  {\
+        \n  return texture1D(in_gradientTransferFunc, grad.w).w;\
+        \n  }"
+      );
+      }
+
     if (vol->GetProperty()->GetShade() &&
         !vol->GetProperty()->HasGradientOpacity())
       {
-      return std::string("\
-        \nfloat computeGradientOpacity(vec4 grad)\
-        \n  {\
-        \n  return 1.0;\
-        \n  }\
-        \n\
+      shaderStr += std::string("\
         \nvec4 computeGradient()\
         \n  {\
         \n  vec3 g1;\
@@ -270,17 +277,13 @@ namespace vtkvolume
         \n  g2.y = texture3D(in_volume, vec3(g_dataPos - yvec)).x;\
         \n  g2.z = texture3D(in_volume, vec3(g_dataPos - zvec)).x;\
         \n  return vec4((g1 - g2), -1.0);\
-        \n  }");
+        \n  }"
+      );
     }
     else if (vol->GetProperty()->GetShade() &&
              vol->GetProperty()->HasGradientOpacity())
       {
-      return std::string("\
-        \nuniform sampler1D in_gradientTransferFunc;\
-        \nfloat computeGradientOpacity(vec4 grad)\
-        \n  {\
-        \n  return texture1D(in_gradientTransferFunc, grad.w).w;\
-        \n  }\
+      shaderStr += std::string("\
         \nvec4 computeGradient()\
         \n  {\
         \n  vec3 g1;\
@@ -339,16 +342,19 @@ namespace vtkvolume
         \n  grad_mag = clamp(grad_mag, 0.0, 1.0);\
         \n  g2.w = grad_mag;\
         \n  return g2;\
-        \n  }");
+        \n  }"
+      );
       }
     else
       {
-      return std::string("\
-        \nvec3 computeGradient()\
+      shaderStr += std::string("\
+        \nvec4 computeGradient()\
         \n  {\
-        \n  return vec3(0.0);\
+        \n  return vec4(0.0);\
         \n  }");
       }
+
+    return shaderStr;
   }
 
   //--------------------------------------------------------------------------
