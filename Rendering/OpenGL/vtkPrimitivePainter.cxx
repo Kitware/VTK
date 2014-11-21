@@ -268,18 +268,15 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
 
   // Edge flag
   ef = input->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG);
-  if (ef)
+  if (ef && ef->GetNumberOfComponents() != 1)
     {
-    if (ef->GetNumberOfComponents() != 1)
-      {
-      vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-      ef = NULL;
-      }
-    if (!ef->IsA("vtkUnsignedCharArray"))
-      {
-      vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
-      ef = NULL;
-      }
+    vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
+    ef = NULL;
+    }
+  if (ef && !ef->IsA("vtkUnsignedCharArray"))
+    {
+    vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+    ef = NULL;
     }
 
   // Set the flags
