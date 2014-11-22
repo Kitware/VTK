@@ -1056,7 +1056,6 @@ void vtkImplicitModeller::Cap(vtkDataArray *s)
   int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
 
 // i-j planes
-  k = 0;
   for (j=0; j<this->SampleDimensions[1]; j++)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
@@ -1074,7 +1073,6 @@ void vtkImplicitModeller::Cap(vtkDataArray *s)
       }
     }
   // j-k planes
-  i = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
     for (j=0; j<this->SampleDimensions[1]; j++)
@@ -1091,7 +1089,6 @@ void vtkImplicitModeller::Cap(vtkDataArray *s)
       }
     }
   // i-k planes
-  j = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
