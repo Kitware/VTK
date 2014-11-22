@@ -265,11 +265,11 @@ unsigned long vtkRendererSource::GetMTime()
       if (data)
         {
         mapper->GetInputAlgorithm()->UpdateInformation();
-        }
-      t2 = data->GetMTime();
-      if (t2 > t1)
-        {
-        t1 = t2;
+        t2 = data->GetMTime();
+        if (t2 > t1)
+          {
+          t1 = t2;
+          }
         }
       t2 = vtkDemandDrivenPipeline::SafeDownCast(
         mapper->GetInputExecutive())->GetPipelineMTime();
