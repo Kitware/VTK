@@ -192,6 +192,14 @@ public:
                                     vtkVector2f* location,
                                     vtkIdType* segmentIndex);
 
+  // Description:
+  // Get amount of plotted bars.
+  int GetBarsCount();
+
+  // Description:
+  // Get the data bounds for this mapper as (Xmin,Xmax).
+  void GetDataBounds(double bounds[2]);
+
 protected:
   vtkPlotBar();
   ~vtkPlotBar();
