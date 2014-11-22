@@ -698,19 +698,19 @@ Wgetlogin()
         return NULL;
 }
 
-int c99_snprintf(char* str, size_t size, const char* format, ...)
+int HDsnprintf(char* str, size_t size, const char* format, ...)
 {
     int count;
     va_list ap;
 
     va_start(ap, format);
-    count = c99_vsnprintf(str, size, format, ap);
+    count = HDvsnprintf(str, size, format, ap);
     va_end(ap);
 
     return count;
 }
 
-int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap)
+int HDvsnprintf(char* str, size_t size, const char* format, va_list ap)
 {
     int count = -1;
 
