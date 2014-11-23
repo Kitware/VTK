@@ -778,6 +778,7 @@ endif (CMAKE_CXX_COMPILER_LOADED)
 #-----------------------------------------------------------------------------
 if (NOT WINDOWS)
   option (HDF5_ENABLE_DIRECT_VFD "Build the Direct I/O Virtual File Driver" ON)
+  mark_as_advanced(HDF5_ENABLE_DIRECT_VFD)
   if (HDF5_ENABLE_DIRECT_VFD)
     set (msg "Performing TEST_DIRECT_VFD_WORKS")
     set (MACRO_CHECK_FUNCTION_DEFINITIONS "-DTEST_DIRECT_VFD_WORKS -D_GNU_SOURCE ${CMAKE_REQUIRED_FLAGS}")
