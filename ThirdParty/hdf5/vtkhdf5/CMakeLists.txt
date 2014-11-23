@@ -384,6 +384,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
   endif (HDF5_ENABLE_TRACE)
   # Enable instrumenting of the library's internal operations
   option (HDF5_ENABLE_INSTRUMENT "Instrument The library" OFF)
+  mark_as_advanced(HDF5_ENABLE_INSTRUMENT)
   if (HDF5_ENABLE_INSTRUMENT)
     set (H5_HAVE_INSTRUMENTED_LIBRARY 1)
   endif (HDF5_ENABLE_INSTRUMENT)
@@ -432,6 +433,7 @@ endif (CMAKE_COMPILER_IS_GNUCXX)
 # Option to embed library info into executables
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_EMBEDDED_LIBINFO "embed library info into executables" ON)
+mark_as_advanced(HDF5_ENABLE_EMBEDDED_LIBINFO)
 if (HDF5_ENABLE_EMBEDDED_LIBINFO)
   set (H5_HAVE_EMBEDDED_LIBINFO 1)
 endif (HDF5_ENABLE_EMBEDDED_LIBINFO)
@@ -539,6 +541,7 @@ endif (NOT MSVC)
 # Option to allow the user to enable all warnings
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_ALL_WARNINGS "Enable all warnings" OFF)
+mark_as_advanced (HDF5_ENABLE_ALL_WARNINGS)
 if (HDF5_ENABLE_ALL_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
@@ -554,6 +557,7 @@ endif (HDF5_ENABLE_ALL_WARNINGS)
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_GROUPZERO_WARNINGS "Enable group zero warnings" OFF)
+mark_as_advanced(HDF5_ENABLE_GROUPZERO_WARNINGS)
 if (HDF5_ENABLE_GROUPZERO_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
@@ -569,6 +573,7 @@ endif (HDF5_ENABLE_GROUPZERO_WARNINGS)
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_GROUPONE_WARNINGS "Enable group one warnings" OFF)
+mark_as_advanced(HDF5_ENABLE_GROUPONE_WARNINGS)
 if (HDF5_ENABLE_GROUPONE_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
@@ -584,6 +589,7 @@ endif (HDF5_ENABLE_GROUPONE_WARNINGS)
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_GROUPTWO_WARNINGS "Enable group two warnings" OFF)
+mark_as_advanced(HDF5_ENABLE_GROUPTWO_WARNINGS)
 if (HDF5_ENABLE_GROUPTWO_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
@@ -599,6 +605,7 @@ endif (HDF5_ENABLE_GROUPTWO_WARNINGS)
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_GROUPTHREE_WARNINGS "Enable group three warnings" OFF)
+mark_as_advanced(HDF5_ENABLE_GROUPTHREE_WARNINGS)
 if (HDF5_ENABLE_GROUPTHREE_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
@@ -614,6 +621,7 @@ endif (HDF5_ENABLE_GROUPTHREE_WARNINGS)
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_GROUPFOUR_WARNINGS "Enable group four warnings" OFF)
+mark_as_advanced(HDF5_ENABLE_GROUPFOUR_WARNINGS)
 if (HDF5_ENABLE_GROUPFOUR_WARNINGS)
   if (NOT MSVC)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${H5_CFLAGS4}")
@@ -624,6 +632,7 @@ endif (HDF5_ENABLE_GROUPFOUR_WARNINGS)
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_GROUPFIVE_WARNINGS "Enable group five warnings" OFF)
+mark_as_advanced(HDF5_ENABLE_GROUPFIVE_WARNINGS)
 if (HDF5_ENABLE_GROUPFIVE_WARNINGS)
   if (NOT MSVC)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${H5_CFLAGS5}")

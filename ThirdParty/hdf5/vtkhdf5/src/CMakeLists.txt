@@ -675,6 +675,7 @@ set_target_properties (${HDF5_LIB_TARGET} PROPERTIES
 )
 
 option (HDF5_ENABLE_DEBUG_APIS "Turn on debugging in all packages" OFF)
+mark_as_advanced(HDF5_ENABLE_DEBUG_APIS)
 if (HDF5_ENABLE_DEBUG_APIS)
   set_target_properties (${HDF5_LIB_TARGET} PROPERTIES
     COMPILE_DEFINITIONS
