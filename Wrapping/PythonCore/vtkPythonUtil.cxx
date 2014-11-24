@@ -59,7 +59,7 @@ public:
 };
 
 //--------------------------------------------------------------------
-// There are five maps associated with the Python wrappers
+// There are six maps associated with the Python wrappers
 
 // Map VTK objects to python objects (this is also the cornerstone
 // of the vtk/python garbage collection system, because it contains
@@ -102,6 +102,12 @@ class vtkPythonClassMap
 // Like the ClassMap, for types not derived from vtkObjectBase.
 class vtkPythonSpecialTypeMap
   : public std::map<std::string, PyVTKSpecialType>
+{
+};
+
+// Keep track of all the C++ namespaces that have been wrapped.
+class vtkPythonNamespaceMap
+  : public std::map<std::string, PyObject*>
 {
 };
 
@@ -157,6 +163,7 @@ vtkPythonUtil::vtkPythonUtil()
   this->GhostMap = new vtkPythonGhostMap;
   this->ClassMap = new vtkPythonClassMap;
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
+  this->NamespaceMap = new vtkPythonNamespaceMap;
   this->PythonCommandList = new vtkPythonCommandList;
 }
 
@@ -167,6 +174,7 @@ vtkPythonUtil::~vtkPythonUtil()
   delete this->GhostMap;
   delete this->ClassMap;
   delete this->SpecialTypeMap;
+  delete this->NamespaceMap;
   delete this->PythonCommandList;
 }
 
@@ -800,6 +808,67 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
   sprintf(error_string,"method requires a %.500s, a %.500s was provided.",
           result_type, object_type);
   PyErr_SetString(PyExc_TypeError, error_string);
+
+  return NULL;
+}
+
+//--------------------------------------------------------------------
+void vtkPythonUtil::AddNamespaceToMap(PyObject *module)
+{
+  if (!PyVTKNamespace_Check(module))
+    {
+    return;
+    }
+
+  if (vtkPythonMap == NULL)
+    {
+    vtkPythonMap = new vtkPythonUtil();
+    Py_AtExit(vtkPythonUtilDelete);
+    }
+
+  const char *name = PyVTKNamespace_GetName(module);
+  // let's make sure it isn't already there
+  vtkPythonNamespaceMap::iterator i =
+    vtkPythonMap->NamespaceMap->find(name);
+  if (i != vtkPythonMap->NamespaceMap->end())
+    {
+    return;
+    }
+
+  (*vtkPythonMap->NamespaceMap)[name] = module;
+}
+
+//--------------------------------------------------------------------
+// This method is called
+void vtkPythonUtil::RemoveNamespaceFromMap(PyObject *obj)
+{
+  if (vtkPythonMap && PyVTKNamespace_Check(obj))
+    {
+    const char *name = PyVTKNamespace_GetName(obj);
+    vtkPythonNamespaceMap::iterator it =
+      vtkPythonMap->NamespaceMap->find(name);
+    if (it != vtkPythonMap->NamespaceMap->end() &&
+        it->second == obj)
+      {
+      // The map has a pointer to the object, but does not hold a
+      // reference, therefore there is no decref.
+      vtkPythonMap->NamespaceMap->erase(it);
+      }
+    }
+}
+
+//--------------------------------------------------------------------
+PyObject *vtkPythonUtil::FindNamespace(const char *name)
+{
+  if (vtkPythonMap)
+    {
+    vtkPythonNamespaceMap::iterator it =
+      vtkPythonMap->NamespaceMap->find(name);
+    if (it != vtkPythonMap->NamespaceMap->end())
+      {
+      return it->second;
+      }
+    }
 
   return NULL;
 }

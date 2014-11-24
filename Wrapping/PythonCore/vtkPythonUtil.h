@@ -21,6 +21,7 @@
 #include "vtkPython.h"
 #include "PyVTKClass.h"
 #include "PyVTKMutableObject.h"
+#include "PyVTKNamespace.h"
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"
 
@@ -30,6 +31,7 @@ class vtkPythonCommandList;
 class vtkPythonGhostMap;
 class vtkPythonObjectMap;
 class vtkPythonSpecialTypeMap;
+class vtkPythonNamespaceMap;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkVariant;
@@ -127,6 +129,20 @@ public:
     PyObject *obj, const char *result_type, PyObject **newobj);
 
   // Description:
+  // Add a wrapped C++ namespace as a python module object.  This allows
+  // the namespace to be retrieved and added to as necessary.
+  static void AddNamespaceToMap(PyObject *o);
+
+  // Description:
+  // Remove a wrapped C++ namespace from consideration.  This is called
+  // from the namespace destructor.
+  static void RemoveNamespaceFromMap(PyObject *o);
+
+  // Description:
+  // Return an existing namespace, or NULL if it doesn't exist.
+  static PyObject *FindNamespace(const char *name);
+
+  // Description:
   // Utility function to build a docstring by concatenating a series
   // of strings until a null string is found.
   static PyObject *BuildDocString(const char *docstring[]);
@@ -161,6 +177,7 @@ private:
   vtkPythonGhostMap *GhostMap;
   vtkPythonClassMap *ClassMap;
   vtkPythonSpecialTypeMap *SpecialTypeMap;
+  vtkPythonNamespaceMap *NamespaceMap;
   vtkPythonCommandList *PythonCommandList;
 
   friend void vtkPythonUtilDelete();

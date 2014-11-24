@@ -41,7 +41,7 @@ int vtkWrapPython_WrapNamespace(FILE *fp, NamespaceInfo *data)
   fprintf(fp,
           "static PyObject *PyVTKNamespace_%s()\n"
           "{\n"
-          "  PyObject *m = PyModule_New(\"%s\");\n"
+          "  PyObject *m = PyVTKNamespace_New(\"%s\");\n"
           "\n",
           data->Name, data->Name);
 
@@ -49,7 +49,7 @@ int vtkWrapPython_WrapNamespace(FILE *fp, NamespaceInfo *data)
       data->NumberOfConstants)
     {
     fprintf(fp,
-            "  PyObject *d = PyModule_GetDict(m);\n"
+            "  PyObject *d = PyVTKNamespace_GetDict(m);\n"
             "  PyObject *o;\n"
             "\n");
 
