@@ -50,8 +50,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestCellIterators.cxx,NO_VALID,NO_OUTPUT
   TestQuadraticPolygonFilters.cxx
   )
+vtk_add_test_cxx(${vtk-module}CxxTests output_tests
+  TestKdTreeRepresentation.cxx,NO_DATA
+  )
 set(all_tests
   ${tests}
   ${data_tests}
+  ${output_tests}
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
