@@ -880,6 +880,7 @@ void vtkImageBlend::ThreadedRequestData (
 
     default:
       vtkErrorMacro(<< "Execute: Unknown blending mode");
+      return;
     }
 
   // process each input
