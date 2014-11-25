@@ -45,6 +45,7 @@
 #include "vtkChartLegend.h"
 #include "vtkTooltipItem.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkTable.h"
 #include "vtkIdTypeArray.h"
 
@@ -78,6 +79,24 @@ public:
     this->Borders[1] = 50;
     this->Borders[2] = 20;
     this->Borders[3] = 20;
+    }
+  vtkPlot* GetPlotByColumn(vtkIdType columnId)
+    {
+    std::vector<vtkPlot*>::iterator it =
+          this->plots.begin();
+      for ( ; it != this->plots.end(); ++it)
+        {
+        vtkPlot* plot = *it;
+        vtkTable* table = plot->GetInput();
+        const int idx = 1; // column
+        if (table &&
+            table->GetColumn(columnId) ==
+            plot->GetData()->GetInputAbstractArrayToProcess(idx, table))
+          {
+          return plot;
+          }
+        }
+      return 0;
     }
 
   std::vector<vtkPlot *> plots; // Charts can contain multiple plots of data
@@ -228,6 +247,59 @@ void vtkChartXY::Update()
             {
             (*it)->SetSelection(idArray);
             }
+          }
+        }
+      }
+    else if (this->SelectionMethod == vtkChart::SELECTION_COLUMNS)
+      {
+      // Retrieve all the selected plots
+      std::vector<vtkPlot*> selectedPlots;
+      for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
+        {
+        vtkSelectionNode *node = selection->GetNode(i);
+        vtkIdTypeArray *selectedColumns =
+            vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+        vtkIdType* ptr = reinterpret_cast<vtkIdType*>(selectedColumns->GetVoidPointer(0));
+        for (vtkIdType j = 0; j < selectedColumns->GetNumberOfTuples(); ++j)
+          {
+          vtkPlot* selectedPlot = this->ChartPrivate->GetPlotByColumn(ptr[j]);
+          if (selectedPlot)
+            {
+            selectedPlots.push_back(selectedPlot);
+            }
+          }
+        }
+      // Now iterate through the plots to update selection data
+      std::vector<vtkPlot*>::iterator it =
+          this->ChartPrivate->plots.begin();
+      for ( ; it != this->ChartPrivate->plots.end(); ++it)
+        {
+        vtkPlot* plot = *it;
+        vtkIdTypeArray* plotSelection = 0;
+        bool ownPlotSelection = false;
+        bool isSelected =
+          std::find(selectedPlots.begin(), selectedPlots.end(), plot) !=
+          selectedPlots.end();
+        if (isSelected)
+          {
+          static int idx = 1; // y
+          vtkAbstractArray* column = plot->GetData()->GetInputAbstractArrayToProcess(
+            idx, plot->GetInput());
+          plotSelection = plot->GetSelection();
+          if (!plotSelection || plotSelection->GetNumberOfTuples() != column->GetNumberOfTuples())
+            {
+            plotSelection = vtkIdTypeArray::New();
+            ownPlotSelection = true;
+            for (vtkIdType j = 0; j < column->GetNumberOfTuples(); ++j)
+              {
+              plotSelection->InsertNextValue(j);
+              }
+            }
+          }
+        plot->SetSelection(plotSelection);
+        if (ownPlotSelection)
+          {
+          plotSelection->Delete();
           }
         }
       }
@@ -1816,7 +1888,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
                                               oldSelection.GetPointer(),
                                               0);
       }
-    else
+    else if (this->SelectionMethod == vtkChart::SELECTION_PLOTS)
       {
       // We are performing plot based selections.
       for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
@@ -1861,7 +1933,82 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
           }
         }
       }
+    else if (this->SelectionMethod == vtkChart::SELECTION_COLUMNS)
+      {
+      if (this->AnnotationLink)
+        {
+        this->AnnotationLink->Update();
+        vtkSelection *selection =
+          vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
+        vtkSelectionNode *node = selection->GetNumberOfNodes() > 0?
+            selection->GetNode(0) : NULL;
+        if (node)
+          {
+          oldSelection->DeepCopy(vtkIdTypeArray::SafeDownCast(node->GetSelectionList()));
+          }
+        }
+      vtkNew<vtkIdTypeArray> plotSelection;
+      // We are performing plot based selections.
+      for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+        {
+        int items = static_cast<int>(this->ChartPrivate->PlotCorners[i]
+                                     ->GetNumberOfItems());
+        if (items)
+          {
+          vtkTransform2D *transform =
+              this->ChartPrivate->PlotCorners[i]->GetTransform();
+          vtkVector2f min;
+          vtkVector2f max;
+          vtkContextPolygon polygon;
+          this->TransformBoxOrPolygon(polygonMode, transform, mouse.GetPos(),
+                                      min, max, polygon);
 
+          for (int j = 0; j < items; ++j)
+            {
+            vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
+                                                  PlotCorners[i]->GetItem(j));
+            if (plot && plot->GetVisible())
+              {
+              bool selected = false;
+              // Populate the selection using the appropriate shape.
+              if (polygonMode)
+                {
+                selected = plot->SelectPointsInPolygon(polygon);
+                }
+              else
+                {
+                selected = plot->SelectPoints(min, max);
+                }
+              vtkNew<vtkIdTypeArray> plotsSelection;
+              if (selected)
+                {
+                int idx = 1; // y
+                vtkAbstractArray* column = plot->GetData()->GetInputAbstractArrayToProcess(
+                  idx, plot->GetInput());
+                int columnID = -1;
+                plot->GetInput()->GetRowData()->GetAbstractArray(column->GetName(), columnID);
+                if (plotSelection->GetNumberOfTuples() != column->GetNumberOfTuples())
+                  {
+                  plotSelection->SetNumberOfTuples(0);
+                  for (vtkIdType k = 0; k < column->GetNumberOfTuples(); ++k)
+                    {
+                    plotSelection->InsertNextValue(k);
+                    }
+                  }
+                plot->SetSelection(plotSelection.GetPointer());
+                accumulateSelection->InsertNextValue(columnID);
+                }
+              }
+            }
+          }
+        }
+      // Now add the accumulated selection to the old selection
+      vtkChartSelectionHelper::BuildSelection(this->AnnotationLink,
+                                              selectionMode,
+                                              accumulateSelection.GetPointer(),
+                                              oldSelection.GetPointer(),
+                                              0);
+      }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     this->MouseBox.SetWidth(0.0);
     this->MouseBox.SetHeight(0.0);
