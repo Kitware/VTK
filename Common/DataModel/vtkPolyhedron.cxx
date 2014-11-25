@@ -1878,8 +1878,7 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
        iterNumber++)
     {
     //  Define a random ray to fire.
-    rayMag = 0.0;
-    while (rayMag == 0.0 )
+    do
       {
       for (i=0; i<3; i++)
         {
@@ -1887,6 +1886,7 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
         }
       rayMag = vtkMath::Norm(ray);
       }
+    while (rayMag == 0.0);
 
     // The ray must be appropriately sized wrt the bounding box. (It has to go
     // all the way through the bounding box.)

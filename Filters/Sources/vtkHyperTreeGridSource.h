@@ -214,7 +214,7 @@ protected:
   void SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
                              unsigned int level,
                              int treeIdx,
-                             int idx[3],
+                             const int idx[3],
                              double origin[3],
                              double size[3] );
 

@@ -60,7 +60,7 @@ void vtkVertexListIterator::SetGraph(vtkGraph *graph)
     if (helper)
       {
       int myRank
-        = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+        = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
       this->Current = helper->MakeDistributedId(myRank, this->Current);
       this->End = helper->MakeDistributedId(myRank, this->End);
       }

@@ -80,6 +80,7 @@ void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
   if (this->ClippingPlanes == NULL)
     {
     vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
+    return;
     }
   this->ClippingPlanes->RemoveItem(plane);
   this->Modified();

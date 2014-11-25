@@ -186,6 +186,11 @@ int vtkMapArrayValues::RequestData(
         return 0;
       }
     }
+  else
+    {
+    vtkErrorMacro(<<"Invalid input type");
+    return 0;
+    }
 
   vtkAbstractArray *inputArray = ods->GetAbstractArray(this->InputArrayName);
   if (!inputArray)

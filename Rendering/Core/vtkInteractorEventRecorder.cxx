@@ -274,6 +274,7 @@ void vtkInteractorEventRecorder::Rewind()
  if ( ! this->InputStream ) //need to already have an open file
    {
    vtkGenericWarningMacro(<<"No input file opened to rewind...");
+   return;
    }
  this->InputStream->clear();
  this->InputStream->seekg(0);
