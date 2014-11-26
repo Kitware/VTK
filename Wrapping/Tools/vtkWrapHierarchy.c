@@ -633,8 +633,8 @@ static char **vtkWrapHierarchy_ReadHierarchyFile(FILE *fp, char **lines)
     /* if buffer not long enough, increase it */
     while (n == maxlen-1 && line[n-1] != '\n' && !feof(fp))
       {
-      maxlen *= 2;
       char *oldline = line;
+      maxlen *= 2;
       line = (char *)realloc(line, maxlen);
       if (!line)
         {
@@ -712,8 +712,8 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
     /* if buffer not long enough, increase it */
     while (n == maxlen-1 && line[n-1] != '\n' && !feof(fp))
       {
-      maxlen *= 2;
       char *oldline = line;
+      maxlen *= 2;
       line = (char *)realloc(line, maxlen);
       if (!line)
         {
