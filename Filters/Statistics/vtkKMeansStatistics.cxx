@@ -734,6 +734,7 @@ void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
   if ( ! kmfunc->Initialize( inData, reqModel, this->DistanceFunctor ) )
     {
     delete kmfunc;
+    return;
     }
   dfunc = kmfunc;
 }
@@ -752,8 +753,8 @@ vtkKMeansAssessFunctor::~vtkKMeansAssessFunctor()
 }
 
 // ----------------------------------------------------------------------
-bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData, 
-                                         vtkTable* inModel, 
+bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
+                                         vtkTable* inModel,
                                          vtkKMeansDistanceFunctor* dfunc )
 {
   vtkIdType numObservations = inData->GetNumberOfRows();
