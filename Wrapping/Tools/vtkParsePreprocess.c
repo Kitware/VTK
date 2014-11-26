@@ -275,8 +275,8 @@ static MacroInfo **preproc_macro_location(
       /* if n+1 is a power of two, double allocated space */
       if (n > 0 && (n & (n+1)) == 0)
         {
-        hptr = htable[i];
         MacroInfo **oldhptr = hptr;
+        hptr = htable[i];
         hptr = (MacroInfo **)realloc(hptr, (2*(n+1))*sizeof(MacroInfo *));
         if (!hptr)
           {
@@ -1560,8 +1560,8 @@ const char *preproc_find_include_file(
     {
     if (m+1 > outputsize)
       {
-      outputsize += m+1;
       char *oldoutput = output;
+      outputsize += m+1;
       output = (char *)realloc(output, outputsize);
       if (!output)
         {
@@ -1621,8 +1621,8 @@ const char *preproc_find_include_file(
             }
           if (m+j+1 > outputsize)
             {
-            outputsize += m+j+1;
             char *oldoutput = output;
+            outputsize += m+j+1;
             output = (char *)realloc(output, outputsize);
             if (!output)
               {
@@ -1641,8 +1641,8 @@ const char *preproc_find_include_file(
           {
           if (m+1 > outputsize)
             {
-            outputsize += m+1;
             char *oldoutput = output;
+            outputsize += m+1;
             output = (char *)realloc(output, outputsize);
             if (!output)
               {
@@ -1661,8 +1661,8 @@ const char *preproc_find_include_file(
         j = strlen(directory);
         if (j + m + 2 > outputsize)
           {
-          outputsize += j+m+2;
           char *oldoutput = output;
+          outputsize += j+m+2;
           output = (char *)realloc(output, outputsize);
           if (!output)
             {
@@ -1745,8 +1745,8 @@ void preproc_escape_string(
     /* expand line buffer as necessary */
     while (j+4 > linelen)
       {
-      linelen *= 2;
       char *oldline = line;
+      linelen *= 2;
       line = (char *)realloc(line, linelen);
       if (!line)
         {
@@ -1948,8 +1948,8 @@ static int preproc_include_file(
       /* expand line buffer as necessary */
       while (j+4 > linelen)
         {
-        linelen *= 2;
         char *oldline = line;
+        linelen *= 2;
         line = (char *)realloc(line, linelen);
         if (!line)
           {
