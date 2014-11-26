@@ -117,8 +117,6 @@ public:
     this->Extents[5] = VTK_INT_MIN;
 
     this->MaskTextures = new vtkMapMaskTextureId;
-
-    this->PrevInput = NULL;
     }
 
   // Destructor
@@ -196,7 +194,6 @@ public:
   bool IsInitialized();
 
   void ComputeBounds(vtkImageData* input);
-
 
   // Update transfer color function based on the incoming inputs and number of
   // scalar components.
@@ -319,7 +316,7 @@ public:
   vtkMapMaskTextureId* MaskTextures;
   vtkVolumeMask* CurrentMask;
 
-  vtkImageData* PrevInput;
+  vtkTimeStamp InputUpdateTime;
 
   vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
@@ -598,8 +595,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
                  this->TextureSize[0],this->TextureSize[1],
                  this->TextureSize[2], 0,
                  format, type, dataPtr);
-
-
 
     // Set scale and bias to their defaults
     glPixelTransferf(GL_RED_SCALE,1.0);
@@ -1202,7 +1197,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
   vtkRenderer* ren, vtkVolume* vol, vtkImageData* input)
 {
-  if (input != this->PrevInput || this->IsCameraInside(ren, vol) ||
+  if (input->GetMTime() > this->InputUpdateTime.GetMTime() ||
+      this->IsCameraInside(ren, vol) ||
       this->CameraWasInsideInLastUpdate)
     {
     vtkNew<vtkTessellatedBoxSource> boxSource;
@@ -1212,7 +1208,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
 
     vtkNew<vtkDensifyPolyData> densityPolyData;
 
-    if (input == this->PrevInput && this->IsCameraInside(ren, vol))
+    if (input->GetMTime() <= this->InputUpdateTime.GetMTime() &&
+        this->IsCameraInside(ren, vol))
       {
       // Normals should be transformed using the transpose of inverse
       // InverseVolumeMat
@@ -1872,7 +1869,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   this->Impl->ShaderBuildTime.Modified();
 }
 
-
 //-----------------------------------------------------------------------------
 // Update the reduction factor of the render viewport (this->ReductionFactor)
 // according to the time spent in seconds to render the previous frame
@@ -1922,7 +1918,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
          newFactor / oldFactor > 1.3 ||
          newFactor / oldFactor < .95 )
       {
-
       this->ReductionFactor = (newFactor+oldFactor)/2.0;
 
       this->ReductionFactor = (this->ReductionFactor > 5.0) ? (1.00) :
@@ -2003,8 +1998,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->InverseVolumeMat->Invert();
 
   // Update the volume if needed
-  if (input != this->Impl->PrevInput)
+  bool volumeModified = false;
+  if (input->GetMTime() > this->Impl->InputUpdateTime.GetMTime())
     {
+    volumeModified = true;
     input->GetDimensions(this->Impl->Dimensions);
 
     // Update bounds, data, and geometry
@@ -2359,7 +2356,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);
 
-  this->Impl->PrevInput = input;
+  if (volumeModified)
+    {
+    this->Impl->InputUpdateTime.Modified();
+    }
 
   glFinish();
 
