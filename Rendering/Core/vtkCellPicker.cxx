@@ -688,7 +688,11 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
 
   // Find out whether there are multiple components in the volume
   int numComponents = data->GetNumberOfScalarComponents();
-  int independentComponents = property->GetIndependentComponents();
+  int independentComponents = 0;
+  if (property)
+    {
+    independentComponents = property->GetIndependentComponents();
+    }
   int numIndependentComponents = 1;
   if (independentComponents)
     {
@@ -707,9 +711,9 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
   for (int component = 0; component < numIndependentComponents; component++)
     {
     vtkPiecewiseFunction *scalarOpacity =
-      property->GetScalarOpacity(component);
+      (property ? property->GetScalarOpacity(component) : 0);
     int disableGradientOpacity =
-      property->GetDisableGradientOpacity(component);
+      (property ? property->GetDisableGradientOpacity(component) : 1);
     vtkPiecewiseFunction *gradientOpacity = 0;
     if (!disableGradientOpacity && this->UseVolumeGradientOpacity)
       {
@@ -1495,5 +1499,3 @@ double vtkCellPicker::ComputeVolumeOpacity(
 
   return opacity;
 }
-
-
