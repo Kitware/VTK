@@ -1586,6 +1586,7 @@ vtkFloatArray **
         {
         vtkErrorMacro(<<
           "vtkDistributedDataFilter::ExchangeIdArrays memory allocation");
+        delete [] recvSize;
         delete [] recvArrays;
         return NULL;
         }
@@ -1707,6 +1708,8 @@ vtkIdTypeArray **
         {
         vtkErrorMacro(<<
           "vtkDistributedDataFilter::ExchangeIdArrays memory allocation");
+        delete [] sendSize;
+        delete [] recvSize;
         return NULL;
         }
       mpiContr->NoBlockReceive(recvArrays[source], recvSize[source], source, tag, req);

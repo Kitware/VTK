@@ -112,7 +112,8 @@ enum _preproc_return_t {
   VTK_PARSE_FILE_OPEN_ERROR = 8, /* include file not readable */
   VTK_PARSE_FILE_READ_ERROR = 9, /* error during read */
   VTK_PARSE_MACRO_NUMARGS = 10,  /* wrong number of args to func macro */
-  VTK_PARSE_SYNTAX_ERROR = 11    /* any and all syntax errors */
+  VTK_PARSE_SYNTAX_ERROR = 11,   /* any and all syntax errors */
+  VTK_PARSE_OUT_OF_MEMORY = 12   /* out-of-memory */
 };
 
 /**

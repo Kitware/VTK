@@ -472,6 +472,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
       default:
         vtkErrorMacro(<< "Unknown SLC compression type: " <<
           data_compression );
+        fclose(fp);
         return;
       }
     void* outputSlice = output->GetScalarPointer(0, 0, z_counter);

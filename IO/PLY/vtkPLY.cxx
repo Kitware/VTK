@@ -1816,7 +1816,14 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
     /* save pointer to beginning of word */
     if (num_words >= max_words) {
       max_words += 10;
+      char** oldwords = words;
       words = (char **) realloc (words, sizeof (char *) * max_words);
+      if (!words) {
+        *nwords = 0;
+        *orig_line = NULL;
+        free(oldwords);
+        return NULL;
+      }
     }
     words[num_words++] = ptr;
 

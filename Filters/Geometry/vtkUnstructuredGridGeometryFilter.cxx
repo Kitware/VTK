@@ -1495,6 +1495,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
 //  conn->Delete();
 
   output->Squeeze();
+  delete [] cellVis;
   return 1;
 }
 

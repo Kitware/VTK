@@ -2601,7 +2601,7 @@ int vtkPolyhedron::InternalContour(double value,
   // incoming edge in the ceBackupMap.
   std::vector<vtkIdVectorType> polygonVector;
   vtkIdToIdVectorMapType::iterator ceMapIt, ceBackupMapIt;
-  vtkIdSetType::iterator cpSetIt;
+  vtkIdSetType::iterator cpSetIt = cpSet.end();
   vtkIdVectorType::iterator cpVectorIt;
 
   // backup ceMap. During graph travasal, we will remove edges from contour point
