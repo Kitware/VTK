@@ -953,8 +953,8 @@ int skip_conditional_block()
       {
       if (i >= linemaxlen-5)
         {
-        linemaxlen += i+5;
         char *oldlinebuf = linebuf;
+        linemaxlen += i+5;
         linebuf = (char *)realloc(linebuf, linemaxlen);
         if (!linebuf)
           {
