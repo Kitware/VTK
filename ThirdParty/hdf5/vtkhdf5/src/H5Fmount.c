@@ -52,7 +52,7 @@ DESCRIPTION
 static herr_t
 H5F_init_mount_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_init_mount_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5F_init())
 } /* H5F_init_mount_interface() */
@@ -76,7 +76,7 @@ H5F_close_mounts(H5F_t *f)
     unsigned u;                 /* Local index */
     herr_t ret_value=SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5F_close_mounts, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(f);
 
@@ -141,7 +141,7 @@ H5F_mount(H5G_loc_t *loc, const char *name, H5F_t *child,
     H5G_loc_t   root_loc;               /* Group location of root of file to mount */
     herr_t	ret_value = SUCCEED;	/*return value			*/
 
-    FUNC_ENTER_NOAPI_NOINIT(H5F_mount)
+    FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(loc);
     HDassert(name && *name);
@@ -307,7 +307,7 @@ H5F_unmount(H5G_loc_t *loc, const char *name, hid_t dxpl_id)
     int         child_idx;              /* Index of child in parent's mtab */
     herr_t	ret_value = SUCCEED;	/*return value			*/
 
-    FUNC_ENTER_NOAPI_NOINIT(H5F_unmount)
+    FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(loc);
     HDassert(name && *name);
@@ -441,7 +441,7 @@ H5F_is_mount(const H5F_t *file)
 {
     hbool_t ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_is_mount)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(file);
 
@@ -474,7 +474,7 @@ H5Fmount(hid_t loc_id, const char *name, hid_t child_id, hid_t plist_id)
     H5F_t	*child = NULL;
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Fmount, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE4("e", "i*sii", loc_id, name, child_id, plist_id);
 
     /* Check arguments */
@@ -524,7 +524,7 @@ H5Funmount(hid_t loc_id, const char *name)
     H5G_loc_t	loc;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Funmount, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "i*s", loc_id, name);
 
     /* Check args */
@@ -560,7 +560,7 @@ H5F_mount_count_ids_recurse(H5F_t *f, unsigned *nopen_files, unsigned *nopen_obj
 {
     unsigned u;                         /* Local index value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_mount_count_ids_recurse)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(f);
@@ -608,9 +608,7 @@ H5F_mount_count_ids_recurse(H5F_t *f, unsigned *nopen_files, unsigned *nopen_obj
 herr_t
 H5F_mount_count_ids(H5F_t *f, unsigned *nopen_files, unsigned *nopen_objs)
 {
-    herr_t      ret_value = SUCCEED;       /* Return value */
-
-    FUNC_ENTER_NOAPI(H5F_mount_count_ids, FAIL)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(f);
@@ -624,8 +622,7 @@ H5F_mount_count_ids(H5F_t *f, unsigned *nopen_files, unsigned *nopen_objs)
     /* Count open IDs in the hierarchy */
     H5F_mount_count_ids_recurse(f, nopen_files, nopen_objs);
 
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5F_mount_count_ids() */
 
 
@@ -648,7 +645,7 @@ H5F_flush_mounts_recurse(H5F_t *f, hid_t dxpl_id)
     unsigned    u;                      /* Index variable */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5F_flush_mounts_recurse)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(f);
@@ -659,7 +656,7 @@ H5F_flush_mounts_recurse(H5F_t *f, hid_t dxpl_id)
             nerrors++;
 
     /* Call the "real" flush routine, for this file */
-    if(H5F_flush(f, dxpl_id) < 0)
+    if(H5F_flush(f, dxpl_id, FALSE) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush file's cached information")
 
     /* Check flush errors for children - errors are already on the stack */
@@ -688,7 +685,7 @@ H5F_flush_mounts(H5F_t *f, hid_t dxpl_id)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5F_flush_mounts, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(f);
@@ -704,4 +701,84 @@ H5F_flush_mounts(H5F_t *f, hid_t dxpl_id)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5F_flush_mounts() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_traverse_mount
+ *
+ * Purpose:	If LNK is a mount point then copy the entry for the root
+ *		group of the mounted file into LNK.
+ *
+ * Return:	Non-negative on success/Negative on failure
+ *
+ * Programmer:	Robb Matzke
+ *              Tuesday, October  6, 1998
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5F_traverse_mount(H5O_loc_t *oloc/*in,out*/)
+{
+    H5F_t *parent = oloc->file,         /* File of object */
+        *child = NULL;                  /* Child file */
+    unsigned	lt, rt, md = 0;         /* Binary search indices */
+    int cmp;
+    H5O_loc_t	*mnt_oloc = NULL;       /* Object location for mount points */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(oloc);
+
+    /*
+     * The loop is necessary because we might have file1 mounted at the root
+     * of file2, which is mounted somewhere in file3.
+     */
+    do {
+	/*
+	 * Use a binary search to find the potential mount point in the mount
+	 * table for the parent
+	 */
+	lt = 0;
+	rt = parent->shared->mtab.nmounts;
+	cmp = -1;
+	while(lt < rt && cmp) {
+	    md = (lt + rt) / 2;
+	    mnt_oloc = H5G_oloc(parent->shared->mtab.child[md].group);
+	    cmp = H5F_addr_cmp(oloc->addr, mnt_oloc->addr);
+	    if(cmp < 0)
+		rt = md;
+	    else
+		lt = md + 1;
+	} /* end while */
+
+        /* Copy root info over to ENT */
+        if(0 == cmp) {
+            /* Get the child file */
+            child = parent->shared->mtab.child[md].file;
+
+            /* Get the location for the root group in the child's file */
+            mnt_oloc = H5G_oloc(child->shared->root_grp);
+
+            /* Release the mount point */
+            if(H5O_loc_free(oloc) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_CANTFREE, FAIL, "unable to free object location")
+
+            /* Copy the entry for the root group */
+            if(H5O_loc_copy(oloc, mnt_oloc, H5_COPY_DEEP) < 0)
+                HGOTO_ERROR(H5E_FILE, H5E_CANTCOPY, FAIL, "unable to copy object location")
+
+            /* In case the shared root group info points to a different file handle
+             * than the child, modify oloc */
+            oloc->file = child;
+
+            /* Switch to child's file */
+            parent = child;
+        } /* end if */
+    } while(!cmp);
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5F_traverse_mount() */
 

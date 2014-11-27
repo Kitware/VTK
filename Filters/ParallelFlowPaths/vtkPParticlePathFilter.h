@@ -53,6 +53,7 @@ private:
   void operator=(const vtkPParticlePathFilter&); // Not implemented
 
   vtkDoubleArray* SimulationTime;
+  vtkIntArray* SimulationTimeStep;
 };
 
 

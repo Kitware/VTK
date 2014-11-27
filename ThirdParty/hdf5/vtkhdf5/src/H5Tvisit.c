@@ -83,7 +83,7 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5T_visit
+ * Function:    H5T__visit
  *
  * Purpose:     Visit a datatype and all it's members and/or parents, making
  *              a callback for each.
@@ -96,12 +96,12 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5T_visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
+H5T__visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
 {
     hbool_t is_complex;                 /* Flag indicating current datatype is "complex" */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5T_visit, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(dt);
@@ -123,7 +123,7 @@ H5T_visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
 
                 /* Visit each member of the compound datatype */
                 for(u = 0; u < dt->shared->u.compnd.nmembs; u++)
-                    if(H5T_visit(dt->shared->u.compnd.memb[u].type, visit_flags, op, op_value) < 0)
+                    if(H5T__visit(dt->shared->u.compnd.memb[u].type, visit_flags, op, op_value) < 0)
                         HGOTO_ERROR(H5E_DATATYPE, H5E_BADITER, FAIL, "can't visit member datatype")
             } /* end case */
             break;
@@ -132,7 +132,7 @@ H5T_visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
         case H5T_VLEN:
         case H5T_ENUM:
             /* Visit parent type */
-            if(H5T_visit(dt->shared->parent, visit_flags, op, op_value) < 0)
+            if(H5T__visit(dt->shared->parent, visit_flags, op, op_value) < 0)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADITER, FAIL, "can't visit parent datatype")
             break;
 
@@ -151,5 +151,5 @@ H5T_visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op, void *op_value)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5T_visit() */
+} /* end H5T__visit() */
 

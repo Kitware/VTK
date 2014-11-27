@@ -44,10 +44,15 @@ static const char *FileHeader = "\n\
 #include <stdio.h>
 #include <time.h>
 #include "H5private.h"
+#include "vtk_libhdf5_mangle.h"
 
 #define LIBSETTINGSFNAME "libhdf5.settings"
 
-
+#define xstr(s) str(s)
+#define str(s) #s
+
+
+
 /*-------------------------------------------------------------------------
  * Function:	insert_libhdf5_settings
  *
@@ -78,7 +83,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 
     /* print variable definition and the string */
     /* Do not use const else AIX strings does not show it. */
-    fprintf(flibinfo, "char H5libhdf5_settings[]=\n");
+    fprintf(flibinfo, "char " xstr(H5libhdf5_settings) "[]=\n");
     bol++;
     while(EOF != (inchar = HDgetc(fsettings))) {
 	if(bol) {
@@ -94,7 +99,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 	else
 	    HDputc(inchar, flibinfo);
     } /* end while */
-    if(feof(fsettings)) {
+    if(HDfeof(fsettings)) {
 	/* wrap up */
 	if(!bol)
 	    /* EOF found without a new line */
@@ -112,7 +117,7 @@ insert_libhdf5_settings(FILE *flibinfo)
 #else
     /* print variable definition and an empty string */
     /* Do not use const else AIX strings does not show it. */
-    fprintf(flibinfo, "char H5libhdf5_settings[]=\"\";\n");
+    fprintf(flibinfo, "char " xstr(H5libhdf5_settings) "[]=\"\";\n");
 #endif
 } /* insert_libhdf5_settings() */
 
@@ -182,7 +187,7 @@ information about the library build configuration\n";
 	size_t n;
 	char *comma;
 
-	if((pwd = HDgetpwuid(getuid()))) {
+	if((pwd = HDgetpwuid(HDgetuid()))) {
 	    if((comma = HDstrchr(pwd->pw_gecos, ','))) {
 		n = MIN(sizeof(real_name) - 1, (unsigned)(comma - pwd->pw_gecos));
 		HDstrncpy(real_name, pwd->pw_gecos, n);
@@ -204,7 +209,7 @@ information about the library build configuration\n";
      * The FQDM of this host or the empty string.
      */
 #ifdef H5_HAVE_GETHOSTNAME
-    if(gethostname(host_name, sizeof(host_name)) < 0)
+    if(HDgethostname(host_name, sizeof(host_name)) < 0)
 	host_name[0] = '\0';
 #else
     host_name[0] = '\0';

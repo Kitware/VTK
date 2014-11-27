@@ -948,6 +948,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
       case VTK_TRIANGLE:
         {
         edge = cell->GetEdge(1);
+        pts = edge->GetPoints();
         pts->GetPoint(1, &vlist[2*3]);
         break;
         }
@@ -1019,6 +1020,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
         case VTK_TRIANGLE:
           {
           edge = face->GetEdge(1);
+          pts = edge->GetPoints();
           pts->GetPoint(1, &vlist[2*3]);
           break;
           }

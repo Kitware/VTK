@@ -42,6 +42,7 @@ typedef int H5Z_filter_t;
 #define H5Z_FILTER_NBIT         5       /*nbit compression              */
 #define H5Z_FILTER_SCALEOFFSET  6       /*scale+offset compression      */
 #define H5Z_FILTER_RESERVED     256	/*filter ids below this value are reserved for library use */
+
 #define H5Z_FILTER_MAX		65535	/*maximum filter id		*/
 
 /* General macros */
@@ -158,7 +159,7 @@ extern "C" {
  * The "can_apply" callback returns positive a valid combination, zero for an
  * invalid combination and negative for an error.
  */
-typedef herr_t (*H5Z_can_apply_func_t)(hid_t dcpl_id, hid_t type_id, hid_t space_id);
+typedef htri_t (*H5Z_can_apply_func_t)(hid_t dcpl_id, hid_t type_id, hid_t space_id);
 
 /*
  * After the "can_apply" callbacks are checked for new datasets, the "set_local"

@@ -34,6 +34,22 @@ PURPOSE.  See the above copyright notice for more information.
   #define __has_feature(x) 0
 #endif
 
+// Create handy #defines that indicate the Objective-C memory management model.
+// Manual Retain Release, Automatic Reference Counting, or Garbage Collection.
+#if defined(__OBJC_GC__)
+  #define VTK_OBJC_IS_MRR 0
+  #define VTK_OBJC_IS_ARC 0
+  #define VTK_OBJC_IS_GC 1
+#elif __has_feature(objc_arc)
+  #define VTK_OBJC_IS_MRR 0
+  #define VTK_OBJC_IS_ARC 1
+  #define VTK_OBJC_IS_GC 0
+#else
+  #define VTK_OBJC_IS_MRR 1
+  #define VTK_OBJC_IS_ARC 0
+  #define VTK_OBJC_IS_GC 0
+#endif
+
 #if __has_feature(objc_arc)
   #error VTK does not yet support ARC memory management
 #endif

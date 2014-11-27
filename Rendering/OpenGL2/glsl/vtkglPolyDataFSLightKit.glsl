@@ -34,9 +34,10 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 uniform int numberOfLights; // only allow for up to 6 active lights
 uniform vec3 lightColor[6]; // intensity weighted color
 uniform vec3 lightDirectionVC[6]; // normalized
+uniform vec3 lightHalfAngleVC[6]; // normalized
 
-// passed from the vertex shader
-varying vec4 vertexVC;
+// VC positon of this fragment
+//VTK::PositionVC::Dec
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec
@@ -67,8 +68,6 @@ void main()
   //VTK::Normal::Impl
 
   // now compute the vertex color
-  vec3 viewDirectionVC = normalize(vec3(0.0, 0.0, 1.0) - vertexVC.xyz);
-
   vec3 diffuse = vec3(0,0,0);
   vec3 specular = vec3(0,0,0);
   for (int lightNum = 0; lightNum < numberOfLights; lightNum++)
@@ -77,10 +76,9 @@ void main()
     float df = max(0.0, dot(normalVC, -lightDirectionVC[lightNum]));
     diffuse += (df * lightColor[lightNum]);
 
-    if (dot(normalVC, -lightDirectionVC[lightNum]) > 0.0)
+    if (dot(normalVC, lightDirectionVC[lightNum]) < 0.0)
       {
-      float sf = pow( max(0.0, dot(
-        reflect(lightDirectionVC[lightNum], normalVC), viewDirectionVC)), specularPower);
+      float sf = pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVC)), specularPower);
       specular += (sf * lightColor[lightNum]);
       }
     }

@@ -34,7 +34,7 @@
 #define H5R_PACKAGE		/*suppress error about including H5Rpkg   */
 
 /* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5R_init_deprec_interface
+#define H5_INTERFACE_INIT_FUNC	H5R__init_deprec_interface
 
 
 /***********/
@@ -48,7 +48,6 @@
 #include "H5Rpkg.h"		/* References				*/
 
 
-#ifndef H5_NO_DEPRECATED_SYMBOLS
 /****************/
 /* Local Macros */
 /****************/
@@ -87,9 +86,9 @@
 
 /*--------------------------------------------------------------------------
 NAME
-   H5R_init_deprec_interface -- Initialize interface-specific information
+   H5R__init_deprec_interface -- Initialize interface-specific information
 USAGE
-    herr_t H5R_init_deprec_interface()
+    herr_t H5R__init_deprec_interface()
 RETURNS
     Non-negative on success/Negative on failure
 DESCRIPTION
@@ -98,13 +97,38 @@ DESCRIPTION
 
 --------------------------------------------------------------------------*/
 static herr_t
-H5R_init_deprec_interface(void)
+H5R__init_deprec_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5R_init_deprec_interface)
+    FUNC_ENTER_STATIC_NOERR
 
     FUNC_LEAVE_NOAPI(H5R_init())
-} /* H5R_init_deprec_interface() */
+} /* H5R__init_deprec_interface() */
 
+
+/*--------------------------------------------------------------------------
+NAME
+   H5R__term_deprec_interface -- Terminate interface
+USAGE
+    herr_t H5R__term_deprec_interface()
+RETURNS
+    Non-negative on success/Negative on failure
+DESCRIPTION
+    Terminates interface.  (Just resets H5_interface_initialize_g
+    currently).
+
+--------------------------------------------------------------------------*/
+herr_t
+H5R__term_deprec_interface(void)
+{
+    FUNC_ENTER_PACKAGE_NOERR
+
+    /* Mark closed */
+    H5_interface_initialize_g = 0;
+
+    FUNC_LEAVE_NOAPI(0)
+} /* H5R__term_deprec_interface() */
+
+#ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /*--------------------------------------------------------------------------
  NAME
@@ -136,7 +160,7 @@ H5Rget_obj_type1(hid_t id, H5R_type_t ref_type, const void *ref)
     H5O_type_t obj_type;        /* Object type */
     H5G_obj_t ret_value;        /* Return value */
 
-    FUNC_ENTER_API(H5Rget_obj_type1, H5G_UNKNOWN)
+    FUNC_ENTER_API(H5G_UNKNOWN)
     H5TRACE3("Go", "iRt*x", id, ref_type, ref);
 
     /* Check args */

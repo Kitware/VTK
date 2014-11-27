@@ -40,7 +40,7 @@ const H5O_msg_class_t H5O_MSG_UNKNOWN[1] = {{
     H5O_UNKNOWN_ID,           	/*message id number             */
     "unknown",                	/*message name for debugging    */
     0,				/*native message size           */
-    FALSE,			/* messages are sharable?       */
+    0,			        /* messages are sharable?       */
     NULL,			/*decode message                */
     NULL,			/*encode message                */
     NULL,			/*copy the native value         */
@@ -78,7 +78,7 @@ H5FL_DEFINE(H5O_unknown_t);
 static herr_t
 H5O_unknown_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_unknown_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(mesg);
 

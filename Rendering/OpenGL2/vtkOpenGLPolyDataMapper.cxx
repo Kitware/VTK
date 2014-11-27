@@ -324,6 +324,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
   // handle colors / materials
   this->ReplaceShaderColorMaterialValues(VSSource, FSSource, GSSource, lightComplexity, ren, actor);
 
+  VSSource = replace(VSSource,
+    "//VTK::PositionVC::Dec",
+    "varying vec4 vertexVC;");
+  VSSource = replace(VSSource,
+    "//VTK::PositionVC::Impl",
+    "vertexVC = MCVCMatrix * vertexMC;\n"
+    "  gl_Position = VCDCMatrix * vertexVC;\n");
+  FSSource = replace(FSSource,
+    "//VTK::PositionVC::Dec",
+    "varying vec4 vertexVC;");
+
   // normals?
   if (this->Layout.NormalOffset)
     {
@@ -345,14 +356,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "  if (gl_FrontFacing == false) { normalVC = -normalVC; }\n"
       //"normalVC = normalVCVarying;"
       );
-  }
+    }
   else
     {
-    FSSource = replace(FSSource,
-      "//VTK::Normal::Dec",
+    FSSource = replace(FSSource,"//VTK::System::Dec",
       "#ifdef GL_ES\n"
       "#extension GL_OES_standard_derivatives : enable\n"
-      "#endif\n");
+      "#endif\n"
+      "//VTK::System::Dec\n",
+      false);
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       // generate a normal for lines, it will be perpendicular to the line
@@ -433,9 +445,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     // technically with OpenGL 2.1 you need an extension to make use of gl_PrimitiveId
     // so we request the shader4 extension.  This is particularly useful for apple
     // systems that do not provide gl_PrimitiveId otherwise.
+    // we put this before the System Declarations
+    FSSource = replace(FSSource,"//VTK::System::Dec",
+      "#extension GL_EXT_gpu_shader4 : enable\n"
+      "//VTK::System::Dec\n",
+      false);
     FSSource = vtkgl::replace(FSSource,
       "//VTK::Picking::Dec",
-      "#extension GL_EXT_gpu_shader4 : enable\n"
       "uniform vec3 mapperIndex;\n"
       "uniform int pickingAttributeIDOffset;");
     FSSource = vtkgl::replace(FSSource,
@@ -807,6 +823,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
   vtkCollectionSimpleIterator sit;
   float lightColor[6][3];
   float lightDirection[6][3];
+  float lightHalfAngle[6][3];
   for(lc->InitTraversal(sit);
       (light = lc->GetNextLight(sit)); )
     {
@@ -828,12 +845,20 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkgl::CellBO &cellBO,
       lightDirection[numberOfLights][0] = tDir[0];
       lightDirection[numberOfLights][1] = tDir[1];
       lightDirection[numberOfLights][2] = tDir[2];
+      lightDir[0] = -tDir[0];
+      lightDir[1] = -tDir[1];
+      lightDir[2] = -tDir[2]+1.0;
+      vtkMath::Normalize(lightDir);
+      lightHalfAngle[numberOfLights][0] = lightDir[0];
+      lightHalfAngle[numberOfLights][1] = lightDir[1];
+      lightHalfAngle[numberOfLights][2] = lightDir[2];
       numberOfLights++;
       }
     }
 
   program->SetUniform3fv("lightColor", numberOfLights, lightColor);
   program->SetUniform3fv("lightDirectionVC", numberOfLights, lightDirection);
+  program->SetUniform3fv("lightHalfAngleVC", numberOfLights, lightHalfAngle);
   program->SetUniformi("numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights
@@ -1001,7 +1026,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       this->OpenGLUpdateTime < actor->GetMTime() ||
       this->OpenGLUpdateTime < this->CurrentInput->GetMTime() )
     {
-    this->UpdateVBO(actor);
+    this->UpdateVBO(ren, actor);
     this->OpenGLUpdateTime.Modified();
     }
 
@@ -1299,7 +1324,7 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::UpdateVBO(vtkActor *act)
+void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 

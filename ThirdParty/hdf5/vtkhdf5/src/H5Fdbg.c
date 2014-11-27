@@ -53,7 +53,7 @@ H5F_debug(H5F_t *f, FILE *stream, int indent, int fwidth)
     hsize_t userblock_size;             /* Userblock size */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5F_debug, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* check args */
     HDassert(f);
@@ -123,13 +123,13 @@ H5F_debug(H5F_t *f, FILE *stream, int indent, int fwidth)
 	      f->shared->root_grp ? "" : "(none)");
     if(f->shared->root_grp) {
         if(f->shared->sblock->root_ent) /* Use real root group symbol table entry */
-            H5G_ent_debug(f->shared->sblock->root_ent, stream, indent + 3, MAX(0, fwidth - 3), NULL);
+            H5G__ent_debug(f->shared->sblock->root_ent, stream, indent + 3, MAX(0, fwidth - 3), NULL);
         else {
             H5O_loc_t *root_oloc;   /* Root object location */
             H5G_entry_t root_ent;   /* Constructed root symbol table entry */
 
             /* Reset the root group entry */
-            H5G_ent_reset(&root_ent);
+            H5G__ent_reset(&root_ent);
 
             /* Build up a simulated root group symbol table entry */
             root_oloc = H5G_oloc(f->shared->root_grp);
@@ -138,7 +138,7 @@ H5F_debug(H5F_t *f, FILE *stream, int indent, int fwidth)
             root_ent.header = root_oloc->addr;
 
             /* Display root group symbol table entry info */
-            H5G_ent_debug(&root_ent, stream, indent + 3, MAX(0, fwidth - 3), NULL);
+            H5G__ent_debug(&root_ent, stream, indent + 3, MAX(0, fwidth - 3), NULL);
         } /* end else */
     } /* end if */
 

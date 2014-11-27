@@ -100,13 +100,13 @@ typedef struct {
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5MF_sects_debug_cb(const H5FS_section_info_t *_sect, void *_udata)
+H5MF_sects_debug_cb(H5FS_section_info_t *_sect, void *_udata)
 {
-    const H5MF_free_section_t *sect = (const H5MF_free_section_t *)_sect;       /* Section to dump info */
+    H5MF_free_section_t *sect = (H5MF_free_section_t *)_sect;       /* Section to dump info */
     H5MF_debug_iter_ud_t *udata = (H5MF_debug_iter_ud_t *)_udata;         /* User data for callbacks */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5MF_sects_debug_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -166,7 +166,7 @@ H5MF_sects_dump(H5F_t *f, hid_t dxpl_id, FILE *stream)
     int fwidth = 50;                    /* Field width */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5MF_sects_dump, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 #ifdef H5MF_ALLOC_DEBUG
 HDfprintf(stderr, "%s: Dumping file free space sections\n", FUNC);
 #endif /* H5MF_ALLOC_DEBUG */

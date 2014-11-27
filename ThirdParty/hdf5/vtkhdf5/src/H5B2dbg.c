@@ -88,7 +88,7 @@
  */
 herr_t
 H5B2_hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int fwidth,
-    const H5B2_class_t *type)
+    const H5B2_class_t *type, haddr_t obj_addr)
 {
     H5B2_hdr_t	*hdr = NULL;            /* B-tree header info */
     void        *dbg_ctx = NULL;	/* v2 B-tree debugging context */
@@ -97,13 +97,14 @@ H5B2_hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, 
     H5B2_hdr_cache_ud_t cache_udata;    /* User-data for callback */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5B2_hdr_debug, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
      */
     HDassert(f);
     HDassert(H5F_addr_defined(addr));
+    HDassert(H5F_addr_defined(obj_addr));
     HDassert(stream);
     HDassert(indent >= 0);
     HDassert(fwidth >= 0);
@@ -114,7 +115,7 @@ H5B2_hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, 
     /* Check for debugging context callback available */
     if(type->crt_dbg_ctx) {
         /* Create debugging context */
-        if(NULL == (dbg_ctx = (type->crt_dbg_ctx)(f, dxpl_id, addr)))
+        if(NULL == (dbg_ctx = (type->crt_dbg_ctx)(f, dxpl_id, obj_addr)))
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "unable to create v2 B-tree debugging context")
     } /* end if */
 
@@ -168,7 +169,7 @@ H5B2_hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, 
     /* Print relevant node info */
     HDfprintf(stream, "%*sNode Info: (max_nrec/split_nrec/merge_nrec)\n", indent, "");
     for(u = 0; u < (unsigned)(hdr->depth + 1); u++) {
-        sprintf(temp_str, "Depth %u:", u);
+        HDsnprintf(temp_str, sizeof(temp_str), "Depth %u:", u);
         HDfprintf(stream, "%*s%-*s (%u/%u/%u)\n", indent + 3, "", MAX(0, fwidth - 3),
             temp_str,
             hdr->node_info[u].max_nrec, hdr->node_info[u].split_nrec, hdr->node_info[u].merge_nrec);
@@ -202,7 +203,7 @@ done:
  */
 herr_t
 H5B2_int_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int fwidth,
-    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec, unsigned depth)
+    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec, unsigned depth, haddr_t obj_addr)
 {
     H5B2_hdr_t	*hdr = NULL;            /* B-tree header */
     H5B2_internal_t	*internal = NULL;   /* B-tree internal node */
@@ -212,7 +213,7 @@ H5B2_int_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, 
     H5B2_hdr_cache_ud_t cache_udata;    /* User-data for callback */
     herr_t      ret_value=SUCCEED;      /* Return value */
 
-    FUNC_ENTER_NOAPI(H5B2_int_debug, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -226,12 +227,13 @@ H5B2_int_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, 
     HDassert((type->crt_dbg_ctx && type->dst_dbg_ctx) ||
         (NULL == type->crt_dbg_ctx && NULL == type->dst_dbg_ctx));
     HDassert(H5F_addr_defined(hdr_addr));
+    HDassert(H5F_addr_defined(obj_addr));
     HDassert(nrec > 0);
 
     /* Check for debugging context callback available */
     if(type->crt_dbg_ctx) {
         /* Create debugging context */
-        if(NULL == (dbg_ctx = (type->crt_dbg_ctx)(f, dxpl_id, addr)))
+        if(NULL == (dbg_ctx = (type->crt_dbg_ctx)(f, dxpl_id, obj_addr)))
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "unable to create v2 B-tree debugging context")
     } /* end if */
 
@@ -279,7 +281,7 @@ H5B2_int_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, 
     /* Print all node pointers and records */
     for(u = 0; u < internal->nrec; u++) {
         /* Print node pointer */
-        sprintf(temp_str, "Node pointer #%u: (all/node/addr)", u);
+        HDsnprintf(temp_str, sizeof(temp_str), "Node pointer #%u: (all/node/addr)", u);
         HDfprintf(stream, "%*s%-*s (%Hu/%u/%a)\n", indent + 3, "", MAX(0, fwidth - 3),
                   temp_str,
                   internal->node_ptrs[u].all_nrec,
@@ -287,16 +289,16 @@ H5B2_int_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, 
                   internal->node_ptrs[u].addr);
 
         /* Print record */
-        sprintf(temp_str, "Record #%u:", u);
+        HDsnprintf(temp_str, sizeof(temp_str), "Record #%u:", u);
         HDfprintf(stream, "%*s%-*s\n", indent + 3, "", MAX(0, fwidth - 3),
                   temp_str);
         HDassert(H5B2_INT_NREC(internal, hdr, u));
         (void)(type->debug)(stream, f, dxpl_id, indent + 6, MAX (0, fwidth-6),
-            H5B2_INT_NREC(internal, hdr, u), NULL);
+            H5B2_INT_NREC(internal, hdr, u), dbg_ctx);
     } /* end for */
 
     /* Print final node pointer */
-    sprintf(temp_str, "Node pointer #%u: (all/node/addr)", u);
+    HDsnprintf(temp_str, sizeof(temp_str), "Node pointer #%u: (all/node/addr)", u);
     HDfprintf(stream, "%*s%-*s (%Hu/%u/%a)\n", indent + 3, "", MAX(0, fwidth - 3),
               temp_str,
               internal->node_ptrs[u].all_nrec,
@@ -333,7 +335,7 @@ done:
  */
 herr_t
 H5B2_leaf_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int fwidth,
-    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec)
+    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec, haddr_t obj_addr)
 {
     H5B2_hdr_t	*hdr = NULL;            /* B-tree header */
     H5B2_leaf_t	*leaf = NULL;           /* B-tree leaf node */
@@ -343,7 +345,7 @@ H5B2_leaf_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent,
     char        temp_str[128];          /* Temporary string, for formatting */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5B2_leaf_debug, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /*
      * Check arguments.
@@ -357,12 +359,13 @@ H5B2_leaf_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent,
     HDassert((type->crt_dbg_ctx && type->dst_dbg_ctx) ||
         (NULL == type->crt_dbg_ctx && NULL == type->dst_dbg_ctx));
     HDassert(H5F_addr_defined(hdr_addr));
+    HDassert(H5F_addr_defined(obj_addr));
     HDassert(nrec > 0);
 
     /* Check for debugging context callback available */
     if(type->crt_dbg_ctx) {
         /* Create debugging context */
-        if(NULL == (dbg_ctx = (type->crt_dbg_ctx)(f, dxpl_id, addr)))
+        if(NULL == (dbg_ctx = (type->crt_dbg_ctx)(f, dxpl_id, obj_addr)))
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "unable to create v2 B-tree debugging context")
     } /* end if */
 
@@ -407,12 +410,12 @@ H5B2_leaf_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent,
     /* Print all node pointers and records */
     for(u = 0; u < leaf->nrec; u++) {
         /* Print record */
-        sprintf(temp_str, "Record #%u:", u);
+        HDsnprintf(temp_str, sizeof(temp_str), "Record #%u:", u);
         HDfprintf(stream, "%*s%-*s\n", indent + 3, "", MAX(0, fwidth - 3),
                   temp_str);
         HDassert(H5B2_LEAF_NREC(leaf, hdr, u));
         (void)(type->debug)(stream, f, dxpl_id, indent + 6, MAX (0, fwidth-6),
-            H5B2_LEAF_NREC(leaf, hdr, u), NULL);
+            H5B2_LEAF_NREC(leaf, hdr, u), dbg_ctx);
     } /* end for */
 
 done:

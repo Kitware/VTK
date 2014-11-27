@@ -97,7 +97,7 @@ DESCRIPTION
 static herr_t
 H5FD_int_init_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5FD_int_init_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5FD_init())
 } /* H5FD_int_init_interface() */
@@ -122,7 +122,7 @@ H5FD_read(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr,
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FD_read, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(file && file->cls);
     HDassert(H5I_GENPROP_LST == H5I_get_type(dxpl_id));
@@ -165,7 +165,7 @@ H5FD_write(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr,
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FD_write, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(file && file->cls);
     HDassert(H5I_GENPROP_LST == H5I_get_type(dxpl_id));
@@ -212,7 +212,7 @@ H5FD_set_eoa(H5FD_t *file, H5FD_mem_t type, haddr_t addr)
 {
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FD_set_eoa, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(file && file->cls);
     HDassert(H5F_addr_defined(addr) && addr <= file->maxaddr);
@@ -249,7 +249,7 @@ H5FD_get_eoa(const H5FD_t *file, H5FD_mem_t type)
 {
     haddr_t	ret_value;
 
-    FUNC_ENTER_NOAPI(H5FD_get_eoa, HADDR_UNDEF)
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
     HDassert(file && file->cls);
 
@@ -291,14 +291,14 @@ H5FD_get_eof(const H5FD_t *file)
 {
     haddr_t	ret_value;
 
-    FUNC_ENTER_NOAPI(H5FD_get_eof, HADDR_UNDEF)
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
     HDassert(file && file->cls);
 
     /* Dispatch to driver */
     if(file->cls->get_eof) {
 	if(HADDR_UNDEF == (ret_value = (file->cls->get_eof)(file)))
-	    HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, HADDR_UNDEF, "driver get_eof request failed")
+	    HGOTO_ERROR(H5E_VFL, H5E_CANTGET, HADDR_UNDEF, "driver get_eof request failed")
     } /* end if */
     else
 	ret_value = file->maxaddr;

@@ -74,6 +74,7 @@ static herr_t H5P_fmnt_reg_prop(H5P_genclass_t *pclass);
 /* File mount property list class library initialization object */
 const H5P_libclass_t H5P_CLS_FMNT[1] = {{
     "file mount",		/* Class name for debugging     */
+    H5P_TYPE_FILE_MOUNT,        /* Class type                   */
     &H5P_CLS_ROOT_g,		/* Parent class ID              */
     &H5P_CLS_FILE_MOUNT_g,	/* Pointer to class ID          */
     &H5P_LST_FILE_MOUNT_g,	/* Pointer to default property list ID */
@@ -110,7 +111,7 @@ H5P_fmnt_reg_prop(H5P_genclass_t *pclass)
     hbool_t local = H5F_MNT_SYM_LOCAL_DEF;      /* Whether symlinks are local to file */
     herr_t ret_value = SUCCEED;                 /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5P_fmnt_reg_prop)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Register property of whether symlinks is local to file */
     if(H5P_register_real(pclass, H5F_MNT_SYM_LOCAL_NAME, H5F_MNT_SYM_LOCAL_SIZE, &local, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)

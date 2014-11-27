@@ -55,6 +55,7 @@
 
 /* General functions */
 H5_DLL herr_t H5R_init(void);
+H5_DLL herr_t H5R__term_deprec_interface(void);
 H5_DLL herr_t H5R_get_obj_type(H5F_t *file, hid_t dxpl_id, H5R_type_t ref_type,
     const void *_ref, H5O_type_t *obj_type);
 

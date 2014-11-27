@@ -40,9 +40,6 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-// For debugging purposes only
-//#include <vtkContourFilter.h>
-
 int TestGPURayCastVolumeLightKit(int argc, char *argv[])
 {
   double scalarRange[2];
@@ -96,19 +93,6 @@ int TestGPURayCastVolumeLightKit(int argc, char *argv[])
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
-
-  // For debugging purposes only
-//  vtkNew<vtkPolyDataMapper> pm;
-//  vtkNew<vtkActor> ac;
-//  vtkNew<vtkContourFilter> cf;
-//  ac->SetMapper(pm.GetPointer());
-//  pm->SetInputConnection(cf->GetOutputPort());
-//  pm->SetScalarVisibility(0);
-//  cf->SetValue(0, 60.0);
-//  cf->SetInputConnection(reader->GetOutputPort());
-//  ac->SetPosition(-50.0, 0.0, 0.0);
-//  ren->AddActor(ac.GetPointer());
-
   ren->AddViewProp(volume.GetPointer());
 
   renWin->Render();

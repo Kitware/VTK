@@ -123,7 +123,7 @@ H5std_string CompType::getMemberName( unsigned member_num ) const
 		"H5Tget_member_name returns NULL for member name");
     }
     H5std_string member_name = H5std_string(member_name_C); // convert C string to string
-    HDfree(member_name_C); // free the C string
+    H5free_memory(member_name_C); // free the C string
     return( member_name ); // return the member name string
 }
 
@@ -448,6 +448,25 @@ void CompType::pack() const
    {
       throw DataTypeIException("CompType::pack", "H5Tpack failed");
    }
+}
+
+//--------------------------------------------------------------------------
+// Function:	CompType::setSize
+///\brief	Sets the total size for this compound datatype.
+///\param	size - IN: Size to set
+///\exception	H5::DataTypeIException
+// Note
+//	H5Tset_size works on atom datatypes and compound datatypes only
+// Programmer	Binh-Minh Ribler - 2014
+//--------------------------------------------------------------------------
+void CompType::setSize(size_t size) const
+{
+    // Call C routine H5Tset_size to set the total size
+    herr_t ret_value = H5Tset_size(id, size);
+    if (ret_value < 0)
+    {
+	throw DataTypeIException("CompType::setSize", "H5Tset_size failed");
+    }
 }
 
 //--------------------------------------------------------------------------

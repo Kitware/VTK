@@ -15,7 +15,7 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Gobj.c
+ * Created:		H5Groot.c
  *			Apr  8 2009
  *			Neil Fortner <nfortne2@hdfgroup.org>
  *
@@ -44,6 +44,41 @@
 #include "H5Pprivate.h"         /* Property Lists			*/
 
 
+/****************/
+/* Local Macros */
+/****************/
+
+
+/******************/
+/* Local Typedefs */
+/******************/
+
+
+/********************/
+/* Package Typedefs */
+/********************/
+
+
+/********************/
+/* Local Prototypes */
+/********************/
+
+
+/*********************/
+/* Package Variables */
+/*********************/
+
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+
+/*******************/
+/* Local Variables */
+/*******************/
+
+
 
 /*-------------------------------------------------------------------------
  * Function:	H5G_rootof
@@ -66,10 +101,26 @@
 H5G_t *
 H5G_rootof(H5F_t *f)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_rootof)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
+    /* Sanity check */
+    HDassert(f);
+    HDassert(f->shared);
+
+    /* Walk to top of mounted files */
     while(f->parent)
         f = f->parent;
+
+    /* Sanity check */
+    HDassert(f);
+    HDassert(f->shared);
+    HDassert(f->shared->root_grp);
+
+    /* Check to see if the root group was opened through a different
+    * "top" file, and switch it to point at the current "top" file.
+    */
+    if(f->shared->root_grp->oloc.file != f)
+        f->shared->root_grp->oloc.file = f;
 
     FUNC_LEAVE_NOAPI(f->shared->root_grp)
 } /* end H5G_rootof() */
@@ -97,12 +148,13 @@ herr_t
 H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
 {
     H5G_loc_t   root_loc;               /* Root location information */
+    H5G_obj_create_t gcrt_info;         /* Root group object creation info */
     htri_t      stab_exists = -1;       /* Whether the symbol table exists */
     hbool_t     sblock_dirty = FALSE;   /* Whether superblock was dirtied */
     hbool_t     path_init = FALSE;      /* Whether path was initialized */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_mkroot, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* check args */
     HDassert(f);
@@ -114,7 +166,7 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
         HGOTO_DONE(SUCCEED)
 
     /* Create information needed for group nodes */
-    if(H5G_node_init(f) < 0)
+    if(H5G__node_init(f) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group node info")
 
     /*
@@ -140,10 +192,16 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
     if(create_root) {
         /* Create root group */
         /* (Pass the FCPL which is a sub-class of the group creation property class) */
-	if(H5G_obj_create(f, dxpl_id, f->shared->fcpl_id, root_loc.oloc/*out*/) < 0)
+        gcrt_info.gcpl_id = f->shared->fcpl_id;
+        gcrt_info.cache_type = H5G_NOTHING_CACHED;
+	if(H5G__obj_create(f, dxpl_id, &gcrt_info, root_loc.oloc/*out*/) < 0)
 	    HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group entry")
 	if(1 != H5O_link(root_loc.oloc, 1, dxpl_id))
 	    HGOTO_ERROR(H5E_SYM, H5E_LINKCOUNT, FAIL, "internal error (wrong link count)")
+
+        /* Decrement refcount on root group's object header in memory */
+        if(H5O_dec_rc_by_loc(root_loc.oloc, dxpl_id) < 0)
+           HGOTO_ERROR(H5E_SYM, H5E_CANTDEC, FAIL, "unable to decrement refcount on root group's object header")
 
         /* Mark superblock dirty, so root group info is flushed */
         sblock_dirty = TRUE;
@@ -156,7 +214,9 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
                 HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, "can't allocate space for symbol table entry")
 
             /* Initialize the root group symbol table entry */
-            f->shared->sblock->root_ent->type = H5G_NOTHING_CACHED; /* We will cache the stab later */
+            f->shared->sblock->root_ent->type = gcrt_info.cache_type;
+            if(gcrt_info.cache_type != H5G_NOTHING_CACHED)
+                f->shared->sblock->root_ent->cache = gcrt_info.cache;
             f->shared->sblock->root_ent->name_off = 0;  /* No name (yet) */
             f->shared->sblock->root_ent->header = root_loc.oloc->addr;
         } /* end if */
@@ -195,7 +255,7 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
 
                 /* Check if the symbol table message is valid, and replace with the
                 * cached symbol table if necessary */
-                if(H5G_stab_valid(root_loc.oloc, dxpl_id, &cached_stab) < 0)
+                if(H5G__stab_valid(root_loc.oloc, dxpl_id, &cached_stab) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to verify symbol table")
             } /* end if */
 #endif /* H5_STRICT_FORMAT_CHECKS */
@@ -233,7 +293,7 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
     } /* end if */
 
     /* Create the path names for the root group's entry */
-    H5G_name_init(root_loc.path, "/");
+    H5G__name_init(root_loc.path, "/");
     path_init = TRUE;
 
     f->shared->root_grp->shared->fo_count = 1;
@@ -267,4 +327,88 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G_mkroot() */
+
+
+/*-------------------------------------------------------------------------
+* Function:    H5G_root_free
+*
+* Purpose:	Free memory used by an H5G_t struct (and its H5G_shared_t).
+*		Does not close the group or decrement the reference count.
+*		Used to free memory used by the root group.
+*
+* Return:	Success:    Non-negative
+*		Failure:    Negative
+*
+* Programmer:	James Laird
+*		Tuesday, September 7, 2004
+*
+*-------------------------------------------------------------------------
+*/
+herr_t
+H5G_root_free(H5G_t *grp)
+{
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    /* Check args */
+    HDassert(grp && grp->shared);
+    HDassert(grp->shared->fo_count > 0);
+
+    /* Free the path */
+    H5G_name_free(&(grp->path));
+
+    grp->shared = H5FL_FREE(H5G_shared_t, grp->shared);
+    grp = H5FL_FREE(H5G_t, grp);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5G_root_free() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5G_root_loc
+ *
+ * Purpose:	Construct a "group location" for the root group of a file
+ *
+ * Return:	Success:	Non-negative
+ * 		Failure:	Negative
+ *
+ * Programmer:	Quincey Koziol
+ *		koziol@hdfgroup.org
+ *		Mar  5 2007
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5G_root_loc(H5F_t *f, H5G_loc_t *loc)
+{
+    H5G_t *root_grp;                    /* Pointer to root group's info */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    HDassert(f);
+    HDassert(loc);
+
+    /* Retrieve the root group for the file */
+    root_grp = H5G_rootof(f);
+    HDassert(root_grp);
+
+    /* Build the group location for the root group */
+    if(NULL == (loc->oloc = H5G_oloc(root_grp)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unable to get object location for root group")
+    if(NULL == (loc->path = H5G_nameof(root_grp)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unable to get path for root group")
+
+    /* Patch up root group's object location to reflect this file */
+    /* (Since the root group info is only stored once for files which
+     *  share an underlying low-level file)
+     */
+    /* (but only for non-mounted files) */
+    if(!H5F_is_mount(f)) {
+        loc->oloc->file = f;
+        loc->oloc->holding_file = FALSE;
+    } /* end if */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5G_root_loc() */
 

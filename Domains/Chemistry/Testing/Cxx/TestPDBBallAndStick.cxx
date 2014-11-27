@@ -38,18 +38,23 @@ int TestPDBBallAndStick(int argc, char *argv[])
   // read protein from pdb
   vtkNew<vtkPDBReader> reader;
   reader->SetFileName(fileName);
+  reader->Update();
 
   delete [] fileName;
 
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
 
+  cerr << "Class: " << molmapper->GetClassName() << endl;
+  cerr << "Atoms: " << molmapper->GetInput()->GetNumberOfAtoms() << endl;
+  cerr << "Bonds: " << molmapper->GetInput()->GetNumberOfBonds() << endl;
+
   molmapper->UseBallAndStickSettings();
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper.GetPointer());
   actor->GetProperty()->SetAmbient(0.0);
-  actor->GetProperty()->SetDiffuse(0.0);
+  actor->GetProperty()->SetDiffuse(1.0);
   actor->GetProperty()->SetSpecular(0.0);
   actor->GetProperty()->SetSpecularPower(40);
 
@@ -76,18 +81,19 @@ int TestPDBBallAndStick(int argc, char *argv[])
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
 
-  /*
-  int numRenders = 85;
+/*
+  int numRenders = 500;
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
     {
-    ren->GetActiveCamera()->Azimuth(1);
-    ren->GetActiveCamera()->Elevation(1);
+    ren->GetActiveCamera()->Azimuth(85.0/numRenders);
+    ren->GetActiveCamera()->Elevation(85.0/numRenders);
     win->Render();
     }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
+*/
 
   ren->GetActiveCamera()->SetPosition(0,0,1);
   ren->GetActiveCamera()->SetFocalPoint(0,0,0);
@@ -96,7 +102,6 @@ int TestPDBBallAndStick(int argc, char *argv[])
   ren->GetActiveCamera()->Zoom(1.7);
 
   win->Render();
-*/
 
   // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);

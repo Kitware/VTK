@@ -43,7 +43,7 @@ DESCRIPTION
 static herr_t
 H5F_init_fake_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_init_fake_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5F_init())
 } /* H5F_init_fake_interface() */
@@ -72,7 +72,7 @@ H5F_fake_alloc(uint8_t sizeof_size)
     H5F_t *f = NULL;            /* Pointer to fake file struct */
     H5F_t *ret_value;           /* Return value */
 
-    FUNC_ENTER_NOAPI(H5F_fake_alloc, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* Allocate faked file struct */
     if(NULL == (f = H5FL_CALLOC(H5F_t)))
@@ -114,7 +114,7 @@ done:
 herr_t
 H5F_fake_free(H5F_t *f)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_fake_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Free faked file struct */
     if(f) {

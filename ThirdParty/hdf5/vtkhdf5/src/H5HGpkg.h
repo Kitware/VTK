@@ -71,12 +71,6 @@ H5FL_BLK_EXTERN(gheap_chunk);
 #define H5HG_MINSIZE	4096
 
 /*
- * Maximum length of the CWFS list, the list of remembered collections that
- * have free space.
- */
-#define H5HG_NCWFS	16
-
-/*
  * Pad all global heap messages to a multiple of eight bytes so we can load
  * the entire collection into memory and operate on it there.  Eight should
  * be sufficient for machines that have alignment constraints because our
@@ -150,7 +144,7 @@ struct H5HG_heap_t {
 /* Package Private Prototypes */
 /******************************/
 H5_DLL herr_t H5HG_free(H5HG_heap_t *heap);
-H5_DLL H5HG_t *H5HG_protect(H5F_t *f, hid_t dxpl_id, haddr_t addr, H5AC_protect_t rw);
+H5_DLL H5HG_heap_t *H5HG_protect(H5F_t *f, hid_t dxpl_id, haddr_t addr, H5AC_protect_t rw);
 
 #endif /* _H5HGpkg_H */
 

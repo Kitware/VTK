@@ -108,8 +108,6 @@ void vtkOpenGLActor::GetKeyMatrices(vtkMatrix4x4 *&mcwc, vtkMatrix3x3 *&normMat)
     else
       {
       this->NormalTransform->SetMatrix(this->Matrix);
-      double *scale = this->NormalTransform->GetScale();
-      this->NormalTransform->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
       vtkMatrix4x4 *mat4 = this->NormalTransform->GetMatrix();
       for(int i = 0; i < 3; ++i)
         {

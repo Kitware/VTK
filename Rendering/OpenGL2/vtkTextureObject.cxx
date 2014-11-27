@@ -1713,9 +1713,9 @@ void vtkTextureObject::CopyToFrameBuffer(
 
   float verts[] = {
     2.0f*dstXmin/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
-    2.0f*dstXmax/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
-    2.0f*dstXmax/dstSizeX-1.0f, 2.0f*dstYmax/dstSizeY-1.0f, 0.0f,
-    2.0f*dstXmin/dstSizeX-1.0f, 2.0f*dstYmax/dstSizeY-1.0f, 0.0f};
+    2.0f*(dstXmax+1.0f)/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
+    2.0f*(dstXmax+1.0f)/dstSizeX-1.0f, 2.0f*(dstYmax+1.0f)/dstSizeY-1.0f, 0.0f,
+    2.0f*dstXmin/dstSizeX-1.0f, 2.0f*(dstYmax+1.0f)/dstSizeY-1.0f, 0.0f};
 
   // if no program or VAO was provided, then use
   // a simple pass through program and bind this

@@ -45,16 +45,17 @@
 /********************/
 /* Local Prototypes */
 /********************/
-static void *H5O_dset_get_copy_file_udata(void);
-static void H5O_dset_free_copy_file_udata(void *);
-static htri_t H5O_dset_isa(H5O_t *loc);
-static hid_t H5O_dset_open(const H5G_loc_t *obj_loc, hid_t lapl_id,
+static void *H5O__dset_get_copy_file_udata(void);
+static void H5O__dset_free_copy_file_udata(void *);
+static htri_t H5O__dset_isa(H5O_t *loc);
+static hid_t H5O__dset_open(const H5G_loc_t *obj_loc, hid_t lapl_id,
     hid_t dxpl_id, hbool_t app_ref);
-static void *H5O_dset_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc,
+static void *H5O__dset_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc,
     hid_t dxpl_id);
-static H5O_loc_t *H5O_dset_get_oloc(hid_t obj_id);
-static herr_t H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
+static H5O_loc_t *H5O__dset_get_oloc(hid_t obj_id);
+static herr_t H5O__dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
     H5_ih_info_t *bh_info);
+static herr_t H5O__dset_flush(H5G_loc_t *obj_loc, hid_t dxpl_id);
 
 
 /*********************/
@@ -75,13 +76,14 @@ static herr_t H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
 const H5O_obj_class_t H5O_OBJ_DATASET[1] = {{
     H5O_TYPE_DATASET,		/* object type			*/
     "dataset",			/* object name, for debugging	*/
-    H5O_dset_get_copy_file_udata, /* get 'copy file' user data	*/
-    H5O_dset_free_copy_file_udata, /* free 'copy file' user data	*/
-    H5O_dset_isa, 		/* "isa" message		*/
-    H5O_dset_open, 		/* open an object of this class */
-    H5O_dset_create, 		/* create an object of this class */
-    H5O_dset_get_oloc, 		/* get an object header location for an object */
-    H5O_dset_bh_info 		/* get the index & heap info for an object */
+    H5O__dset_get_copy_file_udata, /* get 'copy file' user data	*/
+    H5O__dset_free_copy_file_udata, /* free 'copy file' user data	*/
+    H5O__dset_isa, 		/* "isa" message		*/
+    H5O__dset_open, 		/* open an object of this class */
+    H5O__dset_create, 		/* create an object of this class */
+    H5O__dset_get_oloc, 	/* get an object header location for an object */
+    H5O__dset_bh_info, 		/* get the index & heap info for an object */
+    H5O__dset_flush 		/* flush an opened object of this class */
 }};
 
 /* Declare a free list to manage the H5D_copy_file_ud_t struct */
@@ -89,7 +91,7 @@ H5FL_DEFINE(H5D_copy_file_ud_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_dset_get_copy_file_udata
+ * Function:	H5O__dset_get_copy_file_udata
  *
  * Purpose:	Allocates the user data needed for copying a dataset's
  *		object header from file to file.
@@ -104,11 +106,11 @@ H5FL_DEFINE(H5D_copy_file_ud_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_dset_get_copy_file_udata(void)
+H5O__dset_get_copy_file_udata(void)
 {
     void *ret_value;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dset_get_copy_file_udata)
+    FUNC_ENTER_STATIC
 
     /* Allocate space for the 'copy file' user data for copying datasets */
     if(NULL == (ret_value = H5FL_CALLOC(H5D_copy_file_ud_t)))
@@ -116,11 +118,11 @@ H5O_dset_get_copy_file_udata(void)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dset_get_copy_file_udata() */
+} /* end H5O__dset_get_copy_file_udata() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_dset_free_copy_file_udata
+ * Function:	H5O__dset_free_copy_file_udata
  *
  * Purpose:	Release the user data needed for copying a dataset's
  *		object header from file to file.
@@ -130,18 +132,14 @@ done:
  * Programmer:	Quincey Koziol
  *              Monday, November 21, 2005
  *
- * Modifications: Peter Cao
- *                Tuesday, December 27, 2005
- *                Free filter pipeline for copying a dataset
- *
  *-------------------------------------------------------------------------
  */
 static void
-H5O_dset_free_copy_file_udata(void *_udata)
+H5O__dset_free_copy_file_udata(void *_udata)
 {
     H5D_copy_file_ud_t *udata = (H5D_copy_file_ud_t *)_udata;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_dset_free_copy_file_udata)
+    FUNC_ENTER_STATIC_NOERR
 
     /* Sanity check */
     HDassert(udata);
@@ -162,11 +160,11 @@ H5O_dset_free_copy_file_udata(void *_udata)
     udata = H5FL_FREE(H5D_copy_file_ud_t, udata);
 
     FUNC_LEAVE_NOAPI_VOID
-} /* end H5O_dset_free_copy_file_udata() */
+} /* end H5O__dset_free_copy_file_udata() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_dset_isa
+ * Function:	H5O__dset_isa
  *
  * Purpose:	Determines if an object has the requisite messages for being
  *		a dataset.
@@ -182,13 +180,13 @@ H5O_dset_free_copy_file_udata(void *_udata)
  *
  *-------------------------------------------------------------------------
  */
-htri_t
-H5O_dset_isa(H5O_t *oh)
+static htri_t
+H5O__dset_isa(H5O_t *oh)
 {
     htri_t	exists;                 /* Flag if header message of interest exists */
     htri_t	ret_value = TRUE;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5O_dset_isa, FAIL)
+    FUNC_ENTER_STATIC
 
     HDassert(oh);
 
@@ -206,11 +204,11 @@ H5O_dset_isa(H5O_t *oh)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dset_isa() */
+} /* end H5O__dset_isa() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_dset_open
+ * Function:	H5O__dset_open
  *
  * Purpose:	Open a dataset at a particular location
  *
@@ -223,14 +221,14 @@ done:
  *-------------------------------------------------------------------------
  */
 static hid_t
-H5O_dset_open(const H5G_loc_t *obj_loc, hid_t lapl_id, hid_t dxpl_id, hbool_t app_ref)
+H5O__dset_open(const H5G_loc_t *obj_loc, hid_t lapl_id, hid_t dxpl_id, hbool_t app_ref)
 {
     H5D_t       *dset = NULL;           /* Dataset opened */
     htri_t  isdapl;                 /* lapl_id is a dapl */
     hid_t   dapl_id;                /* dapl to use to open this dataset */
     hid_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dset_open)
+    FUNC_ENTER_STATIC
 
     HDassert(obj_loc);
 
@@ -260,11 +258,11 @@ done:
             HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, FAIL, "unable to release dataset")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dset_open() */
+} /* end H5O__dset_open() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_dset_create
+ * Function:	H5O__dset_create
  *
  * Purpose:	Create a dataset in a file
  *
@@ -277,13 +275,13 @@ done:
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_dset_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
+H5O__dset_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
 {
     H5D_obj_create_t *crt_info = (H5D_obj_create_t *)_crt_info; /* Dataset creation parameters */
     H5D_t *dset = NULL;         /* New dataset created */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dset_create)
+    FUNC_ENTER_STATIC
 
     /* Sanity checks */
     HDassert(f);
@@ -291,7 +289,7 @@ H5O_dset_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
     HDassert(obj_loc);
 
     /* Create the the dataset */
-    if(NULL == (dset = H5D_create(f, crt_info->type_id, crt_info->space, crt_info->dcpl_id, crt_info->dapl_id, dxpl_id)))
+    if(NULL == (dset = H5D__create(f, crt_info->type_id, crt_info->space, crt_info->dcpl_id, crt_info->dapl_id, dxpl_id)))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, NULL, "unable to create dataset")
 
     /* Set up the new dataset's location */
@@ -309,11 +307,11 @@ done:
             HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, NULL, "unable to release dataset")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dset_create() */
+} /* end H5O__dset_create() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_dset_get_oloc
+ * Function:	H5O__dset_get_oloc
  *
  * Purpose:	Retrieve the object header location for an open object
  *
@@ -326,12 +324,12 @@ done:
  *-------------------------------------------------------------------------
  */
 static H5O_loc_t *
-H5O_dset_get_oloc(hid_t obj_id)
+H5O__dset_get_oloc(hid_t obj_id)
 {
     H5D_t       *dset;                  /* Dataset opened */
     H5O_loc_t	*ret_value;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dset_get_oloc)
+    FUNC_ENTER_STATIC
 
     /* Get the dataset */
     if(NULL == (dset = (H5D_t *)H5I_object(obj_id)))
@@ -343,11 +341,11 @@ H5O_dset_get_oloc(hid_t obj_id)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dset_get_oloc() */
+} /* end H5O__dset_get_oloc() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_dset_bh_info
+ * Function:    H5O__dset_bh_info
  *
  * Purpose:     Returns the amount of btree storage that is used for chunked
  *              dataset.
@@ -365,7 +363,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
+H5O__dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
 {
     H5O_layout_t        layout;         	/* Data storage layout message */
     H5O_pline_t         pline;                  /* I/O pipeline message */
@@ -376,7 +374,7 @@ H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
     htri_t		exists;                 /* Flag if header message of interest exists */
     herr_t      	ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_dset_bh_info)
+    FUNC_ENTER_STATIC
 
     /* Sanity check */
     HDassert(f);
@@ -389,7 +387,7 @@ H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
     layout_read = TRUE;
 
     /* Check for chunked dataset storage */
-    if(layout.type == H5D_CHUNKED && H5D_chunk_is_space_alloc(&layout.storage)) {
+    if(layout.type == H5D_CHUNKED && H5D__chunk_is_space_alloc(&layout.storage)) {
         /* Check for I/O pipeline message */
         if((exists = H5O_msg_exists_oh(oh, H5O_PLINE_ID)) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to read object header")
@@ -401,7 +399,7 @@ H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
         else
             HDmemset(&pline, 0, sizeof(pline));
 
-        if(H5D_chunk_bh_info(f, dxpl_id, &layout, &pline, &(bh_info->index_size)) < 0)
+        if(H5D__chunk_bh_info(f, dxpl_id, &layout, &pline, &(bh_info->index_size)) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't determine chunked dataset btree info")
     } /* end if */
 
@@ -409,7 +407,7 @@ H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
     if((exists = H5O_msg_exists_oh(oh, H5O_EFL_ID)) < 0)
 	HGOTO_ERROR(H5E_OHDR, H5E_NOTFOUND, FAIL, "unable to check for EFL message")
 
-    if(exists && H5D_efl_is_space_alloc(&layout.storage)) {
+    if(exists && H5D__efl_is_space_alloc(&layout.storage)) {
         /* Start with clean EFL info */
         HDmemset(&efl, 0, sizeof(efl));
 
@@ -419,7 +417,7 @@ H5O_dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
         efl_read = TRUE;
 
 	/* Get size of local heap for EFL message's file list */
-	if(H5D_efl_bh_info(f, dxpl_id, &efl, &(bh_info->heap_size)) < 0)
+	if(H5D__efl_bh_info(f, dxpl_id, &efl, &(bh_info->heap_size)) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't determine EFL heap info")
     } /* end if */
 
@@ -433,5 +431,51 @@ done:
         HDONE_ERROR(H5E_DATASET, H5E_CANTRESET, FAIL, "unable to reset external file list message")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dset_bh_info() */
+} /* end H5O__dset_bh_info() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5O__dset_flush
+ *
+ * Purpose:     To flush any dataset information cached in memory
+ *
+ * Return:      Success:        non-negative
+ *              Failure:        negative
+ *
+ * Programmer:  Vailin Choi
+ *              February 2012
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5O__dset_flush(H5G_loc_t *obj_loc, hid_t dxpl_id)
+{
+    H5D_t       *dset = NULL;          /* Dataset opened */
+    H5O_type_t 	obj_type;              /* Type of object at location */
+    herr_t      ret_value = SUCCEED;    /* Return value */
+
+    FUNC_ENTER_STATIC
+
+    HDassert(obj_loc);
+    HDassert(obj_loc->oloc);
+
+    /* Check that the object found is the correct type */
+    if(H5O_obj_type(obj_loc->oloc, &obj_type, dxpl_id) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get object type")
+
+    if(obj_type != H5O_TYPE_DATASET)
+        HGOTO_ERROR(H5E_DATASET, H5E_BADTYPE, FAIL, "not a dataset")
+
+    /* Open the dataset */
+    if(NULL == (dset = H5D_open(obj_loc, H5P_DATASET_ACCESS_DEFAULT, dxpl_id)))
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "unable to open dataset")
+    
+    if(H5D__flush_real(dset, dxpl_id) < 0)
+	HDONE_ERROR(H5E_DATASET, H5E_WRITEERROR, FAIL, "unable to flush cached dataset info")
+
+done:
+    if(dset && H5D_close(dset) < 0)
+	HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, FAIL, "unable to release dataset")
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5O__dset_flush() */
 

@@ -502,16 +502,5 @@ private:
   static const double Epsilon;
 
 };
-namespace
-{
 
-inline bool acbwithintol(double d, float f)
-{
-  double diff = d-f;
-  if(diff*diff < .000001)
-    return true;
-  else
-    return false;
-}
-}
 #endif

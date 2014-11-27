@@ -85,9 +85,9 @@ H5Z_filter_fletcher32 (unsigned flags, size_t UNUSED cd_nelmts, const unsigned U
     uint8_t  tmp;
     size_t   ret_value;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5Z_filter_fletcher32, 0)
+    FUNC_ENTER_NOAPI(0)
 
-    assert(sizeof(uint32_t)>=4);
+    HDassert(sizeof(uint32_t)>=4);
 
     if (flags & H5Z_FLAG_REVERSE) { /* Read */
         /* Do checksum if it's enabled for read; otherwise skip it

@@ -22,6 +22,7 @@
 #ifndef _HDF5_HL_H
 #define _HDF5_HL_H
 
+#include "H5DOpublic.h" /* dataset optimization */
 #include "H5DSpublic.h" /* dimension scales */
 #include "H5LTpublic.h" /* lite */
 #include "H5IMpublic.h" /* image */

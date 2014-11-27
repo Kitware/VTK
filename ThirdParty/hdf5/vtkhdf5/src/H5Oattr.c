@@ -61,6 +61,7 @@ static herr_t H5O_attr_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
 #define H5O_SHARED_COPY_FILE_REAL	H5O_attr_copy_file
 #define H5O_SHARED_POST_COPY_FILE	H5O_attr_shared_post_copy_file
 #define H5O_SHARED_POST_COPY_FILE_REAL	H5O_attr_post_copy_file
+#undef  H5O_SHARED_POST_COPY_FILE_UPD
 #define H5O_SHARED_DEBUG		H5O_attr_shared_debug
 #define H5O_SHARED_DEBUG_REAL		H5O_attr_debug
 #include "H5Oshared.h"			/* Shared Object Header Message Callbacks */
@@ -130,7 +131,7 @@ H5O_attr_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned UNUSED mesg_fl
     unsigned            flags = 0;      /* Attribute flags */
     H5A_t		*ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_decode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -278,7 +279,7 @@ H5O_attr_encode(H5F_t *f, uint8_t *p, const void *mesg)
     unsigned    flags = 0;      /* Attribute flags */
     herr_t      ret_value = SUCCEED;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_encode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -299,7 +300,7 @@ H5O_attr_encode(H5F_t *f, uint8_t *p, const void *mesg)
     if(attr->shared->version >= H5O_ATTR_VERSION_2) {
         flags = (is_type_shared ? H5O_ATTR_FLAG_TYPE_SHARED : 0 );
         flags |= (is_space_shared ? H5O_ATTR_FLAG_SPACE_SHARED : 0);
-        *p++ = flags;    /* Set flags for attribute */
+        *p++ = (uint8_t)flags;    /* Set flags for attribute */
     } /* end if */
     else
         *p++ = 0; /* Reserved, for version <2 */
@@ -381,7 +382,7 @@ H5O_attr_copy(const void *_src, void *_dst)
 {
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_copy)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(_src);
@@ -418,7 +419,7 @@ H5O_attr_size(const H5F_t UNUSED *f, const void *_mesg)
     size_t		name_len;
     size_t		ret_value = 0;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_attr_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(attr);
 
@@ -479,7 +480,7 @@ H5O_attr_size(const H5F_t UNUSED *f, const void *_mesg)
 herr_t
 H5O_attr_reset(void UNUSED *_mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_attr_reset)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5O_attr_reset() */
@@ -507,7 +508,7 @@ H5O_attr_free(void *mesg)
     H5A_t *attr = (H5A_t *)mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_free)
+    FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(mesg);
 
@@ -537,7 +538,7 @@ H5O_attr_delete(H5F_t *f, hid_t dxpl_id, H5O_t *oh, void *_mesg)
     H5A_t *attr = (H5A_t *) _mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_delete)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -575,7 +576,7 @@ H5O_attr_link(H5F_t *f, hid_t dxpl_id, H5O_t *oh, void *_mesg)
     H5A_t *attr = (H5A_t *) _mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_link)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -616,7 +617,7 @@ static herr_t
 H5O_attr_pre_copy_file(H5F_t UNUSED *file_src, const void UNUSED *native_src,
     hbool_t *deleted, const H5O_copy_t *cpy_info, void UNUSED *udata)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_attr_pre_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(deleted);
@@ -653,7 +654,7 @@ H5O_attr_copy_file(H5F_t *file_src, const H5O_msg_class_t UNUSED *mesg_type,
 {
     void        *ret_value;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(native_src);
@@ -698,7 +699,7 @@ H5O_attr_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
     herr_t ret_value = SUCCEED;   /* Return value */
 
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_post_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     if ( H5A_attr_post_copy_file(src_oloc, (const H5A_t *)mesg_src,
          dst_oloc, (H5A_t *)mesg_dst, dxpl_id, cpy_info) < 0)
@@ -722,12 +723,12 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-herr_t
+static herr_t
 H5O_attr_get_crt_index(const void *_mesg, H5O_msg_crt_idx_t *crt_idx /*out*/)
 {
     const H5A_t  *attr = (const H5A_t *)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_attr_get_crt_index)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(attr);
     HDassert(crt_idx);
@@ -752,12 +753,12 @@ H5O_attr_get_crt_index(const void *_mesg, H5O_msg_crt_idx_t *crt_idx /*out*/)
  *
  *-------------------------------------------------------------------------
  */
-herr_t
+static herr_t
 H5O_attr_set_crt_index(void *_mesg, H5O_msg_crt_idx_t crt_idx)
 {
     H5A_t  *attr = (H5A_t *)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_attr_set_crt_index)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(attr);
 
@@ -792,10 +793,10 @@ H5O_attr_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE * stream, int in
 {
     const H5A_t *mesg = (const H5A_t *)_mesg;
     const char		*s;             /* Temporary string pointer */
-    char		buf[256];       /* Temporary string buffer */
+    char		buf[128];       /* Temporary string buffer */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_attr_debug)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -803,7 +804,7 @@ H5O_attr_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE * stream, int in
     HDassert(indent >= 0);
     HDassert(fwidth >= 0);
 
-    fprintf(stream, "%*s%-*s \"%s\"\n", indent, "", fwidth,
+    HDfprintf(stream, "%*s%-*s \"%s\"\n", indent, "", fwidth,
 	    "Name:",
 	    mesg->shared->name);
     switch(mesg->shared->encoding) {
@@ -829,17 +830,17 @@ H5O_attr_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE * stream, int in
         case H5T_CSET_RESERVED_13:
         case H5T_CSET_RESERVED_14:
         case H5T_CSET_RESERVED_15:
-            sprintf(buf, "H5T_CSET_RESERVED_%d", (int)(mesg->shared->encoding));
+            HDsnprintf(buf, sizeof(buf), "H5T_CSET_RESERVED_%d", (int)(mesg->shared->encoding));
             s = buf;
             break;
 
         case H5T_CSET_ERROR:
         default:
-            sprintf(buf, "Unknown character set: %d", (int)(mesg->shared->encoding));
+            HDsnprintf(buf, sizeof(buf), "Unknown character set: %d", (int)(mesg->shared->encoding));
             s = buf;
             break;
     } /* end switch */
-    fprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+    HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
             "Character Set of Name:",
             s);
     HDfprintf(stream, "%*s%-*s %t\n", indent, "", fwidth,
@@ -855,18 +856,18 @@ H5O_attr_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE * stream, int in
                 "Creation Index:",
                 (unsigned)mesg->shared->crt_idx);
 
-    fprintf(stream, "%*sDatatype...\n", indent, "");
-    fprintf(stream, "%*s%-*s %lu\n", indent+3, "", MAX(0,fwidth-3),
+    HDfprintf(stream, "%*sDatatype...\n", indent, "");
+    HDfprintf(stream, "%*s%-*s %lu\n", indent + 3, "", MAX(0,fwidth - 3),
 	    "Encoded Size:",
 	    (unsigned long)(mesg->shared->dt_size));
     if((H5O_MSG_DTYPE->debug)(f, dxpl_id, mesg->shared->dt, stream, indent + 3, MAX(0, fwidth - 3)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to display datatype message info")
 
-    fprintf(stream, "%*sDataspace...\n", indent, "");
-    fprintf(stream, "%*s%-*s %lu\n", indent+3, "", MAX(0, fwidth - 3),
+    HDfprintf(stream, "%*sDataspace...\n", indent, "");
+    HDfprintf(stream, "%*s%-*s %lu\n", indent + 3, "", MAX(0, fwidth - 3),
 	    "Encoded Size:",
 	    (unsigned long)(mesg->shared->ds_size));
-    if(H5S_debug(f, dxpl_id, mesg->shared->ds, stream, indent+3, MAX(0, fwidth - 3)) < 0)
+    if(H5S_debug(f, dxpl_id, mesg->shared->ds, stream, indent + 3, MAX(0, fwidth - 3)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to display dataspace message info")
 
 done:

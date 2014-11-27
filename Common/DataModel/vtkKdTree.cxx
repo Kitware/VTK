@@ -3180,10 +3180,11 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData *pd)
     level = this->Level;
     }
 
-  int npoints = 0;
-  int npolys  = 0;
+  // points and quads for level 0 bounding box
+  int npoints = 8;
+  int npolys  = 6;
 
-  for (i=0 ; i < level; i++)
+  for (i = 1; i < level; i++)
     {
     int levelPolys = 1 << (i-1);
     npoints += (4 * levelPolys);

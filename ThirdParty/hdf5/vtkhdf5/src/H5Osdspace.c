@@ -55,6 +55,7 @@ static herr_t H5O_sdspace_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
 #undef H5O_SHARED_COPY_FILE_REAL
 #define H5O_SHARED_POST_COPY_FILE	H5O_sdspace_shared_post_copy_file
 #undef H5O_SHARED_POST_COPY_FILE_REAL
+#undef  H5O_SHARED_POST_COPY_FILE_UPD
 #define H5O_SHARED_DEBUG		H5O_sdspace_shared_debug
 #define H5O_SHARED_DEBUG_REAL		H5O_sdspace_debug
 #include "H5Oshared.h"			/* Shared Object Header Message Callbacks */
@@ -77,7 +78,7 @@ const H5O_msg_class_t H5O_MSG_SDSPACE[1] = {{
     NULL,		    	/*can share method		*/
     H5O_sdspace_pre_copy_file,	/* pre copy native value to file */
     H5O_sdspace_shared_copy_file,/* copy native value to file    */
-    NULL,			/* post copy native value to file    */
+    H5O_sdspace_shared_post_copy_file,/* post copy native value to file    */
     NULL,			/* get creation index		*/
     NULL,			/* set creation index		*/
     H5O_sdspace_shared_debug	/* debug the message		    	*/
@@ -118,7 +119,7 @@ H5O_sdspace_decode(H5F_t *f, hid_t UNUSED dxpl_id, H5O_t UNUSED *open_oh,
     unsigned		i;		/* local counting variable */
     unsigned		flags, version;
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_sdspace_decode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -236,7 +237,7 @@ H5O_sdspace_encode(H5F_t *f, uint8_t *p, const void *_mesg)
     unsigned		flags = 0;
     unsigned		u;  /* Local counting variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_sdspace_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);
@@ -246,15 +247,15 @@ H5O_sdspace_encode(H5F_t *f, uint8_t *p, const void *_mesg)
     /* Version */
     HDassert(sdim->version > 0);
     HDassert(sdim->type != H5S_NULL || sdim->version >= H5O_SDSPACE_VERSION_2);
-    *p++ = sdim->version;
+    *p++ = (uint8_t)sdim->version;
 
     /* Rank */
-    *p++ = sdim->rank;
+    *p++ = (uint8_t)sdim->rank;
 
     /* Flags */
     if(sdim->max)
         flags |= H5S_VALID_MAX;
-    *p++ = flags;
+    *p++ = (uint8_t)flags;
 
     /* Dataspace type */
     if(sdim->version > H5O_SDSPACE_VERSION_1)
@@ -303,7 +304,7 @@ H5O_sdspace_copy(const void *_mesg, void *_dest)
     H5S_extent_t	   *dest = (H5S_extent_t *)_dest;
     void                   *ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_sdspace_copy)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(mesg);
@@ -319,7 +320,7 @@ H5O_sdspace_copy(const void *_mesg, void *_dest)
 
 done:
     if(NULL == ret_value)
-        if(dest && NULL != _dest)
+        if(dest && NULL == _dest)
             dest = H5FL_FREE(H5S_extent_t, dest);
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -353,7 +354,7 @@ H5O_sdspace_size(const H5F_t *f, const void *_mesg)
     const H5S_extent_t	*space = (const H5S_extent_t *)_mesg;
     size_t		ret_value;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_sdspace_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Basic information for all dataspace messages */
     ret_value = 1 +             /* Version */
@@ -392,7 +393,7 @@ H5O_sdspace_reset(void *_mesg)
 {
     H5S_extent_t	*mesg = (H5S_extent_t*)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_sdspace_reset)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     H5S_extent_release(mesg);
 
@@ -415,7 +416,7 @@ H5O_sdspace_reset(void *_mesg)
 static herr_t
 H5O_sdspace_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_sdspace_free)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(mesg);
 
@@ -448,7 +449,7 @@ H5O_sdspace_pre_copy_file(H5F_t UNUSED *file_src, const void *mesg_src,
     H5D_copy_file_ud_t *udata = (H5D_copy_file_ud_t *)_udata;   /* Dataset copying user data */
     herr_t         ret_value = SUCCEED;          /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_sdspace_pre_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(file_src);
@@ -499,7 +500,7 @@ H5O_sdspace_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *mesg,
 {
     const H5S_extent_t	   *sdim = (const H5S_extent_t *)mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_sdspace_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(f);
@@ -525,7 +526,7 @@ H5O_sdspace_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *mesg,
             HDfprintf (stream, "{");
             for(u = 0; u < sdim->rank; u++) {
                 if(H5S_UNLIMITED==sdim->max[u])
-                    HDfprintf (stream, "%sINF", u?", ":"");
+                    HDfprintf (stream, "%sUNLIM", u?", ":"");
                 else
                     HDfprintf (stream, "%s%Hu", u?", ":"", sdim->max[u]);
             } /* end for */

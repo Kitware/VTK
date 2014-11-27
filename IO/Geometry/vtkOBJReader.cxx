@@ -130,8 +130,10 @@ int vtkOBJReader::RequestData(
   vtkPoints *points = vtkPoints::New();
   vtkFloatArray *tcoords = vtkFloatArray::New();
   tcoords->SetNumberOfComponents(2);
+  tcoords->SetName("TCoords");
   vtkFloatArray *normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
+  normals->SetName("Normals");
   vtkCellArray *polys = vtkCellArray::New();
   vtkCellArray *tcoord_polys = vtkCellArray::New();
 
@@ -541,7 +543,9 @@ int vtkOBJReader::RequestData(
       // if there is an exact correspondence between tcoords and vertices then can simply
       // assign the tcoords points as point data
       if (hasTCoords && tcoords_same_as_verts)
+        {
         output->GetPointData()->SetTCoords(tcoords);
+        }
 
       // if there is an exact correspondence between normals and vertices then can simply
       // assign the normals as point data
@@ -558,9 +562,11 @@ int vtkOBJReader::RequestData(
 
       vtkPoints *new_points = vtkPoints::New();
       vtkFloatArray *new_tcoords = vtkFloatArray::New();
+      new_tcoords->SetName("TCoords");
       new_tcoords->SetNumberOfComponents(2);
       vtkFloatArray *new_normals = vtkFloatArray::New();
       new_normals->SetNumberOfComponents(3);
+      new_normals->SetName("Normals");
       vtkCellArray *new_polys = vtkCellArray::New();
 
       // for each poly, copy its vertices into new_points (and point at them)

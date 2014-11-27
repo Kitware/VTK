@@ -89,7 +89,7 @@ H5G_compact_build_table_cb(const void *_mesg, unsigned UNUSED idx, void *_udata)
     H5G_iter_bt_t *udata = (H5G_iter_bt_t *)_udata;     /* 'User data' passed in */
     herr_t ret_value=H5_ITER_CONT;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_compact_build_table_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check arguments */
     HDassert(lnk);
@@ -128,7 +128,7 @@ H5G_compact_build_table(const H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t 
 {
     herr_t	ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_compact_build_table)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(oloc);
@@ -159,7 +159,7 @@ H5G_compact_build_table(const H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t 
             HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "error iterating over link messages")
 
         /* Sort link table in correct iteration order */
-        if(H5G_link_sort_table(ltable, idx_type, order) < 0)
+        if(H5G__link_sort_table(ltable, idx_type, order) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTSORT, FAIL, "error sorting link messages")
     } /* end if */
     else
@@ -171,7 +171,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_insert
+ * Function:	H5G__compact_insert
  *
  * Purpose:	Insert a new symbol into the table described by GRP_ENT in
  *		file F.	 The name of the new symbol is NAME and its symbol
@@ -186,12 +186,12 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_compact_insert(const H5O_loc_t *grp_oloc, H5O_link_t *obj_lnk,
+H5G__compact_insert(const H5O_loc_t *grp_oloc, H5O_link_t *obj_lnk,
     hid_t dxpl_id)
 {
     herr_t     ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_insert, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* check arguments */
     HDassert(grp_oloc && grp_oloc->file);
@@ -203,11 +203,11 @@ H5G_compact_insert(const H5O_loc_t *grp_oloc, H5O_link_t *obj_lnk,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_insert() */
+} /* end H5G__compact_insert() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_get_name_by_idx
+ * Function:	H5G__compact_get_name_by_idx
  *
  * Purpose:     Returns the name of objects in the group by giving index.
  *
@@ -220,14 +220,14 @@ done:
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5G_compact_get_name_by_idx(H5O_loc_t *oloc, hid_t dxpl_id,
+H5G__compact_get_name_by_idx(const H5O_loc_t *oloc, hid_t dxpl_id,
     const H5O_linfo_t *linfo, H5_index_t idx_type, H5_iter_order_t order,
     hsize_t idx, char* name, size_t size)
 {
     H5G_link_table_t    ltable = {0, NULL};         /* Link table */
     ssize_t		ret_value;      /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_get_name_by_idx, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(oloc);
@@ -252,11 +252,11 @@ H5G_compact_get_name_by_idx(H5O_loc_t *oloc, hid_t dxpl_id,
 
 done:
     /* Release link table */
-    if(ltable.lnks && H5G_link_release_table(&ltable) < 0)
+    if(ltable.lnks && H5G__link_release_table(&ltable) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTFREE, FAIL, "unable to release link table")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_get_name_by_idx() */
+} /* end H5G__compact_get_name_by_idx() */
 
 
 /*-------------------------------------------------------------------------
@@ -280,7 +280,7 @@ H5G_compact_remove_common_cb(const void *_mesg, unsigned UNUSED idx, void *_udat
     H5G_iter_rm_t *udata = (H5G_iter_rm_t *)_udata;     /* 'User data' passed in */
     herr_t ret_value = H5_ITER_CONT;           /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_compact_remove_common_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check arguments */
     HDassert(lnk);
@@ -289,7 +289,7 @@ H5G_compact_remove_common_cb(const void *_mesg, unsigned UNUSED idx, void *_udat
     /* If we've found the right link, get the object type */
     if(HDstrcmp(lnk->name, udata->name) == 0) {
         /* Replace path names for link being removed */
-        if(H5G_link_name_replace(udata->file, udata->dxpl_id, udata->grp_full_path_r, lnk) < 0)
+        if(H5G__link_name_replace(udata->file, udata->dxpl_id, udata->grp_full_path_r, lnk) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5_ITER_ERROR, "unable to get object type")
 
         /* Stop the iteration, we found the correct link */
@@ -302,7 +302,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_remove
+ * Function:	H5G__compact_remove
  *
  * Purpose:	Remove NAME from links.
  *
@@ -314,13 +314,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_compact_remove(const H5O_loc_t *oloc, hid_t dxpl_id, H5RS_str_t *grp_full_path_r,
+H5G__compact_remove(const H5O_loc_t *oloc, hid_t dxpl_id, H5RS_str_t *grp_full_path_r,
     const char *name)
 {
     H5G_iter_rm_t udata;               /* Data to pass through OH iteration */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_remove, FAIL)
+    FUNC_ENTER_PACKAGE
 
     HDassert(oloc && oloc->file);
     HDassert(name && *name);
@@ -337,11 +337,11 @@ H5G_compact_remove(const H5O_loc_t *oloc, hid_t dxpl_id, H5RS_str_t *grp_full_pa
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_remove() */
+} /* end H5G__compact_remove() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_remove_by_idx
+ * Function:	H5G__compact_remove_by_idx
  *
  * Purpose:	Remove link from group, according to an index order.
  *
@@ -353,7 +353,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_compact_remove_by_idx(const H5O_loc_t *oloc, hid_t dxpl_id,
+H5G__compact_remove_by_idx(const H5O_loc_t *oloc, hid_t dxpl_id,
     const H5O_linfo_t *linfo, H5RS_str_t *grp_full_path_r, H5_index_t idx_type,
     H5_iter_order_t order, hsize_t n)
 {
@@ -361,7 +361,7 @@ H5G_compact_remove_by_idx(const H5O_loc_t *oloc, hid_t dxpl_id,
     H5G_iter_rm_t udata;                /* Data to pass through OH iteration */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_remove_by_idx, FAIL)
+    FUNC_ENTER_PACKAGE
 
     HDassert(oloc && oloc->file);
     HDassert(linfo);
@@ -386,15 +386,15 @@ H5G_compact_remove_by_idx(const H5O_loc_t *oloc, hid_t dxpl_id,
 
 done:
     /* Release link table */
-    if(ltable.lnks && H5G_link_release_table(&ltable) < 0)
+    if(ltable.lnks && H5G__link_release_table(&ltable) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTFREE, FAIL, "unable to release link table")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_remove_by_idx() */
+} /* end H5G__compact_remove_by_idx() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_iterate
+ * Function:	H5G__compact_iterate
  *
  * Purpose:	Iterate over the links in a group
  *
@@ -406,14 +406,14 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_compact_iterate(const H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *linfo,
+H5G__compact_iterate(const H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *linfo,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk,
     H5G_lib_iterate_t op, void *op_data)
 {
     H5G_link_table_t    ltable = {0, NULL};     /* Link table */
     herr_t		ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_iterate, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(oloc);
@@ -425,16 +425,16 @@ H5G_compact_iterate(const H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *lin
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create link message table")
 
     /* Iterate over links in table */
-    if((ret_value = H5G_link_iterate_table(&ltable, skip, last_lnk, op, op_data)) < 0)
+    if((ret_value = H5G__link_iterate_table(&ltable, skip, last_lnk, op, op_data)) < 0)
         HERROR(H5E_SYM, H5E_CANTNEXT, "iteration operator failed");
 
 done:
     /* Release link table */
-    if(ltable.lnks && H5G_link_release_table(&ltable) < 0)
+    if(ltable.lnks && H5G__link_release_table(&ltable) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTFREE, FAIL, "unable to release link table")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_iterate() */
+} /* end H5G__compact_iterate() */
 
 
 /*-------------------------------------------------------------------------
@@ -458,7 +458,7 @@ H5G_compact_lookup_cb(const void *_mesg, unsigned UNUSED idx, void *_udata)
     H5G_iter_lkp_t *udata = (H5G_iter_lkp_t *)_udata;     /* 'User data' passed in */
     herr_t ret_value = H5_ITER_CONT;           /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_compact_lookup_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check arguments */
     HDassert(lnk);
@@ -485,7 +485,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_lookup
+ * Function:	H5G__compact_lookup
  *
  * Purpose:	Look up an object relative to a group, using link messages.
  *
@@ -498,14 +498,14 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5G_compact_lookup(H5O_loc_t *oloc, const char *name, H5O_link_t *lnk,
+H5G__compact_lookup(const H5O_loc_t *oloc, const char *name, H5O_link_t *lnk,
     hid_t dxpl_id)
 {
     H5G_iter_lkp_t udata;               /* User data for iteration callback */
     H5O_mesg_operator_t op;             /* Message operator */
     htri_t     ret_value;               /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_lookup, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* check arguments */
     HDassert(lnk && oloc->file);
@@ -527,11 +527,11 @@ H5G_compact_lookup(H5O_loc_t *oloc, const char *name, H5O_link_t *lnk,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_lookup() */
+} /* end H5G__compact_lookup() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_lookup_by_idx
+ * Function:	H5G__compact_lookup_by_idx
  *
  * Purpose:	Look up an object in a group using link messages,
  *              according to the order of an index
@@ -545,13 +545,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_compact_lookup_by_idx(H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *linfo,
+H5G__compact_lookup_by_idx(const H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *linfo,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t n, H5O_link_t *lnk)
 {
     H5G_link_table_t ltable = {0, NULL};/* Link table */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_lookup_by_idx, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* check arguments */
     HDassert(oloc && oloc->file);
@@ -572,16 +572,16 @@ H5G_compact_lookup_by_idx(H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *lin
 
 done:
     /* Release link table */
-    if(ltable.lnks && H5G_link_release_table(&ltable) < 0)
+    if(ltable.lnks && H5G__link_release_table(&ltable) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTFREE, FAIL, "unable to release link table")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_lookup_by_idx() */
+} /* end H5G__compact_lookup_by_idx() */
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_compact_get_type_by_idx
+ * Function:	H5G__compact_get_type_by_idx
  *
  * Purpose:     Returns the type of objects in the group by giving index.
  *
@@ -594,13 +594,13 @@ done:
  *-------------------------------------------------------------------------
  */
 H5G_obj_t
-H5G_compact_get_type_by_idx(H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *linfo,
+H5G__compact_get_type_by_idx(H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *linfo,
     hsize_t idx)
 {
     H5G_link_table_t    ltable = {0, NULL};         /* Link table */
     H5G_obj_t		ret_value;      /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_compact_get_type_by_idx, H5G_UNKNOWN)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(oloc);
@@ -639,10 +639,10 @@ H5G_compact_get_type_by_idx(H5O_loc_t *oloc, hid_t dxpl_id, const H5O_linfo_t *l
 
 done:
     /* Release link table */
-    if(ltable.lnks && H5G_link_release_table(&ltable) < 0)
+    if(ltable.lnks && H5G__link_release_table(&ltable) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTFREE, H5G_UNKNOWN, "unable to release link table")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_compact_get_type_by_idx() */
+} /* end H5G__compact_get_type_by_idx() */
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 

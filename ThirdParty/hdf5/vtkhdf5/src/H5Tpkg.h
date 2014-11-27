@@ -46,9 +46,6 @@
 /* Other public headers needed by this file */
 #include "H5Spublic.h"		/* Dataspace functions			*/
 
-/* Number of reserved IDs in ID group */
-#define H5T_RESERVED_ATOMS 	8
-
 /* Length of debugging name buffer */
 #define H5T_NAMELEN		32
 
@@ -378,7 +375,7 @@ typedef struct H5T_shared_t {
     H5T_class_t		type;	/*which class of type is this?		     */
     size_t		size;	/*total size of an instance of this type     */
     unsigned            version;        /* Version of object header message to encode this object with */
-    hbool_t		force_conv;/* Set if this type always needs to be converted and H5T_conv_noop cannot be called */
+    hbool_t		force_conv;/* Set if this type always needs to be converted and H5T__conv_noop cannot be called */
     struct H5T_t	*parent;/*parent type for derived datatypes	     */
     union {
         H5T_atomic_t	atomic; /* an atomic datatype              */
@@ -511,899 +508,902 @@ H5FL_EXTERN(H5T_t);
 H5FL_EXTERN(H5T_shared_t);
 
 /* Common functions */
-H5_DLL H5T_t *H5T_create(H5T_class_t type, size_t size);
-H5_DLL herr_t H5T_commit(H5F_t *file, H5T_t *type, hid_t tcpl_id, hid_t dxpl_id);
-H5_DLL herr_t H5T_commit_named(const H5G_loc_t *loc, const char *name,
+H5_DLL herr_t H5T__term_deprec_interface(void);
+H5_DLL H5T_t *H5T__create(H5T_class_t type, size_t size);
+H5_DLL herr_t H5T__commit(H5F_t *file, H5T_t *type, hid_t tcpl_id, hid_t dxpl_id);
+H5_DLL herr_t H5T__commit_named(const H5G_loc_t *loc, const char *name,
     H5T_t *dt, hid_t lcpl_id, hid_t tcpl_id, hid_t tapl_id, hid_t dxpl_id);
-H5_DLL H5T_t *H5T_alloc(void);
-H5_DLL herr_t H5T_free(H5T_t *dt);
-H5_DLL herr_t H5T_visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op,
+H5_DLL H5T_t *H5T__alloc(void);
+H5_DLL herr_t H5T__free(H5T_t *dt);
+H5_DLL herr_t H5T__visit(H5T_t *dt, unsigned visit_flags, H5T_operator_t op,
     void *op_value);
-H5_DLL herr_t H5T_set_size(H5T_t *dt, size_t size);
-H5_DLL herr_t H5T_upgrade_version(H5T_t *dt, unsigned new_version);
+H5_DLL herr_t H5T__upgrade_version(H5T_t *dt, unsigned new_version);
 
 /* Conversion functions */
-H5_DLL herr_t H5T_conv_noop(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_noop(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
 
-H5_DLL herr_t H5T_conv_order(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_order(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_order_opt(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_order_opt(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_struct(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_struct(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_struct_opt(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_struct_opt(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_enum_numeric(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_array(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_vlen(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_i_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_array(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+			    size_t nelmts, size_t buf_stride,
+                            size_t bkg_stride, void *buf, void *bkg,
+                            hid_t dset_xfer_plist);
+H5_DLL herr_t H5T__conv_i_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_f_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_f_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_f_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_f_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_s_s(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_s_s(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_b_b(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_b_b(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
 			    size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *_buf, void *bkg,
                             hid_t dset_xfer_plist);
 
-H5_DLL herr_t H5T_conv_schar_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_schar_uchar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_uchar_schar(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_schar_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_schar_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_uchar_short(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+H5_DLL herr_t H5T__conv_uchar_ushort(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
                             size_t nelmts, size_t buf_stride,
                             size_t bkg_stride, void *buf, void *bkg,
                             hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_int(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_uint(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_int(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_uint(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_long(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_ulong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_long(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_ulong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_llong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_llong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
 
-H5_DLL herr_t H5T_conv_short_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_schar(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_uchar(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_schar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_uchar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_ushort(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_short(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_int(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_uint(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_int(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_uint(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_long(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_ulong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_long(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_ulong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_llong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_llong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_ullong(hid_t src_id, hid_t dst_id,
 				      H5T_cdata_t *cdata, size_t nelmts,
 				      size_t buf_stride, size_t bkg_stride,
                                       void *buf, void *bkg,
                                       hid_t dset_xfer_plist);
 
-H5_DLL herr_t H5T_conv_int_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_schar(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_uchar(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_schar(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_uchar(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_short(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_ushort(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_short(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_ushort(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_uint(hid_t src_id, hid_t dst_id,
 				 H5T_cdata_t *cdata, size_t nelmts,
 				 size_t buf_stride, size_t bkg_stride,
                                  void *buf, void *bkg,
                                  hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_int(hid_t src_id, hid_t dst_id,
 				 H5T_cdata_t *cdata, size_t nelmts,
 				 size_t buf_stride, size_t bkg_stride,
                                  void *buf, void *bkg,
                                  hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_long(hid_t src_id, hid_t dst_id,
 				 H5T_cdata_t *cdata, size_t nelmts,
 				 size_t buf_stride, size_t bkg_stride,
                                  void *buf, void *bkg,
                                  hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_ulong(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_long(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_ulong(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_llong(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_ullong(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_llong(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_ullong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
 
-H5_DLL herr_t H5T_conv_long_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_schar(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_uchar(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_schar(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_uchar(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_short(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_ushort(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_short(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_ushort(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_int(hid_t src_id, hid_t dst_id,
 				 H5T_cdata_t *cdata, size_t nelmts,
 				 size_t buf_stride, size_t bkg_stride,
                                  void *buf, void *bkg,
                                  hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_uint(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_int(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_uint(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_ulong(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_long(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_llong(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_ullong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_llong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
 
-H5_DLL herr_t H5T_conv_llong_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_schar(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_uchar(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_schar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_uchar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_short(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_ushort(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_short(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_ushort(hid_t src_id, hid_t dst_id,
 				      H5T_cdata_t *cdata, size_t nelmts,
 				      size_t buf_stride, size_t bkg_stride,
                                       void *buf, void *bkg,
                                       hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_int(hid_t src_id, hid_t dst_id,
 				  H5T_cdata_t *cdata, size_t nelmts,
 				  size_t buf_stride, size_t bkg_stride,
                                   void *buf, void *bkg,
                                   hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_uint(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_int(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_uint(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_long(hid_t src_id, hid_t dst_id,
 				   H5T_cdata_t *cdata, size_t nelmts,
 				   size_t buf_stride, size_t bkg_stride,
                                    void *buf, void *bkg,
                                    hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_ulong(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_long(hid_t src_id, hid_t dst_id,
 				    H5T_cdata_t *cdata, size_t nelmts,
 				    size_t buf_stride, size_t bkg_stride,
                                     void *buf, void *bkg,
                                     hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_ulong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_llong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_schar_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_schar_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uchar_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uchar_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_short_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_short_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ushort_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ushort_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_int_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_int_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_uint_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_uint_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_long_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_long_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ulong_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ulong_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_llong_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_llong_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_float(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_float(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_double(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_double(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ullong_ldouble(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ullong_ldouble(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_schar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_uchar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_short(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_ushort(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_int(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_uint(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_long(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_ulong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_llong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_float_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_float_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_schar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_uchar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_short(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_ushort(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_int(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_uint(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_long(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_ulong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_llong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_double_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_double_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_schar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_schar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_uchar(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_uchar(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_short(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_short(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_ushort(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_ushort(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_int(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_int(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_uint(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_uint(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_long(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_long(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_ulong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_ulong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_llong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_llong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
-H5_DLL herr_t H5T_conv_ldouble_ullong(hid_t src_id, hid_t dst_id,
+H5_DLL herr_t H5T__conv_ldouble_ullong(hid_t src_id, hid_t dst_id,
 				     H5T_cdata_t *cdata, size_t nelmts,
 				     size_t buf_stride, size_t bkg_stride,
                                      void *buf, void *bkg,
                                      hid_t dset_xfer_plist);
 
 /* Bit twiddling functions */
-H5_DLL void H5T_bit_copy(uint8_t *dst, size_t dst_offset, const uint8_t *src,
+H5_DLL void H5T__bit_copy(uint8_t *dst, size_t dst_offset, const uint8_t *src,
 			  size_t src_offset, size_t size);
-H5_DLL herr_t H5T_bit_shift(uint8_t *buf, ssize_t shift_dist, size_t offset, size_t size);
-H5_DLL void H5T_bit_set(uint8_t *buf, size_t offset, size_t size,
+H5_DLL herr_t H5T__bit_shift(uint8_t *buf, ssize_t shift_dist, size_t offset, size_t size);
+H5_DLL void H5T__bit_set(uint8_t *buf, size_t offset, size_t size,
 			 hbool_t value);
-H5_DLL uint64_t H5T_bit_get_d(uint8_t *buf, size_t offset, size_t size);
-H5_DLL void H5T_bit_set_d(uint8_t *buf, size_t offset, size_t size,
+H5_DLL uint64_t H5T__bit_get_d(uint8_t *buf, size_t offset, size_t size);
+H5_DLL void H5T__bit_set_d(uint8_t *buf, size_t offset, size_t size,
 			   uint64_t val);
-H5_DLL ssize_t H5T_bit_find(uint8_t *buf, size_t offset, size_t size,
+H5_DLL ssize_t H5T__bit_find(uint8_t *buf, size_t offset, size_t size,
 			     H5T_sdir_t direction, hbool_t value);
-H5_DLL htri_t H5T_bit_inc(uint8_t *buf, size_t start, size_t size);
-H5_DLL htri_t H5T_bit_dec(uint8_t *buf, size_t start, size_t size);
-H5_DLL void H5T_bit_neg(uint8_t *buf, size_t start, size_t size);
+H5_DLL htri_t H5T__bit_inc(uint8_t *buf, size_t start, size_t size);
+H5_DLL htri_t H5T__bit_dec(uint8_t *buf, size_t start, size_t size);
+H5_DLL void H5T__bit_neg(uint8_t *buf, size_t start, size_t size);
 
 /* VL functions */
-H5_DLL H5T_t * H5T_vlen_create(const H5T_t *base);
-H5_DLL htri_t H5T_vlen_set_loc(const H5T_t *dt, H5F_t *f, H5T_loc_t loc);
+H5_DLL H5T_t * H5T__vlen_create(const H5T_t *base);
+H5_DLL htri_t H5T__vlen_set_loc(const H5T_t *dt, H5F_t *f, H5T_loc_t loc);
 
 /* Array functions */
-H5_DLL H5T_t *H5T_array_create(H5T_t *base, unsigned ndims, const hsize_t dim[/* ndims */]);
-H5_DLL int    H5T_get_array_ndims(const H5T_t *dt);
-H5_DLL int    H5T_get_array_dims(const H5T_t *dt, hsize_t dims[]);
+H5_DLL H5T_t *H5T__array_create(H5T_t *base, unsigned ndims, const hsize_t dim[/* ndims */]);
+H5_DLL int    H5T__get_array_ndims(const H5T_t *dt);
+H5_DLL int    H5T__get_array_dims(const H5T_t *dt, hsize_t dims[]);
 
 /* Compound functions */
-H5_DLL herr_t H5T_insert(H5T_t *parent, const char *name, size_t offset,
+H5_DLL herr_t H5T__insert(H5T_t *parent, const char *name, size_t offset,
         const H5T_t *member);
-H5_DLL size_t H5T_get_member_size(const H5T_t *dt, unsigned membno);
-H5_DLL htri_t H5T_is_packed(const H5T_t *dt);
-H5_DLL void H5T_update_packed(const H5T_t *dt);
-H5_DLL H5T_subset_info_t *H5T_conv_struct_subset(const H5T_cdata_t *cdata);
+H5_DLL size_t H5T__get_member_size(const H5T_t *dt, unsigned membno);
+H5_DLL void H5T__update_packed(const H5T_t *dt);
+H5_DLL H5T_subset_info_t *H5T__conv_struct_subset(const H5T_cdata_t *cdata);
 
 /* Enumerated type functions */
-H5_DLL H5T_t *H5T_enum_create(const H5T_t *parent);
-H5_DLL herr_t H5T_enum_insert(const H5T_t *dt, const char *name, const void *value);
-H5_DLL herr_t H5T_get_member_value(const H5T_t *dt, unsigned membno, void *value);
+H5_DLL H5T_t *H5T__enum_create(const H5T_t *parent);
+H5_DLL herr_t H5T__enum_insert(const H5T_t *dt, const char *name, const void *value);
+H5_DLL herr_t H5T__get_member_value(const H5T_t *dt, unsigned membno, void *value);
 
 /* Field functions (for both compound & enumerated types) */
-H5_DLL char  *H5T_get_member_name(H5T_t const *dt, unsigned membno);
-H5_DLL herr_t H5T_sort_value(const H5T_t *dt, int *map);
-H5_DLL herr_t H5T_sort_name(const H5T_t *dt, int *map);
+H5_DLL char  *H5T__get_member_name(H5T_t const *dt, unsigned membno);
+H5_DLL herr_t H5T__sort_value(const H5T_t *dt, int *map);
+H5_DLL herr_t H5T__sort_name(const H5T_t *dt, int *map);
 
 /* Debugging functions */
-H5_DLL herr_t H5T_print_stats(H5T_path_t *path, int *nprint/*in,out*/);
+H5_DLL herr_t H5T__print_stats(H5T_path_t *path, int *nprint/*in,out*/);
 
 #endif /* _H5Tpkg_H */
 

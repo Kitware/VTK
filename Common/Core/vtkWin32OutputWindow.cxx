@@ -212,13 +212,13 @@ int vtkWin32OutputWindow::Initialize()
   HWND win = CreateWindow(
     L"vtkOutputWindow", L"vtkOutputWindow",
     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-    0, 0, 800, 512,
+    0, 0, 900, 700,
     NULL, NULL, GetModuleHandle(NULL), NULL);
 #else
   HWND win = CreateWindow(
     "vtkOutputWindow", "vtkOutputWindow",
     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-    0, 0, 800, 512,
+    0, 0, 900, 700,
     NULL, NULL, GetModuleHandle(NULL), NULL);
 #endif
 
@@ -227,8 +227,8 @@ int vtkWin32OutputWindow::Initialize()
   lpParam.hInstance = GetModuleHandle(NULL);
   lpParam.hMenu = NULL;
   lpParam.hwndParent = win;
-  lpParam.cx = 800;
-  lpParam.cy = 512;
+  lpParam.cx = 900;
+  lpParam.cy = 700;
   lpParam.x = 0;
   lpParam.y = 0;
 #if defined(_WIN32_WCE) || defined(UNICODE)

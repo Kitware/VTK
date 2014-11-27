@@ -50,7 +50,8 @@ typedef enum H5T_order_t {
     H5T_ORDER_LE         = 0,   /*little endian                              */
     H5T_ORDER_BE         = 1,   /*bit endian                                 */
     H5T_ORDER_VAX        = 2,   /*VAX mixed endian                           */
-    H5T_ORDER_NONE       = 3    /*no particular order (strings, bits,..)     */
+    H5T_ORDER_MIXED      = 3,   /*Compound type with mixed member orders     */
+    H5T_ORDER_NONE       = 4    /*no particular order (strings, bits,..)     */
     /*H5T_ORDER_NONE must be last */
 } H5T_order_t;
 

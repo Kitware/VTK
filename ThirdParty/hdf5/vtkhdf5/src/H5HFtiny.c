@@ -99,7 +99,7 @@ static herr_t H5HF_tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id,
 herr_t
 H5HF_tiny_init(H5HF_hdr_t *hdr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_tiny_init)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -150,7 +150,7 @@ H5HF_tiny_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
     size_t enc_obj_size;                /* Encoded object size */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_tiny_insert)
+    FUNC_ENTER_NOAPI_NOINIT
 #ifdef QAK
 HDfprintf(stderr, "%s: obj_size = %Zu\n", FUNC, obj_size);
 #endif /* QAK */
@@ -213,7 +213,7 @@ H5HF_tiny_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id, size_t *obj_len_p)
 {
     size_t enc_obj_size;                /* Encoded object size */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HF_tiny_get_obj_len)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
@@ -258,7 +258,7 @@ H5HF_tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
     size_t enc_obj_size;                /* Encoded object size */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_tiny_op_real)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -316,7 +316,7 @@ H5HF_tiny_read(H5HF_hdr_t *hdr, const uint8_t *id, void *obj)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_tiny_read)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -353,7 +353,7 @@ H5HF_tiny_op(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_tiny_op)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -390,7 +390,7 @@ H5HF_tiny_remove(H5HF_hdr_t *hdr, const uint8_t *id)
     size_t enc_obj_size;                /* Encoded object size */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_tiny_remove)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.

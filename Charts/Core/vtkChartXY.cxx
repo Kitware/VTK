@@ -1561,8 +1561,9 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent &mouse,
         transform->InverseTransformPoints(mouse.GetPos().GetData(),
                                           position.GetData(), 1);
         // Use a tolerance of +/- 5 pixels
-        vtkVector2f tolerance(5*(1.0/transform->GetMatrix()->GetElement(0, 0)),
-                              5*(1.0/transform->GetMatrix()->GetElement(1, 1)));
+        vtkVector2f tolerance(
+          std::fabs(5*(1.0/transform->GetMatrix()->GetElement(0, 0))),
+          std::fabs(5*(1.0/transform->GetMatrix()->GetElement(1, 1))));
         // Iterate through the visible plots and return on the first hit
         vtkIdType segmentIndex = -1;
 

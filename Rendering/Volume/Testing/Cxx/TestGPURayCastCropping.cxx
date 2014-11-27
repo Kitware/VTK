@@ -35,9 +35,6 @@
 #include "vtkCullerCollection.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
-#include "vtkVolumeTextureMapper3D.h"
-
-//#define USE_TEXTURE_MAPPER_3D
 
 int TestGPURayCastCropping(int argc, char *argv[])
 {

@@ -23,23 +23,38 @@
  *
  *-------------------------------------------------------------------------
  */
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
+
+/****************/
+/* Module Setup */
+/****************/
+
 #define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
 
 
-/* Packages needed by this file... */
+/***********/
+/* Headers */
+/***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Dprivate.h"         /* Datasets                             */
 #include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"		/* File access				*/
+#include "H5Fprivate.h"		/* File access				*/
 #include "H5Gpkg.h"		/* Groups		  		*/
 #include "H5HLprivate.h"	/* Local Heaps				*/
 #include "H5Iprivate.h"		/* IDs					*/
 #include "H5Lprivate.h"		/* Links				*/
 #include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Ppublic.h"		/* Property Lists			*/
+#include "H5WBprivate.h"        /* Wrapped Buffers                      */
 
-/* Private typedefs */
+
+/****************/
+/* Local Macros */
+/****************/
+
+
+/******************/
+/* Local Typedefs */
+/******************/
 
 /* User data for path traversal routine */
 typedef struct {
@@ -51,13 +66,15 @@ typedef struct {
     hbool_t exists;             /* Indicate if object exists */
 } H5G_trav_slink_t;
 
-/* Private macros */
 
-/* Local variables */
-static char *H5G_comp_g = NULL;                 /*component buffer      */
-static size_t H5G_comp_alloc_g = 0;             /*sizeof component buffer */
+/********************/
+/* Package Typedefs */
+/********************/
 
-/* PRIVATE PROTOTYPES */
+
+/********************/
+/* Local Prototypes */
+/********************/
 static herr_t H5G_traverse_slink_cb(H5G_loc_t *grp_loc, const char *name,
     const H5O_link_t *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/);
@@ -67,38 +84,25 @@ static herr_t H5G_traverse_ud(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
 static herr_t H5G_traverse_slink(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
     H5G_loc_t *obj_loc/*in,out*/, unsigned target, size_t *nlinks/*in,out*/,
     hbool_t *obj_exists, hid_t lapl_id, hid_t dxpl_id);
-static herr_t H5G_traverse_mount(H5G_loc_t *loc/*in,out*/);
 static herr_t H5G_traverse_real(const H5G_loc_t *loc, const char *name,
     unsigned target, size_t *nlinks, H5G_traverse_t op, void *op_data,
     hid_t lapl_id, hid_t dxpl_id);
 
-
-/*-------------------------------------------------------------------------
- * Function:	H5G_traverse_term_interface
- *
- * Purpose:	Terminates part  of the H5G interface - free the global
- *              component buffer.
- *
- * Return:	Success:	Non-negative.
- *
- * 		Failure:	Negative.
- *
- * Programmer:	Quincey Koziol
- *		Monday, September	26, 2005
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5G_traverse_term_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5G_traverse_term_interface)
 
-    /* Free the global component buffer */
-    H5G_comp_g = (char *)H5MM_xfree(H5G_comp_g);
-    H5G_comp_alloc_g = 0;
+/*********************/
+/* Package Variables */
+/*********************/
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5G_traverse_term_interface() */
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+
+/*******************/
+/* Local Variables */
+/*******************/
+
 
 
 /*-------------------------------------------------------------------------
@@ -122,7 +126,7 @@ H5G_traverse_slink_cb(H5G_loc_t UNUSED *grp_loc, const char UNUSED *name,
     H5G_trav_slink_t *udata = (H5G_trav_slink_t *)_udata;   /* User data passed in */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_traverse_slink_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check for dangling soft link */
     if(obj_loc == NULL) {
@@ -171,15 +175,14 @@ H5G_traverse_ud(const H5G_loc_t *grp_loc/*in,out*/, const H5O_link_t *lnk,
     H5G_loc_t           grp_loc_copy;
     H5G_name_t          grp_path_copy;
     H5O_loc_t           grp_oloc_copy;
-    H5O_loc_t          *new_oloc = NULL;
-    H5F_t              *temp_file = NULL;
+    H5G_loc_t           new_loc;                /* Group location for newly opened external object */
     H5G_t              *grp;
     hid_t               lapl_id = (-1);         /* LAPL local to this routine */
     H5P_genplist_t     *lapl;                   /* LAPL with nlinks set */
     hid_t               cur_grp = (-1);
     herr_t              ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_traverse_ud)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(grp_loc);
@@ -189,51 +192,47 @@ H5G_traverse_ud(const H5G_loc_t *grp_loc/*in,out*/, const H5O_link_t *lnk,
     HDassert(nlinks);
     HDassert(_lapl_id >= 0);
 
-    /* Reset the object's path information, because we can't detect any changes
-     * in the "path" the user-defined callback takes */
-    H5G_name_free(obj_loc->path);
-
     /* Get the link class for this type of link. */
     if(NULL == (link_class = H5L_find_class(lnk->type)))
-        HGOTO_ERROR(H5E_LINK, H5E_NOTREGISTERED, FAIL, "unable to get UD link class")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTREGISTERED, FAIL, "unable to get UD link class")
 
     /* Set up location for user-defined callback.  Use a copy of our current
      * grp_loc. */
     grp_loc_copy.path = &grp_path_copy;
     grp_loc_copy.oloc = &grp_oloc_copy;
     H5G_loc_reset(&grp_loc_copy);
-    if(H5G_loc_copy(&grp_loc_copy, grp_loc, H5_COPY_DEEP) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTCOPY, FAIL, "unable to copy object location")
+    if(H5G__loc_copy(&grp_loc_copy, grp_loc, H5_COPY_DEEP) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTCOPY, FAIL, "unable to copy object location")
 
-    /* Create a group to pass to the user-defined callback */
-    if((grp = H5G_open(&grp_loc_copy, dxpl_id)) == NULL)
+    /* Create a group ID to pass to the user-defined callback */
+    if(NULL == (grp = H5G_open(&grp_loc_copy, dxpl_id)))
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open group")
     if((cur_grp = H5I_register(H5I_GROUP, grp, FALSE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register group")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, FAIL, "unable to register group")
 
     /* Check for generic default property list and use link access default if so */
     if(_lapl_id == H5P_DEFAULT) {
         HDassert(H5P_LINK_ACCESS_DEFAULT != -1);
         if(NULL == (lapl = (H5P_genplist_t *)H5I_object(H5P_LINK_ACCESS_DEFAULT)))
-            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "unable to get default property list")
+            HGOTO_ERROR(H5E_SYM, H5E_BADATOM, FAIL, "unable to get default property list")
     } /* end if */
     else {
         /* Get the underlying property list passed in */
         if(NULL == (lapl = (H5P_genplist_t *)H5I_object(_lapl_id)))
-            HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "unable to get property list from ID")
+            HGOTO_ERROR(H5E_SYM, H5E_BADATOM, FAIL, "unable to get property list from ID")
     } /* end else */
 
     /* Copy the property list passed in */
     if((lapl_id = H5P_copy_plist(lapl, FALSE)) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unable to copy property list")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTCOPY, FAIL, "unable to copy property list")
 
     /* Get the underlying property list copy */
     if(NULL == (lapl = (H5P_genplist_t *)H5I_object(lapl_id)))
-        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "unable to get property list from ID")
+        HGOTO_ERROR(H5E_SYM, H5E_BADATOM, FAIL, "unable to get property list from ID")
 
     /* Record number of soft links left to traverse in the property list. */
     if(H5P_set(lapl, H5L_ACS_NLINKS_NAME, nlinks) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set nlink info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set nlink info")
 
     /* User-defined callback function */
     cb_return = (link_class->trav_func)(lnk->name, cur_grp, lnk->u.ud.udata, lnk->u.ud.size, lapl_id);
@@ -253,79 +252,43 @@ H5G_traverse_ud(const H5G_loc_t *grp_loc/*in,out*/, const H5O_link_t *lnk,
         } /* end if */
         /* else, we really needed to open the object */
         else
-            HGOTO_ERROR(H5E_ARGS, H5E_BADATOM, FAIL, "traversal callback returned invalid ID")
+            HGOTO_ERROR(H5E_SYM, H5E_BADATOM, FAIL, "traversal callback returned invalid ID")
     } /* end if */
 
-    /* Get the oloc from the ID the user callback returned */
-    switch(H5I_get_type(cb_return)) {
-        case H5I_GROUP:
-            if((new_oloc = H5G_oloc((H5G_t *)H5I_object(cb_return))) == NULL)
-                HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unable to get object location from group ID")
-                break;
+    /* Get the object location information from the ID the user callback returned */
+    if(H5G_loc(cb_return, &new_loc) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "unable to get object location from ID")
 
-        case H5I_DATASET:
-            if((new_oloc = H5D_oloc((H5D_t *)H5I_object(cb_return))) ==NULL)
-                HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unable to get object location from dataset ID")
-                break;
+    /* Release any previous location information for the object */
+    H5G_loc_free(obj_loc);
 
-        case H5I_DATATYPE:
-            if((new_oloc = H5T_oloc((H5T_t *)H5I_object(cb_return))) ==NULL)
-                HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unable to get object location from datatype ID")
-                break;
-
-        case H5I_FILE:
-            if((temp_file = (H5F_t *)H5I_object(cb_return)) == NULL)
-                HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "couldn't get file from ID")
-            if((new_oloc = H5G_oloc(temp_file->shared->root_grp)) ==NULL)
-                HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unable to get root group location from file ID")
-                break;
-
-        case H5I_UNINIT:
-        case H5I_BADID:
-        case H5I_DATASPACE:
-        case H5I_ATTR:
-        case H5I_REFERENCE:
-        case H5I_VFL:
-        case H5I_GENPROP_CLS:
-        case H5I_GENPROP_LST:
-        case H5I_ERROR_CLASS:
-        case H5I_ERROR_MSG:
-        case H5I_ERROR_STACK:
-        case H5I_NTYPES:
-        default:
-            HGOTO_ERROR(H5E_ATOM, H5E_BADTYPE, FAIL, "not a valid location or object ID")
-    } /* end switch */
-
-    /* Copy the location the user returned to us */
-    if(H5O_loc_copy(obj_loc->oloc, new_oloc, H5_COPY_DEEP) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTCOPY, FAIL, "unable to copy object location")
+    /* Copy new object's location information */
+    H5G__loc_copy(obj_loc, &new_loc, H5_COPY_DEEP);
 
     /* Hold the file open until we free this object header (otherwise the
      * object location will be invalidated when the file closes).
      */
     if(H5O_loc_hold_file(obj_loc->oloc) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, FAIL, "unable to hold file open")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to hold file open")
 
     /* We have a copy of the location and we're holding the file open.
      * Close the open ID the user passed back.
      */
-    if(H5I_dec_ref(cb_return, FALSE) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
+    if(H5I_dec_ref(cb_return) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
     cb_return = (-1);
 
 done:
     /* Close location given to callback. */
-    if(cur_grp > 0)
-        if(H5I_dec_ref(cur_grp, FALSE) < 0)
-            HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom for current location")
+    if(cur_grp > 0 && H5I_dec_ref(cur_grp) < 0)
+        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close atom for current location")
 
-    if(ret_value < 0 && cb_return > 0)
-        if(H5I_dec_ref(cb_return, FALSE) < 0)
-            HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
+    if(ret_value < 0 && cb_return > 0 && H5I_dec_ref(cb_return) < 0)
+        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
 
     /* Close the LAPL, if we copied one */
-    if(lapl_id > 0 && H5I_dec_ref(lapl_id, FALSE) < 0)
-        HDONE_ERROR(H5E_ATOM, H5E_CANTRELEASE, FAIL, "unable to close copied link access property list")
+    if(lapl_id > 0 && H5I_dec_ref(lapl_id) < 0)
+        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close copied link access property list")
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G_traverse_ud() */
@@ -361,7 +324,7 @@ H5G_traverse_slink(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
     hbool_t             tmp_grp_loc_set = FALSE;       /* Flag to indicate that tmp group location is initialized */
     herr_t              ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_traverse_slink)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(grp_loc);
@@ -381,7 +344,7 @@ H5G_traverse_slink(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
     /* ("tracking the names properly" means to ignore the effects of the
      *  link traversal on the object's & group's paths - QAK)
      */
-    H5G_loc_copy(&tmp_grp_loc, grp_loc, H5_COPY_DEEP);
+    H5G__loc_copy(&tmp_grp_loc, grp_loc, H5_COPY_DEEP);
     tmp_grp_loc_set = TRUE;
 
     /* Hold the object's group hier. path to restore later */
@@ -417,87 +380,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G_traverse_mount
- *
- * Purpose:	If LNK is a mount point then copy the entry for the root
- *		group of the mounted file into LNK.
- *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Robb Matzke
- *              Tuesday, October  6, 1998
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5G_traverse_mount(H5G_loc_t *obj_loc/*in,out*/)
-{
-    H5F_t	*parent = obj_loc->oloc->file,      /* File of object */
-            *child = NULL;                      /* Child file */
-    unsigned	lt, rt, md = 0;                 /* Binary search indices */
-    int cmp;
-    H5O_loc_t	*oloc = NULL;           /* Object location for mount points */
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_NOAPI(H5G_traverse_mount, FAIL)
-
-    /* Sanity check */
-    HDassert(obj_loc);
-
-    /*
-     * The loop is necessary because we might have file1 mounted at the root
-     * of file2, which is mounted somewhere in file3.
-     */
-    do {
-	/*
-	 * Use a binary search to find the potential mount point in the mount
-	 * table for the parent
-	 */
-	lt = 0;
-	rt = parent->shared->mtab.nmounts;
-	cmp = -1;
-	while(lt < rt && cmp) {
-	    md = (lt + rt) / 2;
-	    oloc = H5G_oloc(parent->shared->mtab.child[md].group);
-	    cmp = H5F_addr_cmp(obj_loc->oloc->addr, oloc->addr);
-	    if(cmp < 0)
-		rt = md;
-	    else
-		lt = md + 1;
-	} /* end while */
-
-	/* Copy root info over to ENT */
-    if(0 == cmp) {
-        /* Get the child file */
-        child = parent->shared->mtab.child[md].file;
-
-        /* Get the location for the root group in the child's file */
-        oloc = H5G_oloc(child->shared->root_grp);
-
-        /* Release the mount point */
-        if(H5O_loc_free(obj_loc->oloc) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTFREE, FAIL, "unable to free object location")
-
-        /* Copy the entry for the root group */
-        if(H5O_loc_copy(obj_loc->oloc, oloc, H5_COPY_DEEP) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTCOPY, FAIL, "unable to copy object location")
-
-        /* In case the shared root group info points to a different file handle
-         * than the child, modify obj_loc */
-        obj_loc->oloc->file = child;
-
-        /* Switch to child's file */
-        parent = child;
-    } /* end if */
-    } while(!cmp);
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_traverse_mount() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5G_traverse_special
+ * Function:	H5G__traverse_special
  *
  * Purpose:	Handle traversing special link situations
  *
@@ -510,13 +393,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_traverse_special(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
+H5G__traverse_special(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
     unsigned target, size_t *nlinks, hbool_t last_comp,
     H5G_loc_t *obj_loc, hbool_t *obj_exists, hid_t lapl_id, hid_t dxpl_id)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_traverse_special, FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(grp_loc);
@@ -563,7 +446,7 @@ H5G_traverse_special(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
      */
     if(H5F_addr_defined(obj_loc->oloc->addr) &&
             (0 == (target & H5G_TARGET_MOUNT) || !last_comp)) {
-        if(H5G_traverse_mount(obj_loc/*in,out*/) < 0)
+        if(H5F_traverse_mount(obj_loc->oloc/*in,out*/) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "mount point traversal failed")
     } /* end if */
 
@@ -573,11 +456,11 @@ H5G_traverse_special(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
      */
     if(grp_loc->oloc->holding_file && grp_loc->oloc->file == obj_loc->oloc->file)
         if(H5O_loc_hold_file(obj_loc->oloc) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, FAIL, "unable to hold file open")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to hold file open")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G_traverse_special() */
+} /* end H5G__traverse_special() */
 
 
 /*-------------------------------------------------------------------------
@@ -611,12 +494,15 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
     H5O_link_t          lnk;            /* Link information for object  */
     hbool_t link_valid = FALSE;         /* Flag to indicate that the link information is valid */
     hbool_t obj_loc_valid = FALSE;      /* Flag to indicate that the object location is valid */
-    H5G_own_loc_t own_loc=H5G_OWN_NONE; /* Enum to indicate whether callback took ownership of locations*/
+    H5G_own_loc_t own_loc = H5G_OWN_NONE; /* Enum to indicate whether callback took ownership of locations*/
     hbool_t group_copy = FALSE;         /* Flag to indicate that the group entry is copied */
+    char                comp_buf[1024];     /* Temporary buffer for path components */
+    char                *comp;          /* Pointer to buffer for path components */
+    H5WB_t              *wb = NULL;     /* Wrapped buffer for temporary buffer */
     hbool_t last_comp = FALSE;          /* Flag to indicate that a component is the last component in the name */
     herr_t              ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5G_traverse_real)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check parameters */
     HDassert(_loc);
@@ -637,8 +523,8 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
         HDassert(root_grp);
 
         /* Set the location entry to the root group's info */
-        loc.oloc=&(root_grp->oloc);
-        loc.path=&(root_grp->path);
+        loc.oloc = &(root_grp->oloc);
+        loc.path = &(root_grp->path);
     } /* end if */
     else {
         loc.oloc = _loc->oloc;
@@ -658,7 +544,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 #endif /* H5_USING_MEMCHECKER */
 
     /* Deep copy of the starting location to group location */
-    if(H5G_loc_copy(&grp_loc, &loc, H5_COPY_DEEP) < 0)
+    if(H5G__loc_copy(&grp_loc, &loc, H5_COPY_DEEP) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to copy location")
     group_copy = TRUE;
 
@@ -666,20 +552,16 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
     if(H5G_loc_reset(&obj_loc) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to reset location")
 
-    /* Check for needing a larger buffer for the individual path name components */
-    if((HDstrlen(name) + 1) > H5G_comp_alloc_g) {
-        char *new_comp;                 /* New component buffer */
-        size_t new_alloc;               /* New component buffer size */
+    /* Wrap the local buffer for serialized header info */
+    if(NULL == (wb = H5WB_wrap(comp_buf, sizeof(comp_buf))))
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't wrap buffer")
 
-        new_alloc = MAX3(1024, (2 * H5G_comp_alloc_g), (HDstrlen(name) + 1));
-        if(NULL == (new_comp = (char *)H5MM_realloc(H5G_comp_g, new_alloc)))
-            HGOTO_ERROR(H5E_SYM, H5E_NOSPACE, FAIL, "unable to allocate component buffer")
-        H5G_comp_g = new_comp;
-        H5G_comp_alloc_g = new_alloc;
-    } /* end if */
+    /* Get a pointer to a buffer that's large enough  */
+    if(NULL == (comp = (char *)H5WB_actual(wb, (HDstrlen(name) + 1))))
+        HGOTO_ERROR(H5E_SYM, H5E_NOSPACE, FAIL, "can't get actual buffer")
 
     /* Traverse the path */
-    while((name = H5G_component(name, &nchars)) && *name) {
+    while((name = H5G__component(name, &nchars)) && *name) {
         const char *s;                  /* Temporary string pointer */
         htri_t lookup_status;           /* Status from object lookup */
         hbool_t obj_exists;             /* Whether the object exists */
@@ -688,19 +570,19 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 	 * Copy the component name into a null-terminated buffer so
 	 * we can pass it down to the other symbol table functions.
 	 */
-	HDmemcpy(H5G_comp_g, name, nchars);
-	H5G_comp_g[nchars] = '\0';
+	HDmemcpy(comp, name, nchars);
+	comp[nchars] = '\0';
 
 	/*
 	 * The special name `.' is a no-op.
 	 */
-	if('.' == H5G_comp_g[0] && !H5G_comp_g[1]) {
+	if('.' == comp[0] && !comp[1]) {
 	    name += nchars;
 	    continue;
 	} /* end if */
 
         /* Check if this is the last component of the name */
-        if(!((s = H5G_component(name + nchars, NULL)) && *s))
+        if(!((s = H5G__component(name + nchars, NULL)) && *s))
             last_comp = TRUE;
 
         /* If there's valid information in the link, reset it */
@@ -710,7 +592,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
         } /* end if */
 
         /* Get information for object in current group */
-        if((lookup_status = H5G_obj_lookup(grp_loc.oloc, H5G_comp_g, &lnk/*out*/, dxpl_id)) < 0)
+        if((lookup_status = H5G__obj_lookup(grp_loc.oloc, comp, &lnk/*out*/, dxpl_id)) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "can't look up component")
         obj_exists = FALSE;
 
@@ -718,11 +600,11 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
         if(lookup_status) {
             /* Sanity check link and indicate it's valid */
             HDassert(lnk.type >= H5L_TYPE_HARD);
-            HDassert(!HDstrcmp(H5G_comp_g, lnk.name));
+            HDassert(!HDstrcmp(comp, lnk.name));
             link_valid = TRUE;
 
             /* Build object location from the link */
-            if(H5G_link_to_loc(&grp_loc, &lnk, &obj_loc) < 0)
+            if(H5G__link_to_loc(&grp_loc, &lnk, &obj_loc) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "cannot initialize object location")
             obj_loc_valid = TRUE;
 
@@ -731,7 +613,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 
             /* Perform any special traversals that the link needs */
             /* (soft links, user-defined links, file mounting, etc.) */
-            if(H5G_traverse_special(&grp_loc, &lnk, target, nlinks, last_comp, &obj_loc, &obj_exists, lapl_id, dxpl_id) < 0)
+            if(H5G__traverse_special(&grp_loc, &lnk, target, nlinks, last_comp, &obj_loc, &obj_exists, lapl_id, dxpl_id) < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_TRAVERSE, FAIL, "special link traversal failed")
         } /* end if */
 
@@ -755,7 +637,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
             } /* end else */
 
             /* Call 'operator' routine */
-            if((op)(&grp_loc, H5G_comp_g, cb_lnk, cb_loc, op_data, &own_loc) < 0)
+            if((op)(&grp_loc, comp, cb_lnk, cb_loc, op_data, &own_loc) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CALLBACK, FAIL, "traversal operator failed")
 
             HGOTO_DONE(SUCCEED)
@@ -776,6 +658,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
                 const H5O_ginfo_t *ginfo;	/* Group info settings for new group */
                 const H5O_linfo_t *linfo;	/* Link info settings for new group */
                 const H5O_pline_t *pline;	/* Filter pipeline settings for new group */
+                H5G_obj_create_t gcrt_info;     /* Group creation info */
 
                 /* Check for the parent group having a group info message */
                 /* (OK if not found) */
@@ -796,7 +679,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
                 /* Check for the parent group having a link info message */
                 /* (OK if not found) */
                 /* Get the link info for parent group */
-                if((exists = H5G_obj_get_linfo(grp_loc.oloc, &par_linfo, dxpl_id)) < 0)
+                if((exists = H5G__obj_get_linfo(grp_loc.oloc, &par_linfo, dxpl_id)) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to read object header")
                 if(exists) {
                     /* Only keep the creation order information from the parent
@@ -829,12 +712,19 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 
                 /* Create the intermediate group */
 /* XXX: Should we allow user to control the group creation params here? -QAK */
-                if(H5G_obj_create_real(grp_oloc.file, dxpl_id, ginfo, linfo, pline, H5P_GROUP_CREATE_DEFAULT, obj_loc.oloc/*out*/) < 0)
+                gcrt_info.gcpl_id = H5P_GROUP_CREATE_DEFAULT;
+                gcrt_info.cache_type = H5G_NOTHING_CACHED;
+                HDmemset(&gcrt_info.cache, 0, sizeof(gcrt_info.cache));
+                if(H5G__obj_create_real(grp_oloc.file, dxpl_id, ginfo, linfo, pline, &gcrt_info, obj_loc.oloc/*out*/) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group entry")
 
                 /* Insert new group into current group's symbol table */
-                if(H5G_loc_insert(&grp_loc, H5G_comp_g, &obj_loc, dxpl_id) < 0)
+                if(H5G__loc_insert(&grp_loc, comp, &obj_loc, H5O_TYPE_GROUP, &gcrt_info, dxpl_id) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, FAIL, "unable to insert intermediate group")
+
+                /* Decrement refcount on intermediate group's object header in memory */
+                if(H5O_dec_rc_by_loc(obj_loc.oloc, dxpl_id) < 0)
+                    HGOTO_ERROR(H5E_SYM, H5E_CANTDEC, FAIL, "unable to decrement refcount on newly created object")
 
                 /* Close new group */
                 if(H5O_close(obj_loc.oloc) < 0)
@@ -845,17 +735,20 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
                  */
                 if(grp_loc.oloc->holding_file)
                     if(H5O_loc_hold_file(obj_loc.oloc) < 0)
-                        HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, FAIL, "unable to hold file open")
+                        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to hold file open")
 
                 /* Reset any non-default object header messages */
                 if(ginfo != &def_ginfo)
-                    if(H5O_msg_reset(H5O_GINFO_ID, ginfo) < 0)
+                    /* (Casting away const OK - QAK) */
+                    if(H5O_msg_reset(H5O_GINFO_ID, (void *)ginfo) < 0)
                         HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to reset group info message")
                 if(linfo != &def_linfo)
-                    if(H5O_msg_reset(H5O_LINFO_ID, linfo) < 0)
+                    /* (Casting away const OK - QAK) */
+                    if(H5O_msg_reset(H5O_LINFO_ID, (void *)linfo) < 0)
                         HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to reset link info message")
                 if(pline != &def_pline)
-                    if(H5O_msg_reset(H5O_PLINE_ID, pline) < 0)
+                    /* (Casting away const OK - QAK) */
+                    if(H5O_msg_reset(H5O_PLINE_ID, (void *)pline) < 0)
                         HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to reset I/O pipeline message")
             } /* end if */
             else
@@ -868,7 +761,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 
         /* Transfer "ownership" of the object's information to the group object */
         H5G_loc_free(&grp_loc);
-        H5G_loc_copy(&grp_loc, &obj_loc, H5_COPY_SHALLOW);
+        H5G__loc_copy(&grp_loc, &obj_loc, H5_COPY_SHALLOW);
         H5G_loc_reset(&obj_loc);
         obj_loc_valid = FALSE;
 
@@ -910,6 +803,10 @@ done:
         if(H5O_msg_reset(H5O_LINK_ID, &lnk) < 0)
             HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to reset link message")
 
+    /* Release temporary component buffer */
+    if(wb && H5WB_unwrap(wb) < 0)
+        HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "can't release wrapped buffer")
+
    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G_traverse_real() */
 
@@ -938,7 +835,7 @@ H5G_traverse(const H5G_loc_t *loc, const char *name, unsigned target, H5G_traver
     H5P_genplist_t *lapl;                   /* Property list with value for nlinks */
     herr_t          ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(H5G_traverse, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
     if(!name || !*name)

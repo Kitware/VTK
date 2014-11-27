@@ -104,7 +104,7 @@ H5HL_new(size_t sizeof_size, size_t sizeof_addr, size_t prfx_size)
     H5HL_t *heap = NULL;        /* New local heap */
     H5HL_t *ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HL_new, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* check arguments */
     HDassert(sizeof_size > 0);
@@ -145,7 +145,7 @@ done:
 static herr_t
 H5HL_inc_rc(H5HL_t *heap)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HL_inc_rc)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check arguments */
     HDassert(heap);
@@ -174,7 +174,7 @@ H5HL_inc_rc(H5HL_t *heap)
 static herr_t
 H5HL_dec_rc(H5HL_t *heap)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5HL_dec_rc)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check arguments */
     HDassert(heap);
@@ -206,7 +206,7 @@ H5HL_dec_rc(H5HL_t *heap)
 herr_t
 H5HL_dest(H5HL_t *heap)
 {
-    FUNC_ENTER_NOAPI_NOFUNC(H5HL_dest)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check arguments */
     HDassert(heap);
@@ -252,7 +252,7 @@ H5HL_prfx_new(H5HL_t *heap)
     H5HL_prfx_t *prfx = NULL;       /* New local heap prefix */
     H5HL_prfx_t *ret_value;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HL_prfx_new, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* check arguments */
     HDassert(heap);
@@ -296,7 +296,7 @@ H5HL_prfx_dest(H5HL_prfx_t *prfx)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HL_prfx_dest, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* check arguments */
     HDassert(prfx);
@@ -342,7 +342,7 @@ H5HL_dblk_new(H5HL_t *heap)
     H5HL_dblk_t *dblk = NULL;       /* New local heap data block */
     H5HL_dblk_t *ret_value;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HL_dblk_new, NULL)
+    FUNC_ENTER_NOAPI(NULL)
 
     /* check arguments */
     HDassert(heap);
@@ -386,7 +386,7 @@ H5HL_dblk_dest(H5HL_dblk_t *dblk)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5HL_dblk_dest, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* check arguments */
     HDassert(dblk);

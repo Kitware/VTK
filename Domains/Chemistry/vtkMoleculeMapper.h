@@ -241,9 +241,9 @@ protected:
   vtkNew<vtkPolyData> BondGlyphPolyData;
   vtkNew<vtkTrivialProducer> BondGlyphPointOutput;
   bool GlyphDataInitialized;
-  void UpdateGlyphPolyData();
-  void UpdateAtomGlyphPolyData();
-  void UpdateBondGlyphPolyData();
+  virtual void UpdateGlyphPolyData();
+  virtual void UpdateAtomGlyphPolyData();
+  virtual void UpdateBondGlyphPolyData();
 
   // Description:
   // Internal mappers

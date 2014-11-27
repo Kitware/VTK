@@ -47,12 +47,17 @@ typedef enum {
     H5SL_TYPE_HSIZE,    /* Skip list keys are 'hsize_t's */
     H5SL_TYPE_UNSIGNED, /* Skip list keys are 'unsigned's */
     H5SL_TYPE_SIZE,     /* Skip list keys are 'size_t's */
-    H5SL_TYPE_OBJ       /* Skip list keys are 'H5_obj_t's */
+    H5SL_TYPE_OBJ,      /* Skip list keys are 'H5_obj_t's */
+    H5SL_TYPE_HID,      /* Skip list keys are 'hid_t's */
+    H5SL_TYPE_GENERIC   /* Skip list keys are unknown, comparison callback supplied */
 } H5SL_type_t;
 
 /**********/
 /* Macros */
 /**********/
+
+/* Typedef for comparison operations */
+typedef int (*H5SL_cmp_t)(const void *key1, const void *key2);
 
 /* Typedef for iteration operations */
 typedef herr_t (*H5SL_operator_t)(void *item, void *key,
@@ -61,7 +66,7 @@ typedef herr_t (*H5SL_operator_t)(void *item, void *key,
 /********************/
 /* Private routines */
 /********************/
-H5_DLL H5SL_t *H5SL_create(H5SL_type_t type);
+H5_DLL H5SL_t *H5SL_create(H5SL_type_t type, H5SL_cmp_t cmp);
 H5_DLL size_t H5SL_count(H5SL_t *slist);
 H5_DLL herr_t H5SL_insert(H5SL_t *slist, void *item, const void *key);
 H5_DLL H5SL_node_t *H5SL_add(H5SL_t *slist, void *item, const void *key);
