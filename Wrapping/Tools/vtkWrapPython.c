@@ -418,6 +418,7 @@ int main(int argc, char *argv[])
   const char *name;
   char *name_from_file = NULL;
   int numberOfWrappedClasses = 0;
+  int numberOfWrappedNamespaces = 0;
   int wrapped_anything = 0;
   int i, j;
   size_t k, m;
@@ -539,7 +540,11 @@ int main(int argc, char *argv[])
   /* Wrap any namespaces */
   for (i = 0; i < contents->NumberOfNamespaces; i++)
     {
-    vtkWrapPython_WrapNamespace(fp, contents->Namespaces[i]);
+    if (contents->Namespaces[i]->NumberOfConstants > 0)
+      {
+      vtkWrapPython_WrapNamespace(fp, contents->Namespaces[i]);
+      numberOfWrappedNamespaces++;
+      }
     }
 
   /* Check for all special classes before any classes are wrapped */
@@ -594,8 +599,8 @@ int main(int argc, char *argv[])
 
   /* The function for adding everything to the module dict */
   wrapped_anything = (numberOfWrappedClasses ||
-                      contents->NumberOfConstants ||
-                      contents->NumberOfNamespaces);
+                      numberOfWrappedNamespaces ||
+                      contents->NumberOfConstants);
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
           "  PyObject *%s, const char *%s)\n"
@@ -609,7 +614,9 @@ int main(int argc, char *argv[])
   /* Add all of the namespaces */
   for (j = 0; j < contents->NumberOfNamespaces; j++)
     {
-    fprintf(fp,
+    if (contents->Namespaces[j]->NumberOfConstants > 0)
+      {
+      fprintf(fp,
             "  o = PyVTKNamespace_%s();\n"
             "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
             "    {\n"
@@ -618,6 +625,7 @@ int main(int argc, char *argv[])
             "\n",
             contents->Namespaces[j]->Name,
             contents->Namespaces[j]->Name);
+      }
     }
 
   /* Add all of the classes that have been wrapped */
