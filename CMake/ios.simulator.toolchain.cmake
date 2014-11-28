@@ -31,7 +31,7 @@ else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__PHONE_OS_VERSION_MIN_REQIORED=50000")
 endif()
 
-set(CMAKE_OSX_ARCHITECTURES i386)
+set(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 
