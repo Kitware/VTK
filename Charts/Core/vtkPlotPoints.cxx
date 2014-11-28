@@ -452,6 +452,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     {
     ptr[i] = selected[i];
     }
+  std::sort(ptr, ptr + selected.size());
   this->Selection->Modified();
   return this->Selection->GetNumberOfTuples() > 0;
 }
