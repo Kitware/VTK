@@ -1211,15 +1211,18 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
   renWin->SetSize(400, 400);
-  ren->SetBackground(0.2, 0.2, 0.5);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   iren->SetInteractorStyle(style.GetPointer());
+
+  renWin->Render(); // make sure we have an OpenGL context.
+
+  vtkNew<vtkRenderer> ren;
+  ren->SetBackground(0.2, 0.2, 0.5);
+  renWin->AddRenderer(ren.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -1230,12 +1233,12 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
 
-  vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
-    volumeProperty->GetRGBTransferFunction(0);
+  vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
+  volumeProperty->SetColor(colorTransferFunction.GetPointer());
 
-  vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
+  vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
@@ -1252,8 +1255,9 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   center[1] = origin[1] + spacing[1]*dims[1]/2.0;
   center[2] = origin[2] + spacing[2]*dims[2]/2.0;
 
-  ren->AddViewProp(volume.GetPointer());
+  ren->AddVolume(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
+  ren->ResetCamera();
 
   int valid = volumeMapper->IsRenderSupported(renWin.GetPointer(),
                                               volumeProperty.GetPointer());
@@ -1262,7 +1266,6 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   if (valid)
     {
     renWin->Render();
-    ren->ResetCamera();
 
     vtkNew<vtkRTAnalyticSource> wavelet;
     wavelet->SetWholeExtent(-127, 128,
@@ -1273,7 +1276,6 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
     volumeMapper->SetInputConnection(wavelet->GetOutputPort());
     outlineFilter->UpdateWholeExtent();
     ren->ResetCamera();
-    renWin->Render();
 
     iren->Initialize();
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
