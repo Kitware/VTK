@@ -144,15 +144,15 @@ int vtkTemporalSnapToTimeStep::RequestData(
   if (inData && outData)
     {
     outData->ShallowCopy(inData);
-    }
 
-  // fill in the time steps
-  double inTime =  inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    // fill in the time steps
+    double inTime = inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 
-  if(inData->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
-    {
-    double outTime = inTime;
-    outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), outTime);
+    if(inData->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
+      {
+      double outTime = inTime;
+      outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), outTime);
+      }
     }
 
   return 1;

@@ -582,6 +582,7 @@ void vtkLookupTable::SetTable(vtkUnsignedCharArray *table)
 void vtkLookupTable::GetColorAsUnsignedChars(const double colorIn[4],
                                              unsigned char colorOut[4])
 {
+  assert(colorIn && colorOut);
   if (!colorIn || !colorOut)
     {
     return;
