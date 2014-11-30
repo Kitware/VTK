@@ -100,6 +100,9 @@ if (ANDROID OR APPLE_IOS)
   SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
      CACHE STRING "Output from TRY_RUN" FORCE)
 
+  set(OPENGL_ES_VERSION "2.0" CACHE STRING "OpenGL ES version (2.0 or 3.0)")
+  set_property(CACHE OPENGL_ES_VERSION PROPERTY STRINGS 2.0 3.0)
+
   option(BUILD_SHARED_LIBS "should be off for embedded" OFF)
   set(VTK_RENDERING_BACKEND OpenGL2)
   set(Module_vtkRenderingCore ON)
@@ -114,10 +117,16 @@ if (ANDROID OR APPLE_IOS)
 
   if (APPLE_IOS)
     option(Module_vtkInteractionStyle "needed for multitouch" ON)
-    find_path(OPENGL_INCLUDE_DIR ES2/gl.h
-       ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
-       ${_OPENGL_INCLUDE_PATH}
-       )
+    unset(OPENGL_INCLUDE_DIR CACHE)
+    if (${OPENGL_ES_VERSION} MATCHES 2.0)
+      find_path(OPENGL_INCLUDE_DIR ES2/gl.h
+                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
+                ${_OPENGL_INCLUDE_DIR})
+    elseif (${OPENGL_ES_VERSION} MATCHES 3.0)
+      find_path(OPENGL_INCLUDE_DIR ES3/gl.h
+                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
+                ${_OPENGL_INCLUDE_DIR})
+    endif()
     find_library(OPENGL_gl_LIBRARY
        NAMES OpenGLES
        PATHS
