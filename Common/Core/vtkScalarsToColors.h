@@ -122,7 +122,9 @@ public:
   // data arrays are treated as colors (and converted to RGBA if
   // necessary); If VTK_COLOR_MODE_DIRECT_SCALARS is set, then all arrays
   // are treated as colors (integer types are clamped in the range 0-255,
-  // floating point arrays are clamped in the range 0.0-1.0);
+  // floating point arrays are clamped in the range 0.0-1.0. Note 'char' does
+  // not have enough values to represent a color so mapping this type is
+  // considered an error);
   // otherwise, the data is mapped through this instance
   // of ScalarsToColors. The component argument is used for data
   // arrays with more than one component; it indicates which component

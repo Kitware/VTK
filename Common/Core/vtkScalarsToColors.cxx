@@ -15,6 +15,7 @@
 #include "vtkScalarsToColors.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkCharArray.h"
 #include "vtkStringArray.h"
 #include "vtkTemplateAliasMacro.h"
 #include "vtkUnsignedCharArray.h"
@@ -1516,6 +1517,12 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertToRGBA(
   vtkDataArray *colors, int numComp, int numTuples)
 {
+  if (vtkCharArray::SafeDownCast(colors) != NULL)
+    {
+    vtkErrorMacro(<<"char type does not have enough values to hold a color");
+    return NULL;
+    }
+
   if (numComp == 4 && this->Alpha >= 1.0 &&
       vtkUnsignedCharArray::SafeDownCast(colors) != NULL)
     {
