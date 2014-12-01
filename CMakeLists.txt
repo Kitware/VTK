@@ -115,6 +115,14 @@ if (ANDROID OR APPLE_IOS)
   option(VTK_Group_Tk "off for embedded" OFF)
   option(VTK_Group_Web "off for embedded" OFF)
 
+  # need int version for CPP
+  if (${OPENGL_ES_VERSION} MATCHES 2.0)
+    set(OPENGL_ES_VERSION_INT 20)
+  endif()
+  if (${OPENGL_ES_VERSION} MATCHES 3.0)
+    set(OPENGL_ES_VERSION_INT 30)
+  endif()
+
   if (APPLE_IOS)
     option(Module_vtkInteractionStyle "needed for multitouch" ON)
     unset(OPENGL_INCLUDE_DIR CACHE)

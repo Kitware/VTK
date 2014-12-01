@@ -258,6 +258,11 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
   bool texFloat = !requireTexFloat;
   bool depthFloat = !requireDepthFloat;
   bool texInt = !requireTexInt;
+#if GL_ES_VERSION_3_0 == 1
+  texFloat = true;
+  depthFloat = true;  // I think this is the case
+  texInt = true;
+#endif
 #endif
 
   return texFloat && depthFloat && texInt;
@@ -281,6 +286,11 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
   this->SupportsTextureInteger = false;
   this->SupportsTextureFloat = false;
   this->SupportsDepthBufferFloat = false;
+#if GL_ES_VERSION_3_0 == 1
+  this->SupportsTextureInteger = true;
+  this->SupportsTextureFloat = true;
+  this->SupportsDepthBufferFloat = true;
+#endif
 #endif
 
   return this->IsSupported(renWin,
@@ -520,13 +530,9 @@ void vtkTextureObject::SendParameters()
         GL_TEXTURE_MAG_FILTER,
         OpenGLMagFilter[this->MagnificationFilter]);
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
+#if GL_ES_VERSION_3_0 != 1
   glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
-
-  glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
-  glTexParameterf(this->Target,GL_TEXTURE_MAX_LOD,this->MaxLOD);
-  glTexParameteri(this->Target,GL_TEXTURE_BASE_LEVEL,this->BaseLevel);
-  glTexParameteri(this->Target,GL_TEXTURE_MAX_LEVEL,this->MaxLevel);
 
   if(DepthTextureCompare)
     {
@@ -542,6 +548,12 @@ void vtkTextureObject::SendParameters()
           GL_TEXTURE_COMPARE_MODE,
           GL_NONE);
     }
+#endif
+
+  glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
+  glTexParameterf(this->Target,GL_TEXTURE_MAX_LOD,this->MaxLOD);
+  glTexParameteri(this->Target,GL_TEXTURE_BASE_LEVEL,this->BaseLevel);
+  glTexParameteri(this->Target,GL_TEXTURE_MAX_LEVEL,this->MaxLevel);
 
   glTexParameteri(
         this->Target,
@@ -898,6 +910,8 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           return GL_RGBA;
         }
 
+    // TODO add in support for other texture formats
+    // supported by OpenGL ES 3.0
     case VTK_SHORT:
     case VTK_UNSIGNED_SHORT:
     case VTK_INT:
