@@ -63,7 +63,7 @@ protected:
   ~vtkOpenGLGlyph3DHelper();
 
   // special opengl 32 version that uses instances
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
       std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices,

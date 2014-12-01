@@ -289,7 +289,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
   bool selecting_points = selector && (selector->GetFieldAssociation() ==
     vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE &&
       !selector &&
       (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
@@ -423,7 +423,7 @@ void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
     }
 }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
     std::vector<unsigned char> &colors, std::vector<float> &matrices,
@@ -476,6 +476,13 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     }
 
   this->Tris.ibo.Bind();
+#if GL_ES_VERSION_3_0 == 1
+  glDrawElementsInstanced(GL_TRIANGLES,
+                        static_cast<GLsizei>(this->Tris.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL),
+                        numPts);
+#else
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
     glDrawElementsInstanced(GL_TRIANGLES,
@@ -492,6 +499,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
                           reinterpret_cast<const GLvoid *>(NULL),
                           numPts);
     }
+#endif
   vtkOpenGLCheckErrorMacro("failed after Render");
 
   this->Tris.ibo.Release();
