@@ -3,6 +3,8 @@ if(POLICY CMP0025)
 endif()
 if(POLICY CMP0053)
   cmake_policy(SET CMP0053 NEW) # CMake 3.1
+endif()
+if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW) # CMake 3.1
 endif()
 
