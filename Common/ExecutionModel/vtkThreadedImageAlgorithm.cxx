@@ -65,8 +65,8 @@ struct vtkImageThreadStruct
 // This can be from 1 to "total".
 // If 1 is returned, the extent cannot be split.
 int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
-                                                int startExt[6],
-                                                int num, int total)
+                                           int startExt[6],
+                                           int num, int total)
 {
   int splitAxis;
   int min, max;
@@ -163,6 +163,7 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
     {
     // if there is no output, then use UE from input, use the first input
     int inPort;
+    bool found = false;
     for (inPort = 0; inPort < str->Filter->GetNumberOfInputPorts(); ++inPort)
       {
       if (str->Filter->GetNumberOfInputConnections(inPort))
@@ -173,10 +174,11 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
           ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                 updateExtent);
         memcpy(ext,updateExtent, sizeof(int)*6);
+        found = true;
         break;
         }
       }
-    if (inPort >= str->Filter->GetNumberOfInputPorts())
+    if (!found)
       {
       return VTK_THREAD_RETURN_VALUE;
       }
