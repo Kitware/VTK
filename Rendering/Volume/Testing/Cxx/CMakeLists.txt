@@ -19,6 +19,7 @@ set (GenericVolumeCxxTests
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastMapperBenchmark.cxx
+  TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
   TestGPURayCastVolumeUpdate.cxx
