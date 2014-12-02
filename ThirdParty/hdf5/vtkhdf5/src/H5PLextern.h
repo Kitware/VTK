@@ -38,20 +38,18 @@ typedef enum H5PL_type_t {
 
 #ifdef H5_BUILT_AS_DYNAMIC_LIB
 
-  #if defined (hdf5_EXPORTS)
-    /* hdf5 library imports from plugin */
-    #if defined (_MSC_VER)  /* MSVC Compiler Case */
+  #if defined (_MSC_VER)  /* MSVC Compiler Case */
+    #if defined (hdf5_EXPORTS)
+      /* hdf5 library imports from plugin */
       #define H5PLUGIN_DLL __declspec(dllimport)
-    #elif (__GNUC__ >= 4)  /* GCC 4.x has support for visibility options */
-      #define H5PLUGIN_DLL __attribute__ ((visibility("default")))
-    #endif
-  #else
-    /* plugins always export */
-    #if defined (_MSC_VER)  /* MSVC Compiler Case */
+    #else
+      /* plugins always export */
       #define H5PLUGIN_DLL __declspec(dllexport)
-    #elif (__GNUC__ >= 4)  /* GCC 4.x has support for visibility options */
-      #define H5PLUGIN_DLL __attribute__ ((visibility("default")))
     #endif
+  #elif defined(__GNUC__) && (__GNUC__ >= 4)  /* GCC 4.x has support for visibility options */
+    #define H5PLUGIN_DLL __attribute__ ((visibility("default")))
+  #else /* Everything else */
+    #define H5PLUGIN_DLL
   #endif
 
 #elif defined(H5_BUILT_AS_STATIC_LIB)
