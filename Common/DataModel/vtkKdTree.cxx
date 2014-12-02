@@ -783,47 +783,39 @@ void vtkKdTree::BuildLocator()
   this->FreeSearchStructure();
 
   // volume bounds - push out a little if flat
-
-  double setBounds[6], volBounds[6];
-  bool first = true;
-
   vtkCollectionSimpleIterator cookie;
   this->DataSets->InitTraversal(cookie);
-  for (vtkDataSet *iset = this->DataSets->GetNextDataSet(cookie);
-       iset != NULL; iset = this->DataSets->GetNextDataSet(cookie))
+  vtkDataSet *iset = this->DataSets->GetNextDataSet(cookie);
+  double volBounds[6];
+  iset->GetBounds(volBounds);
+
+  while ((iset = this->DataSets->GetNextDataSet(cookie)))
     {
-    if (first)
+    double setBounds[6];
+    iset->GetBounds(setBounds);
+    if (setBounds[0] < volBounds[0])
       {
-      iset->GetBounds(volBounds);
-      first = false;
+      volBounds[0] = setBounds[0];
       }
-    else
+    if (setBounds[2] < volBounds[2])
       {
-      iset->GetBounds(setBounds);
-      if (setBounds[0] < volBounds[0])
-        {
-        volBounds[0] = setBounds[0];
-        }
-      if (setBounds[2] < volBounds[2])
-        {
-        volBounds[2] = setBounds[2];
-        }
-      if (setBounds[4] < volBounds[4])
-        {
-        volBounds[4] = setBounds[4];
-        }
-      if (setBounds[1] > volBounds[1])
-        {
-        volBounds[1] = setBounds[1];
-        }
-      if (setBounds[3] > volBounds[3])
-        {
-        volBounds[3] = setBounds[3];
-        }
-      if (setBounds[5] > volBounds[5])
-        {
-        volBounds[5] = setBounds[5];
-        }
+      volBounds[2] = setBounds[2];
+      }
+    if (setBounds[4] < volBounds[4])
+      {
+      volBounds[4] = setBounds[4];
+      }
+    if (setBounds[1] > volBounds[1])
+      {
+      volBounds[1] = setBounds[1];
+      }
+    if (setBounds[3] > volBounds[3])
+      {
+      volBounds[3] = setBounds[3];
+      }
+    if (setBounds[5] > volBounds[5])
+      {
+      volBounds[5] = setBounds[5];
       }
     }
 
