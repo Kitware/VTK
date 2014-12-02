@@ -75,7 +75,12 @@ ENDMACRO (INSTALL_PROGRAM_PDB)
 
 #-------------------------------------------------------------------------------
 MACRO (HDF_SET_LIB_OPTIONS libtarget _libname libtype)
-  set (libname "${_libname}${VTK_CUSTOM_LIBRARY_SUFFIX}")
+  if(DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+    set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+  else()
+    set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  endif()
+  set (libname "${_libname}${_lib_suffix}")
   # message (STATUS "${libname} libtype: ${libtype}")
   # We don't mangle library names based on build type or platform.
   set (LIB_RELEASE_NAME "${libname}")
