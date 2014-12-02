@@ -61,19 +61,17 @@ else()
 
 
    add_subdirectory(Build/vtkMy)
+
+   add_subdirectory(Infovis/Cxx)
 #  add_subdirectory(GUI/Motif)
 #
 #  IF(VTK_USE_INFOVIS)
 #    IF(VTK_USE_CHARTS)
 #      add_subdirectory(Charts/Cxx)
 #    ENDIF()
-#    add_subdirectory(Infovis/Cxx)
 #    IF(VTK_USE_N_WAY_ARRAYS)
 #      add_subdirectory(Array/Cxx)
 #    ENDIF()
-#  ENDIF()
-#   IF(VTK_USE_QVTK)
-#    add_subdirectory(GUI/Qt)
 #  ENDIF()
 #   IF(WIN32)
 #    add_subdirectory(GUI/Win32/SimpleCxx)
