@@ -10,11 +10,7 @@ VTK.
 
 The following command was used to obtain the symbol list:
 
-nm libhdf5_debug.dylib | grep " [TR] " | awk '{print "#define "$3" vtk_"$3}'
-
-Then on Linux I did the following to add symbols:
-
-nm libhdf5.so | grep " [ABCDGNRSTVW] " | awk '{print "#define "$3" vtk__"$3}' >> ~/src/VTK/ThirdParty/hdf5/vtkhdf5/src/vtk_libhdf5_mangle.h
+nm libhdf5.so | grep " [ABCDGNRSTVW] " | awk '{print "#define "$3" vtk__"$3}' > ~/src/VTK/ThirdParty/hdf5/vtkhdf5/src/vtk_libhdf5_mangle.h
 
 */
 
@@ -2465,6 +2461,9 @@ nm libhdf5.so | grep " [ABCDGNRSTVW] " | awk '{print "#define "$3" vtk__"$3}' >>
 #define HDrand vtk__HDrand
 #define HDsrand vtk__HDsrand
 #define HDstrtoll vtk__HDstrtoll
+#define H5MM_calloc vtk__H5MM_calloc
+#define H5MM_malloc vtk__H5MM_malloc
+
 #if !defined(_fini) && !defined(_init)
   #define _fini vtk___fini
   #define _init vtk___init
