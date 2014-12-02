@@ -1,7 +1,7 @@
 Notes on the Python Wrappers for VTK
 
 First version by David Gobbi: Dec 19, 2002
-Last update was on May 30, 2011.
+Last update was on Dec 2, 2014
 
 Abstract:
 =========
@@ -93,6 +93,29 @@ module but sometimes as class attributes:
 >>> vtk.vtkCommand.ErrorEvent
 39
 
+Each named enum type is wrapped as a new Python type, and members
+of the enum are instances of that type.  This allows type checking
+for enum types:
+
+>>> # works if given a constant of the correct enum type
+>>> o.SetIntegrationMode(o.Continuous)
+>>> # does not work, because "int" is not of the correct type
+>>> o.SetIntegrationMode(10)
+TypeError: SetIntegrationMode arg 1: expected enum EnumType, got int
+
+Note that members of anonymous enums do not have a special type, and
+are simply wrapped as python ints.
+
+
+Namespaces
+----------
+
+Namespaces are currently wrapped in a very limited manner: the only
+namespace members that are wrapped are constants and enum types.
+There is no wrapping of namespaced classes or functions, or of nested
+namespaces.  This is likely to be expanded upon when (or if) VTK begins
+to make greater use of namespaces.
+
 
 Unavailable methods
 -------------------
@@ -104,8 +127,7 @@ A method is not wrapped if
 2) it returns a pointer that is not a vtkObject pointer, char pointer,
    or void pointer, unless the method has an entry in the wrapping
    hints file -- again, vtkDataArray methods are an exception
-3) its parameter list contains a named enum constant
-4) it is an operator method (though many exceptions exist)
+3) it is an operator method (though many exceptions exist)
 
 
 Unavailable classes
