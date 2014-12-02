@@ -62,7 +62,7 @@ set(Module_SRCS
   vtkglVertexArrayObject.cxx
   )
 
-if (NOT DEFINED ${OPENGL_ES_VERSION})
+if (NOT DEFINED OPENGL_ES_VERSION)
   set(Module_SRCS ${Module_SRCS}
     vtkFrameBufferObject.cxx
     vtkPixelBufferObject.cxx
