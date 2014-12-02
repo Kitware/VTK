@@ -40,6 +40,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkScalarsToColors.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
 #include "vtkTransform.h"
