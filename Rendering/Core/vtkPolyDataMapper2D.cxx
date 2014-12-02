@@ -338,6 +338,13 @@ void vtkPolyDataMapper2D::SetColorModeToMapScalars()
 }
 
 //----------------------------------------------------------------------------
+void vtkPolyDataMapper2D::SetColorModeToDirectScalars()
+{
+  this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS);
+}
+
+
+//----------------------------------------------------------------------------
 int vtkPolyDataMapper2D::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

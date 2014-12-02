@@ -376,8 +376,9 @@ int vtkScalarsToColorsPainter::CanUseTextureMapForColoring(vtkDataObject* input)
       return 0; // cell data colors, don't use textures.
       }
 
-    if (this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-      vtkUnsignedCharArray::SafeDownCast(scalars))
+    if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
+         vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+        this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
       {
       // Don't use texture is direct coloring using RGB unsigned chars is
       // requested.

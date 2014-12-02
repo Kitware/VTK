@@ -316,8 +316,9 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     {
     // Only use texture color if we are mapping scalars.
     // Directly coloring with RGB unsigned chars should not use texture.
-    if ( this->ColorMode != VTK_COLOR_MODE_DEFAULT ||
-         (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0 )
+    if ( (this->ColorMode != VTK_COLOR_MODE_DEFAULT ||
+          (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0) &&
+         this->ColorMode != VTK_COLOR_MODE_DIRECT_SCALARS)
       { // Texture color option.
       this->MapScalarsToTexture(scalars, alpha);
       return 0;

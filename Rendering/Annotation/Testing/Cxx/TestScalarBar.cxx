@@ -29,6 +29,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkScalarBarActor.h"
+#include "vtkScalarsToColors.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkTextProperty.h"

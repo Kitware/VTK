@@ -25,6 +25,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkScalarsToColors.h"
 #include "vtkTexture.h"
 
 #include <math.h>
