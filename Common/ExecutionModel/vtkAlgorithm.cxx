@@ -1097,8 +1097,8 @@ void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
   vtkDebugMacro("Adding connection to input port index " << consumerPort
                 << " from output port index " << producerPort
                 << " on algorithm "
-                << (producer? producer->GetAlgorithm()->GetClassName() : "")
-                << "(" << (producer? producer->GetAlgorithm() : 0) << ").");
+                << producer->GetAlgorithm()->GetClassName()
+                << "(" << producer->GetAlgorithm() << ").");
 
   // Get the information object from the producer of the new input.
   vtkInformation* newInfo = producer->GetOutputInformation(producerPort);
