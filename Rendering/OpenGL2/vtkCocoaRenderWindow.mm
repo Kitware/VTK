@@ -142,6 +142,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 
   if (_renWin)
     {
+    // Only do something if it was us that created the NSWindow.
     int windowCreated = _renWin->GetWindowCreated();
     if (windowCreated)
       {
@@ -163,15 +164,15 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
 {
   (void)aNotification;
 
-  // Retrieve the NSView and the Interactor.
-  NSView *view = nil;
-  vtkRenderWindowInteractor *interactor = NULL;
-  if (_renWin != NULL)
+  // Do nothing if it wasn't us that created the NSView.
+  if (_renWin == NULL || !_renWin->GetViewCreated())
     {
-    view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
-    interactor = _renWin->GetInteractor();
+    return;
     }
 
+  // Retrieve the NSView and the Interactor.
+  NSView *view = reinterpret_cast<NSView *>(_renWin->GetWindowId());
+  vtkRenderWindowInteractor *interactor = _renWin->GetInteractor();
   if (view == nil || interactor == NULL || !interactor->GetEnabled())
     {
     return;
@@ -1184,8 +1185,8 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ParentId: " << this->GetParentId() << endl;
   os << indent << "ContextId: " << this->GetContextId() << endl;
   os << indent << "PixelFormat: " << this->GetPixelFormat() << endl;
-  os << indent << "WindowCreated: " << (this->WindowCreated ? "Yes" : "No") << endl;
-  os << indent << "ViewCreated: " << (this->ViewCreated ? "Yes" : "No") << endl;
+  os << indent << "WindowCreated: " << (this->GetWindowCreated() ? "Yes" : "No") << endl;
+  os << indent << "ViewCreated: " << (this->GetViewCreated() ? "Yes" : "No") << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -1457,6 +1458,12 @@ void vtkCocoaRenderWindow::ShowCursor()
   this->CursorHidden = 0;
 
   [NSCursor unhide];
+}
+
+// ---------------------------------------------------------------------------
+int vtkCocoaRenderWindow::GetViewCreated()
+{
+  return this->ViewCreated;
 }
 
 // ---------------------------------------------------------------------------
