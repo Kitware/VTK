@@ -1003,10 +1003,25 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
+  // Set the PointSize and LineWidget
+#if GL_ES_VERSION_2_0 != 1
+  glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
+#endif
+  glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
+
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->PopulateSelectionSettings)
     {
     selector->BeginRenderProp();
+    // render points for point picking in a special way
+    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+        selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
+      {
+      glPointSize(4.0); //make verts large enough to be sure to overlap cell
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(0,2.0);  // supported on ES2/3/etc
+      glDepthMask(GL_FALSE); //prevent verts from interfering with each other
+      }
     if (selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
       {
       selector->RenderCompositeIndex(1);
@@ -1022,15 +1037,16 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   this->TimeToDraw = 0.0;
   this->pickingAttributeIDOffset = 0;
 
+  bool picking = (ren->GetIsPicking() || selector != NULL);
   // Update the OpenGL if needed.
   if (this->OpenGLUpdateTime < this->GetMTime() ||
       this->OpenGLUpdateTime < actor->GetMTime() ||
-      this->OpenGLUpdateTime < this->CurrentInput->GetMTime() )
+      this->OpenGLUpdateTime < this->CurrentInput->GetMTime() ||
+      this->LastSelectionState || picking)
     {
     this->UpdateVBO(ren, actor);
     this->OpenGLUpdateTime.Modified();
     }
-
 
   // If we are coloring by texture, then load the texture map.
   // Use Map as indicator, because texture hangs around.
@@ -1043,12 +1059,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   this->VBO.Bind();
 
   this->LastBoundBO = NULL;
-
-  // Set the PointSize and LineWidget
-#if GL_ES_VERSION_2_0 != 1
-  glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
-#endif
-  glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
 
   if ( this->GetResolveCoincidentTopology() )
     {
@@ -1068,6 +1078,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       glPolygonOffset(f,u);  // supported on ES2/3/etc
       }
     }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1090,12 +1101,24 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     this->pickingAttributeIDOffset += (int)this->Points.indexCount;
     }
 
+  int representation = actor->GetProperty()->GetRepresentation();
+
+  // render points for point picking in a special way
+  // all cell types should be rendered as points
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && this->PopulateSelectionSettings &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+      selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
+    {
+    representation = VTK_POINTS;
+    }
+
   // draw lines
   if (this->Lines.indexCount)
     {
     this->UpdateShader(this->Lines, ren, actor);
     this->Lines.ibo.Bind();
-    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
+    if (representation == VTK_POINTS)
       {
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(layout.VertexCount - 1),
@@ -1121,8 +1144,8 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
     this->Tris.ibo.Bind();
-    GLenum mode = (actor->GetProperty()->GetRepresentation() == VTK_POINTS) ? GL_POINTS :
-      (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
+    GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
+      (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
     glDrawRangeElements(mode, 0,
                       static_cast<GLuint>(layout.VertexCount - 1),
                       static_cast<GLsizei>(this->Tris.indexCount),
@@ -1138,7 +1161,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     // Use the tris shader program/VAO, but triStrips ibo.
     this->UpdateShader(this->TriStrips, ren, actor);
     this->TriStrips.ibo.Bind();
-    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
+    if (representation == VTK_POINTS)
       {
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(layout.VertexCount - 1),
@@ -1146,7 +1169,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
-    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    if (representation == VTK_WIREFRAME)
       {
       glMultiDrawElements(GL_LINE_STRIP,
                         (GLsizei *)(&this->TriStrips.elementsArray[0]),
@@ -1154,7 +1177,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                         reinterpret_cast<const GLvoid **>(&(this->TriStrips.offsetArray[0])),
                         (GLsizei)this->TriStrips.offsetArray.size());
       }
-    if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
+    if (representation == VTK_SURFACE)
       {
       glMultiDrawElements(GL_TRIANGLE_STRIP,
                         (GLsizei *)(&this->TriStrips.elementsArray[0]),
@@ -1173,6 +1196,13 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkN
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->PopulateSelectionSettings)
     {
+    // render points for point picking in a special way
+    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+        selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
+      {
+      glDepthMask(GL_TRUE);
+      glDisable(GL_POLYGON_OFFSET_FILL);
+      }
     selector->EndRenderProp();
     }
 
@@ -1325,7 +1355,7 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *ren, vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 
@@ -1428,7 +1458,17 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *
   this->Points.indexCount = CreatePointIndexBuffer(prims[0],
                                                    this->Points.ibo);
 
-  if (act->GetProperty()->GetRepresentation() == VTK_POINTS)
+  int representation = act->GetProperty()->GetRepresentation();
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && this->PopulateSelectionSettings &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+      selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
+    {
+    representation = VTK_POINTS;
+    }
+
+  if (representation == VTK_POINTS)
     {
     this->Lines.indexCount = CreatePointIndexBuffer(prims[1],
                          this->Lines.ibo);
@@ -1445,7 +1485,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *
                            this->Lines.offsetArray,
                            this->Lines.elementsArray, false);
 
-    if (act->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
+    if (representation == VTK_WIREFRAME)
       {
       vtkDataArray *ef = poly->GetPointData()->GetAttribute(
                         vtkDataSetAttributes::EDGEFLAG);
@@ -1580,6 +1620,148 @@ bool vtkOpenGLPolyDataMapper::GetIsOpaque()
   return this->Superclass::GetIsOpaque();
 }
 
+vtkIdType vtkOpenGLPolyDataMapper::GetConvertedPickValue(vtkIdType idIn, int fieldassociation, vtkActor *act)
+{
+  vtkPolyData *poly = this->CurrentInput;
+  vtkCellArray *prims[4];
+  prims[0] =  poly->GetVerts();
+  prims[1] =  poly->GetLines();
+  prims[2] =  poly->GetPolys();
+  prims[3] =  poly->GetStrips();
+
+  vtkIdType* indices(NULL);
+  vtkIdType npts(0);
+  vtkIdType localId = idIn;
+
+  // handle cell picking
+  if (fieldassociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+    {
+    // for points the cell is the cell, easy peasy
+    if (static_cast<size_t>(localId) < this->Points.indexCount)
+      {
+      return localId;
+      }
+    localId -= this->Points.indexCount;
+    vtkIdType offset = 0;  // adjustment between OpenGL cells and VTK cells
+
+    int representation = act->GetProperty()->GetRepresentation();
+
+    // for lines the cell has to be computed because we do not
+    // know how many line segments are in the polyline
+    if (this->Lines.indexCount > 0)
+      {
+      // compute the location in the cell array
+      vtkIdType cellCount = 0;
+      for (prims[1]->InitTraversal(); prims[1]->GetNextCell(npts, indices); )
+        {
+        vtkIdType numCells = (representation == VTK_POINTS) ? npts : (npts - 1);
+        if (localId < cellCount + numCells)
+          {
+          return localId + offset;
+          }
+        offset = offset + numCells - 1;
+        cellCount += numCells;
+        }
+      localId -= (this->Lines.indexCount/2);
+      }
+
+    // for polys the cell has to be computed because we do not
+    // know how many triangles are in the poly
+    if (this->Tris.indexCount > 0)
+      {
+      // compute the location in the cell array
+      vtkIdType cellCount = 0;
+      for (prims[2]->InitTraversal(); prims[2]->GetNextCell(npts, indices); )
+        {
+        vtkIdType numCells = (representation == VTK_POINTS) ? npts :
+          (representation == VTK_WIREFRAME) ? npts : (npts - 2);
+        if (localId < cellCount + numCells)
+          {
+          return localId + offset;
+          }
+        offset = offset + numCells - 1;
+        cellCount += numCells;
+        }
+      localId -= (this->Tris.indexCount/3);
+      }
+
+    // for strips the cell maps exactly, easy peasy
+    if (static_cast<size_t>(localId) < this->TriStrips.indexCount)
+      {
+      return localId;
+      }
+    return 0;
+    }
+
+  // if we got here, then it is point based picking
+  // is it a point?
+   if (static_cast<size_t>(localId) < this->Points.indexCount)
+    {
+    prims[0]->GetCell(localId,npts,indices);
+    return indices[0];
+    }
+  localId -= this->Points.indexCount;
+
+  // when picking in point mode, we render all primitives as
+  // points.  The graphics hardware tells us what point was
+  // picked.  e.g. the 11th point. We have to convert that into
+  // a point ID. This can be done by traversing the cell
+  // arrays to find the 11th point rendered. But that operation
+  // can be expensive for the more complex cell arrays.
+  // You could speed this up significantly by building a
+  // monotonically increasing array of indexes that are
+  // not points in the cells array.  Then a binary search
+  // would let you index quickly into the right array location.
+
+  // is it a line?
+  if (static_cast<size_t>(localId) <  this->Lines.indexCount)
+    {
+    // compute the location in the cell array
+    vtkIdType pointCount = 0;
+    for (prims[1]->InitTraversal(); prims[1]->GetNextCell(npts, indices); )
+      {
+      if (localId < pointCount + npts)
+        {
+        return indices[localId - pointCount];
+        }
+      pointCount += npts;
+      }
+    }
+  localId -= this->Lines.indexCount;
+
+  // is it a poly
+  if (static_cast<size_t>(localId) <  this->Tris.indexCount)
+    {
+    // compute the location in the cell array
+    vtkIdType pointCount = 0;
+    for (prims[2]->InitTraversal(); prims[2]->GetNextCell(npts, indices); )
+      {
+      if (localId < pointCount + npts)
+        {
+        return indices[localId - pointCount];
+        }
+      pointCount += npts;
+      }
+    }
+  localId -= this->Tris.indexCount;
+
+  // is it a strip?
+  if (static_cast<size_t>(localId) <  this->TriStrips.indexCount)
+    {
+    // compute the location in the cell array
+    vtkIdType pointCount = 0;
+    for (prims[3]->InitTraversal(); prims[3]->GetNextCell(npts, indices); )
+      {
+      if (localId < pointCount + npts)
+        {
+        return indices[localId - pointCount];
+        }
+      pointCount += npts;
+      }
+    }
+
+  return idIn;
+}
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)

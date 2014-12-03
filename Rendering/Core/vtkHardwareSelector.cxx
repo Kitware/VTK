@@ -133,7 +133,7 @@ public:
       vtkIdType cc=0;
       for (idIter = id_values.begin(); idIter != id_values.end(); ++idIter, ++cc)
         {
-        ptr[cc] = *idIter;
+        ptr[cc] = key.Prop->GetConvertedPickValue(*idIter, fieldassociation);
         }
       child->SetSelectionList(ids);
       ids->FastDelete();

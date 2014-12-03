@@ -76,6 +76,13 @@ public:
   // other polydata (not the input)
   vtkPolyData *CurrentInput;
 
+  // Description:
+  // Props may provide a mapping from picked value to actual value
+  // This is useful for hardware based pickers where
+  // there is a mapping between the color in the buffer
+  // and the actual pick value
+  virtual vtkIdType GetConvertedPickValue(vtkIdType idIn, int fieldassociation, vtkActor *act);
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
