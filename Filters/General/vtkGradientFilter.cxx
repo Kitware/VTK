@@ -812,9 +812,9 @@ namespace {
     double xp[3], xm[3], factor;
     xp[0] = xp[1] = xp[2] = xm[0] = xm[1] = xm[2] = factor = 0;
     double xxi, yxi, zxi, xeta, yeta, zeta, xzeta, yzeta, zzeta;
-    xxi = yxi = zxi = xeta = yeta = zeta = xzeta = yzeta = zzeta = 0;
+    yxi = zxi = xeta = yeta = zeta = xzeta = yzeta = zzeta = 0;
     double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
-    aj = xix = xiy = xiz = etax = etay = etaz = zetax = zetay = zetaz = 0;
+    xix = xiy = xiz = etax = etay = etaz = zetax = zetay = zetaz = 0;
     // for finite differencing -- the values on the "plus" side and
     // "minus" side of the point to be computed at
     std::vector<double> plusvalues(numberOfInputComponents);
