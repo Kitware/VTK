@@ -13,7 +13,7 @@ find_package(VTK COMPONENTS
   vtkIOImage
   vtkIOXML
   vtkInteractionWidgets
-  vtkRenderingVolumeOpenGL
+  vtkRenderingVolume${VTK_RENDERING_BACKEND}
 )
 include(${VTK_USE_FILE})
 

@@ -11,7 +11,7 @@ project (Step4)
 find_package(VTK COMPONENTS
   vtkFiltersSources
   vtkInteractionStyle
-  vtkRenderingOpenGL
+  vtkRendering${VTK_RENDERING_BACKEND}
 )
 include(${VTK_USE_FILE})
 

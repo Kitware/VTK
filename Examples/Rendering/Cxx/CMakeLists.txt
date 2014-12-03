@@ -16,7 +16,7 @@ find_package(VTK COMPONENTS
   vtkCommonCore
   vtkFiltersSources
   vtkInteractionStyle
-  vtkRenderingOpenGL
+  vtkRendering${VTK_RENDERING_BACKEND}
 )
 include(${VTK_USE_FILE})
 

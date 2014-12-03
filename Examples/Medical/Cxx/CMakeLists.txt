@@ -15,7 +15,7 @@ find_package(VTK COMPONENTS
   vtkIOXML
   vtkImagingStatistics
   vtkInteractionStyle
-  vtkRenderingVolumeOpenGL
+  vtkRenderingVolume${VTK_RENDERING_BACKEND}
   vtkTestingRendering
   vtksys
 )
