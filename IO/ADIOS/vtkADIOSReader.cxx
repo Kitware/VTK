@@ -531,7 +531,10 @@ void vtkADIOSReader::ReadObject(const vtkADIOSDirTree *subDir,
   data->SetNumberOfCells(
     subDir->GetScalar("NumberOfCells")->
       GetValues<vtkIdType>(this->RequestStepIndex)[blockId]);
-  this->ReadObject((*subDir)["IndexArray"], data->GetData(), blockId);
+  if(data->GetNumberOfCells() != 0)
+    {
+    this->ReadObject((*subDir)["IndexArray"], data->GetData(), blockId);
+    }
 }
 
 //----------------------------------------------------------------------------

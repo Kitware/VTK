@@ -2923,6 +2923,7 @@ int *vtkPKdTree::CollectLocalRegionProcessData()
       if ( (regionId < 0) || (regionId >= numRegions))
         {
         VTKERROR("CollectLocalRegionProcessData - corrupt data");
+        delete [] cellCounts;
         return NULL;
         }
       cellCounts[regionId]++;

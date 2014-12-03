@@ -118,6 +118,11 @@ vtkTree *vtkTree::GetData(vtkInformationVector *v, int i)
 //----------------------------------------------------------------------------
 bool vtkTree::IsStructureValid(vtkGraph *g)
 {
+  if (!g)
+    {
+    return false;
+    }
+
   vtkTree *tree = vtkTree::SafeDownCast(g);
   if (tree)
     {

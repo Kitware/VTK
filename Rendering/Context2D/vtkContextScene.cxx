@@ -484,6 +484,21 @@ bool vtkContextScene::MouseMoveEvent(const vtkContextMouseEvent &e)
 //-----------------------------------------------------------------------------
 bool vtkContextScene::ButtonPressEvent(const vtkContextMouseEvent &e)
 {
+  switch (e.GetButton())
+    {
+    case vtkContextMouseEvent::LEFT_BUTTON:
+      this->InvokeEvent(vtkCommand::LeftButtonPressEvent);
+      break;
+    case vtkContextMouseEvent::MIDDLE_BUTTON:
+      this->InvokeEvent(vtkCommand::MiddleButtonPressEvent);
+      break;
+    case vtkContextMouseEvent::RIGHT_BUTTON:
+      this->InvokeEvent(vtkCommand::RightButtonPressEvent);
+      break;
+    default:
+      break;
+    }
+
   bool res = false;
   vtkContextMouseEvent &event = this->Storage->Event;
   this->EventCopy(e);
@@ -506,6 +521,21 @@ bool vtkContextScene::ButtonPressEvent(const vtkContextMouseEvent &e)
 //-----------------------------------------------------------------------------
 bool vtkContextScene::ButtonReleaseEvent(const vtkContextMouseEvent &e)
 {
+  switch (e.GetButton())
+    {
+    case vtkContextMouseEvent::LEFT_BUTTON:
+      this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent);
+      break;
+    case vtkContextMouseEvent::MIDDLE_BUTTON:
+      this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent);
+      break;
+    case vtkContextMouseEvent::RIGHT_BUTTON:
+      this->InvokeEvent(vtkCommand::RightButtonReleaseEvent);
+      break;
+    default:
+      break;
+    }
+
   bool res = false;
   if (this->Storage->itemMousePressCurrent.GetPointer())
     {

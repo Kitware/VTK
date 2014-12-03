@@ -172,7 +172,9 @@ public:
   void     SetFileName( char * fileName ) { this->FileName = fileName; }
   const char* GetParticleName(char* variableName)
    {
-   return( GetSeparatedParticleName(std::string(variableName)).c_str() );
+   static std::string particleName;
+   particleName = GetSeparatedParticleName(std::string(variableName));
+   return particleName.c_str();
    }
 
   void     ReadMetaData();

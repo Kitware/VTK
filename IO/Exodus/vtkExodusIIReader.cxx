@@ -6065,10 +6065,16 @@ void vtkExodusIIReader::SetAllArrayStatus( int otyp, int status )
   case FACE_SET_CONN:
   case SIDE_SET_CONN:
   case ELEM_SET_CONN:
-    numObj = this->GetNumberOfObjects( otyp );
-    for ( i = 0; i < numObj; ++i )
-      {
-      this->SetObjectStatus( otyp, i, status );
+      { // Convert the "connectivity" type into an "object" type:
+      int ctypidx = this->Metadata->GetConnTypeIndexFromConnType(otyp);
+      int otypidx = conn_obj_idx_cvt[ctypidx];
+      otyp = obj_types[otypidx];
+      // Now set the status
+      numObj = this->GetNumberOfObjects( otyp );
+      for ( i = 0; i < numObj; ++i )
+        {
+        this->SetObjectStatus( otyp, i, status );
+        }
       }
     break;
   case NODAL:

@@ -21,6 +21,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkRendererCollection.h"
+#include "vtkTypeTraits.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
 #include <math.h>
@@ -678,19 +679,21 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     return;
     }
 
+  BYTE bpp_byte = static_cast<BYTE>(bpp);
+  BYTE zbpp_byte = static_cast<BYTE>(zbpp);
   PIXELFORMATDESCRIPTOR pfd = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
     1,                              /* version */
     dwFlags         ,               /* support double-buffering */
     PFD_TYPE_RGBA,                  /* color type */
-    bpp,                             /* preferred color depth */
+    bpp_byte,                       /* preferred color depth */
     0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
-    this->AlphaBitPlanes ? bpp/4 : 0, /* no alpha buffer */
+    static_cast<BYTE>(this->AlphaBitPlanes ? bpp/4 : 0), /* no alpha buffer */
     0,                              /* alpha bits (ignored) */
     0,                              /* no accumulation buffer */
     0, 0, 0, 0,                     /* accum bits (ignored) */
-    zbpp,                           /* depth buffer */
-    this->StencilCapable,           /* stencil buffer */
+    zbpp_byte,                      /* depth buffer */
+    static_cast<BYTE>(this->StencilCapable), /* stencil buffer */
     0,                              /* no auxiliary buffers */
     PFD_MAIN_PLANE,                 /* main layer */
     0,                              /* reserved */
@@ -1346,19 +1349,19 @@ void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkWin32OpenGLRenderWindow::SetWindowInfo(char *info)
 {
-  int tmp;
-  sscanf(info, "%i", &tmp);
+  size_t tmp;
+  sscanf(info, vtkTypeTraits<size_t>::ParseFormat(), &tmp);
 
-  this->WindowId = (HWND)tmp;
+  this->WindowId = reinterpret_cast<HWND>(tmp);
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n");
 }
 
 void vtkWin32OpenGLRenderWindow::SetNextWindowInfo(char *info)
 {
-  int tmp;
-  sscanf(info, "%i", &tmp);
+  size_t tmp;
+  sscanf(info, vtkTypeTraits<size_t>::ParseFormat(), &tmp);
 
-  this->SetNextWindowId((HWND)tmp);
+  this->SetNextWindowId(reinterpret_cast<HWND>(tmp));
 }
 
 void vtkWin32OpenGLRenderWindow::SetDisplayId(void * arg)
@@ -1380,10 +1383,10 @@ void vtkWin32OpenGLRenderWindow::SetDeviceContext(HDC arg)
 // Sets the HWND id of the window that WILL BE created.
 void vtkWin32OpenGLRenderWindow::SetParentInfo(char *info)
 {
-  int tmp;
-  sscanf(info, "%i", &tmp);
+  size_t tmp;
+  sscanf(info, vtkTypeTraits<size_t>::ParseFormat(), &tmp);
 
-  this->ParentId = (HWND)tmp;
+  this->ParentId = reinterpret_cast<HWND>(tmp);
   vtkDebugMacro(<< "Setting ParentId to " << this->ParentId << "\n");
 }
 
@@ -1529,7 +1532,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rsit;
   this->Renderers->InitTraversal(rsit);
-  while (ren = this->Renderers->GetNextRenderer(rsit))
+  while ((ren = this->Renderers->GetNextRenderer(rsit)))
     {
     ren->SetRenderWindow(NULL);
     ren->SetRenderWindow(this);
@@ -1632,7 +1635,7 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
       vtkRenderer *ren;
       vtkCollectionSimpleIterator rsit;
       this->Renderers->InitTraversal(rsit);
-      while (ren = this->Renderers->GetNextRenderer(rsit))
+      while ((ren = this->Renderers->GetNextRenderer(rsit)))
         {
         ren->SetRenderWindow(NULL);
         ren->SetRenderWindow(this);

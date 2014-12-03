@@ -1095,12 +1095,12 @@ int vtkChacoReader::InputGraph2(
   int end_flag = 1;
   while (end_flag == 1)
     {
-    j = this->ReadInt(fin, &end_flag);
+    this->ReadInt(fin, &end_flag);
     ++line_num;
     }
   while (!end_flag)
     {
-    j = this->ReadInt(fin, &end_flag);
+    this->ReadInt(fin, &end_flag);
     }
   ++line_num;
 

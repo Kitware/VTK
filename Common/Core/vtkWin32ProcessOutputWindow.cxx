@@ -26,6 +26,14 @@
 # define _MAX_PATH 4096
 #endif
 
+#ifndef PRIdword
+#if _LP64
+#define PRIdword "u"
+#else
+#define PRIdword "lu"
+#endif
+#endif
+
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);
@@ -87,7 +95,7 @@ int vtkWin32ProcessOutputWindow::Initialize()
 
   // Construct the executable name from the process id, pointer to
   // this output window instance, and a count.  This should be unique.
-  sprintf(exeName, "vtkWin32OWP_%u_%p_%u.exe",
+  sprintf(exeName, "vtkWin32OWP_%"PRIdword"_%p_%u.exe",
           GetCurrentProcessId(), this, this->Count++);
 
   // Allocate a buffer to hold the executable path.
@@ -152,7 +160,7 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, size_t length)
   if(data && length)
     {
     // Initialize the output pipe the first time.
-    if(this->Broken || !this->OutputPipe && !this->Initialize())
+    if(this->Broken || (!this->OutputPipe && !this->Initialize()))
       {
       this->Broken = 1;
       return;

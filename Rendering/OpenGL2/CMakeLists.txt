@@ -62,13 +62,18 @@ set(Module_SRCS
   vtkglVertexArrayObject.cxx
   )
 
-if (NOT ANDROID AND NOT APPLE_IOS)
+if (NOT DEFINED ${OPENGL_ES_VERSION})
   set(Module_SRCS ${Module_SRCS}
-  vtkPixelBufferObject.cxx
-  vtkFrameBufferObject.cxx
-  )
+    vtkFrameBufferObject.cxx
+    vtkPixelBufferObject.cxx
+    )
+else()
+  if (${OPENGL_ES_VERSION} MATCHES 3.0)
+    set(Module_SRCS ${Module_SRCS}
+      vtkFrameBufferObject.cxx
+      )
+  endif()
 endif()
-
 
 set(${vtk-module}_HDRS
   vtkOpenGL.h

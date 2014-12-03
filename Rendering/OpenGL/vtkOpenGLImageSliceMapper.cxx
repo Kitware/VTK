@@ -323,7 +323,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       }
 
     GLenum interp = GL_LINEAR;
-    if (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION &&
+    if (property &&
+        property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION &&
         !this->ExactPixelMatch)
       {
       interp = GL_NEAREST;

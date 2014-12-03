@@ -1191,8 +1191,8 @@ void vtkAlgorithm::RemoveInputConnection(int port, vtkAlgorithmOutput* input)
   vtkDebugMacro("Removing connection to input port index " << consumerPort
                 << " from output port index " << producerPort
                 << " on algorithm "
-                << (producer? producer->GetAlgorithm()->GetClassName() : "")
-                << "(" << (producer? producer->GetAlgorithm() : 0) << ").");
+                << producer->GetAlgorithm()->GetClassName()
+                << "(" << producer->GetAlgorithm() << ").");
 
   // Get the information object from the producer of the old input.
   vtkInformation* oldInfo = producer->GetOutputInformation(producerPort);

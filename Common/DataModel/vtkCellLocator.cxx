@@ -665,18 +665,16 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
   vtkIdType j;
   int tmpInside;
   int *nei;
-  int closestCell = -1;
   int closestSubCell = -1;
   int leafStart;
   int ijk[3];
-  double minDist2;
   double pcoords[3], point[3], cachedPoint[3], weightsArray[6];
   double *weights = weightsArray;
   int nWeights = 6, nPoints;
   int returnVal = 0;
   vtkIdList *cellIds;
 
-  double refinedRadius, radius2, refinedRadius2, distance2ToBucket;
+  double distance2ToBucket;
   double distance2ToCellBounds, cellBounds[6], currentRadius;
   double distance2ToDataBounds, maxDistance;
   int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
@@ -702,11 +700,11 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
 
   // init
   dist2 = -1.0;
-  closestCell = -1;
-  radius2 = radius*radius;
-  minDist2 = 1.1*radius2;   // something slightly bigger....
-  refinedRadius = radius;
-  refinedRadius2 = radius2;
+  int closestCell = -1;
+  double radius2 = radius*radius;
+  double minDist2 = 1.1*radius2;   // something slightly bigger....
+  double refinedRadius = radius;
+  double refinedRadius2 = radius2;
 
   // Find bucket point is in.
   //
@@ -1902,14 +1900,12 @@ void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double vtkNo
       if (this->Tree[idx])
         {
         this->ComputeOctantBounds(pos[0]-1,pos[1]-1,pos[2]-1);
-        for (tMax = VTK_DOUBLE_MAX, cellId=0;
-        cellId < this->Tree[idx]->GetNumberOfIds(); cellId++)
+        for (cellId=0; cellId < this->Tree[idx]->GetNumberOfIds(); cellId++)
           {
           cId = this->Tree[idx]->GetId(cellId);
           if (this->CellHasBeenVisited[cId] != this->QueryNumber)
             {
             this->CellHasBeenVisited[cId] = this->QueryNumber;
-            hitCellBounds = 0;
 
             // check whether we intersect the cell bounds
             if (this->CacheCellBounds)

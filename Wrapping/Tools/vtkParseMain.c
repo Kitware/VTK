@@ -122,8 +122,15 @@ static int read_option_file(
     /* if buffer not long enough, increase it */
     while (n == maxlen-1 && line[n-1] != '\n' && !feof(fp))
       {
+      char *oldline = line;
       maxlen *= 2;
       line = (char *)realloc(line, maxlen);
+      if (!line)
+        {
+        free(oldline);
+        fclose(fp);
+        return 0;
+        }
       if (!fgets(&line[n], (int)(maxlen-n), fp)) { break; }
       n += strlen(&line[n]);
       }
@@ -210,6 +217,7 @@ static int read_option_file(
       }
     }
 
+  fclose(fp);
   return 1;
 }
 

@@ -275,8 +275,14 @@ static MacroInfo **preproc_macro_location(
       /* if n+1 is a power of two, double allocated space */
       if (n > 0 && (n & (n+1)) == 0)
         {
+        MacroInfo **oldhptr = hptr;
         hptr = htable[i];
         hptr = (MacroInfo **)realloc(hptr, (2*(n+1))*sizeof(MacroInfo *));
+        if (!hptr)
+          {
+          free(oldhptr);
+          return NULL;
+          }
         htable[i] = hptr;
         hptr += n;
         }
@@ -1396,7 +1402,7 @@ static int preproc_evaluate_define(
         {
         if (tokens->tok != TOK_ID && tokens->tok != TOK_ELLIPSIS)
           {
-          if (params) { free((char **)params); }
+          free((char **)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1433,7 +1439,7 @@ static int preproc_evaluate_define(
           }
         else if (tokens->tok != ')')
           {
-          if (params) { free((char **)params); }
+          free((char **)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1451,11 +1457,11 @@ static int preproc_evaluate_define(
     macro = *macro_p;
     if (macro)
       {
+      free((char **)params);
       if (preproc_identical(macro->Definition, definition))
         {
         return VTK_PARSE_OK;
         }
-      if (params) { free((char **)params); }
 #if PREPROC_DEBUG
       fprintf(stderr, "macro redefined %d\n", __LINE__);
 #endif
@@ -1554,8 +1560,14 @@ const char *preproc_find_include_file(
     {
     if (m+1 > outputsize)
       {
+      char *oldoutput = output;
       outputsize += m+1;
       output = (char *)realloc(output, outputsize);
+      if (!output)
+        {
+        free(oldoutput);
+        return NULL;
+        }
       }
     strncpy(output, filename, m);
     output[m] = '\0';
@@ -1609,8 +1621,14 @@ const char *preproc_find_include_file(
             }
           if (m+j+1 > outputsize)
             {
+            char *oldoutput = output;
             outputsize += m+j+1;
             output = (char *)realloc(output, outputsize);
+            if (!output)
+              {
+              free(oldoutput);
+              return NULL;
+              }
             }
           if (j > 0)
             {
@@ -1623,8 +1641,14 @@ const char *preproc_find_include_file(
           {
           if (m+1 > outputsize)
             {
+            char *oldoutput = output;
             outputsize += m+1;
             output = (char *)realloc(output, outputsize);
+            if (!output)
+              {
+              free(oldoutput);
+              return NULL;
+              }
             }
           strncpy(output, filename, m);
           output[m] = '\0';
@@ -1637,8 +1661,14 @@ const char *preproc_find_include_file(
         j = strlen(directory);
         if (j + m + 2 > outputsize)
           {
+          char *oldoutput = output;
           outputsize += j+m+2;
           output = (char *)realloc(output, outputsize);
+          if (!output)
+            {
+            free(oldoutput);
+            return NULL;
+            }
           }
 
         strncpy(output, directory, j);
@@ -1715,8 +1745,18 @@ void preproc_escape_string(
     /* expand line buffer as necessary */
     while (j+4 > linelen)
       {
+      char *oldline = line;
       linelen *= 2;
       line = (char *)realloc(line, linelen);
+      if (!line)
+        {
+        free(r);
+        free(oldline);
+        *linep = NULL;
+        *linelenp = -1;
+        *jp = 0; /* XXX: Is this right? */
+        return;
+        }
       }
 
     if ((r[i] >= ' ' && r[i] <= '~') || (r[i] & 0x80) != 0)
@@ -1908,8 +1948,14 @@ static int preproc_include_file(
       /* expand line buffer as necessary */
       while (j+4 > linelen)
         {
+        char *oldline = line;
         linelen *= 2;
         line = (char *)realloc(line, linelen);
+        if (!line)
+          {
+          free(oldline);
+          return VTK_PARSE_OUT_OF_MEMORY;
+          }
         }
 
       /* check for uninteresting characters first */

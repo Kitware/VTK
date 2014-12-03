@@ -1716,8 +1716,8 @@ void vtkImagePlaneWidget::UpdatePlane()
       }
     }
 
-  double outputSpacingX = (planeSizeX == 0) ? 1.0 : planeSizeX/extentX;
-  double outputSpacingY = (planeSizeY == 0) ? 1.0 : planeSizeY/extentY;
+  double outputSpacingX = (extentX == 0) ? 1.0 : planeSizeX/extentX;
+  double outputSpacingY = (extentY == 0) ? 1.0 : planeSizeY/extentY;
   this->Reslice->SetOutputSpacing(outputSpacingX, outputSpacingY, 1);
   this->Reslice->SetOutputOrigin(0.5*outputSpacingX, 0.5*outputSpacingY, 0);
   this->Reslice->SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0);

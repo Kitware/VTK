@@ -51,7 +51,7 @@ void vtkADIOSWriter::Define(const std::string& path, const vtkAbstractArray* v)
   // Ignore empty arrays
   if(nt == 0 || nc == 0)
     {
-    vtkWarningMacro(<< "Skipping empty array " << path);
+    //vtkWarningMacro(<< "Skipping empty array " << path);
     return;
     }
 

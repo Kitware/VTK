@@ -131,7 +131,7 @@ public:
   virtual void OpenGLInitContext();
 
   // Description::
-  // Get if the copntext includes opengl core profile 3.2 support
+  // Get if the context includes opengl core profile 3.2 support
   static bool GetContextSupportsOpenGL32();
   void SetContextSupportsOpenGL32(bool val);
 

@@ -21,6 +21,7 @@ set (GenericVolumeCxxTests
   TestGPURayCastMapperBenchmark.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
+  TestGPURayCastVolumeUpdate.cxx
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
   TestSmartVolumeMapper.cxx

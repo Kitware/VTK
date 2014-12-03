@@ -58,7 +58,6 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MaskType
     = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
 
-
   this->AMRMode=0;
   this->ClippedCroppingRegionPlanes[0]=VTK_DOUBLE_MAX;
   this->ClippedCroppingRegionPlanes[1]=VTK_DOUBLE_MIN;
@@ -407,7 +406,6 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   return goodSoFar;
 }
 
-
 // ----------------------------------------------------------------------------
 // Description:
 // Called by the AMR Volume Mapper.
@@ -431,7 +429,6 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
   int oldSwap = ren->GetRenderWindow()->GetSwapBuffers();
   ren->GetRenderWindow()->SwapBuffersOff();
 
-
   int dim[3];
   image->GetDimensions(dim);
   int *size = ren->GetRenderWindow()->GetSize();
@@ -442,11 +439,9 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
 
   this->CanonicalViewImageData = bigImage;
 
-
   double scale[2];
   scale[0] = dim[0] / static_cast<double>(size[0]);
   scale[1] = dim[1] / static_cast<double>(size[1]);
-
 
   // Save the visibility flags of the renderers and set all to false except
   // for the ren.
@@ -514,10 +509,8 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
   ren->SetActiveCamera(canonicalViewCamera);
   ren->GetRenderWindow()->Render();
 
-
   ren->SetActiveCamera(savedCamera);
   canonicalViewCamera->Delete();
-
 
   // Shrink to image to the desired size
   vtkImageResample *resample = vtkImageResample::New();

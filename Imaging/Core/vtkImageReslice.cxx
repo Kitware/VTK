@@ -2755,6 +2755,7 @@ void vtkGetRowCompositeFunc(
       else { *composite = &(vtkImageResliceRowComp<F>::SumRow); }
       break;
     default:
+      vtkGenericWarningMacro("Illegal slab mode!");
       *composite = 0;
     }
 }
@@ -2854,7 +2855,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     scalarType, scalarSize, outComponents, outPtr);
 
   // get the slab compositing function
-  void (*composite)(F *op, const F *ip, int nc, int count, int i, int n);
+  void (*composite)(F *op, const F *ip, int nc, int count, int i, int n) = 0;
   vtkGetRowCompositeFunc(&composite,
     self->GetSlabMode(), self->GetSlabTrapezoidIntegration());
 
@@ -2931,7 +2932,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
               interpolator->InterpolateRow(
                 weights, idX, idY, idZ1, tmpPtr, idXmax - idXmin + 1);
 
-              if (nsamples1 > 1)
+              if (composite && (nsamples1 > 1))
                 {
                 composite(floatPtr, floatSumPtr, inComponents,
                           idXmax - idXmin + 1, isample, nsamples1);

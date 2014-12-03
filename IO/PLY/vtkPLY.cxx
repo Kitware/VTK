@@ -722,7 +722,11 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
 
     if (equal_strings (words[0], "format")) {
       if (nwords != 3)
+        {
+        free (plyfile);
+        free (words);
         return (NULL);
+        }
       if (equal_strings (words[1], "ascii"))
         plyfile->file_type = PLY_ASCII;
       else if (equal_strings (words[1], "binary_big_endian"))
@@ -731,6 +735,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
         plyfile->file_type = PLY_BINARY_LE;
       else
         {
+        free (plyfile);
         free (words);
         return (NULL);
         }
@@ -747,6 +752,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
     else if (equal_strings (words[0], "end_header"))
       {
       free (words);
+      words = NULL;
       break;
       }
 
@@ -756,6 +762,12 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
     words = get_words (plyfile->fp, &nwords, &orig_line);
   }
 
+  if (plyfile->nelems == 0)
+    {
+    free (plyfile);
+    free (words);
+    return (NULL);
+    }
 
   /* create tags for each property of each element, to be used */
   /* later to say whether or not to store each property for the user */
@@ -1816,7 +1828,14 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
     /* save pointer to beginning of word */
     if (num_words >= max_words) {
       max_words += 10;
+      char** oldwords = words;
       words = (char **) realloc (words, sizeof (char *) * max_words);
+      if (!words) {
+        *nwords = 0;
+        *orig_line = NULL;
+        free(oldwords);
+        return NULL;
+      }
     }
     words[num_words++] = ptr;
 

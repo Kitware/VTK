@@ -1878,8 +1878,7 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
        iterNumber++)
     {
     //  Define a random ray to fire.
-    rayMag = 0.0;
-    while (rayMag == 0.0 )
+    do
       {
       for (i=0; i<3; i++)
         {
@@ -1887,6 +1886,7 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
         }
       rayMag = vtkMath::Norm(ray);
       }
+    while (rayMag == 0.0);
 
     // The ray must be appropriately sized wrt the bounding box. (It has to go
     // all the way through the bounding box.)
@@ -2601,7 +2601,7 @@ int vtkPolyhedron::InternalContour(double value,
   // incoming edge in the ceBackupMap.
   std::vector<vtkIdVectorType> polygonVector;
   vtkIdToIdVectorMapType::iterator ceMapIt, ceBackupMapIt;
-  vtkIdSetType::iterator cpSetIt;
+  vtkIdSetType::iterator cpSetIt = cpSet.end();
   vtkIdVectorType::iterator cpVectorIt;
 
   // backup ceMap. During graph travasal, we will remove edges from contour point

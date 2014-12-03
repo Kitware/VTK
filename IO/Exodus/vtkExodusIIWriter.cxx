@@ -2125,7 +2125,7 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
       s = s.substr (0, MAX_STR_LENGTH - 11);
       }
     // assume largest for 32 bit decimal representation
-    char n[10];
+    char n[11];
     sprintf (n, "%10d", component);
     s.append (n);
     return s;
