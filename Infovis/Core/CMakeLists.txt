@@ -6,6 +6,7 @@ set(Module_SRCS
   vtkCollapseGraph.cxx
   vtkCollapseVerticesByArray.cxx
   vtkDataObjectToTable.cxx
+  vtkDotProductSimilarity.cxx
   vtkExtractSelectedTree.cxx
   vtkEdgeCenters.cxx
   vtkExpandSelectedGraph.cxx
@@ -33,6 +34,7 @@ set(Module_SRCS
   vtkTableToTreeFilter.cxx
   vtkThresholdGraph.cxx
   vtkThresholdTable.cxx
+  vtkTransferAttributes.cxx
   vtkTransposeMatrix.cxx
   vtkTreeFieldAggregator.cxx
   vtkTreeDifferenceFilter.cxx

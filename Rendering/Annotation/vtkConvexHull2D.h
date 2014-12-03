@@ -45,7 +45,7 @@
 #ifndef __vtkConvexHull2D_h
 #define __vtkConvexHull2D_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h" // needed for ivars
 
@@ -57,7 +57,7 @@ class vtkRenderer;
 class vtkTransform;
 class vtkTransformPolyDataFilter;
 
-class VTKINFOVISCORE_EXPORT vtkConvexHull2D: public vtkPolyDataAlgorithm
+class VTKRENDERINGANNOTATION_EXPORT vtkConvexHull2D: public vtkPolyDataAlgorithm
 {
 public:
   static vtkConvexHull2D *New();
