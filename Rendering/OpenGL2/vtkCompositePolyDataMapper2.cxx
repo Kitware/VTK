@@ -28,6 +28,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkScalarsToColors.h"
 #include "vtkShaderProgram.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiBlockDataSet.h"
@@ -274,7 +275,7 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
     return this->LastOpaqueCheckValue;
     }
   this->LastOpaqueCheckTime = lastMTime;
-  if (this->ScalarVisibility && input
+  if (this->ScalarVisibility && input &&
       (this->ColorMode == VTK_COLOR_MODE_DEFAULT ||
        this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS))
     {
