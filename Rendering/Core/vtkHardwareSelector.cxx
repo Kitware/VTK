@@ -98,6 +98,11 @@ public:
     for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
       {
       const PixelInformation &key = iter->first;
+      if (! key.Prop)
+        {
+        // we don't select 2D annotations
+        continue;
+        }
       const std::set<vtkIdType> &id_values = iter->second;
       vtkSelectionNode* child = vtkSelectionNode::New();
       child->SetContentType(vtkSelectionNode::INDICES);
@@ -613,7 +618,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 
     actorid--;
     info.PropID = actorid;
-    info.Prop = this->Internals->Props[actorid];
+    info.Prop = this->GetPropFromID(actorid);
 
     int composite_id = this->Convert(display_position,
       this->PixBuffer[COMPOSITE_INDEX_PASS]);
