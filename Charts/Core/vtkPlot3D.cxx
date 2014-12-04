@@ -44,6 +44,9 @@ vtkPlot3D::vtkPlot3D()
 {
   this->Pen = vtkSmartPointer<vtkPen>::New();
   this->Pen->SetWidth(2.0);
+  this->SelectionPen = vtkSmartPointer<vtkPen>::New();
+  this->SelectionPen->SetColor(255, 50, 0, 150);
+  this->SelectionPen->SetWidth(4.0);
   this->NumberOfComponents = 0;
   this->Chart = NULL;
 }
@@ -65,6 +68,22 @@ void vtkPlot3D::SetPen(vtkPen *pen)
   if (this->Pen != pen)
     {
     this->Pen = pen;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkPen* vtkPlot3D::GetSelectionPen()
+{
+  return this->SelectionPen.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot3D::SetSelectionPen(vtkPen *pen)
+{
+  if (this->SelectionPen != pen)
+    {
+    this->SelectionPen = pen;
     this->Modified();
     }
 }

@@ -250,7 +250,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
         }
       }
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
-    painter->GetPen()->SetColor(255, 50, 0, 150);
+    painter->GetPen()->SetColor(this->SelectionPen->GetColor());
     painter->GetPen()->SetWidth(width + 2.7);
 
     if (this->MarkerStyle == VTK_MARKER_NONE)

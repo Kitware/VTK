@@ -31,8 +31,7 @@ vtkPlotPoints3D::vtkPlotPoints3D()
 {
   this->Pen->SetWidth(5);
   this->Pen->SetColor(0, 0, 0, 255);
-  this->SelectedPen->SetWidth(7);
-  this->SelectedPen->SetColor(255, 50, 0, 150);
+  this->SelectionPen->SetWidth(7);
 }
 
 //-----------------------------------------------------------------------------
@@ -102,7 +101,7 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
     // Now to render the selected points.
     if (!this->SelectedPoints.empty())
       {
-      context->ApplyPen(this->SelectedPen.GetPointer());
+      context->ApplyPen(this->SelectionPen.GetPointer());
       context->DrawPoints(this->SelectedPoints[0].GetData(),
                           static_cast<int>(this->SelectedPoints.size()));
       }

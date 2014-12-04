@@ -272,7 +272,7 @@ class vtkPlotBarSegment : public vtkObject {
         {
         return;
         }
-      painter->GetBrush()->SetColor(255, 50, 0, 150);
+      painter->ApplyBrush(this->Bar->GetSelectionBrush());
       for (vtkIdType j = 0; j < selection->GetNumberOfTuples(); ++j)
         {
         int i = selection->GetValue(j);
