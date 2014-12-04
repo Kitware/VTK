@@ -41,7 +41,9 @@
     parser->SetScalarVariableValue("x", value); \
     double result = parser->GetScalarResult(); \
     double expected = math(value); \
-    if (result != expected) \
+    if (!vtkMathUtilities::FuzzyCompare( \
+          result, expected, \
+          std::numeric_limits<double>::epsilon() * 1.0)) \
       { \
       std::cout << "\n";                                       \
       std::cout << #function " Expected " << expected \
@@ -49,7 +51,6 @@
                 << " difference is " << result - expected << " "; \
       std::cout << "eps ratio is: " << (result - expected) \
         / std::numeric_limits<double>::epsilon() << std::endl; \
-      vtkGenericWarningMacro(#function " failed: got " << result << " but expected " << expected); \
       return EXIT_FAILURE; \
       } \
     }  \
@@ -112,17 +113,17 @@ int UnitTestFunctionParser(int,char *[])
   status += TestAtan(-1.0, 1.0);
   status += TestCeil(-1000.0, 1000.0);
   status += TestCos(-1000.0, 1000.0);
-  status += TestCosh(-1000, 1000);
+  status += TestCosh(-1.0, 1.0);
   status += TestExp(0, 2.0);
   status += TestFloor(-1000.0, 1000.0);
   status += TestLn(0.0, 1000.0);
   status += TestLog(0.0, 1000.0);
   status += TestLog10(0.0, 1000.0);
   status += TestSin(-1000.0, 1000.0);
-  status += TestSinh(-1000.0, 1.0000);
+  status += TestSinh(-1.0, 1.0);
   status += TestSqrt(.1, 1000.0);
   status += TestTan(-1000.0, 1000.0);
-  status += TestTanh(-1000, 1000);
+  status += TestTanh(-1.0, 1.0);
 
   status += TestScalars();
   status += TestVectors();
@@ -227,6 +228,10 @@ int TestVectors()
   if (status1 == 0)
     {
     std::cout << "PASSED\n";
+    }
+  else
+    {
+    std::cout << "FAILED\n";
     }
 
   // Add / Subtract / Multiply / Unary / Dot / Mag / Norm
@@ -372,7 +377,9 @@ int TestMinMax()
 
     double result = parser->GetScalarResult();
     double expected = std::min(value, -value);
-    if (result != expected)
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expected,
+          std::numeric_limits<double>::epsilon() * 1.0))
       {
       std::cout << "\n";
       std::cout << "Min Expected " << expected
@@ -380,7 +387,6 @@ int TestMinMax()
                 << " difference is " << result - expected << " ";
       std::cout << "eps ratio is: " << (result - expected)
         / std::numeric_limits<double>::epsilon() << std::endl;
-      vtkGenericWarningMacro("Min failed: got " << result << " but expected " << expected);
       status++;
       }
     }
@@ -395,7 +401,9 @@ int TestMinMax()
 
     double result = parser->GetScalarResult();
     double expected = std::max(value, -value);
-    if (result != expected)
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expected,
+          std::numeric_limits<double>::epsilon() * 1.0))
       {
       std::cout << "\n";
       std::cout << "Max Expected " << expected
@@ -403,7 +411,6 @@ int TestMinMax()
                 << " difference is " << result - expected << " ";
       std::cout << "eps ratio is: " << (result - expected)
         / std::numeric_limits<double>::epsilon() << std::endl;
-      vtkGenericWarningMacro("Max failed: got " << result << " but expected " << expected);
       status++;
       }
     }
@@ -673,7 +680,9 @@ int TestMiscFunctions()
     parser->SetFunction("x ^ y");
     double result = parser->GetScalarResult();
     double expected = std::pow(x, y);
-    if (result != expected)
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expected,
+          std::numeric_limits<double>::epsilon() * 1.0))
       {
       std::cout << "\n";
       std::cout <<  " pow Expected " << expected
@@ -705,7 +714,9 @@ int TestMiscFunctions()
     parser->SetFunction("x / y");
     double result = parser->GetScalarResult();
     double expected = x / y;
-    if (result != expected)
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expected,
+          std::numeric_limits<double>::epsilon() * 1.0))
       {
       std::cout << "\n";
       std::cout <<  " x / y Expected " << expected
@@ -739,8 +750,6 @@ int TestMiscFunctions()
     std::cout << "PASSED\n";
     }
   parser->SetScalarVariableValue(0, 123.45);
-  parser->GetScalarVariableValue(1000);
-  parser->GetScalarVariableName(1000);
   parser->GetScalarVariableValue("x");
 
   parser->SetVectorVariableValue("v1", 1.0, 2.0, 3.0);
