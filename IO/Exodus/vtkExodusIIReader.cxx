@@ -388,7 +388,6 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->Cache = vtkExodusIICache::New();
   this->CacheSize = 0;
 
-  this->TimeStep = 0;
   this->HasModeShapes = 0;
   this->ModeShapeTime = -1.;
   this->AnimateModeShapes = 1;
@@ -946,7 +945,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
 
 //-----------------------------------------------------------------------------
 int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
-  vtkIdType vtkNotUsed(timeStep), int otyp, int obj, BlockSetInfoType* bsinfop,
+  vtkIdType timeStep, int otyp, int obj, BlockSetInfoType* bsinfop,
   vtkUnstructuredGrid* output )
 {
   (void)obj;
@@ -1008,6 +1007,16 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     sarr->SetValue(0, this->ModelParameters.title);
     ofieldData->AddArray(sarr);
     sarr->Delete();
+    }
+
+  // Add mode_shape/time_step
+    {
+    vtkNew<vtkIntArray> arr;
+    arr->SetName("data_index");
+    arr->SetNumberOfComponents(1);
+    arr->SetNumberOfTuples(1);
+    arr->SetValue(0, timeStep);
+    ofieldData->AddArray(arr.GetPointer());
     }
 
   vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
@@ -3573,7 +3582,6 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
     os << " " << this->Times[i];
     }
   os << "\n";
-  os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "HasModeShapes: " << this->HasModeShapes << "\n";
   os << indent << "ModeShapeTime: " << this->ModeShapeTime << "\n";
   os << indent << "AnimateModeShapes: " << this->AnimateModeShapes << "\n";
@@ -4496,7 +4504,6 @@ void vtkExodusIIReaderPrivate::Reset()
   this->ArrayInfo.clear();
   this->ExodusVersion = -1.;
   this->Times.clear();
-  this->TimeStep = 0;
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
 
   // Don't clear file id since it's not part of meta-data that's read from the
