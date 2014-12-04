@@ -1017,7 +1017,9 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
     if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
         selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
       {
+#if GL_ES_VERSION_2_0 != 1
       glPointSize(4.0); //make verts large enough to be sure to overlap cell
+#endif
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(0,2.0);  // supported on ES2/3/etc
       glDepthMask(GL_FALSE); //prevent verts from interfering with each other
