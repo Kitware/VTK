@@ -19,8 +19,7 @@
 #include "vtkDataArrayPrivate.txx"
 
 #include "vtkArrayIteratorTemplate.h"
-#include "vtkDataArrayIteratorMacro.h"
-#include "vtkTypedDataArrayIterator.h"
+#include "vtkDataArrayTemplateHelper.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -542,60 +541,7 @@ void vtkDataArrayTemplate<T>::InsertTuples(vtkIdType dstStart, vtkIdType n,
     return;
     }
 
-  vtkIdType srcEnd = srcStart + n;
-  if (srcEnd > source->GetNumberOfTuples())
-    {
-    vtkWarningMacro("Source range exceeds array size (srcStart=" << srcStart
-                    << ", n=" << n << ", numTuples="
-                    << source->GetNumberOfTuples() << ").");
-    return;
-    }
-
-  // Find maximum destination id and resize if needed
-  vtkIdType dstEnd = dstStart + n;
-  vtkIdType maxSize = dstEnd * this->NumberOfComponents;
-  if (maxSize > this->Size)
-    {
-    if (this->ResizeAndExtend(maxSize) == 0)
-      {
-      vtkWarningMacro("Failed to allocate memory.");
-      return;
-      }
-    }
-
-  // Use iterators if possible:
-  if (vtkTypedDataArray<T> *typedSource =
-      vtkTypedDataArray<T>::FastDownCast(source))
-    {
-    switch (typedSource->GetDataType())
-      {
-      vtkDataArrayIteratorMacro(typedSource,
-                                std::copy(vtkDABegin + srcStart,
-                                          vtkDABegin + srcEnd,
-                                          this->Begin() + dstStart));
-      }
-    }
-  else if (vtkDataArray *dataSource = vtkDataArray::FastDownCast(source))
-    {
-    // Otherwise use the double interface
-    for (vtkIdType i = 0; i < n; ++i)
-      {
-      this->SetTuple(dstStart + i, dataSource->GetTuple(srcStart + i));
-      }
-    }
-  else
-    {
-    vtkWarningMacro("Input array is not a vtkDataArray subclass!");
-    return;
-    }
-
-  vtkIdType maxId = maxSize - 1;
-  if (maxId > this->MaxId)
-    {
-    this->MaxId = maxId;
-    }
-
-  this->DataChanged();
+  vtkDataArrayTemplateHelper::InsertTuples(this, dstStart, n, srcStart, source);
 }
 
 //----------------------------------------------------------------------------

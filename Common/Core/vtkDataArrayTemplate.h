@@ -36,6 +36,8 @@ class VTKCOMMONCORE_EXPORT vtkDataArrayTemplate:
 public:
   typedef vtkTypedDataArray<T> Superclass;
   typedef typename Superclass::ValueType ValueType;
+  friend class vtkDataArrayTemplateHelper;
+
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
