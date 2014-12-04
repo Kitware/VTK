@@ -12,7 +12,7 @@ find_package(VTK COMPONENTS
   vtkCommonCore
   vtkFiltersSources
   vtkInteractionWidgets
-  vtkRenderingOpenGL
+  vtkRendering${VTK_RENDERING_BACKEND}
   vtkTestingRendering
 )
 include(${VTK_USE_FILE})

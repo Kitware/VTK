@@ -1,6 +1,12 @@
-cmake_minimum_required(VERSION 2.6.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
+if(POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW)
+endif()
 if(POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW) # CMake 3.0
+endif()
+if(POLICY CMP0053)
+  cmake_policy(SET CMP0053 NEW) # CMake 3.1
 endif()
 
 #
