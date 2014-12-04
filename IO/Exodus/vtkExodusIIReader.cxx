@@ -1011,12 +1011,12 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
 
   // Add mode_shape/time_step
     {
-    vtkNew<vtkIntArray> arr;
-    arr->SetName("data_index");
-    arr->SetNumberOfComponents(1);
-    arr->SetNumberOfTuples(1);
-    arr->SetValue(0, timeStep);
-    ofieldData->AddArray(arr.GetPointer());
+    vtkNew<vtkIntArray> dataIndexArray;
+    dataIndexArray->SetName("data_index");
+    dataIndexArray->SetNumberOfComponents(1);
+    dataIndexArray->SetNumberOfTuples(1);
+    dataIndexArray->SetValue(0, timeStep);
+    ofieldData->AddArray(dataIndexArray.GetPointer());
     }
 
   vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
