@@ -155,6 +155,7 @@ vtkObjectFactoryNewMacro(vtkLabeledContourMapper)
 //------------------------------------------------------------------------------
 vtkLabeledContourMapper::vtkLabeledContourMapper()
 {
+  this->LabelVisibility = true;
   this->TextActors = NULL;
   this->NumberOfTextActors = 0;
   this->NumberOfUsedTextActors = 0;
@@ -187,6 +188,12 @@ void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   if (!this->CheckInputs(ren))
     {
+    return;
+    }
+
+  if (!this->LabelVisibility)
+    {
+    this->RenderPolyData(ren, act);
     return;
     }
 
@@ -311,7 +318,9 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "NumberOfTextActors: " << this->NumberOfTextActors << "\n"
+  os << indent << "LabelVisiblity: " << (this->LabelVisibility ? "On\n"
+                                                               : "Off\n")
+     << indent << "NumberOfTextActors: " << this->NumberOfTextActors << "\n"
      << indent << "NumberOfUsedTextActors: "
      << this->NumberOfUsedTextActors << "\n"
      << indent << "StencilQuadsSize: " << this->StencilQuadsSize << "\n"

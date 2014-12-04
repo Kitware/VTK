@@ -64,6 +64,14 @@ public:
   virtual vtkTextProperty* GetTextProperty();
 
   // Description:
+  // If true, labels will be placed and drawn during rendering. Otherwise,
+  // only the mapper returned by GetPolyDataMapper() will be rendered.
+  // The default is to draw labels.
+  vtkSetMacro(LabelVisibility, bool)
+  vtkGetMacro(LabelVisibility, bool)
+  vtkBooleanMacro(LabelVisibility, bool)
+
+  // Description:
   // The polydata mapper used to render the contours.
   vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
 
@@ -91,6 +99,8 @@ protected:
 
   bool AllocateTextActors(vtkIdType num);
   bool FreeTextActors();
+
+  bool LabelVisibility;
   vtkIdType NumberOfTextActors;
   vtkIdType NumberOfUsedTextActors;
   vtkTextActor3D **TextActors;
