@@ -24,6 +24,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #define SCALAR_FUNC(proc,function,math) \
   static int proc(double low, double hi)          \
