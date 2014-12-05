@@ -35,6 +35,10 @@
 #include "vtkPointData.h"
 #include "vtkDataArray.h"
 
+#include "vtkContourFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkActor.h"
+
 int TestSmartVolumeMapperWindowLevel(int argc,
                                      char *argv[])
 {
@@ -135,23 +139,36 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
 
-  vtkSmartVolumeMapper *volumeMapper2;
-  vtkVolume *volume2;
+//  vtkSmartVolumeMapper *volumeMapper2;
+//  vtkVolume *volume2;
+//
+//  volumeMapper2=vtkSmartVolumeMapper::New();
+//  volumeMapper2->SetBlendModeToComposite();
+//  volumeMapper2->SetInputConnection(
+//    t->GetOutputPort());
+//#ifndef VTK_OPENGL2
+//  // 3D texture mode.
+//  volumeMapper2->SetRequestedRenderModeToRayCastAndTexture();
+//#else
+//  volumeMapper2->SetRequestedRenderModeToDefault();
+//#endif
+//  volume2=vtkVolume::New();
+//  volume2->SetMapper(volumeMapper2);
+//  volume2->SetProperty(volumeProperty);
+//  ren2->AddViewProp(volume2);
 
-  volumeMapper2=vtkSmartVolumeMapper::New();
-  volumeMapper2->SetBlendModeToComposite();
-  volumeMapper2->SetInputConnection(
-    t->GetOutputPort());
-#ifndef VTK_OPENGL2
-  // 3D texture mode.
-  volumeMapper2->SetRequestedRenderModeToRayCastAndTexture();
-#else
-  volumeMapper2->SetRequestedRenderModeToDefault();
-#endif
-  volume2=vtkVolume::New();
-  volume2->SetMapper(volumeMapper2);
-  volume2->SetProperty(volumeProperty);
-  ren2->AddViewProp(volume2);
+  vtkContourFilter * cf = vtkContourFilter::New();
+  cf->SetInputConnection(t->GetOutputPort());
+  cf->SetValue(0, 80);
+  vtkPolyDataMapper * pm = vtkPolyDataMapper::New();
+  pm->SetInputConnection(cf->GetOutputPort());
+  vtkActor * ac = vtkActor::New();
+  ac->SetMapper(pm);
+  ren2->AddActor(ac);
+  ac->Delete();
+  pm->Delete();
+  cf->Delete();
+
 
   vtkSmartVolumeMapper *volumeMapper3;
   vtkVolume *volume3;
@@ -178,8 +195,8 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   volumeMapper->SetFinalColorLevel(0.25);
   volumeMapper->SetFinalColorWindow(0.5);
 
-  volumeMapper2->SetFinalColorLevel(0.25);
-  volumeMapper2->SetFinalColorWindow(0.5);
+//  volumeMapper2->SetFinalColorLevel(0.25);
+//  volumeMapper2->SetFinalColorWindow(0.5);
 
   volumeMapper3->SetFinalColorLevel(0.25);
   volumeMapper3->SetFinalColorWindow(0.5);
@@ -195,8 +212,8 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   volumeMapper3->Delete();
   volume3->Delete();
 
-  volumeMapper2->Delete();
-  volume2->Delete();
+//  volumeMapper2->Delete();
+//  volume2->Delete();
 
   volumeMapper->Delete();
   volumeProperty->Delete();
