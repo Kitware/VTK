@@ -213,7 +213,7 @@ void vtkOpenGLStickMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 void vtkOpenGLStickMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
-  if (cellBO.indexCount && (this->OpenGLUpdateTime > cellBO.attributeUpdateTime ||
+  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
       cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
     {
     vtkHardwareSelector* selector = ren->GetSelector();
@@ -454,7 +454,24 @@ size_t vtkOpenGLStickMapperCreateTriangleIndexBuffer(
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLStickMapper::UpdateVBO(vtkRenderer *ren, vtkActor *act)
+bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act)
+{
+  // picking state changing always requires a rebuild
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool picking = (ren->GetIsPicking() || selector != NULL);
+
+  if (this->VBOBuildTime < this->GetMTime() ||
+      this->VBOBuildTime < act->GetMTime() ||
+      this->VBOBuildTime < this->CurrentInput->GetMTime() ||
+      this->LastSelectionState || picking)
+    {
+    return true;
+    }
+  return false;
+}
+
+//-------------------------------------------------------------------------
+void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 

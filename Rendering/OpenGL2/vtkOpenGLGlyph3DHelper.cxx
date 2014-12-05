@@ -439,7 +439,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
 
   // do the superclass and then reset a couple values
   if (this->Tris.indexCount &&   // we have points and one of
-      (this->OpenGLUpdateTime > this->InstanceBuffersLoadTime ||
+      (this->VBOBuildTime > this->InstanceBuffersLoadTime ||
       this->Tris.ShaderSourceTime > this->InstanceBuffersLoadTime ||
       pointMTime > this->InstanceBuffersLoadTime.GetMTime()))
     {
