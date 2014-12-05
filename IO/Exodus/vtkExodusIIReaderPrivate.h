@@ -83,11 +83,6 @@ public:
     */
   int GetNumberOfTimeSteps() { return (int) this->Times.size(); }
 
-  /// Return the current time step
-  vtkGetMacro(TimeStep,int);
-
-  /// Set the current time step for subsequent calls to RequestData().
-  vtkSetMacro(TimeStep,int);
 
   /// Return whether subsequent RequestData() calls will produce the minimal
   /// point set required to represent the output.
@@ -770,8 +765,6 @@ protected:
   /// A list of time steps for which results variables are stored.
   std::vector<double> Times;
 
-  /// The current time step
-  int TimeStep;
 
   /** The time value. This is used internally when HasModeShapes is true and
     * ignored otherwise.
