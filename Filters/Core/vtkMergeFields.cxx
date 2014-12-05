@@ -158,18 +158,16 @@ int vtkMergeFields::RequestData(
   Component* cur = this->GetFirst();
   Component* before;
 
-  if (!cur) { return 1; }
+  if (!cur)
+    {
+    return 1;
+    }
 
   // Get the input and output field data
   if ( this->FieldLocation == vtkMergeFields::DATA_OBJECT)
     {
     fd = input->GetFieldData();
     outputFD = output->GetFieldData();
-    if (!fd || !outputFD)
-      {
-      vtkErrorMacro("No field data in vtkDataObject.");
-      return 1;
-      }
     }
   else if ( this->FieldLocation == vtkMergeFields::POINT_DATA )
     {
@@ -180,6 +178,12 @@ int vtkMergeFields::RequestData(
     {
     fd = input->GetCellData();
     outputFD = output->GetCellData();
+    }
+
+  if (!fd || !outputFD)
+    {
+    vtkErrorMacro("No field data in vtkDataObject.");
+    return 1;
     }
 
   // Check if the data types of the input fields are the same
