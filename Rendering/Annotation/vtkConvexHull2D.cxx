@@ -29,6 +29,8 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkConvexHull2D);
 
 //-----------------------------------------------------------------------------
