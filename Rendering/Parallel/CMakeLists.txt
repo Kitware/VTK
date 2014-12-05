@@ -15,7 +15,7 @@ set(Module_SRCS
   vtkImageRenderManager.cxx
   )
 
-set(shader_files vtkCompositeZPassShader_fs.glsl)
+set(shader_files vtkCompositeZPassShader_fs.glsl vtkCompositeZPassFS.glsl)
 
 unset(shader_h_files)
 foreach(file ${shader_files})
