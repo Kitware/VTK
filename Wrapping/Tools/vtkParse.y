@@ -20,13 +20,15 @@ This file must be translated to C and modified to build everywhere.
 
 Run bison like this:
 
-  bison -b vtkParse vtkParse.y
+  bison --no-lines -b vtkParse vtkParse.y
 
 Modify vtkParse.tab.c:
   - convert TABs to spaces (eight per tab)
   - remove spaces from ends of lines, s/ *$//g
   - replace all instances of "static inline" with "static".
-  - replace "#line" lines with blank lines
+  - replace "#if ! defined lint || defined __GNUC__" with "#if 1"
+  - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
+  - remove the "break;" after return "return yyreportAmbiguity"
 */
 
 /*
