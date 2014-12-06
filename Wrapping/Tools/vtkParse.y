@@ -1299,8 +1299,8 @@ unsigned int add_indirection_to_array(unsigned int type)
    <str> is for IDs and <integer> is for types, modifiers, etc. */
 
 %union{
-  const char   *str;
-  unsigned int  integer;
+  const char *str;
+  size_t      integer;
 }
 
 /* Lexical tokens defined in vtkParse.l */
