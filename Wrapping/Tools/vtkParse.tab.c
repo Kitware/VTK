@@ -1484,8 +1484,8 @@ union YYSTYPE
 {
 
 
-  const char   *str;
-  unsigned int  integer;
+  const char *str;
+  size_t      integer;
 
 
 };
