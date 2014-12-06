@@ -883,9 +883,9 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(
 
 void vtkLabelHierarchyQuadtreeIterator::Begin( vtkIdTypeArray* vtkNotUsed(lastPlaced) )
 {
-  this->Node = this->Hierarchy->GetImplementation()->Hierarchy2->root();
-  if ( &(this->Node->value()) )
+  if ( this->Hierarchy->GetImplementation()->Hierarchy2 )
     {
+    this->Node = this->Hierarchy->GetImplementation()->Hierarchy2->root();
     if ( this->IsNodeInFrustum( this->Node ) )
       {
       this->QueueChildren();
@@ -1227,9 +1227,9 @@ void vtkLabelHierarchyOctreeQueueIterator::Begin( vtkIdTypeArray* lastPlaced )
       }
     }
 
-  this->Node = this->Hierarchy->GetImplementation()->Hierarchy3->root();
-  if ( &(this->Node->value()) )
+  if ( this->Hierarchy->GetImplementation()->Hierarchy3 )
     {
+    this->Node = this->Hierarchy->GetImplementation()->Hierarchy3->root();
     if ( this->IsNodeInFrustum( this->Node ) )
       {
       this->QueueChildren();
@@ -1584,10 +1584,10 @@ void vtkLabelHierarchy3DepthFirstIterator::Begin( vtkIdTypeArray* vtkNotUsed(las
 {
   this->Path.clear();
   this->Order.clear();
-  this->Cursor = vtkLabelHierarchy::Implementation::HierarchyCursor3( this->Hierarchy->GetImplementation()->Hierarchy3 );
   this->DidRoot = false;
-  if ( &(this->Cursor->value()) )
+  if ( this->Hierarchy->GetImplementation()->Hierarchy3 )
     {
+    this->Cursor = vtkLabelHierarchy::Implementation::HierarchyCursor3( this->Hierarchy->GetImplementation()->Hierarchy3 );
     if ( this->IsNodeInFrustum() )
       {
       this->BoxNode();
