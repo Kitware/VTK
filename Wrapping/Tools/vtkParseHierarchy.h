@@ -152,6 +152,15 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
 const char *vtkParseHierarchy_ExpandTypedefsInName(
   const HierarchyInfo *info, const char *text, const char *scope);
 
+/**
+ * Check whether the named type is an enum type that appears either in
+ * the HierarchyInfo or within the ClassInfo.  If the enum type is found,
+ * its qualified name is returned, otherwise NULL is returned.
+ */
+const char *vtkParseHierarchy_QualifiedEnumName(
+  HierarchyInfo *hinfo, ClassInfo *data, StringCache *cache,
+  const char *name);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
