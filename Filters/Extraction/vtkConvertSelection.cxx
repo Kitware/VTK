@@ -736,8 +736,8 @@ int vtkConvertSelection::Convert(
       }
 
     // Handle the special case where we have a pedigree id selection with a domain array.
-    vtkStringArray* outputDomainArr = vtkStringArray::SafeDownCast(
-        dsa->GetAbstractArray("domain"));
+    vtkStringArray* outputDomainArr = dsa ? vtkStringArray::SafeDownCast(
+        dsa->GetAbstractArray("domain")) : 0;
     if (this->OutputType == vtkSelectionNode::PEDIGREEIDS && outputDomainArr)
       {
       vtkAbstractArray* outputDataArr = dsa->GetPedigreeIds();
