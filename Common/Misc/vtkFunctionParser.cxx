@@ -239,6 +239,7 @@ int vtkFunctionParser::DisambiguateOperators()
                  (tempStack[tempStackPtr] != 0 &&
                   tempStack[tempStackPtr-1] == 0))
           {
+          delete [] tempStack;
           vtkErrorMacro("addition expects either 2 vectors or 2 scalars");
           return 0;
           }
@@ -254,6 +255,7 @@ int vtkFunctionParser::DisambiguateOperators()
                  (tempStack[tempStackPtr] != 0 &&
                   tempStack[tempStackPtr-1] == 0))
           {
+          delete [] tempStack;
           vtkErrorMacro("subtraction expects either 2 vectors or 2 scalars");
           return 0;
           }
@@ -273,6 +275,7 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         else if (tempStack[tempStackPtr] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("multiply expecting either 2 scalars or a scalar and"
                         << " a vector");
           return 0;
@@ -288,6 +291,7 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         else if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't divide vectors");
           return 0;
           }
@@ -296,6 +300,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_POWER:
         if (tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't raise a vector to a power");
           return 0;
           }
@@ -308,6 +313,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_OR:
         if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("Vectors cannot be used in boolean expressions.");
           return 0;
           }
@@ -333,6 +339,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_SIGN:
         if (tempStack[tempStackPtr] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("expecting a scalar, but got a vector");
           return 0;
           }
@@ -340,6 +347,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_MIN:
         if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't apply min to vectors");
           return 0;
           }
@@ -348,6 +356,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_MAX:
         if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't apply max to vectors");
           return 0;
           }
@@ -356,6 +365,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_CROSS:
         if (tempStack[tempStackPtr] == 0 || tempStack[tempStackPtr-1] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't apply cross to scalars");
           return 0;
           }
@@ -364,6 +374,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_DOT_PRODUCT:
         if (tempStack[tempStackPtr] == 0 || tempStack[tempStackPtr-1] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("dot product does not operate on scalars");
           return 0;
           }
@@ -373,6 +384,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_MAGNITUDE:
         if (tempStack[tempStackPtr] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("magnitude expects a vector, but got a scalar");
           return 0;
           }
@@ -381,6 +393,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_NORMALIZE:
         if (tempStack[tempStackPtr] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("normalize expects a vector, but got a scalar");
           return 0;
           }
@@ -397,6 +410,7 @@ int vtkFunctionParser::DisambiguateOperators()
         // tempStack[0] is valfalse.
         if (tempStack[tempStackPtr] != 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("first argument of if(bool,valtrue,valfalse) cannot be a vector");
           return 0;
           }
@@ -410,6 +424,7 @@ int vtkFunctionParser::DisambiguateOperators()
                  (tempStack[tempStackPtr-1] != 0 &&
                   tempStack[tempStackPtr-2] == 0))
           {
+          delete [] tempStack;
           vtkErrorMacro("the if function expects the second and third arguments to be either 2 vectors or 2 scalars");
           return 0;
           }
@@ -2086,6 +2101,8 @@ void vtkFunctionParser::RemoveVectorVariables()
     {
     delete [] this->VectorVariableNames[i];
     this->VectorVariableNames[i] = NULL;
+    delete [] this->VectorVariableValues[i];
+    this->VectorVariableValues[i] = NULL;
     }
   if (this->NumberOfVectorVariables > 0)
     {
@@ -2106,7 +2123,7 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
 
     // Reset previous error cache.
     this->ParseErrorPositon = -1;
-    this->ParseError        = NULL;
+    this->SetParseError(0);
 
     this->CopyParseError(pos, error);
     }
