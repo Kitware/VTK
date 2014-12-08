@@ -14,8 +14,13 @@ set(Module_SRCS
   #vtkX3DExporterJavaHelper.cxx Needs JNI
   vtkX3DExporterWriter.cxx
   vtkX3DExporterXMLWriter.cxx
-  vtkGL2PSExporter.cxx
   )
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  list (APPEND Module_SRCS
+    vtkGL2PSExporter.cxx
+    )
+endif()
 
 set_source_files_properties(
   vtkX3D
