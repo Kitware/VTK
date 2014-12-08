@@ -25,6 +25,12 @@
 #ifndef QVTK_WIDGET_PLUGIN
 #define QVTK_WIDGET_PLUGIN
 
+// Disable warnings that Qt headers give.
+#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=6)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 #include <QDesignerCustomWidgetInterface>
 #include <QDesignerCustomWidgetCollectionInterface>
 #include <QObject>
@@ -78,5 +84,9 @@ public:
   QVTKWidget(QWidget* p) : QWidget(p) {}
 };
 
+// Undo disabling of warning.
+#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=6)
+#pragma GCC diagnostic pop
+#endif
 
 #endif //QVTK_WIDGET_PLUGIN
