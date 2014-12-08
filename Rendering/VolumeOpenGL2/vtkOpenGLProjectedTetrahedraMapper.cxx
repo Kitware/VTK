@@ -50,7 +50,6 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
 #include <cmath>
