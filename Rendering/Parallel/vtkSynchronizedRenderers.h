@@ -126,6 +126,7 @@ public:
       this->Valid = false;
       this->Size[0] = this->Size[1] = 0;
       this->Data = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      this->Renderer = 0;
       }
 
     void Resize(int dx, int dy, int numcomps)
@@ -166,6 +167,7 @@ public:
     bool Valid;
     int Size[2];
     vtkSmartPointer<vtkUnsignedCharArray> Data;
+    vtkRenderer *Renderer;
 
     void Allocate(int dx, int dy, int numcomps);
     };

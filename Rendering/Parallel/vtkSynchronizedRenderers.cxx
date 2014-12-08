@@ -25,9 +25,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkParallelRenderManager.h"
 #include "vtkPNGWriter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
 #ifndef VTKGL2
@@ -654,7 +654,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     return false;
     }
 
-  // FIXME: This will not work when non-power-of-two textures are not supported.
+  this->Renderer = ren;
   double viewport[4];
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
@@ -685,6 +685,19 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
 
   vtkOpenGLClearErrorMacro();
 
+#ifdef VTKGL2
+  double viewport[4];
+  this->Renderer->GetViewport(viewport);
+  const int* window_size = this->Renderer->GetVTKWindow()->GetActualSize();
+
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetVTKWindow());
+
+  // always draw the entire image on the entire viewport
+  renWin->DrawPixels(viewport[0]*window_size[0], viewport[1]*window_size[1],
+    viewport[2]*window_size[0]-1, viewport[2]*window_size[0]-1,
+    this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
+    this->GetRawPtr()->GetVoidPointer(0));
+#else
   glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -749,6 +762,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glPopAttrib();
+#endif
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   return true;
