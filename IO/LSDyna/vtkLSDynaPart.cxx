@@ -47,47 +47,49 @@ static const char* TypeNames[] = {
 
 typedef std::vector<bool> BitVector;
 
-class CellProperty
-  {
-  public:
-    template<typename T>
-    CellProperty(T, const int& sp,
-      const vtkIdType &numTuples, const vtkIdType& nc):
-    startPos(sp),
-    numComps(nc)
-      {
-      Data =new unsigned char[numTuples * nc * sizeof(T)];
-      loc = Data;
-      len = numComps * sizeof(T);
-      }
-    ~CellProperty()
-      {
-      delete[] Data;
-      }
-    template<typename T>
-    void insertNextTuple(T* values)
-      {
-      memcpy(loc,values+startPos,len);
-      loc = ((T*)loc) + numComps;
-      }
-    void resetForNextTimeStep()
-      {
-      loc = Data;
-      }
-
-  unsigned char *Data;
-protected:
-  int startPos;
-  size_t len;
-  vtkIdType numComps;
-  void *loc;
-  };
 }
 
 //-----------------------------------------------------------------------------
+//lightweight class that holds the cell properties
 class vtkLSDynaPart::InternalCellProperties
 {
-//lightweight class that holds the cell properties
+protected:
+  class CellProperty
+    {
+    public:
+      template<typename T>
+      CellProperty(T, const int& sp,
+        const vtkIdType &numTuples, const vtkIdType& nc):
+      startPos(sp),
+      numComps(nc)
+        {
+        Data =new unsigned char[numTuples * nc * sizeof(T)];
+        loc = Data;
+        len = numComps * sizeof(T);
+        }
+      ~CellProperty()
+        {
+        delete[] Data;
+        }
+      template<typename T>
+      void insertNextTuple(T* values)
+        {
+        memcpy(loc,values+startPos,len);
+        loc = ((T*)loc) + numComps;
+        }
+      void resetForNextTimeStep()
+        {
+        loc = Data;
+        }
+
+    unsigned char *Data;
+
+  protected:
+    int startPos;
+    size_t len;
+    vtkIdType numComps;
+    void *loc;
+  };
 
 public:
   InternalCellProperties():

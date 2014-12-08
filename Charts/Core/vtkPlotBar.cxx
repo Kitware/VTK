@@ -140,23 +140,6 @@ bool compVector3fX(const vtkIndexedVector2f& v1,
     }
 }
 
-class VectorPIMPL : public std::vector<vtkIndexedVector2f>
-{
-public:
-  VectorPIMPL(vtkVector2f* array, size_t n)
-    : std::vector<vtkIndexedVector2f>()
-  {
-    this->reserve(n);
-    for (size_t i = 0; i < n; ++i)
-      {
-      vtkIndexedVector2f tmp;
-      tmp.index = i;
-      tmp.pos = array[i];
-      this->push_back(tmp);
-      }
-  }
-};
-
 } // namespace
 
 //-----------------------------------------------------------------------------
@@ -452,6 +435,23 @@ class vtkPlotBarSegment : public vtkObject {
         return true;
         }
       }
+
+    class VectorPIMPL : public std::vector<vtkIndexedVector2f>
+    {
+    public:
+      VectorPIMPL(vtkVector2f* array, size_t n)
+        : std::vector<vtkIndexedVector2f>()
+      {
+        this->reserve(n);
+        for (size_t i = 0; i < n; ++i)
+          {
+          vtkIndexedVector2f tmp;
+          tmp.index = i;
+          tmp.pos = array[i];
+          this->push_back(tmp);
+          }
+      }
+    };
 
     vtkSmartPointer<vtkPlotBarSegment> Previous;
     vtkSmartPointer<vtkPoints2D> Points;
