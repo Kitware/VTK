@@ -1014,3 +1014,40 @@ const char *vtkParseHierarchy_ExpandTypedefsInName(
 
   return name;
 }
+
+/* -------------------------------------------------------------------- */
+const char *vtkParseHierarchy_QualifiedEnumName(
+  HierarchyInfo *hinfo, ClassInfo *data, StringCache *cache,
+  const char *name)
+{
+  // check to see if this is an enum defined in the class
+  if (data)
+    {
+    int j;
+    for (j = 0; j < data->NumberOfEnums; j++)
+      {
+      EnumInfo *info = data->Enums[j];
+      if (name && info->Name && strcmp(name, info->Name) == 0)
+        {
+        char *scoped_name;
+        size_t scoped_len = strlen(data->Name) + strlen(info->Name) + 2;
+        scoped_name = vtkParse_NewString(cache, scoped_len);
+        sprintf(scoped_name, "%s::%s", data->Name, info->Name);
+        return scoped_name;
+        }
+      }
+    }
+
+  // check the hierarchy information for the enum type
+  if (hinfo)
+    {
+    HierarchyEntry *entry;
+    entry = vtkParseHierarchy_FindEntry(hinfo, name);
+    if (entry && entry->IsEnum)
+      {
+      return name;
+      }
+    }
+
+  return NULL;
+}
