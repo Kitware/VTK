@@ -122,6 +122,7 @@ int vtkMassProperties::RequestData(
       }
     input->GetCellPoints(cellId,ptIds);
     numIds = ptIds->GetNumberOfIds();
+    assert(numIds == 3);
 
     // store current vertex (x,y,z) coordinates ...
     //

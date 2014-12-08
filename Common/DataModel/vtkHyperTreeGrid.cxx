@@ -732,6 +732,12 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
   cellIds->Reset();
 
   int numPts = ptIds->GetNumberOfIds();
+  if ( numPts <= 0 )
+    {
+    vtkErrorMacro( "input point ids empty." );
+    return;
+    }
+
   int minNumCells = VTK_INT_MAX;
   vtkIdType* pts = ptIds->GetPointer( 0 );
   vtkIdType* minCells = 0;
@@ -747,12 +753,6 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
       minCells = this->Links->GetCells( ptId );
       minPtId = ptId;
       }
-    }
-
-  if ( minNumCells == VTK_INT_MAX || numPts == 0 )
-    {
-    vtkErrorMacro( "input point ids empty." );
-    return;
     }
 
   cellIds->Allocate( minNumCells );

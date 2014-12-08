@@ -1790,9 +1790,14 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
   cellIds->Reset();
 
-  //Find the point used by the fewest number of cells
-  //
   numPts = ptIds->GetNumberOfIds();
+  if (numPts <= 0)
+    {
+    vtkErrorMacro("input point ids empty.");
+    return;
+    }
+
+  //Find the point used by the fewest number of cells
   pts = ptIds->GetPointer(0);
   for (minNumCells=VTK_INT_MAX,i=0; i<numPts; i++)
     {
@@ -1807,10 +1812,6 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       }
     }
 
-  if (minNumCells == VTK_INT_MAX && numPts == 0) {
-    vtkErrorMacro("input point ids empty.");
-    minNumCells = 0;
-  }
   //Now for each cell, see if it contains all the points
   //in the ptIds list.
   for (i=0; i<minNumCells; i++)

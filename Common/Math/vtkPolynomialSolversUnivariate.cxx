@@ -787,6 +787,7 @@ static int vtkHabichtOrSturmBisectionSolve(
     int deg = polynomialEucliDiv(
       SSS, d, SSS + offsets[nSSS - 1], degrees[nSSS - 1], Q, R,
       vtkPolynomialSolversUnivariate::GetDivisionTolerance() );
+    (void)deg; // above result not really needed, but useful in debugging
     deg = d - degrees[nSSS - 1];
 
 
