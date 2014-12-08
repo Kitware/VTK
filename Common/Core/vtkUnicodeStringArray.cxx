@@ -160,7 +160,7 @@ vtkIdType vtkUnicodeStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* 
 
   this->Internal->Storage.push_back(array->Internal->Storage[j]);
   this->DataChanged();
-  return this->Internal->Storage.size() - 1;
+  return static_cast<vtkIdType>(this->Internal->Storage.size()) - 1;
 }
 
 void* vtkUnicodeStringArray::GetVoidPointer(vtkIdType id)
@@ -324,7 +324,7 @@ void vtkUnicodeStringArray::SetVariantValue(vtkIdType id, vtkVariant value)
 
 void vtkUnicodeStringArray::DataChanged()
 {
-  this->MaxId = this->Internal->Storage.size() - 1;
+  this->MaxId = static_cast<vtkIdType>(this->Internal->Storage.size()) - 1;
 }
 
 void vtkUnicodeStringArray::ClearLookup()
@@ -335,7 +335,7 @@ vtkIdType vtkUnicodeStringArray::InsertNextValue(const vtkUnicodeString& value)
 {
   this->Internal->Storage.push_back(value);
   this->DataChanged();
-  return this->Internal->Storage.size() - 1;
+  return static_cast<vtkIdType>(this->Internal->Storage.size()) - 1;
 }
 
 void vtkUnicodeStringArray::InsertValue(vtkIdType i, const vtkUnicodeString& value)
