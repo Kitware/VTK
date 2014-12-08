@@ -703,7 +703,7 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
   int closestCell = -1;
   double radius2 = radius*radius;
   double minDist2 = 1.1*radius2;   // something slightly bigger....
-  double refinedRadius = radius;
+  double refinedRadius;
   double refinedRadius2 = radius2;
 
   // Find bucket point is in.
@@ -778,7 +778,6 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
             cachedPoint[0] = point[0];
             cachedPoint[1] = point[1];
             cachedPoint[2] = point[2];
-            refinedRadius = sqrt(dist2);
             refinedRadius2 = dist2;
             }
           }

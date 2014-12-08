@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkScalarsToColors.h"
 
 vtkStandardNewMacro(vtkDataSetMapper);
 

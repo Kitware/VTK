@@ -392,9 +392,9 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
   endif (HDF5_ENABLE_INSTRUMENT)
   mark_as_advanced (HDF5_Enable_Instrument)
   #-- NMake Makefiles will overwhelm the console with warnings if -Wall is used.
-  if (NOT WIN32)
+  if (NOT WIN32 AND CMAKE_COMPILER_IS_GNUCC)
     add_definitions (-Wall)
-  endif (NOT WIN32)
+  endif ()
 else (CMAKE_BUILD_TYPE MATCHES Debug)
   add_definitions (-DNDEBUG)
   option (HDF5_ENABLE_TRACE "Enable API tracing capability" OFF)
@@ -474,12 +474,11 @@ endif (HDF5_DISABLE_COMPILER_WARNINGS)
 # CDash is configured to only allow 3000 warnings, so
 # break into groups (from the config/gnu-flags file)
 #-----------------------------------------------------------------------------
-if (NOT MSVC)
-  if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline")
-  else (NOT ${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -erroff=%none -DBSD_COMP")
-  endif (NOT ${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
+if (CMAKE_C_COMPILER_ID MATCHES "SunPro")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -erroff=%none -DBSD_COMP")
+elseif (CMAKE_COMPILER_IS_GNUCC)
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline")
+
     # Append warning flags
     # Don't use the '-Wtraditional' flag, we're way past having K&R C code
     # set (H5_CFLAGS "${H5_CFLAGS} -Wtraditional")
@@ -537,7 +536,7 @@ if (NOT MSVC)
 
     # Append more extra warning flags that only gcc 4.7+ know about
     set (H5_CFLAGS5 "${H5_CFLAGS5} -Wstack-usage=8192 -Wvector-operation-performance -Wsuggest-attribute=pure -Wsuggest-attribute=noreturn")
-endif (NOT MSVC)
+endif ()
 
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable all warnings
@@ -550,9 +549,9 @@ if (HDF5_ENABLE_ALL_WARNINGS)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall")
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
-  else (MSVC)
+  elseif (CMAKE_COMPILER_IS_GNUCC)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic ${H5_CFLAGS1} ${H5_CFLAGS2} ${H5_CFLAGS3} ${H5_CFLAGS4}")
-  endif (MSVC)
+  endif ()
 endif (HDF5_ENABLE_ALL_WARNINGS)
 
 #-----------------------------------------------------------------------------
@@ -566,9 +565,9 @@ if (HDF5_ENABLE_GROUPZERO_WARNINGS)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W1")
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W1")
-  else (MSVC)
+  elseif (CMAKE_COMPILER_IS_GNUCC)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic")
-  endif (MSVC)
+  endif ()
 endif (HDF5_ENABLE_GROUPZERO_WARNINGS)
 
 #-----------------------------------------------------------------------------

@@ -54,7 +54,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"
-#include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 
 #define VTK_RESOLVE_OFF 0
 #define VTK_RESOLVE_POLYGON_OFFSET 1
@@ -74,6 +74,8 @@ class vtkActor;
 class vtkDataSet;
 class vtkFloatArray;
 class vtkImageData;
+class vtkScalarsToColors;
+class vtkUnsignedCharArray;
 
 class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
@@ -126,20 +128,25 @@ public:
   vtkGetMacro(Static, int);
   vtkBooleanMacro(Static, int);
 
-  // Description:
-  // Control how the scalar data is mapped to colors.  By default
-  // (ColorModeToDefault), unsigned char scalars are treated as colors, and
-  // NOT mapped through the lookup table, while everything else is. Setting
-  // ColorModeToMapScalars means that all scalar data will be mapped through
-  // the lookup table.  (Note that for multi-component scalars, the
-  // particular component to use for mapping can be specified using the
-  // SelectColorArray() method.)
+  // Description: Control how the scalar data is mapped to colors.  By
+  // default (ColorModeToDefault), unsigned char scalars are treated
+  // as colors, and NOT mapped through the lookup table, while
+  // everything else is.  ColorModeToDirectScalar extends
+  // ColorModeToDefault such that all integer types are treated as
+  // colors with values in the range 0-255 and floating types are
+  // treated as colors with values in the range 0.0-1.0.  Setting
+  // ColorModeToMapScalars means that all scalar data will be mapped
+  // through the lookup table.  (Note that for multi-component
+  // scalars, the particular component to use for mapping can be
+  // specified using the SelectColorArray() method.)
   vtkSetMacro(ColorMode, int);
   vtkGetMacro(ColorMode, int);
   void SetColorModeToDefault()
     { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
   void SetColorModeToMapScalars()
     { this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS); }
+  void SetColorModeToDirectScalars()
+  { this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS); }
 
   // Description:
   // Return the method of coloring scalar data.

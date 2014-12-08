@@ -412,10 +412,11 @@ void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     // in case WriteVoidPointer reallocates memory and fromData ==
     // this. The vtkBitArray implementation doesn't use pointers, so skip
     // the resizing in this case.
-    void* vto = fromData->GetDataType() != VTK_BIT ?
+    int dataType = fromData->GetDataType();
+    void* vto = dataType != VTK_BIT ?
           this->WriteVoidPointer(idx, numComp) : 0;
 
-    switch (fromData->GetDataType())
+    switch (dataType)
       {
     case VTK_BIT:
         {

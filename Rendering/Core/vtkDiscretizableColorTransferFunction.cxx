@@ -336,8 +336,10 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
 
   // if direct scalar mapping is enabled (and possible), the LUT is not used for
   // color and we won't use it for opacity either.
-  bool direct_scalar_mapping = (colorMode == VTK_COLOR_MODE_DEFAULT &&
-    vtkUnsignedCharArray::SafeDownCast(scalars) != NULL);
+  bool direct_scalar_mapping =
+    ((colorMode == VTK_COLOR_MODE_DEFAULT &&
+      vtkUnsignedCharArray::SafeDownCast(scalars) != NULL) ||
+     colorMode == VTK_COLOR_MODE_DIRECT_SCALARS);
 
   vtkUnsignedCharArray *colors = (this->Discretize || this->IndexedLookup) ?
     this->LookupTable->MapScalars(scalars, colorMode, component):

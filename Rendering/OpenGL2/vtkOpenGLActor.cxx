@@ -18,6 +18,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkProperty.h"
 #include "vtkOpenGLError.h"
@@ -123,4 +124,14 @@ void vtkOpenGLActor::GetKeyMatrices(vtkMatrix4x4 *&mcwc, vtkMatrix3x3 *&normMat)
 
   mcwc = this->MCWCMatrix;
   normMat = this->NormalMatrix;
+}
+
+vtkIdType vtkOpenGLActor::GetConvertedPickValue(vtkIdType idIn, int fieldassociation)
+{
+  vtkOpenGLPolyDataMapper *pdm = vtkOpenGLPolyDataMapper::SafeDownCast(this->GetMapper());
+  if (pdm)
+    {
+    return pdm->GetConvertedPickValue(idIn, fieldassociation,this);
+    }
+  return idIn;
 }

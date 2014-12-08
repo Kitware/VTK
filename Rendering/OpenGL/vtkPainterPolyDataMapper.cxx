@@ -33,6 +33,7 @@
 #include "vtkPrimitivePainter.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkScalarsToColors.h"
 #include "vtkScalarsToColorsPainter.h"
 #include "vtkStandardPolyDataPainter.h"
 
@@ -399,7 +400,8 @@ void vtkPainterPolyDataMapper::ComputeBounds()
 bool vtkPainterPolyDataMapper::GetIsOpaque()
 {
   if (this->ScalarVisibility &&
-    this->ColorMode == VTK_COLOR_MODE_DEFAULT)
+      (this->ColorMode == VTK_COLOR_MODE_DEFAULT ||
+       this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS))
     {
     vtkPolyData* input =
       vtkPolyData::SafeDownCast(this->GetInputDataObject(0, 0));
@@ -409,14 +411,23 @@ bool vtkPainterPolyDataMapper::GetIsOpaque()
       vtkDataArray* scalars = this->GetScalars(input,
         this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
         this->ArrayName, cellFlag);
-      if (scalars && scalars->IsA("vtkUnsignedCharArray") &&
+
+      if (scalars &&
+          (scalars->IsA("vtkUnsignedCharArray")  ||
+           this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS) &&
         (scalars->GetNumberOfComponents() ==  4 /*(RGBA)*/ ||
          scalars->GetNumberOfComponents() == 2 /*(LuminanceAlpha)*/))
         {
-        vtkUnsignedCharArray* colors =
-          static_cast<vtkUnsignedCharArray*>(scalars);
-        if ((colors->GetNumberOfComponents() == 4 && colors->GetValueRange(3)[0] < 255) ||
-          (colors->GetNumberOfComponents() == 2 && colors->GetValueRange(1)[0] < 255))
+        int opacityIndex = scalars->GetNumberOfComponents() - 1;
+        unsigned char opacity = 0;
+        switch (scalars->GetDataType())
+          {
+          vtkTemplateMacro(
+            vtkScalarsToColors::ColorToUChar(
+              static_cast<VTK_TT>(scalars->GetRange(opacityIndex)[0]),
+              &opacity));
+          }
+        if (opacity < 255)
           {
           // If the opacity is 255, despite the fact that the user specified
           // RGBA, we know that the Alpha is 100% opaque. So treat as opaque.

@@ -145,6 +145,14 @@ public:
   // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
   virtual bool HasKeys(vtkInformation *requiredKeys);
 
+  // Description:
+  // Props may provide a mapping from picked value to actual value
+  // This is useful for hardware based pickers where
+  // there is a mapping between the color in the buffer
+  // and the actual pick value
+  virtual vtkIdType GetConvertedPickValue(vtkIdType idIn,
+      int vtkNotUsed(fieldassociation)) { return idIn; }
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

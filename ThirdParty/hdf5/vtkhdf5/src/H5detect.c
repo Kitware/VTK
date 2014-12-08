@@ -73,7 +73,7 @@ static const char *FileHeader = "\n\
 #define H5JMP_BUF	sigjmp_buf
 #define H5SETJMP(buf)	HDsigsetjmp(buf, 1)
 #define H5LONGJMP(buf, val)	HDsiglongjmp(buf, val)
-#define H5HAVE_SIGJMP		# sigsetjmp/siglongjmp are supported.
+#define H5HAVE_SIGJMP		/* sigsetjmp/siglongjmp are supported. */
 #elif defined(H5_HAVE_LONGJMP)
 #define H5JMP_BUF	jmp_buf
 #define H5SETJMP(buf)	HDsetjmp(buf)
