@@ -63,11 +63,11 @@ Run bison like this:
 
 Modify vtkParse.tab.c:
   - convert TABs to spaces (eight per tab)
-  - remove spaces from ends of lines, s/ *$//g
-  - replace all instances of "static inline" with "static".
+  - replace all instances of "static inline" with "static"
   - replace "#if ! defined lint || defined __GNUC__" with "#if 1"
   - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
   - remove the "break;" after return "return yyreportAmbiguity"
+  - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
 */
 
 /*
@@ -5905,7 +5905,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
   if (yyrhslen == 0)
     *yyvalp = yyval_default;
   else
-    *yyvalp = yyvsp[YYFILL (1-yyrhslen)].yystate.yysemantics.yysval;
+    *yyvalp = yyvsp[YYFILL (1-(int)yyrhslen)].yystate.yysemantics.yysval;
   switch (yyn)
     {
         case 4:
