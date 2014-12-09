@@ -1074,15 +1074,15 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       // do something rough is better than nothing
       double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
       double f = zRes*4.0;
-      glPolygonOffset(f + draw_surface_with_edges ? 1.0 : 0.0,
+      glPolygonOffset(f + (draw_surface_with_edges ? 1.0 : 0.0),
         draw_surface_with_edges ? 1.0 : 0.0);  // supported on ES2/3/etc
       }
     else
       {
       double f, u;
       this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-      glPolygonOffset(f + draw_surface_with_edges ? 1.0 : 0.0,
-        u + draw_surface_with_edges ? 1.0 : 0.0);  // supported on ES2/3/etc
+      glPolygonOffset(f + (draw_surface_with_edges ? 1.0 : 0.0),
+        u + (draw_surface_with_edges ? 1.0 : 0.0));  // supported on ES2/3/etc
       }
     }
 

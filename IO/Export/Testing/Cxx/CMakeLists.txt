@@ -1,7 +1,7 @@
 include(vtkGhostscript)
 
 # Only run GL2PS tests if GhostScript is available
-if(VTK_GHOSTSCRIPT_EXECUTABLE)
+if(VTK_GHOSTSCRIPT_EXECUTABLE AND (VTK_RENDERING_BACKEND STREQUAL "OpenGL"))
   set(GL2PSTests
     TestContextGL2PS.cxx
     TestGL2PSExporterMultipleRenderers.cxx
