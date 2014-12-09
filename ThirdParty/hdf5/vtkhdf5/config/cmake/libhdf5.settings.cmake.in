@@ -25,7 +25,7 @@ Compiling Options:
                     AM_CPPFLAGS: @AM_CPPFLAGS@
                Shared Libraries: @H5_ENABLE_SHARED_LIB@
                Static Libraries: @H5_ENABLE_STATIC_LIB@
-  Statically Linked Executables: @BUILD_STATIC_EXECS@
+  Statically Linked Executables: @HDF5_BUILD_STATIC_EXECS@
                         LDFLAGS: @CMAKE_SHARED_LINKER_FLAGS@
                      AM_LDFLAGS: @AM_LDFLAGS@
                 Extra libraries: @LINK_LIBS@
