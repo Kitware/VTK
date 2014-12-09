@@ -74,7 +74,8 @@ int vtkWriter::Write()
   // always write even if the data hasn't changed
   this->Modified();
   this->UpdateWholeExtent();
-  return 1;
+
+  return (this->GetErrorCode() == vtkErrorCode::NoError);
 }
 
 int vtkWriter::ProcessRequest(vtkInformation *request,
