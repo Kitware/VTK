@@ -338,7 +338,6 @@ void vtkNewickTreeReader::CountNodes(const char *buffer, vtkIdType *numNodes)
     current++;
     if (*current == ':')
     {
-      start = current + 1;
       while (*current != '\0' && *current != ';')
       {
         current++;

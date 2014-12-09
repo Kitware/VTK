@@ -653,12 +653,6 @@ bool vtkPlotStacked::Paint(vtkContext2D *painter)
     return false;
     }
 
-  float width = this->Pen->GetWidth() * 2.3;
-  if (width < 8.0)
-    {
-    width = 8.0;
-    }
-
   // Now add some decorations for our selected points...
   if (this->Selection)
     {
