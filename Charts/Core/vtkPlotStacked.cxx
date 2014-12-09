@@ -631,8 +631,8 @@ void vtkPlotStacked::Update()
     vtkDebugMacro(<< "Updating cached values.");
     this->UpdateTableCache(table);
     }
-  else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
-           (this->YAxis && this->YAxis->GetMTime() > this->BuildTime))
+  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
+           (this->YAxis->GetMTime() > this->BuildTime))
     {
     if (this->LogX != this->XAxis->GetLogScaleActive() ||
         this->LogY != this->YAxis->GetLogScaleActive())

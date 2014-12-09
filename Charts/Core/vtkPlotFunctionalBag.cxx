@@ -75,11 +75,11 @@ void vtkPlotFunctionalBag::Update()
     vtkDebugMacro(<< "Updating cached values.");
     this->UpdateTableCache(table);
     }
-  else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
-           (this->YAxis && this->YAxis->GetMaximum() > this->BuildTime))
+  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
+           (this->YAxis->GetMTime() > this->BuildTime))
     {
-    if (this->LogX != this->XAxis->GetLogScale() ||
-        this->LogY != this->YAxis->GetLogScale())
+    if ((this->LogX != this->XAxis->GetLogScale()) ||
+        (this->LogY != this->YAxis->GetLogScale()))
       {
       this->UpdateTableCache(table);
       }
