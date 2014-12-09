@@ -15,6 +15,7 @@ endif()
 
 if(BUILD_SHARED_LIBS)
   set(LIBTYPE SHARED)
+  set(BUILD_SHARED 1)
 else()
   set(LIBTYPE STATIC)
 endif()
