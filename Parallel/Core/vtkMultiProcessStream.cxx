@@ -36,7 +36,7 @@ public:
     string_value,
     int64_value,
     uint64_value,
-    stream_value,
+    stream_value
     };
 
   void Push(const unsigned char* data, size_t length)
