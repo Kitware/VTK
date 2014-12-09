@@ -694,7 +694,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
 
   // always draw the entire image on the entire viewport
   renWin->DrawPixels(viewport[0]*window_size[0], viewport[1]*window_size[1],
-    viewport[2]*window_size[0]-1, viewport[2]*window_size[0]-1,
+    viewport[2]*window_size[0]-1, viewport[3]*window_size[1]-1,
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
     this->GetRawPtr()->GetVoidPointer(0));
 #else
