@@ -198,12 +198,7 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     q3Points->SetTuple2(i, vMin, vMax);
     }
 
-  // Add the 2 "bag" columns into the output table
-  outTable->AddColumn(q3Points.GetPointer());
-  outTable->AddColumn(q2Points.GetPointer());
-  outTable->AddColumn(qMedPoints.GetPointer());
-
-  // Then append the input columns
+  // Append the input columns
   for (vtkIdType i = 0; i < inNbColumns; i++)
     {
     vtkAbstractArray* arr = inTable->GetColumn(i);
@@ -221,6 +216,11 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
       outTable->AddColumn(arr);
       }
     }
+
+  // Then add the 2 "bag" columns into the output table
+  outTable->AddColumn(q3Points.GetPointer());
+  outTable->AddColumn(q2Points.GetPointer());
+  outTable->AddColumn(qMedPoints.GetPointer());
 
   return 1;
 }
