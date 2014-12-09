@@ -217,7 +217,7 @@ namespace vtkvolume
       \n  g_dirStep = (in_inverseTextureDatasetMatrix *\
       \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
       \n\
-      \n  g_dataPos += g_dirStep * texture2D(in_noiseSampler, g_dataPos.xy).x;\
+      \n  g_dataPos += g_dirStep * (texture2D(in_noiseSampler, g_dataPos.xy).x);\
       \n\
       \n  // Flag to deternmine if voxel should be considered for the rendering\
       \n  bool l_skip = false;");

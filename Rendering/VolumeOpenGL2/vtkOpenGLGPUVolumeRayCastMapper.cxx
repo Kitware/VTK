@@ -941,7 +941,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture()
       noiseGenerator->SetFrequency(size, 1.0, 1.0);
       noiseGenerator->SetPhase(0.0, 0.0, 0.0);
       // -0.5 and 0.5 range
-      noiseGenerator->SetAmplitude(0.5);
+      noiseGenerator->SetAmplitude(0.1);
       int j = 0;
       while(j < size)
         {
@@ -949,7 +949,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture()
         while(i < size)
           {
           this->NoiseTextureData[j * size + i] =
-            static_cast<float>(noiseGenerator->EvaluateFunction(i, j, 0.0));
+            static_cast<float>(noiseGenerator->EvaluateFunction(i, j, 0.0) + 0.1);
           ++i;
           }
         ++j;
@@ -960,6 +960,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture()
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
+    glTexParameterfv(GL_TEXTURE_2D,GL_TEXTURE_BORDER_COLOR,borderColor);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glActiveTexture(GL_TEXTURE0);
