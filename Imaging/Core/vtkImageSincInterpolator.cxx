@@ -1163,7 +1163,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           break;
 
         default:
-           do
+          do
             {
             inId[l] = vtkInterpolationMath::Clamp(idx++, minExt, maxExt);
             }
