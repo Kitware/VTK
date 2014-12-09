@@ -47,6 +47,7 @@
 #include "vtkVariant.h" // Set/get annotation methods require variants.
 #include "vtkObject.h"
 
+class vtkAbstractArray;
 class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkAbstractArray;
@@ -131,7 +132,7 @@ public:
   // to use to do the blending.  When the component argument is -1,
   // then the this object uses its own selected technique to change a
   // vector into a scalar to map.
-  virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
+  virtual vtkUnsignedCharArray *MapScalars(vtkAbstractArray *scalars, int colorMode,
                                            int component);
 
   // Description:

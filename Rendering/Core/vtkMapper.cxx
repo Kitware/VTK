@@ -14,6 +14,9 @@
 =========================================================================*/
 #include "vtkMapper.h"
 
+#include "vtkAbstractArray.h"
+#include "vtkColorSeries.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
 #include "vtkLookupTable.h"
@@ -21,6 +24,7 @@
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkMath.h"
+#include "vtkVariantArray.h"
 
 
 // Initialize static member that controls global immediate mode rendering
@@ -259,9 +263,9 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
   int cellFlag = 0;
 
-  vtkDataArray *scalars = vtkAbstractMapper::
-    GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
-               this->ArrayId, this->ArrayName, cellFlag);
+  vtkAbstractArray *scalars = vtkAbstractMapper::
+    GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                       this->ArrayId, this->ArrayName, cellFlag);
 
   // This is for a legacy feature: selection of the array component to color by
   // from the mapper.  It is now in the lookuptable.  When this feature
@@ -292,9 +296,10 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     }
 
   // Get the lookup table.
-  if ( scalars->GetLookupTable() )
+  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+  if (dataArray && dataArray->GetLookupTable())
     {
-    this->SetLookupTable(scalars->GetLookupTable());
+    this->SetLookupTable(dataArray->GetLookupTable());
     }
   else
     {
@@ -318,11 +323,11 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     {
     // Only use texture color if we are mapping scalars.
     // Directly coloring with RGB unsigned chars should not use texture.
-    if ( (this->ColorMode != VTK_COLOR_MODE_DEFAULT ||
+    if (dataArray && (this->ColorMode != VTK_COLOR_MODE_DEFAULT ||
           (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0) &&
          this->ColorMode != VTK_COLOR_MODE_DIRECT_SCALARS)
       { // Texture color option.
-      this->MapScalarsToTexture(scalars, alpha);
+      this->MapScalarsToTexture(dataArray, alpha);
       return 0;
       }
     }
@@ -452,10 +457,40 @@ void vtkMapper::CreateDefaultLookupTable()
     {
     this->LookupTable->UnRegister(this);
     }
-  this->LookupTable = vtkLookupTable::New();
-  // Consistent Register/UnRegisters.
+  vtkLookupTable* table = vtkLookupTable::New();
+  this->LookupTable = table;
   this->LookupTable->Register(this);
   this->LookupTable->Delete();
+
+  int cellFlag = 0; // not used
+  vtkAbstractArray* abstractArray = vtkAbstractMapper::
+    GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                       this->ArrayId, this->ArrayName, cellFlag);
+
+  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  if (abstractArray && !dataArray)
+    {
+    // Use indexed lookup for non-numeric arrays
+    this->LookupTable->IndexedLookupOn();
+
+    // Get prominent values from array and set them up as annotations in the color map.
+    vtkVariantArray* prominentValues = vtkVariantArray::New();
+    abstractArray->GetProminentComponentValues(0, prominentValues);
+    vtkIdType numProminentValues = prominentValues->GetNumberOfValues();
+    table->SetNumberOfTableValues(numProminentValues);
+    for (vtkIdType i = 0; i < numProminentValues; ++i)
+      {
+      vtkVariant & variant = prominentValues->GetValue(i);
+      this->LookupTable->SetAnnotation(variant, variant.ToString());
+      }
+    prominentValues->Delete();
+
+    // Set colors for annotations
+    vtkColorSeries* colorSeries = vtkColorSeries::New();
+    colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
+    colorSeries->BuildLookupTable(table, vtkColorSeries::CATEGORICAL);
+    colorSeries->Delete();
+    }
 }
 
 // Return the method of coloring scalar data.

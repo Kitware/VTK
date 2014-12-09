@@ -544,7 +544,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
 {
   int cellFlag;
   double orig_alpha;
-  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(input,
+  vtkAbstractArray* abstractScalars = vtkAbstractMapper::GetAbstractScalars(input,
     this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
     this->ArrayName, cellFlag);
 
@@ -556,19 +556,21 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
   // This is for a legacy feature: selection of the array component to color by
   // from the mapper.  It is now in the lookuptable.  When this feature
   // is removed, we can remove this condition.
-  if (scalars == 0 || scalars->GetNumberOfComponents() <= this->ArrayComponent)
+  if (abstractScalars == 0 || abstractScalars->GetNumberOfComponents() <= this->ArrayComponent)
     {
     arraycomponent = 0;
     }
 
-  if (!this->ScalarVisibility || scalars == 0 || input == 0)
+  if (!this->ScalarVisibility || abstractScalars == 0 || input == 0)
     {
     return;
     }
 
+  vtkDataArray* scalars = vtkDataArray::SafeDownCast(abstractScalars);
+
   // Let subclasses know that scalar coloring was employed in the current pass.
   this->UsingScalarColoring = 1;
-  if (this->ColorTextureMap)
+  if (this->ColorTextureMap && scalars)
     {
     // Implies that we have verified that we must use texture map for scalar
     // coloring. Just create texture coordinates for the input dataset.
@@ -578,7 +580,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
 
   vtkScalarsToColors* lut = 0;
   // Get the lookup table.
-  if (scalars->GetLookupTable())
+  if (scalars && scalars->GetLookupTable())
     {
     lut = scalars->GetLookupTable();
     }
@@ -628,14 +630,14 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
   colors = 0;
   orig_alpha = lut->GetAlpha();
   lut->SetAlpha(alpha);
-  colors = lut->MapScalars(scalars, this->ColorMode, arraycomponent);
+  colors = lut->MapScalars(abstractScalars, this->ColorMode, arraycomponent);
   lut->SetAlpha(orig_alpha);
   if (multiply_with_alpha)
     {
     // It is possible that the LUT simply returns the scalars as the
     // colors. In which case, we allocate a new array to ensure
     // that we don't modify the array in the input.
-    if (scalars == colors)
+    if (abstractScalars == colors)
       {
       // Since we will be changing the colors array
       // we create a copy.
@@ -671,7 +673,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
     else
       {
       vtkUnsignedCharArray* scalarColors =
-        lut->MapScalars(scalars, this->ColorMode, arraycomponent);
+        lut->MapScalars(abstractScalars, this->ColorMode, arraycomponent);
 
       if (this->FieldDataTupleId < scalarColors->GetNumberOfTuples())
         {
