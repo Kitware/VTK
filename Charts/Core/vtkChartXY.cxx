@@ -1230,6 +1230,69 @@ vtkPlot* vtkChartXY::GetPlot(vtkIdType index)
 }
 
 //-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::GetPlotIndex(vtkPlot* plot)
+{
+  int corner = this->GetPlotCorner(plot);
+  return corner >= 0 && corner < 4 ?
+    this->ChartPrivate->PlotCorners[corner]->GetItemIndex(plot) :
+    static_cast<vtkIdType>(-1);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::RaisePlot(vtkPlot* plot)
+{
+  vtkIdType plotIndex = this->GetPlotIndex(plot);
+  int corner = this->GetPlotCorner(plot);
+  if (corner < 0 || corner >=4)
+    {
+    return plotIndex;
+    }
+  return this->ChartPrivate->PlotCorners[corner]->Raise(plotIndex);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::StackPlotAbove(vtkPlot* plot, vtkPlot* under)
+{
+  vtkIdType plotIndex = this->GetPlotIndex(plot);
+  vtkIdType underIndex = this->GetPlotIndex(under);
+  int corner = this->GetPlotCorner(plot);
+  if (corner < 0 || corner >=4 ||
+      underIndex != this->GetPlotCorner(under))
+    {
+    return plotIndex;
+    }
+  return this->ChartPrivate->PlotCorners[corner]->StackAbove(plotIndex,
+                                                             underIndex);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::LowerPlot(vtkPlot* plot)
+{
+  vtkIdType plotIndex = this->GetPlotIndex(plot);
+  int corner = this->GetPlotCorner(plot);
+  if (corner < 0 || corner >=4)
+    {
+    return plotIndex;
+    }
+  return this->ChartPrivate->PlotCorners[corner]->Lower(plotIndex);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkChartXY::StackPlotUnder(vtkPlot* plot, vtkPlot* above)
+{
+  vtkIdType plotIndex = this->GetPlotIndex(plot);
+  vtkIdType aboveIndex = this->GetPlotIndex(above);
+  int corner = this->GetPlotCorner(plot);
+  if (corner < 0 || corner >=4 ||
+      corner != this->GetPlotCorner(above))
+    {
+    return plotIndex;
+    }
+  return this->ChartPrivate->PlotCorners[corner]->StackUnder(plotIndex,
+                                                             aboveIndex);
+}
+
+//-----------------------------------------------------------------------------
 void vtkChartXY::SetShowLegend(bool visible)
 {
   this->vtkChart::SetShowLegend(visible);
