@@ -119,27 +119,6 @@ void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a,
     }
 }
 
-// Indexed vector for sorting
-struct vtkIndexedVector2f
-{
-  size_t index;
-  vtkVector2f pos;
-};
-
-// Compare two vtkIndexedVector2f, in X component only
-bool compVector3fX(const vtkIndexedVector2f& v1,
-                   const vtkIndexedVector2f& v2)
-{
-  if (v1.pos.GetX() < v2.pos.GetX())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
 } // namespace
 
 //-----------------------------------------------------------------------------
@@ -321,7 +300,7 @@ class vtkPlotBarSegment : public vtkObject {
       // Set up our search array, use the STL lower_bound algorithm
       VectorPIMPL::iterator low;
       VectorPIMPL &v = *this->Sorted;
-      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+      low = std::lower_bound(v.begin(), v.end(), lowPoint);
 
       while (low != v.end())
         {
@@ -356,7 +335,7 @@ class vtkPlotBarSegment : public vtkObject {
         vtkVector2f* data =
             static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
         this->Sorted = new VectorPIMPL(data, n);
-        std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
+        std::sort(this->Sorted->begin(), this->Sorted->end());
         }
     }
 
@@ -392,7 +371,7 @@ class vtkPlotBarSegment : public vtkObject {
       // Set up our search array, use the STL lower_bound algorithm
       VectorPIMPL::iterator low;
       VectorPIMPL &v = *this->Sorted;
-      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+      low = std::lower_bound(v.begin(), v.end(), lowPoint);
 
       std::vector<vtkIdType> selected;
 
@@ -435,6 +414,19 @@ class vtkPlotBarSegment : public vtkObject {
         return true;
         }
       }
+
+    // Indexed vector for sorting
+    struct vtkIndexedVector2f
+    {
+      size_t index;
+      vtkVector2f pos;
+
+      // Compare two vtkIndexedVector2f, in X component only
+      bool operator<(const vtkIndexedVector2f& v2) const
+        {
+        return (this->pos.GetX() < v2.pos.GetX());
+        }
+    };
 
     class VectorPIMPL : public std::vector<vtkIndexedVector2f>
     {
