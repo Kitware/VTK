@@ -2418,7 +2418,7 @@ void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
   cellIds->Reset();
 
-  int numPts = ptIds->GetNumberOfIds();
+  vtkIdType numPts = ptIds->GetNumberOfIds();
   if (numPts <= 0)
     {
     vtkErrorMacro("input point ids empty.");
@@ -2430,7 +2430,7 @@ void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
   int minNumCells = VTK_INT_MAX;
   vtkIdType *minCells = NULL;
   vtkIdType minPtId = 0;
-  for (int i=0; i<numPts; i++)
+  for (vtkIdType i=0; i<numPts; i++)
     {
     vtkIdType ptId = pts[i];
     int numCells = this->Links->GetNcells(ptId);
@@ -2445,7 +2445,7 @@ void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
   //Now for each cell, see if it contains all the points
   //in the ptIds list.
-  int match;
+  bool match;
   for (int i=0; i<minNumCells; i++)
     {
     if ( minCells[i] != cellId ) //don't include current cell
@@ -2453,17 +2453,17 @@ void vtkHyperOctree::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       vtkIdType *cellPts;
       vtkIdType npts;
       this->GetCellPoints(minCells[i],npts,cellPts);
-      match=1;
+      match=true;
       for (int j=0; j<numPts && match; j++) //for all pts in input cell
         {
         if ( pts[j] != minPtId ) //of course minPtId is contained by cell
           {
-          match=0;
-          for (int k=0; k<npts; k++) //for all points in candidate cell
+          match=false;
+          for (vtkIdType k=0; k<npts; k++) //for all points in candidate cell
             {
             if ( pts[j] == cellPts[k] )
               {
-              match = 1; //a match was found
+              match = true; //a match was found
               break;
               }
             }//for all points in current cell

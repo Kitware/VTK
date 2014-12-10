@@ -1792,13 +1792,13 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
   //Find the point used by the fewest number of cells
   vtkIdType *pts = ptIds->GetPointer(0);
-  vtkIdType minNumCells = VTK_INT_MAX;
+  int minNumCells = VTK_INT_MAX;
   vtkIdType *minCells = NULL;
   vtkIdType minPtId = 0;
   for (vtkIdType i=0; i<numPts; i++)
     {
     vtkIdType ptId = pts[i];
-    vtkIdType numCells = this->Links->GetNcells(ptId);
+    int numCells = this->Links->GetNcells(ptId);
     vtkIdType *cells = this->Links->GetCells(ptId);
     if ( numCells < minNumCells )
       {
@@ -1810,25 +1810,25 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
   //Now for each cell, see if it contains all the points
   //in the ptIds list.
-  vtkIdType match;
-  for (vtkIdType i=0; i<minNumCells; i++)
+  bool match;
+  for (int i=0; i<minNumCells; i++)
     {
     if ( minCells[i] != cellId ) //don't include current cell
       {
       vtkIdType *cellPts;
       vtkIdType npts;
       this->GetCellPoints(minCells[i],npts,cellPts);
-      match=1;
+      match=true;
       for (vtkIdType j=0; j<numPts && match; j++) //for all pts in input cell
         {
         if ( pts[j] != minPtId ) //of course minPtId is contained by cell
           {
-          match=0;
+          match=false;
           for (vtkIdType k=0; k<npts; k++) //for all points in candidate cell
             {
             if ( pts[j] == cellPts[k] )
               {
-              match = 1; //a match was found
+              match = true; //a match was found
               break;
               }
             }//for all points in current cell
