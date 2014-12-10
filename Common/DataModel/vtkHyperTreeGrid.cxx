@@ -732,9 +732,9 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
   cellIds->Reset();
 
   int numPts = ptIds->GetNumberOfIds();
-  if ( numPts <= 0 )
+  if (numPts <= 0)
     {
-    vtkErrorMacro( "input point ids empty." );
+    vtkErrorMacro("input point ids empty.");
     return;
     }
 
@@ -775,8 +775,8 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
         if ( pts[j] != minPtId )
           {
           // Iterate over all points in current cell
-          int k;
-          for ( match = k = 0; k < npts; ++ k )
+          match = 0;
+          for ( int k = 0; k < npts; ++ k )
             {
             if ( pts[j] == cellPts[k] )
               {
