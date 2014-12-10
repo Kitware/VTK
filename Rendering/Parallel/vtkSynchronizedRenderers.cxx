@@ -654,7 +654,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     return false;
     }
 
-  this->Renderer = ren;
   double viewport[4];
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
@@ -671,11 +670,11 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
     static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
   ren->Clear();
-  return this->PushToFrameBuffer();
+  return this->PushToFrameBuffer(ren);
 }
 
 //----------------------------------------------------------------------------
-bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
+bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
 {
   if (!this->IsValid())
     {
@@ -686,15 +685,9 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
   vtkOpenGLClearErrorMacro();
 
 #ifdef VTKGL2
-  double viewport[4];
-  this->Renderer->GetViewport(viewport);
-  const int* window_size = this->Renderer->GetVTKWindow()->GetActualSize();
-
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetVTKWindow());
-
   // always draw the entire image on the entire viewport
-  renWin->DrawPixels(viewport[0]*window_size[0], viewport[1]*window_size[1],
-    viewport[2]*window_size[0]-1, viewport[3]*window_size[1]-1,
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+  renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
     this->GetRawPtr()->GetVoidPointer(0));
 #else

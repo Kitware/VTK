@@ -126,7 +126,6 @@ public:
       this->Valid = false;
       this->Size[0] = this->Size[1] = 0;
       this->Data = vtkSmartPointer<vtkUnsignedCharArray>::New();
-      this->Renderer = 0;
       }
 
     void Resize(int dx, int dy, int numcomps)
@@ -153,7 +152,8 @@ public:
 
     // This is a raw version of PushToViewport() that assumes that the
     // glViewport() has already been setup externally.
-    bool PushToFrameBuffer();
+    // the argument is optional for backwards compat with old OpenGL
+    bool PushToFrameBuffer(vtkRenderer *ren = NULL);
 
     // Captures the image from the viewport.
     // This doesn't trigger a render, just captures what's currently there in
@@ -167,7 +167,6 @@ public:
     bool Valid;
     int Size[2];
     vtkSmartPointer<vtkUnsignedCharArray> Data;
-    vtkRenderer *Renderer;
 
     void Allocate(int dx, int dy, int numcomps);
     };

@@ -219,7 +219,22 @@ public:
 
   // Description:
   // Replacement for the old glDrawPixels function
-  virtual void DrawPixels(int x1, int y1, int x2, int y2, int numComponents, int dataType, void *data);
+  virtual void DrawPixels(int x1, int y1, int x2, int y2,
+              int numComponents, int dataType, void *data);
+
+  // Description:
+  // Replacement for the old glDrawPixels function, but it allows
+  // for scaling the data and using only part of the texture
+  virtual void DrawPixels(
+    int dstXmin, int dstYmin, int dstXmax, int dstYmax,
+    int srcXmin, int srcYmin, int srcXmax, int srcYmax,
+    int srcWidth, int srcHeight, int numComponents, int dataType, void *data);
+
+  // Description:
+  // Replacement for the old glDrawPixels function.  This simple version draws all
+  // the data to the entire current viewport scaling as needed.
+  virtual void DrawPixels(
+    int srcWidth, int srcHeight, int numComponents, int dataType, void *data);
 
 protected:
   vtkOpenGLRenderWindow();
