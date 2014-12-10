@@ -1203,7 +1203,8 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
 
   // STEP 5: Fill the cells ghost arrays for the ghosted grid
   int dim = vtkStructuredData::GetDataDimension( this->DataDescription );
-  assert( "pre: data dimensions must be 1, 2 or 3" );
+  assert( "pre: data dimensions must be 1, 2 or 3" &&
+          (dim >=1) && (dim <=3) );
 
   int dims[3];
   vtkStructuredData::GetDimensionsFromExtent(ghostedExtent,dims);
