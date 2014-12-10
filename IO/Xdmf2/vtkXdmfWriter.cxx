@@ -1033,14 +1033,14 @@ int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid *grid, int asso
   vtkIdType nbOfArrays = fd->GetNumberOfArrays();
   std::vector<std::pair<int, std::string> > attributeNames;
   attributeNames.reserve(nbOfArrays);
-  for (int i = 0; i < nbOfArrays; i++)
+  for (vtkIdType i = 0; i < nbOfArrays; i++)
     {
     vtkDataArray *scalars = fd->GetArray(i);
     attributeNames.push_back(std::pair<int, std::string>(i, scalars->GetName()));
     }
   std::sort(attributeNames.begin(), attributeNames.end());
 
-  for (unsigned int i = 0; i < nbOfArrays; i++)
+  for (vtkIdType i = 0; i < nbOfArrays; i++)
     {
     vtkDataArray *da = fd->GetArray(attributeNames[i].second.c_str());
     if (!da)
