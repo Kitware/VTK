@@ -691,6 +691,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
     this->GetRawPtr()->GetVoidPointer(0));
 #else
+  (void)ren;
   glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
