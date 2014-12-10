@@ -297,13 +297,14 @@ endif (BUILD_SHARED_LIBS)
 #-----------------------------------------------------------------------------
 # Option to Build Static executables
 #-----------------------------------------------------------------------------
-option (BUILD_STATIC_EXECS "Build Static Executabless" OFF)
-if (BUILD_STATIC_EXECS)
+option (HDF5_BUILD_STATIC_EXECS "Build Static Executabless" OFF)
+mark_as_advanced(HDF5_BUILD_STATIC_EXECS)
+if (HDF5_BUILD_STATIC_EXECS)
   if (NOT WIN32)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
   endif (NOT WIN32)
-endif (BUILD_STATIC_EXECS)
+endif (HDF5_BUILD_STATIC_EXECS)
 
 #-----------------------------------------------------------------------------
 # Option to use code coverage
@@ -888,7 +889,7 @@ if (EXISTS "${HDF5_SOURCE_DIR}/hl" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/hl")
 endif (EXISTS "${HDF5_SOURCE_DIR}/hl" AND IS_DIRECTORY "${HDF5_SOURCE_DIR}/hl")
 
 
-IF (CMAKE_SYSTEM_NAME MATCHES Linux AND BUILD_STATIC_EXECS)
+IF (CMAKE_SYSTEM_NAME MATCHES Linux AND HDF5_BUILD_STATIC_EXECS)
   # fix a link error caused by
   # warning: Using 'getpwuid' in statically linked applications
   # requires at runtime the shared libraries from the glibc version
