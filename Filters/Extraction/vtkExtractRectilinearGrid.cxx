@@ -87,14 +87,14 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
         vtkWarningMacro("Requested extent outside whole extent.")
         idx = 0;
         }
-      uExt[2*i] = this->Internal->GetMapping(i,idx);
+      uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
       int jdx = oUExt[2*i+1];
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
         {
         vtkWarningMacro("Requested extent outside whole extent.")
         jdx = 0;
         }
-      uExt[2*i + 1] = this->Internal->GetMapping(i,jdx);
+      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
@@ -196,12 +196,11 @@ int vtkExtractRectilinearGrid::RequestData(
         vtkDataArray::CreateDataArray( in_coords[ dim ]->GetDataType() );
     out_coords[ dim ]->SetNumberOfTuples( outDims[ dim ] );
 
-    for( int idx=begin[dim]; idx <= end[dim]; ++idx )
+    for (int outIdx = begin[dim]; outIdx <= end[dim]; ++outIdx)
       {
-      int in_idx = this->Internal->GetMapping(dim, idx);
-      out_coords[ dim ]->SetTuple( idx, in_idx, in_coords[ dim ] );
+      int inIdx = this->Internal->GetMappedIndex(dim, outIdx);
+      out_coords[dim]->SetTuple(outIdx, inIdx, in_coords[dim]);
       } // END for all points along this dimension in the output
-
     } // END for all dimensions
 
   output->SetXCoordinates( out_coords[0] );

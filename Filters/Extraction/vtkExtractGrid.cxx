@@ -105,14 +105,14 @@ int vtkExtractGrid::RequestUpdateExtent(
         vtkWarningMacro("Requested extent outside whole extent.")
         idx = 0;
         }
-      uExt[2*i] = this->Internal->GetMapping(i,idx);
+      uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
       int jdx = oUExt[2*i+1];
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
         {
         vtkWarningMacro("Requested extent outside whole extent.")
         jdx = 0;
         }
-      uExt[2*i + 1] = this->Internal->GetMapping(i,jdx);
+      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
