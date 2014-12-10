@@ -145,6 +145,11 @@ vtkXMLDataElement* vtkXMLCompositeDataReader::GetPrimaryElement()
 //----------------------------------------------------------------------------
 vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
 {
+  if (!type)
+    {
+    return 0;
+    }
+
   vtkXMLCompositeDataReaderInternals::ReadersType::iterator iter =
     this->Internal->Readers.find(type);
   if (iter != this->Internal->Readers.end())
