@@ -18,8 +18,10 @@
 
 #include "vtkXdmf3HeavyDataHandler.h"
 
+#include "vtkCompositeDataSet.h"
 #include "vtkDataObject.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkRectilinearGrid.h"
@@ -103,6 +105,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           (0,
            this->MakeUnsGrid
            (unsGrid, child, this->Keeper));
+        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+          unsGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
           {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
@@ -110,6 +114,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
             (i+1,
              this->ExtractSet
              (i, unsGrid, child, sub, this->Keeper));
+          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+            unsGrid->getSet(i)->getName().c_str());
           sub->Delete();
           }
         child->Delete();
@@ -134,6 +140,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           (0,
            this->MakeRecGrid
            (recGrid, child, this->Keeper));
+        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+          recGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
           {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
@@ -141,6 +149,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
             (i+1,
              this->ExtractSet
              (i, recGrid, child, sub, this->Keeper));
+          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+            recGrid->getSet(i)->getName().c_str());
           sub->Delete();
           }
         child->Delete();
@@ -165,6 +175,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           (0,
            this->MakeCrvGrid
            (crvGrid, child, this->Keeper));
+        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+          crvGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
           {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
@@ -172,6 +184,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
             (i+1,
              this->ExtractSet
              (i, crvGrid, child, sub, this->Keeper));
+          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+            crvGrid->getSet(i)->getName().c_str());
           sub->Delete();
           }
         child->Delete();
@@ -196,6 +210,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           (0,
            this->MakeRegGrid
            (regGrid, child, this->Keeper));
+        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+            regGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
           {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
@@ -203,6 +219,8 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
             (i+1,
              this->ExtractSet
              (i, regGrid, child, sub, this->Keeper));
+          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+            crvGrid->getSet(i)->getName().c_str());
           sub->Delete();
           }
         child->Delete();
@@ -300,7 +318,10 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
     result = this->Populate(group->getUnstructuredGrid(i), child);
     if (result)
       {
-      topB->SetBlock(cnt++, result);
+      topB->SetBlock(cnt, result);
+      topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
+        cGrid->getName().c_str());
+      cnt++;
       }
     child->Delete();
     }
@@ -326,7 +347,10 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
     result = this->Populate(cGrid, child);
     if (result)
       {
-      topB->SetBlock(cnt++, result);
+      topB->SetBlock(cnt, result);
+      topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
+        cGrid->getName().c_str());
+      cnt++;
       }
     child->Delete();
     }
@@ -352,7 +376,10 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
     result = this->Populate(cGrid, child);
     if (result)
       {
-      topB->SetBlock(cnt++, result);
+      topB->SetBlock(cnt, result);
+      topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
+        cGrid->getName().c_str());
+      cnt++;
       }
     child->Delete();
     }
@@ -378,7 +405,10 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
     result = this->Populate(cGrid, child);
     if (result)
       {
-      topB->SetBlock(cnt++, result);
+      topB->SetBlock(cnt, result);
+      topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
+        cGrid->getName().c_str());
+      cnt++;
       }
     child->Delete();
     }
@@ -394,7 +424,10 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
     result = this->Populate(group->getGraph(i), child);
     if (result)
       {
-      topB->SetBlock(cnt++, result);
+      topB->SetBlock(cnt, result);
+      topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
+        group->getGraph(i)->getName().c_str());
+      cnt++;
       }
     child->Delete();
     }
