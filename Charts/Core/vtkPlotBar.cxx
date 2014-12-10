@@ -1105,3 +1105,36 @@ vtkStdString vtkPlotBar::GetTooltipLabel(const vtkVector2d &plotPos,
     }
   return tooltipLabel;
 }
+
+//-----------------------------------------------------------------------------
+int vtkPlotBar::GetBarsCount()
+{
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkWarningMacro(<< "GetBarsCount called with no input table set.");
+    return 0;
+    }
+  vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
+  return x ? x->GetNumberOfTuples() : 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::GetDataBounds(double bounds[2])
+{
+  assert(bounds);
+  // Get the x and y arrays (index 0 and 1 respectively)
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkWarningMacro(<< "GetDataBounds called with no input table set.");
+    bounds[0] = VTK_DOUBLE_MAX;
+    bounds[1] = VTK_DOUBLE_MIN;
+    return;
+    }
+  vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
+  if (x)
+    {
+    x->GetRange(bounds);
+    }
+}
