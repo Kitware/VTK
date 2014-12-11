@@ -269,7 +269,7 @@ if(PYTHON_EXECUTABLE)
   # Create a target on which custom commands can depend.  When this
   # is up-to-date, it is safe to run VTK python code.  Therefore
   # this should also depend on the vtkpython executable.
-  add_custom_target(vtkpython_pyc ALL echo "..."
+  add_custom_target(vtkpython_pyc ALL
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/vtk_compile_complete")
   add_dependencies(vtkpython_pyc
     vtkpython
