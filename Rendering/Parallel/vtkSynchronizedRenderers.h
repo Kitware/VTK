@@ -152,7 +152,8 @@ public:
 
     // This is a raw version of PushToViewport() that assumes that the
     // glViewport() has already been setup externally.
-    bool PushToFrameBuffer();
+    // the argument is optional for backwards compat with old OpenGL
+    bool PushToFrameBuffer(vtkRenderer *ren = NULL);
 
     // Captures the image from the viewport.
     // This doesn't trigger a render, just captures what's currently there in
