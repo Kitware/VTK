@@ -167,6 +167,44 @@ public:
                     vtkCellData* cd, vtkCellData* outCD,
                     int sampleRate[3] = NULL);
 
+  // Description:
+  // Calculate the VOI for a partitioned structured dataset. This method sets
+  // \a partitionedVOI to the VOI that extracts as much of the
+  // \a partitionedExtent as possible while considering the \a globalVOI, the
+  // \a sampleRate, and the boundary conditions.
+  // \param globalVOI The full VOI for the entire distributed dataset.
+  // \param partitionedExtent Extent of the process's partitioned input data.
+  // \param sampleRate The sampling rate in each dimension.
+  // \param includeBoundary Whether or not to include the boundary of the VOI,
+  // even if it doesn't fit the spacing.
+  // \param partitionedVOI The extent of the process's partitioned dataset that
+  // should be extracted by a serial extraction filter.
+  static void GetPartitionedVOI(const int globalVOI[6],
+                                const int partitionedExtent[6],
+                                const int sampleRate[3],
+                                bool includeBoundary,
+                                int partitionedVOI[6]);
+  // Description:
+  // Calculate the partitioned output extent for a partitioned structured
+  // dataset. This method sets \a partitionedOutputExtent to the correct extent
+  // of an extracted dataset, such that it properly fits with the other
+  // partitioned pieces while considering the \a globalVOI, the
+  // \a sampleRate, and the boundary conditions.
+  // \param globalVOI The full VOI for the entire distributed dataset.
+  // \param partitionedVOI The VOI used in the serial extraction.
+  // \param outputWholeExtent The output extent of the full dataset.
+  // \param sampleRate The sampling rate in each dimension.
+  // \param includeBoundary Whether or not to include the boundary of the VOI,
+  // even if it doesn't fit the spacing.
+  // \param partitionedOutputExtent The correct output extent of the extracted
+  // dataset.
+  static void GetPartitionedOutputExtent(const int globalVOI[6],
+                                         const int partitionedVOI[6],
+                                         const int outputWholeExtent[6],
+                                         const int sampleRate[3],
+                                         bool includeBoundary,
+                                         int partitionedOutputExtent[6]);
+
 protected:
   vtkExtractStructuredGridHelper();
   ~vtkExtractStructuredGridHelper();

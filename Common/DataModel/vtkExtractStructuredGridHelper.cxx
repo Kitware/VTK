@@ -31,16 +31,18 @@
 #include <vector>
 
 // Some usefull extent macros
-#define IMIN(ext) ext[0]
-#define IMAX(ext) ext[1]
-#define JMIN(ext) ext[2]
-#define JMAX(ext) ext[3]
-#define KMIN(ext) ext[4]
-#define KMAX(ext) ext[5]
+#define EMIN(ext, dim) (ext[2*dim])
+#define EMAX(ext, dim) (ext[2*dim+1])
+#define IMIN(ext) (ext[0])
+#define IMAX(ext) (ext[1])
+#define JMIN(ext) (ext[2])
+#define JMAX(ext) (ext[3])
+#define KMIN(ext) (ext[4])
+#define KMAX(ext) (ext[5])
 
-#define I(ijk) ijk[0]
-#define J(ijk) ijk[1]
-#define K(ijk) ijk[2]
+#define I(ijk) (ijk[0])
+#define J(ijk) (ijk[1])
+#define K(ijk) (ijk[2])
 
 namespace vtk
 {
@@ -520,4 +522,116 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
         }// END else canCopyRange
       } // END for all j
     } // END for all k
+}
+
+//------------------------------------------------------------------------------
+void vtkExtractStructuredGridHelper::GetPartitionedVOI(const int globalVOI[6],
+  const int partitionedExtent[6], const int sampleRate[3], bool includeBoundary,
+  int partitionedVOI[6])
+{
+  // 1D Example:
+  //   InputWholeExtent = [0, 20]
+  //   GlobalVOI = [3, 17]
+  //   SampleRate = 2
+  //   OutputWholeExtent = [0, 7]
+  //   Processes = 2
+  //
+  // Process 0:
+  //   PartitionedInputExtent = [0, 10]
+  //   ClampedVOI = [3, 10]
+  //   PartitionedVOI = [3, 9] (due to sampling)
+  //
+  // Process 1:
+  //   PartitionedInputExtent = [10, 20]
+  //   ClampedVOI = [10, 17]
+  //   PartitionedVOI = [11, 17] (offset due to sampling)
+  //
+  // This method calculates the PartitionedVOI.
+
+
+  // Start with filter's VOI (Ex: [3, 17] | [3, 17] )
+  std::copy(globalVOI, globalVOI + 6, partitionedVOI);
+
+  // Clamp to paritioned data (Ex: [3, 10] | [10, 17] )
+  vtkStructuredExtent::Clamp(partitionedVOI, partitionedExtent);
+
+  // Adjust for spacing: (Ex: [3, 9] | [11, 17] )
+  for (int dim = 0; dim < 3; ++dim)
+    {
+    // Minimia:
+    // Ex: 0 | 7
+    int delta = EMIN(partitionedVOI, dim) - EMIN(globalVOI, dim);
+    // Ex: 0 | 1
+    delta %= sampleRate[dim];
+    if (delta != 0)
+      {
+      delta = sampleRate[dim] - delta;
+      }
+    // Ex: 3 | 11
+    EMIN(partitionedVOI, dim) += delta;
+
+    if (includeBoundary && EMAX(partitionedVOI, dim) == EMAX(globalVOI, dim))
+      {
+      continue;
+      }
+
+    // Maxima:
+    // Ex: 7 | 6
+    delta = EMAX(partitionedVOI, dim) - EMIN(partitionedVOI, dim);
+    // Ex: 1 | 0
+    delta %= sampleRate[dim];
+    EMAX(partitionedVOI, dim) -= delta;
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
+    const int globalVOI[6], const int partitionedVOI[6],
+    const int outputWholeExtent[6], const int sampleRate[3],
+    bool includeBoundary, int partitionedOutputExtent[6])
+{
+  // 1D Example:
+  //   InputWholeExtent = [0, 20]
+  //   GlobalVOI = [3, 17]
+  //   SampleRate = 2
+  //   OutputWholeExtent = [0, 7]
+  //   Processes = 2
+  //
+  // Process 0:
+  //   PartitionedInputExtent = [0, 10]
+  //   PartitionedVOI = [3, 9] (due to sampling)
+  //   SerialOutputExtent = [0, 3]
+  //   PartitionedOutputExtent = [0, 3]
+  //
+  // Process 1:
+  //   PartitionedInputExtent = [10, 20]
+  //   PartitionedVOI = [11, 17] (offset due to sampling)
+  //   SerialOutputExtent = [0, 3]
+  //   PartitionedOutputExtent = [4, 7]
+  //
+  // This method computes the PartitionedOutputExtent. The gap [3, 4] will be
+  // cleaned up by the parallel filter using vtkStructuredImplicitConnectivity.
+  for (int dim = 0; dim < 3; ++dim)
+    {
+    // Ex: 0 | 4
+    EMIN(partitionedOutputExtent, dim) =
+        (EMIN(partitionedVOI, dim) - EMIN(globalVOI, dim)) / sampleRate[dim];
+
+    if (includeBoundary && EMAX(partitionedVOI, dim) == EMAX(globalVOI, dim))
+      {
+      int length = EMAX(partitionedVOI, dim) - EMIN(globalVOI, dim);
+      EMAX(partitionedOutputExtent, dim) = length / sampleRate[dim];
+      EMAX(partitionedOutputExtent, dim) +=
+          ((length % sampleRate[dim]) == 0) ? 0 : 1;
+      }
+    else {
+      // Ex: 3 | 7
+      EMAX(partitionedOutputExtent, dim) =
+          (EMAX(partitionedVOI, dim) - EMIN(globalVOI, dim)) / sampleRate[dim];
+      }
+
+    // Account for any offsets in the OutputWholeExtent:
+    EMIN(partitionedOutputExtent, dim) += EMIN(outputWholeExtent, dim);
+    EMAX(partitionedOutputExtent, dim) += EMIN(outputWholeExtent, dim);
+    }
 }
