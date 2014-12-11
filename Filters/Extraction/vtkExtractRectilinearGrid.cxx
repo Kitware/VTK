@@ -25,7 +25,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 
-
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -133,12 +132,20 @@ int vtkExtractRectilinearGrid::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 1 : 0;
+}
+
+//----------------------------------------------------------------------------
+bool vtkExtractRectilinearGrid::RequestDataImpl(
+    int voi[6], vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector)
+{
   if( (this->SampleRate[0] < 1) ||
       (this->SampleRate[1] < 1) ||
       (this->SampleRate[2] < 1) )
     {
-    vtkErrorWithObjectMacro(
-        this,"SampleRate must be >= 1 in all 3 dimenstions!");
+    vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
+    return false;
     }
 
   // get the info objects
@@ -162,14 +169,22 @@ int vtkExtractRectilinearGrid::RequestData(
 
   if (input->GetNumberOfPoints() == 0)
     {
-    return 1;
+    return true;
     }
 
   inExt = input->GetExtent();
 
+  this->Internal->Initialize(voi, inExt, this->SampleRate,
+                             (this->IncludeBoundary == 1));
+  if (!this->Internal->IsValid())
+    {
+    vtkErrorMacro("Error initializing index map.");
+    return false;
+    }
+
   int begin[3];
   int end[3];
-  this->Internal->ComputeBeginAndEnd(inExt,this->VOI,begin,end);
+  this->Internal->ComputeBeginAndEnd(inExt, voi, begin, end);
   output->SetExtent(begin[0], end[0], begin[1], end[1], begin[2], end[2]);
 
   outExt = output->GetExtent();
@@ -210,7 +225,7 @@ int vtkExtractRectilinearGrid::RequestData(
   out_coords[1]->Delete();
   out_coords[2]->Delete();
 
-  return 1;
+  return true;
 }
 
 //----------------------------------------------------------------------------
