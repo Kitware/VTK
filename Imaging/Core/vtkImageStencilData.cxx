@@ -1416,12 +1416,15 @@ void vtkImageStencilRaster::FillStencilData(
           {
           r1 = lastr + 1;
           }
-        lastr = r2;
-
-        for (int idX = r1; idX <= r2; idX++)
+        if (r2 > lastr)
           {
-          xy[xj-1] = idX;
-          data->InsertNextExtent(zmin, zmax, xy[0], xy[1]);
+          lastr = r2;
+
+          for (int idX = r1; idX <= r2; idX++)
+            {
+            xy[xj-1] = idX;
+            data->InsertNextExtent(zmin, zmax, xy[0], xy[1]);
+            }
           }
         }
       }
@@ -1516,11 +1519,14 @@ void vtkImageStencilRaster::FillStencilData(
           {
           r1 = lastr + 1;
           }
-        lastr = r2;
-
-        if (r2 >= r1)
+        if (r2 > lastr)
           {
-          data->InsertNextExtent(r1, r2, yz[0], yz[1]);
+          lastr = r2;
+
+          if (r2 >= r1)
+            {
+            data->InsertNextExtent(r1, r2, yz[0], yz[1]);
+            }
           }
         }
       }
