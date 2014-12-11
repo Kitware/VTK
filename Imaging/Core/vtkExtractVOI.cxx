@@ -24,7 +24,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 
-
 vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.
@@ -173,12 +172,20 @@ int vtkExtractVOI::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 1 : 0;
+}
+
+//------------------------------------------------------------------------------
+bool vtkExtractVOI::RequestDataImpl(int voi[6],
+                                    vtkInformationVector **inputVector,
+                                    vtkInformationVector *outputVector)
+{
   if( (this->SampleRate[0] < 1) ||
       (this->SampleRate[1] < 1) ||
       (this->SampleRate[2] < 1) )
     {
-    vtkErrorWithObjectMacro(
-        this,"SampleRate must be >= 1 in all 3 dimenstions!");
+    vtkErrorMacro("SampleRate must be >= 1 in all 3 dimenstions!");
+    return false;
     }
 
   // get the info objects
@@ -196,30 +203,38 @@ int vtkExtractVOI::RequestData(
     return 1;
     }
 
-  // compute output spacing
-  double h[3];
-  input->GetSpacing(h);
-  h[0] *= this->SampleRate[0];
-  h[1] *= this->SampleRate[1];
-  h[2] *= this->SampleRate[2];
+  int *inExt = input->GetExtent();
 
-  output->SetSpacing(h);
+  this->Internal->Initialize(voi, inExt, this->SampleRate,
+                             (this->IncludeBoundary == 1));
+  if (!this->Internal->IsValid())
+    {
+    vtkErrorMacro("Error initializing index map.");
+    return 0;
+    }
+
+  // compute output spacing
+  double outSpacing[3];
+  input->GetSpacing(outSpacing);
+  outSpacing[0] *= this->SampleRate[0];
+  outSpacing[1] *= this->SampleRate[1];
+  outSpacing[2] *= this->SampleRate[2];
+
+  output->SetSpacing(outSpacing);
 
   vtkPointData *pd    = input->GetPointData();
   vtkCellData *cd     = input->GetCellData();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD  = output->GetCellData();
 
-  int *inExt;
   int *outExt;
 
   vtkDebugMacro(<< "Extracting Grid");
 
   // set output extent
-  inExt = input->GetExtent();
   int begin[3];
   int end[3];
-  this->Internal->ComputeBeginAndEnd(inExt,this->VOI,begin,end);
+  this->Internal->ComputeBeginAndEnd(inExt, voi, begin, end);
 
   int inBegin[3];
   double outOrigin[3];
@@ -231,7 +246,7 @@ int vtkExtractVOI::RequestData(
     for(int dim=0; dim < 3; ++dim)
       {
       int delta = end[ dim ]-begin[ dim ];
-      begin[ dim ] = this->VOI[ dim*2 ];
+      begin[ dim ] = voi[ dim*2 ];
       end[ dim ]   = begin[ dim ]+delta;
       }
     memcpy(inBegin,begin,sizeof(int)*3);
