@@ -350,8 +350,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   // This might not be valid for all cases but it is a decent
   // assumption to start with.
   // TODO: Loop over all inputs
-  vtkInformation* inInfo = 0;
-  inInfo = this->GetInputInformation(compositePort, 0);
+  vtkInformation* inInfo = this->GetInputInformation(compositePort, 0);
   vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 

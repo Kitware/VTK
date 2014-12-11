@@ -40,7 +40,7 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
     (void)datatype;
     assert((datatype == VTK_DOUBLE) && (length%6==0));
     assert("pre: A vector is NULL" && (A != NULL) );
-    assert("pre: B vector is NULL");
+    assert("pre: B vector is NULL" && (B != NULL) );
     vtkBoundingBox box;
     const double *aPtr = reinterpret_cast<const double*>(A);
     double *bPtr       = reinterpret_cast<double*>(B);

@@ -980,12 +980,12 @@ void vtkClipClosedSurface::ClipLines(
   vtkCellData *inCellData, vtkCellData *outLineData)
 {
   vtkIdType numCells = inputCells->GetNumberOfCells();
-  vtkIdType numPts = 0;
-  vtkIdType *pts = 0;
 
   inputCells->InitTraversal();
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
     {
+    vtkIdType numPts = 0;
+    vtkIdType *pts = 0;
     inputCells->GetNextCell(numPts, pts);
 
     vtkIdType i1 = pts[0];
@@ -1057,12 +1057,12 @@ void vtkClipClosedSurface::ClipAndContourPolys(
 
   // Go through all cells and clip them.
   vtkIdType numCells = inputCells->GetNumberOfCells();
-  vtkIdType numPts = 0;
-  vtkIdType *pts = 0;
 
   inputCells->InitTraversal();
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
     {
+    vtkIdType numPts = 0;
+    vtkIdType *pts = 0;
     inputCells->GetNextCell(numPts, pts);
     idList->Reset();
 
