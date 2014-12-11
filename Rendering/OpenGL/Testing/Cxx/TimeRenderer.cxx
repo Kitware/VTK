@@ -229,8 +229,8 @@ int main( int argc, char *argv[] )
 
   // Clean up
   cube->Delete();
-  vtkGarbageCollector::SetGlobalDebugFlag(1);
-  vtkGarbageCollector::SetGlobalDebugFlag(0);
+  vtkGarbageCollector::SetGlobalDebugFlag(true);
+  vtkGarbageCollector::SetGlobalDebugFlag(false);
   prop->Delete();
   ren1->Delete();
   renWindow->Delete();

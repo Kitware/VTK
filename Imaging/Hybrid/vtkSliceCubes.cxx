@@ -136,7 +136,7 @@ template <class T, class S>
 int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
                          double origin[3], double Spacing[3], double value,
                          double xmin[3], double xmax[3], FILE *outFP,
-                         vtkVolumeReader *reader, unsigned char debug)
+                         vtkVolumeReader *reader, bool debug)
 {
   S *slice0scalars=NULL, *slice1scalars=NULL;
   S *slice2scalars, *slice3scalars;
