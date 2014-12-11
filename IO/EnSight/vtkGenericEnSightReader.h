@@ -237,6 +237,12 @@ protected:
                           vtkInformationVector*);
 
   // Description:
+  // Clear data structures such that setting a new case file name works.
+  // WARNING: Derived classes should call the base version after they clear
+  // their own structures.
+  virtual void ClearForNewCaseFileName();
+
+  // Description:
   // Internal function to read in a line up to 256 characters.
   // Returns zero if there was an error.
   int ReadLine(char result[256]);
