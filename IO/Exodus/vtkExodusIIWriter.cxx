@@ -45,7 +45,7 @@
 #include <map>
 #include <ctime>
 
-using std::map;
+
 
 vtkObjectFactoryNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
@@ -1572,7 +1572,9 @@ int vtkExodusIIWriter::WriteBlockInformation()
     int numNodes = blockIter->second.NodesPerElement;
 
     int numPoints;
-    if (numNodes == 0)
+    if (numNodes == 0 &&
+        // Number of elements is 0 if all data is on one process
+        numElts > 0)
       {
       numPoints = blockIter->second.EntityNodeOffsets[numElts - 1]
                 + blockIter->second.EntityCounts[numElts - 1];
@@ -1692,7 +1694,8 @@ int vtkExodusIIWriter::WriteBlockInformation()
        blockIter ++)
     {
     char *name = vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type);
-    if (blockIter->second.NodesPerElement == 0)
+    if (blockIter->second.NodesPerElement == 0 &&
+        blockIter->second.NumElements > 0)
       {
       int numElts = blockIter->second.NumElements;
       int numPoints = blockIter->second.EntityNodeOffsets[numElts - 1]
@@ -2930,12 +2933,12 @@ bool vtkExodusIIWriter::SameTypeOfCells (vtkIntArray* cellToBlockId,
     {
     return false;
     }
-  map<int, int> blockIdToCellType;
+  std::map<int, int> blockIdToCellType;
   for (vtkIdType cellId = 0; cellId < cellToBlockId->GetNumberOfTuples ();
        ++cellId)
     {
     vtkIdType blockId = cellToBlockId->GetValue(cellId);
-    map<int, int>::iterator it = blockIdToCellType.find(blockId);
+    std::map<int, int>::iterator it = blockIdToCellType.find(blockId);
     if (it == blockIdToCellType.end())
       {
       blockIdToCellType[blockId] = input->GetCellType(cellId);
@@ -2980,7 +2983,9 @@ vtkIntArray* vtkExodusIIWriter::GetBlockIdArray (
       }
     }
   this->SetBlockIdArrayName(0);
-  if ((this->NumberOfProcesses > 1))
+  if ((this->NumberOfProcesses > 1) &&
+      // you don't have metadata but you have some tuples.
+      cd->GetNumberOfTuples() > 0)
     {
     // Parallel apps must have a global list of all block IDs, plus a
     // list of block IDs for each cell.
