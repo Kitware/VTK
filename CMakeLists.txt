@@ -525,7 +525,7 @@ configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
 
 # For iOS builds, allow user to 'make framework' with a custom destination
 if (APPLE_IOS)
-  set(CMAKE_FRAMEWORK_INSTALL_PREFIX "~/Library/Frameworks"
+  set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
       CACHE PATH "Framework install path")
   configure_file(${VTK_CMAKE_DIR}/MakeFramework.cmake.in
                  ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
