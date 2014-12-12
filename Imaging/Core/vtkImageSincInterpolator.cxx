@@ -1202,14 +1202,14 @@ void vtkImageSincInterpolatorPrecomputeWeights(
           ll = 0;
           do
             {
-            int rIdx = inId[ll] - minExt;
+            int rIdx = inId[ll];
             gg[rIdx] += g[ll];
             }
           while (++ll < m);
           ll = 0;
           do
             {
-            positions[step*i + ll] = minExt + ll;
+            positions[step*i + ll] = ll*inInc;
             constants[step*i + ll] = gg[ll];
             }
           while (++ll < step);
