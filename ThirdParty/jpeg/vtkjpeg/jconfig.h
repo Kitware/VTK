@@ -4,8 +4,6 @@
 #define HAVE_PROTOTYPES
 #define HAVE_UNSIGNED_CHAR
 #define HAVE_UNSIGNED_SHORT
-#undef void
-#undef const
 #undef CHAR_IS_UNSIGNED
 #ifndef HAVE_STDDEF_H
 #define HAVE_STDDEF_H
