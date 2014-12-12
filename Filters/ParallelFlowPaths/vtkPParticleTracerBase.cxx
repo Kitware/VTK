@@ -371,7 +371,10 @@ void vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
     {
     RemoteParticleInfo& info(received[candidatesIndices[i]]);
     info.Current.PointId = -1;
-
+    info.Current.CachedDataSetId[0] = info.Current.CachedDataSetId[1] = -1;
+    info.Current.CachedCellId[0] = info.Current.CachedCellId[1] = -1;
+    info.Previous.CachedDataSetId[0] = info.Previous.CachedDataSetId[1] = -1;
+    info.Previous.CachedCellId[0] = info.Previous.CachedCellId[1] = -1;
     this->Tail.push_back(info);
     this->ParticleHistories.push_back(info.Current);
     }
