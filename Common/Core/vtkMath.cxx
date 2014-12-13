@@ -565,7 +565,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
         sum -= A[i][j]*x[j];
         }
       }
-    else if (sum)
+    else if (sum != 0.0)
       {
       ii = i;
       }

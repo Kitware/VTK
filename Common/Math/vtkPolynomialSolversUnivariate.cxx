@@ -1569,7 +1569,7 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve( double* c, int d, double* 
     if ( delta >= 0 )
       {
       // check whether there are 2 simple roots or 1 double root
-      if ( delta )
+      if ( delta != 0.0 )
         {
         delta = sqrt( delta );
         // we have 2 simple real roots
@@ -2141,9 +2141,9 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double
 // Returns either the number of roots, or -1 if ininite number of roots.
 int vtkPolynomialSolversUnivariate::SolveQuadratic( double* c, double* r, int* m )
 {
-  if( ! c[0] )
+  if( c[0] == 0.0 )
     {
-    if( c[1] )
+    if( c[1] != 0.0 )
       {
       r[0] = -c[2] / c[1];
       m[0] = 1;
@@ -2151,18 +2151,18 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double* c, double* r, int* m
       }
     else
       {
-      if ( c[2] ) return 0;
+      if ( c[2] != 0.0 ) return 0;
       else return -1;
       }
     }
 
   double delta = c[1] * c[1] - 4. * c[0] * c[2];
 
-  if ( delta >= 0. )
+  if ( delta >= 0.0 )
     {
     double fac = 1. / ( 2. *  c[0] );
     // check whether there are 2 simple or 1 double root(s)
-    if ( delta )
+    if ( delta != 0.0 )
       {
       delta = sqrt( delta );
       // insert 1st simple real root
