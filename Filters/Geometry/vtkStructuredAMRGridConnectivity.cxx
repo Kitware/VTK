@@ -2097,7 +2097,7 @@ void vtkStructuredAMRGridConnectivity::GetCoarsenedExtent(
 void vtkStructuredAMRGridConnectivity::CoarsenExtent(
     int orient[3], int ndim, int fromLevel, int toLevel, int ext[6])
 {
-  assert("pre: ndim must be either 1, 2 or 3" && (ndim > 0 || ndim <= 3) );
+  assert("pre: ndim must be either 1, 2 or 3" && (ndim > 0 && ndim <= 3) );
 
   if( this->HasConstantRefinementRatio() )
     {
@@ -2161,7 +2161,7 @@ void vtkStructuredAMRGridConnectivity::GetRefinedExtent(
 void vtkStructuredAMRGridConnectivity::RefineExtent(
     int orient[3], int ndim, int fromLevel, int toLevel, int ext[6])
 {
-  assert("pre: ndim must be either 1, 2 or 3" && (ndim > 0 || ndim <= 3) );
+  assert("pre: ndim must be either 1, 2 or 3" && (ndim > 0 && ndim <= 3) );
 
   if( this->HasConstantRefinementRatio() )
     {
