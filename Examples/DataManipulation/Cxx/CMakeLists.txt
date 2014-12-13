@@ -13,7 +13,7 @@ find_package(VTK COMPONENTS
   vtkCommonDataModel
   vtkFiltersGeometry
   vtkInteractionStyle
-  vtkRenderingOpenGL
+  vtkRendering${VTK_RENDERING_BACKEND}
 )
 include(${VTK_USE_FILE})
 

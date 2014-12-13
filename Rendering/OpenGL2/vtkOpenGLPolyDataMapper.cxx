@@ -1017,7 +1017,9 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
     if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
         selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
       {
+#if GL_ES_VERSION_2_0 != 1
       glPointSize(4.0); //make verts large enough to be sure to overlap cell
+#endif
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(0,2.0);  // supported on ES2/3/etc
       glDepthMask(GL_FALSE); //prevent verts from interfering with each other
@@ -1060,22 +1062,27 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 
   this->LastBoundBO = NULL;
 
-  if ( this->GetResolveCoincidentTopology() )
+  vtkProperty *prop = actor->GetProperty();
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+
+  if ( this->GetResolveCoincidentTopology() || draw_surface_with_edges)
     {
     glEnable(GL_POLYGON_OFFSET_FILL);
     if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
       {
-      vtkErrorMacro(<< "GetResolveCoincidentTopologyZShift is not supported use Polygon offset instead");
-      // do something rough as better than nothing
+      // do something rough is better than nothing
       double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
       double f = zRes*4.0;
-      glPolygonOffset(f,0.0);  // supported on ES2/3/etc
+      glPolygonOffset(f + (draw_surface_with_edges ? 1.0 : 0.0),
+        draw_surface_with_edges ? 1.0 : 0.0);  // supported on ES2/3/etc
       }
     else
       {
       double f, u;
       this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-      glPolygonOffset(f,u);  // supported on ES2/3/etc
+      glPolygonOffset(f + (draw_surface_with_edges ? 1.0 : 0.0),
+        u + (draw_surface_with_edges ? 1.0 : 0.0));  // supported on ES2/3/etc
       }
     }
 
@@ -1187,7 +1194,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     this->TriStrips.ibo.Release();
     }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1281,24 +1287,6 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
     }
 
   vtkgl::VBOLayout &layout = this->Layout;
-
-  // store old values
-  double f, u;
-  this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-  double zRes = this->GetResolveCoincidentTopologyZShift();
-  int oldRCT = this->GetResolveCoincidentTopology();
-
-  // setup new values and render
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  if (oldRCT == VTK_RESOLVE_SHIFT_ZBUFFER)
-    {
-    f = zRes*8.0;
-    glPolygonOffset(f,0.0);  // supported on ES2/3/etc
-    }
-  else
-    {
-    glPolygonOffset(f+0.5,u*1.5);  // supported on ES2/3/etc
-    }
   this->DrawingEdges = true;
 
   // draw polygons
@@ -1329,7 +1317,6 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
     this->TriStripsEdges.ibo.Release();
     }
 
-  // restore old values
   this->DrawingEdges = false;
 
 /*
@@ -1359,7 +1346,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *ren, vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 
-  if (poly == NULL)// || !poly->GetPointData()->GetNormals())
+  if (poly == NULL)
     {
     return;
     }

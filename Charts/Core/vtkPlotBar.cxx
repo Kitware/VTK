@@ -119,44 +119,6 @@ void CopyToPointsSwitch(vtkPoints2D *points, vtkPoints2D *previousPoints, A *a,
     }
 }
 
-// Indexed vector for sorting
-struct vtkIndexedVector2f
-{
-  size_t index;
-  vtkVector2f pos;
-};
-
-// Compare two vtkIndexedVector2f, in X component only
-bool compVector3fX(const vtkIndexedVector2f& v1,
-                   const vtkIndexedVector2f& v2)
-{
-  if (v1.pos.GetX() < v2.pos.GetX())
-    {
-    return true;
-    }
-  else
-    {
-    return false;
-    }
-}
-
-class VectorPIMPL : public std::vector<vtkIndexedVector2f>
-{
-public:
-  VectorPIMPL(vtkVector2f* array, size_t n)
-    : std::vector<vtkIndexedVector2f>()
-  {
-    this->reserve(n);
-    for (size_t i = 0; i < n; ++i)
-      {
-      vtkIndexedVector2f tmp;
-      tmp.index = i;
-      tmp.pos = array[i];
-      this->push_back(tmp);
-      }
-  }
-};
-
 } // namespace
 
 //-----------------------------------------------------------------------------
@@ -338,7 +300,7 @@ class vtkPlotBarSegment : public vtkObject {
       // Set up our search array, use the STL lower_bound algorithm
       VectorPIMPL::iterator low;
       VectorPIMPL &v = *this->Sorted;
-      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+      low = std::lower_bound(v.begin(), v.end(), lowPoint);
 
       while (low != v.end())
         {
@@ -373,7 +335,7 @@ class vtkPlotBarSegment : public vtkObject {
         vtkVector2f* data =
             static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
         this->Sorted = new VectorPIMPL(data, n);
-        std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
+        std::sort(this->Sorted->begin(), this->Sorted->end());
         }
     }
 
@@ -409,7 +371,7 @@ class vtkPlotBarSegment : public vtkObject {
       // Set up our search array, use the STL lower_bound algorithm
       VectorPIMPL::iterator low;
       VectorPIMPL &v = *this->Sorted;
-      low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector3fX);
+      low = std::lower_bound(v.begin(), v.end(), lowPoint);
 
       std::vector<vtkIdType> selected;
 
@@ -452,6 +414,36 @@ class vtkPlotBarSegment : public vtkObject {
         return true;
         }
       }
+
+    // Indexed vector for sorting
+    struct vtkIndexedVector2f
+    {
+      size_t index;
+      vtkVector2f pos;
+
+      // Compare two vtkIndexedVector2f, in X component only
+      bool operator<(const vtkIndexedVector2f& v2) const
+        {
+        return (this->pos.GetX() < v2.pos.GetX());
+        }
+    };
+
+    class VectorPIMPL : public std::vector<vtkIndexedVector2f>
+    {
+    public:
+      VectorPIMPL(vtkVector2f* array, size_t n)
+        : std::vector<vtkIndexedVector2f>()
+      {
+        this->reserve(n);
+        for (size_t i = 0; i < n; ++i)
+          {
+          vtkIndexedVector2f tmp;
+          tmp.index = i;
+          tmp.pos = array[i];
+          this->push_back(tmp);
+          }
+      }
+    };
 
     vtkSmartPointer<vtkPlotBarSegment> Previous;
     vtkSmartPointer<vtkPoints2D> Points;
@@ -1112,4 +1104,37 @@ vtkStdString vtkPlotBar::GetTooltipLabel(const vtkVector2d &plotPos,
       }
     }
   return tooltipLabel;
+}
+
+//-----------------------------------------------------------------------------
+int vtkPlotBar::GetBarsCount()
+{
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkWarningMacro(<< "GetBarsCount called with no input table set.");
+    return 0;
+    }
+  vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
+  return x ? x->GetNumberOfTuples() : 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlotBar::GetDataBounds(double bounds[2])
+{
+  assert(bounds);
+  // Get the x and y arrays (index 0 and 1 respectively)
+  vtkTable *table = this->Data->GetInput();
+  if (!table)
+    {
+    vtkWarningMacro(<< "GetDataBounds called with no input table set.");
+    bounds[0] = VTK_DOUBLE_MAX;
+    bounds[1] = VTK_DOUBLE_MIN;
+    return;
+    }
+  vtkDataArray* x = this->Data->GetInputArrayToProcess(0, table);
+  if (x)
+    {
+    x->GetRange(bounds);
+    }
 }

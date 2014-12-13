@@ -44,7 +44,6 @@ VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,L
 
 #include "vtkWin32OpenGLRenderWindowInteractor.h"
 #include "vtkActor.h"
-#include "vtkOpenGL.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 

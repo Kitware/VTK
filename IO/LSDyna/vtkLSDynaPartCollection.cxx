@@ -35,8 +35,10 @@
 #include <list>
 
 //-----------------------------------------------------------------------------
-namespace
-  {
+class vtkLSDynaPartCollection::LSDynaPartStorage
+{
+protected:
+  //---------------------------------------------------------------------------
   //stores the number of cells for a given part
   //this struct is meant to resemble a run length encoding style of storage
   //of mapping cell ids to the part that holds those cells
@@ -65,6 +67,7 @@ namespace
     vtkLSDynaPart *part;
     };
 
+  //---------------------------------------------------------------------------
   struct PartInsertion
     {
     PartInsertion():numCellsInserted(0){}
@@ -88,10 +91,8 @@ namespace
     std::vector<PartInfo>::iterator pIt;
     vtkIdType numCellsInserted;
     };
-  }
-//-----------------------------------------------------------------------------
-class vtkLSDynaPartCollection::LSDynaPartStorage
-{
+  //---------------------------------------------------------------------------
+
 public:
   LSDynaPartStorage(const vtkIdType& numMaterials):
     NumParts(numMaterials),PartIteratorLoc(0)

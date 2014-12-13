@@ -148,9 +148,7 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
 // and will not change.
 vtkMultiThreader::vtkMultiThreader()
 {
-  int i;
-
-  for ( i = 0; i < VTK_MAX_THREADS; i++ )
+  for ( int i = 0; i < VTK_MAX_THREADS; i++ )
     {
     this->ThreadInfoArray[i].ThreadID           = i;
     this->ThreadInfoArray[i].ActiveFlag         = NULL;
@@ -170,9 +168,7 @@ vtkMultiThreader::vtkMultiThreader()
 // Destructor. Nothing allocated so nothing needs to be done here.
 vtkMultiThreader::~vtkMultiThreader()
 {
-  int i;
-
-  for ( i = 0; i < VTK_MAX_THREADS; i++ )
+  for ( int i = 0; i < VTK_MAX_THREADS; i++ )
     {
     if ( this->ThreadInfoArray[i].ActiveFlagLock )
       {
@@ -234,16 +230,16 @@ void vtkMultiThreader::SingleMethodExecute()
 
 #ifdef VTK_USE_WIN32_THREADS
   DWORD              threadId;
-  HANDLE             process_id[VTK_MAX_THREADS];
+  HANDLE             process_id[VTK_MAX_THREADS] = {};
 #endif
 
 #ifdef VTK_USE_SPROC
   siginfo_t          info_ptr;
-  int                process_id[VTK_MAX_THREADS];
+  int                process_id[VTK_MAX_THREADS] = {};
 #endif
 
 #ifdef VTK_USE_PTHREADS
-  pthread_t          process_id[VTK_MAX_THREADS];
+  pthread_t          process_id[VTK_MAX_THREADS] = {};
 #endif
 
   if ( !this->SingleMethod )
@@ -419,16 +415,16 @@ void vtkMultiThreader::MultipleMethodExecute()
 
 #ifdef VTK_USE_WIN32_THREADS
   DWORD              threadId;
-  HANDLE             process_id[VTK_MAX_THREADS];
+  HANDLE             process_id[VTK_MAX_THREADS] = {};
 #endif
 
 #ifdef VTK_USE_SPROC
   siginfo_t          info_ptr;
-  int                process_id[VTK_MAX_THREADS];
+  int                process_id[VTK_MAX_THREADS] = {};
 #endif
 
 #ifdef VTK_USE_PTHREADS
-  pthread_t          process_id[VTK_MAX_THREADS];
+  pthread_t          process_id[VTK_MAX_THREADS] = {};
 #endif
 
 

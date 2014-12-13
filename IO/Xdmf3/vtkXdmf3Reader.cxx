@@ -278,7 +278,7 @@ private:
   void Init(const char *filename, bool AsTime)
   {
     vtkTimerLog::MarkStartEvent("X3R::Init");
-    unsigned int idx = this->FileNames.size();
+    unsigned int idx = static_cast<unsigned int>(this->FileNames.size());
 
     this->Reader = XdmfReader::New();
 

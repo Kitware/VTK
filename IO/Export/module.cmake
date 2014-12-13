@@ -1,22 +1,24 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-  set(_groups GROUPS Rendering)
+  set(opengl_depends vtkRenderingGL2PS)
+  set(private_opengl_depends vtkgl2ps)
 endif()
 vtk_module(vtkIOExport
-  ${_groups}
+  GROUPS
+    Rendering
   DEPENDS
     vtkCommonCore
     vtkRenderingAnnotation
     vtkRenderingContext2D
     vtkRenderingCore
     vtkRenderingFreeType
-    vtkRenderingGL2PS
+    ${opengl_depends}
     vtkRenderingLabel
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkImagingCore
   PRIVATE_DEPENDS
     vtkIOImage
     vtkFiltersGeometry
-    vtkgl2ps
+    ${private_opengl_depends}
   TEST_DEPENDS
     vtkCommonColor
     vtkChartsCore
@@ -24,8 +26,8 @@ vtk_module(vtkIOExport
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingAnnotation
-    vtkRenderingFreeTypeOpenGL
-    vtkRenderingVolumeOpenGL
-    vtkRenderingContextOpenGL
+    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
+    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
   )

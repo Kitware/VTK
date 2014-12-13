@@ -231,6 +231,8 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     this->RawRGBABuffer=new float[this->RawRGBABufferSize];
     }
 
+  //size_t byteSize = this->RawRGBABufferSize*sizeof(unsigned char);
+
   if(this->PBO==0)
     {
     this->PBO=vtkPixelBufferObject::New();
@@ -371,14 +373,13 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 #else
     vtkgl::BlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
                              GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-#endif
-
     // fixed vertex shader
     glDisable(GL_LIGHTING);
 
     // fixed fragment shader
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_FOG);
+#endif
 
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
@@ -435,18 +436,15 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
         }
 #ifdef VTKGL2
       to->Activate();
-#else
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-#endif
-      // fixed-pipeline for vertex and fragment shaders.
-      to->Bind();
-#ifdef VTKGL2
       to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, NULL, NULL);
       to->Deactivate();
 #else
+      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+      // fixed-pipeline for vertex and fragment shaders.
+      to->Bind();
       to->CopyToFrameBuffer(0,0,w-1,h-1,0,0,w,h);
-#endif
       to->UnBind();
+#endif
       --procIndex;
       }
     glPopAttrib();

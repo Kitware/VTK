@@ -20,7 +20,7 @@ if (APPLE)
   list (LENGTH CMAKE_OSX_ARCHITECTURES ARCH_LENGTH)
   if (ARCH_LENGTH GREATER 1)
     set (CMAKE_OSX_ARCHITECTURES "" CACHE STRING "" FORCE)
-    message(FATAL_ERROR "Building Universal Binaries on OS X is NOT supported by the HDF5 project. This is"
+    message(FATAL_ERROR "HDF5: Building Universal Binaries on OS X is NOT supported by the HDF5 project. This is"
     "due to technical reasons. The best approach would be build each architecture in separate directories"
     "and use the 'lipo' tool to combine them into a single executable or library. The 'CMAKE_OSX_ARCHITECTURES'"
     "variable has been set to a blank value which will build the default architecture for this system.")
@@ -278,9 +278,9 @@ MACRO (HDF5_FUNCTION_TEST OTHER_TEST)
     )
     if (${OTHER_TEST})
       set (H5_${OTHER_TEST} 1 CACHE INTERNAL "Other test ${FUNCTION}")
-      message (STATUS "Performing Other Test ${OTHER_TEST} - Success")
+      message (STATUS "HDF5: Performing Other Test ${OTHER_TEST} - Success")
     else (${OTHER_TEST})
-      message (STATUS "Performing Other Test ${OTHER_TEST} - Failed")
+      message (STATUS "HDF5: Performing Other Test ${OTHER_TEST} - Failed")
       set (H5_${OTHER_TEST} "" CACHE INTERNAL "Other test ${FUNCTION}")
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Performing Other Test ${OTHER_TEST} failed with the following output:\n"
@@ -327,12 +327,12 @@ if (NOT MSVC)
   endif ("H5_HAVE_SYS_TIME_GETTIMEOFDAY" MATCHES "^H5_HAVE_SYS_TIME_GETTIMEOFDAY$")
 
   if (NOT HAVE_SYS_TIME_GETTIMEOFDAY AND NOT H5_HAVE_GETTIMEOFDAY)
-    message (STATUS "---------------------------------------------------------------")
-    message (STATUS "Function 'gettimeofday()' was not found. HDF5 will use its")
-    message (STATUS "  own implementation.. This can happen on older versions of")
-    message (STATUS "  MinGW on Windows. Consider upgrading your MinGW installation")
-    message (STATUS "  to a newer version such as MinGW 3.12")
-    message (STATUS "---------------------------------------------------------------")
+    message (STATUS "HDF5 ---------------------------------------------------------------")
+    message (STATUS "HDF5: Function 'gettimeofday()' was not found. HDF5 will use its")
+    message (STATUS "HDF5:  own implementation.. This can happen on older versions of")
+    message (STATUS "HDF5:  MinGW on Windows. Consider upgrading your MinGW installation")
+    message (STATUS "HDF5:  to a newer version such as MinGW 3.12")
+    message (STATUS "HDF5:---------------------------------------------------------------")
   endif (NOT HAVE_SYS_TIME_GETTIMEOFDAY AND NOT H5_HAVE_GETTIMEOFDAY)
 endif (NOT MSVC)
 
@@ -456,17 +456,17 @@ if (NOT WINDOWS)
         set (TEST_LFS_WORKS 1 CACHE INTERNAL ${msg})
         set (LARGEFILE 1)
         set (HDF5_EXTRA_FLAGS ${HDF5_EXTRA_FLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE)
-        message (STATUS "${msg}... yes")
+        message (STATUS "HDF5: ${msg}... yes")
       else (TEST_LFS_WORKS_RUN  MATCHES 0)
         set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... no")
+        message (STATUS "HDF5: ${msg}... no")
         file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
               "Test TEST_LFS_WORKS Run failed with the following output and exit code:\n ${OUTPUT}\n"
         )
       endif (TEST_LFS_WORKS_RUN  MATCHES 0)
     else (TEST_LFS_WORKS_COMPILE )
       set (TEST_LFS_WORKS "" CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... no")
+      message (STATUS "HDF5: ${msg}... no")
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Test TEST_LFS_WORKS Compile failed with the following output:\n ${OUTPUT}\n"
       )
@@ -746,9 +746,9 @@ MACRO (HDF5_CXX_FUNCTION_TEST OTHER_TEST)
     )
     if ("${OTHER_TEST}" EQUAL 0)
       set (${OTHER_TEST} 1 CACHE INTERNAL "CXX test ${FUNCTION}")
-      message (STATUS "Performing CXX Test ${OTHER_TEST} - Success")
+      message (STATUS "HDF5: Performing CXX Test ${OTHER_TEST} - Success")
     else ("${OTHER_TEST}" EQUAL 0)
-      message (STATUS "Performing CXX Test ${OTHER_TEST} - Failed")
+      message (STATUS "HDF5: Performing CXX Test ${OTHER_TEST} - Failed")
       set (${OTHER_TEST} "" CACHE INTERNAL "CXX test ${FUNCTION}")
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Performing CXX Test ${OTHER_TEST} failed with the following output:\n"
@@ -795,14 +795,14 @@ if (NOT WINDOWS)
         add_definitions ("-D_GNU_SOURCE")
       else (TEST_DIRECT_VFD_WORKS_RUN  MATCHES 0)
         set (TEST_DIRECT_VFD_WORKS "" CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... no")
+        message (STATUS "HDF5: ${msg}... no")
         file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
               "Test TEST_DIRECT_VFD_WORKS Run failed with the following output and exit code:\n ${OUTPUT}\n"
         )
       endif (TEST_DIRECT_VFD_WORKS_RUN  MATCHES 0)
     else (TEST_DIRECT_VFD_WORKS_COMPILE )
       set (TEST_DIRECT_VFD_WORKS "" CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... no")
+      message (STATUS "HDF5: ${msg}... no")
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Test TEST_DIRECT_VFD_WORKS Compile failed with the following output:\n ${OUTPUT}\n"
       )
@@ -815,7 +815,7 @@ endif (NOT WINDOWS)
 #-----------------------------------------------------------------------------
 if (WINDOWS)
   if (NOT HDF5_NO_IOEO_TEST)
-  message (STATUS "Checking for InitOnceExecuteOnce:")
+  message (STATUS "HDF5: Checking for InitOnceExecuteOnce:")
   if ("${H5_HAVE_IOEO}" MATCHES "^${H5_HAVE_IOEO}$")
     if (LARGEFILE)
       set (CMAKE_REQUIRED_DEFINITIONS
@@ -853,7 +853,7 @@ if (WINDOWS)
     # if the return value was 0 then it worked
     if ("${HAVE_IOEO_EXITCODE}" EQUAL 0)
       set (H5_HAVE_IOEO 1 CACHE INTERNAL "Test InitOnceExecuteOnce")
-      message (STATUS "Performing Test InitOnceExecuteOnce - Success")
+      message (STATUS "HDF5: Performing Test InitOnceExecuteOnce - Success")
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log 
         "Performing C SOURCE FILE Test InitOnceExecuteOnce succeded with the following output:\n"
         "${OUTPUT}\n"
@@ -865,7 +865,7 @@ if (WINDOWS)
         set (H5_HAVE_IOEO "" CACHE INTERNAL "Test InitOnceExecuteOnce")
       endif (CMAKE_CROSSCOMPILING AND "${HAVE_IOEO_EXITCODE}" MATCHES  "FAILED_TO_RUN")
 
-      message (STATUS "Performing Test InitOnceExecuteOnce - Failed")
+      message (STATUS "HDF5: Performing Test InitOnceExecuteOnce - Failed")
       file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log 
         "Performing InitOnceExecuteOnce Test  failed with the following output:\n"
         "${OUTPUT}\n"
@@ -902,7 +902,7 @@ endif (INLINE_TEST___inline__)
 #-----------------------------------------------------------------------------
 if (NOT H5_PRINTF_LL_WIDTH OR H5_PRINTF_LL_WIDTH MATCHES "unknown")
   set (PRINT_LL_FOUND 0)
-  message (STATUS "Checking for appropriate format for 64 bit long:")
+  message (STATUS "HDF5: Checking for appropriate format for 64 bit long:")
   foreach (HDF5_PRINTF_LL l64 l L q I64 ll)
     set (CURRENT_TEST_DEFINITIONS "-DPRINTF_LL_WIDTH=${HDF5_PRINTF_LL}")
     if (H5_SIZEOF_LONG_LONG)
@@ -919,7 +919,7 @@ if (NOT H5_PRINTF_LL_WIDTH OR H5_PRINTF_LL_WIDTH MATCHES "unknown")
         set (H5_PRINTF_LL_WIDTH "\"${HDF5_PRINTF_LL}\"" CACHE INTERNAL "Width for printf for type `long long' or `__int64', us. `ll")
         set (PRINT_LL_FOUND 1)
       else (HDF5_PRINTF_LL_TEST_RUN MATCHES 0)
-        message ("Width with ${HDF5_PRINTF_LL} failed with result: ${HDF5_PRINTF_LL_TEST_RUN}")
+        message ("HDF5: Width with ${HDF5_PRINTF_LL} failed with result: ${HDF5_PRINTF_LL_TEST_RUN}")
       endif (HDF5_PRINTF_LL_TEST_RUN MATCHES 0)
     else (HDF5_PRINTF_LL_TEST_COMPILE)
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
@@ -929,9 +929,9 @@ if (NOT H5_PRINTF_LL_WIDTH OR H5_PRINTF_LL_WIDTH MATCHES "unknown")
   endforeach (HDF5_PRINTF_LL)
 
   if (PRINT_LL_FOUND)
-    message (STATUS "Checking for apropriate format for 64 bit long: found ${H5_PRINTF_LL_WIDTH}")
+    message (STATUS "HDF5: Checking for apropriate format for 64 bit long: found ${H5_PRINTF_LL_WIDTH}")
   else (PRINT_LL_FOUND)
-    message (STATUS "Checking for apropriate format for 64 bit long: not found")
+    message (STATUS "HDF5: Checking for apropriate format for 64 bit long: not found")
     set (H5_PRINTF_LL_WIDTH "\"unknown\"" CACHE INTERNAL
         "Width for printf for type `long long' or `__int64', us. `ll"
     )
@@ -968,17 +968,17 @@ MACRO (H5ConversionTests TEST msg)
     if (${TEST}_COMPILE)
       if (${TEST}_RUN  MATCHES 0)
         set (${TEST} 1 CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... yes")
+        message (STATUS "HDF5: ${msg}... yes")
       else (${TEST}_RUN  MATCHES 0)
         set (${TEST} "" CACHE INTERNAL ${msg})
-        message (STATUS "${msg}... no")
+        message (STATUS "HDF5: ${msg}... no")
         file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
               "Test ${TEST} Run failed with the following output and exit code:\n ${OUTPUT}\n"
         )
       endif (${TEST}_RUN  MATCHES 0)
     else (${TEST}_COMPILE )
       set (${TEST} "" CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... no")
+      message (STATUS "HDF5: ${msg}... no")
       file (APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Test ${TEST} Compile failed with the following output:\n ${OUTPUT}\n"
       )
@@ -994,10 +994,10 @@ MACRO (H5MiscConversionTest  VAR TEST msg)
   if ("${TEST}" MATCHES "^${TEST}$")
     if (${VAR})
       set (${TEST} 1 CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... yes")
+      message (STATUS "HDF5: ${msg}... yes")
     else (${VAR})
       set (${TEST} "" CACHE INTERNAL ${msg})
-      message (STATUS "${msg}... no")
+      message (STATUS "HDF5: ${msg}... no")
     endif (${VAR})
   endif ("${TEST}" MATCHES "^${TEST}$")
 ENDMACRO (H5MiscConversionTest)
@@ -1084,7 +1084,7 @@ H5ConversionTests (H5_LDOUBLE_TO_UINT_ACCURATE "Checking IF correctly converting
 #
 if (H5_ULLONG_TO_FP_CAST_WORKS MATCHES ^H5_ULLONG_TO_FP_CAST_WORKS$)
   set (H5_ULLONG_TO_FP_CAST_WORKS 1 CACHE INTERNAL "Checking IF compiling unsigned long long to floating-point typecasts work")
-  message (STATUS "Checking IF compiling unsigned long long to floating-point typecasts work... yes")
+  message (STATUS "HDF5: Checking IF compiling unsigned long long to floating-point typecasts work... yes")
 endif (H5_ULLONG_TO_FP_CAST_WORKS MATCHES ^H5_ULLONG_TO_FP_CAST_WORKS$)
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine can _compile_
@@ -1093,7 +1093,7 @@ endif (H5_ULLONG_TO_FP_CAST_WORKS MATCHES ^H5_ULLONG_TO_FP_CAST_WORKS$)
 #
 if (H5_LLONG_TO_FP_CAST_WORKS MATCHES ^H5_LLONG_TO_FP_CAST_WORKS$)
   set (H5_LLONG_TO_FP_CAST_WORKS 1 CACHE INTERNAL "Checking IF compiling long long to floating-point typecasts work")
-  message (STATUS "Checking IF compiling long long to floating-point typecasts work... yes")
+  message (STATUS "HDF5: Checking IF compiling long long to floating-point typecasts work... yes")
 endif (H5_LLONG_TO_FP_CAST_WORKS MATCHES ^H5_LLONG_TO_FP_CAST_WORKS$)
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine can convert from
@@ -1124,7 +1124,7 @@ H5ConversionTests (H5_FP_TO_INTEGER_OVERFLOW_WORKS  "Checking IF overflows norma
 #
 if (H5_LDOUBLE_TO_LONG_SPECIAL MATCHES ^H5_LDOUBLE_TO_LONG_SPECIAL$)
   set (H5_LDOUBLE_TO_LONG_SPECIAL 0 CACHE INTERNAL "Define if your system converts long double to (unsigned) long values with special algorithm")
-  message (STATUS "Checking IF your system converts long double to (unsigned) long values with special algorithm... no")
+  message (STATUS "HDF5: Checking IF your system converts long double to (unsigned) long values with special algorithm... no")
 endif (H5_LDOUBLE_TO_LONG_SPECIAL MATCHES ^H5_LDOUBLE_TO_LONG_SPECIAL$)
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine is using a special algorithm
@@ -1136,7 +1136,7 @@ endif (H5_LDOUBLE_TO_LONG_SPECIAL MATCHES ^H5_LDOUBLE_TO_LONG_SPECIAL$)
 #
 if (H5_LONG_TO_LDOUBLE_SPECIAL MATCHES ^H5_LONG_TO_LDOUBLE_SPECIAL$)
   set (H5_LONG_TO_LDOUBLE_SPECIAL 0 CACHE INTERNAL "Define if your system can convert (unsigned) long to long double values with special algorithm")
-  message (STATUS "Checking IF your system can convert (unsigned) long to long double values with special algorithm... no")
+  message (STATUS "HDF5: Checking IF your system can convert (unsigned) long to long double values with special algorithm... no")
 endif (H5_LONG_TO_LDOUBLE_SPECIAL MATCHES ^H5_LONG_TO_LDOUBLE_SPECIAL$)
 # ----------------------------------------------------------------------
 # Set the flag to indicate that the machine can accurately convert
@@ -1164,7 +1164,7 @@ H5ConversionTests (H5_LLONG_TO_LDOUBLE_CORRECT "Checking IF correctly converting
 #
 if (H5_BAD_LOG2_CODE_GENERATED MATCHES ^H5_BAD_LOG2_CODE_GENERATED$)
   set (H5_BAD_LOG2_CODE_GENERATED 0 CACHE INTERNAL "Define if your system generates wrong code for log2 routine")
-  message (STATUS "Checking IF your system generates wrong code for log2 routine... no")
+  message (STATUS "HDF5: Checking IF your system generates wrong code for log2 routine... no")
 endif (H5_BAD_LOG2_CODE_GENERATED MATCHES ^H5_BAD_LOG2_CODE_GENERATED$)
 # ----------------------------------------------------------------------
 # Check if pointer alignments are enforced

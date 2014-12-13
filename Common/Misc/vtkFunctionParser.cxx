@@ -165,12 +165,7 @@ int vtkFunctionParser::Parse()
     return 0;
     }
 
-  result = this->BuildInternalFunctionStructure();
-  if (!result)
-    {
-    vtkErrorMacro("Parse: Error creating internal structure for parse string");
-    return 0;
-    }
+  this->BuildInternalFunctionStructure();
 
   // need to make sure that the ambiguous operators are correct
   // - scalar/vector +
@@ -244,6 +239,7 @@ int vtkFunctionParser::DisambiguateOperators()
                  (tempStack[tempStackPtr] != 0 &&
                   tempStack[tempStackPtr-1] == 0))
           {
+          delete [] tempStack;
           vtkErrorMacro("addition expects either 2 vectors or 2 scalars");
           return 0;
           }
@@ -259,7 +255,8 @@ int vtkFunctionParser::DisambiguateOperators()
                  (tempStack[tempStackPtr] != 0 &&
                   tempStack[tempStackPtr-1] == 0))
           {
-          vtkErrorMacro("addition expects either 2 vectors or 2 scalars");
+          delete [] tempStack;
+          vtkErrorMacro("subtraction expects either 2 vectors or 2 scalars");
           return 0;
           }
         tempStackPtr--;
@@ -278,7 +275,8 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         else if (tempStack[tempStackPtr] == 1)
           {
-          vtkErrorMacro("expecting either 2 scalars or a scalar and"
+          delete [] tempStack;
+          vtkErrorMacro("multiply expecting either 2 scalars or a scalar and"
                         << " a vector");
           return 0;
           }
@@ -293,17 +291,21 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         else if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't divide vectors");
           return 0;
           }
         tempStackPtr--;
         break;
       case VTK_PARSER_POWER:
-        if (tempStack[tempStackPtr] == 1)
+        if (tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't raise a vector to a power");
           return 0;
           }
+        tempStackPtr--;
+        break;
       case VTK_PARSER_LESS_THAN:
       case VTK_PARSER_GREATER_THAN:
       case VTK_PARSER_EQUAL_TO:
@@ -311,6 +313,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_OR:
         if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("Vectors cannot be used in boolean expressions.");
           return 0;
           }
@@ -336,6 +339,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_SIGN:
         if (tempStack[tempStackPtr] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("expecting a scalar, but got a vector");
           return 0;
           }
@@ -343,6 +347,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_MIN:
         if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't apply min to vectors");
           return 0;
           }
@@ -351,6 +356,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_MAX:
         if (tempStack[tempStackPtr] == 1 || tempStack[tempStackPtr-1] == 1)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't apply max to vectors");
           return 0;
           }
@@ -359,105 +365,26 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_CROSS:
         if (tempStack[tempStackPtr] == 0 || tempStack[tempStackPtr-1] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("can't apply cross to scalars");
           return 0;
           }
         tempStackPtr--;
         break;
-      case VTK_PARSER_VECTOR_UNARY_MINUS:
-        if (tempStack[tempStackPtr] == 0)
-          {
-          this->ByteCode[i] = VTK_PARSER_UNARY_MINUS;
-          }
-        break;
       case VTK_PARSER_DOT_PRODUCT:
         if (tempStack[tempStackPtr] == 0 || tempStack[tempStackPtr-1] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("dot product does not operate on scalars");
           return 0;
           }
         tempStack[tempStackPtr-1] = 0;
         tempStackPtr--;
         break;
-      case VTK_PARSER_VECTOR_ADD:
-        if (tempStack[tempStackPtr] != 1 && tempStack[tempStackPtr-1] != 1)
-          {
-          this->ByteCode[i] = VTK_PARSER_ADD;
-          }
-        else if ((tempStack[tempStackPtr] == 0 &&
-                  tempStack[tempStackPtr-1] != 0) ||
-                 (tempStack[tempStackPtr] != 0 &&
-                  tempStack[tempStackPtr-1] == 0))
-          {
-          vtkErrorMacro("addition expects either 2 vectors or 2 scalars");
-          return 0;
-          }
-        tempStackPtr--;
-        break;
-      case VTK_PARSER_VECTOR_SUBTRACT:
-        if (tempStack[tempStackPtr] != 1 && tempStack[tempStackPtr-1] != 1)
-          {
-          this->ByteCode[i] = VTK_PARSER_SUBTRACT;
-          }
-        else if ((tempStack[tempStackPtr] == 0 &&
-                  tempStack[tempStackPtr-1] != 0) ||
-                 (tempStack[tempStackPtr] != 0 &&
-                  tempStack[tempStackPtr-1] == 0))
-          {
-          vtkErrorMacro("subtraction expects either 2 vectors or 2 scalars");
-          return 0;
-          }
-        tempStackPtr--;
-        break;
-      case VTK_PARSER_SCALAR_TIMES_VECTOR:
-        if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
-          {
-          this->ByteCode[i] = VTK_PARSER_MULTIPLY;
-          }
-        else if (tempStack[tempStackPtr-1] == 1 &&
-                 tempStack[tempStackPtr] == 0)
-          {
-          this->ByteCode[i] = VTK_PARSER_VECTOR_TIMES_SCALAR;
-          }
-        else
-          {
-          vtkErrorMacro("expecting a scalar followed by a vector");
-          return 0;
-          }
-        tempStackPtr--;
-        break;
-      case VTK_PARSER_VECTOR_TIMES_SCALAR:
-        if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
-          {
-          this->ByteCode[i] = VTK_PARSER_MULTIPLY;
-          }
-        else if (tempStack[tempStackPtr-1] == 0 &&
-                 tempStack[tempStackPtr] == 1)
-          {
-          this->ByteCode[i] = VTK_PARSER_SCALAR_TIMES_VECTOR;
-          }
-        else
-          {
-          vtkErrorMacro("expecting a vector followed by a scalar");
-          return 0;
-          }
-        tempStackPtr--;
-        break;
-      case VTK_PARSER_VECTOR_OVER_SCALAR:
-        if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
-          {
-          this->ByteCode[i] = VTK_PARSER_DIVIDE;
-          }
-        else if (tempStack[tempStackPtr-1] == 0 && tempStack[tempStackPtr] == 1)
-          {
-          vtkErrorMacro("expecting a vector followed by a scalar");
-          return 0;
-          }
-        tempStackPtr--;
-        break;
       case VTK_PARSER_MAGNITUDE:
         if (tempStack[tempStackPtr] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("magnitude expects a vector, but got a scalar");
           return 0;
           }
@@ -466,6 +393,7 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_NORMALIZE:
         if (tempStack[tempStackPtr] == 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("normalize expects a vector, but got a scalar");
           return 0;
           }
@@ -482,6 +410,7 @@ int vtkFunctionParser::DisambiguateOperators()
         // tempStack[0] is valfalse.
         if (tempStack[tempStackPtr] != 0)
           {
+          delete [] tempStack;
           vtkErrorMacro("first argument of if(bool,valtrue,valfalse) cannot be a vector");
           return 0;
           }
@@ -495,31 +424,7 @@ int vtkFunctionParser::DisambiguateOperators()
                  (tempStack[tempStackPtr-1] != 0 &&
                   tempStack[tempStackPtr-2] == 0))
           {
-          vtkErrorMacro("the if function expects the second and third arguments to be either 2 vectors or 2 scalars");
-          return 0;
-          }
-        tempStackPtr--;
-        tempStackPtr--;
-        break;
-      case VTK_PARSER_VECTOR_IF:
-        // tempStack[tempStackPtr] = tempStack[2] refers to the bool argument
-        // of if(bool,valtrue,valfalse). tempStack[1] is valtrue, and
-        // tempStack[0] is valfalse.
-        if (tempStack[tempStackPtr] != 0)
-          {
-          vtkErrorMacro("first argument of if(bool,valtrue,valfalse) cannot be a vector");
-          return 0;
-          }
-        else if (tempStack[tempStackPtr-1] != 1 &&
-                 tempStack[tempStackPtr-2] != 1)
-          {
-          this->ByteCode[i] = VTK_PARSER_IF;
-          }
-        else if ((tempStack[tempStackPtr-1] == 0 &&
-                  tempStack[tempStackPtr-2] != 0) ||
-                 (tempStack[tempStackPtr-1] != 0 &&
-                  tempStack[tempStackPtr-2] == 0))
-          {
+          delete [] tempStack;
           vtkErrorMacro("the if function expects the second and third arguments to be either 2 vectors or 2 scalars");
           return 0;
           }
@@ -640,7 +545,7 @@ bool vtkFunctionParser::Evaluate()
             }
           else
             {
-            vtkErrorMacro("Trying to take a logarithm of a negative value");
+            vtkErrorMacro("Trying to take a log of a negative value");
             return false;
             }
           }
@@ -658,7 +563,7 @@ bool vtkFunctionParser::Evaluate()
             }
           else
             {
-            vtkErrorMacro("Trying to take a logarithm of a negative value");
+            vtkErrorMacro("Trying to take a natural logarithm of a negative value");
             return false;
             }
           }
@@ -676,14 +581,14 @@ bool vtkFunctionParser::Evaluate()
             }
           else
             {
-            vtkErrorMacro("Trying to take a logarithm of a negative value");
+            vtkErrorMacro("Trying to take a log10 of a negative value");
             return false;
             }
           }
         else
           {
           this->Stack[stackPosition] =
-            log(this->Stack[stackPosition])/log(static_cast<double>(10));
+            log10(this->Stack[stackPosition]);
           }
         break;
       case VTK_PARSER_SQUARE_ROOT:
@@ -722,7 +627,7 @@ bool vtkFunctionParser::Evaluate()
             }
           else
             {
-            vtkErrorMacro("Trying to take asin of a value < -1 or > 1");
+            vtkErrorMacro("Trying to take asin of a value < -1 or > 1. Arg is q" << this->Stack[stackPosition]);
             return false;
             }
           }
@@ -740,7 +645,7 @@ bool vtkFunctionParser::Evaluate()
             }
           else
             {
-            vtkErrorMacro("Trying to take acos of a value < -1 or > 1");
+            vtkErrorMacro("Trying to take acos of a value < -1 or > 1. Arg is q" << this->Stack[stackPosition]);
             return false;
             }
           }
@@ -1176,7 +1081,7 @@ double vtkFunctionParser::GetScalarVariableValue(const char* inVariableName)
       return this->ScalarVariableValues[i];
       }
     }
-  vtkErrorMacro("GetScalarVariableValue: scalar variable " << variableName
+  vtkErrorMacro("GetScalarVariableValue: scalar variable name " << variableName
                 << " does not exist");
   delete [] variableName;
   return VTK_PARSER_ERROR_RESULT;
@@ -1187,7 +1092,7 @@ double vtkFunctionParser::GetScalarVariableValue(int i)
 {
   if (i < 0 || i >= this->NumberOfScalarVariables)
     {
-    vtkErrorMacro("GetScalarVariableValue: scalar variable " << i
+    vtkErrorMacro("GetScalarVariableValue: scalar variable number " << i
                   << " does not exist");
     return VTK_PARSER_ERROR_RESULT;
     }
@@ -1311,7 +1216,7 @@ double* vtkFunctionParser::GetVectorVariableValue(const char* inVariableName)
       return this->VectorVariableValues[i];
       }
     }
-  vtkErrorMacro("GetVectorVariableValue: vector variable " << variableName
+  vtkErrorMacro("GetVectorVariableValue: vector variable name " << variableName
                 << " does not exist");
   delete [] variableName;
   return vtkParserVectorErrorResult;
@@ -1322,7 +1227,7 @@ double* vtkFunctionParser::GetVectorVariableValue(int i)
 {
   if (i < 0 || i >= this->NumberOfVectorVariables)
     {
-    vtkErrorMacro("GetVectorVariableValue: vector variable " << i
+    vtkErrorMacro("GetVectorVariableValue: vector variable number " << i
                   << " does not exist");
     return vtkParserVectorErrorResult;
     }
@@ -2196,6 +2101,8 @@ void vtkFunctionParser::RemoveVectorVariables()
     {
     delete [] this->VectorVariableNames[i];
     this->VectorVariableNames[i] = NULL;
+    delete [] this->VectorVariableValues[i];
+    this->VectorVariableValues[i] = NULL;
     }
   if (this->NumberOfVectorVariables > 0)
     {
@@ -2216,7 +2123,7 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
 
     // Reset previous error cache.
     this->ParseErrorPositon = -1;
-    this->ParseError        = NULL;
+    this->SetParseError(0);
 
     this->CopyParseError(pos, error);
     }
@@ -2319,10 +2226,10 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
       index += this->GetMathConstantStringLength(constantNumber);
       currentChar = this->Function[index];
       }
-    // End paraenthesis should indicate that the next character might be a
+    // End parenthesis should indicate that the next character might be a
     // comma. This is a hack because the while (currentChar == ') below checks
     // for an incorrect number of commas.
-    else if (currentChar == ')')
+    else if (currentChar == ')' && this->Function[index - 1] != '(')
       {
       ++index;
       currentChar = this->Function[index];
@@ -2499,6 +2406,34 @@ void vtkFunctionParser::RemoveAllVariables()
 }
 
 //-----------------------------------------------------------------------------
+unsigned long int vtkFunctionParser::GetMTime()
+{
+  unsigned long mTime = this->Superclass::GetMTime();
+
+  if (this->EvaluateMTime > mTime)
+    {
+    mTime = this->EvaluateMTime;
+    }
+  if (this->VariableMTime > mTime)
+    {
+    mTime = this->VariableMTime;
+    }
+  if (this->ParseMTime > mTime)
+    {
+    mTime = this->ParseMTime;
+    }
+  if (this->FunctionMTime > mTime)
+    {
+    mTime = this->FunctionMTime;
+    }
+  if (this->CheckMTime > mTime)
+    {
+    mTime = this->CheckMTime;
+    }
+
+  return mTime;
+}
+//-----------------------------------------------------------------------------
 void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -2506,13 +2441,13 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
   int i;
 
   os << indent << "Function: "
-     << (this->Function ? this->Function : "(none)") << endl;
+     << (this->GetFunction() ? this->GetFunction() : "(none)") << endl;
 
   os << indent << "FunctionWithSpaces: "
      << (this->FunctionWithSpaces ? this->FunctionWithSpaces : "(none)") << endl;
 
   os << indent << "NumberOfScalarVariables: "
-     << this->NumberOfScalarVariables << endl;
+     << this->GetNumberOfScalarVariables() << endl;
 
   for (i = 0; i < this->NumberOfScalarVariables; i++)
     {
@@ -2521,7 +2456,7 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "NumberOfVectorVariables: "
-     << this->NumberOfVectorVariables << endl;
+     << this->GetNumberOfVectorVariables() << endl;
 
   for (i = 0; i < this->NumberOfVectorVariables; i++)
     {
@@ -2556,8 +2491,8 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Replace Invalid Values: "
-     << (this->ReplaceInvalidValues ? "On" : "Off") << endl;
-  os << indent << "Replacement Value: " << this->ReplacementValue << endl;
+     << (this->GetReplaceInvalidValues() ? "On" : "Off") << endl;
+  os << indent << "Replacement Value: " << this->GetReplacementValue() << endl;
 
   os << indent << "Parse Error Position: " << this->ParseErrorPositon << endl;
 

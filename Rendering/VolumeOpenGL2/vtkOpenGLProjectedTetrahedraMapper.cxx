@@ -50,7 +50,6 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
 #include <cmath>
@@ -1016,17 +1015,16 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         }
 
       // add the points to the VBO
-      unsigned char c[4];
-      c[3] =  255;
+      union { unsigned char c[4]; float f; } v = { { 0, 0, 0, 255 } };
       for (int ptIdx = 0; ptIdx < 5; ptIdx++)
         {
         *(it++) = tet_points[ptIdx*3];
         *(it++) = tet_points[ptIdx*3+1];
         *(it++) = tet_points[ptIdx*3+2];
-        c[0] = tet_colors[ptIdx*3];
-        c[1] = tet_colors[ptIdx*3+1];
-        c[2] = tet_colors[ptIdx*3+2];
-        *(it++) = *reinterpret_cast<float *>(c);
+        v.c[0] = tet_colors[ptIdx*3];
+        v.c[1] = tet_colors[ptIdx*3+1];
+        v.c[2] = tet_colors[ptIdx*3+2];
+        *(it++) = v.f;
         *(it++) = tet_texcoords[ptIdx*2]; // attenuation
         *(it++) = tet_texcoords[ptIdx*2+1]; // depth
         }

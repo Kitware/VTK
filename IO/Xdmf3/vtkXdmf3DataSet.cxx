@@ -157,7 +157,7 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
     vArray->SetName(attrName.c_str());
 
     std::vector<unsigned int> dims = xArray->getDimensions();
-    unsigned int ndims = dims.size();
+    unsigned int ndims = static_cast<unsigned int>(dims.size());
     unsigned int ncomp = preferredComponents;
     if (preferredComponents == 0) //caller doesn't know what to expect,
       {
@@ -454,7 +454,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 
     //figure out how many components in this array
     std::vector<unsigned int> dims = xmfAttribute->getDimensions();
-    unsigned int ndims = dims.size();
+    unsigned int ndims = static_cast<unsigned int>(dims.size());
     unsigned int nvals = 1;
     for (unsigned int i = 0; i < dims.size(); i++)
       {
@@ -1086,7 +1086,8 @@ void vtkXdmf3DataSet::CopyShape(
 void vtkXdmf3DataSet::VTKToXdmf(
   vtkImageData *dataSet,
   XdmfDomain *domain,
-  bool hasTime, double time)
+  bool hasTime, double time,
+  const char* name)
 {
   int whole_extent[6];
   dataSet->GetExtent(whole_extent);
@@ -1102,6 +1103,10 @@ void vtkXdmf3DataSet::VTKToXdmf(
     spacing[2], spacing[1], spacing[0],
     dims[2], dims[1], dims[0],
     origin[2], origin[1], origin[0]);
+  if (name)
+    {
+    grid->setName(std::string(name));
+    }
 
   vtkXdmf3DataSet::VTKToXdmfAttributes(dataSet, grid.get());
   vtkXdmf3DataSet::SetTime(grid.get(), hasTime, time);
@@ -1201,7 +1206,8 @@ void vtkXdmf3DataSet::CopyShape(
 void vtkXdmf3DataSet::VTKToXdmf(
   vtkRectilinearGrid *dataSet,
   XdmfDomain *domain,
-  bool hasTime, double time)
+  bool hasTime, double time,
+  const char* name)
 {
   vtkDataArray *vCoords = NULL;
   shared_ptr<XdmfArray> xXCoords = XdmfArray::New();
@@ -1229,6 +1235,11 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
   shared_ptr<XdmfRectilinearGrid> grid = XdmfRectilinearGrid::New(
     xXCoords, xYCoords, xZCoords);
+
+  if (name)
+    {
+    grid->setName(std::string(name));
+    }
 
   vtkXdmf3DataSet::VTKToXdmfAttributes(dataSet, grid.get());
   vtkXdmf3DataSet::SetTime(grid.get(), hasTime, time);
@@ -1322,7 +1333,8 @@ void vtkXdmf3DataSet::CopyShape(
 void vtkXdmf3DataSet::VTKToXdmf(
   vtkStructuredGrid *dataSet,
   XdmfDomain *domain,
-  bool hasTime, double time)
+  bool hasTime, double time,
+  const char* name)
 {
   int whole_extent[6];
   whole_extent[0] = 0;
@@ -1354,6 +1366,11 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
   shared_ptr<XdmfCurvilinearGrid> grid = XdmfCurvilinearGrid::New(xdims);
   grid->setGeometry(xCoords);
+
+  if (name)
+    {
+    grid->setName(std::string(name));
+    }
 
   vtkXdmf3DataSet::VTKToXdmfAttributes(dataSet, grid.get());
   vtkXdmf3DataSet::SetTime(grid.get(), hasTime, time);
@@ -1530,7 +1547,8 @@ void vtkXdmf3DataSet::CopyShape(
 void vtkXdmf3DataSet::VTKToXdmf(
   vtkPointSet *dataSet,
   XdmfDomain *domain,
-  bool hasTime, double time)
+  bool hasTime, double time,
+  const char* name)
 {
   vtkDataArray *vCoords = dataSet->GetPoints()->GetData();
   shared_ptr<XdmfGeometry> xCoords = XdmfGeometry::New();
@@ -1542,11 +1560,15 @@ void vtkXdmf3DataSet::VTKToXdmf(
   xCoords->setType(XdmfGeometryType::XYZ());
 
   shared_ptr<XdmfUnstructuredGrid> grid = XdmfUnstructuredGrid::New();
-
+  if (name)
+    {
+    grid->setName(std::string(name));
+    }
   grid->setGeometry(xCoords);
 
   shared_ptr<XdmfTopology> xTopology = XdmfTopology::New();
   grid->setTopology(xTopology);
+
 
   //TODO: homogeneous case in old reader _might_ be faster
   //for simplicity I am treating all dataSets as having mixed cell types
@@ -1751,7 +1773,8 @@ void vtkXdmf3DataSet::XdmfToVTK(
 void vtkXdmf3DataSet::VTKToXdmf(
   vtkDirectedGraph *dataSet,
   XdmfDomain *domain,
-  bool hasTime, double time)
+  bool hasTime, double time,
+  const char* name)
 {
   //get list of vertices
   vtkSmartPointer<vtkVertexListIterator> vit =
@@ -1806,6 +1829,10 @@ void vtkXdmf3DataSet::VTKToXdmf(
   grid->setValues(mValues);
   grid->setColumnIndex(mColumnIndex);
   grid->setRowPointer(mRowPointer);
+  if (name)
+    {
+    grid->setName(std::string(name));
+    }
 
   vtkFieldData *fd;
   shared_ptr<const XdmfAttributeCenter> center;
@@ -1886,7 +1913,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 
     //figure out how many components in this array
     std::vector<unsigned int> dims = xmfAttribute->getDimensions();
-    unsigned int ndims = dims.size();
+    unsigned int ndims = static_cast<unsigned int>(dims.size());
     unsigned int nvals = 1;
     for (unsigned int i = 0; i < dims.size(); i++)
       {

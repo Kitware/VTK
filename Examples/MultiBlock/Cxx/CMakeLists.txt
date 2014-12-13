@@ -14,7 +14,7 @@ find_package(VTK COMPONENTS
   vtkFiltersSources
   vtkIOXML
   vtkInteractionStyle
-  vtkRenderingOpenGL
+  vtkRendering${VTK_RENDERING_BACKEND}
   vtkTestingCore
   vtksys
 )

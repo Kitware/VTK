@@ -235,6 +235,11 @@ public:
   virtual void SetCurrentCursor(int);
 
   // Description:
+  // Get the ViewCreated flag. It is 1 if this object created an instance
+  // of NSView, 0 otherwise.
+  virtual int GetViewCreated();
+
+  // Description:
   // Get the WindowCreated flag. It is 1 if this object created an instance
   // of NSWindow, 0 otherwise.
   virtual int GetWindowCreated();

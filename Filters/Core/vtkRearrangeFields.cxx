@@ -190,6 +190,7 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
       {
       vtkWarningMacro("Can not apply operation " << op->Id
                       << ": Input has to be vtkDataSetAttributes.");
+      return;
       }
     outputFD->AddArray(dsa->GetAbstractAttribute(op->AttributeType));
     // If moving the array, make sure that it is not copied

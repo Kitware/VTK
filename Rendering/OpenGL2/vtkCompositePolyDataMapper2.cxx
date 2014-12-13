@@ -572,15 +572,18 @@ void vtkCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
         helper = found->second;
         }
       helper->CurrentInput = ds;
-      helper->RenderPieceStart(renderer,actor);
-      helper->RenderPieceDraw(renderer,actor);
-      if (draw_surface_with_edges)
+      if (ds && ds->GetPoints())
         {
-        this->BlockState.AmbientColor.push(ecolor);
-        helper->RenderEdges(renderer,actor);
-        this->BlockState.AmbientColor.pop();
+        helper->RenderPieceStart(renderer,actor);
+        helper->RenderPieceDraw(renderer,actor);
+        if (draw_surface_with_edges)
+          {
+          this->BlockState.AmbientColor.push(ecolor);
+          helper->RenderEdges(renderer,actor);
+          this->BlockState.AmbientColor.pop();
+          }
+        helper->RenderPieceFinish(renderer,actor);
         }
-      helper->RenderPieceFinish(renderer,actor);
       }
 
     if (selector)
