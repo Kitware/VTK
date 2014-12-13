@@ -414,6 +414,10 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
     {
     this->Pass->ReleaseGraphicsResources(w);
     }
+  if (w && this->DepthPeelingPass)
+    {
+    this->DepthPeelingPass->ReleaseGraphicsResources(w);
+    }
 }
 
 void vtkOpenGLRenderer::UpdatePickId()
