@@ -1710,6 +1710,7 @@ vtkIdTypeArray **
           "vtkDistributedDataFilter::ExchangeIdArrays memory allocation");
         delete [] sendSize;
         delete [] recvSize;
+        delete [] recvArrays;
         return NULL;
         }
       mpiContr->NoBlockReceive(recvArrays[source], recvSize[source], source, tag, req);
@@ -1859,6 +1860,7 @@ vtkUnstructuredGrid *
         {
         vtkErrorMacro(<<
           "vtkDistributedDataFilter::ExchangeMergeSubGrids memory allocation");
+        delete [] grids;
         return NULL;
         }
       recvBufSize = packedGridRecvSize;
