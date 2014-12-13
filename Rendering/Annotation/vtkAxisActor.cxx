@@ -679,7 +679,7 @@ int vtkAxisActor::HasTranslucentPolygonalGeometry()
       }
 
     if (this->DrawGridpolys &&
-        this-GridpolysActor->HasTranslucentPolygonalGeometry())
+        this->GridpolysActor->HasTranslucentPolygonalGeometry())
       {
       return 1;
       }
