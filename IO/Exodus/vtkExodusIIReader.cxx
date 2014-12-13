@@ -3087,7 +3087,7 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
     binfo.CellType=VTK_POLY_VERTEX;
     binfo.PointsPerCell = binfo.BdsPerEntry[0];
     }
-  else if ((elemType.substr(0,8) == "NULL") && (binfo.Size == 0))
+  else if ((elemType.substr(0,4) == "NULL") && (binfo.Size == 0))
     {
     (void)binfo; // silently ignore empty element blocks
     }
