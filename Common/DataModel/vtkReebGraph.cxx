@@ -1067,8 +1067,8 @@ vtkReebGraph::Implementation::vtkReebPath vtkReebGraph::Implementation::FindPath
             delete aux.NodeTable;
           }
 
-          if (Ntouch) free(Ntouch);
-          if (Atouch) free(Atouch);
+          free(Ntouch);
+          free(Atouch);
 
           vtkIdType* tmp=new vtkIdType[entry.NodeNumber+1];
           memcpy(tmp,entry.NodeTable,sizeof(vtkIdType)*entry.NodeNumber);
