@@ -27,6 +27,7 @@
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 #include <climits>
+#include <cassert>
 
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 
@@ -256,11 +257,13 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   int bitShift = 0;
   double absScale = ((scale < 0) ? -scale : scale);
 
-  while ((static_cast<long>(1 << bitShift)*absScale)*2.0*USHRT_MAX < INT_MAX*1.0)
+  while ((1UL << bitShift)*absScale*2.0*USHRT_MAX < INT_MAX*1.0)
     {
     bitShift++;
     }
   bitShift--;
+  assert(bitShift >= 0);
+  assert(bitShift <= 30);
 
   long sscale = static_cast<long>(scale*(1 << bitShift));
   long sshift = static_cast<long>(sscale*shift);
