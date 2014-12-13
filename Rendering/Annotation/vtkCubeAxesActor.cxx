@@ -2206,8 +2206,6 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   double axis[3] = { p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2] };
   double axisLength = vtkMath::Norm(axis);
   double extents = range[1] - range[0];
-  double rangeScale = axisLength / extents;
-  double labelCountAsDouble = (axisLength - (val-range[0])*rangeScale) / deltaMajor;
   bool mustAdjustValue = 0;
   int lastPow = 0;
   int axisIndex = 0;
@@ -2238,12 +2236,14 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
     }
   customizedLabels = this->AxisLabels[axisIndex];
   // figure out how many labels we need:
-  if(extents == 0 || vtkMath::IsNan(labelCountAsDouble))
+  if(extents == 0)
     {
     labelCount = 0;
     }
   else
     {
+    double rangeScale = axisLength / extents;
+    double labelCountAsDouble = (axisLength - (val-range[0])*rangeScale) / deltaMajor;
     labelCount = vtkMath::Floor(labelCountAsDouble+2*FLT_EPSILON) + 1;
     }
 
