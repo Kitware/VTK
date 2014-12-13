@@ -256,9 +256,9 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
         else
           {
           entry->TemplateParameters = (const char **)realloc(
-            (char **)entry->TemplateParameters, (j+1)*sizeof(char *));
+            entry->TemplateParameters, (j+1)*sizeof(char *));
           entry->TemplateDefaults = (const char **)realloc(
-            (char **)entry->TemplateDefaults, (j+1)*sizeof(char *));
+            entry->TemplateDefaults, (j+1)*sizeof(char *));
           }
         entry->NumberOfTemplateParameters++;
         entry->TemplateDefaults[j] = NULL;
@@ -344,7 +344,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
         else
           {
           entry->SuperClasses = (const char **)realloc(
-            (char **)entry->SuperClasses, (j+1)*sizeof(char *));
+            entry->SuperClasses, (j+1)*sizeof(char *));
           entry->SuperClassIndex = (int *)realloc(
             entry->SuperClassIndex, (j+1)*sizeof(int));
           }
@@ -503,7 +503,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
         else
           {
           entry->Properties = (const char **)realloc(
-            (char **)entry->Properties,
+            entry->Properties,
             (entry->NumberOfProperties+1)*sizeof(char **));
           }
         n = 0;
@@ -545,17 +545,17 @@ void vtkParseHierarchy_Free(HierarchyInfo *info)
     entry = &info->Entries[i];
     if (entry->NumberOfTemplateParameters)
       {
-      free((char **)entry->TemplateParameters);
-      free((char **)entry->TemplateDefaults);
+      free(entry->TemplateParameters);
+      free(entry->TemplateDefaults);
       }
     if (entry->NumberOfSuperClasses)
       {
-      free((char **)entry->SuperClasses);
+      free(entry->SuperClasses);
       free(entry->SuperClassIndex);
       }
     if (entry->NumberOfProperties)
       {
-      free((char **)entry->Properties);
+      free(entry->Properties);
       }
     }
 
@@ -773,7 +773,7 @@ void vtkParseHierarchy_FreeTemplateArgs(int n, const char *args[])
     free((char *)args[i]);
     }
 
-  free((char **)args);
+  free(args);
 }
 
 /* Given a classname with template parameters, get the superclass name

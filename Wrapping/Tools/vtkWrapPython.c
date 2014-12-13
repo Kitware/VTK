@@ -229,7 +229,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
               {
               if (numTypes > 0 && (numTypes % 1000) == 0)
                 {
-                types = (const char **)realloc((char **)types,
+                types = realloc((char **)types,
                   (numTypes + 1000)*sizeof(const char *));
                 }
               types[numTypes++] = classname;
@@ -270,7 +270,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
       }
     }
 
-  free((char **)types);
+  free(types);
 }
 
 /* -------------------------------------------------------------------- */
@@ -332,7 +332,7 @@ static void vtkWrapPython_ImportExportEnumTypes(
               /* crude code to expand list as necessary */
               if (numTypes > 0 && (numTypes % 1000) == 0)
                 {
-                types = (const char **)realloc((char **)types,
+                types = realloc(types,
                   (numTypes + 1000)*sizeof(const char *));
                 }
               types[numTypes++] = val->Class;
@@ -396,7 +396,7 @@ static void vtkWrapPython_ImportExportEnumTypes(
       enumname, enumname);
     }
 
-  free((char **)types);
+  free(types);
 }
 
 /* -------------------------------------------------------------------- */
