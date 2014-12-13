@@ -612,6 +612,44 @@ int vtkPythonOverload::CheckArg(
           }
         }
 
+      // Enum type
+      else if (isalpha(classname[0]) ||
+               (classname[0] == '&' && isalpha(classname[1])))
+        {
+        if (classname[0] == '&')
+          {
+          classname++;
+          }
+        if (PyInt_Check(arg))
+          {
+          if (strcmp(arg->ob_type->tp_name, classname) == 0)
+            {
+            penalty = VTK_PYTHON_EXACT_MATCH;
+            }
+          else
+            {
+            /* tp_name doesn't include namespace, so we also allow
+               matches between "name" and "namespace.name" */
+            size_t l, m;
+            l = strlen(arg->ob_type->tp_name);
+            m = strlen(classname);
+            if (l < m && !isalnum(classname[m-l-1]) &&
+                strcmp(arg->ob_type->tp_name, &classname[m-l]) == 0)
+              {
+              penalty = VTK_PYTHON_GOOD_MATCH;
+              }
+            else
+              {
+              penalty = VTK_PYTHON_NEEDS_CONVERSION;
+              }
+            }
+          }
+        else
+          {
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
+        }
+
       // An array
       else if (classname[0] == '*')
         {
