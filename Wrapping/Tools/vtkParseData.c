@@ -316,7 +316,7 @@ void vtkParse_FreeValue(ValueInfo *value_info)
 {
   if (value_info->NumberOfDimensions)
     {
-    free((char **)value_info->Dimensions);
+    free(value_info->Dimensions);
     }
   if (value_info->Function)
     {
@@ -560,7 +560,7 @@ void vtkParse_FreeClass(ClassInfo *class_info)
   if (class_info->Template) { vtkParse_FreeTemplate(class_info->Template); }
 
   m = class_info->NumberOfSuperClasses;
-  if (m > 0) { free((char **)class_info->SuperClasses); }
+  if (m > 0) { free(class_info->SuperClasses); }
 
   m = class_info->NumberOfClasses;
   for (j = 0; j < m; j++) { vtkParse_FreeClass(class_info->Classes[j]); }
@@ -663,7 +663,7 @@ void vtkParse_AddStringToArray(
   const char ***valueArray, int *count, const char *value)
 {
   *valueArray = (const char **)array_size_check(
-    (char **)*valueArray, sizeof(const char *), *count);
+    *valueArray, sizeof(const char *), *count);
 
   (*valueArray)[(*count)++] = value;
 }
