@@ -171,7 +171,7 @@ double vtkBox::EvaluateFunction(double x[3])
     else
       {
       dist = fabs(x[i]-minP[i]);
-      if (dist)
+      if ( dist > 0.0 )
         {
         inside = 0;
         }
