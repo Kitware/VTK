@@ -1415,7 +1415,7 @@ void vtkHyperTreeGrid::TraverseDualMaskedLeaf(
   vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
 
   // Check across D-face neighbors whether point must be adjusted
-  unsigned int f = 1;
+  int f = 1;
   for ( unsigned int d = 0; d < this->Dimension; ++ d, f *= 3 )
     {
     // For each direction, check both orientations
@@ -1573,7 +1573,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
   //   (D-2)-faces are corners, neighbors are +/-  5, 7, 11, 13
 
   // Check across D-face neighbors whether point must be adjusted
-  unsigned int f = 1;
+  int f = 1;
   for ( unsigned int d = 0; d < this->Dimension; ++ d, f *= 3 )
     {
     // Start at center
