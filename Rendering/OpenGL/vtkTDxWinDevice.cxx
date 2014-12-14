@@ -205,7 +205,7 @@ void vtkTDxWinDevice::Initialize()
   HRESULT hr=0;
   CComPtr<IUnknown> device;
 
-  bool alreadyConnected=vtkWindowHandleToDeviceObjectConnection.size()!=0;
+  bool alreadyConnected=!vtkWindowHandleToDeviceObjectConnection.empty();
 
   if(alreadyConnected)
     {
@@ -354,7 +354,7 @@ void vtkTDxWinDevice::Close()
     vtkWindowHandleToDeviceObjectConnection.erase(it);
     }
 
-  if(vtkWindowHandleToDeviceObjectConnection.size()==0)
+  if(vtkWindowHandleToDeviceObjectConnection.empty())
     {
       // Release the sensor and keyboard interfaces
       vtkTDxWinDevicePrivate *o=this->Private;

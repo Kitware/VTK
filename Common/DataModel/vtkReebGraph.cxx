@@ -1060,7 +1060,7 @@ vtkReebGraph::Implementation::vtkReebPath vtkReebGraph::Implementation::FindPath
         if (M==N1)
         {
           //clear all the items in the priority queue
-          while (pq.size())
+          while (!pq.empty())
           {
             vtkReebPath aux=pq.top();pq.pop();
             delete aux.ArcTable;
