@@ -64,20 +64,22 @@ vtkGlobeSource::vtkGlobeSource()
 void vtkGlobeSource::ComputeGlobePoint(
   double theta, double phi, double radius, double* x, double* normal)
 {
-  double mynormal[3];
-
-  double* n = normal ? normal : mynormal;
-
   // Lets keep this conversion code in a single place.
-  double tmp;
-  tmp =    cos( vtkMath::RadiansFromDegrees( phi ) );
-  n[0] = - tmp * sin( vtkMath::RadiansFromDegrees( theta ) );
-  n[1] =   tmp * cos( vtkMath::RadiansFromDegrees( theta ) );
-  n[2] =   sin( vtkMath::RadiansFromDegrees( phi ) );
+  double tmp = cos( vtkMath::RadiansFromDegrees( phi ) );
+  double n0 = -tmp * sin( vtkMath::RadiansFromDegrees( theta ) );
+  double n1 = tmp * cos( vtkMath::RadiansFromDegrees( theta ) );
+  double n2 = sin( vtkMath::RadiansFromDegrees( phi ) );
 
-  x[0] = n[0] * radius;
-  x[1] = n[1] * radius;
-  x[2] = n[2] * radius;
+  x[0] = n0 * radius;
+  x[1] = n1 * radius;
+  x[2] = n2 * radius;
+
+  if (normal)
+    {
+    normal[0] = n0;
+    normal[1] = n1;
+    normal[2] = n2;
+    }
 }
 
 //----------------------------------------------------------------------------
