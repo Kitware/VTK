@@ -64,7 +64,7 @@ static string vtkTestingGetArgOrEnvOrDefault(
   int argc = static_cast<int>(argv.size());
   for (int i = 0; i < argc; i++)
     {
-    if (argName == argv[i] && i < (argc - 1))
+    if ((i < (argc - 1)) && (argName == argv[i]))
       {
       argValue = argv[i + 1];
       }
