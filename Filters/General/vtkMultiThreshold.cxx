@@ -716,7 +716,7 @@ void vtkMultiThreshold::UpdateDependents(
               }
             }
           }
-        decision = cnt % 2 ? INCLUDE : EXCLUDE;
+        decision = (cnt % 2) ? INCLUDE : EXCLUDE;
         }
       break;
     case NAND:

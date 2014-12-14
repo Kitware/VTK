@@ -52,7 +52,7 @@ bool TestDataObjectTreeIterator()
           {
           vtkNew<vtkUniformGrid> child;
           blocks[parent]->SetBlock(
-            block, block % 2 ? NULL : child.GetPointer());
+            block, (block % 2) ? NULL : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           ++numLeaves;

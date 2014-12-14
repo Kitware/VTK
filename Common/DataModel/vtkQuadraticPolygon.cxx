@@ -323,7 +323,7 @@ void vtkQuadraticPolygon::GetPermutationFromPolygon(vtkIdType nb,
   permutation->SetNumberOfIds(nb);
   for (vtkIdType i = 0; i < nb; i++)
     {
-    permutation->SetId(i, (i % 2 ? (i + nb)/2 : i/2));
+    permutation->SetId(i, ((i % 2) ? (i + nb)/2 : i/2));
     }
 }
 
