@@ -1221,7 +1221,7 @@ void vtkParse_FreeTemplateDecomposition(
       free((char *)args[i]);
       }
 
-    free(args);
+    free((char **)args);
     }
 }
 
@@ -1331,8 +1331,8 @@ void vtkParse_InstantiateClassTemplate(
   class_substitution(data, cache, m, arg_names, args, arg_types);
 
   /* free all allocated arrays */
-  free(new_args);
-  free(arg_names);
+  free((char **)new_args);
+  free((char **)arg_names);
 
   for (i = 0; i < m; i++)
     {

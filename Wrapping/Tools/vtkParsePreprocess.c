@@ -1401,7 +1401,7 @@ static int preproc_evaluate_define(
         {
         if (tokens->tok != TOK_ID && tokens->tok != TOK_ELLIPSIS)
           {
-          free(params);
+          free((char **)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1420,7 +1420,7 @@ static int preproc_evaluate_define(
 
         /* add to the arg list */
         params = (const char **)preproc_array_check(
-          params, sizeof(char *), n);
+          (char **)params, sizeof(char *), n);
         params[n++] = vtkParse_CacheString(info->Strings, param, l);
 
         vtkParse_NextToken(tokens);
@@ -1438,7 +1438,7 @@ static int preproc_evaluate_define(
           }
         else if (tokens->tok != ')')
           {
-          free(params);
+          free((char **)params);
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -1456,7 +1456,7 @@ static int preproc_evaluate_define(
     macro = *macro_p;
     if (macro)
       {
-      free(params);
+      free((char **)params);
       if (preproc_identical(macro->Definition, definition))
         {
         return VTK_PARSE_OK;
@@ -1510,7 +1510,7 @@ static int preproc_add_include_file(PreprocessInfo *info, const char *name)
     }
 
   info->IncludeFiles = (const char **)preproc_array_check(
-    info->IncludeFiles, sizeof(char *), info->NumberOfIncludeFiles);
+    (char **)info->IncludeFiles, sizeof(char *), info->NumberOfIncludeFiles);
   info->IncludeFiles[info->NumberOfIncludeFiles++] =
     vtkParse_CacheString(info->Strings, name, strlen(name));
 
@@ -1588,7 +1588,8 @@ const char *preproc_find_include_file(
       }
 
     info->IncludeFiles = (const char **)preproc_array_check(
-      info->IncludeFiles, sizeof(char *), info->NumberOfIncludeFiles);
+      (char **)info->IncludeFiles, sizeof(char *),
+      info->NumberOfIncludeFiles);
     info->IncludeFiles[info->NumberOfIncludeFiles++] = output;
 
     return output;
@@ -1697,7 +1698,7 @@ const char *preproc_find_include_file(
         {
         nn = info->NumberOfIncludeFiles;
         info->IncludeFiles = (const char **)preproc_array_check(
-          info->IncludeFiles, sizeof(char *), nn);
+          (char **)info->IncludeFiles, sizeof(char *), nn);
         info->IncludeFiles[info->NumberOfIncludeFiles++] =
           vtkParse_CacheString(info->Strings, output, strlen(output));
         free(output);
@@ -2514,12 +2515,12 @@ const char *vtkParsePreprocess_ExpandMacro(
         if (values != stack_values)
           {
           values = (const char **)realloc(
-            values, 2*n*sizeof(const char **));
+            (char **)values, 2*n*sizeof(const char **));
           }
         else
           {
           values = (const char **)malloc(2*n*sizeof(const char **));
-          memcpy(values, stack_values, 8*sizeof(const char **));
+          memcpy((char **)values, stack_values, 8*sizeof(const char **));
           }
         }
 
@@ -2558,7 +2559,7 @@ const char *vtkParsePreprocess_ExpandMacro(
     if (n < (macro->NumberOfParameters - empty_variadic) ||
         (n > macro->NumberOfParameters && !macro->IsVariadic))
       {
-      if (values != stack_values) { free(values); }
+      if (values != stack_values) { free((char **)values); }
 #if PREPROC_DEBUG
       fprintf(stderr, "wrong number of macro args to %s, %lu != %lu\n",
               macro->Name, n, macro->NumberOfParameters);
@@ -2804,7 +2805,7 @@ const char *vtkParsePreprocess_ExpandMacro(
       }
     }
 
-  if (values != stack_values) { free(values); }
+  if (values != stack_values) { free((char **)values); }
 
   if (!macro->IsFunction && macro->Definition &&
       strcmp(rp, macro->Definition) == 0)
@@ -3056,7 +3057,7 @@ void vtkParsePreprocess_IncludeDirectory(
     }
 
   info->IncludeDirectories = (const char **)preproc_array_check(
-    info->IncludeDirectories, sizeof(char *),
+    (char **)info->IncludeDirectories, sizeof(char *),
     info->NumberOfIncludeDirectories);
   info->IncludeDirectories[info->NumberOfIncludeDirectories++] =
     vtkParse_CacheString(info->Strings, name, strlen(name));
@@ -3103,7 +3104,7 @@ void vtkParsePreprocess_InitMacro(MacroInfo *macro)
  */
 void vtkParsePreprocess_FreeMacro(MacroInfo *macro)
 {
-  free(macro->Parameters);
+  free((char **)macro->Parameters);
 
   free(macro);
 }
@@ -3161,8 +3162,8 @@ void vtkParsePreprocess_Free(PreprocessInfo *info)
     free(info->MacroHashTable);
     }
 
-  free(info->IncludeDirectories);
-  free(info->IncludeFiles);
+  free((char **)info->IncludeDirectories);
+  free((char **)info->IncludeFiles);
 
   free(info);
 }

@@ -919,7 +919,7 @@ static int vtkWrapHierarchy_TryWriteHierarchyFile(
 
 static int string_compare(const void *vp1, const void *vp2)
 {
-  return strcmp(*(const char *const *)vp1, *(const char *const *)vp2);
+  return strcmp(*(const char **)vp1, *(const char **)vp2);
 }
 
 int main(int argc, char *argv[])
