@@ -1012,7 +1012,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
   // Add mode_shape/time_step
     {
     vtkNew<vtkIntArray> dataIndexArray;
-    dataIndexArray->SetName("data_index");
+    dataIndexArray->SetName("mode_shape");
     dataIndexArray->SetNumberOfComponents(1);
     dataIndexArray->SetNumberOfTuples(1);
     dataIndexArray->SetValue(0, timeStep);
