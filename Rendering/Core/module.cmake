@@ -2,6 +2,7 @@ vtk_module(vtkRenderingCore
   GROUPS
     Rendering
   DEPENDS
+    vtkCommonColor
     vtkCommonExecutionModel
     vtkCommonTransforms
   PRIVATE_DEPENDS

@@ -146,7 +146,7 @@ public:
   // When \a IndexedLookup (inherited from vtkScalarsToColors) is true,
   // the scalar opacity function is not used regardless of
   // \a EnableOpacityMapping.
-  virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
+  virtual vtkUnsignedCharArray *MapScalars(vtkAbstractArray *scalars, int colorMode,
                                            int component);
 
   // Description:

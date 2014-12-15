@@ -228,11 +228,19 @@ public:
   // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
   // data array, you must call SelectColorArray before you call
   // GetColors.
-  // When ScalarMode is set to use Field Data (ScalarModeToFieldData), you
-  // must call SelectColorArray to choose the field data array to be used to
-  // color cells. In this mode, if the poly data has triangle strips,
-  // the field data is treated as the celldata for each mini-cell formed by
-  // a triangle in the strip rather than the entire strip.
+
+  // When ScalarMode is set to use Field Data (ScalarModeToFieldData),
+  // you must call SelectColorArray to choose the field data array to
+  // be used to color cells. In this mode, the default behavior is to
+  // treat the field data tuples as being associated with cells. If
+  // the poly data contains triangle strips, the array is expected to
+  // contain the cell data for each mini-cell formed by any triangle
+  // strips in the poly data as opposed to treating them as a single
+  // tuple that applies to the entire strip.  This mode can also be
+  // used to color the entire poly data by a single color obtained by
+  // mapping the tuple at a given index in the field data array
+  // through the color map. Use SetFieldDataTupleId() to specify
+  // the tuple index.
   vtkSetMacro(ScalarMode, int);
   vtkGetMacro(ScalarMode, int);
   void SetScalarModeToDefault()
@@ -254,6 +262,17 @@ public:
   // The lookup table will decide how to convert vectors to colors.
   void SelectColorArray(int arrayNum);
   void SelectColorArray(const char* arrayName);
+
+  // Description:
+
+  // When ScalarMode is set to UseFieldData, set the index of the
+  // tuple by which to color the entire data set. By default, the
+  // index is -1, which means to treat the field data array selected
+  // with SelectColorArray as having a scalar value for each cell.
+  // Indices of 0 or higher mean to use the tuple at the given index
+  // for coloring the entire data set.
+  vtkSetMacro(FieldDataTupleId, vtkIdType);
+  vtkGetMacro(FieldDataTupleId, vtkIdType);
 
   // Description:
   // Legacy:
@@ -420,6 +439,10 @@ protected:
   char ArrayName[256];
   int ArrayComponent;
   int ArrayAccessMode;
+
+  // If coloring by field data, which tuple to use to color the entire
+  // data set. If -1, treat array values as cell data.
+  vtkIdType FieldDataTupleId;
 
   int Static;
 

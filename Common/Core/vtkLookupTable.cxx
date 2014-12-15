@@ -1130,8 +1130,14 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
         vtkLookupTableIndexedMapData(this,static_cast<VTK_TT*>(input),output,
                                      numberOfValues,inputIncrement,outputFormat)
         );
+
+      case VTK_STRING:
+        vtkLookupTableIndexedMapData(this,static_cast<vtkStdString*>(input),output,
+                                     numberOfValues,inputIncrement,outputFormat);
+        break;
+
       default:
-        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+        vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input ScalarType");
         return;
       }
     }
@@ -1167,7 +1173,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
                               numberOfValues, inputIncrement, outputFormat, p)
         );
       default:
-        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+        vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input ScalarType");
         return;
       }
     }

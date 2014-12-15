@@ -1680,12 +1680,14 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
     {
     switch (inputDataType)
       {
-      vtkTemplateMacro(
+      // Use vtkExtendedTemplateMacro to cover case of VTK_STRING input
+      vtkExtendedTemplateMacro(
         vtkColorTransferFunctionIndexedMapData(
           this, static_cast<VTK_TT*>(input),
           output, numberOfValues, inputIncrement,
           outputFormat, 1)
         );
+
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
         return;

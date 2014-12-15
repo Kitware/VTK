@@ -1388,10 +1388,15 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   vtkIdType inPtId, outPtId;
   vtkPointData *inputPD = input->GetPointData();
   vtkCellData *inputCD = input->GetCellData();
+  vtkFieldData *inputFD = input->GetFieldData();
   vtkCellData *cd = input->GetCellData();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
+  vtkFieldData *outputFD = output->GetFieldData();
   vtkFastGeomQuad *q;
+
+  // Shallow copy field data not associated with points or cells
+  outputFD->ShallowCopy(inputFD);
 
   // These are for the default case/
   vtkIdList *pts;

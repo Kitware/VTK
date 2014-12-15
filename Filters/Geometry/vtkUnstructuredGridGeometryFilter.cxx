@@ -815,6 +815,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     }
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
+  vtkFieldData *fd=input->GetFieldData();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPoints *inPts=input->GetPoints();
   vtkSmartPointer<vtkCellIterator> cellIter =
@@ -823,6 +824,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   // Output
   vtkPointData *outputPD=output->GetPointData();
   vtkCellData *outputCD=output->GetCellData();
+  vtkFieldData *outputFD=output->GetFieldData();
 //  vtkUnsignedCharArray *types=vtkUnsignedCharArray::New();
 //  types->Allocate(numCells);
 //  vtkIdTypeArray *locs=vtkIdTypeArray::New();
@@ -935,6 +937,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     originalCellIds->SetNumberOfComponents(1);
     originalCellIds->Allocate(numCells, numCells/2);
     }
+
+  // Shallow copy field data not associated with points or cells
+  outputFD->ShallowCopy(fd);
 
   vtkIdType *pointMap=0;
 

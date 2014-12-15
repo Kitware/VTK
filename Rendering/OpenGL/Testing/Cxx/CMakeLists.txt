@@ -17,6 +17,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   TestValuePasses.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+  TestScalarsToColorsPainterFieldDataCells,TestScalarsToColorsPainterFieldData.cxx -1
+  )
+vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+  TestScalarsToColorsPainterFieldDataTuple,TestScalarsToColorsPainterFieldData.cxx 50
+  )
+vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   TestBlurAndSobelPasses.cxx
   #TestGaussianBlurPass.cxx # Missing symbol checking for Mesa bug
   TestLightActor.cxx
