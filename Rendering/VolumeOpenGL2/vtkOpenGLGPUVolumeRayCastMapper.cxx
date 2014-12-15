@@ -57,6 +57,7 @@
 #include <vtkShaderProgram.h>
 #include <vtkSmartPointer.h>
 #include <vtkTessellatedBoxSource.h>
+#include <vtkTextureObject.h>
 #include <vtkTimerLog.h>
 #include <vtkTransform.h>
 #include <vtkUnsignedCharArray.h>
@@ -198,7 +199,9 @@ public:
   // Update transfer color function based on the incoming inputs and number of
   // scalar components.
   // TODO Deal with numberOfScalarComponents > 1
-  int UpdateColorTransferFunction(vtkVolume* vol, int numberOfScalarComponents);
+  int UpdateColorTransferFunction(vtkRenderer* ren,
+                                  vtkVolume* vol,
+                                  int numberOfScalarComponents);
 
   // Update opacity transfer function (not gradient opacity)
   int UpdateOpacityTransferFunction(vtkVolume* vol,
@@ -794,7 +797,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
-  vtkVolume* vol, int numberOfScalarComponents)
+  vtkRenderer* ren, vtkVolume* vol, int numberOfScalarComponents)
 {
   // Build the colormap in a 1D texture.
   // 1D RGB-texture=mapping from scalar values to color values
@@ -812,9 +815,13 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
       colorTransferFunction->AddRGBPoint(this->ScalarsRange[1], 1.0, 1.0, 1.0);
       }
 
+    int filterVal =
+      volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
+        vtkTextureObject::Linear : vtkTextureObject::Nearest;
     this->RGBTable->Update(
       colorTransferFunction, this->ScalarsRange,
-      volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
+        filterVal,
+        vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
     }
 
   if (this->Parent->MaskInput != 0 &&
@@ -825,11 +832,15 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
     vtkColorTransferFunction* colorTransferFunc =
       volumeProperty->GetRGBTransferFunction(1);
     this->Mask1RGBTable->Update(colorTransferFunc, this->ScalarsRange,
-                                false, 7);
+                                vtkTextureObject::Nearest,
+                                vtkOpenGLRenderWindow::SafeDownCast(
+                                  ren->GetRenderWindow()));
 
     colorTransferFunc = volumeProperty->GetRGBTransferFunction(2);
     this->Mask2RGBTable->Update(colorTransferFunc, this->ScalarsRange,
-                                false, 8);
+                                vtkTextureObject::Nearest,
+                                vtkOpenGLRenderWindow::SafeDownCast(
+                                  ren->GetRenderWindow()));
     }
 
   return 0;
@@ -2073,7 +2084,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     scalars->GetNumberOfComponents(), 0);
 
   // Update transfer color functions
-  this->Impl->UpdateColorTransferFunction(vol,
+  this->Impl->UpdateColorTransferFunction(ren, vol,
     scalars->GetNumberOfComponents());
 
   // Update noise sampler texture
@@ -2156,12 +2167,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   if(numberOfScalarComponents == 1 &&
      this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
-    this->Impl->ShaderProgram->SetUniformi("in_colorTransferFunc", 1);
+    this->Impl->ShaderProgram->SetUniformi("in_colorTransferFunc",
+      this->Impl->RGBTable->GetTextureUnit());
 
     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
       {
-      this->Impl->ShaderProgram->SetUniformi("in_mask1", 7);
-      this->Impl->ShaderProgram->SetUniformi("in_mask2", 8);
+      this->Impl->ShaderProgram->SetUniformi("in_mask1",
+        this->Impl->Mask1RGBTable->GetTextureUnit());
+      this->Impl->ShaderProgram->SetUniformi("in_mask2",
+        this->Impl->Mask2RGBTable->GetTextureUnit());
       this->Impl->ShaderProgram->SetUniformf("in_maskBlendFactor",
                                              this->MaskBlendFactor);
       }
@@ -2191,8 +2205,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
       {
-      this->Impl->Mask1RGBTable->Bind(7);
-      this->Impl->Mask2RGBTable->Bind(8);
+      this->Impl->Mask1RGBTable->Bind();
+      this->Impl->Mask2RGBTable->Bind();
       }
     }
 

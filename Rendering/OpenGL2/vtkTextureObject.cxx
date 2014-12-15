@@ -1327,6 +1327,53 @@ vtkPixelBufferObject* vtkTextureObject::Download()
 #endif
 
 //----------------------------------------------------------------------------
+bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
+                                       int dataType, void *data)
+{
+  assert(this->Context);
+
+  // Now determine the texture parameters using the arguments.
+  GLenum type = ::vtkGetType(dataType);
+  GLenum internalFormat = this->GetInternalFormat(dataType, numComps, false);
+  GLenum format = this->GetFormat(dataType, numComps, false);
+
+  if (!internalFormat || !format || !type)
+    {
+    vtkErrorMacro("Failed to determine texture parameters.");
+    return false;
+    }
+
+  GLenum target = GL_TEXTURE_1D;
+  this->Target = target;
+  this->CreateTexture();
+  this->Bind();
+
+  glTexImage1D(target,
+               0,
+               internalFormat,
+               static_cast<GLsizei> (width),
+               0,
+               format,
+               type,
+               static_cast<const GLvoid *> (data));
+
+  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
+
+  this->UnBind();
+
+  this->Target = target;
+  this->Format = format;
+  this->Type = type;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = 1;
+  this->Depth = 1;
+  this->NumberOfDimensions = 1;
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
                                        int numComps, int dataType, void *data)
 {

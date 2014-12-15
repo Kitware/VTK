@@ -106,7 +106,10 @@ public:
   // Description:
   // Get/Set the context. This does not increase the reference count of the
   // context to avoid reference loops.
-  // SetContext() may raise an error is the OpenGL context does not support the
+  //
+  // {
+  // this->TextureObject = vtkTextureObject::New();
+  // }SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
   void SetContext(vtkOpenGLRenderWindow*);
   vtkOpenGLRenderWindow* GetContext();
@@ -167,6 +170,11 @@ public:
   void SendParameters();
   vtkSetMacro(AutoParameters, int);
   vtkGetMacro(AutoParameters, int);
+
+  // Description:
+  // Create 1D texture from client memory
+  bool Create1DFromRaw(unsigned int width, int numComps,
+                       int dataType, void *data);
 
   // Description:
   // Create a 2D texture from client memory
