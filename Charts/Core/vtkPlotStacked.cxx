@@ -631,8 +631,8 @@ void vtkPlotStacked::Update()
     vtkDebugMacro(<< "Updating cached values.");
     this->UpdateTableCache(table);
     }
-  else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
-           (this->YAxis && this->YAxis->GetMTime() > this->BuildTime))
+  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
+           (this->YAxis->GetMTime() > this->BuildTime))
     {
     if (this->LogX != this->XAxis->GetLogScaleActive() ||
         this->LogY != this->YAxis->GetLogScaleActive())
@@ -651,12 +651,6 @@ bool vtkPlotStacked::Paint(vtkContext2D *painter)
   if (!this->Visible)
     {
     return false;
-    }
-
-  float width = this->Pen->GetWidth() * 2.3;
-  if (width < 8.0)
-    {
-    width = 8.0;
     }
 
   // Now add some decorations for our selected points...

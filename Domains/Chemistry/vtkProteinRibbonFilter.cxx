@@ -195,7 +195,6 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
         borderPoints[0].clear();
         borderPoints[1].clear();
         colors.clear();
-        ss = 0;
         hasPrevCO = false;
         }
       currentCA.Set(xyz[0], xyz[1], xyz[2]);

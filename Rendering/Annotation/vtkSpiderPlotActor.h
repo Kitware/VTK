@@ -132,7 +132,7 @@ public:
 
   // Description:
   // Specify the number of circumferential rings. If set to zero, then
-  // none will be shown; othewise the specified number will be shown.
+  // none will be shown; otherwise the specified number will be shown.
   vtkSetClampMacro(NumberOfRings,int,0,VTK_INT_MAX);
   vtkGetMacro(NumberOfRings,int);
 
