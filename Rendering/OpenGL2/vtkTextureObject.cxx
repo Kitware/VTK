@@ -1771,8 +1771,10 @@ void vtkTextureObject::CopyToFrameBuffer(
   float maxYTexCoord=static_cast<float>(
     static_cast<double>(srcYmax+0.5)/this->Height);
 
+#if GL_ES_VERSION_2_0 != 1
   glPushAttrib(GL_VIEWPORT_BIT);
   glViewport(0,0,dstSizeX,dstSizeY);
+#endif
 
   float tcoords[] = {
     minXTexCoord, minYTexCoord,
@@ -1787,7 +1789,10 @@ void vtkTextureObject::CopyToFrameBuffer(
     2.0f*dstXmin/dstSizeX-1.0f, 2.0f*(dstYmax+1.0f)/dstSizeY-1.0f, 0.0f};
 
     this->CopyToFrameBuffer(tcoords, verts, program, vao);
+
+#if GL_ES_VERSION_2_0 != 1
     glPopAttrib();
+#endif
   }
 
 void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
