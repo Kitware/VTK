@@ -436,11 +436,20 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   // It is almost guarenteed that in case of valid handle, we will have
   // value other than zero. A check like this may be required at other
   // places as well.
-  if (this->Handle)
+  if (this->Handle && rwin)
     {
     rwin->ActivateTexture(this);
     this->UnBind();
     rwin->DeactivateTexture(this);
+    GLuint tex = this->Handle;
+    glDeleteTextures(1, &tex);
+    this->Handle = 0;
+    this->NumberOfDimensions = 0;
+    this->Target =0;
+    this->Format = 0;
+    this->Type = 0;
+    this->Components = 0;
+    this->Width = this->Height = this->Depth = 0;
     }
   if (this->ShaderProgram)
     {
@@ -468,8 +477,11 @@ void vtkTextureObject::Bind()
 //----------------------------------------------------------------------------
 void vtkTextureObject::UnBind()
 {
-  glBindTexture(this->Target, 0);
-  vtkOpenGLCheckErrorMacro("failed at glBindTexture(0)");
+  if (this->Target)
+    {
+    glBindTexture(this->Target, 0);
+    vtkOpenGLCheckErrorMacro("failed at glBindTexture(0)");
+    }
 }
 
 //----------------------------------------------------------------------------

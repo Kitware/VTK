@@ -485,6 +485,9 @@ public:
   vtkGetMacro(TexturedBackground,bool);
   vtkBooleanMacro(TexturedBackground,bool);
 
+  // method to release graphics resources in any derived renderers.
+  virtual void ReleaseGraphicsResources(vtkWindow *) { }
+
 //BTX
 protected:
   vtkRenderer();
@@ -498,9 +501,6 @@ protected:
   // matrix or model view transform matrix based on whether or not deering
   // frustum is used.
   virtual void ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix);
-
-  // Internal method to release graphics resources in any derived renderers.
-  virtual void ReleaseGraphicsResources(vtkWindow *) { }
 
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;

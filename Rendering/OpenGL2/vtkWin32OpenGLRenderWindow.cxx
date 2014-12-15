@@ -115,6 +115,7 @@ void vtkWin32OpenGLRenderWindow::CleanUpRenderers()
     {
     ren->SetRenderWindow(NULL);
     }
+  this->ReleaseGraphicsResources();
 }
 
 LRESULT APIENTRY vtkWin32OpenGLRenderWindow::WndProc(HWND hWnd, UINT message,

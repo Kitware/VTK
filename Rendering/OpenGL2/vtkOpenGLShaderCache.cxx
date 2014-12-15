@@ -212,7 +212,7 @@ void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
   // have to loop over all the programs were in use and invoke
   // release graphics resources individually.
 
-  this->LastShaderBound = NULL;
+  this->ReleaseCurrentShader();
 
   typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter iter = this->Internal->ShaderPrograms.begin();

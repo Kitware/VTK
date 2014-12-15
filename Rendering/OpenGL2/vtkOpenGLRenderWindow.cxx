@@ -140,23 +140,29 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
   vtkRenderer *aren;
   while ( (aren = this->Renderers->GetNextRenderer(rsit)) )
     {
-    // the following has the effect of release the graphics resources since
-    // Renderer's ReleaseGraphicsResources call is protected
-    aren->SetRenderWindow(NULL);
-    aren->SetRenderWindow(this);
+    if (aren->GetRenderWindow() == this)
+      {
+      aren->ReleaseGraphicsResources(this);
+      }
     }
-  this->ShaderCache->ReleaseGraphicsResources(this);
 
   if(this->DrawPixelsTextureObject != 0)
      {
      this->DrawPixelsTextureObject->ReleaseGraphicsResources(this);
      }
 
-  // if(this->TextureUnitManager!=0)
-  //   {
-  //   this->TextureUnitManager->ReleaseGraphicsResources(this);
-  //   }
-  // this->ShaderCache->ReleaseGraphicsResources(this);
+  this->ShaderCache->ReleaseGraphicsResources(this);
+
+  if (this->TextureResourceIds.size())
+    {
+    vtkErrorMacro("There are still active textures when there should not be.");
+    typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
+    TRIter found = this->TextureResourceIds.begin();
+    for ( ; found != this->TextureResourceIds.end(); found++)
+      {
+      vtkErrorMacro("Leaked for texture object: " << const_cast<vtkTextureObject *>(found->first));
+      }
+    }
 }
 
 
