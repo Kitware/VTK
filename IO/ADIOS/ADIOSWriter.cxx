@@ -13,106 +13,38 @@
 
 =========================================================================*/
 
-#include <cstring> // memset
+#include <cstring>
 
-#include <limits>
-#include <iterator>
-#include <sstream>
-#include <iostream>
-#include <vector>
-#include <map>
-#include <numeric>
-#include <functional>
 #include <algorithm>
-#include <utility>
+#include <iterator>
+#include <limits>
+#include <map>
+#include <ostream>
+#include <sstream>
+#include <vector>
+
+#include <vtkType.h>
 
 #include <adios.h>
 
-#include "ADIOSWriter.h"
 #include "ADIOSUtilities.h"
 
-#ifndef _NDEBUG
-//#define DebugMacro(x)  std::cerr << "DEBUG: Rank[" << Context::Rank << "] " << x << std::endl;
-#define DebugMacro(x)
-#endif
+#include "ADIOSWriter.h"
 
-// Define an output operator for std::pair for attributes
-template<typename T1, typename T2>
-std::ostream & operator<<(std::ostream & stream, const std::pair<T1, T2> &p)
+namespace ADIOS
 {
-  return (stream << p.first << ',' << p.second);
-}
-
-// Use an internal ADIOS function for now so we can use the transform info
-extern "C" {
-  int64_t adios_common_define_var (int64_t group_id, const char * name,
-    const char * path, enum ADIOS_DATATYPES type, const char * dimensions,
-    const char * global_dimensions, const char * local_offsets,
-    char *transform_type_str);
-}
-
-static const int64_t INVALID_INT64 = std::numeric_limits<int64_t>::min();
 
 //----------------------------------------------------------------------------
-struct ADIOSWriter::Context
+std::ostream& operator<<(std::ostream& os, const ArrayDim d)
 {
-  static MPI_Comm Comm;
-  static int Rank;
-  static int CommSize;
-  static int RefCount;
-
-  Context()
-  {
-    if(this->RefCount == 0)
-      {
-      int init = 0;
-      MPI_Initialized(&init);
-      if(init == 1)
-        {
-        MPI_Comm_size(Context::Comm, &Context::CommSize);
-        MPI_Comm_rank(Context::Comm, &Context::Rank);
-        }
-
-      int err;
-
-      err = adios_init_noxml(Context::Comm);
-      ADIOSUtilities::TestWriteErrorEq(0, err);
-
-      ADIOSWriter::ResizeBuffer(100*1024*1024);
-      }
-    ++this->RefCount;
-  }
-
-  ~Context()
-  {
-    --this->RefCount;
-    if(this->RefCount == 0)
-      {
-      int init = 0;
-      MPI_Initialized(&init);
-      if(init == 1)
-        {
-        MPI_Barrier(Context::Comm);
-        }
-      adios_finalize(Context::Rank);
-      }
-  }
-};
-
-MPI_Comm ADIOSWriter::Context::Comm = static_cast<MPI_Comm>(NULL);
-int ADIOSWriter::Context::Rank = 0;
-int ADIOSWriter::Context::CommSize = 1;
-int ADIOSWriter::Context::RefCount = 0;
-
-//----------------------------------------------------------------------------
-template<typename T>
-std::string ToString(const T& x)
-{
-  std::stringstream ss;
-  ss << x;
-  return ss.str();
+  if(d.ValueS.empty())
+    {
+    return os << d.ValueI;
+    }
+  return os << d.ValueS;
 }
 
+//----------------------------------------------------------------------------
 template<typename T, typename TIterator>
 std::string ToString(TIterator begin, TIterator end)
 {
@@ -122,346 +54,452 @@ std::string ToString(TIterator begin, TIterator end)
     }
 
   std::stringstream ss;
-  std::copy(begin, end-1, std::ostream_iterator<size_t>(ss, ","));
+  std::copy(begin, end-1, std::ostream_iterator<T>(ss, ","));
   ss << *(end-1);
   return ss.str();
 }
 
-std::string ToString(const std::vector<size_t> &x)
+template<typename T>
+std::string ToString(const std::vector<T> &x)
 {
-  return ToString<size_t>(x.begin(), x.end());
+  return ToString<T>(x.begin(), x.end());
 }
 
 //----------------------------------------------------------------------------
-struct ADIOSWriter::ADIOSWriterImpl
+
+// Writer::InitContext is internally a singleton struct to ensure that the
+//ADIOS runtime only gets initialized and finialized once
+struct Writer::InitContext
 {
-  ADIOSWriterImpl(void)
-  : IsWriting(false), File(INVALID_INT64), Group(INVALID_INT64),
-    GroupSize(0), TotalSize(0)
+  static int RefCount;
+  static MPI_Comm GlobalComm;
+
+  MPI_Comm Comm;
+  int Rank;
+  int CommSize;
+
+  InitContext()
+  : Comm(GlobalComm)
   {
-  }
-  ~ADIOSWriterImpl(void)
-  {
+    if(this->RefCount == 0)
+      {
+      int init = 0;
+      MPI_Initialized(&init);
+      WriteError::TestEq(1, init, "InitContext: MPI is not yet initialized");
+
+      int err = adios_init_noxml(this->Comm);
+      WriteError::TestEq(0, err);
+      }
+    ++this->RefCount;
+
+    MPI_Comm_size(this->Comm, &this->CommSize);
+    MPI_Comm_rank(this->Comm, &this->Rank);
   }
 
-  void TestDefine(void)
+  ~InitContext()
   {
-    if(this->IsWriting)
+    --this->RefCount;
+    if(this->RefCount == 0)
       {
-      throw std::runtime_error("Unable to declare variables after writing"
-      " has started");
+      // If we've gotten this far then we know that MPI has been initialized
+      // already
+      //
+      // Not really sure of a barrier is necessary here but it's explicitly used
+      // in ADIOS examples and documnetation before finalizing.  Since this only
+      // really occurs and pipeline tear-down time it shouldn't affect
+      // performance.
+      MPI_Barrier(this->Comm);
+      adios_finalize(this->Rank);
       }
   }
-
-  bool IsWriting;
-  int64_t File;
-  int64_t Group;
-  uint64_t GroupSize;
-  uint64_t TotalSize;
 };
 
+// Dafault communicator is invalid
+MPI_Comm Writer::InitContext::GlobalComm = MPI_COMM_NULL;
+int Writer::InitContext::RefCount = 0;
+
+//-------------------:---------------------------------------------------------
+struct Writer::WriterImpl
+{
+  WriterImpl()
+  : Group(-1)
+  { }
+
+  struct ScalarInfo
+  {
+    ScalarInfo(const std::string& path, ADIOS_DATATYPES type)
+    : Path(path), Size(Type::SizeOf(type)), IsInt(Type::IsInt(type))
+    { }
+    const std::string Path;
+    const size_t Size;
+    const bool IsInt;
+  };
+
+  struct ScalarValue
+  {
+    ScalarValue(const std::string& path, const void* value)
+    : Path(path), Value(value)
+    { }
+
+    virtual ~ScalarValue() { }
+    virtual uint64_t GetInt() { return 0; }
+
+    const std::string Path;
+    const void* Value;
+  };
+
+  template<typename T>
+  struct ScalarValueT : public ScalarValue
+  {
+    ScalarValueT(const std::string& path, const T& value)
+    : ScalarValue(path, &ValueT), ValueT(value)
+    { }
+
+    virtual ~ScalarValueT() { }
+    virtual uint64_t GetInt() { return static_cast<uint64_t>(this->ValueT); }
+
+    const T ValueT;
+  };
+
+  struct ArrayInfo
+  {
+    ArrayInfo(const std::string& path, const std::vector<ArrayDim>& dims,
+      ADIOS_DATATYPES type)
+    : Path(path), Dims(dims), ElementSize(Type::SizeOf(type))
+    { }
+    const std::string Path;
+    const std::vector<ArrayDim> Dims;
+    const size_t ElementSize;
+  };
+
+  struct ArrayValue
+  {
+    ArrayValue(const std::string& path, const void* value)
+    : Path(path), Value(value)
+    { }
+    const std::string Path;
+    const void* Value;
+  };
+
+  int64_t Group;
+
+  std::map<std::string, const ScalarInfo*> ScalarRegistry;
+  std::map<std::string, const ArrayInfo*> ArrayRegistry;
+
+  std::map<std::string, size_t> IntegralScalars;
+
+  std::vector<const ScalarValue*> ScalarsToWrite;
+  std::vector<const ArrayValue*> ArraysToWrite;
+};
+template<>
+uint64_t Writer::WriterImpl::ScalarValueT<std::complex<float> >::GetInt()
+{ return static_cast<uint64_t>(this->ValueT.real()); }
+template<>
+uint64_t Writer::WriterImpl::ScalarValueT<std::complex<double> >::GetInt()
+{ return static_cast<uint64_t>(this->ValueT.real()); }
+
+//-------------------:---------------------------------------------------------
+bool Writer::SetCommunicator(MPI_Comm comm)
+{
+  // The communicator can only be set if ADIOS has not yet been initialized
+  if(Writer::InitContext::RefCount == 0)
+    {
+    Writer::InitContext::GlobalComm = comm;
+    return true;
+    }
+  return false;
+}
+
 //----------------------------------------------------------------------------
-ADIOSWriter::ADIOSWriter(ADIOS::TransportMethod transport,
-  const std::string &transportArgs)
-: WriterContext(new ADIOSWriter::Context), Impl(new ADIOSWriterImpl)
+Writer::Writer(ADIOS::TransportMethod transport,
+  const std::string& transportArgs)
+: Ctx(new InitContext), Impl(new WriterImpl)
 {
   int err;
 
   err = adios_declare_group(&this->Impl->Group, "VTK", "", adios_flag_yes);
-  ADIOSUtilities::TestWriteErrorEq(0, err);
+  WriteError::TestEq(0, err);
 
   err = adios_select_method(this->Impl->Group,
-    ADIOS::ToString(transport).c_str(), transportArgs.c_str(), "");
-  ADIOSUtilities::TestWriteErrorEq(0, err);
+    ToString(transport).c_str(), transportArgs.c_str(), "");
+  WriteError::TestEq(0, err);
 }
 
 //----------------------------------------------------------------------------
-ADIOSWriter::~ADIOSWriter(void)
+Writer::~Writer()
 {
-  this->Close();
   delete this->Impl;
-  delete this->WriterContext;
+  delete this->Ctx;
 }
 
 //----------------------------------------------------------------------------
-bool ADIOSWriter::SetCommunicator(MPI_Comm comm)
+void Writer::DefineAttribute(const std::string& path,
+  ADIOS_DATATYPES adiosType, const std::string& value)
 {
-  if(Context::RefCount <= 0) // Not yet initialized, can set whatever we want
-    {
-    Context::Comm = comm;
-    }
-  else if(Context::Comm != comm) // Already initialized, can't change state
-    {
-    return false;
-    }
-  return true;
+  int err = adios_define_attribute(this->Impl->Group, path.c_str(), "",
+    adiosType, const_cast<char*>(value.c_str()), "");
+  WriteError::TestEq(0, err);
 }
 
 //----------------------------------------------------------------------------
-bool ADIOSWriter::ResizeBuffer(size_t bufSize)
+int Writer::DefineScalar(const std::string& path, ADIOS_DATATYPES adiosType)
 {
-  int err;
-  err = adios_allocate_buffer(ADIOS_BUFFER_ALLOC_LATER,
-                              (bufSize >> 20) + 1); // Convert B to MB
-  try
-    {
-    ADIOSUtilities::TestWriteErrorEq(0, err);
-    }
-  catch(...)
-    {
-    return false;
-    }
-  return true;
-}
-
-//----------------------------------------------------------------------------
-template<typename TN>
-void ADIOSWriter::DefineAttribute(const std::string& path, const TN& value)
-{
-  // ADIOS attributes are stored as thier "stringified" versions :-(
-  std::stringstream valueStr;
-  valueStr << value;
-
-  DebugMacro( "Define Attribute: " << path << ": " << value);
-
-  int err;
-  err = adios_define_attribute(this->Impl->Group, path.c_str(), "",
-    ADIOSUtilities::TypeNativeToADIOS<TN>::T,
-    const_cast<char*>(valueStr.str().c_str()), "");
-  ADIOSUtilities::TestWriteErrorEq(0, err);
-}
-
-#define INSTANTIATE(T) \
-template void ADIOSWriter::DefineAttribute<T>(const std::string&, const T&);
-INSTANTIATE(int8_t)
-INSTANTIATE(int16_t)
-INSTANTIATE(int32_t)
-//INSTANTIATE(int64_t)
-INSTANTIATE(uint8_t)
-INSTANTIATE(uint16_t)
-INSTANTIATE(uint32_t)
-INSTANTIATE(uint64_t)
-INSTANTIATE(vtkIdType)
-INSTANTIATE(float)
-INSTANTIATE(double)
-INSTANTIATE(std::string)
-#undef INSTANTIATE
-
-//----------------------------------------------------------------------------
-template<typename TN>
-int ADIOSWriter::DefineScalar(const std::string& path)
-{
-  this->Impl->TestDefine();
-
-  DebugMacro( "Define Scalar: " << path);
-
-  int id;
-  id = adios_define_var(this->Impl->Group, path.c_str(), "",
-    ADIOSUtilities::TypeNativeToADIOS<TN>::T,
+  int id = adios_define_var(this->Impl->Group, path.c_str(), "", adiosType,
     "", "", "");
-  ADIOSUtilities::TestWriteErrorNe(-1, id);
-  this->Impl->GroupSize += sizeof(TN);
+  WriteError::TestNe(-1, id);
 
-  return id;
-}
-#define INSTANTIATE(T) \
-template int ADIOSWriter::DefineScalar<T>(const std::string& path);
-INSTANTIATE(int8_t)
-INSTANTIATE(int16_t)
-INSTANTIATE(int32_t)
-//INSTANTIATE(int64_t)
-INSTANTIATE(uint8_t)
-INSTANTIATE(uint16_t)
-INSTANTIATE(uint32_t)
-INSTANTIATE(uint64_t)
-INSTANTIATE(vtkIdType)
-INSTANTIATE(float)
-INSTANTIATE(double)
-#undef INSTANTIATE
-
-//----------------------------------------------------------------------------
-int ADIOSWriter::DefineScalar(const std::string& path, const std::string& v)
-{
-  this->Impl->TestDefine();
-
-  DebugMacro( "Define Scalar: " << path);
-
-  int id;
-  id = adios_define_var(this->Impl->Group, path.c_str(), "",
-    adios_string, "", "", "");
-  ADIOSUtilities::TestWriteErrorNe(-1, id);
-  this->Impl->GroupSize += v.size();
+  // Track localy
+  this->Impl->ScalarRegistry[path] =
+    new WriterImpl::ScalarInfo(path, adiosType);
 
   return id;
 }
 
 //----------------------------------------------------------------------------
-template<typename TN>
-int ADIOSWriter::DefineArray(const std::string& path,
-  const std::vector<size_t>& dims, ADIOS::Transform xfm)
+int Writer::DefineLocalArray(const std::string& path,
+  ADIOS_DATATYPES adiosType, const std::vector<ArrayDim>& dims, Transform xfm)
 {
-  return this->DefineArray(path, dims, ADIOSUtilities::TypeNativeToVTK<TN>::T, xfm);
-}
-#define INSTANTIATE(T) \
-template int ADIOSWriter::DefineArray<T>(const std::string& path, \
-  const std::vector<size_t>& dims, ADIOS::Transform xfm);
-INSTANTIATE(int8_t)
-INSTANTIATE(int16_t)
-INSTANTIATE(int32_t)
-//INSTANTIATE(int64_t)
-INSTANTIATE(uint8_t)
-INSTANTIATE(uint16_t)
-INSTANTIATE(uint32_t)
-INSTANTIATE(uint64_t)
-INSTANTIATE(vtkIdType)
-INSTANTIATE(float)
-INSTANTIATE(double)
-#undef INSTANTIATE
-
-//----------------------------------------------------------------------------
-int ADIOSWriter::DefineArray(const std::string& path,
-  const std::vector<size_t>& dims, int vtkType, ADIOS::Transform xfm)
-{
-  this->Impl->TestDefine();
-  ADIOS_DATATYPES adiosType = ADIOSUtilities::TypeVTKToADIOS(vtkType);
-
-  std::string dimsLocal = ToString(dims);
-  size_t numElements = std::accumulate(dims.begin(), dims.end(), 1,
-    std::multiplies<size_t>());
-  size_t numBytes = ADIOSUtilities::TypeSize(adiosType) * numElements;
-
-  DebugMacro("Define Array:  " << path << " [" << dimsLocal << "]");
-
-  int id;
-  id = adios_common_define_var(this->Impl->Group, path.c_str(), "",
-    adiosType, dimsLocal.c_str(), "", "",
-    const_cast<char*>(ADIOS::ToString(xfm).c_str()));
-  ADIOSUtilities::TestWriteErrorNe(-1, id);
-  this->Impl->GroupSize += numBytes;
-  return id;
-}
-
-//----------------------------------------------------------------------------
-int ADIOSWriter::DefineGlobalArray(const std::string& path,
-  const size_t *dimsLocal, const size_t *dimsGlobal, const size_t *dimsOffset,
-  size_t nDims, int vtkType, ADIOS::Transform xfm)
-{
-  this->Impl->TestDefine();
-  ADIOS_DATATYPES adiosType = ADIOSUtilities::TypeVTKToADIOS(vtkType);
-
-  size_t numElements = std::accumulate(dimsLocal, dimsLocal+nDims, 1,
-    std::multiplies<size_t>());
-  size_t numBytes = ADIOSUtilities::TypeSize(adiosType) * numElements;
-  std::string strDimsLocal = ToString<size_t>(dimsLocal, dimsLocal+nDims);
-  std::string strDimsGlobal = ToString<size_t>(dimsGlobal, dimsGlobal+nDims);
-  std::string strDimsOffset = ToString<size_t>(dimsOffset, dimsOffset+nDims);
-
-  int id;
-  id = adios_common_define_var(this->Impl->Group, path.c_str(), "", adiosType,
-    strDimsLocal.c_str(), strDimsGlobal.c_str(), strDimsOffset.c_str(),
-    const_cast<char*>(ADIOS::ToString(xfm).c_str()));
-  ADIOSUtilities::TestWriteErrorNe(-1, id);
-  this->Impl->GroupSize += numBytes;
-  return id;
-}
-
-//----------------------------------------------------------------------------
-void ADIOSWriter::Open(const std::string &fileName, bool append)
-{
-  int err;
-
-  ADIOSWriter::ResizeBuffer(this->Impl->TotalSize);
-  err = adios_open(&this->Impl->File, "VTK", fileName.c_str(), append?"a":"w",
-    Context::Comm);
-  ADIOSUtilities::TestWriteErrorEq(0, err);
-
-  err = adios_group_size(this->Impl->File, this->Impl->GroupSize,
-    &this->Impl->TotalSize);
-  ADIOSUtilities::TestWriteErrorEq(0, err);
-}
-
-//----------------------------------------------------------------------------
-void ADIOSWriter::Close(void)
-{
-  if(this->Impl->File == INVALID_INT64)
+  // Verify the dimensions are usable
+  for(std::vector<ArrayDim>::const_iterator di = dims.begin();
+      di != dims.end(); ++di)
     {
-    return;
+    if(!di->ValueS.empty())
+      {
+      std::map<std::string, const WriterImpl::ScalarInfo*>::iterator si =
+        this->Impl->ScalarRegistry.find(di->ValueS);
+      WriteError::TestNe(this->Impl->ScalarRegistry.end(), si,
+        "Dimension scalar variable " + di->ValueS + " is not defined");
+      WriteError::TestEq(true, si->second->IsInt,
+        "Dimension scalar variable " + di->ValueS + " is not an integer");
+      }
     }
 
-  adios_close(this->Impl->File);
-  this->Impl->File = INVALID_INT64;
+  // Define in the ADIOS group
+  std::string dimsLocal = ToString(dims);
+  int id = adios_define_var(this->Impl->Group, path.c_str(), "", adiosType,
+     dimsLocal.c_str(), "", "");
+  WriteError::TestNe(-1, id);
 
-  MPI_Barrier(Context::Comm);
+  int err = adios_set_transform(id, ToString(xfm).c_str());
+  WriteError::TestEq(0, err);
+
+  // Track locally
+  this->Impl->ArrayRegistry[path] =
+    new WriterImpl::ArrayInfo(path, dims, adiosType);
+
+  return id;
 }
 
 //----------------------------------------------------------------------------
-template<typename TN>
-void ADIOSWriter::WriteScalar(const std::string& path, const TN& value)
+void Writer::WriteScalar(const std::string& path, ADIOS_DATATYPES adiosType,
+    const void* val)
 {
-  DebugMacro( "Write Scalar: " << path);
+  std::map<std::string, const WriterImpl::ScalarInfo*>::iterator si =
+    this->Impl->ScalarRegistry.find(path);
+  WriteError::TestNe(this->Impl->ScalarRegistry.end(), si,
+    "Scalar variable " + path + " is not defined");
 
-  this->Impl->IsWriting = true;
+  WriterImpl::ScalarValue *v;
+  switch(adiosType)
+    {
+    case adios_byte:
+      v = new WriterImpl::ScalarValueT<int8_t>(path,
+        *reinterpret_cast<const int8_t*>(val));
+      break;
+    case adios_short:
+      v = new WriterImpl::ScalarValueT<int16_t>(path,
+        *reinterpret_cast<const int16_t*>(val));
+      break;
+    case adios_integer:
+      v = new WriterImpl::ScalarValueT<int32_t>(path,
+        *reinterpret_cast<const int32_t*>(val));
+      break;
+    case adios_long:
+      v = new WriterImpl::ScalarValueT<int64_t>(path,
+        *reinterpret_cast<const int32_t*>(val));
+      break;
+    case adios_unsigned_byte:
+      v = new WriterImpl::ScalarValueT<uint8_t>(path,
+        *reinterpret_cast<const uint8_t*>(val));
+      break;
+    case adios_unsigned_short:
+      v = new WriterImpl::ScalarValueT<uint16_t>(path,
+        *reinterpret_cast<const uint16_t*>(val));
+      break;
+    case adios_unsigned_integer:
+      v = new WriterImpl::ScalarValueT<uint32_t>(path,
+        *reinterpret_cast<const uint32_t*>(val));
+      break;
+    case adios_unsigned_long:
+      v = new WriterImpl::ScalarValueT<uint64_t>(path,
+        *reinterpret_cast<const uint64_t*>(val));
+      break;
+    case adios_real:
+      v = new WriterImpl::ScalarValueT<float>(path,
+        *reinterpret_cast<const float*>(val));
+      break;
+    case adios_double:
+      v = new WriterImpl::ScalarValueT<double>(path,
+        *reinterpret_cast<const double*>(val));
+      break;
+    case adios_complex:
+      v = new WriterImpl::ScalarValueT<std::complex<float> >(path,
+        *reinterpret_cast<const std::complex<float>*>(val));
+      break;
+    case adios_double_complex:
+      v = new WriterImpl::ScalarValueT<std::complex<double> >(path,
+        *reinterpret_cast<const std::complex<double>*>(val));
+      break;
+    default:
+      v = NULL;
+    }
 
-  int err;
-  err = adios_write(this->Impl->File, path.c_str(), &const_cast<TN&>(value));
-  ADIOSUtilities::TestWriteErrorEq(0, err);
+  if(si->second->IsInt)
+    {
+    this->Impl->IntegralScalars[path] = v->GetInt();
+    }
+  this->Impl->ScalarsToWrite.push_back(v);
 }
-#define INSTANTIATE(T) \
-template void ADIOSWriter::WriteScalar<T>(const std::string& path, \
-  const T& value);
-INSTANTIATE(int8_t)
-INSTANTIATE(int16_t)
-INSTANTIATE(int32_t)
-//INSTANTIATE(int64_t)
-INSTANTIATE(uint8_t)
-INSTANTIATE(uint16_t)
-INSTANTIATE(uint32_t)
-INSTANTIATE(uint64_t)
-INSTANTIATE(vtkIdType)
-INSTANTIATE(float)
-INSTANTIATE(double)
-#undef INSTANTIATE
 
 //----------------------------------------------------------------------------
-template<>
-void ADIOSWriter::WriteScalar<std::string>(const std::string& path,
-  const std::string& value)
+void Writer::WriteArray(const std::string& path, const void* val)
 {
-  DebugMacro( "Write Scalar: " << path);
+  std::map<std::string, const WriterImpl::ArrayInfo*>::iterator ai =
+    this->Impl->ArrayRegistry.find(path);
+  WriteError::TestNe(this->Impl->ArrayRegistry.end(), ai,
+    "Array variable " + path + " is not defined");
 
-  this->Impl->IsWriting = true;
+  for(std::vector<ArrayDim>::const_iterator di = ai->second->Dims.begin();
+      di != ai->second->Dims.end();
+      ++di)
+    {
+    if(!di->ValueS.empty())
+      {
+      std::map<std::string, size_t>::iterator ivi =
+        this->Impl->IntegralScalars.find(di->ValueS);
+      WriteError::TestNe(this->Impl->IntegralScalars.end(), ivi,
+        "Scalar dimension variable " + di->ValueS +
+        " has not yet been written");
+      }
+    }
 
-  int err;
-  err = adios_write(this->Impl->File, path.c_str(),
-    const_cast<char*>(value.c_str()));
-  ADIOSUtilities::TestWriteErrorEq(0, err);
+
+  this->Impl->ArraysToWrite.push_back(
+    new WriterImpl::ArrayValue(path, val));
 }
 
 //----------------------------------------------------------------------------
-template<typename TN>
-void ADIOSWriter::WriteArray(const std::string& path, const TN* value)
+void Writer::Commit(const std::string& fName, bool app)
 {
-  DebugMacro( "Write Array:  " << path);
+  uint64_t groupSize = 0;
+  std::vector<const WriterImpl::ArrayValue*> nonEmptyArrays;
 
-  this->Impl->IsWriting = true;
+  // Step 1: Preprocessing
+
+  // Determine scalar group size
+  for(std::vector<const WriterImpl::ScalarValue*>::iterator svi =
+        this->Impl->ScalarsToWrite.begin();
+      svi != this->Impl->ScalarsToWrite.end();
+      ++svi)
+    {
+    groupSize += this->Impl->ScalarRegistry[(*svi)->Path]->Size;
+    }
+
+  // Add the array sizes and filter out empties
+  for(std::vector<const WriterImpl::ArrayValue*>::iterator avi =
+        this->Impl->ArraysToWrite.begin();
+      avi != this->Impl->ArraysToWrite.end();
+      ++avi)
+    {
+    // This should be guaranteed to exist in the registry
+    const WriterImpl::ArrayInfo *ai = this->Impl->ArrayRegistry[(*avi)->Path];
+
+    size_t numElements = 0;
+    for(std::vector<ArrayDim>::const_iterator di = ai->Dims.begin();
+        di != ai->Dims.end();
+        ++di)
+      {
+      if(numElements == 0)
+        {
+        numElements = di->ValueS.empty() ?
+          di->ValueI : this->Impl->IntegralScalars[di->ValueS];
+        }
+      else
+        {
+        numElements *= di->ValueS.empty() ?
+          di->ValueI : this->Impl->IntegralScalars[di->ValueS];
+        }
+      }
+    //if(numElements == 0)
+    //  {
+    //  delete *avi;
+    //  }
+    //else
+    //  {
+      groupSize += numElements * ai->ElementSize;
+      nonEmptyArrays.push_back(*avi);
+    //  }
+    }
+  this->Impl->ArraysToWrite.clear();
 
   int err;
-  err = adios_write(this->Impl->File, path.c_str(), const_cast<TN*>(value));
-  ADIOSUtilities::TestWriteErrorEq(0, err);
+
+  // Step 2. Set the buffer size in MB with the full knowledge of the dynamic
+  // group size
+  err = adios_allocate_buffer(ADIOS_BUFFER_ALLOC_LATER, (groupSize >> 20) + 1);
+  WriteError::TestEq(0, err);
+
+  // Step 3. Open the file for writing
+  int64_t file;
+  err = adios_open(&file, "VTK", fName.c_str(), app?"a":"w", this->Ctx->Comm);
+  WriteError::TestEq(0, err);
+
+  uint64_t totalSize;
+  err = adios_group_size(file, groupSize, &totalSize);
+  WriteError::TestEq(0, err);
+
+  // Step 4: Write scalars
+  for(std::vector<const WriterImpl::ScalarValue*>::iterator svi =
+        this->Impl->ScalarsToWrite.begin();
+      svi != this->Impl->ScalarsToWrite.end();
+      ++svi)
+    {
+    err = adios_write(file, (*svi)->Path.c_str(),
+      const_cast<void*>((*svi)->Value));
+    WriteError::TestEq(0, err);
+    }
+
+  // Step 5: Write Arrays
+  for(std::vector<const WriterImpl::ArrayValue*>::iterator avi =
+        nonEmptyArrays.begin();
+      avi != nonEmptyArrays.end();
+      ++avi)
+    {
+    err = adios_write(file, (*avi)->Path.c_str(),
+      const_cast<void*>((*avi)->Value));
+    WriteError::TestEq(0, err);
+    }
+
+  // Step 6. Close the file and commit the writes to ADIOS
+  adios_close(file);
+  MPI_Barrier(this->Ctx->Comm);
+
+  // Step 7. Cleanup
+  for(std::vector<const WriterImpl::ScalarValue*>::iterator svi =
+        this->Impl->ScalarsToWrite.begin();
+      svi != this->Impl->ScalarsToWrite.end();
+      ++svi)
+    {
+    delete *svi;
+    }
+  for(std::vector<const WriterImpl::ArrayValue*>::iterator avi =
+        nonEmptyArrays.begin();
+      avi != nonEmptyArrays.end();
+      ++avi)
+    {
+    delete *avi;
+    }
+  this->Impl->ScalarsToWrite.clear();
 }
-#define INSTANTIATE(T) \
-template void ADIOSWriter::WriteArray<T>(const std::string& path, \
-  const T* value);
-INSTANTIATE(int8_t)
-INSTANTIATE(int16_t)
-INSTANTIATE(int32_t)
-//INSTANTIATE(int64_t)
-INSTANTIATE(uint8_t)
-INSTANTIATE(uint16_t)
-INSTANTIATE(uint32_t)
-INSTANTIATE(uint64_t)
-INSTANTIATE(vtkIdType)
-INSTANTIATE(float)
-INSTANTIATE(double)
-INSTANTIATE(void)
-#undef INSTANTIATE
+
+} // End namespace

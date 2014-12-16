@@ -39,7 +39,9 @@ public:
   vtkTypeMacro(ValidateSphere,vtkAlgorithm);
 
   ValidateSphere()
-  : Valid(true)
+  : NumSteps(1), ThetaResolution(8), PhiResolution(8),
+    StartTheta(0.0), EndTheta(360.0), StartPhi(0.0), EndPhi(180.0),
+    Valid(true)
   {
     this->SetNumberOfInputPorts(1);
     this->SetNumberOfOutputPorts(0);
@@ -52,12 +54,28 @@ public:
     return 1;
   }
 
+  vtkSetClampMacro(NumSteps,int,1,100);
+  vtkSetClampMacro(ThetaResolution,int,3,VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(PhiResolution,int,3,VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(StartTheta,double,0.0,360.0);
+  vtkSetClampMacro(EndTheta,double,0.0,360.0);
+  vtkSetClampMacro(StartPhi,double,0.0,360.0);
+  vtkSetClampMacro(EndPhi,double,0.0,360.0);
+
   virtual int ProcessRequest(vtkInformation*, vtkInformationVector**,
     vtkInformationVector*);
 
   bool IsValid() const { return this->Valid; }
 
 private:
+  int NumSteps;
+  int ThetaResolution;
+  int PhiResolution;
+  double StartTheta;
+  double EndTheta;
+  double StartPhi;
+  double EndPhi;
+
   bool Valid;
   std::vector<double> TimeSteps;
   int CurrentTimeStepIndex;
@@ -83,7 +101,7 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
       }
     int numSteps = inInfo->Length(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    if(numSteps != 10)
+    if(numSteps != this->NumSteps)
       {
       vtkErrorMacro("Unexpected number of steps");
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
@@ -113,6 +131,9 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
 
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
+    std::cout << "Validating time step " << this->CurrentTimeStepIndex
+              << std::endl;
+
     vtkDataObject *input = this->GetInputDataObject(0, 0);
     vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(input);
 
@@ -134,38 +155,76 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
       return 0;
       }
 
-    int theta = 10;
-    int phi = 10+this->CurrentTimeStepIndex - 2;
-
-    vtkPolyData *pdInput = vtkPolyData::SafeDownCast(
-      mpInput->GetPiece(controller->GetLocalProcessId()));
-
-    int numCellsLocal = pdInput->GetNumberOfCells();
-    int numCellsGlobal;
-    controller->AllReduce(&numCellsLocal, &numCellsGlobal, 1,
-      vtkCommunicator::SUM_OP);
-    if(numCellsGlobal != theta*phi*2)
+    // Adjust Phi and Theta resolutions for multi-piece
+    double deltaPhi, deltaTheta, phi, theta;
+    double startTheta, endTheta, startPhi, endPhi;
+    int thetaResolution, phiResolution;
+    int piece = controller->GetLocalProcessId();
+    int numPieces = mpInput->GetNumberOfPieces();
+    if (numPieces > this->ThetaResolution)
       {
-      vtkErrorMacro("Number of cells " << numCellsLocal << ","
-                    << numCellsGlobal << " != " << theta*phi*2);
+      numPieces = this->ThetaResolution;
+      }
+    if (piece >= numPieces)
+      {
+      return 1;
+      }
+
+    int localThetaResolution = this->ThetaResolution;
+    double localStartTheta = this->StartTheta;
+    double localEndTheta = this->EndTheta;
+    while (localEndTheta < localStartTheta)
+      {
+      localEndTheta += 360.0;
+      }
+    deltaTheta = (localEndTheta - localStartTheta) / localThetaResolution;
+
+    int start, end, numPoles;
+    start = piece * localThetaResolution / numPieces;
+    end = (piece+1) * localThetaResolution / numPieces;
+    localEndTheta = localStartTheta + (double)(end) * deltaTheta;
+    localStartTheta = localStartTheta + (double)(start) * deltaTheta;
+    localThetaResolution = end - start;
+
+    this->SetPhiResolution(10+this->CurrentTimeStepIndex);
+
+    numPoles = 0;
+    if(this->StartPhi <= 0.0)
+      {
+      ++numPoles;
+      }
+    if(this->EndPhi >= 180.0)
+      {
+      ++numPoles;
+      }
+
+    vtkPolyData *pdInput = vtkPolyData::SafeDownCast(mpInput->GetPiece(piece));
+
+    int numPolys = localThetaResolution *
+                   (numPoles + 2*(this->PhiResolution - numPoles - 1));
+    if(pdInput->GetNumberOfCells() != numPolys)
+      {
+      vtkErrorMacro("Number of cells " << pdInput->GetNumberOfCells() << ","
+                    << " != " << numPolys);
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Valid = false;
       return 0;
       }
 
+
+    // Not sure how to calculate the number of expected points
+    /*
     vtkPoints *points = pdInput->GetPoints();
-    int numPointsLocal = points->GetNumberOfPoints();
-    int numPointsGlobal;
-    controller->AllReduce(&numPointsLocal, &numPointsGlobal, 1,
-      vtkCommunicator::SUM_OP);
-    if(numPointsGlobal != theta*phi+2)
+    int numPts = numPoles + localThetaResolution * (this->PhiResolution - numPoles);
+    if(points->GetNumberOfPoints() != numPts)
       {
-      vtkErrorMacro("Number of points " << numPointsLocal << ","
-                    << numPointsGlobal << " != " << theta*phi+2);
+      vtkErrorMacro("Number of points " << points->GetNumberOfPoints()
+                    << " != " << numPts);
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->Valid = false;
       return 0;
       }
+    */
 
     // Advance to the next time step
     ++this->CurrentTimeStepIndex;
@@ -206,11 +265,10 @@ int TestADIOSSphereWR(int argc, char *argv[])
       writer->SetWriteAllTimeSteps(1);
       writer->SetTransportMethodToMPI();
 
-      sphere->SetThetaResolution(10);
+      sphere->SetThetaResolution(13);
       for(int t = 0; t < 10; ++t)
         {
         double r = 10+t;
-        std::cout << "Setting sphere phi resolution " << r << std::endl;
         sphere->SetPhiResolution(r);
 
         std::cout << "Writing time step" << std::endl;
@@ -228,10 +286,13 @@ int TestADIOSSphereWR(int argc, char *argv[])
       validate->SetInputConnection(reader->GetOutputPort());
 
       reader->SetFileName("sphere.bp");
+      validate->SetNumSteps(10);
+      validate->SetThetaResolution(13);
       validate->UpdateInformation();
       validate->Update();
       Success = validate->IsValid();
       }
+      std::cout << "End vtkADIOSReader test" << std::endl;
 
     vtkMultiProcessController::SetGlobalController(NULL);
     controller->Finalize();

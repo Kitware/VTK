@@ -20,32 +20,33 @@
 #include <string>
 #include <vector>
 
-#include <vtkType.h>
+#include "ADIOSUtilities.h"
 
-#include <adios_read.h>
+#include "ADIOSVarInfo.h"
 
 //----------------------------------------------------------------------------
-class ADIOSScalar
+namespace ADIOS
+{
+
+class Scalar : public VarInfo
 {
 public:
-  ADIOSScalar(ADIOS_FILE *f, ADIOS_VARINFO *v);
-  ~ADIOSScalar(void);
-
-  std::string GetName(void) const { return this->Name; }
-  int GetId(void) const { return this->Id; }
-  int GetType(void) const { return this->Type; }
-  int GetNumSteps(void) const { return this->NumSteps; }
+  Scalar(ADIOS_FILE *f, ADIOS_VARINFO *v);
+  virtual ~Scalar(void);
 
   template<typename T>
-  const std::vector<T>& GetValues(int step) const;
+  const T& GetValue(size_t step, size_t block) const
+  {
+    ReadError::TestEq(this->Type, Type::NativeToADIOS<T>(), "Invalid type");
 
-private:
-  int Id;
-  int Type;
-  int NumSteps;
-  const std::string Name;
-  std::vector<void *> Values; // void* is actualy std::vector<T>
+    const int blockId = this->GetBlockId(step, block);
+    return reinterpret_cast<const T*>(this->Values)[blockId];
+  }
+
+protected:
+  void *Values;
 };
 
+} // End namespace ADIOS
 #endif // _ADIOSScalar_h
 // VTK-HeaderTest-Exclude: ADIOSScalar.h

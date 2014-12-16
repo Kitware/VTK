@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    ADIOSDefs.cxx
+  Module:    vtkADIOSUtilities.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,24 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifndef __vtkADIOSUtilities_h
+#define __vtkADIOSUtilities_h
 
-#include "ADIOSDefs.h"
+#include <vtkType.h>
+
+#include "ADIOSUtilities.h"
 
 namespace ADIOS
 {
-
-const std::string&  ToString(TransportMethod method)
+namespace Type
 {
-  static const std::string valueMap[] = {
-    "NULL", "POSIX", "MPI", "MPI_LUSTRE", "MPI_AGGREGATE", "VAR_MERGE",
-    "Dataspaces", "DIMES", "Flexpath", "PHDF5", "NetCDF4" };
-  return valueMap[method];
-}
 
-const std::string& ToString(Transform xfm)
-{
-  static const std::string valueMap[] = { "", "zlib", "bzlib2", "szip" };
-  return valueMap[xfm];
-}
+// Specialization for vtkIdType
+template<> ADIOS_DATATYPES NativeToADIOS<vtkIdType>();
 
-}
+// Description:
+// Map VTK datatypes into ADIOS data types
+ADIOS_DATATYPES VTKToADIOS(int tv);
+
+// Description:
+// Map VTK datatypes into ADIOS data types
+int ADIOSToVTK(ADIOS_DATATYPES ta);
+
+} // End namespace Type
+} // End namespace ADIOS
+
+#endif
+// VTK-HeaderTest-Exclude: vtkADIOSUtilities.h

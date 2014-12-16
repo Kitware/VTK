@@ -20,31 +20,35 @@
 #include <string>
 #include <vector>
 
+#include <adios_read.h>
+
 //----------------------------------------------------------------------------
-class ADIOSVarInfo
+namespace ADIOS
+{
+
+class VarInfo
 {
 public:
-  ADIOSVarInfo(const std::string &name = "", void* var = NULL);
-  ~ADIOSVarInfo(void);
+  VarInfo(ADIOS_FILE *f, ADIOS_VARINFO *v);
+  virtual ~VarInfo(void) { }
+  void SetName(const std::string& name) { this->Name = name; }
 
-  std::string GetName(void) const;
-  int GetId(void) const;
-  int GetType(void) const;
+  const int& GetId() const;
+  const ADIOS_DATATYPES& GetType() const;
+  const std::string& GetName(void) const;
   size_t GetNumSteps(void) const;
-  bool IsGlobal(void) const;
-  bool IsScalar(void) const;
-  void GetDims(std::vector<size_t>& dims, int block) const;
+  size_t GetNumBlocks(size_t step) const;
+  size_t GetBlockId(size_t step, size_t block) const;
+  void GetDims(std::vector<size_t>& dims, size_t step, size_t block) const;
 
-  template<typename T>
-  T GetValue(int step = 0) const;
-
-  template<typename T>
-  const T* GetAllValues(void) const;
-
-private:
-  struct ADIOSVarInfoImpl;
-  ADIOSVarInfoImpl *Impl;
+protected:
+  int Id;
+  ADIOS_DATATYPES Type;
+  std::string Name;
+  std::vector<std::vector<size_t> > BlockId;
+  std::vector<std::vector<std::vector<size_t> > > Dims;
 };
 
+} // End namespace ADIOS
 #endif // _ADIOSVarInfo_h
 // VTK-HeaderTest-Exclude: ADIOSVarInfo.h
