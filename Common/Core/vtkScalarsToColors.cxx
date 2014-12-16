@@ -221,6 +221,13 @@ unsigned char *vtkScalarsToColors::MapValue(double v)
 }
 
 //----------------------------------------------------------------------------
+vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
+                                                     int colorMode, int component)
+{
+  return this->MapScalars(static_cast<vtkAbstractArray*>(scalars), colorMode, component);
+}
+
+//----------------------------------------------------------------------------
 vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
                                                      int colorMode, int component)
 {

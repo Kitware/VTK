@@ -117,7 +117,7 @@ public:
   vtkGetMacro(Alpha,double);
 
   // Description:
-  // An internal method that maps a data array into a 4-component,
+  // Internal methods that map a data array into a 4-component,
   // unsigned char RGBA array. The color mode determines the behavior
   // of mapping. If VTK_COLOR_MODE_DEFAULT is set, then unsigned char
   // data arrays are treated as colors (and converted to RGBA if
@@ -132,6 +132,8 @@ public:
   // to use to do the blending.  When the component argument is -1,
   // then the this object uses its own selected technique to change a
   // vector into a scalar to map.
+  virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
+                                           int component);
   virtual vtkUnsignedCharArray *MapScalars(vtkAbstractArray *scalars, int colorMode,
                                            int component);
 
