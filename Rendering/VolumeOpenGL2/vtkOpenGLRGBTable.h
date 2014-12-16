@@ -103,6 +103,8 @@ public:
 
     if (range[0] != this->LastRange[0] || range[1] != this->LastRange[1])
       {
+      this->LastRange[0] = range[0];
+      this->LastRange[1] = range[1];
       needUpdate=true;
       }
 
@@ -130,7 +132,8 @@ public:
           this->NumberOfColorComponents];
         }
 
-      scalarRGB->GetTable(range[0],range[1], this->TextureWidth, this->Table);
+      scalarRGB->GetTable(this->LastRange[0], this->LastRange[1],
+                          this->TextureWidth, this->Table);
       this->TextureObject->Create1DFromRaw(this->TextureWidth,
                                            this->NumberOfColorComponents,
                                            VTK_FLOAT,
@@ -145,9 +148,6 @@ public:
 
 //      this->Loaded = true;
       this->BuildTime.Modified();
-
-      this->LastRange[0] = range[0];
-      this->LastRange[1] = range[1];
       }
 
 //    needUpdate = needUpdate ||
