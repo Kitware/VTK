@@ -523,6 +523,17 @@ endforeach()
 configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
+# For iOS builds, allow user to 'make framework' with a custom destination
+if (APPLE_IOS)
+  set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
+      CACHE PATH "Framework install path")
+  configure_file(${VTK_CMAKE_DIR}/MakeFramework.cmake.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
+                 @ONLY)
+  add_custom_target(framework COMMAND ${CMAKE_COMMAND} -P
+                    ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake)
+endif()
+
 #-----------------------------------------------------------------------------
 # Export all targets at once from the build tree in their final configuration.
 get_property(_vtk_targets GLOBAL PROPERTY VTK_TARGETS)
@@ -540,6 +551,7 @@ if (_vtk_compiletools_targets)
          FILE ${VTK_BINARY_DIR}/VTKCompileToolsConfig.cmake)
   add_dependencies(vtkCompileTools ${_vtk_compiletools_targets})
 endif()
+
 unset(_vtk_targets)
 unset(_vtk_compiletools_targets)
 unset(_vtk_all_targets)
