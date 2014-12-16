@@ -101,6 +101,8 @@ public:
 //      needUpdate = true;
 //      }
 
+    this->TextureObject->SetContext(renWin);
+
     if (range[0] != this->LastRange[0] || range[1] != this->LastRange[1])
       {
       this->LastRange[0] = range[0];
@@ -108,7 +110,6 @@ public:
       needUpdate=true;
       }
 
-    this->TextureObject->SetContext(renWin);
 //    glBindTexture(GL_TEXTURE_1D, this->TextureId);
 
 //    if(needUpdate)

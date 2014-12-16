@@ -30,6 +30,7 @@ public:
   vtkOpenGLOpacityTable(int width = 1024)
     {
 //      this->TextureId = 0;
+      this->TextureObject = 0;
       this->LastBlendMode = vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
       this->TextureWidth = width;
       this->LastSampleDistance = 1.0;
