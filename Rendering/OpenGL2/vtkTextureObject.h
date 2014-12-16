@@ -99,6 +99,17 @@ public:
     NumberOfDepthFormats
   };
 
+  // Internal alpha format
+  enum
+  {
+    alpha=0,
+    alpha4,
+    alpha8,
+    alpha12,
+    alpha16,
+    NumberOfAlphaFormats
+  };
+
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -187,6 +198,14 @@ public:
   // This is a blocking call. If you can, use PBO instead.
   bool CreateDepthFromRaw(unsigned int width, unsigned int height,
                           int internalFormat, int rawType,
+                          void *raw);
+
+  // Description:
+  // Create a 1D alpha texture using a raw pointer.
+  // This is a blocking call. If you can, use PBO instead.
+  bool CreateAlphaFromRaw(unsigned int width,
+                          int internalFormat,
+                          int rawType,
                           void *raw);
 
 // PBO's are not supported in ES 2.0

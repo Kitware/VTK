@@ -180,6 +180,15 @@ static const char *DepthInternalFormatFilterAsString[6]=
 };
 */
 
+static GLenum OpenGLAlphaInternalFormat[5]=
+{
+  GL_ALPHA,
+  GL_ALPHA4,
+  GL_ALPHA8,
+  GL_ALPHA12,
+  GL_ALPHA16
+};
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTextureObject);
 
@@ -1427,6 +1436,44 @@ bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
   return true;
 }
 
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 1D alpha texture using a raw pointer.
+// This is a blocking call. If you can, use PBO instead.
+bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
+                                          int internalFormat,
+                                          int rawType,
+                                          void *raw)
+{
+  assert("pre: context_exists" && this->GetContext()!=0);
+  assert("pre: raw_exists" && raw!=0);
+
+  assert("pre: valid_internalFormat" && internalFormat>=0
+         && internalFormat<NumberOfAlphaFormats);
+
+  GLenum inFormat=OpenGLAlphaInternalFormat[internalFormat];
+  GLenum type=::vtkGetType(rawType);
+
+  this->Target=GL_TEXTURE_1D;
+  this->Format=GL_ALPHA;
+  this->Type=type;
+  this->Width=width;
+  this->Height=1;
+  this->Depth=1;
+  this->NumberOfDimensions=1;
+  this->Components=1;
+
+  this->CreateTexture();
+  this->Bind();
+
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage1D(this->Target, 0, static_cast<GLint>(inFormat),
+               static_cast<GLsizei>(width), 0,
+               this->Format, this->Type, raw);
+  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
+  this->UnBind();
+  return true;
+}
 
 // ----------------------------------------------------------------------------
 // Description:
