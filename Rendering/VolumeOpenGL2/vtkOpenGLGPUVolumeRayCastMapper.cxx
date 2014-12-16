@@ -204,12 +204,14 @@ public:
                                   int numberOfScalarComponents);
 
   // Update opacity transfer function (not gradient opacity)
-  int UpdateOpacityTransferFunction(vtkVolume* vol,
+  int UpdateOpacityTransferFunction(vtkRenderer* ren,
+                                    vtkVolume* vol,
                                     int numberOfScalarComponents,
                                     unsigned int level);
 
   // Update gradient opacity function
-  int UpdateGradientOpacityTransferFunction(vtkVolume* vol,
+  int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
+                                            vtkVolume* vol,
                                             int numberOfScalarComponents,
                                             unsigned int level);
 
@@ -848,7 +850,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
-  vtkVolume* vol, int vtkNotUsed(numberOfScalarComponents), unsigned int level)
+  vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(numberOfScalarComponents),
+  unsigned int level)
 {
   if (!vol)
     {
@@ -867,18 +870,24 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     scalarOpacity->AddPoint(this->ScalarsRange[1], 0.5);
     }
 
+  int filterVal =
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
+      vtkTextureObject::Linear : vtkTextureObject::Nearest;
+
   this->OpacityTables->GetTable(level)->Update(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
-    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
+    filterVal,
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+
   return 0;
 }
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
-  UpdateGradientOpacityTransferFunction(vtkVolume* vol,
+  UpdateGradientOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
     int vtkNotUsed(numberOfScalarComponents), unsigned int level)
 {
   if (!vol)
@@ -910,12 +919,17 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     gradientOpacity->AddPoint(this->ScalarsRange[1], 0.5);
     }
 
+  int filterVal =
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
+      vtkTextureObject::Linear : vtkTextureObject::Nearest;
+
   this->GradientOpacityTables->GetTable(level)->Update(
     gradientOpacity,
     this->ActualSampleDistance,
     this->ScalarsRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
-    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION);
+    filterVal,
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   return 0;
 }
@@ -2077,10 +2091,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Update opacity transfer function
   // TODO Passing level 0 for now
-  this->Impl->UpdateOpacityTransferFunction(vol,
+  this->Impl->UpdateOpacityTransferFunction(ren, vol,
     scalars->GetNumberOfComponents(), 0);
 
-  this->Impl->UpdateGradientOpacityTransferFunction(vol,
+  this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
     scalars->GetNumberOfComponents(), 0);
 
   // Update transfer color functions
@@ -2154,10 +2168,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniform2fv("in_scalarsRange", 1, &fvalue2);
 
   this->Impl->ShaderProgram->SetUniformi("in_volume", 0);
-  this->Impl->ShaderProgram->SetUniformi("in_opacityTransferFunc", 2);
+  this->Impl->ShaderProgram->SetUniformi("in_opacityTransferFunc",
+    this->Impl->OpacityTables->GetTable(0)->GetTextureUnit());
   this->Impl->ShaderProgram->SetUniformi("in_noiseSampler", 3);
   this->Impl->ShaderProgram->SetUniformi("in_depthSampler", 4);
-  this->Impl->ShaderProgram->SetUniformi("in_gradientTransferFunc", 5);
+  this->Impl->ShaderProgram->SetUniformi("in_gradientTransferFunc",
+    this->Impl->GradientOpacityTables->GetTable(0)->GetTextureUnit());
 
   if (this->Impl->CurrentMask)
     {
