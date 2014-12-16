@@ -330,6 +330,13 @@ double vtkDiscretizableColorTransferFunction::GetOpacity(double v)
 
 //-----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
+  vtkDataArray *scalars, int colorMode, int component)
+{
+  return this->MapScalars(static_cast<vtkAbstractArray*>(scalars), colorMode, component);
+}
+
+//-----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
   vtkAbstractArray *scalars, int colorMode, int component)
 {
   this->Build();
