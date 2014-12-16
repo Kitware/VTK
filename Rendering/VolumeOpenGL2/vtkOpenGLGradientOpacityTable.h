@@ -17,6 +17,7 @@
 #define __vtkOpenGLGradientOpacityTable_h_
 
 #include <vtkPiecewiseFunction.h>
+#include <vtkTextureObject.h>
 #include <vtkVolumeMapper.h>
 
 #include <vtk_glew.h>
@@ -28,23 +29,29 @@ public:
   //--------------------------------------------------------------------------
   vtkOpenGLGradientOpacityTable(int width = 1024)
     {
-      this->TextureId = 0;
+//      this->TextureId = 0;
+      this->TextureObject = 0;
       this->TextureWidth = width;
-      this->TextureHeight = 0;
       this->LastSampleDistance = 1.0;
       this->Table = 0;
-      this->Loaded = false;
-      this->LastLinearInterpolation = false;
+//      this->Loaded = false;
+//      this->LastLinearInterpolation = false;
       this->LastRange[0] = this->LastRange[1] = 0.0;
     }
 
   //--------------------------------------------------------------------------
   ~vtkOpenGLGradientOpacityTable()
     {
-      if (this->TextureId != 0)
+//      if (this->TextureId != 0)
+//        {
+//        glDeleteTextures(1, &this->TextureId);
+//        this->TextureId=0;
+//        }
+
+      if (!this->TextureObject)
         {
-        glDeleteTextures(1, &this->TextureId);
-        this->TextureId=0;
+        this->TextureObject->UnRegister(0);
+        this->TextureObject = 0;
         }
 
       if (this->Table!=0)
@@ -55,20 +62,25 @@ public:
     }
 
 
-  // Check if opacity transfer function texture is loaded.
-  //--------------------------------------------------------------------------
-  bool IsLoaded()
-    {
-    return this->Loaded;
-    }
+//  // Check if opacity transfer function texture is loaded.
+//  //--------------------------------------------------------------------------
+//  bool IsLoaded()
+//    {
+//    return this->Loaded;
+//    }
 
   // Bind texture.
   //--------------------------------------------------------------------------
   void Bind()
     {
-    // Activate texture 5
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_1D, this->TextureId);
+//    // Activate texture 5
+//    glActiveTexture(GL_TEXTURE5);
+//    glBindTexture(GL_TEXTURE_1D, this->TextureId);
+    if (!this->TextureObject)
+      {
+      return;
+      }
+    this->TextureObject->Bind();
     }
 
   // Update opacity tranfer function texture.
@@ -77,75 +89,105 @@ public:
               double sampleDistance,
               double range[2],
               double vtkNotUsed(unitDistance),
-              bool linearInterpolation)
+              int filterValue,
+              vtkOpenGLRenderWindow* renWin)
     {
-    // Activate texture 5
-    glActiveTexture(GL_TEXTURE5);
+//    // Activate texture 5
+//    glActiveTexture(GL_TEXTURE5);
 
     bool needUpdate=false;
-    if(this->TextureId == 0)
+//    if(this->TextureId == 0)
+//      {
+//      glGenTextures(1,&this->TextureId);
+//      needUpdate = true;
+//      }
+
+    if (!this->TextureObject)
       {
-      glGenTextures(1,&this->TextureId);
-      needUpdate = true;
+      this->TextureObject = vtkTextureObject::New();
       }
+
+    this->TextureObject->SetContext(renWin);
 
     if (this->LastRange[0] != range[0] ||
         this->LastRange[1] != range[1])
       {
-      needUpdate = true;
       this->LastRange[0] = range[0];
       this->LastRange[1] = range[1];
+      needUpdate = true;
       }
 
-    glBindTexture(GL_TEXTURE_1D, this->TextureId);
-    if(needUpdate)
-      {
-      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
-                      GL_CLAMP_TO_EDGE);
-      }
+//    glBindTexture(GL_TEXTURE_1D, this->TextureId);
+//    if(needUpdate)
+//      {
+//      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
+//                      GL_CLAMP_TO_EDGE);
+//      }
 
     if(gradientOpacity->GetMTime() > this->BuildTime ||
+       this->TextureObject->GetMTime() > this->BuildTime ||
        this->LastSampleDistance != sampleDistance ||
-       needUpdate || !this->Loaded)
+       needUpdate)
       {
-      this->Loaded = false;
+//      this->Loaded = false;
       if(this->Table == 0)
         {
         this->Table = new float[this->TextureWidth];
         }
 
-      gradientOpacity->GetTable(0, (range[1] - range[0]) * 0.25,
-        this->TextureWidth, this->Table);
+      gradientOpacity->GetTable(0,
+                              (this->LastRange[1] - this->LastRange[0]) * 0.25,
+                              this->TextureWidth, this->Table);
 
-      glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
-                   this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
-      this->Loaded = true;
+      this->TextureObject->CreateAlphaFromRaw(this->TextureWidth,
+                                              vtkTextureObject::alpha16,
+                                              VTK_FLOAT,
+                                              this->Table);
+
+      this->TextureObject->Activate();
+      this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->TextureObject->SetMagnificationFilter(filterValue);
+      this->TextureObject->SetMinificationFilter(filterValue);
+//      glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
+//                   this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
+//      this->Loaded = true;
       this->BuildTime.Modified();
       }
 
-    needUpdate= needUpdate ||
-      this->LastLinearInterpolation!=linearInterpolation;
-    if(needUpdate)
-      {
-      this->LastLinearInterpolation = linearInterpolation;
-      GLint value = linearInterpolation ? GL_LINEAR : GL_NEAREST;
-      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, value);
-      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, value);
-      }
+//    needUpdate= needUpdate ||
+//      this->LastLinearInterpolation!=linearInterpolation;
+//    if(needUpdate)
+//      {
+//      this->LastLinearInterpolation = linearInterpolation;
+//      GLint value = linearInterpolation ? GL_LINEAR : GL_NEAREST;
+//      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, value);
+//      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, value);
+//      }
+//
+//    glActiveTexture(GL_TEXTURE0);
+    }
 
-    glActiveTexture(GL_TEXTURE0);
+  // Get the texture unit
+  //--------------------------------------------------------------------------
+  int GetTextureUnit(void)
+    {
+    if (!this->TextureObject)
+      {
+      return -1;
+      }
+    return this->TextureObject->GetTextureUnit();
     }
 
 protected:
-  GLuint TextureId;
+//  GLuint TextureId;
+  vtkTextureObject* TextureObject;
   int TextureWidth;
-  int TextureHeight;
 
   double LastSampleDistance;
   vtkTimeStamp BuildTime;
   float* Table;
-  bool Loaded;
-  bool LastLinearInterpolation;
+//  bool Loaded;
+//  bool LastLinearInterpolation;
   double LastRange[2];
 private:
   vtkOpenGLGradientOpacityTable(const vtkOpenGLGradientOpacityTable&);
