@@ -181,15 +181,15 @@ public:
           this->LastSampleDistance = sampleDistance;
           }
 
+      this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->TextureObject->SetMagnificationFilter(filterValue);
+      this->TextureObject->SetMinificationFilter(filterValue);
       this->TextureObject->CreateAlphaFromRaw(this->TextureWidth,
                                               vtkTextureObject::alpha16,
                                               VTK_FLOAT,
                                               this->Table);
-
       this->TextureObject->Activate();
-      this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
-      this->TextureObject->SetMagnificationFilter(filterValue);
-      this->TextureObject->SetMinificationFilter(filterValue);
+
 //      glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
 //                   this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
 //      this->Loaded = true;

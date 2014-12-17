@@ -135,14 +135,14 @@ public:
 
       scalarRGB->GetTable(this->LastRange[0], this->LastRange[1],
                           this->TextureWidth, this->Table);
+      this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->TextureObject->SetMagnificationFilter(filterValue);
+      this->TextureObject->SetMinificationFilter(filterValue);
       this->TextureObject->Create1DFromRaw(this->TextureWidth,
                                            this->NumberOfColorComponents,
                                            VTK_FLOAT,
                                            this->Table);
       this->TextureObject->Activate();
-      this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
-      this->TextureObject->SetMagnificationFilter(filterValue);
-      this->TextureObject->SetMinificationFilter(filterValue);
 
 //      glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB16, this->TextureWidth, 0,
 //                   GL_RGB, GL_FLOAT, this->Table);
