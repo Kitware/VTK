@@ -1015,12 +1015,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture(
                                               1,
                                               VTK_FLOAT,
                                               this->NoiseTextureData);
-    this->NoiseTextureObject->Activate();
     this->NoiseTextureObject->SetWrapS(vtkTextureObject::Repeat);
     this->NoiseTextureObject->SetWrapT(vtkTextureObject::Repeat);
     this->NoiseTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+    this->NoiseTextureObject->Activate();
     }
 }
 
