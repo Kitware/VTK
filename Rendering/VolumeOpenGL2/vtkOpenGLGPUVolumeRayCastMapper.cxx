@@ -2245,7 +2245,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   if (this->Impl->CurrentMask)
     {
-    this->Impl->ShaderProgram->SetUniformi("in_mask", 6);
+    this->Impl->ShaderProgram->SetUniformi(
+      "in_mask", this->Impl->CurrentMask->GetTextureUnit());
     }
 
   if(numberOfScalarComponents == 1 &&

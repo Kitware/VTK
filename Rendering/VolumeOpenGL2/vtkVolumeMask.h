@@ -25,6 +25,7 @@
 class vtkVolumeMask
 {
 public:
+  //--------------------------------------------------------------------------
   vtkVolumeMask()
     {
       this->TextureId = 0;
@@ -37,6 +38,7 @@ public:
       this->LoadedExtent[5] = VTK_INT_MIN;
     }
 
+  //--------------------------------------------------------------------------
   ~vtkVolumeMask()
     {
       if(this->TextureId != 0)
@@ -46,11 +48,13 @@ public:
         }
     }
 
+  //--------------------------------------------------------------------------
   vtkTimeStamp GetBuildTime()
     {
     return this->BuildTime;
     }
 
+  //--------------------------------------------------------------------------
   void Bind()
     {
       // Activate texture 6
@@ -58,6 +62,7 @@ public:
       glBindTexture(GL_TEXTURE_3D, this->TextureId);
     }
 
+  //--------------------------------------------------------------------------
   void Update(vtkImageData *input,
               int cellFlag,
               int textureExtent[6],
@@ -67,7 +72,7 @@ public:
               const char* arrayName,
               vtkIdType maxMemoryInBytes)
     {
-      glActiveTexture(GL_TEXTURE6);
+      glActiveTexture(GL_TEXTURE7);
 
       bool needUpdate = false;
       bool modified = false;
@@ -301,25 +306,37 @@ public:
       glActiveTexture(GL_TEXTURE0);
     }
 
+  //--------------------------------------------------------------------------
   double* GetLoadedBounds()
     {
     return this->LoadedBounds;
     }
 
+  //--------------------------------------------------------------------------
   vtkIdType* GetLoadedExtent()
     {
     return this->LoadedExtent;
     }
 
+  //--------------------------------------------------------------------------
   int GetLoadedCellFlag()
     {
     return this->LoadedCellFlag;
     }
 
+  //--------------------------------------------------------------------------
   bool IsLoaded()
     {
     return this->Loaded;
     }
+
+  // Get the texture unit
+  //--------------------------------------------------------------------------
+  int GetTextureUnit(void)
+    {
+    return 7;
+    }
+
 
 protected:
   GLuint TextureId;
