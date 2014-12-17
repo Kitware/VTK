@@ -41,13 +41,13 @@ public:
   //--------------------------------------------------------------------------
   ~vtkOpenGLOpacityTable()
     {
-      if (this->TextureObject)
+      if (this->TextureObject != 0)
         {
         this->TextureObject->Delete();
         this->TextureObject = 0;
         }
 
-      if (this->Table)
+      if (this->Table != 0)
         {
         delete[] this->Table;
         this->Table=0;
