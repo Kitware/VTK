@@ -243,7 +243,7 @@ int vtkExodusIIWriter::RequestData (
     this->CurrentTimeIndex = 0;
     if (this->WriteAllTimeSteps)
       {
-      // Tell the pipeline to start looping.
+      // Tell the pipeline to stop looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
       }
     }
@@ -253,7 +253,21 @@ int vtkExodusIIWriter::RequestData (
     this->CloseExodusFile ();
     }
 
+  int localContinue = request->Get(
+    vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+  if (this->GlobalContinueExecuting(localContinue) != localContinue)
+    {
+    // Some other node decided to stop the execution.
+    assert (localContinue == 1);
+    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
+    }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExodusIIWriter::GlobalContinueExecuting(int localContinueExecution)
+{
+  return localContinueExecution;
 }
 
 //----------------------------------------------------------------------------

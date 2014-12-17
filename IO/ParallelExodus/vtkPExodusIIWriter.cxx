@@ -148,3 +148,13 @@ void vtkPExodusIIWriter::CheckBlockInfoMap ()
       }
     }
 }
+
+//----------------------------------------------------------------------------
+int vtkPExodusIIWriter::GlobalContinueExecuting(int localContinue)
+{
+  vtkMultiProcessController *c =
+    vtkMultiProcessController::GetGlobalController();
+  int globalContinue;
+  c->AllReduce (&localContinue, &globalContinue, 1, vtkCommunicator::MIN_OP);
+  return globalContinue;
+}
