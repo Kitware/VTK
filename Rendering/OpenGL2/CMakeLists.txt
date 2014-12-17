@@ -37,6 +37,7 @@ set(Module_SRCS
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLLight.cxx
+  vtkOpenGLPointGaussianMapper.cxx
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
@@ -112,6 +113,7 @@ set(shader_files
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
+  glsl/vtkPointGaussianVS.glsl
   glsl/vtkTextureObjectFS.glsl
   glsl/vtkTextureObjectVS.glsl
   glsl/vtkglGlyph3DVSFragmentLit.glsl
@@ -172,6 +174,7 @@ set(opengl_overrides
   ImageSliceMapper
   Glyph3DMapper
   Light
+  PointGaussianMapper
   PolyDataMapper
   PolyDataMapper2D
   Property

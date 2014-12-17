@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkglPolyDataVSNoLighting.glsl
+  Module:    vtkPointGaussianVS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// this shader implements imposters in OpenGL for Spheres
+
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
 //VTK::System::Dec
@@ -22,31 +24,60 @@
 // WC - WC world coordinates
 // VC - View Coordinates
 // DC - Display Coordinates
-attribute vec4 vertexMC;
 
-// frag position in VC
-//VTK::PositionVC::Dec
+attribute vec4 vertexMC;
+attribute vec2 offsetMC;
+//attribute float radiusMC;
+
+// optional normal declaration
+//VTK::Normal::Dec
+
+// Texture coordinates
+//VTK::TCoord::Dec
+
+uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
 
 // material property values
 //VTK::Color::Dec
+
+// clipping plane vars
+//VTK::Clip::Dec
 
 // camera and actor matrix values
 uniform mat4 MCVCMatrix;  // combined Model to View transform
 uniform mat4 VCDCMatrix;  // the camera's projection matrix
 
-// Texture coordinates
-//VTK::TCoord::Dec
-
-// clipping plane vars
-//VTK::Clip::Dec
+varying vec2 offsetVC;
+uniform int cameraParallel;
 
 void main()
 {
   //VTK::Color::Impl
 
+  //VTK::Normal::Impl
+
   //VTK::TCoord::Impl
 
   //VTK::Clip::Impl
 
-  //VTK::PositionVC::Impl
+  // compute the projected vertex position
+  vec4 vertexVC = MCVCMatrix * vertexMC;
+  float radius2 = dot(offsetMC,offsetMC)*0.25;
+
+  // make the triangle face the camera
+  if (cameraParallel == 0)
+    {
+    vec3 dir = normalize(-vertexVC.xyz);
+    vec3 base2 = normalize(cross(dir,vec3(1.0,0.0,0.0)));
+    vec3 base1 = cross(base2,dir);
+    vertexVC.xyz = vertexVC.xyz + offsetMC.x*base1 + offsetMC.y*base2;
+    }
+  else
+    {
+    // add in the offset
+    vertexVC.xy = vertexVC.xy + offsetMC;
+    }
+
+  offsetVC = offsetMC/radius2;
+  gl_Position = VCDCMatrix * vertexVC;
 }
