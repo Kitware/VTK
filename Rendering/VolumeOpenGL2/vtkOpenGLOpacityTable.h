@@ -80,7 +80,7 @@ public:
       {
       return;
       }
-    this->TextureObject->Bind();
+    this->TextureObject->Activate();
     }
 
   // Update opacity tranfer function texture.

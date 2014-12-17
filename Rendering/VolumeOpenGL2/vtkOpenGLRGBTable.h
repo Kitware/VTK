@@ -73,7 +73,7 @@ public:
       {
       return;
       }
-    this->TextureObject->Bind();
+    this->TextureObject->Activate();
 //    // Activate texture 1
 //    glActiveTexture(GL_TEXTURE0 + textureUnit);
 //    glBindTexture(GL_TEXTURE_1D, this->TextureId);

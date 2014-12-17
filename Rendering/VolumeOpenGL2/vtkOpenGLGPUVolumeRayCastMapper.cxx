@@ -444,7 +444,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   vtkImageData* imageData, vtkDataArray* scalars)
 {
   // Generate OpenGL texture
-  glActiveTexture(GL_TEXTURE7);
+  glActiveTexture(GL_TEXTURE8);
   glGenTextures(1, &this->VolumeTextureId);
   glBindTexture(GL_TEXTURE_3D, this->VolumeTextureId);
 
@@ -1050,9 +1050,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     this->DepthTextureObject = vtkTextureObject::New();
     this->DepthTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
                                           ren->GetRenderWindow()));
+
     this->DepthTextureObject->AllocateDepth(this->WindowSize[0],
                                             this->WindowSize[1],
                                             4);
+    this->DepthTextureObject->Activate();
     this->DepthTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->DepthTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->DepthTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
@@ -1060,10 +1062,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     }
 
   this->DepthTextureObject->Activate();
+  glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
                       this->WindowLowerLeft[0], this->WindowLowerLeft[1],
                       this->WindowSize[0], this->WindowSize[1]);
-  this->DepthTextureObject->Deactivate();
 
 //  glActiveTexture(GL_TEXTURE4);
 //  if (!this->DepthTextureId)
@@ -2228,7 +2230,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   vtkInternal::ToFloat(this->Impl->ScalarsRange, fvalue2);
   this->Impl->ShaderProgram->SetUniform2fv("in_scalarsRange", 1, &fvalue2);
 
-  this->Impl->ShaderProgram->SetUniformi("in_volume", 7);
+  this->Impl->ShaderProgram->SetUniformi("in_volume", 8);
   this->Impl->ShaderProgram->SetUniformi("in_opacityTransferFunc",
     this->Impl->OpacityTables->GetTable(0)->GetTextureUnit());
   this->Impl->ShaderProgram->SetUniformi("in_noiseSampler",
@@ -2277,7 +2279,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Bind textures
   // Volume texture is at unit 0
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE8);
   glBindTexture(GL_TEXTURE_3D, this->Impl->VolumeTextureId);
 
   // Color texture is at unit 1
@@ -2297,14 +2299,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->OpacityTables->GetTable(0)->Bind();
 
   // Noise texture is at unit 3
-  this->Impl->NoiseTextureObject->Bind();
+  this->Impl->NoiseTextureObject->Activate();
 //  glActiveTexture(GL_TEXTURE3);
 //  glBindTexture(GL_TEXTURE_2D, this->Impl->NoiseTextureId);
 
   // Depth texture is at unit 4
 //  glActiveTexture(GL_TEXTURE4);
 //  glBindTexture(GL_TEXTURE_2D, this->Impl->DepthTextureId);
-  this->Impl->DepthTextureObject->Bind();
+  this->Impl->DepthTextureObject->Activate();
 
   // Look at the OpenGL Camera for the exact aspect computation
   double aspect[2];
