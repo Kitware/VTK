@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include <vtkDiscretizableColorTransferFunction.h>
+#include <vtkSmartPointer.h>
 #include <vtkStdString.h>
 #include <vtkStringArray.h>
 #include <vtkUnsignedCharArray.h>
@@ -20,7 +21,7 @@
 
 int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkStringArray* sArray = vtkStringArray::New();
+  vtkSmartPointer<vtkStringArray> sArray = vtkSmartPointer<vtkStringArray>::New();
   const int numStrings = 6;
   sArray->SetNumberOfValues(numStrings);
   sArray->SetName("TestArray");
@@ -39,7 +40,8 @@ int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char
     std::cout << sArray->GetValue(i) << "\n";
     }
 
-  vtkDiscretizableColorTransferFunction* tfer = vtkDiscretizableColorTransferFunction::New();
+  vtkSmartPointer<vtkDiscretizableColorTransferFunction> tfer =
+    vtkSmartPointer<vtkDiscretizableColorTransferFunction>::New();
   tfer->IndexedLookupOn();
 
   tfer->SetNumberOfIndexedColors(3);
@@ -51,9 +53,6 @@ int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char
   tfer->SetAnnotation(category3, "Annotation3");
 
   vtkUnsignedCharArray* colors = tfer->MapScalars(sArray, VTK_RGBA, -1);
-
-  tfer->Delete();
-  sArray->Delete();
 
   unsigned char expectedColors[numStrings][4] = {
     {0, 0, 0, 255},

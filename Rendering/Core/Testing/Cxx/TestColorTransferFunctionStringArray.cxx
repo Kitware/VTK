@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include <vtkColorTransferFunction.h>
+#include <vtkSmartPointer.h>
 #include <vtkStdString.h>
 #include <vtkStringArray.h>
 #include <vtkUnsignedCharArray.h>
@@ -20,7 +21,7 @@
 
 int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkStringArray* sArray = vtkStringArray::New();
+  vtkSmartPointer<vtkStringArray> sArray = vtkSmartPointer<vtkStringArray>::New();
   const int numStrings = 6;
   sArray->SetNumberOfValues(numStrings);
   sArray->SetName("TestArray");
@@ -39,7 +40,7 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
     std::cout << sArray->GetValue(i) << "\n";
     }
 
-  vtkColorTransferFunction* tfer = vtkColorTransferFunction::New();
+  vtkSmartPointer<vtkColorTransferFunction> tfer = vtkSmartPointer<vtkColorTransferFunction>::New();
   tfer->IndexedLookupOn();
 
   // Need to set some nodes to avoid prematurely returning from
@@ -53,9 +54,6 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
   tfer->SetAnnotation(category3, "Annotation3");
 
   vtkUnsignedCharArray* colors = tfer->MapScalars(sArray, VTK_RGBA, -1);
-
-  tfer->Delete();
-  sArray->Delete();
 
   unsigned char expectedColors[numStrings][4] = {
     {0, 0, 0, 255},
