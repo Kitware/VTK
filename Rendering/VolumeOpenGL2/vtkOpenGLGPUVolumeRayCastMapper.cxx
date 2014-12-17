@@ -1060,6 +1060,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     }
 
   this->DepthTextureObject->Activate();
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
+                      this->WindowLowerLeft[0], this->WindowLowerLeft[1],
+                      this->WindowSize[0], this->WindowSize[1]);
+  this->DepthTextureObject->Deactivate();
+
 //  glActiveTexture(GL_TEXTURE4);
 //  if (!this->DepthTextureId)
 //    {
