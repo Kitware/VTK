@@ -1193,9 +1193,11 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
+  char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
+  delete[] volumeFile;
+
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter
