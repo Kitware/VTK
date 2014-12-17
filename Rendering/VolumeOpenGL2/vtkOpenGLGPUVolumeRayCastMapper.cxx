@@ -1050,19 +1050,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     this->DepthTextureObject = vtkTextureObject::New();
     this->DepthTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
                                           ren->GetRenderWindow()));
-
-    this->DepthTextureObject->AllocateDepth(this->WindowSize[0],
-                                            this->WindowSize[1],
-                                            4);
-    this->DepthTextureObject->Activate();
+    // First set the parameters
     this->DepthTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->DepthTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->DepthTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->DepthTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+    this->DepthTextureObject->AllocateDepth(this->WindowSize[0],
+                                            this->WindowSize[1],
+                                            4);
     }
 
   this->DepthTextureObject->Activate();
-  glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
                       this->WindowLowerLeft[0], this->WindowLowerLeft[1],
                       this->WindowSize[0], this->WindowSize[1]);

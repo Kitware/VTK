@@ -110,6 +110,15 @@ public:
     NumberOfAlphaFormats
   };
 
+  // Depth mode formats
+  enum
+  {
+    DepthAlpha=0,
+    DepthLuminance,
+    DepthIntensity,
+    NumberOfDepthModeFormats
+  };
+
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -299,6 +308,7 @@ public:
                                  bool shaderSupportsTextureInt);
   unsigned int GetFormat(int vtktype, int numComps,
                          bool shaderSupportsTextureInt);
+  unsigned int GetDepthTextureModeFormat(int vtktype);
 
   // Description:
   // Optional, require support for floating point depth buffer
@@ -464,6 +474,16 @@ public:
   vtkSetMacro(DepthTextureCompareFunction,int);
 
   // Description:
+  // Magnification filter mode.
+  // Valid values are:
+  // - DepthAlpha
+  // - DepthIntensity
+  // - DepthLuminance
+  // Initial value is Luminance
+  vtkGetMacro(DepthTextureMode, int);
+  vtkSetMacro(DepthTextureMode, int);
+
+  // Description:
   // Tells the hardware to generate mipmap textures from the first texture
   // image at BaseLevel.
   // Initial value is false, as in OpenGL spec.
@@ -584,6 +604,7 @@ protected:
 
   bool DepthTextureCompare;
   int DepthTextureCompareFunction;
+  int DepthTextureMode;
 
   bool GenerateMipmap;
 

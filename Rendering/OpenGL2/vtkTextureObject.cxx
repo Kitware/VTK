@@ -224,6 +224,7 @@ vtkTextureObject::vtkTextureObject()
   this->MaxLevel = 0;
   this->DepthTextureCompare = false;
   this->DepthTextureCompareFunction = Lequal;
+  this->DepthTextureMode = DepthLuminance;
   this->GenerateMipmap = false;
   this->ShaderProgram = NULL;
   this->BorderColor[0] = 0.0f;
@@ -402,6 +403,12 @@ void vtkTextureObject::CreateTexture()
 #ifdef GL_TEXTURE_MAX_LEVEL
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 #endif
+
+      if (this->Depth)
+        {
+        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE,
+                        this->GetDepthTextureModeFormat(this->DepthTextureMode));
+        }
 
       glBindTexture(this->Target, 0);
       }
@@ -933,6 +940,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
 #endif
 
+//----------------------------------------------------------------------------
 unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
                                          bool shaderSupportsTextureInt)
 {
@@ -1044,6 +1052,21 @@ int vtkTextureObject::GetDataType()
   return ::vtkGetVTKType(this->Type);
 }
 
+//----------------------------------------------------------------------------
+unsigned int vtkTextureObject::GetDepthTextureModeFormat(int vtktype)
+{
+  switch (vtktype)
+    {
+    case DepthAlpha:
+      return GL_ALPHA;
+    case DepthLuminance:
+      return GL_LUMINANCE;
+    case DepthIntensity:
+      return GL_INTENSITY;
+    default:
+      return GL_LUMINANCE;
+    }
+}
 
 #if GL_ES_VERSION_2_0 != 1
 
