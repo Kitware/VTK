@@ -390,11 +390,15 @@ void vtkTextureObject::CreateTexture()
       // See: http://www.opengl.org/wiki/Common_Mistakes#Creating_a_complete_texture
       // turn off mip map filter or set the base and max level correctly. here
       // both are done.
-      glTexParameteri(this->Target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameteri(this->Target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(this->Target, GL_TEXTURE_MIN_FILTER,
+                      this->GetMinificationFilterMode(this->MinificationFilter));
+      glTexParameteri(this->Target, GL_TEXTURE_MAG_FILTER,
+                      this->GetMagnificationFilterMode(this->MagnificationFilter));
 
-      glTexParameteri(this->Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(this->Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(this->Target, GL_TEXTURE_WRAP_S,
+                      this->GetWrapSMode(this->WrapS));
+      glTexParameteri(this->Target, GL_TEXTURE_WRAP_T,
+                      this->GetWrapTMode(this->WrapT));
 
 #ifdef GL_TEXTURE_BASE_LEVEL
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -1066,6 +1070,66 @@ unsigned int vtkTextureObject::GetDepthTextureModeFormat(int vtktype)
     default:
       return GL_LUMINANCE;
     }
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkTextureObject::GetMinificationFilterMode(int vtktype)
+{
+  switch(vtktype)
+    {
+    case Nearest:
+      return GL_NEAREST;
+    case Linear:
+      return GL_LINEAR;
+    case NearestMipmapNearest:
+      return GL_NEAREST_MIPMAP_NEAREST;
+    case NearestMipmapLinear:
+      return GL_NEAREST_MIPMAP_LINEAR;
+    case LinearMipmapNearest:
+      return GL_LINEAR_MIPMAP_NEAREST;
+    case LinearMipmapLinear:
+      return GL_LINEAR_MIPMAP_LINEAR;
+    default:
+      return GL_NEAREST;
+    }
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkTextureObject::GetMagnificationFilterMode(int vtktype)
+{
+  switch(vtktype)
+    {
+    case Nearest:
+      return GL_NEAREST;
+    case Linear:
+      return GL_LINEAR;
+    default:
+      return GL_NEAREST;
+    }
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkTextureObject::GetWrapSMode(int vtktype)
+{
+  switch(vtktype)
+    {
+    case ClampToEdge:
+      return GL_CLAMP_TO_EDGE;
+    case Repeat:
+      return GL_REPEAT;
+    case ClampToBorder:
+      return GL_CLAMP_TO_BORDER;
+    case MirroredRepeat:
+      return GL_MIRRORED_REPEAT;
+    default:
+      return GL_CLAMP_TO_EDGE;
+    }
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkTextureObject::GetWrapTMode(int vtktype)
+{
+  return this->GetWrapSMode(vtktype);
 }
 
 #if GL_ES_VERSION_2_0 != 1

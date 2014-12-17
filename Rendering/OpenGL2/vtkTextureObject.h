@@ -309,6 +309,10 @@ public:
   unsigned int GetFormat(int vtktype, int numComps,
                          bool shaderSupportsTextureInt);
   unsigned int GetDepthTextureModeFormat(int vtktype);
+  unsigned int GetMinificationFilterMode(int vtktype);
+  unsigned int GetMagnificationFilterMode(int vtktype);
+  unsigned int GetWrapSMode(int vtktype);
+  unsigned int GetWrapTMode(int vtkTypeFloat32);
 
   // Description:
   // Optional, require support for floating point depth buffer
