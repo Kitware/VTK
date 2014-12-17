@@ -125,8 +125,11 @@ public:
   //--------------------------------------------------------------------------
   ~vtkInternal()
     {
-    delete this->RGBTable;
-    this->RGBTable = 0;
+    if (this->RGBTable)
+      {
+      delete this->RGBTable;
+      this->RGBTable = 0;
+      }
 
     if(this->Mask1RGBTable!=0)
       {
@@ -140,8 +143,11 @@ public:
       this->Mask2RGBTable=0;
       }
 
-    delete this->OpacityTables;
-    this->OpacityTables = 0;
+    if (this->OpacityTables)
+      {
+      delete this->OpacityTables;
+      this->OpacityTables = 0;
+      }
 
     if (this->GradientOpacityTables)
       {
@@ -149,8 +155,23 @@ public:
       this->GradientOpacityTables = 0;
       }
 
-    delete this->NoiseTextureData;
-    this->NoiseTextureData = 0;
+    if (this->NoiseTextureData)
+      {
+      delete this->NoiseTextureData;
+      this->NoiseTextureData = 0;
+      }
+
+    if (this->NoiseTextureObject)
+      {
+      this->NoiseTextureObject->Delete();
+      this->NoiseTextureObject = 0;
+      }
+
+    if (this->DepthTextureObject)
+      {
+      this->DepthTextureObject->Delete();
+      this->DepthTextureObject = 0;
+      }
 
     if (this->MaskTextures != 0)
       {
