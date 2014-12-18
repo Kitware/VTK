@@ -19,7 +19,7 @@ VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(char);
 #include "vtkArrayIteratorTemplate.txx"
 VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(char);
 
-#define __vtkCharArray_cxx
+#define vtkCharArray_cxx
 #include "vtkCharArray.h"
 
 #include "vtkObjectFactory.h"

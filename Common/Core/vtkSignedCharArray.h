@@ -22,7 +22,7 @@
 #define __vtkSignedCharArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !defined(__vtkSignedCharArray_cxx)
+#if !defined(vtkSignedCharArray_cxx)
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE signed char
 #endif
 

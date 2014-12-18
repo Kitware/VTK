@@ -22,7 +22,7 @@
 #define __vtkCharArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !defined(__vtkCharArray_cxx)
+#if !defined(vtkCharArray_cxx)
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE char
 #endif
 

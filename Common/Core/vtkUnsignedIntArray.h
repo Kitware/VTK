@@ -22,7 +22,7 @@
 #define __vtkUnsignedIntArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !defined(__vtkUnsignedIntArray_cxx)
+#if !defined(vtkUnsignedIntArray_cxx)
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE unsigned int
 #endif
 

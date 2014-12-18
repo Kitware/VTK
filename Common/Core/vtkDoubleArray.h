@@ -22,7 +22,7 @@
 #define __vtkDoubleArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !defined(__vtkDoubleArray_cxx)
+#if !defined(vtkDoubleArray_cxx)
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE double
 #endif
 

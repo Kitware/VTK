@@ -18,7 +18,7 @@ VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
 #include "vtkArrayIteratorTemplate.txx"
 VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(short);
 
-#define __vtkShortArray_cxx
+#define vtkShortArray_cxx
 #include "vtkShortArray.h"
 
 #include "vtkObjectFactory.h"

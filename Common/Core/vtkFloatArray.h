@@ -22,7 +22,7 @@
 #define __vtkFloatArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !defined(__vtkFloatArray_cxx)
+#if !defined(vtkFloatArray_cxx)
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE float
 #endif
 

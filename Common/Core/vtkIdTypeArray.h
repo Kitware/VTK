@@ -22,7 +22,7 @@
 #define __vtkIdTypeArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !(defined(__vtkIdTypeArray_cxx) && defined(VTK_USE_64BIT_IDS)) && (defined(VTK_USE_64BIT_IDS) || !defined(__vtkIntArray_h))
+#if !(defined(vtkIdTypeArray_cxx) && defined(VTK_USE_64BIT_IDS)) && (defined(VTK_USE_64BIT_IDS) || !defined(__vtkIntArray_h))
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE vtkIdType
 #endif
 
