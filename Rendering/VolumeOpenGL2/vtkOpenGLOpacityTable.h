@@ -224,6 +224,10 @@ public:
   //--------------------------------------------------------------------------
   vtkOpenGLOpacityTable* GetTable(unsigned int i)
     {
+    if (i >= this->NumberOfTables)
+      {
+      return NULL;
+      }
     return &this->Tables[i];
     }
 
