@@ -393,4 +393,4 @@ private:
 //ETX
 };
 
-#endif //__vtkOpenGLExtensionManager
+#endif // vtkOpenGLExtensionManager_h

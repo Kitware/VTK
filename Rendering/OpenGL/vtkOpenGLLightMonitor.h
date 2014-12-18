@@ -25,8 +25,8 @@
 // own instance of this class. it's intended to be called once per
 // render.
 
-#ifndef __vtkOpenGLLightMonitor_H
-#define __vtkOpenGLLightMonitor_H
+#ifndef vtkOpenGLLightMonitor_h
+#define vtkOpenGLLightMonitor_h
 
 #include "vtkRenderingOpenGLModule.h" // for export macro
 #include "vtkObject.h"

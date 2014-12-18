@@ -357,8 +357,8 @@ foreach my $source (@files) {
             # Quit if the end of the documentation block has been reached.
             # Let'say that it is supposed to end as soon as the usual
             # inclusion directives are found, for example:
-            # #ifndef __vtkAbstractTransform_h
-            # #define __vtkAbstractTransform_h
+            # #ifndef vtkAbstractTransform_h
+            # #define vtkAbstractTransform_h
 
             last if $line =~ /^\#/;
 

@@ -27,8 +27,8 @@
 // own instance of this class. it's intended to be called once per
 // render.
 
-#ifndef __vtkBackgroundColorMonitor_H
-#define __vtkBackgroundColorMonitor_H
+#ifndef vtkBackgroundColorMonitor_h
+#define vtkBackgroundColorMonitor_h
 
 #include "vtkRenderingCoreModule.h" // for export macro
 #include "vtkObject.h"
