@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkTensorProbeWidget
 
-#ifndef __vtkTensorProbeRepresentation_h
-#define __vtkTensorProbeRepresentation_h
+#ifndef vtkTensorProbeRepresentation_h
+#define vtkTensorProbeRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

@@ -51,8 +51,8 @@
 // an x-y-z coordinate value using the hardware z-buffer. vtkPicker can be
 // used to pick the bounding box of 3D props.
 
-#ifndef __vtkAbstractPicker_h
-#define __vtkAbstractPicker_h
+#ifndef vtkAbstractPicker_h
+#define vtkAbstractPicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

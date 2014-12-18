@@ -18,8 +18,8 @@
 // The important capability it has is to produce images without bringing
 // data back to the CPU.
 
-#ifndef __vtkPistonMapper_h
-#define __vtkPistonMapper_h
+#ifndef vtkPistonMapper_h
+#define vtkPistonMapper_h
 
 #include "vtkAcceleratorsPistonModule.h" // For export macro
 #include "vtkMapper.h"

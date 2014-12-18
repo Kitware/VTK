@@ -18,8 +18,8 @@
 // vtkXMLPHierarchicalBoxDataWriter is an empty subclass of
 // vtkXMLPUniformGridAMRWriter for backwards compatibility.
 
-#ifndef __vtkXMLPHierarchicalBoxDataWriter_h
-#define __vtkXMLPHierarchicalBoxDataWriter_h
+#ifndef vtkXMLPHierarchicalBoxDataWriter_h
+#define vtkXMLPHierarchicalBoxDataWriter_h
 
 #include "vtkXMLPUniformGridAMRWriter.h"
 #include "vtkIOParallelXMLModule.h" // For export macro

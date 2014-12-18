@@ -21,8 +21,8 @@
 // generally derive from vtkContextItem, rather than this class, as it provides
 // most of the commonly used API.
 
-#ifndef __vtkAbstractContextItem_h
-#define __vtkAbstractContextItem_h
+#ifndef vtkAbstractContextItem_h
+#define vtkAbstractContextItem_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
@@ -241,4 +241,4 @@ private:
 //ETX
 };
 
-#endif //__vtkContextItem_h
+#endif //vtkContextItem_h

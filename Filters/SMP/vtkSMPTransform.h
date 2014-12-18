@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkTransform
 
-#ifndef __vtkSMPTransform_h
-#define __vtkSMPTransform_h
+#ifndef vtkSMPTransform_h
+#define vtkSMPTransform_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkTransform.h"

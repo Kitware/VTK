@@ -20,8 +20,8 @@
 // vtkChartXY by default, but this can be overridden. The class will manage
 // their layout and object lifetime.
 
-#ifndef __vtkScatterPlotMatrix_h
-#define __vtkScatterPlotMatrix_h
+#ifndef vtkScatterPlotMatrix_h
+#define vtkScatterPlotMatrix_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartMatrix.h"
@@ -387,4 +387,4 @@ private:
                         const vtkStdString &y);
 };
 
-#endif //__vtkScatterPlotMatrix_h
+#endif //vtkScatterPlotMatrix_h

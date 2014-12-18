@@ -17,8 +17,8 @@
 // vtkOpenGLProperty is a concrete implementation of the abstract class
 // vtkProperty. vtkOpenGLProperty interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOpenGLProperty_h
-#define __vtkOpenGLProperty_h
+#ifndef vtkOpenGLProperty_h
+#define vtkOpenGLProperty_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkProperty.h"

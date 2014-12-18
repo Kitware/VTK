@@ -41,8 +41,8 @@
 // .SECTION See Also
 // vtkImageCheckerboard
 
-#ifndef __vtkImageRectilinearWipe_h
-#define __vtkImageRectilinearWipe_h
+#ifndef vtkImageRectilinearWipe_h
+#define vtkImageRectilinearWipe_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

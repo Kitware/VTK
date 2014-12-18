@@ -17,8 +17,8 @@
 // vtkDataArrayCollection is an object that creates and manipulates lists of
 // datasets. See also vtkCollection and subclasses.
 
-#ifndef __vtkDataArrayCollection_h
-#define __vtkDataArrayCollection_h
+#ifndef vtkDataArrayCollection_h
+#define vtkDataArrayCollection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"

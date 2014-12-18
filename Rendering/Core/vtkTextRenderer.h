@@ -37,8 +37,8 @@
 // Note that this class is abstract -- link to the vtkRenderingFreetype module
 // to get the default implementation.
 
-#ifndef __vtkTextRenderer_h
-#define __vtkTextRenderer_h
+#ifndef vtkTextRenderer_h
+#define vtkTextRenderer_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -281,4 +281,4 @@ private:
   void operator=(const vtkTextRenderer &); // Not implemented.
 };
 
-#endif //__vtkTextRenderer_h
+#endif //vtkTextRenderer_h

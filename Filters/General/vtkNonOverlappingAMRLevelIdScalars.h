@@ -18,8 +18,8 @@
 // the level number for each level. Note that all datasets within a level get
 // the same scalar. The new scalars array is named \c LevelIdScalars.
 
-#ifndef __vtkNonOverlappingAMRLevelIdScalars_h
-#define __vtkNonOverlappingAMRLevelIdScalars_h
+#ifndef vtkNonOverlappingAMRLevelIdScalars_h
+#define vtkNonOverlappingAMRLevelIdScalars_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkNonOverlappingAMRAlgorithm.h"

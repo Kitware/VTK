@@ -60,8 +60,8 @@
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
 // vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45
 
-#ifndef __vtkGenericStreamTracer_h
-#define __vtkGenericStreamTracer_h
+#ifndef vtkGenericStreamTracer_h
+#define vtkGenericStreamTracer_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkContourFilter vtkGenericDataSet
 
-#ifndef __vtkGenericContourFilter_h
-#define __vtkGenericContourFilter_h
+#ifndef vtkGenericContourFilter_h
+#define vtkGenericContourFilter_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

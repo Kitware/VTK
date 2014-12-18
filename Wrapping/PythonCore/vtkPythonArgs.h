@@ -23,8 +23,8 @@ resulting in wrapper code that is faster and more compact.
 
 // .NAME vtkPythonArgs
 
-#ifndef __vtkPythonArgs_h
-#define __vtkPythonArgs_h
+#ifndef vtkPythonArgs_h
+#define vtkPythonArgs_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPythonUtil.h"

@@ -46,8 +46,8 @@
 // after Finalize especially when concerning with imported modules. Refer to
 // Python docs for details. In short, modules like numpy don't continue to work
 // after a re-initialize. Hence use it with caution.
-#ifndef __vtkPythonInterpreter_h
-#define __vtkPythonInterpreter_h
+#ifndef vtkPythonInterpreter_h
+#define vtkPythonInterpreter_h
 
 #include "vtkObject.h"
 #include "vtkPythonInterpreterModule.h" // For export macro

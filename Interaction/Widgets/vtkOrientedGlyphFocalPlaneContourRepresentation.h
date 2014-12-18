@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkOrientedGlyphContourRepresentation
 
-#ifndef __vtkOrientedGlyphFocalPlaneContourRepresentation_h
-#define __vtkOrientedGlyphFocalPlaneContourRepresentation_h
+#ifndef vtkOrientedGlyphFocalPlaneContourRepresentation_h
+#define vtkOrientedGlyphFocalPlaneContourRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkFocalPlaneContourRepresentation.h"

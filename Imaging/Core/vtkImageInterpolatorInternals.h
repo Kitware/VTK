@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkInterpolatorInternals - internals for vtkImageInterpolator
 
-#ifndef __vtkInterpolatorInternals_h
-#define __vtkInterpolatorInternals_h
+#ifndef vtkInterpolatorInternals_h
+#define vtkInterpolatorInternals_h
 
 #include "vtkMath.h"
 

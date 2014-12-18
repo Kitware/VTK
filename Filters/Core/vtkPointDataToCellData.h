@@ -30,8 +30,8 @@
 // vtkPointData vtkCellData vtkCellDataToPointData
 
 
-#ifndef __vtkPointDataToCellData_h
-#define __vtkPointDataToCellData_h
+#ifndef vtkPointDataToCellData_h
+#define vtkPointDataToCellData_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

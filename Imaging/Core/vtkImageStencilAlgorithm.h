@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkImageStencilData vtkImageStencilSource
 
-#ifndef __vtkImageStencilAlgorithm_h
-#define __vtkImageStencilAlgorithm_h
+#ifndef vtkImageStencilAlgorithm_h
+#define vtkImageStencilAlgorithm_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

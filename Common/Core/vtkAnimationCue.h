@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkAnimationScene
 
-#ifndef __vtkAnimationCue_h
-#define __vtkAnimationCue_h
+#ifndef vtkAnimationCue_h
+#define vtkAnimationCue_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

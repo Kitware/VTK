@@ -20,8 +20,8 @@
 // two dimensional XY gradient.  OutputScalarType is always
 // double. Gradient is computed using central differences.
 
-#ifndef __vtkImageGradient_h
-#define __vtkImageGradient_h
+#ifndef vtkImageGradient_h
+#define vtkImageGradient_h
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

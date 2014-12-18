@@ -32,8 +32,8 @@
 // .SECTION see also
 // vtkMultiProcessController
 
-#ifndef __vtkProcess_h
-#define __vtkProcess_h
+#ifndef vtkProcess_h
+#define vtkProcess_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"

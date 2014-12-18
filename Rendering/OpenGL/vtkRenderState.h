@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkRenderPass vtkRenderer vtkFrameBufferObject vtkProp
 
-#ifndef __vtkRenderState_h
-#define __vtkRenderState_h
+#ifndef vtkRenderState_h
+#define vtkRenderState_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

@@ -25,8 +25,8 @@
 // part of VTK public API
 // VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h
 
-#ifndef __vtkXdmf3ArraySelection_h
-#define __vtkXdmf3ArraySelection_h
+#ifndef vtkXdmf3ArraySelection_h
+#define vtkXdmf3ArraySelection_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 
@@ -67,4 +67,4 @@ public:
   int GetNumberOfArrays();
 };
 
-#endif //# __vtkXdmf3ArraySelection_h
+#endif //# vtkXdmf3ArraySelection_h

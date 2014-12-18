@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkADIOSReader is the base class for all ADIOS writers
 
-#ifndef __vtkADIOSReader_h
-#define __vtkADIOSReader_h
+#ifndef vtkADIOSReader_h
+#define vtkADIOSReader_h
 
 #include <string> // For variable name index mapping
 #include <vector> // For independently time stepped array indexing

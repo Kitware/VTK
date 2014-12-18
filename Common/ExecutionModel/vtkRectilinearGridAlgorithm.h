@@ -27,8 +27,8 @@
 // You should implement the subclass's algorithm into
 // RequestData( request, inputVec, outputVec).
 
-#ifndef __vtkRectilinearGridAlgorithm_h
-#define __vtkRectilinearGridAlgorithm_h
+#ifndef vtkRectilinearGridAlgorithm_h
+#define vtkRectilinearGridAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

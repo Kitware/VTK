@@ -26,8 +26,8 @@
 // .SECTION Thanks
 // Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
 
-#ifndef __vtkPDescriptiveStatistics_h
-#define __vtkPDescriptiveStatistics_h
+#ifndef vtkPDescriptiveStatistics_h
+#define vtkPDescriptiveStatistics_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkDescriptiveStatistics.h"

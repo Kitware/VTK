@@ -30,8 +30,8 @@
 // newer features provided by this implementation (such as unicode and MathText
 // strings). Do not link with that library if such features are needed.
 
-#ifndef __vtkTextMapper_h
-#define __vtkTextMapper_h
+#ifndef vtkTextMapper_h
+#define vtkTextMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"

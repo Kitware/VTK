@@ -26,8 +26,8 @@
 // .SECTION see also
 // vtkFixedPointVolumeRayCastMapper
 
-#ifndef __vtkFixedPointVolumeRayCastCompositeHelper_h
-#define __vtkFixedPointVolumeRayCastCompositeHelper_h
+#ifndef vtkFixedPointVolumeRayCastCompositeHelper_h
+#define vtkFixedPointVolumeRayCastCompositeHelper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkFixedPointVolumeRayCastHelper.h"

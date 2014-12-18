@@ -18,8 +18,8 @@
 // vtkTableToDatabaseWriter abstract parent class that reads a vtkTable and
 // inserts it into an SQL database.
 
-#ifndef __vtkTableToDatabaseWriter_h
-#define __vtkTableToDatabaseWriter_h
+#ifndef vtkTableToDatabaseWriter_h
+#define vtkTableToDatabaseWriter_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include <string> // STL Header

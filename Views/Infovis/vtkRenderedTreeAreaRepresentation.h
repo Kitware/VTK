@@ -21,8 +21,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkRenderedTreeAreaRepresentation_h
-#define __vtkRenderedTreeAreaRepresentation_h
+#ifndef vtkRenderedTreeAreaRepresentation_h
+#define vtkRenderedTreeAreaRepresentation_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"

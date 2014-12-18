@@ -16,8 +16,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Description
 // vtkQImageToImageSource produces image data from a QImage.
 
-#ifndef __vtkQImageToImageSource_h
-#define __vtkQImageToImageSource_h
+#ifndef vtkQImageToImageSource_h
+#define vtkQImageToImageSource_h
 
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

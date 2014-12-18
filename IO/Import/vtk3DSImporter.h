@@ -20,8 +20,8 @@
 // vtkImporter
 
 
-#ifndef __vtk3DSImporter_h
-#define __vtk3DSImporter_h
+#ifndef vtk3DSImporter_h
+#define vtk3DSImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"

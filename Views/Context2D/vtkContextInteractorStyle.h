@@ -19,8 +19,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkContextInteractorStyle_h
-#define __vtkContextInteractorStyle_h
+#ifndef vtkContextInteractorStyle_h
+#define vtkContextInteractorStyle_h
 
 #include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkInteractorStyle.h"

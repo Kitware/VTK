@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkADIOSWriter is the base class for all ADIOS writers
 
-#ifndef __vtkADIOSWriter_h
-#define __vtkADIOSWriter_h
+#ifndef vtkADIOSWriter_h
+#define vtkADIOSWriter_h
 
 #include <string> // For independently stepped array indexing
 #include <vector> // For independently stepped array indexing

@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkAxisActor2D vtkActor2D vtkCoordinate vtkTextProperty
 
-#ifndef __vtkLeaderActor2D_h
-#define __vtkLeaderActor2D_h
+#ifndef vtkLeaderActor2D_h
+#define vtkLeaderActor2D_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

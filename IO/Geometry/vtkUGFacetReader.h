@@ -18,8 +18,8 @@
 // Unigraphics is a solid modeling system; facet files are the polygonal
 // plot files it uses to create 3D plots.
 
-#ifndef __vtkUGFacetReader_h
-#define __vtkUGFacetReader_h
+#ifndef vtkUGFacetReader_h
+#define vtkUGFacetReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

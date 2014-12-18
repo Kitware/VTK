@@ -17,8 +17,8 @@
 // vtkImageShrink3D shrinks an image by sub sampling on a
 // uniform grid (integer multiples).
 
-#ifndef __vtkImageShrink3D_h
-#define __vtkImageShrink3D_h
+#ifndef vtkImageShrink3D_h
+#define vtkImageShrink3D_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

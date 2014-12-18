@@ -17,8 +17,8 @@
 // vtkRenderLargeImage provides methods needed to read a region from a file.
 
 
-#ifndef __vtkRenderLargeImage_h
-#define __vtkRenderLargeImage_h
+#ifndef vtkRenderLargeImage_h
+#define vtkRenderLargeImage_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"

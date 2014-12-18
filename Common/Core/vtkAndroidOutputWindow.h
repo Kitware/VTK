@@ -22,8 +22,8 @@
 // the vtkObject::GlobalWarningDisplayOff() function is called.  The
 // window is created the next time text is written to the window.
 
-#ifndef __vtkAndroidOutputWindow_h
-#define __vtkAndroidOutputWindow_h
+#ifndef vtkAndroidOutputWindow_h
+#define vtkAndroidOutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"

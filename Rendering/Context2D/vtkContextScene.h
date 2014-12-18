@@ -20,8 +20,8 @@
 // items, ensures that they are rendered at the right times and passes on mouse
 // events.
 
-#ifndef __vtkContextScene_h
-#define __vtkContextScene_h
+#ifndef vtkContextScene_h
+#define vtkContextScene_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
@@ -294,4 +294,4 @@ private:
 //ETX
 };
 
-#endif //__vtkContextScene_h
+#endif //vtkContextScene_h

@@ -17,8 +17,8 @@
 // vtkTableToSQLiteWriter reads a vtkTable and inserts it into an SQLite
 // database.
 
-#ifndef __vtkTableToSQLiteWriter_h
-#define __vtkTableToSQLiteWriter_h
+#ifndef vtkTableToSQLiteWriter_h
+#define vtkTableToSQLiteWriter_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"

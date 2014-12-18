@@ -21,8 +21,8 @@
 // handles around a given point of a piecewise function so that the curve can
 // be adjusted using these handles.
 
-#ifndef __vtkPiecewisePointHandleItem_h
-#define __vtkPiecewisePointHandleItem_h
+#ifndef vtkPiecewisePointHandleItem_h
+#define vtkPiecewisePointHandleItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -106,4 +106,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPiecewisePointHandleItem_h
+#endif //vtkPiecewisePointHandleItem_h

@@ -11,8 +11,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkAbstractRenderDevice_h
-#define __vtkAbstractRenderDevice_h
+#ifndef vtkAbstractRenderDevice_h
+#define vtkAbstractRenderDevice_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

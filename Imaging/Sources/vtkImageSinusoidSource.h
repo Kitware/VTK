@@ -18,8 +18,8 @@
 // by a sinusoid.
 
 
-#ifndef __vtkImageSinusoidSource_h
-#define __vtkImageSinusoidSource_h
+#ifndef vtkImageSinusoidSource_h
+#define vtkImageSinusoidSource_h
 
 #include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

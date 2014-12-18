@@ -37,8 +37,8 @@
 // Input port 0: graph
 // Input port 1: selection
 
-#ifndef __vtkCollapseGraph_h
-#define __vtkCollapseGraph_h
+#ifndef vtkCollapseGraph_h
+#define vtkCollapseGraph_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

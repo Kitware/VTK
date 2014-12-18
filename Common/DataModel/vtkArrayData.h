@@ -34,8 +34,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkArrayData_h
-#define __vtkArrayData_h
+#ifndef vtkArrayData_h
+#define vtkArrayData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkArray.h"

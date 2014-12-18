@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkGL2PSExporter
 
-#ifndef __vtkGL2PSContextDevice2D_h
-#define __vtkGL2PSContextDevice2D_h
+#ifndef vtkGL2PSContextDevice2D_h
+#define vtkGL2PSContextDevice2D_h
 
 #include "vtkRenderingGL2PSModule.h" // For export macro
 #include "vtkOpenGLContextDevice2D.h"
@@ -174,4 +174,4 @@ private:
   void TransformSize(float &dx, float &dy) const;
 };
 
-#endif //__vtkGL2PSContextDevice2D_h
+#endif //vtkGL2PSContextDevice2D_h

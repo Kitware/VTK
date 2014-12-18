@@ -28,8 +28,8 @@
 // vertices where there is a directed path between any pair of vertices
 // within each set).
 
-#ifndef __vtkBoostConnectedComponents_h
-#define __vtkBoostConnectedComponents_h
+#ifndef vtkBoostConnectedComponents_h
+#define vtkBoostConnectedComponents_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

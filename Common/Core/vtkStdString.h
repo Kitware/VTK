@@ -18,8 +18,8 @@
 // names than basic_string<...> in namespace std given by the standard
 // STL string.
 
-#ifndef __vtkStdString_h
-#define __vtkStdString_h
+#ifndef vtkStdString_h
+#define vtkStdString_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h" // For VTKCOMMONCORE_EXPORT.

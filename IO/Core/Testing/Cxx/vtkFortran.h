@@ -37,8 +37,8 @@
  *  [ Data Type Compatibility ]
  *  http://www.ictp.trieste.it/~manuals/programming/sun/fortran/prog_guide/11_cfort.doc.html
  */
-#ifndef __vtkFortran_h
-#define __vtkFortran_h
+#ifndef vtkFortran_h
+#define vtkFortran_h
 
 #define VTK_FORTRAN_NAME(name, NAME) \
   name##__

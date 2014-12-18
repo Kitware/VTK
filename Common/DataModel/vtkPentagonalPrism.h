@@ -29,8 +29,8 @@
 // class in VTK. <br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
 
-#ifndef __vtkPentagonalPrism_h
-#define __vtkPentagonalPrism_h
+#ifndef vtkPentagonalPrism_h
+#define vtkPentagonalPrism_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"

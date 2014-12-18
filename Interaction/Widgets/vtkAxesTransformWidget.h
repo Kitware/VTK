@@ -72,8 +72,8 @@
 // .SECTION See Also
 // vtkAxesTransformRepresentation vtkAffineWidget vtkBoxWidget2
 
-#ifndef __vtkAxesTransformWidget_h
-#define __vtkAxesTransformWidget_h
+#ifndef vtkAxesTransformWidget_h
+#define vtkAxesTransformWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

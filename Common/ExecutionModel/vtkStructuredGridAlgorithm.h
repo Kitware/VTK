@@ -25,8 +25,8 @@
 // method that by default says that all inputs will be StructuredGrid. If that
 // isn't the case then please override this method in your subclass.
 
-#ifndef __vtkStructuredGridAlgorithm_h
-#define __vtkStructuredGridAlgorithm_h
+#ifndef vtkStructuredGridAlgorithm_h
+#define vtkStructuredGridAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

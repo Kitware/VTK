@@ -60,8 +60,8 @@
 // .SECTION See Also
 // vtkDecimatePro vtkQuadricDecimation vtkQuadricClustering
 
-#ifndef __vtkGreedyTerrainDecimation_h
-#define __vtkGreedyTerrainDecimation_h
+#ifndef vtkGreedyTerrainDecimation_h
+#define vtkGreedyTerrainDecimation_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

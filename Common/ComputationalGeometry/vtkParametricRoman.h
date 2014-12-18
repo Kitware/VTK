@@ -24,8 +24,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricRoman_h
-#define __vtkParametricRoman_h
+#ifndef vtkParametricRoman_h
+#define vtkParametricRoman_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

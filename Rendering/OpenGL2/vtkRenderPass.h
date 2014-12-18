@@ -39,8 +39,8 @@
 // .SECTION See Also
 // vtkRenderState vtkRenderer
 
-#ifndef __vtkRenderPass_h
-#define __vtkRenderPass_h
+#ifndef vtkRenderPass_h
+#define vtkRenderPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"

@@ -25,8 +25,8 @@
 // is the same as the output scalar type.
 
 
-#ifndef __vtkImageMask_h
-#define __vtkImageMask_h
+#ifndef vtkImageMask_h
+#define vtkImageMask_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

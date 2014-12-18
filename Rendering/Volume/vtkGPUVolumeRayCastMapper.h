@@ -19,8 +19,8 @@
 //
 
 
-#ifndef __vtkGPUVolumeRayCastMapper_h
-#define __vtkGPUVolumeRayCastMapper_h
+#ifndef vtkGPUVolumeRayCastMapper_h
+#define vtkGPUVolumeRayCastMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"

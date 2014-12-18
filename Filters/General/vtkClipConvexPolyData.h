@@ -18,8 +18,8 @@
 // of planes. Its main usage is for clipping a bounding volume with frustum
 // planes (used later one in volume rendering).
 
-#ifndef __vtkClipConvexPolyData_h
-#define __vtkClipConvexPolyData_h
+#ifndef vtkClipConvexPolyData_h
+#define vtkClipConvexPolyData_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

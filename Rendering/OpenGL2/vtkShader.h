@@ -14,8 +14,8 @@
 // .NAME vtkShader - encapsulate a glsl shader
 // .SECTION Description
 // vtkShader represents a shader, vertex, fragment, geometry etc
-#ifndef __vtkShader_h
-#define __vtkShader_h
+#ifndef vtkShader_h
+#define vtkShader_h
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"

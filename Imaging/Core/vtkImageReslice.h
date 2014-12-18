@@ -47,8 +47,8 @@
 // vtkAbstractTransform vtkMatrix4x4
 
 
-#ifndef __vtkImageReslice_h
-#define __vtkImageReslice_h
+#ifndef vtkImageReslice_h
+#define vtkImageReslice_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

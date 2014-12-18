@@ -17,8 +17,8 @@
 // .SECTION Thanks
 // Thanks to the galaxy for inspiring this layout strategy.
 
-#ifndef __vtkTreeOrbitLayoutStrategy_h
-#define __vtkTreeOrbitLayoutStrategy_h
+#ifndef vtkTreeOrbitLayoutStrategy_h
+#define vtkTreeOrbitLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

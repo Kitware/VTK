@@ -19,8 +19,8 @@
 // pattern.  It makes sure that the vtkDebugLeaks singleton is created
 // before and destroyed after all other singletons in VTK.
 
-#ifndef __vtkDebugLeaksManager_h
-#define __vtkDebugLeaksManager_h
+#ifndef vtkDebugLeaksManager_h
+#define vtkDebugLeaksManager_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

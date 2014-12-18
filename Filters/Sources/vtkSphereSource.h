@@ -26,8 +26,8 @@
 // sphere. If you create partial spheres the number of latitude/longitude
 // lines may be off by one.
 
-#ifndef __vtkSphereSource_h
-#define __vtkSphereSource_h
+#ifndef vtkSphereSource_h
+#define vtkSphereSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

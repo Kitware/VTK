@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkContourFilter
 
-#ifndef __vtkContourValues_h
-#define __vtkContourValues_h
+#ifndef vtkContourValues_h
+#define vtkContourValues_h
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"

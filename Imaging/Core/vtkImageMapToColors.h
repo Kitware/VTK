@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkLookupTable vtkScalarsToColors
 
-#ifndef __vtkImageMapToColors_h
-#define __vtkImageMapToColors_h
+#ifndef vtkImageMapToColors_h
+#define vtkImageMapToColors_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

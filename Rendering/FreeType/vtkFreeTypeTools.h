@@ -20,8 +20,8 @@
 // .Section Caveats
 // Internal use only.
 
-#ifndef __vtkFreeTypeTools_h
-#define __vtkFreeTypeTools_h
+#ifndef vtkFreeTypeTools_h
+#define vtkFreeTypeTools_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"

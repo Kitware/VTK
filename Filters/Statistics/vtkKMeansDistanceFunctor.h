@@ -1,5 +1,5 @@
-#ifndef __vtkKMeansDistanceFunctor_h
-#define __vtkKMeansDistanceFunctor_h
+#ifndef vtkKMeansDistanceFunctor_h
+#define vtkKMeansDistanceFunctor_h
 
 // .NAME vtkKMeansDistanceFunctor - measure distance from k-means cluster centers
 // .SECTION Description
@@ -93,4 +93,4 @@ private:
   void operator = ( const vtkKMeansDistanceFunctor& ); // Not implemented.
 };
 
-#endif // __vtkKMeansDistanceFunctor_h
+#endif // vtkKMeansDistanceFunctor_h

@@ -22,8 +22,8 @@
 // vtkScalarsToColorsItem
 // vtkPiecewiseControlPointsItem
 
-#ifndef __vtkControlPointsItem_h
-#define __vtkControlPointsItem_h
+#ifndef vtkControlPointsItem_h
+#define vtkControlPointsItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkCommand.h" // For vtkCommand enum

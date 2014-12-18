@@ -19,8 +19,8 @@
 // .SECTION See Also
 // A more portable and lightweight solution is kwsys::DynamicLoader
 
-#ifndef __vtkDynamicLoader_h
-#define __vtkDynamicLoader_h
+#ifndef vtkDynamicLoader_h
+#define vtkDynamicLoader_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

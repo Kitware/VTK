@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkProp vtkActor vtkAssembly vtkVolume
 
-#ifndef __vtkProp3D_h
-#define __vtkProp3D_h
+#ifndef vtkProp3D_h
+#define vtkProp3D_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp.h"

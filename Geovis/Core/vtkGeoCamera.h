@@ -66,8 +66,8 @@
 // .SECTION See Also
 // vtkGeoInteractorStyle vtkCamera
 
-#ifndef __vtkGeoCamera_h
-#define __vtkGeoCamera_h
+#ifndef vtkGeoCamera_h
+#define vtkGeoCamera_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"

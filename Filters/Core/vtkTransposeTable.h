@@ -24,8 +24,8 @@
 // Note that columns of the output table will have a variant type
 // is the columns of the initial table are not consistant.
 
-#ifndef __vtkTransposeTable_h
-#define __vtkTransposeTable_h
+#ifndef vtkTransposeTable_h
+#define vtkTransposeTable_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

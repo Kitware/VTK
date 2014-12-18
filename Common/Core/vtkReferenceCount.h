@@ -18,8 +18,8 @@
 // .SECTION See Also
 // vtkObject
 
-#ifndef __vtkReferenceCount_h
-#define __vtkReferenceCount_h
+#ifndef vtkReferenceCount_h
+#define vtkReferenceCount_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

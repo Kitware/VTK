@@ -34,8 +34,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkClipClosedSurface_h
-#define __vtkClipClosedSurface_h
+#ifndef vtkClipClosedSurface_h
+#define vtkClipClosedSurface_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

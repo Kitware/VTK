@@ -18,8 +18,8 @@
 // calling GL2PS routines on VTK objects. This class is meant for internal use
 // only and is subject to change.
 
-#ifndef __vtkGL2PSUtilities_h
-#define __vtkGL2PSUtilities_h
+#ifndef vtkGL2PSUtilities_h
+#define vtkGL2PSUtilities_h
 
 #include "vtkObject.h"
 #include "vtkRenderingGL2PSModule.h" // For export macro

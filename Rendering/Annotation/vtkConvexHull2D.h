@@ -42,8 +42,8 @@
 // .SECTION Thanks
 // Thanks to Colin Myers, University of Leeds for providing this implementation.
 
-#ifndef __vtkConvexHull2D_h
-#define __vtkConvexHull2D_h
+#ifndef vtkConvexHull2D_h
+#define vtkConvexHull2D_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -144,4 +144,4 @@ private:
   vtkSmartPointer<vtkPolygon> HullSource;
 };
 
-#endif // __vtkConvexHull2D_h
+#endif // vtkConvexHull2D_h

@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkDataObject
 
-#ifndef __vtkDataObjectTypes_h
-#define __vtkDataObjectTypes_h
+#ifndef vtkDataObjectTypes_h
+#define vtkDataObjectTypes_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

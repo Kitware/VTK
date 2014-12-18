@@ -19,8 +19,8 @@
 // that instead of creating individual mapper for each block in the composite
 // dataset, it iterates over the blocks internally.
 
-#ifndef __vtkCompositePolyDataMapper2_h
-#define __vtkCompositePolyDataMapper2_h
+#ifndef vtkCompositePolyDataMapper2_h
+#define vtkCompositePolyDataMapper2_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainterPolyDataMapper.h"

@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkCuller vtkCollection
 
-#ifndef __vtkCullerCollection_h
-#define __vtkCullerCollection_h
+#ifndef vtkCullerCollection_h
+#define vtkCullerCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"

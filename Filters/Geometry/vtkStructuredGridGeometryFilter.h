@@ -38,8 +38,8 @@
 // .SECTION See Also
 // vtkGeometryFilter vtkExtractGrid vtkStructuredGrid
 
-#ifndef __vtkStructuredGridGeometryFilter_h
-#define __vtkStructuredGridGeometryFilter_h
+#ifndef vtkStructuredGridGeometryFilter_h
+#define vtkStructuredGridGeometryFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -47,8 +47,8 @@
 // Ken Been and Chee Yap. Dynamic Map Labeling. IEEE Transactions on
 // Visualization and Computer Graphics, Vol. 12, No. 5, 2006. pp. 773-780.
 
-#ifndef __vtkDynamic2DLabelMapper_h
-#define __vtkDynamic2DLabelMapper_h
+#ifndef vtkDynamic2DLabelMapper_h
+#define vtkDynamic2DLabelMapper_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"

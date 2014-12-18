@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkDicer vtkConnectedDicer
 
-#ifndef __vtkOBBDicer_h
-#define __vtkOBBDicer_h
+#ifndef vtkOBBDicer_h
+#define vtkOBBDicer_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDicer.h"

@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkMPIController vtkProcessGroup
 
-#ifndef __vtkMPICommunicator_h
-#define __vtkMPICommunicator_h
+#ifndef vtkMPICommunicator_h
+#define vtkMPICommunicator_h
 
 #include "vtkParallelMPIModule.h" // For export macro
 #include "vtkCommunicator.h"

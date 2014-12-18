@@ -22,8 +22,8 @@
 // vtkExporter
 
 
-#ifndef __vtkVRMLExporter_h
-#define __vtkVRMLExporter_h
+#ifndef vtkVRMLExporter_h
+#define vtkVRMLExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

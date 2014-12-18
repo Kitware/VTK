@@ -18,8 +18,8 @@
 // window using the left mouse button while mouse is moving.
 // When the mouse button is released, a SelectionChangedEvent will be fired.
 
-#ifndef __vtkInteractorStyleDrawPolygon_h
-#define __vtkInteractorStyleDrawPolygon_h
+#ifndef vtkInteractorStyleDrawPolygon_h
+#define vtkInteractorStyleDrawPolygon_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"

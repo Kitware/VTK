@@ -36,8 +36,8 @@
 // has cell data indicating what label in the input it
 // corresponds to (via an array named "LabelId").
 
-#ifndef __vtkLabelPlacer_h
-#define __vtkLabelPlacer_h
+#ifndef vtkLabelPlacer_h
+#define vtkLabelPlacer_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -197,4 +197,4 @@ private:
   void operator = ( const vtkLabelPlacer& ); // Not implemented.
 };
 
-#endif // __vtkLabelPlacer_h
+#endif // vtkLabelPlacer_h

@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkMPIUtilities_h
-#define __vtkMPIUtilities_h
+#ifndef vtkMPIUtilities_h
+#define vtkMPIUtilities_h
 
 #include "vtkParallelMPIModule.h" // For export macro
 
@@ -42,5 +42,5 @@ void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...);
 
 } // END namespace vtkMPIUtilities
 
-#endif // __vtkMPIUtilities_h
+#endif // vtkMPIUtilities_h
 // VTK-HeaderTest-Exclude: vtkMPIUtilities.h

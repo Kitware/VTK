@@ -28,8 +28,8 @@
 // http://hdl.handle.net/10380/3262
 // http://www.insight-journal.org/browse/publication/797
 
-#ifndef __vtkIntersectionPolyDataFilter_h
-#define __vtkIntersectionPolyDataFilter_h
+#ifndef vtkIntersectionPolyDataFilter_h
+#define vtkIntersectionPolyDataFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -83,4 +83,4 @@ private:
 };
 
 
-#endif // __vtkIntersectionPolyDataFilter_h
+#endif // vtkIntersectionPolyDataFilter_h

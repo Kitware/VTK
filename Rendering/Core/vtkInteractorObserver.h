@@ -39,8 +39,8 @@
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget
 
-#ifndef __vtkInteractorObserver_h
-#define __vtkInteractorObserver_h
+#ifndef vtkInteractorObserver_h
+#define vtkInteractorObserver_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

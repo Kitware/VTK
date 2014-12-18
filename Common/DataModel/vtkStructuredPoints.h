@@ -24,8 +24,8 @@
 // have special methods for setting/getting the origin/extents.
 
 
-#ifndef __vtkStructuredPoints_h
-#define __vtkStructuredPoints_h
+#ifndef vtkStructuredPoints_h
+#define vtkStructuredPoints_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImageData.h"

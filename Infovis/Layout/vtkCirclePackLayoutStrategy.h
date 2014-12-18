@@ -33,8 +33,8 @@
 // Thanks to Thomas Otahal from Sandia National Laboratories
 // for help developing this class.
 
-#ifndef __vtkCirclePackLayoutStrategy_h
-#define __vtkCirclePackLayoutStrategy_h
+#ifndef vtkCirclePackLayoutStrategy_h
+#define vtkCirclePackLayoutStrategy_h
 
 
 #include "vtkInfovisLayoutModule.h" // For export macro

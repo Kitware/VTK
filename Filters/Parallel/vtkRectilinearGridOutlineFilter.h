@@ -19,8 +19,8 @@
 // With one piece you can simply use vtkOutlineFilter.  This filter
 // ignores internal edges when the extent is not the whole extent.
 
-#ifndef __vtkRectilinearGridOutlineFilter_h
-#define __vtkRectilinearGridOutlineFilter_h
+#ifndef vtkRectilinearGridOutlineFilter_h
+#define vtkRectilinearGridOutlineFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

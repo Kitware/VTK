@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkMarchingCubesCases_h
-#define __vtkMarchingCubesCases_h
+#ifndef vtkMarchingCubesCases_h
+#define vtkMarchingCubesCases_h
 //
 // marching cubes case table for generating isosurfaces
 //

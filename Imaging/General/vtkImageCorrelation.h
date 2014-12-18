@@ -21,8 +21,8 @@
 // The output size will match the size of the first input.
 // The second input is considered the correlation kernel.
 
-#ifndef __vtkImageCorrelation_h
-#define __vtkImageCorrelation_h
+#ifndef vtkImageCorrelation_h
+#define vtkImageCorrelation_h
 
 
 

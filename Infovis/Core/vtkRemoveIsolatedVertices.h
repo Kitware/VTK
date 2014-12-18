@@ -22,8 +22,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkRemoveIsolatedVertices_h
-#define __vtkRemoveIsolatedVertices_h
+#ifndef vtkRemoveIsolatedVertices_h
+#define vtkRemoveIsolatedVertices_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

@@ -44,8 +44,8 @@
 // Linux, that the default extended precision mode is in effect, and it
 // assumes, on Windows, that the default double precision mode is in effect.
 
-#ifndef __vtkFastNumericConversion_h
-#define __vtkFastNumericConversion_h
+#ifndef vtkFastNumericConversion_h
+#define vtkFastNumericConversion_h
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"

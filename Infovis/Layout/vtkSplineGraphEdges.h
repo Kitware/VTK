@@ -24,8 +24,8 @@
 // splines. By default, the filter will use an optimized b-spline.
 // Otherwise, it will use a custom vtkSpline instance set by the user.
 
-#ifndef __vtkSplineGraphEdges_h
-#define __vtkSplineGraphEdges_h
+#ifndef vtkSplineGraphEdges_h
+#define vtkSplineGraphEdges_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

@@ -28,8 +28,8 @@
 // RequestData( request, inputVec, outputVec).
 
 
-#ifndef __vtkDataObjectAlgorithm_h
-#define __vtkDataObjectAlgorithm_h
+#ifndef vtkDataObjectAlgorithm_h
+#define vtkDataObjectAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

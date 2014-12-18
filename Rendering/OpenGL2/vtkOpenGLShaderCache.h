@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkOpenGLShaderCache manages shader program compilation and binding
 
-#ifndef __vtkOpenGLShaderCache_h
-#define __vtkOpenGLShaderCache_h
+#ifndef vtkOpenGLShaderCache_h
+#define vtkOpenGLShaderCache_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"

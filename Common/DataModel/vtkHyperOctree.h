@@ -113,8 +113,8 @@
 // .SECTION See Also
 // vtkHyperOctreeAlgorithm
 
-#ifndef __vtkHyperOctree_h
-#define __vtkHyperOctree_h
+#ifndef vtkHyperOctree_h
+#define vtkHyperOctree_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"

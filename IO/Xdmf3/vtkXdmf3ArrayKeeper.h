@@ -26,8 +26,8 @@
 // part of VTK public API
 // VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h
 
-#ifndef __vtkXdmf3ArrayKeeper_h
-#define __vtkXdmf3ArrayKeeper_h
+#ifndef vtkXdmf3ArrayKeeper_h
+#define vtkXdmf3ArrayKeeper_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 #include <map>
@@ -63,4 +63,4 @@ private:
   unsigned int generation;
 };
 
-#endif //__vtkXdmf3ArrayKeeper_h
+#endif //vtkXdmf3ArrayKeeper_h

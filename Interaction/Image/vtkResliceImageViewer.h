@@ -24,8 +24,8 @@
 // .SECTION see also
 // vtkResliceCursor vtkResliceCursorWidget vtkResliceCursorRepresentation
 
-#ifndef __vtkResliceImageViewer_h
-#define __vtkResliceImageViewer_h
+#ifndef vtkResliceImageViewer_h
+#define vtkResliceImageViewer_h
 
 #include "vtkInteractionImageModule.h" // For export macro
 #include "vtkImageViewer2.h"

@@ -26,8 +26,8 @@
 // This algorithm works only with source that produce TIME_STEPS().
 // Continuous time range is not yet supported.
 
-#ifndef __vtkExtractTemporalFieldData_h
-#define __vtkExtractTemporalFieldData_h
+#ifndef vtkExtractTemporalFieldData_h
+#define vtkExtractTemporalFieldData_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

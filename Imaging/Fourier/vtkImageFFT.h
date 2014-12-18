@@ -24,8 +24,8 @@
 // FFT's are decomposed so that each axis executes serially.
 
 
-#ifndef __vtkImageFFT_h
-#define __vtkImageFFT_h
+#ifndef vtkImageFFT_h
+#define vtkImageFFT_h
 
 
 #include "vtkImagingFourierModule.h" // For export macro

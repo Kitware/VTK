@@ -18,8 +18,8 @@
 // provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
 
-#ifndef __vtkUnsignedIntArray_h
-#define __vtkUnsignedIntArray_h
+#ifndef vtkUnsignedIntArray_h
+#define vtkUnsignedIntArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
 #if !defined(vtkUnsignedIntArray_cxx)

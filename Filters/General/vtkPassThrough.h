@@ -17,8 +17,8 @@
 // .SECTION Description
 // The output type is always the same as the input object type.
 
-#ifndef __vtkPassThrough_h
-#define __vtkPassThrough_h
+#ifndef vtkPassThrough_h
+#define vtkPassThrough_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

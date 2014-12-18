@@ -20,8 +20,8 @@
 // of the sphere at which the continents are placed. Obtains data from
 // an imbedded array of coordinates.
 
-#ifndef __vtkEarthSource_h
-#define __vtkEarthSource_h
+#ifndef vtkEarthSource_h
+#define vtkEarthSource_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -28,8 +28,8 @@
 // .SECTION See Also
 //  vtkOverlappingAMR, vtkUniformGrid
 
-#ifndef __vtkAMRResampleFilter_h
-#define __vtkAMRResampleFilter_h
+#ifndef vtkAMRResampleFilter_h
+#define vtkAMRResampleFilter_h
 
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -349,4 +349,4 @@ private:
 
 };
 
-#endif /* __vtkAMRResampleFilter_h */
+#endif /* vtkAMRResampleFilter_h */

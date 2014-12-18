@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkOverlappingAMR, vtkAMRBox
 
-#ifndef __vtkAMRInformation_h
-#define __vtkAMRInformation_h
+#ifndef vtkAMRInformation_h
+#define vtkAMRInformation_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

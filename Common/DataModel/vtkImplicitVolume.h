@@ -34,8 +34,8 @@
 // vtkImplicitFunction vtkImplicitDataSet vtkClipPolyData vtkCutter
 // vtkImplicitWindowFunction
 
-#ifndef __vtkImplicitVolume_h
-#define __vtkImplicitVolume_h
+#ifndef vtkImplicitVolume_h
+#define vtkImplicitVolume_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

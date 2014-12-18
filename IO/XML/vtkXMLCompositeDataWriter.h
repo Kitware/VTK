@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkXMLPCompositeDataWriter
 
-#ifndef __vtkXMLCompositeDataWriter_h
-#define __vtkXMLCompositeDataWriter_h
+#ifndef vtkXMLCompositeDataWriter_h
+#define vtkXMLCompositeDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"

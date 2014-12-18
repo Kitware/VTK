@@ -18,8 +18,8 @@
 // .SECTION Description
 // This defines the interface for a chart.
 
-#ifndef __vtkChart_h
-#define __vtkChart_h
+#ifndef vtkChart_h
+#define vtkChart_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -391,4 +391,4 @@ private:
   void operator=(const vtkChart &);   // Not implemented.
 };
 
-#endif //__vtkChart_h
+#endif //vtkChart_h

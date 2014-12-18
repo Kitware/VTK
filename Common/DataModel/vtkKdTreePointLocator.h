@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkKdTree
 
-#ifndef __vtkKdTreePointLocator_h
-#define __vtkKdTreePointLocator_h
+#ifndef vtkKdTreePointLocator_h
+#define vtkKdTreePointLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"

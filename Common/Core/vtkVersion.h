@@ -22,8 +22,8 @@
 // timestamps a particular source release.
 
 
-#ifndef __vtkVersion_h
-#define __vtkVersion_h
+#ifndef vtkVersion_h
+#define vtkVersion_h
 
 
 #include "vtkCommonCoreModule.h" // For export macro

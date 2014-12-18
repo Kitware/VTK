@@ -40,8 +40,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkDenseArray_h
-#define __vtkDenseArray_h
+#ifndef vtkDenseArray_h
+#define vtkDenseArray_h
 
 #include "vtkArrayCoordinates.h"
 #include "vtkObjectFactory.h"

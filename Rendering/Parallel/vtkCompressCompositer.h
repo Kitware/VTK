@@ -24,8 +24,8 @@
 // SECTION See Also
 // vtkCompositeManager.
 
-#ifndef __vtkCompressCompositer_h
-#define __vtkCompressCompositer_h
+#ifndef vtkCompressCompositer_h
+#define vtkCompressCompositer_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkCompositer.h"

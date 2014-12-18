@@ -22,8 +22,8 @@
 // Simply passes existing edge layout information from the input to the
 // output without making changes.
 
-#ifndef __vtkPassThroughEdgeStrategy_h
-#define __vtkPassThroughEdgeStrategy_h
+#ifndef vtkPassThroughEdgeStrategy_h
+#define vtkPassThroughEdgeStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"

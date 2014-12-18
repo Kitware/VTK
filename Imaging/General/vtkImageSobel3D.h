@@ -22,8 +22,8 @@
 
 
 
-#ifndef __vtkImageSobel3D_h
-#define __vtkImageSobel3D_h
+#ifndef vtkImageSobel3D_h
+#define vtkImageSobel3D_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

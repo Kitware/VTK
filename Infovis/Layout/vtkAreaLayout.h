@@ -32,8 +32,8 @@
 // Thanks to Jason Shepherd from Sandia National Laboratories
 // for help developing this class.
 
-#ifndef __vtkAreaLayout_h
-#define __vtkAreaLayout_h
+#ifndef vtkAreaLayout_h
+#define vtkAreaLayout_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

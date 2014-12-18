@@ -27,8 +27,8 @@
 // example, if one input has scalars and vectors, and another has just
 // scalars, then only scalars will be interpolated and output.)
 
-#ifndef __vtkInterpolateDataSetAttributes_h
-#define __vtkInterpolateDataSetAttributes_h
+#ifndef vtkInterpolateDataSetAttributes_h
+#define vtkInterpolateDataSetAttributes_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

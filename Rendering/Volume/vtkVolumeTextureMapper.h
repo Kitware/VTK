@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkVolumeMapper
 
-#ifndef __vtkVolumeTextureMapper_h
-#define __vtkVolumeTextureMapper_h
+#ifndef vtkVolumeTextureMapper_h
+#define vtkVolumeTextureMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"

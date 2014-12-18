@@ -27,8 +27,8 @@
 // .SECTION See also
 // vtkQuaternionInterpolator
 
-#ifndef __vtkQuaternion_h
-#define __vtkQuaternion_h
+#ifndef vtkQuaternion_h
+#define vtkQuaternion_h
 
 #include "vtkTuple.h"
 
@@ -379,5 +379,5 @@ public:
 
 #include "vtkQuaternion.txx"
 
-#endif // __vtkQuaternion_h
+#endif // vtkQuaternion_h
 // VTK-HeaderTest-Exclude: vtkQuaternion.h

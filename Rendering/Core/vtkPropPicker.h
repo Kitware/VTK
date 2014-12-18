@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker
 
-#ifndef __vtkPropPicker_h
-#define __vtkPropPicker_h
+#ifndef vtkPropPicker_h
+#define vtkPropPicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"

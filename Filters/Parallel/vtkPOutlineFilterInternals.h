@@ -18,8 +18,8 @@
 // vtkOutlineCornerFilter. It assumes the filter is operated in a data parallel
 // pipeline.
 
-#ifndef __vtkPOutlineFilterInternals_h
-#define __vtkPOutlineFilterInternals_h
+#ifndef vtkPOutlineFilterInternals_h
+#define vtkPOutlineFilterInternals_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkBoundingBox.h" //  needed for vtkBoundingBox.

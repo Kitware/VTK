@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkExtractFunctionalBagPlot
 
-#ifndef __vtkPlotFunctionalBag_h
-#define __vtkPlotFunctionalBag_h
+#ifndef vtkPlotFunctionalBag_h
+#define vtkPlotFunctionalBag_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -131,4 +131,4 @@ private:
   void operator=(const vtkPlotFunctionalBag &); // Not implemented.
 };
 
-#endif //__vtkPlotFunctionalBag_h
+#endif //vtkPlotFunctionalBag_h

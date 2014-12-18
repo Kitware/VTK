@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkImageSlice vtkImageAssembly
 
-#ifndef __vtkImageSliceCollection_h
-#define __vtkImageSliceCollection_h
+#ifndef vtkImageSliceCollection_h
+#define vtkImageSliceCollection_h
 
 #include "vtkRenderingImageModule.h" // For export macro
 #include "vtkPropCollection.h"

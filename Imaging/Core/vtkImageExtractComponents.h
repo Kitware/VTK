@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkImageAppendComponents
 
-#ifndef __vtkImageExtractComponents_h
-#define __vtkImageExtractComponents_h
+#ifndef vtkImageExtractComponents_h
+#define vtkImageExtractComponents_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

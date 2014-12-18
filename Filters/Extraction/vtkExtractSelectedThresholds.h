@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkSelection vtkExtractSelection vtkThreshold
 
-#ifndef __vtkExtractSelectedThresholds_h
-#define __vtkExtractSelectedThresholds_h
+#ifndef vtkExtractSelectedThresholds_h
+#define vtkExtractSelectedThresholds_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"

@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkSpline vtkKochanekSpline vtkCardinalSpline
 
-#ifndef __vtkParametricSpline_h
-#define __vtkParametricSpline_h
+#ifndef vtkParametricSpline_h
+#define vtkParametricSpline_h
 
 class vtkSpline;
 class vtkPoints;

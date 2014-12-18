@@ -20,8 +20,8 @@
 
 // .NAME vtkDelimitedTextWriter - Delimited text writer for vtkTable
 // Writes a vtkTable as a delimited text file (such as CSV).
-#ifndef __vtkDelimitedTextWriter_h
-#define __vtkDelimitedTextWriter_h
+#ifndef vtkDelimitedTextWriter_h
+#define vtkDelimitedTextWriter_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"

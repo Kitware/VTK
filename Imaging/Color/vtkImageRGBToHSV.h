@@ -19,8 +19,8 @@
 // Output type must be the same as input type.
 
 
-#ifndef __vtkImageRGBToHSV_h
-#define __vtkImageRGBToHSV_h
+#ifndef vtkImageRGBToHSV_h
+#define vtkImageRGBToHSV_h
 
 
 #include "vtkImagingColorModule.h" // For export macro

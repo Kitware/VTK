@@ -17,8 +17,8 @@
 // Used in vtkPistonMapper to determine data range as part of color mapping
 // process.
 
-#ifndef __vtkPistonMinMax_h
-#define __vtkPistonMinMax_h
+#ifndef vtkPistonMinMax_h
+#define vtkPistonMinMax_h
 
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
@@ -93,5 +93,5 @@ namespace vtkPiston
   }
 }
 
-#endif // __vtkPistonMinMax_h
+#endif // vtkPistonMinMax_h
 // VTK-HeaderTest-Exclude: vtkPistonMinMax.h

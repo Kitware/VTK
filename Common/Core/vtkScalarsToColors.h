@@ -40,8 +40,8 @@
 // .SECTION See Also
 // vtkLookupTable vtkColorTransferFunction
 
-#ifndef __vtkScalarsToColors_h
-#define __vtkScalarsToColors_h
+#ifndef vtkScalarsToColors_h
+#define vtkScalarsToColors_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkVariant.h" // Set/get annotation methods require variants.

@@ -31,8 +31,8 @@
 // Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
 // layout capabilities.
 
-#ifndef __vtkGraphLayoutStrategy_h
-#define __vtkGraphLayoutStrategy_h
+#ifndef vtkGraphLayoutStrategy_h
+#define vtkGraphLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"

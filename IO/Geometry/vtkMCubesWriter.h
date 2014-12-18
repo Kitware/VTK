@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkMarchingCubes vtkSliceCubes vtkMCubesReader
 
-#ifndef __vtkMCubesWriter_h
-#define __vtkMCubesWriter_h
+#ifndef vtkMCubesWriter_h
+#define vtkMCubesWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"

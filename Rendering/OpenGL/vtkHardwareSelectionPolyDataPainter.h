@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkHardwareSelector
 
-#ifndef __vtkHardwareSelectionPolyDataPainter_h
-#define __vtkHardwareSelectionPolyDataPainter_h
+#ifndef vtkHardwareSelectionPolyDataPainter_h
+#define vtkHardwareSelectionPolyDataPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkStandardPolyDataPainter.h"

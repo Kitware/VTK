@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkExtractDataSets
 
-#ifndef __vtkHierarchicalDataExtractDataSets_h
-#define __vtkHierarchicalDataExtractDataSets_h
+#ifndef vtkHierarchicalDataExtractDataSets_h
+#define vtkHierarchicalDataExtractDataSets_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractDataSets.h"

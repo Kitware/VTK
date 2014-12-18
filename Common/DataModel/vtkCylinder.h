@@ -25,8 +25,8 @@
 // vtkImplicitBoolean in combination with clipping planes.
 
 
-#ifndef __vtkCylinder_h
-#define __vtkCylinder_h
+#ifndef vtkCylinder_h
+#define vtkCylinder_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

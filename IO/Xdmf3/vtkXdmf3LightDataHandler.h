@@ -25,8 +25,8 @@
 // part of VTK public API
 // VTK-HeaderTest-Exclude: vtkXdmf3LightDataHandler.h
 
-#ifndef __vtkXdmf3LightDataHandler_h
-#define __vtkXdmf3LightDataHandler_h
+#ifndef vtkXdmf3LightDataHandler_h
+#define vtkXdmf3LightDataHandler_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 #include <set>
@@ -124,4 +124,4 @@ private:
   std::set<double> times; //relying on implicit sort from set<double>
 };
 
-#endif //__vtkXdmf3LightDataHandler_h
+#endif //vtkXdmf3LightDataHandler_h

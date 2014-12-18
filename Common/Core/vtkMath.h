@@ -33,8 +33,8 @@
 // vtkMinimalStandardRandomSequence, vtkBoxMuellerRandomSequence,
 // vtkQuaternion
 
-#ifndef __vtkMath_h
-#define __vtkMath_h
+#ifndef vtkMath_h
+#define vtkMath_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

@@ -15,8 +15,8 @@
 // .NAME vtkDataSetCellIterator - Implementation of vtkCellIterator using
 // vtkDataSet API.
 
-#ifndef __vtkDataSetCellIterator_h
-#define __vtkDataSetCellIterator_h
+#ifndef vtkDataSetCellIterator_h
+#define vtkDataSetCellIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCellIterator.h"
@@ -55,4 +55,4 @@ private:
   void operator=(const vtkDataSetCellIterator &);   // Not implemented.
 };
 
-#endif //__vtkDataSetCellIterator_h
+#endif //vtkDataSetCellIterator_h

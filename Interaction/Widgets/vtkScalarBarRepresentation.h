@@ -37,8 +37,8 @@
 // vtkScalarBarWidget vtkWidgetRepresentation vtkScalarBarActor
 //
 
-#ifndef __vtkScalarBarRepresentation_h
-#define __vtkScalarBarRepresentation_h
+#ifndef vtkScalarBarRepresentation_h
+#define vtkScalarBarRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
@@ -91,4 +91,4 @@ private:
   void operator=(const vtkScalarBarRepresentation &);   // Not implemented
 };
 
-#endif //__vtkScalarBarRepresentation_h
+#endif //vtkScalarBarRepresentation_h

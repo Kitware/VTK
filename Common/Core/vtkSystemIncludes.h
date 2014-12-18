@@ -18,8 +18,8 @@
 // The vtkSystemIncludes centralizes the inclusion of system include
 // files.
 
-#ifndef __vtkSystemIncludes_h
-#define __vtkSystemIncludes_h
+#ifndef vtkSystemIncludes_h
+#define vtkSystemIncludes_h
 
 /* first include the local configuration for this machine */
 #define __VTK_SYSTEM_INCLUDES__INSIDE

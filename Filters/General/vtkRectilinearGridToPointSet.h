@@ -28,8 +28,8 @@
 // This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
 // Sandia National Laboratories.
 
-#ifndef __vtkRectilinearGridToPointSet_h
-#define __vtkRectilinearGridToPointSet_h
+#ifndef vtkRectilinearGridToPointSet_h
+#define vtkRectilinearGridToPointSet_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
@@ -63,4 +63,4 @@ private:
 };
 
 
-#endif //__vtkRectilinearGridToPointSet_h
+#endif //vtkRectilinearGridToPointSet_h

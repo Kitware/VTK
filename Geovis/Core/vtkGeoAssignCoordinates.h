@@ -29,8 +29,8 @@
 // If a transform is given, use the transform to convert latitude and longitude
 // to the world coordinate.
 
-#ifndef __vtkGeoAssignCoordinates_h
-#define __vtkGeoAssignCoordinates_h
+#ifndef vtkGeoAssignCoordinates_h
+#define vtkGeoAssignCoordinates_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

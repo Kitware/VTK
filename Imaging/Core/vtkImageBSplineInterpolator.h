@@ -31,8 +31,8 @@
 // VTK Journal, 2011,
 // http://hdl.handle.net/10380/3252
 
-#ifndef __vtkImageBSplineInterpolator_h
-#define __vtkImageBSplineInterpolator_h
+#ifndef vtkImageBSplineInterpolator_h
+#define vtkImageBSplineInterpolator_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAbstractImageInterpolator.h"

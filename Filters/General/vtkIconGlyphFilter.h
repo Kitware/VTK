@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkPolyDataAlgorithm vtkGlyph3D vtkGlyph2D
 
-#ifndef __vtkIconGlyphFilter_h
-#define __vtkIconGlyphFilter_h
+#ifndef vtkIconGlyphFilter_h
+#define vtkIconGlyphFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

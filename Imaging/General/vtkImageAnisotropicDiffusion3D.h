@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkImageAnisotropicDiffusion2D
 
-#ifndef __vtkImageAnisotropicDiffusion3D_h
-#define __vtkImageAnisotropicDiffusion3D_h
+#ifndef vtkImageAnisotropicDiffusion3D_h
+#define vtkImageAnisotropicDiffusion3D_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

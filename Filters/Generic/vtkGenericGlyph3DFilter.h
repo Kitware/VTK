@@ -68,8 +68,8 @@
 // .SECTION See Also
 // vtkTensorGlyph
 
-#ifndef __vtkGenericGlyph3DFilter_h
-#define __vtkGenericGlyph3DFilter_h
+#ifndef vtkGenericGlyph3DFilter_h
+#define vtkGenericGlyph3DFilter_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

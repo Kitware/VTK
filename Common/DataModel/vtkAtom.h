@@ -15,8 +15,8 @@
 // .NAME vtkAtom - convenience proxy for vtkMolecule
 // .SECTION Description
 
-#ifndef __vtkAtom_h
-#define __vtkAtom_h
+#ifndef vtkAtom_h
+#define vtkAtom_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h" // For macros, defines, etc

@@ -22,8 +22,8 @@
 // .SECTION see also
 // vtkFrustumCoverageCuller
 
-#ifndef __vtkCuller_h
-#define __vtkCuller_h
+#ifndef vtkCuller_h
+#define vtkCuller_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

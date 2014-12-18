@@ -24,8 +24,8 @@
 // array). It adopts an iterator interface, and allows attributes to be
 // associated with points, edges, faces, or edges.
 
-#ifndef __vtkGenericAttribute_h
-#define __vtkGenericAttribute_h
+#ifndef vtkGenericAttribute_h
+#define vtkGenericAttribute_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

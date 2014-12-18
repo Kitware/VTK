@@ -24,8 +24,8 @@
 // This class was developed by Takuya Oshima at Niigata University,
 // Japan (oshima@eng.niigata-u.ac.jp).
 
-#ifndef __vtkPOpenFOAMReader_h
-#define __vtkPOpenFOAMReader_h
+#ifndef vtkPOpenFOAMReader_h
+#define vtkPOpenFOAMReader_h
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkOpenFOAMReader.h"

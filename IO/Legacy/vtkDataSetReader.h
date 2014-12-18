@@ -28,8 +28,8 @@
 // vtkDataReader vtkPolyDataReader vtkRectilinearGridReader
 // vtkStructuredPointsReader vtkStructuredGridReader vtkUnstructuredGridReader
 
-#ifndef __vtkDataSetReader_h
-#define __vtkDataSetReader_h
+#ifndef vtkDataSetReader_h
+#define vtkDataSetReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

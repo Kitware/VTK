@@ -23,8 +23,8 @@
 // This filter is used to extract either the field, cell or point data of
 // any data object as a table.
 
-#ifndef __vtkDataObjectToTable_h
-#define __vtkDataObjectToTable_h
+#ifndef vtkDataObjectToTable_h
+#define vtkDataObjectToTable_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

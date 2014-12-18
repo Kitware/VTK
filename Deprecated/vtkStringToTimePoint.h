@@ -31,8 +31,8 @@
 //
 // The output array will be of type vtkTypeUInt64Array.
 
-#ifndef __vtkStringToTimePoint_h
-#define __vtkStringToTimePoint_h
+#ifndef vtkStringToTimePoint_h
+#define vtkStringToTimePoint_h
 
 #include "vtkDataObjectAlgorithm.h"
 

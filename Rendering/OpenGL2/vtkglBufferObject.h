@@ -11,8 +11,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkglBufferObject_h
-#define __vtkglBufferObject_h
+#ifndef vtkglBufferObject_h
+#define vtkglBufferObject_h
 
 #include "vtkRenderingOpenGL2Module.h"
 #include "vtkStdString.h" // for std::string

@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkHardwareSelector
 
-#ifndef __vtkOpenGLHardwareSelector_h
-#define __vtkOpenGLHardwareSelector_h
+#ifndef vtkOpenGLHardwareSelector_h
+#define vtkOpenGLHardwareSelector_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkHardwareSelector.h"

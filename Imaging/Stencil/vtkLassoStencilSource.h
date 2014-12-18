@@ -23,8 +23,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkLassoStencilSource_h
-#define __vtkLassoStencilSource_h
+#ifndef vtkLassoStencilSource_h
+#define vtkLassoStencilSource_h
 
 
 #include "vtkImagingStencilModule.h" // For export macro

@@ -28,8 +28,8 @@
 // can be found at <http://cf-pcmdi.llnl.gov/>.
 //
 
-#ifndef __vtkNetCDFCFReader_h
-#define __vtkNetCDFCFReader_h
+#ifndef vtkNetCDFCFReader_h
+#define vtkNetCDFCFReader_h
 
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkNetCDFReader.h"
@@ -294,5 +294,5 @@ private:
   void operator=(const vtkNetCDFCFReader &);    // Not implemented
 };
 
-#endif //__vtkNetCDFCFReader_h
+#endif //vtkNetCDFCFReader_h
 

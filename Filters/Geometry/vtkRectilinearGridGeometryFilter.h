@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkGeometryFilter vtkExtractGrid
 
-#ifndef __vtkRectilinearGridGeometryFilter_h
-#define __vtkRectilinearGridGeometryFilter_h
+#ifndef vtkRectilinearGridGeometryFilter_h
+#define vtkRectilinearGridGeometryFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -22,8 +22,8 @@
 // .SECTION See also
 // vtkSimpleImageToImageAlgorithm
 
-#ifndef __vtkThreadedImageAlgorithm_h
-#define __vtkThreadedImageAlgorithm_h
+#ifndef vtkThreadedImageAlgorithm_h
+#define vtkThreadedImageAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

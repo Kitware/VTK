@@ -21,8 +21,8 @@
 // and finding the closest point.  The points are provided from the specified
 // dataset input.
 
-#ifndef __vtkAbstractPointLocator_h
-#define __vtkAbstractPointLocator_h
+#ifndef vtkAbstractPointLocator_h
+#define vtkAbstractPointLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"

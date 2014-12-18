@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
 
-#ifndef __vtkGenericDataSetTessellator_h
-#define __vtkGenericDataSetTessellator_h
+#ifndef vtkGenericDataSetTessellator_h
+#define vtkGenericDataSetTessellator_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkSQLDatabase vtkRowQuery
 
-#ifndef __vtkRowQueryToTable_h
-#define __vtkRowQueryToTable_h
+#ifndef vtkRowQueryToTable_h
+#define vtkRowQueryToTable_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

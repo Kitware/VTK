@@ -17,8 +17,8 @@
 // vtkOutlineCornerSource creates wireframe outline corners around a user-specified
 // bounding box.
 
-#ifndef __vtkOutlineCornerSource_h
-#define __vtkOutlineCornerSource_h
+#ifndef vtkOutlineCornerSource_h
+#define vtkOutlineCornerSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkOutlineSource.h"

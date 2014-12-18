@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkXMLDataParser
 
-#ifndef __vtkXMLDataElement_h
-#define __vtkXMLDataElement_h
+#ifndef vtkXMLDataElement_h
+#define vtkXMLDataElement_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

@@ -22,8 +22,8 @@
 // All edge layouts should subclass from this class.  vtkEdgeLayoutStrategy
 // works as a plug-in to the vtkEdgeLayout algorithm.
 
-#ifndef __vtkEdgeLayoutStrategy_h
-#define __vtkEdgeLayoutStrategy_h
+#ifndef vtkEdgeLayoutStrategy_h
+#define vtkEdgeLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"

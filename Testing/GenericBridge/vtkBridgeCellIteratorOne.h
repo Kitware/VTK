@@ -16,8 +16,8 @@
 // .SECTION See Also
 // vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorStrategy
 
-#ifndef __vtkBridgeCellIteratorOne_h
-#define __vtkBridgeCellIteratorOne_h
+#ifndef vtkBridgeCellIteratorOne_h
+#define vtkBridgeCellIteratorOne_h
 
 #include "vtkBridgeCellIteratorStrategy.h"
 

@@ -18,8 +18,8 @@
 // .SECTION See Also
 // vtkCutter
 
-#ifndef __vtkCompositeCutter_h
-#define __vtkCompositeCutter_h
+#ifndef vtkCompositeCutter_h
+#define vtkCompositeCutter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkCutter.h"

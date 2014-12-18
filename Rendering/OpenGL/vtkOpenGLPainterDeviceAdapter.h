@@ -37,8 +37,8 @@
 // \endverbatim
 //
 
-#ifndef __vtkOpenGLPainterDeviceAdapter_h
-#define __vtkOpenGLPainterDeviceAdapter_h
+#ifndef vtkOpenGLPainterDeviceAdapter_h
+#define vtkOpenGLPainterDeviceAdapter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainterDeviceAdapter.h"

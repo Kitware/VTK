@@ -70,8 +70,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Li-Ta Lo (ollie@lanl.gov) and Jim Ahrens (ahrens@lanl.gov)
 // Los Alamos National Laboratory
 
-#ifndef __vtkPOVExporter_h
-#define __vtkPOVExporter_h
+#ifndef vtkPOVExporter_h
+#define vtkPOVExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

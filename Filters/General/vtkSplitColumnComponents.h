@@ -31,8 +31,8 @@
 // and "Points (Z)" when NamingMode is NAMES_WITH_PARENS, and into Points_X,
 // Points_Y, and Points_Z when NamingMode is NAMES_WITH_UNDERSCORES.
 
-#ifndef __vtkSplitColumnComponents_h
-#define __vtkSplitColumnComponents_h
+#ifndef vtkSplitColumnComponents_h
+#define vtkSplitColumnComponents_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

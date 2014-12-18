@@ -43,8 +43,8 @@
 // vtkBrownianPoints
 
 
-#ifndef __vtkRandomAttributeGenerator_h
-#define __vtkRandomAttributeGenerator_h
+#ifndef vtkRandomAttributeGenerator_h
+#define vtkRandomAttributeGenerator_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

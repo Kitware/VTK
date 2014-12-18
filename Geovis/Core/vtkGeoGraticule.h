@@ -28,8 +28,8 @@
 // of degrees. By default the latitude bounds are [-90,90[ and the longitude
 // bounds are [0,180[.
 
-#ifndef __vtkGeoGraticule_h
-#define __vtkGeoGraticule_h
+#ifndef vtkGeoGraticule_h
+#define vtkGeoGraticule_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -121,4 +121,4 @@ private:
   void operator = ( const vtkGeoGraticule& ); // Not implemented.
 };
 
-#endif // __vtkGeoGraticule_h
+#endif // vtkGeoGraticule_h

@@ -83,8 +83,8 @@
 // </pre>
 
 
-#ifndef __vtkXMLTreeReader_h
-#define __vtkXMLTreeReader_h
+#ifndef vtkXMLTreeReader_h
+#define vtkXMLTreeReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

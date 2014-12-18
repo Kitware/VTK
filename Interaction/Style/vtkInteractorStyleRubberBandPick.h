@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkAreaPicker
 
-#ifndef __vtkInteractorStyleRubberBandPick_h
-#define __vtkInteractorStyleRubberBandPick_h
+#ifndef vtkInteractorStyleRubberBandPick_h
+#define vtkInteractorStyleRubberBandPick_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"

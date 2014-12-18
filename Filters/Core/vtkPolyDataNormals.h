@@ -44,8 +44,8 @@
 // Triangle strips are broken up into triangle polygons. You may want to
 // restrip the triangles.
 
-#ifndef __vtkPolyDataNormals_h
-#define __vtkPolyDataNormals_h
+#ifndef vtkPolyDataNormals_h
+#define vtkPolyDataNormals_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

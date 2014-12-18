@@ -35,8 +35,8 @@
 // are defined by their local position and focal point, transformed by
 // their transformation matrix (if it exists).
 
-#ifndef __vtkLight_h
-#define __vtkLight_h
+#ifndef vtkLight_h
+#define vtkLight_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

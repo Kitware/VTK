@@ -32,8 +32,8 @@
 // a line or curve can be used to probe data to produce x-y plots along
 // that line or curve.
 
-#ifndef __vtkProbeFilter_h
-#define __vtkProbeFilter_h
+#ifndef vtkProbeFilter_h
+#define vtkProbeFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

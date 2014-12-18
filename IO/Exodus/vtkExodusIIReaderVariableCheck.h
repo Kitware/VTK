@@ -1,5 +1,5 @@
-#ifndef __vtkExodusIIReaderVariableCheck_h
-#define __vtkExodusIIReaderVariableCheck_h
+#ifndef vtkExodusIIReaderVariableCheck_h
+#define vtkExodusIIReaderVariableCheck_h
 
 #include "vtkExodusIIReaderPrivate.h" // for ArrayInfoType
 
@@ -118,5 +118,5 @@ protected:
   bool StillAdding;
 };
 
-#endif // __vtkExodusIIReaderVariableCheck_h
+#endif // vtkExodusIIReaderVariableCheck_h
 // VTK-HeaderTest-Exclude: vtkExodusIIReaderVariableCheck.h

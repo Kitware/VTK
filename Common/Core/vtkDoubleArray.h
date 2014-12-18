@@ -18,8 +18,8 @@
 // methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
 
-#ifndef __vtkDoubleArray_h
-#define __vtkDoubleArray_h
+#ifndef vtkDoubleArray_h
+#define vtkDoubleArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
 #if !defined(vtkDoubleArray_cxx)

@@ -25,8 +25,8 @@
 // (between 2 and 65536), execute it, and then retrieve the lookup table.
 // The colors can then be using the lookup table and the image index.
 
-#ifndef __vtkImageQuantizeRGBToIndex_h
-#define __vtkImageQuantizeRGBToIndex_h
+#ifndef vtkImageQuantizeRGBToIndex_h
+#define vtkImageQuantizeRGBToIndex_h
 
 #include "vtkImagingColorModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

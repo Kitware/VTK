@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkActor2D vtkCollection
 
-#ifndef __vtkActor2DCollection_h
-#define __vtkActor2DCollection_h
+#ifndef vtkActor2DCollection_h
+#define vtkActor2DCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPropCollection.h"

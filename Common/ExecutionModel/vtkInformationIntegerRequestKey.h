@@ -27,8 +27,8 @@
 // The best way to use this class is to subclass it to set the DataKey data member.
 // This is usually done in the subclass' constructor.
 
-#ifndef __vtkInformationIntegerRequestKey_h
-#define __vtkInformationIntegerRequestKey_h
+#ifndef vtkInformationIntegerRequestKey_h
+#define vtkInformationIntegerRequestKey_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkInformationIntegerKey.h"

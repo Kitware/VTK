@@ -20,8 +20,8 @@
 // coded extent can be used for a starting point.
 
 
-#ifndef __vtkExtentTranslator_h
-#define __vtkExtentTranslator_h
+#ifndef vtkExtentTranslator_h
+#define vtkExtentTranslator_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

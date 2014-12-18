@@ -19,8 +19,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkPlotBar_h
-#define __vtkPlotBar_h
+#ifndef vtkPlotBar_h
+#define vtkPlotBar_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -244,4 +244,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotBar_h
+#endif //vtkPlotBar_h

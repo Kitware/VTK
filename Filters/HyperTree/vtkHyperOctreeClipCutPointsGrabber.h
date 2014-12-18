@@ -19,8 +19,8 @@
 // vtkHyperOctreeClipCut, vtkHyperOctreeClipCutClipCutPointsGrabber,
 // vtkClipHyperOctree, vtkHyperOctreeClipCutCutter
 
-#ifndef __vtkHyperOctreeClipCutPointsGrabber_h
-#define __vtkHyperOctreeClipCutPointsGrabber_h
+#ifndef vtkHyperOctreeClipCutPointsGrabber_h
+#define vtkHyperOctreeClipCutPointsGrabber_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperOctreePointsGrabber.h"

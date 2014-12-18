@@ -30,8 +30,8 @@
 // supports reading one file that is detached.
 //
 
-#ifndef __vtkNrrdReader_h
-#define __vtkNrrdReader_h
+#ifndef vtkNrrdReader_h
+#define vtkNrrdReader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"
@@ -79,4 +79,4 @@ private:
   void operator=(const vtkNrrdReader &);        // Not implemented.
 };
 
-#endif //__vtkNrrdReader_h
+#endif //vtkNrrdReader_h

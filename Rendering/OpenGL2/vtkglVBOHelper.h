@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkGLVBOHelpher_h
-#define __vtkGLVBOHelpher_h
+#ifndef vtkGLVBOHelpher_h
+#define vtkGLVBOHelpher_h
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 
@@ -109,6 +109,6 @@ void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *[4],
 
 } // End namespace
 
-#endif // __vtkGLVBOHelpher_h
+#endif // vtkGLVBOHelpher_h
 
 // VTK-HeaderTest-Exclude: vtkglVBOHelper.h

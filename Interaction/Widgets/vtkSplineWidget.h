@@ -76,8 +76,8 @@
 // vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
 
 
-#ifndef __vtkSplineWidget_h
-#define __vtkSplineWidget_h
+#ifndef vtkSplineWidget_h
+#define vtkSplineWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"

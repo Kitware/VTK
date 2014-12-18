@@ -11,8 +11,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkXOpenGLRenderDevice_h
-#define __vtkXOpenGLRenderDevice_h
+#ifndef vtkXOpenGLRenderDevice_h
+#define vtkXOpenGLRenderDevice_h
 
 #include "vtkAbstractRenderDevice.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro

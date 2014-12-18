@@ -27,8 +27,8 @@
 // rendering graphics primitives or a vtkChooserPainter which can select appropriate
 // painters to do the rendering.
 
-#ifndef __vtkDefaultPainter_h
-#define __vtkDefaultPainter_h
+#ifndef vtkDefaultPainter_h
+#define vtkDefaultPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"

@@ -19,8 +19,8 @@
 // observer on the vtkDebugLeaks singleton and uses the observer to maintain
 // a model of all vtkObjectBase dervied objects that are alive in memory.
 
-#ifndef __vtkQtDebugLeaksModel_h
-#define __vtkQtDebugLeaksModel_h
+#ifndef vtkQtDebugLeaksModel_h
+#define vtkQtDebugLeaksModel_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

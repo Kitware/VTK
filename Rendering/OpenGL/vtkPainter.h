@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkPainterPolyDataMapper
 
-#ifndef __vtkPainter_h
-#define __vtkPainter_h
+#ifndef vtkPainter_h
+#define vtkPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
@@ -249,4 +249,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPainter_h
+#endif //vtkPainter_h

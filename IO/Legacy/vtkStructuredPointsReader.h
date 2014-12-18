@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkStructuredPoints vtkDataReader
 
-#ifndef __vtkStructuredPointsReader_h
-#define __vtkStructuredPointsReader_h
+#ifndef vtkStructuredPointsReader_h
+#define vtkStructuredPointsReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

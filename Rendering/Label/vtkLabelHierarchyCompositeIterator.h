@@ -31,8 +31,8 @@
 // </pre>
 // The order of iterators will be A,B,B,B,A,B,B,B,...
 
-#ifndef __vtkLabelHierarchyCompositeIterator_h
-#define __vtkLabelHierarchyCompositeIterator_h
+#ifndef vtkLabelHierarchyCompositeIterator_h
+#define vtkLabelHierarchyCompositeIterator_h
 
 
 #include "vtkRenderingLabelModule.h" // For export macro
@@ -113,4 +113,4 @@ private:
   void operator = ( const vtkLabelHierarchyCompositeIterator& ); // Not implemented.
 };
 
-#endif // __vtkLabelHierarchyCompositeIterator_h
+#endif // vtkLabelHierarchyCompositeIterator_h

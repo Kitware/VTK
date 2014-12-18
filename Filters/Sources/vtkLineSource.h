@@ -22,8 +22,8 @@
 // This class was extended by Philippe Pebay, Kitware SAS 2011, to support
 // broken lines as well as simple lines.
 
-#ifndef __vtkLineSource_h
-#define __vtkLineSource_h
+#ifndef vtkLineSource_h
+#define vtkLineSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

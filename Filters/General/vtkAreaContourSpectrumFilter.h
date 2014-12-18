@@ -38,8 +38,8 @@
 // "The contour spectrum",
 // IEEE Visualization, 167-174, 1997.
 
-#ifndef __vtkAreaContourSpectrumFilter_h
-#define __vtkAreaContourSpectrumFilter_h
+#ifndef vtkAreaContourSpectrumFilter_h
+#define vtkAreaContourSpectrumFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include  "vtkDataObjectAlgorithm.h"

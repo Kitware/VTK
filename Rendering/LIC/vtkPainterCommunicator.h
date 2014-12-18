@@ -21,8 +21,8 @@
 // This API is sufficient to allow for control flow with/without
 // MPI. The parallel parts of the code should use the derived
 // class vtkPPainterCommunicator.
-#ifndef __vtkPainterCommunicator_h
-#define __vtkPainterCommunicator_h
+#ifndef vtkPainterCommunicator_h
+#define vtkPainterCommunicator_h
 
 #include "vtkRenderingLICModule.h" // for export macro
 

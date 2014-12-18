@@ -21,8 +21,8 @@
 // expires. However, the mechanism for supporting this compression is available
 // for those with a valid license or to whom the patent does not apply.)
 
-#ifndef __vtkTIFFWriter_h
-#define __vtkTIFFWriter_h
+#ifndef vtkTIFFWriter_h
+#define vtkTIFFWriter_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"

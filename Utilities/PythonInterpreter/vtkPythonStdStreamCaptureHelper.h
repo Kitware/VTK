@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkPythonStdStreamCaptureHelper
 // .SECTION Description
-#ifndef __vtkPythonStdStreamCaptureHelper_h
-#define __vtkPythonStdStreamCaptureHelper_h
+#ifndef vtkPythonStdStreamCaptureHelper_h
+#define vtkPythonStdStreamCaptureHelper_h
 
 #include "structmember.h"
 #include "vtkPythonInterpreter.h"

@@ -26,8 +26,8 @@
 // .SECTION Caveats
 // Uses the XDMF API (http://www.xdmf.org)
 
-#ifndef __vtkXdmf3Reader_h
-#define __vtkXdmf3Reader_h
+#ifndef vtkXdmf3Reader_h
+#define vtkXdmf3Reader_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 #include "vtkDataReader.h"

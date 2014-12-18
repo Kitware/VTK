@@ -16,8 +16,8 @@
 // This iterator iterates over a vtkBitArray. It uses the double interface
 // to get/set bit values.
 
-#ifndef __vtkBitArrayIterator_h
-#define __vtkBitArrayIterator_h
+#ifndef vtkBitArrayIterator_h
+#define vtkBitArrayIterator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayIterator.h"

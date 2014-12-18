@@ -26,8 +26,8 @@
 // only.  The minimal angle is not, strictly speaking, a quality function, but
 // it is provided because of its usage by many authors.
 
-#ifndef __vtkCellQuality_h
-#define __vtkCellQuality_h
+#ifndef vtkCellQuality_h
+#define vtkCellQuality_h
 
 #include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

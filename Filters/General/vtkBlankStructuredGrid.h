@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkStructuredGrid
 
-#ifndef __vtkBlankStructuredGrid_h
-#define __vtkBlankStructuredGrid_h
+#ifndef vtkBlankStructuredGrid_h
+#define vtkBlankStructuredGrid_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"

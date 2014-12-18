@@ -38,8 +38,8 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkCorrelativeStatistics_h
-#define __vtkCorrelativeStatistics_h
+#ifndef vtkCorrelativeStatistics_h
+#define vtkCorrelativeStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"

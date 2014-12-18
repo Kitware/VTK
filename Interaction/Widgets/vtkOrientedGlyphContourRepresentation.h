@@ -22,8 +22,8 @@
 // vtkContourRepresentation vtkContourWidget vtkPointPlacer
 // vtkContourLineInterpolator
 
-#ifndef __vtkOrientedGlyphContourRepresentation_h
-#define __vtkOrientedGlyphContourRepresentation_h
+#ifndef vtkOrientedGlyphContourRepresentation_h
+#define vtkOrientedGlyphContourRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourRepresentation.h"

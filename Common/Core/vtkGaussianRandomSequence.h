@@ -19,8 +19,8 @@
 //
 // This is just an interface.
 
-#ifndef __vtkGaussianRandomSequence_h
-#define __vtkGaussianRandomSequence_h
+#ifndef vtkGaussianRandomSequence_h
+#define vtkGaussianRandomSequence_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkRandomSequence.h"
@@ -47,4 +47,4 @@ private:
   void operator=(const vtkGaussianRandomSequence&);  // Not implemented.
 };
 
-#endif // #ifndef __vtkGaussianRandomSequence_h
+#endif // #ifndef vtkGaussianRandomSequence_h

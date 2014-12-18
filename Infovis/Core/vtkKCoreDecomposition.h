@@ -35,8 +35,8 @@
 // Thanks to Thomas Otahal from Sandia National Laboratories for providing this
 // implementation.
 
-#ifndef __vtkKCoreDecomposition_h
-#define __vtkKCoreDecomposition_h
+#ifndef vtkKCoreDecomposition_h
+#define vtkKCoreDecomposition_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

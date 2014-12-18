@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkPNGReader
 
-#ifndef __vtkPNGWriter_h
-#define __vtkPNGWriter_h
+#ifndef vtkPNGWriter_h
+#define vtkPNGWriter_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"

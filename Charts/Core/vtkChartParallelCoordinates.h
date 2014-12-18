@@ -18,8 +18,8 @@
 // .SECTION Description
 // This defines the interface for a parallel coordinates chart.
 
-#ifndef __vtkChartParallelCoordinates_h
-#define __vtkChartParallelCoordinates_h
+#ifndef vtkChartParallelCoordinates_h
+#define vtkChartParallelCoordinates_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
@@ -157,4 +157,4 @@ private:
 //ETX
 };
 
-#endif //__vtkChartParallelCoordinates_h
+#endif //vtkChartParallelCoordinates_h

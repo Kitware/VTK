@@ -21,8 +21,8 @@
 // the vtkCPExodusIIInSituReader to read an Exodus II file's data into this
 // structure.
 
-#ifndef __vtkCPExodusIINodalCoordinatesTemplate_h
-#define __vtkCPExodusIINodalCoordinatesTemplate_h
+#ifndef vtkCPExodusIINodalCoordinatesTemplate_h
+#define vtkCPExodusIINodalCoordinatesTemplate_h
 
 #include "vtkMappedDataArray.h"
 #include "vtkIOExodusModule.h" // For export macro
@@ -119,6 +119,6 @@ private:
 
 #include "vtkCPExodusIINodalCoordinatesTemplate.txx"
 
-#endif //__vtkCPExodusIINodalCoordinatesTemplate_h
+#endif //vtkCPExodusIINodalCoordinatesTemplate_h
 
 // VTK-HeaderTest-Exclude: vtkCPExodusIINodalCoordinatesTemplate.h

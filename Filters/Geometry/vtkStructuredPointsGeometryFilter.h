@@ -17,8 +17,8 @@
 // vtkStructuredPointsGeometryFilter has been renamed to
 // vtkImageDataGeometryFilter
 
-#ifndef __vtkStructuredPointsGeometryFilter_h
-#define __vtkStructuredPointsGeometryFilter_h
+#ifndef vtkStructuredPointsGeometryFilter_h
+#define vtkStructuredPointsGeometryFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkImageDataGeometryFilter.h"

@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkLevelIdScalars
 
-#ifndef __vtkHierarchicalDataLevelFilter_h
-#define __vtkHierarchicalDataLevelFilter_h
+#ifndef vtkHierarchicalDataLevelFilter_h
+#define vtkHierarchicalDataLevelFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkLevelIdScalars.h"

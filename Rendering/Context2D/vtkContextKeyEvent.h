@@ -19,8 +19,8 @@
 // Provides a convenient data structure to represent key events in the
 // vtkContextScene. Passed to vtkAbstractContextItem objects.
 
-#ifndef __vtkContextKeyEvent_h
-#define __vtkContextKeyEvent_h
+#ifndef vtkContextKeyEvent_h
+#define vtkContextKeyEvent_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkWeakPointer.h" // For vtkWeakPointer
@@ -58,5 +58,5 @@ protected:
   vtkVector2i Position;
 };
 
-#endif // __vtkContextKeyEvent_h
+#endif // vtkContextKeyEvent_h
 // VTK-HeaderTest-Exclude: vtkContextKeyEvent.h

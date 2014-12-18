@@ -199,8 +199,8 @@
 // vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
 // vtkInteractorObserver vtk3DWidget
 
-#ifndef __vtkCommand_h
-#define __vtkCommand_h
+#ifndef vtkCommand_h
+#define vtkCommand_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"
@@ -404,6 +404,6 @@ protected:
 //ETX
 };
 
-#endif /* __vtkCommand_h */
+#endif /* vtkCommand_h */
 
 // VTK-HeaderTest-Exclude: vtkCommand.h

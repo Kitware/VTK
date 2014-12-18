@@ -21,8 +21,8 @@
 // Note that it is expected that all ensemble members produce data of the
 // same type.
 
-#ifndef __vtkEnsembleSource_h
-#define __vtkEnsembleSource_h
+#ifndef vtkEnsembleSource_h
+#define vtkEnsembleSource_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

@@ -18,8 +18,8 @@
 // determine whether it is a VTK XML file.  If so, it extracts the
 // file type and version number.
 
-#ifndef __vtkXMLFileReadTester_h
-#define __vtkXMLFileReadTester_h
+#ifndef vtkXMLFileReadTester_h
+#define vtkXMLFileReadTester_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLParser.h"

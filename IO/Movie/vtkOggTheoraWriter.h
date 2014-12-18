@@ -24,8 +24,8 @@
 //
 // .SECTION See Also vtkGenericMovieWriter vtkAVIWriter vtkMPEG2Writer vtkFFMPEGWriter
 
-#ifndef __vtkOggTheoraWriter_h
-#define __vtkOggTheoraWriter_h
+#ifndef vtkOggTheoraWriter_h
+#define vtkOggTheoraWriter_h
 
 #include "vtkIOMovieModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"

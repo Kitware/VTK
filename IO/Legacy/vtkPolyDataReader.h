@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkPolyData vtkDataReader
 
-#ifndef __vtkPolyDataReader_h
-#define __vtkPolyDataReader_h
+#ifndef vtkPolyDataReader_h
+#define vtkPolyDataReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

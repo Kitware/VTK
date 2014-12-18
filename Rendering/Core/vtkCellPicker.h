@@ -35,8 +35,8 @@
 // This class was contributed to VTK by David Gobbi on behalf of Atamai Inc.,
 // as an enhancement to the original vtkCellPicker.
 
-#ifndef __vtkCellPicker_h
-#define __vtkCellPicker_h
+#ifndef vtkCellPicker_h
+#define vtkCellPicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPicker.h"

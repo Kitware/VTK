@@ -18,8 +18,8 @@
 // a metadata file that lists all of the files in a data set.
 
 
-#ifndef __vtkPDataSetReader_h
-#define __vtkPDataSetReader_h
+#ifndef vtkPDataSetReader_h
+#define vtkPDataSetReader_h
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

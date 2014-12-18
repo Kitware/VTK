@@ -26,8 +26,8 @@
 // .SECTION Caveats
 // It does not implement the gradient.
 
-#ifndef __vtkImplicitHalo_h
-#define __vtkImplicitHalo_h
+#ifndef vtkImplicitHalo_h
+#define vtkImplicitHalo_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

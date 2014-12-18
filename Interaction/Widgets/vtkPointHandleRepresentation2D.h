@@ -22,8 +22,8 @@
 // vtkHandleRepresentation vtkHandleWidget
 
 
-#ifndef __vtkPointHandleRepresentation2D_h
-#define __vtkPointHandleRepresentation2D_h
+#ifndef vtkPointHandleRepresentation2D_h
+#define vtkPointHandleRepresentation2D_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"

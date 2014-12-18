@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkOpenGLGPUVolumeRayCastMapper_h
-#define __vtkOpenGLGPUVolumeRayCastMapper_h
+#ifndef vtkOpenGLGPUVolumeRayCastMapper_h
+#define vtkOpenGLGPUVolumeRayCastMapper_h
 
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
@@ -101,4 +101,4 @@ private:
   void operator=(const vtkOpenGLGPUVolumeRayCastMapper&); // Not implemented.
 };
 
-#endif // __vtkOpenGLGPUVolumeRayCastMapper_h
+#endif // vtkOpenGLGPUVolumeRayCastMapper_h

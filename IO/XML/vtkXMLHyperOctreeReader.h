@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLPHyperOctreeReader
 
-#ifndef __vtkXMLHyperOctreeReader_h
-#define __vtkXMLHyperOctreeReader_h
+#ifndef vtkXMLHyperOctreeReader_h
+#define vtkXMLHyperOctreeReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"

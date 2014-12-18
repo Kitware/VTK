@@ -17,8 +17,8 @@
 // vtkOpenGLActor is a concrete implementation of the abstract class vtkActor.
 // vtkOpenGLActor interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOpenGLActor_h
-#define __vtkOpenGLActor_h
+#ifndef vtkOpenGLActor_h
+#define vtkOpenGLActor_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkActor.h"

@@ -19,8 +19,8 @@
 // is done on that axis.
 
 
-#ifndef __vtkImageRange3D_h
-#define __vtkImageRange3D_h
+#ifndef vtkImageRange3D_h
+#define vtkImageRange3D_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

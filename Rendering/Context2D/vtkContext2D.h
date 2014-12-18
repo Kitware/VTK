@@ -21,8 +21,8 @@
 // to facilitate the low level calls to the context. Currently only an OpenGL
 // based device is provided, but this could be extended in the future.
 
-#ifndef __vtkContext2D_h
-#define __vtkContext2D_h
+#ifndef vtkContext2D_h
+#define vtkContext2D_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
@@ -455,4 +455,4 @@ inline int vtkContext2D::FloatToInt(float x)
   return static_cast<int>(x + tol);
 }
 
-#endif //__vtkContext2D_h
+#endif //vtkContext2D_h

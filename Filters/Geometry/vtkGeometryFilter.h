@@ -46,8 +46,8 @@
 // vtkImageDataGeometryFilter vtkStructuredGridGeometryFilter
 // vtkExtractGeometry vtkExtractVOI
 
-#ifndef __vtkGeometryFilter_h
-#define __vtkGeometryFilter_h
+#ifndef vtkGeometryFilter_h
+#define vtkGeometryFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

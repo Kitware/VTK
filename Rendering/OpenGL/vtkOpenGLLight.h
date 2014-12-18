@@ -17,8 +17,8 @@
 // vtkOpenGLLight is a concrete implementation of the abstract class vtkLight.
 // vtkOpenGLLight interfaces to the OpenGL rendering library.
 
-#ifndef __vtkOpenGLLight_h
-#define __vtkOpenGLLight_h
+#ifndef vtkOpenGLLight_h
+#define vtkOpenGLLight_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkLight.h"

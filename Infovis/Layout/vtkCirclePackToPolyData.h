@@ -25,8 +25,8 @@
 // been applied to the data in order to create the triple array
 // (Xcenter, Ycenter, Radius) of circle bounds or each vertex of the tree.
 
-#ifndef __vtkCirclePackToPolyData_h
-#define __vtkCirclePackToPolyData_h
+#ifndef vtkCirclePackToPolyData_h
+#define vtkCirclePackToPolyData_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

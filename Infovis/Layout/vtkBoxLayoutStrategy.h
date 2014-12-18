@@ -26,8 +26,8 @@
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for creating this class.
 
-#ifndef __vtkBoxLayoutStrategy_h
-#define __vtkBoxLayoutStrategy_h
+#ifndef vtkBoxLayoutStrategy_h
+#define vtkBoxLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"

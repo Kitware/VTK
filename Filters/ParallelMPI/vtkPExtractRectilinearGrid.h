@@ -25,8 +25,8 @@
 // .SECTION See Also
 //  vtkExtractRectilinearGrid
 
-#ifndef __vtkPExtractRectilinearGrid_h
-#define __vtkPExtractRectilinearGrid_h
+#ifndef vtkPExtractRectilinearGrid_h
+#define vtkPExtractRectilinearGrid_h
 
 #include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractRectilinearGrid.h"

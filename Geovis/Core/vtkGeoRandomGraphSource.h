@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkRandomGraphSource
 
-#ifndef __vtkGeoRandomGraphSource_h
-#define __vtkGeoRandomGraphSource_h
+#ifndef vtkGeoRandomGraphSource_h
+#define vtkGeoRandomGraphSource_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkRandomGraphSource.h"

@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkIOSRenderWindow
 
-#ifndef __vtkIOSGLView_h
-#define __vtkIOSGLView_h
+#ifndef vtkIOSGLView_h
+#define vtkIOSGLView_h
 
 #import <UIKit/UIKit.h>
 
@@ -66,5 +66,5 @@
 
 @end
 
-#endif /* __vtkIOSGLView_h */
+#endif /* vtkIOSGLView_h */
 // VTK-HeaderTest-Exclude: vtkIOSGLView.h

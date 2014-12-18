@@ -30,8 +30,8 @@
 // This function is in Common, not in Parallel because it does not depend on
 // MPI and you may want to call vtkBreakPoint::Break() in any class of VTK.
 
-#ifndef __vtkBreakPoint_h
-#define __vtkBreakPoint_h
+#ifndef vtkBreakPoint_h
+#define vtkBreakPoint_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h" // to get VTKCOMMONCORE_EXPORT
@@ -45,5 +45,5 @@ public:
   static void Break();
 };
 
-#endif // #ifndef __vtkBreakPoint_h
+#endif // #ifndef vtkBreakPoint_h
 // VTK-HeaderTest-Exclude: vtkBreakPoint.h

@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLPStructuredGridWriter
 
-#ifndef __vtkXMLStructuredGridWriter_h
-#define __vtkXMLStructuredGridWriter_h
+#ifndef vtkXMLStructuredGridWriter_h
+#define vtkXMLStructuredGridWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataWriter.h"

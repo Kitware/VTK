@@ -20,8 +20,8 @@
 // with arrays that have a contiguous internal storage of values (as in
 // vtkDataArray, vtkStringArray).
 
-#ifndef __vtkArrayIteratorTemplate_h
-#define __vtkArrayIteratorTemplate_h
+#ifndef vtkArrayIteratorTemplate_h
+#define vtkArrayIteratorTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkTypeTemplate.h" // For templated vtkObject API
@@ -116,7 +116,7 @@ private:
 # define VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(T)
 #endif // !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 
-#endif // !defined(__vtkArrayIteratorTemplate_h)
+#endif // !defined(vtkArrayIteratorTemplate_h)
 
 // This portion must be OUTSIDE the include blockers.  Each
 // vtkArrayIteratorTemplate subclass uses this to give its instantiation

@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkTreeBFSIterator vtkTreeDFSIterator
 
-#ifndef __vtkTreeIterator_h
-#define __vtkTreeIterator_h
+#ifndef vtkTreeIterator_h
+#define vtkTreeIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

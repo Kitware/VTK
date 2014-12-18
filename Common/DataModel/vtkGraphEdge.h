@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkGraph
 
-#ifndef __vtkGraphEdge_h
-#define __vtkGraphEdge_h
+#ifndef vtkGraphEdge_h
+#define vtkGraphEdge_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

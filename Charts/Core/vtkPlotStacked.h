@@ -19,8 +19,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkPlotStacked_h
-#define __vtkPlotStacked_h
+#ifndef vtkPlotStacked_h
+#define vtkPlotStacked_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -156,4 +156,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotStacked_h
+#endif //vtkPlotStacked_h

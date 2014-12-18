@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkHighestDensityRegionsStatistics
 
-#ifndef __vtkPlotBag_h
-#define __vtkPlotBag_h
+#ifndef vtkPlotBag_h
+#define vtkPlotBag_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotPoints.h"
@@ -120,4 +120,4 @@ private:
   void operator=(const vtkPlotBag &); // Not implemented.
 };
 
-#endif //__vtkPlotBag_h
+#endif //vtkPlotBag_h

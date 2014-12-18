@@ -38,8 +38,8 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkContingencyStatisticsGnuR_h
-#define __vtkContingencyStatisticsGnuR_h
+#ifndef vtkContingencyStatisticsGnuR_h
+#define vtkContingencyStatisticsGnuR_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkContingencyStatistics.h"

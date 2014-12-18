@@ -18,8 +18,8 @@
 // a2*z^2 + a3*x*y + a4*y*z + a5*x*z + a6*x + a7*y + a8*z + a9. vtkQuadric is
 // a concrete implementation of vtkImplicitFunction.
 
-#ifndef __vtkQuadric_h
-#define __vtkQuadric_h
+#ifndef vtkQuadric_h
+#define vtkQuadric_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

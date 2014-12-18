@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkGenericCellIterator, vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorOnDataSet, vtkBridgeCellIteratorOnDataSetBoundaries, vtkBridgeCellIteratorOnCellBoundaries, vtkBridgeCellIteratorOnCellNeighbors
 
-#ifndef __vtkBridgeCellIteratorStrategy_h
-#define __vtkBridgeCellIteratorStrategy_h
+#ifndef vtkBridgeCellIteratorStrategy_h
+#define vtkBridgeCellIteratorStrategy_h
 
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericCellIterator.h"

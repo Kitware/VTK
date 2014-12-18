@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLPHyperOctreeWriter
 
-#ifndef __vtkXMLHyperOctreeWriter_h
-#define __vtkXMLHyperOctreeWriter_h
+#ifndef vtkXMLHyperOctreeWriter_h
+#define vtkXMLHyperOctreeWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"

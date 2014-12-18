@@ -21,8 +21,8 @@
 // Only the whole extent is modified.
 // 2: If ClipDataOn is set, then you will get no more that the clipped
 // extent.
-#ifndef __vtkStructuredGridClip_h
-#define __vtkStructuredGridClip_h
+#ifndef vtkStructuredGridClip_h
+#define vtkStructuredGridClip_h
 
 // I did not make this a subclass of in place filter because
 // the references on the data do not matter. I make no modifications

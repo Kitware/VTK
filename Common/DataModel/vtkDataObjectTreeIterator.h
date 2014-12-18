@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkDataObjectTreeIterator provides an interface for accessing datasets
 // in a collection (vtkDataObjectTreeIterator).
-#ifndef __vtkDataObjectTreeIterator_h
-#define __vtkDataObjectTreeIterator_h
+#ifndef vtkDataObjectTreeIterator_h
+#define vtkDataObjectTreeIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataIterator.h"

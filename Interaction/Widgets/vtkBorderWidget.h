@@ -66,8 +66,8 @@
 // vtkInteractorObserver vtkCameraInterpolator
 
 
-#ifndef __vtkBorderWidget_h
-#define __vtkBorderWidget_h
+#ifndef vtkBorderWidget_h
+#define vtkBorderWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

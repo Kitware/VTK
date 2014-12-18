@@ -41,8 +41,8 @@
 // .SECTION See Also
 // vtkMarchingCubes vtkContourFilter vtkMCubesReader vtkDividingCubes vtkVolumeReader
 
-#ifndef __vtkSliceCubes_h
-#define __vtkSliceCubes_h
+#ifndef vtkSliceCubes_h
+#define vtkSliceCubes_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkObject.h"

@@ -20,8 +20,8 @@
 // and the edges lie on the mesh, this feature can be useful to get nice
 // looking lines.
 
-#ifndef __vtkCoincidentTopologyResolutionPainter_h
-#define __vtkCoincidentTopologyResolutionPainter_h
+#ifndef vtkCoincidentTopologyResolutionPainter_h
+#define vtkCoincidentTopologyResolutionPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"

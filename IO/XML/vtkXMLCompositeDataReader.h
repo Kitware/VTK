@@ -23,8 +23,8 @@
 // number of processors, each processor will possibly have more than
 // 1 sub-block.
 
-#ifndef __vtkXMLCompositeDataReader_h
-#define __vtkXMLCompositeDataReader_h
+#ifndef vtkXMLCompositeDataReader_h
+#define vtkXMLCompositeDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLReader.h"

@@ -21,8 +21,8 @@
 
 
 
-#ifndef __vtkPOutlineCornerFilter_h
-#define __vtkPOutlineCornerFilter_h
+#ifndef vtkPOutlineCornerFilter_h
+#define vtkPOutlineCornerFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -18,8 +18,8 @@
 // objects. vtkIdList may represent any type of integer id, but
 // usually represents point and cell ids.
 
-#ifndef __vtkIdList_h
-#define __vtkIdList_h
+#ifndef vtkIdList_h
+#define vtkIdList_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

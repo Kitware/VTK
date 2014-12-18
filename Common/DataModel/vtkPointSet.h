@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkPolyData vtkStructuredGrid vtkUnstructuredGrid
 
-#ifndef __vtkPointSet_h
-#define __vtkPointSet_h
+#ifndef vtkPointSet_h
+#define vtkPointSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"

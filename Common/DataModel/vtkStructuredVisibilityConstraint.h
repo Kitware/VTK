@@ -23,8 +23,8 @@
 // Make sure to call Initialize() with the right dimensions before
 // calling any methods that set/get visibility.
 
-#ifndef __vtkStructuredVisibilityConstraint_h
-#define __vtkStructuredVisibilityConstraint_h
+#ifndef vtkStructuredVisibilityConstraint_h
+#define vtkStructuredVisibilityConstraint_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

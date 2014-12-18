@@ -22,8 +22,8 @@
 // the data into the standard VTK memory layout, avoiding the cost of a deep
 // copy.
 
-#ifndef __vtkCPExodusIIInSituReader_h
-#define __vtkCPExodusIIInSituReader_h
+#ifndef vtkCPExodusIIInSituReader_h
+#define vtkCPExodusIIInSituReader_h
 
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -109,4 +109,4 @@ private:
   int CurrentTimeStep;
 };
 
-#endif //__vtkCPExodusIIInSituReader_h
+#endif //vtkCPExodusIIInSituReader_h

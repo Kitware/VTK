@@ -51,8 +51,8 @@
 // .SECTION See Also
 // vtkLinearExtrusionFilter
 
-#ifndef __vtkRotationalExtrusionFilter_h
-#define __vtkRotationalExtrusionFilter_h
+#ifndef vtkRotationalExtrusionFilter_h
+#define vtkRotationalExtrusionFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

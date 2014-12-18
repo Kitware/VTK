@@ -35,8 +35,8 @@
 // .SECTION see also
 // vtkRenderer vtkRenderWindowInteractor vtkWindowToImageFilter
 
-#ifndef __vtkRenderWindow_h
-#define __vtkRenderWindow_h
+#ifndef vtkRenderWindow_h
+#define vtkRenderWindow_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWindow.h"

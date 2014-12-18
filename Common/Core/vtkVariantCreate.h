@@ -27,8 +27,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkVariantCreate_h
-#define __vtkVariantCreate_h
+#ifndef vtkVariantCreate_h
+#define vtkVariantCreate_h
 
 #include <typeinfo> // for warnings
 

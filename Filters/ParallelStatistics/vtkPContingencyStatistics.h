@@ -34,8 +34,8 @@
 // .SECTION Thanks
 // Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
 
-#ifndef __vtkPContingencyStatistics_h
-#define __vtkPContingencyStatistics_h
+#ifndef vtkPContingencyStatistics_h
+#define vtkPContingencyStatistics_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkContingencyStatistics.h"

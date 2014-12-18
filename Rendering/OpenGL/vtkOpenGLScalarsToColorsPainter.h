@@ -18,8 +18,8 @@
 // vtkOpenGLScalarsToColorsPainter is a concrete subclass of
 // vtkScalarsToColorsPainter which uses OpenGL for color mapping.
 
-#ifndef __vtkOpenGLScalarsToColorsPainter_h
-#define __vtkOpenGLScalarsToColorsPainter_h
+#ifndef vtkOpenGLScalarsToColorsPainter_h
+#define vtkOpenGLScalarsToColorsPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkScalarsToColorsPainter.h"

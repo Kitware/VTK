@@ -19,8 +19,8 @@
 // rendered to a QImage, then EndFrame() converts that image to a vtkImageData
 // and textures the image onto a quad spanning the render area.
 
-#ifndef __vtkQtLabelRenderStrategy_h
-#define __vtkQtLabelRenderStrategy_h
+#ifndef vtkQtLabelRenderStrategy_h
+#define vtkQtLabelRenderStrategy_h
 
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"

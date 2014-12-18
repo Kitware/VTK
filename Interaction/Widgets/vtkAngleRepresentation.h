@@ -25,8 +25,8 @@
 // vtkAngleWidget vtkHandleRepresentation vtkAngleRepresentation2D
 
 
-#ifndef __vtkAngleRepresentation_h
-#define __vtkAngleRepresentation_h
+#ifndef vtkAngleRepresentation_h
+#define vtkAngleRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

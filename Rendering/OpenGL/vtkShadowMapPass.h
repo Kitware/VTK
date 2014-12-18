@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkRenderPass, vtkOpaquePass
 
-#ifndef __vtkShadowMapPass_h
-#define __vtkShadowMapPass_h
+#ifndef vtkShadowMapPass_h
+#define vtkShadowMapPass_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"

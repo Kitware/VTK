@@ -53,8 +53,8 @@ All rights reserve
 // .section See Also
 // vtkActor vtkAxisActor vtkCubeAxesActor2D
 
-#ifndef __vtkCubeAxesActor_h
-#define __vtkCubeAxesActor_h
+#ifndef vtkCubeAxesActor_h
+#define vtkCubeAxesActor_h
 
 #define VTK_FLY_OUTER_EDGES     0
 #define VTK_FLY_CLOSEST_TRIAD   1

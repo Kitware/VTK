@@ -29,8 +29,8 @@
 // to be incremental.
 
 
-#ifndef __vtkForceDirectedLayoutStrategy_h
-#define __vtkForceDirectedLayoutStrategy_h
+#ifndef vtkForceDirectedLayoutStrategy_h
+#define vtkForceDirectedLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkCell vtkDataSet
 
-#ifndef __vtkGenericCell_h
-#define __vtkGenericCell_h
+#ifndef vtkGenericCell_h
+#define vtkGenericCell_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

@@ -28,8 +28,8 @@
 // RequestData and RequestInformation.  You should
 // implement RequestData( request, inputVec, outputVec) in subclasses.
 
-#ifndef __vtkLabelHierarchyAlgorithm_h
-#define __vtkLabelHierarchyAlgorithm_h
+#ifndef vtkLabelHierarchyAlgorithm_h
+#define vtkLabelHierarchyAlgorithm_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkAlgorithm.h"

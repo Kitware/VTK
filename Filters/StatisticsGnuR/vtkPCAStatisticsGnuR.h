@@ -42,8 +42,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Sandia National Laboratories for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkPCAStatisticsGnuR_h
-#define __vtkPCAStatisticsGnuR_h
+#ifndef vtkPCAStatisticsGnuR_h
+#define vtkPCAStatisticsGnuR_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkPCAStatistics.h"
@@ -69,5 +69,5 @@ private:
   void operator=(const vtkPCAStatisticsGnuR&); // Not implemented
 };
 
-#endif // __vtkPCAStatisticsGnuR_h
+#endif // vtkPCAStatisticsGnuR_h
 

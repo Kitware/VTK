@@ -19,8 +19,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkPlotParallelCoordinates_h
-#define __vtkPlotParallelCoordinates_h
+#ifndef vtkPlotParallelCoordinates_h
+#define vtkPlotParallelCoordinates_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -141,4 +141,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotParallelCoordinates_h
+#endif //vtkPlotParallelCoordinates_h

@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkImageData vtkImageSliceMapper vtkImageProperty
 
-#ifndef __vtkImageActor_h
-#define __vtkImageActor_h
+#ifndef vtkImageActor_h
+#define vtkImageActor_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageSlice.h"

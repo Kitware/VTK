@@ -20,8 +20,8 @@
 // If this field does not exist, the filter will use the vtkElevationFilter to
 // generate a default scalar field.
 
-#ifndef __vtkUnstructuredGridToReebGraphFilter_h
-#define __vtkUnstructuredGridToReebGraphFilter_h
+#ifndef vtkUnstructuredGridToReebGraphFilter_h
+#define vtkUnstructuredGridToReebGraphFilter_h
 
 #include "vtkFiltersReebGraphModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"

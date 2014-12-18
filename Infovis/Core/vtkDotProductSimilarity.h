@@ -52,8 +52,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkDotProductSimilarity_h
-#define __vtkDotProductSimilarity_h
+#ifndef vtkDotProductSimilarity_h
+#define vtkDotProductSimilarity_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

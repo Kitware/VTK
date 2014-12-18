@@ -26,8 +26,8 @@
 // The field type of the input selection is ignored when converted to row
 // indices.
 
-#ifndef __vtkExtractSelectedRows_h
-#define __vtkExtractSelectedRows_h
+#ifndef vtkExtractSelectedRows_h
+#define vtkExtractSelectedRows_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

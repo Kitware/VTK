@@ -24,8 +24,8 @@
 // provide a convenience class for generating tables from databases.
 // Also this class can be easily wrapped and used within ParaView / OverView.
 
-#ifndef __vtkSQLDatabaseTableSource_h
-#define __vtkSQLDatabaseTableSource_h
+#ifndef vtkSQLDatabaseTableSource_h
+#define vtkSQLDatabaseTableSource_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkStdString.h"

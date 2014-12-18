@@ -26,8 +26,8 @@
 // .SECTION Thanks
 // Thanks to Janine Bennett, Philippe Pebay and David Thompson from Sandia National Laboratories for implementing this class.
 
-#ifndef __vtkPKMeanStatistics_h
-#define __vtkPKMeanStatistics_h
+#ifndef vtkPKMeanStatistics_h
+#define vtkPKMeanStatistics_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkKMeansStatistics.h"

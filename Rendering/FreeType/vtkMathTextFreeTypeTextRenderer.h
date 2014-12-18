@@ -25,8 +25,8 @@
 // UTF16 strings passed to the MathText renderer will be converted to
 // UTF8.
 
-#ifndef __vtkMathTextFreeTypeTextRenderer_h
-#define __vtkMathTextFreeTypeTextRenderer_h
+#ifndef vtkMathTextFreeTypeTextRenderer_h
+#define vtkMathTextFreeTypeTextRenderer_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextRenderer.h"
@@ -82,4 +82,4 @@ private:
   vtkMathTextUtilities *MathTextUtilities;
 };
 
-#endif //__vtkMathTextFreeTypeTextRenderer_h
+#endif //vtkMathTextFreeTypeTextRenderer_h

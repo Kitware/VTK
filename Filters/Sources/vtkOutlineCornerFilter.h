@@ -18,8 +18,8 @@
 // data set. The outline consists of the eight corners of the dataset
 // bounding box.
 
-#ifndef __vtkOutlineCornerFilter_h
-#define __vtkOutlineCornerFilter_h
+#ifndef vtkOutlineCornerFilter_h
+#define vtkOutlineCornerFilter_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

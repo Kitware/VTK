@@ -15,8 +15,8 @@
 // .NAME vtkBond - convenience proxy for vtkMolecule
 // .SECTION Description
 
-#ifndef __vtkBond_h
-#define __vtkBond_h
+#ifndef vtkBond_h
+#define vtkBond_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h" // For macros, etc

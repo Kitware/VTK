@@ -25,8 +25,8 @@
 //    executes, it will set up the ugrid, point and cell arrays, with no points,
 //    cells or data.
 
-#ifndef __vtkExtractCells_h
-#define __vtkExtractCells_h
+#ifndef vtkExtractCells_h
+#define vtkExtractCells_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

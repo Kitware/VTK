@@ -19,8 +19,8 @@
 // a topological and geometrical regular array of points. Examples include
 // volumes (voxel data) and pixmaps.
 
-#ifndef __vtkImageData_h
-#define __vtkImageData_h
+#ifndef vtkImageData_h
+#define vtkImageData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"

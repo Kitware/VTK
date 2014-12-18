@@ -29,8 +29,8 @@
 // vtkDataObjectMapper vtkDataObjectToDataSet
 // vtkFieldDataToAttributeDataFilter
 
-#ifndef __vtkDataObject_h
-#define __vtkDataObject_h
+#ifndef vtkDataObject_h
+#define vtkDataObject_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

@@ -43,8 +43,8 @@
 // vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
 // vtkImageMarchingCubes
 
-#ifndef __vtkContourGrid_h
-#define __vtkContourGrid_h
+#ifndef vtkContourGrid_h
+#define vtkContourGrid_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -23,8 +23,8 @@
 // VTK prior to VTK 6.2, it was mapped to Alt.  On OS X, the Option key can be
 // used as Alt.
 
-#ifndef __vtkCarbonRenderWindowInteractor_h
-#define __vtkCarbonRenderWindowInteractor_h
+#ifndef vtkCarbonRenderWindowInteractor_h
+#define vtkCarbonRenderWindowInteractor_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"

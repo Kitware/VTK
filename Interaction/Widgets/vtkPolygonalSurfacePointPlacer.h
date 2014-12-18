@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkPointPlacer vtkPolyDataNormals
 
-#ifndef __vtkPolygonalSurfacePointPlacer_h
-#define __vtkPolygonalSurfacePointPlacer_h
+#ifndef vtkPolygonalSurfacePointPlacer_h
+#define vtkPolygonalSurfacePointPlacer_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataPointPlacer.h"

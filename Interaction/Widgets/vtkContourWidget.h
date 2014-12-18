@@ -111,8 +111,8 @@
 // vtkHandleWidget
 
 
-#ifndef __vtkContourWidget_h
-#define __vtkContourWidget_h
+#ifndef vtkContourWidget_h
+#define vtkContourWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

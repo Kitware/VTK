@@ -16,8 +16,8 @@
 // An OpenGL mapper that uses imposters to draw spheres. Supports
 // transparency and picking as well.
 
-#ifndef __vtkOpenGLSphereMapper_h
-#define __vtkOpenGLSphereMapper_h
+#ifndef vtkOpenGLSphereMapper_h
+#define vtkOpenGLSphereMapper_h
 
 #include "vtkDomainsChemistryOpenGL2Module.h" // For export macro
 #include "vtkOpenGLPolyDataMapper.h"

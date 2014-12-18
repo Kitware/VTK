@@ -46,8 +46,8 @@
 //
 // .SECTION See Also
 // vtkGraph
-#ifndef __vtkDistributedGraphHelper_h
-#define __vtkDistributedGraphHelper_h
+#ifndef vtkDistributedGraphHelper_h
+#define vtkDistributedGraphHelper_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
@@ -256,4 +256,4 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   //ETX
 };
 
-#endif // __vtkDistributedGraphHelper_h
+#endif // vtkDistributedGraphHelper_h

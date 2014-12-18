@@ -18,8 +18,8 @@
 // of the file is unsigned char regardless of the input type.
 
 
-#ifndef __vtkPNMWriter_h
-#define __vtkPNMWriter_h
+#ifndef vtkPNMWriter_h
+#define vtkPNMWriter_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"

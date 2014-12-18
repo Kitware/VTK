@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkShader2 vtkShaderProgram2
 
-#ifndef __vtkUniformVariables_h
-#define __vtkUniformVariables_h
+#ifndef vtkUniformVariables_h
+#define vtkUniformVariables_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

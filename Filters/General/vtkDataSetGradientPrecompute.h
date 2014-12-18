@@ -25,8 +25,8 @@
 // BP12, F-91297 Arpajon, France. <br>
 // Implementation by Thierry Carrard (CEA)
 
-#ifndef __vtkDataSetGradientPrecompute_h
-#define __vtkDataSetGradientPrecompute_h
+#ifndef vtkDataSetGradientPrecompute_h
+#define vtkDataSetGradientPrecompute_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

@@ -40,8 +40,8 @@
 // .SECTION See Also
 // vtkImplicitFunction vtkHyperOctree
 
-#ifndef __vtkHyperOctreeCutter_h
-#define __vtkHyperOctreeCutter_h
+#ifndef vtkHyperOctreeCutter_h
+#define vtkHyperOctreeCutter_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

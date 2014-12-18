@@ -19,8 +19,8 @@
 // this filter is of the same type as the input (i.e., vtkDataSet.) It treats
 // both cell and point data set attributes.
 
-#ifndef __vtkMergeFilter_h
-#define __vtkMergeFilter_h
+#ifndef vtkMergeFilter_h
+#define vtkMergeFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

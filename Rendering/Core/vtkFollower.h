@@ -26,8 +26,8 @@
 // .SECTION see also
 // vtkActor vtkCamera vtkAxisFollower vtkProp3DFollower
 
-#ifndef __vtkFollower_h
-#define __vtkFollower_h
+#ifndef vtkFollower_h
+#define vtkFollower_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"

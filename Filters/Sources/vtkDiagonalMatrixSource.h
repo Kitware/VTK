@@ -25,8 +25,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkDiagonalMatrixSource_h
-#define __vtkDiagonalMatrixSource_h
+#ifndef vtkDiagonalMatrixSource_h
+#define vtkDiagonalMatrixSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

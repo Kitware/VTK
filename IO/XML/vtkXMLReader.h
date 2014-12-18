@@ -18,8 +18,8 @@
 // Concrete subclasses then traverse the parsed file structure and
 // extract data.
 
-#ifndef __vtkXMLReader_h
-#define __vtkXMLReader_h
+#ifndef vtkXMLReader_h
+#define vtkXMLReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkAlgorithm.h"

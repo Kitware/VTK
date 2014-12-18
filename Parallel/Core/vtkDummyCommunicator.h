@@ -22,8 +22,8 @@
 // Because there is always only one process, no real communication takes place.
 //
 
-#ifndef __vtkDummyCommunicator_h
-#define __vtkDummyCommunicator_h
+#ifndef vtkDummyCommunicator_h
+#define vtkDummyCommunicator_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"
@@ -56,4 +56,4 @@ private:
   void operator=(const vtkDummyCommunicator &);         // Not implemented
 };
 
-#endif //__vtkDummyCommunicator_h
+#endif //vtkDummyCommunicator_h

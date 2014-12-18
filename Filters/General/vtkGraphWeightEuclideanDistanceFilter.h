@@ -18,8 +18,8 @@
 // .SECTION Description
 // Weights the edges of a graph based on the Euclidean distance between the points.
 
-#ifndef __vtkGraphWeightEuclideanDistanceFilter_h
-#define __vtkGraphWeightEuclideanDistanceFilter_h
+#ifndef vtkGraphWeightEuclideanDistanceFilter_h
+#define vtkGraphWeightEuclideanDistanceFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkGraphWeightFilter.h"

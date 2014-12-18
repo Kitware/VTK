@@ -24,8 +24,8 @@
 // non-linear interpolation functions (a product of three linear functions
 // in r-s-t) even thought vtkHexahedron is considered linear.)
 
-#ifndef __vtkNonLinearCell_h
-#define __vtkNonLinearCell_h
+#ifndef vtkNonLinearCell_h
+#define vtkNonLinearCell_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkVolumeShader_h
-#define __vtkVolumeShader_h
+#ifndef vtkVolumeShader_h
+#define vtkVolumeShader_h
 
 #include <vtk_glew.h>
 
@@ -54,5 +54,5 @@ private:
     map<string,GLuint> UniformLocationList;
 };
 
-#endif // __vtkVolumeShader_h
+#endif // vtkVolumeShader_h
 // VTK-HeaderTest-Exclude: vtkVolumeShader.h

@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkTable vtkTableReader vtkDataReader
 
-#ifndef __vtkBiomTableReader_h
-#define __vtkBiomTableReader_h
+#ifndef vtkBiomTableReader_h
+#define vtkBiomTableReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableReader.h"

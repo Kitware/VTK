@@ -25,8 +25,8 @@
 // The sort operation will not work well for long, thin primitives, or cells
 // that intersect, overlap, or interpenetrate each other.
 
-#ifndef __vtkDepthSortPolyData_h
-#define __vtkDepthSortPolyData_h
+#ifndef vtkDepthSortPolyData_h
+#define vtkDepthSortPolyData_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

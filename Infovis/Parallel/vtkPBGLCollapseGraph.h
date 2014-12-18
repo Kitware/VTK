@@ -24,8 +24,8 @@
 // to collapse groups of vertices with the same value into a single vertex.
 // @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
-#ifndef __vtkPBGLCollapseGraph_h
-#define __vtkPBGLCollapseGraph_h
+#ifndef vtkPBGLCollapseGraph_h
+#define vtkPBGLCollapseGraph_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

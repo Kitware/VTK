@@ -18,8 +18,8 @@
 // with four-sided polygons. It is possible to specify the length, width,
 // and height of the cube independently.
 
-#ifndef __vtkCubeSource_h
-#define __vtkCubeSource_h
+#ifndef vtkCubeSource_h
+#define vtkCubeSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

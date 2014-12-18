@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkSampleFunction
 
-#ifndef __vtkHyperOctreeSampleFunction_h
-#define __vtkHyperOctreeSampleFunction_h
+#ifndef vtkHyperOctreeSampleFunction_h
+#define vtkHyperOctreeSampleFunction_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperOctreeAlgorithm.h"

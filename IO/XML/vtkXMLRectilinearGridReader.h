@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLPRectilinearGridReader
 
-#ifndef __vtkXMLRectilinearGridReader_h
-#define __vtkXMLRectilinearGridReader_h
+#ifndef vtkXMLRectilinearGridReader_h
+#define vtkXMLRectilinearGridReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataReader.h"

@@ -15,8 +15,8 @@
 // .NAME vtkExtractSelectedBlock
 // .SECTION Description
 
-#ifndef __vtkExtractSelectedBlock_h
-#define __vtkExtractSelectedBlock_h
+#ifndef vtkExtractSelectedBlock_h
+#define vtkExtractSelectedBlock_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"

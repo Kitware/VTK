@@ -43,8 +43,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkGaussianBlurPass_h
-#define __vtkGaussianBlurPass_h
+#ifndef vtkGaussianBlurPass_h
+#define vtkGaussianBlurPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageProcessingPass.h"

@@ -43,8 +43,8 @@
 // .SECTION Thanks
 // Thanks to Colin Myers, University of Leeds for providing this implementation.
 
-#ifndef __vtkGraphAnnotationLayersFilter_h
-#define __vtkGraphAnnotationLayersFilter_h
+#ifndef vtkGraphAnnotationLayersFilter_h
+#define vtkGraphAnnotationLayersFilter_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -120,4 +120,4 @@ private:
   vtkSmartPointer<vtkConvexHull2D> ConvexHullFilter;
 };
 
-#endif // __vtkGraphAnnotationLayersFilter_h
+#endif // vtkGraphAnnotationLayersFilter_h

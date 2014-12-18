@@ -23,8 +23,8 @@
 // vtkPlotPoints
 //
 
-#ifndef __vtkPlotPoints3D_h
-#define __vtkPlotPoints3D_h
+#ifndef vtkPlotPoints3D_h
+#define vtkPlotPoints3D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot3D.h"
@@ -64,4 +64,4 @@ private:
 
 };
 
-#endif //__vtkPlotPoints3D_h
+#endif //vtkPlotPoints3D_h

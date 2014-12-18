@@ -21,8 +21,8 @@
 // float[4] can be cast to a vtkRectf and manipulated. Also a float[12] could
 // be cast and used as a vtkRectf[3].
 
-#ifndef __vtkRect_h
-#define __vtkRect_h
+#ifndef vtkRect_h
+#define vtkRect_h
 
 #include "vtkVector.h"
 
@@ -162,5 +162,5 @@ const T& vtkRect<T>::Height() const
 #endif // VTK_LEGACY_REMOVE
 
 
-#endif // __vtkRect_h
+#endif // vtkRect_h
 // VTK-HeaderTest-Exclude: vtkRect.h

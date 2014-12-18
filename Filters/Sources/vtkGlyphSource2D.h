@@ -24,8 +24,8 @@
 // sequence). You can also put a short line through the glyph running from -x
 // to +x (the glyph looks like it's on a line), or a cross.
 
-#ifndef __vtkGlyphSource2D_h
-#define __vtkGlyphSource2D_h
+#ifndef vtkGlyphSource2D_h
+#define vtkGlyphSource2D_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

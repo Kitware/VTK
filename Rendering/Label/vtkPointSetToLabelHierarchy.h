@@ -27,8 +27,8 @@
 // until the points each octree node contains have a variance
 // close to the node size and a limited population (< 100).
 
-#ifndef __vtkPointSetToLabelHierarchy_h
-#define __vtkPointSetToLabelHierarchy_h
+#ifndef vtkPointSetToLabelHierarchy_h
+#define vtkPointSetToLabelHierarchy_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelHierarchyAlgorithm.h"
@@ -114,4 +114,4 @@ private:
   void operator = ( const vtkPointSetToLabelHierarchy& ); // Not implemented.
 };
 
-#endif // __vtkPointSetToLabelHierarchy_h
+#endif // vtkPointSetToLabelHierarchy_h

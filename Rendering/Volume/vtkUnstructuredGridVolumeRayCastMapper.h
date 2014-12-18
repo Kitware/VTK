@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkVolumeMapper
 
-#ifndef __vtkUnstructuredGridVolumeRayCastMapper_h
-#define __vtkUnstructuredGridVolumeRayCastMapper_h
+#ifndef vtkUnstructuredGridVolumeRayCastMapper_h
+#define vtkUnstructuredGridVolumeRayCastMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"

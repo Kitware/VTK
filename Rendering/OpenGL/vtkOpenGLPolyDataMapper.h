@@ -19,8 +19,8 @@
 // rendering library.
 // @deprecated Replaced by vtkPainterPolyDataMapper as of VTK 6.2.
 
-#ifndef __vtkOpenGLPolyDataMapper_h
-#define __vtkOpenGLPolyDataMapper_h
+#ifndef vtkOpenGLPolyDataMapper_h
+#define vtkOpenGLPolyDataMapper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataMapper.h"

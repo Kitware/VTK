@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkPolyDataAlgorithm
 
-#ifndef __vtkVoxelContoursToSurfaceFilter_h
-#define __vtkVoxelContoursToSurfaceFilter_h
+#ifndef vtkVoxelContoursToSurfaceFilter_h
+#define vtkVoxelContoursToSurfaceFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

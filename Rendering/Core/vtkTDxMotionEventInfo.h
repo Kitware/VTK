@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkTDxDevice
 
-#ifndef __vtkTDxMotionEventInfo_h
-#define __vtkTDxMotionEventInfo_h
+#ifndef vtkTDxMotionEventInfo_h
+#define vtkTDxMotionEventInfo_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h" // for the export macro

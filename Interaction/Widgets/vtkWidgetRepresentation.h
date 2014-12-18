@@ -37,8 +37,8 @@
 // client (and do not handle events).
 
 
-#ifndef __vtkWidgetRepresentation_h
-#define __vtkWidgetRepresentation_h
+#ifndef vtkWidgetRepresentation_h
+#define vtkWidgetRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp.h"

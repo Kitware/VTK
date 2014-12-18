@@ -20,8 +20,8 @@
 // vtkGraph. For directed graphs, this returns the largest biconnected component.
 // See vtkBoostConnectedComponents for details.
 
-#ifndef __vtkBoostExtractLargestComponent_h
-#define __vtkBoostExtractLargestComponent_h
+#ifndef vtkBoostExtractLargestComponent_h
+#define vtkBoostExtractLargestComponent_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

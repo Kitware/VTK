@@ -52,8 +52,8 @@
 // .SECTION See Also
 // vtkRenderWindow vtkRenderer vtkImageActor vtkImageMapToWindowLevelColors
 
-#ifndef __vtkImageViewer2_h
-#define __vtkImageViewer2_h
+#ifndef vtkImageViewer2_h
+#define vtkImageViewer2_h
 
 #include "vtkInteractionImageModule.h" // For export macro
 #include "vtkObject.h"

@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkOBJExporter vtkRenderWindow vtkWriter
 
-#ifndef __vtkExporter_h
-#define __vtkExporter_h
+#ifndef vtkExporter_h
+#define vtkExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"

@@ -26,8 +26,8 @@
 // .SECTION see also
 // vtkMPICommunicator
 
-#ifndef __vtkCommunicator_h
-#define __vtkCommunicator_h
+#ifndef vtkCommunicator_h
+#define vtkCommunicator_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -866,6 +866,6 @@ private:
   void operator=(const vtkCommunicator&);  // Not implemented.
 };
 
-#endif // __vtkCommunicator_h
+#endif // vtkCommunicator_h
 
 

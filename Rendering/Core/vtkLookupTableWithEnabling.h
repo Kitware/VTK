@@ -27,8 +27,8 @@
 // to MapScalars().
 //
 
-#ifndef __vtkLookupTableWithEnabling_h
-#define __vtkLookupTableWithEnabling_h
+#ifndef vtkLookupTableWithEnabling_h
+#define vtkLookupTableWithEnabling_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"

@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkInteractorStyleSwitchBase vtkRenderWindowInteractor
 
-#ifndef __vtkInteractorStyleSwitchBase_h
-#define __vtkInteractorStyleSwitchBase_h
+#ifndef vtkInteractorStyleSwitchBase_h
+#define vtkInteractorStyleSwitchBase_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorStyle.h"

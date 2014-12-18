@@ -23,8 +23,8 @@
 // a single selection.  All selections must have the same content type unless
 // AppendByUnion is false.
 
-#ifndef __vtkAppendSelection_h
-#define __vtkAppendSelection_h
+#ifndef vtkAppendSelection_h
+#define vtkAppendSelection_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"

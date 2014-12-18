@@ -18,8 +18,8 @@
 // lists of structured points datasets. See also vtkCollection and
 // subclasses.
 
-#ifndef __vtkStructuredPointsCollection_h
-#define __vtkStructuredPointsCollection_h
+#ifndef vtkStructuredPointsCollection_h
+#define vtkStructuredPointsCollection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"

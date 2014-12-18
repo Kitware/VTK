@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkRenderPass vtkDefaultPass
 
-#ifndef __vtkOpaquePass_h
-#define __vtkOpaquePass_h
+#ifndef vtkOpaquePass_h
+#define vtkOpaquePass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDefaultPass.h"

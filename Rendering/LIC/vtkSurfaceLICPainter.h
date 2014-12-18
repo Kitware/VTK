@@ -49,8 +49,8 @@
 //
 // .SECTION See also
 // vtkSurfaceLICDefaultPainter vtkLineIntegralConvolution2D
-#ifndef __vtkSurfaceLICPainter_h
-#define __vtkSurfaceLICPainter_h
+#ifndef vtkSurfaceLICPainter_h
+#define vtkSurfaceLICPainter_h
 
 #include "vtkRenderingLICModule.h" // For export macro
 #include "vtkPainter.h"

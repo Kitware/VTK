@@ -44,8 +44,8 @@
 // .SECTION See Also
 // vtkContourFilter vtkMarchingCubes vtkSliceCubes vtkLocator
 
-#ifndef __vtkMCubesReader_h
-#define __vtkMCubesReader_h
+#ifndef vtkMCubesReader_h
+#define vtkMCubesReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

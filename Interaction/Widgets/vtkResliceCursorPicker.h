@@ -24,8 +24,8 @@
 // .SECTION see also
 // vtkResliceCursor vtkResliceCursorWidget
 
-#ifndef __vtkResliceCursorPicker_h
-#define __vtkResliceCursorPicker_h
+#ifndef vtkResliceCursorPicker_h
+#define vtkResliceCursorPicker_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPicker.h"

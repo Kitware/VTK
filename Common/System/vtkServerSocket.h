@@ -16,8 +16,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkServerSocket_h
-#define __vtkServerSocket_h
+#ifndef vtkServerSocket_h
+#define vtkServerSocket_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkSocket.h"

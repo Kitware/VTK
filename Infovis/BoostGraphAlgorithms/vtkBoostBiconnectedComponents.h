@@ -39,8 +39,8 @@
 // The boost graph bindings currently only support boost version 1.33.1.
 // There are apparently backwards-compatibility issues with later versions.
 
-#ifndef __vtkBoostBiconnectedComponents_h
-#define __vtkBoostBiconnectedComponents_h
+#ifndef vtkBoostBiconnectedComponents_h
+#define vtkBoostBiconnectedComponents_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"

@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkCellArray vtkCellTypes
 
-#ifndef __vtkCellLinks_h
-#define __vtkCellLinks_h
+#ifndef vtkCellLinks_h
+#define vtkCellLinks_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

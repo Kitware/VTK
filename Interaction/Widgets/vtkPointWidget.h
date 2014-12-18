@@ -58,8 +58,8 @@
 // .SECTION See Also
 // vtk3DWidget vtkLineWidget vtkBoxWidget vtkPlaneWidget
 
-#ifndef __vtkPointWidget_h
-#define __vtkPointWidget_h
+#ifndef vtkPointWidget_h
+#define vtkPointWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"

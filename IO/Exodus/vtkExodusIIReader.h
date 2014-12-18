@@ -32,8 +32,8 @@
 //
 
 
-#ifndef __vtkExodusIIReader_h
-#define __vtkExodusIIReader_h
+#ifndef vtkExodusIIReader_h
+#define vtkExodusIIReader_h
 
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

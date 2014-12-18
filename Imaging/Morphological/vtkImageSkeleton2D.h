@@ -26,8 +26,8 @@
 
 
 
-#ifndef __vtkImageSkeleton2D_h
-#define __vtkImageSkeleton2D_h
+#ifndef vtkImageSkeleton2D_h
+#define vtkImageSkeleton2D_h
 
 #include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageIterateFilter.h"

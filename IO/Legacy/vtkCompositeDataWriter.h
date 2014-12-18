@@ -22,8 +22,8 @@
 // datasets. Saving composite dataset in legacy VTK format is expected to change
 // in future including changes to the file layout.
 
-#ifndef __vtkCompositeDataWriter_h
-#define __vtkCompositeDataWriter_h
+#ifndef vtkCompositeDataWriter_h
+#define vtkCompositeDataWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

@@ -23,8 +23,8 @@
 // Theophane Foggia of The Swiss National Supercomputing Centre (CSCS)
 // for creating and contributing this filter
 
-#ifndef __vtkRotationFilter_h
-#define __vtkRotationFilter_h
+#ifndef vtkRotationFilter_h
+#define vtkRotationFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

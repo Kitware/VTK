@@ -15,8 +15,8 @@
 // .NAME vtkExtractPolyDataPiece - Return specified piece, including specified
 // number of ghost levels.
 
-#ifndef __vtkExtractPolyDataPiece_h
-#define __vtkExtractPolyDataPiece_h
+#ifndef vtkExtractPolyDataPiece_h
+#define vtkExtractPolyDataPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

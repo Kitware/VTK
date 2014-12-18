@@ -19,8 +19,8 @@
 // displacement or vector file (.d), and a 2D texture coordinate file
 // (.t).
 
-#ifndef __vtkBYUReader_h
-#define __vtkBYUReader_h
+#ifndef vtkBYUReader_h
+#define vtkBYUReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

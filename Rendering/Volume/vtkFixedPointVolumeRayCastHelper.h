@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkFixedPointVolumeRayCastMapper
 
-#ifndef __vtkFixedPointVolumeRayCastHelper_h
-#define __vtkFixedPointVolumeRayCastHelper_h
+#ifndef vtkFixedPointVolumeRayCastHelper_h
+#define vtkFixedPointVolumeRayCastHelper_h
 
 //BTX
 #define VTKKWRCHelper_GetCellScalarValues( DATA, SCALE, SHIFT ) \

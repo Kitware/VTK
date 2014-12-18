@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkTypeTraits provides information about VTK's supported scalar types
 // that is useful for templates.
-#ifndef __vtkTypeTraits_h
-#define __vtkTypeTraits_h
+#ifndef vtkTypeTraits_h
+#define vtkTypeTraits_h
 
 #include "vtkSystemIncludes.h"
 

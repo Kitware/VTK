@@ -35,8 +35,8 @@
 // decomposed cases in conjunction with vtkPOpenFOAMReader, et. al. by
 // Takuya Oshima of Niigata University, Japan (oshima@eng.niigata-u.ac.jp).
 
-#ifndef __vtkOpenFOAMReader_h
-#define __vtkOpenFOAMReader_h
+#ifndef vtkOpenFOAMReader_h
+#define vtkOpenFOAMReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

@@ -32,8 +32,8 @@
 // vtkHandleRepresentation vtkHandleWidget
 
 
-#ifndef __vtkConstrainedPointHandleRepresentation_h
-#define __vtkConstrainedPointHandleRepresentation_h
+#ifndef vtkConstrainedPointHandleRepresentation_h
+#define vtkConstrainedPointHandleRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"

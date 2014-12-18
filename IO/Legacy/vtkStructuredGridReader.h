@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkStructuredGrid vtkDataReader
 
-#ifndef __vtkStructuredGridReader_h
-#define __vtkStructuredGridReader_h
+#ifndef vtkStructuredGridReader_h
+#define vtkStructuredGridReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

@@ -33,8 +33,8 @@
 // Thanks to Soeren Gebbert  who developed this class and
 // integrated it into VTK 5.0.
 
-#ifndef __vtkQuadraticLinearWedge_h
-#define __vtkQuadraticLinearWedge_h
+#ifndef vtkQuadraticLinearWedge_h
+#define vtkQuadraticLinearWedge_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

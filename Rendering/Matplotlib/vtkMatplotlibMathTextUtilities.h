@@ -22,8 +22,8 @@
 // - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
 // of the python environment.
 
-#ifndef __vtkMatplotlibMathTextUtilities_h
-#define __vtkMatplotlibMathTextUtilities_h
+#ifndef vtkMatplotlibMathTextUtilities_h
+#define vtkMatplotlibMathTextUtilities_h
 
 #include "vtkRenderingMatplotlibModule.h" // For export macro
 #include "vtkMathTextUtilities.h"

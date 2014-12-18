@@ -38,8 +38,8 @@
 // group of sources have in common, and to copy tuples from a source into
 // the destination, for only those attributes that are held by all.
 
-#ifndef __vtkDataSetAttributes_h
-#define __vtkDataSetAttributes_h
+#ifndef vtkDataSetAttributes_h
+#define vtkDataSetAttributes_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkFieldData.h"

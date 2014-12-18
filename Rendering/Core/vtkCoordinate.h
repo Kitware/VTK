@@ -43,8 +43,8 @@
 // .SECTION See Also
 // vtkActor2D vtkScalarBarActor
 
-#ifndef __vtkCoordinate_h
-#define __vtkCoordinate_h
+#ifndef vtkCoordinate_h
+#define vtkCoordinate_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

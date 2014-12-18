@@ -28,8 +28,8 @@
 //
 // @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
-#ifndef __vtkPBGLConnectedComponents_h
-#define __vtkPBGLConnectedComponents_h
+#ifndef vtkPBGLConnectedComponents_h
+#define vtkPBGLConnectedComponents_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type

@@ -21,8 +21,8 @@
 // by all other elements of the chart. It builds up its own plot locations
 // from the parameters of the x and y axis of the plot.
 
-#ifndef __vtkPlotGrid_h
-#define __vtkPlotGrid_h
+#ifndef vtkPlotGrid_h
+#define vtkPlotGrid_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -71,4 +71,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotGrid_h
+#endif //vtkPlotGrid_h

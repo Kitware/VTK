@@ -43,8 +43,8 @@
 // .SECTION See Also
 // vtkImplicitFunction vtkTexture vtkBooleanTexture vtkTransformTexture
 
-#ifndef __vtkImplicitTextureCoords_h
-#define __vtkImplicitTextureCoords_h
+#ifndef vtkImplicitTextureCoords_h
+#define vtkImplicitTextureCoords_h
 
 #include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

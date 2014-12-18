@@ -30,8 +30,8 @@
 // vtkCommand::ExitEvent, vtkCommand::UpdateEvent, vtkCommand::ErrorEvent and
 // vtkCommand::SetOutputEvent.
 
-#ifndef __vtkPythonInteractiveInterpreter_h
-#define __vtkPythonInteractiveInterpreter_h
+#ifndef vtkPythonInteractiveInterpreter_h
+#define vtkPythonInteractiveInterpreter_h
 
 #include "vtkObject.h"
 #include "vtkPythonInterpreterModule.h" // For export macro

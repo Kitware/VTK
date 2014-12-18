@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkGeometryFilter vtkStructuredGridGeometryFilter.
 
-#ifndef __vtkHyperOctreeToUniformGridFilter_h
-#define __vtkHyperOctreeToUniformGridFilter_h
+#ifndef vtkHyperOctreeToUniformGridFilter_h
+#define vtkHyperOctreeToUniformGridFilter_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

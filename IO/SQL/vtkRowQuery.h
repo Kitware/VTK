@@ -47,8 +47,8 @@
 // .SECTION See Also
 // vtkRowQueryToTable
 
-#ifndef __vtkRowQuery_h
-#define __vtkRowQuery_h
+#ifndef vtkRowQuery_h
+#define vtkRowQuery_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkObject.h"
@@ -133,5 +133,5 @@ private:
   void operator=(const vtkRowQuery &); // Not implemented.
 };
 
-#endif // __vtkRowQuery_h
+#endif // vtkRowQuery_h
 

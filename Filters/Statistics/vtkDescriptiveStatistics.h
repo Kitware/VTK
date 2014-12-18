@@ -43,8 +43,8 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkDescriptiveStatistics_h
-#define __vtkDescriptiveStatistics_h
+#ifndef vtkDescriptiveStatistics_h
+#define vtkDescriptiveStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"

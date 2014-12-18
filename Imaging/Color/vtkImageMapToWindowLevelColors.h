@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkLookupTable vtkScalarsToColors
 
-#ifndef __vtkImageMapToWindowLevelColors_h
-#define __vtkImageMapToWindowLevelColors_h
+#ifndef vtkImageMapToWindowLevelColors_h
+#define vtkImageMapToWindowLevelColors_h
 
 
 #include "vtkImagingColorModule.h" // For export macro

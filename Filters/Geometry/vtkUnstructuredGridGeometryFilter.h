@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkGeometryFilter
 
-#ifndef __vtkUnstructuredGridGeometryFilter_h
-#define __vtkUnstructuredGridGeometryFilter_h
+#ifndef vtkUnstructuredGridGeometryFilter_h
+#define vtkUnstructuredGridGeometryFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridBaseAlgorithm.h"

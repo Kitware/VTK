@@ -20,8 +20,8 @@
 // input.
 
 
-#ifndef __vtkImageMathematics_h
-#define __vtkImageMathematics_h
+#ifndef vtkImageMathematics_h
+#define vtkImageMathematics_h
 
 
 // Operation options.

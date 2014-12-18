@@ -21,8 +21,8 @@
 // vtkPParticlePathFilterBase has the details of the algorithms
 
 
-#ifndef __vtkPParticlePathFilter_h
-#define __vtkPParticlePathFilter_h
+#ifndef vtkPParticlePathFilter_h
+#define vtkPParticlePathFilter_h
 
 
 #include "vtkPParticleTracerBase.h"

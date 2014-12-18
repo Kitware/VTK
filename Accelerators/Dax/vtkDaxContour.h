@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef __vtkDaxContour_h
-#define __vtkDaxContour_h
+#ifndef vtkDaxContour_h
+#define vtkDaxContour_h
 
 #include "vtkContourFilter.h"
 #include "vtkAcceleratorsDaxModule.h" //required for correct implementation

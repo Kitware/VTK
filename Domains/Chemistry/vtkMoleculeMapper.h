@@ -18,8 +18,8 @@
 // vtkMoleculeMapper uses glyphs (display lists) to quickly render a
 // molecule.
 
-#ifndef __vtkMoleculeMapper_h
-#define __vtkMoleculeMapper_h
+#ifndef vtkMoleculeMapper_h
+#define vtkMoleculeMapper_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMapper.h"

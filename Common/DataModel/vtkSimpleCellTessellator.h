@@ -39,8 +39,8 @@
 // vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric vtkAttributesErrorMetric
 // vtkGeometricErrorMetric vtkViewDependentErrorMetric
 
-#ifndef __vtkSimpleCellTessellator_h
-#define __vtkSimpleCellTessellator_h
+#ifndef vtkSimpleCellTessellator_h
+#define vtkSimpleCellTessellator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGenericCellTessellator.h"

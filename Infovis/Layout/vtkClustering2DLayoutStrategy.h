@@ -27,8 +27,8 @@
 // Thanks to Godzilla for not eating my computer so that this class
 // could be written.
 
-#ifndef __vtkClustering2DLayoutStrategy_h
-#define __vtkClustering2DLayoutStrategy_h
+#ifndef vtkClustering2DLayoutStrategy_h
+#define vtkClustering2DLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

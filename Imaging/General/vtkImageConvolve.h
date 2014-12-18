@@ -18,8 +18,8 @@
 // 2D NxN kernal.  The output image is cropped to the same size as
 // the input.
 
-#ifndef __vtkImageConvolve_h
-#define __vtkImageConvolve_h
+#ifndef vtkImageConvolve_h
+#define vtkImageConvolve_h
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

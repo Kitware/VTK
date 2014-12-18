@@ -78,8 +78,8 @@
 // .SECTION See Also
 // vtkSphereRepresentation vtkSphereWidget
 
-#ifndef __vtkSphereWidget2_h
-#define __vtkSphereWidget2_h
+#ifndef vtkSphereWidget2_h
+#define vtkSphereWidget2_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

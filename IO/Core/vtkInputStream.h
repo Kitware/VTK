@@ -21,8 +21,8 @@
 // input data.  The actual length in the stream may differ for
 // subclasses that implement an encoding scheme.
 
-#ifndef __vtkInputStream_h
-#define __vtkInputStream_h
+#ifndef vtkInputStream_h
+#define vtkInputStream_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"

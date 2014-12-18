@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkTextActor vtkActor2D vtkTextMapper
 
-#ifndef __vtkScaledTextActor_h
-#define __vtkScaledTextActor_h
+#ifndef vtkScaledTextActor_h
+#define vtkScaledTextActor_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextActor.h"

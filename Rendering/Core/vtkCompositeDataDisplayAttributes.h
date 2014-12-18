@@ -18,8 +18,8 @@
 // The vtkCompositeDataDisplayAttributes class stores display attributes
 // for individual blocks in a multi-block dataset.
 
-#ifndef __vtkCompositeDataDisplayAttributes_h
-#define __vtkCompositeDataDisplayAttributes_h
+#ifndef vtkCompositeDataDisplayAttributes_h
+#define vtkCompositeDataDisplayAttributes_h
 
 #include "vtkRenderingCoreModule.h" // for export macro
 #include "vtkObject.h"
@@ -114,4 +114,4 @@ private:
   std::map<unsigned int, double> BlockOpacities;
 };
 
-#endif // __vtkCompositeDataDisplayAttributes_h
+#endif // vtkCompositeDataDisplayAttributes_h

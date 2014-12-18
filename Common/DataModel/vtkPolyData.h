@@ -51,8 +51,8 @@
 // expects lines). Read the documentation for each filter carefully to
 // understand how each part of vtkPolyData is processed.
 
-#ifndef __vtkPolyData_h
-#define __vtkPolyData_h
+#ifndef vtkPolyData_h
+#define vtkPolyData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"

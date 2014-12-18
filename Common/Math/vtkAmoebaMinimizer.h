@@ -23,8 +23,8 @@
 // but is not guaranteed to find the global minimum if several local
 // minima exist.
 
-#ifndef __vtkAmoebaMinimizer_h
-#define __vtkAmoebaMinimizer_h
+#ifndef vtkAmoebaMinimizer_h
+#define vtkAmoebaMinimizer_h
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"

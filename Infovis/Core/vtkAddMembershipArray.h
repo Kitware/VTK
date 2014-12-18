@@ -25,8 +25,8 @@
 // information, and data object and adds a bit array to the output
 // vtkDataSetAttributes indicating whether each index was selected or not.
 
-#ifndef __vtkAddMembershipArray_h
-#define __vtkAddMembershipArray_h
+#ifndef vtkAddMembershipArray_h
+#define vtkAddMembershipArray_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

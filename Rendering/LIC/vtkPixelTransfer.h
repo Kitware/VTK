@@ -23,8 +23,8 @@
 // .SECTION See also
 // vtkPixelExtent vtkPPixelTransfer
 
-#ifndef __vtkPixelTransfer_h
-#define __vtkPixelTransfer_h
+#ifndef vtkPixelTransfer_h
+#define vtkPixelTransfer_h
 
 #include "vtkRenderingLICModule.h" // for export
 #include "vtkSetGet.h" // for macros

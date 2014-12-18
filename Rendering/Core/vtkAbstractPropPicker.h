@@ -56,8 +56,8 @@
 // vtkAssemblyPath vtkAssemblyNode vtkAssemblyPaths vtkAbstractPicker
 // vtkRenderer
 
-#ifndef __vtkAbstractPropPicker_h
-#define __vtkAbstractPropPicker_h
+#ifndef vtkAbstractPropPicker_h
+#define vtkAbstractPropPicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPicker.h"

@@ -31,8 +31,8 @@
 // vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
 // vtkImageMarchingCubes
 
-#ifndef __vtkHyperOctreeDualGridContourFilter_h
-#define __vtkHyperOctreeDualGridContourFilter_h
+#ifndef vtkHyperOctreeDualGridContourFilter_h
+#define vtkHyperOctreeDualGridContourFilter_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

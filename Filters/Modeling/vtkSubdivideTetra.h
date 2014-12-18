@@ -17,8 +17,8 @@
 // This filter subdivides tetrahedra in an unstructured grid into twelve tetrahedra.
 
 
-#ifndef __vtkSubdivideTetra_h
-#define __vtkSubdivideTetra_h
+#ifndef vtkSubdivideTetra_h
+#define vtkSubdivideTetra_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkInterpolatingSubdivisionFilter vtkButterflySubdivisionFilter
 
-#ifndef __vtkLinearSubdivisionFilter_h
-#define __vtkLinearSubdivisionFilter_h
+#ifndef vtkLinearSubdivisionFilter_h
+#define vtkLinearSubdivisionFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkInterpolatingSubdivisionFilter.h"

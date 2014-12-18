@@ -33,8 +33,8 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION Thanks
 
-#ifndef __vtkTransferAttributes_h
-#define __vtkTransferAttributes_h
+#ifndef vtkTransferAttributes_h
+#define vtkTransferAttributes_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

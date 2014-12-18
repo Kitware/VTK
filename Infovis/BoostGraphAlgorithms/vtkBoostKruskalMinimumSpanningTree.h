@@ -29,8 +29,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION See Also
 // vtkGraph vtkBoostGraphAdapter
 
-#ifndef __vtkBoostKruskalMinimumSpanningTree_h
-#define __vtkBoostKruskalMinimumSpanningTree_h
+#ifndef vtkBoostKruskalMinimumSpanningTree_h
+#define vtkBoostKruskalMinimumSpanningTree_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkStdString.h" // For string type

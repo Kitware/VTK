@@ -21,8 +21,8 @@
 // uses random access for data lookups. Custom vtkCellIterator implementations
 // should be used instead when random-access is inefficient.
 
-#ifndef __vtkMappedUnstructuredGridCellIterator_h
-#define __vtkMappedUnstructuredGridCellIterator_h
+#ifndef vtkMappedUnstructuredGridCellIterator_h
+#define vtkMappedUnstructuredGridCellIterator_h
 
 #include "vtkCellIterator.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
@@ -70,6 +70,6 @@ private:
 
 #include "vtkMappedUnstructuredGridCellIterator.txx"
 
-#endif //__vtkMappedUnstructuredGridCellIterator_h
+#endif //vtkMappedUnstructuredGridCellIterator_h
 
 // VTK-HeaderTest-Exclude: vtkMappedUnstructuredGridCellIterator.h

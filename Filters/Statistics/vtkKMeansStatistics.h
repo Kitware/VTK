@@ -90,8 +90,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Sandia National Laboratories for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkKMeansStatistics_h
-#define __vtkKMeansStatistics_h
+#ifndef vtkKMeansStatistics_h
+#define vtkKMeansStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"

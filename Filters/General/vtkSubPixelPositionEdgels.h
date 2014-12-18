@@ -31,8 +31,8 @@
 // .SECTION see also
 // vtkImageData vtkImageGradient vtkLinkEdgels
 
-#ifndef __vtkSubPixelPositionEdgels_h
-#define __vtkSubPixelPositionEdgels_h
+#ifndef vtkSubPixelPositionEdgels_h
+#define vtkSubPixelPositionEdgels_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -19,8 +19,8 @@
 // factor. If VectorMode is UseNormal, normals determine the orientation
 // of the lines. Lines are colored by scalar data, if available.
 
-#ifndef __vtkHedgeHog_h
-#define __vtkHedgeHog_h
+#ifndef vtkHedgeHog_h
+#define vtkHedgeHog_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -21,8 +21,8 @@
 // vtkResliceCursor vtkResliceCursorPolyDataAlgorithm vtkResliceCursorWidget
 // vtkResliceCursorRepresentation vtkResliceCursorLineRepresentation
 
-#ifndef __vtkResliceCursorActor_h
-#define __vtkResliceCursorActor_h
+#ifndef vtkResliceCursorActor_h
+#define vtkResliceCursorActor_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp3D.h"

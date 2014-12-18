@@ -86,8 +86,8 @@
 // Michael Halle (mhalle@bwh.harvard.edu) at the Surgical Planning
 // Lab, Brigham and Women's Hospital.
 
-#ifndef __vtkLightKit_h
-#define __vtkLightKit_h
+#ifndef vtkLightKit_h
+#define vtkLightKit_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

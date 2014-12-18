@@ -32,8 +32,8 @@
 // class, instantiate it and then call SetInstance(this).
 
 
-#ifndef __vtkXMLFileOutputWindow_h
-#define __vtkXMLFileOutputWindow_h
+#ifndef vtkXMLFileOutputWindow_h
+#define vtkXMLFileOutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkFileOutputWindow.h"

@@ -18,8 +18,8 @@
 // the use of the vtkMultiProcessController and that
 // ProportionalMaximumNumberOfPoints is obeyed.
 
-#ifndef __vtkPMaskPoints_h
-#define __vtkPMaskPoints_h
+#ifndef vtkPMaskPoints_h
+#define vtkPMaskPoints_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMaskPoints.h"

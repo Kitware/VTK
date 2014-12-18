@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkInformation vtkInformationKey
 
-#ifndef __vtkInformationIterator_h
-#define __vtkInformationIterator_h
+#ifndef vtkInformationIterator_h
+#define vtkInformationIterator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

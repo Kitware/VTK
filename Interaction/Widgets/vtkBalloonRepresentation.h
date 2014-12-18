@@ -49,8 +49,8 @@
 // vtkBalloonWidget
 
 
-#ifndef __vtkBalloonRepresentation_h
-#define __vtkBalloonRepresentation_h
+#ifndef vtkBalloonRepresentation_h
+#define vtkBalloonRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

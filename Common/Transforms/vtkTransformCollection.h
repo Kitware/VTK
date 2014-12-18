@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkCollection vtkTransform
 
-#ifndef __vtkTransformCollection_h
-#define __vtkTransformCollection_h
+#ifndef vtkTransformCollection_h
+#define vtkTransformCollection_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkCollection.h"

@@ -20,8 +20,8 @@
 // 4.x pipeline.  Instead of always updating an entire data set, this
 // executive supports asking for pieces or sub-extents.
 
-#ifndef __vtkStreamingDemandDrivenPipeline_h
-#define __vtkStreamingDemandDrivenPipeline_h
+#ifndef vtkStreamingDemandDrivenPipeline_h
+#define vtkStreamingDemandDrivenPipeline_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkDemandDrivenPipeline.h"

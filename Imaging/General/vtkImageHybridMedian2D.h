@@ -23,8 +23,8 @@
 
 
 
-#ifndef __vtkImageHybridMedian2D_h
-#define __vtkImageHybridMedian2D_h
+#ifndef vtkImageHybridMedian2D_h
+#define vtkImageHybridMedian2D_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

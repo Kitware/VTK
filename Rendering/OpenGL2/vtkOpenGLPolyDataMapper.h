@@ -15,8 +15,8 @@
 // .SECTION Description
 // PolyDataMapper that uses a OpenGL to do the actual rendering.
 
-#ifndef __vtkOpenGLPolyDataMapper_h
-#define __vtkOpenGLPolyDataMapper_h
+#ifndef vtkOpenGLPolyDataMapper_h
+#define vtkOpenGLPolyDataMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"

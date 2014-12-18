@@ -38,8 +38,8 @@
 // Thanks to Jason Shepherd from
 // Sandia National Laboratories for help in developing this class.
 
-#ifndef __vtkQtTreeRingLabelMapper_h
-#define __vtkQtTreeRingLabelMapper_h
+#ifndef vtkQtTreeRingLabelMapper_h
+#define vtkQtTreeRingLabelMapper_h
 
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"

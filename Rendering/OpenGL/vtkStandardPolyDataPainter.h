@@ -35,8 +35,8 @@
 // collaboration with Stephane Ploix at EDF.
 
 
-#ifndef __vtkStandardPolyDataPainter_h
-#define __vtkStandardPolyDataPainter_h
+#ifndef vtkStandardPolyDataPainter_h
+#define vtkStandardPolyDataPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"
@@ -89,4 +89,4 @@ private:
 //ETX
 };
 
-#endif //__vtkStandardPolyDataPainter_h
+#endif //vtkStandardPolyDataPainter_h

@@ -30,8 +30,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkMatricizeArray_h
-#define __vtkMatricizeArray_h
+#ifndef vtkMatricizeArray_h
+#define vtkMatricizeArray_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

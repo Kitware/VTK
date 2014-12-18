@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkExtractUnstructuredGridPiece
 
-#ifndef __vtkExtractUserDefinedPiece_h
-#define __vtkExtractUserDefinedPiece_h
+#ifndef vtkExtractUserDefinedPiece_h
+#define vtkExtractUserDefinedPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkExtractUnstructuredGridPiece.h"

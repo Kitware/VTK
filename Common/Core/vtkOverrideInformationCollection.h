@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkCollection
 
-#ifndef __vtkOverrideInformationCollection_h
-#define __vtkOverrideInformationCollection_h
+#ifndef vtkOverrideInformationCollection_h
+#define vtkOverrideInformationCollection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"

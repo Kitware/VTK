@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkOpenGL_h
-#define __vtkOpenGL_h
+#ifndef vtkOpenGL_h
+#define vtkOpenGL_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkConfigure.h"

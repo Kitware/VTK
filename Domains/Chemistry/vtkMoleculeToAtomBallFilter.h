@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkMoleculeMapper vtkMoleculeToBondStickFilter
 
-#ifndef __vtkMoleculeToAtomBallFilter_h
-#define __vtkMoleculeToAtomBallFilter_h
+#ifndef vtkMoleculeToAtomBallFilter_h
+#define vtkMoleculeToAtomBallFilter_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeToPolyDataFilter.h"

@@ -21,8 +21,8 @@
 // the distributed to others using the multiprocess controller.
 
 
-#ifndef __vtkTransmitStructuredDataPiece_h
-#define __vtkTransmitStructuredDataPiece_h
+#ifndef vtkTransmitStructuredDataPiece_h
+#define vtkTransmitStructuredDataPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

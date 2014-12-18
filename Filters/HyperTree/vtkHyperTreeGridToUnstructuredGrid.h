@@ -29,8 +29,8 @@
 // This class was written by Philippe Pebay and Charles Law, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#ifndef __vtkHyperTreeGridToUnstructuredGrid_h
-#define __vtkHyperTreeGridToUnstructuredGrid_h
+#ifndef vtkHyperTreeGridToUnstructuredGrid_h
+#define vtkHyperTreeGridToUnstructuredGrid_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

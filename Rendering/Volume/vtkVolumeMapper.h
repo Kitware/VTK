@@ -22,8 +22,8 @@
 // .SECTION see also
 // vtkVolumeRayCastMapper vtkVolumeTextureMapper2D
 
-#ifndef __vtkVolumeMapper_h
-#define __vtkVolumeMapper_h
+#ifndef vtkVolumeMapper_h
+#define vtkVolumeMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkAbstractVolumeMapper.h"

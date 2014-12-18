@@ -23,8 +23,8 @@
 // .SECTION see also
 //  vtkShaderProgram2
 
-#ifndef __vtkColorMaterialHelper_h
-#define __vtkColorMaterialHelper_h
+#ifndef vtkColorMaterialHelper_h
+#define vtkColorMaterialHelper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

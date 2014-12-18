@@ -17,8 +17,8 @@
 // vtkTableToPostgreSQLWriter reads a vtkTable and inserts it into a PostgreSQL
 // database.
 
-#ifndef __vtkTableToPostgreSQLWriter_h
-#define __vtkTableToPostgreSQLWriter_h
+#ifndef vtkTableToPostgreSQLWriter_h
+#define vtkTableToPostgreSQLWriter_h
 
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"

@@ -22,8 +22,8 @@
 // This is the internal representation of vtkGraph, used only in rare cases
 // where one must modify that representation.
 
-#ifndef __vtkGraphInternals_h
-#define __vtkGraphInternals_h
+#ifndef vtkGraphInternals_h
+#define vtkGraphInternals_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"
@@ -94,6 +94,6 @@ private:
   void operator=(const vtkGraphInternals&);  // Not implemented.
 };
 
-#endif // __vtkGraphInternals_h
+#endif // vtkGraphInternals_h
 
 // VTK-HeaderTest-Exclude: vtkGraphInternals.h

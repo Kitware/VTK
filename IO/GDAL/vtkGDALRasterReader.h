@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkUniformGrid, vtkImageData
 
-#ifndef __vtkGDALRasterReader_h
-#define __vtkGDALRasterReader_h
+#ifndef vtkGDALRasterReader_h
+#define vtkGDALRasterReader_h
 
 #include <vtkImageReader2.h>
 #include <vtkIOGDALModule.h> // For export macro
@@ -119,4 +119,4 @@ private:
   void operator=(const vtkGDALRasterReader&); // Not implemented
 };
 
-#endif // __vtkGDALRasterReader_h
+#endif // vtkGDALRasterReader_h

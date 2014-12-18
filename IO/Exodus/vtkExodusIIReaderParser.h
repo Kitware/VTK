@@ -17,8 +17,8 @@
 // vtkExodusIIReaderParser is an internal XML parser used by vtkExodusIIReader.
 // This is not for public use.
 
-#ifndef __vtkExodusIIReaderParser_h
-#define __vtkExodusIIReaderParser_h
+#ifndef vtkExodusIIReaderParser_h
+#define vtkExodusIIReaderParser_h
 
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkXMLParser.h"

@@ -46,8 +46,8 @@
 // .SECTION See Also
 // vtkLandmarkTransform
 
-#ifndef __vtkProcrustesAlignmentFilter_h
-#define __vtkProcrustesAlignmentFilter_h
+#ifndef vtkProcrustesAlignmentFilter_h
+#define vtkProcrustesAlignmentFilter_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

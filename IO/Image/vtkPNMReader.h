@@ -30,8 +30,8 @@
 // files to read.
 
 
-#ifndef __vtkPNMReader_h
-#define __vtkPNMReader_h
+#ifndef vtkPNMReader_h
+#define vtkPNMReader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"

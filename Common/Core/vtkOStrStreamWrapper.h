@@ -21,8 +21,8 @@
 // less time for compilation depending on the platform.  This wrapper
 // is used by the macros in vtkSetGet.h.
 
-#ifndef __vtkOStrStreamWrapper_h
-#define __vtkOStrStreamWrapper_h
+#ifndef vtkOStrStreamWrapper_h
+#define vtkOStrStreamWrapper_h
 
 #ifndef __VTK_SYSTEM_INCLUDES__INSIDE
 Do_not_include_vtkOStrStreamWrapper_directly__vtkSystemIncludes_includes_it;

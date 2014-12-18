@@ -61,8 +61,8 @@
 // vtkHandleWidget vtkSeedReoresentation
 
 
-#ifndef __vtkSeedWidget_h
-#define __vtkSeedWidget_h
+#ifndef vtkSeedWidget_h
+#define vtkSeedWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

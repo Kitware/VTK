@@ -30,8 +30,8 @@
 // vtkImageSlabReslice vtkResliceCursorLineRepresentation
 // vtkResliceCursor
 
-#ifndef __vtkResliceCursorWidget_h
-#define __vtkResliceCursorWidget_h
+#ifndef vtkResliceCursorWidget_h
+#define vtkResliceCursorWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

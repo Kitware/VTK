@@ -26,8 +26,8 @@
 // Sandia National Laboratories for their help in developing this class.
 
 
-#ifndef __vtkVariant_h
-#define __vtkVariant_h
+#ifndef vtkVariant_h
+#define vtkVariant_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags

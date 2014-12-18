@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkImageButterworthLowPass
 
-#ifndef __vtkImageButterworthHighPass_h
-#define __vtkImageButterworthHighPass_h
+#ifndef vtkImageButterworthHighPass_h
+#define vtkImageButterworthHighPass_h
 
 
 #include "vtkImagingFourierModule.h" // For export macro

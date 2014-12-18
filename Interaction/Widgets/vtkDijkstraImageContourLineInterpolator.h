@@ -33,8 +33,8 @@
 // vtkContourWidget vtkContourLineInterpolator vtkDijkstraImageGeodesicPath
 
 
-#ifndef __vtkDijkstraImageContourLineInterpolator_h
-#define __vtkDijkstraImageContourLineInterpolator_h
+#ifndef vtkDijkstraImageContourLineInterpolator_h
+#define vtkDijkstraImageContourLineInterpolator_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"

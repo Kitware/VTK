@@ -17,8 +17,8 @@
 // Sends the piece and number of pieces to upstream filters; passes the input
 // to the output unmodified.
 
-#ifndef __vtkPieceRequestFilter_h
-#define __vtkPieceRequestFilter_h
+#ifndef vtkPieceRequestFilter_h
+#define vtkPieceRequestFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkAlgorithm.h"

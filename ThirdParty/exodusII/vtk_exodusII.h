@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_exodusII_h
-#define __vtk_exodusII_h
+#ifndef vtk_exodusII_h
+#define vtk_exodusII_h
 
 /* Use the exodusII library configured for VTK.  */
 #include <vtkexodusII/include/exodusII.h>

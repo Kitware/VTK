@@ -22,8 +22,8 @@
 // .SECTION Description
 // vtkGeoMath provides some useful geographic calculations.
 
-#ifndef __vtkGeoMath_h
-#define __vtkGeoMath_h
+#ifndef vtkGeoMath_h
+#define vtkGeoMath_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"

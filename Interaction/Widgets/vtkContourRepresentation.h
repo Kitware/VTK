@@ -50,8 +50,8 @@
 // vtkContourWidget
 
 
-#ifndef __vtkContourRepresentation_h
-#define __vtkContourRepresentation_h
+#ifndef vtkContourRepresentation_h
+#define vtkContourRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

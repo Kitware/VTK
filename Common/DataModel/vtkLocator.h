@@ -47,8 +47,8 @@
 // .SECTION See Also
 // vtkPointLocator vtkCellLocator vtkOBBTree vtkMergePoints
 
-#ifndef __vtkLocator_h
-#define __vtkLocator_h
+#ifndef vtkLocator_h
+#define vtkLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

@@ -39,8 +39,8 @@
 // .SECTION See Also
 // vtkVRMLImporter vtkPLY vtkOrderedTriangulator
 
-#ifndef __vtkHeap_h
-#define __vtkHeap_h
+#ifndef vtkHeap_h
+#define vtkHeap_h
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"

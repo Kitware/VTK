@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkCleanPolyData
 
-#ifndef __vtkQuantizePolyDataPoints_h
-#define __vtkQuantizePolyDataPoints_h
+#ifndef vtkQuantizePolyDataPoints_h
+#define vtkQuantizePolyDataPoints_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkCleanPolyData.h"

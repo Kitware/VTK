@@ -28,8 +28,8 @@
 // Implementation by Thierry Carrard (thierry.carrard@cea.fr)
 // Modification by Philippe Pebay (philippe.pebay@kitware.com)
 
-#ifndef __vtkYoungsMaterialInterface_h
-#define __vtkYoungsMaterialInterface_h
+#ifndef vtkYoungsMaterialInterface_h
+#define vtkYoungsMaterialInterface_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

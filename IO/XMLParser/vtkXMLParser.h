@@ -21,8 +21,8 @@
 // use the tags.
 // .SECTION ToDo: Add commands for parsing in Tcl.
 
-#ifndef __vtkXMLParser_h
-#define __vtkXMLParser_h
+#ifndef vtkXMLParser_h
+#define vtkXMLParser_h
 
 #include "vtkIOXMLParserModule.h" // For export macro
 #include "vtkObject.h"

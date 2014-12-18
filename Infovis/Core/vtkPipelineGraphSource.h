@@ -16,8 +16,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkPipelineGraphSource_h
-#define __vtkPipelineGraphSource_h
+#ifndef vtkPipelineGraphSource_h
+#define vtkPipelineGraphSource_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"

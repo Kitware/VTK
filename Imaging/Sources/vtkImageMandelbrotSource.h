@@ -24,8 +24,8 @@
 // possible parameters to vary, but there are no more 4d images :(
 // The third dimension (z axis) is the imaginary value of the initial value.
 
-#ifndef __vtkImageMandelbrotSource_h
-#define __vtkImageMandelbrotSource_h
+#ifndef vtkImageMandelbrotSource_h
+#define vtkImageMandelbrotSource_h
 
 #include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

@@ -29,8 +29,8 @@
 // vtkImageData at each block.  A block is created for each variable except that
 // variables with matching dimensions will be placed in the same block.
 
-#ifndef __vtkNetCDFReader_h
-#define __vtkNetCDFReader_h
+#ifndef vtkNetCDFReader_h
+#define vtkNetCDFReader_h
 
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
@@ -235,4 +235,4 @@ private:
   vtkNetCDFReaderPrivate *Private;
 };
 
-#endif //__vtkNetCDFReader_h
+#endif //vtkNetCDFReader_h

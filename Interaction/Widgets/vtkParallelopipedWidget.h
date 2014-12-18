@@ -37,8 +37,8 @@
 // .SECTION Caveats
 // .SECTION See Also vtkParallelopipedRepresentation
 
-#ifndef __vtkParallelopipedWidget_h
-#define __vtkParallelopipedWidget_h
+#ifndef vtkParallelopipedWidget_h
+#define vtkParallelopipedWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

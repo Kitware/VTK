@@ -22,8 +22,8 @@
 // the vtkObject::GlobalWarningDisplayOff() function is called.  The
 // window is created the next time text is written to the window.
 
-#ifndef __vtkWin32OutputWindow_h
-#define __vtkWin32OutputWindow_h
+#ifndef vtkWin32OutputWindow_h
+#define vtkWin32OutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"

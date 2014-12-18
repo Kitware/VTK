@@ -54,8 +54,8 @@
 // .SECTION See Also
 // vtkImplicitFunction vtkCutter vtkClipVolume vtkClipPolyData
 
-#ifndef __vtkClipHyperOctree_h
-#define __vtkClipHyperOctree_h
+#ifndef vtkClipHyperOctree_h
+#define vtkClipHyperOctree_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

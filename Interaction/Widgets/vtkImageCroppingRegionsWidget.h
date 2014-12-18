@@ -24,8 +24,8 @@
 // cropping planes is changed. The widget also invokes an InteractionEvent
 // in response to user interaction.
 
-#ifndef __vtkImageCroppingRegionsWidget_h
-#define __vtkImageCroppingRegionsWidget_h
+#ifndef vtkImageCroppingRegionsWidget_h
+#define vtkImageCroppingRegionsWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"

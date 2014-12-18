@@ -46,8 +46,8 @@
 // BEFORE the representation is added to a view or strange things
 // may happen, including segfaults.
 
-#ifndef __vtkQtTableRepresentation_h
-#define __vtkQtTableRepresentation_h
+#ifndef vtkQtTableRepresentation_h
+#define vtkQtTableRepresentation_h
 
 #include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

@@ -21,8 +21,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkRenderedRepresentation_h
-#define __vtkRenderedRepresentation_h
+#ifndef vtkRenderedRepresentation_h
+#define vtkRenderedRepresentation_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkDataRepresentation.h"

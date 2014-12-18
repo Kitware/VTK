@@ -20,8 +20,8 @@
 // a line. The line can be oriented arbitrarily. A typical example is
 // to generate scalars based on elevation or height above a plane.
 
-#ifndef __vtkElevationFilter_h
-#define __vtkElevationFilter_h
+#ifndef vtkElevationFilter_h
+#define vtkElevationFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

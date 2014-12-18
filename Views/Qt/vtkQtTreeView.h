@@ -26,8 +26,8 @@
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
 // this class
 
-#ifndef __vtkQtTreeView_h
-#define __vtkQtTreeView_h
+#ifndef vtkQtTreeView_h
+#define vtkQtTreeView_h
 
 #include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

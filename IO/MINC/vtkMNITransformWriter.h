@@ -58,8 +58,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // Thanks to David Gobbi for writing this class and Atamai Inc. for
 // contributing it to VTK.
 
-#ifndef __vtkMNITransformWriter_h
-#define __vtkMNITransformWriter_h
+#ifndef vtkMNITransformWriter_h
+#define vtkMNITransformWriter_h
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkAlgorithm.h"

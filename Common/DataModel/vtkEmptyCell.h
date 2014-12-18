@@ -17,8 +17,8 @@
 // vtkEmptyCell is a concrete implementation of vtkCell. It is used
 // during processing to represented a deleted element.
 
-#ifndef __vtkEmptyCell_h
-#define __vtkEmptyCell_h
+#ifndef vtkEmptyCell_h
+#define vtkEmptyCell_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

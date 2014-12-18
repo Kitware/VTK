@@ -19,8 +19,8 @@
 // or rendering Polygons/TStrips and representation is points and no normals
 // are present.
 
-#ifndef __vtkOpenGLLightingPainter_h
-#define __vtkOpenGLLightingPainter_h
+#ifndef vtkOpenGLLightingPainter_h
+#define vtkOpenGLLightingPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkLightingPainter.h"

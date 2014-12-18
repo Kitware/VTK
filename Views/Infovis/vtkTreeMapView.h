@@ -24,8 +24,8 @@
 // tree is represented by a box.  Child boxes are contained within the
 // parent box, and may be colored and sized by various parameters.
 
-#ifndef __vtkTreeMapView_h
-#define __vtkTreeMapView_h
+#ifndef vtkTreeMapView_h
+#define vtkTreeMapView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"

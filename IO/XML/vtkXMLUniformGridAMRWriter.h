@@ -18,8 +18,8 @@
 // handle vtkUniformGridAMR datasets (including vtkNonOverlappingAMR and
 // vtkOverlappingAMR).
 
-#ifndef __vtkXMLUniformGridAMRWriter_h
-#define __vtkXMLUniformGridAMRWriter_h
+#ifndef vtkXMLUniformGridAMRWriter_h
+#define vtkXMLUniformGridAMRWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataWriter.h"

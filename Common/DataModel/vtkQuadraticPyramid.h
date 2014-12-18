@@ -33,8 +33,8 @@
 // the report Pyramid Solid Elements Linear and Quadratic Iso-P Models
 // From Center For Aerospace Structures
 
-#ifndef __vtkQuadraticPyramid_h
-#define __vtkQuadraticPyramid_h
+#ifndef vtkQuadraticPyramid_h
+#define vtkQuadraticPyramid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkOpenGL2ContextDevice2D
 
-#ifndef __vtkOpenGLContextDevice2D_h
-#define __vtkOpenGLContextDevice2D_h
+#ifndef vtkOpenGLContextDevice2D_h
+#define vtkOpenGLContextDevice2D_h
 
 #include "vtkRenderingContextOpenGLModule.h" // For export macro
 #include "vtkContextDevice2D.h"
@@ -352,4 +352,4 @@ private:
 //ETX
 };
 
-#endif //__vtkOpenGLContextDevice2D_h
+#endif //vtkOpenGLContextDevice2D_h

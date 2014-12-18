@@ -23,8 +23,8 @@
 // This class uses the PROJ.4 library to represent geographic coordinate
 // projections.
 
-#ifndef __vtkGeoProjection_h
-#define __vtkGeoProjection_h
+#ifndef vtkGeoProjection_h
+#define vtkGeoProjection_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -136,4 +136,4 @@ private:
   vtkInternals* Internals;
 };
 
-#endif // __vtkGeoProjection_h
+#endif // vtkGeoProjection_h

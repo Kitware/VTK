@@ -21,8 +21,8 @@
 // .SECTION See Also
 //  vtkPLineIntegralConvolution2D
 
-#ifndef __vtkPLineIntegralConvolution2D_h
-#define __vtkPLineIntegralConvolution2D_h
+#ifndef vtkPLineIntegralConvolution2D_h
+#define vtkPLineIntegralConvolution2D_h
 
 #include "vtkLineIntegralConvolution2D.h"
 #include "vtkRenderingParallelLICModule.h" // for export macro

@@ -54,8 +54,8 @@
 // .SECTION See Also
 // vtkGlyph3D vtkTensorGlyph vtkCellCenters
 
-#ifndef __vtkProgrammableGlyphFilter_h
-#define __vtkProgrammableGlyphFilter_h
+#ifndef vtkProgrammableGlyphFilter_h
+#define vtkProgrammableGlyphFilter_h
 
 #define VTK_COLOR_BY_INPUT  0
 #define VTK_COLOR_BY_SOURCE 1

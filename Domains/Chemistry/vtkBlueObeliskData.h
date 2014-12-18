@@ -30,8 +30,8 @@
 // automatically populated on the first instantiation of
 // vtkPeriodicTable.
 
-#ifndef __vtkBlueObeliskData_h
-#define __vtkBlueObeliskData_h
+#ifndef vtkBlueObeliskData_h
+#define vtkBlueObeliskData_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkObject.h"

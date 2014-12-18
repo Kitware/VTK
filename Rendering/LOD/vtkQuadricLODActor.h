@@ -43,8 +43,8 @@
 // .SECTION See Also
 // vtkLODActor vtkQuadricClustering
 
-#ifndef __vtkQuadricLODActor_h
-#define __vtkQuadricLODActor_h
+#ifndef vtkQuadricLODActor_h
+#define vtkQuadricLODActor_h
 
 #include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"

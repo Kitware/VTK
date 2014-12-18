@@ -81,8 +81,8 @@
 // .SECTION See Also
 // vtkSampleFunction vtkContourFilter
 
-#ifndef __vtkImplicitModeller_h
-#define __vtkImplicitModeller_h
+#ifndef vtkImplicitModeller_h
+#define vtkImplicitModeller_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

@@ -21,8 +21,8 @@
 // into a 2D median.
 
 
-#ifndef __vtkImageMedian3D_h
-#define __vtkImageMedian3D_h
+#ifndef vtkImageMedian3D_h
+#define vtkImageMedian3D_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

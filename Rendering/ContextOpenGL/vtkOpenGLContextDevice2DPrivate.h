@@ -27,8 +27,8 @@
 // .Section See Also
 // vtkOpenGLContextDevice2D vtkOpenGL2ContextDevice2D
 
-#ifndef __vtkOpenGLContextDevice2DPrivate_h
-#define __vtkOpenGLContextDevice2DPrivate_h
+#ifndef vtkOpenGLContextDevice2DPrivate_h
+#define vtkOpenGLContextDevice2DPrivate_h
 
 #include "vtkOpenGLContextDevice2D.h"
 

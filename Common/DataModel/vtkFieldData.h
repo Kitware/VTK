@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkAbstractArray vtkDataSetAttributes vtkPointData vtkCellData
 
-#ifndef __vtkFieldData_h
-#define __vtkFieldData_h
+#ifndef vtkFieldData_h
+#define vtkFieldData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

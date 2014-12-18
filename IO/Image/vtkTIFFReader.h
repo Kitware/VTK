@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkTIFFWriter
 
-#ifndef __vtkTIFFReader_h
-#define __vtkTIFFReader_h
+#ifndef vtkTIFFReader_h
+#define vtkTIFFReader_h
 
 #include "vtkImageReader2.h"
 

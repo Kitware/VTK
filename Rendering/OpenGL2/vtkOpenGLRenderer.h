@@ -17,8 +17,8 @@
 // vtkOpenGLRenderer is a concrete implementation of the abstract class
 // vtkRenderer. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
 
-#ifndef __vtkOpenGLRenderer_h
-#define __vtkOpenGLRenderer_h
+#ifndef vtkOpenGLRenderer_h
+#define vtkOpenGLRenderer_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"

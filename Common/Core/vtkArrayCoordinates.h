@@ -38,8 +38,8 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
 // Laboratories.
 
-#ifndef __vtkArrayCoordinates_h
-#define __vtkArrayCoordinates_h
+#ifndef vtkArrayCoordinates_h
+#define vtkArrayCoordinates_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

@@ -34,8 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
 
-#ifndef __vtkPOrderStatistics_h
-#define __vtkPOrderStatistics_h
+#ifndef vtkPOrderStatistics_h
+#define vtkPOrderStatistics_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkOrderStatistics.h"

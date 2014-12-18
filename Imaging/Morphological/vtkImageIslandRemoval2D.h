@@ -20,8 +20,8 @@
 // the whole 2D output image for any output request.
 
 
-#ifndef __vtkImageIslandRemoval2D_h
-#define __vtkImageIslandRemoval2D_h
+#ifndef vtkImageIslandRemoval2D_h
+#define vtkImageIslandRemoval2D_h
 
 
 #include "vtkImagingMorphologicalModule.h" // For export macro

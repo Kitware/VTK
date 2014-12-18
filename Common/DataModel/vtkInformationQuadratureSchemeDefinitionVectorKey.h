@@ -19,8 +19,8 @@
 // from that in other similar keys because of our internal use of smart
 // pointers.
 
-#ifndef __vtkInformationQuadratureSchemeDefinitionVectorKey_h
-#define __vtkInformationQuadratureSchemeDefinitionVectorKey_h
+#ifndef vtkInformationQuadratureSchemeDefinitionVectorKey_h
+#define vtkInformationQuadratureSchemeDefinitionVectorKey_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkInformationKey.h"

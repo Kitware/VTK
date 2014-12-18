@@ -23,8 +23,8 @@
 // Support for generic vertex attributes in VTK was contributed in
 // collaboration with Stephane Ploix at EDF.
 
-#ifndef __vtkPrimitivePainter_h
-#define __vtkPrimitivePainter_h
+#ifndef vtkPrimitivePainter_h
+#define vtkPrimitivePainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"

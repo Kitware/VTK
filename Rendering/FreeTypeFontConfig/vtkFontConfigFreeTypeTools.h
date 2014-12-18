@@ -28,8 +28,8 @@
 // Be aware that FontConfig lookup is disabled by default. To enable, call
 // vtkFreeTypeTools::GetInstance()->ForceCompiledFontsOff();
 
-#ifndef __vtkFontConfigFreeTypeTools_h
-#define __vtkFontConfigFreeTypeTools_h
+#ifndef vtkFontConfigFreeTypeTools_h
+#define vtkFontConfigFreeTypeTools_h
 
 #include "vtkRenderingFreeTypeFontConfigModule.h" // For export macro
 #include "vtkFreeTypeTools.h"
@@ -68,4 +68,4 @@ private:
   void operator=(const vtkFontConfigFreeTypeTools &);   // Not implemented.
 };
 
-#endif //__vtkFontConfigFreeTypeTools_h
+#endif //vtkFontConfigFreeTypeTools_h

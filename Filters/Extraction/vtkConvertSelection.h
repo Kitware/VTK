@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkSelection vtkSelectionNode vtkExtractSelection vtkExtractSelectedGraph
 
-#ifndef __vtkConvertSelection_h
-#define __vtkConvertSelection_h
+#ifndef vtkConvertSelection_h
+#define vtkConvertSelection_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"

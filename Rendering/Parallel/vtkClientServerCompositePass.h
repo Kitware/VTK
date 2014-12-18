@@ -18,8 +18,8 @@
 // image delivery. This is designed to be used in configurations in
 // two-processes configurations.
 
-#ifndef __vtkClientServerCompositePass_h
-#define __vtkClientServerCompositePass_h
+#ifndef vtkClientServerCompositePass_h
+#define vtkClientServerCompositePass_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"

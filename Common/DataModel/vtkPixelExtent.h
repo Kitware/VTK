@@ -22,8 +22,8 @@
 // NOTE in most cases operation on an empty object produces
 // incorrect results. If it an issue query Empty() first.
 
-#ifndef __vtkPixelExtent_h
-#define __vtkPixelExtent_h
+#ifndef vtkPixelExtent_h
+#define vtkPixelExtent_h
 
 #include "vtkSystemIncludes.h" // for VTK's system header config
 #include "vtkCommonDataModelModule.h" // for export

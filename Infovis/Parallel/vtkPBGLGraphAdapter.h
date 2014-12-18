@@ -23,8 +23,8 @@
 // Including this header allows you to use a vtk*Graph in Parallel BGL algorithms.
 // @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
-#ifndef __vtkPBGLGraphAdapter_h
-#define __vtkPBGLGraphAdapter_h
+#ifndef vtkPBGLGraphAdapter_h
+#define vtkPBGLGraphAdapter_h
 
 #include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 
@@ -472,5 +472,5 @@ MakeDistributedEdgePropertyMap(vtkGraph* graph, DataArray* array)
                  array);
 }
 
-#endif // __vtkPBGLGraphAdapter_h
+#endif // vtkPBGLGraphAdapter_h
 // VTK-HeaderTest-Exclude: vtkPBGLGraphAdapter.h

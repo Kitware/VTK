@@ -20,8 +20,8 @@
 // for the best view of the plane.
 
 
-#ifndef __vtkCutMaterial_h
-#define __vtkCutMaterial_h
+#ifndef vtkCutMaterial_h
+#define vtkCutMaterial_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

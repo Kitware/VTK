@@ -18,8 +18,8 @@
 // this superclass is a container for methods that manipulate these structure
 // including fast Fourier transforms.  Complex numbers may become a class.
 // This should really be a helper class.
-#ifndef __vtkImageFourierFilter_h
-#define __vtkImageFourierFilter_h
+#ifndef vtkImageFourierFilter_h
+#define vtkImageFourierFilter_h
 
 
 #include "vtkImagingFourierModule.h" // For export macro

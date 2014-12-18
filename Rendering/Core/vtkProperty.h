@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkActor vtkPropertyDevice
 
-#ifndef __vtkProperty_h
-#define __vtkProperty_h
+#ifndef vtkProperty_h
+#define vtkProperty_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

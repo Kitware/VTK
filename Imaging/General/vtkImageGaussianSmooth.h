@@ -17,8 +17,8 @@
 // vtkImageGaussianSmooth implements a convolution of the input image
 // with a gaussian. Supports from one to three dimensional convolutions.
 
-#ifndef __vtkImageGaussianSmooth_h
-#define __vtkImageGaussianSmooth_h
+#ifndef vtkImageGaussianSmooth_h
+#define vtkImageGaussianSmooth_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

@@ -18,8 +18,8 @@
 // partitions in other processes.  It assumes the filter is operated
 // in a data parallel pipeline.
 
-#ifndef __vtkPOutlineFilter_h
-#define __vtkPOutlineFilter_h
+#ifndef vtkPOutlineFilter_h
+#define vtkPOutlineFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

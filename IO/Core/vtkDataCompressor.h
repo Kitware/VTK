@@ -19,8 +19,8 @@
 // decompression method.  The public interface to all compressors
 // remains the same, and is defined by this class.
 
-#ifndef __vtkDataCompressor_h
-#define __vtkDataCompressor_h
+#ifndef vtkDataCompressor_h
+#define vtkDataCompressor_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"

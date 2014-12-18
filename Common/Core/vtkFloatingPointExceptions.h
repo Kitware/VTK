@@ -20,8 +20,8 @@
 // Visual studio nor gcc. It is mainly use to optionally enable floating
 // point exceptions in the C++ tests.
 
-#ifndef __vtkFloatingPointExceptions_h
-#define __vtkFloatingPointExceptions_h
+#ifndef vtkFloatingPointExceptions_h
+#define vtkFloatingPointExceptions_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h" // For VTKCOMMONCORE_EXPORT

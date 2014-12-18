@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkCompositeDataIterator provides an interface for accessing datasets
 // in a collection (vtkCompositeDataIterator).
-#ifndef __vtkCompositeDataIterator_h
-#define __vtkCompositeDataIterator_h
+#ifndef vtkCompositeDataIterator_h
+#define vtkCompositeDataIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

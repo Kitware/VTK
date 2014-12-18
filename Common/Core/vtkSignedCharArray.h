@@ -18,8 +18,8 @@
 // It provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
 
-#ifndef __vtkSignedCharArray_h
-#define __vtkSignedCharArray_h
+#ifndef vtkSignedCharArray_h
+#define vtkSignedCharArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
 #if !defined(vtkSignedCharArray_cxx)

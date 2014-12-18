@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkExtractPolyDataGeometry vtkGeometryFilter vtkExtractVOI
 
-#ifndef __vtkExtractGeometry_h
-#define __vtkExtractGeometry_h
+#ifndef vtkExtractGeometry_h
+#define vtkExtractGeometry_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

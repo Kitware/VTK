@@ -86,8 +86,8 @@
 // .SECTION See Also
 //  vtkSurfaceLICPainter vtkImageDataLIC2D vtkStructuredGridLIC2D
 
-#ifndef __vtkLineIntegralConvolution2D_h
-#define __vtkLineIntegralConvolution2D_h
+#ifndef vtkLineIntegralConvolution2D_h
+#define vtkLineIntegralConvolution2D_h
 
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // for ren context

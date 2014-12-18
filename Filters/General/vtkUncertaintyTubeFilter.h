@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkTensorGlyph vtkStreamer
 
-#ifndef __vtkUncertaintyTubeFilter_h
-#define __vtkUncertaintyTubeFilter_h
+#ifndef vtkUncertaintyTubeFilter_h
+#define vtkUncertaintyTubeFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

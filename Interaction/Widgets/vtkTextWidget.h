@@ -26,8 +26,8 @@
 // vtkBorderWidget vtkCaptionWidget
 
 
-#ifndef __vtkTextWidget_h
-#define __vtkTextWidget_h
+#ifndef vtkTextWidget_h
+#define vtkTextWidget_h
 
 class vtkTextRepresentation;
 class vtkTextActor;

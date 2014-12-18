@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkSimplePointsReader
 
-#ifndef __vtkSimplePointsWriter_h
-#define __vtkSimplePointsWriter_h
+#ifndef vtkSimplePointsWriter_h
+#define vtkSimplePointsWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataSetWriter.h"

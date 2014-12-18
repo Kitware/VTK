@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkGraph vtkDataReader vtkGraphWriter
 
-#ifndef __vtkGraphReader_h
-#define __vtkGraphReader_h
+#ifndef vtkGraphReader_h
+#define vtkGraphReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

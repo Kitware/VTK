@@ -20,8 +20,8 @@
 // This filter shifts the zero frequency to the center of the image.
 // Input and output are assumed to be doubles.
 
-#ifndef __vtkImageFourierCenter_h
-#define __vtkImageFourierCenter_h
+#ifndef vtkImageFourierCenter_h
+#define vtkImageFourierCenter_h
 
 
 #include "vtkImagingFourierModule.h" // For export macro

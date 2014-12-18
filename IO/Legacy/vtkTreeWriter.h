@@ -19,8 +19,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkTreeWriter_h
-#define __vtkTreeWriter_h
+#ifndef vtkTreeWriter_h
+#define vtkTreeWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

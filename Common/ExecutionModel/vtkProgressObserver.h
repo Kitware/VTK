@@ -24,8 +24,8 @@
 // thread local vtkProgressObserver, which will invoke events separately
 // for each thread.
 
-#ifndef __vtkProgressObserver_h
-#define __vtkProgressObserver_h
+#ifndef vtkProgressObserver_h
+#define vtkProgressObserver_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

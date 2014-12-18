@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkJavaUtil_h
-#define __vtkJavaUtil_h
+#ifndef vtkJavaUtil_h
+#define vtkJavaUtil_h
 
 #include "vtkSystemIncludes.h"
 #include <jni.h>

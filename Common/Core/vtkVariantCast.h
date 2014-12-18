@@ -31,8 +31,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkVariantCast_h
-#define __vtkVariantCast_h
+#ifndef vtkVariantCast_h
+#define vtkVariantCast_h
 
 #include "vtkUnicodeString.h"
 #include <typeinfo> // for warnings

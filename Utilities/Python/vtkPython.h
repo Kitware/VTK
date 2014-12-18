@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkPython_h
-#define __vtkPython_h
+#ifndef vtkPython_h
+#define vtkPython_h
 
 #include "vtkPythonConfigure.h"
 #include "vtkABI.h"

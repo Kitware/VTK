@@ -54,8 +54,8 @@
 // .SECTION See Also
 // vtkUnstructuredGridVolumeRayCastMapper
 
-#ifndef __vtkUnstructuredGridBunykRayCastFunction_h
-#define __vtkUnstructuredGridBunykRayCastFunction_h
+#ifndef vtkUnstructuredGridBunykRayCastFunction_h
+#define vtkUnstructuredGridBunykRayCastFunction_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayCastFunction.h"

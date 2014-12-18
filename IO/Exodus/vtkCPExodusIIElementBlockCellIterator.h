@@ -15,8 +15,8 @@
 // .NAME vtkCPExodusIIElementBlockCellIterator - vtkCellIterator subclass
 // specialized for vtkCPExodusIIElementBlock.
 
-#ifndef __vtkCPExodusIIElementBlockCellIterator_h
-#define __vtkCPExodusIIElementBlockCellIterator_h
+#ifndef vtkCPExodusIIElementBlockCellIterator_h
+#define vtkCPExodusIIElementBlockCellIterator_h
 
 #include "vtkCellIterator.h"
 #include "vtkIOExodusModule.h" // For export macro
@@ -61,4 +61,4 @@ private:
   vtkIdType CellId;
 };
 
-#endif //__vtkCPExodusIIElementBlockCellIterator_h
+#endif //vtkCPExodusIIElementBlockCellIterator_h

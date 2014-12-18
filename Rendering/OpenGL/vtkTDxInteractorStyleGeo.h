@@ -22,8 +22,8 @@
 // vtkInteractorStyle vtkRenderWindowInteractor
 // vtkTDxInteractorStyle
 
-#ifndef __vtkTDxInteractorStyleGeo_h
-#define __vtkTDxInteractorStyleGeo_h
+#ifndef vtkTDxInteractorStyleGeo_h
+#define vtkTDxInteractorStyleGeo_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkTDxInteractorStyle.h"

@@ -1,5 +1,5 @@
-#ifndef __vtkLabelHierarchyPrivate_h
-#define __vtkLabelHierarchyPrivate_h
+#ifndef vtkLabelHierarchyPrivate_h
+#define vtkLabelHierarchyPrivate_h
 
 #include "vtkObject.h" // for vtkstd
 #include <set>
@@ -254,5 +254,5 @@ inline void vtkLabelHierarchy::Implementation::LabelSet::AddChildren( octree<Lab
   this->SetChildGeometry( self );
 }
 
-#endif // __vtkLabelHierarchyPrivate_h
+#endif // vtkLabelHierarchyPrivate_h
 // VTK-HeaderTest-Exclude: vtkLabelHierarchyPrivate.h

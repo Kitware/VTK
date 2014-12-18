@@ -23,8 +23,8 @@
 
 // .SECTION Thanks
 
-#ifndef __vtkGeoAdaptiveArcs_h
-#define __vtkGeoAdaptiveArcs_h
+#ifndef vtkGeoAdaptiveArcs_h
+#define vtkGeoAdaptiveArcs_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

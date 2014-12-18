@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkBMPReader vtkPNMReader vtkTIFFReader
 
-#ifndef __vtkImageReader_h
-#define __vtkImageReader_h
+#ifndef vtkImageReader_h
+#define vtkImageReader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"

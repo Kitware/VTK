@@ -71,8 +71,8 @@
 // .SECTION See Also
 // vtkImplicitSelectionLoop
 
-#ifndef __vtkSelectPolyData_h
-#define __vtkSelectPolyData_h
+#ifndef vtkSelectPolyData_h
+#define vtkSelectPolyData_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

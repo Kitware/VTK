@@ -19,8 +19,8 @@
 // Derive from this class to create custom items that can be added to a
 // vtkContextScene.
 
-#ifndef __vtkContextItem_h
-#define __vtkContextItem_h
+#ifndef vtkContextItem_h
+#define vtkContextItem_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
@@ -53,4 +53,4 @@ private:
 //ETX
 };
 
-#endif //__vtkContextItem_h
+#endif //vtkContextItem_h

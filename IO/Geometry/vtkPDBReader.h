@@ -20,8 +20,8 @@
 // .SECTION Thanks
 // Dr. Jean M. Favre who developed and contributed this class
 
-#ifndef __vtkPDBReader_h
-#define __vtkPDBReader_h
+#ifndef vtkPDBReader_h
+#define vtkPDBReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMoleculeReaderBase.h"

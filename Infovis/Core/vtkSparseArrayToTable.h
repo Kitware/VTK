@@ -35,8 +35,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkSparseArrayToTable_h
-#define __vtkSparseArrayToTable_h
+#ifndef vtkSparseArrayToTable_h
+#define vtkSparseArrayToTable_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

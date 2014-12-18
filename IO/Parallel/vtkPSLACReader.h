@@ -30,8 +30,8 @@
 // corresponding to the local process id.
 //
 
-#ifndef __vtkPSLACReader_h
-#define __vtkPSLACReader_h
+#ifndef vtkPSLACReader_h
+#define vtkPSLACReader_h
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkSLACReader.h"
@@ -135,4 +135,4 @@ private:
   void operator=(const vtkPSLACReader &);       // Not implemented
 };
 
-#endif //__vtkPSLACReader_h
+#endif //vtkPSLACReader_h

@@ -20,8 +20,8 @@
 // abstract super class vtkHardwareSupport should be implemented
 // for this class to derive from.
 
-#ifndef __vtkOpenGLHardwareSupport_h
-#define __vtkOpenGLHardwareSupport_h
+#ifndef vtkOpenGLHardwareSupport_h
+#define vtkOpenGLHardwareSupport_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkOrderedTriangulator vtkTriangleFilter
 
-#ifndef __vtkDataSetTriangleFilter_h
-#define __vtkDataSetTriangleFilter_h
+#ifndef vtkDataSetTriangleFilter_h
+#define vtkDataSetTriangleFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

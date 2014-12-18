@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkOpenGLRGBTable_h_
-#define __vtkOpenGLRGBTable_h_
+#ifndef vtkOpenGLRGBTable_h_
+#define vtkOpenGLRGBTable_h_
 
 #include <vtkColorTransferFunction.h>
 #include <vtk_glew.h>
@@ -152,5 +152,5 @@ protected:
   vtkTimeStamp BuildTime;
 };
 
-#endif // __vtkOpenGLRGBTable_h_
+#endif // vtkOpenGLRGBTable_h_
 // VTK-HeaderTest-Exclude: vtkOpenGLRGBTable.h

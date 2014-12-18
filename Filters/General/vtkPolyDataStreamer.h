@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkAppendFilter
 
-#ifndef __vtkPolyDataStreamer_h
-#define __vtkPolyDataStreamer_h
+#ifndef vtkPolyDataStreamer_h
+#define vtkPolyDataStreamer_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStreamerBase.h"

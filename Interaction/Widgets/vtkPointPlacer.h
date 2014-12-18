@@ -35,8 +35,8 @@
 // HandleWidget and the ContourWidget to allow various constraints to be
 // enforced on the placement of their handles.
 
-#ifndef __vtkPointPlacer_h
-#define __vtkPointPlacer_h
+#ifndef vtkPointPlacer_h
+#define vtkPointPlacer_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"

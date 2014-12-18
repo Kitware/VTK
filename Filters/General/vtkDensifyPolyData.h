@@ -27,8 +27,8 @@
 // The number of subdivisions can be controlled by the parameter
 // NumberOfSubdivisions.
 
-#ifndef __vtkDensifyPolyData_h
-#define __vtkDensifyPolyData_h
+#ifndef vtkDensifyPolyData_h
+#define vtkDensifyPolyData_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

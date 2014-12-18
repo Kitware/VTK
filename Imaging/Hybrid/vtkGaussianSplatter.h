@@ -61,8 +61,8 @@
 // .SECTION See Also
 // vtkShepardMethod
 
-#ifndef __vtkGaussianSplatter_h
-#define __vtkGaussianSplatter_h
+#ifndef vtkGaussianSplatter_h
+#define vtkGaussianSplatter_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

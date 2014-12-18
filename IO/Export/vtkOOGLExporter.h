@@ -22,8 +22,8 @@
 // vtkExporter
 
 
-#ifndef __vtkOOGLExporter_h
-#define __vtkOOGLExporter_h
+#ifndef vtkOOGLExporter_h
+#define vtkOOGLExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

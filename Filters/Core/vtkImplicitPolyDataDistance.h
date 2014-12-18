@@ -34,8 +34,8 @@
 // http://hdl.handle.net/10380/3262
 // http://www.midasjournal.org/browse/publication/797
 
-#ifndef __vtkImplicitPolyDataDistance_h
-#define __vtkImplicitPolyDataDistance_h
+#ifndef vtkImplicitPolyDataDistance_h
+#define vtkImplicitPolyDataDistance_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkImplicitFunction.h"

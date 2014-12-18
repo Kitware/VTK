@@ -30,8 +30,8 @@
 // of bounding box of visible actors, '+' and '-' keys allow user to
 // increase or decrease step size.
 
-#ifndef __vtkInteractorStyleFlight_h
-#define __vtkInteractorStyleFlight_h
+#ifndef vtkInteractorStyleFlight_h
+#define vtkInteractorStyleFlight_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"

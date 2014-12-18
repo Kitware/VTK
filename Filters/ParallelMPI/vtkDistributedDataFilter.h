@@ -83,8 +83,8 @@
 // .SECTION See Also
 // vtkKdTree vtkPKdTree vtkBSPCuts
 
-#ifndef __vtkDistributedDataFilter_h
-#define __vtkDistributedDataFilter_h
+#ifndef vtkDistributedDataFilter_h
+#define vtkDistributedDataFilter_h
 
 #include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

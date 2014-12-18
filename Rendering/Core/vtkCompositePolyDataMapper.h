@@ -22,8 +22,8 @@
 // .SECTION see also
 // vtkPolyDataMapper
 
-#ifndef __vtkCompositePolyDataMapper_h
-#define __vtkCompositePolyDataMapper_h
+#ifndef vtkCompositePolyDataMapper_h
+#define vtkCompositePolyDataMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"

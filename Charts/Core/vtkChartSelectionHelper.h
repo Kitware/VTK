@@ -21,8 +21,8 @@
 // implementations to make chart selections easier. This is intended for
 // internal use and the API should not be considered stable.
 
-#ifndef __vtkChartSelectionHelper_h
-#define __vtkChartSelectionHelper_h
+#ifndef vtkChartSelectionHelper_h
+#define vtkChartSelectionHelper_h
 
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
@@ -269,5 +269,5 @@ static int GetMouseSelectionMode(const vtkContextMouseEvent &mouse, int selectio
 
 } // End vtkChartSelectionHelper namespace
 
-#endif // __vtkChartSelectionHelper_h
+#endif // vtkChartSelectionHelper_h
 // VTK-HeaderTest-Exclude: vtkChartSelectionHelper.h

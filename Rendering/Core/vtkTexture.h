@@ -39,8 +39,8 @@
 // .SECTION See Also
 // vtkActor vtkRenderer vtkOpenGLTexture
 
-#ifndef __vtkTexture_h
-#define __vtkTexture_h
+#ifndef vtkTexture_h
+#define vtkTexture_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

@@ -25,8 +25,8 @@
 // that the input graph has all of the properties that will be required
 // by the ComputeWeight function.
 
-#ifndef __vtkGraphWeightFilter_h
-#define __vtkGraphWeightFilter_h
+#ifndef vtkGraphWeightFilter_h
+#define vtkGraphWeightFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

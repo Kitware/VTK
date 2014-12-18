@@ -20,8 +20,8 @@
 // .SECTION See also
 // vtkImageData vtkImageStencilData vtkImageProgressIterator
 
-#ifndef __vtkImageStencilIterator_h
-#define __vtkImageStencilIterator_h
+#ifndef vtkImageStencilIterator_h
+#define vtkImageStencilIterator_h
 
 #include "vtkSystemIncludes.h"
 #include "vtkImagingCoreModule.h"

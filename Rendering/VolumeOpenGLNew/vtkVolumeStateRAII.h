@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkVolumeStateRAII_h
-#define __vtkVolumeStateRAII_h
+#ifndef vtkVolumeStateRAII_h
+#define vtkVolumeStateRAII_h
 
 // Only these states can be queries via glIsEnabled:
 // http://www.khronos.org/opengles/sdk/docs/man/
@@ -98,5 +98,5 @@ private:
   bool CullFaceEnabled;
 };
 
-#endif // __vtkVolumeStateRAII_h
+#endif // vtkVolumeStateRAII_h
 // VTK-HeaderTest-Exclude: vtkVolumeStateRAII.h

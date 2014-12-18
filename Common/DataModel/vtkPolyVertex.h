@@ -17,8 +17,8 @@
 // vtkPolyVertex is a concrete implementation of vtkCell to represent a
 // set of 3D vertices.
 
-#ifndef __vtkPolyVertex_h
-#define __vtkPolyVertex_h
+#ifndef vtkPolyVertex_h
+#define vtkPolyVertex_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

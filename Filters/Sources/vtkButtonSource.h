@@ -39,8 +39,8 @@
 // or vtkGlyph3D to orient the button in a different direction.
 
 
-#ifndef __vtkButtonSource_h
-#define __vtkButtonSource_h
+#ifndef vtkButtonSource_h
+#define vtkButtonSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

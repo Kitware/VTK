@@ -29,8 +29,8 @@
 // same type as the input.
 
 
-#ifndef __vtkDataSetAlgorithm_h
-#define __vtkDataSetAlgorithm_h
+#ifndef vtkDataSetAlgorithm_h
+#define vtkDataSetAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

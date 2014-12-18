@@ -29,8 +29,8 @@
 // This source only generate geometry, no DataArrays like normals or texture
 // coordinates.
 
-#ifndef __vtkTessellatedBoxSource_h
-#define __vtkTessellatedBoxSource_h
+#ifndef vtkTessellatedBoxSource_h
+#define vtkTessellatedBoxSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

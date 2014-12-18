@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkMapper2D vtkActor2D
 
-#ifndef __vtkImageMapper_h
-#define __vtkImageMapper_h
+#ifndef vtkImageMapper_h
+#define vtkImageMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"

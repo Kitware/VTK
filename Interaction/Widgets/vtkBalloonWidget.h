@@ -64,8 +64,8 @@
 // vtkAbstractWidget
 
 
-#ifndef __vtkBalloonWidget_h
-#define __vtkBalloonWidget_h
+#ifndef vtkBalloonWidget_h
+#define vtkBalloonWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHoverWidget.h"

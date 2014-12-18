@@ -41,8 +41,8 @@
 // .SECTION See Also
 // vtkGraph
 
-#ifndef __vtkPBGLCollectGraph_h
-#define __vtkPBGLCollectGraph_h
+#ifndef vtkPBGLCollectGraph_h
+#define vtkPBGLCollectGraph_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type

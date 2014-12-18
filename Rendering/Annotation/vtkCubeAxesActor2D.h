@@ -40,8 +40,8 @@
 // .SECTION See Also
 // vtkActor2D vtkAxisActor2D vtkXYPlotActor vtkTextProperty
 
-#ifndef __vtkCubeAxesActor2D_h
-#define __vtkCubeAxesActor2D_h
+#ifndef vtkCubeAxesActor2D_h
+#define vtkCubeAxesActor2D_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

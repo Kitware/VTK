@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkContourWidget vtkHandleRepresentation vtkContourRepresentation
 
-#ifndef __vtkFocalPlaneContourRepresentation_h
-#define __vtkFocalPlaneContourRepresentation_h
+#ifndef vtkFocalPlaneContourRepresentation_h
+#define vtkFocalPlaneContourRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourRepresentation.h"

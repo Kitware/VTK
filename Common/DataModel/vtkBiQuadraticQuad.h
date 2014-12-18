@@ -34,8 +34,8 @@
 // Thanks to Soeren Gebbert  who developed this class and
 // integrated it into VTK 5.0.
 
-#ifndef __vtkBiQuadraticQuad_h
-#define __vtkBiQuadraticQuad_h
+#ifndef vtkBiQuadraticQuad_h
+#define vtkBiQuadraticQuad_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

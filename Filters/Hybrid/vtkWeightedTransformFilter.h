@@ -64,8 +64,8 @@
 // .SECTION See Also
 // vtkAbstractTransform vtkLinearTransform vtkTransformPolyDataFilter vtkActor
 
-#ifndef __vtkWeightedTransformFilter_h
-#define __vtkWeightedTransformFilter_h
+#ifndef vtkWeightedTransformFilter_h
+#define vtkWeightedTransformFilter_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

@@ -32,8 +32,8 @@
 // never receive a contribution. The final value of these points can be
 // specified with the "NullValue" instance variable.
 
-#ifndef __vtkShepardMethod_h
-#define __vtkShepardMethod_h
+#ifndef vtkShepardMethod_h
+#define vtkShepardMethod_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

@@ -37,8 +37,8 @@
 // If the input is not a tree but a general graph, this strategy first extracts
 // a tree from the graph using a breadth-first search starting at vertex ID 0.
 
-#ifndef __vtkTreeLayoutStrategy_h
-#define __vtkTreeLayoutStrategy_h
+#ifndef vtkTreeLayoutStrategy_h
+#define vtkTreeLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

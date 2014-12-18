@@ -21,8 +21,8 @@
 // vtkPStreaklineFilterBase has the details of the algorithms
 
 
-#ifndef __vtkPStreaklineFilter_h
-#define __vtkPStreaklineFilter_h
+#ifndef vtkPStreaklineFilter_h
+#define vtkPStreaklineFilter_h
 
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkStreaklineFilter.h" //for utility

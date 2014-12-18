@@ -22,8 +22,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkImageSlab_h
-#define __vtkImageSlab_h
+#ifndef vtkImageSlab_h
+#define vtkImageSlab_h
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

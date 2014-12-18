@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkContourFilter vtkSynchronizedTemplates3D
 
-#ifndef __vtkSynchronizedTemplatesCutter3D_h
-#define __vtkSynchronizedTemplatesCutter3D_h
+#ifndef vtkSynchronizedTemplatesCutter3D_h
+#define vtkSynchronizedTemplatesCutter3D_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSynchronizedTemplates3D.h"

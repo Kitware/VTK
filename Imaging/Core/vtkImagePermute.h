@@ -20,8 +20,8 @@
 // data when it executes. This filter is actually a very thin wrapper
 // around vtkImageReslice.
 
-#ifndef __vtkImagePermute_h
-#define __vtkImagePermute_h
+#ifndef vtkImagePermute_h
+#define vtkImagePermute_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

@@ -28,8 +28,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkBoostLogWeighting_h
-#define __vtkBoostLogWeighting_h
+#ifndef vtkBoostLogWeighting_h
+#define vtkBoostLogWeighting_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

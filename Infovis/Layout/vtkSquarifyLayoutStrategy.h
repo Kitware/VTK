@@ -31,8 +31,8 @@
 // Proceedings of the joint Eurographics and IEEE TCVG Symposium on Visualization,
 // 2000, Springer, Vienna, p. 33-42.
 
-#ifndef __vtkSquarifyLayoutStrategy_h
-#define __vtkSquarifyLayoutStrategy_h
+#ifndef vtkSquarifyLayoutStrategy_h
+#define vtkSquarifyLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"

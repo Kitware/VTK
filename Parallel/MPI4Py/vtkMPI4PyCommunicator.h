@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkMPICommunicator
 
-#ifndef __vtkMPI4PyCommunicator_h
-#define __vtkMPI4PyCommunicator_h
+#ifndef vtkMPI4PyCommunicator_h
+#define vtkMPI4PyCommunicator_h
 
 #include "vtkPython.h" // For PyObject*; must be first
 

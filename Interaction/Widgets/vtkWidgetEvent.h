@@ -17,8 +17,8 @@
 // vtkWidgetEvent defines widget events. These events are processed by
 // subclasses of vtkInteractorObserver.
 
-#ifndef __vtkWidgetEvent_h
-#define __vtkWidgetEvent_h
+#ifndef vtkWidgetEvent_h
+#define vtkWidgetEvent_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"

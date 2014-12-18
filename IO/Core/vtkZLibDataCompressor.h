@@ -17,8 +17,8 @@
 // vtkZLibDataCompressor provides a concrete vtkDataCompressor class
 // using zlib for compressing and uncompressing data.
 
-#ifndef __vtkZLibDataCompressor_h
-#define __vtkZLibDataCompressor_h
+#ifndef vtkZLibDataCompressor_h
+#define vtkZLibDataCompressor_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataCompressor.h"

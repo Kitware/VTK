@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkSMPTools2_h__
-#define __vtkSMPTools2_h__
+#ifndef vtkSMPTools2_h__
+#define vtkSMPTools2_h__
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

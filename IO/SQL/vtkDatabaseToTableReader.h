@@ -17,8 +17,8 @@
 // vtkDatabaseToTableReader reads a table from an SQL database, outputting
 // it as a vtkTable.
 
-#ifndef __vtkDatabaseToTableReader_h
-#define __vtkDatabaseToTableReader_h
+#ifndef vtkDatabaseToTableReader_h
+#define vtkDatabaseToTableReader_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include <string> // STL Header

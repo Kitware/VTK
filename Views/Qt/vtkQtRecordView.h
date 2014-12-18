@@ -28,8 +28,8 @@
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
 // this class
 
-#ifndef __vtkQtRecordView_h
-#define __vtkQtRecordView_h
+#ifndef vtkQtRecordView_h
+#define vtkQtRecordView_h
 
 #include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

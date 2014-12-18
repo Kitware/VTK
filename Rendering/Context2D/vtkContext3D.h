@@ -21,8 +21,8 @@
 // to facilitate the low level calls to the context. Currently only an OpenGL
 // based device is provided.
 
-#ifndef __vtkContext3D_h
-#define __vtkContext3D_h
+#ifndef vtkContext3D_h
+#define vtkContext3D_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"

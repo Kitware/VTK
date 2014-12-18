@@ -23,8 +23,8 @@
 // .SECTION see also
 // vtkFollower vtkAxisFollower vtkProp3DFollower
 
-#ifndef __vtkProp3DAxisFollower_h
-#define __vtkProp3DAxisFollower_h
+#ifndef vtkProp3DAxisFollower_h
+#define vtkProp3DAxisFollower_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp3DFollower.h"

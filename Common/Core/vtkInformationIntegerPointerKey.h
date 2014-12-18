@@ -17,8 +17,8 @@
 // vtkInformationIntegerPointerKey is used to represent keys for pointer
 // to integer values in vtkInformation.h
 
-#ifndef __vtkInformationIntegerPointerKey_h
-#define __vtkInformationIntegerPointerKey_h
+#ifndef vtkInformationIntegerPointerKey_h
+#define vtkInformationIntegerPointerKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

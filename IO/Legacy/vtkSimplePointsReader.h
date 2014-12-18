@@ -21,8 +21,8 @@
 // output.  This reader is meant as an example of how to write a
 // reader in VTK.
 
-#ifndef __vtkSimplePointsReader_h
-#define __vtkSimplePointsReader_h
+#ifndef vtkSimplePointsReader_h
+#define vtkSimplePointsReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

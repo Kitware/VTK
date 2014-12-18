@@ -38,8 +38,8 @@
 // .SECTION see also
 // vtkPiecewiseFunction vtkColorTransferFunction
 
-#ifndef __vtkVolumeProperty_h
-#define __vtkVolumeProperty_h
+#ifndef vtkVolumeProperty_h
+#define vtkVolumeProperty_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

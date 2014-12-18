@@ -44,8 +44,8 @@
 // .SECTION See Also
 // vtkPolyDataConnectivityFilter
 
-#ifndef __vtkConnectivityFilter_h
-#define __vtkConnectivityFilter_h
+#ifndef vtkConnectivityFilter_h
+#define vtkConnectivityFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

@@ -33,8 +33,8 @@
 // vtkRectilinearGridGeometryFilter
 // vtkExtractGeometry vtkExtractVOI
 
-#ifndef __vtkExtractUnstructuredGrid_h
-#define __vtkExtractUnstructuredGrid_h
+#ifndef vtkExtractUnstructuredGrid_h
+#define vtkExtractUnstructuredGrid_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

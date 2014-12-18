@@ -21,8 +21,8 @@
 // .SECTION See also
 // vtkRandomAttributeGenerator
 
-#ifndef __vtkBrownianPoints_h
-#define __vtkBrownianPoints_h
+#ifndef vtkBrownianPoints_h
+#define vtkBrownianPoints_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

@@ -49,8 +49,8 @@
 // .SECTION See Also
 // vtkActor vtkTransform vtkMapper vtkPolyDataMapper vtkPropAssembly
 
-#ifndef __vtkAssembly_h
-#define __vtkAssembly_h
+#ifndef vtkAssembly_h
+#define vtkAssembly_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"

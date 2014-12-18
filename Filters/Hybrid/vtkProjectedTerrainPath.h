@@ -60,8 +60,8 @@
 // .SECTION See Also
 // vtkGreedyTerrainDecimation
 
-#ifndef __vtkProjectedTerrainPath_h
-#define __vtkProjectedTerrainPath_h
+#ifndef vtkProjectedTerrainPath_h
+#define vtkProjectedTerrainPath_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

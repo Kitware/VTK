@@ -40,8 +40,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION See Also
 // vtkGraph vtkBoostGraphAdapter
 
-#ifndef __vtkBoostPrimMinimumSpanningTree_h
-#define __vtkBoostPrimMinimumSpanningTree_h
+#ifndef vtkBoostPrimMinimumSpanningTree_h
+#define vtkBoostPrimMinimumSpanningTree_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkStdString.h" // For string type

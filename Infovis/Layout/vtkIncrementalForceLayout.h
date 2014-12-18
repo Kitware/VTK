@@ -23,8 +23,8 @@
 // This layout is modeled after D3's force layout described at
 // https://github.com/mbostock/d3/wiki/Force-Layout
 
-#ifndef __vtkIncrementalForceLayout_h
-#define __vtkIncrementalForceLayout_h
+#ifndef vtkIncrementalForceLayout_h
+#define vtkIncrementalForceLayout_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"

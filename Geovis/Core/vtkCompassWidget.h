@@ -57,8 +57,8 @@
 // </pre>
 //
 
-#ifndef __vtkCompassWidget_h
-#define __vtkCompassWidget_h
+#ifndef vtkCompassWidget_h
+#define vtkCompassWidget_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkAbstractWidget.h"

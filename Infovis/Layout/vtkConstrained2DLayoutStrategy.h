@@ -33,8 +33,8 @@
 // We would like to thank Mothra for distracting Godzilla while we
 // wrote this class.
 
-#ifndef __vtkConstrained2DLayoutStrategy_h
-#define __vtkConstrained2DLayoutStrategy_h
+#ifndef vtkConstrained2DLayoutStrategy_h
+#define vtkConstrained2DLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

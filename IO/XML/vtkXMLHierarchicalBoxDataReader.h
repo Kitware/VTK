@@ -24,8 +24,8 @@
 // The reader supports reading v1.1 and above. For older versions, use
 // vtkXMLHierarchicalBoxDataFileConverter.
 
-#ifndef __vtkXMLHierarchicalBoxDataReader_h
-#define __vtkXMLHierarchicalBoxDataReader_h
+#ifndef vtkXMLHierarchicalBoxDataReader_h
+#define vtkXMLHierarchicalBoxDataReader_h
 
 #include "vtkXMLUniformGridAMRReader.h"
 

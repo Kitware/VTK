@@ -39,8 +39,8 @@
 //    arrays (3) this class knows duplicate points may be appearing in
 //    the DataSets and can filter those out, (4) this class is not a filter.
 
-#ifndef __vtkMergeCells_h
-#define __vtkMergeCells_h
+#ifndef vtkMergeCells_h
+#define vtkMergeCells_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"

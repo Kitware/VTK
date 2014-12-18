@@ -41,8 +41,8 @@
 // implementation.
 
 
-#ifndef __vtkConeLayoutStrategy_h
-#define __vtkConeLayoutStrategy_h
+#ifndef vtkConeLayoutStrategy_h
+#define vtkConeLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

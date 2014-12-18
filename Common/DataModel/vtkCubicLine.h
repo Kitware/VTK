@@ -28,8 +28,8 @@
 // </verbatim>
 
 
-#ifndef __vtkCubicLine_h
-#define __vtkCubicLine_h
+#ifndef vtkCubicLine_h
+#define vtkCubicLine_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

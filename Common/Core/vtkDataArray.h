@@ -31,8 +31,8 @@
 // vtkUnsignedShortArray vtkIntArray vtkUnsignedIntArray vtkLongArray
 // vtkUnsignedLongArray vtkDoubleArray vtkDoubleArray
 
-#ifndef __vtkDataArray_h
-#define __vtkDataArray_h
+#ifndef vtkDataArray_h
+#define vtkDataArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"

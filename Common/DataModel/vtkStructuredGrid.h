@@ -36,8 +36,8 @@
 // defining a "blanking array" whose values (0,1) specify whether
 // a point should be blanked or not.
 
-#ifndef __vtkStructuredGrid_h
-#define __vtkStructuredGrid_h
+#ifndef vtkStructuredGrid_h
+#define vtkStructuredGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"

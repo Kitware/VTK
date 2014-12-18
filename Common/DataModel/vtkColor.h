@@ -19,8 +19,8 @@
 // This class is a templated data type for storing and manipulating fixed size
 // colors. It derives from the vtkVector templated data structure.
 
-#ifndef __vtkColor_h
-#define __vtkColor_h
+#ifndef vtkColor_h
+#define vtkColor_h
 
 #include "vtkTuple.h"
 #include "vtkObject.h" // for legacy macros
@@ -337,5 +337,5 @@ const T& vtkColor4<T>::Alpha() const
 }
 #endif // VTK_LEGACY_REMOVE
 
-#endif // __vtkColor_h
+#endif // vtkColor_h
 // VTK-HeaderTest-Exclude: vtkColor.h

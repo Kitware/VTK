@@ -35,8 +35,8 @@
 // vtkRectangularButtonSource
 
 
-#ifndef __vtkProp3DButtonRepresentation_h
-#define __vtkProp3DButtonRepresentation_h
+#ifndef vtkProp3DButtonRepresentation_h
+#define vtkProp3DButtonRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"

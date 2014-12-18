@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkCompositeRGBAPass
 
-#ifndef __vtkImageRenderManager_h
-#define __vtkImageRenderManager_h
+#ifndef vtkImageRenderManager_h
+#define vtkImageRenderManager_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkParallelRenderManager.h"
@@ -49,4 +49,4 @@ private:
   void operator=(const vtkImageRenderManager &);  //Not implemented
 };
 
-#endif //__vtkImageRenderManager_h
+#endif //vtkImageRenderManager_h

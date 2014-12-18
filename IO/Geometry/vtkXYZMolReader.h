@@ -20,8 +20,8 @@
 // .SECTION Thanks
 // Dr. Jean M. Favre who developed and contributed this class
 
-#ifndef __vtkXYZMolReader_h
-#define __vtkXYZMolReader_h
+#ifndef vtkXYZMolReader_h
+#define vtkXYZMolReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMoleculeReaderBase.h"

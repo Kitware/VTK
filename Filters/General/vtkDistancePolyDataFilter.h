@@ -32,8 +32,8 @@
 // http://hdl.handle.net/10380/3262
 // http://www.midasjournal.org/browse/publication/797
 
-#ifndef __vtkDistancePolyDataFilter_h
-#define __vtkDistancePolyDataFilter_h
+#ifndef vtkDistancePolyDataFilter_h
+#define vtkDistancePolyDataFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

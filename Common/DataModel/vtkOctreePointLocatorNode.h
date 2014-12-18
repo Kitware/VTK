@@ -31,8 +31,8 @@
 // .SECTION See Also
 // vtkOctreePointLocator
 
-#ifndef __vtkOctreePointLocatorNode_h
-#define __vtkOctreePointLocatorNode_h
+#ifndef vtkOctreePointLocatorNode_h
+#define vtkOctreePointLocatorNode_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

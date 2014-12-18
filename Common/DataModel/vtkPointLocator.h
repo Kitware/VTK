@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkCellPicker vtkPointPicker
 
-#ifndef __vtkPointLocator_h
-#define __vtkPointLocator_h
+#ifndef vtkPointLocator_h
+#define vtkPointLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIncrementalPointLocator.h"

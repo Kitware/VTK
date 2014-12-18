@@ -25,8 +25,8 @@
 // .SECTION See Also
 //  vtkExtractVOI
 
-#ifndef __vtkPExtractVOI_h
-#define __vtkPExtractVOI_h
+#ifndef vtkPExtractVOI_h
+#define vtkPExtractVOI_h
 
 #include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractVOI.h"

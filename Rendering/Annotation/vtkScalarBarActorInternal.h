@@ -1,5 +1,5 @@
-#ifndef __vtkScalarBarActorInternal_h
-#define __vtkScalarBarActorInternal_h
+#ifndef vtkScalarBarActorInternal_h
+#define vtkScalarBarActorInternal_h
 // VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h
 
 #include "vtkColor.h" // for AnnotationColors, LabelColorMap, and tuples
@@ -158,4 +158,4 @@ public:
   //@}
 };
 
-#endif // __vtkScalarBarActorInternal_h
+#endif // vtkScalarBarActorInternal_h

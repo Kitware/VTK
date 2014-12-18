@@ -23,8 +23,8 @@
 // messages into the event bindings by setting InstallMessageProc to false.
 // This provides a minimal "Mapped" mode of interaction
 //
-#ifndef __vtkAndroidRenderWindowInteractor_h
-#define __vtkAndroidRenderWindowInteractor_h
+#ifndef vtkAndroidRenderWindowInteractor_h
+#define vtkAndroidRenderWindowInteractor_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"

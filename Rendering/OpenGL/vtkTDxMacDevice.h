@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkTDxDevice, vtkTDxUnixDevice, vtkTDxWinDevice
 
-#ifndef __vtkTDxMacDevice_h
-#define __vtkTDxMacDevice_h
+#ifndef vtkTDxMacDevice_h
+#define vtkTDxMacDevice_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkTDxDevice.h"

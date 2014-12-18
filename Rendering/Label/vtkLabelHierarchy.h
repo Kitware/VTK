@@ -55,8 +55,8 @@
 // end up with many more than \a TargetLabelCount entries per node and things
 // will be sloooow.
 
-#ifndef __vtkLabelHierarchy_h
-#define __vtkLabelHierarchy_h
+#ifndef vtkLabelHierarchy_h
+#define vtkLabelHierarchy_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPointSet.h"
@@ -237,4 +237,4 @@ private:
   void operator = ( const vtkLabelHierarchy& ); // Not implemented.
 };
 
-#endif // __vtkLabelHierarchy_h
+#endif // vtkLabelHierarchy_h

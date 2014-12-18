@@ -23,8 +23,8 @@
 // Binary files written on one system may not be readable on other systems.
 // vtkSTLWriter uses VAX or PC byte ordering and swaps bytes on other systems.
 
-#ifndef __vtkSTLWriter_h
-#define __vtkSTLWriter_h
+#ifndef vtkSTLWriter_h
+#define vtkSTLWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"

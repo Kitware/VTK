@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkPistonReference
 
-#ifndef __vtkPistonDataObject_h
-#define __vtkPistonDataObject_h
+#ifndef vtkPistonDataObject_h
+#define vtkPistonDataObject_h
 
 #include "vtkAcceleratorsPistonModule.h" // For export macro
 #include "vtkDataObject.h"

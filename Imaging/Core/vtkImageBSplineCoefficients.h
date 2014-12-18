@@ -39,8 +39,8 @@
 // VTK Journal, 2011,
 // http://hdl.handle.net/10380/3252
 
-#ifndef __vtkImageBSplineCoefficients_h
-#define __vtkImageBSplineCoefficients_h
+#ifndef vtkImageBSplineCoefficients_h
+#define vtkImageBSplineCoefficients_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

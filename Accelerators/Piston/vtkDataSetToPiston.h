@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkPistonToDataSet
 
-#ifndef __vtkDataSetToPiston_h
-#define __vtkDataSetToPiston_h
+#ifndef vtkDataSetToPiston_h
+#define vtkDataSetToPiston_h
 
 #include "vtkPistonAlgorithm.h"
 

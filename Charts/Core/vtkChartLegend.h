@@ -20,8 +20,8 @@
 // last elements of a chart to be drawn. It renders the the mark/line for each
 // plot, and the plot labels.
 
-#ifndef __vtkChartLegend_h
-#define __vtkChartLegend_h
+#ifndef vtkChartLegend_h
+#define vtkChartLegend_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -247,4 +247,4 @@ private:
   void operator=(const vtkChartLegend &); // Not implemented.
 };
 
-#endif //__vtkChartLegend_h
+#endif //vtkChartLegend_h

@@ -36,8 +36,8 @@
 // .SECTION See Also
 // vtkMaskPoints
 
-#ifndef __vtkSelectEnclosedPoints_h
-#define __vtkSelectEnclosedPoints_h
+#ifndef vtkSelectEnclosedPoints_h
+#define vtkSelectEnclosedPoints_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

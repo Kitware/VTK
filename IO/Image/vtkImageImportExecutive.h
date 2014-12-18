@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkImageImportExecutive
 
-#ifndef __vtkImageImportExecutive_h
-#define __vtkImageImportExecutive_h
+#ifndef vtkImageImportExecutive_h
+#define vtkImageImportExecutive_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"

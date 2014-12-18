@@ -29,8 +29,8 @@
 // Subclasses that hold vtkIdType elements must also
 // reimplement `int GetDataType()` (see Caveat in vtkTypedDataArray).
 
-#ifndef __vtkMappedDataArray_h
-#define __vtkMappedDataArray_h
+#ifndef vtkMappedDataArray_h
+#define vtkMappedDataArray_h
 
 #include "vtkTypedDataArray.h"
 
@@ -153,6 +153,6 @@ private:
   vtkAbstractTypeMacroWithNewInstanceType(thisClass, superClass, vtkDataArray) \
   vtkMappedDataArrayNewInstanceMacro(thisClass)
 
-#endif //__vtkMappedDataArray_h
+#endif //vtkMappedDataArray_h
 
 // VTK-HeaderTest-Exclude: vtkMappedDataArray.h

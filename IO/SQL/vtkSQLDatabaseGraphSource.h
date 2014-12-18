@@ -24,8 +24,8 @@
 // provide a convenience class for generating graphs from databases.
 // Also this class can be easily wrapped and used within ParaView / OverView.
 
-#ifndef __vtkSQLDatabaseGraphSource_h
-#define __vtkSQLDatabaseGraphSource_h
+#ifndef vtkSQLDatabaseGraphSource_h
+#define vtkSQLDatabaseGraphSource_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkStdString.h"

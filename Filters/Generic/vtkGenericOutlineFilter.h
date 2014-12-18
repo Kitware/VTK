@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkGenericDataSet
 
-#ifndef __vtkGenericOutlineFilter_h
-#define __vtkGenericOutlineFilter_h
+#ifndef vtkGenericOutlineFilter_h
+#define vtkGenericOutlineFilter_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

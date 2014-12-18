@@ -25,8 +25,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricConicSpiral_h
-#define __vtkParametricConicSpiral_h
+#ifndef vtkParametricConicSpiral_h
+#define vtkParametricConicSpiral_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

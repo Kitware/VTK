@@ -21,8 +21,8 @@
 // vtkPerspectiveTransform vtkLinearTransform vtkIdentityTransform
 
 
-#ifndef __vtkHomogeneousTransform_h
-#define __vtkHomogeneousTransform_h
+#ifndef vtkHomogeneousTransform_h
+#define vtkHomogeneousTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkAbstractTransform.h"

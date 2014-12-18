@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkXMLDataReader
 
-#ifndef __vtkXMLPDataReader_h
-#define __vtkXMLPDataReader_h
+#ifndef vtkXMLPDataReader_h
+#define vtkXMLPDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLReader.h"

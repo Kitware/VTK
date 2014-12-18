@@ -16,8 +16,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkWebInteractionEvent_h
-#define __vtkWebInteractionEvent_h
+#ifndef vtkWebInteractionEvent_h
+#define vtkWebInteractionEvent_h
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports

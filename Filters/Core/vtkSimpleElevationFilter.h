@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkElevationFilter
 
-#ifndef __vtkSimpleElevationFilter_h
-#define __vtkSimpleElevationFilter_h
+#ifndef vtkSimpleElevationFilter_h
+#define vtkSimpleElevationFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

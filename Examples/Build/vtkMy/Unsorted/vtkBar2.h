@@ -16,8 +16,8 @@
 // .SECTION Description
 // None.
 
-#ifndef __vtkBar2_h
-#define __vtkBar2_h
+#ifndef vtkBar2_h
+#define vtkBar2_h
 
 #include "vtkObject.h"
 #include "vtkmyUnsortedWin32Header.h"

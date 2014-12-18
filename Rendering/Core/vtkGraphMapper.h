@@ -24,8 +24,8 @@
 // vtkGraphMapper is a mapper to map vtkGraph
 // (and all derived classes) to graphics primitives.
 
-#ifndef __vtkGraphMapper_h
-#define __vtkGraphMapper_h
+#ifndef vtkGraphMapper_h
+#define vtkGraphMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"

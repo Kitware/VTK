@@ -31,8 +31,8 @@
 // black pixels and even though the input image has a white pixel, its
 // neighbors are not white.
 
-#ifndef __vtkImageDifference_h
-#define __vtkImageDifference_h
+#ifndef vtkImageDifference_h
+#define vtkImageDifference_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

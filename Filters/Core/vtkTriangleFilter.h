@@ -19,8 +19,8 @@
 // is off, and generates individual vertex cells from vtkVertex point lists
 // unless PassVerts is off.
 
-#ifndef __vtkTriangleFilter_h
-#define __vtkTriangleFilter_h
+#ifndef vtkTriangleFilter_h
+#define vtkTriangleFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

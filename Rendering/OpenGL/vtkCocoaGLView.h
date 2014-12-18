@@ -34,8 +34,8 @@
 // .SECTION See Also
 // vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
 
-#ifndef __vtkCocoaGLView_h
-#define __vtkCocoaGLView_h
+#ifndef vtkCocoaGLView_h
+#define vtkCocoaGLView_h
 
 #import <Cocoa/Cocoa.h>
 
@@ -70,5 +70,5 @@
 
 @end
 
-#endif /* __vtkCocoaGLView_h */
+#endif /* vtkCocoaGLView_h */
 // VTK-HeaderTest-Exclude: vtkCocoaGLView.h

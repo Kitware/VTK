@@ -22,8 +22,8 @@
 // store/retrieve all state changes using input and output information
 // objects, which are unique to each thread.
 
-#ifndef __vtkThreadedCompositeDataPipeline_h
-#define __vtkThreadedCompositeDataPipeline_h
+#ifndef vtkThreadedCompositeDataPipeline_h
+#define vtkThreadedCompositeDataPipeline_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkCompositeDataPipeline.h"

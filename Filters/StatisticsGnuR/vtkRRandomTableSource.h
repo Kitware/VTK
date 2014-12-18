@@ -46,8 +46,8 @@
 // Developed by Thomas J. Otahal (tjotaha@sandia.gov) at Sandia National Laboratories.
 //
 
-#ifndef __vtkRRandomTableSource_h
-#define __vtkRRandomTableSource_h
+#ifndef vtkRRandomTableSource_h
+#define vtkRRandomTableSource_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

@@ -19,8 +19,8 @@
 // It makes sure that the table of keys is created before and
 // destroyed after it is used.
 
-#ifndef __vtkCommonInformationKeyManager_h
-#define __vtkCommonInformationKeyManager_h
+#ifndef vtkCommonInformationKeyManager_h
+#define vtkCommonInformationKeyManager_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

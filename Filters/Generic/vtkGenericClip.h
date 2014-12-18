@@ -55,8 +55,8 @@
 // vtkClipDataSet vtkClipPolyData vtkClipVolume vtkImplicitFunction
 // vtkGenericDataSet
 
-#ifndef __vtkGenericClip_h
-#define __vtkGenericClip_h
+#ifndef vtkGenericClip_h
+#define vtkGenericClip_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

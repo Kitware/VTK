@@ -19,8 +19,8 @@
 // It makes sure that the table of keys is created before and
 // destroyed after it is used.
 
-#ifndef __vtkFilteringInformationKeyManager_h
-#define __vtkFilteringInformationKeyManager_h
+#ifndef vtkFilteringInformationKeyManager_h
+#define vtkFilteringInformationKeyManager_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"

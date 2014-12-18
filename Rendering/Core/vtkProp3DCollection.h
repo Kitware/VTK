@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkProp3D vtkCollection
 
-#ifndef __vtkProp3DCollection_h
-#define __vtkProp3DCollection_h
+#ifndef vtkProp3DCollection_h
+#define vtkProp3DCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPropCollection.h"

@@ -27,8 +27,8 @@
 // the basic structure and if you're lucky it might even work!
 // but frankly I doubt it
 
-#ifndef __vtkXRenderWindowInteractor_h
-#define __vtkXRenderWindowInteractor_h
+#ifndef vtkXRenderWindowInteractor_h
+#define vtkXRenderWindowInteractor_h
 
 //===========================================================
 // now we define the C++ class

@@ -21,8 +21,8 @@
 // Inorder traversal yields: A, B, D, E, C, F, G
 // Index of A is 0, while index of C is 4.
 
-#ifndef __vtkExtractBlock_h
-#define __vtkExtractBlock_h
+#ifndef vtkExtractBlock_h
+#define vtkExtractBlock_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

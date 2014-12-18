@@ -47,8 +47,8 @@
 // .SECTION See Also
 // vtkSmartPointer vtkWeakPointer
 
-#ifndef __vtkNew_h
-#define __vtkNew_h
+#ifndef vtkNew_h
+#define vtkNew_h
 
 #include "vtkIOStream.h"
 

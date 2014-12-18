@@ -21,8 +21,8 @@
 // vtkExporter
 
 
-#ifndef __vtkIVExporter_h
-#define __vtkIVExporter_h
+#ifndef vtkIVExporter_h
+#define vtkIVExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

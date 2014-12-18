@@ -30,8 +30,8 @@
 // .SEE ALSO
 // vtkDendrogramItem vtkHeatmapItem vtkTree vtkTable vtkNewickTreeReader
 
-#ifndef __vtkTreeHeatmapItem_h
-#define __vtkTreeHeatmapItem_h
+#ifndef vtkTreeHeatmapItem_h
+#define vtkTreeHeatmapItem_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"

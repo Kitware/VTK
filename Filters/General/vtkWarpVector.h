@@ -20,8 +20,8 @@
 //
 // The filter passes both its point data and cell data to its output.
 
-#ifndef __vtkWarpVector_h
-#define __vtkWarpVector_h
+#ifndef vtkWarpVector_h
+#define vtkWarpVector_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

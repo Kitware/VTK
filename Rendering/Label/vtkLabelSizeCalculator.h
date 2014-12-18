@@ -32,8 +32,8 @@
 // Any type that does not map to a font property that was set will
 // be set to the type 0's type property.
 
-#ifndef __vtkLabelSizeCalculator_h
-#define __vtkLabelSizeCalculator_h
+#ifndef vtkLabelSizeCalculator_h
+#define vtkLabelSizeCalculator_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
@@ -92,4 +92,4 @@ private:
   void operator = ( const vtkLabelSizeCalculator& ); // Not implemented.
 };
 
-#endif // __vtkLabelSizeCalculator_h
+#endif // vtkLabelSizeCalculator_h

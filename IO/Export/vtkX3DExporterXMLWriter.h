@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkX3DExporterXMLWriter
 
-#ifndef __vtkX3DExporterXMLWriter_h
-#define __vtkX3DExporterXMLWriter_h
+#ifndef vtkX3DExporterXMLWriter_h
+#define vtkX3DExporterXMLWriter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkX3DExporterWriter.h"

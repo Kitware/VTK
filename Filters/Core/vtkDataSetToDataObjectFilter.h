@@ -41,8 +41,8 @@
 // .SECTION See Also
 // vtkDataObject vtkFieldData vtkDataObjectToDataSetFilter
 
-#ifndef __vtkDataSetToDataObjectFilter_h
-#define __vtkDataSetToDataObjectFilter_h
+#ifndef vtkDataSetToDataObjectFilter_h
+#define vtkDataSetToDataObjectFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

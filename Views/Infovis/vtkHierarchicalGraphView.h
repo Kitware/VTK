@@ -35,8 +35,8 @@
 // Thanks to the turtle with jets for feet, without you this class wouldn't
 // have been possible.
 
-#ifndef __vtkHierarchicalGraphView_h
-#define __vtkHierarchicalGraphView_h
+#ifndef vtkHierarchicalGraphView_h
+#define vtkHierarchicalGraphView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkGraphLayoutView.h"

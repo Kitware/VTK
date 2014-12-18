@@ -42,8 +42,8 @@
 // of the first axis (Origin->Point1) with the second (Origin->Point2). This
 // also affects the normals to the generated polygons.
 
-#ifndef __vtkPlaneSource_h
-#define __vtkPlaneSource_h
+#ifndef vtkPlaneSource_h
+#define vtkPlaneSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

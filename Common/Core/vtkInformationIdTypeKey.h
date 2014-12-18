@@ -17,8 +17,8 @@
 // vtkInformationIdTypeKey is used to represent keys for vtkIdType values
 // in vtkInformation.
 
-#ifndef __vtkInformationIdTypeKey_h
-#define __vtkInformationIdTypeKey_h
+#ifndef vtkInformationIdTypeKey_h
+#define vtkInformationIdTypeKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

@@ -59,8 +59,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkMNITagPointWriter_h
-#define __vtkMNITagPointWriter_h
+#ifndef vtkMNITagPointWriter_h
+#define vtkMNITagPointWriter_h
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkWriter.h"

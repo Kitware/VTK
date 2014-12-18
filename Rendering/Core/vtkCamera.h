@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkPerspectiveTransform
 
-#ifndef __vtkCamera_h
-#define __vtkCamera_h
+#ifndef vtkCamera_h
+#define vtkCamera_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

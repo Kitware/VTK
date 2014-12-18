@@ -19,8 +19,8 @@
 // formats, such as the selection of which writer writes the summary
 // file and what range of pieces are assigned to each serial writer.
 
-#ifndef __vtkXMLPDataWriter_h
-#define __vtkXMLPDataWriter_h
+#ifndef vtkXMLPDataWriter_h
+#define vtkXMLPDataWriter_h
 
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"

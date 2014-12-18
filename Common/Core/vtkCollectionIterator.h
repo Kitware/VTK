@@ -22,8 +22,8 @@
 // items are invalidated.  Other iterators will still continue to
 // function normally.
 
-#ifndef __vtkCollectionIterator_h
-#define __vtkCollectionIterator_h
+#ifndef vtkCollectionIterator_h
+#define vtkCollectionIterator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

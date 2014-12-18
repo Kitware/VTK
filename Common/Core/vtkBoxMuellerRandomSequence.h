@@ -20,8 +20,8 @@
 // It based is calculation from a uniformly distributed pseudo random sequence.
 // The initial sequence is a vtkMinimalStandardRandomSequence.
 
-#ifndef __vtkBoxMuellerRandomSequence_h
-#define __vtkBoxMuellerRandomSequence_h
+#ifndef vtkBoxMuellerRandomSequence_h
+#define vtkBoxMuellerRandomSequence_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGaussianRandomSequence.h"
@@ -62,4 +62,4 @@ private:
   void operator=(const vtkBoxMuellerRandomSequence&);  // Not implemented.
 };
 
-#endif // #ifndef __vtkBoxMuellerRandomSequence_h
+#endif // #ifndef vtkBoxMuellerRandomSequence_h

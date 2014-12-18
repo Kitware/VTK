@@ -60,8 +60,8 @@
 // many real-world graphs based on social networks.
 //
 // @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
-#ifndef __vtkPBGLRMATGraphSource_h
-#define __vtkPBGLRMATGraphSource_h
+#ifndef vtkPBGLRMATGraphSource_h
+#define vtkPBGLRMATGraphSource_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

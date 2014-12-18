@@ -23,8 +23,8 @@
 //  currently used to compute polygon for slicing.
 //
 
-#ifndef __vtkPolygonBuilder_h
-#define __vtkPolygonBuilder_h
+#ifndef vtkPolygonBuilder_h
+#define vtkPolygonBuilder_h
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include <vector> //for private data members

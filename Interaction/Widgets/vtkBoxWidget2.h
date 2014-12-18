@@ -84,8 +84,8 @@
 // .SECTION See Also
 // vtkBoxRepresentation vtkBoxWidget
 
-#ifndef __vtkBoxWidget2_h
-#define __vtkBoxWidget2_h
+#ifndef vtkBoxWidget2_h
+#define vtkBoxWidget2_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

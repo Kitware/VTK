@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkJPEGReader
 
-#ifndef __vtkJPEGWriter_h
-#define __vtkJPEGWriter_h
+#ifndef vtkJPEGWriter_h
+#define vtkJPEGWriter_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"

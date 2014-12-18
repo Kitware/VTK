@@ -116,8 +116,8 @@
 // This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law, Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#ifndef __vtkHyperTree_h
-#define __vtkHyperTree_h
+#ifndef vtkHyperTree_h
+#define vtkHyperTree_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

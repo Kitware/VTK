@@ -17,8 +17,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkPlotPie_h
-#define __vtkPlotPie_h
+#ifndef vtkPlotPie_h
+#define vtkPlotPie_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -111,4 +111,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotPie_h
+#endif //vtkPlotPie_h

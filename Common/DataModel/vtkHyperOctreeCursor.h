@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkDataObject vtkFieldData vtkHyperOctreeAlgorithm
 
-#ifndef __vtkHyperOctreeCursor_h
-#define __vtkHyperOctreeCursor_h
+#ifndef vtkHyperOctreeCursor_h
+#define vtkHyperOctreeCursor_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

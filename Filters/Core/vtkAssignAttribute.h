@@ -51,8 +51,8 @@
 // vtkDataSetAttributes vtkDataArray vtkRearrangeFields
 // vtkSplitField vtkMergeFields
 
-#ifndef __vtkAssignAttribute_h
-#define __vtkAssignAttribute_h
+#ifndef vtkAssignAttribute_h
+#define vtkAssignAttribute_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

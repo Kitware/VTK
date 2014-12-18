@@ -23,8 +23,8 @@
 // The original author of this class is Lauren O'Donnell (MIT) for Slicer
 
 
-#ifndef __vtkImageWeightedSum_h
-#define __vtkImageWeightedSum_h
+#ifndef vtkImageWeightedSum_h
+#define vtkImageWeightedSum_h
 
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

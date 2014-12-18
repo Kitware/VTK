@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkPLYReader
 
-#ifndef __vtkPLYWriter_h
-#define __vtkPLYWriter_h
+#ifndef vtkPLYWriter_h
+#define vtkPLYWriter_h
 
 #include "vtkIOPLYModule.h" // For export macro
 #include "vtkWriter.h"

@@ -43,8 +43,8 @@
 // generation, and may do not exactly describe the size of the superquadric.
 //
 
-#ifndef __vtkSuperquadricSource_h
-#define __vtkSuperquadricSource_h
+#ifndef vtkSuperquadricSource_h
+#define vtkSuperquadricSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

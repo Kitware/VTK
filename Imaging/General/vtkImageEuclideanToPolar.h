@@ -17,8 +17,8 @@
 // For each pixel with vector components x,y, this filter outputs
 // theta in component0, and radius in component1.
 
-#ifndef __vtkImageEuclideanToPolar_h
-#define __vtkImageEuclideanToPolar_h
+#ifndef vtkImageEuclideanToPolar_h
+#define vtkImageEuclideanToPolar_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

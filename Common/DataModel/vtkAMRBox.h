@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkAMRInformation
 
-#ifndef __vtkAMRBox_h
-#define __vtkAMRBox_h
+#ifndef vtkAMRBox_h
+#define vtkAMRBox_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

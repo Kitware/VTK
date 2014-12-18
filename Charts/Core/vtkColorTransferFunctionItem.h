@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkColorTransferFunctionItem_h
-#define __vtkColorTransferFunctionItem_h
+#ifndef vtkColorTransferFunctionItem_h
+#define vtkColorTransferFunctionItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"

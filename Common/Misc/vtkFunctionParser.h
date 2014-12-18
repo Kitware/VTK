@@ -38,8 +38,8 @@
 // Sid Sydoriak (sxs@lanl.gov) for adding boolean operations and
 // conditional expressions and for fixing a variety of bugs.
 
-#ifndef __vtkFunctionParser_h
-#define __vtkFunctionParser_h
+#ifndef vtkFunctionParser_h
+#define vtkFunctionParser_h
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"

@@ -18,8 +18,8 @@
 // It provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
 
-#ifndef __vtkUnsignedLongArray_h
-#define __vtkUnsignedLongArray_h
+#ifndef vtkUnsignedLongArray_h
+#define vtkUnsignedLongArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
 #if !defined(vtkUnsignedLongArray_cxx)

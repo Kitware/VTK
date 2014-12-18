@@ -17,8 +17,8 @@
 // vtkWebUtilities consolidates miscellaneous utility functions useful for
 // Python scripts designed for ParaView Web.
 
-#ifndef __vtkWebUtilities_h
-#define __vtkWebUtilities_h
+#ifndef vtkWebUtilities_h
+#define vtkWebUtilities_h
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports

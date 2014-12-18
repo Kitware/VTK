@@ -20,8 +20,8 @@
 // vtkTransform vtkIdentityTransform
 
 
-#ifndef __vtkLinearTransform_h
-#define __vtkLinearTransform_h
+#ifndef vtkLinearTransform_h
+#define vtkLinearTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkHomogeneousTransform.h"

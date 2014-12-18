@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkTree vtkDataReader
 
-#ifndef __vtkNewickTreeReader_h
-#define __vtkNewickTreeReader_h
+#ifndef vtkNewickTreeReader_h
+#define vtkNewickTreeReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataReader.h"

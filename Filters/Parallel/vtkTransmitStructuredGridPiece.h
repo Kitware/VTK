@@ -24,8 +24,8 @@
 // can be used directly instead.
 
 
-#ifndef __vtkTransmitStructuredGridPiece_h
-#define __vtkTransmitStructuredGridPiece_h
+#ifndef vtkTransmitStructuredGridPiece_h
+#define vtkTransmitStructuredGridPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkTransmitStructuredDataPiece.h"

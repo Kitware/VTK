@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkImageReader2
 
-#ifndef __vtkImageReader2Factory_h
-#define __vtkImageReader2Factory_h
+#ifndef vtkImageReader2Factory_h
+#define vtkImageReader2Factory_h
 
 
 #include "vtkIOImageModule.h" // For export macro

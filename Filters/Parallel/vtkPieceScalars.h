@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkPolyDataStreamer
 
-#ifndef __vtkPieceScalars_h
-#define __vtkPieceScalars_h
+#ifndef vtkPieceScalars_h
+#define vtkPieceScalars_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

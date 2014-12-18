@@ -40,8 +40,8 @@
 // collector.
 //
 
-#ifndef __vtkVisibilitySort_h
-#define __vtkVisibilitySort_h
+#ifndef vtkVisibilitySort_h
+#define vtkVisibilitySort_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -134,5 +134,5 @@ private:
   void operator=(const vtkVisibilitySort &);  // Not implemented.
 };
 
-#endif //__vtkVisibilitySort_h
+#endif //vtkVisibilitySort_h
 

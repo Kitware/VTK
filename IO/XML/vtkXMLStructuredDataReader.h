@@ -21,8 +21,8 @@
 // vtkXMLImageDataReader vtkXMLStructuredGridReader
 // vtkXMLRectilinearGridReader
 
-#ifndef __vtkXMLStructuredDataReader_h
-#define __vtkXMLStructuredDataReader_h
+#ifndef vtkXMLStructuredDataReader_h
+#define vtkXMLStructuredDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"

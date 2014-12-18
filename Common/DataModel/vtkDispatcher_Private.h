@@ -27,8 +27,8 @@
 //     suitability of this software for any purpose. It is provided "as is"
 //     without express or implied warranty.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef __vtkDispatcher_Private_h
-#define __vtkDispatcher_Private_h
+#ifndef vtkDispatcher_Private_h
+#define vtkDispatcher_Private_h
 
 #include <typeinfo>
 #include <cassert>
@@ -426,5 +426,5 @@ inline bool operator>=(const TypeInfo& lhs, const TypeInfo& rhs)
 
 }
 
-#endif // __vtkDispatcherPrivate_h
+#endif // vtkDispatcherPrivate_h
 // VTK-HeaderTest-Exclude: vtkDispatcher_Private.h

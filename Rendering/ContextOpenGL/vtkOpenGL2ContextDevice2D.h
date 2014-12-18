@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkOpenGLContextDevice2D
 
-#ifndef __vtkOpenGL2ContextDevice2D_h
-#define __vtkOpenGL2ContextDevice2D_h
+#ifndef vtkOpenGL2ContextDevice2D_h
+#define vtkOpenGL2ContextDevice2D_h
 
 #include "vtkOpenGLContextDevice2D.h"
 
@@ -86,4 +86,4 @@ private:
   void operator=(const vtkOpenGL2ContextDevice2D &);   // Not implemented.
 };
 
-#endif //__vtkOpenGL2ContextDevice2D_h
+#endif //vtkOpenGL2ContextDevice2D_h

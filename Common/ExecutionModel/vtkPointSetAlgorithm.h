@@ -27,8 +27,8 @@
 // RequestData( request, inputVec, outputVec).
 
 
-#ifndef __vtkPointSetAlgorithm_h
-#define __vtkPointSetAlgorithm_h
+#ifndef vtkPointSetAlgorithm_h
+#define vtkPointSetAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

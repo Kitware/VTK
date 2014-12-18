@@ -40,8 +40,8 @@
 // vtkSphereWidget2 vtkSphereWidget
 
 
-#ifndef __vtkSphereRepresentation_h
-#define __vtkSphereRepresentation_h
+#ifndef vtkSphereRepresentation_h
+#define vtkSphereRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

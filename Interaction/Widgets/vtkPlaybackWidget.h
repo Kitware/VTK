@@ -23,8 +23,8 @@
 // vtkBorderWidget
 
 
-#ifndef __vtkPlaybackWidget_h
-#define __vtkPlaybackWidget_h
+#ifndef vtkPlaybackWidget_h
+#define vtkPlaybackWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"

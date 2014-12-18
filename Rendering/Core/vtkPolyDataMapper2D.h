@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkMapper2D vtkActor2D
 
-#ifndef __vtkPolyDataMapper2D_h
-#define __vtkPolyDataMapper2D_h
+#ifndef vtkPolyDataMapper2D_h
+#define vtkPolyDataMapper2D_h
 
 
 #include "vtkRenderingCoreModule.h" // For export macro

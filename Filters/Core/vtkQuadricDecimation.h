@@ -50,8 +50,8 @@
 // Thanks to Bradley Lowekamp of the National Library of Medicine/NIH for
 // contributing this class.
 
-#ifndef __vtkQuadricDecimation_h
-#define __vtkQuadricDecimation_h
+#ifndef vtkQuadricDecimation_h
+#define vtkQuadricDecimation_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -19,8 +19,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkUnstructuredGridWriter_h
-#define __vtkUnstructuredGridWriter_h
+#ifndef vtkUnstructuredGridWriter_h
+#define vtkUnstructuredGridWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

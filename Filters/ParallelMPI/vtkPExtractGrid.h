@@ -25,8 +25,8 @@
 // .SECTION See Also
 //  vtkExtractGrid
 
-#ifndef __vtkPExtractGrid_h
-#define __vtkPExtractGrid_h
+#ifndef vtkPExtractGrid_h
+#define vtkPExtractGrid_h
 
 #include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractGrid.h"

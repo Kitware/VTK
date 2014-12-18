@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkLookupTable
 
-#ifndef __vtkLogLookupTable_h
-#define __vtkLogLookupTable_h
+#ifndef vtkLogLookupTable_h
+#define vtkLogLookupTable_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"

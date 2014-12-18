@@ -18,8 +18,8 @@
 //
 
 
-#ifndef __vtkQtView_h
-#define __vtkQtView_h
+#ifndef vtkQtView_h
+#define vtkQtView_h
 
 #include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

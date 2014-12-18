@@ -23,8 +23,8 @@
 // number of processors, each processor will possibly have more than
 // 1 sub-block.
 
-#ifndef __vtkXMLHierarchicalDataReader_h
-#define __vtkXMLHierarchicalDataReader_h
+#ifndef vtkXMLHierarchicalDataReader_h
+#define vtkXMLHierarchicalDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLMultiGroupDataReader.h"

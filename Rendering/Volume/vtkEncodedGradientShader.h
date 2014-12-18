@@ -27,8 +27,8 @@
 // per volume. This is necessary because multiple volumes can share a
 // volume mapper.
 
-#ifndef __vtkEncodedGradientShader_h
-#define __vtkEncodedGradientShader_h
+#ifndef vtkEncodedGradientShader_h
+#define vtkEncodedGradientShader_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"

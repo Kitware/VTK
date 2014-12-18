@@ -137,8 +137,8 @@
 // vtkMappedUnstructuredGrid usage, adapting the Exodus II data structures for
 // the VTK pipeline.
 
-#ifndef __vtkMappedUnstructuredGrid_h
-#define __vtkMappedUnstructuredGrid_h
+#ifndef vtkMappedUnstructuredGrid_h
+#define vtkMappedUnstructuredGrid_h
 
 #include "vtkUnstructuredGridBase.h"
 
@@ -289,6 +289,6 @@ private: \
 #define vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl) \
   vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, )
 
-#endif //__vtkMappedUnstructuredGrid_h
+#endif //vtkMappedUnstructuredGrid_h
 
 // VTK-HeaderTest-Exclude: vtkMappedUnstructuredGrid.h

@@ -40,8 +40,8 @@
 // vtkMapper2D vtkActor2D vtkTextMapper vtkTextProperty vtkSelectVisiblePoints
 // vtkIdFilter vtkCellCenters
 
-#ifndef __vtkLabeledDataMapper_h
-#define __vtkLabeledDataMapper_h
+#ifndef vtkLabeledDataMapper_h
+#define vtkLabeledDataMapper_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"

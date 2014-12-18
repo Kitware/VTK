@@ -19,8 +19,8 @@
 // from that in other similar keys because of our internal use of smart
 // pointers.
 
-#ifndef __vtkInformationObjectBaseVectorKey_h
-#define __vtkInformationObjectBaseVectorKey_h
+#ifndef vtkInformationObjectBaseVectorKey_h
+#define vtkInformationObjectBaseVectorKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

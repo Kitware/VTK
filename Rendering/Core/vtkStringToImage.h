@@ -18,8 +18,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkStringToImage_h
-#define __vtkStringToImage_h
+#ifndef vtkStringToImage_h
+#define vtkStringToImage_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -86,4 +86,4 @@ private:
   void operator=(const vtkStringToImage &);   // Not implemented.
 };
 
-#endif //__vtkStringToImage_h
+#endif //vtkStringToImage_h

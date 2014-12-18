@@ -38,8 +38,8 @@
 // .SECTION See Also
 // vtkDataArray vtkStringArray vtkCellArray
 
-#ifndef __vtkAbstractArray_h
-#define __vtkAbstractArray_h
+#ifndef vtkAbstractArray_h
+#define vtkAbstractArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

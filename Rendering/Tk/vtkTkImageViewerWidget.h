@@ -25,8 +25,8 @@
 // vtkImageViewer
 
 
-#ifndef __vtkTkImageViewerWidget_h
-#define __vtkTkImageViewerWidget_h
+#ifndef vtkTkImageViewerWidget_h
+#define vtkTkImageViewerWidget_h
 
 #include "vtkImageViewer.h"
 #include "vtkTcl.h"

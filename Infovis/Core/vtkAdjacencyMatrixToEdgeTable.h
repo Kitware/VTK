@@ -28,8 +28,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkAdjacencyMatrixToEdgeTable_h
-#define __vtkAdjacencyMatrixToEdgeTable_h
+#ifndef vtkAdjacencyMatrixToEdgeTable_h
+#define vtkAdjacencyMatrixToEdgeTable_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

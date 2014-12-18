@@ -29,8 +29,8 @@
 // Thanks to Brian Wylie from Sandia National Laboratories for creating this
 // class.
 
-#ifndef __vtkSimple2DLayoutStrategy_h
-#define __vtkSimple2DLayoutStrategy_h
+#ifndef vtkSimple2DLayoutStrategy_h
+#define vtkSimple2DLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

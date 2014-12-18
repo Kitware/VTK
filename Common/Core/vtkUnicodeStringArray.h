@@ -26,8 +26,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkUnicodeStringArray_h
-#define __vtkUnicodeStringArray_h
+#ifndef vtkUnicodeStringArray_h
+#define vtkUnicodeStringArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"

@@ -24,8 +24,8 @@
 // If points are inserted, use the methods InitPointInsertion() and
 // InsertUniquePoint().
 
-#ifndef __vtkEdgeTable_h
-#define __vtkEdgeTable_h
+#ifndef vtkEdgeTable_h
+#define vtkEdgeTable_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

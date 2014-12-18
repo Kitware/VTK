@@ -22,8 +22,8 @@
 // Support for generic vertex attributes in VTK was contributed in
 // collaboration with Stephane Ploix at EDF.
 
-#ifndef __vtkGenericVertexAttributeMapping_h
-#define __vtkGenericVertexAttributeMapping_h
+#ifndef vtkGenericVertexAttributeMapping_h
+#define vtkGenericVertexAttributeMapping_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

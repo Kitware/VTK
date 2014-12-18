@@ -20,8 +20,8 @@
 // output.
 
 
-#ifndef __vtkImageWrapPad_h
-#define __vtkImageWrapPad_h
+#ifndef vtkImageWrapPad_h
+#define vtkImageWrapPad_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

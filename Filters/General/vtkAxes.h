@@ -19,8 +19,8 @@
 // a scale factor. Three scalar values are generated for the three lines and
 // can be used (via color map) to indicate a particular coordinate axis.
 
-#ifndef __vtkAxes_h
-#define __vtkAxes_h
+#ifndef vtkAxes_h
+#define vtkAxes_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

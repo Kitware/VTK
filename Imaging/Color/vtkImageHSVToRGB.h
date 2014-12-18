@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkImageRGBToHSV
 
-#ifndef __vtkImageHSVToRGB_h
-#define __vtkImageHSVToRGB_h
+#ifndef vtkImageHSVToRGB_h
+#define vtkImageHSVToRGB_h
 
 
 #include "vtkImagingColorModule.h" // For export macro

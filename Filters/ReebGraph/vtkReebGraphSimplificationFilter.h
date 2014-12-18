@@ -17,8 +17,8 @@
 // The filter takes an input vtkReebGraph object and outputs a
 // vtkReebGraph object.
 
-#ifndef __vtkReebGraphSimplificationFilter_h
-#define __vtkReebGraphSimplificationFilter_h
+#ifndef vtkReebGraphSimplificationFilter_h
+#define vtkReebGraphSimplificationFilter_h
 
 #include "vtkFiltersReebGraphModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"

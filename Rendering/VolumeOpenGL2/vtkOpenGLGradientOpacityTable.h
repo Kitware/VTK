@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkOpenGLGradientOpacityTable_h_
-#define __vtkOpenGLGradientOpacityTable_h_
+#ifndef vtkOpenGLGradientOpacityTable_h_
+#define vtkOpenGLGradientOpacityTable_h_
 
 #include <vtkPiecewiseFunction.h>
 #include <vtkVolumeMapper.h>
@@ -197,5 +197,5 @@ private:
   vtkOpenGLGradientOpacityTables &operator=(const vtkOpenGLGradientOpacityTables &other);
 };
 
-#endif // __vtkOpenGLGradientOpacityTable_h_
+#endif // vtkOpenGLGradientOpacityTable_h_
 // VTK-HeaderTest-Exclude: vtkOpenGLGradientOpacityTable.h

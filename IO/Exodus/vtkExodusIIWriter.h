@@ -61,8 +61,8 @@
 //     We use the terms "point" and "node" interchangeably.
 //     Also, we use the terms "element" and "cell" interchangeably.
 
-#ifndef __vtkExodusIIWriter_h
-#define __vtkExodusIIWriter_h
+#ifndef vtkExodusIIWriter_h
+#define vtkExodusIIWriter_h
 
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkWriter.h"

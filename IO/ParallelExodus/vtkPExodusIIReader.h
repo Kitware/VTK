@@ -34,8 +34,8 @@
 // possible blocks. Unused points are filtered out internally.
 
 
-#ifndef __vtkPExodusIIReader_h
-#define __vtkPExodusIIReader_h
+#ifndef vtkPExodusIIReader_h
+#define vtkPExodusIIReader_h
 
 #include "vtkIOParallelExodusModule.h" // For export macro
 #include "vtkExodusIIReader.h"

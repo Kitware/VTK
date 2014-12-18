@@ -34,8 +34,8 @@
 // vtkRectilinearGrid vtkPolyData vtkPointData vtkCellData
 // vtkDataObject vtkFieldData
 
-#ifndef __vtkDataSet_h
-#define __vtkDataSet_h
+#ifndef vtkDataSet_h
+#define vtkDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

@@ -40,8 +40,8 @@
 // vtkSpline vtkCardinalSpline
 
 
-#ifndef __vtkKochanekSpline_h
-#define __vtkKochanekSpline_h
+#ifndef vtkKochanekSpline_h
+#define vtkKochanekSpline_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkSpline.h"

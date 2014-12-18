@@ -38,8 +38,8 @@
 // vtkPainterDeviceAdapter
 //
 
-#ifndef __vtkPolyDataPainter_h
-#define __vtkPolyDataPainter_h
+#ifndef vtkPolyDataPainter_h
+#define vtkPolyDataPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"
