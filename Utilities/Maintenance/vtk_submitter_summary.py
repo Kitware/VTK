@@ -24,9 +24,9 @@ summary = {}
 
 def scrape_cdash(date):
 
-  #test_sysinfo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCore-TestSystemInformation&date='+date
-  test_sysinfo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkCommonCoreCxx-TestSystemInformation&date='+date
-  test_fbo_url = 'http://open.cdash.org/testSummary.php?project=11&name=vtkRenderingOpenGLCxx-TestFBO&date='+date
+  #test_sysinfo_url = 'https://open.cdash.org/testSummary.php?project=11&name=vtkCommonCore-TestSystemInformation&date='+date
+  test_sysinfo_url = 'https://open.cdash.org/testSummary.php?project=11&name=vtkCommonCoreCxx-TestSystemInformation&date='+date
+  test_fbo_url = 'https://open.cdash.org/testSummary.php?project=11&name=vtkRenderingOpenGLCxx-TestFBO&date='+date
 
   testspage = urllib.urlopen(test_sysinfo_url)
   response = "".join(testspage.readlines())
@@ -49,7 +49,7 @@ def scrape_cdash(date):
 
   #loop through and scan each machine's test page
   for x in matches:
-    url = 'http://open.cdash.org/' + str(x.group(0))
+    url = 'https://open.cdash.org/' + str(x.group(0))
     url = url.replace('&amp;', '&')
     #print url
 
@@ -78,7 +78,7 @@ def scrape_cdash(date):
       #get number of failures for this submission
       buildid = buildidtester.search(x.group(0)).group(0)[6:]
       #print buildid
-      surl = 'http://open.cdash.org/viewTest.php?onlyfailed&buildid='+str(buildid)
+      surl = 'https://open.cdash.org/viewTest.php?onlyfailed&buildid='+str(buildid)
       testspage = urllib.urlopen(surl)
       testsresponse = "".join(testspage.readlines())
       tfails = testfails_tester.search(testsresponse).group(1)
@@ -110,7 +110,7 @@ def scrape_cdash(date):
 
   #loop through and scan each machine's test page
   for x in matches:
-    url = 'http://open.cdash.org/' + str(x.group(0))
+    url = 'https://open.cdash.org/' + str(x.group(0))
     url = url.replace('&amp;', '&')
     #print url
 
