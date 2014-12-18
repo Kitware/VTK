@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkQuadraturePointsUtilities_h
-#define vtkQuadraturePointsUtilities_h
+#ifndef vtkQuadraturePointsUtilities_hxx
+#define vtkQuadraturePointsUtilities_hxx
 
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkDoubleArray.h"
