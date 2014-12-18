@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkDataArrayPrivate_txx
-#define __vtkDataArrayPrivate_txx
+#ifndef vtkDataArrayPrivate_txx
+#define vtkDataArrayPrivate_txx
 
 
 #include "vtkTypeTraits.h"

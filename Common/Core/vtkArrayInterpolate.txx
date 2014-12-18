@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayInterpolate_txx
-#define __vtkArrayInterpolate_txx
+#ifndef vtkArrayInterpolate_txx
+#define vtkArrayInterpolate_txx
 
 #include "vtkArrayExtentsList.h"
 #include "vtkArrayWeights.h"

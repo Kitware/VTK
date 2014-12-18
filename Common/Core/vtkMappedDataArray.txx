@@ -13,8 +13,8 @@
 
 ==============================================================================*/
 
-#ifndef __vtkMappedDataArray_txx
-#define __vtkMappedDataArray_txx
+#ifndef vtkMappedDataArray_txx
+#define vtkMappedDataArray_txx
 
 #include "vtkMappedDataArray.h"
 
@@ -163,4 +163,4 @@ void vtkMappedDataArray<Scalar>::Modified()
   this->TemporaryScalarPointerSize = 0;
 }
 
-#endif //__vtkMappedDataArray_txx
+#endif //vtkMappedDataArray_txx
