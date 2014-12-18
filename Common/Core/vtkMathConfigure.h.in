@@ -18,8 +18,8 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#ifndef __vtkMathConfigure_h
-#define __vtkMathConfigure_h
+#ifndef vtkMathConfigure_h
+#define vtkMathConfigure_h
 
 #include <cmath>
 #include <float.h> // for _isnan, _finite on Win32
@@ -100,4 +100,4 @@
 # define VTK_NON_FINITE_CAUSES_EXCEPTIONS
 #endif
 
-#endif //__vtkMathConfigure_h
+#endif //vtkMathConfigure_h

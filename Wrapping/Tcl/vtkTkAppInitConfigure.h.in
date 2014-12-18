@@ -1,5 +1,5 @@
-#ifndef __vtkTkAppInitConfigure_h
-#define __vtkTkAppInitConfigure_h
+#ifndef vtkTkAppInitConfigure_h
+#define vtkTkAppInitConfigure_h
 
 /* Whether we are linking to Tcl/Tk statically.  */
 #cmakedefine VTK_TCL_TK_STATIC

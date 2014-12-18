@@ -18,8 +18,8 @@
 // provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
 
-#ifndef __vtkType@VTK_TYPE_NAME@Array_h
-#define __vtkType@VTK_TYPE_NAME@Array_h
+#ifndef vtkType@VTK_TYPE_NAME@Array_h
+#define vtkType@VTK_TYPE_NAME@Array_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtk@VTK_TYPE_NATIVE@Array.h"

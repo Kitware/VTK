@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_png_h
-#define __vtk_png_h
+#ifndef vtk_png_h
+#define vtk_png_h
 
 /* Use the png library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_PNG

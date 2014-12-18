@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_glew_h
-#define __vtk_glew_h
+#ifndef vtk_glew_h
+#define vtk_glew_h
 
 #define GLEW_NO_GLU
 

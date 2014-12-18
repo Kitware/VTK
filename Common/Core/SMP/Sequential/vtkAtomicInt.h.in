@@ -31,8 +31,8 @@
 // platform or compiler, mutexes, which are significantly slower, are used
 // as a fallback.
 
-#ifndef __vtkAtomicInt_h
-#define __vtkAtomicInt_h
+#ifndef vtkAtomicInt_h
+#define vtkAtomicInt_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

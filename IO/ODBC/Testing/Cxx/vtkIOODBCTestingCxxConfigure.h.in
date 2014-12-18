@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkIOODBCTestingCxxConfigure_h
-#define __vtkIOODBCTestingCxxConfigure_h
+#ifndef vtkIOODBCTestingCxxConfigure_h
+#define vtkIOODBCTestingCxxConfigure_h
 
 #cmakedefine VTK_ODBC_TEST_DSN
 #ifdef VTK_ODBC_TEST_DSN

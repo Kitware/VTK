@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkConfigure_h
-#define __vtkConfigure_h
+#ifndef vtkConfigure_h
+#define vtkConfigure_h
 
 /* This header is configured by VTK's build process.  */
 

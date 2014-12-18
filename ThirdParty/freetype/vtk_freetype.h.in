@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_freetype_h
-#define __vtk_freetype_h
+#ifndef vtk_freetype_h
+#define vtk_freetype_h
 
 /* Use the freetype library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_FREETYPE
@@ -24,4 +24,4 @@
 # include <vtkfreetype/include/ft2build.h>
 #endif
 
-#endif // #ifndef __vtk_freetype_h
+#endif // #ifndef vtk_freetype_h
