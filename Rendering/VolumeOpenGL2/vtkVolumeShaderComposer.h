@@ -391,8 +391,8 @@ namespace vtkvolume
           \n  vec3 ldir = normalize(lightPosObj.xyz - ip_vertexPos);\
           \n  vec3 vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);\
           \n  vec3 h = normalize(ldir + vdir);\
-          \n  vec4 grad = computeGradient();\
-          \n  vec3 g2 = grad.xyz;\
+          \n  vec4 gradient = computeGradient();\
+          \n  vec3 g2 = gradient.xyz;\
           \n  g2 = (1.0/in_cellSpacing) * g2;\
           \n  float normalLength = length(g2);\
           \n  if (normalLength > 0.0)\
@@ -440,8 +440,8 @@ namespace vtkvolume
           \n   fragWorldPos /= fragWorldPos.w;\
           \n   }\
           \n  vec3 vdir = normalize(fragWorldPos.xyz);\
-          \n  vec4 grad = computeGradient();\
-          \n  vec3 normal = grad.xyz;\
+          \n  vec4 gradient = computeGradient();\
+          \n  vec3 normal = gradient.xyz;\
           \n  vec3 ambient = vec3(0.0);\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
@@ -498,8 +498,8 @@ namespace vtkvolume
           \n  vec3 diffuse = vec3(0,0,0);\
           \n  vec3 specular = vec3(0,0,0);\
           \n  vec3 vertLightDirection;\
-          \n  vec4 grad = computeGradient();\
-          \n  vec3 normal = normalize(in_texureToEyeIt * grad.xyz);\
+          \n  vec4 gradient = computeGradient();\
+          \n  vec3 normal = normalize(in_texureToEyeIt * gradient.xyz);\
           \n  vec3 lightDir;\
           \n  for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\
           \n    {\
