@@ -6,26 +6,27 @@ set (GenericVolumeCxxTests
   TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastCompositeBinaryMask.cxx
-  TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeMaskBlend.cxx
+  TestGPURayCastCompositeMask.cxx
   TestGPURayCastCompositeToMIP.cxx
   TestGPURayCastCropping.cxx
-  TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
+  TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastFourComponentsComposite.cxx
   TestGPURayCastFourComponentsCompositeStreaming.cxx
-  TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastFourComponentsMinIP.cxx
-  TestGPURayCastMIPBinaryMask.cxx
-  TestGPURayCastMIPToComposite.cxx
+  TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastMapperBenchmark.cxx
   TestGPURayCastMapperSampleDistance.cxx
+  TestGPURayCastMIPBinaryMask.cxx
+  TestGPURayCastMIPToComposite.cxx
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
   TestGPURayCastVolumeUpdate.cxx
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
   TestSmartVolumeMapper.cxx
+  TestSmartVolumeMapperGradientOpacity.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
 
