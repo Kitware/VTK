@@ -88,14 +88,14 @@ set(ios_cmake_flags
 
 macro(crosscompile target toolchain_file archs)
   ExternalProject_Add(
-    vtk-${target}
+    ${target}
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    PREFIX ${PREFIX_DIR}/vtk-${target}
-    BINARY_DIR ${BUILD_DIR}/vtk-${target}
-    INSTALL_DIR ${INSTALL_DIR}/vtk-${target}
+    PREFIX ${PREFIX_DIR}/${target}
+    BINARY_DIR ${BUILD_DIR}/${target}
+    INSTALL_DIR ${INSTALL_DIR}/${target}
     DEPENDS vtk-compile-tools
     CMAKE_ARGS
-      -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/vtk-${target}
+      -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
       -DCMAKE_CROSSCOMPILING:BOOL=ON
       #-DCMAKE_OSX_ARCHITECTURES:STRING=${archs}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -104,11 +104,11 @@ macro(crosscompile target toolchain_file archs)
       ${ios_cmake_flags}
   )
 endmacro()
-crosscompile(ios-simulator
+crosscompile(vtk-ios-simulator
   ios.simulator.toolchain.cmake
   "${IOS_SIMULATOR_ARCHITECTURES}"
  )
-crosscompile(ios-device
+crosscompile(vtk-ios-device
   ios.device.toolchain.cmake
   "${IOS_DEVICE_ARCHITECTURES}"
 )
@@ -123,5 +123,6 @@ set(VTK_INSTALLED_HEADERS
 configure_file(CMake/MakeFramework.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
                @ONLY)
-add_custom_target(vtk-framework ALL COMMAND ${CMAKE_COMMAND} -P
-                  ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake)
+add_custom_target(vtk-framework ALL
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
+  DEPENDS vtk-ios-device vtk-ios-simulator)
