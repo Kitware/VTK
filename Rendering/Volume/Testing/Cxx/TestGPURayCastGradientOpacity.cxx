@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestSmartVolumeMapperGradientOpacity.cxx
+  Module:    TestGPURayCastGradientOpacity.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,21 +15,22 @@
 // This code volume renders the torso dataset and tests the gradient opacity
 // function support for volume mappers
 
+#include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMetaImageReader.h"
 #include "vtkNew.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkSmartVolumeMapper.h"
+#include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
-int TestSmartVolumeMapperGradientOpacity(int argc, char* argv[])
+int TestGPURayCastGradientOpacity(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -58,12 +59,14 @@ int TestSmartVolumeMapperGradientOpacity(int argc, char* argv[])
   reader->Update();
   delete [] fname;
 
-  vtkNew<vtkSmartVolumeMapper> mapper;
-  mapper->SetInputConnection(reader->GetOutputPort());
+  vtkNew<vtkGPUVolumeRayCastMapper> mapper1;
+  mapper1->SetInputConnection(reader->GetOutputPort());
+  vtkNew<vtkGPUVolumeRayCastMapper> mapper2;
+  mapper2->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(1.0, 0.095, 0.33, 0.82);
-  ctf->AddHSVPoint(53.3, 0, 1, 0.36);
+  ctf->AddHSVPoint(53.3, 0.04, 0.7, 0.63);
   ctf->AddHSVPoint(256, 0.095, 0.33, 0.82);
 
   vtkNew<vtkPiecewiseFunction> pwf;
@@ -73,29 +76,37 @@ int TestSmartVolumeMapperGradientOpacity(int argc, char* argv[])
   pwf->AddPoint(641.0, 1.0);
 
   vtkNew<vtkPiecewiseFunction> gf;
-  gf->AddPoint(5, 0.0);
+  gf->AddPoint(10, 0.0);
   gf->AddPoint(70, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty1;
   volumeProperty1->SetScalarOpacity(pwf.GetPointer());
   volumeProperty1->SetColor(ctf.GetPointer());
+  volumeProperty1->SetDisableGradientOpacity(1);
   volumeProperty1->ShadeOn();
 
   vtkNew<vtkVolume> volume1;
-  volume1->SetMapper(mapper.GetPointer());
+  volume1->SetMapper(mapper1.GetPointer());
   volume1->SetProperty(volumeProperty1.GetPointer());
   ren1->AddVolume(volume1.GetPointer());
+  volume1->RotateX(-20);
+  ren1->ResetCamera();
+  ren1->GetActiveCamera()->Zoom(2.2);
 
   vtkNew<vtkVolumeProperty> volumeProperty2;
   volumeProperty2->SetScalarOpacity(pwf.GetPointer());
   volumeProperty2->SetColor(ctf.GetPointer());
   volumeProperty2->SetGradientOpacity(gf.GetPointer());
+  volumeProperty2->SetDisableGradientOpacity(0);
   volumeProperty2->ShadeOn();
 
   vtkNew<vtkVolume> volume2;
-  volume2->SetMapper(mapper.GetPointer());
+  volume2->SetMapper(mapper2.GetPointer());
   volume2->SetProperty(volumeProperty2.GetPointer());
+  volume2->RotateX(-20);
   ren2->AddVolume(volume2.GetPointer());
+  ren2->ResetCamera();
+  ren2->GetActiveCamera()->Zoom(2.2);
 
   renWin->Render();
 
@@ -105,5 +116,6 @@ int TestSmartVolumeMapperGradientOpacity(int argc, char* argv[])
     iren->Start();
     }
 
-  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) ||
+           (retVal == vtkTesting::DO_INTERACTOR));
 }

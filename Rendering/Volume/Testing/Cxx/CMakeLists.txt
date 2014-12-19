@@ -26,7 +26,6 @@ set (GenericVolumeCxxTests
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
   TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperGradientOpacity.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
 
@@ -37,6 +36,7 @@ set (OpenGLNew_OR_OpenGL2_CxxTests
   TestGPURayCastClipping.cxx
   #TestGPURayCastCropping1.cxx
   #TestGPURayCastDataTypesMinIP1.cxx
+  TestGPURayCastGradientOpacity.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
@@ -51,7 +51,6 @@ endif()
 
 # These tests are built for the OpenGL backend
 set (VolumeOpenGLCxxTests
-  #  TestGPUCastGradientOpacity.cxx
   HomogeneousRayIntegration.cxx
   LinearRayIntegration.cxx
   PartialPreIntegration.cxx
