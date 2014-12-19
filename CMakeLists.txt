@@ -82,6 +82,12 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
   CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   )
 
+option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
+if (VTK_IOS_BUILD)
+  include(vtkiOS)
+  return()
+endif()
+
 # some specific defaults for Andriod to give folks
 # a reasonable starting point
 if (ANDROID OR APPLE_IOS)
@@ -124,7 +130,6 @@ if (ANDROID OR APPLE_IOS)
   endif()
 
   if (APPLE_IOS)
-    option(Module_vtkInteractionStyle "needed for multitouch" ON)
     unset(OPENGL_INCLUDE_DIR CACHE)
     if (${OPENGL_ES_VERSION} MATCHES 2.0)
       find_path(OPENGL_INCLUDE_DIR ES2/gl.h
@@ -522,17 +527,6 @@ foreach(vtk-module ${VTK_MODULES_ALL})
 endforeach()
 configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
-
-# For iOS builds, allow user to 'make framework' with a custom destination
-if (APPLE_IOS)
-  set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
-      CACHE PATH "Framework install path")
-  configure_file(${VTK_CMAKE_DIR}/MakeFramework.cmake.in
-                 ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
-                 @ONLY)
-  add_custom_target(framework COMMAND ${CMAKE_COMMAND} -P
-                    ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake)
-endif()
 
 #-----------------------------------------------------------------------------
 # Export all targets at once from the build tree in their final configuration.
