@@ -82,6 +82,10 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
   CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   )
 
+include(vtkVersion)
+set(VTK_VERSION
+    "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
+
 option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
 if (VTK_IOS_BUILD)
   include(vtkiOS)
@@ -173,10 +177,6 @@ endif()
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
-include(vtkVersion)
-set(VTK_VERSION
-    "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
-
 # VTK installation structure
 if(NOT VTK_INSTALL_RUNTIME_DIR)
   set(VTK_INSTALL_RUNTIME_DIR bin)

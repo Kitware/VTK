@@ -81,6 +81,7 @@ set(ios_cmake_flags
   -DModule_vtkIOPLY:BOOL=ON
   -DModule_vtkIOInfovis:BOOL=ON
   -DModule_vtkImagingCore:BOOL=ON
+  -DModule_vtkInteractionStyle:BOOL=ON
   -DModule_vtkParallelCore:BOOL=ON
   -DModule_vtkRenderingCore:BOOL=ON
   -DModule_vtkRenderingFreeType:BOOL=OFF
@@ -119,7 +120,7 @@ set(VTK_DEVICE_LIBS
 set(VTK_SIMULATOR_LIBS
     "${INSTALL_DIR}/vtk-ios-simulator/lib/libvtk*.a")
 set(VTK_INSTALLED_HEADERS
-    "${INSTALL_DIR}/vtk-ios-device/${VTK_INSTALL_INCLUDE_DIR}")
+    "${INSTALL_DIR}/vtk-ios-device/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 configure_file(CMake/MakeFramework.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
                @ONLY)
