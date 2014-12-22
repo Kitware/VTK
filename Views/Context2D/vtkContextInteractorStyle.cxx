@@ -402,7 +402,7 @@ void vtkContextInteractorStyle::OnKeyPress()
   this->BeginProcessingEvent();
   vtkContextKeyEvent event;
   vtkVector2i position(this->Interactor->GetEventPosition()[0],
-                       this->Interactor->GetEventPosition()[0]);
+                       this->Interactor->GetEventPosition()[1]);
   event.SetInteractor(this->Interactor);
   event.SetPosition(position);
   bool keepEvent = false;
@@ -423,7 +423,7 @@ void vtkContextInteractorStyle::OnKeyRelease()
   this->BeginProcessingEvent();
   vtkContextKeyEvent event;
   vtkVector2i position(this->Interactor->GetEventPosition()[0],
-                       this->Interactor->GetEventPosition()[0]);
+                       this->Interactor->GetEventPosition()[1]);
   event.SetInteractor(this->Interactor);
   event.SetPosition(position);
   bool keepEvent = false;
