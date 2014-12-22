@@ -93,6 +93,7 @@ protected:
   virtual int RequestUpdateExtent (vtkInformation* request,
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector);
+  virtual int GlobalContinueExecuting(int localContinue);
 
 private:
   vtkPExodusIIWriter (const vtkPExodusIIWriter&); // Not Implemented
