@@ -147,10 +147,22 @@
 # define VTK_UNSIGNED_LONG_LONG_MAX VTK_TYPE_CAST(unsigned long long, ~0ull)
 #endif
 #if defined(VTK_SIZEOF___INT64)
-# define VTK___INT64_MIN            VTK_TYPE_CAST(__int64, ~(~0ui64 >> 1))
-# define VTK___INT64_MAX            VTK_TYPE_CAST(__int64, ~0ui64 >> 1)
-# define VTK_UNSIGNED___INT64_MIN   VTK_TYPE_CAST(unsigned __int64, 0ui64)
-# define VTK_UNSIGNED___INT64_MAX   VTK_TYPE_CAST(unsigned __int64, ~0ui64)
+# if defined(VTK_TYPE_SAME_LONG_AND___INT64)
+#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ul >> 1))
+#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ul >> 1)
+#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ul)
+#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ul)
+# elif defined(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ull >> 1))
+#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ull >> 1)
+#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ull)
+#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ull)
+# else
+#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ui64 >> 1))
+#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ui64 >> 1)
+#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ui64)
+#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ui64)
+# endif
 #endif
 
 /* Define compatibility names for these constants.  */

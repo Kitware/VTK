@@ -95,8 +95,9 @@ public:
   // Controls what data array is used to generate colors.
   static vtkInformationIntegerKey* ARRAY_ACCESS_MODE();
   static vtkInformationIntegerKey* ARRAY_ID();
-  static vtkInformationStringKey* ARRAY_NAME();
+  static vtkInformationStringKey*  ARRAY_NAME();
   static vtkInformationIntegerKey* ARRAY_COMPONENT();
+  static vtkInformationIntegerKey* FIELD_DATA_TUPLE_ID();
 
   // Description:
   // Set the light-model color mode.
@@ -190,6 +191,7 @@ protected:
   vtkSetMacro(ArrayComponent, int);
   vtkSetMacro(ArrayId, int);
   vtkSetStringMacro(ArrayName);
+  vtkSetMacro(FieldDataTupleId, vtkIdType);
 
   vtkDataObject* OutputData;
 
@@ -197,6 +199,7 @@ protected:
   int ArrayComponent;
   int ArrayId;
   char* ArrayName;
+  vtkIdType FieldDataTupleId;
 
   vtkScalarsToColors *LookupTable;
   // Lookup table provided via the scalars. This gets preference over the one

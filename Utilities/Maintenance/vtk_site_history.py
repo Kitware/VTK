@@ -41,7 +41,7 @@ url3 = ''
 url4 = ''
 
 #build up a string to ask CDASH for just what we want.
-url1 = url1 +  'curl "http://open.cdash.org/queryTests.php?project=VTK'
+url1 = url1 +  'curl "https://open.cdash.org/queryTests.php?project=VTK'
 url1 = url1 + '&date='
 url2 = url2 + '&limit=200'
 url2 = url2 + '&showfilters=1'
@@ -120,7 +120,7 @@ def formatResults(results):
         tres = [d,",",len(lines)/2]
         for c in range(0, len(lines), 2):
             tname = lines[c+0].strip()[4:-5]
-            turl = "http://open.cdash.org/" + lines[c+1].strip()[9:-12].replace('amp;','')
+            turl = "https://open.cdash.org/" + lines[c+1].strip()[9:-12].replace('amp;','')
             tres.append(",")
             tres.append(tname)
             tres.append(",")

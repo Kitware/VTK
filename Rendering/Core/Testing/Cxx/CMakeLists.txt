@@ -1,12 +1,12 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
+    TestCompositePolyDataMapper2.cxx
     TestAreaSelections.cxx) # incorrect results in OpenGL
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${extra_opengl2_tests}
   otherCoordinate.cxx,NO_DATA,NO_VALID
-  TestCompositePolyDataMapper2.cxx
   FrustumClip.cxx
   Mace.cxx
   RGrid.cxx
@@ -18,8 +18,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
   TestBlockOpacity.cxx
+  TestColorByCellDataStringArray.cxx
+  TestColorByPointDataStringArray.cxx
+  TestColorByStringArrayDefaultLookupTable.cxx
+  TestColorByStringArrayDefaultLookupTable2D.cxx
+  TestColorTransferFunctionStringArray.cxx,NO_VALID
   TestDirectScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
+  TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
   TestEdgeFlags.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx

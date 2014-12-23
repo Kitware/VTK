@@ -81,8 +81,8 @@ public:
         for (unsigned int i = 0; i< mbds->GetNumberOfBlocks(); i++)
           {
           vtkDataObject *next = mbds->GetBlock(i);
-          const char* name = mbds->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
-          this->WriteDataObject(next, hasTime, time, name);
+          const char* blockName = mbds->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
+          this->WriteDataObject(next, hasTime, time, blockName);
           }
         this->DestinationGroups.pop();
         this->Destination = this->DestinationGroups.top();

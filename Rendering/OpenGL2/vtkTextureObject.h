@@ -459,21 +459,30 @@ public:
     { return vtkTextureObject::IsSupported(renWin, false, false, false); }
 
   // Description:
-  // Copy a sub-part of the texture (src) in the current framebuffer
-  // at location (dstXmin,dstYmin). (dstXmin,dstYmin) is the location of the
-  // lower left corner of the rectangle.
-  // \pre positive_srcXmin: srcXmin>=0
-  // \pre max_srcXmax: srcXmax<this->GetWidth()
-  // \pre increasing_x: srcXmin<=srcXmax
-  // \pre positive_srcYmin: srcYmin>=0
-  // \pre max_srcYmax: srcYmax<this->GetHeight()
-  // \pre increasing_y: srcYmin<=srcYmax
-  // \pre positive_dstXmin: dstXmin>=0
-  // \pre positive_dstYmin: dstYmin>=0
+  // Copy the texture (src) in the current framebuffer.  A variety of
+  // signatures based on what you want to do
+  // Copy the entire texture to the entire current viewport
+  void CopyToFrameBuffer(vtkShaderProgram *program,
+                         vtkgl::VertexArrayObject *vao);
+  // part of a texture to part of a viewport, scaling as needed
+  void CopyToFrameBuffer(int srcXmin, int srcYmin,
+                         int srcXmax, int srcYmax,
+                         int dstXmin, int dstYmin,
+                         int dstXmax, int dstYmax,
+                         int dstSizeX, int dstSizeY,
+                         vtkShaderProgram *program,
+                         vtkgl::VertexArrayObject *vao
+                         );
+  // copy part of a texure to part of a viewport, no scalaing
   void CopyToFrameBuffer(int srcXmin, int srcYmin,
                          int srcXmax, int srcYmax,
                          int dstXmin, int dstYmin,
                          int dstSizeX, int dstSizeY,
+                         vtkShaderProgram *program,
+                         vtkgl::VertexArrayObject *vao
+                         );
+  // copy a texture to a quad using the provided tcoords and verts
+  void CopyToFrameBuffer(float *tcoords, float *verts,
                          vtkShaderProgram *program,
                          vtkgl::VertexArrayObject *vao
                          );

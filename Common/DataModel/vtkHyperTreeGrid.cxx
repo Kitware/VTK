@@ -731,10 +731,10 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
 
   cellIds->Reset();
 
-  int numPts = ptIds->GetNumberOfIds();
-  if ( numPts <= 0 )
+  vtkIdType numPts = ptIds->GetNumberOfIds();
+  if (numPts <= 0)
     {
-    vtkErrorMacro( "input point ids empty." );
+    vtkErrorMacro("input point ids empty.");
     return;
     }
 
@@ -743,7 +743,7 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
   vtkIdType* minCells = 0;
   vtkIdType minPtId = 0;
   // Find the point used by the fewest number of cells
-  for ( int i = 0; i < numPts; i++ )
+  for ( vtkIdType i = 0; i < numPts; i++ )
     {
     vtkIdType ptId = pts[i];
     int numCells = this->Links->GetNcells( ptId );
@@ -768,20 +768,20 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
       vtkIdType npts;
       this->GetCellPoints( minCells[i], npts, cellPts );
       // Iterate over all points in input cell
-      int match = 1;
-      for ( int j = 0; j < numPts && match; j++ )
+      bool match = true;
+      for ( vtkIdType j = 0; j < numPts && match; j++ )
         {
         // Skip point with index minPtId which is contained by current cell
         if ( pts[j] != minPtId )
           {
           // Iterate over all points in current cell
-          int k;
-          for ( match = k = 0; k < npts; ++ k )
+          match = false;
+          for ( vtkIdType k = 0; k < npts; ++ k )
             {
             if ( pts[j] == cellPts[k] )
               {
               // A match was found
-              match = 1;
+              match = true;
               break;
               }
             } // For all points in current cell

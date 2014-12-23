@@ -241,6 +241,7 @@ void vtkXMLUnstructuredDataWriter::AllocatePositionArrays()
 void vtkXMLUnstructuredDataWriter::DeletePositionArrays()
 {
   delete [] this->NumberOfPointsPositions;
+  this->NumberOfPointsPositions = 0;
 }
 
 //----------------------------------------------------------------------------

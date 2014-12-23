@@ -332,6 +332,13 @@ double vtkDiscretizableColorTransferFunction::GetOpacity(double v)
 vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
   vtkDataArray *scalars, int colorMode, int component)
 {
+  return this->MapScalars(static_cast<vtkAbstractArray*>(scalars), colorMode, component);
+}
+
+//-----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
+  vtkAbstractArray *scalars, int colorMode, int component)
+{
   this->Build();
 
   // if direct scalar mapping is enabled (and possible), the LUT is not used for
@@ -353,7 +360,8 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
      (this->EnableOpacityMapping == true) &&
      (this->ScalarOpacityFunction.GetPointer() != NULL))
     {
-    MapDataArrayToOpacity(scalars, component, colors);
+    vtkDataArray* da = vtkDataArray::SafeDownCast(scalars);
+    this->MapDataArrayToOpacity(da, component, colors);
     }
   return colors;
 }

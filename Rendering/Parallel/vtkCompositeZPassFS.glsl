@@ -25,5 +25,4 @@ uniform sampler2D depth;
 void main(void)
 {
   gl_FragDepth = texture2D(depth,tcoordVC).x;
-  gl_FragColor = vec4(1.0,0.5,0.5,1.0);
 }

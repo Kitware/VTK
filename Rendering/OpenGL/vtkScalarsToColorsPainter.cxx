@@ -17,6 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkCellTypes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDoubleArray.h"
@@ -80,6 +81,7 @@ vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_ACCESS_MODE, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_ID, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_COMPONENT, Integer);
+vtkInformationKeyMacro(vtkScalarsToColorsPainter, FIELD_DATA_TUPLE_ID, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MATERIAL_MODE, Integer);
 
 //-----------------------------------------------------------------------------
@@ -89,6 +91,7 @@ vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
   this->ArrayId = -1;
   this->ArrayComponent = 0;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
+  this->FieldDataTupleId = -1;
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->InterpolateScalarsBeforeMapping = 0;
@@ -184,6 +187,11 @@ void vtkScalarsToColorsPainter::ProcessInformation(vtkInformation* info)
   if (info->Has(ARRAY_COMPONENT()))
     {
     this->SetArrayComponent(info->Get(ARRAY_COMPONENT()));
+    }
+
+  if (info->Has(FIELD_DATA_TUPLE_ID()))
+    {
+    this->SetFieldDataTupleId(info->Get(FIELD_DATA_TUPLE_ID()));
     }
 
   if (info->Has(SCALAR_MATERIAL_MODE()))
@@ -536,7 +544,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
 {
   int cellFlag;
   double orig_alpha;
-  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(input,
+  vtkAbstractArray* abstractScalars = vtkAbstractMapper::GetAbstractScalars(input,
     this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
     this->ArrayName, cellFlag);
 
@@ -548,19 +556,21 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
   // This is for a legacy feature: selection of the array component to color by
   // from the mapper.  It is now in the lookuptable.  When this feature
   // is removed, we can remove this condition.
-  if (scalars == 0 || scalars->GetNumberOfComponents() <= this->ArrayComponent)
+  if (abstractScalars == 0 || abstractScalars->GetNumberOfComponents() <= this->ArrayComponent)
     {
     arraycomponent = 0;
     }
 
-  if (!this->ScalarVisibility || scalars == 0 || input == 0)
+  if (!this->ScalarVisibility || abstractScalars == 0 || input == 0)
     {
     return;
     }
 
+  vtkDataArray* scalars = vtkDataArray::SafeDownCast(abstractScalars);
+
   // Let subclasses know that scalar coloring was employed in the current pass.
   this->UsingScalarColoring = 1;
-  if (this->ColorTextureMap)
+  if (this->ColorTextureMap && scalars)
     {
     // Implies that we have verified that we must use texture map for scalar
     // coloring. Just create texture coordinates for the input dataset.
@@ -570,7 +580,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
 
   vtkScalarsToColors* lut = 0;
   // Get the lookup table.
-  if (scalars->GetLookupTable())
+  if (scalars && scalars->GetLookupTable())
     {
     lut = scalars->GetLookupTable();
     }
@@ -620,14 +630,14 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
   colors = 0;
   orig_alpha = lut->GetAlpha();
   lut->SetAlpha(alpha);
-  colors = lut->MapScalars(scalars, this->ColorMode, arraycomponent);
+  colors = lut->MapScalars(abstractScalars, this->ColorMode, arraycomponent);
   lut->SetAlpha(orig_alpha);
   if (multiply_with_alpha)
     {
     // It is possible that the LUT simply returns the scalars as the
     // colors. In which case, we allocate a new array to ensure
     // that we don't modify the array in the input.
-    if (scalars == colors)
+    if (abstractScalars == colors)
       {
       // Since we will be changing the colors array
       // we create a copy.
@@ -647,15 +657,58 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
     }
   else
     {
-    // Typically, when a name is assigned of the scalars array in PointData or CellData
-    // it implies 3 component colors. This implication does not hold for FieldData.
-    // For colors in field data, we use the component count of the color array
-    // to decide if the colors are opaque colors.
-    // These colors are nothing but cell colors,
-    // except when rendering TStrips, in which case they represent
-    // the triange colors.
-    colors->SetName("Color");
-    opfd->AddArray(colors);
+    if (this->FieldDataTupleId <= -1)
+      {
+      // Treat field data as cell-associated data
+      // Typically, when a name is assigned of the scalars array in PointData or CellData
+      // it implies 3 component colors. This implication does not hold for FieldData.
+      // For colors in field data, we use the component count of the color array
+      // to decide if the colors are opaque colors.
+      // These colors are nothing but cell colors,
+      // except when rendering TStrips, in which case they represent
+      // the triange colors.
+      colors->SetName("Color");
+      opfd->AddArray(colors);
+      }
+    else
+      {
+      vtkUnsignedCharArray* scalarColors =
+        lut->MapScalars(abstractScalars, this->ColorMode, arraycomponent);
+
+      if (this->FieldDataTupleId < scalarColors->GetNumberOfTuples())
+        {
+        // Use only the requested tuple's color
+        unsigned char color[4];
+        scalarColors->GetTupleValue(this->FieldDataTupleId, color);
+
+        vtkUnsignedCharArray* newColors = vtkUnsignedCharArray::New();
+        newColors->SetNumberOfComponents(4);
+        newColors->SetNumberOfTuples(input->GetNumberOfCells());
+        newColors->SetName("Color");
+        for (vtkIdType i = 0; i < input->GetNumberOfCells(); ++i)
+          {
+          newColors->SetTupleValue(i, color);
+          }
+        opfd->AddArray(newColors);
+
+        if (multiply_with_alpha)
+          {
+          vtkMultiplyColorsWithAlpha(newColors);
+          }
+        newColors->Delete();
+        }
+      else
+        {
+        vtkErrorMacro(<< "FieldDataTupleId " << this->FieldDataTupleId << " is greater than "
+                      << "the number of tuples in the scalarColors array ("
+                      << scalarColors->GetNumberOfTuples() << ")");
+        }
+
+      if (scalarColors)
+        {
+        scalarColors->Delete();
+        }
+      }
     }
   colors->Delete();
 }

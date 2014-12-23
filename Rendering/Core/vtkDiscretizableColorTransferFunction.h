@@ -133,7 +133,7 @@ public:
   virtual double GetOpacity(double v);
 
   // Description:
-  // An internal method maps a data array into a 4-component, unsigned char
+  // Internal methods that map a data array into a 4-component, unsigned char
   // RGBA array. The color mode determines the behavior of mapping. If
   // VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are
   // treated as colors (and converted to RGBA if necessary); otherwise,
@@ -147,6 +147,8 @@ public:
   // the scalar opacity function is not used regardless of
   // \a EnableOpacityMapping.
   virtual vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
+                                           int component);
+  virtual vtkUnsignedCharArray *MapScalars(vtkAbstractArray *scalars, int colorMode,
                                            int component);
 
   // Description:

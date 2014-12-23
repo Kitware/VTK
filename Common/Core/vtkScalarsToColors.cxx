@@ -224,17 +224,26 @@ unsigned char *vtkScalarsToColors::MapValue(double v)
 vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
                                                      int colorMode, int component)
 {
+  return this->MapScalars(static_cast<vtkAbstractArray*>(scalars), colorMode, component);
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
+                                                     int colorMode, int component)
+{
   int numberOfComponents = scalars->GetNumberOfComponents();
   vtkUnsignedCharArray *newColors;
 
+  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+
   // map scalars through lookup table only if needed
   if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
-       vtkUnsignedCharArray::SafeDownCast(scalars) != NULL) ||
+       vtkUnsignedCharArray::SafeDownCast(dataArray) != NULL) ||
       colorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
     {
     newColors = this->
-      ConvertToRGBA(scalars, scalars->GetNumberOfComponents(),
-                    scalars->GetNumberOfTuples());
+      ConvertToRGBA(dataArray, scalars->GetNumberOfComponents(),
+                    dataArray->GetNumberOfTuples());
     }
   else
     {
@@ -1462,6 +1471,10 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
           vtkScalarsToColorsLuminanceToRGBA(
             static_cast<VTK_TT*>(inPtr), outPtr,
             numberOfTuples, numberOfComponents, shift, scale, alpha));
+
+        default:
+          vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
+          break;
         }
       }
     else if (outputFormat == VTK_RGB)
@@ -1472,6 +1485,10 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
           vtkScalarsToColorsLuminanceToRGB(
             static_cast<VTK_TT*>(inPtr), outPtr,
             numberOfTuples, numberOfComponents, shift, scale));
+
+        default:
+          vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
+          break;
         }
       }
     else if (outputFormat == VTK_LUMINANCE_ALPHA)
@@ -1482,6 +1499,10 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
           vtkScalarsToColorsLuminanceToLuminanceAlpha(
             static_cast<VTK_TT*>(inPtr), outPtr,
             numberOfTuples, numberOfComponents, shift, scale, alpha));
+
+        default:
+          vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
+          break;
         }
       }
     else if (outputFormat == VTK_LUMINANCE)
@@ -1492,6 +1513,10 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
           vtkScalarsToColorsLuminanceToLuminance(
             static_cast<VTK_TT*>(inPtr), outPtr,
             numberOfTuples, numberOfComponents, shift, scale));
+
+        default:
+          vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input data type");
+          break;
         }
       }
     }

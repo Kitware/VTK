@@ -147,7 +147,7 @@ inline double InterpolateValue(vtkImageData *img, vtkCell *c, double* w)
   vtkPointData *PD = img->GetPointData();
   assert( "pre: point data is NULL" && (PD != NULL) );
   vtkDataArray *dataArray = PD->GetArray( "Fx" );
-  assert( "pre: data array is NULL" );
+  assert( "pre: data array is NULL" && (dataArray != NULL) );
 
   std::cout << "W:[";
   std::cout.flush();

@@ -584,7 +584,6 @@ static int preproc_evaluate_single(
       expansion = vtkParsePreprocess_ExpandMacro(info, macro, args);
       if (expansion == NULL)
         {
-        free((char *)args);
 #if PREPROC_DEBUG
         fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif

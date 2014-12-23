@@ -436,11 +436,20 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   // It is almost guarenteed that in case of valid handle, we will have
   // value other than zero. A check like this may be required at other
   // places as well.
-  if (this->Handle)
+  if (this->Handle && rwin)
     {
     rwin->ActivateTexture(this);
     this->UnBind();
     rwin->DeactivateTexture(this);
+    GLuint tex = this->Handle;
+    glDeleteTextures(1, &tex);
+    this->Handle = 0;
+    this->NumberOfDimensions = 0;
+    this->Target =0;
+    this->Format = 0;
+    this->Type = 0;
+    this->Components = 0;
+    this->Width = this->Height = this->Depth = 0;
     }
   if (this->ShaderProgram)
     {
@@ -468,8 +477,11 @@ void vtkTextureObject::Bind()
 //----------------------------------------------------------------------------
 void vtkTextureObject::UnBind()
 {
-  glBindTexture(this->Target, 0);
-  vtkOpenGLCheckErrorMacro("failed at glBindTexture(0)");
+  if (this->Target)
+    {
+    glBindTexture(this->Target, 0);
+    vtkOpenGLCheckErrorMacro("failed at glBindTexture(0)");
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1685,9 +1697,56 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
 // ----------------------------------------------------------------------------
 void vtkTextureObject::CopyToFrameBuffer(
+  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+{
+  float minXTexCoord=static_cast<float>(
+    static_cast<double>(0.5)/this->Width);
+  float minYTexCoord=static_cast<float>(
+    static_cast<double>(0.5)/this->Height);
+
+  float maxXTexCoord=static_cast<float>(
+    static_cast<double>(this->Width-0.5)/this->Width);
+  float maxYTexCoord=static_cast<float>(
+    static_cast<double>(this->Height-0.5)/this->Height);
+
+  float tcoords[] = {
+    minXTexCoord, minYTexCoord,
+    maxXTexCoord, minYTexCoord,
+    maxXTexCoord, maxYTexCoord,
+    minXTexCoord, maxYTexCoord};
+
+  float verts[] = {
+    -1.0f, -1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,
+    -1.0f, 1.0f, 0.0f};
+
+    this->CopyToFrameBuffer(tcoords, verts, program, vao);
+}
+
+
+// ----------------------------------------------------------------------------
+void vtkTextureObject::CopyToFrameBuffer(
   int srcXmin, int srcYmin,
   int srcXmax, int srcYmax,
   int dstXmin, int dstYmin,
+  int dstSizeX, int dstSizeY,
+  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+{
+  float dstXmax = static_cast<float>(dstXmin+srcXmax-srcXmin);
+  float dstYmax = static_cast<float>(dstYmin+srcYmax-srcYmin);
+
+  this->CopyToFrameBuffer(srcXmin, srcYmin, srcXmax, srcYmax,
+    dstXmin, dstYmin, dstXmax, dstYmax, dstSizeX, dstSizeY,
+    program, vao);
+}
+
+// ----------------------------------------------------------------------------
+void vtkTextureObject::CopyToFrameBuffer(
+  int srcXmin, int srcYmin,
+  int srcXmax, int srcYmax,
+  int dstXmin, int dstYmin,
+  int dstXmax, int dstYmax,
   int dstSizeX, int dstSizeY,
   vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
@@ -1702,8 +1761,6 @@ void vtkTextureObject::CopyToFrameBuffer(
   assert("pre: positive_dstXmin" && dstXmin>=0);
   assert("pre: positive_dstYmin" && dstYmin>=0);
 
-  vtkOpenGLClearErrorMacro();
-
   float minXTexCoord=static_cast<float>(
     static_cast<double>(srcXmin+0.5)/this->Width);
   float minYTexCoord=static_cast<float>(
@@ -1714,10 +1771,10 @@ void vtkTextureObject::CopyToFrameBuffer(
   float maxYTexCoord=static_cast<float>(
     static_cast<double>(srcYmax+0.5)/this->Height);
 
-  float dstXmax = static_cast<float>(dstXmin+srcXmax-srcXmin);
-  float dstYmax = static_cast<float>(dstYmin+srcYmax-srcYmin);
-
+#if GL_ES_VERSION_2_0 != 1
+  glPushAttrib(GL_VIEWPORT_BIT);
   glViewport(0,0,dstSizeX,dstSizeY);
+#endif
 
   float tcoords[] = {
     minXTexCoord, minYTexCoord,
@@ -1730,6 +1787,18 @@ void vtkTextureObject::CopyToFrameBuffer(
     2.0f*(dstXmax+1.0f)/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
     2.0f*(dstXmax+1.0f)/dstSizeX-1.0f, 2.0f*(dstYmax+1.0f)/dstSizeY-1.0f, 0.0f,
     2.0f*dstXmin/dstSizeX-1.0f, 2.0f*(dstYmax+1.0f)/dstSizeY-1.0f, 0.0f};
+
+    this->CopyToFrameBuffer(tcoords, verts, program, vao);
+
+#if GL_ES_VERSION_2_0 != 1
+    glPopAttrib();
+#endif
+  }
+
+void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
+  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+{
+  vtkOpenGLClearErrorMacro();
 
   // if no program or VAO was provided, then use
   // a simple pass through program and bind this

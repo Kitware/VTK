@@ -1057,18 +1057,16 @@ void vtkPolyData::BuildLinks(int initialSize)
 // Copy a cells point ids into list provided. (Less efficient.)
 void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 {
-  vtkIdType i;
-  vtkIdType *pts, npts;
-
   ptIds->Reset();
   if ( this->Cells == NULL )
     {
     this->BuildCells();
     }
 
+  vtkIdType *pts, npts;
   this->vtkPolyData::GetCellPoints(cellId, npts, pts);
   ptIds->InsertId (npts-1,pts[npts-1]);
-  for (i=0; i<npts-1; i++)
+  for (vtkIdType i=0; i<npts-1; i++)
     {
     ptIds->SetId(i,pts[i]);
     }

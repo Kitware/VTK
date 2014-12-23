@@ -545,9 +545,6 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   // take points from the source object and create a particle list
   //
   int numSeeds = source->GetNumberOfPoints();
-#ifndef NDEBUG
-  int numTested = numSeeds;
-#endif
   candidates.resize(numSeeds);
   //
   for (int i=0; i<numSeeds; i++) {
@@ -576,7 +573,7 @@ void vtkTemporalStreamTracer::AssignSeedsToProcessors(
   //
 
 #ifndef NDEBUG
-  numTested = static_cast<int>(candidates.size());
+  int numTested = static_cast<int>(candidates.size());
 #endif
   this->TestParticles(candidates, LocalSeedPoints, LocalAssignedCount);
   int TotalAssigned = LocalAssignedCount; (void)TotalAssigned;

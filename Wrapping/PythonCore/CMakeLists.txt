@@ -9,6 +9,7 @@ set(Module_SRCS
   vtkSmartPyObject.cxx
   PyVTKClass.cxx
   PyVTKMutableObject.cxx
+  PyVTKNamespace.cxx
   PyVTKObject.cxx
   PyVTKSpecialObject.cxx
   PyVTKTemplate.cxx

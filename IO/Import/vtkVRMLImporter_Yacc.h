@@ -606,8 +606,6 @@ const VrmlNodeType* vtkVRMLYaccData::find(const char *_name)
 
 #include <stdlib.h>
 
-#undef bool
-
 
 
 

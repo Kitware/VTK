@@ -25,7 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13328B8319C77700006A473C /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = ../../../vtkinstall/frameworks/vtk.framework; sourceTree = "<group>"; };
+		13328B8319C77700006A473C /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = /usr/local/frameworks/vtk.framework; sourceTree = "<group>"; };
 		13328B8519C77938006A473C /* libstdc++.6.0.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.6.0.9.dylib"; path = "usr/lib/libstdc++.6.0.9.dylib"; sourceTree = SDKROOT; };
 		13B73C8919DEE9B800A42447 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
 		13B73C8A19DEE9B800A42447 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Classes/AppDelegate.mm; sourceTree = "<group>"; };
@@ -233,7 +233,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					../../../vtkinstall/frameworks,
+					/usr/local/frameworks,
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -242,7 +242,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"../../../vtkinstall/include/vtk-6.2",
+					/usr/local/frameworks/vtk.framework/Headers,
 				);
 				INFOPLIST_FILE = "GLPaint-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -264,14 +264,14 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					../../../vtkinstall/frameworks,
+					/usr/local/frameworks,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Prefix.pch;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"../../../vtkinstall/include/vtk-6.2",
+					/usr/local/frameworks/vtk.framework/Headers,
 				);
 				INFOPLIST_FILE = "GLPaint-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;

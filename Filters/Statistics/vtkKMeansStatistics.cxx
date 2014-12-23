@@ -653,13 +653,13 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
                              reqModel,
                              0,
                              dfunc );
-  vtkKMeansAssessFunctor* kmfunc = static_cast<vtkKMeansAssessFunctor*>( dfunc );
-  if ( ! kmfunc )
+  if ( ! dfunc )
     {
     vtkWarningMacro( "Assessment could not be accommodated. Skipping." );
-    delete dfunc;
     return;
     }
+
+  vtkKMeansAssessFunctor* kmfunc = static_cast<vtkKMeansAssessFunctor*>( dfunc );
 
   vtkIdType nv = this->AssessNames->GetNumberOfValues();
   int numRuns = kmfunc->GetNumberOfRuns();

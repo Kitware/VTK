@@ -41,7 +41,7 @@
 int TestGDALRasterReader(int argc, char** argv)
 {
   const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/GIS/raster.tiff");
+                                 "Data/GIS/raster.tif");
 
   // Create reader to read shape file.
   vtkNew<vtkGDALRasterReader> reader;

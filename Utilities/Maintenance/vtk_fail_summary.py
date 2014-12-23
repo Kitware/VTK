@@ -29,7 +29,7 @@ while argc > 1:
 if wikiOutput:
   print "==Dashboard for " + dashDate + "=="
 
-url = 'http://open.cdash.org/api/?method=build&task=sitetestfailures&project=VTK&group=Nightly%20Expected'
+url = 'https://open.cdash.org/api/?method=build&task=sitetestfailures&project=VTK&group=Nightly%20Expected'
 page = urllib.urlopen(url)
 data = page.readlines()
 if len(data[0]) == 2: #"[]"
@@ -59,7 +59,7 @@ for skey in submissions.keys():
   elif wikiOutput:
     print r'|-'
     print r'| ',
-    print r'[http://open.cdash.org/index.php?project=VTK' + '&date=' + dashDate + r'&filtercount=1' + r'&field1=buildname/string&compare1=61&value1=' + bname + " " + bname + "]"
+    print r'[https://open.cdash.org/index.php?project=VTK' + '&date=' + dashDate + r'&filtercount=1' + r'&field1=buildname/string&compare1=61&value1=' + bname + " " + bname + "]"
     print r'|'
     print len(bfails)
   for tnum in range(0, len(bfails)):
@@ -91,7 +91,7 @@ for test in sortedfails:
   elif wikiOutput:
     print r'|-'
     print r'| '
-    print r'[http://open.cdash.org/testSummary.php?' + r'project=11' + r'&date=' + dashDate + r'&name=' + tname + ' ' + tname + ']'
+    print r'[https://open.cdash.org/testSummary.php?' + r'project=11' + r'&date=' + dashDate + r'&name=' + tname + ' ' + tname + ']'
     print r'|',
     print len(tfails[tname])
     print r'|',

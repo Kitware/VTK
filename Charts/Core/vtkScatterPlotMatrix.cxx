@@ -642,7 +642,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     int zColumn = 0;
 
     vtkRectf size = this->Private->BigChart->GetSize();
-    float zSize(size.GetWidth());
+    float zSize;
     this->Private->FinalAngle = 90.0;
     this->Private->IncAngle = this->Private->FinalAngle / this->NumberOfFrames;
 
