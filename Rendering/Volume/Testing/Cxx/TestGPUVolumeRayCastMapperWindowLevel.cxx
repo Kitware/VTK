@@ -637,24 +637,36 @@ int TestGPUVolumeRayCastMapperWindowLevel(int argc,
   volumeProperty->SetScalarOpacity(pwf.GetPointer());
   volumeProperty->SetColor(ctf.GetPointer());
 
-  mapper1->SetBlendModeToMaximumIntensity();
-  mapper2->SetBlendModeToMaximumIntensity();
-  mapper2->SetFinalColorWindow(0.2);
-  mapper2->SetFinalColorLevel(0.75);
-
-  vtkNew<vtkVolume> volume1;
-  volume1->SetMapper(mapper1.GetPointer());
-  volume1->SetProperty(volumeProperty.GetPointer());
-  ren1->AddVolume(volume1.GetPointer());
-  vtkNew<vtkVolume> volume2;
-  volume2->SetMapper(mapper2.GetPointer());
-  volume2->SetProperty(volumeProperty.GetPointer());
-  ren2->AddVolume(volume2.GetPointer());
-
-  ren1->ResetCamera();
-  ren2->ResetCamera();
+  // Make sure a context exists
   renWin->Render();
 
-  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
-                                         TestGPUVolumeRayCastMapperWindowLevelLog);
+  if (mapper1->IsRenderSupported(renWin.GetPointer(),
+                                 volumeProperty.GetPointer()))
+    {
+    mapper1->SetBlendModeToMaximumIntensity();
+    mapper2->SetBlendModeToMaximumIntensity();
+    mapper2->SetFinalColorWindow(0.2);
+    mapper2->SetFinalColorLevel(0.75);
+
+    vtkNew<vtkVolume> volume1;
+    volume1->SetMapper(mapper1.GetPointer());
+    volume1->SetProperty(volumeProperty.GetPointer());
+    ren1->AddVolume(volume1.GetPointer());
+    vtkNew<vtkVolume> volume2;
+    volume2->SetMapper(mapper2.GetPointer());
+    volume2->SetProperty(volumeProperty.GetPointer());
+    ren2->AddVolume(volume2.GetPointer());
+
+    ren1->ResetCamera();
+    ren2->ResetCamera();
+    renWin->Render();
+
+    return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
+                                           TestGPUVolumeRayCastMapperWindowLevelLog);
+    }
+  else
+    {
+    cout << "Required extensions not supported." << endl;
+    return !(vtkTesting::PASSED);
+    }
 }
