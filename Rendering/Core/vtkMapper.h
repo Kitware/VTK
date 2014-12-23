@@ -401,8 +401,7 @@ public:
   // component.  Default implementation simply returns true. Note that even if
   // this method returns true, an actor may treat the geometry as translucent
   // since a constant translucency is set on the property, for example.
-  virtual bool GetIsOpaque()
-    { return true; }
+  virtual bool GetIsOpaque();
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

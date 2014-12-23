@@ -119,11 +119,6 @@ int vtkActor::GetIsOpaque()
   is_opaque = is_opaque &&
     (this->Texture ==NULL || this->Texture->IsTranslucent() == 0);
 
-  // are we using an opaque LUT, if any?
-  is_opaque = is_opaque &&
-    (this->Mapper == NULL || this->Mapper->GetLookupTable() == NULL ||
-     this->Mapper->GetLookupTable()->IsOpaque() == 1);
-
   // are we using an opaque scalar array, if any?
   is_opaque = is_opaque &&
     (this->Mapper == NULL || this->Mapper->GetIsOpaque());
