@@ -26,7 +26,7 @@ set (GenericVolumeCxxTests
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
   TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperWindowLevel.cxx
+  TestGPUVolumeRayCastMapperWindowLevel.cxx
   )
 
 # These tests are built only if either Module_vtkRenderingVolumeOpenGLNew is ON
