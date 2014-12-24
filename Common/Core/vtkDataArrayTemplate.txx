@@ -19,7 +19,7 @@
 #include "vtkDataArrayPrivate.txx"
 
 #include "vtkArrayIteratorTemplate.h"
-#include "vtkTypedDataArrayIterator.h"
+#include "vtkDataArrayTemplateHelper.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -516,6 +516,32 @@ void vtkDataArrayTemplate<T>::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
     }
 
   this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+template<class T>
+void vtkDataArrayTemplate<T>::InsertTuples(vtkIdType dstStart, vtkIdType n,
+                                           vtkIdType srcStart,
+                                           vtkAbstractArray *source)
+{
+  if (n == 0)
+    {
+    return;
+    }
+
+  if (source->GetDataType() != this->GetDataType())
+    {
+    vtkWarningMacro("Input and output array data types do not match.");
+    return;
+    }
+
+  if (this->NumberOfComponents != source->GetNumberOfComponents())
+    {
+    vtkWarningMacro("Input and output component sizes do not match.");
+    return;
+    }
+
+  vtkDataArrayTemplateHelper::InsertTuples(this, dstStart, n, srcStart, source);
 }
 
 //----------------------------------------------------------------------------

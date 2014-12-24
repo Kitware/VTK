@@ -344,6 +344,14 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
+template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
+::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray *)
+{
+  vtkErrorMacro("Read only container.")
+  return;
+}
+
+//------------------------------------------------------------------------------
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertNextTuple(vtkIdType, vtkAbstractArray *)
 {

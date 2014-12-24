@@ -17,6 +17,8 @@
 // VTK includes
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkIdList.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -213,7 +215,7 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
           int inExt[6], int outExt[6],
           vtkPointData* pd, vtkPoints* inpnts,
           vtkPointData* outPD, vtkPoints* outpnts,
-          bool useMapping)
+          int sampleRate[3])
 {
   assert("pre: NULL input point-data!" && (pd != NULL) );
   assert("pre: NULL output point-data!" && (outPD != NULL) );
@@ -225,12 +227,14 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
     return;
     }
 
-  // Get input and output data description
-  int inputDesc = vtkStructuredData::GetDataDescriptionFromExtent(inExt);
-  int outDesc   = vtkStructuredData::GetDataDescriptionFromExtent(outExt);
+  // Get the size of the input and output
+  vtkIdType inSize = vtkStructuredData::GetNumberOfPoints(inExt);
+  vtkIdType outSize = vtkStructuredData::GetNumberOfPoints(outExt);
+  (void)inSize; // Prevent warnings, this is only used in debug builds.
 
-  // Get the size of the output
-  vtkIdType outSize = vtkStructuredData::GetNumberOfPoints(outExt,outDesc);
+  // Check if we can use some optimizations:
+  bool canCopyRange = sampleRate && I(sampleRate) == 1;
+  bool useMapping = !(canCopyRange && J(sampleRate) == 1 && K(sampleRate) == 1);
 
   if( inpnts != NULL )
     {
@@ -239,6 +243,16 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
     outpnts->SetNumberOfPoints( outSize );
     }
   outPD->CopyAllocate(pd,outSize,outSize);
+
+  // Lists for batching copy operations:
+  vtkNew<vtkIdList> srcIds;
+  vtkNew<vtkIdList> dstIds;
+  if (!canCopyRange)
+    {
+    vtkIdType bufferSize = IMAX(outExt) - IMIN(outExt) + 1;
+    srcIds->Allocate(bufferSize);
+    dstIds->Allocate(bufferSize);
+    }
 
   int ijk[3];
   int src_ijk[3];
@@ -250,37 +264,72 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
       {
       J(src_ijk) = (useMapping)? this->GetMapping(1,J(ijk)) : J(ijk);
 
-      for( I(ijk)=IMIN(outExt); I(ijk) <= IMAX(outExt); ++I(ijk) )
+      if (canCopyRange)
         {
-        I(src_ijk) = (useMapping)? this->GetMapping(0,I(ijk)) : I(ijk);
+        // Find the first point id:
+        I(ijk) = IMIN(outExt);
+        I(src_ijk) = I(ijk);
 
-        vtkIdType srcIdx =
-            vtkStructuredData::ComputePointIdForExtent(inExt,src_ijk,inputDesc);
-        vtkIdType targetIdx =
-            vtkStructuredData::ComputePointIdForExtent(outExt,ijk,outDesc);
+        vtkIdType srcStart =
+            vtkStructuredData::ComputePointIdForExtent(inExt, src_ijk);
+        vtkIdType dstStart =
+            vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
+        vtkIdType num = IMAX(outExt) - IMIN(outExt) + 1;
 
-        // Sanity checks
-        assert( "pre: srcIdx out of bounds" && (srcIdx >= 0) &&
-            (srcIdx < vtkStructuredData::GetNumberOfPoints(inExt,inputDesc)));
-        assert( "pre: targetIdx out of bounds" && (targetIdx >= 0) &&
-            (targetIdx < vtkStructuredData::GetNumberOfPoints(outExt,outDesc)));
+          // Sanity checks
+          assert( "pre: srcStart out of bounds" && (srcStart >= 0) &&
+                  (srcStart < inSize) );
+          assert( "pre: dstStart out of bounds" && (dstStart >= 0) &&
+                  (dstStart < outSize) );
+
+        if (inpnts != NULL)
+          {
+          outpnts->InsertPoints(dstStart, num, srcStart, inpnts);
+          }
+        outPD->CopyData(pd, dstStart, num, srcStart);
+        }
+      else // canCopyRange
+        {
+        for( I(ijk)=IMIN(outExt); I(ijk) <= IMAX(outExt); ++I(ijk) )
+          {
+          I(src_ijk) = (useMapping)? this->GetMapping(0,I(ijk)) : I(ijk);
+
+          vtkIdType srcIdx =
+              vtkStructuredData::ComputePointIdForExtent(inExt,src_ijk);
+          vtkIdType targetIdx =
+              vtkStructuredData::ComputePointIdForExtent(outExt,ijk);
+
+          // Sanity checks
+          assert( "pre: srcIdx out of bounds" && (srcIdx >= 0) &&
+                  (srcIdx < inSize) );
+          assert( "pre: targetIdx out of bounds" && (targetIdx >= 0) &&
+                  (targetIdx < outSize) );
+
+          srcIds->InsertNextId(srcIdx);
+          dstIds->InsertNextId(targetIdx);
+
+          } // END for all i
 
         if( inpnts != NULL )
           {
-          outpnts->SetPoint(targetIdx,inpnts->GetPoint(srcIdx));
+          outpnts->InsertPoints(dstIds.GetPointer(), srcIds.GetPointer(), inpnts);
           } // END if
-        outPD->CopyData(pd,srcIdx,targetIdx);
-        } // END for all i
+        outPD->CopyData(pd, srcIds.GetPointer(), dstIds.GetPointer());
+        srcIds->Reset();
+        dstIds->Reset();
+
+        } // END else canCopyRange
+
       } // END for all j
+
     } // END for all k
 
 }
 
 //-----------------------------------------------------------------------------
-void vtkExtractStructuredGridHelper::CopyCellData(
-           int inExt[6], int outExt[6],
+void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
            vtkCellData* cd, vtkCellData* outCD,
-           bool useMapping)
+           int sampleRate[3])
 {
   assert("pre: NULL input cell-data!" && (cd != NULL) );
   assert("pre: NULL output cell-data!" && (outCD != NULL) );
@@ -292,19 +341,31 @@ void vtkExtractStructuredGridHelper::CopyCellData(
     return;
     }
 
-  // Get input and output data description
-  int inputDesc = vtkStructuredData::GetDataDescriptionFromExtent(inExt);
-  int outDesc   = vtkStructuredData::GetDataDescriptionFromExtent(outExt);
-
   // Get the size of the output & allocate output
-  vtkIdType outSize = vtkStructuredData::GetNumberOfCells(outExt,outDesc);
+  vtkIdType inSize = vtkStructuredData::GetNumberOfCells(inExt);
+  vtkIdType outSize = vtkStructuredData::GetNumberOfCells(outExt);
+  (void)inSize; // Prevent warnings, this is only used in debug builds.
   outCD->CopyAllocate(cd,outSize,outSize);
 
+  // Check if we can use some optimizations:
+  bool canCopyRange = sampleRate && I(sampleRate) == 1;
+  bool useMapping = !(canCopyRange && J(sampleRate) == 1 && K(sampleRate) == 1);
+
   int inpCellExt[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt,inputDesc);
+  vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt);
 
   int outCellExt[6];
-  vtkStructuredData::GetCellExtentFromPointExtent(outExt,outCellExt,outDesc);
+  vtkStructuredData::GetCellExtentFromPointExtent(outExt,outCellExt);
+
+  // Lists for batching copy operations:
+  vtkNew<vtkIdList> srcIds;
+  vtkNew<vtkIdList> dstIds;
+  if (!canCopyRange)
+    {
+    vtkIdType bufferSize = IMAX(outCellExt) - IMIN(outCellExt) + 1;
+    srcIds->Allocate(bufferSize);
+    dstIds->Allocate(bufferSize);
+    }
 
   int ijk[3];
   int src_ijk[3];
@@ -316,20 +377,51 @@ void vtkExtractStructuredGridHelper::CopyCellData(
       {
       J(src_ijk) = (useMapping)? this->GetMapping(1,J(ijk)) : J(ijk);
 
-      for( I(ijk)=IMIN(outCellExt); I(ijk) <= IMAX(outCellExt); ++I(ijk) )
+      if (canCopyRange)
         {
-        I(src_ijk) = (useMapping)? this->GetMapping(0,I(ijk)) : I(ijk);
+        // Find the first cell id:
+        I(ijk) = IMIN(outCellExt);
+        I(src_ijk) = I(ijk);
 
         // NOTE: since we are operating on cell extents, ComputePointID below
         // really returns the cell ID
-        vtkIdType srcIdx =
-          vtkStructuredData::ComputePointIdForExtent(
-              inpCellExt,src_ijk,inputDesc);
+        vtkIdType srcStart =
+          vtkStructuredData::ComputePointIdForExtent(inpCellExt, src_ijk);
+        vtkIdType dstStart =
+          vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
+        vtkIdType num = IMAX(outCellExt) - IMIN(outCellExt) + 1;
 
-        vtkIdType targetIdx =
-          vtkStructuredData::ComputePointIdForExtent(outCellExt,ijk,outDesc);
-        outCD->CopyData(cd,srcIdx,targetIdx);
-        } // END for all i
+        // Sanity checks
+        assert( "pre: srcStart out of bounds" && (srcStart >= 0) &&
+                (srcStart < inSize) );
+        assert( "pre: dstStart out of bounds" && (dstStart >= 0) &&
+                (dstStart < outSize) );
+
+        outCD->CopyData(cd, dstStart, num, srcStart);
+        }
+      else // canCopyRange
+        {
+        for( I(ijk)=IMIN(outCellExt); I(ijk) <= IMAX(outCellExt); ++I(ijk) )
+          {
+          I(src_ijk) = (useMapping)? this->GetMapping(0,I(ijk)) : I(ijk);
+
+          // NOTE: since we are operating on cell extents, ComputePointID below
+          // really returns the cell ID
+          vtkIdType srcIdx =
+              vtkStructuredData::ComputePointIdForExtent(inpCellExt, src_ijk);
+
+          vtkIdType targetIdx =
+              vtkStructuredData::ComputePointIdForExtent(outCellExt, ijk);
+
+          srcIds->InsertNextId(srcIdx);
+          dstIds->InsertNextId(targetIdx);
+          } // END for all i
+
+        outCD->CopyData(cd, srcIds.GetPointer(), dstIds.GetPointer());
+        srcIds->Reset();
+        dstIds->Reset();
+
+        }// END else canCopyRange
       } // END for all j
     } // END for all k
 }

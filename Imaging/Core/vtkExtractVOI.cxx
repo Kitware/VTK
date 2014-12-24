@@ -223,7 +223,6 @@ int vtkExtractVOI::RequestData(
 
   int inBegin[3];
   double outOrigin[3];
-  bool useMapping = true;
   if( (this->SampleRate[0]==1) &&
       (this->SampleRate[1]==1) &&
       (this->SampleRate[2]==1) )
@@ -236,7 +235,6 @@ int vtkExtractVOI::RequestData(
       end[ dim ]   = begin[ dim ]+delta;
       }
     memcpy(inBegin,begin,sizeof(int)*3);
-    useMapping = false;
 
     // set output origin to be the same as the input
     input->GetOrigin( outOrigin );
@@ -257,8 +255,8 @@ int vtkExtractVOI::RequestData(
   outExt = output->GetExtent();
   output->SetOrigin( outOrigin );
   this->Internal->CopyPointsAndPointData(
-      inExt,outExt,pd,NULL,outPD,NULL,useMapping);
-  this->Internal->CopyCellData(inExt,outExt,cd,outCD,useMapping);
+      inExt,outExt,pd,NULL,outPD,NULL,this->SampleRate);
+  this->Internal->CopyCellData(inExt,outExt,cd,outCD,this->SampleRate);
 
   return 1;
 }

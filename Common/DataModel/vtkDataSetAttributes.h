@@ -478,14 +478,23 @@ public:
                 vtkIdList *fromIds, vtkIdList *toIds);
 
   // Description:
-  // Copy a tuple of data from one data array to another. This method
-  // assumes that the fromData and toData objects are of the
+  // Copy n consecutive attributes starting at srcStart from fromPd to this
+  // container, starting at the dstStart location.
+  // Note that memory allocation is performed as necessary to hold the data.
+  void CopyData(vtkDataSetAttributes *fromPd, vtkIdType dstStart, vtkIdType n,
+                vtkIdType srcStart);
+
+  // Description:
+  // Copy a tuple (or set of tuples) of data from one data array to another.
+  // This method assumes that the fromData and toData objects are of the
   // same type, and have the same number of components. This is true if you
   // invoke CopyAllocate() or InterpolateAllocate().
   void CopyTuple(vtkAbstractArray *fromData, vtkAbstractArray *toData,
                  vtkIdType fromId, vtkIdType toId);
   void CopyTuples(vtkAbstractArray *fromData, vtkAbstractArray *toData,
                   vtkIdList *fromIds, vtkIdList *toIds);
+  void CopyTuples(vtkAbstractArray *fromData, vtkAbstractArray *toData,
+                  vtkIdType dstStart, vtkIdType n, vtkIdType srcStart);
 
 
   // -- interpolate operations ----------------------------------------------
