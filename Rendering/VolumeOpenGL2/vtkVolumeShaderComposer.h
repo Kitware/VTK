@@ -138,6 +138,8 @@ namespace vtkvolume
       \nuniform vec2 in_inverseWindowSize;\
       \nuniform vec3 in_textureExtentsMax;\
       \nuniform vec3 in_textureExtentsMin;\
+      \nuniform float in_volumeScale;\
+      \nuniform float in_volumeBias;\
       \n\
       \n// Material and lighting\
       \nuniform vec3 in_diffuse;\
@@ -720,6 +722,7 @@ namespace vtkvolume
       {
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+        \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
         \n      if (l_maxValue.w < scalar.w)\
         \n        {\
         \n        l_maxValue = scalar;\
@@ -730,6 +733,7 @@ namespace vtkvolume
       {
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+        \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
         \n      if (l_minValue.w > scalar.w)\
         \n        {\
         \n        l_minValue = scalar;\
@@ -740,6 +744,7 @@ namespace vtkvolume
       {
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+        \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
         \n      float opacity = computeOpacity(scalar);\
         \n      l_sumValue = l_sumValue + opacity * scalar.w;"
       );
@@ -752,6 +757,7 @@ namespace vtkvolume
         shaderStr += std::string("\
           \n      // Data fetching from the red channel of volume texture\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
           \n      vec4 g_srcColor = computeColor(scalar);"
         );
         }

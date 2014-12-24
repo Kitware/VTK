@@ -610,8 +610,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     {
     void* dataPtr = scalars->GetVoidPointer(0);
 
-    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
-    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
+//    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
+//    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
 
     this->VolumeTextureObject->Create3DFromRaw(
       this->TextureSize[0],
@@ -620,6 +620,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       scalars->GetNumberOfComponents(),
       scalarType,
       dataPtr);
+    this->VolumeTextureObject->Activate();
     this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
@@ -635,8 +636,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
 
 
     // Set scale and bias to their defaults
-    glPixelTransferf(GL_RED_SCALE,1.0);
-    glPixelTransferf(GL_RED_BIAS, 0.0);
+//    glPixelTransferf(GL_RED_SCALE,1.0);
+//    glPixelTransferf(GL_RED_BIAS, 0.0);
     }
   else
     {
@@ -2475,6 +2476,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Updating clipping if enabled
   this->Impl->UpdateClipping(ren, vol);
+
+  // Finally set the scale and bias for color correction
+  this->Impl->ShaderProgram->SetUniformf("in_volumeScale", this->Impl->Scale);
+  this->Impl->ShaderProgram->SetUniformf("in_volumeBias", this->Impl->Bias);
 
   // Finally set the scale and bias for color correction
   this->Impl->ShaderProgram->SetUniformf("in_scale",
