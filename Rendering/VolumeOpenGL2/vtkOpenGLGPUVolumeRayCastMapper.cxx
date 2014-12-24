@@ -194,9 +194,8 @@ public:
   bool LoadVolume(vtkRenderer* ren, vtkImageData* imageData,
                   vtkDataArray* scalars);
 
-  bool LoadMask(vtkImageData* input,
-                vtkImageData* maskInput,
-                int textureExtent[6],
+  bool LoadMask(vtkRenderer* ren, vtkImageData* input,
+                vtkImageData* maskInput, int textureExtent[6],
                 vtkVolume* volume);
 
   bool IsInitialized();
@@ -645,6 +644,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     }
   else
     {
+ /*
     // Convert and send to the GPU, z-slice by z-slice so that we won't allocate
     // memory at once.Allocate memory on the GPU (NULL data pointer with the
     // right dimensions). Here we are assuming that
@@ -657,7 +657,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     // Send the slices one by one to the GPU. We are not sending all of them
     // together so as to avoid allocating big data on the GPU which may not
     // work if the original dataset is big as well.
-    vtkFloatArray* sliceArray=vtkFloatArray::New();
+    vtkFloatArray* sliceArray = vtkFloatArray::New();
     sliceArray->SetNumberOfComponents(1);
     sliceArray->SetNumberOfTuples(this->TextureSize[0] * this->TextureSize[1]);
     void* slicePtr = sliceArray->GetVoidPointer(0);
@@ -698,13 +698,14 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       kOffset += kInc;
       }
     sliceArray->Delete();
+    */
     }
 
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
   vtkImageData* vtkNotUsed(input), vtkImageData* maskInput,
   int textureExtent[6], vtkVolume* vtkNotUsed(volume))
 {
@@ -728,7 +729,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(
       mask = (*it2).second;
       }
 
-    mask->Update(maskInput,
+    mask->Update(ren,
+                 maskInput,
                  this->Parent->CellFlag,
                  textureExtent,
                  this->Parent->ScalarMode,
@@ -1775,6 +1777,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->DepthTextureObject = 0;
     }
 
+  if (this->Impl->CurrentMask)
+    {
+    this->Impl->CurrentMask->ReleaseGraphicsResources(window);
+    }
+
   if(this->Impl->MaskTextures != 0)
     {
     if(!this->Impl->MaskTextures->Map.empty())
@@ -2109,7 +2116,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     // Update bounds, data, and geometry
     this->Impl->ComputeBounds(input);
     this->Impl->LoadVolume(ren, input, scalars);
-    this->Impl->LoadMask(input, this->MaskInput,
+    this->Impl->LoadMask(ren, input, this->MaskInput,
                          this->Impl->Extents, vol);
     }
 

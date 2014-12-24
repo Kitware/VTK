@@ -18,6 +18,10 @@
 
 #include <vtkDataArray.h>
 #include <vtkImageData.h>
+#include <vtkOpenGLRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkTextureObject.h>
 
 #include <map> // STL required
 
@@ -28,24 +32,30 @@ public:
   //--------------------------------------------------------------------------
   vtkVolumeMask()
     {
-      this->TextureId = 0;
-      this->Loaded = false;
-      this->LoadedExtent[0] = VTK_INT_MAX;
-      this->LoadedExtent[1] = VTK_INT_MIN;
-      this->LoadedExtent[2] = VTK_INT_MAX;
-      this->LoadedExtent[3] = VTK_INT_MIN;
-      this->LoadedExtent[4] = VTK_INT_MAX;
-      this->LoadedExtent[5] = VTK_INT_MIN;
+//      this->TextureId = 0;
+    this->Texture = NULL;
+    this->Loaded = false;
+    this->LoadedExtent[0] = VTK_INT_MAX;
+    this->LoadedExtent[1] = VTK_INT_MIN;
+    this->LoadedExtent[2] = VTK_INT_MAX;
+    this->LoadedExtent[3] = VTK_INT_MIN;
+    this->LoadedExtent[4] = VTK_INT_MAX;
+    this->LoadedExtent[5] = VTK_INT_MIN;
     }
 
   //--------------------------------------------------------------------------
   ~vtkVolumeMask()
     {
-      if(this->TextureId != 0)
-        {
-        glDeleteTextures(1, &this->TextureId);
-        this->TextureId = 0;
-        }
+    if (this->Texture)
+      {
+      this->Texture->Delete();
+      this->Texture = 0;
+      }
+//      if(this->TextureId != 0)
+//        {
+//        glDeleteTextures(1, &this->TextureId);
+//        this->TextureId = 0;
+//        }
     }
 
   //--------------------------------------------------------------------------
@@ -57,13 +67,15 @@ public:
   //--------------------------------------------------------------------------
   void Bind()
     {
-      // Activate texture 6
-      glActiveTexture(GL_TEXTURE6);
-      glBindTexture(GL_TEXTURE_3D, this->TextureId);
+//      // Activate texture 6
+//      glActiveTexture(GL_TEXTURE6);
+//      glBindTexture(GL_TEXTURE_3D, this->TextureId);
+    this->Texture->Activate();
     }
 
   //--------------------------------------------------------------------------
-  void Update(vtkImageData *input,
+  void Update(vtkRenderer* ren,
+              vtkImageData *input,
               int cellFlag,
               int textureExtent[6],
               int scalarMode,
@@ -72,16 +84,22 @@ public:
               const char* arrayName,
               vtkIdType maxMemoryInBytes)
     {
-      glActiveTexture(GL_TEXTURE7);
-
       bool needUpdate = false;
       bool modified = false;
-      if(this->TextureId == 0)
+//      if(!this->TextureId == 0)
+//        {
+//        glGenTextures(1, &this->TextureId);
+//        needUpdate = true;
+//        }
+//      glBindTexture(GL_TEXTURE_3D,this->TextureId);
+
+      if (!this->Texture)
         {
-        glGenTextures(1, &this->TextureId);
+        this->Texture = vtkTextureObject::New();
+        this->Texture->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                    ren->GetRenderWindow()));
         needUpdate = true;
         }
-      glBindTexture(GL_TEXTURE_3D,this->TextureId);
 
       int obsolete = needUpdate || !this->Loaded ||
                      input->GetMTime()>this->BuildTime;
@@ -127,8 +145,8 @@ public:
 
         // Enough memory?
         int textureSize[3];
-        int i=0;
-        while(i<3)
+        int i = 0;
+        while(i < 3)
           {
           textureSize[i] = textureExtent[2*i+1] - textureExtent[2*i] + 1;
           ++i;
@@ -140,10 +158,11 @@ public:
                        textureSize[2] <= width;
         if(this->Loaded)
           {
-          // So far, so good but some cards always succeed with a proxy texture
-          // let's try to actually allocate..
-          glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, textureSize[0],
-                       textureSize[1], textureSize[2], 0, format, type, 0);
+//          // So far, so good but some cards always succeed with a proxy texture
+//          // let's try to actually allocate..
+//          glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, textureSize[0],
+//                       textureSize[1], textureSize[2], 0, format, type, 0);
+
           GLenum errorCode = glGetError();
           this->Loaded = errorCode!= GL_OUT_OF_MEMORY;
           if(this->Loaded)
@@ -169,12 +188,14 @@ public:
 
               // we don't clamp to edge because for the computation of the
               // gradient on the border we need some external value.
-              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-              GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
-              glTexParameterfv(GL_TEXTURE_3D, GL_TEXTURE_BORDER_COLOR, borderColor);
+//              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+//              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+//              GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
+//              glTexParameterfv(GL_TEXTURE_3D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
 
               glPixelTransferf(GL_ALPHA_SCALE, 1.0);
               glPixelTransferf(GL_ALPHA_BIAS, 0.0);
@@ -194,13 +215,27 @@ public:
                               (dim[0]-cellFlag)+textureExtent[0]) *
                               scalars->GetNumberOfComponents());
 
-              glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
-                           textureSize[0], textureSize[1], textureSize[2],
-                           0, format, type, dataPtr);
+//              glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
+//                           textureSize[0], textureSize[1], textureSize[2],
+//                           0, format, type, dataPtr);
+
+              this->Texture->SetDataType(type);
+              this->Texture->SetFormat(format);
+              this->Texture->SetInternalFormat(internalFormat);
+              this->Texture->Create3DFromRaw(
+                textureSize[0], textureSize[1], textureSize[2],
+                1, scalarType, dataPtr);
+              this->Texture->Activate();
+              this->Texture->SetWrapS(vtkTextureObject::ClampToEdge);
+              this->Texture->SetWrapT(vtkTextureObject::ClampToEdge);
+              this->Texture->SetWrapR(vtkTextureObject::ClampToEdge);
+              this->Texture->SetMagnificationFilter(vtkTextureObject::Nearest);
+              this->Texture->SetMinificationFilter(vtkTextureObject::Nearest);
+              this->Texture->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
               // Restore the default values.
-              glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
-              glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT,0);
+              glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+              glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, 0);
               glPixelTransferf(GL_ALPHA_SCALE,1.0);
               glPixelTransferf(GL_ALPHA_BIAS,0.0);
 
@@ -291,19 +326,19 @@ public:
           }
         }
 
-      if(this->Loaded && (needUpdate || modified))
-        {
-        glTexParameterf(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
-                        GL_NEAREST );
-        glTexParameterf(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
-                        GL_NEAREST );
-        modified=true;
-        }
+//      if(this->Loaded && (needUpdate || modified))
+//        {
+//        glTexParameterf(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
+//                        GL_NEAREST );
+//        glTexParameterf(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
+//                        GL_NEAREST );
+//        modified=true;
+//        }
       if(modified)
         {
         this->BuildTime.Modified();
         }
-      glActiveTexture(GL_TEXTURE0);
+      this->Texture->Deactivate();
     }
 
   //--------------------------------------------------------------------------
@@ -334,12 +369,24 @@ public:
   //--------------------------------------------------------------------------
   int GetTextureUnit(void)
     {
-    return 7;
+    return this->Texture->GetTextureUnit();
+    }
+
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    if (this->Texture)
+      {
+      this->Texture->ReleaseGraphicsResources(window);
+      this->Texture->Delete();
+      this->Texture = 0;
+      }
     }
 
 
 protected:
-  GLuint TextureId;
+//  GLuint TextureId;
+  vtkTextureObject* Texture;
   vtkTimeStamp BuildTime;
 
   double LoadedBounds[6];
