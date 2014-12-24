@@ -183,6 +183,17 @@ public:
     return this->TextureObject->GetTextureUnit();
     }
 
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    if (this->TextureObject)
+      {
+      this->TextureObject->ReleaseGraphicsResources(window);
+      this->TextureObject->Delete();
+      this->TextureObject = 0;
+      }
+    }
+
 protected:
 
 //  bool Loaded;

@@ -1754,24 +1754,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 {
   this->Impl->DeleteBufferObjects();
 
-//  if(this->Impl->VolumeTextureId)
-//    {
-//    window->MakeCurrent();
-//    GLuint volumeTextureObject = static_cast<GLuint>(
-//                                   this->Impl->VolumeTextureId);
-//    glDeleteTextures(1, &volumeTextureObject);
-//    this->Impl->VolumeTextureId = 0;
-//    }
-
-//  if(this->Impl->NoiseTextureId)
-//    {
-//    window->MakeCurrent();
-//    GLuint noiseTextureObject = static_cast<GLuint>(
-//                                  this->Impl->NoiseTextureId);
-//    glDeleteTextures(1, &noiseTextureObject);
-//    this->Impl->NoiseTextureId = 0;
-//    }
-
   if (this->Impl->VolumeTextureObject)
     {
     this->Impl->VolumeTextureObject->ReleaseGraphicsResources(window);
@@ -1785,15 +1767,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->NoiseTextureObject->Delete();
     this->Impl->NoiseTextureObject = 0;
     }
-
-//  if(this->Impl->DepthTextureId)
-//    {
-//    window->MakeCurrent();
-//    GLuint depthTextureObject = static_cast<GLuint>(
-//                                  this->Impl->DepthTextureId);
-//    glDeleteTextures(1, &depthTextureObject);
-//    this->Impl->DepthTextureId = 0;
-//    }
 
   if (this->Impl->DepthTextureObject)
     {
@@ -1820,24 +1793,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 
   if(this->Impl->RGBTable != 0)
     {
+    this->Impl->RGBTable->ReleaseGraphicsResources(window);
     delete this->Impl->RGBTable;
     this->Impl->RGBTable = 0;
     }
 
   if(this->Impl->Mask1RGBTable != 0)
     {
+    this->Impl->Mask1RGBTable->ReleaseGraphicsResources(window);
     delete this->Impl->Mask1RGBTable;
     this->Impl->Mask1RGBTable = 0;
     }
 
   if(this->Impl->Mask2RGBTable != 0)
     {
+    this->Impl->Mask2RGBTable->ReleaseGraphicsResources(window);
     delete this->Impl->Mask2RGBTable;
     this->Impl->Mask2RGBTable = 0;
     }
 
   if(this->Impl->OpacityTables != 0)
     {
+    this->Impl->OpacityTables->ReleaseGraphicsResources(window);
     delete this->Impl->OpacityTables;
     this->Impl->OpacityTables = 0;
     }
