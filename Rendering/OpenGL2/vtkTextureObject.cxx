@@ -559,7 +559,7 @@ void vtkTextureObject::SendParameters()
 #if GL_ES_VERSION_3_0 != 1
   glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
 
-  if (this->Depth)
+  if (this->Format == GL_DEPTH_COMPONENT)
     {
     glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE,
                     this->GetDepthTextureModeFormat(this->DepthTextureMode));
