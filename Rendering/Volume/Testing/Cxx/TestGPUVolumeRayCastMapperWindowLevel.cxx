@@ -621,8 +621,12 @@ int TestGPUVolumeRayCastMapperWindowLevel(int argc,
   delete [] fname;
 
   vtkNew<vtkGPUVolumeRayCastMapper> mapper1;
+  mapper1->AutoAdjustSampleDistancesOff();
+  mapper1->SetSampleDistance(0.1);
   mapper1->SetInputConnection(reader->GetOutputPort());
   vtkNew<vtkGPUVolumeRayCastMapper> mapper2;
+  mapper2->AutoAdjustSampleDistancesOff();
+  mapper2->SetSampleDistance(0.1);
   mapper2->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkColorTransferFunction> ctf;
