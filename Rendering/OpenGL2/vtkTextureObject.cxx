@@ -200,6 +200,7 @@ vtkTextureObject::vtkTextureObject()
   this->NumberOfDimensions = 0;
   this->Target = 0;
   this->Format = 0;
+  this->InternalFormat = 0;
   this->Type = 0;
   this->Components = 0;
   this->Width = 0;
@@ -364,6 +365,7 @@ void vtkTextureObject::DestroyTexture()
   this->NumberOfDimensions = 0;
   this->Target =0;
   this->Format = 0;
+  this->InternalFormat = 0;
   this->Type = 0;
   this->Components = 0;
   this->Width = this->Height = this->Depth = 0;
@@ -956,6 +958,16 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 #endif
 
 //----------------------------------------------------------------------------
+void vtkTextureObject::SetInternalFormat(unsigned int glInternalFormat)
+{
+  if (this->InternalFormat != glInternalFormat)
+    {
+    this->InternalFormat = glInternalFormat;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
                                          bool shaderSupportsTextureInt)
 {
@@ -1000,10 +1012,20 @@ unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
   return 0;
 }
 
+//----------------------------------------------------------------------------
+void vtkTextureObject::SetFormat(unsigned int glFormat)
+{
+  if (this->Format != glFormat)
+    {
+    this->Format = glFormat;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 static GLenum vtkGetType(int vtk_scalar_type)
 {
   // DON'T DEAL with VTK_CHAR as this is platform dependent.
-
   switch (vtk_scalar_type)
     {
   case VTK_SIGNED_CHAR:
@@ -1065,6 +1087,16 @@ static int vtkGetVTKType(GLenum gltype)
 int vtkTextureObject::GetDataType()
 {
   return ::vtkGetVTKType(this->Type);
+}
+
+//----------------------------------------------------------------------------
+void vtkTextureObject::SetDataType(unsigned int glType)
+{
+  if (this->Type != glType)
+    {
+    this->Type = glType;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1548,21 +1580,29 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   assert(this->Context);
 
   // Now, detemine texture parameters using the arguments.
-  GLenum type = ::vtkGetType(dataType);
-  GLenum internalFormat
-    = this->GetInternalFormat(dataType, numComps, false);
-  GLenum format
-    = this->GetFormat(dataType, numComps, false);
+  if (!this->Type)
+    {
+    this->Type = ::vtkGetType(dataType);
+    }
 
-  if (!internalFormat || !format || !type)
+  if (!this->InternalFormat)
+    {
+    this->InternalFormat
+      = this->GetInternalFormat(dataType, numComps, false);
+    }
+
+  if (!this->Format)
+    {
+    this->Format = this->GetFormat(dataType, numComps, false);
+    }
+
+  if (!this->InternalFormat || !this->Format || !this->Type)
     {
     vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
     }
 
   this->Target = GL_TEXTURE_3D;
-  this->Format = format;
-  this->Type = type;
   this->Components = numComps;
   this->Width = width;
   this->Height = height;
@@ -1578,7 +1618,7 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   glTexImage3D(
         this->Target,
         0,
-        internalFormat,
+        this->InternalFormat,
         static_cast<GLsizei>(this->Width),
         static_cast<GLsizei>(this->Height),
         static_cast<GLsizei>(this->Depth),

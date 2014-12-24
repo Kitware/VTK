@@ -310,11 +310,16 @@ public:
   // Description:
   // Get the data type for the texture as a vtk type int i.e. VTK_INT etc.
   int GetDataType();
+  void SetDataType(unsigned int glType);
 
   unsigned int GetInternalFormat(int vtktype, int numComps,
                                  bool shaderSupportsTextureInt);
+  void SetInternalFormat(unsigned int glInternalFormat);
+
   unsigned int GetFormat(int vtktype, int numComps,
                          bool shaderSupportsTextureInt);
+  void SetFormat(unsigned int glFormat);
+
   unsigned int GetDepthTextureModeFormat(int vtktype);
   unsigned int GetMinificationFilterMode(int vtktype);
   unsigned int GetMagnificationFilterMode(int vtktype);
@@ -589,6 +594,7 @@ protected:
 
   unsigned int Target; // GLenum
   unsigned int Format; // GLenum
+  unsigned int InternalFormat; // GLenum
   unsigned int Type; // GLenum
   int Components;
 

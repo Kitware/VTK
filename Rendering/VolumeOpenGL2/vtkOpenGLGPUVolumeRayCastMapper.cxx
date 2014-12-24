@@ -590,6 +590,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   this->Scale = scale;
   this->Bias = shift * this->Scale;
 
+  // Update texture size
   imageData->GetExtent(this->Extents);
 
   int i = 0;
@@ -613,6 +614,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
 //    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
 //    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
 
+    this->VolumeTextureObject->SetDataType(type);
+    this->VolumeTextureObject->SetFormat(format);
+    this->VolumeTextureObject->SetInternalFormat(internalFormat);
     this->VolumeTextureObject->Create3DFromRaw(
       this->TextureSize[0],
       this->TextureSize[1],
@@ -646,7 +650,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     // right dimensions). Here we are assuming that
     // GL_ARB_texture_non_power_of_two is available
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-
     glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
                  this->TextureSize[0], this->TextureSize[1],
                  this->TextureSize[2], 0, format, type, 0);
