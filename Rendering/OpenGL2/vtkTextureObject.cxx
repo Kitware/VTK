@@ -400,6 +400,12 @@ void vtkTextureObject::CreateTexture()
       glTexParameteri(this->Target, GL_TEXTURE_WRAP_T,
                       this->GetWrapTMode(this->WrapT));
 
+      if (this->Target == GL_TEXTURE_3D)
+        {
+        glTexParameteri(this->Target, GL_TEXTURE_WRAP_R,
+                        this->GetWrapRMode(this->WrapR));
+        }
+
 #ifdef GL_TEXTURE_BASE_LEVEL
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 #endif
@@ -407,12 +413,6 @@ void vtkTextureObject::CreateTexture()
 #ifdef GL_TEXTURE_MAX_LEVEL
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 #endif
-
-      if (this->Depth)
-        {
-        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE,
-                        this->GetDepthTextureModeFormat(this->DepthTextureMode));
-        }
 
       glBindTexture(this->Target, 0);
       }
@@ -531,7 +531,12 @@ void vtkTextureObject::SendParameters()
   assert("pre: is_bound" && this->IsBound());
 
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
-  glTexParameteri(this->Target,GL_TEXTURE_WRAP_T,OpenGLWrap[this->WrapT]);
+  glTexParameteri(this->Target,GL_TEXTURE_WRAP_T, OpenGLWrap[this->WrapT]);
+
+  if (this->Target == GL_TEXTURE_3D)
+    {
+    glTexParameteri(this->Target,GL_TEXTURE_WRAP_R, OpenGLWrap[this->WrapR]);
+    }
 
 #ifdef GL_TEXTURE_WRAP_R
   glTexParameteri(
@@ -553,6 +558,12 @@ void vtkTextureObject::SendParameters()
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 #if GL_ES_VERSION_3_0 != 1
   glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
+
+  if (this->Depth)
+    {
+    glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE,
+                    this->GetDepthTextureModeFormat(this->DepthTextureMode));
+    }
 
   if(DepthTextureCompare)
     {
@@ -1132,6 +1143,12 @@ unsigned int vtkTextureObject::GetWrapTMode(int vtktype)
   return this->GetWrapSMode(vtktype);
 }
 
+//----------------------------------------------------------------------------
+unsigned int vtkTextureObject::GetWrapRMode(int vtktype)
+{
+  return this->GetWrapSMode(vtktype);
+}
+
 #if GL_ES_VERSION_2_0 != 1
 
 //----------------------------------------------------------------------------
@@ -1522,6 +1539,61 @@ bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
 
   return true;
 }
+
+//----------------------------------------------------------------------------
+bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
+                                       unsigned int depth, int numComps,
+                                       int dataType, void *data)
+{
+  assert(this->Context);
+
+  // Now, detemine texture parameters using the arguments.
+  GLenum type = ::vtkGetType(dataType);
+  GLenum internalFormat
+    = this->GetInternalFormat(dataType, numComps, false);
+  GLenum format
+    = this->GetFormat(dataType, numComps, false);
+
+  if (!internalFormat || !format || !type)
+    {
+    vtkErrorMacro("Failed to detemine texture parameters.");
+    return false;
+    }
+
+  this->Target = GL_TEXTURE_3D;
+  this->Format = format;
+  this->Type = type;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = height;
+  this->Depth = depth;
+  this->NumberOfDimensions = 3;
+
+  this->CreateTexture();
+  this->Bind();
+
+  // Source texture data from the PBO.
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  glTexImage3D(
+        this->Target,
+        0,
+        internalFormat,
+        static_cast<GLsizei>(this->Width),
+        static_cast<GLsizei>(this->Height),
+        static_cast<GLsizei>(this->Depth),
+        0,
+        this->Format,
+        this->Type,
+        static_cast<const GLvoid *>(data));
+
+  vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+
+  this->UnBind();
+
+  return true;
+}
+
 
 // ----------------------------------------------------------------------------
 // Description:

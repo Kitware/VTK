@@ -92,7 +92,8 @@ public:
     this->CubeVAOId = 0;
 #endif
     this->CubeIndicesId = 0;
-    this->VolumeTextureId = 0;
+//    this->VolumeTextureId = 0;
+    this->VolumeTextureObject = 0;
     this->NoiseTextureObject = 0;
     this->DepthTextureObject = 0;
 //    this->NoiseTextureId = 0;
@@ -190,7 +191,8 @@ public:
 
   void Initialize(vtkRenderer* ren, vtkVolume* vol);
 
-  bool LoadVolume(vtkImageData* imageData, vtkDataArray* scalars);
+  bool LoadVolume(vtkRenderer* ren, vtkImageData* imageData,
+                  vtkDataArray* scalars);
 
   bool LoadMask(vtkImageData* input,
                 vtkImageData* maskInput,
@@ -271,9 +273,10 @@ public:
 #endif
   GLuint CubeIndicesId;
 
-  GLuint VolumeTextureId;
-  vtkTextureObject * NoiseTextureObject;
-  vtkTextureObject * DepthTextureObject;
+//  GLuint VolumeTextureId;
+  vtkTextureObject* VolumeTextureObject;
+  vtkTextureObject* NoiseTextureObject;
+  vtkTextureObject* DepthTextureObject;
 //  GLuint NoiseTextureId;
 //  GLuint DepthTextureId;
 
@@ -440,22 +443,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 }
 
 //----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   vtkImageData* imageData, vtkDataArray* scalars)
 {
-  // Generate OpenGL texture
-  glActiveTexture(GL_TEXTURE8);
-  glGenTextures(1, &this->VolumeTextureId);
-  glBindTexture(GL_TEXTURE_3D, this->VolumeTextureId);
+  //    // Generate OpenGL texture
+  //    glActiveTexture(GL_TEXTURE8);
+  //    glGenTextures(1, &this->VolumeTextureId);
+  //    glBindTexture(GL_TEXTURE_3D, this->VolumeTextureId);
 
-  // Set the texture parameters
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
-  glTexParameterfv(GL_TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  //    // Set the texture parameters
+  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  //    GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
+  //    glTexParameterfv(GL_TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
+  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   // Allocate data with internal format and foramt as (GL_RED)
   GLint internalFormat = 0;
@@ -596,17 +599,41 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
     ++i;
     }
 
+  if (!this->VolumeTextureObject)
+    {
+    this->VolumeTextureObject = vtkTextureObject::New();
+    this->VolumeTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                           ren->GetRenderWindow()));
+    }
+
   if (!handleLargeDataTypes)
     {
     void* dataPtr = scalars->GetVoidPointer(0);
 
     glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
     glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
-                 this->TextureSize[0],this->TextureSize[1],
-                 this->TextureSize[2], 0,
-                 format, type, dataPtr);
+
+    this->VolumeTextureObject->Create3DFromRaw(
+      this->TextureSize[0],
+      this->TextureSize[1],
+      this->TextureSize[2],
+      scalars->GetNumberOfComponents(),
+      scalarType,
+      dataPtr);
+    this->VolumeTextureObject->Activate();
+    this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
+    this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
+    this->VolumeTextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
+    this->VolumeTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
+    this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+    this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+//    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+//    glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
+//                 this->TextureSize[0],this->TextureSize[1],
+//                 this->TextureSize[2], 0,
+//                 format, type, dataPtr);
+
 
     // Set scale and bias to their defaults
     glPixelTransferf(GL_RED_SCALE,1.0);
@@ -1724,14 +1751,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 {
   this->Impl->DeleteBufferObjects();
 
-  if(this->Impl->VolumeTextureId)
-    {
-    window->MakeCurrent();
-    GLuint volumeTextureObject = static_cast<GLuint>(
-                                   this->Impl->VolumeTextureId);
-    glDeleteTextures(1, &volumeTextureObject);
-    this->Impl->VolumeTextureId = 0;
-    }
+//  if(this->Impl->VolumeTextureId)
+//    {
+//    window->MakeCurrent();
+//    GLuint volumeTextureObject = static_cast<GLuint>(
+//                                   this->Impl->VolumeTextureId);
+//    glDeleteTextures(1, &volumeTextureObject);
+//    this->Impl->VolumeTextureId = 0;
+//    }
 
 //  if(this->Impl->NoiseTextureId)
 //    {
@@ -1741,6 +1768,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 //    glDeleteTextures(1, &noiseTextureObject);
 //    this->Impl->NoiseTextureId = 0;
 //    }
+
+  if (this->Impl->VolumeTextureObject)
+    {
+    this->Impl->VolumeTextureObject->ReleaseGraphicsResources(window);
+    this->Impl->VolumeTextureObject->Delete();
+    this->Impl->VolumeTextureObject = 0;
+    }
 
   if (this->Impl->NoiseTextureObject)
     {
@@ -2094,7 +2128,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
     // Update bounds, data, and geometry
     this->Impl->ComputeBounds(input);
-    this->Impl->LoadVolume(input, scalars);
+    this->Impl->LoadVolume(ren, input, scalars);
     this->Impl->LoadMask(input, this->MaskInput,
                          this->Impl->Extents, vol);
     }
@@ -2228,7 +2262,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   vtkInternal::ToFloat(this->Impl->ScalarsRange, fvalue2);
   this->Impl->ShaderProgram->SetUniform2fv("in_scalarsRange", 1, &fvalue2);
 
-  this->Impl->ShaderProgram->SetUniformi("in_volume", 8);
+  this->Impl->ShaderProgram->SetUniformi("in_volume",
+    this->Impl->VolumeTextureObject->GetTextureUnit());
   this->Impl->ShaderProgram->SetUniformi("in_opacityTransferFunc",
     this->Impl->OpacityTables->GetTable(0)->GetTextureUnit());
   this->Impl->ShaderProgram->SetUniformi("in_noiseSampler",
@@ -2277,9 +2312,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformf("in_shininess", fvalue3[0]);
 
   // Bind textures
-  // Volume texture is at unit 0
-  glActiveTexture(GL_TEXTURE8);
-  glBindTexture(GL_TEXTURE_3D, this->Impl->VolumeTextureId);
+  this->Impl->VolumeTextureObject->Activate();
 
   // Color texture is at unit 1
   if (numberOfScalarComponents == 1)

@@ -203,6 +203,13 @@ public:
                        int numComps,  int dataType, void *data);
 
   // Description:
+  // Create a 3D texture from client memory
+  // numComps must be in [1-4].
+  bool Create3DFromRaw(unsigned int width, unsigned int height,
+                       unsigned int depth, int numComps,
+                       int dataType, void *data);
+
+  // Description:
   // Create a 2D depth texture using a raw pointer.
   // This is a blocking call. If you can, use PBO instead.
   bool CreateDepthFromRaw(unsigned int width, unsigned int height,
@@ -312,7 +319,8 @@ public:
   unsigned int GetMinificationFilterMode(int vtktype);
   unsigned int GetMagnificationFilterMode(int vtktype);
   unsigned int GetWrapSMode(int vtktype);
-  unsigned int GetWrapTMode(int vtkTypeFloat32);
+  unsigned int GetWrapTMode(int vtktype);
+  unsigned int GetWrapRMode(int vtktype);
 
   // Description:
   // Optional, require support for floating point depth buffer
