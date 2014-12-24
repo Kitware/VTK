@@ -606,6 +606,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
                                            ren->GetRenderWindow()));
     }
 
+  this->VolumeTextureObject->SetDataType(type);
+  this->VolumeTextureObject->SetFormat(format);
+  this->VolumeTextureObject->SetInternalFormat(internalFormat);
+
   if (!handleLargeDataTypes)
     {
     void* dataPtr = scalars->GetVoidPointer(0);
@@ -613,9 +617,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
 //    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
 //    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
 
-    this->VolumeTextureObject->SetDataType(type);
-    this->VolumeTextureObject->SetFormat(format);
-    this->VolumeTextureObject->SetInternalFormat(internalFormat);
     this->VolumeTextureObject->Create3DFromRaw(
       this->TextureSize[0],
       this->TextureSize[1],
@@ -644,15 +645,29 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     }
   else
     {
- /*
     // Convert and send to the GPU, z-slice by z-slice so that we won't allocate
     // memory at once.Allocate memory on the GPU (NULL data pointer with the
     // right dimensions). Here we are assuming that
     // GL_ARB_texture_non_power_of_two is available
-    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-    glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
-                 this->TextureSize[0], this->TextureSize[1],
-                 this->TextureSize[2], 0, format, type, 0);
+//    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+//    glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
+//                 this->TextureSize[0], this->TextureSize[1],
+//                 this->TextureSize[2], 0, format, type, 0);
+
+    this->VolumeTextureObject->Create3DFromRaw(
+      this->TextureSize[0],
+      this->TextureSize[1],
+      this->TextureSize[2],
+      scalars->GetNumberOfComponents(),
+      scalarType,
+      0);
+    this->VolumeTextureObject->Activate();
+    this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
+    this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
+    this->VolumeTextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
+    this->VolumeTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
+    this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+    this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     // Send the slices one by one to the GPU. We are not sending all of them
     // together so as to avoid allocating big data on the GPU which may not
@@ -698,9 +713,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       kOffset += kInc;
       }
     sliceArray->Delete();
-    */
     }
 
+  this->VolumeTextureObject->Deactivate();
   return 1;
 }
 
