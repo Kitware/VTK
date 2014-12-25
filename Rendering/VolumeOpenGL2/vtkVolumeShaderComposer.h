@@ -802,8 +802,8 @@ namespace vtkvolume
       return std::string("\
        \n  vec4 g_srcColor = vec4(computeColor(l_maxValue).xyz,\
        \n                         computeOpacity(l_maxValue));\
-       \n g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
-       \n g_fragColor.a = g_srcColor.a;"
+       \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+       \n  g_fragColor.a = g_srcColor.a;"
       );
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)

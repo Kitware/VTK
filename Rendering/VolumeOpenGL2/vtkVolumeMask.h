@@ -338,7 +338,7 @@ public:
         {
         this->BuildTime.Modified();
         }
-      this->Texture->Deactivate();
+//      this->Texture->Deactivate();
     }
 
   //--------------------------------------------------------------------------
