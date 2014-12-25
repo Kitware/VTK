@@ -611,8 +611,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   this->VolumeTextureObject->SetFormat(format);
   this->VolumeTextureObject->SetInternalFormat(internalFormat);
 
-  std::cerr << "volume texture 1" << std::endl;
-
   if (!handleLargeDataTypes)
     {
     void* dataPtr = scalars->GetVoidPointer(0);
@@ -698,8 +696,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       }
     sliceArray->Delete();
     }
-
-  std::cerr << "volume texture 2" << std::endl;
 
   return 1;
 }
@@ -1960,8 +1956,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkErrorMacro("Shader failed to compile");
     }
 
-  std::cerr << "fragment shader " << fragmentShader << std::endl;
-
   this->Impl->ShaderBuildTime.Modified();
 }
 
@@ -2043,7 +2037,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
 void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                                                 vtkVolume* vol)
 {
-  std::cerr << "GPURender 1 " << std::endl;
   vtkOpenGLClearErrorMacro();
 
   // Make sure the context is current
