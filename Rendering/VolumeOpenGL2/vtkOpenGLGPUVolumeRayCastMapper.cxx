@@ -615,6 +615,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     {
     void* dataPtr = scalars->GetVoidPointer(0);
 
+    // TODO: glPixelTransfer is not supported in GL 3.2 or higher.
+    // When we tried to apply scale and bias in the shader, then something
+    // didn't work out quite right.
+    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
+    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
     this->VolumeTextureObject->Create3DFromRaw(
       this->TextureSize[0],
       this->TextureSize[1],
@@ -629,6 +634,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->VolumeTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+    glPixelTransferf(GL_RED_SCALE, 1.0);
+    glPixelTransferf(GL_RED_BIAS, 0.0);
     }
   else
     {
@@ -690,13 +698,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       // available
       glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, k,
                       this->TextureSize[0], this->TextureSize[1], 1,
-                      format,type, slicePtr);
+                      format, type, slicePtr);
       ++k;
       kOffset += kInc;
       }
     sliceArray->Delete();
     }
-
   return 1;
 }
 
@@ -1888,7 +1895,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Impl",
     vtkvolume::ShadingIncrement(ren, this, vol, this->MaskInput,
                                 this->Impl->CurrentMask,
-                                this->MaskType), true);
+                                this->MaskType, noOfComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Exit",
     vtkvolume::ShadingExit(ren, this, vol), true);
 
@@ -1955,6 +1962,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     {
     vtkErrorMacro("Shader failed to compile");
     }
+
+  //std::cerr << "fragment shader " << fragmentShader << std::endl;
 
   this->Impl->ShaderBuildTime.Modified();
 }

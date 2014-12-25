@@ -711,7 +711,8 @@ namespace vtkvolume
                                vtkVolumeMapper* mapper,
                                vtkVolume* vtkNotUsed(vol),
                                vtkImageData* maskInput,
-                               vtkVolumeMask* mask, int maskType)
+                               vtkVolumeMask* mask, int maskType,
+                               int noOfComponents)
     {
     std::string shaderStr = std::string("\
       \n    if (!l_skip)\
@@ -720,36 +721,56 @@ namespace vtkvolume
 
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
-      shaderStr += std::string("\
-        \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
-        \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
-        \n      if (l_maxValue.w < scalar.w)\
-        \n        {\
-        \n        l_maxValue = scalar;\
-        \n        }"
-      );
+      if (noOfComponents == 4)
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_maxValue.w < scalar.w)\
+          \n        {\
+          \n        l_maxValue = scalar;\
+          \n        }"
+        );
+        }
+      else
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_maxValue.w < scalar.x)\
+          \n        {\
+          \n        l_maxValue.w = scalar.x;\
+          \n        }"
+        );
+        }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
-      shaderStr += std::string("\
-        \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
-        \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
-        \n      if (l_minValue.w > scalar.w)\
-        \n        {\
-        \n        l_minValue = scalar;\
-        \n        }"
-      );
+      if (noOfComponents == 4)
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_minValue.w > scalar.w)\
+          \n        {\
+          \n        l_minValue = scalar;\
+          \n        }"
+        );
+        }
+      else
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_minValue.w > scalar.x)\
+          \n        {\
+          \n        l_minValue.w = scalar.x;\
+          \n        }"
+        );
+        }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
-        \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
         \n      float opacity = computeOpacity(scalar);\
-        \n      l_sumValue = l_sumValue + opacity * scalar.w;"
+        \n      l_sumValue = l_sumValue + opacity * scalar.x;"
       );
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
@@ -760,9 +781,6 @@ namespace vtkvolume
         shaderStr += std::string("\
           \n      // Data fetching from the red channel of volume texture\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
-          \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
-          \n      scalar = scalar * in_volumeScale + in_volumeBias;\
           \n      vec4 g_srcColor = computeColor(scalar);"
         );
         }
@@ -1273,8 +1291,6 @@ namespace vtkvolume
       {
       return std::string("\
         \nvec4 scalar = texture3D(in_volume, g_dataPos);\
-        \nscalar.r = scalar.r * in_volumeScale + in_volumeBias;\
-        \nscalar.r = clamp(scalar.r, 0.0, 1.0);\
         \nif (in_maskBlendFactor == 0.0)\
         \n  {\
         \n  g_srcColor = computeColor(scalar);\
