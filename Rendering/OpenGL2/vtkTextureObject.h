@@ -194,27 +194,28 @@ public:
   // Description:
   // Create 1D texture from client memory
   bool Create1DFromRaw(unsigned int width, int numComps,
-                       int dataType, void *data);
+                       int dataType, void *data, bool forceComputeParams=true);
 
   // Description:
   // Create a 2D texture from client memory
   // numComps must be in [1-4].
   bool Create2DFromRaw(unsigned int width, unsigned int height,
-                       int numComps,  int dataType, void *data);
+                       int numComps,  int dataType, void *data,
+                       bool forceComputeParams=true);
 
   // Description:
   // Create a 3D texture from client memory
   // numComps must be in [1-4].
   bool Create3DFromRaw(unsigned int width, unsigned int height,
                        unsigned int depth, int numComps,
-                       int dataType, void *data);
+                       int dataType, void *data, bool forceComputeParams=true);
 
   // Description:
   // Create a 2D depth texture using a raw pointer.
   // This is a blocking call. If you can, use PBO instead.
   bool CreateDepthFromRaw(unsigned int width, unsigned int height,
                           int internalFormat, int rawType,
-                          void *raw);
+                          void *raw, bool forceComputeParams=true);
 
   // Description:
   // Create a 1D alpha texture using a raw pointer.
@@ -222,7 +223,7 @@ public:
   bool CreateAlphaFromRaw(unsigned int width,
                           int internalFormat,
                           int rawType,
-                          void *raw);
+                          void *raw, bool forceComputeParams=true);
 
 // PBO's are not supported in ES 2.0
 #if GL_ES_VERSION_2_0 != 1
@@ -277,35 +278,36 @@ public:
   // Description:
   // Create a 2D depth texture but does not initialize its values.
   bool AllocateDepth(unsigned int width,unsigned int height,
-                     int internalFormat);
+                     int internalFormat, bool forceComputeParams=true);
 
   // Description:
   // Create a 1D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
-  bool Allocate1D(unsigned int width, int numComps,int vtkType);
+  bool Allocate1D(unsigned int width, int numComps,int vtkType,
+                  bool forceComputeParams=true);
 
   // Description:
   // Create a 2D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
   bool Allocate2D(unsigned int width,unsigned int height, int numComps,
-                  int vtkType);
+                  int vtkType, bool forceComputeParams=true);
 
   // Description:
   // Create a 3D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
   bool Allocate3D(unsigned int width,unsigned int height,
                   unsigned int depth, int numComps,
-                  int vtkType);
+                  int vtkType, bool forceComputeParams=true);
 
 
   // Description:
   // Create texture without uploading any data.
   bool Create2D(unsigned int width, unsigned int height, int numComps,
-                int vtktype,
-                bool shaderSupportsTextureInt);
+                int vtktype, bool shaderSupportsTextureInt,
+                bool forceComputeParams=true);
   bool Create3D(unsigned int width, unsigned int height, unsigned int depth,
-                int numComps, int vtktype,
-                bool shaderSupportsTextureInt);
+                int numComps, int vtktype, bool shaderSupportsTextureInt,
+                bool forceComputeParams=true);
 
   // Description:
   // Get the data type for the texture as a vtk type int i.e. VTK_INT etc.

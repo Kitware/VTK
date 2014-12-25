@@ -224,7 +224,7 @@ public:
               this->Texture->SetInternalFormat(internalFormat);
               this->Texture->Create3DFromRaw(
                 textureSize[0], textureSize[1], textureSize[2],
-                1, scalarType, dataPtr);
+                1, scalarType, dataPtr, false);
               this->Texture->Activate();
               this->Texture->SetWrapS(vtkTextureObject::ClampToEdge);
               this->Texture->SetWrapT(vtkTextureObject::ClampToEdge);
