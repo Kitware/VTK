@@ -40,7 +40,7 @@ public:
   //--------------------------------------------------------------------------
   ~vtkOpenGLRGBTable()
     {
-    if (this->TextureObject != 0)
+    if (this->TextureObject)
       {
       this->TextureObject->UnRegister(0);
       this->TextureObject = 0;
@@ -50,7 +50,7 @@ public:
 //      glDeleteTextures(1,&this->TextureId);
 //      this->TextureId=0;
 //      }
-    if(this->Table!=0)
+    if(this->Table)
       {
       delete[] this->Table;
       this->Table=0;

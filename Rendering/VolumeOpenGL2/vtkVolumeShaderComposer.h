@@ -723,6 +723,7 @@ namespace vtkvolume
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
         \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
+        \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
         \n      if (l_maxValue.w < scalar.w)\
         \n        {\
         \n        l_maxValue = scalar;\
@@ -734,6 +735,7 @@ namespace vtkvolume
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
         \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
+        \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
         \n      if (l_minValue.w > scalar.w)\
         \n        {\
         \n        l_minValue = scalar;\
@@ -745,6 +747,7 @@ namespace vtkvolume
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
         \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
+        \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
         \n      float opacity = computeOpacity(scalar);\
         \n      l_sumValue = l_sumValue + opacity * scalar.w;"
       );
@@ -758,6 +761,8 @@ namespace vtkvolume
           \n      // Data fetching from the red channel of volume texture\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n      scalar.r = scalar.r * in_volumeScale + in_volumeBias;\
+          \n      scalar.r = clamp(scalar.r, 0.0, 1.0);\
+          \n      scalar = scalar * in_volumeScale + in_volumeBias;\
           \n      vec4 g_srcColor = computeColor(scalar);"
         );
         }
@@ -1268,6 +1273,8 @@ namespace vtkvolume
       {
       return std::string("\
         \nvec4 scalar = texture3D(in_volume, g_dataPos);\
+        \nscalar.r = scalar.r * in_volumeScale + in_volumeBias;\
+        \nscalar.r = clamp(scalar.r, 0.0, 1.0);\
         \nif (in_maskBlendFactor == 0.0)\
         \n  {\
         \n  g_srcColor = computeColor(scalar);\

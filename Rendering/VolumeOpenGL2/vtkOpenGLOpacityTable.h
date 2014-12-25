@@ -55,7 +55,7 @@ public:
         this->TextureObject = 0;
         }
 
-      if (this->Table!=0)
+      if (this->Table)
         {
         delete[] this->Table;
         this->Table=0;

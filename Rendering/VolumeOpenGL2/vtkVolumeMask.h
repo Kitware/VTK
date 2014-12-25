@@ -197,8 +197,8 @@ public:
 //              glTexParameterfv(GL_TEXTURE_3D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 
-              glPixelTransferf(GL_ALPHA_SCALE, 1.0);
-              glPixelTransferf(GL_ALPHA_BIAS, 0.0);
+//              glPixelTransferf(GL_ALPHA_SCALE, 1.0);
+//              glPixelTransferf(GL_ALPHA_BIAS, 0.0);
               glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
               if(!(textureExtent[1]-textureExtent[0]+cellFlag==dim[0]))
@@ -236,8 +236,8 @@ public:
               // Restore the default values.
               glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
               glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, 0);
-              glPixelTransferf(GL_ALPHA_SCALE,1.0);
-              glPixelTransferf(GL_ALPHA_BIAS,0.0);
+//              glPixelTransferf(GL_ALPHA_SCALE,1.0);
+//              glPixelTransferf(GL_ALPHA_BIAS,0.0);
 
               this->LoadedCellFlag = cellFlag;
               i = 0;

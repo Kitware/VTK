@@ -32,9 +32,9 @@ class vtkVolumeStateRAII
 
       // Enable texture 1D and 3D as we are using it
       // for transfer functions and in_volume data
-      glEnable(GL_TEXTURE_1D);
-      glEnable(GL_TEXTURE_2D);
-      glEnable(GL_TEXTURE_3D);
+//      glEnable(GL_TEXTURE_1D);
+//      glEnable(GL_TEXTURE_2D);
+//      glEnable(GL_TEXTURE_3D);
 
       // Enable depth_sampler test
       if (!this->DepthTestEnabled)
@@ -85,11 +85,11 @@ class vtkVolumeStateRAII
         glDisable(GL_DEPTH_TEST);
         }
 
-      glActiveTexture(GL_TEXTURE0);
+//      glActiveTexture(GL_TEXTURE0);
 
-      glDisable(GL_TEXTURE_3D);
-      glDisable(GL_TEXTURE_2D);
-      glDisable(GL_TEXTURE_1D);
+//      glDisable(GL_TEXTURE_3D);
+//      glDisable(GL_TEXTURE_2D);
+//      glDisable(GL_TEXTURE_1D);
       }
 
 private:
