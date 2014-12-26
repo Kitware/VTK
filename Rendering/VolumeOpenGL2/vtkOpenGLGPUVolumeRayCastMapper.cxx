@@ -607,6 +607,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
                                            ren->GetRenderWindow()));
     }
 
+
   this->VolumeTextureObject->SetDataType(type);
   this->VolumeTextureObject->SetFormat(format);
   this->VolumeTextureObject->SetInternalFormat(internalFormat);
@@ -1779,6 +1780,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
       while(it != this->Impl->MaskTextures->Map.end())
         {
         vtkVolumeMask* texture = (*it).second;
+        texture->ReleaseGraphicsResources(window);
         delete texture;
         ++it;
         }
@@ -1812,6 +1814,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->OpacityTables->ReleaseGraphicsResources(window);
     delete this->Impl->OpacityTables;
     this->Impl->OpacityTables = 0;
+    }
+
+  if (this->Impl->GradientOpacityTables)
+    {
+    this->Impl->GradientOpacityTables->ReleaseGraphicsResources(window);
+    delete this->Impl->GradientOpacityTables;
+    this->Impl->GradientOpacityTables = 0;
     }
 }
 

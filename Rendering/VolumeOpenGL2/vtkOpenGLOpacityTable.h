@@ -51,7 +51,7 @@ public:
 
       if (this->TextureObject)
         {
-        this->TextureObject->UnRegister(0);
+        this->TextureObject->Delete();
         this->TextureObject = 0;
         }
 

@@ -48,9 +48,9 @@ public:
 //        this->TextureId=0;
 //        }
 
-      if (!this->TextureObject)
+      if (this->TextureObject)
         {
-        this->TextureObject->UnRegister(0);
+        this->TextureObject->Delete();
         this->TextureObject = 0;
         }
 
@@ -178,6 +178,17 @@ public:
     return this->TextureObject->GetTextureUnit();
     }
 
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    if (this->TextureObject)
+      {
+      this->TextureObject->ReleaseGraphicsResources(window);
+      this->TextureObject->Delete();
+      this->TextureObject = 0;
+      }
+    }
+
 protected:
 //  GLuint TextureId;
   vtkTextureObject* TextureObject;
@@ -225,6 +236,14 @@ public:
     return this->NumberOfTables;
     }
 
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    for (unsigned int i = 0; i < this->NumberOfTables; ++i)
+      {
+      this->Tables[i].ReleaseGraphicsResources(window);
+      }
+    }
 private:
   unsigned int NumberOfTables;
   vtkOpenGLGradientOpacityTable* Tables;
