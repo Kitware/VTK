@@ -92,12 +92,9 @@ public:
     this->CubeVAOId = 0;
 #endif
     this->CubeIndicesId = 0;
-//    this->VolumeTextureId = 0;
     this->VolumeTextureObject = 0;
     this->NoiseTextureObject = 0;
     this->DepthTextureObject = 0;
-//    this->NoiseTextureId = 0;
-//    this->DepthTextureId = 0;
     this->TextureWidth = 1024;
     this->ActualSampleDistance = 1.0;
     this->RGBTable = 0;
@@ -273,12 +270,9 @@ public:
 #endif
   GLuint CubeIndicesId;
 
-//  GLuint VolumeTextureId;
   vtkTextureObject* VolumeTextureObject;
   vtkTextureObject* NoiseTextureObject;
   vtkTextureObject* DepthTextureObject;
-//  GLuint NoiseTextureId;
-//  GLuint DepthTextureId;
 
   int TextureWidth;
 
@@ -446,20 +440,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   vtkImageData* imageData, vtkDataArray* scalars)
 {
-  //    // Generate OpenGL texture
-  //    glActiveTexture(GL_TEXTURE8);
-  //    glGenTextures(1, &this->VolumeTextureId);
-  //    glBindTexture(GL_TEXTURE_3D, this->VolumeTextureId);
-
-  //    // Set the texture parameters
-  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  //    GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
-  //    glTexParameterfv(GL_TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
-  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  //    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
   // Allocate data with internal format and foramt as (GL_RED)
   GLint internalFormat = 0;
   GLenum format = 0;
@@ -1080,32 +1060,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
                                             4);
     }
   this->DepthTextureObject->Activate();
-
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
                       this->WindowLowerLeft[0], this->WindowLowerLeft[1],
                       this->WindowSize[0], this->WindowSize[1]);
-//  this->DepthTextureObject->Deactivate();
-
-//  glActiveTexture(GL_TEXTURE4);
-//  if (!this->DepthTextureId)
-//    {
-//    // TODO Use framebuffer objects for best performance
-//    glGenTextures(1, &this->DepthTextureId);
-//    glBindTexture(GL_TEXTURE_2D, this->DepthTextureId);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-//    glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-//    }
-//  glBindTexture(GL_TEXTURE_2D, this->DepthTextureId);
-//  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
-//               this->WindowSize[0], this->WindowSize[1],
-//               0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL );
-//  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0 , 0,
-//                      this->WindowLowerLeft[0], this->WindowLowerLeft[1],
-//                      this->WindowSize[0], this->WindowSize[1]);
-//  glActiveTexture(GL_TEXTURE0);
 }
 
 //----------------------------------------------------------------------------
@@ -2307,13 +2264,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   fvalue3[0] = vol->GetProperty()->GetSpecularPower();
   this->Impl->ShaderProgram->SetUniformf("in_shininess", fvalue3[0]);
-
-//  glActiveTexture(GL_TEXTURE3);
-//  glBindTexture(GL_TEXTURE_2D, this->Impl->NoiseTextureId);
-
-  // Depth texture is at unit 4
-//  glActiveTexture(GL_TEXTURE4);
-//  glBindTexture(GL_TEXTURE_2D, this->Impl->DepthTextureId);
 
   // Look at the OpenGL Camera for the exact aspect computation
   double aspect[2];
