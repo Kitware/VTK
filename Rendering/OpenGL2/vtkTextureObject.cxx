@@ -76,6 +76,7 @@ static const char *DepthTextureCompareFunctionAsString[8]=
 
 // Mapping from Wrap values to OpenGL values
 #if GL_ES_VERSION_2_0 != 1
+  //--------------------------------------------------------------------------
   static GLint OpenGLWrap[4]=
   {
     GL_CLAMP_TO_EDGE,
@@ -84,6 +85,7 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     GL_CLAMP_TO_BORDER
   };
 
+  //--------------------------------------------------------------------------
   static const char *WrapAsString[4]=
   {
     "ClampToEdge",
@@ -92,6 +94,7 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     "ClampToBorder"
   };
 #else
+  //--------------------------------------------------------------------------
   static GLint OpenGLWrap[3]=
   {
     GL_CLAMP_TO_EDGE,
@@ -99,6 +102,7 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     GL_MIRRORED_REPEAT
   };
 
+  //--------------------------------------------------------------------------
   static const char *WrapAsString[3]=
   {
     "ClampToEdge",
@@ -426,6 +430,7 @@ void vtkTextureObject::CreateTexture()
     }
 }
 
+//---------------------------------------------------------------------------
 int vtkTextureObject::GetTextureUnit()
 {
   if (this->Context)
@@ -1625,7 +1630,6 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   return true;
 }
 
-
 // ----------------------------------------------------------------------------
 // Description:
 // Create a 1D alpha texture using a raw pointer.
@@ -1929,7 +1933,6 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
   return false;
 #endif
 }
-
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
