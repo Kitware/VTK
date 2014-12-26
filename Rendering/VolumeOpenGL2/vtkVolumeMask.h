@@ -82,8 +82,14 @@ public:
       if (!this->Texture)
         {
         this->Texture = vtkTextureObject::New();
-        this->Texture->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                    ren->GetRenderWindow()));
+        needUpdate = true;
+        }
+
+      this->Texture->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                  ren->GetRenderWindow()));
+
+      if (!this->Texture->GetHandle())
+        {
         needUpdate = true;
         }
 

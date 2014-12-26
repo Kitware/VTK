@@ -96,7 +96,7 @@ public:
        (this->LastBlendMode != blendMode) ||
        (blendMode == vtkVolumeMapper::COMPOSITE_BLEND &&
         this->LastSampleDistance != sampleDistance) ||
-       needUpdate)
+       needUpdate || !this->TextureObject->GetHandle())
       {
       if(this->Table == 0)
         {

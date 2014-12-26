@@ -583,10 +583,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   if (!this->VolumeTextureObject)
     {
     this->VolumeTextureObject = vtkTextureObject::New();
-    this->VolumeTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                           ren->GetRenderWindow()));
+
     }
 
+  this->VolumeTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                         ren->GetRenderWindow()));
 
   this->VolumeTextureObject->SetDataType(type);
   this->VolumeTextureObject->SetFormat(format);
@@ -964,15 +965,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture(
   if (!this->NoiseTextureObject)
     {
     this->NoiseTextureObject = vtkTextureObject::New();
-    this->NoiseTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                           ren->GetRenderWindow()));
+    }
+
+  this->NoiseTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                         ren->GetRenderWindow()));
+
+  if (!this->NoiseTextureObject->GetHandle())
+    {
     GLsizei size = 128;
     GLint maxSize;
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
     if (size > maxSize)
       {
-      size=maxSize;
+      size = maxSize;
       }
 
     if (this->NoiseTextureData != 0 && this->NoiseTextureSize != size)
@@ -1046,8 +1052,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
   if (!this->DepthTextureObject)
     {
     this->DepthTextureObject = vtkTextureObject::New();
-    this->DepthTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                          ren->GetRenderWindow()));
+    }
+
+  this->DepthTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                        ren->GetRenderWindow()));
+  if (!this->DepthTextureObject->GetHandle())
+    {
     // First set the parameters
     this->DepthTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->DepthTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);

@@ -93,7 +93,7 @@ public:
     if(gradientOpacity->GetMTime() > this->BuildTime ||
        this->TextureObject->GetMTime() > this->BuildTime ||
        this->LastSampleDistance != sampleDistance ||
-       needUpdate)
+       needUpdate || !this->TextureObject->GetHandle())
       {
       if(this->Table == 0)
         {

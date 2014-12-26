@@ -86,7 +86,7 @@ public:
 
     if (scalarRGB->GetMTime() > this->BuildTime ||
         this->TextureObject->GetMTime() > this->BuildTime ||
-        needUpdate)
+        needUpdate || !this->TextureObject->GetHandle())
       {
       // Create table if not created already
       if(this->Table==0)
