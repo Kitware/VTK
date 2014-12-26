@@ -1053,8 +1053,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     this->DepthTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->DepthTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->DepthTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
-    this->DepthTextureObject->SetDepthTextureMode(
-      vtkTextureObject::DepthLuminance);
     this->DepthTextureObject->AllocateDepth(this->WindowSize[0],
                                             this->WindowSize[1],
                                             4);

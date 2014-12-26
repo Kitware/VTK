@@ -493,16 +493,6 @@ public:
   vtkSetMacro(DepthTextureCompareFunction,int);
 
   // Description:
-  // Magnification filter mode.
-  // Valid values are:
-  // - DepthAlpha
-  // - DepthIntensity
-  // - DepthLuminance
-  // Initial value is Luminance
-  vtkGetMacro(DepthTextureMode, int);
-  vtkSetMacro(DepthTextureMode, int);
-
-  // Description:
   // Tells the hardware to generate mipmap textures from the first texture
   // image at BaseLevel.
   // Initial value is false, as in OpenGL spec.
@@ -624,7 +614,6 @@ protected:
 
   bool DepthTextureCompare;
   int DepthTextureCompareFunction;
-  int DepthTextureMode;
 
   bool GenerateMipmap;
 

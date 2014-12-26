@@ -231,7 +231,6 @@ vtkTextureObject::vtkTextureObject()
   this->MaxLevel = 0;
   this->DepthTextureCompare = false;
   this->DepthTextureCompareFunction = Lequal;
-  this->DepthTextureMode = DepthLuminance;
   this->GenerateMipmap = false;
   this->ShaderProgram = NULL;
   this->BorderColor[0] = 0.0f;
@@ -541,11 +540,6 @@ void vtkTextureObject::SendParameters()
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_T, OpenGLWrap[this->WrapT]);
 
-  if (this->Target == GL_TEXTURE_3D)
-    {
-    glTexParameteri(this->Target,GL_TEXTURE_WRAP_R, OpenGLWrap[this->WrapR]);
-    }
-
 #ifdef GL_TEXTURE_WRAP_R
   glTexParameteri(
         this->Target,
@@ -565,13 +559,7 @@ void vtkTextureObject::SendParameters()
 
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 #if GL_ES_VERSION_3_0 != 1
-  glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
-
-  if (this->Format == GL_DEPTH_COMPONENT)
-    {
-    glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE,
-                    this->GetDepthTextureModeFormat(this->DepthTextureMode));
-    }
+  glTexParameterfv(this->Target, GL_TEXTURE_BORDER_COLOR, this->BorderColor);
 
   if(DepthTextureCompare)
     {
@@ -589,10 +577,10 @@ void vtkTextureObject::SendParameters()
     }
 #endif
 
-  glTexParameterf(this->Target,GL_TEXTURE_MIN_LOD,this->MinLOD);
-  glTexParameterf(this->Target,GL_TEXTURE_MAX_LOD,this->MaxLOD);
-  glTexParameteri(this->Target,GL_TEXTURE_BASE_LEVEL,this->BaseLevel);
-  glTexParameteri(this->Target,GL_TEXTURE_MAX_LEVEL,this->MaxLevel);
+  glTexParameterf(this->Target, GL_TEXTURE_MIN_LOD, this->MinLOD);
+  glTexParameterf(this->Target, GL_TEXTURE_MAX_LOD, this->MaxLOD);
+  glTexParameteri(this->Target, GL_TEXTURE_BASE_LEVEL, this->BaseLevel);
+  glTexParameteri(this->Target, GL_TEXTURE_MAX_LEVEL, this->MaxLevel);
 
   glTexParameteri(
         this->Target,
@@ -1102,22 +1090,6 @@ void vtkTextureObject::SetDataType(unsigned int glType)
     {
     this->Type = glType;
     this->Modified();
-    }
-}
-
-//----------------------------------------------------------------------------
-unsigned int vtkTextureObject::GetDepthTextureModeFormat(int vtktype)
-{
-  switch (vtktype)
-    {
-    case DepthAlpha:
-      return GL_ALPHA;
-    case DepthLuminance:
-      return GL_LUMINANCE;
-    case DepthIntensity:
-      return GL_INTENSITY;
-    default:
-      return GL_LUMINANCE;
     }
 }
 
