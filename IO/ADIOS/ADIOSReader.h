@@ -45,6 +45,10 @@ public:
   void Open(const std::string &fileName);
 
   // Description:
+  // Close an already open file handle and free it's resources
+  void Close();
+
+  // Description:
   // Retrieve the total number of seps
   void GetStepRange(int &tStart, int &tEnd) const;
 

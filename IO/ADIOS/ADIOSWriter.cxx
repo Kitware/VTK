@@ -228,6 +228,23 @@ Writer::Writer(ADIOS::TransportMethod transport,
 //----------------------------------------------------------------------------
 Writer::~Writer()
 {
+  std::map<std::string, const WriterImpl::ScalarInfo*>::const_iterator s;
+  for(s = this->Impl->ScalarRegistry.begin();
+      s != this->Impl->ScalarRegistry.end();
+      ++s)
+    {
+    delete s->second;
+    }
+
+  std::map<std::string, const WriterImpl::ArrayInfo*>::const_iterator a;
+  for(a = this->Impl->ArrayRegistry.begin();
+      a != this->Impl->ArrayRegistry.end();
+      ++a)
+    {
+    delete a->second;
+    }
+
+  adios_free_group(this->Impl->Group);
   delete this->Impl;
   delete this->Ctx;
 }

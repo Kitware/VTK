@@ -141,6 +141,8 @@ Reader::Reader()
 //----------------------------------------------------------------------------
 Reader::~Reader()
 {
+  this->Close();
+
   delete this->Impl;
   delete this->Ctx;
 }
@@ -209,6 +211,16 @@ void Reader::Open(const std::string &fileName)
 }
 
 //----------------------------------------------------------------------------
+void Reader::Close()
+{
+  if(this->Impl->File)
+    {
+    adios_read_close(this->Impl->File);
+    this->Impl->File = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
 void Reader::GetStepRange(int &tStart, int &tEnd) const
 {
   ReadError::TestNe<ADIOS_FILE*>(NULL, this->Impl->File,
@@ -227,6 +239,8 @@ void Reader::ScheduleReadArray(int id, void *data, int step, int block)
   int err = adios_schedule_read_byid(this->Impl->File, sel, id,
     step, 1, data);
   ReadError::TestEq(0, err);
+
+  adios_selection_delete(sel);
 }
 
 //----------------------------------------------------------------------------
