@@ -17,61 +17,51 @@
 #ifndef __vtkADIOSDirTree_h
 #define __vtkADIOSDirTree_h
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include "vtkIndent.h"
 
+#include "ADIOSReader.h"
 #include "ADIOSScalar.h"
 #include "ADIOSVarInfo.h"
-#include "ADIOSReader.h"
 
-struct vtkADIOSDirTree
+class vtkADIOSDirTree
 {
-  std::map<std::string, const ADIOSScalar*> Scalars;
-  std::map<std::string, const ADIOSVarInfo*> Arrays;
-  std::map<std::string, vtkADIOSDirTree> SubDirs;
+public:
+  vtkADIOSDirTree(const std::string& name);
+  vtkADIOSDirTree(const ADIOS::Reader &reader);
+  ~vtkADIOSDirTree();
 
+  const std::string& GetName() const { return this->Name; }
   void PrintSelf(std::ostream& os, vtkIndent indent) const;
 
   // Description:
-  // Cosntruct a directory tree form pre-cached ADIOS data
-  void BuildDirTree(const ADIOSReader &reader);
-
-  // Description:
-  // Retrieve a directory object
-  vtkADIOSDirTree* GetDir(const std::string& path, size_t numDrop = 0,
-    bool createPath = false)
-  {
-    std::vector<std::string> tok;
-    Tokenize(path, tok);
-    return GetDir(tok, numDrop, createPath);
-  }
-
-  vtkADIOSDirTree* GetDir(const std::vector<std::string>& path,
-    size_t numDrop, bool createPath);
-
-  const vtkADIOSDirTree* GetDir(const std::string& path,
-    size_t numDrop = 0) const
-  {
-    std::vector<std::string> tok;
-    Tokenize(path, tok);
-    return GetDir(tok, numDrop);
-  }
-  const vtkADIOSDirTree* GetDir(const std::vector<std::string>& path,
-    size_t numDrop = 0) const;
+  // Access a subdirectory
+  const vtkADIOSDirTree* GetDir(const std::string& dirName) const;
 
   // Description:
   // Access variables by name
-  const ADIOSVarInfo* operator[](const std::string& name) const;
-
-  const ADIOSScalar* GetScalar(const std::string& name) const;
+  const ADIOS::Scalar* GetScalar(const std::string& varName) const;
+  const ADIOS::VarInfo* GetArray(const std::string& varName) const;
 
   // Description:
-  // A helper function to split a string into delimited components
-  static void Tokenize(const std::string& path, std::vector<std::string>& split,
-    char delim='/');
+  // Access variables all at once
+  void GetScalars(std::vector<const ADIOS::Scalar*>& vars) const;
+  void GetArrays(std::vector<const ADIOS::VarInfo*>& vars) const;
+
+private:
+  vtkADIOSDirTree* BuildPath(const std::vector<std::string>& path,
+    size_t startIdx, size_t numComponents);
+
+  const vtkADIOSDirTree* GetDir(const std::vector<std::string>& path,
+    size_t pIdx) const;
+
+  const std::string Name;
+  std::map<std::string, const ADIOS::Scalar*> Scalars;
+  std::map<std::string, const ADIOS::VarInfo*> Arrays;
+  std::map<std::string, vtkADIOSDirTree*> SubDirs;
 };
 
 #endif

@@ -17,35 +17,36 @@
 #ifndef _ADIOSReader_h
 #define _ADIOSReader_h
 
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <utility>
 
 #include <adios_mpi.h>
-#include <adios_read.h>
 
+#include "ADIOSAttribute.h"
 #include "ADIOSDefs.h"
 #include "ADIOSScalar.h"
 #include "ADIOSVarInfo.h"
-#include "ADIOSAttribute.h"
 
-class ADIOSReader
+namespace ADIOS
+{
+
+class Reader
 {
 public:
   static bool SetCommunicator(MPI_Comm);
-  static bool SetReadMethod(ADIOS::ReadMethod, const std::string&);
+  static bool SetReadMethod(ReadMethod, const std::string&);
 
-protected:
-  struct Context;
-  Context *ReaderContext;
-
-public:
-  ADIOSReader();
-  ~ADIOSReader();
+  Reader();
+  ~Reader();
 
   // Description:
   // Open the ADIOS file and cache the variable names and scalar data
-  void OpenFile(const std::string &fileName);
+  void Open(const std::string &fileName);
+
+  // Description:
+  // Close an already open file handle and free it's resources
+  void Close();
 
   // Description:
   // Retrieve the total number of seps
@@ -53,30 +54,21 @@ public:
 
   // Description:
   // Retrieve a list of attributes
-  const std::vector<ADIOSAttribute*>& GetAttributes() const;
+  const std::vector<const Attribute*>& GetAttributes() const;
 
   // Description:
   // Retrieve a list of scalars and thier associated metadata
-  const std::vector<ADIOSScalar*>& GetScalars() const;
+  const std::vector<const Scalar*>& GetScalars() const;
 
   // Description:
   // Retrieve a list of arrays and thier associated metadata
-  const std::vector<ADIOSVarInfo*>& GetArrays() const;
+  const std::vector<const VarInfo*>& GetArrays() const;
 
   // Description:
   // Schedule array data to be read. Data will be read with ReadArrays.
   // step specified the time step index to read and block specifies the
   // write block index to read (-1 means use whatever your current mpi rank is)
-  template<typename T>
-  void ScheduleReadArray(const std::string &path, T *data, int step,
-    int block=-1);
-
-  // Description:
-  // Schedule array data to be read. Data will be read with ReadArrays.
-  // step specified the time step index to read and block specifies the
-  // write block index to read (-1 means use whatever your current mpi rank is)
-  template<typename T>
-  void ScheduleReadArray(int id, T *data, int step, int block=-1);
+  void ScheduleReadArray(int id, void *data, int step, int block);
 
   // Description:
   // Perform all scheduled array read operations
@@ -86,11 +78,16 @@ public:
   // Whether or not the file / stream is already open
   bool IsOpen() const;
 
-protected:
-  struct ADIOSReaderImpl;
+private:
+  // Initialization context to manage one-time init and finalize of ADIOS
+  struct InitContext;
+  InitContext *Ctx;
 
-  ADIOSReaderImpl *Impl;
+  // ADIOS specific implementation details (file handles, group sizes, etc.)
+  struct ReaderImpl;
+  ReaderImpl *Impl;
 };
 
+} // End anmespace ADIOS
 #endif
 // VTK-HeaderTest-Exclude: ADIOSReader.h

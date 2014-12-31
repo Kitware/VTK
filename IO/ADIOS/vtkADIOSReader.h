@@ -14,24 +14,30 @@
 =========================================================================*/
 // .NAME vtkADIOSReader - Read ADIOS files.
 // .SECTION Description
-// vtkADIOSReader is the base class for all ADIOS writers
+// vtkADIOSReader is the base class for all ADIOS readers
 
 #ifndef __vtkADIOSReader_h
 #define __vtkADIOSReader_h
 
-#include <string> // For variable name index mapping
-#include <vector> // For independently time stepped array indexing
 #include <map>    // For independently time stepped array indexing
 #include <queue>  // For post read operations
+#include <string> // For variable name index mapping
+#include <vector> // For independently time stepped array indexing
 
-#include "vtkAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkMultiProcessController.h" // For the MPI controller member
 #include "vtkSetGet.h"                 // For property get/set macros
 #include "vtkSmartPointer.h"           // For the object cache
+
+#include "ADIOSDefs.h"                 // For enum definitions
+
 #include "vtkIOADIOSModule.h"          // For export macro
 
-class ADIOSVarInfo;
-class ADIOSReader;
+namespace ADIOS
+{
+class VarInfo;
+class Reader;
+}
 class vtkADIOSDirTree;
 class BaseFunctor;
 
@@ -47,36 +53,34 @@ class vtkUnstructuredGrid;
 
 //----------------------------------------------------------------------------
 
-class VTKIOADIOS_EXPORT vtkADIOSReader : public vtkAlgorithm
+class VTKIOADIOS_EXPORT vtkADIOSReader : public vtkDataObjectAlgorithm
 {
 public:
   static vtkADIOSReader* New(void);
-  vtkTypeMacro(vtkADIOSReader,vtkAlgorithm);
+  vtkTypeMacro(vtkADIOSReader,vtkDataObjectAlgorithm);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Test wether or not a given file should even be attempted for use with this
+  // reader.
+  int CanReadFile(const char* name);
 
   // Description:
   // Get/Set the inut filename
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-  enum
-  {
-    BP          = 0,
-    BPAggregate = 1,
-    DataSpaces  = 3,
-    DIMES       = 4,
-    FlexPath    = 5
-  };
-
   // Description:
   // Get/Set the ADIOS read method
-  vtkSetClampMacro(ReadMethod, int, BP, FlexPath);
   vtkGetMacro(ReadMethod, int);
-  void SetReadMethodBP()          { this->SetReadMethod(BP); }
-  void SetReadMethodBPAggregate() { this->SetReadMethod(BPAggregate); }
-  void SetReadMethodDataSpaces()  { this->SetReadMethod(DataSpaces); }
-  void SetReadMethodDIMES()       { this->SetReadMethod(DIMES); }
-  void SetReadMethodFlexPath()    { this->SetReadMethod(FlexPath); }
+  vtkSetClampMacro(ReadMethod, int,
+                   static_cast<int>(ADIOS::ReadMethod_BP),
+                   static_cast<int>(ADIOS::ReadMethod_FlexPath));
+  void SetReadMethodBP()          { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_BP)); }
+  void SetReadMethodBPAggregate() { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_BP_AGGREGATE)); }
+  void SetReadMethodDataSpaces()  { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_DataSpaces)); }
+  void SetReadMethodDIMES()       { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_DIMES)); }
+  void SetReadMethodFlexPath()    { this->SetReadMethod(static_cast<int>(ADIOS::ReadMethod_FlexPath)); }
 
 
   // Description:
@@ -115,7 +119,8 @@ protected:
   // methods do not perform any validation and assume that the provides ADIOS
   // structures and vtk objects are properly formed.  Arrays will be scheduled
   // for reading afterwards
-  void ReadObject(const ADIOSVarInfo* info, vtkDataArray* data, int blockId);
+  void ReadObject(const ADIOS::VarInfo* info, const vtkADIOSDirTree *subDir,
+    vtkDataArray* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkCellArray* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkFieldData* data, int blockId);
   void ReadObject(const vtkADIOSDirTree *dir, vtkDataSetAttributes* data, int blockId);
@@ -128,7 +133,7 @@ protected:
   int ReadMethod;
   char *ReadMethodArguments;
   vtkADIOSDirTree *Tree;
-  ADIOSReader *Reader;
+  ADIOS::Reader *Reader;
   vtkMultiProcessController *Controller;
 
   // Index information for independently stepped variables
@@ -169,7 +174,7 @@ protected:
    * they have been assigned to a vtk object.  To work around this, a generic
    * action queue is created to hold a list of arbitrary functions that need
    * to be called in a particular order after the reads have been
-   * processed.  The AddPostReadOperation prototypes use a high number of
+   * processed.  The AddPostReadOperation prototypes use a large number of
    * template parameters in order to permit the compiler to automatically
    * perform the correct type deduction necessary to translate between
    * member function signatures and the objects and arguments they get called
@@ -205,17 +210,19 @@ protected:
     TReturn (TObjectFun::*)(TArg1Fun, TArg2Fun, TArg3Fun),
     TArg1Data, TArg2Data, TArg3Data);
 
-protected:
   // Used to implement vtkAlgorithm
 
   int FillOutputPortInformation(int, vtkInformation*);
 
-  bool RequestInformation(vtkInformation *request,
-    vtkInformationVector **input, vtkInformationVector *output);
-  bool RequestUpdateExtent(vtkInformation *request,
-    vtkInformationVector **input, vtkInformationVector *output);
-  bool RequestData(vtkInformation *request,
-    vtkInformationVector **input, vtkInformationVector *output);
+  virtual int RequestInformation(vtkInformation *request,
+                                 vtkInformationVector **input,
+                                 vtkInformationVector *output);
+  virtual int RequestUpdateExtent(vtkInformation *request,
+                                  vtkInformationVector **input,
+                                  vtkInformationVector *output);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **input,
+                          vtkInformationVector *output);
 
   int NumberOfPieces;
   std::vector<double> TimeSteps;
