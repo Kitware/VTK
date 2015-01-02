@@ -24,7 +24,7 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 {
-  this->Initialized = false;
+  //this->Initialized = false;
 }
 
 //----------------------------------------------------------------------------
@@ -35,11 +35,12 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
-  if (!this->Initialized)
-    {
-    this->InitializeFromCurrentContext();
-    this->Initialized = true;
-    }
+//  if (!this->Initialized)
+//    {
+//    this->OpenGLInit();
+//    this->InitializeFromCurrentContext();
+//    this->Initialized = true;
+//    }
 //  if (!this->DisplayId || !this->WindowId)
 //    {
 //    this->InitializeFromCurrentContext();
@@ -51,8 +52,11 @@ void vtkExternalOpenGLRenderWindow::Start(void)
 //                         this->WindowId, &attribs);
 //    this->SetSize(attribs.width, attribs.height);
 //    }
-//
-  this->MakeCurrent();
+
+//  std::cout << "Calling make current" << std::endl;
+//  this->MakeCurrent();
+//  this->PushState();
+//  this->OpenGLInitState();
 
   // For stereo, render the correct eye based on the OpenGL buffer mode
   GLint bufferType;

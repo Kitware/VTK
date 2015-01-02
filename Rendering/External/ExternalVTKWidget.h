@@ -22,14 +22,14 @@
 
 #include "vtkExternalOpenGLRenderer.h"
 #include "vtkExternalOpenGLRenderWindow.h"
-#include "vtkGenericRenderWindowInteractor.h"
+//#include "vtkGenericRenderWindowInteractor.h"
 #include "vtkObject.h"
 #include "vtkRenderingExternalModule.h" // For export macro
 
 // Forward Declarations
 class vtkRenderer;
 class vtkRenderWindow;
-class vtkGenericRenderWindowInteractor;
+//class vtkGenericRenderWindowInteractor;
 
 class VTKRENDERINGEXTERNAL_EXPORT ExternalVTKWidget :
   public vtkObject
@@ -40,13 +40,14 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Get the render window
-  vtkExternalOpenGLRenderWindow* GetRenderWindow();
+  vtkExternalOpenGLRenderWindow* GetRenderWindow(void);
+  void SetRenderWindow(vtkExternalOpenGLRenderWindow* renWin);
 
   // Get the renderer
   vtkExternalOpenGLRenderer* GetRenderer();
 
-  // Get the interactor
-  vtkGenericRenderWindowInteractor* GetInteractor();
+//  // Get the interactor
+//  vtkGenericRenderWindowInteractor* GetInteractor();
 
 protected:
   ExternalVTKWidget();
@@ -54,7 +55,7 @@ protected:
 
   vtkExternalOpenGLRenderer* Renderer;
   vtkExternalOpenGLRenderWindow* RenderWindow;
-  vtkGenericRenderWindowInteractor* Interactor;
+//  vtkGenericRenderWindowInteractor* Interactor;
 
 private:
   ExternalVTKWidget(const ExternalVTKWidget&); // Not implemented
