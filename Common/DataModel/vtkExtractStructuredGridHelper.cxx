@@ -143,7 +143,7 @@ void vtkExtractStructuredGridHelper::Initialize(
       this->IndexMap->Mapping[ i ].clear();
       }
     this->Invalidate();
-    vtkErrorMacro(<< "Extent ["
+    vtkDebugMacro(<< "Extent ["
                   << wholeExtent[0] << ", " << wholeExtent[1] << ", "
                   << wholeExtent[2] << ", " << wholeExtent[3] << ", "
                   << wholeExtent[4] << ", " << wholeExtent[5]
