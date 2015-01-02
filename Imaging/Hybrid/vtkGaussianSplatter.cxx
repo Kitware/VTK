@@ -520,7 +520,7 @@ void vtkGaussianSplatter::SetScalar(int idx, double dist2,
   if ( ! this->Visited[idx] )
     {
     this->Visited[idx] = 1;
-    newScalars->SetTuple(idx,&v);
+    newScalars->SetValue(idx,v);
     }
   else
     {
@@ -528,14 +528,14 @@ void vtkGaussianSplatter::SetScalar(int idx, double dist2,
     switch (this->AccumulationMode)
       {
       case VTK_ACCUMULATION_MODE_MIN:
-        newScalars->SetTuple(idx,(s < v ? &s : &v));
+        newScalars->SetValue(idx,(s<v ? s : v));
         break;
       case VTK_ACCUMULATION_MODE_MAX:
-        newScalars->SetTuple(idx,(s > v ? &s : &v));
+        newScalars->SetValue(idx,(s>v ? s : v));
         break;
       case VTK_ACCUMULATION_MODE_SUM:
         s += v;
-        newScalars->SetTuple(idx,&s);
+        newScalars->SetValue(idx,s);
         break;
       }
     }//not first visit
