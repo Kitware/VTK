@@ -11,7 +11,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGLSphereMapper.h"
+#include "vtkOpenGLPointGaussianMapper.h"
 
 #include "vtkglVBOHelper.h"
 
@@ -19,38 +19,90 @@
 #include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 
-#include "vtkSphereMapperVS.h"
+#include "vtkPointGaussianVS.h"
+#include "vtkglPolyDataFSNoLighting.h"
 
 using vtkgl::replace;
 
-//-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLSphereMapper)
+
+class vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
+{
+public:
+  static vtkOpenGLPointGaussianMapperHelper* New();
+  vtkTypeMacro(vtkOpenGLPointGaussianMapperHelper, vtkOpenGLPolyDataMapper)
+
+  vtkPointGaussianMapper *Owner;
+
+protected:
+  vtkOpenGLPointGaussianMapperHelper();
+  ~vtkOpenGLPointGaussianMapperHelper();
+
+  // Description:
+  // Create the basic shaders before replacement
+  virtual void GetShaderTemplate(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Perform string replacments on the shader templates
+  virtual void ReplaceShaderValues(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Set the shader parameters related to the Camera
+  virtual void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Set the shader parameters related to the actor/mapper
+  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Update the VBO to contain point based values
+  virtual void UpdateVBO(vtkRenderer *ren, vtkActor *act);
+
+  virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
+
+private:
+  vtkOpenGLPointGaussianMapperHelper(const vtkOpenGLPointGaussianMapperHelper&); // Not implemented.
+  void operator=(const vtkOpenGLPointGaussianMapperHelper&); // Not implemented.
+};
 
 //-----------------------------------------------------------------------------
-vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()
+vtkStandardNewMacro(vtkOpenGLPointGaussianMapperHelper)
+
+//-----------------------------------------------------------------------------
+vtkOpenGLPointGaussianMapperHelper::vtkOpenGLPointGaussianMapperHelper()
 {
-  this->ScaleArray = 0;
-  this->Invert = false;
+  this->Owner = NULL;
 }
 
+
 //-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::GetShaderTemplate(std::string &VSSource,
+void vtkOpenGLPointGaussianMapperHelper::GetShaderTemplate(std::string &VSSource,
                                           std::string &FSSource,
                                           std::string &GSSource,
-                                          int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+                                          int vtkNotUsed(lightComplexity),
+                                          vtkRenderer* vtkNotUsed(ren),
+                                          vtkActor *vtkNotUsed(actor))
 {
-  this->Superclass::GetShaderTemplate(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
-
-  VSSource = vtkSphereMapperVS;
+  VSSource = vtkPointGaussianVS;
+  FSSource = vtkglPolyDataFSNoLighting;
+  GSSource = "";
 }
 
-void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
+void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSource,
                                                  std::string &FSSource,
                                                  std::string &GSSource,
                                                  int lightComplexity,
@@ -59,82 +111,28 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
 {
   FSSource = replace(FSSource,
     "//VTK::PositionVC::Dec",
-    "varying vec4 vertexVCClose;");
+    "varying vec2 offsetVC;");
 
-  // for lights kit and positional the VCDC matrix is already defined
-  // so don't redefine it
-  std::string replacement =
-    "uniform float invertedDepth;\n"
-    "uniform int cameraParallel;\n"
-    "varying float radiusVC;\n"
-    "varying vec3 centerVC;\n";
-
-  if (lightComplexity < 2)
-    {
-    replacement += "uniform mat4 VCDCMatrix;\n";
-    }
-  FSSource = replace(FSSource,"//VTK::Normal::Dec",replacement);
-
-  FSSource = replace(FSSource,"//VTK::Normal::Impl",
+  FSSource = replace(FSSource,"//VTK::Color::Impl",
     // compute the eye position and unit direction
-    "vec4 vertexVC = vertexVCClose;\n"
-    "  vec3 EyePos = vec3(0.0,0.0,0.0);\n"
-    "  if (cameraParallel != 0) { EyePos = vertexVC.xyz;}\n"
-    "  vec3 EyeDir = vertexVC.xyz - EyePos;\n"
-    // we adjust the EyePos to be closer if it is too far away
-    // to prevent floating point precision noise
-    "  float lengthED = length(EyeDir);\n"
-    "  EyeDir = normalize(EyeDir);\n"
-    "  if (lengthED > radiusVC*3.0) { EyePos = vertexVC.xyz - EyeDir*3.0*radiusVC;}\n"
-
-    // translate to Sphere center
-    "  EyePos = EyePos - centerVC;\n"
-    // scale to radius 1.0
-    "  EyePos = EyePos/radiusVC;\n"
-    // find the intersection
-    "  float b = 2.0*dot(EyePos,EyeDir);\n"
-    "  float c = dot(EyePos,EyePos) - 1.0;\n"
-    "  float d = b*b - 4.0*c;\n"
-    "  vec3 normalVC = vec3(0.0,0.0,1.0);\n"
-    "  if (d < 0.0) { discard; }\n"
-    "  else {\n"
-    "    float t = (-b - invertedDepth*sqrt(d))*0.5;\n"
-
-    // compute the normal, for unit sphere this is just
-    // the intersection point
-    "    normalVC = invertedDepth*normalize(EyePos + t*EyeDir);\n"
-    // compute the intersection point in VC
-    "    vertexVC.xyz = normalVC*radiusVC + centerVC;\n"
-    "    }\n"
-    // compute the pixel's depth
-   // " normalVC = vec3(0,0,1);\n"
-    "  vec4 pos = VCDCMatrix * vertexVC;\n"
-    "  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;\n"
-    );
-
-  if (ren->GetLastRenderingUsedDepthPeeling())
-    {
-    FSSource = vtkgl::replace(FSSource,
-      "//VTK::DepthPeeling::Impl",
-      "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragDepth >= odepth) { discard; }\n"
-      "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragDepth <= tdepth) { discard; }\n"
-      );
-    }
+    "//VTK::Color::Impl\n"
+    "  float dist2 = dot(offsetVC.xy,offsetVC.xy);\n"
+    "  float gaussian = exp(-0.5*16.0*dist2);\n"
+//    "  diffuseColor = vertexColor.rgb;\n"
+//    "  ambientColor = vertexColor.rgb;\n"
+    "  opacity = opacity*gaussian;"
+    , false);
 
   this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
 }
 
 //-----------------------------------------------------------------------------
-vtkOpenGLSphereMapper::~vtkOpenGLSphereMapper()
+vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper()
 {
-  this->SetScaleArray(0);
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
   // do the superclass and then reset a couple values
@@ -145,8 +143,9 @@ void vtkOpenGLSphereMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
   cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
 }
 
+
 //-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
   if (cellBO.indexCount && (this->OpenGLUpdateTime > cellBO.attributeUpdateTime ||
@@ -162,38 +161,31 @@ void vtkOpenGLSphereMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     }
 
-  cellBO.Program->SetUniformf("invertedDepth", this->Invert ? -1.0 : 1.0);
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
 }
 
 
-//-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
-
 namespace
 {
 // internal function called by CreateVBO
-vtkgl::VBOLayout vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
+vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(float * points, vtkIdType numPts,
               unsigned char *colors, int colorComponents,
               float *sizes,
               vtkgl::BufferObject &vertexBuffer)
 {
   vtkgl::VBOLayout layout;
-  // Figure out how big each block will be, currently 6 or 7 floats.
-  int blockSize = 3;
+  // Figure out how big each block will be, currently 6 floats.
+  int blockSize = 3;  // x y z
   layout.VertexOffset = 0;
   layout.NormalOffset = 0;
   layout.TCoordOffset = 0;
   layout.TCoordComponents = 0;
   layout.ColorComponents = colorComponents;
   layout.ColorOffset = sizeof(float) * blockSize;
-  ++blockSize;
+  ++blockSize; // color
 
   // two more floats
-  blockSize += 2;
+  blockSize += 2;  // offset
   layout.Stride = sizeof(float) * blockSize;
 
   // Create a buffer, and copy the data over.
@@ -240,8 +232,23 @@ vtkgl::VBOLayout vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts
 }
 }
 
+size_t vtkOpenGLPointGaussianMapperHelperCreateTriangleIndexBuffer(
+  vtkgl::BufferObject &indexBuffer,
+  int numPts)
+{
+  std::vector<unsigned int> indexArray;
+  indexArray.reserve(numPts * 3);
+
+  for (int i = 0; i < numPts*3; i++)
+    {
+    indexArray.push_back(i);
+    }
+  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  return indexArray.size();
+}
+
 //-------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+void vtkOpenGLPointGaussianMapperHelper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 
@@ -261,11 +268,12 @@ void vtkOpenGLSphereMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *ac
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
   this->Layout =
-    vtkOpenGLSphereMapperCreateVBO(static_cast<float *>(poly->GetPoints()->GetVoidPointer(0)),
+    vtkOpenGLPointGaussianMapperHelperCreateVBO(static_cast<float *>(poly->GetPoints()->GetVoidPointer(0)),
               poly->GetPoints()->GetNumberOfPoints(),
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              static_cast<float *>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0)),
+              static_cast<float *>(poly->GetPointData()->GetArray(
+                this->Owner->GetScaleArray())->GetVoidPointer(0)),
               this->VBO);
 
   // create the IBO
@@ -275,34 +283,54 @@ void vtkOpenGLSphereMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *ac
   this->Tris.indexCount = this->Layout.VertexCount;
 }
 
-
-//----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::Render(vtkRenderer *ren, vtkActor *act)
-{
-  vtkProperty *prop = act->GetProperty();
-  bool is_opaque = (prop->GetOpacity() >= 1.0);
-
-  // if we are transparent (and not backface culling) we have to draw twice
-  if (!is_opaque && !prop->GetBackfaceCulling())
-    {
-    this->Invert = true;
-    this->Superclass::Render(ren,act);
-    this->Invert = false;
-    }
-  this->Superclass::Render(ren,act);
-}
-
 //-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   vtkgl::VBOLayout &layout = this->Layout;
 
   // draw polygons
-  if (this->Tris.indexCount)
+  glDepthMask(GL_FALSE);
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
+  if (layout.VertexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
-    glDrawArrays(GL_TRIANGLES, 0,
-                static_cast<GLuint>(layout.VertexCount));
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLuint>(layout.VertexCount));
     }
+}
+
+
+//-----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkOpenGLPointGaussianMapper)
+
+//-----------------------------------------------------------------------------
+vtkOpenGLPointGaussianMapper::vtkOpenGLPointGaussianMapper()
+{
+  this->Helper = vtkOpenGLPointGaussianMapperHelper::New();
+  this->Helper->Owner = this;
+}
+
+vtkOpenGLPointGaussianMapper::~vtkOpenGLPointGaussianMapper()
+{
+  this->Helper->Delete();
+  this->Helper = 0;
+}
+
+void vtkOpenGLPointGaussianMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
+{
+  if (this->GetMTime() > this->HelperUpdateTime)
+    {
+    this->Helper->SetInputData(this->GetInput());
+    this->Helper->vtkPolyDataMapper::ShallowCopy(this);
+    this->HelperUpdateTime.Modified();
+    }
+  this->Helper->RenderPiece(ren,act);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Scale Array: " << this->ScaleArray << "\n";
 }

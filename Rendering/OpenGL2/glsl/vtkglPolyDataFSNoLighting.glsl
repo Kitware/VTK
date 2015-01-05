@@ -17,6 +17,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// VC positon of this fragment
+//VTK::PositionVC::Dec
+
 varying vec4 fcolor;
 
 // Texture coordinates

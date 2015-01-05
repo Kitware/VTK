@@ -53,6 +53,7 @@ set(Module_SRCS
   vtkMapperCollection.cxx
   vtkMapper.cxx
   vtkObserverMediator.cxx
+  vtkPointGaussianMapper.cxx
   vtkPolyDataMapper2D.cxx
   vtkPolyDataMapper.cxx
   vtkProp3DCollection.cxx
@@ -159,6 +160,7 @@ set_source_files_properties(
   vtkInteractorObserver
   vtkMapper
   vtkMapper2D
+  vtkPointGaussianMapper
   vtkProp
   vtkProp3D
   vtkRendererDelegate
