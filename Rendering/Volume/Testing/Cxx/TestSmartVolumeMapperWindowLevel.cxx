@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPUVolumeRayCastMapperWindowLevel.cxx
+  Module:    TestSmartVolumeMapperWindowLevel.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,7 +19,6 @@
 
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMetaImageReader.h"
@@ -30,10 +29,11 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartVolumeMapper.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
 
-static const char * TestGPUVolumeRayCastMapperWindowLevelLog =
+static const char * TestSmartVolumeMapperWindowLevelLog =
 "# StreamVersion 1\n"
 "EnterEvent 398 137 0 0 0 0 0\n"
 "MouseMoveEvent 398 137 0 0 0 0 0\n"
@@ -588,8 +588,8 @@ static const char * TestGPUVolumeRayCastMapperWindowLevelLog =
 "LeaveEvent 410 246 0 0 0 0 0\n"
 ;
 
-int TestGPUVolumeRayCastMapperWindowLevel(int argc,
-                                          char *argv[])
+int TestSmartVolumeMapperWindowLevel(int argc,
+                                     char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -598,12 +598,16 @@ int TestGPUVolumeRayCastMapperWindowLevel(int argc,
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren1;
-  ren1->SetViewport(0.0, 0.0, 0.5, 1.0);
+  ren1->SetViewport(0.0, 0.0, 0.33, 1.0);
   renWin->AddRenderer(ren1.GetPointer());
   vtkNew<vtkRenderer> ren2;
-  ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
+  ren2->SetViewport(0.33, 0.0, 0.66, 1.0);
   renWin->AddRenderer(ren2.GetPointer());
   ren2->SetActiveCamera(ren1->GetActiveCamera());
+  vtkNew<vtkRenderer> ren3;
+  ren3->SetViewport(0.66, 0.0, 1.0, 1.0);
+  renWin->AddRenderer(ren3.GetPointer());
+  ren3->SetActiveCamera(ren1->GetActiveCamera());
 
 
   vtkNew<vtkRenderWindowInteractor> iren;
@@ -620,14 +624,13 @@ int TestGPUVolumeRayCastMapperWindowLevel(int argc,
   reader->Update();
   delete [] fname;
 
-  vtkNew<vtkGPUVolumeRayCastMapper> mapper1;
-  mapper1->AutoAdjustSampleDistancesOff();
-  mapper1->SetSampleDistance(0.1);
+  vtkNew<vtkSmartVolumeMapper> mapper1;
   mapper1->SetInputConnection(reader->GetOutputPort());
-  vtkNew<vtkGPUVolumeRayCastMapper> mapper2;
-  mapper2->AutoAdjustSampleDistancesOff();
-  mapper2->SetSampleDistance(0.1);
+  vtkNew<vtkSmartVolumeMapper> mapper2;
   mapper2->SetInputConnection(reader->GetOutputPort());
+  vtkNew<vtkSmartVolumeMapper> mapper3;
+  mapper3->SetInputConnection(reader->GetOutputPort());
+  mapper3->SetRequestedRenderModeToRayCast();
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(1.0, 0.65, 1.0, 1.0);
@@ -644,33 +647,32 @@ int TestGPUVolumeRayCastMapperWindowLevel(int argc,
   // Make sure a context exists
   renWin->Render();
 
-  if (mapper1->IsRenderSupported(renWin.GetPointer(),
-                                 volumeProperty.GetPointer()))
-    {
-    mapper1->SetBlendModeToMaximumIntensity();
-    mapper2->SetBlendModeToMaximumIntensity();
-    mapper2->SetFinalColorWindow(0.2);
-    mapper2->SetFinalColorLevel(0.75);
+  mapper1->SetBlendModeToMaximumIntensity();
+  mapper2->SetBlendModeToMaximumIntensity();
+  mapper2->SetFinalColorWindow(0.2);
+  mapper2->SetFinalColorLevel(0.75);
+  mapper3->SetBlendModeToMaximumIntensity();
+  mapper3->SetFinalColorWindow(0.2);
+  mapper3->SetFinalColorLevel(0.75);
 
-    vtkNew<vtkVolume> volume1;
-    volume1->SetMapper(mapper1.GetPointer());
-    volume1->SetProperty(volumeProperty.GetPointer());
-    ren1->AddVolume(volume1.GetPointer());
-    vtkNew<vtkVolume> volume2;
-    volume2->SetMapper(mapper2.GetPointer());
-    volume2->SetProperty(volumeProperty.GetPointer());
-    ren2->AddVolume(volume2.GetPointer());
+  vtkNew<vtkVolume> volume1;
+  volume1->SetMapper(mapper1.GetPointer());
+  volume1->SetProperty(volumeProperty.GetPointer());
+  ren1->AddVolume(volume1.GetPointer());
+  vtkNew<vtkVolume> volume2;
+  volume2->SetMapper(mapper2.GetPointer());
+  volume2->SetProperty(volumeProperty.GetPointer());
+  ren2->AddVolume(volume2.GetPointer());
+  vtkNew<vtkVolume> volume3;
+  volume3->SetMapper(mapper3.GetPointer());
+  volume3->SetProperty(volumeProperty.GetPointer());
+  ren3->AddVolume(volume3.GetPointer());
 
-    ren1->ResetCamera();
-    ren2->ResetCamera();
-    renWin->Render();
+  ren1->ResetCamera();
+  ren2->ResetCamera();
+  ren3->ResetCamera();
+  renWin->Render();
 
-    return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
-                                           TestGPUVolumeRayCastMapperWindowLevelLog);
-    }
-  else
-    {
-    cout << "Required extensions not supported." << endl;
-    return !(vtkTesting::PASSED);
-    }
+  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
+                                         TestSmartVolumeMapperWindowLevelLog);
 }
