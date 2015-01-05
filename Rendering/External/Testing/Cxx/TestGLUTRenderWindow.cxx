@@ -18,8 +18,13 @@
 // vtkExternalOpenGLRenderer by drawing a GL_TRIANGLE in the scene before
 // drawing the vtk sphere.
 
-// OpenGL includes
-#include <GL/glut.h>
+// GLUT includes
+#if defined(__APPLE__)
+# include <GLUT/glut.h> // Include GLUT API.
+#else
+# include "vtkWindows.h" // Needed to include OpenGL header on Windows.
+# include <GL/glut.h> // Include GLUT API.
+#endif
 
 // STD includes
 #include <iostream>
