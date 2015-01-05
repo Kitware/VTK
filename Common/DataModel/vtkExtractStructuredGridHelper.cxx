@@ -129,7 +129,7 @@ void vtkExtractStructuredGridHelper::Initialize(
   // Save the input parameters so we'll know when the map is out of date
   std::copy(voi, voi + 6, this->VOI);
   std::copy(wholeExtent, wholeExtent + 6, this->InputWholeExtent);
-  std::copy(sampleRate, sampleRate + 6, this->SampleRate);
+  std::copy(sampleRate, sampleRate + 3, this->SampleRate);
   this->IncludeBoundary = includeBoundary;
 
   vtkBoundingBox wExtB(wholeExtent[0], wholeExtent[1], wholeExtent[2],
