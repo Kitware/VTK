@@ -132,7 +132,7 @@ int vtkExtractGrid::RequestData(
 }
 
 //------------------------------------------------------------------------------
-bool vtkExtractGrid::RequestDataImpl(int voi[6],
+bool vtkExtractGrid::RequestDataImpl(int vtkNotUsed(voi)[6],
                                      vtkInformationVector **inputVector,
                                      vtkInformationVector *outputVector)
 {
