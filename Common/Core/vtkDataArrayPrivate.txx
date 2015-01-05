@@ -22,7 +22,7 @@
 
 namespace vtkDataArrayPrivate
 {
-#if( _MSC_VER < 1900)
+#if defined(_MSC_VER) && ( _MSC_VER < 1900 )
 namespace msvc
 {
 //----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ ValueType min(const ValueType& left, const ValueType& right)
 
 namespace detail
 {
-#if (_MSC_VER < 1900)
+#if defined(_MSC_VER) && ( _MSC_VER < 1900 )
 using msvc::min;
 using msvc::max;
 #else
