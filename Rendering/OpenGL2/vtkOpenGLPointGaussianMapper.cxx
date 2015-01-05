@@ -331,6 +331,4 @@ void vtkOpenGLPointGaussianMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 void vtkOpenGLPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Scale Array: " << this->ScaleArray << "\n";
 }

@@ -35,5 +35,5 @@ void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Scale Array: " << this->ScaleArray << "\n";
+  os << indent << "Scale Array: " << (this->ScaleArray ? this->ScaleArray : "(none)") << "\n";
 }
