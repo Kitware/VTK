@@ -20,7 +20,40 @@
 #include <algorithm>
 #include <cassert> // for assert()
 
-namespace vtkDataArrayPrivate{
+namespace vtkDataArrayPrivate
+{
+#if( _MSC_VER < 1900)
+namespace msvc
+{
+//----------------------------------------------------------------------------
+// Those min and max functions replace std ones because their
+// implementation used to generate very slow code with MSVC.
+// See https://randomascii.wordpress.com/2013/11/24/stdmin-causing-three-times-slowdown-on-vc/
+template <class ValueType>
+ValueType max(const ValueType& left, const ValueType& right)
+{
+  return left > right ? left : right;
+}
+
+template <class ValueType>
+ValueType min(const ValueType& left, const ValueType& right)
+{
+  return left <= right ? left : right;
+}
+}
+#endif
+
+namespace detail
+{
+#if (_MSC_VER < 1900)
+using msvc::min;
+using msvc::max;
+#else
+using std::min;
+using std::max;
+#endif
+}
+
 //----------------------------------------------------------------------------
 template <class ValueType, int NumComps, int RangeSize>
 struct ComputeScalarRange
@@ -30,27 +63,27 @@ struct ComputeScalarRange
                   double* ranges)
   {
     ValueType tempRange[RangeSize];
-    for(int i=0; i < NumComps; ++i)
+    for(int i = 0, j = 0; i < NumComps; ++i, j+=2)
       {
-      tempRange[ (i*2) ] = vtkTypeTraits<ValueType>::Max();
-      tempRange[ (i*2)+1 ] = vtkTypeTraits<ValueType>::Min();
+      tempRange[j] = vtkTypeTraits<ValueType>::Max();
+      tempRange[j+1] = vtkTypeTraits<ValueType>::Min();
       }
 
     //compute the range for each component of the data array at the same time
     for(InputIteratorType value = begin; value != end; value+=NumComps)
       {
-      for(int i=0; i < NumComps; ++i)
+      for(int i = 0, j = 0; i < NumComps; ++i, j+=2)
         {
-        tempRange[ (i*2) ] = std::min(value[i],tempRange[ (i*2)] );
-        tempRange[ (i*2)+1 ] = std::max(value[i],tempRange[ (i*2)+1] );
+        tempRange[j] = detail::min(value[i], tempRange[j]);
+        tempRange[j+1] = detail::max(value[i], tempRange[j+1]);
         }
       }
 
     //convert the range to doubles
-    for(int i=0; i < NumComps; ++i)
+    for (int i = 0, j = 0; i < NumComps; ++i, j+=2)
       {
-      ranges[ (i*2) ] =  static_cast<double>(tempRange[ (i*2) ]);
-      ranges[ (i*2)+1 ] = static_cast<double>(tempRange[ (i*2)+1 ]);
+      ranges[j] = static_cast<double>(tempRange[j]);
+      ranges[j+1] = static_cast<double>(tempRange[j+1]);
       }
     return true;
   }
@@ -62,14 +95,14 @@ bool DoComputeScalarRange(InputIteratorType begin, InputIteratorType end,
                         const int numComp, double* ranges)
 {
   //setup the initial ranges to be the max,min for double
-  for(int i=0; i < numComp; ++i)
+  for (int i = 0, j = 0; i < numComp; ++i, j+=2)
     {
-    ranges[ (i*2) ] =  vtkTypeTraits<double>::Max();
-    ranges[ (i*2)+1 ] = vtkTypeTraits<double>::Min();
+    ranges[j] =  vtkTypeTraits<double>::Max();
+    ranges[j+1] = vtkTypeTraits<double>::Min();
     }
 
   //do this after we make sure range is max to min
-  if(begin == end)
+  if (begin == end)
     {
     return false;
     }
@@ -80,67 +113,67 @@ bool DoComputeScalarRange(InputIteratorType begin, InputIteratorType end,
 
   //Special case for single value scalar range. This is done to help the
   //compiler detect it can perform loop optimizations.
-  if(numComp == 1)
+  if (numComp == 1)
     {
-    return ComputeScalarRange<ValueType,1,2>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,1,2>()(begin, end, ranges);
     }
-  else if(numComp == 2)
+  else if (numComp == 2)
     {
-    return ComputeScalarRange<ValueType,2,4>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,2,4>()(begin, end, ranges);
     }
-  else if(numComp == 3)
+  else if (numComp == 3)
     {
-    return ComputeScalarRange<ValueType,3,6>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,3,6>()(begin, end, ranges);
     }
-  else if(numComp == 4)
+  else if (numComp == 4)
     {
-    return ComputeScalarRange<ValueType,4,8>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,4,8>()(begin, end, ranges);
     }
-  else if(numComp == 5)
+  else if (numComp == 5)
     {
-    return ComputeScalarRange<ValueType,5,10>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,5,10>()(begin, end, ranges);
     }
-  else if(numComp == 6)
+  else if (numComp == 6)
     {
-    return ComputeScalarRange<ValueType,6,12>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,6,12>()(begin, end, ranges);
     }
-  else if(numComp == 7)
+  else if (numComp == 7)
     {
-    return ComputeScalarRange<ValueType,7,14>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,7,14>()(begin, end, ranges);
     }
-  else if(numComp == 8)
+  else if (numComp == 8)
     {
-    return ComputeScalarRange<ValueType,8,16>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,8,16>()(begin, end, ranges);
     }
-  else if(numComp == 9)
+  else if (numComp == 9)
     {
-    return ComputeScalarRange<ValueType,9,18>()(begin,end,ranges);
+    return ComputeScalarRange<ValueType,9,18>()(begin, end, ranges);
     }
   else
     {
     //initialize the temp range storage to min/max pairs
     ValueType* tempRange = new ValueType[numComp*2];
-    for(int i=0; i < numComp; ++i)
+    for (int i = 0, j = 0; i < numComp; ++i, j+=2)
       {
-      tempRange[ (i*2) ] = vtkTypeTraits<ValueType>::Max();
-      tempRange[ (i*2)+1 ] = vtkTypeTraits<ValueType>::Min();
+      tempRange[j] = vtkTypeTraits<ValueType>::Max();
+      tempRange[j+1] = vtkTypeTraits<ValueType>::Min();
       }
 
     //compute the range for each component of the data array at the same time
-    for(InputIteratorType value = begin; value != end; value+=numComp)
+    for (InputIteratorType value = begin; value != end; value+=numComp)
       {
-      for(int i=0; i < numComp; ++i)
+      for(int i = 0, j = 0; i < numComp; ++i, j+=2)
         {
-        tempRange[ (i*2) ] = std::min(value[i],tempRange[ (i*2)] );
-        tempRange[ (i*2)+1 ] = std::max(value[i],tempRange[ (i*2)+1] );
+        tempRange[j] = detail::min(value[i], tempRange[j]);
+        tempRange[j+1] = detail::max(value[i], tempRange[j+1]);
         }
       }
 
     //convert the range to doubles
-    for(int i=0; i < numComp; ++i)
+    for (int i = 0, j = 0; i < numComp; ++i, j+=2)
       {
-      ranges[ (i*2) ] =  static_cast<double>(tempRange[ (i*2) ]);
-      ranges[ (i*2)+1 ] = static_cast<double>(tempRange[ (i*2)+1 ]);
+      ranges[j] = static_cast<double>(tempRange[j]);
+      ranges[j+1] = static_cast<double>(tempRange[j+1]);
       }
 
     //cleanup temp range storage
@@ -159,7 +192,7 @@ bool DoComputeVectorRange(InputIteratorType begin, InputIteratorType end,
   range[1] = vtkTypeTraits<double>::Min();
 
   //do this after we make sure range is max to min
-  if(begin == end)
+  if (begin == end)
     {
     return false;
     }
@@ -169,16 +202,16 @@ bool DoComputeVectorRange(InputIteratorType begin, InputIteratorType end,
   assert((end-begin) % numComp == 0);
 
   //iterate over all the tuples
-  for(InputIteratorType value = begin; value != end; value+=numComp)
+  for (InputIteratorType value = begin; value != end; value+=numComp)
     {
     double squaredSum = 0.0;
-    for(int i=0; i < numComp; ++i)
+    for (int i = 0; i < numComp; ++i)
       {
       const double t = static_cast<double>(value[i]);
       squaredSum += t * t;
       }
-    range[0] = std::min(squaredSum,range[0]);
-    range[1] = std::max(squaredSum,range[1]);
+    range[0] = detail::min(squaredSum, range[0]);
+    range[1] = detail::max(squaredSum, range[1]);
     }
 
   //now that we have computed the smallest and largest value, take the
