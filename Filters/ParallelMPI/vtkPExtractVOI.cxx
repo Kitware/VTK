@@ -180,10 +180,9 @@ int vtkPExtractVOI::RequestData(
     ////////////////////////////////////////////////////////////////
     // 1) Compute actual VOI for aligning the partitions outputs: //
     ////////////////////////////////////////////////////////////////
-    vtkExtractStructuredGridHelper::GetPartitionedVOI(globalVOI, inputExtent,
-                                                      this->SampleRate,
-                                                      this->IncludeBoundary,
-                                                      partitionedVOI);
+    vtkExtractStructuredGridHelper::GetPartitionedVOI(
+          globalVOI, inputExtent, this->SampleRate, this->IncludeBoundary != 0,
+          partitionedVOI);
 
     ////////////////////////////////////////////////////////////
     // 2) Extract actual VOI using superclass implementation: //
@@ -200,7 +199,7 @@ int vtkPExtractVOI::RequestData(
 
     vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
           globalVOI, partitionedVOI, outputWholeExtent, this->SampleRate,
-          this->IncludeBoundary, partitionedOutputExtent);
+          this->IncludeBoundary != 0, partitionedOutputExtent);
 
     // For image data, we also need to update the origin, since changing the
     // extent modifies the data location:
