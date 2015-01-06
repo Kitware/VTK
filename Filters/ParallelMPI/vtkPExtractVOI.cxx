@@ -192,7 +192,6 @@ int vtkPExtractVOI::RequestData(
     // 3) Compute and update the output dataset's actual extents. //
     ////////////////////////////////////////////////////////////////
 
-    int partitionedOutputExtent[6];
     vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
           this->VOI, partitionedVOI, outputWholeExtent, this->SampleRate,
           this->IncludeBoundary, partitionedOutputExtent);
