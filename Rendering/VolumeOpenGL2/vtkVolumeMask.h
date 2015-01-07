@@ -311,6 +311,10 @@ public:
   //--------------------------------------------------------------------------
   int GetTextureUnit(void)
     {
+    if (!this->Texture)
+      {
+      return -1;
+      }
     return this->Texture->GetTextureUnit();
     }
 
