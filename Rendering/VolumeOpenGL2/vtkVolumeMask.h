@@ -32,7 +32,6 @@ public:
   //--------------------------------------------------------------------------
   vtkVolumeMask()
     {
-//      this->TextureId = 0;
     this->Texture = NULL;
     this->Loaded = false;
     this->LoadedExtent[0] = VTK_INT_MAX;
