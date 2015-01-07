@@ -724,7 +724,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
     std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
       this->MaskTextures->Map.find(maskInput);
 
-    vtkVolumeMask* mask;
+    vtkVolumeMask* mask = 0;
     if(it2 == this->MaskTextures->Map.end())
       {
       mask = new vtkVolumeMask();
@@ -1750,11 +1750,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->DepthTextureObject->ReleaseGraphicsResources(window);
     this->Impl->DepthTextureObject->Delete();
     this->Impl->DepthTextureObject = 0;
-    }
-
-  if (this->Impl->CurrentMask)
-    {
-    this->Impl->CurrentMask->ReleaseGraphicsResources(window);
     }
 
   if(this->Impl->MaskTextures != 0)
