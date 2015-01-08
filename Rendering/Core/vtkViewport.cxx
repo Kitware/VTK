@@ -717,6 +717,15 @@ vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX,
 }
 
 //----------------------------------------------------------------------------
+vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX1, double selectionY1,
+                                           double selectionX2, double selectionY2,
+                                           vtkPropCollection* pickfrom)
+{
+  this->PickFromProps = pickfrom;
+  return this->PickProp(selectionX1, selectionY1, selectionX2, selectionY2);
+}
+
+//----------------------------------------------------------------------------
 #define vtkViewportBound(vpu, vpv) \
 { \
   if (vpu > 1.0) \

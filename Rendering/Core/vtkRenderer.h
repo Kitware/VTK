@@ -395,7 +395,7 @@ public:
   // the renderers Prop list.
   vtkAssemblyPath* PickProp(double selectionX, double selectionY)
     {
-      return this->PickProp(selectionX, selectionY, selectionX, selectionY);
+    return this->PickProp(selectionX, selectionY, selectionX, selectionY);
     }
   vtkAssemblyPath* PickProp(double selectionX1, double selectionY1,
                             double selectionX2, double selectionY2);

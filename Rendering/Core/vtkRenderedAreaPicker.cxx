@@ -70,7 +70,13 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   this->DefineFrustum(x0, y0, x1, y1, renderer);
 
   // Ask the renderer do the hardware pick
-  this->SetPath(renderer->PickProp(x0, y0, x1, y1));
+  vtkPropCollection* pickList = NULL;
+  if(this->PickFromList)
+    {
+    pickList = this->PickList;
+    }
+
+  this->SetPath(renderer->PickPropFrom(x0, y0, x1, y1,pickList));
 
   // Software pick resulted in a hit.
   if ( this->Path )
