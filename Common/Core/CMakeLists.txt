@@ -196,6 +196,7 @@ SET(Module_SRCS
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
   vtkDataArrayTemplate.txx
+  vtkDataArrayTemplateHelper.cxx
   vtkDenseArray.txx
   vtkSparseArray.txx
   vtkTypedArray.txx
@@ -519,6 +520,7 @@ set_source_files_properties(
   vtkArrayPrint.txx
   vtkAutoInit.h
   vtkDataArrayTemplate.txx
+  vtkDataArrayTemplateHelper.cxx
   vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.txx
   vtkIOStreamFwd.h

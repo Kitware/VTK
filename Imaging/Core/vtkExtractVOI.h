@@ -92,6 +92,14 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  // Description:
+  // Implementation for RequestData using a specified VOI. This is because the
+  // parallel filter needs to muck around with the VOI to get spacing and
+  // partitioning to play nice.
+  bool RequestDataImpl(int voi[6],
+                       vtkInformationVector **inputVector,
+                       vtkInformationVector *outputVector);
+
   int VOI[6];
   int SampleRate[3];
   int IncludeBoundary;

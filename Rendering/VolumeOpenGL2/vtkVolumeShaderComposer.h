@@ -367,15 +367,23 @@ namespace vtkvolume
     {
     vtkVolumeProperty* volProperty = vol->GetProperty();
     std::string shaderStr = std::string("\
-      \nvec4 computeLighting(vec4 color)"
+      \nvec4 computeLighting(vec4 color)\
+      \n  {"
     );
+
+    if (volProperty->GetShade() || volProperty->HasGradientOpacity())
+      {
+      shaderStr += std::string("\
+        \n  // Compute gradient function only once\
+        \n  vec4 gradient = computeGradient();"
+      );
+      }
 
     if (volProperty->GetShade())
       {
       if (lightingComplexity == 1)
         {
         shaderStr += std::string("\
-          \n  {\
           \n  // Light position in object space\
           \n  vec4 lightPosObj = (in_inverseVolumeMatrix *\
           \n                      vec4(in_cameraPos, 1.0));\
@@ -391,8 +399,7 @@ namespace vtkvolume
           \n  vec3 ldir = normalize(lightPosObj.xyz - ip_vertexPos);\
           \n  vec3 vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);\
           \n  vec3 h = normalize(ldir + vdir);\
-          \n  vec4 grad = computeGradient();\
-          \n  vec3 g2 = grad.xyz;\
+          \n  vec3 g2 = gradient.xyz;\
           \n  g2 = (1.0/in_cellSpacing) * g2;\
           \n  float normalLength = length(g2);\
           \n  if (normalLength > 0.0)\
@@ -432,7 +439,6 @@ namespace vtkvolume
       else if (lightingComplexity == 2)
         {
         shaderStr += std::string("\
-          \n  {\
           \n  vec4 fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
           \n                      in_textureDatasetMatrix * vec4(-g_dataPos, 1.0);\
           \n  if (fragWorldPos.w != 0.0)\
@@ -440,8 +446,7 @@ namespace vtkvolume
           \n   fragWorldPos /= fragWorldPos.w;\
           \n   }\
           \n  vec3 vdir = normalize(fragWorldPos.xyz);\
-          \n  vec4 grad = computeGradient();\
-          \n  vec3 normal = grad.xyz;\
+          \n  vec3 normal = gradient.xyz;\
           \n  vec3 ambient = vec3(0.0);\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
@@ -486,7 +491,6 @@ namespace vtkvolume
       else if (lightingComplexity == 3)
         {
         shaderStr += std::string("\
-          \n  {\
           \n  vec4 fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
           \n                      in_textureDatasetMatrix * vec4(g_dataPos, 1.0);\
           \n  if (fragWorldPos.w != 0.0)\
@@ -498,8 +502,7 @@ namespace vtkvolume
           \n  vec3 diffuse = vec3(0,0,0);\
           \n  vec3 specular = vec3(0,0,0);\
           \n  vec3 vertLightDirection;\
-          \n  vec4 grad = computeGradient();\
-          \n  vec3 normal = normalize(in_texureToEyeIt * grad.xyz);\
+          \n  vec3 normal = normalize(in_texureToEyeIt * gradient.xyz);\
           \n  vec3 lightDir;\
           \n  for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\
           \n    {\
@@ -563,22 +566,20 @@ namespace vtkvolume
         ");
         }
       }
-      else if (!vol->GetProperty()->GetShade())
-        {
-        shaderStr += std::string(
-          "\n  {\
-           \n  vec3 finalColor = color.rgb;"
-        );
-        }
+    else
+      {
+      shaderStr += std::string(
+        "\n  vec3 finalColor = color.rgb;"
+      );
+      }
 
-    if (vol->GetProperty()->HasGradientOpacity())
+    if (volProperty->HasGradientOpacity())
       {
       shaderStr += std::string("\
-        \n  vec4 grad = computeGradient();\
-        \n  if (grad.w >= 0.0)\
+        \n  if (gradient.w >= 0.0)\
         \n    {\
         \n    color.a = color.a *\
-        \n    texture1D(in_gradientTransferFunc, grad.w).w;\
+        \n    texture1D(in_gradientTransferFunc, gradient.w).w;\
         \n    }"
       );
       }

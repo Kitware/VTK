@@ -59,6 +59,8 @@ class vtkVariantArray;
 class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
 {
 public:
+  friend class vtkDataArrayTemplateHelper;
+
   vtkTypeMacro(vtkAbstractArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -145,6 +147,13 @@ public:
   // locations indexed by dstIds in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray* source) = 0;
+
+  // Description:
+  // Copy n consecutive tuples starting at srcStart from the source array to
+  // this array, starting at the dstStart location.
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
                             vtkAbstractArray* source) = 0;
 
   // Description:

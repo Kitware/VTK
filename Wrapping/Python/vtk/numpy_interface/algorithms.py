@@ -69,7 +69,8 @@ def apply_dfunc(dfunc, array1, val2):
             if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
                 res.append(dsa.NoneArray)
             else:
-                res.append(dfunc(a1, a2))
+                l = dsa.reshape_append_ones(a1, a2)
+                res.append(dfunc(l[0], l[1]))
         return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
     elif type(array1) == dsa.VTKCompositeDataArray:
         res = []
@@ -77,12 +78,14 @@ def apply_dfunc(dfunc, array1, val2):
             if a is dsa.NoneArray:
                 res.append(dsa.NoneArray)
             else:
-                res.append(dfunc(a, val2))
+                l = dsa.reshape_append_ones(a, val2)
+                res.append(dfunc(l[0], l[1]))
         return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
     elif array1 is dsa.NoneArray:
         return dsa.NoneArray
     else:
-        return dfunc(array1, val2)
+        l = dsa.reshape_append_ones(array1, val2)
+        return dfunc(l[0], l[1])
 
 def _make_dfunc(dfunc):
     """ Given a function that requires two arguments, creates a closure that

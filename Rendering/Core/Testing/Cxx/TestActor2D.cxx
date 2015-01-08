@@ -20,7 +20,7 @@
 int TestActor2D(int argc, char* argv[])
 {
   vtkNew<vtkLookupTable> lut;
-  lut->SetNumberOfTableValues(8);
+  lut->SetNumberOfTableValues(6);
   lut->SetTableRange(0.0, 1.0);
   lut->Build();
 

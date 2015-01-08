@@ -72,6 +72,34 @@ from vtk.util import numpy_support
 from vtk.vtkCommonDataModel import vtkDataObject
 import weakref
 
+def reshape_append_ones (a1, a2):
+    """Returns a list with the two arguments, any of them may be
+    processed.  If the arguments are numpy.ndarrays, append 1s to the
+    shape of the array with the smallest number of dimensions until
+    the arrays have the same number of dimensions. Does nothing if the
+    arguments are not ndarrays or the arrays have the same number of
+    dimensions.
+
+    """
+    l = [a1, a2]
+    if (isinstance(a1, numpy.ndarray) and isinstance(a2, numpy.ndarray)):
+        len1 = len(a1.shape)
+        len2 = len(a2.shape)
+        if (len1 == len2):
+            return l;
+        elif (len1 < len2):
+            d = len1
+            maxLength = len2
+            i = 0
+        else:
+            d = len2
+            maxLength = len1
+            i = 1
+        while (d < maxLength):
+            l[i] = numpy.expand_dims(l[i], d)
+            d = d + 1
+    return l
+
 class ArrayAssociation :
     """Easy access to vtkDataObject.AttributeTypes"""
     POINT = vtkDataObject.POINT
@@ -139,6 +167,87 @@ class VTKArray(numpy.ndarray):
     reference to a vtk array as well as the owning dataset.
     The numpy array and vtk array should point to the same
     memory location."""
+
+    def __metaclass__(name, parent, attr):
+        """We overwrite numerical/comparison operators because we might need
+        to reshape one of the arrays to perform the operation without
+        broadcast errors. For instace:
+
+        An array G of shape (n,3) resulted from computing the
+        gradient on a scalar array S of shape (n,) cannot be added together without
+        reshaping.
+        G + expand_dims(S,1) works,
+        G + S gives an error:
+        ValueError: operands could not be broadcast together with shapes (n,3) (n,)
+
+        This metaclass overwrites operators such that it computes this
+        reshape operation automatically by appending 1s to the
+        dimensions of the array with fewer dimensions.
+
+        """
+        def add_numeric_op(attr_name):
+            """Create an attribute named attr_name that calls
+            _numeric_op(self, other, op)."""
+            def closure(self, other):
+                return VTKArray._numeric_op(self, other, attr_name)
+            closure.__name__ = attr_name
+            attr[attr_name] = closure
+
+        def add_default_numeric_op(op_name):
+            """Adds '__[op_name]__' attribute that uses operator.[op_name]"""
+            add_numeric_op("__%s__"%op_name)
+
+        def add_reverse_numeric_op(attr_name):
+            """Create an attribute named attr_name that calls
+            _reverse_numeric_op(self, other, op)."""
+            def closure(self, other):
+                return VTKArray._reverse_numeric_op(self, other, attr_name)
+            closure.__name__ = attr_name
+            attr[attr_name] = closure
+
+        def add_default_reverse_numeric_op(op_name):
+            """Adds '__r[op_name]__' attribute that uses operator.[op_name]"""
+            add_reverse_numeric_op("__r%s__"%op_name)
+
+        def add_default_numeric_ops(op_name):
+            """Call both add_default_numeric_op and add_default_reverse_numeric_op."""
+            add_default_numeric_op(op_name)
+            add_default_reverse_numeric_op(op_name)
+
+        add_default_numeric_ops("add")
+        add_default_numeric_ops("sub")
+        add_default_numeric_ops("mul")
+        add_default_numeric_ops("div")
+        add_default_numeric_ops("truediv")
+        add_default_numeric_ops("floordiv")
+        add_default_numeric_ops("mod")
+        add_default_numeric_ops("pow")
+        add_default_numeric_ops("lshift")
+        add_default_numeric_ops("rshift")
+        add_numeric_op("and")
+        add_default_numeric_ops("xor")
+        add_numeric_op("or")
+
+        add_default_numeric_op("lt")
+        add_default_numeric_op("le")
+        add_default_numeric_op("eq")
+        add_default_numeric_op("ne")
+        add_default_numeric_op("ge")
+        add_default_numeric_op("gt")
+        return type(name, parent, attr)
+
+
+    def _numeric_op(self, other, attr_name):
+        """Used to implement numpy-style numerical operations such as __add__,
+        __mul__, etc."""
+        l = reshape_append_ones(self, other)
+        return getattr(numpy.ndarray, attr_name)(l[0], l[1])
+
+    def _reverse_numeric_op(self, other, attr_name):
+        """Used to implement numpy-style numerical operations such as __add__,
+        __mul__, etc."""
+        l = reshape_append_ones(self, other)
+        return getattr(numpy.ndarray, attr_name)(l[0], l[1])
 
     def __new__(cls, input_array, array=None, dataset=None):
         # Input array is an already formed ndarray instance
@@ -393,13 +502,15 @@ class VTKCompositeDataArray(object):
         if type(other) == VTKCompositeDataArray:
             for a1, a2 in itertools.izip(self._Arrays, other.Arrays):
                 if a1 is not NoneArray and a2 is not NoneArray:
-                    res.append(op(a1,a2))
+                    l = reshape_append_ones(a1, a2)
+                    res.append(op(l[0],l[1]))
                 else:
                     res.append(NoneArray)
         else:
             for a in self._Arrays:
                 if a is not NoneArray:
-                    res.append(op(a, other))
+                    l = reshape_append_ones(a, other)
+                    res.append(op(l[0], l[1]))
                 else:
                     res.append(NoneArray)
         return VTKCompositeDataArray(res, dataset=self.DataSet)
@@ -412,13 +523,15 @@ class VTKCompositeDataArray(object):
         if type(other) == VTKCompositeDataArray:
             for a1, a2 in itertools.izip(self._Arrays, other.Arrays):
                 if a1 is not NoneArray and a2 is notNoneArray:
-                    res.append(op(a2,a1))
+                    l = reshape_append_ones(a2,a1)
+                    res.append(op(l[0],l[1]))
                 else:
                     res.append(NoneArray)
         else:
             for a in self._Arrays:
                 if a is not NoneArray:
-                    res.append(op(other, a))
+                    l = reshape_append_ones(other, a)
+                    res.append(op(l[0], l[1]))
                 else:
                     res.append(NoneArray)
         return VTKCompositeDataArray(res, dataset=self.DataSet)
