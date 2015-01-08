@@ -29,6 +29,7 @@
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
 #include "vtkTextProperty.h"
+#include "vtkTextPropertyCollection.h"
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
@@ -53,10 +54,27 @@ int TestLabeledContourMapper(int argc, char *argv[])
   contourStripper->SetInputConnection(contours->GetOutputPort());
   contourStripper->Update();
 
+  // Setup three text properties that will be rotated across the isolines:
+  vtkNew<vtkTextPropertyCollection> tprops;
+  vtkNew<vtkTextProperty> tprop1;
+  tprop1->SetBold(1);
+  tprop1->SetFontSize(12);
+  tprop1->SetColor(1., 1., 1.);
+  tprops->AddItem(tprop1.GetPointer());
+
+  vtkNew<vtkTextProperty> tprop2;
+  tprop2->ShallowCopy(tprop1.GetPointer());
+  tprop2->SetColor(.8, .2, .3);
+  tprops->AddItem(tprop2.GetPointer());
+
+  vtkNew<vtkTextProperty> tprop3;
+  tprop3->ShallowCopy(tprop1.GetPointer());
+  tprop3->SetColor(.3, .8, .2);
+  tprops->AddItem(tprop3.GetPointer());
+
   vtkNew<vtkLabeledContourMapper> mapper;
   mapper->GetPolyDataMapper()->ScalarVisibilityOff();
-  mapper->GetTextProperty()->SetBold(1);
-  mapper->GetTextProperty()->SetFontSize(12);
+  mapper->SetTextProperties(tprops.GetPointer());
   mapper->SetInputConnection(contourStripper->GetOutputPort());
 
   vtkNew<vtkActor> actor;

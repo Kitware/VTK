@@ -31,6 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
+#include "vtkTextPropertyCollection.h"
 #include "vtkTextRenderer.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
@@ -165,7 +166,7 @@ vtkLabeledContourMapper::vtkLabeledContourMapper()
   this->StencilQuadIndices = NULL;
   this->StencilQuadIndicesSize = 0;
 
-  this->TextProperty = vtkSmartPointer<vtkTextProperty>::New();
+  this->TextProperties = vtkSmartPointer<vtkTextPropertyCollection>::New();
   this->Internal = new vtkLabeledContourMapper::Private();
   this->Internal->PrepareTime = 0.0;
   this->Internal->RenderTime = 0.0;
@@ -294,17 +295,29 @@ void vtkLabeledContourMapper::GetBounds(double bounds[])
 //------------------------------------------------------------------------------
 void vtkLabeledContourMapper::SetTextProperty(vtkTextProperty *tprop)
 {
-  if (tprop != this->TextProperty.GetPointer())
+  if (this->TextProperties->GetNumberOfItems() != 1 ||
+      this->TextProperties->GetItemAsObject(0) != tprop)
     {
-    this->TextProperty = tprop;
+    this->TextProperties->RemoveAllItems();
+    this->TextProperties->AddItem(tprop);
     this->Modified();
     }
 }
 
 //------------------------------------------------------------------------------
-vtkTextProperty *vtkLabeledContourMapper::GetTextProperty()
+void vtkLabeledContourMapper::SetTextProperties(vtkTextPropertyCollection *coll)
 {
-  return this->TextProperty.GetPointer();
+  if (coll != this->TextProperties)
+    {
+    this->TextProperties = coll;
+    this->Modified();
+    }
+}
+
+//------------------------------------------------------------------------------
+vtkTextPropertyCollection *vtkLabeledContourMapper::GetTextProperties()
+{
+  return this->TextProperties;
 }
 
 //------------------------------------------------------------------------------
@@ -329,8 +342,8 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "BuildTime: " << this->BuildTime.GetMTime() << "\n"
      << indent << "PolyDataMapper:\n";
   this->PolyDataMapper->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "TextProperty:\n";
-  this->TextProperty->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "TextProperties:\n";
+  this->TextProperties->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------
@@ -346,8 +359,13 @@ void vtkLabeledContourMapper::Reset()
 {
   this->Internal->LabelMetrics.clear();
   this->Internal->LabelInfos.clear();
-  this->TextProperty->SetJustificationToCentered();
-  this->TextProperty->SetVerticalJustificationToCentered();
+
+  this->TextProperties->InitTraversal();
+  while (vtkTextProperty *tprop = this->TextProperties->GetNextItem())
+    {
+    tprop->SetJustificationToCentered();
+    tprop->SetVerticalJustificationToCentered();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -393,6 +411,12 @@ bool vtkLabeledContourMapper::CheckInputs(vtkRenderer *ren)
     return false;
     }
 
+  if (this->TextProperties->GetNumberOfItems() == 0)
+    {
+    vtkErrorMacro(<<"No text properties set!");
+    return false;
+    }
+
   // Print a warning if stenciling is not enabled:
   vtkRenderWindow *win = ren->GetRenderWindow();
   if (!this->Internal->AlreadyWarnedAboutStencils && win)
@@ -412,9 +436,17 @@ bool vtkLabeledContourMapper::CheckInputs(vtkRenderer *ren)
 //------------------------------------------------------------------------------
 bool vtkLabeledContourMapper::CheckRebuild(vtkRenderer *, vtkActor *act)
 {
+  // Get the highest mtime for the text properties:
+  unsigned long int tPropMTime = this->TextProperties->GetMTime();
+  this->TextProperties->InitTraversal();
+  while (vtkTextProperty *tprop = this->TextProperties->GetNextItem())
+    {
+    tPropMTime = std::max(tPropMTime, tprop->GetMTime());
+    }
+
   // Are we out of date?
   if (this->BuildTime.GetMTime() < this->GetInput()->GetMTime() ||
-      this->BuildTime.GetMTime() < this->TextProperty->GetMTime())
+      this->BuildTime.GetMTime() < tPropMTime)
     {
     return true;
     }
@@ -445,15 +477,16 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *)
 
   vtkIdType numPts;
   vtkIdType *ids;
-  for (lines->InitTraversal(); lines->GetNextCell(numPts, ids);)
+  vtkIdType cellId = 0;
+  for (lines->InitTraversal(); lines->GetNextCell(numPts, ids); ++cellId)
     {
+    vtkTextProperty *tprop = this->GetTextPropertyForCellId(cellId);
     LabelMetric metric;
     metric.value = numPts > 0 ? scalars->GetComponent(ids[0], 0) : 0.;
     std::ostringstream str;
     str << metric.value;
     metric.Text = str.str();
-    if (!tren->GetBoundingBox(this->TextProperty, metric.Text,
-                              metric.BoundingBox.GetData()))
+    if (!tren->GetBoundingBox(tprop, metric.Text, metric.BoundingBox.GetData()))
       {
       vtkErrorMacro(<<"Error calculating bounding box for string '"
                     << metric.Text << "'.");
@@ -628,17 +661,22 @@ bool vtkLabeledContourMapper::CreateLabels()
   vtkTextActor3D **actor = this->TextActors;
   vtkTextActor3D **actorEnd = this->TextActors + this->NumberOfUsedTextActors;
 
+  vtkIdType cellId = 0;
   while (metrics != metricsEnd &&
          outerLabels != outerLabelsEnd &&
          actor != actorEnd)
     {
+    vtkTextProperty *tprop = this->GetTextPropertyForCellId(cellId);
 
     for (InfoVector::const_iterator label = outerLabels->begin(),
          labelEnd = outerLabels->end(); label != labelEnd; ++label)
       {
+      (*actor)->SetTextProperty(tprop);
       this->Internal->BuildLabel(*actor, *metrics, *label);
       ++actor;
       }
+
+    ++cellId;
     ++metrics;
     ++outerLabels;
     }
@@ -695,7 +733,6 @@ bool vtkLabeledContourMapper::AllocateTextActors(vtkIdType num)
       for (vtkIdType i = 0; i < this->NumberOfTextActors; ++i)
         {
         this->TextActors[i] = vtkTextActor3D::New();
-        this->TextActors[i]->SetTextProperty(this->TextProperty.GetPointer());
         }
       }
 
@@ -788,6 +825,14 @@ bool vtkLabeledContourMapper::BuildStencilQuads()
     }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty *
+vtkLabeledContourMapper::GetTextPropertyForCellId(vtkIdType cellId) const
+{
+  int idx = static_cast<int>(cellId % this->TextProperties->GetNumberOfItems());
+  return this->TextProperties->GetItem(idx);
 }
 
 //------------------------------------------------------------------------------

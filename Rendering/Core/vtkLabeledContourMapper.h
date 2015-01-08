@@ -34,6 +34,7 @@
 
 class vtkTextActor3D;
 class vtkTextProperty;
+class vtkTextPropertyCollection;
 class vtkPolyData;
 class vtkPolyDataMapper;
 
@@ -58,10 +59,24 @@ public:
   virtual void GetBounds(double bounds[6]);
 
   // Description:
-  // The text propery used to label the lines. Note that both vertical and
+  // The text property used to label the lines. Note that both vertical and
   // horizontal justifications will be reset to "Centered" prior to rendering.
+  // @note This is a convenience method that clears TextProperties and inserts
+  // the argument as the only property in the collection.
+  // @sa SetTextProperties
   virtual void SetTextProperty(vtkTextProperty *tprop);
-  virtual vtkTextProperty* GetTextProperty();
+
+  // Description:
+  // The text properties used to label the lines. Note that both vertical and
+  // horizontal justifications will be reset to "Centered" prior to rendering.
+  // The collection is iterated through as the labels are generated, such that
+  // the first line (cell) in the dataset is labeled using the first text
+  // property in the collection, the second line is labeled with the second
+  // property, and so on. If the number of cells exceeds the number of
+  // properties, the property collection is repeated.
+  // @sa SetTextProperty
+  virtual void SetTextProperties(vtkTextPropertyCollection *coll);
+  virtual vtkTextPropertyCollection *GetTextProperties();
 
   // Description:
   // If true, labels will be placed and drawn during rendering. Otherwise,
@@ -100,13 +115,15 @@ protected:
   bool AllocateTextActors(vtkIdType num);
   bool FreeTextActors();
 
+  vtkTextProperty* GetTextPropertyForCellId(vtkIdType cellId) const;
+
   bool LabelVisibility;
   vtkIdType NumberOfTextActors;
   vtkIdType NumberOfUsedTextActors;
   vtkTextActor3D **TextActors;
 
   vtkNew<vtkPolyDataMapper> PolyDataMapper;
-  vtkSmartPointer<vtkTextProperty> TextProperty;
+  vtkSmartPointer<vtkTextPropertyCollection> TextProperties;
 
   float *StencilQuads;
   vtkIdType StencilQuadsSize;
