@@ -89,6 +89,9 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow * w)
   if (this->RenderWindow)
     {
     renderers = this->RenderWindow->GetRenderers();
+    // Increase reference count of the renderer collection to
+    // make sure the reference exists for the new render window
+    renderers->Register(this);
     this->RenderWindow->Finalize();
     this->RenderWindow->SetMapped(0);
     this->RenderWindow->UnRegister(this);
@@ -116,5 +119,10 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow * w)
         this->RenderWindow->AddRenderer(aren);
         }
       }
+    }
+  if (renderers)
+    {
+    // Decrease reference count of the renderer collection
+    renderers->UnRegister(this);
     }
 }
