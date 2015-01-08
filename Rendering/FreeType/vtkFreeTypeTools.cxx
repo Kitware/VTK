@@ -1198,7 +1198,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     if (bitmap)
       {
       metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
-      metaData.descent = std::min(-(bitmap->rows - (bitmapGlyph->top - 1)),
+      metaData.descent = std::min(-static_cast<int>((bitmap->rows - (bitmapGlyph->top - 1))),
                                   metaData.descent);
       }
     ++heightString;
@@ -1534,11 +1534,11 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
     unsigned char *glyphPtr;
     float tpropAlpha = iMetaData->rgba[3] / 255.0;
 
-    for (int j = 0; j < bitmap->rows; ++j)
+    for (int j = 0; j < static_cast<int>(bitmap->rows); ++j)
       {
       glyphPtr = glyphPtrRow;
 
-      for (int i = 0; i < bitmap->width; ++i)
+      for (int i = 0; i < static_cast<int>(bitmap->width); ++i)
         {
         if (*glyphPtr == 0)
           {
@@ -2001,8 +2001,8 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
     if (bitmap)
       {
       bbox[0] = std::min(bbox[0], pen[0] + bitmapGlyph->left);
-      bbox[1] = std::max(bbox[1], pen[0] + bitmapGlyph->left + bitmap->width);
-      bbox[2] = std::min(bbox[2], pen[1] + bitmapGlyph->top - 1 - bitmap->rows);
+      bbox[1] = std::max(bbox[1], pen[0] + bitmapGlyph->left + static_cast<int>(bitmap->width));
+      bbox[2] = std::min(bbox[2], pen[1] + bitmapGlyph->top - 1 - static_cast<int>(bitmap->rows));
       bbox[3] = std::max(bbox[3], pen[1] + bitmapGlyph->top - 1);
       }
     else
