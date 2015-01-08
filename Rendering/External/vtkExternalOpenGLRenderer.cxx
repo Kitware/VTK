@@ -150,15 +150,6 @@ void vtkExternalOpenGLRenderer::Clear()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderer::Render(void)
 {
-  GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
-  int* size = this->RenderWindow->GetSize();
-  this->SetViewport(
-    static_cast<double>(viewport[0])/size[0],
-    static_cast<double>(viewport[1])/size[1],
-    static_cast<double>(viewport[2] + viewport[0])/size[0],
-    static_cast<double>(viewport[3] + viewport[1])/size[1]);
-
   GLdouble mv[16],p[16];
   glGetDoublev(GL_MODELVIEW_MATRIX,mv);
   glGetDoublev(GL_PROJECTION_MATRIX,p);
