@@ -12,34 +12,45 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME ADIOSAttribute - The utility class wrapping static ADIOS sttributes
-
 #ifndef _ADIOSAttribute_h
 #define _ADIOSAttribute_h
 
 #include <string>
 #include <vector>
-#include <adios_types.h>
 
-struct ADIOSAttributeImpl;
+#include <adios_read.h>
 
-//----------------------------------------------------------------------------
-class ADIOSAttribute
+#include "ADIOSUtilities.h"
+
+namespace ADIOS
+{
+
+class Attribute
 {
 public:
-  ADIOSAttribute(ADIOSAttributeImpl *impl);
-  ~ADIOSAttribute(void);
+  Attribute(ADIOS_FILE *f, int id);
+  ~Attribute(void);
 
+  const int& GetId() const;
+  const ADIOS_DATATYPES& GetType() const;
   const std::string& GetName(void) const;
-  int GetId(void) const;
-  ADIOS_DATATYPES GetType(void) const;
 
   template<typename T>
-  T GetValue(void) const;
+  const T GetValue() const
+  {
+    ReadError::TestEq(this->Type, Type::NativeToADIOS<T>(), "Invalid type");
 
-private:
-  ADIOSAttributeImpl *Impl;
+    return *reinterpret_cast<const T*>(this->Value);
+  }
+
+protected:
+  int Id;
+  ADIOS_DATATYPES Type;
+  std::string Name;
+  void* Value;
 };
+template<> const std::string Attribute::GetValue<std::string>() const;
 
+} // End namespace ADIOS
 #endif // _ADIOSAttribute_h
 // VTK-HeaderTest-Exclude: ADIOSAttribute.h

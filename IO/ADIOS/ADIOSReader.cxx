@@ -12,334 +12,242 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <cstdlib> // std::free
 
-#include <stdexcept>
-#include <map>
-#include <utility>
+#include <adios_read.h>
 
 #include "ADIOSReader.h"
-#include "ADIOSReaderImpl.h"
-#include "ADIOSUtilities.h"
-#include <adios_read.h>
-#include "ADIOSScalar.h"
 
-typedef std::map<std::string, int> IdMap;
+namespace ADIOS
+{
 
 //----------------------------------------------------------------------------
-struct ADIOSReader::Context
+struct Reader::InitContext
 {
-  static std::string MethodArgs;
-  static ADIOS_READ_METHOD Method;
-  static MPI_Comm Comm;
   static int RefCount;
+  static MPI_Comm GlobalComm;
+  static ADIOS_READ_METHOD Method;
+  static std::string MethodArgs;
 
-  Context()
-  {
-    if(this->RefCount == 0)
-      {
-      int err;
-      err = adios_read_init_method(Context::Method, Context::Comm,
-        Context::MethodArgs.c_str());
-      ADIOSUtilities::TestReadErrorEq<int>(0, err);
-      }
-    ++this->RefCount;
-  }
+  MPI_Comm Comm;
+  int Rank;
+  int CommSize;
 
-  ~Context()
+  InitContext()
+  : Comm(GlobalComm)
   {
-    --this->RefCount;
     if(this->RefCount == 0)
       {
       int init = 0;
       MPI_Initialized(&init);
-      if(init == 1)
-        {
-        MPI_Barrier(Context::Comm);
-        }
-      adios_read_finalize_method(Context::Method);
+      ReadError::TestEq(1, init, "InitContext: MPI is not yet initialized");
+
+      int err = adios_read_init_method(Method, this->Comm, MethodArgs.c_str());
+      ReadError::TestEq(0, err);
+      }
+    ++this->RefCount;
+
+    MPI_Comm_size(this->Comm, &this->CommSize);
+    MPI_Comm_rank(this->Comm, &this->Rank);
+  }
+
+  ~InitContext()
+  {
+    --this->RefCount;
+    if(this->RefCount == 0)
+      {
+      // If we've gotten this far then we know that MPI has been initialized
+      //already
+      MPI_Barrier(this->Comm);
+      adios_read_finalize_method(Method);
       }
   }
 };
 
-std::string ADIOSReader::Context::MethodArgs("");
-ADIOS_READ_METHOD ADIOSReader::Context::Method = ADIOS_READ_METHOD_BP;
-MPI_Comm ADIOSReader::Context::Comm = static_cast<MPI_Comm>(NULL);
-int ADIOSReader::Context::RefCount = 0;
+// Default communicator is invalid
+//MPI_Comm Reader::InitContext::GlobalComm = MPI_COMM_NULL;
+MPI_Comm Reader::InitContext::GlobalComm = MPI_COMM_WORLD;
+ADIOS_READ_METHOD Reader::InitContext::Method = ADIOS_READ_METHOD_BP;
+std::string Reader::InitContext::MethodArgs = "";
+int Reader::InitContext::RefCount = 0;
 
 //----------------------------------------------------------------------------
-struct ADIOSAttributeImpl
+struct Reader::ReaderImpl
 {
-  ADIOSAttributeImpl(int id, const char* name, int size, ADIOS_DATATYPES type,
-    void* data)
-  : Id(id), Name(name), Size(size), Type(type), Data(data)
+  ReaderImpl()
+  : File(NULL), StepBegin(0), StepEnd(0)
   { }
 
-  ~ADIOSAttributeImpl(void)
+  ~ReaderImpl()
   {
-    // Cleanup memory that was previously alocated by ADIOS with malloc
-    if(this->Data)
+    for(std::vector<const Attribute*>::iterator a = this->Attributes.begin();
+        a != this->Attributes.end();
+        ++a)
       {
-      std::free(this->Data);
+      delete *a;
+      }
+    for(std::vector<const Scalar*>::iterator s = this->Scalars.begin();
+        s != this->Scalars.end();
+        ++s)
+      {
+      delete *s;
+      }
+    for(std::vector<const VarInfo*>::iterator v = this->Arrays.begin();
+        v != this->Arrays.end();
+        ++v)
+      {
+      delete *v;
       }
   }
 
-  int Id;
-  std::string Name;
-  int Size;
-  ADIOS_DATATYPES Type;
-  void *Data;
+  ADIOS_FILE *File;
+  size_t StepBegin;
+  size_t StepEnd;
+  std::vector<const Attribute*> Attributes;
+  std::vector<const Scalar*> Scalars;
+  std::vector<const VarInfo*> Arrays;
 };
 
-ADIOSAttribute::ADIOSAttribute(ADIOSAttributeImpl *impl)
-: Impl(impl)
-{ }
-
-ADIOSAttribute::~ADIOSAttribute(void)
-{ delete this->Impl; }
-
-const std::string& ADIOSAttribute::GetName(void) const
-{ return this->Impl->Name; }
-
-int ADIOSAttribute::GetId(void) const
-{ return this->Impl->Id; }
-
-ADIOS_DATATYPES ADIOSAttribute::GetType(void) const
-{ return this->Impl->Type; }
-
-template<typename TN>
-TN ADIOSAttribute::GetValue(void) const
+//-------------------:---------------------------------------------------------
+bool Reader::SetCommunicator(MPI_Comm comm)
 {
-  if(ADIOSUtilities::TypeNativeToADIOS<TN>::T != this->Impl->Type)
+  // The communicator can only be set if ADIOS has not yet been initialized
+  if(Reader::InitContext::RefCount == 0)
     {
-    throw std::invalid_argument("Wrong type");
+    Reader::InitContext::GlobalComm = comm;
+    return true;
     }
-  return *reinterpret_cast<TN*>(this->Impl->Data);
+  return false;
 }
 
-// Instantiations for the ADIOSAttribute::GetValue implementation
-#define INSTANTIATE(T) template T ADIOSAttribute::GetValue<T>(void) const;
-INSTANTIATE(int8_t)
-INSTANTIATE(int16_t)
-INSTANTIATE(int32_t)
-//INSTANTIATE(int64_t)
-INSTANTIATE(uint8_t)
-INSTANTIATE(uint16_t)
-INSTANTIATE(uint32_t)
-INSTANTIATE(uint64_t)
-INSTANTIATE(vtkIdType)
-INSTANTIATE(float)
-INSTANTIATE(double)
-#undef INSTANTIATE
-
-template<>
-const char* ADIOSAttribute::GetValue<const char*>(void) const
+//-------------------:---------------------------------------------------------
+bool Reader::SetReadMethod(ReadMethod method, const std::string& methodArgs)
 {
-  if(ADIOSUtilities::TypeNativeToADIOS<std::string>::T != this->Impl->Type)
+  // The communicator can only be set if ADIOS has not yet been initialized
+  if(Reader::InitContext::RefCount == 0)
     {
-    throw std::invalid_argument("Wrong type");
+    Reader::InitContext::Method = static_cast<ADIOS_READ_METHOD>(method);
+    Reader::InitContext::MethodArgs = methodArgs;
+    return true;
     }
-  return reinterpret_cast<char *>(this->Impl->Data);
+  return false;
 }
 
 //----------------------------------------------------------------------------
-ADIOSReader::ADIOSReader(void)
-: ReaderContext(new ADIOSReader::Context), Impl(new ADIOSReaderImpl)
+Reader::Reader()
+: Ctx(new InitContext), Impl(new ReaderImpl)
 {
 }
 
 //----------------------------------------------------------------------------
-ADIOSReader::~ADIOSReader(void)
+Reader::~Reader()
 {
-  if(this->Impl->File != NULL)
-    {
-    adios_read_close(this->Impl->File);
-    }
+  this->Close();
 
-  delete this->ReaderContext;
+  delete this->Impl;
+  delete this->Ctx;
 }
 
 //----------------------------------------------------------------------------
-bool ADIOSReader::SetCommunicator(MPI_Comm comm)
+bool Reader::IsOpen() const
 {
-  if(Context::RefCount <= 0) // Not yet initialized, can set whatever we want
-    {
-    Context::Comm = comm;
-    }
-  else if(Context::Comm != comm) // Already initialized, can't change state
-    {
-    return false;
-    }
-  return true;
+  return this->Impl->File != NULL;
 }
 
 //----------------------------------------------------------------------------
-bool ADIOSReader::SetReadMethod(ADIOS::ReadMethod method,
-  const std::string& methodArgs)
+const std::vector<const Attribute*>& Reader::GetAttributes() const
 {
-  if(Context::RefCount <= 0) // Not yet initialized, can set whatever we want
-    {
-    Context::Method = static_cast<ADIOS_READ_METHOD>(method);
-    Context::MethodArgs = methodArgs;
-    }
-  else if(Context::Method != static_cast<ADIOS_READ_METHOD>(method) ||
-    Context::MethodArgs != methodArgs)
-    {
-    // Already initialized, can't change state
-    return false;
-    }
-  return true;
+  return this->Impl->Attributes;
 }
 
 //----------------------------------------------------------------------------
-void ADIOSReader::OpenFile(const std::string &fileName)
+const std::vector<const Scalar*>& Reader::GetScalars() const
 {
-  // Make sure we only do this once
-  if(this->Impl->File)
-    {
-    throw std::runtime_error("ADIOSReader already has an open file.");
-    }
+  return this->Impl->Scalars;
+}
 
-  int err;
+//----------------------------------------------------------------------------
+const std::vector<const VarInfo*>& Reader::GetArrays() const
+{
+  return this->Impl->Arrays;
+}
+
+//----------------------------------------------------------------------------
+void Reader::Open(const std::string &fileName)
+{
+  ReadError::TestEq<ADIOS_FILE*>(NULL, this->Impl->File,
+    "Open: An existing file is already open");
 
   // Open the file
   this->Impl->File = adios_read_open_file(fileName.c_str(),
-    Context::Method, Context::Comm);
-  ADIOSUtilities::TestReadErrorNe<void*>(NULL, this->Impl->File);
+    this->Ctx->Method, this->Ctx->Comm);
+  ReadError::TestNe<ADIOS_FILE*>(NULL, this->Impl->File);
 
   // Poplulate step information
-  this->Impl->StepRange.first = this->Impl->File->current_step;
-  this->Impl->StepRange.second = this->Impl->File->last_step;
+  this->Impl->StepBegin = this->Impl->File->current_step;
+  this->Impl->StepEnd = this->Impl->File->last_step;
 
-  // Polulate the attribute information
-  for(int id = 0; id < this->Impl->File->nattrs; ++id)
+  // Polulate attributes
+  for(int i = 0; i < this->Impl->File->nattrs; ++i)
     {
-    ADIOS_DATATYPES type;
-    int size;
-    void *data;
-    adios_get_attr(this->Impl->File, this->Impl->File->attr_namelist[id],
-      &type, &size, &data);
-    ADIOSAttribute *a = new ADIOSAttribute(
-      new ADIOSAttributeImpl(id, this->Impl->File->attr_namelist[id], size,
-      type, data));
-    this->Impl->Attributes.push_back(a);
+    this->Impl->Attributes.push_back(new Attribute(this->Impl->File, i));
     }
 
   // Preload the scalar data and cache the array metadata
   for(int i = 0; i < this->Impl->File->nvars; ++i)
     {
       ADIOS_VARINFO *v = adios_inq_var_byid(this->Impl->File, i);
-      ADIOSUtilities::TestReadErrorNe<void*>(NULL, v);
+      ReadError::TestNe<ADIOS_VARINFO*>(NULL, v);
 
-      err = adios_inq_var_stat(this->Impl->File, v, 1, 1);
-      ADIOSUtilities::TestReadErrorEq<int>(0, err);
-
-      err = adios_inq_var_blockinfo(this->Impl->File, v);
-      ADIOSUtilities::TestReadErrorEq<int>(0, err);
-
-      std::string name(this->Impl->File->var_namelist[i]);
-
-      // Insert into the appropriate scalar or array map
       if(v->ndim == 0)
         {
-        this->Impl->Scalars.push_back(new ADIOSScalar(this->Impl->File, v));
+        this->Impl->Scalars.push_back(new Scalar(this->Impl->File, v));
         }
       else
         {
-        this->Impl->Arrays.push_back(new ADIOSVarInfo(name, v));
-        this->Impl->ArrayIds.insert(std::make_pair(name, i));
+        this->Impl->Arrays.push_back(new VarInfo(this->Impl->File, v));
         }
+      adios_free_varinfo(v);
     }
-  this->ReadArrays(); // Process all the scheduled scalar reads
 }
 
 //----------------------------------------------------------------------------
-void ADIOSReader::GetStepRange(int &tS, int &tE) const
+void Reader::Close()
 {
-  tS = this->Impl->StepRange.first;
-  tE = this->Impl->StepRange.second;
-}
-
-//----------------------------------------------------------------------------
-bool ADIOSReader::IsOpen(void) const
-{
-  return this->Impl->File;
-}
-
-//----------------------------------------------------------------------------
-const std::vector<ADIOSAttribute*>& ADIOSReader::GetAttributes(void) const
-{
-  return this->Impl->Attributes;
-}
-
-//----------------------------------------------------------------------------
-const std::vector<ADIOSScalar*>& ADIOSReader::GetScalars(void) const
-{
-  return this->Impl->Scalars;
-}
-
-//----------------------------------------------------------------------------
-const std::vector<ADIOSVarInfo*>& ADIOSReader::GetArrays(void) const
-{
-  return this->Impl->Arrays;
-}
-
-//----------------------------------------------------------------------------
-template<typename T>
-void ADIOSReader::ScheduleReadArray(const std::string &path, T *data, int step,
-  int block)
-{
-  IdMap::iterator id = this->Impl->ArrayIds.find(path);
-  if(id != this->Impl->ArrayIds.end())
+  if(this->Impl->File)
     {
-    throw std::runtime_error("Array " + path + " not found");
+    adios_read_close(this->Impl->File);
+    this->Impl->File = NULL;
     }
-  this->ScheduleReadArray<T>(id->second, data, step, block);
 }
 
 //----------------------------------------------------------------------------
-template<typename T>
-void ADIOSReader::ScheduleReadArray(int id, T *data, int step, int block)
+void Reader::GetStepRange(int &tStart, int &tEnd) const
 {
-  int err;
-  ADIOS_SELECTION *sel;
+  ReadError::TestNe<ADIOS_FILE*>(NULL, this->Impl->File,
+    "GetStepRange: File not open");
 
-  // Use the MPI rank as the block id if not specified
-  if(block == -1)
-    {
-    MPI_Comm_rank(Context::Comm, &block);
-    }
-  sel = adios_selection_writeblock(block);
+  tStart = this->Impl->StepBegin;
+  tEnd = this->Impl->StepEnd;
+}
 
-  err = adios_schedule_read_byid(this->Impl->File, sel, id,
+//----------------------------------------------------------------------------
+void Reader::ScheduleReadArray(int id, void *data, int step, int block)
+{
+  ADIOS_SELECTION *sel = adios_selection_writeblock(block);
+  ReadError::TestNe<ADIOS_SELECTION*>(NULL, sel);
+
+  int err = adios_schedule_read_byid(this->Impl->File, sel, id,
     step, 1, data);
-  ADIOSUtilities::TestReadErrorEq(0, err);
+  ReadError::TestEq(0, err);
+
+  adios_selection_delete(sel);
 }
 
 //----------------------------------------------------------------------------
-// Instantiations for the ScheduleReadArray implementation
-#define INSTANTIATE(T) \
-template void ADIOSReader::ScheduleReadArray<T>(const std::string&, T*, int, int); \
-template void ADIOSReader::ScheduleReadArray<T>(int, T*, int, int);
-INSTANTIATE(int8_t)
-INSTANTIATE(int16_t)
-INSTANTIATE(int32_t)
-INSTANTIATE(int64_t)
-INSTANTIATE(uint8_t)
-INSTANTIATE(uint16_t)
-INSTANTIATE(uint32_t)
-INSTANTIATE(uint64_t)
-INSTANTIATE(float)
-INSTANTIATE(double)
-INSTANTIATE(long double)
-INSTANTIATE(void)
-#undef INSTANTIATE
-
-//----------------------------------------------------------------------------
-void ADIOSReader::ReadArrays(void)
+void Reader::ReadArrays(void)
 {
-  int err;
-
-  err = adios_perform_reads(this->Impl->File, 1);
-  ADIOSUtilities::TestReadErrorEq(0, err);
+  int err = adios_perform_reads(this->Impl->File, 1);
+  ReadError::TestEq(0, err);
 }
+
+} // End namespace ADIOS

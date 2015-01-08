@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkvtkADIOSDirTree.cxx
+  Module:    vtkADIOSDirTree.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,8 +18,9 @@
 #include "vtkADIOSDirTree.h"
 
 //----------------------------------------------------------------------------
-void vtkADIOSDirTree::Tokenize(const std::string& str,
-  std::vector<std::string> &tok, char d)
+namespace {
+void Tokenize(const std::string& str, std::vector<std::string> &tok,
+  char d = '/')
 {
   tok.clear();
   if(str.empty())
@@ -44,130 +45,168 @@ void vtkADIOSDirTree::Tokenize(const std::string& str,
     tok.push_back(str.substr(posPrev+1, str.size()-posPrev-1));
     }
 }
+}
 
 //----------------------------------------------------------------------------
 void vtkADIOSDirTree::PrintSelf(std::ostream& os, vtkIndent indent) const
 {
-  typedef std::map<std::string, const ADIOSScalar*>::const_iterator ScalMapIt;
-  typedef std::map<std::string, const ADIOSVarInfo*>::const_iterator VarMapIt;
-  typedef std::map<std::string, vtkADIOSDirTree>::const_iterator DirMapIt;
   vtkIndent indent2 = indent.GetNextIndent();
 
-  if(this->Scalars.size() > 0)
+  os << indent << '"' << this->GetName() << '"' << std::endl;
+  std::map<std::string, const ADIOS::Scalar*>::const_iterator s;
+  for(s = this->Scalars.begin(); s != this->Scalars.end(); ++s)
     {
-    for(ScalMapIt i = this->Scalars.begin(); i != this->Scalars.end(); ++i)
-      {
-      os << indent << "Scalar: " << i->first << std::endl;
-      }
+    os << indent2 << "S: " << s->first << std::endl;
     }
 
-  if(this->Arrays.size() > 0)
+  std::map<std::string, const ADIOS::VarInfo*>::const_iterator a;
+  for(a = this->Arrays.begin(); a != this->Arrays.end(); ++a)
     {
-    for(VarMapIt i = this->Arrays.begin(); i != this->Arrays.end(); ++i)
-      {
-      os << indent << "Array: " << i->first << std::endl;
-      }
+    os << indent2 << "A: " << a->first << std::endl;
     }
 
-  for(DirMapIt i = this->SubDirs.begin(); i != this->SubDirs.end(); ++i)
+  std::map<std::string, vtkADIOSDirTree*>::const_iterator d;
+  for(d = this->SubDirs.begin(); d != this->SubDirs.end(); ++d)
     {
-    os << indent << i->first << '/' << std::endl;
-    i->second.PrintSelf(os, indent2);
+    d->second->PrintSelf(os, indent2);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkADIOSDirTree::BuildDirTree(const ADIOSReader &reader)
+vtkADIOSDirTree::vtkADIOSDirTree(const std::string& name)
+: Name(name)
 {
-  std::vector<std::string> fullPath;
+}
 
-  // Pupulate scalars
-  typedef std::vector<ADIOSScalar*>::const_iterator ScalIt;
-  const std::vector<ADIOSScalar*>& scalars = reader.GetScalars();
-  for(ScalIt i = scalars.begin(); i != scalars.end(); ++i)
+//----------------------------------------------------------------------------
+vtkADIOSDirTree::vtkADIOSDirTree(const ADIOS::Reader &reader)
+: Name("")
+{
+  // Populate scalars
+  std::vector<const ADIOS::Scalar*>::const_iterator s;
+  const std::vector<const ADIOS::Scalar*>& scalars = reader.GetScalars();
+  for(s = scalars.begin(); s != scalars.end(); ++s)
     {
-    Tokenize((*i)->GetName(), fullPath);
-    vtkADIOSDirTree *subDir = this->GetDir(fullPath, 1, true);
-    subDir->Scalars[fullPath[fullPath.size()-1]] = *i;
+    std::vector<std::string> path;
+    Tokenize((*s)->GetName(), path);
+
+    vtkADIOSDirTree *d = this->BuildPath(path, 0, path.size()-1);
+    d->Scalars[*path.rbegin()] = *s;
+    const_cast<ADIOS::Scalar*>(*s)->SetName(*path.rbegin());
     }
 
-  // Pupulate arrays
-  typedef std::vector<ADIOSVarInfo*>::const_iterator VarIt;
-  const std::vector<ADIOSVarInfo*>& arrays = reader.GetArrays();
-  for(VarIt i = arrays.begin(); i != arrays.end(); ++i)
+  // Populate arrays
+  std::vector<const ADIOS::VarInfo*>::const_iterator a;
+  const std::vector<const ADIOS::VarInfo*>& arrays = reader.GetArrays();
+  for(a = arrays.begin(); a != arrays.end(); ++a)
     {
-    Tokenize((*i)->GetName(), fullPath);
-    vtkADIOSDirTree *subDir = this->GetDir(fullPath, 1, true);
-    subDir->Arrays[fullPath[fullPath.size()-1]] = *i;
+    std::vector<std::string> path;
+    Tokenize((*a)->GetName(), path);
+
+    vtkADIOSDirTree *d = this->BuildPath(path, 0, path.size()-1);
+    d->Arrays[*path.rbegin()] = *a;
+    const_cast<ADIOS::VarInfo*>(*a)->SetName(*path.rbegin());
     }
 }
 
 //----------------------------------------------------------------------------
-vtkADIOSDirTree* vtkADIOSDirTree::GetDir(const std::vector<std::string>& path,
-  size_t numDrop, bool createPath)
+vtkADIOSDirTree::~vtkADIOSDirTree()
 {
-  typedef std::map<std::string, vtkADIOSDirTree> SubDirMap;
-
-  vtkADIOSDirTree* curTree = this;
-  for(size_t i = 0; i < path.size() - numDrop; ++i)
+  std::map<std::string, vtkADIOSDirTree*>::iterator d;
+  for(d = this->SubDirs.begin(); d != this->SubDirs.end(); ++d)
     {
-    const std::string &name = path[i];
-    SubDirMap::iterator subDir = curTree->SubDirs.find(name);
-    if(subDir == curTree->SubDirs.end())
-      {
-      if(!createPath)
-        {
-        return NULL;
-        }
-      subDir = curTree->SubDirs.insert(
-        SubDirMap::value_type(name, vtkADIOSDirTree())).first;
-      }
-    curTree = &subDir->second;
+    delete d->second;
     }
-  return curTree;
 }
 
 //----------------------------------------------------------------------------
 const vtkADIOSDirTree* vtkADIOSDirTree::GetDir(
-  const std::vector<std::string>& path, size_t numDrop) const
+  const std::string& dirName) const
 {
-  typedef std::map<std::string, vtkADIOSDirTree> SubDirMap;
+  std::vector<std::string> path;
+  Tokenize(dirName, path);
 
-  const vtkADIOSDirTree* curTree = this;
-  for(size_t i = 0; i < path.size() - numDrop; ++i)
-    {
-    const std::string &name = path[i];
-    SubDirMap::const_iterator subDir = curTree->SubDirs.find(name);
-    if(subDir == curTree->SubDirs.end())
-      {
-      return NULL;
-      }
-    curTree = &subDir->second;
-    }
-  return curTree;
+  return path.size() == 0 ? this : this->GetDir(path, 0);
 }
 
 //----------------------------------------------------------------------------
-const ADIOSVarInfo* vtkADIOSDirTree::operator[](
+const vtkADIOSDirTree* vtkADIOSDirTree::GetDir(
+  const std::vector<std::string>& path, size_t pIdx) const
+{
+  if(pIdx == path.size())
+    {
+    return this;
+    }
+  else
+    {
+    std::map<std::string, vtkADIOSDirTree*>::const_iterator i =
+      this->SubDirs.find(path[pIdx]);
+
+    return i == this->SubDirs.end() ? NULL : i->second->GetDir(path, pIdx+1);
+    }
+}
+
+//----------------------------------------------------------------------------
+const ADIOS::VarInfo* vtkADIOSDirTree::GetArray(
   const std::string& varName) const
 {
-  std::map<std::string, const ADIOSVarInfo*>::const_iterator i;
+  std::map<std::string, const ADIOS::VarInfo*>::const_iterator i =
+    this->Arrays.find(varName);
 
-  if((i = this->Arrays.find(varName)) != this->Arrays.end())
-    {
-    return i->second;
-    }
-  return NULL;
+  return i == this->Arrays.end() ? NULL : i->second;
 }
 
 //----------------------------------------------------------------------------
-const ADIOSScalar* vtkADIOSDirTree::GetScalar(const std::string& varName) const
+const ADIOS::Scalar* vtkADIOSDirTree::GetScalar(
+  const std::string& varName) const
 {
-  std::map<std::string, const ADIOSScalar*>::const_iterator i;
+  std::map<std::string, const ADIOS::Scalar*>::const_iterator i =
+    this->Scalars.find(varName);
 
-  if((i = this->Scalars.find(varName)) != this->Scalars.end())
+  return i == this->Scalars.end() ? NULL : i->second;
+}
+
+//----------------------------------------------------------------------------
+void vtkADIOSDirTree::GetScalars(
+  std::vector<const ADIOS::Scalar*>& vars) const
+{
+  vars.clear();
+  vars.reserve(this->Scalars.size());
+  std::map<std::string, const ADIOS::Scalar*>::const_iterator i;
+  for(i = this->Scalars.begin(); i != this->Scalars.end(); ++i)
     {
-    return i->second;
+    vars.push_back(i->second);
     }
-  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkADIOSDirTree::GetArrays(
+  std::vector<const ADIOS::VarInfo*>& vars) const
+{
+  vars.clear();
+  vars.reserve(this->Arrays.size());
+  std::map<std::string, const ADIOS::VarInfo*>::const_iterator i;
+  for(i = this->Arrays.begin(); i != this->Arrays.end(); ++i)
+    {
+    vars.push_back(i->second);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkADIOSDirTree* vtkADIOSDirTree::BuildPath(
+  const std::vector<std::string>& path, size_t startIdx,
+  size_t numComponents)
+{
+  if(numComponents == 0)
+    {
+    return this;
+    }
+
+  const std::string& name = path[startIdx];
+  vtkADIOSDirTree*& d = this->SubDirs[name];
+  if(!d)
+    {
+    d = new vtkADIOSDirTree(name);
+    }
+  return d->BuildPath(path, startIdx+1, numComponents-1);
 }

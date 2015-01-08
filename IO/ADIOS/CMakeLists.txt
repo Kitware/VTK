@@ -9,30 +9,39 @@ find_package (Threads)
 set(Module_SOURCES
   ADIOSDefs.cxx
   ADIOSUtilities.cxx
+
   ADIOSWriter.cxx
+
+  ADIOSAttribute.cxx
   ADIOSVarInfo.cxx
   ADIOSScalar.cxx
   ADIOSReader.cxx
 
+  vtkADIOSUtilities.cxx
+
+  vtkADIOSWriter.cxx
+
   vtkADIOSDirTree.cxx
   vtkADIOSReader.cxx
-  vtkADIOSWriter.cxx
-  vtkADIOSWriterDefine.cxx
-  vtkADIOSWriterWrite.cxx
   )
 
 set_source_files_properties(
-  ADIOSAttribute
   ADIOSDefs
-  ADIOSScalar
   ADIOSUtilities
-  ADIOSVarInfo
+
   ADIOSWriter
+
+  ADIOSAttribute
+  ADIOSVarInfo
+  ADIOSScalar
   ADIOSReader
 
-  vtkADIOSDirTree
+  vtkADIOSUtilities
+
   vtkADIOSWriterDefine
   vtkADIOSWriterWrite
+
+  vtkADIOSDirTree
   WRAP_EXCLUDE
   )
 
