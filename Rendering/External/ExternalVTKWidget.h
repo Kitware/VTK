@@ -43,8 +43,12 @@ public:
   vtkExternalOpenGLRenderWindow* GetRenderWindow(void);
   void SetRenderWindow(vtkExternalOpenGLRenderWindow* renWin);
 
-  // Get the renderer
-  vtkExternalOpenGLRenderer* GetRenderer();
+  // Creates a new renderer and adds it to the render window.
+  // Returns a handle to the created renderer.
+  // NOTE: To get a list of renderers, one must go through the RenderWindow API
+  // i.e. ExternalVTKWidget->GetRenderWindow()->GetRenderers()
+  // \sa vtkRenderWindow::GetRenderers()
+  vtkExternalOpenGLRenderer* AddRenderer();
 
 //  // Get the interactor
 //  vtkGenericRenderWindowInteractor* GetInteractor();
@@ -53,7 +57,7 @@ protected:
   ExternalVTKWidget();
   ~ExternalVTKWidget();
 
-  vtkExternalOpenGLRenderer* Renderer;
+  //vtkExternalOpenGLRenderer* Renderer;
   vtkExternalOpenGLRenderWindow* RenderWindow;
 //  vtkGenericRenderWindowInteractor* Interactor;
 

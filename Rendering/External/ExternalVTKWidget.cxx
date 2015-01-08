@@ -15,6 +15,7 @@
 
 #include "ExternalVTKWidget.h"
 #include "vtkObjectFactory.h"
+#include "vtkRendererCollection.h"
 
 vtkStandardNewMacro(ExternalVTKWidget);
 
@@ -23,7 +24,7 @@ ExternalVTKWidget::ExternalVTKWidget()
 {
   this->RenderWindow = 0;
 //  this->RenderWindow = vtkExternalOpenGLRenderWindow::New();
-  this->Renderer = vtkExternalOpenGLRenderer::New();
+  //this->Renderer = vtkExternalOpenGLRenderer::New();
 //  this->RenderWindow->AddRenderer(this->Renderer);
 //  this->Interactor = 0;
 //  this->Interactor = vtkGenericRenderWindowInteractor::New();
@@ -34,7 +35,7 @@ ExternalVTKWidget::ExternalVTKWidget()
 ExternalVTKWidget::~ExternalVTKWidget()
 {
   this->SetRenderWindow(NULL);
-  this->Renderer->Delete();
+  //this->Renderer->Delete();
 //  this->RenderWindow->Delete();
 //  this->Interactor->Delete();
 }
@@ -52,9 +53,12 @@ vtkExternalOpenGLRenderWindow* ExternalVTKWidget::GetRenderWindow()
 }
 
 //----------------------------------------------------------------------------
-vtkExternalOpenGLRenderer* ExternalVTKWidget::GetRenderer()
+vtkExternalOpenGLRenderer* ExternalVTKWidget::AddRenderer(void)
 {
-  return this->Renderer;
+  vtkExternalOpenGLRenderer* ren = vtkExternalOpenGLRenderer::New();
+  this->GetRenderWindow()->AddRenderer(ren);
+  ren->Delete();
+  return ren;
 }
 
 ////----------------------------------------------------------------------------
@@ -78,9 +82,13 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow * w)
     return;
     }
 
+  // Swap the renderers from the old window to the new one
+  vtkRendererCollection* renderers = 0;
+
   // Unregister the previous window
   if (this->RenderWindow)
     {
+    renderers = this->RenderWindow->GetRenderers();
     this->RenderWindow->Finalize();
     this->RenderWindow->SetMapped(0);
     this->RenderWindow->UnRegister(this);
@@ -96,7 +104,17 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow * w)
     this->RenderWindow->SetMapped(1);
     this->RenderWindow->Register(this);
 
-    // Add the renderer
-    this->RenderWindow->AddRenderer(this->Renderer);
+    if (renderers)
+      {
+      // Add the renderers
+      vtkRenderer * aren;
+      vtkCollectionSimpleIterator rsit;
+
+      for (renderers->InitTraversal(rsit);
+         (aren = renderers->GetNextRenderer(rsit)); )
+        {
+        this->RenderWindow->AddRenderer(aren);
+        }
+      }
     }
 }
