@@ -23,21 +23,12 @@ vtkStandardNewMacro(ExternalVTKWidget);
 ExternalVTKWidget::ExternalVTKWidget()
 {
   this->RenderWindow = 0;
-//  this->RenderWindow = vtkExternalOpenGLRenderWindow::New();
-  //this->Renderer = vtkExternalOpenGLRenderer::New();
-//  this->RenderWindow->AddRenderer(this->Renderer);
-//  this->Interactor = 0;
-//  this->Interactor = vtkGenericRenderWindowInteractor::New();
-//  this->Interactor->SetRenderWindow(this->RenderWindow);
 }
 
 //----------------------------------------------------------------------------
 ExternalVTKWidget::~ExternalVTKWidget()
 {
   this->SetRenderWindow(NULL);
-  //this->Renderer->Delete();
-//  this->RenderWindow->Delete();
-//  this->Interactor->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -60,12 +51,6 @@ vtkExternalOpenGLRenderer* ExternalVTKWidget::AddRenderer(void)
   ren->Delete();
   return ren;
 }
-
-////----------------------------------------------------------------------------
-//vtkGenericRenderWindowInteractor* ExternalVTKWidget::GetInteractor()
-//{
-//  return this->Interactor;
-//}
 
 //----------------------------------------------------------------------------
 void ExternalVTKWidget::PrintSelf(ostream &os, vtkIndent indent)
