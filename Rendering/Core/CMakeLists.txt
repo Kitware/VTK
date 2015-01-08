@@ -118,6 +118,7 @@ set(Module_SRCS
   vtkStringToImage.cxx
   vtkTextMapper.cxx
   vtkTextProperty.cxx
+  vtkTextPropertyCollection.cxx
   vtkTextRenderer.cxx
 
   # Some of the new rendering code - may move around in the future.
