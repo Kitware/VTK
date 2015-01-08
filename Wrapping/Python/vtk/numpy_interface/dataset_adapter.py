@@ -85,7 +85,8 @@ def reshape_append_ones (a1, a2):
     if (isinstance(a1, numpy.ndarray) and isinstance(a2, numpy.ndarray)):
         len1 = len(a1.shape)
         len2 = len(a2.shape)
-        if (len1 == len2):
+        if (len1 == len2 or len1 == 0 or len2 == 0 or
+            a1.shape[0] != a2.shape[0]):
             return l;
         elif (len1 < len2):
             d = len1
