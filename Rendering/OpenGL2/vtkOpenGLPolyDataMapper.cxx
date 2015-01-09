@@ -1043,8 +1043,13 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   // Update the OpenGL if needed.
   if (this->OpenGLUpdateTime < this->GetMTime() ||
       this->OpenGLUpdateTime < actor->GetMTime() ||
-      this->OpenGLUpdateTime < this->CurrentInput->GetMTime() ||
-      this->LastSelectionState || picking)
+      this->OpenGLUpdateTime < this->CurrentInput->GetMTime())
+    {
+    this->UpdateVBO(ren, actor);
+    this->OpenGLUpdateTime.Modified();
+    }
+  else if ((this->LastSelectionState || picking) && selector &&
+            selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     this->UpdateVBO(ren, actor);
     this->OpenGLUpdateTime.Modified();
