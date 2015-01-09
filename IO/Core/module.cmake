@@ -10,4 +10,6 @@ vtk_module(vtkIOCore
     vtksys
   TEST_DEPENDS
     vtkTestingCore
+  KIT
+    vtkIO
   )

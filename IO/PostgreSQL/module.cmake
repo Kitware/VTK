@@ -8,4 +8,6 @@ vtk_module(vtkIOPostgreSQL
   TEST_DEPENDS
     vtkTestingIOSQL
     vtkTestingCore
+  KIT
+    vtkIO
   )

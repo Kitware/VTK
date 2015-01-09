@@ -808,13 +808,13 @@ namespace {
                           int numberOfInputComponents, int fieldAssociation,
                           data_type* vorticity, data_type* qCriterion)
   {
-    int i, j, k, idx, idx2, ii, inputComponent;
+    int idx, idx2, inputComponent;
     double xp[3], xm[3], factor;
     xp[0] = xp[1] = xp[2] = xm[0] = xm[1] = xm[2] = factor = 0;
     double xxi, yxi, zxi, xeta, yeta, zeta, xzeta, yzeta, zzeta;
-    xxi = yxi = zxi = xeta = yeta = zeta = xzeta = yzeta = zzeta = 0;
+    yxi = zxi = xeta = yeta = zeta = xzeta = yzeta = zzeta = 0;
     double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
-    aj = xix = xiy = xiz = etax = etay = etaz = zetax = zetay = zetaz = 0;
+    xix = xiy = xiz = etax = etay = etaz = zetax = zetay = zetaz = 0;
     // for finite differencing -- the values on the "plus" side and
     // "minus" side of the point to be computed at
     std::vector<double> plusvalues(numberOfInputComponents);
@@ -829,24 +829,24 @@ namespace {
     if(fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
       {
       // reduce the dimensions by 1 for cells
-      for(i=0;i<3;i++)
+      for(int i=0;i<3;i++)
         {
         dims[i]--;
         }
       }
     int ijsize = dims[0]*dims[1];
 
-    for (k=0; k<dims[2]; k++)
+    for (int k=0; k<dims[2]; k++)
       {
-      for (j=0; j<dims[1]; j++)
+      for (int j=0; j<dims[1]; j++)
         {
-        for (i=0; i<dims[0]; i++)
+        for (int i=0; i<dims[0]; i++)
           {
           //  Xi derivatives.
           if ( dims[0] == 1 ) // 2D in this direction
             {
             factor = 1.0;
-            for (ii=0; ii<3; ii++)
+            for (int ii=0; ii<3; ii++)
               {
               xp[ii] = xm[ii] = 0.0;
               }
@@ -913,7 +913,7 @@ namespace {
           if ( dims[1] == 1 ) // 2D in this direction
             {
             factor = 1.0;
-            for (ii=0; ii<3; ii++)
+            for (int ii=0; ii<3; ii++)
               {
               xp[ii] = xm[ii] = 0.0;
               }
@@ -980,7 +980,7 @@ namespace {
           if ( dims[2] == 1 ) // 2D in this direction
             {
             factor = 1.0;
-            for (ii=0; ii<3; ii++)
+            for (int ii=0; ii<3; ii++)
               {
               xp[ii] = xm[ii] = 0.0;
               }

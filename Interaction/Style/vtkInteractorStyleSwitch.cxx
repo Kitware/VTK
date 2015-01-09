@@ -20,6 +20,7 @@
 #include "vtkInteractorStyleJoystickCamera.h"
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkInteractorStyleMultiTouchCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
@@ -32,8 +33,10 @@ vtkInteractorStyleSwitch::vtkInteractorStyleSwitch()
   this->JoystickCamera = vtkInteractorStyleJoystickCamera::New();
   this->TrackballActor = vtkInteractorStyleTrackballActor::New();
   this->TrackballCamera = vtkInteractorStyleTrackballCamera::New();
+  this->MultiTouchCamera = vtkInteractorStyleMultiTouchCamera::New();
   this->JoystickOrTrackball = VTKIS_JOYSTICK;
   this->CameraOrActor = VTKIS_CAMERA;
+  this->MultiTouch = false;
   this->CurrentStyle = 0;
 }
 
@@ -51,6 +54,9 @@ vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
 
   this->TrackballCamera->Delete();
   this->TrackballCamera = NULL;
+
+  this->MultiTouchCamera->Delete();
+  this->MultiTouchCamera = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -73,6 +79,7 @@ void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( int value )
   this->JoystickCamera->SetAutoAdjustCameraClippingRange( value );
   this->TrackballActor->SetAutoAdjustCameraClippingRange( value );
   this->TrackballCamera->SetAutoAdjustCameraClippingRange( value );
+  this->MultiTouchCamera->SetAutoAdjustCameraClippingRange( value );
 
   this->Modified();
 }
@@ -82,6 +89,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToJoystickActor()
 {
   this->JoystickOrTrackball = VTKIS_JOYSTICK;
   this->CameraOrActor = VTKIS_ACTOR;
+  this->MultiTouch = false;
   this->SetCurrentStyle();
 }
 
@@ -90,6 +98,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToJoystickCamera()
 {
   this->JoystickOrTrackball = VTKIS_JOYSTICK;
   this->CameraOrActor = VTKIS_CAMERA;
+  this->MultiTouch = false;
   this->SetCurrentStyle();
 }
 
@@ -98,6 +107,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballActor()
 {
   this->JoystickOrTrackball = VTKIS_TRACKBALL;
   this->CameraOrActor = VTKIS_ACTOR;
+  this->MultiTouch = false;
   this->SetCurrentStyle();
 }
 
@@ -106,6 +116,14 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballCamera()
 {
   this->JoystickOrTrackball = VTKIS_TRACKBALL;
   this->CameraOrActor = VTKIS_CAMERA;
+  this->MultiTouch = false;
+  this->SetCurrentStyle();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleSwitch::SetCurrentStyleToMultiTouchCamera()
+{
+  this->MultiTouch = true;
   this->SetCurrentStyle();
 }
 
@@ -117,21 +135,30 @@ void vtkInteractorStyleSwitch::OnChar()
     case 'j':
     case 'J':
       this->JoystickOrTrackball = VTKIS_JOYSTICK;
+      this->MultiTouch = false;
       this->EventCallbackCommand->SetAbortFlag(1);
       break;
     case 't':
     case 'T':
       this->JoystickOrTrackball = VTKIS_TRACKBALL;
+      this->MultiTouch = false;
       this->EventCallbackCommand->SetAbortFlag(1);
       break;
     case 'c':
     case 'C':
       this->CameraOrActor = VTKIS_CAMERA;
+      this->MultiTouch = false;
       this->EventCallbackCommand->SetAbortFlag(1);
       break;
     case 'a':
     case 'A':
       this->CameraOrActor = VTKIS_ACTOR;
+      this->MultiTouch = false;
+      this->EventCallbackCommand->SetAbortFlag(1);
+      break;
+    case 'm':
+    case 'M':
+      this->MultiTouch = true;
       this->EventCallbackCommand->SetAbortFlag(1);
       break;
     }
@@ -152,7 +179,18 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
   // Then set the Currentstyle and call SetInteractor with
   // this->Interactor so the callbacks are set for the
   // currentstyle.
-  if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
+  if (this->MultiTouch)
+    {
+    if(this->CurrentStyle != this->MultiTouchCamera)
+      {
+      if(this->CurrentStyle)
+        {
+        this->CurrentStyle->SetInteractor(0);
+        }
+      this->CurrentStyle = this->MultiTouchCamera;
+      }
+    }
+  else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
     {
     if(this->CurrentStyle != this->JoystickCamera)

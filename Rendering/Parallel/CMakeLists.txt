@@ -15,7 +15,7 @@ set(Module_SRCS
   vtkImageRenderManager.cxx
   )
 
-set(shader_files vtkCompositeZPassShader_fs.glsl)
+set(shader_files vtkCompositeZPassShader_fs.glsl vtkCompositeZPassFS.glsl)
 
 unset(shader_h_files)
 foreach(file ${shader_files})
@@ -45,5 +45,9 @@ set_source_files_properties(
   vtkCompositeZPass
   WRAP_EXCLUDE
   )
+
+if("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+  add_definitions(-DVTKGL2)
+endif()
 
 vtk_module_library(vtkRenderingParallel ${Module_SRCS})

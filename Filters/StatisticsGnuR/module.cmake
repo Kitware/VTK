@@ -11,4 +11,7 @@ vtk_module(vtkFiltersStatisticsGnuR
     vtkTestingCore
     vtkFiltersSources
     vtkInfovisCore
-  EXCLUDE_FROM_ALL)
+  EXCLUDE_FROM_ALL
+  KIT
+    vtkFilters
+  )

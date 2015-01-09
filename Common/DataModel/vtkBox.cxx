@@ -398,7 +398,7 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
       }
     }
 
-    return 1;
+  return 1;
 }
 #undef VTK_RIGHT
 #undef VTK_LEFT

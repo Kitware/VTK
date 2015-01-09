@@ -22,6 +22,9 @@ SET(VTK_BUILD_VERSION "@VTK_BUILD_VERSION@")
 SET(VTK_CMAKE_DIR "@VTK_CONFIG_CMAKE_DIR@")
 SET(VTK_USE_FILE "${VTK_CMAKE_DIR}/UseVTK.cmake")
 
+# The rendering backend VTK was configured to use.
+set(VTK_RENDERING_BACKEND "@VTK_RENDERING_BACKEND@")
+
 #-----------------------------------------------------------------------------
 # Load requested modules.
 

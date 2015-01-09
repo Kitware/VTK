@@ -38,7 +38,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FSpkg.h"		/* File free space			*/
 #include "H5MFprivate.h"	/* File memory management		*/
-#include "H5Vprivate.h"		/* Vectors and arrays 			*/
+#include "H5VMprivate.h"		/* Vectors and arrays 			*/
 #include "H5WBprivate.h"        /* Wrapped Buffers                      */
 
 /****************/
@@ -149,7 +149,6 @@ H5FS_cache_hdr_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
 {
     H5FS_t		*fspace = NULL; /* Free space header info */
     H5FS_hdr_cache_ud_t *udata = (H5FS_hdr_cache_ud_t *)_udata; /* user data for callback */
-    size_t		size;           /* Header size */
     H5WB_t              *wb = NULL;     /* Wrapped buffer for header data */
     uint8_t             hdr_buf[H5FS_HDR_BUF_SIZE]; /* Buffer for header */
     uint8_t		*hdr;           /* Pointer to header buffer */
@@ -159,14 +158,14 @@ H5FS_cache_hdr_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     unsigned            nclasses;       /* Number of section classes */
     H5FS_t		*ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_hdr_load)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     HDassert(f);
     HDassert(udata);
 
     /* Allocate a new free space manager */
-    if(NULL == (fspace = H5FS_new(udata->nclasses, udata->classes, udata->cls_init_udata)))
+    if(NULL == (fspace = H5FS_new(udata->f, udata->nclasses, udata->classes, udata->cls_init_udata)))
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Set free space manager's internal information */
@@ -176,15 +175,12 @@ H5FS_cache_hdr_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     if(NULL == (wb = H5WB_wrap(hdr_buf, sizeof(hdr_buf))))
         HGOTO_ERROR(H5E_FSPACE, H5E_CANTINIT, NULL, "can't wrap buffer")
 
-    /* Compute the size of the free space header on disk */
-    size = (size_t)H5FS_HEADER_SIZE(udata->f);
-
     /* Get a pointer to a buffer that's large enough for header */
-    if(NULL == (hdr = (uint8_t *)H5WB_actual(wb, size)))
+    if(NULL == (hdr = (uint8_t *)H5WB_actual(wb, fspace->hdr_size)))
         HGOTO_ERROR(H5E_FSPACE, H5E_NOSPACE, NULL, "can't get actual buffer")
 
     /* Read header from disk */
-    if(H5F_block_read(f, H5FD_MEM_FSPACE_HDR, addr, size, dxpl_id, hdr) < 0)
+    if(H5F_block_read(f, H5FD_MEM_FSPACE_HDR, addr, fspace->hdr_size, dxpl_id, hdr) < 0)
 	HGOTO_ERROR(H5E_FSPACE, H5E_READERROR, NULL, "can't read free space header")
 
     p = hdr;
@@ -248,7 +244,7 @@ H5FS_cache_hdr_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     /* Metadata checksum */
     UINT32DECODE(p, stored_chksum);
 
-    HDassert((size_t)(p - (const uint8_t *)hdr) == size);
+    HDassert((size_t)(p - (const uint8_t *)hdr) == fspace->hdr_size);
 
     /* Verify checksum */
     if(stored_chksum != computed_chksum)
@@ -289,7 +285,7 @@ H5FS_cache_hdr_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5F
     uint8_t     hdr_buf[H5FS_HDR_BUF_SIZE]; /* Buffer for header */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_hdr_flush)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check arguments */
     HDassert(f);
@@ -348,17 +344,13 @@ H5FS_cache_hdr_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5F
         uint8_t	*hdr;                   /* Pointer to header buffer */
         uint8_t *p;                     /* Pointer into raw data buffer */
         uint32_t metadata_chksum;       /* Computed metadata checksum value */
-        size_t	size;                   /* Header size on disk */
 
         /* Wrap the local buffer for serialized header info */
         if(NULL == (wb = H5WB_wrap(hdr_buf, sizeof(hdr_buf))))
             HGOTO_ERROR(H5E_FSPACE, H5E_CANTINIT, FAIL, "can't wrap buffer")
 
-        /* Compute the size of the free space header on disk */
-        size = (size_t)H5FS_HEADER_SIZE(f);
-
         /* Get a pointer to a buffer that's large enough for header */
-        if(NULL == (hdr = (uint8_t *)H5WB_actual(wb, size)))
+        if(NULL == (hdr = (uint8_t *)H5WB_actual(wb, fspace->hdr_size)))
             HGOTO_ERROR(H5E_FSPACE, H5E_NOSPACE, FAIL, "can't get actual buffer")
 
         /* Get temporary pointer to header */
@@ -417,8 +409,8 @@ H5FS_cache_hdr_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5F
         UINT32ENCODE(p, metadata_chksum);
 
 	/* Write the free space header. */
-        HDassert((size_t)(p - hdr) == size);
-	if(H5F_block_write(f, H5FD_MEM_FSPACE_HDR, addr, size, dxpl_id, hdr) < 0)
+        HDassert((size_t)(p - hdr) == fspace->hdr_size);
+	if(H5F_block_write(f, H5FD_MEM_FSPACE_HDR, addr, fspace->hdr_size, dxpl_id, hdr) < 0)
 	    HGOTO_ERROR(H5E_FSPACE, H5E_CANTFLUSH, FAIL, "unable to save free space header to disk")
 
 	fspace->cache_info.is_dirty = FALSE;
@@ -455,7 +447,7 @@ H5FS_cache_hdr_dest(H5F_t *f, H5FS_t *fspace)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_hdr_dest)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     HDassert(fspace);
@@ -473,7 +465,7 @@ H5FS_cache_hdr_dest(H5F_t *f, H5FS_t *fspace)
 
         /* Release the space on disk */
         /* (XXX: Nasty usage of internal DXPL value! -QAK) */
-        if(H5MF_xfree(f, H5FD_MEM_FSPACE_HDR, H5AC_dxpl_id, fspace->cache_info.addr, (hsize_t)H5FS_HEADER_SIZE(f)) < 0)
+        if(H5MF_xfree(f, H5FD_MEM_FSPACE_HDR, H5AC_dxpl_id, fspace->cache_info.addr, (hsize_t)fspace->hdr_size) < 0)
             HGOTO_ERROR(H5E_FSPACE, H5E_CANTFREE, FAIL, "unable to free free space header")
     } /* end if */
 
@@ -504,7 +496,7 @@ H5FS_cache_hdr_clear(H5F_t *f, H5FS_t *fspace, hbool_t destroy)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_hdr_clear)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -539,9 +531,9 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FS_cache_hdr_size(const H5F_t *f, const H5FS_t UNUSED *fspace, size_t *size_ptr)
+H5FS_cache_hdr_size(const H5F_t UNUSED *f, const H5FS_t *fspace, size_t *size_ptr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5FS_cache_hdr_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check arguments */
     HDassert(f);
@@ -549,7 +541,7 @@ H5FS_cache_hdr_size(const H5F_t *f, const H5FS_t UNUSED *fspace, size_t *size_pt
     HDassert(size_ptr);
 
     /* Set size value */
-    *size_ptr = (size_t)H5FS_HEADER_SIZE(f);
+    *size_ptr = fspace->hdr_size;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5FS_cache_hdr_size() */
@@ -570,7 +562,7 @@ H5FS_cache_hdr_size(const H5F_t *f, const H5FS_t UNUSED *fspace, size_t *size_pt
  *-------------------------------------------------------------------------
  */
 static H5FS_sinfo_t *
-H5FS_cache_sinfo_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
+H5FS_cache_sinfo_load(H5F_t *f, hid_t dxpl_id, haddr_t UNUSED addr, void *_udata)
 {
     H5FS_sinfo_t	*sinfo = NULL;  /* Free space section info */
     H5FS_sinfo_cache_ud_t *udata = (H5FS_sinfo_cache_ud_t *)_udata; /* user data for callback */
@@ -582,7 +574,7 @@ H5FS_cache_sinfo_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     uint32_t            computed_chksum; /* Computed metadata checksum value */
     H5FS_sinfo_t	*ret_value;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_sinfo_load)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     HDassert(f);
@@ -627,7 +619,7 @@ H5FS_cache_sinfo_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
         unsigned sect_cnt_size;         /* The size of the section size counts */
 
         /* Compute the size of the section counts */
-        sect_cnt_size = H5V_limit_enc_size((uint64_t)udata->fspace->serial_sect_count);
+        sect_cnt_size = H5VM_limit_enc_size((uint64_t)udata->fspace->serial_sect_count);
 
         /* Reset the section count, the "add" routine will update it */
         old_tot_sect_count = udata->fspace->tot_sect_count;
@@ -739,7 +731,7 @@ H5FS_sinfo_serialize_sect_cb(void *_item, void UNUSED *key, void *_udata)
     H5FS_iter_ud_t *udata = (H5FS_iter_ud_t *)_udata; /* Callback info */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_sinfo_serialize_sect_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments. */
     HDassert(sect);
@@ -794,7 +786,7 @@ H5FS_sinfo_serialize_node_cb(void *_item, void UNUSED *key, void *_udata)
     H5FS_iter_ud_t *udata = (H5FS_iter_ud_t *)_udata; /* Callback info */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_sinfo_serialize_node_cb)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments. */
     HDassert(fspace_node);
@@ -838,7 +830,7 @@ H5FS_cache_sinfo_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_sinfo_flush)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check arguments */
     HDassert(f);
@@ -877,7 +869,7 @@ H5FS_cache_sinfo_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H
         /* Set up user data for iterator */
         udata.sinfo = sinfo;
         udata.p = &p;
-        udata.sect_cnt_size = H5V_limit_enc_size((uint64_t)sinfo->fspace->serial_sect_count);
+        udata.sect_cnt_size = H5VM_limit_enc_size((uint64_t)sinfo->fspace->serial_sect_count);
 
         /* Iterate over all the bins */
         for(bin = 0; bin < sinfo->nbins; bin++) {
@@ -936,7 +928,7 @@ H5FS_cache_sinfo_dest(H5F_t *f, H5FS_sinfo_t *sinfo)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_sinfo_dest)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check arguments */
     HDassert(sinfo);
@@ -982,7 +974,7 @@ H5FS_cache_sinfo_clear(H5F_t *f, H5FS_sinfo_t *sinfo, hbool_t destroy)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FS_cache_sinfo_clear)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -1019,7 +1011,7 @@ done:
 static herr_t
 H5FS_cache_sinfo_size(const H5F_t UNUSED *f, const H5FS_sinfo_t *sinfo, size_t *size_ptr)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5FS_cache_sinfo_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check arguments */
     HDassert(sinfo);

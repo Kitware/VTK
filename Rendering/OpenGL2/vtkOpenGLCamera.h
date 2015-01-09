@@ -1,0 +1,60 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkOpenGLCamera - OpenGL camera
+// .SECTION Description
+// vtkOpenGLCamera is a concrete implementation of the abstract class
+// vtkCamera.  vtkOpenGLCamera interfaces to the OpenGL rendering library.
+
+#ifndef __vtkOpenGLCamera_h
+#define __vtkOpenGLCamera_h
+
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkCamera.h"
+
+class vtkOpenGLRenderer;
+class vtkMatrix3x3;
+class vtkMatrix4x4;
+
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLCamera : public vtkCamera
+{
+public:
+  static vtkOpenGLCamera *New();
+  vtkTypeMacro(vtkOpenGLCamera, vtkCamera);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Implement base class method.
+  void Render(vtkRenderer *ren);
+
+  void UpdateViewport(vtkRenderer *ren);
+
+  void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
+    vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix);
+
+protected:
+  vtkOpenGLCamera();
+  ~vtkOpenGLCamera();
+
+  vtkMatrix4x4 *WCVCMatrix;
+  vtkMatrix3x3 *NormalMatrix;
+  vtkMatrix4x4 *VCDCMatrix;
+  vtkTimeStamp KeyMatrixTime;
+  vtkRenderer *LastRenderer;
+
+private:
+  vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
+  void operator=(const vtkOpenGLCamera&);  // Not implemented.
+};
+
+#endif

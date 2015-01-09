@@ -65,11 +65,8 @@ vtkLassoStencilSource::~vtkLassoStencilSource()
     this->SplineY->Delete();
     this->SplineY = NULL;
     }
-  if (this->PointMap)
-    {
-    delete this->PointMap;
-    this->PointMap = NULL;
-    }
+  delete this->PointMap;
+  this->PointMap = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -263,24 +260,17 @@ static int vtkLassoStencilSourcePolygon(
   p2[0] = (p[xj] - origin[xj])/spacing[xj];
   p2[1] = (p[yj] - origin[yj])/spacing[yj];
 
-  // inflection means the line changes vertical direction
-  bool inflection1, inflection2;
-  inflection1 = ( (p1[1] - p0[1])*(p2[1] - p1[1]) <= 0 );
-
   for (vtkIdType i = 0; i < n; i++)
     {
     points->GetPoint((i+2)%n, p);
     p3[0] = (p[xj] - origin[xj])/spacing[xj];
     p3[1] = (p[yj] - origin[yj])/spacing[yj];
 
-    inflection2 = ( (p2[1] - p1[1])*(p3[1] - p2[1]) <= 0 );
-
-    raster->InsertLine(p1, p2, inflection1, inflection2);
+    raster->InsertLine(p1, p2);
 
     p0[0] = p1[0]; p0[1] = p1[1];
     p1[0] = p2[0]; p1[1] = p2[1];
     p2[0] = p3[0]; p2[1] = p3[1];
-    inflection1 = inflection2;
     }
 
   raster->FillStencilData(data, extent, xj, yj);
@@ -421,32 +411,15 @@ static int vtkLassoStencilSourceSpline(
   vtkIdType n = vtkMath::Floor(dmax)+1;
   double delta = tmax/n;
 
-  double p0[2], p1[2], p2[2], p3[2];
+  double p1[2], p2[2], p3[2];
 
-  double t = tmax;
-  if (xspline->GetClosed())
-    {
-    t = (n-1)*tmax/n;
-    }
-  else
-    {
-    n = n + 1;
-    }
-
-  p0[0] = xspline->Evaluate(t);
-  p0[1] = yspline->Evaluate(t);
-
-  t = 0;
+  double t = 0;
   p1[0] = xspline->Evaluate(t);
   p1[1] = yspline->Evaluate(t);
 
   t = delta;
   p2[0] = xspline->Evaluate(t);
   p2[1] = yspline->Evaluate(t);
-
-  // inflection means the line changes vertical direction
-  bool inflection1, inflection2;
-  inflection1 = ( (p1[1] - p0[1])*(p2[1] - p1[1]) <= 0 );
 
   for (vtkIdType i = 0; i < n; i++)
     {
@@ -459,14 +432,10 @@ static int vtkLassoStencilSourceSpline(
     p3[0] = xspline->Evaluate(t);
     p3[1] = yspline->Evaluate(t);
 
-    inflection2 = ( (p2[1] - p1[1])*(p3[1] - p2[1]) <= 0 );
+    raster->InsertLine(p1, p2);
 
-    raster->InsertLine(p1, p2, inflection1, inflection2);
-
-    p0[0] = p1[0]; p0[1] = p1[1];
     p1[0] = p2[0]; p1[1] = p2[1];
     p2[0] = p3[0]; p2[1] = p3[1];
-    inflection1 = inflection2;
     }
 
   raster->FillStencilData(data, extent, xj, yj);

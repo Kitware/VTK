@@ -22,10 +22,6 @@
 
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkDirectory);
-
-//----------------------------------------------------------------------------
 vtkDirectory* vtkDirectory::New()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -85,7 +81,7 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 #include <direct.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
 #include <sys/types.h>
 

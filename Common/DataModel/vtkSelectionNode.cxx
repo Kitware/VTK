@@ -14,14 +14,15 @@
 =========================================================================*/
 #include "vtkSelectionNode.h"
 
+#include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformationDoubleKey.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
-#include "vtkInformationDoubleKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -478,4 +479,51 @@ unsigned long vtkSelectionNode::GetMTime()
     mTime = (fieldMTime > mTime ? fieldMTime : mTime);
     }
   return mTime;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkSelectionNode::ConvertSelectionFieldToAttributeType(int selectionField)
+{
+  switch (selectionField)
+    {
+  case vtkSelectionNode::CELL:
+    return vtkDataObject::CELL;
+  case vtkSelectionNode::POINT:
+    return vtkDataObject::POINT;
+  case vtkSelectionNode::FIELD:
+    return vtkDataObject::FIELD;
+  case vtkSelectionNode::VERTEX:
+    return vtkDataObject::VERTEX;
+  case vtkSelectionNode::EDGE:
+    return vtkDataObject::EDGE;
+  case vtkSelectionNode::ROW:
+    return vtkDataObject::ROW;
+  default:
+    vtkGenericWarningMacro("Invalid selection field type: " << selectionField);
+    return vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkSelectionNode::ConvertAttributeTypeToSelectionField(int attrType)
+{
+  switch (attrType)
+    {
+  case vtkDataObject::CELL:
+    return vtkSelectionNode::CELL;
+  case vtkDataObject::POINT:
+    return vtkSelectionNode::POINT;
+  case vtkDataObject::FIELD:
+    return vtkSelectionNode::FIELD;
+  case vtkDataObject::VERTEX:
+    return vtkSelectionNode::VERTEX;
+  case vtkDataObject::EDGE:
+    return vtkSelectionNode::EDGE;
+  case vtkDataObject::ROW:
+    return vtkSelectionNode::ROW;
+  default:
+    vtkGenericWarningMacro("Invalid attribute type: " << attrType);
+    return vtkSelectionNode::CELL;
+    }
 }

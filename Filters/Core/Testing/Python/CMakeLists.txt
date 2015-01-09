@@ -32,6 +32,7 @@ vtk_add_test_python(
   constrainedDelaunay.py
   contourCells.py
   contourQuadraticCells.py
+  contourQuadraticTetra.py,NO_RT
   createBFont.py
   cutLoop.py
   dispPlot.py

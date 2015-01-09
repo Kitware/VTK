@@ -74,16 +74,46 @@
 extern "C" {
 #endif
 
+/* Macros for enabling/disabling particular GCC warnings */
+/* (see the following web-sites for more info:
+ *      http://www.dbp-consulting.com/tutorials/SuppressingGCCWarnings.html
+ *      http://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html#Diagnostic-Pragmas
+ */
+/* These pragmas are only implemented usefully in gcc 4.6+ */
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
+    #define H5_GCC_DIAG_STR(s) #s
+    #define H5_GCC_DIAG_JOINSTR(x,y) H5_GCC_DIAG_STR(x ## y)
+    #define H5_GCC_DIAG_DO_PRAGMA(x) _Pragma (#x)
+    #define H5_GCC_DIAG_PRAGMA(x) H5_GCC_DIAG_DO_PRAGMA(GCC diagnostic x)
+
+    #define H5_GCC_DIAG_OFF(x) H5_GCC_DIAG_PRAGMA(push) H5_GCC_DIAG_PRAGMA(ignored H5_GCC_DIAG_JOINSTR(-W,x))
+    #define H5_GCC_DIAG_ON(x) H5_GCC_DIAG_PRAGMA(pop)
+#else
+    #define H5_GCC_DIAG_OFF(x)
+    #define H5_GCC_DIAG_ON(x)
+#endif
+
 /* Version numbers */
 #define H5_VERS_MAJOR	1	/* For major interface/format changes  	     */
 #define H5_VERS_MINOR	8	/* For minor interface/format changes  	     */
-#define H5_VERS_RELEASE	5	/* For tweaks, bug-fixes, or development     */
-#define H5_VERS_SUBRELEASE "post2"	/* For pre-releases like snap0       */
+#define H5_VERS_RELEASE	13	/* For tweaks, bug-fixes, or development     */
+#define H5_VERS_SUBRELEASE ""	/* For pre-releases like snap0       */
 				/* Empty string for real releases.           */
-#define H5_VERS_INFO    "HDF5 library version: 1.8.5-post2"      /* Full version string */
+#define H5_VERS_INFO    "HDF5 library version: 1.8.13"      /* Full version string */
 
 #define H5check()	H5check_version(H5_VERS_MAJOR,H5_VERS_MINOR,	      \
 				        H5_VERS_RELEASE)
+
+/* macros for comparing the version */
+#define H5_VERSION_GE(Maj,Min,Rel) \
+       (((H5_VERS_MAJOR==Maj) && (H5_VERS_MINOR==Min) && (H5_VERS_RELEASE>=Rel)) || \
+        ((H5_VERS_MAJOR==Maj) && (H5_VERS_MINOR>Min)) || \
+        (H5_VERS_MAJOR>Maj))
+
+#define H5_VERSION_LE(Maj,Min,Rel) \
+       (((H5_VERS_MAJOR==Maj) && (H5_VERS_MINOR==Min) && (H5_VERS_RELEASE<=Rel)) || \
+        ((H5_VERS_MAJOR==Maj) && (H5_VERS_MINOR<Min)) || \
+        (H5_VERS_MAJOR<Maj))
 
 /*
  * Status return values.  Failed integer functions in HDF5 result almost
@@ -142,8 +172,10 @@ typedef long long ssize_t;
  * type.
  */
 #if H5_SIZEOF_LONG_LONG >= 8
+H5_GCC_DIAG_OFF(long-long)
 typedef unsigned long long 	hsize_t;
 typedef signed long long	hssize_t;
+H5_GCC_DIAG_ON(long-long)
 #       define H5_SIZEOF_HSIZE_T H5_SIZEOF_LONG_LONG
 #       define H5_SIZEOF_HSSIZE_T H5_SIZEOF_LONG_LONG
 #else
@@ -307,6 +339,7 @@ H5_DLL herr_t H5get_libversion(unsigned *majnum, unsigned *minnum,
 				unsigned *relnum);
 H5_DLL herr_t H5check_version(unsigned majnum, unsigned minnum,
 			       unsigned relnum);
+H5_DLL herr_t H5free_memory(void *mem);
 
 #ifdef __cplusplus
 }

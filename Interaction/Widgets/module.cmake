@@ -13,8 +13,8 @@ vtk_module(vtkInteractionWidgets
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
-    vtkRenderingVolumeOpenGL
-    vtkRenderingFreeTypeOpenGL
+    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionImage
     vtkInteractionStyle
@@ -24,4 +24,6 @@ vtk_module(vtkInteractionWidgets
     vtkFiltersProgrammable
     vtkRenderingLOD
     vtkImagingStencil
+  KIT
+    vtkInteraction
   )

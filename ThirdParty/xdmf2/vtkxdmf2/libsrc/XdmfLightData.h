@@ -37,6 +37,9 @@ typedef _xmlNode *XdmfXmlNode;
 struct _xmlDoc;
 typedef _xmlDoc *XdmfXmlDoc;
 
+namespace xdmf2
+{
+
 //! Base object for Light Data (XML)
 /*!
 This is an abstract convenience object for reading and writing
@@ -99,4 +102,5 @@ protected:
     XdmfInt32       Initialized;
 };
 
+}
 #endif // __XdmfLightData_h

@@ -34,7 +34,7 @@
 #endif
 
 /* Local function prototypes */
-static herr_t H5Z_can_apply_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id);
+static htri_t H5Z_can_apply_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id);
 static herr_t H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id);
 static size_t H5Z_filter_szip (unsigned flags, size_t cd_nelmts,
     const unsigned cd_values[], size_t nbytes, size_t *buf_size, void **buf);
@@ -76,15 +76,15 @@ H5Z_class2_t H5Z_SZIP[1] = {{
  *
  *-------------------------------------------------------------------------
  */
-static herr_t
+static htri_t
 H5Z_can_apply_szip(hid_t UNUSED dcpl_id, hid_t type_id, hid_t UNUSED space_id)
 {
     const H5T_t	*type;                  /* Datatype */
     unsigned dtype_size;                /* Datatype's size (in bits) */
     H5T_order_t dtype_order;            /* Datatype's endianness order */
-    herr_t ret_value = TRUE;            /* Return value */
+    htri_t ret_value = TRUE;            /* Return value */
 
-    FUNC_ENTER_NOAPI(H5Z_can_apply_szip, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Get datatype */
     if(NULL == (type = H5I_object_verify(type_id, H5I_DATATYPE)))
@@ -151,7 +151,7 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
     hsize_t scanline;           /* Size of dataspace's fastest changing dimension */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(H5Z_set_local_szip, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Get the plist structure */
     if(NULL == (dcpl_plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
@@ -198,7 +198,7 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
 
     /* Set "local" parameter for this dataset's "pixels-per-scanline" */
     /* (Use the chunk's fastest changing dimension size) */
-    assert(ndims > 0);
+    HDassert(ndims > 0);
     scanline = dims[ndims - 1];
 
     /* Adjust scanline if it is smaller than number of pixels per block or
@@ -284,17 +284,17 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
     unsigned char *newbuf = NULL;    /* Pointer to input buffer */
     SZ_com_t sz_param;          /* szip parameter block */
 
-    FUNC_ENTER_NOAPI(H5Z_filter_szip, 0)
+    FUNC_ENTER_NOAPI(0)
 
     /* Sanity check to make certain that we haven't drifted out of date with
      * the mask options from the szlib.h header */
-    assert(H5_SZIP_ALLOW_K13_OPTION_MASK==SZ_ALLOW_K13_OPTION_MASK);
-    assert(H5_SZIP_CHIP_OPTION_MASK==SZ_CHIP_OPTION_MASK);
-    assert(H5_SZIP_EC_OPTION_MASK==SZ_EC_OPTION_MASK);
-    assert(H5_SZIP_LSB_OPTION_MASK==SZ_LSB_OPTION_MASK);
-    assert(H5_SZIP_MSB_OPTION_MASK==SZ_MSB_OPTION_MASK);
-    assert(H5_SZIP_NN_OPTION_MASK==SZ_NN_OPTION_MASK);
-    assert(H5_SZIP_RAW_OPTION_MASK==SZ_RAW_OPTION_MASK);
+    HDassert(H5_SZIP_ALLOW_K13_OPTION_MASK==SZ_ALLOW_K13_OPTION_MASK);
+    HDassert(H5_SZIP_CHIP_OPTION_MASK==SZ_CHIP_OPTION_MASK);
+    HDassert(H5_SZIP_EC_OPTION_MASK==SZ_EC_OPTION_MASK);
+    HDassert(H5_SZIP_LSB_OPTION_MASK==SZ_LSB_OPTION_MASK);
+    HDassert(H5_SZIP_MSB_OPTION_MASK==SZ_MSB_OPTION_MASK);
+    HDassert(H5_SZIP_NN_OPTION_MASK==SZ_NN_OPTION_MASK);
+    HDassert(H5_SZIP_RAW_OPTION_MASK==SZ_RAW_OPTION_MASK);
 
     /* Check arguments */
     if (cd_nelmts!=4)
@@ -324,7 +324,7 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         size_out=nalloc;
         if(SZ_BufftoBuffDecompress(outbuf, &size_out, newbuf, nbytes-4, &sz_param) != SZ_OK)
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "szip_filter: decompression failed")
-        assert(size_out==nalloc);
+        HDassert(size_out==nalloc);
 
         /* Free the input buffer */
         H5MM_xfree(*buf);
@@ -351,7 +351,7 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         size_out = nbytes;
         if(SZ_OK!= SZ_BufftoBuffCompress(dst, &size_out, *buf, nbytes, &sz_param))
 	    HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "overflow")
-        assert(size_out<=nbytes);
+        HDassert(size_out<=nbytes);
 
         /* Free the input buffer */
         H5MM_xfree(*buf);

@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define __vtkParallelCoordinatesView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
-#include <vtkRenderView.h>
+#include "vtkRenderView.h"
 
 class vtkActor2D;
 class vtkOutlineSource;

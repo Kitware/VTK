@@ -96,6 +96,31 @@ void vtkExtractSelectedRows::SetAnnotationLayersConnection(vtkAlgorithmOutput* i
   this->SetInputConnection(2, in);
 }
 
+template <class T>
+void vtkCopySelectedRows(
+  vtkAbstractArray* list, vtkTable* input,
+  vtkTable* output, vtkIdTypeArray* originalRowIds,
+  vtkExtractSelectedRows* self)
+{
+  bool addOriginalRowIdsArray = self->GetAddOriginalRowIdsArray();
+
+  const T* rawPtr = static_cast<T*>(list->GetVoidPointer(0));
+  vtkIdType numTuples = list->GetNumberOfTuples();
+  if (list->GetNumberOfComponents() != 1 && numTuples > 0)
+    {
+    vtkGenericWarningMacro("NumberOfComponents expected to be 1.");
+    }
+  for (vtkIdType j = 0; j < numTuples; ++j)
+    {
+    vtkIdType val = static_cast<vtkIdType>(rawPtr[j]);
+    output->InsertNextRow(input->GetRow(val));
+    if (addOriginalRowIdsArray)
+      {
+      originalRowIds->InsertNextValue(val);
+      }
+    }
+}
+
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedRows::RequestData(
@@ -172,7 +197,7 @@ int vtkExtractSelectedRows::RequestData(
     vtkSelectionNode* node = converted->GetNode(i);
     if (node->GetFieldType() == vtkSelectionNode::ROW)
       {
-      vtkIdTypeArray* list = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      vtkAbstractArray* list = node->GetSelectionList();
       if (list)
         {
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
@@ -193,15 +218,9 @@ int vtkExtractSelectedRows::RequestData(
           }
         else
           {
-          vtkIdType numTuples = list->GetNumberOfTuples();
-          for (vtkIdType j = 0; j < numTuples; ++j)
+          switch (list->GetDataType())
             {
-            vtkIdType val = list->GetValue(j);
-            output->InsertNextRow(input->GetRow(val));
-            if (this->AddOriginalRowIdsArray)
-              {
-              originalRowIds->InsertNextValue(val);
-              }
+            vtkTemplateMacro(vtkCopySelectedRows<VTK_TT>(list, input, output, originalRowIds, this));
             }
           }
         }

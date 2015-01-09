@@ -131,10 +131,8 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
 //----------------------------------------------------------------------
 vtkBalloonRepresentation::~vtkBalloonRepresentation()
 {
-  if ( this->BalloonText )
-    {
-    delete [] this->BalloonText;
-    }
+  delete [] this->BalloonText;
+
   if ( this->BalloonImage )
     {
     this->BalloonImage->Delete();
@@ -361,6 +359,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
         this->FramePoints->SetPoint(1, e[0]+fo[0]+frameSize[0],e[1]+fo[1],0.0);
         this->FramePoints->SetPoint(2, e[0]+fo[0]+frameSize[0],e[1]+fo[1]+frameSize[1],0.0);
         this->FramePoints->SetPoint(3, e[0]+fo[0],e[1]+fo[1]+frameSize[1],0.0);
+        this->FramePoints->Modified();
 
         this->TextActor->SetPosition(e[0]+so[0], e[1]+so[1]);
         }
@@ -373,6 +372,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
         this->TexturePoints->SetPoint(1, e[0]+io[0]+imageSize[0],e[1]+io[1],0.0);
         this->TexturePoints->SetPoint(2, e[0]+io[0]+imageSize[0],e[1]+io[1]+imageSize[1],0.0);
         this->TexturePoints->SetPoint(3, e[0]+io[0],e[1]+io[1]+imageSize[1],0.0);
+        this->TexturePoints->Modified();
         }
       }//if something visible
 

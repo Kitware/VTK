@@ -161,6 +161,7 @@ typedef struct H5B2_hdr_t {
     /* Shared internal data structures (not stored) */
     H5F_t       *f;             /* Pointer to the file that the B-tree is in */
     haddr_t     addr;           /* Address of B-tree header in the file */
+    size_t      hdr_size;       /* Size of the B-tree header on disk */
     size_t      rc;             /* Reference count of nodes using this header */
     size_t      file_rc;        /* Reference count of files using this header */
     hbool_t     pending_delete; /* B-tree is pending deletion */
@@ -273,8 +274,8 @@ extern const H5B2_class_t *const H5B2_client_class_g[H5B2_NUM_BTREE_ID];
 H5_DLL H5B2_hdr_t *H5B2_hdr_alloc(H5F_t *f);
 H5_DLL haddr_t H5B2_hdr_create(H5F_t *f, hid_t dxpl_id,
     const H5B2_create_t *cparam, void *ctx_udata);
-H5_DLL herr_t H5B2_hdr_init(H5F_t *f, H5B2_hdr_t *hdr,
-    const H5B2_create_t *cparam, void *ctx_udata, uint16_t depth);
+H5_DLL herr_t H5B2_hdr_init(H5B2_hdr_t *hdr, const H5B2_create_t *cparam,
+    void *ctx_udata, uint16_t depth);
 H5_DLL herr_t H5B2_hdr_incr(H5B2_hdr_t *hdr);
 H5_DLL herr_t H5B2_hdr_decr(H5B2_hdr_t *hdr);
 H5_DLL herr_t H5B2_hdr_fuse_incr(H5B2_hdr_t *hdr);
@@ -345,13 +346,13 @@ H5_DLL herr_t H5B2_delete_node(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 
 /* Debugging routines for dumping file structures */
 H5_DLL herr_t H5B2_hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
-    FILE *stream, int indent, int fwidth, const H5B2_class_t *type);
+    FILE *stream, int indent, int fwidth, const H5B2_class_t *type, haddr_t obj_addr);
 H5_DLL herr_t H5B2_int_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5B2_class_t *type,
-    haddr_t hdr_addr, unsigned nrec, unsigned depth);
+    haddr_t hdr_addr, unsigned nrec, unsigned depth, haddr_t obj_addr);
 H5_DLL herr_t H5B2_leaf_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5B2_class_t *type,
-    haddr_t hdr_addr, unsigned nrec);
+    haddr_t hdr_addr, unsigned nrec, haddr_t obj_addr);
 
 /* Testing routines */
 #ifdef H5B2_TESTING

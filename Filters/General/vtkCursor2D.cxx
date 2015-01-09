@@ -62,7 +62,7 @@ int vtkCursor2D::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i;
-  int numPts=0, numVerts=0, numLines=0;
+  int numPts=0;
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newVerts=NULL;
   double x[3];
@@ -97,41 +97,30 @@ int vtkCursor2D::RequestData(
     }
 
   // Allocate storage
-  //
-  if (this->Point)
-    {
-    numPts += 1;
-    numVerts += 1;
-    }
-
-  if (this->Axes)
-    {
-    numPts += 8;
-    numLines += 3;
-    }
-
-  if (this->Outline)
-    {
-    numPts += 8;
-    numLines += 12;
-    }
+  numPts += (this->Point != 0) ? 1 : 0;
+  numPts += (this->Axes != 0) ? 8 : 0;
+  numPts += (this->Outline != 0) ? 4 : 0;
 
   if ( numPts )
     {
     newPts = vtkPoints::New();
     newPts->Allocate(numPts);
-    newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(numLines,2));
     }
   else
     {
     return 1;
     }
 
-  if ( numVerts )
+  if ( this->Point )
     {
     newVerts = vtkCellArray::New();
-    newVerts->Allocate(newLines->EstimateSize(1,1));
+    newVerts->Allocate(2);
+    }
+
+  if ( this->Axes || this->Outline )
+    {
+    newLines = vtkCellArray::New();
+    newLines->Allocate(((this->Axes != 0) ? 12 : 0) + ((this->Outline != 0) ? 6 : 0));
     }
 
   // Now create the representation. First the point (if requested).
@@ -252,7 +241,7 @@ void vtkCursor2D::SetModelBounds(double xmin, double xmax, double ymin, double y
 
     this->ModelBounds[0] = xmin; this->ModelBounds[1] = xmax;
     this->ModelBounds[2] = ymin; this->ModelBounds[3] = ymax;
-    this->ModelBounds[4] = ymin; this->ModelBounds[5] = ymax;
+    this->ModelBounds[4] = zmin; this->ModelBounds[5] = zmax;
 
     for (int i=0; i<3; i++)
       {

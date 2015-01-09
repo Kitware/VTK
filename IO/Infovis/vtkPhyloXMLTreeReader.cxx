@@ -661,7 +661,7 @@ void vtkPhyloXMLTreeReader::ReadColorElement(vtkXMLDataElement *element,
       }
     std::string childVal =
       this->GetTrimmedString(childElement->GetCharacterData());
-    unsigned char val = strtod(childVal.c_str(), NULL);
+    unsigned char val = static_cast<unsigned char>(strtod(childVal.c_str(), NULL));
     if (strcmp(childElement->GetName(), "red") == 0)
       {
       red = val;

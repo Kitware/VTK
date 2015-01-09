@@ -359,7 +359,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
         }
 */
 #if ((defined(__sgi) && !defined(__GNUC__)) \
-    || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0560)) \
+    || defined(__BORLANDC__) \
     || defined (__APPLE_CC__))
       // this check is required for SGI's
       // seems that after a read that just reaches EOF, tellg reports a -1.

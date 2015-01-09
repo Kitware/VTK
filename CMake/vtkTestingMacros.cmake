@@ -1,4 +1,36 @@
 # -----------------------------------------------------------------------------
+# _vtk_test_parse_name(name)
+#   INTERNAL: Parse the name of the test and the test file.
+#
+#   The 'name' argument must be of the form
+#
+#   [CustomTestName,]Test
+#
+#   where the CustomTestName followed by comma is optional. For example,
+#   if 'name' has the value
+#
+#   Test1,Test
+#
+#   this function sets the variable 'test_name' to 'Test1' and
+#   'test_file' to 'Test' in the parent scope. Note that the test file
+#   does not include the file extension. For tests specified without a
+#   custom name, .e.g.,
+#
+#   Test
+#
+#   both variables 'test_name' and 'test_file' will be set to the variable
+#   'name' defined in the caller.
+function(_vtk_test_parse_name name)
+  set(test_name ${name} PARENT_SCOPE)
+  set(test_file ${name} PARENT_SCOPE)
+
+  if(name AND "x${name}" MATCHES "^x([^,]*),(.*)$")
+    set(test_name "${CMAKE_MATCH_1}" PARENT_SCOPE)
+    set(test_file "${CMAKE_MATCH_2}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+# -----------------------------------------------------------------------------
 # _vtk_test_parse_args(options source_ext args...)
 #   INTERNAL: Parse arguments for testing functions.
 #
@@ -78,9 +110,14 @@ endfunction()
 #   test. The number of processes to be used may be set with
 #   ${exename}_NUMPROCS or ${test}_NUMPROCS to override the default
 #   ${VTK_MPI_MAX_NUMPROCS} if necessary. Any unrecognized arguments are passed
-#   to the test as well as the value of '${name}_ARGS.
+#   to the test as well as the value of '${name}_ARGS. By default, the test
+#   name will be the part of the source file before the '.cxx'. A custom test name
+#   can be specified by giving a name followed by a comma before the test file
+#   name, .e.g.,
 #
-#   The 'vtk_test_prefix' variable may be set to create separate tests from a
+#   CustomTestName,TestSource.cxx
+#
+#   The 'vtk_test_prefix' variable may also be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
 #   used only when required.
 function(vtk_add_test_mpi exename _tests)
@@ -113,6 +150,7 @@ function(vtk_add_test_mpi exename _tests)
 
   foreach(name IN LISTS names)
     _vtk_test_set_options("${mpi_options}" "local_" ${_${name}_options})
+    _vtk_test_parse_name(${name})
 
     set(_D "")
     set(_T "")
@@ -123,7 +161,7 @@ function(vtk_add_test_mpi exename _tests)
       if(local_CUSTOM_BASELINES)
         set(_V -V "${data_dir}/Baseline")
       else()
-        set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+        set(_V -V "DATA{${baseline_dir}/${test_name}.png,:}")
       endif()
     endif()
 
@@ -133,7 +171,7 @@ function(vtk_add_test_mpi exename _tests)
     endif()
 
     ExternalData_add_test(${externaldata_target}
-      NAME ${vtk-module}Cxx-MPI-${vtk_test_prefix}${name}
+      NAME ${vtk-module}Cxx-MPI-${vtk_test_prefix}${test_name}
       COMMAND ${VTK_MPIRUN_EXE}
               ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${numprocs}
               ${VTK_MPI_PREFLAGS}
@@ -144,14 +182,15 @@ function(vtk_add_test_mpi exename _tests)
               ${${vtk-module}_ARGS}
               ${${name}_ARGS}
               ${VTK_MPI_POSTFLAGS})
-    set_tests_properties(${vtk-module}Cxx-MPI-${vtk_test_prefix}${name}
+    set_tests_properties(${vtk-module}Cxx-MPI-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
       )
+    list(APPEND ${_tests} "${test_file}")
+
   endforeach()
 
-  set(${_tests} ${${_tests}} "${names}"
-    PARENT_SCOPE)
+  set(${_tests} ${${_tests}} PARENT_SCOPE)
 endfunction()
 
 # -----------------------------------------------------------------------------
@@ -162,7 +201,9 @@ endfunction()
 #   the variable 'tests'. See also 'vtk_test_cxx_executable'.
 function(vtk_test_mpi_executable exename _tests)
   vtk_test_cxx_executable("${exename}" "${_tests}" ${ARGN})
-  vtk_mpi_link("${exename}")
+  if(TARGET "${exename}")
+    vtk_mpi_link("${exename}")
+  endif()
 endfunction()
 
 # -----------------------------------------------------------------------------
@@ -175,7 +216,11 @@ endfunction()
 #   NO_DATA option is specified, the test will not receive a -D argument (input file),
 #   NO_VALID will suppress the -V argument (path to a baseline image), and
 #   NO_OUTPUT will suppress the -T argument (output directory). Test-specific
-#   argument may be set to _${name}_ARGS.
+#   arguments may be set to _${name}_ARGS. By default, the test name will be the part
+#   of the source file before the '.cxx'. A custom test name can be specified by
+#   giving a name followed by a comma before the test file name, .e.g.,
+#
+#   CustomTestName,TestSource.cxx
 #
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
@@ -219,6 +264,7 @@ function(vtk_add_test_cxx exename _tests)
 
   foreach(name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
+    _vtk_test_parse_name(${name})
 
     set(_D "")
     if(NOT local_NO_DATA)
@@ -235,26 +281,27 @@ function(vtk_add_test_cxx exename _tests)
       if(local_CUSTOM_BASELINES)
         set(_V -V "${data_dir}/Baseline")
       else()
-        set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+        set(_V -V "DATA{${baseline_dir}/${test_name}.png,:}")
       endif()
     endif()
 
     ExternalData_add_test(${externaldata_target}
-      NAME    ${prefix}Cxx-${vtk_test_prefix}${name}
+      NAME    ${prefix}Cxx-${vtk_test_prefix}${test_name}
       COMMAND $<TARGET_FILE:${exename}>
-              ${name}
+              ${test_file}
               ${args}
               ${${prefix}_ARGS}
               ${${name}_ARGS}
               ${_D} ${_T} ${_V})
-    set_tests_properties(${prefix}Cxx-${vtk_test_prefix}${name}
+    set_tests_properties(${prefix}Cxx-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${prefix}_TEST_LABELS}"
       )
+
+    list(APPEND ${_tests} "${test_file}")
   endforeach()
 
-  set(${_tests} ${${_tests}} "${names}"
-    PARENT_SCOPE)
+  set(${_tests} ${${_tests}} PARENT_SCOPE)
 endfunction()
 
 # -----------------------------------------------------------------------------
@@ -271,6 +318,11 @@ function(vtk_test_cxx_executable exename _tests)
     )
   _vtk_test_parse_args("${exe_options}" "" ${ARGN})
   _vtk_test_set_options("${exe_options}" "" ${options})
+
+  if(NOT ${_tests})
+    # No tests -> no need for an executable.
+    return()
+  endif()
 
   set(test_driver vtkTestDriver.h)
   if(RENDERING_FACTORY)
@@ -307,7 +359,12 @@ endfunction()
 #   (input data) will not be passed, NO_OUTPUT suppresses the -T argument
 #   (output directory), NO_VALID will suppress the -B argument (baseline for
 #   normal image comparisons (NO_RT)) and the -V and -A arguments (for RT-based
-#   image comparisons). Test-specific argument may be set to _${name}_ARGS.
+#   image comparisons). Test-specific arguments may be set to _${name}_ARGS. By
+#   default, the test name will be the part of the source file before the '.py'.
+#   A custom test name can be specified by giving a name followed by a comma
+#   before the test file name, .e.g.,
+#
+#   CustomTestName,TestSource.py
 #
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
@@ -343,6 +400,7 @@ function(vtk_add_test_python)
 
   foreach(name IN LISTS names)
     _vtk_test_set_options("${python_options}" "local_" ${_${name}_options})
+    _vtk_test_parse_name(${name})
 
     set(_D "")
     if(NOT local_NO_DATA)
@@ -355,9 +413,9 @@ function(vtk_add_test_python)
     set(_A "")
     if(NOT local_NO_VALID)
       if(local_NO_RT)
-        set(_B -B "DATA{${baseline_dir}/,REGEX:${name}(_[0-9]+)?.png}")
+        set(_B -B "DATA{${baseline_dir}/,REGEX:${test_name}(_[0-9]+)?.png}")
       else()
-        set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+        set(_V -V "DATA{${baseline_dir}/${test_name}.png,:}")
         if(NOT local_JUST_VALID)
           set(rtImageTest ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py)
           set(_A -A ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py)
@@ -371,17 +429,17 @@ function(vtk_add_test_python)
     endif()
 
     ExternalData_add_test(${externaldata_target}
-      NAME    ${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${name}
+      NAME    ${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}
       COMMAND ${_vtk_test_python_pre_args}
               ${VTK_PYTHON_EXE} --enable-bt
               ${VTK_PYTHON_ARGS}
               ${rtImageTest}
-              ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_file}.py
               ${args}
               ${${vtk-module}_ARGS}
               ${${name}_ARGS}
               ${_D} ${_B} ${_T} ${_V} ${_A})
-    set_tests_properties(${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${name}
+    set_tests_properties(${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
       )
@@ -412,13 +470,17 @@ endfunction()
 #   Adds Tcl tests to run. If NO_DATA is set, the -D argument to the test
 #   (input data) will not be passed, NO_VALID will suppress -V, NO_OUTPUT will
 #   suppress -T, and NO_RT will suppress the -V and -T arguments
-#   unconditionally and pass -D to the empty string. Test-specific argument may
-#   be set to _${name}_ARGS.
+#   unconditionally and pass -D to the empty string. Test-specific arguments may
+#   be set to _${name}_ARGS. By default, the test name will be the part of the
+#   source file before the '.tcl'. A custom test name can be specified by giving
+#   a name followed by a comma before the test file name, .e.g.,
+#
+#   CustomTestName,TestSource.tcl
 #
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
 #   used only when required.
-function(vtk_add_test_tcl name)
+function(vtk_add_test_tcl)
   if(NOT VTK_TCL_EXE)
     message(FATAL_ERROR "VTK_TCL_EXE not set")
   endif()
@@ -448,6 +510,7 @@ function(vtk_add_test_tcl name)
 
   foreach(name IN LISTS names)
     _vtk_test_set_options("${tcl_options}" "local_" ${_${name}_options})
+    _vtk_test_parse_name(${name})
 
     if(NOT local_NO_DATA)
       set(_D -D ${data_dir})
@@ -463,7 +526,7 @@ function(vtk_add_test_tcl name)
     if(NOT local_NO_RT)
       set(rtImageTest ${vtkTestingRendering_SOURCE_DIR}/rtImageTest.tcl)
       if(NOT local_NO_VALID)
-        set(_V -V "DATA{${baseline_dir}/${name}.png,:}")
+        set(_V -V "DATA{${baseline_dir}/${test_name}.png,:}")
       endif()
       if(NOT local_NO_OUTPUT)
         set(_T -T ${VTK_TEST_OUTPUT_DIR})
@@ -472,15 +535,15 @@ function(vtk_add_test_tcl name)
     set(_A -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 
     ExternalData_add_test(${externaldata_target}
-      NAME    ${vtk-module}Tcl-${vtk_test_prefix}${name}
+      NAME    ${vtk-module}Tcl-${vtk_test_prefix}${test_name}
       COMMAND ${VTK_TCL_EXE}
               ${rtImageTest}
-              ${CMAKE_CURRENT_SOURCE_DIR}/${name}.tcl
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_file}.tcl
               ${args}
               ${${vtk-module}_ARGS}
               ${${name}_ARGS}
               ${_D} ${_T} ${_V} ${_A})
-    set_tests_properties(${vtk-module}Tcl-${vtk_test_prefix}${name}
+    set_tests_properties(${vtk-module}Tcl-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
       )

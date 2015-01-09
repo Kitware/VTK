@@ -15,7 +15,7 @@
 #include "vtkContextView.h"
 
 #include "vtkContext2D.h"
-#include "vtkOpenGLContextDevice2D.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 
 #include "vtkViewport.h"
@@ -37,9 +37,8 @@ vtkCxxSetObjectMacro(vtkContextView, Scene, vtkContextScene);
 vtkContextView::vtkContextView()
 {
   this->Context = vtkSmartPointer<vtkContext2D>::New();
-  vtkOpenGLContextDevice2D *pd = vtkOpenGLContextDevice2D::New();
-  this->Context->Begin(pd);
-  pd->Delete();
+  vtkNew<vtkContextDevice2D> pd;
+  this->Context->Begin(pd.Get());
 
   vtkContextActor *actor = vtkContextActor::New();
   this->Renderer->AddActor(actor);

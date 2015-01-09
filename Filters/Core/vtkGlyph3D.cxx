@@ -16,7 +16,6 @@
 
 #include "vtkCellData.h"
 #include "vtkCell.h"
-#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -31,6 +30,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkGlyph3D);
@@ -77,10 +77,7 @@ vtkGlyph3D::vtkGlyph3D()
 //----------------------------------------------------------------------------
 vtkGlyph3D::~vtkGlyph3D()
 {
-  if (this->PointIdsName)
-    {
-    delete []PointIdsName;
-    }
+  delete [] PointIdsName;
   this->SetSourceTransform(NULL);
 }
 
@@ -104,20 +101,35 @@ int vtkGlyph3D::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
+  vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
 
-  // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int requestedGhostLevel = outputVector->GetInformationObject(0)->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  return this->Execute(input, inputVector[1], output, requestedGhostLevel)? 1 : 0;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGlyph3D::Execute(
+  vtkDataSet* input,
+  vtkInformationVector* sourceVector,
+  vtkPolyData* output,
+  int requestedGhostLevel)
+{
+  assert(input && output);
+  if (input == NULL || output == NULL)
+    {
+    // nothing to do.
+    return true;
+    }
+
+  // this is used to respect blanking specified on uniform grids.
+  vtkUniformGrid* inputUG = vtkUniformGrid::SafeDownCast(input);
 
   vtkPointData *pd;
   vtkDataArray *inSScalars; // Scalars for Scaling
   vtkDataArray *inCScalars; // Scalars for Coloring
   vtkDataArray *inVectors;
-  int requestedGhostLevel;
   unsigned char* inGhostLevels=0;
   vtkDataArray *inNormals, *sourceNormals = NULL;
   vtkDataArray *sourceTCoords = NULL;
@@ -143,7 +155,7 @@ int vtkGlyph3D::RequestData(
   int numberOfSources = this->GetNumberOfInputConnections(1);
   vtkPolyData *defaultSource = NULL;
   vtkIdTypeArray *pointIds=0;
-  vtkPolyData *source = this->GetSource(0, inputVector[1]);
+  vtkPolyData *source = this->GetSource(0, sourceVector);
   vtkNew<vtkIdList> srcPointIdList;
   vtkNew<vtkIdList> dstPointIdList;
   vtkNew<vtkIdList> srcCellIdList;
@@ -155,10 +167,10 @@ int vtkGlyph3D::RequestData(
   pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
-  inSScalars = this->GetInputArrayToProcess(0,inputVector);
-  inVectors = this->GetInputArrayToProcess(1,inputVector);
-  inNormals = this->GetInputArrayToProcess(2,inputVector);
-  inCScalars = this->GetInputArrayToProcess(3,inputVector);
+  inSScalars = this->GetInputArrayToProcess(0, input);
+  inVectors = this->GetInputArrayToProcess(1, input);
+  inNormals = this->GetInputArrayToProcess(2, input);
+  inCScalars = this->GetInputArrayToProcess(3, input);
   if (inCScalars == NULL)
     {
     inCScalars = inSScalars;
@@ -179,8 +191,6 @@ int vtkGlyph3D::RequestData(
     inGhostLevels =static_cast<vtkUnsignedCharArray *>(temp)->GetPointer(0);
     }
 
-  requestedGhostLevel =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
@@ -188,7 +198,7 @@ int vtkGlyph3D::RequestData(
     vtkDebugMacro(<<"No points to glyph!");
     pts->Delete();
     trans->Delete();
-    return 1;
+    return true;
     }
 
   // Check input for consistency
@@ -218,7 +228,7 @@ int vtkGlyph3D::RequestData(
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
       trans->Delete();
-      return 1;
+      return true;
       }
     else
       {
@@ -259,7 +269,7 @@ int vtkGlyph3D::RequestData(
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
       {
-      source = this->GetSource(i, inputVector[1]);
+      source = this->GetSource(i, sourceVector);
       if ( source != NULL )
         {
         if (source->GetNumberOfPoints() > numSourcePts)
@@ -431,7 +441,7 @@ int vtkGlyph3D::RequestData(
           {
           newVectors->Delete();
           }
-        return 0;
+        return false;
         }
 
       v[0] = 0;
@@ -481,7 +491,7 @@ int vtkGlyph3D::RequestData(
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
 
-      source = this->GetSource(index, inputVector[1]);
+      source = this->GetSource(index, sourceVector);
       if ( source != NULL )
         {
         sourcePts = source->GetPoints();
@@ -507,6 +517,13 @@ int vtkGlyph3D::RequestData(
     // to think about it.
     if (inGhostLevels && inGhostLevels[inPtId] > requestedGhostLevel)
       {
+      continue;
+      }
+
+    if (inputUG && !inputUG->IsPointVisible(inPtId))
+      {
+      // input is a vtkUniformGrid and the current point is blanked. Don't glyph
+      // it.
       continue;
       }
 
@@ -710,7 +727,7 @@ int vtkGlyph3D::RequestData(
   trans->Delete();
   pts->Delete();
 
-  return 1;
+  return true;
 }
 
 //----------------------------------------------------------------------------

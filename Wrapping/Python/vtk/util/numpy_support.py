@@ -52,21 +52,22 @@ def get_vtk_array_type(numpy_array_type):
                 numpy.uint8:vtk.VTK_UNSIGNED_CHAR,
                 numpy.uint16:vtk.VTK_UNSIGNED_SHORT,
                 numpy.uint32:vtk.VTK_UNSIGNED_INT,
-                ULONG_TYPE_CODE:vtk.VTK_UNSIGNED_LONG,
+                numpy.uint64:vtk.VTK_UNSIGNED_LONG_LONG,
                 numpy.int8:vtk.VTK_CHAR,
                 numpy.int16:vtk.VTK_SHORT,
                 numpy.int32:vtk.VTK_INT,
-                LONG_TYPE_CODE:vtk.VTK_LONG,
+                numpy.int64:vtk.VTK_LONG_LONG,
                 numpy.float32:vtk.VTK_FLOAT,
                 numpy.float64:vtk.VTK_DOUBLE,
                 numpy.complex64:vtk.VTK_FLOAT,
                 numpy.complex128:vtk.VTK_DOUBLE}
-    try:
-        return _np_vtk[numpy_array_type]
-    except KeyError:
-        for key in _np_vtk:
-            if numpy.issubdtype(numpy_array_type, key):
-                return _np_vtk[key]
+    for key, vtk_type in _np_vtk.items():
+        if numpy_array_type == key or \
+           numpy.issubdtype(numpy_array_type, key) or \
+           numpy_array_type == numpy.dtype(key):
+            return vtk_type
+    raise TypeError, \
+        'Could not find a suitable VTK type for %s' % (str(numpy_array_type))
 
 def get_vtk_to_numpy_typemap():
     """Returns the VTK array type to numpy array type mapping."""
@@ -78,7 +79,9 @@ def get_vtk_to_numpy_typemap():
                 vtk.VTK_INT:numpy.int32,
                 vtk.VTK_UNSIGNED_INT:numpy.uint32,
                 vtk.VTK_LONG:LONG_TYPE_CODE,
+                vtk.VTK_LONG_LONG:numpy.int64,
                 vtk.VTK_UNSIGNED_LONG:ULONG_TYPE_CODE,
+                vtk.VTK_UNSIGNED_LONG_LONG:numpy.uint64,
                 vtk.VTK_ID_TYPE:ID_TYPE_CODE,
                 vtk.VTK_FLOAT:numpy.float32,
                 vtk.VTK_DOUBLE:numpy.float64}
@@ -156,10 +159,15 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
 
     # Ravel the array appropriately.
     arr_dtype = get_numpy_array_type(vtk_typecode)
-    if numpy.issubdtype(z.dtype, arr_dtype):
+    if numpy.issubdtype(z.dtype, arr_dtype) or \
+       z.dtype == numpy.dtype(arr_dtype):
         z_flat = numpy.ravel(z)
     else:
         z_flat = numpy.ravel(z).astype(arr_dtype)
+        # z_flat is now a standalone object with no references from the caller.
+        # As such, it will drop out of this scope and cause memory issues if we
+        # do not deep copy its data.
+        deep = 1
 
     # Point the VTK array to the numpy data.  The last argument (1)
     # tells the array not to deallocate.
@@ -211,9 +219,27 @@ def vtk_to_numpy(vtk_array):
 
     # Get the data via the buffer interface
     dtype = get_numpy_array_type(typ)
-    result = numpy.frombuffer(vtk_array, dtype=dtype)
+    try:
+        result = numpy.frombuffer(vtk_array, dtype=dtype)
+    except ValueError:
+        # http://mail.scipy.org/pipermail/numpy-tickets/2011-August/005859.html
+        # numpy 1.5.1 (and maybe earlier) has a bug where if frombuffer is
+        # called with an empty buffer, it throws ValueError exception. This
+        # handles that issue.
+        if shape[0] == 0:
+            # create an empty array with the given shape.
+            result = numpy.empty(shape, dtype=dtype)
+        else:
+            raise
     if shape[1] == 1:
         shape = (shape[0], )
-    result.shape = shape
+    try:
+        result.shape = shape
+    except ValueError:
+        if shape[0] == 0:
+           # Refer to https://github.com/numpy/numpy/issues/2536 .
+           # For empty array, reshape fails. Create the empty array explicitly
+           # if that happens.
+	   result = numpy.empty(shape, dtype=dtype)
+        else: raise
     return result
-

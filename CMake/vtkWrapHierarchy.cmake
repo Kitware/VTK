@@ -101,7 +101,7 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   configure_file(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${vtk-module}Hierarchy.data
-    COPY_ONLY
+    @ONLY
     )
 
   # search through the deps to find modules we depend on
@@ -128,13 +128,13 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   endif()
 
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt
            ${help_ninja}
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
             @${vtk-module}Hierarchy.args -o ${OUTPUT_DIR}/${vtk-module}Hierarchy.txt
             ${vtk-module}Hierarchy.data
             ${OTHER_HIERARCHY_FILES}
-    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt
     COMMENT "For ${vtk-module} - updating ${vtk-module}Hierarchy.txt"
     DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
             ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.args

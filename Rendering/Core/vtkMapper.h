@@ -54,7 +54,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"
-#include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 
 #define VTK_RESOLVE_OFF 0
 #define VTK_RESOLVE_POLYGON_OFFSET 1
@@ -74,6 +74,8 @@ class vtkActor;
 class vtkDataSet;
 class vtkFloatArray;
 class vtkImageData;
+class vtkScalarsToColors;
+class vtkUnsignedCharArray;
 
 class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
@@ -126,20 +128,25 @@ public:
   vtkGetMacro(Static, int);
   vtkBooleanMacro(Static, int);
 
-  // Description:
-  // Control how the scalar data is mapped to colors.  By default
-  // (ColorModeToDefault), unsigned char scalars are treated as colors, and
-  // NOT mapped through the lookup table, while everything else is. Setting
-  // ColorModeToMapScalars means that all scalar data will be mapped through
-  // the lookup table.  (Note that for multi-component scalars, the
-  // particular component to use for mapping can be specified using the
-  // SelectColorArray() method.)
+  // Description: Control how the scalar data is mapped to colors.  By
+  // default (ColorModeToDefault), unsigned char scalars are treated
+  // as colors, and NOT mapped through the lookup table, while
+  // everything else is.  ColorModeToDirectScalar extends
+  // ColorModeToDefault such that all integer types are treated as
+  // colors with values in the range 0-255 and floating types are
+  // treated as colors with values in the range 0.0-1.0.  Setting
+  // ColorModeToMapScalars means that all scalar data will be mapped
+  // through the lookup table.  (Note that for multi-component
+  // scalars, the particular component to use for mapping can be
+  // specified using the SelectColorArray() method.)
   vtkSetMacro(ColorMode, int);
   vtkGetMacro(ColorMode, int);
   void SetColorModeToDefault()
     { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
   void SetColorModeToMapScalars()
     { this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS); }
+  void SetColorModeToDirectScalars()
+  { this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS); }
 
   // Description:
   // Return the method of coloring scalar data.
@@ -221,11 +228,19 @@ public:
   // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
   // data array, you must call SelectColorArray before you call
   // GetColors.
-  // When ScalarMode is set to use Field Data (ScalarModeToFieldData), you
-  // must call SelectColorArray to choose the field data array to be used to
-  // color cells. In this mode, if the poly data has triangle strips,
-  // the field data is treated as the celldata for each mini-cell formed by
-  // a triangle in the strip rather than the entire strip.
+
+  // When ScalarMode is set to use Field Data (ScalarModeToFieldData),
+  // you must call SelectColorArray to choose the field data array to
+  // be used to color cells. In this mode, the default behavior is to
+  // treat the field data tuples as being associated with cells. If
+  // the poly data contains triangle strips, the array is expected to
+  // contain the cell data for each mini-cell formed by any triangle
+  // strips in the poly data as opposed to treating them as a single
+  // tuple that applies to the entire strip.  This mode can also be
+  // used to color the entire poly data by a single color obtained by
+  // mapping the tuple at a given index in the field data array
+  // through the color map. Use SetFieldDataTupleId() to specify
+  // the tuple index.
   vtkSetMacro(ScalarMode, int);
   vtkGetMacro(ScalarMode, int);
   void SetScalarModeToDefault()
@@ -247,6 +262,17 @@ public:
   // The lookup table will decide how to convert vectors to colors.
   void SelectColorArray(int arrayNum);
   void SelectColorArray(const char* arrayName);
+
+  // Description:
+
+  // When ScalarMode is set to UseFieldData, set the index of the
+  // tuple by which to color the entire data set. By default, the
+  // index is -1, which means to treat the field data array selected
+  // with SelectColorArray as having a scalar value for each cell.
+  // Indices of 0 or higher mean to use the tuple at the given index
+  // for coloring the entire data set.
+  vtkSetMacro(FieldDataTupleId, vtkIdType);
+  vtkGetMacro(FieldDataTupleId, vtkIdType);
 
   // Description:
   // Legacy:
@@ -346,7 +372,7 @@ public:
   // typically done as part of the rendering process. The alpha parameter
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
-  vtkUnsignedCharArray *MapScalars(double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(double alpha);
 
   // Description:
   // Set/Get the light-model color mode.
@@ -413,6 +439,10 @@ protected:
   char ArrayName[256];
   int ArrayComponent;
   int ArrayAccessMode;
+
+  // If coloring by field data, which tuple to use to color the entire
+  // data set. If -1, treat array values as cell data.
+  vtkIdType FieldDataTupleId;
 
   int Static;
 

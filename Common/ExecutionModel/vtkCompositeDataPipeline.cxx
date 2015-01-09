@@ -43,8 +43,10 @@ vtkStandardNewMacro(vtkCompositeDataPipeline);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, LOAD_REQUESTED_BLOCKS, Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_DATA_META_DATA, ObjectBase);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, UPDATE_COMPOSITE_INDICES, IntegerVector);
-vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_INDICES, IntegerVector);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, DATA_COMPOSITE_INDICES, IntegerVector);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, SUPPRESS_RESET_PI, Integer);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, BLOCK_AMOUNT_OF_DETAIL,Double);
+
 
 //----------------------------------------------------------------------------
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()
@@ -348,8 +350,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   // This might not be valid for all cases but it is a decent
   // assumption to start with.
   // TODO: Loop over all inputs
-  vtkInformation* inInfo = 0;
-  inInfo = this->GetInputInformation(compositePort, 0);
+  vtkInformation* inInfo = this->GetInputInformation(compositePort, 0);
   vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -615,16 +616,17 @@ int vtkCompositeDataPipeline::NeedToExecuteBasedOnCompositeIndices(vtkInformatio
 {
   if (outInfo->Has(UPDATE_COMPOSITE_INDICES()))
     {
-    if (!outInfo->Has(COMPOSITE_INDICES()))
+    if (!outInfo->Has(DATA_COMPOSITE_INDICES()))
       {
       return 1;
       }
     unsigned int* requested_ids = reinterpret_cast<unsigned int*>(
       outInfo->Get(UPDATE_COMPOSITE_INDICES()));
     unsigned int* existing_ids = reinterpret_cast<unsigned int*>(
-      outInfo->Get(COMPOSITE_INDICES()));
+      outInfo->Get(DATA_COMPOSITE_INDICES()));
     int length_req = outInfo->Length(UPDATE_COMPOSITE_INDICES());
-    int length_ex = outInfo->Length(COMPOSITE_INDICES());
+    int length_ex = outInfo->Length(DATA_COMPOSITE_INDICES());
+
     if (length_req > length_ex)
       {
       // we are requesting more blocks than those generated.
@@ -653,7 +655,7 @@ int vtkCompositeDataPipeline::NeedToExecuteBasedOnCompositeIndices(vtkInformatio
     }
   else
     {
-    if (outInfo->Has(COMPOSITE_INDICES()))
+    if (outInfo->Has(DATA_COMPOSITE_INDICES()))
       {
       // earlier request asked for a some blocks, but the new request is asking
       // for everything, so re-execute.
@@ -1050,31 +1052,20 @@ void vtkCompositeDataPipeline::MarkOutputsGenerated(
     vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
     if (data && !outInfo->Get(DATA_NOT_GENERATED()))
       {
-      vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(data);
-      if (outInfo->Has(UPDATE_COMPOSITE_INDICES()) && cd)
+      if (outInfo->Has(UPDATE_COMPOSITE_INDICES()))
         {
-        vtkCompositeDataIterator* iter = cd->NewIterator();
-        size_t count = 0;
-        for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-          iter->GoToNextItem())
-          {
-          count++;
-          }
-        int *indices = new int[count+1];
-        int index=0;
-        for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-          iter->GoToNextItem(), index++)
-          {
-          indices[index] = static_cast<int>(iter->GetCurrentFlatIndex());
-          }
-        iter->Delete();
-        outInfo->Set(COMPOSITE_INDICES(), indices,
+        size_t count = outInfo->Length(UPDATE_COMPOSITE_INDICES());
+        int* indices = new int[count];
+        // assume the source produced the blocks it was asked for:
+        // the indices recieved are what was requested
+        outInfo->Get(UPDATE_COMPOSITE_INDICES(),indices);
+        outInfo->Set(DATA_COMPOSITE_INDICES(), indices,
           static_cast<int>(count));
         delete []indices;
         }
       else
         {
-        outInfo->Remove(COMPOSITE_INDICES());
+        outInfo->Remove(DATA_COMPOSITE_INDICES());
         }
       }
     }

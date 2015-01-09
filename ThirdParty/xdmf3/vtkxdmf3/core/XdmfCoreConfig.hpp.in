@@ -1,0 +1,35 @@
+/*****************************************************************************/
+/*                                    XDMF                                   */
+/*                       eXtensible Data Model and Format                    */
+/*                                                                           */
+/*  Id : XdmfCoreConfig.hpp                                                  */
+/*                                                                           */
+/*  Author:                                                                  */
+/*     Kenneth Leiter                                                        */
+/*     kenneth.leiter@arl.army.mil                                           */
+/*     US Army Research Laboratory                                           */
+/*     Aberdeen Proving Ground, MD                                           */
+/*                                                                           */
+/*     Copyright @ 2011 US Army Research Laboratory                          */
+/*     All Rights Reserved                                                   */
+/*     See Copyright.txt for details                                         */
+/*                                                                           */
+/*     This software is distributed WITHOUT ANY WARRANTY; without            */
+/*     even the implied warranty of MERCHANTABILITY or FITNESS               */
+/*     FOR A PARTICULAR PURPOSE.  See the above copyright notice             */
+/*     for more information.                                                 */
+/*                                                                           */
+/*****************************************************************************/
+
+#ifndef XDMFCORECONFIG_HPP_
+#define XDMFCORECONFIG_HPP_
+
+#cmakedefine HAVE_BOOST_SHARED_DYNAMIC_CAST
+#cmakedefine XDMF_BIG_ENDIAN
+
+#cmakedefine BUILD_SHARED
+#ifndef BUILD_SHARED
+#  define XDMFSTATIC
+#endif
+
+#endif /* XDMFCORECONFIG_HPP_ */

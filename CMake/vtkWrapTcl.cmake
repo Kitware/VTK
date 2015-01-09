@@ -15,27 +15,27 @@ MACRO(VTK_WRAP_TCL2 TARGET)
     IF ("${ARG}" MATCHES SOURCES)
       SET (MODE SOURCE_LIST)
       SET(MODE_CHANGED 1)
-    ENDIF ("${ARG}" MATCHES SOURCES)
+    ENDIF ()
     IF ("${ARG}" MATCHES COMMANDS)
       SET (MODE COMMANDS)
       SET(MODE_CHANGED 1)
-    ENDIF ("${ARG}" MATCHES COMMANDS)
+    ENDIF ()
     IF (NOT MODE_CHANGED)
       IF (MODE MATCHES SOURCES)
         SET(SOURCES ${SOURCES} ${ARG})
-      ENDIF (MODE MATCHES SOURCES)
+      ENDIF ()
       IF (MODE MATCHES COMMANDS)
         SET(COMMANDS ${COMMANDS} ${ARG})
-      ENDIF (MODE MATCHES COMMANDS)
+      ENDIF ()
       IF (MODE MATCHES SOURCE_LIST)
         SET(SOURCE_LIST_NAME "${ARG}")
         SET (MODE SOURCES)
-      ENDIF (MODE MATCHES SOURCE_LIST)
-    ENDIF (NOT MODE_CHANGED)
-  ENDFOREACH(ARG)
+      ENDIF ()
+    ENDIF ()
+  ENDFOREACH()
 
   VTK_WRAP_TCL3(${TARGET} ${SOURCE_LIST_NAME} "${SOURCES}" "${COMMANDS}")
-ENDMACRO(VTK_WRAP_TCL2)
+ENDMACRO()
 
 MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
   if(NOT VTK_WRAP_TCL_INIT_EXE)
@@ -58,24 +58,24 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
   IF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
     SET(verbatim "")
     SET(quote "\"")
-  ELSE(CMAKE_GENERATOR MATCHES "NMake Makefiles")
+  ELSE()
     SET(verbatim "VERBATIM")
     SET(quote "")
-  ENDIF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
+  ENDIF()
 
   # Initialize the custom target counter.
   IF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
     SET(VTK_WRAP_TCL_CUSTOM_COUNT "")
     SET(VTK_WRAP_TCL_CUSTOM_NAME ${TARGET})
     SET(VTK_WRAP_TCL_CUSTOM_LIST)
-  ENDIF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
+  ENDIF()
 
   # start writing the input file for the init file
   SET(VTK_WRAPPER_INIT_DATA "${TARGET}")
   IF (${ARGC} GREATER 4)
     SET(VTK_WRAPPER_INIT_DATA
       "${VTK_WRAPPER_INIT_DATA}\nVERSION ${ARGV4}")
-  ENDIF (${ARGC} GREATER 4)
+  ENDIF ()
 
   # all the include directories
   if(VTK_WRAP_INCLUDE_DIRS)
@@ -123,9 +123,9 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       # compute the input filename
       IF (TMP_FILEPATH)
         SET(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
-      ELSE (TMP_FILEPATH)
+      ELSE ()
         SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
-      ENDIF (TMP_FILEPATH)
+      ENDIF ()
 
       # add the info to the init file
       SET(VTK_WRAPPER_INIT_DATA
@@ -161,22 +161,22 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
           SET(KIT_TCL_DEPS ${VTK_WRAP_TCL_CUSTOM_NAME})
           SET(VTK_WRAP_TCL_CUSTOM_LIST)
           SET(VTK_WRAP_TCL_CUSTOM_COUNT)
-        ENDIF(VTK_WRAP_TCL_CUSTOM_COUNT MATCHES "^${VTK_WRAP_TCL_CUSTOM_LIMIT}$")
-      ENDIF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
-    ENDIF (NOT TMP_WRAP_EXCLUDE)
-  ENDFOREACH(FILE)
+        ENDIF()
+      ENDIF()
+    ENDIF ()
+  ENDFOREACH()
 
   # finish the data file for the init file
   FOREACH(CMD ${COMMANDS})
     SET(VTK_WRAPPER_INIT_DATA
       "${VTK_WRAPPER_INIT_DATA}\nCOMMAND ${CMD}")
-  ENDFOREACH(CMD ${COMMANDS})
+  ENDFOREACH()
 
   SET(dir ${CMAKE_CURRENT_SOURCE_DIR})
   CONFIGURE_FILE(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
-    COPY_ONLY
+    @ONLY
     )
 
   ADD_CUSTOM_COMMAND(
@@ -193,7 +193,7 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
 
   # Create the Init File
   SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}Init.cxx)
-ENDMACRO(VTK_WRAP_TCL3)
+ENDMACRO()
 
 
 IF (VTK_WRAP_TCL_FIND_LIBS)
@@ -202,32 +202,32 @@ IF (VTK_WRAP_TCL_FIND_LIBS)
 
   IF(VTK_WRAP_TCL AND NOT TCL_FOUND)
     MESSAGE(FATAL_ERROR "Tcl was not found. Install the Tcl development package (see http://tcl.tk or ActiveState Tcl) and set the appropriate variables (TCL_INCLUDE_PATH, TCL_LIBRARY, TCL_TCLSH) or disable VTK_WRAP_TCL.")
-  ENDIF(VTK_WRAP_TCL AND NOT TCL_FOUND)
+  ENDIF()
 
   IF(VTK_USE_TK AND NOT TK_FOUND)
     MESSAGE(FATAL_ERROR "Tk was not found. Install the Tk development package (see http://tcl.tk or ActiveState Tcl) and set the appropriate variables (TK_INCLUDE_PATH, TK_LIBRARY, TK_WISH) or disable VTK_USE_TK.")
-  ENDIF(VTK_USE_TK AND NOT TK_FOUND)
+  ENDIF()
 
   SET(VTK_TCL_LIBRARIES ${TCL_LIBRARY})
   IF(TCL_LIBRARY_DEBUG)
     SET(VTK_TCL_LIBRARIES optimized ${TCL_LIBRARY} debug ${TCL_LIBRARY_DEBUG})
-  ENDIF(TCL_LIBRARY_DEBUG)
+  ENDIF()
   IF(UNIX)
     # The tcl library needs the math library on unix.
     SET(VTK_TCL_LIBRARIES ${VTK_TCL_LIBRARIES} m)
-  ENDIF(UNIX)
+  ENDIF()
   IF(TK_FOUND)
     SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
     IF(TK_LIBRARY_DEBUG)
       SET(VTK_TK_LIBRARIES optimized ${TK_LIBRARY} debug ${TK_LIBRARY_DEBUG} ${VTK_TCL_LIBRARIES})
-    ENDIF(TK_LIBRARY_DEBUG)
-  ENDIF(TK_FOUND)
+    ENDIF()
+  ENDIF()
   INCLUDE(${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake)
   # Hide useless settings provided by FindTCL.
   FOREACH(entry
           TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
-  ENDFOREACH(entry)
+  ENDFOREACH()
 
   # Need Tk sources on windows
   IF(WIN32)
@@ -235,9 +235,9 @@ IF (VTK_WRAP_TCL_FIND_LIBS)
               X11/Xlib.h ${TK_INCLUDE_PATH}
               ${TK_INCLUDE_PATH}/../xlib)
     MARK_AS_ADVANCED(TK_XLIB_PATH)
-  ENDIF(WIN32)
+  ENDIF()
 
-ENDIF (VTK_WRAP_TCL_FIND_LIBS)
+ENDIF ()
 
 
 # VS 6 does not like needing to run a huge number of custom commands
@@ -246,7 +246,7 @@ ENDIF (VTK_WRAP_TCL_FIND_LIBS)
 # is a hack to work-around the limitation.  The test to enable it is
 # done here since it does not need to be done for every macro
 # invocation.
-IF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
+IF(CMAKE_GENERATOR STREQUAL "Visual Studio 6")
   SET(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS 1)
   SET(VTK_WRAP_TCL_CUSTOM_LIMIT x)
   # Limit the number of custom commands in each target
@@ -254,5 +254,5 @@ IF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
   FOREACH(t 1 2 3 4 5 6 7)
     SET(VTK_WRAP_TCL_CUSTOM_LIMIT
       ${VTK_WRAP_TCL_CUSTOM_LIMIT}${VTK_WRAP_TCL_CUSTOM_LIMIT})
-  ENDFOREACH(t)
-ENDIF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
+  ENDFOREACH()
+ENDIF()

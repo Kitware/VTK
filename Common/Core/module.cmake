@@ -7,4 +7,6 @@ vtk_module(vtkCommonCore
     vtkTestingCore
     vtkCommonSystem
     vtkCommonTransforms
+  KIT
+    vtkCommon
   )

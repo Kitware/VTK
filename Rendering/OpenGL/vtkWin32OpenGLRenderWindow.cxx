@@ -21,6 +21,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkRendererCollection.h"
+#include "vtkTypeTraits.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
 #include <math.h>
@@ -284,6 +285,31 @@ bool vtkWin32OpenGLRenderWindow::IsCurrent()
 }
 
 // ----------------------------------------------------------------------------
+void AdjustWindowRectForBorders(const int borders, const int x, const int y,
+                                const int width, const int height, RECT &r)
+{
+  DWORD style = WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
+  if (borders)
+    {
+    style |= WS_OVERLAPPEDWINDOW;
+    }
+  else
+    {
+    style |= WS_POPUP;
+    }
+  r.left = x;
+  r.top = y;
+  r.right = r.left + width;
+  r.bottom = r.top + height;
+  BOOL result = AdjustWindowRect(&r, style, FALSE);
+  if (!result)
+    {
+    vtkGenericWarningMacro("AdjustWindowRect failed, error: "
+      << GetLastError());
+    }
+}
+
+// ----------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
 {
   static int resizing = 0;
@@ -317,6 +343,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
       if (!resizing)
         {
         resizing = 1;
+
         if (this->ParentId)
           {
           SetWindowExtEx(this->DeviceContext, x, y, NULL);
@@ -326,10 +353,11 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
           }
         else
           {
+          RECT r;
+          AdjustWindowRectForBorders(this->Borders, 0, 0, x, y, r);
           SetWindowPos(this->WindowId, HWND_TOP, 0, 0,
-                       x + 2 * GetSystemMetrics(SM_CXFRAME),
-                       y + 2 * GetSystemMetrics(SM_CYFRAME) +
-                       GetSystemMetrics(SM_CYCAPTION),
+                       r.right - r.left,
+                       r.bottom - r.top,
                        SWP_NOMOVE | SWP_NOZORDER);
           }
         resizing = 0;
@@ -651,19 +679,21 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     return;
     }
 
+  BYTE bpp_byte = static_cast<BYTE>(bpp);
+  BYTE zbpp_byte = static_cast<BYTE>(zbpp);
   PIXELFORMATDESCRIPTOR pfd = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
     1,                              /* version */
     dwFlags         ,               /* support double-buffering */
     PFD_TYPE_RGBA,                  /* color type */
-    bpp,                             /* preferred color depth */
+    bpp_byte,                       /* preferred color depth */
     0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
-    this->AlphaBitPlanes ? bpp/4 : 0, /* no alpha buffer */
+    static_cast<BYTE>(this->AlphaBitPlanes ? bpp/4 : 0), /* no alpha buffer */
     0,                              /* alpha bits (ignored) */
     0,                              /* no accumulation buffer */
     0, 0, 0, 0,                     /* accum bits (ignored) */
-    zbpp,                           /* depth buffer */
-    this->StencilCapable,           /* stencil buffer */
+    zbpp_byte,                      /* depth buffer */
+    static_cast<BYTE>(this->StencilCapable), /* stencil buffer */
     0,                              /* no auxiliary buffers */
     PFD_MAIN_PLANE,                 /* main layer */
     0,                              /* reserved */
@@ -982,15 +1012,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
           style |= WS_POPUP;
           }
         RECT r;
-        r.left = x;
-        r.top = y;
-        r.right = r.left + width;
-        r.bottom = r.top + height;
-        BOOL result = AdjustWindowRect(&r, style, FALSE);
-        if (!result)
-          {
-          vtkErrorMacro("AdjustWindowRect failed, error: " << GetLastError());
-          }
+        AdjustWindowRectForBorders(this->Borders, x, y, width, height, r);
 #ifdef UNICODE
         this->WindowId = CreateWindow(
           L"vtkOpenGL", wname, style,
@@ -1165,14 +1187,29 @@ int *vtkWin32OpenGLRenderWindow::GetSize(void)
   return this->vtkOpenGLRenderWindow::GetSize();
 }
 
-// Get the current size of the window.
+// Get the size of the whole screen.
 int *vtkWin32OpenGLRenderWindow::GetScreenSize(void)
 {
-  RECT rect;
-  SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+  HDC hDC = ::GetDC(NULL);
+  if (hDC)
+    {
+    // This technique yields the screen size of the primary monitor
+    // only in a multi-monitor configuration...
+    this->Size[0] = ::GetDeviceCaps(hDC, HORZRES);
+    this->Size[1] = ::GetDeviceCaps(hDC, VERTRES);
+    ::ReleaseDC(NULL, hDC);
+    }
+  else
+    {
+    // This technique gets the "work area" (the whole screen except
+    // for the bit covered by the Windows task bar) -- use it as a
+    // fallback if there's an error calling GetDC.
+    RECT rect;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
 
-  this->Size[0] = rect.right - rect.left;
-  this->Size[1] = rect.bottom - rect.top;
+    this->Size[0] = rect.right - rect.left;
+    this->Size[1] = rect.bottom - rect.top;
+    }
 
   return this->Size;
 }
@@ -1248,15 +1285,17 @@ void vtkWin32OpenGLRenderWindow::PrefFullScreen()
 {
   int *size = this->GetScreenSize();
 
+  // don't show borders
+  this->Borders = 0;
+
+  RECT r;
+  AdjustWindowRectForBorders(this->Borders, 0, 0, size[0], size[1], r);
+
   // use full screen
   this->Position[0] = 0;
   this->Position[1] = 0;
-  this->Size[0] = size[0] - 2*GetSystemMetrics(SM_CXFRAME);
-  this->Size[1] = size[1] -
-    2 * GetSystemMetrics(SM_CYFRAME) - GetSystemMetrics(SM_CYCAPTION);
-
-  // don't show borders
-  this->Borders = 0;
+  this->Size[0] = r.right - r.left;
+  this->Size[1] = r.bottom - r.top;
 }
 
 // Remap the window.
@@ -1310,19 +1349,19 @@ void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkWin32OpenGLRenderWindow::SetWindowInfo(char *info)
 {
-  int tmp;
-  sscanf(info, "%i", &tmp);
+  size_t tmp;
+  sscanf(info, vtkTypeTraits<size_t>::ParseFormat(), &tmp);
 
-  this->WindowId = (HWND)tmp;
+  this->WindowId = reinterpret_cast<HWND>(tmp);
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n");
 }
 
 void vtkWin32OpenGLRenderWindow::SetNextWindowInfo(char *info)
 {
-  int tmp;
-  sscanf(info, "%i", &tmp);
+  size_t tmp;
+  sscanf(info, vtkTypeTraits<size_t>::ParseFormat(), &tmp);
 
-  this->SetNextWindowId((HWND)tmp);
+  this->SetNextWindowId(reinterpret_cast<HWND>(tmp));
 }
 
 void vtkWin32OpenGLRenderWindow::SetDisplayId(void * arg)
@@ -1344,10 +1383,10 @@ void vtkWin32OpenGLRenderWindow::SetDeviceContext(HDC arg)
 // Sets the HWND id of the window that WILL BE created.
 void vtkWin32OpenGLRenderWindow::SetParentInfo(char *info)
 {
-  int tmp;
-  sscanf(info, "%i", &tmp);
+  size_t tmp;
+  sscanf(info, vtkTypeTraits<size_t>::ParseFormat(), &tmp);
 
-  this->ParentId = (HWND)tmp;
+  this->ParentId = reinterpret_cast<HWND>(tmp);
   vtkDebugMacro(<< "Setting ParentId to " << this->ParentId << "\n");
 }
 
@@ -1493,7 +1532,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rsit;
   this->Renderers->InitTraversal(rsit);
-  while (ren = this->Renderers->GetNextRenderer(rsit))
+  while ((ren = this->Renderers->GetNextRenderer(rsit)))
     {
     ren->SetRenderWindow(NULL);
     ren->SetRenderWindow(this);
@@ -1596,7 +1635,7 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
       vtkRenderer *ren;
       vtkCollectionSimpleIterator rsit;
       this->Renderers->InitTraversal(rsit);
-      while (ren = this->Renderers->GetNextRenderer(rsit))
+      while ((ren = this->Renderers->GetNextRenderer(rsit)))
         {
         ren->SetRenderWindow(NULL);
         ren->SetRenderWindow(this);

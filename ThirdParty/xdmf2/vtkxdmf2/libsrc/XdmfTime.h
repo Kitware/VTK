@@ -45,6 +45,9 @@ Time is a child of the <Grid> element :
 
 #include "XdmfElement.h"
 
+namespace xdmf2
+{
+
 class XdmfDataItem;
 class XdmfArray;
 class XdmfGrid;
@@ -118,5 +121,5 @@ protected:
     XdmfDataItem *DataItem;
     XdmfString   Function;
 };
-
+}
 #endif // __XdmfTime_h

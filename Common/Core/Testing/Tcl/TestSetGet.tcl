@@ -34,6 +34,7 @@ vtkMesaScalarsToColorsPainter-GetTextureSizeLimit
 vtkDataObjectTreeIterator-GetCurrentDataObject
 vtkDataObjectTreeIterator-GetCurrentMetaData
 vtkDataObjectTreeIterator-GetCurrentFlatIndex
+vtkGeoJSONWriter-GetOutputStdString
 }
 
 proc TestOne {cname} {
@@ -114,6 +115,10 @@ set classExceptions {
    vtkDataSetCellIterator
    vtkPointSetCellIterator
    vtkUnstructuredGridCellIterator
+   vtkQImageToImageSource
+   vtkQtLabelRenderStrategy
+   vtkQtStringToImage
+   vtkQtTreeRingLabelMapper
 }
 
 proc rtSetGetTest { fileid } {

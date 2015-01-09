@@ -55,10 +55,6 @@ typedef std::map<int,vtkTimerStruct>::iterator vtkTimerIdMapIterator;
 static int vtkTimerId = 1;
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkRenderWindowInteractor);
-//----------------------------------------------------------------------------
-
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor,Picker,vtkAbstractPicker);
 
 //----------------------------------------------------------------------
@@ -93,6 +89,13 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
   this->EventPosition[0] = this->LastEventPosition[0] = 0;
   this->EventPosition[1] = this->LastEventPosition[1] = 0;
+
+  for (int i = 0; i < VTKI_MAX_POINTERS; ++i)
+    {
+    this->EventPositions[i][0] = this->LastEventPositions[i][0] = 0;
+    this->EventPositions[i][1] = this->LastEventPositions[i][1] = 0;
+    }
+  this->PointerIndex = 0;
 
   this->EventSize[0] = 0;
   this->EventSize[1] = 0;
@@ -188,6 +191,32 @@ void vtkRenderWindowInteractor::UnRegister(vtkObjectBase *o)
     }
 
   this->vtkObject::UnRegister(o);
+}
+
+//----------------------------------------------------------------------
+void vtkRenderWindowInteractor::Start()
+{
+  // Let the compositing handle the event loop if it wants to.
+  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
+    {
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
+    return;
+    }
+
+  // As a convenience, initialize if we aren't initialized yet.
+  if (!this->Initialized)
+    {
+    this->Initialize();
+
+    if (!this->Initialized)
+      {
+      return;
+      }
+    }
+
+  // Pass execution to the subclass which will run the event loop,
+  // this will not return until TerminateApp is called.
+  this->StartEventLoop();
 }
 
 //----------------------------------------------------------------------

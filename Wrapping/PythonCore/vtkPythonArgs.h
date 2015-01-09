@@ -162,14 +162,14 @@ public:
   // Description:
   // Get the next argument as an enum value.
   template<class T>
-  bool GetEnumValue(T &v, const char *enumname) {
+  bool GetEnumValue(T &v, PyTypeObject *enumtype) {
     bool r;
-    v = static_cast<T>(this->GetArgAsEnum(enumname, r));
+    v = static_cast<T>(this->GetArgAsEnum(enumtype, r));
     return r; }
   template<class T>
-  static bool GetEnumValue(PyObject *o, T &v, const char *enumname) {
+  static bool GetEnumValue(PyObject *o, T &v, PyTypeObject *enumtype) {
     bool r;
-    v = static_cast<T>(vtkPythonArgs::GetArgAsEnum(o, enumname, r));
+    v = static_cast<T>(vtkPythonArgs::GetArgAsEnum(o, enumtype, r));
     return r; }
 
   // Description:
@@ -521,9 +521,9 @@ protected:
 
   // Description:
   // Get the next argument as an object of the given type.
-  int GetArgAsEnum(const char *classname, bool &valid);
+  int GetArgAsEnum(PyTypeObject *enumtype, bool &valid);
   static int GetArgAsEnum(
-    PyObject *o, const char *classname, bool &valid);
+    PyObject *o, PyTypeObject *enumtype, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.
@@ -682,7 +682,7 @@ PyObject *vtkPythonArgs::BuildValue(const void *a)
 {
   if (a)
     {
-    const char *s = vtkPythonUtil::ManglePointer(a, "void_p");
+    const char *s = vtkPythonUtil::ManglePointer(a, "p_void");
     return PyString_FromString(s);
     }
   Py_INCREF(Py_None);

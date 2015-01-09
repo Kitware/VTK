@@ -2,7 +2,7 @@
 #include "vtkAngleRepresentation2D.h"
 #include "vtkAngleRepresentation3D.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 #include "WidgetTestingMacros.h"

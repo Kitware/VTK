@@ -113,7 +113,9 @@ IDE_GENERATED_PROPERTIES ("H5E" "${H5E_HDRS}" "${H5E_SRCS}" )
 SET (H5F_SRCS
     ${HDF5_SRC_DIR}/H5F.c
     ${HDF5_SRC_DIR}/H5Faccum.c
+    ${HDF5_SRC_DIR}/H5Fcwfs.c
     ${HDF5_SRC_DIR}/H5Fdbg.c
+    ${HDF5_SRC_DIR}/H5Fefc.c
     ${HDF5_SRC_DIR}/H5Ffake.c
     ${HDF5_SRC_DIR}/H5Fio.c
     ${HDF5_SRC_DIR}/H5Fmount.c
@@ -140,7 +142,6 @@ SET (H5FD_SRCS
     ${HDF5_SRC_DIR}/H5FDlog.c
     ${HDF5_SRC_DIR}/H5FDmpi.c
     ${HDF5_SRC_DIR}/H5FDmpio.c
-    ${HDF5_SRC_DIR}/H5FDmpiposix.c
     ${HDF5_SRC_DIR}/H5FDmulti.c
     ${HDF5_SRC_DIR}/H5FDsec2.c
     ${HDF5_SRC_DIR}/H5FDspace.c
@@ -154,7 +155,6 @@ SET (H5FD_HDRS
     ${HDF5_SRC_DIR}/H5FDlog.h
     ${HDF5_SRC_DIR}/H5FDmpi.h
     ${HDF5_SRC_DIR}/H5FDmpio.h
-    ${HDF5_SRC_DIR}/H5FDmpiposix.h
     ${HDF5_SRC_DIR}/H5FDmulti.h
     ${HDF5_SRC_DIR}/H5FDpkg.h
     ${HDF5_SRC_DIR}/H5FDpublic.h
@@ -234,6 +234,7 @@ SET (H5HG_SRCS
     ${HDF5_SRC_DIR}/H5HG.c
     ${HDF5_SRC_DIR}/H5HGcache.c
     ${HDF5_SRC_DIR}/H5HGdbg.c
+    ${HDF5_SRC_DIR}/H5HGquery.c
 )
 
 SET (H5HG_HDRS
@@ -344,7 +345,43 @@ SET (H5P_HDRS
 )
 IDE_GENERATED_PROPERTIES ("H5P" "${H5P_HDRS}" "${H5P_SRCS}" )
 
-SET (H5S_SRCS
+set (H5PL_SRCS
+    ${HDF5_SRC_DIR}/H5PL.c
+)
+
+set (H5PL_HDRS
+    ${HDF5_SRC_DIR}/H5PLextern.h
+)
+IDE_GENERATED_PROPERTIES ("H5PL" "${H5PL_HDRS}" "${H5PL_SRCS}" )
+
+
+set (H5R_SRCS
+    ${HDF5_SRC_DIR}/H5R.c
+    ${HDF5_SRC_DIR}/H5Rdeprec.c
+)
+set (H5R_HDRS
+    ${HDF5_SRC_DIR}/H5Rpkg.h
+    ${HDF5_SRC_DIR}/H5Rpublic.h
+)
+IDE_GENERATED_PROPERTIES ("H5R" "${H5R_HDRS}" "${H5R_SRCS}" )
+
+
+set (H5RC_SRCS
+    ${HDF5_SRC_DIR}/H5RC.c
+)
+set (H5RC_HDRS
+)
+IDE_GENERATED_PROPERTIES ("H5RC" "${H5RC_HDRS}" "${H5RC_SRCS}" )
+
+
+set (H5RS_SRCS
+    ${HDF5_SRC_DIR}/H5RS.c
+)
+set (H5RS_HDRS
+)
+IDE_GENERATED_PROPERTIES ("H5RS" "${H5RS_HDRS}" "${H5RS_SRCS}" )
+
+set (H5S_SRCS
     ${HDF5_SRC_DIR}/H5S.c
     ${HDF5_SRC_DIR}/H5Sall.c
     ${HDF5_SRC_DIR}/H5Sdbg.c
@@ -417,6 +454,10 @@ SET (H5Z_SRCS
     ${HDF5_SRC_DIR}/H5Zszip.c
     ${HDF5_SRC_DIR}/H5Ztrans.c
 )
+if (H5_ZLIB_HEADER)
+  SET_PROPERTY(SOURCE ${HDF5_SRC_DIR}/H5Zdeflate.c PROPERTY
+      COMPILE_DEFINITIONS H5_ZLIB_HEADER="${H5_ZLIB_HEADER}")
+endif (H5_ZLIB_HEADER)
 
 SET (H5Z_HDRS
     ${HDF5_SRC_DIR}/H5Zpkg.h
@@ -442,6 +483,10 @@ SET (common_SRCS
     ${H5MP_SRCS}
     ${H5O_SRCS}
     ${H5P_SRCS}
+    ${H5PL_SRCS}
+    ${H5R_SRCS}
+    ${H5RC_SRCS}
+    ${H5RS_SRCS}
     ${H5S_SRCS}
     ${H5SM_SRCS}
     ${H5T_SRCS}
@@ -462,7 +507,7 @@ SET (common_SRCS
     ${HDF5_SRC_DIR}/H5SL.c
     ${HDF5_SRC_DIR}/H5ST.c
     ${HDF5_SRC_DIR}/H5TS.c
-    ${HDF5_SRC_DIR}/H5V.c
+    ${HDF5_SRC_DIR}/H5VM.c
     ${HDF5_SRC_DIR}/H5WB.c
 )
 
@@ -505,7 +550,7 @@ SET (H5_PUBLIC_HEADERS
 IF (WIN32)
   SET (common_SRCS  ${common_SRCS}  ${HDF5_SRC_DIR}/H5FDwindows.c)
   SET (H5_PUBLIC_HEADERS ${H5_PUBLIC_HEADERS}  ${HDF5_SRC_DIR}/H5FDwindows.h)
-ENDIF (WIN32)
+ENDIF ()
 
 SET (H5_PRIVATE_HEADERS
     ${HDF5_SRC_DIR}/H5private.h
@@ -543,7 +588,7 @@ SET (H5_PRIVATE_HEADERS
     ${HDF5_SRC_DIR}/H5STprivate.h
     ${HDF5_SRC_DIR}/H5Tprivate.h
     ${HDF5_SRC_DIR}/H5TSprivate.h
-    ${HDF5_SRC_DIR}/H5Vprivate.h
+    ${HDF5_SRC_DIR}/H5VMprivate.h
     ${HDF5_SRC_DIR}/H5WBprivate.h
     ${HDF5_SRC_DIR}/H5Zprivate.h
 )
@@ -553,7 +598,7 @@ IF (WIN32)
       ${H5_PRIVATE_HEADERS}
       ${HDF5_SRC_DIR}/H5win32defs.h
   )
-ENDIF (WIN32)
+ENDIF ()
 
 INCLUDE_DIRECTORIES (${HDF5_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${CMAKE_BINARY_DIR})
@@ -574,11 +619,11 @@ INCLUDE_DIRECTORIES (${CMAKE_BINARY_DIR})
 SET (CMD ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}${CFG_INIT}/H5detect${EXE_EXT})
 IF (XCODE)
   SET (CMD "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5detect")
-ENDIF (XCODE)
+ENDIF ()
 ADD_EXECUTABLE (H5detect ${HDF5_SRC_DIR}/H5detect.c)
 IF (WIN32)
   TARGET_LINK_LIBRARIES (H5detect "ws2_32.lib")
-ENDIF (WIN32)
+ENDIF ()
 
 ADD_CUSTOM_COMMAND (
     OUTPUT ${HDF5_BINARY_DIR}/H5Tinit.c
@@ -590,17 +635,19 @@ ADD_CUSTOM_COMMAND (
 SET (CMDL ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}${CFG_INIT}/H5make_libsettings${EXE_EXT})
 IF (XCODE)
   SET (CMDL "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5make_libsettings")
-ENDIF (XCODE)
+ENDIF ()
 ADD_EXECUTABLE (H5make_libsettings ${HDF5_SRC_DIR}/H5make_libsettings.c)
 IF (WIN32)
   TARGET_LINK_LIBRARIES (H5make_libsettings "ws2_32.lib")
-ENDIF (WIN32)
+ENDIF ()
 
-ADD_CUSTOM_COMMAND (
+set (CMD $<TARGET_FILE:H5make_libsettings>)
+add_custom_command (
     OUTPUT ${HDF5_BINARY_DIR}/H5lib_settings.c
-    COMMAND ${CMDL}
+    COMMAND ${CMD}
     ARGS > ${HDF5_BINARY_DIR}/H5lib_settings.c
     DEPENDS H5make_libsettings
+    WORKING_DIRECTORY ${HDF5_BINARY_DIR}
 )
 
 #-----------------------------------------------------------------------------
@@ -622,6 +669,22 @@ SET_TARGET_PROPERTIES(${HDF5_LIB_TARGET} PROPERTIES DEFINE_SYMBOL ${HDF5_LIB_COR
 TARGET_LINK_LIBRARIES (${HDF5_LIB_TARGET} ${LINK_LIBS})
 SET_GLOBAL_VARIABLE (HDF5_LIBRARIES_TO_EXPORT ${HDF5_LIB_TARGET})
 H5_SET_LIB_OPTIONS (${HDF5_LIB_TARGET} ${HDF5_LIB_NAME} ${LIB_TYPE})
+set_target_properties (${HDF5_LIB_TARGET} PROPERTIES
+    FOLDER libraries
+    INTERFACE_INCLUDE_DIRECTORIES "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"
+)
+
+option (HDF5_ENABLE_DEBUG_APIS "Turn on debugging in all packages" OFF)
+mark_as_advanced(HDF5_ENABLE_DEBUG_APIS)
+if (HDF5_ENABLE_DEBUG_APIS)
+  set_target_properties (${HDF5_LIB_TARGET} PROPERTIES
+    COMPILE_DEFINITIONS
+      "-DH5Z_DEBUG -DH5VM_DEBUG -DH5T_DEBUG
+      -DH5S_DEBUG -DH5P_DEBUG -DH5O_DEBUG -DH5MM_DEBUG -DH5MF_DEBUG
+      -DH5I_DEBUG -DH5HL_DEBUG -DH5HG_DEBUG -DH5G_DEBUG -DH5F_DEBUG
+      -DH5E_DEBUG -DH5D_DEBUG -DH5B_DEBUG -DH5AC_DEBUG -UNDEBUG"
+  )
+endif (HDF5_ENABLE_DEBUG_APIS)
 
 #-----------------------------------------------------------------------------
 # Add file(s) to CMake Install
@@ -634,7 +697,7 @@ INSTALL (
     DESTINATION
         ${VTK_INSTALL_INCLUDE_DIR}/vtkhdf5
 )
-ENDIF (NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects
@@ -649,4 +712,4 @@ IF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)
       LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
       ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development
   )
-ENDIF (HDF5_EXPORTED_TARGETS AND NOT VTK_INSTALL_NO_LIBRARIES)
+ENDIF ()

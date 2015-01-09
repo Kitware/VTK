@@ -39,7 +39,7 @@
 
 #include "vtkImageBSplineInternals.h"
 #include "vtkAbstractImageInterpolator.h"
-#include <stddef.h>
+#include <cstddef>
 #include <math.h>
 
 /*--------------------------------------------------------------------------*/
@@ -135,7 +135,7 @@ InitialCausalCoefficient
                 }
                 return(c[0] + Sum / (1.0 - zn * zn));
             }
-            break;
+            /* break; (unecessary because of return) */
 
         case VTK_IMAGE_BORDER_MIRROR:
             /* this initialization corresponds to mirror boundaries */
@@ -167,7 +167,7 @@ InitialCausalCoefficient
                 }
                 return(Sum / (1.0 - zn * zn));
             }
-            break;
+            /* break; (unecessary because of return) */
 
         case VTK_IMAGE_BORDER_REPEAT:
             /* this initialization corresponds to periodic boundaries */
@@ -195,7 +195,7 @@ InitialCausalCoefficient
                 }
                 return(Sum / (1.0 - zn));
             }
-            break;
+            /* break; (unecessary because of return) */
     }
 
     return(0.0);
@@ -322,7 +322,6 @@ GetPoleValues
         default:
             NbPoles = 0L;
             return(1);
-            break;
     }
 
     return(0);

@@ -22,6 +22,8 @@
 #include "vtkWebGLExporter.h"
 #include "vtkWebGLObject.h"
 
+#include <sstream>
+
 vtkStandardNewMacro(vtkWebGLWidget);
 
 vtkWebGLWidget::vtkWebGLWidget()
@@ -31,6 +33,7 @@ vtkWebGLWidget::vtkWebGLWidget()
   this->binarySize = 0;
   this->orientation = 1;
   this->interactAtServer = false;
+  this->title = NULL;
   }
 
 vtkWebGLWidget::~vtkWebGLWidget()
@@ -42,6 +45,7 @@ vtkWebGLWidget::~vtkWebGLWidget()
     this->colors.pop_back();
     delete[] xrgb;
     }
+  if (this->title) delete[] this->title;
   }
 
 unsigned char* vtkWebGLWidget::GetBinaryData(int vtkNotUsed(part))
@@ -111,7 +115,24 @@ void vtkWebGLWidget::GetDataFromColorMap(vtkActor2D *actor)
   {
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
   this->numberOfLabels = scalarbar->GetNumberOfLabels();
-  this->title = scalarbar->GetTitle();
+
+  std::stringstream theTitle;
+  char* componentTitle = scalarbar->GetComponentTitle();
+
+  theTitle << scalarbar->GetTitle();
+  if (componentTitle && strlen(componentTitle) > 0)
+    {
+    theTitle << " ";
+    theTitle << componentTitle;
+    }
+
+  if (this->title)
+    {
+    delete[] this->title;
+    }
+  std::string tmp = theTitle.str();
+  this->title = new char[tmp.length()+1];
+  strcpy(this->title, tmp.c_str());
   this->hasTransparency = (scalarbar->GetUseOpacity() != 0);
   this->orientation = scalarbar->GetOrientation();
 

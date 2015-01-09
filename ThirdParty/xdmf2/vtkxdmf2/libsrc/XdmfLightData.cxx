@@ -25,6 +25,9 @@
 #include "XdmfLightData.h"
 #include <libxml/tree.h>
 
+namespace xdmf2
+{
+
 XdmfLightData::XdmfLightData() {
 
     this->WorkingDirectory = NULL; 
@@ -77,3 +80,4 @@ XdmfConstString XdmfLightData::DupBuffer(XdmfPointer Buffer){
     return(this->StaticReturnBuffer);
 }
 
+}

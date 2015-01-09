@@ -20,7 +20,7 @@
      * @class vtkWeb.Session
      * vtkWeb Session object on which RPC method calls can be made.
      *
-     *     session.call("vtk:render", request).then( function (reply) {
+     *     session.call("viewport.image.render", request).then( function (reply) {
      *        // Do something with the reply
      *     });
      */
@@ -93,48 +93,50 @@
      *          }
      *      );
      */
-    function connect(connection, readyCallback, closeCallback) {
-        var wsuri = connection.sessionURL, onReady = readyCallback, onClose = closeCallback;
+    function connect(connectionInfo, readyCallback, closeCallback) {
+        var wsuri = connectionInfo.sessionURL, onReady = readyCallback, onClose = closeCallback;
 
-        if(!connection.hasOwnProperty("secret")) {
-            connection.secret = "vtkweb-secret"; // Default value
+        if(!connectionInfo.hasOwnProperty("secret")) {
+            connectionInfo.secret = "vtkweb-secret"; // Default value
         }
 
-        GLOBAL.ab.connect(wsuri, function (session) {
-            try {
-                session.authreq("vtkweb").then(function (challenge) {
-                    // derive secret if salted WAMP-CRA
-                    var secret = GLOBAL.ab.deriveKey(connection.secret, JSON.parse(challenge).authextra);
-                    var signature = session.authsign(challenge, secret);
+        connectionInfo.connection = new autobahn.Connection({
+            url: wsuri,
+            realm: "vtkweb",
+            authmethods: ["wampcra"],
+            authid: "vtkweb",
+            onchallenge: function(session, method, extra) {
+                if (method === "wampcra") {
+                    var secretKey = autobahn.auth_cra.derive_key(connectionInfo.secret, "salt123");
+                    return autobahn.auth_cra.sign(secretKey, extra.challenge);
+                } else {
+                    throw "don't know how to authenticate using '" + method + "'";
+                }
+            }
+        });
 
-                    session.auth(signature).then(function(){
-                        session.prefix("vtk", "http://vtk.org/vtk#");
-                        session.prefix("event", "http://vtk.org/event#");
-                        connection.session = session;
-                        connections[connection.sessionURL] = connection;
-                        if (onReady) {
-                            onReady(connection);
-                        }
-                    }, function(error) {
-                        alert("Authentication error: " + error);
-                        GLOBAL.close();
-                    }).otherwise(function(error){
-                        alert(error);
-                        GLOBAL.close();
-                    });
-                });
+        connectionInfo.connection.onopen = function(session, details) {
+            try {
+                connectionInfo.session = session;
+                connections[connectionInfo.sessionURL] = connectionInfo;
+
+                if (onReady) {
+                    onReady(connectionInfo);
+                }
             } catch(e) {
                 console.log(e);
             }
-        }, function (code, reason) {
-            delete connections[connection.sessionURL];
+        }
+
+        connectionInfo.connection.onclose = function() {
+            delete connections[connectionInfo.sessionURL];
             if (onClose) {
-                onClose(code, reason);
+                onClose(arguments[0], arguments[1].reason);
             }
-        },{
-            'maxRetries': 0,
-            'retryDelay': 2000
-        });
+            return false;
+        }
+
+        connectionInfo.connection.open();
     }
 
     /**
@@ -194,7 +196,7 @@
     // ----------------------------------------------------------------------
     try {
       // Tests for presence of autobahn, then registers this module
-      if (GLOBAL.ab !== undefined) {
+      if (GLOBAL.autobahn !== undefined) {
         module.registerModule('vtkweb-connect');
       } else {
         console.error('Module failed to register, autobahn is missing');

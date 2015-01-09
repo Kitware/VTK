@@ -64,7 +64,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkMINC.h"
 #include "vtk_netcdf.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <ctype.h>
 #include <float.h>
 #include <string>
@@ -732,7 +732,6 @@ int vtkMINCImageAttributes::GetAttributeValueAsInt(
       case VTK_SHORT:
       case VTK_INT:
         return static_cast<int>(array->GetComponent(0,0));
-        break;
       default:
         break;
       }
@@ -784,7 +783,6 @@ double vtkMINCImageAttributes::GetAttributeValueAsDouble(
       case VTK_FLOAT:
       case VTK_DOUBLE:
         return array->GetComponent(0,0);
-        break;
       default:
         break;
       }

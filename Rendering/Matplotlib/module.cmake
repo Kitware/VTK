@@ -5,16 +5,18 @@ vtk_module(vtkRenderingMatplotlib
     vtkImagingCore
     vtkRenderingCore
     vtkPythonInterpreter
+  PRIVATE_DEPENDS
+    vtkWrappingPythonCore
   TEST_DEPENDS
     vtkCommonColor
     vtkInteractionImage
     vtkInteractionWidgets
-    vtkIOExport
     vtkIOGeometry
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingGL2PS
-    vtkRenderingOpenGL
-    vtkRenderingFreeTypeOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
+    vtkIOExport
+    vtkRenderingGL2PS
   )

@@ -26,7 +26,11 @@
 
 #include <cstring>
 
-extern XdmfArray *XdmfExprParse( XdmfString string );
+
+extern xdmf2::XdmfArray *XdmfExprParse( XdmfString string );
+
+namespace xdmf2
+{
 
 XdmfArray *
 XdmfExpr( XdmfString Statement ) {
@@ -66,3 +70,4 @@ if( strcmp( Operation, "+=" ) == 0 ){
 }
 
 
+}

@@ -11,5 +11,7 @@ if (VTK_WRAP_PYTHON)
     EXCLUDE_FROM_JAVA_WRAPPING
     TEST_DEPENDS
       vtkTestingCore
+    KIT
+      vtkWrapping
     )
 endif ()

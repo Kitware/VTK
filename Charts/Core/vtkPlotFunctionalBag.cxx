@@ -53,9 +53,22 @@ vtkPlotFunctionalBag::~vtkPlotFunctionalBag()
 }
 
 //-----------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::IsBag()
+{
+  this->Update();
+  return (this->BagPoints->GetNumberOfPoints() > 0);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::GetVisible()
+{
+  return this->Superclass::GetVisible() || this->GetSelection() != 0;
+}
+
+//-----------------------------------------------------------------------------
 void vtkPlotFunctionalBag::Update()
 {
-  if (!this->Visible)
+  if (!this->GetVisible())
     {
     return;
     }
@@ -75,11 +88,11 @@ void vtkPlotFunctionalBag::Update()
     vtkDebugMacro(<< "Updating cached values.");
     this->UpdateTableCache(table);
     }
-  else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
-           (this->YAxis && this->YAxis->GetMaximum() > this->BuildTime))
+  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
+           (this->YAxis->GetMTime() > this->BuildTime))
     {
-    if (this->LogX != this->XAxis->GetLogScale() ||
-        this->LogY != this->YAxis->GetLogScale())
+    if ((this->LogX != this->XAxis->GetLogScale()) ||
+        (this->LogY != this->YAxis->GetLogScale()))
       {
       this->UpdateTableCache(table);
       }
@@ -112,10 +125,6 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
       array[0] ? array[0]->GetName() : "", array[1]->GetName());
     this->Line->SetUseIndexForXSeries(this->UseIndexForXSeries);
     this->Line->SetMarkerStyle(vtkPlotPoints::NONE);
-    double rgb[3];
-    this->GetColor(rgb);
-    this->Line->SetColor(rgb[0], rgb[1], rgb[2]);
-    this->Line->SetWidth(this->GetWidth());
     this->Line->SetPen(this->Pen);
     this->Line->SetBrush(this->Brush);
     this->Line->Update();
@@ -204,25 +213,28 @@ bool vtkPlotFunctionalBag::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotFunctionalBag.");
 
-  if (!this->Visible)
+  if (!this->GetVisible())
     {
     return false;
     }
 
-  if (this->BagPoints->GetNumberOfPoints() > 0)
+  vtkPen* pen = this->GetSelection() ? this->SelectionPen : this->Pen;
+
+  if (this->IsBag())
     {
+    double pwidth = pen->GetWidth();
+    pen->SetWidth(0.);
+    painter->ApplyPen(pen);
     unsigned char pcolor[4];
-    double pwidth = this->Pen->GetWidth();
-    this->Pen->SetWidth(0.);
-    painter->ApplyPen(this->Pen);
-    this->Pen->GetColor(pcolor);
+    pen->GetColor(pcolor);
     this->Brush->SetColor(pcolor);
     painter->ApplyBrush(this->Brush);
     painter->DrawQuadStrip(this->BagPoints.GetPointer());
-    this->Pen->SetWidth(pwidth);
+    pen->SetWidth(pwidth);
     }
   else
     {
+    this->Line->SetPen(pen);
     this->Line->Paint(painter);
     }
 
@@ -259,6 +271,26 @@ vtkIdType vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point,
     return this->Line->GetNearestPoint(point, tol, loc);
     }
   return -1;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
+{
+  if (this->BagPoints->GetNumberOfPoints() == 0)
+    {
+    return this->Line->SelectPoints(min, max);
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlotFunctionalBag::SelectPointsInPolygon(const vtkContextPolygon &polygon)
+{
+  if (this->BagPoints->GetNumberOfPoints() == 0)
+    {
+    return this->Line->SelectPointsInPolygon(polygon);
+    }
+  return false;
 }
 
 //-----------------------------------------------------------------------------

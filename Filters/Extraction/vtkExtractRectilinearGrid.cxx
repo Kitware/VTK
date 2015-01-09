@@ -25,7 +25,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 
-
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -87,14 +86,14 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
         vtkWarningMacro("Requested extent outside whole extent.")
         idx = 0;
         }
-      uExt[2*i] = this->Internal->GetMapping(i,idx);
+      uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
       int jdx = oUExt[2*i+1];
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
         {
         vtkWarningMacro("Requested extent outside whole extent.")
         jdx = 0;
         }
-      uExt[2*i + 1] = this->Internal->GetMapping(i,jdx);
+      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
@@ -133,12 +132,20 @@ int vtkExtractRectilinearGrid::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 1 : 0;
+}
+
+//----------------------------------------------------------------------------
+bool vtkExtractRectilinearGrid::RequestDataImpl(
+    int voi[6], vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector)
+{
   if( (this->SampleRate[0] < 1) ||
       (this->SampleRate[1] < 1) ||
       (this->SampleRate[2] < 1) )
     {
-    vtkErrorWithObjectMacro(
-        this,"SampleRate must be >= 1 in all 3 dimenstions!");
+    vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
+    return false;
     }
 
   // get the info objects
@@ -162,14 +169,22 @@ int vtkExtractRectilinearGrid::RequestData(
 
   if (input->GetNumberOfPoints() == 0)
     {
-    return 1;
+    return true;
     }
 
   inExt = input->GetExtent();
 
+  this->Internal->Initialize(voi, inExt, this->SampleRate,
+                             (this->IncludeBoundary == 1));
+  if (!this->Internal->IsValid())
+    {
+    vtkErrorMacro("Error initializing index map.");
+    return false;
+    }
+
   int begin[3];
   int end[3];
-  this->Internal->ComputeBeginAndEnd(inExt,this->VOI,begin,end);
+  this->Internal->ComputeBeginAndEnd(inExt, voi, begin, end);
   output->SetExtent(begin[0], end[0], begin[1], end[1], begin[2], end[2]);
 
   outExt = output->GetExtent();
@@ -196,12 +211,11 @@ int vtkExtractRectilinearGrid::RequestData(
         vtkDataArray::CreateDataArray( in_coords[ dim ]->GetDataType() );
     out_coords[ dim ]->SetNumberOfTuples( outDims[ dim ] );
 
-    for( int idx=begin[dim]; idx <= end[dim]; ++idx )
+    for (int outIdx = begin[dim]; outIdx <= end[dim]; ++outIdx)
       {
-      int in_idx = this->Internal->GetMapping(dim, idx);
-      out_coords[ dim ]->SetTuple( idx, in_idx, in_coords[ dim ] );
+      int inIdx = this->Internal->GetMappedIndex(dim, outIdx);
+      out_coords[dim]->SetTuple(outIdx, inIdx, in_coords[dim]);
       } // END for all points along this dimension in the output
-
     } // END for all dimensions
 
   output->SetXCoordinates( out_coords[0] );
@@ -211,7 +225,7 @@ int vtkExtractRectilinearGrid::RequestData(
   out_coords[1]->Delete();
   out_coords[2]->Delete();
 
-  return 1;
+  return true;
 }
 
 //----------------------------------------------------------------------------

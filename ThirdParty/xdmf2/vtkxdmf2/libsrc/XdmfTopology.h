@@ -63,6 +63,9 @@
 #define XDMF_3DRECTMESH     0x1101
 #define XDMF_3DCORECTMESH   0x1102
 
+namespace xdmf2
+{
+
 class XdmfArray;
 class XdmfDataDesc;
 class XdmfDataItem;
@@ -341,4 +344,5 @@ protected:
 };
 
 extern XDMF_EXPORT XdmfTopology *HandleToXdmfTopology( XdmfString Source );
+}
 #endif // __XdmfTopology_h

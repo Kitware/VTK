@@ -132,6 +132,17 @@ void CudaRegisterBuffer(struct cudaGraphicsResource **vboResource,
 }
 
 //------------------------------------------------------------------------------
+void CudaUnregisterResource(struct cudaGraphicsResource *vboResource)
+{
+  cudaError_t res = cudaGraphicsUnregisterResource(vboResource);
+  if (res != cudaSuccess)
+  {
+    cerr << "Unregister buffer failed ... " << cudaGetErrorString(res) << endl;
+    return;
+  }
+}
+
+//------------------------------------------------------------------------------
 void CudaTransferToGL(vtkPistonDataObject *id, unsigned long dataObjectMTimeCache,
                       vtkPistonScalarsColors *psc,
                       cudaGraphicsResource **vboResources,

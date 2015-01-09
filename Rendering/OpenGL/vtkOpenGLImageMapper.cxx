@@ -26,7 +26,7 @@
 
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
-#include <limits.h>
+#include <climits>
 
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 

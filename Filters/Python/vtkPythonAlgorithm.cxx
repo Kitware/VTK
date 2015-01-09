@@ -18,6 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkPythonUtil.h"
+#include "vtkSmartPyObject.h"
 
 vtkStandardNewMacro(vtkPythonAlgorithm);
 
@@ -25,17 +26,16 @@ void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  PyObject* str = NULL;
+  vtkSmartPyObject str;
   if (this->Object)
     {
-    str = PyObject_Str(this->Object);
+    str.TakeReference(PyObject_Str(this->Object));
     }
 
   os << indent << "Object: " << Object << std::endl;
   if (str)
     {
     os << indent << "Object (string): " << PyString_AsString(str) << std::endl;
-    Py_DECREF(str);
     }
 }
 
@@ -49,20 +49,35 @@ vtkPythonAlgorithm::~vtkPythonAlgorithm()
   Py_XDECREF(this->Object);
 }
 
-#define VTK_GET_METHOD(var, obj, method, failValue)    \
-  if (!obj)                                            \
-    {                                                  \
-    return failValue;                                  \
-    }                                                  \
-  PyObject* var = PyObject_GetAttrString(obj, method); \
-  if (!var)                                            \
-    {                                                  \
-    return failValue;                                  \
-    }                                                  \
-  if (!PyCallable_Check(var))                          \
-    {                                                  \
-    Py_DECREF(var);                                    \
-    return failValue;                                  \
+// This macro gets the method passed in as the parameter method
+// from the PyObject passed in as the parameter obj and creates a
+// vtkSmartPyObject variable with the name passed in as the parameter
+// var containing that method's PyObject.  If obj is NULL, obj.method
+// does not exist or obj.method is not a callable method, this macro
+// causes the function using it to return with the return value
+// passed in as the parameter failValue
+//    var - the name of the resulting vtkSmartPyObject with the
+//          method object in it.  Can be used in the code following
+//          the macro's use as the variable name
+//    obj - the PyObject to get the method from
+//    method - the name of the method to look for.  Should be a
+//          C string.
+//    failValue - the value to return if the lookup fails and the
+//          function using the macro should return.  Pass in a
+//          block comment /**/ for void functions using this macro
+#define VTK_GET_METHOD(var, obj, method, failValue)          \
+  if (!obj)                                                  \
+    {                                                        \
+    return failValue;                                        \
+    }                                                        \
+  vtkSmartPyObject var(PyObject_GetAttrString(obj, method)); \
+  if (!var)                                                  \
+    {                                                        \
+    return failValue;                                        \
+    }                                                        \
+  if (!PyCallable_Check(var))                                \
+    {                                                        \
+    return failValue;                                        \
     }
 
 static PyObject* VTKToPython(vtkObjectBase* obj)
@@ -78,34 +93,66 @@ static std::string GetPythonErrorString()
 
   // Increments refcounts for returns.
   PyErr_Fetch(&type, &value, &traceback);
+  // Put the returns in smartpointers that will
+  // automatically decrement refcounts
+  vtkSmartPyObject sType(type);
+  vtkSmartPyObject sValue(value);
+  vtkSmartPyObject sTraceback(traceback);
 
-  if (!type)
+  if (!sType)
     {
     return "No error from Python?!";
     }
 
-  PyObject* pyexc_string = PyObject_Str(value);
   std::string exc_string;
-  if (pyexc_string)
+
+  vtkSmartPyObject tbModule(PyImport_ImportModule("traceback"));
+  if (tbModule)
     {
-    exc_string = PyString_AsString(pyexc_string);
-    Py_DECREF(pyexc_string);
+    vtkSmartPyObject formatFunction(PyObject_GetAttrString(tbModule.GetPointer(), "format_exception"));
+
+    vtkSmartPyObject args(PyTuple_New(3));
+
+    Py_INCREF(sType.GetPointer()); // PyTuple steals a reference.
+    PyTuple_SET_ITEM(args.GetPointer(), 0, sType.GetPointer());
+
+    Py_INCREF(sValue.GetPointer()); // PyTuple steals a reference.
+    PyTuple_SET_ITEM(args.GetPointer(), 1, sValue.GetPointer());
+
+    Py_INCREF(sTraceback.GetPointer()); // PyTuple steals a reference.
+    PyTuple_SET_ITEM(args.GetPointer(), 2, sTraceback.GetPointer());
+
+    vtkSmartPyObject formatList(PyObject_Call(formatFunction.GetPointer(), args, NULL));
+    vtkSmartPyObject fastFormatList(PySequence_Fast(formatList.GetPointer(), "format_exception didn't return a list..."));
+
+    Py_ssize_t sz = PySequence_Size(formatList.GetPointer());
+    PyObject** lst = PySequence_Fast_ITEMS(fastFormatList.GetPointer());
+    exc_string = "\n";
+    for (Py_ssize_t i = 0; i < sz; ++i)
+      {
+      PyObject* str = lst[i];
+      exc_string += PyString_AsString(str);
+      }
     }
   else
     {
-    exc_string = "<Unable to convert Python error to string>";
+    vtkSmartPyObject pyexc_string(PyObject_Str(sValue));
+    if (pyexc_string)
+      {
+      exc_string = PyString_AsString(pyexc_string);
+      }
+    else
+      {
+      exc_string = "<Unable to convert Python error to string>";
+      }
     }
-
-  Py_XDECREF(type);
-  Py_XDECREF(value);
-  Py_XDECREF(traceback);
 
   PyErr_Clear();
 
   return exc_string;
 }
 
-int vtkPythonAlgorithm::CheckResult(const char* method, PyObject* res)
+int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject &res)
 {
   if (!res)
     {
@@ -116,12 +163,10 @@ int vtkPythonAlgorithm::CheckResult(const char* method, PyObject* res)
     }
   if (!PyInt_Check(res))
     {
-    Py_DECREF(res);
     return 0;
     }
 
   int code = PyInt_AsLong(res);
-  Py_DECREF(res);
 
   return code;
 }
@@ -141,14 +186,12 @@ void vtkPythonAlgorithm::SetPythonObject(PyObject* obj)
   char mname[] = "Initialize";
   VTK_GET_METHOD(method, this->Object, mname, /* no return */)
 
-  PyObject* args = PyTuple_New(1);
+  vtkSmartPyObject args(PyTuple_New(1));
 
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args, 0, vtkself);
+  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
 
-  PyObject* result = PyObject_Call(method, args, NULL);
-  Py_DECREF(args);
-  Py_DECREF(method);
+  vtkSmartPyObject result(PyObject_Call(method, args, NULL));
 
   CheckResult(mname, result);
 }
@@ -170,13 +213,13 @@ int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
   char mname[] = "ProcessRequest";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
-  PyObject* args = PyTuple_New(4);
+  vtkSmartPyObject args(PyTuple_New(4));
 
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args, 0, vtkself);
+  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
 
   PyObject* pyrequest = VTKToPython(request);
-  PyTuple_SET_ITEM(args, 1, pyrequest);
+  PyTuple_SET_ITEM(args.GetPointer(), 1, pyrequest);
 
   int nports = this->GetNumberOfInputPorts();
   PyObject* pyininfos = PyTuple_New(nports);
@@ -185,14 +228,12 @@ int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
     PyObject* pyininfo = VTKToPython(inInfo[i]);
     PyTuple_SET_ITEM(pyininfos, i, pyininfo);
     }
-  PyTuple_SET_ITEM(args, 2, pyininfos);
+  PyTuple_SET_ITEM(args.GetPointer(), 2, pyininfos);
 
   PyObject* pyoutinfo = VTKToPython(outInfo);
-  PyTuple_SET_ITEM(args, 3, pyoutinfo);
+  PyTuple_SET_ITEM(args.GetPointer(), 3, pyoutinfo);
 
-  PyObject* result = PyObject_Call(method, args, NULL);
-  Py_DECREF(method);
-  Py_DECREF(args);
+  vtkSmartPyObject result(PyObject_Call(method, args, NULL));
 
   return CheckResult(mname, result);
 }
@@ -202,20 +243,18 @@ int vtkPythonAlgorithm::FillInputPortInformation(int port, vtkInformation* info)
   char mname[] = "FillInputPortInformation";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
-  PyObject* args = PyTuple_New(3);
+  vtkSmartPyObject args(PyTuple_New(3));
 
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args, 0, vtkself);
+  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
 
   PyObject* pyport = PyInt_FromLong(port);
-  PyTuple_SET_ITEM(args, 1, pyport);
+  PyTuple_SET_ITEM(args.GetPointer(), 1, pyport);
 
   PyObject* pyinfo = VTKToPython(info);
-  PyTuple_SET_ITEM(args, 2, pyinfo);
+  PyTuple_SET_ITEM(args.GetPointer(), 2, pyinfo);
 
-  PyObject* result = PyObject_Call(method, args, NULL);
-  Py_DECREF(method);
-  Py_DECREF(args);
+  vtkSmartPyObject result(PyObject_Call(method, args, NULL));
 
   return CheckResult(mname, result);
 }
@@ -225,20 +264,18 @@ int vtkPythonAlgorithm::FillOutputPortInformation(int port, vtkInformation* info
   char mname[] = "FillOutputPortInformation";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
-  PyObject* args = PyTuple_New(3);
+  vtkSmartPyObject args(PyTuple_New(3));
 
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args, 0, vtkself);
+  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
 
   PyObject* pyport = PyInt_FromLong(port);
-  PyTuple_SET_ITEM(args, 1, pyport);
+  PyTuple_SET_ITEM(args.GetPointer(), 1, pyport);
 
   PyObject* pyinfo = VTKToPython(info);
-  PyTuple_SET_ITEM(args, 2, pyinfo);
+  PyTuple_SET_ITEM(args.GetPointer(), 2, pyinfo);
 
-  PyObject* result = PyObject_Call(method, args, NULL);
-  Py_DECREF(method);
-  Py_DECREF(args);
+  vtkSmartPyObject result(PyObject_Call(method, args, NULL));
 
   return CheckResult(mname, result);
 }

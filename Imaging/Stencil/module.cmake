@@ -5,4 +5,6 @@ vtk_module(vtkImagingStencil
   DEPENDS
     vtkCommonComputationalGeometry
     vtkImagingCore
+  KIT
+    vtkImaging
   )

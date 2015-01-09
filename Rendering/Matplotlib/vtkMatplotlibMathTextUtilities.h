@@ -45,8 +45,11 @@ public:
   static vtkMatplotlibMathTextUtilities *New();
 
   // Description:
-  // Determine the dimensions of the image that RenderString will produce for
-  // a given str, tprop, and dpi
+  // Given a text property and a string, get the bounding box {xmin, xmax,
+  // ymin, ymax} of the rendered string in pixels. The origin of the bounding
+  // box is the anchor point described by the horizontal and vertical
+  // justification text property variables.
+  // Returns true on success, false otherwise.
   bool GetBoundingBox(vtkTextProperty *tprop, const char *str,
                       unsigned int dpi, int bbox[4]);
 
@@ -56,12 +59,17 @@ public:
   // will be overwritten by the pixel width and height of the rendered string.
   // This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
   // not match the dimensions of the rendered text.
+  // The origin of the image's extents is aligned with the anchor point
+  // described by the text property's vertical and horizontal justification
+  // options.
   bool RenderString(const char *str, vtkImageData *data, vtkTextProperty *tprop,
                     unsigned int dpi, int textDims[2] = NULL);
 
   // Description:
   // Parse the MathText expression in str and fill path with a contour of the
-  // glyphs.
+  // glyphs. The origin of the path coordinates is aligned with the anchor point
+  // described by the text property's horizontal and vertical justification
+  // options.
   bool StringToPath(const char *str, vtkPath *path, vtkTextProperty *tprop);
 
   // Description:
@@ -98,9 +106,13 @@ protected:
   PyObject *PathParser;
   PyObject *FontPropertiesClass;
 
+  static void GetJustifiedBBox(int rows, int cols, vtkTextProperty *tprop,
+                               int bbox[4]);
+
   // Rotate the 4 2D corner points by the specified angle (degrees) around the
   // origin and calculate the bounding box
-  void RotateCorners(double angleDeg, double corners[4][2], double bbox[4]);
+  static void RotateCorners(double angleDeg, double corners[4][2],
+                            double bbox[4]);
 
   // Description:
   // Used for runtime checking of matplotlib's mathtext availability.

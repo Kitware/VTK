@@ -101,7 +101,7 @@ void vtkImageConvolve::SetKernel5x5(const double kernel[25])
 
 //----------------------------------------------------------------------------
 // Set a 7x7 kernel
-void vtkImageConvolve::SetKernel7x7(double kernel[49])
+void vtkImageConvolve::SetKernel7x7(const double kernel[49])
 {
   // Fill the kernel
   this->SetKernel(kernel, 7, 7, 1);
@@ -117,7 +117,7 @@ void vtkImageConvolve::SetKernel3x3x3(const double kernel[27])
 
 //----------------------------------------------------------------------------
 // Set a 5x5x5 kernel
-void vtkImageConvolve::SetKernel5x5x5(double kernel[125])
+void vtkImageConvolve::SetKernel5x5x5(const double kernel[125])
 {
   // Fill the kernel
   this->SetKernel(kernel, 5, 5, 5);
@@ -125,7 +125,7 @@ void vtkImageConvolve::SetKernel5x5x5(double kernel[125])
 
 //----------------------------------------------------------------------------
 // Set a 7x7x7 kernel
-void vtkImageConvolve::SetKernel7x7x7(double kernel[343])
+void vtkImageConvolve::SetKernel7x7x7(const double kernel[343])
 {
   // Fill the kernel
   this->SetKernel(kernel, 7, 7, 7);

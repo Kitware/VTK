@@ -1,38 +1,47 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
+if(POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW)
+endif()
 if(POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW) # CMake 3.0
+endif()
+if(POLICY CMP0053)
+  cmake_policy(SET CMP0053 NEW) # CMake 3.1
 endif()
 
 #
 # Set the project name.
 #
 
-PROJECT (VTKMY)
+project (VTKMY)
+
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
 
 #
 # Load CMake commands that you probably should not modify.
 #
 
-INCLUDE (${VTKMY_SOURCE_DIR}/CMakeOptions.cmake)
+include (${VTKMY_SOURCE_DIR}/CMakeOptions.cmake)
 
-INCLUDE_DIRECTORIES(${VTKMY_BINARY_DIR})
+include_directories(${VTKMY_BINARY_DIR})
 
 #
 # You can put your include path(s) here
 #
 
-INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Common)
-INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Imaging)
-INCLUDE_DIRECTORIES(${VTKMY_SOURCE_DIR}/Unsorted)
+include_directories(${VTKMY_SOURCE_DIR}/Common)
+include_directories(${VTKMY_SOURCE_DIR}/Imaging)
+include_directories(${VTKMY_SOURCE_DIR}/Unsorted)
 
 #
 # Build examples too ?
 #
 
-OPTION(BUILD_EXAMPLES "Build examples." ON)
-IF (BUILD_EXAMPLES)
-  ADD_SUBDIRECTORY(Examples)
-ENDIF (BUILD_EXAMPLES)
+option(BUILD_EXAMPLES "Build examples." ON)
+if (BUILD_EXAMPLES)
+  add_subdirectory(Examples)
+endif ()
 
 #
 # Common configuration settings
@@ -40,12 +49,10 @@ ENDIF (BUILD_EXAMPLES)
 # Do not worry about this one.
 #
 
-CONFIGURE_FILE(
+configure_file(
   ${VTKMY_SOURCE_DIR}/vtkmyConfigure.h.in
   ${VTKMY_BINARY_DIR}/vtkmyConfigure.h
 )
-
-
 
 #
 # Here is where you can list the sub-directories holding your local
@@ -53,8 +60,7 @@ CONFIGURE_FILE(
 # Rendering, Filtering, Imaging, IO, etc.) is a good thing and prevents
 # numerous dependencies problems.
 #
-
-ADD_SUBDIRECTORY(Common)
-ADD_SUBDIRECTORY(Imaging)
-ADD_SUBDIRECTORY(Unsorted)
-ADD_SUBDIRECTORY(Utilities)
+add_subdirectory(Common)
+add_subdirectory(Imaging)
+add_subdirectory(Unsorted)
+add_subdirectory(Utilities)

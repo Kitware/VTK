@@ -1388,10 +1388,15 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   vtkIdType inPtId, outPtId;
   vtkPointData *inputPD = input->GetPointData();
   vtkCellData *inputCD = input->GetCellData();
+  vtkFieldData *inputFD = input->GetFieldData();
   vtkCellData *cd = input->GetCellData();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
+  vtkFieldData *outputFD = output->GetFieldData();
   vtkFastGeomQuad *q;
+
+  // Shallow copy field data not associated with points or cells
+  outputFD->ShallowCopy(inputFD);
 
   // These are for the default case/
   vtkIdList *pts;
@@ -2310,21 +2315,13 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(vtkIdType numberOfCells
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::DeleteAllFastGeomQuads()
 {
-  int idx;
-
-  for (idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
+  for (int idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
     {
-    if (this->FastGeomQuadArrays[idx])
-      {
-      delete [] this->FastGeomQuadArrays[idx];
-      this->FastGeomQuadArrays[idx] = NULL;
-      }
+    delete [] this->FastGeomQuadArrays[idx];
+    this->FastGeomQuadArrays[idx] = NULL;
     }
-  if (this->FastGeomQuadArrays)
-    {
-    delete [] this->FastGeomQuadArrays;
-    this->FastGeomQuadArrays = NULL;
-    }
+  delete [] this->FastGeomQuadArrays;
+  this->FastGeomQuadArrays = NULL;
   this->FastGeomQuadArrayLength = 0;
   this->NumberOfFastGeomQuadArrays = 0;
   this->NextArrayIndex = 0;

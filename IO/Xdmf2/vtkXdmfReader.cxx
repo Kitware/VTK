@@ -287,7 +287,7 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
     domain->IsStructured(domain->GetGrid(0)) &&
     domain->GetSetsSelection()->GetNumberOfArrays() == 0)
     {
-    XdmfGrid* xmfGrid = domain->GetGrid(0);
+    xdmf2::XdmfGrid* xmfGrid = domain->GetGrid(0);
     // just in the case the top-level grid is a temporal collection, then pick
     // the sub-grid to fetch the extents etc.
     xmfGrid = domain->GetGrid(xmfGrid,

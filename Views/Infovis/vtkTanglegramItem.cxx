@@ -235,7 +235,7 @@ void vtkTanglegramItem::PositionTree2()
 //-----------------------------------------------------------------------------
 void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
 {
-  int textOrientation = painter->GetTextProp()->GetOrientation();
+  double textOrientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
 
   float previousWidth = painter->GetPen()->GetWidth();
@@ -430,7 +430,7 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
   int justification = painter->GetTextProp()->GetJustification();
   painter->GetTextProp()->SetJustificationToCentered();
 
-  int textOrientation = painter->GetTextProp()->GetOrientation();
+  double textOrientation = painter->GetTextProp()->GetOrientation();
   painter->GetTextProp()->SetOrientation(0.0);
 
   painter->GetTextProp()->BoldOn();

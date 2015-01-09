@@ -193,6 +193,6 @@ vtkOverlappingAMR* GetAMRDataSet()
   data->SetDataSet( level, blockId,grid3);
   grid3->Delete();
 
-  vtkAMRUtilities::BlankCells(data,NULL);
+  vtkAMRUtilities::BlankCells(data);
   return( data );
 }

@@ -45,7 +45,7 @@
 #define __vtkUnicodeString_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include <vtkSystemIncludes.h>
+#include "vtkSystemIncludes.h"
 #include <string>
 #include <vector>
 

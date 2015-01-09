@@ -183,7 +183,7 @@ void vtkGraphItem::RebuildBuffers()
   this->Internal->VertexColors = std::vector<vtkColor4ub>(numVertices);
   this->Internal->VertexSizes = std::vector<float>(numVertices);
   this->Internal->VertexMarkers = std::vector<int>(numVertices);
-  vtkMarkerUtilities::GenerateMarker(this->Sprite.GetPointer(), this->VertexMarker(0), this->VertexSize(0));
+  vtkMarkerUtilities::GenerateMarker(this->Sprite.GetPointer(), this->VertexMarker(0), static_cast<int>(this->VertexSize(0)));
   for (vtkIdType vertexIdx = 0; vertexIdx < numVertices; ++vertexIdx)
     {
     this->Internal->VertexPositions[vertexIdx] = this->VertexPosition(vertexIdx);

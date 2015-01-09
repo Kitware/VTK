@@ -27,6 +27,9 @@
 
 #include "XdmfArray.h"
 
+namespace xdmf2
+{
+
 class XdmfOpenCallback;
 class XdmfReadCallback;
 class XdmfWriteCallback;
@@ -183,4 +186,6 @@ extern void XdmfDeleteAllNdgmEntries( void );
 extern XdmfInt64 XdmfAddNdgmEntry( XdmfString Name, XdmfInt64 Length );
   }
 */
+
+}
 #endif // __XdmfHeavyData_h

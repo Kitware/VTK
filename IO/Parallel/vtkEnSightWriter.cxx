@@ -905,17 +905,19 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
 //----------------------------------------------------------------------------
 void vtkEnSightWriter::WriteStringToFile(const char* cstring, FILE* file)
 {
-  char cbuffer[80];
+  char cbuffer[81];
+  // Terminate the buffer to avoid static analyzer warnings about strncpy not
+  // NUL-terminating its destination buffer in case the input is too long.
+  cbuffer[80] = '\0';
   strncpy(cbuffer,cstring,80);
+  // Write a constant 80 bytes to the file.
   fwrite(cbuffer, sizeof(char),80,file);
 }
 
 //----------------------------------------------------------------------------
 void vtkEnSightWriter::WriteTerminatedStringToFile(const char* cstring, FILE* file)
 {
-  char cbuffer[512];
-  strncpy(cbuffer,cstring,512);
-  fwrite(cbuffer, sizeof(char),strlen(cbuffer),file);
+  fwrite(cstring, sizeof(char),std::min(strlen(cstring), static_cast<size_t>(512)),file);
 }
 
 //----------------------------------------------------------------------------

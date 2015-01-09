@@ -401,17 +401,19 @@ int vtkWeightedTransformFilter::RequestData(
      this->CellDataTransformIndexArray[0] != '\0')
     {
     fd = pd;
-    if(fd != NULL) {
-    cdtiArray = reinterpret_cast<vtkUnsignedShortArray *>
-      (fd->GetArray(this->CellDataTransformIndexArray));
-    }
-    if(cdtiArray == NULL)
+    if(fd != NULL)
       {
-      fd = input->GetFieldData();
-      if(fd != NULL) {
       cdtiArray = reinterpret_cast<vtkUnsignedShortArray *>
         (fd->GetArray(this->CellDataTransformIndexArray));
       }
+    if(cdtiArray == NULL)
+      {
+      fd = input->GetFieldData();
+      if(fd != NULL)
+        {
+        cdtiArray = reinterpret_cast<vtkUnsignedShortArray *>
+          (fd->GetArray(this->CellDataTransformIndexArray));
+        }
       }
     if(cdtiArray == NULL)
       {
@@ -430,7 +432,7 @@ int vtkWeightedTransformFilter::RequestData(
                     "CellDataWeightArray " << this->WeightArray);
       cdtiArray = NULL;
       }
-    if (cdtiArray->GetDataType() != VTK_UNSIGNED_SHORT)
+    if (cdtiArray && (cdtiArray->GetDataType() != VTK_UNSIGNED_SHORT))
       {
       vtkWarningMacro(<<"CellDataTransformIndexArray " <<
                       this->CellDataTransformIndexArray <<
@@ -770,10 +772,7 @@ int vtkWeightedTransformFilter::RequestData(
   // ----- cleanup ------
   for(c = 0; c < this->NumberOfTransforms; c++)
     {
-    if(linearNormMtx[c])
-      {
-      delete [] linearNormMtx[c];
-      }
+    delete [] linearNormMtx[c];
     }
   delete [] linearNormMtx;
   delete [] linearPtMtx;

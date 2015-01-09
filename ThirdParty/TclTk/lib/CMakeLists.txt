@@ -25,8 +25,8 @@ IF (TCL_FOUND AND TK_FOUND)
       IF (EXISTS "${dir}/auto.tcl")
         SET (VTK_TCL_SUPPORT_LIBRARY_PATH ${dir} CACHE INTERNAL
              "Path to the Tcl support library files.")
-      ENDIF (EXISTS "${dir}/auto.tcl")
-    ENDFOREACH (dir)
+      ENDIF ()
+    ENDFOREACH ()
 
     GET_FILENAME_COMPONENT(TK_LIBRARY_PATH ${TK_LIBRARY} PATH)
     SET (TRY_DIRS
@@ -38,8 +38,8 @@ IF (TCL_FOUND AND TK_FOUND)
       IF (EXISTS "${dir}/clrpick.tcl")
         SET (VTK_TK_SUPPORT_LIBRARY_PATH ${dir} CACHE INTERNAL
              "Path to the Tk support library files.")
-      ENDIF (EXISTS "${dir}/clrpick.tcl")
-    ENDFOREACH (dir)
+      ENDIF ()
+    ENDFOREACH ()
 
     IF(VTK_TCL_SUPPORT_LIBRARY_PATH AND VTK_TK_SUPPORT_LIBRARY_PATH)
 
@@ -47,12 +47,12 @@ IF (TCL_FOUND AND TK_FOUND)
       IF(VTK_WRAP_TCL) 
         IF(NOT DEFINED TclTk_LIB_DIR)
           SET(TclTk_LIB_DIR "${PROJECT_BINARY_DIR}/lib")
-        ENDIF(NOT DEFINED TclTk_LIB_DIR)
+        ENDIF()
         VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR (
           ${VTK_TCL_SUPPORT_LIBRARY_PATH}
           ${VTK_TK_SUPPORT_LIBRARY_PATH}
           "${TclTk_LIB_DIR}")
-      ENDIF(VTK_WRAP_TCL)
+      ENDIF()
 
       IF(NOT VTK_INSTALL_NO_RUNTIME)
         VTK_COPY_TCL_TK_SUPPORT_FILES(
@@ -61,7 +61,7 @@ IF (TCL_FOUND AND TK_FOUND)
           "${VTK_TK_SUPPORT_LIBRARY_PATH}"
           "${VTK_INSTALL_TCL_DIR}/tk${TCL_TK_VERSION}"
           INSTALL)
-      ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
+      ENDIF()
 
       IF(NOT VTK_INSTALL_NO_RUNTIME)
         VTK_GET_TCL_SUPPORT_FILES(
@@ -73,7 +73,7 @@ IF (TCL_FOUND AND TK_FOUND)
             DESTINATION "${VTK_INSTALL_TCL_DIR}/tcl${TCL_TK_VERSION}/${dest}"
             COMPONENT RuntimeLibraries
             )
-        ENDFOREACH (file)
+        ENDFOREACH ()
 
         VTK_GET_TK_SUPPORT_FILES(${VTK_TK_SUPPORT_LIBRARY_PATH} "TK_SUPPORT_FILES")
         FOREACH (file ${TK_SUPPORT_FILES})
@@ -83,11 +83,11 @@ IF (TCL_FOUND AND TK_FOUND)
             DESTINATION "${VTK_INSTALL_TCL_DIR}/tk${TCL_TK_VERSION}/${dest}"
             COMPONENT RuntimeLibraries
             )
-        ENDFOREACH (file)
-      ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
+        ENDFOREACH ()
+      ENDIF()
 
-    ENDIF(VTK_TCL_SUPPORT_LIBRARY_PATH AND VTK_TK_SUPPORT_LIBRARY_PATH)
+    ENDIF()
 
-  ENDIF (VTK_TCL_TK_COPY_SUPPORT_LIBRARY)
+  ENDIF ()
 
-ENDIF (TCL_FOUND AND TK_FOUND)
+ENDIF ()

@@ -10,4 +10,6 @@ vtk_module(vtkCommonExecutionModel
     vtkFiltersCore
     vtkIOCore
     vtkIOLegacy
+  KIT
+    vtkCommon
   )

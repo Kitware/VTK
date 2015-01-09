@@ -37,6 +37,7 @@ class vtkCompositeDataIterator;
 class vtkCompositeDataSetInternals;
 class vtkInformation;
 class vtkInformationStringKey;
+class vtkInformationIntegerKey;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataSet : public vtkDataObject
 {
@@ -104,6 +105,14 @@ public:
   // Description:
   // Key used to put node name in the meta-data associated with a node.
   static vtkInformationStringKey* NAME();
+
+  // Description:
+  // Key used to indicate that the current process can load the data
+  // in the node.  Used for parallel readers where the nodes are assigned
+  // to the processes by the reader to indicate further down the pipeline
+  // which nodes will be on which processes.
+  // ***THIS IS AN EXPERIMENTAL KEY SUBJECT TO CHANGE WITHOUT NOTICE***
+  static vtkInformationIntegerKey* CURRENT_PROCESS_CAN_LOAD_BLOCK();
 
 //BTX
  protected:

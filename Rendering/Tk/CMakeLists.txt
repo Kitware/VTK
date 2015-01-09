@@ -71,7 +71,7 @@ if(TK_FOUND AND VTK_USE_TK)
       if(VTK_REQUIRED_OBJCXX_FLAGS)
         set_source_files_properties(vtkCocoaTkUtilities.mm
           PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-      endif(VTK_REQUIRED_OBJCXX_FLAGS)
+      endif()
     endif()
 
     set(Module_TCL_LIBS ${VTK_TK_LIBRARIES})
@@ -91,7 +91,7 @@ if(TK_FOUND AND VTK_USE_TK)
 
     vtk_add_library(vtkRenderingTkTCL ${Module_TCL_SRCS})
 
-    target_link_libraries(vtkRenderingTkTCL
+    vtk_module_link_libraries(vtkRenderingTkTCL
           vtkRenderingCore vtkCommonDataModel vtkCommonCoreTCL
           vtkInteractionImage
           ${Module_TCL_LIBS})
@@ -115,7 +115,7 @@ if(TK_FOUND AND VTK_USE_TK)
       if(VTK_REQUIRED_OBJCXX_FLAGS)
         set_source_files_properties(vtkCocoaTkUtilities.mm
           PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-      endif(VTK_REQUIRED_OBJCXX_FLAGS)
+      endif()
     endif()
 
     add_library(vtkRenderingPythonTkWidgets SHARED ${Module_PYTHON_SRCS})
@@ -134,7 +134,7 @@ if(TK_FOUND AND VTK_USE_TK)
       set(Module_PYTHON_LIBS ${Module_PYTHON_LIBS} "-framework Carbon")
     endif()
 
-    target_link_libraries(vtkRenderingPythonTkWidgets
+    vtk_module_link_libraries(vtkRenderingPythonTkWidgets
                           vtkRenderingCore vtkCommonDataModel
                           vtkInteractionImage
                           ${Module_PYTHON_LIBS})

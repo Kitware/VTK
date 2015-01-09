@@ -177,6 +177,7 @@ struct H5FS_t {
 /* Computed/cached values */
     unsigned rc;                /* Count of outstanding references to struct  */
     haddr_t addr;               /* Address of free space header on disk       */
+    size_t hdr_size;            /* Size of free space header on disk          */
     H5FS_sinfo_t *sinfo;        /* Section information                        */
     unsigned sinfo_lock_count;  /* # of times the section info has been locked */
     hbool_t sinfo_protected;    /* Whether the section info was protected when locked */
@@ -220,8 +221,8 @@ H5FL_EXTERN(H5FS_t);
 /******************************/
 
 /* Free space manager header routines */
-H5_DLL H5FS_t *H5FS_new(size_t nclasses, const H5FS_section_class_t *classes[],
-    void *cls_init_udata);
+H5_DLL H5FS_t *H5FS_new(const H5F_t *f, size_t nclasses,
+    const H5FS_section_class_t *classes[], void *cls_init_udata);
 H5_DLL herr_t H5FS_incr(H5FS_t *fspace);
 H5_DLL herr_t H5FS_decr(H5FS_t *fspace);
 H5_DLL herr_t H5FS_dirty(H5FS_t *fspace);

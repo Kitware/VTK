@@ -296,8 +296,6 @@ void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData *pd)
 }
 
 // ---------------------------------------------------------------------------
-// Description:
-// Set the source to use for he glyph. Old style. See SetSourceConnection.
 void vtkGlyph3DMapper::SetSourceData(vtkPolyData *pd)
 {
   this->SetSourceData(0,pd);

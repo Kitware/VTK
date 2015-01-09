@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
 #include <math.h>
 
@@ -104,15 +104,8 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void  vtkWin32RenderWindowInteractor::Start()
+void  vtkWin32RenderWindowInteractor::StartEventLoop()
 {
-  // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
-    {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    return;
-    }
-
   // No need to do anything if this is a 'mapped' interactor
   if (!this->Enabled || !this->InstallMessageProc)
     {
@@ -732,12 +725,10 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_PAINT:
       me->Render();
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
-      break;
 
     case WM_SIZE:
       me->OnSize(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
-      break;
 
     case WM_LBUTTONDBLCLK:
       me->OnLButtonDown(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y, 1);

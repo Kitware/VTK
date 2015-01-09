@@ -124,10 +124,6 @@ protected:
 
 // ------------------------------------vtkObject----------------------
 
-//----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkObject);
-
 vtkObject *vtkObject::New()
 {
 #ifdef VTK_DEBUG_LEAKS

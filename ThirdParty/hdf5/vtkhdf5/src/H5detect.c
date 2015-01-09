@@ -60,9 +60,9 @@ static const char *FileHeader = "\n\
 
 #define MAXDETECT 64
 
-/* The ALIGNMENT test code may generate the SIGBUS or SIGSEGV signals. We use
- * setjmp/longjmp in the signal handlers for recovery. But setjmp/longjmp do
- * not necessary restore the signal blocking status while sigsetjmp/siglongjmp
+/* The ALIGNMENT test code may generate the SIGBUS, SIGSEGV, or SIGILL signals. 
+ * We use setjmp/longjmp in the signal handlers for recovery. But setjmp/longjmp
+ * do not necessary restore the signal blocking status while sigsetjmp/siglongjmp
  * do. If sigsetjmp/siglongjmp are not supported, need to use sigprocmask to
  * unblock the signal before doing longjmp.
  */
@@ -73,7 +73,7 @@ static const char *FileHeader = "\n\
 #define H5JMP_BUF	sigjmp_buf
 #define H5SETJMP(buf)	HDsigsetjmp(buf, 1)
 #define H5LONGJMP(buf, val)	HDsiglongjmp(buf, val)
-#define H5HAVE_SIGJMP		# sigsetjmp/siglongjmp are supported.
+#define H5HAVE_SIGJMP		/* sigsetjmp/siglongjmp are supported. */
 #elif defined(H5_HAVE_LONGJMP)
 #define H5JMP_BUF	jmp_buf
 #define H5SETJMP(buf)	HDsetjmp(buf)
@@ -118,11 +118,13 @@ static volatile int	nd_g = 0, na_g = 0;
 
 static void print_results(int nd, detected_t *d, int na, malign_t *m);
 static void iprint(detected_t *);
-static int byte_cmp(int, const void *, const void *);
-static int bit_cmp(int, int *, void *, void *);
-static void fix_order(int, int, int, int *, const char **);
-static int imp_bit(int, int *, void *, void *);
-static unsigned long find_bias(int, int, int *, void *);
+static int byte_cmp(int, const void *, const void *, const unsigned char *);
+static int bit_cmp(int, int *, volatile void *, volatile void *,
+    const unsigned char *);
+static void fix_order(int, int, int *, const char **);
+static int imp_bit(int, int *, volatile void *, volatile void *,
+    const unsigned char *);
+static unsigned long find_bias(int, int, int *, volatile void *);
 static void precision (detected_t*);
 static void print_header(void);
 static void detect_C89_integers(void);
@@ -137,7 +139,8 @@ static void detect_alignments(void);
 static size_t align_g[] = {1, 2, 4, 8, 16};
 static int align_status_g = 0;		/* ALIGNMENT Signal Status */
 static int sigbus_handler_called_g = 0;	/* how many times called */
-static int sigsegv_handler_called_g = 0;	/* how many times called */
+static int sigsegv_handler_called_g = 0;/* how many times called */
+static int sigill_handler_called_g = 0;	/* how many times called */
 static int signal_handler_tested_g = 0;	/* how many times tested */
 #if defined(H5SETJMP) && defined(H5_HAVE_SIGNAL)
 static int verify_signal_handlers(int signum, void (*handler)(int));
@@ -200,14 +203,16 @@ precision (detected_t *d)
     }
 }
 
-
 
 /*-------------------------------------------------------------------------
- * Function:	DETECT_I
+ * Function:	DETECT_I/DETECT_BYTE
  *
- * Purpose:	This macro takes a type like `int' and a base name like
+ * Purpose:	These macro takes a type like `int' and a base name like
  *		`nati' and detects the byte order.  The VAR is used to
  *		construct the names of the C variables defined.
+ *
+ *              DETECT_I is used for types that are larger than one byte,
+ *              DETECT_BYTE is used for types that are exactly one byte.
  *
  * Return:	void
  *
@@ -229,46 +234,52 @@ precision (detected_t *d)
  *	Robb Matzke, 5 Nov 1996
  *	Removed HFILE and CFILE arguments.
  *
+ *      Neil Fortner, 6 Sep 2013
+ *      Split macro into DETECT_I and DETECT_BYTE macros, extracted
+ *      common cod einto DETECT_I_BYTE_CORE.  This was done to remove
+ *      "will never be executed" warnings.
+ *
  *-------------------------------------------------------------------------
  */
-#define DETECT_I(TYPE,VAR,INFO) {					      \
-   TYPE _v;								      \
-   int _int_v;                                                                \
-   int _i, _j;								      \
-   unsigned char *_x;							      \
+#define DETECT_I_BYTE_CORE(TYPE,VAR,INFO,DETECT_TYPE) {                       \
+    DETECT_TYPE _v;                                                           \
+    int _i, _j;                                                               \
+    unsigned char *_x;                                                        \
                                                                               \
-   HDmemset(&INFO, 0, sizeof(INFO));					      \
-   INFO.varname = #VAR;							      \
-   INFO.size = sizeof(TYPE);						      \
+    HDmemset(&INFO, 0, sizeof(INFO));                                         \
+    INFO.varname = #VAR;                                                      \
+    INFO.size = sizeof(TYPE);                                                 \
                                                                               \
-   if(sizeof(TYPE) != 1) {                                                    \
-       for(_i = sizeof(TYPE), _v = 0; _i > 0; --_i)			      \
-           _v = (_v << 8) + _i;						      \
-       for(_i = 0, _x = (unsigned char *)&_v; _i < (signed)sizeof(TYPE); _i++) { \
-          _j = (*_x++) - 1;						      \
-          assert(_j < (signed)sizeof(TYPE));				      \
-          INFO.perm[_i] = _j;						      \
-       } /* end for */							      \
-   } else { /*Not able to detect order if type size is 1 byte. Use native int \
-             *instead. No effect on data, just make it look correct. */       \
-       for(_i = sizeof(int), _int_v = 0; _i > 0; --_i)			      \
-           _int_v = (_int_v << 8) + _i;					      \
-       for(_i = 0, _x = (unsigned char *)&_int_v; _i < (signed)sizeof(int); _i++) { \
-          _j = (*_x++)-1;						      \
-          assert(_j < (signed)sizeof(int));				      \
-          INFO.perm[_i] = _j;						      \
-       } /* end for */							      \
-   } /* end else */                                                           \
+    for(_i = sizeof(DETECT_TYPE), _v = 0; _i > 0; --_i)                       \
+        _v = (_v << 8) + _i;                                                  \
+    for(_i = 0, _x = (unsigned char *)&_v; _i < (signed)sizeof(DETECT_TYPE); _i++) { \
+        _j = (*_x++) - 1;                                                     \
+        HDassert(_j < (signed)sizeof(DETECT_TYPE));                           \
+        INFO.perm[_i] = _j;                                                   \
+    } /* end for */                                                           \
                                                                               \
-   INFO.sign = ('U' != *(#VAR));					      \
-   precision (&(INFO));							      \
-   ALIGNMENT(TYPE, INFO);						      \
-   if(!HDstrcmp(INFO.varname, "SCHAR")  || !HDstrcmp(INFO.varname, "SHORT") || \
-      !HDstrcmp(INFO.varname, "INT")   || !HDstrcmp(INFO.varname, "LONG")  ||  \
-      !HDstrcmp(INFO.varname, "LLONG")) {                                     \
-      COMP_ALIGNMENT(TYPE, INFO.comp_align);                                  \
-   }                                                                          \
+    INFO.sign = ('U' != *(#VAR));                                             \
+    precision (&(INFO));                                                      \
+    ALIGNMENT(TYPE, INFO);                                                    \
+    if(!HDstrcmp(INFO.varname, "SCHAR")  || !HDstrcmp(INFO.varname, "SHORT") || \
+        !HDstrcmp(INFO.varname, "INT")   || !HDstrcmp(INFO.varname, "LONG")  || \
+        !HDstrcmp(INFO.varname, "LLONG")) {                                   \
+        COMP_ALIGNMENT(TYPE, INFO.comp_align);                                \
+    }                                                                         \
 }
+
+#define DETECT_BYTE(TYPE,VAR,INFO) {                                          \
+    HDcompile_assert(sizeof(TYPE) == 1);                                      \
+                                                                              \
+    DETECT_I_BYTE_CORE(TYPE,VAR,INFO,int)                                     \
+}
+
+#define DETECT_I(TYPE,VAR,INFO) {					      \
+    HDcompile_assert(sizeof(TYPE) > 1);                                       \
+                                                                              \
+    DETECT_I_BYTE_CORE(TYPE,VAR,INFO,TYPE)                                    \
+}
+
 
 /*-------------------------------------------------------------------------
  * Function:	DETECT_F
@@ -290,75 +301,88 @@ precision (detected_t *d)
  *
  *-------------------------------------------------------------------------
  */
-#define DETECT_F(TYPE,VAR,INFO) {					      \
-   volatile TYPE _v1, _v2, _v3;						      \
-   unsigned char _buf1[sizeof(TYPE)], _buf3[sizeof(TYPE)];		      \
-   int _i, _j, _first = (-1), _last = (-1);				      \
-   char *_mesg;								      \
-									      \
-   memset(&INFO, 0, sizeof(INFO));					      \
-   INFO.varname = #VAR;							      \
-   INFO.size = sizeof(TYPE);						      \
-									      \
-   /* Completely initialize temporary variables, in case the bits used in */  \
-   /* the type take less space than the number of bits used to store the type */  \
-   memset(&_v3, 0, sizeof(TYPE));                                             \
-   memset(&_v2, 0, sizeof(TYPE));                                             \
-   memset(&_v1, 0, sizeof(TYPE));                                             \
-									      \
-   /* Byte Order */							      \
-   for(_i = 0, _v1 = 0.0, _v2 = 1.0; _i < (int)sizeof(TYPE); _i++) {	      \
-      _v3 = _v1;							      \
-      _v1 += _v2;							      \
-      _v2 /= 256.0;							      \
-      memcpy(_buf1, (const void *)&_v1, sizeof(TYPE));			      \
-      memcpy(_buf3, (const void *)&_v3, sizeof(TYPE));			      \
-      _j = byte_cmp(sizeof(TYPE), &_buf3, &_buf1);			      \
-      if(_j >= 0) {							      \
-	 if(0 == _i || INFO.perm[_i - 1] != _j) {			      \
-	    INFO.perm[_i] = _j;						      \
-	    _last = _i;							      \
-	    if(_first < 0)						      \
-                _first = _i;						      \
-	 }								      \
-      }									      \
-   }									      \
-   fix_order(sizeof(TYPE), _first, _last, INFO.perm, (const char**)&_mesg);   \
+#define DETECT_F(TYPE,VAR,INFO) {                                             \
+    volatile TYPE _v1, _v2, _v3;                                              \
+    unsigned char _buf1[sizeof(TYPE)], _buf3[sizeof(TYPE)];                   \
+    unsigned char _pad_mask[sizeof(TYPE)];                                    \
+    unsigned char _byte_mask;                                                 \
+    int _i, _j, _last = (-1);                                                 \
+    char *_mesg;                                                              \
                                                                               \
-   if(!strcmp(_mesg, "VAX"))                                                  \
-      INFO.is_vax = TRUE;                                                     \
-									      \
-   /* Implicit mantissa bit */						      \
-   _v1 = 0.5;								      \
-   _v2 = 1.0;								      \
-   INFO.imp = imp_bit (sizeof(TYPE), INFO.perm, &_v1, &_v2);		      \
-									      \
-   /* Sign bit */							      \
-   _v1 = 1.0;								      \
-   _v2 = -1.0;								      \
-   INFO.sign = bit_cmp (sizeof(TYPE), INFO.perm, &_v1, &_v2);		      \
-									      \
-   /* Mantissa */							      \
-   INFO.mpos = 0;							      \
-									      \
-   _v1 = 1.0;								      \
-   _v2 = 1.5;								      \
-   INFO.msize = bit_cmp (sizeof(TYPE), INFO.perm, &_v1, &_v2);		      \
-   INFO.msize += 1 + (INFO.imp?0:1) - INFO.mpos;			      \
-									      \
-   /* Exponent */							      \
-   INFO.epos = INFO.mpos + INFO.msize;					      \
-									      \
-   INFO.esize = INFO.sign - INFO.epos;					      \
-									      \
-   _v1 = 1.0;								      \
-   INFO.bias = find_bias (INFO.epos, INFO.esize, INFO.perm, &_v1);	      \
-   precision (&(INFO));							      \
-   ALIGNMENT(TYPE, INFO);						      \
-   if(!strcmp(INFO.varname, "FLOAT") || !strcmp(INFO.varname, "DOUBLE") ||    \
-      !strcmp(INFO.varname, "LDOUBLE")) {                                     \
-      COMP_ALIGNMENT(TYPE,INFO.comp_align);                                   \
-   }                                                                          \
+    HDmemset(&INFO, 0, sizeof(INFO));                                         \
+    INFO.varname = #VAR;                                                      \
+    INFO.size = sizeof(TYPE);                                                 \
+                                                                              \
+    /* Initialize padding mask */                                             \
+    HDmemset(_pad_mask, 0, sizeof(_pad_mask));                                \
+                                                                              \
+    /* Padding bits.  Set a variable to 4.0, then flip each bit and see if    \
+     * the modified variable is equal ("==") to the original.  Build a        \
+     * padding bitmask to indicate which bits in the type are padding (i.e.   \
+     * have no effect on the value and should be ignored by subsequent        \
+     * steps).  This is necessary because padding bits can change arbitrarily \
+     * and interfere with detection of the various properties below unless we \
+     * know to ignore them. */                                                \
+    _v1 = 4.0;                                                                \
+    HDmemcpy(_buf1, (const void *)&_v1, sizeof(TYPE));                        \
+    for(_i = 0; _i < (int)sizeof(TYPE); _i++)                                 \
+        for(_byte_mask = (unsigned char)1; _byte_mask; _byte_mask <<= 1) {    \
+            _buf1[_i] ^= _byte_mask;                                          \
+            HDmemcpy((void *)&_v2, (const void *)_buf1, sizeof(TYPE));        \
+            if(_v1 != _v2)                                                    \
+                _pad_mask[_i] |= _byte_mask;                                  \
+            _buf1[_i] ^= _byte_mask;                                          \
+        } /* end for */                                                       \
+                                                                              \
+    /* Byte Order */                                                          \
+    for(_i = 0, _v1 = 0.0, _v2 = 1.0; _i < (int)sizeof(TYPE); _i++) {         \
+        _v3 = _v1;                                                            \
+        _v1 += _v2;                                                           \
+        _v2 /= 256.0;                                                         \
+        HDmemcpy(_buf1, (const void *)&_v1, sizeof(TYPE));                    \
+        HDmemcpy(_buf3, (const void *)&_v3, sizeof(TYPE));                    \
+        _j = byte_cmp(sizeof(TYPE), _buf3, _buf1, _pad_mask);                 \
+        if(_j >= 0) {                                                         \
+            INFO.perm[_i] = _j;                                               \
+            _last = _i;                                                       \
+        }                                                                     \
+    }                                                                         \
+    fix_order(sizeof(TYPE), _last, INFO.perm, (const char**)&_mesg);          \
+                                                                              \
+    if(!HDstrcmp(_mesg, "VAX"))                                               \
+        INFO.is_vax = TRUE;                                                   \
+                                                                              \
+    /* Implicit mantissa bit */                                               \
+    _v1 = 0.5;                                                                \
+    _v2 = 1.0;                                                                \
+    INFO.imp = imp_bit (sizeof(TYPE), INFO.perm, &_v1, &_v2, _pad_mask);      \
+                                                                              \
+    /* Sign bit */                                                            \
+    _v1 = 1.0;                                                                \
+    _v2 = -1.0;                                                               \
+    INFO.sign = bit_cmp (sizeof(TYPE), INFO.perm, &_v1, &_v2, _pad_mask);     \
+                                                                              \
+    /* Mantissa */                                                            \
+    INFO.mpos = 0;                                                            \
+                                                                              \
+    _v1 = 1.0;                                                                \
+    _v2 = 1.5;                                                                \
+    INFO.msize = bit_cmp (sizeof(TYPE), INFO.perm, &_v1, &_v2, _pad_mask);    \
+    INFO.msize += 1 + (INFO.imp?0:1) - INFO.mpos;                             \
+                                                                              \
+    /* Exponent */                                                            \
+    INFO.epos = INFO.mpos + INFO.msize;                                       \
+                                                                              \
+    INFO.esize = INFO.sign - INFO.epos;                                       \
+                                                                              \
+    _v1 = 1.0;                                                                \
+    INFO.bias = find_bias (INFO.epos, INFO.esize, INFO.perm, &_v1);           \
+    precision (&(INFO));                                                      \
+    ALIGNMENT(TYPE, INFO);                                                    \
+    if(!HDstrcmp(INFO.varname, "FLOAT") || !HDstrcmp(INFO.varname, "DOUBLE") || \
+        !HDstrcmp(INFO.varname, "LDOUBLE")) {                                 \
+        COMP_ALIGNMENT(TYPE,INFO.comp_align);                                 \
+    }                                                                         \
 }
 
 
@@ -402,8 +426,9 @@ precision (detected_t *d)
     volatile size_t	_ano = 0;					      \
     void		(*_handler)(int) = HDsignal(SIGBUS, sigbus_handler);  \
     void		(*_handler2)(int) = HDsignal(SIGSEGV, sigsegv_handler);\
+    void		(*_handler3)(int) = HDsignal(SIGILL, sigill_handler);  \
 									      \
-    _buf = (char*)malloc(sizeof(TYPE) + align_g[NELMTS(align_g) - 1]);	      \
+    _buf = (char*)HDmalloc(sizeof(TYPE) + align_g[NELMTS(align_g) - 1]);	      \
     if(H5SETJMP(jbuf_g)) _ano++;					      \
     if(_ano < NELMTS(align_g)) {					      \
 	*((TYPE*)(_buf+align_g[_ano])) = _val; /*possible SIGBUS or SEGSEGV*/ \
@@ -413,12 +438,12 @@ precision (detected_t *d)
 	/*              pointer values when pointing to non-word aligned */   \
 	/*              locations with pointers that are supposed to be */    \
 	/*              word aligned. -QAK */                                 \
-	memset(_buf, 0xff, sizeof(TYPE)+align_g[NELMTS(align_g)-1]);	      \
+	HDmemset(_buf, 0xff, sizeof(TYPE)+align_g[NELMTS(align_g)-1]);	      \
         /*How to handle VAX types?*/                                          \
 	if(INFO.perm[0]) /* Big-Endian */				      \
-	    memcpy(_buf+align_g[_ano]+(INFO.size-((INFO.offset+INFO.precision)/8)),((char *)&_val)+(INFO.size-((INFO.offset+INFO.precision)/8)),(size_t)(INFO.precision/8)); \
+	    HDmemcpy(_buf+align_g[_ano]+(INFO.size-((INFO.offset+INFO.precision)/8)),((char *)&_val)+(INFO.size-((INFO.offset+INFO.precision)/8)),(size_t)(INFO.precision/8)); \
 	else /* Little-Endian */					      \
-	    memcpy(_buf+align_g[_ano]+(INFO.offset/8),((char *)&_val)+(INFO.offset/8),(size_t)(INFO.precision/8)); \
+	    HDmemcpy(_buf+align_g[_ano]+(INFO.offset/8),((char *)&_val)+(INFO.offset/8),(size_t)(INFO.precision/8)); \
 	_val2 = *((TYPE*)(_buf+align_g[_ano]));				      \
 	if(_val!=_val2)							      \
 	    H5LONGJMP(jbuf_g, 1);		        		      \
@@ -428,9 +453,10 @@ precision (detected_t *d)
 	(INFO.align)=0;							      \
 	fprintf(stderr, "unable to calculate alignment for %s\n", #TYPE);     \
     }									      \
-    free(_buf);								      \
+    HDfree(_buf);								      \
     HDsignal(SIGBUS, _handler); /*restore original handler*/		      \
     HDsignal(SIGSEGV, _handler2); /*restore original handler*/		      \
+    HDsignal(SIGILL, _handler3); /*restore original handler*/		      \
 }
 #else
 #define ALIGNMENT(TYPE,INFO) {						      \
@@ -512,6 +538,42 @@ sigbus_handler(int UNUSED signo)
     sigbus_handler_called_g++;
     HDsignal(SIGBUS, sigbus_handler);
     H5LONGJMP(jbuf_g, SIGBUS);
+}
+#endif
+
+
+#if defined(H5LONGJMP) && defined(H5_HAVE_SIGNAL)
+/*-------------------------------------------------------------------------
+ * Function:	sigill_handler
+ *
+ * Purpose:	Handler for SIGILL. We use signal() instead of sigaction()
+ *		because it's more portable to non-Posix systems. Although
+ *		it's not nearly as nice to work with, it does the job for
+ *		this simple stuff.
+ *
+ * Return:	Returns via H5LONGJMP to jbuf_g.
+ *
+ * Programmer:	Raymond Lu
+ *		28 October 2013
+ *
+ *-------------------------------------------------------------------------
+ */
+static void
+sigill_handler(int UNUSED signo)
+{
+#if !defined(H5HAVE_SIGJMP) && defined(H5_HAVE_SIGPROCMASK)
+    /* Use sigprocmask to unblock the signal if sigsetjmp/siglongjmp are not */
+    /* supported. */
+    sigset_t set;
+
+    HDsigemptyset(&set);
+    HDsigaddset(&set, SIGILL);
+    HDsigprocmask(SIG_UNBLOCK, &set, NULL);
+#endif
+
+    sigill_handler_called_g++;
+    HDsignal(SIGILL, sigill_handler);
+    H5LONGJMP(jbuf_g, SIGILL);
 }
 #endif
 
@@ -621,7 +683,7 @@ H5TN_init_interface(void)\n\
     H5T_t	*dt = NULL;\n\
     herr_t	ret_value = SUCCEED;\n\
 \n\
-    FUNC_ENTER_NOAPI(H5TN_init_interface, FAIL)\n");
+    FUNC_ENTER_NOAPI(FAIL)\n");
 
     for(i = 0; i < nd; i++) {
         /* The native endianess of this machine */
@@ -648,7 +710,7 @@ H5TN_init_interface(void)\n\
 
 	/* The part common to fixed and floating types */
 	printf("\
-    if(NULL == (dt = H5T_alloc()))\n\
+    if(NULL == (dt = H5T__alloc()))\n\
         HGOTO_ERROR(H5E_DATATYPE, H5E_NOSPACE, FAIL, \"datatype allocation failed\")\n\
     dt->shared->state = H5T_STATE_IMMUTABLE;\n\
     dt->shared->type = H5T_%s;\n\
@@ -673,7 +735,7 @@ H5TN_init_interface(void)\n\
     dt->shared->u.atomic.msb_pad = H5T_PAD_ZERO;\n",
 	       d[i].offset,			/*offset		*/
 	       d[i].precision);			/*precision		*/
-    /*assert((d[i].perm[0]>0)==(byte_order>0));*/   /* Double-check that byte-order doesn't change */
+    /*HDassert((d[i].perm[0]>0)==(byte_order>0));*/   /* Double-check that byte-order doesn't change */
 
 	if (0 == d[i].msize) {
 	    /* The part unique to fixed point types */
@@ -709,10 +771,10 @@ H5TN_init_interface(void)\n\
 	       d[i].varname, (unsigned long)(d[i].align));
 
         /* Variables for alignment of compound datatype */
-        if(!strcmp(d[i].varname, "SCHAR")  || !strcmp(d[i].varname, "SHORT") ||
-            !strcmp(d[i].varname, "INT")   || !strcmp(d[i].varname, "LONG")  ||
-            !strcmp(d[i].varname, "LLONG") || !strcmp(d[i].varname, "FLOAT") ||
-            !strcmp(d[i].varname, "DOUBLE") || !strcmp(d[i].varname, "LDOUBLE")) {
+        if(!HDstrcmp(d[i].varname, "SCHAR")  || !HDstrcmp(d[i].varname, "SHORT") ||
+            !HDstrcmp(d[i].varname, "INT")   || !HDstrcmp(d[i].varname, "LONG")  ||
+            !HDstrcmp(d[i].varname, "LLONG") || !HDstrcmp(d[i].varname, "FLOAT") ||
+            !HDstrcmp(d[i].varname, "DOUBLE") || !HDstrcmp(d[i].varname, "LDOUBLE")) {
             printf("    H5T_NATIVE_%s_COMP_ALIGN_g = %lu;\n",
                     d[i].varname, (unsigned long)(d[i].comp_align));
         }
@@ -739,7 +801,7 @@ H5TN_init_interface(void)\n\
 done:\n\
     if(ret_value < 0) {\n\
         if(dt != NULL) {\n\
-            H5FL_FREE(H5T_shared_t, dt->shared);\n\
+            dt->shared = H5FL_FREE(H5T_shared_t, dt->shared);\n\
             dt = H5FL_FREE(H5T_t, dt);\n\
         } /* end if */\n\
     } /* end if */\n\
@@ -827,7 +889,7 @@ iprint(detected_t *d)
 	printf("    * ");
 	for (i=MIN(pass*4+3,d->size-1); i>=pass*4; --i) {
 	    printf ("%4d", d->perm[i]);
-	    if (i>pass*4) fputs ("     ", stdout);
+	    if (i>pass*4) HDfputs ("     ", stdout);
 	}
 
 	/*
@@ -839,23 +901,23 @@ iprint(detected_t *d)
 	     i>=pass*4; --i) {
 	    for (j=7; j>=0; --j) {
 		if (k==d->sign && d->msize) {
-		    putchar('S');
+		    HDputchar('S');
 		} else if (k>=d->epos && k<d->epos+d->esize) {
-		    putchar('E');
+		    HDputchar('E');
 		} else if (k>=d->mpos && k<d->mpos+d->msize) {
-		    putchar('M');
+		    HDputchar('M');
 		} else if (d->msize) {
-		    putchar('?');   /*unknown floating point bit */
+		    HDputchar('?');   /*unknown floating point bit */
 		} else if (d->sign) {
-		    putchar('I');
+		    HDputchar('I');
 		} else {
-		    putchar('U');
+		    HDputchar('U');
 		}
 		--k;
 	    }
-	    if (i>pass*4) putchar(' ');
+	    if (i>pass*4) HDputchar(' ');
 	}
-	putchar('\n');
+	HDputchar('\n');
     }
 
     /*
@@ -883,7 +945,8 @@ iprint(detected_t *d)
  *
  * Purpose:	Compares two chunks of memory A and B and returns the
  *		byte index into those arrays of the first byte that
- *		differs between A and B.
+ *		differs between A and B.  Ignores differences where the
+ *              corresponding bit in pad_mask is set to 0.
  *
  * Return:	Success:	Index of differing byte.
  *
@@ -898,13 +961,16 @@ iprint(detected_t *d)
  *-------------------------------------------------------------------------
  */
 static int
-byte_cmp(int n, const void *_a, const void *_b)
+byte_cmp(int n, const void *_a, const void *_b, const unsigned char *pad_mask)
 {
-    int	i;
-    const unsigned char	*a = (const unsigned char *) _a;
-    const unsigned char	*b = (const unsigned char *) _b;
+    int i;
+    const unsigned char *a = (const unsigned char *) _a;
+    const unsigned char *b = (const unsigned char *) _b;
 
-    for (i = 0; i < n; i++) if (a[i] != b[i]) return i;
+    for(i = 0; i < n; i++)
+        if((a[i] & pad_mask[i]) != (b[i] & pad_mask[i]))
+            return i;
+
     return -1;
 }
 
@@ -915,7 +981,8 @@ byte_cmp(int n, const void *_a, const void *_b)
  * Purpose:	Compares two bit vectors and returns the index for the
  *		first bit that differs between the two vectors.	 The
  *		size of the vector is NBYTES.  PERM is a mapping from
- *		actual order to little endian.
+ *		actual order to little endian.  Ignores differences where
+ *              the corresponding bit in pad_mask is set to 0.
  *
  * Return:	Success:	Index of first differing bit.
  *
@@ -930,22 +997,24 @@ byte_cmp(int n, const void *_a, const void *_b)
  *-------------------------------------------------------------------------
  */
 static int
-bit_cmp(int nbytes, int *perm, void *_a, void *_b)
+bit_cmp(int nbytes, int *perm, volatile void *_a, volatile void *_b,
+    const unsigned char *pad_mask)
 {
-    int			i, j;
-    unsigned char	*a = (unsigned char *) _a;
-    unsigned char	*b = (unsigned char *) _b;
-    unsigned char	aa, bb;
+    int                 i, j;
+    volatile unsigned char      *a = (volatile unsigned char *) _a;
+    volatile unsigned char      *b = (volatile unsigned char *) _b;
+    unsigned char       aa, bb;
 
     for (i = 0; i < nbytes; i++) {
-	assert(perm[i] < nbytes);
-	if ((aa = a[perm[i]]) != (bb = b[perm[i]])) {
-	    for (j = 0; j < 8; j++, aa >>= 1, bb >>= 1) {
-		if ((aa & 1) != (bb & 1)) return i * 8 + j;
-	    }
-	    assert("INTERNAL ERROR" && 0);
-	    abort();
-	}
+        HDassert(perm[i] < nbytes);
+        if ((aa = a[perm[i]] & pad_mask[perm[i]])
+                != (bb = b[perm[i]] & pad_mask[perm[i]])) {
+            for (j = 0; j < 8; j++, aa >>= 1, bb >>= 1) {
+                if ((aa & 1) != (bb & 1)) return i * 8 + j;
+            }
+            fprintf(stderr, "INTERNAL ERROR");
+            HDabort();
+        }
     }
     return -1;
 }
@@ -973,11 +1042,11 @@ bit_cmp(int nbytes, int *perm, void *_a, void *_b)
  *-------------------------------------------------------------------------
  */
 static void
-fix_order(int n, int first, int last, int *perm, const char **mesg)
+fix_order(int n, int last, int *perm, const char **mesg)
 {
     int		i;
 
-    if (first + 1 < last) {
+    if (last > 1) {
 	/*
 	 * We have at least three points to consider.
 	 */
@@ -998,8 +1067,11 @@ fix_order(int n, int first, int last, int *perm, const char **mesg)
 	} else {
 	    /*
 	     * Bi-endian machines like VAX.
+             * (NOTE: This is not an actual determination of the VAX-endianess.
+             *          It could have some other endianess and fall into this
+             *          case - JKM & QAK)
 	     */
-	    assert(0 == n % 2);
+	    HDassert(0 == n % 2);
 	    if (mesg) *mesg = "VAX";
 	    for (i = 0; i < n; i += 2) {
 		perm[i] = (n - 2) - i;
@@ -1009,7 +1081,7 @@ fix_order(int n, int first, int last, int *perm, const char **mesg)
     } else {
 	fprintf(stderr,
 	     "Failed to detect byte order of %d-byte floating point.\n", n);
-	exit(1);
+	HDexit(1);
     }
 }
 
@@ -1051,19 +1123,20 @@ fix_order(int n, int first, int last, int *perm, const char **mesg)
  *-------------------------------------------------------------------------
  */
 static int
-imp_bit(int n, int *perm, void *_a, void *_b)
+imp_bit(int n, int *perm, volatile void *_a, volatile void *_b,
+    const unsigned char *pad_mask)
 {
-    unsigned char	*a = (unsigned char *) _a;
-    unsigned char	*b = (unsigned char *) _b;
-    int			changed, major, minor;
-    int			msmb;	/*most significant mantissa bit */
+    volatile unsigned char      *a = (volatile unsigned char *) _a;
+    volatile unsigned char      *b = (volatile unsigned char *) _b;
+    int                 changed, major, minor;
+    int                 msmb;   /*most significant mantissa bit */
 
     /*
      * Look for the least significant bit that has changed between
-     * A and B.	 This is the least significant bit of the exponent.
+     * A and B.  This is the least significant bit of the exponent.
      */
-    changed = bit_cmp(n, perm, a, b);
-    assert(changed >= 0);
+    changed = bit_cmp(n, perm, a, b, pad_mask);
+    HDassert(changed >= 0);
 
     /*
      * The bit to the right (less significant) of the changed bit should
@@ -1101,7 +1174,7 @@ imp_bit(int n, int *perm, void *_a, void *_b)
  *-------------------------------------------------------------------------
  */
 static unsigned long
-find_bias(int epos, int esize, int *perm, void *_a)
+find_bias(int epos, int esize, int *perm, volatile void *_a)
 {
     unsigned char	*a = (unsigned char *) _a;
     unsigned char	mask;
@@ -1140,8 +1213,8 @@ static void
 print_header(void)
 {
 
-    time_t		now = time(NULL);
-    struct tm		*tm = localtime(&now);
+    time_t		now = HDtime(NULL);
+    struct tm		*tm = HDlocaltime(&now);
     char		real_name[30];
     char		host_name[256];
     int			i;
@@ -1200,13 +1273,13 @@ bit.\n";
     {
 	size_t n;
 	char *comma;
-	if ((pwd = getpwuid(getuid()))) {
-	    if ((comma = strchr(pwd->pw_gecos, ','))) {
+	if ((pwd = HDgetpwuid(HDgetuid()))) {
+	    if ((comma = HDstrchr(pwd->pw_gecos, ','))) {
 		n = MIN(sizeof(real_name)-1, (unsigned)(comma-pwd->pw_gecos));
-		strncpy(real_name, pwd->pw_gecos, n);
+		HDstrncpy(real_name, pwd->pw_gecos, n);
 		real_name[n] = '\0';
 	    } else {
-		strncpy(real_name, pwd->pw_gecos, sizeof(real_name));
+		HDstrncpy(real_name, pwd->pw_gecos, sizeof(real_name));
 		real_name[sizeof(real_name) - 1] = '\0';
 	    }
 	} else {
@@ -1221,7 +1294,7 @@ bit.\n";
      * The FQDM of this host or the empty string.
      */
 #ifdef H5_HAVE_GETHOSTNAME
-    if (gethostname(host_name, sizeof(host_name)) < 0) {
+    if (HDgethostname(host_name, sizeof(host_name)) < 0) {
 	host_name[0] = '\0';
     }
 #else
@@ -1232,7 +1305,7 @@ bit.\n";
      * The file header: warning, copyright notice, build information.
      */
     printf("/* Generated automatically by H5detect -- do not edit */\n\n\n");
-    puts(FileHeader);		/*the copyright notice--see top of this file */
+    HDputs(FileHeader);		/*the copyright notice--see top of this file */
 
     printf(" *\n * Created:\t\t%s %2d, %4d\n",
 	   month_name[tm->tm_mon], tm->tm_mday, 1900 + tm->tm_year);
@@ -1240,15 +1313,15 @@ bit.\n";
 	printf(" *\t\t\t");
 	if (real_name[0]) printf("%s <", real_name);
 #ifdef H5_HAVE_GETPWUID
-	if (pwd) fputs(pwd->pw_name, stdout);
+	if (pwd) HDfputs(pwd->pw_name, stdout);
 #endif
 	if (host_name[0]) printf("@%s", host_name);
 	if (real_name[0]) printf(">");
-	putchar('\n');
+	HDputchar('\n');
     }
     printf(" *\n * Purpose:\t\t");
     for (s = purpose; *s; s++) {
-	putchar(*s);
+	HDputchar(*s);
 	if ('\n' == *s && s[1]) printf(" *\t\t\t");
     }
 
@@ -1257,7 +1330,7 @@ bit.\n";
     printf(" *\tIt was generated by code in `H5detect.c'.\n");
 
     printf(" *\n *");
-    for (i = 0; i < 73; i++) putchar('-');
+    for (i = 0; i < 73; i++) HDputchar('-');
     printf("\n */\n\n");
 
 }
@@ -1280,8 +1353,8 @@ bit.\n";
 static void
 detect_C89_integers(void)
 {
-    DETECT_I(signed char,	  SCHAR,        d_g[nd_g]); nd_g++;
-    DETECT_I(unsigned char,	  UCHAR,        d_g[nd_g]); nd_g++;
+    DETECT_BYTE(signed char,	  SCHAR,        d_g[nd_g]); nd_g++;
+    DETECT_BYTE(unsigned char,	  UCHAR,        d_g[nd_g]); nd_g++;
     DETECT_I(short,		  SHORT,        d_g[nd_g]); nd_g++;
     DETECT_I(unsigned short,	  USHORT,       d_g[nd_g]); nd_g++;
     DETECT_I(int,		  INT,	        d_g[nd_g]); nd_g++;
@@ -1331,22 +1404,46 @@ static void
 detect_C99_integers8(void)
 {
 #if H5_SIZEOF_INT8_T>0
+  #if H5_SIZEOF_INT8_T==1
+    DETECT_BYTE(int8_t,           INT8,         d_g[nd_g]); nd_g++;
+  #else
     DETECT_I(int8_t, 		  INT8,         d_g[nd_g]); nd_g++;
+  #endif
 #endif
 #if H5_SIZEOF_UINT8_T>0
-    DETECT_I(uint8_t, 		  UINT8,        d_g[nd_g]); nd_g++;
+  #if H5_SIZEOF_UINT8_T==1
+    DETECT_BYTE(uint8_t, 	  UINT8,        d_g[nd_g]); nd_g++;
+  #else
+    DETECT_I(uint8_t,             UINT8,        d_g[nd_g]); nd_g++;
+  #endif
 #endif
 #if H5_SIZEOF_INT_LEAST8_T>0
+  #if H5_SIZEOF_INT_LEAST8_T==1
+    DETECT_BYTE(int_least8_t,     INT_LEAST8,   d_g[nd_g]); nd_g++;
+  #else
     DETECT_I(int_least8_t, 	  INT_LEAST8,   d_g[nd_g]); nd_g++;
+  #endif
 #endif
 #if H5_SIZEOF_UINT_LEAST8_T>0
+  #if H5_SIZEOF_UINT_LEAST8_T==1
+    DETECT_BYTE(uint_least8_t,    UINT_LEAST8,  d_g[nd_g]); nd_g++;
+  #else
     DETECT_I(uint_least8_t, 	  UINT_LEAST8,  d_g[nd_g]); nd_g++;
+  #endif
 #endif
 #if H5_SIZEOF_INT_FAST8_T>0
+  #if H5_SIZEOF_INT_FAST8_T==1
+    DETECT_BYTE(int_fast8_t,      INT_FAST8,    d_g[nd_g]); nd_g++;
+  #else
     DETECT_I(int_fast8_t, 	  INT_FAST8,    d_g[nd_g]); nd_g++;
+  #endif
 #endif
 #if H5_SIZEOF_UINT_FAST8_T>0
-    DETECT_I(uint_fast8_t, 	  UINT_FAST8,   d_g[nd_g]); nd_g++;
+  #if H5_SIZEOF_UINT_FAST8_T==1
+    DETECT_BYTE(uint_fast8_t, 	  UINT_FAST8,   d_g[nd_g]); nd_g++;
+  #else
+    DETECT_I(uint_fast8_t,     UINT_FAST8,   d_g[nd_g]); nd_g++;
+  #endif
 #endif
 }
 
@@ -1646,7 +1743,7 @@ main(void)
     nvpairs[1] = UAC_NOPRINT | UAC_SIGBUS;
     if (setsysinfo(SSI_NVPAIRS, nvpairs, 1, 0, 0)<0) {
 	fprintf(stderr, "H5detect: unable to turn off UAC handling: %s\n",
-		strerror(errno));
+		HDstrerror(errno));
     }
 #endif
 #endif

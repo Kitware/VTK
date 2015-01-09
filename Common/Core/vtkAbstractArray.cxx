@@ -92,10 +92,7 @@ vtkAbstractArray::~vtkAbstractArray()
     {
     for ( unsigned int i=0; i < this->ComponentNames->size(); ++i)
       {
-      if ( this->ComponentNames->at(i) )
-        {
-        delete this->ComponentNames->at(i);
-        }
+      delete this->ComponentNames->at(i);
       }
     this->ComponentNames->clear();
     delete this->ComponentNames;
@@ -179,10 +176,7 @@ int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
     //copy the passed in components
     for ( unsigned int i=0; i < this->ComponentNames->size(); ++i)
       {
-      if ( this->ComponentNames->at(i) )
-        {
-        delete this->ComponentNames->at(i);
-        }
+      delete this->ComponentNames->at(i);
       }
     this->ComponentNames->clear();
     this->ComponentNames->reserve( da->ComponentNames->size() );
@@ -321,16 +315,9 @@ int vtkAbstractArray::GetDataTypeSize(int type)
       );
 
     case VTK_BIT:
-      return 0;
-      break;
-
     case VTK_STRING:
-      return 0;
-      break;
-
     case VTK_UNICODE_STRING:
       return 0;
-      break;
 
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
@@ -385,12 +372,10 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 #if defined(VTK_TYPE_USE___INT64)
     case VTK___INT64:
       return vtk__Int64Array::New();
-      break;
 
 # if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
     case VTK_UNSIGNED___INT64:
       return vtkUnsigned__Int64Array::New();
-      break;
 # endif
 #endif
 
@@ -735,7 +720,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
     }
   else
     {
-    numberOfSampleTuples = VTK_SAMPLE_FACTOR * logfac;
+    numberOfSampleTuples = static_cast<vtkIdType>(VTK_SAMPLE_FACTOR * logfac);
     }
   /*
   // Theoretically, we should discard values or tuples that recur fewer

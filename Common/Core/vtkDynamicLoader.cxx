@@ -18,10 +18,6 @@
 
 
 //-----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkDynamicLoader);
-
-//-----------------------------------------------------------------------------
 vtkDynamicLoader* vtkDynamicLoader::New()
 {
 #ifdef VTK_DEBUG_LEAKS

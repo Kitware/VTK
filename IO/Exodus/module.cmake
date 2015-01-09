@@ -10,5 +10,7 @@ vtk_module(vtkIOExodus
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
+  KIT
+    vtkIO
   )

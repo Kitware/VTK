@@ -37,7 +37,8 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"             /* File access				*/
-#include "H5FDmpi.h"            /* MPI-based file drivers		*/
+#include "H5FDprivate.h"	/* File drivers				*/
+#include "H5Iprivate.h"		/* IDs			  		*/
 
 
 /****************/
@@ -98,9 +99,9 @@ H5F_mpi_get_rank(const H5F_t *f)
 {
     int	ret_value;
 
-    FUNC_ENTER_NOAPI(H5F_mpi_get_rank, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
-    assert(f && f->shared);
+    HDassert(f && f->shared);
 
     /* Dispatch to driver */
     if ((ret_value=H5FD_mpi_get_rank(f->shared->lf)) < 0)
@@ -132,9 +133,9 @@ H5F_mpi_get_comm(const H5F_t *f)
 {
     MPI_Comm	ret_value;
 
-    FUNC_ENTER_NOAPI(H5F_mpi_get_comm, MPI_COMM_NULL)
+    FUNC_ENTER_NOAPI(MPI_COMM_NULL)
 
-    assert(f && f->shared);
+    HDassert(f && f->shared);
 
     /* Dispatch to driver */
     if ((ret_value=H5FD_mpi_get_comm(f->shared->lf))==MPI_COMM_NULL)
@@ -166,9 +167,9 @@ H5F_mpi_get_size(const H5F_t *f)
 {
     int ret_value;
 
-    FUNC_ENTER_NOAPI(H5F_mpi_get_size, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
-    assert(f && f->shared);
+    HDassert(f && f->shared);
 
     /* Dispatch to driver */
     if ((ret_value=H5FD_mpi_get_size(f->shared->lf)) < 0)
@@ -177,5 +178,85 @@ H5F_mpi_get_size(const H5F_t *f)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5F_mpi_get_size() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5Fset_mpi_atomicity
+ *
+ * Purpose:	Sets the atomicity mode
+ *
+ * Return:	Success:	Non-negative
+ *
+ * 		Failure:	Negative
+ *
+ * Programmer:	Mohamad Chaarawi
+ *		Feb 14, 2012
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Fset_mpi_atomicity(hid_t file_id, hbool_t flag)
+{
+    H5F_t       *file;
+    herr_t       ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "ib", file_id, flag);
+
+    /* Check args */
+    if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a file ID")
+
+    /* Check VFD */
+    if(!IS_H5FD_MPIO(file))
+        HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "incorrect VFL driver, must use MPI-I/O driver")
+
+    /* set atomicity value */
+    if (H5FD_set_mpio_atomicity (file->shared->lf, flag) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTSET, FAIL, "can't set atomicity flag")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+}
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5Fget_mpi_atomicity
+ *
+ * Purpose:	Returns the atomicity mode
+ *
+ * Return:	Success:	Non-negative
+ *
+ * 		Failure:	Negative
+ *
+ * Programmer:	Mohamad Chaarawi
+ *		Feb 14, 2012
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Fget_mpi_atomicity(hid_t file_id, hbool_t *flag)
+{
+    H5F_t      *file;
+    herr_t     ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "i*b", file_id, flag);
+
+    /* Check args */
+    if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a file ID")
+
+    /* Check VFD */
+    if(!IS_H5FD_MPIO(file))
+        HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "incorrect VFL driver, must use MPI-I/O driver")
+
+    /* get atomicity value */
+    if (H5FD_get_mpio_atomicity (file->shared->lf, flag) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "can't get atomicity flag")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+}
 #endif /* H5_HAVE_PARALLEL */
 

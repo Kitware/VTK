@@ -102,7 +102,7 @@ DESCRIPTION
 static herr_t
 H5FD_space_init_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5FD_space_init_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5FD_init())
 } /* H5FD_space_init_interface() */
@@ -131,7 +131,7 @@ H5FD_extend(H5FD_t *file, H5FD_mem_t type, hbool_t new_block, hsize_t size, hadd
     hsize_t extra;        	/* Extra space to allocate, to align request */
     haddr_t ret_value;          /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FD_extend)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(file);
@@ -199,7 +199,7 @@ H5FD_alloc_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, hsize_t size, hadd
 {
     haddr_t     ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FD_alloc_real, HADDR_UNDEF)
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 #ifdef H5FD_ALLOC_DEBUG
 HDfprintf(stderr, "%s: type = %u, size = %Hu\n", FUNC, (unsigned)type, size);
 #endif /* H5FD_ALLOC_DEBUG */
@@ -255,7 +255,7 @@ H5FD_alloc(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, hsize_t size,
 {
     haddr_t     ret_value;              /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FD_alloc, HADDR_UNDEF)
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
     /* check args */
     HDassert(file);
@@ -295,7 +295,7 @@ H5FD_free_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr, hsize
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5FD_free_real)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check args */
     HDassert(file);
@@ -380,7 +380,7 @@ H5FD_free(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, haddr_t addr,
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FD_free, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
     HDassert(file);
@@ -426,7 +426,7 @@ H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t blk_end,
     haddr_t eoa;                /* End of allocated space in file */
     htri_t ret_value = FALSE;   /* Return value */
 
-    FUNC_ENTER_NOAPI(H5FD_try_extend, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* check args */
     HDassert(file);

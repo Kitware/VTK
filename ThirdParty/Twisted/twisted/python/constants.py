@@ -7,15 +7,18 @@ Symbolic constant support, including collections and constants with text,
 numeric, and bit flag values.
 """
 
+from __future__ import division, absolute_import
+
 __all__ = [
     'NamedConstant', 'ValueConstant', 'FlagConstant',
     'Names', 'Values', 'Flags']
 
+from functools import partial
 from itertools import count
 from operator import and_, or_, xor
 
 _unspecified = object()
-_constantOrder = count().next
+_constantOrder = partial(next, count())
 
 
 class _Constant(object):
@@ -27,26 +30,91 @@ class _Constant(object):
         constant is initialized by L{_ConstantsContainer}.
 
     @ivar _container: The L{_ConstantsContainer} subclass this constant belongs
-        to; only set once the constant is initialized by that subclass.
+        to; C{None} until the constant is initialized by that subclass.
     """
     def __init__(self):
+        self._container = None
         self._index = _constantOrder()
-
-
-    def __get__(self, oself, cls):
-        """
-        Ensure this constant has been initialized before returning it.
-        """
-        cls._initializeEnumerants()
-        return self
 
 
     def __repr__(self):
         """
-        Return text identifying both which constant this is and which collection
-        it belongs to.
+        Return text identifying both which constant this is and which
+        collection it belongs to.
         """
         return "<%s=%s>" % (self._container.__name__, self.name)
+
+
+    def __lt__(self, other):
+        """
+        Implements C{<}.  Order is defined by instantiation order.
+
+        @param other: An object.
+
+        @return: C{NotImplemented} if C{other} is not a constant belonging to
+            the same container as this constant, C{True} if this constant is
+            defined before C{other}, otherwise C{False}.
+        """
+        if (
+            not isinstance(other, self.__class__) or
+            not self._container == other._container
+        ):
+            return NotImplemented
+        return self._index < other._index
+
+
+    def __le__(self, other):
+        """
+        Implements C{<=}.  Order is defined by instantiation order.
+
+        @param other: An object.
+
+        @return: C{NotImplemented} if C{other} is not a constant belonging to
+            the same container as this constant, C{True} if this constant is
+            defined before or equal to C{other}, otherwise C{False}.
+        """
+        if (
+            not isinstance(other, self.__class__) or
+            not self._container == other._container
+        ):
+            return NotImplemented
+        return self is other or self._index < other._index
+
+
+    def __gt__(self, other):
+        """
+        Implements C{>}.  Order is defined by instantiation order.
+
+        @param other: An object.
+
+        @return: C{NotImplemented} if C{other} is not a constant belonging to
+            the same container as this constant, C{True} if this constant is
+            defined after C{other}, otherwise C{False}.
+        """
+        if (
+            not isinstance(other, self.__class__) or
+            not self._container == other._container
+        ):
+            return NotImplemented
+        return self._index > other._index
+
+
+    def __ge__(self, other):
+        """
+        Implements C{>=}.  Order is defined by instantiation order.
+
+        @param other: An object.
+
+        @return: C{NotImplemented} if C{other} is not a constant belonging to
+            the same container as this constant, C{True} if this constant is
+            defined after or equal to C{other}, otherwise C{False}.
+        """
+        if (
+            not isinstance(other, self.__class__) or
+            not self._container == other._container
+        ):
+            return NotImplemented
+        return self is other or self._index > other._index
 
 
     def _realize(self, container, name, value):
@@ -66,23 +134,70 @@ class _Constant(object):
 
 
 
-class _EnumerantsInitializer(object):
+class _ConstantsContainerType(type):
     """
-    L{_EnumerantsInitializer} is a descriptor used to initialize a cache of
-    objects representing named constants for a particular L{_ConstantsContainer}
-    subclass.
+    L{_ConstantsContainerType} is a metaclass for creating constants container
+    classes.
     """
-    def __get__(self, oself, cls):
+    def __new__(self, name, bases, attributes):
         """
-        Trigger the initialization of the enumerants cache on C{cls} and then
-        return it.
+        Create a new constants container class.
+
+        If C{attributes} includes a value of C{None} for the C{"_constantType"}
+        key, the new class will not be initialized as a constants container and
+        it will behave as a normal class.
+
+        @param name: The name of the container class.
+        @type name: L{str}
+
+        @param bases: A tuple of the base classes for the new container class.
+        @type bases: L{tuple} of L{_ConstantsContainerType} instances
+
+        @param attributes: The attributes of the new container class, including
+            any constants it is to contain.
+        @type attributes: L{dict}
         """
-        cls._initializeEnumerants()
-        return cls._enumerants
+        cls = super(_ConstantsContainerType, self).__new__(
+            self, name, bases, attributes)
+
+        # Only realize constants in concrete _ConstantsContainer subclasses.
+        # Ignore intermediate base classes.
+        constantType = getattr(cls, '_constantType', None)
+        if constantType is None:
+            return cls
+
+        constants = []
+        for (name, descriptor) in attributes.items():
+            if isinstance(descriptor, cls._constantType):
+                if descriptor._container is not None:
+                    raise ValueError(
+                        "Cannot use %s as the value of an attribute on %s" % (
+                            descriptor, cls.__name__))
+                constants.append((descriptor._index, name, descriptor))
+
+        enumerants = {}
+        for (index, enumerant, descriptor) in sorted(constants):
+            value = cls._constantFactory(enumerant, descriptor)
+            descriptor._realize(cls, enumerant, value)
+            enumerants[enumerant] = descriptor
+
+        # Save the dictionary which contains *only* constants (distinct from
+        # any other attributes the application may have given the container)
+        # where the class can use it later (eg for lookupByName).
+        cls._enumerants = enumerants
+
+        return cls
 
 
 
-class _ConstantsContainer(object):
+# In Python3 metaclasses are defined using a C{metaclass} keyword argument in
+# the class definition. This would cause a syntax error in Python2.
+# So we use L{type} to introduce an intermediate base class with the desired
+# metaclass.
+# See:
+# * http://docs.python.org/2/library/functions.html#type
+# * http://docs.python.org/3/reference/datamodel.html#customizing-class-creation
+class _ConstantsContainer(_ConstantsContainerType('', (object,), {})):
     """
     L{_ConstantsContainer} is a class with attributes used as symbolic
     constants.  It is up to subclasses to specify what kind of constants are
@@ -91,18 +206,12 @@ class _ConstantsContainer(object):
     @cvar _constantType: Specified by a L{_ConstantsContainer} subclass to
         specify the type of constants allowed by that subclass.
 
-    @cvar _enumerantsInitialized: A C{bool} tracking whether C{_enumerants} has
-        been initialized yet or not.
-
     @cvar _enumerants: A C{dict} mapping the names of constants (eg
         L{NamedConstant} instances) found in the class definition to those
-        instances.  This is initialized via the L{_EnumerantsInitializer}
-        descriptor the first time it is accessed.
+        instances.
     """
-    _constantType = None
 
-    _enumerantsInitialized = False
-    _enumerants = _EnumerantsInitializer()
+    _constantType = None
 
     def __new__(cls):
         """
@@ -114,52 +223,30 @@ class _ConstantsContainer(object):
         raise TypeError("%s may not be instantiated." % (cls.__name__,))
 
 
-    def _initializeEnumerants(cls):
-        """
-        Find all of the L{NamedConstant} instances in the definition of C{cls},
-        initialize them with constant values, and build a mapping from their
-        names to them to attach to C{cls}.
-        """
-        if not cls._enumerantsInitialized:
-            constants = []
-            for (name, descriptor) in cls.__dict__.iteritems():
-                if isinstance(descriptor, cls._constantType):
-                    constants.append((descriptor._index, name, descriptor))
-            enumerants = {}
-            constants.sort()
-            for (index, enumerant, descriptor) in constants:
-                value = cls._constantFactory(enumerant, descriptor)
-                descriptor._realize(cls, enumerant, value)
-                enumerants[enumerant] = descriptor
-            # Replace the _enumerants descriptor with the result so future
-            # access will go directly to the values.  The _enumerantsInitialized
-            # flag is still necessary because NamedConstant.__get__ may also
-            # call this method.
-            cls._enumerants = enumerants
-            cls._enumerantsInitialized = True
-    _initializeEnumerants = classmethod(_initializeEnumerants)
-
-
+    @classmethod
     def _constantFactory(cls, name, descriptor):
         """
         Construct the value for a new constant to add to this container.
 
         @param name: The name of the constant to create.
 
+        @param descriptor: An instance of a L{_Constant} subclass (eg
+            L{NamedConstant}) which is assigned to C{name}.
+
         @return: L{NamedConstant} instances have no value apart from identity,
             so return a meaningless dummy value.
         """
         return _unspecified
-    _constantFactory = classmethod(_constantFactory)
 
 
+    @classmethod
     def lookupByName(cls, name):
         """
         Retrieve a constant by its name or raise a C{ValueError} if there is no
         constant associated with that name.
 
-        @param name: A C{str} giving the name of one of the constants defined by
-            C{cls}.
+        @param name: A C{str} giving the name of one of the constants defined
+            by C{cls}.
 
         @raise ValueError: If C{name} is not the name of one of the constants
             defined by C{cls}.
@@ -169,9 +256,9 @@ class _ConstantsContainer(object):
         if name in cls._enumerants:
             return getattr(cls, name)
         raise ValueError(name)
-    lookupByName = classmethod(lookupByName)
 
 
+    @classmethod
     def iterconstants(cls):
         """
         Iteration over a L{Names} subclass results in all of the constants it
@@ -181,9 +268,9 @@ class _ConstantsContainer(object):
             instances defined in the body of this L{Names} subclass.
         """
         constants = cls._enumerants.values()
-        constants.sort(key=lambda descriptor: descriptor._index)
-        return iter(constants)
-    iterconstants = classmethod(iterconstants)
+
+        return iter(
+            sorted(constants, key=lambda descriptor: descriptor._index))
 
 
 
@@ -229,10 +316,11 @@ class Values(_ConstantsContainer):
     """
     _constantType = ValueConstant
 
+    @classmethod
     def lookupByValue(cls, value):
         """
-        Retrieve a constant by its value or raise a C{ValueError} if there is no
-        constant associated with that value.
+        Retrieve a constant by its value or raise a C{ValueError} if there is
+        no constant associated with that value.
 
         @param value: The value of one of the constants defined by C{cls}.
 
@@ -245,7 +333,6 @@ class Values(_ConstantsContainer):
             if constant.value == value:
                 return constant
         raise ValueError(value)
-    lookupByValue = classmethod(lookupByValue)
 
 
 
@@ -294,12 +381,12 @@ class FlagConstant(_Constant):
         @param container: The L{Flags} subclass this constant is part of.
 
         @param names: When a single-flag value is being initialized, a C{str}
-            giving the name of that flag.  This is the case which happens when a
-            L{Flags} subclass is being initialized and L{FlagConstant} instances
-            from its body are being realized.  Otherwise, a C{set} of C{str}
-            giving names of all the flags set on this L{FlagConstant} instance.
-            This is the case when two flags are combined using C{|}, for
-            example.
+            giving the name of that flag.  This is the case which happens when
+            a L{Flags} subclass is being initialized and L{FlagConstant}
+            instances from its body are being realized.  Otherwise, a C{set} of
+            C{str} giving names of all the flags set on this L{FlagConstant}
+            instance.  This is the case when two flags are combined using C{|},
+            for example.
         """
         if isinstance(names, str):
             name = names
@@ -351,6 +438,33 @@ class FlagConstant(_Constant):
         return result
 
 
+    def __iter__(self):
+        """
+        @return: An iterator of flags set on this instance set.
+        """
+        return (self._container.lookupByName(name) for name in self.names)
+
+
+    def __contains__(self, flag):
+        """
+        @param flag: The flag to test for membership in this instance
+            set.
+
+        @return: C{True} if C{flag} is in this instance set, else
+            C{False}.
+        """
+        # Optimization for testing membership without iteration.
+        return bool(flag & self)
+
+
+    def __nonzero__(self):
+        """
+        @return: C{False} if this flag's value is 0, else C{True}.
+        """
+        return bool(self.value)
+    __bool__ = __nonzero__
+
+
 
 class Flags(Values):
     """
@@ -362,10 +476,20 @@ class Flags(Values):
 
     _value = 1
 
+    @classmethod
     def _constantFactory(cls, name, descriptor):
         """
         For L{FlagConstant} instances with no explicitly defined value, assign
         the next power of two as its value.
+
+        @param name: The name of the constant to create.
+
+        @param descriptor: An instance of a L{FlagConstant} which is assigned
+            to C{name}.
+
+        @return: Either the value passed to the C{descriptor} constructor, or
+            the next power of 2 value which will be assigned to C{descriptor},
+            relative to the value of the last defined L{FlagConstant}.
         """
         if descriptor.value is _unspecified:
             value = cls._value
@@ -374,4 +498,3 @@ class Flags(Values):
             value = descriptor.value
             cls._value = value << 1
         return value
-    _constantFactory = classmethod(_constantFactory)

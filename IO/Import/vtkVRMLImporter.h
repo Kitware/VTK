@@ -15,7 +15,7 @@
 // .NAME vtkVRMLImporter - imports VRML 2.0 files.
 // .SECTION Description
 //
-// vtkVRMLImporter imports VRML 2.0 files into vtk.
+// vtkVRMLImporter imports VRML 2.0 files into VTK.
 // .SECTION Caveats
 //
 // These nodes are currently supported:
@@ -32,11 +32,14 @@
 // with directly accessing a nodes internal structure based on the VRML
 // spec. Since this is a translation the internal data structures differ
 // greatly from the VRML spec and the External Authoring Interface (see the
-// VRML spec). The DEF/USE mechanism does allow the Vtk user to extract
+// VRML spec). The DEF/USE mechanism does allow the VTK user to extract
 // objects from the scene and directly manipulate them using the native
-// language (Tcl, Python, Java, or whatever language Vtk is wrapped
+// language (Tcl, Python, Java, or whatever language VTK is wrapped
 // in). This, in a way, removes the need for the route and script mechanism
 // (not completely though).
+// Texture coordinates are attached to the mesh is available but
+// image textures are not loaded.
+// Viewpoints (camera presets) are not imported.
 //
 // .SECTION Thanks
 //  Thanks to Russ Coucher of Areva for numerous bug fixes and a new test.
@@ -65,14 +68,12 @@
 #ifndef __vtkVRMLImporter_h
 #define __vtkVRMLImporter_h
 
-// Includes for the yacc/lex parser
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
 
 class vtkActor;
 class vtkAlgorithm;
 class vtkProperty;
-class vtkCamera;
 class vtkLight;
 class vtkTransform;
 class vtkLookupTable;
@@ -81,6 +82,7 @@ class vtkPolyDataMapper;
 class vtkPoints;
 class vtkIdTypeArray;
 class vtkVRMLImporterInternal;
+class vtkVRMLYaccData;
 class vtkCellArray;
 
 class VTKIOIMPORT_EXPORT vtkVRMLImporter : public vtkImporter
@@ -88,8 +90,19 @@ class VTKIOIMPORT_EXPORT vtkVRMLImporter : public vtkImporter
 public:
   static vtkVRMLImporter *New();
 
-  vtkTypeMacro(vtkVRMLImporter,vtkImporter);
+  vtkTypeMacro(vtkVRMLImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Specify the name of the file to read.
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
+  // Description:
+  // Specify the resolution for Sphere, Cone and Cylinder shape sources.
+  // Default is 12.
+  vtkSetMacro(ShapeResolution, int);
+  vtkGetMacro(ShapeResolution, int);
 
   // Description:
   // In the VRML spec you can DEF and USE nodes (name them),
@@ -98,62 +111,39 @@ public:
   // Send in the name from the VRML file, get the VTK object.
   // You will have to check and correctly cast the object since
   // this only returns vtkObjects.
-  vtkObject *GetVRMLDEFObject(const char *name);
-
-  // Description:
-  // Needed by the yacc/lex grammar used
-  void enterNode(const char *);
-  void exitNode();
-  void enterField(const char *);
-  void exitField();
-  void useNode(const char *);
-
-  // Description:
-  // Specify the name of the file to read.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-
-  // Description:
-  // Return the file pointer to the open file.
-  FILE *GetFileFD() {return this->FileFD;};
-
-//BTX
-
-  friend int yylex ( vtkVRMLImporter* );
-
-//ETX
+  vtkObject* GetVRMLDEFObject(const char *name);
 
 protected:
   vtkVRMLImporter();
   ~vtkVRMLImporter();
 
-  virtual int ImportBegin ();
-  virtual void ImportEnd ();
-  virtual void ImportActors (vtkRenderer *) {}
-  virtual void ImportCameras (vtkRenderer *) {}
-  virtual void ImportLights (vtkRenderer *) {}
-  virtual void ImportProperties (vtkRenderer *) {}
-
   int OpenImportFile();
+  virtual int ImportBegin();
+  virtual void ImportEnd();
+  virtual void ImportActors(vtkRenderer*) {}
+  virtual void ImportCameras(vtkRenderer*) {}
+  virtual void ImportLights(vtkRenderer*) {}
+  virtual void ImportProperties(vtkRenderer*) {}
+
+  // Description:
+  // Needed by the yacc/lex grammar used
+  virtual void enterNode(const char*);
+  virtual void exitNode();
+  virtual void enterField(const char*);
+  virtual void exitField();
+  virtual void useNode(const char*);
+
+  // Description:
+  // Return the file pointer to the open file.
+  FILE *GetFileFD() { return this->FileFD; }
+
   char *FileName;
   FILE *FileFD;
+  int ShapeResolution;
+
+  friend class vtkVRMLYaccData;
 
 private:
-  vtkActor             *CurrentActor;
-  vtkProperty          *CurrentProperty;
-  vtkCamera            *CurrentCamera;
-  vtkLight             *CurrentLight;
-  vtkTransform         *CurrentTransform;
-  vtkAlgorithm         *CurrentSource;
-  vtkPoints            *CurrentPoints;
-  vtkFloatArray        *CurrentNormals;
-  vtkCellArray         *CurrentNormalCells;
-  vtkFloatArray        *CurrentTCoords;
-  vtkCellArray         *CurrentTCoordCells;
-  vtkLookupTable       *CurrentLut;
-  vtkFloatArray        *CurrentScalars;
-  vtkPolyDataMapper    *CurrentMapper;
-
   vtkPoints* PointsNew();
   vtkFloatArray* FloatArrayNew();
   vtkIdTypeArray* IdTypeArrayNew();
@@ -161,6 +151,20 @@ private:
   void DeleteObject(vtkObject*);
 
   vtkVRMLImporterInternal* Internal;
+  vtkVRMLYaccData* Parser;
+  vtkActor* CurrentActor;
+  vtkProperty* CurrentProperty;
+  vtkLight* CurrentLight;
+  vtkTransform* CurrentTransform;
+  vtkAlgorithm* CurrentSource;
+  vtkPoints* CurrentPoints;
+  vtkFloatArray* CurrentNormals;
+  vtkCellArray* CurrentNormalCells;
+  vtkFloatArray* CurrentTCoords;
+  vtkCellArray* CurrentTCoordCells;
+  vtkLookupTable* CurrentLut;
+  vtkFloatArray* CurrentScalars;
+  vtkPolyDataMapper* CurrentMapper;
 
 private:
   vtkVRMLImporter(const vtkVRMLImporter&);  // Not implemented.
@@ -168,4 +172,3 @@ private:
 };
 
 #endif
-

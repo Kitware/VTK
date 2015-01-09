@@ -64,6 +64,23 @@ unsigned long vtkPolyPlane::GetMTime()
 }
 
 //----------------------------------------------------------------------------
+// This function returns 1 if p3 is to the left the directed line from p1 to p2
+// and -1 otherwise
+// This is computed by testing the determinant:
+// | 1 p1[0] p1[1] |
+// | 1 p2[0] p2[1] |
+// | 1 p3[0] p3[1] |
+// which is positive if p3 is to the left of the directed line from p1 to p2,
+// zero if p3 is on the line and negative if p3 is to the right of the line.
+// Credit: Jack Snoeyink's computational geometry course at UNC
+static bool leftOf(double p1[2], double p2[2], double p3[2])
+{
+  double tmp = p1[0] * p2[1] + p1[1] * p3[0] + p2[0] * p3[1]
+             - p1[1] * p2[0] - p3[1] * p1[0] - p3[0] * p2[1];
+  return tmp > 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkPolyPlane::ComputeNormals()
 {
   if (!this->PolyLine)
@@ -152,8 +169,8 @@ double vtkPolyPlane::EvaluateFunction(double x[3])
   this->ComputeNormals();
 
 
-  double p1[3], p2[3], t, closest[3], normal[3];
-  double minDistance2 = VTK_DOUBLE_MAX, distance2, signedDistance = VTK_DOUBLE_MAX;
+  double p1[3], p2[3], t, closest[3];
+  double minDistance2 = VTK_DOUBLE_MAX, distance2, signedDistance = VTK_DOUBLE_MAX, sign = 1;
 
   // Iterate through all the lines.
 
@@ -171,26 +188,96 @@ double vtkPolyPlane::EvaluateFunction(double x[3])
     // Compute distance-squared to finite line. Store the closest point.
     distance2 = vtkLine::DistanceToLine( xFlat, p1, p2, t, closest );
 
-    // If this is the closest point, compute the signed distance
-    // Make sure that this point will intersect, ie    t E [0,1]
-    if (distance2 < minDistance2 && t >= 0 && t <= 1)
+    // if the closest point on the line is on the segment
+    if (t >= 0 && t <= 1)
       {
-      minDistance2 = distance2;
-
-      // Use the Y Axis to determine the sign by checking the y coordinate of
-      // the closest point w.r.t the point xFlat. This is arbitrary, but we
-      // need some reference frame to compute smooth signed scalars.
-
-      this->Normals->GetTuple(pIdx, normal);
-      const double sign =
-        ((closest[0] - xFlat[0])*normal[0] +
-         (closest[1] - xFlat[1])*normal[1]) > 0 ? 1 : -1;
-
-      signedDistance = sqrt(minDistance2) * sign;
-
-      this->ClosestPlaneIdx = pIdx;
+      // if this is the minimum distance found, use that distance
+      // and record whether it was right of or left of the line
+      if (distance2 < minDistance2)
+        {
+        minDistance2 = distance2;
+        sign = leftOf(p1,p2,xFlat) ? 1 : -1;
+        }
+      }
+    // if the closest point on the line is before the segment starts
+    else if (t < 0)
+      {
+      // compute the distance to the first point on the segment
+      distance2 = vtkMath::Distance2BetweenPoints(p1,xFlat);
+      // if that is the closest distance use that distance
+      if (distance2 < minDistance2)
+        {
+        minDistance2 = distance2;
+        // if this is not the first segment
+        if (pIdx > 0)
+          {
+          double p0[3];
+          points->GetPoint(pIdx-1,p0);
+          bool leftOf01 = leftOf(p0,p1,xFlat);
+          bool leftOf12 = leftOf(p1,p2,xFlat);
+          // if the segment before turned left to make this one,
+          // the point is to the left only if it is left of both of them
+          if (leftOf(p0,p1,p2))
+            {
+            sign = (leftOf01 && leftOf12) ? 1 : -1;
+            }
+          // if the segment before turned right to make this one,
+          // the point is to the left if it is left of either one
+          else
+            {
+            sign = (leftOf01 || leftOf12) ? 1 : -1;
+            }
+          }
+        // if this is the first segment record if the point is right of
+        // or left of the line
+        else
+          {
+          sign = leftOf(p1,p2,xFlat) ? 1 : -1;
+          }
+        }
+      }
+    // if the closest point is after the segment ends
+    else if (t > 1)
+      {
+      // compute the distance to the last point on the segment
+      distance2 = vtkMath::Distance2BetweenPoints(p2,xFlat);
+      // if that is closer than the minimum distance
+      if (distance2 < minDistance2)
+        {
+        // record the distance and
+        minDistance2 = distance2;
+        // if this is not the last segment
+        if (pIdx + 1 < nLines)
+          {
+          double p3[3];
+          points->GetPoint(pIdx+2,p3);
+          bool leftOf12 = leftOf(p1,p2,xFlat);
+          bool leftOf23 = leftOf(p2,p3,xFlat);
+          // if the turn at the end of this segment is a left turn
+          // the point is left of the polyline only if left of both
+          if (leftOf(p1,p2,p3))
+            {
+            sign = (leftOf12 && leftOf23) ? 1 : -1;
+            }
+          // if the turn is a right turn, the point is left of the
+          // polyline if it is left of either
+          else
+            {
+            sign = (leftOf12 || leftOf23) ? 1 : -1;
+            }
+          }
+        // if this is the last segment record if the point
+        // is left of the segment
+        else
+          {
+          sign = leftOf(p1,p2,xFlat) ? 1 : -1;
+          }
+        }
       }
     }
+  // compute the signed distance to the point
+  // negative if it is right of the polyline
+  signedDistance = sqrt(minDistance2) * sign;
 
   return signedDistance;
 }

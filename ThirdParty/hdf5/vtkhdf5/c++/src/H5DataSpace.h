@@ -14,13 +14,14 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5DataSpace_H
-#define _H5DataSpace_H
+#ifndef __H5DataSpace_H
+#define __H5DataSpace_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+//! Class DataSpace operates on HDF5 dataspaces.
 class H5_DLLCPP DataSpace : public IdComponent {
    public:
 	// Default DataSpace objects
@@ -42,7 +43,9 @@ class H5_DLLCPP DataSpace : public IdComponent {
 	void copy(const DataSpace& like_space);
 
 	// Copies the extent of this dataspace.
-	void extentCopy( DataSpace& dest_space ) const;
+	void extentCopy(const DataSpace& dest_space) const;
+	// Kept for backward compatibility only.
+	void extentCopy(DataSpace& dest_space) const;
 
 	// Gets the bounding box containing the current selection.
 	void getSelectBounds( hsize_t* start, hsize_t* end ) const;
@@ -103,7 +106,7 @@ class H5_DLLCPP DataSpace : public IdComponent {
 	// Sets or resets the size of this dataspace.
 	void setExtentSimple( int rank, const hsize_t *current_size, const hsize_t *maximum_size = NULL ) const;
 
-	///\brief Returns this class name
+	///\brief Returns this class name.
 	virtual H5std_string fromClass () const { return("DataSpace"); }
 
 	// Creates a DataSpace object using an existing dataspace id.
@@ -122,10 +125,13 @@ class H5_DLLCPP DataSpace : public IdComponent {
 	hid_t id;       // HDF5 dataspace id
 
    protected:
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 	// Sets the dataspace id.
 	virtual void p_setId(const hid_t new_id);
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
 };
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __H5DataSpace_H

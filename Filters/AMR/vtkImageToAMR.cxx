@@ -346,7 +346,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-  vtkAMRUtilities::BlankCells(amr,NULL);
+  vtkAMRUtilities::BlankCells(amr);
   return 1;
 }
 

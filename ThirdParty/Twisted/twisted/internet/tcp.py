@@ -31,24 +31,18 @@ try:
         ClientMixin as _TLSClientMixin,
         ServerMixin as _TLSServerMixin)
 except ImportError:
-    try:
-        if _PY3:
-            # We're never going to port the old SSL code to Python 3:
-            raise
-        # Try to get the socket BIO based startTLS implementation, available in
-        # all pyOpenSSL versions
-        from twisted.internet._oldtls import (
-            ConnectionMixin as _TLSConnectionMixin,
-            ClientMixin as _TLSClientMixin,
-            ServerMixin as _TLSServerMixin)
-    except ImportError:
-        # There is no version of startTLS available
-        class _TLSConnectionMixin(object):
-            TLS = False
-        class _TLSClientMixin(object):
-            pass
-        class _TLSServerMixin(object):
-            pass
+    # There is no version of startTLS available
+    class _TLSConnectionMixin(object):
+        TLS = False
+
+
+    class _TLSClientMixin(object):
+        pass
+
+
+    class _TLSServerMixin(object):
+        pass
+
 
 if platformType == 'win32':
     # no such thing as WSAEPERM or error code 10001 according to winsock.h or MSDN
@@ -96,8 +90,8 @@ from errno import errorcode
 # Twisted Imports
 from twisted.internet import base, address, fdesc
 from twisted.internet.task import deferLater
-from twisted.python import log, failure, _reflectpy3 as reflect
-from twisted.python._utilpy3 import unsignedID, untilConcludes
+from twisted.python import log, failure, reflect
+from twisted.python.util import untilConcludes
 from twisted.internet.error import CannotListenError
 from twisted.internet import abstract, main, interfaces, error
 
@@ -114,7 +108,12 @@ else:
 
 
 class _SocketCloser(object):
-    _socketShutdownMethod = 'shutdown'
+    """
+    @ivar _shouldShutdown: Set to C{True} if C{shutdown} should be called
+        before callling C{close} on the underlying socket.
+    @type _shouldShutdown: C{bool}
+    """
+    _shouldShutdown = True
 
     def _closeSocket(self, orderly):
         # The call to shutdown() before close() isn't really necessary, because
@@ -124,8 +123,8 @@ class _SocketCloser(object):
         skt = self.socket
         try:
             if orderly:
-                if self._socketShutdownMethod is not None:
-                    getattr(skt, self._socketShutdownMethod)(2)
+                if self._shouldShutdown:
+                    skt.shutdown(2)
             else:
                 # Set SO_LINGER to 1,0 which, by convention, causes a
                 # connection reset to be sent when close is called,
@@ -254,7 +253,7 @@ class Connection(_TLSConnectionMixin, abstract.FileDescriptor, _SocketCloser,
 
     def _closeWriteConnection(self):
         try:
-            getattr(self.socket, self._socketShutdownMethod)(1)
+            self.socket.shutdown(1)
         except socket.error:
             pass
         p = interfaces.IHalfCloseableProtocol(self.protocol, None)
@@ -727,7 +726,7 @@ class _BaseTCPClient(object):
 
 
     def __repr__(self):
-        s = '<%s to %s at %x>' % (self.__class__, self.addr, unsignedID(self))
+        s = '<%s to %s at %x>' % (self.__class__, self.addr, id(self))
         return s
 
 
@@ -984,7 +983,7 @@ class Port(base.BasePort, _SocketCloser):
             skt = self._preexistingSocket
             self._preexistingSocket = None
             # Avoid shutting it down at the end.
-            self._socketShutdownMethod = None
+            self._shouldShutdown = False
 
         # Make sure that if we listened on port 0, we update that to
         # reflect what the OS actually assigned us.

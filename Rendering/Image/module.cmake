@@ -5,4 +5,13 @@ vtk_module(vtkRenderingImage
   DEPENDS
     vtkImagingCore
     vtkRenderingCore
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkInteractionStyle
+    vtkImagingSources
+    vtkFiltersModeling
+  KIT
+    vtkRendering
   )

@@ -36,11 +36,8 @@ vtkOBJReader::vtkOBJReader()
 
 vtkOBJReader::~vtkOBJReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
+  delete [] this->FileName;
+  this->FileName = NULL;
 }
 
 /*---------------------------------------------------------------------------*\
@@ -133,8 +130,10 @@ int vtkOBJReader::RequestData(
   vtkPoints *points = vtkPoints::New();
   vtkFloatArray *tcoords = vtkFloatArray::New();
   tcoords->SetNumberOfComponents(2);
+  tcoords->SetName("TCoords");
   vtkFloatArray *normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
+  normals->SetName("Normals");
   vtkCellArray *polys = vtkCellArray::New();
   vtkCellArray *tcoord_polys = vtkCellArray::New();
 
@@ -157,6 +156,7 @@ int vtkOBJReader::RequestData(
   float xyz[3];
 
   int lineNr = 0;
+  int numPoints = 0;
   while (everything_ok && fgets(rawLine, MAX_LINE, in) != NULL)
     {
     lineNr++;
@@ -186,6 +186,7 @@ int vtkOBJReader::RequestData(
       if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
         {
         points->InsertNextPoint(xyz);
+        numPoints++;
         }
       else
         {
@@ -237,7 +238,14 @@ int vtkOBJReader::RequestData(
           int iVert;
           if (sscanf(pLine, "%d", &iVert) == 1)
             {
-            pointElems->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              pointElems->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              pointElems->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (strcmp(pLine, "\\\n") == 0)
@@ -298,12 +306,26 @@ int vtkOBJReader::RequestData(
           if (sscanf(pLine, "%d/%d", &iVert, &dummyInt) == 2)
             {
             // we simply ignore texture information
-            lineElems->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              lineElems->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              lineElems->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (sscanf(pLine, "%d", &iVert) == 1)
             {
-            lineElems->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              lineElems->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              lineElems->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (strcmp(pLine, "\\\n") == 0)
@@ -366,7 +388,14 @@ int vtkOBJReader::RequestData(
           int iVert,iTCoord,iNormal;
           if (sscanf(pLine, "%d/%d/%d", &iVert, &iTCoord, &iNormal) == 3)
             {
-            polys->InsertCellPoint(iVert-1); // convert to 0-based index
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
             nTCoords++;
@@ -379,7 +408,14 @@ int vtkOBJReader::RequestData(
             }
           else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
             {
-            polys->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             normal_polys->InsertCellPoint(iNormal-1);
             nNormals++;
@@ -388,7 +424,14 @@ int vtkOBJReader::RequestData(
             }
           else if (sscanf(pLine, "%d/%d", &iVert, &iTCoord) == 2)
             {
-            polys->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
             nTCoords++;
@@ -397,7 +440,14 @@ int vtkOBJReader::RequestData(
             }
           else if (sscanf(pLine, "%d", &iVert) == 1)
             {
-            polys->InsertCellPoint(iVert-1);
+            if (iVert < 0)
+              {
+              polys->InsertCellPoint(numPoints+iVert);
+              }
+            else
+              {
+              polys->InsertCellPoint(iVert-1);
+              }
             nVerts++;
             }
           else if (strcmp(pLine, "\\\n") == 0)
@@ -493,7 +543,9 @@ int vtkOBJReader::RequestData(
       // if there is an exact correspondence between tcoords and vertices then can simply
       // assign the tcoords points as point data
       if (hasTCoords && tcoords_same_as_verts)
+        {
         output->GetPointData()->SetTCoords(tcoords);
+        }
 
       // if there is an exact correspondence between normals and vertices then can simply
       // assign the normals as point data
@@ -510,9 +562,11 @@ int vtkOBJReader::RequestData(
 
       vtkPoints *new_points = vtkPoints::New();
       vtkFloatArray *new_tcoords = vtkFloatArray::New();
+      new_tcoords->SetName("TCoords");
       new_tcoords->SetNumberOfComponents(2);
       vtkFloatArray *new_normals = vtkFloatArray::New();
       new_normals->SetNumberOfComponents(3);
+      new_normals->SetName("Normals");
       vtkCellArray *new_polys = vtkCellArray::New();
 
       // for each poly, copy its vertices into new_points (and point at them)

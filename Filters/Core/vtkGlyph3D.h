@@ -108,12 +108,17 @@ public:
   static vtkGlyph3D *New();
 
   // Description:
-  // Set the source to use for he glyph. Old style. See SetSourceConnection.
+  // Set the source to use for the glyph.
+  // Note that this method does not connect the pipeline. The algorithm will
+  // work on the input data as it is without updating the producer of the data.
+  // See SetSourceConnection for connecting the pipeline.
   void SetSourceData(vtkPolyData *pd) {this->SetSourceData(0,pd);};
 
   // Description:
   // Specify a source object at a specified table location.
-  // Old style. See SetSourceConnection.
+  // Note that this method does not connect the pipeline. The algorithm will
+  // work on the input data as it is without updating the producer of the data.
+  // See SetSourceConnection for connecting the pipeline.
   void SetSourceData(int id, vtkPolyData *pd);
 
   // Description:
@@ -256,6 +261,14 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation *);
 
   vtkPolyData* GetSource(int idx, vtkInformationVector *sourceInfo);
+
+  // Description:
+  // Method called in RequestData() to do the actual data processing. This will
+  // glyph the \c input, filling up the \c output based on the filter
+  // parameters.
+  virtual bool Execute(vtkDataSet* input,
+    vtkInformationVector* sourceVector,
+    vtkPolyData* output, int requestedGhostLevel);
 
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed

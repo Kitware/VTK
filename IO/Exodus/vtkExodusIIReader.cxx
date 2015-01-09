@@ -19,6 +19,7 @@
 #include "vtkExodusIIReader.h"
 #include "vtkExodusIICache.h"
 
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCharArray.h"
@@ -31,6 +32,7 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMutableDirectedGraph.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -58,7 +60,7 @@
 
 #include "vtk_exodusII.h"
 #include <stdio.h>
-#include <stdlib.h> /* for free() */
+#include <cstdlib> /* for free() */
 #include <string.h> /* for memset() */
 #include <ctype.h> /* for toupper(), isgraph() */
 #include <math.h> /* for cos() */
@@ -386,7 +388,6 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->Cache = vtkExodusIICache::New();
   this->CacheSize = 0;
 
-  this->TimeStep = 0;
   this->HasModeShapes = 0;
   this->ModeShapeTime = -1.;
   this->AnimateModeShapes = 1;
@@ -944,7 +945,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
 
 //-----------------------------------------------------------------------------
 int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
-  vtkIdType vtkNotUsed(timeStep), int otyp, int obj, BlockSetInfoType* bsinfop,
+  vtkIdType timeStep, int otyp, int obj, BlockSetInfoType* bsinfop,
   vtkUnstructuredGrid* output )
 {
   (void)obj;
@@ -1006,6 +1007,16 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     sarr->SetValue(0, this->ModelParameters.title);
     ofieldData->AddArray(sarr);
     sarr->Delete();
+    }
+
+  // Add mode_shape/time_step
+    {
+    vtkNew<vtkIntArray> dataIndexArray;
+    dataIndexArray->SetName("mode_shape");
+    dataIndexArray->SetNumberOfComponents(1);
+    dataIndexArray->SetNumberOfTuples(1);
+    dataIndexArray->SetValue(0, timeStep);
+    ofieldData->AddArray(dataIndexArray.GetPointer());
     }
 
   vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
@@ -1120,6 +1131,64 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellMaps(
 }
 
 //-----------------------------------------------------------------------------
+void vtkExodusIIReaderPrivate::InsertBlockPolyhedra(
+  BlockInfoType* binfo,
+  vtkIntArray* facesPerCell,
+  vtkIntArray* pointsPerFace,
+  vtkIntArray* exoCellConn,
+  vtkIntArray* exoFaceConn)
+{
+  vtkIdType numCells = facesPerCell->GetMaxId() + 1;
+  vtkIdType numFaces = pointsPerFace->GetMaxId() + 1;
+
+  // The Exodus file format is more compact than VTK's; it
+  // allows multiple elements(cells) to refer to the same face so
+  // that no face->point connectivity needs to be repeated.
+  // VTK's polyhedral cells unpacks each element's faces
+  // into a contiguous list for fast access to each element's
+  // face->point connectivity.
+  // So, we cannot use the arrays we are given as-is.
+  // Also, VTK requires a list, without duplicates, of all the
+  // points per cell (across all its faces), which Exodus does
+  // not provide.
+
+  // I. Break out face connectivity,
+  //    squeezing points along the way if needed.
+  std::vector<std::vector<vtkIdType> > facePointLists;
+  facePointLists.resize(numFaces);
+  vtkIdType curFacePoint = 0;
+  for (vtkIdType i = 0; i < numFaces; ++i)
+    {
+    std::vector<vtkIdType>& curPtList(facePointLists[i]);
+    for (vtkIdType j = 0; j < pointsPerFace->GetValue(i); ++j)
+      {
+      vtkIdType ptId = this->SqueezePoints ?
+        this->GetSqueezePointId(binfo, exoFaceConn->GetValue(curFacePoint++)) :
+        exoFaceConn->GetValue(curFacePoint++);
+      curPtList.push_back(ptId);
+      }
+    }
+
+  // II. Insert cells using face-point connectivity.
+  vtkIdType curCell = 0;
+  vtkIdType curCellCurFace = 0;
+  for (vtkIdType i = 0; i < numCells; ++i)
+    {
+    std::vector<vtkIdType> vtkCellPts;
+    int numFacesThisCell = facesPerCell->GetValue(curCell++);
+    for (vtkIdType j = 0; j < numFacesThisCell; ++j)
+      {
+      vtkIdType curFace = exoCellConn->GetValue(curCellCurFace++);
+      std::vector<vtkIdType>& curFacePts(facePointLists[curFace]);
+      vtkCellPts.push_back(static_cast<vtkIdType>(curFacePts.size()));
+      vtkCellPts.insert(vtkCellPts.end(), curFacePts.begin(), curFacePts.end());
+      }
+    binfo->CachedConnectivity->InsertNextCell(
+      VTK_POLYHEDRON, numFacesThisCell, &vtkCellPts[0]);
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkExodusIIReaderPrivate::InsertBlockCells(
   int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfo )
 {
@@ -1128,7 +1197,8 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   if ( binfo->Size == 0 )
     {
     // No entries in this block.
-    // This happens in parallel filesets when all elements are distributed to other files.
+    // This happens in parallel filesets when all
+    // elements are distributed to other files.
     // Silently ignore.
     return;
     }
@@ -1136,36 +1206,86 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   vtkIntArray* ent = 0;
   if ( binfo->PointsPerCell == 0 )
     {
-    int arrId;
-    if (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN)
-      {
-      arrId = 0;
-      }
-    else
-      {
-      arrId = 1;
-      }
+    int arrId = (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN ? 0 : 1);
     ent = vtkIntArray::SafeDownCast(
-                    this->GetCacheOrRead( vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, arrId ) ) );
+      this->GetCacheOrRead(
+        vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, arrId
+          )));
     if ( ! ent )
       {
-      vtkErrorMacro( "Entity used 0 points per cell, but didn't return poly_hedra correctly" );
+      vtkErrorMacro(
+        "Entity used 0 points per cell, "
+        "but didn't return polyhedra correctly" );
       binfo->Status = 0;
       return;
       }
-    ent->Register (this);
+    ent->Register(this);
     }
 
-  vtkIntArray* arr;
-  arr = vtkIntArray::SafeDownCast( this->GetCacheOrRead( vtkExodusIICacheKey( -1, conn_type, obj, 0 ) ) );
-  if ( ! arr )
+  // Handle 3-D polyhedra (not 2-D polygons) separately
+  // from other cell types for simplicity.
+  // In addition to the element block connectivity (which
+  // lists faces bounding the polyhedra, we must load face
+  // block connectivity (which lists corner nodes for each
+  // face).
+  if (binfo->CellType == VTK_POLYHEDRON)
     {
-    vtkWarningMacro( "Block wasn't present in file? Working around it. Expect trouble." );
-    binfo->Status = 0;
+    vtkIntArray* efconn;
+    efconn = vtkIntArray::SafeDownCast(
+      this->GetCacheOrRead(
+        vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEM_BLOCK_FACE_CONN, obj, 0 )));
+    if (efconn)
+      efconn->Register(this);
+    vtkIntArray* fconn;
+    fconn = vtkIntArray::SafeDownCast(
+      this->GetCacheOrRead(
+        vtkExodusIICacheKey( -1, vtkExodusIIReader::FACE_BLOCK_CONN, obj, 0 )));
+    if (fconn)
+      fconn->Register(this);
+    vtkIntArray* ptsPerFace = NULL;
+    ptsPerFace = vtkIntArray::SafeDownCast(
+      this->GetCacheOrRead(
+        vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, 1
+          )));
+    if (!efconn || !fconn || !ent || !ptsPerFace)
+      {
+      vtkWarningMacro(
+        << "Element (" << efconn << ") and face (" << fconn << ") block, "
+        << "plus number of faces per poly (" << ent << ") and "
+        << "number of points per face (" << ptsPerFace << ") are all required. "
+        << "Skipping block id " << binfo->Id << "; expect trouble." );
+      binfo->Status = 0;
+      if (ent) ent->UnRegister(this);
+      if (fconn) fconn->UnRegister(this);
+      if (efconn) efconn->UnRegister(this);
+      return;
+      }
+    ptsPerFace->Register(this); // For sanity, own this for a moment
+    this->InsertBlockPolyhedra(binfo, ent, ptsPerFace, efconn, fconn);
+    ptsPerFace->UnRegister(this); // OK, we're done.
+    efconn->UnRegister(this);
+    fconn->UnRegister(this);
+    ent->UnRegister(this);
     return;
     }
 
-  if ( this->SqueezePoints )
+  vtkIntArray* arr;
+  arr = vtkIntArray::SafeDownCast(
+    this->GetCacheOrRead(
+      vtkExodusIICacheKey( -1, conn_type, obj, 0 )));
+  if ( ! arr )
+    {
+    vtkWarningMacro(
+      "Block wasn't present in file? Working around it. Expect trouble." );
+    binfo->Status = 0;
+    if (ent)
+      {
+      ent->UnRegister(this);
+      }
+    return;
+    }
+
+  if (this->SqueezePoints)
     {
     std::vector<vtkIdType> cellIds;
     cellIds.resize( binfo->PointsPerCell );
@@ -1174,7 +1294,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     for ( int i = 0; i < binfo->Size; ++i )
       {
       int entitiesPerCell;
-      if ( ent != 0)
+      if (ent)
         {
         entitiesPerCell = ent->GetValue (i);
         cellIds.resize( entitiesPerCell );
@@ -1238,10 +1358,10 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       }
 #endif // VTK_USE_64BIT_IDS
     }
-    if (ent)
-      {
-      ent->UnRegister (this);
-      }
+  if (ent)
+    {
+    ent->UnRegister (this);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2181,15 +2301,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     }
   else if ( key.ObjectType == vtkExodusIIReader::ENTITY_COUNTS )
     {
-    int ctypidx;
-    if (key.ArrayId == 0)
-      {
-      ctypidx = 0;
-      }
-    else
-      {
-      ctypidx = 1;
-      }
+    int ctypidx = (key.ArrayId == 0 ? 0 : 1);
     int otypidx = conn_obj_idx_cvt[ctypidx];
     int otyp = obj_types[ otypidx ];
     BlockInfoType* binfop = (BlockInfoType*) this->GetObjectInfo( otypidx, key.ObjectId );
@@ -2212,16 +2324,19 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     key.ObjectType == vtkExodusIIReader::EDGE_BLOCK_CONN
   )
     {
-
     int ctypidx = this->GetConnTypeIndexFromConnType( key.ObjectType );
     int otypidx = conn_obj_idx_cvt[ctypidx];
     int otyp = obj_types[ otypidx ];
     BlockInfoType* binfop = (BlockInfoType*) this->GetObjectInfo( otypidx, key.ObjectId );
 
     vtkIntArray* iarr = vtkIntArray::New();
-    if (binfop->CellType == VTK_POLYGON || binfop->CellType == VTK_POLYHEDRON)
+    if (binfop->CellType == VTK_POLYGON)
       {
       iarr->SetNumberOfValues (binfop->BdsPerEntry[0]);
+      }
+    else if (binfop->CellType == VTK_POLYHEDRON)
+      {
+      iarr->SetNumberOfValues (binfop->BdsPerEntry[2]);
       }
     else
       {
@@ -2308,17 +2423,54 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
 
     arr = iarr;
     }
-  else if ( key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_FACE_CONN )
+  else if (
+    key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_FACE_CONN ||
+    key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_EDGE_CONN )
     {
-    // FIXME: Call ex_get_conn with non-NULL face conn pointer
-    // This won't be needed until the Exodus reader outputs multiblock data with vtkGenericDataSet blocks for higher order meshes.
     arr = 0;
-    }
-  else if ( key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_EDGE_CONN )
-    {
-    // FIXME: Call ex_get_conn with non-NULL edge conn pointer
-    // This won't be needed until the Exodus reader outputs multiblock data with vtkGenericDataSet blocks for higher order meshes.
-    arr = 0;
+
+    // bdsEntry will determine whether we call ex_get_conn to read edge or face connectivity:
+    int bdsEntry = key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_EDGE_CONN ? 1 : 2;
+
+    // Fetch the block information from the key
+    //int ctypidx = this->GetConnTypeIndexFromConnType( key.ObjectType );
+    int otypidx = 2; // These always refer to the element block
+    int otyp = obj_types[ otypidx ];
+    BlockInfoType* binfop = (BlockInfoType*) this->GetObjectInfo( otypidx, key.ObjectId );
+
+    // Only create the array if there's anything to put in it.
+    if (binfop->BdsPerEntry[bdsEntry] > 0)
+      {
+      vtkIntArray* iarr = vtkIntArray::New();
+      iarr->SetNumberOfValues (binfop->BdsPerEntry[2]);
+
+      if (
+        ex_get_conn(
+          exoid,
+          static_cast<ex_entity_type>( otyp ),
+          binfop->Id,
+          NULL,
+          bdsEntry == 1 ? iarr->GetPointer(0) : NULL,
+          bdsEntry == 2 ? iarr->GetPointer(0) : NULL ) < 0)
+        {
+        vtkErrorMacro(
+          "Unable to read " << objtype_names[otypidx] << " "
+          << binfop->Id << " (index " << key.ObjectId <<
+          ") " << (bdsEntry == 1 ? "edge" : "face") << " connectivity." );
+        iarr->Delete();
+        iarr = 0;
+        }
+      else
+        {
+        vtkIdType c;
+        int* ptr = iarr->GetPointer( 0 );
+        for ( c = 0; c <= iarr->GetMaxId(); ++c, ++ptr )
+          {
+          *ptr = *ptr - 1;
+          }
+        }
+      arr = iarr;
+      }
     }
   else if (
     key.ObjectType == vtkExodusIIReader::NODE_SET_CONN ||
@@ -3379,6 +3531,8 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "DisplayType: " << this->DisplayType << "\n";
   os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
+  os << indent << "ModeShapesRange:  [ "
+    << this->GetModeShapesRange()[0] << ", " << this->GetModeShapesRange()[1] << "]\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
   if ( this->Metadata )
     {
@@ -3428,7 +3582,6 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
     os << " " << this->Times[i];
     }
   os << "\n";
-  os << indent << "TimeStep: " << this->TimeStep << "\n";
   os << indent << "HasModeShapes: " << this->HasModeShapes << "\n";
   os << indent << "ModeShapeTime: " << this->ModeShapeTime << "\n";
   os << indent << "AnimateModeShapes: " << this->AnimateModeShapes << "\n";
@@ -4351,7 +4504,6 @@ void vtkExodusIIReaderPrivate::Reset()
   this->ArrayInfo.clear();
   this->ExodusVersion = -1.;
   this->Times.clear();
-  this->TimeStep = 0;
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
 
   // Don't clear file id since it's not part of meta-data that's read from the
@@ -4899,6 +5051,9 @@ vtkExodusIIReader::vtkExodusIIReader()
   this->TimeStep = 0;
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
+  this->ModeShapesRange[0] = 0;
+  this->ModeShapesRange[1] = 0;
+  this->DisplayType = 0;
   this->DisplayType = 0;
   this->SILUpdateStamp = -1;
 
@@ -5917,10 +6072,16 @@ void vtkExodusIIReader::SetAllArrayStatus( int otyp, int status )
   case FACE_SET_CONN:
   case SIDE_SET_CONN:
   case ELEM_SET_CONN:
-    numObj = this->GetNumberOfObjects( otyp );
-    for ( i = 0; i < numObj; ++i )
-      {
-      this->SetObjectStatus( otyp, i, status );
+      { // Convert the "connectivity" type into an "object" type:
+      int ctypidx = this->Metadata->GetConnTypeIndexFromConnType(otyp);
+      int otypidx = conn_obj_idx_cvt[ctypidx];
+      otyp = obj_types[otypidx];
+      // Now set the status
+      numObj = this->GetNumberOfObjects( otyp );
+      for ( i = 0; i < numObj; ++i )
+        {
+        this->SetObjectStatus( otyp, i, status );
+        }
       }
     break;
   case NODAL:

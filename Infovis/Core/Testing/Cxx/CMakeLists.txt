@@ -5,13 +5,13 @@ set(NEEDS_DATA
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${NEEDS_DATA}
+  ArrayDotProductSimilarity.cxx,NO_VALID,NO_DATA
   ArraySparseArrayToTable.cxx,NO_VALID
   ArrayTableToSparseArray.cxx,NO_VALID
   ArrayToTable.cxx,NO_VALID
   ArrayTransposeMatrix.cxx,NO_VALID
-  # TestArrayNorm.cxx             # todo (unsatisfied deps)
+  TestArrayNorm.cxx,NO_VALID,NO_DATA
   TestCollapseVerticesByArray.cxx,NO_VALID
-  # TestConvexHull2D.cxx          # todo (unsatisfied deps)
   TestDataObjectToTable.cxx,NO_VALID
   TestExtractSelectedTree.cxx,NO_VALID
   TestExtractSelectedGraph.cxx,NO_VALID
@@ -25,7 +25,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTableToArray.cxx,NO_VALID
   TestThresholdTable.cxx,NO_VALID
   TestTreeDifferenceFilter.cxx,NO_VALID
-  # TestTimePoint.cxx             # deprecated dep
   )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)

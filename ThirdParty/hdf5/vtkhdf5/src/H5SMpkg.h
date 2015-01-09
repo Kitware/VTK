@@ -62,11 +62,6 @@
         + MAX(H5SM_HEAP_LOC_SIZE, H5SM_OH_LOC_SIZE(f))  /* Entry */           \
     )
 
-#define H5SM_TABLE_SIZE(f) (                                                  \
-        (unsigned)H5_SIZEOF_MAGIC       /* Signature */                       \
-         + (unsigned)H5SM_SIZEOF_CHECKSUM /* Checksum */                      \
-    )
-
 #define H5SM_INDEX_HEADER_SIZE(f) (                                           \
         (unsigned)1             /* Whether index is a list or B-tree */       \
         + (unsigned)1           /* Version of index format */                 \
@@ -77,10 +72,26 @@
         + H5F_SIZEOF_ADDR(f)    /* Address of heap */                         \
     )
 
+/* Format overhead for all SOHM tree metadata in the file */
+#define H5SM_METADATA_PREFIX_SIZE (                                           \
+    H5_SIZEOF_MAGIC             /* Signature */                               \
+    + H5SM_SIZEOF_CHECKSUM      /* Checksum */                                \
+    )
+
+#define H5SM_TABLE_SIZE(f) (                                                  \
+    /* General metadata fields */                                             \
+    H5SM_METADATA_PREFIX_SIZE                                                 \
+                                                                              \
+    /* Indices */                                                             \
+    + (H5F_SOHM_NINDEXES(f) * H5SM_INDEX_HEADER_SIZE(f))                      \
+    )
+
 #define H5SM_LIST_SIZE(f, num_mesg) (                                         \
-        (unsigned) H5_SIZEOF_MAGIC      /* Signature */                       \
-         + (H5SM_SOHM_ENTRY_SIZE(f) * num_mesg) /* Message entries */         \
-         + (unsigned)H5SM_SIZEOF_CHECKSUM /* Checksum */                      \
+    /* General metadata fields */                                             \
+    H5SM_METADATA_PREFIX_SIZE                                                 \
+                                                                              \
+    /* Message entries */                                                     \
+    + (H5SM_SOHM_ENTRY_SIZE(f) * num_mesg)                                    \
     )
 
 #define H5SM_B2_NODE_SIZE 512
@@ -154,6 +165,7 @@ typedef enum {
 
 /* Typedef for a SOHM index header */
 typedef struct {
+/* Stored */
     unsigned mesg_types;	/* Bit flag vector of message types */
     size_t min_mesg_size;	/* number of messages being tracked */
     size_t list_max;		/* >= this many messages, index with a B-tree */
@@ -162,6 +174,9 @@ typedef struct {
     H5SM_index_type_t index_type; /* Is the index a list or a B-tree? */
     haddr_t index_addr;		/* Address of the actual index (list or B-tree) */
     haddr_t heap_addr;		/* Address of the fheap used to store shared messages */
+
+/* Not stored */
+    size_t list_size;           /* Size of list index on disk */
 } H5SM_index_header_t;
 
 /* Typedef for a SOHM list */
@@ -173,12 +188,12 @@ typedef struct {
     H5SM_sohm_t *messages;          /* Actual list, stored as an array */
 } H5SM_list_t;
 
-
 /* Typedef for shared object header message master table */
 struct H5SM_master_table_t {
     /* Information for H5AC cache functions, _must_ be first field in structure */
     H5AC_info_t cache_info;
 
+    size_t table_size;              /* Size of table on disk */
     unsigned num_indexes;           /* Number of indexes */
     H5SM_index_header_t *indexes;   /* Array of num_indexes indexes */
 };
@@ -219,9 +234,14 @@ typedef struct H5SM_bt2_ctx_t {
     uint8_t     sizeof_addr;    /* Size of file addresses */
 } H5SM_bt2_ctx_t;
 
-/* Callback info for loading a shared message index into the cache */
+/* Callback info for loading a shared message table index into the cache */
+typedef struct H5SM_table_cache_ud_t {
+    H5F_t *f;                   /* File that shared message index stored as a table is in */
+} H5SM_table_cache_ud_t;
+
+/* Callback info for loading a shared message list index into the cache */
 typedef struct H5SM_list_cache_ud_t {
-    H5F_t *f;  /* File that shared message index stored as a list is in */
+    H5F_t *f;                   /* File that shared message index stored as a table is in */
     H5SM_index_header_t *header; /* Index header for this list */
 } H5SM_list_cache_ud_t;
 

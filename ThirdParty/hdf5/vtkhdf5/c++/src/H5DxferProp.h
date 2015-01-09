@@ -14,19 +14,29 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5DSetMemXferPropList_H
-#define _H5DSetMemXferPropList_H
+// Class DSetMemXferPropList represents the HDF5 dataset transfer property list
+// and inherits from PropList.
+
+#ifndef __H5DSetMemXferPropList_H
+#define __H5DSetMemXferPropList_H
 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+/*! \class DSetMemXferPropList
+    \brief Class DSetMemXferPropList represents the dataset memory and
+    transfer property list.
+*/
 class H5_DLLCPP DSetMemXferPropList : public PropList {
    public:
 	static const DSetMemXferPropList DEFAULT;
 
 	// Creates a dataset memory and transfer property list.
 	DSetMemXferPropList();
+
+	// Creates a dataset transform property list.
+	DSetMemXferPropList(const char* expression);
 
 	// Sets type conversion and background buffers.
 	void setBuffer( size_t size, void* tconv, void* bkg ) const;
@@ -39,6 +49,14 @@ class H5_DLLCPP DSetMemXferPropList : public PropList {
 
 	// Gets B-tree split ratios for a dataset transfer property list.
 	void getBtreeRatios( double& left, double& middle, double& right ) const;
+
+	// Sets data transform expression.
+	void setDataTransform(const char* expression) const;
+	void setDataTransform(const H5std_string& expression) const;
+
+	// Gets data transform expression.
+	ssize_t getDataTransform(char* exp, size_t buf_size=0) const;
+	H5std_string getDataTransform() const;
 
 	// Sets the dataset transfer property list status to TRUE or FALSE.
 	void setPreserve( bool status ) const;
@@ -65,12 +83,6 @@ class H5_DLLCPP DSetMemXferPropList : public PropList {
 	// allocation in H5Dread and H5Tvlen_reclaim.
 	void getVlenMemManager( H5MM_allocate_t& alloc, void** alloc_info,
 				H5MM_free_t& free, void** free_info ) const;
-
-	// Sets the data transfer property list for the multi-file driver.
-	void setMulti(const hid_t *memb_dxpl);
-
-	// Returns multi-file data transfer property list information.
-	void getMulti(hid_t *memb_dxpl);
 
 	// Sets the size of a contiguous block reserved for small data.
 	void setSmallDataBlockSize(hsize_t size);
@@ -108,4 +120,4 @@ class H5_DLLCPP DSetMemXferPropList : public PropList {
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __H5DSetMemXferPropList_H

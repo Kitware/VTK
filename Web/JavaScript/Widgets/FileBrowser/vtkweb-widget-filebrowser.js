@@ -72,7 +72,7 @@
             me.data('cacheFiles', opts.cacheFiles);
 
             if(opts.data === null) {
-                opts.session.call('vtk:listServerDirectory','.').then(function(files) {
+                opts.session.call('file.server.directory.list',['.']).then(function(files) {
                     opts.data = [ files ];
                     me.data('file-list', opts.data);
 
@@ -117,7 +117,7 @@
                 if(requestPath.indexOf('/') == -1) {
                     requestPath = '.';
                 }
-                me.data('session').call('vtk:listServerDirectory', requestPath)
+                me.data('session').call('file.server.directory.list', [requestPath])
                     .then(function(newFiles){
                         newData.push(newFiles);
                         me.data('file-list', newData);
@@ -228,7 +228,7 @@
                 } else {
                     if(container.data('session')) {
                         var relativePath = (pathStr + '/' + me.text());
-                        container.data('session').call('vtk:listServerDirectory', relativePath.substring(1)).then(function(newFiles){
+                        container.data('session').call('file.server.directory.list', [relativePath.substring(1)]).then(function(newFiles){
                             container.data('file-list').push(newFiles);
                             container.updateFileBrowser(relativePath);
                         });

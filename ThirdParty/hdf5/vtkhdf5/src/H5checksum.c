@@ -115,7 +115,7 @@ H5_checksum_fletcher32(const void *_data, size_t _len)
     size_t len = _len / 2;      /* Length in 16-bit words */
     uint32_t sum1 = 0, sum2 = 0;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_checksum_fletcher32)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(_data);
@@ -171,7 +171,7 @@ H5_checksum_crc_make_table(void)
     uint32_t c;         /* Checksum for each byte value */
     unsigned n, k;      /* Local index variables */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_checksum_crc_make_table)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Compute the checksum for each possible byte value */
     for(n = 0; n < 256; n++) {
@@ -209,7 +209,7 @@ H5_checksum_crc_update(uint32_t crc, const uint8_t *buf, size_t len)
 {
     size_t n;           /* Local index variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_checksum_crc_update)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Initialize the CRC table if necessary */
     if(!H5_crc_table_computed)
@@ -243,7 +243,7 @@ H5_checksum_crc_update(uint32_t crc, const uint8_t *buf, size_t len)
 uint32_t
 H5_checksum_crc(const void *_data, size_t len)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_checksum_crc)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(_data);
@@ -376,7 +376,7 @@ H5_checksum_lookup3(const void *key, size_t length, uint32_t initval)
     const uint8_t *k = (const uint8_t *)key;
     uint32_t a, b, c;           /* internal state */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_checksum_lookup3)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(key);
@@ -422,6 +422,8 @@ H5_checksum_lookup3(const void *key, size_t length, uint32_t initval)
         case 1 : a+=k[0];
                  break;
         case 0 : goto done;
+        default:
+            HDassert(0 && "This Should never be executed!");
     }
 
     H5_lookup3_final(a, b, c);
@@ -448,7 +450,7 @@ done:
 uint32_t
 H5_checksum_metadata(const void *data, size_t len, uint32_t initval)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_checksum_metadata)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(data);
@@ -481,7 +483,7 @@ H5_hash_string(const char *str)
     uint32_t hash = 5381;
     int c;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5_hash_string)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(str);

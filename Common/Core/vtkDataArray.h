@@ -145,6 +145,7 @@ public:
   double* GetTuple2(vtkIdType i);
   double* GetTuple3(vtkIdType i);
   double* GetTuple4(vtkIdType i);
+  double* GetTuple6(vtkIdType i);
   double* GetTuple9(vtkIdType i);
 
   // Description:
@@ -163,6 +164,8 @@ public:
   void SetTuple3(vtkIdType i, double val0, double val1, double val2);
   void SetTuple4(vtkIdType i, double val0, double val1, double val2,
                  double val3);
+  void SetTuple6(vtkIdType i, double val0, double val1, double val2,
+                 double val3, double val4, double val5);
   void SetTuple9(vtkIdType i, double val0, double val1, double val2,
                  double val3, double val4, double val5, double val6,
                  double val7, double val8);
@@ -401,9 +404,15 @@ protected:
   virtual void ComputeRange(double range[2], int comp);
 
   // Description:
-  // Slow range computation methods. Reimplement.
-  virtual void ComputeScalarRange(double range[2], int comp);
-  virtual void ComputeVectorRange(double range[2]);
+  // Computes the range for each component of an array, the length
+  // of \a ranges must be two times the number of components.
+  // Returns true if the range was computed. Will return false
+  // if you try to compute the range of an array of length zero.
+  virtual bool ComputeScalarRange(double* ranges);
+
+  // Returns true if the range was computed. Will return false
+  // if you try to compute the range of an array of length zero.
+  virtual bool ComputeVectorRange(double range[2]);
 
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray();

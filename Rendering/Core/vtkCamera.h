@@ -401,6 +401,12 @@ public:
                                                               double nearz,
                                                               double farz);
 
+  // Description:
+  // Return the projection transform matrix, which converts from camera
+  // coordinates to viewport coordinates. This method computes
+  // the aspect, nearz and farz, then calls the more specific
+  // signature of GetCompositeProjectionTransformMatrix
+  virtual vtkMatrix4x4 *GetProjectionTransformMatrix(vtkRenderer *ren);
 
   // Description:
   // In addition to the instance variables such as position and orientation,

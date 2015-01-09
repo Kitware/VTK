@@ -145,6 +145,11 @@ vtkXMLDataElement* vtkXMLCompositeDataReader::GetPrimaryElement()
 //----------------------------------------------------------------------------
 vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
 {
+  if (!type)
+    {
+    return 0;
+    }
+
   vtkXMLCompositeDataReaderInternals::ReadersType::iterator iter =
     this->Internal->Readers.find(type);
   if (iter != this->Internal->Readers.end())
@@ -235,7 +240,7 @@ void vtkXMLCompositeDataReader::ReadXMLData()
   // specified as relative paths.
   std::string filePath = this->FileName;
   std::string::size_type pos = filePath.find_last_of("/\\");
-  if(pos != filePath.npos)
+  if (pos != filePath.npos)
     {
     filePath = filePath.substr(0, pos);
     }
@@ -317,17 +322,17 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   const char* filePath)
 {
   // Construct the name of the internal file.
-  std::string fileName;
   const char* file = xmlElem->GetAttribute("file");
   if (!file)
     {
-    return NULL;
+    return 0;
     }
 
-  if(!(file[0] == '/' || file[1] == ':'))
+  std::string fileName;
+  if (!(file[0] == '/' || file[1] == ':'))
     {
     fileName = filePath;
-    if(fileName.length())
+    if (fileName.length())
       {
       fileName += "/";
       }
@@ -348,7 +353,7 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
     this->Internal->ReaderList;
     !rname && readerEntry->extension; ++readerEntry)
     {
-    if(ext == readerEntry->extension)
+    if (ext == readerEntry->extension)
       {
       rname = readerEntry->name;
       }
@@ -393,7 +398,7 @@ int vtkXMLCompositeDataReader::RequestInformation(
 
 //----------------------------------------------------------------------------
 const vtkXMLCompositeDataReaderEntry
-vtkXMLCompositeDataReaderInternals::ReaderList[] =
+  vtkXMLCompositeDataReaderInternals::ReaderList[] =
 {
   {"vtp", "vtkXMLPolyDataReader"},
   {"vtu", "vtkXMLUnstructuredGridReader"},

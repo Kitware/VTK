@@ -51,6 +51,9 @@
 #undef MIN
 #define MIN(X,Y)  ((X)<(Y)?(X):(Y))
 
+namespace xdmf2
+{
+
 /* The driver identification number, initialized at runtime */
 static hid_t H5FD_DSM_g = 0;
 
@@ -832,4 +835,5 @@ cout << "(" << file->DsmBuffer->GetComm()->GetId() << ") Write Start " << file->
   status = file->DsmBuffer->Put(file->start + addr, size, (void *)buf);
   if( status <= 0 ) return -1;
   return 0;
+}
 }

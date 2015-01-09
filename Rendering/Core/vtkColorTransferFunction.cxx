@@ -16,11 +16,12 @@
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include <vector>
-#include <set>
+
 #include <algorithm>
 #include <iterator>
 #include <math.h>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkColorTransferFunction);
 
@@ -241,6 +242,18 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->NanColor[1] = 0.0;
   this->NanColor[2] = 0.0;
 
+  this->BelowRangeColor[0] = 0.0;
+  this->BelowRangeColor[1] = 0.0;
+  this->BelowRangeColor[2] = 0.0;
+
+  this->UseBelowRangeColor = 0;
+
+  this->AboveRangeColor[0] = 1.0;
+  this->AboveRangeColor[1] = 1.0;
+  this->AboveRangeColor[2] = 1.0;
+
+  this->UseAboveRangeColor = 0;
+
   this->Function = NULL;
 
   this->Table = NULL;
@@ -397,6 +410,7 @@ int vtkColorTransferFunction::AddHSVPoint( double x, double h,
   return this->AddRGBPoint( x, r, g, b, midpoint, sharpness );
 }
 
+//----------------------------------------------------------------------------
 // Sort the vector in increasing order, then fill in
 // the Range
 void vtkColorTransferFunction::SortAndUpdateRange()
@@ -812,19 +826,58 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         }
       }
 
-    // Are we at the end? If so, just use the last value
-    if ( idx >= numNodes )
+    // Are we at or past the end? If so, just use the last value
+    if ( x > this->Range[1])
       {
-      tptr[0] = (this->Clamping)?(lastR):(0.0);
-      tptr[1] = (this->Clamping)?(lastG):(0.0);
-      tptr[2] = (this->Clamping)?(lastB):(0.0);
+      if (this->Clamping)
+        {
+        if (this->GetUseAboveRangeColor())
+          {
+          this->GetAboveRangeColor(tptr);
+          }
+        else
+          {
+          tptr[0] = lastR;
+          tptr[1] = lastG;
+          tptr[2] = lastB;
+          }
+        }
+      else
+        {
+        tptr[0] = 0.0;
+        tptr[1] = 0.0;
+        tptr[2] = 0.0;
+        }
       }
-    // Are we before the first node? If so, duplicate this nodes values
-    else if ( idx == 0 )
+    // Are we before the first node? If so, duplicate this node's values.
+    // We have to deal with -inf here
+    else if (x < this->Range[0] || (vtkMath::IsInf(x) && x < 0))
       {
-      tptr[0] = (this->Clamping)?(this->Internal->Nodes[0]->R):(0.0);
-      tptr[1] = (this->Clamping)?(this->Internal->Nodes[0]->G):(0.0);
-      tptr[2] = (this->Clamping)?(this->Internal->Nodes[0]->B):(0.0);
+      if (this->Clamping)
+        {
+        if (this->GetUseBelowRangeColor())
+          {
+          this->GetBelowRangeColor(tptr);
+          }
+        else
+          {
+          tptr[0] = this->Internal->Nodes[0]->R;
+          tptr[1] = this->Internal->Nodes[0]->G;
+          tptr[2] = this->Internal->Nodes[0]->B;
+          }
+        }
+      else
+        {
+        tptr[0] = 0.0;
+        tptr[1] = 0.0;
+        tptr[2] = 0.0;
+        }
+      }
+    else if (idx == 0 && std::fabs(x - xStart) < 1e-6)
+      {
+      tptr[0] = this->Internal->Nodes[0]->R;
+      tptr[1] = this->Internal->Nodes[0]->G;
+      tptr[2] = this->Internal->Nodes[0]->B;
       }
     // Otherwise, we are between two nodes - interpolate
     else
@@ -1084,7 +1137,8 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
 }
 
 //----------------------------------------------------------------------------
-const unsigned char *vtkColorTransferFunction::GetTable( double xStart, double xEnd,
+const unsigned char *vtkColorTransferFunction::GetTable( double xStart,
+                                                         double xEnd,
                                                          int size)
 {
   if (this->GetMTime() <= this->BuildTime &&
@@ -1285,12 +1339,12 @@ void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
                                      int length, int inIncr,
                                      int outFormat, long)
 {
-  double          x;
+  double         x;
   int            i = length;
-  double          rgb[3];
-  unsigned char  *optr = output;
-  T              *iptr = input;
-  unsigned char   alpha = static_cast<unsigned char>(self->GetAlpha()*255.0);
+  double         rgb[3];
+  unsigned char *optr = output;
+  T             *iptr = input;
+  unsigned char  alpha = static_cast<unsigned char>(self->GetAlpha()*255.0);
 
   if(self->GetSize() == 0)
     {
@@ -1391,10 +1445,10 @@ static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
 //----------------------------------------------------------------------------
 // Special implementation for unsigned short input.
 static void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
-                                     unsigned short* input,
-                                     unsigned char* output,
-                                     int length, int inIncr,
-                                     int outFormat, int)
+                                            unsigned short* input,
+                                            unsigned char* output,
+                                            int length, int inIncr,
+                                            int outFormat, int)
 {
   int            x;
   int            i = length;
@@ -1477,10 +1531,10 @@ void vtkColorTransferFunctionIndexedMapData(
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
 
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
-        output[3] = 255.; // * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
+        output[3] = static_cast<unsigned char>(255.); // * nodeVal[3];
         input += inIncr;
         output += 4;
         }
@@ -1496,9 +1550,9 @@ void vtkColorTransferFunctionIndexedMapData(
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
 
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
         input += inIncr;
         output += 3;
         }
@@ -1515,7 +1569,7 @@ void vtkColorTransferFunctionIndexedMapData(
           self->GetNodeValue( idx % numNodes, nodeVal );
         output[0] = static_cast<unsigned char>(255. * nodeVal[1]*0.30 + 255. * nodeVal[2]*0.59 +
                                                255. * nodeVal[3]*0.11 + 0.5);
-        output[1] = 255. * nodeVal[3];
+        output[1] = static_cast<unsigned char>(255. * nodeVal[3]);
         input += inIncr;
         output += 2;
         }
@@ -1549,9 +1603,9 @@ void vtkColorTransferFunctionIndexedMapData(
           self->GetNanColor( &nodeVal[1] );
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
         output[3] = static_cast<unsigned char>(255. * /*nodeVal[3]*/alpha + 0.5);
         input += inIncr;
         output += 4;
@@ -1567,9 +1621,9 @@ void vtkColorTransferFunctionIndexedMapData(
           self->GetNanColor( &nodeVal[1] );
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
-        output[0] = 255. * nodeVal[1];
-        output[1] = 255. * nodeVal[2];
-        output[2] = 255. * nodeVal[3];
+        output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
+        output[1] = static_cast<unsigned char>(255. * nodeVal[2]);
+        output[2] = static_cast<unsigned char>(255. * nodeVal[3]);
         input += inIncr;
         output += 3;
         }
@@ -1626,12 +1680,14 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
     {
     switch (inputDataType)
       {
-      vtkTemplateMacro(
+      // Use vtkExtendedTemplateMacro to cover case of VTK_STRING input
+      vtkExtendedTemplateMacro(
         vtkColorTransferFunctionIndexedMapData(
           this, static_cast<VTK_TT*>(input),
           output, numberOfValues, inputIncrement,
           outputFormat, 1)
         );
+
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
         return;
@@ -1823,6 +1879,17 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NanColor: "
      << this->NanColor[0] << ", " << this->NanColor[1] << ", "
      << this->NanColor[2] << endl;
+
+  os << indent << "BelowRangeColor: (" << this->BelowRangeColor[0] << ", "
+     << this->BelowRangeColor[1] << ", " << this->BelowRangeColor[2] << ")\n";
+  os << indent << "UseBelowRangeColor: "
+     << (this->UseBelowRangeColor != 0 ? "ON" : "OFF") << "\n";
+
+  os << indent << "ABoveRangeColor: (" << this->AboveRangeColor[0] << ", "
+     << this->AboveRangeColor[1] << ", " << this->AboveRangeColor[2] << ")\n";
+  os << indent << "UseAboveRangeColor: "
+     << (this->UseAboveRangeColor != 0 ? "ON" : "OFF") << "\n";
+
 
   unsigned int i;
   for( i = 0; i < this->Internal->Nodes.size(); i++ )

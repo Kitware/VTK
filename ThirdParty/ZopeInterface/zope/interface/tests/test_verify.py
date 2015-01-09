@@ -491,6 +491,29 @@ class Test_verifyClass(unittest.TestCase):
 
         self._callFUT(ICurrent, Current)
 
+
+    def test_w_decorated_method(self):
+        from zope.interface import Interface
+        from zope.interface import implementer
+
+        def decorator(func):
+            # this is, in fact, zope.proxy.non_overridable
+            return property(lambda self: func.__get__(self))
+
+        class ICurrent(Interface):
+
+            def method(a):
+                pass
+
+        @implementer(ICurrent)
+        class Current(object):
+
+            @decorator
+            def method(self, a):
+                pass
+
+        self._callFUT(ICurrent, Current)
+
 class Test_verifyObject(Test_verifyClass):
 
     def _callFUT(self, iface, target):

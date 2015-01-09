@@ -15,24 +15,16 @@
 #include "vtkContextActor.h"
 
 #include "vtkContext2D.h"
-#include "vtkOpenGLContextDevice2D.h"
-#include "vtkOpenGL2ContextDevice2D.h"
+#include "vtkContextDevice2D.h"
 
 #include "vtkContext3D.h"
-#include "vtkOpenGLContextDevice3D.h"
 #include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGL2ContextDevice2D.h"
-#include "vtkOpenGLContextDevice2D.h"
-#include "vtkOpenGLExtensionManager.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkTransform2D.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
-
 
 namespace
 {
@@ -118,7 +110,7 @@ namespace
     }
 }
 
-vtkStandardNewMacro(vtkContextActor);
+vtkObjectFactoryNewMacro(vtkContextActor);
 
 //----------------------------------------------------------------------------
 vtkContextActor::vtkContextActor()
@@ -155,19 +147,8 @@ void vtkContextActor::SetScene(vtkContextScene *scene)
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
+void vtkContextActor::ReleaseGraphicsResources(vtkWindow *)
 {
-  vtkOpenGLContextDevice2D *device =
-      vtkOpenGLContextDevice2D::SafeDownCast(this->Context->GetDevice());
-  if (device)
-    {
-    device->ReleaseGraphicsResources(window);
-    }
-
-  if(this->Scene.GetPointer())
-    {
-    this->Scene->ReleaseGraphicsResources();
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -243,34 +224,9 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-void vtkContextActor::Initialize(vtkViewport* viewport)
+void vtkContextActor::Initialize(vtkViewport*)
 {
-  vtkOpenGLContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
-  this->Context3D->Begin(dev);
-  dev->Delete();
-
-  vtkContextDevice2D *device = NULL;
-  if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
-    {
-    vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
-    device = vtkOpenGL2ContextDevice2D::New();
-    }
-  else
-    {
-    vtkDebugMacro("Using OpenGL 1 for 2D rendering.")
-    device = vtkOpenGLContextDevice2D::New();
-    }
-  if (device)
-    {
-    this->Context->Begin(device);
-    device->Delete();
-    this->Initialized = true;
-    }
-  else
-    {
-    // Failed
-    vtkErrorMacro("Error: failed to initialize the render device.")
-    }
+  // Initialization deferred to the derived actor classes.
 }
 
 //----------------------------------------------------------------------------

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkScenePicker - Picks an entire viewport at one shot.
 // .SECTION Description
-// The Scene picker, unline conventional pickers picks an entire viewport at
+// The Scene picker, unlike conventional pickers picks an entire viewport at
 // one shot and caches the result, which can be retrieved later.
 //    The utility of the class arises during <b>Actor Selection</b>. Let's
 // say you have a couple of polygonal objects in your scene and you wish to

@@ -17,14 +17,13 @@
 #if defined( _WIN32 ) && !defined( VTK_USE_X )
 #include "vtkWin32OutputWindow.h"
 #endif
+#if defined (ANDROID)
+#include "vtkAndroidOutputWindow.h"
+#endif
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 
-
-//----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkOutputWindow);
 
 //----------------------------------------------------------------------------
 
@@ -159,7 +158,14 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 #endif
       vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
 #else
+#if defined( ANDROID )
+#ifdef VTK_DEBUG_LEAKS
+      vtkDebugLeaks::DestructClass("vtkOutputWindow");
+#endif
+      vtkOutputWindow::Instance = vtkAndroidOutputWindow::New();
+#else
       vtkOutputWindow::Instance = new vtkOutputWindow;
+#endif
 #endif
       }
     }

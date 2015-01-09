@@ -52,7 +52,7 @@ typedef struct H5SM_compare_udata_t {
 /********************/
 static herr_t H5SM_compare_cb(const void *obj, size_t obj_len, void *udata);
 static herr_t H5SM_compare_iter_op(H5O_t *oh, H5O_mesg_t *mesg, unsigned sequence,
-    hbool_t *oh_modified, void *udata);
+    unsigned *oh_modified, void *udata);
 
 
 /*********************/
@@ -92,7 +92,7 @@ H5SM_compare_cb(const void *obj, size_t obj_len, void *_udata)
 {
     H5SM_compare_udata_t *udata = (H5SM_compare_udata_t *)_udata;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_compare_cb)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* If the encoding sizes are different, it's not the same object */
     if(udata->key->encoding_size > obj_len)
@@ -121,16 +121,20 @@ H5SM_compare_cb(const void *obj, size_t obj_len, void *_udata)
  * Programmer:	James Laird
  *              Wednesday, February 7, 2007
  *
+ * Modifications:
+ *      Vailin Choi; September 2011
+ *      Change "oh_modified" from boolean to unsigned
+ *      (See H5Oprivate.h for possible flags)
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5SM_compare_iter_op(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/, unsigned sequence,
-    hbool_t UNUSED *oh_modified, void *_udata/*in,out*/)
+    unsigned UNUSED *oh_modified, void *_udata/*in,out*/)
 {
     H5SM_compare_udata_t *udata = (H5SM_compare_udata_t *) _udata;
     herr_t ret_value = H5_ITER_CONT;
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_compare_iter_op)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -192,7 +196,7 @@ H5SM_message_compare(const void *rec1, const void *rec2)
     const H5SM_sohm_t *mesg = (const H5SM_sohm_t *) rec2;
     herr_t ret_value = 0;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_message_compare)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* If the key has an fheap ID, we're looking for a message that's
      * already in the index; if the fheap ID matches, we've found the message
@@ -291,7 +295,7 @@ H5SM_message_encode(uint8_t *raw, const void *_nrecord, void *_ctx)
     H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx;       /* Callback context structure */
     const H5SM_sohm_t *message = (const H5SM_sohm_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_message_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(ctx);
@@ -335,7 +339,7 @@ H5SM_message_decode(const uint8_t *raw, void *_nrecord, void *_ctx)
     H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx;       /* Callback context structure */
     H5SM_sohm_t *message = (H5SM_sohm_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_message_decode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     message->location = (H5SM_storage_loc_t)*raw++;
     UINT32DECODE(raw, message->hash);

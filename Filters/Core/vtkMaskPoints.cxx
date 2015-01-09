@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkMaskPoints);
 
@@ -346,6 +346,11 @@ int vtkMaskPoints::RequestData(
   if(numNewPts > localMaxPts || this->RandomMode)
     {
     numNewPts = localMaxPts;
+    }
+
+  if (numNewPts == 0)
+    {
+    return 1;
     }
 
   // Allocate space

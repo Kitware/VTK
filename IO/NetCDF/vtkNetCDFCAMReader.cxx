@@ -74,21 +74,12 @@ vtkNetCDFCAMReader::~vtkNetCDFCAMReader()
   this->SetCurrentFileName(NULL);
   this->SetConnectivityFileName(NULL);
   this->SetCurrentConnectivityFileName(NULL);
-  if(this->PointsFile)
-    {
-    delete this->PointsFile;
-    this->PointsFile = NULL;
-    }
-  if(this->ConnectivityFile)
-    {
-    delete this->ConnectivityFile;
-    this->ConnectivityFile = NULL;
-    }
-  if(this->TimeSteps)
-    {
-    delete []this->TimeSteps;
-    this->TimeSteps = NULL;
-    }
+  delete this->PointsFile;
+  this->PointsFile = NULL;
+  delete this->ConnectivityFile;
+  this->ConnectivityFile = NULL;
+  delete []this->TimeSteps;
+  this->TimeSteps = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -110,16 +101,10 @@ void vtkNetCDFCAMReader::SetFileName(const char* fileName)
     {
     return;
     }
-  if(this->PointsFile)
-    {
-    delete this->PointsFile;
-    this->PointsFile = NULL;
-    }
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
+  delete this->PointsFile;
+  this->PointsFile = NULL;
+  delete [] this->FileName;
+  this->FileName = NULL;
   if (fileName)
     {
     size_t n = strlen(fileName) + 1;
@@ -158,10 +143,7 @@ void vtkNetCDFCAMReader::SetConnectivityFileName(const char* fileName)
     delete this->ConnectivityFile;
     this->ConnectivityFile = NULL;
     }
-  if (this->ConnectivityFileName)
-    {
-    delete [] this->ConnectivityFileName;
-    }
+  delete [] this->ConnectivityFileName;
   if (fileName)
     {
     size_t n = strlen(fileName) + 1;

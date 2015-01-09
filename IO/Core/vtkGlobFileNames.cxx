@@ -25,10 +25,6 @@
 
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkGlobFileNames);
-
-//----------------------------------------------------------------------------
 vtkGlobFileNames* vtkGlobFileNames::New()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -49,14 +45,8 @@ vtkGlobFileNames::vtkGlobFileNames()
 //----------------------------------------------------------------------------
 vtkGlobFileNames::~vtkGlobFileNames()
 {
-  if (this->Directory)
-    {
-    delete [] this->Directory;
-    }
-  if (this->Pattern)
-    {
-    delete [] this->Pattern;
-    }
+  delete [] this->Directory;
+  delete [] this->Pattern;
   this->FileNames->Delete();
   this->FileNames = 0;
 }

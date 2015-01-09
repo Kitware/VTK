@@ -14,5 +14,7 @@ vtk_module(vtkFiltersCore
     vtkIOXML
     vtkImagingCore
     vtkFiltersGeneral
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
+  KIT
+    vtkFilters
   )

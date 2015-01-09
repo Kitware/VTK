@@ -41,6 +41,8 @@ public:
   vtkTypeMacro(vtkContextDevice3D, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  static vtkContextDevice3D * New();
+
   // Description:
   // Draw a polyline between the specified points.
   virtual void DrawPoly(const float *verts, int n,

@@ -267,10 +267,7 @@ int vtkExtractUnstructuredGrid::RequestData(
     }
   output->Squeeze();
 
-  if ( cellVis )
-    {
-    delete [] cellVis;
-    }
+  delete [] cellVis;
   cellIds->Delete();
 
   return 1;

@@ -43,6 +43,7 @@
 #ifndef __vtkMatlabEngineInterface_h
 #define __vtkMatlabEngineInterface_h
 
+#include "vtkFiltersMatlabModule.h"
 #include "vtkObject.h"
 
 class vtkArray;
@@ -50,7 +51,7 @@ class vtkDataArray;
 class vtkMatlabEngineSingleton;
 class vtkMatlabMexAdapter;
 
-class VTK_GRAPHICS_EXPORT vtkMatlabEngineInterface : public vtkObject
+class VTKFILTERSMATLAB_EXPORT vtkMatlabEngineInterface : public vtkObject
 {
 
 public:
@@ -120,4 +121,3 @@ private:
 };
 
 #endif
-

@@ -79,6 +79,7 @@ H5_DLL haddr_t H5MF_alloc_tmp(H5F_t *f, hsize_t size);
 
 /* 'block aggregator' routines */
 H5_DLL herr_t H5MF_free_aggrs(H5F_t *f, hid_t dxpl_id);
+H5_DLL htri_t H5MF_aggrs_try_shrink_eoa(H5F_t *f, hid_t dxpl_id);
 
 /* Debugging routines */
 #ifdef H5MF_DEBUGGING

@@ -50,6 +50,11 @@ public:
   vtkPen* GetPen();
 
   // Description:
+  // Set/get the vtkPen object that controls how this plot draws (out)lines.
+  void SetSelectionPen(vtkPen *pen);
+  vtkPen* GetSelectionPen();
+
+  // Description:
   // Set the input to the plot.
   virtual void SetInputData(vtkTable *input);
   virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
@@ -110,6 +115,10 @@ protected:
   // Description:
   // This object stores the vtkPen that controls how the plot is drawn.
   vtkSmartPointer<vtkPen> Pen;
+
+  // Description:
+  // This object stores the vtkPen that controls how the plot is drawn.
+  vtkSmartPointer<vtkPen> SelectionPen;
 
   // Description:
   // This array assigns a color to each datum in the plot.

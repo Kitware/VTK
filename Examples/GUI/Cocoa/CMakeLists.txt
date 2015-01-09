@@ -13,9 +13,9 @@ if(NOT VTK_BINARY_DIR)
   find_package(VTK)
   if(NOT VTK_DIR)
     message(FATAL_ERROR "Please set VTK_DIR.")
-  endif(NOT VTK_DIR)
+  endif()
   include(${VTK_USE_FILE})
-endif(NOT VTK_BINARY_DIR)
+endif()
 
 # This is needed in case we are building this project separate from the VTK build
 if (NOT EXECUTABLE_OUTPUT_PATH)
@@ -55,7 +55,7 @@ set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
 add_executable(SimpleCocoaVTK MACOSX_BUNDLE ${SimpleCocoaVTK_SRCS} ${SimpleCocoaVTK_HDRS})
 
 # Probably a better way to set the framework link libraries.
-target_link_libraries(SimpleCocoaVTK "-framework Cocoa -framework OpenGL -framework IOKit"
+target_link_libraries(SimpleCocoaVTK "-framework Cocoa -framework OpenGL"
                       vtkRenderingOpenGL vtkRenderingFreeTypeOpenGL vtkInteractionStyle )
 
 # Set a custom plist file for the app bundle

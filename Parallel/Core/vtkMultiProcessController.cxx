@@ -34,10 +34,6 @@
 #include <vector>
 #include <vtksys/hash_map.hxx>
 
-//----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkMultiProcessController);
-
 //-----------------------------------------------------------------------------
 // Stores internal members that cannot or should not be exposed in the header
 // file (for example, because they use templated types).

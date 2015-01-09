@@ -89,14 +89,8 @@ vtkGL2PSExporter::vtkGL2PSExporter()
 vtkGL2PSExporter::~vtkGL2PSExporter()
 {
   this->SetRasterExclusions(NULL);
-  if ( this->FilePrefix )
-    {
-    delete [] this->FilePrefix;
-    }
-  if ( this->Title )
-    {
-    delete [] this->Title;
-    }
+  delete [] this->FilePrefix;
+  delete [] this->Title;
 }
 
 void vtkGL2PSExporter::WriteData()
@@ -599,10 +593,10 @@ void vtkGL2PSExporter::GetVisibleContextActors(vtkPropCollection *result,
   for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     vtkCollection *pCol = ren->GetViewProps();
-    vtkContextActor *act;
-    for (pCol->InitTraversal();
-         (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
+    vtkObject *object;
+    for (pCol->InitTraversal(); (object = pCol->GetNextItemAsObject());)
       {
+      vtkContextActor *act = vtkContextActor::SafeDownCast(object);
       if (!act || !act->GetVisibility())
         {
         continue;
@@ -722,14 +716,10 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
   // Get path
   const char *string = textAct->GetInput();
   vtkNew<vtkPath> path;
-  vtkNew<vtkTextProperty> tprop;
-  tprop->ShallowCopy(textAct->GetTextProperty());
-  tprop->SetJustificationToLeft(); // Ignored by textactor3d
-  tprop->SetVerticalJustificationToBottom(); // Ignored by textactor3d
   vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
   if (tren)
     {
-    tren->StringToPath(tprop.GetPointer(), vtkStdString(string),
+    tren->StringToPath(textAct->GetTextProperty(), vtkStdString(string),
                        path.GetPointer());
     }
   else
@@ -745,12 +735,12 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
   double rasterPos[3] = {(actorBounds[1] + actorBounds[0]) * 0.5,
                          (actorBounds[3] + actorBounds[2]) * 0.5,
                          (actorBounds[5] + actorBounds[4]) * 0.5};
-  double *dcolor = tprop->GetColor();
+  double *dcolor = textAct->GetTextProperty()->GetColor();
   unsigned char actorColor[4] = {
     static_cast<unsigned char>(dcolor[0]*255),
     static_cast<unsigned char>(dcolor[1]*255),
     static_cast<unsigned char>(dcolor[2]*255),
-    static_cast<unsigned char>(tprop->GetOpacity()*255)};
+    static_cast<unsigned char>(textAct->GetTextProperty()->GetOpacity()*255)};
 
   vtkGL2PSUtilities::Draw3DPath(path.GetPointer(), actorMatrix, rasterPos,
                                 actorColor);

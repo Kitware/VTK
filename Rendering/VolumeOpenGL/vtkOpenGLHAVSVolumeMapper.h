@@ -108,7 +108,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingVolumeOpenGLModule.h" // For export macro
 #include "vtkHAVSVolumeMapper.h"
 
-#include <vtkWeakPointer.h> // to cache the vtkRenderWindow
+#include "vtkWeakPointer.h" // to cache the vtkRenderWindow
 class vtkRenderer;
 class vtkRenderWindow;
 

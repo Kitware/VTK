@@ -12,5 +12,7 @@ vtk_module(vtkIOMPIImage
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
+  KIT
+    vtkParallel
   )

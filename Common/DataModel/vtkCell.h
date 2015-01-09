@@ -211,8 +211,11 @@ public:
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
-  // and global intersection coordinates, given ray definition and tolerance.
-  // The method returns non-zero value if intersection occurs.
+  // and global intersection coordinates, given ray definition p1[3], p2[3] and tolerance tol.
+  // The method returns non-zero value if intersection occurs. A parametric distance t
+  // between 0 and 1 along the ray representing the intersection point, the point coordinates
+  // x[3] in data coordinates and also pcoords[3] in parametric coordinates. subId is the index
+  // within the cell if a composed cell like a triangle strip.
   virtual int IntersectWithLine(double p1[3], double p2[3],
                                 double tol, double& t, double x[3],
                                 double pcoords[3], int& subId) = 0;

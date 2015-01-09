@@ -23,7 +23,7 @@ vtkTexture texture
 # For each parametric surface:
 # 1) Create it
 # 2) Assign mappers and actors
-# 3) Position ths object
+# 3) Position the object
 # 5) Add a label
 # ------------------------------------------------------------
 
@@ -55,7 +55,7 @@ vtkActor2D torusTextActor
     [torusTextActor GetPositionCoordinate] SetValue 0 9.5 0
 
 # ------------------------------------------------------------
-# Create a klein bottle
+# Create a Klein bottle
 # ------------------------------------------------------------
 vtkParametricKlein klein
 vtkParametricFunctionSource kleinSource
@@ -111,7 +111,7 @@ vtkActor2D fig8KleinTextActor
     [fig8KleinTextActor GetPositionCoordinate] SetValue 16 9.5 0
 
 # ------------------------------------------------------------
-# Create a mobius strip
+# Create a Mobius strip
 # ------------------------------------------------------------
 vtkParametricMobius mobius
 vtkParametricFunctionSource mobiusSource
@@ -443,16 +443,10 @@ vtkActor2D ellipsoidTextActor
     [ellipsoidTextActor GetPositionCoordinate] SetValue 8 -14.5 0
 
 # ------------------------------------------------------------
-# Create an surface with random hills on it.
-# Note that for testing, we will disable the
-# random generation of the surfaces. This is
-# because random number generators do not
-# return the same result on different operating
-# systems.
+# Create a surface with random hills on it.
 # ------------------------------------------------------------
 vtkParametricRandomHills randomHills
-  randomHills AllowRandomGenerationOff
-  randomHills GenerateTheHills
+  randomHills AllowRandomGenerationOn
 vtkParametricFunctionSource randomHillsSource
   randomHillsSource SetParametricFunction randomHills
   randomHillsSource GenerateTextureCoordinatesOn
@@ -478,7 +472,7 @@ vtkActor2D randomHillsTextActor
     [randomHillsTextActor GetPositionCoordinate] SetValue 16 -14.5 0
 
 # ------------------------------------------------------------
-# Create an Steiner's Roman Surface.
+# Create Steiner's Roman Surface.
 # ------------------------------------------------------------
 vtkParametricRoman roman
   roman SetRadius 1.5

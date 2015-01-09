@@ -2324,11 +2324,8 @@ int vtkPKdTree::AllocateSelectBuffer()
 }
 void vtkPKdTree::FreeSelectBuffer()
 {
-  if (this->SelectBuffer)
-    {
-    delete [] this->SelectBuffer;
-    this->SelectBuffer = NULL;
-    }
+  delete [] this->SelectBuffer;
+  this->SelectBuffer = NULL;
 }
 
 #define FreeListOfLists(list, len) \
@@ -2926,6 +2923,7 @@ int *vtkPKdTree::CollectLocalRegionProcessData()
       if ( (regionId < 0) || (regionId >= numRegions))
         {
         VTKERROR("CollectLocalRegionProcessData - corrupt data");
+        delete [] cellCounts;
         return NULL;
         }
       cellCounts[regionId]++;

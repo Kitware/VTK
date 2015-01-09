@@ -54,20 +54,20 @@
 #include <map>
 #include <cassert>
 
-#include <vtkCellType.h>
-#include <vtkDataObject.h>
-#include <vtkDoubleArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkUnsignedCharArray.h>
-#include <vtkFloatArray.h>
-#include <vtkPoints.h>
-#include <vtkInformation.h>
-#include <vtkInformationDoubleVectorKey.h>
-#include <vtkInformationVector.h>
-#include <vtkMultiBlockDataSet.h>
-#include <vtkObjectFactory.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkUnstructuredGrid.h>
+#include "vtkCellType.h"
+#include "vtkDataObject.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkFloatArray.h"
+#include "vtkPoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
 
 vtkStandardNewMacro(vtkLSDynaReader);
@@ -1511,7 +1511,6 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     vtkErrorMacro("Unknown Dimensionality " << p->Dimensionality << " encountered" );
     p->FileIsValid = 0;
     return 0;
-    break;
     }
 
   // FIXME Are these marks valid since we are marking the word past the end of the chunk?
@@ -2423,9 +2422,11 @@ int vtkLSDynaReader::ReadNodes()
   LSDynaMetaData* p = this->P;
 
   // Skip reading coordinates if we are deflecting the mesh... they would be replaced anyway.
-  // Note that we still have to read the rigid road coordinates.
+  // The only exception is if the deflected coordinates are not included in the LS-Dyna output
+  // (i.e., when IU is 0).
+  // Note that in any event we still have to read the rigid road coordinates.
   // If the mesh is deformed each state will have the points so see ReadState
-  if ( ! this->DeformedMesh )
+  if ( ! this->DeformedMesh || ! p->Dict["IU"] )
     {
     p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), 0 );
     this->Parts->ReadPointProperty(p->NumberOfNodes,p->Dimensionality,NULL,false,true,false);

@@ -187,11 +187,9 @@ vtkLineRepresentation::~vtkLineRepresentation()
 
   this->BoundingBox->Delete();
 
-  if (this->DistanceAnnotationFormat)
-    {
-    delete [] this->DistanceAnnotationFormat;
-    this->DistanceAnnotationFormat = NULL;
-    }
+  delete [] this->DistanceAnnotationFormat;
+  this->DistanceAnnotationFormat = NULL;
+
   this->TextInput->Delete();
   this->TextMapper->Delete();
   this->TextActor->Delete();

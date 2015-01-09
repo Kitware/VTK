@@ -27,6 +27,9 @@
 #include "XdmfArray.h"
 #include "XdmfHDF.h"
 
+namespace xdmf2
+{
+
 XdmfValuesXML::XdmfValuesXML() {
     this->SetFormat(XDMF_FORMAT_XML);
 }
@@ -130,4 +133,6 @@ XdmfValuesXML::Write(XdmfArray *anArray, XdmfConstString /*HeavyDataSetName*/){
     XdmfString toReturn = StringOutput.str();
     StringOutput.rdbuf()->freeze(0);
     return(this->Set("CDATA", toReturn));
+}
+
 }

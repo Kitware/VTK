@@ -1,0 +1,30 @@
+SET(ENV{PATH} "${PATH}${SEPARATOR}$ENV{PATH}")
+SET(ENV{LD_LIBRARY_PATH} "${LDPATH}${SEPARATOR}$ENV{LD_LIBRARY_PATH}")
+SET(ENV{MPIEXEC} "@MPIEXEC@")
+
+MESSAGE("| Calling:\t${EXECUTABLE} ${ARGUMENTS}")
+EXECUTE_PROCESS(
+       COMMAND ${EXECUTABLE} ${ARGUMENTS} 
+			RESULT_VARIABLE c_result
+            OUTPUT_VARIABLE c_output
+            ERROR_VARIABLE  c_error
+)
+
+MESSAGE("| Call Result:\t${c_result}")
+MESSAGE("| Call Output: Begin\n${c_output}")
+MESSAGE("| Call Output: End")
+IF(c_error)
+	MESSAGE("| Call Error: Begin\n${c_error}")
+	MESSAGE("| Call Error: End")
+ENDIF()
+MESSAGE("| Call Ended")
+MESSAGE("----------------------------------------------------------")
+
+# Let's make sure that if the test failed, it failed with CTest too
+IF(c_error)
+	MESSAGE(SEND_ERROR "Test Failed.")
+ENDIF()
+
+IF(NOT ${c_result} EQUAL "0")
+	MESSAGE(SEND_ERROR "Test Failed.")
+ENDIF()

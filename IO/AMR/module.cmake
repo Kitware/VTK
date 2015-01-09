@@ -11,4 +11,6 @@ vtk_module(vtkIOAMR
     vtkIOXML
     vtkTestingCore
     vtkTestingRendering
+  KIT
+    vtkParallel
   )

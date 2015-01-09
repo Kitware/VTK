@@ -8,8 +8,8 @@ add_definitions("-DMPICH_IGNORE_CXX_SEEK")
 
 # Function to link a VTK target to the necessary MPI libraries.
 function(vtk_mpi_link target)
-  target_link_libraries(${target} LINK_PRIVATE ${MPI_C_LIBRARIES})
+  vtk_module_link_libraries(${target} LINK_PRIVATE ${MPI_C_LIBRARIES})
   if(MPI_CXX_LIBRARIES)
-    target_link_libraries(${target} LINK_PRIVATE ${MPI_CXX_LIBRARIES})
+    vtk_module_link_libraries(${target} LINK_PRIVATE ${MPI_CXX_LIBRARIES})
   endif()
 endfunction()

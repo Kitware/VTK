@@ -27,6 +27,8 @@
 
 #include "XdmfElement.h"
 
+namespace xdmf2
+{
 
 /*! XdmfRoot represents the Root Element in
 Xdmf. In XML it is the Element :
@@ -75,4 +77,5 @@ protected:
     XdmfInt32   XInclude;
 };
 
+}
 #endif // __XdmfRoot_h

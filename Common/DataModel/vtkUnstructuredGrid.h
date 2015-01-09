@@ -97,6 +97,7 @@ public:
   // point Ids. For polyhedron cell, a special input format is required.
   // npts is the number of faces in the cell. ptIds is the list of face stream:
   // (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
+  // Make sure you have called Allocate() before calling this method
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds);
 
   // Description:
@@ -106,6 +107,7 @@ public:
   // is the list of global Ids of unique cell points. For polyhedron cell,
   // a special ptIds input format is required:
   // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
+  // Make sure you have called Allocate() before calling this method
   vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
 
   // Desciption:
@@ -114,6 +116,7 @@ public:
   // number of faces in the cell. faces is the face-stream
   // [numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...].
   // All point Ids are global.
+  // Make sure you have called Allocate() before calling this method
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
                            vtkIdType nfaces, vtkIdType *faces);
 
@@ -148,8 +151,8 @@ public:
   void GetFaceStream(vtkIdType cellId, vtkIdList *ptIds);
 
   // Description:
-  // Get the number of face and the face stream of a polyhedron cell. Result
-  // ptIds is in the following format:
+  // Get the number of faces and the face stream of a polyhedral cell.
+  // The output \a ptIds has the following format:
   // (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...).
   // If the requested cell is not a polyhedron, then the standard GetCellPoints
   // is called to return the number of points and a list of unique point ids

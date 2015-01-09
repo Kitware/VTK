@@ -18,10 +18,14 @@
 // .SECTION Description
 // The interactor interfaces with vtkCocoaRenderWindow and vtkCocoaGLView
 // to trap messages from the Cocoa window manager and send them to vtk.
+// Since OS X applications typically use the Command key where UNIX and
+// Windows applications would use the Ctrl key, this interactor maps the
+// Command key to Ctrl.  In versions of VTK prior to VTK 6.2, it was
+// mapped to Alt.  On OS X, the Option key can be used as Alt.
 
-// IMPORTANT: This header must be in C++ only because it is included by .cxx files.
-// That means no Objective C may be used. That's why some instance variables are
-// void* instead of what they really should be.
+// IMPORTANT: This header must be in C++ only because it is included by .cxx
+// files.  That means no Objective C may be used. That's why some instance
+// variables are void* instead of what they really should be.
 
 #ifndef __vtkCocoaRenderWindowInteractor_h
 #define __vtkCocoaRenderWindowInteractor_h
@@ -59,21 +63,6 @@ public:
   virtual void Disable();
 
   // Description:
-  // This will start up the event loop and never return. If you
-  // call this method it will loop processing events until the
-  // application is exited.
-  virtual void Start();
-
-  // Description:
-  // By default the interactor installs a MessageProc callback which
-  // intercepts windows messages to the window and controls interactions.
-  // MFC or BCB programs can prevent this and instead directly route any mouse/key
-  // messages into the event bindings by setting InstallMessgeProc to false.
-  vtkSetMacro(InstallMessageProc,int);
-  vtkGetMacro(InstallMessageProc,int);
-  vtkBooleanMacro(InstallMessageProc,int);
-
-  // Description:
   // Cocoa specific application terminate, calls ClassExitMethod then
   // calls PostQuitMessage(0) to terminate app. An application can Specify
   // ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
@@ -99,15 +88,12 @@ protected:
   vtkCocoaRenderWindowInteractor();
   ~vtkCocoaRenderWindowInteractor();
 
-  int     InstallMessageProc;
-
   // Description:
   // Accessors for the Cocoa member variables. These should be used at all time, even
   // by this class.
   void SetTimerDictionary(void *dictionary);    // Really an NSMutableDictionary*
   void *GetTimerDictionary();
 
-  //BTX
   // Description:
   // Class variables so an exit method can be defined for this class
   // (used to set different exit methods for various language bindings,
@@ -115,13 +101,18 @@ protected:
   static void (*ClassExitMethod)(void *);
   static void (*ClassExitMethodArgDelete)(void *);
   static void *ClassExitMethodArg;
-  //ETX
 
   // Description:
   // Cocoa-specific internal timer methods. See the superclass for detailed
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
+
+  // Description:
+  // This will start up the event loop and never return. If you
+  // call this method it will loop processing events until the
+  // application is exited.
+  virtual void StartEventLoop();
 
   // Description:
   // Accessors for the cocoa manager (Really an NSMutableDictionary*).

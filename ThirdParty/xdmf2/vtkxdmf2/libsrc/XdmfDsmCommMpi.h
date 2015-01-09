@@ -38,6 +38,8 @@ typedef int MPI_Comm;
 /*!
 */
 
+namespace xdmf2
+{
 
 class XDMF_EXPORT XdmfDsmCommMpi : public XdmfDsmComm {
 
@@ -66,4 +68,5 @@ protected:
     MPI_Comm    Comm;
 };
 
+}
 #endif // __XdmfDsmCommMpi_h

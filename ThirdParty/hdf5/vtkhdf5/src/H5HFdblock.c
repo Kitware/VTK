@@ -38,7 +38,7 @@
 #include "H5Fprivate.h"		/* File access				*/
 #include "H5HFpkg.h"		/* Fractal heaps			*/
 #include "H5MFprivate.h"	/* File memory management		*/
-#include "H5Vprivate.h"		/* Vectors and arrays 			*/
+#include "H5VMprivate.h"		/* Vectors and arrays 			*/
 
 /****************/
 /* Local Macros */
@@ -102,7 +102,7 @@ H5HF_man_dblock_create(hid_t dxpl_id, H5HF_hdr_t *hdr, H5HF_indirect_t *par_iblo
     size_t free_space;                  /* Free space in new block */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_dblock_create)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -183,7 +183,7 @@ HDmemset(dblock->blk, 0, dblock->size);
     } /* end else */
 
     /* Cache the new fractal heap direct block */
-    if(H5AC_set(hdr->f, dxpl_id, H5AC_FHEAP_DBLOCK, dblock_addr, dblock, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_insert_entry(hdr->f, dxpl_id, H5AC_FHEAP_DBLOCK, dblock_addr, dblock, H5AC__NO_FLAGS_SET) < 0)
 	HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't add fractal heap direct block to cache")
 
     /* Increase the allocated heap size */
@@ -229,7 +229,7 @@ H5HF_man_dblock_destroy(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_direct_t *dblock,
     unsigned cache_flags = H5AC__NO_FLAGS_SET;      /* Flags for unprotecting indirect block */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_dblock_destroy)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -343,7 +343,7 @@ H5HF_man_dblock_new(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t request,
     size_t min_dblock_size;         /* Min. size of direct block to allocate */
     herr_t ret_value = SUCCEED;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_dblock_new)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -355,7 +355,7 @@ H5HF_man_dblock_new(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t request,
     if(request < hdr->man_dtable.cparam.start_block_size)
         min_dblock_size = hdr->man_dtable.cparam.start_block_size;
     else {
-        min_dblock_size = ((size_t)1) << (1 + H5V_log2_gen((uint64_t)request));
+        min_dblock_size = ((size_t)1) << (1 + H5VM_log2_gen((uint64_t)request));
         HDassert(min_dblock_size <= hdr->man_dtable.cparam.max_direct_size);
     } /* end else */
 
@@ -442,7 +442,7 @@ H5HF_man_dblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t dblock_addr,
     H5HF_dblock_cache_ud_t udata;	/* parent and other infor for deserializing direct block */
     H5HF_direct_t *ret_value;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_dblock_protect)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -467,6 +467,7 @@ H5HF_man_dblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t dblock_addr,
      */
     if(hdr->filter_len > 0) {
         if(par_iblock == NULL) {
+	    udata.odi_size = hdr->pline_root_direct_size;
 	    udata.filter_mask = hdr->pline_root_direct_filter_mask;
 	} /* end if */
         else {
@@ -474,11 +475,14 @@ H5HF_man_dblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t dblock_addr,
 	    HDassert(H5F_addr_eq(par_iblock->ents[par_entry].addr, dblock_addr));
 
 	    /* Set up parameters to read filtered direct block */
+	    udata.odi_size = par_iblock->filt_ents[par_entry].size;
             udata.filter_mask = par_iblock->filt_ents[par_entry].filter_mask;
 	} /* end else */
     } /* end if */
-    else
+    else {
+	udata.odi_size = dblock_size;
         udata.filter_mask = 0;
+    } /* end else */
 
     /* Protect the direct block */
     if(NULL == (dblock = (H5HF_direct_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_FHEAP_DBLOCK, dblock_addr, &udata, rw)))
@@ -517,7 +521,7 @@ H5HF_man_dblock_locate(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t obj_off,
     unsigned entry;                 /* Entry of block */
     herr_t ret_value = SUCCEED;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_dblock_locate)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -546,7 +550,7 @@ H5HF_man_dblock_locate(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t obj_off,
         unsigned cache_flags = H5AC__NO_FLAGS_SET;      /* Flags for unprotecting parent indirect block */
 
         /* Compute # of rows in child indirect block */
-        nrows = (H5V_log2_gen(hdr->man_dtable.row_block_size[row]) - hdr->man_dtable.first_row_bits) + 1;
+        nrows = (H5VM_log2_gen(hdr->man_dtable.row_block_size[row]) - hdr->man_dtable.first_row_bits) + 1;
         HDassert(nrows < iblock->nrows);        /* child must be smaller than parent */
 
         /* Compute indirect block's entry */
@@ -618,7 +622,7 @@ H5HF_man_dblock_delete(H5F_t *f, hid_t dxpl_id, haddr_t dblock_addr,
     unsigned dblock_status = 0;         /* Direct block's status in the metadata cache */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_dblock_delete)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
@@ -685,7 +689,7 @@ H5HF_man_dblock_dest(H5HF_direct_t *dblock)
 {
     herr_t          ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5HF_man_dblock_dest)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.

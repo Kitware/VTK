@@ -25,7 +25,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
-#include <vtkSmartPointer.h> //for storing smart pointers to blocks
+#include "vtkSmartPointer.h" //for storing smart pointers to blocks
 #include <vector> //for storing blocks
 
 class vtkUniformGrid;

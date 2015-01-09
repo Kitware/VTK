@@ -42,6 +42,7 @@ vtkImageMapper3D::vtkImageMapper3D()
 
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
+  this->Streaming = 0;
 
   this->Border = 0;
   this->Background = 0;
@@ -156,6 +157,7 @@ void vtkImageMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
   os << indent << "Background: " << (this->Background ? "On\n" : "Off\n");
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
+  os << indent << "Streaming: " << (this->Streaming ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------

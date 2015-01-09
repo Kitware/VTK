@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkDataArray.h"
+#include "vtkDataArrayPrivate.txx"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
 #include "vtkDataArrayIteratorMacro.h"
@@ -105,7 +106,7 @@ void vtkDataArrayInterpolateTuple(Iterator from1, Iterator from2, Scalar* to,
   const double oneMinusT = 1.0 - t;
   while (numComp-- > 0)
     {
-    *(to++) = oneMinusT * (*(from1++)) + t * (*(from2++));
+    *(to++) = static_cast<Scalar>(oneMinusT * (*(from1++)) + t * (*(from2++)));
     }
 }
 
@@ -178,68 +179,34 @@ void vtkCopyTuples1(IT* input, vtkDataArray* output,
     }
 }
 
-//----------------------------------------------------------------------------
-template <class ValueType, class InputIterator>
-void vtkDataArrayComputeScalarRange(InputIterator begin, InputIterator end,
-                                    int numberOfComponents, int component,
-                                    double range[2])
+template<typename InfoType, typename KeyType>
+bool hasValidKey(InfoType info, KeyType key,
+                   unsigned long mtime, double range[2] )
 {
-  ValueType minmaxRange[2];
-  minmaxRange[0] = *begin;
-  minmaxRange[1] = *begin;
-
-  //Special case for single value scalar range. This is done to help the
-  //compiler detect it can perform loop optimizations.
-  if(numberOfComponents == 1 && component == 0)
+  if ( info->Has( key ) )
     {
-    for(; begin != end; ++begin)
+    if ( mtime <= info->GetMTime() )
       {
-      minmaxRange[0] = std::min(*begin,minmaxRange[0]);
-      minmaxRange[1] = std::max(*begin,minmaxRange[1]);
+      info->Get( key, range );
+      return true;
       }
     }
-  else
-    {
-    //Since we are dealing with arbitrary iterators instead of pointers
-    //we can't compute the exact end iterator value since the iterators them
-    //selves could check if they go out of bounds. So we have to use the less
-    //then operator to evaluate that our iterator is still valid.
-    for(; begin < end; begin+=numberOfComponents)
-      {
-      minmaxRange[0] = std::min(begin[component],minmaxRange[0]);
-      minmaxRange[1] = std::max(begin[component],minmaxRange[1]);
-      }
-    }
-
-  range[0] = std::min(static_cast<double>(minmaxRange[0]),range[0]);
-  range[1] = std::max(static_cast<double>(minmaxRange[1]),range[1]);
+  return false;
 }
 
-//----------------------------------------------------------------------------
-template <class ValueType, class InputIterator>
-void vtkDataArrayComputeVectorRange(InputIterator begin, InputIterator end,
-                                    int numberOfComponents, double range[2])
+template<typename InfoType, typename KeyType, typename ComponentKeyType>
+bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey,
+                   unsigned long mtime, double range[2], int comp )
 {
-  range[0] = vtkTypeTraits<double>::Max();
-  range[1] = vtkTypeTraits<double>::Min();
-
-  //iterate over all the tuples
-  for(; begin != end; begin+=numberOfComponents)
+  if ( info->Has( key ) )
     {
-    double squaredSum = 0;
-    for(int i=0; i < numberOfComponents; ++i)
+    if ( mtime <= info->GetMTime() )
       {
-      squaredSum += static_cast<double>(begin[i]) *
-                    static_cast<double>(begin[i]);
+      info->Get( key )->GetInformationObject(comp)->Get( ckey, range );
+      return true;
       }
-    range[0] = std::min(squaredSum,range[0]);
-    range[1] = std::max(squaredSum,range[1]);
     }
-
-  //now that we have computed the smallest and largest value, take the
-  //square root of that value.
-  range[0] = sqrt(range[0]);
-  range[1] = sqrt(range[1]);
+  return false;
 }
 
 } // end anon namespace
@@ -445,10 +412,11 @@ void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     // in case WriteVoidPointer reallocates memory and fromData ==
     // this. The vtkBitArray implementation doesn't use pointers, so skip
     // the resizing in this case.
-    void* vto = fromData->GetDataType() != VTK_BIT ?
+    int dataType = fromData->GetDataType();
+    void* vto = dataType != VTK_BIT ?
           this->WriteVoidPointer(idx, numComp) : 0;
 
-    switch (fromData->GetDataType())
+    switch (dataType)
       {
     case VTK_BIT:
         {
@@ -629,6 +597,11 @@ double* vtkDataArray::GetTuple4(vtkIdType i)
   return this->GetTupleN(i, 4);
 }
 //----------------------------------------------------------------------------
+double* vtkDataArray::GetTuple6(vtkIdType i)
+{
+  return this->GetTupleN(i, 6);
+}
+//----------------------------------------------------------------------------
 double* vtkDataArray::GetTuple9(vtkIdType i)
 {
   return this->GetTupleN(i, 9);
@@ -690,6 +663,26 @@ void vtkDataArray::SetTuple4(vtkIdType i, double val0, double val1,
   tuple[1] = val1;
   tuple[2] = val2;
   tuple[3] = val3;
+  this->SetTuple(i, tuple);
+}
+//----------------------------------------------------------------------------
+void vtkDataArray::SetTuple6(vtkIdType i, double val0, double val1,
+                             double val2, double val3,
+                             double val4, double val5)
+{
+  double tuple[6];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 6)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+                  << numComp << " != 6");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  tuple[4] = val4;
+  tuple[5] = val5;
   this->SetTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
@@ -1076,113 +1069,104 @@ int vtkDataArray::CopyInformation(vtkInformation* infoFrom, int deep)
 //----------------------------------------------------------------------------
 void vtkDataArray::ComputeRange(double range[2], int comp)
 {
+  //this method needs a large refactoring to be way easier to read
+
   if ( comp >= this->NumberOfComponents )
     { // Ignore requests for nonexistent components.
     return;
     }
-
   // If we got component -1 on a vector array, compute vector magnitude.
   if (comp < 0 && this->NumberOfComponents == 1)
     {
     comp = 0;
     }
 
+  range[0] = vtkTypeTraits<double>::Max();
+  range[1] = vtkTypeTraits<double>::Min();
+
   vtkInformation* info = this->GetInformation();
   vtkInformationDoubleVectorKey* rkey;
   if ( comp < 0 )
     {
     rkey = L2_NORM_RANGE();
+    //hasValidKey will update range to the cached value if it exists.
+    if( !hasValidKey(info,rkey,this->GetMTime(),range) )
+      {
+
+      this->ComputeVectorRange(range);
+      info->Set( rkey, range, 2 );
+      }
+    return;
     }
   else
     {
-    vtkInformationVector* infoVec;
-    if ( ! info->Has( PER_COMPONENT() ) )
-      {
-      infoVec = vtkInformationVector::New();
-      info->Set( PER_COMPONENT(), infoVec );
-      infoVec->FastDelete();
-      }
-    else
-      {
-      infoVec = info->Get( PER_COMPONENT() );
-      }
-    int vlen = infoVec->GetNumberOfInformationObjects();
-    if ( vlen < this->NumberOfComponents )
-      {
-      infoVec->SetNumberOfInformationObjects( this->NumberOfComponents );
-      double rtmp[2];
-      rtmp[0] = vtkTypeTraits<double>::Max();
-      rtmp[1] = vtkTypeTraits<double>::Min();
-      // Since the MTime() of these new keys will be newer than this->MTime(), we must
-      // be sure that their ranges are marked "invalid" so that we know they must be
-      // computed.
-      for ( int i = vlen; i < this->NumberOfComponents; ++i )
-        {
-        infoVec->GetInformationObject( i )->Set( COMPONENT_RANGE(), rtmp, 2 );
-        }
-      }
-    info = infoVec->GetInformationObject( comp );
     rkey = COMPONENT_RANGE();
-    }
 
-  if ( info->Has( rkey ) )
-    {
-    if ( this->GetMTime() <= info->GetMTime() )
+    //hasValidKey will update range to the cached value if it exists.
+    if( !hasValidKey(info, PER_COMPONENT(), rkey,
+                       this->GetMTime(), range, comp))
       {
-      info->Get( rkey, range );
-      if ( range[0] != vtkTypeTraits<double>::Max() &&
-           range[1] != vtkTypeTraits<double>::Min() )
+      double* allCompRanges = new double[this->NumberOfComponents*2];
+      const bool computed = this->ComputeScalarRange(allCompRanges);
+      if(computed)
         {
-        // Only accept these values if they are reasonable. Otherwise, it is an
-        // indication that they've never been computed before.
-        return;
+        //construct the keys and add them to the info object
+        vtkInformationVector* infoVec = vtkInformationVector::New();
+        info->Set( PER_COMPONENT(), infoVec );
+
+        infoVec->SetNumberOfInformationObjects( this->NumberOfComponents );
+        for ( int i = 0; i < this->NumberOfComponents; ++i )
+          {
+          infoVec->GetInformationObject( i )->Set( rkey,
+                                                   allCompRanges+(i*2),
+                                                   2 );
+          }
+        infoVec->FastDelete();
+
+        //update the range passed in since we have a valid range.
+        range[0] = allCompRanges[comp*2];
+        range[1] = allCompRanges[(comp*2)+1];
         }
+      delete[] allCompRanges;
       }
     }
-
-  range[0] = vtkTypeTraits<double>::Max();
-  range[1] = vtkTypeTraits<double>::Min();
-  if ( comp < 0 )
-    {
-    this->ComputeVectorRange(range);
-    }
-  else
-    {
-    this->ComputeScalarRange(range, comp);
-    }
-
-  info->Set( rkey, range, 2 );
 }
 
 //----------------------------------------------------------------------------
-void vtkDataArray::ComputeScalarRange(double range[2], int comp)
+bool vtkDataArray::ComputeScalarRange(double* ranges)
 {
+  bool computed = false;
   switch (this->GetDataType())
       {
       vtkDataArrayIteratorMacro(this,
-          vtkDataArrayComputeScalarRange<vtkDAValueType>(
+        computed = vtkDataArrayPrivate::DoComputeScalarRange<vtkDAValueType>(
                                          vtkDABegin, vtkDAEnd,
-                                         this->GetNumberOfComponents(), comp,
-                                         range)
+                                         this->GetNumberOfComponents(),
+                                         ranges)
       );
       default:
         break;
       }
+  return computed;
 }
 
 //-----------------------------------------------------------------------------
-void vtkDataArray::ComputeVectorRange(double range[2])
+bool vtkDataArray::ComputeVectorRange(double range[2])
 {
+  bool computed = false;
   switch (this->GetDataType())
     {
     vtkDataArrayIteratorMacro(this,
-        vtkDataArrayComputeVectorRange<vtkDAValueType>(
+      computed = vtkDataArrayPrivate::DoComputeVectorRange<vtkDAValueType>(
                                        vtkDABegin, vtkDAEnd,
-                                       this->GetNumberOfComponents(), range)
+                                       this->GetNumberOfComponents(),
+                                       range)
     );
     default:
       break;
     }
+
+  return computed;
 }
 
 //----------------------------------------------------------------------------

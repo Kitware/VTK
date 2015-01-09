@@ -34,6 +34,8 @@ int TestLinePlotAxisFonts(int, char * [])
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
   view->GetScene()->AddItem(chart.GetPointer());
+  chart->SetTitle("Chart Title");
+  chart->GetTitleProperties()->SetFontSize(32);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;

@@ -248,7 +248,7 @@ class Specification(SpecificationBase):
             implied[ancestor] = ()
 
         # Now, advise our dependents of change:
-        for dependent in self.dependents.keys():
+        for dependent in tuple(self.dependents.keys()):
             dependent.changed(originally_changed)
 
 

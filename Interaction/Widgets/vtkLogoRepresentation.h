@@ -36,7 +36,7 @@ class vtkTexture;
 class vtkPolyData;
 class vtkPoionts;
 class vtkPolyDataMapper2D;
-class vtkActor2D;
+class vtkTexturedActor2D;
 class vtkProperty2D;
 
 
@@ -86,7 +86,7 @@ protected:
   vtkPoints           *TexturePoints;
   vtkPolyData         *TexturePolyData;
   vtkPolyDataMapper2D *TextureMapper;
-  vtkActor2D          *TextureActor;
+  vtkTexturedActor2D          *TextureActor;
 
   // Helper methods
   void AdjustImageSize(double o[2], double borderSize[2], double imageSize[2]);

@@ -1,78 +1,94 @@
-PROJECT(StatsView)
+cmake_minimum_required(VERSION 2.8.8)
+if(POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW)
+endif()
+if(POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW) # CMake 3.0
+endif()
+if(POLICY CMP0043)
+  cmake_policy(SET CMP0043 NEW) # CMake 3.0
+endif()
+if(POLICY CMP0053)
+  cmake_policy(SET CMP0053 NEW) # CMake 3.1
+endif()
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK)
-IF(NOT VTK_DIR)
-  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-ENDIF(NOT VTK_DIR)
-INCLUDE(${VTK_USE_FILE})
-ENDIF(NOT VTK_BINARY_DIR)
+project(StatsView)
 
-# use what QVTK built with
-SET(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-SET(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-SET(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-FIND_PACKAGE(Qt4 REQUIRED)
-INCLUDE(${QT_USE_FILE})
+find_package(VTK)
+include(${VTK_USE_FILE})
 
+if("${VTK_QT_VERSION}" STREQUAL "")
+  message(FATAL_ERROR "VTK was not built with Qt")
+endif()
 
 # Use the include path and library for Qt that is used by VTK.
-INCLUDE_DIRECTORIES(
-  ${QT_INCLUDE_DIR}
+include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 
 # Set your files and resources here
-SET(StatsViewSrcs main.cxx StatsView.cxx)
-SET(StatsViewUI StatsView.ui)
-SET(StatsViewHeaders StatsView.h)
-SET(StatsViewResources Icons/icons.qrc)
+set(Srcs main.cxx StatsView.cxx)
+set(UIs StatsView.ui)
+set(Hdrs StatsView.h)
+set(MOC_Hdrs StatsView.h)
+set(Rcs Icons/icons.qrc)
 
-# The rest should just work (sure...)
-QT4_WRAP_UI(UISrcs ${StatsViewUI})
-QT4_WRAP_CPP(MOCSrcs ${StatsViewHeaders} )
-QT4_ADD_RESOURCES(ResourceSrcs ${StatsViewResources})
+# It is nice to have the ui in the windows project file.
+# Right-click, choose Open With... press the Add button,
+# and then find designer.exe and set as default.
+# After this just click on it to bring it up in designer.
+if(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
+  set(Srcs ${Srcs} ${UIs})
+endif(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
 
-SOURCE_GROUP("Resources" FILES
-  ${StatsViewUI}
-  ${StatsViewResources}
-  ${EXE_ICON}
-)
+if(VTK_QT_VERSION VERSION_GREATER "4")
 
-SOURCE_GROUP("Generated" FILES
-  ${UISrcs}
-  ${MOCSrcs}
-  ${ResourceSrcs}
-  ${RCS_SOURCES}
-)
+  find_package(Qt5Widgets)
 
-ADD_DEFINITIONS(-DQT_GUI_LIBS -DQT_CORE_LIB -DQT3_SUPPORT)
-SET_SOURCE_FILES_PROPERTIES(${StatsViewSrcs} PROPERTIES
-                            OBJECT_DEPENDS "${UISrcs}")
+  qt5_wrap_ui(UI_Srcs ${UIs})
+  qt5_add_resources(Rcs_Srcs ${Rcs})
 
-# It's nice to have the ui in the windows project file...just double click on it
-# and designer comes up on that ui file :)
-IF (${CMAKE_BUILD_TOOL} MATCHES "msdev")
-  SET (StatsViewSrcs ${StatsViewSrcs} ${StatsViewUI})
-ENDIF (${CMAKE_BUILD_TOOL} MATCHES "msdev")
-IF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
-  SET (StatsViewSrcs ${StatsViewSrcs} ${StatsViewUI})
-ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
+  set_source_files_PROPERTIES(${Srcs} PROPERTIES
+                              OBJECT_DEPENDS "${UI_Srcs}")
 
-ADD_EXECUTABLE( StatsView MACOSX_BUNDLE ${StatsViewSrcs} ${UISrcs} ${MOCSrcs} ${ResourceSrcs})
+  add_executable(StatsView
+    MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
 
-TARGET_LINK_LIBRARIES( StatsView
-  QVTK
-  ${QT_LIBRARIES}
-  vtkRendering
-  vtkGraphics
-  vtkIO
-  vtkCommon
-  vtkInfovis
-  vtkViews
-)
+  qt5_use_modules(StatsView Core Gui Widgets)
 
+  target_link_libraries(StatsView ${VTK_LIBRARIES})
+else()
+  find_package(Qt4 REQUIRED)
 
+  include(${QT_USE_FILE})
 
+  # Use what VTK built with
+  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+  qt4_wrap_ui(UI_Srcs ${UIs})
+
+  # Use the include path and library for Qt that is used by VTK.
+  include_directories(
+    ${QT_INCLUDE_DIR}
+  )
+
+  qt4_wrap_ui(UI_Srcs ${UIs})
+  qt4_add_resources(Rcs_Srcs ${Rcs})
+
+  add_definitions(-DQT_GUI_LIBS -DQT_CORE_LIB -DQT3_SUPPORT)
+  set_source_files_PROPERTIES(${Srcs} PROPERTIES
+                              OBJECT_DEPENDS "${UI_Srcs}")
+
+  add_executable(StatsView
+    MACOSX_BUNDLE ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
+
+  target_link_libraries(StatsView
+    ${QT_LIBRARIES}
+    ${VTK_LIBRARIES}
+  )
+endif()

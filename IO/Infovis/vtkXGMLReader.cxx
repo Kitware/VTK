@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <vtksys/ios/sstream>
 #include <vtksys/stl/map>
 
-#if defined (__BORLANDC__) && (__BORLANDC__ >= 0x0560)
+#if defined (__BORLANDC__)
 #include <ctype.h> // for isspace, isdigit
 #endif
 

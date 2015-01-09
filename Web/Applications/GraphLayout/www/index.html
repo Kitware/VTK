@@ -5,7 +5,7 @@
         <link rel='stylesheet' href='style.css' type='text/css'>
     </head>
 
-    <body class="page" onbeforeunload="exit()" onunload="exit()">
+    <body class="page" onbeforeunload="stop()" onunload="exit()">
         <select>
             <option value="ForceDirected">Force Directed</option>
             <option value="SpanTree">Span Tree</option>
@@ -18,37 +18,22 @@
         </select>
         <div class="viewport-container"></div>
 
-        <script src="../../lib/js/vtkweb-loader-min.js" load="core-min"></script>
+        <script src="../../lib/core/vtkweb-loader-min.js" load="core-min"></script>
         <script type="text/javascript">
-            var connection = {
-                sessionURL: "ws://" + window.location.host + "/ws",
-                name: "WebGraphLayoutDemo",
+            var config = {
+                sessionManagerURL: vtkWeb.properties.sessionManagerURL,
                 application: "graph"
             },
-            viewport = null;
-
-            // Method call at exit time
-            function exit() {
-                if(connection.session) {
-                    viewport.unbind();
-                    connection.session.call('vtk:exit');
-                    connection.session.close();
-                    connection.session = null;
-                }
-            }
-
-            // Connect to remote server
-            vtkWeb.connect(connection, function(serverConnection) {
-                connection = serverConnection;
-
+            stop = vtkWeb.NoOp,
+            start = function(connection) {
                 // Create viewport
-                viewport = vtkWeb.createViewport({session:connection.session});
+                var viewport = vtkWeb.createViewport({session:connection.session});
                 viewport.bind(".viewport-container");
 
                 // Attach listener to layout controller
                 $('select').change(function(){
                     var me = $(this);
-                    connection.session.call("vtk:changeLayout", me.val()).then(function(){
+                    connection.session.call("graph.layout.update", [me.val()]).then(function(){
                         viewport.render();
                     });
                 }).trigger("change");
@@ -59,7 +44,16 @@
                         viewport.render();
                     }
                 }).trigger('resize');
-            }, function(code, reason) {
+
+                // Update stop method to use the connection
+                stop = function() {
+                    connection.session.call('application.exit');
+                }
+            };
+
+            // Try to launch the Viz process
+            vtkWeb.smartConnect(config, start, function(code,reason){
+                console.log(reason);
                 alert(reason);
             });
         </script>

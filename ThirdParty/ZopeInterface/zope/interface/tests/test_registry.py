@@ -81,6 +81,26 @@ class ComponentsTests(_SilencePy3Deprecations):
         self.assertEqual(comp.utilities.__bases__,
                          (base1.utilities, base2.utilities))
 
+    def test_registerUtility_with_component_name(self):
+        from zope.interface.declarations import named, InterfaceClass
+        from zope.interface._compat import _u
+
+        class IFoo(InterfaceClass):
+            pass
+        ifoo = IFoo('IFoo')
+
+        @named(_u('foo'))
+        class Foo(object):
+            pass
+        foo = Foo()
+        _info = _u('info')
+
+        comp = self._makeOne()
+        comp.registerUtility(foo, ifoo, info=_info)
+        self.assertEqual(
+            comp._utility_registrations[ifoo, _u('foo')],
+            (foo, _info, None))
+
     def test_registerUtility_both_factory_and_component(self):
         def _factory():
             pass
@@ -590,6 +610,27 @@ class ComponentsTests(_SilencePy3Deprecations):
         comp.registerUtility(_to_reg, ifoo, name=_name2)
         self.assertEqual(list(comp.getAllUtilitiesRegisteredFor(ifoo)),
                          [_to_reg])
+
+    def test_registerAdapter_with_component_name(self):
+        from zope.interface.declarations import named, InterfaceClass
+        from zope.interface._compat import _u
+
+        class IFoo(InterfaceClass):
+            pass
+        ifoo = IFoo('IFoo')
+        ibar = IFoo('IBar')
+
+        @named(_u('foo'))
+        class Foo(object):
+            pass
+        _info = _u('info')
+
+        comp = self._makeOne()
+        comp.registerAdapter(Foo, (ibar,), ifoo, info=_info)
+
+        self.assertEqual(
+            comp._adapter_registrations[(ibar,), ifoo, _u('foo')],
+            (Foo, _info))
 
     def test_registerAdapter_w_explicit_provided_and_required(self):
         from zope.interface.declarations import InterfaceClass

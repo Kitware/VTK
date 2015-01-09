@@ -48,6 +48,11 @@ vtkContextInteractorStyle::~vtkContextInteractorStyle()
 {
   // to remove observers.
   this->SetScene(0);
+  if (this->TimerCallbackInitialized && this->Interactor)
+    {
+    this->Interactor->RemoveObserver(this->InteractorCallbackCommand.Get());
+    this->TimerCallbackInitialized = false;
+    }
 }
 
 //--------------------------------------------------------------------------
@@ -397,7 +402,7 @@ void vtkContextInteractorStyle::OnKeyPress()
   this->BeginProcessingEvent();
   vtkContextKeyEvent event;
   vtkVector2i position(this->Interactor->GetEventPosition()[0],
-                       this->Interactor->GetEventPosition()[0]);
+                       this->Interactor->GetEventPosition()[1]);
   event.SetInteractor(this->Interactor);
   event.SetPosition(position);
   bool keepEvent = false;
@@ -418,7 +423,7 @@ void vtkContextInteractorStyle::OnKeyRelease()
   this->BeginProcessingEvent();
   vtkContextKeyEvent event;
   vtkVector2i position(this->Interactor->GetEventPosition()[0],
-                       this->Interactor->GetEventPosition()[0]);
+                       this->Interactor->GetEventPosition()[1]);
   event.SetInteractor(this->Interactor);
   event.SetPosition(position);
   bool keepEvent = false;

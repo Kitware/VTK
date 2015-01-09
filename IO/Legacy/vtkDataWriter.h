@@ -136,6 +136,12 @@ public:
   vtkGetStringMacro(PedigreeIdsName);
 
   // Description:
+  // Give a name to the edge flags data. If not specified, uses
+  // default name "edge_flags".
+  vtkSetStringMacro(EdgeFlagsName);
+  vtkGetStringMacro(EdgeFlagsName);
+
+  // Description:
   // Give a name to the lookup table. If not specified, uses default
   // name "lookupTable".
   vtkSetStringMacro(LookupTableName);
@@ -229,6 +235,7 @@ protected:
   char *FieldDataName;
   char* GlobalIdsName;
   char* PedigreeIdsName;
+  char* EdgeFlagsName;
 
   int WriteArray(ostream *fp, int dataType, vtkAbstractArray *data, const char *format,
                  int num, int numComp);
@@ -239,6 +246,7 @@ protected:
   int WriteTensorData(ostream *fp, vtkDataArray *t, int num);
   int WriteGlobalIdData(ostream *fp, vtkDataArray *g, int num);
   int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, int num);
+  int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num);
 
 private:
   vtkDataWriter(const vtkDataWriter&);  // Not implemented.

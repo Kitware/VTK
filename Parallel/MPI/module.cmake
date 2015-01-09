@@ -9,4 +9,6 @@ vtk_module(vtkParallelMPI
     vtkImagingSources
     vtkIOParallel
     vtkInteractionStyle
+  KIT
+    vtkParallel
   )

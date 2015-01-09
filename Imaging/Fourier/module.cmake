@@ -6,4 +6,6 @@ vtk_module(vtkImagingFourier
     vtkImagingCore
   PRIVATE_DEPENDS
     vtksys
+  KIT
+    vtkImaging
   )

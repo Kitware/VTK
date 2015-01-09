@@ -55,11 +55,11 @@
 /********************/
 
 /* Metadata cache callbacks */
-static H5B_t *H5B_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *udata);
-static herr_t H5B_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B_t *b, unsigned UNUSED * flags_ptr);
-static herr_t H5B_dest(H5F_t *f, H5B_t *bt);
-static herr_t H5B_clear(H5F_t *f, H5B_t *b, hbool_t destroy);
-static herr_t H5B_compute_size(const H5F_t *f, const H5B_t *bt, size_t *size_ptr);
+static H5B_t *H5B__load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *udata);
+static herr_t H5B__flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B_t *b, unsigned UNUSED * flags_ptr);
+static herr_t H5B__dest(H5F_t *f, H5B_t *bt);
+static herr_t H5B__clear(H5F_t *f, H5B_t *b, hbool_t destroy);
+static herr_t H5B__compute_size(const H5F_t *f, const H5B_t *bt, size_t *size_ptr);
 
 
 /*********************/
@@ -69,11 +69,11 @@ static herr_t H5B_compute_size(const H5F_t *f, const H5B_t *bt, size_t *size_ptr
 /* H5B inherits cache-like properties from H5AC */
 const H5AC_class_t H5AC_BT[1] = {{
     H5AC_BT_ID,
-    (H5AC_load_func_t)H5B_load,
-    (H5AC_flush_func_t)H5B_flush,
-    (H5AC_dest_func_t)H5B_dest,
-    (H5AC_clear_func_t)H5B_clear,
-    (H5AC_size_func_t)H5B_compute_size,
+    (H5AC_load_func_t)H5B__load,
+    (H5AC_flush_func_t)H5B__flush,
+    (H5AC_dest_func_t)H5B__dest,
+    (H5AC_clear_func_t)H5B__clear,
+    (H5AC_size_func_t)H5B__compute_size,
 }};
 
 /*******************/
@@ -83,7 +83,7 @@ const H5AC_class_t H5AC_BT[1] = {{
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B_load
+ * Function:	H5B__load
  *
  * Purpose:	Loads a B-tree node from the disk.
  *
@@ -97,7 +97,7 @@ const H5AC_class_t H5AC_BT[1] = {{
  *-------------------------------------------------------------------------
  */
 static H5B_t *
-H5B_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
+H5B__load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
 {
     H5B_t *bt = NULL;           /* Pointer to the deserialized B-tree node */
     H5B_cache_ud_t *udata = (H5B_cache_ud_t *)_udata;       /* User data for callback */
@@ -107,7 +107,7 @@ H5B_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     unsigned u;                 /* Local index variable */
     H5B_t *ret_value;           /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5B_load)
+    FUNC_ENTER_STATIC
 
     /* Check arguments */
     HDassert(f);
@@ -151,6 +151,10 @@ H5B_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     /* entries used */
     UINT16DECODE(p, bt->nchildren);
 
+    /* Check if bt->nchildren is greater than two_k */
+    if(bt->nchildren > shared->two_k)
+        HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "number of children is greater than maximum")
+
     /* sibling pointers */
     H5F_addr_decode(udata->f, (const uint8_t **)&p, &(bt->left));
     H5F_addr_decode(udata->f, (const uint8_t **)&p, &(bt->right));
@@ -184,11 +188,11 @@ done:
             HDONE_ERROR(H5E_BTREE, H5E_CANTFREE, NULL, "unable to destroy B-tree node")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B_load() */  /*lint !e818 Can't make udata a pointer to const */
+} /* end H5B__load() */  /*lint !e818 Can't make udata a pointer to const */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B_flush
+ * Function:	H5B__flush
  *
  * Purpose:	Flushes a dirty B-tree node to disk.
  *
@@ -201,12 +205,12 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B_t *bt, unsigned UNUSED * flags_ptr)
+H5B__flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B_t *bt, unsigned UNUSED * flags_ptr)
 {
     H5B_shared_t *shared;       /* Pointer to shared B-tree info */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5B_flush)
+    FUNC_ENTER_STATIC
 
     /* check arguments */
     HDassert(f);
@@ -270,16 +274,16 @@ H5B_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B_t *bt, uns
     } /* end if */
 
     if(destroy)
-        if(H5B_dest(f, bt) < 0)
+        if(H5B__dest(f, bt) < 0)
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree node")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B_flush() */
+} /* end H5B__flush() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B_dest
+ * Function:	H5B__dest
  *
  * Purpose:	Destroys a B-tree node in memory.
  *
@@ -292,11 +296,11 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B_dest(H5F_t *f, H5B_t *bt)
+H5B__dest(H5F_t *f, H5B_t *bt)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5B_dest)
+    FUNC_ENTER_STATIC
 
     /*
      * Check arguments.
@@ -328,11 +332,11 @@ H5B_dest(H5F_t *f, H5B_t *bt)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B_dest() */
+} /* end H5B__dest() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B_clear
+ * Function:	H5B__clear
  *
  * Purpose:	Mark a B-tree node in memory as non-dirty.
  *
@@ -345,11 +349,11 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B_clear(H5F_t *f, H5B_t *bt, hbool_t destroy)
+H5B__clear(H5F_t *f, H5B_t *bt, hbool_t destroy)
 {
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT(H5B_clear)
+    FUNC_ENTER_STATIC
 
     /*
      * Check arguments.
@@ -360,16 +364,16 @@ H5B_clear(H5F_t *f, H5B_t *bt, hbool_t destroy)
     bt->cache_info.is_dirty = FALSE;
 
     if(destroy)
-        if(H5B_dest(f, bt) < 0)
+        if(H5B__dest(f, bt) < 0)
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree node")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B_clear() */
+} /* end H5B__clear() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B_compute_size
+ * Function:	H5B__compute_size
  *
  * Purpose:	Compute the size in bytes of the specified instance of
  *		H5B_t on disk, and return it in *len_ptr.  On failure,
@@ -383,11 +387,11 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B_compute_size(const H5F_t UNUSED *f, const H5B_t *bt, size_t *size_ptr)
+H5B__compute_size(const H5F_t UNUSED *f, const H5B_t *bt, size_t *size_ptr)
 {
     H5B_shared_t        *shared;        /* Pointer to shared B-tree info */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5B_compute_size)
+    FUNC_ENTER_STATIC_NOERR
 
     /* check arguments */
     HDassert(f);
@@ -402,5 +406,5 @@ H5B_compute_size(const H5F_t UNUSED *f, const H5B_t *bt, size_t *size_ptr)
     *size_ptr = shared->sizeof_rnode;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* H5B_compute_size() */
+} /* H5B__compute_size() */
 

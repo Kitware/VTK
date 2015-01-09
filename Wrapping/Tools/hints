@@ -17,6 +17,7 @@ vtkAnnotatedCubeActor                 GetBounds                         307  6
 vtkAssembly                           GetBounds                         307  6
 vtkAxesActor                          GetBounds                         307  6
 vtkAxisActor                          GetBounds                         307  6
+vtkBox                                GetBounds                         307  6
 vtkBoxRepresentation                  GetBounds                         307  6
 vtkCamera                             GetOrientation                    307  3
 vtkCamera                             GetOrientationWXYZ                307  4
@@ -58,11 +59,18 @@ vtkDirectionEncoder                   GetDecodedGradient                301  3
 vtkDistanceRepresentation             GetPoint1WorldPosition            307  3
 vtkDistanceRepresentation             GetPoint2WorldPosition            307  3
 vtkDoubleArray                        GetValueRange                     307  2
+vtkEGLRenderWindow                    GetPosition                       304  2
+vtkEGLRenderWindow                    GetScreenSize                     304  2
+vtkEGLRenderWindow                    GetSize                           304  2
+vtkExodusIIReader                     GetModeShapesRange                304  2
 vtkExtentSplitter                     GetSubExtent                      304  6
 vtkExtractUnstructuredGrid            GetExtent                         307  6
 vtkFloatArray                         GetValueRange                     301  2
 vtkFunctionParser                     GetVectorResult                   307  3
 vtkFunctionParser                     GetVectorVariableValue            307  3
+vtkGenericOpenGLRenderWindow          GetPosition                       304  2
+vtkGenericOpenGLRenderWindow          GetScreenSize                     304  2
+vtkGenericOpenGLRenderWindow          GetSize                           304  2
 vtkGeometryFilter                     GetExtent                         307  6
 vtkGraph                              GetEdgePoint                      307  3
 vtkGraphMapper                        GetBounds                         307  6
@@ -158,6 +166,9 @@ vtkMatrix4x4                          MultiplyPoint                     301  4
 vtkMedicalImageProperties             GetNthWindowLevelPreset           307  2
 vtkMedicalImageProperties             GetWindowLevelPreset              307  2
 vtkMINCImageReader                    GetDataRange                      307  2
+vtkOSOpenGLRenderWindow               GetPosition                       304  2
+vtkOSOpenGLRenderWindow               GetScreenSize                     304  2
+vtkOSOpenGLRenderWindow               GetSize                           304  2
 vtkPainterPolyDataMapper              GetBounds                         307  6
 vtkParallelopipedRepresentation       GetBounds                         307  6
 vtkPiecewiseFunction                  GetRange                          307  2
@@ -171,6 +182,8 @@ vtkPointHandleRepresentation3D        GetBounds                         307  6
 vtkPointSet                           GetPoint                          307  3
 vtkPoints                             GetBounds                         307  6
 vtkPoints                             GetPoint                          307  3
+vtkPoints2D                           GetBounds                         307  4
+vtkPoints2D                           GetPoint                          307  2
 vtkPointWidget                        GetPosition                       307  3
 vtkPolyData                           GetUpdateExtent                   304  6
 vtkPolyDataMapper                     GetBounds                         307  6
@@ -251,9 +264,11 @@ vtkWedge                              GetEdgeArray                      304  2
 vtkWedge                              GetFaceArray                      304  4
 vtkWidgetRepresentation               GetBounds                         307  6
 vtkWin32OpenGLRenderWindow            GetPosition                       304  2
+vtkWin32OpenGLRenderWindow            GetScreenSize                     304  2
 vtkWin32OpenGLRenderWindow            GetSize                           304  2
 vtkWindow                             GetPosition                       304  2
 vtkWindow                             GetSize                           304  2
+vtkWindow                             GetScreenSize                     304  2
 vtkWindowLevelLookupTable             GetMaximumTableValue              307  4
 vtkWindowLevelLookupTable             GetMinimumTableValue              307  4
 vtkXImageWindow                       GetPosition                       304  2

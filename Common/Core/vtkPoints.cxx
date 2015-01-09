@@ -31,17 +31,13 @@
 
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkPoints);
-
-//----------------------------------------------------------------------------
 vtkPoints* vtkPoints::New(int dataType)
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPoints");
-  if(ret)
+  if (ret)
     {
-    if(dataType != VTK_FLOAT)
+    if (dataType != VTK_FLOAT)
       {
       static_cast<vtkPoints*>(ret)->SetDataType(dataType);
       }
@@ -67,8 +63,8 @@ vtkPoints::vtkPoints(int dataType)
   this->Data->SetNumberOfComponents(3);
   this->Data->SetName("Points");
 
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 0.0;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
 }
 
 vtkPoints::~vtkPoints()
@@ -86,18 +82,17 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *outPoints)
 namespace
 {
   template <class T>
-  void InternalComputeBounds(vtkDataArray* array,
-                             double* bounds,
-                             T*)
+  void InternalComputeBounds(vtkDataArray* array, double* bounds, T*)
   {
     bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
     bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
 
-    if (vtkTypedDataArray<T>* tarray = vtkTypedDataArray<T>::FastDownCast(array))
+    vtkTypedDataArray<T>* tarray = vtkTypedDataArray<T>::FastDownCast(array);
+    if (tarray)
       {
       T x[3];
       vtkIdType numPts = tarray->GetNumberOfTuples();
-      for (vtkIdType i=0; i<numPts; i++)
+      for (vtkIdType i = 0; i < numPts; i++)
         {
         tarray->GetTupleValue(i, x);
         bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
@@ -112,7 +107,7 @@ namespace
       {
       double x[3];
       vtkIdType numPts = array->GetNumberOfTuples();
-      for (vtkIdType i=0; i<numPts; i++)
+      for (vtkIdType i = 0; i < numPts; i++)
         {
         array->GetTuple(i, x);
         bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
@@ -129,14 +124,12 @@ namespace
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints::ComputeBounds()
 {
-  if ( this->GetMTime() > this->ComputeTime )
+  if (this->GetMTime() > this->ComputeTime)
     {
     switch (this->Data->GetDataType())
       {
-      vtkTemplateMacro(InternalComputeBounds(
-                         this->Data,
-                         this->Bounds,
-                         (VTK_TT*)0));
+      vtkTemplateMacro(
+        InternalComputeBounds(this->Data, this->Bounds, (VTK_TT*)0));
       }
 
     this->ComputeTime.Modified();
@@ -154,21 +147,19 @@ double *vtkPoints::GetBounds()
 void vtkPoints::GetBounds(double bounds[6])
 {
   this->ComputeBounds();
-  for (int i=0; i<6; i++)
-    {
-    bounds[i] = this->Bounds[i];
-    }
+  memcpy(bounds, this->Bounds, 6 * sizeof(double));
 }
 
 int vtkPoints::Allocate(const vtkIdType sz, const vtkIdType ext)
 {
-  int numComp=this->Data->GetNumberOfComponents();
-  return this->Data->Allocate(sz*numComp,ext*numComp);
+  int numComp = this->Data->GetNumberOfComponents();
+  return this->Data->Allocate(sz * numComp, ext * numComp);
 }
 
 void vtkPoints::Initialize()
 {
   this->Data->Initialize();
+  this->Modified();
 }
 
 int vtkPoints::GetDataType()
@@ -179,26 +170,25 @@ int vtkPoints::GetDataType()
 // Specify the underlying data type of the object.
 void vtkPoints::SetDataType(int dataType)
 {
-  if ( dataType == this->Data->GetDataType() )
+  if (dataType == this->Data->GetDataType())
     {
     return;
     }
-
-  this->Modified();
 
   this->Data->Delete();
   this->Data = vtkDataArray::CreateDataArray(dataType);
   this->Data->SetNumberOfComponents(3);
   this->Data->SetName("Points");
+  this->Modified();
 }
 
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
 void vtkPoints::SetData(vtkDataArray *data)
 {
-  if ( data != this->Data && data != NULL )
+  if (data != this->Data && data != NULL)
     {
-    if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents() )
+    if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
       {
       vtkErrorMacro(<<"Number of components is different...can't set data");
       return;
@@ -222,9 +212,9 @@ void vtkPoints::DeepCopy(vtkPoints *da)
     {
     return;
     }
-  if ( da->Data != this->Data && da->Data != NULL )
+  if (da->Data != this->Data && da->Data != NULL)
     {
-    if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents() )
+    if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
       {
       vtkErrorMacro(<<"Number of components is different...can't copy");
       return;
@@ -248,16 +238,17 @@ unsigned long vtkPoints::GetActualMemorySize()
 
 void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Data: " << this->Data << "\n";
-  if ( this->Data->GetName() )
+  os << indent << "Data Array Name: ";
+  if (this->Data->GetName())
     {
-    os << indent << "Data Array Name: " << this->Data->GetName() << "\n";
+    os << this->Data->GetName() << "\n";
     }
   else
     {
-    os << indent << "Data Array Name: (none)\n";
+    os << "(none)\n";
     }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";

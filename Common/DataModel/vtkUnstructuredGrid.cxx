@@ -1776,13 +1776,6 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                            vtkIdList *cellIds)
 {
-  vtkIdType i, j, k;
-  vtkIdType numPts, minNumCells, numCells;
-  vtkIdType *pts, ptId, *cellPts, *cells;
-  vtkIdType *minCells = NULL;
-  vtkIdType match;
-  vtkIdType minPtId = 0, npts;
-
   if ( ! this->Links )
     {
     this->BuildLinks();
@@ -1790,15 +1783,23 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
   cellIds->Reset();
 
-  //Find the point used by the fewest number of cells
-  //
-  numPts = ptIds->GetNumberOfIds();
-  pts = ptIds->GetPointer(0);
-  for (minNumCells=VTK_INT_MAX,i=0; i<numPts; i++)
+  vtkIdType numPts = ptIds->GetNumberOfIds();
+  if (numPts <= 0)
     {
-    ptId = pts[i];
-    numCells = this->Links->GetNcells(ptId);
-    cells = this->Links->GetCells(ptId);
+    vtkErrorMacro("input point ids empty.");
+    return;
+    }
+
+  //Find the point used by the fewest number of cells
+  vtkIdType *pts = ptIds->GetPointer(0);
+  int minNumCells = VTK_INT_MAX;
+  vtkIdType *minCells = NULL;
+  vtkIdType minPtId = 0;
+  for (vtkIdType i=0; i<numPts; i++)
+    {
+    vtkIdType ptId = pts[i];
+    int numCells = this->Links->GetNcells(ptId);
+    vtkIdType *cells = this->Links->GetCells(ptId);
     if ( numCells < minNumCells )
       {
       minNumCells = numCells;
@@ -1807,26 +1808,27 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       }
     }
 
-  if (minNumCells == VTK_INT_MAX && numPts == 0) {
-    vtkErrorMacro("input point ids empty.");
-    minNumCells = 0;
-  }
   //Now for each cell, see if it contains all the points
   //in the ptIds list.
-  for (i=0; i<minNumCells; i++)
+  bool match;
+  for (int i=0; i<minNumCells; i++)
     {
     if ( minCells[i] != cellId ) //don't include current cell
       {
+      vtkIdType *cellPts;
+      vtkIdType npts;
       this->GetCellPoints(minCells[i],npts,cellPts);
-      for (match=1, j=0; j<numPts && match; j++) //for all pts in input cell
+      match=true;
+      for (vtkIdType j=0; j<numPts && match; j++) //for all pts in input cell
         {
         if ( pts[j] != minPtId ) //of course minPtId is contained by cell
           {
-          for (match=k=0; k<npts; k++) //for all points in candidate cell
+          match=false;
+          for (vtkIdType k=0; k<npts; k++) //for all points in candidate cell
             {
             if ( pts[j] == cellPts[k] )
               {
-              match = 1; //a match was found
+              match = true; //a match was found
               break;
               }
             }//for all points in current cell

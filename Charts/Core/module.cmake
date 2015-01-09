@@ -10,6 +10,7 @@ vtk_module(vtkChartsCore
     vtkTestingCore
     vtkTestingRendering
     vtkViewsContext2D
-    vtkIOExport
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    #vtkIOExport
     vtkIOInfovis
   )

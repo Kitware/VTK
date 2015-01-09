@@ -53,10 +53,7 @@ public:
   vtkHyperArray();
   ~vtkHyperArray()
     {
-      if (this->Array)
-        {
-        delete [] this->Array;
-        }
+      delete [] this->Array;
     };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkHyperPoint *GetHyperPoint(vtkIdType i) {return this->Array + i;};
@@ -175,10 +172,7 @@ vtkHyperStreamline::vtkHyperStreamline()
 
 vtkHyperStreamline::~vtkHyperStreamline()
 {
-  if ( this->Streamers )
-    {
-    delete [] this->Streamers;
-    }
+  delete [] this->Streamers;
 }
 
 // Specify the start of the hyperstreamline in the cell coordinate system.

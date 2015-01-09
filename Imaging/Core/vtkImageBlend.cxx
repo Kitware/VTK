@@ -43,10 +43,7 @@ vtkImageBlend::vtkImageBlend()
 //----------------------------------------------------------------------------
 vtkImageBlend::~vtkImageBlend()
 {
-  if (this->Opacity)
-    {
-    delete [] this->Opacity;
-    }
+  delete [] this->Opacity;
   this->OpacityArrayLength = 0;
 }
 
@@ -145,10 +142,7 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
       {
       newArray[i] = 1.0;
       }
-    if (this->Opacity)
-      {
-      delete [] this->Opacity;
-      }
+    delete [] this->Opacity;
     this->Opacity = newArray;
     this->OpacityArrayLength = newLength;
     }
@@ -886,6 +880,7 @@ void vtkImageBlend::ThreadedRequestData (
 
     default:
       vtkErrorMacro(<< "Execute: Unknown blending mode");
+      return;
     }
 
   // process each input
@@ -922,13 +917,13 @@ void vtkImageBlend::ThreadedRequestData (
         inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
       this->InternalComputeInputUpdateExtent(extent, outExt, inWextent);
 
-      int skip = 0;
+      bool skip = false;
       for (int i = 0; i < 3; i++)
         {
         if (outExt[2*i+1] < extent[2*i] || outExt[2*i] > extent[2*i+1])
           {
           // extents don't overlap, skip this input
-          skip = 1;
+          skip = true;
           }
         }
 

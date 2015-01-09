@@ -13,7 +13,7 @@
         <div class="viewport-container">
         </div>
 
-        <script src="../../lib/js/vtkweb-loader-min.js" load="core-min"></script>
+        <script src="../../lib/core/vtkweb-loader-min.js" load="core-min"></script>
         <script type="text/javascript">
             var connection = {
                 sessionURL: "ws://" + window.location.host + "/ws",
@@ -58,7 +58,7 @@
             function stop() {
                 if(false && connection.session) {
                     viewport.unbind();
-                    connection.session.call('vtk:exit');
+                    connection.session.call('application.exit');
                     connection.session.close();
                     connection.session = null;
                 }

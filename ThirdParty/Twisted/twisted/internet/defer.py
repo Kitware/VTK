@@ -25,14 +25,15 @@ from sys import exc_info
 from functools import wraps
 
 # Twisted imports
-from twisted.python.compat import _PY3, comparable, cmp
-from twisted.python import log, failure
-from twisted.python._utilpy3 import unsignedID
+from twisted.python.compat import cmp, comparable
+from twisted.python import lockfile, log, failure
+from twisted.python.deprecate import warnAboutFunction
 
 
 
 class AlreadyCalledError(Exception):
     pass
+
 
 
 class CancelledError(Exception):
@@ -574,6 +575,13 @@ class Deferred:
                     current._runningCallbacks = True
                     try:
                         current.result = callback(current.result, *args, **kw)
+                        if current.result is current:
+                            warnAboutFunction(
+                                callback,
+                                "Callback returned the Deferred "
+                                "it was attached to; this breaks the "
+                                "callback chain and will raise an "
+                                "exception in the future.")
                     finally:
                         current._runningCallbacks = False
                 except:
@@ -632,14 +640,14 @@ class Deferred:
         """
         cname = self.__class__.__name__
         result = getattr(self, 'result', _NO_RESULT)
-        myID = hex(unsignedID(self))
+        myID = id(self)
         if self._chainedTo is not None:
-            result = ' waiting on Deferred at %s' % (hex(unsignedID(self._chainedTo)),)
+            result = ' waiting on Deferred at 0x%x' % (id(self._chainedTo),)
         elif result is _NO_RESULT:
             result = ''
         else:
             result = ' current result: %r' % (result,)
-        return "<%s at %s%s>" % (cname, myID, result)
+        return "<%s at 0x%x%s>" % (cname, myID, result)
     __repr__ = __str__
 
 
@@ -751,6 +759,8 @@ class DeferredList(Deferred):
     they see.
 
     See the documentation for the C{__init__} arguments for more information.
+
+    @ivar _deferredList: The C{list} of L{Deferred}s to track.
     """
 
     fireOnOneCallback = False
@@ -791,9 +801,10 @@ class DeferredList(Deferred):
             logged.  This does not prevent C{fireOnOneErrback} from working.
         @type consumeErrors: C{bool}
         """
-        self.resultList = [None] * len(deferredList)
+        self._deferredList = list(deferredList)
+        self.resultList = [None] * len(self._deferredList)
         Deferred.__init__(self)
-        if len(deferredList) == 0 and not fireOnOneCallback:
+        if len(self._deferredList) == 0 and not fireOnOneCallback:
             self.callback(self.resultList)
 
         # These flags need to be set *before* attaching callbacks to the
@@ -805,7 +816,7 @@ class DeferredList(Deferred):
         self.finishedCount = 0
 
         index = 0
-        for deferred in deferredList:
+        for deferred in self._deferredList:
             deferred.addCallbacks(self._cbDeferred, self._cbDeferred,
                                   callbackArgs=(index,SUCCESS),
                                   errbackArgs=(index,FAILURE))
@@ -833,6 +844,26 @@ class DeferredList(Deferred):
         return result
 
 
+    def cancel(self):
+        """
+        Cancel this L{DeferredList}.
+
+        If the L{DeferredList} hasn't fired yet, cancel every L{Deferred} in
+        the list.
+
+        If the L{DeferredList} has fired, including the case where the
+        C{fireOnOneCallback}/C{fireOnOneErrback} flag is set and the
+        L{DeferredList} fires because one L{Deferred} in the list fires with a
+        non-failure/failure result, do nothing in the C{cancel} method.
+        """
+        if not self.called:
+            for deferred in self._deferredList:
+                try:
+                    deferred.cancel()
+                except:
+                    log.err(
+                        _why="Exception raised from user supplied canceller")
+
 
 def _parseDListResult(l, fireOnOneErrback=False):
     if __debug__:
@@ -849,6 +880,9 @@ def gatherResults(deferredList, consumeErrors=False):
 
     The returned L{Deferred} will fire when I{all} of the provided L{Deferred}s
     have fired, or when any one of them has failed.
+
+    This method can be cancelled by calling the C{cancel} method of the
+    L{Deferred}, all the L{Deferred}s in the list will be cancelled.
 
     This differs from L{DeferredList} in that you don't need to parse
     the result for success/failure.
@@ -956,10 +990,10 @@ def _deferGenerator(g, deferred):
 
 def deferredGenerator(f):
     """
-    deferredGenerator and waitForDeferred help you write L{Deferred}-using code
-    that looks like a regular sequential function. If your code has a minimum
-    requirement of Python 2.5, consider the use of L{inlineCallbacks} instead,
-    which can accomplish the same thing in a more concise manner.
+    L{deferredGenerator} and L{waitForDeferred} help you write
+    L{Deferred}-using code that looks like a regular sequential function.
+    Consider the use of L{inlineCallbacks} instead, which can accomplish
+    the same thing in a more concise manner.
 
     There are two important functions involved: L{waitForDeferred}, and
     L{deferredGenerator}.  They are used together, like this::
@@ -1017,12 +1051,6 @@ def deferredGenerator(f):
 
 
 ## inlineCallbacks
-
-# BaseException is only in Py 2.5.
-try:
-    BaseException
-except NameError:
-    BaseException=Exception
 
 
 
@@ -1150,18 +1178,13 @@ def _inlineCallbacks(result, g, deferred):
 
 def inlineCallbacks(f):
     """
-    WARNING: this function will not work in Python 2.4 and earlier!
-
-    inlineCallbacks helps you write Deferred-using code that looks like a
-    regular sequential function. This function uses features of Python 2.5
-    generators.  If you need to be compatible with Python 2.4 or before, use
-    the L{deferredGenerator} function instead, which accomplishes the same
-    thing, but with somewhat more boilerplate.  For example::
+    inlineCallbacks helps you write L{Deferred}-using code that looks like a
+    regular sequential function. For example::
 
         @inlineCallBacks
         def thingummy():
             thing = yield makeSomeRequestResultingInDeferred()
-            print thing #the result! hoorj!
+            print(thing)  # the result! hoorj!
 
     When you call anything that results in a L{Deferred}, you can simply yield it;
     your generator will automatically be resumed when the Deferred's result is
@@ -1327,6 +1350,9 @@ class DeferredSemaphore(_ConcurrencyPrimitive):
     """
     A semaphore for event driven systems.
 
+    If you are looking into this as a means of limiting parallelism, you might
+    find L{twisted.internet.task.Cooperator} more useful.
+
     @ivar tokens: At most this many users may acquire this semaphore at
         once.
     @type tokens: C{int}
@@ -1477,108 +1503,113 @@ class DeferredQueue(object):
 
 
 
-# Re-add to Python 3 in #5960:
-if not _PY3:
-    from twisted.python import lockfile
+class AlreadyTryingToLockError(Exception):
+    """
+    Raised when L{DeferredFilesystemLock.deferUntilLocked} is called twice on a
+    single L{DeferredFilesystemLock}.
+    """
 
-    class AlreadyTryingToLockError(Exception):
+
+
+class DeferredFilesystemLock(lockfile.FilesystemLock):
+    """
+    A L{FilesystemLock} that allows for a L{Deferred} to be fired when the lock is
+    acquired.
+
+    @ivar _scheduler: The object in charge of scheduling retries. In this
+        implementation this is parameterized for testing.
+
+    @ivar _interval: The retry interval for an L{IReactorTime} based scheduler.
+
+    @ivar _tryLockCall: A L{DelayedCall} based on C{_interval} that will manage
+        the next retry for aquiring the lock.
+
+    @ivar _timeoutCall: A L{DelayedCall} based on C{deferUntilLocked}'s timeout
+        argument.  This is in charge of timing out our attempt to acquire the
+        lock.
+    """
+    _interval = 1
+    _tryLockCall = None
+    _timeoutCall = None
+
+
+    def __init__(self, name, scheduler=None):
         """
-        Raised when L{DeferredFilesystemLock.deferUntilLocked} is called twice on a
-        single L{DeferredFilesystemLock}.
+        @param name: The name of the lock to acquire
+        @param scheduler: An object which provides L{IReactorTime}
         """
+        lockfile.FilesystemLock.__init__(self, name)
+
+        if scheduler is None:
+            from twisted.internet import reactor
+            scheduler = reactor
+
+        self._scheduler = scheduler
 
 
-
-    class DeferredFilesystemLock(lockfile.FilesystemLock):
+    def deferUntilLocked(self, timeout=None):
         """
-        A L{FilesystemLock} that allows for a L{Deferred} to be fired when the lock is
-        acquired.
+        Wait until we acquire this lock.  This method is not safe for
+        concurrent use.
 
-        @ivar _scheduler: The object in charge of scheduling retries. In this
-            implementation this is parameterized for testing.
+        @type timeout: C{float} or C{int}
+        @param timeout: the number of seconds after which to time out if the
+            lock has not been acquired.
 
-        @ivar _interval: The retry interval for an L{IReactorTime} based scheduler.
-
-        @ivar _tryLockCall: A L{DelayedCall} based on C{_interval} that will manage
-            the next retry for aquiring the lock.
-
-        @ivar _timeoutCall: A L{DelayedCall} based on C{deferUntilLocked}'s timeout
-            argument.  This is in charge of timing out our attempt to acquire the
-            lock.
+        @return: a L{Deferred} which will callback when the lock is acquired, or
+            errback with a L{TimeoutError} after timing out or an
+            L{AlreadyTryingToLockError} if the L{deferUntilLocked} has already
+            been called and not successfully locked the file.
         """
-        _interval = 1
-        _tryLockCall = None
-        _timeoutCall = None
+        if self._tryLockCall is not None:
+            return fail(
+                AlreadyTryingToLockError(
+                    "deferUntilLocked isn't safe for concurrent use."))
 
-
-        def __init__(self, name, scheduler=None):
+        def _cancelLock(reason):
             """
-            @param name: The name of the lock to acquire
-            @param scheduler: An object which provides L{IReactorTime}
+            Cancel a L{DeferredFilesystemLock.deferUntilLocked} call.
+
+            @type reason: L{failure.Failure}
+            @param reason: The reason why the call is cancelled.
             """
-            lockfile.FilesystemLock.__init__(self, name)
-
-            if scheduler is None:
-                from twisted.internet import reactor
-                scheduler = reactor
-
-            self._scheduler = scheduler
-
-
-        def deferUntilLocked(self, timeout=None):
-            """
-            Wait until we acquire this lock.  This method is not safe for
-            concurrent use.
-
-            @type timeout: C{float} or C{int}
-            @param timeout: the number of seconds after which to time out if the
-                lock has not been acquired.
-
-            @return: a L{Deferred} which will callback when the lock is acquired, or
-                errback with a L{TimeoutError} after timing out or an
-                L{AlreadyTryingToLockError} if the L{deferUntilLocked} has already
-                been called and not successfully locked the file.
-            """
-            if self._tryLockCall is not None:
-                return fail(
-                    AlreadyTryingToLockError(
-                        "deferUntilLocked isn't safe for concurrent use."))
-
-            d = Deferred()
-
-            def _cancelLock():
-                self._tryLockCall.cancel()
-                self._tryLockCall = None
+            self._tryLockCall.cancel()
+            self._tryLockCall = None
+            if self._timeoutCall is not None and self._timeoutCall.active():
+                self._timeoutCall.cancel()
                 self._timeoutCall = None
 
-                if self.lock():
-                    d.callback(None)
-                else:
-                    d.errback(failure.Failure(
-                            TimeoutError("Timed out aquiring lock: %s after %fs" % (
-                                    self.name,
-                                    timeout))))
+            if self.lock():
+                d.callback(None)
+            else:
+                d.errback(reason)
 
-            def _tryLock():
-                if self.lock():
-                    if self._timeoutCall is not None:
-                        self._timeoutCall.cancel()
-                        self._timeoutCall = None
+        d = Deferred(lambda deferred: _cancelLock(CancelledError()))
 
-                    self._tryLockCall = None
+        def _tryLock():
+            if self.lock():
+                if self._timeoutCall is not None:
+                    self._timeoutCall.cancel()
+                    self._timeoutCall = None
 
-                    d.callback(None)
-                else:
-                    if timeout is not None and self._timeoutCall is None:
-                        self._timeoutCall = self._scheduler.callLater(
-                            timeout, _cancelLock)
+                self._tryLockCall = None
 
-                    self._tryLockCall = self._scheduler.callLater(
-                        self._interval, _tryLock)
+                d.callback(None)
+            else:
+                if timeout is not None and self._timeoutCall is None:
+                    reason = failure.Failure(TimeoutError(
+                        "Timed out aquiring lock: %s after %fs" % (
+                            self.name,
+                            timeout)))
+                    self._timeoutCall = self._scheduler.callLater(
+                        timeout, _cancelLock, reason)
 
-            _tryLock()
+                self._tryLockCall = self._scheduler.callLater(
+                    self._interval, _tryLock)
 
-            return d
+        _tryLock()
+
+        return d
 
 
 

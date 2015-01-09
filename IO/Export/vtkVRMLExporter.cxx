@@ -47,10 +47,7 @@ vtkVRMLExporter::vtkVRMLExporter()
 
 vtkVRMLExporter::~vtkVRMLExporter()
 {
-  if ( this->FileName )
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 }
 
 void vtkVRMLExporter::SetFilePointer(FILE *fp)

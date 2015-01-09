@@ -28,13 +28,13 @@ int TestGPUInfo(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     {
     cout << " GPU " << i << ": " << endl;
     vtkGPUInfo *info=l->GetGPUInfo(i);
-    vtkIdType value;
+    vtkTypeUInt64 value;
     value=info->GetDedicatedVideoMemory();
-    cout << "  dedicated VRAM=" << value/(1024*1024) << " MB" << endl;
+    cout << "  dedicated VRAM=" << value/(1024*1024) << " MiB" << endl;
     value=info->GetDedicatedSystemMemory();
-    cout << "  dedicated RAM=" << value/(1024*1024) << " MB" << endl;
+    cout << "  dedicated RAM=" << value/(1024*1024) << " MiB" << endl;
     value=info->GetSharedSystemMemory();
-    cout << "  shared RAM=" << value/(1024*1024) << " MB" << endl;
+    cout << "  shared RAM=" << value/(1024*1024) << " MiB" << endl;
     ++i;
     }
   l->Delete();

@@ -42,7 +42,7 @@
 #include "vtkMultiProcessController.h"
 
 #include "vtk_exodusII.h"
-#include <time.h>
+#include <ctime>
 #include <ctype.h>
 
 vtkStandardNewMacro (vtkPExodusIIWriter);
@@ -132,10 +132,14 @@ void vtkPExodusIIWriter::CheckBlockInfoMap ()
         }
       int globalNodes;
       c->AllReduce (&b.NodesPerElement, &globalNodes, 1, vtkCommunicator::MAX_OP);
-      if (b.NodesPerElement != globalNodes)
+      if (b.NodesPerElement != globalNodes &&
+          // on a processor with no data, b.NodesPerElement == 0.
+          b.NodesPerElement != 0)
         {
         vtkWarningMacro (
-          << "NodesPerElement associated with ID's across processors doesn't match");
+          << "NodesPerElement associated with ID's across "
+             "processors doesn't match: "
+          << b.NodesPerElement << " != " << globalNodes);
         }
       else
         {
@@ -143,4 +147,14 @@ void vtkPExodusIIWriter::CheckBlockInfoMap ()
         }
       }
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkPExodusIIWriter::GlobalContinueExecuting(int localContinue)
+{
+  vtkMultiProcessController *c =
+    vtkMultiProcessController::GetGlobalController();
+  int globalContinue;
+  c->AllReduce (&localContinue, &globalContinue, 1, vtkCommunicator::MIN_OP);
+  return globalContinue;
 }

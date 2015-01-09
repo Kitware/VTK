@@ -186,6 +186,7 @@ int vtkScalarBarRepresentation::GetVisibility()
 void vtkScalarBarRepresentation::SetVisibility(int vis)
 {
   this->ScalarBarActor->SetVisibility(vis);
+  this->Superclass::SetVisibility(vis);
 }
 
 //-----------------------------------------------------------------------------

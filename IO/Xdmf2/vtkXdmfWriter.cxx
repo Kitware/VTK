@@ -14,48 +14,50 @@
 =========================================================================*/
 
 #include "vtkXdmfWriter.h"
-#include "vtkObjectFactory.h"
 
-#include "vtkDataObject.h"
-
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCellType.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObject.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkFieldData.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkFieldData.h"
-#include "vtkDataSet.h"
-#include "vtkPointSet.h"
-#include "vtkPoints.h"
-#include "vtkImageData.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkSmartPointer.h"
-#include "vtkCellType.h"
-#include "vtkIdList.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPolyData.h"
-#include "vtkGenericCell.h"
-#include "vtkCellArray.h"
-#include "vtkDataSetAttributes.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkPoints.h"
+#include "vtkPointSet.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
+#include "vtkStructuredGrid.h"
 #include "vtkTypeTraits.h"
+#include "vtkUnstructuredGrid.h"
 
 #include "XdmfArray.h"
 #include "XdmfAttribute.h"
 #include "XdmfDataDesc.h"
-#include "XdmfDomain.h"
 #include "XdmfDOM.h"
+#include "XdmfDomain.h"
 #include "XdmfGeometry.h"
 #include "XdmfGrid.h"
 #include "XdmfRoot.h"
 #include "XdmfTime.h"
 #include "XdmfTopology.h"
-#include <vector>
-#include <map>
+
 #include <algorithm>
+#include <map>
 #include <stdio.h>
+#include <vector>
+
 #include <libxml/tree.h> // always after std::blah stuff
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -64,13 +66,15 @@
 # define SNPRINTF snprintf
 #endif
 
+using namespace xdmf2;
+
 struct  _xmlNode;
 typedef _xmlNode *XdmfXmlNode;
 struct vtkXW2NodeHelp {
-  XdmfDOM     *DOM;
+  xdmf2::XdmfDOM     *DOM;
   XdmfXmlNode  node;
   bool         staticFlag;
-  vtkXW2NodeHelp(XdmfDOM *d, XdmfXmlNode n, bool f) : DOM(d), node(n), staticFlag(f) {};
+  vtkXW2NodeHelp(xdmf2::XdmfDOM *d, XdmfXmlNode n, bool f) : DOM(d), node(n), staticFlag(f) {};
 };
 
 class vtkXdmfWriterDomainMemoryHandler
@@ -82,13 +86,13 @@ class vtkXdmfWriterDomainMemoryHandler
       }
     ~vtkXdmfWriterDomainMemoryHandler()
       {
-        for(std::vector<XdmfGrid*>::iterator iter = domainGrids.begin(); iter != domainGrids.end(); ++iter)
+        for(std::vector<xdmf2::XdmfGrid*>::iterator iter = domainGrids.begin(); iter != domainGrids.end(); ++iter)
         {
           delete *iter;
         }
         delete domain;
       }
-    void InsertGrid(XdmfGrid* grid)
+  void InsertGrid(xdmf2::XdmfGrid* grid)
       {
         domain->Insert(grid);
         domainGrids.push_back(grid);
@@ -99,7 +103,7 @@ class vtkXdmfWriterDomainMemoryHandler
       }
   private:
     XdmfDomain* domain;
-    std::vector<XdmfGrid*> domainGrids;
+  std::vector<xdmf2::XdmfGrid*> domainGrids;
 };
 
 //==============================================================================
@@ -256,7 +260,7 @@ int vtkXdmfWriter::Write()
   //TODO: Specify name of heavy data companion file?
   if (!this->DOM)
     {
-    this->DOM = new XdmfDOM();
+    this->DOM = new xdmf2::XdmfDOM();
     }
   this->DOM->SetOutputFileName(this->FileName);
 
@@ -353,7 +357,7 @@ int vtkXdmfWriter::RequestData(
       this->TopTemporalGrid = NULL;
       }
 
-    XdmfGrid *tgrid = new XdmfGrid();
+    xdmf2::XdmfGrid *tgrid = new xdmf2::XdmfGrid();
     tgrid->SetDeleteOnGridDelete(true);
     tgrid->SetGridType(XDMF_GRID_COLLECTION);
     tgrid->SetCollectionType(XDMF_GRID_COLLECTION_TEMPORAL);
@@ -367,7 +371,7 @@ int vtkXdmfWriter::RequestData(
     this->TopTemporalGrid = tgrid;
     }
 
-  XdmfGrid *grid = new XdmfGrid();
+  xdmf2::XdmfGrid *grid = new xdmf2::XdmfGrid();
   grid->SetDeleteOnGridDelete(true);
   if (this->TopTemporalGrid)
     {
@@ -412,18 +416,18 @@ int vtkXdmfWriter::RequestData(
 }
 
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid)
 {
   //TODO:
   // respect parallelism
   if (!dobj)
     {
-    //cerr << "Null DS, someone else will take care of it" << endl;
+    //vtkWarningMacro(<< "Null DS, someone else will take care of it");
     return 0;
     }
   if (!grid)
     {
-    cerr << "Something is wrong, grid should have already been created for " << dobj << endl;
+    vtkWarningMacro(<< "Something is wrong, grid should have already been created for " << dobj);
     return 0;
     }
 
@@ -438,7 +442,7 @@ int vtkXdmfWriter::WriteDataSet(vtkDataObject *dobj, XdmfGrid *grid)
 }
 
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, xdmf2::XdmfGrid *grid)
 {
   //cerr << "internal node " << dobj << " is a " << dobj->GetClassName() << endl;
   if (dobj->IsA("vtkMultiPieceDataSet"))
@@ -467,13 +471,24 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *gr
     treeIter->VisitOnlyLeavesOff();
     treeIter->TraverseSubTreeOff();
     }
+  vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
   iter->GoToFirstItem();
   while (!iter->IsDoneWithTraversal())
     {
-    XdmfGrid *childsGrid = new XdmfGrid();
+    xdmf2::XdmfGrid *childsGrid = new xdmf2::XdmfGrid();
     childsGrid->SetDeleteOnGridDelete(true);
     grid->Insert(childsGrid);
     vtkDataObject* ds = iter->GetCurrentDataObject();
+
+    if (mbds)
+      {
+      vtkInformation* info = mbds->GetMetaData(iter->GetCurrentFlatIndex() - 1);
+      if (info)
+        {
+        childsGrid->SetName(info->Get(vtkCompositeDataSet::NAME()));
+        }
+      }
+
     this->WriteDataSet(ds, childsGrid);
     //delete childsGrid; //parent deletes children in Xdmf
     iter->GoToNextItem();
@@ -483,7 +498,7 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, XdmfGrid *gr
   return 1;
 }
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata)
+int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata)
 {
   //cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
 
@@ -848,14 +863,14 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, XdmfGrid *grid, vtkIdType PDim
     break;
   default:
     t->SetTopologyType(XDMF_NOTOPOLOGY);
-    cerr << "Unrecognized dataset type" << endl;
+    vtkWarningMacro(<< "Unrecognized dataset type");
   }
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticdata)
+int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *staticdata)
 {
   //Geometry
   XdmfGeometry *geo = grid->GetGeometry();
@@ -951,20 +966,20 @@ int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, XdmfGrid *grid, void *staticda
   default:
     geo->SetGeometryType(XDMF_GEOMETRY_NONE);
     //TODO: Support non-canonical vtkDataSets (via a callout for extensibility)
-    cerr << "Unrecognized dataset type" << endl;
+    vtkWarningMacro(<< "Unrecognized dataset type");
   }
 
   return 1;
 }
 //------------------------------------------------------------------------------
-int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
+int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid)
 {
-  cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
+  //cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
   vtkDataSet *ds = vtkDataSet::SafeDownCast(dobj);
   if (!ds)
     {
     //TODO: Fill in non Vis data types
-    cerr << "Can not convert " << dobj->GetClassName() << " to XDMF yet." << endl;
+    vtkWarningMacro(<< "Can not convert " << dobj->GetClassName() << " to XDMF yet.");
     return 0;
     }
 
@@ -991,63 +1006,69 @@ int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, XdmfGrid *grid)
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, XdmfGrid *grid, int association,
-                                 vtkIdType rank, vtkIdType *dims, const char *name)
+int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid *grid, int association,
+                               vtkIdType rank, vtkIdType *dims, const char *name)
 {
-  if (fd)
+  if (!fd)
     {
-    vtkDataSetAttributes *dsa = vtkDataSetAttributes::SafeDownCast(fd);
+    return 0;
+    }
+  vtkDataSetAttributes *dsa = vtkDataSetAttributes::SafeDownCast(fd);
 
-    const char *heavyName = NULL;
-    std::string heavyDataSetName;
-    if (this->HeavyDataFileName)
+  const char *heavyName = NULL;
+  std::string heavyDataSetName;
+  if (this->HeavyDataFileName)
+    {
+    heavyDataSetName = std::string(this->HeavyDataFileName) + ":";
+    if (this->HeavyDataGroupName)
       {
-      heavyDataSetName = std::string(this->HeavyDataFileName) + ":";
-      if (this->HeavyDataGroupName)
-        {
-        heavyDataSetName = heavyDataSetName + std::string(HeavyDataGroupName) + "/" + name;
-        }
-      heavyName = heavyDataSetName.c_str();
+      heavyDataSetName = heavyDataSetName + std::string(HeavyDataGroupName) + "/" + name;
+      }
+    heavyName = heavyDataSetName.c_str();
+    }
+
+  //
+  // Sort alphabetically to avoid potential bad ordering problems
+  //
+  int nbOfArrays = fd->GetNumberOfArrays();
+  std::vector<std::pair<int, std::string> > attributeNames;
+  attributeNames.reserve(nbOfArrays);
+  for (int i = 0; i < nbOfArrays; i++)
+    {
+    vtkDataArray *scalars = fd->GetArray(i);
+    attributeNames.push_back(std::pair<int, std::string>(i, scalars->GetName()));
+    }
+  std::sort(attributeNames.begin(), attributeNames.end());
+
+  for (int i = 0; i < nbOfArrays; i++)
+    {
+    vtkDataArray *da = fd->GetArray(attributeNames[i].second.c_str());
+    if (!da)
+      {
+      //TODO: Dump non numeric arrays too
+      vtkWarningMacro(<< "xdmfwriter can not convert non-numeric arrays yet.");
+      continue;
       }
 
-    //
-    // Sort alphabetically to avoid potential bad ordering problems
-    //
-    std::vector<std::string> AttributeNames;
-    for (int i=0; i<fd->GetNumberOfArrays(); i++) {
-      vtkDataArray *scalars = fd->GetArray(i);
-      AttributeNames.push_back(scalars->GetName());
-    }
-    std::sort(AttributeNames.begin(), AttributeNames.end());
-
-    for (unsigned int i = 0; i < AttributeNames.size(); i++)
+    XdmfAttribute *attr = new XdmfAttribute;
+    attr->SetLightDataLimit(this->LightDataLimit);
+    attr->SetDeleteOnGridDelete(true);
+    if (da->GetName())
       {
-      vtkDataArray *da = fd->GetArray(AttributeNames[i].c_str());
-      if (!da)
-        {
-        //TODO: Dump non numeric arrays too
-        cerr << "xdmfwriter can not convert non-numeric arrays yet." << endl;
-        continue;
-        }
+      attr->SetName(da->GetName());
+      }
+    else
+      {
+      attr->SetName("ANONYMOUS");
+      }
+    attr->SetAttributeCenter(association);
 
-      XdmfAttribute *attr = new XdmfAttribute;
-      attr->SetLightDataLimit(this->LightDataLimit);
-      attr->SetDeleteOnGridDelete(true);
-      if (da->GetName())
+    int attributeType = 0;
+    if (dsa)
+      {
+      attributeType = dsa->IsArrayAnAttribute(attributeNames[i].first);
+      switch (attributeType)
         {
-        attr->SetName(da->GetName());
-        }
-      else
-        {
-        attr->SetName("ANONYMOUS");
-        }
-      attr->SetAttributeCenter(association);
-
-      int attributeType = 0;
-      if (dsa)
-        {
-        attributeType = dsa->IsArrayAnAttribute(i);
-        switch (attributeType) {
         case vtkDataSetAttributes::SCALARS:
           attributeType = XDMF_ATTRIBUTE_TYPE_SCALAR; //TODO: Is XDMF ok with 3 component(RGB) active scalars?
           break;
@@ -1062,38 +1083,37 @@ int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, XdmfGrid *grid, int association
         case vtkDataSetAttributes::TCOORDS: //TODO: mark as vectors?
         case vtkDataSetAttributes::PEDIGREEIDS: //TODO: ? type is variable
         default:
-          attributeType = 0;
           break;
         }
-        }
-
-      if (attributeType != 0)
-        {
-        attr->SetActive(1);
-        attr->SetAttributeType(attributeType);
-        }
-      else
-        {
-        //vtk doesn't mark it as a special array, use width to tell xdmf what to call it
-        if ( da->GetNumberOfComponents() == 1 )
-          {
-          attr->SetAttributeType(XDMF_ATTRIBUTE_TYPE_SCALAR);
-          }
-        else if ( da->GetNumberOfComponents() == 3 )
-          {
-          attr->SetAttributeType(XDMF_ATTRIBUTE_TYPE_VECTOR);
-          }
-        else if ( da->GetNumberOfComponents() == 6 )
-          {
-          attr->SetAttributeType(XDMF_ATTRIBUTE_TYPE_TENSOR);
-          }
-        }
-
-      XdmfArray *xda = attr->GetValues();
-      this->ConvertVToXArray(da, xda, rank, dims, 0, heavyName);
-      attr->SetValues(xda);
-      grid->Insert(attr);
       }
+
+    if (attributeType != 0)
+      {
+      attr->SetActive(1);
+      attr->SetAttributeType(attributeType);
+      }
+    else
+      {
+      //vtk doesn't mark it as a special array, use width to tell xdmf what to call it
+      if (da->GetNumberOfComponents() == 1)
+        {
+        attr->SetAttributeType(XDMF_ATTRIBUTE_TYPE_SCALAR);
+        }
+      else if (da->GetNumberOfComponents() == 3)
+        {
+        attr->SetAttributeType(XDMF_ATTRIBUTE_TYPE_VECTOR);
+        }
+      else if (da->GetNumberOfComponents() == 6)
+        {
+        // TODO: convert VTK 9 components symetric tensors to 6 components
+        attr->SetAttributeType(XDMF_ATTRIBUTE_TYPE_TENSOR);
+        }
+      }
+
+    XdmfArray *xda = attr->GetValues();
+    this->ConvertVToXArray(da, xda, rank, dims, 0, heavyName);
+    attr->SetValues(xda);
+    grid->Insert(attr);
     }
 
   return 1;

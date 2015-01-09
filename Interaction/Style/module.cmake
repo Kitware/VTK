@@ -6,4 +6,6 @@ vtk_module(vtkInteractionStyle
   PRIVATE_DEPENDS
     vtkFiltersSources
     vtkFiltersExtraction
+  KIT
+    vtkInteraction
   )

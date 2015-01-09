@@ -16,6 +16,7 @@
 
 #include "metaContour.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string>
@@ -408,8 +409,6 @@ M_Read(void)
     }
   delete [] pntVal;
 
-  float v[16];
-
   if(m_BinaryData)
     {
     int readSize = m_NControlPoints*pntDim*4;
@@ -504,6 +503,10 @@ M_Read(void)
     }
   else
     {
+    float* v = new float[pntDim];
+    // Ensure that there is enough space.
+    assert(pntDim >= 1 + m_NDims * 3 + 4);
+
     for(int j=0; j<m_NControlPoints; j++)
       {
       ContourControlPnt* pnt = new ContourControlPnt(m_NDims);
@@ -545,6 +548,8 @@ M_Read(void)
 
       m_ControlPointsList.push_back(pnt);
       }
+
+    delete [] v;
 
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
@@ -674,6 +679,10 @@ M_Read(void)
       }
     else
       {
+      float* v = new float[pntDim];
+      // Ensure that there is enough space.
+      assert(pntDim >= 1 + m_NDims + 4);
+
       for(int j=0; j<m_NInterpolatedPoints; j++)
         {
         ContourInterpolatedPnt* pnt = new ContourInterpolatedPnt(m_NDims);
@@ -703,6 +712,8 @@ M_Read(void)
 
         m_InterpolatedPointsList.push_back(pnt);
         }
+
+      delete [] v;
 
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))

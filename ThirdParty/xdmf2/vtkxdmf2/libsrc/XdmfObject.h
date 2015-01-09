@@ -69,7 +69,6 @@
 #ifndef __XdmfObject_h
 #define __XdmfObject_h
 
-
 # ifndef SWIG
 #if !defined( WIN32 ) || defined(__CYGWIN__)
 #define UNIX
@@ -471,6 +470,9 @@ type Get##var (XdmfInt64 Index) \
   return ( this->var[ Index ]  ); \
   }
 
+namespace xdmf2
+{
+
 //! Base Class for All Xdmf Objects
 class XDMF_EXPORT XdmfObject {
 public:
@@ -517,4 +519,5 @@ extern XDMF_EXPORT istrstream& XDMF_READ_STREAM64(istrstream& istr, XDMF_64_INT&
 
 #endif /* __cplusplus */
 
+}
 #endif /* __XdmfObject_h */

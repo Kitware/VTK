@@ -65,6 +65,10 @@ set classExceptions {
    vtkAMRFlashParticleReader
    vtkMathTextUtilities
    vtkMatplotlibMathTextUtilities
+   vtkQImageToImageSource
+   vtkQtLabelRenderStrategy
+   vtkQtStringToImage
+   vtkQtTreeRingLabelMapper
 }
 
 proc rtTestEmptyInputTest { fileid } {

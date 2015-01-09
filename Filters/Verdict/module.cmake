@@ -7,4 +7,6 @@ vtk_module(vtkFiltersVerdict
   TEST_DEPENDS
     vtkIOLegacy
     vtkTestingCore
+  KIT
+    vtkFilters
   )

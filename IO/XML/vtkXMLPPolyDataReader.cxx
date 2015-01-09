@@ -49,7 +49,7 @@ vtkPolyData* vtkXMLPPolyDataReader::GetOutput()
 //----------------------------------------------------------------------------
 vtkPolyData* vtkXMLPPolyDataReader::GetOutput(int idx)
 {
-  return vtkPolyData::SafeDownCast( this->GetOutputDataObject(idx) );
+  return vtkPolyData::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 //----------------------------------------------------------------------------
@@ -65,17 +65,17 @@ void vtkXMLPPolyDataReader::GetOutputUpdateExtent(int& piece,
 {
   vtkInformation* outInfo = this->GetCurrentOutputInformation();
   piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numberOfPieces= outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevel = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPPolyDataReader::GetNumberOfCellsInPiece(int piece)
 {
-  if(this->PieceReaders[piece])
+  if (this->PieceReaders[piece])
     {
     return this->PieceReaders[piece]->GetNumberOfCells();
     }
@@ -85,7 +85,7 @@ vtkIdType vtkXMLPPolyDataReader::GetNumberOfCellsInPiece(int piece)
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPPolyDataReader::GetNumberOfVertsInPiece(int piece)
 {
-  if(this->PieceReaders[piece])
+  if (this->PieceReaders[piece])
     {
     vtkXMLPolyDataReader* pReader =
       static_cast<vtkXMLPolyDataReader*>(this->PieceReaders[piece]);
@@ -97,7 +97,7 @@ vtkIdType vtkXMLPPolyDataReader::GetNumberOfVertsInPiece(int piece)
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPPolyDataReader::GetNumberOfLinesInPiece(int piece)
 {
-  if(this->PieceReaders[piece])
+  if (this->PieceReaders[piece])
     {
     vtkXMLPolyDataReader* pReader =
       static_cast<vtkXMLPolyDataReader*>(this->PieceReaders[piece]);
@@ -109,7 +109,7 @@ vtkIdType vtkXMLPPolyDataReader::GetNumberOfLinesInPiece(int piece)
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPPolyDataReader::GetNumberOfStripsInPiece(int piece)
 {
-  if(this->PieceReaders[piece])
+  if (this->PieceReaders[piece])
     {
     vtkXMLPolyDataReader* pReader =
       static_cast<vtkXMLPolyDataReader*>(this->PieceReaders[piece]);
@@ -121,7 +121,7 @@ vtkIdType vtkXMLPPolyDataReader::GetNumberOfStripsInPiece(int piece)
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPPolyDataReader::GetNumberOfPolysInPiece(int piece)
 {
-  if(this->PieceReaders[piece])
+  if (this->PieceReaders[piece])
     {
     vtkXMLPolyDataReader* pReader =
       static_cast<vtkXMLPolyDataReader*>(this->PieceReaders[piece]);
@@ -135,13 +135,12 @@ void vtkXMLPPolyDataReader::SetupOutputTotals()
 {
   this->Superclass::SetupOutputTotals();
   // Find the total size of the output.
-  int i;
   this->TotalNumberOfCells = 0;
   this->TotalNumberOfVerts = 0;
   this->TotalNumberOfLines = 0;
   this->TotalNumberOfStrips = 0;
   this->TotalNumberOfPolys = 0;
-  for(i=this->StartPiece; i < this->EndPiece; ++i)
+  for(int i = this->StartPiece; i < this->EndPiece; ++i)
     {
     this->TotalNumberOfCells += this->GetNumberOfCellsInPiece(i);
     this->TotalNumberOfVerts += this->GetNumberOfVertsInPiece(i);
@@ -194,7 +193,10 @@ void vtkXMLPPolyDataReader::SetupNextPiece()
 //----------------------------------------------------------------------------
 int vtkXMLPPolyDataReader::ReadPieceData()
 {
-  if(!this->Superclass::ReadPieceData()) { return 0; }
+  if (!this->Superclass::ReadPieceData())
+    {
+    return 0;
+    }
 
   vtkPointSet* ips = this->GetPieceInputAsPointSet(this->Piece);
   vtkPolyData* input = static_cast<vtkPolyData*>(ips);
@@ -223,7 +225,7 @@ int vtkXMLPPolyDataReader::ReadPieceData()
 void vtkXMLPPolyDataReader::CopyArrayForCells(vtkDataArray* inArray,
                                               vtkDataArray* outArray)
 {
-  if(!this->PieceReaders[this->Piece])
+  if (!this->PieceReaders[this->Piece])
     {
     return;
     }
@@ -271,7 +273,6 @@ vtkXMLDataReader* vtkXMLPPolyDataReader::CreatePieceReader()
 {
   return vtkXMLPolyDataReader::New();
 }
-
 
 //----------------------------------------------------------------------------
 int vtkXMLPPolyDataReader::FillOutputPortInformation(int,

@@ -18,16 +18,9 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkgl.h"
 #include "vtkFrameBufferObject.h"
 #include "vtkTextureObject.h"
-#include "vtkShaderProgram2.h"
-#include "vtkShader2.h"
-#include "vtkShader2Collection.h"
-#include "vtkUniformVariables.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLExtensionManager.h"
-#include "vtkTextureUnitManager.h"
 
 // to be able to dump intermediate result into png files for debugging.
 // only for vtkCompositeRGBAPass developers.
@@ -44,15 +37,20 @@
 #include "vtkStdString.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
-#include "vtkOpenGLState.h"
 #include "vtkPKdTree.h"
 #include "vtkCamera.h"
 #include "vtkIntArray.h"
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
 //#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/types.h> // Linux specific gettid()
+# include <sys/syscall.h>
+# include <sys/types.h> // Linux specific gettid()
+# include "vtkOpenGLState.h"
+#endif
+
+#ifndef VTKGL2
+# include "vtkgl.h"
+# include "vtkOpenGLExtensionManager.h"
 #endif
 
 vtkStandardNewMacro(vtkCompositeRGBAPass);
@@ -128,6 +126,9 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
+#ifdef VTKGL2
+  return (context != 0);
+#else
   vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
 
   bool fbo_support=vtkFrameBufferObject::IsSupported(context);
@@ -136,6 +137,7 @@ bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
        && (extmgr->ExtensionSupported("GL_ARB_texture_float")==1);
 
   return fbo_support && texture_support;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -228,6 +230,8 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     this->RawRGBABufferSize=static_cast<size_t>(w*h*4);
     this->RawRGBABuffer=new float[this->RawRGBABufferSize];
     }
+
+  //size_t byteSize = this->RawRGBABufferSize*sizeof(unsigned char);
 
   if(this->PBO==0)
     {
@@ -363,15 +367,19 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     glDisable(GL_COLOR_LOGIC_OP);
 
     // framebuffers have their color premultiplied by alpha.
+#ifdef VTKGL2
+    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+#else
     vtkgl::BlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
                              GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-
     // fixed vertex shader
     glDisable(GL_LIGHTING);
 
     // fixed fragment shader
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_FOG);
+#endif
 
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
@@ -426,11 +434,17 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
         glEnable(GL_BLEND);
         blendingEnabled=true;
         }
+#ifdef VTKGL2
+      to->Activate();
+      to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, NULL, NULL);
+      to->Deactivate();
+#else
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       // fixed-pipeline for vertex and fragment shaders.
       to->Bind();
       to->CopyToFrameBuffer(0,0,w-1,h-1,0,0,w,h);
       to->UnBind();
+#endif
       --procIndex;
       }
     glPopAttrib();

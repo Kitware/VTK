@@ -939,16 +939,12 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
     {
     case VTK_POLY_DATA:
       return this->PolyDataExecute(request, inputVector, outputVector);
-      break;
     case VTK_UNSTRUCTURED_GRID:
       return this->UnstructuredGridExecute(request, inputVector, outputVector);
-      break;
     case VTK_IMAGE_DATA:
       return this->ImageDataExecute(request, inputVector, outputVector);
-      break;
     case VTK_STRUCTURED_GRID:
       return this->StructuredGridExecute(request, inputVector, outputVector);
-      break;
     default:
       vtkErrorMacro("We do not handle vtkRectilinear yet.");
     }

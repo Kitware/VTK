@@ -1,42 +1,4 @@
 #------------------------------------------------------------------------------
-# Function used to copy a Python package into the binary directory and compile
-# it.
-# package     :- The name of the Python package.
-# source_dir  :- The directory containing the Python source.
-# binary_dir  :- The directory to copy files to and compile into.
-#------------------------------------------------------------------------------
-function(build_python_package package source_dir binary_dir)
-
-  set (copy-complete "${binary_dir}/${package}-copy-complete")
-
-  copy_files_recursive("${source_dir}"
-    DESTINATION "${binary_dir}"
-    REGEX "^(.*\\.py)$"
-    OUTPUT ${copy-complete}
-    LABEL "Copying ${package} files")
-
-  set(CMAKE_CONFIGURABLE_FILE_CONTENT
-    "from compileall import compile_dir
-compile_dir('${binary_dir}')
-file = open('${binary_dir}/${package}_complete', 'w')
-file.write('Done')
-")
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-    "${CMAKE_CURRENT_BINARY_DIR}/compile_py" @ONLY)
-  unset(CMAKE_CONFIGURABLE_FILE_CONTENT)
-
-  add_custom_command(
-    COMMAND ${PYTHON_EXECUTABLE} ARGS ${CMAKE_CURRENT_BINARY_DIR}/compile_py
-    COMMAND ${PYTHON_EXECUTABLE} ARGS -O ${CMAKE_CURRENT_BINARY_DIR}/compile_py
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/compile_py
-            ${copy-complete}
-    OUTPUT  "${binary_dir}/${package}_complete"
-    COMMENT "Compiling Python files")
-
-  add_custom_target(${package} ALL DEPENDS "${binary_dir}/${package}_complete")
-endfunction()
-
-#------------------------------------------------------------------------------
 # Function used to copy arbitrary files matching certain patterns.
 # Usage:
 # copy_files_recursive(<source-dir>
@@ -55,24 +17,24 @@ function(copy_files_recursive source-dir)
   set (label "Copying files")
 
   set (doing "")
-  foreach (arg ${ARGN})
+  foreach (arg IN LISTS ARGN)
     if (arg MATCHES "^(DESTINATION|REGEX|OUTPUT|LABEL)$")
       set (doing "${arg}")
-    elseif ("${doing}" STREQUAL "DESTINATION")
+    elseif ("x${doing}" STREQUAL "xDESTINATION")
       set (doing "")
       set (dest-dir "${arg}")
-    elseif ("${doing}" STREQUAL "REGEX")
+    elseif ("x${doing}" STREQUAL "xREGEX")
       set (doing "SET")
       list (APPEND patterns "${arg}")
-    elseif (("${arg}" STREQUAL "EXCLUDE") AND ("${doing}" STREQUAL "SET"))
+    elseif (("x${arg}" STREQUAL "xEXCLUDE") AND ("x${doing}" STREQUAL "xSET"))
       set (doing "")
       list (GET patterns -1 cur-pattern)
       list (REMOVE_AT patterns -1)
       list (APPEND exclude-patterns "${cur-pattern}")
-    elseif ("${doing}" STREQUAL "OUTPUT")
+    elseif ("x${doing}" STREQUAL "xOUTPUT")
       set (doing "")
       set (output-file "${arg}")
-    elseif ("${doing}" STREQUAL "LABEL")
+    elseif ("x${doing}" STREQUAL "xLABEL")
       set (doing "")
       set (label "${arg}")
     else()

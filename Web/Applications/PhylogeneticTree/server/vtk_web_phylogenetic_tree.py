@@ -42,10 +42,8 @@ import os
 
 # import vtk modules.
 import vtk
-from vtk.web import server, wamp, protocols
-
-# import annotations
-from autobahn.wamp import exportRpc
+from vtk.web import server, protocols
+from vtk.web import wamp as vtk_wamp
 
 try:
     import argparse
@@ -58,7 +56,7 @@ except ImportError:
 # Create custom File Opener class to handle clients requests
 # =============================================================================
 
-class _PhylogeneticTree(wamp.ServerProtocol):
+class _PhylogeneticTree(vtk_wamp.ServerProtocol):
 
     # Application configuration
     view    = None

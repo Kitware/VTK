@@ -179,8 +179,7 @@ public:
   // Description:
   // Indices of attributes to interpolate.
   // \pre not_empty: !IsEmpty()
-  // \post valid_result: GetNumberOfAttributesToInterpolate()>0 implies
-  //                       result!=0
+  // \post valid_result: GetNumberOfAttributesToInterpolate()>0
   int *GetAttributesToInterpolate();
   //ETX
 

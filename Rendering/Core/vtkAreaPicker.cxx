@@ -250,15 +250,20 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
         {
         if ( mapper )
           {
-          mapper->GetBounds(bounds);
+          propCandidate->PokeMatrix(path->GetLastNode()->GetMatrix());
+          double* bds = propCandidate->GetBounds();
+          propCandidate->PokeMatrix(NULL);
+          for (int i = 0; i < 6; i++)
+            {
+            bounds[i] = bds[i];
+            }
+
           double dist;
-          //cerr << "mapper ABFISECT" << endl;
           if (this->ABoxFrustumIsect(bounds, dist))
             {
             if ( ! this->Prop3Ds->IsItemPresent(prop) )
               {
               this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
-              //cerr << "picked a mapper" << endl;
               if (dist < mindist) //new nearest, remember it
                 {
                 mindist = dist;

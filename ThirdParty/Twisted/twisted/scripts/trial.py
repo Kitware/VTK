@@ -4,7 +4,15 @@
 # See LICENSE for details.
 
 
-import sys, os, random, gc, pdb, time, warnings
+from __future__ import print_function
+import gc
+import inspect
+import os
+import pdb
+import random
+import sys
+import time
+import warnings
 
 from twisted.internet import defer
 from twisted.application import app
@@ -12,7 +20,6 @@ from twisted.python import usage, reflect, failure
 from twisted.python.filepath import FilePath
 from twisted import plugin
 from twisted.python.util import spewer
-from twisted.python.compat import set
 from twisted.trial import runner, itrial, reporter
 
 
@@ -94,6 +101,65 @@ def _reporterAction():
                                plugin.getPlugins(itrial.IReporter)])
 
 
+def _maybeFindSourceLine(testThing):
+    """
+    Try to find the source line of the given test thing.
+
+    @param testThing: the test item to attempt to inspect
+    @type testThing: an L{TestCase}, test method, or module, though only the
+        former two have a chance to succeed
+    @rtype: int
+    @return: the starting source line, or -1 if one couldn't be found
+    """
+
+    # an instance of L{TestCase} -- locate the test it will run
+    method = getattr(testThing, "_testMethodName", None)
+    if method is not None:
+        testThing = getattr(testThing, method)
+
+    # If it's a function, we can get the line number even if the source file no
+    # longer exists
+    code = getattr(testThing, "__code__", None)
+    if code is not None:
+        return code.co_firstlineno
+
+    try:
+        return inspect.getsourcelines(testThing)[1]
+    except (IOError, TypeError):
+        # either testThing is a module, which raised a TypeError, or the file
+        # couldn't be read
+        return -1
+
+
+# orders which can be passed to trial --order
+_runOrders = {
+    "alphabetical" : (
+        "alphabetical order for test methods, arbitrary order for test cases",
+        runner.name),
+    "toptobottom" : (
+     "attempt to run test cases and methods in the order they were defined",
+     _maybeFindSourceLine),
+}
+
+
+def _checkKnownRunOrder(order):
+    """
+    Check that the given order is a known test running order.
+
+    Does nothing else, since looking up the appropriate callable to sort the
+    tests should be done when it actually will be used, as the default argument
+    will not be coerced by this function.
+
+    @param order: one of the known orders in C{_runOrders}
+    @return: the order unmodified
+    """
+    if order not in _runOrders:
+        raise usage.UsageError(
+            "--order must be one of: %s. See --help-orders for details" %
+            (", ".join(repr(order) for order in _runOrders),))
+    return order
+
+
 
 class _BasicOptions(object):
     """
@@ -107,6 +173,7 @@ class _BasicOptions(object):
 
     optFlags = [["help", "h"],
                 ["no-recurse", "N", "Don't recurse into packages"],
+                ['help-orders', None, "Help on available test running orders"],
                 ['help-reporters', None,
                  "Help on available output plugins (reporters)"],
                 ["rterrors", "e", "realtime errors, print out tracebacks as "
@@ -115,9 +182,15 @@ class _BasicOptions(object):
                  "Turn dirty reactor errors into warnings"],
                 ["force-gc", None, "Have Trial run gc.collect() before and "
                  "after each test case."],
+                ["exitfirst", "x",
+                 "Exit after the first non-successful result (cannot be "
+                 "specified along with --jobs)."],
                 ]
 
     optParameters = [
+        ["order", "o", None,
+         "Specify what order to run test cases and methods. "
+         "See --help-orders for more info.", _checkKnownRunOrder],
         ["random", "z", None,
          "Run tests in random order using the specified seed"],
         ['temp-directory', None, '_trial_temp',
@@ -127,7 +200,8 @@ class _BasicOptions(object):
          'more info.']]
 
     compData = usage.Completions(
-        optActions={"reporter": _reporterAction,
+        optActions={"order": usage.CompleteList(_runOrders),
+                    "reporter": _reporterAction,
                     "logfile": usage.CompleteFiles(descr="log file name"),
                     "random": usage.Completer(descr="random seed")},
         extraActions=[usage.CompleteFiles(
@@ -139,7 +213,7 @@ class _BasicOptions(object):
     tracer = None
 
     def __init__(self):
-        self['tests'] = set()
+        self['tests'] = []
         usage.Options.__init__(self)
 
 
@@ -150,9 +224,17 @@ class _BasicOptions(object):
         """
         coverdir = 'coverage'
         result = FilePath(self['temp-directory']).child(coverdir)
-        print "Setting coverage directory to %s." % (result.path,)
+        print("Setting coverage directory to %s." % (result.path,))
         return result
 
+
+    # TODO: Some of the opt_* methods on this class have docstrings and some do
+    #       not. This is mostly because usage.Options's currently will replace
+    #       any intended output in optFlags and optParameters with the
+    #       docstring. See #6427. When that is fixed, all methods should be
+    #       given docstrings (and it should be verified that those with
+    #       docstrings already have content suitable for printing as usage
+    #       information).
 
     def opt_coverage(self):
         """
@@ -184,9 +266,9 @@ class _BasicOptions(object):
             return
         filename = os.path.abspath(filename)
         if isTestFile(filename):
-            self['tests'].add(filename)
+            self['tests'].append(filename)
         else:
-            self['tests'].update(getTestModules(filename))
+            self['tests'].extend(getTestModules(filename))
 
 
     def opt_spew(self):
@@ -197,14 +279,24 @@ class _BasicOptions(object):
         sys.settrace(spewer)
 
 
+    def opt_help_orders(self):
+        synopsis = ("Trial can attempt to run test cases and their methods in "
+                    "a few different orders. You can select any of the "
+                    "following options using --order=<foo>.\n")
+
+        print(synopsis)
+        for name, (description, _) in sorted(_runOrders.items()):
+            print('   ', name, '\t', description)
+        sys.exit(0)
+
+
     def opt_help_reporters(self):
         synopsis = ("Trial's output can be customized using plugins called "
                     "Reporters. You can\nselect any of the following "
                     "reporters using --reporter=<foo>\n")
-        print synopsis
+        print(synopsis)
         for p in plugin.getPlugins(itrial.IReporter):
-            print '   ', p.longOpt, '\t', p.description
-        print
+            print('   ', p.longOpt, '\t', p.description)
         sys.exit(0)
 
 
@@ -270,7 +362,7 @@ class _BasicOptions(object):
 
 
     def parseArgs(self, *args):
-        self['tests'].update(args)
+        self['tests'].extend(args)
 
 
     def _loadReporterByName(self, name):
@@ -290,6 +382,9 @@ class _BasicOptions(object):
         self['reporter'] = self._loadReporterByName(self['reporter'])
         if 'tbformat' not in self:
             self['tbformat'] = 'default'
+        if self['order'] is not None and self['random'] is not None:
+            raise usage.UsageError(
+                "You can't specify --random when using --order")
 
 
 
@@ -376,7 +471,8 @@ class Options(_BasicOptions, usage.Options, app.ReactorSelectionMixin):
     def postOptions(self):
         _BasicOptions.postOptions(self)
         if self['jobs']:
-            for option in ['debug', 'profile', 'debug-stacktraces']:
+            conflicts = ['debug', 'profile', 'debug-stacktraces', 'exitfirst']
+            for option in conflicts:
                 if self[option]:
                     raise usage.UsageError(
                         "You can't specify --%s when using --jobs" % option)
@@ -410,7 +506,10 @@ def _getLoader(config):
         randomer = random.Random()
         randomer.seed(config['random'])
         loader.sorter = lambda x : randomer.random()
-        print 'Running tests shuffled with seed %d\n' % config['random']
+        print('Running tests shuffled with seed %d\n' % config['random'])
+    elif config['order']:
+        _, sorter = _runOrders[config['order']]
+        loader.sorter = sorter
     if not config['until-failure']:
         loader.suiteFactory = runner.DestructiveTestSuite
     return loader
@@ -426,7 +525,7 @@ def _wrappedPdb():
     try:
         import readline
     except ImportError:
-        print "readline module not available"
+        print("readline module not available")
         sys.exc_clear()
     for path in ('.pdbrc', 'pdbrc'):
         if os.path.exists(path):
@@ -486,6 +585,7 @@ def _makeRunner(config):
             else:
                 args['debugger'] = _wrappedPdb()
 
+        args['exitFirst'] = config['exitfirst']
         args['profile'] = config['profile']
         args['forceGarbageCollection'] = config['force-gc']
 

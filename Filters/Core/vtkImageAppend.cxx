@@ -38,10 +38,7 @@ vtkImageAppend::vtkImageAppend()
 //----------------------------------------------------------------------------
 vtkImageAppend::~vtkImageAppend()
 {
-  if (this->Shifts != NULL)
-    {
-    delete [] this->Shifts;
-    }
+  delete [] this->Shifts;
 }
 
 //----------------------------------------------------------------------------
@@ -109,10 +106,7 @@ int vtkImageAppend::RequestInformation (
   unionExt[1] = unionExt[3] = unionExt[5] = -VTK_INT_MAX;
 
   // Initialize the shifts.
-  if (this->Shifts)
-    {
-    delete [] this->Shifts;
-    }
+  delete [] this->Shifts;
   this->Shifts = new int [this->GetNumberOfInputConnections(0)];
 
   // Find the outMin/max of the appended axis for this input.
@@ -413,7 +407,7 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
 {
   int idxY, idxZ;
   int maxY, maxZ;
-  vtkIdType outIncX, outIncY, outIncZ;
+  vtkIdType outIncY, outIncZ;
   int rowLength;
   int typeSize;
   unsigned char *outPtrZ, *outPtrY;
@@ -436,11 +430,9 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
     // Get increments to march through data
     vtkIdType increments[3];
     outData->GetArrayIncrements(array, increments);
-    outIncX = increments[0];
     outIncY = increments[1];
     outIncZ = increments[2];
 
-    outIncX *= typeSize;
     outIncY *= typeSize;
     outIncZ *= typeSize;
 

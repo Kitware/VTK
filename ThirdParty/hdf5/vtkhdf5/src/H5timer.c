@@ -39,9 +39,9 @@
 #   include <sys/resource.h>
 #endif
 
-#ifdef H5_HAVE_GETTIMEOFDAY
+#if defined(H5_HAVE_GETTIMEOFDAY) && defined(H5_HAVE_SYS_TIME_H)
 #include <sys/time.h>
-#endif /* H5_HAVE_GETTIMEOFDAY */
+#endif
 
 
 /****************/
@@ -97,8 +97,8 @@
 void
 H5_timer_reset (H5_timer_t *timer)
 {
-    assert (timer);
-    HDmemset (timer, 0, sizeof *timer);
+    HDassert(timer);
+    HDmemset(timer, 0, sizeof *timer);
 } /* end H5_timer_reset() */
 
 
@@ -126,7 +126,7 @@ H5_timer_begin (H5_timer_t *timer)
     struct timeval	etime;
 #endif
 
-    assert (timer);
+    HDassert(timer);
 
 #ifdef H5_HAVE_GETRUSAGE
     HDgetrusage (RUSAGE_SELF, &rusage);
@@ -169,7 +169,7 @@ H5_timer_end (H5_timer_t *sum/*in,out*/, H5_timer_t *timer/*in,out*/)
 {
     H5_timer_t		now;
 
-    assert (timer);
+    HDassert(timer);
     H5_timer_begin (&now);
 
     timer->utime = MAX(0.0, now.utime - timer->utime);
@@ -220,7 +220,7 @@ H5_bandwidth(char *buf/*out*/, double nbytes, double nseconds)
 	HDstrcpy(buf, "       NaN");
     else {
 	bw = nbytes/nseconds;
-        if(fabs(bw) < 0.0000000001)
+        if(HDfabs(bw) < 0.0000000001)
             /* That is == 0.0, but direct comparison between floats is bad */
 	    HDstrcpy(buf, "0.000  B/s");
 	else if(bw < 1.0)

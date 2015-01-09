@@ -105,14 +105,14 @@ int vtkExtractGrid::RequestUpdateExtent(
         vtkWarningMacro("Requested extent outside whole extent.")
         idx = 0;
         }
-      uExt[2*i] = this->Internal->GetMapping(i,idx);
+      uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
       int jdx = oUExt[2*i+1];
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
         {
         vtkWarningMacro("Requested extent outside whole extent.")
         jdx = 0;
         }
-      uExt[2*i + 1] = this->Internal->GetMapping(i,jdx);
+      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
@@ -122,17 +122,26 @@ int vtkExtractGrid::RequestUpdateExtent(
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkExtractGrid::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 1 : 0;
+}
+
+//------------------------------------------------------------------------------
+bool vtkExtractGrid::RequestDataImpl(int vtkNotUsed(voi)[6],
+                                     vtkInformationVector **inputVector,
+                                     vtkInformationVector *outputVector)
+{
   if( (this->SampleRate[0] < 1) ||
       (this->SampleRate[1] < 1) ||
       (this->SampleRate[2] < 1) )
     {
-    vtkErrorWithObjectMacro(
-        this,"SampleRate must be >= 1 in all 3 dimenstions!");
+    vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
+    return false;
     }
 
   // get the info objects
@@ -157,7 +166,7 @@ int vtkExtractGrid::RequestData(
 
   if (input->GetNumberOfPoints() == 0)
     {
-    return 1;
+    return true;
     }
 
   inPts = input->GetPoints();
@@ -177,7 +186,7 @@ int vtkExtractGrid::RequestData(
 
   this->Internal->CopyCellData(inExt,outExt,cd,outCD);
 
-  return 1;
+  return true;
 }
 
 void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)

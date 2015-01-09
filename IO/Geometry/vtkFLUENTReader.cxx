@@ -3746,7 +3746,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
     }
 
   //  Find the quad face with points 0 and 1 in them.
-  int w01[4];
+  int w01[4] = {-1, -1, -1, -1};
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
     {
     if (this->Cells->value[i].faces[j] != base &&

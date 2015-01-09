@@ -55,15 +55,6 @@
 #define  INC_OCT_PNT_LOC_TESTS_ZERO  0.00000000000001
 
 
-// NOTE: ALL THE FOLLOWING FLAGS SHOULD BE OFF
-
-
-//#ifdef   _BRUTE_FORCE_VERIFICATION_
-//#define  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-//#define  _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_ // do NOT turn this ON
-//#endif
-
-
 // ---------------------------------------------------------------------------
 // Meta information of the test data
 //
@@ -166,14 +157,10 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   // open a file for reading or writing the ground truth data
   fileName = vtkTestUtilities::ExpandDataFileName
              ( argc, argv, "Data/IncOctPntLocResult.dat" );
-  #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-  diskFile = fopen( fileName, "wb" );
-  #else
   #ifndef _BRUTE_FORCE_VERIFICATION_
   diskFile = fopen( fileName, "rb" );
   truthIds = ( vtkIdType * )
              realloc(  truthIds,  sizeof( vtkIdType ) * numbPnts  );
-  #endif
   #endif
   delete []  fileName;  fileName = NULL;
 
@@ -360,29 +347,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       #endif
 
 
-      // ---------------------------------------------------------------------
-      // write the point indices as the ground truth
-      #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-      if ( retValue == 0 )
-        {
-        numInsrt = ptIdList->GetNumberOfIds();
-        n = fwrite( &numInsrt,  sizeof( int ),  1,  diskFile  );
-        if (n != 1)
-          {
-          cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-          return 1;
-          }
-        n = fwrite(  ptIdList->GetPointer( 0 ),
-                 sizeof( vtkIdType ), numInsrt, diskFile  );
-        if (n != static_cast<size_t>(numInsrt))
-          {
-          cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-          return 1;
-          }
-        }
-      #endif
-      // -------------------------------------------------------------------//
-
       } // end of two tolerances and three functions
 
 
@@ -457,9 +421,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   SwapForBigEndian
     (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
   #endif
-  pLocPnts = ( double * ) realloc( pLocPnts, sizeof( double ) * nLocPnts * 3 );
-  minDist2 = ( double * ) realloc( minDist2, sizeof( double ) * nLocPnts     );
-  maxDist2 = ( double * ) realloc( maxDist2, sizeof( double ) * nLocPnts     );
+  pLocPnts = ( double * ) malloc( sizeof( double ) * nLocPnts * 3 );
+  minDist2 = ( double * ) malloc( sizeof( double ) * nLocPnts     );
+  maxDist2 = ( double * ) malloc( sizeof( double ) * nLocPnts     );
   n = fread( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
   if (n != static_cast<size_t>(nLocPnts * 3))
     {
@@ -567,28 +531,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // ---------------------------------------------------------------------//
     #endif
 
-    // -----------------------------------------------------------------------
-    // write the point indices as the ground truth
-    #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-    if ( retValue == 0 )
-      {
-      n = fwrite( &nLocPnts,  sizeof( int       ),  1,         diskFile  );
-      if (n != 1)
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      n = fwrite(  resltIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
-      if (n != static_cast<size_t>(nLocPnts))
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      }
-    #endif
-    // ---------------------------------------------------------------------//
-
-
     if ( retValue == 1 ) continue;
 
 
@@ -654,10 +596,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
 
       // write some data for locating the closest point
       // within a radius and the points within a radius
-      //#ifdef _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_
       minDist2[i] = clzNdst2[0];
       maxDist2[i] = clzNdst2[ nClzNpts - 1 ];
-      //#endif
 
       // check if there are any ignored but closer points
       for (  j = 0;  ( j < numbPnts ) && ( retValue == 0 );  j ++  )
@@ -680,28 +620,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                sizeof( vtkIdType ) * nClzNpts  );
       }
     // ---------------------------------------------------------------------//
-    // ---------------------------------------------------------------------//
-
-    // -----------------------------------------------------------------------
-    // write the point indices as the ground truth
-    #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-    if ( retValue == 0 )
-      {
-      numInsrt = nClzNpts * nLocPnts;
-      n = fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
-      if (n != 1)
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      n = fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
-      if (n != static_cast<size_t>(numInsrt))
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      }
-    #endif
     // ---------------------------------------------------------------------//
 
     // -----------------------------------------------------------------------
@@ -764,28 +682,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       // ---------------------------------------------------------------------//
       #endif
       }
-
-    // -----------------------------------------------------------------------
-    // write the point indices as the ground truth
-    #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-    if ( retValue == 0 )
-      {
-      numInsrt = nLocPnts * 3;                       // as we test three radii
-      n = fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
-      if (n != 1)
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      n = fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
-      if (n != static_cast<size_t>(numInsrt))
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      }
-    #endif
-    // ---------------------------------------------------------------------//
 
     // -----------------------------------------------------------------------
     // rapid point index-based verification
@@ -952,29 +848,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
 
     // -----------------------------------------------------------------------
-    // write the point indices as the ground truth
-    #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
-    if ( retValue == 0 )
-      {
-      numInsrt = ptIdList->GetNumberOfIds();
-      n = fwrite( &numInsrt, sizeof( int ),  1,  diskFile  );
-      if (n != 1)
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      n = fwrite(  ptIdList->GetPointer( 0 ),
-               sizeof( vtkIdType ),  numInsrt,  diskFile  );
-      if (n != static_cast<size_t>(numInsrt))
-        {
-        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-        return 1;
-        }
-      }
-    #endif
-    // ---------------------------------------------------------------------//
-
-    // -----------------------------------------------------------------------
     // rapid point index-based verification
     #ifndef _BRUTE_FORCE_VERIFICATION_
     n = fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
@@ -1011,132 +884,6 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // ---------------------------------------------------------------------//
 
     }
-
-
-  // =========================================================================
-  // ================== DO NOT TURN ON THIS SEGMENT OF CODE ==================
-  // =========================================================================
-  #ifdef _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_
-  fileName = vtkTestUtilities::ExpandDataFileName
-                               ( argc, argv, "Data/IncOctPntLocData.dat" );
-  pntsFile = fopen( fileName, "wb" );
-  delete []  fileName;  fileName = NULL;
-  n = fwrite(&nLocPnts, sizeof( int    ), 1,            pntsFile );
-  if (n != 1)
-    {
-    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-    return 1;
-    }
-  n = fwrite( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
-  if (n != static_cast<size_t>(nLocPnts) * 3)
-    {
-    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-    return 1;
-    }
-  n = fwrite( minDist2, sizeof( double ), nLocPnts,     pntsFile );
-  if (n != static_cast<size_t>(nLocPnts))
-    {
-    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-    return 1;
-    }
-  n = fwrite( maxDist2, sizeof( double ), nLocPnts,     pntsFile );
-  if (n != static_cast<size_t>(nLocPnts))
-    {
-    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
-    return 1;
-    }
-  fclose( pntsFile );                 pntsFile = NULL;
-  #endif
-  // =======================================================================//
-  // =======================================================================//
-
-
-  // =========================================================================
-  // ================== DO NOT TURN ON THIS SEGMENT OF CODE ==================
-  // =========================================================================
-  // NOTE: do *NOT* turn on this segment of code as the points resulting from
-  //       the following random generator would change the points disk file!!!
-  //       The points generated below are used to challenge point location.
-  //       In case this segment is executed, it needs to be turned off and
-  //       re-run the test with _BRUTE_FORCE_VERIFICATION_ on to create new
-  //       disk files.
-  #if 0
-  int      duplPnts = 200;
-  int      inerPnts = 500;
-  int      outrPnts = 300;
-  int      totalPts = duplPnts + inerPnts + outrPnts;
-  int      coordIdx = 0;
-  int      gridIndx = 0;
-  double * ptCoords = ( double * ) malloc( sizeof( double ) * 3 * totalPts );
-
-  // duplicating grid points
-  for ( i = 0; i < duplPnts; i ++, coordIdx ++ )
-    {
-    gridIndx = rand() % numbPnts;
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] =
-    pDataPts[ ( gridIndx << 1 ) + gridIndx + 0 ];
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] =
-    pDataPts[ ( gridIndx << 1 ) + gridIndx + 1 ];
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] =
-    pDataPts[ ( gridIndx << 1 ) + gridIndx + 2 ];
-    }
-
-  // non-duplicate within-data points
-  // some randomly selected grid points are jittered, in each axis,
-  // between [ -0.1, 0.1 ] with resolution 0.001
-  for ( i = 0; i < inerPnts; i ++, coordIdx ++ )
-    {
-    gridIndx = ( rand() % numbPnts ) + ( numbPnts >> 1 );
-    gridIndx = gridIndx % numbPnts;
-
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] =
-    pDataPts[ ( gridIndx << 1 ) + gridIndx + 0 ] +
-    0.001 * (   (  ( rand() % 2 ) << 1  )  -  1   ) * ( rand() % 101 );
-
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] =
-    pDataPts[ ( gridIndx << 1 ) + gridIndx + 1 ] +
-    0.001 * (   (  ( rand() % 2 ) << 1  )  -  1   ) * ( rand() % 101 );
-
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] =
-    pDataPts[ ( gridIndx << 1 ) + gridIndx + 2 ] +
-    0.001 * (   (  ( rand() % 2 ) << 1  )  -  1   ) * ( rand() % 101 );
-    }
-
-  // outer points: x --- [ -5.0, -3.0 ] or [ 3.0, 5.0 ]
-  //                 AND
-  //               y --- [ -5.0, -3.0 ] or [ 3.0, 5.0 ]
-  //                 AND
-  //               z --- [ -5.0, -3.0 ] or [ 3.0, 5.0 ]
-  for ( i = 0; i < outrPnts; i ++, coordIdx ++ )
-    {
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ]  =
-      3.0 + 0.01 * ( rand() % 201 );
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] *=
-      (  ( rand() % 2 ) << 1  )  -  1;
-
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ]  =
-      3.0 + 0.01 * ( rand() % 201 );
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] *=
-      (  ( rand() % 2 ) << 1  )  -  1;
-
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ]  =
-      3.0 + 0.01 * ( rand() % 201 );
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] *=
-      (  ( rand() % 2 ) << 1  )  -  1;
-    }
-
-  // write the points to a disk file
-  fileName = vtkTestUtilities::ExpandDataFileName
-                               ( argc, argv, "Data/IncOctPntLocData.dat" );
-  pntsFile = fopen( fileName, "wb" );
-  delete []  fileName;  fileName = NULL;
-  fwrite( &totalPts, sizeof( int    ), 1,            pntsFile );
-  fwrite(  ptCoords, sizeof( double ), totalPts * 3, pntsFile );
-  fclose(  pntsFile  );  pntsFile = NULL;
-  free( ptCoords );      ptCoords = NULL;
-  #endif
-  // =======================================================================//
-  // =======================================================================//
 
 
   // memory clearance

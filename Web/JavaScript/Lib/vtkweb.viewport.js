@@ -600,7 +600,7 @@
              */
             resetCamera: function(onDone) {
                 onDoneQueue.push(onDone);
-                return session.call("vtk:resetCamera", Number(config.view)).then(function () {
+                return session.call("viewport.camera.reset", [Number(config.view)]).then(function () {
                     rendererContainer.trigger('invalidateScene');
                 });
             },
@@ -614,7 +614,7 @@
              * @param {Function} ondone Function to call after rendering is complete.
              */
             updateOrientationAxesVisibility: function (show, onDone) {
-                return session.call("vtk:updateOrientationAxesVisibility", Number(config.view), show).then(function () {
+                return session.call("viewport.axes.orientation.visibility.update", [Number(config.view), show]).then(function () {
                     onDoneQueue.push(onDone);
                     rendererContainer.trigger('invalidateScene');
                 });
@@ -629,7 +629,7 @@
              * @param {Function} ondone Function to call after rendering is complete.
              */
             updateCenterAxesVisibility: function (show, onDone) {
-                return session.call("vtk:updateCenterAxesVisibility", Number(config.view), show).then(function () {
+                return session.call("viewport.axes.center.visibility.update", [Number(config.view), show]).then(function () {
                     onDoneQueue.push(onDone);
                     rendererContainer.trigger('invalidateScene');
                 });

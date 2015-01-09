@@ -29,6 +29,9 @@
 
 #define XDMF_DSM_MAX_LOCKS 32
 
+namespace xdmf2
+{
+
 //! Helper for pthread_create()
 extern "C" {
 XDMF_EXPORT void *
@@ -72,4 +75,5 @@ protected:
     XdmfInt32   ThreadDsmReady;
 };
 
+}
 #endif // __XdmfDsmBuffer_h

@@ -26,6 +26,9 @@
 #include "XdmfDOM.h"
 #include <stdlib.h>
 
+namespace xdmf2
+{
+
 XdmfRoot::XdmfRoot() {
     this->SetElementName("Xdmf");
     this->Version = (XdmfFloat32)XDMF_VERSION;
@@ -77,4 +80,6 @@ XdmfInt32 XdmfRoot::Build(){
     aVersion << this->Version << ends;
     this->Set("Version", (XdmfConstString)aVersion.str());
     return(XDMF_SUCCESS);
+}
+
 }

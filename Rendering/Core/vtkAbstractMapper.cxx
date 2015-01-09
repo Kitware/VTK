@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkAbstractMapper.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
@@ -80,6 +82,7 @@ void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
   if (this->ClippingPlanes == NULL)
     {
     vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
+    return;
     }
   this->ClippingPlanes->RemoveItem(plane);
   this->Modified();
@@ -113,14 +116,27 @@ void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
     }
 }
 
-vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
+vtkDataArray* vtkAbstractMapper::GetScalars(vtkDataSet *input,
                                             int scalarMode,
                                             int arrayAccessMode,
                                             int arrayId,
                                             const char *arrayName,
                                             int& cellFlag)
 {
-  vtkDataArray *scalars=NULL;
+  vtkAbstractArray* abstractScalars =
+    vtkAbstractMapper::GetAbstractScalars(input, scalarMode, arrayAccessMode, arrayId, arrayName, cellFlag);
+  vtkDataArray* scalars = vtkDataArray::SafeDownCast(abstractScalars);
+  return scalars;
+}
+
+vtkAbstractArray* vtkAbstractMapper::GetAbstractScalars(vtkDataSet *input,
+                                                        int scalarMode,
+                                                        int arrayAccessMode,
+                                                        int arrayId,
+                                                        const char *arrayName,
+                                                        int& cellFlag)
+{
+  vtkAbstractArray *scalars=NULL;
   vtkPointData *pd;
   vtkCellData *cd;
   vtkFieldData *fd;
@@ -157,11 +173,11 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
     pd = input->GetPointData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
       {
-      scalars = pd->GetArray(arrayId);
+      scalars = pd->GetAbstractArray(arrayId);
       }
     else
       {
-      scalars = pd->GetArray(arrayName);
+      scalars = pd->GetAbstractArray(arrayName);
       }
     cellFlag = 0;
     }
@@ -170,11 +186,11 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
     cd = input->GetCellData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
       {
-      scalars = cd->GetArray(arrayId);
+      scalars = cd->GetAbstractArray(arrayId);
       }
     else
       {
-      scalars = cd->GetArray(arrayName);
+      scalars = cd->GetAbstractArray(arrayName);
       }
     cellFlag = 1;
     }
@@ -183,11 +199,11 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
     fd = input->GetFieldData();
     if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
       {
-      scalars = fd->GetArray(arrayId);
+      scalars = fd->GetAbstractArray(arrayId);
       }
     else
       {
-      scalars = fd->GetArray(arrayName);
+      scalars = fd->GetAbstractArray(arrayName);
       }
     cellFlag = 2;
     }

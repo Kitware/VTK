@@ -1,0 +1,27 @@
+vtk_module(vtkRenderingOpenGL2
+  TCL_NAME
+    vtkRenderingOpenGLII
+  DEPENDS
+    vtkCommonExecutionModel
+  IMPLEMENTS
+    vtkRenderingCore
+  BACKEND
+    OpenGL2
+  PRIVATE_DEPENDS
+    vtkImagingHybrid
+    vtkglew
+    vtksys
+  COMPILE_DEPENDS
+    vtkUtilitiesEncodeString
+  TEST_DEPENDS
+    vtkIOLegacy
+    vtkRenderingImage
+    vtkTestingCore
+    vtkTestingRendering
+    vtkImagingGeneral
+    vtkImagingSources
+    vtkInteractionStyle
+    vtkIOPLY
+  KIT
+    vtkOpenGL
+  )

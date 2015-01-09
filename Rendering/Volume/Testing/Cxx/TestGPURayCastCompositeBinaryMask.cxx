@@ -118,7 +118,6 @@ int TestGPURayCastCompositeBinaryMask(int argc, char *argv[])
   mapper->SetBlendModeToComposite();
   property->ShadeOn();
 
-
   // Make the mask
   vtkSmartPointer< vtkImageData > mask
     = vtkSmartPointer< vtkImageData >::New();

@@ -18,6 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPath.h"
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
@@ -61,6 +62,7 @@ public:
   // Set by PrepareMetaData
   vtkTextProperty *textProperty;
   unsigned long textPropertyCacheId;
+  unsigned long unrotatedTextPropertyCacheId;
   FT_Face face;
   bool faceHasKerning;
 
@@ -91,9 +93,6 @@ public:
   vtkIdType imageIncrements[3];
   unsigned char rgba[4];
 };
-
-//----------------------------------------------------------------------------
-vtkInstantiatorNewMacro(vtkFreeTypeTools);
 
 //----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
@@ -193,6 +192,7 @@ vtkFreeTypeTools::vtkFreeTypeTools()
 #endif
   // Force use of compiled fonts by default.
   this->ForceCompiledFonts = true;
+  this->DebugTextures = false;
   this->MaximumNumberOfFaces = 30; // combinations of family+bold+italic
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
@@ -372,14 +372,6 @@ void vtkFreeTypeTools::ReleaseCacheManager()
     delete this->CMapCache;
     this->CMapCache = NULL;
     }
-}
-
-//----------------------------------------------------------------------------
-bool vtkFreeTypeTools::IsBoundingBoxValid(int bbox[4])
-{
-  return (!bbox ||
-          bbox[0] == VTK_INT_MAX || bbox[1] == VTK_INT_MIN ||
-          bbox[2] == VTK_INT_MAX || bbox[3] == VTK_INT_MIN) ? false : true;
 }
 
 //----------------------------------------------------------------------------
@@ -1005,6 +997,27 @@ inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty *tprop,
     return false;
     }
 
+  // Store an unrotated version of this font, as we'll need this to get accurate
+  // ascenders/descenders (see CalculateBoundingBox).
+  if (tprop->GetOrientation() != 0.0)
+    {
+    vtkNew<vtkTextProperty> unrotatedTProp;
+    unrotatedTProp->ShallowCopy(tprop);
+    unrotatedTProp->SetOrientation(0);
+    FT_Face unusedFace;
+    bool unusedBool;
+    if (!this->GetFace(unrotatedTProp.GetPointer(),
+                       metaData.unrotatedTextPropertyCacheId,
+                       unusedFace, unusedBool))
+      {
+      return false;
+      }
+    }
+  else
+    {
+    metaData.unrotatedTextPropertyCacheId = metaData.textPropertyCacheId;
+    }
+
   return true;
 }
 
@@ -1130,8 +1143,6 @@ bool vtkFreeTypeTools::StringToPathInternal(vtkTextProperty *tprop,
     return false;
     }
 
-  // Adjust for justification
-  this->JustifyPath(path, metaData);
   return true;
 }
 
@@ -1180,9 +1191,10 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     {
     FT_BitmapGlyph bitmapGlyph;
     FT_UInt glyphIndex;
+    // Use the unrotated face to get correct metrics:
     FT_Bitmap *bitmap = this->GetBitmap(
-          *heightString, metaData.textPropertyCacheId, fontSize, glyphIndex,
-          bitmapGlyph);
+          *heightString, metaData.unrotatedTextPropertyCacheId, fontSize,
+          glyphIndex, bitmapGlyph);
     if (bitmap)
       {
       metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
@@ -1200,17 +1212,69 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   float c = cos(angle);
   float s = sin(angle);
 
-  // The base of the current line, and temp vars for line offsets and origins
+  // Calculate the initial pen position. Assuming (0, 0) is the justified
+  // anchor point, we want to locate the leftmost point on the first baseline:
+  // 1) Start with the pen at the anchor point:
   int pen[2] = {0, 0};
-  double offset[2] = {0., 0.};
-  int origin[2] = {0, 0};
+
+  // 2) Account for horizonal justification:
+  switch (metaData.textProperty->GetJustification())
+    {
+    case VTK_TEXT_CENTERED:
+      pen[0] -= metaData.maxLineWidth / 2;
+      break;
+    case VTK_TEXT_RIGHT:
+      pen[0] -= metaData.maxLineWidth;
+      break;
+    case VTK_TEXT_LEFT:
+      break;
+    default:
+      vtkErrorMacro(<< "Bad horizontal alignment flag: "
+                    << metaData.textProperty->GetJustification());
+      break;
+    }
+
+  // 3) Account for vertical justification:
+  int fullHeight = metaData.lineMetrics.size() * metaData.height *
+                   metaData.textProperty->GetLineSpacing();
+  switch (metaData.textProperty->GetVerticalJustification())
+    {
+    case VTK_TEXT_CENTERED:
+      pen[1] += fullHeight / 2;
+      break;
+    case VTK_TEXT_BOTTOM:
+      pen[1] += fullHeight;
+      break;
+    case VTK_TEXT_TOP:
+      break;
+    default:
+      vtkErrorMacro(<< "Bad vertical alignment flag: "
+                    << metaData.textProperty->GetVerticalJustification());
+      break;
+    }
+
+  // 4) Move pen down to the first baseline, and account for "LineOffset":
+  pen[1] -= metaData.ascent + 1 + metaData.textProperty->GetLineOffset();
+
+  // 5) Now rotate:
+  int tmpX = vtkMath::Round(c * pen[0] - s * pen[1]);
+  int tmpY = vtkMath::Round(s * pen[0] + c * pen[1]);
+  pen[0] = tmpX;
+  pen[1] = tmpY;
 
   // Initialize bbox
   metaData.bbox[0] = metaData.bbox[1] = pen[0];
   metaData.bbox[2] = metaData.bbox[3] = pen[1];
 
+  // Calculate line offset:
+  double offset[2] = {
+    0., -(metaData.height * metaData.textProperty->GetLineSpacing())};
+  int rotOffset[2] = {vtkMath::Round(c * offset[0] - s * offset[1]),
+                      vtkMath::Round(s * offset[0] + c * offset[1])};
+
   // Compile the metrics data to determine the final bounding box. Set line
   // origins here, too.
+  int origin[2] = {0, 0};
   int justification = metaData.textProperty->GetJustification();
   for (size_t i = 0; i < metaData.lineMetrics.size(); ++i)
     {
@@ -1226,8 +1290,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
         {
         xShift /= 2;
         }
-      origin[0] += vtkMath::Floor(c * xShift + 0.5);
-      origin[1] += vtkMath::Floor(s * xShift + 0.5);
+      origin[0] += vtkMath::Round(c * xShift);
+      origin[1] += vtkMath::Round(s * xShift);
       }
 
     // Set line origin
@@ -1240,13 +1304,9 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     metaData.bbox[2] = std::min(metaData.bbox[2], metrics.ymin + origin[1]);
     metaData.bbox[3] = std::max(metaData.bbox[3], metrics.ymax + origin[1]);
 
-    // Calculate offset of next line
-    offset[0] = 0.;
-    offset[1] = -(metaData.height * metaData.textProperty->GetLineSpacing());
-
     // Update pen position
-    pen[0] += vtkMath::Floor(c * offset[0] - s * offset[1] + 0.5);
-    pen[1] += vtkMath::Floor(s * offset[0] + c * offset[1] + 0.5);
+    pen[0] += rotOffset[0];
+    pen[1] += rotOffset[1];
     }
 
   // Adjust for shadow
@@ -1272,14 +1332,49 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       }
     }
 
+  // Sometimes the components of the bounding box are overestimated if
+  // the ascender/descender isn't utilized. Shift the box so that it contains
+  // 0 for better alignment. This essentially moves the anchor point back onto
+  // the border of the data.
+  tmpX = 0;
+  tmpY = 0;
+  if (metaData.bbox[0] > 0)
+    {
+    tmpX = -metaData.bbox[0];
+    }
+  else if (metaData.bbox[1] < 0)
+    {
+    tmpX = -metaData.bbox[1];
+    }
+  if (metaData.bbox[2] > 0)
+    {
+    tmpY = -metaData.bbox[2];
+    }
+  else if (metaData.bbox[3] < 0)
+    {
+    tmpY = -metaData.bbox[3];
+    }
+  if (tmpX != 0 || tmpY != 0)
+    {
+    metaData.bbox[0] += tmpX;
+    metaData.bbox[1] += tmpX;
+    metaData.bbox[2] += tmpY;
+    metaData.bbox[3] += tmpY;
+    for (size_t i = 0; i < metaData.lineMetrics.size(); ++i)
+      {
+      MetaData::LineMetrics &metrics = metaData.lineMetrics[i];
+      metrics.originX += tmpX;
+      metrics.originY += tmpY;
+      }
+    }
+
   return true;
 }
 
 //----------------------------------------------------------------------------
 void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
 {
-  // The bounding box is the area that is going to be filled with pixels
-  // given a text origin of (0, 0). Calculate the bbox's dimensions.
+  // Calculate the bbox's dimensions
   int textDims[2];
   textDims[0] = (textBbox[1] - textBbox[0] + 1);
   textDims[1] = (textBbox[3] - textBbox[2] + 1);
@@ -1296,7 +1391,7 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
     targetDims[1] = vtkMath::NearestPowerOfTwo(targetDims[1]);
     }
 
-  // Calculate the target extent of the image using the text origin as (0, 0, 0)
+  // Calculate the target extent of the image.
   int targetExtent[6];
   targetExtent[0] = textBbox[0];
   targetExtent[1] = textBbox[0] + targetDims[0] - 1;
@@ -1330,55 +1425,8 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
     }
 
   // Clear the image buffer
-  memset(data->GetScalarPointer(), 0,
+  memset(data->GetScalarPointer(), this->DebugTextures ? 64 : 0,
          (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
-}
-
-//----------------------------------------------------------------------------
-void vtkFreeTypeTools::JustifyPath(vtkPath *path, MetaData &metaData)
-{
-  double delta[2] = {0.0, 0.0};
-  double bounds[6];
-
-  vtkPoints *points = path->GetPoints();
-  points->GetBounds(bounds);
-
-  // Apply justification:
-  switch (metaData.textProperty->GetJustification())
-    {
-    default:
-    case VTK_TEXT_LEFT:
-      delta[0] = -bounds[0];
-      break;
-    case VTK_TEXT_CENTERED:
-      delta[0] = -(bounds[0] + bounds[1]) * 0.5;
-      break;
-    case VTK_TEXT_RIGHT:
-      delta[0] = -bounds[1];
-      break;
-    }
-  switch (metaData.textProperty->GetVerticalJustification())
-    {
-    default:
-    case VTK_TEXT_BOTTOM:
-      delta[1] = -bounds[2];
-      break;
-    case VTK_TEXT_CENTERED:
-      delta[1] = -(bounds[2] + bounds[3]) * 0.5;
-      break;
-    case VTK_TEXT_TOP:
-      delta[1] = -bounds[3];
-    }
-
-  if (delta[0] != 0 || delta[1] != 0) {
-    for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
-      {
-      double *point = points->GetPoint(i);
-      point[0] += delta[0];
-      point[1] += delta[1];
-      points->SetPoint(i, point);
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -1769,7 +1817,7 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
 
   // Use the current font size as a first guess
   int size[2];
-  int fontSize = metaData.textProperty->GetFontSize();
+  double fontSize = metaData.textProperty->GetFontSize();
   if (!this->CalculateBoundingBox(str, metaData))
     {
     return -1;
@@ -1784,7 +1832,7 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
     fontSize *= std::min(
           static_cast<double>(targetWidth)  / static_cast<double>(size[0]),
         static_cast<double>(targetHeight) / static_cast<double>(size[1]));
-    metaData.textProperty->SetFontSize(fontSize);
+    metaData.textProperty->SetFontSize(static_cast<int>(fontSize));
     if (!this->CalculateBoundingBox(str, metaData))
       {
       return -1;
@@ -1796,7 +1844,8 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
   // Now just step up/down until the bbox matches the target.
   while (size[0] < targetWidth && size[1] < targetHeight && fontSize < 200)
     {
-    metaData.textProperty->SetFontSize(++fontSize);
+    fontSize += 1.;
+    metaData.textProperty->SetFontSize(fontSize);
     if (!this->CalculateBoundingBox(str, metaData))
       {
       return -1;
@@ -1807,7 +1856,8 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
 
   while ((size[0] > targetWidth || size[1] > targetHeight) && fontSize > 0)
     {
-    metaData.textProperty->SetFontSize(--fontSize);
+    fontSize -= 1.;
+    metaData.textProperty->SetFontSize(fontSize);
     if (!this->CalculateBoundingBox(str, metaData))
       {
       return -1;

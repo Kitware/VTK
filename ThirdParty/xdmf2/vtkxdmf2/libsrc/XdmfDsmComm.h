@@ -36,6 +36,9 @@
 #define XDMF_SHIFT64(a)     (a)
 #define XDMF_SHIFT32(a)     (a)
 
+namespace xdmf2
+{
+
 class XdmfDsmMsg;
 
 class XDMF_EXPORT XdmfDsmComm : public XdmfObject {
@@ -70,4 +73,5 @@ protected:
     XdmfInt32       TotalSize;
 };
 
+}
 #endif // __XdmfDsmComm_h

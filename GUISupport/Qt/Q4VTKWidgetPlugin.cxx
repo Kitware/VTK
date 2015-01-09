@@ -22,8 +22,8 @@
  !!! license.
 =========================================================================*/
 
-#ifdef _MSC_VER
 // Disable warnings that Qt headers give.
+#ifdef _MSC_VER
 #pragma warning(disable:4127)
 #pragma warning(disable:4512)
 #endif
@@ -39,8 +39,10 @@
 #include "QVTKWidget.xpm"
 
 // macro for debug printing
+#ifndef qDebug
 #define qDebug(a)
 //#define qDebug(a) printf(a)
+#endif
 
 QVTKWidgetPlugin::QVTKWidgetPlugin()
 {

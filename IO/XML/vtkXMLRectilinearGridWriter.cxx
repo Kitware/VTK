@@ -42,7 +42,7 @@ vtkXMLRectilinearGridWriter::~vtkXMLRectilinearGridWriter()
 //----------------------------------------------------------------------------
 void vtkXMLRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -84,8 +84,8 @@ void vtkXMLRectilinearGridWriter::DeletePositionArrays()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLRectilinearGridWriter::WriteAppendedPiece(int index,
-                                                     vtkIndent indent)
+void vtkXMLRectilinearGridWriter::WriteAppendedPiece(
+  int index, vtkIndent indent)
 {
   this->Superclass::WriteAppendedPiece(index, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -104,8 +104,9 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPieceData(int index)
 {
   // Split progress range by the approximate fractions of data written
   // by each step in this method.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
+
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
 
@@ -136,7 +137,7 @@ void vtkXMLRectilinearGridWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Split progress range by the approximate fractions of data written
   // by each step in this method.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
@@ -172,25 +173,31 @@ void vtkXMLRectilinearGridWriter::CalculateSuperclassFraction(float* fractions)
 
   // The amount of data written by the superclass comes from the
   // point/cell data arrays.
+  vtkIdType dimX = dims[0];
+  vtkIdType dimY = dims[1];
+  vtkIdType dimZ = dims[2];
   vtkIdType superclassPieceSize =
-    (this->GetInput()->GetPointData()->GetNumberOfArrays()*dims[0]*dims[1]*dims[2]+
-     this->GetInput()->GetCellData()->GetNumberOfArrays()*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));
+    (this->GetInput()->GetPointData()->GetNumberOfArrays() *
+     dimX * dimY * dimZ +
+     static_cast<vtkIdType>(this->GetInput()->GetCellData()->GetNumberOfArrays()) *
+     (dimX - 1) * (dimY - 1) * (dimZ - 1));
 
   // The total data written includes the coordinate arrays.
   vtkIdType totalPieceSize =
     superclassPieceSize + dims[0] + dims[1] + dims[2];
-  if(totalPieceSize == 0)
+  if (totalPieceSize == 0)
     {
     totalPieceSize = 1;
     }
   fractions[0] = 0;
-  fractions[1] = fractions[0] + float(superclassPieceSize)/totalPieceSize;
+  fractions[1] = fractions[0] +
+    static_cast<float>(superclassPieceSize) / totalPieceSize;
   fractions[2] = 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLRectilinearGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+  int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;

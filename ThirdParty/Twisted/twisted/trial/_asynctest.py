@@ -10,6 +10,7 @@ Maintainer: Jonathan Lange
 
 from __future__ import division, absolute_import
 
+import inspect
 import warnings
 
 from zope.interface import implementer
@@ -17,7 +18,7 @@ from zope.interface import implementer
 # We can't import reactor at module-level because this code runs before trial
 # installs a user-specified reactor, installing the default reactor and
 # breaking reactor installation. See also #6047.
-from twisted.internet import defer, _utilspy3 as utils
+from twisted.internet import defer, utils
 from twisted.python import failure
 
 from twisted.trial import itrial, util
@@ -102,6 +103,11 @@ class TestCase(SynchronousTestCase):
         onTimeout = utils.suppressWarnings(
             onTimeout, util.suppress(category=DeprecationWarning))
         method = getattr(self, methodName)
+        if inspect.isgeneratorfunction(method):
+            exc = TypeError(
+                '%r is a generator function and therefore will never run' % (
+                    method,))
+            return defer.fail(exc)
         d = defer.maybeDeferred(
             utils.runWithWarningsSuppressed, self._getSuppress(), method)
         call = reactor.callLater(timeout, onTimeout, d)
@@ -334,22 +340,6 @@ class TestCase(SynchronousTestCase):
             warnings.warn("'timeout' attribute needs to be a number.",
                           category=DeprecationWarning)
             return util.DEFAULT_TIMEOUT_DURATION
-
-
-    def visit(self, visitor):
-        """
-        Visit this test case. Call C{visitor} with C{self} as a parameter.
-
-        Deprecated in Twisted 8.0.
-
-        @param visitor: A callable which expects a single parameter: a test
-        case.
-
-        @return: None
-        """
-        warnings.warn("Test visitors deprecated in Twisted 8.0",
-                      category=DeprecationWarning)
-        visitor(self)
 
 
     def _wait(self, d, running=_wait_is_running):

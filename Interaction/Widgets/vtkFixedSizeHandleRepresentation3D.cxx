@@ -87,6 +87,12 @@ void vtkFixedSizeHandleRepresentation3D
 //---------------------------------------------------------------------------
 void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
 {
+  if (!this->GetRenderer() ||
+      !this->GetRenderer()->GetActiveCamera())
+    {
+    return;
+    }
+
   // Compute display position from world position of center. Notation here
   // is such that
   //    w_ represents world coords,

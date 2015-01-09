@@ -587,7 +587,7 @@ int vtkImageDataLIC2D::RequestData(
 
   // add ghosts
   double rk4fac = 3.0;
-  int nGhosts = this->Steps*this->StepSize*rk4fac;
+  int nGhosts = static_cast<int>(this->Steps*this->StepSize*rk4fac);
   nGhosts = nGhosts < 1 ? 1 : nGhosts;
   nGhosts *= 2; // for second ee lic pass
 

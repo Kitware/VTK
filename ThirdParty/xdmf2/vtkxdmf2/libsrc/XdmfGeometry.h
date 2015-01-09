@@ -27,6 +27,8 @@
 
 
 #include "XdmfElement.h"
+namespace xdmf2
+{
 
 class XdmfArray;
 class XdmfDataItem;
@@ -176,4 +178,5 @@ protected:
 };
 
 extern XDMF_EXPORT XdmfGeometry *GetXdmfGeometryHandle( void *Pointer );
+}
 #endif // __XdmfGeometry_h

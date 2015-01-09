@@ -56,6 +56,8 @@ vtkProbeFilter::vtkProbeFilter()
   this->PassCellArrays = 0;
   this->PassPointArrays = 0;
   this->PassFieldArrays = 1;
+  this->Tolerance = 1.0;
+  this->ComputeTolerance = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -272,30 +274,37 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
 
   char* maskArray = this->MaskPoints->GetPointer(0);
 
-  // Use tolerance as a function of size of source data
-  //
-  tol2 = source->GetLength();
-  tol2 = tol2 ? tol2*tol2 / 1000.0 : 0.001;
-
-  // the actual sampling rate needs to be considered for a
-  // more appropriate / accurate selection of the tolerance.
-  // Otherwise the tolerance simply determined above might be
-  // so large as to cause incorrect cell location
-  double bounds[6];
-  source->GetBounds(bounds);
-  double minRes = 10000000000.0;
-  double axisRes[3];
-  for ( int  i = 0;  i < 3;  i ++ )
+  if (this->ComputeTolerance)
     {
-    axisRes[i] = ( bounds[i * 2 + 1] - bounds[i * 2] ) / numPts;
-    if ( (axisRes[i] > 0.0) && (axisRes[i] < minRes) )
-      minRes = axisRes[i];
-    }
-  double minRes2 = minRes * minRes;
-  tol2 = tol2 > minRes2 ? minRes2 : tol2;
+    // Use tolerance as a function of size of source data
+    //
+    tol2 = source->GetLength();
+    tol2 = tol2 ? tol2*tol2 / 1000.0 : 0.001;
 
-  // Don't go below epsilon for a double
-  tol2 = (tol2 < VTK_DBL_EPSILON) ? VTK_DBL_EPSILON : tol2;
+    // the actual sampling rate needs to be considered for a
+    // more appropriate / accurate selection of the tolerance.
+    // Otherwise the tolerance simply determined above might be
+    // so large as to cause incorrect cell location
+    double bounds[6];
+    source->GetBounds(bounds);
+    double minRes = 10000000000.0;
+    double axisRes[3];
+    for ( int  i = 0;  i < 3;  i ++ )
+      {
+      axisRes[i] = ( bounds[i * 2 + 1] - bounds[i * 2] ) / numPts;
+      if ( (axisRes[i] > 0.0) && (axisRes[i] < minRes) )
+        minRes = axisRes[i];
+      }
+    double minRes2 = minRes * minRes;
+    tol2 = tol2 > minRes2 ? minRes2 : tol2;
+
+    // Don't go below epsilon for a double
+    tol2 = (tol2 < VTK_DBL_EPSILON) ? VTK_DBL_EPSILON : tol2;
+    }
+  else
+    {
+    tol2 = this->Tolerance * this->Tolerance;
+    }
 
   // Loop over all input points, interpolating source data
   //

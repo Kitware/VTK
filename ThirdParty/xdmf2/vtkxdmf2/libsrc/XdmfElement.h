@@ -27,6 +27,9 @@
 
 #include "XdmfLightData.h"
 
+namespace xdmf2
+{
+
 #define XDMF_ELEMENT_STATE_UNINITIALIZED 0
 #define XDMF_ELEMENT_STATE_LIGHT_PARSED  1
 #define XDMF_ELEMENT_STATE_HEAVY_READ    2
@@ -224,4 +227,5 @@ class XDMF_EXPORT XdmfElementData : public XdmfObject {
         XdmfElement     *CurrentXdmfElement;
 };
 
+}
 #endif // __XdmfElement_h

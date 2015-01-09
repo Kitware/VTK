@@ -1,5 +1,7 @@
-if(NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
-  set(vtkIOMovie_vtkoggtheora vtkoggtheora)
+if(NOT CMAKE_C_COMPILER_ID STREQUAL "XL")
+  if(NOT ${CMAKE_CROSSCOMPILING})
+    set(vtkIOMovie_vtkoggtheora vtkoggtheora)
+  endif()
 endif()
 vtk_module(vtkIOMovie
   GROUPS
@@ -14,4 +16,6 @@ vtk_module(vtkIOMovie
     vtkTestingCore
     vtkImagingCore
     vtkImagingSources
+  KIT
+    vtkIO
   )

@@ -28,6 +28,9 @@
 
 #include "XdmfDataItem.h"
 
+namespace xdmf2
+{
+
 class XdmfArray;
 
 //!  Parent Class for handeling I/O of actual data for an XdmfDataItem
@@ -81,4 +84,5 @@ public :
 protected :
 };
 
+}
 #endif

@@ -221,12 +221,23 @@ int vtkImageSliceMapper::ProcessRequest(
     return 1;
     }
 
-  // set update extent to display extent
+  // set update extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-      this->DisplayExtent, 6);
+
+    if (this->Streaming)
+      {
+      // only update the display extent if streaming is on
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+        this->DisplayExtent, 6);
+      }
+    else
+      {
+      int ext[6];
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+      }
 
     return 1;
     }

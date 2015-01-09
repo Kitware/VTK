@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAssignAttribute - Labels a field as an attribute
+// .NAME vtkAssignAttribute - Labels/marks a field as an attribute
 // .SECTION Description
-// vtkAssignAttribute is use to label a field (vtkDataArray) as an attribute.
+// vtkAssignAttribute is used to label/mark a field (vtkDataArray) as an attribute.
 // A field name or an attribute to labeled can be specified. For example:
 // @verbatim
 // aa->Assign("foo", vtkDataSetAttributes::SCALARS,

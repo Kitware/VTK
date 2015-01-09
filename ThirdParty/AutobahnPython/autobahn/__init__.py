@@ -1,6 +1,6 @@
 ###############################################################################
 ##
-##  Copyright 2011-2013 Tavendo GmbH
+##  Copyright (C) 2011-2014 Tavendo GmbH
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -16,16 +16,5 @@
 ##
 ###############################################################################
 
-from _version import __version__
+__version__ = "0.8.13"
 version = __version__ # backward compat.
-
-import util
-import useragent
-import flashpolicy
-import httpstatus
-import utf8validator
-import xormasker
-import websocket
-import resource
-import prefixmap
-import wamp

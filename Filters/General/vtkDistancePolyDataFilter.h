@@ -38,7 +38,8 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkDistancePolyDataFilter : public vtkPolyDataAlgorithm {
+class VTKFILTERSGENERAL_EXPORT vtkDistancePolyDataFilter : public vtkPolyDataAlgorithm
+{
 public:
   static vtkDistancePolyDataFilter *New();
   vtkTypeMacro(vtkDistancePolyDataFilter, vtkPolyDataAlgorithm);
@@ -68,15 +69,15 @@ public:
   // Description:
   // Get the second output, which is a copy of the second input with an
   // additional distance scalar field.
+  // Note this will return a valid data object only after this->Update() is
+  // called.
   vtkPolyData* GetSecondDistanceOutput();
 
 protected:
   vtkDistancePolyDataFilter();
   ~vtkDistancePolyDataFilter();
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
-  int FillInputPortInformation(int, vtkInformation*);
-
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   void GetPolyDataDistance(vtkPolyData*, vtkPolyData*);
 
 private:

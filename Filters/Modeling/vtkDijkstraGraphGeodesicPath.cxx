@@ -50,10 +50,7 @@ vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
     {
     this->IdList->Delete();
     }
-  if (this->Internals)
-    {
-    delete this->Internals;
-    }
+  delete this->Internals;
   this->SetRepelVertices(NULL);
 }
 

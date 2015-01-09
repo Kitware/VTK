@@ -24,7 +24,7 @@ from twisted.python.compat import _PY3
 from twisted.trial.unittest import SynchronousTestCase, SkipTest
 from twisted.trial.util import DEFAULT_TIMEOUT_DURATION, acquireAttribute
 from twisted.python.runtime import platform
-from twisted.python._reflectpy3 import namedAny
+from twisted.python.reflect import namedAny
 from twisted.python.deprecate import _fullyQualifiedName as fullyQualifiedName
 
 from twisted.python import log
@@ -285,11 +285,13 @@ class ReactorBuilder:
             timedOut.append(None)
             reactor.stop()
 
-        reactor.callLater(timeout, stop)
+        timedOutCall = reactor.callLater(timeout, stop)
         reactor.run()
         if timedOut:
             raise TestTimeoutError(
                 "reactor still running after %s seconds" % (timeout,))
+        else:
+            timedOutCall.cancel()
 
 
     def makeTestCaseClasses(cls):

@@ -101,7 +101,7 @@ int TestMath(int,char *[])
   float a[3] = {2,-5,0};
   float b[3] = {5,1,0};
   float projection[3];
-  float correct[3] = {25./26., 5./26., 0};
+  float correct[3] = {25.f/26.f, 5.f/26.f, 0.f};
   vtkMath::ProjectVector(a,b,projection);
   if(!fuzzyCompare3D(projection,correct))
     {
@@ -117,7 +117,7 @@ int TestMath(int,char *[])
   float a[2] = {2,-5};
   float b[2] = {5,1};
   float projection[2];
-  float correct[3] = {25./26., 5./26.};
+  float correct[3] = {25.f/26.f, 5.f/26.f};
   vtkMath::ProjectVector2D(a,b,projection);
   if(!fuzzyCompare2D(projection,correct))
     {

@@ -30,7 +30,6 @@
 /* Module Setup */
 /****************/
 
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
 #define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
 
 
@@ -39,7 +38,7 @@
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fpkg.h"             /* File access				*/
+#include "H5Fprivate.h"		/* File access				*/
 #include "H5Gprivate.h"		/* Groups				*/
 #include "H5HFprivate.h"        /* Fractal heap				*/
 #include "H5Opkg.h"             /* Object headers			*/
@@ -115,7 +114,7 @@ H5O_shared_read(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned *ioflags,
     uint8_t mesg_buf[H5O_MESG_BUF_SIZE]; /* Buffer for deserializing messages */
     void *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_shared_read)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -227,7 +226,7 @@ H5O_shared_link_adj(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
 {
     herr_t ret_value = SUCCEED;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_shared_link_adj)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -243,8 +242,17 @@ H5O_shared_link_adj(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
          * new object header. Adjust the reference count on that
          * object header.
          */
-        if(shared->file->shared != f->shared)
-            HGOTO_ERROR(H5E_LINK, H5E_CANTINIT, FAIL, "interfile hard links are not allowed")
+        /* Unfortunately, it is possible for the shared->file pointer to become
+         * invalid if the oh is kept in cache (which is contained in
+         * shared->file->shared while shared->file is closed.  Just ignore
+         * shared->file until the "top-level" file pointer is removed at some
+         * point in the future.  -NAF */
+        /* This is related to Jira issue #7638 and should be uncommented after
+         * the library has been refactored to shift to using shared file
+         * pointers for file operations, instead of using top file pointers.
+         * -QAK */
+        /*if(shared->file->shared != f->shared)
+            HGOTO_ERROR(H5E_LINK, H5E_CANTINIT, FAIL, "interfile hard links are not allowed")*/
 
         /* Build the object location for the shared message's object header */
         oloc.file = f;
@@ -277,7 +285,7 @@ H5O_shared_link_adj(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
         } /* end if */
         /* Check for incrementing reference count on message */
         else if(adjust > 0) {
-            if(H5SM_try_share(f, dxpl_id, open_oh, type->id, shared, NULL) < 0)
+            if(H5SM_try_share(f, dxpl_id, open_oh, 0, type->id, shared, NULL) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTINC, FAIL, "error trying to share message")
         } /* end if */
     } /* end else */
@@ -307,7 +315,7 @@ H5O_shared_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned *ioflags,
     unsigned version;           /* Shared message version */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_shared_decode)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Check args */
     HDassert(f);
@@ -392,7 +400,7 @@ H5O_shared_encode(const H5F_t *f, uint8_t *buf/*out*/, const H5O_shared_t *sh_me
 {
     unsigned    version;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_shared_encode)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check args */
     HDassert(f);
@@ -409,8 +417,8 @@ H5O_shared_encode(const H5F_t *f, uint8_t *buf/*out*/, const H5O_shared_t *sh_me
         version = H5O_SHARED_VERSION_2; /* version 1 is no longer used */
     } /* end else */
 
-    *buf++ = version;
-    *buf++ = (unsigned)sh_mesg->type;
+    *buf++ = (uint8_t)version;
+    *buf++ = (uint8_t)sh_mesg->type;
 
     /* Encode either the heap ID of the message or the address of the
      * object header that holds it.
@@ -440,7 +448,7 @@ H5O_shared_encode(const H5F_t *f, uint8_t *buf/*out*/, const H5O_shared_t *sh_me
 herr_t
 H5O_set_shared(H5O_shared_t *dst, const H5O_shared_t *src)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_set_shared)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* check args */
     HDassert(dst);
@@ -471,12 +479,12 @@ H5O_shared_size(const H5F_t *f, const H5O_shared_t *sh_mesg)
 {
     size_t ret_value;           /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_shared_size)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     if(sh_mesg->type == H5O_SHARE_TYPE_COMMITTED) {
-        ret_value = 1 +			/*version			*/
-            1 +				/*the type field		*/
-            H5F_SIZEOF_ADDR(f);		/*sharing by another obj hdr	*/
+        ret_value = (size_t)1 +		/*version			*/
+            (size_t)1 +			/*the type field		*/
+            (size_t)H5F_SIZEOF_ADDR(f);	/*sharing by another obj hdr	*/
     } /* end if */
     else {
         HDassert(sh_mesg->type == H5O_SHARE_TYPE_SOHM);
@@ -507,7 +515,7 @@ H5O_shared_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_shared_delete)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -550,7 +558,7 @@ H5O_shared_link(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
 {
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_shared_link)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
@@ -579,16 +587,16 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_shared_copy_file(H5F_t UNUSED *file_src, H5F_t *file_dst,
+H5O_shared_copy_file(H5F_t *file_src, H5F_t *file_dst,
     const H5O_msg_class_t *mesg_type, const void *_native_src, void *_native_dst,
-    hbool_t UNUSED *recompute_size, H5O_copy_t *cpy_info, void UNUSED *udata,
-    hid_t dxpl_id)
+    hbool_t UNUSED *recompute_size, unsigned *mesg_flags, H5O_copy_t *cpy_info,
+    void UNUSED *udata, hid_t dxpl_id)
 {
     const H5O_shared_t  *shared_src = (const H5O_shared_t *)_native_src; /* Alias to shared info in native source */
     H5O_shared_t        *shared_dst = (H5O_shared_t *)_native_dst; /* Alias to shared info in native destination message */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_shared_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(file_src);
@@ -602,29 +610,22 @@ H5O_shared_copy_file(H5F_t UNUSED *file_src, H5F_t *file_dst,
     /* Committed shared messages create a shared message at the destination
      * and also copy the committed object that they point to.
      *
-     * SOHMs try to share the destination message.
+     * Other messages simulate sharing the destination message to determine how
+     * it will eventually be shared (if at all), but do not actually share the
+     * message until "post copy".  The "H5O_shared_t" part of the message will
+     * be updated (to allow calculation of the final size) but the message is
+     * not actually shared.
      */
-    if(shared_src->type == H5O_SHARE_TYPE_COMMITTED) {
-        H5O_loc_t dst_oloc;
-        H5O_loc_t src_oloc;
-
-        /* Copy the shared object from source to destination */
-        dst_oloc.file = file_dst;
-        src_oloc.file = shared_src->file;
-        src_oloc.addr = shared_src->u.loc.oh_addr;
-        if(H5O_copy_header_map(&src_oloc, &dst_oloc, dxpl_id, cpy_info, FALSE) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to copy object")
-
-        /* Set up destination message's shared info */
-        H5O_UPDATE_SHARED(shared_dst, H5O_SHARE_TYPE_COMMITTED, file_dst, mesg_type->id, 0, dst_oloc.addr)
+    if(shared_src->type != H5O_SHARE_TYPE_COMMITTED) {
+        /* Simulate trying to share new message in the destination file. */
+        if(H5SM_try_share(file_dst, dxpl_id, NULL, H5SM_DEFER, mesg_type->id, _native_dst, mesg_flags) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to determine if message should be shared")
     } /* end if */
     else {
-        /* Try to share new message in the destination file. */
-        /* Message is always shared in heap in dest. file because the dest.
-         *      object header doesn't quite exist yet - JML
+        /* Mark the message as committed - as it will be committed in post copy
          */
-        if(H5SM_try_share(file_dst, dxpl_id, NULL, mesg_type->id, _native_dst, NULL) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to determine if message should be shared")
+        H5O_UPDATE_SHARED(shared_dst, H5O_SHARE_TYPE_COMMITTED, file_dst, mesg_type->id, 0, HADDR_UNDEF)
+        *mesg_flags |= H5O_MSG_FLAG_SHARED;
     } /* end else */
 
 done:
@@ -651,39 +652,45 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_shared_post_copy_file(H5F_t *f, hid_t dxpl_id, H5O_t *oh, void *mesg)
+H5O_shared_post_copy_file(H5F_t *f, const H5O_msg_class_t *mesg_type,
+    const H5O_shared_t *shared_src, H5O_shared_t *shared_dst,
+    unsigned *mesg_flags, hid_t dxpl_id, H5O_copy_t *cpy_info)
 {
-    H5O_shared_t *old_sh_mesg;
-    htri_t shared_mesg;                 /* Whether the message should be shared */
-    unsigned msg_type_id;               /* Message's type ID */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5O_shared_post_copy_file)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(f);
-    HDassert(mesg);
+    HDassert(shared_src);
+    HDassert(shared_dst);
 
-    /* the old shared message */
-    old_sh_mesg = (H5O_shared_t *) mesg;
+    /* Copy the target of committed messages, try to share others */
+    if(shared_src->type == H5O_SHARE_TYPE_COMMITTED) {
+        H5O_loc_t dst_oloc;
+        H5O_loc_t src_oloc;
 
-    /* save the type id for later use */
-    msg_type_id = old_sh_mesg->msg_type_id;
+        /* Copy the shared object from source to destination */
+        H5O_loc_reset(&dst_oloc);
+        dst_oloc.file = f;
+        src_oloc.file = shared_src->file;
+        src_oloc.addr = shared_src->u.loc.oh_addr;
+        if(H5O_copy_header_map(&src_oloc, &dst_oloc, dxpl_id, cpy_info, FALSE,
+                NULL, NULL) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to copy object")
 
-    /* Remove the old message from the SOHM storage */
-    if(H5SM_delete(f, dxpl_id, oh, old_sh_mesg) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to find attribute information for object")
-
-    /* Add the new message */
-    if((shared_mesg = H5SM_try_share(f, dxpl_id, oh, msg_type_id, mesg, NULL)) == 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_BADMESG, FAIL, "message changed sharing status")
-    else if(shared_mesg < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_BADMESG, FAIL, "can't share message")
+        /* Set up destination message's shared info */
+        H5O_UPDATE_SHARED(shared_dst, H5O_SHARE_TYPE_COMMITTED, f, mesg_type->id, 0, dst_oloc.addr)
+    } /* end if */
+    else
+        /* Share the message */
+        if(H5SM_try_share(f, dxpl_id, NULL, H5SM_WAS_DEFERRED, mesg_type->id,
+                shared_dst, mesg_flags) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_BADMESG, FAIL, "can't share message")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_shared_post_copy_file() */
-
 
 
 /*-------------------------------------------------------------------------
@@ -701,7 +708,7 @@ done:
 herr_t
 H5O_shared_debug(const H5O_shared_t *mesg, FILE *stream, int indent, int fwidth)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5O_shared_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check args */
     HDassert(mesg);

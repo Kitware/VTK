@@ -25,6 +25,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkScalarsToColors.h"
 #include "vtkTexture.h"
 
 #include <math.h>
@@ -216,6 +217,10 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
       }
     this->Render(ren,this->Mapper);
     this->Property->PostRender(this, ren);
+    if (this->Texture)
+      {
+      this->Texture->PostRender(ren);
+      }
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
 
     renderedSomething = 1;

@@ -93,12 +93,12 @@
 unsigned
 H5F_get_intent(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_intent)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
 
-    FUNC_LEAVE_NOAPI(f->intent)
+    FUNC_LEAVE_NOAPI(f->shared->flags)
 } /* end H5F_get_intent() */
 
 
@@ -118,8 +118,8 @@ H5F_get_intent(const H5F_t *f)
 char *
 H5F_get_open_name(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_open_name)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->open_name);
@@ -144,8 +144,8 @@ H5F_get_open_name(const H5F_t *f)
 char *
 H5F_get_actual_name(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_actual_name)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->actual_name);
@@ -170,14 +170,155 @@ H5F_get_actual_name(const H5F_t *f)
 char *
 H5F_get_extpath(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_extpath)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->extpath);
 
     FUNC_LEAVE_NOAPI(f->extpath)
 } /* end H5F_get_extpath() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_shared
+ *
+ * Purpose:	Retrieve the file's 'shared' pointer
+ *
+ * Return:	'shared' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+H5F_file_t *
+H5F_get_shared(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+
+    FUNC_LEAVE_NOAPI(f->shared)
+} /* end H5F_get_shared() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_same_shared
+ *
+ * Purpose:	Determine if two files have the same shared file pointer
+ *
+ * Return:	TRUE/FALSE on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 19, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+hbool_t
+H5F_same_shared(const H5F_t *f1, const H5F_t *f2)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f1);
+    HDassert(f1->shared);
+    HDassert(f2);
+    HDassert(f2->shared);
+
+    FUNC_LEAVE_NOAPI(f1->shared == f2->shared)
+} /* end H5F_same_shared() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_nopen_objs
+ *
+ * Purpose:	Retrieve the file's 'nopen_objs' value
+ *
+ * Return:	'nopen_objs' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+unsigned
+H5F_get_nopen_objs(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+
+    FUNC_LEAVE_NOAPI(f->nopen_objs)
+} /* end H5F_get_nopen_objs() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_file_id
+ *
+ * Purpose:	Retrieve the file's 'file_id' value
+ *
+ * Return:	'file_id' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+hid_t
+H5F_get_file_id(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+
+    FUNC_LEAVE_NOAPI(f->file_id)
+} /* end H5F_get_file_id() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_parent
+ *
+ * Purpose:	Retrieve the file's 'parent' pointer
+ *
+ * Return:	'parent' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 19, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+H5F_t *
+H5F_get_parent(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+
+    FUNC_LEAVE_NOAPI(f->parent)
+} /* end H5F_get_parent() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_nmounts
+ *
+ * Purpose:	Retrieve the file's 'nmounts' value
+ *
+ * Return:	'nmounts' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+unsigned
+H5F_get_nmounts(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+
+    FUNC_LEAVE_NOAPI(f->nmounts)
+} /* end H5F_get_nmounts() */
 
 
 /*-------------------------------------------------------------------------
@@ -198,8 +339,8 @@ H5F_get_extpath(const H5F_t *f)
 hid_t
 H5F_get_fcpl(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_fcpl)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -225,8 +366,8 @@ H5F_get_fcpl(const H5F_t *f)
 uint8_t
 H5F_sizeof_addr(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_sizeof_addr)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -252,14 +393,86 @@ H5F_sizeof_addr(const H5F_t *f)
 uint8_t
 H5F_sizeof_size(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_sizeof_size)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
 
     FUNC_LEAVE_NOAPI(f->shared->sizeof_size)
 } /* H5F_sizeof_size() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_sohm_addr
+ *
+ * Purpose:	Retrieve the file's 'sohm_addr' value
+ *
+ * Return:	'sohm_addr' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+haddr_t
+H5F_get_sohm_addr(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+    HDassert(f->shared);
+
+    FUNC_LEAVE_NOAPI(f->shared->sohm_addr)
+} /* end H5F_get_sohm_addr() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_sohm_vers
+ *
+ * Purpose:	Retrieve the file's 'sohm_vers' value
+ *
+ * Return:	'sohm_vers' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+unsigned
+H5F_get_sohm_vers(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+    HDassert(f->shared);
+
+    FUNC_LEAVE_NOAPI(f->shared->sohm_vers)
+} /* end H5F_get_sohm_vers() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_sohm_nindexes
+ *
+ * Purpose:	Retrieve the file's 'sohm_nindexes' value
+ *
+ * Return:	'sohm_nindexes' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+unsigned
+H5F_get_sohm_nindexes(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+    HDassert(f->shared);
+
+    FUNC_LEAVE_NOAPI(f->shared->sohm_nindexes)
+} /* end H5F_get_sohm_nindexes() */
 
 
 /*-------------------------------------------------------------------------
@@ -283,8 +496,8 @@ H5F_sizeof_size(const H5F_t *f)
 unsigned
 H5F_sym_leaf_k(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_sym_leaf_k)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -315,8 +528,8 @@ H5F_sym_leaf_k(const H5F_t *f)
 unsigned
 H5F_Kvalue(const H5F_t *f, const H5B_class_t *type)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_Kvalue)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -325,6 +538,30 @@ H5F_Kvalue(const H5F_t *f, const H5B_class_t *type)
 
     FUNC_LEAVE_NOAPI(f->shared->sblock->btree_k[type->id])
 } /* end H5F_Kvalue() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_get_nrefs
+ *
+ * Purpose:	Retrieve the file's 'nrefs' value
+ *
+ * Return:	'nrefs' on success/abort on failure (shouldn't fail)
+ *
+ * Programmer:	Quincey Koziol, July 20, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+unsigned
+H5F_get_nrefs(const H5F_t *f)
+{
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(f);
+    HDassert(f->shared);
+
+    FUNC_LEAVE_NOAPI(f->shared->nrefs)
+} /* end H5F_get_nrefs() */
 
 
 /*-------------------------------------------------------------------------
@@ -348,8 +585,8 @@ H5F_Kvalue(const H5F_t *f, const H5B_class_t *type)
 size_t
 H5F_rdcc_nslots(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_rdcc_nslots)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -379,8 +616,8 @@ H5F_rdcc_nslots(const H5F_t *f)
 size_t
 H5F_rdcc_nbytes(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_rdcc_nbytes)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -410,8 +647,8 @@ H5F_rdcc_nbytes(const H5F_t *f)
 double
 H5F_rdcc_w0(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_rdcc_w0)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -437,8 +674,8 @@ H5F_rdcc_w0(const H5F_t *f)
 haddr_t
 H5F_get_base_addr(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_base_addr)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -469,8 +706,8 @@ H5F_get_base_addr(const H5F_t *f)
 H5RC_t *
 H5F_grp_btree_shared(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_grp_btree_shared)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -500,8 +737,8 @@ H5F_grp_btree_shared(const H5F_t *f)
 size_t
 H5F_sieve_buf_size(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_sieve_buf_size)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -531,8 +768,8 @@ H5F_sieve_buf_size(const H5F_t *f)
 unsigned
 H5F_gc_ref(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_gc_ref)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -560,8 +797,8 @@ H5F_gc_ref(const H5F_t *f)
 hbool_t
 H5F_use_latest_format(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_use_latest_format)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -588,8 +825,8 @@ H5F_use_latest_format(const H5F_t *f)
 H5F_close_degree_t
 H5F_get_fc_degree(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_fc_degree)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -616,8 +853,8 @@ H5F_get_fc_degree(const H5F_t *f)
 hbool_t
 H5F_store_msg_crt_idx(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_store_msg_crt_idx)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -643,8 +880,8 @@ H5F_store_msg_crt_idx(const H5F_t *f)
 hbool_t
 H5F_has_feature(const H5F_t *f, unsigned feature)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_has_feature)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -670,8 +907,8 @@ H5F_has_feature(const H5F_t *f, unsigned feature)
 hid_t
 H5F_get_driver_id(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_get_driver_id)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -700,7 +937,7 @@ H5F_get_fileno(const H5F_t *f, unsigned long *filenum)
 {
     herr_t	ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI(H5F_get_fileno, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     HDassert(f);
     HDassert(f->shared);
@@ -733,7 +970,7 @@ H5F_get_eoa(const H5F_t *f, H5FD_mem_t type)
 {
     haddr_t	ret_value;
 
-    FUNC_ENTER_NOAPI(H5F_get_eoa, HADDR_UNDEF)
+    FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
     HDassert(f);
     HDassert(f->shared);
@@ -766,7 +1003,7 @@ H5F_get_vfd_handle(const H5F_t *file, hid_t fapl, void **file_handle)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(H5F_get_vfd_handle, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
     HDassert(file);
@@ -799,8 +1036,8 @@ done:
 hbool_t
 H5F_is_tmp_addr(const H5F_t *f, haddr_t addr)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_is_tmp_addr)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);
@@ -827,8 +1064,8 @@ H5F_is_tmp_addr(const H5F_t *f, haddr_t addr)
 hbool_t
 H5F_use_tmp_space(const H5F_t *f)
 {
-    /* Use FUNC_ENTER_NOAPI_NOINIT_NOFUNC here to avoid performance issues */
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5F_use_tmp_space)
+    /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(f);
     HDassert(f->shared);

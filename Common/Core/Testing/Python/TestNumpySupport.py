@@ -94,6 +94,17 @@ class TestNumpySupport(Testing.vtkTest):
         a[0] = [10.0, 20.0, 30.0]
         self.assertEqual(vtk_arr.GetTuple3(0), (10., 20., 30.))
 
+    def testNumpyConversion(self):
+        "Test that converting data copies data properly."
+        # ----------------------------------------
+        # Test if the array is copied or not.
+        a = numpy.array([[1, 2, 3],[4, 5, 6]], 'd')
+        vtk_arr = numpy_to_vtk(a, 0, vtk.VTK_INT)
+        # Change the numpy array and see if the changes are
+        # reflected in the VTK array.
+        a[0] = [10.0, 20.0, 30.0]
+        self.assertEqual(vtk_arr.GetTuple3(0), (1., 2., 3.))
+
     def testExceptions(self):
         "Test if the right assertion errors are raised."
         # Test if bit arrays raise an exception.

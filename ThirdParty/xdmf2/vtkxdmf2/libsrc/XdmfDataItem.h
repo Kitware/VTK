@@ -27,6 +27,9 @@
 
 #include "XdmfElement.h"
 
+namespace xdmf2
+{
+
 class XdmfDataDesc;
 class XdmfArray;
 class XdmfValues;
@@ -227,4 +230,5 @@ protected:
     XdmfInt32       UpdateFunction(); // HyperSlab, Coordinates or Function
 };
 
+}
 #endif // __XdmfDataItem_h

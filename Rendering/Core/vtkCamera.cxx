@@ -20,6 +20,7 @@
 #include "vtkPerspectiveTransform.h"
 #include "vtkTransform.h"
 #include "vtkCallbackCommand.h"
+#include "vtkRenderer.h"
 
 #include <math.h>
 
@@ -1069,6 +1070,37 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
                                       this->ViewShear[2] * this->Distance );
     }
 
+}
+
+//----------------------------------------------------------------------------
+// Return the projection transform matrix. See ComputeProjectionTransform.
+vtkMatrix4x4 *vtkCamera::GetProjectionTransformMatrix(vtkRenderer *ren)
+{
+  double aspect[2];
+  int  lowerLeft[2];
+  int usize, vsize;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+
+  // some renderer subclasses may have more complicated computations for the
+  // aspect ratio. So take that into account by computing the difference
+  // between our simple aspect ratio and what the actual renderer is reporting.
+  ren->ComputeAspect();
+  ren->GetAspect(aspect);
+  double aspect2[2];
+  ren->vtkViewport::ComputeAspect();
+  ren->vtkViewport::GetAspect(aspect2);
+  double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
+
+  if (usize && vsize)
+    {
+    matrix->DeepCopy(this->GetProjectionTransformMatrix(
+                       aspectModification * usize / vsize, -1, 1));
+    matrix->Transpose();
+  }
+
+  return matrix;
 }
 
 //----------------------------------------------------------------------------

@@ -26,7 +26,6 @@
 #include "vtkDataArray.h" // Needed for inline methods
 
 class vtkIdList;
-class vtkPoints;
 
 class VTKCOMMONCORE_EXPORT vtkPoints : public vtkObject
 {
@@ -41,7 +40,7 @@ public:
 
   // Description:
   // Allocate initial memory size. ext is no longer used.
-  virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  virtual int Allocate(const vtkIdType sz, const vtkIdType ext = 1000);
 
   // Description:
   // Return object to instantiated state.
@@ -55,7 +54,7 @@ public:
   // tuple dimension of 9. Scalars, on the other hand, can have tuple dimension
   //  from 1-4, depending on the type of scalar.)
   virtual void SetData(vtkDataArray *);
-  vtkDataArray *GetData() {return this->Data;};
+  vtkDataArray *GetData() { return this->Data; }
 
   // Description:
   // Return the underlying data type. An integer indicating data type is
@@ -65,30 +64,30 @@ public:
   // Description:
   // Specify the underlying data type of the object.
   virtual void SetDataType(int dataType);
-  void SetDataTypeToBit() {this->SetDataType(VTK_BIT);};
-  void SetDataTypeToChar() {this->SetDataType(VTK_CHAR);};
-  void SetDataTypeToUnsignedChar() {this->SetDataType(VTK_UNSIGNED_CHAR);};
-  void SetDataTypeToShort() {this->SetDataType(VTK_SHORT);};
-  void SetDataTypeToUnsignedShort() {this->SetDataType(VTK_UNSIGNED_SHORT);};
-  void SetDataTypeToInt() {this->SetDataType(VTK_INT);};
-  void SetDataTypeToUnsignedInt() {this->SetDataType(VTK_UNSIGNED_INT);};
-  void SetDataTypeToLong() {this->SetDataType(VTK_LONG);};
-  void SetDataTypeToUnsignedLong() {this->SetDataType(VTK_UNSIGNED_LONG);};
-  void SetDataTypeToFloat() {this->SetDataType(VTK_FLOAT);};
-  void SetDataTypeToDouble() {this->SetDataType(VTK_DOUBLE);};
+  void SetDataTypeToBit() { this->SetDataType(VTK_BIT); }
+  void SetDataTypeToChar() { this->SetDataType(VTK_CHAR); }
+  void SetDataTypeToUnsignedChar() { this->SetDataType(VTK_UNSIGNED_CHAR); }
+  void SetDataTypeToShort() { this->SetDataType(VTK_SHORT); }
+  void SetDataTypeToUnsignedShort() { this->SetDataType(VTK_UNSIGNED_SHORT); }
+  void SetDataTypeToInt() { this->SetDataType(VTK_INT); }
+  void SetDataTypeToUnsignedInt() { this->SetDataType(VTK_UNSIGNED_INT); }
+  void SetDataTypeToLong() { this->SetDataType(VTK_LONG); }
+  void SetDataTypeToUnsignedLong() { this->SetDataType(VTK_UNSIGNED_LONG); }
+  void SetDataTypeToFloat() { this->SetDataType(VTK_FLOAT); }
+  void SetDataTypeToDouble() { this->SetDataType(VTK_DOUBLE); }
 
   // Description:
   // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
-  void *GetVoidPointer(const int id) {return this->Data->GetVoidPointer(id);};
+  void *GetVoidPointer(const int id) { return this->Data->GetVoidPointer(id); }
 
   // Description:
   // Reclaim any extra memory.
-  virtual void Squeeze() {this->Data->Squeeze();};
+  virtual void Squeeze() { this->Data->Squeeze(); }
 
   // Description:
   // Make object look empty but do not delete memory.
-  virtual void Reset() {this->Data->Reset();};
+  virtual void Reset();
 
   // Description:
   // Different ways to copy data. Shallow copy does reference count (i.e.,
@@ -108,26 +107,26 @@ public:
 
   // Description:
   // Return number of points in array.
-  vtkIdType GetNumberOfPoints() { return this->Data->GetNumberOfTuples();};
+  vtkIdType GetNumberOfPoints() { return this->Data->GetNumberOfTuples(); }
 
   // Description:
   // Return a pointer to a double point x[3] for a specific id.
   // WARNING: Just don't use this error-prone method, the returned pointer
   // and its values are only valid as long as another method invocation is not
   // performed. Prefer GetPoint() with the return value in argument.
-  double *GetPoint(vtkIdType id) { return this->Data->GetTuple(id);};
+  double *GetPoint(vtkIdType id) { return this->Data->GetTuple(id); }
 
   // Description:
   // Copy point components into user provided array v[3] for specified
   // id.
-  void GetPoint(vtkIdType id, double x[3]) { this->Data->GetTuple(id,x);};
+  void GetPoint(vtkIdType id, double x[3]) { this->Data->GetTuple(id,x); }
 
   // Description:
   // Insert point into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfPoints() to allocate memory prior
   // to using SetPoint().
-  void SetPoint(vtkIdType id, const float x[3]) { this->Data->SetTuple(id,x);};
-  void SetPoint(vtkIdType id, const double x[3]) { this->Data->SetTuple(id,x);};
+  void SetPoint(vtkIdType id, const float x[3]) { this->Data->SetTuple(id,x); }
+  void SetPoint(vtkIdType id, const double x[3]) { this->Data->SetTuple(id,x); }
   void SetPoint(vtkIdType id, double x, double y, double z);
 
   // Description:
@@ -140,18 +139,33 @@ public:
   void InsertPoint(vtkIdType id, double x, double y, double z);
 
   // Description:
+  // Copy the points indexed in srcIds from the source array to the tuple
+  // locations indexed by dstIds in this array.
+  // Note that memory allocation is performed as necessary to hold the data.
+  void InsertPoints(vtkIdList *dstIds, vtkIdList *srcIds, vtkPoints *source)
+    { this->Data->InsertTuples(dstIds, srcIds, source->Data); }
+
+  // Description:
+  // Copy n consecutive points starting at srcStart from the source array to
+  // this array, starting at the dstStart location.
+  // Note that memory allocation is performed as necessary to hold the data.
+  void InsertPoints(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                    vtkPoints* source)
+    { this->Data->InsertTuples(dstStart, n, srcStart, source->Data); }
+
+  // Description:
   // Insert point into next available slot. Returns id of slot.
-  vtkIdType InsertNextPoint(const float x[3]) {
-    return this->Data->InsertNextTuple(x);};
-  vtkIdType InsertNextPoint(const double x[3]) {
-    return this->Data->InsertNextTuple(x);};
+  vtkIdType InsertNextPoint(const float x[3])
+    { return this->Data->InsertNextTuple(x); }
+  vtkIdType InsertNextPoint(const double x[3])
+    { return this->Data->InsertNextTuple(x); }
   vtkIdType InsertNextPoint(double x, double y, double z);
 
   // Description:
   // Specify the number of points for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetPoint() method for fast insertion.
-  void SetNumberOfPoints(vtkIdType number);
+  void SetNumberOfPoints(vtkIdType numPoints);
 
   // Description:
   // Resize the internal array while conserving the data.  Returns 1 if
@@ -175,7 +189,7 @@ public:
   void GetBounds(double bounds[6]);
 
 protected:
-  vtkPoints(int dataType=VTK_FLOAT);
+  vtkPoints(int dataType = VTK_FLOAT);
   ~vtkPoints();
 
   double Bounds[6];
@@ -187,44 +201,41 @@ private:
   void operator=(const vtkPoints&);  // Not implemented.
 };
 
-inline void vtkPoints::SetNumberOfPoints(vtkIdType number)
+inline void vtkPoints::Reset()
+{
+  this->Data->Reset();
+  this->Modified();
+}
+
+inline void vtkPoints::SetNumberOfPoints(vtkIdType numPoints)
 {
   this->Data->SetNumberOfComponents(3);
-  this->Data->SetNumberOfTuples(number);
+  this->Data->SetNumberOfTuples(numPoints);
+  this->Modified();
 }
 
 inline int vtkPoints::Resize(vtkIdType numPoints)
 {
   this->Data->SetNumberOfComponents(3);
+  this->Modified();
   return this->Data->Resize(numPoints);
 }
 
 inline void vtkPoints::SetPoint(vtkIdType id, double x, double y, double z)
 {
-  double p[3];
-  p[0] = x;
-  p[1] = y;
-  p[2] = z;
-  this->Data->SetTuple(id,p);
+  double p[3] = { x, y, z };
+  this->Data->SetTuple(id, p);
 }
 
 inline void vtkPoints::InsertPoint(vtkIdType id, double x, double y, double z)
 {
-  double p[3];
-
-  p[0] = x;
-  p[1] = y;
-  p[2] = z;
-  this->Data->InsertTuple(id,p);
+  double p[3] = { x, y, z };
+  this->Data->InsertTuple(id, p);
 }
 
 inline vtkIdType vtkPoints::InsertNextPoint(double x, double y, double z)
 {
-  double p[3];
-
-  p[0] = x;
-  p[1] = y;
-  p[2] = z;
+  double p[3] = { x, y, z };
   return this->Data->InsertNextTuple(p);
 }
 

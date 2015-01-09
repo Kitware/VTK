@@ -148,16 +148,11 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
     this->HandleGeometry[i]->Delete();
     this->Handle[i]->Delete();
     }
-  if ( this->Handle )
-    {
-    delete [] this->Handle;
-    this->Handle = NULL;
-    }
-  if ( this->HandleGeometry )
-    {
-    delete [] this->HandleGeometry;
-    this->HandleGeometry = NULL;
-    }
+  delete [] this->Handle;
+  this->Handle = NULL;
+
+  delete [] this->HandleGeometry;
+  this->HandleGeometry = NULL;
 
   if ( this->HandleProperty )
     {
@@ -1163,16 +1158,11 @@ void vtkImageTracerWidget::ResetHandles(void)
 
   this->NumberOfHandles = 0;
 
-  if ( this->Handle )
-    {
-    delete [] this->Handle;
-    this->Handle = NULL;
-    }
-  if ( this->HandleGeometry )
-    {
-    delete [] this->HandleGeometry;
-    this->HandleGeometry = NULL;
-    }
+  delete [] this->Handle;
+  this->Handle = NULL;
+
+  delete [] this->HandleGeometry;
+  this->HandleGeometry = NULL;
 }
 
 void vtkImageTracerWidget::AllocateHandles(const int& nhandles)

@@ -91,6 +91,12 @@ int vtkImageGradient::RequestUpdateExtent(vtkInformation*,
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
+  // We need one extra ghost level
+  int ugl = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ugl + 1);
+
   // Get the input whole extent.
   int wholeExtent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
@@ -241,6 +247,34 @@ int vtkImageGradient::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  // Shrink the update extent to the input extent. Input extent
+  // can be smaller than update extent when there is an piece
+  // request (UPDATE_NUMBER_OF_PIECES() > 1).
+  // Since the superclass and this class make decisions based
+  // on UPDATE_EXTENT(), this is the quickest way of making this
+  // filter in distributed parallel mode.
+  // In the future, this logic should move up the hierarchy so
+  // other imaging classes can benefit from it.
+  vtkImageData* input = vtkImageData::GetData(inputVector[0]);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  int ue[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue);
+  int ue2[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue2);
+  int* ie =  input->GetExtent();
+  for (int i=0; i<3; i++)
+    {
+    if (ue[2*i] < ie[2*i])
+      {
+      ue2[2*i] = ie[2*i];
+      }
+    if (ue[2*i+1] > ie[2*i+1])
+      {
+      ue2[2*i+1] = ie[2*i+1];
+      }
+    }
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue2, 6);
+
   if (!this->Superclass::RequestData(request, inputVector, outputVector))
     {
     return 0;
@@ -257,6 +291,8 @@ int vtkImageGradient::RequestData(
     output->GetPointData()->AddArray(
         this->GetInputArrayToProcess(0, inputVector));
     }
+  // Restore the previous update extent. See code above for details.
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ue, 6);
   return 1;
 }
 

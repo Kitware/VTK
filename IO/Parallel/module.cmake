@@ -15,4 +15,6 @@ vtk_module(vtkIOParallel
     vtkRenderingParallel
     vtkTestingCore
     vtkTestingRendering
+  KIT
+    vtkParallel
   )

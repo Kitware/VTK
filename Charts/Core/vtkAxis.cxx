@@ -1408,8 +1408,17 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     tickPixelSpacing = 45;
     }
 
-  double niceTickSpacing =
-    vtkAxis::NiceMinMax(min, max, pixelRange, tickPixelSpacing);
+  double niceTickSpacing = 0.0;
+  if (max < min)
+    {
+    niceTickSpacing =
+      vtkAxis::NiceMinMax(max, min, pixelRange, tickPixelSpacing);
+    }
+  else
+    {
+    niceTickSpacing =
+      vtkAxis::NiceMinMax(min, max, pixelRange, tickPixelSpacing);
+    }
 
   if (this->NumberOfTicks > 0)
     {
@@ -1500,14 +1509,14 @@ void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
   // Figure out which digit to vary and by how much.
   double linMin = pow(10., min);
   double linMax = pow(10., max);
-  int varyDigit = floor(log10(linMax - linMin));
+  int varyDigit = static_cast<int>(floor(log10(linMax - linMin)));
   if (varyDigit == order)
     {
     --varyDigit;
     }
   double multiplier = pow(10.,varyDigit);
-  int lo = floor(linMin / multiplier);
-  int hi = ceil(linMax / multiplier);
+  int lo = static_cast<int>(floor(linMin / multiplier));
+  int hi = static_cast<int>(ceil(linMax / multiplier));
   if (hi - lo < 2)
     {
     ++hi;

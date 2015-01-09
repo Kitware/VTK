@@ -1,8 +1,8 @@
 vtk_module(vtkRenderingOpenGL
-  GROUPS
-    Rendering
   IMPLEMENTS
     vtkRenderingCore
+  BACKEND
+    OpenGL
   PRIVATE_DEPENDS
     # These are likely to be removed soon - split Rendering/OpenGL further.
     vtkImagingHybrid # For vtkSampleFunction
@@ -19,10 +19,11 @@ vtk_module(vtkRenderingOpenGL
     vtkRenderingFreeTypeOpenGL
     vtkRenderingImage
     vtkRenderingLOD
-    vtkRenderingLabel
     vtkImagingGeneral
     vtkImagingSources
     vtkFiltersProgrammable
     vtkFiltersSources
     vtkRenderingAnnotation
+  KIT
+    vtkOpenGL
   )

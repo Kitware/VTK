@@ -79,7 +79,7 @@ class Components(object):
         lambda self, bases: self._setBases(bases),
         )
 
-    def registerUtility(self, component=None, provided=None, name=_u(''), 
+    def registerUtility(self, component=None, provided=None, name=_u(''),
                         info=_u(''), event=True, factory=None):
         if factory:
             if component:
@@ -88,6 +88,9 @@ class Components(object):
 
         if provided is None:
             provided = _getUtilityProvided(component)
+
+        if name == _u(''):
+            name = _getName(component)
 
         reg = self._utility_registrations.get((provided, name))
         if reg is not None:
@@ -176,11 +179,13 @@ class Components(object):
     def getAllUtilitiesRegisteredFor(self, interface):
         return self.utilities.subscriptions((), interface)
 
-    def registerAdapter(self, factory, required=None, provided=None, 
+    def registerAdapter(self, factory, required=None, provided=None,
                         name=_u(''), info=_u(''), event=True):
         if provided is None:
             provided = _getAdapterProvided(factory)
         required = _getAdapterRequired(factory, required)
+        if name == _u(''):
+            name = _getName(factory)
         self._adapter_registrations[(required, provided, name)
                                     ] = factory, info
         self.adapters.register(required, provided, name, factory)
@@ -234,7 +239,7 @@ class Components(object):
             raise ComponentLookupError(object, interface, name)
         return adapter
 
-    def queryMultiAdapter(self, objects, interface, name=_u(''), 
+    def queryMultiAdapter(self, objects, interface, name=_u(''),
                           default=None):
         return self.adapters.queryMultiAdapter(
             objects, interface, name, default)
@@ -380,6 +385,12 @@ class Components(object):
     def handle(self, *objects):
         self.adapters.subscribers(objects, None)
 
+
+def _getName(component):
+    try:
+        return component.__component_name__
+    except AttributeError:
+        return _u('')
 
 def _getUtilityProvided(component):
     provided = list(providedBy(component))

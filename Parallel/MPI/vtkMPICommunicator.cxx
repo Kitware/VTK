@@ -381,8 +381,13 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
     {
     // Install an error handler
     MPI_Errhandler errhandler;
+#if (MPI_VERSION > 2) || ((MPI_VERSION == 2) && (MPI_SUBVERSION >= 2))
+    MPI_Comm_create_errhandler(vtkMPICommunicatorMPIErrorHandler, &errhandler);
+    MPI_Comm_set_errhandler(MPI_COMM_WORLD, errhandler);
+#else
     MPI_Errhandler_create(vtkMPICommunicatorMPIErrorHandler, &errhandler);
     MPI_Errhandler_set(MPI_COMM_WORLD, errhandler);
+#endif
     MPI_Errhandler_free(&errhandler);
 
     vtkMPICommunicator* comm = vtkMPICommunicator::New();
@@ -488,6 +493,16 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
   if (!mpiComm->Initialized)
     {
     vtkWarningMacro("The communicator passed has not been initialized!");
+    return 0;
+    }
+
+  if(group->GetNumberOfProcessIds() == 0)
+    {
+    // Based on interpreting the MPI documentation it doesn't seem like a
+    // requirement but in practical terms it doesn't seem to make sense
+    // to create an MPI communicator with 0 processes. Also, some
+    // implementations of MPI crash if this is the case.
+    vtkWarningMacro("The group doesn't contain any process ids!");
     return 0;
     }
 
@@ -940,6 +955,21 @@ int vtkMPICommunicator::NoBlockSend(const double* data, int length,
                                       tag, MPI_DOUBLE, req,
                                       this->MPIComm->Handle));
 }
+#ifdef VTK_USE_64BIT_IDS
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::NoBlockSend(const vtkIdType* data, int length,
+                                    int remoteProcessId, int tag, Request& req)
+{
+
+  return CheckForMPIError(
+    vtkMPICommunicatorNoBlockSendData(data,
+                                      length, remoteProcessId,
+                                      tag,
+                                      vtkMPICommunicatorGetMPIType(VTK_ID_TYPE),
+                                      req,
+                                      this->MPIComm->Handle));
+}
+#endif
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(int* data, int length,

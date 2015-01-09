@@ -70,6 +70,7 @@ from zope.interface.declarations import implementer_only
 from zope.interface.declarations import implements
 from zope.interface.declarations import implementsOnly
 from zope.interface.declarations import moduleProvides
+from zope.interface.declarations import named
 from zope.interface.declarations import noLongerProvides
 from zope.interface.declarations import providedBy
 from zope.interface.declarations import provider

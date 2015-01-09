@@ -31,6 +31,8 @@
 #include <unistd.h>
 #endif
 
+namespace xdmf2
+{
 
 static XdmfLength  GlobalTimeCntr = 0;
 // static  ostrstream  *StringOutput = NULL;
@@ -1366,4 +1368,6 @@ istr >>i;
   i = (XDMF_64_INT)d;
 #endif
 return istr;
+}
+
 }

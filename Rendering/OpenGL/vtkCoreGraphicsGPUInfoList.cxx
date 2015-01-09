@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 #include <cassert>
-#include <ApplicationServices/ApplicationServices.h>
+#include <OpenGL/OpenGL.h>
 
 vtkStandardNewMacro(vtkCoreGraphicsGPUInfoList);
 
@@ -33,64 +33,46 @@ void vtkCoreGraphicsGPUInfoList::Probe()
     this->Probed=true;
     this->Array=new vtkGPUInfoListArray;
 
-    // How many active displays do we have?
-    CGDisplayCount dspCount=0;
-    CGError err=CGGetActiveDisplayList(0,NULL,&dspCount);
-    if(!err && dspCount>0)
-      {
-      // Allocate enough memory to hold all the display IDs we have
-      CGDirectDisplayID *displays=static_cast<CGDirectDisplayID *>(calloc(static_cast<size_t>(dspCount),sizeof(CGDirectDisplayID)));
-      // Get the list of active displays
-      err=CGGetActiveDisplayList(dspCount,
-                                 displays,
-                                 &dspCount);
+    // Technique based on Apple QA1168
+    // <https://developer.apple.com/library/mac/qa/qa1168/_index.html>
 
-      if (!err)
+    // Get renderer info for all renderers that match the display mask.
+    // Using a -1/0xFFFFFFFF display mask enables us to find all renderers,
+    // including those GPUs that are not attached to monitors, aka. offline renderers.
+    GLint count = 0;
+    CGLRendererInfoObj infoObj = 0;
+    CGLError error = CGLQueryRendererInfo(0xFFFFFFFF, &infoObj, &count);
+
+    if ((error == kCGLNoError) && (count > 0))
+      {
+      for (GLint i = 0; i < count; i++)
         {
-        size_t c=dspCount; // there are `c' GPUS.
-        this->Array->v.resize(c);
-        size_t i=0;
-        while(i<c)
+        GLint vramGL = 0;
+        vtkTypeUInt64 vramVTK = 0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+        error = CGLDescribeRenderer(infoObj, i, kCGLRPVideoMemoryMegabytes, &vramGL);
+        vramVTK = static_cast<vtkTypeUInt64>(vramGL) * 1024 * 1024;
+#else
+        error = CGLDescribeRenderer(infoObj, i, kCGLRPVideoMemory, &vramGL);
+        vramVTK = static_cast<vtkTypeUInt64>(vramGL);
+#endif
+
+        // The software renderer will return a video memory of 0, so ignore it.
+        if ((error == kCGLNoError) && (vramVTK > 0))
           {
           vtkGPUInfo *info=vtkGPUInfo::New();
-          this->Array->v[i]=info;
+          info->SetDedicatedVideoMemory(vramVTK);
 
-          io_service_t dspPort=CGDisplayIOServicePort(displays[i]);
-
-          // Note: the QA1168 Apple sample code is wrong as it uses
-          // kIOFBMemorySizeKey. Also it does not work in 64-bit because it
-          // used "long".
-          // Our method is to get the value of property "VRAM,totalsize"
-          // We cannot (yet) distinguish between dedicated video memory
-          // (for example 512MB for a nVidia GeForce 9600M GT) and
-          // dedicated system memory (for example 256MB for a nVidia GeForce
-          // 9400M).
-
-          // Look for property
-          CFTypeRef typeCode = IORegistryEntrySearchCFProperty(
-            dspPort,kIOServicePlane,CFSTR("VRAM,totalsize"),kCFAllocatorDefault,
-            kIORegistryIterateRecursively | kIORegistryIterateParents);
-
-          if(typeCode!=0)
-            {
-            if(CFGetTypeID(typeCode)==CFDataGetTypeID())
-              {
-              // Get the property and interpret it.
-              const UInt8 *v=CFDataGetBytePtr(static_cast<CFDataRef>(typeCode));
-              int ramSize=*(reinterpret_cast<const int *>(v));
-              info->SetDedicatedVideoMemory(ramSize);
-              }
-            CFRelease(typeCode);
-            }
-          ++i;
+          this->Array->v.push_back(info);
           }
         }
-      free(displays);
       }
     else
       {
       this->Array->v.resize(0);
       }
+
+    CGLDestroyRendererInfo(infoObj);
     }
   assert("post: probed" && this->IsProbed());
 }

@@ -355,7 +355,6 @@ void vtkImageSlabExecute(vtkImageSlab *self,
             {
             *rowPtr++ += f*(*inPtrX++);
             }
-          inSlicePtr += inInc[dimIndex];
           }
 
         rowPtr = rowBuffer;

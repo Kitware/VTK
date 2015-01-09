@@ -18,10 +18,30 @@
 #include "vtkDoubleArray.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <map>
+
 #include <cstdio> // For EXIT_SUCCESS
+
+//-----------------------------------------------------------------------------
+//! Get a hexadecimal string of the RGBA colors.
+std::string RGBAToHexString(const unsigned char *rgba)
+{
+  std::ostringstream os;
+  for (int i = 0; i < 4; ++i)
+  {
+    os << std::setw(2) << std::setfill('0')
+    << std::hex << static_cast<int>(rgba[i]);
+  }
+  return os.str();
+}
 
 int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
+  bool res = true;
   // Create the LUT and add some annotations.
   vtkLookupTable* lut = vtkLookupTable::New();
   lut->SetAnnotation(0., "Zero");
@@ -40,28 +60,53 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkColorSeries* palettes = vtkColorSeries::New();
 #if 0
-  vtkIdType numSchemes = palettes->GetNumberOfSchemes();
+  vtkIdType numSchemes = palettes->GetNumberOfColorSchemes();
   for (vtkIdType i = 0; i < numSchemes; ++ i)
     {
-    cout << i << ": " << palettes->GetScheme(i) << "\n";
+    palettes->SetColorScheme(i);
+    std::cout << i << ": " << palettes->GetColorSchemeName() << std::endl;
     }
 #endif
   palettes->SetColorSchemeByName("Brewer Qualitative Accent");
   palettes->BuildLookupTable(lut);
 
-  cout.setf(std::ios_base::hex, std::ios::basefield);
+  std::map<double, std::string> expectedColors;
+  expectedColors[0] = "0x7fc97fff";
+  expectedColors[9] = "0x7fc97fff";
+  expectedColors[1] = "0xfdc086ff";
+  expectedColors[2] = "0x800000ff";
+  expectedColors[3] = "0xffff99ff";
+  expectedColors[0.5] = "0xbeaed4ff";
+  expectedColors[-999] = "0x800000ff"; // NaN
+
   const unsigned char* rgba = lut->MapValue(0.);
-  cout
-    << static_cast<int>(rgba[0]) << ","
-    << static_cast<int>(rgba[1]) << ","
-    << static_cast<int>(rgba[2])
-    << endl;
+  std::string v = "0x" + RGBAToHexString(rgba);
+  if (expectedColors[0] != v)
+    {
+    std::cout
+      << "Fail for "
+      << std::setw(3) << std::left
+      << 0 << ": got: "
+      << v
+      << " expected: "
+      << expectedColors[0]
+      << std::endl;
+    res &= false;
+    }
   rgba = lut->MapValue(3.);
-  cout
-    << static_cast<int>(rgba[0]) << ","
-    << static_cast<int>(rgba[1]) << ","
-    << static_cast<int>(rgba[2])
-    << endl;
+  v = "0x" + RGBAToHexString(rgba);
+  if (expectedColors[3] != v)
+    {
+    std::cout
+      << "Fail for "
+      << std::setw(3) << std::left
+      << 3 << ": got: "
+      << v
+      << " expected: "
+      << expectedColors[3]
+      << std::endl;
+    res &= false;
+    }
 
   vtkDoubleArray* data = vtkDoubleArray::New();
   data->InsertNextValue(0.);
@@ -71,29 +116,44 @@ int TestCategoricalColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   data->InsertNextValue(3.);
   data->InsertNextValue(.5);
 
+
   vtkUnsignedCharArray* color = lut->MapScalars(data, VTK_RGBA, 0);
   unsigned char* cval;
   for (vtkIdType i = 0; i < color->GetNumberOfTuples(); ++ i)
     {
     cval = color->GetPointer(i * 4);
-    cout
-      << data->GetTuple1(i) << ": "
-      << static_cast<int>(cval[0]) << " "
-      << static_cast<int>(cval[1]) << " "
-      << static_cast<int>(cval[2]) << " "
-      << static_cast<int>(cval[3]) << "\n";
+    v = "0x" + RGBAToHexString(cval);
+    if (expectedColors[data->GetTuple1(i)] != v)
+      {
+      std::cout
+        << "Fail for "
+        << std::setw(3) << std::left
+        << data->GetTuple1(i) << ": got: "
+        << v
+        << " expected: "
+        << expectedColors[data->GetTuple1(i)]
+        << std::endl;
+      res &= false;
+      }
     }
   cval = lut->GetNanColorAsUnsignedChars();
-  cout
-    << "NaN: "
-    << static_cast<int>(cval[0]) << " "
-    << static_cast<int>(cval[1]) << " "
-    << static_cast<int>(cval[2]) << " "
-    << static_cast<int>(cval[3]) << "\n";
+  v = "0x" + RGBAToHexString(cval);
+  if (expectedColors[-999] != v)
+    {
+    std::cout
+      << "Fail for "
+      << "NaN: got: "
+      << v
+      << " expected: "
+      << expectedColors[-999]
+      << std::endl;
+    res &= false;
+    }
 
   color->Delete();
   data->Delete();
   lut->Delete();
   palettes->Delete();
-  return EXIT_SUCCESS;
+
+  return (res) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

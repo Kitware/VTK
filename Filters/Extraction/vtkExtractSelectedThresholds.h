@@ -37,6 +37,7 @@
 class vtkDataArray;
 class vtkSelection;
 class vtkSelectionNode;
+class vtkTable;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
 {
@@ -105,6 +106,7 @@ protected:
   int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input,
                     vtkDataSet *output);
 
+  int ExtractRows(vtkSelectionNode* sel, vtkTable* input, vtkTable* output);
 private:
   vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&);  // Not implemented.
   void operator=(const vtkExtractSelectedThresholds&);  // Not implemented.

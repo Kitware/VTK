@@ -34,6 +34,7 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkMathTextUtilities.h"
@@ -151,7 +152,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->TexturePolyData = vtkPolyData::New();
   vtkPolyDataMapper2D* textureMapper = vtkPolyDataMapper2D::New();
   textureMapper->SetInputData(this->TexturePolyData);
-  this->TextureActor = vtkActor2D::New();
+  this->TextureActor = vtkTexturedActor2D::New();
   this->TextureActor->SetMapper(textureMapper);
   textureMapper->Delete();
   this->TextureActor->GetPositionCoordinate()->
@@ -172,7 +173,6 @@ vtkScalarBarActor::vtkScalarBarActor()
   polys2->InsertCellPoint(1);
   polys2->InsertCellPoint(2);
   polys2->InsertCellPoint(3);
-  this->TexturePolyData->SetPolys(polys2);
   polys2->Delete();
 
   vtkProperty2D* imageProperty = vtkProperty2D::New();
@@ -201,6 +201,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->Texture = vtkTexture::New();
   this->Texture->SetInputData( image );
   this->Texture->RepeatOn();
+  this->TextureActor->SetTexture(this->Texture);
   image->Delete();
 
   // Default text position : Above scalar bar if orientation is horizontal
@@ -248,7 +249,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
   this->TitleActor->ReleaseGraphicsResources(win);
   if (!this->P->TextActors.empty())
     {
-    vtkScalarBarActorInternal::ActorVec::iterator it;
+    vtkScalarBarActorInternal::ActorVector::iterator it;
     for (
       it = this->P->TextActors.begin();
       it != this->P->TextActors.end();
@@ -257,7 +258,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow* win)
       (*it)->ReleaseGraphicsResources(win);
       }
     }
-  for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+  for (vtkScalarBarActorInternal::ActorVector::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
     {
     this->P->AnnotationLabels[i]->ReleaseGraphicsResources(win);
     }
@@ -359,7 +360,6 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 
   if (this->UseOpacity && this->DrawColorBar)
     {
-    this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
     renderedSomething += this->TextureActor->RenderOverlay(viewport);
     }
 
@@ -374,7 +374,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 
     if (this->DrawTickLabels)
       {
-      vtkScalarBarActorInternal::ActorVec::iterator it;
+      vtkScalarBarActorInternal::ActorVector::iterator it;
       for (
            it = this->P->TextActors.begin();
            it != this->P->TextActors.end();
@@ -412,7 +412,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
       {
       renderedSomething +=
         this->P->AnnotationLeadersActor->RenderOverlay( viewport );
-      for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+      for (vtkScalarBarActorInternal::ActorVector::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
         {
         renderedSomething +=
           this->P->AnnotationLabels[i]->RenderOverlay( viewport );
@@ -508,7 +508,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
       renderedSomething +=
         this->ScalarBarActor->RenderOpaqueGeometry(viewport);
       }
-    vtkScalarBarActorInternal::ActorVec::iterator ait;
+    vtkScalarBarActorInternal::ActorVector::iterator ait;
     for (
       ait = this->P->TextActors.begin();
       ait != this->P->TextActors.end();
@@ -539,7 +539,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
       {
       renderedSomething +=
         this->P->AnnotationLeadersActor->RenderOpaqueGeometry( viewport );
-      for (vtkScalarBarActorInternal::ActorVec::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+      for (vtkScalarBarActorInternal::ActorVector::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
         {
         renderedSomething +=
           this->P->AnnotationLabels[i]->RenderOpaqueGeometry( viewport );
@@ -835,9 +835,9 @@ void vtkScalarBarActor::ComputeScalarBarThickness()
     {
     nudge = this->TextPad;
     }
-  this->P->ScalarBarBox.Size[0] -= nudge;
-  this->P->ScalarBarBox.Posn[this->P->TL[0]] += nudge *
-    (this->TextPosition == PrecedeScalarBar ? -1 : +1);
+  this->P->ScalarBarBox.Size[0] = static_cast<int>(this->P->ScalarBarBox.Size[0] - nudge);
+  this->P->ScalarBarBox.Posn[this->P->TL[0]] = static_cast<int>(this->P->ScalarBarBox.Posn[this->P->TL[0]] +
+    (nudge * (this->TextPosition == PrecedeScalarBar ? -1 : +1)));
 }
 
 //----------------------------------------------------------------------------
@@ -865,17 +865,17 @@ void vtkScalarBarActor::LayoutNanSwatch()
     {
     this->P->NanBox.Posn[0] = this->P->ScalarBarBox.Posn[0];
     this->P->NanBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad;
-    this->P->ScalarBarBox.Posn[1] +=
-      this->P->NanSwatchSize + this->P->SwatchPad;
+    this->P->ScalarBarBox.Posn[1] = static_cast<int>(this->P->ScalarBarBox.Posn[1] +
+      (this->P->NanSwatchSize + this->P->SwatchPad));
     }
   else // HORIZONTAL
     {
     this->P->NanBox.Posn = this->P->ScalarBarBox.Posn;
-    this->P->NanBox.Posn[this->P->TL[1]] +=
-      this->P->Frame.Size[1] - this->P->NanSwatchSize;
+    this->P->NanBox.Posn[this->P->TL[1]] = static_cast<int>(this->P->NanBox.Posn[this->P->TL[1]] +
+      (this->P->Frame.Size[1] - this->P->NanSwatchSize));
     }
   this->P->NanBox.Size[0] = this->P->ScalarBarBox.Size[0];
-  this->P->NanBox.Size[1] = this->P->NanSwatchSize;
+  this->P->NanBox.Size[1] = static_cast<int>(this->P->NanSwatchSize);
   if (this->P->NanBox.Size[1] > 2 * this->TextPad)
     {
     this->P->NanBox.Size[1] -= this->TextPad;
@@ -961,16 +961,18 @@ void vtkScalarBarActor::LayoutTitle()
     this->P->Frame.Posn[0] +
     (this->P->Frame.Size[this->P->TL[0]] - titleSize[0]) / 2;
   this->P->TitleBox.Posn[1] =
-    this->P->Frame.Posn[1] + this->P->Frame.Size[this->P->TL[1]];
+    static_cast<int>(this->P->Frame.Posn[1] + this->P->Frame.Size[this->P->TL[1]]);
   if (
     this->Orientation == VTK_ORIENT_VERTICAL ||
     this->TextPosition == vtkScalarBarActor::SucceedScalarBar)
     {
-    this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]] + this->TextPad;
+    this->P->TitleBox.Posn[1] -= this->P->TitleBox.Size[this->P->TL[1]] +
+        this->TextPad + static_cast<int>(this->FrameProperty->GetLineWidth());
     }
   else
     {
-    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad;
+    this->P->TitleBox.Posn[1] = this->P->Frame.Posn[1] + this->TextPad -
+        static_cast<int>(this->FrameProperty->GetLineWidth());
     }
 }
 
@@ -984,7 +986,8 @@ void vtkScalarBarActor::ComputeScalarBarLength()
       this->P->Frame.Size[1];
 
   // The scalar bar does not include the Nan Swatch.
-  this->P->ScalarBarBox.Size[1] -= this->P->NanSwatchSize + this->P->SwatchPad;
+  this->P->ScalarBarBox.Size[1] = static_cast<int>(this->P->ScalarBarBox.Size[1] -
+    (this->P->NanSwatchSize + this->P->SwatchPad));
 }
 
 //-----------------------------------------------------------------------------
@@ -1083,8 +1086,8 @@ void vtkScalarBarActor::LayoutTicks()
       // Tick box height also reduced by NaN swatch size, if present:
       if (this->DrawNanAnnotation)
         {
-        this->P->TickBox.Size[1] -=
-          this->P->NanBox.Size[1] + this->P->SwatchPad;
+        this->P->TickBox.Size[1] = static_cast<int>(this->P->TickBox.Size[1] -
+          (this->P->NanBox.Size[1] + this->P->SwatchPad));
         }
 
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
@@ -1137,10 +1140,11 @@ void vtkScalarBarActor::LayoutTicks()
       labelSize);
 
     // Now adjust scalar bar size by the half-size of the first and last ticks
-    this->P->ScalarBarBox.Posn[this->P->TL[1]]
-      += labelSize[this->P->TL[1]] / 2.;
+    this->P->ScalarBarBox.Posn[this->P->TL[1]] = static_cast<int>(this->P->ScalarBarBox.Posn[this->P->TL[1]] +
+      (labelSize[this->P->TL[1]] / 2.));
     this->P->ScalarBarBox.Size[1] -= labelSize[this->P->TL[1]];
-    this->P->TickBox.Posn[this->P->TL[1]] += labelSize[this->P->TL[1]] / 2.;
+    this->P->TickBox.Posn[this->P->TL[1]] = static_cast<int>(this->P->TickBox.Posn[this->P->TL[1]] +
+      (labelSize[this->P->TL[1]] / 2.));
     this->P->TickBox.Size[1] -= labelSize[this->P->TL[1]];
 
     if (this->Orientation == VTK_ORIENT_HORIZONTAL)
@@ -1294,12 +1298,12 @@ void vtkScalarBarActor::ConfigureScalarBar()
     rgba[3] = lut->GetOpacity(rgbval);
     //write into array directly
     rgb = this->P->SwatchColors->GetPointer(nComponents * i);
-    rgb[0] = rgba[0] * 255.;
-    rgb[1] = rgba[1] * 255.;
-    rgb[2] = rgba[2] * 255.;
+    rgb[0] = static_cast<unsigned char>(rgba[0] * 255.);
+    rgb[1] = static_cast<unsigned char>(rgba[1] * 255.);
+    rgb[2] = static_cast<unsigned char>(rgba[2] * 255.);
     if (this->P->SwatchColors->GetNumberOfComponents() > 3)
       {
-      rgb[3] = this->UseOpacity ? rgba[3] * 255. : 255;
+      rgb[3] = static_cast<unsigned char>(this->UseOpacity ? rgba[3] * 255. : 255.);
       }
     }
 
@@ -1428,10 +1432,10 @@ void vtkScalarBarActor::ConfigureNanSwatch()
   polys->InsertNextCell(4, ptIds);
   this->LookupTable->GetIndexedColor(-1,rgba);
   rgb = colors->GetPointer(0); //write into array directly
-  rgb[0] = rgba[0] * 255.;
-  rgb[1] = rgba[1] * 255.;
-  rgb[2] = rgba[2] * 255.;
-  rgb[3] = this->UseOpacity ? rgba[3] * 255. : 255;
+  rgb[0] = static_cast<unsigned char>(rgba[0] * 255.);
+  rgb[1] = static_cast<unsigned char>(rgba[1] * 255.);
+  rgb[2] = static_cast<unsigned char>(rgba[2] * 255.);
+  rgb[3] = static_cast<unsigned char>(this->UseOpacity ? rgba[3] * 255. : 255.);
 }
 
 //----------------------------------------------------------------------------
@@ -1578,13 +1582,13 @@ void vtkScalarBarActor::ConfigureAnnotations()
         /* numComponents */ 4 *
         /* numCells/swatch */ 2 *
         /* swatch */ i ); //write into array directly
-      rgb[0] = rgbaF[0] * 255.;
-      rgb[1] = rgbaF[1] * 255.;
-      rgb[2] = rgbaF[2] * 255.;
-      rgb[3] = rgbaF[3] * 255.;
-      rgb[4] = rgbaF[0] * 255.;
-      rgb[5] = rgbaF[1] * 255.;
-      rgb[6] = rgbaF[2] * 255.;
+      rgb[0] = static_cast<unsigned char>(rgbaF[0] * 255.);
+      rgb[1] = static_cast<unsigned char>(rgbaF[1] * 255.);
+      rgb[2] = static_cast<unsigned char>(rgbaF[2] * 255.);
+      rgb[3] = static_cast<unsigned char>(rgbaF[3] * 255.);
+      rgb[4] = static_cast<unsigned char>(rgbaF[0] * 255.);
+      rgb[5] = static_cast<unsigned char>(rgbaF[1] * 255.);
+      rgb[6] = static_cast<unsigned char>(rgbaF[2] * 255.);
       rgb[7] = 255; // second triangle is always opaque
       }
     }

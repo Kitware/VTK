@@ -15,9 +15,11 @@
 #include "vtkTransformInterpolator.h"
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
+#include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkProp3D.h"
 #include "vtkTupleInterpolator.h"
+#include "vtkQuaternion.h"
 #include "vtkQuaternionInterpolator.h"
 #include <list>
 
@@ -31,14 +33,13 @@ struct vtkQTransform
   double Time;
   double P[3];
   double S[3];
-  double Q[4];
+  vtkQuaterniond Q;
 
   vtkQTransform()
     {
       this->Time = 0.0;
       this->P[0] = this->P[1] = this->P[2] = 0.0;
       this->S[0] = this->S[1] = this->S[2] = 0.0;
-      this->Q[0] = this->Q[1] = this->Q[2] = this->Q[3] = 0.0;
     }
   vtkQTransform(double t, vtkTransform *xform)
     {
@@ -47,13 +48,15 @@ struct vtkQTransform
         {
         xform->GetPosition(this->P);
         xform->GetScale(this->S);
-        xform->GetOrientationWXYZ(this->Q); //Rotation (in degrees) around unit vector
+        double q[4];
+        xform->GetOrientationWXYZ(q); //Rotation (in degrees) around unit vector
+        q[0] = vtkMath::RadiansFromDegrees(q[0]);
+        this->Q.SetRotationAngleAndAxis(q[0], q+1);
         }
       else
         {
         this->P[0] = this->P[1] = this->P[2] = 0.0;
         this->S[0] = this->S[1] = this->S[2] = 0.0;
-        this->Q[0] = this->Q[1] = this->Q[2] = this->Q[3] = 0.0;
         }
     }
 };
@@ -317,13 +320,6 @@ void vtkTransformInterpolator::InitializeInterpolation()
       this->RotationInterpolator = vtkQuaternionInterpolator::New();
       }
 
-    this->PositionInterpolator->Initialize();
-    this->ScaleInterpolator->Initialize();
-    this->RotationInterpolator->Initialize();
-
-    this->PositionInterpolator->SetNumberOfComponents(3);
-    this->ScaleInterpolator->SetNumberOfComponents(3);
-
     if ( this->InterpolationType == INTERPOLATION_TYPE_LINEAR )
       {
       this->PositionInterpolator->SetInterpolationTypeToLinear();
@@ -340,6 +336,13 @@ void vtkTransformInterpolator::InitializeInterpolation()
       {
       ; //manual override, user manipulates interpolators directly
       }
+
+    this->PositionInterpolator->Initialize();
+    this->ScaleInterpolator->Initialize();
+    this->RotationInterpolator->Initialize();
+
+    this->PositionInterpolator->SetNumberOfComponents(3);
+    this->ScaleInterpolator->SetNumberOfComponents(3);
 
     // Okay, now we can load the interpolators with data
     TransformListIterator iter = this->TransformList->begin();
@@ -380,9 +383,11 @@ void vtkTransformInterpolator::InterpolateTransform(double t,
     }
 
   double P[3],S[3],Q[4];
+  vtkQuaterniond q;
   this->PositionInterpolator->InterpolateTuple(t,P);
   this->ScaleInterpolator->InterpolateTuple(t,S);
-  this->RotationInterpolator->InterpolateQuaternion(t,Q);
+  this->RotationInterpolator->InterpolateQuaternion(t,q);
+  Q[0] = vtkMath::DegreesFromRadians(q.GetRotationAngleAndAxis(Q+1));
 
   xform->Translate(P);
   xform->RotateWXYZ(Q[0],Q+1);

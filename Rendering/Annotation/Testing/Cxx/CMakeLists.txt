@@ -2,6 +2,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAxisActor3D.cxx
   TestBarChartActor.cxx
   TestCaptionActor2D.cxx
+  TestConvexHull2D.cxx,NO_VALID
   TestCornerAnnotation.cxx
   TestCubeAxes2DMode.cxx
   TestCubeAxes3.cxx
@@ -19,6 +20,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestLegendScaleActor.cxx
   TestPieChartActor.cxx
   TestPolarAxes.cxx
+  TestScalarBar.cxx
   TestSpiderPlotActor.cxx
   TestCubeAxesOrientedBoundingBox.cxx
   TestCubeAxesIntersectionPoint.cxx

@@ -27,6 +27,9 @@
 #include <cstring>
 #include <stdlib.h>
 
+namespace xdmf2
+{
+
 XdmfDataDesc::XdmfDataDesc() {
 #ifndef XDMF_MEMORY_DEBUG
   H5dont_atexit();
@@ -890,3 +893,4 @@ void XdmfDataDesc::SetShapeString(XdmfConstString shape)
     }
 }
 
+}

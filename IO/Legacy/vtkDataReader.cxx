@@ -128,50 +128,17 @@ vtkDataReader::vtkDataReader()
 
 vtkDataReader::~vtkDataReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->ScalarsName)
-    {
-    delete [] this->ScalarsName;
-    }
-  if (this->VectorsName)
-    {
-    delete [] this->VectorsName;
-    }
-  if (this->TensorsName)
-    {
-    delete [] this->TensorsName;
-    }
-  if (this->NormalsName)
-    {
-    delete [] this->NormalsName;
-    }
-  if (this->TCoordsName)
-    {
-    delete [] this->TCoordsName;
-    }
-  if (this->LookupTableName)
-    {
-    delete [] this->LookupTableName;
-    }
-  if (this->FieldDataName)
-    {
-    delete [] this->FieldDataName;
-    }
-  if (this->ScalarLut)
-    {
-    delete [] this->ScalarLut;
-    }
-  if (this->InputString)
-    {
-    delete [] this->InputString;
-    }
-  if (this->Header)
-    {
-    delete [] this->Header;
-    }
+  delete [] this->FileName;
+  delete [] this->ScalarsName;
+  delete [] this->VectorsName;
+  delete [] this->TensorsName;
+  delete [] this->NormalsName;
+  delete [] this->TCoordsName;
+  delete [] this->LookupTableName;
+  delete [] this->FieldDataName;
+  delete [] this->ScalarLut;
+  delete [] this->InputString;
+  delete [] this->Header;
 
   this->SetInputArray(0);
   this->InitializeCharacteristics();
@@ -209,10 +176,7 @@ void vtkDataReader::SetInputString(const char *in, int len)
     return;
     }
 
-  if (this->InputString)
-    {
-    delete [] this->InputString;
-    }
+  delete [] this->InputString;
 
   if (in && len>0)
     {
@@ -516,10 +480,7 @@ int vtkDataReader::ReadHeader()
     this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
     return 0;
     }
-  if (this->Header)
-    {
-    delete [] this->Header;
-    }
+  delete [] this->Header;
   this->Header = new char[strlen(line) + 1];
   strcpy (this->Header, line);
 
@@ -708,7 +669,7 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numCells) )
         {
@@ -857,9 +818,19 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numPts) )
+        {
+        return 0;
+        }
+      }
+    //
+    // read the edge flags data
+    //
+    else if ( ! strncmp(line, "edge_flags", 10) )
+      {
+      if ( ! this->ReadEdgeFlags(a, numPts) )
         {
         return 0;
         }
@@ -1004,7 +975,7 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, int numVertices)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numVertices) )
         {
@@ -1151,7 +1122,7 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, int numEdges)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numEdges) )
         {
@@ -1296,7 +1267,7 @@ int vtkDataReader::ReadRowData(vtkTable *t, int numEdges)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 10) )
+    else if ( ! strncmp(line, "pedigree_ids", 12) )
       {
       if ( ! this->ReadPedigreeIds(a, numEdges) )
         {
@@ -2518,6 +2489,50 @@ int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
+// Read edge flags. Return 0 if error.
+int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, int numPts)
+{
+  int skipEdgeFlags = 0;
+  char line[256], name[256];
+  vtkAbstractArray *data;
+  char buffer[1024];
+
+  if (!(this->ReadString(buffer) && this->ReadString(line)))
+    {
+    vtkErrorMacro(<<"Cannot read edge flags data" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    return 0;
+    }
+  this->DecodeString(name, buffer);
+
+  //
+  // See whether edge flags have been already read
+  //
+  if ( a->GetAttribute(vtkDataSetAttributes::EDGEFLAG) != NULL )
+    {
+    skipEdgeFlags = 1;
+    }
+
+  data = this->ReadArray(line, numPts, 1);
+  if ( data != NULL )
+    {
+    data->SetName(name);
+    if ( ! skipEdgeFlags )
+      {
+      a->SetAttribute(data, vtkDataSetAttributes::EDGEFLAG);
+      }
+    data->Delete();
+    }
+  else
+    {
+    return 0;
+    }
+
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+
+  return 1;
+}
+
 // Read lookup table. Return 0 if error.
 int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
 {
@@ -2814,10 +2829,7 @@ char *vtkDataReader::LowerCase(char *str, const size_t len)
 void vtkDataReader::CloseVTKFile()
 {
   vtkDebugMacro(<<"Closing vtk file");
-  if ( this->IS != NULL )
-    {
-    delete this->IS;
-    }
+  delete this->IS;
   this->IS = NULL;
 }
 
@@ -3295,11 +3307,8 @@ void vtkDataReader::SetScalarLut(const char* sl)
     {
     return;
     }
-  if (this->ScalarLut)
-    {
-    delete[] this->ScalarLut;
-    this->ScalarLut = 0;
-    }
+  delete[] this->ScalarLut;
+  this->ScalarLut = 0;
   if (sl)
     {
     size_t n = strlen(sl) + 1;

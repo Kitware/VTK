@@ -158,16 +158,16 @@ public:
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render a composite-index.
   // Currently indices >= 0xffffff are not supported.
-  void RenderCompositeIndex(unsigned int index);
+  virtual void RenderCompositeIndex(unsigned int index);
 
   // Description:
   // Called by any vtkMapper or vtkProp subclass to render an attribute's id.
-  void RenderAttributeId(vtkIdType attribid);
+  virtual void RenderAttributeId(vtkIdType attribid);
 
   // Description:
   // Called by any vtkMapper or subclass to render process id. This has any
   // effect when this->UseProcessIdFromData is true.
-  void RenderProcessId(unsigned int processid);
+  virtual void RenderProcessId(unsigned int processid);
 
   // Description:
   // Called by vtkRenderer to render the selection pass.
@@ -185,6 +185,11 @@ public:
   // PROCESS_PASS is not rendered.
   vtkSetMacro(ProcessID, int);
   vtkGetMacro(ProcessID, int);
+
+  // Description:
+  // Get/Set the color to be used by the prop when drawing
+  vtkGetVector3Macro(PropColorValue,float);
+  vtkSetVector3Macro(PropColorValue,float);
 
   // Description:
   // Get the current pass number.
@@ -230,6 +235,14 @@ public:
     MAX_KNOWN_PASS = ID_HIGH16,
     MIN_KNOWN_PASS = PROCESS_PASS
     };
+
+  static void Convert(int id, float tcoord[3])
+    {
+    tcoord[0] = static_cast<float>((id & 0xff)/255.0);
+    tcoord[1] = static_cast<float>(((id & 0xff00) >> 8)/255.0);
+    tcoord[2] = static_cast<float>(((id & 0xff0000) >> 16)/255.0);
+    }
+
 protected:
   vtkHardwareSelector();
   ~vtkHardwareSelector();
@@ -238,13 +251,6 @@ protected:
   // for device specific configuration/preparation etc.
   virtual void BeginRenderProp(vtkRenderWindow *) = 0;
   virtual void EndRenderProp(vtkRenderWindow *) = 0;
-
-  static void Convert(int id, float tcoord[3])
-    {
-    tcoord[0] = static_cast<float>((id & 0xff)/255.0);
-    tcoord[1] = static_cast<float>(((id & 0xff00) >> 8)/255.0);
-    tcoord[2] = static_cast<float>(((id & 0xff0000) >> 16)/255.0);
-    }
 
   int Convert(unsigned long offset, unsigned char* pb)
     {
@@ -336,11 +342,13 @@ protected:
   int ProcessID;
   int CurrentPass;
   int InPropRender;
+  int PropID;
+  float PropColorValue[3];
+
 private:
   vtkHardwareSelector(const vtkHardwareSelector&); // Not implemented.
   void operator=(const vtkHardwareSelector&); // Not implemented.
 
-  int PropID;
   class vtkInternals;
   vtkInternals* Internals;
 //ETX

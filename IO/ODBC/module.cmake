@@ -6,4 +6,6 @@ vtk_module(vtkIOODBC
     vtksys
   TEST_DEPENDS
     vtkTestingCore
+  KIT
+    vtkIO
   )

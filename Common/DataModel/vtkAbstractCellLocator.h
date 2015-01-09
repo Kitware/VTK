@@ -97,7 +97,7 @@ public:
 
   // Description:
   // Return intersection point (if any) of finite line with cells contained
-  // in cell locator.
+  // in cell locator. See vtkCell.h parameters documentation.
   virtual int IntersectWithLine(
     double p1[3], double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int &subId);

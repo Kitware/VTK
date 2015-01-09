@@ -33,7 +33,7 @@ vtkXMLRectilinearGridReader::vtkXMLRectilinearGridReader()
 //----------------------------------------------------------------------------
 vtkXMLRectilinearGridReader::~vtkXMLRectilinearGridReader()
 {
-  if(this->NumberOfPieces)
+  if (this->NumberOfPieces)
     {
     this->DestroyPieces();
     }
@@ -54,7 +54,7 @@ vtkRectilinearGrid* vtkXMLRectilinearGridReader::GetOutput()
 //----------------------------------------------------------------------------
 vtkRectilinearGrid* vtkXMLRectilinearGridReader::GetOutput(int idx)
 {
-  return vtkRectilinearGrid::SafeDownCast( this->GetOutputDataObject(idx) );
+  return vtkRectilinearGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 //----------------------------------------------------------------------------
@@ -66,7 +66,8 @@ const char* vtkXMLRectilinearGridReader::GetDataSetName()
 //----------------------------------------------------------------------------
 void vtkXMLRectilinearGridReader::SetOutputExtent(int* extent)
 {
-  vtkRectilinearGrid::SafeDownCast(this->GetCurrentOutput())->SetExtent(extent);
+  vtkRectilinearGrid::SafeDownCast(
+    this->GetCurrentOutput())->SetExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -74,7 +75,7 @@ void vtkXMLRectilinearGridReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
   this->CoordinateElements = new vtkXMLDataElement*[numPieces];
-  for(int i=0;i < numPieces; ++i)
+  for (int i = 0; i < numPieces; ++i)
     {
     this->CoordinateElements[i] = 0;
     }
@@ -91,26 +92,29 @@ void vtkXMLRectilinearGridReader::DestroyPieces()
 //----------------------------------------------------------------------------
 int vtkXMLRectilinearGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
-  if(!this->Superclass::ReadPiece(ePiece)) { return 0; }
+  if (!this->Superclass::ReadPiece(ePiece))
+    {
+    return 0;
+    }
 
   // Find the Coordinates element in the piece.
   this->CoordinateElements[this->Piece] = 0;
-  for(int i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
+  for (int i = 0; i < ePiece->GetNumberOfNestedElements(); ++i)
     {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);
-    if((strcmp(eNested->GetName(), "Coordinates") == 0)
-       && (eNested->GetNumberOfNestedElements() == 3))
+    if ((strcmp(eNested->GetName(), "Coordinates") == 0)
+      && (eNested->GetNumberOfNestedElements() == 3))
       {
       this->CoordinateElements[this->Piece] = eNested;
       }
     }
 
   // If there is any volume, we require a Coordinates element.
-  int* piecePointDimensions = this->PiecePointDimensions + this->Piece*3;
-  if(!this->CoordinateElements[this->Piece] &&
-     (piecePointDimensions[0] > 0) &&
-     (piecePointDimensions[1] > 0) &&
-     (piecePointDimensions[2] > 0))
+  int* piecePointDimensions = this->PiecePointDimensions + this->Piece * 3;
+  if (!this->CoordinateElements[this->Piece] &&
+    (piecePointDimensions[0] > 0) &&
+    (piecePointDimensions[1] > 0) &&
+    (piecePointDimensions[2] > 0))
     {
     vtkErrorMacro("A piece is missing its Coordinates element.");
     return 0;
@@ -124,7 +128,7 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
 
-  if(!this->CoordinateElements)
+  if (!this->CoordinateElements)
     {
     // Empty volume.
     return;
@@ -146,7 +150,7 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
   vtkDataArray* x = vtkDataArray::SafeDownCast(xa);
   vtkDataArray* y = vtkDataArray::SafeDownCast(ya);
   vtkDataArray* z = vtkDataArray::SafeDownCast(za);
-  if(x && y && z)
+  if (x && y && z)
     {
     x->SetNumberOfTuples(this->PointDimensions[0]);
     y->SetNumberOfTuples(this->PointDimensions[1]);
@@ -181,7 +185,7 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
 {
   // The amount of data read by the superclass's ReadPieceData comes
   // from point/cell data (we read point specifications here).
-  int dims[3] = {0,0,0};
+  int dims[3] = { 0, 0, 0 };
   this->ComputePointDimensions(this->SubExtent, dims);
   vtkIdType superclassPieceSize =
     (this->NumberOfPointArrays*dims[0]*dims[1]*dims[2]+
@@ -191,7 +195,7 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
   // arrays and the point specifications themselves.
   vtkIdType totalPieceSize =
     superclassPieceSize + dims[0] + dims[1] + dims[2];
-  if(totalPieceSize == 0)
+  if (totalPieceSize == 0)
     {
     totalPieceSize = 1;
     }
@@ -202,31 +206,34 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
   this->GetProgressRange(progressRange);
   float fractions[5] =
     {
-      0,
-      float(superclassPieceSize) / totalPieceSize,
-      (float(superclassPieceSize)+dims[0]) / totalPieceSize,
-      (float(superclassPieceSize)+dims[1]+dims[2]) / totalPieceSize,
-      1
+    0,
+    static_cast<float>(superclassPieceSize) / totalPieceSize,
+    (static_cast<float>(superclassPieceSize)+dims[0]) / totalPieceSize,
+    (static_cast<float>(superclassPieceSize)+dims[1]+dims[2]) / totalPieceSize,
+    1
     };
 
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
 
   // Let the superclass read its data.
-  if(!this->Superclass::ReadPieceData()) { return 0; }
+  if (!this->Superclass::ReadPieceData())
+    {
+    return 0;
+    }
 
   int index=this->Piece;
   vtkXMLDataElement* xc = this->CoordinateElements[index]->GetNestedElement(0);
   vtkXMLDataElement* yc = this->CoordinateElements[index]->GetNestedElement(1);
   vtkXMLDataElement* zc = this->CoordinateElements[index]->GetNestedElement(2);
   int* pieceExtent = this->PieceExtents + index*6;
-  vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
-      this->GetCurrentOutput());
+  vtkRectilinearGrid* output =
+    vtkRectilinearGrid::SafeDownCast(this->GetCurrentOutput());
   int result = 1;
 
   // Set the range of progress for the X coordinates array.
   this->SetProgressRange(progressRange, 1, fractions);
-  if(result)
+  if (result)
     {
     this->ReadSubCoordinates(pieceExtent, this->UpdateExtent,
                              this->SubExtent, xc,
@@ -235,7 +242,7 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
 
   // Set the range of progress for the Y coordinates array.
   this->SetProgressRange(progressRange, 2, fractions);
-  if(result)
+  if (result)
     {
     this->ReadSubCoordinates(pieceExtent+2, this->UpdateExtent+2,
                              this->SubExtent+2, yc,
@@ -244,7 +251,7 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
 
   // Set the range of progress for the Z coordinates array.
   this->SetProgressRange(progressRange, 3, fractions);
-  if(result)
+  if (result)
     {
     this->ReadSubCoordinates(pieceExtent+4, this->UpdateExtent+4,
                              this->SubExtent+4, zc,
@@ -254,11 +261,9 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLRectilinearGridReader::ReadSubCoordinates(int* inBounds,
-                                                    int* outBounds,
-                                                    int* subBounds,
-                                                    vtkXMLDataElement* da,
-                                                    vtkDataArray* array)
+int vtkXMLRectilinearGridReader::ReadSubCoordinates(
+  int* inBounds, int* outBounds, int* subBounds,
+  vtkXMLDataElement* da, vtkDataArray* array)
 {
   unsigned int components = array->GetNumberOfComponents();
 
@@ -266,15 +271,14 @@ int vtkXMLRectilinearGridReader::ReadSubCoordinates(int* inBounds,
   int sourceStartIndex = subBounds[0] - inBounds[0];
   int length = subBounds[1] - subBounds[0] + 1;
 
-  return this->ReadArrayValues(da, destStartIndex*components, array,
-    sourceStartIndex, length);
+  return this->ReadArrayValues(
+    da, destStartIndex*components, array, sourceStartIndex, length);
 }
 
-
 //----------------------------------------------------------------------------
-int vtkXMLRectilinearGridReader::FillOutputPortInformation(int, vtkInformation *info)
-  {
+int vtkXMLRectilinearGridReader::FillOutputPortInformation(
+  int, vtkInformation *info)
+{
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
   return 1;
-  }
-
+}

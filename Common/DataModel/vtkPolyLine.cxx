@@ -56,10 +56,10 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 {
   vtkIdType npts=0;
   vtkIdType *linePts=0;
-  double sPrev[3], sNext[3], q[3], w[3], normal[3], theta;
+  double sPrev[3], sNext[3], q[3], w[3], normal[3];
   double p[3], pNext[3];
   double c[3], f1, f2;
-  int i, j, largeRotation;
+  int i, j;
   sNext[0]=0.0;
   sNext[1]=0.0;
   sNext[2]=0.0;
@@ -113,16 +113,14 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
             // to the first line segment. If we have three points
             // we use special logic to select a normal orthogonal
             // to the first two line segments
-            int foundNormal=0;
+            bool foundNormal = false;
             if (npts > 2)
               {
-              int ipt;
-
               // Look at the line segments (0,1), (ipt-1, ipt)
               // until a pair which meets the following criteria
               // is found: ||(0,1)x(ipt-1,ipt)|| > 1.0E-3.
               // This is used to eliminate nearly parallel cases.
-              for(ipt=2; ipt < npts; ipt++)
+              for (int ipt=2; ipt < npts; ipt++)
                 {
                 double ftmp[3], ftmp2[3];
 
@@ -145,13 +143,13 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                 vtkMath::Cross(sNext,ftmp,normal);
                 if ( vtkMath::Norm(normal) > 1.0E-3 )
                   {
-                  foundNormal = 1;
+                  foundNormal = true;
                   break;
                   }
                 }
               }
 
-            if ((npts <= 2)|| !foundNormal)
+            if ((npts <= 2) || !foundNormal)
               {
               for (i=0; i<3; i++)
                 {
@@ -208,34 +206,12 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
             return 0;
             }
 
-          //see whether we rotate greater than 90 degrees.
-          if ( vtkMath::Dot(sPrev,sNext) < 0.0 )
-            {
-            largeRotation = 1;
-            }
-          else
-            {
-            largeRotation = 0;
-            }
-
           //compute rotation of line segment
           vtkMath::Cross (sNext, sPrev, q);
-          theta=asin(static_cast<double>(vtkMath::Normalize(q)));
-          if (theta==0.0)
+          if (vtkMath::Normalize(q) == 0.0)
             { //no rotation, use previous normal
             normals->InsertTuple(linePts[j],normal);
             continue;
-            }
-          if ( largeRotation )
-            {
-            if ( theta > 0.0 )
-              {
-              theta = vtkMath::Pi() - theta;
-              }
-            else
-              {
-              theta = -vtkMath::Pi() - theta;
-              }
             }
 
           // new method

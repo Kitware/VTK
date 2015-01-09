@@ -13,16 +13,18 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkParticlePathFilter.h"
-#include "vtkObjectFactory.h"
-#include "vtkSetGet.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
+
 #include "vtkCell.h"
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkIntArray.h"
-#include "vtkSmartPointer.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
 
 #include <vector>
 
@@ -126,6 +128,22 @@ void ParticlePathFilterInternal::Finalize()
 vtkParticlePathFilter::vtkParticlePathFilter()
 {
   this->It.Initialize(this);
+  this->SimulationTime = NULL;
+  this->SimulationTimeStep = NULL;
+}
+
+vtkParticlePathFilter::~vtkParticlePathFilter()
+{
+  if(this->SimulationTime)
+    {
+    this->SimulationTime->Delete();
+    this->SimulationTime = NULL;
+    }
+  if(this->SimulationTimeStep)
+    {
+    this->SimulationTimeStep->Delete();
+    this->SimulationTimeStep = NULL;
+    }
 }
 
 void vtkParticlePathFilter::ResetCache()
@@ -142,6 +160,40 @@ void vtkParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
 int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
 {
   return this->It.OutputParticles(particles);
+}
+
+void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
+{
+  if(this->SimulationTime == NULL)
+    {
+    this->SimulationTime = vtkDoubleArray::New();
+    this->SimulationTime->SetName("SimulationTime");
+    }
+  if(outputPD->GetArray("SimulationTime"))
+    {
+    outputPD->RemoveArray("SimulationTime");
+    }
+  this->SimulationTime->SetNumberOfTuples(0);
+  outputPD->AddArray(this->SimulationTime);
+
+  if(this->SimulationTimeStep == NULL)
+    {
+    this->SimulationTimeStep = vtkIntArray::New();
+    this->SimulationTimeStep->SetName("SimulationTimeStep");
+    }
+  if(outputPD->GetArray("SimulationTimeStep"))
+    {
+    outputPD->RemoveArray("SimulationTimeStep");
+    }
+  this->SimulationTimeStep->SetNumberOfTuples(0);
+  outputPD->AddArray(this->SimulationTimeStep);
+}
+
+void vtkParticlePathFilter::AppendToExtraPointDataArrays(
+  vtkParticleTracerBaseNamespace::ParticleInformation &info)
+{
+  this->SimulationTime->InsertNextValue(info.SimulationTime);
+  this->SimulationTimeStep->InsertNextValue(info.InjectedStepId+info.TimeStepAge);
 }
 
 void vtkParticlePathFilter::Finalize()

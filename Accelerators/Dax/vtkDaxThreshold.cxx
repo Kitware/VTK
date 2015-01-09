@@ -70,7 +70,9 @@ int vtkDaxThreshold::RequestData(vtkInformation *request,
                                  this->GetUpperThreshold());
   if(!result)
     {
-      result = this->Superclass::RequestData(request,inputVector,outputVector);
+    vtkWarningMacro(<< "Could not use Dax to make contour. "
+                    << "Falling back to serial implementation.");
+    result = this->Superclass::RequestData(request,inputVector,outputVector);
     }
   return result;
 }

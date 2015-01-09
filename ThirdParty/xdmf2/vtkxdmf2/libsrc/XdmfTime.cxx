@@ -29,6 +29,9 @@
 #include "XdmfDataItem.h"
 #include "XdmfGrid.h"
 
+namespace xdmf2
+{
+
 XdmfTime::XdmfTime() {
     this->SetElementName("Time");
     this->Value = 0.0;
@@ -370,4 +373,6 @@ XdmfTime::IsValid(XdmfFloat64 TimeMin, XdmfFloat64 TimeMax){
             return(XDMF_FALSE);
     }
 return(XDMF_FALSE);
+}
+
 }

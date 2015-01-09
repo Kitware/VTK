@@ -51,6 +51,8 @@ public:
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
   virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
                             vtkAbstractArray *source);
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
   virtual void* GetVoidPointer(vtkIdType id);
   virtual void DeepCopy(vtkAbstractArray* da);

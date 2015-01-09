@@ -20,7 +20,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkPainterDeviceAdapter.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -34,6 +33,10 @@
 #include <map>
 
 #define ID_OFFSET 1
+
+#ifndef VTK_OPENGL2
+#include "vtkPainterDeviceAdapter.h"
+#endif
 
 //----------------------------------------------------------------------------
 namespace
@@ -95,6 +98,11 @@ public:
     for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
       {
       const PixelInformation &key = iter->first;
+      if (! key.Prop)
+        {
+        // we don't select 2D annotations
+        continue;
+        }
       const std::set<vtkIdType> &id_values = iter->second;
       vtkSelectionNode* child = vtkSelectionNode::New();
       child->SetContentType(vtkSelectionNode::INDICES);
@@ -130,7 +138,7 @@ public:
       vtkIdType cc=0;
       for (idIter = id_values.begin(); idIter != id_values.end(); ++idIter, ++cc)
         {
-        ptr[cc] = *idIter;
+        ptr[cc] = key.Prop->GetConvertedPickValue(*idIter, fieldassociation);
         }
       child->SetSelectionList(ids);
       ids->FastDelete();
@@ -375,6 +383,7 @@ void vtkHardwareSelector::BeginRenderProp()
 
   //cout << "In BeginRenderProp" << endl;
   //glFinish();
+#ifndef VTK_OPENGL2
   if (this->CurrentPass == ACTOR_PASS)
     {
     int propid = this->PropID;
@@ -405,6 +414,7 @@ void vtkHardwareSelector::BeginRenderProp()
     renWin->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -435,8 +445,10 @@ void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
     return;
     }
 
+#ifndef VTK_OPENGL2
   index += ID_OFFSET;
 
+  //glFinish();
   if (this->CurrentPass == COMPOSITE_INDEX_PASS)
     {
     float color[3];
@@ -444,6 +456,7 @@ void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
     this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -464,6 +477,7 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
     return;
     }
 
+#ifndef VTK_OPENGL2
   // 0 is reserved.
   attribid += ID_OFFSET;
 
@@ -480,6 +494,7 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
       break;
       }
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -493,11 +508,13 @@ void vtkHardwareSelector::RenderProcessId(unsigned int processid)
       return;
       }
 
+#ifndef VTK_OPENGL2
     float color[3];
     vtkHardwareSelector::Convert(
       static_cast<int>(processid + 1), color);
     this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
       vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
+#endif
     }
 }
 
@@ -510,10 +527,6 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
     vtkErrorMacro("Usage error.");
     return 0;
     }
-
-  // I have no idea what this comment means. Preserving from the original code.
-  //todo: save off and swap in other renderer/renderwindow settings that
-  //could affect colors
 
   int propsRenderered = 0;
   // loop through props and give them a chance to
@@ -605,7 +618,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 
     actorid--;
     info.PropID = actorid;
-    info.Prop = this->Internals->Props[actorid];
+    info.Prop = this->GetPropFromID(actorid);
 
     int composite_id = this->Convert(display_position,
       this->PixBuffer[COMPOSITE_INDEX_PASS]);

@@ -1,7 +1,7 @@
 vtk_module_impl()
 vtk_module_export("")
 
-find_package(PythonInterp REQUIRED)
+find_package(PythonInterp ${VTK_PYTHON_VERSION} REQUIRED)
 
 set(WEB_APPLICATIONS
   Cone
@@ -12,6 +12,7 @@ set(WEB_APPLICATIONS
 
 set(WEB_APPS_DEPENDS)
 
+include(vtkPythonPackages) # for copy_files_recursive
 foreach(_app ${WEB_APPLICATIONS})
   file(MAKE_DIRECTORY "${VTK_WWW_DIR}/apps/${_app}")
 

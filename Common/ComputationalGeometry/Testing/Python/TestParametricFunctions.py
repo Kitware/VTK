@@ -24,7 +24,7 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         # For each parametric surface:
         # 1) Create it
         # 2) Assign mappers and actors
-        # 3) Position this object
+        # 3) Position the object
         # 5) Add a label
         # ------------------------------------------------------------
 
@@ -56,7 +56,7 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         torusTextActor.GetPositionCoordinate().SetValue(0, 9.5, 0)
 
         # ------------------------------------------------------------
-        # Create a klein bottle
+        # Create a Klein bottle
         # ------------------------------------------------------------
         klein = vtk.vtkParametricKlein()
         kleinSource = vtk.vtkParametricFunctionSource()
@@ -112,7 +112,7 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         fig8KleinTextActor.GetPositionCoordinate().SetValue(16, 9.5, 0)
 
         # ------------------------------------------------------------
-        # Create a mobius strip
+        # Create a Mobius strip
         # ------------------------------------------------------------
         mobius = vtk.vtkParametricMobius()
         mobiusSource = vtk.vtkParametricFunctionSource()
@@ -443,16 +443,10 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         ellipsoidTextActor.GetPositionCoordinate().SetValue(8, -14.5, 0)
 
         # ------------------------------------------------------------
-        # Create an surface with random hills on it.
-        # Note that for testing, we will disable the
-        # random generation of the surfaces. This is
-        # because random number generators do not
-        # return the same result on different operating
-        # systems.
+        # Create a surface with random hills on it.
         # ------------------------------------------------------------
         randomHills = vtk.vtkParametricRandomHills()
-        randomHills.AllowRandomGenerationOff()
-        randomHills.GenerateTheHills()
+        randomHills.AllowRandomGenerationOn()
         randomHillsSource = vtk.vtkParametricFunctionSource()
         randomHillsSource.SetParametricFunction(randomHills)
         randomHillsSource.GenerateTextureCoordinatesOn()
@@ -478,7 +472,7 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         randomHillsTextActor.GetPositionCoordinate().SetValue(16, -14.5, 0)
 
         # ------------------------------------------------------------
-        # Create an Steiner's Roman Surface.
+        # Create Steiner's Roman Surface.
         # ------------------------------------------------------------
         roman = vtk.vtkParametricRoman()
         roman.SetRadius(1.5)

@@ -80,19 +80,19 @@ include_directories(${${vtk-module}_DEPENDS_INCLUDE_DIRS}
 
 set(headers
   vtkDaxDetailCommon.h
-  vtkDaxMarchingCubesImpl.h
+  vtkDaxContourImpl.h
   vtkDaxThresholdImpl.h
   vtkDaxConfig.h
   )
 
 #implementation of the algorithms for cpu accelerators
 set(cpu_accelerator_srcs
-  vtkDaxMarchingCubesImpl.cxx
+  vtkDaxContourImpl.cxx
   vtkDaxThresholdImpl.cxx
   )
 
 set(vtk_srcs
-  vtkDaxMarchingCubes.cxx
+  vtkDaxContour.cxx
   vtkDaxThreshold.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkAcceleratorsDaxObjectFactory.cxx
   )
@@ -106,7 +106,7 @@ set_source_files_properties(
 
 # Now for the object factory.
 set(opengl_overrides
-  MarchingCubes
+  Contour
   Threshold
   )
 # Now we need to generate the object factory for this module. Create a list of
@@ -149,7 +149,7 @@ if(${VTK_DAX_PICKED_CUDA})
 
   #implementation of the algorithms for gpu accelerators
   set(cuda_accelerator_srcs
-    vtkDaxMarchingCubesImpl.cu
+    vtkDaxContourImpl.cu
     vtkDaxThresholdImpl.cu
     )
 
@@ -174,12 +174,12 @@ if(${VTK_DAX_PICKED_CUDA})
 
   vtk_module_library(vtkAcceleratorsDax ${vtk_srcs} ${cuda_compiled_srcs}
                                         ${headers})
-  target_link_libraries(vtkAcceleratorsDax LINK_PRIVATE ${CUDA_LIBRARIES})
+  vtk_module_link_libraries(vtkAcceleratorsDax LINK_PRIVATE ${CUDA_LIBRARIES})
 
 elseif(${VTK_DAX_PICKED_TBB})
   vtk_module_library(vtkAcceleratorsDax ${vtk_srcs}
                                         ${cpu_accelerator_srcs} ${headers})
-  target_link_libraries(vtkAcceleratorsDax LINK_PRIVATE ${TBB_LIBRARIES})
+  vtk_module_link_libraries(vtkAcceleratorsDax LINK_PRIVATE ${TBB_LIBRARIES})
 else()
 
   vtk_module_library(vtkAcceleratorsDax ${vtk_srcs}

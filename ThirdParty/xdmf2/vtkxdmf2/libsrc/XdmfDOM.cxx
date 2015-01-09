@@ -32,6 +32,9 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
+namespace xdmf2
+{
+
 XdmfDOM *HandleToXdmfDOM( XdmfConstString Source ){
   XdmfObject  *TempObj;
   XdmfDOM   *DOM;
@@ -791,3 +794,4 @@ if( STRNCASECMP( Attribute, "CDATA", 5 ) == 0 ){
 }
 }
 
+}

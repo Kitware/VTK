@@ -9,7 +9,9 @@ vtk_module(vtkIOMPIParallel
   PRIVATE_DEPENDS
     vtksys
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkParallel
   )

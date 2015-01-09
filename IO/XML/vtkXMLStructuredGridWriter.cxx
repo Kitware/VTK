@@ -41,7 +41,7 @@ vtkXMLStructuredGridWriter::~vtkXMLStructuredGridWriter()
 //----------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
 {
   // Split progress range by the approximate fractions of data written
   // by each step in this method.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
@@ -128,7 +128,7 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Split progress range by the approximate fractions of data written
   // by each step in this method.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
@@ -168,7 +168,7 @@ void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   // The total data written includes the points array.
   vtkIdType totalPieceSize =
     superclassPieceSize + (dims[0] * dims[1] * dims[2]);
-  if(totalPieceSize == 0)
+  if (totalPieceSize == 0)
     {
     totalPieceSize = 1;
     }
@@ -179,7 +179,7 @@ void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
 
 //----------------------------------------------------------------------------
 int vtkXMLStructuredGridWriter::FillInputPortInformation(
-  int , vtkInformation* info)
+  int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;

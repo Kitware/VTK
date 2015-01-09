@@ -20,12 +20,12 @@
 
 #include "vtkArrayReader.h"
 
-#include <vtkCommand.h>
-#include <vtkDenseArray.h>
-#include <vtkObjectFactory.h>
-#include <vtkSmartPointer.h>
-#include <vtkSparseArray.h>
-#include <vtkUnicodeString.h>
+#include "vtkCommand.h"
+#include "vtkDenseArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
+#include "vtkSparseArray.h"
+#include "vtkUnicodeString.h"
 
 #include <vtksys/ios/sstream>
 #include <stdexcept>

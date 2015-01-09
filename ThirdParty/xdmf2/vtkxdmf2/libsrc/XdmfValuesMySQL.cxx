@@ -29,6 +29,9 @@
 
 #include "mysql.h"
 
+namespace xdmf2
+{
+
 XdmfValuesMySQL::XdmfValuesMySQL() {
     this->Password = 0;
     this->DataBase = 0;
@@ -202,4 +205,6 @@ XdmfValuesMySQL::Write(XdmfArray *anArray, XdmfConstString /*HeavyDataSetName*/)
     }
     StringOutput << ends;
     return(this->Set("CDATA", StringOutput.str()));
+}
+
 }

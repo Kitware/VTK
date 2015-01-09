@@ -15,10 +15,19 @@
 // .NAME vtkLookupTable - map scalar values into colors via a lookup table
 // .SECTION Description
 // vtkLookupTable is an object that is used by mapper objects to map scalar
-// values into rgba (red-green-blue-alpha transparency) color specification,
-// or rgba into scalar values. The color table can be created by direct
-// insertion of color values, or by specifying  hue, saturation, value, and
+// values into RGBA (red-green-blue-alpha transparency) color specification,
+// or RGBA into scalar values. The color table can be created by direct
+// insertion of color values, or by specifying a hue, saturation, value, and
 // alpha range and generating a table.
+//
+// A special color for NaN values in the data can be specified via
+// SetNanColor(). In addition, a color for data values below the
+// lookup table range minimum can be specified with
+// SetBelowRangeColor(), and that color will be used for values below
+// the range minimum when UseBelowRangeColor is on.  Likewise, a color
+// for data values above the lookup table range maximum can be
+// specified with SetAboveRangeColor(), and it is used when
+// UseAboveRangeColor is on.
 //
 // This class behaves differently depending on how \a IndexedLookup is set.
 // When true, vtkLookupTable enters a mode for representing categorical color maps.
@@ -57,6 +66,14 @@ class VTKCOMMONCORE_EXPORT vtkLookupTable : public vtkScalarsToColors
 {
 public:
   // Description:
+  // Constants for offsets of special colors (e.g., NanColor, BelowRangeColor,
+  // AboveRangeColor) from the maximum index in the lookup table.
+  const static vtkIdType BELOW_RANGE_COLOR_INDEX;
+  const static vtkIdType ABOVE_RANGE_COLOR_INDEX;
+  const static vtkIdType NAN_COLOR_INDEX;
+  const static vtkIdType NUMBER_OF_SPECIAL_COLORS;
+
+  // Description:
   // Construct with range=[0,1]; and hsv ranges set up for rainbow color table
   // (from red to blue).
   static vtkLookupTable *New();
@@ -66,7 +83,7 @@ public:
 
   // Description:
   // Return true if all of the values defining the mapping have an opacity
-  // equal to 1. Default implementation return true.
+  // equal to 1.
   virtual int IsOpaque();
 
   // Description:
@@ -146,13 +163,44 @@ public:
 
   // Description:
   // Set the color to use when a NaN (not a number) is encountered.  This is an
-  // RGBA 4-tuple color of doubles in the range [0,1].
+  // RGBA 4-tuple of doubles in the range [0,1].
   vtkSetVector4Macro(NanColor, double);
   vtkGetVector4Macro(NanColor, double);
 
   // Description:
-  // Return the \a NanColor as a pointer to 4 unsigned chars. This will overwrite any data returned by previous calls to MapValue.
+  // Return the \a NanColor as a pointer to 4 unsigned chars. This
+  // will overwrite any data returned by previous calls to MapValue.
   unsigned char* GetNanColorAsUnsignedChars();
+
+  // Description:
+  // Cast a double color in a type T color. colorIn and colorOut are
+  // expected to be RGBA[4] and colorIn to be in [0.0, 1.0]
+  static void GetColorAsUnsignedChars(const double colorIn[4],
+                                      unsigned char colorOut[4]);
+
+  // Description:
+  // Set the color to use when a value below the range is
+  // encountered. This is an RGBA 4-tuple of doubles in the range [0, 1].
+  vtkSetVector4Macro(BelowRangeColor, double);
+  vtkGetVector4Macro(BelowRangeColor, double);
+
+  // Description:
+  // Set whether the below range color should be used.
+  vtkSetMacro(UseBelowRangeColor, int);
+  vtkGetMacro(UseBelowRangeColor, int);
+  vtkBooleanMacro(UseBelowRangeColor, int);
+
+  // Description:
+  // Set the color to use when a value above the range is
+  // encountered. This is an RGBA 4-tuple of doubles in the range [0, 1].
+  vtkSetVector4Macro(AboveRangeColor, double);
+  vtkGetVector4Macro(AboveRangeColor, double);
+
+  // Description:
+  // Set whether the below range color should be used.
+  vtkSetMacro(UseAboveRangeColor, int);
+  vtkGetMacro(UseAboveRangeColor, int);
+  vtkBooleanMacro(UseAboveRangeColor, int);
 
   // Description:
   // Map one value through the lookup table.
@@ -296,6 +344,11 @@ protected:
   double ValueRange[2];
   double AlphaRange[2];
   double NanColor[4];
+  double BelowRangeColor[4];
+  int    UseBelowRangeColor;
+  double AboveRangeColor[4];
+  int    UseAboveRangeColor;
+
   int Scale;
   int Ramp;
   vtkTimeStamp InsertTime;

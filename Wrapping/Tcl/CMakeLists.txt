@@ -16,6 +16,13 @@
 #
 #   SET(VTK_EXTRA_TCL_LIBRARIES ${VTK_EXTRA_TCL_LIBRARIES} vtkMySpecialTCL)
 
+# Deal with OpenGL or OpenGL2 and its translation to Roman numerals due to TCL
+# not allowing numbers in package names.
+unset(rendering_backend)
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(rendering_backend "ii")
+endif()
+
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
   ${VTK_BINARY_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h
@@ -35,7 +42,7 @@ endforeach()
 
 IF (NOT TCL_LIBRARY)
   MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
-ENDIF (NOT TCL_LIBRARY)
+ENDIF ()
 
 include(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
 
@@ -51,9 +58,9 @@ IF (WIN32)
         )
       SET(VTK_EXE_RESOURCE_FILES
         "${CMAKE_CURRENT_BINARY_DIR}/resources/vtk.rc")
-    ENDIF(NOT CYGWIN)
-  ENDIF (NOT BORLAND)
-ENDIF (WIN32)
+    ENDIF()
+  ENDIF ()
+ENDIF ()
 
 find_package(TCL)
 
@@ -76,7 +83,7 @@ if(VTK_USE_TK)
     ${TK_INCLUDE_PATH}
     ${TK_XLIB_PATH}
   )
-endif(VTK_USE_TK)
+endif()
 
 # Create the vtk Tcl wrapper executable.
 VTK_ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
@@ -89,8 +96,8 @@ IF(VTK_USE_CARBON)
       COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o $<TARGET_FILE:vtk>
       VERBATIM
       )
-  ENDIF(VTK_APPLE_RESOURCE)
-ENDIF(VTK_USE_CARBON)
+  ENDIF()
+ENDIF()
 
 # Link to TCL static libraries
 if(BUILD_SHARED_LIBS)
@@ -145,13 +152,13 @@ if(vtkParallelMPI_ENABLED)
         COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o $<TARGET_FILE:pvtk>
         VERBATIM
         )
-    ENDIF(VTK_APPLE_RESOURCE)
-  ENDIF(VTK_USE_CARBON)
+    ENDIF()
+  ENDIF()
 
   target_link_libraries(pvtk LINK_PRIVATE ${PVTK_LIBRARIES})
   if(VTK_USE_TK)
     target_link_libraries(pvtk LINK_PRIVATE ${VTK_TK_LIBRARIES})
-  endif(VTK_USE_TK)
+  endif()
 
   # Link to TCL static libraries
   if(BUILD_SHARED_LIBS)
@@ -258,10 +265,10 @@ endforeach()
 SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]")
 IF(UNIX)
   SET(VTK_TCL_LIBRARY_DIR "[file dirname [file dirname [file dirname [info script]]]]")
-ELSE(UNIX)
+ELSE()
   SET(VTK_TCL_LIBRARY_DIR
       "[file join [file dirname [file dirname [file dirname [file dirname [info script]]]]] bin]")
-ENDIF(UNIX)
+ENDIF()
 configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl
                @ONLY)

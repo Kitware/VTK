@@ -35,6 +35,13 @@ class vtkInformationVector;
 class vtkInformationKeyVectorKey;
 class vtkInformationUnsignedLongKey;
 
+  ///\defgroup InformationKeys Information Keys
+  /// The VTK pipeline relies on algorithms providing information about their
+  /// input and output and responding to requests.  The information objects used
+  /// to perform these actions map known keys to values.  This is a list of keys
+  /// that information objects use and what each key should be used for.
+  ///
+
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDemandDrivenPipeline : public vtkExecutive
 {
 public:
@@ -99,30 +106,36 @@ public:
 
   // Description:
   // Key defining a request to make sure the output data objects exist.
+  // @ingroup InformationKeys
   static vtkInformationRequestKey* REQUEST_DATA_OBJECT();
 
   // Description:
   // Key defining a request to make sure the output information is up to date.
+  // @ingroup InformationKeys
   static vtkInformationRequestKey* REQUEST_INFORMATION();
 
   // Description:
   // Key defining a request to make sure the output data are up to date.
+  // @ingroup InformationKeys
   static vtkInformationRequestKey* REQUEST_DATA();
 
   // Description:
   // Key defining a request to mark outputs that will NOT be generated
   // during a REQUEST_DATA.
+  // @ingroup InformationKeys
   static vtkInformationRequestKey* REQUEST_DATA_NOT_GENERATED();
 
   // Description:
   // Key to specify in pipeline information the request that data be
   // released after it is used.
+  // @ingroup InformationKeys
   static vtkInformationIntegerKey* RELEASE_DATA();
 
   // Description:
   // Key to store a mark for an output that will not be generated.
   // Algorithms use this to tell the executive that they will not
   // generate certain outputs for a REQUEST_DATA.
+  // @ingroup InformationKeys
   static vtkInformationIntegerKey* DATA_NOT_GENERATED();
 
   // Description:

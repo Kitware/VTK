@@ -35,7 +35,7 @@ public:
 
   // Description:
   // Clamps \c ext to fit in \c wholeExt.
-  static void Clamp(int ext[6], int wholeExt[6]);
+  static void Clamp(int ext[6], const int wholeExt[]);
 
   // Description:
   // Returns true if \c ext is fits within \c wholeExt with atleast 1 dimension
@@ -71,7 +71,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline void vtkStructuredExtent::Clamp(int ext[6], int wholeExt[6])
+inline void vtkStructuredExtent::Clamp(int ext[6], const int wholeExt[6])
 {
   ext[0] = (ext[0] < wholeExt[0])? wholeExt[0] : ext[0];
   ext[1] = (ext[1] > wholeExt[1])? wholeExt[1] : ext[1];

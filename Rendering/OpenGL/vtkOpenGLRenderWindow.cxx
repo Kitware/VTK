@@ -29,6 +29,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkTextureUnitManager.h"
+#include "vtkPainterDeviceAdapter.h"
 #include "vtkStdString.h"
 #include <sstream>
 using std::ostringstream;
@@ -64,6 +65,8 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->ExtensionManager = NULL;
   this->HardwareSupport = NULL;
   this->TextureUnitManager=0;
+
+  this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
 
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   this->TextureResourceIds = vtkIdList::New();

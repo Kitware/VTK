@@ -87,11 +87,16 @@ public:
   vtkGetStringMacro(ValidPointMaskArrayName)
 
   // Description:
-  // Shallow copy the input arrays to the output.
+  // Shallow copy the input cell data arrays to the output.
+  // Off by default.
   vtkSetMacro(PassCellArrays, int);
+  vtkBooleanMacro(PassCellArrays, int);
   vtkGetMacro(PassCellArrays, int);
-  //
+  // Description:
+  // Shallow copy the input point data arrays to the output
+  // Off by default.
   vtkSetMacro(PassPointArrays, int);
+  vtkBooleanMacro(PassPointArrays, int);
   vtkGetMacro(PassPointArrays, int);
 
 
@@ -101,6 +106,21 @@ public:
   vtkSetMacro(PassFieldArrays, int);
   vtkBooleanMacro(PassFieldArrays, int);
   vtkGetMacro(PassFieldArrays, int);
+
+  // Description:
+  // Set the tolerance used to compute whether a point in the
+  // source is in a cell of the input.  This value is only used
+  // if ComputeTolerance is off.
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
+
+  // Description:
+  // Set whether to use the Tolerance field or precompute the tolerance.
+  // When on, the tolerance will be computed and the field
+  // value is ignored. Off by default.
+  vtkSetMacro(ComputeTolerance, bool);
+  vtkBooleanMacro(ComputeTolerance, bool);
+  vtkGetMacro(ComputeTolerance, bool);
 
 //BTX
 protected:
@@ -112,6 +132,9 @@ protected:
   int PassFieldArrays;
 
   int SpatialMatch;
+
+  double Tolerance;
+  bool ComputeTolerance;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);

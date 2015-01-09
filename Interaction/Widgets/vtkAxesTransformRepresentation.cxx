@@ -123,11 +123,8 @@ vtkAxesTransformRepresentation::~vtkAxesTransformRepresentation()
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
 
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 
   this->GlyphPoints->Delete();
   this->GlyphVectors->Delete();

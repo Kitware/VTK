@@ -174,11 +174,11 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
   if (this->AnnotationLink)
     {
     vtkSelection *selection = this->AnnotationLink->GetCurrentSelection();
-    if (selection->GetNumberOfNodes() &&
-        this->AnnotationLink->GetMTime() > this->Storage->Plot->GetMTime())
+    if (this->AnnotationLink->GetMTime() > this->Storage->Plot->GetMTime())
       {
-      vtkSelectionNode *node = selection->GetNode(0);
-      idArray = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      vtkSelectionNode *node = selection->GetNumberOfNodes() > 0?
+        selection->GetNode(0) : NULL;
+      idArray = node? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : NULL;
       this->Storage->Plot->SetSelection(idArray);
       }
     }

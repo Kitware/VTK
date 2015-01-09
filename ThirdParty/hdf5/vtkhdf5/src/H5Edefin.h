@@ -24,9 +24,10 @@
 hid_t H5E_DATASET_g        = FAIL;      /* Dataset */
 hid_t H5E_FUNC_g           = FAIL;      /* Function entry/exit */
 hid_t H5E_STORAGE_g        = FAIL;      /* Data storage */
-hid_t H5E_FILE_g           = FAIL;      /* File accessability */
+hid_t H5E_FILE_g           = FAIL;      /* File accessibilty */
 hid_t H5E_SOHM_g           = FAIL;      /* Shared Object Header Messages */
 hid_t H5E_SYM_g            = FAIL;      /* Symbol table */
+hid_t H5E_PLUGIN_g         = FAIL;      /* Plugin for dynamically loaded library */
 hid_t H5E_VFL_g            = FAIL;      /* Virtual File Layer */
 hid_t H5E_INTERNAL_g       = FAIL;      /* Internal error (too specific to document in detail) */
 hid_t H5E_BTREE_g          = FAIL;      /* B-Tree node */
@@ -91,6 +92,7 @@ hid_t H5E_CANTRELEASE_g    = FAIL;      /* Unable to release object */
 hid_t H5E_CANTGET_g        = FAIL;      /* Can't get value */
 hid_t H5E_CANTSET_g        = FAIL;      /* Can't set value */
 hid_t H5E_DUPCLASS_g       = FAIL;      /* Duplicate class name in parent class */
+hid_t H5E_SETDISALLOWED_g  = FAIL;      /* Disallowed operation */
 
 /* Free space errors */
 hid_t H5E_CANTMERGE_g      = FAIL;      /* Can't merge objects */
@@ -128,7 +130,10 @@ hid_t H5E_PATH_g           = FAIL;      /* Problem with path to object */
 /* No error */
 hid_t H5E_NONE_MINOR_g     = FAIL;      /* No error */
 
-/* File accessability errors */
+/* Plugin errors */
+hid_t H5E_OPENERROR_g      = FAIL;      /* Can't open directory or file */
+
+/* File accessibilty errors */
 hid_t H5E_FILEEXISTS_g     = FAIL;      /* File already exists */
 hid_t H5E_FILEOPEN_g       = FAIL;      /* File already open */
 hid_t H5E_CANTCREATE_g     = FAIL;      /* Unable to create file */

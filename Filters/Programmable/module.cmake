@@ -4,7 +4,9 @@ vtk_module(vtkFiltersProgrammable
   DEPENDS
     vtkCommonExecutionModel
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkFilters
   )

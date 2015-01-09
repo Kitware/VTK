@@ -35,6 +35,15 @@ public:
   ~vtkInformationDataObjectMetaDataKey();
 
   // Description:
+  // This method simply returns a new vtkInformationDataObjectMetaDataKey, given a
+  // name and a location. This method is provided for wrappers. Use the
+  // constructor directly from C++ instead.
+  static vtkInformationDataObjectMetaDataKey* MakeKey(const char* name, const char* location)
+    {
+    return new vtkInformationDataObjectMetaDataKey(name, location);
+    }
+
+  // Description:
   // Simply shallow copies the key from fromInfo to toInfo if request
   // has the REQUEST_INFORMATION() key.
   // This is used by the pipeline to propagate this key downstream.

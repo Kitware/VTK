@@ -797,6 +797,19 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes *fromPd,
 }
 
 //--------------------------------------------------------------------------
+void vtkDataSetAttributes::CopyData(vtkDataSetAttributes *fromPd,
+                                    vtkIdType dstStart, vtkIdType n,
+                                    vtkIdType srcStart)
+{
+  for (int i = this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End();
+       i = this->RequiredArrays.NextIndex())
+    {
+    this->CopyTuples(fromPd->Data[i], this->Data[this->TargetIndices[i]],
+                     dstStart, n, srcStart);
+    }
+}
+
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
                                         vtkIdType sze, vtkIdType ext,
                                         int shallowCopyArrays)
@@ -914,6 +927,15 @@ void vtkDataSetAttributes::CopyTuples(vtkAbstractArray *fromData,
                                       vtkIdList *fromIds, vtkIdList *toIds)
 {
   toData->InsertTuples(toIds, fromIds, fromData);
+}
+
+//--------------------------------------------------------------------------
+void vtkDataSetAttributes::CopyTuples(vtkAbstractArray *fromData,
+                                      vtkAbstractArray *toData,
+                                      vtkIdType dstStart, vtkIdType n,
+                                      vtkIdType srcStart)
+{
+  toData->InsertTuples(dstStart, n, srcStart, fromData);
 }
 
 //--------------------------------------------------------------------------
@@ -2181,11 +2203,8 @@ void vtkDataSetAttributes::FieldList::SetField(
 
   //we unallocate the names before we update the field components
   //so we unallocate correctly
-  if ( this->FieldComponentsNames[index] )
-    {
-    delete this->FieldComponentsNames[index];
-    this->FieldComponentsNames[index] = NULL;
-    }
+  delete this->FieldComponentsNames[index];
+  this->FieldComponentsNames[index] = NULL;
 
   //store the components names
   int numberOfComponents = aa->GetNumberOfComponents();

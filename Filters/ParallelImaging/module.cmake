@@ -7,4 +7,6 @@ vtk_module(vtkFiltersParallelImaging
     vtkFiltersImaging
     vtkFiltersParallel
     vtkParallelCore
+  KIT
+    vtkParallel
   )

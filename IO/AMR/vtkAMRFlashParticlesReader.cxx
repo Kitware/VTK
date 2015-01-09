@@ -130,10 +130,7 @@ vtkAMRFlashParticlesReader::vtkAMRFlashParticlesReader()
 //------------------------------------------------------------------------------
 vtkAMRFlashParticlesReader::~vtkAMRFlashParticlesReader()
 {
-  if( this->Internal != NULL )
-    {
-    delete this->Internal;
-    }
+  delete this->Internal;
 }
 
 //------------------------------------------------------------------------------

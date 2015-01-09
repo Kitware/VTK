@@ -658,7 +658,7 @@ void vtkContext2D::ComputeStringBounds(const char* string,
 int vtkContext2D::ComputeFontSizeForBoundedString(const vtkStdString &string,
                                                   float width, float height)
 {
-  int orientation = this->GetTextProp()->GetOrientation();
+  double orientation = this->GetTextProp()->GetOrientation();
   this->GetTextProp()->SetOrientation(0.0);
 
   float stringBounds[4];

@@ -39,6 +39,8 @@ on event-based network programming and multiprotocol integration.
     classifiers=[
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
         ],
     )
 
@@ -367,8 +369,20 @@ class build_ext_twisted(build_ext.build_ext):
             self.define_macros = [("WIN32", 1)]
         else:
             self.define_macros = []
+
+        # On Solaris 10, we need to define the _XOPEN_SOURCE and
+        # _XOPEN_SOURCE_EXTENDED macros to build in order to gain access to
+        # the msg_control, msg_controllen, and msg_flags members in
+        # sendmsg.c. (according to
+        # http://stackoverflow.com/questions/1034587).  See the documentation
+        # of X/Open CAE in the standards(5) man page of Solaris.
+        if sys.platform.startswith('sunos'):
+            self.define_macros.append(('_XOPEN_SOURCE', 1))
+            self.define_macros.append(('_XOPEN_SOURCE_EXTENDED', 1))
+
         self.extensions = [x for x in self.conditionalExtensions
                            if x.condition(self)]
+
         for ext in self.extensions:
             ext.define_macros.extend(self.define_macros)
 
@@ -418,11 +432,7 @@ def _checkCPython(sys=sys, platform=platform):
     """
     Checks if this implementation is CPython.
 
-    On recent versions of Python, will use C{platform.python_implementation}.
-    On 2.5, it will try to extract the implementation from sys.subversion. On
-    older versions (currently the only supported older version is 2.4), checks
-    if C{__pypy__} is in C{sys.modules}, since PyPy is the implementation we
-    really care about. If it isn't, assumes CPython.
+    This uses C{platform.python_implementation}.
 
     This takes C{sys} and C{platform} kwargs that by default use the real
     modules. You shouldn't care about these -- they are for testing purposes
@@ -431,31 +441,7 @@ def _checkCPython(sys=sys, platform=platform):
     @return: C{False} if the implementation is definitely not CPython, C{True}
         otherwise.
     """
-    try:
-        return platform.python_implementation() == "CPython"
-    except AttributeError:
-        # For 2.5:
-        try:
-            implementation, _, _ = sys.subversion
-            return implementation == "CPython"
-        except AttributeError:
-            pass
-
-        # Are we on Pypy?
-        if "__pypy__" in sys.modules:
-            return False
-
-        # No? Well, then we're *probably* on CPython.
-        return True
+    return platform.python_implementation() == "CPython"
 
 
 _isCPython = _checkCPython()
-
-
-def _hasEpoll(builder):
-    """
-    Checks if the header for building epoll (C{sys/epoll.h}) is available.
-
-    @return: C{True} if the header is available, C{False} otherwise.
-    """
-    return builder._check_header("sys/epoll.h")

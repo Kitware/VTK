@@ -120,23 +120,14 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
 
   this->SetController(NULL);
 
-  if (this->Target)
-    {
-    delete [] this->Target;
-    this->Target= NULL;
-    }
+  delete [] this->Target;
+  this->Target= NULL;
 
-  if (this->Source)
-    {
-    delete [] this->Source;
-    this->Source= NULL;
-    }
+  delete [] this->Source;
+  this->Source= NULL;
 
-  if (this->ConvexSubRegionBounds)
-    {
-    delete [] this->ConvexSubRegionBounds;
-    this->ConvexSubRegionBounds = NULL;
-    }
+  delete [] this->ConvexSubRegionBounds;
+  this->ConvexSubRegionBounds = NULL;
 
   if (this->UserCuts)
     {
@@ -947,11 +938,8 @@ void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
 //----------------------------------------------------------------------------
 void vtkDistributedDataFilter::ComputeMyRegionBounds()
 {
-  if (this->ConvexSubRegionBounds)
-    {
-    delete [] this->ConvexSubRegionBounds;
-    this->ConvexSubRegionBounds = NULL;
-    }
+  delete [] this->ConvexSubRegionBounds;
+  this->ConvexSubRegionBounds = NULL;
 
   vtkIntArray *myRegions = vtkIntArray::New();
 
@@ -1313,17 +1301,11 @@ void vtkDistributedDataFilter::SetUpPairWiseExchange()
   int iam = this->MyId;
   int nprocs = this->NumProcesses;
 
-  if (this->Target)
-    {
-    delete [] this->Target;
-    this->Target = NULL;
-    }
+  delete [] this->Target;
+  this->Target = NULL;
 
-  if (this->Source)
-    {
-    delete [] this->Source;
-    this->Source = NULL;
-    }
+  delete [] this->Source;
+  this->Source = NULL;
 
   if (nprocs == 1)
     {
@@ -1604,6 +1586,7 @@ vtkFloatArray **
         {
         vtkErrorMacro(<<
           "vtkDistributedDataFilter::ExchangeIdArrays memory allocation");
+        delete [] recvSize;
         delete [] recvArrays;
         return NULL;
         }
@@ -1725,6 +1708,8 @@ vtkIdTypeArray **
         {
         vtkErrorMacro(<<
           "vtkDistributedDataFilter::ExchangeIdArrays memory allocation");
+        delete [] sendSize;
+        delete [] recvSize;
         return NULL;
         }
       mpiContr->NoBlockReceive(recvArrays[source], recvSize[source], source, tag, req);
@@ -1868,10 +1853,7 @@ vtkUnstructuredGrid *
 
     if (packedGridRecvSize > recvBufSize)
       {
-      if (packedGridRecv)
-        {
-        delete [] packedGridRecv;
-        }
+      delete [] packedGridRecv;
       packedGridRecv = new char [packedGridRecvSize];
       if (!packedGridRecv)
         {

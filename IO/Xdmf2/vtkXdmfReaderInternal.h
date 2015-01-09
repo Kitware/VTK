@@ -35,12 +35,18 @@
 #include "XdmfArray.h"
 #include "XdmfAttribute.h"
 #include "XdmfDOM.h"
+//?
 #include "XdmfDataDesc.h"
+//?
 #include "XdmfDataItem.h"
 #include "XdmfGrid.h"
+//?
 #include "XdmfTopology.h"
+//?
 #include "XdmfGeometry.h"
+//?
 #include "XdmfTime.h"
+//?
 #include "XdmfSet.h"
 
 #include <string>
@@ -96,7 +102,7 @@ private:
 
 private:
   int ActiveDomainIndex;
-  XdmfDOM XMLDOM;
+  xdmf2::XdmfDOM XMLDOM;
   vtkXdmfDomain* ActiveDomain;
   std::vector<std::string> Domains;
 
@@ -179,10 +185,10 @@ class VTKIOXDMF2_EXPORT vtkXdmfDomain
 {
 private:
   XdmfInt64 NumberOfGrids;
-  XdmfGrid* XMFGrids;
+  xdmf2::XdmfGrid* XMFGrids;
 
   XdmfXmlNode XMLDomain;
-  XdmfDOM* XMLDOM;
+  xdmf2::XdmfDOM* XMLDOM;
 
   unsigned int GridsOverflowCounter;
   // these are node indices used when building the SIL.
@@ -204,7 +210,7 @@ public:
   //---------------------------------------------------------------------------
   // does not take ownership of the DOM, however the xmlDom must exist as long
   // as the instance is in use.
-  vtkXdmfDomain(XdmfDOM* xmlDom, int domain_index);
+  vtkXdmfDomain(xdmf2::XdmfDOM* xmlDom, int domain_index);
 
   //---------------------------------------------------------------------------
   // Description:
@@ -225,7 +231,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Provides access to a top-level grid from this domain.
-  XdmfGrid* GetGrid(XdmfInt64 cc);
+  xdmf2::XdmfGrid* GetGrid(XdmfInt64 cc);
 
   //---------------------------------------------------------------------------
   // Description:
@@ -269,37 +275,37 @@ public:
   // Description:
   // If xmfGrid is a temporal collection, returns the child-grid matching the
   // requested time.
-  XdmfGrid* GetGrid(XdmfGrid* xmfGrid, double time);
+  xdmf2::XdmfGrid* GetGrid(xdmf2::XdmfGrid* xmfGrid, double time);
 
   //---------------------------------------------------------------------------
   // Description:
   // Returns true if the grids is a structured dataset.
-  bool IsStructured(XdmfGrid*);
+  bool IsStructured(xdmf2::XdmfGrid*);
 
   //---------------------------------------------------------------------------
   // Description:
   // Returns the whole extents for the dataset if the grid if IsStructured()
   // returns true for the given grid. Returns true if the extents are valid.
   // NOTE: returned extents are always (0, dimx-1, 0, dimy-1, 0, dimz-1).
-  bool GetWholeExtent(XdmfGrid*, int extents[6]);
+  bool GetWholeExtent(xdmf2::XdmfGrid*, int extents[6]);
 
   //---------------------------------------------------------------------------
   // Description:
   // Returns the spacing and origin for the grid if the grid topology ==
   // XDMF_2DCORECTMESH or XDMF_3DCORECTMESH i.e. image data.  Returns true if
   // the extents are valid.
-  bool GetOriginAndSpacing(XdmfGrid*, double origin[3], double spacing[3]);
+  bool GetOriginAndSpacing(xdmf2::XdmfGrid*, double origin[3], double spacing[3]);
 
   //---------------------------------------------------------------------------
   ~vtkXdmfDomain();
 
   // Returns VTK data type based on grid type and topology.
   // Returns -1 on error.
-  int GetVTKDataType(XdmfGrid* xmfGrid);
+  int GetVTKDataType(xdmf2::XdmfGrid* xmfGrid);
 
   // Returns the dimensionality (or rank) of the topology for the given grid.
   // Returns -1 is the xmfGrid is not a uniform i.e. is a collection or a tree.
-  static int GetDataDimensionality(XdmfGrid* xmfGrid);
+  static int GetDataDimensionality(xdmf2::XdmfGrid* xmfGrid);
 
   vtkXdmfArraySelection* GetPointArraySelection()
     { return this->PointArrays; }
@@ -323,19 +329,19 @@ private:
   void CollectMetaData();
 
   // Used by CollectMetaData().
-  void CollectMetaData(XdmfGrid* xmfGrid, vtkIdType silParent);
+  void CollectMetaData(xdmf2::XdmfGrid* xmfGrid, vtkIdType silParent);
 
   // Used by CollectMetaData().
-  void CollectNonLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent);
+  void CollectNonLeafMetaData(xdmf2::XdmfGrid* xmfGrid, vtkIdType silParent);
 
   // Used by CollectMetaData().
-  void CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent);
+  void CollectLeafMetaData(xdmf2::XdmfGrid* xmfGrid, vtkIdType silParent);
 
   // Description:
   // Use this to add an association with the grid attribute with the node for
   // the grid in the SIL if applicable. Returns true if the attribute was added.
   bool UpdateGridAttributeInSIL(
-    XdmfAttribute* xmfAttribute, vtkIdType gridSILId);
+    xdmf2::XdmfAttribute* xmfAttribute, vtkIdType gridSILId);
 };
 
 #endif

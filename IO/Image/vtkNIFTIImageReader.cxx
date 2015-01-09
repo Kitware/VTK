@@ -449,14 +449,17 @@ int vtkNIFTIImageReader::RequestInformation(
       // this checks for .hdr and .hdr.gz, case insensitive
       if (vtkNIFTIImageReader::CheckExtension(filename, ".hdr"))
         {
-        headers++;
-        hdrname = new char[strlen(filename) + 1];
-        strcpy(hdrname, filename);
+        if (++headers < 2)
+          {
+          hdrname = new char[strlen(filename) + 1];
+          strcpy(hdrname, filename);
+          }
         }
       }
     if (n != 2 || headers != 1)
       {
       vtkErrorMacro("There must be two files and one must be a .hdr file.");
+      delete [] hdrname;
       return 0;
       }
     }
@@ -1104,6 +1107,7 @@ int vtkNIFTIImageReader::RequestData(
     if (n != 2 || headers != 1)
       {
       vtkErrorMacro("There must be two files and one must be a .hdr file.");
+      delete [] imgname;
       return 0;
       }
     }

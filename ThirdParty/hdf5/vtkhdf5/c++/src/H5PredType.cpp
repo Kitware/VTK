@@ -44,7 +44,10 @@ namespace H5 {
 //--------------------------------------------------------------------------
 PredType::PredType( const hid_t predtype_id ) : AtomType( predtype_id )
 {
-    id = H5Tcopy(predtype_id);
+    if (predtype_id == H5CPP_EXITED)
+	id = predtype_id;
+    else
+	id = H5Tcopy(predtype_id);
 }
 
 //--------------------------------------------------------------------------
@@ -53,6 +56,7 @@ PredType::PredType( const hid_t predtype_id ) : AtomType( predtype_id )
 // Programmer	Binh-Minh Ribler - 2000
 //--------------------------------------------------------------------------
 PredType::PredType() : AtomType() {}
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 //--------------------------------------------------------------------------
 // Function:	PredType copy constructor
@@ -62,7 +66,9 @@ PredType::PredType() : AtomType() {}
 //--------------------------------------------------------------------------
 PredType::PredType( const PredType& original ) : AtomType( original ) {}
 
-const PredType PredType::NotAtexit;	// only for atexit/global dest. problem
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+// Flag to terminate HDF5 library in DataType::~DataType
+const PredType PredType::AtExit(H5CPP_EXITED);
 
 // Definition of pre-defined types
 const PredType PredType::C_S1( H5T_C_S1 );
@@ -266,22 +272,12 @@ PredType& PredType::operator=( const PredType& rhs )
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 // These dummy functions do not inherit from DataType - they'll
 // throw an DataTypeIException if invoked.
-void PredType::commit( H5File& loc, const char* name )
+void PredType::commit(H5Location& loc, const char* name )
 {
    throw DataTypeIException("PredType::commit", "Error: Attempted to commit a predefined datatype.  Invalid operation!" );
 }
 
-void PredType::commit( H5File& loc, const H5std_string& name )
-{
-   commit( loc, name.c_str());
-}
-
-void PredType::commit( H5Object& loc, const char* name )
-{
-   throw DataTypeIException("PredType::commit", "Error: Attempted to commit a predefined datatype.  Invalid operation!" );
-}
-
-void PredType::commit( H5Object& loc, const H5std_string& name )
+void PredType::commit(H5Location& loc, const H5std_string& name )
 {
    commit( loc, name.c_str());
 }

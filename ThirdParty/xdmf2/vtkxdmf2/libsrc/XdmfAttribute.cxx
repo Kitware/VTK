@@ -30,6 +30,9 @@
 #include "XdmfDOM.h"
 #include "XdmfInformation.h"
 
+namespace xdmf2
+{
+
 XdmfAttribute::XdmfAttribute() {
   this->SetElementName("Attribute");
   this->AttributeType = XDMF_ATTRIBUTE_TYPE_NONE;
@@ -354,4 +357,6 @@ if( ValuesNode ){
   return( XDMF_FAIL );
   }
 return( XDMF_SUCCESS );
+}
+
 }

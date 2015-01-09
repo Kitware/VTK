@@ -91,10 +91,7 @@ vtkGenericAdaptorCell::~vtkGenericAdaptorCell()
   this->InternalCellArray->Delete();
   this->InternalIds->Delete();
 
-  if(this->Tuples!=0)
-    {
-    delete[] this->Tuples;
-    }
+  delete[] this->Tuples;
 }
 
 //----------------------------------------------------------------------------
@@ -311,7 +308,6 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       default:
         assert("check: impossible case" && 0);
         return;
-        break;
       }
     int currComp=attributes->GetActiveComponent();
 
@@ -413,7 +409,6 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     default:
       assert("TODO: dimension 1 and 0" && 0);
       return;
-      break;
     }
 
   vtkIdType npts, *pts = 0;
@@ -557,7 +552,6 @@ void vtkGenericAdaptorCell::Clip(double value,
       default:
         assert("check: impossible case" && 0);
         return;
-        break;
       }
     int currComp=attributes->GetActiveComponent();
 
@@ -640,7 +634,6 @@ void vtkGenericAdaptorCell::Clip(double value,
     default:
       assert("TODO: dimension 1 and 0" && 0);
       return;
-      break;
     }
 
   vtkIdType npts, *pts = 0;
@@ -785,7 +778,6 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       default:
         assert("check: impossible case" && 0);
         return;
-        break;
       }
     double *locals=this->GetParametricCoords();
     this->InternalIds->Reset();
@@ -1118,10 +1110,7 @@ void vtkGenericAdaptorCell::AllocateTuples(int size)
 
   if(this->TuplesCapacity<size)
     {
-    if(this->Tuples!=0)
-      {
-      delete[] this->Tuples;
-        }
+    delete [] this->Tuples;
     this->Tuples=new double[size];
     this->TuplesCapacity=size;
     }

@@ -61,11 +61,11 @@ public:
                     int yIdx, int zIdx, int &iter);
 
   // Description:
-  // Checks if an index is inside the stencil.
-  // This can be faster than GetNextExtent if called on a voxel. If calling
-  // sequentially, along a scan line, the preferred way is to use
-  // GetNextExtent and then loop over the returned [r1,r2] extents.
-  int IsInside( int xIdx, int yIdx, int zIdx );
+  // Checks if an image index is inside the stencil.
+  // Even though GetNextExtent and the vtkImageStencilIterator are faster
+  // if every voxel in the volume has to be checked, IsInside provides an
+  // efficient alternative for if just a single voxel has to be checked.
+  int IsInside(int xIdx, int yIdx, int zIdx);
 
   // Description:
   // This method is used by vtkImageStencilDataSource to add an x
@@ -213,10 +213,8 @@ public:
 
   // Description:
   // Insert a line into the raster, given the two end points.
-  // The "inflect1" and "inflect2" should be set if you want
-  // to add a small vertical tolerance to either endpoints.
-  void InsertLine(const double p1[2], const double p2[2],
-                  bool inflect1, bool inflect2);
+  void InsertLine(const double p1[2], const double p2[2]);
+  VTK_LEGACY(void InsertLine(const double[2], const double[2], bool, bool));
 
   // Description:
   // Fill the specified extent of a vtkImageStencilData with the raster,
@@ -236,9 +234,10 @@ protected:
   void PrepareExtent(int ymin, int ymax);
 
   // Description:
-  // Insert an x point into the raster.  If the y value is larger
-  // than the y extent, the extent will grow automatically.
-  void InsertPoint(int y, double x);
+  // Insert an x point into the raster.  If the y value is larger than
+  // the y extent, the extent will grow automatically.  The parameter i
+  // indicates which of the two internal rasters is to be used.
+  void InsertPoint(int y, double x, int i);
 
   int Extent[2];
   int UsedExtent[2];

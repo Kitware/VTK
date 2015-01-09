@@ -6,4 +6,6 @@ vtk_module(vtkFiltersImaging
     vtkImagingSources
     vtkImagingGeneral
     vtkFiltersStatistics
+  KIT
+    vtkFilters
   )

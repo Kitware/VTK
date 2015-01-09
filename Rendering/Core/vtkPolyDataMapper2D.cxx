@@ -14,12 +14,16 @@
 =========================================================================*/
 #include "vtkPolyDataMapper2D.h"
 
+#include "vtkAbstractArray.h"
+#include "vtkColorSeries.h"
 #include "vtkCoordinate.h"
+#include "vtkDataArray.h"
 #include "vtkExecutive.h"
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
+#include "vtkVariantArray.h"
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -142,9 +146,9 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
   // map scalars if necessary
   if (this->ScalarVisibility)
     {
-    vtkDataArray *scalars = vtkAbstractMapper::
-      GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
-                 this->ArrayId, this->ArrayName, cellFlag);
+    vtkAbstractArray *scalars = vtkAbstractMapper::
+      GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                         this->ArrayId, this->ArrayName, cellFlag);
     // This is for a legacy feature: selection of the array component to color by
     // from the mapper.  It is now in the lookuptable.  When this feature
     // is removed, we can remove this condition.
@@ -155,9 +159,10 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
 
     if (scalars)
       {
-      if (scalars->GetLookupTable())
+      vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+      if (dataArray && dataArray->GetLookupTable())
         {
-        this->SetLookupTable(scalars->GetLookupTable());
+        this->SetLookupTable(dataArray->GetLookupTable());
         }
       else
         {
@@ -252,9 +257,40 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
     {
     this->LookupTable->UnRegister(this);
     }
-  this->LookupTable = vtkLookupTable::New();
+  vtkLookupTable* table = vtkLookupTable::New();
+  this->LookupTable = table;
   this->LookupTable->Register(this);
   this->LookupTable->Delete();
+
+  int cellFlag = 0; // not used
+  vtkAbstractArray* abstractArray = vtkAbstractMapper::
+    GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+                       this->ArrayId, this->ArrayName, cellFlag);
+
+  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  if (abstractArray && !dataArray)
+    {
+    // Use indexed lookup for non-numeric arrays
+    this->LookupTable->IndexedLookupOn();
+
+    // Get prominent values from array and set them up as annotations in the color map.
+    vtkVariantArray* prominentValues = vtkVariantArray::New();
+    abstractArray->GetProminentComponentValues(0, prominentValues);
+    vtkIdType numProminentValues = prominentValues->GetNumberOfValues();
+    table->SetNumberOfTableValues(numProminentValues);
+    for (vtkIdType i = 0; i < numProminentValues; ++i)
+      {
+      vtkVariant & variant = prominentValues->GetValue(i);
+      this->LookupTable->SetAnnotation(variant, variant.ToString());
+      }
+    prominentValues->Delete();
+
+    // Set colors for annotations
+    vtkColorSeries* colorSeries = vtkColorSeries::New();
+    colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
+    colorSeries->BuildLookupTable(table, vtkColorSeries::CATEGORICAL);
+    colorSeries->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -336,6 +372,13 @@ void vtkPolyDataMapper2D::SetColorModeToMapScalars()
 {
   this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);
 }
+
+//----------------------------------------------------------------------------
+void vtkPolyDataMapper2D::SetColorModeToDirectScalars()
+{
+  this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS);
+}
+
 
 //----------------------------------------------------------------------------
 int vtkPolyDataMapper2D::FillInputPortInformation(

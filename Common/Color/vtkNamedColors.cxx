@@ -26,7 +26,6 @@
 #include <cctype> // Header to ensure std::tolower is present
 #include <cstdlib>
 
-
 class vtkNamedColorsDataStore
 {
 public:
@@ -702,6 +701,263 @@ private:
   std::map<vtkStdString, vtkColor4ub> colorMap;
 };
 
+
+//------------------------------------------------------------------------------
+// Helper class for parsing a string which defines a RGB or RGBA color.
+class vtkColorStringParser
+{
+public:
+  vtkColorStringParser(vtkNamedColors* namedColors)
+  {
+    this->Color.Set(0, 0, 0, 255);
+    this->StateGood = true;
+    this->NamedColors = namedColors;
+  }
+
+  bool Parse(const vtkStdString& colorString);
+
+  const vtkColor4ub& GetColor() const
+  {
+    return this->Color;
+  }
+
+private:
+
+  void RGBAFuncStringToRGBA(vtkStdString color,
+                            vtkStdString::size_type pos,
+                            unsigned int argCount);
+
+  void HexStringToRGBA(vtkStdString color);
+
+  // Convert a string to lowercase.
+  vtkStdString ToLowercase(const vtkStdString & str)
+  {
+    vtkStdString s;
+    std::transform(str.begin(),str.end(),std::back_inserter(s),
+                   (int (*)(int))std::tolower);
+    return s;
+  }
+
+private:
+  vtkColor4ub Color;
+  bool StateGood;
+  vtkNamedColors* NamedColors;
+};
+
+//------------------------------------------------------------------------------
+// Parse a color string in any of the following format:
+// - #RGB
+// - #RGBA
+// - #RRGGBB
+// - rgb(r, g, b)
+// - rgba(r, g, b, a)
+// - a CSS3 color name, e.g. "steelblue"
+// If the passed string defines a color using one of the above formats returns
+// true else returns false.
+bool vtkColorStringParser::Parse(const vtkStdString& colorString)
+{
+  vtkStdString color = this->ToLowercase(colorString);
+
+  // Skip heading spaces.
+  vtkStdString::size_type pos = color.find_first_not_of(" \t");
+  this->StateGood = (pos != vtkStdString::npos);
+
+  if (this->StateGood)
+    {
+    if (color[pos] == '#')
+      {
+      // Trim trailing spaces.
+      vtkStdString::size_type last = color.find_last_not_of(" \t");
+      this->HexStringToRGBA(color.substr(pos + 1, last - pos));
+      }
+    else if (color.compare(pos, 4, "rgba") == 0)
+      {
+      this->RGBAFuncStringToRGBA(color, pos+4, 4);
+      }
+    else if (color.compare(pos, 3, "rgb") == 0)
+      {
+      this->RGBAFuncStringToRGBA(color, pos+3, 3);
+      this->Color[3] = 255;
+      }
+    else
+      {
+      this->StateGood = this->NamedColors->ColorExists(color);
+      if (this->StateGood)
+          {
+          this->NamedColors->GetColor(color, this->Color);
+          }
+      }
+    }
+
+  if (!this->StateGood)
+    {
+    this->Color.Set(0, 0, 0, 0);
+    }
+  return this->StateGood;
+}
+
+//------------------------------------------------------------------------------
+unsigned char clip(long int value)
+{
+  if (value < 0)
+    {
+    value = 0;
+    }
+  else if (value > 255)
+    {
+    value = 255;
+    }
+  return static_cast<unsigned char>(value);
+}
+
+//------------------------------------------------------------------------------
+double clip(double value)
+{
+  if (value < 0.0)
+    {
+    value = 0.0;
+    }
+  else if (value > 1.0)
+    {
+    value = 1.0;
+    }
+  return value;
+}
+
+//------------------------------------------------------------------------------
+double clipPercentage(double value)
+{
+  return clip(value / 100.0);
+}
+
+//------------------------------------------------------------------------------
+// Parse a string of type "#RRGGBB".
+// Heading and trailing spaces must be already trimmed.
+// If the parsed string is not valid set `StateGood` to false.
+void vtkColorStringParser::HexStringToRGBA(vtkStdString color)
+{
+  // Check if it is valid hexadecimal representation.
+  vtkStdString::size_type pos = color.find_first_not_of("0123456789abcdefABCDEF");
+  this->StateGood = (pos == vtkStdString::npos);
+
+  if (this->StateGood)
+    {
+    if (color.size() == 3) // #RGB -> #RRGGBB
+      {
+      color.resize(6);
+      vtkStdString::size_type i = 3, j = 6;
+      do
+        {
+        color[--j] = color[--i];
+        color[--j] = color[i];
+        } while (i != 0);
+      }
+    else if (color.size() != 6)
+      {
+      this->StateGood = false;
+      }
+
+    // Parse hex bytes.
+    if (this->StateGood)
+      {
+      std::istringstream istr;
+      int c;
+      for (unsigned int i = 0; i < 3; ++i)
+      {
+        istr.str(color.substr(i * 2, 2));
+        istr >> std::hex >> c;
+        this->Color[i] = static_cast<unsigned char>(c);
+        istr.clear();
+      }
+      this->Color[3] = 255;
+      }
+    }
+}
+
+//------------------------------------------------------------------------------
+// Parse a string of type "rgb(r, g, b)" or a "rgba(r, g, b, a)" and return
+// the parsed value in `Color`.
+// r, g, b must be integral value in 0..255 or percentage values in 0.0%..100.0%
+// a is a floating number in 0.0..1.0.
+// If the parsed string is not valid set `StateGood` to false.
+void vtkColorStringParser::RGBAFuncStringToRGBA(vtkStdString color,
+                                             vtkStdString::size_type pos,
+                                             unsigned int argCount)
+{
+  // Parse '('.
+  pos = color.find_first_not_of(" \t", pos);
+  this->StateGood = (pos != vtkStdString::npos && color[pos] == '(');
+
+  // Check if percentage values are used.
+  bool usePercentage = (color.find_first_of("%", pos+1) != vtkStdString::npos);
+
+  // Count and replace delimiters.
+  unsigned int delimiterCount = 0;
+  for (vtkStdString::size_type i = pos + 1;
+       (delimiterCount < argCount) && (i < color.size());
+       ++i)
+    {
+    if (color[i] == ',')
+      {
+      color[i] = ' ';
+      ++delimiterCount;
+      }
+    }
+  this->StateGood = (delimiterCount + 1 == argCount);
+
+  // Parse arguments.
+  const char* start = color.c_str() + pos + 1;
+  char* end;
+  char** final = &end;
+
+  if (!usePercentage)
+    {
+    long int value;
+    for (unsigned int i = 0; this->StateGood && (i < 3); ++i)
+      {
+      value = strtol(start, final, 10);
+      this->Color[i] = clip(value);
+      this->StateGood = (start != end);
+      start = end;
+      }
+    }
+  else
+    {
+    double value;
+    for (unsigned int i = 0; this->StateGood && (i < 3); ++i)
+      {
+      value = strtod(start, final);
+      this->Color[i] = static_cast<unsigned char>(255 * clipPercentage(value));
+      this->StateGood = (start != end && *end == '%');
+      start = ++end;
+      }
+    }
+
+  // Parse the alpha value if needed.
+  if (this->StateGood && argCount == 4)
+    {
+    double value = strtod(start, final);
+    this->Color[3] = static_cast<unsigned char>(255 * clip(value));
+    this->StateGood = (start != end);
+    }
+
+  // Parse ')'.
+  if (this->StateGood)
+    {
+    pos = end - color.c_str();
+    pos = color.find_first_not_of(" \t", pos);
+    this->StateGood = (pos != vtkStdString::npos && color[pos] == ')');
+    }
+
+  // Left characters must be only trailing spaces or the string is not valid.
+  if (this->StateGood)
+    {
+    pos = color.find_first_not_of(" \t", pos + 1);
+    this->StateGood = (pos == vtkStdString::npos);
+    }
+}
+
+
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkNamedColors);
 
@@ -709,11 +965,13 @@ vtkStandardNewMacro(vtkNamedColors);
 vtkNamedColors::vtkNamedColors()
 {
   this->Colors = new vtkNamedColorsDataStore;
+  this->Parser = new vtkColorStringParser(this);
 }
 
 //----------------------------------------------------------------------------
 vtkNamedColors::~vtkNamedColors()
 {
+  delete this->Parser;
   delete this->Colors;
 }
 
@@ -1037,4 +1295,59 @@ void vtkNamedColors::RemoveColor(const vtkStdString & name)
     {
     this->Colors->RemoveColor(name);
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkColor4ub vtkNamedColors::HTMLColorToRGBA(const vtkStdString & colorString)
+{
+  this->Parser->Parse(colorString);
+  return this->Parser->GetColor();
+}
+
+//-----------------------------------------------------------------------------
+vtkColor3ub vtkNamedColors::HTMLColorToRGB(const vtkStdString & colorString)
+{
+  vtkColor4ub color4ub = this->HTMLColorToRGBA(colorString);
+  vtkColor3ub color3ub;
+  color3ub[0] = color4ub[0];
+  color3ub[1] = color4ub[1];
+  color3ub[2] = color4ub[2];
+  return color3ub;
+}
+
+//-----------------------------------------------------------------------------
+void vtkNamedColors::SetColor(const vtkStdString & name,
+                              const vtkStdString & htmlString)
+{
+  if (!name.empty())
+    {
+    vtkColor4ub noColor(0, 0, 0, 0);
+    vtkColor4ub color = this->HTMLColorToRGBA(htmlString);
+    if (color != noColor)
+      {
+      this->SetColor(name, color);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkNamedColors::RGBToHTMLColor(const vtkColor3ub & rgb)
+{
+  std::stringstream ss;
+  ss << "#" << std::hex << std::setfill('0')
+      << std::setw(2) << (int)(rgb.GetRed())
+      << std::setw(2) << (int)(rgb.GetGreen())
+      << std::setw(2) << (int)(rgb.GetBlue());
+
+  return ss.str();
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkNamedColors::RGBAToHTMLColor(const vtkColor4ub & rgba)
+{
+  std::stringstream ss;
+  ss.precision(3);
+  ss << "rgba(" << (int)(rgba.GetRed()) << "," << (int)(rgba.GetGreen()) <<
+        "," << (int)(rgba.GetBlue()) << "," << (rgba.GetAlpha() / 255.0) << ")";
+  return ss.str();
 }

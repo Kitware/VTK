@@ -69,7 +69,7 @@ public:
     this->Renderer = r;
   }
 
-  void SetPicker(vtkAreaPicker *p) 
+  void SetPicker(vtkAreaPicker *p)
   {
     this->Picker = p;
   }
@@ -243,10 +243,12 @@ int TestMoleculeSelection(int argc, char *argv[])
     }
 
   // Verify pick
-  if (com->GetAtomIds()->GetValue(0) != 0  ||
+  if (com->GetAtomIds()->GetNumberOfTuples() < 4 ||
+      com->GetAtomIds()->GetValue(0) != 0  ||
       com->GetAtomIds()->GetValue(1) != 1  ||
       com->GetAtomIds()->GetValue(2) != 4  ||
       com->GetAtomIds()->GetValue(3) != 5  ||
+      com->GetBondIds()->GetNumberOfTuples() < 8 ||
       com->GetBondIds()->GetValue(0) != 0  ||
       com->GetBondIds()->GetValue(1) != 1  ||
       com->GetBondIds()->GetValue(2) != 3  ||

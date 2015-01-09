@@ -21,7 +21,7 @@
 
 #include <vtksys/stl/map>
 
-#include <vtkTk.h>
+#include "vtkTk.h"
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);

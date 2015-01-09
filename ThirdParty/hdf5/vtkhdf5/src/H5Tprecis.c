@@ -49,7 +49,7 @@ DESCRIPTION
 static herr_t
 H5T_init_precis_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5T_init_precis_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5T_init())
 } /* H5T_init_precis_interface() */
@@ -83,7 +83,7 @@ H5Tget_precision(hid_t type_id)
     H5T_t	*dt;
     size_t	ret_value;
 
-    FUNC_ENTER_API(H5Tget_precision, 0)
+    FUNC_ENTER_API(0)
     H5TRACE1("z", "i", type_id);
 
     /* Check args */
@@ -121,7 +121,7 @@ H5T_get_precision(const H5T_t *dt)
 {
     size_t	ret_value;
 
-    FUNC_ENTER_NOAPI(H5T_get_precision, 0)
+    FUNC_ENTER_NOAPI(0)
 
     /* Defer to parent*/
     while(dt->shared->parent)
@@ -172,7 +172,7 @@ H5Tset_precision(hid_t type_id, size_t prec)
     H5T_t	*dt = NULL;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Tset_precision, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE2("e", "iz", type_id, prec);
 
     /* Check args */
@@ -233,15 +233,15 @@ H5T_set_precision(const H5T_t *dt, size_t prec)
     size_t	offset, size;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(H5T_set_precision, FAIL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args */
-    assert(dt);
-    assert(prec>0);
-    assert(H5T_OPAQUE!=dt->shared->type);
-    assert(H5T_COMPOUND!=dt->shared->type);
-    assert(H5T_STRING!=dt->shared->type);
-    assert(!(H5T_ENUM==dt->shared->type && 0==dt->shared->u.enumer.nmembs));
+    HDassert(dt);
+    HDassert(prec>0);
+    HDassert(H5T_OPAQUE!=dt->shared->type);
+    HDassert(H5T_COMPOUND!=dt->shared->type);
+    HDassert(H5T_STRING!=dt->shared->type);
+    HDassert(!(H5T_ENUM==dt->shared->type && 0==dt->shared->u.enumer.nmembs));
 
     if (dt->shared->parent) {
 	if (H5T_set_precision(dt->shared->parent, prec)<0)

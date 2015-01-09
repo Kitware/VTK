@@ -269,7 +269,7 @@ int TestPolygonalHandleRepresentations(int argc, char*argv[])
   widget[12] = CreateWidget( iren, 12,                    561753, 5.11577e+06, 3183, false, "Sphere contrained to surface", demActor, pd, true, 100.0 );
   widget[13] = CreateWidget( iren, 13,                     562692, 5.11521e+06, 3355.65, false, "Crosshair" );
 
-  renWin->SetSize(700,700);
+  renWin->SetSize(600,600);
   renWin->Render();
   iren->Initialize();
 

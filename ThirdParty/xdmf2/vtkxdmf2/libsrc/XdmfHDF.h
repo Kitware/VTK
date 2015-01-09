@@ -32,6 +32,9 @@
 #define XDMF_H5_UNKNOWN    H5G_UNKNOWN
 #define XDMF_H5_OTHER    0xFF
 
+namespace xdmf2
+{
+
 class XdmfArray;
 
 //! Class for Accessing HDF5 Data
@@ -209,4 +212,5 @@ extern XdmfArray *CreateArrayFromType( XdmfType *Type,
 */
 extern XDMF_EXPORT XdmfArray *CopyArray( XdmfArray *Source, XdmfArray *Target = NULL );
 
+}
 #endif // __XdmfHDF_h

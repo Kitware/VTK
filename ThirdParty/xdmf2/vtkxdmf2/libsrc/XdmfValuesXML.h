@@ -28,6 +28,9 @@
 
 #include "XdmfValues.h"
 
+namespace xdmf2
+{
+
 //!  Parent Class for handeling I/O of actual data for an XdmfDataStructure
 /*!
 This is the base class for access of values. By default, the
@@ -77,4 +80,5 @@ public :
 protected :
 };
 
+}
 #endif

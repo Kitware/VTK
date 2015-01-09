@@ -50,11 +50,8 @@ vtkStandardNewMacro(vtkX3DExporterXMLWriter);
 vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter()
 {
   delete this->InfoStack;
-  if(this->OutputStream)
-    {
-    delete this->OutputStream;
-    this->OutputStream = NULL;
-    }
+  delete this->OutputStream;
+  this->OutputStream = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -111,10 +108,7 @@ void vtkX3DExporterXMLWriter::CloseFile()
       vtksys_ios::ostringstream *ostr =
         static_cast<vtksys_ios::ostringstream*>(this->OutputStream);
 
-      if(this->OutputString)
-        {
-        delete [] this->OutputString;
-        }
+      delete [] this->OutputString;
       this->OutputStringLength = static_cast<int>(ostr->str().size());
       this->OutputString = new char[ostr->str().size()];
       memcpy(this->OutputString, ostr->str().c_str(),

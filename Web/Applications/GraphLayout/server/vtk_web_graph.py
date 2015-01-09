@@ -34,10 +34,11 @@ import json
 import math
 
 # import vtk web modules
-from vtk.web import server, wamp, protocols
+from vtk.web import protocols, server
+from vtk.web import wamp as vtk_wamp
 
 # import annotations
-from autobahn.wamp import exportRpc
+from autobahn.wamp import register as exportRpc
 
 try:
     import argparse
@@ -50,7 +51,7 @@ except ImportError:
 # Create custom File Opener class to handle clients requests
 # =============================================================================
 
-class _WebGraph(wamp.ServerProtocol):
+class _WebGraph(vtk_wamp.ServerProtocol):
 
     # Application configuration
     vertices = 1000
@@ -106,7 +107,7 @@ class _WebGraph(wamp.ServerProtocol):
             view.Render()
             self.Application.GetObjectIdMap().SetActiveObject("VIEW", view.GetRenderWindow())
 
-    @exportRpc("changeLayout")
+    @exportRpc("graph.layout.update")
     def changeLayout(self, layoutName):
         if  layoutName == 'ForceDirected' :
             print 'Layout Strategy = Force Directed'

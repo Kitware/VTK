@@ -17,7 +17,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
-#include <vtkFloatArray.h>
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -33,7 +33,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRUtilities.h"
+#include "vtkParallelAMRUtilities.h"
 #include "vtkMath.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkNew.h"
@@ -843,7 +843,7 @@ public:
     AssertNe(this->InputData,NULL);
     this->AMR = vtkOverlappingAMR::SafeDownCast(this->InputData);
 
-    vtkAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
+    vtkParallelAMRUtilities::DistributeProcessInformation(this->AMR, this->Controller, BlockProcess);
     this->AMR->GenerateParentChildInformation();
   }
 
@@ -900,6 +900,7 @@ namespace
 
   }
 
+#ifdef DEBUGTRACE
   inline double ComputeLength(vtkIdList* poly, vtkPoints* pts)
   {
     int n = poly->GetNumberOfIds();
@@ -919,20 +920,6 @@ namespace
     return s;
   }
 
-  inline int ComputePointDataSize(vtkPointData* data)
-  {
-    int size(0);
-    int numArrays(data->GetNumberOfArrays());
-    for(int i=0; i<numArrays;i++)
-      {
-      vtkDataArray* arr = data->GetArray(i);
-      int numComponents = arr->GetNumberOfComponents();
-      size+=numComponents;
-      }
-
-    return size;
-  }
-
   inline void PrintNames(ostream& out, vtkPointData* a)
   {
     for(int i=0; i<a->GetNumberOfArrays();i++)
@@ -941,6 +928,7 @@ namespace
       }
     out<<endl;
   }
+
   inline bool SameShape(vtkPointData* a, vtkPointData* b)
   {
     if (!a || !b)
@@ -966,6 +954,7 @@ namespace
 
     return true;
   }
+#endif
 
   class MessageBuffer
   {
@@ -1038,7 +1027,6 @@ namespace
     }
     friend class TaskManager;
     friend MessageStream& operator<<(MessageStream& stream, const Task& task);
-    friend MessageStream& operator>>(MessageStream& stream, Task& task);
   };
   vtkStandardNewMacro(Task);
 
@@ -1824,24 +1812,32 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
     this->GenerateNormals(traceOut, point->GetNormal(), vecName);
     }
 
-  if(traceOut->GetNumberOfPoints()>0 && traceOut->GetLines()->GetNumberOfCells()==0)
+  if(traceOut->GetNumberOfPoints()>0)
     {
-    PRINT( "Fix Single Point Path")
-    AssertEq(traceOut->GetNumberOfPoints(),1); //fix it
-    vtkNew<vtkCellArray> newCells;
-    vtkIdType cell;
-    cell = 0;
-    newCells->InsertNextCell(1,&cell);
-    traceOut->SetLines(newCells.GetPointer());
+    if (traceOut->GetLines()->GetNumberOfCells()==0)
+      {
+      PRINT( "Fix Single Point Path")
+      AssertEq(traceOut->GetNumberOfPoints(),1); //fix it
+      vtkNew<vtkCellArray> newCells;
+      vtkIdType cell;
+      cell = 0;
+      newCells->InsertNextCell(1,&cell);
+      traceOut->SetLines(newCells.GetPointer());
 
-    // Don't forget to add the ReasonForTermination cell array.
-    vtkNew<vtkIntArray> retVals;
-    retVals->SetName("ReasonForTermination");
-    retVals->SetNumberOfTuples(1);
-    retVals->SetValue(0, vtkStreamTracer::OUT_OF_DOMAIN);
-    traceOut->GetCellData()->AddArray(retVals.GetPointer());
+      // Don't forget to add the ReasonForTermination cell array.
+      vtkNew<vtkIntArray> retVals;
+      retVals->SetName("ReasonForTermination");
+      retVals->SetNumberOfTuples(1);
+      retVals->SetValue(0, vtkStreamTracer::OUT_OF_DOMAIN);
+      traceOut->GetCellData()->AddArray(retVals.GetPointer());
+      }
+
+    vtkNew<vtkIntArray> ids;
+    ids->SetName("SeedIds");
+    ids->SetNumberOfTuples(1);
+    ids->SetValue(0, point->GetId());
+    traceOut->GetCellData()->AddArray(ids.GetPointer());
     }
-
   Assert(SameShape(traceOut->GetPointData(),this->Utils->GetProto()->GetTail()->GetPointData()),"trace data does not match prototype");
 
 }

@@ -106,7 +106,7 @@ H5_DLLVAR H5T_order_t H5T_native_order_g;
 /* Private functions */
 H5_DLL herr_t H5TN_init_interface(void);
 H5_DLL herr_t H5T_init(void);
-H5_DLL H5T_t *H5T_copy(const H5T_t *old_dt, H5T_copy_t method);
+H5_DLL H5T_t *H5T_copy(H5T_t *old_dt, H5T_copy_t method);
 H5_DLL herr_t H5T_lock(H5T_t *dt, hbool_t immutable);
 H5_DLL herr_t H5T_close(H5T_t *dt);
 H5_DLL H5T_t *H5T_get_super(const H5T_t *dt);
@@ -135,6 +135,7 @@ H5_DLL htri_t H5T_set_loc(H5T_t *dt, H5F_t *f, H5T_loc_t loc);
 H5_DLL htri_t H5T_is_sensible(const H5T_t *dt);
 H5_DLL uint32_t H5T_hash(H5F_t * file, const H5T_t *dt);
 H5_DLL herr_t H5T_set_latest_version(H5T_t *dt);
+H5_DLL herr_t H5T_patch_file(H5T_t *dt, H5F_t *f);
 H5_DLL htri_t H5T_is_variable_str(const H5T_t *dt);
 
 /* Reference specific functions */

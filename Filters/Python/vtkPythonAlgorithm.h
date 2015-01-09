@@ -42,6 +42,8 @@
 #include "vtkFiltersPythonModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
+class vtkSmartPyObject;
+
 class VTKFILTERSPYTHON_EXPORT vtkPythonAlgorithm : public vtkAlgorithm
 {
 public:
@@ -81,7 +83,7 @@ private:
   vtkPythonAlgorithm(const vtkPythonAlgorithm&);  // Not implemented.
   void operator=(const vtkPythonAlgorithm&);  // Not implemented.
 
-  int CheckResult(const char* method, PyObject* res);
+  int CheckResult(const char* method, const vtkSmartPyObject& res);
 
   PyObject* Object;
 };

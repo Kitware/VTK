@@ -35,9 +35,6 @@
 #include "vtkCullerCollection.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
-#include "vtkVolumeTextureMapper3D.h"
-
-//#define USE_TEXTURE_MAPPER_3D
 
 int TestGPURayCastCropping(int argc, char *argv[])
 {
@@ -101,6 +98,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
       volumeMapper[i][j]->SetInputConnection(reader->GetOutputPort());
       volumeMapper[i][j]->SetSampleDistance(0.25);
       volumeMapper[i][j]->CroppingOn();
+      volumeMapper[i][j]->SetAutoAdjustSampleDistances(0);
       volumeMapper[i][j]->SetCroppingRegionPlanes(17,33,17,33,17,33);
 
       vtkVolume *volume=vtkVolume::New();

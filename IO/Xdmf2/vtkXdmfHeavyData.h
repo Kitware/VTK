@@ -38,7 +38,7 @@ class vtkXdmfDomain;
 class VTKIOXDMF2_EXPORT vtkXdmfHeavyData
 {
   vtkXdmfDomain* Domain;
-  XdmfDataItem DataItem;
+  xdmf2::XdmfDataItem DataItem;
   vtkAlgorithm* Reader;
 public:
   // These must be set before using this class.
@@ -55,7 +55,7 @@ public:
   ~vtkXdmfHeavyData();
 
   // Description:
-  vtkDataObject* ReadData(XdmfGrid* xmfGrid);
+  vtkDataObject* ReadData(xdmf2::XdmfGrid* xmfGrid);
 
   // Description:
   vtkDataObject* ReadData();
@@ -73,89 +73,89 @@ public:
 private:
   // Description:
   // Read a temporal collection.
-  vtkDataObject* ReadTemporalCollection(XdmfGrid* xmfTemporalCollection);
+  vtkDataObject* ReadTemporalCollection(xdmf2::XdmfGrid* xmfTemporalCollection);
 
   // Description:
   // Read a spatial-collection or a tree.
-  vtkDataObject* ReadComposite(XdmfGrid* xmfColOrTree);
+  vtkDataObject* ReadComposite(xdmf2::XdmfGrid* xmfColOrTree);
 
   // Description:
   // Read a non-composite grid. Note here uniform has nothing to do with
   // vtkUniformGrid but to what Xdmf's GridType="Uniform".
-  vtkDataObject* ReadUniformData(XdmfGrid* xmfGrid);
+  vtkDataObject* ReadUniformData(xdmf2::XdmfGrid* xmfGrid);
 
   // Description:
   // Reads the topology and geometry for an unstructured grid. Does not read any
   // data attributes or geometry.
-  vtkDataObject* ReadUnstructuredGrid(XdmfGrid* xmfGrid);
+  vtkDataObject* ReadUnstructuredGrid(xdmf2::XdmfGrid* xmfGrid);
 
   // Description:
   // Read the image data. Simply initializes the extents and origin and spacing
   // for the image, doesn't really read any attributes including the active
   // point attributes.
-  vtkImageData* RequestImageData(XdmfGrid* xmfGrid, bool use_uniform_grid);
+  vtkImageData* RequestImageData(xdmf2::XdmfGrid* xmfGrid, bool use_uniform_grid);
 
   // Description:
   // Reads the geometry and topology for a vtkStructuredGrid.
-  vtkStructuredGrid* RequestStructuredGrid(XdmfGrid* xmfGrid);
+  vtkStructuredGrid* RequestStructuredGrid(xdmf2::XdmfGrid* xmfGrid);
 
   // Description:
   // Reads the geometry and topology for a vtkRectilinearGrid.
-  vtkRectilinearGrid* RequestRectilinearGrid(XdmfGrid* xmfGrid);
+  vtkRectilinearGrid* RequestRectilinearGrid(xdmf2::XdmfGrid* xmfGrid);
 
   // Description:
   // Reads geometry for vtkUnstructuredGrid or vtkStructuredGrid i.e. of
   // vtkPointSet subclasses. The extents only make sense when reading
   // vtkStructuredGrid. If non-null, then the only the points for the sub-grid
   // are read.
-  vtkPoints* ReadPoints(XdmfGeometry* xmfGeometry,
+  vtkPoints* ReadPoints(xdmf2::XdmfGeometry* xmfGeometry,
     int *update_extents=NULL,
     int *whole_extents=NULL);
 
   // Description:
   // Read attributes.
-  bool ReadAttributes(vtkDataSet* dataSet, XdmfGrid* xmfGrid,
+  bool ReadAttributes(vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid,
     int* update_extents=0);
 
   // Description:
   // Reads an attribute.
   // If update_extents are non-null, then we are reading structured attributes
   // and we read only the sub-set specified by update_extents.
-  vtkDataArray* ReadAttribute(XdmfAttribute* xmfAttribute,
+  vtkDataArray* ReadAttribute(xdmf2::XdmfAttribute* xmfAttribute,
     int data_dimensionality, int* update_extents=0);
 
   // Description:
   // Read sets that mark ghost cells/nodes and then create attribute arrays for
   // marking the cells as such.
-  bool ReadGhostSets(vtkDataSet* ds, XdmfGrid* xmfGrid,
+  bool ReadGhostSets(vtkDataSet* ds, xdmf2::XdmfGrid* xmfGrid,
     int* update_extents=0);
 
-  vtkMultiBlockDataSet* ReadSets(vtkDataSet* dataSet, XdmfGrid* xmfGrid,
+  vtkMultiBlockDataSet* ReadSets(vtkDataSet* dataSet, xdmf2::XdmfGrid* xmfGrid,
     int *update_extents=0);
 
   // Description:
   // Used when reading node-sets.
   // Creates a new dataset with points with given ids extracted from  the input
   // dataset.
-  vtkDataSet* ExtractPoints(XdmfSet* xmfSet, vtkDataSet* dataSet);
+  vtkDataSet* ExtractPoints(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 
   // Description:
   // Used when reading cell-sets.
   // Creates a new dataset with cells with the given ids extracted from the
   // input dataset.
-  vtkDataSet* ExtractCells(XdmfSet* xmfSet, vtkDataSet* dataSet);
+  vtkDataSet* ExtractCells(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 
   // Description:
   // Used when reading face-sets.
   // Creates a new dataset with faces selected by the set, extracting them from
   // the input dataset.
-  vtkDataSet* ExtractFaces(XdmfSet* xmfSet, vtkDataSet* dataSet);
+  vtkDataSet* ExtractFaces(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 
   // Description:
   // Used when reading edge-sets.
   // Creates a new dataset with egdes selected by the set, extracting them from
   // the input dataset.
-  vtkDataSet* ExtractEdges(XdmfSet* xmfSet, vtkDataSet* dataSet);
+  vtkDataSet* ExtractEdges(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 
 };
 

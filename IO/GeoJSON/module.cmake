@@ -4,4 +4,6 @@ vtk_module(vtkIOGeoJSON
     vtkIOCore
   TEST_DEPENDS
     vtkTestingCore
+  KIT
+    vtkIO
   )

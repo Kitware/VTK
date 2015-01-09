@@ -365,8 +365,15 @@ void vtkBundlingMetadata::DoubleEdgeMeshResolution()
       int index = static_cast<int>(indexFloat);
       float alpha = indexFloat - index;
       vtkVector3f before = this->EdgeMesh[e][index];
-      vtkVector3f after = this->EdgeMesh[e][index+1];
-      newEdgeMesh[e][m] = before + alpha*(after - before);
+      if (alpha > 0)
+        {
+        vtkVector3f after = this->EdgeMesh[e][index+1];
+        newEdgeMesh[e][m] = before + alpha*(after - before);
+        }
+      else
+        {
+        newEdgeMesh[e][m] = before;
+        }
       }
     }
   this->MeshCount = newMeshCount;

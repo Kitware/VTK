@@ -2,9 +2,12 @@ vtk_module(vtkIOGDAL
   DEPENDS
     vtkCommonDataModel
     vtkCommonExecutionModel
+    vtkIOImage
   TEST_DEPENDS
     vtkTestingCore
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkIO
 )

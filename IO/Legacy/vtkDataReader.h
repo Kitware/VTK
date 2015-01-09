@@ -374,6 +374,7 @@ protected:
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);
   int ReadGlobalIds(vtkDataSetAttributes *a, int num);
   int ReadPedigreeIds(vtkDataSetAttributes *a, int num);
+  int ReadEdgeFlags(vtkDataSetAttributes *a, int num);
 
   int ReadDataSetData(vtkDataSet *ds);
 

@@ -29,6 +29,8 @@
 template <class T>
 T vtkMAX(T a, T b) { return (a>b? a : b); }
 
+using namespace xdmf2;
+
 //----------------------------------------------------------------------------
 vtkXdmfDocument::vtkXdmfDocument()
 {

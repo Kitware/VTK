@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPriorityQueue - an list of ids arranged in priority order
+// .NAME vtkPriorityQueue - a list of ids arranged in priority order
 // .SECTION Description
 // vtkPriorityQueue is a general object for creating and manipulating lists
 // of object ids (e.g., point or cell ids). Object ids are sorted according

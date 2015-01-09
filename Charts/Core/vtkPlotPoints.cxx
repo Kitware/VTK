@@ -142,11 +142,11 @@ void vtkPlotPoints::Update()
     vtkDebugMacro(<< "Updating cached values.");
     this->UpdateTableCache(table);
     }
-  else if ((this->XAxis && this->XAxis->GetMTime() > this->BuildTime) ||
-           (this->YAxis && this->YAxis->GetMaximum() > this->BuildTime))
+  else if ((this->XAxis->GetMTime() > this->BuildTime) ||
+           (this->YAxis->GetMTime() > this->BuildTime))
     {
-    if (this->LogX != this->XAxis->GetLogScale() ||
-        this->LogY != this->YAxis->GetLogScale())
+    if ((this->LogX != this->XAxis->GetLogScale()) ||
+        (this->LogY != this->YAxis->GetLogScale()))
       {
       this->UpdateTableCache(table);
       }
@@ -250,7 +250,8 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
         }
       }
     vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
-    painter->GetPen()->SetColor(255, 50, 0, 150);
+    painter->GetPen()->SetColor(this->SelectionPen->GetColor());
+    painter->GetPen()->SetOpacity(this->SelectionPen->GetOpacity());
     painter->GetPen()->SetWidth(width + 2.7);
 
     if (this->MarkerStyle == VTK_MARKER_NONE)
@@ -446,13 +447,13 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
         }
       ++low;
     }
-  std::sort(selected.begin(), selected.end());
   this->Selection->SetNumberOfTuples(selected.size());
   vtkIdType *ptr = static_cast<vtkIdType *>(this->Selection->GetVoidPointer(0));
   for (size_t i = 0; i < selected.size(); ++i)
     {
     ptr[i] = selected[i];
     }
+  std::sort(ptr, ptr + selected.size());
   this->Selection->Modified();
   return this->Selection->GetNumberOfTuples() > 0;
 }
@@ -722,11 +723,8 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
   this->CalculateLogSeries();
   this->FindBadPoints();
   this->Points->Modified();
-  if (this->Sorted)
-    {
-    delete this->Sorted;
-    this->Sorted = 0;
-    }
+  delete this->Sorted;
+  this->Sorted = 0;
 
   // Additions for color mapping
   if (this->ScalarVisibility && !this->ColorArrayName.empty())

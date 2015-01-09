@@ -49,14 +49,8 @@ vtkSliceCubes::vtkSliceCubes()
 
 vtkSliceCubes::~vtkSliceCubes()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->LimitsFileName)
-    {
-    delete [] this->LimitsFileName;
-    }
+  delete [] this->FileName;
+  delete [] this->LimitsFileName;
   this->SetReader(NULL);
 }
 
@@ -144,7 +138,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
                          double xmin[3], double xmax[3], FILE *outFP,
                          vtkVolumeReader *reader, unsigned char debug)
 {
-  S *slice0scalars=NULL, *slice1scalars;
+  S *slice0scalars=NULL, *slice1scalars=NULL;
   S *slice2scalars, *slice3scalars;
   T *slice0, *slice1, *slice2, *slice3;
   vtkImageData *sp;
@@ -172,7 +166,6 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
     doubleScalars->Allocate(sliceSize);
     }
 
-  slice1scalars = NULL;
   slice2scalars = scalars;
   slice2scalars->Register(NULL);
 
@@ -393,7 +386,10 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
     {
     slice3scalars->Delete();
     }
-  slice1scalars->Delete();
+  if (slice1scalars)
+    {
+    slice1scalars->Delete();
+    }
   slice2scalars->Delete();
 
   return numTriangles;

@@ -2,7 +2,9 @@ vtk_module(vtkFiltersReebGraph
   DEPENDS
     vtkFiltersCore
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkFilters
   )

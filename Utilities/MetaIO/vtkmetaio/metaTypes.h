@@ -183,6 +183,7 @@ const char MET_InterpolationTypeName[MET_NUM_INTERPOLATION_TYPES][17] = {
    {'M','E','T','_','L','I','N','E','A','R','\0',' ',' ',' ',' ',' ',' '}};
 
 
+#define MET_MAX_NUMBER_OF_FIELD_VALUES 4096
 //
 //
 // Structure used to define a field
@@ -198,7 +199,8 @@ typedef struct
    bool           defined;    // Has this field already been defined in the
                               //    MetaFile being parsed
    int            length;     // Actual/expect length of an array
-   double         value[4096]; // Memory and pointers for the field's value(s).
+   double         value[MET_MAX_NUMBER_OF_FIELD_VALUES];
+                              // Memory and pointers for the field's value(s).
    bool           terminateRead;  // Set to true if field indicates end of
                                   //   meta data
    } MET_FieldRecordType;

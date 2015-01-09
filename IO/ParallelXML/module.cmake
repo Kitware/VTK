@@ -8,4 +8,6 @@ vtk_module(vtkIOParallelXML
     vtksys
   TEST_DEPENDS
     vtkParallelMPI
+  KIT
+    vtkParallel
   )

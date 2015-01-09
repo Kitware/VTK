@@ -47,11 +47,8 @@ vtkSliderRepresentation::vtkSliderRepresentation()
 //----------------------------------------------------------------------
 vtkSliderRepresentation::~vtkSliderRepresentation()
 {
-  if (this->LabelFormat)
-    {
-    delete [] this->LabelFormat;
-    this->LabelFormat = NULL;
-    }
+  delete [] this->LabelFormat;
+  this->LabelFormat = NULL;
 }
 
 //----------------------------------------------------------------------

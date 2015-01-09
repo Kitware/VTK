@@ -24,6 +24,9 @@
 
 #include "XdmfValues.h"
 
+namespace xdmf2
+{
+
 //!  Parent Class for handeling I/O of actual data for an XdmfDataItem
 /*!
 This is the class for access of values from a raw binary.
@@ -98,4 +101,5 @@ private:
   enum CompressionType getCompressionType();
 };
 
+}
 #endif

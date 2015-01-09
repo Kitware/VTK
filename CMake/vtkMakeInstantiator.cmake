@@ -36,42 +36,43 @@ MACRO(VTK_MAKE_INSTANTIATOR2 className outSourceList)
     IF (ARG MATCHES INCLUDES)
       SET (MODE INCLUDES_MODE)
       SET (MODE_CHANGED 1)
-    ENDIF (ARG MATCHES INCLUDES)
+    ENDIF ()
     IF (ARG MATCHES EXPORT_MACRO)
       SET (MODE EXPORT_MODE)
       SET (MODE_CHANGED 1)
-    ENDIF (ARG MATCHES EXPORT_MACRO)
+    ENDIF ()
     IF (ARG MATCHES HEADER_LOCATION)
       SET (MODE HEADER_LOCATION_MODE)
       SET (MODE_CHANGED 1)
-    ENDIF (ARG MATCHES HEADER_LOCATION)
+    ENDIF ()
     IF (ARG MATCHES INCLUDES)
       SET (MODE INCLUDES_MODE)
       SET (MODE_CHANGED 1)
-    ENDIF (ARG MATCHES INCLUDES)
+    ENDIF ()
     IF (NOT MODE_CHANGED)
       IF (MODE MATCHES SOURCES_MODE)
         SET(SOURCES ${SOURCES} ${ARG})
-      ENDIF (MODE MATCHES SOURCES_MODE)
+      ENDIF ()
       IF (MODE MATCHES INCLUDES_MODE)
         SET(INCLUDES ${INCLUDES} ${ARG})
-      ENDIF (MODE MATCHES INCLUDES_MODE)
+      ENDIF ()
       IF (MODE MATCHES EXPORT_MODE)
         SET(EXPORT_MACRO "${ARG}")
-      ENDIF (MODE MATCHES EXPORT_MODE)
+      ENDIF ()
       IF (MODE MATCHES HEADER_LOCATION_MODE)
         SET(HEADER_LOCATION "${ARG}")
-      ENDIF (MODE MATCHES HEADER_LOCATION_MODE)
-    ENDIF (NOT MODE_CHANGED)
-  ENDFOREACH(ARG)
+      ENDIF ()
+    ENDIF ()
+  ENDFOREACH()
   VTK_MAKE_INSTANTIATOR3(${className} ${outSourceList} "${SOURCES}" "${EXPORT_MACRO}" "${HEADER_LOCATION}" "${INCLUDES}")
-ENDMACRO(VTK_MAKE_INSTANTIATOR2)
+ENDMACRO()
 
 
 MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER_LOCATION INCLUDES)
 
   # Initialize local variables
   SET(HEADER_CONTENTS)
+  SET(CXX_CONTENTS_INCLUDE)
   SET(CXX_CONTENTS)
   SET(CXX_CONTENTS2)
   SET(CXX_CONTENTS3)
@@ -85,7 +86,7 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
     # generate the header
     SET (HEADER_CONTENTS
       "${HEADER_CONTENTS}#include \"${FILE}\"\n")
-  ENDFOREACH(FILE)
+  ENDFOREACH()
 
   # For each class
   FOREACH(FILE ${SOURCES})
@@ -98,18 +99,24 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
     # if it is abstract or wrap exclude then don't wrap it
     IF (TMP_WRAP_EXCLUDE OR TMP_ABSTRACT)
       SET (WRAP_THIS_CLASS 0)
-    ENDIF (TMP_WRAP_EXCLUDE OR TMP_ABSTRACT)
+    ENDIF ()
 
     # don't wrap vtkIndent or vtkTimeStamp
-    IF (${FILE} MATCHES "vtkIndent")
+    IF (${FILE} STREQUAL "vtkIndent")
       SET (WRAP_THIS_CLASS 0)
-    ENDIF (${FILE} MATCHES "vtkIndent")
-    IF (${FILE} MATCHES "vtkTimeStamp")
+    ENDIF ()
+    IF (${FILE} STREQUAL "vtkTimeStamp")
       SET (WRAP_THIS_CLASS 0)
-    ENDIF (${FILE} MATCHES "vtkTimeStamp")
-    IF (${FILE} MATCHES "vtkVariant")
+    ENDIF ()
+    IF (${FILE} STREQUAL "vtkVariant")
       SET (WRAP_THIS_CLASS 0)
-    ENDIF (${FILE} MATCHES "vtkVariant")
+    ENDIF ()
+    IF (${FILE} STREQUAL "vtkObjectBase")
+      SET (WRAP_THIS_CLASS 0)
+    ENDIF ()
+    IF (${FILE} MATCHES "vtkInformation.*Key")
+      SET (WRAP_THIS_CLASS 0)
+    ENDIF ()
 
     # finally if we should wrap it, then ...
     IF (WRAP_THIS_CLASS)
@@ -117,9 +124,12 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
       # what is the filename without the extension
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
 
+      SET (CXX_CONTENTS_INCLUDE
+        "${CXX_CONTENTS_INCLUDE}#include \"${TMP_FILENAME}.h\"\n")
+
       # generate the implementation
       SET (CXX_CONTENTS
-        "${CXX_CONTENTS}extern vtkObject* vtkInstantiator${TMP_FILENAME}New();\n")
+        "${CXX_CONTENTS}vtkInstantiatorNewMacro(${TMP_FILENAME})\n")
 
       SET (CXX_CONTENTS2
         "${CXX_CONTENTS2}  vtkInstantiator::RegisterInstantiator(\"${TMP_FILENAME}\", vtkInstantiator${TMP_FILENAME}New);\n")
@@ -127,8 +137,8 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
       SET (CXX_CONTENTS3
         "${CXX_CONTENTS3}  vtkInstantiator::UnRegisterInstantiator(\"${TMP_FILENAME}\", vtkInstantiator${TMP_FILENAME}New);\n")
 
-    ENDIF (WRAP_THIS_CLASS)
-  ENDFOREACH(FILE)
+    ENDIF ()
+  ENDFOREACH()
 
   # add the source file to the source list
   SET(${outSourceList} ${${outSourceList}}
@@ -142,12 +152,12 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
   CONFIGURE_FILE(
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
     ${HEADER_LOCATION}/${className}.h
-    COPY_ONLY
+    COPYONLY
     )
   CONFIGURE_FILE(
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in
     ${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx
-    COPY_ONLY
+    COPYONLY
     )
 
-ENDMACRO(VTK_MAKE_INSTANTIATOR3)
+ENDMACRO()

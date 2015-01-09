@@ -1,0 +1,33 @@
+SET(java_runtime "@JAVA_RUNTIME@")
+SET(java_binary_dir "@CMAKE_CURRENT_BINARY_DIR@")
+
+SET(ENV{PATH} "${PATH}${SEPARATOR}$ENV{PATH}")
+SET(ENV{LD_LIBRARY_PATH} "${LDPATH}${SEPARATOR}$ENV{LD_LIBRARY_PATH}")
+SET(ENV{CLASSPATH} "${CLASSPATH}${SEPARATOR}$ENV{CLASSPATH}")
+
+MESSAGE("| Calling:\t${java_runtime} ${EXECUTABLE} ${ARGUMENTS}")
+EXECUTE_PROCESS(
+       COMMAND "${java_runtime}" "${EXECUTABLE}" ${ARGUMENTS} 
+               	WORKING_DIRECTORY "${java_binary_dir}"
+        		RESULT_VARIABLE java_result
+               	OUTPUT_VARIABLE java_output
+               	ERROR_VARIABLE  java_error
+)
+
+MESSAGE("| Call Result:\t${java_result}")
+MESSAGE("| Call Output: Begin\n${java_output}")
+MESSAGE("| Call Output: End")
+IF(java_error)
+	MESSAGE("| Call Error: Begin\n${java_error}")
+	MESSAGE("| Call Error: End")
+ENDIF()
+MESSAGE("| Call Ended")
+MESSAGE("----------------------------------------------------------")
+
+# Let's make sure that if the test failed, it failed with CTest too
+IF(java_error)
+	MESSAGE(SEND_ERROR "Test Failed.")
+ENDIF()
+IF(NOT "${java_result}" STREQUAL "0")
+    MESSAGE(SEND_ERROR "Result not zero.")
+ENDIF()

@@ -9,7 +9,7 @@ Currently implemented authentication types are public-key and password.
 Maintainer: Paul Swartz
 """
 
-import struct, warnings
+import struct
 from twisted.conch import error, interfaces
 from twisted.conch.ssh import keys, transport, service
 from twisted.conch.ssh.common import NS, getNS
@@ -394,11 +394,13 @@ class SSHUserAuthClient(service.SSHService):
     """
     A service implementing the client side of 'ssh-userauth'.
 
+    This service will try all authentication methods provided by the server,
+    making callbacks for more information when necessary.
+
     @ivar name: the name of this service: 'ssh-userauth'
     @type name: C{str}
-    @ivar preferredOrder: a list of authentication methods we support, in
-        order of preference.  The client will try authentication methods in
-        this order, making callbacks for information when necessary.
+    @ivar preferredOrder: a list of authentication methods that should be used
+        first, in order of preference, if supported by the server
     @type preferredOrder: C{list}
     @ivar user: the name of the user to authenticate as
     @type user: C{str}
@@ -674,12 +676,6 @@ class SSHUserAuthClient(service.SSHService):
 
 
     def _cbGetPublicKey(self, publicKey):
-        if isinstance(publicKey, str):
-            warnings.warn("Returning a string from "
-                          "SSHUserAuthClient.getPublicKey() is deprecated "
-                          "since Twisted 9.0.  Return a keys.Key() instead.",
-                          DeprecationWarning)
-            publicKey = keys.Key.fromString(publicKey)
         if not isinstance(publicKey, keys.Key): # failure or None
             publicKey = None
         if publicKey is not None:
@@ -768,12 +764,6 @@ class SSHUserAuthClient(service.SSHService):
         @return: the signature
         @rtype: C{str}
         """
-        if not isinstance(privateKey, keys.Key):
-            warnings.warn("Returning a PyCrypto key object from "
-                          "SSHUserAuthClient.getPrivateKey() is deprecated "
-                          "since Twisted 9.0.  Return a keys.Key() instead.",
-                          DeprecationWarning)
-            privateKey = keys.Key(privateKey)
         return privateKey.sign(signData)
 
 

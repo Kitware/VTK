@@ -66,18 +66,9 @@ vtkAVSucdReader::vtkAVSucdReader()
 //----------------------------------------------------------------------------
 vtkAVSucdReader::~vtkAVSucdReader()
 {
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->NodeDataInfo)
-    {
-    delete [] this->NodeDataInfo;
-    }
-  if (this->CellDataInfo)
-    {
-    delete [] this->CellDataInfo;
-    }
+  delete [] this->FileName;
+  delete [] this->NodeDataInfo;
+  delete [] this->CellDataInfo;
 
   this->CellDataArraySelection->Delete();
   this->PointDataArraySelection->Delete();

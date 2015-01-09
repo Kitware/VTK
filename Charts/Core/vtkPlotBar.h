@@ -31,6 +31,8 @@ class vtkTable;
 class vtkPoints2D;
 class vtkStdString;
 class vtkColorSeries;
+class vtkUnsignedCharArray;
+class vtkScalarsToColors;
 
 class vtkPlotBarPrivate;
 
@@ -50,6 +52,10 @@ public:
   // Description:
   // Creates a 2D Chart object.
   static vtkPlotBar *New();
+
+  // Description:
+  // Perform any updates to the item that may be necessary before rendering.
+  virtual void Update();
 
   // Description:
   // Paint event for the XY plot, called whenever the chart needs to be drawn
@@ -116,6 +122,33 @@ public:
   // Get the color series used if when this is a stacked bar plot.
   vtkColorSeries *GetColorSeries();
 
+  // Description:
+  // Specify a lookup table for the mapper to use.
+  virtual void SetLookupTable(vtkScalarsToColors *lut);
+  virtual vtkScalarsToColors *GetLookupTable();
+
+  // Description:
+  // Create default lookup table. Generally used to create one when none
+  // is available with the scalar data.
+  virtual void CreateDefaultLookupTable();
+
+  // Description:
+  // Turn on/off flag to control whether scalar data is used to color objects.
+  vtkSetMacro(ScalarVisibility, bool);
+  vtkGetMacro(ScalarVisibility, bool);
+  vtkBooleanMacro(ScalarVisibility, bool);
+
+  // Description:
+  // When ScalarMode is set to UsePointFieldData or UseCellFieldData,
+  // you can specify which array to use for coloring using these methods.
+  // The lookup table will decide how to convert vectors to colors.
+  void SelectColorArray(vtkIdType arrayNum);
+  void SelectColorArray(const vtkStdString& arrayName);
+
+  // Description:
+  // Get the array name to color by.
+  vtkStdString GetColorArrayName();
+
   // Description
   // Get the plot labels.
   virtual vtkStringArray *GetLabels();
@@ -159,6 +192,14 @@ public:
                                     vtkVector2f* location,
                                     vtkIdType* segmentIndex);
 
+  // Description:
+  // Get amount of plotted bars.
+  int GetBarsCount();
+
+  // Description:
+  // Get the data bounds for this mapper as (Xmin,Xmax).
+  void GetDataBounds(double bounds[2]);
+
 protected:
   vtkPlotBar();
   ~vtkPlotBar();
@@ -183,6 +224,16 @@ protected:
   // Description:
   // The color series to use if this becomes a stacked bar
   vtkSmartPointer<vtkColorSeries> ColorSeries;
+
+  // Description:
+  // Lookup Table for coloring bars by scalar value
+  vtkSmartPointer<vtkScalarsToColors> LookupTable;
+  vtkSmartPointer<vtkUnsignedCharArray> Colors;
+  bool ScalarVisibility;
+  vtkStdString ColorArrayName;
+
+  bool LogX;
+  bool LogY;
 
 private:
   vtkPlotBar(const vtkPlotBar &); // Not implemented.

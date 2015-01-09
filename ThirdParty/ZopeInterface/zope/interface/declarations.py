@@ -49,6 +49,15 @@ _ADVICE_ERROR = ('Class advice impossible in Python3.  '
 _ADVICE_WARNING = ('The %s API is deprecated, and will not work in Python3  '
                    'Use the @%s class decorator instead.')
 
+class named(object):
+
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, ob):
+        ob.__component_name__ = self.name
+        return ob
+
 class Declaration(Specification):
     """Interface declarations"""
 

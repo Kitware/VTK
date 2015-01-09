@@ -105,7 +105,7 @@ class HelperTests(TestCase):
         userdb.addUser(
             'alice', 'secrit', 1, 2, 'first last', '/foo', '/bin/sh')
         self.patch(checkers, 'pwd', userdb)
-        self.assertEquals(
+        self.assertEqual(
             checkers._pwdGetByName('alice'), userdb.getpwnam('alice'))
 
 
@@ -114,7 +114,7 @@ class HelperTests(TestCase):
         If the C{pwd} module isn't present, L{_pwdGetByName} returns C{None}.
         """
         self.patch(checkers, 'pwd', None)
-        self.assertIdentical(checkers._pwdGetByName('alice'), None)
+        self.assertIs(checkers._pwdGetByName('alice'), None)
 
 
     def test_shadowGetByName(self):
@@ -128,13 +128,12 @@ class HelperTests(TestCase):
 
         self.mockos.euid = 2345
         self.mockos.egid = 1234
-        self.patch(checkers, 'os', self.mockos)
         self.patch(util, 'os', self.mockos)
 
-        self.assertEquals(
+        self.assertEqual(
             checkers._shadowGetByName('bob'), userdb.getspnam('bob'))
-        self.assertEquals(self.mockos.seteuidCalls, [0, 2345])
-        self.assertEquals(self.mockos.setegidCalls, [0, 1234])
+        self.assertEqual(self.mockos.seteuidCalls, [0, 2345])
+        self.assertEqual(self.mockos.setegidCalls, [0, 1234])
 
 
     def test_shadowGetByNameWithoutSpwd(self):
@@ -147,16 +146,15 @@ class HelperTests(TestCase):
         userdb.addUser('bob', 'passphrase', 1, 2, 3, 4, 5, 6, 7)
         self.patch(checkers, 'spwd', None)
         self.patch(checkers, 'shadow', userdb)
-        self.patch(checkers, 'os', self.mockos)
         self.patch(util, 'os', self.mockos)
 
         self.mockos.euid = 2345
         self.mockos.egid = 1234
 
-        self.assertEquals(
+        self.assertEqual(
             checkers._shadowGetByName('bob'), userdb.getspnam('bob'))
-        self.assertEquals(self.mockos.seteuidCalls, [0, 2345])
-        self.assertEquals(self.mockos.setegidCalls, [0, 1234])
+        self.assertEqual(self.mockos.seteuidCalls, [0, 2345])
+        self.assertEqual(self.mockos.setegidCalls, [0, 1234])
 
 
     def test_shadowGetByNameWithoutEither(self):
@@ -166,11 +164,10 @@ class HelperTests(TestCase):
         """
         self.patch(checkers, 'spwd', None)
         self.patch(checkers, 'shadow', None)
-        self.patch(checkers, 'os', self.mockos)
 
-        self.assertIdentical(checkers._shadowGetByName('bob'), None)
-        self.assertEquals(self.mockos.seteuidCalls, [])
-        self.assertEquals(self.mockos.setegidCalls, [])
+        self.assertIs(checkers._shadowGetByName('bob'), None)
+        self.assertEqual(self.mockos.seteuidCalls, [])
+        self.assertEqual(self.mockos.setegidCalls, [])
 
 
 
@@ -189,7 +186,6 @@ class SSHPublicKeyDatabaseTestCase(TestCase):
         self.mockos = MockOS()
         self.mockos.path = FilePath(self.mktemp())
         self.mockos.path.makedirs()
-        self.patch(checkers, 'os', self.mockos)
         self.patch(util, 'os', self.mockos)
         self.sshDir = self.mockos.path.child('.ssh')
         self.sshDir.makedirs()
@@ -250,7 +246,6 @@ class SSHPublicKeyDatabaseTestCase(TestCase):
         self.mockos.euid = 2345
         self.mockos.egid = 1234
         self.patch(self.mockos, "seteuid", seteuid)
-        self.patch(checkers, 'os', self.mockos)
         self.patch(util, 'os', self.mockos)
         user = UsernamePassword("user", "password")
         user.blob = "foobar"
@@ -422,7 +417,7 @@ class SSHProtocolCheckerTestCase(TestCase):
         """
         The default L{SSHProcotolChecker.areDone} should simply return True.
         """
-        self.assertEquals(checkers.SSHProtocolChecker().areDone(None), True)
+        self.assertEqual(checkers.SSHProtocolChecker().areDone(None), True)
 
 
 
@@ -446,10 +441,10 @@ class UNIXPasswordDatabaseTests(TestCase):
         """
         result = []
         d.addBoth(result.append)
-        self.assertEquals(len(result), 1, "login incomplete")
+        self.assertEqual(len(result), 1, "login incomplete")
         if isinstance(result[0], Failure):
             result[0].raiseException()
-        self.assertEquals(result[0], username)
+        self.assertEqual(result[0], username)
 
 
     def test_defaultCheckers(self):
@@ -478,7 +473,6 @@ class UNIXPasswordDatabaseTests(TestCase):
         self.patch(checkers, 'spwd', spwd)
 
         mockos = MockOS()
-        self.patch(checkers, 'os', mockos)
         self.patch(util, 'os', mockos)
 
         mockos.euid = 2345
@@ -486,12 +480,12 @@ class UNIXPasswordDatabaseTests(TestCase):
 
         cred = UsernamePassword("alice", "password")
         self.assertLoggedIn(checker.requestAvatarId(cred), 'alice')
-        self.assertEquals(mockos.seteuidCalls, [])
-        self.assertEquals(mockos.setegidCalls, [])
+        self.assertEqual(mockos.seteuidCalls, [])
+        self.assertEqual(mockos.setegidCalls, [])
         cred.username = "bob"
         self.assertLoggedIn(checker.requestAvatarId(cred), 'bob')
-        self.assertEquals(mockos.seteuidCalls, [0, 2345])
-        self.assertEquals(mockos.setegidCalls, [0, 1234])
+        self.assertEqual(mockos.seteuidCalls, [0, 2345])
+        self.assertEqual(mockos.setegidCalls, [0, 1234])
 
 
     def assertUnauthorizedLogin(self, d):

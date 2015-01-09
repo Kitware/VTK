@@ -119,7 +119,7 @@ int TestMathTextFreeTypeTextRendererNoMath(int argc, char *argv[])
   actor7->GetTextProperty()->SetVerticalJustificationToCentered();
   actor7->GetTextProperty()->SetOrientation(45);
   actor7->SetInput(str.c_str());
-  actor7->SetPosition(100, 200);
+  actor7->SetPosition(100, 156);
 
   vtkNew<vtkTextActor> actor8;
   actor8->GetTextProperty()->SetFontSize(16);
@@ -128,7 +128,7 @@ int TestMathTextFreeTypeTextRendererNoMath(int argc, char *argv[])
   actor8->GetTextProperty()->SetVerticalJustificationToCentered();
   actor8->GetTextProperty()->SetOrientation(45);
   actor8->SetInput(str.c_str());
-  actor8->SetPosition(500, 200);
+  actor8->SetPosition(500, 249);
 
   // Numbers, using courier, Text that gets 'cut off'
   vtkNew<vtkTextActor> actor9;

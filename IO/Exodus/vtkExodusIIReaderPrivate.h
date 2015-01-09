@@ -83,11 +83,6 @@ public:
     */
   int GetNumberOfTimeSteps() { return (int) this->Times.size(); }
 
-  /// Return the current time step
-  vtkGetMacro(TimeStep,int);
-
-  /// Set the current time step for subsequent calls to RequestData().
-  vtkSetMacro(TimeStep,int);
 
   /// Return whether subsequent RequestData() calls will produce the minimal
   /// point set required to represent the output.
@@ -570,6 +565,14 @@ protected:
     */
   int AssembleArraysOverTime(vtkMultiBlockDataSet* output);
 
+  /// Insert polyhedral cells (called from InsertBlockCells when a block is polyhedra)
+  void InsertBlockPolyhedra(
+    BlockInfoType* binfo,
+    vtkIntArray* facesPerCell,
+    vtkIntArray* pointsPerFace,
+    vtkIntArray* exoCellConn,
+    vtkIntArray* exoFaceConn);
+
   /// Insert cells from a specified block into a mesh
   void InsertBlockCells(
     int otyp, int obj, int conn_type, int timeStep, BlockInfoType* binfop );
@@ -762,8 +765,6 @@ protected:
   /// A list of time steps for which results variables are stored.
   std::vector<double> Times;
 
-  /// The current time step
-  int TimeStep;
 
   /** The time value. This is used internally when HasModeShapes is true and
     * ignored otherwise.

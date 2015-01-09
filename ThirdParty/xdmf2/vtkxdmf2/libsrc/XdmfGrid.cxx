@@ -34,6 +34,9 @@
 #include "XdmfTime.h"
 #include "XdmfSet.h"
 
+namespace xdmf2
+{
+
 XdmfGrid *HandleToXdmfGrid( XdmfString Source ){
   XdmfObject  *TempObj;
   XdmfGrid   *Grid;
@@ -841,4 +844,6 @@ XdmfGrid::FindGridsInTimeRange(XdmfFloat64 TimeMin, XdmfFloat64 TimeMax, XdmfArr
         return(XDMF_FAIL);
     }
 return(XDMF_SUCCESS);
+}
+
 }

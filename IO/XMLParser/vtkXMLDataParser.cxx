@@ -466,7 +466,7 @@ void vtkXMLDataParser::PerformByteSwap(void* data, size_t numWords,
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataParser::ReadCompressionHeader()
+int vtkXMLDataParser::ReadCompressionHeader()
 {
   vtksys::auto_ptr<vtkXMLDataHeader>
     ch(vtkXMLDataHeader::New(this->HeaderType, 3));
@@ -480,7 +480,7 @@ void vtkXMLDataParser::ReadCompressionHeader()
     {
     vtkErrorMacro("Error reading beginning of compression header.  Read "
                   << r << " of " << headerSize << " bytes.");
-    return;
+    return 0;
     }
 
   // Byte swap the header to make sure the values are correct.
@@ -513,7 +513,7 @@ void vtkXMLDataParser::ReadCompressionHeader()
     if(this->DataStream->Read(ch->Data(), len) < len)
       {
       vtkErrorMacro("Error reading compression header.");
-      return;
+      return 0;
       }
 
     // Byte swap the sizes to make sure the values are correct.
@@ -532,6 +532,7 @@ void vtkXMLDataParser::ReadCompressionHeader()
     this->BlockStartOffsets[i] = offset;
     offset += sz;
     }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -687,6 +688,12 @@ size_t vtkXMLDataParser::ReadCompressedData(unsigned char* data,
     totalSize += this->PartialLastBlockUncompressedSize;
     }
 
+  // Make sure there's even data to be read
+  if(totalSize == 0)
+    {
+    return 0;
+    }
+
   // Adjust the size to be a multiple of the wordSize by taking
   // advantage of integer division.  This will only change the value
   // when the input file is invalid.
@@ -823,7 +830,11 @@ size_t vtkXMLDataParser::ReadBinaryData(void* in_buffer,
   size_t actualWords;
   if(this->Compressor)
     {
-    this->ReadCompressionHeader();
+    if (!this->ReadCompressionHeader())
+      {
+      vtkErrorMacro("ReadCompressionHeader failed. Aborting read.");
+      return 0;
+      }
     this->DataStream->StartReading();
     actualWords = this->ReadCompressedData(d, startWord, numWords, wordSize);
     this->DataStream->EndReading();

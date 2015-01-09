@@ -72,12 +72,11 @@ public:
     }
 
   // Define types for smart vectors containing various base classes.
-  typedef vtkSmartVector<vtkTextActor> ActorVec;
-  typedef vtkSmartVector<vtkTextActor> MathActorVec;
+  typedef vtkSmartVector<vtkTextActor> ActorVector;
 
   // Other vector container types.
-  typedef std::vector<double> DoubleVec;
-  typedef std::vector<vtkColor3ub> ColorVec;
+  typedef std::vector<double>      DoubleVector;
+  typedef std::vector<vtkColor3ub> ColorVector;
 
   /**\brief Cache of dimensions fixed during geometry assembly.
     *
@@ -85,54 +84,74 @@ public:
     */
   //@{
   vtkViewport* Viewport;
-  /// Resolution of the viewport; used to render text at the appropriate detail.
-  float DPI;
+
   /// The thickness and length of the (square) NaN swatch.
   double NanSwatchSize;
+
   /// Space in pixels between swatches when in indexed lookup mode.
   double SwatchPad;
-  /// Number of annotated values (at least lut->GetNumberOfAnnotatedValues(), but maybe more)
+
+  /// Number of annotated values (at least
+  /// lut->GetNumberOfAnnotatedValues(), but maybe more)
   int NumNotes;
-  /// Number of color swatches to draw for either the continuous or categorical scalar bar, not including a NaN swatch.
+
+  /// Number of color swatches to draw for either the continuous or
+  /// categorical scalar bar, not including a NaN swatch.
   int NumColors;
-  /// Either NumColors or NumColors + 1, depending on whether the NaN swatch is to be drawn.
+
+  /// Either NumColors or NumColors + 1, depending on whether the NaN
+  /// swatch is to be drawn.
   int NumSwatches;
-  /// Permutation of (0, 1) that transforms thickness,length into width,height.
+
+  /// Permutation of (0, 1) that transforms thickness,length into
+  /// width,height.
   int TL[2]; // VERTICAL => TL={0,1}, HORIZONTAL => TL={1,0}, Size[TL[0]] == width, Size[TL[1]] == height
+
   /// Point coordinates for the scalar bar actor
   vtkPoints* SwatchPts;
+
   /// Cells representing color swatches (for the scalar bar actor)
   vtkCellArray* Polys;
+
   /// Colors of swatches in \a Polys
   vtkUnsignedCharArray* SwatchColors;
+
   /// The bounding box of the entire scalar bar frame.
   vtkScalarBarBox Frame;
+
   /// The bounding box of the scalar bar (excluding NaN swatch)
   vtkScalarBarBox ScalarBarBox;
+
   /// The bounding box of the NaN swatch
   vtkScalarBarBox NanBox;
-  /// The bounding box of tick mark anchor points (tick labels are not fully contained)
+
+  /// The bounding box of tick mark anchor points (tick labels are not
+  /// fully contained)
   vtkScalarBarBox TickBox;
+
   /// The bounding box of the scalar bar title text.
   vtkScalarBarBox TitleBox;
+
   /// Map from viewport coordinates to label text of each annotation.
   std::map<double,vtkStdString> Labels;
-  /// Map from viewport coordinates to the leader line color of each annotation.
+
+  /// Map from viewport coordinates to the leader line color of each
+  /// annotation.
   std::map<double,vtkColor3ub> LabelColors;
   //@}
 
   /// Cache of classes holding geometry assembled and ready for rendering.
   //@{
-  ActorVec TextActors;
+  ActorVector          TextActors;
   vtkPolyData*         AnnotationBoxes;
   vtkPolyDataMapper2D* AnnotationBoxesMapper;
   vtkActor2D*          AnnotationBoxesActor;
   vtkPolyData*         AnnotationLeaders;
   vtkPolyDataMapper2D* AnnotationLeadersMapper;
   vtkActor2D*          AnnotationLeadersActor;
-  ActorVec             AnnotationLabels;
-  std::vector<double>  AnnotationAnchors;
-  std::vector<vtkColor3ub> AnnotationColors;
+  ActorVector          AnnotationLabels;
+  DoubleVector         AnnotationAnchors;
+  ColorVector          AnnotationColors;
   vtkPolyData*         NanSwatch;
   vtkPolyDataMapper2D* NanSwatchMapper;
   vtkActor2D*          NanSwatchActor;

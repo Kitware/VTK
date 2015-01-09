@@ -51,6 +51,10 @@ class vtkTimerIdMap;
 #define VTKI_TIMER_FIRST  0
 #define VTKI_TIMER_UPDATE 1
 
+// maximum pointers active at once
+// for example in multitouch
+#define VTKI_MAX_POINTERS 5
+
 class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;
@@ -72,8 +76,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Prepare for handling events. This must be called before the
-  // interactor will work.
+  // Prepare for handling events and set the Enabled flag to true.
+  // This will be called automatically by Start() if the interactor
+  // is not initialized, but it can be called manually if you need
+  // to perform any operations between initialization and the start
+  // of the event loop.
   virtual void Initialize();
   void ReInitialize() {  this->Initialized = 0; this->Enabled = 0;
                         this->Initialize(); }
@@ -86,8 +93,8 @@ public:
   // Description:
   // Start the event loop. This is provided so that you do not have to
   // implement your own event loop. You still can use your own
-  // event loop if you want. Initialize should be called before Start.
-  virtual void Start() {}
+  // event loop if you want.
+  virtual void Start();
 
   // Description:
   // Enable/Disable interactions.  By default interactors are enabled when
@@ -347,6 +354,60 @@ public:
     this->SetEventPositionFlipY(pos[0], pos[1]);
   }
 
+  virtual int *GetEventPositions(int pointerIndex)
+    {
+    if (pointerIndex >= VTKI_MAX_POINTERS)
+      {
+      return NULL;
+      }
+    return this->EventPositions[pointerIndex];
+    }
+  virtual int *GetLastEventPositions(int pointerIndex)
+    {
+    if (pointerIndex >= VTKI_MAX_POINTERS)
+      {
+      return NULL;
+      }
+    return this->LastEventPositions[pointerIndex];
+    }
+  virtual void SetEventPosition(int x, int y, int pointerIndex)
+  {
+    if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
+      {
+      return;
+      }
+    if (pointerIndex == 0)
+      {
+      this->LastEventPosition[0] = this->EventPosition[0];
+      this->LastEventPosition[1] = this->EventPosition[1];
+      this->EventPosition[0] = x;
+      this->EventPosition[1] = y;
+      }
+    vtkDebugMacro(<< this->GetClassName() << " (" << this
+                  << "): setting EventPosition to (" << x << "," << y << ") for pointerIndex number " << pointerIndex);
+    if (this->EventPositions[pointerIndex][0] != x || this->EventPositions[pointerIndex][1] != y ||
+        this->LastEventPositions[pointerIndex][0] != x || this->LastEventPositions[pointerIndex][1] != y)
+      {
+      this->LastEventPositions[pointerIndex][0] = this->EventPositions[pointerIndex][0];
+      this->LastEventPositions[pointerIndex][1] = this->EventPositions[pointerIndex][1];
+      this->EventPositions[pointerIndex][0] = x;
+      this->EventPositions[pointerIndex][1] = y;
+      this->Modified();
+      }
+  }
+  virtual void SetEventPosition(int pos[2], int pointerIndex)
+  {
+    this->SetEventPosition(pos[0], pos[1], pointerIndex);
+  }
+  virtual void SetEventPositionFlipY(int x, int y, int pointerIndex)
+  {
+    this->SetEventPosition(x, this->Size[1] - y - 1, pointerIndex);
+  }
+  virtual void SetEventPositionFlipY(int pos[2], int pointerIndex)
+  {
+    this->SetEventPositionFlipY(pos[0], pos[1], pointerIndex);
+  }
+
   // Description:
   // Set/get whether alt modifier key was pressed.
   vtkSetMacro(AltKey, int);
@@ -382,40 +443,51 @@ public:
   vtkGetStringMacro(KeySym);
 
   // Description:
+  // Set/get the index of the most recent pointer to have an event
+  vtkSetMacro(PointerIndex, int);
+  vtkGetMacro(PointerIndex, int);
+
+  // Description:
   // Set all the event information in one call.
   void SetEventInformation(int x,
                            int y,
-                           int ctrl=0,
-                           int shift=0,
-                           char keycode=0,
-                           int repeatcount=0,
-                           const char* keysym=0)
+                           int ctrl,
+                           int shift,
+                           char keycode,
+                           int repeatcount,
+                           const char* keysym,
+                           int pointerIndex)
     {
-      this->LastEventPosition[0] = this->EventPosition[0];
-      this->LastEventPosition[1] = this->EventPosition[1];
-      this->EventPosition[0] = x;
-      this->EventPosition[1] = y;
+      this->SetEventPosition(x,y,pointerIndex);
       this->ControlKey = ctrl;
       this->ShiftKey = shift;
       this->KeyCode = keycode;
       this->RepeatCount = repeatcount;
+      this->PointerIndex = pointerIndex;
       if(keysym)
         {
         this->SetKeySym(keysym);
         }
       this->Modified();
     }
+  void SetEventInformation(int x, int y,
+                           int ctrl=0, int shift=0,
+                           char keycode=0,
+                           int repeatcount=0,
+                           const char* keysym=0)
+    {
+      this->SetEventInformation(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
+    }
 
   // Description:
   // Calls SetEventInformation, but flips the Y based on the current Size[1]
   // value (i.e. y = this->Size[1] - y - 1).
-  void SetEventInformationFlipY(int x,
-                                int y,
-                                int ctrl=0,
-                                int shift=0,
-                                char keycode=0,
-                                int repeatcount=0,
-                                const char* keysym=0)
+  void SetEventInformationFlipY(int x, int y,
+                                int ctrl, int shift,
+                                char keycode,
+                                int repeatcount,
+                                const char* keysym,
+                                int pointerIndex)
     {
       this->SetEventInformation(x,
                                 this->Size[1] - y - 1,
@@ -423,7 +495,16 @@ public:
                                 shift,
                                 keycode,
                                 repeatcount,
-                                keysym);
+                                keysym,
+                                pointerIndex);
+    }
+  void SetEventInformationFlipY(int x, int y,
+                           int ctrl=0, int shift=0,
+                           char keycode=0,
+                           int repeatcount=0,
+                           const char* keysym=0)
+    {
+      this->SetEventInformationFlipY(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
     }
 
   // Description:
@@ -547,6 +628,10 @@ protected:
   int   TimerEventDuration;
   int   TimerEventPlatformId;
 
+  int   EventPositions[VTKI_MAX_POINTERS][2];
+  int   LastEventPositions[VTKI_MAX_POINTERS][2];
+  int   PointerIndex;
+
   // control the fly to
   int NumberOfFlyFrames;
   double Dolly;
@@ -589,6 +674,10 @@ protected:
   // overrides. (Overrides are registered by observing StartEvent on the
   // interactor.)
   int HandleEventLoop;
+
+  // Description:
+  // Run the event loop (does not return until TerminateApp is called).
+  virtual void StartEventLoop() {}
 
   bool UseTDx; // 3DConnexion device.
 

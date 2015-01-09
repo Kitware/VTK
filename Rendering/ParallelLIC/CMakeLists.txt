@@ -1,3 +1,5 @@
+include(vtkObjectFactory)
+
 set(Module_SRCS
   vtkMPIPixelTT.cxx
   vtkParallelTimer.cxx
@@ -61,40 +63,10 @@ foreach(file ${shader_files})
   set_source_files_properties(${file_we} WRAP_EXCLUDE)
 endforeach()
 
-# Now we need to generate the object factory for this module. Create a list of
-# overrides, and then generate the class that overrides those classes.
-macro(vtk_add_override base override)
-  list(APPEND vtk_module_overrides ${base})
-  set(vtk_module_${base}_override ${override})
-endmacro()
 vtk_add_override(vtkLineIntegralConvolution2D vtkPLineIntegralConvolution2D)
 vtk_add_override(vtkSurfaceLICComposite vtkPSurfaceLICComposite)
 vtk_add_override(vtkSurfaceLICPainter vtkPSurfaceLICPainter)
-
-# Now we iterate and create that class file...
-foreach(_class ${vtk_module_overrides})
-  set(_override ${vtk_module_${_class}_override})
-  set(_vtk_override_includes "${_vtk_override_includes}
-#include \"${_override}.h\"")
-  set(_vtk_override_creates "${_vtk_override_creates}
-VTK_CREATE_CREATE_FUNCTION(${_override})")
-  set(_vtk_override_do "${_vtk_override_do}
-  this->RegisterOverride(\"${_class}\",
-                         \"${_override}\",
-                         \"Override for ${vtk-module} module\", 1,
-                         vtkObjectFactoryCreate${_override});")
-endforeach()
-
-# Now lets create the object factory classes
-string(TOUPPER ${vtk-module} VTK-MODULE)
-configure_file(
-  ${VTK_CMAKE_DIR}/vtkObjectFactory.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.h
-  )
-configure_file(
-  ${VTK_CMAKE_DIR}/vtkObjectFactory.cxx.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  )
+vtk_object_factory_configure("${vtk_module_overrides}")
 
 include(vtkMPI)
 

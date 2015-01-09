@@ -90,18 +90,19 @@ struct H5HL_t {
     size_t                  sizeof_size; /* Size of file sizes */
     size_t                  sizeof_addr; /* Size of file addresses */
     hbool_t                 single_cache_obj;   /* Indicate if the heap is a single object in the cache */
+    H5HL_free_t		   *freelist;	/*the free list			*/
 
     /* Prefix-specific fields */
     H5HL_prfx_t            *prfx;       /* The prefix object for the heap */
     haddr_t                 prfx_addr;  /* address of heap prefix */
     size_t                  prfx_size;  /* size of heap prefix */
+    hsize_t                 free_block; /* Address of first free block */
 
     /* Data block-specific fields */
     H5HL_dblk_t            *dblk;       /* The data block object for the heap */
     haddr_t		    dblk_addr;	/* address of data block	*/
     size_t		    dblk_size;	/* size of heap data block on disk and in mem */
     uint8_t		   *dblk_image;	/* The data block image */
-    H5HL_free_t		   *freelist;	/*the free list			*/
 };
 
 /* Struct for heap data block */
@@ -127,15 +128,12 @@ typedef struct H5HL_cache_prfx_ud_t {
     size_t sizeof_prfx;                 /* Size of heap prefix */
 
     /* Upwards */
-    hbool_t loaded;                     /* Whether prefix was loaded from file */
-    hsize_t free_block;                 /* First free block in heap */
 } H5HL_cache_prfx_ud_t;
 
 /* Callback information for loading local heap data block from disk */
 typedef struct H5HL_cache_dblk_ud_t {
     /* Downwards */
     H5HL_t *heap;                       /* Local heap */
-    hsize_t free_block;                 /* First free block in heap */
 
     /* Upwards */
     hbool_t loaded;                     /* Whether data block was loaded from file */

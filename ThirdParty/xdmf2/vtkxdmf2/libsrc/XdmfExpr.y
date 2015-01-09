@@ -14,9 +14,12 @@ extern "C" {
 #include <XdmfHDF.h>
 #include <math.h>
 
-static XdmfArray *XdmfExprReturnValue;
+
+static xdmf2::XdmfArray *XdmfExprReturnValue;
 XdmfExprSymbol *XdmfExprItemsTable = NULL;
 
+namespace xdmf2
+{
 
 class XdmfInt64Array : public XdmfArray {
 public :
@@ -29,6 +32,8 @@ public :
 		this->SetNumberOfElements( 10 );
 		};
 };
+
+}
 
 #define ADD_XDMF_tokARRAY_TO_SYMBOL( a ) \
 	{ \
@@ -74,21 +79,21 @@ statemant_list : statement {
 	;
 
 statement: tokARRAY '=' ArrayExpression	{
-		XdmfArray *TempArray = ( XdmfArray *)$3;
+		xdmf2::XdmfArray *TempArray = ( xdmf2::XdmfArray *)$3;
 
 		/* printf("Setting %s from ArrayExpression\n", $1); */
-		XdmfExprReturnValue = (XdmfArray *)$1;
+		XdmfExprReturnValue = (xdmf2::XdmfArray *)$1;
 		*XdmfExprReturnValue = *TempArray;
 		delete TempArray;
 		}
 	|  tokARRAY '=' ScalarExpression {
 		/* printf("Setting %s from ScalarExpression\n", $1); */
-		XdmfExprReturnValue = (XdmfArray *)$1;
+		XdmfExprReturnValue = (xdmf2::XdmfArray *)$1;
 		*XdmfExprReturnValue = $3;
 		}
 	|	tokARRAY '[' ArrayExpression ']'  '=' ScalarExpression {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
-			XdmfArray	*Result = ( XdmfArray *)$1;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray	*Result = ( xdmf2::XdmfArray *)$1;
 			XdmfLength	i, index, Length = Array1->GetNumberOfElements();
 
 			for( i = 0 ; i < Length ; i++ ){
@@ -99,9 +104,9 @@ statement: tokARRAY '=' ArrayExpression	{
 			XdmfExprReturnValue = Result;
 		}
 	|	tokARRAY '[' ArrayExpression ']'  '=' ArrayExpression {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
-			XdmfArray	*Array2 = ( XdmfArray *)$6;
-			XdmfArray	*Result = ( XdmfArray *)$1;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array2 = ( xdmf2::XdmfArray *)$6;
+			xdmf2::XdmfArray	*Result = ( xdmf2::XdmfArray *)$1;
 			XdmfFloat64	Value;
 			XdmfLength	i, index, Length = Array1->GetNumberOfElements();
 
@@ -115,31 +120,31 @@ statement: tokARRAY '=' ArrayExpression	{
 			XdmfExprReturnValue = Result;
 		}
 	|	tokARRAY '[' tokINTEGER ':' tokINTEGER ']'  '=' ScalarExpression {
-			XdmfArray *Range;
+			xdmf2::XdmfArray *Range;
 
 			/* printf("Array Range %d:%d = ScalarExpression \n", $3, $5);	 */
-			Range = (XdmfArray *)$1;
+			Range = (xdmf2::XdmfArray *)$1;
 			XdmfExprReturnValue = Range->Reference( $3, $5 ); /* This is a Reference */
 			*XdmfExprReturnValue = $8;
 
 			/* Now Point to the Entire Array */
-			XdmfExprReturnValue = (XdmfArray *)$1;
+			XdmfExprReturnValue = (xdmf2::XdmfArray *)$1;
 			}
 	|	tokARRAY '[' tokINTEGER ':' tokINTEGER ']'  '=' ArrayExpression {
-			XdmfArray *TempArray = ( XdmfArray *)$8;
-			XdmfArray *Range;
+			xdmf2::XdmfArray *TempArray = ( xdmf2::XdmfArray *)$8;
+			xdmf2::XdmfArray *Range;
 
 			/* printf("Array Range %d:%d = ArrayExpression \n", $3, $5); */
-			Range = (XdmfArray *)$1;
+			Range = (xdmf2::XdmfArray *)$1;
 			XdmfExprReturnValue = Range->Reference( $3, $5 ); /* This is a Reference */
 			*XdmfExprReturnValue = *TempArray;
 
 			/* Now Point to the Entire Array */
-			XdmfExprReturnValue = (XdmfArray *)$1;
+			XdmfExprReturnValue = (xdmf2::XdmfArray *)$1;
 			delete TempArray;
 			}
 	|  ArrayExpression {
-		XdmfArray *TempArray = ( XdmfArray *)$1;
+		xdmf2::XdmfArray *TempArray = ( xdmf2::XdmfArray *)$1;
 
 		/* printf("Clone from ArrayExpression\n"); */
 		XdmfExprReturnValue = TempArray;	
@@ -151,8 +156,8 @@ statement: tokARRAY '=' ArrayExpression	{
 	;
 
 ArrayExpression: ArrayExpression '+' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Array2 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)$3;
 
 			/* printf("Array 0x%X + 0x%X\n", Array1, Array2); */
 			*Array1 += *Array2;
@@ -161,9 +166,9 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			}
 	|	ArrayExpression ',' ArrayExpression {
 			/* Interlace */
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Array2 = ( XdmfArray *)$3;
-			XdmfArray *NewArray = new XdmfArray();
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray *NewArray = new xdmf2::XdmfArray();
 			XdmfInt32 i, Rank1, Rank2;
 			XdmfInt64 NewLength, Length1, Length2, IFactor, Lcd;
 			XdmfInt64 Dimension1[ XDMF_MAX_DIMENSION ];
@@ -238,9 +243,9 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 
 	|	ArrayExpression ';' ArrayExpression {
 			/* Interlace */
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Array2 = ( XdmfArray *)$3;
-			XdmfArray *NewArray = new XdmfArray();
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray *NewArray = new xdmf2::XdmfArray();
 			XdmfInt32 i, Rank1, Rank2;
 			XdmfInt64 Dimension1[ XDMF_MAX_DIMENSION ];
 			XdmfInt64 Dimension2[ XDMF_MAX_DIMENSION ];
@@ -301,8 +306,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			delete Array2;
 			}
 	|	ArrayExpression '-' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Array2 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)$3;
 
 			/* printf("Array 0x%X + 0x%X\n", Array1, Array2); */
 			*Array1 -= *Array2;
@@ -310,8 +315,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			delete Array2;
 			}
 	|	ArrayExpression '*' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Array2 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)$3;
 
 			/* printf("Array 0x%X * 0x%X\n", Array1, Array2); */
 			*Array1 *= *Array2;
@@ -320,8 +325,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			/* printf("Array1 Nelms = %d\n", Array1->GetNumberOfElements()); */
 			}
 	|	ArrayExpression '/' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Array2 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)$3;
 
 			/* printf("Array 0x%X + 0x%X\n", Array1, Array2); */
 			*Array1 /= *Array2;
@@ -329,8 +334,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			delete Array2;
 			}
 	|	ArrayExpression '+' ScalarExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array + %g\n", $3); */
 			Result  = Array1;
@@ -338,8 +343,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	ArrayExpression '-' ScalarExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array - %g\n", $3); */
 			Result  = Array1;
@@ -347,8 +352,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	ArrayExpression '*' ScalarExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array * %g\n", $3); */
 			Result  = Array1;
@@ -356,8 +361,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	ArrayExpression '/' ScalarExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array / %g\n", $3); */
 			Result  = Array1;
@@ -365,8 +370,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	ScalarExpression '+' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$3;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array + %g\n", $1); */
 			Result  = Array1;
@@ -374,8 +379,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	ScalarExpression '-' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$3;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array - %g\n", $1); */
 			Result  = Array1;
@@ -383,8 +388,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	ScalarExpression '*' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$3;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array * %g\n", $1); */
 			Result  = Array1;
@@ -392,8 +397,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	ScalarExpression '/' ArrayExpression {
-			XdmfArray *Array1 = ( XdmfArray *)$3;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("Array / %g\n", $1); */
 			Result  = Array1;
@@ -401,9 +406,9 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	tokARRAY '[' ArrayExpression ']' {
-			XdmfArray	*Array1 = ( XdmfArray *)$1;
-			XdmfArray	*Array2 = ( XdmfArray *)$3;
-			XdmfArray	*Result;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray	*Array2 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray	*Result;
 
 			/* printf("ArrayExpression From Indexes\n"); */
 			Result = Array1->Clone( Array2 );
@@ -411,8 +416,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 		}
 	|	tokARRAY '[' tokINTEGER ':' tokINTEGER ']' {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Range, *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Range, *Result;
 
 			/* printf("ArrayExpression From Array Range %d:%d\n", $3, $5); */
 			Range = Array1->Reference( $3, $5 ); /* This not a copy  */
@@ -423,8 +428,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = Result;
 			}
 	|	INDEX'(' ArrayExpression EQEQ ArrayExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
-			XdmfArray	*Array2 = ( XdmfArray *)$5;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array2 = ( xdmf2::XdmfArray *)$5;
 			XdmfLength	i, howmany = 0, cntr = 0;
 			XdmfLength	Length1 = Array1->GetNumberOfElements(), Length2;
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length1 );
@@ -465,15 +470,15 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 					Index->SetValue( i, -1);
 					}
 				}	
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	WHERE '(' ArrayExpression EQEQ ArrayExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
 			/* XdmfLength	howmany = 0; */
 			XdmfLength	i, cntr = 0;
 			XdmfLength	Length1 = Array1->GetNumberOfElements(), Length2;
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length1 );
-			XdmfArray	*Array2 = ( XdmfArray *)$5;
+			xdmf2::XdmfArray	*Array2 = ( xdmf2::XdmfArray *)$5;
 			XdmfFloat64	A1Value, A2Value;
 
 			Length2 = Array2->GetNumberOfElements();
@@ -498,10 +503,10 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 					Index->SetValue( i, -1);
 					}
 				}	
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	WHERE '(' ArrayExpression EQEQ ScalarExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
 			XdmfLength	i, cntr = 0;
 			XdmfLength	Length = Array1->GetNumberOfElements();
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length );
@@ -519,10 +524,10 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 				return( 0 );
 				}
 			Index->SetNumberOfElements( cntr );
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	WHERE '(' ArrayExpression LT ScalarExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
 			XdmfLength	i, cntr = 0;
 			XdmfLength	Length = Array1->GetNumberOfElements();
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length );
@@ -540,10 +545,10 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 				return( 0 );
 				}
 			Index->SetNumberOfElements( cntr );
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	WHERE '(' ArrayExpression LE ScalarExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
 			XdmfLength	i, cntr = 0;
 			XdmfLength	Length = Array1->GetNumberOfElements();
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length );
@@ -561,10 +566,10 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 				return( 0 );
 				}
 			Index->SetNumberOfElements( cntr );
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	WHERE '(' ArrayExpression GT ScalarExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
 			XdmfLength	i, cntr = 0;
 			XdmfLength	Length = Array1->GetNumberOfElements();
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length );
@@ -582,10 +587,10 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 				return( 0 );
 				}
 			Index->SetNumberOfElements( cntr );
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	WHERE '(' ArrayExpression GE ScalarExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
 			XdmfLength	i, cntr = 0;
 			XdmfLength	Length = Array1->GetNumberOfElements();
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length );
@@ -603,10 +608,10 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 				return( 0 );
 				}
 			Index->SetNumberOfElements( cntr );
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	WHERE '(' ArrayExpression NE ScalarExpression ')' {
-			XdmfArray	*Array1 = ( XdmfArray *)$3;
+			xdmf2::XdmfArray	*Array1 = ( xdmf2::XdmfArray *)$3;
 			XdmfLength	i, cntr = 0;
 			XdmfLength	Length = Array1->GetNumberOfElements();
 			XdmfInt64Array	*Index = new XdmfInt64Array( Length );
@@ -624,7 +629,7 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 				return( 0 );
 				}
 			Index->SetNumberOfElements( cntr );
-			$$ = ( XdmfArray *)Index;
+			$$ = ( xdmf2::XdmfArray *)Index;
 			}
 	|	NAME '(' ArrayExpression ')' {
 
@@ -632,7 +637,7 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 				/* printf("Bad Function Ptr for %s\n", $1->Name ); */
 				$$ = $3;
 			} else {
-				XdmfArray *Array1 = ( XdmfArray *)$3;
+				xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$3;
 				XdmfFloat64	Value;
 				XdmfLength	i, Length = Array1->GetNumberOfElements();
 
@@ -653,8 +658,8 @@ ArrayExpression: ArrayExpression '+' ArrayExpression {
 			$$ = $3;
 			}
 	|	tokARRAY {
-			XdmfArray *Array1 = ( XdmfArray *)$1;
-			XdmfArray *Result;
+			xdmf2::XdmfArray *Array1 = ( xdmf2::XdmfArray *)$1;
+			xdmf2::XdmfArray *Result;
 
 			/* printf("ArrayExpression From Array\n"); */
 
@@ -813,13 +818,13 @@ return( Item );
 /**/
 #endif
 
-XdmfArray *
+xdmf2::XdmfArray *
 XdmfExprParse( char *string ){
 
 XdmfExprSymbol	*Item;
 XdmfLength	CurrentTime;
 XdmfLength	TimeOfCreation;
-XdmfArray	*ap;
+xdmf2::XdmfArray	*ap;
 
 /* Build the Symbol Table if Necessary */
 Item = XdmfExprSymbolLookup( NULL );

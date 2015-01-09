@@ -222,52 +222,36 @@ mxClassID vtkMatlabMexAdapter::GetMatlabDataType(vtkDataArray* da)
     {
     case VTK_BIT:
       return(mxUINT8_CLASS);
-      break;
     case VTK_CHAR:
       return(mxINT8_CLASS);
-      break;
     case VTK_SIGNED_CHAR:
       return(mxCHAR_CLASS);
-      break;
     case VTK_UNSIGNED_CHAR:
       return(mxUINT8_CLASS);
-      break;
     case VTK_SHORT:
       return(mxINT16_CLASS);
-      break;
     case VTK_UNSIGNED_SHORT:
       return(mxUINT16_CLASS);
-      break;
     case VTK_INT:
       return(mxINT32_CLASS);
-      break;
     case VTK_ID_TYPE:
       return(mxINT32_CLASS);
-      break;
     case VTK_UNSIGNED_INT:
       return(mxUINT32_CLASS);
-      break;
     case VTK_LONG:
       return(mxINT64_CLASS);
-      break;
     case VTK_UNSIGNED_LONG:
       return(mxUINT64_CLASS);
-      break;
     case VTK_LONG_LONG:
       return(mxINT64_CLASS);
-      break;
     case VTK_UNSIGNED_LONG_LONG:
       return(mxUINT64_CLASS);
-      break;
     case VTK_FLOAT:
       return(mxSINGLE_CLASS);
-      break;
     case VTK_DOUBLE:
       return(mxDOUBLE_CLASS);
-      break;
     default:
       return(mxDOUBLE_CLASS);
-      break;
     }
 
 }
@@ -279,43 +263,30 @@ vtkDataArray* vtkMatlabMexAdapter::GetVTKDataType(mxClassID cid)
     {
     case mxCHAR_CLASS:
       return(vtkCharArray::New());
-      break;
     case mxLOGICAL_CLASS:
       return(vtkUnsignedShortArray::New());
-      break;
     case mxDOUBLE_CLASS:
       return(vtkDoubleArray::New());
-      break;
     case mxSINGLE_CLASS:
       return(vtkFloatArray::New());
-      break;
     case mxINT8_CLASS:
       return(vtkTypeInt8Array::New());
-      break;
     case mxUINT8_CLASS:
       return(vtkTypeUInt8Array::New());
-      break;
     case mxINT16_CLASS:
       return(vtkTypeInt16Array::New());
-      break;
     case mxUINT16_CLASS:
       return(vtkTypeUInt16Array::New());
-      break;
     case mxINT32_CLASS:
       return(vtkTypeInt32Array::New());
-      break;
     case mxUINT32_CLASS:
       return(vtkTypeUInt32Array::New());
-      break;
     case mxINT64_CLASS:
       return(vtkTypeInt64Array::New());
-      break;
     case mxUINT64_CLASS:
       return(vtkTypeUInt64Array::New());
-      break;
     default:
       return(vtkDoubleArray::New());
-      break;
     }
 
 }
@@ -616,43 +587,30 @@ vtkArray* vtkMatlabMexAdapter::mxArrayTovtkArray(mxArray* mxa)
     {
     case mxCHAR_CLASS:
       return(CopymxArrayToVTKArray<char>(mxa,VTK_CHAR));
-      break;
     case mxLOGICAL_CLASS:
       return(CopymxArrayToVTKArray<unsigned char>(mxa, VTK_BIT));
-      break;
     case mxDOUBLE_CLASS:
       return(CopymxArrayToVTKArray<double>(mxa,VTK_DOUBLE));
-      break;
     case mxSINGLE_CLASS:
       return(CopymxArrayToVTKArray<float>(mxa,VTK_FLOAT));
-      break;
     case mxINT8_CLASS:
       return(CopymxArrayToVTKArray<short>(mxa,VTK_SHORT));
-      break;
     case mxUINT8_CLASS:
       return(CopymxArrayToVTKArray<unsigned char>(mxa,VTK_UNSIGNED_CHAR));
-      break;
     case mxINT16_CLASS:
       return(CopymxArrayToVTKArray<short>(mxa,VTK_SHORT));
-      break;
     case mxUINT16_CLASS:
       return(CopymxArrayToVTKArray<unsigned short>(mxa,VTK_UNSIGNED_SHORT));
-      break;
     case mxINT32_CLASS:
       return(CopymxArrayToVTKArray<int>(mxa,VTK_INT));
-      break;
     case mxUINT32_CLASS:
       return(CopymxArrayToVTKArray<unsigned int>(mxa,VTK_UNSIGNED_INT));
-      break;
     case mxINT64_CLASS:
       return(CopymxArrayToVTKArray<long>(mxa,VTK_LONG));
-      break;
     case mxUINT64_CLASS:
       return(CopymxArrayToVTKArray<unsigned long>(mxa,VTK_UNSIGNED_LONG));
-      break;
     default:
       return(CopymxArrayToVTKArray<double>(mxa,VTK_DOUBLE));
-      break;
     }
 
 }

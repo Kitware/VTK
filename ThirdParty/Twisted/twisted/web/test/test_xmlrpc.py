@@ -13,8 +13,7 @@ from StringIO import StringIO
 from twisted.trial import unittest
 from twisted.web import xmlrpc
 from twisted.web.xmlrpc import (
-    XMLRPC, payloadTemplate, addIntrospection, _QueryFactory, Proxy,
-    withRequest)
+    XMLRPC, payloadTemplate, addIntrospection, _QueryFactory, withRequest)
 from twisted.web import server, static, client, error, http
 from twisted.internet import reactor, defer
 from twisted.internet.error import ConnectionDone
@@ -575,15 +574,6 @@ class XMLRPCAllowNoneTestCase(SerializationConfigMixin, unittest.TestCase):
     value = None
 
 
-try:
-    xmlrpclib.loads(xmlrpclib.dumps(({}, {})), use_datetime=True)
-except TypeError:
-    _datetimeSupported = False
-else:
-    _datetimeSupported = True
-
-
-
 class XMLRPCUseDateTimeTestCase(SerializationConfigMixin, unittest.TestCase):
     """
     Tests for passing a C{datetime.datetime} instance when the C{useDateTime}
@@ -591,41 +581,6 @@ class XMLRPCUseDateTimeTestCase(SerializationConfigMixin, unittest.TestCase):
     """
     flagName = "useDateTime"
     value = datetime.datetime(2000, 12, 28, 3, 45, 59)
-
-    if not _datetimeSupported:
-        skip = (
-            "Available version of xmlrpclib does not support datetime "
-            "objects.")
-
-
-
-class XMLRPCDisableUseDateTimeTestCase(unittest.TestCase):
-    """
-    Tests for the C{useDateTime} flag on Python 2.4.
-    """
-    if _datetimeSupported:
-        skip = (
-            "Available version of xmlrpclib supports datetime objects.")
-
-    def test_cannotInitializeWithDateTime(self):
-        """
-        L{XMLRPC} raises L{RuntimeError} if passed C{True} for C{useDateTime}.
-        """
-        self.assertRaises(RuntimeError, XMLRPC, useDateTime=True)
-        self.assertRaises(
-            RuntimeError, Proxy, "http://localhost/", useDateTime=True)
-
-
-    def test_cannotSetDateTime(self):
-        """
-        Setting L{XMLRPC.useDateTime} to C{True} after initialization raises
-        L{RuntimeError}.
-        """
-        xmlrpc = XMLRPC(useDateTime=False)
-        self.assertRaises(RuntimeError, setattr, xmlrpc, "useDateTime", True)
-        proxy = Proxy("http://localhost/", useDateTime=False)
-        self.assertRaises(RuntimeError, setattr, proxy, "useDateTime", True)
-
 
 
 class XMLRPCTestAuthenticated(XMLRPCTestCase):
@@ -659,9 +614,23 @@ class XMLRPCTestAuthenticated(XMLRPCTestCase):
         return d
 
 
+    def test_longPassword(self):
+        """
+        C{QueryProtocol} uses the C{base64.b64encode} function to encode user
+        name and password in the I{Authorization} header, so that it doesn't
+        embed new lines when using long inputs.
+        """
+        longPassword = self.password * 40
+        p = xmlrpc.Proxy("http://127.0.0.1:%d/" % (
+            self.port,), self.user, longPassword)
+        d = p.callRemote("authinfo")
+        d.addCallback(self.assertEqual, [self.user, longPassword])
+        return d
+
+
     def test_explicitAuthInfoOverride(self):
         p = xmlrpc.Proxy("http://wrong:info@127.0.0.1:%d/" % (
-                self.port,), self.user, self.password)
+            self.port,), self.user, self.password)
         d = p.callRemote("authinfo")
         d.addCallback(self.assertEqual, [self.user, self.password])
         return d

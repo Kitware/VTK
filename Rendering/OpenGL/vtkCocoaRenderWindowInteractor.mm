@@ -152,7 +152,9 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
                                  selector:@selector(timerFired:)
                                  userInfo:nil
                                   repeats:repeating];
+#if VTK_OBJC_IS_MRR
   [_timer retain];
+#endif
 
   NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
   [runLoop addTimer:_timer forMode:NSDefaultRunLoopMode];
@@ -163,7 +165,9 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 - (void)stopTimer
 {
   [_timer invalidate];
+#if VTK_OBJC_IS_MRR
   [_timer release];
+#endif
   _timer = nil;
 }
 
@@ -203,8 +207,6 @@ static void VTKStopNSApplicationEventLoop(void)
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
 {
-  this->InstallMessageProc = 1;
-
   // First, create the cocoa objects manager. The dictionary is empty so
   // essentially all objects are initialized to NULL.
   NSMutableDictionary *cocoaManager = [NSMutableDictionary dictionary];
@@ -236,21 +238,8 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindowInteractor::Start()
+void vtkCocoaRenderWindowInteractor::StartEventLoop()
 {
-  // Let the compositing handle the event loop if it wants to.
-  if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
-    {
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    return;
-    }
-
-  // No need to do anything if this is a 'mapped' interactor
-  if (!this->Enabled || !this->InstallMessageProc)
-    {
-    return;
-    }
-
   VTKStartNSApplicationEventLoop();
 }
 
@@ -354,6 +343,9 @@ int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
   [timerDict setObject:cocoaTimer forKey:timerIdAsStr];
   [cocoaTimer startTimerWithInterval:((NSTimeInterval)duration/1000.0)
                            repeating:repeating];
+#if VTK_OBJC_IS_MRR
+  [cocoaTimer release];
+#endif
 
   // In this implementation, timerId and platformTimerId are the same
   int platformTimerId = timerId;
@@ -371,12 +363,11 @@ int vtkCocoaRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
   NSString *timerIdAsStr = [NSString stringWithFormat:@"%i", timerId];
   NSMutableDictionary *timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
   vtkCocoaTimer* cocoaTimer = [timerDict objectForKey:timerIdAsStr];
-  [timerDict removeObjectForKey:timerIdAsStr];
 
   if (nil != cocoaTimer)
     {
     [cocoaTimer stopTimer];
-    [cocoaTimer release];
+    [timerDict removeObjectForKey:timerIdAsStr];
     return 1; // success
     }
   else
@@ -423,7 +414,6 @@ void vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void 
 void vtkCocoaRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 
 //----------------------------------------------------------------------------

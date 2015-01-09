@@ -57,7 +57,7 @@ vtkHyperOctree* vtkXMLHyperOctreeReader::GetOutput()
 //----------------------------------------------------------------------------
 vtkHyperOctree* vtkXMLHyperOctreeReader::GetOutput(int idx)
 {
-  return vtkHyperOctree::SafeDownCast( this->GetOutputDataObject(idx) );
+  return vtkHyperOctree::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 //----------------------------------------------------------------------------
@@ -137,45 +137,44 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
   vtkXMLDataElement *ePrimary =
     this->XMLParser->GetRootElement()->GetNestedElement(0);
 
-  int Dimension;
-  double Size[3];
-  double Origin[3];
+  int dimension;
+  double size[3];
+  double origin[3];
 
-  if (!ePrimary->GetScalarAttribute("Dimension", Dimension))
+  if (!ePrimary->GetScalarAttribute("Dimension", dimension))
     {
-    Dimension = 3;
+    dimension = 3;
     }
 
-  if(ePrimary->GetVectorAttribute("Size", 3, Size) != 3)
+  if (ePrimary->GetVectorAttribute("Size", 3, size) != 3)
     {
-    Size[0] = 1;
-    Size[1] = 1;
-    Size[2] = 1;
+    size[0] = 1;
+    size[1] = 1;
+    size[2] = 1;
     }
 
-  if(ePrimary->GetVectorAttribute("Origin", 3, Origin) != 3)
+  if (ePrimary->GetVectorAttribute("Origin", 3, origin) != 3)
     {
-    Origin[0] = 0;
-    Origin[1] = 0;
-    Origin[2] = 0;
+    origin[0] = 0;
+    origin[1] = 0;
+    origin[2] = 0;
     }
 
   vtkHyperOctree *output = vtkHyperOctree::SafeDownCast(
       this->GetCurrentOutput());
-  output->SetDimension(Dimension);
-  output->SetSize(Size);
-  output->SetOrigin(Origin);
+  output->SetDimension(dimension);
+  output->SetSize(size);
+  output->SetOrigin(origin);
 
   // Find the topology element, which defines the structure of the HyperOctree
   // Rebuild the HyperOctree from that.
   // This needs to happen before ReadPieceData so that numPoints and numCells
   // will be defined.
   int numNested = ePrimary->GetNumberOfNestedElements();
-  int i;
-  for(i=0; i < numNested; ++i)
+  for (int i = 0; i < numNested; ++i)
     {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if(strcmp(eNested->GetName(), "Topology") == 0)
+    if (strcmp(eNested->GetName(), "Topology") == 0)
       {
       this->ReadTopology(eNested);
       break;
@@ -191,15 +190,10 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
 void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
 {
 
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   //Part spent reading and reconstructing assumed to be roughly equal.
-  float fractions[3] =
-    {
-      0,
-      0.5,
-      1
-    };
+  float fractions[3] = { 0.f, 0.5f, 1.f };
   this->SetProgressRange(progressRange, 0, fractions);
 
   //Find the topology array and read it into a vtkIntArray
@@ -240,8 +234,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
     return;
     }
 
-  vtkIntArray *ta = NULL;
-  ta = vtkIntArray::SafeDownCast(tda);
+  vtkIntArray *ta = vtkIntArray::SafeDownCast(tda);
   if (!ta)
     {
     tda->Delete();
@@ -252,7 +245,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
 
   //Restore the topology from the vtkIntArray. Do it recursively, cell by cell.
   vtkHyperOctreeCursor *cursor=vtkHyperOctree::SafeDownCast(
-      this->GetCurrentOutput())->NewCellCursor();
+    this->GetCurrentOutput())->NewCellCursor();
   cursor->ToRoot();
   //Where in the array we need to read from next.
   this->ArrayIndex = 0;
@@ -270,9 +263,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
 
 //----------------------------------------------------------------------------
 int vtkXMLHyperOctreeReader::BuildNextCell(
-  vtkIntArray *ta,
-  vtkHyperOctreeCursor *cursor,
-  int nchildren)
+  vtkIntArray *ta, vtkHyperOctreeCursor *cursor, int nchildren)
 {
 
   int nodeType = ta->GetValue(this->ArrayIndex);
@@ -295,8 +286,8 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
     //subdivide
     vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor);
     //then keep going down
-    int i=0;
-    while(i<nchildren)
+    int i = 0;
+    while (i < nchildren)
       {
       cursor->ToChild(i);
 
@@ -313,4 +304,3 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
     }
   return 1;
 }
-

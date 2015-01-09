@@ -30,10 +30,8 @@ import os
 
 # import vtk modules.
 import vtk
-from vtk.web import server, wamp, protocols
-
-# import annotations
-from autobahn.wamp import exportRpc
+from vtk.web import protocols, server
+from vtk.web import wamp as vtk_wamp
 
 try:
     import argparse
@@ -46,7 +44,7 @@ except ImportError:
 # Create custom File Opener class to handle clients requests
 # =============================================================================
 
-class _WebCone(wamp.ServerProtocol):
+class _WebCone(vtk_wamp.ServerProtocol):
 
     # Application configuration
     view    = None
@@ -60,9 +58,6 @@ class _WebCone(wamp.ServerProtocol):
         self.registerVtkWebProtocol(protocols.vtkWebViewPort())
         self.registerVtkWebProtocol(protocols.vtkWebViewPortImageDelivery())
         self.registerVtkWebProtocol(protocols.vtkWebViewPortGeometryDelivery())
-
-        # Update authentication key to use
-        self.updateSecret(_WebCone.authKey)
 
         # Create default pipeline (Only once for all the session)
         if not _WebCone.view:

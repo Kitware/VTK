@@ -29,6 +29,9 @@
 #include "XdmfDataStructure.h"
 #include "XdmfArray.h"
 
+namespace xdmf2
+{
+
 XdmfValuesHDF::XdmfValuesHDF() {
     this->SetFormat(XDMF_FORMAT_HDF);
 }
@@ -207,4 +210,6 @@ XdmfString XdmfValuesHDF::DataItemFromHDF(XdmfConstString H5DataSet){
     ReturnString = new char[strlen(Ptr) + 2 ];
     strcpy( ReturnString, Ptr );
     return(ReturnString);
+}
+
 }

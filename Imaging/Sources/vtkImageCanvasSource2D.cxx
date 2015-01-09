@@ -99,7 +99,6 @@ void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 }
 
-
 #define vtkMAX(x, y) (((x)>(y))?(x):(y))
 #define vtkMIN(x, y) (((x)<(y))?(x):(y))
 
@@ -172,7 +171,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
 
   int *extent;
   int ext[6];
-  //  int z = this->DefaultZ;
+  int z = this->DefaultZ;
   image->GetExtent(ext);
   if ( sx < 0 )
     {
@@ -226,10 +225,10 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
     min1 = int(double(min1) * this->Ratio[1]);
     max1 = int(double(max1) * this->Ratio[1]);
     }
-//  if (this->Ratio[2] != 1.0)
-//    {
-//    z = int(double(z) * this->Ratio[2]);
-//    }
+  if (this->Ratio[2] != 1.0)
+    {
+    z = int(double(z) * this->Ratio[2]);
+    }
   // Clip the data to keep in in bounds
   extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
@@ -240,11 +239,11 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   max1 = (max1 < extent[2]) ? extent[2] : max1;
   min1 = (min1 > extent[3]) ? extent[3] : min1;
   max1 = (max1 > extent[3]) ? extent[3] : max1;
-  //z = (z < extent[4]) ? extent[4] : z;
-  //z = (z > extent[5]) ? extent[5] : z;
+  z = (z < extent[4]) ? extent[4] : z;
+  z = (z > extent[5]) ? extent[5] : z;
   void *ptr;
   void *sptr;
-  ptr = this->ImageData->GetScalarPointer(min0, min1, 0);
+  ptr = this->ImageData->GetScalarPointer(min0, min1, z);
   sptr = ic->GetOutput()->GetScalarPointer(ext[0], ext[2], 0);
   switch (this->ImageData->GetScalarType())
     {
@@ -397,7 +396,7 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
       // check to see if pixel is in the tube.
       // project point onto normal vector.
       k = n0 * idx0 + n1 * idx1;
-      // Check that point is between end points.
+      // Check that point is inbetween end points.
       if ( k >= bk && k <= ak)
         {
         // Compute actual projection point.
@@ -1162,12 +1161,12 @@ void vtkImageCanvasSource2D::DrawSegment3D(double *a, double *b)
     b[2] = static_cast<int>(static_cast<double>(b[2]) * this->Ratio[2]);
     }
 
-  ptr = this->ImageData->GetScalarPointer(static_cast<int>(b[0] + 0.5),
-                                          static_cast<int>(b[1] + 0.5),
-                                          static_cast<int>(b[2] + 0.5));
-  a0 = static_cast<int>(a[0] - b[0] + 0.5);
-  a1 = static_cast<int>(a[1] - b[1] + 0.5);
-  a2 = static_cast<int>(a[2] - b[2] + 0.5);
+  ptr = this->ImageData->GetScalarPointer(static_cast<int>(floor(b[0] + 0.5)),
+                                          static_cast<int>(floor(b[1] + 0.5)),
+                                          static_cast<int>(floor(b[2] + 0.5)));
+  a0 = static_cast<int>(floor(a[0] - b[0] + 0.5));
+  a1 = static_cast<int>(floor(a[1] - b[1] + 0.5));
+  a2 = static_cast<int>(floor(a[2] - b[2] + 0.5));
   switch (this->ImageData->GetScalarType())
     {
     vtkTemplateMacro(
@@ -1609,4 +1608,20 @@ int vtkImageCanvasSource2D::RequestData (
   output->ShallowCopy(this->ImageData);
 
   return 1;
+}
+
+// ---------------------------------------------------------------------------
+void vtkImageCanvasSource2D::InitializeCanvasVolume(vtkImageData* volume)
+{
+  if (!volume)
+    {
+    return;
+    }
+
+  // Set the whole extent to the extent of the volume
+  volume->GetExtent(this->WholeExtent);
+
+  this->ImageData->DeepCopy(volume);
+
+  this->Modified();
 }

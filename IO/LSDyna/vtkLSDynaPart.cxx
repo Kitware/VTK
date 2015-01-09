@@ -47,47 +47,49 @@ static const char* TypeNames[] = {
 
 typedef std::vector<bool> BitVector;
 
-class CellProperty
-  {
-  public:
-    template<typename T>
-    CellProperty(T, const int& sp,
-      const vtkIdType &numTuples, const vtkIdType& nc):
-    startPos(sp),
-    numComps(nc)
-      {
-      Data =new unsigned char[numTuples * nc * sizeof(T)];
-      loc = Data;
-      len = numComps * sizeof(T);
-      }
-    ~CellProperty()
-      {
-      delete[] Data;
-      }
-    template<typename T>
-    void insertNextTuple(T* values)
-      {
-      memcpy(loc,values+startPos,len);
-      loc = ((T*)loc) + numComps;
-      }
-    void resetForNextTimeStep()
-      {
-      loc = Data;
-      }
-
-  unsigned char *Data;
-protected:
-  int startPos;
-  size_t len;
-  vtkIdType numComps;
-  void *loc;
-  };
 }
 
 //-----------------------------------------------------------------------------
+//lightweight class that holds the cell properties
 class vtkLSDynaPart::InternalCellProperties
 {
-//lightweight class that holds the cell properties
+protected:
+  class CellProperty
+    {
+    public:
+      template<typename T>
+      CellProperty(T, const int& sp,
+        const vtkIdType &numTuples, const vtkIdType& nc):
+      startPos(sp),
+      numComps(nc)
+        {
+        Data =new unsigned char[numTuples * nc * sizeof(T)];
+        loc = Data;
+        len = numComps * sizeof(T);
+        }
+      ~CellProperty()
+        {
+        delete[] Data;
+        }
+      template<typename T>
+      void insertNextTuple(T* values)
+        {
+        memcpy(loc,values+startPos,len);
+        loc = ((T*)loc) + numComps;
+        }
+      void resetForNextTimeStep()
+        {
+        loc = Data;
+        }
+
+    unsigned char *Data;
+
+  protected:
+    int startPos;
+    size_t len;
+    vtkIdType numComps;
+    void *loc;
+  };
 
 public:
   InternalCellProperties():
@@ -98,22 +100,13 @@ public:
   std::vector<CellProperty*>::iterator it;
   for(it=Properties.begin();it!=Properties.end();++it)
     {
-    if(*it)
-      {
-      delete (*it);
-      (*it)=NULL;
-      }
+    delete (*it);
+    (*it)=NULL;
     }
   this->Properties.clear();
 
-  if(this->DeadCells)
-    {
-    delete[] this->DeadCells;
-    }
-  if(this->UserIds)
-    {
-    delete[] this->UserIds;
-    }
+  delete[] this->DeadCells;
+  delete[] this->UserIds;
   }
 
   bool NoDeadCells() const { return DeadCells == NULL; }
@@ -353,10 +346,7 @@ vtkLSDynaPart::~vtkLSDynaPart()
     Points->Delete();
     Points=NULL;
     }
-  if(this->GlobalPointsUsed)
-    {
-    delete this->GlobalPointsUsed;
-    }
+  delete this->GlobalPointsUsed;
   if(this->ThresholdGrid)
     {
     this->ThresholdGrid->Delete();

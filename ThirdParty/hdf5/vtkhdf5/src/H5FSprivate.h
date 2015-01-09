@@ -155,7 +155,7 @@ typedef struct H5FS_stat_t {
 } H5FS_stat_t;
 
 /* Typedef for iteration operations */
-typedef herr_t (*H5FS_operator_t)(const H5FS_section_info_t *sect,
+typedef herr_t (*H5FS_operator_t)(H5FS_section_info_t *sect,
         void *operator_data/*in,out*/);
 
 
@@ -195,6 +195,8 @@ H5_DLL herr_t H5FS_sect_stats(const H5FS_t *fspace, hsize_t *tot_space,
     hsize_t *nsects);
 H5_DLL herr_t H5FS_sect_change_class(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
     H5FS_section_info_t *sect, unsigned new_class);
+H5_DLL htri_t H5FS_sect_try_shrink_eoa(const H5F_t *f, hid_t dxpl_id, const H5FS_t *fspace, void *op_data);
+H5_DLL herr_t H5FS_sect_query_last_sect(const H5FS_t *fspace, haddr_t *sect_addr, hsize_t *sect_size);
 
 /* Statistics routine */
 H5_DLL herr_t H5FS_stat_info(const H5F_t *f, const H5FS_t *frsp, H5FS_stat_t *stats);

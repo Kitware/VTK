@@ -83,44 +83,28 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
 
   for (i=0; i<4; i++)
     {
-    if ( this->ScalarArrays[i] != NULL )
-      {
-      delete [] this->ScalarArrays[i];
-      }
+    delete [] this->ScalarArrays[i];
     }
 
   for (i=0; i<3; i++)
     {
-    if ( this->VectorArrays[i] != NULL )
-      {
-      delete [] this->VectorArrays[i];
-      }
+    delete [] this->VectorArrays[i];
     }
 
   for (i=0; i<3; i++)
     {
-    if ( this->NormalArrays[i] != NULL )
-      {
-      delete [] this->NormalArrays[i];
-      }
+    delete [] this->NormalArrays[i];
     }
 
   for (i=0; i<3; i++)
     {
-    if ( this->TCoordArrays[i] != NULL )
-      {
-      delete [] this->TCoordArrays[i];
-      }
+    delete [] this->TCoordArrays[i];
     }
 
   for (i=0; i<9; i++)
     {
-    if ( this->TensorArrays[i] != NULL )
-      {
-      delete [] this->TensorArrays[i];
-      }
+    delete [] this->TensorArrays[i];
     }
-
 }
 
 // Stuff related to filter interface------------------------------------------
@@ -1067,14 +1051,14 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
 {
   vtkDataArray *da = NULL;
   int numComp;
-  int found=0;
+  bool found = false;
 
   if ( name != NULL )
     {
     vtkDataSetAttributes* dsa;
     if ((dsa=vtkDataSetAttributes::SafeDownCast(fd)))
       {
-      found=1;
+      found = true;
       if(!strcmp("PointScalars", name) || !strcmp("CellScalars", name))
         {
         da = dsa->GetScalars();
@@ -1097,7 +1081,7 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
         }
       else
         {
-        found=0;
+        found = false;
         }
       }
     if (!found || !da)
@@ -1129,10 +1113,7 @@ void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &nam
     {
     return;
     }
-  if (name)
-    {
-    delete [] name;
-    }
+  delete [] name;
   if (newName)
     {
     name = new char[strlen(newName)+1];

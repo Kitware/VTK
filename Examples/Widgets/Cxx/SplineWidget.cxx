@@ -42,9 +42,7 @@ int main( int, char *[] )
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow( renWin);
 
-    planeSource->Update();
-
-  vtkPlaneSource* planeSource;
+  vtkPlaneSource* planeSource = vtkPlaneSource::New();
     planeSource->Update();
 
   vtkPolyDataMapper* planeSourceMapper = vtkPolyDataMapper::New();

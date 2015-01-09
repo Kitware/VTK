@@ -173,6 +173,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
     *fp << "ENDCHILD\n";
     }
 
+  this->WriteFieldData(fp, mb->GetFieldData());
   return true;
 }
 

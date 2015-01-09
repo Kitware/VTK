@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkCell.h"
-#include "vtkAMRUtilities.h"
+#include "vtkParallelAMRUtilities.h"
 #include "vtkPlane.h"
 #include "vtkUniformGrid.h"
 #include "vtkStructuredData.h"
@@ -434,7 +434,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   vtkTimerLog::MarkEndEvent( "AMRSlice::GetAMRSliceInPlane" );
 
   vtkTimerLog::MarkStartEvent( "AMRSlice::Generate Blanking" );
-  vtkAMRUtilities::BlankCells(out, this->Controller);
+  vtkParallelAMRUtilities::BlankCells(out, this->Controller);
   vtkTimerLog::MarkEndEvent( "AMRSlice::Generate Blanking" );
 }
 

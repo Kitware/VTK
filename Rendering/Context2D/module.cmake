@@ -8,6 +8,9 @@ vtk_module(vtkRenderingContext2D
     vtkCommonDataModel
     vtkCommonMath
     vtkCommonTransforms
-    vtkRenderingOpenGL
     vtkRenderingFreeType
+  TEST_DEPENDS
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
+  KIT
+    vtkRendering
   )

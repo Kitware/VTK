@@ -50,7 +50,7 @@ vtkXMLPolyDataWriter::~vtkXMLPolyDataWriter()
 //----------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -58,7 +58,6 @@ vtkPolyData* vtkXMLPolyDataWriter::GetInput()
 {
   return static_cast<vtkPolyData*>(this->Superclass::GetInput());
 }
-
 
 //----------------------------------------------------------------------------
 const char* vtkXMLPolyDataWriter::GetDataSetName()
@@ -136,7 +135,7 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
 {
   // Split progress range by the approximate fraction of data written
   // by each step in this method.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   float fractions[6];
   this->CalculateSuperclassFraction(fractions);
@@ -229,25 +228,29 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
     return;
     }
 
-  this->WriteCellsAppended("Verts", 0, indent, &this->VertsOM->GetPiece(index));
+  this->WriteCellsAppended("Verts", 0, indent,
+    &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
 
-  this->WriteCellsAppended("Lines", 0, indent , &this->LinesOM->GetPiece(index));
+  this->WriteCellsAppended("Lines", 0, indent ,
+    &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
 
-  this->WriteCellsAppended("Strips", 0, indent, &this->StripsOM->GetPiece(index));
+  this->WriteCellsAppended("Strips", 0, indent,
+    &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
 
-  this->WriteCellsAppended("Polys", 0, indent, &this->PolysOM->GetPiece(index));
+  this->WriteCellsAppended("Polys", 0, indent,
+    &this->PolysOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -292,7 +295,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
 
   // Split progress range by the approximate fraction of data written
   // by each step in this method.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
   float fractions[6];
   this->CalculateSuperclassFraction(fractions);
@@ -393,19 +396,18 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
   fractions[3] = fractions[2] + connectSizeL+offsetSizeL;
   fractions[4] = fractions[3] + connectSizeS+offsetSizeS;
   fractions[5] = fractions[4] + connectSizeP+offsetSizeP;
-  if(fractions[5] == 0)
+  if (fractions[5] == 0)
     {
     fractions[5] = 1;
     }
-  for(int i=0; i < 5;++i)
+  for (int i = 0; i < 5; ++i)
     {
     fractions[i+1] = fractions[i+1] / fractions[5];
     }
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPolyDataWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkXMLPolyDataWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

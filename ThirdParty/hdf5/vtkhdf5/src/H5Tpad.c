@@ -46,7 +46,7 @@ DESCRIPTION
 static herr_t
 H5T_init_pad_interface(void)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5T_init_pad_interface)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     FUNC_LEAVE_NOAPI(H5T_init())
 } /* H5T_init_pad_interface() */
@@ -76,7 +76,7 @@ H5Tget_pad(hid_t type_id, H5T_pad_t *lsb/*out*/, H5T_pad_t *msb/*out*/)
     H5T_t	*dt = NULL;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Tget_pad, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE3("e", "ixx", type_id, lsb, msb);
 
     /* Check args */
@@ -120,7 +120,7 @@ H5Tset_pad(hid_t type_id, H5T_pad_t lsb, H5T_pad_t msb)
     H5T_t *dt = NULL;
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_API(H5Tset_pad, FAIL)
+    FUNC_ENTER_API(FAIL)
     H5TRACE3("e", "iTpTp", type_id, lsb, msb);
 
     /* Check args */

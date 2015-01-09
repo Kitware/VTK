@@ -13,21 +13,14 @@ set(Module_SRCS
   vtkCamera.cxx
   vtkCameraInterpolator.cxx
   vtkCellCenterDepthSort.cxx
-  vtkChooserPainter.cxx
-  vtkClipPlanesPainter.cxx
-  vtkCoincidentTopologyResolutionPainter.cxx
   vtkColorTransferFunction.cxx
   vtkCompositeDataDisplayAttributes.cxx
-  vtkCompositePainter.cxx
-  vtkCompositePolyDataMapper2.cxx
   vtkCompositePolyDataMapper.cxx
   vtkCoordinate.cxx
   vtkCullerCollection.cxx
   vtkCuller.cxx
   vtkDataSetMapper.cxx
-  vtkDefaultPainter.cxx
   vtkDiscretizableColorTransferFunction.cxx
-  vtkDisplayListPainter.cxx
   vtkDistanceToCamera.cxx
   vtkFollower.cxx
   vtkFrustumCoverageCuller.cxx
@@ -52,9 +45,7 @@ set(Module_SRCS
   vtkLightActor.cxx
   vtkLightCollection.cxx
   vtkLight.cxx
-  vtkLightingPainter.cxx
   vtkLightKit.cxx
-  vtkLinesPainter.cxx
   vtkLogLookupTable.cxx
   vtkLookupTableWithEnabling.cxx
   vtkMapArrayValues.cxx
@@ -62,15 +53,8 @@ set(Module_SRCS
   vtkMapperCollection.cxx
   vtkMapper.cxx
   vtkObserverMediator.cxx
-  vtkPainter.cxx
-  vtkPainterDeviceAdapter.cxx
-  vtkPainterPolyDataMapper.cxx
-  vtkPointsPainter.cxx
   vtkPolyDataMapper2D.cxx
   vtkPolyDataMapper.cxx
-  vtkPolyDataPainter.cxx
-  vtkPolygonsPainter.cxx
-  vtkPrimitivePainter.cxx
   vtkProp3DCollection.cxx
   vtkProp3D.cxx
   vtkProp3DFollower.cxx
@@ -86,16 +70,12 @@ set(Module_SRCS
   vtkRenderWindowCollection.cxx
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
-  vtkRepresentationPainter.cxx
-  vtkScalarsToColorsPainter.cxx
   vtkSelectVisiblePoints.cxx
   vtkShaderDeviceAdapter2.cxx
-  vtkStandardPolyDataPainter.cxx
   vtkTexture.cxx
   vtkTexturedActor2D.cxx
   vtkTransformCoordinateSystems.cxx
   vtkTransformInterpolator.cxx
-  vtkTStripsPainter.cxx
   vtkTupleInterpolator.cxx
   vtkViewDependentErrorMetric.cxx
   vtkViewport.cxx
@@ -117,7 +97,6 @@ set(Module_SRCS
   vtkPickingManager.cxx # Needed by vtkRenderWindowInteractor
   vtkLODProp3D.cxx # Needed by vtkAreaPicker
   vtkWorldPointPicker.cxx # Needed by vtkPropPicker
-  vtkHardwareSelectionPolyDataPainter.cxx # Needed by vtkPainterPolyDataMapper
 
   # Needed for the InteractorStyleSwitch...
   vtkCellPicker.cxx
@@ -137,7 +116,30 @@ set(Module_SRCS
   vtkTextMapper.cxx
   vtkTextProperty.cxx
   vtkTextRenderer.cxx
+
+  # Some of the new rendering code - may move around in the future.
+  vtkAbstractInteractionDevice.cxx
+  vtkAbstractRenderDevice.cxx
+  vtkRenderWidget.cxx
   )
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set_source_files_properties(
+    vtkRenderWindow.cxx  # dummy out painterdevice adapter
+    vtkHardwareSelector.cxx # dummy out painter device adapter
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+  list(APPEND Module_SRCS
+    vtkPointGaussianMapper.cxx
+    )
+  set_source_files_properties(
+    vtkPointGaussianMapper
+    ABSTRACT
+    )
+else() # Add painter device adapter when not OpenGL2
+  list(APPEND Module_SRCS
+    vtkPainterDeviceAdapter.cxx
+    )
+endif()
 
 set(${vtk-module}_HDRS
   vtkGPUInfoListArray.h
@@ -149,20 +151,20 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
+  vtkAbstractInteractionDevice
   vtkAbstractMapper3D
   vtkAbstractMapper
+  vtkAbstractRenderDevice
   vtkAbstractVolumeMapper
   vtkAbstractPicker
   vtkAbstractPropPicker
   vtkCuller
+  vtkGPUInfoList.cxx
   vtkHardwareSelector
   vtkImageMapper3D
   vtkInteractorObserver
   vtkMapper
   vtkMapper2D
-  vtkPainter
-  vtkPolyDataPainter
-  vtkPrimitivePainter
   vtkProp
   vtkProp3D
   vtkRendererDelegate
@@ -176,6 +178,13 @@ set_source_files_properties(
   vtkVisibilitySort
   vtkStringToImage
   ABSTRACT
+  )
+
+set_source_files_properties(
+  vtkAbstractInteractionDevice
+  vtkAbstractRenderDevice
+  vtkRenderWidget
+  WRAP_EXCLUDE
   )
 
 # On OS X, vtkRenderWindowJava must be compiled with Objective C++

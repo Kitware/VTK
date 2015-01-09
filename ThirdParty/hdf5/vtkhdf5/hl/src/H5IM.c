@@ -564,7 +564,7 @@ herr_t H5IMlink_palette( hid_t loc_id,
         /* close */
         if(H5Sclose(asid) < 0)
             goto out;
-        if ( H5Tclose( atid ) < 0)
+        if(H5Tclose(atid) < 0)
             goto out;
         if(H5Aclose(aid) < 0)
             goto out;
@@ -629,6 +629,8 @@ herr_t H5IMlink_palette( hid_t loc_id,
 
         /* close */
         if(H5Sclose(asid) < 0)
+            goto out;
+        if(H5Tclose(atid) < 0)
             goto out;
         if(H5Aclose(aid) < 0)
             goto out;

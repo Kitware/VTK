@@ -43,9 +43,9 @@
 #include "vtk_exodusII.h"
 #include <ctype.h>
 #include <map>
-#include <time.h>
+#include <ctime>
 
-using std::map;
+
 
 vtkObjectFactoryNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
@@ -90,22 +90,16 @@ vtkExodusIIWriter::~vtkExodusIIWriter ()
 {
   this->SetModelMetadata(0); // kill the reference if its there
 
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->BlockIdArrayName)
-    {
-    delete [] this->BlockIdArrayName;
-    }
+  delete [] this->FileName;
+  delete [] this->BlockIdArrayName;
+
   if (this->TimeValues)
     {
     this->TimeValues->Delete ();
     }
-  if (this->BlockElementVariableTruthTable)
-    {
-    delete [] this->BlockElementVariableTruthTable;
-    }
+
+  delete [] this->BlockElementVariableTruthTable;
+
   for (size_t i = 0; i < this->BlockIdList.size (); i ++)
     {
     this->BlockIdList[i]->UnRegister (this);
@@ -249,7 +243,7 @@ int vtkExodusIIWriter::RequestData (
     this->CurrentTimeIndex = 0;
     if (this->WriteAllTimeSteps)
       {
-      // Tell the pipeline to start looping.
+      // Tell the pipeline to stop looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
       }
     }
@@ -259,7 +253,21 @@ int vtkExodusIIWriter::RequestData (
     this->CloseExodusFile ();
     }
 
+  int localContinue = request->Get(
+    vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+  if (this->GlobalContinueExecuting(localContinue) != localContinue)
+    {
+    // Some other node decided to stop the execution.
+    assert (localContinue == 1);
+    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
+    }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExodusIIWriter::GlobalContinueExecuting(int localContinueExecution)
+{
+  return localContinueExecution;
 }
 
 //----------------------------------------------------------------------------
@@ -1578,7 +1586,9 @@ int vtkExodusIIWriter::WriteBlockInformation()
     int numNodes = blockIter->second.NodesPerElement;
 
     int numPoints;
-    if (numNodes == 0)
+    if (numNodes == 0 &&
+        // Number of elements is 0 if all data is on one process
+        numElts > 0)
       {
       numPoints = blockIter->second.EntityNodeOffsets[numElts - 1]
                 + blockIter->second.EntityCounts[numElts - 1];
@@ -1698,7 +1708,8 @@ int vtkExodusIIWriter::WriteBlockInformation()
        blockIter ++)
     {
     char *name = vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type);
-    if (blockIter->second.NodesPerElement == 0)
+    if (blockIter->second.NodesPerElement == 0 &&
+        blockIter->second.NumElements > 0)
       {
       int numElts = blockIter->second.NumElements;
       int numPoints = blockIter->second.EntityNodeOffsets[numElts - 1]
@@ -1766,10 +1777,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
   for (size_t n = 0; n < nblocks; n ++)
     {
-    if (connectivity[n])
-      {
-      delete [] connectivity[n];
-      }
+    delete [] connectivity[n];
     if (this->PassDoubles && attributesD[n])
       {
       delete [] attributesD[n];
@@ -2134,7 +2142,7 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
       s = s.substr (0, MAX_STR_LENGTH - 11);
       }
     // assume largest for 32 bit decimal representation
-    char n[10];
+    char n[11];
     sprintf (n, "%10d", component);
     s.append (n);
     return s;
@@ -2297,8 +2305,8 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
   delete [] nsIdIdx;
   delete [] nsDFIdx;
   delete [] idBuf;
-  if (dfBuf) delete [] dfBuf;
-  else if (dfBufD) delete [] dfBufD;
+  delete [] dfBuf;
+  delete [] dfBufD;
 
   return (rc >= 0);
 }
@@ -2481,8 +2489,8 @@ int vtkExodusIIWriter::WriteSideSetInformation()
   delete [] ssDFIdx;
   delete [] idBuf;
   delete [] sideBuf;
-  if (dfBuf) delete [] dfBuf;
-  else if (dfBufD) delete [] dfBufD;
+  delete [] dfBuf;
+  delete [] dfBufD;
 
   return rc >= 0;
 }
@@ -2939,12 +2947,12 @@ bool vtkExodusIIWriter::SameTypeOfCells (vtkIntArray* cellToBlockId,
     {
     return false;
     }
-  map<int, int> blockIdToCellType;
+  std::map<int, int> blockIdToCellType;
   for (vtkIdType cellId = 0; cellId < cellToBlockId->GetNumberOfTuples ();
        ++cellId)
     {
     vtkIdType blockId = cellToBlockId->GetValue(cellId);
-    map<int, int>::iterator it = blockIdToCellType.find(blockId);
+    std::map<int, int>::iterator it = blockIdToCellType.find(blockId);
     if (it == blockIdToCellType.end())
       {
       blockIdToCellType[blockId] = input->GetCellType(cellId);
@@ -2989,7 +2997,9 @@ vtkIntArray* vtkExodusIIWriter::GetBlockIdArray (
       }
     }
   this->SetBlockIdArrayName(0);
-  if ((this->NumberOfProcesses > 1))
+  if ((this->NumberOfProcesses > 1) &&
+      // you don't have metadata but you have some tuples.
+      cd->GetNumberOfTuples() > 0)
     {
     // Parallel apps must have a global list of all block IDs, plus a
     // list of block IDs for each cell.

@@ -134,6 +134,11 @@ int vtkWrap_IsTypeOf(
   HierarchyInfo *hinfo, const char *classname, const char *superclass);
 
 /**
+ * Check if the type of the value is an enum member of the class.
+ */
+int vtkWrap_IsEnumMember(ClassInfo *data, ValueInfo *arg);
+
+/**
  * Check whether a class is wrapped.  If "hinfo" is NULL,
  * it just checks that the class starts with "vtk".
  */
@@ -233,7 +238,8 @@ int vtkWrap_CountRequiredArguments(FunctionInfo *f);
  * - "const" is removed except for return values with "&" or "*".
  */
 void vtkWrap_DeclareVariable(
-  FILE *fp, ValueInfo *v, const char *name, int idx, int flags);
+  FILE *fp, ClassInfo *data, ValueInfo *v, const char *name,
+  int idx, int flags);
 
 /**
  * Write an "int" size variable for arrays, initialized to

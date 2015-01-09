@@ -12,7 +12,7 @@ vtk_module(vtkImagingCore
     vtkFiltersModeling
     vtkFiltersGeneral
     vtkFiltersHybrid
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
     vtkInteractionImage
@@ -22,4 +22,6 @@ vtk_module(vtkImagingCore
     vtkImagingSources
     vtkImagingStatistics # Move tests
     vtkRenderingImage # Move tests
+  KIT
+    vtkImaging
   )

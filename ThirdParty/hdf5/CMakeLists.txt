@@ -60,7 +60,7 @@ if(HDF5_ENABLE_Z_LIB_SUPPORT)
   set(ZLIB_INCLUDE_DIRS "${vtkzlib_INCLUDE_DIRS}")
   set(ZLIB_LIBRARIES "${vtkzlib_LIBRARIES}")
   set(H5_ZLIB_HEADER "vtk_zlib.h")
-endif(HDF5_ENABLE_Z_LIB_SUPPORT)
+endif()
 
 add_subdirectory(vtkhdf5)
 

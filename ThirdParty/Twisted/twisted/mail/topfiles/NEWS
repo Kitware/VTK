@@ -1,6 +1,89 @@
 Ticket numbers in this file can be looked up by visiting
 http://twistedmatrix.com/trac/ticket/<number>
 
+Twisted Mail 14.0.0 (2014-05-08)
+================================
+
+Improved Documentation
+----------------------
+ - twisted.mail.alias now has full API documentation. (#6637)
+ - twisted.mail.tap now has full API documentation. (#6648)
+ - twisted.mail.maildir now has full API documentation. (#6651)
+ - twisted.mail.pop3client now has full API documentation. (#6653)
+ - twisted.mail.protocols now has full API documentation.  (#6654)
+ - twisted.mail.pop now has full API documentation. (#6666)
+ - twisted.mail.relay and twisted.mail.relaymanager now have full API
+   documentation. (#6739)
+ - twisted.mail.pop3client public classes now appear as part of the
+   twisted.mail.pop3 API. (#6761)
+
+Other
+-----
+ - #6696
+
+
+Twisted Mail 13.2.0 (2013-10-29)
+================================
+
+Features
+--------
+ - twisted.mail.smtp.sendmail now returns a cancellable Deferred.
+   (#6572)
+
+Improved Documentation
+----------------------
+ - twisted.mail.mail now has full API documentation. (#6649)
+ - twisted.mail.bounce now has full API documentation. (#6652)
+
+Other
+-----
+ - #5387, #6486
+
+
+Twisted Mail 13.1.0 (2013-06-23)
+================================
+
+Bugfixes
+--------
+ - twisted.mail.smtp.ESMTPClient no longer tries to use a STARTTLS
+   capability offered by a server after TLS has already been
+   negotiated. (#6524)
+
+Deprecations and Removals
+-------------------------
+ - twisted.mail.IDomain.startMessage, deprecated since 2003, is
+   removed now. (#4151)
+
+Other
+-----
+ - #6342
+
+
+Twisted Mail 13.0.0 (2013-03-19)
+================================
+
+Bugfixes
+--------
+ - twisted.mail.smtp.ESMTPClient no longer attempts to negotiate a TLS
+   session if transport security has been requested and the protocol
+   is already running on a TLS connection. (#3989)
+ - twisted.mail.imap4.Query now filters illegal characters from the
+   values of KEYWORD and UNKEYWORD and also emits them without adding
+   quotes (which are also illegal). (#4392)
+ - twisted.mail.imap4.IMAP4Client can now interpret the BODY response
+   for multipart/* messages with parts which are also multipart/*.
+   (#4631)
+
+Deprecations and Removals
+-------------------------
+ - tlsMode attribute of twisted.mail.smtp.ESMTPClient is deprecated.
+   (#5852)
+
+Other
+-----
+ - #6218, #6297
+
+
 Twisted Mail 12.3.0 (2012-12-20)
 ================================
 

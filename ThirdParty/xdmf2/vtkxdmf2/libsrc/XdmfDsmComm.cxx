@@ -25,6 +25,8 @@
 #include "XdmfDsmComm.h"
 #include "XdmfDsmMsg.h"
 
+namespace xdmf2
+{
 
 XdmfDsmComm::XdmfDsmComm() {
 }
@@ -76,3 +78,4 @@ XdmfDsmComm::Barrier(){
     return(XDMF_SUCCESS);
 }
 
+}

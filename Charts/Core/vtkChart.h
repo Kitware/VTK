@@ -135,10 +135,12 @@ public:
   // Enumeration of the possible selection methods in a chart. SELECTION_ROWS
   // is the default and simply selects the row in a table in all plots showing
   // that table. SELECTION_PLOTS will make a selection in each plot, and that
-  // selection remains specific to the plot object.
+  // selection remains specific to the plot object. SELECTION_COLUMNS selects
+  // the plots that use as input the selected columns of a table.
   enum {
     SELECTION_ROWS,
-    SELECTION_PLOTS
+    SELECTION_PLOTS,
+    SELECTION_COLUMNS
   };
 
   // Description:
@@ -146,7 +148,8 @@ public:
   // chart. The default is SELECTION_ROWS which selects all points in all plots
   // in a chart that have values in the rows selected. SELECTION_PLOTS allows
   // for finer-grained selections specific to each plot, and so to each XY
-  // column pair.
+  // column pair. SELECTION_COLUMNS selects all points of plots that
+  // correspond to selected columns.
   virtual void SetSelectionMethod(int method);
   virtual int GetSelectionMethod();
 

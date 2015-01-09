@@ -20,6 +20,7 @@
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
@@ -135,15 +136,25 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
   const int size = this->Shape->GetNumberOfPoints();
   if (!this->MaskAboveCurve || size < 2)
     {
-    double bounds[4];
-    this->GetBounds(bounds);
-    painter->DrawQuad(bounds[0], bounds[2],
-                      bounds[0], bounds[3],
-                      bounds[1], bounds[3],
-                      bounds[1], bounds[2]);
+    double dbounds[4];
+    this->GetBounds(dbounds);
+
+    // shift/scale to scale from data space to rendering space.
+    const vtkRectd& ss = this->ShiftScale;
+    float fbounds[4];
+    fbounds[0] = static_cast<float>((dbounds[0] + ss[0]) * ss[2]);
+    fbounds[1] = static_cast<float>((dbounds[1] + ss[0]) * ss[2]);
+    fbounds[2] = static_cast<float>((dbounds[2] + ss[1]) * ss[3]);
+    fbounds[3] = static_cast<float>((dbounds[3] + ss[1]) * ss[3]);
+    painter->DrawQuad(fbounds[0], fbounds[2],
+                      fbounds[0], fbounds[3],
+                      fbounds[1], fbounds[3],
+                      fbounds[1], fbounds[2]);
     }
   else
     {
+    const vtkRectd& ss = this->ShiftScale;
+
     vtkPoints2D* trapezoids = vtkPoints2D::New();
     trapezoids->SetNumberOfPoints(2*size);
     double point[2];
@@ -151,6 +162,10 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     for (vtkIdType i = 0; i < size; ++i)
       {
       this->Shape->GetPoint(i, point);
+
+      // shift/scale to scale from data space to rendering space.
+      point[0] = (point[0] + ss[0]) * ss[2];
+      point[1] = (point[1] + ss[1]) * ss[3];
       trapezoids->SetPoint(++j, point[0], 0.);
       trapezoids->SetPoint(++j, point);
       }
@@ -160,8 +175,21 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 
   if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
     {
+    const vtkRectd& ss = this->ShiftScale;
+
+    vtkNew<vtkPoints2D> transformedShape;
+    transformedShape->SetNumberOfPoints(size);
+    for (vtkIdType i = 0; i < size; ++i)
+      {
+      double point[2];
+      this->Shape->GetPoint(i, point);
+      // shift/scale to scale from data space to rendering space.
+      point[0] = (point[0] + ss[0]) * ss[2];
+      point[1] = (point[1] + ss[1]) * ss[3];
+      transformedShape->SetPoint(i, point);
+      }
     painter->ApplyPen(this->PolyLinePen);
-    painter->DrawPoly(this->Shape);
+    painter->DrawPoly(transformedShape.GetPointer());
     }
 
   return true;

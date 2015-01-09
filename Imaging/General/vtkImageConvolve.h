@@ -42,7 +42,7 @@ public:
   void SetKernel3x3(const double kernel[9]);
   void SetKernel5x5(const double kernel[25]);
 //BTX
-  void SetKernel7x7(double kernel[49]);
+  void SetKernel7x7(const double kernel[49]);
 //ETX
 
   // Description:
@@ -60,8 +60,8 @@ public:
   // Set the kernel to be a 3x3x3 or 5x5x5 or 7x7x7 kernel.
   void SetKernel3x3x3(const double kernel[27]);
 //BTX
-  void SetKernel5x5x5(double kernel[125]);
-  void SetKernel7x7x7(double kernel[343]);
+  void SetKernel5x5x5(const double kernel[125]);
+  void SetKernel7x7x7(const double kernel[343]);
 //ETX
 
   // Description:

@@ -1,9 +1,17 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
+option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
+mark_as_advanced(VTK_ENABLE_KITS)
+if(VTK_ENABLE_KITS)
+  # Kits use INTERFACE libraries which were introduced in 3.0.
+  cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+endif()
+
 foreach(p
     CMP0020 # CMake 2.8.11
     CMP0022 # CMake 2.8.12
     CMP0025 # CMake 3.0
+    CMP0053 # CMake 3.1
     )
   if(POLICY ${p})
     cmake_policy(SET ${p} NEW)
@@ -28,7 +36,7 @@ IF(APPLE)
   SET(VTK_OBJCXX_FLAGS_DEFAULT "")
   SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
   MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
-ENDIF(APPLE)
+ENDIF()
 
 set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
@@ -74,8 +82,89 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
   CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   )
 
-# Choose static or shared libraries.
-option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
+# some specific defaults for Andriod to give folks
+# a reasonable starting point
+if (ANDROID OR APPLE_IOS)
+  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2
+       CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
+       CACHE STRING "Output from TRY_RUN" FORCE)
+  SET( VTK_TYPE_CHAR_IS_SIGNED 1
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( VTK_ANSI_STREAM_EOF_RESULT 0
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( KWSYS_CHAR_IS_SIGNED 1
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( KWSYS_LFS_WORKS 2
+     CACHE STRING "Result from TRY_RUN" FORCE)
+  SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
+     CACHE STRING "Output from TRY_RUN" FORCE)
+
+  set(OPENGL_ES_VERSION "2.0" CACHE STRING "OpenGL ES version (2.0 or 3.0)")
+  set_property(CACHE OPENGL_ES_VERSION PROPERTY STRINGS 2.0 3.0)
+
+  option(BUILD_SHARED_LIBS "should be off for embedded" OFF)
+  set(VTK_RENDERING_BACKEND OpenGL2)
+  set(Module_vtkRenderingCore ON)
+  option(VTK_Group_Rendering "off for embedded" OFF)
+  option(VTK_Group_StandAlone "off for embedded" OFF)
+  option(VTK_Group_Imaging "off for embedded" OFF)
+  option(VTK_Group_MPI "off for embedded" OFF)
+  option(VTK_Group_Views "off for embedded" OFF)
+  option(VTK_Group_Qt "off for embedded" OFF)
+  option(VTK_Group_Tk "off for embedded" OFF)
+  option(VTK_Group_Web "off for embedded" OFF)
+
+  # need int version for CPP
+  if (${OPENGL_ES_VERSION} MATCHES 2.0)
+    set(OPENGL_ES_VERSION_INT 20)
+  endif()
+  if (${OPENGL_ES_VERSION} MATCHES 3.0)
+    set(OPENGL_ES_VERSION_INT 30)
+  endif()
+
+  if (APPLE_IOS)
+    option(Module_vtkInteractionStyle "needed for multitouch" ON)
+    unset(OPENGL_INCLUDE_DIR CACHE)
+    if (${OPENGL_ES_VERSION} MATCHES 2.0)
+      find_path(OPENGL_INCLUDE_DIR ES2/gl.h
+                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
+                ${_OPENGL_INCLUDE_DIR})
+    elseif (${OPENGL_ES_VERSION} MATCHES 3.0)
+      find_path(OPENGL_INCLUDE_DIR ES3/gl.h
+                ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/OpenGLES.framework/Headers
+                ${_OPENGL_INCLUDE_DIR})
+    endif()
+    find_library(OPENGL_gl_LIBRARY
+       NAMES OpenGLES
+       PATHS
+         ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks
+         ${_OPENGL_LIB_PATH}
+       )
+  else ()
+    # find opengl es2 (maybe someday add an option for ES3)
+    find_path(OPENGL_INCLUDE_DIR GLES2/gl2.h
+       ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/include
+       ${_OPENGL_INCLUDE_PATH}
+       )
+    find_library(OPENGL_gl_LIBRARY
+       NAMES GLESv2
+       PATHS
+         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
+         ${_OPENGL_LIB_PATH}
+       )
+    find_library(OPENGL_egl_LIBRARY
+       NAMES EGL
+       PATHS
+         ${ANDROID_NDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL}/arch-${ANDROID_ARCH_NAME}/usr/lib
+         ${_OPENGL_LIB_PATH}
+       )
+  endif()
+else()
+  # Choose static or shared libraries.
+  option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
+endif()
+
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
@@ -136,6 +225,11 @@ if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
   find_package(VTKCompileTools REQUIRED)
   set (COMPILE_TOOLS_IMPORTED TRUE)
 endif()
+
+#-----------------------------------------------------------------------------
+# Do we try to use system libraries by default?
+option(VTK_USE_SYSTEM_LIBRARIES "Use the system's libraries by default." OFF)
+mark_as_advanced(VTK_USE_SYSTEM_LIBRARIES)
 
 #-----------------------------------------------------------------------------
 # The third party macros are still used in one or two third party builds.
@@ -221,6 +315,31 @@ set(VTK_USE_WIN32_THREADS 0)
 set(VTK_USE_PTHREADS 0)
 set(VTK_HP_PTHREADS 0)
 set(VTK_USE_SPROC 0)
+# if win32 threads and pthreads are available figure out which
+# one the compiler is setup to use.  If you can not figure it
+# out default to pthreads.
+if(CMAKE_USE_PTHREADS_INIT AND CMAKE_USE_WIN32_THREADS_INIT)
+  if(DEFINED VTK_THREAD_MODEL)
+    set(output "${VTK_THREAD_MODEL}")
+  else()
+    execute_process(COMMAND "${CMAKE_C_COMPILER}" -v OUTPUT_VARIABLE output
+      ERROR_VARIABLE output RESULT_VARIABLE result TIMEOUT 10)
+  endif()
+  if(output MATCHES "Thread model: posix")
+    set(VTK_THREAD_MODEL "Thread model: posix" CACHE STRING
+      "Thread model used by gcc.")
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+  elseif(output MATCHES "Thread model: win32")
+    set(VTK_THREAD_MODEL "Thread model: win32" CACHE STRING
+      "Thread model used by gcc.")
+    set(CMAKE_USE_PTHREADS_INIT 0)
+  else()
+    set(VTK_THREAD_MODEL "Thread model: posix" CACHE STRING
+      "Thread model used by gcc.")
+    set(CMAKE_USE_WIN32_THREADS_INIT 0)
+  endif()
+endif()
+mark_as_advanced(VTK_THREAD_MODEL)
 if(CMAKE_USE_WIN32_THREADS_INIT)
   set(VTK_USE_WIN32_THREADS 1)
   set(CMAKE_THREAD_LIBS_INIT "")
@@ -284,6 +403,8 @@ include(VTKParallelCMakeTests)
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
+set(VTK_PYTHON_VERSION 2 CACHE STRING
+    "Python version to use: 2, 2.x, or empty")
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
@@ -304,7 +425,7 @@ mark_as_advanced(VTK_WRAP_HINTS)
 
 if(BUILD_TESTING OR VTK_WRAP_PYTHON)
   # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
-  find_package(PythonInterp QUIET)
+  find_package(PythonInterp ${VTK_PYTHON_VERSION} QUIET)
   mark_as_advanced(PYTHON_EXECUTABLE)
 endif()
 
@@ -402,6 +523,17 @@ endforeach()
 configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
+# For iOS builds, allow user to 'make framework' with a custom destination
+if (APPLE_IOS)
+  set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
+      CACHE PATH "Framework install path")
+  configure_file(${VTK_CMAKE_DIR}/MakeFramework.cmake.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
+                 @ONLY)
+  add_custom_target(framework COMMAND ${CMAKE_COMMAND} -P
+                    ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake)
+endif()
+
 #-----------------------------------------------------------------------------
 # Export all targets at once from the build tree in their final configuration.
 get_property(_vtk_targets GLOBAL PROPERTY VTK_TARGETS)
@@ -419,6 +551,7 @@ if (_vtk_compiletools_targets)
          FILE ${VTK_BINARY_DIR}/VTKCompileToolsConfig.cmake)
   add_dependencies(vtkCompileTools ${_vtk_compiletools_targets})
 endif()
+
 unset(_vtk_targets)
 unset(_vtk_compiletools_targets)
 unset(_vtk_all_targets)

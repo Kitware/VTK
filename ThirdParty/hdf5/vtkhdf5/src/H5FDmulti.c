@@ -73,6 +73,7 @@
 
 #define END_MEMBERS	}}
 
+#define H5FD_MULT_MAX_FILE_NAME_LEN     1024
 
 /* The driver identification number, initialized at runtime */
 static hid_t H5FD_MULTI_g = 0;
@@ -97,9 +98,11 @@ typedef struct H5FD_multi_t {
     H5FD_multi_fapl_t fa;	/*driver-specific file access properties*/
     haddr_t	memb_next[H5FD_MEM_NTYPES];/*addr of next member	*/
     H5FD_t	*memb[H5FD_MEM_NTYPES];	/*member pointers		*/
-    /*haddr_t	eoa;*/		/*end of allocated addresses.  Took it out
-                                 *because individual files have their own
-                                 *eoa.                                  */
+    haddr_t     memb_eoa[H5FD_MEM_NTYPES]; /*EOA for individual files,
+    				 *end of allocated addresses.  v1.6 library 
+                                 *have the EOA for the entire file. But it's
+                                 *meaningless for MULTI file.  We replaced it
+                                 *with the EOAs for individual files    */
     unsigned	flags;		/*file open flags saved for debugging	*/
     char	*name;		/*name passed to H5Fopen or H5Fcreate	*/
 } H5FD_multi_t;
@@ -123,8 +126,6 @@ static herr_t H5FD_multi_sb_decode(H5FD_t *file, const char *name,
 static void *H5FD_multi_fapl_get(H5FD_t *file);
 static void *H5FD_multi_fapl_copy(const void *_old_fa);
 static herr_t H5FD_multi_fapl_free(void *_fa);
-static void *H5FD_multi_dxpl_copy(const void *_old_dx);
-static herr_t H5FD_multi_dxpl_free(void *_dx);
 static H5FD_t *H5FD_multi_open(const char *name, unsigned flags,
 			       hid_t fapl_id, haddr_t maxaddr);
 static herr_t H5FD_multi_close(H5FD_t *_file);
@@ -157,9 +158,9 @@ static const H5FD_class_t H5FD_multi_g = {
     H5FD_multi_fapl_get,			/*fapl_get		*/
     H5FD_multi_fapl_copy,			/*fapl_copy		*/
     H5FD_multi_fapl_free,			/*fapl_free		*/
-    sizeof(H5FD_multi_dxpl_t),			/*dxpl_size		*/
-    H5FD_multi_dxpl_copy,			/*dxpl_copy		*/
-    H5FD_multi_dxpl_free,			/*dxpl_free		*/
+    0,						/*dxpl_size		*/
+    NULL,					/*dxpl_copy		*/
+    NULL,					/*dxpl_free		*/
     H5FD_multi_open,				/*open			*/
     H5FD_multi_close,				/*close			*/
     H5FD_multi_cmp,				/*cmp			*/
@@ -201,12 +202,14 @@ static char *
 my_strdup(const char *s)
 {
     char *x;
+    size_t str_len;
 
     if(!s)
         return NULL;
-    if(NULL == (x = (char *)malloc(strlen(s) + 1)))
+    str_len = strlen(s) + 1;
+    if(NULL == (x = (char *)malloc(str_len)))
         return NULL;
-    strcpy(x, s);
+    memcpy(x, s, str_len);
 
     return x;
 }
@@ -296,7 +299,7 @@ H5Pset_fapl_split(hid_t fapl, const char *meta_ext, hid_t meta_plist_id,
     H5FD_mem_t		memb_map[H5FD_MEM_NTYPES];
     hid_t		memb_fapl[H5FD_MEM_NTYPES];
     const char		*memb_name[H5FD_MEM_NTYPES];
-    char		meta_name[1024], raw_name[1024];
+    char		meta_name[H5FD_MULT_MAX_FILE_NAME_LEN], raw_name[H5FD_MULT_MAX_FILE_NAME_LEN];
     haddr_t		memb_addr[H5FD_MEM_NTYPES];
 
     /*NO TRACE*/
@@ -306,7 +309,8 @@ H5Pset_fapl_split(hid_t fapl, const char *meta_ext, hid_t meta_plist_id,
 
     /* Initialize */
     ALL_MEMBERS(mt) {
-	memb_map[mt] = (H5FD_MEM_DRAW==mt?mt:H5FD_MEM_SUPER);
+	/* Treat global heap as raw data, not metadata */
+	memb_map[mt] = ((mt == H5FD_MEM_DRAW || mt == H5FD_MEM_GHEAP) ? H5FD_MEM_DRAW : H5FD_MEM_SUPER);
 	memb_fapl[mt] = -1;
 	memb_name[mt] = NULL;
 	memb_addr[mt] = HADDR_UNDEF;
@@ -318,25 +322,39 @@ H5Pset_fapl_split(hid_t fapl, const char *meta_ext, hid_t meta_plist_id,
 
     /* The names */
     /* process meta filename */
-    if (meta_ext){
-	if (strstr(meta_ext, "%s"))
-	    strcpy(meta_name, meta_ext);
+    if(meta_ext) {
+	if(strstr(meta_ext, "%s")) {
+            /* Note: this doesn't accommodate for when the '%s' in the user's
+             *  string is at a position >sizeof(meta_name) - QK & JK - 2013/01/17
+             */
+	    strncpy(meta_name, meta_ext, sizeof(meta_name));
+            meta_name[sizeof(meta_name) - 1] = '\0';
+        }
 	else
 	    sprintf(meta_name, "%%s%s", meta_ext);
     }
-    else
-	strcpy(meta_name, "%s.meta");
+    else {
+	strncpy(meta_name, "%s.meta", sizeof(meta_name));
+        meta_name[sizeof(meta_name) - 1] = '\0';
+    }
     memb_name[H5FD_MEM_SUPER] = meta_name;
 
     /* process raw filename */
-    if (raw_ext){
-	if (strstr(raw_ext, "%s"))
-	    strcpy(raw_name, raw_ext);
+    if(raw_ext) {
+	if(strstr(raw_ext, "%s")) {
+            /* Note: this doesn't accommodate for when the '%s' in the user's
+             *  string is at a position >sizeof(raw_name) - QK & JK - 2013/01/17
+             */
+	    strncpy(raw_name, raw_ext, sizeof(raw_name));
+            raw_name[sizeof(raw_name) - 1] = '\0';
+        }
 	else
 	    sprintf(raw_name, "%%s%s", raw_ext);
     }
-    else
-	strcpy(raw_name, "%s.raw");
+    else {
+	strncpy(raw_name, "%s.raw", sizeof(raw_name));
+        raw_name[sizeof(raw_name) - 1] = '\0';
+    }
     memb_name[H5FD_MEM_DRAW] = raw_name;
 
     /* The sizes */
@@ -567,12 +585,11 @@ H5Pget_fapl_multi(hid_t fapl_id, H5FD_mem_t *memb_map/*out*/,
 		memb_fapl[mt] = fa->memb_fapl[mt]; /*default or bad ID*/
 	}
     }
-    if (memb_name) {
-	for (mt=H5FD_MEM_DEFAULT; mt<H5FD_MEM_NTYPES; mt=(H5FD_mem_t)(mt+1)) {
-	    if (fa->memb_name[mt]) {
-		memb_name[mt] = (char *)malloc(strlen(fa->memb_name[mt])+1);
-		strcpy(memb_name[mt], fa->memb_name[mt]);
-	    } else
+    if(memb_name) {
+	for(mt = H5FD_MEM_DEFAULT; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
+	    if(fa->memb_name[mt])
+		memb_name[mt] = my_strdup(fa->memb_name[mt]);
+	    else
 		memb_name[mt] = NULL;
 	}
     }
@@ -580,109 +597,6 @@ H5Pget_fapl_multi(hid_t fapl_id, H5FD_mem_t *memb_map/*out*/,
 	memcpy(memb_addr, fa->memb_addr, H5FD_MEM_NTYPES*sizeof(haddr_t));
     if (relax)
 	*relax = fa->relax;
-
-    return 0;
-}
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5Pset_dxpl_multi
- *
- * Purpose:	Set the data transfer property list DXPL_ID to use the multi
- *		driver with the specified data transfer properties for each
- *		memory usage type MEMB_DXPL[] (after the usage map is
- *		applied).
- *
- * Return:	Success:	0
- *
- *		Failure:	-1
- *
- * Programmer:	Robb Matzke
- *              Tuesday, August 10, 1999
- *
- * Modifications:
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5Pset_dxpl_multi(hid_t dxpl_id, const hid_t *memb_dxpl)
-{
-    H5FD_multi_dxpl_t	dx;
-    H5FD_mem_t		mt;
-    static const char *func="H5FDset_dxpl_multi";  /* Function Name for error reporting */
-
-    /*NO TRACE*/
-
-    /* Clear the error stack */
-    H5Eclear2(H5E_DEFAULT);
-
-    /* Check arguments */
-    if (TRUE!=H5Pisa_class(dxpl_id,  H5P_DATASET_XFER))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADTYPE, "not a data transfer property list", -1)
-    if (!memb_dxpl)
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_BADVALUE, "invalid pointer", -1)
-    for (mt=H5FD_MEM_DEFAULT; mt<H5FD_MEM_NTYPES; mt=(H5FD_mem_t)(mt+1)) {
-        if (memb_dxpl[mt]!=H5P_DEFAULT && TRUE!=H5Pisa_class(memb_dxpl[mt], H5P_DATASET_XFER))
-            H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADTYPE, "not a data transfer property list", -1)
-    }
-
-    /* Initialize the data transfer property list */
-    memcpy(dx.memb_dxpl, memb_dxpl, H5FD_MEM_NTYPES*sizeof(hid_t));
-
-    /* Convert "generic" default property lists into default dataset transfer property lists */
-    for (mt=H5FD_MEM_DEFAULT; mt<H5FD_MEM_NTYPES; mt=(H5FD_mem_t)(mt+1)) {
-        if (dx.memb_dxpl[mt]==H5P_DEFAULT)
-            dx.memb_dxpl[mt]=H5P_DATASET_XFER_DEFAULT;
-    }
-
-    return H5Pset_driver(dxpl_id, H5FD_MULTI, &dx);
-}
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5Pget_dxpl_multi
- *
- * Purpose:	Returns information which was set with H5Pset_dxpl_multi()
- *		above.
- *
- * Return:	Success:	0
- *
- *		Failure:	-1
- *
- * Programmer:	Robb Matzke
- *              Tuesday, August 10, 1999
- *
- * Modifications:
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5Pget_dxpl_multi(hid_t dxpl_id, hid_t *memb_dxpl/*out*/)
-{
-    H5FD_multi_dxpl_t	*dx;
-    H5FD_mem_t		mt;
-    static const char *func="H5FDget_dxpl_multi";  /* Function Name for error reporting */
-
-    /*NO TRACE*/
-
-    /* Clear the error stack */
-    H5Eclear2(H5E_DEFAULT);
-
-    if (TRUE!=H5Pisa_class(dxpl_id, H5P_DATASET_XFER))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADTYPE, "not a file access property list", -1)
-    if (H5FD_MULTI!=H5Pget_driver(dxpl_id))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADVALUE, "incorrect VFL driver", -1)
-    if(NULL == (dx = (H5FD_multi_dxpl_t *)H5Pget_driver_info(dxpl_id)))
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_PLIST, H5E_BADVALUE, "bad VFL driver info", -1)
-
-    if (memb_dxpl) {
-	for (mt=H5FD_MEM_DEFAULT; mt<H5FD_MEM_NTYPES; mt=(H5FD_mem_t)(mt+1)) {
-	    if (dx->memb_dxpl[mt]>=0)
-		memb_dxpl[mt] = H5Pcopy(dx->memb_dxpl[mt]);
-	    else
-		memb_dxpl[mt] = dx->memb_dxpl[mt]; /*default or bad ID */
-	}
-    }
 
     return 0;
 }
@@ -802,17 +716,17 @@ H5FD_multi_sb_encode(H5FD_t *_file, char *name/*out*/,
         p += sizeof(haddr_t);
         nseen++;
     } END_MEMBERS;
-    if (H5Tconvert(H5T_NATIVE_HADDR, H5T_STD_U64LE, nseen*2, buf+8, NULL,
-		   H5P_DEFAULT)<0)
+    if (H5Tconvert(H5T_NATIVE_HADDR, H5T_STD_U64LE, nseen*2, buf+8, NULL, H5P_DEFAULT)<0)
         H5Epush_ret(func, H5E_ERR_CLS, H5E_DATATYPE, H5E_CANTCONVERT, "can't convert superblock info", -1)
 
     /* Encode all name templates */
     p = buf + 8 + nseen*2*8;
     UNIQUE_MEMBERS(file->fa.memb_map, mt) {
         size_t n = strlen(file->fa.memb_name[mt]) + 1;
-        strcpy((char *)p, file->fa.memb_name[mt]);
+        strncpy((char *)p, file->fa.memb_name[mt], n);
         p += n;
-        for (i=n; i%8; i++) *p++ = '\0';
+        for (i=n; i%8; i++)
+            *p++ = '\0';
     } END_MEMBERS;
 
     return 0;
@@ -969,6 +883,9 @@ H5FD_multi_sb_decode(H5FD_t *_file, const char *name, const unsigned char *buf)
         if (file->memb[mt])
             if(H5FDset_eoa(file->memb[mt], mt, memb_eoa[mt])<0)
                 H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_CANTSET, "set_eoa() failed", -1)
+       
+        /* Save the individual EOAs in one place for later comparison (in H5FD_multi_set_eoa) */ 
+        file->memb_eoa[mt] = memb_eoa[mt]; 
     } END_MEMBERS;
 
     return 0;
@@ -1039,19 +956,21 @@ H5FD_multi_fapl_copy(const void *_old_fa)
     ALL_MEMBERS(mt) {
 	if (old_fa->memb_fapl[mt]>=0) {
 	    new_fa->memb_fapl[mt] = H5Pcopy(old_fa->memb_fapl[mt]);
-	    if (new_fa->memb_fapl[mt]<0) nerrors++;
+	    if(new_fa->memb_fapl[mt]<0)
+                nerrors++;
 	}
 	if (old_fa->memb_name[mt]) {
-	    new_fa->memb_name[mt] = (char *)malloc(strlen(old_fa->memb_name[mt])+1);
+	    new_fa->memb_name[mt] = my_strdup(old_fa->memb_name[mt]);
 	    assert(new_fa->memb_name[mt]);
-	    strcpy(new_fa->memb_name[mt], old_fa->memb_name[mt]);
 	}
     } END_MEMBERS;
 
     if (nerrors) {
         ALL_MEMBERS(mt) {
-            if (new_fa->memb_fapl[mt]>=0) (void)H5Pclose(new_fa->memb_fapl[mt]);
-            if (new_fa->memb_name[mt]) free(new_fa->memb_name[mt]);
+            if (new_fa->memb_fapl[mt]>=0)
+                (void)H5Pclose(new_fa->memb_fapl[mt]);
+            if (new_fa->memb_name[mt])
+                free(new_fa->memb_name[mt]);
         } END_MEMBERS;
         free(new_fa);
         H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_BADVALUE, "invalid freespace objects", NULL)
@@ -1099,90 +1018,6 @@ H5FD_multi_fapl_free(void *_fa)
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5FD_multi_dxpl_copy
- *
- * Purpose:	Copes the multi-specific data transfer properties.
- *
- * Return:	Success:	Ptr to new property list
- *
- *		Failure:	NULL
- *
- * Programmer:	Robb Matzke
- *              Wednesday, August  4, 1999
- *
- * Modifications:
- *
- *-------------------------------------------------------------------------
- */
-static void *
-H5FD_multi_dxpl_copy(const void *_old_dx)
-{
-    const H5FD_multi_dxpl_t *old_dx = (const H5FD_multi_dxpl_t*)_old_dx;
-    H5FD_multi_dxpl_t *new_dx = (H5FD_multi_dxpl_t *)malloc(sizeof(H5FD_multi_dxpl_t));
-    int nerrors = 0;
-    static const char *func="H5FD_multi_dxpl_copy";  /* Function Name for error reporting */
-
-    assert(new_dx);
-
-    /* Clear the error stack */
-    H5Eclear2(H5E_DEFAULT);
-
-    memcpy(new_dx, old_dx, sizeof(H5FD_multi_dxpl_t));
-    ALL_MEMBERS(mt) {
-	if (old_dx->memb_dxpl[mt]>=0) {
-	    new_dx->memb_dxpl[mt] = H5Pcopy(old_dx->memb_dxpl[mt]);
-	    if (new_dx->memb_dxpl[mt]<0) nerrors++;
-	}
-    } END_MEMBERS;
-
-    if (nerrors) {
-        ALL_MEMBERS(mt) {
-            (void)H5Pclose(new_dx->memb_dxpl[mt]);
-        } END_MEMBERS;
-        free(new_dx);
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_INTERNAL, H5E_BADVALUE, "invalid freespace objects", NULL)
-    }
-    return new_dx;
-}
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5FD_multi_dxpl_free
- *
- * Purpose:	Frees the multi-specific data transfer properties.
- *
- * Return:	Success:	0
- *
- *		Failure:	-1
- *
- * Programmer:	Robb Matzke
- *              Wednesday, August  4, 1999
- *
- * Modifications:
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5FD_multi_dxpl_free(void *_dx)
-{
-    H5FD_multi_dxpl_t	*dx = (H5FD_multi_dxpl_t*)_dx;
-    static const char *func="H5FD_multi_dxpl_free";  /* Function Name for error reporting */
-
-    /* Clear the error stack */
-    H5Eclear2(H5E_DEFAULT);
-
-    ALL_MEMBERS(mt) {
-        if (dx->memb_dxpl[mt]>=0)
-            if(H5Pclose(dx->memb_dxpl[mt])<0)
-                H5Epush_ret(func, H5E_ERR_CLS, H5E_FILE, H5E_CANTCLOSEOBJ, "can't close property list", -1)
-    } END_MEMBERS;
-
-    free(dx);
-    return 0;
-}
-
-
-/*-------------------------------------------------------------------------
  * Function:	H5FD_multi_open
  *
  * Purpose:	Creates and/or opens a multi HDF5 file.
@@ -1221,7 +1056,9 @@ H5FD_multi_open(const char *name, unsigned flags, hid_t fapl_id,
 
     /*
      * Initialize the file from the file access properties, using default
-     * values if necessary.
+     * values if necessary.  Make sure to use CALLOC here because the code
+     * in H5FD_multi_set_eoa depends on the proper initialization of memb_eoa 
+     * in H5FD_multi_t.
      */
     if(NULL == (file = (H5FD_multi_t *)calloc((size_t)1, sizeof(H5FD_multi_t))))
         H5Epush_ret(func, H5E_ERR_CLS, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed", NULL)
@@ -1563,6 +1400,10 @@ H5FD_multi_get_eoa(const H5FD_t *_file, H5FD_mem_t type)
  *              for MULTI file.  This function only sets eoa for individual
  *              file.
  *
+ *              Raymond Lu
+ *              21 June 2011
+ *              Backward compatibility of EOA.  Please the comment in the
+ *              code.
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -1579,6 +1420,17 @@ H5FD_multi_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t eoa)
     mmt = file->fa.memb_map[type];
     if(H5FD_MEM_DEFAULT == mmt)
         mmt = type;
+
+    /* Handle backward compatibility in a quick and simple way.  v1.6 library had EOA for the entire virtual 
+     * file.  But it wasn't meaningful.  So v1.8 library doesn't have it anymore.  It saves the EOA for the 
+     * metadata file, instead.  Here we try to figure out whether the EOA is from a v1.6 file by comparing its 
+     * value.  If it is a big value, we assume it's from v1.6 and simply discard it. This is the normal case 
+     * when the metadata file has the smallest starting address.  If the metadata file has the biggest address,
+     * the EOAs of v1.6 and v1.8 files are the same.  It won't cause any trouble.  (Please see Issue 2598 
+     * in Jira) SLU - 2011/6/21
+     */
+    if(H5FD_MEM_SUPER == type && file->memb_eoa[H5FD_MEM_SUPER] > 0 && eoa > file->memb_eoa[H5FD_MEM_SUPER])
+        return 0;
 
     assert(eoa >= file->fa.memb_addr[mmt]);
     assert(eoa < file->memb_next[mmt]);
@@ -1799,25 +1651,20 @@ H5FD_multi_free(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, hsi
  * Programmer:	Robb Matzke
  *              Wednesday, August  4, 1999
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_multi_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size,
-		 void *_buf/*out*/)
+H5FD_multi_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr,
+    size_t size, void *_buf/*out*/)
 {
     H5FD_multi_t	*file = (H5FD_multi_t*)_file;
-    H5FD_multi_dxpl_t	*dx=NULL;
-    H5FD_mem_t		mt, mmt, hi=H5FD_MEM_DEFAULT;
-    haddr_t		start_addr=0;
+    H5FD_multi_dxpl_t	dx;
+    htri_t              prop_exists = FALSE;    /* Whether the multi VFD DXPL property already exists */
+    H5FD_mem_t		mt, mmt, hi = H5FD_MEM_DEFAULT;
+    haddr_t		start_addr = 0;
 
     /* Clear the error stack */
     H5Eclear2(H5E_DEFAULT);
-
-    /* Get the data transfer properties */
-    if(H5P_FILE_ACCESS_DEFAULT != dxpl_id && H5FD_MULTI == H5Pget_driver(dxpl_id))
-	dx = (H5FD_multi_dxpl_t *)H5Pget_driver_info(dxpl_id);
 
     /* Find the file to which this address belongs */
     for(mt = H5FD_MEM_SUPER; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
@@ -1826,18 +1673,19 @@ H5FD_multi_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, siz
             mmt = mt;
 	assert(mmt > 0 && mmt < H5FD_MEM_NTYPES);
 
-	if (file->fa.memb_addr[mmt]>addr) continue;
-	if (file->fa.memb_addr[mmt]>=start_addr) {
+	if(file->fa.memb_addr[mmt] > addr)
+            continue;
+	if(file->fa.memb_addr[mmt] >= start_addr) {
 	    start_addr = file->fa.memb_addr[mmt];
 	    hi = mmt;
-	}
-    }
-    assert(hi>0);
+	} /* end if */
+    } /* end for */
+    assert(hi > 0);
 
     /* Read from that member */
-    return H5FDread(file->memb[hi], type, dx?dx->memb_dxpl[hi]:H5P_DEFAULT,
-		    addr-start_addr, size, _buf);
-}
+    return H5FDread(file->memb[hi], type, (prop_exists ? dx.memb_dxpl[hi] : H5P_DEFAULT),
+            addr - start_addr, size, _buf);
+} /* end H5FD_multi_read() */
 
 
 /*-------------------------------------------------------------------------
@@ -1854,45 +1702,41 @@ H5FD_multi_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, siz
  * Programmer:	Robb Matzke
  *              Wednesday, August  4, 1999
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_multi_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size,
-		  const void *_buf)
+H5FD_multi_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr,
+    size_t size, const void *_buf)
 {
     H5FD_multi_t	*file = (H5FD_multi_t*)_file;
-    H5FD_multi_dxpl_t	*dx=NULL;
-    H5FD_mem_t		mt, mmt, hi=H5FD_MEM_DEFAULT;
-    haddr_t		start_addr=0;
+    H5FD_multi_dxpl_t	dx;
+    htri_t              prop_exists = FALSE;    /* Whether the multi VFD DXPL property already exists */
+    H5FD_mem_t		mt, mmt, hi = H5FD_MEM_DEFAULT;
+    haddr_t		start_addr = 0;
 
     /* Clear the error stack */
     H5Eclear2(H5E_DEFAULT);
-
-    /* Get the data transfer properties */
-    if(H5P_FILE_ACCESS_DEFAULT != dxpl_id && H5FD_MULTI == H5Pget_driver(dxpl_id))
-	dx = (H5FD_multi_dxpl_t *)H5Pget_driver_info(dxpl_id);
 
     /* Find the file to which this address belongs */
     for(mt = H5FD_MEM_SUPER; mt < H5FD_MEM_NTYPES; mt = (H5FD_mem_t)(mt + 1)) {
 	mmt = file->fa.memb_map[mt];
 	if(H5FD_MEM_DEFAULT == mmt)
             mmt = mt;
-	assert(mmt>0 && mmt<H5FD_MEM_NTYPES);
+	assert(mmt > 0 && mmt<H5FD_MEM_NTYPES);
 
-	if (file->fa.memb_addr[mmt]>addr) continue;
-	if (file->fa.memb_addr[mmt]>=start_addr) {
+	if(file->fa.memb_addr[mmt] > addr)
+            continue;
+	if(file->fa.memb_addr[mmt] >= start_addr) {
 	    start_addr = file->fa.memb_addr[mmt];
 	    hi = mmt;
-	}
-    }
-    assert(hi>0);
+	} /* end if */
+    } /* end for */
+    assert(hi > 0);
 
     /* Write to that member */
-    return H5FDwrite(file->memb[hi], type, dx?dx->memb_dxpl[hi]:H5P_DEFAULT,
-		     addr-start_addr, size, _buf);
-}
+    return H5FDwrite(file->memb[hi], type, (prop_exists ? dx.memb_dxpl[hi] : H5P_DEFAULT),
+            addr - start_addr, size, _buf);
+} /* end H5FD_multi_write() */
 
 
 /*-------------------------------------------------------------------------
@@ -1906,8 +1750,6 @@ H5FD_multi_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, si
  *
  * Programmer:	Robb Matzke
  *              Wednesday, August  4, 1999
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -2072,7 +1914,7 @@ compute_next(H5FD_multi_t *file)
 static int
 open_members(H5FD_multi_t *file)
 {
-    char	tmp[1024];
+    char	tmp[H5FD_MULT_MAX_FILE_NAME_LEN];
     int		nerrors=0;
     static const char *func="(H5FD_multi)open_members";  /* Function Name for error reporting */
 
@@ -2080,30 +1922,28 @@ open_members(H5FD_multi_t *file)
     H5Eclear2(H5E_DEFAULT);
 
     UNIQUE_MEMBERS(file->fa.memb_map, mt) {
-	if (file->memb[mt]) continue; /*already open*/
+	if(file->memb[mt])
+            continue; /*already open*/
 	assert(file->fa.memb_name[mt]);
+        /* Note: This truncates the user's filename down to only sizeof(tmp)
+         *      characters. -QK & JK, 2013/01/17
+         */
 	sprintf(tmp, file->fa.memb_name[mt], file->name);
 
 #ifdef H5FD_MULTI_DEBUG
-	if (file->flags & H5F_ACC_DEBUG) {
-	    fprintf(stderr, "H5FD_MULTI: open member %d \"%s\"\n",
-		    (int)mt, tmp);
-	}
+	if(file->flags & H5F_ACC_DEBUG)
+	    fprintf(stderr, "H5FD_MULTI: open member %d \"%s\"\n", (int)mt, tmp);
 #endif
 	H5E_BEGIN_TRY {
-	    file->memb[mt] = H5FDopen(tmp, file->flags, file->fa.memb_fapl[mt],
-				      HADDR_UNDEF);
+	    file->memb[mt] = H5FDopen(tmp, file->flags, file->fa.memb_fapl[mt], HADDR_UNDEF);
 	} H5E_END_TRY;
-	if (!file->memb[mt]) {
+	if(!file->memb[mt]) {
 #ifdef H5FD_MULTI_DEBUG
-	    if (file->flags & H5F_ACC_DEBUG) {
-		fprintf(stderr, "H5FD_MULTI: open failed for member %d\n",
-			(int)mt);
-	    }
+	    if(file->flags & H5F_ACC_DEBUG)
+		fprintf(stderr, "H5FD_MULTI: open failed for member %d\n", (int)mt);
 #endif
-	    if (!file->fa.relax || (file->flags & H5F_ACC_RDWR)) {
+	    if(!file->fa.relax || (file->flags & H5F_ACC_RDWR))
 		nerrors++;
-	    }
 	}
     } END_MEMBERS;
     if (nerrors)

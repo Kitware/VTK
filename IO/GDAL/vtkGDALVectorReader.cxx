@@ -15,18 +15,18 @@
 #include "vtkGDALVectorReader.h"
 
 // VTK includes
-#include <vtkCellData.h>
-#include <vtkCellType.h>
-#include <vtkDoubleArray.h>
-#include <vtkCellArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkIntArray.h>
-#include <vtkMultiBlockDataSet.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkStringArray.h>
-#include <vtkPolyData.h>
+#include "vtkCellData.h"
+#include "vtkCellType.h"
+#include "vtkDoubleArray.h"
+#include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkStringArray.h"
+#include "vtkPolyData.h"
 
 // GDAL OGR includes
 #include <ogrsf_frmts.h>
@@ -246,7 +246,7 @@ public:
       {
     case wkbUnknown:
       return 0;
-      break;
+
     case wkbPoint:
     case wkbPoint25D:
       gpt = (OGRPoint*) geom;
@@ -254,6 +254,7 @@ public:
       verts->InsertNextCell(1, &(ptIds[0]));
       ++nCells;
       break;
+
     case wkbLinearRing: // OGR docs imply that wkbLinearRing may not inherit wkbLineString in the future.
     case wkbLineString:
     case wkbLineString25D:
@@ -268,6 +269,7 @@ public:
       lines->InsertNextCell( (int) ptIds.size(), &(ptIds[0]) );
       ++nCells;
       break;
+
     case wkbPolygon:
     case wkbPolygon25D:
       gpl = (OGRPolygon*) geom;
@@ -280,6 +282,7 @@ public:
         nCells += this->insertGeometryRecursive( grng, pd, pts, lines, verts );
         }
       break;
+
     case wkbMultiPoint:
     case wkbMultiPoint25D:
     case wkbMultiLineString:
@@ -296,9 +299,9 @@ public:
                     gcol->getGeometryRef( i ), pd, pts, lines, verts );
         }
       break;
+
     case wkbNone:
       return 0;
-      break;
       }
 
     return nCells;
@@ -335,10 +338,7 @@ vtkGDALVectorReader::vtkGDALVectorReader()
 vtkGDALVectorReader::~vtkGDALVectorReader()
 {
   this->SetFileName( 0 );
-  if ( this->Implementation )
-    {
-    delete this->Implementation;
-    }
+  delete this->Implementation;
 }
 
 // -----------------------------------------------------------------------------

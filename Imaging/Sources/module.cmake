@@ -4,4 +4,6 @@ vtk_module(vtkImagingSources
     StandAlone
   DEPENDS
     vtkImagingCore
+  KIT
+    vtkImaging
   )

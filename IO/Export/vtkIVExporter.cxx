@@ -43,10 +43,7 @@ vtkIVExporter::vtkIVExporter()
 
 vtkIVExporter::~vtkIVExporter()
 {
-  if ( this->FileName )
-    {
-    delete [] this->FileName;
-    }
+  delete [] this->FileName;
 }
 
 static char indent[256];

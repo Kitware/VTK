@@ -677,7 +677,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
 
       vtkSmartPointer<vtkInformationIterator> infoIter =
         vtkSmartPointer<vtkInformationIterator>::New();
-      infoIter->SetInformation(inInfo);
+      infoIter->SetInformationWeak(inInfo);
 
       int oiobj = outInfoVec->GetNumberOfInformationObjects();
       for(int i=0; i < oiobj; ++i)
@@ -715,6 +715,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
     if(request->Has(FROM_OUTPUT_PORT()))
       {
       outputPort = request->Get(FROM_OUTPUT_PORT());
+      outputPort = outputPort == -1 ? 0 : outputPort;
       }
 
     // Copy information from the requesting output to all inputs.
@@ -727,7 +728,7 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
 
       vtkSmartPointer<vtkInformationIterator> infoIter =
         vtkSmartPointer<vtkInformationIterator>::New();
-      infoIter->SetInformation(outInfo);
+      infoIter->SetInformationWeak(outInfo);
 
       for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
         {

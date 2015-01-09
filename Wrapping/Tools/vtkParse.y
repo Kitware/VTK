@@ -18,14 +18,17 @@
 
 This file must be translated to C and modified to build everywhere.
 
-Run yacc like this:
+Run bison like this (use bison 3.0.2 or later)
 
-  yacc -b vtkParse vtkParse.y
+  bison --no-lines -b vtkParse vtkParse.y
 
 Modify vtkParse.tab.c:
   - convert TABs to spaces (eight per tab)
-  - remove spaces from ends of lines, s/ *$//g
-  - replace all instances of "static inline" with "static".
+  - replace all instances of "static inline" with "static"
+  - replace "#if ! defined lint || defined __GNUC__" with "#if 1"
+  - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
+  - remove the "break;" after "return yyreportAmbiguity"
+  - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
 */
 
 /*
@@ -416,6 +419,11 @@ void addCommentLine(const char *line, size_t n)
     {
     commentAllocatedLength = commentAllocatedLength + commentLength + n + 2;
     commentText = (char *)realloc(commentText, commentAllocatedLength);
+    if (!commentText)
+      {
+      fprintf(stderr, "Wrapping: out of memory\n");
+      exit(1);
+      }
     }
 
   if (n > 0)

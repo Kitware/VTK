@@ -43,6 +43,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
     }
 
   os << indent << "TempDoubleArray: " << this->TempDoubleArray << "\n";
+  os << indent << "Save: " << this->Save << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -60,11 +61,23 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
+::SetExodusScalarArrays(std::vector<Scalar *> arrays, vtkIdType numTuples,
+                        bool save)
+{
+  this->SetExodusScalarArrays(arrays, numTuples);
+  this->Save = save;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Initialize()
 {
-  for (size_t i = 0; i < this->Arrays.size(); ++i)
+  if(!this->Save)
     {
-    delete this->Arrays[i];
+    for (size_t i = 0; i < this->Arrays.size(); ++i)
+      {
+      delete this->Arrays[i];
+      }
     }
   this->Arrays.clear();
   this->Arrays.push_back(NULL);
@@ -75,6 +88,8 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
   this->MaxId = -1;
   this->Size = 0;
   this->NumberOfComponents = 1;
+  // the default is to have this class delete the arrays when done with them.
+  this->Save = false;
 }
 
 //------------------------------------------------------------------------------
@@ -329,6 +344,14 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
+template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
+::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray *)
+{
+  vtkErrorMacro("Read only container.")
+  return;
+}
+
+//------------------------------------------------------------------------------
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertNextTuple(vtkIdType, vtkAbstractArray *)
 {
@@ -469,7 +492,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 //------------------------------------------------------------------------------
 template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::vtkCPExodusIIResultsArrayTemplate()
-  : TempDoubleArray(NULL)
+  : TempDoubleArray(NULL), Save(false)
 {
 }
 
@@ -478,10 +501,13 @@ template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::~vtkCPExodusIIResultsArrayTemplate()
 {
   typedef typename std::vector<Scalar*>::const_iterator ArrayIterator;
-  for (ArrayIterator it = this->Arrays.begin(), itEnd = this->Arrays.end();
-       it != itEnd; ++it)
+  if(!this->Save)
     {
-    delete [] *it;
+    for (ArrayIterator it = this->Arrays.begin(), itEnd = this->Arrays.end();
+         it != itEnd; ++it)
+      {
+      delete [] *it;
+      }
     }
   delete [] this->TempDoubleArray;
 }

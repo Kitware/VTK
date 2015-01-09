@@ -25,14 +25,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkParallelRenderManager.h"
 #include "vtkPNGWriter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
-#include "vtkgl.h"
-#include <cassert>
+#ifndef VTKGL2
+# include "vtkgl.h"
+#endif
 
+#include <cassert>
 
 //----------------------------------------------------------------------------
 class vtkSynchronizedRenderers::vtkObserver : public vtkCommand
@@ -652,7 +654,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     return false;
     }
 
-  // FIXME: This will not work when non-power-of-two textures are not supported.
   double viewport[4];
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
@@ -669,11 +670,11 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
     static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
   ren->Clear();
-  return this->PushToFrameBuffer();
+  return this->PushToFrameBuffer(ren);
 }
 
 //----------------------------------------------------------------------------
-bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
+bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
 {
   if (!this->IsValid())
     {
@@ -683,6 +684,14 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
 
   vtkOpenGLClearErrorMacro();
 
+#ifdef VTKGL2
+  // always draw the entire image on the entire viewport
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+  renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
+    this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
+    this->GetRawPtr()->GetVoidPointer(0));
+#else
+  (void)ren;
   glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -747,6 +756,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer()
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glPopAttrib();
+#endif
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   return true;

@@ -1,0 +1,26 @@
+file(GLOB INSTALLED_VTK_LIBS
+    "@CMAKE_INSTALL_PREFIX@/lib/libvtk*.a")
+set(FRAMEWORK_PATH
+    "@CMAKE_FRAMEWORK_INSTALL_PREFIX@/vtk.framework")
+set(INSTALLED_HEADERS
+    "@CMAKE_INSTALL_PREFIX@/@VTK_INSTALL_INCLUDE_DIR@")
+
+# Make sure VTK is installed.
+if (NOT EXISTS ${INSTALLED_HEADERS})
+  message(FATAL_ERROR
+          "VTK not installed. Build the source then build the 'install' target.")
+endif()
+
+# Do these individually, as we don't want them piped
+execute_process(COMMAND mkdir -p "${FRAMEWORK_PATH}")
+execute_process(COMMAND mkdir -p "${FRAMEWORK_PATH}/Headers")
+execute_process(COMMAND cp -r "${INSTALLED_HEADERS}/"
+                              "${FRAMEWORK_PATH}/Headers/.")
+execute_process(COMMAND libtool -static -o
+                      "${FRAMEWORK_PATH}/lib_device"
+                      ${INSTALLED_VTK_LIBS})
+execute_process(COMMAND lipo -create "${FRAMEWORK_PATH}/lib_device"
+                             -output "${FRAMEWORK_PATH}/vtk")
+execute_process(COMMAND rm "${FRAMEWORK_PATH}/lib_device")
+
+message(STATUS "Created ${FRAMEWORK_PATH}")

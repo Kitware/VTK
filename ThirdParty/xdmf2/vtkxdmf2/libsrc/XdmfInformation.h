@@ -27,6 +27,9 @@
 
 #include "XdmfElement.h"
 
+namespace xdmf2
+{
+
 
 /*! XdmfInformation represents a free form element in XML.
 It's used to represent Name = Value pairs. Applications that understand
@@ -74,4 +77,5 @@ protected:
     XdmfString  Value;
 };
 
+}
 #endif // __XdmfInformation_h

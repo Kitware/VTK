@@ -32,6 +32,9 @@
 
 #define XDMF_XML_PRIVATE_DATA(e) e->_private
 
+namespace xdmf2
+{
+
 XdmfElementData::XdmfElementData(){
     this->ReferenceElement = NULL;
     this->CurrentXdmfElement = NULL;
@@ -501,4 +504,5 @@ XdmfConstString XdmfElement::Get(XdmfConstString aName){
         return(NULL);
     }
     return(this->DOM->Get(this->Element, aName));
+}
 }

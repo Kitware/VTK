@@ -5,111 +5,45 @@ INCLUDE_DIRECTORIES(
 
 # For tests that actually use a vtkRenderWindow
 vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
-  otherCoordinate.cxx,NO_DATA,NO_VALID
   LoadOpenGLExtension.cxx
-  TestActorLightingFlag.cxx
-  TestAnimationScene.cxx
-  TestBackfaceCulling.cxx
-  TestBlurAndSobelPasses.cxx
-  TestCellPickerImage.cxx
-  TestDynamic2DLabelMapper.cxx
   TestFBO.cxx,NO_VALID
-  TestFollowerPicking.cxx
-  TestGaussianBlurPass.cxx
-  TestGlyph3DMapper.cxx
-  TestGlyph3DMapperMasking.cxx
-  TestGlyph3DMapperOrientationArray.cxx
-  TestGlyph3DMapperPicking.cxx
   TestGPUInfo.cxx,NO_VALID
-  TestGradientBackground.cxx
-  TestHomogeneousTransformOfActor.cxx
-  TestImageResliceMapperAlpha.cxx
-  TestImageResliceMapperBackground.cxx
-  TestImageResliceMapperInterpolation.cxx
-  TestImageResliceMapperOffAxis.cxx
-  TestImageResliceMapperOrient3D.cxx
-  TestImageResliceMapperSlab.cxx
-  TestImageSliceMapperAlpha.cxx
-  TestImageSliceMapperBackground.cxx
-  TestImageSliceMapperOrient2D.cxx
-  TestImageSliceMapperOrient3D.cxx
-  TestImageSliceMapperInterpolation.cxx
-  TestImageStack.cxx
-  TestInteractorStyleImageProperty.cxx,NO_VALID
-  TestInteractorTimers.cxx,NO_VALID
-  TestLabelPlacer.cxx
-  TestLabelPlacer2D.cxx
-  TestLabelPlacerCoincidentPoints.cxx
-  TestLabelPlacementMapper2D.cxx
-  TestLabelPlacementMapperCoincidentPoints.cxx
-  TestLightActor.cxx
-  TestLODActor.cxx,NO_VALID
-  TestManyActors.cxx,NO_VALID
   TestMonitors.cxx,NO_VALID
-  TestOffAxisStereo.cxx
-  TestOrderedTriangulator.cxx
-  TestOpacity.cxx
-  TestOSConeCxx.cxx
-  TestPolygonSelection.cxx
   TestPOVExporter.cxx,NO_VALID
-  TestResetCameraVerticalAspectRatio.cxx
-  TestResetCameraVerticalAspectRatioParallel.cxx
+  TestScalarsToColorsPainter.cxx
   TestSetImageOrientation.cxx
-  TestSobelGradientMagnitudePass.cxx
-  TestTextActorAlphaBlending.cxx
-  TestTextActorDepthPeeling.cxx
-  TestTextActor3DAlphaBlending.cxx
-  TestTextActor3DDepthPeeling.cxx
-  TestTexturedBackground.cxx
-  TestTextureSize.cxx,NO_VALID
   TestTDx.cxx
-  TestTilingCxx.cxx
-  TestTransformCoordinateUseDouble.cxx
-  TestTranslucentLUTAlphaBlending.cxx
-  TestTranslucentLUTDepthPeeling.cxx
-  TestTranslucentLUTDepthPeelingPass.cxx
-  TestTranslucentLUTTextureAlphaBlending.cxx
-  TestTranslucentLUTTextureDepthPeeling.cxx
+  TestValuePainter.cxx,NO_VALID
+  TestValuePasses.cxx
   )
+vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+  TestScalarsToColorsPainterFieldDataCells,TestScalarsToColorsPainterFieldData.cxx -1
+  )
+vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+  TestScalarsToColorsPainterFieldDataTuple,TestScalarsToColorsPainterFieldData.cxx 50
+  )
+vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+  TestBlurAndSobelPasses.cxx
+  #TestGaussianBlurPass.cxx # Missing symbol checking for Mesa bug
+  TestLightActor.cxx
+  TestSobelGradientMagnitudePass.cxx)
 if(NOT APPLE)
-  vtk_add_test_cxx(${vtk-module}CxxTests no_apple_tests
+  vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
     TestShadowMapPass.cxx)
-  list(APPEND render_window_tests
-    ${no_apple_tests})
 endif()
 
 if(WIN32 AND NOT VTK_USE_X)
-  vtk_add_test_cxx(${vtk-module}CxxTests win32_tests
-    NO_VALID
-    TestWin32OpenGLRenderWindow.cxx)
-  list(APPEND render_window_tests
-    ${win32_tests})
+  vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
+    TestWin32OpenGLRenderWindow.cxx NO_VALID)
 endif()
 
 include_directories(${OPENGL_INCLUDE_DIR})
 
 vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
-  TestAreaSelections.cxx
-  TestGlyph3DMapperArrow.cxx
+  TestScenePicker.cxx,NO_VALID
   TestMultiblockDisplayProperties.cxx
   TestMultiTexturing.cxx
-  TestMultiTexturingTransform.cxx
-  TestImageSliceMapperBorder.cxx
-  TestImageResliceMapperBorder.cxx
-  TestScalarBar.cxx
-  TestScenePicker.cxx,NO_VALID
-  TestTextureRGBA.cxx
-  TestTextureRGBADepthPeeling.cxx
-  TestTranslucentImageActorAlphaBlending.cxx
-  TestTranslucentImageActorDepthPeeling.cxx
-  TestTStripsColorsTCoords.cxx
-  TestTStripsNormalsColorsTCoords.cxx
-  TestTStripsNormalsTCoords.cxx
-  TestTStripsTCoords.cxx
-  RenderNonFinite.cxx
-  SurfacePlusEdges.cxx
-  TestLabelPlacementMapper.cxx
-  )
+  TestMultiTexturingTransform.cxx)
 
 set(VTK_USE_GLSL_SHADERS FALSE)
 if(VTK_USE_GLSL_SHADERS)
@@ -176,8 +110,3 @@ if(VTK_USE_GLSL_SHADERS)
     ${vtk-module}Cxx-TestGenericVertexAttributesGLSLDepthPeelingPass
     PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:.*vtkOpenGLProperty.*Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.")
 endif()
-
-set_tests_properties(${vtk-module}Cxx-TestOpacity
-  PROPERTIES TIMEOUT 70)
-set_tests_properties(${vtk-module}Cxx-TestTextureSize
-  PROPERTIES TIMEOUT 300)

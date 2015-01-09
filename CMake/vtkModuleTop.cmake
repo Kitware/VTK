@@ -24,11 +24,28 @@ if (module_files)
   file(REMOVE ${module_files})
 endif()
 
+# This is a little hackish, but define the rendering backend if none was passed
+# in for the first CMake invocation for modules that depend on the backend
+# chosen.
+if(NOT DEFINED VTK_RENDERING_BACKEND)
+  set(VTK_RENDERING_BACKEND "OpenGL")
+  set(_backend_set_for_first_cmake TRUE)
+endif()
+
 # Assess modules, and tests in the repository.
 vtk_module_search(${_test_languages})
 
+# Need to ensure the state is restored so that cache variable defaults can be
+# added if necessary on the first CMake run, offering up the choice of backend.
+if(_backend_set_for_first_cmake)
+  unset(VTK_RENDERING_BACKEND)
+endif()
+
 # Now include the module group logic.
 include(vtkGroups)
+
+# Now figure out which rendering backend to use.
+include(vtkBackends)
 
 # Validate the module DAG.
 macro(vtk_module_check vtk-module _needed_by stack)
@@ -94,6 +111,9 @@ macro(vtk_module_enable vtk-module _needed_by)
     set(${vtk-module}_ENABLED 1)
     foreach(dep IN LISTS ${vtk-module}_DEPENDS)
       vtk_module_enable(${dep} ${vtk-module})
+    endforeach()
+    foreach(imp IN LISTS ${vtk-module}_IMPLEMENTATIONS)
+      vtk_module_enable(${imp} ${vtk-module})
     endforeach()
 
     # If VTK_BUILD_ALL_MODULES_FOR_TESTS is true, then and then
@@ -179,6 +199,46 @@ list(SORT VTK_MODULES_DISABLED) # Deterministic order.
 # Order list to satisfy dependencies.
 include(CMake/TopologicalSort.cmake)
 topological_sort(VTK_MODULES_ENABLED "" _DEPENDS)
+set(vtk_modules_and_kits ${VTK_MODULES_ENABLED})
+if(VTK_ENABLE_KITS)
+  set(vtk_kits)
+  foreach(module IN LISTS VTK_MODULES_ENABLED)
+    if(${module}_KIT)
+      set(kit ${${module}_KIT})
+      # Set kit management variables.
+      set(_${kit}_is_kit 1)
+      list(APPEND _${kit}_modules ${module})
+      list(APPEND vtk_kits ${kit})
+      list(APPEND ${kit}_KIT_DEPENDS ${module})
+    else()
+      set(kit ${module})
+    endif()
+
+    # The module graph is modified so that any M1 -> M2 dependency, if ${M2_KIT}
+    # is set, an edge is added for M1 -> ${M2_KIT}, however, if ${M1_KIT} is the
+    # same as ${M2_KIT}, the kit dependency is ignored.
+
+    foreach(dep IN LISTS ${module}_DEPENDS)
+      if(${dep}_KIT)
+        # Ignore self dependencies.
+        if(NOT kit STREQUAL ${dep}_KIT)
+          # Depend on the dependency's kit.
+          list(APPEND ${module}_KIT_DEPENDS ${${dep}_KIT})
+        endif()
+      endif()
+
+      # Keep the original dependency.
+      list(APPEND ${module}_KIT_DEPENDS ${dep})
+    endforeach()
+  endforeach()
+
+  # Put all kits in the list (if they are not dependencies of any module, they
+  # will be dropped otherwise).
+  list(APPEND vtk_modules_and_kits ${vtk_kits})
+
+  # Sort all modules and kits.
+  topological_sort(vtk_modules_and_kits "" _KIT_DEPENDS)
+endif()
 
 
 # Report what will be built.
@@ -206,7 +266,12 @@ foreach(vtk-module ${_modules_enabled_alpha})
         set(_reason ", needed by ${_needed_by}.")
       endif()
     endif()
-    message(STATUS " * ${vtk-module}${_reason}")
+    if(VTK_ENABLE_KITS AND ${vtk-module}_KIT)
+      set(_kit " (kit: ${${vtk-module}_KIT})")
+    else()
+      set(_kit)
+    endif()
+    message(STATUS " * ${vtk-module}${_kit}${_reason}")
   endif()
 endforeach()
 
@@ -254,10 +319,8 @@ if(VTK_WRAP_PYTHON)
   endif()
 endif()
 
-# Build all modules.
-foreach(vtk-module ${VTK_MODULES_ENABLED})
-
-  set(_module ${vtk-module})
+macro(_vtk_build_module _module)
+  set(vtk-module ${_module})
 
   if(NOT ${_module}_IS_TEST)
     init_module_vars()
@@ -267,7 +330,64 @@ foreach(vtk-module ${VTK_MODULES_ENABLED})
 
   include("${${_module}_SOURCE_DIR}/vtk-module-init.cmake" OPTIONAL)
   add_subdirectory("${${_module}_SOURCE_DIR}" "${${_module}_BINARY_DIR}")
+endmacro()
+
+# Build all modules.
+foreach(kit IN LISTS vtk_modules_and_kits)
+  if(_${kit}_is_kit)
+    set(_vtk_build_as_kit ${kit})
+    set(kit_srcs)
+    foreach(kit_module IN LISTS _${kit}_modules)
+      list(APPEND kit_srcs $<TARGET_OBJECTS:${kit_module}Objects>)
+    endforeach()
+
+    configure_file("${_VTKModuleMacros_DIR}/vtkKit.cxx.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${kit}Kit.cxx" @ONLY)
+    add_library(${kit} "${CMAKE_CURRENT_BINARY_DIR}/${kit}Kit.cxx" ${kit_srcs})
+    get_property(kit_libs GLOBAL
+      PROPERTY
+        ${kit}_LIBS)
+    set(kit_priv)
+    set(kit_pub)
+    set(is_priv)
+    foreach(lib IN LISTS kit_libs)
+      if(lib STREQUAL LINK_PUBLIC)
+        set(is_priv 0)
+      elseif(lib STREQUAL LINK_PRIVATE)
+        set(is_priv 1)
+      else()
+        if(${lib}_KIT)
+          set(lib ${${lib}_KIT})
+        endif()
+        if(is_priv)
+          list(APPEND kit_priv ${lib})
+        else()
+          list(APPEND kit_pub ${lib})
+        endif()
+      endif()
+    endforeach()
+    if(kit_priv)
+      list(REMOVE_DUPLICATES kit_priv)
+      list(REMOVE_ITEM kit_priv ${kit})
+    endif()
+    if(kit_pub)
+      list(REMOVE_DUPLICATES kit_pub)
+      list(REMOVE_ITEM kit_pub ${kit})
+    endif()
+    target_link_libraries(${kit}
+      LINK_PRIVATE ${kit_priv}
+      LINK_PUBLIC  ${kit_pub})
+    vtk_target(${kit})
+  else()
+    if(VTK_ENABLE_KITS)
+      set(_vtk_build_as_kit ${${kit}_KIT})
+    else()
+      set(_vtk_build_as_kit)
+    endif()
+    _vtk_build_module(${kit})
+  endif()
 endforeach()
+unset(vtk-module)
 
 #----------------------------------------------------------------------
 # Generate VTKConfig* files
@@ -306,7 +426,7 @@ string(REGEX REPLACE "/" ";" _count "${VTK_INSTALL_PACKAGE_DIR}")
 foreach(p ${_count})
   set(VTK_CONFIG_CODE "${VTK_CONFIG_CODE}
 get_filename_component(VTK_INSTALL_PREFIX \"\${VTK_INSTALL_PREFIX}\" PATH)")
-endforeach(p)
+endforeach()
 set(VTK_CONFIG_CODE "${VTK_CONFIG_CODE}
 set(VTK_MODULES_DIR \"\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/Modules\")")
 set(VTK_CONFIG_CMAKE_DIR "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}")
@@ -334,9 +454,12 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkModuleHeaders.cmake.in
                 CMake/vtkModuleInfo.cmake.in
                 CMake/vtkModuleMacros.cmake
+                CMake/vtkModuleMacrosPython.cmake
+                CMake/vtkMPI.cmake
                 CMake/vtkExternalModuleMacros.cmake
                 CMake/vtkObjectFactory.cxx.in
                 CMake/vtkObjectFactory.h.in
+                CMake/vtkPythonPackages.cmake
                 CMake/vtkPythonWrapping.cmake
                 CMake/vtkTclWrapping.cmake
                 CMake/vtkThirdParty.cmake

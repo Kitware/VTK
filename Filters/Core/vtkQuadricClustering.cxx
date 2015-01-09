@@ -97,16 +97,10 @@ vtkQuadricClustering::~vtkQuadricClustering()
   this->FeatureEdges = NULL;
   this->FeaturePoints->Delete();
   this->FeaturePoints = NULL;
-  if (this->CellSet)
-    {
-    delete this->CellSet;
-    this->CellSet = NULL;
-    }
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete this->CellSet;
+  this->CellSet = NULL;
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
   if (this->OutputTriangleArray)
     {
     this->OutputTriangleArray->Delete();
@@ -161,9 +155,13 @@ int vtkQuadricClustering::RequestData(
 
   // Lets limit the number of divisions based on
   // the number of points in the input.
-  int target = input->GetNumberOfPoints();
-  int numDiv = (this->NumberOfXDivisions * this->NumberOfYDivisions
-                  * this->NumberOfZDivisions) / 2;
+  // (To minimize chance of overflow, force math in vtkIdType type,
+  // which is sometimes bigger than int, and never smaller.)
+  vtkIdType target = input->GetNumberOfPoints();
+  vtkIdType numDiv = static_cast<vtkIdType>(this->NumberOfXDivisions)
+                        * this->NumberOfYDivisions
+                        * this->NumberOfZDivisions
+                        / 2;
   if (this->AutoAdjustNumberOfDivisions && numDiv > target)
     {
     double factor = pow(((double)numDiv/(double)target),0.33333);
@@ -206,11 +204,8 @@ int vtkQuadricClustering::RequestData(
     }
 
   // Free up some memory.
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 
   if ( this->Debug )
     {
@@ -225,8 +220,6 @@ int vtkQuadricClustering::RequestData(
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::StartAppend(double *bounds)
 {
-  vtkIdType i;
-
   // If there are duplicate triangles. remove them
   if ( this->PreventDuplicateCells )
     {
@@ -236,7 +229,7 @@ void vtkQuadricClustering::StartAppend(double *bounds)
     }
 
   // Copy over the bounds.
-  for (i = 0; i < 6; ++i)
+  for (vtkIdType i = 0; i < 6; ++i)
     {
     this->Bounds[i]= bounds[i];
     }
@@ -298,11 +291,7 @@ void vtkQuadricClustering::StartAppend(double *bounds)
   this->ZBinStep = (this->ZBinSize > 0.0) ? (1.0/this->ZBinSize) : 0.0;
 
   this->NumberOfBinsUsed = 0;
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
   this->QuadricArray =
     new vtkQuadricClustering::PointQuadric[this->NumberOfDivisions[0] *
                                           this->NumberOfDivisions[1] *
@@ -384,7 +373,6 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
                                        int geometryFlag,
                                        vtkPolyData *input, vtkPolyData *output)
 {
-  int j;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
   double pts0[3], pts1[3], pts2[3];
@@ -403,7 +391,7 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
     {
     points->GetPoint(ptIds[0],pts0);
     binIds[0] = this->HashPoint(pts0);
-    for (j=0; j < numPts-2; j++)//creates triangles; assumes poly is convex
+    for (vtkIdType j=0; j < numPts-2; j++)//creates triangles; assumes poly is convex
       {
       points->GetPoint(ptIds[j+1],pts1);
       binIds[1] = this->HashPoint(pts1);
@@ -426,7 +414,6 @@ void vtkQuadricClustering::AddStrips(vtkCellArray *strips, vtkPoints *points,
                                      int geometryFlag,
                                      vtkPolyData *input, vtkPolyData *output)
 {
-  int j;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
   double pts[3][3];
@@ -441,7 +428,7 @@ void vtkQuadricClustering::AddStrips(vtkCellArray *strips, vtkPoints *points,
     binIds[1] = this->HashPoint(pts[1]);
     // This internal loop handles triangle strips.
     odd = 0;
-    for (j = 2; j < numPts; ++j)
+    for (vtkIdType j = 2; j < numPts; ++j)
       {
       points->GetPoint(ptIds[j], pts[2]);
       binIds[2] = this->HashPoint(pts[2]);
@@ -482,11 +469,6 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
                                        double *pt2, int geometryFlag,
                                        vtkPolyData *input, vtkPolyData *output)
 {
-  int i;
-  vtkIdType triPtIds[3];
-  double quadric[9], quadric4x4[4][4];
-  vtkIdType minIdx, midIdx, maxIdx, idx;
-
   // Special condition for fast execution.
   // Only add triangles that traverse three bins to quadrics.
   if (this->UseInternalTriangles == 0)
@@ -499,6 +481,7 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
     }
 
   // Compute the quadric.
+  double quadric[9], quadric4x4[4][4];
   vtkTriangle::ComputeQuadric(pt0, pt1, pt2, quadric4x4);
   quadric[0] = quadric4x4[0][0];
   quadric[1] = quadric4x4[0][1];
@@ -511,7 +494,7 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
   quadric[8] = quadric4x4[2][3];
 
   // Add the quadric to each of the three corner bins.
-  for (i = 0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
     {
     // If the current quadric is not initialized, then clear it out.
     if (this->QuadricArray[binIds[i]].Dimension > 2)
@@ -528,8 +511,9 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
 
   if (geometryFlag)
     {
+    vtkIdType triPtIds[3];
     // Now add the triangle to the geometry.
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
       {
       // Get the vertex from each bin.
       if (this->QuadricArray[binIds[i]].VertexId == -1)
@@ -545,10 +529,10 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
       {
       if ( this->PreventDuplicateCells )
         {
-        minIdx = ( binIds[0]<binIds[1] ? (binIds[0]<binIds[2] ? 0 : 2) :
-                   (binIds[1]<binIds[2] ? 1 : 2) );
-        midIdx = 0;
-        maxIdx = 0;
+        vtkIdType minIdx = ( binIds[0]<binIds[1] ? (binIds[0]<binIds[2] ? 0 : 2) :
+                             (binIds[1]<binIds[2] ? 1 : 2) );
+        vtkIdType midIdx = 0;
+        vtkIdType maxIdx = 0;
         switch ( minIdx )
           {
           case 0:
@@ -588,8 +572,9 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
               }
             break;
           }
-        idx = binIds[minIdx] + this->NumberOfBins*binIds[midIdx] +
-              this->NumberOfBins*this->NumberOfBins*binIds[maxIdx];
+        // TODO: this arithmetic overflows with the TestQuadricLODActor test.
+        vtkIdType idx = binIds[minIdx] + this->NumberOfBins*binIds[midIdx] +
+                        this->NumberOfBins*this->NumberOfBins*binIds[maxIdx];
         if ( this->CellSet->find(idx) == this->CellSet->end() )
           {
           this->CellSet->insert(idx);
@@ -619,8 +604,7 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
                                     int geometryFlag,
                                     vtkPolyData *input, vtkPolyData *output)
 {
-  int j;
-  vtkIdType numCells, i;
+  vtkIdType numCells;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
   double pt0[3], pt1[3];
@@ -629,7 +613,7 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
   // Add the edges to the error fuction.
   numCells = edges->GetNumberOfCells();
   edges->InitTraversal();
-  for (i = 0; i < numCells; ++i)
+  for (vtkIdType i = 0; i < numCells; ++i)
     {
     edges->GetNextCell(numPts, ptIds);
     if(numPts != 0)
@@ -637,7 +621,7 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
       points->GetPoint(ptIds[0], pt0);
       binIds[0] = this->HashPoint(pt0);
       // This internal loop handles line strips.
-      for (j = 1; j < numPts; ++j)
+      for (vtkIdType j = 1; j < numPts; ++j)
         {
         points->GetPoint(ptIds[j], pt1);
         binIds[1] = this->HashPoint(pt1);
@@ -660,7 +644,6 @@ void vtkQuadricClustering::AddEdge(vtkIdType *binIds, double *pt0, double *pt1,
                                    int geometryFlag,
                                    vtkPolyData *input, vtkPolyData *output)
 {
-  int   i;
   vtkIdType edgePtIds[2];
   double length2, tmp;
   double d[3];
@@ -718,7 +701,7 @@ void vtkQuadricClustering::AddEdge(vtkIdType *binIds, double *pt0, double *pt1,
   q[7] = length2*(1.0 - d[2]*d[2]);
   q[8] = length2*(d[2]*md - m[2]);
 
-  for (i = 0; i < 2; ++i)
+  for (int i = 0; i < 2; ++i)
     {
     // If the current quadric is from triangles (or not initialized), then clear it out.
     if (this->QuadricArray[binIds[i]].Dimension > 1)
@@ -736,7 +719,7 @@ void vtkQuadricClustering::AddEdge(vtkIdType *binIds, double *pt0, double *pt1,
   if (geometryFlag)
     {
     // Now add the edge to the geometry.
-    for (i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
       {
       // Get the vertex from each bin.
       if (this->QuadricArray[binIds[i]].VertexId == -1)
@@ -765,8 +748,7 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
                                        int geometryFlag, vtkPolyData *input,
                                        vtkPolyData *output)
 {
-  int j;
-  vtkIdType numCells, i;
+  vtkIdType numCells;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
   double pt[3];
@@ -782,11 +764,11 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
   double curr = 0;
 
   verts->InitTraversal();
-  for (i = 0; i < numCells; ++i)
+  for (vtkIdType i = 0; i < numCells; ++i)
     {
     verts->GetNextCell(numPts, ptIds);
     // Can there be poly vertices?
-    for (j = 0; j < numPts; ++j)
+    for (vtkIdType j = 0; j < numPts; ++j)
       {
       points->GetPoint(ptIds[j], pt);
       binId = this->HashPoint(pt);
@@ -883,12 +865,8 @@ void vtkQuadricClustering::AddQuadric(vtkIdType binId, double quadric[9])
 //----------------------------------------------------------------------------
 vtkIdType vtkQuadricClustering::HashPoint(double point[3])
 {
-  vtkIdType binId;
-  int xBinCoord;
-  int yBinCoord;
-  int zBinCoord;
-
-  xBinCoord = static_cast<int>((point[0] - this->Bounds[0])*this->XBinStep);
+  vtkIdType xBinCoord = static_cast<vtkIdType>(
+                         (point[0] - this->Bounds[0]) * this->XBinStep);
   if (xBinCoord < 0)
     {
     xBinCoord = 0;
@@ -898,7 +876,8 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
     xBinCoord = this->NumberOfDivisions[0] - 1;
     }
 
-  yBinCoord = static_cast<int>((point[1] - this->Bounds[2])*this->YBinStep);
+  vtkIdType yBinCoord = static_cast<vtkIdType>(
+                         (point[1] - this->Bounds[2]) * this->YBinStep);
   if (yBinCoord < 0)
     {
     yBinCoord = 0;
@@ -908,7 +887,8 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
     yBinCoord = this->NumberOfDivisions[1] - 1;
     }
 
-  zBinCoord = static_cast<int>((point[2] - this->Bounds[4])*this->ZBinStep);
+  vtkIdType zBinCoord = static_cast<vtkIdType>(
+                         (point[2] - this->Bounds[4]) * this->ZBinStep);
   if (zBinCoord < 0)
     {
     zBinCoord = 0;
@@ -919,8 +899,8 @@ vtkIdType vtkQuadricClustering::HashPoint(double point[3])
     }
 
   // vary x fastest, then y, then z
-  binId = xBinCoord + yBinCoord*this->NumberOfDivisions[0] +
-    zBinCoord*this->SliceSize;
+  vtkIdType binId = xBinCoord + yBinCoord*this->NumberOfDivisions[0] +
+          zBinCoord*this->SliceSize;
 
   return binId;
 }
@@ -939,7 +919,7 @@ void vtkQuadricClustering::EndAppend()
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType i, numBuckets;
+  vtkIdType numBuckets;
   int abortExecute=0;
   vtkPoints *outputPoints;
   double newPt[3];
@@ -968,7 +948,7 @@ void vtkQuadricClustering::EndAppend()
 
   // Compute the representative points for each bin
   outputPoints = vtkPoints::New();
-  for (i = 0; !abortExecute && i < numBuckets; i++ )
+  for (vtkIdType i = 0; !abortExecute && i < numBuckets; i++ )
     {
     if (cstep > step)
       {
@@ -1011,11 +991,8 @@ void vtkQuadricClustering::EndAppend()
   output->DataHasBeenGenerated();
 
   // Free the quadric array.
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 }
 
 
@@ -1024,13 +1001,11 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
                                                       vtkIdType binId,
                                                       double point[3])
 {
-  int i, j;
   double A[3][3], U[3][3], UT[3][3], VT[3][3], V[3][3];
   double b[3], w[3];
   double W[3][3], tempMatrix[3][3];
   double cellCenter[3], tempVector[3];
   double cellBounds[6];
-  int x, y, z;
   double quadric4x4[4][4];
 
   quadric4x4[0][0] = quadric[0];
@@ -1044,9 +1019,9 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
   quadric4x4[2][3] = quadric4x4[3][2] = quadric[8];
   quadric4x4[3][3] = 1;  // arbitrary value
 
-  x = binId % this->NumberOfDivisions[0];
-  y = (binId / this->NumberOfDivisions[0]) % this->NumberOfDivisions[1];
-  z = binId / this->SliceSize;
+  vtkIdType x = binId % this->NumberOfDivisions[0];
+  vtkIdType y = (binId / this->NumberOfDivisions[0]) % this->NumberOfDivisions[1];
+  vtkIdType z = binId / this->SliceSize;
 
   cellBounds[0] = this->Bounds[0] + x * this->XBinSize;
   cellBounds[1] = this->Bounds[0] + (x+1) * this->XBinSize;
@@ -1055,11 +1030,11 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
   cellBounds[4] = this->Bounds[4] + z * this->ZBinSize;
   cellBounds[5] = this->Bounds[4] + (z+1) * this->ZBinSize;
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     {
     b[i] = -quadric4x4[3][i];
     cellCenter[i] = (cellBounds[i*2+1] + cellBounds[i*2]) / 2.0;
-    for (j = 0; j < 3; j++)
+    for (int j = 0; j < 3; j++)
       {
       A[i][j] = quadric4x4[i][j];
       }
@@ -1072,7 +1047,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
   vtkMath::SingularValueDecomposition3x3(A, U, w, VT);
 
   // Find maximum (magnitude) eigenvalue from SVD
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     {
     if ((temp = fabs(w[i])) > maxW)
       {
@@ -1080,9 +1055,9 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
       }
     }
   // Initialize matrix
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     {
-    for (j = 0; j < 3; j++)
+    for (int j = 0; j < 3; j++)
       {
       if (i == j)
         {
@@ -1109,7 +1084,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
   vtkMath::Multiply3x3(W, UT, tempMatrix);
   vtkMath::Multiply3x3(V, tempMatrix, tempMatrix);
   vtkMath::Multiply3x3(A, cellCenter, tempVector);
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
     {
     tempVector[i] = b[i] - tempVector[i];
     }
@@ -1260,7 +1235,6 @@ void vtkQuadricClustering::SetDivisionSpacing(double x, double y, double z)
 void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input,
                                                 vtkPolyData *output)
 {
-  vtkIdType   i;
   vtkIdType   outPtId;
   vtkPoints   *inputPoints;
   vtkPoints   *outputPoints;
@@ -1299,14 +1273,14 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input,
   numBins = this->NumberOfDivisions[0] * this->NumberOfDivisions[1]
                   * this->NumberOfDivisions[2];
   minError = new double[numBins];
-  for (i = 0; i < numBins; ++i)
+  for (vtkIdType i = 0; i < numBins; ++i)
     {
     minError[i] = VTK_DOUBLE_MAX;
     }
 
   // Loop through the input points.
   numPoints = inputPoints->GetNumberOfPoints();
-  for (i = 0; i < numPoints; ++i)
+  for (vtkIdType i = 0; i < numPoints; ++i)
     {
     inputPoints->GetPoint(i, pt);
     binId = this->HashPoint(pt);
@@ -1352,11 +1326,8 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input,
 
   this->EndAppendVertexGeometry(input, output);
 
-  if (this->QuadricArray)
-    {
-    delete [] this->QuadricArray;
-    this->QuadricArray = NULL;
-    }
+  delete [] this->QuadricArray;
+  this->QuadricArray = NULL;
 
   delete [] minError;
 }
@@ -1369,10 +1340,9 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input,
 {
   vtkCellArray *inVerts, *outVerts;
   vtkIdType *tmp = NULL;
-  int        tmpLength = 0;
-  int        tmpIdx;
+  vtkIdType  tmpLength = 0;
+  vtkIdType  tmpIdx;
   double pt[3];
-  int j;
   vtkIdType *ptIds = 0;
   vtkIdType numPts = 0;
   vtkIdType outPtId;
@@ -1385,15 +1355,12 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input,
     {
     if (tmpLength < numPts)
       {
-      if (tmp)
-        {
-        delete[] tmp;
-        }
+      delete [] tmp;
       tmp = new vtkIdType[numPts];
       tmpLength = numPts;
       }
     tmpIdx = 0;
-    for (j = 0; j < numPts; ++j)
+    for (vtkIdType j = 0; j < numPts; ++j)
       {
       input->GetPoint(ptIds[j], pt);
       binId = this->HashPoint(pt);
@@ -1415,10 +1382,7 @@ void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input,
       }
     }
 
-  if (tmp)
-    {
-    delete [] tmp;
-    }
+  delete [] tmp;
 
   if (outVerts->GetNumberOfCells() > 0)
     {
@@ -1437,7 +1401,6 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd,
   vtkPolyData *input = vtkPolyData::New();
   vtkPoints *edgePts;
   vtkCellArray *edges;
-  vtkIdType i;
   vtkIdType binId;
   double featurePt[3];
 
@@ -1454,7 +1417,7 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd,
     if (this->UseFeaturePoints)
       {
       this->FindFeaturePoints(edges, edgePts, this->FeaturePointsAngle);
-      for (i = 0; i < this->FeaturePoints->GetNumberOfPoints(); i++)
+      for (vtkIdType i = 0; i < this->FeaturePoints->GetNumberOfPoints(); i++)
         {
         this->FeaturePoints->GetPoint(i, featurePt);
         binId = this->HashPoint(featurePt);
@@ -1477,8 +1440,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
                                              vtkPoints *edgePts,
                                              double vtkNotUsed(angle))
 {
-  vtkIdType i, pointIds[2];
-  int j;
+  vtkIdType pointIds[2];
   vtkIdType *cellPts = 0;
   vtkIdType numCellPts;
   vtkIdList *pointIdList = vtkIdList::New();
@@ -1494,17 +1456,17 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
 
   this->FeaturePoints->Allocate(numPts);
 
-  for (i = 0; i < numPts; i++)
+  for (vtkIdType i = 0; i < numPts; i++)
     {
     pointTable[i] = new vtkIdType[4];
     pointTable[i][1] = 0;
     }
 
   edges->InitTraversal();
-  for (i = 0; i < numEdges; i++)
+  for (vtkIdType i = 0; i < numEdges; i++)
     {
     edges->GetNextCell(numCellPts, cellPts);
-    for (j = 0; j < 2; j++)
+    for (int j = 0; j < 2; j++)
       {
       pointIds[j] = pointIdList->InsertUniqueId(cellPts[j]);
       pointTable[pointIds[j]][0] = cellPts[j];
@@ -1517,7 +1479,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
       }
     }
 
-  for (i = 0; i < numPts; i++)
+  for (vtkIdType i = 0; i < numPts; i++)
     {
     if (pointTable[i][1] == 1)
       {
@@ -1529,7 +1491,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
       }
     else if (pointTable[i][1] == 2)
       {
-      for (j = 0; j < 2; j++)
+      for (int j = 0; j < 2; j++)
         {
         edges->GetCell(3*pointTable[i][j+2], numCellPts, cellPointIds);
         if (cellPointIds[0] == pointTable[i][0])
@@ -1555,7 +1517,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
     }
 
   pointIdList->Delete();
-  for (i = 0; i < numPts; i++)
+  for (vtkIdType i = 0; i < numPts; i++)
     {
     delete [] pointTable[i];
     }

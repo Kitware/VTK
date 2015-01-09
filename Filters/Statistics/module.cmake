@@ -10,4 +10,6 @@ vtk_module(vtkFiltersStatistics
     vtkalglib
   TEST_DEPENDS
     vtkTestingCore
+  KIT
+    vtkFilters
   )

@@ -13,4 +13,6 @@ vtk_module(vtkParallelCore
     vtkUtilitiesHashSource
   TEST_DEPENDS
     vtkTestingRendering
+  KIT
+    vtkParallel
   )

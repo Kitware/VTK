@@ -153,11 +153,10 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
       {
       this->InternalColorTexture = vtkOpenGLTexture::New();
       this->InternalColorTexture->RepeatOff();
+      this->InternalColorTexture->EdgeClampOn();
       }
     this->InternalColorTexture->SetInputData(this->ColorTextureMap);
-    // Keep color from interacting with texture.
-    float info[4] = { 1.0, 1.0, 1.0, 1.0 };
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, info);
+
 
     this->LastWindow = renderer->GetRenderWindow();
     }
@@ -195,14 +194,17 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
       lmcolorMode = GL_DIFFUSE;
       }
 
+    glColorMaterial(GL_FRONT_AND_BACK, lmcolorMode);
+    glEnable(GL_COLOR_MATERIAL);
+
     if (this->ColorTextureMap)
       {
       this->InternalColorTexture->Load(renderer);
-      }
-    else
-      {
-      glColorMaterial( GL_FRONT_AND_BACK, lmcolorMode);
-      glEnable(GL_COLOR_MATERIAL);
+      // Keep the surface color from interacting with color loaded from texture.
+      // We don't simple use (GL_TEXTURE_ENV_MODE, GL_REPLACE) since that
+      // implies all the lighting colors are lost too i.e. no diffuse
+      // highlights.
+      glColor3f(1.0, 1.0, 1.0);
       }
     }
 

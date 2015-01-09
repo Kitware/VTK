@@ -24,11 +24,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
 #include <functional>
+
+#define VTK_MAX_CELLS_PER_POINT 4096
 
 vtkStandardNewMacro(vtkCellDataToPointData);
 
@@ -38,8 +41,6 @@ vtkCellDataToPointData::vtkCellDataToPointData()
 {
   this->PassCellData = 0;
 }
-
-#define VTK_MAX_CELLS_PER_POINT 4096
 
 //----------------------------------------------------------------------------
 int vtkCellDataToPointData::RequestData(
@@ -63,29 +64,10 @@ int vtkCellDataToPointData::RequestData(
     return this->RequestDataForUnstructuredGrid(0, inputVector, outputVector);
     }
 
-  vtkIdType cellId, ptId;
-  vtkIdType numCells, numPts;
-  vtkCellData *inPD=input->GetCellData();
-  vtkPointData *outPD=output->GetPointData();
-  vtkIdList *cellIds;
-  double weight;
-  double *weights;
-
   vtkDebugMacro(<<"Mapping cell data to point data");
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
-
-  cellIds = vtkIdList::New();
-  cellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
-
-  if ( (numPts=input->GetNumberOfPoints()) < 1 )
-    {
-    vtkDebugMacro(<<"No input point data!");
-    cellIds->Delete();
-    return 1;
-    }
-  weights = new double[VTK_MAX_CELLS_PER_POINT];
 
   // Pass the point data first. The fields and attributes
   // which also exist in the cell data of the input will
@@ -94,46 +76,29 @@ int vtkCellDataToPointData::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
   output->GetPointData()->CopyFieldOff("vtkGhostLevels");
 
-  // notice that inPD and outPD are vtkCellData and vtkPointData; respectively.
-  // It's weird, but it works.
-  outPD->InterpolateAllocate(inPD,numPts);
-
-  int abort=0;
-  vtkIdType progressInterval=numPts/20 + 1;
-  for (ptId=0; ptId < numPts && !abort; ptId++)
+  if (input->GetNumberOfPoints() < 1)
     {
-    if ( !(ptId % progressInterval) )
-      {
-      this->UpdateProgress(static_cast<double>(ptId)/numPts);
-      abort = GetAbortExecute();
-      }
-
-    input->GetPointCells(ptId, cellIds);
-    numCells = cellIds->GetNumberOfIds();
-    if ( numCells > 0 && numCells < VTK_MAX_CELLS_PER_POINT )
-      {
-      weight = 1.0 / numCells;
-      for (cellId=0; cellId < numCells; cellId++)
-        {
-        weights[cellId] = weight;
-        }
-      outPD->InterpolatePoint(inPD, ptId, cellIds, weights);
-      }
-    else
-      {
-      outPD->NullPoint(ptId);
-      }
+    vtkDebugMacro(<<"No input point data!");
+    return 1;
     }
 
-  if ( !this->PassCellData )
+  // Do the interpolation, taking care of masked cells if needed.
+  vtkStructuredGrid *sGrid = vtkStructuredGrid::SafeDownCast(input);
+  if (sGrid && sGrid->GetCellBlanking())
+    {
+    this->interpolatePointDataWithMask(sGrid, output);
+    }
+  else
+    {
+    this->interpolatePointData(input, output);
+    }
+
+  if (!this->PassCellData)
     {
     output->GetCellData()->CopyAllOff();
     output->GetCellData()->CopyFieldOn("vtkGhostLevels");
     }
   output->GetCellData()->PassData(input->GetCellData());
-
-  cellIds->Delete();
-  delete [] weights;
 
   return 1;
 }
@@ -304,5 +269,104 @@ int vtkCellDataToPointData::RequestDataForUnstructuredGrid
   dst->GetCellData()->PassData(src->GetCellData());
 
   return 1;
+}
+
+void vtkCellDataToPointData::interpolatePointData(vtkDataSet *input,
+                                                  vtkDataSet *output)
+{
+  vtkNew<vtkIdList> cellIds;
+  cellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
+
+  vtkIdType numPts = input->GetNumberOfPoints();
+
+  vtkCellData *inCD = input->GetCellData();
+  vtkPointData *outPD = output->GetPointData();
+  outPD->InterpolateAllocate(inCD,numPts);
+
+  std::vector<double> weights(VTK_MAX_CELLS_PER_POINT);
+
+  int abort = 0;
+  vtkIdType progressInterval = numPts / 20 + 1;
+  for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
+    {
+    if ( !(ptId % progressInterval) )
+      {
+      this->UpdateProgress(static_cast<double>(ptId)/numPts);
+      abort = GetAbortExecute();
+      }
+
+    input->GetPointCells(ptId, cellIds.GetPointer());
+    vtkIdType numCells = cellIds->GetNumberOfIds();
+
+    if ( numCells > 0 && numCells < VTK_MAX_CELLS_PER_POINT )
+      {
+      double weight = 1.0 / numCells;
+      for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+        {
+        weights[cellId] = weight;
+        }
+      outPD->InterpolatePoint(inCD, ptId, cellIds.GetPointer(), &weights[0]);
+      }
+    else
+      {
+      outPD->NullPoint(ptId);
+      }
+    }
+}
+
+void vtkCellDataToPointData::interpolatePointDataWithMask(
+    vtkStructuredGrid *input, vtkDataSet *output)
+{
+  vtkNew<vtkIdList> allCellIds;
+  allCellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
+  vtkNew<vtkIdList> cellIds;
+  cellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
+
+  vtkIdType numPts = input->GetNumberOfPoints();
+
+  vtkCellData *inCD = input->GetCellData();
+  vtkPointData *outPD = output->GetPointData();
+  outPD->InterpolateAllocate(inCD,numPts);
+
+  std::vector<double> weights(VTK_MAX_CELLS_PER_POINT);
+
+  int abort = 0;
+  vtkIdType progressInterval = numPts / 20 + 1;
+  for (vtkIdType ptId = 0; ptId < numPts && !abort; ptId++)
+    {
+    if ( !(ptId % progressInterval) )
+      {
+      this->UpdateProgress(static_cast<double>(ptId)/numPts);
+      abort = GetAbortExecute();
+      }
+
+    input->GetPointCells(ptId, allCellIds.GetPointer());
+    cellIds->Reset();
+    // Only consider cells that are not masked:
+    for (vtkIdType cId = 0; cId < allCellIds->GetNumberOfIds(); ++cId)
+      {
+      vtkIdType curCell = allCellIds->GetId(cId);
+      if (input->IsCellVisible(curCell))
+        {
+        cellIds->InsertNextId(curCell);
+        }
+      }
+
+    vtkIdType numCells = cellIds->GetNumberOfIds();
+
+    if ( numCells > 0 && numCells < VTK_MAX_CELLS_PER_POINT )
+      {
+      double weight = 1.0 / numCells;
+      for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+        {
+        weights[cellId] = weight;
+        }
+      outPD->InterpolatePoint(inCD, ptId, cellIds.GetPointer(), &weights[0]);
+      }
+    else
+      {
+      outPD->NullPoint(ptId);
+      }
+    }
 }
 

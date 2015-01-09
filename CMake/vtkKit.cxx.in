@@ -1,0 +1,4 @@
+bool loaded_@kit@Kit()
+{
+  return true;
+}

@@ -20,14 +20,14 @@ Maintainer: Jonathan Lange
 
 from __future__ import division, absolute_import, print_function
 
-import traceback, sys
+import sys
 from random import randrange
 
-from twisted.python.compat import _PY3, reraise
-from twisted.internet import defer, _utilspy3 as utils, interfaces
+from twisted.internet import defer, utils, interfaces
 from twisted.python.failure import Failure
 from twisted.python import deprecate, versions
 from twisted.python.filepath import FilePath
+from twisted.python.lockfile import FilesystemLock
 
 __all__ = [
     'DEFAULT_TIMEOUT_DURATION',
@@ -157,7 +157,7 @@ class _Janitor(object):
         reactor = self._getReactor()
         if interfaces.IReactorThreads.providedBy(reactor):
             if reactor.threadpool is not None:
-                # Stop the threadpool now so that a new one is created. 
+                # Stop the threadpool now so that a new one is created.
                 # This improves test isolation somewhat (although this is a
                 # post class cleanup hook, so it's only isolating classes
                 # from each other, not methods from each other).
@@ -241,26 +241,15 @@ def suppress(action='ignore', **kwarg):
 # #6016:
 def profiled(f, outputFile):
     def _(*args, **kwargs):
-        if sys.version_info[0:2] != (2, 4):
-            import profile
-            prof = profile.Profile()
-            try:
-                result = prof.runcall(f, *args, **kwargs)
-                prof.dump_stats(outputFile)
-            except SystemExit:
-                pass
-            prof.print_stats()
-            return result
-        else: # use hotshot, profile is broken in 2.4
-            import hotshot.stats
-            prof = hotshot.Profile(outputFile)
-            try:
-                return prof.runcall(f, *args, **kwargs)
-            finally:
-                stats = hotshot.stats.load(outputFile)
-                stats.strip_dirs()
-                stats.sort_stats('cum')   # 'time'
-                stats.print_stats(100)
+        import profile
+        prof = profile.Profile()
+        try:
+            result = prof.runcall(f, *args, **kwargs)
+            prof.dump_stats(outputFile)
+        except SystemExit:
+            pass
+        prof.print_stats()
+        return result
     return _
 
 
@@ -282,53 +271,6 @@ deprecate.deprecatedModuleAttribute(
     versions.Version("Twisted", 12, 3, 0),
     "This function never worked correctly.  Implement lookup on your own.",
     __name__, "getPythonContainers")
-
-
-deprecate.deprecatedModuleAttribute(
-    versions.Version("Twisted", 10, 1, 0),
-    "Please use twisted.python.reflect.namedAny instead.",
-    __name__, "findObject")
-
-
-
-def findObject(name):
-    """Get a fully-named package, module, module-global object or attribute.
-    Forked from twisted.python.reflect.namedAny.
-
-    Returns a tuple of (bool, obj).  If bool is True, the named object exists
-    and is returned as obj.  If bool is False, the named object does not exist
-    and the value of obj is unspecified.
-    """
-    names = name.split('.')
-    topLevelPackage = None
-    moduleNames = names[:]
-    while not topLevelPackage:
-        trialname = '.'.join(moduleNames)
-        if len(trialname) == 0:
-            return (False, None)
-        try:
-            topLevelPackage = __import__(trialname)
-        except ImportError:
-            # if the ImportError happened in the module being imported,
-            # this is a failure that should be handed to our caller.
-            # count stack frames to tell the difference.
-            exc_info = sys.exc_info()
-            if len(traceback.extract_tb(exc_info[2])) > 1:
-                try:
-                    # Clean up garbage left in sys.modules.
-                    del sys.modules[trialname]
-                except KeyError:
-                    # Python 2.4 has fixed this.  Yay!
-                    pass
-                reraise(exc_info[1], exc_info[2])
-            moduleNames.pop()
-    obj = topLevelPackage
-    for n in names[1:]:
-        try:
-            obj = getattr(obj, n)
-        except AttributeError:
-            return (False, obj)
-    return (True, obj)
 
 
 
@@ -426,7 +368,6 @@ def _unusedTestDirectory(base):
         same name until the lock is released, either explicitly or by this
         process exiting.
     """
-    from twisted.python.lockfile import FilesystemLock
     counter = 0
     while True:
         if counter:
@@ -453,6 +394,39 @@ def _unusedTestDirectory(base):
             else:
                 raise _WorkingDirectoryBusy()
 
-# Remove this, and move lockfile import, after ticket #5960 is resolved:
-if _PY3:
-    del _unusedTestDirectory
+
+
+def _listToPhrase(things, finalDelimiter, delimiter=', '):
+    """
+    Produce a string containing each thing in C{things},
+    separated by a C{delimiter}, with the last couple being separated
+    by C{finalDelimiter}
+
+    @param things: The elements of the resulting phrase
+    @type things: L{list} or L{tuple}
+
+    @param finalDelimiter: What to put between the last two things
+        (typically 'and' or 'or')
+    @type finalDelimiter: L{str}
+
+    @param delimiter: The separator to use between each thing,
+        not including the last two. Should typically include a trailing space.
+    @type delimiter: L{str}
+
+    @return: The resulting phrase
+    @rtype: L{str}
+    """
+    if not isinstance(things, (list, tuple)):
+        raise TypeError("Things must be a list or a tuple")
+    if not things:
+        return ''
+    if len(things) == 1:
+        return str(things[0])
+    if len(things) == 2:
+        return "%s %s %s" % (str(things[0]), finalDelimiter, str(things[1]))
+    else:
+        strThings = []
+        for thing in things:
+            strThings.append(str(thing))
+        return "%s%s%s %s" % (delimiter.join(strThings[:-1]),
+            delimiter, finalDelimiter, strThings[-1])

@@ -16,7 +16,7 @@ MACRO(MANGLE_VARIABLE_NAME str var prefix)
   STRING(TOUPPER "${str}" mangle_variable_name_var)
   STRING(REGEX REPLACE "[/. ]" "_" mangle_variable_name_var "${mangle_variable_name_var}")
   SET(${var} "${prefix}${mangle_variable_name_var}")
-ENDMACRO(MANGLE_VARIABLE_NAME str var)
+ENDMACRO()
 
 # Check if header file exists and add it to the list.
 MACRO(CHECK_INCLUDE_FILE_CONCAT FILE)
@@ -24,35 +24,35 @@ MACRO(CHECK_INCLUDE_FILE_CONCAT FILE)
   CHECK_INCLUDE_FILES("${HEADER_INCLUDES};${FILE}" ${CHECK_INCLUDE_FILE_CONCAT_VAR})
   IF(${CHECK_INCLUDE_FILE_CONCAT_VAR})
     SET(HEADER_INCLUDES ${HEADER_INCLUDES} ${FILE})
-  ENDIF(${CHECK_INCLUDE_FILE_CONCAT_VAR})
-ENDMACRO(CHECK_INCLUDE_FILE_CONCAT)
+  ENDIF()
+ENDMACRO()
 
 MACRO(CHECK_FUNCTION_EXISTS_EX FUNC)
   MANGLE_VARIABLE_NAME("${FUNC}" "CHECK_FUNCTION_EXISTS_EX_VAR" "HAVE_")
   CHECK_FUNCTION_EXISTS("${FUNC}" "${CHECK_FUNCTION_EXISTS_EX_VAR}")
-ENDMACRO(CHECK_FUNCTION_EXISTS_EX)
+ENDMACRO()
 
 MACRO(CHECK_SYMBOL_EXISTS_EX SYM)
   MANGLE_VARIABLE_NAME("${SYM}" "CHECK_SYMBOL_EXISTS_EX_VAR" "HAVE_")
   CHECK_SYMBOL_EXISTS("${SYM}" "${HEADER_INCLUDES}" "${CHECK_SYMBOL_EXISTS_EX_VAR}")
-ENDMACRO(CHECK_SYMBOL_EXISTS_EX)
+ENDMACRO()
 
 MACRO(CHECK_TYPE_SIZE_EX type)
   MANGLE_VARIABLE_NAME("${type}" "check_type_size_var" "")
   CHECK_TYPE_SIZE("${type}" "SIZEOF_${check_type_size_var}")
   IF(HAVE_${check_type_size_var})
     SET("HAVE_${check_type_size_var}" 1)
-  ENDIF(HAVE_${check_type_size_var})
-ENDMACRO(CHECK_TYPE_SIZE_EX)
+  ENDIF()
+ENDMACRO()
 
 MACRO(C_SOURCE_COMPILES SOURCE VAR)
-  IF("${VAR}" MATCHES "^${VAR}$")
+  IF(NOT DEFINED "${VAR}")
     SET(MACRO_CHECK_FUNCTION_DEFINITIONS
       "-D${VAR} ${CMAKE_REQUIRED_FLAGS}")
     IF(CMAKE_REQUIRED_LIBRARIES)
       SET(C_SOURCE_COMPILES_ADD_LIBRARIES
         "-DLINK_LIBRARIES:STRING=${CMAKE_REQUIRED_LIBRARIES}")
-    ENDIF(CMAKE_REQUIRED_LIBRARIES)
+    ENDIF()
     FILE(WRITE "${CMAKE_BINARY_DIR}/CMakeTmp/src.c"
       "${SOURCE}")
 
@@ -70,16 +70,16 @@ MACRO(C_SOURCE_COMPILES SOURCE VAR)
         "Performing C SOURCE FILE Test ${VAR} succeded with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n")
-    ELSE(${VAR})
+    ELSE()
       MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Failed")
       SET(${VAR} "" CACHE INTERNAL "NetCDF test ${FUNCTION}")
       FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Performing C SOURCE FILE Test ${VAR} failed with the following output:\n"
         "${OUTPUT}\n"
         "Source file was:\n${SOURCE}\n")
-    ENDIF(${VAR})
-  ENDIF("${VAR}" MATCHES "^${VAR}$")
-ENDMACRO(C_SOURCE_COMPILES)
+    ENDIF()
+  ENDIF()
+ENDMACRO()
 
 CHECK_INCLUDE_FILES("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
 FOREACH(file
@@ -97,13 +97,13 @@ FOREACH(file
     "stdbool.h"
     )
   CHECK_INCLUDE_FILE_CONCAT("${file}")
-ENDFOREACH(file)
+ENDFOREACH()
 FOREACH(func
     alloca
     strerror
     )
   CHECK_SYMBOL_EXISTS_EX("${func}")
-ENDFOREACH(func)
+ENDFOREACH()
 FOREACH(type
     "size_t"
     "ssize_t"
@@ -118,7 +118,7 @@ FOREACH(type
     "_Bool"
     )
   CHECK_TYPE_SIZE_EX("${type}")
-ENDFOREACH(type)
+ENDFOREACH()
 
 SET(testsrc
 "#include <sys/stat.h>
@@ -128,11 +128,11 @@ struct stat s; s.st_blksize;
 ; return 0; }")
 IF(HAVE_SYS_TYPES_H)
   SET(testsrc "#include <sys/types.h>\n${testsrc}")
-ENDIF(HAVE_SYS_TYPES_H)
+ENDIF()
 
 IF(HAVE_SYS_STAT_H)
   C_SOURCE_COMPILES("${testsrc}" HAVE_ST_BLKSIZE)
-ENDIF(HAVE_SYS_STAT_H)
+ENDIF()
 
 #
 SET(testsrc
@@ -177,19 +177,19 @@ SET(testsrc
 }")
 IF(HAVE_SYS_TYPES_H)
   SET(testsrc "#include <sys/types.h>\n${testsrc}")
-ENDIF(HAVE_SYS_TYPES_H)
+ENDIF()
 IF(HAVE_SYS_STAT_H)
   SET(testsrc "#include <sys/stat.h>\n${testsrc}")
-ENDIF(HAVE_SYS_STAT_H)
+ENDIF()
 IF(HAVE_FCNTL_H)
   SET(testsrc "#include <fcntl.h>\n${testsrc}")
-ENDIF(HAVE_FCNTL_H)
+ENDIF()
 IF(HAVE_STDIO_H)
   SET(testsrc "#include <stdio.h>\n${testsrc}")
-ENDIF(HAVE_STDIO_H)
+ENDIF()
 IF(HAVE_UNISTD_H)
   SET(testsrc "#include <unistd.h>\n${testsrc}")
-ENDIF(HAVE_UNISTD_H)
+ENDIF()
 C_SOURCE_COMPILES("${testsrc}" HAVE_FTRUNCATE)
 
 MACRO(INVERT_VARIABLE var val)
@@ -197,8 +197,8 @@ MACRO(INVERT_VARIABLE var val)
   SET(${var} "1")
   IF(INVERT_VARIABLE_VAR)
     SET(${var} "0")
-  ENDIF(INVERT_VARIABLE_VAR)
-ENDMACRO(INVERT_VARIABLE)
+  ENDIF()
+ENDMACRO()
 
 INVERT_VARIABLE(NO_STDLIB_H "${HAVE_STDLIB_H}")
 INVERT_VARIABLE(NO_SYS_TYPES_H "${HAVE_SYS_TYPES_H}")
@@ -206,19 +206,19 @@ INVERT_VARIABLE(NO_STRERROR "${HAVE_STRERROR}")
 
 IF(NOT HAVE_SIZEOF_SIZE_T)
   SET(size_t long)
-ENDIF(NOT HAVE_SIZEOF_SIZE_T)
+ENDIF()
 IF(NOT HAVE_SIZEOF_OFF_T)
   SET(off_t long)
-ENDIF(NOT HAVE_SIZEOF_OFF_T)
+ENDIF()
 IF(NOT HAVE_SIZEOF_SSIZE_T)
   SET(ssize_t int)
-ENDIF(NOT HAVE_SIZEOF_SSIZE_T)
+ENDIF()
 IF(NOT HAVE_SIZEOF_PTRDIFF_T)
   SET(ptrdiff_t int)
-ENDIF(NOT HAVE_SIZEOF_PTRDIFF_T)
+ENDIF()
 #IF(NOT HAVE_SIZEOF_UCHAR)
 #  SET(uchar "unsigned char")
-#ENDIF(NOT HAVE_SIZEOF_UCHAR)
+#ENDIF()
 
 # use the same name for the variable as in VTK, so the result is reused
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
@@ -258,7 +258,7 @@ if (USE_NETCDF4)
 
   set(NETCDF4_CHUNK_CACHE_PREEMPTION 0.75 CACHE STRING "Specify default file chunk cache preemption policy for HDF5 files (a number between 0 and 1, inclusive).")
   mark_as_advanced(NETCDF4_CHUNK_CACHE_PREEMPTION)
-endif (USE_NETCDF4)
+endif ()
   
 CONFIGURE_FILE(vtk_netcdf_config.h.in vtk_netcdf_config.h @ONLY IMMEDIATE)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
@@ -288,7 +288,7 @@ IF (NETCDF_DISABLE_COMPILER_WARNINGS)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
     SET (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -w")
   ENDIF ()
-ENDIF (NETCDF_DISABLE_COMPILER_WARNINGS)
+ENDIF ()
 
 
 #-----------------------------------------------------------------------------
@@ -305,31 +305,26 @@ INCLUDE_DIRECTORIES(BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/libsrc4
   )
 
-set(netcdf_liblib_SOURCES "" CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(liblib)
 
-set(netcdf_dispatch_SOURCES "" CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(libdispatch)
 
-set(netcdf_src_SOURCES "" CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(libsrc)
 
-set(netcdf_src4_SOURCES "" CACHE INTERNAL "" FORCE)
 IF (USE_NETCDF4)
   ADD_SUBDIRECTORY(libsrc4)
-ENDIF (USE_NETCDF4)
+ENDIF ()
 
 IF (NETCDF_ENABLE_CXX)
-  set(netcdf_cxx_SOURCES "" CACHE INTERNAL "" FORCE)
   ADD_SUBDIRECTORY(cxx)
-ENDIF (NETCDF_ENABLE_CXX)
+ENDIF ()
 
 IF(APPLE)
   SET_SOURCE_FILES_PROPERTIES(
     v2i.c
     PROPERTIES
     COMPILE_FLAGS -fno-common)
-ENDIF(APPLE)
+ENDIF()
 
 VTK_ADD_LIBRARY(vtkNetCDF 
     ${netcdf_src_SOURCES}
@@ -360,4 +355,4 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${VTKNETCDF_BINARY_DIR}/vtk_netcdf_config.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtknetcdf/include
     COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF()

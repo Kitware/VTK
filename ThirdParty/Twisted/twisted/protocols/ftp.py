@@ -14,7 +14,6 @@ import operator
 import stat
 import errno
 import fnmatch
-import warnings
 
 try:
     import pwd, grp
@@ -29,7 +28,6 @@ from twisted.internet import reactor, interfaces, protocol, error, defer
 from twisted.protocols import basic, policies
 
 from twisted.python import log, failure, filepath
-from twisted.python.compat import reduce
 
 from twisted.cred import error as cred_error, portal, credentials, checkers
 
@@ -224,6 +222,37 @@ def errnoToFailure(e, path):
         return defer.fail()
 
 
+def _isGlobbingExpression(segments=None):
+    """
+    Helper for checking if a FTPShell `segments` contains a wildcard Unix
+    expression.
+
+    Only filename globbing is supported.
+    This means that wildcards can only be presents in the last element of
+    `segments`.
+
+    @type  segments: C{list}
+    @param segments: List of path elements as used by the FTP server protocol.
+
+    @rtype: Boolean
+    @return: True if `segments` contains a globbing expression.
+    """
+    if not segments:
+        return False
+
+    # To check that something is a glob expression, we convert it to
+    # Regular Expression. If the result is the same as the original expression
+    # then it contains no globbing expression.
+    globCandidate = segments[-1]
+    # A set of default regex rules is added to all strings.
+    emtpyTranslations = fnmatch.translate('')
+    globTranslations = fnmatch.translate(globCandidate)
+
+    if globCandidate + emtpyTranslations == globTranslations:
+        return False
+    else:
+        return True
+
 
 class FTPCmdError(Exception):
     """
@@ -386,6 +415,12 @@ class DTP(object, protocol.Protocol):
             self._onConnLost.callback(None)
 
     def sendLine(self, line):
+        """
+        Send a line to data channel.
+
+        @param line: The line to be sent.
+        @type line: L{bytes}
+        """
         self.transport.write(line + '\r\n')
 
 
@@ -891,6 +926,38 @@ class FTP(object, basic.LineReceiver, policies.TimeoutMixin):
         return self.dtpFactory.deferred.addCallbacks(connected, connFailed)
 
 
+    def _encodeName(self, name):
+        """
+        Encode C{name} to be sent over the wire.
+
+        This encodes L{unicode} objects as UTF-8 and leaves L{bytes} as-is.
+
+        As described by U{RFC 3659 section
+        2.2<https://tools.ietf.org/html/rfc3659#section-2.2>}::
+
+            Various FTP commands take pathnames as arguments, or return
+            pathnames in responses. When the MLST command is supported, as
+            indicated in the response to the FEAT command, pathnames are to be
+            transferred in one of the following two formats.
+
+                pathname = utf-8-name / raw
+                utf-8-name = <a UTF-8 encoded Unicode string>
+                raw = <any string that is not a valid UTF-8 encoding>
+
+            Which format is used is at the option of the user-PI or server-PI
+            sending the pathname.
+
+        @param name: Name to be encoded.
+        @type name: L{bytes} or L{unicode}
+
+        @return: Wire format of C{name}.
+        @rtype: L{bytes}
+        """
+        if isinstance(name, unicode):
+            return name.encode('utf-8')
+        return name
+
+
     def ftp_LIST(self, path=''):
         """ This command causes a list to be sent from the server to the
         passive DTP.  If the pathname specifies a directory or other
@@ -904,22 +971,14 @@ class FTP(object, basic.LineReceiver, policies.TimeoutMixin):
         if self.dtpInstance is None or not self.dtpInstance.isConnected:
             return defer.fail(BadCmdSequenceError('must send PORT or PASV before RETR'))
 
-        # bug in konqueror
-        if path == "-a":
-            path = ''
-        # bug in gFTP 2.0.15
-        if path == "-aL":
-            path = ''
-        # bug in Nautilus 2.10.0
-        if path == "-L":
-            path = ''
-        # bug in ange-ftp
-        if path == "-la":
+        # Various clients send flags like -L or -al etc.  We just ignore them.
+        if path.lower() in ['-a', '-l', '-la', '-al']:
             path = ''
 
         def gotListing(results):
             self.reply(DATA_CNX_ALREADY_OPEN_START_XFR)
             for (name, attrs) in results:
+                name = self._encodeName(name)
                 self.dtpInstance.sendListResponse(name, attrs)
             self.dtpInstance.transport.loseConnection()
             return (TXFR_COMPLETE_OK,)
@@ -962,29 +1021,28 @@ class FTP(object, basic.LineReceiver, policies.TimeoutMixin):
         except InvalidPath:
             return defer.fail(FileNotFoundError(path))
 
-        def cbList(results):
+        def cbList(results, glob):
             """
-            Send, line by line, each file in the directory listing, and then
-            close the connection.
+            Send, line by line, each matching file in the directory listing, and
+            then close the connection.
 
             @type results: A C{list} of C{tuple}. The first element of each
                 C{tuple} is a C{str} and the second element is a C{list}.
             @param results: The names of the files in the directory.
 
-            @rtype: C{tuple}
+            @param glob: A shell-style glob through which to filter results (see
+                U{http://docs.python.org/2/library/fnmatch.html}), or C{None}
+                for no filtering.
+            @type glob: L{str} or L{NoneType}
+
             @return: A C{tuple} containing the status code for a successful
                 transfer.
+            @rtype: C{tuple}
             """
             self.reply(DATA_CNX_ALREADY_OPEN_START_XFR)
             for (name, ignored) in results:
-                self.dtpInstance.sendLine(name)
-            self.dtpInstance.transport.loseConnection()
-            return (TXFR_COMPLETE_OK,)
-
-        def cbGlob(results):
-            self.reply(DATA_CNX_ALREADY_OPEN_START_XFR)
-            for (name, ignored) in results:
-                if fnmatch.fnmatch(name, segments[-1]):
+                if not glob or (glob and fnmatch.fnmatch(name, glob)):
+                    name = self._encodeName(name)
                     self.dtpInstance.sendLine(name)
             self.dtpInstance.transport.loseConnection()
             return (TXFR_COMPLETE_OK,)
@@ -999,24 +1057,24 @@ class FTP(object, basic.LineReceiver, policies.TimeoutMixin):
                 occurred while trying to list the contents of a nonexistent
                 directory.
 
-            @rtype: C{tuple}
             @returns: A C{tuple} containing the status code for a successful
                 transfer.
+            @rtype: C{tuple}
             """
             self.dtpInstance.transport.loseConnection()
             return (TXFR_COMPLETE_OK,)
 
-        # XXX This globbing may be incomplete: see #4181
-        if segments and (
-            '*' in segments[-1] or '?' in segments[-1] or
-            ('[' in segments[-1] and ']' in segments[-1])):
-            d = self.shell.list(segments[:-1])
-            d.addCallback(cbGlob)
+        if _isGlobbingExpression(segments):
+            # Remove globbing expression from path
+            # and keep to be used for filtering.
+            glob = segments.pop()
         else:
-            d = self.shell.list(segments)
-            d.addCallback(cbList)
-            # self.shell.list will generate an error if the path is invalid
-            d.addErrback(listErr)
+            glob = None
+
+        d = self.shell.list(segments)
+        d.addCallback(cbList, glob)
+        # self.shell.list will generate an error if the path is invalid
+        d.addErrback(listErr)
         return d
 
 
@@ -1116,6 +1174,17 @@ class FTP(object, basic.LineReceiver, policies.TimeoutMixin):
 
 
     def ftp_STOR(self, path):
+        """
+        STORE (STOR)
+
+        This command causes the server-DTP to accept the data
+        transferred via the data connection and to store the data as
+        a file at the server site.  If the file specified in the
+        pathname exists at the server site, then its contents shall
+        be replaced by the data being transferred.  A new file is
+        created at the server site if the file specified in the
+        pathname does not already exist.
+        """
         if self.dtpInstance is None:
             raise BadCmdSequenceError('PORT or PASV required before STOR')
 
@@ -1134,17 +1203,36 @@ class FTP(object, basic.LineReceiver, policies.TimeoutMixin):
             self.setTimeout(self.factory.timeOut)
             return result
 
-        def cbSent(result):
-            return (TXFR_COMPLETE_OK,)
+        def cbOpened(file):
+            """
+            File was open for reading. Launch the data transfer channel via
+            the file consumer.
+            """
+            d = file.receive()
+            d.addCallback(cbConsumer)
+            d.addCallback(lambda ignored: file.close())
+            d.addCallbacks(cbSent, ebSent)
+            return d
 
-        def ebSent(err):
-            log.msg("Unexpected error receiving file from client:")
-            log.err(err)
-            if err.check(FTPCmdError):
-                return err
-            return (CNX_CLOSED_TXFR_ABORTED,)
+        def ebOpened(err):
+            """
+            Called when failed to open the file for reading.
+
+            For known errors, return the FTP error code.
+            For all other, return a file not found error.
+            """
+            if isinstance(err.value, FTPCmdError):
+                return (err.value.errorCode, '/'.join(newsegs))
+            log.err(err, "Unexpected error received while opening file:")
+            return (FILE_NOT_FOUND, '/'.join(newsegs))
 
         def cbConsumer(cons):
+            """
+            Called after the file was opended for reading.
+
+            Prepare the data transfer channel and send the response
+            to the command channel.
+            """
             if not self.binary:
                 cons = ASCIIConsumerWrapper(cons)
 
@@ -1158,20 +1246,21 @@ class FTP(object, basic.LineReceiver, policies.TimeoutMixin):
 
             return d
 
-        def cbOpened(file):
-            d = file.receive()
-            d.addCallback(cbConsumer)
-            d.addCallback(lambda ignored: file.close())
-            d.addCallbacks(cbSent, ebSent)
-            return d
+        def cbSent(result):
+            """
+            Called from data transport when tranfer is done.
+            """
+            return (TXFR_COMPLETE_OK,)
 
-        def ebOpened(err):
-            if not err.check(PermissionDeniedError, FileNotFoundError, IsNotADirectoryError):
-                log.msg("Unexpected error attempting to open file for upload:")
-                log.err(err)
-            if isinstance(err.value, FTPCmdError):
-                return (err.value.errorCode, '/'.join(newsegs))
-            return (FILE_NOT_FOUND, '/'.join(newsegs))
+        def ebSent(err):
+            """
+            Called from data transport when there are errors during the
+            transfer.
+            """
+            log.err(err, "Unexpected error received during transfer:")
+            if err.check(FTPCmdError):
+                return err
+            return (CNX_CLOSED_TXFR_ABORTED,)
 
         d = self.shell.openForWriting(newsegs)
         d.addCallbacks(cbOpened, ebOpened)
@@ -1525,14 +1614,14 @@ class IFTPShell(Interface):
         child of the directory.
 
         @param path: The path, as a list of segments, to list
-        @type path: C{list} of C{unicode}
+        @type path: C{list} of C{unicode} or C{bytes}
 
         @param keys: A tuple of keys desired in the resulting
         dictionaries.
 
         @return: A Deferred which fires with a list of (name, list),
-        where the name is the name of the entry as a unicode string
-        and each list contains values corresponding to the requested
+        where the name is the name of the entry as a unicode string or
+        bytes and each list contains values corresponding to the requested
         keys.  The following are possible elements of keys, and the
         values which should be returned for them:
 
@@ -1702,7 +1791,7 @@ class FTPAnonymousShell(object):
 
 
     def _path(self, path):
-        return reduce(filepath.FilePath.child, path, self.filesystemRoot)
+        return self.filesystemRoot.descendant(path)
 
 
     def makeDirectory(self, path):
@@ -2781,36 +2870,11 @@ class FTPClient(FTPClientBasic):
 
     def cwd(self, path):
         """
-        Issues the CWD (Change Working Directory) command. It's also
-        available as changeDirectory, which parses the result.
+        Issues the CWD (Change Working Directory) command.
 
         @return: a L{Deferred} that will be called when done.
         """
         return self.queueStringCommand('CWD ' + self.escapePath(path))
-
-
-    def changeDirectory(self, path):
-        """
-        Change the directory on the server and parse the result to determine
-        if it was successful or not.
-
-        @type path: C{str}
-        @param path: The path to which to change.
-
-        @return: a L{Deferred} which will be called back when the directory
-            change has succeeded or errbacked if an error occurrs.
-        """
-        warnings.warn(
-            "FTPClient.changeDirectory is deprecated in Twisted 8.2 and "
-            "newer.  Use FTPClient.cwd instead.",
-            category=DeprecationWarning,
-            stacklevel=2)
-
-        def cbResult(result):
-            if result[-1][:3] != '250':
-                return failure.Failure(CommandFailed(result))
-            return True
-        return self.cwd(path).addCallback(cbResult)
 
 
     def makeDirectory(self, path):

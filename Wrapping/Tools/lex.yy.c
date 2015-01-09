@@ -97,15 +97,15 @@ typedef unsigned int flex_uint32_t;
 /* The "const" storage-class-modifier is valid. */
 #define YY_USE_CONST
 
-#else        /* ! __cplusplus */
+#else   /* ! __cplusplus */
 
 /* C99 requires __STDC__ to be defined as 1. */
 #if defined (__STDC__)
 
 #define YY_USE_CONST
 
-#endif        /* defined (__STDC__) */
-#endif        /* ! __cplusplus */
+#endif  /* defined (__STDC__) */
+#endif  /* ! __cplusplus */
 
 #ifdef YY_USE_CONST
 #define yyconst const
@@ -209,7 +209,7 @@ struct yy_buffer_state
         FILE *yy_input_file;
 
         char *yy_ch_buf;                /* input buffer */
-        char *yy_buf_pos;                /* current position in input buffer */
+        char *yy_buf_pos;               /* current position in input buffer */
 
         /* Size of input buffer in bytes, not including room for EOB
          * characters.
@@ -289,12 +289,12 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when yytext is formed. */
 static char yy_hold_char;
-static yy_size_t yy_n_chars;                /* number of characters read into yy_ch_buf */
+static yy_size_t yy_n_chars;            /* number of characters read into yy_ch_buf */
 yy_size_t yyleng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = (char *) 0;
-static int yy_init = 0;                /* whether we need to initialize */
+static int yy_init = 0;         /* whether we need to initialize */
 static int yy_start = 0;        /* start state number */
 
 /* Flag which is used to allow yywrap()'s to do buffer switches
@@ -1865,8 +1865,11 @@ Modify lex.yy.c:
   - convert tabs to spaces (8 spaces per tab)
   - remove extra space from end of lines
   - remove blank lines from end of file
-  - replace "int yyl" with "yy_size_t yyl"
+  - replace "int yyl;" with "yy_size_t yyl;"
   - compile with gcc and "-Wsign-compare", there should be no warnings
+  - replace "#line" lines with blank lines
+  - remove usage of the "register" keyword
+  - add a prototype for isatty
 
 */
 
@@ -2121,7 +2124,7 @@ YY_DECL
 #endif
 
                 if ( ! (yy_start) )
-                        (yy_start) = 1;        /* first start state */
+                        (yy_start) = 1; /* first start state */
 
                 if ( ! yyin )
                         yyin = stdin;
@@ -2138,7 +2141,7 @@ YY_DECL
                 yy_load_buffer_state( );
                 }
 
-        while ( 1 )                /* loops until end-of-file is reached */
+        while ( 1 )             /* loops until end-of-file is reached */
                 {
                 yy_cp = (yy_c_buf_p);
 
@@ -2193,7 +2196,7 @@ yy_find_action:
 ;
                         }
 
-do_action:        /* This label is used only to access EOF actions. */
+do_action:      /* This label is used only to access EOF actions. */
 
                 switch ( yy_act )
         { /* beginning of action switch */
@@ -3615,13 +3618,13 @@ YY_FATAL_ERROR( "flex scanner jammed" );
 /* yy_get_next_buffer - try to read in a new buffer
  *
  * Returns a code representing an action:
- *        EOB_ACT_LAST_MATCH -
- *        EOB_ACT_CONTINUE_SCAN - continue scanning from current position
- *        EOB_ACT_END_OF_FILE - end of file
+ *      EOB_ACT_LAST_MATCH -
+ *      EOB_ACT_CONTINUE_SCAN - continue scanning from current position
+ *      EOB_ACT_END_OF_FILE - end of file
  */
 static int yy_get_next_buffer (void)
 {
-            char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
+        char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
         char *source = (yytext_ptr);
         int number_to_move, i;
         int ret_val;
@@ -3784,12 +3787,12 @@ static int yy_get_next_buffer (void)
 /* yy_try_NUL_trans - try to make a transition on the NUL character
  *
  * synopsis
- *        next_state = yy_try_NUL_trans( current_state );
+ *      next_state = yy_try_NUL_trans( current_state );
  */
     static yy_state_type yy_try_NUL_trans  (yy_state_type yy_current_state )
 {
         int yy_is_jam;
-            char *yy_cp = (yy_c_buf_p);
+        char *yy_cp = (yy_c_buf_p);
 
         YY_CHAR yy_c = 1;
         if ( yy_accept[yy_current_state] )
@@ -3916,8 +3919,8 @@ static int yy_get_next_buffer (void)
                         }
                 }
 
-        c = *(unsigned char *) (yy_c_buf_p);        /* cast for 8-bit char's */
-        *(yy_c_buf_p) = '\0';        /* preserve yytext */
+        c = *(unsigned char *) (yy_c_buf_p);    /* cast for 8-bit char's */
+        *(yy_c_buf_p) = '\0';   /* preserve yytext */
         (yy_hold_char) = *++(yy_c_buf_p);
 
         YY_CURRENT_BUFFER_LVALUE->yy_at_bol = (c == '\n');
@@ -3928,7 +3931,7 @@ static int yy_get_next_buffer (void)
 
         return c;
 }
-#endif        /* ifndef YY_NO_INPUT */
+#endif  /* ifndef YY_NO_INPUT */
 
 /** Immediately switch to a different input stream.
  * @param input_file A readable stream.
@@ -3957,8 +3960,8 @@ static int yy_get_next_buffer (void)
 
         /* TODO. We should be able to replace this entire function body
          * with
-         *                yypop_buffer_state();
-         *                yypush_buffer_state(new_buffer);
+         *              yypop_buffer_state();
+         *              yypush_buffer_state(new_buffer);
      */
         yyensure_buffer_stack ();
         if ( YY_CURRENT_BUFFER == new_buffer )
@@ -3985,7 +3988,7 @@ static int yy_get_next_buffer (void)
 
 static void yy_load_buffer_state  (void)
 {
-            (yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
+        (yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
         (yytext_ptr) = (yy_c_buf_p) = YY_CURRENT_BUFFER_LVALUE->yy_buf_pos;
         yyin = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
         (yy_hold_char) = *(yy_c_buf_p);
@@ -4074,7 +4077,7 @@ static void yy_load_buffer_state  (void)
  */
     void yy_flush_buffer (YY_BUFFER_STATE  b )
 {
-            if ( ! b )
+        if ( ! b )
                 return;
 
         b->yy_n_chars = 0;
@@ -4103,7 +4106,7 @@ static void yy_load_buffer_state  (void)
  */
 void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
 {
-            if (new_buffer == NULL)
+        if (new_buffer == NULL)
                 return;
 
         yyensure_buffer_stack();
@@ -4133,7 +4136,7 @@ void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
  */
 void yypop_buffer_state (void)
 {
-            if (!YY_CURRENT_BUFFER)
+        if (!YY_CURRENT_BUFFER)
                 return;
 
         yy_delete_buffer(YY_CURRENT_BUFFER );
@@ -4213,7 +4216,7 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
         if ( ! b )
                 YY_FATAL_ERROR( "out of dynamic memory in yy_scan_buffer()" );
 
-        b->yy_buf_size = size - 2;        /* "- 2" to take care of EOB's */
+        b->yy_buf_size = size - 2;      /* "- 2" to take care of EOB's */
         b->yy_buf_pos = b->yy_ch_buf = base;
         b->yy_is_our_buffer = 0;
         b->yy_input_file = 0;
@@ -4285,7 +4288,7 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len 
 
 static void yy_fatal_error (yyconst char* msg )
 {
-            (void) fprintf( stderr, "%s\n", msg );
+        (void) fprintf( stderr, "%s\n", msg );
         exit( YY_EXIT_FAILURE );
 }
 
@@ -4482,7 +4485,7 @@ void *yyrealloc  (void * ptr, yy_size_t  size )
 
 void yyfree (void * ptr )
 {
-        free( (char *) ptr );        /* see yyrealloc() for (char *) cast */
+        free( (char *) ptr );   /* see yyrealloc() for (char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"
@@ -4521,6 +4524,7 @@ const char *get_macro_arguments()
   if (c1 != '(')
     {
     unput(c1);
+    free(cp);
     return NULL;
     }
 
@@ -4574,7 +4578,13 @@ const char *get_macro_arguments()
       cp[i++] = ' ';
       if (i >= 4 && (i & (i-1)) == 0)
         {
+        char *oldcp = cp;
         cp = (char *)realloc(cp, 2*i);
+        if (!cp)
+          {
+          free(oldcp);
+          return NULL;
+          }
         }
       }
     if (sl)
@@ -4583,7 +4593,13 @@ const char *get_macro_arguments()
       cp[i++] = '/';
       if (i >= 4 && (i & (i-1)) == 0)
         {
+        char *oldcp = cp;
         cp = (char *)realloc(cp, 2*i);
+        if (!cp)
+          {
+          free(oldcp);
+          return NULL;
+          }
         }
       }
     if (c1 == '\"' || c1 == '\'')
@@ -4613,7 +4629,13 @@ const char *get_macro_arguments()
         cp[i++] = (char)c1;
         if (i >= 4 && (i & (i-1)) == 0)
           {
+          char *oldcp = cp;
           cp = (char *)realloc(cp, 2*i);
+          if (!cp)
+            {
+            free(oldcp);
+            return NULL;
+            }
           }
         }
       while (c1 != c2 || escaped);
@@ -4623,7 +4645,13 @@ const char *get_macro_arguments()
       cp[i++] = (char)c1;
       if (i >= 4 && (i & (i-1)) == 0)
         {
+        char *oldcp = cp;
         cp = (char *)realloc(cp, 2*i);
+        if (!cp)
+          {
+          free(oldcp);
+          return NULL;
+          }
         }
       cp[i] = '\0';
       if (c1 == '(')
@@ -4845,8 +4873,14 @@ int skip_conditional_block()
       {
       if (i >= linemaxlen-5)
         {
+        char *oldlinebuf = linebuf;
         linemaxlen += i+5;
         linebuf = (char *)realloc(linebuf, linemaxlen);
+        if (!linebuf)
+          {
+          free(oldlinebuf);
+          return 0;
+          }
         }
       linebuf[i++] = c;
       /* be sure to skip escaped newlines */
@@ -4995,6 +5029,11 @@ const char *raw_string(const char *begin)
       {
       m += 1024;
       result = (char *)realloc(result, m);
+      if (!result)
+        {
+        print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+        exit(1);
+        }
       dp = result + j;
       }
 
@@ -5081,6 +5120,11 @@ void push_buffer()
     {
     buffer_stack = (YY_BUFFER_STATE *)realloc(
       buffer_stack, 2*n*sizeof(YY_BUFFER_STATE));
+    if (!buffer_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     }
   buffer_stack[buffer_stack_size++] = YY_CURRENT_BUFFER;
 }
@@ -5134,8 +5178,18 @@ void push_include(const char *filename)
     {
     include_stack = (FileInfo **)realloc(
       include_stack, 2*n*sizeof(FileInfo *));
+    if (!include_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     lineno_stack = (int *)realloc(
       lineno_stack, 2*n*sizeof(int));
+    if (!lineno_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     }
 
   lineno_stack[include_stack_size] = yyget_lineno();
@@ -5207,6 +5261,11 @@ void push_macro(MacroInfo *macro)
     {
     macro_stack = (MacroInfo **)realloc(
       macro_stack, 2*n*sizeof(MacroInfo *));
+    if (!macro_stack)
+      {
+      print_preprocessor_error(VTK_PARSE_OUT_OF_MEMORY, NULL, 0);
+      exit(1);
+      }
     }
   macro_stack[macro_stack_size++] = macro;
   if (macro)
@@ -5288,6 +5347,9 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
       break;
     case VTK_PARSE_SYNTAX_ERROR:
       text = "syntax error";
+      break;
+    case VTK_PARSE_OUT_OF_MEMORY:
+      text = "out of memory";
       break;
     }
 

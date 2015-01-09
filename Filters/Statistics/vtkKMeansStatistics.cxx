@@ -653,16 +653,13 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
                              reqModel,
                              0,
                              dfunc );
-  vtkKMeansAssessFunctor* kmfunc = static_cast<vtkKMeansAssessFunctor*>( dfunc );
-  if ( ! kmfunc )
+  if ( ! dfunc )
     {
     vtkWarningMacro( "Assessment could not be accommodated. Skipping." );
-    if ( dfunc )
-      {
-      delete dfunc;
-      }
     return;
     }
+
+  vtkKMeansAssessFunctor* kmfunc = static_cast<vtkKMeansAssessFunctor*>( dfunc );
 
   vtkIdType nv = this->AssessNames->GetNumberOfValues();
   int numRuns = kmfunc->GetNumberOfRuns();
@@ -726,17 +723,18 @@ void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
     return;
     }
 
-  vtkKMeansAssessFunctor* kmfunc = vtkKMeansAssessFunctor::New();
-
   if ( ! this->DistanceFunctor )
     {
     vtkErrorMacro( "Distance functor is NULL" );
     return;
     }
 
+  vtkKMeansAssessFunctor* kmfunc = vtkKMeansAssessFunctor::New();
+
   if ( ! kmfunc->Initialize( inData, reqModel, this->DistanceFunctor ) )
     {
     delete kmfunc;
+    return;
     }
   dfunc = kmfunc;
 }
@@ -755,8 +753,8 @@ vtkKMeansAssessFunctor::~vtkKMeansAssessFunctor()
 }
 
 // ----------------------------------------------------------------------
-bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData, 
-                                         vtkTable* inModel, 
+bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
+                                         vtkTable* inModel,
                                          vtkKMeansDistanceFunctor* dfunc )
 {
   vtkIdType numObservations = inData->GetNumberOfRows();

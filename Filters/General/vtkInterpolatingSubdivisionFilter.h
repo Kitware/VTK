@@ -54,7 +54,7 @@ protected:
   ~vtkInterpolatingSubdivisionFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;
+  virtual int GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;
   void GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD);
   int FindEdge (vtkPolyData *mesh, vtkIdType cellId, vtkIdType p1,
                 vtkIdType p2, vtkIntArray *edgeData, vtkIdList *cellIds);

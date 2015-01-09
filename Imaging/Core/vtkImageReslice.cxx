@@ -36,7 +36,7 @@
 # undef VTK_USE_UINT64
 # define VTK_USE_UINT64 0
 
-#include <limits.h>
+#include <climits>
 #include <float.h>
 #include <math.h>
 
@@ -103,6 +103,7 @@ vtkImageReslice::vtkImageReslice()
   this->SlabMode = VTK_IMAGE_SLAB_MEAN;
   this->SlabNumberOfSlices = 1;
   this->SlabTrapezoidIntegration = 0;
+  this->SlabSliceSpacingFraction = 1.0;
 
   this->Optimization = 1; // turn off when you're paranoid
 
@@ -241,6 +242,8 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SlabNumberOfSlices: " << this->SlabNumberOfSlices << "\n";
   os << indent << "SlabTrapezoidIntegration: "
      << (this->SlabTrapezoidIntegration ? "On\n" : "Off\n");
+  os << indent << "SlabSliceSpacingFraction: "
+     << this->SlabSliceSpacingFraction << "\n";
   os << indent << "Optimization: " << (this->Optimization ? "On\n":"Off\n");
   os << indent << "ScalarShift: " << this->ScalarShift << "\n";
   os << indent << "ScalarScale: " << this->ScalarScale << "\n";
@@ -1181,6 +1184,7 @@ int vtkImageReslice::RequestInformation(
   if (this->Optimization)
     {
     if (this->OptimizedTransform == NULL &&
+        this->SlabSliceSpacingFraction == 1.0 &&
         interpolator->IsSeparable() &&
         vtkIsPermutationMatrix(this->IndexMatrix))
       {
@@ -2022,6 +2026,9 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   int nsamples = self->GetSlabNumberOfSlices();
   nsamples = ((nsamples > 1) ? nsamples : 1);
 
+  // spacing between slab samples (as a fraction of slice spacing).
+  double slabSampleSpacing = self->GetSlabSliceSpacingFraction();
+
   // check for perspective transformation
   bool perspective = 0;
   if (newmat[3][0] != 0 || newmat[3][1] != 0 ||
@@ -2191,6 +2198,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
                 if (nsamples > 1)
                   {
                   double s = sample - 0.5*(nsamples - 1);
+                  s *= slabSampleSpacing;
                   inPoint3[0] = inPoint2[0] + s*zAxis[0];
                   inPoint3[1] = inPoint2[1] + s*zAxis[1];
                   inPoint3[2] = inPoint2[2] + s*zAxis[2];
@@ -2747,6 +2755,7 @@ void vtkGetRowCompositeFunc(
       else { *composite = &(vtkImageResliceRowComp<F>::SumRow); }
       break;
     default:
+      vtkGenericWarningMacro("Illegal slab mode!");
       *composite = 0;
     }
 }
@@ -2846,7 +2855,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     scalarType, scalarSize, outComponents, outPtr);
 
   // get the slab compositing function
-  void (*composite)(F *op, const F *ip, int nc, int count, int i, int n);
+  void (*composite)(F *op, const F *ip, int nc, int count, int i, int n) = 0;
   vtkGetRowCompositeFunc(&composite,
     self->GetSlabMode(), self->GetSlabTrapezoidIntegration());
 
@@ -2923,7 +2932,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
               interpolator->InterpolateRow(
                 weights, idX, idY, idZ1, tmpPtr, idXmax - idXmin + 1);
 
-              if (nsamples1 > 1)
+              if (composite && (nsamples1 > 1))
                 {
                 composite(floatPtr, floatSumPtr, inComponents,
                           idXmax - idXmin + 1, isample, nsamples1);

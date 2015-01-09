@@ -14,114 +14,57 @@
  * access to either file, you may request a copy from help@hdfgroup.org.     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _H5Object_H
-#define _H5Object_H
+#ifndef __H5Object_H
+#define __H5Object_H
 
+#include "H5Location.h"
 #include "H5Classes.h"		// constains forward class declarations
 
 // H5Object is a baseclass.  It has these subclasses:
 // Group, DataSet, and DataType.
 // DataType, in turn, has several specific datatypes as subclasses.
-
+// Modification:
+//	Sept 18, 2012: Added class H5Location in between IdComponent and
+//		H5Object.  An H5File now inherits from H5Location.  All HDF5
+//		wrappers in H5Object are moved up to H5Location.  H5Object
+//		is left mostly empty for future wrappers that are only for
+//		group, dataset, and named datatype.  Note that the reason for
+//		adding H5Location instead of simply moving H5File to be under
+//		H5Object is H5File is not an HDF5 object, and renaming H5Object
+//		to H5Location will risk breaking user applications.
+//		-BMR
+//	Apr 2, 2014: Added wrapper getObjName for H5Iget_name 
 #ifndef H5_NO_NAMESPACE
 namespace H5 {
 #endif
 
+/*! \class H5Object
+    \brief Class H5Object is a bridge between H5Location and DataSet, DataType,
+     and Group.
+
+    All the wrappers in H5Object were moved to H5Location.
+*/
+class H5_DLLCPP H5Object : public H5Location {
+   public:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-class H5_DLLCPP H5Object;  // forward declaration for UserData4Aiterate
-
-// Define the operator function pointer for H5Aiterate().
-typedef void (*attr_operator_t)( H5Object& loc/*in*/,
-				 const H5std_string attr_name/*in*/,
-				 void *operator_data/*in,out*/);
-
-class UserData4Aiterate { // user data for attribute iteration
-   public:
-	attr_operator_t op;
-	void* opData;
-	H5Object* object;
-};
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
-// The above part is being moved into Iterator, but not completed
-
-class H5_DLLCPP H5Object : public IdComponent {
-   public:
-	// Creates an attribute for a group, dataset, or named datatype.
-	// PropList is currently not used, so always be default.
-	Attribute createAttribute( const char* name, const DataType& type, const DataSpace& space, const PropList& create_plist = PropList::DEFAULT ) const;
-	Attribute createAttribute( const H5std_string& name, const DataType& type, const DataSpace& space, const PropList& create_plist = PropList::DEFAULT ) const;
-
-	// Opens an attribute given its name.
-	Attribute openAttribute( const char* name ) const;
-	Attribute openAttribute( const H5std_string& name ) const;
-
-	// Opens an attribute given its index.
-	Attribute openAttribute( const unsigned int idx ) const;
-
-	// Flushes all buffers associated with this object to disk
-	void flush( H5F_scope_t scope ) const;
-
-	// Gets the name of the file, in which this HDF5 object belongs.
-	H5std_string getFileName() const;
-
-	// Determines the number of attributes attached to this object.
-	int getNumAttrs() const;
-
-	// Iterate user's function over the attributes of this object
-	int iterateAttrs( attr_operator_t user_op, unsigned* idx = NULL, void* op_data = NULL );
-
-	// Removes the named attribute from this object.
-	void removeAttr( const char* name ) const;
-	void removeAttr( const H5std_string& name ) const;
-
-	// Renames the attribute to a new name.
-	void renameAttr(const char* oldname, const char* newname) const;
-	void renameAttr(const H5std_string& oldname, const H5std_string& newname) const;
-
-	// Creates a reference to a named Hdf5 object or to a dataset region
-	// in this object.
-	void reference(void* ref, const char* name, const DataSpace& dataspace,
-			H5R_type_t ref_type = H5R_DATASET_REGION) const;
-	void reference(void* ref, const char* name) const;
-	void reference(void* ref, const H5std_string& name) const;
-
-	// Open a referenced HDF5 object whose location is specified by either
-	// a file, an HDF5 object, or an attribute.
-	void dereference(H5File& h5file, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
-	void dereference(H5Object& obj, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
-	void dereference(Attribute& attr, const void* ref, H5R_type_t ref_type = H5R_OBJECT);
-
 	// Copy constructor: makes copy of an H5Object object.
 	H5Object(const H5Object& original);
+
+	// Gets the name of this HDF5 object, i.e., Group, DataSet, or
+	// DataType.
+	ssize_t getObjName(char *obj_name, size_t buf_size = 0) const;
+	ssize_t getObjName(H5std_string& obj_name, size_t len = 0) const;
+	H5std_string getObjName() const;
 
 	// Noop destructor.
 	virtual ~H5Object();
 
    protected:
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 	// Default constructor
 	H5Object();
 
 	// Creates a copy of an existing object giving the object id
 	H5Object( const hid_t object_id );
-
-	// Gets the id of the H5 file in which the given object is located.
-	hid_t p_get_file_id();
-
-	// Creates a reference to an HDF5 object or a dataset region.
-	void p_reference(void* ref, const char* name, hid_t space_id, H5R_type_t ref_type) const;
-
-	// Dereferences a ref into an hdf5 id.
-	hid_t p_dereference(hid_t loc_id, const void* ref, H5R_type_t ref_type);
-
-#ifndef H5_NO_DEPRECATED_SYMBOLS
-	// Retrieves the type of object that an object reference points to.
-	H5G_obj_t p_get_obj_type(void *ref, H5R_type_t ref_type) const;
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
-
-	// Retrieves a dataspace with the region pointed to selected.
-	hid_t p_get_region(void *ref, H5R_type_t ref_type) const;
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -130,4 +73,4 @@ class H5_DLLCPP H5Object : public IdComponent {
 #ifndef H5_NO_NAMESPACE
 }
 #endif
-#endif
+#endif // __H5Object_H

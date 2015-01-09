@@ -80,9 +80,11 @@ public:
   vtkPolyData *GetInput();
 
   // Description:
-  // The tolerance to apply in when determining whether a voxel
-  // is inside the stencil, given as a fraction of a voxel.
-  // Only used in X and Y, not in Z.
+  // The tolerance for including a voxel inside the stencil.
+  // This is in fractions of a voxel, and must be between 0 and 1.
+  // Tolerance is only applied in the x and y directions, not in z.
+  // Setting the tolerance to zero disables all tolerance checks and
+  // might result in faster performance.
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
 
@@ -94,11 +96,10 @@ protected:
                        int extent[6], int threadId);
 
   static void PolyDataCutter(vtkPolyData *input, vtkPolyData *output,
-                             double z, vtkMergePoints *locator);
+                             double z);
 
   static void PolyDataSelector(vtkPolyData *input, vtkPolyData *output,
-                               double z, double thickness,
-                               vtkMergePoints *locator);
+                               double z, double thickness);
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);

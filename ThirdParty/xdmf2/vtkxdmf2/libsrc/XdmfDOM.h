@@ -28,6 +28,9 @@
 
 #include "XdmfLightData.h"
 
+namespace xdmf2
+{
+
 //! Class for XML Parsing using the Document Object Model
 /*!
 This is the Base XML Parsing Object. A XdmfDOM will 
@@ -269,4 +272,5 @@ XdmfInt32       DTD;
 };
 
 extern XDMF_EXPORT XdmfDOM *HandleToXdmfDOM( XdmfConstString Source );
+}
 #endif

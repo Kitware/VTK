@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkButterflySubdivisionFilter.h"
 
+#include "vtkSmartPointer.h"
 #include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkEdgeTable.h"
@@ -27,7 +28,7 @@ vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 static double butterflyWeights[8] =
   {.5, .5, .125, .125, -.0625, -.0625, -.0625, -.0625};
 
-void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
+int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts,
   vtkPointData *outputPD)
 {
@@ -39,13 +40,18 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   vtkIdType p1, p2;
   int valence1, valence2;
   vtkCellArray *inputPolys=inputDS->GetPolys();
-  vtkEdgeTable *edgeTable;
-  vtkIdList *cellIds = vtkIdList::New();
-  vtkIdList *p1CellIds = vtkIdList::New();
-  vtkIdList *p2CellIds = vtkIdList::New();
-  vtkIdList *stencil = vtkIdList::New();
-  vtkIdList *stencil1 = vtkIdList::New();
-  vtkIdList *stencil2 = vtkIdList::New();
+  vtkSmartPointer<vtkIdList> cellIds =
+    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> p1CellIds =
+    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> p2CellIds =
+    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> stencil =
+    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> stencil1 =
+    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> stencil2 =
+    vtkSmartPointer<vtkIdList>::New();
   vtkPoints *inputPts=inputDS->GetPoints();
   vtkPointData *inputPD=inputDS->GetPointData();
 
@@ -54,7 +60,8 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   weights2 = new double[256];
 
   // Create an edge table to keep track of which edges we've processed
-  edgeTable = vtkEdgeTable::New();
+  vtkSmartPointer<vtkEdgeTable> edgeTable =
+    vtkSmartPointer<vtkEdgeTable>::New();
   edgeTable->InitEdgeInsertion(inputDS->GetNumberOfPoints());
 
   // Generate new points for subdivisions surface
@@ -82,11 +89,11 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
         // If this is a boundary edge. we need to use a special subdivision rule
         if (cellIds->GetNumberOfIds() == 1)
           {
-          // Compute new POsition and PointData using the same subdivision scheme
+          // Compute new Position and PointData using the same subdivision scheme
           this->GenerateBoundaryStencil (p1, p2,
                                          inputDS, stencil, weights);
           } // boundary edge
-        else
+        else if (cellIds->GetNumberOfIds() == 2)
           {
           // find the valence of the two points
           inputDS->GetPointCells (p1, p1CellIds);
@@ -134,6 +141,12 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
               }
             }
           }
+        else
+          {
+          delete [] weights; delete [] weights1; delete [] weights2;
+          vtkErrorMacro ("Dataset is non-manifold and cannot be subdivided.");
+          return 0;
+          }
           newId = this->InterpolatePosition (inputPts, outputPts, stencil, weights);
           outputPD->InterpolatePoint (inputPD, newId, stencil, weights);
         }
@@ -152,11 +165,8 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
 
   // cleanup
   delete [] weights; delete [] weights1; delete [] weights2;
-  edgeTable->Delete();
-  stencil->Delete (); stencil1->Delete (); stencil2->Delete ();
-  cellIds->Delete();
-  p1CellIds->Delete();
-  p2CellIds->Delete();
+
+  return 1;
 }
 
 void vtkButterflySubdivisionFilter::GenerateLoopStencil(

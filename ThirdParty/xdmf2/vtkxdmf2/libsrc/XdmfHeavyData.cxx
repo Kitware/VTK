@@ -26,6 +26,9 @@
 
 #include <cstring>
 
+namespace xdmf2
+{
+
 XdmfHeavyData::XdmfHeavyData() :
   mOpenCB( NULL ),
   mReadCB( NULL ),
@@ -157,3 +160,4 @@ void XdmfHeavyData::setCloseCallback( XdmfCloseCallback* cb ) {
   mCloseCB = cb;
 }
 
+}

@@ -33,11 +33,7 @@ vtkMCubesWriter::vtkMCubesWriter()
 vtkMCubesWriter::~vtkMCubesWriter()
 {
   delete[] this->FileName;
-
-  if ( this->LimitsFileName )
-    {
-    delete [] this->LimitsFileName;
-    }
+  delete [] this->LimitsFileName;
 }
 
 // Write out data in MOVIE.BYU format.

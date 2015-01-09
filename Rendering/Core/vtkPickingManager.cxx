@@ -258,7 +258,7 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
   double Y = this->External->Interactor->GetEventPosition()[1];
 
   // Get the poked renderer
-  vtkRenderer* renderer = this->External->Interactor->FindPokedRenderer(X, Y);
+  vtkRenderer* renderer = this->External->Interactor->FindPokedRenderer(static_cast<int>(X), static_cast<int>(Y));
   vtkAbstractPicker* selectedPicker =
     this->ComputePickerSelection(X, Y, 0., renderer);
 

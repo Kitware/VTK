@@ -102,7 +102,7 @@ H5SM_bt2_crt_context(void *_f)
     H5SM_bt2_ctx_t *ctx;        /* Callback context structure */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_bt2_crt_context)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(f);
@@ -140,7 +140,7 @@ H5SM_bt2_dst_context(void *_ctx)
 {
     H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx;       /* Callback context structure */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_bt2_dst_context)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity check */
     HDassert(ctx);
@@ -172,7 +172,7 @@ H5SM_bt2_store(void *native, const void *udata)
 {
     const H5SM_mesg_key_t *key = (const H5SM_mesg_key_t *)udata;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_bt2_store)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Copy the source message to the B-tree */
     *(H5SM_sohm_t *)native = key->message;
@@ -200,7 +200,7 @@ H5SM_bt2_debug(FILE *stream, const H5F_t UNUSED *f, hid_t UNUSED dxpl_id,
 {
     const H5SM_sohm_t *sohm = (const H5SM_sohm_t *)record;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_bt2_debug)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     if(sohm->location == H5SM_IN_HEAP)
         HDfprintf(stream, "%*s%-*s {%a, %lo, %Hx}\n", indent, "", fwidth,
@@ -236,11 +236,10 @@ H5SM_bt2_crt_dbg_context(H5F_t *f, hid_t UNUSED dxpl_id, haddr_t UNUSED addr)
     H5SM_bt2_ctx_t *ctx;        /* Callback context structure */
     void *ret_value;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT(H5SM_bt2_crt_dbg_context)
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(f);
-    HDassert(H5F_addr_defined(addr));
 
     /* Allocate callback context */
     if(NULL == (ctx = H5FL_MALLOC(H5SM_bt2_ctx_t)))
@@ -280,7 +279,7 @@ H5SM_bt2_convert_to_list_op(const void * record, void *op_data)
     const H5SM_list_t *list = (const H5SM_list_t *)op_data;
     size_t mesg_idx;            /* Index of message to modify */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOFUNC(H5SM_bt2_convert_to_list_op)
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Sanity checks */
     HDassert(record);

@@ -15,6 +15,9 @@
 
 // Forward declaration of Xdmf classes
 
+namespace xdmf2
+{
+
 class XdmfTopology;
 class XdmfDataDesc;
 class XdmfArray;
@@ -159,4 +162,5 @@ protected:
   XdmfInt64     Ghost;
 };
 
+}
 #endif // __XdmfSet_h

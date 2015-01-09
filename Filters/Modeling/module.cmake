@@ -7,7 +7,9 @@ vtk_module(vtkFiltersModeling
   TEST_DEPENDS
     vtkCommonColor # For vtkBandedPolyDataContourFilter used in a test
     vtkIOXML
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  KIT
+    vtkFilters
   )

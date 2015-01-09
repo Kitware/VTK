@@ -13,4 +13,6 @@ vtk_module(vtkFiltersParallelMPI
     vtkIOParallelXML
     vtkCommonDataModel
     vtkTestingCore
+  KIT
+    vtkParallel
   )

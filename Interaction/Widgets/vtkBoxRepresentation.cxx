@@ -138,6 +138,7 @@ vtkBoxRepresentation::vtkBoxRepresentation()
       this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
+    this->Handle[i]->SetProperty(this->HandleProperty);
     }
 
   // Define the point coordinates

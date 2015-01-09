@@ -52,14 +52,8 @@ vtkGeoAssignCoordinates::~vtkGeoAssignCoordinates()
     {
     this->Transform->Delete();
     }
-  if(this->LongitudeArrayName!=0)
-    {
-    delete[] this->LongitudeArrayName;
-    }
-  if(this->LatitudeArrayName!=0)
-    {
-    delete[] this->LatitudeArrayName;
-    }
+  delete[] this->LongitudeArrayName;
+  delete[] this->LatitudeArrayName;
 }
 
 

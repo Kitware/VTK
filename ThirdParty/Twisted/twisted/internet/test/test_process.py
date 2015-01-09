@@ -9,9 +9,8 @@ __metaclass__ = type
 
 import os, sys, signal, threading
 
-from twisted.trial.unittest import TestCase, SkipTest
+from twisted.trial.unittest import TestCase
 from twisted.internet.test.reactormixins import ReactorBuilder
-from twisted.python.compat import set
 from twisted.python.log import msg, err
 from twisted.python.runtime import platform, platformType
 from twisted.python.filepath import FilePath
@@ -21,6 +20,14 @@ from twisted.internet.defer import Deferred, succeed
 from twisted.internet.protocol import ProcessProtocol
 from twisted.internet.error import ProcessDone, ProcessTerminated
 
+_uidgidSkip = None
+if platform.isWindows():
+    process = None
+    _uidgidSkip = "Cannot change UID/GID on Windows"
+else:
+    from twisted.internet import process
+    if os.getuid() != 0:
+        _uidgidSkip = "Cannot change UID/GID except as root"
 
 
 class _ShutdownCallbackProcessProtocol(ProcessProtocol):
@@ -279,11 +286,11 @@ class ProcessTestsBuilderBase(ReactorBuilder):
                 # say.  Anyway, this inconsistency between different platforms
                 # is extremely unfortunate and I would remove it if I
                 # could. -exarkun
-                self.assertIdentical(err.signal, None)
+                self.assertIs(err.signal, None)
                 self.assertEqual(err.exitCode, 1)
             else:
                 self.assertEqual(err.signal, sigNum)
-                self.assertIdentical(err.exitCode, None)
+                self.assertIs(err.exitCode, None)
 
         exited.addCallback(cbExited)
         exited.addErrback(err)
@@ -308,7 +315,7 @@ class ProcessTestsBuilderBase(ReactorBuilder):
 
         def f():
             try:
-                f1 = os.popen('%s -c "import time; time.sleep(0.1)"' %
+                os.popen('%s -c "import time; time.sleep(0.1)"' %
                     (sys.executable,))
                 f2 = os.popen('%s -c "import time; time.sleep(0.5); print \'Foo\'"' %
                     (sys.executable,))
@@ -361,7 +368,7 @@ class ProcessTestsBuilderBase(ReactorBuilder):
         reactor.callWhenRunning(
             reactor.spawnProcess, proto, sys.executable,
             [sys.executable, "-Wignore", "-c", "\n".join(source)],
-            usePTY=self.usePTY)
+            env=os.environ, usePTY=self.usePTY)
         self.runReactor(reactor)
 
     if platformType != "posix":
@@ -392,6 +399,95 @@ class ProcessTestsBuilderBase(ReactorBuilder):
         # This will timeout if processExited isn't called:
         self.runReactor(reactor, timeout=30)
         self.assertEqual(protocol.exited, True)
+
+
+    def _changeIDTest(self, which):
+        """
+        Launch a child process, using either the C{uid} or C{gid} argument to
+        L{IReactorProcess.spawnProcess} to change either its UID or GID to a
+        different value.  If the child process reports this hasn't happened,
+        raise an exception to fail the test.
+
+        @param which: Either C{b"uid"} or C{b"gid"}.
+        """
+        program = [
+            b"import os",
+            b"raise SystemExit(os.get%s() != 1)" % (which,)]
+
+        container = []
+        class CaptureExitStatus(ProcessProtocol):
+            def childDataReceived(self, fd, bytes):
+                print fd, bytes
+            def processEnded(self, reason):
+                container.append(reason)
+                reactor.stop()
+
+        reactor = self.buildReactor()
+        protocol = CaptureExitStatus()
+        reactor.callWhenRunning(
+            reactor.spawnProcess, protocol, sys.executable,
+            [sys.executable, b"-c", b"\n".join(program)],
+            **{which: 1})
+
+        self.runReactor(reactor)
+
+        self.assertEqual(0, container[0].value.exitCode)
+
+
+    def test_changeUID(self):
+        """
+        If a value is passed for L{IReactorProcess.spawnProcess}'s C{uid}, the
+        child process is run with that UID.
+        """
+        self._changeIDTest(b"uid")
+    if _uidgidSkip is not None:
+        test_changeUID.skip = _uidgidSkip
+
+
+    def test_changeGID(self):
+        """
+        If a value is passed for L{IReactorProcess.spawnProcess}'s C{gid}, the
+        child process is run with that GID.
+        """
+        self._changeIDTest(b"gid")
+    if _uidgidSkip is not None:
+        test_changeGID.skip = _uidgidSkip
+
+
+    def test_processExitedRaises(self):
+        """
+        If L{IProcessProtocol.processExited} raises an exception, it is logged.
+        """
+        # Ideally we wouldn't need to poke the process module; see
+        # https://twistedmatrix.com/trac/ticket/6889
+        reactor = self.buildReactor()
+
+        class TestException(Exception):
+            pass
+
+        class Protocol(ProcessProtocol):
+            def processExited(self, reason):
+                reactor.stop()
+                raise TestException("processedExited raised")
+
+        protocol = Protocol()
+        transport = reactor.spawnProcess(
+               protocol, sys.executable, [sys.executable, "-c", ""],
+               usePTY=self.usePTY)
+        self.runReactor(reactor)
+
+        # Manually clean-up broken process handler.
+        # Only required if the test fails on systems that support
+        # the process module.
+        if process is not None:
+            for pid, handler in process.reapProcessHandlers.items():
+                if handler is not transport:
+                    continue
+                process.unregisterReapProcessHandler(pid, handler)
+                self.fail("After processExited raised, transport was left in"
+                          " reapProcessHandlers")
+
+        self.assertEqual(1, len(self.flushLoggedErrors(TestException)))
 
 
 

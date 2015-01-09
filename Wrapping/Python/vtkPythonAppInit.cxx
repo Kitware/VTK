@@ -52,20 +52,32 @@ public:
       this->Controller->Initialize(argc, argv, 1);
       vtkMultiProcessController::SetGlobalController(this->Controller);
     }
+  void Cleanup()
+    {
+    if ( this->Controller )
+      {
+      this->Controller->Finalize();
+      this->Controller->Delete();
+      this->Controller = NULL;
+      vtkMultiProcessController::SetGlobalController(NULL);
+      }
+    }
   ~vtkMPICleanup()
     {
-      if ( this->Controller )
-        {
-        this->Controller->Finalize();
-        this->Controller->Delete();
-        }
+    this->Cleanup();
     }
+
 private:
   vtkMPIController *Controller;
 };
 
 static vtkMPICleanup VTKMPICleanup;
-
+// AtExitCallback is needed to finalize the MPI controller if the python script
+// calls sys.exit() directly.
+static void AtExitCallback()
+{
+  VTKMPICleanup.Cleanup();
+}
 #endif // VTK_COMPILED_USING_MPI
 
 extern "C" {
@@ -98,6 +110,7 @@ int main(int argc, char **argv)
 
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
+  Py_AtExit(::AtExitCallback);
 #endif // VTK_COMPILED_USING_MPI
 
   int displayVersion = 0;
@@ -308,6 +321,33 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
       }
     putenv(system_path);
 #endif
+    }
+
+  // Try to put the VTK python module location in sys.path.
+  const char* site_build_dirs[] = {
+    "/../lib/site-packages",
+    0
+  };
+
+  int found_site = 0;
+  for (const char** site_build_dir = site_build_dirs; *site_build_dir && !found_site; ++site_build_dir)
+    {
+    std::string package_dir = self_dir;
+#if defined(CMAKE_INTDIR)
+    package_dir += "/..";
+#endif
+    package_dir += (*site_build_dir);
+    package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
+
+    // We try to locate the directory containing vtk python module files.
+    if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
+      {
+      // This executable is running from the build tree.  Prepend the
+      // library directory and package directory to the search path.
+      vtkPythonAppInitPrependPythonPath(package_dir.c_str());
+      vtkPythonAppInitPrependPythonPath(VTK_PYTHON_LIBRARY_DIR);
+      found_site = 1;
+      }
     }
 }
 

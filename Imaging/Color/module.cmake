@@ -4,4 +4,6 @@ vtk_module(vtkImagingColor
     StandAlone
   DEPENDS
     vtkImagingCore
+  KIT
+    vtkImaging
   )

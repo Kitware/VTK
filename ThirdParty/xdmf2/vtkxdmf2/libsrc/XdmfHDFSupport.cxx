@@ -24,6 +24,9 @@
 /*******************************************************************/
 #include "XdmfHDFSupport.h"
 
+namespace xdmf2
+{
+
 XdmfConstString
 XdmfTypeToClassString( XdmfInt32 XdmfType ) {
   switch( XdmfType ){
@@ -171,3 +174,4 @@ HDF5TypeToXdmfType( hid_t HDF5Type ) {
 return( XDMF_FAIL );
 }
 
+}

@@ -136,11 +136,8 @@ vtkParticleReader::~vtkParticleReader()
     this->File = NULL;
     }
 
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    this->FileName = NULL;
-    }
+  delete [] this->FileName;
+  this->FileName = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -244,10 +241,8 @@ int vtkParticleReader::RequestData(
     {
     case VTK_FLOAT:
       return ProduceOutputFromTextFileFloat(outputVector);
-      break;
     case VTK_DOUBLE:
       return ProduceOutputFromTextFileDouble(outputVector);
-      break;
     default:
       {
       vtkErrorMacro(<<"Only float or double data can be processed.");
@@ -259,10 +254,8 @@ int vtkParticleReader::RequestData(
     {
     case VTK_FLOAT:
       return ProduceOutputFromBinaryFileFloat(outputVector);
-      break;
     case VTK_DOUBLE:
       return ProduceOutputFromBinaryFileDouble(outputVector);
-      break;
     default:
       {
       vtkErrorMacro(<<"Only float or double data can be processed.");

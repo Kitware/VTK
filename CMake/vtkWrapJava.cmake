@@ -5,7 +5,7 @@
 MACRO(VTK_WRAP_JAVA2 TARGET SOURCE_LIST_NAME)
   # convert to the WRAP3 signature
   vtk_wrap_java3(${TARGET} ${SOURCE_LIST_NAME} "${ARGN}")
-ENDMACRO(VTK_WRAP_JAVA2)
+ENDMACRO()
 
 macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
   if(NOT VTK_PARSE_JAVA_EXE)
@@ -28,17 +28,17 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
   IF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
     SET(verbatim "")
     SET(quote "\"")
-  ELSE(CMAKE_GENERATOR MATCHES "NMake Makefiles")
+  ELSE()
     SET(verbatim "VERBATIM")
     SET(quote "")
-  ENDIF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
+  ENDIF()
 
   # Initialize the custom target counter.
   IF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
     SET(VTK_WRAP_JAVA_CUSTOM_COUNT "")
     SET(VTK_WRAP_JAVA_CUSTOM_NAME ${TARGET})
     SET(VTK_WRAP_JAVA_CUSTOM_LIST)
-  ENDIF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
+  ENDIF()
 
   # all the include directories
   if(VTK_WRAP_INCLUDE_DIRS)
@@ -92,16 +92,16 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
       # compute the input filename
       IF (TMP_FILEPATH)
         SET(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
-      ELSE (TMP_FILEPATH)
+      ELSE ()
         SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
-      ENDIF (TMP_FILEPATH)
+      ENDIF ()
 
       # use ".mm" suffix if file must be compiled with objective C++
       IF(TMP_WRAP_OBJC)
         SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.mm)
-      ELSE(TMP_WRAP_OBJC)
+      ELSE()
         SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.cxx)
-      ENDIF(TMP_WRAP_OBJC)
+      ENDIF()
 
       # new source file is nameJava.cxx, add to resulting list
       SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}}
@@ -149,16 +149,16 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
           SET(KIT_JAVA_DEPS ${VTK_WRAP_JAVA_CUSTOM_NAME})
           SET(VTK_WRAP_JAVA_CUSTOM_LIST)
           SET(VTK_WRAP_JAVA_CUSTOM_COUNT)
-        ENDIF(VTK_WRAP_JAVA_CUSTOM_COUNT MATCHES "^${VTK_WRAP_JAVA_CUSTOM_LIMIT}$")
-      ENDIF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
+        ENDIF()
+      ENDIF()
     ENDIF ()
-  ENDFOREACH(FILE)
+  ENDFOREACH()
 
   ADD_CUSTOM_TARGET("${TARGET}JavaClasses" ALL DEPENDS ${VTK_JAVA_DEPENDENCIES})
   SET(dir ${CMAKE_CURRENT_SOURCE_DIR})
   IF(VTK_WRAP_JAVA3_INIT_DIR)
     SET(dir ${VTK_WRAP_JAVA3_INIT_DIR})
-  ENDIF(VTK_WRAP_JAVA3_INIT_DIR)
+  ENDIF()
   CONFIGURE_FILE("${dir}/JavaDependencies.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/JavaDependencies.cmake" @ONLY)
 endmacro()
@@ -169,7 +169,7 @@ endmacro()
 # is a hack to work-around the limitation.  The test to enable it is
 # done here since it does not need to be done for every macro
 # invocation.
-IF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
+IF(CMAKE_GENERATOR STREQUAL "Visual Studio 6")
   SET(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS 1)
   SET(VTK_WRAP_JAVA_CUSTOM_LIMIT x)
   # Limit the number of custom commands in each target
@@ -177,5 +177,5 @@ IF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
   FOREACH(t 1 2 3 4 5 6 7)
     SET(VTK_WRAP_JAVA_CUSTOM_LIMIT
       ${VTK_WRAP_JAVA_CUSTOM_LIMIT}${VTK_WRAP_JAVA_CUSTOM_LIMIT})
-  ENDFOREACH(t)
-ENDIF(CMAKE_GENERATOR MATCHES "^Visual Studio 6$")
+  ENDFOREACH()
+ENDIF()

@@ -201,7 +201,7 @@ void vtkPolyDataMapper::MapDataArrayToVertexAttribute(
     int vtkNotUsed(componentno)
     )
 {
-  vtkErrorMacro("Not impmlemented at this level...");
+  vtkErrorMacro("Not implemented at this level...");
 }
 
 //----------------------------------------------------------------------------
@@ -212,20 +212,20 @@ void vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute(
     int vtkNotUsed(componentno)
     )
 {
-  vtkErrorMacro("Not impmlemented at this level...");
+  vtkErrorMacro("Not implemented at this level...");
 }
 
 //----------------------------------------------------------------------------
 void vtkPolyDataMapper::RemoveVertexAttributeMapping(
   const char* vtkNotUsed(vertexAttributeName))
 {
-  vtkErrorMacro("Not impmlemented at this level...");
+  vtkErrorMacro("Not implemented at this level...");
 }
 
 //----------------------------------------------------------------------------
 void vtkPolyDataMapper::RemoveAllVertexAttributeMappings()
 {
-  vtkErrorMacro("Not impmlemented at this level...");
+  vtkErrorMacro("Not implemented at this level...");
 }
 
 //----------------------------------------------------------------------------

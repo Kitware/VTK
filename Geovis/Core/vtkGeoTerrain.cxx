@@ -39,10 +39,6 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLHardwareSupport.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkPainter.h"
-#include "vtkPainterPolyDataMapper.h"
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
 #include "vtkPointData.h"
@@ -206,16 +202,9 @@ void vtkGeoTerrain::AddActors(
 
   this->InitializeNodeAnalysis(ren);
 
-  // See if we have multiTexturing
-  vtkOpenGLHardwareSupport * hardware =
-    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow())->GetHardwareSupport();
-
-  bool multiTexturing = hardware->GetSupportsMultiTexturing();
+  // Disable multitexturing, using deprecated API.
+  bool multiTexturing = false;
   int textureUnits = 0;
-  if(multiTexturing)
-    {
-    textureUnits = hardware->GetNumberOfFixedTextureUnits();
-    }
 
   // Extract the image representations from the collection.
   vtkGeoAlignedImageRepresentation* textureTree1 = 0;

@@ -35,8 +35,10 @@
 #include <list>
 
 //-----------------------------------------------------------------------------
-namespace
-  {
+class vtkLSDynaPartCollection::LSDynaPartStorage
+{
+protected:
+  //---------------------------------------------------------------------------
   //stores the number of cells for a given part
   //this struct is meant to resemble a run length encoding style of storage
   //of mapping cell ids to the part that holds those cells
@@ -65,6 +67,7 @@ namespace
     vtkLSDynaPart *part;
     };
 
+  //---------------------------------------------------------------------------
   struct PartInsertion
     {
     PartInsertion():numCellsInserted(0){}
@@ -88,10 +91,8 @@ namespace
     std::vector<PartInfo>::iterator pIt;
     vtkIdType numCellsInserted;
     };
-  }
-//-----------------------------------------------------------------------------
-class vtkLSDynaPartCollection::LSDynaPartStorage
-{
+  //---------------------------------------------------------------------------
+
 public:
   LSDynaPartStorage(const vtkIdType& numMaterials):
     NumParts(numMaterials),PartIteratorLoc(0)
@@ -474,19 +475,9 @@ vtkLSDynaPartCollection::vtkLSDynaPartCollection()
 //-----------------------------------------------------------------------------
 vtkLSDynaPartCollection::~vtkLSDynaPartCollection()
 {
-  if(this->Storage)
-    {
-    delete this->Storage;
-    }
-
-  if(this->MinIds)
-    {
-    delete[] this->MinIds;
-    }
-  if(this->MaxIds)
-    {
-    delete[] this->MaxIds;
-    }
+  delete this->Storage;
+  delete[] this->MinIds;
+  delete[] this->MaxIds;
   this->MetaData = NULL;
 }
 
@@ -507,19 +498,9 @@ void vtkLSDynaPartCollection::PrintSelf(ostream &os, vtkIndent indent)
 void vtkLSDynaPartCollection::InitCollection(LSDynaMetaData *metaData,
                                              vtkIdType* mins, vtkIdType* maxs)
 {
-  if(this->Storage)
-    {
-    delete this->Storage;
-    }
-
-  if(this->MinIds)
-    {
-    delete[] this->MinIds;
-    }
-  if(this->MaxIds)
-    {
-    delete[] this->MaxIds;
-    }
+  delete this->Storage;
+  delete[] this->MinIds;
+  delete[] this->MaxIds;
 
   //reserve enough space for the grids. Each node
   //will have a part allocated, since we don't know yet

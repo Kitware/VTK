@@ -22,6 +22,7 @@
 #include "vtkContextScenePrivate.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextKeyEvent.h"
+#include "vtkNew.h"
 
 // Get my new commands
 #include "vtkCommand.h"
@@ -31,9 +32,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkObjectFactory.h"
-#include "vtkContextBufferId.h"
-#include "vtkOpenGLContextBufferId.h"
-#include "vtkOpenGLRenderWindow.h"
+#include "vtkAbstractContextBufferId.h"
 
 // My STL containers
 #include <cassert>
@@ -322,15 +321,13 @@ bool vtkContextScene::ProcessSelectionEvent(unsigned int rect[5])
 // ----------------------------------------------------------------------------
 void vtkContextScene::TestBufferIdSupport()
 {
-  if(!this->BufferIdSupportTested)
+  if (!this->BufferIdSupportTested)
     {
-    vtkOpenGLContextBufferId *b=vtkOpenGLContextBufferId::New();
-    b->SetContext(static_cast<vtkOpenGLRenderWindow *>(
-                    this->Renderer->GetRenderWindow()));
-    this->BufferIdSupported=b->IsSupported();
+    vtkNew<vtkAbstractContextBufferId> b;
+    b->SetContext(this->Renderer->GetRenderWindow());
+    this->BufferIdSupported = b->IsSupported();
     b->ReleaseGraphicsResources();
-    b->Delete();
-    this->BufferIdSupportTested=true;
+    this->BufferIdSupportTested = true;
     }
 }
 
@@ -343,16 +340,14 @@ void vtkContextScene::UpdateBufferId()
   this->Renderer->GetTiledSizeAndOrigin(&width,&height,lowerLeft,
                                         lowerLeft+1);
 
-  if(this->BufferId==0 || this->BufferIdDirty ||
-     width!=this->BufferId->GetWidth() ||
-     height!=this->BufferId->GetHeight())
+  if (this->BufferId==0 || this->BufferIdDirty ||
+      width!=this->BufferId->GetWidth() ||
+      height!=this->BufferId->GetHeight())
     {
-    if(this->BufferId==0)
+    if (this->BufferId == 0)
       {
-      vtkOpenGLContextBufferId *b=vtkOpenGLContextBufferId::New();
-      this->BufferId=b;
-      b->SetContext(static_cast<vtkOpenGLRenderWindow *>(
-                      this->Renderer->GetRenderWindow()));
+      this->BufferId = vtkAbstractContextBufferId::New();
+      this->BufferId->SetContext(this->Renderer->GetRenderWindow());
       }
     this->BufferId->SetWidth(width);
     this->BufferId->SetHeight(height);
@@ -362,7 +357,7 @@ void vtkContextScene::UpdateBufferId()
     this->PaintIds();
     this->LastPainter->BufferIdModeEnd();
 
-    this->BufferIdDirty=false;
+    this->BufferIdDirty = false;
     }
 }
 
@@ -489,6 +484,21 @@ bool vtkContextScene::MouseMoveEvent(const vtkContextMouseEvent &e)
 //-----------------------------------------------------------------------------
 bool vtkContextScene::ButtonPressEvent(const vtkContextMouseEvent &e)
 {
+  switch (e.GetButton())
+    {
+    case vtkContextMouseEvent::LEFT_BUTTON:
+      this->InvokeEvent(vtkCommand::LeftButtonPressEvent);
+      break;
+    case vtkContextMouseEvent::MIDDLE_BUTTON:
+      this->InvokeEvent(vtkCommand::MiddleButtonPressEvent);
+      break;
+    case vtkContextMouseEvent::RIGHT_BUTTON:
+      this->InvokeEvent(vtkCommand::RightButtonPressEvent);
+      break;
+    default:
+      break;
+    }
+
   bool res = false;
   vtkContextMouseEvent &event = this->Storage->Event;
   this->EventCopy(e);
@@ -511,6 +521,21 @@ bool vtkContextScene::ButtonPressEvent(const vtkContextMouseEvent &e)
 //-----------------------------------------------------------------------------
 bool vtkContextScene::ButtonReleaseEvent(const vtkContextMouseEvent &e)
 {
+  switch (e.GetButton())
+    {
+    case vtkContextMouseEvent::LEFT_BUTTON:
+      this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent);
+      break;
+    case vtkContextMouseEvent::MIDDLE_BUTTON:
+      this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent);
+      break;
+    case vtkContextMouseEvent::RIGHT_BUTTON:
+      this->InvokeEvent(vtkCommand::RightButtonReleaseEvent);
+      break;
+    default:
+      break;
+    }
+
   bool res = false;
   if (this->Storage->itemMousePressCurrent.GetPointer())
     {

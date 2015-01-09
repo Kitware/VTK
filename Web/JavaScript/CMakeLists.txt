@@ -1,7 +1,7 @@
 vtk_module_impl()
 vtk_module_export("")
 
-find_package(PythonInterp REQUIRED)
+find_package(PythonInterp ${VTK_PYTHON_VERSION} REQUIRED)
 
 if(NOT vtkWeb_WWW_DEST)
   set(vtkWeb_WWW_DEST "${VTK_WWW_DIR}")

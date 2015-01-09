@@ -91,15 +91,15 @@ vtk_module_library(${vtk-module}
   ${QVTKNonMocHeaders} ${QVTKMocHeaders}
   )
 
-target_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
+vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
 
 if(VTK_USE_X)
-  target_link_libraries(${vtk-module} LINK_PRIVATE ${X11_LIBRARIES})
+  vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${X11_LIBRARIES})
 endif()
 
 if(APPLE)
   if(VTK_USE_CARBON)
-    target_link_libraries(${vtk-module} LINK_PRIVATE "-framework Carbon" )
+    vtk_module_link_libraries(${vtk-module} LINK_PRIVATE "-framework Carbon" )
   endif()
 endif()
 
@@ -133,7 +133,7 @@ if(BUILD_SHARED_LIBS)
   set_target_properties(QVTKWidgetPlugin PROPERTIES COMPILE_DEFINITIONS QT_NO_DEBUG)
 
   # link with Qt libs
-  target_link_libraries(QVTKWidgetPlugin ${QT_LIBRARIES})
+  vtk_module_link_libraries(QVTKWidgetPlugin ${QT_LIBRARIES})
 
   # install rules
 

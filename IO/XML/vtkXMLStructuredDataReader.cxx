@@ -53,7 +53,7 @@ vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::~vtkXMLStructuredDataReader()
 {
-  if(this->NumberOfPieces)
+  if (this->NumberOfPieces)
     {
     this->DestroyPieces();
     }
@@ -71,7 +71,7 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   // Get the whole extent attribute.
   int extent[6];
-  if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) == 6)
+  if (ePrimary->GetVectorAttribute("WholeExtent", 6, extent) == 6)
     {
     memcpy(this->WholeExtent, extent, 6*sizeof(int));
 
@@ -81,9 +81,9 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
         extent, 6);
 
     // Check each axis to see if it has cells.
-    for(int a=0; a < 3; ++a)
+    for (int a = 0; a < 3; ++a)
       {
-      this->AxesEmpty[a] = (extent[2*a+1] > extent[2*a])? 0 : 1;
+      this->AxesEmpty[a] = (extent[2*a+1] > extent[2*a]) ? 0 : 1;
       }
     }
   else
@@ -114,11 +114,11 @@ vtkXMLStructuredDataReader::CopyOutputInformation(vtkInformation* outInfo,
 
   // All structured data has a whole extent.
   vtkInformation *localInfo =
-    this->GetExecutive()->GetOutputInformation( port );
-  if(localInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    this->GetExecutive()->GetOutputInformation(port);
+  if (localInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
     {
-    outInfo->CopyEntry(localInfo,
-                       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    outInfo->CopyEntry(
+      localInfo, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     }
 }
 
@@ -137,8 +137,8 @@ void vtkXMLStructuredDataReader::SetupPieces(int numPieces)
   this->PiecePointIncrements = new vtkIdType[numPieces*3];
   this->PieceCellDimensions = new int[numPieces*3];
   this->PieceCellIncrements = new vtkIdType[numPieces*3];
-  int i;
-  for(i=0; i < numPieces; ++i)
+
+  for (int i = 0; i < numPieces; ++i)
     {
     int* extent = this->PieceExtents + i*6;
     extent[0]=0; extent[1]=-1;
@@ -166,52 +166,57 @@ void vtkXMLStructuredDataReader::DestroyPieces()
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLStructuredDataReader::GetNumberOfPoints()
 {
-  return (this->PointDimensions[0]*
-          this->PointDimensions[1]*
-          this->PointDimensions[2]);
+  return (static_cast<vtkIdType>(this->PointDimensions[0]) *
+          static_cast<vtkIdType>(this->PointDimensions[1]) *
+          static_cast<vtkIdType>(this->PointDimensions[2]));
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLStructuredDataReader::GetNumberOfCells()
 {
-  return (this->CellDimensions[0]*
-          this->CellDimensions[1]*
-          this->CellDimensions[2]);
+  return (static_cast<vtkIdType>(this->CellDimensions[0]) *
+          static_cast<vtkIdType>(this->CellDimensions[1]) *
+          static_cast<vtkIdType>(this->CellDimensions[2]));
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
-  if(!this->Superclass::ReadPiece(ePiece))
+  if (!this->Superclass::ReadPiece(ePiece))
     {
     return 0;
     }
-  int* pieceExtent = this->PieceExtents + this->Piece*6;
+  int* pieceExtent = this->PieceExtents + this->Piece * 6;
 
   // Read the extent of the piece.
-  if(strcmp(ePiece->GetName(), "Piece") == 0)
+  if (strcmp(ePiece->GetName(), "Piece") == 0)
     {
-    if(!ePiece->GetAttribute("Extent"))
+    if (!ePiece->GetAttribute("Extent"))
       {
       vtkErrorMacro("Piece has no extent.");
       }
-    if(ePiece->GetVectorAttribute("Extent", 6, pieceExtent) < 6)
+    if (ePiece->GetVectorAttribute("Extent", 6, pieceExtent) < 6)
       {
       vtkErrorMacro("Extent attribute is not 6 integers.");
       return 0;
       }
     }
-  else if(ePiece->GetVectorAttribute("WholeExtent", 6, pieceExtent) < 6)
+  else if (ePiece->GetVectorAttribute("WholeExtent", 6, pieceExtent) < 6)
     {
     vtkErrorMacro("WholeExtent attribute is not 6 integers.");
     return 0;
     }
 
   // Compute the dimensions and increments for this piece's extent.
-  int* piecePointDimensions = this->PiecePointDimensions + this->Piece*3;
-  vtkIdType* piecePointIncrements = this->PiecePointIncrements + this->Piece*3;
-  int* pieceCellDimensions = this->PieceCellDimensions + this->Piece*3;
-  vtkIdType* pieceCellIncrements = this->PieceCellIncrements + this->Piece*3;
+  int* piecePointDimensions =
+    this->PiecePointDimensions + this->Piece * 3;
+  vtkIdType* piecePointIncrements =
+    this->PiecePointIncrements + this->Piece * 3;
+  int* pieceCellDimensions =
+    this->PieceCellDimensions + this->Piece * 3;
+  vtkIdType* pieceCellIncrements =
+    this->PieceCellIncrements + this->Piece * 3;
+
   this->ComputePointDimensions(pieceExtent, piecePointDimensions);
   this->ComputePointIncrements(pieceExtent, piecePointIncrements);
   this->ComputeCellDimensions(pieceExtent, pieceCellDimensions);
@@ -251,10 +256,9 @@ void vtkXMLStructuredDataReader::ReadXMLData()
   */
 
   vtkDebugMacro("Updating extent "
-                << this->UpdateExtent[0] << " " << this->UpdateExtent[1] << " "
-                << this->UpdateExtent[2] << " " << this->UpdateExtent[3] << " "
-                << this->UpdateExtent[4] << " " << this->UpdateExtent[5]
-                << "\n");
+    << this->UpdateExtent[0] << " " << this->UpdateExtent[1] << " "
+    << this->UpdateExtent[2] << " " << this->UpdateExtent[3] << " "
+    << this->UpdateExtent[4] << " " << this->UpdateExtent[5] << "\n");
 
   // Prepare increments for the update extent.
   this->ComputePointDimensions(this->UpdateExtent, this->PointDimensions);
@@ -267,62 +271,62 @@ void vtkXMLStructuredDataReader::ReadXMLData()
 
   // Split current progress range based on fraction contributed by
   // each piece.
-  float progressRange[2] = {0,0};
+  float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);
 
   // Calculate the cumulative fraction of data contributed by each
   // piece (for progress).
   float* fractions = new float[this->NumberOfPieces+1];
-  int i;
   fractions[0] = 0;
-  for(i=0;i < this->NumberOfPieces;++i)
+  for (int i = 0; i < this->NumberOfPieces; ++i)
     {
     int* pieceExtent = this->PieceExtents + i*6;
     int pieceDims[3] = {0,0,0};
     // Intersect the extents to get the part we need to read.
-    if(this->IntersectExtents(pieceExtent, this->UpdateExtent,
-                              this->SubExtent))
+    if (this->IntersectExtents(
+      pieceExtent, this->UpdateExtent, this->SubExtent))
       {
       this->ComputePointDimensions(this->SubExtent, pieceDims);
-      fractions[i+1] = fractions[i] + pieceDims[0]*pieceDims[1]*pieceDims[2];
+      fractions[i+1] =
+        fractions[i] + pieceDims[0] * pieceDims[1] * pieceDims[2];
       }
     else
       {
       fractions[i+1] = 0;
       }
     }
-  if(fractions[this->NumberOfPieces] == 0)
+  if (fractions[this->NumberOfPieces] == 0)
     {
     fractions[this->NumberOfPieces] = 1;
     }
-  for(i=1;i <= this->NumberOfPieces;++i)
+  for (int i = 1;i <= this->NumberOfPieces; ++i)
     {
     fractions[i] = fractions[i] / fractions[this->NumberOfPieces];
     }
 
   // Read the data needed from each piece.
-  for(i=0;(i < this->NumberOfPieces && !this->AbortExecute &&
-           !this->DataError);++i)
+  for (int i = 0;
+    (i < this->NumberOfPieces && !this->AbortExecute && !this->DataError); ++i)
     {
     // Set the range of progress for this piece.
     this->SetProgressRange(progressRange, i, fractions);
 
     // Intersect the extents to get the part we need to read.
-    int* pieceExtent = this->PieceExtents + i*6;
-    if(this->IntersectExtents(pieceExtent, this->UpdateExtent,
+    int* pieceExtent = this->PieceExtents + i * 6;
+    if (this->IntersectExtents(pieceExtent, this->UpdateExtent,
                               this->SubExtent))
       {
       vtkDebugMacro("Reading extent "
-                    << this->SubExtent[0] << " " << this->SubExtent[1] << " "
-                    << this->SubExtent[2] << " " << this->SubExtent[3] << " "
-                    << this->SubExtent[4] << " " << this->SubExtent[5]
-                    << " from piece " << i);
+        << this->SubExtent[0] << " " << this->SubExtent[1] << " "
+        << this->SubExtent[2] << " " << this->SubExtent[3] << " "
+        << this->SubExtent[4] << " " << this->SubExtent[5]
+        << " from piece " << i);
 
       this->ComputePointDimensions(this->SubExtent, this->SubPointDimensions);
       this->ComputeCellDimensions(this->SubExtent, this->SubCellDimensions);
 
       // Read the data from this piece.
-      if(!this->ReadPieceData(i))
+      if (!this->ReadPieceData(i))
         {
         // An error occurred while reading the piece.
         this->DataError = 1;
@@ -343,17 +347,17 @@ int vtkXMLStructuredDataReader::ReadArrayForPoints(vtkXMLDataElement* da,
   int* pieceExtent = this->PieceExtents + this->Piece*6;
   int* piecePointDimensions = this->PiecePointDimensions + this->Piece*3;
   vtkIdType* piecePointIncrements = this->PiecePointIncrements + this->Piece*3;
-  if(!this->ReadSubExtent(pieceExtent, piecePointDimensions,
+  if (!this->ReadSubExtent(pieceExtent, piecePointDimensions,
                           piecePointIncrements, this->UpdateExtent,
                           this->PointDimensions, this->PointIncrements,
                           this->SubExtent, this->SubPointDimensions,
                           da, outArray))
     {
     vtkErrorMacro("Error reading extent "
-                  << this->SubExtent[0] << " " << this->SubExtent[1] << " "
-                  << this->SubExtent[2] << " " << this->SubExtent[3] << " "
-                  << this->SubExtent[4] << " " << this->SubExtent[5]
-                  << " from piece " << this->Piece);
+      << this->SubExtent[0] << " " << this->SubExtent[1] << " "
+      << this->SubExtent[2] << " " << this->SubExtent[3] << " "
+      << this->SubExtent[4] << " " << this->SubExtent[5]
+      << " from piece " << this->Piece);
     return 0;
     }
   return 1;
@@ -366,17 +370,17 @@ int vtkXMLStructuredDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   int* pieceExtent = this->PieceExtents + this->Piece*6;
   int* pieceCellDimensions = this->PieceCellDimensions + this->Piece*3;
   vtkIdType* pieceCellIncrements = this->PieceCellIncrements + this->Piece*3;
-  if(!this->ReadSubExtent(pieceExtent, pieceCellDimensions,
+  if (!this->ReadSubExtent(pieceExtent, pieceCellDimensions,
                           pieceCellIncrements, this->UpdateExtent,
                           this->CellDimensions, this->CellIncrements,
                           this->SubExtent, this->SubCellDimensions,
                           da, outArray))
     {
     vtkErrorMacro("Error reading extent "
-                  << this->SubExtent[0] << " " << this->SubExtent[1] << " "
-                  << this->SubExtent[2] << " " << this->SubExtent[3] << " "
-                  << this->SubExtent[4] << " " << this->SubExtent[5]
-                  << " from piece " << this->Piece);
+      << this->SubExtent[0] << " " << this->SubExtent[1] << " "
+      << this->SubExtent[2] << " " << this->SubExtent[3] << " "
+      << this->SubExtent[4] << " " << this->SubExtent[5]
+      << " from piece " << this->Piece);
     return 0;
     }
   return 1;
@@ -402,7 +406,7 @@ void vtkXMLStructuredDataReaderSubExtentCopyValues(
   vtkIdType numValues)
 {
   vtkIdType maxIndex = destIndex + numValues;
-  for (vtkIdType cc=destIndex; cc < maxIndex; ++cc)
+  for (vtkIdType cc = destIndex; cc < maxIndex; ++cc)
     {
     destIter->GetValue(cc) =
       srcIter->GetValue(srcIndex++);
@@ -410,16 +414,15 @@ void vtkXMLStructuredDataReaderSubExtentCopyValues(
 }
 
 //----------------------------------------------------------------------------
-int
-vtkXMLStructuredDataReader
-::ReadSubExtent(int* inExtent, int* inDimensions, vtkIdType* inIncrements,
-                int* outExtent, int* outDimensions, vtkIdType* outIncrements,
-                int* subExtent, int* subDimensions, vtkXMLDataElement* da,
-                vtkAbstractArray* array)
+int vtkXMLStructuredDataReader::ReadSubExtent(
+  int* inExtent, int* inDimensions, vtkIdType* inIncrements,
+  int* outExtent, int* outDimensions, vtkIdType* outIncrements,
+  int* subExtent, int* subDimensions, vtkXMLDataElement* da,
+  vtkAbstractArray* array)
 {
   int components = array->GetNumberOfComponents();
 
-  if((inDimensions[0] == outDimensions[0]) &&
+  if ((inDimensions[0] == outDimensions[0]) &&
      (subDimensions[0] == outDimensions[0]) &&
      (inDimensions[1] == outDimensions[1]) &&
      (subDimensions[1] == outDimensions[1])
@@ -432,7 +435,9 @@ vtkXMLStructuredDataReader
       // Read the whole volume at once.  This fills the array's entire
       // progress range.
       vtkIdType volumeTuples =
-        (inDimensions[0]*inDimensions[1]*inDimensions[2]);
+        (static_cast<vtkIdType>(inDimensions[0])*
+         static_cast<vtkIdType>(inDimensions[1])*
+         static_cast<vtkIdType>(inDimensions[2]));
 
       vtkIdType sourceTuple =
         this->GetStartTuple(inExtent, inIncrements,
@@ -441,7 +446,7 @@ vtkXMLStructuredDataReader
         this->GetStartTuple(outExtent, outIncrements,
                             subExtent[0], subExtent[2], subExtent[4]);
 
-      if(!this->ReadArrayValues(da, destTuple*components, array,
+      if (!this->ReadArrayValues(da, destTuple*components, array,
           sourceTuple*components, volumeTuples*components))
         {
         return 0;
@@ -451,11 +456,13 @@ vtkXMLStructuredDataReader
       {
       // Read an entire slice at a time.  Split progress range by
       // slice.
-      float progressRange[2] = {0,0};
+      float progressRange[2] = { 0.f, 0.f };
       this->GetProgressRange(progressRange);
-      vtkIdType sliceTuples = inDimensions[0]*inDimensions[1];
-      int k;
-      for(k=0;k < subDimensions[2] && !this->AbortExecute;++k)
+      vtkIdType sliceTuples =
+        static_cast<vtkIdType>(inDimensions[0])*
+        static_cast<vtkIdType>(inDimensions[1]);
+
+      for (int k = 0; k < subDimensions[2] && !this->AbortExecute; ++k)
         {
         // Calculate the starting tuples for source and destination.
         vtkIdType sourceTuple =
@@ -469,7 +476,7 @@ vtkXMLStructuredDataReader
         this->SetProgressRange(progressRange, k, subDimensions[2]);
 
         // Read the slice.
-        if(!this->ReadArrayValues(da, destTuple*components, array,
+        if (!this->ReadArrayValues(da, destTuple*components, array,
             sourceTuple*components, sliceTuples*components))
           {
           return 0;
@@ -479,16 +486,15 @@ vtkXMLStructuredDataReader
     }
   else
     {
-    if(!this->WholeSlices)
+    if (!this->WholeSlices)
       {
       // Read a row at a time.  Split progress range by row.
-      float progressRange[2] = {0,0};
+      float progressRange[2] = { 0.f, 0.f };
       this->GetProgressRange(progressRange);
       vtkIdType rowTuples = subDimensions[0];
-      int j,k;
-      for(k=0;k < subDimensions[2] && !this->AbortExecute;++k)
+      for (int k = 0; k < subDimensions[2] && !this->AbortExecute; ++k)
         {
-        for(j=0;j < subDimensions[1] && !this->AbortExecute;++j)
+        for (int j = 0;j < subDimensions[1] && !this->AbortExecute; ++j)
           {
           // Calculate the starting tuples for source and destination.
           vtkIdType sourceTuple =
@@ -503,7 +509,7 @@ vtkXMLStructuredDataReader
                                  subDimensions[2]*subDimensions[1]);
 
           // Read the row.
-          if(!this->ReadArrayValues(da, destTuple*components,
+          if (!this->ReadArrayValues(da, destTuple*components,
               array, sourceTuple*components,
               rowTuples*components))
             {
@@ -516,19 +522,20 @@ vtkXMLStructuredDataReader
       {
       // Read in each slice and copy the needed rows from it.  Split
       // progress range by slice.
-      float progressRange[2] = {0,0};
+      float progressRange[2] = { 0.f, 0.f };
       this->GetProgressRange(progressRange);
       vtkIdType rowTuples = subDimensions[0];
-      vtkIdType partialSliceTuples = inDimensions[0]*subDimensions[1];
+      vtkIdType partialSliceTuples =
+        static_cast<vtkIdType>(inDimensions[0]) *
+        static_cast<vtkIdType>(subDimensions[1]);
       int tupleSize = components*array->GetDataTypeSize();
       vtkAbstractArray* temp = array->NewInstance();
       temp->SetNumberOfComponents(array->GetNumberOfComponents());
       temp->SetNumberOfTuples(partialSliceTuples);
-      int k;
       vtkArrayIterator* srcIter = temp->NewIterator();
       vtkArrayIterator* destIter = array->NewIterator();
 
-      for(k=0;k < subDimensions[2] && !this->AbortExecute;++k)
+      for (int k = 0; k < subDimensions[2] && !this->AbortExecute; ++k)
         {
         // Calculate the starting tuple from the input.
         vtkIdType inTuple =
@@ -546,7 +553,7 @@ vtkXMLStructuredDataReader
         this->SetProgressRange(progressRange, k, subDimensions[2]);
 
         // Read the slice.
-        if(!this->ReadArrayValues(da, 0, temp, inTuple*components,
+        if (!this->ReadArrayValues(da, 0, temp, inTuple*components,
             partialSliceTuples*components))
           {
           temp->Delete();
@@ -556,8 +563,7 @@ vtkXMLStructuredDataReader
         destIter->Initialize(array);
         srcIter->Initialize(temp);
         // Copy the portion of the slice we need.
-        int j;
-        for(j=0;j < subDimensions[1];++j)
+        for (int j = 0;j < subDimensions[1]; ++j)
           {
           vtkIdType sourceTuple =
             this->GetStartTuple(memExtent, inIncrements,
@@ -579,7 +585,6 @@ vtkXMLStructuredDataReader
             break;
             }
           }
-
         }
       srcIter->Delete();
       destIter->Delete();

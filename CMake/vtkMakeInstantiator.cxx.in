@@ -1,4 +1,6 @@
 #include "@VTK_MAKE_INSTANTIATOR_CLASS_NAME@.h"
+@CXX_CONTENTS_INCLUDE@
+#include "vtkSetGet.h"
 
 @CXX_CONTENTS@
 

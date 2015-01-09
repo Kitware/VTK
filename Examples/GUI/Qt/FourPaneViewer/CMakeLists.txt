@@ -5,6 +5,12 @@ endif()
 if(POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW) # CMake 3.0
 endif()
+if(POLICY CMP0043)
+  cmake_policy(SET CMP0043 NEW) # CMake 3.0
+endif()
+if(POLICY CMP0053)
+  cmake_policy(SET CMP0053 NEW) # CMake 3.1
+endif()
 project(QtVTKRenderWindows)
 
 find_package(VTK COMPONENTS

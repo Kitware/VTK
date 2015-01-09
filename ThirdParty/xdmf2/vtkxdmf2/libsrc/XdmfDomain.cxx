@@ -25,6 +25,9 @@
 #include "XdmfDomain.h"
 #include "XdmfGrid.h"
 
+namespace xdmf2
+{
+
 XdmfDomain::XdmfDomain() {
     this->SetElementName("Domain");
 }
@@ -63,4 +66,6 @@ XdmfDomain::Insert( XdmfElement *Child){
 XdmfInt32 XdmfDomain::Build(){
     if(XdmfElement::Build() != XDMF_SUCCESS) return(XDMF_FAIL);
     return(XDMF_SUCCESS);
+}
+
 }

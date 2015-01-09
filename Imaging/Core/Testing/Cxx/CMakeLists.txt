@@ -1,6 +1,7 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   FastSplatter.cxx
   ImageAccumulate.cxx,NO_VALID
+  ImageAccumulateLarge.cxx,NO_VALID,NO_DATA,NO_OUTPUT 32
   ImageAutoRange.cxx
   ImageBSplineCoefficients.cxx
   ImageHistogram.cxx
@@ -11,6 +12,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ImageWeightedSum.cxx,NO_VALID
   ImportExport.cxx,NO_VALID
   TestBSplineWarp.cxx
+  TestImageStencilDataMethods.cxx,NO_VALID
+  TestStencilWithLasso.cxx
+  TestStencilWithPolyDataContour.cxx
+  TestStencilWithPolyDataSurface.cxx
   TestUpdateExtentReset.cxx,NO_VALID
   )
 list(APPEND tests
