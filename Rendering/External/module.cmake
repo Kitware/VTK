@@ -4,4 +4,5 @@ vtk_module(vtkRenderingExternal
     vtkRenderingOpenGL
   TEST_DEPENDS
     vtkTestingRendering
+  EXCLUDE_FROM_ALL
   )
