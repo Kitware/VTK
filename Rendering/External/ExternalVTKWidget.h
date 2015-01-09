@@ -26,8 +26,7 @@
 #include "vtkRenderingExternalModule.h" // For export macro
 
 // Class that maintains an external render window.
-class VTKRENDERINGEXTERNAL_EXPORT ExternalVTKWidget :
-  public vtkObject
+class VTKRENDERINGEXTERNAL_EXPORT ExternalVTKWidget : public vtkObject
 {
 public:
   static ExternalVTKWidget *New();

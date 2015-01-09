@@ -16,7 +16,16 @@
 // .SECTION Description
 // vtkExternalOpenGLRenderer is a secondary implementation of the class
 // vtkOpenGLRenderer. vtkExternalOpenGLRenderer interfaces to the
-// OpenGL graphics library.
+// OpenGL graphics library. This class provides API to preserve the color and
+// depth buffers, thereby allowing external applications to manage the OpenGL
+// buffers. This becomes very useful when there are multiple OpenGL applications
+// sharing the same OpenGL context.
+//
+// vtkExternalOpenGLRenderer makes sure that the camera used in the scene if of
+// type vtkExternalOpenGLCamera. It manages light and camera transformations for
+// VTK objects in the OpenGL context.
+//
+// \sa vtkExternalOpenGLCamera
 
 #ifndef __vtkExternalOpenGLRenderer_h
 #define __vtkExternalOpenGLRenderer_h
@@ -43,7 +52,7 @@ public:
   // Description:
   // Normally the vtkOpenGLRenderer clears the color buffer before rendering a
   // new frame. When this flag is true, the color buffer is not cleared. This
-  // can be helpful when rendering there are multiple visualization systems
+  // can be helpful when there are multiple visualization systems
   // sharing the same context. Default value is 1.
   vtkGetMacro(PreserveColorBuffer, int);
   vtkSetMacro(PreserveColorBuffer, int);

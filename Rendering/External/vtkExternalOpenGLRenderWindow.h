@@ -15,9 +15,25 @@
 // .NAME vtkExternalOpenGLRenderWindow - OpenGL render window that allows using
 // an external window to render vtk objects
 // .SECTION Description
-// vtkExternalOpenGLRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkExternalOpenGLRenderer interfaces to the OpenGL graphics
-// library.
+// vtkExternalOpenGLRenderWindow is a concrete implementation of the abstract
+// class vtkRenderWindow. vtkExternalOpenGLRenderer interfaces to the OpenGL
+// graphics library.
+//
+// This class extends vtkGenericOpenGLRenderWindow to allow sharing the
+// same OpenGL context by various visualization applications. Basically, this
+// class prevents VTK from creating a new OpenGL context. Thus, it requires that
+// an OpenGL context be initialized before Render is called.
+// \sa Render()
+//
+// It is a generic implementation; this window is platform agnostic. However,
+// the application user must explicitly make sure the window size is
+// synchronized when the external application window/viewport resizes.
+// \sa SetSize()
+//
+// It has the same requirements as the vtkGenericOpenGLRenderWindow, whereby,
+// one must register an observer for WindowMakeCurrentEvent,
+// WindowIsCurrentEvent and WindowFrameEvent.
+// \sa vtkGenericOpenGLRenderWindow
 
 #ifndef __vtkExternalOpenGLRenderWindow_h
 #define __vtkExternalOpenGLRenderWindow_h

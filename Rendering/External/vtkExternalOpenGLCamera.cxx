@@ -18,13 +18,12 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
-#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGL.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOutputWindow.h"
 #include "vtkPerspectiveTransform.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
-
-#include "vtkOpenGL.h"
 
 #include <math.h>
 
