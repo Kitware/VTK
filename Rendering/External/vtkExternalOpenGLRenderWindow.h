@@ -62,8 +62,6 @@ protected:
   vtkExternalOpenGLRenderWindow();
   ~vtkExternalOpenGLRenderWindow();
 
-  //bool Initialized;
-
 private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&); // Not implemented
   void operator=(const vtkExternalOpenGLRenderWindow&); // Not implemented

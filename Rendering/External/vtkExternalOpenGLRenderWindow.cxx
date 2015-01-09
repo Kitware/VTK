@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
 #include "vtkExternalOpenGLRenderWindow.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
@@ -24,7 +23,6 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 {
-  //this->Initialized = false;
 }
 
 //----------------------------------------------------------------------------
@@ -35,29 +33,6 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
-//  if (!this->Initialized)
-//    {
-//    this->OpenGLInit();
-//    this->InitializeFromCurrentContext();
-//    this->Initialized = true;
-//    }
-//  if (!this->DisplayId || !this->WindowId)
-//    {
-//    this->InitializeFromCurrentContext();
-//    XWindowAttributes attribs;
-//    // To avoid the expensive XGetWindowAttributes call,
-//    // compute window size at the start of a render and use
-//    // the ivar other times.
-//    XGetWindowAttributes(this->DisplayId,
-//                         this->WindowId, &attribs);
-//    this->SetSize(attribs.width, attribs.height);
-//    }
-
-//  std::cout << "Calling make current" << std::endl;
-//  this->MakeCurrent();
-//  this->PushState();
-//  this->OpenGLInitState();
-
   // For stereo, render the correct eye based on the OpenGL buffer mode
   GLint bufferType;
   glGetIntegerv(GL_DRAW_BUFFER, &bufferType);
