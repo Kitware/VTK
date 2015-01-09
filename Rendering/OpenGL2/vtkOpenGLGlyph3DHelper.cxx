@@ -74,11 +74,14 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
                                                  vtkRenderer* ren,
                                                  vtkActor *actor)
 {
-  // we use vertex instead of vertexMC
-  VSSource = replace(VSSource,
-    "//VTK::PositionVC::Impl",
-    "vertexVC = MCVCMatrix * vertex;\n"
-    "  gl_Position = VCDCMatrix * vertexVC;\n");
+  if (lightComplexity > 0)
+    {
+    // we use vertex instead of vertexMC
+    VSSource = replace(VSSource,
+      "//VTK::PositionVC::Impl",
+      "vertexVC = MCVCMatrix * vertex;\n"
+      "  gl_Position = VCDCMatrix * vertexVC;\n");
+    }
 
   // deal with color
   if (this->UsingInstancing)
