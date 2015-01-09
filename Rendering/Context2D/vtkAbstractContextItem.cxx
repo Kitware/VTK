@@ -18,6 +18,9 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScenePrivate.h"
 
+// STL headers
+#include <algorithm>
+
 //-----------------------------------------------------------------------------
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
@@ -85,6 +88,18 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetItem(unsigned int index)
 }
 
 //-----------------------------------------------------------------------------
+unsigned int vtkAbstractContextItem::GetItemIndex(vtkAbstractContextItem* item)
+{
+  vtkContextScenePrivate::const_iterator it =
+    std::find(this->Children->begin(), this->Children->end(), item);
+  if (it == this->Children->end())
+    {
+    return static_cast<unsigned int>(-1);
+    }
+  return it - this->Children->begin();
+}
+
+//-----------------------------------------------------------------------------
 unsigned int vtkAbstractContextItem::GetNumberOfItems()
 {
   return static_cast<unsigned int>(this->Children->size());
@@ -94,6 +109,64 @@ unsigned int vtkAbstractContextItem::GetNumberOfItems()
 void vtkAbstractContextItem::ClearItems()
 {
   this->Children->Clear();
+}
+
+//-----------------------------------------------------------------------------
+unsigned int vtkAbstractContextItem::Raise(unsigned int index)
+{
+  return this->StackAbove(index, this->GetNumberOfItems() - 1);
+}
+
+//-----------------------------------------------------------------------------
+unsigned int vtkAbstractContextItem::StackAbove(unsigned int index,
+                                                unsigned int under)
+{
+  unsigned int res = index;
+  if (index == under)
+    {
+    return res;
+    }
+  unsigned int start = 0;
+  unsigned int middle = 0;
+  unsigned int end = 0;
+  if (under == static_cast<unsigned int>(-1))
+    {
+    start = 0;
+    middle = index;
+    end = index + 1;
+    res = 0;
+    }
+  else if (index > under)
+    {
+    start = under + 1;
+    middle = index;
+    end = index + 1;
+    res = start;
+    }
+  else // if (index < under)
+    {
+    start = index;
+    middle = index + 1;
+    end = under + 1;
+    res = end - 1;
+    }
+  std::rotate(this->Children->begin() + start,
+              this->Children->begin() + middle,
+              this->Children->begin() + end);
+  return res;
+}
+
+//-----------------------------------------------------------------------------
+unsigned int vtkAbstractContextItem::Lower(unsigned int index)
+{
+  return this->StackUnder(index, 0);
+}
+
+//-----------------------------------------------------------------------------
+unsigned int vtkAbstractContextItem::StackUnder(unsigned int child,
+                                                unsigned int above)
+{
+  return this->StackAbove(child, above - 1);
 }
 
 //-----------------------------------------------------------------------------

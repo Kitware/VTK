@@ -131,6 +131,18 @@ public:
   vtkBrush* GetBrush();
 
   // Description:
+  // Set/get the vtkBrush object that controls how this plot fills selected
+  // shapes.
+  void SetSelectionPen(vtkPen *pen);
+  vtkPen* GetSelectionPen();
+
+  // Description:
+  // Set/get the vtkBrush object that controls how this plot fills selected
+  // shapes.
+  void SetSelectionBrush(vtkBrush *brush);
+  vtkBrush* GetSelectionBrush();
+
+  // Description:
   // Set the label of this plot.
   virtual void SetLabel(const vtkStdString &label);
 
@@ -280,6 +292,16 @@ protected:
   // Description:
   // This object stores the vtkBrush that controls how the plot is drawn.
   vtkSmartPointer<vtkBrush> Brush;
+
+  // Description:
+  // This object stores the vtkPen that controls how the selected elements
+  // of the plot are drawn.
+  vtkSmartPointer<vtkPen> SelectionPen;
+
+  // Description:
+  // This object stores the vtkBrush that controls how the selected elements
+  // of the plot are drawn.
+  vtkSmartPointer<vtkBrush> SelectionBrush;
 
   // Description:
   // Plot labels, used by legend.
