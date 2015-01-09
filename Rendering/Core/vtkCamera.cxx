@@ -350,15 +350,6 @@ void vtkCamera::ComputeCameraLightTransform()
   t->SetMatrix(this->ViewTransform->GetMatrix());
   t->Inverse();
 
-//  std::cout << "Computing Camera light" << std::endl;
-//      for(int i = 0;  i < 4; i++)
-//        {
-//        for(int j=0; j < 4; j++)
-//          {
-//          std::cout << " " << setw(12) << t->GetMatrix()->GetElement(i,j);
-//          }
-//        std::cout << std::endl;
-//        }
   d = this->Distance;
   t->Scale(d, d, d);
   t->Translate(0.0, 0.0, -1.0);
