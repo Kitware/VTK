@@ -206,6 +206,7 @@ void vtkGeoJSONReader::ParseRoot(const Json::Value& root, vtkPolyData *output)
 {
   // Initialize geometry containers
   vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
   output->SetPoints(points.GetPointer());
   vtkNew<vtkCellArray> verts;
   output->SetVerts(verts.GetPointer());
