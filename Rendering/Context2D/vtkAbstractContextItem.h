@@ -83,12 +83,45 @@ public:
   vtkAbstractContextItem* GetItem(unsigned int index);
 
   // Description:
+  // Get the index of the specified item.
+  // \return the index of the item (-1 if item is not a valid child).
+  unsigned int GetItemIndex(vtkAbstractContextItem* item);
+
+  // Description:
   // Get the number of child items.
   unsigned int GetNumberOfItems();
 
   // Description:
   // Remove all child items from this item.
   void ClearItems();
+
+  // Description:
+  // Raises the \a child to the top of the item's stack.
+  // \return The new index of the item
+  // \sa StackAbove(), Lower(), LowerUnder()
+  unsigned int Raise(unsigned int index);
+
+  // Description:
+  // Raises the \a child above the \a under sibling. If \a under is invalid,
+  // the item is raised to the top of the item's stack.
+  // \return The new index of the item
+  // \sa Raise(), Lower(), StackUnder()
+  virtual unsigned int StackAbove(unsigned int index,
+                                  unsigned int under);
+
+  // Description:
+  // Lowers the \a child to the bottom of the item's stack.
+  // \return The new index of the item
+  // \sa StackUnder(), Raise(), StackAbove()
+  unsigned int Lower(unsigned int index);
+
+  // Description:
+  // Lowers the \a child under the \a above sibling. If \a above is invalid,
+  // the item is lowered to the bottom of the item's stack
+  // \return The new index of the item
+  // \sa Lower(), Raise(), StackAbove()
+  virtual unsigned int StackUnder(unsigned int child,
+                                  unsigned int above);
 
 //BTX
   // Description:

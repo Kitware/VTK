@@ -57,6 +57,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestChartXYZ.cxx
   TestContext.cxx
   TestContextImage.cxx
+  TestContextItemStacking.cxx
   TestContextUnicode.cxx
   TestControlPointsHandleItem.cxx
   TestDiagram.cxx

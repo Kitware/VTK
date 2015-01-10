@@ -37,6 +37,13 @@ vtkPlot::vtkPlot() : ShiftScale(0.0, 0.0, 1.0, 1.0)
   this->Pen = vtkSmartPointer<vtkPen>::New();
   this->Pen->SetWidth(2.0);
   this->Brush = vtkSmartPointer<vtkBrush>::New();
+
+  this->SelectionPen = vtkSmartPointer<vtkPen>::New();
+  this->SelectionPen->SetColor(255, 50, 0, 150);
+  this->SelectionPen->SetWidth(4.0);
+  this->SelectionBrush = vtkSmartPointer<vtkBrush>::New();
+  this->SelectionBrush->SetColor(255, 50, 0, 150);
+
   this->Labels = NULL;
   this->UseIndexForXSeries = false;
   this->Data = vtkSmartPointer<vtkContextMapper2D>::New();
@@ -252,6 +259,38 @@ void vtkPlot::SetBrush(vtkBrush *brush)
 vtkBrush* vtkPlot::GetBrush()
 {
   return this->Brush.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetSelectionPen(vtkPen *pen)
+{
+  if (this->SelectionPen != pen)
+    {
+    this->SelectionPen = pen;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkPen* vtkPlot::GetSelectionPen()
+{
+  return this->SelectionPen.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetSelectionBrush(vtkBrush *brush)
+{
+  if (this->SelectionBrush != brush)
+    {
+    this->SelectionBrush = brush;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+vtkBrush* vtkPlot::GetSelectionBrush()
+{
+  return this->SelectionBrush.GetPointer();
 }
 
 //-----------------------------------------------------------------------------

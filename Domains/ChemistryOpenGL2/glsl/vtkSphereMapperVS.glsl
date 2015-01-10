@@ -27,7 +27,6 @@
 
 attribute vec4 vertexMC;
 attribute vec2 offsetMC;
-attribute float radiusMC;
 
 // optional normal declaration
 //VTK::Normal::Dec
@@ -66,7 +65,7 @@ void main()
   // compute the projected vertex position
   vertexVCClose = MCVCMatrix * vertexMC;
   centerVC = vertexVCClose.xyz;
-  radiusVC = radiusMC;
+  radiusVC = length(offsetMC)*0.5;
 
   // make the triangle face the camera
   if (cameraParallel == 0)

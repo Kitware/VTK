@@ -124,13 +124,19 @@ set(Module_SRCS
   )
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-set_source_files_properties(
- vtkRenderWindow.cxx  # dummy out painterdevice adapter
- vtkHardwareSelector.cxx # dummy out painter device adapter
-  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+  set_source_files_properties(
+    vtkRenderWindow.cxx  # dummy out painterdevice adapter
+    vtkHardwareSelector.cxx # dummy out painter device adapter
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+  list(APPEND Module_SRCS
+    vtkPointGaussianMapper.cxx
+    )
+  set_source_files_properties(
+    vtkPointGaussianMapper
+    ABSTRACT
+    )
 else() # Add painter device adapter when not OpenGL2
-  set(Module_SRCS
-    ${Module_SRCS}
+  list(APPEND Module_SRCS
     vtkPainterDeviceAdapter.cxx
     )
 endif()
