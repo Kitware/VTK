@@ -152,12 +152,12 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
   CONFIGURE_FILE(
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
     ${HEADER_LOCATION}/${className}.h
-    COPYONLY
+    @ONLY
     )
   CONFIGURE_FILE(
     ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in
     ${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx
-    COPYONLY
+    @ONLY
     )
 
 ENDMACRO()
