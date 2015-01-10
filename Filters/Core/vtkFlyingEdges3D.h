@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkFlyingEdges3D - generate isosurface from 3D image data (volume)
 // .SECTION Description
-// vtkFlyingEdges3D is a serial, reference implementation of the 3D version
-// of the flying edges algorithm. It is designed to be highly scalable (i.e.,
+// vtkFlyingEdges3D is a reference implementation of the 3D version of the
+// flying edges algorithm. It is designed to be highly scalable (i.e.,
 // parallelizable) for large data. It implements certain performance
 // optimizations including computational trimming to rapidly eliminate
 // processing of data regions, packed bit representation of case table
@@ -28,9 +28,9 @@
 // This is a three-pass algorithm. The first pass processes all x-edges and
 // builds x-edge case values (which, when the four x-edges defining a voxel
 // are combined, are equivalent to vertex-based case table except edge-based
-// approaches are separable to parallel computing). Next x-voxel rows are
-// processed to gather information from yz-edges (basically to count the
-// number of edge intersections and triangles generated). Finally in the
+// approaches are separable in support of parallel computing). Next x-voxel
+// rows are processed to gather information from yz-edges (basically to count
+// the number of edge intersections and triangles generated). Finally in the
 // third pass output primitives are generated into pre-allocated arrays. This
 // implementation uses voxel cell axes (a x-y-z triad located at the voxel
 // origin) to ensure that each edge is intersected at most one time. Note
@@ -152,8 +152,10 @@ protected:
   int ArrayComponent;
   vtkContourValues *ContourValues;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:

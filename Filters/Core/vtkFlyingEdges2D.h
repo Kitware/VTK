@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkFlyingEdges2D - generate isoline(s) from a structured points set
 // .SECTION Description
-// vtkFlyingEdges2D is a serial, reference implementation of the 2D version
-// of the flying edges algorithm. It is designed to be highly scalable (i.e.,
+// vtkFlyingEdges2D is a reference implementation of the 2D version of the
+// flying edges algorithm. It is designed to be highly scalable (i.e.,
 // parallelizable) for large data. It implements certain performance
 // optimizations including computational trimming to rapidly eliminate
 // processing of data regions, packed bit representation of case table
@@ -127,7 +127,8 @@ protected:
   vtkFlyingEdges2D();
   ~vtkFlyingEdges2D();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   vtkContourValues *ContourValues;
 

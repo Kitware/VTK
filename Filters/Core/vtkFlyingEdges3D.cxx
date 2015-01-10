@@ -171,9 +171,9 @@ public:
     {
       if ( loc == Interior )
         {
-        g[0] = ( *(s+this->Inc0) - *(s-this->Inc0) / this->Spacing[0] );
-        g[1] = ( *(s+this->Inc1) - *(s-this->Inc1) / this->Spacing[1] );
-        g[2] = ( *(s+this->Inc2) - *(s-this->Inc2) / this->Spacing[2] );
+        g[0] = 0.5*( (*(s+this->Inc0) - *(s-this->Inc0)) / this->Spacing[0] );
+        g[1] = 0.5*( (*(s+this->Inc1) - *(s-this->Inc1)) / this->Spacing[1] );
+        g[2] = 0.5*( (*(s+this->Inc2) - *(s-this->Inc2)) / this->Spacing[2] );
         }
       else
         {
@@ -346,11 +346,16 @@ vtkFlyingEdges3DAlgorithm():XCases(NULL),EdgeMetaData(NULL),NewScalars(NULL),
             {
             edgeCase = this->EdgeCases[eCase];
             *edgeCase++ = numTris;
-            for ( edge = triCase->edges; edge[0] > -1; edge += 3 )
-              {// build new case table
-              *edgeCase++ = this->EdgeMap[edge[0]];
-              *edgeCase++ = this->EdgeMap[edge[1]];
-              *edgeCase++ = this->EdgeMap[edge[2]];
+            for ( edge = triCase->edges; edge[0] > -1; edge += 3, edgeCase+=3 )
+              {
+              // Build new case table. You're probably wondering why the
+              // crazy (0,2,1) edge order below. Simple: as originally
+              // presented the MC algorithm used a left-handed coordinate
+              // system, so we have to reverse the ordering of the triangle
+              // to make it consistent with any generated normals.
+              edgeCase[0] = this->EdgeMap[edge[0]];
+              edgeCase[2] = this->EdgeMap[edge[1]];
+              edgeCase[1] = this->EdgeMap[edge[2]];
               }
             }
           }//x-edges
@@ -477,7 +482,7 @@ ComputeBoundaryGradient(vtkIdType ijk[3], T *s, float g[3])
 
 //----------------------------------------------------------------------------
 // Interpolate a new point along a boundary edge. Make sure to consider
-// proximity to boundary when computing gradients, etc.
+// proximity to the boundary when computing gradients, etc.
 template <class T> void vtkFlyingEdges3DAlgorithm<T>::
 InterpolateEdge(double value, vtkIdType ijk[3], T *s, float x[3],
                 unsigned char edgeNum, unsigned char edgeUses[12],
@@ -549,34 +554,34 @@ GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3], T *sPtr,
 {
   // Create a slightly faster path for voxel axes interior to the volume.
   float g0[3], x1[3];
-  vtkIdType offset[3];
+  vtkIdType ijk1[3];
   if ( this->NeedGradients )
     {
     this->ComputeGradient(loc,ijk,sPtr,g0);
     }
   if ( edgeUses[0] ) //x axes edge
     {
-    x1[0] = x[0] + this->Spacing[0]; offset[0] = ijk[0] + 1;
-    x1[1] = x[1]; offset[1] = 0;
-    x1[2] = x[2]; offset[2] = 0;
+    x1[0] = x[0] + this->Spacing[0]; ijk1[0] = ijk[0] + 1;
+    x1[1] = x[1]; ijk1[1] = ijk[1];
+    x1[2] = x[2]; ijk1[2] = ijk[2];
     this->InterpolateAxesEdge(value, loc, sPtr, x, sPtr+this->Inc0,
-                              x1, eIds[0], offset, g0);
+                              x1, eIds[0], ijk1, g0);
     }
   if ( edgeUses[4] ) //y axes edge
     {
-    x1[0] = x[0]; offset[0] = 0;
-    x1[1] = x[1] + this->Spacing[1]; offset[1] = ijk[1] + 1;
-    x1[2] = x[2]; offset[2] = 0;
+    x1[0] = x[0]; ijk1[0] = ijk[0];
+    x1[1] = x[1] + this->Spacing[1]; ijk1[1] = ijk[1] + 1;
+    x1[2] = x[2]; ijk1[2] = ijk[2];
     this->InterpolateAxesEdge(value, loc, sPtr, x, sPtr+this->Inc1,
-                              x1, eIds[4], offset, g0);
+                              x1, eIds[4], ijk1, g0);
     }
   if ( edgeUses[8] ) //z axes edge
     {
-    x1[0] = x[0]; offset[0] = 0;
-    x1[1] = x[1]; offset[1] = 0;
-    x1[2] = x[2] + this->Spacing[2]; offset[2] = ijk[2] + 1;
+    x1[0] = x[0]; ijk1[0] = ijk[0];
+    x1[1] = x[1]; ijk1[1] = ijk[1];
+    x1[2] = x[2] + this->Spacing[2]; ijk1[2] = ijk[2] + 1;
     this->InterpolateAxesEdge(value, loc, sPtr, x, sPtr+this->Inc2,
-                              x1, eIds[8], offset, g0);
+                              x1, eIds[8], ijk1, g0);
     }
 
   // Otherwise do more general gyrations. These are boundary situations where
@@ -1191,11 +1196,13 @@ int vtkFlyingEdges3D::RequestData(
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
+    newNormals->SetName("Gradients");
     }
   if (this->ComputeGradients)
     {
     newGradients = vtkFloatArray::New();
     newGradients->SetNumberOfComponents(3);
+    newGradients->SetName("Gradients");
     }
 
   void *ptr = input->GetArrayPointerForExtent(inScalars, exExt);
