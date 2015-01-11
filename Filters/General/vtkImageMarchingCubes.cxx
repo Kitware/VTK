@@ -212,13 +212,11 @@ int vtkImageMarchingCubes::RequestData(
                 extent, 6);
     inputExec->Update();
 
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
     this->March(inData, chunkMin, chunkMax, numContours, values);
     if ( !this->AbortExecute )
       {
-      this->UpdateProgress(1.0);
+      this->UpdateProgress(static_cast<double>(chunkMax-zMin)/(zMax-zMin));
       }
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
     if (vtkDataObject::GetGlobalReleaseDataFlag() ||
         inInfo->Has(vtkStreamingDemandDrivenPipeline::RELEASE_DATA()))
@@ -604,7 +602,7 @@ void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
   ptr2 = (T *)(inData->GetScalarPointer(min0, min1, chunkMin));
   inData->GetIncrements(inc0, inc1, inc2);
 
-  // Setup the progress reporting
+  // Setup the abort interval
   target = (unsigned long)((max0-min0+1) * (max1-min1+1) / 50.0);
   ++target;
   count = 0;
@@ -615,10 +613,8 @@ void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
     ptr1 = ptr2;
     for (idx1 = min1; idx1 < max1; ++idx1)
       {
-      // update progress if necessary
       if (!(count%target))
         {
-        self->UpdateProgress(count/(50.0*target));
         if (self->GetAbortExecute())
           {
           return;
@@ -813,4 +809,3 @@ void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "InputMemoryLimit: " << this->InputMemoryLimit <<"K bytes\n";
 }
-
