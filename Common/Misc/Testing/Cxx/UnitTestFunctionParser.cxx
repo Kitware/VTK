@@ -681,13 +681,9 @@ int TestMiscFunctions()
     parser->SetFunction("x ^ y");
     double result = parser->GetScalarResult();
     double expected = std::pow(x, y);
-    // Use a relatively large tolerance, because vtkFunctionParser
-    // uses pow() which seems to give a slightly different answer from
-    // std::pow() on at least one platform (mingw gcc 4.5).  Old pow()
-    // implementations are known to have accuracy problems.
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
-          std::numeric_limits<double>::epsilon() * 32.0))
+          std::numeric_limits<double>::epsilon() * 1.0))
       {
       std::cout << "\n";
       std::cout <<  " pow Expected " << expected
@@ -719,16 +715,9 @@ int TestMiscFunctions()
     parser->SetFunction("x / y");
     double result = parser->GetScalarResult();
     double expected = x / y;
-    // A couple of old gcc dashboards seem to use extended precision for
-    // the division on the line above, but double precision for the
-    // division in vtkFunctionParser, and the difference in the result
-    // can be large if the denominator is small.  Therefore, the result
-    // will not be within epsilon, so instead we check that the relative
-    // error is comparable to that of the inputs.
-    double tolerance = std::numeric_limits<double>::epsilon() *
-      fabs(expected) * std::sqrt(1.0 / (x * x) + 1.0 / (y * y));
     if (!vtkMathUtilities::FuzzyCompare(
-          result, expected, tolerance))
+          result, expected,
+          std::numeric_limits<double>::epsilon() * 1.0))
       {
       std::cout << "\n";
       std::cout <<  " x / y Expected " << expected
