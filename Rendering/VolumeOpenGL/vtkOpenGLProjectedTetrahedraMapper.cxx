@@ -143,7 +143,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
       = (extensions->ExtensionSupported("GL_ARB_framebuffer_object") != 0)
       && (extensions->ExtensionSupported("GL_ARB_draw_buffers") != 0)
       && (extensions->ExtensionSupported("GL_ARB_texture_float") != 0);
-#ifdef NDEBUG
+#ifndef NDEBUG
     if (!this->CanDoFloatingPointFrameBuffer)
       {
       vtkWarningMacro(

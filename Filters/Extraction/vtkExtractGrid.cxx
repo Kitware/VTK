@@ -128,7 +128,7 @@ int vtkExtractGrid::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 0 : 1;
+  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------

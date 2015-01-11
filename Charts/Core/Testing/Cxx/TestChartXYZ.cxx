@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkAxis.h"
 #include "vtkChartXYZ.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
@@ -82,7 +83,6 @@ int TestChartXYZ(int , char * [])
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
-  table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {
     table->SetValue(i, 0, i * inc);
@@ -97,6 +97,10 @@ int TestChartXYZ(int , char * [])
   chart->AddPlot(plot.GetPointer());
   const vtkColor4ub axisColor(20, 200, 30);
   chart->SetAxisColor(axisColor);
+  chart->GetAxis(0)->SetUnscaledRange(-0.1,7.6);
+  chart->GetAxis(1)->SetUnscaledRange(-1.1,1.1);
+  chart->GetAxis(2)->SetUnscaledRange(-1.1,1.1);
+  chart->RecalculateTransform();
 
   // We want a duplicate, that does not move.
   vtkNew<vtkPlotPoints3D> plot2;

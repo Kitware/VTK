@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 ###############################################################################################################
 # This script will build and run the examples from a compressed file
 # Execute from a command line:

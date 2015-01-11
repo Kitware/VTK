@@ -136,7 +136,7 @@ set(_MPI_XL_Fortran_COMPILER_NAMES         mpixlf95   mpixlf95_r mpxlf95 mpxlf95
 # or if we know it matches the regular compiler.
 foreach (lang C CXX Fortran)
   foreach (id GNU Intel PGI XL)
-    if (NOT CMAKE_${lang}_COMPILER_ID OR "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "${id}")
+    if (NOT CMAKE_${lang}_COMPILER_ID OR CMAKE_${lang}_COMPILER_ID} STREQUAL id)
       list(APPEND _MPI_${lang}_COMPILER_NAMES ${_MPI_${id}_${lang}_COMPILER_NAMES})
     endif()
     unset(_MPI_${id}_${lang}_COMPILER_NAMES)    # clean up the namespace here
@@ -150,6 +150,11 @@ set(_MPI_EXEC_NAMES                        mpiexec mpirun lamexec srun)
 # Grab the path to MPI from the registry if we're on windows.
 set(_MPI_PREFIX_PATH)
 if(WIN32)
+  # MSMPI
+  list(APPEND _MPI_PREFIX_PATH "$ENV{MSMPI_BIN}")
+  list(APPEND _MPI_PREFIX_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\MPI;InstallRoot]/Bin")
+  list(APPEND _MPI_PREFIX_PATH "$ENV{MSMPI_INC}/..") # The SDK is installed separately from the runtime
+  # MPICH
   list(APPEND _MPI_PREFIX_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MPICH\\SMPD;binary]/..")
   list(APPEND _MPI_PREFIX_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MPICH2;Path]")
   list(APPEND _MPI_PREFIX_PATH "$ENV{ProgramW6432}/MPICH2/")
@@ -404,16 +409,18 @@ function (interrogate_mpi_compiler lang try_libs)
 
       # Decide between 32-bit and 64-bit libraries for Microsoft's MPI
       if("${CMAKE_SIZEOF_VOID_P}" EQUAL 8)
-        set(MS_MPI_ARCH_DIR amd64)
+        set(MS_MPI_ARCH_DIR x64)
+        set(MS_MPI_ARCH_DIR2 amd64)
       else()
-        set(MS_MPI_ARCH_DIR i386)
+        set(MS_MPI_ARCH_DIR x86)
+        set(MS_MPI_ARCH_DIR2 i386)
       endif()
 
       set(MPI_LIB "MPI_LIB-NOTFOUND" CACHE FILEPATH "Cleared" FORCE)
       find_library(MPI_LIB
         NAMES         mpi mpich mpich2 msmpi
         HINTS         ${_MPI_BASE_DIR} ${_MPI_PREFIX_PATH}
-        PATH_SUFFIXES lib lib/${MS_MPI_ARCH_DIR} Lib Lib/${MS_MPI_ARCH_DIR})
+        PATH_SUFFIXES lib lib/${MS_MPI_ARCH_DIR} Lib Lib/${MS_MPI_ARCH_DIR} Lib/${MS_MPI_ARCH_DIR2})
       set(MPI_LIBRARIES_WORK ${MPI_LIB})
 
       # Right now, we only know about the extra libs for C++.

@@ -79,6 +79,37 @@ public:
   virtual vtkPlot* GetPlot(vtkIdType index);
 
   // Description:
+  // Get the index of the specified plot, returns -1 if the plot does not
+  // belong to the chart.
+  virtual vtkIdType GetPlotIndex(vtkPlot*);
+
+  // Description:
+  // Raises the \a plot to the top of the plot's stack.
+  // \return The new index of the plot
+  // \sa StackPlotAbove(), LowerPlot(), StackPlotUnder()
+  vtkIdType RaisePlot(vtkPlot* plot);
+
+  // Description:
+  // Raises the \a plot above the \a under plot. If \a under is null,
+  // the plot is raised to the top of the plot's stack.
+  // \return The new index of the plot
+  // \sa RaisePlot(), LowerPlot(), StackPlotUnder()
+  virtual vtkIdType StackPlotAbove(vtkPlot* plot, vtkPlot* under);
+
+  // Description:
+  // Lowers the \a plot to the bottom of the plot's stack.
+  // \return The new index of the plot
+  // \sa StackPlotUnder(), RaisePlot(), StackPlotAbove()
+  vtkIdType LowerPlot(vtkPlot* plot);
+
+  // Description:
+  // Lowers the \a plot under the \a above plot. If \a above is null,
+  // the plot is lowered to the bottom of the plot's stack
+  // \return The new index of the plot
+  // \sa StackPlotUnder(), RaisePlot(), StackPlotAbove()
+  virtual vtkIdType StackPlotUnder(vtkPlot* plot, vtkPlot* above);
+
+  // Description:
   // Get the number of plots the chart contains.
   virtual vtkIdType GetNumberOfPlots();
 

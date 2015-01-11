@@ -15,6 +15,7 @@
 #include "vtkPExtractRectilinearGrid.h"
 
 // VTK includes
+#include "vtkStructuredExtent.h"
 #include "vtkExtractStructuredGridHelper.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkInformation.h"
@@ -123,6 +124,11 @@ int vtkPExtractRectilinearGrid::RequestData(
   int inputExtent[6];
   input->GetExtent(inputExtent);
 
+  // Clamp the global VOI to the whole extent:
+  int globalVOI[6];
+  std::copy(this->VOI, this->VOI + 6, globalVOI);
+  vtkStructuredExtent::Clamp(globalVOI, inputWholeExtent);
+
   // 1D Example:
   //   InputWholeExtent = [0, 20]
   //   GlobalVOI = [3, 17]
@@ -159,12 +165,12 @@ int vtkPExtractRectilinearGrid::RequestData(
   bool partitionContainsVOI = true;
   for (int dim = 0; partitionContainsVOI && dim < 3; ++dim)
     {
-    partitionContainsVOI = EMAX(inputExtent, dim) >= EMIN(this->VOI, dim) &&
-                           EMIN(inputExtent, dim) <= EMAX(this->VOI, dim);
+    partitionContainsVOI = EMAX(inputExtent, dim) >= EMIN(globalVOI, dim) &&
+                           EMIN(inputExtent, dim) <= EMAX(globalVOI, dim);
     }
 
   DEBUG_EXTENT("InputWholeExtent", inputWholeExtent);
-  DEBUG_EXTENT("GlobalVOI", this->VOI);
+  DEBUG_EXTENT("GlobalVOI", globalVOI);
   DEBUG_EXTENT("InputPartitionedExtent", inputExtent);
 
   int partitionedVOI[6] = {0, -1, 0, -1, 0, -1};
@@ -175,10 +181,9 @@ int vtkPExtractRectilinearGrid::RequestData(
     ////////////////////////////////////////////////////////////////
     // 1) Compute actual VOI for aligning the partitions outputs: //
     ////////////////////////////////////////////////////////////////
-    vtkExtractStructuredGridHelper::GetPartitionedVOI(this->VOI, inputExtent,
-                                                      this->SampleRate,
-                                                      this->IncludeBoundary,
-                                                      partitionedVOI);
+    vtkExtractStructuredGridHelper::GetPartitionedVOI(
+          globalVOI, inputExtent, this->SampleRate, this->IncludeBoundary != 0,
+          partitionedVOI);
 
 
     ////////////////////////////////////////////////////////////
@@ -195,8 +200,8 @@ int vtkPExtractRectilinearGrid::RequestData(
     ////////////////////////////////////////////////////////////////
 
     vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
-          this->VOI, partitionedVOI, outputWholeExtent, this->SampleRate,
-          this->IncludeBoundary, partitionedOutputExtent);
+          globalVOI, partitionedVOI, outputWholeExtent, this->SampleRate,
+          this->IncludeBoundary != 0, partitionedOutputExtent);
     output->SetExtent(partitionedOutputExtent);
     }
 

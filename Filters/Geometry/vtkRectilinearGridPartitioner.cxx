@@ -36,7 +36,7 @@ vtkRectilinearGridPartitioner::vtkRectilinearGridPartitioner()
 {
   this->NumberOfPartitions  = 2;
   this->NumberOfGhostLayers = 0;
-  this->DuplicateNodesOn();
+  this->DuplicateNodes = 1;
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }

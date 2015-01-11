@@ -109,7 +109,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
     length += std::sqrt(vtkMath::Distance2BetweenPoints(x, xm1));
     }
 
-  double epsilon = 4.0 * std::numeric_limits<double>::epsilon();
+  double tolerance = 4.0*std::numeric_limits<double>::epsilon();
   pspline->ParameterizeByLengthOff();
   for (int n = 0; n < npts; ++n)
     {
@@ -128,9 +128,9 @@ int TestSetPoints(vtkPoints *points, bool closed)
 
     double result[3];
     pspline->Evaluate(t, result, NULL);
-    if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], epsilon) ||
-        !vtkMathUtilities::FuzzyCompare(x[1], result[1], epsilon) ||
-        !vtkMathUtilities::FuzzyCompare(x[2], result[2], epsilon))
+    if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], tolerance) ||
+        !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
+        !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
       {
       std::cout << "TestSetPoints(by point id): Expected "
                 << x[0] << ", " << x[1] << ", " << x[2]
@@ -142,6 +142,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
     }
 
   // Test with externally created points
+  tolerance = 8.0*std::numeric_limits<double>::epsilon();
   pspline->SetPoints(points);
   pspline->ParameterizeByLengthOn();
   double totalLength = length;
@@ -161,9 +162,9 @@ int TestSetPoints(vtkPoints *points, bool closed)
 
     double result[3];
     pspline->Evaluate(t, result, NULL);
-    if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], epsilon) ||
-        !vtkMathUtilities::FuzzyCompare(x[1], result[1], epsilon) ||
-        !vtkMathUtilities::FuzzyCompare(x[2], result[2], epsilon))
+    if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], tolerance) ||
+        !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
+        !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
       {
       std::cout << "TestSetPoints(by length): Expected "
                 << x[0] << ", " << x[1] << ", " << x[2]

@@ -243,6 +243,31 @@ private:
 };
 
 //------------------------------------------------------------------------------
+inline void vtkStructuredData::GetCellDimensionsFromExtent(
+    int ext[6], int celldims[3], int)
+{
+  celldims[0] = vtkStructuredData::Max(ext[1] - ext[0], 0);
+  celldims[1] = vtkStructuredData::Max(ext[3] - ext[2], 0);
+  celldims[2] = vtkStructuredData::Max(ext[5] - ext[4], 0);
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::ComputePointId(int dims[3], int ijk[3], int)
+{
+  return vtkStructuredData::GetLinearIndex(ijk[0], ijk[1], ijk[2],
+                                           dims[0], dims[1]);
+}
+
+//------------------------------------------------------------------------------
+inline vtkIdType vtkStructuredData::ComputeCellId(int dims[3], int ijk[3], int)
+{
+  return vtkStructuredData::GetLinearIndex(
+        ijk[0], ijk[1], ijk[2],
+        vtkStructuredData::Max(dims[0] - 1, 1),
+        vtkStructuredData::Max(dims[1] - 1, 1));
+}
+
+//------------------------------------------------------------------------------
 inline vtkIdType vtkStructuredData::GetNumberOfPoints(int ext[6], int)
 {
   return static_cast<vtkIdType>(ext[1] - ext[0] + 1) *
@@ -288,15 +313,6 @@ inline void vtkStructuredData::GetDimensionsFromExtent(int ext[6], int dims[3],
   dims[0] = ext[1] - ext[0] + 1;
   dims[1] = ext[3] - ext[2] + 1;
   dims[2] = ext[5] - ext[4] + 1;
-}
-
-//------------------------------------------------------------------------------
-inline void vtkStructuredData::GetCellDimensionsFromExtent(
-    int ext[6], int celldims[3], int)
-{
-  celldims[0] = vtkStructuredData::Max(ext[1] - ext[0], 0);
-  celldims[1] = vtkStructuredData::Max(ext[3] - ext[2], 0);
-  celldims[2] = vtkStructuredData::Max(ext[5] - ext[4], 0);
 }
 
 //------------------------------------------------------------------------------
@@ -353,19 +369,12 @@ inline vtkIdType vtkStructuredData::ComputeCellIdForExtent(
 }
 
 //------------------------------------------------------------------------------
-inline vtkIdType vtkStructuredData::ComputePointId(int dims[3], int ijk[3], int)
+inline void vtkStructuredData::ComputeCellStructuredCoords(
+    const vtkIdType cellId, int dims[3], int ijk[3], int)
 {
-  return vtkStructuredData::GetLinearIndex(ijk[0], ijk[1], ijk[2],
-                                           dims[0], dims[1]);
-}
-
-//------------------------------------------------------------------------------
-inline vtkIdType vtkStructuredData::ComputeCellId(int dims[3], int ijk[3], int)
-{
-  return vtkStructuredData::GetLinearIndex(
-        ijk[0], ijk[1], ijk[2],
-        vtkStructuredData::Max(dims[0] - 1, 1),
-        vtkStructuredData::Max(dims[1] - 1, 1));
+  vtkStructuredData::GetStructuredCoordinates(cellId,
+                                              dims[0] - 1, dims[1] - 1,
+                                              ijk[0], ijk[1], ijk[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -382,11 +391,10 @@ inline void vtkStructuredData::ComputeCellStructuredCoordsForExtent(
 }
 
 //------------------------------------------------------------------------------
-inline void vtkStructuredData::ComputeCellStructuredCoords(
-    const vtkIdType cellId, int dims[3], int ijk[3], int)
+inline void vtkStructuredData::ComputePointStructuredCoords(
+    const vtkIdType ptId, int dim[3], int ijk[3], int)
 {
-  vtkStructuredData::GetStructuredCoordinates(cellId,
-                                              dims[0] - 1, dims[1] - 1,
+  vtkStructuredData::GetStructuredCoordinates(ptId, dim[0], dim[1],
                                               ijk[0], ijk[1], ijk[2]);
 }
 
@@ -401,14 +409,6 @@ inline void vtkStructuredData::ComputePointStructuredCoordsForExtent(
   vtkStructuredData::ComputePointStructuredCoords(ptId, nodeDims, lijk);
 
   vtkStructuredData::GetGlobalStructuredCoordinates(lijk, ext, ijk);
-}
-
-//------------------------------------------------------------------------------
-inline void vtkStructuredData::ComputePointStructuredCoords(
-    const vtkIdType ptId, int dim[3], int ijk[3], int)
-{
-  vtkStructuredData::GetStructuredCoordinates(ptId, dim[0], dim[1],
-                                              ijk[0], ijk[1], ijk[2]);
 }
 
 #endif
