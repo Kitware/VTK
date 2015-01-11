@@ -288,7 +288,7 @@ VertOffsets[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
 // vtkVoxel::Contour() method.
 template <class T> vtkFlyingEdges3DAlgorithm<T>::
 vtkFlyingEdges3DAlgorithm():XCases(NULL),EdgeMetaData(NULL),NewScalars(NULL),
-                            NewPoints(NULL),NewTris(NULL),NewGradients(NULL),
+                            NewTris(NULL),NewPoints(NULL),NewGradients(NULL),
                             NewNormals(NULL)
 {
   int i, j, k, l, ii, eCase, index, numTris;
