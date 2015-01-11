@@ -227,7 +227,7 @@ public:
   // Description:
   // This computes the size of the render window
   // before calling the supper classes render
-  void Render();
+  virtual void Render();
 
   // Description:
   // Render without displaying the window.
