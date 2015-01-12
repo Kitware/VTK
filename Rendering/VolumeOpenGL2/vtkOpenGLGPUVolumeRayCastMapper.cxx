@@ -629,7 +629,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       this->TextureSize[2],
       scalars->GetNumberOfComponents(),
       scalarType,
-      dataPtr, false);
+      dataPtr);
     this->VolumeTextureObject->Activate();
     this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
@@ -653,7 +653,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       this->TextureSize[2],
       scalars->GetNumberOfComponents(),
       scalarType,
-      0, false);
+      0);
     this->VolumeTextureObject->Activate();
     this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
