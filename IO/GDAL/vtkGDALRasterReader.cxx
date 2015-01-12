@@ -20,6 +20,7 @@
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
+#include <vtkGDAL.h>
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkIntArray.h>
@@ -29,6 +30,7 @@
 #include <vtkShortArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkStringArray.h>
 #include <vtkUniformGrid.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>
@@ -740,6 +742,16 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->Projection = projection;
   CPLFree(projection);
 
+  // Add the map-projection as field data
+  vtkSmartPointer<vtkStringArray> projectionData =
+    vtkSmartPointer<vtkStringArray>::New();
+  projectionData->SetName("MAP_PROJECTION");
+  projectionData->SetNumberOfComponents(1);
+  projectionData->SetNumberOfTuples(1);
+  projectionData->SetValue(0, this->Projection);
+  this->Implementation->UniformGridData->GetFieldData()->AddArray(
+    projectionData);
+
   // Check if file has been changed here.
   // If changed then throw the vtxId time and load a new one.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -881,6 +893,8 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
                this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
+  outInfo->Set(vtkGDAL::MAP_PROJECTION(),
+               this->Implementation->GDALData->GetProjectionRef());
 
   return 1;
 }
