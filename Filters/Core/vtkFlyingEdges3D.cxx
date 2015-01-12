@@ -26,6 +26,7 @@
 #include "vtkFloatArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMarchingCubesTriangleCases.h"
+#include "vtkSMPTools.h"
 
 #include <math.h>
 
@@ -895,6 +896,56 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
 }
 
 //----------------------------------------------------------------------------
+// Build threading integration with the SMPTools
+template <class T> class vtkFlyingEdges3DPass1
+  {
+  public:
+    vtkFlyingEdges3DAlgorithm<T> *Algo;
+    double Value;
+    vtkIdType Slice;
+    T *SlicePtr;
+    void  operator()(vtkIdType row, vtkIdType end)
+      {
+      T *rowPtr = this->SlicePtr + row*this->Algo->Inc1;
+      for ( ; row < end; ++row)
+        {
+        this->Algo->ProcessXEdge(this->Value, rowPtr, row, this->Slice);
+        rowPtr += this->Algo->Inc1;
+        }//for all rows in this batch
+      }
+  };
+template <class T> class vtkFlyingEdges3DPass2
+  {
+  public:
+    vtkFlyingEdges3DAlgorithm<T> *Algo;
+    vtkIdType Slice;
+    void  operator()(vtkIdType row, vtkIdType end)
+      {
+      for ( ; row < end; ++row)
+        {
+        this->Algo->ProcessYZEdges(row, this->Slice);
+        }//for all rows in this batch
+      }
+  };
+template <class T> class vtkFlyingEdges3DPass3
+  {
+  public:
+    vtkFlyingEdges3DAlgorithm<T> *Algo;
+    double Value;
+    vtkIdType Slice;
+    T *SlicePtr;
+    void  operator()(vtkIdType row, vtkIdType end)
+      {
+      T *rowPtr = this->SlicePtr + row*this->Algo->Inc1;
+      for ( ; row < end; ++row)
+        {
+        this->Algo->GenerateOutput(this->Value, rowPtr, row, this->Slice);
+        rowPtr += this->Algo->Inc1;
+        }//for all rows in this batch
+      }
+  };
+
+//----------------------------------------------------------------------------
 // Contouring filter specialized for 3D volumes. This templated function
 // interfaces the vtkFlyingEdges3D class with the templated algorithm
 // class. It also invokes the three passes of the Flying Edges algorithm.
@@ -906,7 +957,7 @@ void ContourImage(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
 {
   double value, *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
-  T *rowPtr, *slicePtr;
+  T *slicePtr;
   vtkIdType vidx, row, slice, *eMD, zInc;
   vtkIdType numOutXPts, numOutYPts, numOutZPts, numOutTris;
   vtkIdType numXPts=0, numYPts=0, numZPts=0, numTris=0;
@@ -952,28 +1003,26 @@ void ContourImage(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
     // intersections (i.e., accumulate information necessary for later output
     // memory allocation, e.g., the number of output points along the x-rows
     // are counted).
+    vtkFlyingEdges3DPass1<T> pass1;
+    pass1.Algo = &algo;
+    pass1.Value = value;
     for (slicePtr=scalars, slice=0; slice < algo.Dims[2]; ++slice)
       {
-      rowPtr = slicePtr;
-      for ( row=0; row < algo.Dims[1]; ++row)
-        {
-        algo.ProcessXEdge(value, rowPtr, row, slice);
-        rowPtr += algo.Inc1;
-        }//for all rows
+      pass1.Slice = slice;
+      pass1.SlicePtr = slicePtr;
+      vtkSMPTools::For(0,algo.Dims[1], pass1);
       slicePtr += algo.Inc2;
       }//for all slices
 
     // PASS 2: Traverse all voxel x-rows and process voxel y&z edges.  The
     // result is a count of the number of y- and z-intersections, as well as
     // the number of triangles generated along these voxel rows.
-    for (slicePtr=scalars, slice=0; slice < (algo.Dims[2]-1); ++slice)
+    vtkFlyingEdges3DPass2<T> pass2;
+    pass2.Algo = &algo;
+    for (slice=0; slice < (algo.Dims[2]-1); ++slice)
       {
-      rowPtr = slicePtr;
-      for ( row=0; row < (algo.Dims[1]-1); ++row)
-        {
-        algo.ProcessYZEdges(row, slice);
-        }//for all rows
-      slicePtr += algo.Inc2;
+      pass2.Slice = slice;
+      vtkSMPTools::For(0,algo.Dims[1]-1, pass2);
       }//for all slices
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -1032,6 +1081,9 @@ void ContourImage(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
     algo.NeedGradients = (algo.NewGradients || algo.NewNormals ? 1 : 0);
 
     // Process voxel rows and generate output
+    vtkFlyingEdges3DPass3<T> pass3;
+    pass3.Algo = &algo;
+    pass3.Value = value;
     vtkIdType *eMD0, *eMD1 = algo.EdgeMetaData;
     for (slicePtr=scalars, slice=0; slice < (algo.Dims[2]-1); ++slice)
       {
@@ -1040,12 +1092,9 @@ void ContourImage(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
       eMD1 = algo.EdgeMetaData + (slice+1)*6*algo.Dims[1];
       if ( eMD1[3] > eMD0[3] ) //there are triangle primitives!
         {
-        rowPtr = slicePtr;
-        for ( row=0; row < (algo.Dims[1]-1); ++row)
-          {
-          algo.GenerateOutput(value, rowPtr, row, slice);
-          rowPtr += algo.Inc1;
-          }//for all rows
+        pass3.SlicePtr = slicePtr;
+        pass3.Slice = slice;
+        vtkSMPTools::For(0,algo.Dims[1]-1, pass3);
         }//if data to generate
       slicePtr += algo.Inc2;
       }//for all slices

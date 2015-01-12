@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkFloatArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSMPTools.h"
 
 #include <math.h>
 
@@ -91,6 +92,7 @@ public:
   int Axis2;
 
   // Output data. Threads write to partitioned memory.
+  T         *Scalars;
   T         *NewScalars;
   vtkIdType *NewLines;
   float     *NewPoints;
@@ -216,8 +218,8 @@ EdgeCases[16][5] = {
 // Instantiate and initialize key data members. Mostly we build some
 // acceleration structures from the case table.
 template <class T> vtkFlyingEdges2DAlgorithm<T>::
-vtkFlyingEdges2DAlgorithm():XCases(NULL),EdgeMetaData(NULL),NewScalars(NULL),
-                            NewLines(NULL),NewPoints(NULL)
+vtkFlyingEdges2DAlgorithm():XCases(NULL),EdgeMetaData(NULL),Scalars(NULL),
+                            NewScalars(NULL),NewLines(NULL),NewPoints(NULL)
 {
   int j, eCase, numLines;
   const unsigned char *edgeCase;
@@ -577,6 +579,54 @@ unsigned long vtkFlyingEdges2D::GetMTime()
 }
 
 //----------------------------------------------------------------------------
+// Build threading integration with the SMPTools
+template <class T>
+class vtkFlyingEdgesPass1
+  {
+  public:
+    vtkFlyingEdges2DAlgorithm<T> *Algo;
+    double Value;
+    void  operator()(vtkIdType row, vtkIdType end)
+      {
+      T *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
+      for ( ; row < end; ++row)
+        {
+        this->Algo->ProcessXEdge(this->Value, rowPtr, row);
+        rowPtr += this->Algo->Inc1;
+        }//for all rows in this batch
+      }
+  };
+template <class T>
+class vtkFlyingEdgesPass2
+  {
+  public:
+    vtkFlyingEdges2DAlgorithm<T> *Algo;
+    void  operator()(vtkIdType row, vtkIdType end)
+      {
+      for ( ; row < end; ++row)
+        {
+        this->Algo->ProcessYEdges(row);
+        }//for all rows in this batch
+      }
+  };
+template <class T>
+class vtkFlyingEdgesPass3
+  {
+  public:
+    vtkFlyingEdges2DAlgorithm<T> *Algo;
+    double Value;
+    void  operator()(vtkIdType row, vtkIdType end)
+      {
+      T *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
+      for ( ; row < end; ++row)
+        {
+        this->Algo->GenerateOutput(this->Value, rowPtr, row);
+        rowPtr += this->Algo->Inc1;
+        }//for all rows in this batch
+      }
+  };
+
+//----------------------------------------------------------------------------
 // Contouring filter specialized for images. This templated function interfaces the
 // vtkFlyingEdges2D class with the templated algorithm class. It also invokes
 // the three passes of the Flying Edges algorithm.
@@ -586,7 +636,6 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
                      vtkDataArray *newScalars, vtkCellArray *newLines,
                      vtkImageData *input, int *updateExt)
 {
-  T *rowPtr;
   double value, *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   vtkIdType vidx, row, *eMD;
@@ -664,8 +713,9 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
 
   // Compute the starting location for scalar data.  We may be operating
   // on a part of the image.
-  scalars += incs[0]*(updateExt[0]-ext[0]) + incs[1]*(updateExt[2]-ext[2])
-    + incs[2]*(updateExt[4]-ext[4]) + self->GetArrayComponent();
+  algo.Scalars = scalars + incs[0]*(updateExt[0]-ext[0]) +
+    incs[1]*(updateExt[2]-ext[2]) + incs[2]*(updateExt[4]-ext[4]) +
+    self->GetArrayComponent();
 
   // The algorithm is separated into multiple passes. The first pass
   // computes intersections on row edges, counting the number of intersected edges
@@ -682,19 +732,17 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     // PASS 1: Traverse all rows generating intersection points and building
     // the case table. Also accumulate information necessary for later allocation.
     // For example the number of output points is computed.
-    for (rowPtr=scalars, row=0; row < algo.Dims[1]; ++row)
-      {
-      algo.ProcessXEdge(value, rowPtr, row);
-      rowPtr += algo.Inc1;
-      }//for all rows
+    vtkFlyingEdgesPass1<T> pass1;
+    pass1.Algo = &algo;
+    pass1.Value = value;
+    vtkSMPTools::For(0,algo.Dims[1], pass1);
 
     // PASS 2: Traverse all rows and process cell y edges. Continue building
     // case table from y contributions (using computational trimming to reduce
     // work) and keep track of cell y intersections.
-    for (row=0; row < (algo.Dims[1]-1); ++row)
-      {
-      algo.ProcessYEdges(row);
-      }//for all rows
+    vtkFlyingEdgesPass2<T> pass2;
+    pass2.Algo = &algo;
+    vtkSMPTools::For(0,algo.Dims[1]-1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
     // x-Edge meta data to partition the output into separate pieces so
@@ -731,11 +779,10 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
       }
 
     // Now process each x-row and produce the output primitives.
-    for (rowPtr=scalars, row=0; row < (algo.Dims[1]-1); ++row)
-      {
-      algo.GenerateOutput(value, rowPtr, row);
-      rowPtr += algo.Inc1;
-      }//for all rows
+    vtkFlyingEdgesPass3<T> pass3;
+    pass3.Algo = &algo;
+    pass3.Value = value;
+    vtkSMPTools::For(0,algo.Dims[1]-1, pass3);
 
     // Handle multiple contours
     startXPts = numOutXPts;
