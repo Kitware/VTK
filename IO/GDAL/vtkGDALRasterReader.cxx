@@ -430,9 +430,6 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
                          (d[5]-d[1])/this->Reader->RasterDimensions[1],
                          1};
-  // TODO: This may not be right but negative spacign is not desired.
-  if(geoSpacing[0] < 0) geoSpacing[0] = -geoSpacing[0];
-  if(geoSpacing[1] < 0) geoSpacing[1] = -geoSpacing[1];
 
   // Set meta data on the image
   this->UniformGridData->SetExtent(0, (destWidth - 1), 0, (destHeight - 1), 0, 0);
@@ -864,16 +861,21 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   this->DataExtent[4] = 0;
   this->DataExtent[5] = 0;
 
-  this->DataSpacing[0] =
-    static_cast<double>(this->Implementation->SourceDimensions[0]) /
-    this->TargetDimensions[0];
-  this->DataSpacing[1] =
-    static_cast<double>(this->Implementation->SourceDimensions[1]) /
-    this->TargetDimensions[1];
-  this->DataSpacing[2] = 1.0;
-
-  this->DataOrigin[0] = this->DataExtent[0];
-  this->DataOrigin[1] = this->DataExtent[2];
+  double geoTransform[6] = {};
+  if (this->Implementation->GDALData->GetGeoTransform(geoTransform) == CE_None)
+    {
+    this->DataOrigin[0] = geoTransform[0];
+    this->DataOrigin[1] = geoTransform[3];
+    this->DataOrigin[2] = 0.0;
+    this->DataSpacing[0] = geoTransform[1];
+    this->DataSpacing[1] = geoTransform[5];
+    this->DataSpacing[2] = 0.0;
+    }
+  else
+    {
+    vtkErrorMacro("Cannot read GeoTransform from input");
+    return 0;
+    }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
